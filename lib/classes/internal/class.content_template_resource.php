@@ -36,9 +36,9 @@ use const __CMS_PREVIEW_PAGE__;
 class content_template_resource extends Smarty_Resource_Custom //fixed_smarty_custom_resource
 {
     /**
-     * @param string  $name    template name
-     * @param string  &$source template source
-     * @param int     &$mtime  template modification timestamp
+     * @param string  $name    template identifier
+     * @param string  &$source store for retrieved template content, if any
+     * @param int     &$mtime  store for retrieved template modification timestamp
      */
     protected function fetch($name,&$source,&$mtime)
     {
@@ -49,9 +49,8 @@ class content_template_resource extends Smarty_Resource_Custom //fixed_smarty_cu
             // We've a custom error message...  return it here
             header('HTTP/1.0 404 Not Found');
             header('Status: 404 Not Found');
-            $source = null;
-            if ($name == 'content_en') $source = cms_siteprefs::get('custom404');
-            $source = trim($source);
+            if ($name == 'content_en') $source = trim(cms_siteprefs::get('custom404'));
+			else $source = '';
             return;
         }
         else if( isset($_SESSION['__cms_preview_']) && $contentobj->Id() == __CMS_PREVIEW_PAGE__ ) {
@@ -70,7 +69,6 @@ class content_template_resource extends Smarty_Resource_Custom //fixed_smarty_cu
             $source = trim($source);
             return;
         }
-        $source = '';
-        $mtime = 0;
+        $mtime = false;
     }
 } // class
