@@ -50,7 +50,7 @@ final class Utils
 		}
 		catch( CmsDataNotFoundException $e ) {
 			$type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
-			$list = TemplateOperations::load_all_by_type($type);
+			$list = TemplateOperations::load_all_templates_by_type($type);
 			$tpl = $list[0];
 			$tpl_id = $tpl->get_id();
 		}

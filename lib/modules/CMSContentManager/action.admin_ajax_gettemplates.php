@@ -59,7 +59,7 @@ try {
 
         case 'allpage':
             $type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
-            $template_list = TemplateOperations::load_all_by_type($type);
+            $template_list = TemplateOperations::load_all_templates_by_type($type);
             $out = [];
             foreach( $template_list as $one ) {
                 if( !$one->get_listable() ) continue;

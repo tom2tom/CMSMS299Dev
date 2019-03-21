@@ -563,7 +563,7 @@ WHERE id = ?';
 	 */
 	public function get_template_list()
 	{
-		return TemplateOperations::load_all_by_type($this);
+		return TemplateOperations::load_all_templates_by_type($this);
 	}
 
 	/**
