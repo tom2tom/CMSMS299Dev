@@ -306,7 +306,7 @@ class Smarty extends SmartyParent
         // walk plugin dirs to try to find a match
         $base = $type.'.'.$name.'.php';
         $basef = $type.'_'.$name;
-        foreach ($this->getPluginsDir() as $dir) {
+        foreach( $this->getPluginsDir() as $dir ) {
             $file = $dir.$base;
             if( !is_file($file) ) continue;
 
@@ -350,9 +350,9 @@ class Smarty extends SmartyParent
      */
     public function createTemplate($template, $cache_id = null, $compile_id = null, $parent = null, $do_clone = true)
     {
-        if( !(startswith($template,'eval:') || startswith($template,'string:') || startswith($template,'cmsfile:')) ) {
-            if( ($pos = strpos($template,'*')) > 0 ) throw new LogicException("$template is an invalid CMSMS resource specification");
-            if( ($pos = strpos($template,'/')) > 0 ) throw new LogicException("$template is an invalid CMSMS resource specification");
+        if( !(startswith($template,'eval:') || startswith($template,'string:') || startswith($template,'cms_file:')) ) {
+            if( (strpos($template,'*')) > 0 ) throw new LogicException("$template is not a valid smarty resource in CMSMS");
+            if( (strpos($template,'/')) > 0 ) throw new LogicException("$template is not a valid smarty resource in CMSMS");
         }
         return parent::createTemplate($template, $cache_id, $compile_id, $parent, $do_clone );
     }
