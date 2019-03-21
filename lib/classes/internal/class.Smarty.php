@@ -21,7 +21,12 @@ namespace CMSMS\internal;
 use cms_config;
 use cms_siteprefs;
 use CmsApp;
-use CMSMS\internal\ModulePluginOperations;
+use CMSMS\internal\content_template_resource;
+use CMSMS\internal\file_template_resource;
+use CMSMS\internal\layout_stylesheet_resource;
+use CMSMS\internal\layout_template_resource;
+use CMSMS\internal\module_db_template_resource;
+use CMSMS\internal\module_file_template_resource;
 use CMSMS\UserPluginOperations;
 use Exception;
 use LogicException;
@@ -50,6 +55,9 @@ require_once CMS_ROOT_PATH.'/lib/smarty/SmartyBC.class.php'; //deprecated - supp
  */
 class Smarty extends SmartyParent
 {
+	/**
+	 * @ignore
+	 */
     private static $_instance = null;
 
     /**
@@ -142,7 +150,7 @@ class Smarty extends SmartyParent
             // Autoload filters
             $this->autoloadFilters();
 
-	        $config = cms_config::get_instance();
+            $config = cms_config::get_instance();
             if( !$config['permissive_smarty'] ) {
                 // Apply our security object
                 $this->enableSecurity('\\CMSMS\\internal\\smarty_security_policy');
