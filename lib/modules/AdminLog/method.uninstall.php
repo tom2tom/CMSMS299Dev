@@ -23,7 +23,7 @@ use CMSMS\Database\DataDictionary;
 if (!isset($gCms)) exit;
 $dict = new DataDictionary($db);
 
-$sqlarr = $dict->DropTableSQL( storage::TABLENAME );
+$sqlarr = $dict->DropTableSQL( CMS_DB_PREFIX.storage::TABLENAME );
 $dict->ExecuteSQLArray( $sqlarr );
 
 $this->RemovePermission('View Admin Log');

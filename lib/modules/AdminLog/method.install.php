@@ -37,7 +37,7 @@ subject C(255),
 msg X NOTNULL,
 item_id I
 ';
-$sqlarr = $dict->CreateTableSQL(storage::TABLENAME, $flds, $taboptarray);
+$sqlarr = $dict->CreateTableSQL(CMS_DB_PREFIX.storage::TABLENAME, $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarr);
 
 $this->CreatePermission('View Admin Log', 'View Admin Log');

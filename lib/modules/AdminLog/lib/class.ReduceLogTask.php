@@ -16,7 +16,7 @@ final class ReduceLogTask implements CmsRegularTask
     public function get_description() { return ''; }
 
     public function test($time = '')
-	{
+    {
         // do we need to do this task.
         // we do it every 3 hours
         if (!$time) $time = time();
@@ -24,7 +24,7 @@ final class ReduceLogTask implements CmsRegularTask
         return ($last_execute < ($time - 3 * 3600)); // hardcoded
     }
 
-    protected function table() { return storage::TABLENAME; }
+    protected function table() { return CMS_DB_PREFIX.storage::TABLENAME; }
     protected function queue_for_deletion($row) { $this->_queue[] = $row; }
     protected function have_queued() { return (count($this->_queue) > 1); }
 
@@ -47,7 +47,7 @@ final class ReduceLogTask implements CmsRegularTask
     }
 
     protected function adjust_last()
-	{
+    {
         if( !$this->have_queued() ) return;
 
         $n = count($this->_queue);

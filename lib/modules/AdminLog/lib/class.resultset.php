@@ -25,7 +25,7 @@ class resultset extends CmsDbQueryBase
         if( $this->_rs ) return;
         $filter = $this->_args;
 
-        $sql = 'SELECT * FROM '.storage::TABLENAME;
+        $sql = 'SELECT * FROM '.CMS_DB_PREFIX.storage::TABLENAME;
         $where = $parms = [];
         $severity = $filter->severity;
         if( !is_null($severity) && $severity > -1 ) {
