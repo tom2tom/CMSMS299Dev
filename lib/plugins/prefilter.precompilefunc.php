@@ -36,6 +36,7 @@ function smarty_prefilter_precompilefunc($tpl_output, $smarty)
 			break;
 
 		case 'cms_template':
+		case 'cms_file':
 		case 'tpl_top':
 		case 'tpl_body':
 		case 'tpl_head':

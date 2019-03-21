@@ -34,6 +34,7 @@ function smarty_postfilter_postcompilefunc($tpl_output, $smarty)
 			break;
 
 		case 'cms_template':
+		case 'cms_file':
 		case 'template':
 		case 'tpl_top':
 		case 'tpl_body':
