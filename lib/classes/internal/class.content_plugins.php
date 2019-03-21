@@ -95,10 +95,10 @@ final class content_plugins
                     // note: content precompile/postcompile events will not be triggererd in preview.
 //                  $val = $contentobj->Show($block);
 //                  $result = $smarty->fetch('eval:'.$val);
-                    $result = $smarty->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $contentobj->Id().$block);
+                    $result = $smarty->fetch('content:'.strtr($block,' ','_'), '|'.$block, $contentobj->Id().$block);
                 }
                 else {
-                    $result = $smarty->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $contentobj->Id().$block);
+                    $result = $smarty->fetch('content:'.strtr($block,' ','_'), '|'.$block, $contentobj->Id().$block);
                 }
             }
         }
@@ -149,7 +149,7 @@ final class content_plugins
 
         $result = '';
         if( isset($params['block']) ) {
-            $result = $template->fetch(str_replace(' ', '_', 'content:' . $params['block']), '|'.$params['block'], $contentobj->Id().$params['block']);
+            $result = $template->fetch('content:'.strtr($params['block'],' ', '_'), '|'.$params['block'], $contentobj->Id().$params['block']);
         }
         $img = $result;
 
@@ -279,8 +279,7 @@ final class content_plugins
             ob_end_clean();
         }
         else {
-            $block = 'content_en';
-            $result = $smarty->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $page_id.$block);
+            $result = $smarty->fetch('content:content_en', '|content_en', $page_id.'content_en');
         }
         self::$_primary_content = $result;
         return $result;
