@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\TemplateOperations;
+
 final class DesignManager extends CMSModule
 {
     public function GetFriendlyName()  { return $this->Lang('friendlyname'); }

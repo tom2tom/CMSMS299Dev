@@ -1,5 +1,6 @@
 <?php
 
+use CMSMS\TemplateOperations;
 use News\Ops;
 
 if (!isset($gCms)) exit;

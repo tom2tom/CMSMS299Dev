@@ -1,6 +1,7 @@
 <?php
 
 use CMSMS\Events;
+use CMSMS\TemplateOperations;
 use Search\ItemCollection;
 
 if (!isset($gCms)) exit;

@@ -17,6 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\ContentOperations;
+use CMSMS\TemplateOperations;
 use Navigator\utils;
 
 if( !defined('CMS_VERSION') ) exit;

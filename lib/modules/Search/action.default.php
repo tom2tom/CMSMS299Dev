@@ -1,4 +1,7 @@
 <?php
+
+use CMSMS\TemplateOperations;
+
 if (!isset($gCms)) exit;
 
 $template = null;

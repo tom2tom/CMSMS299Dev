@@ -19,6 +19,7 @@
 use CMSMS\CmsLockException;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
+use CMSMS\TemplateOperations;
 use DesignManager\utils;
 
 if (!isset($gCms)) exit;

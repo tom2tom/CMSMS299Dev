@@ -20,10 +20,11 @@ This file is used during site installation (among other uses).
 So API's, classes, methods, globals etc must be valid during installation
 as well as normal operation.
 */
+//install-only methods - admin export ok?
 
 use CMSMS\Database\Connection;
 use CMSMS\StylesheetOperations;
-//install-only methods - admin export ok?
+use CMSMS\TemplateOperations;
 use function cms_installer\lang;
 
 const CONTENT_DTD_VERSION = '0.7';

@@ -2,6 +2,8 @@
 
 use cms_siteprefs;
 use CMSMS\Group;
+use CMSMS\StylesheetOperations;
+use CMSMS\TemplateOperations;
 use CMSMS\UserPluginOperations;
 use function cms_installer\endswith;
 use function cms_installer\joinpath;

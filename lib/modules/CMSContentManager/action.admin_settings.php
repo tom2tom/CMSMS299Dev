@@ -19,6 +19,7 @@
 use CMSContentManager\Utils;
 use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
+use CMSMS\TemplateOperations;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return;

@@ -5,10 +5,12 @@
  */
 namespace CMSMS\internal;
 
+use CMSMS\Layout\TemplateTypeAssistant;
+
 /**
  * @since 2.2
  */
-class __CORE__generic_Type_Assistant extends \CMSMS\Layout\TemplateTypeAssistant
+class __CORE__generic_Type_Assistant extends TemplateTypeAssistant
 {
     public function &get_type()
     {

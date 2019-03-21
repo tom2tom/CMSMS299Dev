@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\TemplateOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) return;
 if( isset($params['allparms']) ) $params = array_merge($params,unserialize(base64_decode($params['allparms'])));

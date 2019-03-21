@@ -17,6 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\ContentOperations;
+use CMSMS\TemplateOperations;
 
 if( !isset($gCms) ) exit;
 $this->SetCurrentTab('pages');

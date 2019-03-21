@@ -3,7 +3,7 @@
 namespace AdminSearch;
 
 use cms_utils;
-use CmsLayoutTemplate;
+use CMSMS\TemplateOperations;
 use const CMS_DB_PREFIX;
 use function check_permission;
 use function cms_htmlentities;

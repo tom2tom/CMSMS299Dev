@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\TemplateOperations;
+
 //see also: class CmsLayoutTemplateQuery which (for now at least) this replicates
 
 $tbl1 = CMS_DB_PREFIX.TemplateOperations::TABLENAME;

@@ -25,7 +25,6 @@ use CmsLayoutTemplate;
 use CmsLayoutTemplateCategory;
 use CmsLayoutTemplateQuery;
 use CmsLayoutTemplateType;
-use CmsLogicException;
 use CMSMS\AdminUtils;
 use CMSMS\Events;
 use CMSMS\internal\global_cache;
@@ -34,7 +33,6 @@ use CMSMS\UserOperations;
 use CmsSQLErrorException;
 use const CMS_DB_PREFIX;
 use function audit;
-use function cms_warning;
 use function cmsms;
 use function endswith;
 use function get_userid;
@@ -61,21 +59,65 @@ class TemplateOperations
     */
     const ADDUSERSTABLE = 'layout_tpl_addusers';
 
-    protected static $names_map = []; //TODO populate this: all templates' name=>id
+    protected static $identifiers;
 
     /**
      * @ignore
      */
     protected function resolve_user($a)
     {
-        if( is_numeric($a) && $a > 0 ) return $a;
-        if( is_string($a) && strlen($a) ) {
-            $ops = cmsms()->GetUserOperations();
-            $ob = $ops->LoadUserByUsername($a);
-            if( $ob instanceof User ) return $ob->id;
+        if( is_numeric($a) && $a >= 1 ) return (int)$a;
+        if( is_string($a) ) {
+			$a = trim($a);
+			if ($a !== '') {
+				$ops = cmsms()->GetUserOperations();
+				$ob = $ops->LoadUserByUsername($a);
+				if( $ob instanceof User ) return $ob->id;
+			}
         }
         if( $a instanceof User ) return $a->id;
-        throw new CmsLogicException('Could not resolve '.$a.' to a user id');
+        throw new CmsInvalidDataException('Could not resolve '.$a.' to a user id');
+    }
+
+    /**
+     * @ignore
+     */
+    protected static function resolve_template($a)
+    {
+        if( is_numeric($a) && $a >= 1 ) return (int)$a;
+        if( is_string($a) ) {
+			$a = trim($a);
+			if ($a !== '') {
+				if( !isset(self::$identifiers) ) {
+					$db = CmsApp::get_instance()->GetDb();
+					$sql = 'SELECT id,originator,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY id';
+					self::$identifiers = $db->GetAssoc($sql);
+				}
+				$parts = explode('::',$a);
+				if( $parts[1] ) {
+					foreach( self::$identifiers as $id => &$row ) {
+						if( strcasecmp($row['name'],$parts[1]) == 0 && $row['originator'] == $parts[0] ) {
+							unset($row);
+							return $id;
+						}
+					}
+				}
+				else {
+					foreach( self::$identifiers as $id => &$row ) {
+						//aka CmsLayoutTemplateType::CORE
+						if( strcasecmp($row['name'],$a) == 0 && ($row['originator'] == '__CORE__' || $row['originator'] == '') ) {
+							unset($row);
+							return $id;
+						}
+					}
+				}
+				unset($row);
+			}
+			else {
+				$a = '<missing name>';
+			}
+        }
+        throw new CmsInvalidDataException('Could not resolve '.$a.' to a template id');
     }
 
     /**
@@ -301,7 +343,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         audit($new_id,'CMSMS','Template '.$tpl->get_name().' Created');
         // return a fresh instance of the object (e.g. to pass to event handlers ??)
         $row = $tpl->_get_array();
-        $tpl = $this->_load_from_data($row,$designs,$editors,$categories);
+        $tpl = self::load_from_data($row,$editors,$designs,$categories);
         return $tpl;
     }
 
@@ -353,18 +395,8 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         global_cache::clear('LayoutTemplates');
     }
 
-   /**
-    * Create a new template object and record it in the caches
-    * @internal
-    * @param
-    * @param
-    * @param
-    * @param
-    * @returns CmsLayoutTemplate
-    */
-    protected function _load_from_data(array $row, array $design_list = [], array $editors_list = [], array $cats_list = []) : CmsLayoutTemplate
+    public static function populate_template(CmsLayoutTemplate $tpl, $data)
     {
-        $tpl = new CmsLayoutTemplate();
         $tpl->_data = $row; //TODO impossible
         $fn = $tpl->get_content_filename(); //CHECKME path
         if( is_file($fn) && is_readable($fn) ) {
@@ -374,44 +406,45 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         $tpl->_TODO = $editors_list; //TODO impossible
         $tpl->_in_designs = $design_list;
         $tpl->_TODO = $cats_list;
+    }
 
+   /**
+    * Create a new template object and record it in the caches
+    * @internal
+    * @param
+    * @param
+    * @param
+    * @param
+    * @returns CmsLayoutTemplate
+    */
+    protected static function load_from_data(array $row, array $editors_list = [], array $design_list = [], array $cats_list = []) : CmsLayoutTemplate
+    {
+        $tpl = new CmsLayoutTemplate();
+/*
+
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'layout_design_tplassoc WHERE tpl_id=? ORDER BY id';
+        $designs = $db->GetCol($sql,[ $id ]);
+
+        $sql = 'SELECT user_id FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id=? ORDER BY user_id';
+        $editors = $db->GetCol($sql,[ $id ]);
+
+        $sql = 'SELECT category_id FROM '.CMS_DB_PREFIX.'layout_cat_tplassoc WHERE tpl_id=? ORDER BY category_id';
+        $categories = $db->GetCol($sql,[ $id ]);
+
+EDITORS
+			$sql = 'SELECT user_id FROM '.CMS_DB_PREFIX.TemplateOperations::ADDUSERSTABLE.' WHERE tpl_id = ? ORDER BY X';
+			$col = $db->GetCol($sql,[ $tpl->get_id() ]);
+DESIGNS
+            $sql = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE tpl_id = ? ORDER BY X';
+            $col = $db->GetCol($sql,[ (int)$this->get_id() ]);
+CATS
+            $sql = 'SELECT category_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' WHERE tpl_id = ? ORDER BY X';
+            $col = $db->GetCol($sql,[ (int)$this->get_id() ]);
+*/
+		self::populate_template($tpl, $data);
         return $tpl;
     }
 
-
-/*
-EDITORS
-        if( is_null($this->_addt_editors) ) {
-            if( $this->get_id() ) {
-                $db = CmsApp::get_instance()->GetDb();
-                $sql = 'SELECT user_id FROM '.CMS_DB_PREFIX.TemplateOperations::ADDUSERSTABLE.' WHERE tpl_id = ?';
-                $col = $db->GetCol($sql,[ $this->get_id() ]);
-                if( $col ) $this->_addt_editors = $col;
-                else $this->_addt_editors = [];
-            }
-        }
-
-CATS
-        if( !is_array($this->_cat_assoc) ) {
-            if( !$this->get_id() ) return [];
-            $db = CmsApp::get_instance()->GetDb();
-            $sql = 'SELECT category_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' WHERE tpl_id = ? ORDER BY tpl_order';
-            $tmp = $db->GetCol($sql,[ (int)$this->get_id() ]);
-            if( $tmp ) $this->_cat_assoc = $tmp;
-            else $this->_cat_assoc = [];
-        }
-
-DESIGNS
-        if( !is_array($this->_design_assoc) ) {
-            if( !$this->get_id() ) return [];
-            $db = CmsApp::get_instance()->GetDb();
-            $sql = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE tpl_id = ?';
-            $tmp = $db->GetCol($sql,[ (int)$this->get_id() ]);
-            if( $tmp ) $this->_design_assoc = $tmp;
-            else $this->_design_assoc = [];
-
-        }
-*/
     /**
      * [Re]set all properties of an existing template object, using values from another template
      *
@@ -420,51 +453,34 @@ DESIGNS
      * @param mixed $a  The id or name of the template from which to source the replacement properties
      * @return bool indicating success
      */
-    public function populate_template(CmsLayoutTemplate $tpl, $a)
+    public function replicate_template(CmsLayoutTemplate $tpl, $a)
     {
+		$data = null; //todo self::resolve_template($a), get its properties
+		if( $data ) {
+			$this->populate_template($tpl, $data);
+	        return true;
+		}
         return false;
     }
 
     /**
      * Load a specific template
      *
-     * @param mixed $a  The template id or name of the wanted template
+     * @param mixed $a  The template id or name (possibly as originator::name) of the wanted template
      * @return mixed CmsLayoutTemplate|null
      * @throws CmsDataNotFoundException
      */
     public static function load_template($a)
     {
-        if( is_numeric($a) && $a > 0 ) {
-            $id = $a;
-        }
-        else if( is_string($a) && strlen($a) > 0 ) {
-			if( empty(self::$names_map) ) {
-		        $db = CmsApp::get_instance()->GetDb();
-		        $sql = 'SELECT name,id FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY name';
-				self::$names_map = $db->GetAssoc($sql);
-			}
-            $id = self::$names_map[$a] ?? false;
-            if( !$id ) {
-                cms_warning('Could not find a template identified as '.$a);
-                return;
-            }
-        }
+		$id = self::resolve_template($a);
 
-        if( !isset($db) ) $db = CmsApp::get_instance()->GetDb();
-        $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
+        $db = CmsApp::get_instance()->GetDb();
+        $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id=?';
         $row = $db->GetRow($sql,[ $id ]);
-        if( !$row ) return; // not found
-
-        $sql = 'SELECT * FROM '.$this->design_assoc_table_name().' WHERE tpl_id = ?';
-        $designs = $db->GetArray($sql,[ $id ]);
-
-        $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id = ?';
-        $editors = $db->GetArray($sql,[ $id ]);
-
-        return $this->_load_from_data($row,$designs,$editors,$categories); //WANT categories
+        if( $row ) return self::load_from_data($row);
     }
 
-    protected function get_tpl_editors(int $id, array $all) : array
+    protected function filter_tpl_editors(int $id, array $all) : array
     {
         $out = [];
         foreach( $all as $row ) {
@@ -473,7 +489,7 @@ DESIGNS
         return $out;
     }
 
-    protected function get_tpl_designs(int $id, array $all) : array
+    protected function filter_tpl_designs(int $id, array $all) : array
     {
         $out = [];
         foreach( $all as $row ) {
@@ -482,7 +498,7 @@ DESIGNS
         return $out;
     }
 
-    protected function get_tpl_categories(int $id, array $all) : array
+    protected function filter_tpl_categories(int $id, array $all) : array
     {
         $out = [];
         foreach( $all as $row ) {
@@ -508,11 +524,11 @@ DESIGNS
         $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.$str.')';
         $rows = $db->GetArray($sql);
         if( $rows ) {
-            $sql = 'SELECT * FROM '.$this->design_assoc_table_name().' WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
-            $alldesigns = $db->GetArray($sql);
-
             $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
             $alleditors = $db->GetArray($sql);
+
+            $sql = 'SELECT * FROM '.CMS_DB_PREFIX.'layout_design_tplassoc WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
+            $alldesigns = $db->GetArray($sql);
 
             $sql = 'SELECT * FROM '.CMS_DB_PREFIX.'layout_cat_tplassoc WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
             $allcategories = $db->GetArray($sql);
@@ -520,10 +536,10 @@ DESIGNS
             // put it all together, into object(s)
             foreach( $rows as $row ) {
                 $id = $row['id'];
-                $designs = $this->get_tpl_designs($id,$alldesigns);
-                $editors = $this->get_tpl_editors($id,$alleditors);
-                $categories = $this->get_tpl_categories($id,$allcategories);
-                $out[] = $this->_load_from_data($row,$designs,$editors,$categories);
+                $editors = $this->filter_tpl_editors($id,$alleditors);
+                $designs = $this->filter_tpl_designs($id,$alldesigns);
+                $categories = $this->filter_tpl_categories($id,$allcategories);
+                $out[] = self::load_from_data($row,$editors,$designs,$categories);
             }
         }
         return $out;
@@ -535,7 +551,7 @@ DESIGNS
      * @param CmsLayoutTemplateType $type
      * @return mixed CmsLayoutTemplate[] | null
      */
-    public function load_templates_by_type(CmsLayoutTemplateType $type)
+    public static function load_templates_by_type(CmsLayoutTemplateType $type)
     {
         $db = CmsApp::get_instance()->GetDb();
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_id=?';
@@ -598,13 +614,15 @@ DESIGNS
     }
 
     /**
-     * Given a template type, get all templates
+     * Load all templates of a specific type
      *
      * @param CmsLayoutTemplateType $type
      * @return mixed CmsLayoutTemplate[]|null
+     * @throws CmsDataNotFoundException
      */
     public function load_all_templates_by_type(CmsLayoutTemplateType $type)
     {
+        $db = CmsApp::get_instance()->GetDb();
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_id=?';
         $list = $db->GetCol($sql,[ $type->get_id() ]);
         if( $list ) {
@@ -613,42 +631,47 @@ DESIGNS
     }
 
     /**
-     * Load the default template of a specified type
+     * Load the default template of the specified type
      *
-     * @param mixed $t A type name, a type id, or a CmsLayoutTemplateType object
+     * @param mixed $a  a template-type name (possibly like originator::name), or
+	 * a (numeric) template-type id, or a CmsLayoutTemplateType object
      * @return mixed CmsLayoutTemplate | null
      * @throws CmsInvalidDataException
      * @throws CmsDataNotFoundException
      */
-    public function load_default_template_by_type($t)
+    public static function load_default_template_by_type($a)
     {
-        if( is_int($t) || is_string($t) ) {
-            $t2 = self::load_template($t);
+        if( is_numeric($a) ){
+			$tid = (int)$a;
+		}
+		elseif( is_string($a) ) {
+			$db = CmsApp::get_instance()->GetDb();
+			$parts = explode('::',$a);
+			if( count($parts) == 1 ) {
+				$sql = 'SELECT id FROM '.CMS_DB_PREFIX."layout_tpl_type WHERE name=? AND (originator='__CORE__' OR originator='' OR originator IS NULL)";
+				$tid = $db->GetOne($sql,[ $a ]);
+			}
+			else {
+				$sql = 'SELECT id FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE name=? AND originator=?';
+				$tid = $db->GetOne($sql,[ $parts[1],$parts[0] ]);
+			}
         }
-        else if( $t instanceof CmsLayoutTemplateType ) {
-            $t2 = $t;
+        elseif( $a instanceof CmsLayoutTemplateType ) {
+            $tid = $a->get_id();
         }
         else {
-            $t2 = null;
+            $tid = null;
         }
 
-        if( !$t2 ) throw new CmsInvalidDataException('Invalid data passed to '.__METHOD__);
+        if( !$tid ) throw new CmsInvalidDataException('Invalid data passed to '.__METHOD__);
 
-        $db = CmsApp::get_instance()->GetDb();
+        if( !isset($db) ) $db = CmsApp::get_instance()->GetDb();
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_dflt=1 AND type_id=?';
-        $id = $db->GetOne($sql,[ $t2->get_id() ]);
+        $id = $db->GetOne($sql,[ $tid ]);
         if( $id ) return self::load_template($id);
     }
 
-    /**
-     * @ignore
-     */
-    protected function design_assoc_table_name() : string
-    {
-        return CMS_DB_PREFIX.'layout_design_tplassoc'; //aka CmsLayoutCollection::TPLTABLE
-    }
-
-//============= FORMER CmsLayoutTemplate METHODS ============
+//============= OTHER FORMER CmsLayoutTemplate METHODS ============
 
     /**
     * Generate a unique name for a template
@@ -699,26 +722,13 @@ DESIGNS
     }
 
    /**
-    * Get the id's of all loaded/cached templates
-    *
-    * @return array of integer template id's, maybe empty
-    */
-    public static function get_loaded_templates()
-    {
-        if( !empty(self::$_obj_cache) ) {
-            return array_keys(self::$_obj_cache);
-        }
-        return [];
-    }
-
-   /**
     * Test whether the user specified can edit the specified template
     * This is a convenience method that loads the template, and then tests
     * if the specified user has edit ability to it.
     *
     * @param mixed $a An integer template id, or a string template name
     * @param mixed $userid An integer user id, or a string user name, or null.
-    *  If no userid is specified the currently logged in userid is used
+    *  If no userid is specified, the currently logged in userid is used
     * @return bool
     */
     public static function user_can_edit($a,$userid = null)
@@ -748,44 +758,25 @@ DESIGNS
    /**
     * Create a new template of the specific type
     *
-    * @param mixed $t A CmsLayoutTemplateType object, an integer template type id, or a string template type identifier
+    * @param mixed $t A CmsLayoutTemplateType object, an integer template type id,
+    *  or a string template type identifier
     * @return CmsLayoutTemplate
     * @throws CmsInvalidDataException
     */
     public static function &create_by_type($t)
     {
-        $t2 = null;
         if( is_int($t) || is_string($t) ) {
             $t2 = CmsLayoutTemplateType::load($t);
         }
-        else if( $t instanceof CmsLayoutTemplateType ) {
+        elseif( $t instanceof CmsLayoutTemplateType ) {
             $t2 = $t;
         }
+		else {
+	        $t2 = null;
+		}
 
-        if( !$t2 ) throw new CmsInvalidDataException('Invalid data passed to '.__METHOD__);
-
-        return $t2->create_new_template();
-    }
-
-   /**
-    * Load all templates of a specific type
-    *
-    * @throws CmsDataNotFoundException
-    * @param CmsLayoutTemplateType $type
-    * @return mixed array of CmsLayoutTemplate objects, or null
-    */
-    public static function load_all_by_type(CmsLayoutTemplateType $type)
-    {
-        $db = CmsApp::get_instance()->GetDb();
-        $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_id = ?';
-        $tmp = $db->GetArray($sql,[ $type->get_id() ]);
-        if( !$tmp ) return;
-
-        $out = [];
-        foreach( $tmp as $row ) {
-            $out[] = $this->_load_from_data($row,$designs,$editors,$categories); // WANT designs editors categories
-        }
-        return $out;
+        if( $t2 ) return $t2->create_new_template();
+		throw new CmsInvalidDataException('Invalid data passed to '.__METHOD__);
     }
 
    /**

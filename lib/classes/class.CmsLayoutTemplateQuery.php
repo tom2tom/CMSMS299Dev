@@ -18,6 +18,8 @@
 
 //namespace CMSMS;
 
+use CMSMS\TemplateOperations;
+
 /**
  * A class to represent a template query and its results.
  * This class accepts in its constructor an array or comma-separated string of filter arguments.

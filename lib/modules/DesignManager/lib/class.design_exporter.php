@@ -26,6 +26,7 @@ use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
 use CMSMS\CmsException;
 use CMSMS\StylesheetOperations;
+use CMSMS\TemplateOperations;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;

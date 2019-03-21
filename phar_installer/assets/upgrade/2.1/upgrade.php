@@ -1,5 +1,6 @@
 <?php
 
+use CMSMS\TemplateOperations;
 use function cms_installer\lang;
 
 status_msg('Upgrading schema for CMSMS 2.1');

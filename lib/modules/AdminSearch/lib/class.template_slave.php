@@ -4,6 +4,7 @@ namespace AdminSearch; //OR DesignManager ?
 
 use cms_utils;
 use CmsLayoutTemplate;
+use CMSMS\TemplateOperations;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
 use function check_permission;

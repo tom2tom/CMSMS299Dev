@@ -19,8 +19,9 @@
 use CMSContentManager\ContentListBuilder;
 use CMSContentManager\ContentListFilter;
 use CMSContentManager\Utils;
-use CMSMS\UserOperations;
 use CMSMS\ScriptOperations;
+use CMSMS\TemplateOperations;
+use CMSMS\UserOperations;
 
 global $CMS_JOB_TYPE;
 

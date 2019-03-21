@@ -22,8 +22,8 @@ use cms_userprefs;
 use cms_utils;
 use CmsDataNotFoundException;
 use CmsLayoutCollection;
-use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
+use CMSMS\TemplateOperations;
 use function get_userid;
 
 /**

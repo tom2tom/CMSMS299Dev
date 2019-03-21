@@ -19,8 +19,8 @@
 namespace CMSMS\internal;
 
 use CmsApp;
-use CmsLayoutTemplate;
 use CMSMS\ModuleOperations;
+use CMSMS\TemplateOperations;
 use Exception;
 use Smarty_Resource_Custom;
 use const CMS_ASSETS_PATH;
@@ -47,7 +47,7 @@ class module_db_template_resource extends Smarty_Resource_Custom
     {
         debug_buffer('','CMSModuleDbTemplateResource start'.$name);
         $db = CmsApp::get_instance()->GetDb();
-        $query = 'SELECT content,modified FROM '.CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME.' WHERE originator=? AND name=?';
+        $query = 'SELECT content,modified FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE originator=? AND name=?';
         $parts = explode(';',$name);
         $row = $db->GetRow($query, $parts);
         if( $row ) {
@@ -57,7 +57,7 @@ class module_db_template_resource extends Smarty_Resource_Custom
         else {
             // fallback to the layout stuff.
             try {
-                $obj = LayoutTemplateOperations::load_template($parts[1]);
+                $obj = TemplateOperations::load_template($parts[1]);
                 $source = $obj->get_content();
                 $mtime = $obj->get_modified();
             }

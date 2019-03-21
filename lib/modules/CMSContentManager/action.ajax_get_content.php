@@ -15,8 +15,9 @@
 
 use CMSContentManager\ContentListBuilder;
 use CMSContentManager\Utils;
-use CMSMS\internal\bulkcontentoperations;
 use CMSMS\FormUtils;
+use CMSMS\internal\bulkcontentoperations;
+use CMSMS\TemplateOperations;
 
 if( !isset($gCms) ) exit;
 // no permissions checks here.
