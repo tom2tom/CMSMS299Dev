@@ -551,7 +551,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 				case 'tpltypes':
 					if (!$runtime) {
 						verbose_msg(lang('install_templatetypes'));
-						$val2 = '__CORE__'; //TODO get real value
+						$val2 = '__CORE__'; //TODO get real value e.g. CmsLayoutTemplateType::CORE
 					} else {
 						$val2 = CmsLayoutTemplateType::CORE;
 					}
@@ -641,7 +641,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							continue;
 						}
 						$val2 = (string)$node->originator;
-						if ($val2 && $val2 !== '__CORE__') { //TODO get real value
+						if ($val2 && $val2 !== '__CORE__') { //TODO get real value e.g. CmsLayoutTemplateType::CORE
 							continue; //anonymous && core only: modules' template-data installed by them
 						}
 						$ob = new CmsLayoutTemplate();
