@@ -17,7 +17,6 @@
 
 namespace CMSMS;
 
-use LogicException;
 use RuntimeException;
 use function startswith;
 
@@ -55,7 +54,7 @@ class AutoCookieOperations extends SignedCookieOperations
         $is_empty = empty($value);
         if( is_object($value) ) {
             $tmp = json_encode($value);
-            if( !$tmp ) throw new LogicException('Could not encode object to json');
+            if( !$tmp ) throw new RuntimeException('Could not encode object to json');
             $value = self::KEY_OBJ.$tmp;
         }
         else if( is_array($value) && array_keys($value) !== range(0, count($value) - 1) ) {

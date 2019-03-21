@@ -24,8 +24,10 @@ use CmsApp;
 use CMSMS\User;
 use CMSMS\UserOperations;
 use LogicException;
+use RuntimeException;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
+use function cleanValue;
 
 final class LoginOperations
 {
@@ -131,7 +133,7 @@ final class LoginOperations
 	 */
     public function save_authentication(User $user,$effective_user = null)
     {
-        if( $user->id < 1 || empty($user->password) ) throw new LogicException('User information invalid for '.__METHOD__);
+        if( $user->id < 1 || empty($user->password) ) throw new RuntimeException('User information invalid for '.__METHOD__);
 
         $private_data = [
         'uid' => $user->id,
@@ -222,7 +224,7 @@ final class LoginOperations
     {
         // asume we are authenticated
         // now we validate that the request has the user key in it somewhere.
-        if( !isset($_SESSION[CMS_USER_KEY]) ) throw new LogicException('Internal: User key not found in session.');
+        if( !isset($_SESSION[CMS_USER_KEY]) ) throw new RuntimeException('Internal: User key not found in session.');
 
         $v = $_REQUEST[CMS_SECURE_PARAM_NAME] ?? '<no$!tgonna!$happen>';
 

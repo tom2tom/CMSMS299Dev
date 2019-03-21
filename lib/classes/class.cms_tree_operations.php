@@ -83,7 +83,7 @@ class cms_tree_operations
               $parent_node = $tree->find_by_tag('id',$row['parent_id'],FALSE,FALSE); //no id quick-finds possiblke yet
               if( !$parent_node ) {
                   // ruh-roh
-                  throw new LogicException('Problem with internal content organization... could not get a parent node for content with id '.$row['content_id']);
+                  throw new RuntimeException('Problem with internal content organization... could not get a parent node for content with id '.$row['content_id']);
               }
           }
 
