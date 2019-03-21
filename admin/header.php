@@ -100,11 +100,11 @@ if ($list) {
 		}
 		$cssnames = array_unique($cssnames);
 		if ($cssnames) {
-			$css = StylesheetOperations::load_bulk_stylesheets($cssnames);
-			// adjust the cssnames array to only contain the list of the stylesheets we actually found.
-			if ($css) {
+			$cssobs = StylesheetOperations::load_bulk_stylesheets($cssnames); //TODO not cached, use something lighter
+			// adjust the cssnames array to contain only the stylesheets we actually found
+			if ($cssobs) {
 				$tmpnames = [];
-				foreach ($css as $stylesheet) {
+				foreach ($cssobs as $stylesheet) {
 					$name = $stylesheet->get_name();
 					if (!in_array($name,$tmpnames)) $tmpnames[] = $name;
 				}
