@@ -338,7 +338,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Delete a template from the list of templates associated with this theme
+	 * Remove a template from the list of the ones associated with this theme
 	 *
 	 * @throws CmsInvalidDataException
 	 * @param mixed $tpl Either an integer template id, or a CmsLayoutTemplate object
