@@ -17,10 +17,22 @@
 
 namespace CMSMS;
 
+use CmsApp;
+use CmsInvalidDataException;
+use CmsLayoutCollection;
+use CmsLayoutStylesheet;
+use CmsLogicException;
+use CMSMS\AdminUtils;
+use CMSMS\Events;
+use CmsSQLErrorException;
+use const CMS_DB_PREFIX;
+use function cms_notice;
+use function endswith;
+
 /**
- * A class of methods for dealing with CmsLayoutStylesheet objects.
+ * A class of static methods for dealing with CmsLayoutStylesheet objects.
  * This class is for stylesheet administration, by DesignManager module
- * and the like. It is not used for runtime stylesheet retrieval.
+ * and the like. It is not used for runtime stylesheet retrieval (except when WYSIWWYG wanted ?).
  *
  * @since 2.3
  * @package CMS
@@ -39,7 +51,7 @@ class StylesheetOperations
 	*
 	* @throws CmsInvalidDataException
 	*/
-	protected function validate_stylesheet($sht)
+	protected static function validate_stylesheet($sht)
 	{
 		if( !$sht->get_name() ) throw new CmsInvalidDataException('Each stylesheet must have a name');
 		if( endswith($sht->get_name(),'.css') ) throw new CmsInvalidDataException('Invalid name for a stylesheet');
@@ -65,7 +77,7 @@ class StylesheetOperations
    /**
 	* @ignore
 	*/
-	protected function update_stylesheet($sht)
+	protected static function update_stylesheet($sht)
 	{
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.'SET
 name = ?,
@@ -76,8 +88,8 @@ media_query = ?,
 contentfile = ?,
 modified = ?
 WHERE id = ?';
-		$tmp = '';
 		if( isset($sht->_data['media_type']) ) $tmp = implode(',',$sht->_data['media_type']);
+		else $tmp = '';
 		$sid = $sht->get_id();
 		$db = CmsApp::get_instance()->GetDb();
 //		$dbr =
@@ -143,7 +155,7 @@ WHERE id = ?';
    /**
 	* @ignore
 	*/
-	protected function insert_stylesheet($sht)
+	protected static function insert_stylesheet($sht)
 	{
 		$now = time();
 		// insert the record
@@ -192,16 +204,16 @@ VALUES (?,?,?,?,?,?,?,?)';
 	*/
 	public static function save_stylesheet(CmsLayoutStylesheet $sht)
 	{
-		$this->validate_stylesheet($sht);
+		self::validate_stylesheet($sht);
 
 		if( $sht->get_id() ) {
 			Events::SendEvent('Core', 'EditStylesheetPre',[get_class($sht)=>&$sht]);
-			$this->update_stylesheet($sht);
+			self::update_stylesheet($sht);
 			Events::SendEvent('Core', 'EditStylesheetPost',[get_class($sht)=>&$sht]);
 		}
 		else {
 			Events::SendEvent('Core', 'AddStylesheetPre',[get_class($sht)=>&$sht]);
-			$this->insert_stylesheet($sht);
+			self::insert_stylesheet($sht);
 			Events::SendEvent('Core', 'AddStylesheetPost',[get_class($sht)=>&$sht]);
 		}
 	}
@@ -235,33 +247,33 @@ VALUES (?,?,?,?,?,?,?,?)';
 
    /**
  	* @ignore
-    * @param array $row
-    * @param mixed $design_list Optional array|null Default null
-    * @return CmsLayoutStylesheet
-    */
-	private function load_from_data(array $row, $design_list = null) : CmsLayoutStylesheet
+	* @param array $row
+	* @param mixed $design_list Optional array|null Default null
+	* @return CmsLayoutStylesheet
+	*/
+	protected static function construct_stylesheet(array $row, $design_list = null) : CmsLayoutStylesheet
 	{
-		$ob = new CmsLayoutStylesheet();
+		$sht = new CmsLayoutStylesheet();
 		$row['media_type'] = explode(',',$row['media_type']);;
-		$ob->_data = $row;
-		$fn = $ob->get_content_filename();
+		$sht->_data = $row;
+		$fn = $sht->get_content_filename();
 		if( is_file($fn) && is_readable($fn) ) {
-			$ob->_data['content'] = file_get_contents($fn);
-			$ob->_data['modified'] = filemtime($fn);
+			$sht->_data['content'] = file_get_contents($fn);
+			$sht->_data['modified'] = filemtime($fn);
 		}
-		if( is_array($design_list) ) $ob->_design_assoc = $design_list;
+		if( is_array($design_list) ) $sht->_design_assoc = $design_list;
 
-		return $ob;
+		return $sht;
 	}
 
    /**
-	* Load the specified stylesheet object
+	* Get the specified stylesheet object
 	*
 	* @param mixed $a Either an integer stylesheet id, or a string stylesheet name.
 	* @return CmsLayoutStylesheet
 	* @throws CmsInvalidDataException
 	*/
-	public static function load_stylesheet($a)
+	public static function get_stylesheet($a)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$row = null;
@@ -273,12 +285,12 @@ VALUES (?,?,?,?,?,?,?,?)';
 			$query = 'SELECT id,name,content,description,media_type,media_query,created,modified FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
 			$row = $db->GetRow($query,[$a]);
 		}
-		if( $row ) return $this->load_from_data($row);
+		if( $row ) return self::construct_stylesheet($row);
 		throw new CmsInvalidDataException('Could not find stylesheet identified by '.$a);
 	}
 
    /**
-	* Load multiple stylesheets in an optimized fashion
+	* Get multiple stylesheets
 	*
 	* This method does not throw exceptions if one requested id, or name does not exist.
 	*
@@ -287,7 +299,7 @@ VALUES (?,?,?,?,?,?,?,?)';
 	* @return array Array of CmsLayoutStylesheet objects
 	* @throws CmsInvalidDataException
 	*/
-	public static function load_bulk_stylesheets($ids,$deep = true)
+	public static function get_bulk_stylesheets($ids,$deep = true)
 	{
 		if( !$ids ) return;
 
@@ -355,7 +367,7 @@ VALUES (?,?,?,?,?,?,?,?)';
 				}
 
 				$id = $found['id'];
-				$tmp = $this->load_from_data($found,($designs_by_css[$id] ?? null));
+				$tmp = self::construct_stylesheet($found,($designs_by_css[$id] ?? null));
 				if( is_object($tmp) ) $out[] = $tmp;
 			}
 		}
@@ -364,13 +376,13 @@ VALUES (?,?,?,?,?,?,?,?)';
 	}
 
    /**
-	* Load all stylesheet objects
+	* Get all stylesheet objects
 	*
 	* @param bool $as_list a flag indicating the output format
 	* @return mixed If $as_list is true then the output will be an associated array of stylesheet id and stylesheet name suitable for use in an html select element
 	*   otherwise, an array of CmsLayoutStylesheet objects is returned
 	*/
-	public static function load_all_stylesheets($as_list = FALSE)
+	public static function get_all_stylesheets($as_list = FALSE)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
@@ -391,7 +403,7 @@ VALUES (?,?,?,?,?,?,?,?)';
 	}
 
    /**
-	* Generate a unique name for a stylesheet
+	* Get a unique name for a stylesheet
 	*
 	* @param string $prototype A prototype stylesheet name
 	* @param string $prefix An optional name prefix
@@ -399,21 +411,21 @@ VALUES (?,?,?,?,?,?,?,?)';
 	* @throws CmsInvalidDataException
 	* @throws CmsLogicException
 	*/
-	public static function generate_unique_name($prototype,$prefix = '')
+	public static function get_unique_name($prototype,$prefix = '')
 	{
-        if( !$prototype ) throw new CmsInvalidDataException('Prototype name cannot be empty');
+		if( !$prototype ) throw new CmsInvalidDataException('Prototype name cannot be empty');
 
-        $db = CmsApp::get_instance()->GetDb();
-        $sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE %?%';
-        $all = $db->GetCol($sql,[ $prototype ]);
-        if( $all ) {
-            $name = $prototype;
-            $i = 0;
-            while( in_array($name, $all) ) {
-                $name = $prefix.$prototype.'_'.++$i;
-            }
-            return $name;
-        }
-        return $prototype;
+		$db = CmsApp::get_instance()->GetDb();
+		$sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE %?%';
+		$all = $db->GetCol($sql,[ $prototype ]);
+		if( $all ) {
+			$name = $prototype;
+			$i = 0;
+			while( in_array($name, $all) ) {
+				$name = $prefix.$prototype.'_'.++$i;
+			}
+			return $name;
+		}
+		return $prototype;
 	}
 } //class
