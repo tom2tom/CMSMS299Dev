@@ -172,7 +172,7 @@ class TemplateOperations
 
         if( $designs == null ) {
             if( !isset($db) ) $db = CmsApp::get_instance()->GetDb();
-            $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'layout_design_tplassoc WHERE tpl_id=? ORDER BY id';
+            $sql = 'SELECT design_id FROM '.CMS_DB_PREFIX.'layout_design_tplassoc WHERE tpl_id=? ORDER BY design_id';
             $designs = $db->GetCol($sql,[ $props['id'] ]);
         }
         elseif( is_numeric($designs) ) {
