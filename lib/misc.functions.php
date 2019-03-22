@@ -1229,7 +1229,7 @@ function get_best_file($places, $target, $ext, $as_url)
     }
     $base = strtr($base, ['.'=>'\\.', '-'=>'\\-']);
 
-    $patn = '~^'.$base.'[.-](\d[\d\.]*)[.-](min)?\.'.$ext.'$~i';
+    $patn = '~^'.$base.'([.-](\d[\d\.]*))?([.-]min)?\.'.$ext.'$~i';
     foreach ($places as $base_path) {
         $allfiles = scandir($base_path);
         if ($allfiles) {
