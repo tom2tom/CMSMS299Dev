@@ -61,7 +61,7 @@ try {
   $tpl->assign('profile',$name)
    ->assign('data',$profile);
 
-  $stylesheets = ['-1'=>$this->Lang('none')] + StylesheetOperations::load_all_stylesheets(TRUE);
+  $stylesheets = ['-1'=>$this->Lang('none')] + StylesheetOperations::get_all_stylesheets(TRUE);
   $tpl->assign('stylesheets',$stylesheets);
 
   $tpl->display();

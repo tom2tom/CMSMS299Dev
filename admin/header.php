@@ -100,7 +100,7 @@ if ($list) {
 		}
 		$cssnames = array_unique($cssnames);
 		if ($cssnames) {
-			$cssobs = StylesheetOperations::load_bulk_stylesheets($cssnames); //TODO not cached, use something lighter
+			$cssobs = StylesheetOperations::get_bulk_stylesheets($cssnames); //TODO not cached, use something lighter
 			// adjust the cssnames array to contain only the stylesheets we actually found
 			if ($cssobs) {
 				$tmpnames = [];

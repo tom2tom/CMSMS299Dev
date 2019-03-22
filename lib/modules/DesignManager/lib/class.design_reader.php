@@ -285,7 +285,7 @@ class design_reader extends reader_base
             $name = $this->_get_name($key);
             $rec = [];
             $rec['name'] = base64_decode($one['name']);
-            $rec['newname'] = StylesheetOperations::generate_unique_name($rec['name']);
+            $rec['newname'] = StylesheetOperations::get_unique_name($rec['name']);
             $rec['key'] = $key;
             $rec['desc'] = base64_decode($one['desc']);
             $rec['data'] = base64_decode($one['data']);
@@ -327,7 +327,7 @@ class design_reader extends reader_base
   {
     $this->_scan();
 
-    $stylesheets = StylesheetOperations::load_all_stylesheets(TRUE);
+    $stylesheets = StylesheetOperations::get_all_stylesheets(TRUE);
     $css_names = array_values($stylesheets);
 
     foreach( $this->_file_map as $key => &$rec ) {

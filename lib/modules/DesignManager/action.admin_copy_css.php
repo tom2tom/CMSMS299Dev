@@ -32,7 +32,7 @@ if( isset($params['cancel']) ) {
 }
 
 try {
-  $orig_css = StylesheetOperations::load_stylesheet($params['css']);
+  $orig_css = StylesheetOperations::get_stylesheet($params['css']);
   if( isset($params['submit']) || isset($params['apply']) ) {
     try {
       $new_css = clone($orig_css);

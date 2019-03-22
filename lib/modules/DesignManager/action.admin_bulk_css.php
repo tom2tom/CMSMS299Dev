@@ -39,7 +39,7 @@ if( isset($params['cancel']) ) {
 
 try {
     $bulk_op = null;
-    $stylesheets = StylesheetOperations::load_bulk_stylesheets($params['css_select']);
+    $stylesheets = StylesheetOperations::get_bulk_stylesheets($params['css_select']);
     switch( $params['css_bulk_action'] ) {
     case 'delete':
         $bulk_op = 'bulk_action_delete_css';
@@ -48,7 +48,7 @@ try {
                 $this->ShowErrors($this->Lang('error_notconfirmed'));
             }
             else {
-                $stylesheets = StylesheetOperations::load_bulk_stylesheets($params['css_select']);
+                $stylesheets = StylesheetOperations::get_bulk_stylesheets($params['css_select']);
                 foreach( $stylesheets as $one ) {
                     if( in_array($one->get_id(),$params['css_select']) ) {
                         $one->delete();

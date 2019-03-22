@@ -3,6 +3,7 @@
 use CMSMS\AdminUtils;
 use CMSMS\CmsException;
 use CMSMS\Database\DataDictionary;
+use CMSMS\TemplateOperations;
 
 if (!isset($gCms)) exit;
 $db = $this->GetDb();
@@ -45,7 +46,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         try {
             $tpl = new CmsLayoutTemplate();
             $tpl->set_originator($mod->GetName());
-            $tpl->set_name($tpl::generate_unique_name($prototype,$prefix2));
+            $tpl->set_name(TemplateOperations::get_unique_name($prototype,$prefix2));
             $tpl->set_owner($uid);
             $tpl->set_content($contents);
             $tpl->set_type($type);

@@ -328,7 +328,7 @@ class theme_reader extends reader_base
   {
     $this->_scan();
 
-    $stylesheets = StylesheetOperations::load_all_stylesheets(TRUE);
+    $stylesheets = StylesheetOperations::get_all_stylesheets(TRUE);
     $css_names = array_values($stylesheets);
 
     foreach( $this->_css_info as $key => &$rec ) {

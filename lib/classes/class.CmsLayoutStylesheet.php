@@ -134,7 +134,7 @@ class CmsLayoutStylesheet
 	public function set_content($str)
 	{
 		$str = trim($str);
-		if( !$str ) throw new CmsInvalidDataException('Template content cannot be empty');
+		if( !$str ) throw new CmsInvalidDataException('stylesheet content cannot be empty');
 		$this->_data['content'] = $str;
 		$this->_dirty = TRUE;
 	}
@@ -433,34 +433,59 @@ class CmsLayoutStylesheet
 	}
 
    /**
-	* Get the path of the file that would (if relevant) contain stylesheet contents
+	* Get the filepath of the file which (if relevant) contains this stylesheet's content
 	*
 	* @since 2.2
 	* @return string
 	*/
 	public function get_content_filename()
 	{
-		if( !$this->get_name() ) return;
-		$config = cms_config::get_instance();
-		$name = munge_string_to_url($this->get_name()).'.'.$this->get_id().'.css';
-		return cms_join_path($config['assets_path'],'css',$name);
+		if( $this->get_content_file() ) {
+			$config = cms_config::get_instance();
+			return cms_join_path($config['assets_path'],'css',$this->get_content());
+		}
+		return '';
 	}
 
    /**
-	* Does this stylesheet have an associated file
+	* Get whether this stylesheet's content resides in a file (as distinct from the database)
+	*
+	* @since 2.3
+	* @return bool
+	*/
+	public function get_content_file()
+	{
+		return $this->_data['contentfile'] ?? false;
+	}
+
+   /**
+	* Get whether this stylesheet's content resides in a file
 	*
 	* @since 2.2
+	* @deprecated since 2.3 this is an alias for get_content_file()
 	* @return bool
 	*/
 	public function has_content_file()
 	{
-		$fn = $this->get_content_filename();
-		if( $fn && is_file($fn) && is_readable($fn) ) return TRUE;
+		return $this->get_content_file();
 	}
 
-	public function set_content_file()
+   /**
+	* Set the value of the flag indicating the content of this stylesheet resides in a filesystem file
+	*
+	* @since 2.3
+	* @param mixed $flag recognized by cms_to_bool(). Default true.
+	*/
+	public function set_content_file($flag = true)
 	{
-		//TODO
+		$state = cms_to_bool($flag);
+		if( $state ) {
+			$this->_data['content'] = munge_string_to_url($this->get_name()).'.'.$this->get_id().'.css';
+		}
+		elseif( $this->get_content_file() ) {
+			$this->_data['content'] = '{* empty Smarty stylesheet *}';
+		}
+		$this->_data['contentfile'] = $state;
 	}
 
 	/**
@@ -484,7 +509,7 @@ class CmsLayoutStylesheet
 	*/
 	protected function validate()
 	{
-		$this->get_operations()->validate_stylesheet(); //TODO bug not public
+		$this->get_operations()::validate_stylesheet(); //TODO bug not public
 	}
 
    /**
@@ -532,7 +557,7 @@ class CmsLayoutStylesheet
 	*/
 	public static function load($a)
 	{
-		return $this->get_operations()::load_stylesheet($a);
+		return $this->get_operations()::get_stylesheet($a);
 	}
 
    /**
@@ -548,7 +573,7 @@ class CmsLayoutStylesheet
 	*/
 	public static function load_bulk($ids,$deep = true)
 	{
-		return $this->get_operations()::load_bulk_stylesheets($ids,$deep);
+		return $this->get_operations()::get_bulk_stylesheets($ids,$deep);
 	}
 
    /**
@@ -561,7 +586,7 @@ class CmsLayoutStylesheet
 	*/
 	public static function get_all($as_list = FALSE)
 	{
-		return $this->get_operations()::load_all_stylesheets($as_list);
+		return $this->get_operations()::get_all_stylesheets($as_list);
 	}
 
    /**
@@ -588,6 +613,6 @@ class CmsLayoutStylesheet
 	*/
 	public static function generate_unique_name($prototype,$prefix = null)
 	{
-		return $this->get_operations()::generate_unique_name($prototype,$prefix);
+		return $this->get_operations()::get_unique_name($prototype,$prefix);
 	}
 } // class

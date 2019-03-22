@@ -41,7 +41,7 @@ try {
     $extraparms = [];
 
     if ($css_id) {
-        $css_ob = StylesheetOperations::load_stylesheet($css_id);
+        $css_ob = StylesheetOperations::get_stylesheet($css_id);
         $extraparms['css'] = $css_id;
     } else {
         $css_ob = new CmsLayoutStylesheet();

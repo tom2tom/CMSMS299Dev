@@ -209,7 +209,7 @@ EOT;
             $csslist = $this->_design->get_stylesheets();
             if( $csslist ) {
                 foreach( $csslist as $css_id ) {
-                    $css_ob = StylesheetOperations::load_stylesheet($css_id);
+                    $css_ob = StylesheetOperations::get_stylesheet($css_id);
 
                     $new_content = $this->_parse_css_for_urls($css_ob->get_content());
                     $sig = $this->_get_signature($css_ob->get_name(),'CSS');

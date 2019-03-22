@@ -539,7 +539,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					foreach ($bank as $sid=>$arr) {
 						try {
-							$ob = StylesheetOperations::load_stylesheet($sid);
+							$ob = StylesheetOperations::get_stylesheet($sid);
 						} catch (Exception $e) {
 							continue;
 						}

@@ -156,7 +156,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 		$ths->execute();
 		if( !$this->_rs ) throw new CmsLogicException('Cannot get stylesheet from invalid stylesheet query object');
 		$id = (int) $this->fields['id'];
-		$obj = StylesheetOperations::load_stylesheet($id);
+		$obj = StylesheetOperations::get_stylesheet($id);
 		return $obj;
 	}
 
@@ -178,6 +178,6 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 		}
 
 		$deep = (!empty($this->_args['deep']) && $this->_args['deep']) ? TRUE : FALSE;
-		return StylesheetOperations::load_bulk_stylesheets($tmp,$deep);
+		return StylesheetOperations::get_bulk_stylesheets($tmp,$deep);
 	}
 } // class

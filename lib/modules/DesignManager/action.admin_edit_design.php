@@ -74,7 +74,7 @@ try {
     $tpl->assign('all_templates',$templates);
   }
 
-  $stylesheets = StylesheetOperations::load_all_stylesheets();
+  $stylesheets = StylesheetOperations::get_all_stylesheets();
   if( $stylesheets ) {
     usort($stylesheets,function($a,$b){
       return strcasecmp($a->get_name(),$b->get_name());

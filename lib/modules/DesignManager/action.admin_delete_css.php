@@ -32,7 +32,7 @@ if( isset($params['cancel']) ) {
 try {
   if( !isset($params['css']) ) throw new CmsException($this->Lang('error_missingparam'));
 
-  $css_ob = StylesheetOperations::load_stylesheet($params['css']);
+  $css_ob = StylesheetOperations::get_stylesheet($params['css']);
 
   if( isset($params['submit']) ) {
     if( !isset($params['check1']) || !isset($params['check2']) ) {

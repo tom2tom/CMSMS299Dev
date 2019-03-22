@@ -89,7 +89,7 @@ final class css_slave extends slave
         if( $all_ids ) {
             $chunks = array_chunk($all_ids,15);
             foreach( $chunks as $chunk ) {
-                $css_list = StylesheetOperations::load_bulk_stylesheets($chunk);
+                $css_list = StylesheetOperations::get_bulk_stylesheets($chunk);
                 foreach( $css_list as $css ) {
                     if( $this->check_css_matches($css) ) $output[] = $this->get_css_match_info($css);
                 }

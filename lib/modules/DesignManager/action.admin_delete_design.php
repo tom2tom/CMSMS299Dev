@@ -48,7 +48,7 @@ try {
             $css_id_list = $design->get_stylesheets();
             if( $css_id_list ) {
                 // get the designs that are attached to these stylesheets
-                $css_list = StylesheetOperations::load_bulk_stylesheets($css_id_list);
+                $css_list = StylesheetOperations::get_bulk_stylesheets($css_id_list);
                 if( $css_list ) {
                     foreach( $css_list as &$css ) {
                         $x = $css->get_designs();

@@ -77,7 +77,7 @@ class Utils
 		// if we have a stylesheet name, use it
 		if( $css_name ) {
 			try {
-				$css = StylesheetOperations::load_stylesheet($css_name);
+				$css = StylesheetOperations::get_stylesheet($css_name);
 				$css_name = $css->get_name();
 			}
 			catch( Exception $e ) {
