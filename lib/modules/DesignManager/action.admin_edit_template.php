@@ -52,7 +52,7 @@ try {
 
     $extraparms = [];
     if (isset($params['import_type'])) {
-        $tpl_obj = TemplateOperations::create_template_by_type($params['import_type']);
+        $tpl_obj = TemplateOperations::get_template_by_type($params['import_type']);
         $tpl_obj->set_owner(get_userid());
         $design = CmsLayoutCollection::load_default();
         if( $design ) {
