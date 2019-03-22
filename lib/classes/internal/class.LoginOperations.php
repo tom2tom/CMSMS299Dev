@@ -58,15 +58,15 @@ final class LoginOperations
      */
 //    private function __clone() {}
 
-	/**
-	 * Get an instance of this class.
-	 * @deprecated since 2.3 use new LoginOperations()
-	 * @return LoginOperations
-	 */
+    /**
+     * Get an instance of this class.
+     * @deprecated since 2.3 use new LoginOperations()
+     * @return LoginOperations
+     */
     public static function get_instance() : self
     {
-//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
-		return new self();
+//        if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
+        return new self();
     }
 
     public function deauthenticate()
@@ -96,10 +96,10 @@ final class LoginOperations
 
     /**
      * validate the user
-	 * @param mixed? $uid
-	 * @param mixed? $hash
-	 * @return boolean
-	 */
+     * @param mixed? $uid
+     * @param mixed? $hash
+     * @return boolean
+     */
     private function _check_passhash($uid,$hash) : bool
     {
         // we already validated that payload was not corrupt
@@ -125,12 +125,12 @@ final class LoginOperations
 
     /**
      * save session/cookie data
-	 *
-	 * @param User $user
-	 * @param mixed $effective_user Optional User | null
-	 * @return boolean TRUE always
-	 * @throws LogicException
-	 */
+     *
+     * @param User $user
+     * @param mixed $effective_user Optional User | null
+     * @return boolean TRUE always
+     * @throws LogicException
+     */
     public function save_authentication(User $user,$effective_user = null)
     {
         if( $user->id < 1 || empty($user->password) ) throw new RuntimeException('User information invalid for '.__METHOD__);
@@ -171,10 +171,10 @@ final class LoginOperations
                 --$i; // try again
             }
         }
-		return $data;
+        return $data;
     }
 
-	/* @return mixed array | null : previously- or currently-generated data */
+    /* @return mixed array | null : previously- or currently-generated data */
     private function _get_data()
     {
         if( !empty(self::$_data) ) return self::$_data;
@@ -206,8 +206,11 @@ final class LoginOperations
         if( !CmsApp::get_instance()->is_frontend_request() && !$this->_check_passhash($private_data['uid'],$private_data['hash']) ) return;
 
         // if we get here, the user is authenticated.
-        // if we don't have a user key.... we generate a new csrf token.
-        if( !isset($_SESSION[CMS_USER_KEY]) ) {
+        if( isset($_GET[CMS_SECURE_PARAM_NAME]) ) {
+            $_SESSION[CMS_USER_KEY] = $_GET[CMS_SECURE_PARAM_NAME];
+        }
+        elseif( !isset($_SESSION[CMS_USER_KEY]) ) {
+            // if we don't have a user key.... we generate a new csrf token.
             $_SESSION[CMS_USER_KEY] = $this->create_csrf_token();
         }
 
@@ -215,11 +218,11 @@ final class LoginOperations
         return $private_data;
     }
 
-	/**
-	 *
-	 * @return boolean
-	 * @throws LogicException
-	 */
+    /**
+     *
+     * @return boolean
+     * @throws LogicException
+     */
     public function validate_requestkey()
     {
         // asume we are authenticated
