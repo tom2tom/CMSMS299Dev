@@ -301,17 +301,27 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
     }
 
     catch (Exception $e) {
-        // catch rest of exceptions
+        // catch other sorts of exceptions
         $handlers = ob_list_handlers();
         for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
-        $code = $e->GetCode();
-        if (!$showtemplate && $code >= 400) {
-            @ob_end_clean();
-            header('HTTP/1.0 '.$code.' '.$e->GetMessage());
-            header('Status '.$code.' '.$e->GetMessage());
-        } else {
-            echo $smarty->errorConsole($e);
-        }
+		if (CMS_DEBUG) {
+			$keeps = ['file'=>1,'line'=>1,'function'=>1];
+			$data = array_map(function($a) use ($keeps)
+			{
+				return array_intersect_key($a,$keeps);
+			}, $e->getTrace());
+			debug_display($data, $e->GetMessage().'<br /><br />Backtrace:');
+		} else {
+		    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		    header('Cache-Control: no-store, no-cache, must-revalidate');
+		    header('Cache-Control: post-check=0, pre-check=0', false);
+            echo '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>Processing error</title></head><body>
+<h1>Site Operation Error</h1>
+'.$e->GetMessage().'<br /><br />
+Please notify the site administrator.
+</body></html>';
+		}
         exit;
     }
 } // trycount loop
