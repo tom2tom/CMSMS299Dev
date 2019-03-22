@@ -65,7 +65,7 @@ class TemplateOperations
      * @ignore
      * @throws CmsInvalidDataException
      */
-    protected function resolve_user($a)
+    protected static function resolve_user($a)
     {
         if( is_numeric($a) && $a >= 1 ) return (int)$a;
         if( is_string($a) ) {
@@ -129,7 +129,7 @@ class TemplateOperations
      * @param CmsLayoutTemplate $tpl
      * @return mixed string | null
      */
-    protected function get_originator($tpl)
+    protected static function get_originator($tpl)
     {
         $tmp = $tpl->get_originator();
         if( $tmp ) {
@@ -157,11 +157,12 @@ class TemplateOperations
     * @param mixed $cats    optional array of id's | null
     * @returns CmsLayoutTemplate
     */
-    protected function create_template(array $props, $editors = null, $designs = null, $cats = null) : CmsLayoutTemplate
+    protected static function create_template(array $props, $editors = null, $designs = null, $cats = null) : CmsLayoutTemplate
     {
         $tpl = new CmsLayoutTemplate();
 
         if( $editors == null ) {
+            $db = CmsApp::get_instance()->GetDb();
             $sql = 'SELECT user_id FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id=? ORDER BY user_id';
             $editors = $db->GetCol($sql,[ $props['id'] ]);
         }
@@ -170,6 +171,7 @@ class TemplateOperations
         }
 
         if( $designs == null ) {
+            if( !isset($db) ) $db = CmsApp::get_instance()->GetDb();
             $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'layout_design_tplassoc WHERE tpl_id=? ORDER BY id';
             $designs = $db->GetCol($sql,[ $props['id'] ]);
         }
@@ -178,6 +180,7 @@ class TemplateOperations
         }
 
         if( $cats == null ) {
+            if( !isset($db) ) $db = CmsApp::get_instance()->GetDb();
             $sql = 'SELECT category_id FROM '.CMS_DB_PREFIX.'layout_cat_tplassoc WHERE tpl_id=? ORDER BY category_id';
             $cats = $db->GetCol($sql,[ $props['id'] ]);
         }
@@ -200,7 +203,7 @@ class TemplateOperations
      * @param CmsLayoutTemplate $tpl
      * @throws CmsInvalidDataException if any checked property is invalid
      */
-    public function validate_template(CmsLayoutTemplate $tpl)
+    public static function validate_template(CmsLayoutTemplate $tpl)
     {
         $name = $tpl->get_name();
         if( !$name ) throw new CmsInvalidDataException('Each template must have a name');
@@ -233,7 +236,7 @@ class TemplateOperations
      * @param CmsLayoutTemplate $tpl
      * @returns CmsLayoutTemplate
      */
-    protected function update_template(CmsLayoutTemplate $tpl) : CmsLayoutTemplate
+    protected static function update_template(CmsLayoutTemplate $tpl) : CmsLayoutTemplate
     {
         $now = time();
         $tplid = $tpl->get_id();
@@ -252,7 +255,7 @@ modified=?
 WHERE id=?';
 //      $dbr =
         $db->Execute($sql,
-        [ $this->get_originator($tpl),
+        [ self::get_originator($tpl),
          $tpl->get_name(),
          $tpl->get_content(),
          $tpl->get_description(),
@@ -321,7 +324,7 @@ WHERE id=?';
      * @param CmsLayoutTemplate $tpl
      * @return CmsLayoutTemplate template object representing the inserted template
      */
-    protected function insert_template(CmsLayoutTemplate $tpl) : CmsLayoutTemplate
+    protected static function insert_template(CmsLayoutTemplate $tpl) : CmsLayoutTemplate
     {
         $now = time();
         $db = CmsApp::get_instance()->GetDb();
@@ -329,7 +332,7 @@ WHERE id=?';
 ' (originator,name,content,description,type_id,type_dflt,owner_id,listable,contentfile,created,modified)
 VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         $dbr = $db->Execute($sql,
-        [ $this->get_originator($tpl),
+        [ self::get_originator($tpl),
          $tpl->get_name(),
          $tpl->get_content(), // if file ??
          $tpl->get_description(),
@@ -474,7 +477,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         $tpl->set_properties($data);
     }
 
-    protected function filter_editors(int $id, array $all) : array
+    protected static function filter_editors(int $id, array $all) : array
     {
         $out = [];
         foreach( $all as $row ) {
@@ -483,7 +486,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         return $out;
     }
 
-    protected function filter_designs(int $id, array $all) : array
+    protected static function filter_designs(int $id, array $all) : array
     {
         $out = [];
         foreach( $all as $row ) {
@@ -492,7 +495,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         return $out;
     }
 
-    protected function filter_categories(int $id, array $all) : array
+    protected static function filter_categories(int $id, array $all) : array
     {
         $out = [];
         foreach( $all as $row ) {
@@ -619,7 +622,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
      */
     public static function get_default_template_by_type($a)
     {
-        if( is_numeric($a) ){
+        if( is_numeric($a) ) {
             $tid = (int)$a;
         }
         elseif( is_string($a) ) {
@@ -650,6 +653,27 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
     }
 
 //============= OTHER FORMER CmsLayoutTemplate METHODS ============
+
+   /**
+    * Get a new template of the specified type
+    *
+    * @param mixed $a  a template-type name (like originator::name), or
+    * a (numeric) template-type id, or a CmsLayoutTemplateType object
+    * @return CmsLayoutTemplate
+    * @throws CmsInvalidDataException
+    */
+    public static function get_template_by_type($a)
+    {
+        if( is_int($a) || is_string($a) ) {
+            $tt = CmsLayoutTemplateType::load($a);
+            if( $tt ) return $tt->create_new_template();
+        }
+        elseif( $a instanceof CmsLayoutTemplateType ) {
+            return $a->create_new_template();
+        }
+
+        throw new CmsInvalidDataException('Invalid data passed to '.__METHOD__);
+    }
 
     /**
     * Generate a unique name for a template
@@ -731,30 +755,6 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         }
 
         return false;
-    }
-
-   /**
-    * Create a new template of the specific type
-    *
-    * @param mixed $t A CmsLayoutTemplateType object, an integer template type id,
-    *  or a string template type identifier
-    * @return CmsLayoutTemplate
-    * @throws CmsInvalidDataException
-    */
-    public static function create_template_by_type($t)
-    {
-        if( is_int($t) || is_string($t) ) {
-            $t2 = CmsLayoutTemplateType::load($t);
-        }
-        elseif( $t instanceof CmsLayoutTemplateType ) {
-            $t2 = $t;
-        }
-        else {
-            $t2 = null;
-        }
-
-        if( $t2 ) return $t2->create_new_template();
-        throw new CmsInvalidDataException('Invalid data passed to '.__METHOD__);
     }
 
    /**
