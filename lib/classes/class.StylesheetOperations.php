@@ -31,8 +31,10 @@ use function endswith;
 
 /**
  * A class of static methods for dealing with CmsLayoutStylesheet objects.
- * This class is for stylesheet administration, by DesignManager module
- * and the like. It is not used for runtime stylesheet retrieval (except when WYSIWWYG wanted ?).
+ *
+ * This class is mainly for stylesheet administration, by DesignManager module
+ * and the like. It is not used for runtime stylesheet retrieval, except when a
+ * WYSIWWYG is used in an admin page, in which case get_bulk_stylesheets() is called.
  *
  * @since 2.3
  * @package CMS
@@ -46,8 +48,9 @@ class StylesheetOperations
 	const TABLENAME = 'layout_stylesheets';
 
    /**
-	* Validate the specified stylesheet object for suitability for saving to the database
-	* Stylesheet objects must have a valid name (only certain characters accepted, and must have at least some css content)
+	* Validate the specified stylesheet.
+	* Each stylesheet must have a valid name (unique, only certain characters accepted),
+    * and must have at least some content.
 	*
 	* @throws CmsInvalidDataException
 	*/
@@ -191,8 +194,8 @@ VALUES (?,?,?,?,?,?,?,?)';
 	}
 
    /**
-	* Save the specified stylesheet to the database
-	* Objects are only saved if they are dirty (have been modified in some way, or have no id)
+	* Save the specified stylesheet, if it is 'dirty' (has been modified in some way,
+    * or has no id)
 	*
 	* This method sends events before and after saving.
 	* EditStylesheetPre is sent before an existing stylesheet is saved to the database
@@ -201,6 +204,7 @@ VALUES (?,?,?,?,?,?,?,?)';
 	* AddStylesheetPost is sent after a new stylesheet is saved to the database
 	*
 	* @throws CmsSQLErrorException
+	* @throws CmsInvalidDataException
 	*/
 	public static function save_stylesheet(CmsLayoutStylesheet $sht)
 	{
@@ -219,9 +223,10 @@ VALUES (?,?,?,?,?,?,?,?)';
 	}
 
    /**
-	* Delete the specified stylesheet object from the database (and the associated file, if any)
-	* This method deletes the appropriate records from the database,
-	* deletes the id from this object, and marks the object as dirty so that it can be saved again
+	* Delete the specified stylesheet.
+	* This method deletes the appropriate records from the database, deletes a
+    * content-file if any, deletes the id from the stylesheet object, and marks
+    * the object as dirty so it can be saved again.
 	*
 	* This method triggers the DeleteStylesheetPre and DeleteStylesheetPost events
 	*/
@@ -267,16 +272,15 @@ VALUES (?,?,?,?,?,?,?,?)';
 	}
 
    /**
-	* Get the specified stylesheet object
+	* Get the specified stylesheet
 	*
-	* @param mixed $a Either an integer stylesheet id, or a string stylesheet name.
+	* @param mixed $a stylesheet identifier, (int|numeric string) id or (other string) name
 	* @return CmsLayoutStylesheet
 	* @throws CmsInvalidDataException
 	*/
 	public static function get_stylesheet($a)
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$row = null;
 		if( is_numeric($a) && (int)$a > 0 ) {
 			$query = 'SELECT id,name,content,description,media_type,media_query,created,modified FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 			$row = $db->GetRow($query,[(int)$a]);
@@ -284,6 +288,9 @@ VALUES (?,?,?,?,?,?,?,?)';
 		elseif( is_string($a) && $a !== '' ) {
 			$query = 'SELECT id,name,content,description,media_type,media_query,created,modified FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
 			$row = $db->GetRow($query,[$a]);
+		}
+		else {
+			$row = null;
 		}
 		if( $row ) return self::construct_stylesheet($row);
 		throw new CmsInvalidDataException('Could not find stylesheet identified by '.$a);
@@ -294,38 +301,39 @@ VALUES (?,?,?,?,?,?,?,?)';
 	*
 	* This method does not throw exceptions if one requested id, or name does not exist.
 	*
-	* @param array $ids Array of integer stylesheet ids or an array of string stylesheet names.
+	* @param array $ids stylesheet identifiers, all of them (int|numeric string) id's or (other string) names
 	* @param bool $deep whether or not to load associated data
-	* @return array Array of CmsLayoutStylesheet objects
+	* @return mixed array of CmsLayoutStylesheet objects | null
 	* @throws CmsInvalidDataException
 	*/
 	public static function get_bulk_stylesheets($ids,$deep = true)
 	{
 		if( !$ids ) return;
 
+		$db = CmsApp::get_instance()->GetDb();
 		// clean up the input data
-		$is_ints = FALSE;
 		if( is_numeric($ids[0]) && (int)$ids[0] > 0 ) {
 			$is_ints = TRUE;
 			for( $i = 0, $n = count($ids); $i < $n; $i++ ) {
 				$ids[$i] = (int)$ids[$i];
 			}
+			$ids = array_unique($ids);
+			$where = ' WHERE id IN ('.implode(',',$ids).')';
 		}
 		else if( is_string($ids[0]) && $ids[0] !== '' ) {
+			$is_ints = FALSE;
 			for( $i = 0, $n = count($ids); $i < $n; $i++ ) {
-				$ids[$i] = "'".trim($ids[$i])."'";
+				$ids[$i] = $db->qStr(trim($ids[$i]));
 			}
+			$ids = array_unique($ids);
+			$where = ' WHERE name IN ('.implode(',',$ids).')';
 		}
 		else {
 			// what ??
 			throw new CmsInvalidDataException('Invalid data passed to '.__CLASS__.'::'.__METHOD__);
 		}
-		$ids = array_unique($ids);
 
-		$db = CmsApp::get_instance()->GetDb();
-		$query = 'SELECT id,name,content,description,media_type,media_query,created,modified FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.implode(',',$ids).')';
-		if( !$is_ints ) $query = 'SELECT id,name,content,description,media_type,media_query,created,modified FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name IN ('.implode(',',$ids).')';
-
+		$query = 'SELECT id,name,content,description,media_type,media_query,created,modified FROM '.CMS_DB_PREFIX.self::TABLENAME.$where;
 		$dbr = $db->GetArray($query);
 		$out = [];
 		if( $dbr ) {
@@ -356,7 +364,7 @@ VALUES (?,?,?,?,?,?,?,?)';
 					}
 				}
 				else {
-					$one = trim($one,"'");
+					$one = trim($one,"'"); //assume mysqli quotes names like this
 					// find item in $dbr by name
 					foreach( $dbr as $row ) {
 						if( $row['name'] == $one ) {
@@ -376,7 +384,7 @@ VALUES (?,?,?,?,?,?,?,?)';
 	}
 
    /**
-	* Get all stylesheet objects
+	* Get all stylesheets
 	*
 	* @param bool $as_list a flag indicating the output format
 	* @return mixed If $as_list is true then the output will be an associated array of stylesheet id and stylesheet name suitable for use in an html select element
