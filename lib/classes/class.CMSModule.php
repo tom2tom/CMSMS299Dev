@@ -1575,7 +1575,7 @@ abstract class CMSModule
      * @param mixed $id string|null The action identifier
      * @param array  $params The action parameters
      * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin requests.
-     * @param mixed  $smartob  A CMSMS\internal\Smarty object, or null
+     * @param mixed  $smartob  A CMSMS\internal\template_wrapper object, or CMSMS\internal\Smarty object, or null
      * @return mixed The action output, normally a string but maybe null.
      */
     public function DoActionBase($action, $id, $params, $returnid, &$smartob)
@@ -1621,8 +1621,14 @@ abstract class CMSModule
         }
 
         $gCms = CmsApp::get_instance();
-        if( ($cando = $gCms->template_processing_allowed()) ) {
-            $tpl = $gCms->GetSmarty()->createTemplate('string:EMPTY MODULE ACTION TEMPLATE', null, null, $smartob);
+        if( ($cando = $gCms->template_processing_allowed()) )  {
+            if( $smartob instanceof Smarty_Internal_Template ) {
+                $tpl = $smartob;
+            } else {
+                if( !$smartob ) { $smartob = $gCms->GetSmarty(); }
+                $tpl = $smartob->createTemplate('string:DUMMY MODULE ACTION TEMPLATE');
+            }
+//            $tpl = $gCms->GetSmarty()->createTemplate('string:EMPTY MODULE ACTION TEMPLATE', null, null, $smartob); //null $smartob OK
             $tpl->assign([
             '_action' => $action,
             '_module' => $this->GetName(),
@@ -1632,7 +1638,7 @@ abstract class CMSModule
             'mod' => $this,
             ]);
 
-            $this->_action_tpl = $tpl; // 'parent' smarty template, which is the global smarty object if this is called directly from a template
+            $this->_action_tpl = $tpl; // a Smarty_Internal_Template object
         }
         $output = $this->DoAction($action, $id, $params, $returnid);
         if( $cando ) {
@@ -2373,7 +2379,7 @@ abstract class CMSModule
      * Process a file template through smarty.
      *
      * If called from within a module action, this method will use the action template object.
-     * Otherwise, the global smarty object will be used..
+     * Otherwise, the global smarty object will be used.
      *
      * @final
      * @param string  $tpl_name    Template name
@@ -2385,9 +2391,11 @@ abstract class CMSModule
     final public function ProcessTemplate(string $tpl_name, string $designation = '', bool $cache = false, string $cacheid = '') : string
     {
         if( strpos($tpl_name, '..') !== false ) return '';
-        $smartob = $this->_action_tpl;
-        if( !$smartob ) $smartob = CmsApp::get_instance()->GetSmarty();
-        return $smartob->fetch('module_file_tpl:'.$this->GetName().';'.$tpl_name );
+        $tpl = $this->_action_tpl;
+        if( !$tpl ) {
+            $tpl = CmsApp::get_instance()->GetSmarty(); //CHECKME VALID OBJECT HERE?
+        }
+        return $tpl->fetch('module_file_tpl:'.$this->GetName().';'.$tpl_name);
     }
 
     /**
