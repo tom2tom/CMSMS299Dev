@@ -85,13 +85,12 @@
     <label for="contents">{$t}:</label>
     {cms_help realm=$_module key2=help_template_contents title=$t}
   </p>
-  {if $template->has_content_file()}
-    <div class="pageinfo">{$mod->Lang('info_template_content_file',$template->get_content_filename())}</div>
-  {else}
-    <p class="pageinput">
-     {cms_textarea id='contents' prefix=$actionid name=contents value=$template->get_content() type='smarty' rows=20}
-    </p>
+  {if $template->get_content_file()}
+    <div class="pageinfo">{$mod->Lang('info_template_content_file',{$relpath})}</div>
   {/if}
+  <p class="pageinput">
+    {cms_textarea id='contents' prefix=$actionid name=contents value=$template->get_content() type='smarty' rows=20}
+  </p>
 </div>
 
 {tab_start name='description'}
@@ -205,7 +204,7 @@
      <div class="pageoverflow">
       <p class="pagetext">{$mod->Lang('prompt_filetemplate')}:</p>
       <p class="pageinput">
-      {if $template->has_content_file()}
+      {if $template->get_content_file()}
        <button type="submit" name="{$actionid}import" id="importbtn" class="adminsubmit icon do">{$mod->Lang('import')}</button>
       {elseif $template->get_id() > 0}
        <button type="submit" name="{$actionid}export" id="exportbtn" class="adminsubmit icon do">{$mod->Lang('export')}</button>
