@@ -23,8 +23,7 @@ function smarty_function_page_error($params, $template)
 
 	$out = '<div class="pageerror">'.trim($params['msg']).'</div>';
 	if( isset($params['assign']) ) {
-		//TODO why global smarty instead of $template?
-		$template->smarty->assign(trim($params['assign']),$out);
+		$template->assign(trim($params['assign']),$out);
 		return;
 	}
 	return $out;

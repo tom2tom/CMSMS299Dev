@@ -20,8 +20,7 @@ function smarty_function_tab_end($params, $template)
 {
 	$out = CMSMS\AdminTabs::end_tab_content();
 	if( isset($params['assign']) ) {
-		//TODO why global smarty instead of $template ?
-		$template->smarty->assign(trim($params['assign']),$out);
+		$template->assign(trim($params['assign']),$out);
 		return;
 	}
 	return $out;

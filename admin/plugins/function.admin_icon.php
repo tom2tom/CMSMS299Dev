@@ -58,8 +58,7 @@ function smarty_function_admin_icon($params, $template)
 	if( !$out ) return;
 
 	if( isset($params['assign']) ) {
-		//TODO why global smarty instead of template ?
-		$template->smarty->assign(trim($params['assign']),$out);
+		$template->assign(trim($params['assign']),$out);
 		return;
 	}
 	return $out;

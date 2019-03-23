@@ -36,7 +36,7 @@ function smarty_function_tab_header($params, $template)
 	$out = CMSMS\AdminTabs::set_tab_header($name,$label,$active);
 	if( isset($params['assign']) ) {
 		//TODO why global smarty instead of $template ?
-		$template->smarty->assign(trim($params['assign']),$out);
+		$template->assign(trim($params['assign']),$out);
 		return;
 	}
 	return $out;

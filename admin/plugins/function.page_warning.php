@@ -24,10 +24,8 @@ function smarty_function_page_warning($params, $template)
 	$out = '<div class="pagewarn">'.trim($params['msg']).'</div>';
 	if( isset($params['assign']) )
 	{
-		//TODO why the global smarty instead of $template?
-		$template->smarty->assign(trim($params['assign']),$out);
+		$template->assign(trim($params['assign']),$out);
 		return;
 	}
 	return $out;
 }
-
