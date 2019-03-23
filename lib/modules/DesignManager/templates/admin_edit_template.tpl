@@ -13,7 +13,7 @@
 <div class="rowbox">
   <div class="boxchild">
     <div class="pageinput postgap">
-      <button type="submit" name="{$actionid}submit"id="submitbtn"  class="adminsubmit icon check" {$disable|strip}>{$mod->Lang('submit')}</button>
+      <button type="submit" name="{$actionid}submit" id="submitbtn" class="adminsubmit icon check" {$disable|strip}>{$mod->Lang('submit')}</button>
       <button type="submit" name="{$actionid}cancel" id="cancelbtn" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
       {if $template->get_id()}
       <button type="submit" name="{$actionid}apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{$mod->Lang('apply')}</button>
