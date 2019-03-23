@@ -73,16 +73,18 @@ if ($modinst->SuppressAdminOutput($_REQUEST)) {
 }
 
 $params = $modops->GetModuleParameters($id);
-$smarty = ($CMS_JOB_TYPE < 2) ? CmsApp::get_instance()->GetSmarty() : null;
 
 switch ($CMS_JOB_TYPE) {
 	case 0:
 		$themeObject = cms_utils::get_theme_object();
 		$themeObject->set_action_module($module);
+		// create a dummy template to be a proxy-parent for the action
+		$smarty = CmsApp::get_instance()->GetSmarty();
+        $template = $smarty->createTemplate('string:DUMMY PARENT');
 
 		// retrieve and park the action-output first, in case the action also generates header content
 		ob_start();
-		echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
+		echo $modinst->DoActionBase($action, $id, $params, null, $template);
 		$content = ob_get_contents();
 		ob_end_clean();
 
@@ -96,7 +98,9 @@ switch ($CMS_JOB_TYPE) {
 		include_once 'footer.php';
 		break;
 	case 1: // not full-page output
-		echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
+		$smarty =  CmsApp::get_instance()->GetSmarty();
+        $template = $smarty->createTemplate('string:DUMMY PARENT');
+		echo $modinst->DoActionBase($action, $id, $params, null, $template);
 		break;
 	case 2:	//minimal
 		$fp = $modinst->GetModulePath().DIRECTORY_SEPARATOR.'action.'.$action.'.php';
