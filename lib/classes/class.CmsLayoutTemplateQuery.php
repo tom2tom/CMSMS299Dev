@@ -270,9 +270,9 @@ AS tmp1';
 	 * This method calls the execute method.
 	 *
 	 * @throws CmsLogicException
-	 * @return CmsLayoutTemplate
+	 * @return mixed CmsLayoutTemplate | null
 	 */
-	public function &GetTemplate()
+	public function GetTemplate()
 	{
 		return $this->GetObject();
 	}
@@ -284,10 +284,10 @@ AS tmp1';
 	 *
 	 * This method calls the execute method.
 	 *
-	 * @throws CmsLogicException
 	 * @return CmsLayoutTemplate
+	 * @throws CmsLogicException
 	 */
-	public function &GetObject()
+	public function GetObject()
 	{
 		$this->execute();
 		if (!$this->_rs) {
@@ -296,12 +296,12 @@ AS tmp1';
 		return TemplateOperations::get_template($this->fields['id']);
 	}
 	/**
-	 * Get the list of matched template ids
+	 * Get the list of matched template id's
 	 *
 	 * This method calls the execute method.
 	 *
 	 * @throws CmsLogicException
-	 * @return array Array of integers
+	 * @return array Array of integers, maybe empty
 	 */
 	public function GetMatchedTemplateIds()
 	{
@@ -324,7 +324,7 @@ AS tmp1';
 	 *
 	 * This method calls the execute method
 	 *
-	 * @return array of CmsLayoutTemplate objects
+	 * @return mixed array of CmsLayoutTemplate objects | null
 	 */
 	public function GetMatches()
 	{

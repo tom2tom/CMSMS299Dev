@@ -23,7 +23,7 @@ use CMSMS\StylesheetOperations;
 /**
  * @package CMS
  * @since 2.0
- * Class to perform advanced queries on layout stylesheets
+ * Class to perform advanced database queries on layout stylesheets
  * @see CmsDbQueryBase
  * @property int $id The stylesheet id.  This will result in at most 1 result being returned.
  * @property string $name A stylesheet name to filter upon.  If a partial name is provided, it is assumed to be a prefix.
@@ -36,13 +36,14 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 	/**
 	 * Execute the query in this object.
 	 *
+	 * @return void
 	 * @throws CmsInvalidDataException
 	 * @throws CmsSQLErrorException
 	 */
 	public function execute()
 	{
 		if( !is_null($this->_rs) ) return;
-		$query = 'SELECT S.id FROM '.CMS_DB_PREFIX. StylesheetOperations::TABLENAME.' S';
+		$query = 'SELECT S.id FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' S';
 
 		// if we are using a design id argument
 		// we do join, and sort by item order in the design
@@ -148,23 +149,22 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 	 *
 	 * This method is not as efficient as the GetMatches() method when the resultset has multiple items.
 	 *
-	 * @throws CmsLogicException
 	 * @return CmsLayoutStylesheet
+	 * @throws CmsLogicException
 	 */
-	public function &GetObject()
+	public function GetObject()
 	{
-		$ths->execute();
+		$this->execute();
 		if( !$this->_rs ) throw new CmsLogicException('Cannot get stylesheet from invalid stylesheet query object');
 		$id = (int) $this->fields['id'];
-		$obj = StylesheetOperations::get_stylesheet($id);
-		return $obj;
+		return StylesheetOperations::get_stylesheet($id);
 	}
 
 	/**
-	 * Return all of the matches for this query
+	 * Return all the matches for this query
 	 *
-	 * @throws CmsLogicExceptin
-	 * @return array CmsLayoutStylesheet objects
+	 * @return mixed array CmsLayoutStylesheet objects | null
+	 * @throws CmsLogicException
 	 */
 	public function GetMatches()
 	{
@@ -177,7 +177,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 			$this->MoveNext();
 		}
 
-		$deep = (!empty($this->_args['deep']) && $this->_args['deep']) ? TRUE : FALSE;
+		$deep = !empty($this->_args['deep']);
 		return StylesheetOperations::get_bulk_stylesheets($tmp,$deep);
 	}
 } // class

@@ -61,15 +61,16 @@ abstract class CmsDbQueryBase
 	protected $_rs = null;
 
 	/**
-	 * This member stores the original arguments passed to the constructor and used when generating
-	 * the query.
+	 * This member stores the original arguments passed to the constructor and
+	 * used when generating the query.
 	 */
 	protected $_args = [];
 
 	/**
 	 * Constructor
 	 *
-	 * @param mixed $args Accepts an associative array (key=>value) with arguments for the query, or a comma separarated string of arguments.
+	 * @param mixed $args associative array (key=>value) of arguments
+	 *  for the query, or a comma-separated string of arguments.
 	 */
 	public function __construct($args = '')
 	{
@@ -80,6 +81,29 @@ abstract class CmsDbQueryBase
 		}
 		else if( is_string($args) ) {
 			$this->_args = explode(',',$args);
+		}
+	}
+
+	/**
+	 * @ignore
+	 */
+	public function __get($key)
+	{
+		$this->execute();
+		switch( $key ) {
+		    case 'fields':
+				if( $this->_rs && !$this->_rs->EOF() ) return $this->_rs->fields;
+				return;
+		    case 'EOF':
+				return $this->_rs->EOF();
+		    case 'limit':
+				return $this->_limit;
+			case 'offset':
+				return $this->_offset;
+		    case 'totalrows':
+				return $this->_totalmatchingrows;
+		    case 'numpages':
+				return ceil($this->_totalmatchingrows / $this->_limit);
 		}
 	}
 
@@ -146,7 +170,7 @@ abstract class CmsDbQueryBase
 
 	/**
 	 * Modify the resultset object and point to the first record of the matched rows.
-	 * This is a synonym for MoveFirst()
+	 * This is an alias for MoveFirst()
 	 *
 	 * If execute has not been called yet, this method will call it.
 	 *
@@ -197,7 +221,7 @@ abstract class CmsDbQueryBase
 	 * @see ResultSet::fields
 	 * @return mixed
 	 */
-	abstract public function &GetObject();
+	abstract public function GetObject();
 
 	/**
 	 * Return an array of matched objects.
@@ -220,28 +244,4 @@ abstract class CmsDbQueryBase
 		}
 		if( $out ) return $out;
 	}
-
-	/**
-	 * @ignore
-	 */
-	public function __get($key)
-	{
-		$this->execute();
-		switch( $key ) {
-		    case 'fields':
-				if( $this->_rs && !$this->_rs->EOF() ) return $this->_rs->fields;
-				return;
-		    case 'EOF':
-				return $this->_rs->EOF();
-		    case 'limit':
-				return $this->_limit;
-			case 'offset':
-				return $this->_offset;
-		    case 'totalrows':
-				return $this->_totalmatchingrows;
-		    case 'numpages':
-				return ceil($this->_totalmatchingrows / $this->_limit);
-		}
-	}
-
 } // class
