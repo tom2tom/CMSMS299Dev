@@ -487,6 +487,9 @@ function get_editor_script(array $params) : array
 	if( $modname ) {
 		$modinst = cms_utils::get_module($modname);
 		if( $modinst ) {
+			if (empty($params['style'])) {
+				$params['style'] = cms_userprefs::get_for_user($userid, 'editor_theme');
+			}
 			if( $modinst instanceof SyntaxEditor ) {
 				$edname = $vars[1] ?? $modname;
 				return $modinst->GetEditorScript($edname, $params);
