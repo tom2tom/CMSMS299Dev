@@ -22,7 +22,7 @@ class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
     /**
      * Default cdn URL for retrieving Ace text-editor code
      */
-    const ACE_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3';
+    const ACE_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.3';
 
     /**
      * Default theme/style for Ace text-editor
@@ -32,7 +32,7 @@ class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
     /**
      * Default cdn URL for retrieving CodeMirror text-editor code
      */
-    const CM_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.39.0';
+    const CM_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.44.0';
 
     /**
      * Default theme/style for CodeMirror text-editor
