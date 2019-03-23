@@ -35,8 +35,8 @@ $pagelimit = cms_userprefs::get($this->GetName().'_pagelimit',500);
 $filter = cms_userprefs::get($this->GetName().'_userfilter');
 if( $filter ) $filter = unserialize($filter);
 
-$ajax = 0;
-if( isset($params['ajax']) ) $ajax = 1;
+if( isset($params['ajax']) ) { $ajax = 1; } else { $ajax = 0; }
+
 if( isset($params['curpage']) ) {
     $curpage = max(1,min(500,(int)$params['curpage']));
 }
