@@ -9,14 +9,16 @@ $('#tpl_selall').cmsms_checkall();
 <div class="row">
   <div class="pageoptions options-menu half">
     {if $has_add_right}
-    <a id="addtemplate" accesskey="a" title="{$mod->Lang('create_template')}">{admin_icon icon='newobject.gif' alt=$mod->Lang('create_template')}&nbsp;{$mod->Lang('create_template')}</a>&nbsp;&nbsp;
+      <a id="addtemplate" accesskey="a" title="{$mod->Lang('create_template')}">{admin_icon icon='newobject.gif' alt=$mod->Lang('create_template')}&nbsp;{$mod->Lang('create_template')}</a>&nbsp;&nbsp;
     {/if}
+    {if isset($templates)}
     <a id="edittplfilter" accesskey="f" title="{$mod->Lang('prompt_editfilter')}">{admin_icon icon=$filterimage alt=$mod->Lang('prompt_editfilter')}&nbsp;{$mod->Lang('filter')}</a>&nbsp;&nbsp;
     {if $have_locks}
     <a id="clearlocks" accesskey="l" title="{$mod->Lang('title_clearlocks')}" href="{cms_action_url action=admin_clearlocks type=template}">{admin_icon icon='run.gif' alt=''}&nbsp;{$mod->Lang('prompt_clearlocks')}</a>&nbsp;&nbsp;
     {/if}
     {if !empty($tpl_filter[0])}
     <span style="color: green;" title="{$mod->Lang('title_filterapplied')}">{$mod->Lang('filterapplied')}</span>
+    {/if}
     {/if}
   </div>
 
@@ -32,7 +34,7 @@ $('#tpl_selall').cmsms_checkall();
   {/if}
 </div>
 
-{if isset($templates)}
+{if !empty($templates)}
 <table class="pagetable">
   <thead>
     <tr>
@@ -40,7 +42,7 @@ $('#tpl_selall').cmsms_checkall();
       <th class="pageicon"></th>
       <th title="{$mod->Lang('title_tpl_name')}">{$mod->Lang('prompt_name')}</th>
       <th title="{$mod->Lang('title_tpl_type')}">{$mod->Lang('prompt_type')}</th>
-      <th title="{$mod->Lang('title_tpl_filename')}">{$mod->Lang('prompt_filename')}</th>
+{*      <th title="{$mod->Lang('title_tpl_filename')}">{$mod->Lang('prompt_filename')}</th> *}
       <th title="{$mod->Lang('title_tpl_design')}">{$mod->Lang('prompt_design')}</th>
       <th title="{$mod->Lang('title_tpl_dflt')}" class="pageicon">{$mod->Lang('prompt_dflt')}</th>{* dflt *}
 {*
@@ -78,10 +80,10 @@ $('#tpl_selall').cmsms_checkall();
       </td>
 
       {* filename column *}
-      <td>
+{*      <td>
         {if $template->get_content_file()} {basename($template->get_content_filename())} {/if}
       </td>
-
+*}
       {* design column *}
       <td>
         {$t1=$template->get_designs()}
@@ -164,8 +166,9 @@ $('#tpl_selall').cmsms_checkall();
       <button type="submit" name="{$actionid}submit_bulk" id="tpl_bulk_submit" class="tpl_bulk_action adminsubmit icon check">{$mod->Lang('submit')}</button>
     </div>
   </div>
-{else}
+{elseif isset($templates)}
   {page_warning msg=$mod->Lang('warning_no_templates_available')}
+{else}
+  {page_message msg=$mod->Lang('info_no_templates')}
 {/if}
 {/strip}</form>
-

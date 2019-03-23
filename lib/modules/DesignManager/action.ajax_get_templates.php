@@ -18,6 +18,7 @@
 
 use CMSMS\FormUtils;
 use CMSMS\LockOperations;
+use CMSMS\TemplateOperations;
 
 $handlers = ob_list_handlers();
 for( $i = 0, $n = count($handlers); $i < $n; ++$i ) { ob_end_clean(); }
@@ -116,6 +117,13 @@ try {
             'numrows' => $totalrows,
             'curpage' => (int)($offset / $limit) + 1,
         ]);
+    }
+    else {
+		$db = CmsApp::get_instance()->GetDb();
+		$query = 'SELECT EXISTS (SELECT 1 FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.')';
+		if( $db->GetOne($query) ) {
+			$tpl->assign('templates',false); //signal row(s) exist, but none matches
+		}
     }
 
     $designs = CmsLayoutCollection::get_all();

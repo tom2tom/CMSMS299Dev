@@ -1,14 +1,17 @@
 <div class="row">
   <div class="pageoptions options-menu half">
+    {if $has_add_right}
       <a id="addcss" accesskey="a" href="{cms_action_url action='admin_edit_css'}" title="{$mod->Lang('create_stylesheet')}">{admin_icon icon='newobject.gif'} {$mod->Lang('create_stylesheet')}</a>&nbsp;&nbsp;
+    {/if}
+    {if isset($stylesheets)}
       <a id="editcssfilter" accesskey="f" title="{$mod->Lang('prompt_editcssfilter')}">{admin_icon icon=$filterimage alt=$mod->Lang('prompt_editcssfilter')} {$mod->Lang('filter')}</a>&nbsp;&nbsp;
       {if $have_css_locks}
         <a id="cssclearlocks" accesskey="l" title="{$mod->Lang('title_clearlocks')}" href="{cms_action_url action=admin_clearlocks type=stylesheet}">{admin_icon icon='run.gif' alt=''}&nbsp;{$mod->Lang('prompt_clearlocks')}</a>&nbsp;&nbsp;
       {/if}
       {if !empty($css_filter.design)}
-      <span style="color: green;" title="{$mod->Lang('title_filterapplied')}">{$mod->Lang('filterapplied')}</span>
+        <span style="color: green;" title="{$mod->Lang('title_filterapplied')}">{$mod->Lang('filterapplied')}</span>
       {/if}
-    </ul>
+    {/if}   
   </div>
 
   {if isset($css_nav) && $css_nav.numpages > 1}
@@ -25,7 +28,7 @@
   {/if}
 </div>
 
-{if isset($stylesheets)}
+{if !empty($stylesheets)}
   {strip}
   {form_start action=admin_bulk_css}
   <table class="pagetable">
@@ -35,7 +38,7 @@
     <th class="pageicon"></th>
     <th title="{$mod->Lang('title_css_name')}">{$mod->Lang('prompt_name')}</th>
     <th title="{$mod->Lang('title_css_designs')}">{$mod->Lang('prompt_design')}</th>
-    <th title="{$mod->Lang('title_css_filename')}">{$mod->Lang('prompt_filename')}</th>
+{*  <th title="{$mod->Lang('title_css_filename')}">{$mod->Lang('prompt_filename')}</th> *}
     <th title="{$mod->Lang('title_css_modified')}">{$mod->Lang('prompt_modified')}</th>
 {*
     <th class="pageicon"></th>{ * edit * }
@@ -90,13 +93,13 @@
         <a class="tooltip text-red" data-cms-description='{$tooltip_designs|htmlentities}' title="{$mod->Lang('help_stylesheet_multiple_designs')}">{$mod->Lang('prompt_multiple')} ({count($t1)})
       {/if}
     </td>
-
+{*
     <td>
        {if $css->get_content_file()}
          {basename($css->get_content_filename())}
        {/if}
     </td>
-
+*}
     <td>{$css->get_modified()|date_format:'%x %X'}</td>
     <td><span context-menu="Style{$sid}" style="cursor:pointer;">{admin_icon icon='menu.gif' alt='menu' title=$mod->Lang('title_menu') class='systemicon'}</span></td>
     {if !$css->locked()}
@@ -144,6 +147,8 @@
     </div>
   </div>
   {form_end}
-{else}
+{elseif isset($stylesheets)}
   <div class="pagewarn">{$mod->Lang('warning_no_stylesheets')}</div>
+{else}
+  <div class="pageinfo">{$mod->Lang('info_no_stylesheets')}</div>
 {/if}
