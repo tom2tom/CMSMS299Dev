@@ -47,4 +47,4 @@ if (is_file($fp)) {
 }
 
 $urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-redirect('listfiletags.php'.$urlext);
+redirect('listusertags.php'.$urlext);

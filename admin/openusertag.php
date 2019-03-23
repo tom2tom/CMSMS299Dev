@@ -27,7 +27,7 @@ $userid = get_userid();
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 if (isset($_POST['cancel'])) {
-    redirect('listfiletags.php'.$urlext);
+    redirect('listusertags.php'.$urlext);
 }
 
 $themeObject = cms_utils::get_theme_object();
@@ -68,12 +68,12 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     if (isset($_POST['submit']) && !$err) {
         $msg = ($oldname == '-1') ? lang('added_udt') : lang('udt_updated');
         $themeObject->ParkNotice('success', $msg);
-        redirect('listfiletags.php'.$urlext);
+        redirect('listusertags.php'.$urlext);
     }
 } elseif (isset($_GET['tagname'])) {
     $tagname = cleanValue($_GET['tagname']);
 } else {
-    redirect('listfiletags.php'.$urlext);
+    redirect('listusertags.php'.$urlext);
 }
 
 if ($tagname != '-1') {
@@ -138,5 +138,5 @@ $smarty->assign([
 ]);
 
 include_once 'header.php';
-$smarty->display('openfiletag.tpl');
+$smarty->display('openusertag.tpl');
 include_once 'footer.php';

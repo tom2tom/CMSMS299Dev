@@ -56,8 +56,8 @@ $selfurl = basename(__FILE__);
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'access' => $access,
-    'addurl' => 'openfiletag.php',
-    'editurl' => 'openfiletag.php',
+    'addurl' => 'openusertag.php',
+    'editurl' => 'openusertag.php',
     'iconadd' => $iconadd,
     'iconedit' => $iconedit,
     'icondel' => $icondel,
@@ -79,7 +79,7 @@ EOS;
         $out .= <<<EOS
 function getParms(tagname) {
  var dlg = $('#params_dlg');
- $.get('filetagparams.php{$urlext}', {
+ $.get('usertagparams.php{$urlext}', {
   name: tagname
  }, function(data) {
   dlg.find('#params').html(data);
@@ -106,7 +106,7 @@ EOS;
         $out .= <<<EOS
 function doDelete(tagname) {
  cms_confirm($confirm).done(function() {
-  var u = 'deletefiletag.php{$urlext}&name=' + tagname;
+  var u = 'deleteusertag.php{$urlext}&name=' + tagname;
   window.location.replace(u);
  });
 }
@@ -121,5 +121,5 @@ EOS;
 $themeObject->add_footertext($out);
 
 include_once 'header.php';
-$smarty->display('listfiletags.tpl');
+$smarty->display('listusertags.tpl');
 include_once 'footer.php';

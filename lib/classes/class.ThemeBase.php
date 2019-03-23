@@ -913,7 +913,7 @@ abstract class ThemeBase
         'final'=>true,
         'show_in_menu'=>$this->HasPerm('taghelpPerms')];
         $items[] = ['name'=>'usertags','parent'=>'extensions',
-        'url'=>'listfiletags.php'.$urlext,
+        'url'=>'listusertags.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('usertags')),
         'description'=>lang('udt_description'),
         'final'=>true,
