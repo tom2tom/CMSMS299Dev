@@ -79,7 +79,7 @@ $('#tpl_selall').cmsms_checkall();
 
       {* filename column *}
       <td>
-        {if $template->has_content_file()} {basename($template->get_content_filename())} {/if}
+        {if $template->get_content_file()} {basename($template->get_content_filename())} {/if}
       </td>
 
       {* design column *}

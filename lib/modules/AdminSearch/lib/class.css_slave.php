@@ -65,7 +65,7 @@ final class css_slave extends slave
         $url = $this->get_mod()->create_url( 'm1_','admin_edit_css','', [ 'css'=>$one ] );
         $url = str_replace('&amp;','&',$url);
         $title = $css->get_name();
-        if( $css->has_content_file() ) {
+        if( $css->get_content_file() ) {
             $file = $css->get_content_filename();
             $title = $css->get_name().' ('.cms_relative_path($file,CMS_ROOT_PATH).')';
         }

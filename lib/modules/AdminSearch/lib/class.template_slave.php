@@ -65,7 +65,7 @@ final class template_slave extends slave
         $url = $this->get_mod()->create_url( 'm1_','admin_edit_template','', [ 'tpl'=>$one ] );
         $url = str_replace('&amp;','&',$url);
         $title = $tpl->get_name();
-        if( $tpl->has_content_file() ) {
+        if( $tpl->get_content_file() ) {
             $file = $tpl->get_content_filename();
             $title = $tpl->get_name().' ('.cms_relative_path($file,CMS_ROOT_PATH).')';
         }

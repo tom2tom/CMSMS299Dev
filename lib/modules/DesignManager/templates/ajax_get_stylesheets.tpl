@@ -92,7 +92,7 @@
     </td>
 
     <td>
-       {if $css->has_content_file()}
+       {if $css->get_content_file()}
          {basename($css->get_content_filename())}
        {/if}
     </td>

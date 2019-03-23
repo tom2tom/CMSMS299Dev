@@ -69,7 +69,7 @@
 {tab_header name='advanced' label=$mod->Lang('prompt_advanced')}
 
 {tab_start name='content'}
-{if $css->has_content_file()}
+{if $css->get_content_file()}
   <div class="pageinfo">{$mod->Lang('info_css_content_file',$css->get_content_filename())}</div>
 {else}
   <div class="pageoverflow">
@@ -146,7 +146,7 @@
   <div class="pageoverflow">
   <p class="pagetext">{$mod->Lang('prompt_cssfile')}:</p>
   <p class="pageinput">
-    {if $css->has_content_file()}
+    {if $css->get_content_file()}
       <button type="submit" name="{$actionid}import" id="importbtn" class="adminsubmit icon do">{$mod->Lang('import')}</button>
     {else}
       <button type="submit" name="{$actionid}export" id="exportbtn" class="adminsubmit icon do">{$mod->Lang('export')}</button>
