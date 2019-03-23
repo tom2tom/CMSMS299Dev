@@ -216,7 +216,7 @@ final class LangOperations
 			// put mention into the admin log
 			global $CMS_LOGIN_PAGE;
 			if( !isset($CMS_LOGIN_PAGE) ) debug_to_log('Languagestring: "' . $key . '"', 'Is missing in the languagefile: '.  $realm);
-			return "-- Missing Languagestring: $key --";
+			return "-- Missing Language String: $key --";
 		}
 
 		if( count($args) > 2 ) {
