@@ -250,7 +250,7 @@ final class AdminUtils
 	public static function get_icon(string $icon, array $attrs = []) : string
 	{
 		$smarty = CmsApp::get_instance()->GetSmarty();
-		$module = $smarty->getTemplateVars('actionmodule');
+		$module = $smarty->getTemplateVars('_module');
 
 		if ($module) {
 			return self::get_module_icon($module, attrs);
@@ -319,7 +319,7 @@ final class AdminUtils
 
 		if( !$key1 ) {
 			$smarty = CmsApp::get_instance()->GetSmarty();
-			$module = $smarty->getTemplateVars('actionmodule');
+			$module = $smarty->getTemplateVars('_module');
 			if( $module ) {
 				$key1 = $module;
 			}
@@ -331,7 +331,9 @@ final class AdminUtils
 		if( !$key1 ) return;
 
 		if( $key2 !== '' ) { $key1 .= '__'.$key2; }
-		if( $title === '' ) { $title = ($key2) ? $key2 : 'for this'; } //TODO lang
+		if( $title === '' ) {
+			$title = ($key2) ? $key2 : 'for this'; //TODO lang
+		}
 
 		return '<span class="cms_help" data-cmshelp-key="'.$key1.'" data-cmshelp-title="'.$title.'">'.$icon.'</span>';
 	}
