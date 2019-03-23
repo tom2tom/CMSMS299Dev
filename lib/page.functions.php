@@ -136,26 +136,22 @@ function check_login(bool $no_redirect = false)
     $redirect = !$no_redirect;
     $uid = get_userid($redirect);
     if( $uid > 0 ) {
-        $res = LoginOperations::get_instance()->validate_requestkey();
+        if( LoginOperations::get_instance()->validate_requestkey() ) {
+			return true;
+		}
+		// still here if logged in, but no/invalid secure-key in the request
     }
-    else {
-        $res = false;
-    }
-    if( !$res ) {
-        // logged in, but no url key on the request
-        if( $redirect ) {
-            // redirect to the admin login.php
-            // use SCRIPT_FILENAME and make sure it validates with the root_path
-            if( startswith($_SERVER['SCRIPT_FILENAME'],CMS_ROOT_PATH) ) {
-                $_SESSION['login_redirect_to'] = $_SERVER['REQUEST_URI'];
-            }
-            LoginOperations::get_instance()->deauthenticate();
-            $config = cms_config::get_instance();
-            redirect($config['admin_url'].'/login.php');
-        }
-        return false;
-    }
-    return true;
+	if( $redirect ) {
+		// redirect to the admin login page
+		// use SCRIPT_FILENAME and make sure it validates with the root_path
+		if( startswith($_SERVER['SCRIPT_FILENAME'],CMS_ROOT_PATH) ) {
+			$_SESSION['login_redirect_to'] = $_SERVER['REQUEST_URI'];
+		}
+		LoginOperations::get_instance()->deauthenticate();
+		$config = cms_config::get_instance();
+		redirect($config['admin_url'].'/login.php');
+	}
+	return false;
 }
 
 
