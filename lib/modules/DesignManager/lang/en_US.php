@@ -554,7 +554,7 @@ Delete an attached stylesheet by clicking the trash icon.';
 $lang['info_import_xml_step1'] = 'Step 1: Choose a Design XML File to import';
 $lang['info_import_xml_step2'] = 'Step 2: Read information about this design before importing it to your CMSMS installation.';
 $lang['info_nodescription'] = 'There is no description entered for this item';
-$lang['info_template_content_file'] = 'The contents of this template are stored in a file.  You can edit this template by editing <strong>%s</strong> with your favorite editor.';
+$lang['info_template_content_file'] = 'If authorized, you can also edit the content of this template by working directly on file <strong>&lt;website root folder&GT;%s</strong>.';
 $lang['info_template_delete'] = 'This template might be used by a working system.  Deleting it might break an otherwise working website.  Be careful!';
 
 #J
