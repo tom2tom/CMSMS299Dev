@@ -35,27 +35,22 @@ if (!$this->CheckPermission('Modify Templates')) {
 }
 
 $this->SetCurrentTab('templates');
-$tpl_id = (int) get_parameter_value($params,'tpl');
-
 if (isset($params['cancel'])) {
     if ($params['cancel'] == $this->Lang('cancel')) $this->SetInfo($this->Lang('msg_cancelled'));
     $this->RedirectToAdminTab();
 }
 
-try {
-//    $tpl_obj = null;
-//    $type_obj = null;
-    $type_is_readonly = false;
-    $message = $this->Lang('msg_template_saved');
-    $response = 'success';
-    $apply = isset($params['apply']) ? 1 : 0;
+$type_is_readonly = false;
+$response = 'success';
+$apply = isset($params['apply']);
 
+try {
     $extraparms = [];
     if (isset($params['import_type'])) {
         $tpl_obj = TemplateOperations::get_template_by_type($params['import_type']);
         $tpl_obj->set_owner(get_userid());
         $design = CmsLayoutCollection::load_default();
-        if( $design ) {
+        if ($design) {
             $tpl_obj->add_design($design);
         }
         $extraparms['import_type'] = $params['import_type'];
@@ -71,28 +66,28 @@ try {
     $type_obj = CmsLayoutTemplateType::load($tpl_obj->get_type_id());
 
     try {
-        if (isset($params['submit']) || isset($params['apply']) ) {
+        if ($apply || isset($params['submit'])) {
             // do the magic.
             if (isset($params['description'])) $tpl_obj->set_description($params['description']);
             if (isset($params['type'])) $tpl_obj->set_type($params['type']);
-            if (isset($params['default'])) $tpl_obj->set_type_dflt($params['default']);
+            $tpl_obj->set_type_dflt($params['default'] ?? 0);
             if (isset($params['owner_id'])) $tpl_obj->set_owner($params['owner_id']);
             if (isset($params['addt_editors']) && $params['addt_editors']) {
-                $tpl_obj->set_additional_editors($params['addt_editors']);
+                $tpl_obj->set_additional_editors($params['addt_editors']); //TODO support clearance
             }
-            if (isset($params['category_id'])) $tpl_obj->set_category($params['category_id']);
-            $tpl_obj->set_listable($params['listable']??1);
-            if( isset($params['contents']) ) $tpl_obj->set_content($params['contents']);
-
+            if (!empty($params['category_id'])) $tpl_obj->set_category($params['category_id']); //TODO support multiple categories
+            $tpl_obj->set_listable($params['listable'] ?? 0);
+//TODO      $tpl_obj->set_content_file($params['contentfile'] ?? 0);
+/*
             $old_export_name = $tpl_obj->get_content_filename();
             $tpl_obj->set_name($params['name']);
             $new_export_name = $tpl_obj->get_content_filename();
-            if( $old_export_name != $new_export_name && is_file( $old_export_name ) ) {
-                if( is_file( $new_export_name ) ) throw new Exception('Cannot rename exported template (destination name exists)');
+            if ($old_export_name != $new_export_name && is_file( $old_export_name)) {
+                if (is_file( $new_export_name)) throw new Exception('Cannot rename exported template (destination name exists)');
                 $res = rename($old_export_name,$new_export_name);
-                if( !$res ) throw new Exception( 'Problem renaming exported template' );
+                if (!$res) throw new Exception( 'Problem renaming exported template');
             }
-
+*/
             if ($this->CheckPermission('Manage Designs')) {
                 $design_list = [];
                 if (isset($params['design_list'])) $design_list = $params['design_list'];
@@ -100,27 +95,38 @@ try {
             }
 
             // lastly, check for errors in the template before we save.
-            if( isset($params['contents']) ) cms_utils::set_app_data('tmp_template', $params['contents']);
+//USELESS FOR SUCH TEST cms_utils::set_app_data('tmp_template', $params['contents']);
 
             // if we got here, we're golden.
-            $tpl_obj->save();
+			if ($tpl_obj->get_content_file()) {
+				$filepath = $tpl_obj->get_content_filename();
+				file_put_contents($filepath,$params['contents']);
+			}
+			else {
+            	$tpl_obj->set_content($params['contents']);
+			}
+            TemplateOperations::save_template($tpl_obj);
 
-            if (!$apply) {
+			$message = $this->Lang('msg_template_saved');
+            if ($apply) {
+				$this->ShowMessage($message);
+			}
+			else {
                 $this->SetMessage($message);
                 $this->RedirectToAdminTab();
             }
-
         }
-        else if( isset($params['export']) ) {
+/*        elseif (isset($params['export'])) {
             $outfile = $tpl_obj->get_content_filename();
             $dn = dirname($outfile);
-            if( !is_dir($dn) || !is_writable($dn) ) throw new RuntimeException($this->Lang('error_assets_writeperm'));
-            if( is_file($outfile) && !is_writable($outfile) ) throw new RuntimeException($this->Lang('error_assets_writeperm'));
+            if (!is_dir($dn) || !is_writable($dn)) throw new RuntimeException($this->Lang('error_assets_writeperm'));
+            if (is_file($outfile) && !is_writable($outfile)) throw new RuntimeException($this->Lang('error_assets_writeperm'));
             file_put_contents($outfile,$tpl_obj->get_content());
         }
-        else if( isset($params['import']) ) {
+*/
+        elseif (isset($params['import'])) {
             $infile = $tpl_obj->get_content_filename();
-            if( !is_file($infile) || !is_readable($infile) || !is_writable($infile) ) {
+            if (!is_file($infile) || !is_readable($infile) || !is_writable($infile)) {
                 throw new RuntimeException($this->Lang('error_assets_readwriteperm'));
             }
             $data = file_get_contents($infile);
@@ -128,7 +134,7 @@ try {
             $tpl_obj->set_content($data);
             $tpl_obj->save();
         }
-    } catch( Exception $e ) {
+    } catch( Exception $e) {
         $message = $e->GetMessage();
         $response = 'error';
     }
@@ -142,13 +148,13 @@ try {
         try {
             $lock_id = LockOperations::is_locked('template', $tpl_obj->get_id());
             $lock = null;
-            if( $lock_id > 0 ) {
+            if ($lock_id > 0) {
                 // it's locked... by somebody, make sure it's expired before we allow stealing it.
                 $lock = Lock::load('template',$tpl_obj->get_id());
-                if( !$lock->expired() ) throw new CmsLockException('CMSEX_L010');
+                if (!$lock->expired()) throw new CmsLockException('CMSEX_L010');
                 LockOperations::unlock($lock_id,'template',$tpl_obj->get_id());
             }
-        } catch( CmsException $e ) {
+        } catch( CmsException $e) {
             $message = $e->GetMessage();
             $this->SetError($message);
             $this->RedirectToAdminTab();
@@ -165,8 +171,9 @@ try {
         $this->ShowErrors($message);
     }
 
-	$themeObject = cms_utils::get_theme_object();
-    if( ($tpl_id = $tpl_obj->get_id()) > 0 ) {
+	$tpl_id = (int) get_parameter_value($params,'tpl');
+    $themeObject = cms_utils::get_theme_object();
+    if (($tpl_id = $tpl_obj->get_id()) > 0) {
         $themeObject->SetSubTitle($this->Lang('edit_template').': '.$tpl_obj->get_name()." ($tpl_id)");
     } else {
         $tpl_id = 0;
@@ -178,6 +185,15 @@ try {
     $tpl->assign('type_obj', $type_obj)
      ->assign('extraparms', $extraparms)
      ->assign('template', $tpl_obj);
+
+	if ($tpl_obj->get_content_file()) {
+		$fn = $tpl_obj->get_content();
+		$filepath = cms_join_path('','assets','templates',$fn);
+		$tpl->assign('relpath', $filepath);
+		$filepath = CMS_ROOT_PATH.$filepath;
+		$tmp = @file_get_contents($filepath);
+		$tpl_obj->set_content($tmp);
+	}
 
     $cats = CmsLayoutTemplateCategory::get_all();
     $out = ['' => $this->Lang('prompt_none')];
@@ -295,7 +311,7 @@ $(document).ready(function() {
     $('#form_edittemplate').dirtyForm('option', 'dirty', false);
   });
   $('#submitbtn,#cancelbtn,#importbtn,#exportbtn').on('click', function(ev) {
-   if( ! do_locking ) return;
+   if (! do_locking) return;
    ev.preventDefault();
    // unlock the item, and submit the form
    var self = this;
@@ -328,7 +344,7 @@ EOS;
     $this->AdminBottomContent($js);
 
     $tpl->display();
-} catch( CmsException $e ) {
+} catch( CmsException $e) {
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
