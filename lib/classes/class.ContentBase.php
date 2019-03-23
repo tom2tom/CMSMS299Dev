@@ -32,6 +32,7 @@ use CMSMS\FormUtils;
 use CMSMS\GroupOperations;
 use CMSMS\internal\content_assistant;
 use CMSMS\internal\global_cache;
+use CMSMS\LangOperations;
 use CMSMS\UserOperations;
 use CmsRoute;
 use const CMS_DB_PREFIX;
@@ -65,17 +66,17 @@ abstract class ContentBase
 	/**
 	 * @ignore
 	 */
-	const TAB_NAV = 'zz_1nav_tab__';
+	const TAB_OPTIONS = 'zz_1options_tab__';
 
 	/**
 	 * @ignore
 	 */
-	const TAB_LOGIC = 'zz_2logic_tab__';
+	const TAB_NAV = 'zz_2nav_tab__';
 
 	/**
 	 * @ignore
 	 */
-	const TAB_OPTIONS = 'zz_3options_tab__';
+	const TAB_LOGIC = 'zz_3logic_tab__';
 
 	/**
 	 * @ignore
@@ -1945,8 +1946,8 @@ WHERE content_id = ?';
 	}
 
 	/**
-	 * Return a list of all of the properties that may be edited by the current user when editing this content item
-	 * in a content editor form.
+	 * Return a list of all the properties that may be edited by the current user
+	 * when editing this content item in a content editor form.
 	 *
 	 * Content-type classes may override this method, but should call this base method.
 	 *
@@ -2039,9 +2040,12 @@ WHERE content_id = ?';
 	}
 
 	/**
-	 * @ignore
+	 * Return a sorted list of all the properties that may be edited by the
+	 * current user when editing this content item in a content editor form.
+	 *
+	 * @return array
 	 */
-	private function _GetEditableProperties() : array
+	public function GetSortedEditableProperties() : array
 	{
 		if( isset($this->_editable_properties) ) return $this->_editable_properties;
 
@@ -2060,7 +2064,7 @@ WHERE content_id = ?';
 	 */
 	public function GetTabNames()
 	{
-		$props = $this->_GetEditableProperties();
+		$props = $this->GetSortedEditableProperties();
 		$arr = [];
 		foreach( $props as &$one ) {
 			if( !isset($one['tab']) || $one['tab'] === '' ) $one['tab'] = self::TAB_MAIN;
@@ -2079,35 +2083,38 @@ WHERE content_id = ?';
 	 * @abstract
 	 * @since 2.0
 	 * @param string $key the tab key (as returned with GetTabNames)
+	 * @param string $realm since 2.3
 	 * @return string html text to display at the top of the tab.
 	 */
-	public function GetTabMessage($key)
+	public function GetTabMessage($key, $realm)
 	{
 		switch( $key ) {
 		case self::TAB_PERMS:
-			return '<div class="information">'.lang('msg_permstab').'</div>';
+			return '<div class="information">'. LangOperations::lang_from_realm($realm,'msg_permstab').'</div>';
 			break;
 		}
 	}
 
 	/**
 	 * Get the elements for a specific tab.
+	 * @deprecated since 2.3 does nothing - instead process results from GetSortedEditableProperties()
 	 *
 	 * @param string $key tab key
 	 * @param bool   $adding  Optional flag whether this is an add operation. Default false (i.e. edit).
+	 * @param string $realm since 2.3 optional lang realm - module name e.g. CMSContentManager
 	 * @return array Each member an array:
      *  [0] = prompt field
 	 *  [1] = input field for the prompt with its js if needed
 	 * or just a scalar false upon some errors
 	 */
-	public function GetTabElements($key, $adding = false)
+	public function GetTabElements($key, $adding = false, $realm = 'CMSContentManager')
 	{
-		$props = $this->_GetEditableProperties();
+		$props = $this->GetSortedEditableProperties();
 		$ret = [];
 		foreach( $props as &$one ) {
 			if( !isset($one['tab']) || $one['tab'] === '' ) $one['tab'] = self::TAB_MAIN;
 			if( $one['tab'] == $key ) {
-				$ret[] = $this->display_single_element($one['name'],$adding);
+				$ret[] = $this->display_single_element($one['name'],$adding, $realm);
 			}
 		}
 		unset($one);
@@ -2211,7 +2218,8 @@ WHERE content_id = ?';
 	 */
 	public static function GetAdditionalEditorInput($addteditors, $owner_id = -1)
 	{
-		$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_addteditor',lang('help_title_content_addteditor'));
+		$realm = 'CMSContentManager'; //TODO ratinalize this, maybe into module
+		$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_addteditor',LangOperations::lang_from_realm($realm,'help_title_content_addteditor'));
 		$ret[] = '<label for="addteditors">'.lang('additionaleditors').':</label>'.$help;
 		$text = '<input name="additional_editors" type="hidden" value="" />';
 		$text .= '<select id="addteditors" name="additional_editors[]" multiple="multiple" size="5">';
@@ -2377,23 +2385,24 @@ WHERE content_id = ?';
 	 * Get html to display a single input element for an object basic or extended property.
 	 *
 	 * @abstract
-	 * @param string $one The property name
+	 * @param string $name The property name
 	 * @param bool $adding Whether or not we are in add or edit mode.
+	 * @param string $realm since 2.3 the language-translations realm, typically a module name
 	 * @return mixed 2-member array: [0] = label, [1] = input element | false
 	 */
-	protected function display_single_element($one, $adding)
+	public function display_single_element($name, $adding, $realm)
 	{
 		$config = cms_config::get_instance();
 
-		switch( $one ) {
+		switch( $name ) {
 		case 'title':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_title',lang('help_title_content_title'));
-			return ['<label for="in_title">*'.lang('title').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_title',LangOperations::lang_from_realm($realm,'help_title_content_title'));
+			return ['<label for="in_title">*'.LangOperations::lang_from_realm($realm,'title').':</label>'.$help,
 					'<input type="text" id="in_title" name="title" required="required" value="'.cms_htmlentities($this->mName).'" />'];
 
 		case 'menutext':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_menutext',lang('help_title_content_menutext'));
-			return ['<label for="in_menutext">*'.lang('menutext').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_menutext',LangOperations::lang_from_realm($realm,'help_title_content_menutext'));
+			return ['<label for="in_menutext">*'.LangOperations::lang_from_realm($realm,'menutext').':</label>'.$help,
 					'<input type="text" name="menutext" id="in_menutext" value="'.cms_htmlentities($this->mMenuText).'" />'];
 
 		case 'parent':
@@ -2402,46 +2411,46 @@ WHERE content_id = ?';
 			if( empty($tmp) && !check_permission(get_userid(),'Manage All Content') ) {
 				return ['','<input type="hidden" name="parent_id" value="'.$this->mParentId.'" />'];
 			}
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_parent',lang('help_title_content_parent'));
-			if( !empty($tmp) ) return ['<label for="parent_id">*'.lang('parent').':</label>'.$help,$tmp];
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_parent',LangOperations::lang_from_realm($realm,'help_title_content_parent'));
+			if( !empty($tmp) ) return ['<label for="parent_id">*'.LangOperations::lang_from_realm($realm,'parent').':</label>'.$help,$tmp];
 			break;
 
 		case 'active':
 			if( !$this->DefaultContent() ) {
-				$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_active',lang('help_title_content_active'));
-				return ['<label for="id_active">'.lang('active').':</label>'.$help,
+				$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_active',LangOperations::lang_from_realm($realm,'help_title_content_active'));
+				return ['<label for="id_active">'.LangOperations::lang_from_realm($realm,'active').':</label>'.$help,
 						'<input type="hidden" name="active" value="0" /><input class="pagecheckbox" type="checkbox" name="active" id="id_active" value="1"'.($this->mActive?' checked="checked"':'').' />'];
 			}
 			break;
 
 		case 'showinmenu':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_showinmenu',lang('help_title_content_showinmenu'));
-			return ['<label for="showinmenu">'.lang('showinmenu').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_showinmenu',LangOperations::lang_from_realm($realm,'help_title_content_showinmenu'));
+			return ['<label for="showinmenu">'.LangOperations::lang_from_realm($realm,'showinmenu').':</label>'.$help,
 					'<input type="hidden" name="showinmenu" value="0" /><input class="pagecheckbox" type="checkbox" value="1" name="showinmenu" id="showinmenu"'.($this->mShowInMenu?' checked="checked"':'').' />'];
 
 		case 'target':
-			$text = '<option value="---">'.lang('none').'</option>';
+			$text = '<option value="---">'.LangOperations::lang_from_realm($realm,'none').'</option>';
 			$text .= '<option value="_blank"'.($this->GetPropertyValue('target')=='_blank'?' selected="selected"':'').'>_blank</option>';
 			$text .= '<option value="_parent"'.($this->GetPropertyValue('target')=='_parent'?' selected="selected"':'').'>_parent</option>';
 			$text .= '<option value="_self"'.($this->GetPropertyValue('target')=='_self'?' selected="selected"':'').'>_self</option>';
 			$text .= '<option value="_top"'.($this->GetPropertyValue('target')=='_top'?' selected="selected"':'').'>_top</option>';
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_target',lang('help_title_content_target'));
-			return ['<label for="target">'.lang('target').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_target',LangOperations::lang_from_realm($realm,'help_title_content_target'));
+			return ['<label for="target">'.LangOperations::lang_from_realm($realm,'target').':</label>'.$help,
 					'<select name="target" id="target">'.$text.'</select>'];
 
 		case 'alias':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_page_alias',lang('help_title_page_alias'));
-			return ['<label for="alias">'.lang('pagealias').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_page_alias',LangOperations::lang_from_realm($realm,'help_title_page_alias'));
+			return ['<label for="alias">'.LangOperations::lang_from_realm($realm,'pagealias').':</label>'.$help,
 					'<input type="text" name="alias" id="alias" value="'.$this->mAlias.'" />'];
 
 		case 'cachable':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_cachable',lang('help_title_content_cachable'));
-			return ['<label for="in_cachable">'.lang('cachable').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_cachable',LangOperations::lang_from_realm($realm,'help_title_content_cachable'));
+			return ['<label for="in_cachable">'.LangOperations::lang_from_realm($realm,'cachable').':</label>'.$help,
 					'<input type="hidden" name="cachable" value="0" /><input id="in_cachable" class="pagecheckbox" type="checkbox" value="1" name="cachable"'.($this->mCachable?' checked="checked"':'').' />'];
 
 		case 'secure':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_secure',lang('help_title_content_secure'));
-			return ['<label for="secure">'.lang('secure_page').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_secure',LangOperations::lang_from_realm($realm,'help_title_content_secure'));
+			return ['<label for="secure">'.LangOperations::lang_from_realm($realm,'secure_page').':</label>'.$help,
 					'<input type="hidden" name="secure" value="0"/><input id="secure" class="pagecheckbox" type="checkbox" value="1" name="secure"'.($this->mSecure?' checked="checked"':'').' />'];
 
 		case 'page_url':
@@ -2449,9 +2458,9 @@ WHERE content_id = ?';
 				$pretty_urls = $config['url_rewriting'] == 'none' ? 0 : 1;
 				if( $pretty_urls != 0) {
 					$str = '<input type="text" name="page_url" id="page_url" value="'.$this->mURL.'" size="50" maxlength="255" />';
-					$prompt = '<label for="page_url">'.lang('page_url').':</label>';
+					$prompt = '<label for="page_url">'.LangOperations::lang_from_realm($realm,'page_url').':</label>';
 					if( cms_siteprefs::get('content_mandatory_urls',0) ) $prompt = '*'.$prompt;
-					$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_page_url',lang('help_title_page_url'));
+					$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_page_url',LangOperations::lang_from_realm($realm,'help_title_page_url'));
 					return [$prompt.$help,$str];
 				}
 			}
@@ -2470,8 +2479,8 @@ WHERE content_id = ?';
 				$input = create_file_dropdown('image',$dir,$data,'jpg,jpeg,png,gif','',true,'','thumb_',0,1);
 			}
 			if( !$input ) return false;
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_image',lang('help_title_content_image'));
-			return ['<label for="image">'.lang('image').':</label>'.$help,$input];
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_image',LangOperations::lang_from_realm($realm,'help_title_content_image'));
+			return ['<label for="image">'.LangOperations::lang_from_realm($realm,'image').':</label>'.$help,$input];
 
 		case 'thumbnail':
 			$dir = cms_join_path($config['image_uploads_path'],cms_siteprefs::get('content_thumbnailfield_path'));
@@ -2486,45 +2495,45 @@ WHERE content_id = ?';
 				$input = create_file_dropdown('thumbnail',$dir,$data,'jpg,jpeg,png,gif','',true,'','thumb_',0,1);
 			}
 			if( !$input ) return false;
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_thumbnail',lang('help_title_content_thumbnail'));
-			return ['<label for="thumbnail">'.lang('thumbnail').':</label>'.$help,$input];
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_thumbnail',LangOperations::lang_from_realm($realm,'help_title_content_thumbnail'));
+			return ['<label for="thumbnail">'.LangOperations::lang_from_realm($realm,'thumbnail').':</label>'.$help,$input];
 
 		case 'titleattribute':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_titleattribute',lang('help_title_content_ta'));
-			return ['<label for="titleattribute">'.lang('titleattribute').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_titleattribute',LangOperations::lang_from_realm($realm,'help_title_content_ta'));
+			return ['<label for="titleattribute">'.LangOperations::lang_from_realm($realm,'titleattribute').':</label>'.$help,
 					'<input type="text" name="titleattribute" id="titleattribute" maxlength="255" size="80" value="'.cms_htmlentities($this->mTitleAttribute).'" />'];
 
 		case 'accesskey':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_accesskey',lang('help_title_content_accesskey'));
-			return ['<label for="accesskey">'.lang('accesskey').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_accesskey',LangOperations::lang_from_realm($realm,'help_title_content_accesskey'));
+			return ['<label for="accesskey">'.LangOperations::lang_from_realm($realm,'accesskey').':</label>'.$help,
 					'<input type="text" name="accesskey" id="accesskey" maxlength="5" value="'.cms_htmlentities($this->mAccessKey).'" />'];
 
 		case 'tabindex':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_tabindex',lang('help_title_content_tabindex'));
-			return ['<label for="tabindex">'.lang('tabindex').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_tabindex',LangOperations::lang_from_realm($realm,'help_title_content_tabindex'));
+			return ['<label for="tabindex">'.LangOperations::lang_from_realm($realm,'tabindex').':</label>'.$help,
 					'<input type="text" name="tabindex" id="tabindex" maxlength="5" value="'.cms_htmlentities($this->mTabIndex).'" />'];
 
 		case 'extra1':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_extra1',lang('help_title_content_extra1'));
-			return ['<label for="extra1">'.lang('extra1').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_extra1',LangOperations::lang_from_realm($realm,'help_title_content_extra1'));
+			return ['<label for="extra1">'.LangOperations::lang_from_realm($realm,'extra1').':</label>'.$help,
 					'<input type="text" name="extra1" id="extra1" maxlength="255" size="80" value="'.cms_htmlentities($this->GetPropertyValue('extra1')).'" />'];
 
 		case 'extra2':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_extra2',lang('help_title_content_extra2'));
-			return ['<label for="extra2">'.lang('extra2').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_extra2',LangOperations::lang_from_realm($realm,'help_title_content_extra2'));
+			return ['<label for="extra2">'.LangOperations::lang_from_realm($realm,'extra2').':</label>'.$help,
 					'<input type="text" name="extra2" id="extra2" maxlength="255" size="80" value="'.cms_htmlentities($this->GetPropertyValue('extra2')).'" />'];
 
 		case 'extra3':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_extra3',lang('help_title_content_extra3'));
-			return ['<label for="extra3">'.lang('extra3').':</label>'.$help,
+			$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_extra3',LangOperations::lang_from_realm($realm,'help_title_content_extra3'));
+			return ['<label for="extra3">'.LangOperations::lang_from_realm($realm,'extra3').':</label>'.$help,
 					'<input type="text" name="extra3" id="extra3" maxlength="255" size="80" value="'.cms_htmlentities($this->GetPropertyValue('extra3')).'" />'];
 
 		case 'owner':
 			$showadmin = ContentOperations::get_instance()->CheckPageOwnership(get_userid(), $this->Id());
 			if( !$adding && (check_permission(get_userid(),'Manage All Content') || $showadmin) ) {
 				$userops = UserOperations::get_instance();
-				$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_owner',lang('help_title_content_owner'));
-				return ['<label for="owner">'.lang('owner').':</label>'.$help, $userops->GenerateDropdown($this->Owner())];
+				$help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_owner',LangOperations::lang_from_realm($realm,'help_title_content_owner'));
+				return ['<label for="owner">'.LangOperations::lang_from_realm($realm,'owner').':</label>'.$help, $userops->GenerateDropdown($this->Owner())];
 			}
 			break;
 
@@ -2537,7 +2546,7 @@ WHERE content_id = ?';
 			break;
 
 		default:
-			throw new CmsInvalidDataException('Attempt to display invalid property '.$one);
+			throw new CmsInvalidDataException('Attempt to display invalid property '.$name);
 		}
 	}
 } // class
