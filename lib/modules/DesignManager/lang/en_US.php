@@ -269,7 +269,7 @@ $lang['help_template_category'] = 'The template category is used for organizing 
 $lang['help_template_contents'] = 'Enter or edit the contents for the particular template.  This is a Smarty template.  The data available to the smarty template depends on where in the application this template is called.';
 $lang['help_template_description'] = 'You might provide a text description for this template to help with searching, organization, and to describe any special features or notes that are specific to this template';
 $lang['help_template_designlist'] = 'Specify the designs (zero or more) that this template is attached to.  Attaching a template to a design is used for quickly finding templates, and when exporting a design for sharing.  You can select or deselect multiple designs by holding the CTRL button down when clicking';
-$lang['help_template_designs'] = 'A template can belong to zero or more designs.  If a template is attached to a design then that template can be chosen for a content page, or exported with the template to an XML file';
+$lang['help_template_designs'] = 'A template may belong to zero or more designs.  If a template is attached to a design then that template can be chosen for a content page, or exported with the template to an XML file';
 $lang['help_template_dflt'] = 'Some templates (depending on their type) can be the &quot;default&quot; template for that type.  The &quot;default&quot; template for a type is typically used when a request is made for a specific template type, but without specifying a template name.';
 $lang['help_template_listable'] = 'Indicate whether this template should appear in public lists (specifically the content manager).  This is particularly used when a template should not be selectable by a content editor.';
 $lang['help_template_multiple_designs'] = 'This template is attached to multiple designs';
@@ -534,7 +534,7 @@ $lang['import'] = 'Import';
 $lang['import_design'] = 'Import Design';
 $lang['import_design_step1'] = 'Import Design Step 1';
 $lang['import_design_step2'] = 'Import Design Step 2';
-$lang['info_about_categories'] = 'Categories are another means of organizing templates. The templates list may be sorted and filtered by category. Examples of categories might include &quot;landing page templates&quot; or &quot;base templates&quot; when utilizing template inheritance.  A template can belong to multiple categories.';
+$lang['info_about_categories'] = 'Categories are groups of templates. Example categories might be &quot;landing page templates&quot; or &quot;base templates&quot; when utilizing template inheritance. Each template may optionally be included in one or more categories. The templates list may be sorted and filtered by category.';
 $lang['info_copy_css'] = '<strong>Note:</strong><br />Copying a stylesheet will copy the stylesheet contents, as well as the description, media query, and media types.  However, the new stylesheet will not be associated with any designs';
 $lang['info_css_content_file'] = 'The contents of this stylesheet are stored in a file.  You can edit this item by editing <strong>%s</strong> with your favorite editor.';
 $lang['info_editcss_mediatype_tab'] = '<strong>Warning:</strong> This functionality is deprecated and will be removed at a later date.  If both the media type and media query are specified, then the media query will take preference when rendering stylesheets';
@@ -582,7 +582,7 @@ $lang['media_type_tty'] = 'TTY';
 $lang['media_type_tv'] = 'TV';
 $lang['moddescription'] = 'Add, change or remove layout templates, stylesheets';
 $lang['modified'] = 'Modified';
-$lang['msg_allpagesupdated'] = 'All content pages were updated';
+$lang['msg_allpagesupdated'] = 'All content pages were updated'; // WHAAAT?
 $lang['msg_bulkop_complete'] = 'Bulk operation completed';
 $lang['msg_cancelled'] = 'Operation cancelled';
 $lang['msg_category_deleted'] = 'Category deleted';
@@ -786,6 +786,10 @@ $lang['warning_edittemplate_nostylesheets'] = 'No stylesheet attached';
 $lang['warning_edittemplate_notemplates'] = 'We could not find a template that you are authorised to edit';
 $lang['warning_no_templates_available'] = 'We could not find a template that matches the selection criteria and that you are authorised to edit';
 $lang['warning_no_stylesheets'] = 'We could not find a stylesheet that matches the selection criteria and that you are authorised to edit';
+
+$lang['info_no_stylesheets'] = 'No stylesheet is registered';
+$lang['info_no_templates'] = 'No template is registered';
+
 $lang['warning_set_all_pages'] = '<strong>Warning:</strong> This is a potentially destructive operation!  You are asking that all content pages be set to use this template.  Please confirm this action.';
 $lang['whats_this'] = 'What\'s this?';
 
