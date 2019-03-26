@@ -130,7 +130,42 @@ class CachePredis extends CacheDriver
     public function cachequit()
     {
         $this->instance->close();
-    } 
+    }
+
+    public function get_index($group = '')
+    {
+		if (!$group) { $group = $this->_group; }
+
+        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+		if ($prefix === '') { return []; }//no global interrogation in shared key-space
+		$len = strlen($prefix);
+
+		$out = [];
+        $keys = $this->instance->keys($prefix.'*');
+        foreach ($keys as $key) {
+			$out[] = substr($key,$len);
+		}
+		sort($out);
+        return $out;
+    }
+
+    public function get_all($group = '')
+    {
+        if (!$group) $group = $this->_group;
+
+        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+		if ($prefix === '') { return []; }//no global interrogation in shared key-space
+		$len = strlen($prefix);
+
+		$out = [];
+        $keys = $this->instance->keys($prefix.'*');
+        foreach ($keys as $rawkey) {
+			$key = substr($rawkey,$len);
+			$out[$key] = $this->_read_cache($rawkey);
+        }
+		asort($out);
+        return $out;
+    }
 
     public function get($key, $group = '')
     {
@@ -210,7 +245,7 @@ class CachePredis extends CacheDriver
     private function _clean(string $group) : int
     {
         $prefix = $this->get_cacheprefix(__CLASS__, $group);
-        if ($prefix === '') return 0; //no global interrogation in shared key-space
+		if ($prefix === '') { return 0; }//no global interrogation in shared key-space
 
         $nremoved = 0;
         $keys = $this->instance->keys($prefix.'*');

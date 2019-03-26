@@ -19,7 +19,6 @@ namespace CMSMS;
 
 use Exception;
 use Memcached;
-use function startswith;
 
 /**
  * A driver to cache data using PHP's Memcached extension
@@ -115,6 +114,54 @@ class CacheMemcached extends CacheDriver
         $this->instance->quit();
     }
 
+    public function get_index($group = '')
+    {
+		if (!$group) { $group = $this->_group; }
+
+        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+		if ($prefix === '') { return []; }
+
+        $out = [];
+        $info = $this->instance->getAllKeys(); //NOT RELIABLE
+        if ($info) {
+            $len = strlen($prefix);
+            foreach ($info as $key) {
+                if (strncmp($key, $prefix, $len) == 0) {
+					$res = $this->instance->get($key);
+					if ($res || $this->instance->getResultCode() == Memcached::RES_SUCCESS) {
+						$out[] = substr($key,$len);
+					}
+                }
+            }
+			sort($out);
+        }
+        return $out;
+    }
+
+    public function get_all($group = '')
+    {
+		if (!$group) { $group = $this->_group; }
+
+        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+		if ($prefix === '') { return []; }
+
+        $out = [];
+        $info = $this->instance->getAllKeys(); //NOT RELIABLE
+        if ($info) {
+            $len = strlen($prefix);
+            foreach ($info as $key) {
+                if (strncmp($key, $prefix, $len) == 0) {
+					$res = $this->instance->get($key);
+					if ($res || $this->instance->getResultCode() == Memcached::RES_SUCCESS) {
+						$out[substr($key,$len)] = $res;
+					}
+                }
+            }
+			asort($out);
+        }
+        return $out;
+    }
+
     public function get($key, $group = '')
     {
         if (!$group) $group = $this->_group;
@@ -177,7 +224,7 @@ class CacheMemcached extends CacheDriver
     private function _clean(string $group, bool $aged = true) : int
     {
         $prefix = $this->get_cacheprefix(__CLASS__, $group);
-        if ($prefix === '') return 0; //no global interrogation in shared key-space
+		if ($prefix === '') { return 0; }//no global interrogation in shared key-space
 
         $nremoved = 0;
         $info = $this->instance->getAllKeys(); //NOT RELIABLE

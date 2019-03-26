@@ -73,6 +73,48 @@ class CacheApcu extends CacheDriver
         return false;
     }
 
+    public function get_index($group = '')
+    {
+        if (!$group) $group = $this->_group;
+        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+		if ($prefix === '') { return []; }//no global interrogation in shared key-space
+		$len = strlen($prefix);
+
+        $i = 0;
+        $out = [];
+        $iter = new APCUIterator('/^'.$prefix.'/', APC_ITER_KEY, 20);
+        $n = $iter->getTotalCount();
+        while ($i < $n) {
+            foreach ($iter as $item) {
+                $out[] = substr($item['key'], $len);
+                ++$i;
+            }
+        }
+		sort($out);
+        return $out;
+    }
+
+    public function get_all($group = '')
+    {
+        if (!$group) $group = $this->_group;
+
+        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+		if ($prefix === '') { return []; }//no global interrogation in shared key-space
+
+        $i = 0;
+        $out = [];
+        $iter = new APCUIterator('/^'.$prefix.'/', APC_ITER_KEY | APC_ITER_VALUE, 20);
+        $n = $iter->getTotalCount();
+        while ($i < $n) {
+            foreach ($iter as $item) {
+                $out[substr($item['key'], $len)] = $item['value'];
+                ++$i;
+            }
+        }
+		asort($out);
+        return $out;
+    }
+
     public function get($key, $group = '')
     {
         if (!$group) $group = $this->_group;

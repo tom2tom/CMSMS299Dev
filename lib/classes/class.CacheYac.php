@@ -82,9 +82,63 @@ class CacheYac extends CacheDriver
         return $this->instance != null;
     }
 
+    public function get_index($group = '')
+    {
+	if (!$group) { $group = $this->_group; }
+
+		$prefix = $this->get_cacheprefix(__CLASS__, $group);
+		if ($prefix === '') { return []; }
+
+        $out = [];
+        $info = $this->instance->info();
+        $c = (int)$info['slots_used'];
+        if ($c) {
+            $info = $this->instance->dump($c);
+            if ($info) {
+                $len = strlen($prefix);
+
+                foreach ($info as $item) {
+                    $key = $item['key'];
+                    if (strncmp($key, $prefix, $len) == 0) {
+                        $out[] = substr($key,$len);
+                    }
+                }
+				sort($out);
+			}
+		}
+		return $out;
+    }
+
+    public function get_all($group = '')
+    {
+	if (!$group) { $group = $this->_group; }
+
+        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+		if ($prefix === '') { return []; }
+
+        $out = [];
+        $info = $this->instance->info();
+        $c = (int)$info['slots_used'];
+        if ($c) {
+            $info = $this->instance->dump($c);
+            if ($info) {
+                $len = strlen($prefix);
+
+                foreach ($info as $item) {
+                    $key = $item['key'];
+                    if (strncmp($key, $prefix, $len) == 0) {
+                        $out[substr($key,$len)] = $this->instance->get($key);
+                    }
+                }
+				asort($out);
+            }
+        }
+        return $out;
+    }
+
     public function get($key, $group = '')
     {
-        if (!$group) $group = $this->_group;
+	if (!$group) { $group = $this->_group; }
 
         $key = $this->get_cachekey($key, __CLASS__, $group);
         $res = $this->instance->get($key);
@@ -102,7 +156,7 @@ class CacheYac extends CacheDriver
 
     public function set($key, $value, $group = '')
     {
-        if (!$group) $group = $this->_group;
+	if (!$group) { $group = $this->_group; }
 
         $key = $this->get_cachekey($key, __CLASS__, $group);
         if ($value === false) $value = 0; //ensure actual false isn't ignored
@@ -111,7 +165,7 @@ class CacheYac extends CacheDriver
 
     public function erase($key, $group = '')
     {
-        if (!$group) $group = $this->_group;
+		if (!$group) { $group = $this->_group; }
 
         $key = $this->get_cachekey($key, __CLASS__, $group);
         return  $this->instance->delete($key);
@@ -141,7 +195,7 @@ class CacheYac extends CacheDriver
     private function _clean(string $group) : int
     {
         $prefix = $this->get_cacheprefix(__CLASS__, $group);
-        if ($prefix === '') return 0; //no global interrogation in shared key-space
+		if ($prefix === '') { return 0; }//no global interrogation in shared key-space
 
         $nremoved = 0;
         $info = $this->instance->info();

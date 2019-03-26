@@ -92,17 +92,61 @@ class CacheFile extends CacheDriver
         }
     }
 
+    public function get_index($group = '')
+    {
+		if (!$group) { $group = $this->_group; }
+
+		$prefix = $this->get_cacheprefix(__CLASS__, $group);
+        $fn = $this->_cache_dir.DIRECTORY_SEPARATOR.$prefix;
+        $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache';
+        $files = glob($mask, GLOB_NOSORT);
+
+		if (!$files) { return []; }
+		$len = strlen(prefix);
+
+		$out = [];
+        foreach ($files as $fn) {
+            if (is_file($fn)) {
+				$base = basename($fn, $group.'.cache');
+				$out[] = substr($base,$len);
+            }
+        }
+		sort($out);
+        return $out;
+    }
+
+    public function get_all($group = '')
+    {
+		if (!$group) { $group = $this->_group; }
+
+		$prefix = $this->get_cacheprefix(__CLASS__, $group);
+        $fn = $this->_cache_dir.DIRECTORY_SEPARATOR.$prefix;
+        $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache';
+        $files = glob($mask, GLOB_NOSORT);
+
+		if (!$files) { return []; }
+		$len = strlen(prefix);
+
+		$out = [];
+        foreach ($files as $fn) {
+            if (is_file($fn)) {
+				$base = basename($fn, $group.'.cache');
+				$out[substr($base,$len)] = $this->_read_cache_file($fn);
+            }
+        }
+		asort($out);
+        return $out;
+    }
 
     public function get($key,$group = '')
     {
-        if (!$group) $group = $this->_group;
+		if (!$group) { $group = $this->_group; }
 
         $this->_auto_clean_files();
         $fn = $this->_get_filename($key, $group);
         $data = $this->_read_cache_file($fn);
         return $data;
     }
-
 
     public function exists($key,$group = '')
     {
@@ -114,20 +158,18 @@ class CacheFile extends CacheDriver
         return is_file($fn);
     }
 
-
     public function set($key,$value,$group = '')
     {
-        if (!$group) $group = $this->_group;
+		if (!$group) { $group = $this->_group; }
 
         $fn = $this->_get_filename($key,$group);
         $res = $this->_write_cache_file($fn, $value);
         return $res;
     }
 
-
     public function erase($key,$group = '')
     {
-        if (!$group) $group = $this->_group;
+		if (!$group) { $group = $this->_group; }
 
         $fn = $this->_get_filename($key, $group);
         if (is_file($fn)) {
@@ -137,22 +179,21 @@ class CacheFile extends CacheDriver
         return false;
     }
 
-
     public function clear($group = '')
     {
-        if (!$group) $group = $this->_group;
+		if (!$group) { $group = $this->_group; }
         return $this->_clean_dir($this->_cache_dir, $group, false);
     }
 
     /**
      * @ignore
+     * TODO need distinguishable "group" files
      */
     private function _get_filename(string $key, string $group) : string
     {
-        $fn = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->get_cachekey($key, __CLASS__, $group) . '.cache';
+        $fn = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->get_cachekey($key, __CLASS__, $group) . $group . '.cache';
         return $fn;
     }
-
 
     /**
      * @ignore
@@ -189,7 +230,6 @@ class CacheFile extends CacheDriver
         return false;
     }
 
-
     /**
      * @ignore
      */
@@ -216,7 +256,6 @@ class CacheFile extends CacheDriver
         }
     }
 
-
     /**
      * @ignore
      */
@@ -226,7 +265,6 @@ class CacheFile extends CacheDriver
         clearstatcache();
         if (@filemtime($fn) < time() - $this->_lifetime) @unlink($fn);
     }
-
 
     /**
      * @ignore
@@ -252,7 +290,6 @@ class CacheFile extends CacheDriver
         return false;
     }
 
-
     /**
      * @ignore
      */
@@ -270,7 +307,6 @@ class CacheFile extends CacheDriver
         return 0;
     }
 
-
     /**
      * @ignore
      */
@@ -279,7 +315,7 @@ class CacheFile extends CacheDriver
         $fn = $dir.DIRECTORY_SEPARATOR.$this->get_cacheprefix(__CLASS__, $group);
         $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache';
         $files = glob($mask, GLOB_NOSORT);
-        if (!$files) return 0;
+		if (!$files) { return 0; }
 
         if ($aged) {
             if ($this->_lifetime) {
