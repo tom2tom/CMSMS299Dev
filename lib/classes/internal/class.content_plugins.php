@@ -26,6 +26,7 @@ use CmsError403Exception;
 use CmsError404Exception;
 use CMSMS\ModuleOperations;
 use const __CMS_PREVIEW_PAGE__;
+use const CMS_PREVIEW;
 use const CMS_UPLOADS_URL;
 use function cms_join_path;
 use function cms_to_bool;
@@ -85,13 +86,12 @@ final class content_plugins
             // if content_en
             //    get primary content
             // otherwise other block
-            $output = null;
             if( $block == 'content_en' ) {
                 // was the data prefetched ?
                 $result = self::get_default_content_block_content( $contentobj->Id(), $smarty );
             }
             if( !$result ) {
-                if( isset($_SESSION['__cms_preview__']) && $contentobj->Id() == __CMS_PREVIEW_PAGE__ ) {
+                if( isset($_SESSION[CMS_PREVIEW]) && $contentobj->Id() == __CMS_PREVIEW_PAGE__ ) {
                     // note: content precompile/postcompile events will not be triggererd in preview.
 //                  $val = $contentobj->Show($block);
 //                  $result = $smarty->fetch('eval:'.$val);
