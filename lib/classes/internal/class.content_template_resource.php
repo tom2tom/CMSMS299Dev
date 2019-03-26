@@ -22,6 +22,7 @@ use cms_siteprefs;
 use CmsApp;
 use Smarty_Resource_Custom;
 use const __CMS_PREVIEW_PAGE__;
+use const CMS_PREVIEW;
 
 /**
  * A simple class for handling the content smarty resource.
@@ -49,21 +50,21 @@ class content_template_resource extends Smarty_Resource_Custom //fixed_smarty_cu
             // We've a custom error message...  return it here
             header('HTTP/1.0 404 Not Found');
             header('Status: 404 Not Found');
-            if ($name == 'content_en') $source = trim(cms_siteprefs::get('custom404'));
-			else $source = '';
+            if ($name == 'content_en') { $source = trim(cms_siteprefs::get('custom404')); }
+			else { $source = ''; }
             return;
         }
-        else if( isset($_SESSION['__cms_preview_']) && $contentobj->Id() == __CMS_PREVIEW_PAGE__ ) {
+        elseif( isset($_SESSION[CMS_PREVIEW]) && $contentobj->Id() == __CMS_PREVIEW_PAGE__ ) {
             $mtime = time();
-            $contentobj =& $_SESSION['__cms_preview__'];
+            $contentobj =& $_SESSION[CMS_PREVIEW];
             $source = $contentobj->Show($name);
             $source = preg_replace("/\{\/?php\}/", '', $source);
             $source = trim($source);
             return;
         }
-        else if (isset($contentobj) && $contentobj !== FALSE) {
-            if( !$contentobj->Cachable() ) $mtime = time();
-            else $mtime = $contentobj->GetModifiedDate();
+        elseif (!empty($contentobj)) {
+            if( !$contentobj->Cachable() ) { $mtime = time(); }
+            else { $mtime = $contentobj->GetModifiedDate(); }
             $source = $contentobj->Show($name);
             $source = preg_replace('/\{\/?php\}/', '', $source);
             $source = trim($source);
