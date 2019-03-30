@@ -37,9 +37,9 @@
       <strong>{$mod->Lang('prompt_created')}:</strong> {$row.created|cms_date_format}<br />
       <strong>{$mod->Lang('prompt_lastmodified')}:</strong> {$row.lastmodified|cms_date_format}<br />
       {if isset($row.lastmodifiedby)}<strong>{$mod->Lang('prompt_lastmodifiedby')}:</strong> {$row.lastmodifiedby}<br />{/if}
-      <strong>{$mod->Lang('prompt_cachable')}:</strong> {if $row.cachable}{$mod->Lang('yes')}{else}{$mod->Lang('no')}{/if}<br />
-      <strong>{$mod->Lang('prompt_showinmenu')}:</strong> {if $row.showinmenu}{$mod->Lang('yes')}{else}{$mod->Lang('no')}{/if}<br />
-      <strong>{$mod->Lang('wantschildren')}:</strong> {if $row.wantschildren|default:1}{$mod->Lang('yes')}{else}{$mod->Lang('no')}{/if}
+      <strong>{$mod->Lang('prompt_cachable')}:</strong> {if $row.cachable}{lang('yes')}{else}{lang('no')}{/if}<br />
+      <strong>{$mod->Lang('prompt_showinmenu')}:</strong> {if $row.showinmenu}{lang('yes')}{else}{lang('no')}{/if}<br />
+      <strong>{$mod->Lang('wantschildren')}:</strong> {if $row.wantschildren|default:1}{lang('yes')}{else}{lang('no')}{/if}
       {/strip}{/capture}
       <a href="{cms_action_url action='admin_editcontent' content_id=$row.id}" class="page_edit tooltip" accesskey="e" data-cms-content='{$row.id}' data-cms-description='{$tooltip_pageinfo|cms_htmlentities}'>{$row.page|default:''}</a>
       {else}
@@ -192,13 +192,13 @@
     <a id="clearlocks" href="{cms_action_url action=admin_clearlocks}" accesskey="l" title="{$mod->Lang('prompt_clearlocks')}">{$t=$mod->Lang('title_clearlocks')}{admin_icon icon='run.gif' alt=$t}&nbsp;{$t}</a>
     {/if}
     {/if}
-    <a id="myoptions" accesskey="o" title="{$mod->Lang('prompt_filter')}">{$t=$mod->Lang('filter')}{admin_icon icon=$filterimage alt=$t}&nbsp;{$t}</a>
-    {if !empty($have_filter)}<span style="color: red;"><em>({$mod->Lang('filter_applied')})</em></span>{/if}
+    <a id="myoptions" accesskey="o" title="{$mod->Lang('prompt_filter')}">{$t=lang('filter')}{admin_icon icon=$filterimage alt=$t}&nbsp;{$t}</a>
+    {if !empty($have_filter)}<span style="color: red;"><em>({lang('filter_applied')})</em></span>{/if}
   </div>{*boxchild*}
 
   <div class="pageoptions options-form boxchild">
     {if isset($content_list)}
-    <span><label for="ajax_find">{$mod->Lang('find')}:</label>&nbsp;
+    <span><label for="ajax_find">{lang('find')}:</label>&nbsp;
     <input type="text" id="ajax_find" name="ajax_find" title="{$mod->Lang('title_listcontent_find')}" value="" size="25" /></span>
     {/if}
     {if isset($content_list) && $npages > 1}
@@ -207,7 +207,7 @@
         <select name="{$actionid}curpage" id="{$actionid}curpage">
         {html_options options=$pagelist selected=$curpage}
         </select>
-        <button name="{$actionid}submitpage" class="invisible adminsubmit icon check">{$mod->Lang('go')}</button>
+        <button name="{$actionid}submitpage" class="invisible adminsubmit icon check">{lang('go')}</button>
        </span>
       </form>
     {/if}
@@ -221,7 +221,7 @@
  <div id="error_cont" class="pageerror">{$error}</div>
  {/if}
  {if isset($content_list)}
-  <table id="contenttable" class="pagetable" style="width:100%;">
+  <table id="contenttable" class="pagetable">
     <thead>
       <tr>{strip}
         {foreach $columns as $column => $flag}
@@ -267,7 +267,7 @@
     <select name="{$actionid}multiaction" id="multiaction">
       {html_options options=$bulk_options}
     </select>
-    <button type="submit" name="{$actionid}multisubmit" id="multisubmit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}multisubmit" id="multisubmit" class="adminsubmit icon check">{lang('submit')}</button>
   </div>
   {/if}
   </div>{*rowbox*}
