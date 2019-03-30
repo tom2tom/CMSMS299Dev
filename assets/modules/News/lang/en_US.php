@@ -313,7 +313,7 @@ $lang['linkedfile'] = 'Linked file';
 
 // M
 $lang['maxlength'] = 'Maximum Length';
-$lang['msg_cancelled'] = 'Operation Cancelled';
+$lang['msg_cancelled'] = 'Operation cancelled';
 $lang['msg_categoriesreordered'] = 'Category order updated';
 $lang['msg_contenttype_removed'] = <<<'EOF'
 The news content type has been removed.  Please place {news} tags with appropriate parameters into your page template or into your page content to replace this functionality.
