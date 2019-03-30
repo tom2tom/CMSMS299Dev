@@ -113,7 +113,7 @@ class wizard_step7 extends wizard_step
         $filehandler = new install_filehandler();
         $filehandler->set_destdir($destdir);
         $filehandler->set_languages($languages);
-        $filehandler->set_output_fn('cms_installer\wizard\wizard_step6::verbose');
+        $filehandler->set_output_fn([$this,'verbose']);
 
         $from = $to = $lens = [];
         $app_config = $app->get_config();
