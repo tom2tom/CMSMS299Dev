@@ -1,5 +1,6 @@
 #contenttable > tbody td.active,
 #contenttable > tbody td.default,
+#contenttable > tbody td.actions,
 #contenttable > tbody td.addchild
 {
   text-align: center;
