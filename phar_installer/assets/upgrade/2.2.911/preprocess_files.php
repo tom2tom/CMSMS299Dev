@@ -16,14 +16,14 @@ $tp = $assetsdir . DIRECTORY_SEPARATOR . 'user_plugins';
 $fp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
 if (is_dir($fp)) {
     @rename($fp, $tp);
-	touch($tp . DIRECTORY_SEPARATOR . 'index.html');
+    touch($tp . DIRECTORY_SEPARATOR . 'index.html');
 } else {
     $fp = $assetsdir . DIRECTORY_SEPARATOR . 'file_plugins';
     if (is_dir($fp)) {
         @rename($fp, $tp);
-		touch($tp . DIRECTORY_SEPARATOR . 'index.html');
+        touch($tp . DIRECTORY_SEPARATOR . 'index.html');
     } elseif (!is_dir($tp)) {
-		@mkdir($tp, 0771, true);
-		touch($tp . DIRECTORY_SEPARATOR . 'index.html');
-	}
+        @mkdir($tp, 0771, true);
+        touch($tp . DIRECTORY_SEPARATOR . 'index.html');
+    }
 }
