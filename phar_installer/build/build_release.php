@@ -169,7 +169,7 @@ function output_usage()
     echo <<< 'EOS'
 php build_release.php [options]
 options:
-  -h|--help	     show this message
+  -h|--help      show this message
   -a|--archive   only create the data archive, do not create a phar
   -c|--clean     toggle cleaning of old output directories (default is on)
   -k|--checksums toggle creation of checksum files (default is on)
@@ -327,7 +327,7 @@ function copy_local_files()
             FilesystemIterator::CURRENT_AS_PATHNAME |
             FilesystemIterator::SKIP_DOTS |
             FilesystemIterator::UNIX_PATHS //|
-//			FilesystemIterator::FOLLOW_SYMLINKS too bad if links not relative !!
+//          FilesystemIterator::FOLLOW_SYMLINKS too bad if links not relative !!
         ),
         RecursiveIteratorIterator::SELF_FIRST
     );
@@ -445,8 +445,8 @@ function create_source_archive()
         );
         $len = strlen($tmpdir.DIRECTORY_SEPARATOR);
         foreach ($iter as $tp) {
-            //			$fn = basename($tp);
-            //			if ($fn == '.') {
+//          $fn = basename($tp);
+//          if ($fn == '.') {
             if (is_dir($tp)) {
                 $dir = dirname($tp);
                 $iter2 = new FilesystemIterator($dir);
@@ -454,8 +454,8 @@ function create_source_archive()
                     $phar->addEmptyDir(substr($dir, $len));
                 }
                 unset($iter2);
-                //			} else {
-//				$phar->addFile($tp,substr($tp, $len));
+//          } else {
+//              $phar->addFile($tp,substr($tp, $len));
             }
         }
 
@@ -735,12 +735,12 @@ EOS;
             verbose(1, "INFO: zipping phar_installer and source data into $outfile");
             $arch = new ZipArchive();
             $arch->open($outfile, ZipArchive::OVERWRITE | ZipArchive::CREATE);
-            /*			$fp = joinpath($tmpdir, 'zip_excludes.dat');
-                        $str = implode("\n", $zip_excludes);
-                        file_put_contents($fp, $str);
-                        $arch->addFile($fp, basename($fp));
-            */
-            //			rchmod($phardir); NO: build scripts are there
+/*          $fp = joinpath($tmpdir, 'zip_excludes.dat');
+            $str = implode("\n", $zip_excludes);
+            file_put_contents($fp, $str);
+            $arch->addFile($fp, basename($fp));
+*/
+//          rchmod($phardir); NO: build scripts are there
 
             $pharname = 'installer'.DIRECTORY_SEPARATOR;
             $len = strlen($phardir.DIRECTORY_SEPARATOR);
