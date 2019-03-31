@@ -51,8 +51,12 @@ foreach( [
   $permission->source = 'Core';
   $permission->name = $one_perm;
   $permission->text = $one_perm;
-  $permission->save();
-  $all_perms[$one_perm] = $permission;
+  try {
+	$permission->save();
+	$all_perms[$one_perm] = $permission;
+  } catch (Exception $e) {
+	 // nothing here
+  }
 }
 
 //
