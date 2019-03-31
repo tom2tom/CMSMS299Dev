@@ -18,7 +18,7 @@ function _detect_bad_ioncube()
 //
 try {
     // some basic system wide pre-requisites
-    if( version_compare(phpversion(),'7.1') < 0 ) throw new Exception('Sorry, this installer requires PHP7');
+    if( version_compare(phpversion(),'7.1') < 0 ) throw new Exception('Sorry, this installer requires PHP 7.1 or higher');
     _detect_bad_ioncube();
 
     // disable some stuff.
