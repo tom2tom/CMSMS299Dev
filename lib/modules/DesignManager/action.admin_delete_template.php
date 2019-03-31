@@ -51,7 +51,7 @@ try {
 
   // find the number of 'pages' that use this template.
   $db = cmsms()->GetDb();
-  $query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE template_id = ?';
+  $query = 'SELECT COUNT(*) FROM '.CMS_DB_PREFIX.'content WHERE template_id = ?';
   $n = $db->GetOne($query,[$tpl_ob->get_id()]);
   $tpl->assign('page_usage',$n);
 
