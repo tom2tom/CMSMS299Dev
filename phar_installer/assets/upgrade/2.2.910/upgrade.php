@@ -1,6 +1,5 @@
 <?php
 
-use cms_siteprefs;
 use CMSMS\Group;
 use CMSMS\StylesheetOperations;
 use CMSMS\TemplateOperations;
@@ -99,14 +98,22 @@ foreach ([
     $permission->source = 'Core';
     $permission->name = $one_perm;
     $permission->text = $one_perm;
-    $permission->save();
+	try {
+	    $permission->save();
+	} catch (Exception $e) {
+		// nothing here
+	}
 }
 
 $group = new Group();
 $group->name = 'CodeManager';
 $group->description = lang('grp_coder_desc');
 $group->active = 1;
-$group->Save();
+try {
+	$group->Save();
+} catch (Exception $e) {
+	// nothing here
+}
 $group->GrantPermission('Modify Site Code');
 //$group->GrantPermission('Modify Site Assets');
 $group->GrantPermission('Modify User Plugins');
@@ -157,30 +164,30 @@ foreach ([
 $db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
 $db->DropSequence(CMS_DB_PREFIX.'userplugins_seq');
 
-$dbdict = $db->GetDataDictionary();
+$dict = GetDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
 // 6. Table revisions
-$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE,'tpl_order I(4) DEFAULT 0');
-$dbdict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE,'tpl_order I(4) DEFAULT 0');
+$dict->ExecuteSQLArray($sqlarray);
 
 $flds = '
 category_id I NOTNULL,
 tpl_id I NOTNULL,
 tpl_order I(4) DEFAULT 0
 ';
-$sqlarray = $dbdict->CreateTableSQL(
+$sqlarray = $dict->CreateTableSQL(
     CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE,
     $flds,
     $taboptarray
 );
-$return = $dbdict->ExecuteSQLArray($sqlarray);
+$return = $dict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? lang('done') : lang('failed');
 verbose_msg(lang('install_created_table', CmsLayoutTemplateCategory::TPLTABLE, $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_cat_tplasoc_1',
+$sqlarray = $dict->CreateIndexSQL('idx_layout_cat_tplasoc_1',
  CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE, 'tpl_id');
-$return = $dbdict->ExecuteSQLArray($sqlarray);
+$return = $dict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? lang('done') : lang('failed');
 verbose_msg(lang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret));
 
@@ -194,48 +201,48 @@ if ($data) {
     }
 }
 
-$sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'category_id');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'originator C(32) AFTER id');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'contentfile I1 DEFAULT 0 AFTER listable');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME,'contentfile I1 DEFAULT 0');
-$dbdict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'category_id');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'originator C(32) AFTER id');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'contentfile I1 DEFAULT 0 AFTER listable');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME,'contentfile I1 DEFAULT 0');
+$dict->ExecuteSQLArray($sqlarray);
 
 // layout-templates table indices
 // replace this 'unique' by non- (_3 below becomes the validator)
-$sqlarray = $dbdict->DropIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_1',
+$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_1',
     CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'name');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_1',
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_1',
     CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'name');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_3',
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_3',
     CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'originator,name', ['UNIQUE']);
-$dbdict->ExecuteSQLArray($sqlarray);
+$dict->ExecuteSQLArray($sqlarray);
 // content table index used by name
-$sqlarray = $dbdict->DropIndexSQL(CMS_DB_PREFIX.'index_content_by_idhier',
+$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'index_content_by_idhier',
     CMS_DB_PREFIX.'content', 'content_id,hierarchy');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_idhier',
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->CreateIndexSQL('idx_content_by_idhier',
     CMS_DB_PREFIX.'content', 'content_id,hierarchy');
-$dbdict->ExecuteSQLArray($sqlarray);
+$dict->ExecuteSQLArray($sqlarray);
 
 //events table
-$sqlarray = $dbdict->DropIndexSQL(CMS_DB_PREFIX.'event_id'); //redundant duplicate index
-$dbdict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'event_id'); //redundant duplicate index
+$dict->ExecuteSQLArray($sqlarray);
 //event-handlers table columns
-$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.'event_handlers', 'type C(1) NOT NULL DEFAULT "C"');
-$dbdict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'event_handlers', 'type C(1) NOT NULL DEFAULT "C"');
+$dict->ExecuteSQLArray($sqlarray);
 $query = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET type="M" WHERE module_name IS NOT NULL';
 $db->Execute($query);
 $query = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET type="U" WHERE tag_name IS NOT NULL';
 $db->Execute($query);
-$sqlarray = $dbdict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'module_name', 'class', 'C(96)');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name', 'func', 'C(64)');
-$dbdict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'module_name', 'class', 'C(96)');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name', 'func', 'C(64)');
+$dict->ExecuteSQLArray($sqlarray);
 verbose_msg(lang('upgrade_modifytable', 'event_handlers'));
 
 // 7. Migrate module templates to layout-templates table
@@ -278,8 +285,8 @@ if ($data) {
     verbose_msg(lang('upgrade_modifytable', 'module_templates'));
 }
 
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
-$dbdict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
+$dict->ExecuteSQLArray($sqlarray);
 verbose_msg(lang('upgrade_deletetable', 'module_templates'));
 
 // 8. Update preferences
