@@ -52,9 +52,10 @@ class CmsLayoutStylesheet
 	private $_dirty = FALSE;
 
    /**
+    * No setter/getter, so this is populated directly
 	* @ignore
 	*/
-	private $_data = [];
+	public $_data = [];
 
    /**
 	* @ignore
