@@ -163,14 +163,14 @@ if ($errors) {
 }
 
 $out      = [-1 => lang('none')];
-$userlist = UserOperations::get_instance()->LoadUsers();
+$userlist = (new UserOperations())->LoadUsers();
 
 foreach ($userlist as $one) {
     $out[$one->id] = $one->username;
 }
 
 if ($assign_group_perm) {
-    $groups = GroupOperations::get_instance()->LoadGroups();
+    $groups = (new GroupOperations())->LoadGroups();
     $smarty->assign('groups', $groups);
 }
 

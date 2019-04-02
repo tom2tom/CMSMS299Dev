@@ -26,7 +26,7 @@ class extended_module_info extends module_info
     public function __construct($module_name,$can_load = false)
     {
         parent::__construct($module_name,$can_load);
-        $ops = ModuleOperations::get_instance();
+        $ops = new ModuleOperations();
 
         $minfo = $ops->GetInstalledModuleInfo();
         $this['installed'] = false;

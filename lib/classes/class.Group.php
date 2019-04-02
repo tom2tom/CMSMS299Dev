@@ -102,7 +102,7 @@ class Group
 	private static function get_operations()
 	{
 		if( empty(self::$_operations) ) {
-			self::$_operations = GroupOperations::get_instance();
+			self::$_operations = new GroupOperations();
 		}
 		return self::$_operations;
 	}

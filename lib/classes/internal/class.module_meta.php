@@ -111,7 +111,7 @@ final class module_meta
             debug_buffer('start building module capability list');
             if( !isset(self::$_data['capability']) ) self::$_data['capability'] = [];
 
-            $modops = ModuleOperations::get_instance();
+            $modops = new ModuleOperations();
             $installed_modules = $modops->GetInstalledModules();
             $loaded_modules = $modops->GetLoadedModules();
             self::$_data['capability'][$sig] = [];
@@ -165,7 +165,7 @@ final class module_meta
             debug_buffer('Start building module method cache');
             if( !isset(self::$_data['methods']) ) self::$_data['methods'] = [];
 
-            $modops = ModuleOperations::get_instance();
+            $modops = new ModuleOperations();
             $installed_modules = $modops->GetInstalledModules();
             $loaded_modules = $modops->GetLoadedModules();
             self::$_data['methods'][$method] = [];

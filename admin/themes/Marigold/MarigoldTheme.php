@@ -198,7 +198,7 @@ EOS
 	public function do_login($params = null)
 	{
 		$auth_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin');
-		$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
+		$modinst = (new ModuleOperations())->get_module_instance($auth_module, '', true);
 		if ($modinst) {
 			$data = $modinst->StageLogin(); //returns only if further processing is needed
 		} else {
@@ -230,7 +230,7 @@ EOS
 	public function do_login($params = null)
 	{
 		$auth_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin');
-		$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
+		$modinst = (new ModuleOperations())->get_module_instance($auth_module, '', true);
 		if ($modinst) {
 			$data = $modinst->StageLogin(); //returns only if further processing is needed
 		} else {
@@ -410,7 +410,7 @@ EOS;
 			$smarty->assign('nav', $this->_havetree);
 		}
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
-		$userops = UserOperations::get_instance();
+		$userops = new UserOperations();
 		$user = $userops->LoadUserByID($uid);
 		$smarty->assign('username', $user->username);
 		// selected language

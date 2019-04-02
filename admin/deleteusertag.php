@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\UserPluginOperations;
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -32,7 +32,7 @@ if (!$pmod) exit;
 $themeObject = cms_utils::get_theme_object();
 
 $tagname = cleanValue($_GET['name']);
-$ops = UserPluginOperations::get_instance();
+$ops = new UserPluginOperations();
 $fp = $ops->file_path($tagname);
 if (is_file($fp)) {
 //? send event :: deleteuserdefinedtagpre

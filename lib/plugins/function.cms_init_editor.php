@@ -34,7 +34,7 @@ function smarty_function_cms_init_editor($params, $template)
 		$wysiwyg = $tmp[0]; // first wysiwyg only, for now.
 	}
 
-	$mod = ModuleOperations::get_instance()->GetWYSIWYGModule($wysiwyg);
+	$mod = (new ModuleOperations())->GetWYSIWYGModule($wysiwyg);
 	if( !is_object($mod) ) return;
 
 	// get the output

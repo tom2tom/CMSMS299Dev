@@ -78,7 +78,7 @@ class Bookmark
 	public function Save()
 	{
 		$result = false;
-		$bookops = BookmarkOperations::get_instance();
+		$bookops = new BookmarkOperations();
 
 		if ($this->bookmark_id > -1) {
 			$result = $bookops->UpdateBookmark($this);
@@ -105,8 +105,7 @@ class Bookmark
 		$result = false;
 
 		if ($this->bookmark_id > -1) {
-			$bookops = BookmarkOperations::get_instance();
-			$result = $bookops->DeleteBookmarkByID($this->bookmark_id);
+			$result = (new BookmarkOperations())->DeleteBookmarkByID($this->bookmark_id);
 			if ($result) $this->SetInitialValues();
 		}
 

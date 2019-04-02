@@ -885,7 +885,7 @@ VALUES (?,?,?,?,?)');
 				$args = [];
 			}
 		}
-		return module_meta::get_instance()->module_list_by_capability($capability,$args);
+		return (new module_meta())->module_list_by_capability($capability,$args);
 	}
 
 	/**

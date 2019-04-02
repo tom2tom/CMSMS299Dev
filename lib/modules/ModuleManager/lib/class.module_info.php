@@ -185,8 +185,7 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
     {
         if( is_array(self::$_minfo) ) return self::$_minfo;
 
-        $ops = ModuleOperations::get_instance();
-        $allknownmodules = $ops->FindAllModules();
+        $allknownmodules = (new ModuleOperations())->FindAllModules();
 
         // first pass...
         $out = [];

@@ -100,7 +100,7 @@ if (!empty($usecsrf)) {
 }
 
 $userops = CmsApp::get_instance()->GetUserOperations();
-$login_ops = LoginOperations::get_instance();
+$login_ops = new LoginOperations();
 
 //Check for a forgot-pw job
 if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {

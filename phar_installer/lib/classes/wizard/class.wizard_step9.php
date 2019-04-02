@@ -34,7 +34,7 @@ class wizard_step9 extends wizard_step
 
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
         $allmodules = $siteinfo['havemodules'] ?? [];
-        $modops = ModuleOperations::get_instance();
+        $modops = new ModuleOperations();
         foreach( $allmodules as $name ) {
             if( $modops->IsSystemModule($name) ) {
                 $this->verbose(lang('msg_upgrade_module',$name));

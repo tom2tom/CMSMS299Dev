@@ -52,7 +52,7 @@ $style .= '.css';
 if (is_file(__DIR__.'/themes/'.$theme.'/css/'.$style)) $cms_readfile(__DIR__.'/themes/'.$theme.'/css/'.$style);
 if (is_file(__DIR__.'/themes/'.$theme.'/extcss/'.$style)) $cms_readfile(__DIR__.'/themes/'.$theme.'/extcss/'.$style);
 
-$allmodules = ModuleOperations::get_instance()->GetLoadedModules();
+$allmodules = (new ModuleOperations())->GetLoadedModules();
 if( $allmodules ) {
     foreach( $allmodules as $key => &$object ) {
         if( !is_object($object) ) continue;

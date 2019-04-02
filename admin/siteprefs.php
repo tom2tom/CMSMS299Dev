@@ -17,8 +17,8 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminUtils;
-use CMSMS\ContentBase;
-use CMSMS\contenttypes\Content;
+use CMSMS\contenttypes\content;
+use CMSMS\contenttypes\ContentBase;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\internal\module_meta;
@@ -480,7 +480,7 @@ function on_mailer() {
   $('#set_sendmail').find('input,select').removeAttr('disabled');
  }
 }
-$(document).ready(function() {
+$(function() {
  $('#mailertest').on('click', function(e) {
   cms_dialog($('#testpopup'),{
    modal: true,
@@ -587,7 +587,7 @@ $(document).ready(function() {
 EOS;
 $themeObject->add_footertext($out);
 
-$modops = ModuleOperations::get_instance();
+$modops = new ModuleOperations();
 $smarty = CmsApp::get_instance()->GetSmarty();
 
 $tmp = [-1 => lang('none')];
@@ -637,9 +637,9 @@ $smarty->assign('secure_opts', $opts)
   ->assign('tab', $tab)
   ->assign('pretty_urls', $pretty_urls);
 
+$metops = new module_meta();
 // need a list of wysiwyg modules.
-
-$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::WYSIWYG_MODULE); //pre 2.0 identifier?
+$tmp = $metops->module_list_by_capability(CmsCoreCapabilities::WYSIWYG_MODULE); //pre 2.0 identifier?
 $n = count($tmp);
 $tmp2 = [-1 => lang('none')];
 for ($i = 0; $i < $n; $i++) {
@@ -661,7 +661,7 @@ $smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences')
 // advanced/syntax editors
 //CHECKME cms_utils::get_syntax_highlighter_module()
 $editors = [];
-$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
+$tmp = $metops->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
 if ($tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
         $ob = cms_utils::get_module($tmp[$i]);
@@ -764,7 +764,7 @@ $smarty->assign('adminlog_options', $tmp);
 
 $all_attributes = null;
 
-$content_obj = new Content(); // i.e. the default content-type
+$content_obj = new content(); // i.e. the default content-type
 $list = $content_obj->GetPropertiesArray();
 if ($list) {
     $all_attributes = [];
@@ -787,8 +787,9 @@ $smarty->assign('all_attributes', $all_attributes)
   ->assign('smarty_cacheoptions', ['always'=>lang('always'),'never'=>lang('never'),'moduledecides'=>lang('moduledecides')])
   ->assign('smarty_cacheoptions2', ['always'=>lang('always'),'never'=>lang('never')]);
 
+$realm = 'CMSContentManager'; //TODO generalize
 $contentops = cmsms()->GetContentOperations();
-$all_contenttypes = $contentops->ListContentTypes(false, false);
+$all_contenttypes = $contentops->ListContentTypes(false, false, false, $realm);
 $smarty->assign('all_contenttypes', $all_contenttypes)
 
   ->assign('yesno', [0=>lang('no'),1=>lang('yes')])

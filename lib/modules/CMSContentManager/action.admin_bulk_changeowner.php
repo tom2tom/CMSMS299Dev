@@ -96,7 +96,7 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_changeowne
 
 $tpl->assign('multicontent',$params['multicontent'])
  ->assign('displaydata',$displaydata);
-$userlist = UserOperations::get_instance()->LoadUsers();
+$userlist = (new UserOperations())->LoadUsers();
 $tmp = [];
 foreach( $userlist as $user ) {
   $tmp[$user->id] = $user->username;

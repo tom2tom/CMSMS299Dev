@@ -536,7 +536,7 @@ final class UserOperations
 		}
 
 		try {
-			$ops = GroupOperations::get_instance();
+			$ops = new GroupOperations();
 			foreach ($groups as $gid) {
 				if ($ops->CheckPermission($gid, $permname)) {
 					return true;

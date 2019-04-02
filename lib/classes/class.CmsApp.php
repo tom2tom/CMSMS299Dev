@@ -21,11 +21,10 @@ namespace CMSMS {
 */
 
 use CMSMS\BookmarkOperations;
-use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
+use CMSMS\contenttypes\ContentBase;
 use CMSMS\contenttypes\ErrorPage;
 use CMSMS\Database\Connection;
-use CMSMS\UserPluginOperations;
 use CMSMS\GroupOperations;
 use CMSMS\internal\global_cache;
 use CMSMS\internal\Smarty;
@@ -33,6 +32,7 @@ use CMSMS\ModuleOperations;
 use CMSMS\ScriptOperations;
 use CMSMS\StylesOperations;
 use CMSMS\UserOperations;
+use CMSMS\UserPluginOperations;
 use CMSMS\UserTagOperations;
 
 /**
@@ -280,12 +280,14 @@ final class CmsApp
      *
      * @since 2.0
      * @internal
-     * @access private
      * @ignore
+     * @param mixed $content one of the content classes, from core or CMSContentManager
      */
-    public function set_content_object(ContentBase &$content)
+    public function set_content_object(&$content)
     {
-        if( !$this->_current_content_page || $content instanceof ErrorPage ) $this->_current_content_page = $content;
+        if( !$this->_current_content_page || $content instanceof ErrorPage ) {
+            $this->_current_content_page = $content;
+        }
     }
 
     /**
@@ -321,7 +323,7 @@ final class CmsApp
      */
     public function GetAvailableModules()
     {
-        return ModuleOperations::get_instance()->get_available_modules();
+        return (new ModuleOperations())->get_available_modules();
     }
 
     /**
@@ -339,7 +341,7 @@ final class CmsApp
      */
     public function GetModuleInstance(string $module_name,$version = '')
     {
-        return ModuleOperations::get_instance()->get_module_instance($module_name,$version);
+        return (new ModuleOperations())->get_module_instance($module_name,$version);
     }
 
     /**
@@ -409,7 +411,7 @@ final class CmsApp
     */
     public function GetModuleOperations() : ModuleOperations
     {
-        return ModuleOperations::get_instance();
+        return new ModuleOperations();
     }
 
     /**
@@ -422,7 +424,7 @@ final class CmsApp
      */
     public function GetUserPluginOperations() : UserPluginOperations
     {
-        return UserPluginOperations::get_instance();
+        return new UserPluginOperations();
     }
 
     /**
@@ -434,7 +436,7 @@ final class CmsApp
     */
     public function GetUserOperations() : UserOperations
     {
-        return UserOperations::get_instance();
+        return new UserOperations();
     }
 
     /**
@@ -458,7 +460,7 @@ final class CmsApp
     */
     public function GetBookmarkOperations() : BookmarkOperations
     {
-        return BookmarkOperations::get_instance();
+        return new BookmarkOperations();
     }
 
     /**
@@ -470,7 +472,7 @@ final class CmsApp
     */
     public function GetGroupOperations() : GroupOperations
     {
-        return GroupOperations::get_instance();
+        return new GroupOperations();
     }
 
     /**
@@ -497,10 +499,11 @@ final class CmsApp
         global $CMS_PHAR_INSTALLER;
         if( isset($CMS_PHAR_INSTALLER) ) {
             // we can't load the CMSMS version of smarty during the installation.
-            $out = null;
-            return $out;
+            return null;
         }
-        if( is_null( $this->smarty ) ) $this->smarty = new Smarty();
+        if( is_null($this->smarty) ) {
+            $this->smarty = new Smarty();
+        }
         return $this->smarty;
     }
 

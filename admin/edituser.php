@@ -48,7 +48,7 @@ $confirm = json_encode(lang('confirm_edituser'));
 $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
  $('#submit').on('click', function(ev) {
   ev.preventDefault();
   cms_confirm_btnclick(this, $confirm);
@@ -252,8 +252,9 @@ if (!empty($error)) {
 }
 
 $out      = [-1 => lang('none')];
-$userlist = UserOperations::get_instance()->LoadUsers();
 
+$userops = new UserOperations();
+$userlist = $userops->LoadUsers();
 foreach ($userlist as $one) {
     if ($one->id == $user_id) continue;
     $out[$one->id] = $one->username;
@@ -262,9 +263,8 @@ foreach ($userlist as $one) {
 $smarty = CmsApp::get_instance()->GetSmarty();
 
 if ($assign_group_perm && !$access_user) {
-    $groups = GroupOperations::get_instance()->LoadGroups();
-    $smarty->assign('groups', $groups)
-      ->assign('membergroups', UserOperations::get_instance()->GetMemberGroups($user_id));
+    $smarty->assign('groups', (new GroupOperations())->LoadGroups())
+      ->assign('membergroups', $userops->GetMemberGroups($user_id));
 }
 
 $selfurl = basename(__FILE__);

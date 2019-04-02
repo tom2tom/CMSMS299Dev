@@ -315,7 +315,7 @@ final class modulerep_client
     {
         if( is_array(self::$_latest_installed_modules) ) return self::$_latest_installed_modules;
 
-        $modules = ModuleOperations::get_instance()->GetInstalledModules();
+        $modules = (new ModuleOperations())->GetInstalledModules();
         self::$_latest_installed_modules = self::get_modulelatest($modules);
         return self::$_latest_installed_modules;
     }

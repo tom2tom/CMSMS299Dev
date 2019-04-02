@@ -84,7 +84,7 @@ try {
         unset($_SESSION[$key]);
 
         // install/upgrade the modules that need to be installed or upgraded.
-        $ops = ModuleOperations::get_instance();
+        $ops = new ModuleOperations();
         foreach( $modlist as $name => $rec ) {
             switch( $rec['action'] ) {
             case 'i': // install
@@ -148,7 +148,7 @@ try {
                 } else {
                     // module not found in forge?? could be a system module,
                     // but it's still a dependency.
-                    if( !ModuleOperations::get_instance()->IsSystemModule($name) ) throw new CmsInvalidDataException($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
+                    if( !(new ModuleOperations())->IsSystemModule($name) ) throw new CmsInvalidDataException($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
                     $out[$name] = $onedep;
                 }
             }

@@ -47,7 +47,7 @@ $page         = 1;
 $limit        = 100;
 $message      = '';
 $error        = '';
-$userops      = UserOperations::get_instance();
+$userops      = new UserOperations();
 $selfurl      = basename(__FILE__);
 
 /*--------------------
@@ -56,7 +56,7 @@ $selfurl      = basename(__FILE__);
 
 if (isset($_GET['switchuser'])) {
     // switch user functionality is only allowed to members of the admin group
-    if (!\UserOperations::get_instance()->UserInGroup($userid, 1)) {
+    if (!$userops->UserInGroup($userid, 1)) {
         $themeObject->RecordNotice('error', lang('permissiondenied'));
     } else {
         $to_uid = (int) $_GET['switchuser'];
@@ -67,7 +67,7 @@ if (isset($_GET['switchuser'])) {
         if (! $to_user->active) {
             $themeObject->RecordNotice('error', lang('userdisabled'));
         } else {
-            LoginOperations::get_instance()->set_effective_user($to_user);
+            (new LoginOperations())->set_effective_user($to_user);
             $urlext = '?' . CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
             redirect('index.php'.$urlext);
         }
@@ -268,7 +268,7 @@ $confirm4 = json_encode(lang('confirm_bulkuserop'));
 $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
  $('#sel_all').cmsms_checkall();
  $('.switchuser').on('click', function(ev) {
   ev.preventDefault();

@@ -30,9 +30,8 @@ if (!isset($_GET['bookmark_id'])) {
 
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
-$bookops = BookmarkOperations::get_instance();
 $bookmark_id = (int)$_GET['bookmark_id'];
-$markobj = $bookops->LoadBookmarkByID($bookmark_id);
+$markobj = (new BookmarkOperations())->LoadBookmarkByID($bookmark_id);
 
 if ($markobj) {
 	$userid = get_userid();

@@ -103,8 +103,7 @@ final class LoginOperations
     private function _check_passhash($uid,$hash) : bool
     {
         // we already validated that payload was not corrupt
-        $userops = UserOperations::get_instance();
-        $user = $userops->LoadUserByID((int) $uid);
+        $user = (new UserOperations())->LoadUserByID((int)$uid);
         if( !$user ) {
             return FALSE;
         }
@@ -258,7 +257,7 @@ final class LoginOperations
     {
         $uid = $this->get_loggedin_uid();
         if( $uid < 1 ) return;
-        $user = UserOperations::get_instance()->LoadUserByID($uid);
+        $user = (new UserOperations())->LoadUserByID($uid);
         return $user;
     }
 

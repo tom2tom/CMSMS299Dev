@@ -851,7 +851,7 @@ class FormUtils
             } else {
                 $parms['class'] .= ' cmsms_wysiwyg';
             }
-            $module = ModuleOperations::get_instance()->GetWYSIWYGModule($forcemodule);
+            $module = (new ModuleOperations())->GetWYSIWYGModule($forcemodule);
             if ($module && $module->HasCapability(CmsCoreCapabilities::WYSIWYG_MODULE)) {
                 // TODO use $config['content_language']
                 $parms['data-cms-lang'] = 'html'; //park badly-named variable
@@ -867,7 +867,7 @@ class FormUtils
         $wantedsyntax = $wantedsyntax ?? '';
         if (!$module && $wantedsyntax) {
             $parms['data-cms-lang'] = $wantedsyntax; //park
-            $module = ModuleOperations::get_instance()->GetSyntaxHighlighter($forcemodule);
+            $module = (new ModuleOperations())->GetSyntaxHighlighter($forcemodule);
             if ($module && $module->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE)) {
                 $module_name = $module->GetName();
                 if (empty($parms['class'])) {

@@ -130,13 +130,12 @@ if ($access) {
 	// get all available handlers
 	$allhandlers = null;
 	// some of them being user-defined tags
-	$ops = UserPluginOperations::get_instance();
+	$ops = new UserPluginOperations();
 	$plugins = $ops->get_list();
 	foreach ($plugins as $plugin_name) {
 		$allhandlers[$plugin_name] = $plugin_name;
 	}
 	// and others being modules
-	$ops = ModuleOperations::get_instance();
 	$allmodules = $ops->GetInstalledModules();
 	foreach ($allmodules as $key) {
 		if ($key == $sendername) continue;

@@ -29,8 +29,7 @@ $userid = get_userid();
 $access = check_permission($userid, 'Manage My Bookmarks'); //TODO or 'Manage Bookmarks' or always
 $padd = $access || check_permission($userid, 'Add Bookmarks');
 
-$bookops = BookmarkOperations::get_instance();
-$marklist = $bookops->LoadBookmarks($userid);
+$marklist = (new BookmarkOperations())->LoadBookmarks($userid);
 $n = count($marklist);
 $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
 $limit = 20;

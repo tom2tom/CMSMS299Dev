@@ -24,7 +24,7 @@ function smarty_function_cms_admin_user($params, $template)
 	if( cmsms()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
 		$uid = (int)get_parameter_value($params,'uid');
 		if( $uid > 0 ) {
-			$user = UserOperations::get_instance()->LoadUserByID((int)$params['uid']);
+			$user = (new UserOperations())->LoadUserByID((int)$params['uid']);
 			if( is_object($user) ) {
 				$mode = trim(get_parameter_value($params,'mode','username'));
 				switch( $mode ) {

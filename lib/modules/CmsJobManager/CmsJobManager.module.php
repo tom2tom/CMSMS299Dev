@@ -216,9 +216,9 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
         }
 
         // 2.  Get task objects from modules
-        $modules = module_meta::get_instance()->module_list_by_method('get_tasks');
+        $modules = (new module_meta())->module_list_by_method('get_tasks');
         if (!$modules) return $res;
-        $modops = ModuleOperations::get_instance();
+        $modops = new ModuleOperations();
         foreach ($modules as $one) {
             $modinst = $modops->get_module_instance($one);
             $tasks = $modinst->get_tasks();

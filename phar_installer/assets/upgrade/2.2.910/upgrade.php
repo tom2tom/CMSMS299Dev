@@ -44,7 +44,7 @@ if ($udt_list) {
         }
     }
 
-    $ops = UserPluginOperations::get_instance();
+    $ops = new UserPluginOperations();
     //$smarty defined upstream, used downstream
     foreach ($udt_list as $udt) {
         create_user_plugin($udt, $ops, $smarty);
@@ -98,11 +98,11 @@ foreach ([
     $permission->source = 'Core';
     $permission->name = $one_perm;
     $permission->text = $one_perm;
-	try {
-	    $permission->save();
-	} catch (Exception $e) {
-		// nothing here
-	}
+    try {
+        $permission->save();
+    } catch (Exception $e) {
+        // nothing here
+    }
 }
 
 $group = new Group();
@@ -110,9 +110,9 @@ $group->name = 'CodeManager';
 $group->description = lang('grp_coder_desc');
 $group->active = 1;
 try {
-	$group->Save();
+    $group->Save();
 } catch (Exception $e) {
-	// nothing here
+    // nothing here
 }
 $group->GrantPermission('Modify Site Code');
 //$group->GrantPermission('Modify Site Assets');
@@ -204,10 +204,6 @@ if ($data) {
 $sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'category_id');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'originator C(32) AFTER id');
-$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'contentfile I1 DEFAULT 0 AFTER listable');
-$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME,'contentfile I1 DEFAULT 0');
 $dict->ExecuteSQLArray($sqlarray);
 
 // layout-templates table indices

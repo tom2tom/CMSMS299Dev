@@ -154,7 +154,7 @@ function cms_module_plugin(array $params, $template)
                 // i.e. the results are supposed to replace the tag, not {content}
                 $action = $ary[2] ?? 'default';
                 $params['action'] = $action; // deprecated since 2.3
-                $params = array_merge($params, ModuleOperations::get_instance()->GetModuleParameters($id));
+                $params = array_merge($params, (new ModuleOperations())->GetModuleParameters($id));
             }
         }
     }

@@ -95,7 +95,7 @@ class module_info implements ArrayAccess
             return version_compare($this['mincmsversion'],CMS_VERSION,'<=');
 
         case 'dir':
-            return ModuleOperations::get_instance()->get_module_path( $this->_data['name'] );
+            return (new ModuleOperations())->get_module_path( $this->_data['name'] );
 
         case 'writable':
             $dir = $this['dir'];
@@ -107,7 +107,7 @@ class module_info implements ArrayAccess
             return is_writable($this['dir']);
 
         case 'is_system_module':
-            return ModuleOperations::get_instance()->IsSystemModule( $this->_data['name'] );
+            return (new ModuleOperations())->IsSystemModule( $this->_data['name'] );
 
         default:
             return $this->_data[$key] ?? null;
@@ -192,7 +192,7 @@ class module_info implements ArrayAccess
     /* return mixed array or null */
     private function _read_from_module_meta(string $module_name)
     {
-        $dir = ModuleOperations::get_instance()->get_module_path( $module_name );
+        $dir = (new ModuleOperations())->get_module_path( $module_name );
         $fn = $this->_get_module_meta_file( $module_name );
         if( !is_file($fn) ) return;
         $inidata = @parse_ini_file($fn,TRUE);
@@ -229,7 +229,7 @@ class module_info implements ArrayAccess
     /* return mixed array or null */
     private function _read_from_module(string $module_name)
     {
-        $mod = ModuleOperations::get_instance()->get_module_instance($module_name,'',TRUE);
+        $mod = (new ModuleOperations())->get_module_instance($module_name,'',TRUE);
         if( !is_object($mod) ) {
             // if the module is not installed, try to interrogate it anyway
             $path = cms_module_path($module_name);

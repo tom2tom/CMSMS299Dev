@@ -9,9 +9,8 @@ if( !isset($params['mod']) ) {
 $state = 0;
 if( isset($params['state']) ) $state = (int)$params['state'];
 $module = trim(get_parameter_value($params,'mod'));
-$ops = ModuleOperations::get_instance();
 
-$res = $ops->ActivateModule( $module, $state );
+$res = (new ModuleOperations())->ActivateModule( $module, $state );
 if( !$res ) {
     $this->SetError($this->Lang('error_active_failed'));
     $this->RedirectToAdminTab();

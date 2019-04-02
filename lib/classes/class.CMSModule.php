@@ -17,7 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminTabs;
-use CMSMS\ContentBase;
+use CMSMS\contenttypes\ContentBase;
 use CMSMS\Events;
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
@@ -327,7 +327,7 @@ abstract class CMSModule
         } else {
             throw new CmsException('Invalid callable passed to RegisterSmartyPlugin');
         }
-        return ModulePluginOperations::get_instance()->add($modname, $name, $type, $callable, $cachable, $usage);
+        return (new ModulePluginOperations())->add($modname, $name, $type, $callable, $cachable, $usage);
     }
 
     /**
@@ -376,7 +376,7 @@ abstract class CMSModule
             return true;
         }
         //static: make a 'permanent' record
-        return ModulePluginOperations::get_instance()->add($name, $name, 'function', [$name,'function_plugin'], $cachable);
+        return (new ModulePluginOperations())->add($name, $name, 'function', [$name,'function_plugin'], $cachable);
     }
 
     /**
@@ -464,7 +464,7 @@ abstract class CMSModule
      */
     final public function GetModulePath() : string
     {
-        $modops = ModuleOperations::get_instance();
+        $modops = new ModuleOperations();
         return $modops->get_module_path( $this->GetName() );
     }
 
@@ -1251,8 +1251,7 @@ abstract class CMSModule
      */
     final public function CreateXMLPackage(&$message, &$filecount)
     {
-        $modops = ModuleOperations::get_instance();
-        return $modops->CreateXmlPackage($this, $message, $filecount);
+        return (new ModuleOperations())->CreateXmlPackage($this, $message, $filecount);
     }
 
     /**
@@ -2017,7 +2016,9 @@ abstract class CMSModule
      *
      * @since 1.10
      *
-     * @param mixed $id string|null The module action id (cntnt01 indicates that the default content block of the destination page should be used).
+     * @param mixed $id string|null The module action id.
+	 *  Anything falsy will use the admin id.
+	 *  cntnt01 indicates that the default content block of the destination page should be used.
      * @param string $action The module action name
      * Optional parameters:
      * @param mixed  $returnid Optional page id (int|''|null) to return to. Default null (i.e. admin)
@@ -2179,7 +2180,7 @@ abstract class CMSModule
      */
     final public static function GetModuleInstance(string $module)
     {
-        return ModuleOperations::get_instance()->get_module_instance($module, '');
+        return (new ModuleOperations())->get_module_instance($module, '');
     }
 
     /**
@@ -2428,7 +2429,7 @@ abstract class CMSModule
 
     /**
      * ------------------------------------------------------------------
-     * Deprecated User Defined Dag methods.
+     * Deprecated User Defined Tag Functions.
      * ------------------------------------------------------------------
      */
 

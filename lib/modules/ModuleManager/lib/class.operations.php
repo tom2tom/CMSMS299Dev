@@ -118,7 +118,7 @@ class operations
         $dtdversion = $val;
         $current = (version_compare($val,self::MODULE_DTD_VERSION) == 0);
         $coremodule = (string)$xml->core; //'1', '0' or ''
-        $modops = ModuleOperations::get_instance();
+        $modops = new ModuleOperations();
         $moduledetails = [];
         $filedone = false;
 
@@ -279,7 +279,7 @@ class operations
         // generate a moduleinfo.ini file, if N/A now
 		$fn = $dir.'/moduleinfo.ini';
 		if( !is_file($fn) ) {
-	        ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
+	        (new ModuleOperations())->generate_moduleinfo($modinstance);
 			global_cache::clear('modules');
 			global_cache::clear('module_deps');
 //			global_cache::clear('module_plugins');

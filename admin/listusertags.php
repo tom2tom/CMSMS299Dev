@@ -29,7 +29,7 @@ $userid = get_userid();
 $pmod = check_permission($userid, 'Modify User Plugins');
 $access = $pmod || check_permission($userid, 'View Tag Help');
 
-$ops = UserPluginOperations::get_instance();
+$ops = new UserPluginOperations();
 $patn = $ops->file_path('*');
 $files = glob($patn, GLOB_NOESCAPE);
 $tags = [];

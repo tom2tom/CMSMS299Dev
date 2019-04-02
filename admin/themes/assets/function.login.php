@@ -156,7 +156,7 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
     }
 }
 
-$login_ops = LoginOperations::get_instance();
+$login_ops = new LoginOperations();
 $config = cms_config::get_instance();
 
 if (isset($_SESSION['logout_user_now'])) {

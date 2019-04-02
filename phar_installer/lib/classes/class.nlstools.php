@@ -20,17 +20,17 @@ final class nlstools
 
 //  private function __construct() {}
 
-    /**
+    /* *
      * Get an instance of this class.
      * @deprecated since 1.4 use new nlstools() instead
      * @return self
      */
-    public static function get_instance() : self
+/*    public static function get_instance() : self
     {
 //      if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
         return new self();
     }
-
+*/
     private function load_nls()
     {
         if( is_array(self::$_nls) ) return;

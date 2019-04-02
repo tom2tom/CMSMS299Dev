@@ -29,7 +29,7 @@ function smarty()
  */
 function nls()
 {
-	return nlstools::get_instance();
+	return new nlstools();
 }
 
 /**

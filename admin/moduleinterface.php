@@ -60,7 +60,7 @@ if (isset($_REQUEST['mact'])) {
 	redirect('index.php');
 }
 
-$modops = ModuleOperations::get_instance();
+$modops = new ModuleOperations();
 $modinst = $modops->get_module_instance($module);
 if (!$modinst) {
 	trigger_error('Module '.$module.' not found. This could indicate that the module is awaiting upgrade, or that there are other problems');

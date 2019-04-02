@@ -41,7 +41,7 @@ if (!check_permission($userid,'Manage My Account')) {
     return;
 }
 
-$userobj = UserOperations::get_instance()->LoadUserByID($userid); // <- Safe to do, cause if $userid fails, it redirects automatically to login.
+$userobj = (new UserOperations())->LoadUserByID($userid); // <- Safe to do, cause if $userid fails, it redirects automatically to login.
 
 if (isset($_POST['submit'])) {
     // validate submitted data

@@ -450,7 +450,7 @@ abstract class ThemeBase
         if (!$data) {
             // data doesn't exist, gotta build it
             $usermoduleinfo = [];
-            $modops = ModuleOperations::get_instance();
+            $modops = new ModuleOperations();
             $allmodules = $modops->GetInstalledModules();
             foreach ($allmodules as $modname) {
                 $modinst = $modops->get_module_instance($modname);

@@ -30,8 +30,7 @@ function smarty_function_last_modified_by($params, $template)
 
 	$format = 'id';
 	if(!empty($params['format'])) $format = $params['format'];
-	$userops = UserOperations::get_instance();
-	$thisuser = $userops->LoadUserByID($id);
+	$thisuser = (new UserOperations())->LoadUserByID($id);
 	if( !$thisuser ) return; // could not find user record.
 
 	$output = '';

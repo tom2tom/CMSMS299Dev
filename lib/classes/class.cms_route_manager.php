@@ -308,7 +308,7 @@ final class cms_route_manager
 		}
 
 		// TODO
-		$modules = ModuleOperations::get_instance()->GetLoadedModules();
+		$modules = (new ModuleOperations())->GetLoadedModules();
 		foreach( $modules as $name => &$module ) {
 			if( $flag ) {
 			    $module->InitializeAdmin();
@@ -347,7 +347,7 @@ final class cms_route_manager
 		}
 
 		// get module routes
-		$installed = ModuleOperations::get_instance()->GetInstalledModules();
+		$installed = (new ModuleOperations())->GetInstalledModules();
 		foreach( $installed as $module_name ) {
 			$modobj = cms_utils::get_module($module_name);
 			if( !$modobj ) continue;

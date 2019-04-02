@@ -68,7 +68,7 @@ final class langtools
      */
     public function language_available(string $str) : bool
     {
-        $obj = nlstools::get_instance()->find($str);
+        $obj = (new nlstools())->find($str);
         return is_object($obj);
     }
 
@@ -80,7 +80,7 @@ final class langtools
      */
     public function get_available_languages() : array
     {
-        return nlstools::get_instance()->get_list();
+        return (new nlstools())->get_list();
     }
 
 
@@ -140,8 +140,9 @@ final class langtools
     {
         $langs = $this->get_browser_langs();
         if( is_array($langs) && ($n = count($langs)) ) {
+			$ops = new nlstools();
             for( $i = 0; $i < $n; $i++ ) {
-                $obj = nlstools::get_instance()->find($langs[$i]['lang']); // does alias lookup.
+                $obj = $ops->find($langs[$i]['lang']); // does alias lookup.
                 if( $obj ) {
                     // it's available, check if it's allowed
                     if( $this->language_allowed($obj->name()) ) return $obj->name();
@@ -215,7 +216,7 @@ final class langtools
         }
 
         $this->_cur_language = $str;
-        $obj = nlstools::get_instance()->find($str);
+        $obj = (new nlstools())->find($str);
         $locale = $obj->locale();
         if( !is_array($locale) ) $locale = explode(',',$locale);
         $old = setlocale(LC_ALL,'0');

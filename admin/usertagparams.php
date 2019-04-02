@@ -20,15 +20,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\UserPluginOperations;
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 $userid = get_userid();
 if (check_permission($userid, 'View Tag Help')) {
-	$ops = UserPluginOperations::get_instance();
 	$name = cleanValue($_GET['name']);
-	$meta = $ops->get_meta_data($name, 'parameters');
+	$meta = (new UserPluginOperations())->get_meta_data($name, 'parameters');
 	if (!empty($meta)) {
 		echo (nl2br(cms_htmlentities(trim($meta, " \t\n\r"))));
 	}

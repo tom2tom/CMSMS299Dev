@@ -22,7 +22,7 @@ final class utils
 
     public static function get_async_freq() : int
     {
-        $mod = ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
+        $mod = (new ModuleOperations())->get_module_instance('CmsJobManager');
         $minutes = (int) $mod->GetPreference('jobinterval');
         $minutes = max(1, $minutes);
         $minutes = min(10, $minutes);
@@ -163,7 +163,7 @@ final class utils
         if ($err['type'] != E_ERROR) {
             return;
         }
-        $mod = ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
+        $mod = (new ModuleOperations())->get_module_instance('CmsJobManager');
         $job = $mod->get_current_job();
         if ($job) {
             self::joberrorhandler($job, $err['message'], $err['file'], $err['line']);

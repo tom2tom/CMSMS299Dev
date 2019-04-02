@@ -172,7 +172,7 @@ EOS;
 				  case 'U': //UDT
 					if( !empty($handler) ) {
 						if( $mgr === null ) {
-							$mgr = UserPluginOperations::get_instance();
+							$mgr = new UserPluginOperations();
 						}
 						debug_buffer($eventname.' event notice to user-plugin ' . $row['func']);
 						$mgr->DoEvent($handler, $originator, $eventname, $params);
