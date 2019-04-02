@@ -386,9 +386,9 @@ class CmsLayoutStylesheet
 	private static function get_locks() : array
 	{
 		if( !self::$_lock_cache_loaded ) {
+			self::$_lock_cache = [];
 			$tmp = LockOperations::get_locks('stylesheet');
 			if( $tmp ) {
-				self::$_lock_cache = [];
 				foreach( $tmp as $one ) {
 					self::$_lock_cache[$one['oid']] = $one;
 				}
