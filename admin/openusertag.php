@@ -37,7 +37,7 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     $tagname = cleanValue($_POST['tagname']);
     $oldname = cleanValue($_POST['oldtagname']);
 
-    $ops = UserPluginOperations::get_instance();
+    $ops = new UserPluginOperations();
     if ($oldname == '-1' || $oldname !== $tagname ) {
         if (!$ops->is_valid_plugin_name($tagname)) {
             $themeObject->RecordNotice('error', lang('udt_exists'));
@@ -77,7 +77,7 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
 }
 
 if ($tagname != '-1') {
-    $ops = UserPluginOperations::get_instance();
+    $ops = new UserPluginOperations();
     list($meta, $code) = $ops->get($tagname);
 } else {
     $meta = [];
@@ -99,7 +99,7 @@ if ($edit) {
     $js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
  $('#userplugin button[name="submit"], #userplugin button[name="apply"]').on('click', function(ev) {
   var v = $('#name').val();
   if (v === '' || !v.match(/^[a-zA-Z_][0-9a-zA-Z_]*$/)) {
@@ -107,14 +107,13 @@ $(document).ready(function() {
    cms_notify('error', $s1);
    return false;
   }
-  var el = $('#code');
-  v = el.val().trim();
+  v = getcontent().trim();
   if (v === '') {
    ev.preventDefault();
    cms_notify('error', $s2);
    return false;
   }
-  el.val(v);
+  setcontent(v);
  });
 });
 //]]>

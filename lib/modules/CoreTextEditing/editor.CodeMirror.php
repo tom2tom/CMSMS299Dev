@@ -138,7 +138,14 @@ EOS;
 	$js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+var container,$handle;
+function getcontent() {
+ return container.val();
+}
+function setcontent(v) {
+ container.val(v);
+}
+$(function() {
  $.valHooks.textarea = {
   get: function(el) {
 
@@ -150,8 +157,8 @@ EOS;
 	$js .= <<<EOS
   }
  };
- var main = $('#$htmlid');
- var $handle = CodeMirror.fromTextArea(main[0],{
+  container = $('#$htmlid');
+  $handle = CodeMirror.fromTextArea(container[0],{
   foldGutter: true,
   gutters: ["CodeMirror-foldgutter"],
   lineNumbers: false,

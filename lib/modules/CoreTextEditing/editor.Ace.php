@@ -123,9 +123,16 @@ EOS;
 	$js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-var main = $('#$htmlid');
-main.hide();
-$(document).ready(function() {
+var $handle,container = $('#$htmlid');
+container.hide();
+
+function getcontent() {
+ return $handle.session.getValue();
+}
+function setcontent(v) {
+ container.val(v);
+}
+$(function() {
  $.valHooks.textarea = {
   get: function(el) {
 
@@ -137,10 +144,10 @@ EOS;
 	$js .= <<<EOS
   }
  };
- main.after('<div id=$workid style="display:none;" />');
+ container.after('<div id=$workid style="display:none;" />');
  var worker = $('#$workid');
- worker.text(main.val());
- var $handle = ace.edit(worker[0]);
+ worker.text(container.val());
+ $handle = ace.edit(worker[0]);
 
 EOS;
 	if ($mode) {
@@ -160,7 +167,7 @@ EOS;
 	}
 	//TODO runtime adjustment of maxLines, to keep hscrollbar at window-bottom
 	$js .= <<<EOS
- var sz = main.css('font-size');
+ var sz = container.css('font-size');
  $handle.setOptions({
   autoScrollEditorIntoView: false, //CHECKME
   fontSize: sz,
@@ -179,8 +186,8 @@ EOS;
 EOS;
     if ($edit) {
         $js .= <<<EOS
- main.closest('form').on('submit', function() {
-  main.val($handle.session.getValue());
+ container.closest('form').on('submit', function() {
+  container.val($handle.session.getValue());
  });
 
 EOS;
