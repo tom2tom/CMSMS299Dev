@@ -16,6 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSContentManager\Utils;
 use CMSMS\AdminUtils;
 use CMSMS\internal\module_meta;
 use CMSMS\ModuleOperations;
@@ -45,7 +46,7 @@ if (!check_permission($userid,'Manage My Settings')) {
   return;
 }
 
-$userobj = UserOperations::get_instance()->LoadUserByID($userid); // <- Safe to do, cause if $userid fails, it redirects automatically to login.
+$userobj = (new UserOperations())->LoadUserByID($userid); // <- Safe to do, cause if $userid fails, it redirects automatically to login.
 $db = cmsms()->GetDb();
 
 /**
@@ -61,7 +62,7 @@ if (isset($_POST['submit'])) {
   $ce_navdisplay = $_POST['ce_navdisplay'];
   $date_format_string = $_POST['date_format_string'];
   $default_cms_language = $_POST['default_cms_language'];
-  $default_parent = (int)$_POST['parent_id'];
+  $default_parent = (int)$_POST['m1_parent_id'];
   $editortheme = $_POST['editortheme'] ?? null;
   $editortype = $_POST['editortype'] ?? null;
   $hide_help_links = (isset($_POST['hide_help_links'])) ? 1 : 0;
@@ -116,7 +117,7 @@ $bookmarks = cms_userprefs::get_for_user($userid, 'bookmarks', 0);
 $ce_navdisplay = cms_userprefs::get_for_user($userid,'ce_navdisplay');
 $date_format_string = cms_userprefs::get_for_user($userid, 'date_format_string', '%x %X');
 $default_cms_language = cms_userprefs::get_for_user($userid, 'default_cms_language');
-$default_parent = cms_userprefs::get_for_user($userid, 'default_parent', -2);
+$default_parent = (int)cms_userprefs::get_for_user($userid, 'default_parent', -1);
 $editortheme = cms_userprefs::get_for_user($userid, 'editor_theme');
 $vars = explode ('::', cms_userprefs::get_for_user($userid, 'syntax_editor'));
 $editormodule = $vars[0] ?? '';
@@ -135,9 +136,10 @@ $wysiwyg = cms_userprefs::get_for_user($userid, 'wysiwyg');
 
 $contentops = CmsApp::get_instance()->GetContentOperations();
 $smarty = CmsApp::get_instance()->GetSmarty();
+$metops = new module_meta();
 
 // WYSIWYG editors
-$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::WYSIWYG_MODULE);
+$tmp = $metops->module_list_by_capability(CmsCoreCapabilities::WYSIWYG_MODULE);
 $n = count($tmp);
 $tmp2 = [-1 => lang('none')];
 for ($i = 0; $i < $n; ++$i) {
@@ -148,7 +150,7 @@ $smarty -> assign('wysiwyg_opts', $tmp2);
 
 // Syntax highlighters
 $editors = [];
-$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
+$tmp = $metops->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
 if ($tmp) {
   for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
     $ob = cms_utils::get_module($tmp[$i]);
@@ -211,11 +213,14 @@ if (count($tmp) < 2) {
 $smarty->assign('themes_opts',$tmp);
 
 // Modules
-$allmodules = ModuleOperations::get_instance()->GetInstalledModules();
+$allmodules = (new ModuleOperations())->GetInstalledModules();
 $modules = [];
 foreach ((array)$allmodules as $onemodule) {
   $modules[$onemodule] = $onemodule;
 }
+
+// Pages
+$sel = Utils::CreateHierarchyDropdown(0, $default_parent, 'parent_id', false, true);
 
 // Prefs
 $tmp = [10 => 10, 20 => 20, 50 => 50, 100 => 100];
@@ -229,7 +234,7 @@ $smarty->assign([
   'ce_navdisplay'=>$ce_navdisplay,
   'date_format_string'=>$date_format_string,
   'default_cms_language'=>$default_cms_language,
-  'default_parent'=>$contentops->CreateHierarchyDropdown(0, $default_parent, 'parent_id', 0, 1),
+  'default_parent'=>$sel,
   'editortheme'=>$editortheme,
   'hide_help_links'=>$hide_help_links,
   'homepage'=>$themeObject->GetAdminPageDropdown('homepage', $homepage, 'homepage'),
@@ -251,7 +256,7 @@ $editortitle = lang('text_editor_theme');
 $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
  $('#theme_help .cms_helpicon').on('click', function() {
   var key = $('input[name=editortype]:checked').attr('data-themehelp-key');
   if(key) {
