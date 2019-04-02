@@ -28,6 +28,8 @@ use CmsSQLErrorException;
 use const CMS_DB_PREFIX;
 use function cms_notice;
 use function endswith;
+use function file_put_contents;
+use function munge_string_to_url;
 
 /**
  * A class of static methods for dealing with CmsLayoutStylesheet objects.
@@ -84,21 +86,19 @@ class StylesheetOperations
 	{
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.'SET
 name = ?,
-content = ?,
 description = ?,
 media_type = ?,
 media_query = ?,
 contentfile = ?,
 modified = ?
 WHERE id = ?';
-		if( isset($sht->_data['media_type']) ) $tmp = implode(',',$sht->_data['media_type']);
+		if( isset($sht->_data['media_type']) ) $tmp = implode(',',$sht->_data['media_type']); //TODO access
 		else $tmp = '';
 		$sid = $sht->get_id();
 		$db = CmsApp::get_instance()->GetDb();
 //		$dbr =
 		$db->Execute($query,[
 			$sht->get_name(),
-			$sht->get_content(),
 			$sht->get_description(),
 			$tmp,
 			$sht->get_media_query(),
@@ -107,6 +107,14 @@ WHERE id = ?';
 			$sid
 		]);
 //USELESS		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+
+        if( ($fp = $sht->get_content_filename()) ) {
+            file_put_contents($fp,$sht->get_content(),LOCK_EX);
+		}
+		else {
+	        $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
+	        $db->Execute($sql,[$sht->get_content(),$sid]);
+        }
 
 		// get the designs that have the specified stylesheet from the database again.
 		$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WhERE css_id = ?';
@@ -170,7 +178,7 @@ VALUES (?,?,?,?,?,?,?,?)';
 		$db = CmsApp::get_instance()->GetDb();
 		$dbr = $db->Execute($query,	[
 			$sht->get_name(),
-			$sht->get_content(),
+			$sht->get_content(), // maybe changed to a filename
 			$sht->get_description(),
 			$tmp,
 			$sht->get_media_query(),
@@ -180,6 +188,16 @@ VALUES (?,?,?,?,?,?,?,?)';
 		]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		$sid = $sht->_data['id'] = $db->Insert_ID();
+
+		if( $sht->get_content_file() ) {
+			$fn = munge_string_to_url($sht->get_name()).'.'.$sid.'.tpl';
+			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
+			$db->Execute($sql,[$fn,$sid]);
+			$tmp = $sht->get_content();
+			$sht->set_content($fn);
+			$fp = $sht->get_content_filename();
+			file_put_contents($fp,$tmp,LOCK_EX);
+		}
 
 		$t = $sht->get_designs();
 		if( $t ) {

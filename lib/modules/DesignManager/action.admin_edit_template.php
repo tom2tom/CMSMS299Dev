@@ -98,13 +98,7 @@ try {
 //USELESS FOR SUCH TEST cms_utils::set_app_data('tmp_template', $params['contents']);
 
             // if we got here, we're golden.
-			if ($tpl_obj->get_content_file()) {
-				$filepath = $tpl_obj->get_content_filename();
-				file_put_contents($filepath,$params['contents']);
-			}
-			else {
-            	$tpl_obj->set_content($params['contents']);
-			}
+           	$tpl_obj->set_content($params['contents']);
             TemplateOperations::save_template($tpl_obj);
 
 			$message = $this->Lang('msg_template_saved');
@@ -186,15 +180,13 @@ try {
      ->assign('extraparms', $extraparms)
      ->assign('template', $tpl_obj);
 
-	if ($tpl_obj->get_content_file()) {
-		$fn = $tpl_obj->get_content();
+/* for 'related file' message UNUSED
+  	if ($tpl_obj->get_content_file()) {
+		$fn = $tpl_obj->content; // raw
 		$filepath = cms_join_path('','assets','templates',$fn);
 		$tpl->assign('relpath', $filepath);
-		$filepath = CMS_ROOT_PATH.$filepath;
-		$tmp = @file_get_contents($filepath);
-		$tpl_obj->set_content($tmp);
 	}
-
+*/
     $cats = CmsLayoutTemplateCategory::get_all();
     $out = ['' => $this->Lang('prompt_none')];
     if ($cats) {
@@ -262,14 +254,14 @@ try {
 
     $script_url = CMS_SCRIPTS_URL;
     $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1:0;
-    $s1 = json_encode($this->Lang('msg_lostlock'));
+    $msg = json_encode($this->Lang('msg_lostlock'));
 
     $js .= <<<EOS
 <script type="text/javascript" src="{$script_url}/jquery.cmsms_dirtyform.min.js"></script>
 <script type="text/javascript" src="{$script_url}/jquery.cmsms_lock.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
   var do_locking = $do_locking;
   $('#form_edittemplate').dirtyForm({
     beforeUnload: function() {
@@ -288,17 +280,17 @@ $(document).ready(function() {
       lock_timeout: $lock_timeout,
       lock_refresh: $lock_refresh,
       error_handler: function(err) {
-        cms_alert('$this->Lang("error_lock")' + ' ' + err.type + ' // ' + err.msg);
+        cms_alert('$this->Lang("error_lock") ' + err.type + ' // ' + err.msg);
       },
       lostlock_handler: function(err) {
-       // we lost the lock on this content... make sure we can't save anything.
+       // we lost the lock on this template... make sure we can't save anything.
        // and display a nice message.
         $('[name$=cancel]').fadeOut().attr('value', '$this->Lang("cancel")').fadeIn();
         $('#form_edittemplate').dirtyForm('option', 'dirty', false);
         $('#submitbtn, #applybtn').attr('disabled', 'disabled');
         $('#submitbtn, #applybtn').button({ 'disabled': true });
         $('.lock-warning').removeClass('hidden-item');
-        cms_alert($s1);
+        cms_alert($msg);
       }
     });
   } // do_locking
@@ -317,20 +309,23 @@ $(document).ready(function() {
    var self = this;
    $('#form_edittemplate').lockManager('unlock').done(function() {
     var form = $(self).closest('form'),
-      el = $('<input type="hidden"/>');
-    el.attr('name',$(self).attr('name')).val($(self).val()).appendTo(form);
+      el = $('<input type="hidden" />'),
+      v = getcontent();
+    setcontent(v);
+    el.attr('name',$(self).attr('name')).val(v).appendTo(form);
     form.submit();
    });
    return false;
   });
   $('#applybtn').on('click', function(ev) {
     ev.preventDefault();
-    $('#content').val(editor.session.getValue());
-    var url = $('#form_edittemplate').attr('action') + '?cmsjobtype=1&m1_apply=1',
+    var v = getcontent();
+    setcontent(v);
+    var url = $('#form_edittemplate').attr('action') + '?cmsjobtype=1&{$id}apply=1',
       data = $('#form_edittemplate').serializeArray();
     $.post(url, data, function(data, textStatus, jqXHR) {
       if(data.status === 'success') {
-        cms_notify('info', data.message);
+        cms_notify('success', data.message);
       } else if(data.status === 'error') {
         cms_notify('error', data.message);
       }
