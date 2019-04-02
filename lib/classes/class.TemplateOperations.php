@@ -35,7 +35,9 @@ use const CMS_DB_PREFIX;
 use function audit;
 use function cmsms;
 use function endswith;
+use function file_put_contents;
 use function get_userid;
+use function munge_string_to_url;
 
 /**
  * A class of static methods for dealing with CmsLayoutTemplate objects.
@@ -238,13 +240,10 @@ class TemplateOperations
      */
     protected static function update_template(CmsLayoutTemplate $tpl) : CmsLayoutTemplate
     {
-        $now = time();
-        $tplid = $tpl->get_id();
         $db = CmsApp::get_instance()->GetDb();
         $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET
 originator=?,
 name=?,
-content=?,
 description=?,
 type_id=?,
 type_dflt=?,
@@ -253,26 +252,35 @@ listable=?,
 contentfile=?
 modified=?
 WHERE id=?';
+        $tplid = $tpl->get_id();
+		$args = [ self::get_originator($tpl),
+          $tpl->name,
+          $tpl->description,
+          $tpl->type_id,
+          $tpl->type_dflt,
+          $tpl->owner_id,
+          $tpl->listable,
+          $tpl->contentfile,
+          time(),
+          $tplid,
+        ];
 //      $dbr =
-        $db->Execute($sql,
-        [ self::get_originator($tpl),
-         $tpl->get_name(),
-         $tpl->get_content(),
-         $tpl->get_description(),
-         $tpl->get_type_id(),
-         $tpl->get_type_dflt(),
-         $tpl->get_owner_id(),
-         $tpl->get_listable(),
-         $tpl->get_content_file(),
-         $now,$tplid
-        ]);
+        $db->Execute($sql, $args);
 //MySQL UPDATE results are never reliable        if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
-        if( $tpl->get_type_dflt() ) {
+        if( ($fp = $tpl->get_content_filename()) ) {
+            file_put_contents($fp,$tpl->content,LOCK_EX);
+		}
+		else {
+	        $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
+	        $db->Execute($sql,[$tpl->content,$tplid]);
+        }
+
+        if( $tpl->type_dflt ) {
             // if it's default for a type, unset default flag for all other templates of this type
             $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET type_dflt = 0 WHERE type_id = ? AND type_dflt = 1 AND id != ?';
 //          $dbr =
-            $db->Execute($sql,[ $tpl->get_type_id(),$tplid ]);
+            $db->Execute($sql,[ $tpl->type_id,$tplid ]);
 //          if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
         }
 
@@ -331,23 +339,33 @@ WHERE id=?';
         $sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.
 ' (originator,name,content,description,type_id,type_dflt,owner_id,listable,contentfile,created,modified)
 VALUES (?,?,?,?,?,?,?,?,?,?,?)';
-        $dbr = $db->Execute($sql,
-        [ self::get_originator($tpl),
-         $tpl->get_name(),
-         $tpl->get_content(), // if file ??
-         $tpl->get_description(),
-         $tpl->get_type_id(),
-         $tpl->get_type_dflt(),
-         $tpl->get_owner_id(),
-         $tpl->get_listable(),
-         $tpl->get_content_file(),
-         $now,$now
-        ]);
+        $args = [ self::get_originator($tpl),
+          $tpl->name,
+          $tpl->content, // maybe changed to a filename
+          $tpl->description,
+          $tpl->type_id,
+          $tpl->type_dflt,
+          $tpl->owner_id,
+          $tpl->listable,
+          $tpl->contentfile,
+          $now,$now
+        ];
+        $dbr = $db->Execute($sql,$args);
         if( !$dbr ) {
             throw new CmsSQLErrorException($db->sql.' --7 '.$db->ErrorMsg());
         }
 
         $tplid = $tpl->id = $db->Insert_ID();
+
+		if( $tpl->contentfile ) {
+			$fn = munge_string_to_url($tpl->name).'.'.$tplid.'.tpl';
+			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
+			$db->Execute($sql,[$fn,$tplid]);
+			$tmp = $tpl->content;
+			$tpl->content = $fn;
+			$fp = $tpl->get_content_filename();
+			file_put_contents($fp,$tmp,LOCK_EX);
+		}
 
         if( $tpl->get_type_dflt() ) {
             // if it's default for a type, unset default flag for all other records with this type
@@ -746,7 +764,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         if( $addt_users ) {
             if( in_array($userid,$addt_users) ) return true;
 
-            $grouplist = UserOperations::get_instance()->GetMemberGroups();
+            $grouplist = (new UserOperations())->GetMemberGroups();
             if( $grouplist ) {
                 foreach( $addt_users as $id ) {
                     if( $id < 0 && in_array(-((int)$id),$grouplist) ) return true;
