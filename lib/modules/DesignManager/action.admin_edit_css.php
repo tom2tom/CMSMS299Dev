@@ -26,18 +26,18 @@ if (!isset($gCms)) exit ;
 if (!$this->CheckPermission('Manage Stylesheets')) return;
 
 $this->SetCurrentTab('stylesheets');
-$css_id = (int) get_parameter_value($params,'css');
-
 if( isset($params['cancel']) ) {
     if( $params['cancel'] == $this->Lang('cancel') ) $this->SetInfo($this->Lang('msg_cancelled'));
     $this->RedirectToAdminTab();
 }
 
+$css_id = (int) get_parameter_value($params,'css');
+$apply = isset($params['apply']);
+
 try {
     $css_ob = null;
     $message = $this->Lang('msg_stylesheet_saved');
     $response = 'success';
-    $apply = isset($params['apply']) ? 1 : 0;
     $extraparms = [];
 
     if ($css_id) {
@@ -48,7 +48,7 @@ try {
     }
 
     try {
-        if (isset($params['submit']) || isset($params['apply']) && $response !== 'error') {
+        if ($apply || isset($params['submit'])) && $response !== 'error') {
             if (isset($params['description'])) $css_ob->set_description($params['description']);
             if (isset($params['content'])) $css_ob->set_content($params['content']);
             $typ = [];
@@ -169,41 +169,43 @@ try {
     $js = $content['foot'] ?? '';
 
     $script_url = CMS_SCRIPTS_URL;
-    $uid = get_userid(false);
+    $user_id = get_userid(false);
     $lock_timeout = $this->GetPreference('lock_timeout');
     $do_locking = ($css_id > 0 && $lock_timeout > 0) ? 1 : 0;
     $lock_refresh = $this->GetPreference('lock_refresh');
     $msg = json_encode($this->Lang('msg_lostlock'));
+
     $js .= <<<EOS
 <script type="text/javascript" src="{$script_url}/jquery.cmsms_dirtyform.min.js"></script>
 <script type="text/javascript" src="{$script_url}/jquery.cmsms_lock.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
+  var do_locking = $do_locking;
   $('#form_editcss').dirtyForm({
     beforeUnload: function() {
-      if($do_locking) $('#form_editcss').lockManager('unlock');
+      if(do_locking) $('#form_editcss').lockManager('unlock');
     },
     unloadCancel: function() {
-      if($do_locking) $('#form_editcss').lockManager('relock');
+      if(do_locking) $('#form_editcss').lockManager('relock');
     }
   });
   // initialize lock manager
-  if($do_locking) {
+  if(do_locking) {
     $('#form_editcss').lockManager({
       type: 'stylesheet',
       oid: $css_id,
-      uid: $uid,
+      uid: $user_id,
       lock_timeout: $lock_timeout,
       lock_refresh: $lock_refresh,
       error_handler: function(err) {
-        cms_alert('got error ' + err.type + ' // ' + err.msg);
+        cms_alert('$this->Lang("error_lock") ' + err.type + ' // ' + err.msg);
       },
       lostlock_handler: function(err) {
         // we lost the lock on this stylesheet... make sure we can't save anything.
         // and display a nice message.
         console.debug('lost lock handler');
-        $('[name$=cancel]').fadeOut().attr('value', '{$this->Lang('cancel')}').fadeIn();
+        $('[name$=cancel]').fadeOut().attr('value', '$this->Lang("cancel")').fadeIn();
         $('#form_editcss').dirtyForm('option', 'dirty', false);
         $('#submitbtn, #applybtn').attr('disabled', 'disabled');
         $('#submitbtn, #applybtn').button({ 'disabled': true });
@@ -220,33 +222,36 @@ $(document).ready(function() {
     $('#form_editcss').dirtyForm('option', 'dirty', false);
   });
   $('#submitbtn,#cancelbtn,#importbtn,#exportbtn').on('click', function(e) {
-    if(!$do_locking) return;
+    if(!do_locking) return;
     e.preventDefault();
     // unlock the item, and submit the form
     var self = this;
     $('#form_editcss').lockManager('unlock').done(function() {
       var form = $(self).closest('form'),
-        el = $('<input type="hidden" />');
-      el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
+        el = $('<input type="hidden" />'),
+        v = getcontent();
+      setcontent(v);
+      el.attr('name',$(self).attr('name')).val(v).appendTo(form);
       form.submit();
     });
     return false;
   });
-  $('#applybtn').on('click', function(e) {
-    e.preventDefault();
-    $('#stylesheet').val(editor.session.getValue());
-    var url = $('#form_editcss').attr('action') + '?{$id}apply=1&cmsjobtype=1',
+  $('#applybtn').on('click', function(ev) {
+    ev.preventDefault();
+    var v = getcontent();
+    setcontent(v);
+    var url = $('#form_editcss').attr('action') + '?cmsjobtype=1&{$id}apply=1',
       data = $('#form_editcss').serializeArray();
     $.post(url, data, function(data, textStatus, jqXHR) {
       if(data.status === 'success') {
-        cms_notify('info', data.message);
-      } else {
+        cms_notify('success', data.message);
+      } else if(data.status === 'error') {
         cms_notify('error', data.message);
       }
     });
     return false;
   });
-  // disable Media Type checkboxes if Media query is in use
+  // disable media-type checkboxes if media query is in use
   if($('#mediaquery').val() !== '') {
     $('.media-type :checkbox').attr({
       disabled: 'disabled',
