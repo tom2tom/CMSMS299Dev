@@ -26,8 +26,8 @@ if (!isset($gCms)) exit ;
 if (!$this->CheckPermission('Manage Stylesheets')) return;
 
 $this->SetCurrentTab('stylesheets');
-if( isset($params['cancel']) ) {
-    if( $params['cancel'] == $this->Lang('cancel') ) $this->SetInfo($this->Lang('msg_cancelled'));
+if (isset($params['cancel'])) {
+    if ($params['cancel'] == $this->Lang('cancel')) $this->SetInfo($this->Lang('msg_cancelled'));
     $this->RedirectToAdminTab();
 }
 
@@ -48,7 +48,7 @@ try {
     }
 
     try {
-        if ($apply || isset($params['submit'])) && $response !== 'error') {
+        if (($apply || isset($params['submit'])) && $response !== 'error') {
             if (isset($params['description'])) $css_ob->set_description($params['description']);
             if (isset($params['content'])) $css_ob->set_content($params['content']);
             $typ = [];
@@ -65,10 +65,10 @@ try {
             if (isset($params['name'])) $css_ob->set_name($params['name']);
             $css_ob->set_name($params['name']);
             $new_export_name = $css_ob->get_content_filename();
-            if( $old_export_name && $old_export_name != $new_export_name && is_file( $old_export_name ) ) {
-                if( is_file( $new_export_name ) ) throw new Exception('Cannot rename exported stylesheet (destination name exists)');
+            if ($old_export_name && $old_export_name != $new_export_name && is_file( $old_export_name)) {
+                if (is_file( $new_export_name)) throw new Exception('Cannot rename exported stylesheet (destination name exists)');
                 $res = rename($old_export_name,$new_export_name);
-                if( !$res ) throw new Exception( 'Problem renaming exported stylesheet' );
+                if (!$res) throw new Exception( 'Problem renaming exported stylesheet');
             }
 
             $css_ob->save();
@@ -78,20 +78,20 @@ try {
                 $this->RedirectToAdminTab();
             }
         }
-        else if( isset($params['export']) ) {
+        elseif (isset($params['export'])) {
             $outfile = $css_ob->get_content_filename();
             $dn = dirname($outfile);
-            if( !is_dir($dn) || !is_writable($dn) ) {
+            if (!is_dir($dn) || !is_writable($dn)) {
                 throw new RuntimeException($this->Lang('error_assets_writeperm'));
             }
-            if( is_file($outfile) && !is_writable($outfile) ) {
+            if (is_file($outfile) && !is_writable($outfile)) {
                 throw new RuntimeException($this->Lang('error_assets_writeperm'));
             }
             file_put_contents($outfile,$css_ob->get_content());
         }
-        else if( isset($params['import']) ) {
+        elseif (isset($params['import'])) {
             $infile = $css_ob->get_content_filename();
-            if( !is_file($infile) || !is_readable($infile) || !is_writable($infile) ) {
+            if (!is_file($infile) || !is_readable($infile) || !is_writable($infile)) {
                 throw new RuntimeException($this->Lang('error_assets_readwriteperm'));
             }
             $data = file_get_contents($infile);
@@ -99,7 +99,7 @@ try {
             $css_ob->set_content($data);
             $css_ob->save();
         }
-    } catch( Exception $e ) {
+    } catch (Exception $e) {
         $message = $e->GetMessage();
         $response = 'error';
     }
@@ -115,13 +115,13 @@ try {
         try {
             $lock_id = LockOperations::is_locked('stylesheet', $css_ob->get_id());
             $lock = null;
-            if( $lock_id > 0 ) {
+            if ($lock_id > 0) {
                 // it's locked... by somebody, make sure it's expired before we allow stealing it.
                 $lock = Lock::load('stylesheet',$css_ob->get_id());
-                if( !$lock->expired() ) throw new CmsLockException('CMSEX_L010');
+                if (!$lock->expired()) throw new CmsLockException('CMSEX_L010');
                 LockOperations::unlock($lock_id,'stylesheet',$css_ob->get_id());
             }
-        } catch( CmsException $e ) {
+        } catch (CmsException $e) {
             $response = 'error';
             $message = $e->GetMessage();
 
@@ -149,7 +149,7 @@ try {
     }
 
     $themeObject = cms_utils::get_theme_object();
-    if( $css_ob->get_id() > 0 ) {
+    if ($css_ob->get_id() > 0) {
         $themeObject->SetSubTitle($this->Lang('edit_stylesheet').': '.$css_ob->get_name()." ({$css_ob->get_id()})");
     } else {
         $themeObject->SetSubTitle($this->Lang('create_stylesheet'));
@@ -275,7 +275,7 @@ EOS;
     $this->AdminBottomContent($js);
 
     $tpl->display();
-} catch( CmsException $e ) {
+} catch (CmsException $e) {
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
