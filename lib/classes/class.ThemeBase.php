@@ -242,8 +242,10 @@ abstract class ThemeBase
     {
         switch( $key ) {
         case 'themeName':
+			$o = strlen(__NAMESPACE__) + 1; //separator-offset
             $class = get_class($this);
-            if( endswith($class,'Theme') ) $class = substr($class,0,strlen($class)-5);
+            if( endswith($class,'Theme') ) { $class = substr($class,$o,-5); }
+			else { $class = substr($class,$o); }
             return $class;
         case 'userid':
             return get_userid();
