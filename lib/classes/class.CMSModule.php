@@ -286,12 +286,12 @@ abstract class CMSModule
      * @param callable $callback The plugin processor,
      *  (since 2.3) an actual callable or
      *  a string identifying a static function, like 'class::name' or just 'name' (if the module-class is implied)
-     * @param bool    $cachable Optionsl flag whether this function is cachable. Default true.
+     * @param bool    $cachable UNUSED since 2.3 (always cachable) Optional flag whether this function is cachable. Default true.
      * @param int     $usage Optional bit-flag(s) for frontend and/or backend availability.
      *   Default 0, hence ModulePluginOperations::AVAIL_FRONTEND
      *   0=front, 1=front, 2=back, 3=both
-     * @throws CmsException
      * @return bool, or not at all
+     * @throws CmsException
      */
     public function RegisterSmartyPlugin($name, $type, $callback, $cachable = true, $usage = 0)
     {
@@ -358,8 +358,8 @@ abstract class CMSModule
      * @param bool $static Optional flag whether to record this registration
      *  in the database. Default false. If true, the module is not immediately
      *  registered with smarty i.e. for use during module installation/upgrade.
-     * @param mixed bool|null $cachable Optional flag whether this plugin's
-     *   output is cachable. Default false.
+     * @param mixed bool|null $cachable UNUSED since 2.3 (always cachable)
+	 *  Optional flag whether this module's output is cachable. Default false.
      * @return bool
      */
     final public function RegisterModulePlugin(bool $static = false, $cachable = false) : bool
@@ -370,13 +370,13 @@ abstract class CMSModule
             if( !isset($CMS_INSTALL_PAGE) ) {
                 $smarty = CmsApp::get_instance()->GetSmarty();
                 try {
-                    $smarty->registerPlugin('function', $name, [$name,'function_plugin'], $cachable);
+                    $smarty->registerPlugin('function', $name, [$name,'function_plugin'], true);
                 } catch (Exception $e) {/* ignore duplicate registrations */}
             }
             return true;
         }
         //static: make a 'permanent' record
-        return (new ModulePluginOperations())->add($name, $name, 'function', [$name,'function_plugin'], $cachable);
+        return (new ModulePluginOperations())->add($name, $name, 'function', [$name,'function_plugin']);
     }
 
     /**
@@ -464,8 +464,7 @@ abstract class CMSModule
      */
     final public function GetModulePath() : string
     {
-        $modops = new ModuleOperations();
-        return $modops->get_module_path( $this->GetName() );
+        return (new ModuleOperations())->get_module_path($this->GetName());
     }
 
     /**
@@ -1621,13 +1620,11 @@ abstract class CMSModule
 
         $gCms = CmsApp::get_instance();
         if( ($cando = $gCms->template_processing_allowed()) )  {
-            if( $smartob instanceof Smarty_Internal_Template ) {
-                $tpl = $smartob;
-            } else {
-                if( !$smartob ) { $smartob = $gCms->GetSmarty(); }
-                $tpl = $smartob->createTemplate('string:DUMMY MODULE ACTION TEMPLATE');
+            if( !$smartob ) {
+                $smartob = $gCms->GetSmarty();
             }
-//            $tpl = $gCms->GetSmarty()->createTemplate('string:EMPTY MODULE ACTION TEMPLATE', null, null, $smartob); //null $smartob OK
+            // always use a dummy parent, not the actual template (if such is supplied)
+            $tpl = $smartob->createTemplate('string:DUMMY MODULE ACTION TEMPLATE');
             $tpl->assign([
             '_action' => $action,
             '_module' => $this->GetName(),

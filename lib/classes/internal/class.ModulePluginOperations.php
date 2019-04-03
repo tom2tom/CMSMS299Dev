@@ -20,8 +20,8 @@ namespace CMSMS\internal;
 
 use cms_utils;
 use CmsApp;
-use CMSMS\internal\global_cachable;
-use CMSMS\internal\global_cache;
+//use CMSMS\internal\global_cachable;
+//use CMSMS\internal\global_cache;
 use const CMS_DB_PREFIX;
 use function cms_error;
 use function endswith;
@@ -55,7 +55,7 @@ final class ModulePluginOperations
 	 */
 //	private static $_instance = null;
 
-    //TODO namespaced global variables here
+	//TODO namespaced global variables here
 	/**
 	 * @ignore
 	 */
@@ -79,7 +79,7 @@ final class ModulePluginOperations
 		$obj = new global_cachable('session_plugin_modules', function()
 				{
 					$names = [];
-					$tmp = module_meta::get_instance()->module_list_by_method('IsPluginModule');
+					$tmp = (new module_meta())->module_list_by_method('IsPluginModule');
 					if( $tmp ) {
 						// module-names cached in the database, maybe without per-request RegisterModulePlugin()
 						$query = 'SELECT DISTINCT module FROM '.CMS_DB_PREFIX.'module_smarty_plugins';
@@ -100,8 +100,8 @@ final class ModulePluginOperations
 */
 
 	/**
-     * @ignore
-     */
+	 * @ignore
+	 */
 //    private function __clone() {}
 
 	/**
@@ -117,7 +117,7 @@ final class ModulePluginOperations
 	/* *
 	 * Inform smarty about all module-plugins which are not recorded in the
 	 * module_smarty_plugins database table.
-     * In effect, this is insurance against malformed module lazy-loading
+	 * In effect, this is insurance against malformed module lazy-loading
 	 * and/or plugin registration outside a module's constructor.
 	 * @since 2.3
 	 */
@@ -166,7 +166,7 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * Record cached data (self::$_data) in the module_smarty_plugins database table
+	 * Record cached data (self::$_data) in the module_smarty_plugins table
 	 * @ignore
 	 * @return mixed true | null
 	 */
@@ -179,10 +179,10 @@ final class ModulePluginOperations
 		$query = 'TRUNCATE TABLE '.CMS_DB_PREFIX.'module_smarty_plugins';
 		$db->Execute($query);
 		// TODO use prepared statement
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_smarty_plugins (sig,name,module,type,callback,available,cachable) VALUES';
-		$fmt = " ('%s','%s','%s','%s','%s',%d,%d),";
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_smarty_plugins (sig,name,module,type,callback,available) VALUES';
+		$fmt = " ('%s','%s','%s','%s','%s',%d),";
 		foreach( self::$_data as $row ) {
-			$query .= sprintf($fmt,$row['sig'],$row['name'],$row['module'],$row['type'],serialize($row['callback']),$row['available'],$row['cachable']);
+			$query .= sprintf($fmt,$row['sig'],$row['name'],$row['module'],$row['type'],serialize($row['callback']),$row['available']);
 		}
 		if( endswith($query,',') ) $query = substr($query,0,-1);
 		$dbr = $db->Execute($query);
@@ -193,13 +193,13 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * Attempt to load a specific module-plugin
-	 * This may be called by the smarty class when looking for an unknown plugin.
+	 * Attempt to load a named module-plugin.
+	 * This might be called by Smarty when looking for an unknown plugin.
 	 * @internal
 	 *
-     * @param string $name name of the undefined tag
-     * @param string $type tag type (commonly Smarty::PLUGIN_FUNCTION, maybe Smarty::PLUGIN_BLOCK,
-     *  Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
+	 * @param string $name name of the undefined tag
+	 * @param string $type tag type (commonly Smarty::PLUGIN_FUNCTION, maybe Smarty::PLUGIN_BLOCK,
+	 *  Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
 	 * @return mixed array | null Array members per database record:
 	 *  sig,name,module,type,callback,cachable,available
 	 */
@@ -259,15 +259,15 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * Add information about a plugin to the local datacache and to the database
+	 * Add information about a plugin to the local data cache and to the database
 	 * This method is normally called during a module's installation/upgrade.
 	 *
-	 * @deprecated since 2.3 Instead use ModulePluginOperations::get_instance()->add()
+	 * @deprecated since 2.3 Instead use (new ModulePluginOperations())->add()
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
 	 * @param string $type  The plugin type (function,block,modifier)
 	 * @param callable $callback  The callable (static function) which runs the plugin.
-	 * @param bool $cachable Optional flag whether the plugin is cachable, default true
+	 * @param bool $cachable UNUSED since 2.3 (always cachable) Optional flag whether the plugin is cachable, default true
 	 * @param int  $available Optional bit-flag(s) indicating the availability of the plugin. default 0.  See AVAIL_ADMIN AND AVAIL_FRONTEND
 	 */
 	public static function addStatic($module_name,$name,$type,$callback,$cachable = TRUE,$available = 0)
@@ -276,14 +276,14 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * Add information about a plugin to the local datacache and to the database.
+	 * Add information about a plugin to the local data cache and to the database.
 	 * This method is normally called during a module's installation/upgrade.
 	 *
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
 	 * @param string $type  The plugin type (function,block,modifier)
 	 * @param callable $callback A static function to call e.g. 'function_plugin' or [$module_name,'function_plugin']
-	 * @param bool $cachable Whether the plugin is cachable. Default true
+	 * @param bool $cachable UNUSED since 2.3 (always cachable) Whether the plugin is cachable. Default true
 	 * @param int  $available Flag(s) indicating the availability of the plugin. Default 0, hence AVAIL_FRONTEND.
 	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
 	 * @return mixed boolean | null
@@ -304,8 +304,7 @@ final class ModulePluginOperations
 				'name'=>$name,
 				'type'=>$type,
 				'callback'=>$callback,
-				'available'=>$available,
-				'cachable'=>(int)$cachable,
+				'available'=>$available
 			];
 			self::$_modified = TRUE;
 			return $this->_save();
@@ -324,7 +323,7 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * Remove all plugins for a module from the local datacache and the database
+	 * Remove all plugins for a module from the local data cache and the database
 	 *
 	 * @param string $module_name
 	 */

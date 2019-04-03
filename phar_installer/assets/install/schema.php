@@ -437,8 +437,7 @@ name C(48) NOT NULL,
 module C(32) NOT NULL,
 type C(32) NOT NULL,
 callback C(255) NOT NULL,
-available I,
-cachable I(1) DEFAULT 0
+available I(1) DEFAULT 1
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'module_smarty_plugins', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
