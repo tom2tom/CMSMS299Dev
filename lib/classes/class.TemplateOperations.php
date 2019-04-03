@@ -253,7 +253,7 @@ contentfile=?
 modified=?
 WHERE id=?';
         $tplid = $tpl->get_id();
-		$args = [ self::get_originator($tpl),
+        $args = [ self::get_originator($tpl),
           $tpl->name,
           $tpl->description,
           $tpl->type_id,
@@ -270,10 +270,10 @@ WHERE id=?';
 
         if( ($fp = $tpl->get_content_filename()) ) {
             file_put_contents($fp,$tpl->content,LOCK_EX);
-		}
-		else {
-	        $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
-	        $db->Execute($sql,[$tpl->content,$tplid]);
+        }
+        else {
+            $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
+            $db->Execute($sql,[$tpl->content,$tplid]);
         }
 
         if( $tpl->type_dflt ) {
@@ -357,15 +357,15 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 
         $tplid = $tpl->id = $db->Insert_ID();
 
-		if( $tpl->contentfile ) {
-			$fn = munge_string_to_url($tpl->name).'.'.$tplid.'.tpl';
-			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
-			$db->Execute($sql,[$fn,$tplid]);
-			$tmp = $tpl->content;
-			$tpl->content = $fn;
-			$fp = $tpl->get_content_filename();
-			file_put_contents($fp,$tmp,LOCK_EX);
-		}
+        if( $tpl->contentfile ) {
+            $fn = munge_string_to_url($tpl->name).'.'.$tplid.'.tpl';
+            $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
+            $db->Execute($sql,[$fn,$tplid]);
+            $tmp = $tpl->content;
+            $tpl->content = $fn;
+            $fp = $tpl->get_content_filename();
+            file_put_contents($fp,$tmp,LOCK_EX);
+        }
 
         if( $tpl->get_type_dflt() ) {
             // if it's default for a type, unset default flag for all other records with this type
@@ -406,9 +406,9 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 
         global_cache::clear('LayoutTemplates');
 
-        audit($new_id,'CMSMS','Template '.$tpl->get_name().' Created');
+        audit($tplid,'CMSMS','Template '.$tpl->get_name().' Created');
         // return a fresh instance of the object (e.g. to pass to event handlers ??)
-        $row = $tpl->_get_array();
+        $row = $tpl->get_properties();
         $tpl = self::create_template($row,$editors,$designs,$categories);
         return $tpl;
     }
