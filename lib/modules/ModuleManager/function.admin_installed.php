@@ -23,7 +23,6 @@ if( !$this->CheckPermission('Modify Modules') ) return;
 
 try {
     $allmoduleinfo = module_info::get_all_module_info($connection_ok);
-    uksort($allmoduleinfo,'strnatcasecmp');
 }
 catch( Exception $e ) {
     $this->SetError($e->GetMessage()); //probably useless before a return
@@ -40,7 +39,7 @@ $s5 = json_encode($this->Lang('error_invaliduploadtype'));
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
   $('a.mod_upgrade').on('click', function(ev) {
     ev.preventDefault();
     cms_confirm_linkclick(this,$s1,'$yes');
@@ -86,13 +85,14 @@ $(document).ready(function() {
 EOS;
 $this->AdminBottomContent($js);
 
+uksort($allmoduleinfo,'strnatcasecmp');
 $tpl->assign('module_info',$allmoduleinfo);
 $devmode = !empty($config['developer_mode']);
 $tpl->assign('allow_export',($devmode)?1:0);
 if ($devmode) {
-	$themeObject = cms_utils::get_theme_object();
+    $themeObject = cms_utils::get_theme_object();
     $path = cms_join_path($this->GetModulePath(),'images','xml');
     $tpl->assign('exporticon',
-	   $themeObject->DisplayImage($path, 'export', '', '', 'systemicon', ['title'=>$this->Lang('title_moduleexport')]));
+       $themeObject->DisplayImage($path, 'export', '', '', 'systemicon', ['title'=>$this->Lang('title_moduleexport')]));
 }
 $tpl->assign('allow_modman_uninstall',$this->GetPreference('allowuninstall',0));
