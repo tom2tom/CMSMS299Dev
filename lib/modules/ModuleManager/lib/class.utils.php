@@ -259,12 +259,11 @@ final class utils
 	/**
 	 * set smarty vars for various image tags
 	 */
-    public static function get_images()
+    public static function get_images($template)
     {
         $mod = cms_utils::get_module('ModuleManager');
         $base = cms_join_path($mod->GetModulePath(),'images').DIRECTORY_SEPARATOR;
         $themeObject = cms_utils::get_theme_object();
-        $smarty = cmsms()->GetSmarty();
 
         foreach ([
             ['error','stale'],
@@ -278,7 +277,7 @@ final class utils
             $path = $base.$one[0];
             $title = $mod->Lang('title_'.$one[1]);
             $img = $themeObject->DisplayImage($path, $one[1], '20', '20', null, ['title'=>$title]);
-            $smarty->assign($one[1].'_img',$img);
+            $template->assign($one[1].'_img',$img);
         }
         unset ($one);
     }

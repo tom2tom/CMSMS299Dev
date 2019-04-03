@@ -50,7 +50,7 @@ foreach (cms_module_places() as $dir) {
 $tpl = $smarty->createTemplate($this->GetTemplateResource('showmodule.tpl'),null,null,$smarty);
 
 $data = utils::build_module_data($repmodules,$instmodules,false);
-if( count( $data ) ) {
+if( $data ) {
   $size = count($data);
 
   // check for permissions
@@ -135,11 +135,11 @@ if( count( $data ) ) {
     $rowarray[] = $onerow;
   } // for
 
+  utils::get_images($tpl);
   $tpl->assign('items', $rowarray)
    ->assign('itemcount', count($rowarray));
 }
 
-utils::get_images();
 $tpl->assign('nametext',$this->Lang('nametext'))
  ->assign('vertext',$this->Lang('vertext'))
  ->assign('sizetext',$this->Lang('sizetext'))

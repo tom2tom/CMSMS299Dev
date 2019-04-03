@@ -41,9 +41,6 @@ if( !$connection_ok ) {
     $this->ShowErrors($this->Lang('error_request_problem'));
 }
 
-// this is a bit ugly.
-utils::get_images();
-
 $seetab = $params['active_tab'] ?? 'installed';
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
@@ -54,6 +51,7 @@ $tpl->assign('tab',$seetab)
  ->assign('connected',$connection_ok);
 
 if( $pmod ) {
+	utils::get_images($tpl);
     require __DIR__.DIRECTORY_SEPARATOR.'function.admin_installed.php';
     if( $connection_ok ) {
         require __DIR__.DIRECTORY_SEPARATOR.'function.newversionstab.php';
