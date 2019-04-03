@@ -66,22 +66,21 @@
 {if $has_designs_right}
  {tab_header name='designs' label=$mod->Lang('prompt_designs')}
 {/if}
-{tab_header name='advanced' label=$mod->Lang('prompt_advanced')}
-
-{tab_start name='content'}
-{if $css->get_content_file()}
-  <div class="pageinfo">{$mod->Lang('info_css_content_file',$css->get_content_filename())}</div>
-{else}
-  <div class="pageoverflow">
-    <p class="pagetext">
-      <label for="stylesheet">{$mod->Lang('prompt_stylesheet')}:</label>
-      {cms_help realm=$_module key2=help_stylesheet_content title=$mod->Lang('prompt_stylesheet')}
-    </p>
-    <p class="pageinput">
-      {cms_textarea id='stylesheet' prefix=$actionid name=content value=$css->get_content() type=css rows=20 cols=80}
-    </p>
-  </div>
+{if !empty($devmode)}
+ {if $css->get_id() > 0}
+ {tab_header name='advanced' label=$mod->Lang('prompt_advanced')}
+ {/if}
 {/if}
+{tab_start name='content'}
+<div class="pageoverflow">
+  <p class="pagetext">
+    <label for="stylesheet">{$mod->Lang('prompt_stylesheet')}:</label>
+    {cms_help realm=$_module key2=help_stylesheet_content title=$mod->Lang('prompt_stylesheet')}
+  </p>
+  <p class="pageinput">
+    {cms_textarea id='stylesheet' prefix=$actionid name=content value=$css->get_content() type=css rows=20 cols=80}
+  </p>
+</div>
 
 {tab_start name='media_type'}
 <!-- media -->
@@ -141,8 +140,9 @@
   </div>
 {/if}
 
-{tab_start name='advanced'}
-{if $css->get_id() > 0}
+{if !empty($devmode)}
+ {if $css->get_id() > 0}
+ {tab_start name='advanced'}
   <div class="pageoverflow">
   <p class="pagetext">{$mod->Lang('prompt_cssfile')}:</p>
   <p class="pageinput">
@@ -153,6 +153,7 @@
     {/if}
   </p>
   </div>
+ {/if}
 {/if}
 {tab_end}
 

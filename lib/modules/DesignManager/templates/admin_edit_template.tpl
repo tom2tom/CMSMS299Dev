@@ -85,9 +85,6 @@
     <label for="contents">{$t}:</label>
     {cms_help realm=$_module key2=help_template_contents title=$t}
   </p>
-  {if $template->get_content_file()}
-    <div class="pageinfo">{$mod->Lang('info_template_content_file',{$relpath})}</div>
-  {/if}
   <p class="pageinput">
     {cms_textarea id='contents' prefix=$actionid name=contents value=$template->get_content() type='smarty' rows=20}
   </p>
@@ -200,7 +197,8 @@
        </p>
      </div>
      {/if}
-   {if $template->get_id() > 0}
+   {if !empty($devmode)}
+    {if $template->get_id() > 0}
      <div class="pageoverflow">
       <p class="pagetext">{$mod->Lang('prompt_filetemplate')}:</p>
       <p class="pageinput">
@@ -212,6 +210,7 @@
       </p>
      </div>
    {/if}
+  {/if}
 {/if}
 {tab_end}
 

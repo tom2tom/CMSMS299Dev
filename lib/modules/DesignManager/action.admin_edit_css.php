@@ -158,7 +158,13 @@ try {
     $tpl->assign('has_designs_right', $this->CheckPermission('Manage Designs'))
      ->assign('extraparms', $extraparms)
      ->assign('css', $css_ob);
-    if ($css_ob && $css_ob->get_id()) $tpl->assign('css_id', $css_ob->get_id());
+    if ($css_ob && $css_ob->get_id()) {
+        $tpl->assign('css_id', $css_ob->get_id());
+    }
+    $config = cms_config::get_instance();
+    if (!empty($config['developer_mode'])) {
+        $tpl->assign('devmode', 1);
+    }
 
     //TODO ensure flexbox css for .rowbox, .boxchild
 

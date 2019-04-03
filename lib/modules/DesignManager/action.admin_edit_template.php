@@ -221,7 +221,6 @@ try {
     $tpl->assign('has_manage_right', $this->CheckPermission('Modify Templates'))
      ->assign('has_themes_right', $this->CheckPermission('Manage Designs'));
     if ($this->CheckPermission('Modify Templates') || $tpl_obj->get_owner_id() == $user_id) {
-
         $userops = cmsms()->GetUserOperations();
         $allusers = $userops->LoadUsers();
         $tmp = [];
@@ -242,6 +241,10 @@ try {
             // appends to the tmp array.
         }
         if ($tmp) $tpl->assign('addt_editor_list', $tmp);
+    }
+    $config = cms_config::get_instance();
+    if (!empty($config['developer_mode'])) {
+        $tpl->assign('devmode', 1);
     }
 
 //TODO ensure flexbox css for .rowbox, .boxchild
