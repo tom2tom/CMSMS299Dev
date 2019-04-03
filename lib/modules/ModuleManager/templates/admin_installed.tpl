@@ -124,7 +124,7 @@
   </tbody>
 </table>
 {else}
-  <div class="pagewarn">{$mod->Lang('error_nomodules')}</div>
+  <div class="pageerror">{$mod->Lang('error_nomodules')}</div>
 {/if}
 <div id="importdlg" title="{$mod->Lang('importxml')}" style="display:none;">
  {form_start id='local_import' action='local_import'}
