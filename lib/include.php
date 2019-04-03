@@ -41,7 +41,6 @@
 //use CMSMS\internal\ModulePluginOperations;
 
 use CMSMS\AuditOperations;
-use CMSMS\ContentOperations;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
 use CMSMS\HookManager;
@@ -119,26 +118,10 @@ if (isset($CMS_ADMIN_PAGE)) {
     }
 }
 
-// some of these caches could be omitted per $CMS_JOB_TYPE, but probably won't be used anyway
 $obj = new global_cachable('schema_version', function()
     {
         $db = CmsApp::get_instance()->GetDb();
         $query = 'SELECT version FROM '.CMS_DB_PREFIX.'version';
-        return $db->GetOne($query);
-    });
-global_cache::add_cachable($obj);
-$obj = new global_cachable('latest_content_modification', function()
-    {
-        $db = CmsApp::get_instance()->GetDb();
-        $query = 'SELECT modified_date FROM '.CMS_DB_PREFIX.'content ORDER BY modified_date DESC';
-        $tmp = $db->GetOne($query);
-        return $db->UnixTimeStamp($tmp);
-    });
-global_cache::add_cachable($obj);
-$obj = new global_cachable('default_content', function()
-    {
-        $db = CmsApp::get_instance()->GetDb();
-        $query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
         return $db->GetOne($query);
     });
 global_cache::add_cachable($obj);
@@ -162,13 +145,55 @@ $obj = new global_cachable('module_deps', function()
         return $out;
     });
 global_cache::add_cachable($obj);
+
+if ($CMS_JOB_TYPE < 2) {
+	$obj = new global_cachable('latest_content_modification', function()
+		{
+			$db = CmsApp::get_instance()->GetDb();
+			$query = 'SELECT modified_date FROM '.CMS_DB_PREFIX.'content ORDER BY modified_date DESC';
+			$tmp = $db->GetOne($query);
+			return $db->UnixTimeStamp($tmp);
+		});
+	global_cache::add_cachable($obj);
+	$obj = new global_cachable('default_content', function()
+		{
+			$db = CmsApp::get_instance()->GetDb();
+			$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
+			return $db->GetOne($query);
+		});
+	global_cache::add_cachable($obj);
+
+	// the pages flat list
+	$obj = new global_cachable('content_flatlist', function()
+		{
+			$query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
+			$db = CmsApp::get_instance()->GetDb();
+			return $db->GetArray($query);
+		});
+	global_cache::add_cachable($obj);
+
+	// hence the tree
+	$obj = new global_cachable('content_tree', function()
+		{
+			$flatlist = global_cache::get('content_flatlist');
+			$tree = cms_tree_operations::load_from_list($flatlist);
+			return $tree;
+		});
+	global_cache::add_cachable($obj);
+
+	// hence the flat/quick list
+	$obj = new global_cachable('content_quicklist', function()
+		{
+			$tree = global_cache::get('content_tree');
+			return $tree->getFlatList();
+		});
+	global_cache::add_cachable($obj);
+}
+
 // other global caches
 cms_siteprefs::setup();
 Events::setup();
 
-if ($CMS_JOB_TYPE < 2) {
-    ContentOperations::setup_cache(); // various content-related global caches
-}
 // Attempt to override the php memory limit
 if (isset($config['php_memory_limit']) && !empty($config['php_memory_limit'])) ini_set('memory_limit',trim($config['php_memory_limit']));
 
@@ -195,7 +220,7 @@ if (!isset($CMS_INSTALL_PAGE)) {
     $global_umask = cms_siteprefs::get('global_umask','');
     if ($global_umask != '') umask( octdec($global_umask));
 
-    $modops = ModuleOperations::get_instance();
+    $modops = new ModuleOperations();
     // Load all non-lazy modules
 //    $modops->LoadImmediateModules();
     $modops->InitModules(); //DEBUG
@@ -212,7 +237,7 @@ if (!isset($CMS_INSTALL_PAGE)) {
 
 if ($CMS_JOB_TYPE < 2) {
     // In case module lazy-loading is malformed, pre-register all module-plugins which are not recorded in the database
-//    ModulePluginOperations::get_instance()->RegisterSessionPlugins();
+//    (new ModulePluginOperations())->RegisterSessionPlugins();
 
     // Setup language stuff.... will auto-detect languages (launch only to admin at this point)
     if (isset($CMS_ADMIN_PAGE)) NlsOperations::set_language();
