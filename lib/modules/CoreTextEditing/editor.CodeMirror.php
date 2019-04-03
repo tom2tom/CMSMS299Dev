@@ -139,12 +139,6 @@ EOS;
 <script type="text/javascript">
 //<![CDATA[
 var container,$handle;
-function getcontent() {
- return container.val();
-}
-function setcontent(v) {
- container.val(v);
-}
 $(function() {
  $.valHooks.textarea = {
   get: function(el) {
@@ -181,6 +175,12 @@ EOS;
 	}
 	$js .= <<<EOS
 });
+function getcontent() {
+ return container.val();
+}
+function setcontent(v) {
+ container.val(v);
+}
 //]]>
 </script>
 

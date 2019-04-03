@@ -125,13 +125,6 @@ EOS;
 //<![CDATA[
 var $handle,container = $('#$htmlid');
 container.hide();
-
-function getcontent() {
- return $handle.session.getValue();
-}
-function setcontent(v) {
- container.val(v);
-}
 $(function() {
  $.valHooks.textarea = {
   get: function(el) {
@@ -194,6 +187,12 @@ EOS;
     }
     $js .= <<< EOS
 });
+function getcontent() {
+ return $handle.session.getValue();
+}
+function setcontent(v) {
+ container.val(v);
+}
 //]]>
 </script>
 
