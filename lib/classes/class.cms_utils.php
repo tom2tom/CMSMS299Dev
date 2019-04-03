@@ -58,7 +58,6 @@ final class cms_utils
 		if( is_array( self::$_vars ) && isset(self::$_vars[$key]) ) return self::$_vars[$key];
 	}
 
-
 	/**
 	 * Set data for later use.
 	 *
@@ -76,7 +75,6 @@ final class cms_utils
 		self::$_vars[$key] = $value;
 	}
 
-
 	/**
 	 * Return an installed module object.
 	 *
@@ -92,9 +90,8 @@ final class cms_utils
 	 */
 	public static function get_module(string $name,string $version = '')
 	{
-		return ModuleOperations::get_instance()->get_module_instance($name,$version);
+		return (new ModuleOperations())->get_module_instance($name,$version);
 	}
-
 
 	/**
 	 * Report whether a module is available.
@@ -107,9 +104,8 @@ final class cms_utils
 	 */
 	public static function module_available(string $name)
 	{
-		return ModuleOperations::get_instance()->IsModuleActive($name);
+		return (new ModuleOperations())->IsModuleActive($name);
 	}
-
 
 	/**
 	 * Return the current database instance.
@@ -123,7 +119,6 @@ final class cms_utils
 		return CmsApp::get_instance()->GetDb();
 	}
 
-
 	/**
 	 * Return the global CMSMS config.
 	 *
@@ -134,7 +129,6 @@ final class cms_utils
 	{
 		return cms_config::get_instance();
 	}
-
 
 	/**
 	 * Return the CMSMS Smarty object.
@@ -148,7 +142,6 @@ final class cms_utils
 		return CmsApp::get_instance()->GetSmarty();
 	}
 
-
 	/**
 	 * Return the current content object.
 	 *
@@ -161,7 +154,6 @@ final class cms_utils
 	{
 		return CmsApp::get_instance()->get_content_object();
 	}
-
 
 	/**
 	 * Return the alias of the current page.
@@ -177,7 +169,6 @@ final class cms_utils
 		if( $obj ) return $obj->Alias();
 	}
 
-
 	/**
 	 * Return the id of the current page
 	 *
@@ -190,7 +181,6 @@ final class cms_utils
 	{
 		return CmsApp::get_instance()->get_content_id();
 	}
-
 
 	/**
 	 * Return the appropriate WYSIWYG module.
@@ -206,9 +196,8 @@ final class cms_utils
 	 */
 	public static function get_wysiwyg_module($module_name = null)
 	{
-		return ModuleOperations::get_instance()->GetWYSIWYGModule($module_name);
+		return (new ModuleOperations())->GetWYSIWYGModule($module_name);
 	}
-
 
 	/**
 	 * Return the currently selected syntax highlighter.
@@ -219,9 +208,8 @@ final class cms_utils
 	 */
 	public static function get_syntax_highlighter_module()
 	{
-		return ModuleOperations::get_instance()->GetSyntaxHighlighter();
+		return (new ModuleOperations())->GetSyntaxHighlighter();
 	}
-
 
 	/**
 	 * Return the currently selected search module.
@@ -232,7 +220,7 @@ final class cms_utils
 	 */
 	public static function get_search_module()
 	{
-		return ModuleOperations::get_instance()->GetSearchModule();
+		return (new ModuleOperations())->GetSearchModule();
 	}
 
 	/**
@@ -244,9 +232,8 @@ final class cms_utils
 	 */
 	public static function get_filepicker_module()
 	{
-		return ModuleOperations::get_instance()->GetFilePickerModule();
+		return (new ModuleOperations())->GetFilePickerModule();
 	}
-
 
 	/**
 	 * Attempt to retreive the IP address of the connected user.
@@ -271,7 +258,6 @@ final class cms_utils
 		return null;
 	}
 
-
 	/**
 	 * Return the current theme object.
 	 * Only valid during an admin request.
@@ -285,7 +271,6 @@ final class cms_utils
 		return ThemeBase::get_instance();
 	}
 
-
 	/**
 	 * Return the url corresponding to the provided site-path
 	 *
@@ -297,5 +282,118 @@ final class cms_utils
 	public static function path_to_url(string $in, string $relative_to = '') : string
 	{
 		return cms_path_to_url($in, $relative_to);
+	}
+
+	const SSLCIPHER = 'AES-256-CTR';
+
+	private static function check_crypter(string $crypter)
+	{
+		switch ($crypter) {
+		case 'sodium':
+			if (PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox')) {
+				break;
+			} else {
+				throw new Exception('Libsodium-based decryption is not available');
+			}
+		case 'openssl':
+			if (function_exists('openssl_encrypt')) {
+				break;
+			} else {
+				throw new Exception('OpenSSL-based decryption is not available');
+			}
+		case 'best':
+			if (PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox')) {
+				$crypter = 'sodium';
+			} elseif (function_exists('openssl_encrypt')) {
+				$crypter = 'openssl';
+			}
+		}
+		return $crypter;
+	}
+
+	/**
+	 * Encrypt the the provided string
+	 * @since 2.3
+	 * @see also cms_utils::decrypt_string()
+	 *
+	 * @param string $raw the string to be processed
+	 * @param string $passwd Optional password
+	 * @param string $crypter optional crypt-mode 'sodium' | 'openssl' | 'best' | anything else
+	 * @return string
+	 */
+	public static function encrypt_string(string $raw, string $passwd = '', string $crypter = 'best')
+	{
+		if ($passwd === '') {
+			$passwd = __DIR__;
+		}
+
+		$crypter = self::check_crypter($crypter);
+		switch ($crypter) {
+		case 'sodium':
+			$localpw = CMS_ROOT_URL.__CLASS__;
+			$nonce = substr(($localpw ^ $passwd),0,16);
+			return sodium_crypto_secretbox($raw,$nonce,$passwd);
+		case 'openssl':
+			$localpw = CMS_ROOT_URL.__CLASS__;
+			$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
+			return openssl_encrypt($raw,self::SSLCIPHER,$passwd,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
+		default:
+			$localpw = CMS_ROOT_URL.$passwd.__CLASS__;
+			$l1 = strlen($localpw);
+			$l2 = strlen($raw);
+			while( $l1 < $l2 ) {
+				$localpw .= $localpw;
+				$l1 += $l1;
+			}
+			$l2 = min($l1,$l2);
+			$str = $raw;
+			for( $i = 0; $i < $l2; ++$i ) {
+				$str[$i] = $str[$i] ^ $localpw[$i];
+			}
+			return $str;
+		}
+	}
+
+	/**
+	 * Decrypt the the provided string
+	 * @since 2.3
+	 * @see also cms_utils::encrypt_string()
+	 *
+	 * @param string $raw the string to be processed
+	 * @param string $passwd optional
+	 * @param string $crypter optional crypt-mode identifier 'sodium' | 'openssl' | 'best' | anything else
+	 * @return string
+	 */
+	public static function decrypt_string(string $raw, string $passwd = '', string $crypter = 'best')
+	{
+		if ($passwd === '') {
+			$passwd = __DIR__;
+		}
+
+		$crypter = self::check_crypter($crypter);
+		switch ($crypter) {
+		case 'sodium':
+			$localpw = CMS_ROOT_URL.__CLASS__;
+			$nonce = substr(($localpw ^ $passwd),0,16);
+			return sodium_crypto_box_open($raw,$nonce,$passwd);
+		case 'openssl':
+			$localpw = CMS_ROOT_URL.__CLASS__;
+			$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
+			return openssl_decrypt($raw,self::SSLCIPHER,$passwd,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
+		default:
+			$localpw = CMS_ROOT_URL.$passwd.__CLASS__;
+			$l1 = strlen($localpw);
+			$l2 = strlen($raw); //TODO check embedded null's ok
+			while( $l1 < $l2 ) {
+				$localpw .= $localpw;
+				$l1 += $l1;
+			}
+			$l2 = min($l1,$l2);
+			$str = $raw;
+			for( $i = 0; $i < $l2; ++$i ) {
+				$str[$i] = $str[$i] ^ $localpw[$i];
+			}
+			return $str;
+		}
 	}
 } // class
