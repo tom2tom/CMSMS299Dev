@@ -43,7 +43,7 @@ class extended_module_info extends module_info
             $this->_edata['can_deactivate'] = $this['name'] != 'ModuleManager';
             $this->_edata['can_uninstall'] = $this['name'] != 'ModuleManager';
 
-            // dependants is the list of modules that use this module (e.g. CGBlog uses CGExtensions)
+            // dependents is the list of modules that use this module (e.g. CGBlog uses CGExtensions)
             if( isset($minfo[$module_name]['dependants']) ) $this['dependants'] = $minfo[$module_name]['dependants'];
         }
     }
