@@ -94,11 +94,11 @@ $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_gener
 $good = lang('done');
 $bad = lang('failed');
 
-//deprecated since 2.3 non AUTO additional_users_id
+//non AUTO additional_users_id deprecated since 2.3
+//page_id I, removed 2.3 never used
 $flds = '
 additional_users_id I KEY NOT NULL,
 user_id I,
-page_id I,
 content_id I
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'additional_users', $flds, $taboptarray);
