@@ -127,6 +127,13 @@ class Connection
     /**
      * @internal
      *
+     * @param string $database  The database we are using
+     */
+    protected $_database;
+
+	/**
+     * @internal
+     *
      * @param string $type  The database connection type (mysqli)
      */
     protected $_type;
@@ -188,6 +195,7 @@ class Connection
                  $config['db_password'], $config['db_name'],
                  (int)$config['db_port']);
                 if (!$this->_mysql->connect_error) {
+					$this->_database = $config['db_name'];
                     $this->_type = 'mysqli';
 					$this->_debug = CMS_DEBUG;
 					if ($this->_debug) {
@@ -221,14 +229,17 @@ class Connection
                         $this->execute($sql);
                     }
                 } else {
+					$this->_database = null;
                     $this->_mysql = null;
                     $this->OnError(self::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
                 }
             } catch (Exception $e) {
+				$this->_database = null;
                 $this->_mysql = null;
                 $this->OnError(self::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
             }
         } else {
+			$this->_database = null;
             $this->_mysql = null;
             $this->OnError(self::ERROR_CONNECT, 98,
                 'Configuration error: mysqli class is not available');
@@ -241,6 +252,8 @@ class Connection
     public function __get($key)
     {
         switch ($key) {
+		 case 'database':
+			return $this->_database;
          case 'query_time_total':
             return $this->_query_time_total;
          case 'query_count':
@@ -256,6 +269,8 @@ class Connection
     public function __isset($key)
     {
         switch ($key) {
+		 case 'database':
+			return !empty($this->_database);
          case 'query_time_total':
          case 'query_count':
             return true;
@@ -351,7 +366,8 @@ class Connection
     //// utilities
 
     /**
-     * Quote a string in a database agnostic manner.
+     * Quote a string for use in a database command.
+     * The characters processed are: NUL (ASCII 0), \n, \r, \, ', ", and \Z (ASCII 26).
      * Warning: This method may require two way traffic with the database depending upon the database.
      *
      * @param string $str
@@ -360,8 +376,11 @@ class Connection
      */
     public function qStr($str)
     {
-        // note... this could be a two way tcp/ip or socket communication
-        return "'".$this->_mysql->escape_string($str)."'";
+        // note : DataDictionary quote-char is '`'
+		if ($str !== '') {
+	        return  "'".$this->_mysql->real_escape_string($str)."'";
+		}
+		return '';
     }
 
     /**
