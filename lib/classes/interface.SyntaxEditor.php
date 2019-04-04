@@ -103,9 +103,10 @@ interface SyntaxEditor
      *
 	 * @return array, up to 2 members 'head' and/or 'foot', string(s) for inclusion
 	 *  in a page header or footer respectively - to provide relevant css, javascript
-	 * The js includes (among other things) 2 functions:
-	 *  getcontent() to get the processed content from the editor
-	 *  setcontent(v) to put text back into the original form element, for sending to the server
+	 * The js includes (among other things) 3 functions:
+	 *  seteditorcontent(v[,m]) to supply text to the editor, and (optionally) set syntax type
+	 *  geteditorcontent() to get text from the editor
+	 *  setpagecontent(v) to put text into the original form element (probably for submission to the server)
 	 */
 	public function GetEditorScript(string $editor, array $params) : array;
 

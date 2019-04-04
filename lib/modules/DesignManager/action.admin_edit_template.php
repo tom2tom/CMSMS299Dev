@@ -313,17 +313,17 @@ $(function() {
    $('#form_edittemplate').lockManager('unlock').done(function() {
     var form = $(self).closest('form'),
       el = $('<input type="hidden" />'),
-      v = getcontent();
-    setcontent(v);
-    el.attr('name',$(self).attr('name')).val(v).appendTo(form);
+      v = geteditorcontent();
+    setpagecontent(v);
+//    el.attr('name',$(self).attr('name')).val(v).appendTo(form);
     form.submit();
    });
    return false;
   });
   $('#applybtn').on('click', function(ev) {
     ev.preventDefault();
-    var v = getcontent();
-    setcontent(v);
+    var v = geteditorcontent();
+    setpagecontent(v);
     var url = $('#form_edittemplate').attr('action') + '?cmsjobtype=1&{$id}apply=1',
       data = $('#form_edittemplate').serializeArray();
     $.post(url, data, function(data, textStatus, jqXHR) {

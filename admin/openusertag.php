@@ -107,13 +107,13 @@ $(function() {
    cms_notify('error', $s1);
    return false;
   }
-  v = getcontent().trim();
+  v = geteditorcontent().trim();
   if (v === '') {
    ev.preventDefault();
    cms_notify('error', $s2);
    return false;
   }
-  setcontent(v);
+  setpagecontent(v);
  });
 });
 //]]>

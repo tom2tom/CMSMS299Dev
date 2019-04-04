@@ -187,10 +187,16 @@ EOS;
     }
     $js .= <<< EOS
 });
-function getcontent() {
+function seteditorcontent(v,m) {
+ $('#$workid').text(v);
+ if(typeof m !== 'undefined') {
+  $handle.session.setMode('ace/mode/' + m);
+ }
+}
+function geteditorcontent() {
  return $handle.session.getValue();
 }
-function setcontent(v) {
+function setpagecontent(v) {
  container.val(v);
 }
 //]]>

@@ -175,10 +175,16 @@ EOS;
 	}
 	$js .= <<<EOS
 });
-function getcontent() {
+function seteditorcontent(v,m) {
+ container.val(v);
+ if(typeof m !== 'undefined') {
+  $handle.setOption('mode',m); //TODO generic mode-interpreter
+ }
+}
+function geteditorcontent() {
  return container.val();
 }
-function setcontent(v) {
+function setpagecontent(v) {
  container.val(v);
 }
 //]]>
