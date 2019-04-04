@@ -424,7 +424,7 @@ VALUES (?,?,?,?,?,?,?,?)';
 		else {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY modified DESC';
 			$ids = $db->GetCol($query);
-			return self::load_bulk($ids,FALSE);
+			return self::get_bulk_stylesheets($ids,FALSE);
 		}
 	}
 
