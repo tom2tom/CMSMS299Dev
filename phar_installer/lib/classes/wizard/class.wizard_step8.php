@@ -8,7 +8,6 @@ use cms_siteprefs;
 use CmsApp;
 use CMSMS\ThemeBase;
 use Exception;
-use const CMS_ADMIN_PATH;
 use const CMS_DB_PREFIX;
 use function cms_installer\lang;
 use function cms_installer\smarty;
@@ -89,7 +88,7 @@ class wizard_step8 extends wizard_step
         // connect to the database, if possible
         $db = $this->db_connect($destconfig);
 
-        $dir = $app->get_assetsdir().'/install';
+        $dir = $app->get_assetsdir().DIRECTORY_SEPARATOR.'install';
 /*
         $fn = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR;
         require_once $fn.'base.php';
@@ -106,17 +105,17 @@ class wizard_step8 extends wizard_step
             $db_prefix = CMS_DB_PREFIX;
 
             // install main tables
-            $fn = $dir.'/schema.php';
+            $fn = $dir.DIRECTORY_SEPARATOR.'schema.php';
             if( !is_file($fn) ) throw new Exception(lang('error_internal',705));
-            include_once $fn;
+            require_once $fn;
 
             // install sequence tables
-            include_once $dir.'/createseq.php';
+            require_once $dir.DIRECTORY_SEPARATOR.'createseq.php';
 
             // create tmp directories
             $this->verbose(lang('install_createtmpdirs'));
-            @mkdir($destdir.'/tmp/cache',0771,TRUE);
-            @mkdir($destdir.'/tmp/templates_c',0771,TRUE);
+            @mkdir($destdir.DIRECTORY_SEPARATOR.'tmp/cache',0771,TRUE);
+            @mkdir($destdir.DIRECTORY_SEPARATOR.'tmp/templates_c',0771,TRUE);
 
             // init some of the system-wide default settings
             verbose_msg(lang('install_initsiteprefs'));
@@ -153,11 +152,10 @@ class wizard_step8 extends wizard_step
             }
 
             // permisssions etc
-            include_once $dir.'/base.php';
-
+            require_once $dir.DIRECTORY_SEPARATOR.'base.php';
 /* See xml files
             $this->message(lang('install_core_template_types'));
-            include_once $dir.'/core_tpl_types.php';
+            require_once $dir.DIRECTORY_SEPARATOR.'core_tpl_types.php';
 */
             // site content
             if( !empty($siteinfo['samplecontent']) ) {
@@ -171,8 +169,7 @@ class wizard_step8 extends wizard_step
                 $arr = installer_base::CONTENTFILESDIR;
                 $filesfolder = $dir . DIRECTORY_SEPARATOR . end($arr);
 
-                $fp = dirname(__DIR__,2).DIRECTORY_SEPARATOR.'iosite.functions.php';
-                require_once $fp;
+                require_once $dir.DIRECTORY_SEPARATOR.'iosite.functions.php';
 
                 if( $fn != 'initial.xml' ) {
                     $this->message(lang('install_samplecontent'));
@@ -205,7 +202,7 @@ class wizard_step8 extends wizard_step
 
         // get the list of all available versions that this upgrader knows about
         $app = get_app();
-        $dir = $app->get_assetsdir().'/upgrade';
+        $dir = $app->get_assetsdir().DIRECTORY_SEPARATOR.'upgrade';
         if( !is_dir($dir) ) throw new Exception(lang('error_internal',710));
         $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',711));
@@ -215,7 +212,7 @@ class wizard_step8 extends wizard_step
         $versions = [];
         while( ($file = readdir($dh)) !== false ) {
             if( $file == '.' || $file == '..' ) continue;
-            if( is_dir($dir.'/'.$file) && (is_file("$dir/$file/MANIFEST.DAT") || is_file("$dir/$file/MANIFEST.DAT.gz")) ) $versions[] = $file;
+            if( is_dir($dir.DIRECTORY_SEPARATOR.$file) && (is_file("$dir/$file/MANIFEST.DAT") || is_file("$dir/$file/MANIFEST.DAT.gz")) ) $versions[] = $file;
         }
         closedir($dh);
         if( $versions ) usort($versions,'version_compare');
@@ -228,10 +225,10 @@ class wizard_step8 extends wizard_step
 
         // setup and initialize the CMSMS API's
         if( is_file("$destdir/include.php") ) {
-            include_once $destdir.'/include.php';
+            include_once $destdir.DIRECTORY_SEPARATOR.'include.php';
         }
         else {
-            include_once $destdir.'/lib/include.php';
+            include_once $destdir.DIRECTORY_SEPARATOR.'lib/include.php';
         }
 
         // setup database connection
@@ -278,17 +275,17 @@ class wizard_step8 extends wizard_step
         $destdir = get_app()->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',700));
 
-        $fn = $destdir.'/config.php';
+        $fn = $destdir.DIRECTORY_SEPARATOR.'config.php';
         if( is_file($fn) ) {
             $this->verbose(lang('install_backupconfig'));
-            $destfn = $destdir.'/bak.config.php';
+            $destfn = $destdir.DIRECTORY_SEPARATOR.'bak.config.php';
             if( !copy($fn,$destfn) ) throw new Exception(lang('error_backupconfig'));
         }
 
         $this->message(lang('install_createconfig'));
         // get a 'real' config object
-        require_once $destdir.'/lib/misc.functions.php';
-        require_once $destdir.'/lib/classes/class.cms_config.php';
+        require_once $destdir.DIRECTORY_SEPARATOR.'lib/misc.functions.php';
+        require_once $destdir.DIRECTORY_SEPARATOR.'lib/classes/class.cms_config.php';
         $newconfig = cms_config::get_instance();
 //        $newconfig['dbms'] = 'mysqli'; //trim($destconfig['db_type']); redundant always mysqli
         $newconfig['db_hostname'] = trim($destconfig['db_hostname']);
