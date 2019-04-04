@@ -5,7 +5,24 @@ use CMSMS\StylesheetOperations;
 use CMSMS\TemplateOperations;
 use function cms_installer\lang;
 
-//force-drop tables which will be created (just in case, should do nothing during install)
+$name = $db->database;
+if ($name) {
+	$name = '`'.$name.'`';
+} else {
+    throw new Exception('Unable to retrieve databsase name');
+}
+/*
+TODO if no drop/create authority ...
+$db->Execute('DROP DATABASE IF EXISTS '.$name);
+$db->Execute('CREATE DATABASE IF NOT EXISTS '.$name); BAD doesn't preserve permissions
+*/
+$db->Execute('ALTER DATABASE '.$name.' DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci');
+$db->Execute('USE DATABASE '.$name);
+
+$dbdict = GetDataDictionary($db);
+
+/*
+//force-drop tables which will be created (just in case, during install we've already checked for an empty database)
 //status_msg(lang('install_dropping_tables'));
 $db->DropSequence(CMS_DB_PREFIX.'additional_users_seq'); //deprecated since 2.3
 $db->DropSequence(CMS_DB_PREFIX.'admin_bookmarks_seq');
@@ -17,8 +34,6 @@ $db->DropSequence(CMS_DB_PREFIX.'group_perms_seq'); //deprecated since 2.3
 $db->DropSequence(CMS_DB_PREFIX.'groups_seq');
 $db->DropSequence(CMS_DB_PREFIX.'permissions_seq');
 $db->DropSequence(CMS_DB_PREFIX.'users_seq');
-
-$dbdict = GetDataDictionary($db);
 
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'additional_users');
 $dbdict->ExecuteSQLArray($sqlarray);
@@ -79,15 +94,12 @@ $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE);
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE);
 $dbdict->ExecuteSQLArray($sqlarray);
+*/
 
 status_msg(lang('install_createtablesindexes'));
-if ($db->dbtype == 'mysqli') {
-    @$db->Execute('ALTER DATABASE `' . $db->database . '` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci');
-}
 
 // NOTE site-content-related changes here must be replicated in the data 'skeleton' and DTD in file lib/iosite.functions.php
 
-$dbdict = GetDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 //$innotaboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
