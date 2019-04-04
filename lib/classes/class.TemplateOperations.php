@@ -588,7 +588,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
      */
     public static function get_editable_templates($a)
     {
-        $id = self::esolve_user($a);
+        $id = self::resolve_user($a);
         if( $id <= 0 ) throw new CmsInvalidDataException('Invalid user specified to '.__METHOD__);
 
         $db = CmsApp::get_instance()->GetDb();
