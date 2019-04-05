@@ -106,6 +106,28 @@ use CMSMS\Database\Connection;
             }
             return $sql;
         }
+    } // class
+
+    // ex-DataDictionary methods
+
+    /**
+     * @deprecated since 2.3 does nothing
+     * @ignore
+     * @return array
+     */
+    function _array_change_key_case($an_array)
+    {
+        return $an_array;
+    }
+    
+    /**
+     * @deprecated since 2.3 does nothing
+     * @ignore
+     * @return array
+     */
+    function Lens_ParseArgs($defn, $endstmtchar = ',', $tokenchars = '_.-')
+    {
+        return [];
     }
 } // namespace
 
