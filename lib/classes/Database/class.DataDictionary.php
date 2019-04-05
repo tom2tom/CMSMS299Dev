@@ -22,160 +22,11 @@ namespace CMSMS\Database;
 use CMSMS\Database\Connection;
 use function startswith;
 
-// shouldn't need this.
-if (!function_exists('ctype_alnum')) {
-    /**
-     * @ignore
-     */
-    function ctype_alnum($text)
-    {
-        return preg_match('/^[a-z0-9]*$/i', $text);
-    }
-}
-
 /**
- * @ignore
- */
-function _array_change_key_case($an_array)
-{
-    if (is_array($an_array)) {
-        $new_array = [];
-        foreach ($an_array as $key => $value) {
-            $new_array[strtoupper($key)] = $value;
-        }
-
-        return $new_array;
-    }
-
-    return $an_array;
-}
-
-/**
- * Parse $args into an array
- * @ignore
- * @param string $args
- * @param string $endstmtchar optional separator character. Default ','
- * @param string $tokenchars  optional series of ? characters. default '_.-'
- * @return array
- */
-function Lens_ParseArgs($args, $endstmtchar = ',', $tokenchars = '_.-')
-{
-    $pos = 0;
-    $stmtno = 0;
-    $intoken = false;
-    $endquote = false;
-    $quoted = false;
-    $tokens = [];
-    $tokens[] = []; //for $stmtno=0
-    $max = strlen($args);
-
-    while ($pos < $max) {
-        $ch = $args[$pos];
-        switch ($ch) {
-        case ' ':
-        case "\t":
-        case "\n":
-        case "\r":
-            if (!$quoted) {
-                if ($intoken) {
-                    $intoken = false;
-                    $tokens[$stmtno][] = implode('', $tokarr);
-                }
-                break;
-            }
-            $tokarr[] = $ch;
-            break;
-        case '`':
-            if ($intoken) {
-                $tokarr[] = $ch;
-            }
-        case '(':
-        case ')':
-        case '"':
-        case "'":
-            if ($intoken) {
-                if (empty($endquote)) {
-                    $tokens[$stmtno][] = implode('', $tokarr);
-                    if ($ch == '(') {
-                        $endquote = ')';
-                    } else {
-                        $endquote = $ch;
-                    }
-                    $quoted = true;
-                    $intoken = true;
-                    $tokarr = [];
-                } elseif ($ch == $endquote) {
-                    $ch2 = $args[$pos + 1];
-                    if ($ch2 == $endquote) {
-                        ++$pos;
-                        $tokarr[] = $ch2;
-                    } else {
-                        $quoted = false;
-                        $intoken = false;
-                        $tokens[$stmtno][] = implode('', $tokarr);
-                        $endquote = '';
-                    }
-                } else {
-                    $tokarr[] = $ch;
-                }
-            } else {
-                if ($ch == '(') {
-                    $endquote = ')';
-                } else {
-                    $endquote = $ch;
-                }
-                $quoted = true;
-                $intoken = true;
-                $tokarr = [];
-                if ($ch == '`') {
-                    $tokarr[] = '`';
-                }
-            }
-            break;
-        default:
-            if (!$intoken) {
-                if ($ch == $endstmtchar) {
-                    ++$stmtno;
-                    $tokens[$stmtno] = [];
-                    break;
-                }
-                $intoken = true;
-                $quoted = false;
-                $endquote = false;
-                $tokarr = [];
-            }
-            if ($quoted) {
-                $tokarr[] = $ch;
-            } elseif (ctype_alnum($ch) || strpos($tokenchars, $ch) !== false) {
-                $tokarr[] = $ch;
-            } else {
-                if ($ch == $endstmtchar) {
-                    $tokens[$stmtno][] = implode('', $tokarr);
-                    ++$stmtno;
-                    $tokens[$stmtno] = [];
-                    $intoken = false;
-                    $tokarr = [];
-                    break;
-                }
-                $tokens[$stmtno][] = implode('', $tokarr);
-                $tokens[$stmtno][] = $ch;
-                $intoken = false;
-            }
-        }
-        ++$pos;
-    }
-    if ($intoken) {
-        $tokens[$stmtno][] = implode('', $tokarr);
-    }
-
-    return $tokens;
-}
-
-/**
- * A class defining methods to work directly with database tables.
+ * A class of methods for creating and modifying database tables.
  *
- * This file is based on the DataDictionary base class from the adodb_lite library
- * which was in turn a fork of the adodb library in 2004 or thereabouts.
+ * This file is based on the DataDictionary base class from the adodb_lite
+ * library which was in turn a fork of the adodb library in 2004 or thereabouts.
  *
  * Credits and kudos to the authors of those packages.
  *
@@ -188,86 +39,42 @@ class DataDictionary
      *
      * @internal
      */
-    const alterTable = 'ALTER TABLE ';
+    const ALTERTABLE = 'ALTER TABLE ';
 
     /**
      * SQL command template for creating a drop table command.
      *
      * @internal
      */
-    const dropTable = 'DROP TABLE IF EXISTS %s'; // requires MySQL 3.22+
-
-    /**
-     * SQL command template for renaming a table.
-     *
-     * @internal
-     */
-    const renameTable = 'RENAME TABLE %s TO %s';
+    const DROPTABLE = 'DROP TABLE IF EXISTS %s'; // requires MySQL 3.22+
 
     /**
      * SQL command template for dropping an index.
      *
      * @internal
      */
-    const dropIndex = 'DROP INDEX %s ON %s';
+    const DROPINDEX = 'DROP INDEX %s ON %s';
 
     /**
      * SQL sub-string to use (in the alter table command) when adding a column.
      *
      * @internal
      */
-    const addCol = ' ADD COLUMN';
+    const ADDCOLUMN = ' ADD COLUMN';
 
     /**
      * SQL sub-string to use (in the alter table command) when altering a column.
      *
      * @internal
      */
-    const alterCol = ' MODIFY COLUMN';
+    const ALTERCOLUMN = ' MODIFY COLUMN';
 
     /**
      * SQL sub-string to use (in the alter table command) when dropping a column.
      *
      * @internal
      */
-    const dropCol = ' DROP COLUMN';
-
-    /**
-     * SQL command template for renaming a column.
-     *
-     * @internal
-     */
-    const renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';
-
-    /**
-     * @ignore
-     */
-    const sysTimeStamp = 'TIMESTAMP';
-
-    /**
-     * @ignore
-     */
-    const sysDate = 'DATE';
-
-    /**
-     * @ignore
-     */
-    const nameRegex = '\w';
-
-    /**
-     * @ignore
-     */
-    const nameRegexBrackets = 'a-zA-Z0-9_\(\)';
-
-    /**
-     * @ignore
-     */
-    const invalidResizeTypes4 = ['CLOB', 'BLOB', 'TEXT', 'DATE', 'TIME']; // for changetablesql
-
-    /**
-     * @ignore
-     */
-    const nameQuote = '`'; // string to use to quote identifiers and names
+    const DROPCOLUMN = ' DROP COLUMN';
 
     /**
      * The database connection object.
@@ -298,7 +105,7 @@ class DataDictionary
      *
      * @return string
      */
-    protected function _dbType()
+    protected function dbType()
     {
         return $this->connection->dbType();
     }
@@ -405,24 +212,15 @@ class DataDictionary
 
         $name = trim($name);
 
-        if (!is_object($this->connection)) {
+        // if name is already quoted, do nothing
+        if (preg_match('/^`.+`$/', $name)) {
             return $name;
         }
-
-        $quote = self::nameQuote;
-
-        // if name is of the form `name`, quote it
-        if (preg_match('/^`(.+)`$/', $name, $matches)) {
-            return $quote.$matches[1].$quote;
-        }
-
         // if name contains special characters, quote it
-        $regex = ($allowBrackets) ? self::nameRegexBrackets : self::nameRegex;
-
+        $regex = ($allowBrackets) ? '\w\(\)' : '\w';
         if (!preg_match('/^['.$regex.']+$/', $name)) {
-            return $quote.$name.$quote;
+            return '`'.$name.'`';
         }
-
         return $name;
     }
 
@@ -471,7 +269,7 @@ class DataDictionary
      */
     public function CreateDatabase($dbname, $options = false)
     {
-        $options = $this->_Options($options);
+        $options = $this->Options($options);
 
         $s = 'CREATE DATABASE '.$this->NameQuote($dbname);
         if (isset($options[$this->upperName])) {
@@ -505,7 +303,7 @@ class DataDictionary
             $flds[$key] = $this->NameQuote($fld, true);
         }
 
-        return $this->_IndexSQL($this->NameQuote($idxname), $this->TableName($tabname), $flds, $this->_Options($idxoptions));
+        return $this->IndexSQL($this->NameQuote($idxname), $this->TableName($tabname), $flds, $this->Options($idxoptions));
     }
 
     /**
@@ -517,7 +315,7 @@ class DataDictionary
      */
     public function DropIndexSQL($idxname, $tabname = null)
     {
-        return [sprintf(self::dropIndex, $this->NameQuote($idxname), $this->TableName($tabname))];
+        return [sprintf(self::DROPINDEX, $this->NameQuote($idxname), $this->TableName($tabname))];
     }
 
     /**
@@ -532,9 +330,9 @@ class DataDictionary
      */
     public function AddColumnSQL($tabname, $defn)
     {
-        $alter = self::alterTable.$this->TableName($tabname).self::addCol.' ';
+        $alter = self::ALTERTABLE.$this->TableName($tabname).self::ADDCOLUMN.' ';
         $sql = [];
-        list($lines, $pkey) = $this->_GenFields($defn);
+        list($lines, $pkey) = $this->GenFields($defn);
         foreach ($lines as $v) {
             $sql[] = $alter.$v;
         }
@@ -554,9 +352,9 @@ class DataDictionary
      */
     public function AlterColumnSQL($tabname, $defn, $tableflds = '', $tableoptions = '')
     {
-        $alter = self::alterTable.$this->TableName($tabname).self::alterCol.' ';
+        $alter = self::ALTERTABLE.$this->TableName($tabname).self::ALTERCOLUMN.' ';
         $sql = [];
-        list($lines, $pkey) = $this->_GenFields($defn);
+        list($lines, $pkey) = $this->GenFields($defn);
         foreach ($lines as $v) {
             $sql[] = $alter.$v;
         }
@@ -584,7 +382,7 @@ class DataDictionary
             if ($newcolumn && strpos($defn, $newcolumn) !== 0) {
                 $defn = $newcolumn.' '.$defn;
             }
-            list($lines,) = $this->_GenFields($defn);
+            list($lines,) = $this->GenFields($defn);
             $first = reset($lines);
             list($name, $column_def) = preg_split('/\s+/', $first, 2);
             if (!$newcolumn) {
@@ -594,7 +392,7 @@ class DataDictionary
             $column_def = '';  //BAD causes command to fail TODO find something
         }
 
-        return [sprintf(self::renameColumn,
+        return [sprintf('ALTER TABLE %s CHANGE COLUMN %s %s %s',
             $this->TableName($tabname),
             $this->NameQuote($oldcolumn),
             $this->NameQuote($newcolumn),
@@ -614,7 +412,7 @@ class DataDictionary
             $colname = explode(',', $colname);
         }
 
-        $alter = self::alterTable.$this->TableName($tabname).self::dropCol.' ';
+        $alter = self::ALTERTABLE.$this->TableName($tabname).self::DROPCOLUMN.' ';
         $sql = [];
         foreach ($colname as $v) {
             $sql[] = $alter.$this->NameQuote(trim($v));
@@ -631,7 +429,7 @@ class DataDictionary
      */
     public function DropTableSQL($tabname)
     {
-        return [sprintf(self::dropTable, $this->TableName($tabname))];
+        return [sprintf(self::DROPTABLE, $this->TableName($tabname))];
     }
 
     /**
@@ -643,7 +441,7 @@ class DataDictionary
      */
     public function RenameTableSQL($tabname, $newname)
     {
-        return [sprintf(self::renameTable, $this->TableName($tabname), $this->TableName($newname))];
+        return [sprintf('RENAME TABLE %s TO %s', $this->TableName($tabname), $this->TableName($newname))];
     }
 
     /**
@@ -683,8 +481,8 @@ class DataDictionary
         case 'MEDIUMTEXT':
             return 'X';
 
-		// php mysql extension always returns 'blob' even if 'text'
-		// so we check whether binary...
+        // php mysql extension always returns 'blob' even if 'text'
+        // so we check whether binary...
         case 'IMAGE':
         case 'BLOB':
         case 'LONGBLOB':
@@ -791,7 +589,7 @@ class DataDictionary
         }
     }
 
-	/**
+    /**
      * Generate the SQL to add, drop or change column(s).
      *
      * This function changes/adds new fields to your table. You don't
@@ -814,7 +612,7 @@ class DataDictionary
 
         if (is_array($defn)) {
             // walk through the update fields, comparing existing fields to fields to update.
-            // if the Metatype and size are exactly the same, ignore - by Mark Newham
+            // if the metatype and size are exactly the same, ignore - by Mark Newham
             $holdflds = [];
             foreach ($defn as $k => $v) {
                 if (isset($cols[$k]) && is_object($cols[$k])) {
@@ -838,21 +636,22 @@ class DataDictionary
         }
 
         // already exists, alter table instead
-        list($lines, $pkey) = $this->_GenFields($defn);
-        $alter = self::alterTable.$this->TableName($tablename);
+        list($lines, $pkey) = $this->GenFields($defn);
+        $alter = self::ALTERTABLE.$this->TableName($tablename);
         $sql = [];
+        $fixedsizetypes = ['CLOB', 'BLOB', 'TEXT', 'DATE', 'TIME'];
 
         foreach ($lines as $id => $v) {
             if (isset($cols[$id]) && is_object($cols[$id])) {
-                $parts = Lens_ParseArgs($v.' '); //trailing pad needed
-                //  We are trying to change the size of the field, if not allowed, simply ignore the request.
-                if ($parts && in_array(strtoupper(substr($parts[0][1], 0, 4)), self::invalidResizeTypes4)) {
+                // we are trying to change the field-size, but maybe not valid
+                $parts = $this->ParseDefn($v);
+                if ($parts && in_array(strtoupper(substr($parts[0][1], 0, 4)), $fixedsizetypes)) { //TODO BLOB,TEXT are valid
                     continue;
                 }
 
-                $sql[] = $alter.self::alterCol.' '.$v;
+                $sql[] = $alter.self::ALTERCOLUMN.' '.$v;
             } else {
-                $sql[] = $alter.self::addCol.' '.$v;
+                $sql[] = $alter.self::ADDCOLUMN.' '.$v;
             }
         }
 
@@ -938,12 +737,11 @@ class DataDictionary
      */
     public function CreateTableSQL($tabname, $defn, $tableoptions = false)
     {
-        $str = 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci';
-        $dbtype = $this->_dbType();
-
+        $dbtype = $this->dbType();
         // clean up input tableoptions
         if (!$tableoptions) {
-            $tableoptions = [$dbtype => $str];
+            $tableoptions = [$dbtype =>
+	        'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci']; //default table options
         } elseif (is_string($tableoptions)) {
             $tableoptions = [$dbtype => $tableoptions];
         } elseif (is_array($tableoptions) && !isset($tableoptions[$dbtype]) && isset($tableoptions['mysql'])) {
@@ -963,16 +761,156 @@ class DataDictionary
             $tableoptions[$dbtype] .= ' CHARACTER SET utf8 COLLATE utf8_general_ci';
         }
 
-		list($lines, $pkey) = $this->_GenFields($defn, true);
-		$taboptions = $this->_Options($tableoptions);
-		$tabname = $this->TableName($tabname);
-		$sql = $this->_TableSQL($tabname, $lines, $pkey, $taboptions);
-		$tsql = $this->_Triggers($tabname, $taboptions);
-		foreach ($tsql as $s) {
-			$sql[] = $s;
-		}
+        list($lines, $pkey) = $this->GenFields($defn, true);
+        $taboptions = $this->Options($tableoptions);
+        $tabname = $this->TableName($tabname);
+        $sql = $this->TableSQL($tabname, $lines, $pkey, $taboptions);
 
-		return $sql;
+        return $sql;
+    }
+
+    /**
+     * Parse $defn into an array
+     * @since 2.3 imported global function
+     * @ignore
+     * @param string $defn (needs extra trailing ' ' char after a final quote char)
+     * @param string $endstmtchar optional separator character. Default ','
+     * @param string $tokenchars  optional series of ? characters. default '_.-'
+     * @return array
+     */
+    protected function ParseDefn($defn, $endstmtchar = ',', $tokenchars = '_.-')
+    {
+        $pos = 0;
+        $stmtno = 0;
+        $intoken = false;
+        $endquote = false;
+        $quoted = false;
+        $tokens = [];
+        $tokens[] = []; //for $stmtno=0
+        $max = strlen($defn);
+
+        while ($pos < $max) {
+            $ch = $defn[$pos];
+            switch ($ch) {
+             case ' ':
+             case "\t":
+             case "\n":
+             case "\r":
+                if (!$quoted) {
+                    if ($intoken) {
+                        $intoken = false;
+                        $tokens[$stmtno][] = implode('', $tokarr);
+                    }
+                    break;
+                }
+                $tokarr[] = $ch;
+                break;
+             case '`':
+                if ($intoken) {
+                    $tokarr[] = $ch;
+                }
+             case '(':
+             case ')':
+             case '"':
+             case "'":
+                if ($intoken) {
+                    if (empty($endquote)) {
+                        $tokens[$stmtno][] = implode('', $tokarr);
+                        if ($ch == '(') {
+                            $endquote = ')';
+                        } else {
+                            $endquote = $ch;
+                        }
+                        $quoted = true;
+                        $intoken = true;
+                        $tokarr = [];
+                    } elseif ($ch == $endquote) {
+                        //check next char, if any
+                        if ($pos < $max - 1 && $defn[$pos + 1] == $endquote) {
+                            //a sequential endquote
+                            ++$pos;
+                            $tokarr[] = $endquote;
+                        } else {
+                            $quoted = false;
+                            $intoken = false;
+                            $tokens[$stmtno][] = implode('', $tokarr);
+                            $endquote = '';
+                        }
+                    } else {
+                        $tokarr[] = $ch;
+                    }
+                } else {
+                    if ($ch == '(') {
+                        $endquote = ')';
+                    } else {
+                        $endquote = $ch;
+                    }
+                    $quoted = true;
+                    $intoken = true;
+                    $tokarr = [];
+                    if ($ch == '`') {
+                        $tokarr[] = '`';
+                    }
+                }
+                break;
+             default:
+                if (!$intoken) {
+                    if ($ch == $endstmtchar) {
+                        ++$stmtno;
+                        $tokens[$stmtno] = [];
+                        break;
+                    }
+                    $intoken = true;
+                    $quoted = false;
+                    $endquote = false;
+                    $tokarr = [];
+                }
+                if ($quoted) {
+                    $tokarr[] = $ch;
+                } elseif (ctype_alnum($ch) || strpos($tokenchars, $ch) !== false) {
+                    $tokarr[] = $ch;
+                } else {
+                    if ($ch == $endstmtchar) {
+                        $tokens[$stmtno][] = implode('', $tokarr);
+                        ++$stmtno;
+                        $tokens[$stmtno] = [];
+                        $intoken = false;
+                        $tokarr = [];
+                        break;
+                    }
+                    $tokens[$stmtno][] = implode('', $tokarr);
+                    $tokens[$stmtno][] = $ch;
+                    $intoken = false;
+                }
+            } //switch
+            ++$pos;
+        }
+        if ($intoken) {
+            $tokens[$stmtno][] = implode('', $tokarr);
+        }
+
+        return $tokens;
+    }
+
+    /**
+     * Return array matching the one supplied, but with all keys upper-case
+     * @since 2.3 imported global function
+     * @ignore
+     * @param array $an_array
+     * @return array
+     */
+    protected function UpperKeys($an_array)
+    {
+        if (is_array($an_array)) {
+            $new_array = [];
+            foreach ($an_array as $key => $value) {
+                $new_array[strtoupper($key)] = $value;
+            }
+
+            return $new_array;
+        }
+
+        return $an_array;
     }
 
     /**
@@ -982,14 +920,14 @@ class DataDictionary
      * @param mixed $defn array of strings or comma-separated series in one string
      * @param bool  $widespacing optional flag whether to pad the field-name, default false
      * @return 2-member array
-	 *  [0] = array of ? or empty
-	 *  [1] = 1-member array with primary key, or empty
+     *  [0] = array of ? or empty
+     *  [1] = 1-member array with primary key, or empty
      */
-    protected function _GenFields($defn, $widespacing = false)
+    protected function GenFields($defn, $widespacing = false)
     {
         if (is_string($defn)) {
             $flds = [];
-            $parts = Lens_ParseArgs($defn.' '); //trailing pad supports checking all 'next' chars
+            $parts = $this->ParseDefn($defn);
             $hasparam = false;
             foreach ($parts as $f0) {
                 if (!count($f0)) {
@@ -1022,7 +960,7 @@ class DataDictionary
         $lines = [];
         $pkey = [];
         foreach ($flds as $fld) {
-            $fld = _array_change_key_case($fld);
+            $fld = $this->UpperKeys($fld);
             $fname = false;
             $fdefault = false;
             $fautoinc = false;
@@ -1039,7 +977,7 @@ class DataDictionary
             $funsigned = false;
             $findex = false;
             $fforeign = false;
-            $flast = false;
+            $fafter = false;
 
             //-----------------
             // PARSE ATTRIBUTES
@@ -1123,13 +1061,18 @@ class DataDictionary
                         $findex = $attr;  //last-used prevails
                         break;
                     case 'AFTER':
-                    case 'FIRST':
-                        $flast = $i;
+                        $fafter = $fld[$i+1] ?? false;
+						if ($fafter !== false) {
+                            $fld[$i+1] = '';
+                        }
                         break;
                     case 'FOREIGN':
                         $fforeign = $v;
                         break;
+                    default:
+                        break 2; // don't clear unprocessed field
                 }
+				$fld[$i] = '';
             }
 
             //--------------------
@@ -1142,7 +1085,7 @@ class DataDictionary
                 return [[], []];
             }
 
-            $ftype = $this->_GetSize(strtoupper($ftype), $ty, $fsize, $fprec);
+            $ftype = $this->GetSize(strtoupper($ftype), $ty, $fsize, $fprec);
 
             switch ($ty) {
                 case 'X':
@@ -1167,40 +1110,53 @@ class DataDictionary
                 $pkey[] = $fname;
             }
 
-            if ($flast !== false) {
-                $v = $fld[$flast];
-                if (strcasecmp($v, 'AFTER') == 0) {
-                    if (empty($fld[$flast + 1])) return [[], []]; //TODO
-                }
-            }
-
             //--------------------
             // CONSTRUCT FIELD SQL
             if ($fdefts) {
-                $fdefault = self::sysTimeStamp;
+                $fdefault = 'TIMESTAMP';
             } elseif ($fdefdate) {
-                $fdefault = self::sysDate;
+                $fdefault = 'DATE';
             } elseif ($fdefault !== false && !$fnoquote) {
                 if ($ty == 'C' || $ty[0] == 'X' ||
                     ($fdefault[0] != "'" && !is_numeric($fdefault))) {
                     $len = strlen($fdefault);
                     if ($len != 1 && $fdefault[0] == ' ' && $fdefault[$len - 1] == ' ') {
                         $fdefault = trim($fdefault);
-                    } elseif (strtolower($fdefault) != 'null') {
-                        $fdefault = $this->connection->qStr($fdefault);
+                    } else {
+                        switch (strtolower($fdefault)) {
+                            case 'null':
+                            case 'current_timestamp':
+                            case 'local_timestamp':
+                            case 'localtimestamp':
+                            case 'localtime':
+                            case 'now':
+                                $fdefault = strtoupper($fdefault);
+                                break;
+                            case 'true':
+                                $fdefault = 1;
+                                break;
+                            case 'false':
+                                $fdefault = 0;
+                                break;
+                            default:
+                                $fdefault = $this->connection->qStr($fdefault);
+                                break;
+                        }
                     }
                 }
             }
-            $suffix = $this->_CreateSuffix($fname, $ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned);
+            $suffix = $this->CreateSuffix($fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned);
+			//TODO support extra suffix from ' '-joined $fld[2], ... e.g. ON UPDATE CURRENT_TIMESTAMP
+			$s = implode(' ', array_filter($fld));
+			if ($s) {
+				$suffix .= ' '.$s;
+			}
 
             $s = ($widespacing) ? str_pad($fname, 24) : $fname;
             $s .= ' '.$ftype.$suffix;
 
-            if ($flast !== false) {
-                $s .= ' '.strtoupper($v);
-                if (strcasecmp($v, 'AFTER') == 0) {
-                    $s .= ' '.$this->NameQuote($fld[$flast + 1]); //TODO
-                }
+            if ($fafter) {
+                $s .= ' AFTER '.$this->NameQuote($fafter);
             }
 
             if ($findex) {
@@ -1233,21 +1189,23 @@ class DataDictionary
      *
      * @internal
      */
-    protected function _GetSize($ftype, $ty, $fsize, $fprec)
+    protected function GetSize($ftype, $ty, $fsize, $fprec)
     {
         if ($fsize) {
             if ($ty == 'B' || $ty == 'X') {
                 if ($fsize <= 256) {
                     if ($ty == 'X') {
-                        if (--$fsize < 1) $fsize = 1;
-                        $ftype = 'VARCHAR('.$fsize.')';
+                        if (--$fsize < 1) $fsize = 1; //too bad about 256!
+                        return 'VARCHAR('.$fsize.')';
                     } else {
-                        $ftype = 'TINYBLOB';
+                        return 'TINYBLOB';
                     }
-                } elseif ($fsize > 2**16 && $fsize <= 2**24) {
-                    $ftype = 'MEDIUM'.$ftype;
+                } elseif ($fsize <= 65536) {
+                    return $ftype;
+                } elseif ($fsize <= 1 << 24) {
+                    return 'MEDIUM'.$ftype;
                 } else {
-                    $ftype = 'LONG'.$ftype;
+                    return 'LONG'.$ftype;
                 }
             } elseif (strpos($ftype, '(') === false) {
                 $ftype .= '('.$fsize;
@@ -1266,7 +1224,7 @@ class DataDictionary
      *
      * @internal
      */
-    protected function _CreateSuffix($fname, $ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned)
+    protected function CreateSuffix($fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned)
     {
         $suffix = '';
         if ($funsigned) {
@@ -1288,20 +1246,20 @@ class DataDictionary
         return $suffix;
     }
 
-	/**
+    /**
      * Generate SQL to create an index.
      * @param mixed $flds array of strings or comma-separated series in one string, or falsy
      * @internal
      */
-    protected function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
+    protected function IndexSQL($idxname, $tabname, $flds, $idxoptions)
     {
         $sql = [];
 
         if (isset($idxoptions['REPLACE']) || isset($idxoptions['DROP'])) {
 //            if (1) { //this->alterTableAddIndex was always true
-                $sql[] = self::alterTable."$tabname DROP INDEX $idxname";
+                $sql[] = self::ALTERTABLE."$tabname DROP INDEX $idxname";
 //            } else {
-//                $sql[] = sprintf(self::dropIndex, $idxname, $tabname);
+//                $sql[] = sprintf(self::DROPINDEX, $idxname, $tabname);
 //            }
 
             if (isset($idxoptions['DROP'])) {
@@ -1326,7 +1284,7 @@ class DataDictionary
         }
 
 //        if (1) { //$this->alterTableAddIndex was always true
-            $s = self::alterTable."$tabname ADD{$unique} INDEX $idxname";
+            $s = self::ALTERTABLE."$tabname ADD{$unique} INDEX $idxname";
 //        } else {
 //            $s = "CREATE{$unique} INDEX $idxname ON $tabname";
 //        }
@@ -1347,7 +1305,7 @@ class DataDictionary
      *
      * @internal
      */
-    protected function _DropAutoIncrement($tabname)
+    protected function DropAutoIncrement($tabname)
     {
         return false;
     }
@@ -1359,7 +1317,7 @@ class DataDictionary
      */
     protected function get_dbtype_options($opts, $suffix = null)
     {
-        $dbtype = $this->_dbType();
+        $dbtype = $this->dbType();
         $list = [$dbtype.$suffix, strtoupper($dbtype).$suffix, strtolower($dbtype).$suffix];
 
         foreach ($list as $one) {
@@ -1374,14 +1332,14 @@ class DataDictionary
      *
      * @internal
      */
-    protected function _TableSQL($tabname, $lines, $pkey, $tableoptions)
+    protected function TableSQL($tabname, $lines, $pkey, $tableoptions)
     {
         $sql = [];
 
         if (isset($tableoptions['REPLACE']) || isset($tableoptions['DROP'])) {
-            $sql[] = sprintf(self::dropTable, $tabname);
+            $sql[] = sprintf(self::DROPTABLE, $tabname);
             if ($this->autoIncrement) {
-                $sInc = $this->_DropAutoIncrement($tabname);
+                $sInc = $this->DropAutoIncrement($tabname);
                 if ($sInc) {
                     $sql[] = $sInc;
                 }
@@ -1393,7 +1351,7 @@ class DataDictionary
         $s = "CREATE TABLE $tabname (\n";
         $s .= implode(",\n", $lines);
         if (count($pkey) > 0) {
-            $s .= ",\n                 PRIMARY KEY (";
+            $s .= ",\nPRIMARY KEY (";
             $s .= implode(', ', $pkey).')';
         }
         if (isset($tableoptions['CONSTRAINTS'])) {
@@ -1416,22 +1374,11 @@ class DataDictionary
     }
 
     /**
-     * Generate triggers if needed.
-     * This is used when table has auto-incrementing field that is emulated using triggers.
-     *
-     * @internal
-     */
-    protected function _Triggers($tabname, $taboptions)
-    {
-        return [];
-    }
-
-    /**
      * Sanitize options.
      *
      * @internal
      */
-    protected function _ProcessOptions($opts)
+    protected function ProcessOptions($opts)
     {
         // fixes for old TYPE= stuff in tabopts.
         if ($opts) {
@@ -1450,9 +1397,9 @@ class DataDictionary
      *
      * @internal
      */
-    protected function _Options($opts)
+    protected function Options($opts)
     {
-        $opts = $this->_ProcessOptions($opts);
+        $opts = $this->ProcessOptions($opts);
         if (!is_array($opts)) {
             return [];
         }
