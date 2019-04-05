@@ -240,6 +240,16 @@ $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name', 'func', 'C(64)');
 $dict->ExecuteSQLArray($sqlarray);
 verbose_msg(lang('upgrade_modifytable', 'event_handlers'));
+// extra fields
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'contentfile I(1) DEFAULT 0 AFTER listable');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME,'contentfile I(1) DEFAULT 0');
+$dict->ExecuteSQLArray($sqlarray);
+// redundant fields
+$sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.'content','prop_names');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.'module_smarty_plugins','cachable');
+$dict->ExecuteSQLArray($sqlarray);
 
 // 7. Migrate module templates to layout-templates table
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
