@@ -216,7 +216,7 @@ final class utils
         if( $url ) {
             $url .= '/version';
             $req = new cached_request($url);
-            $req->setTimeout(3);
+            $req->setTimeout(10);
             $req->execute($url);
             if( $req->getStatus() == 200 ) {
                 $tmp = $req->getResult();
