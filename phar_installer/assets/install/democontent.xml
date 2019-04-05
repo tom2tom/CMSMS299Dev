@@ -2718,20 +2718,6 @@ a {
 	</designstyles>
 	<tpltypes>
 		<tpltype>
-			<id>2</id>
-			<originator>__CORE__</originator>
-			<name>generic</name>
-			<dflt_contents></dflt_contents>
-			<description></description>
-			<lang_cb>\\CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
-			<dflt_content_cb></dflt_content_cb>
-			<help_content_cb>\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
-			<has_dflt>0</has_dflt>
-			<requires_contentblocks>0</requires_contentblocks>
-			<one_only>0</one_only>
-			<owner>1</owner>
-		</tpltype>
-		<tpltype>
 			<id>1</id>
 			<originator>__CORE__</originator>
 			<name>page</name>
@@ -2763,11 +2749,25 @@ a {
 
 &lt;/html&gt;]]></dflt_contents>
 			<description></description>
-			<lang_cb>\\CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>\\CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults</dflt_content_cb>
-			<help_content_cb>\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
+			<lang_cb>CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback</lang_cb>
+			<dflt_content_cb>CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults</dflt_content_cb>
+			<help_content_cb>CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
 			<has_dflt>1</has_dflt>
 			<requires_contentblocks>1</requires_contentblocks>
+			<one_only>0</one_only>
+			<owner>1</owner>
+		</tpltype>
+		<tpltype>
+			<id>2</id>
+			<originator>__CORE__</originator>
+			<name>generic</name>
+			<dflt_contents></dflt_contents>
+			<description></description>
+			<lang_cb>CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
+			<dflt_content_cb></dflt_content_cb>
+			<help_content_cb>CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
+			<has_dflt>0</has_dflt>
+			<requires_contentblocks>0</requires_contentblocks>
 			<one_only>0</one_only>
 			<owner>1</owner>
 		</tpltype>
