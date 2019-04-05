@@ -386,11 +386,11 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 
         $designs = $tpl->get_designs();
         if( $designs ) {
-            $sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)';
-            $i = 1;
+			$sql = 'SELECT MAX(tpl_order) AS v FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE design_id=?';
+            $sql2 = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)';
             foreach( $designs as $id ) {
-                $db->Execute($sql,[ (int)$id,$tplid,$i ]);
-                ++$i;
+				$mid = (int)$db->GetOne($sql,[ $id ]);
+                $db->Execute($sql2,[ (int)$id,$tplid,$mid + 1 ]);
             }
         }
 
