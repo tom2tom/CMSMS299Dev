@@ -1,5 +1,5 @@
 <?php
-#classes and utility functions for a theme or collection.
+#Class of utility functions for a design a.k.a. LayoutCollection.
 #Copyright (C) 2014-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,7 +21,7 @@
 use CMSMS\AdminUtils, CMSMS\Events;
 
 /**
- * A class to manage a collection (or theme) of Templates and Stylesheets
+ * A class to manage a design's assigned templates and/or stylesheets
  *
  * @package CMS
  * @license GPL
@@ -76,8 +76,8 @@ class CmsLayoutCollection
 	private static $_dflt_id;
 
 	/**
-	 * Get the theme id
-	 * Only themes that have been saved to the database have an id.
+	 * Get the design id
+	 * Only designs that have been saved to the database have an id.
 	 * @return int
 	 */
 	public function get_id()
@@ -86,7 +86,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Get the theme name
+	 * Get the design name
 	 * @return string
 	 */
 	public function get_name()
@@ -95,8 +95,8 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Set the theme name
-	 * This marks the theme as dirty
+	 * Set the design name
+	 * This marks the design as dirty
 	 *
 	 * @throws CmsInvalidDataException
 	 * @param string $str
@@ -112,7 +112,7 @@ class CmsLayoutCollection
 
 	/**
 	 * Get the default flag
-	 * Note, only one theme can be the default.
+	 * Note, only one design can be the default.
 	 *
 	 * @return bool
 	 */
@@ -121,11 +121,10 @@ class CmsLayoutCollection
 		return $this->_data['dflt'] ?? FALSE;
 	}
 
-
 	/**
-	 * Sets this theme as the default theme.
+	 * [Un]set this design as the default.
 	 * Sets the dirty flag.
-	 * Note, only one theme can be the default.
+	 * Note, only one design can be the default.
 	 *
 	 * @param bool $flag
 	 */
@@ -137,7 +136,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Get the theme description
+	 * Get the design description
 	 *
 	 * @return string
 	 */
@@ -147,7 +146,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Set the theme description
+	 * Set the design description
 	 *
 	 * @param string $str
 	 */
@@ -159,7 +158,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Get the creation date of this theme
+	 * Get the creation date of this design
 	 * The creation date is specified automatically on the first save
 	 *
 	 * @return int
@@ -170,7 +169,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Get the date of the last modification of this theme
+	 * Get the date of the last modification of this design
 	 *
 	 * @return int
 	 */
@@ -180,7 +179,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Test if this theme has stylesheets attached to it
+	 * Test if this design has stylesheets attached to it
 	 *
 	 * @return bool
 	 */
@@ -191,7 +190,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Get the list of stylesheets (if any) associated with this theme.
+	 * Get the list of stylesheets (if any) associated with this design.
 	 *
 	 * @return array of integers
 	 */
@@ -201,10 +200,10 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Set the list of stylesheets associated with this theme
+	 * Set the list of stylesheets associated with this design
 	 *
 	 * @throws CmsLogicException
-	 * @param array $id_array Array of integer stylesheet ids.
+	 * @param array $id_array Array of integer stylesheet id's.
 	 */
 	public function set_stylesheets($id_array)
 	{
@@ -219,7 +218,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Adds a stylesheet to the theme
+	 * Add a stylesheet to the design
 	 *
 	 * @throws CmsLogicException
 	 * @param mixed $css Either an integer stylesheet id, or a CmsLayoutStylesheet object
@@ -242,7 +241,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Delete a stylesheet from the list of stylesheets associated with this theme
+	 * Delete a stylesheet from the list of stylesheets associated with this design
 	 *
 	 * @throws CmsLogicException
 	 * @param mixed $css Either an integer stylesheet id, or a CmsLayoutStylesheet object
@@ -273,7 +272,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Test if this theme has templates associated with it
+	 * Test if this design has templates associated with it
 	 *
 	 * @return bool
 	 */
@@ -284,24 +283,23 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Return a list of the template ids associated with this template
+	 * Return a list of the template id's associated with this template
 	 *
-	 * @return array of integers
+	 * @return mixed array of integers | null
 	 */
 	public function get_templates()
 	{
-		$out = null;
-		if( !$this->get_id() ) return $out;
-		if( !$this->has_templates() ) return $out;
+		if( !$this->get_id() ) return null;
+		if( !$this->has_templates() ) return null;
 
 		return $this->_tpl_assoc;
 	}
 
 	/**
-	 * Set the list of templates associated with this theme
+	 * Set the list of templates associated with this design
 	 *
 	 * @throws CmsLogicException
-	 * @param array $id_array Array of integer template ids
+	 * @param array $id_array Array of integer template id's
 	 */
 	public function set_templates($id_array)
 	{
@@ -316,7 +314,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Add a template to the list of templates associated with this theme.
+	 * Add a template to the list of templates associated with this design.
 	 *
 	 * @throws CmsLogicException
 	 * @param mixed $tpl Accepts either an integer template id, or an instance of a CmsLayoutTemplate object
@@ -338,7 +336,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Remove a template from the list of the ones associated with this theme
+	 * Remove a template from the list of the ones associated with this design
 	 *
 	 * @throws CmsInvalidDataException
 	 * @param mixed $tpl Either an integer template id, or a CmsLayoutTemplate object
@@ -417,12 +415,12 @@ class CmsLayoutCollection
 			throw new CmsSQLErrorException($db->sql.' --1 '.$db->ErrorMsg());
 		}
 
-		$this->_data['id'] = $db->Insert_ID();
+		$did = $this->_data['id'] = $db->Insert_ID();
 
 		if( $this->get_default() ) {
 			$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET dflt = 0 WHERE id != ?';
 //			$dbr =
-			$db->Execute($query,[$this->get_id()]);
+			$db->Execute($query,[$did]);
 //USELESS			if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 
@@ -430,14 +428,14 @@ class CmsLayoutCollection
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::CSSTABLE.' (design_id,css_id,item_order) VALUES (?,?,?)';
 			for( $i = 0, $n = count($this->_css_assoc); $i < $n; $i++ ) {
 				$css_id = $this->_css_assoc[$i];
-				$dbr = $db->Execute($query,[$this->get_id(),$css_id,$i+1]);
+				$dbr = $db->Execute($query,[$did,$css_id,$i+1]);
 			}
 		}
 		if( $this->_tpl_assoc ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)';
 			for( $i = 0, $n = count($this->_tpl_assoc); $i < $n; $i++ ) {
 				$tpl_id = $this->_tpl_assoc[$i];
-				$dbr = $db->Execute($query,[$this->get_id(),$tpl_id,$i+1]);
+				$dbr = $db->Execute($query,[$did,$tpl_id,$i+1]);
 			}
 		}
 
@@ -454,37 +452,38 @@ class CmsLayoutCollection
 		if( !$this->_dirty ) return;
 		$this->validate();
 
+		$did = $this->get_id();
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ?, dflt = ?, modified = ? WHERE id = ?';
-		$dbr = $db->Execute($query,[$this->get_name(), $this->get_description(), ($this->get_default())?1:0, time(), $this->get_id()]);
+		$dbr = $db->Execute($query,[$this->get_name(), $this->get_description(), ($this->get_default())?1:0, time(), $did]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' --2 '.$db->ErrorMsg());
 
 		if( $this->get_default() ) {
 			$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET dflt = 0 WHERE id != ?';
 //			$dbr =
-			$db->Execute($query,[$this->get_id()]);
+			$db->Execute($query,[$did]);
 //USELESS			if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ?';
-		$db->Execute($query,[$this->get_id()]);
+		$db->Execute($query,[$did]);
 
 		if( $this->_css_assoc ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::CSSTABLE.' (design_id,css_id,item_order) VALUES (?,?,?)';
 			for( $i = 0, $n = count($this->_css_assoc); $i < $n; $i++ ) {
 				$css_id = $this->_css_assoc[$i];
-				$dbr = $db->Execute($query,[$this->get_id(),$css_id,$i+1]);
+				$dbr = $db->Execute($query,[$did,$css_id,$i+1]);
 			}
 		}
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TPLTABLE.' WHERE design_id = ?';
-		$db->Execute($query,[$this->get_id()]);
+		$db->Execute($query,[$did]);
 
 		if( $this->_tpl_assoc ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES (?,?,?)';
 			for( $i = 0, $n = count($this->_tpl_assoc); $i < $n; $i++ ) {
 				$tpl_id = $this->_tpl_assoc[$i];
-				$dbr = $db->Execute($query,[$this->get_id(),$tpl_id,$i+1]);
+				$dbr = $db->Execute($query,[$did,$tpl_id,$i+1]);
 			}
 		}
 
@@ -493,9 +492,9 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Save this theme
-	 * This method will send the AddDesignPre and AddDesignPost events before and after saving a new theme
-	 * and the EditDesignPre and EditDesignPost events before and after saving an existing theme.
+	 * Save this design
+	 * This method sends the AddDesignPre and AddDesignPost events before and after saving a new design
+	 * or the EditDesignPre and EditDesignPost events before and after saving an existing design.
 	 */
 	public function save()
 	{
@@ -511,15 +510,16 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Delete the current theme
-	 * This class will not allow deleting themes that still have templates associated with them.
+	 * Delete the current design
+	 * This method normally does nothing if this design has associated templates.
 	 *
 	 * @throws CmsLogicException
-	 * @param bool $force Force deleting the theme even if there are templates attached
+	 * @param bool $force Force deleting the design even if there are templates attached
 	 */
 	public function delete($force = FALSE)
 	{
-		if( !$this->get_id() ) return;
+		$did = $this->get_id();
+		if( !$did ) return;
 
 		if( !$force && $this->has_templates() ) {
 			throw new CmsLogicException('Cannot delete a design that has templates attached');
@@ -529,20 +529,20 @@ class CmsLayoutCollection
 		$db = CmsApp::get_instance()->GetDb();
 		if( $this->_css_assoc ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ?';
-			$dbr = $db->Execute($query,[$this->get_id()]);
+			$dbr = $db->Execute($query,[$did]);
 			$this->_css_assoc = [];
 			$this->_dirty = TRUE;
 		}
 
 		if( $this->_tpl_assoc ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TPLTABLE.' WHERE design_id = ?';
-			$dbr = $db->Execute($query,[$this->get_id()]);
+			$dbr = $db->Execute($query,[$did]);
 			$this->_tpl_assoc = [];
 			$this->_dirty = TRUE;
 		}
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-		$dbr = $db->Execute($query,[$this->get_id()]);
+		$dbr = $db->Execute($query,[$did]);
 
 		cms_notice('Design '.$this->get_name().' deleted');
 		Events::SendEvent( 'Core', 'DeleteDesignPost', [ get_class($this) => &$this ] );
@@ -574,10 +574,10 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Load a theme object
+	 * Load a design object
 	 *
 	 * @throws CmsDataNotFoundException
-	 * @param mixed $x - Accepts either an integer theme id, or a theme name,
+	 * @param mixed $x - Accepts either an integer design id, or a design name,
 	 * @return CmsLayoutCollection
 	 */
 	public static function load($x)
@@ -619,7 +619,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Load all themes
+	 * Load all designs
 	 *
 	 * @param string $quick Do not load the templates and stylesheets.
 	 * @return array Array of CmsLayoutCollection objects.
@@ -690,7 +690,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Load the default theme
+	 * Load the default design
 	 *
 	 * @throws CmsInvalidDataException
 	 * @return CmsLayoutCollection
@@ -711,7 +711,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Given a base name, suggest a name for a copied theme
+	 * Given a base name, suggest a name for a copied design
 	 *
 	 * @param string $newname
 	 * @return string
