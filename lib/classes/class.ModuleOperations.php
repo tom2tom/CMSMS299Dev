@@ -625,13 +625,13 @@ VALUES (?,?,?,'.$now.',NULL)');
 			$deps = $module_obj->GetDependencies();
 			if( $deps ) {
 				$now = $db->dbTimeStamp(time());
-				$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'module_deps
+				$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX."module_deps
 (parent_module,child_module,minimum_version,create_date,modified_date)
-VALUES (?,?,?,?,?)');
+VALUES (?,?,?,$now,$now)");
 				foreach( $deps as $depname => $depversion ) {
 					if( !$depname || !$depversion ) continue;
 //					$dbr =
-					$db->Execute($stmt,[$depname,$module_name,$depversion,$now,$now]);
+					$db->Execute($stmt,[$depname,$module_name,$depversion]);
 				}
 			}
 			$this->generate_moduleinfo( $module_obj );

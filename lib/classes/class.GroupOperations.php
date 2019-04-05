@@ -124,10 +124,11 @@ final class GroupOperations
 		$id = $group->id;
 		if( $id < 1 ) {
 			$id = $db->GenID(CMS_DB_PREFIX.'groups_seq');
-			$time = $db->DbTimeStamp(time());
-			$query = 'INSERT INTO '.CMS_DB_PREFIX.'groups (group_id, group_name, group_desc, active, create_date, modified_date)
-VALUES (?,?,?,?,'.$time.','.$time.')';
-			$dbr = $db->Execute($query, [$id, $group->name, $group->description, $group->active]);
+			$now = $db->DbTimeStamp(time());
+			$query = 'INSERT INTO '.CMS_DB_PREFIX."groups
+(group_id, group_name, group_desc, active, create_date, modified_date)
+VALUES ($id,?,?,?,$now,$now)";
+			$dbr = $db->Execute($query, [$group->name, $group->description, $group->active]);
 			return ($dbr != FALSE) ? $id : -1;
 		} else {
 			$sql = 'UPDATE '.CMS_DB_PREFIX.'groups SET group_name = ?, group_desc = ?, active = ?, modified_date = NOW() WHERE group_id = ?';
@@ -235,10 +236,11 @@ VALUES (?,?,?,?,'.$time.','.$time.')';
 		if( !$new_id ) return;
 
 		$now = $db->DbTimeStamp(time());
-		$query = 'INSERT INTO '.CMS_DB_PREFIX."group_perms (group_perm_id,group_id,permission_id,create_date,modified_date)
-VALUES (?,?,?,$now,NULL)";
+		$query = 'INSERT INTO '.CMS_DB_PREFIX."group_perms
+(group_perm_id,group_id,permission_id,create_date,modified_date)
+VALUES ($new_id,?,?,$now,$now)";
 // 		$dbr =
-		$db->Execute($query,[$new_id,$groupid,$permid]);
+		$db->Execute($query,[$groupid,$permid]);
 		self::$_perm_cache = null;
 	}
 

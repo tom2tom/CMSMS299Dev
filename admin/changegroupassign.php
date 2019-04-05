@@ -93,8 +93,9 @@ if (isset($_POST['submit'])) {
         $query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id = ? AND user_id != ?';
         $result = $db->Execute($query, [$onegroup->id,$userid]);
         $now = $db->DbTimeStamp(time());
-        $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.
-            'user_groups (group_id, user_id, create_date, modified_date) VALUES (?,?,'.$now.','.$now.')');
+        $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX."user_groups
+(group_id, user_id, create_date, modified_date)
+VALUES (?,?,$now,$now)");
 
         cleanArray($_POST);
         foreach ($_POST as $key=>$value) {

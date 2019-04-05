@@ -142,12 +142,12 @@ final class cms_siteprefs
         $now = $db->DbTimeStamp(time());
 		//self::exists() is uselsss here, it ignores null (hence '') values
 		//upsert TODO MySQL ON DUPLICATE KEY UPDATE useful here?
-		$query = "UPDATE $tbl SET sitepref_value=?,modified_date=? WHERE sitepref_name=?";
+		$query = "UPDATE $tbl SET sitepref_value=?,modified_date=$now WHERE sitepref_name=?";
 //		$dbr =
-		$db->Execute($query,[$value,$now,$key]);
+		$db->Execute($query,[$value,$key]);
 		$query = <<<EOS
 INSERT INTO $tbl (sitepref_name,sitepref_value,create_date)
-SELECT ?,?,{$now} FROM (SELECT 1 AS dmy) Z
+SELECT ?,?,$now FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM $tbl T WHERE T.sitepref_name=?)
 EOS;
 //		$dbr =
