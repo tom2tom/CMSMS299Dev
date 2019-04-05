@@ -394,7 +394,7 @@ class wizard_step3 extends wizard_step
         }
 
         // recommended test ... remote_url
-        $obj = new boolean_test('remote_url',test_remote_file('https://www.cmsmadesimple.org/latest_version.php',3,'cmsmadesimple'));
+        $obj = new boolean_test('remote_url',test_remote_file('https://www.cmsmadesimple.org/latest_version.php',10,'cmsmadesimple'));
         $obj->fail_key = 'fail_remote_url';
         $obj->warn_key = 'fail_remote_url';
         $tests[] = $obj;
