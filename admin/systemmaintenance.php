@@ -159,7 +159,8 @@ if (isset($_POST['updatehierarchy'])) {
 }
 
 // Setup types
-$contenttypes = $contentops->ListContentTypes(false, true);
+$realm = 'CMSContentManager'; //TODO generalize
+$contenttypes = $contentops->ListContentTypes(false, true, false, $realm);
 //print_r($contenttypes);
 $simpletypes = [];
 foreach ($contenttypes as $typeid => $typename) {
@@ -268,7 +269,7 @@ if ($exportable && isset($_POST['export'])) {
     $arr = installer_base::CONTENTXML;
     $xmlfile = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
 
-    include cms_join_path(CMS_ROOT_PATH,'phar_installer','lib','iosite.functions.php');
+    include cms_join_path(CMS_ROOT_PATH,'phar_installer','assets','install','iosite.functions.php');
     export_content($xmlfile, $filesin, $db);
     // also download it
     $handlers = ob_list_handlers();
