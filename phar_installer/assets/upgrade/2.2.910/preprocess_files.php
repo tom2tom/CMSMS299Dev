@@ -16,7 +16,24 @@ $admindir = $destdir . DIRECTORY_SEPARATOR . $s;
 $s = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
 $assetsdir = $destdir . DIRECTORY_SEPARATOR . $s;
 
-// 1. Create new folders, if necessary
+// 0. Rename folder if necessary
+$tp = $assetsdir . DIRECTORY_SEPARATOR . 'user_plugins';
+$fp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
+if (is_dir($fp)) {
+    @rename($fp, $tp);
+    touch($tp . DIRECTORY_SEPARATOR . 'index.html');
+} else {
+    $fp = $assetsdir . DIRECTORY_SEPARATOR . 'file_plugins';
+    if (is_dir($fp)) {
+        @rename($fp, $tp);
+        touch($tp . DIRECTORY_SEPARATOR . 'index.html');
+    } elseif (!is_dir($tp)) {
+        @mkdir($tp, 0771, true);
+        touch($tp . DIRECTORY_SEPARATOR . 'index.html');
+    }
+}
+
+// 1. Create new folders if necessary
 foreach ([
  ['admin','configs'],
  ['assets','admin_custom'],
