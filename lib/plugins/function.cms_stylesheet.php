@@ -276,14 +276,11 @@ function cms_stylesheet_toString($filename, $media_query = '', $media_type = '',
 	if( isset($params['nolinks']) )	{
 		$stylesheet .= $root_url.$filename.',';
 	} else {
-
 		if (!empty($media_query)) {
 			$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_query.'" />'."\n";
 		} elseif (!empty($media_type)) {
-
 			$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_type.'" />'."\n";
 		} else {
-
 			$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" />'."\n";
 		}
 	}
@@ -305,4 +302,3 @@ function smarty_cms_about_function_cms_stylesheet()
 </ul>
 EOS;
 }
-
