@@ -97,17 +97,17 @@ final class LockOperations
 	}
 
 	/**
-	 * Delete any locks that have expired.
+	 * Remove some or all expired locks.
 	 *
-	 * @param int $expires Delete locks older than this date (if not specified current time will be used).
-	 * @param string $type The type of locks to delete.  If not specified any locks can be deleted.
+	 * @param mixed $limit unix timestamp | null Delete locks older than this. Default current time.
+	 * @param string $type The type of locks to delete.  If not specified any type can be deleted.
 	 */
-	private static function delete_expired($expires = null,$type = null)
+	private static function delete_expired($limit = null,$type = null)
 	{
-		if( $expires == null ) $expires == time();
+		if( !$limit ) $limit == time();
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE.' WHERE expires < ?';
-		$parms = [$expires];
+		$parms = [$limit];
 		if( $type ) {
 			$query .= ' AND type = ?';
 			$parms[] = $type;
