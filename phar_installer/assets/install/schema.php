@@ -135,6 +135,7 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'admin_bookmarks', $msg_ret));
 
+//prop_names X(16384), unused since 2.0, removed 2.3
 $flds = '
 content_id I KEY,
 content_name C(255),
@@ -152,16 +153,15 @@ hierarchy C(255),
 menu_text C(255),
 content_alias C(255),
 id_hierarchy C(255),
-hierarchy_path X(2048),
-prop_names X(16384),
-metadata X(16384),
+hierarchy_path X(1024),
+metadata X(8192),
 titleattribute C(255),
 page_url C(255),
-tabindex C(10),
+tabindex I(4) DEFAULT 0,
 accesskey C(5),
 last_modified_by I,
-create_date DT,
-modified_date DT
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'content', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -212,8 +212,8 @@ param1 C(255),
 param2 C(255),
 param3 C(255),
 content X2,
-create_date DT,
-modified_date DT
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'content_props', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -271,8 +271,8 @@ $flds = '
 group_perm_id I KEY,
 group_id I,
 permission_id I,
-create_date DT,
-modified_date DT
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'group_perms', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -290,8 +290,8 @@ group_id I KEY,
 group_name C(25),
 group_desc C(255),
 active I(1) DEFAULT 1,
-create_date DT,
-modified_date DT
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'groups', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -317,8 +317,8 @@ $flds = '
 parent_module C(25),
 child_module C(25),
 minimum_version C(25),
-create_date DT,
-modified_date DT
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'module_deps', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -331,7 +331,7 @@ module_name C(160),
 template_name C(160),
 content X(TODO),
 create_date DT,
-modified_date DT
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL(
     CMS_DB_PREFIX.'module_templates',
@@ -365,8 +365,8 @@ permission_id I KEY,
 permission_name C(255),
 permission_text C(255),
 permission_source C(255),
-create_date DT,
-modified_date DT
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'permissions', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -376,8 +376,8 @@ verbose_msg(lang('install_created_table', 'permissions', $msg_ret));
 $flds = '
 sitepref_name C(255) KEY,
 sitepref_value text,
-create_date DT,
-modified_date DT
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'siteprefs', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -387,8 +387,8 @@ verbose_msg(lang('install_created_table', 'siteprefs', $msg_ret));
 $flds = '
 group_id I KEY,
 user_id I KEY,
-create_date DT,
-modified_date DT
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 //CHECKME separate index on user_id field ?
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'user_groups', $flds, $taboptarray);
@@ -423,8 +423,8 @@ last_name C(50),
 email C(255),
 admin_access I(1) DEFAULT 1,
 active I(1) DEFAULT 1,
-create_date DT,
-modified_date DT
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'users', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
