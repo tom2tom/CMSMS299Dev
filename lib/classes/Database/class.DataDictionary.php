@@ -217,8 +217,8 @@ class DataDictionary
             return $name;
         }
         // if name contains special characters, quote it
-        $regex = ($allowBrackets) ? '\w\(\)' : '\w';
-        if (!preg_match('/^['.$regex.']+$/', $name)) {
+        $patn = ($allowBrackets) ? '\w\(\)' : '\w';
+        if (preg_match('/[^'.$patn.']/', $name)) {
             return '`'.$name.'`';
         }
         return $name;
