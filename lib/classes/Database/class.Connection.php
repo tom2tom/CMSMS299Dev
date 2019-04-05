@@ -366,7 +366,7 @@ class Connection
     //// utilities
 
     /**
-     * Quote a string for use in a database command.
+     * Return a single-quoted and escaped version of $str e.g. for use in a database command.
      * The characters processed are: NUL (ASCII 0), \n, \r, \, ', ", and \Z (ASCII 26).
      * Warning: This method may require two way traffic with the database depending upon the database.
      *
@@ -376,7 +376,6 @@ class Connection
      */
     public function qStr($str)
     {
-        // note : DataDictionary quote-char is '`'
 		if ($str !== '') {
 	        return  "'".$this->_mysql->real_escape_string($str)."'";
 		}
@@ -398,7 +397,7 @@ class Connection
     }
 
 	/**
-     * qStr without surrounding quotes.
+     * qStr without surrounding single-quotes.
      *
      * @param string $str
      *
@@ -406,7 +405,10 @@ class Connection
      */
     public function addQ($str)
     {
-        return $this->_mysql->escape_string($str);
+        if ($str !== '') {
+            return $this->_mysql->escape_string($str);
+        }
+        return '';
     }
 
     /**
@@ -991,20 +993,21 @@ class Connection
      * string suitable for use in queries.
      *
      * @param mixed $time number, or string (e.g. from PHP Date()), or DateTime object
+     * @param bool $quoted optional flag whether to quote the returned string
      *
-     * @return quoted string representing server/local date & time, or 'NULL'
+     * @return mixed optionally quoted string representing server/local date & time, or NULL
      */
-    public function dbTimeStamp($time)
+    public function dbTimeStamp($time, $quoted = true)
     {
         if (empty($time) && !is_numeric($time)) {
-            return 'NULL';
+            return ($quoted) ? 'NULL' : null;
         }
 
         if (is_numeric($time)) {
             $time = (int)($time + 0);
         } elseif (is_string($time)) {
             if (strcasecmp($time, 'NULL') == 0) {
-                return 'NULL';
+                return ($quoted) ? 'NULL' : null;
             }
             $lvl = error_reporting(0);
             $time = strtotime($time);
@@ -1014,9 +1017,10 @@ class Connection
         }
 
         if ($time > 0) {
-            return $this->qStr(date('Y-m-d H:i:s', $time));
+            $date = date('Y-m-d H:i:s', $time);
+            return ($quoted) ? $this->qStr($date) : $this->addQ($date);
         }
-        return 'NULL';
+        return ($quoted) ? 'NULL' : null;
     }
 
     /**
