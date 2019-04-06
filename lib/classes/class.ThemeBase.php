@@ -753,7 +753,7 @@ abstract class ThemeBase
 
         ['name'=>'content','parent'=>'root',
         'url'=>'index.php'.$urlext.'&section=content',
-        'title'=>$this->_FixSpaces(lang('pages')),
+        'title'=>$this->_FixSpaces(lang('content')),
         'description'=>lang('contentdescription'),
         'priority'=>2,
         'show_in_menu'=>$this->HasPerm('contentPerms')],
