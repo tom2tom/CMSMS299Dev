@@ -190,9 +190,7 @@ final class LangOperations
 	 */
 	public static function lang_from_realm(...$args)
 	{
-		global $CMS_ADMIN_PAGE;
-		global $CMS_STYLESHEET;
-		global $CMS_INSTALL_PAGE;
+		global $CMS_ADMIN_PAGE, $CMS_STYLESHEET, $CMS_INSTALL_PAGE;
 
 		if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
 		if( count($args) < 2 ) return;
@@ -203,7 +201,7 @@ final class LangOperations
 
 		if( self::CMSMS_ADMIN_REALM == $realm &&
 			empty($CMS_ADMIN_PAGE) &&
-			empty($CMS_STYLESHEET) &&
+			!isset($CMS_STYLESHEET) &&
 			empty($CMS_INSTALL_PAGE) &&
 			!self::$_allow_nonadmin_lang ) {
 			trigger_error('Attempt to load admin realm from non admin action');
