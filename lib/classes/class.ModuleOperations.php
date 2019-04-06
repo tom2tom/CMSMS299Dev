@@ -515,7 +515,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 	{
 		global $CMS_ADMIN_PAGE;
 		global $CMS_STYLESHEET;
-		if( isset($CMS_STYLESHEET) ) return;
+		if( isset($CMS_STYLESHEET) ) return; // the cms_stylesheet plugin is running
 
 		debug_buffer('Load modules');
 		$allinfo = $this->_get_module_info();
@@ -550,9 +550,8 @@ VALUES (?,?,?,'.$now.',NULL)');
 	 */
 	public function InitModules()
 	{
-		global $CMS_ADMIN_PAGE;
-		global $CMS_STYLESHEET;
-		if( isset($CMS_STYLESHEET) ) return;
+		global $CMS_ADMIN_PAGE, $CMS_STYLESHEET;
+		if( isset($CMS_STYLESHEET) ) return; // the cms_stylesheet plugin is running
 
 		debug_buffer('Initialize modules');
 		$allinfo = $this->_get_module_info();

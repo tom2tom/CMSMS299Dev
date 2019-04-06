@@ -600,7 +600,7 @@ final class CmsApp
             if( isset($CMS_LOGIN_PAGE) ) $this->_states[] = self::STATE_LOGIN_PAGE; // files also set STATE_ADMIN_PAGE
             if( isset($CMS_ADMIN_PAGE) ) $this->_states[] = self::STATE_ADMIN_PAGE;
             if( isset($CMS_INSTALL_PAGE) ) $this->_states[] = self::STATE_INSTALL;
-            if( isset($CMS_STYLESHEET) ) $this->_states[] = self::STATE_STYLESHEET;
+            if( isset($CMS_STYLESHEET) ) $this->_states[] = self::STATE_STYLESHEET; // the cms_stylesheet plugin is running
         }
     }
 
