@@ -153,6 +153,10 @@ try {
         $tpl->assign('list_all_types',$tmp3)
          ->assign('list_types',$tmp2);
     }
+	else {
+        $tpl->assign('list_all_types',null)
+         ->assign('list_types',null);
+	}
 
     $locks = LockOperations::get_locks('template');
     $tpl->assign('have_locks',$locks ? count($locks) : 0)

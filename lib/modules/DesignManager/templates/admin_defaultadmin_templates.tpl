@@ -40,6 +40,7 @@
 </div>{* #filterdialog *}
 
 {if $has_add_right}
+ {if $list_types}
 <div id="addtemplatedialog" style="display: none;" title="{$mod->Lang('create_template')}">
   {form_start id="addtemplate_form"}
   <input type="hidden" name="{$actionid}submit_create" value="1" />
@@ -55,4 +56,5 @@
   </div>
   </form>
 </div>{* #addtemplatedialog *}
+ {/if}
 {/if}

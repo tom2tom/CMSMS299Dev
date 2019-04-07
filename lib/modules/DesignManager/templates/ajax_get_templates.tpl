@@ -74,9 +74,12 @@ $('#tpl_selall').cmsms_checkall();
 
       {* template type column *}
       <td>
-        {$type_id=$template->get_type_id()}
+      {if $list_types}{$type_id=$template->get_type_id()}
         {include file='module_file_tpl:DesignManager;admin_defaultadmin_tpltype_tooltip.tpl' assign='tpltype_tooltip'}
         <span class="tooltip" data-cms-description='{$tpltype_tooltip}'>{$list_types.$type_id}</span>
+      {else}
+        {lang('none')}
+      {/if}
       </td>
 
       {* filename column *}
@@ -99,7 +102,7 @@ $('#tpl_selall').cmsms_checkall();
 
       {* default column *}
       <td>
-        {$the_type=$list_all_types.$type_id}
+       {if $list_all_types}{$the_type=$list_all_types.$type_id}
         {if $the_type->get_dflt_flag()}
           {if $template->get_type_dflt()}
            {admin_icon icon='true.gif' title=$mod->Lang('prompt_dflt_tpl')}
@@ -107,8 +110,9 @@ $('#tpl_selall').cmsms_checkall();
            {admin_icon icon='false.gif' title=$mod->Lang('prompt_notdflt_tpl')}
           {/if}
         {else}
-        <span title="{$mod->Lang('prompt_title_na')}">{$mod->Lang('prompt_na')}</span>
+         <span title="{$mod->Lang('prompt_title_na')}">{$mod->Lang('prompt_na')}</span>
         {/if}
+       {/if}
       </td>
 {*
       { * edit/copy/steal icons * }
