@@ -1,5 +1,5 @@
 <?php
-#Class for managing template categories.
+#Class for managing template groups/categories.
 #Copyright (C) 2014-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,14 +16,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//namespace CMSMS;
+//namespace CMSMS; CMSMS\TemplatesGroup
 
 use CMSMS\AdminUtils;
 
 /**
- * A class representing a template category.
+ * A class representing a templates group.
  *
- * Templates can be optionally organized into categories, this class manages the category itself.
+ * Templates can be organized into groups (aka categories), this class manages the group itself.
  *
  * @package CMS
  * @license GPL
@@ -40,7 +40,8 @@ class CmsLayoutTemplateCategory
 	/**
 	 * @ignore
 	 */
-	const TPLTABLE  = 'layout_cat_tplassoc';
+	const MEMBERSTABLE  = 'layout_tplcat_members';
+	const TPLTABLE  = 'layout_tplcat_members'; //deprecated since 2.3
 
 	/**
 	 * @ignore
@@ -53,9 +54,9 @@ class CmsLayoutTemplateCategory
 	private $_data = [];
 
 	/**
-	 * Get the category id
+	 * Get the group id
 	 *
-	 * @return mixed int | null if this category hasn't been saved
+	 * @return mixed int | null if this group hasn't been saved
 	 */
 	public function get_id()
 	{
@@ -63,7 +64,7 @@ class CmsLayoutTemplateCategory
 	}
 
 	/**
-	 * Get the category name
+	 * Get the group name
 	 *
 	 * @return string
 	 */
@@ -73,12 +74,12 @@ class CmsLayoutTemplateCategory
 	}
 
 	/**
-	 * Set the category name.
+	 * Set the group name.
 	 *
-	 * The category name must be unique, and can only contain certain characters.
+	 * The group name must be unique, and can only contain certain characters.
 	 *
 	 * @throws CmsInvalidDataException
-	 * @param sting $str The template-category name. Valid per AdminUtils::is_valid_itemname()
+	 * @param sting $str The templates-group name. Valid per AdminUtils::is_valid_itemname()
 	 */
 	public function set_name($str)
 	{
@@ -92,7 +93,7 @@ class CmsLayoutTemplateCategory
 	}
 
 	/**
-	 * Get the category description
+	 * Get the group description
 	 *
 	 * @return string
 	 */
@@ -102,7 +103,7 @@ class CmsLayoutTemplateCategory
 	}
 
 	/**
-	 * Set the category description
+	 * Set the group description
 	 *
 	 * @param string $str The description (maybe empty)
 	 */
@@ -113,40 +114,33 @@ class CmsLayoutTemplateCategory
 		$this->_dirty = TRUE;
 	}
 
-	/**
-	 * Get the category order
-	 *
-	 * @return int
-	 */
-	public function get_item_order()
+	private function get_stamp($datetime)
 	{
-		return $this->_data['item_order'] ?? 0;
+		$dt = new DateTime('@0',null);
+		$dt->modify($datetime);
+		return $dt->getTimestamp();
+	}
+
+   /**
+	* Get the timestamp for when this group was first saved.
+	*
+	* @return int UNIX UTC timestamp. Default 0.
+	*/
+	public function get_created()
+	{
+		$str = $this->_data['create_date'] ?? null;
+		return ($str !== null) ? $this->get_stamp($str) : 0;
 	}
 
 	/**
-	 * Set the item order.
+	 * Get the timestamp for when this group was last saved
 	 *
-	 * The item order must be > 0, unique and incremental
-	 * No validation is done on the item order in this method.
-	 *
-	 * @param int $idx
-	 */
-	public function set_item_order($idx)
-	{
-		$idx = (int)$idx;
-		if( $idx < 1 ) return;
-		$this->_data['item_order'] = $idx;
-		$this->_dirty = TRUE;
-	}
-
-	/**
-	 * Get the date that this category was last saved to the database
-	 *
-	 * @return int The unix timestamp from the database
+	 * @return int UNIX UTC timestamp. Default 0.
 	 */
 	public function get_modified()
 	{
-		return $this->_data['modified'] ?? 0;
+		$str = $this->_data['modified_date'] ?? null;
+		return ($str !== null) ? $this->get_stamp($str) : 0;
 	}
 
 	/**
@@ -155,9 +149,9 @@ class CmsLayoutTemplateCategory
 	 */
 	protected function validate()
 	{
-		if( !$this->get_name() ) throw new CmsInvalidDataException('A template categoy must have a name');
+		if( !$this->get_name() ) throw new CmsInvalidDataException('A template group must have a name');
 		if( !AdminUtils::is_valid_itemname($this->get_name()) ) {
-			throw new CmsInvalidDataException('Name must contain only letters, numbers and underscores.');
+			throw new CmsInvalidDataException('Name may contain only letters, numbers and underscores.');
 		}
 
 		$db = cmsms()->GetDb();
@@ -171,7 +165,7 @@ class CmsLayoutTemplateCategory
 			$tmp = $db->GetOne($query,[$this->get_name(),$cid]);
 		}
 		if( $tmp ) {
-			throw new CmsInvalidDataException('A template categoy with the same name already exists');
+			throw new CmsInvalidDataException('A template group with the same name already exists');
 		}
 	}
 
@@ -183,24 +177,17 @@ class CmsLayoutTemplateCategory
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		$db = cmsms()->GetDb();
-		$query = 'SELECT max(item_order) FROM '.CMS_DB_PREFIX.self::TABLENAME;
-		$item_order = $db->GetOne($query);
-		if( !$item_order ) $item_order = 0;
-		$item_order++;
-		$this->_data['item_order'] = $item_order;
-
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description,item_order,modified) VALUES (?,?,?,?)';
+		//,modified
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)'; //,?
 		$dbr = $db->Execute($query,[
 			$this->get_name(),
 			$this->get_description(),
-			$this->get_item_order(),
-			time()
+//			time()
 		]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		$cid = $this->_data['id'] = $db->Insert_ID();
 		$this->_dirty = FALSE;
-		audit($cid,'CMSMS','Template Category Created');
+		audit($cid,'CMSMS','Templates Group Created');
 	}
 
 	/**
@@ -212,18 +199,17 @@ class CmsLayoutTemplateCategory
 		$this->validate();
 
 		$db = cmsms()->GetDb();
-		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ?, item_order = ?, modified = ? WHERE id = ?';
+		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?'; //, modified = ?
 //		$dbr =
 		$db->Execute($query,[
 			$this->get_name(),
 			$this->get_description(),
-			$this->get_item_order(),
-			time(),
+//			time(),
 			(int)$this->get_id()
 		]);
 //USELESS		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		$this->_dirty = FALSE;
-		audit($this->get_id(),'CMSMS','Template Category Updated');
+		audit($this->get_id(),'CMSMS','Templates Group Updated');
 	}
 
 	/**
@@ -255,11 +241,7 @@ class CmsLayoutTemplateCategory
 		$dbr = $db->Execute($query,[$cid]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
-		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET item_order = item_order - 1 WHERE item_order > ?';
-		$db->Execute($query,[$this->_data['item_order']]);
-
-		audit($cid,'CMSMS','Template Category Deleted');
-		unset($this->_data['item_order']);
+		audit($cid,'CMSMS','Templates Group Deleted');
 		unset($this->_data['id']);
 		$this->_dirty = TRUE;
 	}
@@ -275,10 +257,10 @@ class CmsLayoutTemplateCategory
 	}
 
 	/**
-	 * Load a category object from the database
+	 * Load a group object from the database
 	 *
 	 * @throws CmsDataNotFoundException
-	 * @param int|string $val Either the integer category id, or the category name
+	 * @param int|string $val Either the integer group id, or the group name
 	 * @return self
 	 */
 	public static function load($val)
@@ -293,7 +275,7 @@ class CmsLayoutTemplateCategory
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
 			$row = $db->GetRow($query,[$val]);
 		}
-		if( !$row ) throw new CmsDataNotFoundException('Could not find template category identified by '.$val);
+		if( !$row ) throw new CmsDataNotFoundException('Could not find template group identified by '.$val);
 
 		return self::_load_from_data($row);
 	}
@@ -301,18 +283,18 @@ class CmsLayoutTemplateCategory
 	/**
 	 * Load a set of categories from the database
 	 *
-	 * @param string $prefix An optional category name prefix.
-	 * @return array Array of CmsLayoutTemplateCategory objects
+	 * @param string $prefix An optional group-name prefix.
+	 * @return array of CmsLayoutTemplateCategory objects
 	 */
 	public static function get_all($prefix = '')
 	{
 		$db = cmsms()->GetDb();
 		if( $prefix ) {
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE ? ORDER BY item_order ASC';
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE ? ORDER BY name';
 			$res = $db->GetArray($query,[$prefix.'%']);
 		}
 		else {
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY item_order ASC';
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY name';
 			$res = $db->GetArray($query);
 		}
 		if( $res ) {
