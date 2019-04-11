@@ -16,9 +16,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//namespace CMSMS;
+//namespace DesignManager;
 
-use CMSMS\AdminUtils, CMSMS\Events;
+use CMSMS\AdminUtils;
+use CMSMS\Events;
 
 /**
  * A class to manage a design's assigned templates and/or stylesheets
@@ -28,6 +29,7 @@ use CMSMS\AdminUtils, CMSMS\Events;
  * @since 2.0
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
+//class Design
 class CmsLayoutCollection
 {
 	/**
@@ -113,26 +115,23 @@ class CmsLayoutCollection
 	/**
 	 * Get the default flag
 	 * Note, only one design can be the default.
+	 * @deprecated since 2.3 there is no such thing as a default design
 	 *
 	 * @return bool
 	 */
 	public function get_default()
 	{
-		return $this->_data['dflt'] ?? FALSE;
+		return false;
 	}
 
 	/**
 	 * [Un]set this design as the default.
-	 * Sets the dirty flag.
-	 * Note, only one design can be the default.
+	 * @deprecated since 2.3 there is no such thing as a default design
 	 *
 	 * @param bool $flag
 	 */
 	public function set_default($flag)
 	{
-		$flag = (bool)$flag;
-		$this->_data['dflt'] = $flag;
-		$this->_dirty = TRUE;
 	}
 
 	/**
@@ -158,28 +157,31 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Get the creation date of this design
-	 * The creation date is specified automatically on the first save
+	 * Get the timestamp for when this design was first saved
 	 *
-	 * @return int
+	 * @return int unix timestamp Default 0
 	 */
 	public function get_created()
 	{
-		return $this->_data['created'] ?? 0;
+		//TODO DT field for created
+		$str = $this->_data['create_date'] ?? null;
+		return ($str !== null) ? cms_to_stamp($str) : 0;
 	}
 
 	/**
-	 * Get the date of the last modification of this design
+	 * Get the timestamp for when this design was last saved
 	 *
-	 * @return int
+	 * @return int unix timestamp Default 0
 	 */
 	public function get_modified()
 	{
-		return $this->_data['modified'] ?? 0;
+		//TODO DT field for modified
+		$str = $this->_data['modified_date'] ?? null;
+		return ($str !== null) ? cms_to_stamp($str) : 0;
 	}
 
 	/**
-	 * Test if this design has stylesheets attached to it
+	 * Return whether this design has stylesheet(s) assigned to it
 	 *
 	 * @return bool
 	 */
@@ -190,7 +192,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Get the list of stylesheets (if any) associated with this design.
+	 * Get the list of stylesheets (if any) assigned to this design.
 	 *
 	 * @return array of integers
 	 */
@@ -200,10 +202,10 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Set the list of stylesheets associated with this design
+	 * Set the list of stylesheets (maybe none) assigned to this design
 	 *
 	 * @throws CmsLogicException
-	 * @param array $id_array Array of integer stylesheet id's.
+	 * @param array $id_array integer stylesheet id's, or maybe empty
 	 */
 	public function set_stylesheets($id_array)
 	{
@@ -241,7 +243,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Delete a stylesheet from the list of stylesheets associated with this design
+	 * Delete a stylesheet from the list of stylesheets assigned to this design
 	 *
 	 * @throws CmsLogicException
 	 * @param mixed $css Either an integer stylesheet id, or a CmsLayoutStylesheet object
@@ -272,7 +274,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Test if this design has templates associated with it
+	 * Test if this design has templates assigned to it
 	 *
 	 * @return bool
 	 */
@@ -283,7 +285,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Return a list of the template id's associated with this template
+	 * Return a list of the template id's assigned to this template
 	 *
 	 * @return mixed array of integers | null
 	 */
@@ -296,14 +298,14 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Set the list of templates associated with this design
+	 * Set the list of templates (maybe none) assigned to this design
 	 *
 	 * @throws CmsLogicException
-	 * @param array $id_array Array of integer template id's
+	 * @param array $id_array Array of integer template id's, or maybe empty
 	 */
 	public function set_templates($id_array)
 	{
-		if( !is_array($id_array) ) return;
+		if( !($id_array) ) return;
 
 		foreach( $id_array as $one ) {
 			if( !is_numeric($one) && $one < 1 ) throw new CmsLogicException('CmsLayoutCollection::set_templates expects an array of integers');
@@ -314,7 +316,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Add a template to the list of templates associated with this design.
+	 * Add a template to the list of templates assigned to this design.
 	 *
 	 * @throws CmsLogicException
 	 * @param mixed $tpl Accepts either an integer template id, or an instance of a CmsLayoutTemplate object
@@ -336,7 +338,7 @@ class CmsLayoutCollection
 	}
 
 	/**
-	 * Remove a template from the list of the ones associated with this design
+	 * Remove a template from the list of the ones assigned to this design
 	 *
 	 * @throws CmsInvalidDataException
 	 * @param mixed $tpl Either an integer template id, or a CmsLayoutTemplate object
@@ -408,22 +410,24 @@ class CmsLayoutCollection
 		$this->validate();
 
 		$db = CmsApp::get_instance()->GetDb();
-		$query = 'INSERT INtO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description,dflt,created,modified) VALUES (?,?,?,?,?)';
-		$now = time();
-		$dbr = $db->Execute($query,[$this->get_name(), $this->get_description(), ($this->get_default())?1:0, $now, $now]);
+		//TODO DT fields for created, modified
+		// ,dflt,created,modified
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)'; //,?,?,?
+//		$now = time();
+		$dbr = $db->Execute($query,[$this->get_name(), $this->get_description()]); // , ($this->get_default())?1:0, $now, $now
 		if( !$dbr ) {
 			throw new CmsSQLErrorException($db->sql.' --1 '.$db->ErrorMsg());
 		}
 
 		$did = $this->_data['id'] = $db->Insert_ID();
-
+/*
 		if( $this->get_default() ) {
 			$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET dflt = 0 WHERE id != ?';
 //			$dbr =
 			$db->Execute($query,[$did]);
 //USELESS			if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
-
+*/
 		if( $this->_css_assoc ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::CSSTABLE.' (design_id,css_id,item_order) VALUES (?,?,?)';
 			for( $i = 0, $n = count($this->_css_assoc); $i < $n; $i++ ) {
@@ -454,17 +458,17 @@ class CmsLayoutCollection
 
 		$did = $this->get_id();
 		$db = CmsApp::get_instance()->GetDb();
-		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ?, dflt = ?, modified = ? WHERE id = ?';
-		$dbr = $db->Execute($query,[$this->get_name(), $this->get_description(), ($this->get_default())?1:0, time(), $did]);
+		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?'; //, dflt = ?, modified = ?
+		$dbr = $db->Execute($query,[$this->get_name(), $this->get_description(), $did]); //, ($this->get_default())?1:0, time(),
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' --2 '.$db->ErrorMsg());
-
+/*
 		if( $this->get_default() ) {
 			$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET dflt = 0 WHERE id != ?';
 //			$dbr =
 			$db->Execute($query,[$did]);
 //USELESS			if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
-
+*/
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ?';
 		$db->Execute($query,[$did]);
 
@@ -514,19 +518,20 @@ class CmsLayoutCollection
 	 * This method normally does nothing if this design has associated templates.
 	 *
 	 * @throws CmsLogicException
-	 * @param bool $force Force deleting the design even if there are templates attached
+	 * @param bool $force Force deleting the design even if there are templates assigned
 	 */
 	public function delete($force = FALSE)
 	{
 		$did = $this->get_id();
 		if( !$did ) return;
-
+/*
 		if( !$force && $this->has_templates() ) {
-			throw new CmsLogicException('Cannot delete a design that has templates attached');
+			throw new CmsLogicException('Cannot delete a design that has templates assigned');
 		}
-
+*/
 		Events::SendEvent( 'Core', 'DeleteDesignPre', [ get_class($this) => &$this ] );
 		$db = CmsApp::get_instance()->GetDb();
+/*
 		if( $this->_css_assoc ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ?';
 			$dbr = $db->Execute($query,[$did]);
@@ -540,7 +545,7 @@ class CmsLayoutCollection
 			$this->_tpl_assoc = [];
 			$this->_dirty = TRUE;
 		}
-
+*/
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$dbr = $db->Execute($query,[$did]);
 
@@ -604,12 +609,12 @@ class CmsLayoutCollection
 
 		if( !$row ) throw new CmsDataNotFoundException('Could not find design row identified by '.$x);
 
-		// get attached css
+		// get assigned stylesheets
 		$query = 'SELECT css_id FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ? ORDER BY item_order';
 		$tmp = $db->GetCol($query,[(int) $row['id']]);
 		if( $tmp ) $row['css'] = $tmp;
 
-		// get attached templates
+		// get assigned templates
 		$query = 'SELECT tpl_id FROM '.CMS_DB_PREFIX.self::TPLTABLE.' WHERE design_id = ?';
 		$tmp = $db->GetCol($query,[(int) $row['id']]);
 		if( $tmp ) $row['templates'] = $tmp;
@@ -691,13 +696,14 @@ class CmsLayoutCollection
 
 	/**
 	 * Load the default design
+	 * @deprecated since 2.3 there is no such thing as a default design
 	 *
 	 * @throws CmsInvalidDataException
 	 * @return CmsLayoutCollection
 	 */
 	public static function load_default()
 	{
-		$tmp = null;
+/*		$tmp = null;
 		if( self::$_dflt_id == '' ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE dflt = 1';
 			$db = CmsApp::get_instance()->GetDb();
@@ -706,8 +712,8 @@ class CmsLayoutCollection
 		}
 
 		if( self::$_dflt_id > 0 ) return self::load(self::$_dflt_id);
-
 		throw new CmsInvalidDataException('There is no default design');
+*/
 	}
 
 	/**
@@ -734,4 +740,4 @@ class CmsLayoutCollection
 	}
 } // class
 
-class_alias('CmsLayoutCollection','CmsLayoutDesign');
+//class_alias('DesignManager\Design','CmsLayoutCollection',false);
