@@ -2,17 +2,24 @@
 
 namespace cms_installer\wizard;
 
-use cms_installer\session;
 use cms_config;
+use cms_installer\installer_base;
+use cms_installer\session;
 use CMSMS\AdminUtils;
 use CMSMS\ModuleOperations;
 use Exception;
 use const CMS_DB_PREFIX;
+use const CMS_VERSION;
+use const CONFIG_FILE_LOCATION;
+use const TMP_CACHE_LOCATION;
+use const TMP_TEMPLATES_C_LOCATION;
+use function audit;
+use function cms_installer\get_app;
 use function cms_installer\lang;
 use function cms_installer\smarty;
-use function cms_installer\get_app;
 use function cms_module_places;
 use function cmsms;
+use function endswith;
 
 class wizard_step9 extends wizard_step
 {
@@ -146,6 +153,40 @@ VALUES (?,?,?,NOW(),NOW())');
                     }
                 }
             }
+        }
+
+/* See xml files
+        $this->message(lang('install_core_template_types'));
+        require_once $dir.DIRECTORY_SEPARATOR.'core_tpl_types.php';
+*/
+        // site content
+        $siteinfo = $this->get_wizard()->get_data('siteinfo');
+        if( !$siteinfo ) throw new Exception(lang('error_internal',901));
+        if( !empty($siteinfo['samplecontent']) ) {
+            $arr = installer_base::CONTENTXML;
+            $fn = end($arr);
+        } else {
+            $fn = 'initial.xml';
+        }
+        $xmlfile = $dir . DIRECTORY_SEPARATOR . $fn;
+        if( is_file($xmlfile) ) {
+            $arr = installer_base::CONTENTFILESDIR;
+            $filesfolder = $dir . DIRECTORY_SEPARATOR . end($arr);
+
+            require_once $dir.DIRECTORY_SEPARATOR.'iosite.functions.php';
+
+            if( $fn != 'initial.xml' ) {
+                $this->message(lang('install_samplecontent'));
+            }
+            if( ($res = import_content($xmlfile, $filesfolder)) ) {
+                $this->error($res);
+            }
+            // update pages hierarchy
+            $this->verbose(lang('install_updatehierarchy'));
+            $contentops = cmsms()->GetContentOperations();
+            $contentops->SetAllHierarchyPositions();
+        } else {
+            $this->error(lang('error_nocontent',$fn));
         }
 
         // write history

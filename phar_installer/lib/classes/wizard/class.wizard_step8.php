@@ -3,18 +3,16 @@
 namespace cms_installer\wizard;
 
 use cms_config;
-use cms_installer\installer_base;
+use cms_installer\wizard\wizard_step;
 use cms_siteprefs;
 use CmsApp;
 use CMSMS\ThemeBase;
-use Exception;
+use PHPMailer\PHPMailer\Exception;
 use const CMS_DB_PREFIX;
-use function cms_installer\lang;
-use function cms_installer\smarty;
 use function cms_installer\get_app;
-use function cmsms;
+use function cms_installer\smarty;
 use function GetDb;
-use function import_content;
+use function lang;
 use function verbose_msg;
 
 class wizard_step8 extends wizard_step
@@ -68,7 +66,7 @@ class wizard_step8 extends wizard_step
         $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',700));
 
-		$wiz = $this->get_wizard();
+        $wiz = $this->get_wizard();
         $adminaccount = $wiz->get_data('adminaccount');
         if( !$adminaccount ) throw new Exception(lang('error_internal',701));
 
@@ -139,6 +137,8 @@ class wizard_step8 extends wizard_step
              'enablesitedownmessage' => 0,
              'frontendlang' => 'en_US',
              'global_umask' => '022',
+             'lock_refresh', 120,
+             'lock_timeout', 60,
              'loginmodule' => '',  // login  processing by current theme
              'logintheme' => reset($arr),
              'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
@@ -153,38 +153,6 @@ class wizard_step8 extends wizard_step
 
             // permisssions etc
             require_once $dir.DIRECTORY_SEPARATOR.'base.php';
-/* See xml files
-            $this->message(lang('install_core_template_types'));
-            require_once $dir.DIRECTORY_SEPARATOR.'core_tpl_types.php';
-*/
-            // site content
-            if( !empty($siteinfo['samplecontent']) ) {
-                $arr = installer_base::CONTENTXML;
-                $fn = end($arr);
-            } else {
-                $fn = 'initial.xml';
-            }
-            $xmlfile = $dir . DIRECTORY_SEPARATOR . $fn;
-            if( is_file($xmlfile) ) {
-                $arr = installer_base::CONTENTFILESDIR;
-                $filesfolder = $dir . DIRECTORY_SEPARATOR . end($arr);
-
-                require_once $dir.DIRECTORY_SEPARATOR.'iosite.functions.php';
-
-                if( $fn != 'initial.xml' ) {
-                    $this->message(lang('install_samplecontent'));
-                }
-                if( ($res = import_content($xmlfile, $filesfolder)) ) {
-                    $this->error($res);
-                }
-            } else {
-                $this->error(lang('error_nocontent',$fn));
-            }
-
-            // update pages hierarchy
-            $this->verbose(lang('install_updatehierarchy'));
-            $contentops = cmsms()->GetContentOperations();
-            $contentops->SetAllHierarchyPositions();
         }
         catch( Exception $e ) {
             die('exception: '.$e->GetMessage());
