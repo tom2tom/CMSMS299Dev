@@ -1357,6 +1357,104 @@ a.ecommerce::before, h3.ecommerce::before {
     border-bottom: 1px solid #fa8004
 }
 
+/*** popup context menu ***/
+
+.ContextMenu {
+    display: none;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    position: fixed;
+    padding: 9px;
+    max-width: 250px;
+/* min-width: 200px;   */
+    max-height: 400px;
+    background-color: #f9f9f9;
+    font-size: 14px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.ContextMenu > label {
+    height: 25px;
+    width: 100%;
+    margin: 0px;
+    text-align: left;
+    color: #337ab7;
+    margin-bottom: 10px;
+}
+#menus .ContextMenu > ul {
+    margin: 0;
+}
+.ContextMenu > ul {
+    max-width: 250px;
+    max-height: 360px;
+    overflow: auto;
+}
+.ContextMenu.active {
+    display: block;
+    box-shadow: 0 4px 5px 0 rgba(0, 0, 0, .14), 0 1px 10px 0 rgba(0, 0, 0, .12), 0 2px 4px -1px rgba(0, 0, 0, .2);
+}
+.ContextMenu ul {
+    list-style-type:none;
+}
+.ContextMenu ul ul {
+    padding: 0;
+    margin: 0;
+}
+.ContextMenu > ul > ul {
+    margin-bottom: 1px;
+}
+.ContextMenu > ul > ul > li:not(:last-child) {
+    border-bottom: 1px solid #ddd;
+}
+.ContextMenu li {
+    margin-bottom: 10px;
+/* min-width: 100px; */
+}
+.ContextMenu li:last-child {
+    margin-bottom: 0px;
+}
+.ContextMenu li:hover > span {
+    color: #e88d00;
+}
+.ContextMenu li:hover {
+    cursor: pointer;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+}
+.ContextMenu label span.glyphicon {
+    margin-right: 5px;
+    padding-right: 5px;
+    font-size: 18px;
+}
+.ContextMenu li span.glyphicon {
+    margin-right: 5px;
+    padding-right: 5px;
+    font-size: 18px;
+    border-right: 1px solid #ddd;
+}
+.ContextMenu ul li ul.sub-level {
+    display: none;
+    margin-top: 10px;
+}
+.ContextMenu ul li ul.sub-level.active {
+    display: block;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 5px;
+}
+.ContextMenu ul > li > ul.sub-level.active {
+    background-color: #fcf8e3;
+}
+.ContextMenu ul > li > ul.sub-level.active > ul li ul.sub-level.active {
+    background-color: #fff;
+    font-style: italic;
+    font-size: 12px;
+}
+
 /*** footer ***/
 
 footer#mg_footer {
