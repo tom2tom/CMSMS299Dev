@@ -617,6 +617,15 @@
     </div>
     <div class="pageoverflow">
       <p class="pagetext">
+        {$t=lang('admin_lock_refresh')}<label for="lock_refresh">{$t}:</label>
+        {cms_help key2='settings_lock_refresh' title=$t}
+      </p>
+      <p class="pageinput">
+        <input type="text" id="lock_refresh" name="lock_refresh" size="4" value="{$lock_refresh}" />
+      </p>
+    </div>
+    <div class="pageoverflow">
+      <p class="pagetext">
         {$t=lang('adminlog_lifetime')}<label for="adminlog">{$t}:</label>
         {cms_help key2='settings_adminlog_lifetime' title=$t}
       </p>
