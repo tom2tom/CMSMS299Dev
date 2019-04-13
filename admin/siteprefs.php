@@ -17,8 +17,8 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminUtils;
-use CMSMS\contenttypes\content;
-use CMSMS\contenttypes\ContentBase;
+use CMSContentManager\contenttypes\Content;
+use CMSContentManager\ContentBase;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\internal\module_meta;
@@ -300,12 +300,14 @@ if (isset($_POST['submit'])) {
                 break;
             case 'advanced':
                 cms_siteprefs::set('loginmodule', trim($_POST['login_module']));
-                cms_siteprefs::set('lock_timeout', (int) $_POST['lock_timeout']);
-
-                $val = trim($_POST['smarty_cachelife']);
-                if ($val !== '') {
-                    $val = (int)$val;
-                } else {
+				$val = (int)$_POST['lock_timeout'];
+				if ($val != 0) $val = max(5,min(480,$val));
+                cms_siteprefs::set('lock_timeout', $val);
+				$val = (int)$_POST['lock_refresh'];
+				if ($val != 0) $val = max(30,min(3540,$val));
+                cms_siteprefs::set('lock_refresh', $val);
+                $val = (int)$_POST['smarty_cachelife'];
+                if ($val < 1) {
                     $val = -1;
                 }
                 cms_siteprefs::set('smarty_cachelife', $val);
@@ -387,6 +389,7 @@ $enablesitedownmessage = cms_siteprefs::get('enablesitedownmessage', 0);
 $frontendlang = cms_siteprefs::get('frontendlang', '');
 $frontendwysiwyg = cms_siteprefs::get('frontendwysiwyg', '');
 $global_umask = cms_siteprefs::get('global_umask', '022');
+$lock_refresh = (int)cms_siteprefs::get('lock_refresh', 120);
 $lock_timeout = (int)cms_siteprefs::get('lock_timeout', 60);
 $login_module = cms_siteprefs::get('loginmodule', '');
 $logintheme = cms_siteprefs::get('logintheme', 'default');
@@ -727,6 +730,7 @@ $smarty->assign('helpicon', $theme->DisplayImage('icons/system/info.png', 'help'
   ->assign('frontendlang', $frontendlang)
   ->assign('frontendwysiwyg', $frontendwysiwyg)
   ->assign('global_umask', $global_umask)
+  ->assign('lock_refresh', $lock_refresh)
   ->assign('lock_timeout', $lock_timeout)
   ->assign('login_module', $login_module)
   ->assign('logoselect', $logoselector)
@@ -764,7 +768,7 @@ $smarty->assign('adminlog_options', $tmp);
 
 $all_attributes = null;
 
-$content_obj = new content(); // i.e. the default content-type
+$content_obj = new Content(); // i.e. the default content-type
 $list = $content_obj->GetPropertiesArray();
 if ($list) {
     $all_attributes = [];
@@ -804,4 +808,3 @@ $smarty->assign('selfurl', $selfurl)
 include_once 'header.php';
 $smarty->display('siteprefs.tpl');
 include_once 'footer.php';
-
