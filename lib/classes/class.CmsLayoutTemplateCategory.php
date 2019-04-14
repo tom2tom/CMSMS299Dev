@@ -19,6 +19,7 @@
 //namespace CMSMS; CMSMS\TemplatesGroup
 
 use CMSMS\AdminUtils;
+use CMSMS\TemplateOperations;
 
 /**
  * A class representing a templates group.
@@ -40,7 +41,7 @@ class CmsLayoutTemplateCategory
 	/**
 	 * @ignore
 	 */
-	const MEMBERSTABLE  = 'layout_tplcat_members';
+	const MEMBERSTABLE = 'layout_tplcat_members';
 	const TPLTABLE  = 'layout_tplcat_members'; //deprecated since 2.3
 
 	/**
@@ -114,13 +115,6 @@ class CmsLayoutTemplateCategory
 		$this->_dirty = TRUE;
 	}
 
-	private function get_stamp($datetime)
-	{
-		$dt = new DateTime('@0',null);
-		$dt->modify($datetime);
-		return $dt->getTimestamp();
-	}
-
    /**
 	* Get the timestamp for when this group was first saved.
 	*
@@ -129,7 +123,7 @@ class CmsLayoutTemplateCategory
 	public function get_created()
 	{
 		$str = $this->_data['create_date'] ?? null;
-		return ($str !== null) ? $this->get_stamp($str) : 0;
+		return ($str !== null) ? cms_to_stamp($str) : 0;
 	}
 
 	/**
@@ -140,7 +134,7 @@ class CmsLayoutTemplateCategory
 	public function get_modified()
 	{
 		$str = $this->_data['modified_date'] ?? null;
-		return ($str !== null) ? $this->get_stamp($str) : 0;
+		return ($str !== null) ? cms_to_stamp($str) : 0;
 	}
 
 	/**
@@ -177,12 +171,11 @@ class CmsLayoutTemplateCategory
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		//,modified
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)'; //,?
+		$db = cmsms()->GetDb();
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)';
 		$dbr = $db->Execute($query,[
 			$this->get_name(),
 			$this->get_description(),
-//			time()
 		]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		$cid = $this->_data['id'] = $db->Insert_ID();
@@ -281,28 +274,46 @@ class CmsLayoutTemplateCategory
 	}
 
 	/**
-	 * Load a set of categories from the database
+	 * Return all group members as objects or names
+	 * @since 2.3
 	 *
-	 * @param string $prefix An optional group-name prefix.
-	 * @return array of CmsLayoutTemplateCategory objects
+	 * @param bool   $aslist Whether to return group names. Default false
+	 * @return assoc. array of CmsLayoutTemplate objects or name strings
+	 */
+	public static function get_members($aslist = false)
+	{
+		$out = [];
+		$id = $this->get_id();
+		if( !$id ) return $out;
+
+		$db = cmsms()->GetDb();
+		$query = 'SELECT T.* FROM '.CMS_DB_PREFIX.SOMETABLE.' T JOIN '
+		.CMS_DB_PREFIX.self::MEMBERSTABLE.' M ON T.id = M.tpl_id WHERE M.id=? ORDER BY M.item_order,T.name';
+		$res = $db->GetArray($query,[$id]);
+		if( $res ) {
+			foreach( $res as $row ) {
+				$id = (int)$row['id'];
+				if( $aslist ) {
+					$out[$id] = $row['name'];
+				}
+				else {
+					$out[$id] = CmsLayoutTemplate::func($row);
+				}
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Return some or all template groups, sourced from the database
+	 * This method is not specific to this group.
+	 * @deprecated since 2.3 instead use TemplateOperations::get_bulk_groups()
+	 *
+	 * @param string $prefix An optional group-name prefix to be matched
+	 * @return array of CmsLayoutTemplateCategory objects, maybe empty
 	 */
 	public static function get_all($prefix = '')
 	{
-		$db = cmsms()->GetDb();
-		if( $prefix ) {
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE ? ORDER BY name';
-			$res = $db->GetArray($query,[$prefix.'%']);
-		}
-		else {
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY name';
-			$res = $db->GetArray($query);
-		}
-		if( $res ) {
-			$out = [];
-			foreach( $res as $row ) {
-				$out[] = self::_load_from_data($row);
-			}
-			return $out;
-		}
+        return TemplateOperations::get_bulk_groups($prefix);
 	}
 } // class
