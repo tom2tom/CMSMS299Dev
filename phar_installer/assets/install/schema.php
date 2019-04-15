@@ -109,9 +109,9 @@ $bad = lang('failed');
 //non AUTO additional_users_id deprecated since 2.3
 //page_id I, removed 2.3 never used
 $flds = '
-additional_users_id I KEY NOT NULL,
-user_id I,
-content_id I
+additional_users_id I NOT NULL KEY,
+user_id I(2) UNSIGNED,
+content_id I(2) UNSIGNED
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'additional_users', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -119,9 +119,9 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'additional_users', $msg_ret));
 
 $flds = '
-bookmark_id I KEY,
-user_id I,
-title C(255),
+bookmark_id I(2) UNSIGNED KEY,
+user_id I(2) UNSIGNED,
+title C(64),
 url C(255)
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'admin_bookmarks', $flds, $taboptarray);
@@ -130,14 +130,16 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'admin_bookmarks', $msg_ret));
 
 $sqlarray = $dbdict->CreateIndexSQL('idx_admin_bookmarks_by_user_id',
-CMS_DB_PREFIX.'admin_bookmarks', 'user_id');
+	CMS_DB_PREFIX.'admin_bookmarks', 'user_id');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'admin_bookmarks', $msg_ret));
 
-//prop_names X(16384), unused since 2.0, removed 2.3
+$tbl = CMS_DB_PREFIX.'content';
+//template_id I, removed 2.3 replaced by styles
+//prop_names X, unused since 2.0, removed 2.3
 $flds = '
-content_id I KEY,
+content_id I(2) UNSIGNED KEY,
 content_name C(255),
 type C(25),
 default_content I(1) DEFAULT 0,
@@ -145,10 +147,9 @@ show_in_menu I(1) DEFAULT 1,
 active I(1) DEFAULT 1,
 cachable I(1) DEFAULT 1,
 secure I(1) DEFAULT 0,
-owner_id I,
-parent_id I,
-template_id I,
-item_order I(4) DEFAULT 0,
+owner_id I(2) UNSIGNED,
+parent_id I(2) UNSIGNED,
+item_order I(1) UNSIGNED DEFAULT 0,
 hierarchy C(255),
 menu_text C(255),
 content_alias C(255),
@@ -157,71 +158,66 @@ hierarchy_path X(1024),
 metadata X(8192),
 titleattribute C(255),
 page_url C(255),
-tabindex I(4) DEFAULT 0,
-accesskey C(5),
-last_modified_by I,
+tabindex I(1) DEFAULT 0,
+accesskey C(8),
+styles C(48),
+last_modified_by I(2) UNSIGNED,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'content', $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'content', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_alias_active',
-CMS_DB_PREFIX.'content', 'content_alias, active');
+$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_alias_active', $tbl, 'content_alias, active');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_content_by_alias_active', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_content_default_content',
-CMS_DB_PREFIX.'content', 'default_content');
+$sqlarray = $dbdict->CreateIndexSQL('idx_content_default_content', $tbl, 'default_content');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_content_default_content', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_parent_id',
-CMS_DB_PREFIX.'content', 'parent_id');
+$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_parent_id', $tbl, 'parent_id');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_content_by_parent_id', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_hier',
-CMS_DB_PREFIX.'content', 'hierarchy');
+$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_hier', $tbl, 'hierarchy');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_content_by_hier', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_idhier',
-CMS_DB_PREFIX.'content', 'content_id, hierarchy');
+$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_idhier',$tbl, 'content_id, hierarchy');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_content_by_idhier', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_modified',
-CMS_DB_PREFIX.'content', 'modified_date');
+$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_modified', $tbl, 'modified_date');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_content_by_modified', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'content_props';
 $flds = '
-content_id I,
+content_id I(2) UNSIGNED,
 type C(25),
 prop_name C(255),
 param1 C(255),
 param2 C(255),
 param3 C(255),
-content X2,
+content X,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'content_props', $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'content_props', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_content_props_by_content',
-CMS_DB_PREFIX.'content_props', 'content_id');
+$sqlarray = $dbdict->CreateIndexSQL('idx_content_props_by_content', $tbl, 'content_id');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_content_props_by_content', $msg_ret));
@@ -230,63 +226,62 @@ verbose_msg(lang('install_creating_index', 'idx_content_props_by_content', $msg_
 //ex module_name >> (handler)[namespaced]class, tag_name >> (func)method or plugin/UDT name
 //deprecated since 2.3 non AUTO handler_id
 $flds = '
-handler_id I(4) KEY,
-event_id I(4),
+handler_id I(2) UNSIGNED KEY,
+event_id I(2) UNSIGNED,
 class C(96),
 func C(64),
 type C(1) NOT NULL DEFAULT "C",
 removable I(1) DEFAULT 1,
-handler_order I(4) DEFAULT 0
+handler_order I(1) DEFAULT 0
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'event_handlers', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'event_handlers', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'events';
 //deprecated since 2.3 non AUTO event_id
 $flds = '
-event_id I(4) KEY,
-originator C(48) NOT NULL,
-event_name C(48) NOT NULL
+event_id I(2) UNSIGNED KEY,
+originator C(32) NOT NULL,
+event_name C(64) NOT NULL
 ';
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'events', $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'events', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_originator',
-CMS_DB_PREFIX.'events', 'originator');
+$sqlarray = $dbdict->CreateIndexSQL('idx_originator', $tbl, 'originator');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'originator', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_event_name',
-CMS_DB_PREFIX.'events', 'event_name');
+$sqlarray = $dbdict->CreateIndexSQL('idx_event_name', $tbl, 'event_name');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'event_name', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'group_perms';
 //deprecated since 2.3 non AUTO group_perm_id
 $flds = '
-group_perm_id I KEY,
-group_id I,
-permission_id I,
+group_perm_id I(2) UNSIGNED KEY,
+group_id I(2) UNSIGNED,
+permission_id I(2) UNSIGNED,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'group_perms', $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'group_perms', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_grp_perms_by_grp_id_perm_id',
-    CMS_DB_PREFIX.'group_perms', 'group_id, permission_id');
+$sqlarray = $dbdict->CreateIndexSQL('idx_grp_perms_by_grp_id_perm_id', $tbl, 'group_id, permission_id');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_grp_perms_by_grp_id_perm_id', $msg_ret));
 
 $flds = '
-group_id I KEY,
+group_id I(2) UNSIGNED KEY,
 group_name C(25),
 group_desc C(255),
 active I(1) DEFAULT 1,
@@ -361,7 +356,7 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_module_templates_by_module_and_tpl_name', $msg_ret));
 */
 $flds = '
-permission_id I KEY,
+permission_id I(2) UNSIGNED KEY,
 permission_name C(255),
 permission_text C(255),
 permission_source C(255),
@@ -385,8 +380,8 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'siteprefs', $msg_ret));
 
 $flds = '
-group_id I KEY,
-user_id I KEY,
+group_id I(2) UNSIGNED KEY,
+user_id I(2) UNSIGNED KEY,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
@@ -396,26 +391,26 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'user_groups', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'userprefs';
 $flds = '
-user_id I KEY,
+user_id I(2) UNSIGNED KEY,
 preference C(50) KEY,
-value X(16384),
+value X,
 type C(25)
 ';
 //CHECKME separate index on preference field ?
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'userprefs', $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'userprefs', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_userprefs_by_user_id',
-    CMS_DB_PREFIX.'userprefs', 'user_id');
+$sqlarray = $dbdict->CreateIndexSQL('idx_userprefs_by_user_id', $tbl, 'user_id');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_userprefs_by_user_id', $msg_ret));
 
 $flds = '
-user_id I KEY,
+user_id I(2) KEY,
 username C(80),
 password C(128),
 first_name C(50),
@@ -434,292 +429,293 @@ verbose_msg(lang('install_created_table', 'users', $msg_ret));
 $flds = '
 version I
 ';
-$sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.'version',
-    $flds,
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'version', $flds,
     ['mysqli' => 'ENGINE=MYISAM COLLATE ascii_general_ci']
 );
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'version', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'module_smarty_plugins';
 $flds = '
-sig C(80) KEY NOT NULL,
-name C(48) NOT NULL,
+sig C(80) NOT NULL KEY,
+name C(64) NOT NULL,
 module C(32) NOT NULL,
 type C(32) NOT NULL,
 callback C(255) NOT NULL,
 available I(1) DEFAULT 1
 ';
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'module_smarty_plugins', $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'module_smarty_plugins', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_smp_module',
-    CMS_DB_PREFIX.'module_smarty_plugins', 'module');
+$sqlarray = $dbdict->CreateIndexSQL('idx_smp_module', $tbl, 'module');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_smp_module', $msg_ret));
 
+//CHECKME separate index on key1 field ?
+//created DT renamed 2.3
 $flds = '
-term C(255) KEY NOT NULL,
-key1 C(48) KEY NOT NULL,
+term C(255) NOT NULL KEY,
+key1 C(48) NOT NULL KEY,
 key2 C(48),
 key3 C(48),
-data X(16384),
-created DT
+data X,
+create_date DT DEFAULT CURRENT_TIMESTAMP
 ';
-//CHECKME separate index on key1 field ?
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'routes', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'routes', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'layout_templates'; //aka TemplateOperations::TABLENAME
+//created I, <<< DT replaced 2.3
+//modified I <<< DT ditto
 $flds = '
-id I KEY AUTO,
+id I AUTO KEY,
 originator C(32),
-name C(96) NOT NULL,
-content X2,
+name C(64) NOT NULL,
+content X,
 description X(1024),
-type_id I NOT NULL,
-owner_id I NOT NULL DEFAULT 1,
+type_id I(2) UNSIGNED NOT NULL,
+owner_id I(2) UNSIGNED NOT NULL DEFAULT 1,
 type_dflt I(1) DEFAULT 0,
 listable I(1) DEFAULT 1,
 contentfile I(1) DEFAULT 0,
-created I,
-modified I
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.TemplateOperations::TABLENAME,
-    $flds,
-    $taboptarray
-);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', TemplateOperations::TABLENAME, $msg_ret));
+verbose_msg(lang('install_created_table', 'layout_templates', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_1',
-    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'name');
+$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_1', $tbl, 'name');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_layout_tpl_1', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_2',
-    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'type_id,type_dflt');
+$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_2', $tbl, 'type_id,type_dflt');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_layout_tpl_2', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_3',
-    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'originator,name', ['UNIQUE']);
+$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_3', $tbl, 'originator,name', ['UNIQUE']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_layout_tpl_3', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'layout_tpl_addusers'; //aka TemplateOperations::ADDUSERSTABLE
 $flds = '
-tpl_id I KEY,
-user_id I KEY
+tpl_id I(2) UNSIGNED KEY,
+user_id I(2) UNSIGNED KEY
 ';
 //CHECKME separate index on user_id field ?
-$sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.TemplateOperations::ADDUSERSTABLE,
-    $flds,
-    $taboptarray
-);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', TemplateOperations::ADDUSERSTABLE, $msg_ret));
+verbose_msg(lang('install_created_table', 'layout_tpl_addusers', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'layout_tpl_type'; // aka CmsLayoutTemplateType::TABLENAME
 // these are used mainly by DesignManager module (but some other modules too, must be present before modules installation)
+//created I, <<< DT replaced 2.3
+//modified I <<< DT ditto
 $flds = '
-id I KEY AUTO,
+id I AUTO KEY,
 originator C(32) NOT NULL,
-name C(96) NOT NULL,
-dflt_contents X2,
+name C(64) NOT NULL,
+dflt_contents X,
 description X(1024),
 lang_cb C(255),
 dflt_content_cb C(255),
 help_content_cb C(255),
 has_dflt I(1) DEFAULT 0,
-requires_contentblocks I(1),
-one_only I(1),
+requires_contentblocks I(1) DEFAULT 0,
+one_only I(1) DEFAULT 0,
 owner I,
-created I,
-modified I
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME,
-    $flds,
-    $taboptarray
-);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', CmsLayoutTemplateType::TABLENAME, $msg_ret));
+verbose_msg(lang('install_created_table', 'layout_tpl_type', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_type_1',
-    CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME, 'originator,name', ['UNIQUE']);
+$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_type_1', $tbl, 'originator,name', ['UNIQUE']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_layout_tpl_type_1', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'layout_tpl_categories'; // aka CmsLayoutTemplateCategory::TABLENAME
+// create_date added 2.3
+// modified I <<< DT replaced 2.3
+// item_order I(1) DEFAULT 0, removed 2.3
 $flds = '
-id I KEY AUTO,
-name C(96) NOT NULL,
+id I(2) UNSIGNED AUTO KEY,
+name C(64) NOT NULL,
 description X(1024),
-item_order I(4) DEFAULT 0,
-modified I
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME,
-    $flds,
-    $taboptarray
-);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', CmsLayoutTemplateCategory::TABLENAME, $msg_ret));
+verbose_msg(lang('install_created_table', 'layout_tpl_categories', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_cat_1',
-    CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME, 'name', ['UNIQUE']);
+$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_cat_1', $tbl, 'name', ['UNIQUE']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_layout_tpl_type_1', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'layout_tplcat_members'; // aka CmsLayoutTemplateCategory::TPLTABLE
 $flds = '
-category_id I NOT NULL,
-tpl_id I NOT NULL,
-tpl_order I(4) DEFAULT 0
+id I(2) UNSIGNED AUTO KEY,
+category_id I(2) UNSIGNED NOT NULL,
+tpl_id I(2) UNSIGNED NOT NULL,
+item_order I(1) UNSIGNED DEFAULT 0
 ';
-$sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE,
-    $flds,
-    $taboptarray
-);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', CmsLayoutTemplateCategory::TPLTABLE, $msg_ret));
-
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_cat_tplasoc_1',
-    CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE, 'tpl_id');
+verbose_msg(lang('install_created_table', 'layout_tplcat_members', $msg_ret));
+/*
+$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tplcat_1', $tbl, 'tpl_id');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret));
+verbose_msg(lang('install_creating_index', 'idx_layout_tplcat_1', $msg_ret));
+*/
 
+$tbl = CMS_DB_PREFIX.'layout_stylesheets'; // aka StylesheetOperations::TABLENAME
+//created I, <<< DT replaced 2.3
+//modified I <<< DT ditto
 $flds = '
-id I KEY AUTO,
-name C(96) NOT NULL,
-content X2,
+id I AUTO KEY,
+name C(64) NOT NULL,
+content X,
 description X(1024),
 media_type C(255),
-media_query X(16384),
+media_query X,
 contentfile I(1) DEFAULT 0,
-created I,
-modified I
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.StylesheetOperations::TABLENAME,
-    $flds,
-    $taboptarray
-);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', StylesheetOperations::TABLENAME, $msg_ret));
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_css_1',
-    CMS_DB_PREFIX.StylesheetOperations::TABLENAME, 'name', ['UNIQUE']);
+verbose_msg(lang('install_created_table', 'layout_stylesheets', $msg_ret));
+$sqlarray = $dbdict->CreateIndexSQL('idx_layout_css_1', $tbl, 'name', ['UNIQUE']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_index', 'idx_layout_css_1', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'layout_css_categories';
 $flds = '
-id I KEY AUTO,
-name C(96) NOT NULL,
+id I(1) UNSIGNED AUTO KEY,
+name C(64),
 description X(1024),
-dflt I(1) DEFAULT 0,
-created I,
-modified I
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME,
-    $flds,
-    $taboptarray
-);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', CmsLayoutCollection::TABLENAME, $msg_ret));
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_dsn_1',
-    CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME, 'name', ['UNIQUE']);
+verbose_msg(lang('install_created_table', 'layout_css_categories', $msg_ret));
+
+$tbl = CMS_DB_PREFIX.'layout_csscat_members';
+$flds = '
+id I(2) UNSIGNED AUTO KEY,
+category_id UNSIGNED I(2) NOT NULL,
+css_id I(2) UNSIGNED NOT NULL,
+item_order I(1) UNSIGNED DEFAULT 0
+';
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
+$return = $dbdict->ExecuteSQLArray($sqlarray);
+$msg_ret = ($return == 2) ? $good : $bad;
+verbose_msg(lang('install_created_table', 'layout_csscat_members', $msg_ret));
+
+/*
+//TODO consider migrating design-rlated tables to DesignManager module namespace
+$tbl = CMS_DB_PREFIX.'layout_designs'; // aka DesignManager\Design::TABLENAME
+//created I, <<< DT replaced 2.3
+//modified I <<< DT ditto
+//dflt I(1) DEFAULT 0, 2.3 removed, irrelevant
+$flds = '
+id I(1) UNSIGNED AUTO KEY,
+name C(64) NOT NULL,
+description X(1024),
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
+';
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
+$return = $dbdict->ExecuteSQLArray($sqlarray);
+$msg_ret = ($return == 2) ? $good : $bad;
+verbose_msg(lang('install_created_table', 'layout_designs', $msg_ret));
+$sqlarray = $dbdict->CreateIndexSQL('idx_layout_dsn_1', $tbl, 'name', ['UNIQUE']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_index', 'idx_layout_dsn_1', $msg_ret));
 
+$tbl = CMS_DB_PREFIX.'layout_design_tplassoc'; // aka DesignManager\Design::TPLTABLE
 $flds = '
-design_id I KEY NOT NULL,
-tpl_id I KEY NOT NULL,
-tpl_order I(4) DEFAULT 0
+id I(2) UNSIGNED AUTO KEY,
+design_id I(2) UNSIGNED NOT NULL KEY,
+tpl_id I(2) UNSIGNED NOT NULL KEY,
+tpl_order I(1) UNSIGNED DEFAULT 0
 ';
-//CHECKME separate index on tpl_id field ?
-$sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE,
-    $flds,
-    $taboptarray
-);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', CmsLayoutCollection::TPLTABLE, $msg_ret));
-$sqlarray = $dbdict->CreateIndexSQL('idx_dsnassoc1',
-    CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE, 'tpl_id');
+verbose_msg(lang('install_created_table', 'layout_design_tplassoc', $msg_ret));
+$sqlarray = $dbdict->CreateIndexSQL('idx_dsnassoc1', $tbl, 'tpl_id');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_index', 'index_dsnassoc1', $msg_ret));
 
-$flds = '
-design_id I KEY NOT NULL,
-css_id I KEY NOT NULL,
-item_order I(4) DEFAULT 0
-';
+$tbl = CMS_DB_PREFIX.'layout_design_cssassoc'; // aka DesignManager\Design::CSSTABLE
 //CHECKME separate index on css_id field ?
-$sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE,
-    $flds,
-    $taboptarray
-);
+$flds = '
+id I(2) UNSIGNED AUTO KEY,
+design_id I(2) UNSIGNED NOT NULL KEY,
+css_id I(2) UNSIGNED NOT NULL KEY,
+item_order I(1) UNSIGNED DEFAULT 0
+';
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', CmsLayoutCollection::CSSTABLE, $msg_ret));
+verbose_msg(lang('install_created_table', 'layout_design_cssassoc', $msg_ret));
+*/
 
+$tbl = CMS_DB_PREFIX.'locks'; // aka Lock::LOCK_TABLE
+//created I NOT NULL, <<< DT replaced 2.3
+//modified I NOT NULL, <<< DT //ditto
 $flds = '
-id I AUTO KEY NOT NULL,
+id I AUTO KEY,
 type C(24) NOT NULL,
 oid I NOT NULL,
 uid I NOT NULL,
-created I NOT NULL,
-modified I NOT NULL,
-lifetime I NOT NULL,
-expires I NOT NULL
+lifetime I(2) UNSIGNED NOT NULL,
+expires I,
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.Lock::LOCK_TABLE,
-    $flds,
-    $taboptarray
-);
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', Lock::LOCK_TABLE, $msg_ret));
+verbose_msg(lang('install_created_table', 'locks', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_locks1',
-    CMS_DB_PREFIX.'locks', 'type,oid', ['UNIQUE']);
+$sqlarray = $dbdict->CreateIndexSQL('idx_locks1', $tbl, 'type,oid', ['UNIQUE']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_index', 'index_locks1', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_locks2',
-    CMS_DB_PREFIX.'locks', 'expires');
+$sqlarray = $dbdict->CreateIndexSQL('idx_locks2', $tbl, 'expires');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_index', 'index_locks2', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_locks3',
-    CMS_DB_PREFIX.'locks', 'uid');
+$sqlarray = $dbdict->CreateIndexSQL('idx_locks3', $tbl, 'uid');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_index', 'index_locks3', $msg_ret));
