@@ -1,5 +1,7 @@
 <?php
 
+use CMSContentManager\Utils;
+
 $tpl->assign('startform', $this->CreateFormStart ($id, 'updateoptions', $returnid))
 
  ->assign('title_formsubmit_emailaddress',$this->Lang('formsubmit_emailaddress'))
@@ -60,10 +62,10 @@ $tpl->assign('statuses',array_flip($statusdropdown))
  ->assign('title_fesubmit_redirect',$this->Lang('fesubmit_redirect'))
  ->assign('fesubmit_redirect',$this->GetPreference('fesubmit_redirect'));
 
-$contentops = $gCms->GetContentOperations();
+$str = Utils::CreateHierarchyDropdown(0,$this->GetPreference('detail_returnid',-1),$id.'detail_returnid');
+
 $tpl->assign('title_detail_returnid',$this->Lang('title_detail_returnid'))
- ->assign('input_detail_returnid',
-		$contentops->CreateHierarchyDropdown('',$this->GetPreference('detail_returnid',-1),$id.'detail_returnid'))
+ ->assign('input_detail_returnid', $str)
  ->assign('info_detail_returnid',$this->Lang('info_detail_returnid'))
 
  ->assign('title_submission_settings',$this->Lang('title_submission_settings'))

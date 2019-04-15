@@ -1,5 +1,6 @@
 <?php
 
+use CMSContentManager\Utils;
 use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\FormUtils;
@@ -77,7 +78,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
         $this->ShowErrors($this->Lang('error_invaliddates'));
         $error = true;
     }
-    
+
     if (empty($title)) {
         $this->ShowErrors($this->Lang('notitlegiven'));
         $error = true;
@@ -472,8 +473,7 @@ try {
         }
     }
     if ($list) {
-        $contentops = cmsms()->GetContentOperations();
-        $tpl->assign('preview_returnid', $contentops->CreateHierarchyDropdown('', $this->GetPreference('detail_returnid', -1), 'preview_returnid'));
+		$str = Utils::CreateHierarchyDropdown(0, $this->GetPreference('detail_returnid', -1), 'preview_returnid');
 
         $tpl->assign('detail_templates', $list)
          ->assign('cur_detail_template', $this->GetPreference('current_detail_template'))
@@ -486,7 +486,8 @@ try {
          ->assign('start_tab_article', $this->StartTab('article', $params))
          ->assign('start_tab_preview', $this->StartTab('preview', $params))
          ->assign('end_tab', $this->EndTab())
-         ->assign('end_tab_content', $this->EndTabContent());
+         ->assign('end_tab_content', $this->EndTabContent())
+         ->assign('preview_returnid', $str);
     }
 } catch( Exception $e ) {
     audit('', $this->GetName(), 'No detail templates available for preview');
