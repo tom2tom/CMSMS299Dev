@@ -1,5 +1,6 @@
 <?php
 
+use CMSContentManager\Utils;
 use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\FormUtils;
@@ -375,9 +376,9 @@ $choices = [
 ];
 $statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
 
-$created = date('Y-n-j G:i', $row['create_date']);
+$created = date('Y-n-j H:i', $row['create_date']);
 if ($row['modified_date'] > $row['create_date']) {
-    $modified = date('Y-n-j G:i', $row['modified_date']);
+    $modified = date('Y-n-j H:i', $row['modified_date']);
 } else {
     $modified = NULL;
 }
@@ -577,8 +578,7 @@ if ($this->CheckPermission('Approve News')) {
 if ($custom_flds) {
     $tpl->assign('custom_fields', $custom_flds);
 }
-$contentops = cmsms()->GetContentOperations();
-$tpl->assign('preview_returnid', $contentops->CreateHierarchyDropdown('', $this->GetPreference('detail_returnid', -1), 'preview_returnid'));
+$tpl->assign('preview_returnid', Utils::CreateHierarchyDropdown(0, $this->GetPreference('detail_returnid', -1), 'preview_returnid'));
 
 // get the detail templates, if any
 try {
