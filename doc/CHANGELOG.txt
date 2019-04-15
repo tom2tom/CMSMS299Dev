@@ -36,7 +36,7 @@ eventually, all core classes will be spaced. Devs are encouraged to start using 
 'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
 'CMSMS\HttpRequest' => 'cms_http_request',
 'CMSMS\LanguageDetector' => 'CmsLanguageDetector',
-'CMSMS\LayoutCollection' => 'CmsLayoutCollection',
+'DesignManager\Design' => 'CmsLayoutCollection',
 'CMSMS\LayoutStylesheet' => 'CmsLayoutStylesheet',
 'CMSMS\LayoutStylesheetQuery' => 'CmsLayoutStylesheetQuery',
 'CMSMS\LayoutTemplate' => 'CmsLayoutTemplate',
@@ -171,6 +171,8 @@ DETAILS
   - New method: cms_utils::path_to_url()
   - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum
 
+  - CHANGE: Managment of page styles is much more flexible
+  - CHANGE: Page style(s) are applied directly, insead of via a Design. Each design is now just a tool to facilitate site development
   - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
   - FEATURE: Registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
@@ -205,7 +207,7 @@ DETAILS
   - BREAKING: Removed long-deprecated methods from the cms_content_tree class
       addNode, getChildrenCount, getId, getLevel, getNodeByAlias, getNodeById
       getParentNode, getSiblingCount, getTag, hasChildren, setTag
-  - CHANGE: Pages-content class migrated from 'internal' as 'ContentCache', now usable by any module
+  - CHANGE: Pages-content is cached in the global cache. The redundant ContentCache class is gone
   - CHANGE: Adds convenience methods get_cliuser(), get_editor_script()
   - CHANGE: Adds the new pr_root_url config entry.  Returns the protocol relative root URI. root_url will always include the protocol.
   - CHANGE: Remove long deprecated passthru parameters to effect $_REQUEST because of potential security vulnerabilities.
@@ -769,7 +771,7 @@ Search
 AdminSearch v1.0.3
   - Fixes problem with use of 'Use Admin Search' permission.
   - Now searches for matching strings within templates and stylesheets that are stored as files.
-  - Now listens to the HasSearchableContent metod when searching content pages.
+  - Now listens to the HasSearchableContent method when searching content pages.
 
 ModuleManager
   - Now detect if module_custom directories exist and are populated and warn about this before upgrading a module.
