@@ -1635,7 +1635,7 @@ td.icons_wide {
     border: 1px solid #ddd;
     border-radius: 8px;
     position: fixed;
-    padding: 9px;
+    padding: 9px 6px;
     max-width: 250px;
 /* min-width: 200px;   */
     max-height: 400px;
@@ -1658,36 +1658,38 @@ td.icons_wide {
 #menus1 .ContextMenu > ul, #menus2 .ContextMenu > ul {
     margin: 0;
 }
-.ContextMenu > ul {
+
+#ac_mainarea .ContextMenu > ul {
     max-width: 250px;
     max-height: 360px;
     overflow: auto;
+    margin-left: 6px;
 }
 .ContextMenu.active {
     display: block;
     box-shadow: 0 4px 5px 0 rgba(0, 0, 0, .14), 0 1px 10px 0 rgba(0, 0, 0, .12), 0 2px 4px -1px rgba(0, 0, 0, .2);
 }
-.ContextMenu ul {
+#ac_mainarea .ContextMenu ul {
     list-style-type:none;
 }
-.ContextMenu ul ul {
+#ac_mainarea .ContextMenu ul ul {
     padding: 0;
     margin: 0;
 }
-.ContextMenu > ul > ul {
+#ac_mainarea .ContextMenu > ul > ul {
     margin-bottom: 1px;
 }
-.ContextMenu > ul > ul > li:not(:last-child) {
+#ac_mainarea .ContextMenu > ul > ul > li:not(:last-child) {
     border-bottom: 1px solid #ddd;
 }
-.ContextMenu li {
+#ac_mainarea .ContextMenu li {
     margin-bottom: 10px;
 /* min-width: 100px; */
 }
-.ContextMenu li:last-child {
+#ac_mainarea .ContextMenu li:last-child {
     margin-bottom: 0px;
 }
-.ContextMenu li:hover > span {
+#ac_mainarea .ContextMenu li:hover > span {
     color: #e88d00;
 }
 .ContextMenu li:hover {

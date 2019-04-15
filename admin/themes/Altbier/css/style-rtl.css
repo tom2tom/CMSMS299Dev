@@ -1621,7 +1621,7 @@ td.icons_wide {
     border: 1px solid #ddd;
     border-radius: 8px;
     position: fixed;
-    padding: 9px;
+    padding: 9px 6px;
     max-width: 250px;
 /* min-width: 200px;   */
     max-height: 400px;
