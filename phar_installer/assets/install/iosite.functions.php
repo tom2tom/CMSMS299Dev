@@ -22,13 +22,14 @@ as well as normal operation.
 */
 //install-only methods - admin export ok?
 
+use CMSMS\ContentOperations;
 use CMSMS\Database\Connection;
 use CMSMS\StylesheetOperations;
 use CMSMS\TemplateOperations;
 use function cms_installer\lang;
 
-const CONTENT_DTD_VERSION = '0.7';
-const CONTENT_DTD_MINVERSION = '0.7';
+const CONTENT_DTD_VERSION = '0.8';
+const CONTENT_DTD_MINVERSION = '0.8';
 
 /**
  *
@@ -114,14 +115,15 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
      keeps >> array of field-value(s) which will be included (subject to optional)
 */
 	$skeleton = [
-     'designs' => [
-      'table' => 'layout_designs',
+     'stylecategories' => [
+      'table' => 'layout_css_categories',
       'subtypes' => [
-       'design' => [
+       'category' => [
         'id' => [],
         'name' => [],
         'description' => ['optional' => 1],
-        'dflt' => ['optional'=>1],
+        'create_date' => [],
+        'modified_date' => ['optional' => 1],
        ]
       ]
      ],
@@ -138,17 +140,17 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        ]
       ]
      ],
-     'designstyles' => [
-      'sql' => 'SELECT * FROM %slayout_design_cssassoc ORDER BY css_id,item_order',
+     'categorystyles' => [
+      'sql' => 'SELECT * FROM %slayout_csscat_members ORDER BY css_id,item_order',
       'subtypes' => [
-       'designcss' => [
-        'design_id' => [],
+       'catcss' => [
+        'category_id' => [],
         'css_id' => [],
         'item_order' => ['optional' => 1],
        ]
       ]
      ],
-     'tpltypes' => [
+     'templatetypes' => [
       'sql' => 'SELECT * FROM %slayout_tpl_type WHERE originator=\'__CORE__\' ORDER BY name',
       'subtypes' => [
        'tpltype' => [
@@ -167,14 +169,15 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        ]
       ]
      ],
-     'categories' => [
+     'templatecategories' => [
       'table' => 'layout_tpl_categories',
       'subtypes' => [
        'category' => [
         'id' => [],
         'name' => [],
         'description' => ['optional' => 1],
-        'item_order' => ['optional' => 1],
+        'create_date' => [],
+        'modified_date' => ['optional' => 1],
        ]
       ]
      ],
@@ -195,21 +198,42 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        ]
       ]
      ],
+     'categorytemplates' => [
+      'sql' => 'SELECT * FROM %slayout_tplcat_members ORDER BY tpl_id,item_order',
+      'subtypes' => [
+       'cattpl' => [
+        'category_id' => [],
+        'tpl_id' => [],
+        'item_order' => ['optional' => 1],
+       ]
+      ]
+     ],
+     'designs' => [
+      'table' => 'layout_designs',
+      'subtypes' => [
+       'design' => [
+        'id' => [],
+        'name' => [],
+        'description' => ['optional' => 1],
+        'dflt' => ['optional'=>1],
+       ]
+      ]
+     ],
+     'designstyles' => [
+      'sql' => 'SELECT * FROM %slayout_design_cssassoc ORDER BY css_id,item_order',
+      'subtypes' => [
+       'designcss' => [
+        'design_id' => [],
+        'css_id' => [],
+        'item_order' => ['optional' => 1],
+       ]
+      ]
+     ],
      'designtemplates' => [
       'sql' => 'SELECT * FROM %slayout_design_tplassoc ORDER BY tpl_id,tpl_order',
       'subtypes' => [
        'designtpl' => [
         'design_id' => [],
-        'tpl_id' => [],
-        'tpl_order' => ['optional' => 1],
-       ]
-      ]
-     ],
-     'categorytemplates' => [
-      'sql' => 'SELECT * FROM %slayout_cat_tplassoc ORDER BY tpl_id,tpl_order',
-      'subtypes' => [
-       'cattpl' => [
-        'category_id' => [],
         'tpl_id' => [],
         'tpl_order' => ['optional' => 1],
        ]
@@ -261,23 +285,23 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 	//these data must be manually reconciled with $skeleton[] above
 	$xw->writeDtd('cmsmssitedata', null, null, '
  <!ELEMENT dtdversion (#PCDATA)>
- <!ELEMENT designs (design+)>
- <!ELEMENT design (id,name,description?,dflt?)>
+ <!ELEMENT stylecategories (scategory+)>
+ <!ELEMENT scategory (id,name,description?)>
  <!ELEMENT id (#PCDATA)>
  <!ELEMENT name (#PCDATA)>
  <!ELEMENT description (#PCDATA)>
- <!ELEMENT dflt (#PCDATA)>
  <!ELEMENT stylesheets (stylesheet+)>
- <!ELEMENT stylesheet (id,name,description?,media_type?,content,contentfile?)>
+ <!ELEMENT stylesheet (id,name,description?,media_type?,media_query?,content,contentfile?)>
  <!ELEMENT media_type (#PCDATA)>
+ <!ELEMENT media_query (#PCDATA)>
  <!ELEMENT content (#PCDATA)>
  <!ELEMENT contentfile (#PCDATA)>
- <!ELEMENT designstyles (designcss+)>
- <!ELEMENT designcss (design_id,css_id,item_order)>
- <!ELEMENT design_id (#PCDATA)>
+ <!ELEMENT categorystyles (catcss+)>
+ <!ELEMENT catcss (category_id,css_id,item_order?)>
+ <!ELEMENT category_id (#PCDATA)>
  <!ELEMENT css_id (#PCDATA)>
  <!ELEMENT item_order (#PCDATA)>
- <!ELEMENT tpltypes (tpltype+)>
+ <!ELEMENT templatetypes (tpltype+)>
  <!ELEMENT tpltype (id,originator,name,dflt_contents?,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner)>
  <!ELEMENT originator (#PCDATA)>
  <!ELEMENT dflt_contents (#PCDATA)>
@@ -288,22 +312,28 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT requires_contentblocks (#PCDATA)>
  <!ELEMENT one_only (#PCDATA)>
  <!ELEMENT owner (#PCDATA)>
- <!ELEMENT categories (category+)>
- <!ELEMENT category (id,name,description?,item_order?)>
+ <!ELEMENT templatecategories (tcategory+)>
+ <!ELEMENT tcategory (id,name,description?)>
  <!ELEMENT templates (template)>
  <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?,contentfile?)>
  <!ELEMENT type_id (#PCDATA)>
  <!ELEMENT owner_id (#PCDATA)>
  <!ELEMENT type_dflt (#PCDATA)>
  <!ELEMENT listable (#PCDATA)>
+ <!ELEMENT categorytemplates (cattpl+)>
+ <!ELEMENT cattpl (category_id,tpl_id,item_order?)>
+ <!ELEMENT tpl_id (#PCDATA)>
+ <!ELEMENT designs (design+)>
+ <!ELEMENT design (id,name,description?,dflt?)>
+ <!ELEMENT dflt (#PCDATA)>
+ <!ELEMENT designstyles (designcss+)>
+ <!ELEMENT designcss (design_id,css_id,item_order)>
+ <!ELEMENT design_id (#PCDATA)>
  <!ELEMENT designtemplates (designtpl+)>
  <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
- <!ELEMENT tpl_id (#PCDATA)>
  <!ELEMENT tpl_order (#PCDATA)>
- <!ELEMENT categorytemplates (cattpl+)>
- <!ELEMENT cattpl (category_id,tpl_id,tpl_order?)>
  <!ELEMENT pages (page+)>
- <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text?,cachable?)>
+ <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text?,cachable?,styles?)>
  <!ELEMENT content_id (#PCDATA)>
  <!ELEMENT content_name (#PCDATA)>
  <!ELEMENT content_alias (#PCDATA)>
@@ -315,6 +345,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT show_in_menu (#PCDATA)>
  <!ELEMENT menu_text (#PCDATA)>
  <!ELEMENT cacheable (#PCDATA)>
+ <!ELEMENT styles (#PCDATA)>
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
@@ -422,7 +453,6 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 }
 
 /**
- * This method is used during site installation (among other uses)
  *
  * @global type $CMS_INSTALL_PAGE
  * @param string $xmlfile filesystem path of file to import
@@ -476,32 +506,28 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 		}
 	}
 
-	$designs = [];
-	$types = [];
-	$categories = [];
-	$templates = [];
-	$styles = [];
-	$pages = [-1 => -1];
-	$pageobs = [];
+	$types = [-1 => -1];
+	$tplcats = [-1 => -1];
+	$templates = [-1 => -1];
+	$csscats = [-1 => -1];
+	$styles = [-1 => -1];
+	$designs = [-1 => -1];
+	$pageprops = [];
 
 	foreach ($xml->children() as $typenode) {
 		if ($typenode->count() > 0) {
 			switch ($typenode->getName()) {
-				case 'designs':
-					if (!$runtime) {
-						verbose_msg(lang('install_default_designs'));
-					}
+				case 'stylecategories':
 					foreach ($typenode->children() as $node) {
-						$ob = new CmsLayoutCollection();
+						$ob = new CmsLayoutStylesheetCategory(); //TODO
 						try {
 							$ob->set_name((string)$node->name);
 						} catch (Exception $e) {
 							continue;
 						}
 						$ob->set_description((string)$node->description);
-						$ob->set_default((string)$node->dflt != false);
 						$ob->save();
-						$designs[(string)$node->id] = $ob->get_id();
+						$tplcats[(string)$node->id] = $ob->get_id();
 					}
 					break;
 				case 'stylesheets':
@@ -526,14 +552,14 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$styles[(string)$node->id] = $ob->get_id();
 					}
 					break;
-				case 'designstyles': //relations between styles and designs
+				case 'categorystyles': //stylesheets in categories
 					$bank = [];
 					foreach ($typenode->children() as $node) {
 						$val = (string)$node->css_id;
-						$val2 = (string)$node->design_id;
-						if (isset($styles[$val]) && isset($designs[$val2])) {
+						$val2 = (string)$node->category_id;
+						if (isset($styles[$val]) && isset($csscats[$val2])) {
 							$val = $styles[$val];
-							$bank[$val][0][] = $designs[$val2];
+							$bank[$val][0][] = $csscats[$val2];
 							$bank[$val][1][] = intval((string)$node->item_order);
 						}
 					}
@@ -544,11 +570,11 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							continue;
 						}
 						array_multisort($arr[1], $arr[0]);
-						$ob->set_designs($arr[0]);
+						$ob->set_categories($arr[0]);
 						$ob->save();
 					}
 					break;
-				case 'tpltypes':
+				case 'templatetypes':
 					if (!$runtime) {
 						verbose_msg(lang('install_templatetypes'));
 						$val2 = '__CORE__'; //TODO get real value e.g. CmsLayoutTemplateType::CORE
@@ -614,7 +640,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$types[(string)$node->id] = $ob->get_id();
 					}
 					break;
-				case 'categories':
+				case 'templatecategories':
 					if (!$runtime) {
 						verbose_msg(lang('install_categories'));
 					}
@@ -626,9 +652,8 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							continue;
 						}
 						$ob->set_description((string)$node->description);
-						$ob->set_item_order(intval((string)$node->item_order));
 						$ob->save();
-						$categories[(string)$node->id] = $ob->get_id();
+						$tplcats[(string)$node->id] = $ob->get_id();
 					}
 					break;
 				case 'templates':
@@ -662,7 +687,68 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						}
 					}
 					break;
-				case 'designtemplates': //relations between templates and designs
+				case 'categorytemplates': //templates in categories' members
+					$bank = [];
+					foreach ($typenode->children() as $node) {
+						$val = (string)$node->tpl_id;
+						$val2 = (string)$node->category_id;
+						if (isset($templates[$val]) && isset($tplcats[$val2])) {
+							$val = $templates[$val];
+							$bank[$val][0][] = $tplcats[$val2];
+							$bank[$val][1][] = intval((string)$node->item_order);
+						}
+					}
+					foreach ($bank as $tid=>$arr) {
+						try {
+							$ob = TemplateOperations::get_template($tid);
+						} catch (Exception $e) {
+							continue;
+						}
+						array_multisort($arr[1], $arr[0]);
+						$ob->set_categories($arr[0]);
+						$ob->save();
+					}
+					break;
+				case 'designs':
+					if (!$runtime) {
+						verbose_msg(lang('install_default_designs'));
+					}
+					foreach ($typenode->children() as $node) {
+						$ob = new DesignManager\Design();
+						try {
+							$ob->set_name((string)$node->name);
+						} catch (Exception $e) {
+							continue;
+						}
+						$ob->set_description((string)$node->description);
+						$ob->set_default((string)$node->dflt != false);
+						$ob->save();
+						$designs[(string)$node->id] = $ob->get_id();
+					}
+					break;
+				case 'designstyles': //stylesheets assigned to designs
+					$bank = [];
+					foreach ($typenode->children() as $node) {
+						$val = (string)$node->css_id;
+						$val2 = (string)$node->design_id;
+						if (isset($styles[$val]) && isset($designs[$val2])) {
+							$val = $styles[$val];
+							$bank[$val][0][] = $designs[$val2];
+							$bank[$val][1][] = intval((string)$node->item_order);
+						}
+					}
+					foreach ($bank as $sid=>$arr) {
+						try {
+							$ob = StylesheetOperations::get_stylesheet($sid);
+						} catch (Exception $e) {
+							continue;
+						}
+						array_multisort($arr[1], $arr[0]);
+						$ob->set_designs($arr[0]);
+						$ob->save();
+					}
+					break;
+				case 'designtemplates': //templates assigned to designs
 					$bank = [];
 					foreach ($typenode->children() as $node) {
 						$val = (string)$node->tpl_id;
@@ -684,70 +770,42 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$ob->save();
 					}
 					break;
-				case 'categorytemplates': //relations between templates and categories
-					$bank = [];
-					foreach ($typenode->children() as $node) {
-						$val = (string)$node->tpl_id;
-						$val2 = (string)$node->category_id;
-						if (isset($templates[$val]) && isset($categories[$val2])) {
-							$val = $templates[$val];
-							$bank[$val][0][] = $categories[$val2];
-							$bank[$val][1][] = intval((string)$node->tpl_order);
-						}
-					}
-					foreach ($bank as $tid=>$arr) {
-						try {
-							$ob = TemplateOperations::get_template($tid);
-						} catch (Exception $e) {
-							continue;
-						}
-						array_multisort($arr[1], $arr[0]);
-						$ob->set_categories($arr[0]);
-						$ob->save();
-					}
-					break;
 				case 'pages':
 					if (!$runtime) {
 						verbose_msg(lang('install_contentpages'));
 					}
 					$eid = -99;
 					foreach ($typenode->children() as $node) {
-						$classname = ucfirst((string)$node->type);  //CHECKME original case
-						switch ($classname) {
-							case 'Errorpage': $classname = 'ErrorPage'; break;
-							case 'Pagelink': $classname = 'PageLink'; break;
-							case 'Sectionheader': $classname = 'SectionHeader'; break;
-						}
-						$pagetype = '\\CMSMS\\contenttypes\\'.$classname;
-						$ob = new $pagetype();
-						$ob->SetName((string)$node->content_name);
-						$ob->SetAlias((string)$node->content_alias);
-						$ob->SetTemplateId($templates[(string)$node->template_id] ?? --$eid);
-						$ob->SetDefaultContent((string)$node->default_content != false);
-						$ob->SetOwner(1);
-						$val = $pages[(string)$node->parent_id] ?? --$eid;
-						$ob->SetParentId($val); //TODO update later if $eid
-						$ob->SetActive((string)$node->active != false);
-						$ob->SetShowInMenu((string)$node->show_in_menu != false);
+						//replicate table-row somewhat
+						$val = intval((string)$node->template_id);
+						$tid = $templates[$val] ?? --$eid; //TODO later handle id's < -99
 						$val = (string)$node->menu_text;
 						if ($val) $val = htmlspecialchars_decode($val);
-						$ob->SetMenuText($val);
-						$ob->SetCachable((string)$node->cachable != false);
-						$ob->Save();
-						$val = (string)$node->content_id;
-						$pages[$val] = $ob->Id();
-						$pageobs[$val] = $ob;
+
+						$parms = [
+							'content_name' => (string)$node->content_name,
+							'content_alias' => (string)$node->content_alias,
+							'owner_id' => 1,
+							'template_id' => $tid,
+							'parent_id' => intval((string)$node->parent_id),
+							'active' => intval((string)$node->active),
+							'cachable' => intval((string)$node->cachable),
+							'show_in_menu' => intval((string)$node->show_in_menu),
+							'default_content' => intval((string)$node->default_content),
+							'menu_text' => $val,
+							'styles' => (string)$node->styles,
+						];
+
+						$val = intval((string)$node->content_id);
+						$pageprops[$val]['fields'] = $parms;
 					}
 					break;
 				case 'properties': //must be processed after pages
 					foreach ($typenode->children() as $node) {
-						$ob = $pageobs[(string)$node->content_id] ?? null;
-						if ($ob) {
-							$ob->SetPropertyValue((string)$node->prop_name, htmlspecialchars_decode((string)$node->content));
-						}
-					}
-					foreach ($pageobs as $ob) {
-						$ob->Save();
+						$val = intval((string)$node->content_id);
+						if (empty($pageprops[$val])) { $pageprops[$val] = []; }
+						if (empty($pageprops[$val]['props'])) { $pageprops[$val]['props'] = []; }
+						$pageprops[$val]['props'][(string)$node->prop_name] = htmlspecialchars_decode((string)$node->content);
 					}
 					break;
 				case 'files':
@@ -848,5 +906,142 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 		}
 	}
 
+	if ($pageprops) {
+		$map = [-1 => -1]; // maps proffered id's to installed id's
+		foreach ($pageprops as $val => $arr) {
+			//TODO revert to using CMSContentManager\contenttypes\whatever class 
+			$map[$val] = SavePage($arr, $map);
+		}
+		ContentOperations::get_instance()->SetAllHierarchyPositions();
+	}
+
 	return '';
+}
+
+/**
+ * Save page  content direct to database. We do this here cuz during
+ * site installation, there may not yet be a PageEditor-compatible class to use
+ * for saving content.
+ *
+ * @param array $parms 2 members: 'fields' and 'props', each an assoc.
+ * array suitable for stuffing into database tables
+ * @param array $pagemap Map from proffered pageid to installed-page id
+ * @return mixed int content-id or false upon error
+ */
+function SavePage($parms, $pagemap)
+{
+	extract($parms['fields']);
+
+	$db = CmsApp::get_instance()->GetDb();
+
+	$p = $parent_id ?? -1;
+	if ($p >= 0) {
+		if (isset($pagemap[$p]) && $pagemap[$p] !== false) {
+			$p = $parent_id = $pagemap[$p];
+		} else {
+			//TODO handle probably-wrong parent-page id
+			$p = $parent_id = -2;
+		}
+	} else {
+		$parent_id = $p; //in case was not set
+	}
+
+	$o = $item_order ?? 0;
+	if ($o < 1) {
+		$query = 'SELECT MAX(item_order) AS new_order FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ?';
+		$o = (int)$db->GetOne($query, [$p]);
+		$item_order = ($o < 1) ? 1 : $o + 1;
+	}
+
+// TODO handle $template_id < -99
+
+	$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
+	$val = (int)$db->GetOne($query);
+	$default_content = ($val < 1);
+
+	$now = trim($db->DbTimeStamp(time()), "'");
+
+	$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (
+content_id,
+content_name,
+content_alias,
+type,
+owner_id,
+parent_id,
+template_id,
+item_order,
+active,
+default_content,
+show_in_menu,
+cachable,
+secure,
+page_url,
+menu_text,
+metadata,
+titleattribute,
+accesskey,
+styles,
+tabindex,
+last_modified_by,
+create_date,
+modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+
+	$content_id = $db->GenID(CMS_DB_PREFIX.'content_seq'); //as late as possible (less racy)
+	$args = [
+		$content_id,
+		$content_name ?? '',
+		$content_alias ?? '',
+		$type ?? 'content',
+		$owner_id ?? 1,
+		$parent_id,
+		$template_id ?? -1,
+		$item_order,
+		$active ?? 1,
+		$default_content,
+		$show_in_menu ?? 1,
+		$cachable ?? 1,
+		$secure ?? 0,
+		$page_url ?? null,
+		$menu_text ?? null,
+		$metadata ?? null,
+		$titleattribute ?? null,
+		$accesskey ?? null,
+		$styles ?? null,
+		$tabindex ?? 0,
+		$last_modified_by ?? 1,
+		$now,
+		$now,
+	];
+
+	if (!$db->Execute($query, $args)) {
+		return false;
+	}
+
+	if (!empty($parms['props'])) {
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content_props (
+content_id,
+type,
+prop_name,
+content,
+create_date,
+modified_date) VALUES (?,?,?,?,?,?)';
+		foreach($parms['props'] as $name => $val) {
+			if (is_numeric($val) || is_bool($val)) {
+				$val = (int)$val;
+				$ptype = 'int';
+			} else {
+				if (!is_null($val)) { $val = (string)$val; }
+				$ptype = 'string';
+			}
+			$result = $db->Execute($query, [$content_id,$ptype,$name,$val,$now,$now]);
+			$ADBG = 1;
+		}
+	}
+
+	if (!empty($page_url)) {
+		$route = CmsRoute::new_builder($page_url,'__CONTENT__',$content_id,'',true);
+		cms_route_manager::add_static($route);
+	}
+
+	return $content_id;
 }
