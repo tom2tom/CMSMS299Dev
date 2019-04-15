@@ -514,6 +514,6 @@ var ggjs = {
   }
 };
 
-$(document).ready(function() {
+$(function() {
   ggjs.init();
 });

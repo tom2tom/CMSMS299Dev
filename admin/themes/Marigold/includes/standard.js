@@ -12,7 +12,7 @@
      * @namespace MG
      */
     var MG = global.MG = {};
-    $(document).ready(function() {
+    $(function() {
         MG.helper.init();
         MG.view.init();
     });

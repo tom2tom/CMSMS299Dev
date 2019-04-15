@@ -11,7 +11,7 @@
      * @namespace AC
      */
     var AC = global.AC = {};
-    $(document).ready(function() {
+    $(function() {
         AC.helper.init();
         AC.view.init();
     });

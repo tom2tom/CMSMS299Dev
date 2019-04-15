@@ -13,7 +13,7 @@
      */
     var OE = global.OE = {};
 
-    $(document).ready(function() {
+    $(function() {
         OE.helper.init();
         OE.view.init();
     });
