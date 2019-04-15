@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE cmsmssitedata [
  <!ELEMENT dtdversion (#PCDATA)>
- <!ELEMENT designs (design+)>
- <!ELEMENT design (id,name,description?,dflt?)>
+ <!ELEMENT stylecategories (scategory+)>
+ <!ELEMENT scategory (id,name,description?)>
  <!ELEMENT id (#PCDATA)>
  <!ELEMENT name (#PCDATA)>
  <!ELEMENT description (#PCDATA)>
- <!ELEMENT dflt (#PCDATA)>
  <!ELEMENT stylesheets (stylesheet+)>
- <!ELEMENT stylesheet (id,name,description?,media_type?,content,contentfile?)>
+ <!ELEMENT stylesheet (id,name,description?,media_type?,media_query?,content,contentfile?)>
  <!ELEMENT media_type (#PCDATA)>
+ <!ELEMENT media_query (#PCDATA)>
  <!ELEMENT content (#PCDATA)>
  <!ELEMENT contentfile (#PCDATA)>
- <!ELEMENT designstyles (designcss+)>
- <!ELEMENT designcss (design_id,css_id,item_order)>
- <!ELEMENT design_id (#PCDATA)>
+ <!ELEMENT categorystyles (catcss+)>
+ <!ELEMENT catcss (category_id,css_id,item_order?)>
+ <!ELEMENT category_id (#PCDATA)>
  <!ELEMENT css_id (#PCDATA)>
  <!ELEMENT item_order (#PCDATA)>
- <!ELEMENT tpltypes (tpltype+)>
+ <!ELEMENT templatetypes (tpltype+)>
  <!ELEMENT tpltype (id,originator,name,dflt_contents?,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner)>
  <!ELEMENT originator (#PCDATA)>
  <!ELEMENT dflt_contents (#PCDATA)>
@@ -28,22 +28,28 @@
  <!ELEMENT requires_contentblocks (#PCDATA)>
  <!ELEMENT one_only (#PCDATA)>
  <!ELEMENT owner (#PCDATA)>
- <!ELEMENT categories (category+)>
- <!ELEMENT category (id,name,description?,item_order?)>
+ <!ELEMENT templatecategories (tcategory+)>
+ <!ELEMENT tcategory (id,name,description?)>
  <!ELEMENT templates (template)>
  <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?,contentfile?)>
  <!ELEMENT type_id (#PCDATA)>
  <!ELEMENT owner_id (#PCDATA)>
  <!ELEMENT type_dflt (#PCDATA)>
  <!ELEMENT listable (#PCDATA)>
+ <!ELEMENT categorytemplates (cattpl+)>
+ <!ELEMENT cattpl (category_id,tpl_id,item_order?)>
+ <!ELEMENT tpl_id (#PCDATA)>
+ <!ELEMENT designs (design+)>
+ <!ELEMENT design (id,name,description?,dflt?)>
+ <!ELEMENT dflt (#PCDATA)>
+ <!ELEMENT designstyles (designcss+)>
+ <!ELEMENT designcss (design_id,css_id,item_order)>
+ <!ELEMENT design_id (#PCDATA)>
  <!ELEMENT designtemplates (designtpl+)>
  <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
- <!ELEMENT tpl_id (#PCDATA)>
  <!ELEMENT tpl_order (#PCDATA)>
- <!ELEMENT categorytemplates (cattpl+)>
- <!ELEMENT cattpl (category_id,tpl_id,tpl_order?)>
  <!ELEMENT pages (page+)>
- <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text?,cachable?)>
+ <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text?,cachable?,styles?)>
  <!ELEMENT content_id (#PCDATA)>
  <!ELEMENT content_name (#PCDATA)>
  <!ELEMENT content_alias (#PCDATA)>
@@ -55,6 +61,7 @@
  <!ELEMENT show_in_menu (#PCDATA)>
  <!ELEMENT menu_text (#PCDATA)>
  <!ELEMENT cacheable (#PCDATA)>
+ <!ELEMENT styles (#PCDATA)>
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
@@ -67,19 +74,14 @@
  <!ELEMENT file (name,(frompath|embedded),content?)>
 ]>
 <cmsmssitedata>
-	<dtdversion>0.7</dtdversion>
-
-	<designs>
-		<design>
+	<dtdversion>0.8</dtdversion>
+	<stylecategories>
+		<scategory>
 			<id>1</id>
-			<name>Simplex</name>
-			<description>Simplex Template is a HTML5 based theme, introduced with CMSMS 1.11 release and improved with 2.0 release.&#13;
-Purpose of this theme is to demonstrate what and how can be done with CMSMS Templates using HTML5 and responsive CSS for a better mobile experience.&#13;
-All Smarty templates which are used by Simplex Theme are prefix with &quot;Simplex&quot;, therefore be careful when renaming or deleting these templates.&#13;
-Theme itself is using jQuery, the functions JavaScript file is minified, in case you wish to change some JavaScript functions, refer to /uploads/simplex/js/functions.js file and replace functions.min.js file.</description>
-			<dflt>1</dflt>
-		</design>
-	</designs>
+			<name>Demonstration stylesheets category</name>
+			<description>The templates here will be applied in sort-order to each page which specifies this category for its styles-source.</description>
+		</scategory>
+	</stylecategories>
 	<stylesheets>
 		<stylesheet>
 			<id>1</id>
@@ -2694,29 +2696,29 @@ a {
 [[/strip]]]]></content>
 		</stylesheet>
 	</stylesheets>
-	<designstyles>
-		<designcss>
-			<design_id>1</design_id>
+	<categorystyles>
+		<catcss>
+			<category_id>1</category_id>
 			<css_id>1</css_id>
 			<item_order>1</item_order>
-		</designcss>
-		<designcss>
-			<design_id>1</design_id>
+		</catcss>
+		<catcss>
+			<category_id>1</category_id>
 			<css_id>2</css_id>
 			<item_order>2</item_order>
-		</designcss>
-		<designcss>
-			<design_id>1</design_id>
+		</catcss>
+		<catcss>
+			<category_id>1</category_id>
 			<css_id>3</css_id>
 			<item_order>3</item_order>
-		</designcss>
-		<designcss>
-			<design_id>1</design_id>
+		</catcss>
+		<catcss>
+			<category_id>1</category_id>
 			<css_id>4</css_id>
 			<item_order>4</item_order>
-		</designcss>
-	</designstyles>
-	<tpltypes>
+		</catcss>
+	</categorystyles>
+	<templatetypes>
 		<tpltype>
 			<id>1</id>
 			<originator>__CORE__</originator>
@@ -2771,7 +2773,9 @@ a {
 			<one_only>0</one_only>
 			<owner>1</owner>
 		</tpltype>
-	</tpltypes>
+	</templatetypes>
+	<templatecategories>
+	</templatecategories>
 	<templates>
 		<template>
 			<id>1</id>
@@ -3016,6 +3020,41 @@ a {
 			<listable>1</listable>
 		</template>
 	</templates>
+	<categorytemplates>
+	</categorytemplates>
+	<designs>
+		<design>
+			<id>1</id>
+			<name>Simplex</name>
+			<description>Simplex Template is a HTML5 based theme, introduced with CMSMS 1.11 release and improved with 2.0 release.&#13;
+Purpose of this theme is to demonstrate what and how can be done with CMSMS Templates using HTML5 and responsive CSS for a better mobile experience.&#13;
+All Smarty templates which are used by Simplex Theme are prefix with &quot;Simplex&quot;, therefore be careful when renaming or deleting these templates.&#13;
+Theme itself is using jQuery, the functions JavaScript file is minified, in case you wish to change some JavaScript functions, refer to /uploads/simplex/js/functions.js file and replace functions.min.js file.</description>
+			<dflt>1</dflt>
+		</design>
+	</designs>
+	<designstyles>
+		<designcss>
+			<design_id>1</design_id>
+			<css_id>1</css_id>
+			<item_order>1</item_order>
+		</designcss>
+		<designcss>
+			<design_id>1</design_id>
+			<css_id>2</css_id>
+			<item_order>2</item_order>
+		</designcss>
+		<designcss>
+			<design_id>1</design_id>
+			<css_id>3</css_id>
+			<item_order>3</item_order>
+		</designcss>
+		<designcss>
+			<design_id>1</design_id>
+			<css_id>4</css_id>
+			<item_order>4</item_order>
+		</designcss>
+	</designstyles>
 	<designtemplates>
 		<designtpl>
 			<design_id>1</design_id>
@@ -3076,6 +3115,7 @@ a {
 			<template_id>3</template_id>
 			<menu_text><![CDATA[Home]]></menu_text>
 			<content_alias>home</content_alias>
+			<styles>1,2,3,4</styles>
 		</page>
 		<page>
 			<content_id>2</content_id>
@@ -3088,6 +3128,7 @@ a {
 			<template_id>-1</template_id>
 			<menu_text><![CDATA[Help]]></menu_text>
 			<content_alias>help</content_alias>
+			<styles>1,2,3,4</styles>
 		</page>
 		<page>
 			<content_id>3</content_id>
@@ -3100,42 +3141,7 @@ a {
 			<template_id>-1</template_id>
 			<menu_text><![CDATA[About]]></menu_text>
 			<content_alias>about-cmsms</content_alias>
-		</page>
-		<page>
-			<content_id>5</content_id>
-			<content_name>Why use CMS Made Simple?</content_name>
-			<type>content</type>
-			<show_in_menu>1</show_in_menu>
-			<active>1</active>
-			<cachable>1</cachable>
-			<parent_id>-1</parent_id>
-			<template_id>4</template_id>
-			<menu_text><![CDATA[Why use CMS Made Simple?]]></menu_text>
-			<content_alias>why-use-cms-made-simple</content_alias>
-		</page>
-		<page>
-			<content_id>6</content_id>
-			<content_name>Support Options</content_name>
-			<type>link</type>
-			<show_in_menu>1</show_in_menu>
-			<active>1</active>
-			<cachable>1</cachable>
-			<parent_id>2</parent_id>
-			<template_id>1</template_id>
-			<menu_text><![CDATA[Support Options]]></menu_text>
-			<content_alias>support-options</content_alias>
-		</page>
-		<page>
-			<content_id>7</content_id>
-			<content_name>Documentation</content_name>
-			<type>link</type>
-			<show_in_menu>1</show_in_menu>
-			<active>1</active>
-			<cachable>1</cachable>
-			<parent_id>2</parent_id>
-			<template_id>1</template_id>
-			<menu_text><![CDATA[Documentation]]></menu_text>
-			<content_alias>documentation</content_alias>
+			<styles>1,2,3,4</styles>
 		</page>
 		<page>
 			<content_id>4</content_id>
@@ -3148,6 +3154,46 @@ a {
 			<template_id>4</template_id>
 			<menu_text><![CDATA[Who is CMSMS for?]]></menu_text>
 			<content_alias>who-is-cmsms-for</content_alias>
+			<styles>1,2,3,4</styles>
+		</page>
+		<page>
+			<content_id>5</content_id>
+			<content_name>Why use CMS Made Simple?</content_name>
+			<type>content</type>
+			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
+			<parent_id>-1</parent_id>
+			<template_id>4</template_id>
+			<menu_text><![CDATA[Why use CMS Made Simple?]]></menu_text>
+			<content_alias>why-use-cms-made-simple</content_alias>
+			<styles>1,2,3,4</styles>
+		</page>
+		<page>
+			<content_id>6</content_id>
+			<content_name>Support Options</content_name>
+			<type>link</type>
+			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
+			<parent_id>2</parent_id>
+			<template_id>1</template_id>
+			<menu_text><![CDATA[Support Options]]></menu_text>
+			<content_alias>support-options</content_alias>
+			<styles>1,2,3,4</styles>
+		</page>
+		<page>
+			<content_id>7</content_id>
+			<content_name>Documentation</content_name>
+			<type>link</type>
+			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
+			<parent_id>2</parent_id>
+			<template_id>1</template_id>
+			<menu_text><![CDATA[Documentation]]></menu_text>
+			<content_alias>documentation</content_alias>
+			<styles>1,2,3,4</styles>
 		</page>
 		<page>
 			<content_id>8</content_id>
@@ -3160,17 +3206,13 @@ a {
 			<template_id>4</template_id>
 			<menu_text><![CDATA[History]]></menu_text>
 			<content_alias>history</content_alias>
+			<styles>1,2,3,4</styles>
 		</page>
 	</pages>
 	<properties>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>searchable</prop_name>
-			<content>1</content>
-		</property>
-		<property>
-			<content_id>1</content_id>
-			<prop_name>design_id</prop_name>
 			<content>1</content>
 		</property>
 		<property>
@@ -3235,11 +3277,6 @@ a {
 		</property>
 		<property>
 			<content_id>2</content_id>
-			<prop_name>design_id</prop_name>
-			<content>1</content>
-		</property>
-		<property>
-			<content_id>2</content_id>
 			<prop_name>searchable</prop_name>
 			<content>1</content>
 		</property>
@@ -3275,11 +3312,6 @@ a {
 		</property>
 		<property>
 			<content_id>3</content_id>
-			<prop_name>design_id</prop_name>
-			<content>1</content>
-		</property>
-		<property>
-			<content_id>3</content_id>
 			<prop_name>searchable</prop_name>
 			<content>1</content>
 		</property>
@@ -3312,11 +3344,6 @@ a {
 			<content_id>3</content_id>
 			<prop_name>thumbnail</prop_name>
 			<content></content>
-		</property>
-		<property>
-			<content_id>4</content_id>
-			<prop_name>design_id</prop_name>
-			<content>1</content>
 		</property>
 		<property>
 			<content_id>4</content_id>
@@ -3389,11 +3416,6 @@ a {
 		</property>
 		<property>
 			<content_id>5</content_id>
-			<prop_name>design_id</prop_name>
-			<content>1</content>
-		</property>
-		<property>
-			<content_id>5</content_id>
 			<prop_name>searchable</prop_name>
 			<content>1</content>
 		</property>
@@ -3463,11 +3485,6 @@ a {
 		</property>
 		<property>
 			<content_id>6</content_id>
-			<prop_name>design_id</prop_name>
-			<content>1</content>
-		</property>
-		<property>
-			<content_id>6</content_id>
 			<prop_name>searchable</prop_name>
 			<content>1</content>
 		</property>
@@ -3513,11 +3530,6 @@ a {
 		</property>
 		<property>
 			<content_id>7</content_id>
-			<prop_name>design_id</prop_name>
-			<content>1</content>
-		</property>
-		<property>
-			<content_id>7</content_id>
 			<prop_name>searchable</prop_name>
 			<content>1</content>
 		</property>
@@ -3560,11 +3572,6 @@ a {
 			<content_id>7</content_id>
 			<prop_name>url</prop_name>
 			<content><![CDATA[https://docs.cmsmadesimple.org]]></content>
-		</property>
-		<property>
-			<content_id>8</content_id>
-			<prop_name>design_id</prop_name>
-			<content>1</content>
 		</property>
 		<property>
 			<content_id>8</content_id>
