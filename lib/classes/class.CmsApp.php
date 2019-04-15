@@ -84,7 +84,7 @@ final class CmsApp
     /**
      * @ignore
      */
-    private $_current_content_page;
+    private $_current_content;
 
     /**
      * @ignore
@@ -276,32 +276,33 @@ final class CmsApp
     }
 
     /**
-     * Set the current content page
+     * Set the current-page content object, if not already done
      *
      * @since 2.0
      * @internal
      * @ignore
-     * @param mixed $content one of the content classes, from core or CMSContentManager
+     * @param mixed $content one of the content classes, CMSMS or CMSContentManager namespace
      */
-    public function set_content_object(&$content)
+    public function set_content_object($content)
     {
-        if( !$this->_current_content_page || $content instanceof ErrorPage ) {
-            $this->_current_content_page = $content;
+        if( !$this->_current_content || $content instanceof ErrorPage ) {
+            $this->_current_content = $content;
         }
     }
 
     /**
-     * Get the current content page
+     * Get the current-page content object
      *
      * @since 2.0
+     * @return mixed content-object (CMSMS or CMSContentManager namespace) or null
      */
     public function get_content_object()
     {
-        return $this->_current_content_page;
+        return $this->_current_content ?? null;
     }
 
     /**
-     * Get the ID of the current content page
+     * Get the ID of the current page
      *
      * @since 2.0
      */
