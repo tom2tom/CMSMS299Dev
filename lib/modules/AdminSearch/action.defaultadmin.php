@@ -71,7 +71,7 @@ function process_results(c) {
  });
 }
 
-$(document).ready(function() {
+$(function() {
  $('#filter_all').on('change',function() {
   $('#filter_box .filter_toggle').prop('checked',this.checked);
  });

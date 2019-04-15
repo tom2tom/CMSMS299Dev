@@ -86,7 +86,7 @@ function barValue(total, str) {
   $(".ui-progressbar-value").html(str);
 }
 
-$(document).ready(function() {
+$(function() {
   var _jqXHR = []; // jqXHR array
   var _files = []; // filenames
   // prevent browser default drag/drop handling

@@ -1,6 +1,6 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
-$(document).ready(function() {
+$(function() {
   {/literal}{if !$advanced}$('#advhelp').hide();{/if}{literal}
   $('#advanced').on('click', function() {
     $('#advhelp').toggle();

@@ -24,7 +24,7 @@ $s2 = json_encode($this->Lang('confirm_settings'));
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
   $('#reseturl').on('click', function(ev) {
     ev.preventDefault();
     var form = $(this).closest('form');

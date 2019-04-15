@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\ContentBase;
+use CMSMS\contenttypes\ContentBase;
 use CMSMS\FilePicker as IFilePicker;
 use CMSMS\FilePickerProfile;
 use CMSMS\FileType;
@@ -252,7 +252,7 @@ EOS;
 		$js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
  $('input[data-cmsfp-instance="$_instance"]').filepicker({
   title: '$title',
   param_sig: '$sig',

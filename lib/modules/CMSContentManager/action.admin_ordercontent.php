@@ -113,7 +113,7 @@ function parseTree(ul) {
   return tags;
 }
 
-$(document).ready(function() {
+$(function() {
   $('#btn_submit').on('click', function(ev) {
     ev.preventDefault();
     var form = $(this).closest('form');

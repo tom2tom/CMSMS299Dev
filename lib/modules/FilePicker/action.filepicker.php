@@ -243,7 +243,7 @@ EOS;
 <script type="text/javascript" src="{$baseurl}/lib/js/filebrowser.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
  var filepicker = new CMSFileBrowser({
   cmd_url: '$url',
   cwd: '$cwd',

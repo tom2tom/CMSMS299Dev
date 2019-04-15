@@ -1,6 +1,6 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
-$(document).ready(function() {
+$(function() {
   $('#design_id').change(function() {
     var v = $(this).val();
   });

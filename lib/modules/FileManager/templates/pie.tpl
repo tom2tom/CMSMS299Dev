@@ -1,6 +1,6 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
-$(document).ready(function() {
+$(function() {
   // Apply jrac on some image
   $('#img').jrac({
     'crop_width': 250,

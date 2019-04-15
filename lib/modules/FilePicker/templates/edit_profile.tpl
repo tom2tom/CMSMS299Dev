@@ -1,6 +1,6 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
-$(document).ready(function() {
+$(function() {
  cms_equalWidth($('.boxchild label'));
 {/literal}//]]>
 </script>

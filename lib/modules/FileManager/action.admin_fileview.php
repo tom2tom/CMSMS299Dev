@@ -273,7 +273,7 @@ function enable_action_buttons() {
   }
 }
 
-$(document).ready(function() {
+$(function() {
   enable_action_buttons();
   $('#refresh').off('click').on('click', function() {
     // ajaxy reload for the files area.

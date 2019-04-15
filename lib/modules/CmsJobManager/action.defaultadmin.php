@@ -32,7 +32,7 @@ $u2 = $this->create_url($id,'test2',$returnid,[],false,false,'',1);
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
  $('body').append(
 '<a id="simple1" href="$u1" class="link_button icon do">Simple Derived Class Test</a>' +
 '<a href="$u2" class="link_button icon do">Simple Derived Cron Test</a>'

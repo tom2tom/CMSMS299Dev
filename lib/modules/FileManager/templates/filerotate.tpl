@@ -8,7 +8,7 @@ img#rotimg {
 
 <script type="text/javascript">
 {literal}//<![CDATA[
-$(document).ready(function() {
+$(function() {
   $('#rotangle').slider({
     min: -180,
     max: 180,

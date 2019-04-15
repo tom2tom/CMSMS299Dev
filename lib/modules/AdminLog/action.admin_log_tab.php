@@ -85,7 +85,7 @@ $url = str_replace('&amp;','&',$url);
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
   $('#pagenum').on('change', function() {
     var v = $(this).val();
     var t_url = '$url'.replace('xxx', v);

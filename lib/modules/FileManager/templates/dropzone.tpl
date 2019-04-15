@@ -1,7 +1,7 @@
 {if !isset($is_ie)}{* IE sucks... we only do this for REAL browsers *}
 <script type="text/javascript">
 {literal}//<![CDATA[
-$(document).ready(function() {
+$(function() {
   $('.drop .dialog').on('dialogopen', function(event, ui) {
     $.get('{/literal}{$chdir_url}{literal}', function(data) {
       $('#fm_newdir').val('/' + data);
