@@ -22,7 +22,7 @@ $tmp = $this->GetPreference('detail_returnid',-1);
 if( $tmp > 0 ) $detailpage = $tmp;
 if( isset($params['detailpage']) ) {
     $hm = $gCms->GetHierarchyManager();
-    $id = $hm->find_by_tag_anon($params['detailpage']);
+    $id = $hm->find_by_identifier($params['detailpage'],FALSE);
     if( $id ) {
         $params['detailpage'] = $id;
     }
@@ -71,11 +71,11 @@ else if( isset($params['category']) && $params['category'] != '' ) {
     foreach( $categories as $onecat ) {
         if ($count > 0) $query1 .= ' OR ';
         if (strpos($onecat, '|') !== FALSE || strpos($onecat, '*') !== FALSE) {
-            $tmp = $db->qstr(trim(str_replace('*', '%', str_replace("'",'_',$onecat))));
+            $tmp = $db->qStr(trim(str_replace('*', '%', str_replace("'",'_',$onecat))));
             $query1 .= "upper(mnc.long_name) like upper({$tmp})";
         }
         else {
-            $tmp = $db->qstr(trim(str_replace("'",'_',$onecat)));
+            $tmp = $db->qStr(trim(str_replace("'",'_',$onecat)));
             $query1 .= "mnc.news_category_name = {$tmp}";
         }
         $count++;

@@ -94,22 +94,22 @@ class News extends CMSModule
     {
         $this->CreateParameter('action','default',$this->Lang('helpaction'));
         $this->CreateParameter('articleid','',$this->Lang('help_articleid'));
-        $this->CreateParameter('browsecat', 0, $this->lang('helpbrowsecat'));
-        $this->CreateParameter('browsecattemplate', '', $this->lang('helpbrowsecattemplate'));
-        $this->CreateParameter('category', 'category', $this->lang('helpcategory'));
-        $this->CreateParameter('detailpage', 'pagealias', $this->lang('helpdetailpage'));
-        $this->CreateParameter('detailtemplate', '', $this->lang('helpdetailtemplate'));
-        $this->CreateParameter('formtemplate', '', $this->lang('helpformtemplate'));
+        $this->CreateParameter('browsecat', 0, $this->Lang('helpbrowsecat'));
+        $this->CreateParameter('browsecattemplate', '', $this->Lang('helpbrowsecattemplate'));
+        $this->CreateParameter('category', 'category', $this->Lang('helpcategory'));
+        $this->CreateParameter('detailpage', 'pagealias', $this->Lang('helpdetailpage'));
+        $this->CreateParameter('detailtemplate', '', $this->Lang('helpdetailtemplate'));
+        $this->CreateParameter('formtemplate', '', $this->Lang('helpformtemplate'));
         $this->CreateParameter('idlist','',$this->Lang('help_idlist'));
-        $this->CreateParameter('moretext', 'more...', $this->lang('helpmoretext'));
-        $this->CreateParameter('number', 100000, $this->lang('helpnumber'));
+        $this->CreateParameter('moretext', 'more...', $this->Lang('helpmoretext'));
+        $this->CreateParameter('number', 100000, $this->Lang('helpnumber'));
         $this->CreateParameter('pagelimit', 1000, $this->Lang('help_pagelimit'));
-        $this->CreateParameter('showall', 0, $this->lang('helpshowall'));
-        $this->CreateParameter('showarchive', 0, $this->lang('helpshowarchive'));
-        $this->CreateParameter('sortasc', 'true', $this->lang('helpsortasc'));
-        $this->CreateParameter('sortby', 'start_time', $this->lang('helpsortby'));
+        $this->CreateParameter('showall', 0, $this->Lang('helpshowall'));
+        $this->CreateParameter('showarchive', 0, $this->Lang('helpshowarchive'));
+        $this->CreateParameter('sortasc', 'true', $this->Lang('helpsortasc'));
+        $this->CreateParameter('sortby', 'start_time', $this->Lang('helpsortby'));
         $this->CreateParameter('start', 0, $this->lang('helpstart'));
-        $this->CreateParameter('summarytemplate', '', $this->lang('helpsummarytemplate'));
+        $this->CreateParameter('summarytemplate', '', $this->Lang('helpsummarytemplate'));
     }
 
     public function VisibleToAdminUser()
@@ -153,7 +153,7 @@ EOS;
                 $detailpage = $returnid;
                 if( isset($params['detailpage']) ) {
                     $hm = $gCms->GetHierarchyManager();
-                    $id = $hm->find_by_tag_anon($params['detailpage']);
+                    $id = $hm->find_by_identifier($params['detailpage'],false);
                     if( $id ) {
                         $detailpage = $id;
                     }
