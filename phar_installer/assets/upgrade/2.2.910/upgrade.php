@@ -64,9 +64,9 @@ if ($udt_list) {
 // 2. Tweak callbacks for page and generic layout template types
 $page_type = CmsLayoutTemplateType::load('__CORE__::page');
 if ($page_type) {
-    $page_type->set_lang_callback('\\CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
-    $page_type->set_content_callback('\\CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults');
-    $page_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
+    $page_type->set_lang_callback('CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
+    $page_type->set_content_callback('CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults');
+    $page_type->set_help_callback('CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
     $page_type->save();
 } else {
     error_msg('__CORE__::page template update '.lang('failed'));
@@ -74,8 +74,8 @@ if ($page_type) {
 
 $generic_type = CmsLayoutTemplateType::load('__CORE__::generic');
 if ($generic_type) {
-    $generic_type->set_lang_callback('\\CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback');
-    $generic_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
+    $generic_type->set_lang_callback('CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback');
+    $generic_type->set_help_callback('CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
     $generic_type->save();
 } else {
     error_msg('__CORE__::generic template update '.lang('failed'));
@@ -168,7 +168,7 @@ $dict = GetDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
 // 6. Table revisions
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE,'tpl_order I(4) DEFAULT 0');
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.DesignManager\Design::TPLTABLE,'tpl_order I(2) UNSIGNED DEFAULT 0');
 $dict->ExecuteSQLArray($sqlarray);
 
 $flds = '
@@ -246,30 +246,165 @@ $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME,'contentfile I(1) DEFAULT 0');
 $dict->ExecuteSQLArray($sqlarray);
 // redundant fields
-$sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.'content','prop_names');
+$sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'content','prop_names');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.'module_smarty_plugins','cachable');
+$sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'module_smarty_plugins','cachable');
 $dict->ExecuteSQLArray($sqlarray);
+
+$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'routes','created','create_date DEFAULT CURRENT_TIMESTAMP');
+$dict->ExecuteSQLArray($sqlarray);
+// replace timestamp fields
+function (string $name, string $fid, $db, $dict)
+{
+    $tbl = CMS_DB_PREFIX.$name;
+    $sqlarray = $dict->AddColumnSQL($tbl, 'create_date DT DEFAULT CURRENT_TIMESTAMP');
+    $dict->ExecuteSQLArray($sqlarray);
+    $sqlarray = $dict->AddColumnSQL($tbl, 'modified_date DT ON UPDATE CURRENT_TIMESTAMP');
+    $dict->ExecuteSQLArray($sqlarray);
+
+    $data = $db->GetAssoc('SELECT '.$fid.',created,modified FROM '.$tbl);
+    if ($data) {
+        $sql = 'UPDATE  '.$tbl.' SET create_date=?, modified_date=? WHERE '.$fid.'=?';
+        $dt = new DateTime('@0',NULL);
+        $fmt = 'Y-m-d H:i:s';
+        foreach ($data as $id => &$row) {
+			$t1 = (int)$row['created'];
+			$t2 = max($t1,(int)$row['modified']);
+			if ($t1 == 0) { $t1 = $t2; }
+            $dt->setTimestamp($t1);
+            $created = $dt->format($fmt);
+            $dt->setTimestamp($t2);
+            $modified = $dt->format($fmt);
+            $db->Execute($sql, [$created,$modified,$id]);
+        }
+        unset($row);
+    }
+
+    $sqlarray = $dict->DropColumnSQL($tbl, 'created');
+    $dict->ExecuteSQLArray($sqlarray);
+    $sqlarray = $dict->DropColumnSQL($tbl, 'modified');
+    $dict->ExecuteSQLArray($sqlarray);
+}
+// conform this one to suit the function
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'layout_tpl_categories', 'created I');
+$dict->ExecuteSQLArray($sqlarray);
+
+foreach ([
+    ['layout_designs','id'],
+    ['layout_stylesheets','id'],
+    ['layout_templates','id'],
+    ['layout_tpl_type','id'],
+    ['layout_tpl_categories','id'],
+    ['locks','id'],
+] as $tbl) {
+    migrate_stamps($tbl[0],$tbl[1],$db,$dict);
+}
+
+//migrate stylesheets from design to content-property
+$tbl = CMS_DB_PREFIX.'layout_css_categories';
+$flds = '
+id I(4) KEY AUTO,
+name C(64),
+description X(1024),
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
+';
+$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
+$dict->ExecuteSQLArray($sqlarray);
+
+$tbl = CMS_DB_PREFIX.'layout_csscat_members';
+$flds = '
+id I(4) KEY AUTO,
+category_id I(4) NOT NULL,
+css_id I(4) NOT NULL,
+item_order I(2) DEFAULT 0
+';
+$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
+$dict->ExecuteSQLArray($sqlarray);
+
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'content','styles C(48)');
+$dict->ExecuteSQLArray($sqlarray);
+
+$pref = CMS_DB_PREFIX;
+$query = <<<EOS
+SELECT D.id,D.name,D.description,A.css_id
+FROM {$pref}layout_designs D
+LEFT JOIN {$pref}layout_design_cssassoc A
+ON D.id = A.design_id
+ORDER BY D.id,A.item_order
+EOS;
+
+$rows = $db->GetArray($query);
+if ($rows) {
+    $bank = [];
+    $names = [];
+    $desc = [];
+
+    foreach ($rows as $row) {
+		$did = $row['id'];
+		if (!isset($bank[$did])) {
+			$bank[$did] = [];
+			$names[$did] = $row['name'];
+			$desc[$did] = $row['description'];
+	    }
+		$bank[$did][] = (int)$row['css_id'];
+    }
+	$default_css = reset($bank)[0] ?? 1;
+    foreach ($bank as $did => $row) {
+		if (count($row == 1)) {
+			$bank[$did] = reset($row);
+		    unset($names[did]);
+			unset($desc[$did]);
+		} else {
+			// create css group from the design name, desc, css id's
+			$db->Execute('INSERT INTO '.CMS_DB_PREFIX.'layout_css_categories (name,description) VALUES (?,?)',[$names[$did].'-design members',$desc[$did]]);
+			$gid = $db->Insert_ID();
+			$i = 1;
+			foreach ($row as $cssid) {
+				$db->Execute('INSERT INTO '.CMS_DB_PREFIX.'layout_csscat_members (category_id,css_id,item_order) VALUES (?,?,?)',[$gid,$cssid,$i++]);
+			}
+			$bank[$id] = implode(',',$row);
+		}
+    }
+
+    $query = <<<EOS
+SELECT C.content_id,P.content AS design_id
+FROM {$pref}content C
+LEFT JOIN {$pref}content_props P
+ON C.content_id = P.content_id
+WHERE P.prop_name = 'design_id'
+EOS;
+    $rows = $db->GetArray($query);
+
+    $query = "UPDATE {$pref}content SET styles=? WHERE content_id=?";
+    foreach ($rows as $row) {
+       $val = $bank[$row['design_id']] ?? $default_css;
+       $db->Execute($query,[$val,$row['content_id']]);
+	}
+
+// NOT YET	$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'content_props WHERE prop_name = \'design_id\'');
+} //rows
 
 // 7. Migrate module templates to layout-templates table
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
 $data = $db->GetArray($query);
 if ($data) {
-    $query = 'INSERT INTO '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.
-        ' (originator,name,content,type_id,created,modified) VALUES (?,?,?,?,?,?)';
-    $dt = new DateTime(null, new DateTimeZone('UTC'));
+    $query = 'INSERT INTO '.CMS_DB_PREFIX.'layout_templates
+(originator,name,content,type_id,create_date,modified_date)
+VALUES (?,?,?,?,?,?)';
+    $dt = new DateTime('@0',null);
     $types = [];
     foreach ($data as $row) {
         $name = $row['module_name'];
         if (!isset($types[$name])) {
-            $db->Execute('INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.
-            ' (originator,name,description,owner,created,modified) VALUES (?,?,?,-1,?,?)',
+            // CmsLayoutTemplateType::TABLENAME.
+            $db->Execute('INSERT INTO '.CMS_DB_PREFIX.'layout_tpl_type
+(originator,name,description,owner)
+VALUES (?,?,?,-1)',
             [
                 $name,
                 'Moduleaction',
                 'Action templates for module: '.$name,
-                $now,
-                $now,
             ]);
             $types[$name] = $db->insert_id();
         }
