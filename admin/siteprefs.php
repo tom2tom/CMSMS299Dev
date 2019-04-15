@@ -300,11 +300,11 @@ if (isset($_POST['submit'])) {
                 break;
             case 'advanced':
                 cms_siteprefs::set('loginmodule', trim($_POST['login_module']));
-				$val = (int)$_POST['lock_timeout'];
-				if ($val != 0) $val = max(5,min(480,$val));
+                $val = (int)$_POST['lock_timeout'];
+                if ($val != 0) $val = max(5,min(480,$val));
                 cms_siteprefs::set('lock_timeout', $val);
-				$val = (int)$_POST['lock_refresh'];
-				if ($val != 0) $val = max(30,min(3540,$val));
+                $val = (int)$_POST['lock_refresh'];
+                if ($val != 0) $val = max(30,min(3600,$val));
                 cms_siteprefs::set('lock_refresh', $val);
                 $val = (int)$_POST['smarty_cachelife'];
                 if ($val < 1) {
@@ -316,11 +316,11 @@ if (isset($_POST['submit'])) {
                 AdminUtils::clear_cache();
 
                 $val = trim($_POST['editortype']);
-				if ($val) {
-					cms_siteprefs::set('syntax_editor', $val); //as module::editor or module::module
-				} else {
-					cms_siteprefs::set('syntax_editor', '');
-				}
+                if ($val) {
+                    cms_siteprefs::set('syntax_editor', $val); //as module::editor or module::module
+                } else {
+                    cms_siteprefs::set('syntax_editor', '');
+                }
                 $val = trim($_POST['editortheme']);
                 if ($val) {
                     $val = strtolower(strtr($val, ' ', '_'));
@@ -780,9 +780,9 @@ if ($list) {
             continue;
         }
         if (!isset($all_attributes[$tmp])) {
-            $all_attributes[$tmp] = ['label'=>lang($tmp),'value'=>[]];
+            $all_attributes[$tmp] = ['label'=>lang_by_realm('CMSContentManager',$tmp),'value'=>[]];
         }
-        $all_attributes[$tmp]['value'][] = ['value'=>$arr['name'],'label'=>lang($arr['name'])];
+        $all_attributes[$tmp]['value'][] = ['value'=>$arr['name'],'label'=>lang_by_realm('CMSContentManager',$arr['name'])];
     }
 }
 $txt = FormUtils::create_option($all_attributes);
