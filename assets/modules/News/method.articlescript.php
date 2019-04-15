@@ -107,7 +107,7 @@ function news_dopreview() {
 EOS;
 } //templates present
 $js .= <<<EOS
-$(document).ready(function() {
+$(function() {
   $('[name$=apply],[name$=submit]').attr('disabled','disabled');
   $('#edit_news').dirtyForm({
     onDirty: function() {

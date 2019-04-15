@@ -1,6 +1,6 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
-$(document).ready(function() {
+$(function() {
   $('#{$actionid}cancel').on('click', function() {
     $(this).closest('form').attr('novalidate','novalidate');
   });

@@ -71,7 +71,7 @@ function parseTree(ul) {
   return tags;
 }
 
-$(document).ready(function() {
+$(function() {
   $('[name={$id}submit]').on('click', function() {
     var tree = JSON.stringify(parseTree($('ul.sortable'))); //IE8+
     $('#submit_data').val(tree);

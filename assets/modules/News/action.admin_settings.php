@@ -9,7 +9,7 @@ $yes = $this->Lang('yes');
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
  $('a.del_cat').on('click', function(ev) {
   ev.preventDefault();
   cms_confirm_linkclick(this,$prompt,'$yes');

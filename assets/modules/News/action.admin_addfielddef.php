@@ -78,7 +78,7 @@ function handle_change() {
     $('#area_options').hide('slow');
   }
 }
-$(document).ready(function() {
+$(function() {
   handle_change();
   $('#fld_type').on('change', handle_change);
   $('#{$id}cancel').on('click', function() {

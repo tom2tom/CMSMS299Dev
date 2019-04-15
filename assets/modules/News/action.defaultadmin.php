@@ -300,7 +300,7 @@ EOS;
 
 $js = <<<EOS
 $jsp1
-$(document).ready(function() {
+$(function() {
   $('#bulk_category').hide();
   $('#selall').cmsms_checkall();
   $('#toggle_filter').on('click', function() {
