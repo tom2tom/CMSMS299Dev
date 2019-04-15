@@ -69,7 +69,7 @@ function fnDeSelect() {
  else if(window.getSelection)
   window.getSelection().removeAllRanges();
 }
-$(document).ready(function() {
+$(function() {
  fnSelect('copy_paste_in_forum');
 });
 //]]>
