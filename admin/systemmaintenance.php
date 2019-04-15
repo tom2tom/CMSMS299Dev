@@ -87,7 +87,7 @@ if (isset($_POST['optimizeall'])) {
     foreach ($optimizearray as $check) {
         if (isset($check['Msg_text']) && $check['Msg_text'] != 'OK') {
             $errorsfound++;
-            $errordetails .= 'MySQL reports that table ' . $check['Table'] . ' does not checkout OK.<br>';
+            $errordetails .= 'Database table ' . $check['Table'] . ' does not checkout OK.<br>';
         }
     }
 
@@ -104,12 +104,12 @@ if (isset($_POST['repairall'])) {
     foreach ($repairarray as $check) {
         if (isset($check['Msg_text']) && $check['Msg_text'] != 'OK') {
             $errorsfound++;
-            $errordetails .= 'MySQL reports that table ' . $check['Table'] . ' does not checkout OK.<br>';
+            $errordetails .= 'Database table ' . $check['Table'] . ' does not checkout OK.<br>';
         }
     }
 
     // put mention into the admin log
-    audit('', 'System Maintenance', 'All db-tables repaired');
+    audit('', 'System Maintenance', 'All database tables repaired');
     $themeObject->RecordNotice('success', lang('sysmain_tablesrepaired'));
 }
 
