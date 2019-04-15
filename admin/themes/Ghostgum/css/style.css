@@ -1861,6 +1861,7 @@ img.systemicon {
     border: 1px solid #3c9b0a;
     border-radius: 8px;
     position: fixed;
+    background-color: #58814c;
     padding: 9px;
     max-width: 16em;
 /* min-width: 12.5em;   */
