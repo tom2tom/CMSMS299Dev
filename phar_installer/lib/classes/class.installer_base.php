@@ -22,7 +22,6 @@ use function cms_installer\endswith;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function file_put_contents;
-use function rrmdir;
 
 class FilePatternFilter extends FilterIterator
 {
