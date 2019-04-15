@@ -1,5 +1,5 @@
 <?php
-#ajax alerts processing
+#Ajax alerts processing
 #Copyright (C) 2011-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,14 +18,14 @@
 
 use CMSMS\AdminAlerts\Alert;
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-try {
-    $out = null;
-    $uid = get_userid(FALSE);
-    if( !$uid ) throw new Exception('Permission Denied'); // should be a 403, but meh.
+$userid = get_userid(FALSE);
 
+try {
+    if( !$userid ) throw new Exception('Permission Denied'); // should be a 403, but meh.
+
+    $out = null;
     $op = cleanValue($_POST['op']);
     if( !$op ) $op = 'delete';
     $alert_name = cleanValue($_POST['alert']);
