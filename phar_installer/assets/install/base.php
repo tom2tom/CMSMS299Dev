@@ -23,14 +23,14 @@ verbose_msg(lang('install_initsiteperms'));
 $all_perms = [];
 foreach( [
 //	'Add Pages', >CM
-//	'Add Templates', >DM
+	'Add Templates',
 //	'Manage All Content', >CM
 //	'Manage Designs', >DM
 	'Manage Groups',
 	'Manage My Account',
 	'Manage My Bookmarks',
 	'Manage My Settings',
-//	'Manage Stylesheets', >DM
+	'Manage Stylesheets',
 	'Manage Users',
 //	'Modify Any Page', >CM
 	'Modify Events',
@@ -41,7 +41,7 @@ foreach( [
 //	'Modify Site Assets', no deal !!
 	'Modify Site Code',
 	'Modify Site Preferences',
-//	'Modify Templates', >DM
+	'Modify Templates',
 	'Remote Administration',  //for app management, sans admin console
 //	'Remove Pages', >CM
 //	'Reorder Content', >CM
@@ -128,7 +128,7 @@ $admin_user->adminaccess = 1;
 $admin_user->password = password_hash( $adminaccount['password'], PASSWORD_DEFAULT );
 $admin_user->Save();
 
-UserOperations::get_instance()->AddMemberGroup($admin_user->id,$gid1);
+(new UserOperations())->AddMemberGroup($admin_user->id,$gid1);
 cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the only user-preference we need now
 
 //
@@ -142,14 +142,12 @@ Events::CreateEvent('Core','AddDesignPre');
 */
 Events::CreateEvent('Core','AddGroupPost');
 Events::CreateEvent('Core','AddGroupPre');
-/* >DM
 Events::CreateEvent('Core','AddStylesheetPost');
 Events::CreateEvent('Core','AddStylesheetPre');
 Events::CreateEvent('Core','AddTemplatePost');
 Events::CreateEvent('Core','AddTemplatePre');
 Events::CreateEvent('Core','AddTemplateTypePost');
 Events::CreateEvent('Core','AddTemplateTypePre');
-*/
 Events::CreateEvent('Core','AddUserPost');
 Events::CreateEvent('Core','AddUserPre');
 Events::CreateEvent('Core','ChangeGroupAssignPost');
@@ -171,14 +169,12 @@ Events::CreateEvent('Core','DeleteDesignPre');
 */
 Events::CreateEvent('Core','DeleteGroupPost');
 Events::CreateEvent('Core','DeleteGroupPre');
-/* >DM
 Events::CreateEvent('Core','DeleteStylesheetPost');
 Events::CreateEvent('Core','DeleteStylesheetPre');
 Events::CreateEvent('Core','DeleteTemplatePost');
 Events::CreateEvent('Core','DeleteTemplatePre');
 Events::CreateEvent('Core','DeleteTemplateTypePost');
 Events::CreateEvent('Core','DeleteTemplateTypePre');
-*/
 Events::CreateEvent('Core','DeleteUserPost');
 Events::CreateEvent('Core','DeleteUserPre');
 /* >DM
@@ -187,14 +183,13 @@ Events::CreateEvent('Core','EditDesignPre');
 */
 Events::CreateEvent('Core','EditGroupPost');
 Events::CreateEvent('Core','EditGroupPre');
-/* >DM
 Events::CreateEvent('Core','EditStylesheetPost');
 Events::CreateEvent('Core','EditStylesheetPre');
 Events::CreateEvent('Core','EditTemplatePost');
 Events::CreateEvent('Core','EditTemplatePre');
 Events::CreateEvent('Core','EditTemplateTypePost');
 Events::CreateEvent('Core','EditTemplateTypePre');
-*/
+
 Events::CreateEvent('Core','EditUserPost');
 Events::CreateEvent('Core','EditUserPre');
 Events::CreateEvent('Core','LoginFailed');
@@ -209,14 +204,14 @@ Events::CreateEvent('Core','ModuleUninstalled');
 Events::CreateEvent('Core','ModuleUpgraded');
 Events::CreateEvent('Core','SmartyPostCompile');
 Events::CreateEvent('Core','SmartyPreCompile');
-/* >DM
+
 Events::CreateEvent('Core','StylesheetPostCompile');
 Events::CreateEvent('Core','StylesheetPostRender');
 Events::CreateEvent('Core','StylesheetPreCompile');
 Events::CreateEvent('Core','TemplatePostCompile');
 Events::CreateEvent('Core','TemplatePreCompile');
 Events::CreateEvent('Core','TemplatePreFetch');
-*/
+
 
 function create_private_dir(string $destdir, string $relative_dir)
 {
