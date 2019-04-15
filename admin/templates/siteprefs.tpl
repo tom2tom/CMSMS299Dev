@@ -546,6 +546,39 @@
     </div>
   </fieldset>
 
+  <fieldset>
+    <legend>{lang('duration_settings')}</legend>
+    <div class="pageoverflow">
+      <p class="pagetext">
+        {$t=lang('admin_lock_timeout')}<label for="lock_timeout">{$t}:</label>
+        {cms_help key2='settings_lock_timeout' title=$t}
+      </p>
+      <p class="pageinput">
+        <input type="text" id="lock_timeout" name="lock_timeout" size="3" value="{$lock_timeout}" />
+      </p>
+    </div>
+    <div class="pageoverflow">
+      <p class="pagetext">
+        {$t=lang('admin_lock_refresh')}<label for="lock_refresh">{$t}:</label>
+        {cms_help key2='settings_lock_refresh' title=$t}
+      </p>
+      <p class="pageinput">
+        <input type="text" id="lock_refresh" name="lock_refresh" size="4" value="{$lock_refresh}" />
+      </p>
+    </div>
+    <div class="pageoverflow">
+      <p class="pagetext">
+        {$t=lang('adminlog_lifetime')}<label for="adminlog">{$t}:</label>
+        {cms_help key2='settings_adminlog_lifetime' title=$t}
+      </p>
+      <p class="pageinput">
+        <select id="adminlog" name="adminlog_lifetime">
+          {html_options options=$adminlog_options selected=$adminlog_lifetime}
+        </select>
+      </p>
+    </div>
+  </fieldset>
+
   {if $editors}
   <fieldset>
     <legend>{lang('text_editor_settings')}</legend>
@@ -604,35 +637,6 @@
     <div class="pageoverflow">
       <p class="pageinput">
         <button type="submit" name="testumask" class="adminsubmit icon do">{lang('test')}</button>
-      </p>
-    </div>
-    <div class="pageoverflow">
-      <p class="pagetext">
-        {$t=lang('admin_lock_timeout')}<label for="lock_timeout">{$t}:</label>
-        {cms_help key2='settings_lock_timeout' title=$t}
-      </p>
-      <p class="pageinput">
-        <input type="text" id="lock_timeout" name="lock_timeout" size="3" value="{$lock_timeout}" />
-      </p>
-    </div>
-    <div class="pageoverflow">
-      <p class="pagetext">
-        {$t=lang('admin_lock_refresh')}<label for="lock_refresh">{$t}:</label>
-        {cms_help key2='settings_lock_refresh' title=$t}
-      </p>
-      <p class="pageinput">
-        <input type="text" id="lock_refresh" name="lock_refresh" size="4" value="{$lock_refresh}" />
-      </p>
-    </div>
-    <div class="pageoverflow">
-      <p class="pagetext">
-        {$t=lang('adminlog_lifetime')}<label for="adminlog">{$t}:</label>
-        {cms_help key2='settings_adminlog_lifetime' title=$t}
-      </p>
-      <p class="pageinput">
-        <select id="adminlog" name="adminlog_lifetime">
-          {html_options options=$adminlog_options selected=$adminlog_lifetime}
-        </select>
       </p>
     </div>
     <div class="pageoverflow">
