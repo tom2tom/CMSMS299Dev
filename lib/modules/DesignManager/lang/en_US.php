@@ -40,6 +40,7 @@ $lang['delete_design'] = 'Delete Design';
 //E
 $lang['edit_design'] = 'Edit design';
 $lang['error_create_tempfile'] = 'Error creating temporary file';
+$lang['error_design_empty'] = 'Could not find any stylesheets';
 $lang['error_filenotfound'] = 'Could not find a file we were expecting: %s';
 $lang['error_fileopen'] = 'Could not open %s for reading.  Permissions problem?';
 $lang['error_missingparam'] = 'A required parameter is missing or invalid';
@@ -50,6 +51,12 @@ $lang['error_readxml'] = 'A problem occurred reading the XML file (possible synt
 $lang['error_upload_filetype'] = 'The file uploaded is not of the proper type (%s)';
 $lang['error_uploading'] = 'Problem uploading file (perhaps it is too large)';
 $lang['error_xmlstructure'] = 'Error in the structure of the XML File';
+$lang['event_desc_adddesignpost'] = 'Sent after a design is saved';
+$lang['event_desc_adddesignpre'] = 'Sent before a design is saved to the database';
+//$lang['event_desc_editdesignpost'] = 'Sent after a design is modified (before saved)';
+//$lang['event_desc_editdesignpre'] = 'Sent before a design is modified';
+$lang['event_desc_deletedesignpost'] = 'Sent after a design is removed';
+$lang['event_desc_deletedesignpre'] = 'Sent prior to a design being removed';
 $lang['export_design'] = 'Export Design to XML';
 $lang['export'] = 'Export';
 
@@ -94,7 +101,8 @@ $lang['info_nodescription'] = 'There is no description entered for this item';
 //M
 $lang['moddescription'] = 'Add, change or remove designs';
 $lang['msg_cancelled'] = 'Operation cancelled';
-$lang['msg_design_deleted'] = 'Design deleted';
+    $lang['msg_design_deleted'] = 'Design deleted';
+$lang['msg_design_migrated']  = 'Design stylesheet(s) exported to %s';
 $lang['msg_design_imported']  = 'Design imported';
 $lang['msg_design_saved'] = 'Design saved';
 $lang['msg_dflt_design_saved'] = 'Default design changed';
@@ -152,6 +160,40 @@ $lang['warning_deletedesign'] = 'TODO';
 $lang['warning_deletestylesheet_attachments'] = 'TODO';
 $lang['warning_deletetemplate_attachments'] = 'TODO';
 $lang['warning_group_dragdrop'] = 'TODO'; //info
+
+//multi-line
+$lang['event_help_adddesignpre'] = "<h4>Parameters</h4>
+<ul>
+  <li>'Design' - Reference to the affected design object.</li>
+</ul>
+";
+$lang['event_help_adddesignpost'] = "<h4>Parameters</h4>
+<ul>
+  <li>'Design' - Reference to the affected design object.</li>
+</ul>
+";
+/*
+$lang['event_help_editdesignpost'] = '<h4>Parameters</h4>
+<ul>
+  <li>\'Design\' - A reference to the affected design object.</li>
+</ul>
+';
+$lang['event_help_editdesignpre'] = '<h4>Parameters</h4>
+<ul>
+  <li>\'Design\' - A reference to the affected design object.</li>
+</ul>
+';
+*/
+$lang['event_help_deletedesignpost'] = '<h4>Parameters</h4>
+<ul>
+  <li>\'Design\' - A reference to the affected design object.</li>
+</ul>
+';
+$lang['event_help_deletedesignpre'] = '<h4>Parameters</h4>
+<ul>
+  <li>\'Design\' - A reference to the affected design object.</li>
+</ul>
+';
 
 $lang['help_module'] = <<<'EOT'
 <h3>What is this?</h3>
