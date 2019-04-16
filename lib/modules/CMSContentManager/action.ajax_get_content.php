@@ -88,7 +88,7 @@ try {
       ->assign('settingsicon',cms_join_path(__DIR__,'images','settings'));
 
     if( Utils::get_pagenav_display() == 'title' ) {
-        $tpl->assign('colhdr_page',$this->Lang('colhdr_name'))
+        $tpl->assign('colhdr_page',$this->Lang('colhdr_pagetitle'))
          ->assign('coltitle_page',$this->Lang('coltitle_name'));
     }
     else {
@@ -171,7 +171,7 @@ try {
             if( $row['can_delete'] && $row['delete'] ) {
                 $acts[] = ['content'=>str_replace('XXX', $rid, $linkdel)];
             }
-            $menus[] = FormUtils::create_menu($acts, ['id'=>'Page'.$rid, 'class'=>'ContextMenu']);
+            $menus[] = FormUtils::create_menu($acts, ['id'=>'Page'.$rid, 'class'=>CMS_POPUPCLASS]);
         }
 
         $tpl->assign('content_list',$editinfo)
