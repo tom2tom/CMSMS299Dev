@@ -22,7 +22,6 @@ namespace CMSMS {
 
 use CMSMS\BookmarkOperations;
 use CMSMS\ContentOperations;
-use CMSMS\contenttypes\ContentBase;
 use CMSMS\contenttypes\ErrorPage;
 use CMSMS\Database\Connection;
 use CMSMS\GroupOperations;
@@ -190,7 +189,7 @@ final class CmsApp
             $query = 'SELECT version FROM '.CMS_DB_PREFIX.'version';
             return $db->GetOne($query);
         }
-        return global_cache::get('schema_version');
+        return CMS_SCHEMA_VERSION;
     }
 
     /**
