@@ -726,7 +726,7 @@ VALUES (?,?,?,$now,$now)");
 				if( $jobmgr ) $jobmgr->delete_jobs_by_module($module_name);
 
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?',[$module_name]);
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX."siteprefs WHERE sitepref_name LIKE '". str_replace("'",'',$db->qstr($module_name))."_mapi_pref%'");
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX."siteprefs WHERE sitepref_name LIKE '". str_replace("'",'',$db->qStr($module_name))."_mapi_pref%'");
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'routes WHERE key1=?',[$module_name]);
 			}
 
