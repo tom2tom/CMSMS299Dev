@@ -96,3 +96,19 @@ if( CMS_DEBUG ) {
     //for async DEBUG
     define('ASYNCLOG', TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'debug.log');
 }
+
+/*
+ * Preview-page indicators.
+*/
+const CMS_PREVIEW = '__cms_preview__';
+const CMS_PREVIEW_TYPE = '__cms_preview_type__';
+const CMS_PREVIEW_PAGEID = -100;
+const __CMS_PREVIEW_PAGE__ = -100; //deprecated since 2.3
+
+/**
+ * popup-menus css class.
+ * Context-menu class(es) with this name must be established in each admin theme's css file(s)
+ * @since 2.3
+ * TODO consider supporting a config file parameter
+ */
+const CMS_POPUPCLASS = 'ContextMenu';
