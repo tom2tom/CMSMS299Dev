@@ -254,7 +254,7 @@ $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'routes','created','create_date DEFAULT CURRENT_TIMESTAMP');
 $dict->ExecuteSQLArray($sqlarray);
 // replace timestamp fields
-function (string $name, string $fid, $db, $dict)
+function migrate_stamps(string $name, string $fid, $db, $dict)
 {
     $tbl = CMS_DB_PREFIX.$name;
     $sqlarray = $dict->AddColumnSQL($tbl, 'create_date DT DEFAULT CURRENT_TIMESTAMP');
@@ -264,7 +264,7 @@ function (string $name, string $fid, $db, $dict)
 
     $data = $db->GetAssoc('SELECT '.$fid.',created,modified FROM '.$tbl);
     if ($data) {
-        $sql = 'UPDATE  '.$tbl.' SET create_date=?, modified_date=? WHERE '.$fid.'=?';
+        $sql = 'UPDATE '.$tbl.' SET create_date=?, modified_date=? WHERE '.$fid.'=?';
         $dt = new DateTime('@0',NULL);
         $fmt = 'Y-m-d H:i:s';
         foreach ($data as $id => &$row) {
