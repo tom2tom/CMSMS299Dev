@@ -1,5 +1,5 @@
 <?php
-# Module: DesignManager - A CMSMS addon module to provide template management.
+# Module: DesignManager - A CMSMS addon module to provide designs management.
 # Copyright (C) 2012-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,13 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\TemplateOperations;
-
 final class DesignManager extends CMSModule
 {
     public function GetFriendlyName()  { return $this->Lang('friendlyname'); }
-    public function GetVersion()  { return '1.1.6'; }
-    public function MinimumCMSVersion()  { return '2.1'; }
+    public function GetVersion()  { return '2.0'; }
+    public function MinimumCMSVersion()  { return '2.2.911'; }
     public function LazyLoadAdmin() { return true; }
     public function LazyLoadFrontend() { return true; }
     public function GetAuthor() { return 'Robert Campbell'; }
@@ -30,7 +28,6 @@ final class DesignManager extends CMSModule
     public function HasAdmin() { return true; }
     public function GetAdminSection() { return 'layout'; }
     public function IsAdminOnly() { return true; }
-    public function AllowAutoInstall() { return true; }
     public function GetHelp() { return $this->Lang('help_module'); }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
@@ -39,18 +36,7 @@ final class DesignManager extends CMSModule
 
     public function VisibleToAdminUser()
     {
-        return $this->CheckPermission('Add Templates') ||
-            $this->CheckPermission('Modify Templates') ||
-            $this->CheckPermission('Manage Stylesheets') ||
-            $this->CheckPermission('Manage Designs') ||
-            count(TemplateOperations::get_editable_templates(get_userid()));
-    }
-
-    public function DoAction($name,$id,$params,$returnid='')
-    {
-        $smarty = CmsApp::get_instance()->GetSmarty();
-        $smarty->assign('mod',$this);
-        return parent::DoAction($name,$id,$params,$returnid);
+        return $this->CheckPermission('Manage Designs');
     }
 
     public function GetHeaderHTML()
@@ -72,58 +58,62 @@ final class DesignManager extends CMSModule
     {
         $out = [];
         if( $this->VisibleToAdminUser() ) $out[] = CmsAdminMenuItem::from_module($this);
+/*
+        $state = $this->VisibleToAdminUser();
 
-        if( $this->CheckPermission('Modify Site Preferences') ) {
+        if ($state) {
+            $obj = new CmsAdminMenuItem();
+            $obj->module = $this->GetName();
+            $obj->section = 'layout';  //aka presentation
+            $obj->title = $this->Lang('prompt_action_styles');
+            $obj->description = $this->Lang('title_action_styles');
+            $obj->action = 'liststyles';
+            $obj->icon = false;
+            $out[] = $obj;
+
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
             $obj->section = 'layout';
-            $obj->title = $this->Lang('title_designmanager_settings');
-            $obj->description = $this->Lang('desc_designmanager_settings');
+            $obj->title = $this->Lang('prompt_action_templates');
+            $obj->description = $this->Lang('title_action_templates');
+            $obj->action = 'listtemplates';
+            $obj->icon = false;
+            $out[] = $obj;
+
+            $config = cms_config::get_instance();
+            if (1) { //DEBUG !empty($config['developer_mode'])) {
+                $obj = new CmsAdminMenuItem();
+                $obj->module = $this->GetName();
+                $obj->section = 'layout';
+                $obj->title = $this->Lang('prompt_action_designs');
+                $obj->description = $this->Lang('title_action_designs');
+                $obj->action = 'defaultadmin';
+                $obj->icon = false;
+                $out[] = $obj;
+            }
+        }
+
+        if ($this->CheckPermission('Modify Site Preferences')) {
+            $obj = new CmsAdminMenuItem();
+            $obj->module = $this->GetName();
+            $obj->section = 'layout';
+            $obj->title = $this->Lang('prompt_action_settings');
+            $obj->description = $this->Lang('title_action_settings');
             $obj->action = 'admin_settings';
-			$obj->icon = false;
+            $obj->icon = false;
             $out[] = $obj;
         }
+*/
         return $out;
     }
 
     public function GetEventHelp( $eventname )
     {
-        return lang('event_help_'.$eventname);
+        return $this->Lang('event_help_'.$eventname);
     }
 
     public function GetEventDescription( $eventname )
     {
-        return lang('event_desc_'.$eventname);
+        return $this->Lang('event_desc_'.$eventname);
     }
-
-	/**
-	 * A module method for handling module response with ajax actions, returning a JSON encoded response.
-	 * @param  string $status The status of returned response, in example error, success, warning, info
-	 * @param  string $message The message of returned response
-	 * @param  mixed $data A string or array of response data
-	 * @return string Returns a string containing the JSON representation of provided response data
-	 */
-	public function GetJSONResponse($status, $message, $data = null)
-	{
-
-		if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-
-			$handlers = ob_list_handlers();
-			for ($cnt = 0; $cnt < count($handlers); $cnt++) { ob_end_clean(); }
-
-			header('Content-type:application/json; charset=utf-8');
-
-			if ($data) {
-				$json = json_encode(['status' => $status, 'message' => $message, 'data' => $data]);
-			} else {
-				$json = json_encode(['status' => $status, 'message' => $message]);
-			}
-
-			echo $json;
-			exit;
-		}
-
-		return false;
-	}
 } // class
-
