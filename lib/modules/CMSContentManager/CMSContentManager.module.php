@@ -19,7 +19,7 @@
 final class CMSContentManager extends CMSModule
 {
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetVersion() { return '1.2'; }
+    public function GetVersion() { return '2.0'; }
     public function GetHelp() { return $this->Lang('help_module'); }
     public function GetAuthor() { return 'calguy1000'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
@@ -30,7 +30,7 @@ final class CMSContentManager extends CMSModule
     public function GetAdminSection() { return 'content'; }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function IsAdminOnly() { return true; }
-    public function MinimumCMSVersion() { return '1.99-alpha0'; }
+    public function MinimumCMSVersion() { return '2.2.911'; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
     public function UninstallPreMessage() { return $this->Lang('preuninstall'); }
@@ -45,7 +45,7 @@ final class CMSContentManager extends CMSModule
 
         $pages = author_pages(get_userid(false));
         if( !$pages ) return false;
-		if( $content_id <= 0 ) return true;
+        if( $content_id <= 0 ) return true;
         return in_array($content_id,$pages);
     }
 
@@ -68,23 +68,23 @@ final class CMSContentManager extends CMSModule
     {
         $out = [];
 
-        // user is entitled to see the main page in the navigation.
         if( $this->CheckPermission('Add Pages') || $this->CheckPermission('Remove Pages') || $this->CanEditContent() ) {
+            // user is entitled to see the main page in the navigation
             $obj = CmsAdminMenuItem::from_module($this);
+            $obj->title = $this->Lang('title_contentmanager');
             $out[] = $obj;
         }
 
         if( $this->CheckPermission('Modify Site Preferences') ) {
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
-            $obj->section = 'content';
+            $obj->section = 'siteadmin';
             $obj->title = $this->Lang('title_contentmanager_settings');
             $obj->description = $this->Lang('desc_contentmanager_settings');
-			$obj->icon = false;
+            $obj->icon = false;
             $obj->action = 'admin_settings';
             $out[] = $obj;
         }
         return $out;
     }
-
 } // class

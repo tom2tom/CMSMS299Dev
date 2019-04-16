@@ -38,13 +38,13 @@ class News extends CMSModule
     public function GetFriendlyName() { return $this->Lang('news'); }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetName() { return 'News'; }
-    public function GetVersion() { return '2.90'; }
+    public function GetVersion() { return '3.0'; }
     public function HasAdmin() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall');  }
     public function IsPluginModule() { return true; }
     public function LazyLoadAdmin() { return true; }
     public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.2.900'; }
+    public function MinimumCMSVersion() { return '2.2.911'; }
 
     public function InitializeFrontend()
     {

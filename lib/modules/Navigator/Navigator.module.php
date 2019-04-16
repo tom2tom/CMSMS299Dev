@@ -36,12 +36,12 @@ final class Navigator extends CMSModule
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetName() { return 'Navigator'; }
-    public function GetVersion() { return '1.2.0'; }
+    public function GetVersion() { return '1.3'; }
     public function HasAdmin() { return false; }
     public function IsPluginModule() { return true; }
     public function LazyLoadAdmin() { return true; }
     public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.2.99'; }
+    public function MinimumCMSVersion() { return '2.2.911'; }
 
     public function InitializeFrontend()
     {
@@ -125,5 +125,4 @@ final class Navigator extends CMSModule
             if( is_file($file) ) return file_get_contents($file);
         }
     }
-
 } // class
