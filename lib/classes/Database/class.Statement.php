@@ -83,14 +83,7 @@ class Statement
 /* BAD !! TODO check proper cleanup happens anyway, upon destruction
     public function __destruct()
     {
-        if ($this->_stmt) {
-            if ($this->_bound) {
-                $this->_stmt->free_result();
-            }
-            if ($this->_prep) {
-                $this->_stmt->close();
-            }
-        }
+		$this->close();
     }
 */
     /**
@@ -425,6 +418,22 @@ class Statement
             $this->_conn->error = '';
 
             return true;
+        }
+    }
+
+	/**
+	 * Cleanup/release database resources
+	 * CHECKME automatic cleanup upon destruction?
+	 */
+    public function close()
+    {
+        if ($this->_stmt) {
+            if ($this->_bound) {
+                $this->_stmt->free_result();
+            }
+            if ($this->_prep) {
+                $this->_stmt->close();
+            }
         }
     }
 }
