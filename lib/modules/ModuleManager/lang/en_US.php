@@ -23,9 +23,9 @@ $lang['back_to_module_manager'] = 'Return to Module Manager';
 
 // C
 $lang['cancel'] = 'Cancel';
-$lang['cantdownload'] = 'Cannot Download';
-$lang['cantremove'] = 'Cannot Remove';
-$lang['cantuninstall'] = 'Cannot Uninstall';
+$lang['cantdownload'] = 'Cannot download';
+$lang['cantremove'] = 'Cannot remove';
+$lang['cantuninstall'] = 'Cannot uninstall';
 $lang['changeperms'] = 'Change Permissions';
 $lang['confirm_action'] = 'Yes, I am sure';
 $lang['confirm_chmod'] = 'Continuing will attempt to change the permissions on this modules files.  Are you sure you want to continue?';
@@ -58,7 +58,7 @@ $lang['err_xml_moduleinstalled'] = 'Cannot import XML: This module is already in
 $lang['err_xml_dtdmismatch'] = 'The DTD Version in the specified XML file does mot match what we expected.  Perhaps the file is too old?';
 $lang['err_xml_oldermodule'] = 'The XML file you are attempting to import contains an older version of a module that is already installed';
 $lang['err_xml_sameversion'] = 'The XML file you are attempting to import contains the same version of a module that is already installed';
-$lang['err_xml_moduleincompatible'] = 'The module contained within this XML file is not compatible with your CMSMS version';
+$lang['err_xml_moduleincompatible'] = 'The module contained within this XML file is not compatible with the present CMSMS version';
 $lang['err_xml_invalid'] = 'Your XML file seems to be invalid or corrupt';
 $lang['error_active_failed'] = 'The operation to toggle the active state of a module failed';
 $lang['error_checksum'] = 'Checksum error.  This probably indicates a corrupt file, either when it was uploaded to the repository, or a problem in transit down to your machine. (expected %s and got %s)';
@@ -71,7 +71,7 @@ $lang['error_fileupload'] = 'A problem occurred uploading the file';
 $lang['error_getmodule'] = 'A problem occurred instantiating %s';
 $lang['error_internal'] = 'Internal Error... Please report this to the system administrator';
 $lang['error_invaliduploadtype'] = 'The file uploaded is not valid for this field';
-$lang['error_minimumrepository'] = 'The repository version is not compatible with your CMSMS version';
+$lang['error_minimumrepository'] = 'The repository version is not compatible with the present CMSMS version';
 $lang['error_missingparam'] = 'A required parameter was missing or invalid';
 $lang['error_missingmoduleinfo'] = 'Problem retrieving module information for module %s';
 $lang['error_moduleexport'] = 'Module export failed';
@@ -166,11 +166,11 @@ $lang['msg_urlreset'] = 'The modules-repository URL has been reset to its defaul
 
 // N
 $lang['nametext'] = 'Module Name';
-$lang['need_upgrade'] = 'This module is awaiting upgrade';
+$lang['need_upgrade'] = 'Awaiting upgrade';
 $lang['newerversion'] = 'Newer version installed';
 $lang['newer_available'] = 'New version available';
-$lang['notavailable'] = 'This module cannot be loaded. Possibly due to dependencies';
-$lang['notcompatibile'] = 'This module is not compatible with this version of CMSMS';
+$lang['notavailable'] = 'Cannot be loaded, possibly due to dependencies';
+$lang['notcompatible'] = 'Not compatible';
 $lang['notice'] = 'Notice';
 $lang['notinstalled'] = 'Not installed';
 
@@ -252,7 +252,7 @@ $lang['title_moduleversion'] = 'This column displays the module version';
 $lang['title_new'] = 'This module was released/updated within the last month';
 $lang['title_newmoduleversion'] = 'This column displays the version number of the most recent release of the module';
 $lang['title_notavailable'] = 'This is not ready for use at this time';
-$lang['title_notcompatible'] = 'This module has not passed compatibility tests';
+$lang['title_notcompatible'] = 'This module has not passed tests for compatibility with the present version of CMSMS';
 $lang['title_notinstalled'] = 'This module exists in the modules subdirectory but has not been installed for use';
 $lang['title_remove'] = 'Remove this modules files from the module directory';
 $lang['title_searchterm'] = 'Enter a natural language search term.  If advanced mode is enabled, then boolean operations similar to Google can be used';
