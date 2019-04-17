@@ -7,12 +7,12 @@ use cms_installer\wizard\wizard_step;
 use cms_siteprefs;
 use CmsApp;
 use CMSMS\ThemeBase;
-use PHPMailer\PHPMailer\Exception;
+use Exception;
 use const CMS_DB_PREFIX;
 use function cms_installer\get_app;
+use function cms_installer\lang;
 use function cms_installer\smarty;
 use function GetDb;
-use function lang;
 use function verbose_msg;
 
 class wizard_step8 extends wizard_step
@@ -128,7 +128,7 @@ class wizard_step8 extends wizard_step
              'cache_file_blocking' => 0,
              'cache_file_locking' => 1,
              'cache_lifetime' => 3600, // cache entries live for 1 hr
-             'cdn_url' => 'https://cdnjs.cloudflare.com', //or e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
+             'cdn_url' => 'https://cdnjs.cloudflare.com', // or e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
              'content_autocreate_urls' => 0,
              'content_imagefield_path' => '',
              'contentimage_path' => '',
@@ -137,9 +137,9 @@ class wizard_step8 extends wizard_step
              'enablesitedownmessage' => 0,
              'frontendlang' => 'en_US',
              'global_umask' => '022',
-             'lock_refresh', 120,
-             'lock_timeout', 60,
-             'loginmodule' => '',  // login  processing by current theme
+             'lock_refresh' => 120,
+             'lock_timeout' => 60,
+             'loginmodule' => '',  // login processing by current theme
              'logintheme' => reset($arr),
              'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
              'site_supporturl' => $siteinfo['supporturl'],
