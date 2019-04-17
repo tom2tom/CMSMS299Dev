@@ -20,9 +20,11 @@ function smarty_function_tab_header($params, $template)
 {
 	if( empty($params['name']) ) return '';
 	$name = trim($params['name']);
-	$label = $name;
-	$active = FALSE;
+
 	if( isset($params['label']) ) $label = trim($params['label']);
+	else $label = $name;
+
+	$active = FALSE;
 	if( isset($params['active']) ) {
 		$tmp = trim($params['active']);
 		if( $tmp == $name ) {
@@ -35,7 +37,6 @@ function smarty_function_tab_header($params, $template)
 
 	$out = CMSMS\AdminTabs::set_tab_header($name,$label,$active);
 	if( isset($params['assign']) ) {
-		//TODO why global smarty instead of $template ?
 		$template->assign(trim($params['assign']),$out);
 		return;
 	}
