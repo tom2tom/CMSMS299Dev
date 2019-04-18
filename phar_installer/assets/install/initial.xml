@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE cmsmsinstall [
  <!ELEMENT dtdversion (#PCDATA)>
- <!ELEMENT designs (design+)>
- <!ELEMENT design (id,name,description?,dflt?)>
- <!ELEMENT id (#PCDATA)>
- <!ELEMENT name (#PCDATA)>
- <!ELEMENT description (#PCDATA)>
- <!ELEMENT dflt (#PCDATA)>
  <!ELEMENT tpltypes (tpltype+)>
- <!ELEMENT tpltype (id,name,description?,originator,one_only?,has_dflt?,dflt_contents?,requires_contentblocks?,lang_cb?,dflt_content_cb?,help_content_cb?)>
+ <!ELEMENT tpltype (id,originator,name,dflt_contents?,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner?)>
+ <!ELEMENT id (#PCDATA)>
  <!ELEMENT originator (#PCDATA)>
- <!ELEMENT one_only (#PCDATA)>
- <!ELEMENT has_dflt (#PCDATA)>
+ <!ELEMENT name (#PCDATA)>
  <!ELEMENT dflt_contents (#PCDATA)>
- <!ELEMENT requires_contentblocks (#PCDATA)>
+ <!ELEMENT description (#PCDATA)>
  <!ELEMENT lang_cb (#PCDATA)>
  <!ELEMENT dflt_content_cb (#PCDATA)>
  <!ELEMENT help_content_cb (#PCDATA)>
- <!ELEMENT templates (template)>
- <!ELEMENT template (id,name,description?,type_id,category_id?,type_dflt?,content)>
- <!ELEMENT type_id (#PCDATA)>
- <!ELEMENT type_dflt (#PCDATA)>
+ <!ELEMENT has_dflt (#PCDATA)>
+ <!ELEMENT requires_contentblocks (#PCDATA)>
+ <!ELEMENT one_only (#PCDATA)>
+ <!ELEMENT owner (#PCDATA)>
+ <!ELEMENT templates (template+)>
+ <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?,contentfile?)>
  <!ELEMENT content (#PCDATA)>
+ <!ELEMENT type_id (#PCDATA)>
+ <!ELEMENT owner_id (#PCDATA)>
+ <!ELEMENT type_dflt (#PCDATA)>
+ <!ELEMENT listable (#PCDATA)>
+ <!ELEMENT contentfile (#PCDATA)>
  <!ELEMENT pages (page+)>
  <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text?,cachable?)>
  <!ELEMENT content_id (#PCDATA)>
@@ -40,30 +41,22 @@
  <!ELEMENT prop_name (#PCDATA)>
 ]>
 <cmsmsinstall>
-	<dtdversion>0.6</dtdversion>
-	<designs>
-		<design>
-			<id>1</id>
-			<name>Default</name>
-			<description>Default design with just the default template</description>
-			<dflt>1</dflt>
-		</design>
-	</designs>
+	<dtdversion>0.7</dtdversion>
 	<tpltypes>
 		<tpltype>
 			<id>1</id>
 			<name>page</name>
 			<originator>__CORE__</originator>
-			<lang_cb>\CMSMS\internal\std_layout_template_callbacks::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>\CMSMS\internal\std_layout_template_callbacks::reset_page_type_defaults</dflt_content_cb>
-			<help_content_cb>\CMSMS\internal\std_layout_template_callbacks::template_help_callback</help_content_cb>
+			<lang_cb>CMSMS\internal\std_layout_template_callbacks::page_type_lang_callback</lang_cb>
+			<dflt_content_cb>CMSMS\internal\std_layout_template_callbacks::reset_page_type_defaults</dflt_content_cb>
+			<help_content_cb>CMSMS\internal\std_layout_template_callbacks::template_help_callback</help_content_cb>
 		</tpltype>
 		<tpltype>
 			<id>2</id>
 			<name>generic</name>
 			<originator>__CORE__</originator>
-			<lang_cb>\CMSMS\internal\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
-			<help_content_cb>\CMSMS\internal\std_layout_template_callbacks::template_help_callback</help_content_cb>
+			<lang_cb>CMSMS\internal\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
+			<help_content_cb>CMSMS\internal\std_layout_template_callbacks::template_help_callback</help_content_cb>
 		</tpltype>
 	</tpltypes>
 	<templates>
