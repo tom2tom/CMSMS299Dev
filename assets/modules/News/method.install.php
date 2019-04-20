@@ -129,19 +129,20 @@ try {
 }
 
 if( $newsite ) {
+  $extras = [];
   try {
     // Simplex theme sample summary template
     $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Summary_Simplex_template.tpl';
     if( is_file( $fn ) ) {
-    $content = @file_get_contents($fn);
-    $tpl = new CmsLayoutTemplate();
-    $tpl->set_originator($me);
-    $tpl->set_name('Simplex News Summary');
-    $tpl->set_owner($uid);
-    $tpl->set_content($content);
-    $tpl->set_type($summary_template_type);
-    $tpl->add_design('Simplex');
-    $tpl->save();
+      $content = @file_get_contents($fn);
+      $tpl = new CmsLayoutTemplate();
+      $tpl->set_originator($me);
+      $tpl->set_name('Simplex News Summary');
+      $tpl->set_owner($uid);
+      $tpl->set_content($content);
+      $tpl->set_type($summary_template_type);
+      $tpl->save();
+      $extras[] = $tpl->get_id();
     }
   } catch( CmsException $e ) {
     // log it
@@ -188,23 +189,33 @@ try {
 
 if( $newsite ) {
   try {
-    // Simplex Theme sample detail template
+    // Simplex theme sample detail template
     $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Detail_template.tpl';
     if( is_file( $fn ) ) {
-    $content = @file_get_contents($fn);
-    $tpl = new CmsLayoutTemplate();
-    $tpl->set_originator($me);
-    $tpl->set_name('Simplex News Detail');
-    $tpl->set_owner($uid);
-    $tpl->set_content($content);
-    $tpl->set_type($detail_template_type);
-    $tpl->add_design('Simplex');
-    $tpl->save();
+      $content = @file_get_contents($fn);
+      $tpl = new CmsLayoutTemplate();
+      $tpl->set_originator($me);
+      $tpl->set_name('Simplex News Detail');
+      $tpl->set_owner($uid);
+      $tpl->set_content($content);
+      $tpl->set_type($detail_template_type);
+      $tpl->save();
+      $extras[] = $tpl->get_id();
     }
   } catch( CmsException $e ) {
     // log it
     debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
     audit('',$me,'Installation Error: '.$e->GetMessage());
+  }
+  
+  if( $extras ) {
+    try {
+      $ob = CmsLayoutTemplateCategory::load('Simplex');
+      $ob->add_members($extras);
+      $ob->save();
+    } catch( Throwable $t) {
+    //if modules are installed before demo content, that group won't yet exist
+    }
   }
 }
 
@@ -231,7 +242,7 @@ try {
     $content = @file_get_contents($fn);
     $tpl = new CmsLayoutTemplate();
     $tpl->set_originator($me);
-    $tpl->set_name('News Fesubmit Form Sample');
+    $tpl->set_name('News FEsubmit Form Sample');
     $tpl->set_owner($uid);
     $tpl->set_content($content);
     $tpl->set_type($form_template_type);

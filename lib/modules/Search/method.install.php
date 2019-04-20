@@ -68,26 +68,26 @@ $this->SetPreference('searchtext','Enter Search...');
 $me = $this->GetName();
 
 try {
-    $searchform_type = new CmsLayoutTemplateType();
-    $searchform_type->set_originator($me);
-    $searchform_type->set_name('searchform');
-    $searchform_type->set_dflt_flag(TRUE);
-    $searchform_type->set_lang_callback('Search::page_type_lang_callback');
-    $searchform_type->set_content_callback('Search::reset_page_type_defaults');
-    $searchform_type->reset_content_to_factory();
-    $searchform_type->save();
+    $form_type = new CmsLayoutTemplateType();
+    $form_type->set_originator($me);
+    $form_type->set_name('searchform');
+    $form_type->set_dflt_flag(TRUE);
+    $form_type->set_lang_callback('Search::page_type_lang_callback');
+    $form_type->set_content_callback('Search::reset_page_type_defaults');
+    $form_type->reset_content_to_factory();
+    $form_type->save();
 
     $tpl = new CmsLayoutTemplate();
     $tpl->set_originator($me);
     $tpl->set_name('Search Form Sample');
     $tpl->set_owner($uid);
     $tpl->set_content($this->GetSearchHtmlTemplate());
-    $tpl->set_type($searchform_type);
+    $tpl->set_type($form_type);
     $tpl->set_type_dflt(TRUE);
     $tpl->save();
 
     if( $newsite ) { //TODO also test for demonstration content installation
-        // setup Simplex Theme search form template
+        // setup Simplex theme search form template
         try {
             $fn = (__DIR__).DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Search_template.tpl';
             if( is_file( $fn ) ) {
@@ -97,34 +97,42 @@ try {
                 $tpl->set_name('Simplex Search');
                 $tpl->set_owner($uid);
                 $tpl->set_content($template);
-                $tpl->set_type($searchform_type);
-                $tpl->add_design('Simplex');
+                $tpl->set_type($form_type);
                 $tpl->save();
+
+                $id = $tpl->get_id();
+				try {
+		            $ob = CmsLayoutTemplateCategory::load('Simplex');
+		            $ob->add_members([$id]);
+		            $ob->save();
+				} catch( Throwable $t) {
+					//if modules are installed before demo content, that group won't yet exist
+				}
             }
         } catch( Exception $e ) {
-            audit('', $me, 'Installation Error: '.$e->GetMessage());
+            audit('', $me, 'Installation error: '.$e->GetMessage());
         }
     }
 
-    $searchresults_type = new CmsLayoutTemplateType();
-    $searchresults_type->set_originator($me);
-    $searchresults_type->set_name('searchresults');
-    $searchresults_type->set_dflt_flag(TRUE);
-    $searchresults_type->set_lang_callback('Search::page_type_lang_callback');
-    $searchresults_type->set_content_callback('Search::reset_page_type_defaults');
-    $searchresults_type->reset_content_to_factory();
-    $searchresults_type->save();
+    $results_type = new CmsLayoutTemplateType();
+    $results_type->set_originator($me);
+    $results_type->set_name('searchresults');
+    $results_type->set_dflt_flag(TRUE);
+    $results_type->set_lang_callback('Search::page_type_lang_callback');
+    $results_type->set_content_callback('Search::reset_page_type_defaults');
+    $results_type->reset_content_to_factory();
+    $results_type->save();
 
     $tpl = new CmsLayoutTemplate();
     $tpl->set_originator($me);
     $tpl->set_name('Search Results Sample');
     $tpl->set_owner($uid);
     $tpl->set_content($this->GetResultsHtmlTemplate());
-    $tpl->set_type($searchresults_type);
+    $tpl->set_type($results_type);
     $tpl->set_type_dflt(TRUE);
     $tpl->save();
 } catch( CmsException $e ) {
-    audit('',$me,'Installation Error: '.$e->GetMessage());
+    audit('',$me,'Installation error: '.$e->GetMessage());
 }
 
 $this->CreateEvent('SearchInitiated');
