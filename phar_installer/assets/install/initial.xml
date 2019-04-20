@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE cmsmsinstall [
  <!ELEMENT dtdversion (#PCDATA)>
- <!ELEMENT tpltypes (tpltype+)>
+ <!ELEMENT tpltypes (tpltype*)>
  <!ELEMENT tpltype (id,originator,name,dflt_contents?,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner?)>
  <!ELEMENT id (#PCDATA)>
  <!ELEMENT originator (#PCDATA)>
@@ -15,7 +15,7 @@
  <!ELEMENT requires_contentblocks (#PCDATA)>
  <!ELEMENT one_only (#PCDATA)>
  <!ELEMENT owner (#PCDATA)>
- <!ELEMENT templates (template+)>
+ <!ELEMENT templates (template*)>
  <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?,contentfile?)>
  <!ELEMENT content (#PCDATA)>
  <!ELEMENT type_id (#PCDATA)>
@@ -23,7 +23,7 @@
  <!ELEMENT type_dflt (#PCDATA)>
  <!ELEMENT listable (#PCDATA)>
  <!ELEMENT contentfile (#PCDATA)>
- <!ELEMENT pages (page+)>
+ <!ELEMENT pages (page*)>
  <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text?,cachable?)>
  <!ELEMENT content_id (#PCDATA)>
  <!ELEMENT content_name (#PCDATA)>
@@ -36,7 +36,7 @@
  <!ELEMENT show_in_menu (#PCDATA)>
  <!ELEMENT menu_text (#PCDATA)>
  <!ELEMENT cacheable (#PCDATA)>
- <!ELEMENT properties (property+)>
+ <!ELEMENT properties (property*)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
 ]>
