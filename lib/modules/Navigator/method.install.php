@@ -18,11 +18,12 @@
 
 use CMSMS\TemplateOperations;
 
-if (!isset($gCms)) exit;
+if( !isset($gCms) ) exit;
 
-$uid = null;
-if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
-    $uid = 1; // hardcode to first user
+$newsite = $gCms->test_state(CmsApp::STATE_INSTALL);
+
+if( $newsite ) {
+    $uid = 1; // tempplates owned by initial admin
 } else {
     $uid = get_userid();
 }
@@ -128,44 +129,46 @@ try {
         $tpl->save();
     }
 
-    try {
-        $simplex = CmsLayoutCollection::load('Simplex');
 
-        $fn = cms_join_path(__DIR__,'templates','Simplex_Main_Navigation.tpl');
-        if( is_file( $fn ) ) {
-            $content = @file_get_contents($fn);
-            $tpl = new CmsLayoutTemplate();
-            $tpl->set_originator($me);
-            $tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Main Navigation'));
-            $tpl->set_owner($uid);
-            $tpl->set_content($content);
-            $tpl->set_type($menu_template_type);
-            $tpl->add_design($simplex);
-            $tpl->save();
-        }
+	if( $newsite ) { //TODO also check for demo content installation
+		try {
+//			$simplex = DesignManager\Design::load('Simplex'); DISABLED
+			$fn = cms_join_path(__DIR__,'templates','Simplex_Main_Navigation.tpl');
+			if( is_file( $fn ) ) {
+				$content = @file_get_contents($fn);
+				$tpl = new CmsLayoutTemplate();
+				$tpl->set_originator($me);
+				$tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Main Navigation'));
+				$tpl->set_owner($uid);
+				$tpl->set_content($content);
+				$tpl->set_type($menu_template_type);
+				$tpl->add_design($simplex);
+				$tpl->save();
+			}
 
-        $fn = cms_join_path(__DIR__,'templates','Simplex_Footer_Navigation.tpl');
-        if( is_file( $fn ) ) {
-            $content = @file_get_contents($fn);
-            $tpl = new CmsLayoutTemplate();
-            $tpl->set_originator($me);
-            $tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Footer Navigation'));
-            $tpl->set_owner($uid);
-            $tpl->set_content($content);
-            $tpl->set_type($menu_template_type);
-            $tpl->add_design($simplex);
-            $tpl->save();
-        }
-    }
-    catch( Exception $e ) {
-        // if we got here, it's prolly because default content was not installed.
-        audit('',$me,'Installation Error: '.$e->GetMessage());
-    }
+			$fn = cms_join_path(__DIR__,'templates','Simplex_Footer_Navigation.tpl');
+			if( is_file( $fn ) ) {
+				$content = @file_get_contents($fn);
+				$tpl = new CmsLayoutTemplate();
+				$tpl->set_originator($me);
+				$tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Footer Navigation'));
+				$tpl->set_owner($uid);
+				$tpl->set_content($content);
+				$tpl->set_type($menu_template_type);
+				$tpl->add_design($simplex);
+				$tpl->save();
+			}
+		}
+		catch( Exception $e ) {
+			// if we got here, it's prolly because default content was not installed.
+			audit('',$me,'Installation Error: '.$e->GetMessage());
+		}
+	}
 }
 catch( Exception $e ) {
-  debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
-  audit('',$me,'Installation Error: '.$e->GetMessage());
-  return $e->GetMessage();
+	debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
+	audit('',$me,'Installation Error: '.$e->GetMessage());
+	return $e->GetMessage();
 }
 
 // register plugins

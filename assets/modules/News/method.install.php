@@ -3,7 +3,7 @@
 use CMSMS\Database\DataDictionary;
 use News\Adminops;
 
-if (!isset($gCms)) exit;
+if( !isset($gCms) ) exit;
 
 //best to avoid module-specific class autoloading during installation
 if( !class_exists('Adminops') ) {
@@ -11,8 +11,9 @@ if( !class_exists('Adminops') ) {
   require_once($fn);
 }
 
-if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
-  $uid = 1; // hardcode to first user
+$newsite = $gCms->test_state(CmsApp::STATE_INSTALL);
+if( $newsite ) {
+  $uid = 1; // templates owned by intitial admin
 } else {
   $uid = get_userid();
 }
@@ -84,14 +85,14 @@ modified_date I DEFAULT 0
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news_fieldvals', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
-#Set Permissions
+// Set Permissions
 $this->CreatePermission('Modify News', 'Modify News');
 $this->CreatePermission('Approve News', 'Approve News For Frontend Display');
 $this->CreatePermission('Delete News', 'Delete News Articles');
 $this->CreatePermission('Modify News Preferences', 'Modify News Module Settings');
 
 $me = $this->GetName();
-# Setup summary template
+// Setup summary templates
 try {
   $summary_template_type = new CmsLayoutTemplateType();
   $summary_template_type->set_originator($me);
@@ -127,10 +128,11 @@ try {
   audit('',$me,'Installation Error: '.$e->GetMessage());
 }
 
-try {
-  // Setup Simplex Theme HTML5 sample summary template
-  $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Summary_Simplex_template.tpl';
-  if( is_file( $fn ) ) {
+if( $newsite ) {
+  try {
+    // Simplex theme sample summary template
+    $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Summary_Simplex_template.tpl';
+    if( is_file( $fn ) ) {
     $content = @file_get_contents($fn);
     $tpl = new CmsLayoutTemplate();
     $tpl->set_originator($me);
@@ -140,15 +142,16 @@ try {
     $tpl->set_type($summary_template_type);
     $tpl->add_design('Simplex');
     $tpl->save();
+    }
+  } catch( CmsException $e ) {
+    // log it
+    debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
+    audit('',$me,'Installation Error: '.$e->GetMessage());
   }
-} catch( CmsException $e ) {
-  // log it
-  debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
-  audit('',$me,'Installation Error: '.$e->GetMessage());
 }
 
 try {
-  // Setup detail template
+  // Setup detail templates
   $detail_template_type = new CmsLayoutTemplateType();
   $detail_template_type->set_originator($me);
   $detail_template_type->set_name('detail');
@@ -183,10 +186,11 @@ try {
   audit('',$me,'Installation Error: '.$e->GetMessage());
 }
 
-try {
-  // Setup Simplex Theme HTML5 sample detail template
-  $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Detail_template.tpl';
-  if( is_file( $fn ) ) {
+if( $newsite ) {
+  try {
+    // Simplex Theme sample detail template
+    $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Detail_template.tpl';
+    if( is_file( $fn ) ) {
     $content = @file_get_contents($fn);
     $tpl = new CmsLayoutTemplate();
     $tpl->set_originator($me);
@@ -196,11 +200,12 @@ try {
     $tpl->set_type($detail_template_type);
     $tpl->add_design('Simplex');
     $tpl->save();
+    }
+  } catch( CmsException $e ) {
+    // log it
+    debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
+    audit('',$me,'Installation Error: '.$e->GetMessage());
   }
-} catch( CmsException $e ) {
-  // log it
-  debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
-  audit('',$me,'Installation Error: '.$e->GetMessage());
 }
 
 try {

@@ -2,11 +2,11 @@
 
 use CMSMS\Database\DataDictionary;
 
-if (!isset($gCms)) exit;
+if( !isset($gCms) ) exit;
 
-$uid = null;
-if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
-    $uid = 1; // hardcode to first user
+$newsite = $gCms->test_state(CmsApp::STATE_INSTALL);
+if( $newsite ) {
+    $uid = 1; // templates owned by initial admin
 } else {
     $uid = get_userid();
 }
@@ -86,22 +86,24 @@ try {
     $tpl->set_type_dflt(TRUE);
     $tpl->save();
 
-    // Setup Simplex Theme search form template
-    try {
-        $fn = (__DIR__).DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Search_template.tpl';
-        if( is_file( $fn ) ) {
-            $template = @file_get_contents($fn);
-            $tpl = new CmsLayoutTemplate();
-            $tpl->set_originator($me);
-            $tpl->set_name('Simplex Search');
-            $tpl->set_owner($uid);
-            $tpl->set_content($template);
-            $tpl->set_type($searchform_type);
-            $tpl->add_design('Simplex');
-            $tpl->save();
+    if( $newsite ) { //TODO also test for demonstration content installation
+        // setup Simplex Theme search form template
+        try {
+            $fn = (__DIR__).DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Search_template.tpl';
+            if( is_file( $fn ) ) {
+                $template = @file_get_contents($fn);
+                $tpl = new CmsLayoutTemplate();
+                $tpl->set_originator($me);
+                $tpl->set_name('Simplex Search');
+                $tpl->set_owner($uid);
+                $tpl->set_content($template);
+                $tpl->set_type($searchform_type);
+                $tpl->add_design('Simplex');
+                $tpl->save();
+            }
+        } catch( Exception $e ) {
+            audit('', $me, 'Installation Error: '.$e->GetMessage());
         }
-    } catch( Exception $e ) {
-        audit('', $me, 'Installation Error: '.$e->GetMessage());
     }
 
     $searchresults_type = new CmsLayoutTemplateType();
