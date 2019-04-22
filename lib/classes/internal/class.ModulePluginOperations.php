@@ -124,7 +124,7 @@ final class ModulePluginOperations
 /* EXPERIMENTAL ALTERNATIVE
 	public function RegisterSessionPlugins()
 	{
-		$tmp = global_cache::get('session_plugin_modules'); //module-names NOT cached in the database
+		$tmp = global_cache::get('session_plugin_modules'); //module-names NOT recorded in the database
 		if( $tmp ) {
 			$smarty = CmsApp::get_instance()->GetSmarty();
 			foreach( $tmp as $module_name ) {
@@ -145,8 +145,9 @@ final class ModulePluginOperations
 	private function _load()
 	{
 		if( self::$_loaded ) return;
-		// todo: cache this stuff.  does not need to be run on each request
-		// global_cache 'session_plugin_modules' has only module names for plugin-modules not cached in this table
+		// TODO: cache this stuff.  Does not need to be run on each request
+		// NOTE: global_cache 'session_plugin_modules' has only module names
+		// for plugin-modules not recorded in the module_smarty_plugins table
 		self::$_loaded = TRUE;
 		self::$_data = [];
 		$db = CmsApp::get_instance()->GetDb();
