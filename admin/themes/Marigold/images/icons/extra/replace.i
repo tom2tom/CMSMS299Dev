@@ -1,1 +1,1 @@
-class="fas fa-adjust green"
+class="fa fa-adjust green"

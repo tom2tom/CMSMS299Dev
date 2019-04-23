@@ -1,1 +1,1 @@
-class="fas fa-broom red"
+class="fa fa fa-minus-square-o  red"

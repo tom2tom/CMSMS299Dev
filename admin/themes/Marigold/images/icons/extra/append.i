@@ -1,1 +1,1 @@
-class="fas fa-hand-point-down green"
+class="fa fa-hand-o-down green"

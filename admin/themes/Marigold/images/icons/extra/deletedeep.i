@@ -1,1 +1,1 @@
-class="fas fa-layer-group red"
+class="fa fa-layer-group red"

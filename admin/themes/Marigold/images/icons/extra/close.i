@@ -1,0 +1,1 @@
+class="fa fa-times"
