@@ -1,1 +1,1 @@
-class="fa fa-undo green"
+class="fa fa-undo"
