@@ -106,6 +106,20 @@ class global_cache
     }
 
     /**
+     * @since 2.3
+     * @param string $type
+	 * @param mixed $data
+     */
+    public static function update($type, $data)
+    {
+        if( isset(self::$_types[$type]) ) {
+            self::$_data[$type] = $data;
+            self::$_dirty[$type] = 1;
+            self::save();
+        }
+    }
+
+    /**
      *
      * @global int $CMS_INSTALL_PAGE
      */
