@@ -280,8 +280,8 @@ class operations
 		$fn = $dir.'/moduleinfo.ini';
 		if( !is_file($fn) ) {
 	        (new ModuleOperations())->generate_moduleinfo($modinstance);
-			global_cache::clear('modules');
-			global_cache::clear('module_deps');
+//			global_cache::clear('modules');
+//			global_cache::clear('module_deps');
 //			global_cache::clear('module_plugins');
 		}
 
