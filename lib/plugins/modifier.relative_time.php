@@ -9,10 +9,10 @@
  * Smarty relative date / time plugin
  *
  * Type:     modifier<br>
- * Name:     relative_datetime<br>
+ * Name:     relative_time<br>
  * Date:     March 18, 2009
- * Purpose:  converts a date to a relative time
- * Input:    date to format
+ * Purpose:  converts the specified date/time to a date/time relative to now (i.e.PHP time())
+ * Input:    a UNIX timestamp or other format supported by PHP strtotime()
  * Example:  {$datetime|relative_datetime}
  * @author   Eric Lamb <eric@ericlamb.net>
  * @version 1.0
@@ -25,10 +25,11 @@
  */
 function smarty_modifier_relative_time($timestamp)
 {
-    if(!$timestamp) return;
+    if(!$timestamp) return '';
 
-    if( !preg_match('/^[0-9]+$/',$timestamp) ) {
-        $timestamp = (int) strtotime($timestamp);
+	if(!is_int($timestamp)) {
+        $timestamp = (int)strtotime($timestamp);
+		if($timestamp === false) return '';
     }
     $difference = time() - $timestamp;
     $periods = ['sec', 'min', 'hour', 'day', 'week','month', 'year', 'decade'];
