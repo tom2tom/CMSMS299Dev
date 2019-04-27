@@ -31,7 +31,17 @@ function smarty_modifier_relative_time($timestamp)
         $timestamp = (int)strtotime($timestamp);
 		if($timestamp === false) return '';
     }
+
     $difference = time() - $timestamp;
+
+    if($difference > 2678400 || $difference < -2678400) { //1-month threshold for relative report
+    	$fn = __DIR__.DIRECTORY_SEPARATOR.'modifier.cms_date_format.php';
+    	if(is_file($fn)) {
+        	require_once $fn;
+        	return smarty_modifier_cms_date_format($timestamp);
+        }
+    }
+    
     $periods = ['sec', 'min', 'hour', 'day', 'week','month', 'year', 'decade'];
     $lengths = ['60','60','24','7','4.35','12','10'];
     $total_lengths = count($lengths);
