@@ -655,7 +655,13 @@ lib/smarty/*                              no namespace
             $sess->reset();
         }
 
-        // process (once, or again if a clearance happened) our source-files archive
+        // process (once, or again if a clearance happened) our files-archives
+        if (!empty($sess['sourceball'])) {
+            $p = joinpath($this->get_tmpdir(),'lib','smarty','Autoloader.php');
+            if (!is_file($p)) {
+                $sess['sourceball'] = null; 
+            }
+        }
         if (empty($sess['sourceball'])) {
             $p = $config['archive'] ?? 'data/data.tar.gz';
             $src_archive = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.$p;
