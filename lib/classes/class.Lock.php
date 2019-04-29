@@ -101,9 +101,10 @@ final class Lock implements ArrayAccess
     /**
      * Constructor
      *
-     * @param string $type
-     * @param int    $oid Object Id
-     * @param int    $lifetime (in minutes) The lifetime of the lock before it can be stolen.  If not specified, the system default value will be used.
+     * @param string $type Locked-object type
+     * @param int    $oid Locked-object numeric identifier
+     * @param int    $lifetime Optional interval (in minutes) during which the
+     *  lock may not be stolen. If not specified, the system default value will be used.
      */
     public function __construct($type,$oid,$lifetime = null)
     {
@@ -115,7 +116,9 @@ final class Lock implements ArrayAccess
         $this->_data['oid'] = $oid;
         $this->_data['uid'] = get_userid(FALSE);
         if( $lifetime == null ) $lifetime = cms_siteprefs::get('lock_timeout',60);
-        $this->_data['lifetime'] = max(1,(int)$lifetime);
+        $t = max(1,(int)$lifetime);
+        $this->_data['lifetime'] = $t;
+        $this->_data['expires'] = $t * 60 + time();
         $this->_dirty = TRUE;
     }
 
