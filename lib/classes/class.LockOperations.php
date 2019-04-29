@@ -100,9 +100,9 @@ final class LockOperations
 	 * Remove some or all expired locks.
 	 *
 	 * @param mixed $limit unix timestamp | null Delete locks older than this. Default current time.
-	 * @param string $type The type of locks to delete.  If not specified any type can be deleted.
+	 * @param string $type Optional lock type. Default '' (hence any type).
 	 */
-	private static function delete_expired($limit = null,$type = null)
+	private static function delete_expired($limit = null,$type = '')
 	{
 		if( !$limit ) $limit == time();
 		$db = CmsApp::get_instance()->GetDb();
@@ -118,14 +118,16 @@ final class LockOperations
 	/**
 	 * Get all locks of a specific type
 	 *
-	 * @param string $type The lock type
+	 * @param string $type Optional lock type. Default '' (hence any type).
+	 * @return array
 	 */
-	public static function get_locks($type)
+	public static function get_locks($type = '')
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$query = 'SELECT * FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE.' WHERE type = ?';
+		$query = 'SELECT * FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE;
+		if( $type ) $query .= ' WHERE type = ?';
 		$tmp = $db->GetArray($query,[$type]);
-		if( !$tmp ) return;
+		if( !$tmp ) return [];
 
 		$locks = [];
 		foreach( $tmp as $row ) {
@@ -136,11 +138,11 @@ final class LockOperations
 	}
 
 	/**
-	 * Delete all the locks for the current user
+	 * Delete locks held by the current user
 	 *
 	 * @param string $type An optional type name.
 	 */
-	public static function delete_for_user($type = null)
+	public static function delete_for_user($type = '')
 	{
 		$uid = get_userid(FALSE);
 		$db = CmsApp::get_instance()->GetDb();
@@ -149,6 +151,31 @@ final class LockOperations
 		if( $type ) {
 			$query .= ' AND type = ?';
 			$parms[] = trim($type);
+		}
+		$db->Execute($query,$parms);
+	}
+
+	/**
+	 * Delete locks held by the specified user
+	 * @since 2.3
+	 *
+	 * @param int $uid  User id
+	 * @param string $type An optional type name.
+	 * @param int $oid  An optional object-id, ignored unless $type is provided
+	 */
+	public static function delete_for_nameduser (int $uid,string $type = '',int $oid = 0)
+	{
+		$db = CmsApp::get_instance()->GetDb();
+		if( !$db ) return; //shutdown == gone ?
+		$parms = [$uid];
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE.' WHERE uid = ?';
+		if( $type ) {
+			$query .= ' AND type = ?';
+			$parms[] = trim($type);
+			if( $oid ) {
+				$query .= ' AND oid = ?';
+				$parms[] = int($oid);
+			}
 		}
 		$db->Execute($query,$parms);
 	}
