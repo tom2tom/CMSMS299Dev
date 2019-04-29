@@ -242,10 +242,10 @@ abstract class ThemeBase
     {
         switch( $key ) {
         case 'themeName':
-			$o = strlen(__NAMESPACE__) + 1; //separator-offset
+            $o = strlen(__NAMESPACE__) + 1; //separator-offset
             $class = get_class($this);
             if( endswith($class,'Theme') ) { $class = substr($class,$o,-5); }
-			else { $class = substr($class,$o); }
+            else { $class = substr($class,$o); }
             return $class;
         case 'userid':
             return get_userid();
@@ -448,7 +448,7 @@ abstract class ThemeBase
         $uid = get_userid(false);
 // TODO also clear cache group 'module_menus' after change of group membership or permission
         $data = cms_cache_handler::get_instance()->get('themeinfo'.$uid, 'module_menus');
-//DEBUG   $data = false;
+        $data = false;  //DEBUG
         if (!$data) {
             // data doesn't exist, gotta build it
             $usermoduleinfo = [];
@@ -594,12 +594,14 @@ abstract class ThemeBase
             check_permission($this->userid, 'Remove Pages') |
             check_permission($this->userid, 'Reorder Content');
 
-        // layout TODO individual
+        $this->_perms['templatePerms'] =
+            check_permission($this->userid, 'Add Templates') |
+            check_permission($this->userid, 'Modify Templates'); 
+
         $this->_perms['layoutPerms'] =
             check_permission($this->userid, 'Manage Designs') |
             check_permission($this->userid, 'Manage Stylesheets') |
-            check_permission($this->userid, 'Add Templates') |
-            check_permission($this->userid, 'Modify Templates');
+            $this->_perms['templatePerms'];
 
         // file
         $this->_perms['filePerms'] = check_permission($this->userid, 'Modify Files');
@@ -828,6 +830,24 @@ abstract class ThemeBase
         'final'=>true,
         'show_in_menu'=>true,
         'target'=>'_blank'];
+
+        // ~~~~~~~~~~ layout menu items ~~~~~~~~~~
+
+        $items[] = ['name'=>'listtemplates','parent'=>'layout',
+        'url'=>'listtemplates.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('menulabel_templates')),
+        'description'=>lang('menutitle_templates'),
+        'priority'=>1,
+        'final'=>true,
+        'show_in_menu'=>$this->HasPerm('templatePerms')];
+
+        $items[] = ['name'=>'liststyles','parent'=>'layout',
+        'url'=>'liststyles.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('menulabel_styles')),
+        'description'=>lang('menutitle_styles'),
+        'priority'=>3,
+        'final'=>true,
+        'show_in_menu'=>check_permission($this->userid, 'Manage Stylesheets')];
 
         // ~~~~~~~~~~ services menu items ~~~~~~~~~~
 

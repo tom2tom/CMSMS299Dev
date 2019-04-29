@@ -18,17 +18,13 @@
 
 namespace CMSMS\contenttypes;
 
-use CMSMS\ContentBase;
-use const CMS_CONTENT_HIDDEN_NAME;
-use function check_permission;
-use function get_userid;
-use function lang;
+use CMSMS\contenttypes\ContentBase;
 
 /**
  * Implements the Separator content type
  *
- * A separator is used simply for navigations to provide a visual separation between menu items.  Typically
- * as a horizontal or vertical bar.
+ * A separator might be used to provide a visual separation between menu items.
+*  Typically as a horizontal or vertical bar.
  *
  * @package CMS
  * @subpackage content_types
@@ -36,58 +32,34 @@ use function lang;
  */
 class Separator extends ContentBase
 {
-	public function FriendlyName() { return lang('contenttype_separator'); }
-	public function GetURL($rewrite = true) { return '#';  }
-	public function HasSearchableContent() { return false; }
-	public function HasUsableLink() { return false; }
-	public function IsViewable() { return false; }
-	public function RequiresAlias() { return false; }
-	public function WantsChildren() { return false; }
+	// NOTE any private or static property will not be serialized
 
-	public function SetProperties()
+	/**
+	 * @param mixed $params
+	 */
+	public function __construct($params)
 	{
-		parent::SetProperties([
-			['accesskey',''],
-			['alias',''],
-			['cachable',true],
-			['menutext',''],
-			['page_url',''],
-			['secure',false], //deprecated property since 2.3
-			['tabindex',''],
-			['target',''],
-			['template','-1'],
-			['title',''],
-			['titleattribute',''],
-		]);
-	}
-
-	public function TabNames()
-	{
-		$res = [lang('main')];
-		if( check_permission(get_userid(),'Manage All Content') ) $res[] = lang('options');
-		return $res;
-	}
-
-	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
-	{
-		switch($tab) {
-		case '0':
-			return $this->display_attributes($adding);
-		case '1':
-			return $this->display_attributes($adding,1);
+		parent::__construct($params);
+		foreach ([
+			'accesskey' => '',
+			'alias' => '',
+			'cachable' => true,
+			'menutext' => '',
+			'secure' => false, //deprecated property since 2.3
+			'target' => '',
+			'templateid' => '-1',
+			'title' => '',
+			'titleattribute' => '',
+			'url' => '',
+		] as $key => $value) {
+			$this->$key = $value;
 		}
 	}
 
-	public function TemplateResource() : string
-	{
-		return ''; //TODO
-	}
-
-	public function ValidateData()
-	{
-		$this->mName = CMS_CONTENT_HIDDEN_NAME;
-		return parent::ValidateData();
-	}
+	public function GetURL(bool $rewrite = true) : string { return '#';  }
+	public function HasSearchableContent() : bool { return false; }
+	public function HasUsableLink() : bool { return false; }
+	public function WantsChildren() : bool { return false; }
 } // class
 
 //backward-compatibility shiv

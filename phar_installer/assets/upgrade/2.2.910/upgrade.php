@@ -2,6 +2,7 @@
 
 use CMSMS\Group;
 use CMSMS\StylesheetOperations;
+use CMSMS\StylesheetsGroup;
 use CMSMS\TemplateOperations;
 use CMSMS\UserPluginOperations;
 use function cms_installer\endswith;
@@ -9,59 +10,9 @@ use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\startswith;
 
-// 1. Convert UDT's to file-lugins, widen users-table columns
-$udt_list = $db->GetArray('SELECT userplugin_name,description,code FROM '.CMS_DB_PREFIX.'userplugins');
-if ($udt_list) {
+$dict = GetDataDictionary($db);
 
-    function create_user_plugin(array $row, UserPluginOperations $ops, $smarty)
-    {
-        $fp = $ops->file_path($row['userplugin_name']);
-        if (is_file($fp)) {
-            verbose_msg('user-plugin named '.$row['userplugin_name'].' already exists');
-            return;
-        }
-
-        $code = preg_replace(
-                ['/^[\s\r\n]*<\\?php\s*[\r\n]*/i', '/[\s\r\n]*\\?>[\s\r\n]*$/', '/echo/'],
-                ['', '', 'return'], $row['code']);
-        if (!$code) {
-            verbose_msg('UDT named '.$row['userplugin_name'].' is empty, and will be discarded');
-            return;
-        }
-
-        $meta = ['name'=>$row['userplugin_name']];
-        if ($row['description']) {
-            $desc = trim($row['description'], " \t\n\r");
-            if ($desc) {
-                $meta['description'] = $desc;
-            }
-        }
-
-        if ($ops->save($row['userplugin_name'], $meta, $code, $smarty)) {
-            verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
-        } else {
-            verbose_msg('Error saving UDT named '.$row['userplugin_name']);
-        }
-    }
-
-    $ops = new UserPluginOperations();
-    //$smarty defined upstream, used downstream
-    foreach ($udt_list as $udt) {
-        create_user_plugin($udt, $ops, $smarty);
-    }
-
-    $dict = GetDataDictionary($db);
-    $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins_seq');
-    $dict->ExecuteSQLArray($sqlarr);
-    $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins');
-    $dict->ExecuteSQLArray($sqlarr);
-    status_msg('Converted User Defined Tags to user-plugin files');
-
-    $db->Execute('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY username VARCHAR(80)');
-    $db->Execute('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY password VARCHAR(128)');
-}
-
-// 2. Tweak callbacks for page and generic layout template types
+// 1. Tweak callbacks for page and generic layout template types
 $page_type = CmsLayoutTemplateType::load('__CORE__::page');
 if ($page_type) {
     $page_type->set_lang_callback('CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
@@ -81,9 +32,9 @@ if ($generic_type) {
     error_msg('__CORE__::generic template update '.lang('failed'));
 }
 
-// 3. Revised/extra permissions
+// 2. Revised/extra permissions
 $now = time();
-$longnow = $db->DbTimeStamp($now);
+$longnow = trim($db->DbTimeStamp($now),"'");
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_name=?,permission_text=?,modified_date=? WHERE permission_name=?';
 $db->Execute($query, ['Modify User Plugins','Modify User-Defined Tag Files',$longnow,'Modify User-defined Tags']);
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
@@ -126,7 +77,80 @@ $group->Save();
 $group->GrantPermission('Modify Site Assets');
 */
 
-// 4. Cleanup plugins - remove reference from plugins-argument where necessary
+// 3. Update preferences
+// migrate to new default theme
+$files = glob(joinpath(CMS_ADMIN_PATH,'themes','*','*Theme.php'),GLOB_NOESCAPE);
+foreach ($files as $one) {
+    if (is_readable($one)) {
+        $name = basename($one, 'Theme.php');
+        $query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value=? WHERE preference=\'admintheme\'';
+        $db->Execute($query,[$name]);
+/*        $query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value=?,modified_date=? WHERE sitepref_name=\'logintheme\'';
+        $db->Execute($query,[$name,$longnow]);
+*/
+        cms_siteprefs::set('logintheme', $name);
+        break;
+    }
+}
+
+//$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modified_date) VALUES (\'loginmodule\',?,?);';
+//$db->Execute($query,[$longnow,$longnow]);
+foreach([
+    'loginmodule' => '',
+    'smarty_cachelife' => -1, // smarty default
+ ] as $name=>$val) {
+    cms_siteprefs::set($name, $val);
+}
+
+// 4. Convert UDT's to user-plugin files
+$udt_list = $db->GetArray('SELECT userplugin_name,description,code FROM '.CMS_DB_PREFIX.'userplugins');
+if ($udt_list) {
+
+    function create_user_plugin(array $row, UserPluginOperations $ops, $smarty)
+    {
+        $fp = $ops->file_path($row['userplugin_name']);
+        if (is_file($fp)) {
+            verbose_msg('user-plugin named '.$row['userplugin_name'].' already exists');
+            return;
+        }
+
+        $code = preg_replace(
+                ['~^[\s\r\n]*<\\?php\s*[\r\n]*~i', '~[\s\r\n]*\\?>[\s\r\n]*$~', '~echo~'],
+                ['', '', 'return'], $row['code']);
+        if (!$code) {
+            verbose_msg('UDT named '.$row['userplugin_name'].' is empty, and will be discarded');
+            return;
+        }
+
+        $meta = ['name'=>$row['userplugin_name']];
+        if ($row['description']) {
+            $desc = trim($row['description'], " \t\n\r");
+            if ($desc) {
+                $meta['description'] = $desc;
+            }
+        }
+
+        if ($ops->save($row['userplugin_name'], $meta, $code, $smarty)) {
+            verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
+        } else {
+            verbose_msg('Error saving UDT named '.$row['userplugin_name']);
+        }
+    }
+
+    $ops = new UserPluginOperations();
+    //$smarty defined upstream, used downstream
+    foreach ($udt_list as $udt) {
+        create_user_plugin($udt, $ops, $smarty);
+    }
+
+    $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins_seq');
+    $dict->ExecuteSQLArray($sqlarr);
+    $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins');
+    $dict->ExecuteSQLArray($sqlarr);
+    status_msg('Converted User Defined Tags to user-plugin files');
+}
+
+// 5. Cleanup plugins - remove reference from function-argument where appropriate
 foreach ([
  ['lib', 'plugins'],
  ['admin', 'plugins'],
@@ -160,70 +184,12 @@ foreach ([
     }
 }
 
-// 5. Drop redundant sequence-tables
+// 6. Drop redundant sequence-tables
 $db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
 $db->DropSequence(CMS_DB_PREFIX.'userplugins_seq');
 
-$dict = GetDataDictionary($db);
+// 7. Other table revisions
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
-
-// 6. Table revisions
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.DesignManager\Design::TPLTABLE,'tpl_order I(2) UNSIGNED DEFAULT 0');
-$dict->ExecuteSQLArray($sqlarray);
-
-$flds = '
-category_id I NOTNULL,
-tpl_id I NOTNULL,
-tpl_order I(4) DEFAULT 0
-';
-$sqlarray = $dict->CreateTableSQL(
-    CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE,
-    $flds,
-    $taboptarray
-);
-$return = $dict->ExecuteSQLArray($sqlarray);
-$msg_ret = ($return == 2) ? lang('done') : lang('failed');
-verbose_msg(lang('install_created_table', CmsLayoutTemplateCategory::TPLTABLE, $msg_ret));
-
-$sqlarray = $dict->CreateIndexSQL('idx_layout_cat_tplasoc_1',
- CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE, 'tpl_id');
-$return = $dict->ExecuteSQLArray($sqlarray);
-$msg_ret = ($return == 2) ? lang('done') : lang('failed');
-verbose_msg(lang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret));
-
-// migrate existing category_id values to new table
-$query = 'SELECT id,category_id FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE category_id IS NOT NULL';
-$data = $db->GetArray($query);
-if ($data) {
-    $query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' (category_id,tpl_id,tpl_order) VALUES (?,?,-1)';
-    foreach ($data as $row) {
-        $db->Execute($query, [$row['category_id'], $row['id']]);
-    }
-}
-
-$sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'category_id');
-$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'originator C(32) AFTER id');
-$dict->ExecuteSQLArray($sqlarray);
-
-// layout-templates table indices
-// replace this 'unique' by non- (_3 below becomes the validator)
-$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_1',
-    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'name');
-$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_1',
-    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'name');
-$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_3',
-    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'originator,name', ['UNIQUE']);
-$dict->ExecuteSQLArray($sqlarray);
-// content table index used by name
-$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'index_content_by_idhier',
-    CMS_DB_PREFIX.'content', 'content_id,hierarchy');
-$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('idx_content_by_idhier',
-    CMS_DB_PREFIX.'content', 'content_id,hierarchy');
-$dict->ExecuteSQLArray($sqlarray);
 
 //events table
 $sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'event_id'); //redundant duplicate index
@@ -240,20 +206,244 @@ $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name', 'func', 'C(64)');
 $dict->ExecuteSQLArray($sqlarray);
 verbose_msg(lang('upgrade_modifytable', 'event_handlers'));
-// extra fields
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'contentfile I(1) DEFAULT 0 AFTER listable');
+
+//$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.DesignManager\Design::TPLTABLE,'tpl_order I(2) UNSIGNED DEFAULT 0');
+//$dict->ExecuteSQLArray($sqlarray);
+
+//re-organize layout-related tables
+// template-groups table tweaks
+$tbl = CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME;
+$sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'layout_tpl_categories', $tbl);
+$return = $dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropColumnSQL($tbl, 'item_order');
 $dict->ExecuteSQLArray($sqlarray);
+// interim addition to suit the timestamp-fields migration-function, below
+$sqlarray = $dict->AddColumnSQL($tbl, 'created I');
+$dict->ExecuteSQLArray($sqlarray);
+
+$tbl = CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE;
+$flds = '
+id I(2) UNSIGNED AUTO KEY,
+group_id I(2) UNSIGNED NOT NULL,
+tpl_id I(2) UNSIGNED NOT NULL,
+item_order I(2) UNSIGNED DEFAULT 0
+';
+$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
+$return = $dict->ExecuteSQLArray($sqlarray);
+$msg_ret = ($return == 2) ? lang('done') : lang('failed');
+verbose_msg(lang('install_created_table', 'layout_tplgroup_members', $msg_ret));
+
+$sqlarray = $dict->CreateIndexSQL('idx_layout_grp_tpls', $tbl, 'tpl_id');
+$return = $dict->ExecuteSQLArray($sqlarray);
+$msg_ret = ($return == 2) ? lang('done') : lang('failed');
+verbose_msg(lang('install_creating_index', 'idx_layout_grp_tpls', $msg_ret));
+
+// migrate existing category_id values to new table
+$tbl = CMS_DB_PREFIX.TemplateOperations::TABLENAME;
+$query = 'SELECT id,category_id FROM '.$tbl.' WHERE category_id IS NOT NULL';
+$data = $db->GetArray($query);
+if ($data) {
+    $query = 'INSERT INTO '.$tbl.' (group_id,tpl_id) VALUES (?,?)';
+    foreach ($data as $row) {
+        $db->Execute($query, [$row['category_id'], $row['id']]);
+    }
+}
+
+$sqlarray = $dict->DropColumnSQL($tbl, 'category_id');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL($tbl, 'originator C(32) AFTER id');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL($tbl, 'contentfile I(1) DEFAULT 0 AFTER listable');
+$dict->ExecuteSQLArray($sqlarray);
+
+// templates table indices
+// replace this 'unique' by non- (_3 below becomes the validator)
+$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_1', $tbl, 'name');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_1', $tbl, 'name');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_3', $tbl, 'originator,name', ['UNIQUE']);
+$dict->ExecuteSQLArray($sqlarray);
+// content table index used by name
+$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'index_content_by_idhier',
+    CMS_DB_PREFIX.'content', 'content_id,hierarchy');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->CreateIndexSQL('idx_content_by_idhier',
+    CMS_DB_PREFIX.'content', 'content_id,hierarchy');
+$dict->ExecuteSQLArray($sqlarray);
+
+$tbl = CMS_DB_PREFIX.StylesheetsGroup::TABLENAME;
+$flds = '
+id I(4) KEY AUTO,
+name C(64),
+description X(1024),
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
+';
+$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
+$dict->ExecuteSQLArray($sqlarray);
+
+$tbl = CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE;
+$flds = '
+id I(2) UNSIGNED AUTO KEY,
+group_id I(2) UNSIGNED NOT NULL,
+css_id I(2) UNSIGNED NOT NULL,
+item_order I(2) UNSIGNED DEFAULT 0
+';
+$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
+$dict->ExecuteSQLArray($sqlarray);
+
+// other extra fields
 $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME,'contentfile I(1) DEFAULT 0');
 $dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'content','styles C(48)');
+$dict->ExecuteSQLArray($sqlarray);
+
+//wider fields
+$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'users','username C(80)');
+$return = $dict->ExecuteSQLArray($sqlarray);
+$msg_ret = ($return == 2) ? lang('done') : lang('failed');
+$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'users','password C(128)');
+$return = $dict->ExecuteSQLArray($sqlarray);
+$msg_ret = ($return == 2) ? lang('done') : lang('failed');
+
 // redundant fields
 $sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'content','prop_names');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'module_smarty_plugins','cachable');
-$dict->ExecuteSQLArray($sqlarray);
+//NOT YET
+//$sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'module_smarty_plugins','cachable');
+//$dict->ExecuteSQLArray($sqlarray);
 
 $sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'routes','created','create_date DEFAULT CURRENT_TIMESTAMP');
 $dict->ExecuteSQLArray($sqlarray);
-// replace timestamp fields
+
+$tbl = CMS_DB_PREFIX.'module_smarty_plugins';
+$sqlarray = $dict->DropColumnSQL($tbl,'sig');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropIndexSQL($tbl,'idx_smp_module');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL($tbl,'id I(2) KEY AUTO FIRST');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AlterColumnSQL($tbl,"name C(48) COLLATE 'utf8_bin' NOT NULL"); //case-sensitive
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->CreateIndexSQL('idx_tagname',$tbl,'name',['UNIQUE']);
+$dict->ExecuteSQLArray($sqlarray);
+
+// Migrate plugin callbacks from serialized to plain string
+$rows = $db->GetArray('SELECT id,module,callback FROM '.CMS_DB_PREFIX.'module_smarty_plugins');
+foreach ($rows as &$row) {
+	$val = unserialize($row['callback'], []);
+	if ($val) {
+		if (is_array($val)) {
+			$s = $val[0].'::'.$val[1];
+		} elseif (is_string($val)) {
+			if (($p = strpos($val,'::')) === false) {
+				$s = $row['module'].'::'.$val;
+			} elseif (p === 0) {
+				$s = $row['module'].$val;
+			} else {
+				$s = $val;
+			}
+		} else {
+			$s = NULL;
+		}
+	} else {
+		$s = NULL;
+	}
+	if ($s) {
+		$db->Execute('UPDATE '.CMS_DB_PREFIX.'module_smarty_plugins SET callback=? WHERE id=?',[$s,$row['id']]);
+	} else {
+		$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE sig=?',[$row['id']]);
+	}
+}
+unset($row);
+
+// Migrate design stylesheets to layout tables and pages as respective groups
+$designs = $db->GetAssoc('SELECT id,name,created,modified FROM '.CMS_DB_PREFIX.'layout_designs');
+if ($designs) {
+    $dt = new DateTime('@0',NULL);
+    $fmt = 'Y-m-d H:i:s';
+    $now = time();
+    foreach ($designs as &$row) {
+        $t1 = (int)$row['created'];
+        $t2 = max($t1,(int)$row['modified']);
+        if ($t1 == 0) { $t1 = $t2; }
+        if ($t1 == 0) { $t1 = $t2 = $now; }
+        $dt->setTimestamp($t1);
+        $row['create_date'] = $dt->format($fmt);
+        $dt->setTimestamp($t2);
+        $row['modified_date'] = $dt->format($fmt);
+    }
+    unset($row);
+
+    $templates = $db->GetArray('SELECT A.* FROM '.
+        CMS_DB_PREFIX.'layout_design_tplassoc A LEFT JOIN '.
+        CMS_DB_PREFIX.'layout_templates T ON A.tpl_id=T.id ORDER BY A.design_id,T.name');
+    if ($templates) {
+        $bank = [];
+        foreach ($templates as &$row) {
+            $id = (int)$row['design_id'];
+            if (!isset($bank[$id])) {
+                $bank[$id] = [];
+            }
+            $bank[$id][] = (int)$row['tpl_id'];
+        }
+        foreach ($bank as $id => &$row) {
+            $ob = new CmsLayoutTemplateCategory();
+            $ob->set_properties([
+                'name'=>$designs[$id]['name'],
+                'description'=>'Templates mirrored from design',
+                'create_date'=>$designs[$id]['create_date'],
+                'modified_date'=>$designs[$id]['modified_date']
+            ]);
+            $ob->set_members($row);
+            $ob->save();
+        }
+        unset($row);
+    }
+
+    $sheets = $db->GetArray('SELECT design_id,css_id FROM '.CMS_DB_PREFIX.'layout_design_cssassoc ORDER BY design_id,item_order');
+    if ($sheets) {
+        $bank = [];
+        foreach ($sheets as &$row) {
+            $id = (int)$row['design_id'];
+            if (!isset($bank[$id])) {
+                $bank[$id] = [];
+            }
+            $bank[$id][] = (int)$row['css_id'];
+        }
+        $trans = [];
+        foreach ($bank as $id => &$row) {
+            $ob = new CMSMS\StylesheetsGroup();
+            $ob->set_properties([
+                'name'=>$designs[$id]['name'],
+                'description'=>'Stylesheets mirrored from design',
+                'create_date'=>$designs[$id]['create_date'],
+                'modified_date'=>$designs[$id]['modified_date']
+            ]);
+            $ob->set_members($row);
+        $ob->save();
+            $trans[$id] = $ob->get_id();
+        }
+        unset($row);
+
+        $pages = $db->GetAssoc('SELECT C.content_id,P.content AS design_id FROM '.
+            CMS_DB_PREFIX.'content C JOIN '.
+            CMS_DB_PREFIX.'content_props P ON C.content_id=P.content_id WHERE P.prop_name=\'design_id\'');
+        if ($pages) {
+            $stmt = $db->Prepare('UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?');
+            foreach ($pages as $id => $did) {
+                if (!empty($trans[$did])) {
+                    $db->Execute($stmt,[-$trans[$did],$id]); //group id's recorded < 0
+                }
+            }
+            $stmt->close();
+//NOT YET   $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'content_props WHERE prop_name=\'design_id\'');
+        }
+    }
+}
+
+// Migrate timestamp fields to datetime
 function migrate_stamps(string $name, string $fid, $db, $dict)
 {
     $tbl = CMS_DB_PREFIX.$name;
@@ -268,9 +458,9 @@ function migrate_stamps(string $name, string $fid, $db, $dict)
         $dt = new DateTime('@0',NULL);
         $fmt = 'Y-m-d H:i:s';
         foreach ($data as $id => &$row) {
-			$t1 = (int)$row['created'];
-			$t2 = max($t1,(int)$row['modified']);
-			if ($t1 == 0) { $t1 = $t2; }
+            $t1 = (int)$row['created'];
+            $t2 = max($t1,(int)$row['modified']);
+            if ($t1 == 0) { $t1 = $t2; }
             $dt->setTimestamp($t1);
             $created = $dt->format($fmt);
             $dt->setTimestamp($t2);
@@ -285,115 +475,27 @@ function migrate_stamps(string $name, string $fid, $db, $dict)
     $sqlarray = $dict->DropColumnSQL($tbl, 'modified');
     $dict->ExecuteSQLArray($sqlarray);
 }
-// conform this one to suit the function
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'layout_tpl_categories', 'created I');
-$dict->ExecuteSQLArray($sqlarray);
 
 foreach ([
-    ['layout_designs','id'],
+//    ['layout_designs','id'],
     ['layout_stylesheets','id'],
     ['layout_templates','id'],
     ['layout_tpl_type','id'],
-    ['layout_tpl_categories','id'],
+    ['layout_tpl_groups','id'],
     ['locks','id'],
 ] as $tbl) {
     migrate_stamps($tbl[0],$tbl[1],$db,$dict);
 }
 
-//migrate stylesheets from design to content-property
-$tbl = CMS_DB_PREFIX.'layout_css_categories';
-$flds = '
-id I(4) KEY AUTO,
-name C(64),
-description X(1024),
-create_date DT DEFAULT CURRENT_TIMESTAMP,
-modified_date DT ON UPDATE CURRENT_TIMESTAMP
-';
-$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
-$dict->ExecuteSQLArray($sqlarray);
-
-$tbl = CMS_DB_PREFIX.'layout_csscat_members';
-$flds = '
-id I(4) KEY AUTO,
-category_id I(4) NOT NULL,
-css_id I(4) NOT NULL,
-item_order I(2) DEFAULT 0
-';
-$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
-$dict->ExecuteSQLArray($sqlarray);
-
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'content','styles C(48)');
-$dict->ExecuteSQLArray($sqlarray);
-
-$pref = CMS_DB_PREFIX;
-$query = <<<EOS
-SELECT D.id,D.name,D.description,A.css_id
-FROM {$pref}layout_designs D
-LEFT JOIN {$pref}layout_design_cssassoc A
-ON D.id = A.design_id
-ORDER BY D.id,A.item_order
-EOS;
-
-$rows = $db->GetArray($query);
-if ($rows) {
-    $bank = [];
-    $names = [];
-    $desc = [];
-
-    foreach ($rows as $row) {
-		$did = $row['id'];
-		if (!isset($bank[$did])) {
-			$bank[$did] = [];
-			$names[$did] = $row['name'];
-			$desc[$did] = $row['description'];
-	    }
-		$bank[$did][] = (int)$row['css_id'];
-    }
-	$default_css = reset($bank)[0] ?? 1;
-    foreach ($bank as $did => $row) {
-		if (count($row == 1)) {
-			$bank[$did] = reset($row);
-		    unset($names[did]);
-			unset($desc[$did]);
-		} else {
-			// create css group from the design name, desc, css id's
-			$db->Execute('INSERT INTO '.CMS_DB_PREFIX.'layout_css_categories (name,description) VALUES (?,?)',[$names[$did].'-design members',$desc[$did]]);
-			$gid = $db->Insert_ID();
-			$i = 1;
-			foreach ($row as $cssid) {
-				$db->Execute('INSERT INTO '.CMS_DB_PREFIX.'layout_csscat_members (category_id,css_id,item_order) VALUES (?,?,?)',[$gid,$cssid,$i++]);
-			}
-			$bank[$id] = implode(',',$row);
-		}
-    }
-
-    $query = <<<EOS
-SELECT C.content_id,P.content AS design_id
-FROM {$pref}content C
-LEFT JOIN {$pref}content_props P
-ON C.content_id = P.content_id
-WHERE P.prop_name = 'design_id'
-EOS;
-    $rows = $db->GetArray($query);
-
-    $query = "UPDATE {$pref}content SET styles=? WHERE content_id=?";
-    foreach ($rows as $row) {
-       $val = $bank[$row['design_id']] ?? $default_css;
-       $db->Execute($query,[$val,$row['content_id']]);
-	}
-
-// NOT YET	$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'content_props WHERE prop_name = \'design_id\'');
-} //rows
-
-// 7. Migrate module templates to layout-templates table
+// 8. Migrate module templates to layout-templates table
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
 $data = $db->GetArray($query);
 if ($data) {
     $query = 'INSERT INTO '.CMS_DB_PREFIX.'layout_templates
 (originator,name,content,type_id,create_date,modified_date)
 VALUES (?,?,?,?,?,?)';
-    $dt = new DateTime('@0',null);
     $types = [];
+    $now = time();
     foreach ($data as $row) {
         $name = $row['module_name'];
         if (!isset($types[$name])) {
@@ -408,19 +510,13 @@ VALUES (?,?,?,-1)',
             ]);
             $types[$name] = $db->insert_id();
         }
-        $dt->modify($row['create_date']);
-        $created = $dt->getTimestamp();
-        if (!$created) { $created = $now; }
-        $dt->modify($row['modified_date']);
-        $modified = $dt->getTimestamp();
-        if (!$modified) { $modified = min($now, $created); }
         $db->Execute($query, [
             $name,
             $row['template_name'],
             $row['content'],
             $types[$name],
-            $created,
-            $modified
+            $row['create_date'],
+            $row['modified_date'],
         ]);
     }
     verbose_msg(lang('upgrade_modifytable', 'module_templates'));
@@ -429,31 +525,6 @@ VALUES (?,?,?,-1)',
 $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
 $dict->ExecuteSQLArray($sqlarray);
 verbose_msg(lang('upgrade_deletetable', 'module_templates'));
-
-// 8. Update preferences
-// migrate to new default theme
-$files = glob(joinpath(CMS_ADMIN_PATH,'themes','*','*Theme.php'),GLOB_NOESCAPE);
-foreach ($files as $one) {
-    if (is_readable($one)) {
-        $name = basename($one, 'Theme.php');
-        $query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value=? WHERE preference=\'admintheme\'';
-        $db->Execute($query,[$name]);
-/*        $query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value=?,modified_date=? WHERE sitepref_name=\'logintheme\'';
-        $db->Execute($query,[$name,$longnow]);
-*/
-        cms_siteprefs::set('logintheme', $name);
-        break;
-    }
-}
-
-//$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modified_date) VALUES (\'loginmodule\',?,?);';
-//$db->Execute($query,[$longnow,$longnow]);
-foreach([
-    'loginmodule' => '',
-    'smarty_cachelife' => -1, // smarty default
- ] as $name=>$val) {
-    cms_siteprefs::set($name, $val);
-}
 
 //if ($return == 2) {
     $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 206';

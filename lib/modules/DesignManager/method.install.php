@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//use CMSMS\Database\DataDictionary;
+use CMSMS\Database\DataDictionary;
 use CMSMS\Events;
 use CMSMS\Group;
 
@@ -24,162 +24,61 @@ if (!isset($gCms)) {
     exit;
 }
 
-/* these tables are mainly, but not exclusively, used by this module, so processed with core
 $dict = new DataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
+$tbl = CMS_DB_PREFIX.'module_designs'; // aka Design::TABLENAME
+//created I, <<< DT replaced 2.3
+//modified I <<< DT ditto
+//dflt I(1) DEFAULT 0, 2.3 removed, irrelevant
 $flds = '
-id I KEY AUTO,
-originator C(32) NOT NULL,
-name C(96) NOT NULL,
-dflt_contents X2,
+id I(1) UNSIGNED AUTO KEY,
+name C(64) NOT NULL,
 description X(1024),
-lang_cb C(255),
-dflt_content_cb C(255),
-help_content_cb C(255),
-has_dflt I(1) DEFAULT 0,
-requires_contentblocks I(1),
-one_only I(1),
-owner I,
-created I,
-modified I
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dict->CreateTableSQL(
-	CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME,
-	$flds,
-	$taboptarray
-);
+$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
 $res = $dict->ExecuteSQLArray($sqlarray);
 if ($res != 2) return false;
 
-$sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_type_1',
-	CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME, 'originator,name', ['UNIQUE']);
+$sqlarray = $dict->CreateIndexSQL('idx_dsn', $tbl, 'name', ['UNIQUE']);
 $res = $dict->ExecuteSQLArray($sqlarray);
 if ($res != 2) return false;
 
+$tbl = CMS_DB_PREFIX.'module_designs_tpl'; // aka Design::TPLTABLE
 $flds = '
-id I KEY AUTO,
-name C(96) NOT NULL,
-description X(1024),
-item_order I(4) DEFAULT 0,
-modified I
+id I(2) UNSIGNED AUTO KEY,
+design_id I(2) UNSIGNED NOT NULL KEY,
+tpl_id I(2) UNSIGNED NOT NULL KEY,
+tpl_order I(1) UNSIGNED DEFAULT 0
 ';
-$sqlarray = $dict->CreateTableSQL(
-	CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME,
-	$flds,
-	$taboptarray
-);
-$res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
-
-$sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_cat_1',
-	CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME, 'name', ['UNIQUE']);
-$res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
-
-$flds = '
-category_id I NOT NULL,
-tpl_id I NOT NULL,
-tpl_order I(4) DEFAULT 0
-';
-$sqlarray = $dict->CreateTableSQL(
-	CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE,
-	$flds,
-	$taboptarray
-);
-$res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
-
-$sqlarray = $dict->CreateIndexSQL('idx_layout_cat_tplasoc_1',
-	CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE, 'tpl_id');
-$res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
-
-$flds = '
-id I KEY AUTO,
-name C(96) NOT NULL,
-content X2,
-description X(1024),
-media_type C(255),
-media_query X(16384),
-created I,
-modified I
-';
-$sqlarray = $dict->CreateTableSQL(
-	CMS_DB_PREFIX.StylesheetOperations::TABLENAME,
-	$flds,
-	$taboptarray
-);
-$res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
-
-$sqlarray = $dict->CreateIndexSQL('idx_layout_css_1',
-	CMS_DB_PREFIX.StylesheetOperations::TABLENAME, 'name', ['UNIQUE']);
-$res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
-
-$flds = '
-id I KEY AUTO,
-name C(96) NOT NULL,
-description X(1024),
-dflt I(1) DEFAULT 0,
-created I,
-modified I
-';
-$sqlarray = $dict->CreateTableSQL(
-	CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME,
-	$flds,
-	$taboptarray
-);
-$res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
-
-$sqlarray = $dict->CreateIndexSQL('idx_layout_dsn_1',
-	CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME, 'name', ['UNIQUE']);
-$res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
-
-$flds = '
-design_id I KEY NOT NULL,
-tpl_id I KEY NOT NULL,
-tpl_order I(4) DEFAULT 0
-';
-//CHECKME separate index on tpl_id field ?
-$sqlarray = $dict->CreateTableSQL(
-	CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE,
-	$flds,
-	$taboptarray
-);
-$res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
-
-$sqlarray = $dict->CreateIndexSQL('idx_dsnassoc1',
-	CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE, 'tpl_id');
-$res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
-
-$flds = '
-design_id I KEY NOT NULL,
-css_id I KEY NOT NULL,
-item_order I(4) DEFAULT 0
-';
-//CHECKME separate index on css_id field ?
-$sqlarray = $dict->CreateTableSQL(
-	CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE,
-	$flds,
-	$taboptarray
-);
+$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
+$dict->ExecuteSQLArray($sqlarray);
+/* useless
+$sqlarray = $dict->CreateIndexSQL('idx_dsntpl', $tbl, 'tpl_id');
 $res = $dict->ExecuteSQLArray($sqlarray);
 if ($res != 2) return false;
 */
+$tbl = CMS_DB_PREFIX.'module_designs_css'; // aka Design::CSSTABLE
+//CHECKME separate index on css_id field ?
+$flds = '
+id I(2) UNSIGNED AUTO KEY,
+design_id I(2) UNSIGNED NOT NULL KEY,
+css_id I(2) UNSIGNED NOT NULL KEY,
+css_order I(1) UNSIGNED DEFAULT 0
+';
+$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
 
-$this->SetPreference('lock_timeout', 60);
-$this->SetPreference('lock_refresh', 120);
+//$this->SetPreference('lock_timeout', 60);
+//$this->SetPreference('lock_refresh', 120);
 
-$this->CreatePermission('Add Templates', $this->Lang('perm_add'));
+//$this->CreatePermission('Add Templates', $this->Lang('perm_add'));
 $this->CreatePermission('Manage Designs', $this->Lang('perm_designs'));
-$this->CreatePermission('Manage Stylesheets', $this->Lang('perm_styles'));
-$this->CreatePermission('Modify Templates', $this->Lang('perm_modify'));
+//$this->CreatePermission('Manage Stylesheets', $this->Lang('perm_styles'));
+//$this->CreatePermission('Modify Templates', $this->Lang('perm_modify'));
 
 $group = new Group();
 $group->name = 'Designer';
@@ -208,27 +107,27 @@ try {
 foreach([
  'AddDesignPost',
  'AddDesignPre',
-
+/*
  'AddStylesheetPost',
  'AddStylesheetPre',
  'AddTemplatePost',
  'AddTemplatePre',
  'AddTemplateTypePost',
  'AddTemplateTypePre',
-
+*/
  'DeleteDesignPost',
  'DeleteDesignPre',
-
+/*
  'DeleteStylesheetPost',
  'DeleteStylesheetPre',
  'DeleteTemplatePost',
  'DeleteTemplatePre',
  'DeleteTemplateTypePost',
  'DeleteTemplateTypePre',
-
+*/
  'EditDesignPost',
  'EditDesignPre',
-
+/*
  'EditStylesheetPost',
  'EditStylesheetPre',
  'EditTemplatePost',
@@ -243,6 +142,8 @@ foreach([
  'TemplatePostCompile',
  'TemplatePreCompile',
  'TemplatePreFetch',
+*/
 ] as $name) {
+	// deprecated since 2.3 event originator is 'Core', change to 'DesignManager'
     Events::CreateEvent('Core',$name);
 }

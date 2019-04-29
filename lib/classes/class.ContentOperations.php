@@ -1,5 +1,5 @@
 <?php
-#Class of content-related methods
+#Class of methods for processing the pages-tree, and content objects generally
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,29 +18,32 @@
 
 namespace CMSMS;
 
+use cms_cache_handler;
 use cms_content_tree;
 use cms_siteprefs;
-use cms_tree_operations;
 use cms_utils;
 use CmsApp;
+use CMSContentManager\Utils;
 use CmsCoreCapabilities;
-use CMSMS\ContentBase;
-use CMSMS\ContentCache;
 use CMSMS\ContentTypePlaceHolder;
-use CMSMS\internal\global_cachable;
+use CMSMS\contenttypes\ContentBase;
 use CMSMS\internal\global_cache;
 use CMSMS\ModuleOperations;
 use CMSMS\UserOperations;
+use Exception;
 use const CMS_DB_PREFIX;
-use const CMS_SCRIPTS_URL;
 use function check_permission;
 use function debug_buffer;
-use function get_userid;
 use function lang;
 use function munge_string_to_url;
 
 /**
- * A singleton class of methods related to content
+ * A singleton class for working with page properties.
+ * This class includes generic content-related methods, plus some tailored
+ * for processing the content tree. Care is needed when preparing content
+ * for runtime page-display or page-listing/modification by the ContentManager module.
+ * The page/node data are as minimal as possible, consistent with tree operations
+ * & related menu generation.
  *
  * @final
  * @since 0.8
@@ -99,41 +102,6 @@ final class ContentOperations
 	}
 
 	/**
-	 * Setup several related caches which are used in various classes
-	 * Called from include.php
-	 * @ignore
-	 */
-	public static function setup_cache()
-	{
-		// the flat list
-		$obj = new global_cachable('content_flatlist', function()
-			{
-				$query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
-				$db = CmsApp::get_instance()->GetDb();
-				return $db->GetArray($query);
-			});
-		global_cache::add_cachable($obj);
-
-		// hence the tree
-		$obj = new global_cachable('content_tree', function()
-			{
-				$flatlist = global_cache::get('content_flatlist');
-				// todo, embed this here
-				$tree = cms_tree_operations::load_from_list($flatlist);
-				return $tree;
-			});
-		global_cache::add_cachable($obj);
-
-		// hence the flat/quick list
-		$obj = new global_cachable('content_quicklist', function()
-			{
-				$tree = global_cache::get('content_tree');
-				return $tree->getFlatList();
-			});
-		global_cache::add_cachable($obj);
-	}
-
-	/**
 	 * Return a content object for the currently requested page.
 	 *
 	 * @since 1.9
@@ -180,11 +148,16 @@ final class ContentOperations
 	 */
 	public function LoadContentType($type)
 	{
-		if( is_object($type) && $type instanceof ContentTypePlaceHolder ) $type = $type->type;
+		if( is_object($type) && $type instanceof ContentTypePlaceHolder ) {
+			$type = $type->type;
+		}
 
 		$ctph = $this->_get_content_type($type);
 		if( is_object($ctph) ) {
-			if( !class_exists( $ctph->class ) && is_file( $ctph->filename ) ) include_once( $ctph->filename );
+			if( !class_exists( $ctph->class ) && is_file( $ctph->filename ) ) {
+				include_once( $ctph->filename );
+				$ctph->loaded = true;
+			}
 		}
 
 		return $ctph;
@@ -199,20 +172,18 @@ final class ContentOperations
 	 * instantiated.
 	 *
 	 * @param mixed $type string or an instance of ContentTypePlaceHolder
+	 * @param array since 2.3 initial object properties (replaces subsequent LoadFromData())
 	 * @return mixed  object derived from ContentBase | null
 	 */
-	public function &CreateNewContent($type)
+	public function CreateNewContent($type, $params=[])
 	{
 		if( $type instanceof ContentTypePlaceHolder ) $type = $type->type;
 
 		$ctph = $this->LoadContentType($type);
 		if( is_object($ctph) && class_exists($ctph->class) ) {
-			$result = new $ctph->class;
+			return new $ctph->class($params);
 		}
-		else {
-			$result = null;
-		}
-		return $result;
+		return null;
 	}
 
 	/**
@@ -227,24 +198,35 @@ final class ContentOperations
 	public function LoadContentFromId($id,bool $loadprops=false)
 	{
 		$id = (int)$id;
-		if( $id < 1 ) $id = $this->GetDefaultContent();
-		$cache = ContentCache::get_instance();
-		$contentobj = $cache->get_content($id);
-		if( $contentobj === null ) {
+		if( $id < 1 ) { $id = $this->GetDefaultContent(); }
+
+		$cache = cms_cache_handler::get_instance();
+		$contentobj = $cache->get($id,'tree_pages'); //TODO relevant object type
+		if( !$contentobj ) {
 			$db = CmsApp::get_instance()->GetDb();
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id = ?';
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id=?';
 			$row = $db->GetRow($query, [$id]);
 			if( $row ) {
-				$classtype = strtolower($row['type']);
-				$contentobj = $this->CreateNewContent($classtype);
-				if( $contentobj ) {
-					$contentobj->LoadFromData($row, $loadprops);
-					$cache->add_content($id,$row['content_alias'],$contentobj);
+				$ctph = $this->_get_content_type($row['type']);
+				if( $ctph ) {
+					unset($row['metadata']);
+					$classname = $ctph->class;
+					$contentobj = new $classname($row);
+					 // legacy support deprecated since 2.3
+					if( method_exists( $contentobj,'LoadFromData') ) { $contentobj->LoadFromData($row); }
+					$cache->set($id,$contentobj,'tree_pages');
+				}
+				else {
+					throw new Exception('Unrecognized class '.$row['type'].' used in '.__METHOD__);
 				}
 			}
-		} else {
-$ADBG = 1;
+//		} else {
 			//TODO trigger module-loading etc, so that page tags get registered
+		}
+
+		if( $loadprops ) {
+			// the tag which intiated the menu specified 'deep' pre-loading
+			// doesn't help anything, ignored
 		}
 
 		return $contentobj;
@@ -257,71 +239,64 @@ $ADBG = 1;
 	 * @param bool $only_active If true, only return the object if it's active flag is true. Defaults to false.
 	 * @return mixed The matched ContentBase object, or null.
 	 */
-	public function LoadContentFromAlias($alias, bool $only_active = false)
+	public function LoadContentFromAlias($alias, bool $only_active = false)  //TODO ensure relevant content-object
 	{
-		$cache = ContentCache::get_instance();
-		$contentobj = $cache->get_content($alias);
+		$contentobj = cms_cache_handler::get_instance()->get($alias,'tree_pages');
 		if( $contentobj === null ) {
-			$hm = CmsApp::get_instance()->GetHierarchyManager();
-			$id = $hm->find_by_tag_anon((string)$alias);
+			$db = CmsApp::get_instance()->GetDb();
+			$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE (content_id=? OR content_alias=?)';
+			if( $only_active ) { $query .= ' AND active=1'; }
+			$id = $db->GetOne($query,[ $alias,$alias ]);
 			if( $id ) {
-				if( $only_active ) {
-                    $node = $hm->find_by_tag('id',$id);
-                    $only_active = !$node->get_tag('active');
-                }
-				if( !$only_active ) {
-					$contentobj = $this->LoadContentFromId($id);
-				}
+				return $this->LoadContentFromId($id);
 			}
-		} else {
+//		} else {
 			//TODO trigger module-loading etc, so page tags get registered
 		}
 
-		return $contentobj;
+		if( $contentobj && (!$only_active || $contentobj->active) ) {
+			return $contentobj;
+		}
 	}
 
 	/**
 	 * Returns the id of the content marked as default.
 	 *
-	 * @return int The id of the default content page
+	 * @return int The id of the default content page, or 0 if none is recorded
 	 */
 	public function GetDefaultContent() : int
 	{
-		return global_cache::get('default_content');
+		return (int)global_cache::get('default_content');
 	}
 
 	/**
 	 * Load standard CMS content types
 	 *
-	 * This internal method looks through the contenttypes directory
-	 * and loads the placeholders for them.
+	 * This method polls the contenttypes directory and constructs a placeholder
+	 * object for each discovered type.
 	 *
 	 * @since 1.9
 	 * @access private
-	 * @return array
+	 * @return array of ContentTypePlaceHolder objects
 	 */
 	private function _get_std_content_types() : array
 	{
 		$result = [];
-		$patn = __DIR__.DIRECTORY_SEPARATOR.'contenttypes'.DIRECTORY_SEPARATOR.'class*php';
+		$patn = __DIR__.DIRECTORY_SEPARATOR.'contenttypes'.DIRECTORY_SEPARATOR.'class.*.php';
 		$files = glob($patn);
 		if( is_array($files) ) {
 			foreach( $files as $one ) {
-				$obj = new ContentTypePlaceHolder();
 				$class = substr(basename($one,'.php'), 6);
-				$type  = strtolower($class);
+				$type = strtolower($class);
+				if( $type == 'contentbase' ) continue;
 
-				$obj->class = $class;
+				$obj = new ContentTypePlaceHolder();
+				$obj->class = 'CMSMS\\contenttypes\\'.$class;
 				$obj->type = strtolower($class);
 				$obj->filename = $one;
 				$obj->loaded = false;
-				if( $obj->type == 'link' ) {
-					// cough... big hack... cough.
-					$obj->friendlyname_key = 'contenttype_redirlink';
-				}
-				else {
-					$obj->friendlyname_key = 'contenttype_'.$obj->type;
-				}
+				$obj->friendlyname_key = 'contenttype_'.$obj->type;
+				$obj->friendlyname = '';
 				$result[$type] = $obj;
 			}
 		}
@@ -332,16 +307,16 @@ $ADBG = 1;
 	/**
 	 * @ignore
 	 */
-	private function _get_content_types()
+	private function _get_content_types() : array
 	{
 		if( !is_array($this->_content_types) ) {
-			// get the standard ones.
+			// get the standard types
 			$this->_content_types = $this->_get_std_content_types();
 
-			// get the list of modules that have content types.
-			// and load them.  content types from modules are
-			// registered in the constructor.
-			$module_list = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::CONTENT_TYPES);
+			// get any additional types from relevant modules.
+			// such types are registered in the modules' respective constructors,
+			// which process eventually shoves them into $this->_content_types.
+			$module_list = (new ModuleOperations())->get_modules_with_capability(CmsCoreCapabilities::CONTENT_TYPES);
 			if( $module_list ) {
 				foreach( $module_list as $module_name ) {
 					cms_utils::get_module($module_name);
@@ -353,13 +328,13 @@ $ADBG = 1;
 	}
 
 	/**
-	 * Returns a content type given its name
+	 * Returns a content type placeholder corresponding to $name, if any
 	 *
 	 * @since 1.9
 	 * @access private
 	 * @internal
-	 * @param string The content type name
-	 * @return mixed ContentTypePlaceHolder placeholder object or null
+	 * @param string $name The content type name
+	 * @return mixed ContentTypePlaceHolder object or null
 	 */
 	private function _get_content_type(string $name)
 	{
@@ -395,10 +370,10 @@ $ADBG = 1;
 	 *
 	 * @param bool $byclassname optionally return keys as class names.
 	 * @param bool $allowed optionally trim the list of content types that are allowed by the site preference.
-	 * @param bool $system return only system content types.
+	 * @param bool $system return only system content types. UNUSED
 	 * @return mixed array List of content types registered in the system | null
 	 */
-	public function ListContentTypes(bool $byclassname = false,bool $allowed = false,bool $system = FALSE)
+	public function ListContentTypes(bool $byclassname = false,bool $allowed = false,bool $system = FALSE, string $realm = 'admin')
 	{
 		$disallowed_a = [];
 		$tmp = cms_siteprefs::get('disallowed_contenttypes');
@@ -406,20 +381,24 @@ $ADBG = 1;
 
 		$this->_get_content_types();
 		$types = $this->_content_types;
-		if( isset($types) ) {
+		if( $types ) {
 			$result = [];
 			foreach( $types as $obj ) {
-				global $CMS_ADMIN_PAGE;
-				if( !isset($obj->friendlyname) && isset($obj->friendlyname_key) && isset($CMS_ADMIN_PAGE) ) {
-					$txt = lang($obj->friendlyname_key);
-					$obj->friendlyname = $txt;
+				if( empty($obj->friendlyname) ) {
+					global $CMS_ADMIN_PAGE;
+					if( !(empty($obj->friendlyname_key) || empty($CMS_ADMIN_PAGE)) ) {
+						$obj->friendlyname = LangOperations::lang_from_realm($realm,$obj->friendlyname_key);
+					}
+					else {
+						$obj->friendlyname = ucfirst($obj->type);
+					}
 				}
 				if( !$allowed || count($disallowed_a) == 0 || !in_array($obj->type,$disallowed_a) ) {
 					if( $byclassname ) {
-						$result[$obj->class] = $obj->friendlyname;
+						$result[$obj->class] = $obj->friendlyname ?? $obj->type;
 					}
 					else {
-						$result[$obj->type] = $obj->friendlyname;
+						$result[$obj->type] = $obj->friendlyname ?? $obj->type;
 					}
 				}
 			}
@@ -432,8 +411,8 @@ $ADBG = 1;
 	 *
 	 * @internal
 	 * @ignore
-	 * @param integer $content_id The content id to update
-	 * @param array $hash A hash of all content objects (only certain fields)
+	 * @param integer $content_id The numeric id of the page to update
+	 * @param array $hash A hash of some properties of all content objects
 	 * @return mixed array|null
 	 */
 	private function _set_hierarchy_position(int $content_id,array $hash)
@@ -473,8 +452,8 @@ $ADBG = 1;
 
 	/**
 	 * Updates the hierarchy position of all content items.
-	 * This is an expensive operation on the database, but must be called once
-	 * each time one or more content pages are updated if positions have changed in
+	 * This is an expensive operation on the database, but must be called each
+	 * time one or more content pages are updated if positions have changed in
 	 * the page structure.
 	 */
 	public function SetAllHierarchyPositions()
@@ -482,6 +461,7 @@ $ADBG = 1;
 		// load some data about all pages into memory... and convert into a hash.
 		$db = CmsApp::get_instance()->GetDb();
 		$sql = 'SELECT content_id, parent_id, item_order, content_alias AS alias, hierarchy, id_hierarchy, hierarchy_path FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
+/*
 		$list = $db->GetArray($sql);
 		if( !count($list) ) {
 			// nothing to do, get outa here.
@@ -492,17 +472,21 @@ $ADBG = 1;
 			$hash[$row['content_id']] = $row;
 		}
 		unset($list);
-
+*/
+		$hash = $db->GetAssoc($sql);
+		if( !$hash ) {
+			return;
+		}
 		// would be nice to use a transaction here.
-		static $_n;
+//		static $_n;
 		$stmt = $db->Prepare('UPDATE '.CMS_DB_PREFIX.'content SET hierarchy = ?, id_hierarchy = ?, hierarchy_path = ? WHERE content_id = ?');
 		foreach( $hash as $content_id => $row ) {
 			$changed = $this->_set_hierarchy_position($content_id,$hash);
 			if( is_array($changed) ) {
-				$db->Execute($stmt, [$changed['hierarchy'], $changed['id_hierarchy'], $changed['hierarchy_path'], $changed['content_id']]);
+				$db->Execute($stmt, [$changed['hierarchy'], $changed['id_hierarchy'], $changed['hierarchy_path'], $content_id]);
 			}
 		}
-
+		$stmt->close();
 		$this->SetContentModified();
 	}
 
@@ -530,8 +514,8 @@ $ADBG = 1;
 		global_cache::clear('content_flatlist');
 		global_cache::clear('content_tree');
 		global_cache::clear('content_quicklist');
-		$cache = ContentCache::get_instance();
-		$cache->clear();
+		cms_cache_handler::get_instance()->clear('tree_pages');
+		//etc for CM list
 	}
 
 	/**
@@ -561,10 +545,10 @@ $ADBG = 1;
 			return;
 		}
 		$_loaded = 1;
+		$cache = cms_cache_handler::get_instance();
 
 		$expr = [];
-		$cache = ContentCache::get_instance();
-		$loaded_ids = $cache->get_loaded_page_ids();
+		$loaded_ids = $cache->getindex('tree_pages');
 		if( $loaded_ids ) {
 			$expr[] = 'content_id NOT IN ('.implode(',',$loaded_ids).')';
 		}
@@ -611,35 +595,42 @@ $ADBG = 1;
 			}
 		}
 
+		$valids = array_keys($this->_get_content_types()); // no translation needed
+
 		// build the content objects
-		$valids = array_keys($this->ListContentTypes());
 		while( !$dbr->EOF() ) {
 			$row = $dbr->fields;
-			$id = $row['content_id'];
 
 			if (!in_array($row['type'], $valids)) continue;
-			$contentobj = $this->CreateNewContent($row['type']);
 
-			if ($contentobj) {
-				$contentobj->LoadFromData($row, false);
-				if( $loadprops && $contentprops && isset($contentprops[$id]) ) {
-					// load the properties from local cache.
-					$props = $contentprops[$id];
-					foreach( $props as $oneprop ) {
-						$contentobj->SetPropertyValueNoLoad($oneprop['prop_name'],$oneprop['content']);
+			$id = (int)$row['content_id'];
+			$contentobj = $cache->get($id,'tree_pages');
+			if( !$contentobj ) {
+				$contentobj = $this->CreateNewContent($row['type'], $row);
+				if( $contentobj ) {
+					// legacy support
+					if( method_exists($contentobj, 'LoadFromData') ) {
+						$contentobj->LoadFromData($row, false);
 					}
+					if( $loadprops && $contentprops && isset($contentprops[$id]) ) {
+						// load the properties from local cache.
+						$props = $contentprops[$id];
+						foreach( $props as $oneprop ) {
+							$contentobj->SetPropertyValueNoLoad($oneprop['prop_name'],$oneprop['content']);
+						}
+					}
+					$cache->set($id,$contentobj,'tree_pages');
 				}
-
-				// cache the content objects
-				$cache->add_content($id,$contentobj->Alias(),$contentobj);
 			}
+			unset($contentobj);
 			$dbr->MoveNext();
 		}
+		$contentobj = null; //force-garbage
 		$dbr->Close();
 	}
 
 	/**
-	 * Loads additional, active children into a given tree object
+	 * Loads active children into a given tree node
 	 *
 	 * @param int $id The parent of the content objects to load into the tree
 	 * @param bool $loadprops If true, load the properties of all loaded content objects
@@ -650,10 +641,10 @@ $ADBG = 1;
 	public function LoadChildren(int $id = null, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$cache = ContentCache::get_instance();
+		$cache = cms_cache_handler::get_instance();
 
 		if( $explicit_ids ) {
-			$loaded_ids = $cache->get_loaded_page_ids();
+			$loaded_ids = $cache->getindex('tree_pages');
 			if( $loaded_ids ) {
 				$explicit_ids = array_diff($explicit_ids,$loaded_ids);
 			}
@@ -691,11 +682,13 @@ $ADBG = 1;
 				$child_ids[] = $contentrows[$i]['content_id'];
 			}
 
-			$tmp = null;
 			if( $child_ids ) {
-				// get all the properties for the child_ids
+				// get all the properties for all the children
 				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content_props WHERE content_id IN ('.implode(',',$child_ids).') ORDER BY content_id';
 				$tmp = $db->GetArray($query);
+			}
+			else {
+				$tmp = null;
 			}
 
 			// re-organize the tmp data into a hash of arrays of properties for each content id.
@@ -712,7 +705,8 @@ $ADBG = 1;
 			}
 		}
 
-		$valids = array_keys($this->ListContentTypes());
+		$valids = array_keys($this->_get_content_types()); // no translation needed
+
 		// build the content objects
 		for( $i = 0, $n = count($contentrows); $i < $n; $i++ ) {
 			$row = &$contentrows[$i];
@@ -720,28 +714,33 @@ $ADBG = 1;
 			if (!in_array($row['type'], $valids)) {
 				continue;
 			}
-			$contentobj = $this->CreateNewContent($row['type']);
 
-			if ($contentobj) {
-				$id = $row['content_id'];
-				$contentobj->LoadFromData($row, false);
-				if( $loadprops && $contentprops && isset($contentprops[$id]) ) {
-					// load the properties from local cache.
-					foreach( $contentprops[$id] as $oneprop ) {
-						$contentobj->SetPropertyValueNoLoad($oneprop['prop_name'],$oneprop['content']);
+			$id = (int)$row['content_id'];
+			$contentobj = $cache->get($id,'tree_pages');
+			if( !$contentobj ) {
+				unset($row['metadata']);
+				$contentobj = $this->CreateNewContent($row['type'], $row);
+				if ($contentobj) {
+					// legacy support
+					if( method_exists($contentobj, 'LoadFromData') ) {
+						$contentobj->LoadFromData($row, false);
 					}
-					unset($contentprops[$id]);
+					if( $loadprops && $contentprops && isset($contentprops[$id]) ) {
+						// load the properties from local cache
+						foreach( $contentprops[$id] as $oneprop ) {
+							$contentobj->SetPropertyValueNoLoad($oneprop['prop_name'],$oneprop['content']);
+						}
+						unset($contentprops[$id]);
+					}
+					$cache->set($id,$contentobj,'tree_pages');
 				}
-
-				// cache the content objects
-				$cache->add_content($id,$contentobj->Alias(),$contentobj);
-				unset($contentobj);
 			}
+			unset($contentobj);
 		}
 		//cleanup
 		unset($row);
-		$contentrows = null; //unset($contentrows);
-		$contentprops = null; //unset($contentprops);
+		$contentrows = null; //force-garbage
+		$contentprops = null;
 	}
 
 	/**
@@ -755,8 +754,8 @@ $ADBG = 1;
 		$db = CmsApp::get_instance()->GetDb();
 
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET default_content=0 WHERE default_content=1';
-		$db->Execute( $sql );
-		$contentobj = $this->LoadContentFromId($id);
+		$db->Execute($sql);
+		$contentobj = $this->LoadContentFromId($id); //TODO ensure relevant content-object
 		$contentobj->SetDefaultContent(true);
 		$contentobj->Save();
 	}
@@ -779,7 +778,7 @@ $ADBG = 1;
 		$this->LoadAllContent($loadprops);
 		$output = [];
 		foreach( $list as &$node ) {
-			$tmp = $node->GetContent(false,true,true);
+			$tmp = $node->getContent(false,true,true);
 			if( is_object($tmp) ) $output[] = $tmp;
 			unset($node); //free space a bit
 		}
@@ -790,62 +789,25 @@ $ADBG = 1;
 	}
 
 	/**
-	 * Create a hierarchical ordered dropdown of all the content objects in the system for use
-	 * in the admin and various modules.  If $current or $parent variables are passed, care is taken
-	 * to make sure that children which could cause a loop are hidden, when creating
-	 * a dropdown for changing a content object's parent.
-		 *
-	 	 * This method was rewritten for 2.0 to use the jquery hierselector plugin to better accommodate larger websites.
-		 *
-		 * Many parameters are now ignored. A new method is needed to replace this archaic method...
-		 * so consider this method to be deprecateed.
+	 * Create a hierarchical ordered dropdown of some or all of the content objects
+	 * in the system.
 	 *
-	 * @deprecated
-	 * @param int $current The id of the content object we are working with.  Used with allowcurrent to not show children of the current conrent object, or itself.
-	 * @param int $value The id of the currently selected content object.
-	 * @param string $name The html name of the dropdown.
-	 * @param bool $allowcurrent Ensures that the current value cannot be selected, or $current and it's childrern.  Used to prevent circular deadlocks.
-	 * @param bool $use_perms If true, checks authorship permissions on pages and only shows those the current user has authorship of (can edit)
-	 * @param bool $ignore_current (ignored as of 2.0) (Before 2.2 this parameter was called ignore_current
-	 * @param bool $allow_all If true, show all items, even if the content object doesn't have a valid link. Defaults to false.
-	 * @param bool $for_child If true, assume that we want to add a new child and obey the WantsChildren flag of each content page. (new in 2.2).
-	 * @return string The html dropdown of the hierarchy.
+	 * @deprecated since 2.3 instead use CMSContentManager\Utils::CreateHierarchyDropdown()
+	 * @return string
 	 */
-	public function CreateHierarchyDropdown($current = '', $value = '', $name = 'parent_id', $allowcurrent = 0,
-									 $use_perms = 0, $ignore_current = 0, $allow_all = false, $for_child = false )
+	public function CreateHierarchyDropdown(
+		$current = 0,
+		$value = 0,
+		$name = 'parent_id',
+		$allow_current = false,
+		$use_perms = false,
+		$ignore_current = false, // unused since 2.0
+		$allow_all = false,
+		$for_child = false)
 	{
-		static $count = 0;
-		$count++;
-		$id = 'cms_hierdropdown'.$count;
-		$value = (int) $value;
-		$uid = get_userid(FALSE);
-		$script_url = CMS_SCRIPTS_URL;
-
-		$opts = [];
-		$opts['current'] = $current;
-		$opts['value'] = $value;
-		$opts['allowcurrent'] = ($allowcurrent)?'true':'false';
-		$opts['allow_all'] = ($allow_all)?'true':'false';
-		$opts['use_perms'] = ($use_perms)?'true':'false';
-		$opts['for_child'] = ($for_child)?'true':'false';
-		$opts['use_simple'] = !(check_permission($uid,'Manage All Content') || check_permission($uid,'Modify Any Page'));
-		$opts['is_manager'] = !$opts['use_simple'];
-		$str = '';
-		foreach($opts as $key => $val) {
-			if( $val == '' ) continue;
-			$str .= $key.': '.$val.',';
-		}
-		$str = substr($str,0,-1);
-		$out = <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_hierselector.min.js"></script>
-<script type="text/javascript">$(document).ready(function() {
- cms_data.lang_hierselect_title = 'lang("title_hierselect_select")';
- $('#$id').hierselector({{$str}});
-);
-</script>
-<input type="text" title="{lang('title_hierselect')}" name="$name" id="$id" class="cms_hierdropdown" value="$value" size="50" maxlength="50" />
-EOS;
-		return $out;
+		return Utils::CreateHierarchyDropdown(
+			$current,$value,$name,$allow_current,$use_perms,$allow_all,$for_child
+		);
 	}
 
 	/**
@@ -1072,8 +1034,8 @@ EOS;
 			$data = $this->GetOwnedPages($userid);
 
 			// Get all of the pages this user has access to.
-			$groups = UserOperations::get_instance()->GetMemberGroups($userid);
 			$list = [$userid];
+			$groups = (new UserOperations())->GetMemberGroups($userid);
 			if( $groups ) {
 				foreach( $groups as $group ) {
 					$list[] = $group * -1;

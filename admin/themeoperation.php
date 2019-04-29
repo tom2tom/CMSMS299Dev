@@ -100,7 +100,7 @@ function import_theme(string $xmlfile) : bool
 						}
 					}
 					break;
-/* for future processing of in-database theme data (design, categories?, styles, templates)
+/* for future processing of in-database theme data (design, template-groups?, styles, templates)
 				case 'designs':
 					foreach ($typenode->children() as $node) {
 						$row = (array)$node;
@@ -113,31 +113,31 @@ function import_theme(string $xmlfile) : bool
 						//TODO c.f. site import
 					}
 					break;
-				case 'categories':
-					foreach ($typenode->children() as $node) {
-						$row = (array)$node;
-						//TODO c.f. site import
-					}
-					break;
 				case 'templates':
 					foreach ($typenode->children() as $node) {
 						$row = (array)$node;
 						//TODO c.f. site import
 					}
 					break;
-				case 'designstyles': //relations between styles and designs
+				case 'templategroups':
 					foreach ($typenode->children() as $node) {
 						$row = (array)$node;
 						//TODO c.f. site import
 					}
 					break;
-				case 'designtemplates': //relations between templates and designs
+				case 'templategroupmembers':
 					foreach ($typenode->children() as $node) {
 						$row = (array)$node;
 						//TODO c.f. site import
 					}
 					break;
-				case 'categorytemplates': //relations between templates and categories
+				case 'designstyles':
+					foreach ($typenode->children() as $node) {
+						$row = (array)$node;
+						//TODO c.f. site import
+					}
+					break;
+				case 'designtemplates':
 					foreach ($typenode->children() as $node) {
 						$row = (array)$node;
 						//TODO c.f. site import
@@ -176,25 +176,23 @@ function export_theme(string $themename) : bool
  <!ELEMENT dtdversion (#PCDATA)>
  <!ELEMENT name (#PCDATA)>
  <!ELEMENT version (#PCDATA)>
- <!ELEMENT items (item+)>
+ <!ELEMENT items (item*)>
  <!ELEMENT item (relpath,isdir?,encoded?,content)>
  <!ELEMENT relpath (#PCDATA)>
  <!ELEMENT isdir (#PCDATA)>
  <!ELEMENT encoded (#PCDATA)>
  <!ELEMENT content (#PCDATA)>
- <!ELEMENT design (id,name,description?,dflt?)>
- <!ELEMENT id (#PCDATA)>
  <!ELEMENT description (#PCDATA)>
  <!ELEMENT dflt (#PCDATA)>
- <!ELEMENT stylesheets (stylesheet+)>
+ <!ELEMENT stylesheets (stylesheet*)>
  <!ELEMENT stylesheet (id,name,description?,media_type?,content)>
+ <!ELEMENT id (#PCDATA)>
  <!ELEMENT media_type (#PCDATA)>
- <!ELEMENT designstyles (designcss+)>
- <!ELEMENT designcss (design_id,css_id,item_order)>
- <!ELEMENT design_id (#PCDATA)>
- <!ELEMENT css_id (#PCDATA)>
- <!ELEMENT item_order (#PCDATA)>
- <!ELEMENT tpltypes (tpltype+)>
+ <!ELEMENT stylesheetgroups (stylesheetgroup*)>
+ <!ELEMENT stylesheetgroup (id,name,description?)>
+ <!ELEMENT stylesheetgroupmembers (stylesheetgroupmember*)>
+ <!ELEMENT stylesheetgroupmember (group_id,css_id,item_order?)>
+ <!ELEMENT tpltypes (tpltype*)>
  <!ELEMENT tpltype (id,name,description?,originator,one_only?,has_dflt?,dflt_contents?,requires_contentblocks?,lang_cb?,dflt_content_cb?,help_content_cb?)>
  <!ELEMENT originator (#PCDATA)>
  <!ELEMENT one_only (#PCDATA)>
@@ -204,19 +202,25 @@ function export_theme(string $themename) : bool
  <!ELEMENT lang_cb (#PCDATA)>
  <!ELEMENT dflt_content_cb (#PCDATA)>
  <!ELEMENT help_content_cb (#PCDATA)>
- <!ELEMENT categories (category+)>
- <!ELEMENT category (id,name,description?,item_order?)>
- <!ELEMENT templates (template+)>
- <!ELEMENT template (id,name,description?,type_id,category_id?,type_dflt?,content)>
+ <!ELEMENT templates (template*)>
+ <!ELEMENT template (id,name,description?,type_id,group_id?,type_dflt?,content)>
  <!ELEMENT type_id (#PCDATA)>
- <!ELEMENT category_id (#PCDATA)>
+ <!ELEMENT group_id (#PCDATA)>
  <!ELEMENT type_dflt (#PCDATA)>
- <!ELEMENT designtemplates? (designtpl+)>
+ <!ELEMENT templategroups (templategroup*)>
+ <!ELEMENT templategroup (id,name,description?)>
+ <!ELEMENT templategroupmembers (templategroupmember*)>
+ <!ELEMENT templategroupmember (group_id,tpl_id,item_order?)>
+ <!ELEMENT design (id,name,description?)>
+ <!ELEMENT designstyles (designcss*)>
+ <!ELEMENT designcss (design_id,css_id,css_order)>
+ <!ELEMENT design_id (#PCDATA)>
+ <!ELEMENT css_id (#PCDATA)>
+ <!ELEMENT css_order (#PCDATA)>
+ <!ELEMENT designtemplates (designtpl*)>
  <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
  <!ELEMENT tpl_id (#PCDATA)>
  <!ELEMENT tpl_order (#PCDATA)>
- <!ELEMENT categorytemplates (cattpl+)>
- <!ELEMENT cattpl (category_id,tpl_id,tpl_order?)>
 ');
 
 	$xw->startElement('cmsmsadmintheme');

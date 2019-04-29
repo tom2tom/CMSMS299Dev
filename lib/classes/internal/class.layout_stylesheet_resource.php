@@ -1,5 +1,5 @@
 <?php
-#Class for handling css code as a resource
+#Class for handling css content as a resource
 #Copyright (C) 2012-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,12 +18,15 @@
 
 namespace CMSMS\internal;
 
-use CmsLayoutStylesheet;
+use CmsApp;
 use Smarty_Resource_Custom;
+use const CMS_DB_PREFIX;
+use function cms_error;
+use function cms_to_stamp;
 use function endswith;
 
 /**
- * A class for handling css code as a resource.
+ * A class for handling database-sourced css content as a smarty resource.
  *
  * @package CMS
  * @author Robert Campbell
@@ -34,31 +37,68 @@ use function endswith;
  */
 class layout_stylesheet_resource extends Smarty_Resource_Custom //fixed_smarty_custom_resource
 {
-    /**
-     * @param string  $name    template name
-     * @param string  &$source template source
-     * @param int     &$mtime  template modification timestamp
+	/**
+	 * @ignore
+	 */
+	private static $db;
+	/**
+	 * @ignore
+	 */
+	private static $stmt;
+	/**
+	 * @ignore
+	 */
+	private static $loaded = [];
+
+	/**
+     * @param string  $name    template identifier (name or id)
+     * @param string  &$source store for retrieved template content, if any
+     * @param int     &$mtime  store for retrieved template modification timestamp
      */
     protected function fetch($name,&$source,&$mtime)
     {
         // clean up the input
         $name = trim($name);
         if( !$name ) {
-            $mtime = 0;
-            $source = '';
+            $mtime = false;
             return;
         }
 
-        // if called via function.cms_stylesheet, then this stylesheet should be loaded.
-        $obj = CmsLayoutStylesheet::load($name);
+		if( isset(self::$loaded[$name]) ) {
+			$data = self::$loaded[$name];
+		}
+		else {
+			if( !self::$db ) {
+				self::$db = CmsApp::get_instance()->GetDb();
+				// TODO DT field for modified
+				self::$stmt = self::$db->Prepare('SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE id=? OR name=?');
+			}
+			$rst = self::$db->Execute(self::$stmt,[$name,$name]);
+	    	if( !$rst || $rst->EOF() ) {
+				if( $rst ) $rst->Close();
+				cms_error('Missing stylesheet: '.$name);
+	            $mtime = false;
+				return;
+			}
+			else {
+				$data = $rst->FetchRow();
+				self::$loaded[$data['id']] = $data;
+				self::$loaded[$data['name']] = &$data;
+				$rst->Close();
+			}
+		}
 
-        // by now everything should be in memory in the CmsLayoutStylesheet internal cache's
-        // put it all together in the order specified.
-        $text = '/* cmsms stylesheet: '.$obj->get_name().' modified: '.strftime('%x %X',$obj->get_modified()).' */'."\n";
-        $text .= $obj->get_content();
+		if( !empty($data['modified_date']) ) {
+			$mtime = cms_to_stamp($data['modified_date']);
+		}
+		elseif( !empty($data['create_date']) ) {
+			$mtime = cms_to_stamp($data['create_date']);
+		}
+		else {
+			$mtime = 1; // not falsy
+		}
+        $text = '/* cmsms stylesheet: '.$name.' modified: '.strftime('%x %X',$mtime).' */'."\n".$data['content'];
         if( !endswith($text,"\n") ) $text .= "\n";
-
-        $mtime = $obj->get_modified();
         $source = $text;
     }
 } // class

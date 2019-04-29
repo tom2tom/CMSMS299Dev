@@ -72,7 +72,7 @@
        <span class="text-red">{$row.url}</span>
      {/if}
     {elseif $column == 'template'}
-      {if isset($row.template) && $row.template != ''}
+      {if !empty($row.template)}
         {if $row.can_edit_tpl}
         <a href="{cms_action_url module='DesignManager' action='admin_edit_template' tpl=$row.template_id}" class="page_template" title="{$mod->Lang('prompt_page_template')}">
           {$row.template}
@@ -192,7 +192,7 @@
     <a id="clearlocks" href="{cms_action_url action=admin_clearlocks}" accesskey="l" title="{$mod->Lang('prompt_clearlocks')}">{$t=$mod->Lang('title_clearlocks')}{admin_icon icon='run.gif' alt=$t}&nbsp;{$t}</a>
     {/if}
     {/if}
-    <a id="myoptions" accesskey="o" title="{$mod->Lang('prompt_filter')}">{$t=lang('filter')}{admin_icon icon=$filterimage alt=$t}&nbsp;{$t}</a>
+    <a id="myoptions" accesskey="f" title="{$mod->Lang('prompt_filter')}">{$t=lang('filter')}{admin_icon icon=$filterimage alt=$t}&nbsp;{$t}</a>
     {if !empty($have_filter)}<span style="color: red;"><em>({lang('filter_applied')})</em></span>{/if}
   </div>{*boxchild*}
 
@@ -221,7 +221,7 @@
  <div id="error_cont" class="pageerror">{$error}</div>
  {/if}
  {if isset($content_list)}
-  <table id="contenttable" class="pagetable">
+  <table id="contenttable" class="pagetable" style="width:auto;">
     <thead>
       <tr>{strip}
         {foreach $columns as $column => $flag}

@@ -41,7 +41,7 @@ class CmsLayoutStylesheet
 	*/
 	const TABLENAME = 'layout_stylesheets';
 
-   /**
+	/**
 	* @ignore
 	*/
 	private static $_operations = null;
@@ -58,9 +58,16 @@ class CmsLayoutStylesheet
 	public $_data = [];
 
    /**
+	* @var array id's of groups that this stylesheet belongs to
 	* @ignore
 	*/
-	private $_designs = null; //null triggers check on 1st use
+	private $_groups = null; //null triggers check on 1st use
+
+   /**
+	* @var array id's of designs that this stylesheet belongs to
+	* @ignore
+	*/
+//	private $_designs = null; //null triggers check on 1st use
 
    /**
 	* @ignore
@@ -163,7 +170,7 @@ class CmsLayoutStylesheet
 	}
 
    /**
-	* Get the media types associated with this stylesheet
+	* Get the assigned media type(s) for this stylesheet
 	* Media types are used with the \@media css rule
 	*
 	* @deprecated since ?
@@ -193,7 +200,7 @@ class CmsLayoutStylesheet
 	}
 
    /**
-	* Add the specified media type to the list of media types for this stylesheet
+	* Add the specified media type to the types for this stylesheet
 	* Media types are used with the \@media css rule
 	*
 	* @deprecated since ?
@@ -210,7 +217,7 @@ class CmsLayoutStylesheet
 	}
 
    /**
-	* Absolutely set the list of media types for this stylesheet
+	* Set all the media type(s) for this stylesheet
 	* Media types are used with the \@media css rule
 	*
 	* @deprecated since ?
@@ -219,7 +226,7 @@ class CmsLayoutStylesheet
 	public function set_media_types($arr)
 	{
 		if( !is_array($arr) ) {
-			if( !is_numeric($arr) && $arr && is_string($arr) ) {
+			if( $arr && is_string($arr) && !is_numeric($arr) ) {
 				$arr = [$arr];
 			}
 			else {
@@ -232,7 +239,7 @@ class CmsLayoutStylesheet
 	}
 
    /**
-	* Get the media query associated with this stylesheet
+	* Get the media query property of this stylesheet
 	*
 	* @see http://en.wikipedia.org/wiki/Media_queries
 	* @return string
@@ -243,7 +250,7 @@ class CmsLayoutStylesheet
 	}
 
    /**
-	* Set the media query associated with this stylesheet
+	* Set the media query property of this stylesheet
 	*
 	* @see http://en.wikipedia.org/wiki/Media_queries
 	* @param string $str
@@ -256,53 +263,55 @@ class CmsLayoutStylesheet
 	}
 
    /**
-	* Get the timestamp representing when this stylesheet was first saved
+	* Get the timestamp for when this stylesheet was first saved
 	*
-	* @return int
+	* @return int UNIX UTC timestamp Default 1 (not falsy)
 	*/
 	public function get_created()
 	{
-		return $this->_data['created'] ?? 0;
+		$str = $this->_data['create_date'] ?? '';
+		return ($str) ? cms_to_stamp($str) : 1;
 	}
 
    /**
-	* Get the timestamp representing when this stylesheet was last saved
+	* Get the timestamp for when this stylesheet was last saved
 	*
-	* @return int
+	* @return int UNIX UTC timestamp Default 1
 	*/
 	public function get_modified()
 	{
-		return $this->_data['modified'] ?? 0;
+		$str = $this->_data['modified_date'] ?? '';
+		return ($str) ? cms_to_stamp($str) : $this->get_created();
 	}
 
-   /**
-	* Get the list of design id's (if any) that this stylesheet is associated with
+   /* *
+	* Get the list of design id's (if any) that this stylesheet is assigned to
 	*
 	* @see CmsLayoutCollection
 	* @return array Array of integer design id's
 	*/
-	public function get_designs()
+/*	public function get_designs() DISABLED
 	{
 		$sid = $this->get_id();
 		if( !$sid ) return [];
 		if( !is_array($this->_designs) ) {
 			$db = CmsApp::get_instance()->GetDb();
-			$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ?';
+			$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ?'; DISABLED
 			$tmp = $db->GetCol($query,[$sid]);
 			if( $tmp ) $this->_designs = $tmp;
 			else $this->_designs = [];
 		}
 		return $this->_designs;
 	}
-
-   /**
+*/
+   /* *
 	* Get the numeric id corresponding to $a
 	* @since 2.3
 	* @throws CmsLogicException
 	* @param mixed $a An Instance of a CmsLayoutCollection object, or an integer design id, or a string design name
 	* @return int
 	*/
-	protected function get_designid($a) : int
+/*	protected function get_designid($a) : int
 	{
 		if( is_numeric($a) && $a > 0 ) {
 			return (int)$a;
@@ -319,15 +328,15 @@ class CmsLayoutStylesheet
 
 		throw new CmsLogicException('Invalid data passed to '.__METHOD__);
 	}
-
-   /**
-	* Set the list of design id's that this stylesheet is associated with
+*/
+   /* *
+	* Set the list of design id's that this stylesheet is assigned to
 	*
 	* @see CmsLayoutCollection
 	* @throws CmsInvalidDataException
 	* @param array $all Array of integer design id's, maybe empty
 	*/
-	public function set_designs($all)
+/*	public function set_designs($all)
 	{
 		if( !is_array($all) ) return;
 
@@ -338,34 +347,34 @@ class CmsLayoutStylesheet
 		$this->_designs = $all;
 		$this->_dirty = TRUE;
 	}
-
+*/
    /**
-	* Add a design association for this stylesheet
+	* Assign this stylesheet to a design
 	*
 	* @throws CmsLogicException
 	* @see CmsLayoutCollection
 	* @param mixed $a An Instance of a CmsLayoutCollection object, or an integer design id, or a string design name
 	*/
-	public function add_design($a)
+/*	public function add_design($a)
 	{
 		$id = $this->get_designid($a);
-		$this->get_designs();
+		$this->get_designs(); DISABLED
 		if( !in_array($id, $this->_designs) ) {
 			$this->_designs[] = (int)$id;
 			$this->_dirty = TRUE;
 		}
 	}
-
-   /**
-	* Remove a design association for this stylesheet
+*/
+   /* *
+	* Remove this stylesheet from a design
 	*
 	* @throws CmsLogicException
 	* @see CmsLayoutCollection
 	* @param mixed $a An Instance of a CmsLayoutCollection object, or an integer design id, or a string design name
 	*/
-	public function remove_design($a)
+/*	public function remove_design($a)
 	{
-		$this->get_designs();
+		$this->get_designs(); DISABLED
 		if( !$this->_designs ) return;
 
 		$id = $this->get_designid($a);
@@ -377,6 +386,92 @@ class CmsLayoutStylesheet
 					break;
 				}
 			}
+		}
+	}
+*/
+   /**
+	* Get the list of group id's (if any) that this stylesheet belongs to
+    * @since 2.3
+	*
+	* @return array Array of integer group id's
+	*/
+	public function get_groups() : array
+	{
+		$sid = $this->get_id();
+		if( !$sid ) return [];
+		if( !is_array($this->_groups) ) {
+			$db = CmsApp::get_instance()->GetDb();
+			$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE css_id = ?';
+			$tmp = $db->GetCol($query,[$sid]);
+			if( $tmp ) $this->_groups = $tmp;
+			else $this->_groups = [];
+		}
+		return $this->_groups;
+	}
+/*
+	public function get_groups() : array
+	{
+		return $this->get_groups();
+	}
+*/
+
+   /**
+	* Set the list of group id's that this stylesheet belongs to
+    * @since 2.3
+	*
+	* @throws CmsInvalidDataException
+	* @param array $all Array of integer group id's, maybe empty
+	*/
+	public function set_groups(array $all)
+	{
+		if( !is_array($all) ) return;
+
+		foreach( $all as $id ) {
+			if( !is_numeric($id) ) throw new CmsInvalidDataException('Invalid data in groups list. Expect array of integers');
+		}
+
+		$this->_groups = $all;
+		$this->_dirty = TRUE;
+	}
+/*
+	public function set_groups(array $all)
+	{
+		$this->set_groups($all);
+	}
+*/
+   /**
+	* Add this stylesheet to a group
+    * @since 2.3
+	*
+	* @throws CmsLogicException
+	* @see CmsLayoutCollection
+	* @param mixed $a An integer group id, or a string group name
+	*/
+	public function add_group($a)
+	{
+		$id = TODOfunc($a);
+		$this->get_groups();
+		if( !in_array($id, $this->_groups) ) {
+			$this->_groups[] = (int)$id; //TODO member-order
+			$this->_dirty = TRUE;
+		}
+	}
+
+   /**
+	* Remove this stylesheet from a group
+    * @since 2.3
+	*
+	* @throws CmsLogicException
+	* @see CmsLayoutCollection
+	* @param mixed $a An integer group id, or a string group name
+	*/
+	public function remove_group($a)
+	{
+		$this->get_groups();
+		if( !$this->_groups ) return;
+		$id = func($a);
+		if( in_array($id, $this->_groups) ) {
+			//TODO
 		}
 	}
 
@@ -417,7 +512,7 @@ class CmsLayoutStylesheet
 	public function locked()
 	{
 		$lock = $this->get_lock();
-		return ( is_object($lock) );
+		return is_object($lock);
 	}
 
    /**
@@ -578,12 +673,13 @@ class CmsLayoutStylesheet
 	}
 
    /**
-	* Load all stylesheet objects
+	* Return all stylesheet objects or stylesheet names.
 	* @deprecated since 2.3 use the corresponding StylesheetOperations method
 	*
 	* @param bool $as_list a flag indicating the output format
-	* @return mixed If $as_list is true then the output will be an associated array of stylesheet id and stylesheet name suitable for use in an html select element
-	*   otherwise, an array of CmsLayoutStylesheet objects is returned
+	* @return mixed If $as_list is true then the output will be an array of rows
+    *  each with stylesheet id and stylesheet name. Otherwise, id and
+    *  CmsLayoutStylesheet object
 	*/
 	public static function get_all($as_list = FALSE)
 	{

@@ -18,9 +18,9 @@
 
 namespace Navigator;
 
+use cms_cache_handler;
 use cms_siteprefs;
 use CmsApp;
-use CMSMS\ContentCache;
 use NavigatorNode;
 use function cms_htmlentities;
 use function startswith;
@@ -62,10 +62,10 @@ final class utils
     /**
      * Populate a node to be used for generating a menu-item
      * @param object $node
-     * @param bool $deep whether to deep-scan for children & properties?
+     * @param bool $deep whether to also populate the 'non-core' properties of content-objects
      * @param int  $nlevels  max recursion depth
      * @param bool $show_all whether to process items flagged as not show-in-menu
-     * @param bool $collapse whether to ? (recursion-related) default false
+     * @param bool $collapse whether to (TBA recursion-related) default false
      * @param int  $depth current recursion level, 0-based
      * @return NavigatorNode
      */
@@ -73,7 +73,7 @@ final class utils
     {
         if( !is_object($node) ) return;
 
-        $content = $node->getContent(TRUE);
+        $content = $node->getContent($deep);
         if( is_object($content) ) {
             if( !$content->Active() ) return;
             if( !$content->ShowInMenu() && !$show_all ) return;
@@ -144,10 +144,10 @@ final class utils
             if( $node->has_children() ) {
                 $children = $node->getChildren($deep,$show_all); //loads children into cache : SLOW! TODO just get id's
                 if( $children ) {
-					$cache = ContentCache::get_instance();
+					$cache = cms_cache_handler::get_instance();
                     foreach( $children as &$node ) {
                         $id = $node->get_tag('id');
-                        if( $cache->content_exists($id) ) {
+                        if( $cache->exists($id,'tree_pages') ) {
                             $obj->children_exist = TRUE;
                             break;
                         }

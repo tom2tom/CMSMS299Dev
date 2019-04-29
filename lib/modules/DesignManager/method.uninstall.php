@@ -16,30 +16,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//use CMSMS\Database\DataDictionary;
+use CMSMS\Database\DataDictionary;
 use CMSMS\Events;
 use CMSMS\Group;
+use DesignManager\Design;
 
-if (!isset($gCms)) {
-    exit;
-}
-/* these tables are mainly, not exclusively, used by this module, so processed with core
+if (!function_exists('cmsms')) exit;
+
 $dict = new DataDictionary($db);
-$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.Design::TABLENAME);
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.Design::TPLTABLE);
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.Design::CSSTABLE);
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME);
-$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME);
-$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE);
-$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE);
-$dict->ExecuteSQLArray($sqlarray);
-*/
+
 $group = new Group();
 $group->name = 'Designer';
 try {
@@ -51,38 +42,38 @@ try {
     return $e->GetMessage();
 }
 
-$this->RemovePreference();
+//$this->RemovePreference();
 
-$this->RemovePermission('Add Templates');
+//$this->RemovePermission('Add Templates');
 $this->RemovePermission('Manage Designs');
-$this->RemovePermission('Manage Stylesheets');
-$this->RemovePermission('Modify Templates');
+//$this->RemovePermission('Manage Stylesheets');
+//$this->RemovePermission('Modify Templates');
 
 // unregister events
 foreach([
  'AddDesignPost',
  'AddDesignPre',
-
+/*
  'AddStylesheetPost',
  'AddStylesheetPre',
  'AddTemplatePost',
  'AddTemplatePre',
  'AddTemplateTypePost',
  'AddTemplateTypePre',
-
+*/
  'DeleteDesignPost',
  'DeleteDesignPre',
-
+/*
  'DeleteStylesheetPost',
  'DeleteStylesheetPre',
  'DeleteTemplatePost',
  'DeleteTemplatePre',
  'DeleteTemplateTypePost',
  'DeleteTemplateTypePre',
-
+*/
  'EditDesignPost',
  'EditDesignPre',
-
+/*
  'EditStylesheetPost',
  'EditStylesheetPre',
  'EditTemplatePost',
@@ -97,6 +88,8 @@ foreach([
  'TemplatePostCompile',
  'TemplatePreCompile',
  'TemplatePreFetch',
+*/
 ] as $name) {
+	// deprecated since 2.3 event originator is 'Core', change to 'DesignManager'
     Events::RemoveEvent('Core',$name);
 }

@@ -18,14 +18,14 @@
 
 namespace CMSMS\internal;
 
+use cms_siteprefs;
 use cms_utils;
 use CmsApp;
-//use CMSMS\internal\global_cachable;
-//use CMSMS\internal\global_cache;
+use CMSMS\internal\global_cachable;
+use CMSMS\internal\global_cache;
 use const CMS_DB_PREFIX;
-use function cms_error;
+use function audit;
 use function endswith;
-use function startswith;
 
 /**
  * A class to manage smarty plugins registered by modules.
@@ -41,68 +41,14 @@ use function startswith;
 final class ModulePluginOperations
 {
 	/**
-	 * A flag indicating that the plugin is intended to be available in the frontend
+	 * A flag indicating that the plugin can be used in frontend pages/templates
 	 */
 	const AVAIL_FRONTEND = 1;
 
 	/**
-	 * A flag indicating that the plugin is intended to be available for admin templates
+	 * A flag indicating that the plugin can be used in admin templates
 	 */
 	const AVAIL_ADMIN = 2;
-
-	/* *
-	 * @ignore
-	 */
-//	private static $_instance = null;
-
-	//TODO namespaced global variables here
-	/**
-	 * @ignore
-	 */
-	private static $_data;
-
-	/**
-	 * @ignore
-	 */
-	private static $_loaded;
-
-	/**
-	 * @ignore
-	 */
-	private static $_modified;
-
-	/* *
-	 * @ignore
-	 */
-/*	public function __construct() {
-/ *
-		$obj = new global_cachable('session_plugin_modules', function()
-				{
-					$names = [];
-					$tmp = (new module_meta())->module_list_by_method('IsPluginModule');
-					if( $tmp ) {
-						// module-names cached in the database, maybe without per-request RegisterModulePlugin()
-						$query = 'SELECT DISTINCT module FROM '.CMS_DB_PREFIX.'module_smarty_plugins';
-						$db = CmsApp::get_instance()->GetDb();
-						$list = $db->GetCol($query);
-						for( $i = 0, $n = count($tmp); $i < $n; ++$i ) {
-							$module = $tmp[$i];
-							if( !$list || !in_array($module, $list) ) {
-								$names[] = $module;
-							}
-						}
-					}
-					return $names;
-				});
-		global_cache::add_cachable($obj);
-* /
-	}
-*/
-
-	/**
-	 * @ignore
-	 */
-//    private function __clone() {}
 
 	/**
 	 * Get an instance of this class.
@@ -110,140 +56,83 @@ final class ModulePluginOperations
 	 */
 	public static function get_instance() : self
 	{
-//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
 		return new self();
 	}
 
-	/* *
-	 * Inform smarty about all module-plugins which are not recorded in the
-	 * module_smarty_plugins database table.
-	 * In effect, this is insurance against malformed module lazy-loading
-	 * and/or plugin registration outside a module's constructor.
+	/**
+	 * Initialize 'module_plugins' global cache
 	 * @since 2.3
 	 */
-/* EXPERIMENTAL ALTERNATIVE
-	public function RegisterSessionPlugins()
+	public static function setup()
 	{
-		$tmp = global_cache::get('session_plugin_modules'); //module-names NOT recorded in the database
-		if( $tmp ) {
-			$smarty = CmsApp::get_instance()->GetSmarty();
-			foreach( $tmp as $module_name ) {
-				//c.f. some-module-object->RegisterModulePlugin();
-				try {
-					$smarty->registerPlugin('function', $module_name, [$module_name,'function_plugin'], false);
-				} catch (Exception $e) {
-					//ignore duplicate registrations
+		$obj = new global_cachable('module_plugins', function()
+			{
+				$data = [];
+				$tmp = (new module_meta())->module_list_by_method('IsPluginModule');
+				if( $tmp ) {
+					$val = (int)cms_siteprefs::get('smarty_cachelife',-1);
+					if( $val != 0 ) $val = 1;
+					foreach( $tmp as $module ) {
+						$callback = $module.'::function_plugin';
+						$sig = md5($module.$module.$callback);
+						$data[$sig] = [
+							'name'=>$module,
+							'module'=>$module,
+							'type'=>'function',
+							'callback'=>$callback,
+							'cachable'=>$val, //maybe changed later
+							'available'=>self::AVAIL_FRONTEND + self::AVAIL_ADMIN, //ditto
+						];
+					}
 				}
-			}
-		}
-	}
-*/
-	/**
-	 * Get data recorded in the module_smarty_plugins database table
-	 * @ignore
-	 */
-	private function _load()
-	{
-		if( self::$_loaded ) return;
-		// TODO: cache this stuff.  Does not need to be run on each request
-		// NOTE: global_cache 'session_plugin_modules' has only module names
-		// for plugin-modules not recorded in the module_smarty_plugins table
-		self::$_loaded = TRUE;
-		self::$_data = [];
-		$db = CmsApp::get_instance()->GetDb();
-		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_smarty_plugins ORDER BY module';
-		$tmp = $db->GetArray($query);
-		if( is_array($tmp) ) {
-			for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
-				$row = $tmp[$i];
-				// verify signature
-				$sig = md5($row['name'].$row['module'].$row['callback']);
-				if( $sig == $row['sig'] ) {
-					$row['callback'] = unserialize($row['callback']);
-					self::$_data[$row['sig']] = $row;
+				// adjust module-plugins recorded in the database
+				$db = CmsApp::get_instance()->GetDb();
+				$query = 'SELECT DISTINCT * FROM '.CMS_DB_PREFIX.'module_smarty_plugins';
+				$list = $db->GetArray($query);
+				foreach ($list as &$row) {
+					$sig = md5($row['name'].$row['module'].$row['callback']);
+					$data[$sig] = [
+						'name'=>$row['name'],
+						'module'=>$row['module'],
+						'type'=>$row['type'],
+						'callback'=>$row['callback'],
+						'cachable'=>(bool)$row['cachable'],
+						'available'=>(int)$row['available'],
+					];
 				}
-			}
-		}
+				return $data;
+			});
+		global_cache::add_cachable($obj);
 	}
 
 	/**
-	 * Record cached data (self::$_data) in the module_smarty_plugins table
-	 * @ignore
-	 * @return mixed true | null
-	 */
-	private function _save()
-	{
-		if( !self::$_data || !self::$_modified )
-			return;
-
-		$db = CmsApp::get_instance()->GetDb();
-		$query = 'TRUNCATE TABLE '.CMS_DB_PREFIX.'module_smarty_plugins';
-		$db->Execute($query);
-		// TODO use prepared statement
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_smarty_plugins (sig,name,module,type,callback,available) VALUES';
-		$fmt = " ('%s','%s','%s','%s','%s',%d),";
-		foreach( self::$_data as $row ) {
-			$query .= sprintf($fmt,$row['sig'],$row['name'],$row['module'],$row['type'],serialize($row['callback']),$row['available']);
-		}
-		if( endswith($query,',') ) $query = substr($query,0,-1);
-		$dbr = $db->Execute($query);
-		if( !$dbr ) return FALSE;
-//DEBUG		global_cache::clear('session_plugin_modules');
-		self::$_modified = FALSE;
-		return TRUE;
-	}
-
-	/**
-	 * Attempt to load a named module-plugin.
-	 * This might be called by Smarty when looking for an unknown plugin.
-	 * @internal
+	 * Return parameters for a named module-plugin, if the supplied name is recognized.
+	 * This might be called by Smarty when looking for something to process a plugin.
 	 *
-	 * @param string $name name of the undefined tag
+	 * @param string $name name of the tag being sought
 	 * @param string $type tag type (commonly Smarty::PLUGIN_FUNCTION, maybe Smarty::PLUGIN_BLOCK,
 	 *  Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
-	 * @return mixed array | null Array members per database record:
-	 *  sig,name,module,type,callback,cachable,available
+	 * @return mixed array | null Array members 'callback','cachable'
 	 */
 	public static function load_plugin($name,$type)
 	{
 		$row = self::get_instance()->find($name,$type);
-		if( !is_array($row) ) return;
-
-		// load the module
-		$module = cms_utils::get_module($row['module']);
-		if( $module ) {
-			// fix the callback, in case somebody used 'this' in the string.
-			if( is_array($row['callback']) ) {
-				// it's an array
-				if( count($row['callback']) == 2 ) {
-					// first element is some kind of string... do some magic to point to the module object
-					if( !is_string($row['callback'][0]) || strtolower($row['callback'][0]) == 'this') $row['callback'][0] = $row['module'];
-				}
-				else {
-					// an array with only one item?
-					cms_error('Cannot load plugin '.$row['name'].' from module '.$row['module'].' because of errors in the callback');
-					return;
-				}
-			}
-			else if( startswith($row['callback'],'::') ) {
-				// ::method syntax (implies module name)
-				$row['callback'] = [$row['module'],substr($row['callback'],2)];
-			}
-			else {
-				// assume it's just a method name
-				$row['callback'] = [$row['module'],$row['callback']];
+		if( is_array($row) ) {
+//TODO 		if( $row['available'] IS NOT consistent with current request ) return;
+			// load the module
+			$module = cms_utils::get_module($row['module']);
+			if( $module ) {
+				return [
+					'callback' => $row['callback'],
+					'cachable' => (bool)$row['cachable']
+				];
 			}
 		}
-		if( !is_callable($row['callback']) ) {
-			// it's in the db... but not callable.
-			cms_error('Cannot load plugin '.$row['name'].' from module '.$row['module'].' because callback not callable (module disabled?)');
-			$row['callback'] = [$row['module'],'function_plugin'];
-		}
-		return $row;
 	}
 
 	/**
-	 * Find the details for a specific plugin
+	 * Try to find a match for a named & typed module-plugin
+	 * Since 2.3, the name-comparison is case-insensitive
 	 *
 	 * @param string $name
 	 * @param string $type
@@ -251,25 +140,144 @@ final class ModulePluginOperations
 	 */
 	public function find($name,$type)
 	{
-		$this->_load();
-		if( self::$_data ) {
-			foreach( self::$_data as $row ) {
-				if( $row['name'] == $name && $row['type'] == $type ) return $row;
+		$data = global_cache::get('module_plugins');
+		if( $data ) {
+			foreach( $data as $row ) {
+				if( $row['type'] == $type && strcasecmp($row['name'],$name) == 0 ) return $row;
 			}
 		}
 	}
 
 	/**
-	 * Add information about a plugin to the local data cache and to the database
+	 * @since 2.3
+	 * @ignore
+	 * @param mixed $callback string|array
+	 * @return string|null
+	 */
+	private function validate_callback($callback)
+	{
+		if( is_array($callback) ) {
+			if( count($callback) == 2 ) {
+				// ensure first member refers to the correct module
+				if( !is_string($callback[0]) || strtolower($callback[0]) == 'this') {
+					$callback[0] = $module_name;
+				}
+				$callback = $callback[0].'::'.$callback[1];
+			}
+			else {
+				// an array with only one member !?
+				audit('',__CLASS__,'Cannot register plugin '.$name.' for module '.$module_name.' - invalid callback');
+				return;
+			}
+		}
+		elseif( ($p = strpos($callback,'::')) !== FALSE ) {
+			if( $p === 0 ) {
+				// ::method syntax (implies module name)
+				$callback = $module_name.$callback;
+			}
+		}
+		else {
+			// assume it's just a method name
+			$callback = $module_name.'::'.$callback;
+		}
+
+		if( !is_callable($callback) ) {
+			audit('',__CLASS__,'Substitute the default handler for plugin '.$name);
+			$callback = $module_name.'::function_plugin';
+		}
+		return $callback;
+	}
+
+	/**
+	 * Add information about a plugin to the 'module_plugins' global cache
+	 * @since 2.3
+	 * @param string $module_name The module name
+	 * @param string $name  The plugin name
+	 * @param string $type  The plugin type (normally 'function')
+	 * @param callable $callback A static function to call e.g. 'function_plugin' or 'module_name::function_plugin' or [$module_name,'function_plugin']
+	 * @param bool $cachable Deprecated since 2.3 Whether the plugin is cachable. Default true
+	 * @param int  $available Flag(s) indicating the intended use(s) of the plugin. Default 0, hence AVAIL_FRONTEND.
+	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
+	 * @return bool indicating success
+	 */
+	public function add_dynamic(string $module_name, string $name, string $type, callable $callback, bool $cachable = TRUE, int $available = 0) : bool
+	{
+		$callback = $this->validate_callback($callback);
+		if( !$callback ) return FALSE;
+
+		$dirty = FALSE;
+		$data = global_cache::get('module_plugins');
+		$sig = md5($name.$module_name.$callback);
+		if( !isset($data[$sig]) ) {
+			if( $available == 0 ) $available = self::AVAIL_FRONTEND + self::AVAIL_ADMIN;
+			$data[$sig] = [
+				'name'=>$name,
+				'module'=>$module_name,
+				'type'=>$type,
+				'callback'=>$callback,
+				'cachable'=>$cachable,
+				'available'=>$available
+			];
+			$dirty = TRUE;
+		}
+		else {
+			if( $data[$sig]['callback'] != $callback ) { $data[$sig]['callback'] = $callback; $dirty = TRUE; }
+			if( $data[$sig]['cachable'] != $cachable ) { $data[$sig]['cachable'] = $cachable; $dirty = TRUE; }
+			if( $data[$sig]['available'] != $available ) { $data[$sig]['available'] = $available; $dirty = TRUE; }
+		}
+		if( $dirty ) {
+			global_cache::update('module_plugins', $data);
+		}
+		return TRUE;
+	}
+
+	/**
+	 * Add information about a plugin to the database
+	 * and clear, NOT add to, the 'module_plugins' global cache.
 	 * This method is normally called during a module's installation/upgrade.
 	 *
-	 * @deprecated since 2.3 Instead use (new ModulePluginOperations())->add()
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
 	 * @param string $type  The plugin type (function,block,modifier)
-	 * @param callable $callback  The callable (static function) which runs the plugin.
-	 * @param bool $cachable UNUSED since 2.3 (always cachable) Optional flag whether the plugin is cachable, default true
-	 * @param int  $available Optional bit-flag(s) indicating the availability of the plugin. default 0.  See AVAIL_ADMIN AND AVAIL_FRONTEND
+	 * @param callable $callback A static function to call e.g. 'function_plugin' or 'module_name::function_plugin' or [$module_name,'function_plugin']
+	 * @param bool $cachable Deprecated since 2.3 Whether the plugin is cachable. Default true
+	 * @param int  $available Flag(s) indicating the intended use(s) of the plugin. Default 0, hence AVAIL_FRONTEND.
+	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
+	 * @return mixed boolean | null
+	 */
+	public function add(string $module_name,string $name,string $type,callable $callback,bool $cachable = TRUE,int $available = 0)
+	{
+		$callback = $this->validate_callback($callback);
+		if( !$callback ) return FALSE;
+		$all = self::AVAIL_FRONTEND + self::AVAIL_ADMIN;
+		if( $available == 0 ) {
+			$available = $all;
+		}
+		else {
+			$available &= $all;
+		}
+
+		$db = CmsApp::get_instance()->GetDb();
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_smarty_plugins (name,module,type,callback,available,cachable) VALUES(?,?,?,?,?,?)';
+		$dbr = $db->Execute($query,[
+			$name,
+			$module_name,
+			$type,
+			$callback,
+			$available,
+			$cachable,
+		]);
+		if( $dbr ) {
+			global_cache::clear('module_plugins');
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	/**
+	 * Add information about a plugin to the database
+	 * @deprecated since 2.3 Instead use (new ModulePluginOperations())->add()
+	 * @see add()
 	 */
 	public static function addStatic($module_name,$name,$type,$callback,$cachable = TRUE,$available = 0)
 	{
@@ -277,44 +285,7 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * Add information about a plugin to the local data cache and to the database.
-	 * This method is normally called during a module's installation/upgrade.
-	 *
-	 * @param string $module_name The module name
-	 * @param string $name  The plugin name
-	 * @param string $type  The plugin type (function,block,modifier)
-	 * @param callable $callback A static function to call e.g. 'function_plugin' or [$module_name,'function_plugin']
-	 * @param bool $cachable UNUSED since 2.3 (always cachable) Whether the plugin is cachable. Default true
-	 * @param int  $available Flag(s) indicating the availability of the plugin. Default 0, hence AVAIL_FRONTEND.
-	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
-	 * @return mixed boolean | null
-	 */
-	public function add(string $module_name,string $name,string $type,callable $callback,bool $cachable = TRUE,int $available = 0)
-	{
-		$this->_load();
-		if( !is_array(self::$_data) ) self::$_data = [];
-
-		// todo... validate params
-
-		$sig = md5($name.$module_name.serialize($callback));
-		if( !isset(self::$_data[$sig]) ) {
-			if( $available == 0 ) $available = self::AVAIL_FRONTEND;
-			self::$_data[$name] = [
-				'sig'=>$sig,
-				'module'=>$module_name,
-				'name'=>$name,
-				'type'=>$type,
-				'callback'=>$callback,
-				'available'=>$available
-			];
-			self::$_modified = TRUE;
-			return $this->_save();
-		}
-		return TRUE;
-	}
-
-	/**
-	 * Remove all plugins for a module from the local datacache and the database
+	 * Remove all plugins for a module from the database
 	 *
 	 * @param string $module_name
 	 */
@@ -324,24 +295,18 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * Remove all plugins for a module from the local data cache and the database
+	 * Remove all plugins for a module from the database, clear the
+	 * 'module_plugins' global cache
 	 *
 	 * @param string $module_name
 	 */
 	public function _remove_by_module(string $module_name)
 	{
-		$this->_load();
-		if( self::$_data ) {
-			foreach( self::$_data as $key => $row ) {
-				if( $module_name == $row['module'] ) {
-					self::$_data[$key] = null;
-					self::$_modified = true;
-				}
-			}
-			if( self::$_modified ) {
-				self::$_data = array_filter(self::$_data);
-				$this->_save();
-			}
+		$db = CmsApp::get_instance()->GetDb();
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?';
+		$dbr = $db->Execute($query,[$module_name]);
+		if( $dbr ) {
+			global_cache::clear('module_plugins');
 		}
 	}
 
@@ -356,24 +321,18 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * Remove a named plugin from the local datacache and the database
+	 * Remove a named plugin from the database, clear the
+	 * 'module_plugins' global cache
 	 *
 	 * @param string $name
 	 */
 	public function _remove_by_name(string $name)
 	{
-		$this->_load();
-		if( self::$_data ) {
-			foreach( self::$_data as $key => $row ) {
-				if( $name == $row['name'] ) {
-					self::$_data[$key] = null;
-					self::$_modified = true;
-				}
-			}
-			if( self::$_modified ) {
-				self::$_data = array_filter(self::$_data);
-				$this->_save();
-			}
+		$db = CmsApp::get_instance()->GetDb();
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE name=?';
+		$dbr = $db->Execute($query,[$name]);
+		if( $dbr ) {
+			global_cache::clear('module_plugins');
 		}
 	}
 } // class

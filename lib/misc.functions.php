@@ -128,12 +128,13 @@ function redirect_to_alias(string $alias)
         cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
         return;
     }
-    $content = $node->GetContent();
-    if (!is_object($content)) {
+    $contentobj = $node->getContent();
+    if (!is_object($contentobj)) {
         cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
         return;
     }
-    if ($content->GetURL() != '') redirect($content->GetURL());
+    $url = $contentobj->GetURL();
+    if ( $url ) redirect($url);
 }
 
 /**
@@ -1046,7 +1047,7 @@ function cms_ipmatches(string $ip, $checklist) : bool
  * @param string  $email
  * @param bool $checkDNS
  * @return bool
-*/
+ */
 function is_email (string $email, bool $checkDNS=false)
 {
     if (!filter_var($email,FILTER_VALIDATE_EMAIL)) return false;
@@ -1077,16 +1078,44 @@ function get_secure_param() : string
 }
 
 /**
- * Convert a string to a corresponding bool.
+ * Return a UNIX UTC timestamp corresponding to the supplied (typically
+ * database datetime formatted) date/time string.
+ * The supplied parameter is not validated, apart from ignoring a falsy value.
+ * @since 2.3
+ *
+ * @param mixed $datetime normally a string
+ * @return int Default 1 (not false)
+ */
+function cms_to_stamp($datetime) : int
+{
+    static $dt = null;
+
+    if ($datetime) {
+        if ($dt === null) {
+            $dt = new DateTime('@0', null);
+        }
+		try {
+			$dt->modify($datetime);
+			return $dt->getTimestamp();
+		} catch (Throwable $t) {
+			// nothing here
+		}
+    }
+    return 1; // anything not falsy
+}
+
+/**
+ * Convert the supplied value to a corresponding bool.
  * Accepts number != 0, 'y','yes','true','on' as true (case insensitive) all other values represent false.
  *
- * @param string $str Input to test.
+ * @param mixed $val string|bool|null Input to test.
  */
-function cms_to_bool(string $str) : bool
+function cms_to_bool($val) : bool
 {
-    if (is_numeric($str)) return (int)$str !== 0;
+    if (is_bool($val)) return $val;
+    if (is_numeric($val)) return (int)$val !== 0;
 
-    switch (strtolower($str)) {
+    switch (strtolower($val)) {
         case 'y':
         case 'yes':
         case 'true':

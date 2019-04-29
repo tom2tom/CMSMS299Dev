@@ -20,14 +20,49 @@ use DesignManager\Design;
 
 if (!function_exists('cmsms')) exit;
 
-if (version_compare($current_version,'1.1.6') <= 0) {
+if (version_compare($oldversion, '2.0') < 0) {
 	$dict = new DataDictionary($db);
 
-	$sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'layout_designs', CMS_DB_PREFIX.Design::TABLENAME);
+	$tbl = CMS_DB_PREFIX.Design::TABLENAME;
+	$sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'layout_designs', $tbl);
 	$dict->ExecuteSQLArray($sqlarray);
+	$sqlarray = $dict->DropColumnSQL($tbl, 'dflt');
+	$dict->ExecuteSQLArray($sqlarray);
+	// migrate timestamps to datetime
+	$sqlarray = $dict->AddColumnSQL($tbl, 'create_date DT DEFAULT CURRENT_TIMESTAMP');
+	$dict->ExecuteSQLArray($sqlarray);
+	$sqlarray = $dict->AddColumnSQL($tbl, 'modified_date DT ON UPDATE CURRENT_TIMESTAMP');
+	$dict->ExecuteSQLArray($sqlarray);
+	$data = $db->GetArray('SELECT id,created,modified FROM '.$tbl);
+	if ($data) {
+		$sql = 'UPDATE '.$tbl.' SET create_date=?,modified_date=? WHERE id=?';
+		$dt = new DateTime('@0',NULL);
+		$fmt = 'Y-m-d H:i:s';
+		$now = time();
+		foreach ($data as &$row) {
+			$t1 = (int)$row['created'];
+			$t2 = max($t1,(int)$row['modified']);
+			if ($t1 == 0) { $t1 = $t2; }
+			if ($t1 == 0) { $t1 = $t2 = $now; }
+			$dt->setTimestamp($t1);
+			$created = $dt->format($fmt);
+			$dt->setTimestamp($t2);
+			$modified = $dt->format($fmt);
+			$db->Execute($sql, [$created,$modified,$row['id']]);
+		}
+		unset($row);
+	}
+	$sqlarray = $dict->DropColumnSQL($tbl, 'created');
+	$dict->ExecuteSQLArray($sqlarray);
+	$sqlarray = $dict->DropColumnSQL($tbl, 'modified');
+	$dict->ExecuteSQLArray($sqlarray);
+
 	$sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'layout_design_tplassoc', CMS_DB_PREFIX.Design::TPLTABLE);
+	$dict->ExecuteSQLArray($sqlarray);
+	$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.Design::TPLTABLE, 'tpl_order I(1) UNSIGNED DEFAULT 0');
 	$dict->ExecuteSQLArray($sqlarray);
 	$sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'layout_design_cssassoc', CMS_DB_PREFIX.Design::CSSTABLE);
 	$dict->ExecuteSQLArray($sqlarray);
-	//TODO update fields
+	$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.Design::CSSTABLE, 'item_order', 'css_order I(1) UNSIGNED DEFAULT 0');
+	$dict->ExecuteSQLArray($sqlarray);
 }

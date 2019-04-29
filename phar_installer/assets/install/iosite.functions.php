@@ -25,7 +25,9 @@ as well as normal operation.
 use CMSMS\ContentOperations;
 use CMSMS\Database\Connection;
 use CMSMS\StylesheetOperations;
+use CMSMS\StylesheetsGroup;
 use CMSMS\TemplateOperations;
+use DesignManager\Design;
 use function cms_installer\lang;
 
 const CONTENT_DTD_VERSION = '0.8';
@@ -115,10 +117,10 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
      keeps >> array of field-value(s) which will be included (subject to optional)
 */
 	$skeleton = [
-     'stylecategories' => [
-      'table' => 'layout_css_categories',
+     'stylegroups' => [
+      'table' => 'layout_css_groups',
       'subtypes' => [
-       'category' => [
+       'group' => [
         'id' => [],
         'name' => [],
         'description' => ['optional' => 1],
@@ -140,11 +142,11 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        ]
       ]
      ],
-     'categorystyles' => [
-      'sql' => 'SELECT * FROM %slayout_csscat_members ORDER BY css_id,item_order',
+     'groupstyles' => [
+      'sql' => 'SELECT * FROM %slayout_cssgroup_members ORDER BY css_id,item_order',
       'subtypes' => [
-       'catcss' => [
-        'category_id' => [],
+       'grpcss' => [
+        'group_id' => [],
         'css_id' => [],
         'item_order' => ['optional' => 1],
        ]
@@ -169,10 +171,10 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        ]
       ]
      ],
-     'templatecategories' => [
-      'table' => 'layout_tpl_categories',
+     'templategroups' => [
+      'table' => 'layout_tpl_groups',
       'subtypes' => [
-       'category' => [
+       'group' => [
         'id' => [],
         'name' => [],
         'description' => ['optional' => 1],
@@ -198,11 +200,11 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        ]
       ]
      ],
-     'categorytemplates' => [
-      'sql' => 'SELECT * FROM %slayout_tplcat_members ORDER BY tpl_id,item_order',
+     'grouptemplates' => [
+      'sql' => 'SELECT * FROM %slayout_tplgroup_members ORDER BY tpl_id,item_order',
       'subtypes' => [
-       'cattpl' => [
-        'category_id' => [],
+       'grptpl' => [
+        'group_id' => [],
         'tpl_id' => [],
         'item_order' => ['optional' => 1],
        ]
@@ -285,8 +287,8 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 	//these data must be manually reconciled with $skeleton[] above
 	$xw->writeDtd('cmsmssitedata', null, null, '
  <!ELEMENT dtdversion (#PCDATA)>
- <!ELEMENT stylecategories (scategory+)>
- <!ELEMENT scategory (id,name,description?)>
+ <!ELEMENT stylegroups (sgroup+)>
+ <!ELEMENT sgroup (id,name,description?)>
  <!ELEMENT id (#PCDATA)>
  <!ELEMENT name (#PCDATA)>
  <!ELEMENT description (#PCDATA)>
@@ -296,9 +298,9 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT media_query (#PCDATA)>
  <!ELEMENT content (#PCDATA)>
  <!ELEMENT contentfile (#PCDATA)>
- <!ELEMENT categorystyles (catcss+)>
- <!ELEMENT catcss (category_id,css_id,item_order?)>
- <!ELEMENT category_id (#PCDATA)>
+ <!ELEMENT groupstyles (grpcss+)>
+ <!ELEMENT grpcss (group_id,css_id,item_order?)>
+ <!ELEMENT group_id (#PCDATA)>
  <!ELEMENT css_id (#PCDATA)>
  <!ELEMENT item_order (#PCDATA)>
  <!ELEMENT templatetypes (tpltype+)>
@@ -312,16 +314,16 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT requires_contentblocks (#PCDATA)>
  <!ELEMENT one_only (#PCDATA)>
  <!ELEMENT owner (#PCDATA)>
- <!ELEMENT templatecategories (tcategory+)>
- <!ELEMENT tcategory (id,name,description?)>
+ <!ELEMENT templategroups (tgroup+)>
+ <!ELEMENT tgroup (id,name,description?)>
  <!ELEMENT templates (template)>
  <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?,contentfile?)>
  <!ELEMENT type_id (#PCDATA)>
  <!ELEMENT owner_id (#PCDATA)>
  <!ELEMENT type_dflt (#PCDATA)>
  <!ELEMENT listable (#PCDATA)>
- <!ELEMENT categorytemplates (cattpl+)>
- <!ELEMENT cattpl (category_id,tpl_id,item_order?)>
+ <!ELEMENT grouptemplates (grptpl+)>
+ <!ELEMENT grptpl (group_id,tpl_id,item_order?)>
  <!ELEMENT tpl_id (#PCDATA)>
  <!ELEMENT designs (design+)>
  <!ELEMENT design (id,name,description?,dflt?)>
@@ -507,9 +509,9 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 	}
 
 	$types = [-1 => -1];
-	$tplcats = [-1 => -1];
+	$tplgrps = [-1 => -1];
 	$templates = [-1 => -1];
-	$csscats = [-1 => -1];
+	$cssgrps = [-1 => -1];
 	$styles = [-1 => -1];
 	$designs = [-1 => -1];
 	$pageprops = [];
@@ -517,17 +519,17 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 	foreach ($xml->children() as $typenode) {
 		if ($typenode->count() > 0) {
 			switch ($typenode->getName()) {
-				case 'stylecategories':
+				case 'stylegroups':
 					foreach ($typenode->children() as $node) {
-						$ob = new CmsLayoutStylesheetCategory(); //TODO
+						$ob = new StylesheetsGroup();
 						try {
 							$ob->set_name((string)$node->name);
-						} catch (Exception $e) {
+							$ob->set_description((string)$node->description);
+							$ob->save();
+						} catch (CmsInvalidDataException $e) {
 							continue;
 						}
-						$ob->set_description((string)$node->description);
-						$ob->save();
-						$tplcats[(string)$node->id] = $ob->get_id();
+						$tplgrps[(string)$node->id] = $ob->get_id();
 					}
 					break;
 				case 'stylesheets':
@@ -538,28 +540,24 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$ob = new CmsLayoutStylesheet();
 						try {
 							$ob->set_name((string)$node->name);
-						} catch (Exception $e) {
-							continue;
-						}
-						$ob->set_description((string)$node->description);
-						try {
+							$ob->set_description((string)$node->description);
 							$ob->set_content(htmlspecialchars_decode((string)$node->content));
-						} catch (Exception $e) {
+							$ob->set_media_types((string)$node->media_type);
+							$ob->save();
+						} catch (CmsInvalidDataException $e) {
 							continue;
 						}
-						$ob->set_media_types((string)$node->media_type);
-						$ob->save();
 						$styles[(string)$node->id] = $ob->get_id();
 					}
 					break;
-				case 'categorystyles': //stylesheets in categories
+				case 'groupstyles': //stylesheets in groups
 					$bank = [];
 					foreach ($typenode->children() as $node) {
 						$val = (string)$node->css_id;
-						$val2 = (string)$node->category_id;
-						if (isset($styles[$val]) && isset($csscats[$val2])) {
+						$val2 = (string)$node->group_id;
+						if (isset($styles[$val]) && isset($cssgrps[$val2])) {
 							$val = $styles[$val];
-							$bank[$val][0][] = $csscats[$val2];
+							$bank[$val][0][] = $cssgrps[$val2];
 							$bank[$val][1][] = intval((string)$node->item_order);
 						}
 					}
@@ -570,7 +568,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							continue;
 						}
 						array_multisort($arr[1], $arr[0]);
-						$ob->set_categories($arr[0]);
+						$ob->set_groups($arr[0]);
 						$ob->save();
 					}
 					break;
@@ -592,68 +590,66 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$ob = new CmsLayoutTemplateType();
 						try {
 							$ob->set_name((string)$node->name);
-						} catch (Exception $e) {
-							continue;
-						}
-						$ob->set_originator($val);
-						$val = (string)$node->description;
-						if ($val !== '') $ob->set_description($val);
-						$ob->set_owner(1);
-						$val3 = (string)$node->dflt_contents;
-						if ($val3 !== '') {
-							$ob->set_dflt_contents(htmlspecialchars_decode($val3));
-							$ob->set_dflt_flag(true);
-						} else {
-							$ob->set_dflt_flag(false);
-						}
-						$ob->set_oneonly_flag((string)$node->one_only != false);
-						$ob->set_content_block_flag((string)$node->requires_contentblocks != false);
-						$val = (string)$node->lang_cb;
-						if ($val) {
-							if (preg_match($pattern, $val)) {
-								$val = unserialize($val, []);
+							$ob->set_originator($val);
+							$val = (string)$node->description;
+							if ($val !== '') $ob->set_description($val);
+							$ob->set_owner(1);
+							$val3 = (string)$node->dflt_contents;
+							if ($val3 !== '') {
+								$ob->set_dflt_contents(htmlspecialchars_decode($val3));
+								$ob->set_dflt_flag(true);
+							} else {
+								$ob->set_dflt_flag(false);
 							}
-							$ob->set_lang_callback($val);
-						}
-						$val = (string)$node->help_content_cb;
-						if ($val) {
-							if (preg_match($pattern, $val)) {
-								$val = unserialize($val, []);
-							}
-							$ob->set_help_callback($val);
-						}
-						if ($val3 !== '') {
-							$val = (string)$node->dflt_content_cb;
+							$ob->set_oneonly_flag((string)$node->one_only != false);
+							$ob->set_content_block_flag((string)$node->requires_contentblocks != false);
+							$val = (string)$node->lang_cb;
 							if ($val) {
 								if (preg_match($pattern, $val)) {
 									$val = unserialize($val, []);
 								}
-								$ob->set_content_callback($val);
-								try {
+								$ob->set_lang_callback($val);
+							}
+							$val = (string)$node->help_content_cb;
+							if ($val) {
+								if (preg_match($pattern, $val)) {
+									$val = unserialize($val, []);
+								}
+								$ob->set_help_callback($val);
+							}
+							if ($val3 !== '') {
+								$val = (string)$node->dflt_content_cb;
+								if ($val) {
+									if (preg_match($pattern, $val)) {
+										$val = unserialize($val, []);
+									}
+									$ob->set_content_callback($val);
 									$ob->reset_content_to_factory();
-								} catch (Exception $e) {
-									$dbg = 1;
 								}
 							}
+							$ob->save();
+						} catch (CmsInvalidDataException $e) {
+							continue;
+						} catch (CmsDataNotFoundException $e) {
+							continue;
 						}
-						$ob->save();
 						$types[(string)$node->id] = $ob->get_id();
 					}
 					break;
-				case 'templatecategories':
+				case 'templategroups':
 					if (!$runtime) {
-						verbose_msg(lang('install_categories'));
+						verbose_msg(lang('install_groups'));
 					}
 					foreach ($typenode->children() as $node) {
 						$ob = new CmsLayoutTemplateCategory();
 						try {
 							$ob->set_name((string)$node->name);
+							$ob->set_description((string)$node->description);
+							$ob->save();
 						} catch (Exception $e) {
 							continue;
 						}
-						$ob->set_description((string)$node->description);
-						$ob->save();
-						$tplcats[(string)$node->id] = $ob->get_id();
+						$tplgrps[(string)$node->id] = $ob->get_id();
 					}
 					break;
 				case 'templates':
@@ -676,8 +672,8 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							$ob->set_type($types[$val]);
 							$ob->set_description((string)$node->description);
 							$ob->set_owner(1);
-							$val = (string)$node->category_id;
-							if ($val !== '') $ob->set_category($val); //name or id
+							$val = (string)$node->group_id;
+							if ($val !== '') $ob->set_group($val); //name or id
 							$ob->set_type_dflt((string)$node->type_dflt != false);
 							$ob->set_content(htmlspecialchars_decode((string)$node->content));
 							$ob->save();
@@ -687,14 +683,14 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						}
 					}
 					break;
-				case 'categorytemplates': //templates in categories' members
+				case 'grouptemplates': //templates in groups' members
 					$bank = [];
 					foreach ($typenode->children() as $node) {
 						$val = (string)$node->tpl_id;
-						$val2 = (string)$node->category_id;
-						if (isset($templates[$val]) && isset($tplcats[$val2])) {
+						$val2 = (string)$node->group_id;
+						if (isset($templates[$val]) && isset($tplgrps[$val2])) {
 							$val = $templates[$val];
-							$bank[$val][0][] = $tplcats[$val2];
+							$bank[$val][0][] = $tplgrps[$val2];
 							$bank[$val][1][] = intval((string)$node->item_order);
 						}
 					}
@@ -705,7 +701,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							continue;
 						}
 						array_multisort($arr[1], $arr[0]);
-						$ob->set_categories($arr[0]);
+						$ob->set_groups($arr[0]);
 						$ob->save();
 					}
 					break;
@@ -714,15 +710,15 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						verbose_msg(lang('install_default_designs'));
 					}
 					foreach ($typenode->children() as $node) {
-						$ob = new DesignManager\Design();
+						$ob = new Design();
 						try {
 							$ob->set_name((string)$node->name);
+							$ob->set_description((string)$node->description);
+//							$ob->set_default((string)$node->dflt != false);
+							$ob->save();
 						} catch (Exception $e) {
 							continue;
 						}
-						$ob->set_description((string)$node->description);
-						$ob->set_default((string)$node->dflt != false);
-						$ob->save();
 						$designs[(string)$node->id] = $ob->get_id();
 					}
 					break;
@@ -909,7 +905,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 	if ($pageprops) {
 		$map = [-1 => -1]; // maps proffered id's to installed id's
 		foreach ($pageprops as $val => $arr) {
-			//TODO revert to using CMSContentManager\contenttypes\whatever class 
+			//TODO revert to using CMSContentManager\contenttypes\whatever class
 			$map[$val] = SavePage($arr, $map);
 		}
 		ContentOperations::get_instance()->SetAllHierarchyPositions();
@@ -959,8 +955,6 @@ function SavePage($parms, $pagemap)
 	$val = (int)$db->GetOne($query);
 	$default_content = ($val < 1);
 
-	$now = trim($db->DbTimeStamp(time()), "'");
-
 	$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (
 content_id,
 content_name,
@@ -982,9 +976,7 @@ titleattribute,
 accesskey,
 styles,
 tabindex,
-last_modified_by,
-create_date,
-modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 	$content_id = $db->GenID(CMS_DB_PREFIX.'content_seq'); //as late as possible (less racy)
 	$args = [
@@ -1009,8 +1001,6 @@ modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		$styles ?? null,
 		$tabindex ?? 0,
 		$last_modified_by ?? 1,
-		$now,
-		$now,
 	];
 
 	if (!$db->Execute($query, $args)) {
@@ -1022,9 +1012,7 @@ modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 content_id,
 type,
 prop_name,
-content,
-create_date,
-modified_date) VALUES (?,?,?,?,?,?)';
+content) VALUES (?,?,?,?)';
 		foreach($parms['props'] as $name => $val) {
 			if (is_numeric($val) || is_bool($val)) {
 				$val = (int)$val;
@@ -1033,8 +1021,7 @@ modified_date) VALUES (?,?,?,?,?,?)';
 				if (!is_null($val)) { $val = (string)$val; }
 				$ptype = 'string';
 			}
-			$result = $db->Execute($query, [$content_id,$ptype,$name,$val,$now,$now]);
-			$ADBG = 1;
+			$result = $db->Execute($query, [$content_id,$ptype,$name,$val]);
 		}
 	}
 

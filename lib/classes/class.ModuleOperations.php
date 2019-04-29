@@ -140,6 +140,7 @@ final class ModuleOperations
 
 	/**
 	 * @ignore
+	 * @param string $module
 	 * @return mixed string | null
 	 */
 	private function get_module_classname(string $module)
@@ -152,7 +153,7 @@ final class ModuleOperations
 	}
 
 	/**
-	 * @ignore
+	 * @param string $module
 	 * @return mixed string | null
 	 */
 	public function get_module_filename(string $module)
@@ -165,10 +166,10 @@ final class ModuleOperations
 	}
 
 	/**
-	 * @ignore
+	 * @param string $module
 	 * @return mixed string | null
 	 */
-	public function get_module_path( string $module )
+	public function get_module_path(string $module)
 	{
 		$fn = $this->get_module_filename( $module );
 		if( $fn ) return dirname( $fn );
@@ -182,7 +183,7 @@ final class ModuleOperations
 	 * @param string $module The module name
 	 * @param string $classname The class name
 	 */
-	public function set_module_classname(string $module,string $classname)
+	public function set_module_classname(string $module, string $classname)
 	{
 		$module = trim($module);
 		$classname = trim($classname);
@@ -231,8 +232,9 @@ final class ModuleOperations
 
 	/**
 	 * @ignore
+	 * @param CMSModule $module_obj a module object
 	 */
-	private function _install_module(CmsModule &$module_obj)
+	private function _install_module(CMSModule &$module_obj)
 	{
 		$module_name = $module_obj->GetName();
 		debug_buffer('install_module '.$module_name);
@@ -272,12 +274,13 @@ VALUES (?,?,?,'.$now.',NULL)');
 //					$dbr =
 					$db->Execute($stmt,[$depname,$module_name,$depversion]);
 				}
+				$stmt->close();
 			}
 			$this->generate_moduleinfo( $module_obj );
 			self::$_moduleinfo = [];
 			global_cache::clear('modules');
 			global_cache::clear('module_deps');
-			global_cache::clear('session_plugin_modules');
+			global_cache::clear('module_plugins');
 			global_cache::clear('module_menus');
 
 			cms_notice('Installed module '.$module_name.' version '.$module_obj->GetVersion());
@@ -292,7 +295,6 @@ VALUES (?,?,?,'.$now.',NULL)');
 	/**
 	 * Install a module into the database
 	 *
-	 * @internal
 	 * @param string $module_name The name of the module to install
 	 * @return array Returns a tuple of whether the install was successful and a message if applicable
 	 */
@@ -359,7 +361,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 	/**
 	 * @ignore
 	 */
-	private function _load_module(string $module_name,bool $force_load = FALSE,bool $dependents = TRUE)
+	private function _load_module(string $module_name, bool $force_load = FALSE, bool $dependents = TRUE)
 	{
 		$gCms = CmsApp::get_instance(); // backwards compatibility... set the global.
 
@@ -504,86 +506,6 @@ VALUES (?,?,?,'.$now.',NULL)');
 	}
 
 	/**
-	 * Finds and loads all modules that are wanted now (normally, those without
-	 * relevant 'lazyload' properties).
-	 * See also InitModules()
-	 *
-	 * @access public
-	 * @internal
-	 */
-	public function LoadImmediateModules()
-	{
-		global $CMS_ADMIN_PAGE;
-		global $CMS_STYLESHEET;
-		if( isset($CMS_STYLESHEET) ) return; // the cms_stylesheet plugin is running
-
-		debug_buffer('Load modules');
-		$allinfo = $this->_get_module_info();
-		if( is_array($allinfo) ) {
-			$config = cms_config::get_instance();
-			$flag = $config['ignore_lazy_load'];
-
-			foreach( $allinfo as $module_name => $info ) {
-				if( $info['status'] != 'installed' ) continue;
-				if( !$info['active'] ) continue;
-				if( !$flag ) {
-					if( isset($CMS_ADMIN_PAGE) ) {
-						// admin request
-						if( !empty($info['allow_admin_lazyload']) ) continue;
-					} else {
-						// frontend request
-						if( !empty($info['allow_fe_lazyload']) ) continue;
-					}
-				}
-				$this->get_module_instance($module_name);
-			}
-		}
-		debug_buffer('Finished loading modules');
-	}
-
-	/**
-	 * Initialize all relevant modules, without preserving their memory footprint.
-	 *
-	 * @since 2.3
-	 * @access public
-	 * @internal
-	 */
-	public function InitModules()
-	{
-		global $CMS_ADMIN_PAGE, $CMS_STYLESHEET;
-		if( isset($CMS_STYLESHEET) ) return; // the cms_stylesheet plugin is running
-
-		debug_buffer('Initialize modules');
-		$allinfo = $this->_get_module_info();
-		if( is_array($allinfo) ) {
-			$dirs = cms_module_places();
-			foreach( $allinfo as $module_name => $info ) {
-				if( $info['status'] != 'installed' ) continue;
-				if( !$info['active'] ) continue;
-				foreach( $dirs as $one) {
-					$fp = $one . DIRECTORY_SEPARATOR . $module_name . DIRECTORY_SEPARATOR . $module_name . '.module.php';
-					if( is_file($fp) ) {
-						$gCms = CmsApp::get_instance(); // deprecated since 2.3 - some modules check (un-necessarily) for this in scope
-						include_once $fp;
-						$obj = new $module_name();
-						if( $obj instanceof CMSModule ) {
-							if( isset($CMS_ADMIN_PAGE) ) { // admin request
-								$obj->InitializeAdmin();
-							} else // frontend request
-							  if( !$info['admin_only'] ) {
-								$obj->InitializeFrontend();
-							}
-							unset($obj);
-						}
-						break;
-					}
-				}
-			}
-		}
-		debug_buffer('Finished initializing modules');
-	}
-
-	/**
 	 * @ignore
 	 */
 	private function _upgrade_module( CMSModule &$module_obj, string $to_version = '' )
@@ -632,12 +554,13 @@ VALUES (?,?,?,$now,$now)");
 //					$dbr =
 					$db->Execute($stmt,[$depname,$module_name,$depversion]);
 				}
+				$stmt->close();
 			}
 			$this->generate_moduleinfo( $module_obj );
 			self::$_moduleinfo = [];
 			global_cache::clear('modules');
 			global_cache::clear('module_deps');
-			global_cache::clear('session_plugin_modules');
+			global_cache::clear('module_plugins');
 			global_cache::clear('module_menus');
 
 			cms_notice('Upgraded module '.$module_name.' to version '.$module_obj->GetVersion());
@@ -733,7 +656,7 @@ VALUES (?,?,?,$now,$now)");
 			// clear related caches
 			global_cache::clear('modules');
 			global_cache::clear('module_deps');
-			global_cache::clear('session_plugin_modules');
+			global_cache::clear('module_plugins');
 			global_cache::clear('module_menus');
 
 			// Removing module from info
@@ -794,6 +717,7 @@ VALUES (?,?,?,$now,$now)");
 			$db->Execute($query,[$info[$module_name]['active'],$module_name]);
 			self::$_moduleinfo = [];
 			global_cache::clear('modules'); //force refresh of the cached active property
+			global_cache::clear('module_plugins');
 			global_cache::clear('module_menus');
 			Events::SendEvent( 'Core', 'AfterModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
 			if( $activate ) {

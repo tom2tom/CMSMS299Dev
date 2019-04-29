@@ -21,8 +21,8 @@ namespace CMSMS\internal;
 use cms_config;
 use cms_siteprefs;
 use CmsApp;
-use CMSMS\internal\content_template_resource;
-use CMSMS\internal\file_template_resource;
+use CMSMS\internal\content_resource;
+//use CMSMS\internal\file_template_resource;
 use CMSMS\internal\layout_stylesheet_resource;
 use CMSMS\internal\layout_template_resource;
 use CMSMS\internal\module_db_template_resource;
@@ -88,9 +88,9 @@ class Smarty extends SmartyParent
         // common resources
         $this->registerResource('module_db_tpl',new module_db_template_resource())
              ->registerResource('module_file_tpl',new module_file_template_resource())
-             ->registerResource('cms_file',new file_template_resource())
+//merged processing ->registerResource('cms_file',new file_template_resource())
              ->registerResource('cms_template',new layout_template_resource())
-             ->registerResource('cms_stylesheet',new layout_stylesheet_resource())
+             ->registerResource('cms_stylesheet',new layout_stylesheet_resource()) //maybe some plugin would like to use this ??
 //           ->setDefaultResourceType('cms_file'); MEH... edge-case, only when explicit
 
              ->addPluginsDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins') //plugin-assets prevail
@@ -139,7 +139,7 @@ class Smarty extends SmartyParent
             }
 
             // Load resources
-            $this->registerResource('content',new content_template_resource())
+            $this->registerResource('content',new content_resource())
                  ->setDefaultResourceType('content');
             $this->registerPlugin('compiler','content','\\CMSMS\\internal\\page_template_parser::compile_fecontentblock',false)
                  ->registerPlugin('function','content_image','\\CMSMS\\internal\\content_plugins::fetch_imageblock',true)
@@ -264,14 +264,14 @@ class Smarty extends SmartyParent
             return;
         }
 
-        // check if it is a recorded module-plugin
+        // check if it's a recorded module-plugin
 //        if( CmsApp::get_instance()->is_frontend_request() ) {
             $row = ModulePluginOperations::load_plugin($name,$type);
-            if( is_array($row) && is_array($row['callback']) && count($row['callback']) == 2 &&
-                is_string($row['callback'][0]) && is_string($row['callback'][1]) ) {
-                $callback = $row['callback'][0].'::'.$row['callback'][1];
-//TODO CHECKME
-//DEBUG                $cachable = false;
+            if( $row && is_callable($row['callback']) ) {
+                $callback = $row['callback'];
+				//deprecated from 2.3 We should assume cachable and override that in templates where needed
+				//Otherwise, module-cachability is opaque to builders
+                $cachable = !empty($row['cachable']);
                 return true;
             }
 
@@ -279,7 +279,7 @@ class Smarty extends SmartyParent
 
         // check if it is a user-plugin
             try {
-                $callback = UserPluginOperations::get_instance()->load_plugin( $name );
+                $callback = (new UserPluginOperations())->load_plugin( $name );
 //DEBUG                $cachable = false;
                 return true;
             } catch (Exception $e) {

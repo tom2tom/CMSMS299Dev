@@ -18,7 +18,7 @@
 
 namespace CMSMS\contenttypes;
 
-use function cmsms;
+use CMSMS\contenttypes\Content;
 use function lang;
 
 /**
@@ -30,154 +30,51 @@ use function lang;
  */
 class ErrorPage extends Content
 {
+	// NOTE any private or static property will not be serialized
+
 	public $doAliasCheck;
 	public $error_types;
 
-	public function __construct()
+	/**
+	 * @global type $CMS_ADMIN_PAGE
+	 * @param mixed $params
+	 */
+	public function __construct($params)
 	{
-		parent::__construct();
+		parent::__construct($params);
+		foreach ([
+			'accesskey' => '',
+			'active' => true,
+			'alias' => '', //this one is a replacement
+			'cachable' => false,
+			'menutext' => '',
+			'page_url' => '',
+			'parent' => -1,
+//			'searchable' => false,
+			'secure' => false, //deprecated property since 2.3
+			'showinmenu' => false,
+			'titleattribute' => '',
+		] as $key => $value) {
+			$this->$key = $value;
+		}
 
 		global $CMS_ADMIN_PAGE;
-		if( isset($CMS_ADMIN_PAGE) ) {
-			$this->error_types = ['404' => lang('404description'),
-								  '403' => lang('403description'),
-								  '503' => lang('503description') ];
+		if (isset($CMS_ADMIN_PAGE)) {
+			$this->error_types = [
+			'404' => lang('404description'),
+		 	'403' => lang('403description'),
+		 	'503' => lang('503description'),
+			];
 		}
 		$this->doAliasCheck = false;
-		$this->doAutoAliasIfEnabled = false;
-		$this->mType = strtolower(get_class($this)) ;
+		$this->doAutoAliasIfEnabled = false; //CHECKME
 	}
 
-	public function HandlesAlias()
-	{
-		return true;
-	}
-
-	public function FriendlyName()
-	{
-		return lang('contenttype_errorpage');
-	}
-
-	public function SetProperties()
-	{
-		parent::SetProperties([
-			['accesskey',''],
-			['active',true],
-			['alias',''], //this one is a replacement
-			['cachable',false],
-			['extra1',''],
-			['extra2',''],
-			['extra3',''],
-			['image',''],
-			['menutext',''],
-			['page_url',''],
-			['parent',-1],
-//			['searchable',false],
-			['secure',false], //deprecated property since 2.3
-			['showinmenu',false],
-			['target',''],
-			['thumbnail',''],
-			['titleattribute',''],
-		]);
-		$this->AddProperty('alias',10,parent::TAB_MAIN,true);
-
-		#Turn on preview
-		$this->mPreview = true;
-	}
-
-	public function IsCopyable()
-	{
-		return false;
-	}
-
-	public function IsDefaultPossible()
-	{
-		return false;
-	}
-
-	public function HasUsableLink()
-	{
-		return false;
-	}
-
-	public function WantsChildren()
-	{
-		return false;
-	}
-
-	public function IsSystemPage()
-	{
-		return true;
-	}
-
-	public function FillParams($params, $editing = false)
-	{
-		parent::FillParams($params,$editing);
-		$this->mParentId = -1;
-		$this->mShowInMenu = false;
-		$this->mCachable = false;
-		$this->mActive = true;
-	}
-
-	public function display_single_element($one, $adding)
-	{
-		switch($one) {
-		case 'alias':
-			$dropdownopts = '';
-			//$dropdownopts = '<option value="">'.lang('none').'</option>';
-			foreach ($this->error_types as $code=>$name) {
-				$dropdownopts .= '<option value="error' . $code . '"';
-				if ('error'.$code == $this->mAlias) {
-					$dropdownopts .= ' selected="selected" ';
-				}
-				$dropdownopts .= ">{$name} ({$code})</option>";
-			}
-			return [lang('error_type').':', '<select name="alias">'.$dropdownopts.'</select>'];
-			break;
-
-		default:
-			return parent::display_single_element($one,$adding);
-		}
-	}
-
-	public function TemplateResource() : string
-	{
-		return ''; //TODO
-	}
-
-	public function ValidateData()
-	{
-		// $this->SetPropertyValue('searchable',0);
-		// force not searchable.
-
-		$errors = parent::ValidateData();
-		if ($errors == false) {
-			$errors = [];
-		}
-
-		//Do our own alias check
-		if ($this->mAlias == '') {
-			$errors[] = lang('nofieldgiven', lang('error_type'));
-		}
-		else if (in_array($this->mAlias, $this->error_types)) {
-			$errors[] = lang('nofieldgiven', lang('error_type'));
-		}
-		else if ($this->mAlias != $this->mOldAlias) {
-			$gCms = cmsms();
-			$contentops =& $gCms->GetContentOperations();
-			$error = $contentops->CheckAliasError($this->mAlias, $this->mId);
-			if ($error !== false) {
-				if ($error == lang('aliasalreadyused')) {
-					$errors[] = lang('errorpagealreadyinuse');
-				}
-				else {
-					$errors[] = $error;
-				}
-			}
-		}
-
-		return (count($errors) > 0 ? $errors : false);
-	}
+	public function HasUsableLink() : bool { return false; }
+	public function IsDefaultPossible() : bool { return false; }
+	public function IsSystemPage() : bool { return true; }
+	public function IsViewable() : bool { return true; }
+	public function WantsChildren() : bool { return false; }
 }
 
 //backward-compatibility shiv

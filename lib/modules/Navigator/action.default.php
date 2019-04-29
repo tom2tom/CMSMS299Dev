@@ -30,7 +30,7 @@ $start_element = null;
 $start_page = null;
 $start_level = null;
 $childrenof = null;
-$deep = true;
+$deep = false; //true; properties not generally needed
 $collapse = false;
 
 $template = null;
@@ -51,7 +51,7 @@ $hm = $gCms->GetHierarchyManager();
 foreach( $params as $key => $value ) {
     switch( $key ) {
     case 'loadprops':
-        $deep = cms_to_bool($value);
+        $deep = cms_to_bool($value); //true achieves nothing. Deprecated since 2.3
         break;
 
     case 'items':
@@ -177,7 +177,7 @@ if( $start_element ) {
     }
 }
 else if( $start_page ) {
-    $id = $hm->find_by_tag_anon($start_page);
+    $id = $hm->find_by_identifier($start_page,false);
     if( $id ) {
 		$tmp = $hm->find_by_tag('id',$id);
         if( $show_root_siblings ) {
@@ -214,10 +214,9 @@ else if( $start_level > 1 ) {
     }
 }
 else if( $childrenof ) {
-    $tmp = $hm->find_by_tag_anon(trim($childrenof));
-    if( $tmp ) {
-		$obj = $hm->find_by_tag('id',$tmp);
-        if( $obj->has_children() ) $rootnodes = $obj->get_children();
+    $obj = $hm->find_by_identifier(trim($childrenof));
+    if( $obj && $obj->has_children() ) {
+		$rootnodes = $obj->get_children();
     }
 }
 else if( $items ) {
@@ -225,8 +224,8 @@ else if( $items ) {
     $items = explode(',',$items);
     $items = array_unique($items);
     foreach( $items as $item ) {
-        $tmp = $hm->find_by_tag_anon(trim($item));
-        if( $tmp ) $rootnodes[] = $tmp;
+        $obj = $hm->find_by_identifier(trim($item));
+        if( $obj ) $rootnodes[] = $obj;
     }
 }
 else {

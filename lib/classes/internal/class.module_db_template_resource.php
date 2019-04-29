@@ -1,7 +1,7 @@
 <?php
-#Classes to handle module templates.
+#Class for handling module templates as a resource
 #Copyright (C) 2012-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -19,94 +19,76 @@
 namespace CMSMS\internal;
 
 use CmsApp;
-use CMSMS\ModuleOperations;
-use CMSMS\TemplateOperations;
-use Exception;
+use DateTime;
 use Smarty_Resource_Custom;
-use const CMS_ASSETS_PATH;
 use const CMS_DB_PREFIX;
-use function cms_join_path;
-use function debug_buffer;
+use function cms_error;
 
 /**
- * A class to handle a module database template, with fallback to a generic template of the same name.
+ * A class for handling module templates as a resource.
  *
- * @ignore
- * @internal
- * @since 1.11
  * @package CMS
+ * @internal
+ * @ignore
+ * @author Robert Campbell
+ * @since 1.11
  */
 class module_db_template_resource extends Smarty_Resource_Custom
 {
     /**
-     * @param string $name ';'-separated like 'modulename;templatename'
-     * @param string &$source retrieved template content
-     * @param int    &$mtime retrieved template modification timestamp
+     * @ignore
+     */
+    private static $db;
+
+    /**
+     * @ignore
+     */
+    private static $stmt;
+
+    /**
+     * @ignore
+     */
+    private static $loaded = [];
+
+    /**
+     * @param string $name    template identifier like 'modulename;templatename'
+     * @param mixed  &$source store for retrieved template content, if any
+     * @param int    &$mtime  store for retrieved template modification timestamp
      */
     protected function fetch($name,&$source,&$mtime)
     {
-        debug_buffer('','CMSModuleDbTemplateResource start'.$name);
-        $db = CmsApp::get_instance()->GetDb();
-        $query = 'SELECT content,modified FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE originator=? AND name=?';
-        $parts = explode(';',$name);
-        $row = $db->GetRow($query, $parts);
-        if( $row ) {
-            $source = $row['content'];
-            $mtime = (int) $row['modified'];
+        if( isset(self::$loaded[$name]) ) {
+            $data = self::$loaded[$name];
         }
         else {
-            // fallback to the layout stuff.
-            try {
-                $obj = TemplateOperations::load_template($parts[1]);
-                $source = $obj->get_content();
-                $mtime = $obj->get_modified();
+            if( !self::$db ) {
+                self::$db = CmsApp::get_instance()->GetDb();
+                self::$stmt = self::$db->Prepare('SELECT content,modified_date FROM '.CMS_DB_PREFIX.'layout_templates WHERE originator=? AND name=?');
             }
-            catch( Exception $e ) {
-                // nothing here.
+            $parts = explode(';',$name);
+            $rst = self::$db->Execute(self::$stmt,$parts);
+            if( !$rst || $rst->EOF() ) {
+                if( $rst ) $rst->Close();
+                cms_error('Missing template: '.$name);
+                $mtime = false;
+                return;
             }
-        }
-        debug_buffer('','CMSModuleDbTemplateResource end'.$name);
-    }
-} // class
-
-
-/**
- * A simple class to handle a module file template.
- *
- * @ignore
- * @internal
- * @package CMS
- * @since 1.11
- */
-class module_file_template_resource extends Smarty_Resource_Custom
-{
-    /**
-     * @param string $name ';'-separated like 'modulename;filename'
-     * @param mixed  $source store for retrieved template content
-     * @param int    $mtime store for retrieved template modification timestamp
-     */
-    protected function fetch($name,&$source,&$mtime)
-    {
-        $source = null;
-        $mtime = 0;
-        $parts = explode(';',$name);
-        if( count($parts) != 2 ) return;
-
-        $module_name = trim($parts[0]);
-        $filename = trim($parts[1]);
-        $module = ModuleOperations::get_instance()->get_module_instance($module_name); //loaded modules only
-        $module_path = $module->GetModulePath();
-        $files = [];
-        $files[] = cms_join_path($module_path,'custom','templates',$filename);
-        $files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$module_name,'templates',$filename);
-        $files[] = cms_join_path($module_path,'templates',$filename);
-
-        foreach( $files as $one ) {
-            if( is_file($one) ) {
-                $source = @file_get_contents($one);
-                $mtime = @filemtime($one);
-                break;
+            else {
+                $data = $rst->FetchRow();
+                $rst->Close();
+                self::$loaded[$name] = $data;
             }
         }
-    }
+
+		if( !empty($data['modified_date']) ) {
+			$mtime = cms_to_stamp($data['modified_date']);
+		}
+		elseif( !empty($data['create_date']) ) {
+			$mtime = cms_to_stamp($data['create_date']);
+		}
+		else {
+			$mtime = 1; // not falsy
+		}
+        $source = $data['content'];
+   }
 } // class

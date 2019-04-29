@@ -55,7 +55,6 @@ function get_cliuser()
     return $uname;
 }
 
-
 /**
  * Gets the userid of the current user (logged-in or otherwise).
  *
@@ -74,7 +73,7 @@ function get_userid(bool $redirect = true)
         if( cmsms()->is_cli() ) {
             $uname = get_cliuser();
             if( $uname ) {
-                $user = UserOperations::get_instance()->LoadUserByUsername($uname);
+                $user = (new UserOperations())->LoadUserByUsername($uname);
                 if( $user ) {
                     return $user->id;
                 }
@@ -82,7 +81,7 @@ function get_userid(bool $redirect = true)
             return false;
         }
         //  TODO alias etc during other 'remote admin'
-        $uid = LoginOperations::get_instance()->get_effective_uid();
+        $uid = (new LoginOperations())->get_effective_uid();
         if( !$uid && $redirect ) {
             redirect($config['admin_url'].'/login.php');
         }
@@ -90,7 +89,6 @@ function get_userid(bool $redirect = true)
     }
     return 1; //CHECKME super-admin sensible for app mode ?
 }
-
 
 /**
  * Gets the username of the current user (logged-in or otherwise).
@@ -111,7 +109,7 @@ function get_username(bool $redirect = true)
             return get_cliuser();
         }
         //TODO alias etc during 'remote admin'
-        $uname = LoginOperations::get_instance()->get_effective_username();
+        $uname = (new LoginOperations())->get_effective_username();
         if( !$uname && $redirect ) {
             redirect($config['admin_url'].'/login.php');
         }
@@ -119,7 +117,6 @@ function get_username(bool $redirect = true)
     }
     return ''; //no username in app mode
 }
-
 
 /**
  * Checks to see if the user is logged in and the request has the proper key.
@@ -135,25 +132,25 @@ function check_login(bool $no_redirect = false)
 {
     $redirect = !$no_redirect;
     $uid = get_userid($redirect);
+	$login_ops = new LoginOperations();
     if( $uid > 0 ) {
-        if( LoginOperations::get_instance()->validate_requestkey() ) {
-			return true;
-		}
-		// still here if logged in, but no/invalid secure-key in the request
+        if($login_ops->validate_requestkey() ) {
+            return true;
+        }
+        // still here if logged in, but no/invalid secure-key in the request
     }
-	if( $redirect ) {
-		// redirect to the admin login page
-		// use SCRIPT_FILENAME and make sure it validates with the root_path
-		if( startswith($_SERVER['SCRIPT_FILENAME'],CMS_ROOT_PATH) ) {
-			$_SESSION['login_redirect_to'] = $_SERVER['REQUEST_URI'];
-		}
-		LoginOperations::get_instance()->deauthenticate();
-		$config = cms_config::get_instance();
-		redirect($config['admin_url'].'/login.php');
-	}
-	return false;
+    if( $redirect ) {
+        // redirect to the admin login page
+        // use SCRIPT_FILENAME and make sure it validates with the root_path
+        if( startswith($_SERVER['SCRIPT_FILENAME'],CMS_ROOT_PATH) ) {
+            $_SESSION['login_redirect_to'] = $_SERVER['REQUEST_URI'];
+        }
+        $login_ops->deauthenticate();
+        $config = cms_config::get_instance();
+        redirect($config['admin_url'].'/login.php');
+    }
+    return false;
 }
-
 
 /**
  * Checks to see that the given userid has access to the given permission.
@@ -166,9 +163,8 @@ function check_login(bool $no_redirect = false)
  */
 function check_permission(int $userid, string $permname)
 {
-    return UserOperations::get_instance()->CheckPermission($userid,$permname);
+    return (new UserOperations())->CheckPermission($userid,$permname);
 }
-
 
 /**
  * Checks that the given userid has access to modify the given
@@ -186,7 +182,6 @@ function check_authorship(int $userid, int $contentid = null)
     return ContentOperations::get_instance()->CheckPageAuthorship($userid,$contentid);
 }
 
-
 /**
  * Prepares an array with the list of the pages $userid is an author of
  *
@@ -199,7 +194,6 @@ function author_pages(int $userid)
 {
     return ContentOperations::get_instance()->GetPageAccessForUser($userid);
 }
-
 
 /**
  * Gets the given site preference
@@ -217,7 +211,6 @@ function get_site_preference(string $prefname, $defaultvalue = null)
     return cms_siteprefs::get($prefname,$defaultvalue);
 }
 
-
 /**
  * Removes the given site preference.
  * @since 0.6
@@ -233,7 +226,6 @@ function remove_site_preference(string $prefname, bool $uselike = false)
     return cms_siteprefs::remove($prefname, $uselike);
 }
 
-
 /**
  * Sets the given site preference with the given value.
  * @since 0.6
@@ -248,7 +240,6 @@ function set_site_preference(string $prefname, $value)
 {
     return cms_siteprefs::set($prefname, $value);
 }
-
 
 /**
  * A method to create a text area control
@@ -315,24 +306,32 @@ function is_sitedown() : bool
 }
 
 /**
- * Create a dropdown form element containing a list of files that match certain conditions
+ * Create a dropdown/select html element containing a list of files that match certain conditions
  *
  * @internal
- * @param string The name for the select element.
- * @param string The directory name to search for files.
- * @param string The name of the file that should be selected
- * @param string A comma separated list of extensions that should be displayed in the list
- * @param string An optional string with which to prefix each value in the output by
- * @param boolean Whether 'none' should be an allowed option
- * @param string Text containing additional parameters for the dropdown element
- * @param string A prefix to use when filtering files
- * @param boolean A flag indicating whether the files matching the extension and the prefix should be included or excluded from the result set
- * @param boolean A flag indicating whether the output should be sorted.
+ * @param string The name (and id) for the select element.
+ * @param string The directory name to search.
+ * @param string The name of the file to be selected
+ * @param string A comma separated series of file-extensions that should be displayed in the list
+ * @param string An optional string with which to prefix each value in the output. Default ''
+ * @param boolean n An optional flag indicating whether 'none' should be an allowed option. Default false.
+ * @param string An optional string containing additional parameters for the dropdown element. Default ''
+ * @param string An optional string to use as name-prefix when filtering files. Default ''
+ * @param boolean An optional flag indicating whether the files matching the extension and the prefix should be included or excluded from the result set. Default true.
+ * @param boolean An optional flag indicating whether the output should be sorted. Default false.
  * @return string maybe empty
  */
-function create_file_dropdown(string $name,string $dir,string $value,string $allowed_extensions,string $optprefix='',
-                              bool $allownone=false,string $extratext='',
-                              string $fileprefix='',bool $excludefiles=true,bool $sortresults = false) : string
+function create_file_dropdown(
+	string $name,
+	string $dir,
+	string $value,
+	string $allowed_extensions,
+	string $optprefix = '',
+	bool   $allownone = false,
+	string $extratext = '',
+	string $fileprefix = '',
+	bool   $excludefiles = true,
+	bool   $sortresults = false) : string
 {
     $files = [];
     $files = get_matching_files($dir,$allowed_extensions,true,true,$fileprefix,$excludefiles);
@@ -482,23 +481,135 @@ function get_pageid_or_alias_from_url()
 function get_editor_script(array $params) : array
 {
     $userid = get_userid();
-	$vars = explode ('::', cms_userprefs::get_for_user($userid, 'syntax_editor'));
-	$modname = $vars[0] ?? '';
-	if( $modname ) {
-		$modinst = cms_utils::get_module($modname);
-		if( $modinst ) {
-			if (empty($params['style'])) {
-				$params['style'] = cms_userprefs::get_for_user($userid, 'editor_theme');
-			}
-			if( $modinst instanceof SyntaxEditor ) {
-				$edname = $vars[1] ?? $modname;
-				return $modinst->GetEditorScript($edname, $params);
-			}
-			elseif( $modinst->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE) ) {
-			   // TODO other modules ?
-			   // c.f. cms_utils::get_syntax_highlighter_module()
-			}
-		}
-	}
+    $val = cms_userprefs::get_for_user($userid, 'syntax_editor');
+    if( !$val ) {
+        $val = cms_siteprefs::get('syntax_editor');
+    }
+    if( $val ) {
+        $vars = explode ('::', $val);
+        $modname = $vars[0] ?? '';
+        if( $modname ) {
+            $modinst = cms_utils::get_module($modname);
+            if( $modinst ) {
+                if (empty($params['style'])) {
+                    $val = cms_userprefs::get_for_user($userid, 'editor_theme');
+                    if( !$val ) {
+                        $val = cms_siteprefs::get('editor_theme');
+                    }
+                    if( $val ) {
+                        $params['style'] = $val;
+                    }
+                }
+                if( $modinst instanceof SyntaxEditor ) {
+                    $edname = $vars[1] ?? $modname;
+                    return $modinst->GetEditorScript($edname, $params);
+                }
+                elseif( $modinst->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE) ) {
+                   // TODO other modules ?
+                   // c.f. cms_utils::get_syntax_highlighter_module()
+                }
+            }
+        }
+    }
     return [];
+}
+
+/**
+ * Process a module-tag via Smarty
+ * This method is used by the {cms_module} plugin and to process {ModuleName} tags
+ * (It's in this file cuz that's included after autoloaders are available)
+ *
+ * @internal
+ * @access private
+ * @param array A hash of parameters
+ * @param object A Smarty_Internal_Template object
+ * @return string The module output string or an error message string or ''
+ */
+function cms_module_plugin(array $params, $template) : string
+{
+    if (isset($params['module'])) {
+        $module = $params['module'];
+        unset($params['module']);
+    }
+    else {
+        return '<!-- ERROR: module name not specified -->';
+    }
+
+    if (!empty($params['action'])) {
+        // action was set in the module tag
+        $action = $params['action'];
+//       unset($params['action']);  unfortunate 2.3 deprecation
+    }
+    else {
+        $params['action'] = $action = 'default'; //2.3 deprecation
+    }
+
+    if (!empty($params['idprefix'])) {
+        // idprefix was set in the module tag
+        $id = $params['idprefix'];
+        $setid = true;
+    }
+    else {
+        // multiple modules might be used in a page|template
+        // just in case they get confused ...
+        static $modnum = 1;
+        ++$modnum;
+        $id = "m{$modnum}_";
+        $setid = false;
+    }
+
+    if (isset($_REQUEST['mact'])) {
+        // We're handling an action.  Check if it is for this call.
+        // We may be calling module plugins multiple times in the template,
+        // but a POST or GET mact can only be for one of them.
+        $mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
+        $ary = explode(',', $mact, 4);
+        $mactmodulename = $ary[0] ?? '';
+        if (strcasecmp($mactmodulename, $module) == 0) {
+            $checkid = $ary[1] ?? '';
+            $inline = isset($ary[3]) && $ary[3] === 1;
+            if ($inline && $checkid == $id) { // presumbly $setid true i.e. not a random id
+                // the action is for this instance of the module and we're inline
+                // i.e. the results are supposed to replace the tag, not {content}
+                $action = $ary[2] ?? 'default';
+                $params['action'] = $action; // deprecated since 2.3
+                $params = array_merge($params, (new ModuleOperations())->GetModuleParameters($id));
+            }
+        }
+    }
+
+    $modinst = cms_utils::get_module($module);
+    if (!$modinst) {
+        return "<!-- ERROR: $module is not a recognized module -->\n";
+    }
+
+    global $CMS_ADMIN_PAGE, $CMS_LOGIN_PAGE, $CMS_INSTALL;
+    // WHAAAT ? admin-request accepts ALL modules as plugins (lazy/bad module init?)
+    if ($modinst->isPluginModule() || (isset($CMS_ADMIN_PAGE) && !isset($CMS_INSTALL) && !isset($CMS_LOGIN_PAGE))) {
+        $params['id'] = $id; // deprecated since 2.3
+        if ($setid) {
+            $params['idprefix'] = $id; // might be needed per se, probably not
+            $modinst->SetParameterType('idprefix',CLEAN_STRING); // in case it's a frontend request
+        }
+        $returnid = CmsApp::get_instance()->get_content_id();
+        $params['returnid'] = $returnid;
+
+        @ob_start(); // probably redundant
+        $result = $modinst->DoActionBase($action, $id, $params, $returnid, $template);
+        if ($result !== false) {
+            echo $result;
+        }
+        $out = @ob_get_contents();
+        @ob_end_clean();
+
+        if (isset($params['assign'])) {
+            $template->assign(trim($params['assign']),$out);
+            return '';
+        }
+        return $out;
+    }
+    elseif (!$modinst->isPluginModule()) {
+        return "<!-- ERROR: $module is not a plugin module -->\n";
+    }
+    return '';
 }

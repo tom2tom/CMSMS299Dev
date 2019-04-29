@@ -1,0 +1,88 @@
+{if !empty($stylesheets)}
+{function css_info}
+{strip}{if $css->locked()}{$lock=$css->get_lock()}
+{if $css->lock_expired()}
+<strong style="color:red;">{lang_by_realm('layout','msg_steal_lock')}</strong><br />
+{/if}
+<strong>{lang_by_realm('layout','prompt_lockedby')}:</strong> {cms_admin_user uid=$lock.uid}<br />
+<strong>{lang_by_realm('layout','prompt_lockedsince')}:</strong> {$lock.created|cms_date_format|cms_escape}<br />
+{if $lock.expires|timestamp < $smarty.now}
+<strong>{lang_by_realm('layout','prompt_lockexpired')}:</strong> <span style="color:red;">{$lock.expires|relative_time}</span>
+{else}
+<strong>{lang_by_realm('layout','prompt_lockexpires')}:</strong> {$lock.expires|relative_time}
+{/if}
+{else}
+<strong>{lang_by_realm('layout','prompt_name')}:</strong> {$css->get_name()} <em>({$css->get_id()})</em><br />
+<strong>{lang_by_realm('layout','prompt_created')}:</strong> {$css->get_created()|cms_date_format|cms_escape}<br />
+<strong>{lang_by_realm('layout','prompt_modified')}:</strong> {$css->get_modified()|relative_time}
+{$tmp=$css->get_description()}{if $tmp}<br />
+<strong>{lang_by_realm('layout','prompt_description')}:</strong> {$tmp|strip_tags|cms_escape|summarize}{/if}
+{/if}{/strip}
+{/function}
+
+  <form action="stylesheetoperations.php" method="post">
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />{/foreach}
+  <table id="csslist" class="pagetable" style="width:auto;">
+    <thead>
+     {strip}<tr>
+      {if $manage_stylesheets}
+      <th title="{lang_by_realm('layout','title_css_id')}">{lang_by_realm('layout','prompt_id')}</th>
+      {/if}
+      <th title="{lang_by_realm('layout','title_css_name')}">{lang_by_realm('layout','prompt_name')}</th>
+      {if $manage_stylesheets}
+      <th class="pageicon nosort"></th>{* menu *}
+      <th class="pageicon nosort">
+       <input type="checkbox" id="css_selall" title="{lang_by_realm('layout','title_css_selectall')}" value="1" />
+      </th>
+      {/if}
+      </tr>{/strip}
+    </thead>
+    <tbody>
+      {foreach $stylesheets as $css}
+      {cycle values="row1,row2" assign='rowclass'}
+      <tr class="{$rowclass}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
+      {if $manage_stylesheets}{$sid=$css->get_id()}
+      <td>{$sid}</td>{strip}
+      {$url="editstylesheet.php`$urlext`&amp;css=`$sid`"}
+      <td><a class="action edit_css tooltip" href="{$url}" data-css-id="{$sid}" data-cms-description="{css_info}" title="{lang_by_realm('layout','title_edit_stylesheet')}">{$css->get_name()}</a></td>
+      <td>
+       {$ul=!$css->locked()}
+       {$t=lang_by_realm('layout','prompt_locked')}
+       <span class="locked" data-css-id="{$sid}" title="{$t}"{if $ul} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
+       {$t=lang_by_realm('layout','prompt_steal_lock')}
+       <a class="steal_lock" href="{$url}&amp;steal=1" data-css-id="{$sid}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
+       <span class="action" context-menu="Stylesheet{$sid}"{if !$ul} style="display:none;"{/if}>{admin_icon icon='menu.gif' alt='menu' title=lang_by_realm('layout','title_menu') class='systemicon'}</span></td>
+      <td>
+       <input type="checkbox" id="{$css@index}" class="css_select action" name="css_select[]" title="{lang_by_realm('layout','prompt_select')}" value="{$sid}" />
+      </td>
+      {else}
+      <td><span class="tooltip" data-cms-description="{css_info}">{$css->get_name()}</span></td>
+      {/if}{* manage *}{/strip}
+      </tr>
+      {/foreach}
+    </tbody>
+  </table>
+  {if $manage_stylesheets}
+  <div id="cssmenus">
+  {foreach $cssmenus as $menu}{$menu}{/foreach}
+  </div>
+  <div class="pageoptions rowbox" style="justify-content:flex-end;" id="bulkoptions">
+    <div class="boxchild">
+      {cms_help realm='layout' key2='help_css_bulk' title=lang_by_realm('layout','prompt_bulk')}
+      <label for="css_bulk_action">{lang_by_realm('layout','prompt_with_selected')}:</label>&nbsp;
+      <select name="css_bulk_action" id="css_bulk_action" class="cssx_bulk_action">
+        <option value="delete" title="{lang_by_realm('layout','title_delete')}">{lang_by_realm('layout','prompt_delete')}</option>
+{*      <option value="export">{lang_by_realm('layout','export')}</option>
+        <option value="import">{lang_by_realm('layout','import')}</option>
+*}
+      </select>
+     <button type="submit" name="submit_bulk_css" id="css_bulk_submit" class="adminsubmit icon check">{lang('submit')}</button>
+    </div>
+  </div>
+  {/if}{* manage *}
+  </form>
+{elseif isset($stylesheets)}
+  <p class="pagewarn pregap">{lang_by_realm('layout','warn_no_stylesheets')}</p>
+{else}
+  <p class="pageinfo pregap">{lang_by_realm('layout','info_no_stylesheets')}</p>
+{/if}

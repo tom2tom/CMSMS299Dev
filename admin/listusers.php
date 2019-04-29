@@ -286,20 +286,13 @@ $(function() {
   return false;
  });
  $('#withselected, #bulksubmit').attr('disabled', 'disabled');
- $('#bulksubmit').button({
-  'disabled': true
- });
  $('#sel_all, .multiselect').on('click', function() {
   if(!$(this).is(':checked')) {
    $('#withselected').attr('disabled', 'disabled');
-   $('#bulksubmit').attr('disabled', 'disabled').button({
-    'disabled': true
-   });
+   $('#bulksubmit').attr('disabled', 'disabled');
   } else {
    $('#withselected').removeAttr('disabled');
-   $('#bulksubmit').removeAttr('disabled').button({
-    'disabled': false
-   });
+   $('#bulksubmit').removeAttr('disabled');
   }
  });
  $('#listusers').submit(function(ev) {

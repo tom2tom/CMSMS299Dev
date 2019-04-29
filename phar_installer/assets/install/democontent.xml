@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE cmsmssitedata [
  <!ELEMENT dtdversion (#PCDATA)>
- <!ELEMENT stylecategories (scategory+)>
- <!ELEMENT scategory (id,name,description?)>
+ <!ELEMENT stylesheets (stylesheet*)>
+ <!ELEMENT stylesheet (id,name,description?,media_type?,media_query?,content,contentfile?)>
  <!ELEMENT id (#PCDATA)>
  <!ELEMENT name (#PCDATA)>
  <!ELEMENT description (#PCDATA)>
- <!ELEMENT stylesheets (stylesheet+)>
- <!ELEMENT stylesheet (id,name,description?,media_type?,media_query?,content,contentfile?)>
  <!ELEMENT media_type (#PCDATA)>
  <!ELEMENT media_query (#PCDATA)>
  <!ELEMENT content (#PCDATA)>
  <!ELEMENT contentfile (#PCDATA)>
- <!ELEMENT categorystyles (catcss+)>
- <!ELEMENT catcss (category_id,css_id,item_order?)>
- <!ELEMENT category_id (#PCDATA)>
+ <!ELEMENT stylegroups (stylegroup*)>
+ <!ELEMENT stylegroup (id,name,description?)>
+ <!ELEMENT stylegroupmembers (stylegroupmember*)>
+ <!ELEMENT stylegroupmember (group_id,css_id,item_order?)>
+ <!ELEMENT group_id (#PCDATA)>
  <!ELEMENT css_id (#PCDATA)>
  <!ELEMENT item_order (#PCDATA)>
- <!ELEMENT templatetypes (tpltype+)>
- <!ELEMENT tpltype (id,originator,name,dflt_contents?,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner)>
+ <!ELEMENT templatetypes (tpltype*)>
+ <!ELEMENT tpltype (id,originator,name,dflt_contents?,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner?)>
  <!ELEMENT originator (#PCDATA)>
  <!ELEMENT dflt_contents (#PCDATA)>
  <!ELEMENT lang_cb (#PCDATA)>
@@ -28,27 +28,28 @@
  <!ELEMENT requires_contentblocks (#PCDATA)>
  <!ELEMENT one_only (#PCDATA)>
  <!ELEMENT owner (#PCDATA)>
- <!ELEMENT templatecategories (tcategory+)>
- <!ELEMENT tcategory (id,name,description?)>
- <!ELEMENT templates (template)>
+ <!ELEMENT templates (template*)>
  <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?,contentfile?)>
  <!ELEMENT type_id (#PCDATA)>
  <!ELEMENT owner_id (#PCDATA)>
  <!ELEMENT type_dflt (#PCDATA)>
  <!ELEMENT listable (#PCDATA)>
- <!ELEMENT categorytemplates (cattpl+)>
- <!ELEMENT cattpl (category_id,tpl_id,item_order?)>
+ <!ELEMENT templategroups (templategroup*)>
+ <!ELEMENT templategroup (id,name,description?)>
+ <!ELEMENT templategroupmembers (templategroupmember*)>
+ <!ELEMENT templategroupmember (group_id,tpl_id,item_order?)>
  <!ELEMENT tpl_id (#PCDATA)>
- <!ELEMENT designs (design+)>
+ <!ELEMENT designs (design*)>
  <!ELEMENT design (id,name,description?,dflt?)>
  <!ELEMENT dflt (#PCDATA)>
- <!ELEMENT designstyles (designcss+)>
- <!ELEMENT designcss (design_id,css_id,item_order)>
+ <!ELEMENT designstyles (designcss*)>
+ <!ELEMENT designcss (design_id,css_id,css_order)>
  <!ELEMENT design_id (#PCDATA)>
- <!ELEMENT designtemplates (designtpl+)>
+ <!ELEMENT css_order (#PCDATA)>
+ <!ELEMENT designtemplates (designtpl*)>
  <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
  <!ELEMENT tpl_order (#PCDATA)>
- <!ELEMENT pages (page+)>
+ <!ELEMENT pages (page*)>
  <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text?,cachable?,styles?)>
  <!ELEMENT content_id (#PCDATA)>
  <!ELEMENT content_name (#PCDATA)>
@@ -65,28 +66,21 @@
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
- <!ELEMENT files (sourcedir?,file+)>
+ <!ELEMENT files (sourcedir?,file*)>
  <!ELEMENT file (name,topath,(frompath|embedded),content?)>
  <!ELEMENT topath (#PCDATA)>
  <!ELEMENT frompath (#PCDATA)>
  <!ELEMENT embedded (#PCDATA)>
- <!ELEMENT userplugins (sourcedir?,file+)>
+ <!ELEMENT userplugins (sourcedir?,file*)>
  <!ELEMENT file (name,(frompath|embedded),content?)>
 ]>
 <cmsmssitedata>
 	<dtdversion>0.8</dtdversion>
-	<stylecategories>
-		<scategory>
-			<id>1</id>
-			<name>Demonstration stylesheets category</name>
-			<description>The templates here will be applied in sort-order to each page which specifies this category for its styles-source.</description>
-		</scategory>
-	</stylecategories>
 	<stylesheets>
 		<stylesheet>
 			<id>1</id>
 			<name>Simplex Core</name>
-			<description>Simplex Theme core Stylesheet, containing 12 column grid system and HTML5 resets (normalize.css)</description>
+			<description>Simplex theme core stylesheet, containing 12 column grid system and HTML5 resets (normalize.css)</description>
 			<media_type>screen</media_type>
 			<content><![CDATA[[[strip]]
 
@@ -938,7 +932,7 @@ body {
 		<stylesheet>
 			<id>2</id>
 			<name>Simplex Layout</name>
-			<description>Simplex Theme main layout Stylesheet</description>
+			<description>Simplex theme main stylesheet</description>
 			<media_type>screen</media_type>
 			<content><![CDATA[[[strip]]
 
@@ -949,8 +943,8 @@ body {
 	 * @author Goran Ilic (uniqu3e@gmail.com)
 	 * @version 1.1 (CMSMS 2.0 Package)
 	 *
-	 * Simplex Theme comes with 2 predefined Style variations, one is a "boxed" style as seen in
-	 * default installation which is controle with "boxed" ID that is set in Simplex Theme &lt;body&gt; tag.
+	 * The Simplex theme comes with two predefined style variations. One is a "boxed" style as seen in a
+	 * default installation which is controlled with a "boxed" ID that is set in the Simplex theme &lt;body&gt; tag.
 	 * If you remove this ID, a grey background on page body will be removed and layout will no longer
 	 * be wrapped inside a "box" but appear in a single background color which is by default white.
 	 *
@@ -960,14 +954,14 @@ body {
 	 * then whole page layout will be positioned to right window side instead of centered position
 	 * and with class leftaligned the page layout will be positioned to left.
 	 *
-	 * Maximum width of page layout is preset to 1440px in Simplex Core stylesheet, you can change this
+	 * Maximum width of page layout is preset to 1440px in the Simplex Core stylesheet, you can change this
 	 * by adding a new rule in this stylesheet with a class .row (Example: .row { max-width: 1080px; }).
-	 * If you prefer a full width layout simply add fullwidth class to body tag of Simplex Template.
+	 * If you prefer a full width layout simply add fullwidth class to the body tag of the Simplex Template.
 	 * This class will reset max-width limitation and force the page layout to full window width with
 	 * spacing on left and right of 30px.
 	 *
 	 * Browser Support:
-	 * Simplex Theme was tested in common modern Browser and IE8 (with gracefull fallback).
+	 * The Simplex theme has been tested in modern browsers and IE8 (with graceful fallback).
 	 *
 	 * Grid usage:
 	 * Simplex is using a custom Yetti Framework 12 column grid (https://github.com/Stikki/Yetti/tree/master)
@@ -2412,7 +2406,7 @@ a.printbutton {
 		<stylesheet>
 			<id>3</id>
 			<name>Simplex Slideshow</name>
-			<description>Simplex Theme Stylesheet for header slideshow</description>
+			<description>Simplex theme stylesheet for header slideshow</description>
 			<media_type>screen</media_type>
 			<content><![CDATA[[[strip]]
 
@@ -2664,7 +2658,7 @@ a.printbutton {
 		<stylesheet>
 			<id>4</id>
 			<name>Simplex Print</name>
-			<description>Default Print style rules attached to Simplex Design</description>
+			<description>Print style rules for the Simplex theme</description>
 			<media_type>print</media_type>
 			<content><![CDATA[[[strip]]
 
@@ -2696,28 +2690,35 @@ a {
 [[/strip]]]]></content>
 		</stylesheet>
 	</stylesheets>
-	<categorystyles>
-		<catcss>
-			<category_id>1</category_id>
+	<stylegroups>
+		<stylegroup>
+			<id>1</id>
+			<name>Demonstration stylesheets group</name>
+			<description>The styles in this group will be applied in order to each page which specifies the group as (one of) its style(s).</description>
+		</stylegroup>
+	</stylegroups>
+	<stylegroupmembers>
+		<stylegroupmember>
+			<group_id>1</group_id>
 			<css_id>1</css_id>
 			<item_order>1</item_order>
-		</catcss>
-		<catcss>
-			<category_id>1</category_id>
+		</stylegroupmember>
+		<stylegroupmember>
+			<group_id>1</group_id>
 			<css_id>2</css_id>
 			<item_order>2</item_order>
-		</catcss>
-		<catcss>
-			<category_id>1</category_id>
+		</stylegroupmember>
+		<stylegroupmember>
+			<group_id>1</group_id>
 			<css_id>3</css_id>
 			<item_order>3</item_order>
-		</catcss>
-		<catcss>
-			<category_id>1</category_id>
+		</stylegroupmember>
+		<stylegroupmember>
+			<group_id>1</group_id>
 			<css_id>4</css_id>
 			<item_order>4</item_order>
-		</catcss>
-	</categorystyles>
+		</stylegroupmember>
+	</stylegroupmembers>
 	<templatetypes>
 		<tpltype>
 			<id>1</id>
@@ -2751,9 +2752,9 @@ a {
 
 &lt;/html&gt;]]></dflt_contents>
 			<description></description>
-			<lang_cb>CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults</dflt_content_cb>
-			<help_content_cb>CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
+			<lang_cb>CMSMS\internal\std_layout_template_callbacks::page_type_lang_callback</lang_cb>
+			<dflt_content_cb>CMSMS\internal\std_layout_template_callbacks::reset_page_type_defaults</dflt_content_cb>
+			<help_content_cb>CMSMS\internal\std_layout_template_callbacks::template_help_callback</help_content_cb>
 			<has_dflt>1</has_dflt>
 			<requires_contentblocks>1</requires_contentblocks>
 			<one_only>0</one_only>
@@ -2765,17 +2766,15 @@ a {
 			<name>generic</name>
 			<dflt_contents></dflt_contents>
 			<description></description>
-			<lang_cb>CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
+			<lang_cb>CMSMS\internal\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
 			<dflt_content_cb></dflt_content_cb>
-			<help_content_cb>CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
+			<help_content_cb>CMSMS\internal\std_layout_template_callbacks::template_help_callback</help_content_cb>
 			<has_dflt>0</has_dflt>
 			<requires_contentblocks>0</requires_contentblocks>
 			<one_only>0</one_only>
 			<owner>1</owner>
 		</tpltype>
 	</templatetypes>
-	<templatecategories>
-	</templatecategories>
 	<templates>
 		<template>
 			<id>1</id>
@@ -2841,7 +2840,7 @@ a {
                     &lt;!-- .logo //--&gt;
                     &lt;!-- .main-navigation (main navigation on the right side) --&gt;
                     &lt;nav class='main-navigation eight-col cf noprint' id='nav'&gt;
-                        {Navigator loadprops='0' template='Simplex Main Navigation'} {* A Navigator module, database Template *}
+                        {Navigator template='Simplex Main Navigation' loadprops='0'} {* display a menu using a Navigator-module demonstration template *}
                     &lt;/nav&gt;
                     &lt;!-- .main-navigation //--&gt;
                 &lt;/div&gt;
@@ -2849,7 +2848,7 @@ a {
                 &lt;div class='row header-bottom'&gt;
                     &lt;section class='phrase cf'&gt;
                         &lt;span class='seven-col phrase-text'&gt;Power for professionals&lt;br class='lt-768' /&gt; Simplicity for end users&lt;/span&gt;
-                        {Search|strip formtemplate='Simplex Search'} {* Search module using custom template in Design Manager, you should use resultpage parameter for search results (see module help) *}
+                        {Search|strip formtemplate='Simplex Search'} {* a Search-module template. Use the 'resultpage' parameter for search results (see module help) *}
                     &lt;/section&gt;
                 &lt;/div&gt;
                 &lt;!-- .header-bottom //--&gt;
@@ -2864,7 +2863,7 @@ a {
                     &lt;div class='content-inner eight-col push-four'&gt;
                         &lt;!-- .content-top (breadcrumbs) --&gt;
                         &lt;div class='content-top cf' itemscope itemtype='http://data-vocabulary.org/Breadcrumb'&gt;
-                            {Navigator action='breadcrumbs'} {* you can create own breadcrumbs template as well and include it with template parameter *}
+                            {Navigator action='breadcrumbs'} {* you can instead create your own breadcrumbs-template and apply it with the 'template' parameter *}
                             &lt;span class='title-border' aria-hidden='true'&gt;&lt;/span&gt;
                         &lt;/div&gt;
                         &lt;!-- .content-top //--&gt;
@@ -2892,11 +2891,11 @@ a {
                 &lt;div class='row'&gt;
                     &lt;section class='eight-col push-four noprint hide-for-small'&gt;
                         &lt;nav class='footer-navigation row'&gt;
-                            {Navigator template='Simplex Footer Navigation' excludeprefix='home' number_of_levels='2' loadprops='0'}
+                            {Navigator template='Simplex Footer Navigation' excludeprefix='home' number_of_levels='2' loadprops='0'} {* a Navigator-module demonstration template *}
                         &lt;/nav&gt;
                     &lt;/section&gt;
                     &lt;section class='four-col pull-eight copyright'&gt;
-                        {include file='cms_template:Simplex Footer'} {* generic Design Manager template *}
+                        {include file='cms_template:Simplex Footer'}
                     &lt;/section&gt;
                 &lt;/div&gt;
             &lt;/footer&gt;
@@ -2934,7 +2933,7 @@ a {
     &lt;li class='pinterest'&gt;&lt;a title='Pinterest' href='http://www.pinterest.com/cmsmadesimple/'&gt;&lt;i class='icon-pinterest'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;Pinterest&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p class='copyright-info'&gt;Copyright &amp;copy; {$start_year}{if $start_year !== $current_year} - {$current_year}{/if} - CMS Made Simple&lt;br /&gt; This site is powered by &lt;a href='https://www.cmsmadesimple.org'&gt;CMS Made Simple&lt;/a&gt; version {cms_version}&lt;/p&gt;]]></content>
-			<description>Custom footer section template for Simplex Theme</description>
+			<description>Custom footer-section template for the Simplex theme</description>
 			<type_id>2</type_id>
 			<owner_id>1</owner_id>
 			<type_dflt>0</type_dflt>
@@ -2944,7 +2943,7 @@ a {
 			<id>3</id>
 			<originator>__CORE__</originator>
 			<name>Simplex Home</name>
-			<content><![CDATA[{extends file='cms_template:Simplex'}{* This template uses Template Inheritance *}
+			<content><![CDATA[{extends file='cms_template:Simplex'}{* This template uses template-inheritance *}
 
 {block name="banner"}
 {strip}
@@ -2988,7 +2987,7 @@ a {
                     &lt;!-- .sidebar (then show sidebar) --&gt;
                     &lt;aside class='sidebar four-col pull-eight'&gt;
                         {* sample of using News Module tag for summary of latest two articles, you will probably want to create a News page and specify it with the detailpage parameter *}
-                        {News summarytemplate='Simplex News Summary' number='2' detailtemplate='Simplex News Detail'}
+                        {News summarytemplate='Simplex News Summary' number='2' detailtemplate='Simplex News Detail'} {* display news items using News-module demonstration templates *}
                     &lt;/aside&gt;
                     &lt;!-- .sidebar //--&gt;
 {/block}]]></content>
@@ -3002,7 +3001,7 @@ a {
 			<id>4</id>
 			<originator>__CORE__</originator>
 			<name>Simplex Sub</name>
-			<content><![CDATA[{extends file='cms_template:Simplex'}{* This template uses Template Inheritance *}
+			<content><![CDATA[{extends file='cms_template:Simplex'}{* This template uses template-inheritance *}
 
 {block name='top' append}
   {$sidebar_image="{content_image block='sidebar_image' label='Sidebar Image:' urlonly=true}" scope=global}
@@ -3020,16 +3019,39 @@ a {
 			<listable>1</listable>
 		</template>
 	</templates>
-	<categorytemplates>
-	</categorytemplates>
+	<templategroups>
+		<templategroup>
+			<id>1</id>
+			<name>Simplex</name>
+			<description>This group contains all the demonstration templates installed on a new CMSMS-powered website</description>
+		</templategroup>
+	</templategroups>
+	<templategroupmembers>
+		<templategroupmember>
+			<group_id>1</group_id>
+			<tpl_id>1</tpl_id>
+		</templategroupmember>
+		<templategroupmember>
+			<group_id>1</group_id>
+			<tpl_id>3</tpl_id>
+		</templategroupmember>
+		<templategroupmember>
+			<group_id>1</group_id>
+			<tpl_id>4</tpl_id>
+		</templategroupmember>
+		<templategroupmember>
+			<group_id>1</group_id>
+			<tpl_id>2</tpl_id>
+		</templategroupmember>
+	</templategroupmembers>
 	<designs>
 		<design>
 			<id>1</id>
 			<name>Simplex</name>
-			<description>Simplex Template is a HTML5 based theme, introduced with CMSMS 1.11 release and improved with 2.0 release.&#13;
-Purpose of this theme is to demonstrate what and how can be done with CMSMS Templates using HTML5 and responsive CSS for a better mobile experience.&#13;
-All Smarty templates which are used by Simplex Theme are prefix with &quot;Simplex&quot;, therefore be careful when renaming or deleting these templates.&#13;
-Theme itself is using jQuery, the functions JavaScript file is minified, in case you wish to change some JavaScript functions, refer to /uploads/simplex/js/functions.js file and replace functions.min.js file.</description>
+			<description>Simplex is a HTML5-based theme introduced with CMSMS 1.11.&#13;
+The purpose of that theme is to demonstrate what and how can be done with CMSMS templates using HTML5 and responsive CSS for a better mobile experience.&#13;
+All Smarty templates used by the Simplex theme are prefixed with &quot;Simplex&quot;. Be careful when renaming or deleting those templates.&#13;
+The theme uses jQuery. Theme-specific javascript is in a minified file. If you wish to change some of that javascript, refer to /uploads/simplex/js/functions.js file and replace functions.min.js file.</description>
 			<dflt>1</dflt>
 		</design>
 	</designs>
@@ -3037,22 +3059,22 @@ Theme itself is using jQuery, the functions JavaScript file is minified, in case
 		<designcss>
 			<design_id>1</design_id>
 			<css_id>1</css_id>
-			<item_order>1</item_order>
+			<css_order>1</css_order>
 		</designcss>
 		<designcss>
 			<design_id>1</design_id>
 			<css_id>2</css_id>
-			<item_order>2</item_order>
+			<css_order>2</css_order>
 		</designcss>
 		<designcss>
 			<design_id>1</design_id>
 			<css_id>3</css_id>
-			<item_order>3</item_order>
+			<css_order>3</css_order>
 		</designcss>
 		<designcss>
 			<design_id>1</design_id>
 			<css_id>4</css_id>
-			<item_order>4</item_order>
+			<css_order>4</css_order>
 		</designcss>
 	</designstyles>
 	<designtemplates>
@@ -3427,7 +3449,7 @@ Theme itself is using jQuery, the functions JavaScript file is minified, in case
 &lt;p&gt;The Content Manager makes content management simple. That's sort of our thing! Reorder site pages via drag and drop, and edit their contents with a click. All with no knowledge of HTML. Let the designers worry about the look, while the editors focus on content. Editing content is done with a simple editor with all the tools you'll recognize from word processors.&lt;/p&gt;
 &lt;h3&gt;ANY DESIGN YOU CAN IMAGINE&lt;/h3&gt;
 &lt;h4&gt;Join the growing number of design professionals who have discovered the foolproof elegance of CMS Made Simple.&lt;/h4&gt;
-&lt;p&gt;A question we often get asked is "where are the templates?" Although there are&amp;nbsp;&lt;a title="CMSMS Themes Site" href="https://themes.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;themes&lt;/a&gt;&amp;nbsp;available, CMSMS was designed to eliminate the need to restrict yourself to premade or purchased templates. With some HTML and CSS knowledge, a developer can use Design Manager to put together a completely custom design in short order. With the inclusion of a responsive framework, it's even faster. Still want to use an existing design? No problem, CMSMS makes it easy to add your existing code: insert a few Smarty tags in key places, and you're off to the races. If you need a bit of help getting started, review the theme used for this page (Simplex) or one of the themes available on the &lt;a href="https://themes.cmsmadesimple.org" target="_blank" rel="noopener"&gt;CMSMS Themes&lt;/a&gt; site.&lt;/p&gt;
+&lt;p&gt;A question regularly asked is "where are the templates?" Although there are&amp;nbsp;&lt;a title="CMSMS Themes Site" href="https://themes.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;themes&lt;/a&gt;&amp;nbsp;available, CMSMS was designed to eliminate the need to restrict yourself to premade or purchased templates. With some HTML and CSS knowledge, a developer can use Design Manager to put together a completely custom design in short order. With the inclusion of a responsive framework, it's even faster. Still want to use an existing design? No problem, CMSMS makes it easy to add your existing code: insert a few Smarty tags in key places, and you're off to the races. If you need a bit of help getting started, review the theme used for this page (Simplex) or one of the themes available on the &lt;a href="https://themes.cmsmadesimple.org" target="_blank" rel="noopener"&gt;CMSMS Themes&lt;/a&gt; site.&lt;/p&gt;
 &lt;h3&gt;EDIT SITE LAYOUT ON THE FLY&lt;/h3&gt;
 &lt;p&gt;Using file or database templates, and a bit of &lt;a title="Smarty" href="http://www.smarty.net/"&gt;Smarty&lt;/a&gt; knowledge, developers have full control over layouts. Responsive sites, especially with frameworks, are simple (there it is again) to test and maintain.&lt;/p&gt;
 &lt;h3&gt;EXTENDING A WEBSITE HAS NEVER BEEN MORE SIMPLE&lt;/h3&gt;

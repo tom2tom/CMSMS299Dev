@@ -84,7 +84,7 @@ $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME);
 $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE);
+$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE); //aka TPLTABLE
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME);
 $dbdict->ExecuteSQLArray($sqlarray);
@@ -471,8 +471,6 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'routes', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'layout_templates'; //aka TemplateOperations::TABLENAME
-//created I, <<< DT replaced 2.3
-//modified I <<< DT ditto
 $flds = '
 id I AUTO KEY,
 originator C(32),
@@ -548,7 +546,7 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_layout_tpl_type_1', $msg_ret));
 
-$tbl = CMS_DB_PREFIX.'layout_tpl_categories'; // aka CmsLayoutTemplateCategory::TABLENAME
+$tbl = CMS_DB_PREFIX.'layout_tpl_groups'; // aka CmsLayoutTemplateCategory::TABLENAME
 // create_date added 2.3
 // modified I <<< DT replaced 2.3
 // item_order I(1) DEFAULT 0, removed 2.3
@@ -562,34 +560,32 @@ modified_date DT ON UPDATE CURRENT_TIMESTAMP
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', 'layout_tpl_categories', $msg_ret));
+verbose_msg(lang('install_created_table', 'layout_tpl_groups', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_cat_1', $tbl, 'name', ['UNIQUE']);
+$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_grp_1', $tbl, 'name', ['UNIQUE']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_layout_tpl_type_1', $msg_ret));
 
-$tbl = CMS_DB_PREFIX.'layout_tplcat_members'; // aka CmsLayoutTemplateCategory::TPLTABLE
+$tbl = CMS_DB_PREFIX.'layout_tplgroup_members'; // aka CmsLayoutTemplateCategory::MEMBERSTABLE
 $flds = '
 id I(2) UNSIGNED AUTO KEY,
-category_id I(2) UNSIGNED NOT NULL,
+group_id I(2) UNSIGNED NOT NULL,
 tpl_id I(2) UNSIGNED NOT NULL,
 item_order I(1) UNSIGNED DEFAULT 0
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', 'layout_tplcat_members', $msg_ret));
+verbose_msg(lang('install_created_table', 'layout_tplgroup_members', $msg_ret));
 /*
-$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tplcat_1', $tbl, 'tpl_id');
+$sqlarray = $dbdict->CreateIndexSQL('idx_layout_tplgrp_1', $tbl, 'tpl_id');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_creating_index', 'idx_layout_tplcat_1', $msg_ret));
+verbose_msg(lang('install_creating_index', 'idx_layout_tplgrp_1', $msg_ret));
 */
 
 $tbl = CMS_DB_PREFIX.'layout_stylesheets'; // aka StylesheetOperations::TABLENAME
-//created I, <<< DT replaced 2.3
-//modified I <<< DT ditto
 $flds = '
 id I AUTO KEY,
 name C(64) NOT NULL,
@@ -610,7 +606,7 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_index', 'idx_layout_css_1', $msg_ret));
 
-$tbl = CMS_DB_PREFIX.'layout_css_categories';
+$tbl = CMS_DB_PREFIX.'layout_css_groups';  // aka StylesheetsGroup::TABLENAME
 $flds = '
 id I(1) UNSIGNED AUTO KEY,
 name C(64),
@@ -621,19 +617,19 @@ modified_date DT ON UPDATE CURRENT_TIMESTAMP
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', 'layout_css_categories', $msg_ret));
+verbose_msg(lang('install_created_table', 'layout_css_groups', $msg_ret));
 
-$tbl = CMS_DB_PREFIX.'layout_csscat_members';
+$tbl = CMS_DB_PREFIX.'layout_cssgroup_members'; // aka StylesheetsGroup::MEMBERSTABLE
 $flds = '
 id I(2) UNSIGNED AUTO KEY,
-category_id UNSIGNED I(2) NOT NULL,
+group_id UNSIGNED I(2) NOT NULL,
 css_id I(2) UNSIGNED NOT NULL,
 item_order I(1) UNSIGNED DEFAULT 0
 ';
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', 'layout_csscat_members', $msg_ret));
+verbose_msg(lang('install_created_table', 'layout_cssgroup_members', $msg_ret));
 
 /*
 //TODO consider migrating design-rlated tables to DesignManager module namespace

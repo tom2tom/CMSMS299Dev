@@ -39,15 +39,16 @@ function cms_autoloader(string $classname)
 	if ($p !== false) {
 		$space = substr($classname, $o, $p - $o);
 		if ($space == 'CMSMS') {
-			// future re-classes which may be used now
+		    // type-declarations don't trigger autoloading, so all renamed/respaced classes
+		    // which might be used in a typehint must be pre-aliased (loaded) every request (BAH!)
+		    // or else not actually changed until after reasonable advance notice to coders.
+		    // Hence: future re-classes which may be used now ...
 			static $class_replaces = null;
 			if ($class_replaces === null) {
 				$class_replaces = [
 				'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
 				'CMSMS\App' => 'CmsApp',
 				'CMSMS\Async\JobOperations' => 'CMSMS\Async\JobManager',
-//				'CMSMS\CacheDriver' => 'cms_cache_driver',
-//				'CMSMS\CacheFile' => 'cms_filecache_driver',
 				'CMSMS\CacheHandler' => 'cms_cache_handler',
 				'CMSMS\Config' => 'cms_config',
 				'CMSMS\ContentTree' => 'cms_content_tree',
@@ -57,26 +58,19 @@ function cms_autoloader(string $classname)
 				'CMSMS\HookOperations' => 'CMSMS\HookManager',
 				'CMSMS\HttpRequest' => 'cms_http_request',
 				'CMSMS\internal\AdminThemeNotification' => 'CmsAdminThemeNotification',
-//				'CMSMS\LangOperations' => 'CmsLangOperations',
 				'CMSMS\LanguageDetector' => 'CmsLanguageDetector',
-				'CMSMS\LayoutCollection' => 'CmsLayoutCollection',
-				'CMSMS\LayoutStylesheet' => 'CmsLayoutStylesheet',
-				'CMSMS\LayoutStylesheetQuery' => 'CmsLayoutStylesheetQuery',
-				'CMSMS\LayoutTemplate' => 'CmsLayoutTemplate',
-				'CMSMS\LayoutTemplateCategory' => 'CmsLayoutTemplateCategory',
-				'CMSMS\LayoutTemplateQuery' => 'CmsLayoutTemplateQuery',
-				'CMSMS\LayoutTemplateType' => 'CmsLayoutTemplateType',
-//				'CMSMS\Lock' => 'CmsLock',
-//				'CMSMS\LockOperations' => 'CmsLockOperations',
+				'CMSMS\Stylesheet' => 'CmsLayoutStylesheet',
+				'CMSMS\StylesheetQuery' => 'CmsLayoutStylesheetQuery',
+				'CMSMS\Template' => 'CmsLayoutTemplate',
+				'CMSMS\TemplatesGroup' => 'CmsLayoutTemplateCategory',
+				'CMSMS\TemplateQuery' => 'CmsLayoutTemplateQuery',
+				'CMSMS\TemplateType' => 'CmsLayoutTemplateType',
 				'CMSMS\Module' => 'CMSModule',	//mebbe not this one ?
 				'CMSMS\ModuleContentType' => 'CMSModuleContentType',
-//				'CMSMS\Nls' => 'CmsNls',
-//				'CMSMS\NlsOperations' => 'CmsNlsOperations',
 				'CMSMS\Permission' => 'CmsPermission',
 				'CMSMS\Route' => 'CmsRoute',
 				'CMSMS\RouteOperations' => 'cms_route_manager',
 				'CMSMS\Siteprefs' => 'cms_siteprefs',
-//				'CMSMS\ThemeBase' => 'CmsAdminThemeBase',
 				'CMSMS\Tree' => 'cms_tree',
 				'CMSMS\TreeOperations' => 'cms_tree_operations',
 				'CMSMS\Url' => 'cms_url',

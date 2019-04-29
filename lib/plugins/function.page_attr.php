@@ -46,7 +46,7 @@ function smarty_function_page_attr($params, $template)
 	if( $contentobj && $key ) {
 		switch( $key ) {
 		case '_dflt_':
-			$result = $contentobj->GetPropertyValue('content_en');
+			$result = $contentobj->GetContent(); // i.e. content_en
 			break;
 
 		case 'alias':
@@ -67,7 +67,7 @@ function smarty_function_page_attr($params, $template)
 			$result = $contentobj->TitleAttribute();
 			break;
 
-		case 'created_date':
+		case 'create_date':
 			$result = $contentobj->GetCreationDate();
 			if( $result < 0 ) $result = null;
 			break;

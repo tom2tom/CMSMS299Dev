@@ -20,6 +20,7 @@
 
 use CMSMS\Events;
 use CMSMS\Layout\TemplateTypeAssistant;
+use CMSMS\LockOperations;
 use CMSMS\TemplateOperations;
 
 /**
@@ -34,6 +35,7 @@ class CmsLayoutTemplateType
 {
 	/**
 	 * This constant indicates a core template-type
+	 * @see also CmsLayoutTemplate::CORE
 	 */
 	const CORE = '__CORE__';
 
@@ -71,6 +73,9 @@ class CmsLayoutTemplateType
 	 * @ignore
 	 */
 	private $_assistant;
+
+	private static $_lock_cache;
+	private static $_lock_cache_loaded = false;
 
 	/**
 	 * Get the template-type id
@@ -223,23 +228,43 @@ class CmsLayoutTemplateType
 	}
 
 	/**
-	 * Get the creation time of this template-type.
+	 * Get the timestamp for when this template-type was first saved
+	 * @since 2.3
 	 *
 	 * @return mixed Unix timestamp, or null if this object has not been saved.
 	 */
-	public function get_create_date()
+	public function get_created()
 	{
-		return $this->_data['created'] ?? null;
+		$str = $this->_data['create_date'] ?? '';
+		return ($str) ? cms_to_stamp($str) : null;
 	}
 
 	/**
-	 * Get the modification time of this template-type.
+	 * @deprecated since 2.3 use get_created()
+	 */
+	public function get_create_date()
+	{
+		return $this->get_created();
+	}
+
+	/**
+	 * Get the timestamp for when this template-type was last saved.
+	 * @since 2.3
 	 *
 	 * @return mixed Unix timestamp, or null if this object has not been saved.
 	 */
+	public function get_modified()
+	{
+		$str = $this->_data['modified_date'] ?? '';
+		return ($str) ? cms_to_stamp($str) : $this->get_created();
+	}
+
+	/**
+	 * @deprecated since 2.3 use get_modified()
+	 */
 	public function get_modified_date()
 	{
-		return $this->_data['modified'] ?? null;
+		return $this->get_modified();
 	}
 
 	/**
@@ -356,6 +381,62 @@ class CmsLayoutTemplateType
 	}
 
 	/**
+ 	* @ignore
+ 	*/
+ 	private static function get_locks() : array
+ 	{
+ 		if( !self::$_lock_cache_loaded ) {
+ 			self::$_lock_cache = [];
+ 			$tmp = LockOperations::get_locks('templatetype');
+ 			if( $tmp ) {
+ 				foreach( $tmp as $one ) {
+ 					self::$_lock_cache[$one['oid']] = $one;
+ 				}
+ 			}
+ 			self::$_lock_cache_loaded = true;
+ 		}
+ 		return self::$_lock_cache;
+ 	}
+
+	/**
+ 	* Get any applicable lock for this template-type object
+	* @since 2.3
+ 	*
+ 	* @return mixed Lock | null
+ 	* @see Lock
+ 	*/
+ 	public function get_lock()
+ 	{
+ 		$locks = self::get_locks();
+ 		return $locks[$this->get_id()] ?? null;
+ 	}
+
+    /**
+ 	* Test whether this template-type object currently has a lock
+	* @since 2.3
+ 	*
+ 	* @return bool
+ 	*/
+ 	public function locked()
+ 	{
+ 		$lock = $this->get_lock();
+ 		return is_object($lock);
+ 	}
+
+    /**
+ 	* Test whether any lock associated with this object has expired
+	* @since 2.3
+ 	*
+ 	* @return bool
+ 	*/
+ 	public function lock_expired()
+ 	{
+ 		$lock = $this->get_lock();
+ 		if( is_object($lock) ) return $lock->expired();
+ 		return false;
+ 	}
+
+	/**
 	 * Validate the integrity of a template-type object.
 	 *
 	 * This method will check the contents of the object for validity,
@@ -379,15 +460,16 @@ class CmsLayoutTemplateType
 
 			// check for item with the same name
 			$db = CmsApp::get_instance()->GetDb();
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ? AND name = ? AND id != ?';
+			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
+			' WHERE originator = ? AND name = ? AND id != ?';
 			$dbr = $db->GetOne($query,[$this->get_originator(),$this->get_name(),$this->get_id()]);
 			if( $dbr ) throw new CmsInvalidDataException('A template-type named \''.$this->get_name().'\' already exists.');
 		}
 		else {
 			// check for item with the same name
 			$db = CmsApp::get_instance()->GetDb();
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.'
-				WHERE originator = ? AND name = ?';
+			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
+			' WHERE originator = ? AND name = ?';
 			$dbr = $db->GetOne($query,[$this->get_originator(),$this->get_name()]);
 			if( $dbr ) throw new CmsInvalidDataException('A template-type named \''.$this->get_name().'\' already exists.');
 		}
@@ -437,8 +519,8 @@ class CmsLayoutTemplateType
 
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.
-' (originator,name,has_dflt,one_only,dflt_contents,description,lang_cb,help_content_cb,dflt_content_cb,requires_contentblocks,owner,created,modified)
-VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
+' (originator,name,has_dflt,one_only,dflt_contents,description,lang_cb,help_content_cb,dflt_content_cb,requires_contentblocks,owner)
+VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 		$dbr = $db->Execute($query,[
 			$this->get_originator(),
 			$this->get_name(),
@@ -451,7 +533,6 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			$cbc,
 			$this->get_content_block_flag() ? 1 : 0,
 			$this->get_owner(),
-			$now,$now
 ]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
@@ -474,7 +555,6 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	{
 		if( !$this->_dirty ) return;
 		$this->validate(FALSE);
-		$now = time();
 
 		$cbl = $this->get_lang_callback();
 		if( $cbl ) {
@@ -516,8 +596,7 @@ lang_cb = ?,
 help_content_cb = ?,
 dflt_content_cb = ?,
 requires_contentblocks = ?,
-owner = ?,
-modified = ?
+owner = ?
 WHERE id = ?';
 		$dbr = $db->Execute($query,[
 			$this->get_originator(),
@@ -531,7 +610,6 @@ WHERE id = ?';
 			$cbc,
 			$this->get_content_block_flag() ? 1 : 0,
 			$this->get_owner(),
-			$now,
 			$this->get_id()
 		]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->ErrorMsg());
@@ -780,9 +858,8 @@ WHERE id = ?';
 				$row = $db->GetRow($query,[trim($tmp[0]),trim($tmp[1])]);
 			}
 		}
-		if( !$row ) throw new CmsDataNotFoundException('Could not find template-type identified by '.$val);
-
-		return self::_load_from_data($row);
+		if( $row ) return self::_load_from_data($row);
+		throw new CmsDataNotFoundException('Could not find template-type identified by '.$val);
 	}
 
 	/**
@@ -801,7 +878,7 @@ WHERE id = ?';
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ?';
 		if( self::$_cache ) $query .= ' AND id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
-		$query .= ' ORDER BY modified DESC';
+		$query .= ' ORDER BY modified_date DESC, create_date DESC';
 		$list = $db->GetArray($query,[$originator]);
 		if( !$list ) return;
 
@@ -826,7 +903,7 @@ WHERE id = ?';
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		if( self::$_cache && count(self::$_cache) ) $query .= ' WHERE id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
-		$query .= '	ORDER BY modified ASC';
+		$query .= '	ORDER BY modified_date,create_date';
 		$list = $db->GetArray($query);
 		if( !$list ) return;
 
@@ -888,8 +965,8 @@ WHERE id = ?';
 	{
 		if( !$this->_assistant ) {
 			$classnames = [];
-			$classnames[] = '\\CMSMS\\internal\\'.$this->get_originator().$this->get_name().'_Type_Assistant';
-			$classnames[] = '\\CMSMS\\Layout\\'.$this->get_originator().$this->get_name().'_Type_Assistant';
+			$classnames[] = 'CMSMS\\internal\\'.$this->get_originator().$this->get_name().'_Type_Assistant';
+			$classnames[] = 'CMSMS\\Layout\\'.$this->get_originator().$this->get_name().'_Type_Assistant';
 			$classnames[] = $this->get_originator().'_'.$this->get_name().'_Type_Assistant';
 			foreach( $classnames as $cn ) {
 				if( class_exists($cn) ) {

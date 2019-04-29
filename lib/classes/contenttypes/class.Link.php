@@ -18,17 +18,13 @@
 
 namespace CMSMS\contenttypes;
 
-use CMSMS\ContentBase;
-use function check_permission;
-use function cms_htmlentities;
-use function get_userid;
-use function lang;
+use CMSMS\contenttypes\ContentBase;
 
 /**
  * Implements the Link content type
  *
- * Links are content objects that appear in navigations and implement a link to an externl
- * page or site.
+ * Links are content objects that appear in navigations and implement a
+ * link to an external page or site.
  *
  * @package CMS
  * @subpackage content_types
@@ -36,88 +32,28 @@ use function lang;
  */
 class Link extends ContentBase
 {
-	public function FriendlyName() { return lang('contenttype_redirlink'); }
-	public function HasSearchableContent() { return false; }
-	public function IsCopyable() { return true; }
-	public function IsViewable() { return false; }
+	// NOTE any private or static property will not be serialized
 
-	public function SetProperties()
+	/**
+	 * @param mixed $params
+	 */
+	public function __construct($params)
 	{
-		parent::SetProperties([
-			['cachable',true],
-			['secure',false], //deprecated property since 2.3
-	    ]);
-		$this->AddProperty('url',3,self::TAB_MAIN,true,true);
-	}
-
-	public function FillParams($params, $editing = false)
-	{
-		parent::FillParams($params,$editing);
-
-		if (isset($params)) {
-			$parameters = ['url'];
-			foreach ($parameters as $oneparam) {
-				if (isset($params[$oneparam])) $this->SetPropertyValue($oneparam, $params[$oneparam]);
-			}
-
-			if (isset($params['file_url'])) $this->SetPropertyValue('url', $params['file_url']);
+		parent::__construct($params);
+		foreach ([
+			'cachable' => true,
+			'secure' => false, //deprecated property since 2.3
+//redundant	'type' => 'link',
+		] as $key => $value) {
+			$this->$key = $value;
 		}
 	}
 
-	public function TemplateResource() : string
+	public function HasSearchableContent() : bool { return false; }
+
+	public function GetURL(bool $rewrite = true) : string
 	{
-		return ''; //TODO
-	}
-
-	public function ValidateData()
-	{
-		$errors = parent::ValidateData();
-		if( $errors === false )	$errors = [];
-
-		if ($this->GetPropertyValue('url') == '') {
-			$errors[]= lang('nofieldgiven', lang('url'));
-			$result = false;
-		}
-
-		return (count($errors) > 0?$errors:false);
-	}
-
-	public function TabNames()
-	{
-		$res = [lang('main')];
-		if( check_permission(get_userid(),'Manage All Content') ) {
-			$res[] = lang('options');
-		}
-		return $res;
-	}
-
-	public function display_single_element($one, $adding)
-	{
-		switch($one) {
-		case 'url':
-			return [lang('url').':','<input type="text" name="url" size="80" value="'.cms_htmlentities($this->GetPropertyValue('url')).'" />'];
-			break;
-
-		default:
-			return parent::display_single_element($one,$adding);
-		}
-	}
-
-	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
-	{
-		switch($tab) {
-		case '0':
-			return $this->display_attributes($adding);
-			break;
-		case '1':
-			return $this->display_attributes($adding,1);
-			break;
-		}
-	}
-
-	public function GetURL($rewrite = true)
-	{
-		return $this->GetPropertyValue('url');
+		return (string)$this->GetPropertyValue('url');
 		//return cms_htmlentities($this->GetPropertyValue('url'));
 	}
 }

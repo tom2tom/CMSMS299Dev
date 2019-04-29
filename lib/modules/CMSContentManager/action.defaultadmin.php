@@ -156,8 +156,8 @@ $s4 = json_encode($this->Lang('confirm_steal_lock'));
 $s8 = json_encode($this->Lang('confirm_clearlocks'));
 $s5 = json_encode($this->Lang('error_contentlocked'));
 $s9 = json_encode($this->Lang('error_action_contentlocked'));
-$s6 = $this->Lang('submit');
-$s7 = $this->Lang('cancel');
+$s6 = lang('submit');
+$s7 = lang('cancel');
 
 $sm = new ScriptOperations();
 $sm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
@@ -238,7 +238,7 @@ function gethelp(tgt) {
   }
 }
 
-$(document).ready(function() {
+$(function() {
  cms_equalWidth($('#useroptions label.boxchild'));
  cms_busy();
  var pageurl = '$u2',
@@ -398,7 +398,7 @@ if ($out) {
 
 $pmod = $this->CheckPermission('Manage All Content');
 $opts = ($pmod) ?
-    ['' => $this->Lang('none'),
+    ['' => lang('none'),
     'DESIGN_ID' => $this->Lang('prompt_design'),
     'TEMPLATE_ID' => $this->Lang('prompt_template'),
     'OWNER_UID' => $this->Lang('prompt_owner'),
@@ -415,9 +415,9 @@ $tpl->assign('ajax',$ajax)
  ->assign('pagelimit',$pagelimit)
  ->assign('locking',Utils::locking_enabled())
 // get a list of admin users
- ->assign('user_list',UserOperations::get_instance()->GetList())
+ ->assign('user_list',(new UserOperations())->GetList())
 // get a list of designs
- ->assign('design_list',CmsLayoutCollection::get_list())
+// ->assign('design_list',CmsLayoutCollection::get_list())  TODO replacement :: stylesheets and/or groups
 // get a list of templates
  ->assign('template_list',TemplateOperations::template_query(['as_list'=>1]));
 

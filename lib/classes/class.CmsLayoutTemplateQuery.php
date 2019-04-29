@@ -24,9 +24,10 @@ use CMSMS\TemplateOperations;
  * A class to represent a template query and its results.
  * This class accepts in its constructor an array or comma-separated string of filter arguments.
  * Acceptable filter-array keys (optional content in []):
- *  c[ategory]:## - A template category id
+ *  c[ategory]:## - A template group id
  *  d[esign]:##   - A design id
  *  e[ditable]:## - An additional editor id
+ *  g[roup]:##    - A template group id
  *  i[dlist]:##,##,## - A sequence of template id's
  *  l[istable]:#  - A boolean (1 or 0) indicating listable or not
  *  o[riginator]:string - The originator name (module-name or 'core')
@@ -34,7 +35,7 @@ use CMSMS\TemplateOperations;
  *  u[ser]:##     - A template owner id
  *  offset        - Offset (>= 0) of first record to return Default 0
  *  limit         - Maximum no. (1...1000) of records to return Default 1000
- *  sortby        - Field name 'id' 'name' 'created' 'modified' 'type' Default 'id'
+ *  sortby        - Field name 'id' 'name' 'create_date' 'modified_date' 'type' Default 'id'
  *  sortorder     - ASC or DESC (any case)  Default ASC
  *  any number    - shortform like K:value, where K is one of the designators c..u above
  *
@@ -47,7 +48,7 @@ use CMSMS\TemplateOperations;
  * @since 2.0
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @see CmsDbQueryBase
- * @property string $sortby The sorting field for the returned results.  Possible values are: id,name,created,modified,type.  The default is to sort by template name.';
+ * @property string $sortby The sorting field for the returned results.  Possible values are: id,name,create_date,modified_date,type.  The default is to sort by template name.';
  * @property string $sortorder The sorting order for the returned results.  Possible values are: ASC,DESC.  The default is ASC.
  */
 class CmsLayoutTemplateQuery extends CmsDbQueryBase
@@ -95,18 +96,15 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 		foreach ($this->_args as $key => $val) {
 			if (is_numeric($key) && $val[1] == ':') {
 				list($key, $second) = explode(':', $val, 2);
+			} else {
+				$second = $val;
 			}
 
 			switch (strtolower($key)) {
 			  case 'o':
 			  case 'originator':
 				$second = trim($second);
-				$q2 = 'SELECT id FROM '.$tbl2 .' WHERE originator = ?';
-				$typelist = $db->GetCol($q2, [$second]);
-				if (!count($typelist)) {
-					$typelist = [-999]; // this won't match anything
-				}
-				$where['type'][] = 'type_id IN ('.implode(',', $typelist).')';
+				$where['originator'][] = 'originator = '.$db->qStr($second);
 				break;
 
 			  case 'i':
@@ -130,32 +128,34 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 			  case 't':
 			  case 'type':
 				$second = (int)$second;
-				$where['type'][] = 'type_id = '.$db->qstr($second);
+				$where['type'][] = 'type_id = '.$db->qStr($second);
 				$typejoin = true;
 				break;
 
+			  case 'g':
+			  case 'group':
 			  case 'c':
 			  case 'category':
 				$second = (int)$second;
-				$where['category'][] = 'category_id = '.$db->qstr($second);
+				$where['group'][] = 'group_id = '.$db->qStr($second);
 				$catjoin = true;
 				break;
-
+/*
 			  case 'd':
 			  case 'design':
 				// find all the templates in design: d
-				$q2 = 'SELECT tpl_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE design_id = ?';
+				$q2 = 'SELECT tpl_id FROM '.CMS_DB_PREFIX.DesignManager\Design::TPLTABLE.' WHERE design_id = ?'; DISABLED
 				$tpls = $db->GetCol($q2, [(int)$second]);
 				if (!count($tpls)) {
 					$tpls = [-999]; // this won't match anything
 				}
 				$where['design'][] = 'id IN ('.implode(',', $tpls).')';
 				break;
-
+*/
 			  case 'u':
 			  case 'user':
 				$second = (int)$second;
-				$where['user'][] = 'owner_id = '.$db->qstr($second);
+				$where['user'][] = 'owner_id = '.$db->qStr($second);
 				break;
 
 			  case 'e':
@@ -293,7 +293,8 @@ AS tmp1';
 		if (!$this->_rs) {
 			throw new CmsLogicException('Cannot get template from invalid template query object');
 		}
-		return TemplateOperations::get_template($this->fields['id']);
+		$id = $this->_rs->fields('id');
+		return TemplateOperations::get_template((int)$id);
 	}
 	/**
 	 * Get the list of matched template id's
@@ -312,7 +313,8 @@ AS tmp1';
 
 		$out = [];
 		while (!$this->EOF()) {
-			$out[] = $this->fields['id'];
+			$id = $this->_rs->fields('id');
+			$out[] = (int)$id;
 			$this->MoveNext();
 		}
 		$this->_rs->MoveFirst();
@@ -324,7 +326,7 @@ AS tmp1';
 	 *
 	 * This method calls the execute method
 	 *
-	 * @return mixed array of CmsLayoutTemplate objects | null
+	 * @return mixed array of CmsLayoutTemplate object(s) | null
 	 */
 	public function GetMatches()
 	{

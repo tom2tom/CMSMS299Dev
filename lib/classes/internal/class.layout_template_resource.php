@@ -19,31 +19,46 @@
 namespace CMSMS\internal;
 
 use cms_utils;
-use CmsLayoutTemplate;
-use Exception;
+use CmsApp;
 use Smarty_Resource_Custom;
-use stdClass;
+use const CMS_ASSETS_PATH;
+use const CMS_DB_PREFIX;
 use function cms_error;
+use function cms_join_path;
+use function cms_to_stamp;
 use function startswith;
 
 /**
  * A class for handling layout templates as a resource.
  *
- * Handles numeric and string template names, suffixes ;top ;head or ;body.
+ * Handles file- and database-sourced content, numeric and string template identifiers,
+ * suffixes ;top ;head and/or ;body (whether or not such sections are relevant to the template).
  *
  * @package CMS
- * @author Robert Campbell
  * @internal
  * @ignore
- *
+ * @author Robert Campbell
  * @since 1.12
  */
 class layout_template_resource extends Smarty_Resource_Custom
 {
 	/**
-	 * @param string $name  resource-file path, optionally with trailing ';[section]'
-	 * @param type $source  store for retrieved file content
-	 * @param int $mtime    store for file modification timestamp
+	 * @ignore
+	 */
+	private static $db;
+	/**
+	 * @ignore
+	 */
+	private static $stmt;
+	/**
+	 * @ignore
+	 */
+	private static $loaded = [];
+
+	/**
+	 * @param string $name  template identifier (name or id), optionally with trailing ';[section]'
+	 * @param mixed $source store for retrieved template content, if any
+	 * @param int $mtime    store for retrieved template modification timestamp
 	 */
 	protected function fetch($name,&$source,&$mtime)
 	{
@@ -52,46 +67,85 @@ class layout_template_resource extends Smarty_Resource_Custom
 			$mtime = time(); // never cache...
 			return;
 		}
-		else if( startswith($name,'appdata;') ) {
+		elseif( startswith($name,'appdata;') ) {
 			$name = substr($name,8);
 			$source = cms_utils::get_app_data($name);
 			$mtime = time();
 			return;
 		}
 
-		$source = '';
-		$mtime = 0;
 		$parts = explode(';',$name,2);
 		$name = $parts[0];
 
-		try {
-			$obj = LayoutTemplateOperations::load_template($name);
-			if( $obj ) {
-				$content = $obj->get_content();
-				$mtime = $obj->get_modified();
-			}
-			else return;
+		if( isset(self::$loaded[$name]) ) {
+			$data = self::$loaded[$name];
 		}
-		catch( Exception $e ) {
-			cms_error('Missing template: '.$name);
-			return;
+		else {
+			if( !self::$db ) {
+				self::$db = CmsApp::get_instance()->GetDb();
+				self::$stmt = self::$db->Prepare('SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR name=?');
+			}
+			$rst = self::$db->Execute(self::$stmt,[$name,$name]);
+			if( !$rst || $rst->EOF() ) {
+				if( $rst ) $rst->Close();
+				cms_error('Missing template: '.$name);
+				$mtime = false;
+				return;
+			}
+			else {
+				$data = $rst->FetchRow();
+				$rst->Close();
+				self::$loaded[$data['id']] = $data;
+				self::$loaded[$data['name']] = &$data;
+				if( $data['contentfile'] ) {
+					$fp = cms_join_path(CMS_ASSETS_PATH,'templates',$data['content']);
+					$lvl = error_reporting();
+					error_reporting(0);
+					if( is_readable($fp) && is_file($fp) ) {
+						$data['content'] = file_get_contents($fp);
+					}
+					else {
+						$data['content'] = "'{* Template file $fp is missing *}";
+					}
+					error_reporting($lvl);
+				}
+			}
 		}
 
-		$section = $parts[1] ?? null;
+		if( !empty($data['modified_date']) ) {
+			$mtime = cms_to_stamp($data['modified_date']);
+		}
+		elseif( !empty($data['create_date']) ) {
+			$mtime = cms_to_stamp($data['create_date']);
+		}
+		else {
+			$mtime = 1; // not falsy
+		}
+		$content = $data['content'];
+
+		$section = $parts[1] ?? '';
 		switch( trim($section) ) {
 		case 'top':
 			$pos1 = stripos($content,'<head');
 			$pos2 = stripos($content,'<header');
-			if( $pos1 === FALSE || $pos1 == $pos2 ) return;
-			$source = trim(substr($content,0,$pos1));
+			if( $pos1 === FALSE || $pos1 == $pos2 ) {
+				$source = '';
+			}
+			else {
+				$source = trim(substr($content,0,$pos1));
+			}
 			return;
 
 		case 'head':
 			$pos1 = stripos($content,'<head');
 			$pos1a = stripos($content,'<header');
 			$pos2 = stripos($content,'</head>');
-			if( $pos1 === FALSE || $pos1 == $pos1a || $pos2 === FALSE ) return;
-			$source = trim(substr($content,$pos1,$pos2-$pos1+7));
+			if( $pos1 === FALSE || $pos1 == $pos1a || $pos2 === FALSE ) {
+				$source = '';
+			}
+			else {
+				$source = trim(substr($content,$pos1,$pos2-$pos1+7));
+			}
 			return;
 
 		case 'body':
