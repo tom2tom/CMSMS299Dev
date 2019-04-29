@@ -23,32 +23,39 @@ use CMSMS\Lock;
 use CMSMS\LockOperations;
 
 $handlers = ob_list_handlers();
-for ($cnt = 0; $cnt < count($handlers); $cnt++) { ob_end_clean(); }
+for ($cnt = 0, $n = count($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
+
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+
 $ruid = get_userid(FALSE);
-if( !$ruid ) return;
+if( !$ruid ) {
+	return;
+}
 
 $fh = fopen('php://input','r');
 $txt = fread($fh,8192);
-$data = null;
 if( $txt ) {
     $data = json_decode($txt,TRUE);
+} else {
+    $data = null;
 }
 if( !is_array($data) ) {
     $data = $_REQUEST;
 }
-
 $opt = get_parameter_value($data,'opt','setup');
 $type = get_parameter_value($data,'type');
 $oid = get_parameter_value($data,'oid');
 $uid = get_parameter_value($data,'uid');
 $lock_id = get_parameter_value($data,'lock_id');
-$lifetime = (int) get_parameter_value($data,'lifetime',cms_siteprefs::get('lock_timeout',60));
-
+$lifetime = (int) get_parameter_value($data,'lifetime',0);
+if( $lifetime == 0 ) {
+    $lifetime = cms_siteprefs::get('lock_timeout',60);
+}
 $out = [];
 $out['status'] = 'success';
+
 try {
   switch( $opt ) {
   case 'setup':
@@ -70,6 +77,7 @@ try {
   case 'is_locked': // alias for check
   case 'check':
       if( !$type ) throw new CmsInvalidDataException(lang('missingparams'));
+	  //TODO handle case where lock held by supplied uid
       if( $oid ) {
           $out['lock_id'] = LockOperations::is_locked($type,$oid) ? 1 : 0;
       }
@@ -85,7 +93,6 @@ try {
       if( $uid != $ruid ) throw new CmsLockOwnerException(lang('CMSEX_L006'));
 
       // see if we can get this lock... if we can, it's just a touch
-      $lock = null;
       try {
           $lock = Lock::load($type,$oid,$uid);
       }
