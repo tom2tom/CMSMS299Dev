@@ -14,16 +14,24 @@
     <th title="{lang_by_realm('layout','title_group_id')}">{lang_by_realm('layout','prompt_id')}</th>
     <th title="{lang_by_realm('layout','title_group_name')}">{lang_by_realm('layout','prompt_name')}</th>
     <th title="{lang_by_realm('layout','title_group_members')}">{lang_by_realm('layout','members')}</th>
-    <th class="pageicon"></th>{* menu *}
+    <th class="pageicon"></th>{* locks/menu *}
   </tr>
  </thead>
  <tbody>
   {foreach $list_groups as $group}{$gid=$group->get_id()}{$url="edittplgroup.php`$urlext`&grp=`$gid`"}
-  <tr class="{cycle values='row1,row2'} sortable-table" id="grp_{$gid}">
-    <td><a href="{$url}" title="{lang_by_realm('layout','prompt_edit')}">{$gid}</a></td>
+  {cycle values='row1,row2' assign='rowclass'}
+  <tr class="{$rowclass}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">		  
+    <td><a href="{$url}" title="{lang_by_realm('layout','prompt_edit')}">{$gid}</a></td>{/strip}
     <td><a href="{$url}" title="{lang_by_realm('layout','prompt_edit')}">{$group->get_name()}</a></td>
     <td>{$group->get_members_summary()}</td>
-    <td><span context-menu="Templategroup{$gid}">{admin_icon icon='menu.gif' alt='menu' title=lang_by_realm('layout','title_menu') class='systemicon'}</span></td>
+    <td>
+      {$ul=!$group->locked()}
+      {$t=lang_by_realm('layout','prompt_locked')}
+      <span class="locked" data-grp-id="{$gid}" title="{$t}"{if $ul} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
+      {$t=lang_by_realm('layout','prompt_steal_lock')}
+      <a class="steal_lock" href="{$url}&amp;steal=1" data-grp-id="{$gid}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
+      <span class="action" context-menu="Templategroup{$gid}"{if !$ul} style="display:none;"{/if}>{admin_icon icon='menu.gif' alt='menu' title=lang_by_realm('layout','title_menu') class='systemicon'}</span>
+    </td>{/strip}
   </tr>
     {/foreach}
  </tbody>

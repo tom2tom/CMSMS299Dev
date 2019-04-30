@@ -28,5 +28,39 @@ if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) 
 $handlers = ob_list_handlers();
 for( $i = 0, $n = count($handlers); $i < $n; ++$i ) { ob_end_clean(); }
 
-echo 'TODO';
+$userid = get_userid();
+$lock_timeout = cms_siteprefs::get('lock_timeout');
+$now = time();
+
+$list = LockOperations::get_locks('stylesheet');
+$locks1 = [];
+foreach( $list as $lock ) {
+    if( $lock['uid'] != $userid) {
+    	$id = $lock['oid'];
+    	if( $lock_timeout && $lock['expires'] < $now ) {
+    		$locks1[$id] = 1; // stealable
+    	} else { 
+    	    $locks1[$id] = -1; // blocked
+    	}
+   	}
+}
+
+$list = LockOperations::get_locks('stylesheetgroup');
+$locks2 = [];
+foreach( $list as $lock ) {
+    if( $lock['uid'] != $userid) {
+    	$id = $lock['oid'];
+    	if( $lock_timeout && $lock['expires'] < $now ) {
+    		$locks2[$id] = 1;
+    	} else { 
+    	    $locks2[$id] = -1;
+    	}
+    }
+}
+
+$out = json_encode([
+    'sheets' => $locks1,
+    'groups' => $locks2,
+], JSON_NUMERIC_CHECK+JSON_FORCE_OBJECT);
+echo $out;
 exit;
