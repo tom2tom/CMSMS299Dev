@@ -52,11 +52,22 @@ function redirect(string $to)
         $to .= $components['host'] ?? $host;
         $to .= isset($components['port']) ? ':' . $components['port'] : '';
         if (isset($components['path'])) {
-            if (in_array(substr($components['path'],0,1),['\\','/'])) {
-                //Path is absolute, just append.
+            //support sub-domains
+            if (substr_count($components['path'], '.', 1) > 1) { 
+                $parts = explode('.', $components['path']);
+                if (end($parts) == 'php') {
+                    array_pop($parts);
+                    $components['path'] = implode('/',$parts).'.php';
+                }
+                else {
+                    $components['path'] = implode('/',$parts);
+                }
+            }
+            if (in_array($components['path'][0],['\\','/'])) {
+                //path is absolute, just append
                 $to .= $components['path'];
             }
-            //Path is relative, append current directory first.
+            //path is relative, append current directory first
             elseif (isset($_SERVER['PHP_SELF']) && !is_null($_SERVER['PHP_SELF'])) { //Apache
                 $to .= (strlen(dirname($_SERVER['PHP_SELF'])) > 1 ?  dirname($_SERVER['PHP_SELF']).'/' : '/') . $components['path'];
             }
@@ -1094,12 +1105,12 @@ function cms_to_stamp($datetime) : int
         if ($dt === null) {
             $dt = new DateTime('@0', null);
         }
-		try {
-			$dt->modify($datetime);
-			return $dt->getTimestamp();
-		} catch (Throwable $t) {
-			// nothing here
-		}
+        try {
+            $dt->modify($datetime);
+            return $dt->getTimestamp();
+        } catch (Throwable $t) {
+            // nothing here
+        }
     }
     return 1; // anything not falsy
 }
