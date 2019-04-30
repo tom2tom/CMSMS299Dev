@@ -86,10 +86,12 @@ $lang['help_template_name'] = 'Specify a name for this template.  The name must 
 $lang['help_template_no_designs'] = 'This template is not assigned to any designs';
 
 //I
+//$lang['info_css_content_file'] = 'If authorized, you can also edit the content of this stylesheet by working directly on file <strong>&lt;website root folder&gt;%s</strong>.';
 $lang['import_design_step1'] = 'Import Design Step 1';
 $lang['import_design_step2'] = 'Import Design Step 2';
 $lang['import_design'] = 'Import Design';
 $lang['import'] = 'Import';
+$lang['info_designs'] = 'A design is a container for template(s) and/or stylesheet(s). Its purpose is to facilitate sharing of its contents, to help propagate those aspects of the website look-and-feel. So designs are for site developers and maintainers. Designs have no direct role in the operation of any site.';
 $lang['info_edittemplate_stylesheets_tab'] = 'To add stylesheets to the design, drag them from the \'Other\' box and drop them into the \'Included\' box. To remove stylesheets, drag-and-drop in the reverse direction. If useful (for appearance only) re-order stylesheets by drag-and-drop within a box. When finalized, hit Apply or Submit.';
 $lang['info_edittemplate_templates_tab'] = 'To add templates to the design, drag them from the \'Other\' box and drop them into the \'Included\' box. To remove templates, drag-and-drop in the reverse direction. If useful (for appearance only) re-order templates by drag-and-drop within a box. When finalized, hit Apply or Submit.';
 $lang['info_import_xml_step1'] = 'Step 1: Choose a (XML) design-file to import';
