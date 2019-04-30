@@ -141,11 +141,11 @@ class Smarty extends SmartyParent
             // Load resources
             $this->registerResource('content',new content_resource())
                  ->setDefaultResourceType('content');
-            $this->registerPlugin('compiler','content','\\CMSMS\\internal\\page_template_parser::compile_fecontentblock',false)
-                 ->registerPlugin('function','content_image','\\CMSMS\\internal\\content_plugins::fetch_imageblock',true)
-                 ->registerPlugin('function','content_module','\\CMSMS\\internal\\content_plugins::fetch_moduleblock',true)
-                 ->registerPlugin('function','content_text','\\CMSMS\\internal\\content_plugins::fetch_textblock',true)
-                 ->registerPlugin('function','process_pagedata','\\CMSMS\\internal\\content_plugins::fetch_pagedata',false);
+            $this->registerPlugin('compiler','content','CMSMS\\internal\\page_template_parser::compile_fecontentblock',false)
+                 ->registerPlugin('function','content_image','CMSMS\\internal\\content_plugins::fetch_imageblock',true)
+                 ->registerPlugin('function','content_module','CMSMS\\internal\\content_plugins::fetch_moduleblock',true)
+                 ->registerPlugin('function','content_text','CMSMS\\internal\\content_plugins::fetch_textblock',true)
+                 ->registerPlugin('function','process_pagedata','CMSMS\\internal\\content_plugins::fetch_pagedata',false);
 
             // Autoload filters
             $this->autoloadFilters();
@@ -153,7 +153,7 @@ class Smarty extends SmartyParent
             $config = cms_config::get_instance();
             if( !$config['permissive_smarty'] ) {
                 // Apply our security object
-                $this->enableSecurity('\\CMSMS\\internal\\smarty_security_policy');
+                $this->enableSecurity('CMSMS\\internal\\smarty_security_policy');
             }
         }
         elseif( $_gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
@@ -264,20 +264,18 @@ class Smarty extends SmartyParent
             return;
         }
 
-        // check if it's a recorded module-plugin
+        // check if it's a module-plugin (tabled or not)
 //        if( CmsApp::get_instance()->is_frontend_request() ) {
             $row = ModulePluginOperations::load_plugin($name,$type);
             if( $row && is_callable($row['callback']) ) {
                 $callback = $row['callback'];
 				//deprecated from 2.3 We should assume cachable and override that in templates where needed
-				//Otherwise, module-cachability is opaque to builders
+				//Otherwise, module-cachability is opaque to page-builders
                 $cachable = !empty($row['cachable']);
                 return true;
             }
 
-        // TODO maybe check for another module-plugin, return $name.'::function_plugin'
-
-        // check if it is a user-plugin
+        // check if it's a user-plugin
             try {
                 $callback = (new UserPluginOperations())->load_plugin( $name );
 //DEBUG                $cachable = false;
