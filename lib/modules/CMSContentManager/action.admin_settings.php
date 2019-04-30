@@ -17,7 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSContentManager\Utils;
-use CMSMS\ContentBase;
+use CMSContentManager\ContentBase;
 use CMSMS\ContentOperations;
 use CMSMS\TemplateOperations;
 
@@ -61,10 +61,10 @@ $tmp = explode(',',$this->GetPreference('list_visiblecolumns',$dflts));
 $tpl->assign('list_visiblecolumns',$tmp);
 
 // pagedefaults tab
-
+$realm = $this->GetName();
 $tpl->assign('page_prefs',Utils::get_pagedefaults())
- ->assign('all_contenttypes',ContentOperations::get_instance()->ListContentTypes(false,false))
- ->assign('design_list',CmsLayoutCollection::get_list())
+ ->assign('all_contenttypes',ContentOperations::get_instance()->ListContentTypes(false,false,false,$realm))
+// ->assign('design_list',CmsLayoutCollection::get_list()) TODO replacement stylesheets and/or groups
  ->assign('template_list',TemplateOperations::template_query(['as_list'=>1]))
  ->assign('addteditor_list',ContentBase::GetAdditionalEditorOptions());
 
