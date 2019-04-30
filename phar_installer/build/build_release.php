@@ -538,7 +538,7 @@ try {
             $arr = installer_base::CONTENTFILESDIR;
             $filesin = joinpath($phardir, ...$arr);
             $db = CmsApp::get_instance()->GetDb();
-            require_once joinpath($phardir,'lib','iosite.functions.php');
+            require_once joinpath($phardir,'lib','install','iosite.functions.php');
             verbose(1, "INFO: export site content to $xmlfile");
             export_content($xmlfile, $filesin, $db);
         }

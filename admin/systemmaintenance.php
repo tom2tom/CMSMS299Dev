@@ -196,7 +196,8 @@ if (isset($_POST['addaliases'])) {
             $count++;
         }
     }
-    audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
+    $stmt->close();
+	audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
     $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_aliasesfixed'));
     $smarty->assign('active_content', 1);
 }
@@ -214,6 +215,7 @@ if (isset($_POST['fixtypes'])) {
         }
     }
 
+    $stmt->close();
     audit('', 'System maintenance', 'Converted pages with invalid content types, count:' . $count);
     $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_typesfixed'));
     $smarty->assign('active_content', 1);
@@ -269,7 +271,7 @@ if ($exportable && isset($_POST['export'])) {
     $arr = installer_base::CONTENTXML;
     $xmlfile = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
 
-    include cms_join_path(CMS_ROOT_PATH,'phar_installer','assets','install','iosite.functions.php');
+    include cms_join_path(CMS_ROOT_PATH,'phar_installer','lib','install','iosite.functions.php');
     export_content($xmlfile, $filesin, $db);
     // also download it
     $handlers = ob_list_handlers();
