@@ -53,7 +53,7 @@ ORDER BY modified_date DESC LIMIT ".((int)$number);
 	while ($dbresult && $updated_page = $dbresult->FetchRow())
 	{
 		$curnode = $hm->find_by_tag('id',$updated_page['content_id']);
-		$curcontent = $curnode->GetContent();
+		$curcontent = $curnode->getContent();
 		$output .= '<li>';
 		$output .= '<a href="'.$curcontent->GetURL().'">'.$updated_page['content_name'].'</a>';
 		if ((FALSE == empty($updated_page['titleattribute'])) && ($showtitle=='true')) {

@@ -164,7 +164,7 @@ function smarty_function_cms_selflink($params, $template)
 			if( !$node ) return;
 			$node = $node->get_parent();
 			if( !$node ) return;
-			$content = $node->GetContent();
+			$content = $node->getContent();
 			if( !$content ) return;
 			$pageid = $content->Id();
 			break;
@@ -177,12 +177,12 @@ function smarty_function_cms_selflink($params, $template)
 
 	if( $pageid == '' ) return;
 
-	// one final check to see if this page exists.
+	// a final check to see if this page exists.
 	$node = $hm->find_by_tag('id',$pageid);
 	if( !$node ) return;
 
 	// get the content object.
-	$content = $node->GetContent();
+	$content = $node->getContent();
 	if( !$content || !is_object($content) || !$content->Active() || !$content->HasUsableLink() ) return;
 
 	// get our raw display data
@@ -292,4 +292,3 @@ function smarty_cms_help_function_cms_selflink()
 {
 	echo lang_by_realm('tags','help_function_cms_selflink');
 }
-
