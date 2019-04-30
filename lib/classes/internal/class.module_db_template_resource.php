@@ -42,6 +42,7 @@ class module_db_template_resource extends Smarty_Resource_Custom
 
     /**
      * @ignore
+	 * TODO cleanup when done 
      */
     private static $stmt;
 

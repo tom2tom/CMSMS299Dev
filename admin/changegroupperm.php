@@ -206,6 +206,7 @@ VALUES (?,?,?,$now,$now)");
         }
     }
 
+    $stmt->close();
     // put mention into the admin log
     audit($userid, 'Permission Group ID: '.$userid, 'Changed');
     $message = lang('permissionschanged');

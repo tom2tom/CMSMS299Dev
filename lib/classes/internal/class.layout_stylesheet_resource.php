@@ -41,10 +41,13 @@ class layout_stylesheet_resource extends Smarty_Resource_Custom //fixed_smarty_c
 	 * @ignore
 	 */
 	private static $db;
+
 	/**
 	 * @ignore
+	 * TODO cleanup when done
 	 */
 	private static $stmt;
+
 	/**
 	 * @ignore
 	 */

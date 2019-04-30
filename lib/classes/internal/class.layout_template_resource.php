@@ -46,10 +46,13 @@ class layout_template_resource extends Smarty_Resource_Custom
 	 * @ignore
 	 */
 	private static $db;
+
 	/**
 	 * @ignore
+	 * TODO cleanup when done
 	 */
 	private static $stmt;
+
 	/**
 	 * @ignore
 	 */

@@ -107,6 +107,7 @@ VALUES (?,?,$now,$now)");
             }
         }
 
+        $stmt->close();
         Events::SendEvent('Core', 'ChangeGroupAssignPost',
             ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
         );

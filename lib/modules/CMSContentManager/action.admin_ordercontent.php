@@ -86,6 +86,7 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
         foreach( $changelist as $rec ) {
             $db->Execute($stmt,[$rec['order'],$rec['parent_id'],$rec['id']]);
         }
+        $stmt->close();
         $contentops = $gCms->GetContentOperations();
         $contentops->SetAllHierarchyPositions();
         audit('','Content','Content pages dynamically reordered');
