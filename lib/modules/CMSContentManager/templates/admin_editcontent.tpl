@@ -7,10 +7,10 @@
 {/if}
 
 {function submit_buttons}
-  <button type="submit" name="{$actionid}submit" title="{$mod->Lang('title_editpage_submit')}" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" title="{$mod->Lang('title_editpage_cancel')}" class="adminsubmit icon cancel" formnovalidate>{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}submit" title="{$mod->Lang('title_editpage_submit')}" class="adminsubmit icon check">{lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" title="{$mod->Lang('title_editpage_cancel')}" class="adminsubmit icon cancel" formnovalidate>{lang('cancel')}</button>
   {if $content_id}
-    <button type="submit" name="{$actionid}apply" title="{$mod->Lang('title_editpage_apply')}" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
+    <button type="submit" name="{$actionid}apply" title="{$mod->Lang('title_editpage_apply')}" class="adminsubmit icon apply">{lang('apply')}</button>
   {/if}
   {if ($content_id != '') && $content_obj->IsViewable() && $content_obj->Active()}
     <a id="viewpage" rel="external" href="{$content_obj->GetURL()}" title="{$mod->Lang('title_editpage_view')}">{admin_icon icon='view.gif' alt=lang('view_page')}</a>
