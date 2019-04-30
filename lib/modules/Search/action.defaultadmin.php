@@ -1,5 +1,21 @@
 <?php
+# Search module action: defaultadmin
+# Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSContentManager\Utils;
 use CMSMS\FormUtils;
 
 if (!isset($gCms)) exit;
@@ -102,11 +118,8 @@ $tpl->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'p
                 $this->CreateInputCheckbox($id,'alpharesults','true',
                                            $this->GetPreference('alpharesults','false')));
 
-$contentops = $gCms->GetContentOperations();
 $tpl->assign('prompt_resultpage',$this->Lang('prompt_resultpage'));
-/*
 $tpl->assign('input_resultpage',
-                $contentops->CreateHierarchyDropdown('',$this->GetPreference('resultpage',-1),$id.'resultpage',1));
-*/
+				Utils::CreateHierarchyDropdown(0,$this->GetPreference('resultpage',-1),$id.'resultpage',true));
 
 $tpl->display();
