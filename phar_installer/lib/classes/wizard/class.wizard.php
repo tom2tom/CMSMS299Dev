@@ -112,6 +112,7 @@ final class wizard
 
     public function cur_step() : int
     {
+        //TODO security check per $this->get_data(self::$_stepvar)
         if( self::$_stepvar && isset($_GET[self::$_stepvar]) ) $val = (int)$_GET[self::$_stepvar];
         else $val = 1;
         return $val;
@@ -175,76 +176,63 @@ final class wizard
     }
 
     /**
+     * Get the url of the specified step index
      * @param mixed $idx numeric 1 .. no. of steps
      * @return string
      */
     public function step_url($idx) : string
     {
-        // get the url to the specified step index
+        $this->_init();
+
         $idx = (int)$idx;
         if( $idx < 1 || $idx > $this->num_steps() ) return '';
 
         $request = request::get_instance();
         $url = $request->raw_server('REQUEST_URI');
         $urlmain = explode('?',$url);
-
-        $parts = [];
-        parse_str($url,$parts);
-        $parts[self::$_stepvar] = $idx;
-
-        $tmp = [];
-        foreach( $parts as $k => $v ) {
-            $tmp[] = $k.'='.$v;
-        }
-        $url = $urlmain[0].'?'.implode('&',$tmp);
+        $url = $urlmain[0].'?'.self::$_stepvar.'='.$idx;
+        $url .= '&'.chr(random_int(97,122)).bin2hex(random_bytes(3)).'='.chr($idx+70); //sorta nonce
+        $this->set_data(self::$_stepvar,$url); //for security check when we get there
         return $url;
     }
 
     /**
+     * Get the url of the next step in numeric order
      * @return string
      */
     public function next_url() : string
     {
         $this->_init();
+
+        $idx = $this->cur_step() + 1;
+        if( $idx > $this->num_steps() ) return '';
+
         $request = request::get_instance();
         $url = $request->raw_server('REQUEST_URI');
         $urlmain = explode('?',$url);
-
-        $parts = [];
-        parse_str($url,$parts);
-        $parts[self::$_stepvar] = $this->cur_step() + 1;
-        if( $parts[self::$_stepvar] > $this->num_steps() ) return '';
-
-        $tmp = [];
-        foreach( $parts as $k => $v ) {
-            $tmp[] = $k.'='.$v;
-        }
-        $url = $urlmain[0].'?'.implode('&',$tmp);
+        $url = $urlmain[0].'?'.self::$_stepvar.'='.$idx;
+        $url .= '&'.chr(random_int(97,122)).bin2hex(random_bytes(3)).'='.chr($idx+70); //sorta nonce
+        $this->set_data(self::$_stepvar,$url); //for security check
         return $url;
     }
 
     /**
+     * Get the url of the previous step in numeric order
      * @return string
      */
     public function prev_url() : string
     {
         $this->_init();
+
+        $idx = $this->cur_step() - 1;
+        if( $idx <= 0 ) return '';
+
         $request = request::get_instance();
         $url = $request->raw_server('REQUEST_URI');
         $urlmain = explode('?',$url);
-
-        $parts = [];
-        parse_str($url,$parts);
-        $parts[self::$_stepvar] = $this->cur_step() - 1;
-        if( $parts[self::$_stepvar] <= 0 ) return '';
-
-        $tmp = [];
-        if( $parts ) {
-            foreach( $parts as $k => $v ) {
-                $tmp[] = $k.'='.$v;
-            }
-        }
-        $url = $urlmain[0].'?'.implode('&',$tmp);
+        $url = $urlmain[0].'?'.self::$_stepvar.'='.$idx;
+        $url .= '&'.chr(random_int(97,122)).bin2hex(random_bytes(3)).'='.chr($idx+70); //sorta nonce
+        $this->set_data(self::$_stepvar,$url); //for security check
         return $url;
     }
 } // class

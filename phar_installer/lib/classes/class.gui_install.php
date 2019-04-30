@@ -108,13 +108,9 @@ class gui_install extends installer_base
 
         // and do our stuff.
         try {
+            // security measure : a session-specific step-variable.
             $wizard = wizard::get_instance(__DIR__.DIRECTORY_SEPARATOR.'wizard',__NAMESPACE__.'\\wizard');
             $tmp = 'm'.substr(md5(realpath(getcwd()).session_id()),0,8);
-            // this sets a custom step variable for each instance
-            // which is just one more security measure.
-            // nobody can guess an installer URL and jump to a specific step to
-            // nuke anything (even though database creds are stored in the session
-            // so are all the other parameters.
             $wizard->set_step_var($tmp);
             $res = $wizard->process();
         }
