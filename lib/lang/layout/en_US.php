@@ -287,6 +287,7 @@ $lang['title_filter'] = 'Select an item in this list to reduce the number of vis
 $lang['title_filterapplied'] = 'A filter has been selected which limits the number of templates listed';
 $lang['title_filterlimit'] = 'Select the number of items to view on each page';
 $lang['title_group_id'] = 'This column displays the numeric id of the group';
+$lang['title_group_members'] = 'This column displays the numeric id of each group member, if any';
 $lang['title_group_name'] = 'This column displays the (unique) name of the group';
 $lang['title_locked'] = 'This item is already being edited by another user (or maybe even by you)';
 $lang['title_menu'] = 'Display actions menu';
