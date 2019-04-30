@@ -144,6 +144,7 @@ $lang['confirm_bulkuserop'] = "Be cautious about performing operations on multip
 $lang['confirm_delete_udt'] = 'Are you sure you want to delete this User Defined Tag?';
 $lang['confirm_delete_user'] = 'Are you sure you want to delete this user account';
 $lang['confirm_edituser'] = 'Are you sure you want to apply changes to this user account';
+$lang['confirm_leave'] = 'Are you sure you want to leave this page? Any unsaved change(s) will be lost.';
 $lang['confirm_set_template_1'] = 'Are you sure you want to set all of these pages to use this template';
 $lang['confirm_set_template_2'] = 'Yes, I am sure.';
 $lang['confirm_set_template_3'] = 'Yes, I am <strong>really</strong> sure.';

@@ -40,6 +40,7 @@ $data['lang_cancel'] = lang('cancel');
 $data['lang_choose'] = lang('choose'); //filepicker-specific
 $data['lang_close'] = lang('close');
 $data['lang_confirm'] = lang('confirm');
+$data['lang_confirm_leave'] = lang('confirm_leave');
 $data['lang_disabled'] = lang('disabled');
 $data['lang_error'] = lang('error');
 $data['lang_gotit'] = lang('gotit');
