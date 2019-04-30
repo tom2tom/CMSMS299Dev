@@ -16,21 +16,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use DesignManager\Design;
 use DesignManager\design_exporter;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Designs') ) return;
 
-$this->SetCurrentTab('designs');
+//$this->SetCurrentTab('designs');
 
 if( !isset($params['design']) || $params['design'] == '' ) {
   $this->SetError($this->Lang('error_missingparam'));
-  $this->RedirectToAdminTab();
+  $this->Redirect($id,'defaultadmin'.$returnid);
 }
 
 try {
   // and the work...
-  $the_design = CmsLayoutCollection::load($params['design']);
+  $the_design = Design::load($params['design']);
   $exporter = new design_exporter($the_design);
   $xml = $exporter->get_xml();
 
