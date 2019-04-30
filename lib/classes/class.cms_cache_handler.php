@@ -78,7 +78,7 @@ final class cms_cache_handler
     }
     return self::$_instance;
 */
-	  return new self();
+      return new self();
   }
 
   /**
@@ -245,8 +245,28 @@ final class cms_cache_handler
     return NULL;
   }
 
+  public function getall(string $group = '') : array
+  {
+//    if( $this->can_cache() ) {
+    if( self::$_driver instanceof CMSMS\CacheDriver) {
+//    if( is_object(self::$_driver) ) {
+      return self::$_driver->get_all($group);
+    }
+    return NULL;
+  }
+
+  public function getindex(string $group = '') : array
+  {
+//    if( $this->can_cache() ) {
+    if( self::$_driver instanceof CMSMS\CacheDriver) {
+//    if( is_object(self::$_driver) ) {
+      return self::$_driver->get_index($group);
+    }
+    return NULL;
+  }
+
   /**
-   * Test if a cached value exist
+   * Test if a key/value pair is present in the cache
    *
    * @see cms_cache_handler::set_group()
    * @param string $key The primary key for the cached value
