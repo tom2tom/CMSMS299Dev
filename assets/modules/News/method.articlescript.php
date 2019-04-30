@@ -108,30 +108,30 @@ EOS;
 } //templates present
 $js .= <<<EOS
 $(function() {
-  $('[name$=apply],[name$=submit]').attr('disabled','disabled');
+  $('[name$="apply"],[name$="submit"]').attr('disabled','disabled');
   $('#edit_news').dirtyForm({
     onDirty: function() {
-      $('[name$=apply],[name$=submit]').removeAttr('disabled');
+      $('[name$="apply"],[name$="submit"]').removeAttr('disabled');
     }
   });
   $(document).on('cmsms_textchange', function() {
     // editor text change, set the form dirty.
     $('#edit_news').dirtyForm('option', 'dirty', true);
   });
-  $('[name$=submit],[name$=apply],[name$=cancel]').on('click', function() {
+  $('[name$="submit"],[name$="apply"],[name$="cancel"]').on('click', function() {
     $('#edit_news').dirtyForm('option', 'disabled', true);
   });
   $('#fld11').on('click', function() {
     $('#expiryinfo').toggle('slow');
   });
-  $('[name$=cancel]').on('click', function() {
+  $('[name$="cancel"]').on('click', function() {
     $(this).closest('form').attr('novalidate', 'novalidate');
   });
 
 EOS;
 if ($list) {
     $js .= <<<EOS
-  $('[name={$id}apply]').on('click', function(ev) {
+  $('[name="{$id}apply"]').on('click', function(ev) {
     ev.preventDefault();
     if(typeof tinyMCE !== 'undefined') {
       tinyMCE.triggerSave();

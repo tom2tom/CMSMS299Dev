@@ -41,43 +41,43 @@ function initializeContents() {
     $('.btn.visibility,.btn.view,.btn.type-filter').show().css('display', 'inline-block').find('button').find('i').click(function() {
         $(this).parent().click();
     });
-    
+
     $('.element.protected,.side-nav li.protected').hide();
     $('.element.private,.side-nav li.private').hide();
-    
+
     $('.visibility button.public').click(function() {
         $(this).toggleClass('active');
-        
+
         if ($(this).hasClass('active')) {
             $('.element.public,.side-nav li.public').show();
         } else {
             $('.element.public,.side-nav li.public').hide();
         }
     });
-    
+
     $('.visibility button.protected').click(function() {
         $(this).toggleClass('active');
-        
+
         if ($(this).hasClass('active')) {
             $('.element.protected,.side-nav li.protected').show();
         } else {
             $('.element.protected,.side-nav li.protected').hide();
         }
     });
-    
+
     $('.visibility button.private').click(function() {
         $(this).toggleClass('active');
-        
+
         if ($(this).hasClass('active')) {
             $('.element.private,.side-nav li.private').show();
         } else {
             $('.element.private,.side-nav li.private').hide();
         }
     });
-    
+
     $('.visibility button.inherited').click(function() {
         $(this).toggleClass('active');
-        
+
         if ($(this).hasClass('active')) {
             $('.element.inherited,.side-nav li.inherited').show();
         } else {
@@ -163,7 +163,7 @@ $(function() {
     // the ipad already smoothly scrolls and does not detect the scrollable
     // element if top=0; as such we disable this behaviour for the iPad
     if (!$.browser.ipad) {
-        $('a[href*=#]').each(function() {
+        $('a[href*="#"]').each(function() {
             var thisPath = filterPath(this.pathname) || locationPath;
             if (locationPath == thisPath && ( location.hostname == this.hostname || !this.hostname ) && this.hash.replace(/#/, '')) {
                 var target = decodeURIComponent(this.hash.replace(/#/, ''));

@@ -561,7 +561,7 @@ $(function() {
   });
  }
  $('#theme_help .cms_helpicon').on('click', function() {
-  var key = $('input[name=editortype]:checked').attr('data-themehelp-key');
+  var key = $('input[name="editortype"]:checked').attr('data-themehelp-key');
   if (key) {
    var self = this;
    $.get(cms_data.ajax_help_url, {
@@ -578,7 +578,7 @@ $(function() {
   on_mailer();
  });
  on_mailer();
- $('[name=submit]').on('click', function(ev) {
+ $('[name="submit"]').on('click', function(ev) {
   ev.preventDefault();
   cms_confirm_btnclick(this, $confirm);
   return false;

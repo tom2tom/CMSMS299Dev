@@ -421,7 +421,7 @@ $(function() {
       lostlock_handler: function(err) {
       // we lost the lock on this content... make sure we can't save anything.
       // and display a nice message.
-        $('[name$=cancel]').fadeOut().attr('value', '$close').fadeIn();
+        $('[name$="cancel"]').fadeOut().attr('value', '$close').fadeIn();
         $('#Edit_Content').dirtyForm('option', 'dirty', false);
         cms_alert($msg);
       }
@@ -481,7 +481,7 @@ EOS;
   });
 
   // handle cancel/close ... and unlock
-  $('[name$=cancel]').on('click', function(ev) {
+  $('[name$="cancel"]').on('click', function(ev) {
     // turn off all required elements, we're cancelling
     $('#Edit_Content :hidden').removeAttr('required');
     // do not touch the dirty flag, so that theunload handler stuff can warn us.
@@ -498,7 +498,7 @@ EOS;
     }
   });
 
-  $('[name$=submit]').on('click', function(ev) {
+  $('[name$="submit"]').on('click', function(ev) {
     // set the form to not dirty.
     $('#Edit_Content').dirtyForm('option', 'dirty', false);
     if (do_locking) {
@@ -515,8 +515,8 @@ EOS;
   });
 
   // handle apply (ajax submit)
-  $('[name$=apply]').on('click', function() {
-    // apply does not do an unlock.
+  $('[name$="apply"]').on('click', function() {
+    // apply does not do an unlock
     if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave(); // TODO this needs better approach, create a common "ajax save" function that can be reused
     var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
     data.push({

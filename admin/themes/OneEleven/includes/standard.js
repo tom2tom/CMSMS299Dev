@@ -4,8 +4,8 @@
  * @module OE
  * @author Goran Ilic - uniqu3 <ja@ich-mach-das.at>
  * ========================================================== */
-
-( function(global, $) {'use strict';
+(function(global, $) {
+    'use strict';
     /*jslint nomen: true , devel: true*/
 
     /**
@@ -23,11 +23,11 @@
      */
     OE.helper = {
 
-        init : function() {
+        init: function() {
             var _this = this;
 
             // open external links with rel="external" attribute in new window
-            $('a[rel=external]').attr('target', '_blank');
+            $('a[rel="external"]').attr('target', '_blank');
             // focus on input with .defaultfocus class
             $('input.defaultfocus:eq(0), input[autofocus]').focus();
             // load cookie.js if localStorage is not supported
@@ -46,7 +46,7 @@
          * @param {requestCallback|boolean} arg1
          * @param {requestCallback|boolean} arg2
          */
-        loadScript : function(url, arg1, arg2) {
+        loadScript: function(url, arg1, arg2) {
             var cache = true,
                 callback = null,
                 load = true;
@@ -61,19 +61,19 @@
 
             //check all existing script tags in the page for the url
             $('script[type="text/javascript"]').each(function() {
-                var load = ( url !== $(this).attr('src') );
+                var load = (url !== $(this).attr('src'));
                 return load;
             });
 
             if (load) {
                 //didn't find it in the page, so load it
                 $.ajax({
-                    type : 'GET',
-                    url : url,
-                    async : false,
-                    success : callback,
-                    dataType : 'script',
-                    cache : cache
+                    type: 'GET',
+                    url: url,
+                    async: false,
+                    success: callback,
+                    dataType: 'script',
+                    cache: cache
                 });
             } else {
                 //already loaded so just call the callback
@@ -92,9 +92,9 @@
          * @param {string} value
          * @param {number} expires (number in days)
          */
-        setStorageValue : function(key, value, expires) {
+        setStorageValue: function(key, value, expires) {
             var _this = this,
-                expiration = new Date().getTime() + ( expires * 24 * 60 * 60 * 1000 ),
+                expiration = new Date().getTime() + (expires * 24 * 60 * 60 * 1000),
                 obj = {};
 
             try {
@@ -102,15 +102,14 @@
                     localStorage.removeItem(key);
 
                     if (expires !== null) {
-
                         obj = {
-                            value : value,
-                            timestamp : expiration
+                            value: value,
+                            timestamp: expiration
                         };
                     } else {
                         obj = {
-                            value : value,
-                            timestamp : ''
+                            value: value,
+                            timestamp: ''
                         };
                     }
 
@@ -119,7 +118,7 @@
                 } else {
                     if (expires !== null) {
                         obj = {
-                            expires : expires
+                            expires: expires
                         };
                     }
 
@@ -127,7 +126,7 @@
                         $.cookie(key, value, obj);
                     }
                 }
-            } catch(error) {
+            } catch (error) {
                 console.log('localStorage Error: set(' + key + ', ' + value + ')');
                 console.log(error);
             }
@@ -140,7 +139,7 @@
          * @function getStorageValue(key)
          * @param {string} key
          */
-        getStorageValue : function(key) {
+        getStorageValue: function(key) {
             var _this = this,
                 data = '',
                 value;
@@ -168,7 +167,7 @@
          * @function removeStorageValue(key)
          * @param {string} key
          */
-        removeStorageValue : function(key) {
+        removeStorageValue: function(key) {
             var _this = this;
 
             if (_this._isLocalStorage()) {
@@ -184,7 +183,7 @@
          * @function equalHeight(obj)
          * @param {object}
          */
-        equalHeight : function(obj) {
+        equalHeight: function(obj) {
             var tallest = 0,
                 elHeight;
 
@@ -206,8 +205,8 @@
          * @function _isLocalStorage()
          * @private
          */
-        _isLocalStorage : function() {
-            return typeof (Storage) !== 'undefined';
+        _isLocalStorage: function() {
+            return typeof(Storage) !== 'undefined';
         },
 
         /**
@@ -215,9 +214,9 @@
          * @function _isMobileDevice()
          * @private
          */
-        _isMobileDevice : function() {
+        _isMobileDevice: function() {
             var ua = navigator.userAgent.toLowerCase(),
-            devices = /(Android|iPhone|iPad|iPod|Blackberry|Dolphin|IEMobile|WPhone|Windows Mobile|IEMobile9||IEMobile10||IEMobile11|Kindle|Mobile|MMP|MIDP|Pocket|PSP|Symbian|Smartphone|Sreo|Up.Browser|Up.Link|Vodafone|WAP|Opera Mini|Opera Tablet|Mobile|Fennec)/i;
+                devices = /(Android|iPhone|iPad|iPod|Blackberry|Dolphin|IEMobile|WPhone|Windows Mobile|IEMobile9||IEMobile10||IEMobile11|Kindle|Mobile|MMP|MIDP|Pocket|PSP|Symbian|Smartphone|Sreo|Up.Browser|Up.Link|Vodafone|WAP|Opera Mini|Opera Tablet|Mobile|Fennec)/i;
 
             if (ua.match(devices) && (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || window.DocumentTouch && document instanceof DocumentTouch)) {
                 return true;
@@ -231,7 +230,7 @@
      */
     OE.view = {
 
-        init : function() {
+        init: function() {
             var _this = this,
                 $sidebar_toggle = $('.toggle-button'), // object for sidebar toggle
                 $container = $('#oe_container'), // page container
@@ -253,14 +252,14 @@
             _this.showNotifications();
             // apply jQueryUI buttons
             _this.setUIButtons();
-	    // setup alert handlers
-	    _this.setupAlerts();
+            // setup alert handlers
+            _this.setupAlerts();
             // handle updating the display.
             _this.updateDisplay();
-	    // handles the initial state of the sidebar (collapsed or expanded)
-	    _this.handleSidebar($container);
+            // handles the initial state of the sidebar (collapsed or expanded)
+            _this.handleSidebar($container);
             $(window).resize(function() {
-		_this.handleSidebar($container);
+                _this.handleSidebar($container);
                 _this.updateDisplay();
             });
         },
@@ -272,7 +271,7 @@
          * @param {object} container
          * @memberof OE.view
          */
-        handleSidebar : function(container) {
+        handleSidebar: function(container) {
             var viewportWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 
             if (OE.helper.getStorageValue('sidebar-pref') === 'sidebar-off' || viewportWidth <= 768) {
@@ -290,20 +289,20 @@
          * @param {number} duration - A positive number for toggle speed control
          * @memberof OE.view
          */
-        toggleSubMenu : function(obj, duration) {
+        toggleSubMenu: function(obj, duration) {
             var _this = this;
             obj.find('> li > span').click(function(e) {
                 e.preventDefault();
                 var $t = $(this),
-                 cur = $t.hasClass('open-sub'),
-                 ul = $t.next(),
-                 _p = [];
-                if(ul.is(':visible') === false) {
+                    cur = $t.hasClass('open-sub'),
+                    ul = $t.next(),
+                    _p = [];
+                if (ul.is(':visible') === false) {
                     _p.push(obj.find('ul').slideUp(duration));
                 }
                 obj.find('.nav').removeClass('current').find('span').removeClass('open-sub');
                 $t.parent('.nav').addClass('current');
-                if(cur) {
+                if (cur) {
                     _p.push(ul.slideToggle(duration));
                 } else {
                     $t.addClass('open-sub');
@@ -320,9 +319,9 @@
          * @function showNotification()
          */
         // TODO Rethink this in next versions, define a object based on type or something (maybe use plugin http://akquinet.github.io/jquery-toastmessage-plugin/demo/demo.html), move messages to global function in cms_admin.js so it can be reused by other themes
-        showNotifications : function() {
-           //  back-compatibility check might be relevant in some contexts
-           if (typeof cms_notify_all === 'function') {
+        showNotifications: function() {
+            //  back-compatibility check might be relevant in some contexts
+            if (typeof cms_notify_all === 'function') {
                 cms_notify_all();
 //          } else {
 //              do old-style notifications
@@ -358,9 +357,9 @@
             });
 
             $(document).on('cms_ajax_apply', function(e) {
-                $('button[name=cancel], button[name=m1_cancel]').fadeOut();
-                $('button[name=cancel], button[name=m1_cancel]').button('option', 'label', e.close);
-                $('button[name=cancel], button[name=m1_cancel]').fadeIn();
+                $('button[name="cancel"], button[name="m1_cancel"]').fadeOut();
+                $('button[name="cancel"], button[name="m1_cancel"]').button('option', 'label', e.close);
+                $('button[name="cancel"], button[name="m1_cancel"]').fadeIn();
 
                 var htmlShow = '';
 
@@ -390,7 +389,7 @@
          * @description Applies jQueryUI button function to input buttons
          * @function setUIButtons()
          */
-        setUIButtons : function() {
+        setUIButtons: function() {
 
             // Standard input buttons
             $('input[type="submit"], :button[data-ui-icon]').each(function() {
@@ -403,9 +402,9 @@
                     if (button.is('[name*=apply]')) {
                         icon = button.data('uiIcon') || 'ui-icon-disk';
                     } else if (button.is('[name*=cancel]')) {
-                        icon = button.data('uiIcon') ||'ui-icon-circle-close';
+                        icon = button.data('uiIcon') || 'ui-icon-circle-close';
                     } else if (button.is('[name*=resettodefault]') || button.attr('id') === 'refresh') {
-                        icon = button.data('uiIcon') ||'ui-icon-refresh';
+                        icon = button.data('uiIcon') || 'ui-icon-refresh';
                     }
                 }
 
@@ -418,10 +417,10 @@
                 });
 
                 $btn.button({
-                    icons : {
-                        primary : icon
+                    icons: {
+                        primary: icon
                     },
-                    label : label
+                    label: label
                 });
                 button.replaceWith($btn);
             });
@@ -442,23 +441,29 @@
          * @memberof OE.view
          * @function updateDisplay()
          */
-        updateDisplay : function() {
-	    var $menu = $('#oe_menu');
-	    var $alert_box = $('#admin-alerts');
-	    var $header = $('header.header');
-	    var offset = $header.outerHeight() + $header.offset().top;
-	    if( $alert_box.length ) offset = $alert_box.outerHeight() + $alert_box.offset().top;
-	    if( $menu.outerHeight() + offset < $(window).height() ) {
-		$menu.css({ 'position': 'fixed', 'top': offset });
-	    } else {
-		$menu.css({ 'position': '', 'top': '' });
-	        if( $menu.offset().top < $(window).scrollTop() ) {
-		    //if the top of the menu is not visible, scroll to it.
-   		   $('html, body').animate({
-		      scrollTop: $("#oe_menu").offset().top
-		   }, 1000);
-		}
-	    }
+        updateDisplay: function() {
+            var $menu = $('#oe_menu');
+            var $alert_box = $('#admin-alerts');
+            var $header = $('header.header');
+            var offset = $header.outerHeight() + $header.offset().top;
+            if ($alert_box.length) offset = $alert_box.outerHeight() + $alert_box.offset().top;
+            if ($menu.outerHeight() + offset < $(window).height()) {
+                $menu.css({
+                    'position': 'fixed',
+                    'top': offset
+                });
+            } else {
+                $menu.css({
+                    'position': '',
+                    'top': ''
+                });
+                if ($menu.offset().top < $(window).scrollTop()) {
+                    //if the top of the menu is not visible, scroll to it.
+                    $('html, body').animate({
+                        scrollTop: $("#oe_menu").offset().top
+                    }, 1000);
+                }
+            }
         },
 
         /**
@@ -468,7 +473,7 @@
          * @params {object} obj
          * @params {object} target
          */
-        _showSidebar : function(obj, target) {
+        _showSidebar: function(obj, target) {
 
             obj.addClass('sidebar-on').removeClass('sidebar-off');
             target.find('li.current ul').show();
@@ -483,7 +488,7 @@
          * @params {object} obj
          * @params {object} target
          */
-        _closeSidebar : function(obj, target) {
+        _closeSidebar: function(obj, target) {
 
             obj.removeClass('sidebar-on').addClass('sidebar-off');
             target.find('li ul').hide();
@@ -491,51 +496,51 @@
             OE.helper.setStorageValue('sidebar-pref', 'sidebar-off', 60);
         },
 
-	_handleAlert : function(target) {
-    	        var _row = $(target).closest('.alert-box');
-		var _alert_name = _row.data('alert-name');
-		if( ! _alert_name ) return;
-		return $.ajax({
-		    method: 'POST',
-		    url:  cms_data.ajax_alerts_url,
-		    data: {
-			op: 'delete',
-			alert: _alert_name
-		    }
-		}).done(function(){
-		    _row.slideUp(1000);
-		    var _parent = _row.parent();
-		    if ( _parent.children().length <= 1 ) {
-  		        _row.closest('div.ui-dialog-content').dialog('close');
-			$('#alert-noalerts').show();
-			$('a#alerts').closest('li').remove();
-		    }
-		    _row.remove();
-		}).fail(function(xhr,status,msg){
-		    console.debug('problem deleting an alert: '+msg);
-		})
-	},
+        _handleAlert: function(target) {
+            var _row = $(target).closest('.alert-box');
+            var _alert_name = _row.data('alert-name');
+            if (!_alert_name) return;
+            return $.ajax({
+                method: 'POST',
+                url: cms_data.ajax_alerts_url,
+                data: {
+                    op: 'delete',
+                    alert: _alert_name
+                }
+            }).done(function() {
+                _row.slideUp(1000);
+                var _parent = _row.parent();
+                if (_parent.children().length <= 1) {
+                    _row.closest('div.ui-dialog-content').dialog('close');
+                    $('#alert-noalerts').show();
+                    $('a#alerts').closest('li').remove();
+                }
+                _row.remove();
+            }).fail(function(xhr, status, msg) {
+                console.debug('problem deleting an alert: ' + msg);
+            });
+        },
 
 
-	/**
+        /**
          * @description Handles popping up the notification area
          * @private
          * @function _showAlerts()
          */
-	setupAlerts : function() {
+        setupAlerts: function() {
             var _this = this;
-	    $('a#alerts').click(function(ev){
-		ev.preventDefault();
-		$('#alert-dialog').dialog();
-	    })
-	    $('.alert-msg a').click(function(ev){
-		ev.preventDefault();
-		OE.view.handleAlert(ev.target);
-	    })
-	    $('.alert-icon,.alert-remove').click(function(ev){
-		ev.preventDefault();
-		_this._handleAlert(ev.target);
-	    })
-	},
+            $('a#alerts').click(function(ev) {
+                ev.preventDefault();
+                $('#alert-dialog').dialog();
+            });
+            $('.alert-msg a').click(function(ev) {
+                ev.preventDefault();
+                OE.view.handleAlert(ev.target);
+            });
+            $('.alert-icon,.alert-remove').click(function(ev) {
+                ev.preventDefault();
+                _this._handleAlert(ev.target);
+            });
+        },
     };
-} )(this, jQuery);
+})(this, jQuery);

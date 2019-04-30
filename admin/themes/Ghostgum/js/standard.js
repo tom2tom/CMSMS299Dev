@@ -71,7 +71,7 @@ var ggjs = {
     cms_data.promptfunc = this.popup_prompt;
     cms_data.dialogfunc = this.popup_dialog;
     // open external links with rel="external" attribute in new window
-    $('a[rel=external]').attr('target', '_blank');
+    $('a[rel="external"]').attr('target', '_blank');
     // focus on input with .defaultfocus class
     $('input.defaultfocus:eq(0), input[autofocus]').focus();
     // async-load a cookie handler if localStorage is not supported
@@ -400,7 +400,7 @@ var ggjs = {
     var _row = $(target).closest('.alert-box');
     var _alert_name = _row.data('alert-name');
     if(!_alert_name) return;
-    return $.ajax({
+    $.ajax({
       method: 'POST',
       url: cms_data.ajax_alerts_url,
       data: {

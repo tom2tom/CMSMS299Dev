@@ -23,7 +23,7 @@
         init: function() {
             var _this = this;
             // open external links with rel="external" attribute in new window
-            $('a[rel=external]').attr('target', '_blank');
+            $('a[rel="external"]').attr('target', '_blank');
             // focus on input with .defaultfocus class
             $('input.defaultfocus:eq(0), input[autofocus]').focus();
             // load cookie.js if localStorage is not supported
@@ -350,9 +350,9 @@
                 });
             });
             $(document).on('cms_ajax_apply', function(e) {
-                $('button[name=cancel], button[name=m1_cancel]').fadeOut();
-                $('button[name=cancel], button[name=m1_cancel]').button('option', 'label', e.close);
-                $('button[name=cancel], button[name=m1_cancel]').fadeIn();
+                $('button[name="cancel"], button[name="m1_cancel"]').fadeOut();
+                $('button[name="cancel"], button[name="m1_cancel"]').button('option', 'label', e.close);
+                $('button[name="cancel"], button[name="m1_cancel"]').fadeIn();
                 var htmlShow = '';
                 if(e.response === 'Success') {
                     htmlShow = '<aside class="message pagemcontainer" role="status"><span class="close-warning xhr">Close</span><p class="pagemessage">' + e.details + '<\/p><\/aside>';
@@ -473,24 +473,24 @@
             var _row = $(target).closest('.alert-box');
             var _alert_name = _row.data('alert-name');
             if(!_alert_name) return;
-            return $.ajax({
-                method: 'POST',
-                url: cms_data.ajax_alerts_url,
-                data: {
-                    op: 'delete',
-                    alert: _alert_name
-                }
+            $.ajax({
+              method: 'POST',
+              url: cms_data.ajax_alerts_url,
+              data: {
+                op: 'delete',
+                alert: _alert_name
+              }
             }).done(function() {
-                _row.slideUp(1000);
-                var _parent = _row.parent();
-                if(_parent.children().length <= 1) {
-                    _row.closest('div.ui-dialog-content').dialog('close');
-                    $('#alert-noalerts').show();
-                    $('a#alerts').closest('li').remove();
-                }
-                _row.remove();
+              _row.slideUp(1000);
+              var _parent = _row.parent();
+              if(_parent.children().length <= 1) {
+                _row.closest('div.ui-dialog-content').dialog('close');
+                $('#alert-noalerts').show();
+                $('a#alerts').closest('li').remove();
+              }
+              _row.remove();
             }).fail(function(xhr, status, msg) {
-                console.debug('problem deleting an alert: ' + msg);
+              console.debug('problem deleting an alert: ' + msg);
             });
         },
         /**

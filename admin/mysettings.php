@@ -258,7 +258,7 @@ $out = <<<EOS
 //<![CDATA[
 $(function() {
  $('#theme_help .cms_helpicon').on('click', function() {
-  var key = $('input[name=editortype]:checked').attr('data-themehelp-key');
+  var key = $('input[name="editortype"]:checked').attr('data-themehelp-key');
   if(key) {
    var self = this;
    $.get(cms_data.ajax_help_url, {
