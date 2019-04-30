@@ -90,7 +90,7 @@ final class cms_userprefs
 
 
 	/**
-	 * Get a user preference
+	 * Get a preference for the current user
 	 *
 	 * @param string $key The preference name
 	 * @param string $dflt A default value if the preference could not be found
