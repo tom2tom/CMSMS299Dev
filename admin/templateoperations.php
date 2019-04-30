@@ -31,7 +31,7 @@ $themeObject = cms_utils::get_theme_object();
 
 cleanArray($_REQUEST);
 $template_id = isset($_REQUEST['tpl']) ? (int)$_REQUEST['tpl'] : null; //< 0 for a group
-$template_multi = isset($_REQUEST['tpl_select']) ? $_REQUEST['tpl_select'] : null;  //id(s) array for a bulk operation
+$template_multi = $_REQUEST['tpl_select'] ?? null;  //id(s) array for a bulk operation
 
 switch ($_REQUEST['op']) {
 	case 'copy':
@@ -39,7 +39,7 @@ switch ($_REQUEST['op']) {
 		if( !$padd ) exit;
 		if( $template_id ) {
 			try {
-				TemplateOperations::operation_copy($tpl_id);
+				$n = TemplateOperations::operation_copy($tpl_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -48,18 +48,11 @@ switch ($_REQUEST['op']) {
 		break;
 	case 'delete':
 		if( !$pmod ) exit;
+		if( $template_multi ) { $template_id = $template_multi; }
 		if( $template_id ) {
 			try {
-				TemplateOperations::operation_delete($tpl_id);
+				$n = TemplateOperations::operation_delete($tpl_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_deleted'));
-			} catch (Throwable $t) {
-				$themeObject->ParkNotice('error',$t->getMessage());
-			}
-		}
-		elseif( $template_multi ) {
-			try {
-				TemplateOperations::operation_delete($template_multi);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -67,17 +60,10 @@ switch ($_REQUEST['op']) {
 		break;
 	case 'deleteall':
 		if( !$pmod ) exit;
+		if( $template_multi ) { $template_id = $template_multi; }
 		if( $template_id ) {
 			try {
-				TemplateOperations::operation_deleteall($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
-			} catch (Throwable $t) {
-				$themeObject->ParkNotice('error',$t->getMessage());
-			}
-		}
-		elseif( $template_multi ) {
-			try {
-				TemplateOperations::operation_deleteall($template_multi);
+				$n = TemplateOperations::operation_deleteall($tpl_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -87,7 +73,7 @@ switch ($_REQUEST['op']) {
 	case 'replace':
 		if( $template_id ) {
 			try {
-				TemplateOperations::operation_replace($tpl_id);
+				$n = TemplateOperations::operation_replace($tpl_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -97,7 +83,7 @@ switch ($_REQUEST['op']) {
 	case 'applyall':
 		if( $template_id ) {
 			try {
-				TemplateOperations::operation_applyall($tpl_id);
+				$n = TemplateOperations::operation_applyall($tpl_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -119,6 +105,30 @@ switch ($_REQUEST['op']) {
 			$themeObject->ParkNotice('error',lang_by_realm('layout','error_missingparam'));
 		}
 		redirect('listtemplates.php'.$urlext.'&_activetab=types');
+		break;
+	case 'import':
+		if( !$pmod ) exit;
+		if( $template_multi ) { $template_id = $template_multi; }
+		if( $template_id ) {
+			try {
+				$n = TemplateOperations::operation_import($tpl_id);
+				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_deleted'));
+			} catch (Throwable $t) {
+				$themeObject->ParkNotice('error',$t->getMessage());
+			}
+		}
+		break;
+	case 'export':
+		if( !$pmod ) exit;
+		if( $template_multi ) { $template_id = $template_multi; }
+		if( $template_id ) {
+			try {
+				$n = TemplateOperations::operation_export($tpl_id);
+				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_deleted'));
+			} catch (Throwable $t) {
+				$themeObject->ParkNotice('error',$t->getMessage());
+			}
+		}
 		break;
 }
 

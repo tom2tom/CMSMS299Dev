@@ -31,14 +31,14 @@ $themeObject = cms_utils::get_theme_object();
 
 cleanArray($_REQUEST);
 $css_id = isset($_REQUEST['css']) ? (int)$_REQUEST['css'] : null; //< 0 for a group
-$css_multi = isset($_REQUEST['css_select']) ? $_REQUEST['css_select'] : null; //id(s) array for a bulk operation
+$css_multi = $_REQUEST['css_select'] ?? null; //id(s) array for a bulk operation
 
 switch ($_REQUEST['op']) {
 	case 'copy':
 		if (!$pmod) exit;
 		if ($css_id) {
 			try {
-				StylesheetOperations::operation_copy($css_id);
+				$n = StylesheetOperations::operation_copy($css_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -47,17 +47,11 @@ switch ($_REQUEST['op']) {
 		break;
 	case 'delete':
 		if (!$pmod) exit;
+		if ($css_multi) { $css_id = $css_multi; }
 		if ($css_id) {
 			try {
-				StylesheetOperations::operation_delete($css_id);
+				$n = StylesheetOperations::operation_delete($css_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_stylesheet_deleted'));
-			} catch (Throwable $t) {
-				$themeObject->ParkNotice('error',$t->getMessage());
-			}
-		} elseif ($css_multi) {
-			try {
-				StylesheetOperations::operation_delete($css_multi);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -65,16 +59,10 @@ switch ($_REQUEST['op']) {
 		break;
 	case 'deleteall':
 		if (!$pmod) exit;
+		if ($css_multi) { $css_id = $css_multi; }
 		if ($css_id) {
 			try {
-				StylesheetOperations::operation_deleteall($css_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
-			} catch (Throwable $t) {
-				$themeObject->ParkNotice('error',$t->getMessage());
-			}
-		} elseif ($css_multi) {
-			try {
-				StylesheetOperations::operation_deleteall($css_multi);
+				$n = StylesheetOperations::operation_deleteall($css_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -84,7 +72,7 @@ switch ($_REQUEST['op']) {
 	case 'replace':
 		if ($css_id) {
 			try {
-				StylesheetOperations::operation_replace($css_id);
+				$n = StylesheetOperations::operation_replace($css_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -95,7 +83,7 @@ switch ($_REQUEST['op']) {
 	case 'append':
 		if ($css_id) {
 			try {
-				StylesheetOperations::operation_append($css_id);
+				$n = StylesheetOperations::operation_append($css_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -105,7 +93,7 @@ switch ($_REQUEST['op']) {
 	case 'prepend':
 		if ($css_id) {
 			try {
-				StylesheetOperations::operation_prepend($css_id);
+				$n = StylesheetOperations::operation_prepend($css_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -113,15 +101,37 @@ switch ($_REQUEST['op']) {
 		}
 		break;
 	case 'remove':
+		//multi for this one ?
 		if ($css_id) {
 			try {
-				StylesheetOperations::operation_remove($css_id);
+				$n = StylesheetOperations::operation_remove($css_id);
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
 		}
-		//multi for this one ?
+		break;
+	case 'import':
+		if (!$pmod) exit;
+		if ($css_multi) { $css_id = $css_multi; }
+		if ($css_id) {
+			try {
+				$n = StylesheetOperations::operation_import($css_id);
+				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_stylesheet_deleted'));
+			} catch (Throwable $t) {
+				$themeObject->ParkNotice('error',$t->getMessage());
+			}
+		break;
+	case 'export':
+		if (!$pmod) exit;
+		if ($css_multi) { $css_id = $css_multi; }
+		if ($css_id) {
+			try {
+				$n = StylesheetOperations::operation_export($css_id);
+				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_stylesheet_deleted'));
+			} catch (Throwable $t) {
+				$themeObject->ParkNotice('error',$t->getMessage());
+			}
 		break;
 }
 
