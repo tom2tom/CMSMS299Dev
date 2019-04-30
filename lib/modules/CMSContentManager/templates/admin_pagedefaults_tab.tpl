@@ -2,8 +2,8 @@
 
 {form_start action=admin_pagedefaults_tab pagedefaults=1}
 <div class="pageinput postgap">
-  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
 </div>
 <div class="pageoverflow">
   <p class="pagetext">
@@ -17,6 +17,7 @@
   </p>
 </div>
 <div class="pageoverflow">
+{*
   <p class="pagetext">
     <label for="design_id">{$mod->Lang('prompt_pagedflt_design_id')}:</label>
     {cms_help realm=$_module key2='help_pagedflt_design_id' title=$mod->Lang('prompt_pagedflt_design_id')}
@@ -26,6 +27,8 @@
       {html_options options=$design_list selected=$page_prefs.design_id}
     </select>
   </p>
+*}
+  TODO CSS SELECTOR
 </div>
 <div class="pageoverflow">
   <p class="pagetext">
@@ -135,7 +138,7 @@
   </p>
 </div>
 <div class="pageinput pregap">
-  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
 </div>
 </form>
