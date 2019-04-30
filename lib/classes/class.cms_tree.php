@@ -69,7 +69,7 @@ class cms_tree
 	 * @param bool $case_insensitive Whether the (string) value should matched regardless of case. Default false.
 	 * @return cms_tree or null on failure.
 	 */
-	public function &find_by_tag($tag_name,$value,$case_insensitive = FALSE)
+	public function find_by_tag($tag_name,$value,$case_insensitive = FALSE)
 	{
 		$res = null;
 		if( !is_string($tag_name) ) return $res;
@@ -128,7 +128,7 @@ class cms_tree
 	 * @param string $key The tag name
 	 * @return mixed The tag value, or null
 	 */
-	public function &get_tag($key)
+	public function get_tag($key)
 	{
 		$res = null;
 		if( !$this->_tags ) return $res;
@@ -189,7 +189,7 @@ class cms_tree
 	 *
 	 * @return cms_tree Reference to the parent node, or null.
 	 */
-	public function &get_parent()
+	public function get_parent()
 	{
 		return $this->_parent;
 	}
@@ -200,7 +200,7 @@ class cms_tree
 	 *
 	 * @return cms_tree Reference to the parent node, or null.
 	 */
-	public function &getParent()
+	public function getParent()
 	{
 		return $this->_parent;
 	}
