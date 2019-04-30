@@ -225,7 +225,7 @@ hr {
     display: block;
     height: 1px;
     border: 0;
-    border-top: 1px solid #cecece;
+    border-top: 1px solid #cbd4cb;
     margin: 10px 0;
     padding: 0
 }
@@ -333,7 +333,7 @@ pre, code, samp, kbd {
 pre code {}
 pre {
     padding: 5px 20px;
-    border-left: 10px solid #cecece; /* TODO */
+    border-left: 10px solid #cbd4cb; /* TODO */
     background-color: #eee;  /* TODO */
     margin: 5px;
     overflow: auto;
@@ -349,7 +349,6 @@ pre {
 }
 
 table.pagetable,
-table.pagetable a.tooltip span,
 input,
 textarea,
 .group_memberships,
@@ -361,7 +360,7 @@ textarea,
 .success,
 .pagewarning,
 .pageerror,.pagewarn,.pagesuccess,.pageinfo {
-    border-radius: 3px
+    border-radius: 4px
 }
 
 /* forms */
@@ -375,7 +374,7 @@ a.link_button, a.link_button:visited {
     margin: 0.1em;
 /*    border: 1px solid #cbd4cb; */
     border-width: 0;
-    border-radius: 3px;
+    border-radius: 4px;
     padding: 0.4em 0.5em;
     background: #58814c url(../images/submit-bg.png) top;
     background-size: cover;
@@ -395,7 +394,7 @@ a.link_button:hover {
 .adminsubmit, .loginsubmit, button.ui-button {
     margin: 0.1em;
     border-width: 0;
-    border-radius: 3px;
+    border-radius: 4px;
     padding: 0.4em 0.5em;
     background: #58814c url(../images/submit-bg.png) top;
     background-size: cover;
@@ -527,14 +526,14 @@ input {
     text-indent: 5px;
 }
 input[type='text'] {
-    border-radius: 3px;
+    border-radius: 4px;
 //    background-color: #f2ecdf;
 / *    min-width: 25% * /
 }
 */
 input[type="text"], input[type="password"] {
     margin-left: 4px;
-    border-radius: 3px;
+    border-radius: 4px;
     border-color: #cbd4cb #d6d6d6 #d6d6d6 #cbd4cb;
     padding: 0.6em 0.6em 0.4em 0.6em;
 /*    line-height: 1; */
@@ -570,7 +569,7 @@ input[type="checkbox"] {
 select {
     margin-left: 4px;
     border-color: #cbd4cb;
-    border-radius: 3px 0 0 3px;
+    border-radius: 4px 0 0 4px;
     padding: 0.5em;
 }
 select:hover, select:focus {
@@ -584,7 +583,7 @@ select:hover, select:focus {
 
 textarea {
     margin-left: 4px;
-/*    border-radius: 3px; */
+/*    border-radius: 4px; */
     border-color: #cbd4cb;
     resize: both;
     width: 99%;
@@ -595,16 +594,29 @@ textarea {
 }
 menu {
     border-color: #cbd4cb;
-    border-radius: 3px 0 0 3px;
+    border-radius: 4px 0 0 4px;
     padding: 0.5em;
 }
 fieldset {
     margin-right: 10px;
     border: 1px solid #cbd4cb;
-    border-radius: 3px;
+    border-radius: 4px;
 }
 
 /* Notification messages */
+/*
+.ui-tooltip: The outer container for the tooltip
+.ui-tooltip-content: The content of the tooltip
+*/
+.ui-tooltip {
+    border: 1px solid #cbd4cb;
+    border-radius: 5px;
+    background-color: #fcf9f3;
+    font-size: 0.85em;
+    box-shadow: 6px 6px 12px -6px rgba(47,105,54,1);}
+    -webkit-box-shadow: 6px 6px 12px -6px rgba(47,105,54,1);
+    -moz-box-shadow: 6px 6px 12px -6px rgba(47,105,54,1);
+}
 
 .tooltip {
     cursor: help;
@@ -674,22 +686,22 @@ a.tooltip {
 }
 */
 .warn, .warning, .pagewarn, .pagewarning {
-    background: #fcf1d0 url(../images/icons/extra/warn.png) 10px 50% no-repeat;
+    background: #fcf1d0 url(../images/icons/extra/warn.svg) 10px 50% no-repeat;
     border: 1px solid #f4ca4c;
     color: #b08f0e
 }
 .error, .pageerror, .pageerrorcontainer, .pageerrorinstalldir {
-    background: #fcd0d0 url(../images/icons/extra/error.png) 10px 50% no-repeat;
+    background: #fcd0d0 url(../images/icons/extra/error.svg) 10px 50% no-repeat;
     border: 1px solid #f44c4c;
     color: #490707
 }
 .success, .pagesuccess, .pagemcontainer {
-    background: #d0fcdc url(../images/icons/extra/success.png) 10px 50% no-repeat;
+    background: #d0fcdc url(../images/icons/extra/success.svg) 10px 50% no-repeat;
     border: 1px solid #28e65f;
     color: #0bb33a
 }
 .info, .pageinfo, .information {
-    background: #d1e8fc url(../images/icons/extra/info.png) 10px 50% no-repeat;
+    background: #d1e8fc url(../images/icons/extra/info.svg) 10px 50% no-repeat;
     border: 1px solid #4ca6f4;
     color: #0e2a42
 }
@@ -853,7 +865,7 @@ aside .no-slide, .no-slide {
     height: 5px;
     width: 0;
     left: 0;
-    border-radius: 5px;
+    border-radius: 4px;
     background: #f00;
 }
 .jqt-loaded {
@@ -875,7 +887,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-error {
-    background-image: url(../images/icons/extra/error.png);
+    background-image: url(../images/icons/extra/error.svg);
 }
 .warn.jqtoast {
     padding: 10px 40px;
@@ -888,7 +900,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-warning {
-    background-image: url(../images/icons/extra/warn.png);
+    background-image: url(../images/icons/extra/warn.svg);
 }
 .success.jqtoast {
     padding: 10px 40px;
@@ -901,7 +913,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-success {
-    background-image: url(../images/icons/extra/accept.png);
+    background-image: url(../images/icons/extra/accept.svg);
 }
 .info.jqtoast {
     padding: 10px 40px;
@@ -914,7 +926,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-info {
-    background-image: url(../images/icons/extra/info.png);
+    background-image: url(../images/icons/extra/info.svg);
 }
 
 /*** alertable plugin popups ***/
@@ -939,7 +951,7 @@ aside .no-slide, .no-slide {
 /*  top: 38vh;
     left: calc(50% - 10em);
     width: 20em; /* TODO CENTER WITH AUTO WIDTH */
-    border-radius: 3px;
+    border-radius: 4px;
     padding: 1em;
     background: #fcf9f3;
     color: #244323;
@@ -1036,21 +1048,21 @@ aside .no-slide, .no-slide {
     width: 16px;
     height: 16px;
     text-indent: -9999em;
-    background: transparent url(../images/icons/extra/close.png) 8px no-repeat;
+    background: transparent url(../images/icons/extra/close.svg) 8px no-repeat;
     cursor: pointer;
     margin: 5px
 }
 .image-error{
-    background: url(../images/icons/extra/error.png) 10px 8px no-repeat;
+    background: url(../images/icons/extra/error.svg) 10px 8px no-repeat;
 }
 .image-warning{
-    background: url(../images/icons/extra/warn.png) 10px 8px no-repeat;
+    background: url(../images/icons/extra/warn.svg) 10px 8px no-repeat;
 }
 .image-info {
-    background: url(../images/icons/extra/info.png) 10px 8px no-repeat;
+    background: url(../images/icons/extra/info.svg) 10px 8px no-repeat;
 }
 .image-close {
-    background: url(../images/icons/extra/close.png) no-repeat;
+    background: url(../images/icons/extra/close.svg) no-repeat;
 }
 .infoclose {
     background-image: url(../images/closesprite.png);
@@ -1107,7 +1119,7 @@ button.ui-button.ui-dialog-titlebar-close {
 button.ui-button.ui-dialog-titlebar-close .ui-button-icon {
     background: #58814c url(../images/closesprite.png) repeat 9em 0 / 9em 1.5em;
     margin: 0;
-    border-radius: 3px;
+    border-radius: 4px;
     width: 1.5em;
     height: 1.5em;
     left: 0;
@@ -1362,7 +1374,7 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     border: 0;
     padding: 0;
 /*    border: 1px solid #cbd4cb;
-    border-radius: 3px; */
+    border-radius: 4px; */
 }
 
 #ggp_content .h-inside {
@@ -1691,7 +1703,7 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     margin: 5px;
     padding: 10px;
     border: 1px solid #cecece;
-    border-radius: 3px;
+    border-radius: 4px;
     max-width: 20em;
     min-width: 10em;
     flex: 1 0 33%;
@@ -1858,8 +1870,8 @@ img.systemicon {
 
 .ContextMenu {
     display: none;
-    border: 1px solid #3c9b0a;
-    border-radius: 8px;
+    border: 1px solid #cbd4cb;
+    border-radius: 6px;
     position: fixed;
     background-color: #58814c;
     padding: 9px;
@@ -1890,8 +1902,9 @@ img.systemicon {
 }
 .ContextMenu.active {
     display: block;
-    box-shadow: 0 4px 5px 0 rgba(0, 0, 0, .14), 0 1px 10px 0 rgba(0, 0, 0, .12), 0 2px 4px -1px rgba(0, 0, 0, .2);
-}
+    box-shadow: 6px 6px 12px -6px rgba(47,105,54,1);}
+    -webkit-box-shadow: 6px 6px 12px -6px rgba(47,105,54,1);
+    -moz-box-shadow: 6px 6px 12px -6px rgba(47,105,54,1);
 .ContextMenu ul {
     list-style-type:none;
 }
@@ -1939,7 +1952,7 @@ img.systemicon {
 .ContextMenu ul li ul.sub-level.active {
     display: block;
     border: 1px solid #3c9b0a;
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 10px 5px;
 }
 .ContextMenu ul > li > ul.sub-level.active {
@@ -1969,7 +1982,7 @@ div#alert-dialog .alert-icon {
     margin-right: 5px;
     width: 20px;
     height: 20px;
-    background: url(../images/icons/extra/red.png) no-repeat left;
+    background: url(../images/icons/extra/red.svg) no-repeat left;
 }
 div#alert-dialog .alert-remove {
     float: right;
@@ -2093,7 +2106,6 @@ table.pagetable th.SortAble {
     background-position: center left;
     cursor: pointer;
 }
-
 table.pagetable th.SortUp {
     padding-left: 1.2em;
     background-image: url(../images/icons/extra/sort-up.svg);
@@ -2101,7 +2113,6 @@ table.pagetable th.SortUp {
     background-position: center left;
     cursor: pointer;
 }
-
 table.pagetable th.SortDown {
     padding-left: 1.2em;
     background-image: url(../images/icons/extra/sort-down.svg);
@@ -2304,7 +2315,7 @@ textarea.pageextrasmalltextarea {
     margin-right: 1px;
     padding: 0.3em 0.7em;
 /*    border-radius: 4px 4px 0 0; */
-    border-radius: 3px 3px 0 0;
+    border-radius: 4px 4px 0 0;
     background-color: #cbd4cb;
     color: #244323;
 /*    text-shadow: -1px 1px 0 #fff; */
@@ -2334,7 +2345,7 @@ textarea.pageextrasmalltextarea {
 #page_content {
 /*    background-color: #fff;
     border-radius: 0 0 4px 4px; */
-    border-radius: 0 3px 3px 3px;
+    border-radius: 0 4px 4px 4px;
     border: 1px solid #cbd4cb;
 /*    border-top: 3px solid #244323; */
     padding: 10px;
@@ -2362,7 +2373,7 @@ ul.sortableList div.label {
     border-radius: 4px;
     cursor: move;
     padding: 3px 10px 3px 35px;
-    background: #eee url(../images/icons/extra/reorder.png) no-repeat 10px 50%;
+    background: #eee url(../images/icons/extra/reorder.svg) no-repeat 10px 50%;
     text-shadow: 0 1px 0 #fff;
     font-weight: bold;
     color: #585858
@@ -2504,7 +2515,7 @@ ul.sortableList div.label {
     font-size: 0.8em;
     color: #244323;
     word-wrap: break-word;
-    border-radius: 3px 3px 3px 3px;
+    border-radius: 4px;
     cursor: move;
 }
 ul.sortableList li div.label em {
@@ -2523,7 +2534,7 @@ ul.sortableList li div.label span {
     margin-top: 8px;
     margin-left: 5px;
     margin-right: 5px;
-    background: transparent url(../images/icons/extra/reorder.png) no-repeat 0 0;
+    background: transparent url(../images/icons/extra/reorder.svg) no-repeat 0 0;
 }
 */
 ul.sortableList span.haschildren.expanded {
@@ -2569,7 +2580,7 @@ ul.sortableList > li {
 #login #login-box {
     position: relative;
     background-color: #cbd4cb;
-    border-radius: 3px;
+    border-radius: 4px;
     margin: 0 auto;
     padding: 2em 2em 1em 2em;
     box-shadow: -2px -2px 8px rgba(0,0,0,.25) inset, 2px 2px 8px #f5faeb inset;
@@ -2596,7 +2607,7 @@ ul.sortableList > li {
 }
 #login .login-info {
     border: 1px solid #4ca6f4;
-    border-radius: 3px;
+    border-radius: 4px;
     padding: 6px 10px;
     background-color: #d1e8fc;
     color: #0e2a42;
@@ -2604,7 +2615,7 @@ ul.sortableList > li {
 }
 #login a#toggle-info {
     position: absolute;
-    background: url(../images/icons/extra/info.png) no-repeat scroll center center;
+    background: url(../images/icons/extra/info.svg) no-repeat scroll center center;
     top: 2em;
     left: 2em;
     height: 24px;
@@ -2702,7 +2713,7 @@ ul.sortableList > li {
     .sidebar-on #page_tabs div {
         text-align: left;
        /* float: none; * /
-        border-radius: 3px 3px 0 0;
+        border-radius: 4px 4px 0 0;
         margin-right: 0
     }
 

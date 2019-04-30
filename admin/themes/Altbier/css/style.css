@@ -274,7 +274,6 @@ pre {
 
 /* border radius */
 table.pagetable,
-table.pagetable a.tooltip span,
 div.pagecontainer fieldset,
 input,
 textarea,
@@ -408,11 +407,15 @@ textarea {
 }
 
 /* Notification messages */
-
+.ui-tooltip {
+    font-size: 0.9rem;
+    box-shadow: 6px 6px 12px -6px rgba(120,120,120,1);}
+    -webkit-box-shadow: 6px 6px 12px -6px rgba(120,120,120,1);
+    -moz-box-shadow: 6px 6px 12px -6px rgba(120,120,120,1);
+}
 .tooltip {
     cursor: help
 }
-
 a.tooltip {
     cursor: pointer
 }
