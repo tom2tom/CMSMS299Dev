@@ -69,12 +69,12 @@ abstract class CmsDbQueryBase
 	/**
 	 * Constructor
 	 *
-	 * @param mixed $args associative array (key=>value) of arguments
+	 * @param mixed $args optional associative array (key=>value) of arguments
 	 *  for the query, or a comma-separated string of arguments.
 	 */
 	public function __construct($args = '')
 	{
-		if( empty($args) ) return;
+//		if( empty($args) ) return;
 
 		if( is_array($args) ) {
 			$this->_args = $args;
@@ -92,7 +92,9 @@ abstract class CmsDbQueryBase
 		$this->execute();
 		switch( $key ) {
 		    case 'fields':
-				if( $this->_rs && !$this->_rs->EOF() ) return $this->_rs->fields;
+				if( $this->_rs && !$this->_rs->EOF() ) {
+					return $this->_rs->fields;
+				}
 				return;
 		    case 'EOF':
 				return $this->_rs->EOF();
