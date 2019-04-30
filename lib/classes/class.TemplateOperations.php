@@ -179,7 +179,7 @@ class TemplateOperations
         if( $groups == null ) {
             if( !isset($db) ) $db = CmsApp::get_instance()->GetDb();
             // table aka CmsLayoutTemplateCategory::MEMBERSTABLE
-            $sql = 'SELECT DISTINCT group_id FROM '.CMS_DB_PREFIX.'layout_tplgroup_members WHERE tpl_id=? ORDER BY group_id';
+            $sql = 'SELECT DISTINCT group_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE tpl_id=? ORDER BY group_id';
             $groups = $db->GetCol($sql,[ $props['id'] ]);
         }
         elseif( is_numeric($groups) ) {
@@ -540,7 +540,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
             $alldesigns = $db->GetArray($sql);
 */
             // table aka CmsLayoutTemplateCategory::MEMBERSTABLE
-            $sql = 'SELECT * FROM '.CMS_DB_PREFIX.'layout_tplgroup_members WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
+            $sql = 'SELECT * FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
             $allgroups = $db->GetArray($sql);
 
             // put it all together, into object(s)
@@ -948,12 +948,12 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			$n = count($from);
 		}
 		if ($grps) {
-			$sql = 'SELECT id,name,description FROM '.CMS_DB_PREFIX.'layout_tpl_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT id,name,description FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$from = $db->GetArray($sql, $grps);
-			$sql = 'SELECT group_id,tpl_id,item_order FROM '.CMS_DB_PREFIX.'layout_tplgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT group_id,tpl_id,item_order FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$members = $db->Execute($sql, $grps);
-			$sql = 'INSERT INTO '.CMS_DB_PREFIX.'layout_tpl_groups (name,description) VALUES (?,?)';
-			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.'layout_tplgroup_members (group_id,tpl_id,item_order) VALUES (?,?,?)';
+			$sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' (name,description) VALUES (?,?)';
+			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' (group_id,tpl_id,item_order) VALUES (?,?,?)';
 			foreach ($from as $row) {
 				if ($row['name']) {
 					$name = self::get_unique_name($row['name']);
@@ -985,9 +985,9 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		$db = CmsApp::get_instance()->GetDb();
 		list($tpls,$grps) = self::items_split($ids);
 		if ($grps) {
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tplgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
 		}
 		if ($tpls) {
@@ -1029,12 +1029,12 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		$db = CmsApp::get_instance()->GetDb();
 		list($tpls,$grps) = self::items_split($ids);
 		if ($grps) {
-			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.'layout_tplgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$members = $db->GetCol($sql, $grps);
 			$tpls = array_unique(array_merge($tpls, $members));
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tplgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
 		}
 		if ($tpls) {

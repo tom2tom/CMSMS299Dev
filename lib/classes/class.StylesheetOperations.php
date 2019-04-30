@@ -459,11 +459,11 @@ VALUES (?,?,?,?,?,?)';
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT G.id,G.name,GROUP_CONCAT(M.css_id ORDER BY M.item_order) AS members FROM '.
-        CMS_DB_PREFIX.self::TABLENAME.' G LEFT JOIN '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' M ON G.id = M.category_id';
+        CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' G LEFT JOIN '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' M ON G.id = M.group_id';
 		if( !empty($ids) ) {
 			$query .= ' WHERE G.id IN ('.implode(',',$ids).')';
 		}
-		$query .= ' GROUP BY M.category_id';
+		$query .= ' GROUP BY M.group_id';
 		if( $sorted ) {
 			$query .= ' ORDER BY G.name';
 		}
@@ -599,12 +599,12 @@ VALUES (?,?,?,?,?,?)';
 			$n = count($from);
 		}
 		if ($grps) {
-			$sql = 'SELECT id,name,description FROM '.CMS_DB_PREFIX.'layout_css_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT id,name,description FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$from = $db->GetArray($sql, $grps);
-			$sql = 'SELECT group_id,css_id,item_order FROM '.CMS_DB_PREFIX.'layout_cssgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT group_id,css_id,item_order FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$members = $db->Execute($sql, $grps);
-			$sql = 'INSERT INTO '.CMS_DB_PREFIX.'layout_css_groups (name,description) VALUES (?,?)';
-			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.'layout_cssgroup_members (group_id,css_id,item_order) VALUES (?,?,?)';
+			$sql = 'INSERT INTO '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' (name,description) VALUES (?,?)';
+			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' (group_id,css_id,item_order) VALUES (?,?,?)';
 			foreach ($from as $row) {
 				if ($row['name']) {
 					$name = self::get_unique_name($row['name']);
@@ -635,9 +635,9 @@ VALUES (?,?,?,?,?,?)';
 		$db = CmsApp::get_instance()->GetDb();
 		list($shts,$grps) = self::items_split($ids);
 		if ($grps) {
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_cssgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_css_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
 		}
 		if ($shts) {
@@ -685,12 +685,12 @@ VALUES (?,?,?,?,?,?)';
 		$db = CmsApp::get_instance()->GetDb();
 		list($shts,$grps) = self::items_split($ids);
 		if ($grps) {
-			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.'layout_cssgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$members = $db->GetCol($sql, $grps);
 			$shts = array_unique(array_merge($shts, $members));
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_cssgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_css_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
 		}
 		if ($shts) {
