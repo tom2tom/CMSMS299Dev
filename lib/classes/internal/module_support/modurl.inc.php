@@ -195,9 +195,9 @@ function cms_module_create_pageurl($id, $returnid, array $params = [], int $form
 	$hm = $gCms->GetHierarchyManager();
 	$node = $hm->find_by_tag('id',$returnid);
 	if ($node) {
-		$content = $node->GetContent();
-		if ($content) { //CHECKME
-			$pageurl = $content->GetURL();
+		$contentobj = $node->getContent();
+		if ($contentobj) {
+			$pageurl = $contentobj->GetURL();
 			if ($pageurl) {
 				switch ($format) {
 					case 1:
