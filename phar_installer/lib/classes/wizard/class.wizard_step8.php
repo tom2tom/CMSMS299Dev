@@ -60,6 +60,10 @@ class wizard_step8 extends wizard_step
 
     }
 
+	/**
+	 * @ignore
+	 * @throws Exception
+	 */
     private function do_install()
     {
         $app = get_app();
@@ -86,7 +90,7 @@ class wizard_step8 extends wizard_step
         // connect to the database, if possible
         $db = $this->db_connect($destconfig);
 
-        $dir = $app->get_assetsdir().DIRECTORY_SEPARATOR.'install';
+		$dir = dirname(__DIR__,2).DIRECTORY_SEPARATOR.'install';
 /*
         $fn = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR;
         require_once $fn.'base.php';
@@ -97,10 +101,6 @@ class wizard_step8 extends wizard_step
             if( !is_object($db) ) {
                 throw new Exception($db); //report the error
             }
-            // variables for use in the inclusions
-            if( !defined('CMS_ADODB_DT') ) define('CMS_ADODB_DT','DT');
-            $admin_user = null;
-            $db_prefix = CMS_DB_PREFIX;
 
             // install main tables
             $fn = $dir.DIRECTORY_SEPARATOR.'schema.php';
@@ -160,6 +160,11 @@ class wizard_step8 extends wizard_step
         }
     }
 
+	/**
+	 * @ignore
+	 * @param array $version_info
+	 * @throws Exception
+	 */
     private function do_upgrade(array $version_info)
     {
         global $DONT_LOAD_DB, $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
