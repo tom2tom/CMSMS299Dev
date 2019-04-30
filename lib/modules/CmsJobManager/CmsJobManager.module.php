@@ -326,6 +326,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
                 $db->Execute($sql,[$job->start,$dbr]);
                 return $dbr;
             }
+			//TODO consider merits of DT field for created etc
             $sql = 'INSERT INTO '.self::TABLE_NAME.' (name,created,module,errors,start,recurs,until,data) VALUES (?,?,?,?,?,?,?,?)';
             $dbr = $db->Execute($sql,[$job->name,$job->created,$job->module,$job->errors,$job->start,$recurs,$until,serialize($job)]);
             $new_id = $db->Insert_ID();
