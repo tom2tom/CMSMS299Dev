@@ -53,7 +53,7 @@ final class content_slave extends slave
                     continue;
                 }
 
-                $content_obj = cmsms()->GetContentOperations()->LoadContentFromId($content_id);
+                $content_obj = cmsms()->GetContentOperations()->LoadContentFromId($content_id); //both types of Content object support HasSearchableContent() and Name();
                 if( !is_object($content_obj) ) continue;
                 if( !$content_obj->HasSearchableContent() ) continue;
 
@@ -70,11 +70,11 @@ final class content_slave extends slave
                 }
 
                 $tmp = [
-				 'title'=>$content_obj->Name(),
+                 'title'=>$content_obj->Name(),
                  'description'=>$content_obj->Name(),
                  'edit_url'=>$content_manager->create_url('m1_','admin_editcontent','',['content_id'=>$content_id]),
                  'text'=>$text
-				];
+                ];
                 $output[] = $tmp;
             }
 

@@ -63,7 +63,7 @@ function cms_module_Redirect(&$modinstance, $id, $action, $returnid='', $params=
     $text = '';
     if ($returnid != '') {
         $contentops = ContentOperations::get_instance();
-        $content = $contentops->LoadContentFromId($returnid);
+        $content = $contentops->LoadContentFromId($returnid); //both types of Content class support GetURL()
         if (!is_object($content)) {
             // no destination content object
             return;
