@@ -18,7 +18,7 @@
 
 namespace CMSContentManager;
 
-use CMSMS\ContentBase;
+use CMSContentManager\ContentBase;
 use CMSMS\internal\ContentAssistant;
 
 /**
@@ -31,7 +31,7 @@ abstract class EditContentAssistant implements ContentAssistant
 	/**
 	 * construct an EditContentAssistant object.
 	 *
-	 * @param ContentBase Scontent he content-object that we are building an assistant for.
+	 * @param ContentBase $content the content-object that we are building an assistant for.
 	 */
 	public function __construct(ContentBase $content)
 	{

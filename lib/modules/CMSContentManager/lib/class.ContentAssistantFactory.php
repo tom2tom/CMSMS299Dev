@@ -19,7 +19,7 @@
 namespace CMSContentManager;
 
 use CMSMS\CmsException;
-use CMSMS\ContentBase;
+use CMSContentManager\ContentBase;
 
 class ContentAssistantFactory
 {
