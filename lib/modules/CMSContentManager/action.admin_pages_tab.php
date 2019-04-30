@@ -133,7 +133,7 @@ $tpl->assign('pagelimit',$pagelimit)
 $columns  = $builder->get_display_columns();
 $tpl->assign('columns',$columns);
 if( $this->GetPreference('list_namecolumn','menutext') == 'title' ) {
-  $tpl->assign('colhdr_page',$this->Lang('colhdr_name'));
+  $tpl->assign('colhdr_page',$this->Lang('colhdr_pagetitle'));
 }
 else {
   $tpl->assign('colhdr_page',$this->Lang('colhdr_menutext'));
