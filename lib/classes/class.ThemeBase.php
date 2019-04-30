@@ -596,7 +596,7 @@ abstract class ThemeBase
 
         $this->_perms['templatePerms'] =
             check_permission($this->userid, 'Add Templates') |
-            check_permission($this->userid, 'Modify Templates'); 
+            check_permission($this->userid, 'Modify Templates');
 
         $this->_perms['layoutPerms'] =
             check_permission($this->userid, 'Manage Designs') |
