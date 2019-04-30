@@ -5,6 +5,7 @@ namespace cms_installer\wizard;
 use cms_config;
 use cms_installer\installer_base;
 use cms_installer\session;
+use cms_installer\wizard\wizard_step;
 use CMSMS\AdminUtils;
 use CMSMS\ModuleOperations;
 use Exception;
@@ -15,6 +16,7 @@ use const TMP_CACHE_LOCATION;
 use const TMP_TEMPLATES_C_LOCATION;
 use function audit;
 use function cms_installer\get_app;
+use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\smarty;
 use function cms_module_places;
@@ -154,11 +156,9 @@ VALUES (?,?,?,NOW(),NOW())');
                 }
             }
         }
+        $stmt1->close();
+        $stmt2->close();
 
-/* See xml files
-        $this->message(lang('install_core_template_types'));
-        require_once $dir.DIRECTORY_SEPARATOR.'core_tpl_types.php';
-*/
         // site content
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
         if( !$siteinfo ) throw new Exception(lang('error_internal',901));
@@ -168,23 +168,28 @@ VALUES (?,?,?,NOW(),NOW())');
         } else {
             $fn = 'initial.xml';
         }
-        $xmlfile = $dir . DIRECTORY_SEPARATOR . $fn;
+
+        $dir = $app->get_assetsdir().DIRECTORY_SEPARATOR.'install';
+        $xmlfile = $dir.DIRECTORY_SEPARATOR.$fn;
         if( is_file($xmlfile) ) {
             $arr = installer_base::CONTENTFILESDIR;
             $filesfolder = $dir . DIRECTORY_SEPARATOR . end($arr);
-
-            require_once $dir.DIRECTORY_SEPARATOR.'iosite.functions.php';
-
             if( $fn != 'initial.xml' ) {
                 $this->message(lang('install_samplecontent'));
             }
-            if( ($res = import_content($xmlfile, $filesfolder)) ) {
-                $this->error($res);
-            }
-            // update pages hierarchy
-            $this->verbose(lang('install_updatehierarchy'));
-            $contentops = cmsms()->GetContentOperations();
-            $contentops->SetAllHierarchyPositions();
+			try {
+	            require_once joinpath(dirname(__DIR__,2),'install','iosite.functions.php');
+				if( ($res = import_content($xmlfile, $filesfolder)) ) {
+					$this->error($res);
+				}
+				// update pages hierarchy
+				$this->verbose(lang('install_updatehierarchy'));
+				$contentops = cmsms()->GetContentOperations();
+				$contentops->SetAllHierarchyPositions();
+			}
+			catch (Exception $e) {
+				$ADBG = 1;
+			}
         } else {
             $this->error(lang('error_nocontent',$fn));
         }
