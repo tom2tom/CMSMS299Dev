@@ -1567,25 +1567,22 @@ table.pagetable th.SortAble, table.pagetable th.SortUp, table.pagetable th.SortD
 
 table.pagetable th.SortAble::before {
     content: '\f0dc';
-    margin: 0.3em;
     font-family: "Font Awesome 5 Free";
-    font-size: 1em;
+    margin-right: 0.2em;
     vertical-align: middle;
 }
 
 table.pagetable th.SortUp::before {
     content: '\f0de';
-    margin: 0.3em;
     font-family: "Font Awesome 5 Free";
-    font-size: 1em;
+    margin-right: 0.2em;
     vertical-align: middle;
 }
 
 table.pagetable th.SortDown::before {
     content: '\f0dd';
-    margin: 0.3em;
     font-family: "Font Awesome 5 Free";
-    font-size: 1em;
+    margin-right: 0.2em;
     vertical-align: middle;
 }
 
