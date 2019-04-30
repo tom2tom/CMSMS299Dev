@@ -16,13 +16,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$CMS_ADMIN_PAGE=1;
-$CMS_TOP_MENU='main';
+$CMS_ADMIN_PAGE = 1;
+$CMS_TOP_MENU = 'main';
 //$CMS_ADMIN_TITLE='adminhome';  probably intended to be some other var
-$CMS_ADMIN_TITLE='mainmenu';
-$CMS_EXCLUDE_FROM_RECENT=1;
+$CMS_ADMIN_TITLE = 'mainmenu';
+$CMS_EXCLUDE_FROM_RECENT = 1;
 
-require_once '..'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
 
