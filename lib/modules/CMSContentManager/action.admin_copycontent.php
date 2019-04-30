@@ -50,7 +50,7 @@ if( !$node ) {
   $this->SetError($this->Lang('error_invalidpageid'));
   $this->RedirectToAdminTab();
 }
-$from_obj = $node->GetContent(FALSE,FALSE,FALSE);
+$from_obj = $node->getContent(FALSE,FALSE,FALSE);
 if( !$from_obj ) {
   $this->SetError($this->Lang('error_invalidpageid'));
   $this->RedirectToAdminTab();
