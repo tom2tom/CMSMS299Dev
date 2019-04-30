@@ -1,6 +1,6 @@
 <script type="text/javascript">
 //<![CDATA[{literal}
-$(document).ready(function() {
+$(function() {
   $('#showmore_ctl').on('click', function() {
     $(this).closest('form').submit();
   });
@@ -18,7 +18,7 @@ $(document).ready(function() {
    {/foreach}
   </ul>
 </div>
-
+{*
 <div class="pagewarn">{$mod->Lang('warn_destructive')}</div>
 
 <div class="pageoverflow">
@@ -29,7 +29,7 @@ $(document).ready(function() {
     {html_options options=$alldesigns selected=$dflt_design_id}
   </select></p>
 </div>
-
+*}
 <div class="pageoverflow">
   <p class="pagetext">
       <label for="template_ctl">{$mod->Lang('prompt_template')}:</label>
@@ -40,7 +40,7 @@ $(document).ready(function() {
 </div>
 
 <div class="pageoverflow">
-  <input type="hidden" name="{$actionid}showmore" value="0"/>
+  <input type="hidden" name="{$actionid}showmore" value="0" />
   <p class="pageinput">
     <input type="checkbox" id="showmore_ctl" name="{$actionid}showmore" value="1"{if $showmore} checked="checked"{/if}/>
     &sbsp;<label for="showmore_ctl">{$mod->Lang('prompt_showmore')}</label>
@@ -59,8 +59,7 @@ $(document).ready(function() {
 </div>
 
 <div class="pageinput pregap">
-  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
 </div>
 </form>
-
