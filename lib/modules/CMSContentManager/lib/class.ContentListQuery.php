@@ -88,12 +88,17 @@ final class ContentListQuery extends CmsDbQueryBase
 			$where[] = 'C.template_id = ?';
 			$parms[] = (int) $this->_filter->expr;
 			break;
+/*
 		case ContentListFilter::EXPR_DESIGN:
 			$sql .= ' INNER JOIN '.CMS_DB_PREFIX.'content_props P ON C.content_id = P.content_id AND P.prop_name = ?';
 			$parms[] = 'design_id';
 			$where[] = 'P.content = ?';
 			$parms[] = (int) $this->_filter->expr;
 			break;
+*/
+		// TODO stylesheet | group
+		//case ContentListFilter::EXPR_STYLE:
+
 		}
 
 		if( $where ) $sql .= ' WHERE '.implode(' AND ',$where);
