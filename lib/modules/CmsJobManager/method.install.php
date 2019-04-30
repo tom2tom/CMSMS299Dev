@@ -1,9 +1,19 @@
 <?php
-# installation-process for CmsJobManager, a core module for CMS Made Simple
-# to manage asynchronous jobs and cron jobs.
+# installation-process for CmsJobManager module.
 # Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# See license details at the top of file CmsJobManager.module.php
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Database\DataDictionary;
 
@@ -14,12 +24,13 @@ $taboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
 $dict = new DataDictionary($db);
 
 //data field holds a serialized class, size 1024 is probably enough
+//TODO consider datetime fields instead of some of the current timestamps
 $flds = '
-id I KEY AUTO NOTNULL,
-name C(255) NOTNULL,
+id I KEY AUTO NOT NULL,
+name C(255) NOT NULL,
 module C(128),
-created I NOTNULL,
-start I NOTNULL,
+created I NOT NULL,
+start I NOT NULL,
 until I,
 recurs I(4),
 errors I(4) NOTNULL DEFAULT 0,
