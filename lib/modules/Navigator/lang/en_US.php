@@ -14,6 +14,7 @@ $lang['friendlyname'] = 'CMSMS Navigation Builder';
 #G
 
 #H
+//  <li>\$node->tabindex -- Tab index, if defined.</li> irrlevant in nodes
 $lang['help'] = <<<EOT
 <h3>What does this do?</h3>
   <p>The &quot;Navigator&quot; module is an engine for generating navigations from the CMSMS content tree and a smarty template.  This module provides flexible filtering capabilities to allow building numerous navigations based on different criteria, and a simple to use hierarchical data format for generating navigations with complete flexibility.</p>
@@ -28,9 +29,8 @@ $lang['help'] = <<<EOT
 <ul>
   <li>\$node->id -- The content object integer ID.</li>
   <li>\$node->url -- URL to the content object.  This should be used when building links.</li>
-  <li>\$node->title -- The page title (if any).</li> 
+  <li>\$node->title -- The page title (if any).</li>
   <li>\$node->accesskey -- Access Key, if defined.</li>
-  <li>\$node->tabindex -- Tab index, if defined.</li>
   <li>\$node->titleattribute -- Description, or Title attribute (title), if defined.</li>
   <li>\$node->hierarchy -- Hierarchy position.  (i.e. 1.3.3)</li>
   <li>\$node->default -- TRUE if this node refers to the default content object.</li>
