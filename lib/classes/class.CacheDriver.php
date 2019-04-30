@@ -1,6 +1,6 @@
 <?php
 # Base class for data-cache drivers.
-# Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -21,8 +21,7 @@ namespace CMSMS;
 /**
  * Base class for data-cache drivers
  *
- * @since 2.0
- * @author Robert Campbell
+ * @since 2.3
  * @package CMS
  * @license GPL
  */
@@ -37,11 +36,11 @@ abstract class CacheDriver
      * @ignore
      * Identifier for key-segregation in shared public data caches
      */
-    const CORESPACE = 'cms_'; //CHECKME something more unique c.f. UUID ?
+    const CORESPACE = 'cms_'; //CHECKME something more distinct c.f. UUID ?
 
     /**
      * @ignore
-     * Per-cache namespace, defaults to core
+     * Per-cache namespace, defaults to self::CORESPACE
      */
     protected $_myspace = self::CORESPACE;
 
@@ -70,6 +69,26 @@ abstract class CacheDriver
      * @param string $group Optional name, default ''
      */
     abstract public function get($key, $group = '');
+
+    /**
+     * Get all cached values in a group
+     * If the $group parameter is not specified the current group will be used
+     * @see CacheDriver::set_group()
+     *
+     * @param string $group Optional name, default ''
+     * @return array, each member like $key=>$value, or maybe empty
+     */
+    abstract public function get_all($group = '');
+
+    /**
+     * Get all cached keys in a group
+     * If the $group parameter is not specified the current group will be used
+     * @see CacheDriver::set_group()
+     *
+     * @param string $group Optional name, default ''
+     * @return array, each member like $key=>$value, or maybe empty
+     */
+    abstract public function get_index($group = '');
 
     /**
      * Test if a cached value exists.
@@ -148,7 +167,8 @@ abstract class CacheDriver
      */
     protected function get_cachekey(string $key, string $class, string $group) : string
     {
-        return $this->_myspace.$this->hash(__DIR__.$class.$group).':'.$this->hash($key.$class.__DIR__);
+        $nonce = CMS_ROOT_URL.__CLASS__;
+        return $this->_myspace.$this->hash($nonce.$class.$group).':'.$this->hash($key.$class.$nonce);
     }
 
     /**
@@ -160,7 +180,7 @@ abstract class CacheDriver
     protected function get_cacheprefix(string $class, string $group) : string
     {
         if ($group) {
-            return $this->_myspace.$this->hash(__DIR__.$class.$group).':';
+            return $this->_myspace.$this->hash(CMS_ROOT_URL.__CLASS__.$class.$group).':';
         }
         return $this->_myspace;
     }
