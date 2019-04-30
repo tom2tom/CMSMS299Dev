@@ -74,9 +74,9 @@ function getTestValues( string $property ) : array
 		'post_max_size'			=> ['minimum'=>'2M', 'recommended'=>'10M'],
 		'upload_max_filesize'	=> ['minimum'=>'2M', 'recommended'=>'10M'],
 
-		'mysql_version'			=> ['minimum'=>'3.23', 'recommended'=>'4.1'],
-		'pgsql_version'			=> ['minimum'=>'7.4', 'recommended'=>'8'],
-		'sqlite_version'		=> ['minimum'=>'', 'recommended'=>''],
+		'mysql_version'			=> ['minimum'=>'5.6', 'recommended'=>'5.6'],
+//		'pgsql_version'			=> ['minimum'=>'7.4', 'recommended'=>'8'],
+//		'sqlite_version'		=> ['minimum'=>'', 'recommended'=>''],
 	];
 
 	if( isset($range[$property]) ) {
