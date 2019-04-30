@@ -1,5 +1,5 @@
 <?php
-# CMSContentManaager module action: get design-related page content via ajax
+# CMSContentManager module action: get design-related page content via ajax
 # Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -23,13 +23,14 @@ if( !$this->CanEditContent() ) exit;
 
 $out = null;
 try {
+/*
     $design_id = (int) get_parameter_value($params,'design_id',-1);
     if( $design_id > 0 ) {
         $mode = $this->GetPreference('template_list_mode','designpage');
         switch( $mode ) {
         case 'alldesign':
             // all templates for this design
-            $design = CmsLayoutCollection::load($design_id);
+            $design = CmsLayoutCollection::load($design_id); DISABLED
             $template_list = $design->get_templates();
 
             $templates = TemplateOperations::get_bulk_templates($template_list);
@@ -43,7 +44,7 @@ try {
         case 'designpage':
             $type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
             $type_id = $type->get_id();
-            $design = CmsLayoutCollection::load($design_id);
+            $design = CmsLayoutCollection::load($design_id); DISABLED
             $template_list = $design->get_templates();
 
             $templates = TemplateOperations::get_bulk_templates($template_list);
@@ -58,6 +59,7 @@ try {
             break;
 
         case 'allpage':
+*/
             $type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
             $template_list = TemplateOperations::get_all_templates_by_type($type);
             $out = [];
@@ -65,10 +67,10 @@ try {
                 if( !$one->get_listable() ) continue;
                 $out[$one->get_id()] = $one->get_name();
             }
-            break;
-        }
+//            break;
+//        }
     }
-}
+//}
 catch( Exception $e ) {
     $out = null;
 }
