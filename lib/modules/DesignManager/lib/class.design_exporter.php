@@ -20,7 +20,7 @@ namespace DesignManager;
 
 use cms_url;
 use cms_utils;
-use CmsLayoutCollection;
+use DesignManager\Design;
 use CmsLayoutStylesheet;
 use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
@@ -74,7 +74,7 @@ class design_exporter
 ]>\n
 EOT;
 
-    public function __construct(CmsLayoutCollection &$design)
+    public function __construct(DesignManager\Design &$design)
     {
         $this->_design = $design;
         if( !is_array(self::$_mm_types ) ) {

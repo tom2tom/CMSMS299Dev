@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use DesignManager\Design;
 use DesignManager\reader_factory;
 
 if( !isset($gCms) ) exit;
@@ -107,7 +108,7 @@ try {
         $tpl->assign('design_info',$design_info)
          ->assign('templates',$reader->get_template_list())
          ->assign('stylesheets',$reader->get_stylesheet_list());
-        $newname = CmsLayoutCollection::suggest_name($design_info['name']);
+        $newname = Design::suggest_name($design_info['name']);
         $tpl->assign('new_name',$newname);
     }
     catch( CmsException $e ) {
@@ -117,7 +118,7 @@ try {
     $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-$(document).ready(function() {
+$(function() {
   $('.template_view').on('click', function() {
     var row = $(this).closest('tr');
     cms_dialog($('.template_content',row), {

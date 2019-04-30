@@ -18,7 +18,7 @@
 
 namespace DesignManager;
 
-use CmsLayoutCollection;
+use DesignManager\Design;
 use CmsLayoutStylesheet;
 use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
@@ -375,7 +375,7 @@ class design_reader extends reader_base
     $info    = $this->get_design_info();
 
     // create new design... fill it with info
-    $design = new CmsLayoutCollection();
+    $design = new DesignManager\Design();
     // $design->set_owner(get_userid(FALSE));
     $design->set_name($newname);
     $description = $this->get_suggested_description();

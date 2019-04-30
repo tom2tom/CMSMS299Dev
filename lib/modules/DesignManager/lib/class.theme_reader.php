@@ -19,7 +19,7 @@
 namespace DesignManager;
 
 use cms_utils;
-use CmsLayoutCollection;
+use DesignManager\Design;
 use CmsLayoutStylesheet;
 use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
@@ -360,7 +360,7 @@ class theme_reader extends reader_base
     $ref_map =& $this->_ref_map;
 
     // part1 .. start creating design..
-    $design = new CmsLayoutCollection();
+    $design = new DesignManager\Design();
     $design->set_name($newname);
     $description = $this->get_suggested_description();
 

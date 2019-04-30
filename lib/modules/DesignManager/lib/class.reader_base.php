@@ -18,7 +18,6 @@
 
 namespace DesignManager;
 
-use CmsLayoutCollection;
 use CMSMS\CmsException;
 
 abstract class reader_base
@@ -115,7 +114,7 @@ abstract class reader_base
     }
 
     // now see if it's a duplicate name
-    $list = CmsLayoutCollection::get_list();
+    $list = Design::get_list();
     $orig_name = $name;
     if( $list ) {
       $name_list = array_values($list);

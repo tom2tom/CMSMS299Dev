@@ -16,8 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\StylesheetOperations;
-use CMSMS\TemplateOperations;
+//use CMSMS\StylesheetOperations;
+//use CMSMS\TemplateOperations;
+use DesignManager\Design;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Designs') ) return;
@@ -32,7 +33,7 @@ try {
     if( !isset($params['design']) ) {
         throw new CmsException($this->Lang('error_missingparam'));
     }
-    $design = CmsLayoutCollection::load($params['design']);
+    $design = Design::load($params['design']);
 
     $can_delete_stylesheets = $this->CheckPermission('Manage Stylesheets');
     $can_delete_templates = $this->CheckPermission('Modify Templates');
@@ -43,7 +44,7 @@ try {
             $this->SetError($this->Lang('error_notconfirmed'));
             $this->RedirectToAdminTab();
         }
-
+/*
         if( isset($params['delete_stylesheets']) && $can_delete_stylesheets ) {
             $css_id_list = $design->get_stylesheets();
             if( $css_id_list ) {
@@ -51,7 +52,7 @@ try {
                 $css_list = StylesheetOperations::get_bulk_stylesheets($css_id_list);
                 if( $css_list ) {
                     foreach( $css_list as &$css ) {
-                        $x = $css->get_designs();
+                        $x = $css->get_designs(); DISABLED
                         if( is_array($x) && count($x) == 1 && $x[0] == $design->get_id() ) {
                             // its orphaned
                             $css->delete();
@@ -67,7 +68,7 @@ try {
 				$templates = TemplateOperations::get_bulk_templates($tpl_id_list);
 				if( $templates ) {
 					foreach( $templates as &$tpl ) {
-						$x = $tpl->get_designs();
+						$x = $tpl->get_designs(); DISABLED
 						if( is_array($x) && count($x) == 1 && $x[0] == $design->get_id() ) {
 							// its orphaned
 							$tpl->delete();
@@ -76,7 +77,7 @@ try {
 				}
             }
         }
-
+*/
         // done... we 'force' the delete because we loaded the design object
 		// before deleting the templates and stylesheets.
         $design->delete(TRUE);
