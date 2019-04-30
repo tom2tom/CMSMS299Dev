@@ -186,21 +186,12 @@ function cms_CMloadUrl(link, lang) {
  });
 }
 function cms_CMtoggleState(el) {
- $(el).attr('disabled', true);
- $('button' + el).button({
-  'disabled': true
- });
+ $(el).attr('disabled', 'disabled');
  $('input:checkbox').on('click', function() {
   if($('input:checkbox').is(':checked')) {
-   $(el).attr('disabled', false);
-   $('button' + el).button({
-    'disabled': false
-   });
+   $(el).removeAttr('disabled');
   } else {
-   $(el).attr('disabled', true);
-   $('button' + el).button({
-    'disabled': true
-   });
+   $(el).attr('disabled', 'disabled');
   }
  });
 }
