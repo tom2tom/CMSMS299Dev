@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\ContentCache, CMSMS\ContentOperations, CMSMS\internal\global_cache;
+use CMSMS\ContentOperations;
+use CMSMS\internal\global_cache;
 
 /**
  * Class that provides content retrieval abilities, using the content cache
@@ -38,13 +39,13 @@ class cms_content_tree extends cms_tree
 	/**
 	 * Find a tree node given a tag-type and its value.
 	 *
-	 * @param string $tag_name The tag name to search for
+	 * @param string $tag_name The tag name/type to search for
 	 * @param mixed  $value The tag value to search for
 	 * @param bool $case_insensitive Whether the value should be treated as case insensitive.
 	 * @param bool $usequick Optionally, when searching by id... use the quickfind method if possible.
 	 * @return mixed cms_tree | null
 	 */
-	public function &find_by_tag($tag_name,$value,$case_insensitive = false,$usequick = true)
+	public function find_by_tag($tag_name,$value,$case_insensitive = false,$usequick = true)
 	{
 		if( $tag_name == 'id' ) $case_insensitive = true;
 		if( $usequick && $tag_name == 'id' /*&& $case_insensitive == false*/ && ($this->get_parent() == null || $this->get_tag('id') == '') ) {
@@ -52,29 +53,6 @@ class cms_content_tree extends cms_tree
 			return $res;
 		}
 		return parent::find_by_tag($tag_name,$value,$case_insensitive); //go walk the nodes-tree
-	}
-
-	/**
-	 * Retrieve the id of a tree node (if any) corresponding to the supplied tag-value
-     * whose type is assumed to be an id or alias.
-	 *
-	 * @since 2.3
-	 * @param mixed  $value The tag value to search for
-	 * @return mixed int | false
-	 */
-	public function find_by_tag_anon($value)
-	{
-		if( is_numeric($value) && $value >= 0 ) {
-			$res = $this->quickfind_node_by_id((int)$value);
-			if( $res ) {
-				return (int)$value;
-			}
-		}
-		$res = $this->find_by_tag('alias',$value);
-		if( $res ) {
-			return $res->get_tag('id');
-		}
-		return false;
 	}
 
 	/**
@@ -88,6 +66,31 @@ class cms_content_tree extends cms_tree
 	{
 		$list = global_cache::get('content_quicklist');
 		if( isset($list[$id]) ) return $list[$id];
+	}
+
+	/**
+	 * Return the node (if any) or numeric id of such node, corresponding to the
+	 * supplied identifier, which is assumed to be a numeric id or alias string.
+	 *
+	 * @since 2.3
+	 * @param mixed  $a     The identifier to search for
+	 * $param bool   $typer Optional return-type indicator. Default true.
+	 *  False to return the numeric identifier.
+	 * @return mixed int | false | cms_content_tree
+	 */
+	public function find_by_identifier($a, bool $typer = true)
+	{
+		if( is_numeric($a) && $a >= 0 ) {
+			$res = $this->quickfind_node_by_id((int)$a);
+			if( $res ) {
+				return ($typer) ? $res : (int)$a;
+			}
+		}
+		$res = $this->find_by_tag('alias',$a);
+		if( $res ) {
+			return ($typer) ? $res : $res->get_tag('id');
+		}
+		return false;
 	}
 
 	/* *
@@ -117,22 +120,23 @@ class cms_content_tree extends cms_tree
 		return $this->find_by_tag('id',$id);
 	}
 */
-	/* *
+	/**
 	 * Retrieve a node by its alias
 	 *
 	 * A backwards compatibility method
 	 *
-	 * @deprecated since 1.9 use find_by_tag() or find_by_tag_anon()
+	 * @deprecated since 1.9 use find_by_identifier()
 	 * @param mixed $alias null|bool|int|string
 	 * @return cms_content_tree
 	 */
-/*	public function sureGetNodeByAlias($alias)
+	public function sureGetNodeByAlias($alias)
 	{
-		if( $alias == '' ) return;
-		if( is_numeric($alias) && $alias > 0 ) return parent::find_by_tag('id',$alias,true);
-		return parent::find_by_tag('alias',$alias,true);
+		if( CMS_DEBUG ) {
+			throw new Exception('Replace deprecated method '.__METHOD__);
+		}
+		return $this->find_by_identifier($alias);
 	}
-*/
+
 	/* *
 	 * Retrieve a node by its alias
 	 *
@@ -190,8 +194,8 @@ class cms_content_tree extends cms_tree
 		return $this->set_tag($key,$value);
 	}
 */
-	/* *
-	 * Get this nodes id.
+	/**
+	 * Get this node's id.
 	 *
 	 * A backwards compatibility method
 	 *
@@ -199,11 +203,14 @@ class cms_content_tree extends cms_tree
 	 * @see cms_tree::get_tag()
 	 * @return int The node id.
 	 */
-/*	public function getId()
+	public function getId()
 	{
+		if( CMS_DEBUG ) {
+			throw new Exception('Replace deprecated method '.__METHOD__);
+		}
 		return $this->get_tag('id');
 	}
-*/
+
 	/* *
 	 * Get a node tag.
 	 *
@@ -252,29 +259,29 @@ class cms_content_tree extends cms_tree
 	 * if necessary, and placing it in the cache for subsequent requests.
 	 *
 	 * @param bool $deep load all child properties for the content object if loading is required. Default false
-	 * @param bool $loadsiblings load all the siblings for the selected content object at the same time (a preformance optimization) Default true
+	 * @param bool $loadsiblings load all the siblings for the selected content object at the same time (a performance optimization) Default true
 	 * @param bool $loadall If loading siblings, include inactive/disabled pages. Default false.
 	 * @return cms_tree
 	 */
-	public function &getContent($deep = false,$loadsiblings = true,$loadall = false)
+	public function getContent($deep = false,$loadsiblings = true,$loadall = false)
 	{
 		$id = $this->get_tag('id');
-		if( !$this->cache ) $this->cache = ContentCache::get_instance();
-		if( !$this->cache->content_exists($id) ) {
+		if( !$this->cache ) $this->cache = cms_cache_handler::get_instance();
+		if( !$this->cache->exists($id,'tree_pages') ) {
 			// not in cache
 			$parent = $this->getParent();
 			if( !$loadsiblings || !$parent ) {
 				// only load this content object
-				// todo: LoadContentFromId should use content cache.
-				$content = ContentOperations::get_instance()->LoadContentFromId($id, $deep);
-				return $content;
+				return ContentOperations::get_instance()->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
 			}
 			else {
 				$parent->getChildren($deep,$loadall);
-				if( $this->cache->content_exists($id) ) return $this->cache->get_content($id);
+				if( $this->cache->exists($id,'tree_pages') ) {
+					return $this->cache->get($id,'tree_pages');
+				}
 			}
 		}
-		return $this->cache->get_content($id);
+		return ContentOperations::get_instance()->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
 	}
 
 	/* *
@@ -397,8 +404,8 @@ class cms_content_tree extends cms_tree
 	 */
 	public function isContentCached()
 	{
-		if( !$this->cache ) $this->cache = ContentCache::get_instance();
-		return $this->cache->content_exists($this->get_tag('id'));
+		if( !$this->cache ) $this->cache = cms_cache_handler::get_instance();
+		return $this->cache->exists($this->get_tag('id'),'tree_pages');
 	}
 
 	/**
