@@ -22,15 +22,14 @@ use cms_config;
 use cms_tree;
 use cms_userprefs;
 use CmsApp;
+use CMSContentManager;
 use CMSContentManager\Utils;
-use CmsInvalidDataException;
-use CMSModule;
 use CMSMS\ContentOperations;
+use CMSMS\internal\global_cache;
 use CMSMS\LockOperations;
 use CMSMS\TemplateOperations;
 use CMSMS\UserOperations;
-use PHPMailer\PHPMailer\Exception;
-use const CMS_CONTENT_HIDDEN_NAME;
+use Exception;
 use function audit;
 use function check_authorship;
 use function get_userid;
@@ -64,25 +63,28 @@ final class ContentListBuilder
 	/**
 	 * Constructor
 	 *
-	 * Caches the opened pages, and userid
+	 * Caches the opened pages, and user id
 	 */
-	public function __construct(CMSModule $mod)
+	public function __construct(CMSContentManager $mod)
 	{
-		if( get_class($mod) != 'CMSContentManager' ) throw new CmsInvalidDataException('Expected ContentEditor object, got: '.get_class($mod));
-
 		$this->_module = $mod;
 		$this->_userid = get_userid();
 		$tmp = cms_userprefs::get('opened_pages');
 		if( $tmp ) $this->_opened_array = explode(',',$tmp);
 	}
 
+	/**
+	 * Record the displayable-status of the named column
+	 * @param string $column
+	 * @param bool $state Default true
+	 */
 	public function column_state($column,$state = TRUE)
 	{
 		$this->_display_columns[$column] = $state;
 	}
 
 	/**
-	 * Expand a section, given a parent page_id.	Results in the children of this page being visible.
+	 * Expand a section, given a parent page_id. Hence the children (at least) of this page are displayed.
 	 */
 	public function expand_section($parent_page_id)
 	{
@@ -97,7 +99,7 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Marks all parent pages as expanded.	Results in all content pages being visible.
+	 * Marks all parent pages as expanded.	Hence all content pages will be displayed.
 	 */
 	public function expand_all()
 	{
@@ -125,7 +127,7 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Marks all parent pages as collapsed.	Results in no child pages beng visible.
+	 * Marks all parent pages as collapsed.	Hence no descendant page is visible.
 	 */
 	public function collapse_all()
 	{
@@ -134,7 +136,7 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Collapse a parent page, results in its child pages not being visible in the content list.
+	 * Collapse a parent page, hence  its descendant pages are not visible.
 	 */
 	public function collapse_section($parent_page_id)
 	{
@@ -169,7 +171,7 @@ final class ContentListBuilder
 		$hm = CmsApp::get_instance()->GetHierarchyManager();
 		$node = $hm->quickfind_node_by_id($page_id);
 		if( !$node ) return FALSE;
-		$content = $node->GetContent(FALSE,FALSE,FALSE);
+		$content = $node->getContent(FALSE,FALSE,FALSE);
 		if( !$content ) return FALSE;
 
 		$content->SetActive($state);
@@ -178,9 +180,9 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Set the filter
+	 * [Un]set the content list filter
 	 *
-	 * @param ContentListFilter $filter an optional filter.	Use null to invalidate any filter.
+	 * @param mixed $filter optional filter. ContentListFilter | null to invalidate any filter. Default null
 	 */
 	public function set_filter(ContentListFilter $filter = null)
 	{
@@ -200,7 +202,6 @@ final class ContentListBuilder
 		$n = max(1,min(500,$n));
 		$this->_pagelimit = $n;
 	}
-
 
 	/**
 	 * Get the page limit.
@@ -284,9 +285,6 @@ final class ContentListBuilder
 
 		$contentops = ContentOperations::get_instance();
 		$content1 = $contentops->LoadContentFromId($page_id);
-		$page_id2 = ContentOperations::get_instance()->GetDefaultContent();
-		$content2 = $contentops->LoadContentFromId($page_id2);
-
 		if( !$content1 ) return FALSE;
 		if( !$content1->IsDefaultPossible() ) return FALSE;
 		if( !$content1->Active() ) return FALSE;
@@ -294,6 +292,8 @@ final class ContentListBuilder
 		$content1->SetDefaultContent(TRUE);
 		$content1->Save();
 
+		$page_id2 = $contentops->GetDefaultContent();
+		$content2 = $contentops->LoadContentFromId($page_id2);
 		if( $page_id != $page_id2 && $content2 ) {
 			$content2->SetDefaultContent(FALSE);
 			$content2->Save();
@@ -317,7 +317,8 @@ final class ContentListBuilder
 		if( $this->_module->CheckPermission('Manage All Content') ) {
 			$test = TRUE;
 		}
-		else if( $this->_module->CheckPermission('Reorder Content') && $contentops->CheckPeerAuthorship($this->_userid,$page_id) ) {
+		else if( $this->_module->CheckPermission('Reorder Content') &&
+				$contentops->CheckPeerAuthorship($this->_userid,$page_id) ) {
 			$test = TRUE;
 		}
 
@@ -326,8 +327,7 @@ final class ContentListBuilder
 		$content = $contentops->LoadContentFromId($page_id);
 		if( !$content ) return FALSE;
 
-		$content->ChangeItemOrder($direction);
-		$contentops = ContentOperations::get_instance();
+		$content->ChangeItemOrder($direction); //BAD TODO 'shortform' content-object
 		$contentops->SetAllHierarchyPositions();
 		return TRUE;
 	}
@@ -362,7 +362,7 @@ final class ContentListBuilder
 		$childcount = 0;
 		if( $parent ) $childcount = $parent->count_children();
 
-		$content = $node->GetContent(FALSE,FALSE,FALSE);
+		$content = $node->getContent(FALSE,FALSE,FALSE);
 		if( $content->DefaultContent() ) return $this->_module->Lang('error_delete_defaultcontent');
 
 		$content->Delete();
@@ -382,47 +382,53 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Get the columns and context-menu items that are visible to display in the content list
+	 * Get the columns that are to be displayed in the content list
 	 *
-	 * @return array associative array.	Column key is the key, and a string (either, 'icon','normal' to indicate
-	 * how the column header is intended.	or empty/null to indicate if the column should be hidden.
+	 * @return array  Each member like colcode => headertype, where headertype is a
+	 * string ('icon'|'normal') to indicate how the column header is intended, or
+	 * null to indicate that the column should be hidden.
 	 */
 	public function get_display_columns()
 	{
-//		$dflt = 'expand,icon1,hier,page,alias,template,friendlyname,active,default,view,copy,addchild,edit,delete,actions,multiselect';
-		$dflt = 'expand,icon1,hier,page,alias,template,friendlyname,active,default,actions,multiselect';
 		$mod = $this->_module;
-		$cols = explode(',',$mod->GetPreference('list_visiblecolumns',$dflt));
+		$flat = $mod->GetPreference('list_visiblecolumns');
+		if( !$flat ) { $flat =
+		'expand,icon1,hier,page,alias,friendlyname,template,active,default,actions,multiselect'; }
+		$cols = explode(',',$flat);
 
-		$columnstodisplay = [];
-		$columnstodisplay['expand'] = (!$this->_filter && in_array('expand',$cols)) ? 'icon' : null;
-		$columnstodisplay['icon1'] = in_array('icon1',$cols) ? 'icon' : null;
-		$columnstodisplay['hier'] = in_array('hier',$cols) ? 'normal' : null;
-		$columnstodisplay['page'] = in_array('page',$cols) ? 'normal' : null;
-		$columnstodisplay['alias'] = in_array('alias',$cols) ? 'normal' : null;
-		$columnstodisplay['url'] = in_array('url',$cols) ? 'normal' : null;
-		$columnstodisplay['template'] = in_array('template',$cols) ? 'normal' : null;
-		$columnstodisplay['friendlyname'] = in_array('friendlyname',$cols) ? 'normal' : null;
-		$columnstodisplay['owner'] = in_array('owner',$cols) ? 'normal' : null;
-		$columnstodisplay['active'] = (in_array('active',$cols) && $mod->CheckPermission('Manage All Content')) ? 'icon' : null;
-		$columnstodisplay['default'] = (in_array('default',$cols) && $mod->CheckPermission('Manage All Content')) ? 'icon' : null;
-		$columnstodisplay['actions'] = 'icon';
-		$columnstodisplay['multiselect'] = (in_array('multiselect',$cols) && ($mod->CheckPermission('Remove Pages') || $mod->CheckPermission('Manage All Content'))) ? 'icon' : null;
-		// the rest are for menu items, not displayed columns
-		$columnstodisplay['move'] = (in_array('move',$cols) && ($mod->CheckPermission('Manage All Content') || $mod->CheckPermission('Reorder Content'))) ? 'icon' : null;
-		$columnstodisplay['view'] = in_array('view',$cols) ? 'icon' : null;
-		$columnstodisplay['copy'] = (in_array('copy',$cols) && ($mod->CheckPermission('Add Pages') || $mod->CheckPermission('Manage All Content'))) ? 'icon' : null;
-		$columnstodisplay['addchild'] = (in_array('addchild',$cols) && ($mod->CheckPermission('Add Pages') || $mod->CheckPermission('Manage All Content'))) ? 'icon' : null;
-		$columnstodisplay['edit'] = in_array('edit',$cols) ? 'icon' : null;
-		$columnstodisplay['delete'] = (in_array('delete',$cols) && ($mod->CheckPermission('Remove Pages') || $mod->CheckPermission('Manage All Content'))) ? 'icon' : null;
+		$pall = $mod->CheckPermission('Manage All Content');
+		$padd = $pall || $mod->CheckPermission('Add Pages');
+		$pdel = $pall || $mod->CheckPermission('Remove Pages');
 
-		foreach( $columnstodisplay as $key => $val ) {
-			if( isset($this->_display_columns[$key]) ) {
-				$columnstodisplay[$key] = $val && $this->_display_columns[$key];
+		$displaycols = []; //populated in the order of displayed columns
+		$displaycols['expand'] = (!$this->_filter && in_array('expand',$cols)) ? 'icon' : null;
+		$displaycols['icon1'] = in_array('icon1',$cols) ? 'icon' : null;
+		$displaycols['hier'] = in_array('hier',$cols) ? 'normal' : null;
+		$displaycols['page'] = in_array('page',$cols) ? 'normal' : null;
+		$displaycols['alias'] = in_array('alias',$cols) ? 'normal' : null;
+		$displaycols['url'] = in_array('url',$cols) ? 'normal' : null;
+		$displaycols['friendlyname'] = in_array('friendlyname',$cols) ? 'normal' : null;
+		$displaycols['owner'] = in_array('owner',$cols) ? 'normal' : null;
+		$displaycols['template'] = in_array('template',$cols) ? 'normal' : null;
+		$displaycols['active'] = ($pall && in_array('active',$cols)) ? 'icon' : null;
+		$displaycols['default'] = ($pall && in_array('default',$cols)) ? 'icon' : null;
+		$displaycols['actions'] = 'icon';
+		$displaycols['multiselect'] = ($pdel && in_array('multiselect',$cols)) ? 'icon' : null;
+		// the rest are probably actions-menu items, not displayed columns
+		$displaycols['view'] = in_array('view',$cols) ? 'icon' : null;
+		$displaycols['edit'] = in_array('edit',$cols) ? 'icon' : null;
+		$displaycols['delete'] = ($pdel && in_array('delete',$cols)) ? 'icon' : null;
+		$displaycols['copy'] = ($padd && in_array('copy',$cols)) ? 'icon' : null;
+		$displaycols['addchild'] = ($padd && in_array('addchild',$cols)) ? 'icon' : null;
+		$displaycols['move'] = (in_array('move',$cols) && ($pall || $mod->CheckPermission('Reorder Content'))) ? 'icon' : null;
+
+		foreach( $displaycols as $key => $val ) {
+			if( isset($this->_display_columns[$key]) && !$this->_display_columns[$key] ) {
+				$displaycols[$key] = null;
 			}
 		}
 
-		return $columnstodisplay;
+		return $displaycols;
 	}
 
 	/**
@@ -654,7 +660,7 @@ final class ContentListBuilder
 	{
 		static $_users = null;
 		if( !$_users ) {
-			$tmp = UserOperations::get_instance()->LoadUsers();
+			$tmp = (new UserOperations())->LoadUsers();
 			if( is_array($tmp) && ($n = count($tmp)) ) {
 				$_users = [];
 				for( $i = 0; $i < $n; $i++ ) {
@@ -667,64 +673,62 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Givena list of displayable pages, builds display info for each page.
+	 * Build display info for each page in the supplied list.
+	 *
+	 * @ignore
+	 * @param array $page_list integer page-id's
+	 * @return array
 	 */
 	private function _get_display_data($page_list)
 	{
-		$users = $this->_get_users();
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
 		$mod = $this->_module;
+		$users = $this->_get_users();
 		$columns = $this->get_display_columns();
-		$userid = $this->_userid;
-
-		// preload the templates.
-		$tpl_list = [];
-		foreach( $page_list as $page_id ) {
-			$node = $hm->quickfind_node_by_id($page_id);
-			if( !$node ) continue;
-			$content = $node->GetContent(FALSE,FALSE,TRUE);
-			if( !$content ) continue;
-			$tpl_list[] = $content->TemplateId();
-		}
-		$tpl_list = array_values(array_unique(array_values($tpl_list)));
-		$tpls = TemplateOperations::get_bulk_templates($tpl_list);
+		$cache = global_cache::get('content_quicklist');
 
 		$out = [];
 		foreach( $page_list as $page_id ) {
-			$node = $hm->quickfind_node_by_id($page_id);
-			if( !$node ) continue;
-			$content = $node->GetContent(FALSE,TRUE,TRUE);
-			if( !$content ) continue;
+			$node = $cache[$page_id] ?? null;
+			if( !$node ) {
+				continue;
+			}
+			$content = $node->getContent(FALSE,TRUE,TRUE); // not a ContentEditor object
+			if( !$content ) {
+				continue;
+			}
 
 			$rec = [];
 			$rec['depth'] = $node->get_level();
-			$rec['hasusablelink'] = $content->HasUsableLink();
-			$rec['hastemplate'] = $content->HasTemplate();
-			$rec['menutext'] = strip_tags($content->MenuText());
-			$rec['title'] = strip_tags($content->Name());
-			$rec['template_id'] = $content->TemplateId();
-			$rec['can_edit_tpl'] = $mod->CheckPermission('Modify Templates');
 			$rec['id'] = $content->Id();
-			$rec['lastmodified'] = $content->GetModifiedDate();
-			$rec['created'] = $content->GetCreationDate();
+			$rec['title'] = strip_tags($content->Name());
+			$rec['menutext'] = strip_tags($content->MenuText());
+			$rec['template_id'] = $content->TemplateId();
 			$rec['cachable'] = $content->Cachable();
 			$rec['showinmenu'] = $content->ShowInMenu();
+			$rec['hasusablelink'] = $content->HasUsableLink();
+			$rec['hastemplate'] = $content->HasTemplate(); // mebbe not actually c.f. template id
+			$rec['lastmodified'] = $content->GetModifiedDate();
+			$rec['created'] = $content->GetCreationDate();
 			$rec['wantschildren'] = $content->WantsChildren();
 			$rec['viewable'] = $content->IsViewable();
+			$tmp = $content->LastModifiedBy();
+			if( $tmp > 0 && isset($users[$tmp]) ) {
+				$rec['lastmodifiedby'] = strip_tags($users[$tmp]->username);
+			}
 			if( $this->_is_locked($page_id) ) {
 				$lock = $this->_locks[$page_id];
 				$rec['lockuser'] = $users[$lock['uid']]->username;
 				$rec['lock'] = $this->_locks[$page_id];
 			}
-			if( $page_id == $this->_seek_to ) $rec['selected'] = 1;
-			if( $content->LastModifiedBy() > 0 && isset($users[$content->LastModifiedBy()]) ) {
-				$rec['lastmodifiedby'] = strip_tags($users[$content->LastModifiedBy()]->username);
+			if( $page_id == $this->_seek_to ) {
+				$rec['selected'] = 1;
 			}
 			$rec['can_edit'] = ($mod->CheckPermission('Modify Any Page') || $mod->CheckPermission('Manage All Content') ||
 								$this->_check_authorship($rec['id'])) && !$this->_is_locked($page_id);
 			$rec['can_steal'] = ($mod->CheckPermission('Modify Any Page') || $mod->CheckPermission('Manage All Content') ||
 								 $this->_check_authorship($rec['id'])) && $this->_is_locked($page_id) && $this->_is_lock_expired($page_id);
 			$rec['can_delete'] = $rec['can_edit'] && $mod->CheckPermission('Remove Pages');
+			$rec['can_edit_tpl'] = $mod->CheckPermission('Modify Templates');
 
 			foreach( $columns as $column => $displayable ) {
 				switch( $column ) {
@@ -744,47 +748,57 @@ final class ContentListBuilder
 					break;
 
 				case 'page':
-					if( $content->MenuText() == CMS_CONTENT_HIDDEN_NAME ) continue;
-					$rec[$column] = strip_tags($content->MenuText());
-					if( Utils::get_pagenav_display() == 'title' ) $rec[$column] = strip_tags($content->Name());
+					if( $content->MenuText() == CMSContentManager\ContentBase::CMS_CONTENT_HIDDEN_NAME ) break;
+					if( Utils::get_pagenav_display() == 'title' ) { $rec[$column] = strip_tags($content->Name()); }
+					else { $rec[$column] = $rec['menutext']; }
 					break;
 
 				case 'alias':
-					if( $content->HasUsableLink() && $content->Alias() != '' ) $rec[$column] = strip_tags($content->Alias());
+					if( $rec['hasusablelink'] && $content->Alias() ) $rec[$column] = strip_tags($content->Alias());
 					break;
 
 				case 'url':
-					$rec[$column] = '';
-					if( $content->HasUsableLink() && $content->URL() != '' ) $rec[$column] = strip_tags($content->URL());
+					if( $rec['hasusablelink'] && $content->URL() ) { $rec[$column] = strip_tags($content->URL()); }
+					else { $rec[$column] = ''; }
 					break;
 
 				case 'template':
-					if( $content->IsViewable() ) {
-						try {
-							$template = TemplateOperations::get_template($content->TemplateId());
-							$rec[$column] = $template->get_name();
+					if( $rec['viewable'] ) {
+						if( $rec['template_id'] > 0 ) {
+							try {
+								$template = TemplateOperations::get_template($rec['template_id']);
+								$rec[$column] = $template->get_name();
+							}
+							catch( Exception $e ) {
+								$rec[$column] = lang('critical_error');
+							}
 						}
-						catch( Exception $e ) {
-							// can't edit this content object, cuz we can't get the template associated with it.
-							$rec['can_edit'] = false;
+						else {
+							$rec[$column] = lang('none');
 						}
 					}
 					break;
 
 				case 'friendlyname':
-					$rec[$column] = $content->FriendlyName();
+					if( method_exists($content, 'FriendlyName') ) {
+						$rec[$column] = $content->FriendlyName();
+						if( !$rec[$column] ) { $rec[$column] = $mod->Lang('contenttype_'.$content->Type()); }
+					}
+					else {
+						$rec[$column] = $mod->Lang('contenttype_'.$content->Type());
+					}
 					break;
 
 				case 'owner':
-					if( $content->Owner() > 0 ) $rec[$column] = strip_tags($users[$content->Owner()]->username);
+					if( $content->Owner() > 0 ) { $rec[$column] = strip_tags($users[$content->Owner()]->username); }
 					break;
 
 				case 'active':
 					$rec[$column] = '';
 					if( $mod->CheckPermission('Manage All Content') && !$content->IsSystemPage() && !$this->_is_locked($page_id) ) {
 						if( $content->Active() ) {
-							$rec[$column] = 'active';
-							if( $content->DefaultContent() ) $rec[$column] = 'default';
+							if( $content->DefaultContent() ) { $rec[$column] = 'default'; }
+							else { $rec[$column] = 'active'; }
 						} else {
 							$rec[$column] = 'inactive';
 						}
@@ -793,14 +807,29 @@ final class ContentListBuilder
 
 				case 'default':
 					$rec[$column] = '';
-					if( $this->_module->CheckPermission('Manage All Content') && !$this->_is_locked($page_id) && !$this->_is_default_locked() ) {
+					if( $mod->CheckPermission('Manage All Content') && !$this->_is_locked($page_id) && !$this->_is_default_locked() ) {
 						if( $content->IsDefaultPossible() && $content->Active() ) $rec[$column] = ($content->DefaultContent())?'yes':'no';
 					}
 					break;
 
+				case 'multiselect':
+					$rec[$column] = '';
+					if( !$content->IsSystemPage() && !$this->_is_locked($rec['id']) ) {
+						if( $mod->CheckPermission('Manage All Content') || $mod->CheckPermission('Modify Any Page') ) {
+							$rec[$column] = 'yes';
+						}
+						else if( $mod->CheckPermission('Remove Pages') && $this->_check_authorship($rec['id']) ) {
+							$rec[$column] = 'yes';
+						}
+						else if( $this->_check_authorship($rec['id']) ) {
+							$rec[$column] = 'yes';
+						}
+					}
+					break;
+				// the rest relate to fields which are normally actions-menu items
 				case 'move':
 					$rec[$column] = '';
-					if( !$this->have_locks() && $this->_check_peer_authorship($content->Id()) && ($nsiblings = $node->count_siblings()) > 1 ) {
+					if( !$this->have_locks() && $this->_check_peer_authorship($rec['id']) && ($nsiblings = $node->count_siblings()) > 1 ) {
 						if( $content->ItemOrder() == 1 ) {
 							$rec[$column] = 'down';
 						}
@@ -814,13 +843,13 @@ final class ContentListBuilder
 					break;
 
 				case 'view':
-					$rec[$column] = '';
-					if( $content->HasUsableLink() && $content->IsViewable() && $content->Active() ) $rec[$column] = $content->GetURL();
+					if( $rec['hasusablelink'] && $rec['viewable'] && $content->Active() ) { $rec[$column] = $content->GetURL(); }
+					else { $rec[$column] = ''; }
 					break;
 
 				case 'copy':
 					$rec[$column] = '';
-					if( $content->IsCopyable() && !$this->_is_locked($content->Id()) ) {
+					if( $content->IsCopyable() && !$this->_is_locked($rec['id']) ) {
 						if( ($rec['can_edit'] && $mod->CheckPermission('Add Pages')) || $mod->CheckPermission('Manage All Content') ) {
 							$rec[$column] = 'yes';
 						}
@@ -846,23 +875,8 @@ final class ContentListBuilder
 
 				case 'delete':
 					$rec[$column] = '';
-					if( $rec['can_delete'] && !$content->DefaultContent() && !$node->has_children() && !$this->_is_locked($content->Id()) ) {
+					if( $rec['can_delete'] && !$content->DefaultContent() && !$node->has_children() && !$this->_is_locked($rec['id']) ) {
 						$rec[$column] = 'yes';
-					}
-					break;
-
-				case 'multiselect':
-					$rec[$column] = '';
-					if( !$content->IsSystemPage() && !$this->_is_locked($content->Id()) ) {
-						if( $mod->CheckPermission('Manage All Content') || $mod->CheckPermission('Modify Any Page') ) {
-							$rec[$column] = 'yes';
-						}
-						else if( $mod->CheckPermission('Remove Pages') && $this->_check_authorship($content->Id()) ) {
-							$rec[$column] = 'yes';
-						}
-						else if( $this->_check_authorship($content->Id()) ) {
-							$rec[$column] = 'yes';
-						}
 					}
 					break;
 				} // switch
@@ -875,7 +889,7 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Master function, returns an array of display data for viewable/editable content
+	 * Return display-data for viewable/editable content
 	 */
 	public function get_content_list()
 	{
@@ -884,11 +898,11 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Test if this content list supports multiselect
+	 * Return whether this content list supports multiselect
 	 */
 	public function supports_multiselect()
 	{
 		$cols = $this->get_display_columns();
-		return (isset($cols['multiselect']) && $cols['multiselect']);
+		return !empty($cols['multiselect']);
 	}
 } // class
