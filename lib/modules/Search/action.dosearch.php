@@ -41,8 +41,8 @@ if ($params['searchinput'] != '') {
         $ary = [];
         foreach ($words as $word) {
             $word = trim($word);
-            // $ary[] = "word = " . $db->qstr(cms_htmlentities($word));
-            $ary[] = 'word = ' . $db->qstr($word);
+            // $ary[] = "word = " . $db->qStr(cms_htmlentities($word));
+            $ary[] = 'word = ' . $db->qStr($word);
         }
         $searchphrase = implode(' OR ', $ary);
     }
@@ -83,7 +83,7 @@ WHERE ('.$searchphrase.') AND (i.expires IS NULL OR i.expires >= NOW())';
     if( isset( $params['modules'] ) ) {
         $modules = explode(',',$params['modules']);
         for( $i = 0, $n = count($modules); $i < $n; $i++ ) {
-            $modules[$i] = $db->qstr($modules[$i]);
+            $modules[$i] = $db->qStr($modules[$i]);
         }
         $query .= ' AND i.module_name IN ('.implode(',',$modules).')';
     }
@@ -105,8 +105,8 @@ WHERE ('.$searchphrase.') AND (i.expires IS NULL OR i.expires >= NOW())';
                 //Content is easy... just grab it out of hierarchy manager and toss the url in
                 $node = $hm->find_by_tag('id',$result->fields['content_id']);
                 if (isset($node)) {
-                    $content = $node->GetContent();
-                    if (isset($content) && $content->Active()) $col->AddItem($content->Name(), $content->GetURL(), $content->Name(), $result->fields['total_weight']);
+                    $content = $node->getContent();
+                    if ($content && $content->Active()) $col->AddItem($content->Name(), $content->GetURL(), $content->Name(), $result->fields['total_weight']);
                 }
             }
         }
@@ -114,7 +114,7 @@ WHERE ('.$searchphrase.') AND (i.expires IS NULL OR i.expires >= NOW())';
             $thepageid = $this->GetPreference('resultpage',-1);
             if( $thepageid == -1 ) $thepageid = $returnid;
             if( isset($params['detailpage']) ) {
-                $tmppageid = $hm->find_by_tag_anon($params['detailpage']);
+                $tmppageid = $hm->find_by_identifier($params['detailpage'],false);
                 if( $tmppageid ) $thepageid = $tmppageid;
             }
             if( $thepageid == -1 ) $thepageid = $returnid;
