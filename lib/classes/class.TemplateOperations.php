@@ -17,6 +17,7 @@
 
 namespace CMSMS;
 
+use cms_config;
 use CmsApp;
 use CmsDataNotFoundException;
 use CmsInvalidDataException;
@@ -32,6 +33,8 @@ use CMSMS\UserOperations;
 use CmsSQLErrorException;
 use const CMS_DB_PREFIX;
 use function audit;
+use function check_permission;
+use function cms_join_path;
 use function cmsms;
 use function endswith;
 use function file_put_contents;
@@ -649,12 +652,12 @@ VALUES (?,?,?,?,?,?,?,?,?)';
         $db = CmsApp::get_instance()->GetDb();
 
         if( $by_name ) {
-            $query = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY modified_date DESC';
-            return $db->GetAssoc($query);
+            $sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY modified_date DESC';
+            return $db->GetAssoc($sql);
         }
         else {
-            $query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY modified_date DESC';
-            $ids = $db->GetCol($query);
+            $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY modified_date DESC';
+            $ids = $db->GetCol($sql);
             return self::get_bulk_templates($ids,false);
         }
     }
@@ -731,12 +734,12 @@ VALUES (?,?,?,?,?,?,?,?,?)';
         $out = [];
         $db = cmsms()->GetDb();
         if( $prefix ) {
-            $query = 'SELECT id,name FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' WHERE name LIKE ? ORDER BY name';
-            $res = $db->GetAssoc($query,[$prefix.'%']);
+            $sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' WHERE name LIKE ? ORDER BY name';
+            $res = $db->GetAssoc($sql,[$prefix.'%']);
         }
         else {
-            $query = 'SELECT id,name FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' ORDER BY name';
-            $res = $db->GetAssoc($query);
+            $sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' ORDER BY name';
+            $res = $db->GetAssoc($sql);
         }
         if( $res ) {
             if( $by_name ) {
@@ -917,280 +920,306 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 //============= TEMPLATE-OPERATION BACKENDS ============
 
 	/**
-	 * @since 2.3
-	 * @param int $id template identifier, < 0 means a group
-	 * @return type Description
-	 */
-    public static function operation_copy(int $id)
-	{
-/*
-GROUP if id < 0
-
-try {
-    $orig_tpl = TemplateOperations::get_template($_REQUEST['tpl']);
-
-    if( isset($_REQUEST['submit']) || isset($_REQUEST['apply']) ) {
-
-        try {
-            $new_tpl = clone($orig_tpl);
-            $new_tpl->set_owner(get_userid());
-            $new_tpl->set_name(trim($_REQUEST['new_name']));
-            $new_tpl->set_additional_editors([]);
-/*
-            // only if have manage themes right.
-            if( check_permission($userid,'Modify Designs') ) {
-                $new_tpl->set_designs($orig_tpl->get_designs()); DISABLED
-            }
-            else {
-                $new_tpl->set_designs([]);
-            }
-* /
-            $new_tpl->save();
-
-            if( isset($_REQUEST['apply']) ) {
-                $themeObject->ParkNotice('info',lang_by_realm('layout','msg_template_copied_edit'));
-                redirect('edittemplate,php'.$urlext.'&tpl='.$new_tpl->get_id());
-            }
-            else {
-                $themeObject->ParkNotice('info',lang_by_realm('layout','msg_template_copied'));
-                redirect('listtemplates.php'.$urlext);
-            }
-        }
-        catch( CmsException $e ) {
-            $themeObject->RecordNotice('error',$e->GetMessage());
-        }
-    }
-
-    // build a display.
-    $smarty = CmsApp::get_instance()->GetSmarty();
-
-    $cats = CmsLayoutTemplateCategory::get_all();
-    $out = [];
-    $out[0] = lang_by_realm('layout','prompt_none');
-    if( $cats ) {
-        foreach( $cats as $one ) {
-            $out[$one->get_id()] = $one->get_name();
-        }
-    }
-    $smarty->assign('category_list',$out);
-
-    $types = CmsLayoutTemplateType::get_all();
-    if( $types ) {
-        $out = [];
-        foreach( $types as $one ) {
-            $out[$one->get_id()] = $one->get_langified_display_value();
-        }
-        $smarty->assign('type_list',$out);
-    }
-
-/*    $designs = DesignManager\Design::get_all();
-    if( $designs ) {
-        $out = [];
-        foreach( $designs as $one ) {
-            $out[$one->get_id()] = $one->get_name();
-        }
-        $smarty->assign('design_list',$out);
-    }
-* /
-    $userops = cmsms()->GetUserOperations();
-    $allusers = $userops->LoadUsers();
-    $tmp = [];
-    foreach( $allusers as $one ) {
-        $tmp[$one->id] = $one->username;
-    }
-    if( $tmp ) {
-        $smarty->assign('user_list',$tmp);
-    }
-
-    $new_name = $orig_tpl->get_name();
-    $p = strrpos($new_name,' -- ');
-    $n = 2;
-    if( $p !== FALSE ) {
-        $n = (int)substr($new_name,$p+4)+1;
-        $new_name = substr($new_name,0,$p);
-    }
-
-    $selfurl = basename(__FILE__);
-    $new_name .= ' -- '.$n;
-    $smarty->assign('new_name',$new_name)
-      ->assign('selfurl',$selfurl)
-      ->assign('urlext',$urlext)
-      ->assign('tpl',$orig_tpl);
-
-    include_once 'header.php';
-    $smarty->display('copytemplate.tpl');
-    include_once 'footer.php';
-}
-catch( CmsException $e ) {
-    $themeObject->ParkNotice('error',$e->GetMessage());
-    redirect('listtemplates.php'.$urlext);
-}
- */
-	}
-
-	/**
+	 * Clone template(s) and/or group(s)
 	 * @since 2.3
 	 * @param mixed $ids int | int[] template identifier(s), < 0 means a group
-	 * @return type Description
+	 * @return int No of templates cloned
 	 */
-	public static function operation_delete($ids)
+    public static function operation_copy($ids) : int
 	{
-		if (is_array($ids) ) {
-
-		} else {
-
+		$n = 0;
+		list($tpls,$grps) = self::items_split($ids);
+		if ($tpls) {
+			$sql = 'SELECT name,content,description,contentfile FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($tpls)-1).'?)';
+			$from = $db->GetArray($sql, $shts);
+			$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,content,description,contentfile) VALUES (?,?,?,?)';
+			foreach ($from as $row) {
+				if ($row['name']) {
+					$row['name'] = self::get_unique_name($row['name']);
+				} else {
+					$row['name'] = null;
+				}
+				if ($row['contentfile']) {
+					//TODO clone file
+					$row['content'] = TODOfunc($row['name']);
+				}
+				$db->Execute($sql, $row);
+			}
+			$n = count($from);
 		}
-/*
-GROUP if id < 0
-
-try {
-    $group = CmsLayoutTemplateCategory::load($_REQUEST['grp']);
-    $group->delete();
-    $themeObject->ParkNotice('info',lang_by_realm('layout','msg_group_deleted'));
-    redirect('listtemplates.php'.$urlext.'&_activetab=groups');
-}
-catch( CmsException $e ) {
-    $themeObject->ParkNotice('error',$e->GetMessage());
-    redirect('listtemplates.php'.$urlext.'&_activetab=groups');
-}
-
-    $tpl_ob = self::get_template($tpl_id);
-    if( $tpl_ob->get_owner_id() != get_userid() && !check_permission($userid,'Modify Templates') ) {
-        throw new CmsException(lang_by_realm('layout','error_permission'));
-    }
-
-    $tpl_ob->delete();
-    $themeObject->ParkNotice('info',lang_by_realm('layout','msg_template_deleted'));
-    // find the number of 'pages' that use this template.
-    $db = cmsms()->GetDb();
-    $query = 'SELECT COUNT(*) FROM '.CMS_DB_PREFIX.'content WHERE template_id = ?';
-    $n = $db->GetOne($query,[$tpl_ob->get_id()]);
-
-    $cats = CmsLayoutTemplateCategory::get_all();
-    $out = [];
-    $out[0] = lang_by_realm('layout','prompt_none');
-    if( $cats ) {
-        foreach( $cats as $one ) {
-            $out[$one->get_id()] = $one->get_name();
-        }
-    }
-    $smarty->assign('category_list',$out);
-
-    $types = CmsLayoutTemplateType::get_all();
-    if( $types ) {
-        $out = [];
-        foreach( $types as $one ) {
-            $out[$one->get_id()] = $one->get_langified_display_value();
-        }
-        $smarty->assign('type_list',$out);
-    }
-/ *
-    $designs = DesignManager\Design::get_all(); DISABLED
-    if( $designs ) {
-        $out = [];
-        foreach( $designs as $one ) {
-            $out[$one->get_id()] = $one->get_name();
-        }
-        $smarty->assign('design_list',$out);
-    }
-* /
- */
-	}
-
-	/**
-	 * @since 2.3
-	 * @param mixed $ids int | int[] template identifier(s), < 0 means a group
-	 * @return type Description
-	 */
-    public static function operation_deleteall($ids)
-	{
-		if (is_array($ids) ) {
-
-		} else {
-
+		if ($grps) {
+			$sql = 'SELECT id,name,description FROM '.CMS_DB_PREFIX.'layout_tpl_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$from = $db->GetArray($sql, $grps);
+			$sql = 'SELECT group_id,tpl_id,item_order FROM '.CMS_DB_PREFIX.'layout_tplgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$members = $db->Execute($sql, $grps);
+			$sql = 'INSERT INTO '.CMS_DB_PREFIX.'layout_tpl_groups (name,description) VALUES (?,?)';
+			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.'layout_tplgroup_members (group_id,tpl_id,item_order) VALUES (?,?,?)';
+			foreach ($from as $row) {
+				if ($row['name']) {
+					$name = self::get_unique_name($row['name']);
+				} else {
+					$name = null;
+				}
+				$db->Execute($sql, [$name, $row['description']]);
+				$to = $db->Insert_ID();
+				$from = $row['id'];
+				foreach ($members as $grprow) {
+					if ($grprow['group_id'] == $from) {
+						$db->Execute($sql2, [$to, $grprow['tpl_id'], $grprow['item_order']]);
+					}
+				}
+			}
+			$n += count($from);
 		}
+		return $n;
 	}
 
 	/**
-	 * @since 2.3
-	 * @param int $id template identifier, < 0 means a group
-	 * @return type Description
-	 */
-	public static function operation_replace(int $id)
-	{
-
-	}
-
-	/**
-	 * @since 2.3
-	 * @param int $id template identifier
-	 * @return type Description
-	 *
-	 */
-	public static function operation_applyall(int $id)
-	{
-
-	}
- /*
-	/**
+	 * Delete template(s) and/or group(s) but not group members (unless also specified individually)
 	 * @since 2.3
 	 * @param mixed $ids int | int[] template identifier(s), < 0 means a group
-	 * @return type Description
-	 * /
-	public static function operation_export($ids)
+	 * @return int No of pages modified
+	 */
+	public static function operation_delete($ids) : int
 	{
-        $first_tpl = $templates[0];
-        $outfile = $first_tpl->get_content_filename();
-        $dn = dirname($outfile);
-        if( !is_dir($dn) || !is_writable($dn) ) {
-            throw new RuntimeException(lang_by_realm('layout','error_assets_writeperm'));
-        }
-        if( isset($_REQUEST['submit']) ) {
-            $n = 0;
-            foreach( $templates as $one ) {
-                if( in_array($one->get_id(),$_REQUEST['tpl_select']) ) {
-                    $outfile = $one->get_content_filename();
-                    if( !is_file($outfile) ) {
-                        file_put_contents($outfile,$one->get_content());
-                        $n++;
-                    }
-                }
-            }
-            if( $n == 0 ) throw new RuntimeException(lang_by_realm('layout','error_bulkexport_noneprocessed'));
-
-        }
-	}
-
-	/**
-	 * @since 2.3
-	 * @param mixed $ids int | int[] template identifier(s), < 0 means a group
-	 * @return type Description
-	 * /
-	public static function operation_import($ids)
-	{
-        $first_tpl = $templates[0];
-        if( isset($_REQUEST['submit']) ) {
-            $n = 0;
-            foreach( $templates as $one ) {
-                if( in_array($one->get_id(),$_REQUEST['tpl_select']) ) {
-                    $infile = $one->get_content_filename();
-                    if( is_file($infile) && is_readable($infile) && is_writable($infile) ) {
-                        $data = file_get_contents($infile);
-                        $one->set_content($data);
-                        $one->save();
-                        unlink($infile);
-                        $n++;
-                    }
-                }
-            }
-            if( $n == 0 ) {
-                throw new RuntimeException(lang_by_realm('layout','error_bulkimport_noneprocessed'));
-            }
-
-            audit('','imported',count($templates).' templates');
-            $themeObject->ParkNotice('info',lang_by_realm('layout','msg_bulkop_complete'));
-            redirect('listtemplates.php'.$urlext);
-        }
-	}
+		$db = CmsApp::get_instance()->GetDb();
+		list($tpls,$grps) = self::items_split($ids);
+		if ($grps) {
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tplgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$db->Execute($sql, $grps);
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$db->Execute($sql, $grps);
+		}
+		if ($tpls) {
+			list($pages, $skips) = self::affected_pages($tpls);
+			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=0 WHERE template_id IN ('.str_repeat('?,',count($pages)-1).'?)';
+			$db->Execute($sql, $pages);
+			$n = $db->affected_rows();
+/* N/A in some db versions
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' T WHERE T.id IN ('.str_repeat('?,',count($tpls)-1).'?)';
+			$sql .= ' AND T.id NOT IN (SELECT template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id=T.id LIMIT 1)';
 */
- } // class
+/* MAYBE AVAILABLE, SLOWER
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' T WHERE T.id IN ('.str_repeat('?,',count($tpls)-1).'?)';
+			$sql .= ' AND T.id NOT IN (SELECT DISTINCT template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id=T.id)';
+*/
+//* ULTIMATE FALLBACK
+			$sql = 'SELECT DISTINCT template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id IN ('.str_repeat('?,',count($tpls)-1).'?)';
+			$keeps = $db->GetCol($sql, $tpls);
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($tpls)-1).'?)';
+			if ($keeps) {
+				$sql .= ' AND id NOT IN ('.implode(',',$keeps).')';
+			}
+//*/
+			$db->Execute($sql, $tpls);
+
+			return $n;
+		}
+		return 0;
+	}
+
+	/**
+	 * Delete template(s) and/or group(s) and group-member(s)
+	 * @since 2.3
+	 * @param mixed $ids int | int[] template identifier(s), < 0 means a group
+	 * @return int No of pages modified
+	 */
+	public static function operation_deleteall($ids) : int
+	{
+		$db = CmsApp::get_instance()->GetDb();
+		list($tpls,$grps) = self::items_split($ids);
+		if ($grps) {
+			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.'layout_tplgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$members = $db->GetCol($sql, $grps);
+			$tpls = array_unique(array_merge($tpls, $members));
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tplgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$db->Execute($sql, $grps);
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$db->Execute($sql, $grps);
+		}
+		if ($tpls) {
+			list($pages, $skips) = self::affected_pages($tpls);
+			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=NULL WHERE template_id IN ('.str_repeat('?,',count($pages)-1).'?)';
+			$db->Execute($sql, $pages);
+			$n = $db->affected_rows();
+			$sql = 'SELECT DISTINCT template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id IN ('.str_repeat('?,',count($tpls)-1).'?)';
+			$keeps = $db->GetCol($sql, $tpls);
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($tpls)-1).'?)';
+			if ($keeps) {
+				$sql .= ' AND id NOT IN ('.implode(',',$keeps).')';
+			}
+			$db->Execute($sql, $tpls);
+
+			return $n;
+		}
+		return 0;
+	}
+
+	/**
+	 * Replace the template wherever used and the user is authorized
+	 * @since 2.3
+	 * @param int $from template identifier
+	 * @param int $to template identifier
+	 * @return int No of pages modified
+	 */
+	public static function operation_replace(int $from, int $to) : int
+	{
+		if ($from < 1 || $to < 1) return 0;
+		$uid = get_userid();
+		$modify_all = check_permission($uid,'Manage All Content') || check_permission($uid,'Modify Any Page');
+		$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=? WHERE template_id=?';
+		if ($modify_all) {
+			$args = [$to, $from];
+		} else {
+			$sql .= ' AND owner_id=?';
+			$args = [$to, $from, $uid];
+		}
+		$db = CmsApp::get_instance()->GetDb();
+		$db->Execute($sql, $args);
+		return $db->affected_rows();
+	}
+
+	/**
+	 * Set the template for all pages where the user is authorized
+	 * @since 2.3
+	 * @param int $to template identifier
+	 * @return int No of pages modified
+	 */
+	public static function operation_applyall(int $to) : int
+	{
+		if ($to < 1) return 0;
+		$uid = get_userid();
+		$modify_all = check_permission($uid,'Manage All Content') || check_permission($uid,'Modify Any Page');
+		$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=?';
+		if ($modify_all) {
+			$args = [$to];
+		} else {
+			$sql .= ' WHERE owner_id=?';
+			$args = [$to, $uid];
+		}
+		$db = CmsApp::get_instance()->GetDb();
+		$db->Execute($sql, $args);
+		return $db->affected_rows();
+	}
+
+	/**
+	 * Migrate template(s) from database storage to file
+	 * @since 2.3
+	 * @param mixed $ids int | int[] template identifier(s)
+	 * @return int No. of files processed
+	 */
+	public static function operation_export($ids) : int
+	{
+		$n = 0;
+		list($tpls,$grps) = self::items_split($ids);
+		if ($tpls) {
+			$db = CmsApp::get_instance()->GetDb();
+			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=0 AND id IN ('.str_repeat('?,',count($tpls)-1).'?)';
+			$from = $db->GetArray($sql, $tpls);
+			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=1 WHERE id=?';
+			$config = cms_config::get_instance();
+			foreach ($from as $row) {
+				if ($row['name']) {
+					//replicate object::set_content_file()
+					$fn = munge_string_to_url($row['name']).'.'.$row['id'].'.tpl';
+					//replicate object::get_content_filename()
+					$outfile = cms_join_path($config['assets_path'],'templates',$fn);
+					$res = file_put_contents($outfile,$row['content'],LOCK_EX);
+					if ($res !== false) {
+						$db->Execute($sql, [$fn,$row['id']]);
+						++$n;
+					} else {
+						//some signal needed
+					}
+				}
+			}
+		}
+		return $n;
+	}
+
+	/**
+	 * Migrate template(s) from file storage to database
+	 * @since 2.3
+	 * @param mixed $ids int | int[] template identifier(s)
+	 * @return int No. of files processed
+	 */
+	public static function operation_import($ids) : int
+	{
+		$n = 0;
+		list($tpls,$grps) = self::items_split($ids);
+		if ($tpls) {
+			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=1 AND id IN ('.str_repeat('?,',count($tpls)-1).'?)';
+			$from = $db->GetArray($sql, $shts);
+			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=0 WHERE id=?';
+			$config = cms_config::get_instance();
+			foreach ($from as $row) {
+				if ($row['name']) {
+					//replicate object::set_content_file()
+					$fn = munge_string_to_url($row['name']).'.'.$row['id'].'.tpl';
+					//replicate object::get_content_filename()
+					$outfile = cms_join_path($config['assets_path'],'templates',$fn);
+					$content = file_get_contents($outfile);
+					if ($content !== false) {
+						$db->Execute($sql, [$content,$row['id']]);
+						++$n;
+					} else {
+						//some signal needed
+					}
+	            }
+	        }
+		}
+		return $n;
+	}
+
+	/**
+	 * @ignore
+	 */
+	protected static function affected_pages($ids)
+	{
+		$uid = get_userid();
+		$modify_all = check_permission($uid,'Manage All Content') || check_permission($uid,'Modify Any Page');
+		$sql = 'SELECT content_id,template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id';
+		$fillers = (is_array($ids)) ? ' IN ('.str_repeat('?,',count($ids)-1).'?)' :  '=?';
+		$sql .= $fillers;
+		$args = (is_array($ids)) ? $ids : [$ids];
+		if (!$modify_all) {
+			$sql .= ' AND owner_id=?';
+			$args[] = $uid;
+		}
+        $db = CmsApp::get_instance()->GetDb();
+		$valid = $db->getArray($sql, $args);
+
+		if (!$modify_all) {
+			$sql = 'SELECT COUNT(1) AS num FROM '.CMS_DB_PREFIX.'content WHERE template_id'.$fillers;
+			$args = (is_array($ids)) ? $ids : [$ids];
+			$all = $db->getOne($sql, $args);
+			$other = $all - count($valid);
+		} else {
+			$other = 0;
+		}
+		return [$valid, $other];
+	}
+
+	/**
+	 * @ignore
+	 */
+	protected static function items_split($ids)
+	{
+		$sngl = [];
+		$grp = [];
+		if(is_array($ids)) {
+			foreach ($ids as $id) {
+				if ($id > 0) {
+					$sngl[] = $id;
+				} else {
+					$grp[] = -$id;
+				}
+			}
+		} elseif ($ids > 0) {
+			$sngl[] = $ids;
+		} else {
+			$grp[] = -$ids;
+		}
+		return [$sngl, $grp];
+	}
+} // class

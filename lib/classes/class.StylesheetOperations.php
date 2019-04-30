@@ -1,4 +1,5 @@
 <?php
+
 #Methods for administering stylesheet objects
 #Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -17,7 +18,7 @@
 
 namespace CMSMS;
 
-//use CmsLayoutCollection;
+use cms_config;
 use CmsApp;
 use CmsInvalidDataException;
 use CmsLayoutStylesheet;
@@ -28,9 +29,12 @@ use CMSMS\StylesheetsGroup;
 use CmsSQLErrorException;
 use Exception;
 use const CMS_DB_PREFIX;
+use function check_permission;
+use function cms_join_path;
 use function cms_notice;
 use function endswith;
 use function file_put_contents;
+use function get_userid;
 use function munge_string_to_url;
 
 /**
@@ -567,232 +571,411 @@ VALUES (?,?,?,?,?,?)';
 	//============= STYLESHEET-OPERATION BACKENDS ============
 
 	/**
-	 * @since 2.3
-	 * @param int $id stylesheet identifier, < 0 means a group
-	 * @return type Description
-	 *
+	 * Clone stylesheet(s) and/or group(s)
+	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
+	 * @return int No of stylesheets cloned
 	 */
-	public static function operation_copy(int $id)
+    public static function operation_copy($ids) : int
 	{
-/*
-if( !isset($_REQUEST['css']) ) {
-	$themeObject->ParkNotice('error',lang_by_realm('layout','error_missingparam'));
-	redirect('liststyles.php'.$urlext);
-}
+		$n = 0;
+		$db = CmsApp::get_instance()->GetDb();
+		list($shts,$grps) = self::items_split($ids);
+		if ($shts) {
+			$sql = 'SELECT name,content,description,media_type,media_query,contentfile FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($shts)-1).'?)';
+			$from = $db->GetArray($sql, $shts);
+			$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,content,description,media_type,media_query,contentfile) VALUES (?,?,?,?,?,?)';
+			foreach ($from as $row) {
+				if ($row['name']) {
+					$row['name'] = self::get_unique_name($row['name']);
+				} else {
+					$row['name'] = null;
+				}
+				if ($row['contentfile']) {
+					//TODO clone file
+					$row['content'] = TODOfunc($row['name']);
+				}
+				$db->Execute($sql, $row);
+			}
+			$n = count($from);
+		}
+		if ($grps) {
+			$sql = 'SELECT id,name,description FROM '.CMS_DB_PREFIX.'layout_css_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$from = $db->GetArray($sql, $grps);
+			$sql = 'SELECT group_id,css_id,item_order FROM '.CMS_DB_PREFIX.'layout_cssgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$members = $db->Execute($sql, $grps);
+			$sql = 'INSERT INTO '.CMS_DB_PREFIX.'layout_css_groups (name,description) VALUES (?,?)';
+			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.'layout_cssgroup_members (group_id,css_id,item_order) VALUES (?,?,?)';
+			foreach ($from as $row) {
+				if ($row['name']) {
+					$name = self::get_unique_name($row['name']);
+				} else {
+					$name = null;
+				}
+				$db->Execute($sql, [$name, $row['description']]);
+				$to = $db->Insert_ID();
+				$from = $row['id'];
+				foreach ($members as $grprow) {
+					if ($grprow['group_id'] == $from) {
+						$db->Execute($sql2, [$to, $grprow['css_id'], $grprow['item_order']]);
+					}
+				}
+			}
+			$n += count($from);
+		}
+		return $n;
+	}
 
-cleanArray($_REQUEST);
-
-try {
-	$orig_css = StylesheetOperations::get_stylesheet($_REQUEST['css']);
-	if( isset($_REQUEST['dosubmit']) || isset($_REQUEST['apply']) ) {
-		try {
-			$new_css = clone($orig_css);
-			$new_css->set_name(trim($_REQUEST['new_name']));
-			$new_css->set_designs([]);
-			$new_css->save();
-
-			if( isset($_REQUEST['apply']) ) {
-				$themeObject->ParkNotice('info',lang_by_realm('layout','msg_stylesheet_copied_edit'));
-				redirect('editstylesheet.php'.$urlext.'&css='.$new_css->get_id());
+	/**
+	 * Delete stylesheet(s) and/or group(s) but not group members (unless also specified individually)
+	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
+	 * @return int No of pages modified
+	 */
+	public static function operation_delete($ids) : int
+	{
+		$db = CmsApp::get_instance()->GetDb();
+		list($shts,$grps) = self::items_split($ids);
+		if ($grps) {
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_cssgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$db->Execute($sql, $grps);
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_css_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$db->Execute($sql, $grps);
+		}
+		if ($shts) {
+			list($pages, $skips) = self::affected_pages($shts);
+			if ($pages) {
+				$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
+				$rows = $db->GetArray($sql, $spages);
+				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
+				foreach($rows as $row) {
+					$s = self::filter($row['styles'], $shts);
+					$db->Execute($sql, [$row['content_id'],$s]);
+				}
+				$n = count($rows);
 			}
 			else {
-				$themeObject->ParkNotice('info',lang_by_realm('layout','msg_stylesheet_copied'));
-				redirect('liststyles.php'.$urlext);
+				$n = 0;
 			}
+			$sql = 'SELECT DISTINCT styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE ('.$TODO.')';
+			$keeps = $db->GetCol($sql, $shts);
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($shts)-1).'?)';
+			if ($keeps) {
+				$t = [];
+				foreach ($keeps as $s) {
+					$tmp = explode(',',$s);
+					$t = array_merge($t, array_intersect($shts,$tmp)); //any grp id < 0 will be ignored
+				}
+				if ($t) {
+					$sql .= ' AND id NOT IN ('.implode(',',$t).')';
+				}
+			}
+			$db->Execute($sql, $tpls);
+
+			return $n;
 		}
-		catch( Exception $e ) {
-			$themeObject->RecordNotice('error',$e->GetMessage());
-		}
-	}
-
-	$selfurl = basename(__FILE__);
-
-	// build a display
-	$smarty = CmsApp::get_instance()->GetSmarty();
-	$smarty->assign('css',$orig_css)
-	 ->assign('selfurl',$selfurl)
-	 ->assign('urlext',$urlext);
-
-	include_once 'header.php';
-	$smarty->display('copystylesheet.tpl');
-	include_once 'footer.php';
-}
-catch( CmsException $e ) {
-	$themeObject->ParkNotice('error',$e->GetMessage());
-	redirect('liststyles.php'.$urlext);
-}
- */
+		return 0;
 	}
 
 	/**
-	 * @since 2.3
+	 * Delete stylesheet(s) and/or group(s) and group-member(s)
 	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
-	 * @return type Description
+	 * @return int No of pages modified
 	 */
-	public static function operation_delete($ids)
+	public static function operation_deleteall($ids) : int
 	{
-		if (is_array($ids) ) {
-
-		} else {
-
+		$db = CmsApp::get_instance()->GetDb();
+		list($shts,$grps) = self::items_split($ids);
+		if ($grps) {
+			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.'layout_cssgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$members = $db->GetCol($sql, $grps);
+			$shts = array_unique(array_merge($shts, $members));
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_cssgroup_members WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$db->Execute($sql, $grps);
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.'layout_css_groups WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$db->Execute($sql, $grps);
 		}
-/*
-try {
-	if( !isset($_REQUEST['css']) ) throw new CmsException(lang_by_realm('layout','error_missingparam'));
+		if ($shts) {
+			list($pages, $skips) = self::affected_pages($shts);
+			if ($pages) {
+				$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
+				$rows = $db->GetArray($sql, $pages);
+				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
+				foreach ($rows as $row) {
+					$s = self::filter($row['styles'], $shts);
+					$db->Execute($sql, [$row['content_id'],$s]);
+				}
+				$n = count($rows);
+			}
+			else {
+				$n = 0;
+			}
+			$sql = 'SELECT DISTINCT styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE ('.$TODO.')';
+			$keeps = $db->GetCol($sql, $shts);
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($shts)-1).'?)';
+			if ($keeps) {
+				$t = [];
+				foreach ($keeps as $s) {
+					$tmp = explode(',',$s);
+					$t = array_merge($t, array_intersect($shts,$tmp)); //any grp id < 0 will be ignored
+				}
+				if ($t) {
+					$sql .= ' AND id NOT IN ('.implode(',',$t).')';
+				}
+			}
+			$db->Execute($sql, $shts);
 
-	$css_ob = StylesheetOperations::get_stylesheet($_REQUEST['css']);
-
-	if( isset($_REQUEST['dosubmit']) ) {
-		if( !isset($_REQUEST['check1']) || !isset($_REQUEST['check2']) ) {
-			$themeObject->RecordNotice('error',lang_by_realm('layout','error_notconfirmed'));
+			return $n;
 		}
-		else {
-			$css_ob->delete();
-			$themeObject->ParkNotice('info',lang_by_realm('layout','msg_stylesheet_deleted'));
-			redirect('liststyles.php'.$urlext);
-		}
-	}
-
-	$selfurl = basename(__FILE__);
-
-	$smarty = CmsApp::get_instance()->GetSmarty();
-	$smarty->assign('css',$css_ob)
-	 ->assign('selfurl',$selfurl)
-	 ->assign('urlext',$urlext);
-
-	include_once 'header.php';
-	$smarty->display('deletestylesheet.tpl');
-	include_once 'footer.php';
-}
-catch( CmsException $e ) {
-	$themeObject->ParkNotice('error',$e->GetMessage());
-	redirect('liststyles.php'.$urlext);
-}
-*/
+		return 0;
 	}
 
 	/**
-	 * @since 2.3
-	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
-	 * @return type Description
+	 * Replace the stylesheet wherever used and the user is authorized
+	 * @param mixed $from int|int[] stylesheet identifier(s), <0 for a group
+	 * @param mixed $to int|int[] stylesheet identifier(s), <0 for a group
+	 * @return int No of pages modified
 	 */
-	public static function operation_deleteall($ids)
+	public static function operation_replace($from, $to) : int
 	{
-		if (is_array($ids) ) {
-
-		} else {
-
+		list($pages, $skips) = self::affected_pages($from);
+		if ($pages) {
+			$db = CmsApp::get_instance()->GetDb();
+			$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
+			$rows = $db->GetArray($sql, $pages);
+			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
+			foreach($rows as $row) {
+				$s = self::filter2($row['styles'], $from, $to);
+				$db->Execute($sql, [$row['content_id'], $s]);
+			}
+			return count($pages);
 		}
+		return 0;
 	}
 
 	/**
-	 * @since 2.3
-	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
-	 * @return type Description
+	 * Append stylesheet(s) to all pages where the user is authorized
+	 * @param mixed $ids int|int[] stylesheet identifier(s), < 0 for a group
+	 * @return int No of pages modified
 	 */
-	public static function operation_replace($ids)
+	public static function operation_append($ids) : int
 	{
-		if (is_array($ids) ) {
-
-		} else {
-
+		list($pages, $skips) = self::affected_pages('*');
+		if ($pages) {
+			$db = CmsApp::get_instance()->GetDb();
+			$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
+			$rows = $db->GetArray($sql, $pages);
+			$to = ','.implode(',',$ids);
+			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
+			foreach($rows as $row) {
+				$s = self::filter($row['styles'], $ids);
+				$s = trim($s.$to,' ,');
+				$db->Execute($sql, [$row['content_id'],$s]);
+			}
+			return count($rows);
 		}
+		return 0;
 	}
 
 	/**
-	 * @since 2.3
-	 * @param int $id stylesheet identifier, < 0 means a group
-	 * @return type Description
+	 * Prepend stylesheet(s) to all pages where the user is authorized
+	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 for a group
+	 * @return int No of pages modified
 	 */
- 	public static function operation_append(int $id)
+	public static function operation_prepend($ids) : int
 	{
-	}
-
-	/**
-	 * @since 2.3
-	 * @param int $id stylesheet identifier, < 0 means a group
-	 * @return type Description
-	 */
- 	public static function operation_prepend(int $id)
-	{
-
-	}
-
-	/**
-	 * @since 2.3
-	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
-	 * @return type Description
-	 */
- 	public static function operation_remove($ids)
-	{
-		if (is_array($ids) ) {
-
-		} else {
-
+		list($pages, $skips) = self::affected_pages('*');
+		if ($pages) {
+			$db = CmsApp::get_instance()->GetDb();
+			$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
+			$rows = $db->GetArray($sql, $pages);
+			$to = implode(',',$ids).',';
+			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
+			foreach($rows as $row) {
+				$s = self::filter($row['styles'], $ids);
+				$s = trim($to.$s,' ,');
+				$db->Execute($sql, [$row['content_id'],$s]);
+			}
+			return count($pages);
 		}
+		return 0;
 	}
-/*
+
 	/**
-	 * @since 2.3
-	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
-	 * @return type Description
-	 * /
-  	public static function operation_export($ids)
+	 * Remove stylesheet(s) from all pages where the user is authorized
+	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 for a group
+	 * @return int No of pages modified
+	 */
+	public static function operation_remove($ids) : int
 	{
-		$bulk_op = 'bulk_action_export_css';
-		$first_css = $stylesheets[0];
-		$outfile = $first_css->get_content_filename();
-		$dn = dirname($outfile);
-		if( !is_dir($dn) || !is_writable($dn) ) {
-			throw new RuntimeException(lang_by_realm('layout','error_assets_writeperm'));
+		list($pages, $skips) = self::affected_pages('*');
+		if ($pages) {
+			$db = CmsApp::get_instance()->GetDb();
+			$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
+			$rows = $db->GetArray($sql, $pages);
+			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
+			foreach($rows as $row) {
+				$s = self::filter($row['styles'], $ids);
+				$db->Execute($sql, [$row['content_id'],$s]);
+			}
+			return count($rows);
 		}
-		if( isset($_REQUEST['dosubmit']) ) {
-			$n = 0;
-			foreach( $stylesheets as $one ) {
-				if( in_array($one->get_id(),$_REQUEST['css_select']) ) {
-					$outfile = $one->get_content_filename();
-					if( !is_file($outfile) ) {
-						file_put_contents($outfile,$one->get_content());
-						$n++;
+		return 0;
+	}
+
+	/**
+	 * Migrate stylesheet(s) from database storage to file
+	 * @param mixed $ids int | int[] stylesheet identifier(s)
+	 * @return int No. of files processed
+	 */
+	public static function operation_export($ids) : int
+	{
+		$n = 0;
+		list($shts,$grps) = self::items_split($ids);
+		if ($shts) {
+			$db = CmsApp::get_instance()->GetDb();
+			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=0 AND id IN ('.str_repeat('?,',count($shts)-1).'?)';
+			$from = $db->GetArray($sql, $shts);
+			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=1 WHERE id=?';
+			$config = cms_config::get_instance();
+			foreach ($from as $row) {
+				if ($row['name']) {
+					//replicate object::set_content_file()
+					$fn = munge_string_to_url($row['name']).'.'.$row['id'].'.css';
+					//replicate object::get_content_filename()
+					$outfile = cms_join_path($config['assets_path'],'css',$fn);
+					$res = file_put_contents($outfile,$row['content'],LOCK_EX);
+					if ($res !== false) {
+						$db->Execute($sql, [$fn,$row['id']]);
+						++$n;
+					} else {
+						//some signal needed
 					}
 				}
 			}
-			if( $n == 0 ) throw new RuntimeException(lang_by_realm('layout','error_bulkexport_noneprocessed'));
-
-			audit('','Exported',count($stylesheets).' stylesheets');
-			$themeObject->ParkNotice('info',lang_by_realm('layout','msg_bulkop_complete'));
-			redirect('liststyles.php'.$urlext);
 		}
+		return $n;
 	}
 
 	/**
-	 * @since 2.3
-	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
-	 * @return type Description
-	 * /
- 	public static function operation_import($ids)
+	 * Migrate stylesheet(s) from file storage to database
+	 * @param mixed $ids int | int[] stylesheet identifier(s)
+	 * @return int No. of files processed
+	 */
+	public static function operation_import($ids) : int
 	{
-		$bulk_op = 'bulk_action_import_css';
-		if( isset($_REQUEST['dosubmit']) ) {
-			$n=0;
-			foreach( $stylesheets as $one ) {
-				if( in_array($one->get_id(),$_REQUEST['css_select']) ) {
-					$infile = $one->get_content_filename();
-					if( is_file($infile) && is_readable($infile) && is_writable($infile) ) {
-						$data = file_get_contents($infile);
-						$one->set_content($data);
-						$one->save();
-						unlink($infile);
-						$n++;
+		$n = 0;
+		list($shts,$grps) = self::items_split($ids);
+		if ($shts) {
+			$db = CmsApp::get_instance()->GetDb();
+			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=1 AND id IN ('.str_repeat('?,',count($shts)-1).'?)';
+			$from = $db->GetArray($sql, $shts);
+			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=0 WHERE id=?';
+			$config = cms_config::get_instance();
+			foreach ($from as $row) {
+				if ($row['name']) {
+					//replicate object::set_content_file()
+					$fn = munge_string_to_url($row['name']).'.'.$row['id'].'.css';
+					//replicate object::get_content_filename()
+					$outfile = cms_join_path($config['assets_path'],'css',$fn);
+					$content = file_get_contents($outfile);
+					if ($content !== false) {
+						$db->Execute($sql, [$content,$row['id']]);
+						++$n;
+					} else {
+						//some signal needed
 					}
 				}
 			}
-			if( $n == 0 ) throw new RuntimeException(lang_by_realm('layout','error_bulkimport_noneprocessed'));
-
-			audit('','Imported',count($stylesheets).' stylesheets');
-			$themeObject->ParkNotice('info',lang_by_realm('layout','msg_bulkop_complete'));
-			redirect('liststyles.php'.$urlext);
 		}
+		return $n;
 	}
-*/
+
+	/**
+	 * @ignore
+	 */
+	protected static function affected_pages($ids)
+	{
+		$uid = get_userid();
+		$modify_all = check_permission($uid,'Manage All Content') || check_permission($uid,'Modify Any Page');
+		$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE ';
+		$fillers = (is_array($ids)) ? '('.str_repeat('%?% OR ',count($ids)-1).'%?%)' : '%?%';
+		$sql .= $fillers;
+		$args = (is_array($ids)) ? $ids : [$ids];
+		if (!$modify_all) {
+			$sql .= ' AND owner_id=?';
+			$args[] = $uid;
+		}
+        $db = CmsApp::get_instance()->GetDb();
+		$valid = $db->getArray($sql, $args);
+
+		if (!$modify_all) {
+			$sql = 'SELECT COUNT(1) AS num FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE '.$fillers;
+			$args = (is_array($ids)) ? $ids : [$ids];
+			$all = $db->getOne($sql, $args);
+			$other = $all - count($valid);
+		} else {
+			$other = 0;
+		}
+		return [$valid, $other];
+	}
+
+	/**
+	 * @ignore
+	 */
+	protected static function items_split($ids)
+	{
+		$sngl = [];
+		$grp = [];
+		if(is_array($ids)) {
+			foreach ($ids as $id) {
+				if ($id > 0) {
+					$sngl[] = $id;
+				} else {
+					$grp[] = -$id;
+				}
+			}
+		} elseif ($ids > 0) {
+			$sngl[] = $ids;
+		} else {
+			$grp[] = -$ids;
+		}
+		return [$sngl, $grp];
+	}
+
+	/**
+	 * @ignore
+	 * @return string
+	 */
+	protected static function filter(string $s, $ids) : string
+	{
+		$tmp = explode(',', $s);
+		if (!is_array($ids)) {
+			$ids = [$ids];
+		}
+		$tmp = array_diff($tmp, $ids);
+		return implode(',', $tmp);
+	}
+
+	/**
+	 * @ignore
+	 * @return string
+	 */
+	protected static function filter2(string $s, $from, $to) : string
+	{
+		if (!is_array($from)) {
+			$from = [$from];
+		}
+		if (!is_array($to)) {
+			$to = [$to];
+		}
+		$tmp = explode(',', $s);
+		foreach ($tmp as &$one) {
+			if (($p = array_search($one, $from)) !== false) {
+				if (isset($to[$p])) {
+					$one = $to[$p];
+				}
+			}
+		}
+		unset($one);
+		return implode(',', $tmp);
+	}
 } //class
