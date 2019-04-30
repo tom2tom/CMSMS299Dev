@@ -10,7 +10,7 @@ use function cms_installer\get_app;
 
 class wizard_step
 {
-    public static $_registered;
+    public static $_registered = 0;
 
     public function __construct()
     {
@@ -18,22 +18,22 @@ class wizard_step
         $CMS_INSTALL_PAGE = 1;
 
         $app = get_app();
-        $dd = $app->get_destdir();
-        if( !$dd ) throw new Exception('Session Failure');
+        $dir = $app->get_destdir();
+        if( !$dir ) throw new Exception('Session Failure');
 
         $smarty = smarty();
 
         if( !self::$_registered ) {
-            $smarty->registerPlugin('function','wizard_form_start', [$this,'fn_wizard_form_start']);
-            $smarty->registerPlugin('function','wizard_form_end', [$this,'fn_wizard_form_end']);
+            $smarty->registerPlugin('function','wizard_form_start', [$this,'fn_wizard_form_start'])
+             ->registerPlugin('function','wizard_form_end', [$this,'fn_wizard_form_end']);
             self::$_registered = 1;
         }
 
-        $smarty->assign('version',$app->get_dest_version());
-        $smarty->assign('version_name',$app->get_dest_name());
-        $smarty->assign('dir',$app->get_destdir());
-        $smarty->assign('in_phar',$app->in_phar());
-        $smarty->assign('cur_step',$this->cur_step());
+        $smarty->assign('version',$app->get_dest_version())
+         ->assign('version_name',$app->get_dest_name())
+         ->assign('dir',$dir)
+         ->assign('in_phar',$app->in_phar())
+         ->assign('cur_step',$this->cur_step());
     }
 
     public function get_name()
