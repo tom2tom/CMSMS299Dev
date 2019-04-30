@@ -52,16 +52,10 @@ function redirect(string $to)
         $to .= $components['host'] ?? $host;
         $to .= isset($components['port']) ? ':' . $components['port'] : '';
         if (isset($components['path'])) {
-            //support sub-domains
-            if (substr_count($components['path'], '.', 1) > 1) { 
-                $parts = explode('.', $components['path']);
-                if (end($parts) == 'php') {
-                    array_pop($parts);
-                    $components['path'] = implode('/',$parts).'.php';
-                }
-                else {
-                    $components['path'] = implode('/',$parts);
-                }
+            //support admin sub-domains
+            $l = strpos($components['path'], '.php', 1);
+            if ($l > 0 && substr_count($components['path'],'.', 1, $l-1) > 0) { 
+                $components['path'] = strtr(substr($components['path'], 0, $l), '.', '/') . substr($components['path'], $l);
             }
             if (in_array($components['path'][0],['\\','/'])) {
                 //path is absolute, just append
