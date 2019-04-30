@@ -19,7 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Search;
 
-use CMSMS\ContentCache;
 use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\ModuleOperations;
@@ -155,6 +154,7 @@ class Utils
             foreach ($words as $row) {
                 $stmt->Execute($row);
             }
+            $stmt->close();
             $db->CommitTrans();
         }
     }
@@ -201,7 +201,7 @@ class Utils
         $n = count($full_list);
         $nperloop = min(200,$n);
         $contentops = ContentOperations::get_instance();
-		$cache = ContentCache::get_instance();
+//		$cache = cms_cache_handler::get_instance();
         $offset = 0;
 
         while( $offset < $n ) {
@@ -218,14 +218,14 @@ class Utils
 
             // index each content page.
             foreach( $idlist as $one ) {
-                $content_obj = $contentops->LoadContentFromId($one);
+                $content_obj = $contentops->LoadContentFromId($one); //TODO ensure relevant content-object?
                 $parms = ['content'=>$content_obj];
 //                self::DoEvent($module,'Core','ContentEditPost',$parms); //WHAAT ? not changed
-                $cache->unload($one);
+//                $cache->delete($one,'tree_pages'); RUBBISH
             }
         }
 
-        $modops = ModuleOperations::get_instance();
+        $modops = new ModuleOperations();
         $modules = $modops->GetInstalledModules();
         foreach( $modules as $name ) {
             if( !$name || $name == 'Search' ) continue;
