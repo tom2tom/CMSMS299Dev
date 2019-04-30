@@ -199,7 +199,7 @@ final class cms_route_manager
 		self::_load_static_routes();
 		if( self::route_exists($route) ) return TRUE;
 
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.'routes (term,key1,key2,key3,data,created) VALUES (?,?,?,?,?,NOW())';
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'routes (term,key1,key2,key3,data) VALUES (?,?,?,?,?)';
 		$db = CmsApp::get_instance()->GetDb();
 		$dbr = $db->Execute($query,[$route['term'], $route['key1'], $route['key2'], $route['key3'], serialize($route)]);
 		if( $dbr ) {

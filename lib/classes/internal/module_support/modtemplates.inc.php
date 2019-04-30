@@ -126,9 +126,7 @@ INSERT INTO {$pref}layout_tpl_type (
 originator,
 name,
 description,
-owner,
-created,
-modified) VALUES (?,'Moduleaction',?,-1,?,?)
+owner) VALUES (?,'Moduleaction',?,-1)
 EOS;
 		$db->Execute($query, [$mod_name, 'Action templates for module: '.$mod_name, $now, $now]);
 		$tt = $db->insert_id();
