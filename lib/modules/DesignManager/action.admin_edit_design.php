@@ -18,46 +18,55 @@
 
 use CMSMS\StylesheetOperations;
 use CMSMS\TemplateOperations;
+use DesignManager\Design;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Designs') ) return;
 
-$this->SetCurrentTab('designs');
 if( isset($params['cancel']) ) {
   $this->SetInfo($this->Lang('msg_cancelled'));
-  $this->RedirectToAdminTab();
+  $this->Redirect($id,'defaultadmin',$returnid);
 }
 
-$design = null;
 try {
-  if( !isset($params['design']) || $params['design'] == '' ) {
-    $design= new CmsLayoutCollection();
+  if( empty($params['design']) ) {
+    $design = new Design();
     $design->set_name($this->Lang('new_design'));
   }
   else {
-    $design = CmsLayoutCollection::load($params['design']);
+    $design = Design::load($params['design']);
   }
 
   try {
-    if( isset($params['submit']) || isset($params['apply']) || (isset($params['ajax']) && $params['ajax'] == '1') ) {
-      $design->set_name($params['name']);
+    if( isset($params['submit']) || isset($params['apply']) || !empty($params['ajax']) ) {
+      $design->set_name($params['name']); //TODO some validation e.g. unique
       $design->set_description($params['description']);
-      $tpl_assoc = [];
-      if( isset($params['assoc_tpl']) ) $tpl_assoc = $params['assoc_tpl'];
-      $design->set_templates($tpl_assoc);
 
-      $css_assoc = [];
-      if( isset($params['assoc_css']) ) $css_assoc = $params['assoc_css'];
-      $design->set_stylesheets($css_assoc);
+      if( isset($params['designtpl']) ) {
+        $tpl_members = array_keys(array_filter($params['designtpl']));
+      }
+      else {
+        $tpl_members = []; //should never happen
+      }
+      $design->set_templates($tpl_members);
+
+      if( isset($params['designcss']) ) {
+        $css_members = array_keys(array_filter($params['designcss']));
+      }
+      else {
+        $css_members = [];
+      }
+      $design->set_stylesheets($css_members);
       $design->save();
 
       if( isset($params['submit']) ) {
         $this->SetMessage($this->Lang('msg_design_saved'));
-        $this->RedirectToAdminTab();
+        $this->Redirect($id,'defaultadmin',$returnid);
       }
-      else {
-        $this->ShowMessage($this->Lang('msg_design_saved'));
-      }
+      if( isset($params['ajax']) ) {
+        //TODO exit;
+	  }
+      $this->ShowMessage($this->Lang('msg_design_saved'));
     }
   }
   catch( Exception $e ) {
@@ -71,22 +80,28 @@ try {
     usort($templates,function($a,$b) {
       return strcasecmp($a->get_name(),$b->get_name());
     });
-    $tpl->assign('all_templates',$templates);
+    $names = [];
+    for( $i = 0, $n = count($templates); $i < $n; $i++ ) {
+      $tpl_id = $templates[$i]->get_id();
+      $names[$tpl_id] = $templates[$i]->get_name();
+    }
+    $tpl->assign('all_templates',$names)
+     ->assign('design_templates',$design->get_templates());
+  }
+  else {
+    $tpl->assign('all_templates',$null);
   }
 
-  $stylesheets = StylesheetOperations::get_all_stylesheets();
+  $stylesheets = StylesheetOperations::get_all_stylesheets(true); //not user-specific
   if( $stylesheets ) {
-    usort($stylesheets,function($a,$b){
-      return strcasecmp($a->get_name(),$b->get_name());
+    uasort($stylesheets,function($a,$b){
+      return strcasecmp($a,$b);
     });
-    $out = [];
-    $out2 = [];
-    for( $i = 0, $n = count($stylesheets); $i < $n; $i++ ) {
-      $out[$stylesheets[$i]->get_id()] = $stylesheets[$i]->get_name();
-      $out2[$stylesheets[$i]->get_id()] = $stylesheets[$i];
-    }
-    $tpl->assign('list_stylesheets',$out)
-     ->assign('all_stylesheets',$out2);
+    $tpl->assign('all_stylesheets',$stylesheets)
+     ->assign('design_stylesheets',$design->get_stylesheets());
+  }
+  else {
+    $tpl->assign('all_stylesheets',null);
   }
 
   $themeObject = cms_utils::get_theme_object();
@@ -97,342 +112,69 @@ try {
     $themeObject->SetSubTitle($this->Lang('create_design'));
   }
 
+  $advice = $this->Lang('table_droptip');
   $manage_stylesheets = $this->CheckPermission('Manage Stylesheets');
   $manage_templates = $this->CheckPermission('Modify Templates');
   $tpl->assign('manage_templates',$manage_templates)
-   ->assign('design',$design);
+   ->assign('manage_stylesheets',$manage_stylesheets)
+   ->assign('design',$design)
+   ->assign('placeholder',$advice);
 
 //TODO ensure flexbox css for .rowbox.expand, .boxchild
-  //designs tab
-/*
-function save_design() {
-  var form = $('#admin_edit_design');
-  var action = form.attr('action');
 
-  $('#ajax').val(1);
-  return $.ajax({
-    url: action,
-    data: form.serialize()
-  });
-}
-*/
-    $out = <<<EOS
+  $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-var __changed = 0;
-function set_changed() {
-  __changed = 1;
-  console.debug('design is changed');
-}
-$(document).ready(function() {
-  $('.sortable-list input[type="checkbox"]').hide();
-  $(':input').on('change', function() {
-    set_changed();
+$(function() {
+ var tbl = $('.draggable'),
+  tbod = tbl.find('tbody.rsortable');
+  //hide placeholder in tbods with extra rows
+  tbod.each(function() {
+   var t = $(this);
+   if(t.find('>tr').length > 1) {
+    t.find('>tr.placeholder').css('display','none');
+   }
   });
-  $('ul.available-items').on('click', 'li', function () {
-    $(this).toggleClass('selected ui-state-hover');
-  });
-  $('#submitme,#applyme').on('click', function() {
-    $('select.selall').attr('multiple','multiple');
-    $('select.selall option').attr('selected','selected');
-  });
+  tbod.sortable({
+  connectWith: '.rsortable',
+  items: '> tr:not(".placeholder")',
+  appendTo: tbl,
+//  helper: 'clone',
+  zIndex: 9999
+ }).disableSelection();
+
+  tbl.droppable({
+  accept: '.rsortable tr',
+  hoverClass: 'ui-state-hover', //TODO
+  drop: function(ev,ui) {
+   //update submittable dropped hidden input
+   var row = ui.draggable[0],
+    srcbody = row.parentElement || row.parentNode,
+    inp = $(row).find('input[type="hidden"]'),
+    state = ($(this).hasClass('selected')) ? 1 : 0;
+   inp.val(state);
+   //adjust display of tbod placeholder rows
+   tbod.each(function() {
+    var t = $(this),
+     len = t.find('> tr').length;
+    row = t.find('> tr.placeholder');
+    if(len < 2) {
+     row.css('display','table');
+    } else if(len === 2 && this === srcbody) {
+     row.css('display','table');
+    } else {
+     row.css('display','none');
+    }
+   });
+   return false;
+  }
+ });
 });
-EOS;
-  $this->AdminBottomContent($out);
-
-// stylesheets tab
-/* TODO conform to theme, if used
-  $out = <<<EOS
-<style type="text/css">
-#available-stylesheets li.selected {
- background-color: #147fdb;
-}
-#available-stylesheets li:focus {
- color: #147fdb;
-}
-#selected-stylesheets li a:focus {
- color: #147fdb;
-}
-#selected-stylesheets a.ui-icon+a:focus {
- border: 2px solid #147fdb;
-}
-</style>
-EOS;
-  $this->AdminHeaderContent($out);
-*/
-
-  $out = <<<EOS
-$(document).ready(function() {
-  var _edit_url = '{cms_action_url action=admin_edit_css css=xxxx forjs=1}';
-  $('ul.sortable-stylesheets').sortable({
-    connectWith: '#selected-stylesheets ul',
-    delay: 150,
-    revert: true,
-    placeholder: 'ui-state-highlight',
-    items: 'li:not(.placeholder)',
-    helper: function(event, ui) {
-    if(!ui.hasClass('selected')) {
-      ui.addClass('selected').siblings().removeClass('selected');
-    }
-    var elements = ui.parent().children('.selected').clone(),
-      helper = $('<li/>');
-    ui.data('multidrag', elements).siblings('.selected').remove();
-    return helper.append(elements);
-    },
-    stop: function(event, ui) {
-    var elements = ui.item.data('multidrag');
-    ui.item.after(elements).remove();
-    },
-    receive: function(event, ui) {
-    var elements = ui.item.data('multidrag');
-    $('.sortable-stylesheets .placeholder').hide();
-    $(elements).removeClass('selected ui-state-hover')
-      .append($('<a href="#"/>')
-      .addClass('ui-icon ui-icon-trash sortable-remove')
-      .text('{$this->Lang('remove')}'))
-      .find('input[type="checkbox"]')
-      .attr('checked', true);
-    }
-  });
-  $('#available-stylesheets li').on('click', function(ev) {
-    $(this).focus();
-  });
-  $('#selected-stylesheets li').on('click', function(ev) {
-    $('a:first', this).focus();
-  });
-  $('#available-stylesheets li').on('keyup', function(ev) {
-    if(ev.keyCode === $.ui.keyCode.ESCAPE) {
-    // escape
-    $('#selected-stylesheets li').removeClass('selected');
-    ev.preventDefault();
-    } else if(ev.keyCode === $.ui.keyCode.SPACE || ev.keyCode === 107) {
-    // spacebar or plus
-    ev.preventDefault();
-    $(this).toggleClass('selected ui-state-hover');
-    find_sortable_focus(this);
-    } else if(ev.keyCode == 39) {
-    // right arrow
-    ev.preventDefault();
-    $('#available-stylesheets li.selected').each(function() {
-      $(this).removeClass('selected ui-state-hover');
-      var _css_id = $(this).data('cmsms-item-id');
-      var _url = _edit_url.replace('xxx', _css_id);
-      var _text = $(this).text().trim();
-      var _el = $(this).clone();
-      var _a = $('<a/>')
-        .attr('href', _url)
-        .text(_text)
-        .addClass('edit_css unsaved')
-        .attr('title', '{$this->Lang('edit_stylesheet')}');
-      $('span', _el).remove();
-      $(_el).append(_a);
-      $(_el).removeClass('selected ui-state-hover')
-        .attr('tabindex', -1)
-        .addClass('unsaved no-sort')
-        .append($('<a href="#"/>')
-        .addClass('ui-icon ui-icon-trash sortable-remove')
-        .text('{$this->Lang('remove')}')
-        .attr('title', '{$this->Lang('remove')}'))
-        .find('input[type="checkbox"]')
-        .attr('checked', true);
-      $('#selected-stylesheets > ul').append(_el);
-      $(this).remove();
-      set_changed();
-      // set focus somewhere
-      find_sortable_focus(this);
-    });
-    }
-  });
-  $('#selected-stylesheets .sortable-remove').on('click', function(e) {
-    e.preventDefault();
-    set_changed();
-    $(this).next('input[type="checkbox"]').attr('checked', false);
-    $(this).parent('li').appendTo('#available-stylesheets ul');
-    $(this).remove();
-  });
-  $('a.edit_css').on('click', function(ev) {
-    if(__changed) {
-    ev.preventDefault();
-    var el = this;
-    cms_confirm('{$this->Lang('confirm_save_design')}','{$this->Lang('yes')}').done(function() {
-      // save and redirect
-      save_design().done(function() {
-        window.location = $(el).attr('href');
-      });
-    });
-    return false;
-    }
-  });
-});
-EOS;
-  $this->AdminBottomContent($out);
-
-// templates tab
-/* TODO conform to theme, if used
-  $out = <<<EOS
-<style type="text/css">
-#available-templates li.selected {
- background-color: #147fdb;
-}
-#template_sel li:focus {
- color: #147fdb;
-}
-#template_sel li a:focus {
- color: #147fdb;
-}
-#template_sel a.ui-icon+a:focus {
- border: 2px solid #147fdb;
-}
-</style>
-EOS;
-  $this->AdminHeaderContent($out);
-*/
-    $out = <<<EOS
-function find_sortable_focus(in_e) {
-  var _list = $(':tabbable');
-  var _idx = _list.index(in_e);
-  var _out_e = _list.eq(_idx + 1).length ? _list.eq(_idx + 1) : _list.eq(0);
-  _out_e.focus();
-}
-
-$(document).ready(function() {
-  var _edit_url = '{cms_action_url action=admin_edit_template tpl=xxxx forjs=1}';
-  $('ul.sortable-templates').sortable({
-    connectWith: '#selected-templates ul',
-    delay: 150,
-    revert: true,
-    placeholder: 'ui-state-highlight',
-    items: 'li:not(.no-sort)',
-    helper: function(event, ui) {
-    if(!ui.hasClass('selected')) {
-      ui.addClass('selected').siblings().removeClass('selected');
-    }
-    var elements = ui.parent().children('.selected').clone(),
-      helper = $('<li/>');
-    ui.data('multidrag', elements).siblings('.selected').remove();
-    return helper.append(elements);
-    },
-    stop: function(event, ui) {
-    var elements = ui.item.data('multidrag');
-    ui.item.after(elements).remove();
-    },
-    receive: function(event, ui) {
-    var elements = ui.item.data('multidrag');
-    $('.sortable-templates .placeholder').hide();
-    $(elements).each(function() {
-      var _tpl_id = $(this).data('cmsms-item-id');
-      var _url = _edit_url.replace('xxxx', _tpl_id);
-      var _text = $(this).text().trim();
-      var _e;
-      if($manage_templates) {
-        _e = $('<a/>').attr('href', _url)
-        .text(_text)
-        .addClass('edit_tpl unsaved')
-        .attr('title', '{$this->Lang('edit_template')}');
-      } else {
-        _e = $('<span/>').text(_text);
-      }
-      $('span', this).remove();
-      $(this).append(_e);
-      $(this).removeClass('selected ui-state-hover')
-        .attr('tabindex', -1)
-        .addClass('unsaved no-sort')
-        .append($('<a href="#"/>')
-        .addClass('ui-icon ui-icon-trash sortable-remove')
-        .text('{$this->Lang('remove')}'))
-        .find('input[type="checkbox"]')
-        .attr('checked', true);
-    });
-    set_changed();
-    }
-  });
-  $('#available-templates li').on('click', function(ev) {
-    $(this).focus();
-  });
-  $('#selected-templates li').on('click', function(ev) {
-    $('a:first', this).focus();
-  });
-  $('#available-templates li').on('keyup', function(ev) {
-    if(ev.keyCode === $.ui.keyCode.ESCAPE) {
-    // escape
-    $('#available-templates li').removeClass('selected');
-    ev.preventDefault();
-    }
-    if(ev.keyCode === $.ui.keyCode.SPACE || ev.keyCode === 107) {
-    // spacebar or plus
-    console.debug('selected');
-    ev.preventDefault();
-    $(this).toggleClass('selected ui-state-hover');
-    find_sortable_focus(this);
-    } else if(ev.keyCode === 39) {
-    // right arrow.
-    $('#available-templates li.selected').each(function() {
-      $(this).removeClass('selected');
-      var _tpl_id = $(this).data('cmsms-item-id');
-      var _url = _edit_url.replace('xxxx', _tpl_id);
-      var _text = $(this).text().trim();
-      var _el = $(this).clone();
-      var _a;
-      if($manage_templates) {
-        _a = $('<a/>')
-        .attr('href', _url)
-        .text(_text)
-        .addClass('edit_tpl unsaved')
-        .attr('title', '{$this->Lang('edit_template')}');
-      } else {
-        _a = $('<span/>').text(_text);
-      }
-      $('span', _el).remove();
-      $(_el).append(_a);
-      $(_el).removeClass('selected ui-state-hover')
-        .attr('tabindex', -1)
-        .addClass('unsaved no-sort')
-        .append($('<a href="#"/>')
-        .addClass('ui-icon ui-icon-trash sortable-remove')
-        .text('{$this->Lang('remove')}')
-        .attr('title', '{$this->Lang('remove')}'))
-        .find('input[type="checkbox"]')
-        .attr('checked', true);
-      $('#selected-templates > ul').append(_el);
-      $(this).remove();
-      set_changed();
-      // set focus somewhere
-      find_sortable_focus(this);
-    });
-    console.debug('got arrow');
-    }
-  });
-  $('#selected-templates .sortable-remove').on('click', function(e) {
-    // click on remove icon
-    e.preventDefault();
-    set_changed();
-    $(this).next('input[type="checkbox"]').attr('checked', false);
-    $(this).parent('li').removeClass('no-sort').appendTo('#available-templates ul');
-    $(this).remove();
-  });
-  $('a.edit_tpl').on('click', function(ev) {
-    if(__changed) {
-    ev.preventDefault();
-    var el = this;
-    cms_confirm('{$this->Lang('confirm_save_design')}','{$this->Lang('yes')}').done(function() {
-      // save and redirect
-      save_design().done(function() {
-        window.location = $(el).attr('href');
-      });
-    });
-    return false;
-    }
-    // normal default link behavior.
-  });
-});
-EOS;
-  $this->AdminBottomContent($out);
-
-  $out = <<<EOS
-//]]>
+//]]
 </script>
+
 EOS;
-  $this->AdminBottomContent($out);
+  $this->AdminBottomContent($js);
 
   $tpl->display();
 }
