@@ -46,6 +46,7 @@ use CMSMS\Events;
 use CMSMS\HookManager;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
+use CMSMS\internal\ModulePluginOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 
@@ -121,7 +122,7 @@ if (isset($CMS_ADMIN_PAGE)) {
 $obj = new global_cachable('schema_version', function()
     {
         $db = CmsApp::get_instance()->GetDb();
-        $query = 'SELECT version FROM '.CMS_DB_PREFIX.'version';
+        $query = 'SELECT version FROM '.CMS_DB_PREFIX.'version'; //TODO just get from file: CMS_WHATEVER
         return $db->GetOne($query);
     });
 global_cache::add_cachable($obj);
@@ -193,6 +194,7 @@ if ($CMS_JOB_TYPE < 2) {
 // other global caches
 cms_siteprefs::setup();
 Events::setup();
+ModulePluginOperations::setup();
 
 // Attempt to override the php memory limit
 if (isset($config['php_memory_limit']) && !empty($config['php_memory_limit'])) ini_set('memory_limit',trim($config['php_memory_limit']));
@@ -221,9 +223,6 @@ if (!isset($CMS_INSTALL_PAGE)) {
     if ($global_umask != '') umask( octdec($global_umask));
 
     $modops = new ModuleOperations();
-    // Load all non-lazy modules
-//    $modops->LoadImmediateModules();
-    $modops->InitModules(); //DEBUG
     // After autoloader & modules
     $tmp = $modops->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
     if( $tmp ) {

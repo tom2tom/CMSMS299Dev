@@ -358,8 +358,9 @@ abstract class CMSModule
      * @param bool $static Optional flag whether to record this registration
      *  in the database. Default false. If true, the module is not immediately
      *  registered with smarty i.e. for use during module installation/upgrade.
-     * @param mixed bool|null $cachable UNUSED since 2.3 (always cachable)
-	 *  Optional flag whether this module's output is cachable. Default false.
+     * @param mixed bool|null $cachable Optional indicator Whether the plugin's
+	 *  (frontend) output is cachable by smarty. Default false.
+	 *  Deprecated since 2.3 (Make it always be cachable, with override in page|template)
      * @return bool
      */
     final public function RegisterModulePlugin(bool $static = false, $cachable = false) : bool
@@ -368,15 +369,12 @@ abstract class CMSModule
         if( !$static ) {
             global $CMS_INSTALL_PAGE;
             if( !isset($CMS_INSTALL_PAGE) ) {
-                $smarty = CmsApp::get_instance()->GetSmarty();
-                try {
-                    $smarty->registerPlugin('function', $name, [$name,'function_plugin'], true);
-                } catch (Exception $e) {/* ignore duplicate registrations */}
+		        //non-static: add to 'module_plugins' cache
+		        return (new ModulePluginOperations())->add_dynamic($name, $name, 'function', $name.'::function_plugin', $cachable);
             }
-            return true;
         }
         //static: make a 'permanent' record
-        return (new ModulePluginOperations())->add($name, $name, 'function', [$name,'function_plugin']);
+        return (new ModulePluginOperations())->add($name, $name, 'function', $name.'::function_plugin', $cachable);
     }
 
     /**
@@ -384,7 +382,7 @@ abstract class CMSModule
      *
      * @final
      * @since 1.11
-     * @deprecated since 2.3
+     * @deprecated since 2.3 frontend output should default to cachable, subject to in-template smarty overrides
      * @author Robert Campbell
      *
      * @return bool
