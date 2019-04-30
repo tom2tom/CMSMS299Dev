@@ -6,7 +6,7 @@
 <div class="pageinfo">{$mod->Lang('info_background_jobs')}</div>
 
 {if count($jobs)}
-  <table class="pagetable">
+  <table class="pagetable" style="width:auto;">
     <thead>
       <tr>
         <th>{$mod->Lang('name')}</th>
