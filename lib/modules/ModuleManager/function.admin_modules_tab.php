@@ -140,7 +140,7 @@ if ($data) {
 
         switch ($row['status']) {
         case 'incompatible':
-            $onerow->status = $this->Lang('incompatible');
+            $onerow->status = $this->Lang('incompatible'); //TODO remove any other rows with some other status
             break;
         case 'uptodate':
             $onerow->status = $this->Lang('uptodate');
