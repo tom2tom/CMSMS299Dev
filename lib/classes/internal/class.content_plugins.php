@@ -25,7 +25,7 @@ use CmsApp;
 use CmsError403Exception;
 use CmsError404Exception;
 use CMSMS\ModuleOperations;
-use const __CMS_PREVIEW_PAGE__;
+use const CMS_PREVIEW_PAGEID;
 use const CMS_PREVIEW;
 use const CMS_UPLOADS_URL;
 use function cms_join_path;
@@ -91,15 +91,17 @@ final class content_plugins
                 $result = self::get_default_content_block_content( $contentobj->Id(), $smarty );
             }
             if( !$result ) {
-                if( isset($_SESSION[CMS_PREVIEW]) && $contentobj->Id() == __CMS_PREVIEW_PAGE__ ) {
+/*
+                if( isset($_SESSION[CMS_PREVIEW]) && $contentobj->Id() == CMS_PREVIEW_PAGEID ) {
                     // note: content precompile/postcompile events will not be triggererd in preview.
 //                  $val = $contentobj->Show($block);
 //                  $result = $smarty->fetch('eval:'.$val);
                     $result = $smarty->fetch('content:'.strtr($block,' ','_'), '|'.$block, $contentobj->Id().$block);
                 }
                 else {
+*/
                     $result = $smarty->fetch('content:'.strtr($block,' ','_'), '|'.$block, $contentobj->Id().$block);
-                }
+//                }
             }
         }
         self::echo_content($result, $params, $smarty);
@@ -258,7 +260,7 @@ final class content_plugins
         }
 
         if( $do_mact ) {
-            $modops = ModuleOperations::get_instance();
+            $modops = new ModuleOperations();
             $module_obj = $modops->get_module_instance($module);
             if( !$module_obj ) {
                 // module not found... couldn't even autoload it.
