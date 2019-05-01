@@ -5,7 +5,13 @@
  * @author Goran Ilic - uniqu3 <ja@ich-mach-das.at>
  * ==========================================================
  */
-(function(global, $) {"$:nomunge"; 'use strict';
+/*!
+CMSMS Altbier theme functions v.1.0
+(C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+License GPL2+
+*/ 
+(function(global, $) {
+    'use strict';
     /*jslint nomen: true , devel: true*/
     /**
      * @namespace AC
@@ -74,14 +80,11 @@
             });
             if(load) {
                 //didn't find it in the page, so load it
-                $.ajax({
-                    type: 'GET',
-                    url: url,
-                    async: false,
-                    success: callback,
+                return $.ajax(url, {
                     dataType: 'script',
+                    async: false,
                     cache: cache
-                });
+                }).done(callback);
             } else {
                 //already loaded so just call the callback
                 if($.isFunction(callback)) {
@@ -473,13 +476,15 @@
             var _row = $(target).closest('.alert-box');
             var _alert_name = _row.data('alert-name');
             if(!_alert_name) return;
-            $.ajax({
+            return $.ajax({
               method: 'POST',
               url: cms_data.ajax_alerts_url,
               data: {
                 op: 'delete',
                 alert: _alert_name
               }
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+              console.debug('problem deleting an alert: ' + errorThrown);
             }).done(function() {
               _row.slideUp(1000);
               var _parent = _row.parent();
@@ -489,8 +494,6 @@
                 $('a#alerts').closest('li').remove();
               }
               _row.remove();
-            }).fail(function(xhr, status, msg) {
-              console.debug('problem deleting an alert: ' + msg);
             });
         },
         /**
