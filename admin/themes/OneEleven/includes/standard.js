@@ -4,6 +4,11 @@
  * @module OE
  * @author Goran Ilic - uniqu3 <ja@ich-mach-das.at>
  * ========================================================== */
+/*!
+CMSMS OneEleven theme functions v.1.1
+(C) 2014-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+License GPL2+
+*/ 
 (function(global, $) {
     'use strict';
     /*jslint nomen: true , devel: true*/
@@ -67,14 +72,11 @@
 
             if (load) {
                 //didn't find it in the page, so load it
-                $.ajax({
-                    type: 'GET',
-                    url: url,
-                    async: false,
-                    success: callback,
+                return $.ajax(url, {
                     dataType: 'script',
+                    async: false,
                     cache: cache
-                });
+                }).done(callback);
             } else {
                 //already loaded so just call the callback
                 if ($.isFunction(callback)) {
@@ -507,6 +509,8 @@
                     op: 'delete',
                     alert: _alert_name
                 }
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.debug('problem deleting an alert: ' + errorThrown);
             }).done(function() {
                 _row.slideUp(1000);
                 var _parent = _row.parent();
@@ -516,8 +520,6 @@
                     $('a#alerts').closest('li').remove();
                 }
                 _row.remove();
-            }).fail(function(xhr, status, msg) {
-                console.debug('problem deleting an alert: ' + msg);
             });
         },
 
