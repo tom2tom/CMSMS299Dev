@@ -1,13 +1,13 @@
-/*!
-javascript for Ghostgum-theme
-(C) CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-License: GPL2+
-*/
 /**
  * @package CMS Made Simple
  * @description CMSMS theme functions - tailored for Ghostgum theme
  * NOTE includes a hardcoded url for an external cookie processor, and viewport width-threshold
  */
+/*!
+javascript for CMSMS Ghostgum-theme v.0.8
+(C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+License: Affero GPL 3+
+*/
 /*jslint nomen: true , devel: true*/
 
 var ggjs = {
@@ -107,14 +107,11 @@ var ggjs = {
     });
     if(load) {
       //didn't find it in the page, so load it
-      $.ajax({
-        type: 'GET',
-        url: url,
-        async: false,
-        success: callback,
+      return $.ajax(url, {
         dataType: 'script',
+        async: false,
         cache: cache
-      });
+      }).done(callback);
     } else {
       //already loaded so just call the callback
       if($.isFunction(callback)) {
@@ -400,13 +397,15 @@ var ggjs = {
     var _row = $(target).closest('.alert-box');
     var _alert_name = _row.data('alert-name');
     if(!_alert_name) return;
-    $.ajax({
+    return $.ajax({
       method: 'POST',
       url: cms_data.ajax_alerts_url,
       data: {
         op: 'delete',
         alert: _alert_name
       }
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      console.debug('problem deleting an alert: ' + errorThrown);
     }).done(function() {
       _row.slideUp(1000);
       var _parent = _row.parent();
@@ -416,8 +415,6 @@ var ggjs = {
         $('a#alerts').closest('li').remove();
       }
       _row.remove();
-    }).fail(function(xhr, status, msg) {
-      console.debug('problem deleting an alert: ' + msg);
     });
   },
   /**
