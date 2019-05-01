@@ -58,27 +58,34 @@ if (!isset($CMS_INSTALL_PAGE) && (!is_file(CONFIG_FILE_LOCATION) || filesize(CON
     die('FATAL ERROR: config.php file not found or invalid');
 }
 
-if (!isset($CMS_JOB_TYPE)) $CMS_JOB_TYPE = 0;
-
-const CMS_DEFAULT_VERSIONCHECK_URL = 'https://www.cmsmadesimple.org/latest_version.php';
-const CMS_SECURE_PARAM_NAME = '_sk_';
-const CMS_USER_KEY = '_userkey_';
-
-$dirname = __DIR__.DIRECTORY_SEPARATOR;
+$dirpath = __DIR__.DIRECTORY_SEPARATOR;
 // include some stuff
-require_once $dirname.'version.php'; // some defines
-require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php';
-require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php';
-require_once $dirname.'misc.functions.php'; //some used in defines setup
-require_once $dirname.'defines.php'; //populate relevant defines
-require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php'; //used in autoloader
-require_once $dirname.'module.functions.php'; //some used in autoloader
-require_once $dirname.'autoloader.php';
-require_once $dirname.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; //CHECKME Composer support on production system ?
-require_once $dirname.'compat.functions.php';
-require_once $dirname.'page.functions.php';
+require_once $dirpath.'version.php'; // some defines
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php';
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php';
+require_once $dirpath.'misc.functions.php'; //some used in defines setup
+require_once $dirpath.'defines.php'; //populate relevant defines
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php'; //used in autoloader
+require_once $dirpath.'module.functions.php'; //some used in autoloader
+require_once $dirpath.'autoloader.php';
+require_once $dirpath.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; //CHECKME Composer support on production system ?
+require_once $dirpath.'compat.functions.php';
+require_once $dirpath.'page.functions.php';
+
+if (isset($_REQUEST[CMS_JOB_KEY])) {
+	$type = (int)$_REQUEST[CMS_JOB_KEY];
+	$CMS_JOB_TYPE = min(max($type, 0), 2);
+} elseif (
+	// undocumented, deprecated, output-suppressors
+	(isset($_REQUEST['showtemplate']) && $_REQUEST['showtemplate'] == 'false')
+	|| isset($_REQUEST['suppressoutput'])) {
+	$CMS_JOB_TYPE = 1;
+} else {
+	//normal output
+	$CMS_JOB_TYPE = 0;
+}
 if ($CMS_JOB_TYPE < 2) {
-    require_once $dirname.'translation.functions.php';
+    require_once $dirpath.'translation.functions.php';
 }
 
 debug_buffer('Finished loading basic files');
@@ -250,5 +257,5 @@ if ($CMS_JOB_TYPE < 2) {
 }
 
 if (!isset($CMS_INSTALL_PAGE)) {
-    require_once($dirname.'classes'.DIRECTORY_SEPARATOR.'internal'.DIRECTORY_SEPARATOR.'class_compatibility.php');
+    require_once($dirpath.'classes'.DIRECTORY_SEPARATOR.'internal'.DIRECTORY_SEPARATOR.'class_compatibility.php');
 }
