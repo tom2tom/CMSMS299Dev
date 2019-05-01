@@ -236,7 +236,7 @@ class Content extends ContentBase
 		if( $errors === false ) $errors = [];
 
 		if ($this->mTemplateId <= 0 ) {
-			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('template'));
+			$errors[] = lang('nofieldgiven', $this->mod->Lang('template'));
 			$result = false;
 		}
 

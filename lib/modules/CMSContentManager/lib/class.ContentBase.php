@@ -1654,7 +1654,7 @@ WHERE content_id = ?';
 				$this->mName = $this->mMenuText;
 			}
 			else {
-				$errors[] = $this->mod->Lang('nofieldgiven', lang('title'));
+				$errors[] = lang('nofieldgiven', lang('title'));
 			}
 		}
 
@@ -1663,7 +1663,7 @@ WHERE content_id = ?';
 				$this->mMenuText = $this->mName;
 			}
 			else {
-				$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('menutext'));
+				$errors[] = lang('nofieldgiven', $this->mod->Lang('menutext'));
 			}
 		}
 

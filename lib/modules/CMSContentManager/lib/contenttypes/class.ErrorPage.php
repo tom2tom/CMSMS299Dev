@@ -130,10 +130,10 @@ class ErrorPage extends Content
 
 		//Do our own alias check
 		if ($this->mAlias == '') {
-			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('error_type'));
+			$errors[] = lang('nofieldgiven', $this->mod->Lang('error_type'));
 		}
 		else if (in_array($this->mAlias, $this->error_types)) {
-			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('error_type'));
+			$errors[] = lang('nofieldgiven', $this->mod->Lang('error_type'));
 		}
 		else if ($this->mAlias != $this->mOldAlias) {
 			$gCms = cmsms();
