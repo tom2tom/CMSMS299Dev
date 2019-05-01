@@ -368,6 +368,7 @@ $lang['prompt_template'] = 'Template';
 $lang['prompt_title'] = 'Title';
 $lang['prompt_withselected'] = 'With Selected';
 $lang['reorderpages'] = 'Reorder';
+$lang['report'] = 'REPORT'; //fieldset title
 $lang['revert'] = 'Revert';
 $lang['searchable'] = 'Searchable';
 $lang['secure_page'] = 'Secure Access Only';
