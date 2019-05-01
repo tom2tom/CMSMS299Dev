@@ -117,7 +117,7 @@ $(function() {
       // we lost the lock on this type ... block saving and display a nice message.
       $('#cancelbtn').fadeOut().attr('value', '$cancel').fadeIn();
       $('#edit_group').dirtyForm('option', 'dirty', false);
-      $('#submitbtn, #applybtn').attr('disabled', 'disabled');
+      $('#submitbtn, #applybtn').prop('disabled', true);
       $('.lock-warning').removeClass('hidden-item');
       cms_alert($s2);
      }

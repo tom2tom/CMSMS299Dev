@@ -289,10 +289,10 @@ $(function() {
  $('#sel_all, .multiselect').on('click', function() {
   if(!$(this).is(':checked')) {
    $('#withselected').attr('disabled', 'disabled');
-   $('#bulksubmit').attr('disabled', 'disabled');
+   $('#bulksubmit').prop('disabled', true);
   } else {
    $('#withselected').removeAttr('disabled');
-   $('#bulksubmit').removeAttr('disabled');
+   $('#bulksubmit').prop('disabled',false);
   }
  });
  $('#listusers').submit(function(ev) {

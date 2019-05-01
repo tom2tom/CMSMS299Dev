@@ -254,7 +254,7 @@ $(function() {
         // and display a nice message.
         $('[name$="cancel"]').fadeOut().attr('value', '$cancel').fadeIn();
         $('#form_editcss').dirtyForm('option', 'dirty', false);
-        $('#submitbtn, #applybtn').attr('disabled', 'disabled');
+        $('#submitbtn, #applybtn').prop('disabled', true);
         $('.lock-warning').removeClass('hidden-item');
         cms_alert($s2);
       }
@@ -298,15 +298,15 @@ $(function() {
   // disable media-type checkboxes if media query is in use
   if($('#mediaquery').val() !== '') {
     $('.media-type :checkbox').attr({
-      disabled: 'disabled',
-      checked: false
+      checked: false,
+      disabled: 'disabled'
     });
   }
   $('#mediaquery').on('keyup', function(e) {
     if($('#mediaquery').val() !== '') {
       $('.media-type :checkbox').attr({
-        disabled: 'disabled',
-        checked: false
+        checked: false,
+        disabled: 'disabled'
       });
     } else {
       $('.media-type:checkbox').removeAttr('disabled');

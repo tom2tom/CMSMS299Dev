@@ -108,10 +108,10 @@ EOS;
 } //templates present
 $js .= <<<EOS
 $(function() {
-  $('[name$="apply"],[name$="submit"]').attr('disabled','disabled');
+  $('[name$="apply"],[name$="submit"]').prop('disabled',true);
   $('#edit_news').dirtyForm({
     onDirty: function() {
-      $('[name$="apply"],[name$="submit"]').removeAttr('disabled');
+      $('[name$="apply"],[name$="submit"]').prop('disabled',false);
     }
   });
   $(document).on('cmsms_textchange', function() {

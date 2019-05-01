@@ -345,16 +345,16 @@ $(function() {
       cms_alert($s2);
     }
     return false;
-  }).attr('disabled', 'disabled');
+  }).prop('disabled', true);
   $('#tpl_selall').cmsms_checkall();
   $('#tpl_selall,.tpl_select').on('click', function() {
     l = $('.tpl_select:checked').length;
     if(l === 0) {
       $('#tpl_bulk_action').attr('disabled', 'disabled');
-      $('#tpl_bulk_submit').attr('disabled', 'disabled');
+      $('#tpl_bulk_submit').prop('disabled', true);
     } else {
       $('#tpl_bulk_action').removeAttr('disabled');
-      $('#tpl_bulk_submit').removeAttr('disabled');
+      $('#tpl_bulk_submit').prop('disabled',false);
     }
   });
   $('#typelist').SSsort(opts);

@@ -256,16 +256,16 @@ $(function() {
       cms_alert($s2);
     }
     return false;
-  }).attr('disabled', 'disabled');
+  }).prop('disabled', true);
   $('#css_selall').cmsms_checkall();
   $('#css_selall,.css_select').on('click', function() {
     l = $('.css_select:checked').length;
     if(l === 0) {
       $('#css_bulk_action').attr('disabled', 'disabled');
-      $('#css_bulk_submit').attr('disabled', 'disabled');
+      $('#css_bulk_submit').prop('disabled', true);
     } else {
       $('#css_bulk_action').removeAttr('disabled');
-      $('#css_bulk_submit').removeAttr('disabled');
+      $('#css_bulk_submit').prop('disabled', false);
     }
   });
   $('a.edit_css').on('click', function(e) {
