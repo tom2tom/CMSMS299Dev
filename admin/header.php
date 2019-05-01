@@ -156,7 +156,9 @@ if ($list) {
 	}
 }
 
-cms_admin_sendheaders(); //TODO is this $CMS_JOB_TYPE-related ?
+if (empty($CMS_JOB_TYPE)) {
+	cms_admin_sendheaders(); //TODO only for $CMS_JOB_TYPE < 1 ?
+}
 
 if (isset($config['show_performance_info'])) {
 	$starttime = microtime();
