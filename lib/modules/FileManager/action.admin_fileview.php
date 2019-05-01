@@ -251,7 +251,7 @@ function enable_action_buttons() {
     text = $("#filesarea input[type='checkbox'].text").filter(':checked').length,
     imgs = $("#filesarea input[type='checkbox'].image").filter(':checked').length;
   disable_button('button.filebtn');
-  $('button.filebtn').attr('disabled', 'disabled');
+  $('button.filebtn').prop('disabled', true);
   if(files === 0 && dirs === 0) {
     // nothing selected, enable anything with select_none
     enable_button('#btn_newdir');
