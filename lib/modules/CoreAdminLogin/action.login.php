@@ -27,8 +27,8 @@ $id = 'm1_';
 $url = $this->create_url($id, 'login'); //back to self
 
 $params = ['actionid' => $id];
-$params['loginurl'] = $url.'&amp;cmsjobtype=1';
-$params['forgoturl'] = $url.'&amp;'.$id.'forgotpw=1&amp;cmsjobtype=1';
+$params['loginurl'] = $url.'&amp;'.CMS_JOB_KEY.'=1';
+$params['forgoturl'] = $url.'&amp;'.$id.'forgotpw=1&amp;'.CMS_JOB_KEY.'=1';
 $params['admin_url'] = $config['admin_url'];
 $params['encoding'] = NlsOperations::get_encoding();
 

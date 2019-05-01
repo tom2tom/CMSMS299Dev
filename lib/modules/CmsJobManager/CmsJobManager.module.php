@@ -495,7 +495,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
 
         $joburl = $this->GetPreference('joburl');
         if (!$joburl) {
-            $joburl = $this->create_url('aj_','process', '', ['cms_jobman'=>1]) . '&cmsjobtype=2';
+            $joburl = $this->create_url('aj_','process', '', ['cms_jobman'=>1]) . '&'.CMS_JOB_KEY.'=2';
         }
         $joburl = str_replace('&amp;', '&', $joburl);  //fix needed for direct use ??
 

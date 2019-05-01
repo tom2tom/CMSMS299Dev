@@ -33,7 +33,7 @@ $tpl->assign('max_chunksize',min($upload_max_filesize,$post_max_size-1024))
   'path'=>$cwd,
   'ajax'=>1
 ]))
- ->assign('chdir_url',str_replace('&amp;','&',$this->create_url($id,'changedir',$returnid)).'&cmsjobtype=1');
+ ->assign('chdir_url',str_replace('&amp;','&',$this->create_url($id,'changedir',$returnid)).'&'.CMS_JOB_KEY.'=1');
 
 $advancedmode = $this->GetPreference('advancedmode',0);
 if( strlen($advancedmode) > 1 ) $advancedmode = 0;

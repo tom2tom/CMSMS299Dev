@@ -4,7 +4,7 @@ use FileManager\Utils;
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 
-if( $_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['cmsjobtype']) && $_GET['cmsjobtype'] > 0 ) {
+if( $_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET[CMS_JOB_KEY]) && $_GET[CMS_JOB_KEY] > 0 ) {
   echo Utils::get_cwd();
   exit;
 }

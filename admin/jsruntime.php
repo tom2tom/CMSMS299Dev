@@ -21,6 +21,7 @@ $data = [];
 $data['admin_url'] = $config['admin_url'];
 $data['ajax_alerts_url'] = $config['admin_url'].'/ajax_alerts.php'.$urlext;
 $data['ajax_help_url'] = $config['admin_url'].'/ajax_help.php'.$urlext;
+$data['job_key'] = CMS_JOB_KEY;
 $data['lang_alert'] = lang('alert');
 $data['lang_cancel'] = lang('cancel');
 $data['lang_choose'] = lang('choose'); //filepicker-specific

@@ -362,7 +362,7 @@ if( $content_obj->HasPreview() ) {
     $tpl->assign('has_preview',1);
     $preview_url = CMS_ROOT_URL.'/index.php?'.$config['query_var'].'='.CMS_PREVIEW_PAGEID;
     $tmp = $this->create_url($id,'admin_editcontent',$returnid,['preview'=>1]);
-    $preview_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&cmsjobtype=1';
+    $preview_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=1';
 }
 else {
     $preview_url = '';
@@ -371,7 +371,7 @@ else {
 
 if( $this->GetPreference('template_list_mode','designpage') != 'all')  {
     $tmp = $this->create_url($id,'admin_ajax_gettemplates',$returnid);
-    $designchanged_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&cmsjobtype=1';
+    $designchanged_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=1';
 }
 else {
     $designchanged_ajax_url = '';
@@ -380,7 +380,7 @@ else {
 $parms = [];
 if( $content_id > 0 ) $parms['content_id'] = $content_id;
 $tmp = $this->create_url($id,'admin_editcontent',$returnid,$parms);
-$apply_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&cmsjobtype=1';
+$apply_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=1';
 $lock_timeout = $this->GetPreference('locktimeout');
 $lock_refresh = $this->GetPreference('lockrefresh');
 $do_locking = ($content_id > 0 && $lock_timeout > 0) ? 1:0;

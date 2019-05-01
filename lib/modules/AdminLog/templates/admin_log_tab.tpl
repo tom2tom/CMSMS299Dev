@@ -1,5 +1,5 @@
 <div class="c_full cf">
-  <a href="{cms_action_url action=download}&cmsjobtype=1">{admin_icon icon='export.gif'} {$mod->Lang('download')}</a>
+  <a href="{cms_action_url action=download jobtype=1}">{admin_icon icon='export.gif'} {$mod->Lang('download')}</a>
   {if $mod->CheckPermission('Clear Admin Log')}
     <a href="{cms_action_url action=clear}">{admin_icon icon='delete.gif'} {$mod->Lang('clearlog')}</a>
   {/if}

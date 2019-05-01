@@ -174,7 +174,7 @@ try {
         if( $data['isdir'] ) {
             $parms = [ 'subdir'=>$name, 'inst'=>$inst, 'sig'=>$sig ];
             if( $type ) $parms['type'] = $type;
-            $url = $this->create_url($id,'filepicker',$returnid).'&cmsjobtype=1&_enc='.base64_encode(serialize($parms));
+            $url = $this->create_url($id,'filepicker',$returnid).'&'.CMS_JOB_KEY.'=1&_enc='.base64_encode(serialize($parms));
             $data['chdir_url'] = $url;
         }
         $files[$name] = $data;
@@ -229,7 +229,7 @@ EOS;
     $out .= '<script type="text/javascript" src="'.$url.'"></script>'."\n";
 
     $url = $this->create_url($id,'ajax_cmd',$returnid,['forjs'=>1]);
-    $url = str_replace('&amp;','&',$url).'&cmsjobtype=1';
+    $url = str_replace('&amp;','&',$url).'&'.CMS_JOB_KEY.'=1';
 
     $lang = [];
     $lang['confirm_delete'] = $this->Lang('confirm_delete');

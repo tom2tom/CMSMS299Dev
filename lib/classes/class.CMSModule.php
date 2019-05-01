@@ -114,13 +114,13 @@ abstract class CMSModule
             //generic parameters always accepted
             $this->SetParameterType('action',CLEAN_STRING);
             $this->SetParameterType('assign',CLEAN_STRING);
-            $this->SetParameterType('cmsjobtype',CLEAN_INT);
+            $this->SetParameterType(CMS_JOB_KEY,CLEAN_INT);
             $this->SetParameterType('id',CLEAN_STRING);
             $this->SetParameterType('inline',CLEAN_INT);
             $this->SetParameterType('lang',CLEAN_STRING);
             $this->SetParameterType('module',CLEAN_STRING);
             $this->SetParameterType('returnid',CLEAN_INT);
-            $this->SetParameterType('showtemplate',CLEAN_STRING); //deprecated, use cmsjobtype
+            $this->SetParameterType('showtemplate',CLEAN_STRING); //deprecated since 2.3, use CMS_JOB_KEY
         }
     }
 

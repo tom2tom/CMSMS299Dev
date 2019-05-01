@@ -39,6 +39,9 @@ function smarty_function_cms_action_url($params, $template)
 		case 'mid':
 			$mid = trim($value);
 			break;
+		case 'jobtype':
+			$urlparms[CMS_JOB_KEY] = max(0,min(2,(int)$value));
+			break;
 		case 'assign':
 			$assign = trim($value);
 			break;
@@ -99,4 +102,3 @@ function smarty_function_cms_action_url($params, $template)
 	}
 	return $url;
 }
-

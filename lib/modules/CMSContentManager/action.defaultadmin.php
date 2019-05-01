@@ -19,9 +19,11 @@
 use CMSContentManager\ContentListBuilder;
 use CMSContentManager\ContentListFilter;
 use CMSContentManager\Utils;
+use CMSMS\FormUtils;
 use CMSMS\ScriptOperations;
 use CMSMS\TemplateOperations;
 use CMSMS\UserOperations;
+use CMSMS\internal\bulkcontentoperations;
 
 global $CMS_JOB_TYPE;
 
@@ -35,7 +37,7 @@ $pagelimit = cms_userprefs::get($this->GetName().'_pagelimit',500);
 $filter = cms_userprefs::get($this->GetName().'_userfilter');
 if( $filter ) $filter = unserialize($filter);
 
-if( isset($params['ajax']) ) { $ajax = 1; } else { $ajax = 0; }
+//if( isset($params['ajax']) ) { $ajax = 1; } else { $ajax = 0; }
 
 if( isset($params['curpage']) ) {
     $curpage = max(1,min(500,(int)$params['curpage']));
@@ -49,11 +51,12 @@ else if( isset($params['collapseall']) || isset($_GET['collapseall']) ) {
     $builder->collapse_all();
     $curpage = 1;
 }
+
+$filter = null;
 if( isset($params['setoptions']) ) {
     $pagelimit = max(1,min(500,(int)$params['pagelimit']));
     cms_userprefs::set($this->GetName().'_pagelimit',$pagelimit);
 
-    $filter = null;
     $filter_type = $params['filter_type'] ?? null;
     switch( $filter_type ) {
     case ContentListFilter::EXPR_DESIGN:
@@ -79,7 +82,10 @@ if( isset($params['setoptions']) ) {
     default:
         cms_userprefs::remove($this->GetName().'_userfilter');
     }
-    if( $filter ) cms_userprefs::set($this->GetName().'_userfilter',serialize($filter));
+    if( $filter ) {
+		//record for use by ajax processor
+		cms_userprefs::set($this->GetName().'_userfilter',serialize($filter));
+	}
     $curpage = 1;
 }
 if( isset($params['expand']) ) {
@@ -135,16 +141,24 @@ if( isset($params['multisubmit']) && isset($params['multiaction']) &&
     ]);
 }
 
-$modname = $this->GetName();
-if( isset($curpage) ) $_SESSION[$modname.'_curpage'] = $curpage; // for use by ajax_get_content
+$pmanage = $this->CheckPermission('Manage All Content');
 
-$locks = $builder->get_locks();
-$have_locks = ($locks) ? 1 : 0;
+$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),null,null,$smarty);
+
+require_once __DIR__.DIRECTORY_SEPARATOR.'action.ajax_get_content.php';
+
+$modname = $this->GetName();
+if( isset($curpage) ) {
+    $_SESSION[$modname.'_curpage'] = $curpage;
+}
+
 $url = $this->create_url($id,'admin_ajax_pagelookup','');
-$u1 = str_replace('&amp;','&',rawurldecode($url)) . '&cmsjobtype=1';
+$lookup_url = str_replace('&amp;','&',rawurldecode($url)) . '&'.CMS_JOB_KEY.'=1';
 $url = $this->create_url($id,'ajax_get_content','');
-$u2 = str_replace('&amp;','&',rawurldecode($url)) . '&cmsjobtype=1';
-$u3 = $config['admin_url'].'/ajax_lock.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY].'&cmsjobtype=1';
+$content_url = str_replace('&amp;','&',rawurldecode($url)) . '&'.CMS_JOB_KEY.'=1';
+$url = $this->create_url($id,'ajax_check_locks','');
+$checklocks_url = str_replace('&amp;','&',rawurldecode($url)) . '&'.CMS_JOB_KEY.'=1';
+$locks_url = $config['admin_url'].'/ajax_lock.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 //TODO any other action-specific js
 //TODO flexbox css for multi-row .colbox, .rowbox.flow, .boxchild
@@ -158,6 +172,8 @@ $s5 = json_encode($this->Lang('error_contentlocked'));
 $s9 = json_encode($this->Lang('error_action_contentlocked'));
 $s6 = lang('submit');
 $s7 = lang('cancel');
+$secs = cms_siteprefs::get('lock_refresh', 120);
+$secs = max(30,min(600,$secs));
 
 $sm = new ScriptOperations();
 $sm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
@@ -166,32 +182,31 @@ $sm->queue_matchedfile('jquery.ContextMenu.js', 2);
 $js = <<<EOS
 function cms_CMloadUrl(link, lang) {
  $(link).on('click', function(e) {
-  var url = $(this).attr('href') + '&{$id}ajax=1&cmsjobtype=1';
+  var url = $(this).attr('href') + '&{$id}ajax=1&' + cms_data.job_key + '=1';
   var _do_ajax = function() {
-   $.ajax({
-    url: url,
-   }).done(function() {
-    $('#content_area').autoRefresh('refresh').done(function() {
-     console.debug('after refresh');
+   $.ajax(url).done(function() {
+    $('#content_area').autoRefresh('start').always(function() {
+     $('#content_area').autoRefresh('stop');
     });
    });
   };
-  e.preventDefault();
   $('#ajax_find').val('');
+  e.preventDefault();
   if(typeof lang === 'string' && lang.length > 0) {
-   cms_confirm(lang).done(_do_ajax);
+    cms_confirm(lang).done(_do_ajax);
   } else {
-   _do_ajax();
+    _do_ajax();
   }
+  return false;
  });
 }
 function cms_CMtoggleState(el) {
- $(el).attr('disabled', 'disabled');
+ $(el).attr('disabled', 'disabled').prop('disabled', true);
  $('input:checkbox').on('click', function() {
   if($('input:checkbox').is(':checked')) {
-   $(el).removeAttr('disabled');
+   $(el).removeAttr('disabled').prop('disabled', false);
   } else {
-   $(el).attr('disabled', 'disabled');
+   $(el).attr('disabled', 'disabled').prop('disabled', true);
   }
  });
 }
@@ -228,103 +243,110 @@ function gethelp(tgt) {
    });
   }
 }
-
 $(function() {
- cms_equalWidth($('#useroptions label.boxchild'));
- cms_busy();
- var pageurl = '$u2',
-  findurl = '$u1',
-  lockurl = '$u3';
- $('#content_area').autoRefresh({
-  url: pageurl,
-  done_handler: function() {
-   $('#ajax_find').autocomplete({
-    source: findurl,
-    minLength: 2,
-    position: {
-     my: 'right top',
-     at: 'right bottom'
-    },
-    change: function(e, ui) {
-     // goes back to the full list, no options
-     $('#ajax_find').val('');
-     $('#content_area').autoRefresh('option', 'url', pageurl);
-    },
-    select: function(e, ui) {
-     e.preventDefault();
-     $(this).val(ui.item.label);
-     var url = pageurl + '&{$id}seek=' + ui.item.value;
-     $('#content_area').autoRefresh('option', 'url', url).autoRefresh('refresh').done(function() {
-      $('html,body').animate({
-       scrollTop: $('#row_' + ui.item.value).offset().top
-      });
-     });
-    }
-   });
-   optsclicker();
-   $('[context-menu]').ContextMenu();
-   $('.cms_help .cms_helpicon').on('click', function() {
-    gethelp(this);
-   });
-  }
+ $('[context-menu]').ContextMenu();
+ $('.cms_help .cms_helpicon').on('click', function() {
+  gethelp(this);
  });
-
  $('#selectall').cmsms_checkall({
   target: '#contenttable'
  });
+/*
+ $('<div></div').autoRefresh({
+  url: '$checklocks_url',
+  interval: $secs,
+  done_handler: function(json) {
+   //var lockdata = JSON.parse(json);
+   //TODO refresh locking elements
+   var TODO = 1;
+  }
+ });
+*/
+ var pageurl = '$content_url';
+ $('#ajax_find').autocomplete({
+  source: '$lookup_url',
+  minLength: 2,
+  position: {
+   my: 'right top',
+   at: 'right bottom'
+  },
+  change: function(e, ui) {
+   // goes back to the full list, no options
+   $('#ajax_find').val('');
+   $('#content_area').autoRefresh('option', 'url', pageurl).always(function() {
+    $('#content_area').autoRefresh('stop');
+   });
+  },
+  select: function(e, ui) {
+   e.preventDefault();
+   $(this).val(ui.item.label);
+   var url = pageurl + '&{$id}seek=' + ui.item.value;
+   $('#content_area').autoRefresh('option', 'url', url).always(function() {
+    $('html,body').animate({
+     scrollTop: $('#row_' + ui.item.value).offset().top
+    });
+    $('#content_area').autoRefresh('stop');
+   });
+  }
+ });
  cms_CMtoggleState('#multiaction');
  cms_CMtoggleState('#multisubmit');
-/* these links can't use ajax as they affect pagination.
+// * these links can't use ajax as they affect pagination.
  cms_CMloadUrl('a.expandall');
  cms_CMloadUrl('a.collapseall');
  cms_CMloadUrl('a.page_collapse');
  cms_CMloadUrl('a.page_expand');
-*/
+//*/
  cms_CMloadUrl('a.page_sortup');
  cms_CMloadUrl('a.page_sortdown');
  cms_CMloadUrl('a.page_setinactive', $s1);
  cms_CMloadUrl('a.page_setactive');
  cms_CMloadUrl('a.page_setdefault', $s2);
  cms_CMloadUrl('a.page_delete', $s3);
+
  $('a.steal_lock').on('click', function(e) {
   // we're gonna confirm stealing this lock
   e.preventDefault();
-  var el = this;
+  var url = $(this).attr('href');
   cms_confirm($s4).done(function() {
-   var url = $(el).attr('href') + '&{$id}steal=1';
-   window.location = url;
+   window.location.href = url + '&{$id}steal=1';
   });
   return false;
  });
+
+ var lockurl = '$locks_url';
  $('a.page_edit').on('click', function(e) {
   var v = $(this).data('steal_lock');
   $(this).removeData('steal_lock');
   if(typeof(v) !== 'undefined' && v !== null && !v) return false;
   if(typeof(v) === 'undefined' || v !== null) return true;
-  // double check whether this page is locked
+  e.preventDefault();
+  url = $(this).attr('href');
+  // double-check whether this page is locked
   var content_id = $(this).attr('data-cms-content');
-  $.ajax({
-   url: lockurl,
+  $.ajax(lockurl, {
    data: {
     opt: 'check',
     type: 'content',
     oid: content_id
-   },
-   success: function(data, textStatus, jqXHR) {}
+   }
   }).done(data, function() {
    if(data.status == 'success') {
     if(data.locked) {
      // gotta display a message.
-     e.preventDefault();
      cms_alert($s5);
+    } else {
+     window.location.href = url;
     }
+   } else {
+     cms_alert('AJAX ERROR');
    }
   });
+  return false;
  });
  // filter dialog
- $('#filter_type').change(function() {
+ $('#filter_type').on('change', function() {
   var map = {
-   'DESIGN_ID': '#filter_design',
    'TEMPLATE_ID': '#filter_template',
    'OWNER_UID': '#filter_owner',
    'EDITOR_UID': '#filter_editor'
@@ -337,10 +359,14 @@ $(function() {
  optsclicker();
  // other events
  $('#selectall,input.multicontent').on('change', function() {
-  $('#content_area').autoRefresh('reset');
+  $('#content_area').autoRefresh('start').always(function() {
+   $('#content_area').autoRefresh('stop');
+  });
  });
  $('#ajax_find').on('keypress', function(e) {
-  $('#content_area').autoRefresh('reset');
+  $('#content_area').autoRefresh('start').always(function() {
+   $('#content_area').autoRefresh('stop');
+  });
   if(e.which == 13) e.preventDefault();
  });
  // go to page on option change
@@ -353,29 +379,34 @@ $(function() {
  });
  $('a#clearlocks').on('click', function(e) {
   e.preventDefault();
-  cms_confirm_linkclick(this, $s8)
+  cms_confirm_linkclick(this, $s8);
   return false;
  });
  $('a#ordercontent').on('click', function(e) {
   var have_locks = $have_locks;
   if(!have_locks) {
-   // double check whether anything is locked
-   $.ajax({
-    url: lockurl,
+   e.preventDefault();
+   var url = $(this).attr('href');
+   // double-check whether the page is locked
+   $.ajax(lockurl,{
     async: false,
     data: {
      opt: 'check',
      type: 'content'
-    },
-    success: function(data, textStatus, jqXHR) {
-     if(data.status != 'success') return;
-     if(data.locked) have_locks = true;
+    }
+   }).done(data, function() {
+    if(data.status == 'success') {
+     if(data.locked) {
+       have_locks = true;
+       cms_alert($s9);
+     } else {
+       window.location.href = url;
+     }
+    } else {
+       cms_alert('AJAX ERROR');
     }
    });
-  }
-  if(have_locks) {
-   e.preventDefault();
-   cms_alert($s9);
+   return false;
   }
  });
 });
@@ -387,29 +418,27 @@ if ($out) {
     $this->AdminBottomContent($out);
 }
 
-$pmod = $this->CheckPermission('Manage All Content');
-$opts = ($pmod) ?
+$opts = ($pmanage) ?
     ['' => lang('none'),
-    'DESIGN_ID' => $this->Lang('prompt_design'),
+//    'DESIGN_ID' => $this->Lang('prompt_design'),
     'TEMPLATE_ID' => $this->Lang('prompt_template'),
     'OWNER_UID' => $this->Lang('prompt_owner'),
     'EDITOR_UID' => $this->Lang('prompt_editor')] : null;
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),null,null,$smarty);
-
-$tpl->assign('ajax',$ajax)
- ->assign('can_add_content',$pmod || $this->CheckPermission('Add Pages'))
- ->assign('can_manage_content',$pmod)
- ->assign('opts',$opts)
+//$tpl->assign('ajax',$ajax)
+$tpl->assign('can_manage_content',$pmanage)
+ ->assign('can_reorder_content',$pmanage)
+ ->assign('can_add_content', $pmanage || $this->CheckPermission('Add Pages'))
+// ->assign('settingsicon',cms_join_path(__DIR__,'images','settings'))
  ->assign('filter',$filter)
- ->assign('pagelimits',[10=>10,25=>25,100=>100,250=>250,500=>500])
- ->assign('pagelimit',$pagelimit)
- ->assign('locking',Utils::locking_enabled())
-// get a list of admin users
+ ->assign('filterimage',cms_join_path(__DIR__,'images','filter')) //TODO use new admin icon
+// filter selector items
+ ->assign('opts',$opts)
+// list of admin users for filtering
  ->assign('user_list',(new UserOperations())->GetList())
-// get a list of designs
+// list of designs for filtering
 // ->assign('design_list',CmsLayoutCollection::get_list())  TODO replacement :: stylesheets and/or groups
-// get a list of templates
+// list of templates for filtering
  ->assign('template_list',TemplateOperations::template_query(['as_list'=>1]));
 
 $tpl->display();

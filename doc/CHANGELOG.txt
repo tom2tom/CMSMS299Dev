@@ -238,7 +238,7 @@ DETAILS
   - Improve exception handling in include.php to handle when showtemplate is false.
   - CHANGE:
     - Deprecate undocumented request-parameter [$actionid]showtemplate, which has been used to suppress output.
-      Instead use cmsjobtype parameter with value
+      Instead use (defined) CMS_JOB_KEY parameter with value
       0 - default, normal page creation & display
       1 - process request with smarty support, but don't display anything, intended for ajax-requests & the like (no page-headers sent)
       2 - process request with minimal overhead (e.g. no smarty reduces request by 50%), for requests which 'do' something rather than display e.g. webhooks, async jobs (no page-headers sent)

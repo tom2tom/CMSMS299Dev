@@ -30,21 +30,11 @@ use CMSMS\PageLoader;
 
 $starttime = microtime();
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
-
-if (isset($_REQUEST['cmsjobtype'])) {
-	$type = (int)$_REQUEST['cmsjobtype'];
-	$CMS_JOB_TYPE = min(max($type, 0), 2);
-} elseif (isset($_REQUEST['showtemplate']) && $_REQUEST['showtemplate'] == 'false') {
-	// undocumented, deprecated, output-suppressor
-	$CMS_JOB_TYPE = 1;
-} else {
-	//normal output
-	$CMS_JOB_TYPE = 0;
-}
-
 clearstatcache();
 
-if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
+if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
+	$_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
+}
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 

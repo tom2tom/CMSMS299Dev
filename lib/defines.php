@@ -97,8 +97,13 @@ if( CMS_DEBUG ) {
     define('ASYNCLOG', TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'debug.log');
 }
 
+const CMS_DEFAULT_VERSIONCHECK_URL = 'https://www.cmsmadesimple.org/latest_version.php';
+const CMS_SECURE_PARAM_NAME = '_sk_';
+const CMS_JOB_KEY = '_sk_jobtype'; //derivative of CMS_SECURE_PARAM_NAME, need not be const
+const CMS_USER_KEY = '_userkey_';
+
 /*
- * Preview-page indicators.
+ * Preview-page indicators
 */
 const CMS_PREVIEW = '__cms_preview__';
 const CMS_PREVIEW_TYPE = '__cms_preview_type__';

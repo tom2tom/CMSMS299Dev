@@ -43,7 +43,7 @@ $s1 = json_encode($this->Lang('warn_clickthru'));
 $s2 = json_encode($this->Lang('error_search_text'));
 $s3 = json_encode($this->Lang('error_select_slave'));
 $url = $this->create_url($id,'admin_search');
-$ajax_url = str_replace('&amp;','&',$url) . '&cmsjobtype=1';
+$ajax_url = str_replace('&amp;','&',$url) . '&'.CMS_JOB_KEY.'=1';
 
 /*function _update_status(html) {
   $('#status_area').html(html);

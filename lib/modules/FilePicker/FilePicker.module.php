@@ -86,18 +86,18 @@ final class FilePicker extends CMSModule implements IFilePicker
      */
     protected function HeaderJsContent() : string
     {
-        $baseurl = $this->GetModuleURLPath();
-        $url = str_replace('&amp;','&',$this->get_browser_url());
+        $url = str_replace('&amp;','&',$this->get_browser_url()).'&'.CMS_JOB_KEY.'=1';
         $prompt = $this->Lang('select_file');
-
+		$local = cms_join_path($this->GetModulePath(),'lib','js');
+        $jsurl = cms_get_script('jquery.cmsms_filepicker.js',true,[$local]);
         return <<<EOS
 <script type="text/javascript">
 //<![CDATA[
+ cms_data.filepicker_url = '$url';
  cms_data.lang_select_file = '$prompt';
- cms_data.filepicker_url = '{$url}&cmsjobtype=1';
 //]]>
 </script>
-<script type="text/javascript" src="{$baseurl}/lib/js/jquery.cmsms_filepicker.js"></script>
+<script type="text/javascript" src="$jsurl"></script>
 
 EOS;
     }
@@ -239,7 +239,7 @@ EOS;
 		$title = $this->Lang($key);
 		$req = ( $required ) ? 'true':'false';
 		$s1 = $this->Lang('clear');
-		$url = str_replace('&amp;','&',$this->get_browser_url()) . '&cmsjobtype=1';
+		$url = str_replace('&amp;','&',$this->get_browser_url()) . '&'.CMS_JOB_KEY.'=1';
 
 		if( $first_time ) {
 			$first_time = false;

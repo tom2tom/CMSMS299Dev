@@ -27,20 +27,6 @@ $CMS_MODULE_PAGE = 1;
 $orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 $starttime = microtime();
 
-if (isset($_REQUEST['cmsjobtype'])) {
-	// for simplicity and compatibility with the frontend
-	$type = (int)$_REQUEST['cmsjobtype'];
-	$CMS_JOB_TYPE = min(max($type, 0), 2);
-} elseif (
-	// undocumented, deprecated, output-suppressor
-	(isset($_REQUEST['showtemplate']) && $_REQUEST['showtemplate'] == 'false')
-	|| isset($_REQUEST['suppressoutput'])) {
-	$CMS_JOB_TYPE = 1;
-} else {
-	//normal output
-	$CMS_JOB_TYPE = 0;
-}
-
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if ($CMS_JOB_TYPE < 2) {
@@ -68,7 +54,7 @@ if (!$modinst) {
 }
 if ($modinst->SuppressAdminOutput($_REQUEST)) {
 	if ($CMS_JOB_TYPE == 0) {
-		$CMS_JOB_TYPE = 1; //too bad about irelevant includes
+		$CMS_JOB_TYPE = 1; //too bad about irrelevant includes
 	}
 }
 

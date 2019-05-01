@@ -150,7 +150,7 @@ final class Utils
 		$mod = cms_utils::get_module('CMSContentManager');
 		$root_url = $mod->GetModuleURLPath().'/lib/js';
 		$url = $mod->create_url('','ajax_hiersel_content');
-		$ajax_url = str_replace('&amp;','&',$url) . '&cmsjobtype=1';
+		$ajax_url = str_replace('&amp;','&',$url) . '&'.CMS_JOB_KEY.'=1';
 		$title = $mod->Lang('title_hierselect_select');
 		$ititle = $mod->Lang('title_hierselect');
 

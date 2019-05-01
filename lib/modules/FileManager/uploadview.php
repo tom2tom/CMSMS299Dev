@@ -33,7 +33,7 @@ $tpl->assign('formstart', $this->CreateFormStart($id, 'upload', $returnid, 'post
 // ->assign('maxfilesize', $config['max_upload_size']);
 
 $action_url = str_replace('&amp;', '&', $this->create_url($id, 'upload', $returnid));
-$refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>$path])).'&cmsjobtype=1';
+$refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>$path])).'&'.CMS_JOB_KEY.'=1';
 
 $post_max_size = Utils::str_to_bytes(ini_get('post_max_size'));
 $upload_max_filesize = Utils::str_to_bytes(ini_get('upload_max_filesize'));

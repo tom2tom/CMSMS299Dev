@@ -120,7 +120,7 @@ class Utils
 	private static function _generate_config(bool $frontend=false, string $selector='', string $css_name='', string $languageid='en') : string
 	{
 		$ajax_url = function($url) {
-			return str_replace('&amp;','&',$url).'&cmsjobtype=1';
+			return str_replace('&amp;','&',$url).'&'.CMS_JOB_KEY.'=1';
 		};
 
 		try {

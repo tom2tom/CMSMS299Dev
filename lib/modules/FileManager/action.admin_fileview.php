@@ -233,8 +233,8 @@ a.filelink:visited {
 EOS;
   $this->AdminHeaderContent($out);
 
-  $refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>$path])).'&cmsjobtype=1' ;
-  $viewfile_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1])).'&cmsjobtype=1';
+  $refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>$path])).'&'.CMS_JOB_KEY.'=1' ;
+  $viewfile_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1])).'&'.CMS_JOB_KEY.'=1';
   $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
