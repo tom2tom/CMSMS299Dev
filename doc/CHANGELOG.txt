@@ -171,13 +171,14 @@ DETAILS
   - New method: cms_utils::path_to_url()
   - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum
 
-  - CHANGE: Managment of page styles is much more flexible
+  - CHANGE: Management of page styles is much more flexible
   - CHANGE: Page style(s) are applied directly, insead of via a Design. Each design is now just a tool to facilitate site development
   - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
   - FEATURE: Registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
   - FEATURE: Event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
   - FEATURE: get-support URL (for display in admin pages) may be specified in 'developer mode'
+  - FEATURE: added jQuery Poller object, a more-flexible alternative to the autoRefresh widget
   - DEPRECATED: Content pages' secure option
   - DEPRECATED: $config['ssl_url'] is now just an alias for root url
   - DEPRECATED: $config['ssl_uploads_url'] is now just an alias for uploads_url
