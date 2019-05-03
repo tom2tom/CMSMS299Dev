@@ -420,6 +420,10 @@ button.ui-button:hover, button.ui-button.ui-state-hover, button.ui-button:active
     font-size: 1em;
 }
 
+.adminsubmit:disabled, .loginsubmit:disabled, button.ui-button:disabled {
+    background-color: #b4d2ad;
+}
+
 .iconnone {
 }
 .adminsubmit.icon, .ui-button.ui-icon {
@@ -521,6 +525,10 @@ input:hover, input:focus, textarea:hover, textarea:focus {
     -o-transition: all 200ms ease-in-out;
     outline: 0;
 }
+input:disabled, textarea:disabled {
+    box-shadow: none;
+    -webkit-box-shadow: none;
+}
 /*
 input {
     text-indent: 5px;
@@ -579,6 +587,10 @@ select:hover, select:focus {
     -webkit-transition: all 200ms ease-in-out;
     -moz-transition: all 200ms ease-in-out;
     -o-transition: all 200ms ease-in-out;
+}
+select:disabled {
+    box-shadow: none;
+    -webkit-box-shadow: none;
 }
 
 textarea {

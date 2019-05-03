@@ -441,6 +441,12 @@ checkbox:hover {
 	outline: 0;
 	background: #fff
 }
+
+input:disabled, textarea:disabled, select:disabled {
+	border-color: #e6e6e6;
+	background: #f8f8f8;
+}
+
 input[type="text"],
 input[type="password"] {
 	padding: 5px
@@ -473,6 +479,11 @@ button.ui-button.ui-state-active {
 	font-weight: normal;
 	color: #147fdb
 }
+
+.adminsubmit:disabled, .loginsubmit:disabled, .ui-button:disabled { 
+    background: #f2f2f2
+}
+
 input[type="button"]:hover,
 input[type="submit"]:hover {
 	cursor: pointer
