@@ -23,7 +23,7 @@ if( !$this->CheckPermission('Manage All Content') ) {
     $this->SetError($this->Lang('error_bulk_permission'));
     $this->RedirectToAdminTab();
 }
-if( !isset($params['multicontent']) ) {
+if( !isset($params['bulk_content']) ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
@@ -31,7 +31,7 @@ if( !isset($params['multicontent']) ) {
 $showinmenu = 1;
 if( isset($params['showinmenu']) ) $showinmenu = (int)$params['showinmenu'];
 
-$multicontent = unserialize(base64_decode($params['multicontent']));
+$multicontent = unserialize(base64_decode($params['bulk_content']));
 if( !$multicontent ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();

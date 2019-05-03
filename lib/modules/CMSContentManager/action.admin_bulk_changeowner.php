@@ -23,7 +23,7 @@ if( !$this->CheckPermission('Manage All Content') ) {
   $this->RedirectToAdminTab();
 }
 
-if( !isset($params['multicontent']) ) {
+if( !isset($params['bulk_content']) ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
@@ -34,7 +34,7 @@ if( isset($params['cancel']) ) {
 }
 
 $hm = $gCms->GetHierarchyManager();
-$pagelist = unserialize(base64_decode($params['multicontent']));
+$pagelist = unserialize(base64_decode($params['bulk_content']));
 
 if( isset($params['submit']) ) {
   if( !isset($params['confirm1']) || !isset($params['confirm2']) ) {
@@ -94,7 +94,7 @@ foreach( $pagelist as $pid ) {
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_changeowner.tpl'),null,null,$smarty);
 
-$tpl->assign('multicontent',$params['multicontent'])
+$tpl->assign('multicontent',$params['bulk_content'])
  ->assign('displaydata',$displaydata);
 $userlist = (new UserOperations())->LoadUsers();
 $tmp = [];

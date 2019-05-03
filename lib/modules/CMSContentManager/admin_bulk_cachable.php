@@ -19,7 +19,7 @@
 if( !isset($gCms) ) exit;
 
 $this->SetCurrentTab('pages');
-if( !isset($params['multicontent']) ) {
+if( !isset($params['bulk_content']) ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
@@ -29,10 +29,10 @@ if( isset($params['active']) ) $active = (int)$params['active'];
 
 $multicontent = [];
 if( $this->CheckPermission('Manage All Content') || $this->CheckPermission('Modify Any Page') ) {
-    $multicontent = unserialize($params['multicontent']);
+    $multicontent = unserialize($params['bulk_content']);
 }
 else {
-    foreach( unserialize($params['multicontent']) as $pid ) {
+    foreach( unserialize($params['bulk_content']) as $pid ) {
         if( !check_authorship(get_userid(),$pid) ) continue;
         $multicontent[] = $pid;
     }

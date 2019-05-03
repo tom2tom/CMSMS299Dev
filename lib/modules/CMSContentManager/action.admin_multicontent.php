@@ -27,13 +27,13 @@ $pages = null;
 //
 // get data
 //
-if( isset($params['multicontent']) ) $multicontent = unserialize(base64_decode($params['multicontent']));
+if( isset($params['bulk_content']) ) $multicontent = unserialize(base64_decode($params['bulk_content']));
 else $multicontent = null;
 if( !$multicontent ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
-$multiaction = $params['multiaction'] ?? null;
+$multiaction = $params['bulk_action'] ?? null;
 if( !$multiaction ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
@@ -58,7 +58,7 @@ if( $module != 'core' ) {
     redirect($url);
 }
 
-$parms = ['multicontent'=>$params['multicontent']];
+$parms = ['bulk_content'=>$params['bulk_content']];
 switch( $bulkaction ) {
  case 'inactive':
    $parms['active'] = 0;

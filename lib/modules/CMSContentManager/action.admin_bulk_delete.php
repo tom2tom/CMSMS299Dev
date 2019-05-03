@@ -24,14 +24,14 @@ if( isset($params['cancel']) ) {
   $this->RedirectToAdminTab();
 }
 
-if( !isset($params['multicontent']) || !isset($params['action']) || $params['action'] != 'admin_bulk_delete' ) {
+if( !isset($params['bulk_content']) || !isset($params['action']) || $params['action'] != 'admin_bulk_delete' ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
 //
-// expand $params['multicontent'] to also include children, place it in $pagelist
+// expand $params['bulk_content'] to also include children, place it in $pagelist
 //
-$multicontent = unserialize(base64_decode($params['multicontent']));
+$multicontent = unserialize(base64_decode($params['bulk_content']));
 if( !$multicontent ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
@@ -79,7 +79,7 @@ if( isset($params['submit']) ) {
     //
     // do the real work
     //
-    $pagelist = unserialize(base64_decode($params['multicontent']));
+    $pagelist = unserialize(base64_decode($params['bulk_content']));
 
     $i = 0;
     try {

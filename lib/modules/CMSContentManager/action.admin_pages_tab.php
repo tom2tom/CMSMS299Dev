@@ -36,7 +36,7 @@ if( !function_exists('cm_prettyurls_ok') ) {
 }
 
 if( isset($params['multisubmit']) && isset($params['multiaction']) &&
-    isset($params['multicontent']) && is_array($params['multicontent']) && count($params['multicontent']) > 0 ) {
+    isset($params['bulk_content']) && is_array($params['bulk_content']) && count($params['bulk_content']) > 0 ) {
   list($module,$bulkaction) = explode('::',$params['multiaction'],2);
   if( $module == '' || $module == '-1' || $bulkaction == '' || $bulkaction == '-1' ) {
     $this->SetError($this->Lang('error_nobulkaction'));
@@ -44,7 +44,7 @@ if( isset($params['multisubmit']) && isset($params['multiaction']) &&
   }
   // redirect to special action to handle bulk content stuff.
   $this->Redirect($id,'admin_multicontent',$returnid,
-		  ['multicontent'=>base64_encode(serialize($params['multicontent'])),
+		  ['multicontent'=>base64_encode(serialize($params['bulk_content'])),
 			'multiaction'=>$params['multiaction']]);
 }
 
