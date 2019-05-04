@@ -16,30 +16,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentOperations;
+
 if( !isset($gCms) ) exit;
 
-$this->SetCurrentTab('pages');
 if( !isset($params['bulk_content']) ) {
     $this->SetError($this->Lang('error_missingparam'));
-    $this->RedirectToAdminTab();
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 
-$active = 0;
-if( isset($params['active']) ) $active = (int)$params['active'];
+$active = !empty($params['active']);
 
 $pagelist = [];
 if( $this->CheckPermission('Manage All Content') || $this->CheckPermission('Modify Any Page') ) {
-    $pagelist = unserialize($params['bulk_content']);
+    $pagelist = $params['bulk_content'];
 }
 else {
-    foreach( unserialize($params['bulk_content']) as $pid ) {
-        if( !check_authorship(get_userid(),$pid) ) continue;
+    $user_id = get_userid();
+    foreach( $params['bulk_content'] as $pid ) {
+        if( !check_authorship($user_id,$pid) ) continue;
         $pagelist[] = $pid;
     }
 }
-if( count($pagelist) == 0 ) {
+if( !$pagelist ) {
     $this->SetError($this->Lang('error_missingparam'));
-    $this->RedirectToAdminTab();
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 
 $hm = cmsms()->GetHierarchyManager();
@@ -64,4 +65,4 @@ try {
 catch( Throwable $t ) {
     $this->SetError($t->getMessage());
 }
-$this->RedirectToAdminTab();
+$this->Redirect($id,'defaultadmin',$returnid);
