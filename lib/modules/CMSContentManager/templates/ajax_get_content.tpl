@@ -164,13 +164,16 @@
       {/if}
 *}
     {elseif $column == 'actions'}
+    {$ul=empty($row.lock)}{$t=$mod->Lang('locked_hard')}
+      <span class="locked" data-id="{$row.id}" title="{$t}"{if $ul} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
+    {$t=$mod->Lang('locked_steal')}
+      <a href="http://TODO&amp;steal=1" class="steal_lock" data-id="{$row.id}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
       <span context-menu="Page{$row.id}" style="cursor:pointer;">{admin_icon icon='menu.gif' alt='menu' title=$mod->Lang('title_menu') class='systemicon'}</span>
     {elseif $column == 'multiselect'}
-      {if $row.multiselect != ''}
-      <label class="invisible" for="multicontent-{$row.id}">{$mod->Lang('prompt_multiselect_toggle')}</label>
-      <input type="checkbox" id="multicontent-{$row.id}" class="multicontent" name="{$actionid}bulk_content[]" value="{$row.id}" title="{$mod->Lang('prompt_multiselect_toggle')}"/>
+      {if $row.multiselect}
+      <label class="invisible" for="cb{$row.id}">{$mod->Lang('prompt_multiselect_toggle')}</label>
+      <input type="checkbox" id="cb{$row.id}" name="{$actionid}bulk_content[]" title="{$mod->Lang('prompt_multiselect_toggle')}" value="{$row.id}" />
       {/if}
-    {else} {* unknown column *}
     {/if}
   </td>
   {/foreach}
@@ -214,6 +217,7 @@
   </div>{*boxchild*}
 </div>{*rowbox*}
 
+{form_start action='admin_multicontent' id='listform'}
 <div id="contentlist">
  {* error container *}
  {if isset($error)}
@@ -242,7 +246,7 @@
     </thead>
     <tbody class="contentrows">
       {foreach $content_list as $row}{strip}{cycle values='row1,row2' assign='rowclass'}
-      <tr id="row_{$row.id}" class="{$rowclass}{if isset($row.selected)} selected{/if}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
+      <tr class="{$rowclass}{if isset($row.selected)} selected{/if}" data-id="{$row.id}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
         {do_content_row row=$row columns=$columns}
       </tr>
 {/strip}{/foreach}
@@ -260,7 +264,6 @@
   </div>
   {else}" style="justify-content:flex-end;">{/if}
   {if $multiselect && isset($bulk_options)}
-  {form_start action='defaultadmin' id='listform'}
   <div class="boxchild">
     {cms_help realm=$_module key2='help_bulk' title=$mod->Lang('prompt_bulk')}
     <label for="bulk_action">{$mod->Lang('prompt_withselected')}:</label>&nbsp;
@@ -269,10 +272,10 @@
     </select>
     <button type="submit" name="{$actionid}bulk_submit" id="bulk_submit" class="adminsubmit icon check">{lang('submit')}</button>
   </div>
-  </form>{* #listform *}
   {/if}
   </div>{*rowbox*}
 {/if}
+</form>{* #listform *}
 
 {if isset($content_list)}
 <div id="menus">
