@@ -17,6 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 if( !isset($gCms) ) exit;
+if( !isset($action) || $action != 'admin_bulk_active' ) exit;
 
 $this->SetCurrentTab('pages');
 if( !$this->CheckPermission('Manage All Content') ) {
@@ -27,21 +28,20 @@ if( !isset($params['bulk_content']) ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
-
-$active = 0;
-if( isset($params['active']) ) $active = (int)$params['active'];
-
-$multicontent = unserialize(base64_decode($params['bulk_content']));
-if( !$multicontent ) {
+$pagelist = unserialize(base64_decode($params['bulk_content']));
+if( !$pagelist ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
 
+$active = !empty($params['active']);
+$hm = cmsms()->GetHierarchyManager();
+
 // do the real work
 try {
-    $contentops = ContentOperations::get_instance()->LoadChildren(-1,FALSE,TRUE,$multicontent);
-    $hm = cmsms()->GetHierarchyManager();
-    foreach( $multicontent as $pid ) {
+    ContentOperations::get_instance()->LoadChildren(-1,FALSE,TRUE,$pagelist);
+    $i = 0;
+    foreach( $pagelist as $pid ) {
         $node = $hm->find_by_tag('id',$pid);
         if( !$node ) continue;
         $content = $node->getContent(FALSE,FALSE,TRUE);
@@ -50,12 +50,12 @@ try {
         $content->SetActive($active);
         $content->SetLastModifiedBy(get_userid());
         $content->Save();
+        $i++;
     }
-    audit('','Content','Changed active status on '.count($multicontent).' pages');
+    audit('','Content','Changed active status on '.$i.' pages');
     $this->SetMessage($this->Lang('msg_bulk_successful'));
 }
-catch( Exception $e ) {
-    $this->SetError($e->GetMessage());
+catch( Throwable $t ) {
+    $this->SetError($t->getMessage());
 }
 $this->RedirectToAdminTab();
-

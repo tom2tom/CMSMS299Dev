@@ -17,6 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 if( !isset($gCms) ) exit;
+if( !isset($action) || $action != 'admin_bulk_cachable' ) exit;
 
 $this->SetCurrentTab('pages');
 if( !$this->CheckPermission('Manage All Content') ) {
@@ -27,22 +28,20 @@ if( !isset($params['bulk_content']) ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
-
-$cachable = 1;
-if( isset($params['cachable']) ) $cachable = (int)$params['cachable'];
-
-$multicontent = unserialize(base64_decode($params['bulk_content']));
-if( count($multicontent) == 0 ) {
+$pagelist = unserialize(base64_decode($params['bulk_content']));
+if( !$pagelist ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
 
+$cachable = !empty($params['cachable']);
+$hm = cmsms()->GetHierarchyManager();
+
 // do the real work
 try {
-    $contentops = ContentOperations::get_instance()->LoadChildren(-1,FALSE,TRUE,$multicontent);
-    $hm = cmsms()->GetHierarchyManager();
+    ContentOperations::get_instance()->LoadChildren(-1,FALSE,TRUE,$pagelist);
     $i = 0;
-    foreach( $multicontent as $pid ) {
+    foreach( $pagelist as $pid ) {
         $node = $hm->find_by_tag('id',$pid);
         if( !$node ) continue;
         $content = $node->getContent(FALSE,FALSE,TRUE);
@@ -52,11 +51,10 @@ try {
         $content->Save();
         $i++;
     }
-    audit('','Content','Changed cachable status on '.count($multicontent).' pages');
+    audit('','Content','Changed cachable status on '.$i.' pages');
     $this->SetMessage($this->Lang('msg_bulk_successful'));
 }
-catch( Exception $e ) {
-    $this->SetError($e->GetMessage());
+catch( Throwable $t ) {
+    $this->SetError($t->getMessage());
 }
 $this->RedirectToAdminTab();
-
