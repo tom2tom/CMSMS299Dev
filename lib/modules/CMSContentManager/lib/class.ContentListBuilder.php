@@ -769,7 +769,7 @@ final class ContentListBuilder
 								$template = TemplateOperations::get_template($rec['template_id']);
 								$rec[$column] = $template->get_name();
 							}
-							catch( Exception $e ) {
+							catch( Throwable $t ) {
 								$rec[$column] = lang('critical_error');
 							}
 						}

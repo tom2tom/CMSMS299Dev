@@ -161,9 +161,9 @@ try {
         $this->RedirectToAdminTab();
     }
 }
-catch( Exception $e ) {
+catch( Throwable $t ) {
     // An error here means we can't display anything
-    $this->SetError($e->getMessage());
+    $this->SetError($t->getMessage());
     $this->RedirectToAdminTab();
 }
 
@@ -253,7 +253,7 @@ catch( CmsEditContentException $e ) {
         $this->RedirectToAdminTab();
     };
 */
-    $error = $e->GetMessage();
+    $error = $e->getMessage();
     if( isset($params['ajax']) ) {
         $tmp = ['response'=>'Error','details'=>$error];
         echo json_encode($tmp);
@@ -261,7 +261,7 @@ catch( CmsEditContentException $e ) {
     }
 }
 catch( CmsContentException $e ) {
-    $error = $e->GetMessage();
+    $error = $e->getMessage();
     if( isset($params['ajax']) ) {
         $tmp = ['response'=>'Error','details'=>$error];
         echo json_encode($tmp);
@@ -345,9 +345,9 @@ if($one['name'] == 'design_id') {
         $tab_contents_array[$currenttab] = $elements;
     }
 }
-catch( Exception $e ) {
+catch( Throwable $t ) {
     $tab_names = null;
-    $error = $e->GetMessage();
+    $error = $t->getMessage();
 }
 
 if( $error ) {

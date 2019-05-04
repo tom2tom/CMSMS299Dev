@@ -30,7 +30,7 @@ try {
     if ($group->Delete()) {
         Events::SendEvent('Core', 'DeleteGroupPost', ['group' => &$group]);
     }
-} catch (Exception $e) {
+} catch (Throwable $t) {
 }
 
 $this->RemovePreference();

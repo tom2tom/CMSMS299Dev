@@ -71,7 +71,7 @@ try {
 //        }
     }
 //}
-catch( Exception $e ) {
+catch( Throwable $t ) {
     $out = null;
 }
 

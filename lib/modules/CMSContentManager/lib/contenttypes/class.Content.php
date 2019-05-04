@@ -297,7 +297,7 @@ class Content extends ContentBase
 		catch( SmartyException $e ) {
 			$this->_contentBlocks = [];
 			// smarty exceptions here could be a bad template, or missing template, or something else.
-			throw new CmsContentException($this->mod->Lang('error_parsing_content_blocks').': '.$e->GetMessage());
+			throw new CmsContentException($this->mod->Lang('error_parsing_content_blocks').': '.$e->getMessage());
 		}
 		return $this->_contentBlocks;
 	}
@@ -387,7 +387,7 @@ class Content extends ContentBase
 						$dflt_design = CmsLayoutCollection::load_default(); DISABLED
 						$design_id = $dflt_design->get_id();
 					}
-					catch( Exception $e ) {
+					catch( Throwable $t ) {
 						cms_error('No default design specified');
 					}
 				}
@@ -413,7 +413,7 @@ class Content extends ContentBase
 						$dflt_tpl = TemplateOperations::get_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
 						$template_id = $dflt_tpl->get_id();
 					}
-					catch( Exception $e ) {
+					catch( Throwable $t ) {
 						cms_error('No default page template found');
 					}
 				}
