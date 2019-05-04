@@ -1,5 +1,5 @@
 {if isset($content_list)}
-  {function do_content_row}
+ {function do_content_row}
   {foreach $columns as $column => $flag}
   {if !$flag}{continue}{/if}
   <td class="{$column}">
@@ -168,14 +168,14 @@
     {elseif $column == 'multiselect'}
       {if $row.multiselect != ''}
       <label class="invisible" for="multicontent-{$row.id}">{$mod->Lang('prompt_multiselect_toggle')}</label>
-      <input type="checkbox" id="multicontent-{$row.id}" class="multicontent" name="{$actionid}multicontent[]" value="{$row.id}" title="{$mod->Lang('prompt_multiselect_toggle')}"/>
+      <input type="checkbox" id="multicontent-{$row.id}" class="multicontent" name="{$actionid}bulk_content[]" value="{$row.id}" title="{$mod->Lang('prompt_multiselect_toggle')}"/>
       {/if}
     {else} {* unknown column *}
     {/if}
   </td>
   {/foreach}
-  {/function}
-{/if}{* content_list *}
+ {/function}
+{/if}{* $content_list *}
 
 <div class="rowbox flow">
   <div class="pageoptions boxchild">
@@ -192,7 +192,7 @@
     <a id="clearlocks" href="{cms_action_url action=admin_clearlocks}" accesskey="l" title="{$mod->Lang('prompt_clearlocks')}">{$t=$mod->Lang('title_clearlocks')}{admin_icon icon='run.gif' alt=$t}&nbsp;{$t}</a>
     {/if}
     {/if}
-    <a id="myoptions" accesskey="f" title="{$mod->Lang('prompt_filter')}">{$t=lang('filter')}{admin_icon icon=$filterimage alt=$t}&nbsp;{$t}</a>
+    <a id="filterdisplay" accesskey="f" title="{$mod->Lang('prompt_filter')}">{$t=lang('filter')}{admin_icon icon=$filterimage alt=$t}&nbsp;{$t}</a>
     {if !empty($have_filter)}<span style="color: red;"><em>({lang('filter_applied')})</em></span>{/if}
   </div>{*boxchild*}
 
@@ -214,8 +214,7 @@
   </div>{*boxchild*}
 </div>{*rowbox*}
 
-{form_start action='defaultadmin' id='listform'}
-<div id="contentlist">{* everything from here down is part of the ajax stuff *}
+<div id="contentlist">
  {* error container *}
  {if isset($error)}
  <div id="error_cont" class="pageerror">{$error}</div>
@@ -242,35 +241,41 @@
       </tr>
     </thead>
     <tbody class="contentrows">
-      {foreach $content_list as $row}{strip}
-      <tr id="row_{$row.id}" class="{cycle values='row1,row2'}{if isset($row.selected)} selected{/if}">
+      {foreach $content_list as $row}{strip}{cycle values='row1,row2' assign='rowclass'}
+      <tr id="row_{$row.id}" class="{$rowclass}{if isset($row.selected)} selected{/if}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
         {do_content_row row=$row columns=$columns}
       </tr>
 {/strip}{/foreach}
     </tbody>
   </table>
-{/if}
+{else}
+<p class="pageinfo">No page is recorded</p>
+{/if} {* $contentlist *}
 </div>{* #contentlist *}
+
 {if isset($content_list)}
-  <div id="menus">
-  {foreach $menus as $menu}{$menu}{/foreach}
-  </div>
   <div class="pageoptions rowbox{if $can_add_content} expand">
   <div class="boxchild">
     <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('prompt_addcontent')}" class="pageoptions">{$t=$mod->Lang('addcontent')}{admin_icon icon='newobject.gif' class='systemicon' alt=$t}&nbsp;{$t}</a>
   </div>
   {else}" style="justify-content:flex-end;">{/if}
   {if $multiselect && isset($bulk_options)}
+  {form_start action='defaultadmin' id='listform'}
   <div class="boxchild">
     {cms_help realm=$_module key2='help_bulk' title=$mod->Lang('prompt_bulk')}
-    <label for="multiaction">{$mod->Lang('prompt_withselected')}:</label>&nbsp;
-    <select name="{$actionid}multiaction" id="multiaction">
+    <label for="bulk_action">{$mod->Lang('prompt_withselected')}:</label>&nbsp;
+    <select name="{$actionid}bulk_action" id="bulk_action">
       {html_options options=$bulk_options}
     </select>
-    <button type="submit" name="{$actionid}multisubmit" id="multisubmit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="{$actionid}bulk_submit" id="bulk_submit" class="adminsubmit icon check">{lang('submit')}</button>
   </div>
+  </form>{* #listform *}
   {/if}
   </div>{*rowbox*}
 {/if}
-</form>
 
+{if isset($content_list)}
+<div id="menus">
+ {foreach $menus as $menu}{$menu}{/foreach}
+</div>
+{/if}
