@@ -110,14 +110,14 @@
     {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
     {/foreach}
     {cms_help realm='layout' key2='help_bulk_templates' title=lang_by_realm('layout','prompt_bulk')}
-    <label for="tpl_bulk_action">{lang_by_realm('layout','prompt_with_selected')}:</label>&nbsp;
-    <select name="bulk_action" id="tpl_bulk_action" title="{lang_by_realm('layout','title_tpl_bulkaction')}">
+    <label for="bulk_action">{lang_by_realm('layout','prompt_with_selected')}:</label>&nbsp;
+    <select name="bulk_action" id="bulk_action" class="action" title="{lang_by_realm('layout','title_tpl_bulkaction')}">
     <option value="delete">{lang_by_realm('layout','prompt_delete')}</option>
 {*    <option value="export">{lang_by_realm('layout','export')}</option>
     <option value="import">{lang_by_realm('layout','import')}</option>
 *}
     </select>
-    <button type="submit" name="submit_bulk" id="tpl_bulk_submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="bulk_submit" id="bulk_submit" class="adminsubmit icon check action">{lang('submit')}</button>
     </form>
   </div>
 </div>

@@ -68,15 +68,15 @@
   </div>
   <div class="pageoptions rowbox" style="justify-content:flex-end;" id="bulkoptions">
     <div class="boxchild">
-      {cms_help realm='layout' key2='help_css_bulk' title=lang_by_realm('layout','prompt_bulk')}
-      <label for="css_bulk_action">{lang_by_realm('layout','prompt_with_selected')}:</label>&nbsp;
-      <select name="css_bulk_action" id="css_bulk_action" class="cssx_bulk_action">
+      {cms_help realm='layout' key2='help_bulk_css' title=lang_by_realm('layout','prompt_bulk')}
+      <label for="bulk_action">{lang_by_realm('layout','prompt_with_selected')}:</label>&nbsp;
+      <select name="bulk_action" id="bulk_action" class="action">
         <option value="delete" title="{lang_by_realm('layout','title_delete')}">{lang_by_realm('layout','prompt_delete')}</option>
 {*      <option value="export">{lang_by_realm('layout','export')}</option>
         <option value="import">{lang_by_realm('layout','import')}</option>
 *}
       </select>
-     <button type="submit" name="submit_bulk_css" id="css_bulk_submit" class="adminsubmit icon check">{lang('submit')}</button>
+     <button type="submit" name="bulk_submit" id="bulk_submit" class="adminsubmit icon check action">{lang('submit')}</button>
     </div>
   </div>
   {/if}{* manage *}
