@@ -121,6 +121,7 @@ switch ($_REQUEST['op']) {
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
+		}
 		break;
 	case 'export':
 		if (!$pmod) exit;
@@ -132,6 +133,7 @@ switch ($_REQUEST['op']) {
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
+		}
 		break;
 }
 
