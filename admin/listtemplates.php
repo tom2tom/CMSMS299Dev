@@ -41,7 +41,7 @@ if( $padd ) {
     if( isset($_REQUEST['submit_create']) ) {
         redirect('edittemplate.php'.$urlext.'&import_type='.$_REQUEST['import_type']);
     }
-/*  elseif( isset($_REQUEST['submit_bulk']) ) {
+/*  elseif( isset($_REQUEST['bulk_submit']) ) {
         $tmp = base64_encode(serialize($_REQUEST));
         redirect('bulktemplates.php'.$urlext.'&allparms='.$tmp);
     }
@@ -264,10 +264,10 @@ $secs = cms_siteprefs::get('lock_refresh', 120);
 $secs = max(30,min(600,$secs));
 
 $sm = new ScriptOperations();
-$sm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
+$sm->queue_matchedfile('jquery.SSsort.js', 1);
+$sm->queue_matchedfile('jquery.ContextMenu.js', 1);
+$sm->queue_matchedfile('jquery.cmsms_poll.js', 2);
 $sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
-$sm->queue_matchedfile('jquery.SSsort.js', 2);
-$sm->queue_matchedfile('jquery.ContextMenu.js', 2);
 
 $js = <<<EOS
 var pagedtable, paged;
@@ -334,9 +334,20 @@ $(function() {
   } else {
     $(pagedtable).SSsort(opts);
   }
-  $('#tpllist [context-menu]').ContextMenu();
-  $('#tpl_bulk_action').attr('disabled', 'disabled');
-  $('#tpl_bulk_submit').on('click', function() {
+  $('#bulk_action').attr('disabled','disabled');
+  cms_button_able($('#bulk_submit'),false);
+  $('#tpl_selall').cmsms_checkall();
+  $('#tpl_selall,.tpl_select').on('click',function() {
+    l = $('.tpl_select:checked').length;
+    if(l === 0) {
+      $('#bulk_action').attr('disabled','disabled');
+      cms_button_able($('#bulk_submit'),false);
+    } else {
+      $('#bulk_action').removeAttr('disabled');
+      cms_button_able($('#bulk_submit'),true);
+    }
+  });
+  $('#bulk_submit').on('click',function() {
     e.preventDefault();
     var l = $('input:checkbox:checked.tpl_select').length;
     if(l > 0) {
@@ -345,18 +356,8 @@ $(function() {
       cms_alert($s2);
     }
     return false;
-  }).prop('disabled', true);
-  $('#tpl_selall').cmsms_checkall();
-  $('#tpl_selall,.tpl_select').on('click', function() {
-    l = $('.tpl_select:checked').length;
-    if(l === 0) {
-      $('#tpl_bulk_action').attr('disabled', 'disabled');
-      $('#tpl_bulk_submit').prop('disabled', true);
-    } else {
-      $('#tpl_bulk_action').removeAttr('disabled');
-      $('#tpl_bulk_submit').prop('disabled',false);
-    }
   });
+  $('#tpllist [context-menu]').ContextMenu();
   $('#typelist').SSsort(opts);
   $('#pagerows').on('change',function() {
     l = parseInt(this.value);
@@ -460,7 +461,7 @@ $(function() {
     cms_confirm_linkclick(this,$s8);
     return false;
   });
-  $('<div></div>').autoRefresh({
+  var watcher = Poller.run({
     url: 'ajax_template_locks.php{$urlext}',
     interval: $secs,
     done_handler: function(json) {

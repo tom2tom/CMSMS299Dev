@@ -175,10 +175,10 @@ $secs = cms_siteprefs::get('lock_refresh', 120);
 $secs = max(30,min(600,$secs));
 
 $sm = new ScriptOperations();
-$sm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
+$sm->queue_matchedfile('jquery.SSsort.js', 1);
+$sm->queue_matchedfile('jquery.ContextMenu.js', 1);
+$sm->queue_matchedfile('jquery.cmsms_poll.js', 2);
 $sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
-$sm->queue_matchedfile('jquery.SSsort.js', 2);
-$sm->queue_matchedfile('jquery.ContextMenu.js', 2);
 
 $js = <<<EOS
 var pagedtable, paged;
@@ -245,9 +245,20 @@ $(function() {
   } else {
     $(pagedtable).SSsort(opts);
   }
-  $('#csslist [context-menu]').ContextMenu();
-  $('#css_bulk_action').attr('disabled', 'disabled');
-  $('#css_bulk_submit').on('click', function() {
+  $('#bulk_action').attr('disabled', 'disabled');
+  cms_button_able($('#bulk_submit'), false);
+  $('#css_selall').cmsms_checkall();
+  $('#css_selall,.css_select').on('click', function() {
+    l = $('.css_select:checked').length;
+    if(l === 0) {
+      $('#bulk_action').attr('disabled', 'disabled');
+      cms_button_able($('#bulk_submit'), false);
+    } else {
+      $('#bulk_action').removeAttr('disabled');
+      cms_button_able($('#bulk_submit'), true);
+    }
+  });
+  $('#bulk_submit').on('click', function() {
     e.preventDefault();
     var l = $('input:checkbox:checked.css_select').length;
     if(l > 0) {
@@ -256,18 +267,8 @@ $(function() {
       cms_alert($s2);
     }
     return false;
-  }).prop('disabled', true);
-  $('#css_selall').cmsms_checkall();
-  $('#css_selall,.css_select').on('click', function() {
-    l = $('.css_select:checked').length;
-    if(l === 0) {
-      $('#css_bulk_action').attr('disabled', 'disabled');
-      $('#css_bulk_submit').prop('disabled', true);
-    } else {
-      $('#css_bulk_action').removeAttr('disabled');
-      $('#css_bulk_submit').prop('disabled', false);
-    }
   });
+  $('#csslist [context-menu]').ContextMenu();
   $('a.edit_css').on('click', function(e) {
     if($(this).hasClass('steal_lock')) return true; //TODO
     e.preventDefault();
@@ -344,7 +345,7 @@ $(function() {
     cms_confirm_linkclick(this,$s8);
     return false;
   });
-  $('<div></div>').autoRefresh({
+  var watcher = Poller.run({
     url: 'ajax_stylesheet_locks.php{$urlext}',
     interval: $secs,
     done_handler: function(json) {
