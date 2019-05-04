@@ -1,7 +1,10 @@
-<h3>{$mod->Lang('prompt_bulk_delete_content')}:</h3>
-<h4>{$mod->Lang('prompt_bulk_delete_content2')}:</h4>
+<h3>{$mod->Lang('prompt_bulk_delete_content')}</h3>
+<h4>{$mod->Lang('prompt_bulk_delete_content2')}</h4>
 
-{form_start bulk_content=$pagelist}
+{form_start}
+{foreach $pagelist as $pid}<input type="hidden" name="bulk_content[]" value="{$pid}" />
+{/foreach}
+
 <div class="pageoverflow">
   <ul>
     {foreach $displaydata as $rec}

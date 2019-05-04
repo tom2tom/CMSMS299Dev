@@ -8,7 +8,9 @@
   </ul>
 </div>
 
-{form_start bulk_content=$pagelist}
+{form_start}
+{foreach $pagelist as $pid}<input type="hidden" name="bulk_content[]" value="{$pid}" />
+{/foreach}
 <div class="pageoverflow">
   <p class="pagetext">
   <label for="template_ctl">{$mod->Lang('prompt_template')}:</label>
