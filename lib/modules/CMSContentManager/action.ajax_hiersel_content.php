@@ -229,8 +229,8 @@ try {
     }
     $ret = ['status'=>'success','op'=>$op,'data'=>$out];
 }
-catch( Exception $e ) {
-    $ret = ['status'=>'error','message'=>$e->GetMessage()];
+catch( Throwable $t ) {
+    $ret = ['status'=>'error','message'=>$t->GetMessage()];
 }
 echo json_encode($ret);
 exit;
