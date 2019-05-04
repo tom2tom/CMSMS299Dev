@@ -1,6 +1,6 @@
 <h3>{$mod->Lang('prompt_bulk_changeowner')}:</h3>
 
-{form_start multicontent=$multicontent}
+{form_start bulk_content=$pagelist}
 <div class="pageoverflow">
   <ul>
     {foreach $displaydata as $rec}

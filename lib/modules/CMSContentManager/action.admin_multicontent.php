@@ -27,14 +27,14 @@ $pages = null;
 //
 // get data
 //
-if( isset($params['bulk_content']) ) $multicontent = unserialize(base64_decode($params['bulk_content']));
-else $multicontent = null;
-if( !$multicontent ) {
+if( isset($params['bulk_content']) ) $pagelist = unserialize(base64_decode($params['bulk_content']));
+else $pagelist = null;
+if( !$pagelist ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
-$multiaction = $params['bulk_action'] ?? null;
-if( !$multiaction ) {
+$bulkaction = $params['bulk_action'] ?? null;
+if( !$bulkaction ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
@@ -42,7 +42,7 @@ if( !$multiaction ) {
 //
 // get data 2
 //
-list($module,$bulkaction) = explode('::',$multiaction,2);
+list($module,$bulkaction) = explode('::',$bulkaction,2);
 if( $module == '' || $module == '-1' || $bulkaction == '' || $bulkaction == -1 ) {
     $this->SetError($this->Lang('error_invalidbulkaction'));
     $this->RedirectToAdminTab();
@@ -53,7 +53,7 @@ if( $module != 'core' ) {
         $this->SetError($this->Lang('error_invalidbulkaction'));
         $this->RedirectToAdminTab();
     }
-    $url = $modobj->create_url($id,$bulkaction,$returnid,['contentlist'=>implode(',',$multicontent)]);
+    $url = $modobj->create_url($id,$bulkaction,$returnid,['contentlist'=>implode(',',$pagelist)]);
     $url = str_replace('&amp;','&',$url);
     redirect($url);
 }
@@ -90,7 +90,9 @@ switch( $bulkaction ) {
    $this->Redirect($id,'admin_bulk_showinmenu',$returnid,$parms);
    break;
 
- case 'setdesign':
+// case 'setdesign':
+ case 'settemplate':
+ case 'setstyles':
  case 'changeowner':
  case 'delete':
    $this->Redirect($id,'admin_bulk_'.$bulkaction,$returnid,$parms);

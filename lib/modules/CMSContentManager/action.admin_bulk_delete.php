@@ -17,22 +17,19 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 if( !isset($gCms) ) exit;
-$this->SetCurrentTab('pages');
+if( !isset($action) || $action != 'admin_bulk_delete' ) exit;
 
+$this->SetCurrentTab('pages');
 if( isset($params['cancel']) ) {
   $this->SetInfo($this->Lang('msg_cancelled'));
   $this->RedirectToAdminTab();
 }
-
-if( !isset($params['bulk_content']) || !isset($params['action']) || $params['action'] != 'admin_bulk_delete' ) {
+if( !isset($params['bulk_content']) ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
-//
-// expand $params['bulk_content'] to also include children, place it in $pagelist
-//
-$multicontent = unserialize(base64_decode($params['bulk_content']));
-if( !$multicontent ) {
+$pagelist = unserialize(base64_decode($params['bulk_content']));
+if( !$pagelist ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
@@ -79,8 +76,6 @@ if( isset($params['submit']) ) {
     //
     // do the real work
     //
-    $pagelist = unserialize(base64_decode($params['bulk_content']));
-
     $i = 0;
     try {
         foreach( $pagelist as $pid ) {
@@ -99,8 +94,8 @@ if( isset($params['submit']) ) {
             $this->SetMessage($this->Lang('msg_bulk_successful'));
         }
     }
-    catch( Exception $e ) {
-        $this->SetError($e->GetMessage());
+    catch( Throwable $t ) {
+        $this->SetError($t->getMessage());
     }
     $this->RedirectToAdminTab();
   }
@@ -111,7 +106,7 @@ if( isset($params['submit']) ) {
 }
 
 $pagelist = [];
-foreach( $multicontent as $pid ) {
+foreach( $pagelist as $pid ) {
     $node = $hm->quickfind_node_by_id($pid);
     if( !$node ) continue;
     $tmp = cmscm_get_deletable_pages($node);
@@ -150,7 +145,7 @@ if( !$displaydata ) {
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_delete.tpl'),null,null,$smarty);
-$tpl->assign('multicontent',base64_encode(serialize($pagelist)))
+$tpl->assign('pagelist',base64_encode(serialize($pagelist)))
  ->assign('displaydata',$displaydata);
 
 $tpl->display();

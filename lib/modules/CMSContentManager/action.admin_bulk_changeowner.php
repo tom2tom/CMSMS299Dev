@@ -17,24 +17,28 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 if( !isset($gCms) ) exit;
+if( !isset($action) || $action != 'admin_bulk_changeowner' ) exit;
+
 $this->SetCurrentTab('pages');
-if( !$this->CheckPermission('Manage All Content') ) {
-  $this->SetError($this->Lang('error_bulk_permission'));
-  $this->RedirectToAdminTab();
-}
-
-if( !isset($params['bulk_content']) ) {
-  $this->SetError($this->Lang('error_missingparam'));
-  $this->RedirectToAdminTab();
-}
-
 if( isset($params['cancel']) ) {
   $this->SetInfo($this->Lang('msg_cancelled'));
   $this->RedirectToAdminTab();
 }
+if( !$this->CheckPermission('Manage All Content') ) {
+  $this->SetError($this->Lang('error_bulk_permission'));
+  $this->RedirectToAdminTab();
+}
+if( !isset($params['bulk_content']) ) {
+  $this->SetError($this->Lang('error_missingparam'));
+  $this->RedirectToAdminTab();
+}
+$pagelist = unserialize(base64_decode($params['bulk_content']));
+if( !$pagelist ) {
+    $this->SetError($this->Lang('error_missingparam'));
+    $this->RedirectToAdminTab();
+}
 
 $hm = $gCms->GetHierarchyManager();
-$pagelist = unserialize(base64_decode($params['bulk_content']));
 
 if( isset($params['submit']) ) {
   if( !isset($params['confirm1']) || !isset($params['confirm2']) ) {
@@ -65,13 +69,13 @@ if( isset($params['submit']) ) {
     if( $i != count($pagelist) ) {
       throw new CmsException('Bulk operation to change ownership did not adjust all selected pages');
     }
-    audit('','Content','Changed owner on '.count($pagelist).' pages');
+    audit('','Content','Changed owner on '.$i.' pages');
     $this->SetMessage($this->Lang('msg_bulk_successful'));
     $this->RedirectToAdminTab();
   }
-  catch( Exception $e ) {
-      cms_warning('Changing ownership on multiple content items faild: '.$e->GetMessage());
-      $this->SetError($e->GetMessage());
+  catch( Throwable $t ) {
+      cms_warning('Changing ownership on multiple pages failed: '.$t->getMessage());
+      $this->SetError($t->getMessage());
       $this->RedirectToAdminTab();
   }
 }
@@ -94,7 +98,7 @@ foreach( $pagelist as $pid ) {
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_changeowner.tpl'),null,null,$smarty);
 
-$tpl->assign('multicontent',$params['bulk_content'])
+$tpl->assign('pagelist',$params['bulk_content'])
  ->assign('displaydata',$displaydata);
 $userlist = (new UserOperations())->LoadUsers();
 $tmp = [];

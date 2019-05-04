@@ -1,7 +1,7 @@
 <h3>{$mod->Lang('prompt_bulk_delete_content')}:</h3>
 <h4>{$mod->Lang('prompt_bulk_delete_content2')}:</h4>
 
-{form_start multicontent=$multicontent}
+{form_start bulk_content=$pagelist}
 <div class="pageoverflow">
   <ul>
     {foreach $displaydata as $rec}
