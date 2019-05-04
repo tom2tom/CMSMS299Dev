@@ -21,24 +21,121 @@ if( !isset($action) || $action != 'admin_bulk_settemplate' ) exit;
 $this->SetCurrentTab('pages');
 
 if( isset($params['cancel']) ) {
-  $this->SetInfo($this->Lang('msg_cancelled'));
-  $this->RedirectToAdminTab();
+    $this->SetInfo($this->Lang('msg_cancelled'));
+    $this->RedirectToAdminTab();
 }
 if( !isset($params['bulk_content']) ) {
-  $this->SetError($this->Lang('error_missingparam'));
-  $this->RedirectToAdminTab();
+    $this->SetError($this->Lang('error_missingparam'));
+    $this->RedirectToAdminTab();
 }
 $pagelist = unserialize(base64_decode($params['bulk_content']));
 if( !$pagelist ) {
-  $this->SetError($this->Lang('error_missingparam'));
-  $this->RedirectToAdminTab();
+    $this->SetError($this->Lang('error_missingparam'));
+    $this->RedirectToAdminTab();
+}
+
+$hm = $gCms->GetHierarchyManager();
+
+$showmore = 0;
+if( isset($params['showmore']) ) {
+    $showmore = (int) $params['showmore'];
+    cms_userprefs::set('cgcm_bulk_showmore',$showmore);
+}
+if( isset($params['submit']) ) {
+    if( !isset($params['confirm1']) || !isset($params['confirm2']) ) {
+        $this->SetError($this->Lang('error_notconfirmed'));
+        $this->RedirectToAdminTab();
+    }
+    if( !isset($params['template']) ) {
+        $this->SetError($this->Lang('error_missingparam'));
+        $this->RedirectToAdminTab();
+    }
+
+    // do the real work
+    try {
+        @set_time_limit(9999);
+        ContentOperations::get_instance()->LoadChildren(-1,FALSE,FALSE,$pagelist);
+
+        $i = 0;
+        foreach( $pagelist as $pid ) {
+            $node = $hm->find_by_tag('id',$pid);
+            if( !$node ) continue;
+            $content = $node->getContent(FALSE,FALSE,TRUE);
+            if( !is_object($content) ) continue;
+
+            $content->SetTemplateId((int)$params['template']);
+            $content->SetLastModifiedBy(get_userid());
+            $content->Save();
+            $i++;
+        }
+        if( $i != count($pagelist) ) {
+            throw new CmsException('Bulk operation to set template did not adjust all selected pages');
+        }
+        audit('','Content','Changed template on '.$i' pages');
+        $this->SetMessage($this->Lang('msg_bulk_successful'));
+        $this->RedirectToAdminTab();
+    }
+    catch( Throwable $t ) {
+        cms_warning('Changing template on multiple pages failed: '.	$t->getMessage());
+        $this->SetError($t->getMessage());
+        $this->RedirectToAdminTab();
+    }
+}
+
+$displaydata = [];
+foreach( $pagelist as $pid ) {
+    $node = $hm->find_by_tag('id',$pid);
+    if( !$node ) continue;  // this should not happen, but hey.
+    $content = $node->getContent(FALSE,FALSE,FALSE);
+    if( !is_object($content) ) continue; // this should never happen either
+
+    $rec = [];
+    $rec['id'] = $content->Id();
+    $rec['name'] = $content->Name();
+    $rec['menutext'] = $content->MenuText();
+    $rec['owner'] = $content->Owner();
+    $rec['alias'] = $content->Alias();
+    $displaydata[] = $rec;
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_settemplate.tpl'),null,null,$smarty);
 
-//TODO
-
-$tpl->assign('pagelist',base64_encode(serialize($pagelist)))
+$tpl->assign('showmore',cms_userprefs::get('cgcm_bulk_showmore'))
+ ->assign('pagelist',$params['bulk_content'])
  ->assign('displaydata',$displaydata);
+
+$dflt_tpl_id = -1;
+try {
+    $dflt_tpl = TemplateOperations::get_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
+    $dflt_tpl_id = $dflt_tpl->get_id();
+}
+catch( Throwable $t ) {
+    // ignore
+}
+$tpl->assign('dflt_tpl_id',$dflt_tpl_id);
+if( $showmore ) {
+    $_tpl = TemplateOperations::template_query(['as_list'=>1]);
+    $tpl->assign('alltemplates',$_tpl);
+}
+else {
+    // gotta get the core page template type
+    $_type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
+    $_tpl = TemplateOperations::template_query(['t:'.$_type->get_id(),'as_list'=>1]);
+    $tpl->assign('alltemplates',$_tpl);
+}
+
+$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(function() {
+  $('#showmore_ctl').on('click', function() {
+    $(this).closest('form').submit();
+  });
+});
+//]]>
+</script>
+EOS;
+
+$this->AdminTODO($js);
 
 $tpl->display();
