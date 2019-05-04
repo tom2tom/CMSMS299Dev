@@ -96,4 +96,3 @@ function cms_module_Redirect(&$modinstance, $id, $action, $returnid='', $params=
     }
     redirect($text);
 }
-
