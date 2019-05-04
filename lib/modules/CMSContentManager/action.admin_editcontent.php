@@ -25,6 +25,7 @@ use CMSMS\ContentOperations;
 use CMSMS\FormUtils;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
+use CMSMS\ScriptOperations;
 
 if( !isset($gCms) ) exit;
 
@@ -331,9 +332,9 @@ try {
         }
 
         foreach( $props as &$one ) {
-if($one['name'] == 'design_id') {
-	continue;
-}
+            if($one['name'] == 'design_id') {
+                continue;
+            }
             if( !isset($one['tab']) || $one['tab'] === '' ) $one['tab'] = $maintab;
             if( $one['tab'] == $currenttab ) {
                 $elements[] = $content_obj->ShowElement($one['name'],$adding);
@@ -380,17 +381,29 @@ $parms = [];
 if( $content_id > 0 ) $parms['content_id'] = $content_id;
 $tmp = $this->create_url($id,'admin_editcontent',$returnid,$parms);
 $apply_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=1';
-$lock_timeout = $this->GetPreference('locktimeout');
-$lock_refresh = $this->GetPreference('lockrefresh');
+$lock_timeout = cms_siteprefs::get('lock_timeout', 60);
 $do_locking = ($content_id > 0 && $lock_timeout > 0) ? 1:0;
+if ($do_locking) {
+	register_shutdown_function(function($u) {
+		LockOperations::delete_for_nameduser($u);
+	}, $userid);
+}
+$lock_refresh = cms_siteprefs::get('lock_refresh', 120);
 $options_tab_name = ContentBase::TAB_OPTIONS;
 $msg = json_encode($this->Lang('msg_lostlock'));
 $close = lang('close');
-$script_url = CMS_SCRIPTS_URL;
+
+$sm = new ScriptOperations();
+$sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
+if ($do_locking) {
+	$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
+}
+$js = $sm->render_inclusion('', false, false);
+if ($js) {
+    $this->AdminBottomContent($js);
+}
 
 $js = <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_dirtyform.min.js"></script>
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_lock.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
