@@ -16,7 +16,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSContentManager\ContentListBuilder;
-use CMSMS\internal\bulkcontentoperations;
+use CMSContentManager\bulkcontentoperations;
 
 if( !isset($gCms) ) exit;
 
@@ -35,17 +35,17 @@ if( !function_exists('cm_prettyurls_ok') ) {
   }
 }
 
-if( isset($params['multisubmit']) && isset($params['multiaction']) &&
+if( isset($params['bulk_submit']) && isset($params['bulk_action']) &&
     isset($params['bulk_content']) && is_array($params['bulk_content']) && count($params['bulk_content']) > 0 ) {
-  list($module,$bulkaction) = explode('::',$params['multiaction'],2);
+  list($module,$bulkaction) = explode('::',$params['bulk_action'],2);
   if( $module == '' || $module == '-1' || $bulkaction == '' || $bulkaction == '-1' ) {
     $this->SetError($this->Lang('error_nobulkaction'));
     $this->RedirectToAdminTab();
   }
   // redirect to special action to handle bulk content stuff.
   $this->Redirect($id,'admin_multicontent',$returnid,
-		  ['multicontent'=>base64_encode(serialize($params['bulk_content'])),
-			'multiaction'=>$params['multiaction']]);
+	['bulk_content'=>base64_encode(serialize($params['bulk_content'])),
+	 'bulk_action'=>$params['bulk_action']]);
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_pages_tab.tpl'),null,null,$smarty);
@@ -141,7 +141,6 @@ else {
 $tpl->assign('content_list',$editinfo)
  ->assign('ajax',$ajax);
 
-$opts = [];
 if( $this->CheckPermission('Remove Pages') ||
     $this->CheckPermission('Manage All Content') ) {
   bulkcontentoperations::register_function($this->Lang('bulk_delete'),'delete');
@@ -153,7 +152,9 @@ if( $this->CheckPermission('Manage All Content')) {
   bulkcontentoperations::register_function($this->Lang('bulk_noncachable'),'setnoncachable');
   bulkcontentoperations::register_function($this->Lang('bulk_showinmenu'),'showinmenu');
   bulkcontentoperations::register_function($this->Lang('bulk_hidefrommenu'),'hidefrommenu');
-  bulkcontentoperations::register_function($this->Lang('bulk_setdesign'),'setdesign');
+//  bulkcontentoperations::register_function($this->Lang('bulk_setdesign'),'setdesign');
+  bulkcontentoperations::register_function($this->Lang('bulk_settemplate'),'template'); //TODO new
+  bulkcontentoperations::register_function($this->Lang('bulk_setstyles'),'styles'); //TODO new
   bulkcontentoperations::register_function($this->Lang('bulk_changeowner'),'changeowner');
 }
 $opts = bulkcontentoperations::get_operation_list();

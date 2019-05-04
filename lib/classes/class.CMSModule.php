@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSContentManager\bulkcontentoperations;
 use CMSMS\AdminTabs;
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\Events;
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
-use CMSMS\internal\bulkcontentoperations;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
@@ -1055,7 +1055,12 @@ abstract class CMSModule
      */
     final public function RegisterBulkContentFunction(string $label, string $action)
     {
-        bulkcontentoperations::register_function($label,$action,$this->GetName());
+        try {
+            bulkcontentoperations::register_function($label,$action,$this->GetName());
+        }
+        catch (Throwable $t) {
+           //nothing here
+        }
     }
 
     /**

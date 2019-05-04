@@ -1,5 +1,5 @@
 <?php
-#Class for operations dealing with bulk content methods.
+#Class for operations dealing with bulk content methods
 #Copyright (C) 2008-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,7 +21,7 @@ namespace CMSContentManager;
 use function startswith;
 
 /**
- * Class for operations dealing with bulk content methods.
+ * Class of static methods for dealing with bulk content operations.
  *
  * @package CMS
  * @author Robert Campbell
