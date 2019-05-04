@@ -16,7 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-namespace CMSMS\internal;
+namespace CMSContentManager;
 
 use function startswith;
 
@@ -25,8 +25,8 @@ use function startswith;
  *
  * @package CMS
  * @author Robert Campbell
- * @since 1.7
- * @version $Revision$
+ * @since 1.7 as internal core class
+ * @since 2.3 as CMSContentManager module class
  * @license GPL
  **/
 final class bulkcontentoperations
@@ -34,32 +34,33 @@ final class bulkcontentoperations
 	private static $_list = [];
 
 	private function __construct() {}
+	private function __clone() {}
 
 	/**
-	 * Register a function to show in the bulk content operations list in
-	 *  listcontent.php.
+	 * Register a function to show in the bulk content operations list used in
+	 *  CMSContentManager actions ajax_get_content and admin_pages_tab.
 	 *
 	 * @param string $label Label to show to users
 	 * @param string $name Name of the action to call
-	 * @param string $module Name of module, defaults to "core"
+	 * @param string $module Optional name of module, or 'core'. Default 'core'.
 	 * @return void
 	 */
-	public static function register_function($label,$name,$module='core')
+	public static function register_function(string $label, string $name, string $module='core')
 	{
-      if( empty($name) || empty($label) ) return FALSE;
+      if( !$name || !$label ) return;
 
       $name = $module.'::'.$name;
 	  self::$_list[$name] = $label;
     }
 
 	/**
-	 * Gets a list of the registered bulk operations.
+	 * Get a list of the registered bulk operations.
 	 *
-	 * @param bool $separate_modules Split out the actions from various modules
-	 *                                  with a horizontal line.
+	 * @param bool $separate_modules Optional flag whether to separate the actions
+	 *  from various modules with a horizontal line. Default true.
 	 * @return array The list of operations
 	 */
-	public static function get_operation_list($separate_modules = true)
+	public static function get_operation_list(bool $separate_modules = true) : array
     {
 		$tmpc = [];
 		$tmpm = [];
