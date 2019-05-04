@@ -19,19 +19,13 @@
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_delete' ) exit;
 
-$this->SetCurrentTab('pages');
 if( isset($params['cancel']) ) {
   $this->SetInfo($this->Lang('msg_cancelled'));
-  $this->RedirectToAdminTab();
+  $this->Redirect($id,'defaultadmin',$returnid);
 }
 if( !isset($params['bulk_content']) ) {
   $this->SetError($this->Lang('error_missingparam'));
-  $this->RedirectToAdminTab();
-}
-$pagelist = unserialize(base64_decode($params['bulk_content']));
-if( !$pagelist ) {
-  $this->SetError($this->Lang('error_missingparam'));
-  $this->RedirectToAdminTab();
+  $this->Redirect($id,'defaultadmin',$returnid);
 }
 
 function cmscm_admin_bulk_delete_can_delete($node)
@@ -67,6 +61,7 @@ function cmscm_get_deletable_pages($node)
   return $out;
 }
 
+$pagelist = $params['bulk_content'];
 $hm = cmsms()->GetHierarchyManager();
 $contentops = ContentOperations::get_instance();
 
@@ -97,29 +92,29 @@ if( isset($params['submit']) ) {
     catch( Throwable $t ) {
         $this->SetError($t->getMessage());
     }
-    $this->RedirectToAdminTab();
+    $this->Redirect($id,'defaultadmin',$returnid);
   }
   else {
       $this->SetError($this->Lang('error_notconfirmed'));
-      $this->RedirectToAdminTab();
+      $this->Redirect($id,'defaultadmin',$returnid);
   }
 }
 
-$pagelist = [];
+$xlist = [];
 foreach( $pagelist as $pid ) {
     $node = $hm->quickfind_node_by_id($pid);
     if( !$node ) continue;
     $tmp = cmscm_get_deletable_pages($node);
-    $pagelist = array_merge($pagelist,$tmp);
+    $xlist = array_merge($xlist,$tmp);
 }
-$pagelist = array_unique($pagelist);
+$xlist = array_unique($xlist);
 
 //
 // build the confirmation display
 //
-$contentops->LoadChildren(-1,FALSE,FALSE,$pagelist);
+$contentops->LoadChildren(-1,FALSE,FALSE,$xlist);
 $displaydata =  [];
-foreach( $pagelist as $pid ) {
+foreach( $xlist as $pid ) {
   $node = $hm->quickfind_node_by_id($pid);
   if( !$node ) continue;  // this should not happen, but hey.
   $content = $node->getContent(FALSE,FALSE,FALSE);
@@ -141,11 +136,11 @@ foreach( $pagelist as $pid ) {
 
 if( !$displaydata ) {
   $this->SetError($this->Lang('error_delete_novalidpages'));
-  $this->RedirectToAdminTab();
+  $this->Redirect($id,'defaultadmin',$returnid);
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_delete.tpl'),null,null,$smarty);
-$tpl->assign('pagelist',base64_encode(serialize($pagelist)))
+$tpl->assign('pagelist',$xlist)
  ->assign('displaydata',$displaydata);
 
 $tpl->display();

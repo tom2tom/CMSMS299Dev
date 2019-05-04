@@ -27,10 +27,12 @@ if( !function_exists('cm_prettyurls_ok') ) {
     if( -1 < $_prettyurls_ok ) return $_prettyurls_ok;
 
     $config = cmsms()->GetConfig();
-    if( isset($config['url_rewriting']) && $config['url_rewriting'] != 'none' )
+    if( isset($config['url_rewriting']) && $config['url_rewriting'] != 'none' ) {
       $_prettyurls_ok = 1;
-    else
+    }
+    else {
       $_prettyurls_ok = 0;
+    }
     return $_prettyurls_ok;
   }
 }
@@ -38,14 +40,15 @@ if( !function_exists('cm_prettyurls_ok') ) {
 if( isset($params['bulk_submit']) && isset($params['bulk_action']) &&
     isset($params['bulk_content']) && is_array($params['bulk_content']) && count($params['bulk_content']) > 0 ) {
   list($module,$bulkaction) = explode('::',$params['bulk_action'],2);
-  if( $module == '' || $module == '-1' || $bulkaction == '' || $bulkaction == '-1' ) {
+  if( !$module || $module == '-1' || !$bulkaction || $bulkaction == '-1' ) {
     $this->SetError($this->Lang('error_nobulkaction'));
-    $this->RedirectToAdminTab();
+    $this->Redirect($id,'defaultadmin',$returnid);
   }
-  // redirect to special action to handle bulk content stuff.
+  // redirect to action which determines bulk handler
+  $a = implode('&bulk_content[]=',$params['bulk_content']);
   $this->Redirect($id,'admin_multicontent',$returnid,
-	['bulk_content'=>base64_encode(serialize($params['bulk_content'])),
-	 'bulk_action'=>$params['bulk_action']]);
+    ['bulk_action'=>$params['bulk_action'],
+     'bulk_content[]'=>$a]); // generates array-like get-URL
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_pages_tab.tpl'),null,null,$smarty);

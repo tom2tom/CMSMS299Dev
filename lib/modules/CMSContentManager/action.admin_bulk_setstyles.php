@@ -18,27 +18,21 @@
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_setstyles' ) exit;
 
-$this->SetCurrentTab('pages');
-
 if( isset($params['cancel']) ) {
   $this->SetInfo($this->Lang('msg_cancelled'));
-  $this->RedirectToAdminTab();
+  $this->Redirect($id,'defaultadmin',$returnid);
 }
 if( !isset($params['bulk_content']) ) {
   $this->SetError($this->Lang('error_missingparam'));
-  $this->RedirectToAdminTab();
-}
-$pagelist = unserialize(base64_decode($params['bulk_content']));
-if( !$pagelist ) {
-  $this->SetError($this->Lang('error_missingparam'));
-  $this->RedirectToAdminTab();
+  $this->Redirect($id,'defaultadmin',$returnid);
 }
 
+$pagelist = $params['bulk_content'];
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_setstyles.tpl'),null,null,$smarty);
 
 //TODO
 
-$tpl->assign('pagelist',base64_encode(serialize($pagelist)))
+$tpl->assign('pagelist',$pagelist)
  ->assign('displaydata',$displaydata);
 
 $tpl->display();

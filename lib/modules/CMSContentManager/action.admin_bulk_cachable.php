@@ -1,5 +1,5 @@
 <?php
-# CMSContentManager module action: flag multiple pages as cachable
+# CMSContentManager module action: flag multiple pages as [not] cachable
 # Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,24 +16,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentOperations;
+
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_cachable' ) exit;
 
-$this->SetCurrentTab('pages');
 if( !$this->CheckPermission('Manage All Content') ) {
     $this->SetError($this->Lang('error_bulk_permission'));
-    $this->RedirectToAdminTab();
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 if( !isset($params['bulk_content']) ) {
     $this->SetError($this->Lang('error_missingparam'));
-    $this->RedirectToAdminTab();
-}
-$pagelist = unserialize(base64_decode($params['bulk_content']));
-if( !$pagelist ) {
-    $this->SetError($this->Lang('error_missingparam'));
-    $this->RedirectToAdminTab();
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 
+$pagelist = $params['bulk_content'];
 $cachable = !empty($params['cachable']);
 $hm = cmsms()->GetHierarchyManager();
 
@@ -57,4 +54,4 @@ try {
 catch( Throwable $t ) {
     $this->SetError($t->getMessage());
 }
-$this->RedirectToAdminTab();
+$this->Redirect($id,'defaultadmin',$returnid);

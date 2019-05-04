@@ -51,7 +51,6 @@ function get_editor_object($content)
 }
 
 $user_id = get_userid();
-$this->SetCurrentTab('pages');
 
 //
 // init
@@ -64,13 +63,13 @@ try {
         if( !$this->CheckPermission('Add Pages') ) {
             // no permission to add pages.
             $this->SetError($this->Lang('error_editpage_permission'));
-            $this->RedirectToAdminTab();
+            $this->Redirect($id,'defaultadmin',$returnid);
         }
     }
     elseif( !$this->CanEditContent($content_id) ) {
         // nope, can't edit this page anyways.
         $this->SetError($this->Lang('error_editpage_permission'));
-        $this->RedirectToAdminTab();
+        $this->Redirect($id,'defaultadmin',$returnid);
     }
 
     $realm = $this->GetName();
@@ -158,13 +157,13 @@ try {
     // validate the content type
     if( !$existingtypes || !in_array($content_type,array_keys($existingtypes)) ) {
         $this->SetError($this->Lang('error_editpage_contenttype'));
-        $this->RedirectToAdminTab();
+        $this->Redirect($id,'defaultadmin',$returnid);
     }
 }
 catch( Throwable $t ) {
     // An error here means we can't display anything
     $this->SetError($t->getMessage());
-    $this->RedirectToAdminTab();
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 
 //
@@ -250,7 +249,7 @@ catch( CmsEditContentException $e ) {
 /*
     if( isset($params['submit']) ) {
         $this->SetError($e->getMessage());
-        $this->RedirectToAdminTab();
+        $this->Redirect($id,'defaultadmin',$returnid);
     };
 */
     $error = $e->getMessage();
@@ -291,7 +290,7 @@ if( $content_id && Utils::locking_enabled() ) {
     }
     catch( CmsException $e ) {
         $this->SetError($e->getMessage());
-        $this->RedirectToAdminTab();
+        $this->Redirect($id,'defaultadmin',$returnid);
     }
 }
 

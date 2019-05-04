@@ -18,47 +18,35 @@
 
 if( !isset($gCms) ) exit;
 
-//
-// init
-//
-$this->SetCurrentTab('pages');
-$pages = null;
-
-//
-// get data
-//
-if( isset($params['bulk_content']) ) $pagelist = unserialize(base64_decode($params['bulk_content']));
-else $pagelist = null;
-if( !$pagelist ) {
-  $this->SetError($this->Lang('error_missingparam'));
-  $this->RedirectToAdminTab();
-}
-$bulkaction = $params['bulk_action'] ?? null;
-if( !$bulkaction ) {
-  $this->SetError($this->Lang('error_missingparam'));
-  $this->RedirectToAdminTab();
-}
-
-//
-// get data 2
-//
-list($module,$bulkaction) = explode('::',$bulkaction,2);
-if( $module == '' || $module == '-1' || $bulkaction == '' || $bulkaction == -1 ) {
-    $this->SetError($this->Lang('error_invalidbulkaction'));
-    $this->RedirectToAdminTab();
-}
-if( $module != 'core' ) {
-    $modobj = cms_utils::get_module($module);
-    if( !is_object($modobj) ) {
-        $this->SetError($this->Lang('error_invalidbulkaction'));
-        $this->RedirectToAdminTab();
+if( isset($params['bulk_submit']) && isset($params['bulk_action']) && !empty($params['bulk_content']) ) {
+    list($module,$bulkaction) = explode('::',$params['bulk_action'],2);
+    if( !$module || $module == '-1' || !$bulkaction || $bulkaction == '-1' ) {
+	    $this->SetError($this->Lang('error_nobulkaction'));
+		$this->Redirect($id,'defaultadmin',$returnid);
     }
-    $url = $modobj->create_url($id,$bulkaction,$returnid,['contentlist'=>implode(',',$pagelist)]);
-    $url = str_replace('&amp;','&',$url);
-    redirect($url);
+}
+else {
+    $this->SetError($this->Lang('error_nobulkaction'));
+    $this->Redirect($id,'defaultadmin',$returnid);
 }
 
-$parms = ['bulk_content'=>$params['bulk_content']];
+if( strcasecmp($module,'core') != 0 ) {
+    $modobj = cms_utils::get_module($module);
+    if( is_object($modobj) ) {
+		$a = implode('&bulk_content[]=',$params['bulk_content']);
+        $s = implode(',',$params['bulk_content']);
+		$url = $modobj->create_url($id,$bulkaction,$returnid,
+		['bulk_content[]' => $a,
+		 'contentlist' => $s]); //deprecated since 2.3
+		$url = str_replace('&amp;','&',$url);
+		redirect($url);
+	}
+    $this->SetError($this->Lang('error_invalidbulkaction'));
+    $this->Redirect($id,'defaultadmin',$returnid);
+}
+
+$a = implode('&bulk_content[]=',$params['bulk_content']);
+$parms = ['bulk_content[]'=>$a]; // generates array-like get-URL
 switch( $bulkaction ) {
  case 'inactive':
    $parms['active'] = 0;
@@ -100,5 +88,5 @@ switch( $bulkaction ) {
 
 }
 
-$this->SetError($this->Lang('error_nobulkaction'));
-$this->RedirectToAdminTab();
+$this->SetError($this->Lang('error_invalidbulkaction'));
+$this->Redirect($id,'defaultadmin',$returnid);

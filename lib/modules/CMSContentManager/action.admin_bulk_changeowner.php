@@ -16,38 +16,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentOperations;
+use CMSMS\UserOperations;
+
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_changeowner' ) exit;
 
-$this->SetCurrentTab('pages');
 if( isset($params['cancel']) ) {
   $this->SetInfo($this->Lang('msg_cancelled'));
-  $this->RedirectToAdminTab();
+  $this->Redirect($id,'defaultadmin',$returnid);
 }
 if( !$this->CheckPermission('Manage All Content') ) {
   $this->SetError($this->Lang('error_bulk_permission'));
-  $this->RedirectToAdminTab();
+  $this->Redirect($id,'defaultadmin',$returnid);
 }
 if( !isset($params['bulk_content']) ) {
   $this->SetError($this->Lang('error_missingparam'));
-  $this->RedirectToAdminTab();
-}
-$pagelist = unserialize(base64_decode($params['bulk_content']));
-if( !$pagelist ) {
-    $this->SetError($this->Lang('error_missingparam'));
-    $this->RedirectToAdminTab();
+  $this->Redirect($id,'defaultadmin',$returnid);
 }
 
+$pagelist = $params['bulk_content'];
 $hm = $gCms->GetHierarchyManager();
 
 if( isset($params['submit']) ) {
   if( !isset($params['confirm1']) || !isset($params['confirm2']) ) {
     $this->SetError($this->Lang('error_notconfirmed'));
-    $this->RedirectToAdminTab();
+    $this->Redirect($id,'defaultadmin',$returnid);
   }
   if( !isset($params['owner']) ) {
     $this->SetError($this->Lang('error_missingparam'));
-    $this->RedirectToAdminTab();
+    $this->Redirect($id,'defaultadmin',$returnid);
   }
 
   // do the real work
@@ -71,12 +69,12 @@ if( isset($params['submit']) ) {
     }
     audit('','Content','Changed owner on '.$i.' pages');
     $this->SetMessage($this->Lang('msg_bulk_successful'));
-    $this->RedirectToAdminTab();
+    $this->Redirect($id,'defaultadmin',$returnid);
   }
   catch( Throwable $t ) {
       cms_warning('Changing ownership on multiple pages failed: '.$t->getMessage());
       $this->SetError($t->getMessage());
-      $this->RedirectToAdminTab();
+      $this->Redirect($id,'defaultadmin',$returnid);
   }
 }
 
