@@ -1,4 +1,6 @@
 <?php
+# CMSContentManger module action: ajax_get_content
+# Copyright (C) 2014-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -13,49 +15,61 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSContentManager\bulkcontentoperations;
 use CMSContentManager\ContentListBuilder;
 use CMSContentManager\Utils;
 use CMSMS\FormUtils;
-use CMSMS\internal\bulkcontentoperations;
-use CMSMS\TemplateOperations;
 
-if( !isset($gCms) ) exit;
-// no permissions checks here.
+if( !empty($firstlist) ) {
+    $ajax = false;
+    //and we'll use the template initiated upstream
+}
+else {
+    // we're doing an ajax-refresh, not initial display via defaultadmin action
+    if( !isset($gCms) ) exit;
+    // no permissions checks here.
 
-$handlers = ob_list_handlers();
-for ($cnt = 0, $n = count($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
+    $handlers = ob_list_handlers();
+    for ($cnt = 0,$n = count($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
+
+    $tpl = $smarty->createTemplate( $this->GetTemplateResource( 'ajax_get_content.tpl' ),null,null,$smarty );
+    $ajax = true;
+}
+
+$pmanage = $this->CheckPermission('Manage All Content');
+$tpl->assign('can_manage_content',$pmanage)
+ ->assign('can_reorder_content',$pmanage)
+ ->assign('can_add_content',$pmanage || $this->CheckPermission('Add Pages'));
+
+$theme = cms_utils::get_theme_object();
+$builder = new ContentListBuilder($this);
 
 try {
-    $tpl = $smarty->createTemplate( $this->GetTemplateResource( 'ajax_get_content.tpl' ),null,null,$smarty );
-
-    $tpl->assign('filterimage',cms_join_path(__DIR__,'images','filter'))
-     ->assign('can_add_content',$this->CheckPermission('Add Pages') || $this->CheckPermission('Manage All Content'))
-     ->assign('can_reorder_content',$this->CheckPermission('Manage All Content'))
-     ->assign('template_list',TemplateOperations::template_query(['as_list'=>1])); // this is just to aid loading.
-
     // load all the content that this user can display...
     // organize it into a tree
-    $builder = new ContentListBuilder($this);
-    $curpage = (isset($_SESSION[$this->GetName().'_curpage']) && !isset($params['seek'])) ? (int) $_SESSION[$this->GetName().'_curpage'] : 1;
-    if( isset($params['curpage']) ) $curpage = (int)$params['curpage'];
-    $filter = cms_userprefs::get($this->GetName().'_userfilter');
+    $modname = $this->GetName();
+    $curpage = (isset($_SESSION[$modname.'_curpage']) && !isset($params['seek'])) ? (int)$_SESSION[$modname.'_curpage'] : 1;
+    if( isset($params['curpage']) ) {
+        $curpage = (int)$params['curpage'];
+    }
+    $filter = cms_userprefs::get($modname.'_userfilter');
     if( $filter ) {
         $filter = unserialize($filter);
         $builder->set_filter($filter);
     }
-    $tpl->assign('have_filter',is_object($filter));
-
-    //
-    // handle all of the possible ajaxy/sub actions.
-    //
+    $tpl->assign('have_filter',is_object($filter))
+     ->assign('filter',$filter)
+     ->assign('filterimage',cms_join_path(__DIR__,'images','filter')); //TODO use new admin-theme icon
 
     //
     // build the display
     //
     $tpl->assign('prettyurls_ok',$builder->pretty_urls_configured());
 
-    if( isset($params['setoptions']) ) cms_userprefs::set($this->GetName().'_pagelimit',(int)$params['pagelimit']);
-    $pagelimit = cms_userprefs::get($this->GetName().'_pagelimit',100);
+    if( isset($params['setoptions']) ) {
+        cms_userprefs::set($modname.'_pagelimit',(int)$params['pagelimit']);
+    }
+    $pagelimit = cms_userprefs::get($modname.'_pagelimit',100);
 
     $builder->set_pagelimit($pagelimit);
     if( isset($params['seek']) && $params['seek'] != '' ) {
@@ -74,19 +88,22 @@ try {
 
     $tpl->assign('indent',!$filter && cms_userprefs::get('indent',1));
     $locks = $builder->get_locks();
-    $have_locks = ($locks)?1:0;
+    $have_locks = ($locks) ? 1 : 0;
+
     $tpl->assign('locking',Utils::locking_enabled())
      ->assign('have_locks',$have_locks)
      ->assign('pagelimit',$pagelimit)
+     ->assign('pagelimits',[10=>10,25=>25,100=>100,250=>250,500=>500])
      ->assign('pagelist',$pagelist)
      ->assign('curpage',$builder->get_page())
      ->assign('npages',$npages)
      ->assign('multiselect',$builder->supports_multiselect())
      ->assign('columns',$builder->get_display_columns());
+/*
     $url = $this->create_url($id,'ajax_get_content',$returnid);
     $tpl->assign('ajax_get_content_url',str_replace('amp;','',$url))
       ->assign('settingsicon',cms_join_path(__DIR__,'images','settings'));
-
+*/
     if( Utils::get_pagenav_display() == 'title' ) {
         $tpl->assign('colhdr_page',$this->Lang('colhdr_pagetitle'))
          ->assign('coltitle_page',$this->Lang('coltitle_name'));
@@ -97,44 +114,41 @@ try {
     }
 
     if( $editinfo ) {
-        $theme = cms_utils::get_theme_object();
-        $u = $this->create_url($id, 'defaultadmin', $returnid, ['moveup'=>'XXX']);
+        $u = $this->create_url($id,'defaultadmin',$returnid,['moveup'=>'XXX']);
         $t = $this->Lang('prompt_page_sortup');
-        $icon = $theme->DisplayImage('icons/system/arrow-u', $t, '', '', 'systemicon');
+        $icon = $theme->DisplayImage('icons/system/arrow-u',$t,'','','systemicon');
         $linkup = '<a href="'.$u.'" class="page_sortup" accesskey="m">'.$icon.'</a>'."\n";
 
-        $u = $this->create_url($id, 'defaultadmin', $returnid, ['movedown'=>'XXX']);
+        $u = $this->create_url($id,'defaultadmin',$returnid,['movedown'=>'XXX']);
         $t = $this->Lang('prompt_page_sortdown');
-        $icon = $theme->DisplayImage('icons/system/arrow-d', $t, '', '', 'systemicon');
+        $icon = $theme->DisplayImage('icons/system/arrow-d',$t,'','','systemicon');
         $linkdown = '<a href="'.$u.'" class="page_sortdown" accesskey="m">'.$icon.'</a>'."\n";
 
         $t = $this->Lang('prompt_page_view');
-        $icon = $theme->DisplayImage('icons/system/view', $t, '', '', 'systemicon');
+        $icon = $theme->DisplayImage('icons/system/view',$t,'','','systemicon');
         $linkview = '<a target="_blank" href="XXX" class="page_view" accesskey="v">'.$icon.'</a>'."\n";
 
-        $u = $this->create_url($id, 'admin_copycontent', $returnid, ['page'=>'XXX']);
+        $u = $this->create_url($id,'admin_copycontent',$returnid,['page'=>'XXX']);
         $t = $this->Lang('prompt_page_copy');
-        $icon = $theme->DisplayImage('icons/system/copy', $t, '', '', 'systemicon page_copy');
+        $icon = $theme->DisplayImage('icons/system/copy',$t,'','','systemicon page_copy');
         $linkcopy = '<a href="'.$u.'" accesskey="o">'.$icon.'</a>'."\n";
 
-        $u = $this->create_url($id, 'admin_editcontent', $returnid, ['content_id'=>'XXX']);
+        $u = $this->create_url($id,'admin_editcontent',$returnid,['content_id'=>'XXX']);
         $t = $this->Lang('prompt_page_edit');
-        $icon = $theme->DisplayImage('icons/system/edit', $t, '', '', 'systemicon page_edit');
+        $icon = $theme->DisplayImage('icons/system/edit',$t,'','','systemicon page_edit');
         $linkedit = '<a href="'.$u.'" class="page_edit" accesskey="e" data-cms-content="XXX">'.$icon.'</a>'."\n";
 
-        $u = $this->create_url($id, 'admin_editcontent', $returnid, ['content_id'=>'XXX']);
-        $t = $this->Lang('prompt_steal_lock_edit');
-        $icon = $theme->DisplayImage('icons/system/permissions', $t, '', '', 'systemicon page_edit steal_lock');
-        $linksteal = '<a href="'.$u.'" class="page_edit steal_lock" accesskey="e" data-cms-content="XXX">'.$icon.'</a>'."\n";
+        $u = str_replace('XXX','%s',$u).'&m1_steal=1'; //sprintf template
+        $tpl->assign('stealurl',$u);
 
-        $u = $this->create_url($id, 'admin_editcontent', $returnid, ['parent_id'=>'XXX']);
+        $u = $this->create_url($id,'admin_editcontent',$returnid,['parent_id'=>'XXX']);
         $t = $this->Lang('prompt_page_addchild');
-        $icon = $theme->DisplayImage('icons/system/newobject', $t, '', '', 'systemicon page_addchild');
+        $icon = $theme->DisplayImage('icons/system/newobject',$t,'','','systemicon page_addchild');
         $linkchild = '<a href="'.$u.'" class="page_edit" accesskey="a">'.$icon.'</a>'."\n";
 
-        $u = $this->create_url($id, 'defaultadmin', $returnid, ['delete'=>'XXX']);
+        $u = $this->create_url($id,'defaultadmin',$returnid,['delete'=>'XXX']);
         $t = $this->Lang('prompt_page_delete');
-        $icon = $theme->DisplayImage('icons/system/delete', $t, '', '', 'systemicon page_delete');
+        $icon = $theme->DisplayImage('icons/system/delete',$t,'','','systemicon page_delete');
         $linkdel = '<a href="'.$u.'" class="page_delete" accesskey="r">'.$icon.'</a>'."\n";
 
         $menus = [];
@@ -143,35 +157,32 @@ try {
             $rid = $row['id'];
             if( isset($row['move']) ) {
                 if( $row['move'] == 'up' ) {
-                    $acts[] = ['content'=>str_replace('XXX', $rid, $linkup)];
+                    $acts[] = ['content'=>str_replace('XXX',$rid,$linkup)];
                 }
                 elseif( $row['move'] == 'down' ) {
-                    $acts[] = ['content'=>str_replace('XXX', $rid, $linkdown)];
+                    $acts[] = ['content'=>str_replace('XXX',$rid,$linkdown)];
                 }
                 elseif( $row['move'] == 'both' ) {
-                    $acts[] = ['content'=>str_replace('XXX', $rid, $linkup)];
-                    $acts[] = ['content'=>str_replace('XXX', $rid, $linkdown)];
+                    $acts[] = ['content'=>str_replace('XXX',$rid,$linkup)];
+                    $acts[] = ['content'=>str_replace('XXX',$rid,$linkdown)];
                 }
             }
             if( $row['viewable'] ) {
-                $acts[] = ['content'=>str_replace('XXX', $row['view'], $linkview)];
+                $acts[] = ['content'=>str_replace('XXX',$row['view'],$linkview)];
             }
             if( $row['copy'] ) {
-                $acts[] = ['content'=>str_replace('XXX', $rid, $linkcopy)];
+                $acts[] = ['content'=>str_replace('XXX',$rid,$linkcopy)];
             }
             if( $row['can_edit'] ) {
-                $acts[] = ['content'=>str_replace('XXX', $rid, $linkedit)];
-            }
-            elseif( isset($row['lock']) && $row['can_steal'] ) {
-                $acts[] = ['content'=>str_replace('XXX', $rid, $linksteal)];
+                $acts[] = ['content'=>str_replace('XXX',$rid,$linkedit)];
             }
             //always add child
-            $acts[] = ['content'=>str_replace('XXX', $rid, $linkchild)];
+            $acts[] = ['content'=>str_replace('XXX',$rid,$linkchild)];
 
             if( $row['can_delete'] && $row['delete'] ) {
-                $acts[] = ['content'=>str_replace('XXX', $rid, $linkdel)];
+                $acts[] = ['content'=>str_replace('XXX',$rid,$linkdel)];
             }
-            $menus[] = FormUtils::create_menu($acts, ['id'=>'Page'.$rid, 'class'=>CMS_POPUPCLASS]);
+            $menus[] = FormUtils::create_menu($acts,['id'=>'Page'.$rid,'class'=>CMS_POPUPCLASS]);
         }
 
         $tpl->assign('content_list',$editinfo)
@@ -182,30 +193,36 @@ try {
         $tpl->assign('error',$this->Lang('err_nomatchingcontent'));
     }
 
-    $opts = [];
-    if( $this->CheckPermission('Remove Pages') && $this->CheckPermission('Modify Any Page') ) {
+    if( $pmanage ) {
+        bulkcontentoperations::register_function($this->Lang('bulk_active'),'active');
+        bulkcontentoperations::register_function($this->Lang('bulk_inactive'),'inactive');
+        bulkcontentoperations::register_function($this->Lang('bulk_showinmenu'),'showinmenu');
+        bulkcontentoperations::register_function($this->Lang('bulk_hidefrommenu'),'hidefrommenu');
+        bulkcontentoperations::register_function($this->Lang('bulk_cachable'),'setcachable');
+        bulkcontentoperations::register_function($this->Lang('bulk_noncachable'),'setnoncachable');
+        bulkcontentoperations::register_function($this->Lang('bulk_changeowner'),'changeowner');
+        bulkcontentoperations::register_function($this->Lang('bulk_setstyles'),'styles'); //TODO new
+        bulkcontentoperations::register_function($this->Lang('bulk_settemplate'),'template');
+    }
+
+    if( $pmanage || ($this->CheckPermission('Remove Pages') && $this->CheckPermission('Modify Any Page')) ) {
         bulkcontentoperations::register_function($this->Lang('bulk_delete'),'delete');
     }
 
-    if( $this->CheckPermission('Manage All Content')) {
-        bulkcontentoperations::register_function($this->Lang('bulk_active'),'active');
-        bulkcontentoperations::register_function($this->Lang('bulk_inactive'),'inactive');
-        bulkcontentoperations::register_function($this->Lang('bulk_cachable'),'setcachable');
-        bulkcontentoperations::register_function($this->Lang('bulk_noncachable'),'setnoncachable');
-        bulkcontentoperations::register_function($this->Lang('bulk_showinmenu'),'showinmenu');
-        bulkcontentoperations::register_function($this->Lang('bulk_hidefrommenu'),'hidefrommenu');
-        bulkcontentoperations::register_function($this->Lang('bulk_setdesign'),'setdesign');
-        bulkcontentoperations::register_function($this->Lang('bulk_changeowner'),'changeowner');
+    $bulks = bulkcontentoperations::get_operation_list();
+    if( $bulks ) {
+        $tpl->assign('bulk_options',$bulks);
     }
-    $opts = bulkcontentoperations::get_operation_list();
-    if( $opts ) $tpl->assign('bulk_options',$opts);
 
-    //TODO ensure flexbox css for .rowbox, .boxchild
-
-    $tpl->display();
+    if( $ajax ) {
+        $tpl->display();
+        exit;
+    }
 }
-catch( Exception $e ) {
-    echo '<div class="error">'.$e->GetMessage().'</div>';
+catch( Throwable $t ) {
     debug_to_log($e);
+    echo '<div class="error">'.$t->getMessage().'</div>';
+    if( $ajax ) {
+        exit;
+    }
 }
-exit;

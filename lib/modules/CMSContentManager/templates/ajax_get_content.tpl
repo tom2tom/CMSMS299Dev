@@ -164,10 +164,10 @@
       {/if}
 *}
     {elseif $column == 'actions'}
-    {$ul=empty($row.lock)}{$t=$mod->Lang('locked_hard')}
-      <span class="locked" data-id="{$row.id}" title="{$t}"{if $ul} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
-    {$t=$mod->Lang('locked_steal')}
-      <a href="http://TODO&amp;steal=1" class="steal_lock" data-id="{$row.id}" title="{$t}" accesskey="e"{if $ul} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
+    {$hide=empty($row.lock) || $row.lock == 1}{$t=$mod->Lang('locked_hard')}
+      <span class="locked" data-id="{$row.id}" title="{$t}"{if $hide} style="display:none;"{/if}>{admin_icon icon='icons/extra/block.gif' title=$t}</span>
+    {$hide=empty($row.lock) || $row.lock == -1}{$t=$mod->Lang('locked_steal')}{$url=sprintf($stealurl,$row.id)}
+      <a href="{$url}" class="steal_lock" data-id="{$row.id}" title="{$t}" accesskey="e"{if $hide} style="display:none;"{/if}>{admin_icon icon='permissions.gif' title=$t}</a>
       <span context-menu="Page{$row.id}" style="cursor:pointer;">{admin_icon icon='menu.gif' alt='menu' title=$mod->Lang('title_menu') class='systemicon'}</span>
     {elseif $column == 'multiselect'}
       {if $row.multiselect}

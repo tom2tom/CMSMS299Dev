@@ -18,12 +18,9 @@
 
 use CMSContentManager\ContentListBuilder;
 use CMSContentManager\ContentListFilter;
-use CMSContentManager\Utils;
-use CMSMS\FormUtils;
 use CMSMS\ScriptOperations;
 use CMSMS\TemplateOperations;
 use CMSMS\UserOperations;
-use CMSMS\internal\bulkcontentoperations;
 
 global $CMS_JOB_TYPE;
 
@@ -36,8 +33,6 @@ $builder = new ContentListBuilder($this);
 $pagelimit = cms_userprefs::get($this->GetName().'_pagelimit',500);
 $filter = cms_userprefs::get($this->GetName().'_userfilter');
 if( $filter ) $filter = unserialize($filter);
-
-//if( isset($params['ajax']) ) { $ajax = 1; } else { $ajax = 0; }
 
 if( isset($params['curpage']) ) {
     $curpage = max(1,min(500,(int)$params['curpage']));
@@ -83,9 +78,9 @@ if( isset($params['setoptions']) ) {
         cms_userprefs::remove($this->GetName().'_userfilter');
     }
     if( $filter ) {
-		//record for use by ajax processor
-		cms_userprefs::set($this->GetName().'_userfilter',serialize($filter));
-	}
+        //record for use by ajax processor
+        cms_userprefs::set($this->GetName().'_userfilter',serialize($filter));
+    }
     $curpage = 1;
 }
 if( isset($params['expand']) ) {
@@ -127,38 +122,54 @@ if( isset($params['delete']) ) {
     if( $res ) $this->ShowErrors($res);
 }
 
-if( isset($params['multisubmit']) && isset($params['multiaction']) &&
-    isset($params['multicontent']) && $params['multicontent'] ) {
-    list($module,$bulkaction) = explode('::',$params['multiaction'],2);
-    if( $module == '' || $module == '-1' || $bulkaction == '' || $bulkaction == '-1' ) {
-        $this->SetMessage($this->Lang('error_nobulkaction'));
-        $this->RedirectToAdminTab();
+function urlsplit(string $u) : array
+{
+    $u = str_replace('&amp;','&',$u);
+    $parts = parse_url($u);
+    $u = $parts['scheme'].'://'.$parts['host'].$parts['path'];
+    if( $parts['query'] ) {
+        $ob = new stdClass();
+        $parts = explode('&',$parts['query']);
+        foreach ($parts as $one) {
+             list($k,$v) = explode('=',$one);
+             if( is_numeric($v) ) {
+                  $ob->$k = $v;
+             } else {
+                  $ob->$k = "'".addcslashes($v,"'")."'";
+             }
+        }
+        $s = json_encode($ob);
+        $s = str_replace(['{"','"}','":"','","'],["{\n","\n}",': ',",\n"],$s);
+        return [$u, $s];
     }
-    // redirect to special action to handle bulk content stuff.
-    $this->Redirect($id,'admin_multicontent',$returnid,[
-        'multicontent'=>base64_encode(serialize($params['multicontent'])),
-        'multiaction'=>$params['multiaction']
-    ]);
+    return [$u, '{}'];
 }
 
-$pmanage = $this->CheckPermission('Manage All Content');
-
+$firstlist = 1; // status indicator for included code
+// used by included code
 $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),null,null,$smarty);
 
-require_once __DIR__.DIRECTORY_SEPARATOR.'action.ajax_get_content.php';
+require __DIR__.DIRECTORY_SEPARATOR.'action.ajax_get_content.php';
 
 $modname = $this->GetName();
 if( isset($curpage) ) {
     $_SESSION[$modname.'_curpage'] = $curpage;
 }
 
-$url = $this->create_url($id,'admin_ajax_pagelookup','');
-$lookup_url = str_replace('&amp;','&',rawurldecode($url)) . '&'.CMS_JOB_KEY.'=1';
-$url = $this->create_url($id,'ajax_get_content','');
-$content_url = str_replace('&amp;','&',rawurldecode($url)) . '&'.CMS_JOB_KEY.'=1';
-$url = $this->create_url($id,'ajax_check_locks','');
-$checklocks_url = str_replace('&amp;','&',rawurldecode($url)) . '&'.CMS_JOB_KEY.'=1';
-$locks_url = $config['admin_url'].'/ajax_lock.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$url = $this->create_url($id,'admin_ajax_pagelookup');
+$find_url = str_replace('&amp;','&',rawurldecode($url)) . '&'.CMS_JOB_KEY.'=1';
+
+$url = $this->create_url($id,'ajax_get_content'). '&'.CMS_JOB_KEY.'=1';
+list($page_url, $page_data) = urlsplit($url);
+
+$url = $this->create_url($id,'ajax_check_locks') . '&'.CMS_JOB_KEY.'=1';
+list($watch_url, $watch_data) = urlsplit($url);
+
+$locks_url = $config['admin_url'].'/ajax_lock.php';
+//$locks_data = "{\n".CMS_SECURE_PARAM_NAME.': '.$_SESSION[CMS_USER_KEY]."\n}";
+
+$securekey = CMS_SECURE_PARAM_NAME;
+$jobkey = CMS_JOB_KEY;
 
 //TODO any other action-specific js
 //TODO flexbox css for multi-row .colbox, .rowbox.flow, .boxchild
@@ -176,18 +187,31 @@ $secs = cms_siteprefs::get('lock_refresh', 120);
 $secs = max(30,min(600,$secs));
 
 $sm = new ScriptOperations();
-$sm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
+$sm->queue_matchedfile('jquery.cmsms_poll.js', 2);
 $sm->queue_matchedfile('jquery.ContextMenu.js', 2);
+$out = $sm->render_inclusion('', false, false);
+if ($out) {
+    $this->AdminBottomContent($out);
+}
 
 $js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+var pageurl = '$page_url',
+ pagedata = $page_data,
+ lockurl = '$locks_url',
+ refresher,watcher;
 function cms_CMloadUrl(link, lang) {
  $(link).on('click', function(e) {
-  var url = $(this).attr('href') + '&{$id}ajax=1&' + cms_data.job_key + '=1';
+  var url = $(this).attr('href'),
+   params = $.extend({}, pagedata, {
+    {$id}ajax: 1,
+   });
   var _do_ajax = function() {
-   $.ajax(url).done(function() {
-    $('#content_area').autoRefresh('start').always(function() {
-     $('#content_area').autoRefresh('stop');
-    });
+   $.ajax(url, {
+     data: params
+   }).done(function() {
+    Poller.request(refresher);
    });
   };
   $('#ajax_find').val('');
@@ -198,34 +222,6 @@ function cms_CMloadUrl(link, lang) {
     _do_ajax();
   }
   return false;
- });
-}
-function cms_CMtoggleState(el) {
- $(el).attr('disabled', 'disabled').prop('disabled', true);
- $('input:checkbox').on('click', function() {
-  if($('input:checkbox').is(':checked')) {
-   $(el).removeAttr('disabled').prop('disabled', false);
-  } else {
-   $(el).attr('disabled', 'disabled').prop('disabled', true);
-  }
- });
-}
-function optsclicker() {
- $('#myoptions').on('click', function() {
-  cms_dialog($('#filterdialog'), {
-   minWidth: '400',
-   minHeight: 225,
-   resizable: false,
-   buttons: {
-    $s6: function() {
-     $(this).dialog('close');
-     $('#myoptions_form').submit();
-    },
-    $s7: function() {
-     $(this).dialog('close');
-    }
-   }
-  });
  });
 }
 function gethelp(tgt) {
@@ -243,28 +239,57 @@ function gethelp(tgt) {
    });
   }
 }
-$(function() {
- $('[context-menu]').ContextMenu();
- $('.cms_help .cms_helpicon').on('click', function() {
-  gethelp(this);
- });
- $('#selectall').cmsms_checkall({
-  target: '#contenttable'
- });
-/*
- $('<div></div').autoRefresh({
-  url: '$checklocks_url',
-  interval: $secs,
-  done_handler: function(json) {
-   //var lockdata = JSON.parse(json);
-   //TODO refresh locking elements
-   var TODO = 1;
+function adjust_locks(json) {
+  var n = 0;
+  var lockdata = JSON.parse(json);
+  $('#contenttable > tbody > tr').each(function() {
+    var row = $(this),
+     id = row.attr('data-id');
+    if(lockdata.hasOwnProperty(id)) {
+      n++;
+      var status = lockdata[id];
+      //set lock-indicators for this row
+      if(status === 1) {
+        //stealable
+        row.find('.locked').css('display','none');
+        row.find('.steal_lock').css('display','inline');
+      } else if(status === -1) {
+        //blocked
+        row.find('.steal_lock').css('display','none');
+        row.find('.locked').css('display','inline');
+      }
+      row.find('.action').attr('disabled','disabled').css('pointer-events','none'); //IE 11+ ?
+      row.addClass('locked');
+    } else if(row.hasClass('locked')) {
+      row.find('.locked,.steal_lock').css('display','none');
+      row.find('.action').removeAttr('disabled').css('pointer-events','auto');
+      row.removeClass('locked');
+    }
+  });
+  return n;
+}
+function setuplist() {
+ var el = $('#bulk_action');
+ el.attr('disabled','disabled');
+ var btn = $('#bulk_submit');
+ cms_button_able(btn,false);
+ var cb = $('#contenttable > tbody input:checkbox');
+ cb.on('change', function() {
+  var l = cb.filter(':checked').length;
+  if(l > 0) {
+   el.removeAttr('disabled');
+  } else {
+   el.attr('disabled','disabled');
   }
+  cms_button_able(btn,(l > 0));
  });
-*/
- var pageurl = '$content_url';
+ $('#selectall').on('change', function() {
+  cb.attr('checked',(this.checked || false)).eq(0).trigger('change');
+ });
+ $('[context-menu]').ContextMenu();
+
  $('#ajax_find').autocomplete({
-  source: '$lookup_url',
+  source: '$find_url', //TODO widget expects only array|string|function?
   minLength: 2,
   position: {
    my: 'right top',
@@ -273,30 +298,50 @@ $(function() {
   change: function(e, ui) {
    // goes back to the full list, no options
    $('#ajax_find').val('');
-   $('#content_area').autoRefresh('option', 'url', pageurl).always(function() {
-    $('#content_area').autoRefresh('stop');
-   });
+   Poller.request(refresher);
   },
   select: function(e, ui) {
    e.preventDefault();
    $(this).val(ui.item.label);
-   var url = pageurl + '&{$id}seek=' + ui.item.value;
-   $('#content_area').autoRefresh('option', 'url', url).always(function() {
-    $('html,body').animate({
-     scrollTop: $('#row_' + ui.item.value).offset().top
-    });
-    $('#content_area').autoRefresh('stop');
+   params = $.extend({}, pagedata, {
+      {$id}seek: ui.item.value,
+   });
+   Poller.oneshot({
+    url: pageurl,
+    data: params,
+    done_handler: function() {
+     Poller.request(refresher).done(function() {
+      $('html,body').animate({
+       scrollTop: $('#row_' + ui.item.value).offset().top
+      });
+     });
+    }
    });
   }
  });
- cms_CMtoggleState('#multiaction');
- cms_CMtoggleState('#multisubmit');
-// * these links can't use ajax as they affect pagination.
+ $('#filterdisplay').on('click', function() {
+  cms_dialog($('#filterdialog'), {
+   minWidth: 400,
+   minHeight: 225,
+   resizable: false,
+   buttons: {
+    $s6: function() {
+     $(this).dialog('close');
+     $('#filter_form').submit();
+    },
+    $s7: function() {
+     $(this).dialog('close');
+    }
+   }
+  });
+  return false;
+ });
+/* these links can't use ajax as they affect pagination
  cms_CMloadUrl('a.expandall');
  cms_CMloadUrl('a.collapseall');
  cms_CMloadUrl('a.page_collapse');
  cms_CMloadUrl('a.page_expand');
-//*/
+*/
  cms_CMloadUrl('a.page_sortup');
  cms_CMloadUrl('a.page_sortdown');
  cms_CMloadUrl('a.page_setinactive', $s1);
@@ -314,7 +359,6 @@ $(function() {
   return false;
  });
 
- var lockurl = '$locks_url';
  $('a.page_edit').on('click', function(e) {
   var v = $(this).data('steal_lock');
   $(this).removeData('steal_lock');
@@ -325,12 +369,14 @@ $(function() {
   // double-check whether this page is locked
   var content_id = $(this).attr('data-cms-content');
   $.ajax(lockurl, {
+   async: false,
    data: {
+    $securekey: cms_data.user_key,
     opt: 'check',
     type: 'content',
     oid: content_id
    }
-  }).done(data, function() {
+  }).done(function(data) {
    if(data.status == 'success') {
     if(data.locked) {
      // gotta display a message.
@@ -344,6 +390,32 @@ $(function() {
   });
   return false;
  });
+ $('.cms_help .cms_helpicon').on('click', function() {
+  gethelp(this);
+ });
+}
+
+$(function() {
+ refresher = Poller.add({
+  url: pageurl,
+  data: pagedata,
+  onetime: true,
+  insert: true,
+  element: $('#content_area'),
+  done_handler: setuplist
+ });
+ setuplist();
+ params = $.extend($watch_data, {
+  $securekey: cms_data.user_key,
+  $jobkey: 1
+ });
+ watcher = Poller.run({
+  url: '$watch_url',
+  data: params,
+  interval: $secs,
+  done_handler: adjust_locks
+ });
+ // stuff not affected by page-refresh TODO confirm this
  // filter dialog
  $('#filter_type').on('change', function() {
   var map = {
@@ -356,17 +428,8 @@ $(function() {
   $(map[v]).show();
  });
  $('#filter_type').trigger('change');
- optsclicker();
  // other events
- $('#selectall,input.multicontent').on('change', function() {
-  $('#content_area').autoRefresh('start').always(function() {
-   $('#content_area').autoRefresh('stop');
-  });
- });
  $('#ajax_find').on('keypress', function(e) {
-  $('#content_area').autoRefresh('start').always(function() {
-   $('#content_area').autoRefresh('stop');
-  });
   if(e.which == 13) e.preventDefault();
  });
  // go to page on option change
@@ -374,7 +437,6 @@ $(function() {
   $(this).closest('form').submit();
  });
  $(document).ajaxComplete(function() {
-  $('#selectall').cmsms_checkall();
   $('tr.selected').css('background', 'yellow');
  });
  $('a#clearlocks').on('click', function(e) {
@@ -387,14 +449,15 @@ $(function() {
   if(!have_locks) {
    e.preventDefault();
    var url = $(this).attr('href');
-   // double-check whether the page is locked
-   $.ajax(lockurl,{
+   // double-check whether any? page is locked
+   $.ajax(lockurl, {
     async: false,
     data: {
+     $securekey: cms_data.user_key,
      opt: 'check',
-     type: 'content'
+     type: 'content' //TODO some other lock without object-id
     }
-   }).done(data, function() {
+   }).done(function(data) {
     if(data.status == 'success') {
      if(data.locked) {
        have_locks = true;
@@ -410,35 +473,30 @@ $(function() {
   }
  });
 });
+//]]
+</script>
 EOS;
+$this->AdminBottomContent($js); //NOT for ScriptOperations
 
-$sm->queue_string($js, 3);
-$out = $sm->render_inclusion('', false, false);
-if ($out) {
-    $this->AdminBottomContent($out);
+if( !isset($pmanage) ) {
+    // this should have been set in the included list-populator file
+    $pmanage = $this->CheckPermission('Manage All Content');
 }
 
-$opts = ($pmanage) ?
-    ['' => lang('none'),
-//    'DESIGN_ID' => $this->Lang('prompt_design'),
+if( $pmanage ) {
+    // filter-selector items
+    $opts = ['' => lang('none'),
+//  'DESIGN_ID' => $this->Lang('prompt_design'),
     'TEMPLATE_ID' => $this->Lang('prompt_template'),
     'OWNER_UID' => $this->Lang('prompt_owner'),
-    'EDITOR_UID' => $this->Lang('prompt_editor')] : null;
-
-//$tpl->assign('ajax',$ajax)
-$tpl->assign('can_manage_content',$pmanage)
- ->assign('can_reorder_content',$pmanage)
- ->assign('can_add_content', $pmanage || $this->CheckPermission('Add Pages'))
-// ->assign('settingsicon',cms_join_path(__DIR__,'images','settings'))
- ->assign('filter',$filter)
- ->assign('filterimage',cms_join_path(__DIR__,'images','filter')) //TODO use new admin icon
-// filter selector items
- ->assign('opts',$opts)
-// list of admin users for filtering
- ->assign('user_list',(new UserOperations())->GetList())
-// list of designs for filtering
+    'EDITOR_UID' => $this->Lang('prompt_editor')];
+    $tpl->assign('opts',$opts);
+    // list of templates for filtering
+    $tpl->assign('template_list',TemplateOperations::template_query(['as_list'=>1]))
+    // list of admin users for filtering
+     ->assign('user_list',(new UserOperations())->GetList());
+    // list of designs for filtering
 // ->assign('design_list',CmsLayoutCollection::get_list())  TODO replacement :: stylesheets and/or groups
-// list of templates for filtering
- ->assign('template_list',TemplateOperations::template_query(['as_list'=>1]));
+}
 
 $tpl->display();
