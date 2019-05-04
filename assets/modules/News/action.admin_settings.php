@@ -4,7 +4,6 @@ if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify News Preferences') ) return;
 
 $prompt = json_encode($this->Lang('areyousure'));
-$yes = $this->Lang('yes');
 
 $js = <<<EOS
 <script type="text/javascript">
@@ -12,12 +11,12 @@ $js = <<<EOS
 $(function() {
  $('a.del_cat').on('click', function(ev) {
   ev.preventDefault();
-  cms_confirm_linkclick(this,$prompt,'$yes');
+  cms_confirm_linkclick(this,$prompt);
   return false;
  });
  $('a.del_fielddef').on('click', function(ev) {
   ev.preventDefault();
-  cms_confirm_linkclick(this,$prompt,'$yes');
+  cms_confirm_linkclick(this,$prompt);
   return false;
  });
 });

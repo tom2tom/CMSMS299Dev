@@ -347,7 +347,7 @@ $(function() {
 $jsp2
   $('a.delete_article').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm_linkclick(this,$s1,'$yes');
+    cms_confirm_linkclick(this,$s1);
     return false;
   });
   $('#bulk_action').on('change', function() {
@@ -363,7 +363,7 @@ $jsp2
     var l = $('#articlelist :checked').length;
     if(l > 0) {
       var form = $(this).closest('form');
-      cms_confirm($s2,'$yes').done(function() {
+      cms_confirm($s2).done(function() {
         form.submit();
       });
     }

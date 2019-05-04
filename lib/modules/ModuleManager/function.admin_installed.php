@@ -29,7 +29,6 @@ catch( Exception $e ) {
     return;
 }
 
-$yes = $this->Lang('yes');
 $s1 = json_encode($this->Lang('confirm_upgrade'));
 $s2 = json_encode($this->Lang('confirm_remove'));
 $s3 = json_encode($this->Lang('confirm_chmod'));
@@ -42,17 +41,17 @@ $js = <<<EOS
 $(function() {
   $('a.mod_upgrade').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm_linkclick(this,$s1,'$yes');
+    cms_confirm_linkclick(this,$s1);
     return false;
   });
   $('a.mod_remove').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm_linkclick(this,$s2,'$yes');
+    cms_confirm_linkclick(this,$s2);
     return false;
   });
   $('a.mod_chmod').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm_linkclick(this,$s3,'$yes');
+    cms_confirm_linkclick(this,$s3);
     return false;
   });
   $('#importbtn').on('click', function() {
