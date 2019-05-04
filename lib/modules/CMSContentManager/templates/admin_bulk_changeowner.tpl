@@ -1,7 +1,7 @@
 <h3>{$mod->Lang('prompt_bulk_changeowner')}:</h3>
 
 {form_start}
-{foreach $pagelist as $pid}<input type="hidden" name="bulk_content[]" value="{$pid}" />
+{foreach $pagelist as $pid}<input type="hidden" name="{$actionid}bulk_content[]" value="{$pid}" />
 {/foreach}
 <div class="pageoverflow">
   <ul>
