@@ -31,7 +31,7 @@ if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) 
 check_login();
 
 $userid = get_userid();
-$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 $themeObject = cms_utils::get_theme_object();
 
 cleanArray($_REQUEST);

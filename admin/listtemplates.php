@@ -30,7 +30,7 @@ if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) 
 
 check_login();
 
-$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 $userid = get_userid();
 $pmod = check_permission($userid,'Modify Templates');
 $padd = $pmod || check_permission($userid,'Add Templates');

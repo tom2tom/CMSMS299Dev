@@ -24,7 +24,7 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 check_login();
 
-$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 $userid = get_userid();
 $access = check_permission($userid, 'Manage My Bookmarks'); //TODO or 'Manage Bookmarks' or always
 $padd = $access || check_permission($userid, 'Add Bookmarks');

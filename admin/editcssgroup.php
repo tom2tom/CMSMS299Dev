@@ -35,7 +35,7 @@ if (!check_permission($userid,'Manage Stylesheets')) {
 	return;
 }
 
-$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 $themeObject = cms_utils::get_theme_object();
 if (isset($_REQUEST['cancel'])) {
 	$themeObject->ParkNotice('info',lang_by_realm('layout','msg_cancelled'));

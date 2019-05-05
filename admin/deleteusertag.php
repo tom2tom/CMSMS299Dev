@@ -46,5 +46,5 @@ if (is_file($fp)) {
     $themeObject->ParkNotice('error', lang('error_internal'));
 }
 
-$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 redirect('listusertags.php'.$urlext);
