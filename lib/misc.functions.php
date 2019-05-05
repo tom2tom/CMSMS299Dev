@@ -54,7 +54,7 @@ function redirect(string $to)
         if (isset($components['path'])) {
             //support admin sub-domains
             $l = strpos($components['path'], '.php', 1);
-            if ($l > 0 && substr_count($components['path'],'.', 1, $l-1) > 0) { 
+            if ($l > 0 && substr_count($components['path'],'.', 1, $l-1) > 0) {
                 $components['path'] = strtr(substr($components['path'], 0, $l), '.', '/') . substr($components['path'], $l);
             }
             if (in_array($components['path'][0],['\\','/'])) {
@@ -492,11 +492,11 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
     }
     if ($use_html) echo "</div>\n";
 
-    $output = ob_get_contents();
+    $out = ob_get_contents();
     ob_end_clean();
 
-    if ($echo_to_screen) echo $output;
-    return $output;
+    if ($echo_to_screen) echo $out;
+    return $out;
 }
 
 /**
@@ -549,35 +549,35 @@ function debug_buffer($var, string $title='')
 }
 
 /**
-* Return $value if it's set and same basic type as $default_value,
-* Otherwise return $default_value. Note. Also will trim($value) if $value is not numeric.
-*
-* @ignore
-* @param mixed $value
-* @param mixed $default_value
-* @param mixed $session_key
-* @deprecated
-* @return mixed
-*/
-function _get_value_with_default($value, $default_value = '', $session_key = '')
+ * Return $value if it's set and same basic type as $default.
+ * Otherwise return $default. Note: trim's $value if it's not numeric.
+ *
+ * @ignore
+ * @param mixed $value
+ * @param mixed $default Optional default value to return. Default ''.
+ * @param string $session_key Optional key for retrieving the default value from $_SESSION[]. Default ''
+ * @deprecated
+ * @return mixed
+ */
+function _get_value_with_default($value, $default = '', $session_key = '')
 {
     if ($session_key != '') {
-        if (isset($_SESSION['default_values'][$session_key])) $default_value = $_SESSION['default_values'][$session_key];
+        if (isset($_SESSION['default_values'][$session_key])) $default = $_SESSION['default_values'][$session_key];
     }
 
     // set our return value to the default initially and overwrite with $value if we like it.
-    $return_value = $default_value;
+    $return_value = $default;
 
     if (isset($value)) {
         if (is_array($value)) {
             // $value is an array - validate each element.
             $return_value = [];
             foreach($value as $element) {
-                $return_value[] = _get_value_with_default($element, $default_value);
+                $return_value[] = _get_value_with_default($element, $default);
             }
         }
         else {
-            if (is_numeric($default_value)) {
+            if (is_numeric($default)) {
                 if (is_numeric($value)) {
                     $return_value = $value;
                 }
@@ -593,41 +593,41 @@ function _get_value_with_default($value, $default_value = '', $session_key = '')
 }
 
 /**
- * Retrieve a (scalar or array) value from the $parameters array.
- * Returns $default_value or $_SESSION['parameter_values'][$session_key] if $key is not in $parameters.
+ * Retrieve a (scalar or array) value from the supplied $parameters array.
+ * Returns $default or $_SESSION['parameter_values'][$session_key] if $key is not in $parameters.
  * Note: This function trims string values.
  *
  * @param array $parameters
- * @param string $key
- * @param mixed $default_value
- * @param string $session_key
+ * @param string $key The wanted member of $parameters
+ * @param mixed $default Optional default value to return. Default ''.
+ * @param string $session_key Optional key for retrieving the default value from $_SESSION[]. Default ''
  * @return mixed
  */
-function get_parameter_value(array $parameters, string $key, $default_value = '', string $session_key = '')
+function get_parameter_value(array $parameters, string $key, $default = '', string $session_key = '')
 {
     if ($session_key != '') {
-        if (isset($_SESSION['parameter_values'][$session_key])) $default_value = $_SESSION['parameter_values'][$session_key];
+        if (isset($_SESSION['parameter_values'][$session_key])) $default = $_SESSION['parameter_values'][$session_key];
     }
 
     // set our return value to the default initially and overwrite with $parameters value if we like it.
-    $return_value = $default_value;
+    $return_value = $default;
     if (isset($parameters[$key])) {
-        if (is_bool($default_value)) {
+        if (is_bool($default)) {
             // want a bool return_value
             if (isset($parameters[$key])) $return_value = cms_to_bool((string)$parameters[$key]);
         }
-        elseif (is_numeric($default_value)) {
+        elseif (is_numeric($default)) {
             // default value is a number, we only like $parameters[$key] if it's a number too.
             if (is_numeric($parameters[$key])) $return_value = $parameters[$key] + 0;
         }
-        elseif (is_string($default_value)) {
+        elseif (is_string($default)) {
             $return_value = trim($parameters[$key]);
         }
         elseif (is_array($parameters[$key])) {
             // $parameters[$key] is an array - validate each element.
             $return_value = [];
             foreach ($parameters[$key] as $element) {
-                $return_value[] = _get_value_with_default($element, $default_value);
+                $return_value[] = _get_value_with_default($element, $default);
             }
         }
         else {
@@ -641,7 +641,7 @@ function get_parameter_value(array $parameters, string $key, $default_value = ''
 
 /**
  * Check the permissions of a directory recursively to make sure that
- * we have write permission to all files.
+ * we have write-permission for all files.
  *
  * @param  string  $path Start directory.
  * @return bool
@@ -684,7 +684,7 @@ function is_directory_writable(string $path)
  * @return mixed bool or array
  * Rolf: only used in this file
  */
-function get_matching_files(string $dir,string $extensions = '',bool $excludedot = true,bool $excludedir = true, string $fileprefix='',bool $excludefiles = true)
+function get_matching_files(string $dir,string $extensions = '',bool $excludedot = true,bool $excludedir = true, string $fileprefix = '',bool $excludefiles = true)
 {
     if (!is_dir($dir)) return false;
     $dh = opendir($dir);
@@ -855,7 +855,7 @@ function endswith(string $str, string $sub) : bool
 }
 
 /**
- * Convert a human readable string into something that is suitable for use in URLS.
+ * Get an URL-usable representation of a human-readable string.
  *
  * @param mixed $alias String to convert, or null
  * @param bool   $tolower Indicates whether output string should be converted to lower case
@@ -883,6 +883,83 @@ function munge_string_to_url($alias, bool $tolower = false, bool $withslash = fa
 }
 
 /**
+ * Get an URL query-string corresponding to the supplied value, which is
+ * probably non-scalar.
+ * This allows (among other things) generation of URL content that
+ * replicates parameter arrays like $_POST'd parameter values, for
+ * passing around and re-use without [de]serialization.
+ * It behaves better than PHP http_build_query(), but only interprets 1-D arrays.
+ * @since 2.3
+ *
+ * @param string $key parameter name/key
+ * @param mixed  $val Generally an array, but may be some other non-scalar or a scalar
+ * @param string $sep Optional array-item-separator. Default '$amp;'
+ * @param bool   $encode  Optional flag whether to rawurlenccode the output. Default true.
+ * @return string (No leading $sep for arrays)
+ */
+function cms_build_query(string $key, $val, string $sep = '&amp;', $encode = true) : string
+{
+    $multi = false;
+    $eq = ($encode) ? '~~~' : '=';
+    $sp = ($encode) ? '___' : $sep;
+    if (is_array($val)) {
+        $out = '';
+        $first = true;
+        foreach ($val as $k => $v) {
+            if ($first) {
+                $out .= $key.'['.$k.']'.$eq;
+                $first = false;
+            } else {
+                $out .= $sp.$key.'['.$k.']'.$eq;
+                $multi = true;
+            }
+            if (!is_scalar($v)) {
+                try {
+                    $v = json_encode($v);
+                } catch (Throwable $t) {
+                    $v = 'UNKNOWNOBJECT';
+                }
+            }
+            $out .= $v;
+        }
+    } elseif (!is_scalar($val)) {
+        try {
+            $val = json_encode($val);
+        } catch (Throwable $t) {
+            $val = 'UNKNOWNOBJECT';
+        }
+        $out = $key.$eq.$val;
+    } else { //just in case, also handle scalars
+        $out = $key.$eq.$val;
+    }
+
+    if ($encode) {
+        $out = str_replace($eq, '=', rawurlencode($out));
+        if ($multi) {
+            $out = str_replace($sp, $sep, $out);
+        }
+    }
+    return $out;
+}
+
+/**
+ * Return the secure param query-string used in all admin links.
+ *
+ * @internal
+ * @access private
+ * @return string
+ * Rolf: only used in admin/imagefiles.php
+ */
+function get_secure_param() : string
+{
+    $out = '?';
+    $str = strtolower(ini_get('session.use_cookies'));
+    if ($str == '0' || $str == 'off') $out .= htmlspecialchars(SID).'&';
+    $out .= CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+    return $out;
+}
+
+/**
  * Get $str scrubbed of most non-alphanumeric chars CHECKME allow [_-.] etc ?
  * @param string $str String to clean
  * @return string
@@ -905,7 +982,7 @@ function cleanValue($val) : string
 /*
 // Taken from cakephp (http://cakephp.org)
 // Licensed under the MIT License
-  if ($val == "") return $val;
+  if (!$val) return $val;
   //Replace odd spaces with safe ones
   $val = str_replace(" ", " ", $val);
   $val = str_replace(chr(0xCA), "", $val);
@@ -1066,23 +1143,6 @@ function is_email (string $email, bool $checkDNS=false)
 }
 
 /**
- * Output the secure param tag that is used on all admin links.
- *
- * @internal
- * @access private
- * @return string
- * Rolf: only used in admin/imagefiles.php
- */
-function get_secure_param() : string
-{
-    $urlext = '?';
-    $str = strtolower(ini_get('session.use_cookies'));
-    if ($str == '0' || $str == 'off') $urlext .= htmlspecialchars(SID).'&';
-    $urlext .= CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-    return $urlext;
-}
-
-/**
  * Return a UNIX UTC timestamp corresponding to the supplied (typically
  * database datetime formatted) date/time string.
  * The supplied parameter is not validated, apart from ignoring a falsy value.
@@ -1227,7 +1287,7 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
  * See also the ScriptOperations class, for consolidating scripts into a single
  * download.
  */
-function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
+function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root = '',bool $include_css = true)
 {
     $incs = cms_installed_jquery(true, false, true, $include_css);
     if ($include_css) {
@@ -1285,11 +1345,11 @@ function get_best_file($places, $target, $ext, $as_url)
                 } else {
                     $target = reset($files);
                 }
-                $tmp = $base_path.DIRECTORY_SEPARATOR.$target;
+                $out = $base_path.DIRECTORY_SEPARATOR.$target;
                 if ($as_url) {
-                    return cms_path_to_url($tmp);
+                    return cms_path_to_url($out);
                 }
-                return $tmp;
+                return $out;
             }
         }
     }
@@ -1307,10 +1367,10 @@ function get_best_file($places, $target, $ext, $as_url)
  *  If the name includes a version, that will be taken into account.
  *  Otherwise, the first-found version will be used. Min-format preferred over non-min.
  * @param bool $as_url optional flag, whether to return URL or filepath. Default true.
- * @param xplaces optional array of 'non-standard' directory-paths to include (last) in the search
+ * @param array $extrapaths optional array of 'non-standard' directory-paths to include (last) in the search
  * @return mixed string absolute filepath | URL | null
  */
-function cms_get_script(string $filename, bool $as_url = true, array $xplaces = [])
+function cms_get_script(string $filename, bool $as_url = true, array $xtrapaths = [])
 {
     $target = basename($filename);
     if ($target == $filename) {
@@ -1340,8 +1400,8 @@ function cms_get_script(string $filename, bool $as_url = true, array $xplaces = 
         ];
     }
 
-    if ($xplaces) {
-        $places = array_unique(array_merge($places, $xplaces));
+    if ($xtrapaths) {
+        $places = array_unique(array_merge($places, $xtrapaths));
     }
 
     return get_best_file($places, $target, 'js', $as_url);
@@ -1358,10 +1418,10 @@ function cms_get_script(string $filename, bool $as_url = true, array $xplaces = 
  *  If the name includes a version, that will be taken into account.
  *  Otherwise, the first-found version will be used. Min-format preferred over non-min.
  * @param bool $as_url optional flag, whether to return URL or filepath. Default true.
- * @param xplaces optional array of 'non-standard' directory-paths to include (last) in the search
+ * @param array $extrapaths optional 'non-standard' directory-path(s) to include (last) in the search
  * @return mixed string absolute filepath | URL | null
  */
-function cms_get_css(string $filename, bool $as_url = true, array $xplaces = [])
+function cms_get_css(string $filename, bool $as_url = true, array $xtrapaths = [])
 {
     $target = basename($filename);
     if ($target == $filename) {
@@ -1390,8 +1450,8 @@ function cms_get_css(string $filename, bool $as_url = true, array $xplaces = [])
         ];
     }
 
-    if ($xplaces) {
-        $places = array_unique(array_merge($places, $xplaces));
+    if ($xtrapaths) {
+        $places = array_unique(array_merge($places, $xtrapaths));
     }
 
     return get_best_file($places, $target, 'css', $as_url);
@@ -1447,10 +1507,10 @@ function setup_session(bool $cachable = false)
 }
 
 /**
- * Test if a string is a base64 encoded string
+ * Test if a string is base64-encoded
  *
  * @since 2.2
- * @param string $s The input string
+ * @param string $s The string to check
  * @return bool
  */
 function is_base64(string $s) : bool
@@ -1466,7 +1526,9 @@ function is_base64(string $s) : bool
  */
 function cms_create_guid() : string
 {
-    if (function_exists('com_create_guid')) return trim(com_create_guid(), '{}'); //windows
+    if (function_exists('com_create_guid')) {
+        return trim(com_create_guid(), '{}'); //windows
+    }
     return random_bytes(32);
 }
 
