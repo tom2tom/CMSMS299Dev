@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\ContentOperations;
+use CMSMS\internal\global_cache;
 
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_cachable' ) exit;
@@ -32,21 +32,18 @@ if( !isset($params['bulk_content']) ) {
 
 $pagelist = $params['bulk_content'];
 $cachable = !empty($params['cachable']);
-$hm = cmsms()->GetHierarchyManager();
+$user_id = get_userid();
+$i = 0;
 
-// do the real work
 try {
-    ContentOperations::get_instance()->LoadChildren(-1,FALSE,TRUE,$pagelist);
-    $i = 0;
     foreach( $pagelist as $pid ) {
-        $node = $hm->find_by_tag('id',$pid);
-        if( !$node ) continue;
-        $content = $node->getContent(FALSE,FALSE,TRUE);
+        $content = $this->GetContentEditor($pid);
         if( !is_object($content) ) continue;
+
         $content->SetCachable($cachable);
-        $content->SetLastModifiedBy(get_userid());
+        $content->SetLastModifiedBy($user_id);
         $content->Save();
-        $i++;
+        ++$i;
     }
     audit('','Content','Changed cachable status on '.$i.' pages');
     $this->SetMessage($this->Lang('msg_bulk_successful'));
@@ -54,4 +51,9 @@ try {
 catch( Throwable $t ) {
     $this->SetError($t->getMessage());
 }
+
+global_cache::clear('content_quicklist');
+global_cache::clear('content_tree');
+global_cache::clear('content_flatlist');
+
 $this->Redirect($id,'defaultadmin',$returnid);

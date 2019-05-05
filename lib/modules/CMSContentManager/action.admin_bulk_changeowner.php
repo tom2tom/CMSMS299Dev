@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\ContentOperations;
+use CMSMS\internal\global_cache;
 use CMSMS\UserOperations;
 
 if( !isset($gCms) ) exit;
@@ -48,34 +48,34 @@ if( isset($params['submit']) ) {
     $this->Redirect($id,'defaultadmin',$returnid);
   }
 
-  // do the real work
-  try {
-    ContentOperations::get_instance()->LoadChildren(-1,FALSE,FALSE,$pagelist);
+  $user_id = get_userid();
+  $i = 0;
 
-    $i = 0;
+  try {
     foreach( $pagelist as $pid ) {
-      $node = $hm->find_by_tag('id',$pid);
-      if( !$node ) continue;
-      $content = $node->getContent(FALSE,FALSE,TRUE);
+      $content = $this->GetContentEditor($pid);
       if( !is_object($content) ) continue;
 
       $content->SetOwner((int)$params['owner']);
-      $content->SetLastModifiedBy(get_userid());
+      $content->SetLastModifiedBy($user_id);
       $content->Save();
-      $i++;
+      ++$i;
     }
     if( $i != count($pagelist) ) {
       throw new CmsException('Bulk operation to change ownership did not adjust all selected pages');
     }
-    audit('','Content','Changed owner on '.$i.' pages');
+    audit('','Content','Changed owner of '.$i.' pages');
     $this->SetMessage($this->Lang('msg_bulk_successful'));
-    $this->Redirect($id,'defaultadmin',$returnid);
   }
   catch( Throwable $t ) {
       cms_warning('Changing ownership on multiple pages failed: '.$t->getMessage());
       $this->SetError($t->getMessage());
-      $this->Redirect($id,'defaultadmin',$returnid);
   }
+  global_cache::clear('content_quicklist');
+  global_cache::clear('content_tree');
+  global_cache::clear('content_flatlist');
+
+  $this->Redirect($id,'defaultadmin',$returnid);
 }
 
 $displaydata = [];
