@@ -384,9 +384,9 @@ $apply_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=
 $lock_timeout = cms_siteprefs::get('lock_timeout', 60);
 $do_locking = ($content_id > 0 && $lock_timeout > 0) ? 1:0;
 if ($do_locking) {
-	register_shutdown_function(function($u) {
-		LockOperations::delete_for_nameduser($u);
-	}, $userid);
+    register_shutdown_function(function($u) {
+        LockOperations::delete_for_nameduser($u);
+    }, $user_id);
 }
 $lock_refresh = cms_siteprefs::get('lock_refresh', 120);
 $options_tab_name = ContentBase::TAB_OPTIONS;
@@ -396,7 +396,7 @@ $close = lang('close');
 $sm = new ScriptOperations();
 $sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 if ($do_locking) {
-	$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
+    $sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 }
 $js = $sm->render_inclusion('', false, false);
 if ($js) {
