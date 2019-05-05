@@ -477,12 +477,11 @@ class ContentBase implements Serializable
 	 * @abstract
 	 * @return bool Default false
 	 */
-	public function HasPreview() : bool
+/*	public function HasPreview() : bool
 	{
-$X = $CRASH;
 		return false;
 	}
-
+*/
 	/**
 	 * Return whether this page type uses a template.
 	 * (Used during list-creation, page-editing?)
