@@ -473,7 +473,7 @@ $(function() {
   }
  });
 });
-//]]
+//]]>
 </script>
 EOS;
 $this->AdminBottomContent($js); //NOT for ScriptOperations
