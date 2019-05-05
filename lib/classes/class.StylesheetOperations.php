@@ -74,11 +74,11 @@ class StylesheetOperations
 		$db = CmsApp::get_instance()->GetDb();
 		// double check the name
 		if( $sht->get_id() ) {
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
-			$tmp = $db->GetOne($query,[$sht->get_name(),$sht->get_id()]);
+			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
+			$tmp = $db->GetOne($sql,[$sht->get_name(),$sht->get_id()]);
 		} else {
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
-			$tmp = $db->GetOne($query,[$sht->get_name()]);
+			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+			$tmp = $db->GetOne($sql,[$sht->get_name()]);
 		}
 		if( $tmp ) {
 			throw new CmsInvalidDataException('Stylesheet with the same name already exists.');
@@ -90,7 +90,7 @@ class StylesheetOperations
 	*/
 	protected static function update_stylesheet($sht)
 	{
-		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.'SET
+		$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.'SET
 name = ?,
 description = ?,
 media_type = ?,
@@ -102,7 +102,7 @@ WHERE id = ?';
 		$sid = $sht->get_id();
 		$db = CmsApp::get_instance()->GetDb();
 //		$dbr =
-		$db->Execute($query,[
+		$db->Execute($sql,[
 			$sht->get_name(),
 			$sht->get_description(),
 			$tmp,
@@ -116,13 +116,13 @@ WHERE id = ?';
             file_put_contents($fp,$sht->get_content(),LOCK_EX);
 		}
 		else {
-	        $query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
-	        $db->Execute($query,[$sht->get_content(),$sid]);
+	        $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
+	        $db->Execute($sql,[$sht->get_content(),$sid]);
         }
 /*
 		// get the designs that include the specified stylesheet again.
-		$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WhERE css_id = ?'; DISABLED
-		$design_list = $db->GetCol($query,[$sid]);
+		$sql = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WhERE css_id = ?'; DISABLED
+		$design_list = $db->GetCol($sql,[$sid]);
 		if( !is_array($design_list) ) $design_list = [];
 
 		// cross reference design_list with $dl ... find designs in this object that aren't already known.
@@ -138,27 +138,27 @@ WHERE id = ?';
 
 		if( $del_dl ) {
 			// delete deleted items
-			$query1 = 'SELECT css_order FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ? AND design_id = ?';
-			$query2 = 'UPDATE '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' SET css_order = css_order - 1 WHERE design_id = ? AND css_order > ?';
-			$query3 = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE design_id = ? AND css_id = ?';
+			$sql1 = 'SELECT css_order FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ? AND design_id = ?';
+			$sql2 = 'UPDATE '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' SET css_order = css_order - 1 WHERE design_id = ? AND css_order > ?';
+			$sql3 = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE design_id = ? AND css_id = ?';
 			foreach( $del_dl as $design_id ) {
 				$design_id = (int)$design_id;
-				$css_order = (int)$db->GetOne($query1,[$sid,$design_id]);
-				$dbr = $db->Execute($query2,[$design_id,$css_order]);
+				$css_order = (int)$db->GetOne($sql1,[$sid,$design_id]);
+				$dbr = $db->Execute($sql2,[$design_id,$css_order]);
 				if( !$dbr ) dir($db->sql.' '.$db->ErrorMsg());
-				$dbr = $db->Execute($query3,[$design_id,$sid]);
+				$dbr = $db->Execute($sql3,[$design_id,$sid]);
 				if( !$dbr ) dir($db->sql.' '.$db->ErrorMsg());
 			}
 		}
 
 		if( $new_dl ) {
 			// add new items
-			$query1 = 'SELECT MAX(css_order) FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE design_id = ?';
-			$query2 = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' (css_id,design_id,css_order) VALUES(?,?,?)';
+			$sql1 = 'SELECT MAX(css_order) FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE design_id = ?';
+			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' (css_id,design_id,css_order) VALUES(?,?,?)';
 			foreach( $new_dl as $one ) {
 				$one = (int)$one;
-				$num = (int)$db->GetOne($query1,[$one])+1;
-				$dbr = $db->Execute($query2,[$sid,$one,$num]);
+				$num = (int)$db->GetOne($sql1,[$one])+1;
+				$dbr = $db->Execute($sql2,[$sid,$one,$num]);
 				if( !$dbr ) die($db->sql.' -- '.$db->ErrorMsg());
 			}
 		}
@@ -176,11 +176,11 @@ WHERE id = ?';
 		// insert the record
 		$tmp = '';
 		if( isset($sht->_data['media_type']) ) $tmp = implode(',',$sht->_data['media_type']);
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.'
+		$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.'
 (name,content,description,media_type,media_query,contentfile)
 VALUES (?,?,?,?,?,?)';
 		$db = CmsApp::get_instance()->GetDb();
-		$dbr = $db->Execute($query,	[
+		$dbr = $db->Execute($sql,	[
 			$sht->get_name(),
 			$sht->get_content(), // maybe changed to a filename
 			$sht->get_description(),
@@ -193,8 +193,8 @@ VALUES (?,?,?,?,?,?)';
 
 		if( $sht->get_content_file() ) {
 			$fn = munge_string_to_url($sht->get_name()).'.'.$sid.'.tpl';
-			$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
-			$db->Execute($query,[$fn,$sid]);
+			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
+			$db->Execute($sql,[$fn,$sid]);
 			$tmp = $sht->get_content();
 			$sht->set_content($fn);
 			$fp = $sht->get_content_filename();
@@ -203,9 +203,9 @@ VALUES (?,?,?,?,?,?)';
 /*
 		$t = $sht->get_designs(); DISABLED
 		if( $t ) {
-			$query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' (css_id,design_id) VALUES(?,?)';
+			$sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' (css_id,design_id) VALUES(?,?)';
 			foreach( $t as $one ) {
-				$dbr = $db->Execute($query,[$sid,(int)$one]);
+				$dbr = $db->Execute($sql,[$sid,(int)$one]);
 			}
 		}
 */
@@ -257,11 +257,11 @@ VALUES (?,?,?,?,?,?)';
 
 		Events::SendEvent('Core', 'DeleteStylesheetPre',[get_class($sht)=>&$sht]);
 		$db = CmsApp::get_instance()->GetDb();
-/*		$query = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ?'; DesignManager\Design
-		$dbr = $db->Execute($query,[$sid]); // just in case ...
+/*		$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ?'; DesignManager\Design
+		$dbr = $db->Execute($sql,[$sid]); // just in case ...
 */
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-		$dbr = $db->Execute($query,[$sid]);
+		$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
+		$dbr = $db->Execute($sql,[$sid]);
 
 		@unlink($sht->get_content_filename());
 
@@ -303,12 +303,12 @@ VALUES (?,?,?,?,?,?)';
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		if( is_numeric($a) && (int)$a > 0 ) {
-			$query = 'SELECT id,name,content,description,media_type,media_query,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-			$row = $db->GetRow($query,[(int)$a]);
+			$sql = 'SELECT id,name,content,description,media_type,media_query,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
+			$row = $db->GetRow($sql,[(int)$a]);
 		}
 		elseif( is_string($a) && $a !== '' ) {
-			$query = 'SELECT id,name,content,description,media_type,media_query,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
-			$row = $db->GetRow($query,[$a]);
+			$sql = 'SELECT id,name,content,description,media_type,media_query,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+			$row = $db->GetRow($sql,[$a]);
 		}
 		else {
 			$row = null;
@@ -354,8 +354,8 @@ VALUES (?,?,?,?,?,?)';
 			throw new CmsInvalidDataException('Invalid data passed to '.__CLASS__.'::'.__METHOD__);
 		}
 
-		$query = 'SELECT id,name,content,description,media_type,media_query,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.$where;
-		$dbr = $db->GetArray($query);
+		$sql = 'SELECT id,name,content,description,media_type,media_query,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.$where;
+		$dbr = $db->GetArray($sql);
 		$out = [];
 		if( $dbr ) {
 			$designs_by_css = [];
@@ -415,36 +415,36 @@ VALUES (?,?,?,?,?,?)';
 	public static function get_bulk_sheetsnames($ids = null, $sorted = true) : array
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME;
+		$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		if( !empty($ids) ) {
-			$query .= ' WHERE id IN ('.implode(',',$ids).')';
+			$sql .= ' WHERE id IN ('.implode(',',$ids).')';
 		}
 		if( $sorted ) {
-			$query .= ' ORDER BY name';
+			$sql .= ' ORDER BY name';
 		}
-		return $db->GetArray($query);
+		return $db->GetArray($sql);
 	}
 
    /**
 	* Get all recorded stylesheets
 	*
-	* @param bool $as_list a flag indicating the output format
-	* @return mixed If $as_list is true then the output will be an array of rows
+	* @param bool $by_name Optional flag indicating the output format. Default false.
+	* @return mixed If $by_name is true then the output will be an array of rows
     *  each with stylesheet id and stylesheet name. Otherwise, id and
     *  CmsLayoutStylesheet object
 	*/
-	public static function get_all_stylesheets(bool $as_list = false) : array
+	public static function get_all_stylesheets(bool $by_name = false) : array
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
 		$out = [];
-		if( $as_list ) {
-			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY modified_date DESC';
-			return $db->GetAssoc($query);
+		if( $by_name ) {
+			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY modified_date DESC';
+			return $db->GetAssoc($sql);
 		}
 		else {
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY modified_date DESC';
-			$ids = $db->GetCol($query);
+			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY modified_date DESC';
+			$ids = $db->GetCol($sql);
 			return self::get_bulk_stylesheets($ids,false);
 		}
 	}
@@ -458,16 +458,16 @@ VALUES (?,?,?,?,?,?)';
 	public static function get_groups_summary($ids = null, $sorted = true)
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$query = 'SELECT G.id,G.name,GROUP_CONCAT(M.css_id ORDER BY M.item_order) AS members FROM '.
+		$sql = 'SELECT G.id,G.name,GROUP_CONCAT(M.css_id ORDER BY M.item_order) AS members FROM '.
         CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' G LEFT JOIN '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' M ON G.id = M.group_id';
 		if( !empty($ids) ) {
-			$query .= ' WHERE G.id IN ('.implode(',',$ids).')';
+			$sql .= ' WHERE G.id IN ('.implode(',',$ids).')';
 		}
-		$query .= ' GROUP BY M.group_id';
+		$sql .= ' GROUP BY M.group_id';
 		if( $sorted ) {
-			$query .= ' ORDER BY G.name';
+			$sql .= ' ORDER BY G.name';
 		}
-		return $db->GetArray($query);
+		return $db->GetArray($sql);
 	}
 
    /**
@@ -506,24 +506,24 @@ VALUES (?,?,?,?,?,?)';
    /**
 	* Return a set of groups or group-names sourced from the database
 	*
-	* @param string $prefix An optional group-name prefix to be matched. Default ''.
-	* @param bool   $as_list Whether to return group names. Default false
+	* @param string $prefix Optional group-name prefix to be matched. Default ''.
+	* @param bool   $by_name Optional flag whether to return group names. Default false.
 	* @return array of StylesheetsGroup objects or name strings
 	*/
-	public static function get_bulk_groups($prefix = '', bool $as_list = false)
+	public static function get_bulk_groups($prefix = '', bool $by_name = false)
 	{
 		$out = [];
 		$db = CmsApp::get_instance()->GetDb();
 		if( $prefix ) {
-			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE name LIKE ? ORDER BY name';
-			$res = $db->GetAssoc($query,[$prefix.'%']);
+			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE name LIKE ? ORDER BY name';
+			$res = $db->GetAssoc($sql,[$prefix.'%']);
 		}
 		else {
-			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' ORDER BY name';
-			$res = $db->GetAssoc($query);
+			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' ORDER BY name';
+			$res = $db->GetAssoc($sql);
 		}
 		if( $res ) {
-			if( $as_list ) {
+			if( $by_name ) {
 				$out = $res;
 			}
 			else {
@@ -542,10 +542,35 @@ VALUES (?,?,?,?,?,?)';
 	}
 
    /**
+	* Get the specified stylesheet group
+	*
+	* @param mixed $a group identifier, (int|numeric string) id or (other string) name
+	* @return mixed StylesheetsGroup object | null
+	*/
+	public static function get_group($a)
+	{
+		$db = CmsApp::get_instance()->GetDb();
+		if( is_numeric($a) && (int)$a > 0 ) {
+			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id=?';
+			$res = $db->GetOne($sql,[(int)$a]);
+		}
+		elseif( is_string($a) && $a !== '' ) {
+			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE name=?';
+			$res = $db->GetOne($sql,[$a]);
+		}
+		else {
+			$res = false;
+		}
+		if( $res) {
+			return StylesheetsGroup::load($res);
+		}
+	}
+
+   /**
 	* Get a unique name for a stylesheet
 	*
 	* @param string $prototype A prototype stylesheet name
-	* @param string $prefix An optional name prefix
+	* @param string $prefix An optional name prefix. Default ''.
 	* @return string
 	* @throws CmsInvalidDataException
 	* @throws CmsLogicException
@@ -555,8 +580,8 @@ VALUES (?,?,?,?,?,?)';
 		if( !$prototype ) throw new CmsInvalidDataException('Prototype name cannot be empty');
 
 		$db = CmsApp::get_instance()->GetDb();
-		$query = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE %?%';
-		$all = $db->GetCol($query,[ $prototype ]);
+		$sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE %?%';
+		$all = $db->GetCol($sql,[ $prototype ]);
 		if( $all ) {
 			$name = $prototype;
 			$i = 0;
