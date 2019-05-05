@@ -30,13 +30,13 @@ else {
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
-if( strcasecmp($module,'core') != 0 ) {
+// CMSModule::Redirect() doesn't properly handle non-scalar values ATM
+if( strcasecmp($module,'core') != 0 ) { // i.e. self
     $modobj = cms_utils::get_module($module);
     if( is_object($modobj) ) {
-		$a = implode('&bulk_content[]=',$params['bulk_content']);
         $s = implode(',',$params['bulk_content']);
 		$url = $modobj->create_url($id,$bulkaction,$returnid,
-		['bulk_content[]' => $a,
+		['bulk_content' => $params['bulk_content'],
 		 'contentlist' => $s]); //deprecated since 2.3
 		$url = str_replace('&amp;','&',$url);
 		redirect($url);
@@ -45,37 +45,42 @@ if( strcasecmp($module,'core') != 0 ) {
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
-$a = implode('&bulk_content[]=',$params['bulk_content']);
-$parms = ['bulk_content[]'=>$a]; // generates array-like get-URL
+$parms = ['bulk_content'=>$params['bulk_content']];
 switch( $bulkaction ) {
  case 'inactive':
    $parms['active'] = 0;
-   $this->Redirect($id,'admin_bulk_active',$returnid,$parms);
+   $url = $this->create_url($id,'admin_bulk_active',$returnid,$parms,false,false,'',2);
+   redirect($url);
    break;
 
  case 'active':
    $parms['active'] = 1;
-   $this->Redirect($id,'admin_bulk_active',$returnid,$parms);
+   $url = $this->create_url($id,'admin_bulk_active',$returnid,$parms,false,false,'',2);
+   redirect($url);
    break;
 
  case 'setcachable':
    $parms['cachable'] = 1;
-   $this->Redirect($id,'admin_bulk_cachable',$returnid,$parms);
+   $url = $this->create_url($id,'admin_bulk_cachable',$returnid,$parms,false,false,'',2);
+   redirect($url);
    break;
 
  case 'setnoncachable':
    $parms['cachable'] = 0;
-   $this->Redirect($id,'admin_bulk_cachable',$returnid,$parms);
+   $url = $this->create_url($id,'admin_bulk_cachable',$returnid,$parms,false,false,'',2);
+   redirect($url);
    break;
 
  case 'showinmenu':
    $parms['showinmenu'] = 1;
-   $this->Redirect($id,'admin_bulk_showinmenu',$returnid,$parms);
+   $url = $this->create_url($id,'admin_bulk_showinmenu',$returnid,$parms,false,false,'',2);
+   redirect($url);
    break;
 
  case 'hidefrommenu':
    $parms['showinmenu'] = 0;
-   $this->Redirect($id,'admin_bulk_showinmenu',$returnid,$parms);
+   $url = $this->create_url($id,'admin_bulk_showinmenu',$returnid,$parms,false,false,'',2);
+   redirect($url);
    break;
 
 // case 'setdesign':
@@ -83,7 +88,8 @@ switch( $bulkaction ) {
  case 'setstyles':
  case 'changeowner':
  case 'delete':
-   $this->Redirect($id,'admin_bulk_'.$bulkaction,$returnid,$parms);
+   $url = $this->create_url($id,'admin_bulk_'.$bulkaction,$returnid,$parms,false,false,'',2);
+   redirect($url);
    break;
 
 }
