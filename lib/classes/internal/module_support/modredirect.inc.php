@@ -17,10 +17,10 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Methods for modules to do redirection related functions
+ * Methods for modules to do redirection
  *
- * @since		1.0
- * @package		CMS
+ * @since   1.0
+ * @package CMS
  * @license GPL
  */
 
@@ -29,15 +29,14 @@
  */
 function cms_module_RedirectToAdmin(&$modinstance, $page, $params=[])
 {
-    $urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-    $url = $page.$urlext;
+    $url = $page.get_secure_param();
     if ($params) {
         foreach ($params as $key=>$value) {
-			if (is_scalar($value)) {
-	            $url .= '&'.$key.'='.rawurlencode($value);
-			} else {
-				$url .= '&'.$key.'='.http_build_query($value, '', '&', PHP_QUERY_RFC3986);
-			}
+            if (is_scalar($value)) {
+                $url .= '&'.$key.'='.rawurlencode($value);
+            } else {
+                $url .= '&'.cms_build_query($key, $value, '&');
+            }
         }
     }
     redirect($url);
@@ -85,7 +84,7 @@ function cms_module_Redirect(&$modinstance, $id, $action, $returnid='', $params=
         $text .= 'moduleinterface.php?';
     }
 
-    $text .= 'mact='.$name.','.$id.','.$action.','.($inline == true?1:0);
+    $text .= 'mact='.$name.','.$id.','.$action.','.($inline ? 1 : 0);
     if ($returnid != '') {
         $text .= '&'.$id.'returnid='.$returnid;
     }
@@ -94,12 +93,12 @@ function cms_module_Redirect(&$modinstance, $id, $action, $returnid='', $params=
     }
 
     foreach ($params as $key=>$value) {
-        if ($key !== '' && $value !== '') {
-			if (is_scalar($value)) {
-	            $text .= '&'.$id.$key.'='.rawurlencode($value);
-			} else {
-				$text .= '&'.$id.$key.'='.http_build_query($value, '', '&', PHP_QUERY_RFC3986);
-			}
+        if ($key && $value !== '') {
+            if (is_scalar($value)) {
+                $text .= '&'.$id.$key.'='.rawurlencode($value);
+            } else {
+                $text .= '&'.cms_build_query($id.$key, $value, '&');
+            }
         }
     }
     redirect($text);

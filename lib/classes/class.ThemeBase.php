@@ -685,7 +685,7 @@ abstract class ThemeBase
 			if (is_scalar($value)) {
 				$text .= rawurlencode($key).'='.rawurlencode($value);
 			} else {
-				$text .= rawurlencode($key).'='.http_build_query($value, '', '&amp;', PHP_QUERY_RFC3986);
+				$text .= cms_build_query($key, $value);
 			}
         }
         return [$text, $urlparms];

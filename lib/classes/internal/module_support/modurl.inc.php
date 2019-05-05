@@ -40,7 +40,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  * @param mixed $returnid Optional page-id to return to after the action
  *   is done, numeric(int) or ''|null for admin. Default null.
  * @param array $params	Optional parameters to include in the URL. Default []
- *   These will be ignored if the prettyurl parameter is present
+ *   These will be ignored if the prettyurl parameter is present.
+ *   Since 2.3, parameter value(s) may be non-scalar: 1-D arrays processed directly,
+ *   other things json-encoded if possible.
  * @param string $prettyurl URL segment(s) relative to the root-URL of the
  *   action, to generate a pretty-formatted URL
  * @param bool	$inline	Optional flag whether the target of the output link
@@ -149,19 +151,29 @@ function cms_module_create_actionurl(
 				break;
 		}
 
-		$count = 0;
+		$first = true;
 		foreach ($parms as $key => $value) {
-			if ($enc) {
+			if (is_scalar($value)) {
+				if ($enc) {
+					$key = rawurlencode($key);
+				}
 				if ($format != 0 || $key != 'mact') {
 					$value = rawurlencode($value);
 				}
-				$key = rawurlencode($key);
-			}
-			if ($count == 0) {
-				$text .= '?'.$key.'='.$value;
-				++$count;
+				if ($first) {
+					$text .= '?'.$key.'='.$value;
+					$first = false;
+				} else {
+					$text .= $sep.$key.'='.$value;
+				}
 			} else {
-				$text .= $sep.$key.'='.$value;
+				if ($first) {
+					$text .= '?';
+					$first = false;
+				} else {
+					$text .= $sep;
+				}
+				$text .= cms_build_query($key, $value, $sep, $enc);
 			}
 		}
 	}
@@ -182,6 +194,8 @@ function cms_module_create_actionurl(
  * @param mixed $returnid The integer page-id to return to after the action
  *   is done, or ''|null for admin
  * @param array $params	  Optional array of parameters to include in the URL.
+ *   Since 2.3, parameter value(s) may be non-scalar: 1-D arrays processed directly,
+ *   other things json-encoded if possible.
  * @param int   $format since 2.3 Optional indicator for how to format the url
  *  0 = default: rawurlencoded parameter keys and values, '&amp;' for parameter separators
  *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
@@ -215,7 +229,7 @@ function cms_module_create_pageurl($id, $returnid, array $params = [], int $form
 				}
 
 				$text = $pageurl;
-				$count = 0;
+				$first = true;
 
 				if ($id) {
 					$id = trim($id);  //sanitize not needed, breaks back-compatibility
@@ -227,25 +241,30 @@ function cms_module_create_pageurl($id, $returnid, array $params = [], int $form
 					$id = 'm1_';
 				}
 
+				//TODO use http_build_query($params)
 				foreach ($params as $key => $value) {
-					if ($count == 0) {
+					if ($first) {
 						$config = $gCms->GetConfig();
 						if ($config['url_rewriting'] != 'none') {
 							$text .= '?';
 						} else {
 							$text .= $sep;
 						}
-						++$count;
+						$first = false;
 					} else {
 						$text .= $sep;
 					}
 
 					$key = $id.$key;
-					if ($enc) {
-						$key = rawurlencode($key);
-						$value = rawurlencode($value);
+					if (is_scalar($value)) {
+						if ($enc) {
+							$key = rawurlencode($key);
+							$value = rawurlencode($value);
+						}
+						$text .= $key.'='.$value;
+					} else {
+						$text .= cms_build_query($key, $value, $sep, $enc);
 					}
-					$text .= $key.'='.$value;
 				}
 				if ($format == 2) {
 					$text = cms_htmlentities($text);
