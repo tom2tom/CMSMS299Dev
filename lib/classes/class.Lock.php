@@ -117,7 +117,7 @@ final class Lock implements ArrayAccess
         $this->_data['uid'] = get_userid(FALSE);
         if( $lifetime == null ) $lifetime = cms_siteprefs::get('lock_timeout',60);
         $t = max(1,(int)$lifetime);
-        $this->_data['lifetime'] = $t;
+        $this->_data['lifetime'] = $t; // deprecated since 2.3
         $this->_data['expires'] = $t * 60 + time();
         $this->_dirty = TRUE;
     }
@@ -132,12 +132,12 @@ final class Lock implements ArrayAccess
         case 'oid':
         case 'uid':
             return $this->_data[$key];
-        case 'created':
+        case 'created':  // deprecated since 2.3
             return cms_to_stamp($this->_data['create_date']);
         case 'id':
-        case 'create_date':
-        case 'modified_date':
-        case 'lifetime':
+        case 'create_date': // deprecated since 2.3
+        case 'modified_date': // deprecated since 2.3
+        case 'lifetime': // deprecated since 2.3
         case 'expires':
             if( isset($this->_data[$key]) ) return $this->_data[$key];
             throw new CmsLogicException('CMSEX_L004');
@@ -150,11 +150,11 @@ final class Lock implements ArrayAccess
     public function OffsetSet($key,$value)
     {
         switch( $key ) {
-        case 'modified_date':
+        case 'modified_date': // deprecated since 2.3
             $this->_data[$key] = trim($value);
             $this->_dirty = TRUE;
             break;
-        case 'lifetime':
+        case 'lifetime': // deprecated since 2.3
             $this->_data[$key] = max(1,(int)$value);
             $this->_dirty = TRUE;
             break;
@@ -171,7 +171,7 @@ final class Lock implements ArrayAccess
             break;
         case 'type':
         case 'oid':
-        case 'create_date':
+        case 'create_date': // deprecated since 2.3
             // or this one
             if( isset($this->_data['id']) ) throw new CmsInvalidDataException('CMSEX_G001');
             $this->_data[$key] = trim($value);
@@ -207,8 +207,7 @@ final class Lock implements ArrayAccess
     public function expired()
     {
         if( !isset($this->_data['expires']) ) return FALSE;
-        if( $this->_data['expires'] < time() ) return TRUE;
-        return FALSE;
+        return $this->_data['expires'] < time();
     }
 
     /**
@@ -295,16 +294,16 @@ WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
     }
 
     /**
-     * Create a lock object given it's id, type, and object id
+     * Load a lock object matching the supplied parameters.
      *
      * @param int $lock_id
      * @param string $type  The lock type (type of object being locked)
-     * @param int $oid  The object id
-     * @param int $uid  An optional user identifier.
+     * @param int $oid  The numeric id of the locked object
+     * @param int $uid  Optional lock-holder identifier
      * @return Lock
      * @throws CmsNoLockException
      */
-    public static function load_by_id($lock_id,$type,$oid,$uid = NULL)
+    public static function load_by_id($lock_id,$type,$oid,$uid = null)
     {
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id = ? AND type = ? AND oid = ?';
         $db = CmsApp::get_instance()->GetDb();
@@ -319,11 +318,11 @@ WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
     }
 
     /**
-     * Load a lock based on type and object id.
+     * Load a lock object matching the supplied parameters.
      *
      * @param string $type  The lock type (type of object being locked)
-     * @param int $oid  The object id
-     * @param int $uid  An optional user identifier.
+     * @param int $oid  The numeric id of the locked object
+     * @param int $uid  Optional lock-holder identifier
      * @return Lock
      * @throws CmsNoLockException
      */
