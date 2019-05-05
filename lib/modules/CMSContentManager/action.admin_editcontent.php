@@ -17,7 +17,6 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSContentManager\ContentBase;
-use CMSContentManager\ContentEditor;
 use CMSContentManager\Utils;
 use CMSMS\AdminUtils;
 use CMSMS\CmsLockException;
@@ -35,30 +34,13 @@ if( isset($params['cancel']) ) {
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
-function get_editor_object($content)
-{
-    $cp = get_class($content);
-    if( startswith($cp, 'CMSMS\\contenttypes\\') ) {
-        $db = cmsms()->GetDb();
-        $params = $db->GetRow('SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id=?',[$content->id]);
-        $parts = explode('\\',$cp);
-        $classname = 'CMSContentManager\\contenttypes\\'.end($parts);
-        $editor = new $classname($params);
-    }
-    else {
-        throw new Exception('Cannot process page-content class '.$cp);
-    }
-    return $editor;
-}
-
 $user_id = get_userid();
+$content_id = isset($params['content_id']) ? (int)$params['content_id'] : 0;
 
 //
 // init
 //
 try {
-    $content_id = intval($params['content_id'] ?? 0);
-
     if( $content_id < 1 ) {
         // adding.
         if( !$this->CheckPermission('Add Pages') ) {
@@ -95,57 +77,59 @@ try {
     }
     elseif( $content_id < 1 ) {
         // we're creating a new content object
-        if( isset($params['parent_id']) ) $parent_id = (int) $params['parent_id'];
         if( isset($params['content_type']) ) {
             $content_type = trim($params['content_type']);
         }
         else {
             $content_type = $pagedefaults['contenttype'];
         }
-        $content_obj = $contentops->CreateNewContent($content_type);
-        if( !($content_obj instanceof ContentEditor) ) {
-            // convert to long-form content object
-            $content_obj = get_editor_object($content_obj);
+
+        $parent_id = ( isset($params['parent_id']) ) ? (int)$params['parent_id'] : 0;
+        if( $parent_id < 1 ) {
+            $dflt_parent = (int) cms_userprefs::get('default_parent');
+            if( $dflt_parent < 1 ) $dflt_parent = -1;
+            if( !($this->CheckPermission('Modify Any Page') || $this->CheckPermission('Manage All Content')) ) {
+                // we get the list of pages that this user has access to.
+                // if he is not an editor of the default page, then we use the first page the user has access to, or -1
+                $list = $contentops->GetPageAccessForUser($user_id);
+                if( count($list) && !in_array($dflt_parent,$list) ) $dflt_parent = $list[0];
+            }
+            // double check if this parent is valid... if it is not, we use -1
+            if( $dflt_parent > 0 ) {
+                $hm = CmsApp::get_instance()->GetHierarchyManager();
+                $node = $hm->quickfind_node_by_id( $dflt_parent );
+                if( !$node ) $dflt_parent = -1;
+            }
+            $parent_id = $dflt_parent;
         }
-        $content_obj->SetOwner($user_id);
-        $content_obj->SetLastModifiedBy($user_id);
-        $content_obj->SetActive($pagedefaults['active']);
-        $content_obj->SetCachable($pagedefaults['cachable']);
-        $content_obj->SetShowInMenu($pagedefaults['showinmenu']);
-//        $content_obj->SetPropertyValue('design_id',$pagedefaults['design_id']);
-        $content_obj->SetTemplateId($pagedefaults['template_id']);
-        $content_obj->SetStyles($pagedefaults['styles']);
+
+        $params = [
+        'parent_id' => $parent_id,
+        'owner_id' => $user_id,
+        'last_modified_by' => $user_id,
+        'show_in_menu' => $pagedefaults['showinmenu'],
+        'active' => $pagedefaults['active'],
+        'cachable' => $pagedefaults['cachable'],
+        'template_id' => $pagedefaults['template_id'],
+        'metadata' => $pagedefaults['metadata'],
+        'styles' => $pagedefaults['styles'],
+        ];
+
+        $content_obj = $contentops->CreateNewContent($content_type,$params,true);
+        if( !$content_obj ) {
+            throw new Exception('Failed to create content object - type ',$content_type);
+        }
+
         $content_obj->SetPropertyValue('searchable',$pagedefaults['searchable']);
         $content_obj->SetPropertyValue('content_en',$pagedefaults['content']);
-        $content_obj->SetMetaData($pagedefaults['metadata']);
         $content_obj->SetPropertyValue('extra1',$pagedefaults['extra1']);
         $content_obj->SetPropertyValue('extra2',$pagedefaults['extra2']);
         $content_obj->SetPropertyValue('extra3',$pagedefaults['extra3']);
         $content_obj->SetAdditionalEditors($pagedefaults['addteditors']);
-        $dflt_parent = (int) cms_userprefs::get('default_parent');
-        if( $dflt_parent < 1 ) $dflt_parent = -1;
-        if( !($this->CheckPermission('Modify Any Page') || $this->CheckPermission('Manage All Content')) ) {
-            // we get the list of pages that this user has access to.
-            // if he is not an editor of the default page, then we use the first page the user has access to, or -1
-            $list = $contentops->GetPageAccessForUser($user_id);
-            if( count($list) && !in_array($dflt_parent,$list) ) $dflt_parent = $list[0];
-        }
-        // double check if this parent is valid... if it is not, we use -1
-        if( $dflt_parent > 0 ) {
-            $hm = CmsApp::get_instance()->GetHierarchyManager();
-            $node = $hm->quickfind_node_by_id( $dflt_parent );
-            if( !$node ) $dflt_parent = -1;
-        }
-        if( $parent_id < 1 ) $parent_id = $dflt_parent;
-        $content_obj->SetParentId($parent_id);
     }
     else {
         // we're editing an existing content object
-        $content_obj = $contentops->LoadContentFromId($content_id);
-        if( !($content_obj instanceof ContentEditor) ) {
-            // convert to long-form of content object
-            $content_obj = get_editor_object($content_obj);
-        }
+        $content_obj = $this->GetContentEditor($content_id);
         if( isset($params['content_type']) ) {
             // maybe the user wants to change type ...
             $content_type = trim($params['content_type']);
@@ -376,6 +360,16 @@ if( $this->GetPreference('template_list_mode','designpage') != 'all')  {
 else {
     $designchanged_ajax_url = '';
 }
+
+$tpl->assign('content_id',$content_id)
+ ->assign('content_obj',$content_obj)
+ ->assign('tab_names',$tab_names)
+ ->assign('active_tab',trim($active_tab))
+ ->assign('tab_contents_array',$tab_contents_array)
+ ->assign('tab_message_array',$tab_message_array);
+/*$factory = new ContentAssistantFactory($content_obj);
+  $assistant = $factory->getEditContentAssistant(); */
+/* if( is_object($assistant) ) $tpl->assign('extra_content',$assistant->getExtraCode()); */
 
 $parms = [];
 if( $content_id > 0 ) $parms['content_id'] = $content_id;
@@ -617,15 +611,5 @@ EOS;
 
 EOS;
 $this->AdminBottomContent($js);
-
-$tpl->assign('content_id',$content_id)
- ->assign('content_obj',$content_obj)
- ->assign('tab_names',$tab_names)
- ->assign('active_tab',trim($active_tab))
- ->assign('tab_contents_array',$tab_contents_array)
- ->assign('tab_message_array',$tab_message_array);
-/*$factory = new ContentAssistantFactory($content_obj);
-  $assistant = $factory->getEditContentAssistant(); */
-/* if( is_object($assistant) ) $tpl->assign('extra_content',$assistant->getExtraCode()); */
 
 $tpl->display();
