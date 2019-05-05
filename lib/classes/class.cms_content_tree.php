@@ -261,7 +261,7 @@ class cms_content_tree extends cms_tree
 	 * @param bool $deep load all child properties for the content object if loading is required. Default false
 	 * @param bool $loadsiblings load all the siblings for the selected content object at the same time (a performance optimization) Default true
 	 * @param bool $loadall If loading siblings, include inactive/disabled pages. Default false.
-	 * @return cms_tree
+	 * @return mixed CMSMS\ContentBase-derived object | null
 	 */
 	public function getContent($deep = false,$loadsiblings = true,$loadall = false)
 	{
