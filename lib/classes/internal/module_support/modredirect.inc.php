@@ -29,11 +29,15 @@
  */
 function cms_module_RedirectToAdmin(&$modinstance, $page, $params=[])
 {
-    $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+    $urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
     $url = $page.$urlext;
     if ($params) {
         foreach ($params as $key=>$value) {
-            $url .= '&'.$key.'='.rawurlencode($value);
+			if (is_scalar($value)) {
+	            $url .= '&'.$key.'='.rawurlencode($value);
+			} else {
+				$url .= '&'.$key.'='.http_build_query($value, '', '&', PHP_QUERY_RFC3986);
+			}
         }
     }
     redirect($url);
@@ -91,7 +95,11 @@ function cms_module_Redirect(&$modinstance, $id, $action, $returnid='', $params=
 
     foreach ($params as $key=>$value) {
         if ($key !== '' && $value !== '') {
-            $text .= '&'.$id.$key.'='.rawurlencode($value);
+			if (is_scalar($value)) {
+	            $text .= '&'.$id.$key.'='.rawurlencode($value);
+			} else {
+				$text .= '&'.$id.$key.'='.http_build_query($value, '', '&', PHP_QUERY_RFC3986);
+			}
         }
     }
     redirect($text);

@@ -682,7 +682,11 @@ abstract class ThemeBase
                 $value = $_SESSION[CMS_USER_KEY];
                 $urlparms[$key] = $value;
             }
-            $text .= rawurlencode($key).'='.rawurlencode($value);
+			if (is_scalar($value)) {
+				$text .= rawurlencode($key).'='.rawurlencode($value);
+			} else {
+				$text .= rawurlencode($key).'='.http_build_query($value, '', '&amp;', PHP_QUERY_RFC3986);
+			}
         }
         return [$text, $urlparms];
     }
