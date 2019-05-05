@@ -2024,6 +2024,7 @@ abstract class CMSModule
      * @param mixed  $returnid Optional page id (int|''|null) to return to. Default null (i.e. admin)
      * @param array  $params Optional parameters for the URL. Default []. These
      * will be ignored if the prettyurl argument is specified.
+	 * Since 2.3 array value(s) may be non-scalar.
      * @param bool   $inline Option flag whether the target of the output link
      *  is the same tag on the same page. Default false.
      * @param bool   $targetcontentonly Optional flag whether the target of the
@@ -2056,6 +2057,7 @@ abstract class CMSModule
      * Optional parameters:
      * @param mixed  $returnid Return-page identifier (int|''|null). Default null (i.e. admin)
      * @param array  $params Parameters for the action. Default []
+	 *  Since 2.3 array value(s) may be non-scalar.
      * @param int    $format URL-format indicator
      *  0 = default: rawurlencoded parameter keys and values, '&amp;' for parameter separators
      *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
