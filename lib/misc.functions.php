@@ -139,7 +139,9 @@ function redirect_to_alias(string $alias)
         return;
     }
     $url = $contentobj->GetURL();
-    if ( $url ) redirect($url);
+    if ( $url ) {
+        redirect($url);
+    }
 }
 
 /**
@@ -1367,10 +1369,10 @@ function get_best_file($places, $target, $ext, $as_url)
  *  If the name includes a version, that will be taken into account.
  *  Otherwise, the first-found version will be used. Min-format preferred over non-min.
  * @param bool $as_url optional flag, whether to return URL or filepath. Default true.
- * @param array $extrapaths optional array of 'non-standard' directory-paths to include (last) in the search
+ * @param mixed $custompaths string | string[] optional 'non-standard' directory-path(s) to include (first) in the search
  * @return mixed string absolute filepath | URL | null
  */
-function cms_get_script(string $filename, bool $as_url = true, array $xtrapaths = [])
+function cms_get_script(string $filename, bool $as_url = true, $custompaths = '')
 {
     $target = basename($filename);
     if ($target == $filename) {
@@ -1400,8 +1402,13 @@ function cms_get_script(string $filename, bool $as_url = true, array $xtrapaths 
         ];
     }
 
-    if ($xtrapaths) {
-        $places = array_unique(array_merge($places, $xtrapaths));
+    if ($custompaths) {
+        if (is_array($custompaths)) {
+            $places = array_merge($custompaths, $places);
+        } else {
+            array_unshift($places, $custompaths);
+        }
+        $places = array_unique($places);
     }
 
     return get_best_file($places, $target, 'js', $as_url);
@@ -1418,10 +1425,10 @@ function cms_get_script(string $filename, bool $as_url = true, array $xtrapaths 
  *  If the name includes a version, that will be taken into account.
  *  Otherwise, the first-found version will be used. Min-format preferred over non-min.
  * @param bool $as_url optional flag, whether to return URL or filepath. Default true.
- * @param array $extrapaths optional 'non-standard' directory-path(s) to include (last) in the search
+ * @param mixed $custompaths string | string[] optional 'non-standard' directory-path(s) to include (first) in the search
  * @return mixed string absolute filepath | URL | null
  */
-function cms_get_css(string $filename, bool $as_url = true, array $xtrapaths = [])
+function cms_get_css(string $filename, bool $as_url = true, array $custompaths = '')
 {
     $target = basename($filename);
     if ($target == $filename) {
@@ -1450,8 +1457,13 @@ function cms_get_css(string $filename, bool $as_url = true, array $xtrapaths = [
         ];
     }
 
-    if ($xtrapaths) {
-        $places = array_unique(array_merge($places, $xtrapaths));
+    if ($custompaths) {
+        if (is_array($custompaths)) {
+            $places = array_merge($custompaths, $places);
+        } else {
+            array_unshift($places, $custompaths);
+        }
+        $places = array_unique($places);
     }
 
     return get_best_file($places, $target, 'css', $as_url);
