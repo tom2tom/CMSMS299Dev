@@ -21,7 +21,7 @@ namespace CMSContentManager;
 use function startswith;
 
 /**
- * Class of static methods for dealing with bulk content operations.
+ * Singleton class of static methods for dealing with bulk content operations.
  *
  * @package CMS
  * @author Robert Campbell
@@ -29,7 +29,7 @@ use function startswith;
  * @since 2.3 as CMSContentManager module class
  * @license GPL
  **/
-final class bulkcontentoperations
+final class BulkOperations
 {
 	private static $_list = [];
 

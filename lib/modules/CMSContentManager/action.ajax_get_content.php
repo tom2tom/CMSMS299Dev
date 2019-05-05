@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSContentManager\bulkcontentoperations;
+use CMSContentManager\BulkOperations;
 use CMSContentManager\ContentListBuilder;
 use CMSContentManager\Utils;
 use CMSMS\FormUtils;
@@ -194,22 +194,22 @@ try {
     }
 
     if( $pmanage ) {
-        bulkcontentoperations::register_function($this->Lang('bulk_active'),'active');
-        bulkcontentoperations::register_function($this->Lang('bulk_inactive'),'inactive');
-        bulkcontentoperations::register_function($this->Lang('bulk_showinmenu'),'showinmenu');
-        bulkcontentoperations::register_function($this->Lang('bulk_hidefrommenu'),'hidefrommenu');
-        bulkcontentoperations::register_function($this->Lang('bulk_cachable'),'setcachable');
-        bulkcontentoperations::register_function($this->Lang('bulk_noncachable'),'setnoncachable');
-        bulkcontentoperations::register_function($this->Lang('bulk_changeowner'),'changeowner');
-        bulkcontentoperations::register_function($this->Lang('bulk_setstyles'),'setstyles');
-        bulkcontentoperations::register_function($this->Lang('bulk_settemplate'),'settemplate');
+        BulkOperations::register_function($this->Lang('bulk_active'),'active');
+        BulkOperations::register_function($this->Lang('bulk_inactive'),'inactive');
+        BulkOperations::register_function($this->Lang('bulk_showinmenu'),'showinmenu');
+        BulkOperations::register_function($this->Lang('bulk_hidefrommenu'),'hidefrommenu');
+        BulkOperations::register_function($this->Lang('bulk_cachable'),'setcachable');
+        BulkOperations::register_function($this->Lang('bulk_noncachable'),'setnoncachable');
+        BulkOperations::register_function($this->Lang('bulk_changeowner'),'changeowner');
+        BulkOperations::register_function($this->Lang('bulk_setstyles'),'setstyles');
+        BulkOperations::register_function($this->Lang('bulk_settemplate'),'settemplate');
     }
 
     if( $pmanage || ($this->CheckPermission('Remove Pages') && $this->CheckPermission('Modify Any Page')) ) {
-        bulkcontentoperations::register_function($this->Lang('bulk_delete'),'delete');
+        BulkOperations::register_function($this->Lang('bulk_delete'),'delete');
     }
 
-    $bulks = bulkcontentoperations::get_operation_list();
+    $bulks = BulkOperations::get_operation_list();
     if( $bulks ) {
         $tpl->assign('bulk_options',$bulks);
     }

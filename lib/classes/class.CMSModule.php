@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSContentManager\bulkcontentoperations;
+use CMSContentManager\BulkOperations;
 use CMSMS\AdminTabs;
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\Events;
@@ -1056,7 +1056,7 @@ abstract class CMSModule
     final public function RegisterBulkContentFunction(string $label, string $action)
     {
         try {
-            bulkcontentoperations::register_function($label,$action,$this->GetName());
+            BulkOperations::register_function($label,$action,$this->GetName());
         }
         catch (Throwable $t) {
            //nothing here
