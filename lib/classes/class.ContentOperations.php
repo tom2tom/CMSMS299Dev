@@ -33,6 +33,7 @@ use CMSMS\UserOperations;
 use Exception;
 use const CMS_DB_PREFIX;
 use function check_permission;
+use function cms_module_path;
 use function debug_buffer;
 use function lang;
 use function munge_string_to_url;
@@ -52,6 +53,8 @@ use function munge_string_to_url;
  */
 final class ContentOperations
 {
+	const EDITORMODULE = 'CMSContentManager';
+
 	/**
 	 * @ignore
 	 */
@@ -144,9 +147,11 @@ final class ContentOperations
 	 * @access private
 	 * @since 1.9
 	 * @param mixed $type string or an instance of ContentTypePlaceHolder
+	 * @param bool since 2.3 optional flag whether to create a ContentEditor-class
+	 * object. Default false (hence a shortform object)
 	 * @return mixed
 	 */
-	public function LoadContentType($type)
+	public function LoadContentType($type, bool $editable=false)
 	{
 		if( is_object($type) && $type instanceof ContentTypePlaceHolder ) {
 			$type = $type->type;
@@ -154,9 +159,15 @@ final class ContentOperations
 
 		$ctph = $this->_get_content_type($type);
 		if( is_object($ctph) ) {
-			if( !class_exists( $ctph->class ) && is_file( $ctph->filename ) ) {
-				include_once( $ctph->filename );
-				$ctph->loaded = true;
+			if( $editable ) {
+				if( !class_exists($ctph->editorclass) && is_file($ctph->editorfilename) ) {
+					include_once $ctph->editorfilename;
+					$ctph->editorloaded = true;
+				}
+			}
+			elseif( !class_exists( $ctph->class ) && is_file( $ctph->filename ) ) {
+					include_once $ctph->filename;
+					$ctph->loaded = true;
 			}
 		}
 
@@ -166,22 +177,29 @@ final class ContentOperations
 	/**
 	 * Creates a new, empty content object of the given type.
 	 *
-	 * if the content type is registered with the system,
-	 * and the class does not exist, the appropriate filename will be included
-	 * and then, if possible a new object of the designated type will be
-	 * instantiated.
+	 * If the content-type is registered with the system, and the class does not
+	 * exist, the appropriate filename will be included and then, if possible,
+	 * a new object of the designated type will be instantiated.
 	 *
 	 * @param mixed $type string or an instance of ContentTypePlaceHolder
 	 * @param array since 2.3 initial object properties (replaces subsequent LoadFromData())
+	 * @param bool since 2.3 optional flag whether to create a ContentEditor-class
+	 * object. Default false (hence a shortform object)
 	 * @return mixed  object derived from ContentBase | null
 	 */
-	public function CreateNewContent($type, $params=[])
+	public function CreateNewContent($type, array $params=[], bool $editable=false)
 	{
-		if( $type instanceof ContentTypePlaceHolder ) $type = $type->type;
-
-		$ctph = $this->LoadContentType($type);
-		if( is_object($ctph) && class_exists($ctph->class) ) {
-			return new $ctph->class($params);
+		if( $type instanceof ContentTypePlaceHolder ) {
+			$type = $type->type;
+		}
+		$ctph = $this->LoadContentType($type, $editable);
+		if( is_object($ctph) ) {
+			if( $editable && class_exists($ctph->editorclass) ) {
+				return new $ctph->editorclass($params);
+			}
+			elseif (!$editable && class_exists($ctph->class)) {
+				return new $ctph->class($params);
+			}
 		}
 		return null;
 	}
@@ -195,7 +213,7 @@ final class ContentOperations
 	 * @param bool $loadprops Optional flag whether to load the properties of that content object. Defaults to false.
 	 * @return mixed The loaded content object. If nothing is found, returns null.
 	 */
-	public function LoadContentFromId($id,bool $loadprops=false)
+	public function LoadContentFromId($id, bool $loadprops=false)
 	{
 		$id = (int)$id;
 		if( $id < 1 ) { $id = $this->GetDefaultContent(); }
@@ -274,6 +292,7 @@ final class ContentOperations
 	 *
 	 * This method polls the contenttypes directory and constructs a placeholder
 	 * object for each discovered type.
+	 * Corresponding ContentEditor classes are recorded if available.
 	 *
 	 * @since 1.9
 	 * @access private
@@ -285,6 +304,10 @@ final class ContentOperations
 		$patn = __DIR__.DIRECTORY_SEPARATOR.'contenttypes'.DIRECTORY_SEPARATOR.'class.*.php';
 		$files = glob($patn);
 		if( is_array($files) ) {
+			$fp = cms_module_path(self::EDITORMODULE);
+			if( $fp ) {
+				$fp = cms_join_path(dirname($fp), 'lib', 'contenttypes', ''); //trailing separator
+			}
 			foreach( $files as $one ) {
 				$class = substr(basename($one,'.php'), 6);
 				$type = strtolower($class);
@@ -297,10 +320,26 @@ final class ContentOperations
 				$obj->loaded = false;
 				$obj->friendlyname_key = 'contenttype_'.$obj->type;
 				$obj->friendlyname = '';
+
+				if( $fp ) {
+					$path = $fp.basename($one);
+				}
+				else {
+					$path = '';
+				}
+				if( $path && is_file($path) ) {
+					$obj->editorclass = self::EDITORMODULE.'\\contenttypes\\'.$class;
+					$obj->editorfilename = $path;
+				}
+				else {
+					$obj->editorclass = '';
+					$obj->editorfilename = '';
+				}
+				$obj->editorloaded = false;
+
 				$result[$type] = $obj;
 			}
 		}
-
 		return $result;
 	}
 
@@ -312,7 +351,6 @@ final class ContentOperations
 		if( !is_array($this->_content_types) ) {
 			// get the standard types
 			$this->_content_types = $this->_get_std_content_types();
-
 			// get any additional types from relevant modules.
 			// such types are registered in the modules' respective constructors,
 			// which process eventually shoves them into $this->_content_types.
