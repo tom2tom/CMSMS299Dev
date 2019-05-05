@@ -73,7 +73,7 @@ if( isset($params['submit']) ) {
         $this->Redirect($id,'defaultadmin',$returnid);
     }
     catch( Throwable $t ) {
-        cms_warning('Changing template on multiple pages failed: '.	$t->getMessage());
+        cms_warning('Changing template on multiple pages failed: '.$t->getMessage());
         $this->SetError($t->getMessage());
         $this->Redirect($id,'defaultadmin',$returnid);
     }
@@ -132,7 +132,6 @@ $(function() {
 //]]>
 </script>
 EOS;
-
-$this->AdminTODO($js);
+$this->AdminBottomContent($js);
 
 $tpl->display();
