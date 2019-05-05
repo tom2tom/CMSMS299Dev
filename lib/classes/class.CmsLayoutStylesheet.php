@@ -21,6 +21,7 @@
 use CMSMS\AdminUtils;
 use CMSMS\LockOperations;
 use CMSMS\StylesheetOperations;
+use CMSMS\StylesheetsGroup;
 
 /**
  * A class of methods for dealing with a CmsStylesheet object.
@@ -449,12 +450,17 @@ class CmsLayoutStylesheet
 	*/
 	public function add_group($a)
 	{
-		$id = TODOfunc($a);
-		$this->get_groups();
-		if( !in_array($id, $this->_groups) ) {
-			$this->_groups[] = (int)$id; //TODO member-order
-			$this->_dirty = TRUE;
-		}
+		$group = StylesheetOperations::get_group($a);
+		if( $group ) {
+			$id = $this->get_id();
+			$group->add_members($id); //TODO support member-order other than last
+			$group->save();
+			$this->get_groups();
+			if( !in_array($id, $this->_groups) ) {
+				$this->_groups[] = (int)$id;
+				$this->_dirty = TRUE;
+			}
+        }
 	}
 
    /**
@@ -467,11 +473,18 @@ class CmsLayoutStylesheet
 	*/
 	public function remove_group($a)
 	{
-		$this->get_groups();
-		if( !$this->_groups ) return;
-		$id = func($a);
-		if( in_array($id, $this->_groups) ) {
-			//TODO
+		$group = StylesheetOperations::get_group($a);
+		if( $group ) {
+			$id = $this->get_id();
+			$group->remove_members($id);
+			$group->save();
+			$this->get_groups();
+			if( $this->_groups ) {
+				if( ($p = array_search($id, $this->_groups)) !== FALSE ) {
+				     unset($this->_groups[$p]);
+				}
+			}
+			$this->_dirty = TRUE;
 		}
 	}
 
@@ -676,14 +689,13 @@ class CmsLayoutStylesheet
 	* Return all stylesheet objects or stylesheet names.
 	* @deprecated since 2.3 use the corresponding StylesheetOperations method
 	*
-	* @param bool $as_list a flag indicating the output format
-	* @return mixed If $as_list is true then the output will be an array of rows
-    *  each with stylesheet id and stylesheet name. Otherwise, id and
-    *  CmsLayoutStylesheet object
+	* @param bool $by_name Optional flag indicating the output format. Default false.
+	* @return mixed If $by_name is true then the output will be an array of rows
+    *  each with stylesheet id and name. Otherwise, id and CmsLayoutStylesheet object
 	*/
-	public static function get_all($as_list = FALSE)
+	public static function get_all($by_name = false)
 	{
-		return $this->get_operations()::get_all_stylesheets($as_list);
+		return $this->get_operations()::get_all_stylesheets($by_name);
 	}
 
    /**
@@ -691,7 +703,7 @@ class CmsLayoutStylesheet
 	* @deprecated since 2.3
 	*
 	* @param mixed $id Either an integer stylesheet id, or a string stylesheet name
-	* @return bool FALSE always
+	* @return bool false always
 	*/
 	public static function is_loaded($id)
 	{
