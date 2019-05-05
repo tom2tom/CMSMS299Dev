@@ -24,7 +24,7 @@
   <input type="hidden" name="{$actionid}showmore" value="0" />
   <p class="pageinput">
     <input type="checkbox" id="showmore_ctl" name="{$actionid}showmore" value="1"{if $showmore} checked="checked"{/if} />
-    &sbsp;<label for="showmore_ctl">{$mod->Lang('prompt_showmore')}</label>
+    &nbsp;<label for="showmore_ctl">{$mod->Lang('prompt_showmore')}</label>
   </p>
 </div>
 
