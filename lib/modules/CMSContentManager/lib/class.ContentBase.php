@@ -418,32 +418,32 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 */
 	public function LoadFromData($data, $loadProperties = false)
 	{
-		$this->mAccessKey	 = $data['accesskey'];
-		$this->mActive		 = ($data['active'] != 0);
-		$this->mCachable	 = ($data['cachable'] != 0);
-		$this->mId			 = $data['content_id'];
-		$this->mName		 = $data['content_name'];
-		$this->mAlias		 = $data['content_alias'];
-		$this->mOldAlias	 = $data['content_alias'];
-		$this->mCreationDate = $data['create_date'];
-		$this->mDefaultContent = ($data['default_content'] != 0);
-		$this->mHierarchy	 = $data['hierarchy'];
-		$this->mHierarchyPath = $data['hierarchy_path'];
-		$this->mIdHierarchy	 = $data['id_hierarchy'];
-		$this->mItemOrder	 = $data['item_order'];
-		$this->mLastModifiedBy = $data['last_modified_by'];
-		$this->mMenuText	 = $data['menu_text'];
-		$this->mMetadata	 = $data['metadata'];
-		$this->mModifiedDate = $data['modified_date'];
-		$this->mOwner		 = $data['owner_id'];
-		$this->mURL			 = $data['page_url'] ?? '';
-		$this->mParentId	 = $data['parent_id'];
+		$this->mAccessKey	 = $data['accesskey'] ?? null;
+		$this->mActive		 = !empty($data['active']);
+		$this->mCachable	 = !empty($data['cachable']);
+		$this->mId			 = $data['content_id'] ?? 0;
+		$this->mName		 = $data['content_name'] ?? null;
+		$this->mAlias		 = $data['content_alias'] ?? null;
+		$this->mOldAlias	 = $data['content_alias'] ?? null;
+		$this->mCreationDate = $data['create_date'] ?? null;
+		$this->mDefaultContent = !empty($data['default_content']);
+		$this->mHierarchy	 = $data['hierarchy'] ?? null;
+		$this->mHierarchyPath = $data['hierarchy_path'] ?? null;
+		$this->mIdHierarchy	 = $data['id_hierarchy'] ?? null;
+		$this->mItemOrder	 = $data['item_order'] ?? 0;
+		$this->mLastModifiedBy = $data['last_modified_by'] ?? 0;
+		$this->mMenuText	 = $data['menu_text'] ?? null;
+		$this->mMetadata	 = $data['metadata'] ?? null;
+		$this->mModifiedDate = $data['modified_date'] ?? null;
+		$this->mOwner		 = $data['owner_id'] ?? 0;
+		$this->mURL			 = $data['page_url'] ?? null;
+		$this->mParentId	 = $data['parent_id'] ?? -1;
 		$this->mSecure		 = $data['secure'] ?? false; //deprecated since 2.3
-		$this->mShowInMenu	 = ($data['show_in_menu'] != 0);
-		$this->mStyles		 = $data['styles']; //since 2.3, replaces design_id
-		$this->mTabIndex	 = $data['tabindex'];
-		$this->mTemplateId	 = $data['template_id'];
-		$this->mTitleAttribute = $data['titleattribute'];
+		$this->mShowInMenu	 = !empty($data['show_in_menu']);
+		$this->mStyles		 = $data['styles'] ?? null; //since 2.3, replaces design_id
+		$this->mTabIndex	 = $data['tabindex'] ?? 1;
+		$this->mTemplateId	 = $data['template_id'] ?? 0;
+		$this->mTitleAttribute = $data['titleattribute'] ?? null;
 
 		$result = true;
 		if( $loadProperties ) {
