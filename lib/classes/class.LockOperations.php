@@ -77,7 +77,7 @@ final class LockOperations
 	}
 
 	/**
-	 * test for any lock of the specified type, and id
+	 * Test for any lock of the specified type and object-id
 	 *
 	 * @param string $type The type of object being locked
 	 * @param int $oid The object identifier
@@ -97,12 +97,13 @@ final class LockOperations
 	}
 
 	/**
-	 * Remove some or all expired locks.
+	 * Remove all expired locks, or all of a specific type
 	 *
-	 * @param mixed $limit unix timestamp | null Delete locks older than this. Default current time.
+	 * @param mixed $limit UNIX UTC timestamp | null Delete locks which expire
+	 * before this. Default null (hence current time).
 	 * @param string $type Optional lock type. Default '' (hence any type).
 	 */
-	private static function delete_expired($limit = null,$type = '')
+	private static function delete_expired($limit = null, $type = '')
 	{
 		if( !$limit ) $limit == time();
 		$db = CmsApp::get_instance()->GetDb();
@@ -116,23 +117,42 @@ final class LockOperations
 	}
 
 	/**
-	 * Get all locks of a specific type
+	 * Get all locks, or all of a specific type
 	 *
-	 * @param string $type Optional lock type. Default '' (hence any type).
-	 * @return array
+	 * @param string $type Optional lock type. Default '' (hence any type)
+	 * @param bool   $by_state Since 2.3 Optional flag indicating result
+	 *  format. Default false. If true, return array of data including
+	 *  [type],object_id,user_id,status = 1(stealable) or -1(not stealable)
+	 *  If false, return lock objects.
+	 * @return array, maybe empty
 	 */
-	public static function get_locks($type = '')
+	public static function get_locks($type = '', $by_state = false) : array
 	{
-		$db = CmsApp::get_instance()->GetDb();
-		$query = 'SELECT * FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE;
-		if( $type ) $query .= ' WHERE type = ?';
-		$tmp = $db->GetArray($query,[$type]);
-		if( !$tmp ) return [];
-
 		$locks = [];
-		foreach( $tmp as $row ) {
-			$obj = Lock::from_row($row);
-			$locks[] = $obj;
+		$db = CmsApp::get_instance()->GetDb();
+		if( $by_state ) {
+			$query = 'SELECT type,oid AS object_id,uid AS user_id,expires AS status FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE;
+			if( $type ) $query .= ' WHERE type = ?';
+			$dbr = $db->GetArray($query,[$type]);
+			if( $dbr ) {
+				$now = time();
+				foreach( $dbr as $row ) {
+					if( $type ) { unset($row['type']); }
+					$row['status'] = ( $row['status'] < $now ) ? 1 : -1;
+					$locks[] = $row;
+				}
+			}
+		}
+		else {
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE;
+			if( $type ) $query .= ' WHERE type = ?';
+			$dbr = $db->GetArray($query,[$type]);
+			if( $dbr ) {
+				foreach( $dbr as $row ) {
+					$obj = Lock::from_row($row);
+					$locks[] = $obj;
+				}
+			}
 		}
 		return $locks;
 	}
