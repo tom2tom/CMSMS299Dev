@@ -201,8 +201,8 @@ try {
         bulkcontentoperations::register_function($this->Lang('bulk_cachable'),'setcachable');
         bulkcontentoperations::register_function($this->Lang('bulk_noncachable'),'setnoncachable');
         bulkcontentoperations::register_function($this->Lang('bulk_changeowner'),'changeowner');
-        bulkcontentoperations::register_function($this->Lang('bulk_setstyles'),'styles'); //TODO new
-        bulkcontentoperations::register_function($this->Lang('bulk_settemplate'),'template');
+        bulkcontentoperations::register_function($this->Lang('bulk_setstyles'),'setstyles');
+        bulkcontentoperations::register_function($this->Lang('bulk_settemplate'),'settemplate');
     }
 
     if( $pmanage || ($this->CheckPermission('Remove Pages') && $this->CheckPermission('Modify Any Page')) ) {
