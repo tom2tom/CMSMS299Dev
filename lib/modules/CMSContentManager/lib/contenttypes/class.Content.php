@@ -34,8 +34,8 @@ use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\internal\page_template_parser;
 use CMSMS\TemplateOperations;
-use Exception;
 use SmartyException;
+use Throwable;
 use function check_permission;
 use function cms_error;
 use function cms_htmlentities;
@@ -64,7 +64,7 @@ class Content extends ContentBase
 	protected $_contentBlocks = null;
 
 	public function FriendlyName() { return $this->mod->Lang('contenttype_content'); }
-	public function HasPreview() { return true; }
+	public function HasPreview() { return $this->mId > 0; }
 	public function HasTemplate() { return true; }
 	public function IsCopyable() { return true; }
 	public function IsDefaultPossible() { return true; }
