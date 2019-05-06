@@ -1428,7 +1428,7 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
  * @param mixed $custompaths string | string[] optional 'non-standard' directory-path(s) to include (first) in the search
  * @return mixed string absolute filepath | URL | null
  */
-function cms_get_css(string $filename, bool $as_url = true, array $custompaths = '')
+function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
 {
     $target = basename($filename);
     if ($target == $filename) {
