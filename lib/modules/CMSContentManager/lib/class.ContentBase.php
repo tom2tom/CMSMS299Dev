@@ -559,7 +559,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 
 		//stylesheet id's (from checkboxes array)
 		if( !empty($params['styles'])) {
-			$this->mStyles = implode(',',array_keys($params['styles']));
+			$this->mStyles = implode(',',$params['styles']);
 		}
 		else {
 			$this->mStyles = null;

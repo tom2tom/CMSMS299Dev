@@ -34,13 +34,12 @@ $pagelist = $params['bulk_content'];
 $hm = $gCms->GetHierarchyManager();
 
 if( isset($params['submit']) ) {
-    if( !isset($params['styles']) ) {
+/*    if( !isset($params['styles']) ) {
         $this->SetError($this->Lang('error_missingparam'));
         $this->Redirect($id,'defaultadmin',$returnid);
-        // OR support removal of all?
     }
-
-	$value = implode(',',$params['styles']);
+*/
+	$value = (isset($params['styles'])) ? implode(',',$params['styles']) : null; //from checkboxes
     $i = 0;
     $user_id = get_userid();
 
@@ -49,7 +48,7 @@ if( isset($params['submit']) ) {
             $content = $this->GetContentEditor($pid);
             if( !is_object($content) ) continue;
 
-            $content->SetTemplate($value);
+            $content->SetStyles($value);
             $content->SetLastModifiedBy($user_id);
             $content->Save();
             ++$i;
