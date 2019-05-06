@@ -58,7 +58,7 @@ class StylesheetOperations
    /**
 	* Validate the specified stylesheet.
 	* Each stylesheet must have a valid name (unique, only certain characters accepted),
-    * and must have at least some content.
+	* and must have at least some content.
 	*
 	* @throws CmsInvalidDataException
 	*/
@@ -112,13 +112,13 @@ WHERE id = ?';
 		]);
 //USELESS		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
-        if( ($fp = $sht->get_content_filename()) ) {
-            file_put_contents($fp,$sht->get_content(),LOCK_EX);
+		if( ($fp = $sht->get_content_filename()) ) {
+			file_put_contents($fp,$sht->get_content(),LOCK_EX);
 		}
 		else {
-	        $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
-	        $db->Execute($sql,[$sht->get_content(),$sid]);
-        }
+			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?';
+			$db->Execute($sql,[$sht->get_content(),$sid]);
+		}
 /*
 		// get the designs that include the specified stylesheet again.
 		$sql = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WhERE css_id = ?'; DISABLED
@@ -215,7 +215,7 @@ VALUES (?,?,?,?,?,?)';
 
    /**
 	* Save the specified stylesheet, if it is 'dirty' (has been modified in some way,
-    * or has no id)
+	* or has no id)
 	*
 	* This method sends events before and after saving.
 	* EditStylesheetPre is sent before an existing stylesheet is saved to the database
@@ -245,8 +245,8 @@ VALUES (?,?,?,?,?,?)';
    /**
 	* Delete the specified stylesheet.
 	* This method deletes the appropriate records from the database, deletes a
-    * content-file if any, deletes the id from the stylesheet object, and marks
-    * the object as dirty so it can be saved again.
+	* content-file if any, deletes the id from the stylesheet object, and marks
+	* the object as dirty so it can be saved again.
 	*
 	* This method triggers the DeleteStylesheetPre and DeleteStylesheetPost events
 	*/
@@ -284,8 +284,9 @@ VALUES (?,?,?,?,?,?)';
 		$fn = $sht->get_content_filename();
 		if( is_file($fn) && is_readable($fn) ) {
 			$sht->_data['content'] = file_get_contents($fn);
-//			$sht->_data['create_date'] = N/A from file - keep db value
-//			$sht->_data['modified_date'] = filemtime($fn); //TODO as Y-m-d H:i:s c.f. $db->dbTimestamp()
+//			$sht->_data['create_date'] = keep db value
+			$dt = new DateTime('@'.filemtime($fn),null);
+			$sht->_data['modified_date'] = $dt->format('Y-m-d H:i:s'); //c.f. $db->dbTimestamp()
 		}
 		if( is_array($design_list) ) $sht->_design_assoc = $design_list;
 
@@ -430,8 +431,8 @@ VALUES (?,?,?,?,?,?)';
 	*
 	* @param bool $by_name Optional flag indicating the output format. Default false.
 	* @return mixed If $by_name is true then the output will be an array of rows
-    *  each with stylesheet id and stylesheet name. Otherwise, id and
-    *  CmsLayoutStylesheet object
+	*  each with stylesheet id and stylesheet name. Otherwise, id and
+	*  CmsLayoutStylesheet object
 	*/
 	public static function get_all_stylesheets(bool $by_name = false) : array
 	{
@@ -459,7 +460,7 @@ VALUES (?,?,?,?,?,?)';
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$sql = 'SELECT G.id,G.name,GROUP_CONCAT(M.css_id ORDER BY M.item_order) AS members FROM '.
-        CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' G LEFT JOIN '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' M ON G.id = M.group_id';
+		CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' G LEFT JOIN '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' M ON G.id = M.group_id';
 		if( !empty($ids) ) {
 			$sql .= ' WHERE G.id IN ('.implode(',',$ids).')';
 		}
@@ -600,7 +601,7 @@ VALUES (?,?,?,?,?,?)';
 	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
 	 * @return int No of stylesheets cloned
 	 */
-    public static function operation_copy($ids) : int
+	public static function operation_copy($ids) : int
 	{
 		$n = 0;
 		$db = CmsApp::get_instance()->GetDb();
@@ -613,13 +614,21 @@ VALUES (?,?,?,?,?,?)';
 				if ($row['name']) {
 					$row['name'] = self::get_unique_name($row['name']);
 				} else {
-					$row['name'] = null;
-				}
-				if ($row['contentfile']) {
-					//TODO clone file
-					$row['content'] = TODOfunc($row['name']);
+					$row['name'] = self::get_unique_name('Unnamed Stylesheet');
 				}
 				$db->Execute($sql, $row);
+				if ($row['contentfile']) {
+					$id = $db->Insert_ID();
+					$fn = munge_string_to_url($row['name']).'.'.$id.'.css';
+					if (!isset($config)) $config = cms_config::get_instance();
+					$from = cms_join_path($config['assets_path'],'css',$row['content']);
+					$to = cms_join_path($config['assets_path'],'css',$fn);
+					if (copy($from,$to)) {
+						$db->Execute('UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?', [$fn,$id]);
+					} else {
+						//TODO handle error
+					}
+				}
 			}
 			$n = count($from);
 		}
@@ -680,8 +689,9 @@ VALUES (?,?,?,?,?,?)';
 			else {
 				$n = 0;
 			}
-			$sql = 'SELECT DISTINCT styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE ('.$TODO.')';
-			$keeps = $db->GetCol($sql, $shts);
+			$fillers = (is_array($ids)) ? '('.str_repeat('%?% OR ',count($ids)-1).'%?%)' : '%?%';
+			$sql = 'SELECT DISTINCT styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE '.$fillers;
+			$keeps = $db->GetCol($sql, $ids);
 			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($shts)-1).'?)';
 			if ($keeps) {
 				$t = [];
@@ -733,8 +743,9 @@ VALUES (?,?,?,?,?,?)';
 			else {
 				$n = 0;
 			}
-			$sql = 'SELECT DISTINCT styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE ('.$TODO.')';
-			$keeps = $db->GetCol($sql, $shts);
+			$fillers = (is_array($ids)) ? '('.str_repeat('%?% OR ',count($ids)-1).'%?%)' : '%?%';
+			$sql = 'SELECT DISTINCT styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE '.$fillers;
+			$keeps = $db->GetCol($sql, $ids);
 			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($shts)-1).'?)';
 			if ($keeps) {
 				$t = [];
@@ -929,7 +940,7 @@ VALUES (?,?,?,?,?,?)';
 			$sql .= ' AND owner_id=?';
 			$args[] = $uid;
 		}
-        $db = CmsApp::get_instance()->GetDb();
+		$db = CmsApp::get_instance()->GetDb();
 		$valid = $db->getArray($sql, $args);
 
 		if (!$modify_all) {
