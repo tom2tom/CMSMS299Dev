@@ -474,12 +474,20 @@ button.ui-button.ui-state-active {
 }
 
 .adminsubmit:disabled, .loginsubmit:disabled, .ui-button:disabled { 
-    background: #f2f2f2
+    background: #f2f2f2;
+    color: #a6a6a6;
+    cursor: default;
 }
 
 input[type="button"]:hover,
 input[type="submit"]:hover {
     cursor: pointer
+}
+
+input[type="button"]:disabled,
+input[type="submit"]:disabled {
+    color: #a6a6a6;
+    cursor: default;
 }
 
 input[type="checkbox"] {

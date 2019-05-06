@@ -278,12 +278,12 @@ menu,
 .information,
 .message,
 .success,
-.pagewarning {
+.pagewarning,.pageerror,.pagewarn,.pagesuccess,.pageinfo {
     border-radius: 4px
 }
 
-
 /* forms */
+
 input,
 textarea,
 select,
@@ -351,6 +351,7 @@ input[type="submit"],
     padding: 5px 10px;
     background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
     color: #555;
+    cursor: pointer;
     font-weight: normal;
     font-size: 0.9rem
 }
@@ -387,12 +388,21 @@ button.ui-button.ui-state-active {
 }
 
 .adminsubmit:disabled, .loginsubmit:disabled, .ui-button:disabled { 
-    background: #f2f2f2
+    background: #f2f2f2;
+    color: #a6a6a6;
+    cursor: default;
 }
 
 input[type="button"]:hover,
 input[type="submit"]:hover {
     cursor: pointer
+}
+
+input[type="button"]:disabled,
+input[type="submit"]:disabled {
+    background: #f2f2f2;
+    color: #a6a6a6;
+    cursor: default;
 }
 
 input[type="checkbox"] {
@@ -406,7 +416,6 @@ textarea {
 }
 
 /* Notification messages */
-
 .ui-tooltip {
     font-size: 0.9rem;
     box-shadow: -6px 6px 12px -6px rgba(120,120,120,1);}
@@ -416,10 +425,6 @@ textarea {
 .tooltip {
     cursor: help
 }
-.tooltip {
-    cursor: help
-}
-
 a.tooltip {
     cursor: pointer
 }
@@ -619,9 +624,9 @@ aside .no-slide,
     position: inherit;
     right: auto;
     top: auto;
+    border: 1px solid #ae432e;
     border-radius: 4px;
     box-shadow: none;
-    border: 1px solid #ae432e;
     -webkit-box-shadow: none;
     background-image: none;
     width: auto;
@@ -652,7 +657,7 @@ aside .no-slide,
     border-style: solid;
     border-radius: 4px;
     margin: 0;
-    padding: 10px;
+    padding: 10px 3em;
     max-width: 40em;
     line-height: 1.2;
     letter-spacing: normal;
@@ -719,7 +724,6 @@ aside .no-slide,
     font-weight: 900;
     font-size: 1.6em;
 }
-
 .jqt-loader {
     display: block;
     position: absolute;
@@ -807,13 +811,14 @@ aside .no-slide,
     background-size: 50px 50px;
     cursor: wait;
 }
+
 /* close notification */
+
 .close-warning {
     /* float: left; */
     /* display: inline-block; */
     width: 1em;
     height: 1em;
-    color: #333;
     /* text-indent: -9999em; */
     cursor: pointer;
     /* margin: 5px */

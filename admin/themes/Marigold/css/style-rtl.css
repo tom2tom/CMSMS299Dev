@@ -474,12 +474,20 @@ button.ui-button.ui-state-active {
 }
 
 .adminsubmit:disabled, .loginsubmit:disabled, .ui-button:disabled { 
-    background: #f2f2f2
+    background: #f2f2f2;
+    color: #a6a6a6;
+    cursor: default;
 }
 
 input[type="button"]:hover,
 input[type="submit"]:hover {
     cursor: pointer
+}
+
+input[type="button"]:disabled,
+input[type="submit"]:disabled {
+    color: #a6a6a6;
+    cursor: default;
 }
 
 input[type="checkbox"] {
@@ -538,7 +546,7 @@ table.pagetable a.text-red {
     display: inline-block;
     width: auto;
     font-size: 14px;
-    padding: 10px 40px 10px 10px;
+    padding: 10px;
     margin: 10px 0
 }
 
