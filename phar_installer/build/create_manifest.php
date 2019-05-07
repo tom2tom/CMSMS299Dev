@@ -29,22 +29,25 @@ $_tmpfile = $_tmpdir.DIRECTORY_SEPARATOR.'tmp.out';
 $_configname = str_replace('.php', '.ini', $_scriptname);
 $_configfile = get_config_file();
 $_writecfg = true;
-$_outfile = ($_cli) ? STDOUT : 'MANIFEST.DAT.gz';
+//$_outfile = ($_cli) ? STDOUT : 'MANIFEST.DAT.gz';
+$_outfile = 'MANIFEST.DAT.gz';
 $_notdeleted = [];
 
 $src_excludes = [
-'/phar_installer\//',
-'/scripts\//',
-'/tests\//',
-'/\.git.*/',
+'/git/',
 '/\.md$/i',
-'/\.svn/',
+'/svn/',
+'/index\.html?$/',
+'/config\.php$/',
+'/phar_installer/',
+'/scripts/',
 '/svn-.*/',
-'/\/config\.php$/',
-'/\/index\.html$/',
-'/\.bak$/',
+'/tests/',
 '/UNUSED/',
+'/HIDE/',
+'/uploads/',
 '/~$/',
+'/\.bak$/',
 '/#.*/',
 '/\.#.*/',
 ];
@@ -454,7 +457,7 @@ if ($_writecfg) {
     }
 }
 
-cleanup();
+//cleanup();
 info('DONE');
 exit(0);
 
