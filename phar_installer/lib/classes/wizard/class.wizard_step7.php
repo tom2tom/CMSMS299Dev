@@ -35,7 +35,7 @@ class wizard_step7 extends wizard_step
         $pattern = joinpath($destdir, 'lib', 'nls', '*nls.php');
 
         $files = glob($pattern);
-        if( !$files ) throw new Exception(lang('error_internal',750));
+        if( !$files ) throw new Exception(lang('error_internal',700));
 
         foreach( $files as &$one ) {
             $one = basename($one, '.nls.php');
@@ -50,7 +50,7 @@ class wizard_step7 extends wizard_step
         $this->message(lang('install_dummyindexhtml'));
 
         $destdir = get_app()->get_destdir();
-        if( !$destdir ) throw new Exception(lang('error_internal',751));
+        if( !$destdir ) throw new Exception(lang('error_internal',701));
 
         $archive = get_app()->get_archive();
         if( class_exists('PharData') ) {
@@ -95,7 +95,7 @@ class wizard_step7 extends wizard_step
     {
         $app = get_app();
         $destdir = $app->get_destdir();
-        if( !$destdir ) throw new Exception(lang('error_internal',601));
+        if( !$destdir ) throw new Exception(lang('error_internal',702));
 
         $languages = ['en_US'];
         if( $checklangs ) { // upgrade or refresh
@@ -132,11 +132,24 @@ class wizard_step7 extends wizard_step
         }
 
         if( $siteinfo !== NULL ) {
-            $xmodules = $siteinfo['xmodules'] ?? []; //TODO relevant non-core modules are needed for upgrade as well as install
+            $xmodules = $siteinfo['xmodules'] ?? []; //non-core modules to be processed
             if( !is_array($xmodules) ) $xmodules = [$xmodules];
         }
         else {
             $xmodules = NULL;
+        }
+        $action = $this->get_wizard()->get_data('action');
+        if( $action != 'install' ) {
+			//add any installed non-core modules
+	        $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
+	        include_once $cfgfile;
+            $s = ( !empty($config['assetsdir']) ) ? $config['assetsdir'] : 'assets';
+			$fp = joinpath($destdir,$s,'modules','*','*.module.php');
+            $paths = glob($fp);
+			foreach($paths as $fp) {
+				$xmodules[] = basename($fp,'.module.php');
+			}
+			if( $paths ) $xmodules = array_unique($xmodules);
         }
         $allmodules = [];
 
@@ -212,9 +225,9 @@ class wizard_step7 extends wizard_step
         // get the list of all available versions that this upgrader knows about
         $app = get_app();
         $upgrade_dir =  $app->get_assetsdir().'/upgrade';
-        if( !is_dir($upgrade_dir) ) throw new Exception(lang('error_internal',710));
+        if( !is_dir($upgrade_dir) ) throw new Exception(lang('error_internal',720));
         $destdir = $app->get_destdir();
-        if( !$destdir ) throw new Exception(lang('error_internal',711));
+        if( !$destdir ) throw new Exception(lang('error_internal',721));
 
         $version_info = $this->get_wizard()->get_data('version_info');
         $versions = utils::get_upgrade_versions();
@@ -227,7 +240,7 @@ class wizard_step7 extends wizard_step
                 // check the to version info
                 $manifest = new manifest_reader("$upgrade_dir/$one_version");
                 if( $one_version != $manifest->to_version() ) {
-                    throw new Exception(lang('error_internal',712));
+                    throw new Exception(lang('error_internal',722));
                 }
 
                 // delete all 'deleted' files
@@ -303,7 +316,7 @@ class wizard_step7 extends wizard_step
                 $this->do_files();
             }
             else {
-                throw new Exception(lang('error_internal',705));
+                throw new Exception(lang('error_internal',730));
             }
 
             // create index.html files in directories.
