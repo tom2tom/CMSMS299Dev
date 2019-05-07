@@ -29,7 +29,7 @@ class News extends CMSModule
 
     public function AllowSmartyCaching() { return true; }
     public function GetAdminDescription() { return $this->Lang('description'); }
-    public function GetAdminSection() { 'content' }
+    public function GetAdminSection() { return 'content'; }
     public function GetAuthor() { return 'Ted Kulp'; }
     public function GetAuthorEmail() { return 'ted@cmsmadesimple.org'; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
