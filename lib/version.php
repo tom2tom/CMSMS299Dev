@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-const CMS_VERSION = '2.2.912';
+const CMS_VERSION = '2.2.913';
 const CMS_VERSION_NAME = 'NO NAME SET';
 const CMS_SCHEMA_VERSION = '206';
 
