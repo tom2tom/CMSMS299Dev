@@ -8,7 +8,6 @@ use cms_siteprefs;
 use CmsApp;
 use CMSMS\ThemeBase;
 use Exception;
-use const CMS_DB_PREFIX;
 use function cms_installer\get_app;
 use function cms_installer\lang;
 use function cms_installer\smarty;
@@ -68,17 +67,17 @@ class wizard_step8 extends wizard_step
     {
         $app = get_app();
         $destdir = $app->get_destdir();
-        if( !$destdir ) throw new Exception(lang('error_internal',700));
+        if( !$destdir ) throw new Exception(lang('error_internal',800));
 
         $wiz = $this->get_wizard();
         $adminaccount = $wiz->get_data('adminaccount');
-        if( !$adminaccount ) throw new Exception(lang('error_internal',701));
+        if( !$adminaccount ) throw new Exception(lang('error_internal',801));
 
         $destconfig = $wiz->get_data('config');
-        if( !$destconfig ) throw new Exception(lang('error_internal',703));
+        if( !$destconfig ) throw new Exception(lang('error_internal',802));
 
         $siteinfo = $wiz->get_data('siteinfo');
-        if( !$siteinfo ) throw new Exception(lang('error_internal',704));
+        if( !$siteinfo ) throw new Exception(lang('error_internal',803));
 
         $cachtype = $wiz->get_data('cachemode');
 
@@ -104,7 +103,7 @@ class wizard_step8 extends wizard_step
 
             // install main tables
             $fn = $dir.DIRECTORY_SEPARATOR.'schema.php';
-            if( !is_file($fn) ) throw new Exception(lang('error_internal',705));
+            if( !is_file($fn) ) throw new Exception(lang('error_internal',805));
             require_once $fn;
 
             // install sequence tables
@@ -176,12 +175,12 @@ class wizard_step8 extends wizard_step
         // get the list of all available versions that this upgrader knows about
         $app = get_app();
         $dir = $app->get_assetsdir().DIRECTORY_SEPARATOR.'upgrade';
-        if( !is_dir($dir) ) throw new Exception(lang('error_internal',710));
+        if( !is_dir($dir) ) throw new Exception(lang('error_internal',810));
         $destdir = $app->get_destdir();
-        if( !$destdir ) throw new Exception(lang('error_internal',711));
+        if( !$destdir ) throw new Exception(lang('error_internal',811));
 
         $dh = opendir($dir);
-        if( !$dh ) throw new Exception(lang('error_internal',712));
+        if( !$dh ) throw new Exception(lang('error_internal',812));
         $versions = [];
         while( ($file = readdir($dh)) !== false ) {
             if( $file == '.' || $file == '..' ) continue;
@@ -191,10 +190,10 @@ class wizard_step8 extends wizard_step
         if( $versions ) usort($versions,'version_compare');
 
         $destconfig = $this->get_wizard()->get_data('config');
-        if( !$destconfig ) throw new Exception(lang('error_internal',703));
+        if( !$destconfig ) throw new Exception(lang('error_internal',820));
 
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
-        if( !$siteinfo ) throw new Exception(lang('error_internal',704));
+        if( !$siteinfo ) throw new Exception(lang('error_internal',821));
 
         // setup and initialize the CMSMS API's
         if( is_file("$destdir/include.php") ) {
@@ -243,10 +242,10 @@ class wizard_step8 extends wizard_step
     private function write_config()
     {
         $destconfig = $this->get_wizard()->get_data('config');
-        if( !$destconfig ) throw new Exception(lang('error_internal',703));
+        if( !$destconfig ) throw new Exception(lang('error_internal',830));
 
         $destdir = get_app()->get_destdir();
-        if( !$destdir ) throw new Exception(lang('error_internal',700));
+        if( !$destdir ) throw new Exception(lang('error_internal',831));
 
         $fn = $destdir.DIRECTORY_SEPARATOR.'config.php';
         if( is_file($fn) ) {
@@ -296,7 +295,7 @@ class wizard_step8 extends wizard_step
                 $this->do_install();
             }
             else {
-                throw new Exception(lang('error_internal',705));
+                throw new Exception(lang('error_internal',840));
             }
         }
         catch( Exception $e ) {

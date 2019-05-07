@@ -161,7 +161,7 @@ VALUES (?,?,?,NOW(),NOW())');
 
         // site content
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
-        if( !$siteinfo ) throw new Exception(lang('error_internal',901));
+        if( !$siteinfo ) throw new Exception(lang('error_internal',902));
         if( !empty($siteinfo['samplecontent']) ) {
             $arr = installer_base::CONTENTXML;
             $fn = end($arr);
@@ -226,7 +226,7 @@ VALUES (?,?,?,NOW(),NOW())');
     {
         $app = get_app();
         $destdir = $app->get_destdir();
-        if( !$destdir ) throw new Exception(lang('error_internal',901));
+        if( !$destdir ) throw new Exception(lang('error_internal',903));
 
         $this->connect_to_cmsms($destdir);
 
@@ -350,7 +350,7 @@ VALUES (?,?,?,NOW(),NOW())');
         $smarty->assign('back_url',$this->get_wizard()->prev_url());
         $smarty->display('wizard_step9.tpl');
         $destdir = $app->get_destdir();
-        if( !$destdir ) throw new Exception(lang('error_internal',903));
+        if( !$destdir ) throw new Exception(lang('error_internal',905));
 
 
         // here, we do either the upgrade, or the install stuff.

@@ -43,7 +43,7 @@ abstract class filehandler
 
     public function set_output_fn($fn)
     {
-        if( !is_callable($fn) ) throw new Exception(lang('error_internal',1102));
+        if( !is_callable($fn) ) throw new Exception(lang('error_internal',f102));
         $this->_output_fn = $fn;
     }
 
@@ -60,7 +60,7 @@ abstract class filehandler
     protected function is_excluded(string $filespec) : bool
     {
         $filespec = trim($filespec);
-//        if( !$filespec ) throw new Exception(lang('error_internal',1101));
+//        if( !$filespec ) throw new Exception(lang('error_internal',f104));
         if( $this->_excludes === null ) {
             $config = $this->get_config();
             if( empty($config['install_excludes']) ) {
