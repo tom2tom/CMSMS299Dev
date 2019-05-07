@@ -659,7 +659,7 @@ lib/smarty/*                              no namespace
         if (!empty($sess['sourceball'])) {
             $p = joinpath($this->get_tmpdir(),'lib','smarty','Autoloader.php');
             if (!is_file($p)) {
-                $sess['sourceball'] = null; 
+                $sess['sourceball'] = null;
             }
         }
         if (empty($sess['sourceball'])) {
