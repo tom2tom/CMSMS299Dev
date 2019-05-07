@@ -177,19 +177,24 @@ VALUES (?,?,?,NOW(),NOW())');
             if( $fn != 'initial.xml' ) {
                 $this->message(lang('install_samplecontent'));
             }
-			try {
-	            require_once joinpath(dirname(__DIR__,2),'install','iosite.functions.php');
-				if( ($res = import_content($xmlfile, $filesfolder)) ) {
-					$this->error($res);
-				}
-				// update pages hierarchy
-				$this->verbose(lang('install_updatehierarchy'));
-				$contentops = cmsms()->GetContentOperations();
-				$contentops->SetAllHierarchyPositions();
-			}
-			catch (Exception $e) {
-				$ADBG = 1;
-			}
+            try {
+                if( $app->in_phar() ) {
+                    $fp = $app->get_phar().'/lib/install/iosite.functions.php';
+                } else {
+                    $fp = joinpath(dirname(__DIR__,2),'install','iosite.functions.php');
+                }
+                require_once $fp;
+                if( ($res = import_content($xmlfile, $filesfolder)) ) {
+                    $this->error($res);
+                }
+                // update pages hierarchy
+                $this->verbose(lang('install_updatehierarchy'));
+                $contentops = cmsms()->GetContentOperations();
+                $contentops->SetAllHierarchyPositions();
+            }
+            catch (Exception $e) {
+                $ADBG = 1;
+            }
         } else {
             $this->error(lang('error_nocontent',$fn));
         }
