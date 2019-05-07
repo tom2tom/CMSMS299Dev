@@ -78,18 +78,19 @@ class wizard_step5 extends wizard_step
             $this->_siteinfo['languages'] = $tmp;
         }
 
-        $this->get_wizard()->set_data('siteinfo',$this->_siteinfo);
+		$wiz = $this->get_wizard();
+        $wiz->set_data('siteinfo',$this->_siteinfo);
         try {
             $this->validate($this->_siteinfo);
 
             if( $config['nofiles'] ) {
-                $url = $this->get_wizard()->step_url(8);
+                $url = $wiz->step_url(8);
             }
-            elseif( ($action = $this->get_wizard()->get_data('action')) == 'install' ) {
-                $url = $this->get_wizard()->next_url();
+            elseif( $wiz->get_data('action') == 'install' ) {
+                $url = $wiz->next_url();
             }
             else {  // upgrade or freshen
-                $url = $this->get_wizard()->step_url(7);
+                $url = $wiz->step_url(7);
             }
             utils::redirect($url);
         }
