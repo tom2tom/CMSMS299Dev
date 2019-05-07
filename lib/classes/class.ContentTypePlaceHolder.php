@@ -1,5 +1,5 @@
 <?php
-#Convenience class to hold CMS Content Type structure.
+#Convenience class to hold CMS Content Type parameters.
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,7 +19,7 @@
 namespace CMSMS;
 
 /**
- * Convenience class to hold CMS Content Type data
+ * Convenience class to hold CMS Content Type parameters
  *
  * @package CMS
  */
@@ -31,17 +31,29 @@ class ContentTypePlaceHolder
 	public $type;
 
 	/**
-	 * @var string The filename containing the type class
-	 */
-	public $filename;
-
-	/**
-	 * @var string A friendly name for the type
+	 * @var string A displayable name for the type
 	 */
 	public $friendlyname;
 
 	/**
-	 * @var Whether the type has been loaded
+	 * @var string The type displayable (and perhaps also editable) class
 	 */
-	public $loaded;
-} //class
+	public $class;
+
+	/**
+	 * @var string Path of file containing the type displayable class
+	 */
+	public $filename;
+
+	/**
+	 * @var string The type (ContentEditor-conformant) editable class (if any)
+	 * @since 2.3
+	 */
+	public $editorclass;
+
+	/**
+	 * @var string Path of file containing the type editable class
+	 * @since 2.3
+	 */
+	public $editorfilename;
+}
