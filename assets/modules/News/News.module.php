@@ -29,7 +29,7 @@ class News extends CMSModule
 
     public function AllowSmartyCaching() { return true; }
     public function GetAdminDescription() { return $this->Lang('description'); }
-    public function GetAdminSection() { return (version_compare(CMS_VERSION,'2.2.910') < 0) ? 'content' : 'services'; }
+    public function GetAdminSection() { 'content' }
     public function GetAuthor() { return 'Ted Kulp'; }
     public function GetAuthorEmail() { return 'ted@cmsmadesimple.org'; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
@@ -351,7 +351,7 @@ EOS;
         if( $this->CheckPermission('Modify News Preferences')) {
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
-            $obj->section = (version_compare(CMS_VERSION,'2.2.910') < 0) ? 'content' : 'services';
+            $obj->section = 'content';
             $obj->title = $this->Lang('title_news_settings');
             $obj->description = $this->Lang('desc_news_settings');
             $obj->icon = false;
