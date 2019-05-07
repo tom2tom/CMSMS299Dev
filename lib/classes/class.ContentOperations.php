@@ -146,28 +146,29 @@ final class ContentOperations
 	 * @internal
 	 * @access private
 	 * @since 1.9
-	 * @param mixed $type string or an instance of ContentTypePlaceHolder
+	 * @param mixed $type string type name or an instance of ContentTypePlaceHolder
 	 * @param bool since 2.3 optional flag whether to create a ContentEditor-class
 	 * object. Default false (hence a shortform object)
 	 * @return mixed
 	 */
 	public function LoadContentType($type, bool $editable=false)
 	{
-		if( is_object($type) && $type instanceof ContentTypePlaceHolder ) {
+		if( $type instanceof ContentTypePlaceHolder ) {
 			$type = $type->type;
 		}
 
 		$ctph = $this->_get_content_type($type);
 		if( is_object($ctph) ) {
+			if( $editable && empty($ctph->editorclass) ) {
+				$editable = false; //revert to using displayable form, hopefully also editable
+			}
 			if( $editable ) {
 				if( !class_exists($ctph->editorclass) && is_file($ctph->editorfilename) ) {
-					include_once $ctph->editorfilename;
-					$ctph->editorloaded = true;
+					require_once $ctph->editorfilename;
 				}
 			}
 			elseif( !class_exists( $ctph->class ) && is_file( $ctph->filename ) ) {
-					include_once $ctph->filename;
-					$ctph->loaded = true;
+				require_once $ctph->filename;
 			}
 		}
 
@@ -181,7 +182,7 @@ final class ContentOperations
 	 * exist, the appropriate filename will be included and then, if possible,
 	 * a new object of the designated type will be instantiated.
 	 *
-	 * @param mixed $type string or an instance of ContentTypePlaceHolder
+	 * @param mixed $type string type name or an instance of ContentTypePlaceHolder
 	 * @param array since 2.3 initial object properties (replaces subsequent LoadFromData())
 	 * @param bool since 2.3 optional flag whether to create a ContentEditor-class
 	 * object. Default false (hence a shortform object)
@@ -194,10 +195,15 @@ final class ContentOperations
 		}
 		$ctph = $this->LoadContentType($type, $editable);
 		if( is_object($ctph) ) {
-			if( $editable && class_exists($ctph->editorclass) ) {
-				return new $ctph->editorclass($params);
+			if( $editable && empty($ctph->editorclass) ) {
+				$editable = false; //revert to using displayable form, hopefully also editable
 			}
-			elseif (!$editable && class_exists($ctph->class)) {
+			if( $editable ) {
+				if( class_exists($ctph->editorclass) ) {
+					return new $ctph->editorclass($params);
+				}
+			}
+			elseif ( class_exists($ctph->class) ) {
 				return new $ctph->class($params);
 			}
 		}
@@ -317,7 +323,6 @@ final class ContentOperations
 				$obj->class = 'CMSMS\\contenttypes\\'.$class;
 				$obj->type = strtolower($class);
 				$obj->filename = $one;
-				$obj->loaded = false;
 				$obj->friendlyname_key = 'contenttype_'.$obj->type;
 				$obj->friendlyname = '';
 
@@ -332,10 +337,9 @@ final class ContentOperations
 					$obj->editorfilename = $path;
 				}
 				else {
-					$obj->editorclass = '';
-					$obj->editorfilename = '';
+					$obj->editorclass = $obj->class;
+					$obj->editorfilename = $obj->filename;
 				}
-				$obj->editorloaded = false;
 
 				$result[$type] = $obj;
 			}
