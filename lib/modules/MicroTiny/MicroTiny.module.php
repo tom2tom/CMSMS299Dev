@@ -25,7 +25,7 @@ class MicroTiny extends CMSModule
   public function GetAdminDescription() { return $this->Lang('admindescription'); }
   public function GetAuthor() { return 'Morten Poulsen'; }
   public function GetAuthorEmail() { return '&lt;morten@poulsen.org&gt;'; }
-  public function GetChangeLog() { @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
+  public function GetChangeLog() { @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
   public function GetDependencies() { return ['FilePicker'=>'1.1']; }
   public function GetFriendlyName() { return $this->Lang('friendlyname'); }
   public function GetHelp() { return $this->Lang('help'); }

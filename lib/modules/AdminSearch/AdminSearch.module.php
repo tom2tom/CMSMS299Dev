@@ -22,7 +22,7 @@ final class AdminSearch extends CMSModule
   public function GetAdminSection() { return 'siteadmin'; }
   public function GetAuthor() { return 'Robert Campbell'; }
   public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
-  public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
+  public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
   public function GetFriendlyName()  { return $this->Lang('friendlyname');  }
   public function GetHelp() { return $this->Lang('help'); }
   public function GetVersion()  { return '1.1'; }

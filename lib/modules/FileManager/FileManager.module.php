@@ -29,7 +29,7 @@ final class FileManager extends CMSModule
     public function GetAdminSection() { return 'files'; }
     public function GetAuthor() { return 'Morten Poulsen (Silmarillion)'; }
     public function GetAuthorEmail() { return 'morten@poulsen.org'; }
-    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
+    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetDependencies() { return ['FilePicker'=>'1.1']; }
     public function GetEventDescription($name) { return $this->Lang('eventdesc_'.$name);	}
     public function GetEventHelp($name) { return $this->Lang('eventhelp_'.$name); }

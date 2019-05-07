@@ -32,7 +32,7 @@ class News extends CMSModule
     public function GetAdminSection() { return (version_compare(CMS_VERSION,'2.2.910') < 0) ? 'content' : 'services'; }
     public function GetAuthor() { return 'Ted Kulp'; }
     public function GetAuthorEmail() { return 'ted@cmsmadesimple.org'; }
-    public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
+    public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetEventDescription($eventname) { return $this->lang('eventdesc-' . $eventname); }
     public function GetEventHelp($eventname) { return $this->lang('eventhelp-' . $eventname); }
     public function GetFriendlyName() { return $this->Lang('news'); }

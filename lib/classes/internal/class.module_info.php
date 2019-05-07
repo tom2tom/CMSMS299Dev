@@ -201,26 +201,51 @@ class module_info implements ArrayAccess
 
         $data = $inidata['module'];
         $arr = [];
-        $arr['name'] = isset($data['name'])?trim($data['name']):$module_name;
-        $arr['version'] = isset($data['version'])?trim($data['version']):'0.0.1';
-        $arr['description'] = isset($data['description'])?trim($data['description']):'';
+        $arr['name'] = isset($data['name']) ? trim($data['name']) : $module_name;
+        $arr['version'] = isset($data['version']) ? trim($data['version']) : '0.0.1';
+        $arr['description'] = isset($data['description']) ? trim($data['description']) : '';
         $arr['author'] = trim(get_parameter_value($data,'author',lang('notspecified')));
         $arr['authoremail'] = trim(get_parameter_value($data,'authoremail',lang('notspecified')));
-        $arr['mincmsversion'] = isset($data['mincmsversion'])?trim($data['mincmsversion']):CMS_VERSION;
+        $arr['mincmsversion'] = isset($data['mincmsversion']) ? trim($data['mincmsversion']) : CMS_VERSION;
         $arr['lazyloadadmin'] = cms_to_bool(get_parameter_value($data,'lazyloadadmin',FALSE));
         $arr['lazyloadfrontend'] = cms_to_bool(get_parameter_value($data,'lazyloadfrontend',FALSE));
 
-        if( isset($inidata['depends']) ) $arr['depends'] = $inidata['depends'];
+        if( isset($inidata['depends']) ) {
+			$arr['depends'] = $inidata['depends'];
+		}
 
-        $fn = cms_join_path($dir,'changelog.inc');
-        if( is_file($fn) ) $arr['changelog'] = file_get_contents($fn);
-        $fn = cms_join_path($dir,'doc/changelog.inc');
-        if( is_file($fn) ) $arr['changelog'] = file_get_contents($fn);
+		foreach( [
+			'changelog.inc',
+			'changelog.htm',
+			'doc'.DIRECTORY_SEPARATOR.'changelog.inc',
+			'doc'.DIRECTORY_SEPARATOR.'changelog.htm',
+		] as $one ) {
+	        $path = cms_join_path($dir,$one);
+			if( is_file($path) ) {
+				$arr['changelog'] = file_get_contents($path);
+				break;
+			}
+		}
 
-        $fn = cms_join_path($dir,'help.inc');
-        if( is_file($fn) ) $arr['help'] = file_get_contents($fn);
-        $fn = cms_join_path($dir,'doc/help.inc');
-        if( is_file($fn) ) $arr['help'] = file_get_contents($fn);
+		foreach( [
+			'modhelp.inc',
+			'modhelp.htm',
+			'help.inc',
+			'help.htm',
+			'doc'.DIRECTORY_SEPARATOR.'modhelp.inc',
+			'doc'.DIRECTORY_SEPARATOR.'modhelp.htm',
+			'doc'.DIRECTORY_SEPARATOR.'help.inc',
+			'doc'.DIRECTORY_SEPARATOR.'help.htm',
+		] as $one ) {
+	        $path = cms_join_path($dir,$one);
+			if( is_file($path) ) {
+				$arr['help'] = file_get_contents($path);
+				break;
+			}
+		}
+		if( !isset($arr['help']) ) {
+		//TODO $mod = ; $arr['help'] = $mod->GetHelp();
+		}
 
         $arr['has_meta'] = TRUE;
         return $arr;

@@ -28,13 +28,13 @@ class Search extends CMSModule
     public function GetAdminSection() { return 'siteadmin'; }
     public function GetAuthor() { return 'Ted Kulp'; }
     public function GetAuthorEmail() { return 'ted@cmsmadesimple.org'; }
-    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
+    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetEventDescription( $eventname ) { return $this->lang('eventdesc-' . $eventname); }
     public function GetEventHelp( $eventname ) { return $this->lang('eventhelp-' . $eventname); }
     public function GetFriendlyName() { return $this->Lang('search'); }
     public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetName() { return 'Search'; }
-    public function GetVersion() { return '1.52'; }
+    public function GetVersion() { return '1.53'; }
     public function HandlesEvents () { return true; }
     public function HasAdmin() { return true; }
     public function IsPluginModule() { return true; }
