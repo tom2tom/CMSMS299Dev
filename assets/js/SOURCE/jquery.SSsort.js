@@ -425,9 +425,15 @@ License: GNU Affero GPL V.3 or later
 		var cfg = $.data (table, 'SSsortcfg');
 		if (cfg) {
 			cfg[propname] = propvalue;
-			showPage (0, cfg);
 			if (cfg.countid) {
 				pageCount (cfg);
+			}
+			var newpage = 0;
+			if (propname === 'currentpage' && propvalue > 0) {
+				newpage = propvalue - 1;
+			}
+		    showPage (newpage, cfg);
+			if (cfg.countid) {
 				$('#'+cfg.countid).html(cfg.pagecount);
 			}
 		}
