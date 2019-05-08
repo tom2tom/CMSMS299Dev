@@ -68,7 +68,7 @@ create_date I,
 modified_date I DEFAULT 0,
 item_order I(4),
 public I(1),
-extra x(1024)
+extra X(1024)
 ';
 
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news_fielddefs', $flds, $taboptarray);
