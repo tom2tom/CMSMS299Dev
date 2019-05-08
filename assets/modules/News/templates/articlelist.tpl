@@ -33,7 +33,7 @@
   </div>{*boxchild*}
 {if $itemcount > 0 && isset($rowchanger)}
   <div class="boxchild">
-   {$t='<span id="tpage" style="margin-right:0.5em;">'|cat:{$totpg}|cat:'</span>'}{$mod->Lang('pageof','<span id="cpage">1</span>',$t)}
+   {$mod->Lang('pageof','<span id="cpage">1</span>',"<span id='tpage' style='margin-right:0.5em;'>`$totpg`</span>")}
    {$rowchanger}{$mod->Lang('pagerows')}
    <a href="javascript:pagefirst()">{$mod->Lang('first')}</a>
    <a href="javascript:pageprev()">{$mod->Lang('previous')}</a>
