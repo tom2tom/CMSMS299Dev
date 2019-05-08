@@ -1,4 +1,18 @@
 {if $list_all_types}
+{if $typepages > 1}
+<div class="browsenav postgap">
+ <a href="javascript:pagefirst(typetable)">{lang_by_realm('layout','pager_first')}</a>&nbsp;|&nbsp;
+{if $typepages > 2}
+ <a href="javascript:pageback(typetable)">{lang_by_realm('layout','pager_previous')}</a>&nbsp;&lt;&gt;&nbsp;
+ <a href="javascript:pageforw(typetable)">{lang_by_realm('layout','pager_next')}</a>&nbsp;|&nbsp;
+{/if}
+ <a href="javascript:pagelast(typetable)">{lang_by_realm('layout','pager_last')}</a>&nbsp;
+ ({lang_by_realm('layout','pageof','<span id="cpage2">1</span>',"<span id='tpage2'>`$typepages`</span>")})&nbsp;&nbsp;
+ <select id="typepagerows" name="typepagerows">
+  {html_options options=$pagelengths selected=$currentlength}
+ </select>&nbsp;&nbsp;{lang_by_realm('layout','pager_rows')}
+</div>
+{/if} {* typepages *}
 <table id="typelist" class="pagetable" style="width:auto;">
   <thead>
   <tr>

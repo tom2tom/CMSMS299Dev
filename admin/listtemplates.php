@@ -177,12 +177,19 @@ try {
             $tmp[$types[$i]->get_id()] = $types[$i];
             $tmp2[$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
         }
+
+		$typepages = ceil($n / 10);
+		//TODO $pagelengths if N/A already
         $smarty->assign('list_all_types',$tmp) //objects
-         ->assign('list_types',$tmp2); //public-names
+         ->assign('list_types',$tmp2) //public-names
+         ->assign('typepages',$typepages);
     }
     else {
+        $typepages = 0;
+
         $smarty->assign('list_all_types',null)
-         ->assign('list_types',null);
+         ->assign('list_types',null)
+         ->assign('typepages',null);
     }
 
     $locks = LockOperations::get_locks('template');
@@ -270,18 +277,18 @@ $sm->queue_matchedfile('jquery.cmsms_poll.js', 2);
 $sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 
 $js = <<<EOS
-var pagedtable, paged;
-function pagefirst() {
-  $.fn.SSsort.movePage(pagedtable,false,true);
+var tpltable,typetable;
+function pagefirst(tbl) {
+  $.fn.SSsort.movePage(tbl,false,true);
 }
-function pagelast() {
-  $.fn.SSsort.movePage(pagedtable,true,true);
+function pagelast(tbl) {
+  $.fn.SSsort.movePage(tbl,true,true);
 }
-function pageforw() {
-  $.fn.SSsort.movePage(pagedtable,true,false);
+function pageforw(tbl) {
+  $.fn.SSsort.movePage(tbl,true,false);
 }
-function pageback() {
-  $.fn.SSsort.movePage(pagedtable,false,false);
+function pageback(tbl) {
+  $.fn.SSsort.movePage(tbl,false,false);
 }
 function adjust_locks(tblid,lockdata) {
   var n = 0;
@@ -312,8 +319,7 @@ function adjust_locks(tblid,lockdata) {
   return n;
 }
 $(function() {
-  pagedtable = document.getElementById('tpllist');
-  paged = $navpages > 1;
+  tpltable = document.getElementById('tpllist');
   var opts = {
    sortClass: 'SortAble',
    ascClass: 'SortUp',
@@ -323,16 +329,25 @@ $(function() {
    oddsortClass: 'row1s',
    evensortClass: 'row2s'
   };
-  if(paged) {
-   var xopts = $.extend(opts, {
+  if($navpages > 1) {
+   var xopts = $.extend({}, opts, {
     paginate: true,
     pagesize: $sellength,
     currentid: 'cpage',
     countid: 'tpage'
    });
-    $(pagedtable).SSsort(xopts);
+    $(tpltable).SSsort(xopts);
+    $('#pagerows').on('change',function() {
+      l = parseInt(this.value);
+      if(l == 0) {
+       //TODO hide move-links, 'rows per page', show 'rows'
+      } else {
+        //TODO show move-links, 'rows per page', hide 'rows'
+      }
+      $.fn.SSsort.setCurrent(tpltable,'pagesize',l);
+    });
   } else {
-    $(pagedtable).SSsort(opts);
+    $(tpltable).SSsort(opts);
   }
   $('#bulk_action').attr('disabled','disabled');
   cms_button_able($('#bulk_submit'),false);
@@ -358,16 +373,29 @@ $(function() {
     return false;
   });
   $('#tpllist [context-menu]').ContextMenu();
-  $('#typelist').SSsort(opts);
-  $('#pagerows').on('change',function() {
+
+  typetable = document.getElementById('typelist');
+  if($typepages > 1) {
+   xopts = $.extend({}, opts, {
+    paginate: true,
+    pagesize: $sellength,
+    currentid: 'cpage2',
+    countid: 'tpage2'
+   });
+   $(typetable).SSsort(xopts);
+   $('#typepagerows').on('change',function() {
     l = parseInt(this.value);
     if(l == 0) {
      //TODO hide move-links, 'rows per page', show 'rows'
     } else {
-      //TODO show move-links, 'rows per page', hide 'rows'
+     //TODO show move-links, 'rows per page', hide 'rows'
     }
-    $.fn.SSsort.setCurrent(pagedtable,'pagesize',l);
-  });
+    $.fn.SSsort.setCurrent(typetable,'pagesize',l);
+   });
+  } else {
+    $(typetable).SSsort(opts);
+  }
+
   $('a.edit_filter').on('click', function() {
     cms_dialog($('#filterdialog'), {
     open: function(ev, ui) {

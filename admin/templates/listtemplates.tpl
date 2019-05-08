@@ -26,14 +26,13 @@
 {if !empty($templates)}
 {if $navpages > 1}
 <div class="browsenav postgap">
- <a href="javascript:pagefirst()">{lang_by_realm('layout','pager_first')}</a>&nbsp;|&nbsp;
+ <a href="javascript:pagefirst(tpltable)">{lang_by_realm('layout','pager_first')}</a>&nbsp;|&nbsp;
 {if $navpages > 2}
- <a href="javascript:pageback()">{lang_by_realm('layout','pager_previous')}</a>&nbsp;&lt;&gt;&nbsp;
- <a href="javascript:pageforw()">{lang_by_realm('layout','pager_next')}</a>&nbsp;|&nbsp;
+ <a href="javascript:pageback(tpltable)">{lang_by_realm('layout','pager_previous')}</a>&nbsp;&lt;&gt;&nbsp;
+ <a href="javascript:pageforw(tpltable)">{lang_by_realm('layout','pager_next')}</a>&nbsp;|&nbsp;
 {/if}
- {$s1='<span id="cpage">1</span>'}{$s2="<span id='tpage'>`$navpages`</span>"}
- <a href="javascript:pagelast()">{lang_by_realm('layout','pager_last')}</a>&nbsp;
- ({lang_by_realm('layout','pageof',$s1,$s2)})&nbsp;&nbsp;
+ <a href="javascript:pagelast(tpltable)">{lang_by_realm('layout','pager_last')}</a>&nbsp;
+ ({lang_by_realm('layout','pageof','<span id="cpage">1</span>',"<span id='tpage'>`$navpages`</span>")})&nbsp;&nbsp;
  <select id="pagerows" name="pagerows">
   {html_options options=$pagelengths selected=$currentlength}
  </select>&nbsp;&nbsp;{lang_by_realm('layout','pager_rows')}
@@ -61,7 +60,7 @@
 </div>
 
 {if $manage_templates}{* TODO && single(s) exist *}
-<div id="replacedialog" title="{lang_by_realm('layout','prompt_replace_template')}" style="display:none;min-width:15em;">
+<div id="replacedialog" title="{lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_template'))}" style="display:none;min-width:15em;">
   <form id="replacedialog_form" action="templateoperations.php" method="post">
   {foreach $extraparms3 as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
   {/foreach}
