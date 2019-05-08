@@ -181,18 +181,18 @@ $sm->queue_matchedfile('jquery.cmsms_poll.js', 2);
 $sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 
 $js = <<<EOS
-var pagedtable, paged;
-function pagefirst() {
-  $.fn.SSsort.movePage(pagedtable,false,true);
+var pagetable;
+function pagefirst(tbl) {
+  $.fn.SSsort.movePage(tbl,false,true);
 }
-function pagelast() {
-  $.fn.SSsort.movePage(pagedtable,true,true);
+function pagelast(tbl) {
+  $.fn.SSsort.movePage(tbl,true,true);
 }
-function pageforw() {
-  $.fn.SSsort.movePage(pagedtable,true,false);
+function pageforw(tbl) {
+  $.fn.SSsort.movePage(tbl,true,false);
 }
-function pageback() {
-  $.fn.SSsort.movePage(pagedtable,false,false);
+function pageback(tbl) {
+  $.fn.SSsort.movePage(tbl,false,false);
 }
 function adjust_locks(tblid,lockdata) {
   var n = 0;
@@ -223,8 +223,7 @@ function adjust_locks(tblid,lockdata) {
   return n;
 }
 $(function() {
-  pagedtable = document.getElementById('csslist');
-  paged = $navpages > 1;
+  pagetable = document.getElementById('csslist');
   var opts = {
    sortClass: 'SortAble',
    ascClass: 'SortUp',
@@ -234,16 +233,25 @@ $(function() {
    oddsortClass: 'row1s',
    evensortClass: 'row2s'
   };
-  if(paged) {
-    var xopts = $.extend(opts, {
+  if($navpages > 1) {
+    var xopts = $.extend({}, opts, {
      paginate: true,
      pagesize: $sellength,
      currentid: 'cpage',
      countid: 'tpage'
     });
-    $(pagedtable).SSsort(xopts);
+    $(pagetable).SSsort(xopts);
+    $('#pagerows').on('change',function() {
+      l = parseInt(this.value);
+      if(l == 0) {
+       //TODO disable move-links, 'rows per page', show 'rows'
+      } else {
+        //TODO enable move-links, 'rows per page', hide 'rows'
+      }
+      $.fn.SSsort.setCurrent(tpltable,'pagesize',l);
+    });
   } else {
-    $(pagedtable).SSsort(opts);
+    $(pagetable).SSsort(opts);
   }
   $('#bulk_action').attr('disabled', 'disabled');
   cms_button_able($('#bulk_submit'), false);

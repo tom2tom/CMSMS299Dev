@@ -20,6 +20,21 @@
 {/if}{/strip}
 {/function}
 
+{if $navpages > 1}
+<div class="browsenav postgap">
+ <a href="javascript:pagefirst(pagetable)">{lang_by_realm('layout','pager_first')}</a>&nbsp;|&nbsp;
+{if $navpages > 2}
+ <a href="javascript:pageback(pagetable)">{lang_by_realm('layout','pager_previous')}</a>&nbsp;&lt;&gt;&nbsp;
+ <a href="javascript:pageforw(pagetable)">{lang_by_realm('layout','pager_next')}</a>&nbsp;|&nbsp;
+{/if}
+ <a href="javascript:pagelast(pagetable)">{lang_by_realm('layout','pager_last')}</a>&nbsp;
+ ({lang_by_realm('layout','pageof','<span id="cpage">1</span>',"<span id='tpage'>`$navpages`</span>")})&nbsp;&nbsp;
+ <select id="pagerows" name="pagerows">
+  {html_options options=$pagelengths selected=$currentlength}
+ </select>&nbsp;&nbsp;{lang_by_realm('layout','pager_rows')}
+</div>
+{/if} {* navpages *}
+
   <form action="stylesheetoperations.php" method="post">
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />{/foreach}
   <table id="csslist" class="pagetable" style="width:auto;">
