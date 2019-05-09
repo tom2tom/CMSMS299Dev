@@ -154,9 +154,9 @@ final class Field
       $this->item_order = $num+1;
     }
     $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_fielddefs
-              (name,type,max_length,create_date,item_order,public,extra)
-              VALUES (?,?,?,?,?,?,?)';
-	$now = time();
+(name,type,max_length,create_date,item_order,public,extra)
+VALUES (?,?,?,?,?,?,?)';
+    $now = time();
     $dbr = $db->Execute($query,[$this->name,$this->type,$this->max_length,$now,$this->item_order,$this->public,
                      serialize($this->extra)]);
     $this->_data['id'] = $db->Insert_ID();
@@ -168,7 +168,7 @@ final class Field
     $db = cmsms()->GetDb();
     $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET name = ?, type = ?, max_length = ?, modified_date = ?,
 item_orderr = ?, public = ?, extra = ? WHERE id = ?';
-	$now = time();
+    $now = time();
     $dbr = $db->Execute($query,[$this->name,$this->type,$this->max_length, $now, $this->item_order,$this->public,
                      serialize($this->extra),$this->id]);
     $this->modified_date = $now;
