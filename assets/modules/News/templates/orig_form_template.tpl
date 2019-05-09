@@ -17,7 +17,7 @@
  <div class="colbox">
   <div class="rowbox flow">
     <label class="boxchild" for="news_title">*{$mod->Lang('title')}:</label>
-    <input type="text" class="boxchild" id="news_title" name="{$actionid}title" value="{$title}" size="30" required />
+    <input type="text" class="boxchild" id="news_title" name="{$actionid}title" value="{$title}" size="30" required="required" />
   </div>
   <div class="rowbox flow">
     <label class="boxchild" for="news_category">{$mod->Lang('category')}:</label>

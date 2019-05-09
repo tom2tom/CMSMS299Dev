@@ -20,7 +20,7 @@ $(function() {
  <div class="rowbox flow">
   <div class="boxchild"><label for="profile_name" class="required">* {$mod->Lang('name')}:</label>
   {cms_help realm=$_module key2='HelpPopup_ProfileName' title=$mod->Lang('HelpPopupTitle_ProfileName')}</div>
-  <input class="boxchild" type="text" size="40" id="profile_name" name="{$actionid}name" value="{$profile->name}" required />
+  <input class="boxchild" type="text" size="40" id="profile_name" name="{$actionid}name" value="{$profile->name}" required="required" />
  </div>
  <div class="rowbox flow">
   <div class="boxchild"><label for="profile_top">{$mod->Lang('topdir')}:</label>

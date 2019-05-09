@@ -43,7 +43,7 @@
 
  <div class="pregap">
   <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply ">{$mod->Lang('apply')}</button>
-  <button  type="submit" name="{$actionid}cancel" class="adminsubmit icon undo">{$mod->Lang('cancel')}</button>
+  <button  type="submit" name="{$actionid}cancel" class="adminsubmit icon undo" formnovalidate>{$mod->Lang('cancel')}</button>
  </div>
 
 </form>

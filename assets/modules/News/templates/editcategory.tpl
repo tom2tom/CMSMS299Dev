@@ -1,13 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(function() {
-  $('#{$actionid}cancel').on('click', function() {
-    $(this).closest('form').attr('novalidate','novalidate');
-  });
-});
-{/literal}//]]>
-</script>
-
 {if isset($catid)}
  <h3 class="subtitle">{$mod->Lang('editcategory')}</h3>
 {else}
@@ -22,7 +12,7 @@ $(function() {
     {cms_help realm=$_module key='help_category_name' title=$mod->Lang('name')}
   </p>
   <p class="pageinput">
-    <input type="text" name="{$actionid}name" id="{$actionid}name" value="{$name|default:''}" required />
+    <input type="text" name="{$actionid}name" id="{$actionid}name" value="{$name|default:''}" required="required" />
   </p>
 </div>
 <div class="pageoverflow">
@@ -38,6 +28,6 @@ $(function() {
 </div>
 <div class="pageinput pregap">
   <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{$mod->Lang('cancel')}</button>
 </div>
 </form>

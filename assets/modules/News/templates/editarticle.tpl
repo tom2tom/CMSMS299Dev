@@ -5,7 +5,7 @@
   <div class="postgap">
     <p class="pageinput">
       <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-      <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+      <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{$mod->Lang('cancel')}</button>
       <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
     </p>
   </div>
@@ -158,7 +158,7 @@
   <div class="pregap">
     <p class="pageinput">
       <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">&nbsp;{$mod->Lang('submit')}</button>
-      <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+      <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel" formnovalidate>{$mod->Lang('cancel')}</button>
       <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
     </p>
   </div>
