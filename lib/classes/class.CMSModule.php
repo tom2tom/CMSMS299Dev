@@ -2867,9 +2867,9 @@ abstract class CMSModule
      *
      * @final
      * @param string $preference_name The name of the preference to set
-     * @param string $value The value to set it to
+     * @param mixed $value string|null The value to set it to
      */
-    final public function SetPreference(string $preference_name, string $value)
+    final public function SetPreference(string $preference_name, $value)
     {
         return cms_siteprefs::set($this->GetName().'_mapi_pref_'.$preference_name, $value);
     }
