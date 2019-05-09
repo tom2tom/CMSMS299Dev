@@ -1,4 +1,5 @@
-{if $fieldcount > 0}
+<p class="pageinfo postgap">{$mod->Lang('info_fields')}</p>
+{if !empty($fieldcount)}
 <table class="pagetable">
   <thead>
     <tr>
@@ -24,7 +25,6 @@
   </tbody>
 </table>
 {/if}
-
 <div class="pageoptions">
   <a href="{$addurl}" title="{$mod->Lang('addfielddef')}">{admin_icon icon='newobject.gif'} {$mod->Lang('addfielddef')}</a>
 </div>
