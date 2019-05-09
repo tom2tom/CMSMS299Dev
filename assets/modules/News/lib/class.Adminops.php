@@ -44,6 +44,8 @@ final class Adminops
     public static function copy_article($articleid)
     {
         if (!$articleid) return false;
+
+        $db = cmsms()->GetDb();
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
         $row = $db->GetRow($query, [$articleid]);
         if ($row) {
@@ -103,8 +105,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         if (!$articleid) return false;
 
         $db = cmsms()->GetDb();
-
-        //Now remove the article
+        // remove the article
         $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
         $db->Execute($query, [$articleid]);
 
@@ -191,7 +192,6 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     public static function UpdateHierarchyPositions()
     {
         $db = cmsms()->GetDb();
-
         $query = 'SELECT news_category_id, item_order, news_category_name FROM '.CMS_DB_PREFIX.'module_news_categories';
         $dbresult = $db->Execute($query);
         while ($dbresult && $row = $dbresult->FetchRow()) {
