@@ -20,7 +20,6 @@ namespace News;
 
 use CMSMS\CmsException;
 use Exception;
-use News\Field;
 use News\Ops;
 use const CMS_DB_PREFIX;
 use function cmsms;
