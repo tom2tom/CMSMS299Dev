@@ -1,10 +1,10 @@
 <div class="pageoptions">
   <p class="pageoptions">
-    <a href="{cms_action_url action='addcategory'}" title="{$mod->Lang('addcategory')}">{admin_icon icon='newobject.gif'} {$mod->Lang('addcategory')}</a> &nbsp; {if $catcount > 1}<a href="{cms_action_url action='admin_reorder_cats'}" title="{$mod->Lang('reorder')}">{admin_icon icon='reorder.gif'} {$mod->Lang('reorder')}</a>{/if}
+    <a href="{cms_action_url action='addcategory'}" title="{$mod->Lang('addcategory')}">{admin_icon icon='newobject.gif'} {$mod->Lang('addcategory')}</a> &nbsp; {if isset($catcount) && $catcount > 1}<a href="{cms_action_url action='admin_reorder_cats'}" title="{$mod->Lang('reorder')}">{admin_icon icon='reorder.gif'} {$mod->Lang('reorder')}</a>{/if}
   </p>
 </div>
 
-{if $catcount > 0}
+{if !empty($catcount)}
 <table class="pagetable">
   <thead>
     <tr>
