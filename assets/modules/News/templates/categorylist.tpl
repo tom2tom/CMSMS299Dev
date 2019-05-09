@@ -23,5 +23,6 @@
     {/foreach}
   </tbody>
 </table>
+{else}
+<p class="pageinfo">{$mod->Lang('info_categories')}</p>
 {/if}
-
