@@ -150,6 +150,12 @@ class Connection
      */
     protected $_native = ''; //for PHP 5.4+, the MySQL native driver is a php.net compile-time default
 
+    /**
+    * The offset (in seconds) between session timezone and UTC
+     * @internal
+     */
+    protected $_time_offset;
+
 	/**
      * @internal
      */
@@ -211,12 +217,13 @@ class Connection
                     }
                     if (!empty($config['set_db_timezone'])) { //ditto
                         try {
-                            $dt = new DateTime(new DateTimeZone($config['timezone']));
+                            $dt = new DateTime('', new DateTimeZone($config['timezone']));
                         } catch (Exception $e) {
                             $this->_mysql = null;
                             $this->on_error(self::ERROR_PARAM, $e->getCode(), $e->getMessage());
                         }
                         $offset = $dt->getOffset();
+                        $this->_time_offset = $offset;
                         if ($offset < 0) {
                             $offset = -$offset;
                             $symbol = '-';
@@ -227,6 +234,12 @@ class Connection
                         $mins = (int)($offset % 3600 / 60);
                         $sql = sprintf("SET time_zone = '%s%02d:%02d'", $symbol, $hrs, $mins);
                         $this->execute($sql);
+                    } else {
+                        $now = time();
+                        $s = $this->getOne('SELECT FROM_UNIXTIME('.$now.')');
+                        $dt = new DateTime('@0', null);
+                        $dt->modify($s);
+                        $this->_time_offset = $dt->getTimestamp() - $now;
                     }
                 } else {
 					$this->_database = null;
@@ -258,6 +271,8 @@ class Connection
             return $this->_query_time_total;
          case 'query_count':
             return $this->_query_count;
+         case 'time_offset':
+            return isset($this->$_time_offset) ? $this->$_time_offset : null;
          default:
             return null;
         }
@@ -274,6 +289,8 @@ class Connection
          case 'query_time_total':
          case 'query_count':
             return true;
+         case 'time_offset':
+            return isset($this->$_time_offset);
          default:
            return false;
         }
@@ -989,10 +1006,20 @@ class Connection
     //// time and date stuff
 
     /**
-     * A utility method to convert a unix timestamp into a database-specific
+     * Get the difference (in seconds) between server session-timezone and UTC
+     *
+     * @return mixed int | null if N/A
+     */
+    public function dbTimeOffset()
+    {
+        return isset($this->$_time_offset) ? $this->$_time_offset : null;
+    }
+
+    /**
+     * A utility method to convert a *NIX timestamp into a database-specific
      * string suitable for use in queries.
      *
-     * @param mixed $time number, or string (e.g. from PHP Date()), or DateTime object
+     * @param mixed $time int timestamp, or string (e.g. from PHP Date()), or DateTime object
      * @param bool $quoted optional flag whether to quote the returned string
      *
      * @return mixed optionally quoted string representing server/local date & time, or NULL
@@ -1025,7 +1052,7 @@ class Connection
 
     /**
      * A convenience method for converting a database specific string representing a date and time
-     * into a unix timestamp.
+     * into a *NIX timestamp. Merely executes PHP strtotime(). No error processing.
      *
      * @param string $str
      *
@@ -1077,7 +1104,7 @@ class Connection
     }
 
     /**
-     * Generate a unix timestamp representing the start of the current day.
+     * Generate a *NIX timestamp representing the start of the current day.
      *
      * @deprecated
      *
