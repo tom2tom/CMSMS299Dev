@@ -18,8 +18,8 @@
   <div class="pageoverflow">
     <label class="pagetext" for="retid">{$title_detail_returnid}:</label>
     {cms_help realm=$_module key='info_detail_returnid' title=$title_detail_returnid}
-    <p class="pageinput">
-       <input type="text" id="retid" name="{$actionid}detail_returnid" value="{*$detail_returnid*}" size="30" maxlength="40" />
+    <p class="pageinput">{* TODO hierarchy selector for relevant page-id *}
+       <input type="text" id="retid" name="{$actionid}detail_returnid" value="{$detail_returnid}" size="4" maxlength="4" />
     </p>
   </div>
   <div class="pageoverflow">
