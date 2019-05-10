@@ -372,7 +372,7 @@ final class CmsApp
         if( !isset($DONT_LOAD_DB) ) {
             $config = cms_config::get_instance();
             $this->db = new Connection($config);
-            //deprecated: make old stuff available
+            //deprecated since 2.3 at most: make old stuff available
             require_once cms_join_path(__DIR__, 'Database', 'class.compatibility.php');
             return $this->db;
         }
