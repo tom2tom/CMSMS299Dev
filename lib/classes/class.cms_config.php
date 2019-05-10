@@ -300,9 +300,9 @@ final class cms_config implements ArrayAccess
         if( isset($this->_data[$key]) ) return $this->_data[$key];
 
         // cached, calculated values.
-        if( isset($this->_cache[$key]) ) return $this->_cache[$key]; // this saves recursion and dynamic calculations all the time.
+        if( isset($this->_cache[$key]) ) return $this->_cache[$key]; // this saves recursion and dynamic calculation every time.
 
-        // it's not explicitly specified in the config file.
+        // not explicitly specified in the config file.
         switch( $key ) {
         case 'db_hostname':
         case 'db_username':
@@ -316,8 +316,8 @@ final class cms_config implements ArrayAccess
         case 'dbms':
             return 'mysqli';
 
-        case 'db_prefix':
-            return 'cms_';
+		case 'db_prefix':
+            return CMS_DB_PREFIX;
 
         case 'query_var':
             return 'page';
@@ -327,6 +327,7 @@ final class cms_config implements ArrayAccess
             return false;
 
         case 'smart_urls':
+		case 'set_db_timezone':
         case 'set_names':
             return true;
 
