@@ -3,7 +3,7 @@ Version 2.3 - NO NAME SET
 ADMIN USER-FACING CHANGES
 
 extra admin themes
-'services' section in admin menu (for site-content administration, as distinct from page-content, i.e. user-interactive things like news, ecommerce, forms data)
+'services' section in admin menu (for site-content administration, as distinct from page-content, i.e. user-interactive things like ecommerce, forms data)
 replacement notifications mechanism
 consistent js-initiated dialogs (no more 'native' popups)
 displayed images may also be svg, png or fonticon, with svg preferred if present
@@ -177,6 +177,7 @@ DETAILS
   - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
   - CHANGE: News module is non-core, and in future will be distributed independently of the core files (and probably replaced)
+  - BREAKING: Long-deprecated frontend creation of news items has been removed
   - CHANGE: DesignManager module is non-core, and in future will be distributed independently of the core files
   - FEATURE: Registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
   - FEATURE: Event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
