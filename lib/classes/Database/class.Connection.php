@@ -188,7 +188,7 @@ class Connection
      *  'db_port'
      *  'set_names' (opt)
      *  'set_db_timezone' (opt)
-     *  'timezone' used only if 'set_db_timezone' is true
+     *  'timezone' used only if 'set_db_timezone' is true (normally the case)
      */
     public function __construct($config = null)
     {
