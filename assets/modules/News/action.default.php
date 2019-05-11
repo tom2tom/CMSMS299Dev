@@ -1,4 +1,21 @@
 <?php
+/*
+Default action for CMSMS News module.
+Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\TemplateOperations;
 use News\Ops;
@@ -169,7 +186,7 @@ if( $rst ) {
         $result_ids[] = $rst->fields['news_id'];
         $rst->MoveNext();
     }
-    Ops::preloadFieldData($result_ids);
+//    Ops::preloadFieldData($result_ids);
 
     $rst->MoveFirst();
     while( !$rst->EOF() ) {
@@ -201,9 +218,9 @@ if( $rst ) {
         //
         // Handle the custom fields
         //
-        $onerow->fields = Ops::get_fields($row['news_id'],true);
-        $onerow->fieldsbyname = $onerow->fields; // dumb, I know.
-        $onerow->file_location = $gCms->config['uploads_url'].'/news/id'.$row['news_id'];
+//        $onerow->fields = Ops::get_fields($row['news_id'],true);
+//        $onerow->fieldsbyname = $onerow->fields; // dumb, I know.
+//        $onerow->file_location = $gCms->config['uploads_url'].'/news/id'.$row['news_id'];
 
         $moretext = $params['moretext'] ?? $this->Lang('more');
 
@@ -313,4 +330,3 @@ $tpl->assign('category_name',$catName)
  ->assign('cats', $items);
 
 $tpl->display();
-
