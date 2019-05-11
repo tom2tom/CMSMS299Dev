@@ -20,8 +20,8 @@
 <input type="hidden" name="{$actionid}data" id="submit_data" value=""/>
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </p>
 </div>
 </form>
