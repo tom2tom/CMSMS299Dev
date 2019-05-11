@@ -208,11 +208,17 @@ if( $rst ) {
         $onerow->content = $row['news_data'];
         $onerow->summary = (trim($row['summary'])!='<br />'?$row['summary']:'');
         if( !empty($row['news_extra']) ) $onerow->extra = $row['news_extra'];
-        $onerow->postdate = $row['start_time']; //deprecated since 2.90
-        $onerow->startdate = $row['start_time'];
-        $onerow->enddate = $row['end_time'];
-        $onerow->create_date = $row['create_date'];
-        $onerow->modified_date = $row['modified_date'];
+        $onerow->start = $row['start_time'];
+        //probably a timezone disconnect here, but local time is as good a guess as any
+        $onerow->startdate = date('Y-m-d H:i:s',$onerow->start);
+        $onerow->postdate = $onerow->startdate; //deprecated since 3.0
+        $onerow->stop = $row['end_time'];
+        $onerow->enddate = date('Y-m-d H:i:s',$onerow->stop);
+        $onerow->created = $row['create_date'];
+        $onerow->create_date = date('Y-m-d H:i:s',$onerow->created);
+        $onerow->modified = $row['modified_date'];
+        if( !$onerow->modified ) $onerow->modified = $onerow->created;
+        $onerow->modified_date = date('Y-m-d H:i:s',$onerow->modified);
         $onerow->category = $row['news_category_name'];
 
         //
