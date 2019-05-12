@@ -156,8 +156,7 @@ class CmsLayoutTemplate
  	*/
  	public function __set($key,$value)
  	{
-		switch( $key )
-		{
+		switch( $key ) {
 			case 'id':
 		  	case 'type_id':
 			case 'owner_id':
@@ -206,7 +205,7 @@ class CmsLayoutTemplate
 				$this->_groups = $value;
 				break;
 			case 'designs':
-				break; //unused since 2.3
+				return; //unused since 2.3
 			default:
 				throw new CmsLogicException("Attempt to set invalid template property: $key");
 		}
@@ -248,6 +247,7 @@ class CmsLayoutTemplate
 		foreach( $params as $key=>$value ) {
 			$this->__set($key,$value);
 		}
+		$this->_dirty = true;
 	}
 
    /**
@@ -282,6 +282,7 @@ class CmsLayoutTemplate
 	public function set_name($str)
 	{
 		$this->name = $str;
+		$this->_dirty = true;
 	}
 
 	/**
@@ -304,6 +305,7 @@ class CmsLayoutTemplate
 	public function set_originator(string $str)
 	{
 		$this->originator = $str;
+		$this->_dirty = true;
 	}
 
    /**
@@ -341,6 +343,7 @@ class CmsLayoutTemplate
 		else {
 			$this->content = $str;
 		}
+		$this->_dirty = true;
 	}
 
    /**
@@ -362,6 +365,7 @@ class CmsLayoutTemplate
 	public function set_description($str)
 	{
 		$this->description = $str;
+		$this->_dirty = true;
 	}
 
    /**
@@ -399,6 +403,7 @@ class CmsLayoutTemplate
 		}
 
 		$this->type_id = $id;
+		$this->_dirty = true;
 	}
 
    /**
@@ -422,6 +427,7 @@ class CmsLayoutTemplate
 	public function set_type_dflt($flag = true)
 	{
 		$this->type_dflt = $flag;
+		$this->_dirty = true;
 	}
 
    /**
@@ -709,6 +715,7 @@ class CmsLayoutTemplate
 
 		if( $id < 1 ) throw new CmsInvalidDataException('Owner id must be valid in '.__METHOD__);
 		$this->owner_id = $id;
+		$this->_dirty = true;
 	}
 
    /**
@@ -838,6 +845,7 @@ class CmsLayoutTemplate
 	public function set_listable($flag = true)
 	{
 		$this->listable = $flag;
+		$this->_dirty = true;
 	}
 
    /**
@@ -991,6 +999,7 @@ class CmsLayoutTemplate
 			$this->content = '';
 		}
 		$this->contentfile = $state;
+		$this->_dirty = true;
 	}
 
 //======= DEPRECATED METHODS EXPORTED TO TemplateOperations CLASS =======
