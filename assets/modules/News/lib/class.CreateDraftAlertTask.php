@@ -1,5 +1,5 @@
 <?php
-# Task: to generate am alert about draft news items
+# Task: generate a notice about draft news item(s)
 # Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,6 +21,7 @@ namespace News;
 use cms_utils;
 use CmsApp;
 use CmsRegularTask;
+use News\DraftMessageAlert;
 use const CMS_DB_PREFIX;
 
 class CreateDraftAlertTask implements CmsRegularTask
@@ -34,7 +35,7 @@ class CreateDraftAlertTask implements CmsRegularTask
 
   public function get_description()
   {
-    return __CLASS__;
+    return 'A quarter-hourly task which generates a notice about draft news item(s)';
   }
 
   public function test($time = '')
@@ -56,16 +57,14 @@ class CreateDraftAlertTask implements CmsRegularTask
 
   public function execute($time = '')
   {
-    $db = CmsApp::get_instance()->GetDb();
     if( !$time ) $time = time();
-
-    $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status = \'draft\'
-AND (end_time IS NULL OR end_time > '.$time.')';
+    $db = CmsApp::get_instance()->GetDb();
+    $query = 'SELECT COUNT(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status = \'draft\' AND (end_time IS NULL OR end_time > '.$time.')';
     $count = $db->GetOne($query);
-    if( !$count ) return TRUE;
-
-    $alert = new DraftMessageAlert($count);
-    $alert->save();
+    if( $count ) {
+        $alert = new DraftMessageAlert($count);
+        $alert->save();
+    }
     return TRUE;
   }
 }
