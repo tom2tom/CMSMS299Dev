@@ -164,7 +164,7 @@ try {
         }
     }
 
-	$smarty->assign('navpages', $navpages)
+    $smarty->assign('navpages', $navpages)
      ->assign('pagelengths',$pagelengths)
      ->assign('currentlength',$sellength);
 
@@ -178,8 +178,8 @@ try {
             $tmp2[$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
         }
 
-		$typepages = ceil($n / 10);
-		//TODO $pagelengths if N/A already
+        $typepages = ceil($n / 10);
+        //TODO $pagelengths if N/A already
         $smarty->assign('list_all_types',$tmp) //objects
          ->assign('list_types',$tmp2) //public-names
          ->assign('typepages',$typepages);
