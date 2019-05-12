@@ -1,11 +1,15 @@
 /*!
-jQuery plug-in SSsort table-sorter/pager V.0.5.1
+jQuery plug-in SSsort table-sorter/pager V.0.6
 (C) 2014-2019 Tom Phane
 License: GNU Affero GPL V.3 or later
+  bundled with
+Metadata plugin for jQuery
+(C) 2006 John Resig, Yehuda Katz, Jörn Zaefferer, Paul McLanahan
+Dual licensed: MIT and GPL
 */
 /*
- Allows sorting and paging of table rows. Inspired somewhat by TINY.table and
- tablesorter plugins, with emphasis on performance rather than bells-n'-whistles
+ SSsort Allows sorting and paging of table rows. Inspired somewhat by TINY.table
+ and tablesorter plugins, with emphasis on performance rather than bells-n-whistles
 
  Limitations:
   If table has > 1 tbody, only the first one is processed
@@ -41,8 +45,8 @@ License: GNU Affero GPL V.3 or later
 
  Apply class "nosort" to each th node whose column is not sortable
 
- If the jQuery metadata plugin is available, add a pseudo-class to relevant th
- nodes, like "{sss:'parserid'}" (note the quoted parser id) which will override
+ In accord with the bundled jQuery metadata plugin, add a pseudo-class to relevant
+ th nodes, like "{sss:'parserid'}" (note the quoted parser id) which will override
  the auto-detection mechanism, or "{sss:false}" to prevent sorting that column.
 
  Change default parameter(s) using code like
@@ -270,6 +274,7 @@ License: GNU Affero GPL V.3 or later
   0.4 revise processing of {sss:false}, support >1 table per page July 2016
   0.5 adapt for later metadata plugin and jQ 2+ April 2018
   0.5.1 bugfix April 2019
+  0.6 bundled metadata plugin April 2019
 */
 
 ;(function($) {
@@ -819,4 +824,127 @@ License: GNU Affero GPL V.3 or later
 		}
 		return p;
 	}
+})(jQuery);
+
+/*!
+metadata plugin for jQuery
+Copyright (C) 2006 John Resig, Yehuda Katz, Jörn Zaefferer, Paul McLanahan
+Dual licensed: MIT and GPL
+*/
+/*
+ * Metadata - jQuery plugin for parsing metadata from elements
+ *
+ * Copyright (c) 2006 John Resig, Yehuda Katz, Jörn Zaefferer, Paul McLanahan
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ */
+
+/**
+ * Sets the type of metadata to use. Metadata is encoded in JSON, and each property
+ * in the JSON will become a property of the element itself.
+ *
+ * There are three supported types of metadata storage:
+ *
+ *   attr:  Inside an attribute. The name parameter indicates *which* attribute.
+ *
+ *   class: Inside the class attribute, wrapped in curly braces: { }
+ *
+ *   elem:  Inside a child element (e.g. a script tag). The
+ *          name parameter indicates *which* element.
+ *
+ * The metadata for an element is loaded the first time the element is accessed via jQuery.
+ *
+ * As a result, you can define the metadata type, use $(expr) to load the metadata into the elements
+ * matched by expr, then redefine the metadata type and run another $(expr) for other elements.
+ *
+ * @name $.metadata.setType
+ *
+ * @example <p id="one" class="some_class {item_id: 1, item_label: 'Label'}">This is a p</p>
+ * @before $.metadata.setType("class")
+ * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
+ * @desc Reads metadata from the class attribute
+ *
+ * @example <p id="one" class="some_class" data="{item_id: 1, item_label: 'Label'}">This is a p</p>
+ * @before $.metadata.setType("attr", "data")
+ * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
+ * @desc Reads metadata from a "data" attribute
+ *
+ * @example <p id="one" class="some_class"><script>{item_id: 1, item_label: 'Label'}</script>This is a p</p>
+ * @before $.metadata.setType("elem", "script")
+ * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
+ * @desc Reads metadata from a nested script element
+ *
+ * @param String type The encoding type
+ * @param String name The name of the attribute to be used to get metadata (optional)
+ * @cat Plugins/Metadata
+ * @descr Sets the type of encoding to be used when loading metadata for the first time
+ * @type undefined
+ * @see metadata()
+ */
+
+/**
+ * Returns the metadata object for the first member of the jQuery object.
+ *
+ * @name metadata
+ * @descr Returns element's metadata object
+ * @param Object opts An object contianing settings to override the defaults
+ * @type jQuery
+ * @cat Plugins/Metadata
+ */
+
+;(function($) {
+	$.fn.metadata = function(opts) {
+		var defaults = {
+			type: "class",
+			name: "metadata",
+			cre: /({.*})/,
+			single: "metadata"
+		};
+
+		function setType(type, name) {
+			defaults.type = type;
+			defaults.name = name;
+		}
+
+		var settings = $.extend({}, defaults, opts);
+		if (!settings.single) {
+			settings.single = "metadata";
+		}
+		var elem = this[0];
+		var data = $.data(elem, settings.single);
+		if (data) {
+			return data;
+		}
+		data = "{}";
+		if (settings.type == "class") {
+			var m = settings.cre.exec(elem.className);
+			if (m) {
+				data = m[1];
+			}
+		} else if (settings.type == "elem") {
+			if (!elem.getElementsByTagName) {
+				return undefined;
+			}
+			var e = elem.getElementsByTagName(settings.name);
+			if (e.length) {
+				data = $.trim(e[0].innerHTML);
+			}
+		} else if (elem.getAttribute !== undefined) {
+			var attr = elem.getAttribute(settings.name);
+			if (attr) {
+				data = attr;
+			}
+		}
+
+		if (data.indexOf("{") < 0) {
+			data = "{" + data + "}";
+		}
+
+		data = eval("(" + data + ")");
+		$.data(elem, settings.single, data);
+		return data;
+	};
 })(jQuery);
