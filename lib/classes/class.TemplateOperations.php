@@ -270,7 +270,7 @@ WHERE id=?';
 		}
 
 		if( $tpl->type_dflt ) {
-			// if it's default for a type, unset default flag for all other templates of this type
+			// if it's default for its type, clear default flag for all other records with this type
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET type_dflt = 0 WHERE type_id = ? AND type_dflt = 1 AND id != ?';
 //          $dbr =
 			$db->Execute($sql,[ $tpl->type_id,$tplid ]);
@@ -362,7 +362,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		}
 
 		if( $tpl->get_type_dflt() ) {
-			// if it's default for a type, unset default flag for all other records with this type
+			// if it's default for its type, clear default flag for all other records with this type
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET type_dflt = 0 WHERE type_id = ? AND type_dflt = 1 AND id != ?';
 //          $dbr =
 			$db->Execute($sql,[ $tpl->get_type_id(),$tplid ]);
