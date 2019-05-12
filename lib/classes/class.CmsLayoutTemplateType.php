@@ -52,7 +52,7 @@ class CmsLayoutTemplateType
 	/**
 	 * @ignore
 	 */
-	private $_dirty;
+	private $_dirty = false;
 
 	/**
 	 * @ignore
@@ -368,6 +368,7 @@ class CmsLayoutTemplateType
 	{
 		$flag = (bool)$flag;
 		$this->_data['requires_contentblocks'] = $flag;
+		$this->_dirty = TRUE;
 	}
 
 	/**
