@@ -73,7 +73,7 @@ final class AdminTabs
      * @ignore
      * Whether end_tab() has been called (at least once)
      */
-    private static $_ended_tab = 0; 
+    private static $_ended_tab = 0;
     /**
      * @ignore
      */
@@ -125,7 +125,7 @@ final class AdminTabs
      * @param bool   $autoflow Since 2.3 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function set_tab_header($tabid, $title, $active = false, $autoflow =  true)
+    public static function set_tab_header($tabid, $title, $active = false, $autoflow = true)
     {
         if (!$active) {
             if ((self::$_tab_idx == 0 && self::$_current_tab == '') || $tabid == self::$_current_tab) {
@@ -159,7 +159,7 @@ final class AdminTabs
      * @param bool   $autoflow Since 2.3 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function end_tab_headers($autoflow =  true)
+    public static function end_tab_headers($autoflow = true)
     {
         if ($autoflow) {
             self::$_end_headers_sent = 1;
@@ -173,7 +173,7 @@ final class AdminTabs
      * @param bool   $autoflow Since 2.3 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function start_tab_content($autoflow =  true)
+    public static function start_tab_content($autoflow = true)
     {
         $out = '';
         if ($autoflow) {
@@ -191,7 +191,7 @@ final class AdminTabs
      *
      * @return string
      */
-    public static function end_tab_content($autoflow =  true)
+    public static function end_tab_content($autoflow = true)
     {
         $out = '';
         if ($autoflow) {
@@ -213,7 +213,7 @@ final class AdminTabs
      * @param bool   $autoflow Since 2.3 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function start_tab($tabid, $autoflow =  true)
+    public static function start_tab($tabid, $autoflow = true)
     {
         $out = '';
         if ($autoflow) {
@@ -235,7 +235,7 @@ final class AdminTabs
      * @param bool   $autoflow Since 2.3 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function end_tab($autoflow =  true)
+    public static function end_tab($autoflow = true)
     {
         if ($autoflow) {
             self::$_in_tab = 0;
