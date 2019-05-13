@@ -92,6 +92,23 @@ final class AdminTabs
     }
 
     /**
+     * Revert class properties ready for a fresh sequence
+     * @since 2.3
+     *
+     * @param string $tab The param key
+     */
+    public static function reset()
+    {
+        self::$_current_tab = null;
+        self::$_start_headers_sent = 0;
+        self::$_end_headers_sent = 0;
+        self::$_start_content_sent = 0;
+        self::$_in_tab = 0;
+        self::$_ended_tab = 0;
+        self::$_tab_idx = 0;
+    }
+
+    /**
      * Set the current active tab
      *
      * @param string $tab The param key
