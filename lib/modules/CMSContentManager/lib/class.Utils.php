@@ -148,7 +148,8 @@ final class Utils
 		$uid = get_userid(false);
 		$modify_all = check_permission($uid,'Manage All Content') || check_permission($uid,'Modify Any Page');
 		$mod = cms_utils::get_module('CMSContentManager');
-		$root_url = $mod->GetModuleURLPath().'/lib/js';
+		$p = cms_join_path($mod->GetModulePath(),'lib','js');
+		$script_url = cms_get_script('jquery.cmsms_hierselector.js', true, $p);
 		$url = $mod->create_url('','ajax_hiersel_content');
 		$ajax_url = str_replace('&amp;','&',$url) . '&'.CMS_JOB_KEY.'=1';
 		$title = $mod->Lang('title_hierselect_select');
@@ -169,9 +170,8 @@ final class Utils
 			$str .= "\n   ".$key.':'.$val.',';
 		}
 		$str = substr($str,0,-1)."\n  ";
-		//TODO min.js for production
 		$out = <<<EOS
-<script type="text/javascript" src="{$root_url}/jquery.cmsms_hierselector.js"></script>
+<script type="text/javascript" src="{$script_url}"></script>
 <script type="text/javascript">
  //<![CDATA[
  $(function() {
