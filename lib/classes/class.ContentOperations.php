@@ -831,8 +831,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Create a hierarchical ordered dropdown of some or all of the content objects
-	 * in the system.
+	 * Create a hierarchical ordered ajax-populated dropdown of some or all the pages in the system.
 	 *
 	 * @deprecated since 2.3 instead use CMSContentManager\Utils::CreateHierarchyDropdown()
 	 * @return string
