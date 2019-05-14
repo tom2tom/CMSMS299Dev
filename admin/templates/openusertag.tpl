@@ -1,5 +1,5 @@
 <h3 class="pagesubtitle">{if $name!='-1'} {lang('edit_udt')}{else}{lang('add_udt')}{/if}</h3>
-<form id="userplugin" action="{$selfurl}{$urlext}" method="post">
+<form id="userplugin" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
 <div class="hidden">
   <input type="hidden" name="oldtagname" value="{$name}" />
 </div>

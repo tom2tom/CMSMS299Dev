@@ -1,4 +1,4 @@
-<form action="{$selfurl}{$urlext}" method="post">
+<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <input type="hidden" name="old_default_cms_lang" value="{$old_default_cms_lang}" />
   <div class="pageinput postgap">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>

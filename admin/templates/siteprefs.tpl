@@ -5,7 +5,7 @@
 {tab_header name='advanced' label=lang('advanced') active=$tab}
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='general'}
-<form id="siteprefform_general" action="{$selfurl}{$urlext}" method="post">
+<form id="siteprefform_general" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <input type="hidden" name="active_tab" value="general" />
   <div class="pageinput">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
@@ -138,7 +138,7 @@
 </div>
 {if isset($themes) && count($themes) > 1}
 <div id="deletedlg" title="{lang('deletetheme')}" style="display:none;">
- <form id="deleteform" action="themeoperation.php{$urlext}" method="post">
+ <form id="deleteform" action="themeoperation.php{$urlext}" enctype="multipart/form-data" method="post">
   <p class="pageinput">
    <select name="delete">
     {html_options options=$themes}
@@ -150,7 +150,7 @@
 {/if}
 {if !empty($exptheme)}
 <div id="exportdlg" title="{lang('exporttheme')}" style="display:none;">
- <form id="exportform" action="themeoperation.php{$urlext}" method="post">
+ <form id="exportform" action="themeoperation.php{$urlext}" enctype="multipart/form-data" method="post">
    <p class="pageinput">
     <select title="{lang('help_themeexport')}" name="export">
      {html_options options=$themes}
@@ -161,7 +161,7 @@
 {/if}
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='editcontent'}
-<form id="siteprefform_editcontent" action="{$selfurl}{$urlext}" method="post">
+<form id="siteprefform_editcontent" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <input type="hidden" name="active_tab" value="editcontent" />
   {if !$pretty_urls}
   <div class="pagewarn postgap">
@@ -273,7 +273,7 @@
 </form>
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='sitedown'}
-<form id="siteprefform_sitedown" action="{$selfurl}{$urlext}" method="post">
+<form id="siteprefform_sitedown" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <input type="hidden" name="active_tab" value="sitedown" />
   <div class="pageinput">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
@@ -326,7 +326,7 @@
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='mail'}
 <div id="testpopup" title="{lang('title_mailtest')}" style="display: none;">
-  <form id="siteprefform_mailtest" action="{$selfurl}{$urlext}" method="post">
+  <form id="siteprefform_mailtest" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
     <input type="hidden" name="active_tab" value="mail" />
     <div class="pageinfo">{lang('info_mailtest')}</div>
     <div class="pageoverflow">
@@ -344,7 +344,7 @@
   </form>
 </div>
 
-<form id="siteprefform_mail" action="{$selfurl}{$urlext}" method="post">
+<form id="siteprefform_mail" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <input type="hidden" name="active_tab" value="mail" />
   <div class="pageinput postgap">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
@@ -483,7 +483,7 @@
 </form>
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='advanced'}
-<form id="siteprefform_advanced" action="{$selfurl}{$urlext}" method="post">
+<form id="siteprefform_advanced" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <input type="hidden" name="active_tab" value="advanced" />
   <div class="pageinput postgap">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>

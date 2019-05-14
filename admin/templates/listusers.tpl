@@ -1,4 +1,4 @@
-<form id="listusers" action="{$selfurl}{$urlext}" method="post">
+<form id="listusers" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <div class="pageoptions">
   <a href="{$addurl}{$urlext}" title="{lang('info_adduser')}">{admin_icon icon='newobject.gif' class='systemicon'}&nbsp;{lang('adduser')}</a>
   </div>

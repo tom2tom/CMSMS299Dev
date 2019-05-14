@@ -49,7 +49,7 @@
   </form>
 
 {if !empty($export)}
-  <form action="{$selfurl}{$urlext}" method="post">
+  <form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <p class="pageinput pregap">
     <button type="submit" name="export" class="adminsubmit icon do" title="{lang('exportsite_tip')}">{lang('exportsite')}</button>
   </p>
@@ -58,7 +58,7 @@
 
 {tab_start name='cache'}
   {if isset($cachetype)}{lang('sysmain_cache_type',{$cachetype})}{/if}
-  <form action="{$selfurl}{$urlext}" method="post">
+  <form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
     <div class="pageoverflow">
       <p class="pageinput pregap">
         <button type="submit" name="clearcache" class="adminsubmit icon do">{lang('clearcache')}</button>
@@ -67,7 +67,7 @@
   </form>
 
 {tab_start name='database'}
-<form action="{$selfurl}{$urlext}" method="post">
+<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
     <p>{lang('sysmain_tablesfound',$tablecount,$nonseqcount)}</p>
     {if $errorcount==0}
     <p class='green'><strong>{lang('sysmain_nostr_errors')}</strong></p>

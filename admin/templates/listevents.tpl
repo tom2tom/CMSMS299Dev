@@ -1,6 +1,6 @@
 {if $events}
 <h4>{lang('filterbymodule')}</h4>
-<form action="{$selfurl}{$urlext}" method="post">
+<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <div class="oneliner cf">
   <select name="senderfilter">
    {foreach $senders as $one}

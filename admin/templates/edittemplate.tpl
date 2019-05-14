@@ -8,14 +8,14 @@
   <div class="pagewarn lock-warning">{lang_by_realm('layout','lock_warning')}</div>
 {/if}
 
-<form id="form_edittemplate" action="{$selfurl}" method="post">
+<form id="form_edittemplate" action="{$selfurl}" enctype="multipart/form-data" method="post">
 {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />{/foreach}
 <fieldset>
 <div class="rowbox">
   <div class="boxchild">
     <div class="pageinput postgap">
       <button type="submit" name="dosubmit" id="submitbtn" class="adminsubmit icon check" {$disable|strip}>{lang('submit')}</button>
-      <button type="submit" name="cancel" id="cancelbtn" class="adminsubmit icon cancel">{lang('cancel')}</button>
+      <button type="submit" name="cancel" id="cancelbtn" class="adminsubmit icon cancel" formnovalidate>{lang('cancel')}</button>
       {if $template->get_id()}
       <button type="submit" name="apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{lang('apply')}</button>
      {/if}
@@ -25,34 +25,34 @@
     <label class="pagetext" for="tpl_name">*{lang_by_realm('layout','prompt_name')}:</label>
     {cms_help realm='layout' key2=help_template_name title=lang_by_realm('layout','prompt_name')}
     <div class="pageinput">
-      <input id="tpl_name" type="text" name="name" size="40" maxlength="96" value="{$template->get_name()}"{if !$has_manage_right} readonly="readonly"{/if} placeholder="{lang_by_realm('layout','enter_name')}" />
+      <input id="tpl_name" type="text" name="name" size="40" maxlength="96" value="{$template->get_name()}"{if !$can_manage} readonly="readonly"{/if} placeholder="{lang_by_realm('layout','enter_name')}" />
     </div>
     </div>
 
     {$usage_str=$template->get_usage_string()} {if $usage_str}
     <div class="pageoverflow">
-      <label class="pagetext" for="tpl_use">{lang_by_realm('layout','prompt_usage')}:</label>
+      <label class="pagetext" for="tpl_usage">{lang_by_realm('layout','prompt_usage')}:</label>
       {cms_help realm='layout' key2='help_tpl_usage' title=lang_by_realm('layout','prompt_usage')}
-      <p class="pageinput" id="tpl_use">
+      <p class="pageinput" id="tpl_usage">
         {$usage_str}
       </p>
     </div>
     {/if}
-
   </div>{* boxchild *}
+
   <div class="boxchild">
     {if $template->get_id()}
     <div class="pageoverflow">
       <label class="pagetext" for="tpl_created">{lang_by_realm('layout','prompt_created')}:</label>
       {cms_help realm='layout' key2='help_tpl_created' title=lang_by_realm('layout','prompt_created')}
-      <p class="pageinput">
+      <p class="pageinput" id="tpl_created">
         {$template->get_created()|cms_date_format|cms_escape}
       </p>
     </div>
-    <div class="pageoverflow" id="tpl_modified_cont">
+    <div class="pageoverflow">
       <label class="pagetext" for="tpl_modified">{lang_by_realm('layout','prompt_modified')}:</label>
       {cms_help realm='layout' key2='help_tpl_modified' title=lang_by_realm('layout','prompt_modified')}
-      <p class="pageinput">
+      <p class="pageinput" id="tpl_modified">
         {$template->get_modified()|cms_date_format|cms_escape}
       </p>
     </div>
@@ -68,10 +68,7 @@
   {tab_header name='designs' label=lang_by_realm('layout','prompt_designs')}
 {/if}
 *}
-{if $has_manage_right || $template->get_owner_id() == get_userid()}
-  {tab_header name='permissions' label=lang_by_realm('layout','prompt_permissions')}
-{/if}
-{if $has_manage_right}
+{if $can_manage || $template->get_owner_id() == get_userid()}
   {tab_header name='options' label=lang_by_realm('layout','prompt_options')}
 {/if}
 
@@ -84,12 +81,19 @@
     {cms_textarea id='content' name=content value=$template->get_content() type='smarty' rows=20}
   </div>
 </div>
+<div class="pageinput pregap">
+   <button type="submit" name="dosubmit" id="submitbtn" class="adminsubmit icon check" {$disable|strip}>{lang('submit')}</button>
+   <button type="submit" name="cancel" id="cancelbtn" class="adminsubmit icon cancel" formnovalidate>{lang('cancel')}</button>
+   {if $template->get_id()}
+   <button type="submit" name="apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{lang('apply')}</button>
+   {/if}
+</div>
 
 {tab_start name='description'}
 <div class="pageoverflow">
     <label class="pagetext" for="description">{lang_by_realm('layout','prompt_description')}:</label>
     {cms_help realm='layout' key2=help_template_description title=lang_by_realm('layout','prompt_description')}<br />
-     <textarea class="pageinput" id="description" name="description" style="width:40em;min-height:2em;" {if !$has_manage_right}readonly="readonly"{/if}>{$template->get_description()}</textarea>
+     <textarea class="pageinput" id="description" name="description" style="width:40em;min-height:2em;" {if !$can_manage}readonly="readonly"{/if}>{$template->get_description()}</textarea>
 </div>
 {*
 {if $has_themes_right}
@@ -107,49 +111,19 @@
    </div>
 {/if}
 *}
-{if $has_manage_right || $template->get_owner_id() == get_userid()}
-   {tab_start name='permissions'}
-   {if isset($user_list)}
-   <div class="pageoverflow">
-     <label class="pagetext" for="tpl_owner">{lang_by_realm('layout','prompt_owner')}:</label>
-     {cms_help realm='layout' key2=help_template_owner title=lang_by_realm('layout','prompt_owner')}<br />
-     <select id="tpl_owner" class="pageinput" name="owner_id">
-     {html_options options=$user_list selected=$template->get_owner_id()}
-     </select>
-   </div>
-   {/if}
-   {if isset($addt_editor_list)}
-   <div class="pageoverflow">
-     <label class="pagetext" for="tpl_addeditor">{lang_by_realm('layout','additional_editors')}:</label>
-     {cms_help realm='layout' key2=help_template_addteditors title=lang_by_realm('layout','additional_editors')}<br />
-     <select id="tpl_addeditor" class="pageinput" name="addt_editors[]" multiple="multiple" size="5">
-     {html_options options=$addt_editor_list selected=$template->get_additional_editors()}
-     </select>
-   </div>
-   {/if}
-{/if}
-
-{if $has_manage_right}
+   {if $can_manage || $template->get_owner_id() == get_userid()}
    {tab_start name='options'}
-     <div class="pageoverflow">
-       <label class="pagetext" for="tpl_listable">{lang_by_realm('layout','prompt_listable')}:</label>
-       {cms_help realm='layout' key2=help_template_listable title=lang_by_realm('layout','prompt_listable')}
-       <div class="pageinput">
-         <input type="hidden" name="listable" value="0" />
-         <input type="checkbox" name="listable" id="tpl_listable" value="1"{if $template->get_listable()} checked="checked"{/if}
-         {if $type_is_readonly} disabled="disabled"{/if} />
-       </div>
-     </div>
+   {if $can_manage}
      {if isset($type_list)}
-       <div class="pageoverflow">
+       <div class="pageoverflow postgap">
          <label class="pagetext" for="tpl_type">{lang_by_realm('layout','prompt_type')}:</label>
          {cms_help realm='layout' key2=help_template_type title=lang_by_realm('layout','prompt_type')}<br />
-         <select id="tpl_type" class="pageinput" name="type"{if $type_is_readonly} readonly="readonly"{/if}>
+         <select class="pageinput" id="tpl_type" name="type">
          {html_options options=$type_list selected=$template->get_type_id()}
          </select>
        </div>
        {if $type_obj && $type_obj->get_dflt_flag()}
-       <div class="pageoverflow">
+       <div class="pageoverflow postgap">
          <label class="pagetext" for="tpl_dflt">{lang_by_realm('layout','prompt_default')}:</label>
          {cms_help realm='layout' key2=help_template_dflt title=lang_by_realm('layout','prompt_default')}
          <div class="pageinput">
@@ -159,9 +133,17 @@
        </div>
        {/if}
      {/if}
+     <div class="pageoverflow postgap">
+       <label class="pagetext" for="tpl_listable">{lang_by_realm('layout','prompt_listable')}:</label>
+       {cms_help realm='layout' key2=help_template_listable title=lang_by_realm('layout','prompt_listable')}
+       <div class="pageinput">
+         <input type="hidden" name="listable" value="0" />
+         <input type="checkbox" name="listable" id="tpl_listable" value="1"{if $template->get_listable()} checked="checked"{/if} />
+       </div>
+     </div>
 {* multi groups allowed
      {if isset($category_list)}
-     <div class="pageoverflow">
+     <div class="pageoverflow postgap">
        <p class="pagetext">
       <label for="tpl_category">{lang_by_realm('layout','prompt_group')}:</label>
     {cms_help realm='layout' key2=help_template_category title=lang_by_realm('layout','prompt_group')}
@@ -176,7 +158,7 @@
 *}
 {*  {if !empty($devmode)}
     {if $template->get_id() > 0}
-     <div class="pageoverflow">
+     <div class="pageoverflow postgap">
       <p class="pagetext">{lang_by_realm('layout','prompt_filetemplate')}:</p>
       <p class="pageinput">
       {if $template->get_content_file()}
@@ -189,7 +171,27 @@
    {/if}
   {/if}
 *}
-{/if}
+   {/if}{* can manage *}
+   {if isset($user_list)}
+   <div class="pageoverflow postgap">
+     <label class="pagetext" for="tpl_owner">{lang_by_realm('layout','prompt_owner')}:</label>
+     {cms_help realm='layout' key2=help_template_owner title=lang_by_realm('layout','prompt_owner')}<br />
+     <select class="pageinput" id="tpl_owner" name="owner_id">
+     {html_options options=$user_list selected=$template->get_owner_id()}
+     </select>
+   </div>
+   {/if}
+   {if isset($addt_editor_list)}
+   <div class="pageoverflow">
+     <label class="pagetext" for="tpl_addeditor">{lang_by_realm('layout','additional_editors')}:</label>
+     {cms_help realm='layout' key2=help_template_addteditors title=lang_by_realm('layout','additional_editors')}<br />
+     <select class="pageinput" id="tpl_addeditor" name="addt_editors[]" multiple="multiple" size="5">
+     {html_options options=$addt_editor_list selected=$template->get_additional_editors()}
+     </select>
+   </div>
+   {/if}
+   {/if}{* can manage etc *}
+
 {tab_end}
 
 </form>

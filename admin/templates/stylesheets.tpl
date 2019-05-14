@@ -35,7 +35,7 @@
 </div>
 {/if} {* navpages *}
 
-  <form action="stylesheetoperations.php" method="post">
+  <form action="stylesheetoperations.php" enctype="multipart/form-data" method="post">
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />{/foreach}
   <table id="csslist" class="pagetable" style="width:auto;">
     <thead>

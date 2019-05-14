@@ -50,7 +50,7 @@
 {/if}
 
 <div id="filterdialog" title="{lang_by_realm('layout','tpl_filter')}" style="display:none;">
- <form id="filterdialog_form" action="{$selfurl}" method="post">
+ <form id="filterdialog_form" action="{$selfurl}" enctype="multipart/form-data" method="post">
   {foreach $extraparms2 as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
   {/foreach}
   <select class="boxchild" id="filter_tpl" name="filter[]" title="{lang_by_realm('layout','title_filter')}">
@@ -61,7 +61,7 @@
 
 {if $manage_templates}{* TODO && single(s) exist *}
 <div id="replacedialog" title="{lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_template'))}" style="display:none;min-width:15em;">
-  <form id="replacedialog_form" action="templateoperations.php" method="post">
+  <form id="replacedialog_form" action="templateoperations.php" enctype="multipart/form-data" method="post">
   {foreach $extraparms3 as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
   {/foreach}
   <p>{lang_by_realm('layout','prompt_current')}<br />

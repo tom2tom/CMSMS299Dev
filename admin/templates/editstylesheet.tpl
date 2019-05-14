@@ -13,7 +13,7 @@
   <div class="warning lock-warning">{lang_by_realm('layout','lock_warning')}</div>
 {/if}
 
-<form id="form_editcss" action="{$selfurl}" method="post">
+<form id="form_editcss" action="{$selfurl}" enctype="multipart/form-data" method="post">
 {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />{/foreach}
 <fieldset>
 <div class="rowbox flow">

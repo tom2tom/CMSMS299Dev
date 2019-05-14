@@ -1,4 +1,4 @@
-<form action="{$loginurl}" method="post">
+<form action="{$loginurl}" enctype="multipart/form-data" method="post">
   <input type="hidden" name="{$actionid}csrf" value="{$csrf}" />
   {if isset($smarty.get.forgotpw)}{$usernamefld='forgottenusername'}{else}{$usernamefld='username'}{/if}
   <input type="text" name="{$actionid}{$usernamefld}"{if !isset($smarty.post.password)} class="focus"{/if} placeholder="{$mod->Lang('username')}" size="25" value="" autofocus="autofocus" />

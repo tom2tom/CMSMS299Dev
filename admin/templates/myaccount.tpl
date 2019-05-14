@@ -1,4 +1,4 @@
-<form action="{$selfurl}{$urlext}" method="post">
+<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="username">*&nbsp;{lang('username')}:</label>

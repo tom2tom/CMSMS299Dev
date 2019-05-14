@@ -1,6 +1,6 @@
 {if $user}<h3 class="pagesubtitle">{lang('username')}:&nbsp;{$user}</h3>{/if}
 
-<form action="{$selfurl}{$urlext}" method="post">
+<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <input type="hidden" value="{$user_id}" name="user_id" />
 
   {tab_header name='user' label=lang('profile')}

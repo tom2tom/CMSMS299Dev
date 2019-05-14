@@ -60,7 +60,7 @@
 {if $allhandlers}
 <div class="pageinput pregap">
  <p class="pageinfo">{lang('info_handlers')}</p>
- <form action="{$selfurl}{$urlext}" method="post">
+ <form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
   <input type="hidden" name="event" value="{$event}" />
   <input type="hidden" name="originator" value="{$originator}" />
   <select name="handler">

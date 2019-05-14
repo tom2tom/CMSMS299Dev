@@ -4,7 +4,7 @@
 <h3>{lang_by_realm('layout','create_group')}</h3>
 {/if}
 
-<form id="edit_tplgroup" action="{$selfurl}" method="post">
+<form id="edit_tplgroup" action="{$selfurl}" enctype="multipart/form-data" method="post">
 {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />{/foreach}
 <div class="pageoverflow">
   <p class="pagetext">

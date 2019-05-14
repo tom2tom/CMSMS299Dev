@@ -1,6 +1,6 @@
 {if $group}<h3 class="pagesubtitle">{lang('name')}:&nbsp;{$group}</h3>{/if}
 
-<form action="{$selfurl}{$urlext}" method="post">
+<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
 
   <input type="hidden" name="group_id" value="{$group_id}" />
 

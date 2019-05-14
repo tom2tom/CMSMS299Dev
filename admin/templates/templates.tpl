@@ -106,7 +106,7 @@
 
 <div class="pageoptions rowbox" style="justify-content:flex-end">
   <div class="boxchild">
-    <form action="{$selfurl}" method="post">
+    <form action="{$selfurl}" enctype="multipart/form-data" method="post">
     {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
     {/foreach}
     {cms_help realm='layout' key2='help_bulk_templates' title=lang_by_realm('layout','prompt_bulk')}

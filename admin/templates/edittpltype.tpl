@@ -1,6 +1,6 @@
 <h3>{lang_by_realm('layout','prompt_edit_type')}</h3>
 
-<form id="form_edittype" action="{$selfurl}" method="post">
+<form id="form_edittype" action="{$selfurl}" enctype="multipart/form-data" method="post">
 {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />{/foreach}
 <fieldset>
   <div class="pagecontainer" style="width: 49%; float: left;">{* left container *}

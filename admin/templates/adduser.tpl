@@ -1,4 +1,4 @@
-<form action="{$selfurl}{$urlext}" method="post">
+<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
 {tab_header name='user' label=lang('myaccount')}
 {if isset($groups)}
   {tab_header name='groups' label=lang('groups')}
