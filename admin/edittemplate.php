@@ -305,9 +305,9 @@ try {
 		$themeObject->add_footertext($js);
 	}
 
-	$content = get_editor_script(['edit'=>true, 'htmlid'=>'content', 'typer'=>'smarty']);
-	if (!empty($content['head'])) {
-		$themeObject->add_headtext($content['head']);
+	$editorjs = get_editor_script(['edit'=>true, 'htmlid'=>'content', 'typer'=>'smarty']);
+	if (!empty($editorjs['head'])) {
+		$themeObject->add_headtext($editorjs['head']);
 	}
 
 	$do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
@@ -320,7 +320,7 @@ try {
 	$s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
 	$cancel = lang('cancel');
 
-	$js = $content['foot'] ?? '';
+	$js = $editorjs['foot'] ?? '';
 	$js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[

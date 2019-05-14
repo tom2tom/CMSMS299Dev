@@ -87,11 +87,11 @@ if ($tagname != '-1') {
 $edit = check_permission($userid, 'Modify User Plugins');
 //TODO also $_GET['mode'] == 'edit'
 
-$content = get_editor_script(['edit'=>$edit, 'htmlid'=>'code', 'typer'=>'php']);
-if (!empty($content['head'])) {
-    $themeObject->add_headtext($content['head']);
+$editorjs = get_editor_script(['edit'=>$edit, 'htmlid'=>'code', 'typer'=>'php']);
+if (!empty($editorjs['head'])) {
+    $themeObject->add_headtext($editorjs['head']);
 }
-$js = $content['foot'] ?? '';
+$js = $editorjs['foot'] ?? '';
 
 if ($edit) {
     $s1 = json_encode(lang('error_udt_name_chars'));
