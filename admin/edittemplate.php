@@ -55,7 +55,6 @@ if (!$pmod) {
 	}
 }
 
-$type_is_readonly = false;
 $response = 'success';
 $apply = isset($_REQUEST['apply']);
 
@@ -70,7 +69,6 @@ try {
 		}
 */
 		$extraparms['import_type'] = $_REQUEST['import_type'];
-		$type_is_readonly = true;
 	} else if (isset($_REQUEST['tpl'])) {
 		$tpl_obj = TemplateOperations::get_template($_REQUEST['tpl']);
 /*        $tpl_obj->get_designs(); */
@@ -82,7 +80,7 @@ try {
 	$type_id = $tpl_obj->get_type_id();
 	if ($type_id) {
 		try {
-			$type_obj = CmsLayoutTemplateType::load();
+			$type_obj = CmsLayoutTemplateType::load($type_id);
 		} catch (Throwable $t) {
 			$type_obj = null;
 		}
@@ -255,8 +253,7 @@ try {
 			$out2[] = $one->get_id();
 			$out[$one->get_id()] = $one->get_langified_display_value();
 		}
-		$smarty->assign('type_list', $out)
-		 ->assign('type_is_readonly', $type_is_readonly);
+		$smarty->assign('type_list', $out);
 	}
 /*
 	$designs = DesignManager\Design::get_all(); DISABLED
@@ -268,7 +265,7 @@ try {
 		$smarty->assign('design_list', $out);
 	}
 */
-	$smarty->assign('has_manage_right', $pmod);
+	$smarty->assign('can_manage', $pmod);
 //	 ->assign('has_themes_right', check_permission($userid,'Manage Designs'));
 
 	if ($pmod || $tpl_obj->get_owner_id() == $userid) {
