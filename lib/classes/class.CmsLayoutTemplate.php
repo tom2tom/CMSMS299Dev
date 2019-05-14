@@ -419,7 +419,8 @@ class CmsLayoutTemplate
 
    /**
 	* Set the value of the flag that indicates whether this template is the default template for its type
-	* Only one template can be the default for a template type
+	* If true, then when this template is saved this property will be unset for all other
+	* templates of the same type.
 	*
 	* @param mixed $flag recognized by cms_to_bool(). Default true.
 	* @see CmsLayoutTemplateType
