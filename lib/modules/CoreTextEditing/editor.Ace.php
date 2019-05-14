@@ -179,6 +179,9 @@ EOS;
 EOS;
     if ($edit) {
         $js .= <<<EOS
+ worker.on('blur', function() {
+  container.val($handle.session.getValue());
+ });
  container.closest('form').on('submit', function() {
   container.val($handle.session.getValue());
  });
