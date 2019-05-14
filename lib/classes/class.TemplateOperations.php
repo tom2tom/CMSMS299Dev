@@ -824,7 +824,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		if( !$prototype ) throw new CmsInvalidDataException('Prototype name cannot be empty');
 
 		$db = CmsApp::get_instance()->GetDb();
-		$sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE %?%';
+		$sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME." WHERE name LIKE '%?%'";
 		$all = $db->GetCol($sql,[ $prototype ]);
 		if( $all ) {
 			$name = $prototype;

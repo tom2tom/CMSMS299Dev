@@ -581,7 +581,7 @@ VALUES (?,?,?,?,?,?)';
 		if( !$prototype ) throw new CmsInvalidDataException('Prototype name cannot be empty');
 
 		$db = CmsApp::get_instance()->GetDb();
-		$sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE %?%';
+		$sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME." WHERE name LIKE '%?%'";
 		$all = $db->GetCol($sql,[ $prototype ]);
 		if( $all ) {
 			$name = $prototype;
@@ -689,7 +689,7 @@ VALUES (?,?,?,?,?,?)';
 			else {
 				$n = 0;
 			}
-			$fillers = (is_array($ids)) ? '('.str_repeat('%?% OR ',count($ids)-1).'%?%)' : '%?%';
+			$fillers = (is_array($ids)) ? '('.str_repeat("'%?%' OR ",count($ids)-1)."'%?%')" : "'%?%'";
 			$sql = 'SELECT DISTINCT styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE '.$fillers;
 			$keeps = $db->GetCol($sql, $ids);
 			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($shts)-1).'?)';
@@ -743,7 +743,7 @@ VALUES (?,?,?,?,?,?)';
 			else {
 				$n = 0;
 			}
-			$fillers = (is_array($ids)) ? '('.str_repeat('%?% OR ',count($ids)-1).'%?%)' : '%?%';
+			$fillers = (is_array($ids)) ? '('.str_repeat("'%?%' OR ",count($ids)-1)."'%?%')" : "'%?%'";
 			$sql = 'SELECT DISTINCT styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE '.$fillers;
 			$keeps = $db->GetCol($sql, $ids);
 			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($shts)-1).'?)';
@@ -933,7 +933,7 @@ VALUES (?,?,?,?,?,?)';
 		$uid = get_userid();
 		$modify_all = check_permission($uid,'Manage All Content') || check_permission($uid,'Modify Any Page');
 		$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE ';
-		$fillers = (is_array($ids)) ? '('.str_repeat('%?% OR ',count($ids)-1).'%?%)' : '%?%';
+		$fillers = (is_array($ids)) ? '('.str_repeat("'%?%' OR ",count($ids)-1)."'%?%')" : "'%?%'";
 		$sql .= $fillers;
 		$args = (is_array($ids)) ? $ids : [$ids];
 		if (!$modify_all) {
