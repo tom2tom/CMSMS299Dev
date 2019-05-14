@@ -22,21 +22,18 @@
     </div>
 
     <div class="pageoverflow">
-      <p class="pagetext">
-      <label for="tpl_name">*{lang_by_realm('layout','prompt_name')}:</label>
+    <label class="pagetext" for="tpl_name">*{lang_by_realm('layout','prompt_name')}:</label>
     {cms_help realm='layout' key2=help_template_name title=lang_by_realm('layout','prompt_name')}
-      </p>
-      <p class="pageinput">
-        <input id="tpl_name" type="text" name="name" size="40" maxlength="64" value="{$template->get_name()}" {if !$has_manage_right}readonly="readonly" {/if} placeholder="{lang_by_realm('layout','enter_name')}" />
-      </p>
+    <div class="pageinput">
+      <input id="tpl_name" type="text" name="name" size="40" maxlength="96" value="{$template->get_name()}"{if !$has_manage_right} readonly="readonly"{/if} placeholder="{lang_by_realm('layout','enter_name')}" />
+    </div>
     </div>
 
-    {$usage_str=$template->get_usage_string()} {if !empty($usage_str)}
+    {$usage_str=$template->get_usage_string()} {if $usage_str}
     <div class="pageoverflow">
-      <p class="pagetext"><label>{lang_by_realm('layout','prompt_usage')}:</label>
-    {cms_help realm='layout' key2='help_tpl_usage' title=lang_by_realm('layout','prompt_usage')}
-      </p>
-      <p class="pageinput">
+      <label class="pagetext" for="tpl_use">{lang_by_realm('layout','prompt_usage')}:</label>
+      {cms_help realm='layout' key2='help_tpl_usage' title=lang_by_realm('layout','prompt_usage')}
+      <p class="pageinput" id="tpl_use">
         {$usage_str}
       </p>
     </div>
@@ -46,19 +43,15 @@
   <div class="boxchild">
     {if $template->get_id()}
     <div class="pageoverflow">
-      <p class="pagetext">
-      <label for="tpl_created">{lang_by_realm('layout','prompt_created')}:</label>
-    {cms_help realm='layout' key2='help_tpl_created' title=lang_by_realm('layout','prompt_created')}
-      </p>
+      <label class="pagetext" for="tpl_created">{lang_by_realm('layout','prompt_created')}:</label>
+      {cms_help realm='layout' key2='help_tpl_created' title=lang_by_realm('layout','prompt_created')}
       <p class="pageinput">
         {$template->get_created()|cms_date_format|cms_escape}
       </p>
     </div>
     <div class="pageoverflow" id="tpl_modified_cont">
-      <p class="pagetext">
-      <label for="tpl_modified">{lang_by_realm('layout','prompt_modified')}:</label>
-    {cms_help realm='layout' key2='help_tpl_modified' title=lang_by_realm('layout','prompt_modified')}
-      </p>
+      <label class="pagetext" for="tpl_modified">{lang_by_realm('layout','prompt_modified')}:</label>
+      {cms_help realm='layout' key2='help_tpl_modified' title=lang_by_realm('layout','prompt_modified')}
       <p class="pageinput">
         {$template->get_modified()|cms_date_format|cms_escape}
       </p>
@@ -75,7 +68,7 @@
   {tab_header name='designs' label=lang_by_realm('layout','prompt_designs')}
 {/if}
 *}
-{if $template->get_owner_id() == get_userid() || $has_manage_right}
+{if $has_manage_right || $template->get_owner_id() == get_userid()}
   {tab_header name='permissions' label=lang_by_realm('layout','prompt_permissions')}
 {/if}
 {if $has_manage_right}
@@ -84,24 +77,19 @@
 
 {tab_start name='template'}
 <div class="pageoverflow">
-  <p class="pagetext">{$t=lang_by_realm('layout','prompt_template_content')}
-    <label for="contents">{$t}:</label>
-    {cms_help realm='layout' key2=help_template_contents title=$t}
-  </p>
-  <p class="pageinput">
+  {$t=lang_by_realm('layout','prompt_template_content')}
+  <label class="pagetext" for="content">{$t}:</label>
+  {cms_help realm='layout' key2=help_template_contents title=$t}
+  <div class="pageinput">
     {cms_textarea id='content' name=content value=$template->get_content() type='smarty' rows=20}
-  </p>
+  </div>
 </div>
 
 {tab_start name='description'}
 <div class="pageoverflow">
-   <p class="pagetext">
-      <label for="description">{lang_by_realm('layout','prompt_description')}:</label>
-    {cms_help realm='layout' key2=help_template_description title=lang_by_realm('layout','prompt_description')}
-      </p>
-   <p class="pageinput">
-     <textarea id="description" name="description" style="width:40em;min-height:2em;" {if !$has_manage_right}readonly="readonly"{/if}>{$template->get_description()}</textarea>
-   </p>
+    <label class="pagetext" for="description">{lang_by_realm('layout','prompt_description')}:</label>
+    {cms_help realm='layout' key2=help_template_description title=lang_by_realm('layout','prompt_description')}<br />
+     <textarea class="pageinput" id="description" name="description" style="width:40em;min-height:2em;" {if !$has_manage_right}readonly="readonly"{/if}>{$template->get_description()}</textarea>
 </div>
 {*
 {if $has_themes_right}
@@ -119,32 +107,24 @@
    </div>
 {/if}
 *}
-{if $template->get_owner_id() == get_userid() or $has_manage_right}
+{if $has_manage_right || $template->get_owner_id() == get_userid()}
    {tab_start name='permissions'}
    {if isset($user_list)}
    <div class="pageoverflow">
-     <p class="pagetext">
-      <label for="tpl_owner">{lang_by_realm('layout','prompt_owner')}:</label>
-    {cms_help realm='layout' key2=help_template_owner title=lang_by_realm('layout','prompt_owner')}
-      </p>
-     <p class="pageinput">
-       <select id="tpl_owner" name="owner_id">
-         {html_options options=$user_list selected=$template->get_owner_id()}
-       </select>
-     </p>
+     <label class="pagetext" for="tpl_owner">{lang_by_realm('layout','prompt_owner')}:</label>
+     {cms_help realm='layout' key2=help_template_owner title=lang_by_realm('layout','prompt_owner')}<br />
+     <select id="tpl_owner" class="pageinput" name="owner_id">
+     {html_options options=$user_list selected=$template->get_owner_id()}
+     </select>
    </div>
    {/if}
    {if isset($addt_editor_list)}
    <div class="pageoverflow">
-     <p class="pagetext">
-      <label for="tpl_addeditor">{lang_by_realm('layout','additional_editors')}:</label>
-    {cms_help realm='layout' key2=help_template_addteditors title=lang_by_realm('layout','additional_editors')}
-      </p>
-     <p class="pageinput">
-       <select id="tpl_addeditor" name="addt_editors[]" multiple="multiple" size="5">
-         {html_options options=$addt_editor_list selected=$template->get_additional_editors()}
-       </select>
-     </p>
+     <label class="pagetext" for="tpl_addeditor">{lang_by_realm('layout','additional_editors')}:</label>
+     {cms_help realm='layout' key2=help_template_addteditors title=lang_by_realm('layout','additional_editors')}<br />
+     <select id="tpl_addeditor" class="pageinput" name="addt_editors[]" multiple="multiple" size="5">
+     {html_options options=$addt_editor_list selected=$template->get_additional_editors()}
+     </select>
    </div>
    {/if}
 {/if}
@@ -152,38 +132,30 @@
 {if $has_manage_right}
    {tab_start name='options'}
      <div class="pageoverflow">
-       <p class="pagetext">
-         <label for="tpl_listable">{lang_by_realm('layout','prompt_listable')}:</label>
-         {cms_help realm='layout' key2=help_template_listable title=lang_by_realm('layout','prompt_listable')}
-       </p>
-       <input type="hidden" name="listable" value="0" />
-       <p class="pageinput">
+       <label class="pagetext" for="tpl_listable">{lang_by_realm('layout','prompt_listable')}:</label>
+       {cms_help realm='layout' key2=help_template_listable title=lang_by_realm('layout','prompt_listable')}
+       <div class="pageinput">
+         <input type="hidden" name="listable" value="0" />
          <input type="checkbox" name="listable" id="tpl_listable" value="1"{if $template->get_listable()} checked="checked"{/if}
          {if $type_is_readonly} disabled="disabled"{/if} />
-       </p>
+       </div>
      </div>
      {if isset($type_list)}
        <div class="pageoverflow">
-         <p class="pagetext">
-      <label for="tpl_type">{lang_by_realm('layout','prompt_type')}:</label>
-    {cms_help realm='layout' key2=help_template_type title=lang_by_realm('layout','prompt_type')}
-      </p>
-         <p class="pageinput">
-            <select id="tpl_type" name="type"{if $type_is_readonly} readonly="readonly"{/if}>
-              {html_options options=$type_list selected=$template->get_type_id()}
-            </select>
-         </p>
+         <label class="pagetext" for="tpl_type">{lang_by_realm('layout','prompt_type')}:</label>
+         {cms_help realm='layout' key2=help_template_type title=lang_by_realm('layout','prompt_type')}<br />
+         <select id="tpl_type" class="pageinput" name="type"{if $type_is_readonly} readonly="readonly"{/if}>
+         {html_options options=$type_list selected=$template->get_type_id()}
+         </select>
        </div>
        {if $type_obj && $type_obj->get_dflt_flag()}
        <div class="pageoverflow">
-         <p class="pagetext">
-           <label for="tpl_dflt">{lang_by_realm('layout','prompt_default')}:</label>
-           {cms_help realm='layout' key2=help_template_dflt title=lang_by_realm('layout','prompt_default')}
-         </p>
-         <input type="hidden" name="default" value="0" />
-         <p class="pageinput">
+         <label class="pagetext" for="tpl_dflt">{lang_by_realm('layout','prompt_default')}:</label>
+         {cms_help realm='layout' key2=help_template_dflt title=lang_by_realm('layout','prompt_default')}
+         <div class="pageinput">
+           <input type="hidden" name="default" value="0" />
            <input type="checkbox" name="default" id="tpl_dflt" value="1"{if $template->get_type_dflt()} checked="checked"{/if} />
-         </p>
+         </div>
        </div>
        {/if}
      {/if}
