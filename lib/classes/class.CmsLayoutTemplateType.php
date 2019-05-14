@@ -728,20 +728,22 @@ WHERE id = ?';
 	}
 
 	/**
-	 * Get a translated/pretty displayable name for this template-type
-	 * including the originator.
+	 * Get translated public/displayable name representing this template-type and its
+	 * originator.
 	 */
 	public function get_langified_display_value()
 	{
-		$t = $this->get_lang_callback();
-		$to = $tn = null;
-		if( is_callable($t) ) {
-			$to = $t($this->get_originator());
-			$tn = $t($this->get_name());
+		$cb = $this->get_lang_callback();
+		if( is_callable($cb) ) {
+			$to = $cb($this->get_originator());
+			$tn = $cb($this->get_name());
 		}
-		if( !$to ) $to = $this->get_originator();
-		if( $to == self::CORE ) $to = 'Core';
-		if( !$tn ) $tn = $this->get_name();
+		else {
+			$to = $tn = null;
+		}
+		if( !$to ) { $to = $this->get_originator(); }
+		if( $to == self::CORE ) { $to = lang('core'); }
+		if( !$tn ) { $tn = $this->get_name(); }
 		return $to.'::'.$tn;
 	}
 
