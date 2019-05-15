@@ -31,7 +31,7 @@ $warnmessage  optional string
 
 $_POST[]-derived $params[], specifically $params['tpl'] template numeric id, sometimes submit, cancel etc
 
-$can_manage   whether the user is authorized to ...
+$can_manage   whether the user is authorized to manage/modify the template (as opposed to just view it)
 $content_only optional bool whether to process only the template itself (no related properties)
 $show_buttons optional bool display buttons to submit, apply and maybe to cancel
 $show_cancel  optional bool display cancel button(s) default true
@@ -262,7 +262,7 @@ $cancel = lang('cancel');
     });
     return false;
   });
- 
+
   $('#submitbtn,#applybtn').on('click', function(ev) {
     if(this.id !== 'cancelbtn') {
       var v = geteditorcontent();
