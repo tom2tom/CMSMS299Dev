@@ -728,8 +728,8 @@ WHERE id = ?';
 	}
 
 	/**
-	 * Get translated public/displayable name representing this template-type and its
-	 * originator.
+	 * Get translated public/displayable name representing this template-type
+	 * and its originator.
 	 */
 	public function get_langified_display_value()
 	{
@@ -767,9 +767,11 @@ WHERE id = ?';
 	}
 
 	/**
-	 * Given an array (typically read from the database) create a CmsLayoutTemplateType object
+	 * Create a CmsLayoutTemplateType object reflecting the given properties array
+	 * (typically read from the database) 
 	 *
 	 * @internal
+	 * @param array $row
 	 * @return CmsLayoutTemplateType
 	 */
 	private static function _load_from_data($row) : self
@@ -866,13 +868,11 @@ WHERE id = ?';
 	}
 
 	/**
-	 * Load all of the template-types for a certain originator.
+	 * Load all template-types whose originator is as specified.
 	 *
-	 * This method will throw exceptions if an error is encounted.
-	 *
+	 * @param string $originator The originator name
+	 * @return array of CmsLayoutTemplateType objects, or null if no match is found.
 	 * @throws CmsInvalidDataException
-	 * @param string $originator The origiator name
-	 * @return array An array of CmsLayoutTemplateType objects, or null if no matches are found.
 	 */
 	public static function load_all_by_originator($originator)
 	{
@@ -918,7 +918,7 @@ WHERE id = ?';
 	}
 
 	/**
-	 * Load template-type objects by specifying an array of ids
+	 * Load all template-types included in the provided list
 	 *
 	 * @param int[] $list Array of template-type ids
 	 * @return array Array of CmsLayoutTemplateType objects, or null
@@ -951,7 +951,7 @@ WHERE id = ?';
 	/**
 	 * Return the names of all loaded template-types
 	 *
-	 * @return array Associative array of loaded type objects.
+	 * @return array of the loaded type objects.
 	 */
 	public static function get_loaded_types()
 	{
