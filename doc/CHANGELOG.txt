@@ -183,6 +183,8 @@ DETAILS
   - FEATURE: Event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
   - FEATURE: get-support URL (for display in admin pages) may be specified in 'developer mode'
   - FEATURE: added jQuery Poller object, a more-flexible alternative to the autoRefresh widget
+  - FEATURE: added module CoreTextEditing allowing (for now) Ace|CodeMirror to edit templates, stylesheets, UDT's,
+      and related (but independent) get_editor_script(), {editorarea}, {edit_template}, and includable method.edittemplate.php
   - DEPRECATED: Content pages' secure option
   - DEPRECATED: $config['ssl_url'] is now just an alias for root url
   - DEPRECATED: $config['ssl_uploads_url'] is now just an alias for uploads_url
@@ -213,7 +215,7 @@ DETAILS
       addNode, getChildrenCount, getId, getLevel, getNodeByAlias, getNodeById
       getParentNode, getSiblingCount, getTag, hasChildren, setTag
   - CHANGE: Pages-content is cached in the global cache. The redundant ContentCache class is gone
-  - CHANGE: Adds convenience methods get_cliuser(), get_editor_script()
+  - CHANGE: Adds convenience methods get_cliuser()
   - CHANGE: Adds the new pr_root_url config entry.  Returns the protocol relative root URI. root_url will always include the protocol.
   - CHANGE: Remove long deprecated passthru parameters to effect $_REQUEST because of potential security vulnerabilities.
   - Improved error message if there was an error parsing the template (or a duplicate content block).
