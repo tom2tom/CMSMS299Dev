@@ -1,8 +1,8 @@
 <?php
-#Plugin to...
+#Plugin to display all template variables, in a pretty format
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This projects homepage is: http://www.cmsmadesimple.org
+#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -16,12 +16,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-if( !function_exists('__cms_function_output_var') ) {
-	// because of stupid php 5.3
-	function __cms_function_output_accessor($ptype,$key,$depth)
+if( !function_exists('_cms_output_var') ) { // workaround stupid PHP 5.3 ??
+	/*
+	 $ptype is the parent type
+	 $key is the current key we are trying to output
+	*/
+	function _cms_output_accessor($ptype,$key,$depth)
 	{
-		// $ptype is the parent type
-		// $key is the current key we are trying to output
 		if( $depth == 0 ) return "\${$key}";
 		switch( strtolower($ptype) ) {
 		case 'object':
@@ -38,12 +39,13 @@ if( !function_exists('__cms_function_output_var') ) {
 		}
 	}
 
-	function __cms_function_output_var($key,$val,$ptype = null,$depth = 0) {
-		// this outputs something similar to json, but with type information, and indentation
+	// this outputs html similar to json, but with type information and indentation
+	function _cms_output_var($key,$val,$ptype = null,$depth = 0)
+	{
 		$type = gettype($val);
 		$out = null;
 		$depth_str = '&nbsp;&nbsp;&nbsp;';
-		$acc = __cms_function_output_accessor($ptype,$key,$depth);
+		$acc = _cms_output_accessor($ptype,$key,$depth);
 		if( is_object($val) ) {
 			$o_items = get_object_vars($val);
 
@@ -51,7 +53,7 @@ if( !function_exists('__cms_function_output_var') ) {
 			$out .= "{$acc} <em>(object of type: ".get_class($val).')</em> = {';
 			if( $o_items ) $out .= '<br />';
 			foreach( $o_items as $o_key => $o_val ) {
-				$out .= __cms_function_output_var($o_key,$o_val,$type,$depth+1);
+				$out .= _cms_output_var($o_key,$o_val,$type,$depth+1);
 			}
 			$out .= str_repeat($depth_str,$depth).'}<br />';
 		}
@@ -59,7 +61,7 @@ if( !function_exists('__cms_function_output_var') ) {
 			$out .= str_repeat($depth_str,$depth);
 			$out .= "{$acc} <em>($type)</em> = [<br />";
 			foreach( $val as $a_key => $a_val ) {
-				$out .= __cms_function_output_var($a_key,$a_val,$type,$depth+1);
+				$out .= _cms_output_var($a_key,$a_val,$type,$depth+1);
 			}
 			$out .= str_repeat($depth_str,$depth).']<br />';
 		}
@@ -85,7 +87,7 @@ function smarty_function_get_template_vars($params, $template)
 	$tpl_vars = $template->getTemplateVars();
 	$str = '<pre>';
 	foreach( $tpl_vars as $key => $value ) {
-		$str .= __cms_function_output_var($key,$value);
+		$str .= _cms_output_var($key,$value);
 	}
 	$str .= '</pre>';
 	if( isset($params['assign']) ){
