@@ -16,7 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_cms_jquery($params, Smarty_Internal_Template $template)
+function smarty_function_cms_jquery($params, $template)
 {
 	$out = cms_get_jquery(); // returns only a comment
 	if( isset($params['assign']) ) {
