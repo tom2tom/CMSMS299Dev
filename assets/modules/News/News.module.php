@@ -73,23 +73,6 @@ class News extends CMSModule
         $this->SetParameterType('sortby', CLEAN_STRING);
         $this->SetParameterType('start', CLEAN_INT);
         $this->SetParameterType('summarytemplate', CLEAN_STRING);
-
-        // form parameters
-        $this->SetParameterType('cancel', CLEAN_STRING);
-        $this->SetParameterType('category_id', CLEAN_INT);
-        $this->SetParameterType('category', CLEAN_STRING);
-        $this->SetParameterType('content', CLEAN_STRING);
-        $this->SetParameterType('enddate', CLEAN_STRING);
-        $this->SetParameterType('extra', CLEAN_STRING);
-        $this->SetParameterType('input_category', CLEAN_STRING);
-        $this->SetParameterType('junk', CLEAN_STRING);
-        $this->SetParameterType('startdate', CLEAN_STRING);
-        $this->SetParameterType('submit', CLEAN_STRING);
-        $this->SetParameterType('summary', CLEAN_STRING);
-        $this->SetParameterType('title', CLEAN_STRING);
-        $this->SetParameterType('useexp', CLEAN_INT);
-
-        $this->SetParameterType(CLEAN_REGEXP.'/news_customfield_.* /', CLEAN_STRING);
 */
 /*
 //$params used in action.default.php

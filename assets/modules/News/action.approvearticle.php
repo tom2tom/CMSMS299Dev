@@ -64,14 +64,6 @@ if( is_object($search) ) {
 
     if( $t_end > $now || $this->GetPreference('expired_searchble',1) == 1 ) {
       $text = $article['news_data'] . ' ' . $article['summary'] . ' ' . $article['news_title'] . ' ' . $article['news_title'];
-/*    $query = 'SELECT value FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE news_id = ?';
-      $flds = $db->GetArray($query,[$articleid]);
-      if( is_array($flds) ) {
-        for( $i = 0, $n = count($flds); $i < $n; $i++ ) {
-         $text .= ' '.$flds[$i]['value'];
-        }
-      }
-*/
       $search->AddWords($this->GetName(), $articleid, 'article', $text,
 			($useexp == 1 && $this->GetPreference('expired_searchable',0) == 0) ? $t_end : NULL);
     }

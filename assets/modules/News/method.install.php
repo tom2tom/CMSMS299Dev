@@ -88,33 +88,6 @@ $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news_categories', $flds,
 $dict->ExecuteSQLArray($sqlarray);
 
 $db->CreateSequence(CMS_DB_PREFIX.'module_news_categories_seq'); //race-preventer
-/*
-//max_length I(4),
-//item_order I(4),
-//extra X(1024)
-$flds = '
-id I(2) UNSIGNED KEY AUTO,
-name C(255),
-type C(16),
-create_date I,
-modified_date I DEFAULT 0,
-public I(1) DEFAULT 1,
-';
-
-$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news_fielddefs', $flds, $taboptarray);
-$dict->ExecuteSQLArray($sqlarray);
-
-$flds = '
-news_id I(4) KEY NOT NULL,
-fielddef_id I(4) KEY NOT NULL,
-value X(16384),
-create_date I,
-modified_date I DEFAULT 0
-';
-
-$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news_fieldvals', $flds, $taboptarray);
-$dict->ExecuteSQLArray($sqlarray);
-*/
 
 $now = time();
 // General category
@@ -130,14 +103,6 @@ $db->Execute($query, [
 
 AdminOperations::UpdateHierarchyPositions();
 
-/*
-// Bulk data fields
-$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_fielddefs (name, type, create_date, modified_date, public) VALUES (?,?,?,?,?)';
-$db->Execute($query,['PublicAttachment','linkedfile',$now,$now,1]);
-$db->Execute($query,['PrivateAttachment','linkedfile',$now,$now,0]);
-$db->Execute($query,['PublicUpload','file',$now,$now,1]);
-$db->Execute($query,['PrivateUpload','file',$now,$now,0]);
-*/
 // Initial news article
 $articleid = $db->GenID(CMS_DB_PREFIX.'module_news_seq');
 $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news (news_id,news_category_id,author_id,news_title,news_data,status,start_time,create_date) VALUES (?,?,?,?,?,?,?,?)';

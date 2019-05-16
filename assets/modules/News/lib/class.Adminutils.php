@@ -109,15 +109,6 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
         $db->Execute($query, [$articleid]);
 
-        // Delete it from the custom fields
-//        $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE news_id = ?';
-//        $db->Execute($query, [$articleid]);
-
-        // delete any files...
-        $config = cmsms()->GetConfig();
-        $p = cms_join_path($config['uploads_path'],'news','id'.$articleid);
-        if( is_dir($p) ) recursive_delete($p);
-
         self::delete_static_route($articleid);
 
         //Update search index

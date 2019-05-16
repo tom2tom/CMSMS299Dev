@@ -170,52 +170,8 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
                 echo 'DEBUG: SQL = ' . $db->sql . '<br />';
                 die($db->ErrorMsg());
             }
-/*
-            //
-            //Set custom fields
-            //
 
-            // get the field types
-            $query = 'SELECT id,name,type FROM ' . CMS_DB_PREFIX . "module_news_fielddefs WHERE type='file'";
-            $types = $db->GetArray($query);
-            if (is_array($types)) {
-                foreach ($types as $onetype) {
-                    $elem = $id . 'customfield_' . $onetype['id'];
-                    if (isset($_FILES[$elem]) && $_FILES[$elem]['name'] != '') {
-                        if ($_FILES[$elem]['error'] != 0 || $_FILES[$elem]['tmp_name'] == '') {
-                            $this->ShowErrors($this->Lang('error_upload'));
-                            $error = true;
-                        } else {
-                            $value = AdminOperations::handle_upload($articleid, $elem, $error);
-                            if ($value === false) {
-                                $this->ShowErrors($error);
-                                $error = true;
-                            } else {
-                                $params['customfield'][$onetype['id']] = $value;
-                            }
-                        }
-                    }
-                }
-            }
-*/
             if (!$error) {
-/*              if (isset($params['customfield'])) {
-                    foreach ($params['customfield'] as $fldid => $value) {
-                        if ($value == '')
-                            continue;
-
-                        $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news_fieldvals (news_id,fielddef_id,value,create_date) VALUES (?,?,?,?)';
-                        $dbr = $db->Execute($query, [
-                            $articleid,
-                            $fldid,
-                            $value,
-                            $now
-                        ]);
-                        if (!$dbr)
-                            die('FATAL SQL ERROR: ' . $db->ErrorMsg() . '<br />QUERY: ' . $db->sql);
-                    }
-                }
-*/
                 if (($status == 'publishedfinal' || $status == 'final') && $news_url) {
                     // TODO: && not expired
                     // register the route
@@ -227,15 +183,7 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
                     //Update search index
                     $module = cms_utils::get_search_module();
                     if (is_object($module)) {
-                        $text = '';
-/*                      if (isset($params['customfield'])) {
-                            foreach ($params['customfield'] as $fldid => $value) {
-                                if (strlen($value) > 1)
-                                    $text .= $value . ' ';
-                            }
-                        }
-*/
-                        $text .= $content . ' ' . $summary . ' ' . $title . ' ' . $title;
+                        $text = $content . ' ' . $summary . ' ' . $title . ' ' . $title;
                         $module->AddWords($this->GetName(), $articleid, 'article', $text, ($useexp == 1 && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL);
                     }
                 }
@@ -293,7 +241,6 @@ WHERE news_id=?';
             ];
             $db->Execute($query, $args);
         }
-        //TODO custom fields too??
     } // outer !$error
 
     $fromdate = $params['fromdate'];
@@ -376,39 +323,7 @@ $dbr = $db->Execute($query);
 while ($dbr && $row = $dbr->FetchRow()) {
     $categorylist[$row['long_name']] = $row['news_category_id'];
 }
-/*
-// Display custom fields
-$query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_fielddefs ORDER BY item_order';
-$dbr = $db->Execute($query);
-$custom_flds = [];
-while ($dbr && ($row = $dbr->FetchRow())) {
-    if (!empty($row['extra']))
-        $row['extra'] = unserialize($row['extra']);
 
-    if (isset($row['extra']['options'])) $options = $row['extra']['options'];
-    else $options = null;
-
-    $value = isset($params['customfield'][$row['id']]) && in_array($params['customfield'][$row['id']], $params['customfield']) ? $params['customfield'][$row['id']] : '';
-
-    if ($row['type'] == 'file') {
-        $name = 'customfield_' . $row['id'];
-    } else {
-        $name = 'customfield[' . $row['id'] . ']';
-    }
-
-    $obj = new StdClass();
-
-    $obj->value    = $value;
-    $obj->nameattr = $id . $name;
-    $obj->type     = $row['type'];
-    $obj->idattr   = 'customfield_' . $row['id'];
-    $obj->prompt   = $row['name'];
-    $obj->size     = min(80, (int)$row['max_length']);
-    $obj->max_len  = max(1, (int)$row[cms_hierdropdown'.$count;'max_length']);
-    $obj->options  = $options;
-    $custom_flds[$row['name']] = $obj;
-}
-*/
 /*--------------------
  Pass everything to smarty
  ---------------------*/
@@ -478,11 +393,7 @@ if ($this->CheckPermission('Approve News')) {
     $tpl->assign('statuses',$statusradio);
     //->assign('statustext', lang('status'));
 }
-/*
-if ($custom_flds) {
-    $tpl->assign('custom_fields', $custom_flds);
-}
-*/
+
 // get the detail templates, if any
 try {
     $type = CmsLayoutTemplateType::load($this->GetName() . '::detail');

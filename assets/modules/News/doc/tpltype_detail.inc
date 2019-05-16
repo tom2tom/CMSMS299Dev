@@ -31,9 +31,6 @@
   <li>authorname (string)    = The full name of the article creator. Only applicable if that information exists in the admin data.</li>
   <li>category (string)      = The name of the category that this article is associated with.</li>
   <li>canonical (string)     = A full URL (prettified) to this articles detail view using defaults if necessary.</li>
-  <li>fields (associative)   = An associative array of field objects, representing the fields, and their values for this article.  See the information below on the field object definition.   In past versions of News this was a simple array, now it is an associative one.</li>
-  <li>customfieldsbyname     = (deprecated) - A synonym for the 'fields' member</li>
-  <li>fieldsbyname           = (deprecated) - A synonym for the 'fields' member</li>
   <li>useexp (integer)       = A flag indicating whether this article is using the expiry information.</li>
   <li>file_location (string) = A url containing the location where files attached the article are stored... the field value should be appended to this url.</li>
 </ul>

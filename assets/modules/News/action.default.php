@@ -219,15 +219,6 @@ if( $rst ) {
         $onerow->modified_date = strftime($fmt,$onerow->modified);
         $onerow->category = $row['news_category_name'];
 
-        //
-        // Handle custom fields
-        //
-//        $onerow->fields = Utils::get_fields($row['news_id'],true);
-//        $onerow->fieldsbyname = $onerow->fields; // dumb, I know.
-//        $onerow->file_location = $gCms->config['uploads_url'].'/news/id'.$row['news_id'];
-
-        $moretext = $params['moretext'] ?? $this->Lang('moreprompt');
-
         $sendtodetail = ['articleid'=>$row['news_id']];
         if( isset($params['category_id']) ) { $sendtodetail['category_id'] = $params['category_id']; }
         if( isset($params['detailpage']) ) { $sendtodetail['origid'] = $returnid; }
@@ -244,6 +235,8 @@ if( $rst ) {
                 $prettyurl .= '/d,' . $sendtodetail['detailtemplate'];
             }
         }
+
+        $moretext = $params['moretext'] ?? $this->Lang('moreprompt');
         $backto = ($detailpage) ? $detailpage : $returnid;
         $onerow->detail_url = $this->create_url($id,'detail',$backto,
 			$sendtodetail);

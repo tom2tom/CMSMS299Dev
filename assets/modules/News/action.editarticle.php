@@ -166,87 +166,7 @@ WHERE news_id=?';
         ];
         $db->Execute($query, $args);
 
-        //
-        //Update custom fields
-        //
-
-        // get the field types
-        $query = 'SELECT id,name,type FROM ' . CMS_DB_PREFIX . "module_news_fielddefs WHERE type='file'";
-        $types = $db->GetArray($query);
-        if (is_array($types)) {
-            foreach ($types as $onetype) {
-                $elem = $id . 'customfield_' . $onetype['id'];
-                if (isset($_FILES[$elem]) && $_FILES[$elem]['name'] != '') {
-                    if ($_FILES[$elem]['error'] != 0 || $_FILES[$elem]['tmp_name'] == '') {
-                        $this->ShowErrors($this->Lang('error_upload'));
-                        $error = true;
-                    } else {
-                        $value = AdminOperations::handle_upload($articleid, $elem, $error);
-                        if ($value === false) {
-                            $this->ShowErrors($error);
-                            $error = true;
-                        } else {
-                            $params['customfield'][$onetype['id']] = $value;
-                        }
-                    }
-                }
-            }
-        }
-
         if (!$error) {
-/*
-            if (isset($params['customfield'])) {
-                foreach ($params['customfield'] as $fldid => $value) {
-                    // first check if it's available
-                    $query = 'SELECT value FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
-                    $tmp = $db->GetOne($query, [
-                        $articleid,
-                        $fldid
-                    ]);
-                    $dbr = true;
-                    if ($tmp === false) {
-                        if (!empty($value)) {
-                            $query = 'INSERT INTO ' . CMS_DB_PREFIX . "module_news_fieldvals (news_id,fielddef_id,value,create_date) VALUES (?,?,?,$now)";
-                            $dbr = $db->Execute($query, [
-                                $articleid,
-                                $fldid,
-                                $value
-                            ]);
-                        }
-                    } else {
-                        if (empty($value)) {
-                            $query = 'DELETE FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
-                            $dbr = $db->Execute($query, [
-                                $articleid,
-                                $fldid
-                            ]);
-                        } else {
-                            $query = 'UPDATE ' . CMS_DB_PREFIX . "module_news_fieldvals
-SET value = ?, modified_date = $now WHERE news_id = ? AND fielddef_id = ?";
-                            $dbr = $db->Execute($query, [
-                                $value,
-                                $articleid,
-                                $fldid
-                            ]);
-                        }
-                    }
-                    if (!$dbr)
-                        die('FATAL SQL ERROR: ' . $db->ErrorMsg() . '<br />QUERY: ' . $db->sql);
-                }
-            }
-
-            if (isset($params['delete_customfield']) && is_array($params['delete_customfield'])) {
-                foreach ($params['delete_customfield'] as $k => $v) {
-                    if ($v != 'delete')
-                        continue;
-                    $query = 'DELETE FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
-                    $db->Execute($query, [
-                        $articleid,
-                        $k
-                    ]);
-                }
-            }
-*/
             if (($status == 'published' || $status =='final') && $news_url != '') {
                 AdminOperations::delete_static_route($articleid);
                 AdminOperations::register_static_route($news_url, $articleid);
@@ -260,14 +180,9 @@ SET value = ?, modified_date = $now WHERE news_id = ? AND fielddef_id = ?";
                 } else {
                     if (!$useexp || ($enddate > time()) || $this->GetPreference('expired_searchable', 1) == 1) {
                         $text = '';
-                    }
-
-                    if (isset($params['customfield'])) {
-                        foreach ($params['customfield'] as $fldid => $value) {
-                            if (strlen($value) > 1)
-                                $text .= $value . ' ';
-                        }
-                    }
+                    } else {
+                        $text = ''; //CHECKME TODO
+					}
                     $text .= $content . ' ' . $summary . ' ' . $title . ' ' . $title;
                     $module->AddWords($me, $articleid, 'article', $text, ($useexp == 1 && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL);
                 }
@@ -465,56 +380,6 @@ while ($dbr && $row = $dbr->FetchRow()) {
     $categorylist[$row['long_name']] = $row['news_category_id'];
 }
 
-/*
-/ *-------------------
- Custom fields logic
---------------------* /
-
-// Get the field values
-$fieldvals = [];
-$query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ?';
-$tmp = $db->GetArray($query, [$articleid]);
-if (is_array($tmp)) {
-    foreach ($tmp as $one) {
-        $fieldvals[$one['fielddef_id']] = $one;
-    }
-}
-
-$query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_fielddefs ORDER BY item_order';
-$dbr = $db->Execute($query);
-$custom_flds = [];
-while ($dbr && ($row = $dbr->FetchRow())) {
-    if (!empty($row['extra']))
-        $row['extra'] = unserialize($row['extra']);
-
-    if (isset($row['extra']['options'])) $options = $row['extra']['options'];
-    else $options = null;
-
-    if (isset($fieldvals[$row['id']])) $value = $fieldvals[$row['id']]['value'];
-    else $value = '';
-    $value = isset($params['customfield'][$row['id']]) && in_array($params['customfield'][$row['id']], $params['customfield']) ? $params['customfield'][$row['id']] : $value;
-
-    if ($row['type'] == 'file') {
-        $name = 'customfield_' . $row['id'];
-    } else {
-        $name = 'customfield[' . $row['id'] . ']';
-    }
-
-    $obj = new StdClass();
-
-    $obj->value    = $value;
-    $obj->nameattr = $id . $name;
-    $obj->type     = $row['type'];
-    $obj->idattr   = 'customfield_' . $row['id'];
-    $obj->prompt   = $row['name'];
-    $obj->size     = min(80, (int)$row['max_length']);
-    $obj->max_len  = max(1, (int)$row['max_length']);
-    $obj->delete   = $id . 'delete_customfield[' . $row['id'] . ']';
-    $obj->options  = $options;
-    $custom_flds[$row['name']] = $obj;
-}
-*/
-
 $parms = array_merge($params, ['articleid'=>$articleid, 'author_id'=>$author_id]);
 unset($parms['action']);
 
@@ -578,18 +443,7 @@ $tpl->assign('title', $title)
  ->assign('searchable', $searchable)
  ->assign('extra', $extra)
  ->assign('news_url', $news_url);
-/*
-// tab stuff
- ->assign('start_tab_headers', $this->StartTabHeaders())
- ->assign('tabheader_article', $this->SetTabHeader('article', $this->Lang('article')))
- ->assign('tabheader_preview', $this->SetTabHeader('preview', $this->Lang('preview')))
- ->assign('end_tab_headers', $this->EndTabHeaders())
- ->assign('start_tab_content', $this->StartTabContent())
- ->assign('start_tab_article', $this->StartTab('article', $params))
- ->assign('start_tab_preview', $this->StartTab('preview', $params))
- ->assign('end_tab', $this->EndTab())
- ->assign('end_tab_content', $this->EndTabContent());
-*/
+
 if ($this->CheckPermission('Approve News')) {
 	$choices = [
 		$this->Lang('draft')=>'draft',
@@ -600,11 +454,6 @@ if ($this->CheckPermission('Approve News')) {
     $tpl->assign('statuses',$statusradio);
     //->assign('statustext', lang('status'));
 }
-/*
-if ($custom_flds) {
-    $tpl->assign('custom_fields', $custom_flds);
-}
-*/
 
 // get the detail templates, if any
 try {

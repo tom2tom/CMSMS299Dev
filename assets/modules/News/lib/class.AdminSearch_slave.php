@@ -52,27 +52,14 @@ final class AdminSearch_slave extends slave
     $mod = cms_utils::get_module('News');
     if( !is_object($mod) ) return;
     $db = cmsms()->GetDb();
-    // need to get the fielddefs of type textbox or textarea
-//    $query = 'SELECT id FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE type IN (?,?)';
-//    $fdlist = $db->GetCol($query,['textbox','textarea']);
 
     $fields = ['N.*'];
     $joins = [];
     $where = ['news_title LIKE ?','news_data LIKE ?','summary LIKE ?'];
     $str = '%'.$this->get_text().'%';
     $parms = [$str,$str,$str];
-/*
-    // add in fields
-    for( $i = 0, $n = count($fdlist); $i < $n; $i++ ) {
-      $text = 'FV'.$i;
-      $fdid = $fdlist[$i];
-      $fields[] = "$text.value";
-      $joins[] = 'LEFT JOIN '.CMS_DB_PREFIX."module_news_fieldvals $text ON N.news_id = $text.news_id AND $text.fielddef_id = $fdid";
-      $where[] = "$text.value LIKE ?";
-      $parms[] = $str;
-    }
-*/
-    // build the query.
+
+    // build the query
     $query = 'SELECT '.implode(',',$fields).' FROM '.CMS_DB_PREFIX.'module_news N';
     if( $joins ) $query .= ' ' . implode(' ',$joins);
     if( $where ) $query .= ' WHERE '.implode(' OR ',$where);
@@ -80,7 +67,7 @@ final class AdminSearch_slave extends slave
 
     $dbr = $db->GetArray($query,[$parms]);
     if( $dbr ) {
-      // got some results.
+      // got some results
       $output = [];
       foreach( $dbr as $row ) {
         $text = null;

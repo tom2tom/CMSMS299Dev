@@ -37,12 +37,8 @@ class Article
 	'category',
 	'category_id',
 	'content',
-	'customfieldsbyname', NO
 	'enddate',
 	'extra',
-	'fields', NO
-	'fieldsbyname', NO
-	'file_location', NO
 	'id',
 	'news_url',
 	'params',
@@ -196,14 +192,7 @@ class Article
         case 'canonical':
             // metadata
             return $this->_get_canonical();
-            break;
-/*
-        case 'fields': // ignored deprected stuff
-        case 'customfieldsbyname':
-        case 'fieldsbyname':
-            if( isset($this->_rawdata['fieldsbyname']) ) return $this->_rawdata['fieldsbyname'];
-            break;
-*/
+
         case 'returnid':
             // metadata
             return $this->_get_returnid();
@@ -247,14 +236,9 @@ class Article
         case 'extra':
         case 'news_url':
         case 'category_id':
-//        case 'fieldsbyname':
         case 'status':
             return isset($this->_rawdata[$key]);
-/*
-        case 'customfieldsbyname': // deprecated
-        case 'fields': // deprecated
-            return isset($this->_rawdata['fieldsbyname']);
-*/
+
         case 'author':
         case 'authorname':
         case 'category':

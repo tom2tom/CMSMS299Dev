@@ -271,25 +271,8 @@ WHERE news_id=?';
     $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_templates WHERE type_id=(SELECT id FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator="News" AND name="form")';
     $db->Execute($query);
     $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator="News" AND name="form"';
-    $db->Execute($query);    
-/*
-    $tbl = CMS_DB_PREFIX.'module_news_fielddefs';
-    $query = 'DELETE FROM '.$tbl.' WHERE type != \'linkedfile\' AND type != \'file\'';
-    $db->Execute($query);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'create_date I');
-    $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I DEFAULT 0');
-    $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $query = 'UPDATE '.$tbl.' SET modified_date=0 WHERE modified_date<=create_date';
     $db->Execute($query);
 
-    $query = 'INSERT INTO '.$tbl.' (name,type,create_date,public) VALUES (?,?,?,?)';
-    $now = time();
-    $db->Execute($query,['PublicAttachment','linkedfile',$now,1]);
-    $db->Execute($query,['PrivateAttachment','linkedfile',$now,0]);
-    $db->Execute($query,['PublicUpload','file',$now,1]);
-    $db->Execute($query,['PrivateUpload','file',$now,0]);
-*/
     $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fielddefs');
     $dict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fieldvals');

@@ -164,52 +164,6 @@ final class Utils
     }
   }
 
-/*
-  public static function get_fielddefs($publiconly = TRUE)
-  {
-    if( !is_array(self::$_cached_fielddefs) ) {
-      $db = CmsApp::get_instance()->GetDb();
-      if( $publiconly ) {
-        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE public = 1 ORDER BY item_order';
-      } else {
-        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs ORDER BY item_order';
-      }
-      $tmp = $db->GetArray($query);
-
-      self::$_cached_fielddefs = [];
-      if( $tmp ) {
-        for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
-          self::$_cached_fielddefs[$tmp[$i]['id']] = $tmp[$i];
-        }
-      }
-    }
-    return self::$_cached_fielddefs;
-  }
-
-
-  public static function &get_field_from_row($row)
-  {
-    $res = null;
-    if( !isset($row['id']) ) return $res;
-
-    $res = new Field();
-    foreach( $row as $key => $value ) {
-      switch( $key ) {
-      case 'id':
-      case 'name':
-      case 'type':
-      case 'max_length':
-      case 'item_order':
-      case 'public':
-      case 'value':
-        $res->$key = $value;
-        break;
-      }
-    }
-    return $res;
-  }
-*/
-
   public static function fill_article_from_formparams(Article &$news,$params,$handle_uploads = FALSE,$handle_deletes = FALSE)
   {
     $cz = cms_config::get_instance()['timezone'];
@@ -273,18 +227,6 @@ final class Utils
         break;
       }
     }
-/*
-    if( isset($params['customfield']) && is_array($params['customfield']) ) {
-      $fielddefs = self::get_fielddefs();
-      foreach( $params['customfield'] as $key => $value ) {
-        if( !isset($fielddefs[$key]) ) continue;
-
-        $field = self::get_field_from_row($fielddefs[$key]);
-        $field->value = $value;
-        $news->set_field($field);
-      }
-    }
-*/
     return $news;
   }
 
@@ -347,17 +289,6 @@ final class Utils
         break;
       }
     }
-/*
-    if( $get_fields && $get_fields != 'NONE' && $article->id ) {
-      self::preloadFieldData($article->id);
-      $fields = self::get_fields($article->id);
-      if( $fields ) {
-        foreach( $fields as $field ) {
-          $article->set_field($field);
-        }
-      }
-    }
-*/
     return $article;
   }
 
@@ -390,93 +321,4 @@ WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).
 
     return self::get_article_from_row($row,($for_display)?'PUBLIC':'ALL');
   }
-
-/*
-  public static function preloadFieldData($ids)
-  {
-    if( !is_array($ids) && is_numeric($ids) ) $ids = [$ids];
-
-    $tmp = [];
-    for( $i = 0, $nn = count($ids); $i < $nn; $i++ ) {
-      $n = (int)$ids[$i];
-      if( $n < 0 ) continue;
-      if( is_array(self::$_cached_fieldvals) && isset(self::$_cached_fieldvals[$n]) ) continue;
-      $tmp[] = $n;
-    }
-    if( !$tmp ) return;
-    sort($tmp);
-    $idlist = array_unique($tmp);
-
-    $fielddefs = self::get_fielddefs();
-    if( !$fielddefs ) return;
-
-    $db = CmsApp::get_instance()->GetDb();
-    $query = 'SELECT A.news_id,A.fielddef_id,A.value FROM '.CMS_DB_PREFIX.'module_news_fieldvals A
-INNER JOIN '.CMS_DB_PREFIX.'module_news_fielddefs B ON A.fielddef_id = B.id
-WHERE news_id IN ('.implode(',',$idlist).') ORDER BY A.news_id,B.item_order';
-    $dbr = $db->GetArray($query);
-    if( !$dbr ) return;
-
-    // initialization.
-    if( !is_array(self::$_cached_fieldvals) ) self::$_cached_fieldvals = [];
-    foreach( $idlist as $news_id ) {
-      if( isset(self::$_cached_fieldvals[$news_id]) ) continue;
-
-      self::$_cached_fieldvals[$news_id] = [];
-      foreach( $fielddefs as $field ) {
-        $obj = new Field();
-        foreach( $field as $k => $v ) {
-          $obj->$k = $v;
-        }
-        $obj->value = null;
-        self::$_cached_fieldvals[$news_id][$field['id']] = $obj;
-      }
-    }
-
-    // fill with values.
-    foreach( $dbr as $row ) {
-      $news_id = $row['news_id'];
-      $flddef_id = $row['fielddef_id'];
-      $value = $row['value'];
-
-      if( !isset(self::$_cached_fieldvals[$news_id][$flddef_id]) ) continue;
-      self::$_cached_fieldvals[$news_id][$flddef_id]->value = $value;
-    }
-  }
-
-
-  public static function get_fields($news_id,$public_only = true,$filled_only = FALSE)
-  {
-    if( $news_id <= 0 ) return;
-    $fd = self::get_fielddefs();
-    if( !$fd ) return;
-
-    $results = [];
-    foreach( $fd as $field ) {
-      $obj = null;
-      if( isset(self::$_cached_fieldvals[$news_id][$field['id']]) ) {
-        $obj = self::$_cached_fieldvals[$news_id][$field['id']];
-      }
-      else {
-        // data for this field must not have been preloaded.
-        // means there is no value, so just build one
-        $obj = new Field();
-        foreach( $field as $k => $v ) {
-          $obj->$k = $v;
-        }
-        $obj->value = null;
-      }
-      $results[$field['name']] = $obj;
-    }
-
-    foreach( self::$_cached_fieldvals[$news_id] as $fid => $data ) {
-      if( !$public_only || $data->public ) {
-        if( !$filled_only || (isset($data->value) && $data->value != '') ) {
-          $results[$data->name] = $data;
-        }
-      }
-    }
-    return $results;
-  }
-*/
 } // class
