@@ -21,21 +21,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 Variables which must or may be defined by including code:
 
 $user_id      int
-$returnaction optional string if $returntab is specified (hence 'defaultadmin'
+$module       optional object
+OR
+$modname      optional string module name
+$returnaction optional string if $returntab is specified (hence 'defaultadmin')
 $returntab    optional string if $returnaction is specified
-$originator   module name
 
 $title        optional string
 $infomessage  optional string
 $warnmessage  optional string
 
-$_POST[]-derived $params[], specifically $params['tpl'] template numeric id, sometimes submit, cancel etc
+$params[]     array, specifically $params['tpl'] template numeric id (<0 to add), sometimes submit, cancel etc
 
 $can_manage   whether the user is authorized to manage/modify the template (as opposed to just view it)
 $content_only optional bool whether to process only the template itself (no related properties)
 $show_buttons optional bool display buttons to submit, apply and maybe to cancel
 $show_cancel  optional bool display cancel button(s) default true
-$display      optional bool display (default) or fetch & return template output
+$display      optional bool display (default) or == false to fetch & return template output
 */
 
 use CMSMS\ScriptOperations;
@@ -43,10 +45,22 @@ use CMSMS\TemplateOperations;
 
 if( !isset($params['tpl']) ) return;
 
-if( isset($params['cancel']) ) {
-   $this->SetInfo(lang_by_realm('layout', 'msg_cancelled'));
-   $this->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
+if( empty($module) ) {
+	if( empty($modname) ) {
+		throw new Exception(basename(__FILE__,'.php').': '.lang('missingparams'));
+	}
+	$module = cms_utils::get_module($modname);
+	if( !$module ) {
+		throw new Exception(basename(__FILE__,'.php').': '.lang('missingparams'));
+	}
 }
+
+if( isset($params['cancel']) ) {
+   $module->SetInfo(lang_by_realm('layout', 'msg_cancelled'));
+   $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
+}
+
+$originator = $module->GetName();
 
 if( isset($params['submit']) || isset($params['apply']) ) {
     //save stuff
@@ -99,8 +113,8 @@ if( isset($params['submit']) || isset($params['apply']) ) {
             TemplateOperations::save_template($template);
         }
         catch( Throwable $t ) {
-            $this->SetError($t->getMessage());
-            $this->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
+            $module->SetError($t->getMessage());
+            $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
         }
     }
     else {
@@ -110,8 +124,8 @@ if( isset($params['submit']) || isset($params['apply']) ) {
             TemplateOperations::save_template($template);
         }
         catch ( Throwable $t ) {
-            $this->SetError($t->getMessage());
-            $this->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
+            $module->SetError($t->getMessage());
+            $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
         }
         $params['tpl'] = $template->get_id();
     }
@@ -123,11 +137,11 @@ if( isset($params['submit']) || isset($params['apply']) ) {
         else {
             $msg = lang_by_realm('layout', 'msg_template_added');
         }
-        $this->SetMessage($msg);
-        $this->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
+        $module->SetMessage($msg);
+        $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
     }
     else {
-        $this->ShowMessage(lang_by_realm('layout', 'msg_template_saved'));
+        $module->ShowMessage(lang_by_realm('layout', 'msg_template_saved'));
     }
 }
 
@@ -139,8 +153,8 @@ if( $params['tpl'] > 0 ) {
         }
     }
     catch( Throwable $t ) {
-        $this->SetError($t->getMessage());
-        $this->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
+        $module->SetError($t->getMessage());
+        $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
     }
 }
 else {
@@ -170,8 +184,8 @@ if( $can_manage ) {
                 $can_default = $type->get_dflt_flag();
             }
             catch( Throwable $t ) {
-                $this->SetError($t->getMessage());
-                $this->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
+                $module->SetError($t->getMessage());
+                $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
             }
         }
     }
@@ -195,12 +209,12 @@ $sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 //$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 $js = $sm->render_inclusion('', false, false);
 if( $js) {
-    $this->AdminBottomContent($js);
+    $module->AdminBottomContent($js);
 }
 
-$editorjs = get_editor_script(['edit'=>true, 'htmlid'=>'content', 'typer'=>'smarty']);
+$editorjs = get_editor_script(['edit'=>$can_manage, 'typer'=>'smarty']);
 if( !empty($editorjs['head'])) {
-    $this->AdminHeaderContent($editorjs['head']);
+    $module->AdminHeaderContent($editorjs['head']);
 }
 /*
 $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
@@ -285,11 +299,10 @@ $(function() {
 //]]>
 </script>
 EOS;
-$this->AdminBottomContent($js); //not $sm->queue_script() (embedded variables)
+$module->AdminBottomContent($js); //not $sm->queue_script() (embedded variables)
 
 $parms = ['tpl'=>$params['tpl']]; //TODO more
 
-//$tpl = $smarty->createTemplate($this->GetTemplateResource('edittemplate.tpl'),null,null,$smarty); //TODO absolute filepath
 $tpl = $smarty->createTemplate('editmoduletemplate.tpl',null,null,$smarty); //.tpl file in admin/templates folder
 
 $tpl->assign('formaction','edittemplate')
@@ -308,7 +321,7 @@ $tpl->assign('formaction','edittemplate')
  ->assign('withbuttons',!empty($show_buttons) || !empty($show_cancel))
  ->assign('withcancel',!empty($show_cancel));
 
-if( !isset($display) || $display) {
+if( !isset($display) || $display ) {
     $tpl->display();
 }
 else {
