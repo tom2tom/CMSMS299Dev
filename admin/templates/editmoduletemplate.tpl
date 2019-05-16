@@ -15,6 +15,10 @@
   </div>
   {/if}
 
+  {if $warnmessage}
+  <div class="pagewarn">{$warnmessage}</div>
+  {/if}
+
   {if !empty($edit_meta)}
   <div class="pageoverflow">
     {$t=lang_by_realm('layout','prompt_name')}<label class="pagetext" for="tpl_name">* {$t}:</label>
@@ -23,27 +27,7 @@
       <input id="tpl_name" type="text" name="{$actionid}name" size="40" maxlength="96" value="{$tpl_obj->get_name()}"{if !$can_manage} readonly="readonly"{/if} placeholder="{lang_by_realm('layout','enter_name')}" />
     </div>
   </div>
-  {/if}
 
-  {if $infomessage}
-  <p class="pageinfo">{$infomessage}</p>
-  {/if}
-
-  {$usage_str=$tpl_obj->get_usage_string()} {if $usage_str}
-  <div class="pageoverflow">
-    {$t=lang_by_realm('layout','prompt_usage')}<label class="pagetext" for="tpl_usage">{$t}:</label>
-    {cms_help realm='layout' key2='help_tpl_usage' title=$t}
-    <p class="pageinput" id="tpl_usage">
-    {$usage_str}
-    </p>
-  </div>
-  {/if}
-
-  {if $warnmessage}
-  <p class="pagewarn">{$warnmessage}</p>
-  {/if}
-
-  {if !empty($edit_meta)}
   {if $tid > 0}
   <div class="pageoverflow">
     {$t=lang_by_realm('layout','prompt_created')}<label class="pagetext" for="tpl_created">{$t}:</label>
@@ -60,7 +44,23 @@
     </p>
   </div>
   {/if}
+  {/if}
 
+  {if $infomessage}
+  <div class="pageinfo">{$infomessage}</div>
+  {/if}
+
+  {$usage_str=$tpl_obj->get_usage_string()} {if $usage_str}
+  <div class="pageoverflow">
+    {$t=lang_by_realm('layout','prompt_usage')}<label class="pagetext" for="tpl_usage">{$t}:</label>
+    {cms_help realm='layout' key2='help_tpl_usage' title=$t}
+    <p class="pageinput" id="tpl_usage">
+    {$usage_str}
+    </p>
+  </div>
+  {/if}
+
+  {if !empty($edit_meta)}
 {tab_header name='template' label=lang_by_realm('layout','prompt_content')}
 {tab_header name='description' label=lang_by_realm('layout','prompt_description')}
 {if $can_manage}
