@@ -21,10 +21,8 @@ namespace CMSContentManager;
 use cms_userprefs;
 use cms_utils;
 use CmsDataNotFoundException;
-//use CmsLayoutCollection;
 use CmsLayoutTemplateType;
 use CMSMS\TemplateOperations;
-use function check_permission;
 use function get_userid;
 
 /**
@@ -44,23 +42,28 @@ final class Utils
 
 	public static function get_pagedefaults()
 	{
-		try {
-			$tpl = TemplateOperations::get_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
-			$tpl_id = $tpl->get_id();
-		}
-		catch( CmsDataNotFoundException $e ) {
-			$type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
-			$list = TemplateOperations::get_all_templates_by_type($type);
-			$tpl = $list[0];
-			$tpl_id = $tpl->get_id();
-		}
-
 		$mod = cms_utils::get_module('CMSContentManager');
 		$tmp = $mod->GetPreference('page_prefs');
 		if( $tmp ) {
-			$page_prefs = unserialize($tmp, ['allowed_classes'=>false]);
+			try {
+				$page_prefs = unserialize($tmp, ['allowed_classes'=>false]);
+			}
+			catch( Throwable $t ) {
+				$tmp = false;
+			}
 		}
-		else {
+		if( !$tmp ) {
+			$styles = ''; //TODO can there be a sensible default ?
+			try {
+				$tpl = TemplateOperations::get_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
+				$tpl_id = $tpl->get_id();
+			}
+			catch( Throwable $t ) {
+				$type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
+				$list = TemplateOperations::get_all_templates_by_type($type);
+				$tpl = $list[0];
+				$tpl_id = $tpl->get_id();
+			}
 			$page_prefs = [
 			'active'=>true,
 			'addteditors'=>[], // array of ints
@@ -68,7 +71,6 @@ final class Utils
 			'content'=>'',
 			'contenttype'=>'content',
 			'defaultcontent'=>false,
-//TODO styles 'design_id'=>CmsLayoutCollection::load_default()->get_id(), // int
 			'disallowed_types'=>[], // array of strings
 			'extra1'=>'',
 			'extra2'=>'',
@@ -78,7 +80,7 @@ final class Utils
 			'searchable'=>true,
 			'secure'=>false, // deprecated from 2.3
 			'showinmenu'=>true,
-			'styles'=>'',
+			'styles'=>$styles,
 			'template_id'=>$tpl_id,
 			];
 		}
@@ -89,7 +91,7 @@ final class Utils
 	public static function locking_enabled()
 	{
 		$mod = cms_utils::get_module('CMSContentManager');
-		$timeout = (int) $mod->GetPreference('locktimeout');
+		$timeout = (int)$mod->GetPreference('locktimeout');
 		return $timeout > 0;
 	}
 
