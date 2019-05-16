@@ -86,6 +86,7 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 		'category' => [],
 		'design' => [],
 		'id' => [],
+		'originator' => [],
 		'type' => [],
 		'user' => [],
 		];
