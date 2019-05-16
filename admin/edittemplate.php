@@ -77,15 +77,15 @@ try {
 		$tpl_obj = new CmsLayoutTemplate();
 	}
 
+	$defaultable = false;
 	$type_id = $tpl_obj->get_type_id();
 	if ($type_id) {
 		try {
 			$type_obj = CmsLayoutTemplateType::load($type_id);
+			$defaultable = $type_obj->get_dflt_flag();
 		} catch (Throwable $t) {
-			$type_obj = null;
+            //nothing here
 		}
-	} else {
-		$type_obj = null;
 	}
 
 	try {
@@ -225,9 +225,9 @@ try {
 
 	$smarty = CmsApp::get_instance()->GetSmarty();
 
-	$smarty->assign('type_obj', $type_obj)
-	 ->assign('extraparms', $extraparms)
-	 ->assign('template', $tpl_obj);
+	$smarty->assign('extraparms', $extraparms)
+	 ->assign('template', $tpl_obj)
+	 ->assign('tpl_candefault', $defaultable);
 
 /* for 'related file' message UNUSED
   	if ($tpl_obj->get_content_file()) {
@@ -305,7 +305,7 @@ try {
 		$themeObject->add_footertext($js);
 	}
 
-	$editorjs = get_editor_script(['edit'=>true, 'htmlid'=>'content', 'typer'=>'smarty']);
+	$editorjs = get_editor_script(['edit'=>true, 'htmlid'=>'edit_area', 'typer'=>'smarty']);
 	if (!empty($editorjs['head'])) {
 		$themeObject->add_headtext($editorjs['head']);
 	}
