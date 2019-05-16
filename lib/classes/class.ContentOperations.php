@@ -295,10 +295,10 @@ final class ContentOperations
 	}
 
 	/**
-	 * Load standard CMS content types
+	 * Load standard CMSMS content types
 	 *
 	 * This method polls the contenttypes directory and constructs a placeholder
-	 * object for each discovered type.
+	 * object for each discovered type. Types are not distinguished other than by name.
 	 * Corresponding ContentEditor classes are recorded if available.
 	 *
 	 * @since 1.9
@@ -407,26 +407,34 @@ final class ContentOperations
 	}
 
 	/**
-	 * Returns a hash of valid content types (classes that extend ContentBase)
-	 * The key is the name of the class that would be saved into the database.
-	 * The value would be the text returned by the type's FriendlyName() method.
+	 * Returns a hash of known content types (classes that extend ContentBase).
+	 * Values are respective 'public' names (from the class FriendlyName() method)
+	 * if any, otherwise the raw type-name.
 	 *
-	 * @param bool $byclassname optionally return keys as class names.
-	 * @param bool $allowed optionally trim the list of content types that are allowed by the site preference.
-	 * @param bool $system return only system content types. UNUSED
+	 * @param bool $byclassname optionally return keys as class names instead of type names. Default false.
+	 * @param bool $allowed optionally filter the list of content types by the
+	 *  'disallowed_contenttypes' site preference. Default false.
+	 * @param bool $system return only CMSMS-internal content types. Default false.
+	 * @param string $realm optional lang-strings realm. Default 'admin'.
 	 * @return mixed array List of content types registered in the system | null
 	 */
-	public function ListContentTypes(bool $byclassname = false,bool $allowed = false,bool $system = FALSE, string $realm = 'admin')
+	public function ListContentTypes(bool $byclassname = FALSE, bool $allowed = FALSE, bool $system = FALSE, string $realm = 'admin')
 	{
-		$disallowed_a = [];
 		$tmp = cms_siteprefs::get('disallowed_contenttypes');
-		if( $tmp ) $disallowed_a = explode(',',$tmp);
+		if( $tmp ) { $disallowed_a = explode(',',$tmp); }
+		else { $disallowed_a = []; }
 
-		$this->_get_content_types();
-		$types = $this->_content_types;
+		$types = $this->_get_content_types();
 		if( $types ) {
 			$result = [];
 			foreach( $types as $obj ) {
+				if( $allowed && $disallowed_a && in_array($obj->type,$disallowed_a) ) {
+					continue;
+				}
+				if( $system && !startswith($obj->class,'CMSMS\\contenttypes\\') ) {
+					continue;
+				}
+
 				if( empty($obj->friendlyname) ) {
 					global $CMS_ADMIN_PAGE;
 					if( !(empty($obj->friendlyname_key) || empty($CMS_ADMIN_PAGE)) ) {
@@ -436,13 +444,12 @@ final class ContentOperations
 						$obj->friendlyname = ucfirst($obj->type);
 					}
 				}
-				if( !$allowed || count($disallowed_a) == 0 || !in_array($obj->type,$disallowed_a) ) {
-					if( $byclassname ) {
-						$result[$obj->class] = $obj->friendlyname ?? $obj->type;
-					}
-					else {
-						$result[$obj->type] = $obj->friendlyname ?? $obj->type;
-					}
+
+				if( $byclassname ) {
+					$result[$obj->class] = $obj->friendlyname;
+				}
+				else {
+					$result[$obj->type] = $obj->friendlyname;
 				}
 			}
 			return $result;
