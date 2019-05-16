@@ -17,7 +17,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-if( !isset($gCms) ) exit;
+if( !function_exists('cmsms') ) exit;
+$fp = cms_join_path(CMS_ROOT_PATH, 'lib', 'assets', 'method.edittemplate.php');
+if( !is_file($fp) ) {
+    echo '<p class="page_error">'.lang('error_internal').'</p>';
+    return;
+}
 
 $user_id = get_userid();
 $can_manage = check_permission($user_id, 'Modify News Preferences');  // || Modify Templates etc ??
@@ -36,4 +41,4 @@ else {
 $show_buttons = true;
 $show_cancel = true;
 
-require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'assets', 'method.edittemplate.php');
+include_once $fp;
