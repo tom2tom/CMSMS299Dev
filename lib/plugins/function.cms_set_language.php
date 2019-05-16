@@ -1,5 +1,5 @@
 <?php
-#Plugin to...
+#Plugin to set ...
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -20,12 +20,12 @@ use CMSMS\NlsOperations;
 
 function smarty_function_cms_set_language($params, $template)
 {
-  if( isset($params['lang']) ) {
-	$lang = trim($params['lang']);
-  }
-  else {
-	$lang = null;
-  }
+	if( isset($params['lang']) ) {
+		$lang = trim($params['lang']);
+	}
+	else {
+		$lang = null;
+	}
 //$res =
-  NlsOperations::set_language($lang);
+	NlsOperations::set_language($lang);
 }

@@ -1,5 +1,5 @@
 <?php
-# Plugin: cms_selflink retrieves an url or link to a page of the current website.
+# Plugin to generate an url or link to a page of the current website.
 # Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,11 +18,6 @@
 
 use CMSMS\ContentOperations;
 use CMSMS\LangOperations;
-
-/*
-A function for retrieving an url or link to a page of the current website.
-This is a rewrite of the original cms_selflink plugin by Ted Kulk and various authors.
-*/
 
 function smarty_function_cms_selflink($params, $template)
 {

@@ -1,5 +1,5 @@
 <?php
-#Plugin to...
+#Plugin to generate page content for a textarea element
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,7 +18,7 @@
 
 function smarty_function_cms_textarea($params, $template)
 {
-	if( !isset($params['name']) ) throw new CmsInvalidDataException('syntax_area misssing parameter: name');
+	if( !isset($params['name']) ) throw new CmsInvalidDataException('syntax_area missing parameter: name');
 
 	$out = CMSMS\FormUtils::create_textarea($params);
 	if( isset($params['assign']) ) {

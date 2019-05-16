@@ -1,7 +1,7 @@
 <?php
-#Plugin to...
+#Plugin to get a page title
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+#Thanks to Elijah Lofgren and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify

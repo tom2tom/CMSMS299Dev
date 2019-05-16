@@ -1,6 +1,7 @@
 <?php
 #Plugin to...
-#(c)2013 by Robert Campbell (calguy1000@cmsmadesimple.org)
+#Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
