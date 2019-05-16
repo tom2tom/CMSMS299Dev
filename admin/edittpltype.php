@@ -91,7 +91,7 @@ try {
 		$themeObject->add_footertext($js);
 	}
 
-	$editorjs = get_editor_script(['edit'=>true, 'htmlid'=>'content', 'typer'=>'smarty']);
+	$editorjs = get_editor_script(['edit'=>true, 'htmlid'=>'edit_area', 'typer'=>'smarty']);
 	if (!empty($editorjs['head'])) {
 		$themeObject->add_headtext($editorjs['head']);
 	}

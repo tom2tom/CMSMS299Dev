@@ -469,12 +469,12 @@ function get_pageid_or_alias_from_url()
  * @param array $params  Configuration details. Recognized members are:
  *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
  *  string 'handle' name of the js variable to be used for the created editor. Default 'editor'
- *  string 'htmlid' id of the page-element whose content is to be edited. Mandatory.
+ *  string 'htmlid' id of the page-element whose content is to be edited. Default 'edit_area'.
  *  string 'style'  override for the normal editor theme/style.  Default ''
  *  string 'typer'  content-type identifier, an absolute filepath or at least
  *    an extension or pseudo (like 'smarty'). Default ''
  *  string 'workid' id of a div to be created (by some editors) to process
- *    the content of the htmlid-element. Default 'Editor'
+ *    the content of the htmlid-element. (As always, avoid conflict with tab-name divs). Default 'edit_work'
  *
  * @return array up to 2 members, being 'head' and/or 'foot'
  */
