@@ -1,6 +1,5 @@
 <?php
-#Plugin to...
-#Deprecated since 2.3
+#Plugin to get the current date in a specified or site-default format
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,11 +17,11 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 function smarty_function_current_date($params, $template) {
-	$format = '%b %c, %Y';
-	if( !empty($params['format']) ) $format = trim($params['format']);
+	if( !empty($params['format']) ) { $format = trim($params['format']); }
+	else { $format = cms_siteprefs::get('defaultdateformat','%x'); }
 
 	$string = strftime($format,time());
-	if( !empty($params['ucwords']) ) $string = ucwords($string);
+	if( !empty($params['ucwords']) ) { $string = ucwords($string); }
 
 	$out = cms_htmlentities($string);
 	if( !empty($params['assign']) ) {
