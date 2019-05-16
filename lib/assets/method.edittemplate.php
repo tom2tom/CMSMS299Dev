@@ -28,7 +28,7 @@ $returnaction optional string if $returntab is specified (hence 'defaultadmin')
 $returntab    optional string if $returnaction is specified
 
 $title        optional string
-$infomessage  optional string
+$infomessage  optional string If not provided, the template-type help message (if any) will be used
 $warnmessage  optional string
 
 $params[]     array, specifically $params['tpl'] template numeric id (<0 to add), sometimes submit, cancel etc
@@ -182,6 +182,13 @@ if( $can_manage ) {
             try {
                 $type = CmsLayoutTemplateType::load($type_id);
                 $can_default = $type->get_dflt_flag();
+                if( empty($infomessage) ) {
+					$infomessage = $type->get_template_helptext();
+				}
+				else {
+					$msg = $type->get_template_helptext();
+					if( $msg ) $infomessage .= '<br /><br />'.$msg;
+				}
             }
             catch( Throwable $t ) {
                 $module->SetError($t->getMessage());
