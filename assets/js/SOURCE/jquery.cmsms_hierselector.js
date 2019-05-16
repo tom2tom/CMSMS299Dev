@@ -49,7 +49,7 @@ License GPL2+
                     self.data.orig_val = data.content_id;
                     self.data.orig_idhier = data.id_hierarchy;
                     try {
-                        self.data.orig_pages = data.id_hierarchy.split('.');
+                        self.data.orig_pages = data.id_hierarchy.toString().split('.');
                     } catch (e) {
                         self.data.orig_pages = [data.id_hierarchy];
                     }
@@ -92,12 +92,12 @@ License GPL2+
             for (var i = 0; i < data.length; i++) {
                 var depth;
                 try {
-                    depth = data[i].hierarchy.split('.').length;
+                    depth = data[i].hierarchy.toString().split('.').length;
                 } catch (e) {
                     depth = 1;
                 }
                 str = '&nbsp;&nbsp;'.repeat(depth - 1) + data[i].display;
-                //NB comparisons maybe string<>int so NOT === operator
+                //NB comparisons probably string<>int, so not === operator
                 var opt = $('<option>' + str + '</option>').attr('value', data[i].content_id);
 //              if ( data[i].content_id == current ) opt.addclass('current');
                 if (data[i].content_id == selected_id) {
@@ -143,7 +143,7 @@ License GPL2+
                 var opt = $('<option>' + cms_lang('none') + '</option>').attr('value', -1);
                 sel.append(opt);
             }
-            //NB comparisons maybe string<>int so NOT === operator
+            //NB comparisons probably string<>int, so not === operator
             for (i = 0; i < data.length; i++) {
                 var opt = $('<option>' + data[i].display + '</option>').attr('value', data[i].content_id);
 //              if ( data[i].content_id == current ) { opt.addclass('current'); }
@@ -212,7 +212,7 @@ License GPL2+
                 var cur_pages = [];
                 if (found_cur) {
                     try {
-                        cur_pages = found_cur.split('.');
+                        cur_pages = found_cur.toString().split('.');
                     } catch (e) {
                         cur_pages = [found_cur];
                     }
