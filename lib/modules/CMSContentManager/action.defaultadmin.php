@@ -492,7 +492,8 @@ if( $pmanage ) {
     'EDITOR_UID' => $this->Lang('prompt_editor')];
     $tpl->assign('opts',$opts);
     // list of templates for filtering
-    $tpl->assign('template_list',TemplateOperations::template_query(['as_list'=>1]))
+	$list = TemplateOperations::template_query(['originator'=>CmsLayoutTemplateType::CORE, 'as_list'=>1]);
+    $tpl->assign('template_list',$list)
     // list of admin users for filtering
      ->assign('user_list',(new UserOperations())->GetList());
     // list of designs for filtering
