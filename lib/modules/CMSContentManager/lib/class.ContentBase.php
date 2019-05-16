@@ -25,7 +25,6 @@ use cms_utils;
 use CmsApp;
 use CmsContentException;
 use CMSContentManager\ContentEditor;
-use CMSContentManager\Utils;
 use CmsInvalidDataException;
 use CMSMS\AdminUtils;
 use CMSMS\ContentOperations;
@@ -621,12 +620,14 @@ abstract class ContentBase implements ContentEditor, Serializable
 					'<input type="text" id="in_menutext" name="'.$id.'menutext" value="'.cms_htmlentities($this->mMenuText).'" />'];
 
 		case 'parent':
-			$tmp = Utils::CreateHierarchyDropdown($this->mId, $this->mParentId, 'parent_id', ($this->mId <= 0), true, true, true);
-			if( empty($tmp) && !check_permission(get_userid(),'Manage All Content') ) {
+			$out = AdminUtils::CreateHierarchyDropdown($this->mId, $this->mParentId, 'parent_id', ($this->mId <= 0), true, true, true);
+			if( !($out || check_permission(get_userid(),'Manage All Content')) ) {
 				return ['','<input type="hidden" name="'.$id.'parent_id" value="'.$this->mParentId.'" />'];
 			}
-			$help = AdminUtils::get_help_tag($this->realm,'help_content_parent',$this->mod->Lang('help_title_content_parent'));
-			if( !empty($tmp) ) return ['<label for="parent_id">*'.$this->mod->Lang('parent').':</label>&nbsp;'.$help,$tmp];
+			if( $out ) {
+				$help = AdminUtils::get_help_tag($this->realm,'help_content_parent',$this->mod->Lang('help_title_content_parent'));
+				return ['<label for="parent_id">*'.$this->mod->Lang('parent').':</label>&nbsp;'.$help,$out];
+			}
 			break;
 
 		case 'active':

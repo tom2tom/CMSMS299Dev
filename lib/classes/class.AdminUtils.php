@@ -23,12 +23,13 @@ use cms_http_request;
 use cms_siteprefs;
 use cms_utils;
 use CmsApp;
+use CMSMS\HookManager;
 use ErrorException;
 use FilesystemIterator;
-use LogicException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use const CMS_DEFAULT_VERSIONCHECK_URL;
+use const CMS_JOB_KEY;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -36,10 +37,13 @@ use const CMS_VERSION;
 use const PUBLIC_CACHE_LOCATION;
 use const TMP_CACHE_LOCATION;
 use const TMP_TEMPLATES_C_LOCATION;
+use function check_permission;
+use function cms_get_script;
 use function cms_join_path;
 use function cms_module_places;
 use function cms_path_to_url;
 use function endswith;
+use function get_userid;
 use function startswith;
 
 //this is also used during content installation i.e. STATE_INSTALL_PAGE, or nothing
@@ -390,5 +394,85 @@ final class AdminUtils
 				}
 			}
 		}
+	}
+
+	/**
+	 * Generate a hierarchical ordered ajax-populated dropdown representing some
+	 * or all site pages, with fallback to text input.
+	 *
+	 * If $current or $parent parameters are provided, care is taken to ensure
+	 * that children which could cause a loop are hidden, when creating a dropdown
+	 * for changing a page's parent.
+	 *
+	 * This method uses the CMSMS jQuery hierselector widget.
+	 * @since 2.3 This method was migrated from the ContentOperations class
+	 *
+	 * @param int The id of the content object we are working with. Default 0.
+	 *   Used with $allow_current to ignore this object and its descendants.
+	 * @param int $selected The id of the currently selected content object. Or -1 if none. Default 0.
+	 * @param string $name The html name of the created dropdown. Default 'parent_id'. ('m1_' will be prepended)
+	 * @param bool $allow_current Ensures that the current value cannot be selected, or $current and its children.
+	 *   Used to prevent circular deadlocks.
+	 * @param bool $use_perms If true, check page-edit permission and show
+	 *  only the pages that the current user may edit. Default false.
+	 * @param bool $allow_all Whether to also show items which don't have a
+	 *  valid link. Default false.
+	 * @param bool $for_child since 2.2 Whether to obey the WantsChildren()
+	 *  result reported by each content object. Default false.
+	 * @return string js and html to display an ajax-populated dropdown, with fallback to text-input
+	 */
+	public static function CreateHierarchyDropdown(
+		int $current = 0,
+		int $selected = 0,
+		string $name = 'parent_id',
+		bool $allow_current = false,
+		bool $use_perms = false,
+		bool $allow_all = false,
+		bool $for_child = false) : string
+	{
+		static $count = 1;
+
+		$first = ($count == 1) ? 'true' : 'false';
+		$elemid = 'cms_hierdropdown'.$count++;
+		$elemtitle = lang('title_hierselect');
+		$popuptitle = lang('title_hierselect_select');
+		$selected = (int)$selected;
+		$user_id = get_userid(false);
+		$modify_all = check_permission($user_id,'Manage All Content') || check_permission($user_id,'Modify Any Page');
+		$script_url = cms_get_script('jquery.cmsms_hierselector.js');
+
+		$opts = [];
+		$opts['current'] = (int)$current;
+		$opts['selected'] = $selected;
+		$opts['is_manager'] = ($modify_all) ? 'true' : 'false';
+		$opts['allow_current'] = ($allow_current) ? 'true' : 'false';
+		$opts['allow_all'] = ($allow_all) ? 'true' : 'false';
+		$opts['use_perms'] = ($use_perms) ? 'true' : 'false';
+		$opts['use_simple'] = ($modify_all) ? 'false' : 'true';
+		$opts['for_child'] = ($for_child) ? 'true' : 'false';
+
+		$str = '{';
+		foreach($opts as $key => $val) {
+			$str .= "\n  ".$key.':'.$val.',';
+		}
+		$str = substr($str,0,-1)."\n }";
+
+		$out = <<<EOS
+<script type="text/javascript" src="$script_url"></script>
+<script type="text/javascript">
+//<![CDATA[
+$(function() {
+ if($first) {
+  cms_data.ajax_hiersel_url = 'ajax_hier_content.php';
+  cms_data.lang_hierselect_title = '$popuptitle';
+ }
+ $('#$elemid').hierselector($str);
+});
+//]]>
+</script>
+<input type="text" id="$elemid" class="cms_hierdropdown" name="$name" title="$elemtitle" value="$selected" size="8" maxlength="8" />
+
+EOS;
+		return $out;
 	}
 } // class

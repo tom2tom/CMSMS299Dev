@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSContentManager\Utils;
+use CMSMS\AdminUtils;
 use CMSMS\FormUtils;
 
 if (!isset($gCms)) exit;
@@ -120,6 +120,6 @@ $tpl->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'p
 
 $tpl->assign('prompt_resultpage',$this->Lang('prompt_resultpage'));
 $tpl->assign('input_resultpage',
-				Utils::CreateHierarchyDropdown(0,$this->GetPreference('resultpage',-1),$id.'resultpage',true));
+				AdminUtils::CreateHierarchyDropdown(0,$this->GetPreference('resultpage',-1),$id.'resultpage',true));
 
 $tpl->display();

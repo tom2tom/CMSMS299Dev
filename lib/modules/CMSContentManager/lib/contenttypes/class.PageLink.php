@@ -19,7 +19,7 @@
 namespace CMSContentManager\contenttypes;
 
 use CMSContentManager\ContentBase;
-use CMSContentManager\Utils;
+use CMSMS\AdminUtils;
 use CMSMS\ContentOperations;
 use function check_permission;
 use function cms_htmlentities;
@@ -120,8 +120,8 @@ class PageLink extends ContentBase
 		$id = 'm1_';
 		switch($propname) {
 		case 'page':
-			$tmp = Utils::CreateHierarchyDropdown($this->mId, $this->GetPropertyValue('page'), 'page', true);
-			if( !$tmp ) return [$this->mod->Lang('destination_page').':',$tmp];
+			$tmp = AdminUtils::CreateHierarchyDropdown($this->mId, $this->GetPropertyValue('page'), 'page', true);
+			if( $tmp ) return [$this->mod->Lang('destination_page').':',$tmp];
 			break;
 
 		case 'params':

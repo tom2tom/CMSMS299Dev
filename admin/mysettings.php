@@ -16,7 +16,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSContentManager\Utils;
 use CMSMS\AdminUtils;
 use CMSMS\internal\module_meta;
 use CMSMS\ModuleOperations;
@@ -220,7 +219,7 @@ foreach ((array)$allmodules as $onemodule) {
 }
 
 // Pages
-$sel = Utils::CreateHierarchyDropdown(0, $default_parent, 'parent_id', false, true);
+$sel = AdminUtils::CreateHierarchyDropdown(0, $default_parent, 'parent_id', false, true);
 
 // Prefs
 $tmp = [10 => 10, 20 => 20, 50 => 50, 100 => 100];
@@ -246,7 +245,7 @@ $smarty->assign([
   'pagelimit_opts'=>$tmp,
   'paging'=>$paging,
   'selfurl' => $selfurl,
-//  'syntaxhighlighter'=>$syntaxhighlighter,
+//'syntaxhighlighter'=>$syntaxhighlighter,
   'urlext' => $urlext,
   'userobj'=>$userobj,
   'wysiwyg'=>$wysiwyg,

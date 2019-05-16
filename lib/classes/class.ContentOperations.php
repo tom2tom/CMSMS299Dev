@@ -23,8 +23,8 @@ use cms_content_tree;
 use cms_siteprefs;
 use cms_utils;
 use CmsApp;
-use CMSContentManager\Utils;
 use CmsCoreCapabilities;
+use CMSMS\AdminUtils;
 use CMSMS\ContentTypePlaceHolder;
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\internal\global_cache;
@@ -33,6 +33,7 @@ use CMSMS\UserOperations;
 use Exception;
 use const CMS_DB_PREFIX;
 use function check_permission;
+use function cms_join_path;
 use function cms_module_path;
 use function debug_buffer;
 use function lang;
@@ -833,7 +834,7 @@ final class ContentOperations
 	/**
 	 * Create a hierarchical ordered ajax-populated dropdown of some or all the pages in the system.
 	 *
-	 * @deprecated since 2.3 instead use CMSContentManager\Utils::CreateHierarchyDropdown()
+	 * @deprecated since 2.3 instead use CMSMS\AdminUtils::CreateHierarchyDropdown()
 	 * @return string
 	 */
 	public function CreateHierarchyDropdown(
@@ -846,7 +847,7 @@ final class ContentOperations
 		$allow_all = false,
 		$for_child = false)
 	{
-		return Utils::CreateHierarchyDropdown(
+		return AdminUtils::CreateHierarchyDropdown(
 			$current,$value,$name,$allow_current,$use_perms,$allow_all,$for_child
 		);
 	}
