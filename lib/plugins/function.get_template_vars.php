@@ -1,5 +1,5 @@
 <?php
-#Plugin to display all template variables, in a pretty format
+#Plugin to display all template variables in a pretty format
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,11 +16,19 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-if( !function_exists('_cms_output_var') ) { // workaround stupid PHP 5.3 ??
-	/*
-	 $ptype is the parent type
-	 $key is the current key we are trying to output
-	*/
+use function get_template_vars\_cms_output_var;
+
+namespace get_template_vars {
+
+use LogicException;
+
+	/**
+	 * @param mixed $ptype the parent type
+	 * @param mixed $key sting|number the current key we are trying to output
+	 * @param int $depth recursion depth, internal use only
+	 * @return string
+	 * @throws LogicException
+	 */
 	function _cms_output_accessor($ptype,$key,$depth)
 	{
 		if( $depth == 0 ) return "\${$key}";
@@ -35,15 +43,22 @@ if( !function_exists('_cms_output_var') ) { // workaround stupid PHP 5.3 ??
 
 		default:
 			// should not get here....
-			throw new \LogicException('Invalid accessor type');
+			throw new LogicException('Invalid accessor type');
 		}
 	}
 
-	// this outputs html similar to json, but with type information and indentation
+	/**
+	 * Output html similar to json, but with type information and indentation
+	 * @param string $key
+	 * @param mixed $val
+	 * @param mixed $ptype
+	 * @param int $depth
+	 * @return string
+	 */
 	function _cms_output_var($key,$val,$ptype = null,$depth = 0)
 	{
 		$type = gettype($val);
-		$out = null;
+		$out = '';
 		$depth_str = '&nbsp;&nbsp;&nbsp;';
 		$acc = _cms_output_accessor($ptype,$key,$depth);
 		if( is_object($val) ) {
@@ -57,7 +72,7 @@ if( !function_exists('_cms_output_var') ) { // workaround stupid PHP 5.3 ??
 			}
 			$out .= str_repeat($depth_str,$depth).'}<br />';
 		}
-		else if( is_array($val) ) {
+		elseif( is_array($val) ) {
 			$out .= str_repeat($depth_str,$depth);
 			$out .= "{$acc} <em>($type)</em> = [<br />";
 			foreach( $val as $a_key => $a_val ) {
@@ -65,7 +80,7 @@ if( !function_exists('_cms_output_var') ) { // workaround stupid PHP 5.3 ??
 			}
 			$out .= str_repeat($depth_str,$depth).']<br />';
 		}
-		else if( is_callable($val) ) {
+		elseif( is_callable($val) ) {
 			$out .= str_repeat($depth_str,$depth)."{$acc} <em>($type)</em> = callable<br />";
 		}
 		else {
@@ -80,7 +95,7 @@ if( !function_exists('_cms_output_var') ) { // workaround stupid PHP 5.3 ??
 		}
 		return $out;
 	}
-}
+} //namespace
 
 function smarty_function_get_template_vars($params, $template)
 {
