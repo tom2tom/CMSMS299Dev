@@ -18,63 +18,63 @@
 
 function smarty_function_cms_pageoptions($params, $template)
 {
-  if( !isset($params['numpages']) ) return;
-  $numpages = (int)$params['numpages'];
-  if( $numpages < 1 ) return;
-  $curpage = get_parameter_value($params,'curpage',1);
-  $curpage = (int)$curpage;
-  $curpage = max(1,min($numpages,$curpage));
-  $surround = 3;
-  if( isset($params['surround']) ) $surround = (int)$params['surround'];
-  $surrund = max(1,min(20,$surround));
-  $elipsis = get_parameter_value($params,'elipsis','');
-  $bare = cms_to_bool(get_parameter_value($params,'bare',0));
+	if( !isset($params['numpages']) ) return;
+	$numpages = (int)$params['numpages'];
+	if( $numpages < 1 ) return;
+	$curpage = get_parameter_value($params,'curpage',1);
+	$curpage = (int)$curpage;
+	$curpage = max(1,min($numpages,$curpage));
+	$surround = 3;
+	if( isset($params['surround']) ) $surround = (int)$params['surround'];
+	$surrund = max(1,min(20,$surround));
+	$elipsis = get_parameter_value($params,'elipsis','');
+	$bare = cms_to_bool(get_parameter_value($params,'bare',0));
 
-  $list = [];
-  for( $i = 1; $i <= min($surround,$numpages); $i++ ) {
-	$list[] = (int)$i;
-  }
-
-  $x1 = max(1,(int)($curpage - $surround/2));
-  $x2 = min($numpages,(int)($curpage + $surround/2));
-  for( $i = $x1; $i <= $x2; $i++ ) {
-	$list[] = (int)$i;
-  }
-
-  for( $i = max(1,$numpages - $surround); $i <= $numpages; $i++ ) {
-	$list[] = (int)$i;
-  }
-
-  $list = array_unique($list);
-  sort($list);
-
-  if( $bare ) {
-	$out = $list;
-	if( $elipsis ) {
-	  $out = [];
-	  for( $i = 1, $n = count($list); $i < $n; $i++ ) {
-        if( $list[$i-1] != $list[$i] - 1 ) $out[] = $elipsis;
-        $out[] = $list[$i];
-      }
+	$list = [];
+	for( $i = 1; $i <= min($surround,$numpages); $i++ ) {
+		$list[] = (int)$i;
 	}
-  }
-  else {
-	$out = '';
-	$fmt = '<option value="%d">%s</option>';
-	$fmt2 = '<option value="%d" selected="selected">%s</option>';
-	foreach( $list as $pagenum ) {
-	  if( $pagenum == $curpage ) {
-	$out .= sprintf($fmt2,$pagenum,$pagenum);
-	  }
-	  else {
-	$out .= sprintf($fmt,$pagenum,$pagenum);
-	  }
-	}
-  }
 
-  if( isset($params['assign']) ) {
-	$template->assign(trim($params['assign']),$out);
-	return;
-  }
-  return $out;
+	$x1 = max(1,(int)($curpage - $surround/2));
+	$x2 = min($numpages,(int)($curpage + $surround/2));
+	for( $i = $x1; $i <= $x2; $i++ ) {
+		$list[] = (int)$i;
+	}
+
+	for( $i = max(1,$numpages - $surround); $i <= $numpages; $i++ ) {
+		$list[] = (int)$i;
+	}
+
+	$list = array_unique($list);
+	sort($list);
+
+	if( $bare ) {
+		$out = $list;
+		if( $elipsis ) {
+			$out = [];
+			for( $i = 1, $n = count($list); $i < $n; $i++ ) {
+				if( $list[$i-1] != $list[$i] - 1 ) $out[] = $elipsis;
+				$out[] = $list[$i];
+			}
+		}
+	}
+	else {
+		$out = '';
+		$fmt = '<option value="%d">%s</option>';
+		$fmt2 = '<option value="%d" selected="selected">%s</option>';
+		foreach( $list as $pagenum ) {
+			if( $pagenum == $curpage ) {
+				$out .= sprintf($fmt2,$pagenum,$pagenum);
+			}
+			else {
+				$out .= sprintf($fmt,$pagenum,$pagenum);
+			}
+		}
+	}
+
+	if( isset($params['assign']) ) {
+		$template->assign(trim($params['assign']),$out);
+		return;
+	}
+	return $out;
 }
