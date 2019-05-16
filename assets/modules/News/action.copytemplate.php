@@ -1,7 +1,7 @@
 <?php
 /*
-Delete item action for CMSMS News module.
-Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Clone template action for CMSMS News module.
+Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -17,17 +17,25 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use News\AdminOperations;
+use CMSMS\TemplateOperations;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Delete News') ) return;
+if( !$this->CheckPermission('Modify News Preferences') ) return;
+if( !isset($params['tpl']) ) return;
 
-$articleid = $params['articleid'] ?? '';
-if( AdminOperations::delete_article($articleid) ) {
-    $this->SetMessage($this->Lang('articledeleted'));
+try {
+	$tpl = TemplateOperations::get_template($params['tpl']);
 }
-else {
-    $this->SetError($this->Lang('error_unknown')); //TODO informative message
+catch( Throwable $t ) {
+	$this->SetError($t->getMessage());
+	$this->RedirectToAdminTab('templates');
 }
 
-$this->RedirectToAdminTab('articles');
+$name = $tpl->get_name();
+$newtpl = clone $tpl;
+$newname = TemplateOperations::get_unique_template_name($name.'-COPY');
+$newtpl->set_name($newname);
+TemplateOperations::save_template($newtpl);
+$tid = $newtpl->get_id();
+
+$this->Redirect($id, 'edittemplate', $returnid, ['tpl'=>$tid]);

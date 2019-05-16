@@ -25,12 +25,12 @@ use CmsRoute;
 use const CMS_DB_PREFIX;
 use function audit;
 use function cms_join_path;
-use function cms_move_uploaded_file;
+//use function cms_move_uploaded_file;
 use function cmsms;
 use function get_userid;
 use function recursive_delete;
 
-final class Adminops
+final class AdminOperations
 {
     protected function __construct() {}
     protected function __clone() {}
@@ -110,15 +110,15 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         $db->Execute($query, [$articleid]);
 
         // Delete it from the custom fields
-        $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE news_id = ?';
-        $db->Execute($query, [$articleid]);
+//        $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE news_id = ?';
+//        $db->Execute($query, [$articleid]);
 
         // delete any files...
         $config = cmsms()->GetConfig();
         $p = cms_join_path($config['uploads_path'],'news','id'.$articleid);
         if( is_dir($p) ) recursive_delete($p);
 
-        Adminops::delete_static_route($articleid);
+        self::delete_static_route($articleid);
 
         //Update search index
         $mod = cms_utils::get_module('News');
@@ -132,13 +132,14 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         return true;
     }
 
-    /**
+    /* *
      *
      * @param type $itemid
      * @param type $fieldname
      * @param string-reference $error
      * @return mixed string|false
      */
+/*
     public static function handle_upload($itemid,$fieldname,&$error)
     {
         $config = cmsms()->GetConfig();
@@ -185,7 +186,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
         return $filename;
     }
-
+*/
    /**
     *
     */

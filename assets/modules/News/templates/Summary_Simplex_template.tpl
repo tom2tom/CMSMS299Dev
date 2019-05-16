@@ -25,9 +25,9 @@
             <h2><a href='{$entry->moreurl}' title='{$entry->title|cms_escape:htmlall}'>{$entry->title|cms_escape}</a></h2>
             <div class='meta cf'>
 {*
-                <time class='date' datetime='{$entry->postdate|date_format:'%Y-%m-%d'}'>
-                    <span class='day'> {$entry->postdate|date_format:'%d'} </span>
-                    <span class='month'> {$entry->postdate|date_format:'%b'} </span>
+                <time class='date' datetime='{$entry->start|date_format:'%Y-%m-%d'}'>
+                    <span class='day'> {$entry->start|date_format:'%d'} </span>
+                    <span class='month'> {$entry->start|date_format:'%b'} </span>
                 </time>
 *}
                 <span class='author'> {$author_label} {$entry->author} </span>

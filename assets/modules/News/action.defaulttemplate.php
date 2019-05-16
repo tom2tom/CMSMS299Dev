@@ -1,7 +1,7 @@
 <?php
 /*
-Clone item action for CMSMS News module.
-Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Set type default template action for CMSMS News module.
+Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -17,22 +17,19 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use News\AdminOperations;
+use CMSMS\TemplateOperations;
 
-if (!isset($gCms)) exit;
+if( !isset($gCms) ) exit;
+if( !$this->CheckPermission('Modify News Preferences') ) return;
+if( !isset($params['tpl']) ) return;
 
-if (!$this->CheckPermission('Modify News')) {
-    $this->SetError($this->Lang('needpermission', 'Modify News')); //probsaly useless before return
-    return;
+try {
+	$tpl = TemplateOperations::get_template($params['tpl']);
+	$tpl->set_type_dflt();
+	TemplateOperations::save_template($tpl);
+}
+catch( Throwable $t ) {
+	$this->SetError($t->getMessage());
 }
 
-$articleid = $params['articleid'] ?? '';
-
-if (AdminOperations::copy_article($articleid)) {
-    $this->SetMessage($this->Lang('articlecopied'));
-}
-else {
-    $this->SetError($this->Lang('error_unknown')); //TODO informative message
-}
-
-$this->RedirectToAdminTab('articles');
+$this->RedirectToAdminTab('templates');

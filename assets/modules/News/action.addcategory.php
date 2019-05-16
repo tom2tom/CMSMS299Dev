@@ -18,14 +18,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Events;
-use News\Adminops;
-use News\Ops;
+use News\AdminOperations;
+use News\Utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify News Preferences')) return;
 
 if (isset($params['cancel'])) {
-    $this->RedirectToAdminTab('categories','','defaultadmin');
+    $this->RedirectToAdminTab('groups');
 }
 
 if( isset($params['parent'])) {
@@ -51,19 +51,19 @@ if (isset($params['name'])) {
             $item_order++;
 
             $catid = $db->GenID(CMS_DB_PREFIX.'module_news_categories_seq');
-			$now = time();
+            $now = time();
             $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories (news_category_id, news_category_name, parent_id, item_order, create_date) VALUES (?,?,?,?,?)';
             $parms = [$catid,$name,$parent,$item_order,$now];
             $db->Execute($query, $parms);
 
-            Adminops::UpdateHierarchyPositions();
+            AdminOperations::UpdateHierarchyPositions();
 
             Events::SendEvent( 'News', 'NewsCategoryAdded', [ 'category_id'=>$catid, 'name'=>$name ] );
             // put mention into the admin log
-            audit($catid, 'News category: '.$name, ' Category added');
+            audit($catid, 'News category: '.$name, ' Added');
 
             $this->SetMessage($this->Lang('categoryadded'));
-            $this->RedirectToAdminTab('categories','','admin_settings');
+            $this->RedirectToAdminTab('groups');
         }
     }
     else {
@@ -71,22 +71,23 @@ if (isset($params['name'])) {
     }
 }
 
-$tmp = Ops::get_category_list();
+$tmp = Utils::get_category_list();
 $tmp2 = array_flip($tmp);
 $categories = [-1=>$this->Lang('none')];
 foreach( $tmp2 as $k => $v ) {
     $categories[$k] = $v;
 }
 
+$parms = $params; //TODO any extras
+unset($parms['action'],$parms['name']);
+
 // Display template
 $tpl = $smarty->createTemplate($this->GetTemplateResource('editcategory.tpl'),null,null,$smarty);
 
-$tpl->assign('parent',$parent)
+$tpl->assign('formaction','addcategory')
+ ->assign('formparms',$parms)
+ ->assign('parent',$parent)
  ->assign('name',$name)
- ->assign('categories',$categories)
- ->assign('startform', $this->CreateFormStart($id, 'addcategory', $returnid))
- ->assign('endform', $this->CreateFormEnd())
- ->assign('inputname', $this->CreateInputText($id, 'name', $name, 20, 255));
+ ->assign('categories',$categories);
 
 $tpl->display();
-

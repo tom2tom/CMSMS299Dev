@@ -36,7 +36,7 @@
 <p>- Add a "start" parameter to specify a start offset for news items</p>
 <p>- The template tabs now have a "reset to default" button on them</p>
 <p>- Start menu item is now required, but end date is optional when useexpirydate is on, </p>
-<p>- Change the permissions model significantly, The "Modify News" permission is only for articles and categories. "Modify Templates" permission is required to edit the templates, and "Modify Site Preferences" is required to edit the options.</p> 
+<p>- Change the permissions model significantly, The "Modify News" permission is only for articles and categories. "Modify Templates" permission is required to edit the templates, and "Modify Site Preferences" is required to edit the options.</p>
 <p>- Put the rss feed titile into the lang entries</p>
 </li>
 <li>
@@ -207,17 +207,21 @@
     <li>Security fix.</li>
   </ul>
 </li>
-</ul>
 <li>Version 3.0
   <ul>
     <li>For CMSMS 2.3 beta or later.</li>
     <li>All module classes are namespaced.</li>
+    <li>Settings action merged into defaultadmin.</li>
     <li>Settings modification permission 'Modify News Preferences' instead of 'Modify Site Preferences'.</li>
     <li>Removed deprecated feusubmit action and related processing.</li>
+    <li>Removed support for input fields (which were mostly for fe use).</li>
+    <li>Removed support for file fields, which are replaced by WYSIWYG editor functions</li>
     <li>Sort and page the admin articles-list using js instead of on server.</li>
     <li>Single-click takedown of published articles.</li>
+    <li>Reinstated optional intra-module template management.</li>
     <li>Merged article post-date and start-date.</li>
     <li>Articles without publication start-date are ignored.</li>
     <li>Article publication start/end can be selected via js pickers.</li>
   </ul>
 </li>
+</ul>

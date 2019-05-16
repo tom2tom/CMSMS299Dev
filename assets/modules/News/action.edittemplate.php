@@ -1,7 +1,7 @@
 <?php
 /*
-Clone item action for CMSMS News module.
-Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Edit/add template action for CMSMS News module.
+Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -17,22 +17,23 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use News\AdminOperations;
+if( !isset($gCms) ) exit;
 
-if (!isset($gCms)) exit;
+$user_id = get_userid();
+$can_manage = check_permission($user_id, 'Modify News Preferences');  // || Modify Templates etc ??
+if( !$can_manage ) return;
+$content_only = false; //TODO per actual permmissions
 
-if (!$this->CheckPermission('Modify News')) {
-    $this->SetError($this->Lang('needpermission', 'Modify News')); //probsaly useless before return
-    return;
-}
+$module = $this;
+$returntab = 'templates';
 
-$articleid = $params['articleid'] ?? '';
-
-if (AdminOperations::copy_article($articleid)) {
-    $this->SetMessage($this->Lang('articlecopied'));
+if( $params['tpl'] > 0 ) {
+    $title = $this->Lang('prompt_edittemplate');
 }
 else {
-    $this->SetError($this->Lang('error_unknown')); //TODO informative message
+    $title = $this->Lang('prompt_addtemplate');
 }
+$show_buttons = true;
+$show_cancel = true;
 
-$this->RedirectToAdminTab('articles');
+require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'assets', 'method.edittemplate.php');

@@ -53,15 +53,15 @@ final class AdminSearch_slave extends slave
     if( !is_object($mod) ) return;
     $db = cmsms()->GetDb();
     // need to get the fielddefs of type textbox or textarea
-    $query = 'SELECT id FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE type IN (?,?)';
-    $fdlist = $db->GetCol($query,['textbox','textarea']);
+//    $query = 'SELECT id FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE type IN (?,?)';
+//    $fdlist = $db->GetCol($query,['textbox','textarea']);
 
     $fields = ['N.*'];
     $joins = [];
     $where = ['news_title LIKE ?','news_data LIKE ?','summary LIKE ?'];
     $str = '%'.$this->get_text().'%';
     $parms = [$str,$str,$str];
-
+/*
     // add in fields
     for( $i = 0, $n = count($fdlist); $i < $n; $i++ ) {
       $text = 'FV'.$i;
@@ -71,7 +71,7 @@ final class AdminSearch_slave extends slave
       $where[] = "$text.value LIKE ?";
       $parms[] = $str;
     }
-
+*/
     // build the query.
     $query = 'SELECT '.implode(',',$fields).' FROM '.CMS_DB_PREFIX.'module_news N';
     if( $joins ) $query .= ' ' . implode(' ',$joins);

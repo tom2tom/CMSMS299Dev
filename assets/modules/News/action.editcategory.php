@@ -18,14 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Events;
-use News\Adminops;
-use News\Ops;
+use News\AdminOperations;
+use News\Utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify News Preferences')) return;
 
-$this->SetCurrentTab('categories');
-if (isset($params['cancel'])) $this->RedirectToAdminTab('','','admin_settings');
+if (isset($params['cancel'])) $this->RedirectToAdminTab('groups');
 
 $catid = '';
 $row = null;
@@ -37,7 +36,7 @@ if( isset($params['catid']) ) {
   $row = $db->GetRow($query, [$catid]);
   if( !$row ) {
     $this->SetError($this->Lang('error_categorynotfound'));
-    $this->RedirectToAdminTab();
+    $this->RedirectToAdminTab('groups');
   }
   $name = $row['news_category_name'];
   $parentid = (int)$row['parent_id'];
@@ -53,7 +52,7 @@ if( isset($params['submit']) ) {
     $this->ShowErrors($this->Lang('nonamegiven'));
   }
   else {
-    // its an update.
+    // it's an update.
     $query = 'SELECT news_category_id FROM '.CMS_DB_PREFIX.'module_news_categories
 WHERE parent_id = ? AND news_category_name = ? AND news_category_id != ?';
     $tmp = $db->GetOne($query,[$parentid,$name,$catid]);
@@ -62,22 +61,22 @@ WHERE parent_id = ? AND news_category_name = ? AND news_category_id != ?';
     }
     else {
       if( $parentid == $catid ) {
-	$this->ShowErrors($this->Lang('error_categoryparent'));
+    $this->ShowErrors($this->Lang('error_categoryparent'));
       }
       else if( $parentid != $row['parent_id'] ) {
-	// parent changed
+    // parent changed
 
-	// gotta figure out a new item order.
-	$query = 'SELECT max(item_order) FROM '.CMS_DB_PREFIX.'module_news_categories
+    // gotta figure out a new item order.
+    $query = 'SELECT max(item_order) FROM '.CMS_DB_PREFIX.'module_news_categories
 WHERE parent_id = ?';
-	$maxn = (int)$db->GetOne($query,[$parentid]);
-	$maxn++;
+    $maxn = (int)$db->GetOne($query,[$parentid]);
+    $maxn++;
 
-	$query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET item_order = item_order - 1
+    $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET item_order = item_order - 1
 WHERE parent_id = ? AND item_order > ?';
-	$db->Execute($query,[$row['parent_id'],$row['item_order']]);
+    $db->Execute($query,[$row['parent_id'],$row['item_order']]);
 
-	$row['item_order'] = $maxn;
+    $row['item_order'] = $maxn;
       }
 
       $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories
@@ -86,7 +85,7 @@ WHERE news_category_id = ?';
       $parms = [$name,$row['item_order'],$parentid,time(),$catid];
       $db->Execute($query, $parms);
 
-      Adminops::UpdateHierarchyPositions();
+      AdminOperations::UpdateHierarchyPositions();
 
       Events::SendEvent('News', 'NewsCategoryEdited', [ 'category_id'=>$catid, 'name'=>$name, 'origname'=>$origname ] );
       // put mention into the admin log
@@ -98,7 +97,7 @@ WHERE news_category_id = ?';
   }
 }
 
-$tmp = Ops::get_category_list();
+$tmp = Utils::get_category_list();
 $tmp2 = array_flip($tmp);
 $categories = [-1=>$this->Lang('none')];
 foreach( $tmp2 as $k => $v ) {
@@ -110,15 +109,11 @@ $parms = ['catid'=>$catid];
 //Display template
 $tpl = $smarty->createTemplate($this->GetTemplateResource('editcategory.tpl'),null,null,$smarty);
 
-$tpl->assign('catid',$catid)
+$tpl->assign('formaction','editcategory')
+ ->assign('formparms',$parms)
+ ->assign('catid',$catid)
  ->assign('parent',$parentid)
  ->assign('name',$name)
- ->assign('categories',$categories)
- ->assign('startform', $this->CreateFormStart($id, 'editcategory',
-						    $returnid, 'post', '', false, '', $parms))
- ->assign('endform', $this->CreateFormEnd())
- ->assign('nametext', $this->Lang('name'))
- ->assign('inputname', $this->CreateInputText($id, 'name', $name, 20, 255));
+ ->assign('categories',$categories);
 
 $tpl->display();
-

@@ -18,17 +18,23 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\TemplateOperations;
-use News\Ops;
+use News\Utils;
 
-if (!isset($gCms)) exit;
+if( !isset($gCms) ) exit;
 
-if (isset($params['summarytemplate'])) {
+if( !empty ($params['browsecat']) ) {
+    return $this->DoAction('browsecat', $id, $params, $returnid);
+}
+
+$me = $this->GetName();
+
+if( isset($params['summarytemplate']) ) {
     $template = trim($params['summarytemplate']);
 }
 else {
-    $tpl = TemplateOperations::get_default_template_by_type('News::summary');
+    $tpl = TemplateOperations::get_default_template_by_type($me.'::summary');
     if( !is_object($tpl) ) {
-        audit('',$this->GetName(),'No default summary template found');
+        audit('',$me,'No default summary template found');
         return;
     }
     $template = $tpl->get_name();
@@ -48,21 +54,15 @@ if( isset($params['detailpage']) ) {
         unset($params['detailpage']);
     }
 }
-if (isset($params['browsecat']) && $params['browsecat']==1) {
-    return $this->DoAction('browsecat', $id, $params, $returnid);
-}
 
-$query1 = 'SELECT
-mn.*,
-mnc.news_category_name,
-mnc.long_name,
-u.username,
-u.first_name,
-u.last_name
-FROM ' . CMS_DB_PREFIX . 'module_news mn
-LEFT OUTER JOIN ' . CMS_DB_PREFIX . 'module_news_categories mnc ON mnc.news_category_id = mn.news_category_id
-LEFT OUTER JOIN ' . CMS_DB_PREFIX . 'users u ON u.user_id = mn.author_id
-WHERE status = \'published\' AND ';
+$tbl = 'module_news';
+$grptbl = 'module_news_categories';
+
+$query1 = 'SELECT N.*,G.news_category_name,G.long_name,U.username,U.first_name,U.last_name
+FROM ' . CMS_DB_PREFIX . $tbl. ' N
+LEFT OUTER JOIN ' . CMS_DB_PREFIX . $grptbl . ' G ON N.news_category_id = G.news_category_id
+LEFT OUTER JOIN ' . CMS_DB_PREFIX . 'users U ON U.user_id = N.author_id
+WHERE N.status = \'published\' AND ';
 
 if( isset($params['idlist']) ) {
     $idlist = $params['idlist'];
@@ -73,14 +73,14 @@ if( isset($params['idlist']) ) {
             if( $tmp[$i] < 1 ) unset($tmp[$i]);
         }
         $idlist = array_unique($tmp);
-        $query1 .= ' (mn.news_id IN ('.implode(',',$idlist).')) AND ';
+        $query1 .= ' (N.news_id IN ('.implode(',',$idlist).')) AND ';
     }
 }
 
 if( isset($params['category_id']) ) {
-    $query1 .= " ( mnc.news_category_id = '".(int)$params['category_id']."' ) AND ";
+    $query1 .= " ( G.news_category_id = '".(int)$params['category_id']."' ) AND ";
 }
-else if( isset($params['category']) && $params['category'] != '' ) {
+elseif( !empty($params['category']) ) {
     $category = cms_html_entity_decode(trim($params['category']));
     $categories = explode(',', $category);
     $query1 .= ' (';
@@ -88,12 +88,12 @@ else if( isset($params['category']) && $params['category'] != '' ) {
     foreach( $categories as $onecat ) {
         if ($count > 0) $query1 .= ' OR ';
         if (strpos($onecat, '|') !== FALSE || strpos($onecat, '*') !== FALSE) {
-            $tmp = $db->qStr(trim(str_replace('*', '%', str_replace("'",'_',$onecat))));
-            $query1 .= "upper(mnc.long_name) like upper({$tmp})";
+            $tmp = $db->qStr(trim(str_replace(['*',"'"],['%','_'],$onecat)));
+            $query1 .= "UPPER(G.long_name) LIKE UPPER({$tmp})"; // redundant if field is ci, useless if multibyte content present !
         }
         else {
             $tmp = $db->qStr(trim(str_replace("'",'_',$onecat)));
-            $query1 .= "mnc.news_category_name = {$tmp}";
+            $query1 .= "G.news_category_name = {$tmp}";
         }
         $count++;
     }
@@ -119,10 +119,10 @@ $sortby = trim(get_parameter_value($params,'sortby','start_time'));
 switch( $sortby ) {
   case 'news_category':
     if (isset($params['sortasc']) && (strtolower($params['sortasc']) == 'true')) {
-        $query1 .= 'ORDER BY mnc.long_name ASC, mn.start_time ';
+        $query1 .= 'ORDER BY G.long_name ASC, N.start_time ';
     }
     else {
-        $query1 .= 'ORDER BY mnc.long_name DESC, mn.start_time ';
+        $query1 .= 'ORDER BY G.long_name DESC, N.start_time ';
     }
     break;
 
@@ -137,30 +137,29 @@ switch( $sortby ) {
   case 'news_title':
   case 'end_time':
   case 'news_extra':
-    $query1 .= "ORDER BY mn.$sortby ";
+    $query1 .= "ORDER BY N.$sortby ";
     break;
   default:
-    $query1 .= 'ORDER BY mn.start_time ';
+    $query1 .= 'ORDER BY N.start_time ';
     break;
 }
 
-if( $sortrandom == false ) {
-    if (isset($params['sortasc']) && (strtolower($params['sortasc']) == 'true')) {
-        $query1 .= 'ASC';
-    }
-    else {
+if( !$sortrandom ) {
+    if( !isset($params['sortasc']) || !cms_to_bool($params['sortasc']) ) {
         $query1 .= 'DESC';
     }
 }
 
-$pagelimit = 1000;
 if( isset( $params['pagelimit'] ) ) {
-    $pagelimit = (int) ($params['pagelimit']);
+    $pagelimit = (int)$params['pagelimit'];
 }
-else if( isset( $params['number'] ) ) {
-    $pagelimit = (int) ($params['number']);
+elseif( isset( $params['number'] ) ) {
+    $pagelimit = (int)$params['number'];
 }
-$pagelimit = max(1,min(1000,$pagelimit)); // maximum of 1000 entries.
+else {
+    $pagelimit = 1000;
+}
+$pagelimit = max(1,min(1000,$pagelimit)); // maximum of 1000 items
 
 // Get the number of rows (so we can determine the numer of pages)
 $pagecount = -1;
@@ -186,8 +185,8 @@ if( $rst ) {
         $result_ids[] = $rst->fields['news_id'];
         $rst->MoveNext();
     }
-//    Ops::preloadFieldData($result_ids);
-
+//    Utils::preloadFieldData($result_ids);
+	$fmt = $this->GetDateFormat();
     $rst->MoveFirst();
     while( !$rst->EOF() ) {
         $row = $rst->fields;
@@ -209,37 +208,36 @@ if( $rst ) {
         $onerow->summary = (trim($row['summary'])!='<br />'?$row['summary']:'');
         if( !empty($row['news_extra']) ) $onerow->extra = $row['news_extra'];
         $onerow->start = $row['start_time'];
-        //probably a timezone disconnect here, but local time is as good a guess as any
-        $onerow->startdate = date('Y-m-d H:i:s',$onerow->start);
+        $onerow->startdate = strftime($fmt,$onerow->start);
         $onerow->postdate = $onerow->startdate; //deprecated since 3.0
         $onerow->stop = $row['end_time'];
-        $onerow->enddate = date('Y-m-d H:i:s',$onerow->stop);
+        $onerow->enddate = strftime($fmt,$onerow->stop);
         $onerow->created = $row['create_date'];
-        $onerow->create_date = date('Y-m-d H:i:s',$onerow->created);
+        $onerow->create_date = strftime($fmt,$onerow->created);
         $onerow->modified = $row['modified_date'];
         if( !$onerow->modified ) $onerow->modified = $onerow->created;
-        $onerow->modified_date = date('Y-m-d H:i:s',$onerow->modified);
+        $onerow->modified_date = strftime($fmt,$onerow->modified);
         $onerow->category = $row['news_category_name'];
 
         //
-        // Handle the custom fields
+        // Handle custom fields
         //
-//        $onerow->fields = Ops::get_fields($row['news_id'],true);
+//        $onerow->fields = Utils::get_fields($row['news_id'],true);
 //        $onerow->fieldsbyname = $onerow->fields; // dumb, I know.
 //        $onerow->file_location = $gCms->config['uploads_url'].'/news/id'.$row['news_id'];
 
-        $moretext = $params['moretext'] ?? $this->Lang('more');
+        $moretext = $params['moretext'] ?? $this->Lang('moreprompt');
 
         $sendtodetail = ['articleid'=>$row['news_id']];
-        if( isset($params['showall']) ) { $sendtodetail['showall'] = $params['showall']; }
+        if( isset($params['category_id']) ) { $sendtodetail['category_id'] = $params['category_id']; }
         if( isset($params['detailpage']) ) { $sendtodetail['origid'] = $returnid; }
         if( isset($params['detailtemplate']) ) { $sendtodetail['detailtemplate'] = $params['detailtemplate']; }
         if( isset($params['lang']) ) { $sendtodetail['lang'] = $params['lang']; }
-        if( isset($params['category_id']) ) { $sendtodetail['category_id'] = $params['category_id']; }
         if( isset($params['pagelimit']) ) { $sendtodetail['pagelimit'] = $params['pagelimit']; }
+        if( isset($params['showall']) ) { $sendtodetail['showall'] = $params['showall']; }
 
         $prettyurl = $row['news_url'];
-        if( $prettyurl == '' ) {
+        if( !$prettyurl ) {
             $aliased_title = munge_string_to_url($row['news_title']);
             $prettyurl = 'news/'.$row['news_id'].'/'.($detailpage!=''?$detailpage:$returnid)."/$aliased_title";
             if( isset($sendtodetail['detailtemplate']) ) {
@@ -247,26 +245,26 @@ if( $rst ) {
             }
         }
         $backto = ($detailpage) ? $detailpage : $returnid;
-        $onerow->detail_url = $this->create_url(
-            $id, 'detail', $backto, $sendtodetail );
-        $onerow->link = $this->CreateLink(
-            $id, 'detail', $backto, '', $sendtodetail, '', true, false, '', true, $prettyurl);
-        $onerow->titlelink = $this->CreateLink(
-            $id, 'detail', $backto, $row['news_title'], $sendtodetail, '', false, false, '', true, $prettyurl);
-        $onerow->morelink = $this->CreateLink(
-            $id, 'detail', $backto, $moretext, $sendtodetail, '', false, false, '', true, $prettyurl);
-        $onerow->moreurl = $this->CreateLink(
-            $id, 'detail', $backto, $moretext, $sendtodetail, '', true, false, '', true, $prettyurl);
+        $onerow->detail_url = $this->create_url($id,'detail',$backto,
+			$sendtodetail);
+        $onerow->moreurl = $this->CreateLink($id,'detail',$backto,
+			$moretext,$sendtodetail,'',true,false,'',true,$prettyurl);
+        $onerow->link = $this->CreateLink($id,'detail',$backto,
+			'',$sendtodetail,'',true,false,'',true,$prettyurl);
+        $onerow->titlelink = $this->CreateLink($id,'detail',$backto,
+			$row['news_title'],$sendtodetail,'',false,false,'',true,$prettyurl);
+        $onerow->morelink = $this->CreateLink($id,'detail',$backto,
+			$moretext,$sendtodetail,'',false,false,'',true,$prettyurl);
 
         $entryarray[] = $onerow;
         $rst->MoveNext();
     } // while
 
+    // determine number of pages
     $ecount = count($entryarray);
-    // determine a number of pages
-    if( isset( $params['start'] ) ) $ecount -= (int)$params['start'];
+	if( isset( $params['start'] ) ) { $ecount -= (int)$params['start']; }
     $pagecount = (int)($ecount / $pagelimit);
-    if( ($ecount % $pagelimit) != 0 ) $pagecount++;
+	if( ($ecount % $pagelimit) != 0 ) { $pagecount++; }
 } // resultset
 else {
     $ecount = 0;
@@ -317,7 +315,7 @@ foreach( $params as $key => $value ) {
 }
 unset($params['pagenumber']);
 
-$items = Ops::get_categories($id,$params,$returnid);
+$items = Utils::get_categories($id,$params,$returnid);
 $catName = '';
 if( isset($params['category']) ) {
     $catName = $params['category'];

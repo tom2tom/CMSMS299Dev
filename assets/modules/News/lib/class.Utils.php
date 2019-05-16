@@ -18,29 +18,32 @@
 
 namespace News;
 
+use cms_config;
 use cms_utils;
 use CmsApp;
+use DateTime;
+use DateTimeZone;
 use const CMS_DB_PREFIX;
 
-final class Ops
+final class Utils
 {
   protected function __construct() {}
 
   private static $_categories_loaded = FALSE;
   private static $_cached_categories = [];
-  private static $_cached_fielddefs = NULL;
-  private static $_cached_fieldvals= NULL;
+//  private static $_cached_fielddefs = NULL;
+//  private static $_cached_fieldvals= NULL;
 
   public static function get_categories($id,$params,$returnid=-1)
   {
     $tmp = self::get_all_categories();
     if( !$tmp ) return;
 
-    $catinfo = [];
     if( !isset($params['category']) || $params['category'] == '' ) {
       $catinfo = $tmp;
     }
     else {
+      $catinfo = [];
       $categories = explode(',', $params['category']);
       foreach( $categories as $onecat ) {
         if( strpos($onecat,'*') !== FALSE ) {
@@ -118,7 +121,6 @@ final class Ops
     return $items;
   }
 
-
   public static function get_all_categories()
   {
     if( !self::$_categories_loaded ) {
@@ -131,7 +133,6 @@ final class Ops
     return self::$_cached_categories;
   }
 
-
   public static function get_category_list()
   {
     self::get_all_categories();
@@ -143,7 +144,6 @@ final class Ops
     return $categorylist;
   }
 
-
   public static function get_category_names_by_id()
   {
     self::get_all_categories();
@@ -153,7 +153,6 @@ final class Ops
     }
     return $list;
   }
-
 
   public static function get_category_name_from_id($id)
   {
@@ -165,13 +164,14 @@ final class Ops
     }
   }
 
-
+/*
   public static function get_fielddefs($publiconly = TRUE)
   {
     if( !is_array(self::$_cached_fielddefs) ) {
       $db = CmsApp::get_instance()->GetDb();
-      $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE public = 1 ORDER BY item_order';
-      if( !$publiconly ) {
+      if( $publiconly ) {
+        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE public = 1 ORDER BY item_order';
+      } else {
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs ORDER BY item_order';
       }
       $tmp = $db->GetArray($query);
@@ -208,7 +208,7 @@ final class Ops
     }
     return $res;
   }
-
+*/
 
   public static function fill_article_from_formparams(Article &$news,$params,$handle_uploads = FALSE,$handle_deletes = FALSE)
   {
@@ -273,7 +273,7 @@ final class Ops
         break;
       }
     }
-
+/*
     if( isset($params['customfield']) && is_array($params['customfield']) ) {
       $fielddefs = self::get_fielddefs();
       foreach( $params['customfield'] as $key => $value ) {
@@ -284,12 +284,11 @@ final class Ops
         $news->set_field($field);
       }
     }
-
+*/
     return $news;
   }
 
-
-  private static function &get_article_from_row($row,$get_fields = 'PUBLIC')
+  private static function &get_article_from_row($row) //,$get_fields = 'PUBLIC')
   {
     if( !is_array($row) ) return;
     $article = new Article();
@@ -348,7 +347,7 @@ final class Ops
         break;
       }
     }
-
+/*
     if( $get_fields && $get_fields != 'NONE' && $article->id ) {
       self::preloadFieldData($article->id);
       $fields = self::get_fields($article->id);
@@ -358,23 +357,21 @@ final class Ops
         }
       }
     }
-
+*/
     return $article;
   }
-
 
   public static function &get_latest_article($for_display = TRUE)
   {
     $db = CmsApp::get_instance()->GetDb();
     $now = time();
     $query = 'SELECT mn.*, mnc.news_category_name FROM '.CMS_DB_PREFIX.'module_news mn LEFT OUTER JOIN '.CMS_DB_PREFIX."module_news_categories mnc ON mnc.news_category_id = mn.news_category_id WHERE status = 'published' AND ";
-    $query .= '('.$db->IfNull('start_time',1)." < $now) AND end_time IS NULL ORend_time > $now) ";
+    $query .= '('.$db->IfNull('start_time',1)." < $now) AND end_time IS NULL OR end_time > $now) ";
     $query .= 'ORDER BY start_time DESC LIMIT 1';
     $row = $db->GetRow($query);
 
     return self::get_article_from_row($row,($for_display)?'PUBLIC':'ALL');
   }
-
 
   public static function &get_article_by_id($article_id,$for_display = TRUE,$allow_expired = FALSE)
   {
@@ -394,7 +391,7 @@ WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).
     return self::get_article_from_row($row,($for_display)?'PUBLIC':'ALL');
   }
 
-
+/*
   public static function preloadFieldData($ids)
   {
     if( !is_array($ids) && is_numeric($ids) ) $ids = [$ids];
@@ -471,7 +468,7 @@ WHERE news_id IN ('.implode(',',$idlist).') ORDER BY A.news_id,B.item_order';
       }
       $results[$field['name']] = $obj;
     }
-/*
+
     foreach( self::$_cached_fieldvals[$news_id] as $fid => $data ) {
       if( !$public_only || $data->public ) {
         if( !$filled_only || (isset($data->value) && $data->value != '') ) {
@@ -479,7 +476,7 @@ WHERE news_id IN ('.implode(',',$idlist).') ORDER BY A.news_id,B.item_order';
         }
       }
     }
-*/
     return $results;
   }
+*/
 } // class

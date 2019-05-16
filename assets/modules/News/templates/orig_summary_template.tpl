@@ -37,9 +37,9 @@
 {foreach $items as $entry}
 <div class="NewsSummary">
 {*
-{if $entry->postdate}
+{if $entry->start}
   <div class="NewsSummaryPostdate">
-    {$entry->postdate|cms_date_format}
+    {$entry->start|cms_date_format}
   </div>
 {/if}
 *}
@@ -68,7 +68,7 @@
   </div>
 
 {else if $entry->content}
-  {* note, for security purposes, incase News articles can come from untrused sources, we do not pass the summary or content through smarty in the default templates *}
+  {* note, for security purposes, in case News articles can come from untrused sources, we do not pass the summary or content through smarty in the default templates *}
   <div class="NewsSummaryContent">
     {$entry->content}
   </div>
@@ -80,25 +80,6 @@
   {* {cms_module module='Uploads' mode='simpleurl' upload_id=$entry->extravalue} *}
   </div>
 {/if}
-{if isset($entry->fields)}
-  {foreach $entry->fields as $field}
-   <div class="NewsSummaryField">
-    {if $field->type == 'file'}
-      {if isset($field->value) && $field->value}
-      <img src="{$entry->file_location}/{$field->value}"/>
-      {/if}
-    {elseif $field->type == 'linkedfile'}
-      {* also assume it's an image... *}
-      {if !empty($field->value)}
-      <img src="{file_url file=$field->value}" alt="{$field->value}"/>
-      {/if}
-    {else}
-      {$field->name}:&nbsp;{$field->value}
-    {/if}
-   </div>
-  {/foreach}
-{/if}
-
 </div>
 {/foreach}
 <!-- End News Display Template -->

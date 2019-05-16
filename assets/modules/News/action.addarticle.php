@@ -17,11 +17,11 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSContentManager\Utils;
+use CMSMS\AdminUtils;
 use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\FormUtils;
-use News\Adminops;
+use News\AdminOperations;
 
 if (!isset($gCms))  exit ;
 if (!$this->CheckPermission('Modify News'))  return;
@@ -170,7 +170,7 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
                 echo 'DEBUG: SQL = ' . $db->sql . '<br />';
                 die($db->ErrorMsg());
             }
-
+/*
             //
             //Set custom fields
             //
@@ -186,7 +186,7 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
                             $this->ShowErrors($this->Lang('error_upload'));
                             $error = true;
                         } else {
-                            $value = Adminops::handle_upload($articleid, $elem, $error);
+                            $value = AdminOperations::handle_upload($articleid, $elem, $error);
                             if ($value === false) {
                                 $this->ShowErrors($error);
                                 $error = true;
@@ -197,30 +197,30 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
                     }
                 }
             }
-
+*/
             if (!$error) {
-		        if (isset($params['customfield'])) {
-		            foreach ($params['customfield'] as $fldid => $value) {
-		                if ($value == '')
-		                    continue;
+/*              if (isset($params['customfield'])) {
+                    foreach ($params['customfield'] as $fldid => $value) {
+                        if ($value == '')
+                            continue;
 
-		                $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news_fieldvals (news_id,fielddef_id,value,create_date) VALUES (?,?,?,?)';
-		                $dbr = $db->Execute($query, [
-		                    $articleid,
-		                    $fldid,
-		                    $value,
-		                    $now
-		                ]);
-		                if (!$dbr)
-		                    die('FATAL SQL ERROR: ' . $db->ErrorMsg() . '<br />QUERY: ' . $db->sql);
-		            }
-		        }
-
+                        $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news_fieldvals (news_id,fielddef_id,value,create_date) VALUES (?,?,?,?)';
+                        $dbr = $db->Execute($query, [
+                            $articleid,
+                            $fldid,
+                            $value,
+                            $now
+                        ]);
+                        if (!$dbr)
+                            die('FATAL SQL ERROR: ' . $db->ErrorMsg() . '<br />QUERY: ' . $db->sql);
+                    }
+                }
+*/
                 if (($status == 'publishedfinal' || $status == 'final') && $news_url) {
                     // TODO: && not expired
                     // register the route
-                    Adminops::delete_static_route($articleid);
-                    Adminops::register_static_route($news_url, $articleid);
+                    AdminOperations::delete_static_route($articleid);
+                    AdminOperations::register_static_route($news_url, $articleid);
                 }
 
                 if (($status == 'published' || $status == 'final') && $searchable) {
@@ -228,12 +228,13 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
                     $module = cms_utils::get_search_module();
                     if (is_object($module)) {
                         $text = '';
-                        if (isset($params['customfield'])) {
+/*                      if (isset($params['customfield'])) {
                             foreach ($params['customfield'] as $fldid => $value) {
                                 if (strlen($value) > 1)
                                     $text .= $value . ' ';
                             }
                         }
+*/
                         $text .= $content . ' ' . $summary . ' ' . $title . ' ' . $title;
                         $module->AddWords($this->GetName(), $articleid, 'article', $text, ($useexp == 1 && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL);
                     }
@@ -366,12 +367,6 @@ WHERE news_id=?';
     exit;
 }
 
-$choices = [
-    $this->Lang('draft')=>'draft',
-    $this->Lang('final')=>'final',
-];
-$statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
-
 $block = $this->GetPreference('timeblock', News::HOURBLOCK);
 $withtime = ($block == News::DAYBLOCK) ? 0:1;
 
@@ -381,7 +376,7 @@ $dbr = $db->Execute($query);
 while ($dbr && $row = $dbr->FetchRow()) {
     $categorylist[$row['long_name']] = $row['news_category_id'];
 }
-
+/*
 // Display custom fields
 $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_fielddefs ORDER BY item_order';
 $dbr = $db->Execute($query);
@@ -409,18 +404,22 @@ while ($dbr && ($row = $dbr->FetchRow())) {
     $obj->idattr   = 'customfield_' . $row['id'];
     $obj->prompt   = $row['name'];
     $obj->size     = min(80, (int)$row['max_length']);
-    $obj->max_len  = max(1, (int)$row['max_length']);
+    $obj->max_len  = max(1, (int)$row[cms_hierdropdown'.$count;'max_length']);
     $obj->options  = $options;
     $custom_flds[$row['name']] = $obj;
 }
-
+*/
 /*--------------------
  Pass everything to smarty
  ---------------------*/
 
+$parms = array_merge($params, ['articleid'=>$articleid, 'author_id'=>$author_id]);
+unset($parms['action']);
+
 $tpl = $smarty->createTemplate($this->GetTemplateResource('editarticle.tpl'),null,null,$smarty);
 
-$tpl->assign('startform', $this->CreateFormStart($id, 'addarticle', $returnid, 'post', '', false, '', ['articleid'=>$articleid, 'author_id'=>$author_id]));
+$tpl->assign('formaction','addarticle')
+    ->assign('formparms', $parms);
 
 if ($author_id > 0) {
     $userops = $gCms->GetUserOperations();
@@ -471,14 +470,19 @@ $tpl->assign('title', $title)
  ->assign('news_url', $news_url);
 
 if ($this->CheckPermission('Approve News')) {
+	$choices = [
+		$this->Lang('draft')=>'draft',
+		$this->Lang('final')=>'final',
+	];
+	$statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
     $tpl->assign('statuses',$statusradio);
     //->assign('statustext', lang('status'));
 }
-
+/*
 if ($custom_flds) {
     $tpl->assign('custom_fields', $custom_flds);
 }
-
+*/
 // get the detail templates, if any
 try {
     $type = CmsLayoutTemplateType::load($this->GetName() . '::detail');
@@ -490,20 +494,10 @@ try {
         }
     }
     if ($list) {
-		$str = Utils::CreateHierarchyDropdown(0, $this->GetPreference('detail_returnid', -1), 'preview_returnid');
-
+        $str = AdminUtils::CreateHierarchyDropdown(0, (int)$this->GetPreference('detail_returnid',-1), 'preview_returnid');
         $tpl->assign('detail_templates', $list)
          ->assign('cur_detail_template', $this->GetPreference('current_detail_template'))
-        // tab stuff
-         ->assign('start_tab_headers', $this->StartTabHeaders())
-         ->assign('tabheader_article', $this->SetTabHeader('article', $this->Lang('article')))
-         ->assign('tabheader_preview', $this->SetTabHeader('preview', $this->Lang('preview')))
-         ->assign('end_tab_headers', $this->EndTabHeaders())
-         ->assign('start_tab_content', $this->StartTabContent())
-         ->assign('start_tab_article', $this->StartTab('article', $params))
-         ->assign('start_tab_preview', $this->StartTab('preview', $params))
-         ->assign('end_tab', $this->EndTab())
-         ->assign('end_tab_content', $this->EndTabContent())
+         ->assign('preview', true)
          ->assign('preview_returnid', $str);
     }
 } catch( Exception $e ) {

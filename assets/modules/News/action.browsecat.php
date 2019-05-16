@@ -1,6 +1,6 @@
 <?php
 /*
-Browse category action for CMSMS News module.
+CMSMS News module action: display a browsable category list.
 Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -18,24 +18,24 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\TemplateOperations;
-use News\Ops;
+use News\Utils;
 
-if (!isset($gCms)) exit;
+if( !isset($gCms) ) exit;
 
-$template = null;
-if (isset($params['browsecattemplate'])) {
+if( isset($params['browsecattemplate']) ) {
   $template = trim($params['browsecattemplate']);
 }
 else {
-  $tpl = TemplateOperations::get_default_template_by_type('News::browsecat');
+  $me = $this->GetName();
+  $tpl = TemplateOperations::get_default_template_by_type($me.'::browsecat');
   if( !is_object($tpl) ) {
-    audit('',$this->GetName(),'No default summary template found');
+    audit('',$me,'No usable categories-template found');
     return;
   }
   $template = $tpl->get_name();
 }
 
-$items = Ops::get_categories($id,$params,$returnid);
+$items = Utils::get_categories($id,$params,$returnid);
 
 // Display template
 $tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);

@@ -1,6 +1,6 @@
 <?php
 /*
-Detail action for CMSMS News module.
+CMSMS News module action: display a news item in detail mode.
 Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -19,9 +19,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\TemplateOperations;
 use News\Article;
-use News\Ops;
+use News\Utils;
 
-if (!isset($gCms)) exit;
+if( !isset($gCms) ) exit;
 
 //
 // initialization
@@ -31,14 +31,14 @@ $article = null;
 $preview = false;
 $articleid = $params['articleid'] ?? -1;
 
-$template = null;
-if (isset($params['detailtemplate'])) {
+if( isset($params['detailtemplate']) ) {
     $template = trim($params['detailtemplate']);
 }
 else {
-    $tpl = TemplateOperations::get_default_template_by_type('News::detail');
+    $me = $this->GetName();
+    $tpl = TemplateOperations::get_default_template_by_type($me.'::detail');
     if( !is_object($tpl) ) {
-        audit('',$this->GetName(),'No default summary template found');
+        audit('',$me,'No usable detail template found');
         return;
     }
     $template = $tpl->get_name();
@@ -54,7 +54,7 @@ if( $id == '_preview_' && isset($_SESSION['news_preview']) && isset($params['pre
                 // get passed data into a standard format.
                 $article = new Article();
                 $article->set_linkdata($id,$params);
-                Ops::fill_article_from_formparams($article,$data,false,false);
+                Utils::fill_article_from_formparams($article,$data,false,false);
                 $preview = true;
             }
         }
@@ -62,12 +62,12 @@ if( $id == '_preview_' && isset($_SESSION['news_preview']) && isset($params['pre
 }
 
 if( isset($params['articleid']) && $params['articleid'] == -1 ) {
-    $article = Ops::get_latest_article();
+    $article = Utils::get_latest_article();
 }
 elseif( isset($params['articleid']) && (int)$params['articleid'] > 0 ) {
     $show_expired = $this->GetPreference('expired_viewable',1);
     if( isset($params['showall']) ) $show_expired = 1;
-    $article = Ops::get_article_by_id((int)$params['articleid'],true,$show_expired);
+    $article = Utils::get_article_by_id((int)$params['articleid'],true,$show_expired);
 }
 if( !$article ) {
     throw new CmsError404Exception('Article '.(int)$params['articleid'].' not found, or otherwise unavailable');

@@ -39,3 +39,10 @@ table.table_sort td.row1s {
 table.table_sort td.row2s {
  background-color:#d9d9d9;
 }
+
+#filter_active {
+  font-weight: bold;
+  color: #0f0;
+}
+
+/* TODO ensure flexbox css for .rowbox.expand, .boxchild */

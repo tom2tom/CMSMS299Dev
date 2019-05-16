@@ -1,4 +1,21 @@
 <?php
+/*
+News module upgrade process
+Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AdminUtils;
 use CMSMS\CmsException;
@@ -189,6 +206,9 @@ if( version_compare($oldversion,'2.90') < 0 ) {
         if( is_dir($fp) ) recursive_delete($fp);
     }
 
+    $this->RemovePreference();
+    $this->SetPreference('date_format','%Y-%m-%e %H:%M');
+    $this->SetPreference('default_category',1);
     $this->SetPreference('timeblock',News::HOURBLOCK);
 
     $dict = new DataDictionary($db);
@@ -248,11 +268,30 @@ WHERE news_id=?';
     $query = 'UPDATE '.$tbl.' SET modified_date=0 WHERE modified_date<=create_date';
     $db->Execute($query);
 
+    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_templates WHERE type_id=(SELECT id FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator="News" AND name="form")';
+    $db->Execute($query);
+    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator="News" AND name="form"';
+    $db->Execute($query);    
+/*
     $tbl = CMS_DB_PREFIX.'module_news_fielddefs';
+    $query = 'DELETE FROM '.$tbl.' WHERE type != \'linkedfile\' AND type != \'file\'';
+    $db->Execute($query);
     $sqlarray = $dict->AlterColumnSQL($tbl, 'create_date I');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
     $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I DEFAULT 0');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
     $query = 'UPDATE '.$tbl.' SET modified_date=0 WHERE modified_date<=create_date';
     $db->Execute($query);
+
+    $query = 'INSERT INTO '.$tbl.' (name,type,create_date,public) VALUES (?,?,?,?)';
+    $now = time();
+    $db->Execute($query,['PublicAttachment','linkedfile',$now,1]);
+    $db->Execute($query,['PrivateAttachment','linkedfile',$now,0]);
+    $db->Execute($query,['PublicUpload','file',$now,1]);
+    $db->Execute($query,['PrivateUpload','file',$now,0]);
+*/
+    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fielddefs');
+    $dict->ExecuteSQLArray($sqlarray);
+    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fieldvals');
+    $dict->ExecuteSQLArray($sqlarray);
 }

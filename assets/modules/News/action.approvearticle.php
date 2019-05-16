@@ -26,7 +26,6 @@ if( !isset($params['approve']) || !isset($params['articleid']) ) {
   die('missing parameter, this should not happen');
 }
 
-$this->SetCurrentTab('articles');
 $articleid = (int)$params['articleid'];
 $search = cms_utils::get_search_module();
 $status = '';
@@ -65,14 +64,14 @@ if( is_object($search) ) {
 
     if( $t_end > $now || $this->GetPreference('expired_searchble',1) == 1 ) {
       $text = $article['news_data'] . ' ' . $article['summary'] . ' ' . $article['news_title'] . ' ' . $article['news_title'];
-      $query = 'SELECT value FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE news_id = ?';
+/*    $query = 'SELECT value FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE news_id = ?';
       $flds = $db->GetArray($query,[$articleid]);
       if( is_array($flds) ) {
         for( $i = 0, $n = count($flds); $i < $n; $i++ ) {
          $text .= ' '.$flds[$i]['value'];
         }
       }
-
+*/
       $search->AddWords($this->GetName(), $articleid, 'article', $text,
 			($useexp == 1 && $this->GetPreference('expired_searchable',0) == 0) ? $t_end : NULL);
     }
@@ -82,4 +81,4 @@ if( is_object($search) ) {
 $db->Execute($uquery,[$status,$now,$articleid]);
 Events::SendEvent( 'News', 'NewsArticleEdited', [ 'news_id'=>$articleid, 'status'=>$status ] );
 $this->SetMessage($this->Lang('msg_success'));
-$this->RedirectToAdminTab();
+$this->Redirect($id, 'defaultadmin', $returnid);

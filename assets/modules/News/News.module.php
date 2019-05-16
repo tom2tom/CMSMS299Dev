@@ -1,23 +1,24 @@
 <?php
-#News module for CMSMS
-#Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+News module for CMSMS
+Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use News\AdjustStatusTask;
-use News\Adminops;
+use News\AdminOperations;
 use News\CreateDraftAlertTask;
 
 class News extends CMSModule
@@ -48,6 +49,7 @@ class News extends CMSModule
 
     public function InitializeFrontend()
     {
+/*
         $this->SetParameterType('articleid', CLEAN_INT);
         $this->SetParameterType('assign', CLEAN_STRING);
         $this->SetParameterType('browsecat', CLEAN_INT);
@@ -67,7 +69,7 @@ class News extends CMSModule
         $this->SetParameterType('preview', CLEAN_STRING);
         $this->SetParameterType('showall', CLEAN_INT);
         $this->SetParameterType('showarchive', CLEAN_INT);
-        $this->SetParameterType('sortasc', CLEAN_STRING); // ? int, or boolean
+        $this->SetParameterType('sortasc', CLEAN_STRING); // or int or boolean ?
         $this->SetParameterType('sortby', CLEAN_STRING);
         $this->SetParameterType('start', CLEAN_INT);
         $this->SetParameterType('summarytemplate', CLEAN_STRING);
@@ -87,7 +89,49 @@ class News extends CMSModule
         $this->SetParameterType('title', CLEAN_STRING);
         $this->SetParameterType('useexp', CLEAN_INT);
 
-        $this->SetParameterType(CLEAN_REGEXP.'/news_customfield_.*/', CLEAN_STRING);
+        $this->SetParameterType(CLEAN_REGEXP.'/news_customfield_.* /', CLEAN_STRING);
+*/
+/*
+//$params used in action.default.php
+'browsecat'
+'category_id'
+'category'
+'detailpage'
+'detailtemplate'
+'idlist'
+'lang'
+'moretext'
+'number'
+'pagelimit'
+'pagenumber'
+'showall'
+'showarchive'
+'sortasc'
+?? sortby
+'start'
+'summarytemplate'
+
+//$params used in action.browsecat.php
+'browsecattemplate'
+*/
+        $this->SetParameterType('browsecat', CLEAN_INT); //??
+        $this->SetParameterType('browsecattemplate', CLEAN_STRING); //name
+        $this->SetParameterType('category_id', CLEAN_STRING); //alias for category ? OR INT?
+        $this->SetParameterType('category', CLEAN_STRING); //??
+        $this->SetParameterType('detailpage', CLEAN_STRING); //page id or alias
+        $this->SetParameterType('detailtemplate', CLEAN_STRING); //name
+        $this->SetParameterType('idlist', CLEAN_STRING); //??
+        $this->SetParameterType('lang', CLEAN_STRING); //TODO explain
+        $this->SetParameterType('moretext', CLEAN_STRING); //TODO submitted?
+        $this->SetParameterType('number', CLEAN_INT); //alias for pagenumber ??
+        $this->SetParameterType('pagelimit', CLEAN_INT);
+        $this->SetParameterType('pagenumber', CLEAN_INT);
+        $this->SetParameterType('showall', CLEAN_INT); //??
+        $this->SetParameterType('showarchive', CLEAN_INT); //??
+        $this->SetParameterType('sortasc', CLEAN_STRING); // ''true'|'false'
+        $this->SetParameterType('sortby', CLEAN_STRING); //TODO needed?
+        $this->SetParameterType('start', CLEAN_INT); //offset of 1st displayed item
+        $this->SetParameterType('summarytemplate', CLEAN_STRING); //name
     }
 
     public function InitializeAdmin()
@@ -99,9 +143,9 @@ class News extends CMSModule
         $this->CreateParameter('category', 'category', $this->Lang('helpcategory'));
         $this->CreateParameter('detailpage', 'pagealias', $this->Lang('helpdetailpage'));
         $this->CreateParameter('detailtemplate', '', $this->Lang('helpdetailtemplate'));
-        $this->CreateParameter('formtemplate', '', $this->Lang('helpformtemplate'));
+//        $this->CreateParameter('formtemplate', '', $this->Lang('helpformtemplate'));
         $this->CreateParameter('idlist','',$this->Lang('help_idlist'));
-        $this->CreateParameter('moretext', 'more...', $this->Lang('helpmoretext'));
+        $this->CreateParameter('moretext', $this->Lang('moreprompt'), $this->Lang('helpmoretext'));
         $this->CreateParameter('number', 100000, $this->Lang('helpnumber'));
         $this->CreateParameter('pagelimit', 1000, $this->Lang('help_pagelimit'));
         $this->CreateParameter('showall', 0, $this->Lang('helpshowall'));
@@ -119,7 +163,7 @@ class News extends CMSModule
             $this->CheckPermission('Delete News') ||
             $this->CheckPermission('Modify News Preferences');
     }
-
+/*
     public function GetDfltEmailTemplate()
     {
         return <<<EOS
@@ -131,7 +175,7 @@ Start Date: {\$startdate|cms_date_format}
 End Date:   {\$enddate|cms_date_format}
 EOS;
     }
-
+*/
     public function SearchResultWithParams($returnid, $articleid, $attr = '', $params = '')
     {
         $result = [];
@@ -186,18 +230,18 @@ EOS;
     {
         $db = $this->GetDb();
 
-        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE searchable = 1 AND status = ? OR status = ? ORDER BY start_time';
-        $result = $db->Execute($query,['published','final']);
-
-        while ($result && !$result->EOF) {
+        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE searchable = 1 AND status = \'published\' OR status = \'final\' ORDER BY start_time';
+        $rst = $db->Execute($query);
+		$nsexp = $this->GetPreference('expired_searchable',0) == 0;
+        while ($rst && !$rst->EOF) {
             $module->AddWords($this->GetName(),
-                              $result->fields['news_id'], 'article',
-                              $result->fields['news_data'] . ' ' . $result->fields['summary'] . ' ' . $result->fields['news_title'] . ' ' . $result->fields['news_title'],
-                              ($result->fields['end_time'] != NULL && $this->GetPreference('expired_searchable',0) == 0) ?  $result->fields['end_time'] : NULL);
-            $result->MoveNext();
+                              $rst->fields['news_id'], 'article',
+                              $rst->fields['news_data'] . ' ' . $rst->fields['summary'] . ' ' . $rst->fields['news_title'] . ' ' . $rst->fields['news_title'],
+                              ($nsexp && $rst->fields['end_time'] != NULL) ? $rst->fields['end_time'] : NULL);
+            $rst->MoveNext();
         }
     }
-
+/*
     public function GetFieldTypes()
     {
         return [
@@ -215,6 +259,15 @@ EOS;
         $items = $this->GetFieldTypes();
         return $this->CreateInputDropdown($id, $name, array_flip($items), -1, $selected);
     }
+*/
+	public function GetDateFormat() : string
+	{
+		$fmt = $this->GetPreference('date_format');
+		if (!$fmt) {
+			$fmt = cms_siteprefs::get('defaultdateformat','%Y-%m-%e %H:%M');
+		}
+		return $fmt;
+	}
 
     public function get_tasks()
     {
@@ -280,7 +333,7 @@ EOS;
 
         if( is_array($tmp) ) {
             foreach( $tmp as $one ) {
-                Adminops::register_static_route($one['news_url'],$one['news_id']);
+                AdminOperations::register_static_route($one['news_url'],$one['news_id']);
             }
         }
     }
@@ -347,17 +400,6 @@ EOS;
     {
         $out = [];
         if( $this->VisibleToAdminUser() ) $out[] = CmsAdminMenuItem::from_module($this);
-
-        if( $this->CheckPermission('Modify News Preferences')) {
-            $obj = new CmsAdminMenuItem();
-            $obj->module = $this->GetName();
-            $obj->section = 'content';
-            $obj->title = $this->Lang('title_news_settings');
-            $obj->description = $this->Lang('desc_news_settings');
-            $obj->icon = false;
-            $obj->action = 'admin_settings';
-            $out[] = $obj;
-        }
         return $out;
     }
 } // class

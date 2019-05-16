@@ -1,6 +1,6 @@
 <?php
 /*
-action for CMSMS News module.
+Delete category action for CMSMS News module.
 Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -18,7 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Events;
-use News\Adminops;
+use News\AdminOperations;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify News Preferences')) return;
@@ -44,8 +44,8 @@ if (is_numeric($catid)) {
     Events::SendEvent( 'News', 'NewsCategoryDeleted', [ 'category_id'=>$catid, 'name'=>$row['news_category_name'] ] );
     audit($catid, 'News category: '.$catid, ' Category deleted');
 
-    Adminops::UpdateHierarchyPositions();
+    AdminOperations::UpdateHierarchyPositions();
 
     $this->SetMessage($this->Lang('categorydeleted'));
 }
-$this->RedirectToAdminTab('categories','','admin_settings');
+$this->RedirectToAdminTab('groups');

@@ -1,5 +1,5 @@
 <?php
-# Class:
+# Class: Article
 # Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -22,6 +22,7 @@ use cms_config;
 use cms_utils;
 use CMSMS\ContentOperations;
 use Exception;
+use News\Utils;
 use function cmsms;
 use function munge_string_to_url;
 
@@ -36,12 +37,12 @@ class Article
 	'category',
 	'category_id',
 	'content',
-	'customfieldsbyname',
+	'customfieldsbyname', NO
 	'enddate',
 	'extra',
-	'fields',
-	'fieldsbyname',
-	'file_location',
+	'fields', NO
+	'fieldsbyname', NO
+	'file_location', NO
 	'id',
 	'news_url',
 	'params',
@@ -132,7 +133,7 @@ class Article
         if( $returnid != '' ) $this->_meta['returnid'] = $returnid;
     }
 
-
+/*
     public function set_field(Field $field)
     {
         if( !isset($this->_rawdata['fieldsbyname']) ) $this->_rawdata['fieldsbyname'] = [];
@@ -148,7 +149,7 @@ class Article
             if( count($this->_rawdata['fieldsbyname']) == 0 ) unset($this->_rawdata['fieldsbyname']);
         }
     }
-
+*/
 
     public function __get($key)
     {
@@ -186,7 +187,7 @@ class Article
 
         case 'category':
             // metadata.
-            return Ops::get_category_name_from_id($this->category_id);
+            return Utils::get_category_name_from_id($this->category_id);
 
         case 'useexp':
             if( isset($this->_meta['useexp']) ) return $this->_meta['useexp'];
@@ -196,13 +197,13 @@ class Article
             // metadata
             return $this->_get_canonical();
             break;
-
-        case 'fields':
-        case 'customfieldsbyname': // deprecated
-        case 'fieldsbyname': // deprecated
+/*
+        case 'fields': // ignored deprected stuff
+        case 'customfieldsbyname':
+        case 'fieldsbyname':
             if( isset($this->_rawdata['fieldsbyname']) ) return $this->_rawdata['fieldsbyname'];
             break;
-
+*/
         case 'returnid':
             // metadata
             return $this->_get_returnid();
@@ -211,8 +212,15 @@ class Article
             // metadata
             return $this->_get_params();
 
+        case 'start':
+        case 'stop':
+        case 'created':
+        case 'modified':
+            //TODO
+            break;
+
         default:
-            // check if there is a field with this alias
+/*          // check if there is a field with this alias
             if( isset($this->_rawdata['fieldsbyname']) && is_array($this->_rawdata['fieldsbyname']) ) {
                 foreach( $this->_rawdata['fieldsbyname'] as $fname => &$obj ) {
                     if( !is_object($obj) ) continue;
@@ -220,6 +228,7 @@ class Article
                 }
                 unset($obj);
             }
+*/
 // assert IF DEBUGGING
 //          throw new Exception('Requesting invalid data from News article object '.$key);
         }
@@ -238,14 +247,14 @@ class Article
         case 'extra':
         case 'news_url':
         case 'category_id':
-        case 'fieldsbyname':
+//        case 'fieldsbyname':
         case 'status':
             return isset($this->_rawdata[$key]);
-
+/*
         case 'customfieldsbyname': // deprecated
         case 'fields': // deprecated
             return isset($this->_rawdata['fieldsbyname']);
-
+*/
         case 'author':
         case 'authorname':
         case 'category':
@@ -262,6 +271,13 @@ class Article
 
         case 'create_date':
             if( $this->id != '' ) return TRUE;
+            break;
+
+        case 'start':
+        case 'stop':
+        case 'created':
+        case 'modified':
+            //TODO
             break;
 
 //        default: assert IF DEBUGGING

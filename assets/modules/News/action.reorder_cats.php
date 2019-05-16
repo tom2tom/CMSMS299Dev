@@ -17,11 +17,10 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use News\Adminops;
+use News\AdminOperations;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify News Preferences') ) return;
-$this->SetCurrentTab('categories');
 
 function news_reordercats_create_flatlist($tree,$parent_id = -1)
 {
@@ -47,32 +46,32 @@ function news_reordercats_create_flatlist($tree,$parent_id = -1)
 }
 
 if( isset($params['cancel']) ) {
-    $this->RedirectToAdminTab('','','admin_settings');
+    $this->RedirectToAdminTab('groups');
 }
 else if( isset($params['submit']) ) {
   $data = json_decode($params['data']);
   $flat = news_reordercats_create_flatlist($data);
   if( $flat ) {
     $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET parent_id = ?, item_order = ?
-              WHERE news_category_id = ?';
+WHERE news_category_id = ?';
     foreach( $flat as $rec ) {
       $dbr = $db->Execute($query,[$rec['parent_id'],$rec['order'],$rec['id']]);
     }
-    Adminops::UpdateHierarchyPositions();
+    AdminOperations::UpdateHierarchyPositions();
     $this->SetMessage($this->Lang('msg_categoriesreordered'));
-    $this->RedirectToAdminTab('','','admin_settings');
+    $this->RedirectToAdminTab('groups');
   }
 }
 
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
 $allcats = $db->GetArray($query);
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_reorder_cats.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('reorder_cats.tpl'),null,null,$smarty);
 $tpl->assign('allcats',$allcats);
 
-$base_url = cms_path_to_url(CMS_ASSETS_PATH);
+$out = cms_get_script('jquery.mjs.nestedSortable.js');
 $js = <<<EOS
-<script type="text/javascript" src="{$base_url}/js/jquery.mjs.nestedSortable.min.js"></script>
+<script type="text/javascript" src="$out"></script>
 <script type="text/javascript">
 //<![CDATA[
 function parseTree(ul) {
@@ -113,4 +112,3 @@ EOS;
 $this->AdminBottomContent($js);
 
 $tpl->display();
-

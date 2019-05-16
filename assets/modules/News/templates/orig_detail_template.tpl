@@ -4,9 +4,9 @@
   {$canonical=$entry->canonical scope=global}
 {/if}
 {*
-{if $entry->postdate}
+{if $entry->start}
   <div id="NewsPostDetailDate">
-    {$entry->postdate|cms_date_format}
+    {$entry->start|cms_date_format}
   </div>
 {/if}
 *}
@@ -46,24 +46,4 @@
 
 {if $return_url != ""}
 <div id="NewsPostDetailReturnLink">{$return_url}{if $category_name != ''} - {$category_link}{/if}</div>
-{/if}
-
-{if isset($entry->fields)}
-  {foreach $entry->fields as $fieldname => $field}
-   <div class="NewsDetailField">
-    {if $field->type == 'file'}
-    {* this template assumes that every file uploaded is an image of some sort, because News doesn't distinguish *}
-      {if isset($field->value) && $field->value}
-      <img src="{$entry->file_location}/{$field->value}" alt="{$field->value}"/>
-      {/if}
-    {elseif $field->type == 'linkedfile'}
-      {* also assume it's an image... *}
-      {if !empty($field->value)}
-      <img src="{file_url file=$field->value}" alt="{$field->value}"/>
-      {/if}
-    {else}
-      {$field->name}:&nbsp;{$field->value}
-    {/if}
-   </div>
-  {/foreach}
 {/if}
