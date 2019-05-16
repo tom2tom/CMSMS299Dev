@@ -271,10 +271,10 @@ final class AdminUtils
 	 * Get a help tag for displaying inline popup help.
 	 *
 	 * This method accepts variable arguments. Recognized keys are
-	 " 'key1'/'realm','key'/'key2','title'/'titlekey'
-	 * If neither 'key1'/'realm' is provided, the fallback will be action-module
-	 * name, or else 'help'
-	 * If neither 'title'/'titlekey' is provided, the fallback will be 'key'/'key2'
+	 " 'key1'|'realm','key'|'key2','title'|'titlekey'
+	 * If neither 'key1'|'realm' is provided, the fallback will be the current
+	 * action-module name, or else 'help'
+	 * If neither 'title'|'titlekey' is provided, the fallback will be 'key'|'key2'
 	 *
 	 * @param $args string(s) varargs
 	 * @return mixed string HTML content of the help tag, or null
