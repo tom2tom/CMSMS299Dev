@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSContentManager\Utils;
 use CMSMS\internal\global_cache;
 use CMSMS\StylesheetOperations;
 
@@ -25,7 +26,7 @@ if( isset($params['cancel']) ) {
   $this->SetInfo($this->Lang('msg_cancelled'));
   $this->Redirect($id,'defaultadmin',$returnid);
 }
-if( !isset($params['bulk_content']) ) {
+if( empty($params['bulk_content']) ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->Redirect($id,'defaultadmin',$returnid);
 }
@@ -67,6 +68,14 @@ if( isset($params['submit']) ) {
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
+list($sheetrows,$grouped,$js) = Utils::get_sheets_data();
+if( !$sheetrows ) {
+    return; //no style, nothing to set
+}
+if( $js ) {
+    $this->AdminBottomContent($js);
+}
+
 $displaydata = [];
 foreach( $pagelist as $pid ) {
     $node = $hm->find_by_tag('id',$pid);
@@ -83,58 +92,9 @@ foreach( $pagelist as $pid ) {
     $displaydata[] = $rec;
 }
 
-$grouped = false;
-$sheets = StylesheetOperations::get_displaylist();
-foreach( $sheets as $one ) {
-    if( $one['members'] ) {
-        $grouped = true;
-        break;
-    }
-}
-
-$details = [];
-$gname = lang('group').' : ';
-foreach( $sheets as $one ) {
-    $ob = new stdClass();
-    $ob->id = $one['id'];
-    $ob->name = ($ob->id > 0) ? $one['name'] : $gname.$one['name'];
-    if( $grouped ) { $ob->members = $one['members']; }
-    $ob->checked = false;
-    $details[] = $ob;
-}
-
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_setstyles.tpl'),null,null,$smarty);
-
 $tpl->assign('pagelist',$pagelist)
  ->assign('displaydata',$displaydata)
  ->assign('grouped',$grouped)
- ->assign('rows',$details);
-
-if( count($sheets) > 1 ) {
-  $js = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
-$(function() {
- var tbl = $('#allsheets');
- tbl.find('tbody.rsortable').sortable({
-  connectWith: '.rsortable',
-  items: '> tr',
-  appendTo: tbl,
-  helper: 'clone',
-  zIndex: 9999
- }).disableSelection();
- tbl.droppable({
-  accept: '.rsortable tr',
-  hoverClass: 'ui-state-hover',
-  drop: function(ev,ui) {
-   return false;
-  }
- });
-});
-//]]>
-</script>
-EOS;
-  $this->AdminBottomContent($js);
-}
+ ->assign('sheets',$sheetrows);
 
 $tpl->display();

@@ -34,12 +34,10 @@ use CMSMS\FormUtils;
 use CMSMS\GroupOperations;
 use CMSMS\internal\content_assistant;
 use CMSMS\internal\global_cache;
-use CMSMS\StylesheetOperations;
 use CMSMS\UserOperations;
 use CmsRoute;
 use Exception;
 use Serializable;
-use stdClass;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_URL;
 use function check_permission;
@@ -683,61 +681,22 @@ abstract class ContentBase implements ContentEditor, Serializable
 
 		case 'styles':
 			$styles = explode(',',$this->mStyles);
-			$sheets = StylesheetOperations::get_displaylist();
-			$grouped = false;
-			foreach( $sheets as $one ) {
-				if( $one['members'] ) {
-					$grouped = true;
-					break;
+			list($sheets,$grouped,$js) = Utils::get_sheets_data($styles);
+			if( $sheets ) {
+				if( $js ) {
+					$this->mod->AdminbottomContent($js);
 				}
+				$help = AdminUtils::get_help_tag($this->realm,'info_styles',$this->mod->Lang('help_title_styles'));
+				$smarty = CmsApp::get_instance()->GetSmarty();
+				$tpl = $smarty->createTemplate($this->mod->GetTemplateResource('page_stylesheets.tpl'),null,null,$smarty);
+				$tpl->assign('mod',$this->mod)
+				 ->assign('actionid',$id)
+				 ->assign('grouped',$grouped)
+				 ->assign('sheets',$sheets);
+				$out = $tpl->fetch();
+				return ['<label for="allsheets">'.$this->mod->Lang('stylesheets').':</label>&nbsp;'.$help,$out];
 			}
-			$details = [];
-			$gname = lang('group').' : ';
-			foreach( $sheets as $one ) {
-				$ob = new stdClass();
-				$ob->id = $one['id'];
-				$ob->name = ($ob->id > 0) ? $one['name'] : $gname.$one['name'];
-				if( $grouped ) { $ob->members = $one['members']; }
-				$ob->checked = $styles && in_array($one['id'],$styles);
-				$details[] = $ob;
-			}
-			//CHECKME sort checked row(s) first
-
-			$smarty = CmsApp::get_instance()->GetSmarty();
-			$tpl = $smarty->createTemplate($this->mod->GetTemplateResource('page_stylesheets.tpl'),null,null,$smarty);
-			$tpl->assign('grouped',$grouped)
-			 ->assign('rows',$details)
-			 ->assign('actionid',$id)
-			 ->assign('mod',$this->mod);
-			$out = $tpl->fetch();
-			if( count($sheets) > 1 ) {
-				$out .= <<<EOS
-<script type="text/javascript">
-//<![CDATA[
-$(function() {
- var tbl = $('#allsheets');
- tbl.find('tbody.rsortable').sortable({
-  connectWith: '.rsortable',
-  items: '> tr',
-  appendTo: tbl,
-  helper: 'clone',
-  zIndex: 9999
- }).disableSelection();
- tbl.droppable({
-  accept: '.rsortable tr',
-  hoverClass: 'ui-state-hover',
-  drop: function(ev,ui) {
-   return false;
-  }
- });
-});
-//]]>
-</script>
-
-EOS;
-			}
-			$help = AdminUtils::get_help_tag($this->realm,'info_styles',$this->mod->Lang('help_title_styles'));
-			return ['<label for="allsheets">'.$this->mod->Lang('stylesheets').':</label>&nbsp;'.$help,$out];
+			break;
 
 		case 'image':
 			$config = cms_config::get_instance();
