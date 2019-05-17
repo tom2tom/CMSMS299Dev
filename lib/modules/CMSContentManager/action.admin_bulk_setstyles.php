@@ -40,11 +40,11 @@ if( isset($params['submit']) ) {
         $this->Redirect($id,'defaultadmin',$returnid);
     }
 */
-	$value = (isset($params['styles'])) ? implode(',',$params['styles']) : null; //from checkboxes
+    $value = (isset($params['styles'])) ? implode(',',$params['styles']) : null; //from checkboxes
     $i = 0;
     $user_id = get_userid();
 
-	try {
+    try {
         foreach( $pagelist as $pid ) {
             $content = $this->GetContentEditor($pid);
             if( !is_object($content) ) continue;
@@ -91,6 +91,8 @@ foreach( $pagelist as $pid ) {
     $rec['alias'] = $content->Alias();
     $displaydata[] = $rec;
 }
+
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_setstyles.tpl'),null,null,$smarty);
 
 $tpl->assign('pagelist',$pagelist)
  ->assign('displaydata',$displaydata)
