@@ -348,11 +348,15 @@ class Smarty extends SmartyParent
      */
     public function createTemplate($template, $cache_id = null, $compile_id = null, $parent = null, $do_clone = true)
     {
-        if( !(startswith($template,'eval:') || startswith($template,'string:') || startswith($template,'cms_file:')) ) {
-            if( (strpos($template,'*')) > 0 ) throw new LogicException("$template is not a valid smarty resource in CMSMS");
-            if( (strpos($template,'/')) > 0 ) throw new LogicException("$template is not a valid smarty resource in CMSMS");
+        foreach( ['eval:','string:','cms_file:','extends:'] as $type ) {
+            if( startswith($template,$type) ) {
+                return parent::createTemplate($template, $cache_id, $compile_id, $parent, $do_clone);
+            }
         }
-        return parent::createTemplate($template, $cache_id, $compile_id, $parent, $do_clone );
+        if( strpos($template,'*') === false && strpos($template,'/') === false ) {
+            return parent::createTemplate($template, $cache_id, $compile_id, $parent, $do_clone);
+        }
+        throw new LogicException("$template is not a valid Smarty resource in CMSMS");
     }
 
     /**
