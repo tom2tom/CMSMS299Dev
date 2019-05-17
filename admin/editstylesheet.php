@@ -198,7 +198,7 @@ try {
 
 	$smarty->assign('has_designs_right', check_permission($userid,'Manage Designs'))
 	 ->assign('extraparms', $extraparms)
-	 ->assign_by_ref('css', $css_ob);
+	 ->assign('css', $css_ob);
 	if ($css_ob && $css_ob->get_id()) {
 		$smarty->assign('css_id', $css_ob->get_id());
 	}

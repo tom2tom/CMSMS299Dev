@@ -226,7 +226,7 @@ try {
 	$smarty = CmsApp::get_instance()->GetSmarty();
 
 	$smarty->assign('extraparms', $extraparms)
-	 ->assign_by_ref('template', $tpl_obj)
+	 ->assign('template', $tpl_obj)
 	 ->assign('tpl_candefault', $defaultable);
 
 /* for 'related file' message UNUSED
