@@ -21,6 +21,7 @@ namespace CMSMS\internal;
 use cms_config;
 use cms_siteprefs;
 use CmsApp;
+//use CMSMS\internal\cache_resource;
 use CMSMS\internal\content_resource;
 //use CMSMS\internal\file_template_resource;
 use CMSMS\internal\layout_stylesheet_resource;
@@ -55,9 +56,9 @@ require_once CMS_ROOT_PATH.'/lib/smarty/SmartyBC.class.php'; //deprecated - supp
  */
 class Smarty extends SmartyParent
 {
-	/**
-	 * @ignore
-	 */
+    /**
+     * @ignore
+     */
     private static $_instance = null;
 
     /**
@@ -74,6 +75,21 @@ class Smarty extends SmartyParent
         if( CMS_DEBUG ) {
             $this->error_reporting = 'E_ALL';
         }
+/* NO
+some sort of corruption when retrieving ?
+some things (smarty? CMSMS?) write to file anyway
+some generated content is uncomfortably large for a shared public cache
+smarty cache lifetime != global cache ttl, probably
+        else {
+            try {
+                $this->registerCacheResource('globalcache', new cache_resource());
+                $this->caching_type = 'globalcache';
+            }
+            catch( Throwable $t ) {
+                // nothing here
+            }
+        }
+*/
         // default template class
         $this->template_class = '\\CMSMS\\internal\\template_wrapper';
 
@@ -269,8 +285,8 @@ class Smarty extends SmartyParent
             $row = ModulePluginOperations::load_plugin($name,$type);
             if( $row && is_callable($row['callback']) ) {
                 $callback = $row['callback'];
-				//deprecated from 2.3 We should assume cachable and override that in templates where needed
-				//Otherwise, module-cachability is opaque to page-builders
+                //deprecated from 2.3 We should assume cachable and override that in templates where needed
+                //Otherwise, module-cachability is opaque to page-builders
                 $cachable = !empty($row['cachable']);
                 return true;
             }
@@ -356,7 +372,7 @@ class Smarty extends SmartyParent
         if( strpos($template,'*') === false && strpos($template,'/') === false ) {
             return parent::createTemplate($template, $cache_id, $compile_id, $parent, $do_clone);
         }
-        throw new LogicException("$template is not a valid Smarty resource in CMSMS");
+        throw new LogicException($template.' is not a valid Smarty resource in CMSMS');
     }
 
     /**
