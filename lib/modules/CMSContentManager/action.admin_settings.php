@@ -1,5 +1,5 @@
 <?php
-# CMSContentManager module action: settings
+# CMSContentManager module action: admin_settings
 # Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -30,15 +30,13 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl'),null,n
 
 $opts = [
  'all'=>$this->Lang('opt_alltemplates'),
- 'alldesign'=>$this->Lang('opt_alldesign'),
- 'allpage'=>$this->Lang('opt_allpage'),
- 'designpage'=>$this->Lang('opt_designpage')
+ 'allpage'=>$this->Lang('opt_allpage')
 ];
 
 $tpl->assign('locktimeout',$this->GetPreference('locktimeout'))
  ->assign('lockrefresh',$this->GetPreference('lockrefresh'))
  ->assign('template_list_opts',$opts)
- ->assign('template_list_mode',$this->GetPreference('template_list_mode','designpage'));
+ ->assign('template_list_mode',$this->GetPreference('template_list_mode','allpage'));
 
 // listsettings tab
 
@@ -49,8 +47,8 @@ $opts = [
 $tpl->assign('namecolumnopts',$opts)
  ->assign('list_namecolumn',$this->GetPreference('list_namecolumn','title'));
 
-$allcols = 'expand,icon1,hier,page,alias,url,template,friendlyname,owner,active,default,move,view,copy,addchild,edit,delete,multiselect';
-$dflts = 'expand,icon1,hier,page,alias,template,friendlyname,active,default,view,copy,addchild,edit,delete,multiselect';
+$allcols = 'expand,icon1,hier,title,alias,url,template,friendlyname,owner,active,default,move,view,copy,addchild,edit,delete,multiselect';
+$dflts = 'expand,icon1,hier,title,alias,template,friendlyname,active,default,view,copy,addchild,edit,delete,multiselect';
 $tmp = explode(',',$allcols);
 $opts = [];
 foreach( $tmp as $one ) {
@@ -61,11 +59,35 @@ $tmp = explode(',',$this->GetPreference('list_visiblecolumns',$dflts));
 $tpl->assign('list_visiblecolumns',$tmp);
 
 // pagedefaults tab
+
+$prefs = Utils::get_pagedefaults();
+$templates = TemplateOperations::template_query(['originator'=>CmsLayoutTemplateType::CORE, 'as_list'=>1]);
+$eds = ContentBase::GetAdditionalEditorOptions();
+
 $realm = $this->GetName();
-$tpl->assign('page_prefs',Utils::get_pagedefaults())
- ->assign('all_contenttypes',ContentOperations::get_instance()->ListContentTypes(false,false,false,$realm))
-// ->assign('design_list',CmsLayoutCollection::get_list()) TODO replacement stylesheets and/or groups
- ->assign('template_list',TemplateOperations::template_query(['as_list'=>1]))
- ->assign('addteditor_list',ContentBase::GetAdditionalEditorOptions());
+$types = ContentOperations::get_instance()->ListContentTypes(false,false,false,$realm);
+if( $types ) { //exclude types which are nonsense for default (maybe make this a preference?)
+  foreach( [
+    'errorpage',
+    'link',
+    'pagelink',
+    'sectionheader',
+    'separator',
+  ] as $one ) {
+    unset($types[$one]);
+  }
+}
+
+list($stylerows,$grouped,$js) = Utils::get_sheets_data($prefs['styles'] ?? []);
+if( $js ) {
+  $this->AdminbottomContent($js);
+}
+
+$tpl->assign('page_prefs',$prefs)
+ ->assign('contenttypes_list',$types)
+ ->assign('sheets',$stylerows)
+ ->assign('grouped',$grouped)
+ ->assign('template_list',$templates)
+ ->assign('addteditor_list',$eds);
 
 $tpl->display();
