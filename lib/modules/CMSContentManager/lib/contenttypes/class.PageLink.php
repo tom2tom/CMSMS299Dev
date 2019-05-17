@@ -53,7 +53,7 @@ class PageLink extends ContentBase
 			['cachable',true],
 			['secure',false], //deprecated property since 2.3
 		]);
-		$this->AddProperty('page',3, parent::TAB_MAIN,true,true);
+		$this->AddProperty('page',3, parent::TAB_MAIN,true,true); //target page id
 		$this->AddProperty('params',4, parent::TAB_OPTIONS,true,true);
 
 		//Turn off caching
