@@ -52,6 +52,9 @@ switch( $params['tab'] ) {
 				case 'submit':
 				case 'tab':
 					break;
+				case 'styles':
+					$val = implode(',',$val);
+					//no break here
 				default:
 					if( !isset($page_prefs[$fld]) || $page_prefs[$fld] != $val) {
 						$page_prefs[$fld] = $val;
