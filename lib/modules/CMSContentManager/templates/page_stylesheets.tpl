@@ -1,3 +1,4 @@
+{if $sheets}
 <table id="allsheets" class="pagetable" style="width:auto;">
  <thead>
   <tr>
@@ -8,7 +9,7 @@
   </tr>
  </thead>
  <tbody class="rsortable">
-  {foreach $rows as $obj}<tr{if $obj->id < 0} class="sheetsgroup"{/if}>
+  {foreach $sheets as $obj}<tr{if $obj->id < 0} class="sheetsgroup"{/if}>
    <td>{if $obj->id >= 0}{$obj->id}{else}{-($obj->id)}{/if}</td>
    <td>{$obj->name}</td>
 {if $grouped}   <td>{$obj->members}</td>{/if}
@@ -16,3 +17,4 @@
   </tr>{/foreach}
  </tbody>
 </table>
+{/if}
