@@ -100,6 +100,7 @@ EOS;
 		$sm->queue_file($incs['jqui'], 1);
 		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.cms_admin.min.js', 2);
+//		$sm->queue_matchedfile('jquery.cms_admin.js', 2); N/A
 	    $out .= $sm->render_inclusion('', false, false);
 
 		global $CMS_LOGIN_PAGE;
