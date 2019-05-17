@@ -353,7 +353,7 @@ else {
     $preview_ajax_url = '';
 }
 
-if( $this->GetPreference('template_list_mode','designpage') != 'all')  {
+if( $this->GetPreference('template_list_mode','allpage') != 'all')  {
     $tmp = $this->create_url($id,'admin_ajax_gettemplates',$returnid);
     $designchanged_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=1';
 }
