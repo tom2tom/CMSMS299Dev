@@ -47,8 +47,8 @@ $opts = [
 $tpl->assign('namecolumnopts',$opts)
  ->assign('list_namecolumn',$this->GetPreference('list_namecolumn','title'));
 
-$allcols = 'expand,icon1,hier,title,alias,url,template,friendlyname,owner,active,default,move,view,copy,addchild,edit,delete,multiselect';
-$dflts = 'expand,icon1,hier,title,alias,template,friendlyname,active,default,view,copy,addchild,edit,delete,multiselect';
+$allcols = 'expand,icon1,hier,page,alias,url,template,friendlyname,owner,active,default,move,view,copy,addchild,edit,delete,multiselect';
+$dflts = 'expand,icon1,hier,page,alias,template,friendlyname,active,default,view,copy,addchild,edit,delete,multiselect';
 $tmp = explode(',',$allcols);
 $opts = [];
 foreach( $tmp as $one ) {
