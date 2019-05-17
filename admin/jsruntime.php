@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 
 $data = [];
 $data['admin_url'] = $config['admin_url'];
