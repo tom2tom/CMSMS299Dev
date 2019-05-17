@@ -1,5 +1,5 @@
 <div class="pageinfo postgap">{$mod->Lang('info_pagedflt')}</div>
-{form_start action=admin_pagedefaults_tab pagedefaults=1}
+{form_start action='apply_settings' tab='pagedefaults'}
 <div class="pageinput postgap">
   <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{lang('submit')}</button>
   <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
@@ -8,13 +8,13 @@
   {$t=$mod->Lang('prompt_pagedflt_contenttype')}<label class="pagetext" for="contenttype">{$t}</label>:
   {cms_help realm=$_module key2='help_pagedflt_contenttype' title=$t}<br />
   <select class="pageinput" id="contenttype" name="{$actionid}contenttype">
-  {html_options options=$all_contenttypes selected=$page_prefs.contenttype}
+  {html_options options=$contenttypes_list selected=$page_prefs.contenttype}
   </select>
 </div>
 <div class="pageoverflow postgap">
-  {$t=$mod->Lang('prompt_pagedflt_styles')}<label class="pagetext" for="styles">{$t}:</label>
-  {cms_help realm=$_module key2='help_pagedflt_styles' title=$t}<br />
-  SELECTOR NEEDED: TODO
+  {$t=$mod->Lang('prompt_pagedflt_styles')}<label class="pagetext" for="allsheets">{$t}:</label>
+  {cms_help realm=$_module key2='info_styles' title=$t}
+  {include file='module_file_tpl:CMSContentManager;page_stylesheets.tpl' scope='parent'}
 </div>
 <div class="pageoverflow postgap">
   {$t=$mod->Lang('prompt_pagedflt_template_id')}<label class="pagetext" for="template_id">{$t}:</label>
