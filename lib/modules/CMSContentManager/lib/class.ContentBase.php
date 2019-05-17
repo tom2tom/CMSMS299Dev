@@ -689,7 +689,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 				$help = AdminUtils::get_help_tag($this->realm,'info_styles',$this->mod->Lang('help_title_styles'));
 				$smarty = CmsApp::get_instance()->GetSmarty();
 				$tpl = $smarty->createTemplate($this->mod->GetTemplateResource('page_stylesheets.tpl'),null,null,$smarty);
-				$tpl->assign('mod',$this->mod)
+				$tpl->assign_by_ref('mod',$this->mod)
 				 ->assign('actionid',$id)
 				 ->assign('grouped',$grouped)
 				 ->assign('sheets',$sheets);

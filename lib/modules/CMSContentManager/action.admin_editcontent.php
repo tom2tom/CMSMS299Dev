@@ -362,7 +362,7 @@ else {
 }
 
 $tpl->assign('content_id',$content_id)
- ->assign('content_obj',$content_obj)
+ ->assign_by_ref('content_obj',$content_obj)
  ->assign('tab_names',$tab_names)
  ->assign('active_tab',trim($active_tab))
  ->assign('tab_contents_array',$tab_contents_array)

@@ -44,7 +44,7 @@ $gCms = CmsApp::get_instance();
 
 $smarty = $gCms->GetSmarty();
 $smarty->force_compile = true;
-$smarty->assign('theme', $themeObject);
+$smarty->assign_by_ref('theme', $themeObject);
 
 /*
  * Database

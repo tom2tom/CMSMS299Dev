@@ -159,6 +159,6 @@ $this->AdminBottomContent($js);
 
 $hm = $gCms->GetHierarchyManager(); //TODO direct-use by Smarty OK?
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_ordercontent.tpl'),null,null,$smarty);
-$tpl->assign('tree',$hm);
+$tpl->assign_by_ref('tree',$hm);
 
 $tpl->display();
