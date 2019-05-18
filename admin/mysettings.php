@@ -61,7 +61,7 @@ if (isset($_POST['submit'])) {
   $ce_navdisplay = $_POST['ce_navdisplay'];
   $date_format_string = $_POST['date_format_string'];
   $default_cms_language = $_POST['default_cms_language'];
-  $default_parent = (int)$_POST['m1_parent_id'];
+  $default_parent = (int)$_POST['parent_id'];
   $editortheme = $_POST['editortheme'] ?? null;
   $editortype = $_POST['editortype'] ?? null;
   $hide_help_links = (isset($_POST['hide_help_links'])) ? 1 : 0;
