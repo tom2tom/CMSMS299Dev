@@ -29,7 +29,6 @@ use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use const CMS_DEFAULT_VERSIONCHECK_URL;
-use const CMS_JOB_KEY;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -44,6 +43,7 @@ use function cms_module_places;
 use function cms_path_to_url;
 use function endswith;
 use function get_userid;
+use function lang;
 use function startswith;
 
 //this is also used during content installation i.e. STATE_INSTALL_PAGE, or nothing
