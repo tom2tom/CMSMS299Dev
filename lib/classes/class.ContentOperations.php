@@ -140,43 +140,6 @@ final class ContentOperations
 	}
 
 	/**
-	 * Load a specific content type
-	 *
-	 * This method is called from the autoloader.  There is no need to call it internally
-	 *
-	 * @internal
-	 * @access private
-	 * @since 1.9
-	 * @param mixed $type string type name or an instance of ContentTypePlaceHolder
-	 * @param bool since 2.3 optional flag whether to create a ContentEditor-class
-	 * object. Default false (hence a shortform object)
-	 * @return mixed
-	 */
-	public function LoadContentType($type, bool $editable=false)
-	{
-		if( $type instanceof ContentTypePlaceHolder ) {
-			$type = $type->type;
-		}
-
-		$ctph = $this->_get_content_type($type);
-		if( is_object($ctph) ) {
-			if( $editable && empty($ctph->editorclass) ) {
-				$editable = false; //revert to using displayable form, hopefully also editable
-			}
-			if( $editable ) {
-				if( !class_exists($ctph->editorclass) && is_file($ctph->editorfilename) ) {
-					require_once $ctph->editorfilename;
-				}
-			}
-			elseif( !class_exists( $ctph->class ) && is_file( $ctph->filename ) ) {
-				require_once $ctph->filename;
-			}
-		}
-
-		return $ctph;
-	}
-
-	/**
 	 * Creates a new, empty content object of the given type.
 	 *
 	 * If the content-type is registered with the system, and the class does not
@@ -404,6 +367,39 @@ final class ContentOperations
 
 		$this->_content_types[$obj->type] = $obj;
 		return TRUE;
+	}
+
+	/**
+	 * Load a specific content type placeholder (settings)
+	 *
+	 * @since 1.9
+	 * @param mixed $type string type name or an instance of ContentTypePlaceHolder
+	 * @param bool since 2.3 optional flag whether to create a ContentEditor-class
+	 * object. Default false (hence a shortform object)
+	 * @return mixed ContentTypePlaceHolder object or null
+	 */
+	public function LoadContentType($type, bool $editable=false)
+	{
+		if( $type instanceof ContentTypePlaceHolder ) {
+			$type = $type->type;
+		}
+
+		$ctph = $this->_get_content_type($type);
+		if( is_object($ctph) ) {
+			if( $editable && empty($ctph->editorclass) ) {
+				$editable = false; //revert to using displayable form, hopefully also editable
+			}
+			if( $editable ) {
+				if( !class_exists($ctph->editorclass) && is_file($ctph->editorfilename) ) {
+					require_once $ctph->editorfilename;
+				}
+			}
+			elseif( !class_exists( $ctph->class ) && is_file( $ctph->filename ) ) {
+				require_once $ctph->filename;
+			}
+		}
+
+		return $ctph;
 	}
 
 	/**
