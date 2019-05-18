@@ -27,9 +27,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
  *  string 'handle' js variable (name) for the created editor. Default 'editor'
  *  string 'htmlid' id of the page-element whose content is to be edited. Default 'edit_area'.
- *  string 'style'  override for the normal editor theme/style.  Default ''
- *  string 'typer'  content-type identifier, an absolute filepath or at least
- *    an extension or pseudo (like 'smarty'). Default ''
+ *  string 'theme'  override for the normal editor theme/style.  Default ''
+ *  string 'typer'  content-type identifier, an absolute filepath or filename or
+ *    at least an extension or pseudo (like 'smarty'). Default ''
  *  string 'workid' id of a div to be created to work on the content of htmlid-element. Default 'edit_work'
  *
  * @return array up to 2 members, being 'head' and/or 'foot'
@@ -42,7 +42,7 @@ function GetScript(&$mod, array $params) : array
 		'edit' => false,
 		'handle' => 'editor',
 		'htmlid' => 'edit_area',
-		'style' =>'',
+		'theme' =>'',
 		'typer' => '',
 		'workid' => 'edit_work',
 	]);
@@ -50,7 +50,7 @@ function GetScript(&$mod, array $params) : array
 /*	$edit = $edit;
 	$handle = $handle;
 	$htmlid = $htmlid;
-	$style = $style;
+	$theme = $theme;
 	$typer = $typer;
 	$workid = $workid;
 */
@@ -100,14 +100,14 @@ function GetScript(&$mod, array $params) : array
 	$urlroot = $mod->GetPreference('ace_url', CoreTextEditing::ACE_CDN); //local or CDN
 
 	if (!empty($CMS_ADMIN_PAGE)) {
-		if (!$style) {
-			$style = cms_userprefs::get_for_user(get_userid(false), 'editor_theme');
-			if (!$style) {
-				$style = cms_siteprefs::get('editor_theme', CoreTextEditing::ACE_THEME);
+		if (!$theme) {
+			$theme = cms_userprefs::get_for_user(get_userid(false), 'editor_theme');
+			if (!$theme) {
+				$theme = cms_siteprefs::get('editor_theme', CoreTextEditing::ACE_THEME);
 			}
 		}
 	}
-	$style = strtolower($style);
+	$theme = strtolower($theme);
 
 	$js = <<<EOS
 <script defer type="text/javascript" src="$urlroot/ace.js"></script>
@@ -172,18 +172,28 @@ EOS;
   displayIndentGuides: true,
   showGutter: true,
   showLineNumbers: false,
-  theme: 'ace/theme/$style'
+  theme: 'ace/theme/$theme'
  });
  worker.show();
 
 EOS;
     if ($edit) {
         $js .= <<<EOS
- worker.on('blur', function() {
-  container.val($handle.session.getValue());
+ var dirty = false;
+ worker = worker.find('textarea'); // by now ace has injected this
+ worker.on('input cut paste', function() {
+  dirty = true;
+  worker.off('input cut paste', worker);
+ }).on('blur', function() {
+  if(dirty) {
+   container.val($handle.session.getValue());
+   $(document).trigger('cms_textchange');
+  }
  });
  container.closest('form').on('submit', function() {
-  container.val($handle.session.getValue());
+  if(dirty) {
+    container.val($handle.session.getValue());
+  }
  });
 
 EOS;
@@ -191,7 +201,7 @@ EOS;
     $js .= <<< EOS
 });
 function seteditorcontent(v,m) {
- $('#$workid').text(v);
+ $handle.session.setValue(v);
  if(typeof m !== 'undefined') {
   $handle.session.setMode('ace/mode/' + m);
  }

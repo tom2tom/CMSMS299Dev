@@ -27,9 +27,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
  *  string 'handle' js variable (name) for the created editor. Default 'editor'
  *  string 'htmlid' id of the page-element whose content is to be edited. Default 'edit_area'.
- *  string 'style'  override for the normal editor theme/style.  Default ''
- *  string 'typer'  content-type identifier, an absolute filepath or at least
- *    an extension or pseudo (like 'smarty'). Default ''
+ *  string 'theme'  override for the normal editor theme/style.  Default ''
+ *  string 'typer'  content-type identifier, an absolute filepath or filename or
+ *    at least an extension or pseudo (like 'smarty'). Default ''
  *
  * @return array up to 2 members, being 'head' and/or 'foot'
  */
@@ -41,14 +41,14 @@ function GetScript(&$mod, array $params) : array
 		'edit' => false,
 		'handle' => 'editor',
 		'htmlid' => 'edit_area',
-		'style' =>'',
+		'theme' =>'',
 		'typer' => '',
 	]);
 	//FOR DEBUGGER
 /*	$edit = $edit;
 	$handle = $handle;
 	$htmlid = $htmlid;
-	$style = $style;
+	$theme = $theme;
 	$typer = $typer;
 */
     if (!$htmlid) {
@@ -94,14 +94,14 @@ function GetScript(&$mod, array $params) : array
 	$urlroot = $mod->GetPreference('codemirror_url', CoreTextEditing::CM_CDN); //local or CDN
 
 	if (!empty($CMS_ADMIN_PAGE)) {
-		if (!$style) {
-			$style = cms_userprefs::get_for_user(get_userid(false), 'editor_theme');
-			if (!$style) {
-				$style = cms_siteprefs::get('editor_theme', CoreTextEditing::CM_THEME);
+		if (!$theme) {
+			$theme = cms_userprefs::get_for_user(get_userid(false), 'editor_theme');
+			if (!$theme) {
+				$theme = cms_siteprefs::get('editor_theme', CoreTextEditing::CM_THEME);
 			}
 		}
 	}
-	$style = strtolower($style);
+	$theme = strtolower($theme);
 
 	$css = <<<EOS
 <link rel="stylesheet" href="$urlroot/codemirror.css">
@@ -112,9 +112,9 @@ pre.CodeMirror-line {
 </style>
 
 EOS;
-	if ($style) {
+	if ($theme) {
 		$css .= <<<EOS
-<link rel="stylesheet" href="$urlroot/theme/$style.css">
+<link rel="stylesheet" href="$urlroot/theme/$theme.css">
 
 EOS;
 	}
@@ -151,13 +151,13 @@ EOS;
 	$js .= <<<EOS
   }
  };
-  container = $('#$htmlid');
-  $handle = CodeMirror.fromTextArea(container[0],{
+ container = $('#$htmlid');
+ $handle = CodeMirror.fromTextArea(container[0],{
   foldGutter: true,
   gutters: ["CodeMirror-foldgutter"],
   lineNumbers: false,
   readOnly: $fixed,
-  theme: '$style'
+  theme: '$theme'
  });
 
 EOS;
@@ -173,20 +173,43 @@ EOS;
 
 EOS;
 	}
+	if ($edit) {
+		$js .= <<<EOS
+ var dirty = false;
+ $handle.on('change', function(ev) {
+  dirty = true;
+  $handle.off('change');
+ });
+ $handle.on('blur', function() {
+  if(dirty) {
+   $(document).trigger('cmsms_textchange');
+  }
+ });
+
+EOS;
+	}
 	$js .= <<<EOS
 });
+
+EOS;
+	if ($edit) {
+		$js .= <<<EOS
 function seteditorcontent(v,m) {
- container.val(v);
+ $handle.setValue(v);
  if(typeof m !== 'undefined') {
   $handle.setOption('mode',m); //TODO generic mode-interpreter
  }
 }
 function geteditorcontent() {
- return container.val();
+ return $handle.getValue();
 }
 function setpagecontent(v) {
- container.val(v);
+ $handle.setValue(v);
 }
+
+EOS;
+	}
+	$js .= <<<EOS
 //]]>
 </script>
 
