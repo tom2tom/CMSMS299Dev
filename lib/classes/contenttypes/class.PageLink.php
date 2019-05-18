@@ -55,12 +55,17 @@ class PageLink extends ContentBase
 
 	public function HasSearchableContent() : bool { return false; }
 
+	/**
+	 * Construct an URL for the destination page
+	 * @param bool $rewrite Default true.
+	 * @return string
+	 */
 	public function GetURL(bool $rewrite = true) : string
 	{
 		$page = $this->GetPropertyValue('page');
-		$destcontent = PageLoader::get_content($page);
-		if( is_object( $destcontent ) ) {
-			$url = $destcontent->GetURL($rewrite);
+		$content = PageLoader::LoadContent($page);
+		if( is_object( $content ) ) {
+			$url = $content->GetURL($rewrite);
 			$params = $this->GetPropertyValue('params');
 			return $url . $params;
 		}

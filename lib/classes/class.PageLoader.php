@@ -55,6 +55,7 @@ class PageLoader
 
     /**
      * Cache all known content-classes
+	 * This is a cut-down alternative to ContentOperations::_get_content_types()
      */
     protected static function poll_classes()
     {
@@ -82,11 +83,12 @@ class PageLoader
      * caches its properties locally. For the page being displayed, the object will
      * be retrieved several times, to process different sections of its content.
      * This is NOT for content-tree processing, or ContentManager page listing or editing.
+	 * Effectively a cut-down alternative to ContentOperations::LoadContentFromId & ...FromAlias
      *
      * @param mixed $a page identifier: id (int|numeric string) or alias (other string)
      * @return mixed ContentBase object | null  TODO CONTENTPAGE
      */
-    public static function get_content($a)
+    public static function LoadContent($a)
     {
         if (is_numeric($a)) {
             $contentobj = self::$_loaded[$a] ?? null;
@@ -126,9 +128,11 @@ class PageLoader
      * Not merely an autoloader-bypass, as types may instantiated by modules.
      *
      * @param mixed CmsContentType | CmsContentTypePlaceholder $obj
+	 * @return mixed ContentTypePlaceHolder | null
      */
-    public static function load_type($obj)
+    public static function LoadContentType($obj)
     {
-        ContentOperations::get_instance()->LoadContentType($obj);
+		//TODO use trait to cut down footprint
+        return ContentOperations::get_instance()->LoadContentType($obj);
     }
 }
