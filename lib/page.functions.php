@@ -470,9 +470,9 @@ function get_pageid_or_alias_from_url()
  *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
  *  string 'handle' name of the js variable to be used for the created editor. Default 'editor'
  *  string 'htmlid' id of the page-element whose content is to be edited. Default 'edit_area'.
- *  string 'style'  override for the normal editor theme/style.  Default ''
- *  string 'typer'  content-type identifier, an absolute filepath or at least
- *    an extension or pseudo (like 'smarty'). Default ''
+ *  string 'theme'  override for the normal editor theme/style.  Default ''
+ *  string 'typer'  content-type identifier, an absolute filepath or filename or
+ *    at least an extension or pseudo (like 'smarty'). Default ''
  *  string 'workid' id of a div to be created (by some editors) to process
  *    the content of the htmlid-element. (As always, avoid conflict with tab-name divs). Default 'edit_work'
  *
@@ -491,13 +491,13 @@ function get_editor_script(array $params) : array
         if( $modname ) {
             $modinst = cms_utils::get_module($modname);
             if( $modinst ) {
-                if (empty($params['style'])) {
+                if (empty($params['theme'])) {
                     $val = cms_userprefs::get_for_user($userid, 'editor_theme');
                     if( !$val ) {
                         $val = cms_siteprefs::get('editor_theme');
                     }
                     if( $val ) {
-                        $params['style'] = $val;
+                        $params['theme'] = $val;
                     }
                 }
                 if( $modinst instanceof SyntaxEditor ) {
