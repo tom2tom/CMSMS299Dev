@@ -45,7 +45,7 @@ use function is_sitedown;
 use function startswith;
 
 //require_once CMS_ROOT_PATH.'/lib/smarty/Smarty.class.php'; //when BC not needed
-require_once CMS_ROOT_PATH.'/lib/smarty/SmartyBC.class.php'; //deprecated - support for smarty2 API
+require_once CMS_ROOT_PATH.'/lib/smarty/SmartyBC.class.php'; //deprecated - support for Smarty2 API
 
 /**
  * Extends the Smarty class for CMSMS.
