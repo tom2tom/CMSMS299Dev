@@ -134,11 +134,9 @@ class ResultSet
             return true;
         }
         if ($this->_result->data_seek($idx)) {
-            if (!$this->EOF()) {
-                $this->_pos = $idx;
-                $this->_row = $this->_result->fetch_array(MYSQLI_ASSOC);
-                return true;
-            }
+            $this->_pos = $idx;
+            $this->_row = $this->_result->fetch_array(MYSQLI_ASSOC);
+            return true;
         }
         $this->_pos = -1;
         $this->_row = [];
