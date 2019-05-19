@@ -316,6 +316,7 @@ class CmsLayoutTemplate
 	public function get_content()
 	{
 		if( $this->contentfile ) {
+			//NOTE CMSMS\internal\layout_template_resource replicates this, and must be manually conformed to any change
 			if( !isset($this->_filecontent) ) {
 				if( ($fp = $this->get_content_filename()) ) {
 					$this->_filecontent = file_get_contents($fp);
@@ -955,8 +956,9 @@ class CmsLayoutTemplate
 	public function get_content_filename()
 	{
 		if( $this->contentfile ) {
-			$config = cms_config::get_instance();
-			return cms_join_path($config['assets_path'],'templates',$this->content);
+			//NOTE CMSMS\internal\layout_template_resource replicates this, and must be manually conformed to any change
+			//TODO consider support for absolute path to anywhere
+			return cms_join_path(CMS_ASSETS_PATH,'templates',$this->content);
 		}
 		return '';
 	}
