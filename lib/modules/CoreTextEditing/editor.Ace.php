@@ -65,7 +65,7 @@ function GetScript(&$mod, array $params) : array
 			$filepath = $typer;
 			$mode = '';
 		} else {
-			$filepath = __FILE__; //default php mode
+			$filepath = '';
 			$p = strrpos($typer, '.');
 			$mode = substr($typer, ($p !== false) ? $p+1:0);
 			$mode = strtolower($mode);
@@ -93,7 +93,7 @@ function GetScript(&$mod, array $params) : array
 			}
 		}
 	} else {
-		$filepath = __FILE__; //php mode
+		$filepath = '';
 		$mode = '';
 	}
 

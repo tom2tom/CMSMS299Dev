@@ -61,6 +61,7 @@ function GetScript(&$mod, array $params) : array
 		if (is_file($typer)) {
 			$filename = basename($typer);
 		} else {
+			$filename = '';
 			$p = strrpos($typer, '.');
 			$mode = substr($typer, ($p !== false) ? $p+1:0);
 			$mode = strtolower($mode);
@@ -88,6 +89,7 @@ function GetScript(&$mod, array $params) : array
 			}
 		}
 	} else {
+		$filename = '';
 		$mode = '';
 	}
 
