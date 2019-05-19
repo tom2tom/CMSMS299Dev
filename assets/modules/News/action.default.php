@@ -62,7 +62,7 @@ $query1 = 'SELECT N.*,G.news_category_name,G.long_name,U.username,U.first_name,U
 FROM ' . CMS_DB_PREFIX . $tbl. ' N
 LEFT OUTER JOIN ' . CMS_DB_PREFIX . $grptbl . ' G ON N.news_category_id = G.news_category_id
 LEFT OUTER JOIN ' . CMS_DB_PREFIX . 'users U ON U.user_id = N.author_id
-WHERE N.status = \'published\' AND ';
+WHERE status = \'published\' AND ';
 
 if( isset($params['idlist']) ) {
     $idlist = $params['idlist'];
@@ -89,7 +89,7 @@ elseif( !empty($params['category']) ) {
         if ($count > 0) $query1 .= ' OR ';
         if (strpos($onecat, '|') !== FALSE || strpos($onecat, '*') !== FALSE) {
             $tmp = $db->qStr(trim(str_replace(['*',"'"],['%','_'],$onecat)));
-            $query1 .= "UPPER(G.long_name) LIKE UPPER({$tmp})"; // redundant if field is ci, useless if multibyte content present !
+            $query1 .= "UPPER(G.long_name) LIKE UPPER({$tmp})"; // BAH! redundant if field is ci, useless if multibyte content present !
         }
         else {
             $tmp = $db->qStr(trim(str_replace("'",'_',$onecat)));
@@ -137,10 +137,10 @@ switch( $sortby ) {
   case 'news_title':
   case 'end_time':
   case 'news_extra':
-    $query1 .= "ORDER BY N.$sortby ";
+    $query1 .= "ORDER BY $sortby ";
     break;
   default:
-    $query1 .= 'ORDER BY N.start_time ';
+    $query1 .= 'ORDER BY start_time ';
     break;
 }
 
@@ -185,7 +185,7 @@ if( $rst ) {
         $result_ids[] = $rst->fields['news_id'];
         $rst->MoveNext();
     }
-//    Utils::preloadFieldData($result_ids);
+
 	$fmt = $this->GetDateFormat();
     $rst->MoveFirst();
     while( !$rst->EOF() ) {
