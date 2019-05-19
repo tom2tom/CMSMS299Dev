@@ -100,7 +100,7 @@ class News extends CMSModule
         $this->SetParameterType('articleid', CLEAN_INT);
         $this->SetParameterType('browsecat', CLEAN_INT); //??
         $this->SetParameterType('browsecattemplate', CLEAN_STRING); //name
-        $this->SetParameterType('category_id', CLEAN_STRING); //alias for category ? OR INT?
+        $this->SetParameterType('category_id', CLEAN_INT);
         $this->SetParameterType('category', CLEAN_STRING); //??
         $this->SetParameterType('detailpage', CLEAN_STRING); //page id or alias
         $this->SetParameterType('detailtemplate', CLEAN_STRING); //name
@@ -128,7 +128,6 @@ class News extends CMSModule
         $this->CreateParameter('category', 'category', $this->Lang('helpcategory'));
         $this->CreateParameter('detailpage', 'pagealias', $this->Lang('helpdetailpage'));
         $this->CreateParameter('detailtemplate', '', $this->Lang('helpdetailtemplate'));
-//        $this->CreateParameter('formtemplate', '', $this->Lang('helpformtemplate'));
         $this->CreateParameter('idlist','',$this->Lang('help_idlist'));
         $this->CreateParameter('moretext', $this->Lang('moreprompt'), $this->Lang('helpmoretext'));
         $this->CreateParameter('number', 100000, $this->Lang('helpnumber'));
