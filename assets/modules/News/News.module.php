@@ -50,7 +50,6 @@ class News extends CMSModule
     public function InitializeFrontend()
     {
 /*
-        $this->SetParameterType('articleid', CLEAN_INT);
         $this->SetParameterType('assign', CLEAN_STRING);
         $this->SetParameterType('browsecat', CLEAN_INT);
         $this->SetParameterType('browsecattemplate', CLEAN_STRING);
@@ -97,6 +96,8 @@ class News extends CMSModule
 //$params used in action.browsecat.php
 'browsecattemplate'
 */
+		//some of these are probably redundant in the frontend
+        $this->SetParameterType('articleid', CLEAN_INT);
         $this->SetParameterType('browsecat', CLEAN_INT); //??
         $this->SetParameterType('browsecattemplate', CLEAN_STRING); //name
         $this->SetParameterType('category_id', CLEAN_STRING); //alias for category ? OR INT?
@@ -109,6 +110,7 @@ class News extends CMSModule
         $this->SetParameterType('number', CLEAN_INT); //alias for pagenumber ??
         $this->SetParameterType('pagelimit', CLEAN_INT);
         $this->SetParameterType('pagenumber', CLEAN_INT);
+        $this->SetParameterType('returnid', CLEAN_INT);
         $this->SetParameterType('showall', CLEAN_INT); //??
         $this->SetParameterType('showarchive', CLEAN_INT); //??
         $this->SetParameterType('sortasc', CLEAN_STRING); // ''true'|'false'
