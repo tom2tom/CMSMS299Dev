@@ -950,15 +950,34 @@ function cms_build_query(string $key, $val, string $sep = '&amp;', $encode = tru
  * @internal
  * @access private
  * @return string
- * Rolf: only used in admin/imagefiles.php
  */
 function get_secure_param() : string
 {
     $out = '?';
-    $str = strtolower(ini_get('session.use_cookies'));
-    if ($str == '0' || $str == 'off') $out .= htmlspecialchars(SID).'&';
+    $str = ini_get('session.use_cookies');
+    if ($str == '0' || strcasecmp($str,'off') == 0) {
+		//PHP constant SID is unreliable, we recreate it
+		$out .= rawurlencode(session_name()).'='.rawurlencode(session_id()).'&';
+	}
     $out .= CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
     return $out;
+}
+
+/**
+ * Return the secure params in a form-friendly format.
+ *
+ * @internal
+ * @access private
+ * @return array
+ */
+function get_secure_param_array() : array
+{
+	$out = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
+    $str = ini_get('session.use_cookies');
+    if ($str == '0' || strcasecmp($str,'off') == 0) {
+		$out[session_name()] = session_id();
+	}
+	return $out;
 }
 
 /**
