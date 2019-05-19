@@ -30,6 +30,9 @@ function smarty_function_edit_template($params, $template)
 			return $t->getMessage();
 		}
 	}
+	if (empty($params['name']) {
+		$params['name'] = 'template_content';
+	}
 	$params['typer'] = 'smarty';
 	require_once __DIR__.DIRECTORY_SEPARATOR.'function.syntax_area.php';
 	return smarty_function_syntax_area($params, $template);
