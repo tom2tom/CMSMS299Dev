@@ -28,7 +28,17 @@ function smarty_cms_help_block_add_headcontent()
 {
 	echo <<<'EOS'
 <h3>What does it do?</h3>
-Injects supplied content into the (admin) page header.
+Supports out-of-order processing, by appending content to the page header.
+<h3>How is it used?</h3>
+Put this in a template<br />
+<code>
+{add_headcontent}
+e.g.
+<script> .. </script>
+<link .. >
+etc
+{/add_headcontent}
+</code>
 EOS;
 }
 

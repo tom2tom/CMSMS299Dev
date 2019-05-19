@@ -28,7 +28,16 @@ function smarty_cms_help_block_add_footcontent()
 {
 	echo <<<'EOS'
 <h3>What does it do?</h3>
-Injects supplied content into the bottom of the (admin) page.
+Supports out-of-order processing, by appending content to the bottom of the page.
+<h3>How is it used?</h3>
+Put this in a template<br />
+<code>
+{add_footcontent}
+e.g.
+<script> defer .. </script>
+etc
+{/add_footcontent}
+</code>
 EOS;
 }
 
