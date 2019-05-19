@@ -65,8 +65,12 @@ if( isset($params['articleid']) && $params['articleid'] == -1 ) {
     $article = Utils::get_latest_article();
 }
 elseif( isset($params['articleid']) && (int)$params['articleid'] > 0 ) {
-    $show_expired = $this->GetPreference('expired_viewable',1);
-    if( isset($params['showall']) ) $show_expired = 1;
+    if( isset($params['showall']) ) {
+        $show_expired = 1;
+    }
+    else {
+        $show_expired = $this->GetPreference('expired_viewable',1);
+    }
     $article = Utils::get_article_by_id((int)$params['articleid'],true,$show_expired);
 }
 if( !$article ) {
@@ -80,14 +84,17 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$
 $tpl->assign('return_url', $return_url)
  ->assign('entry', $article);
 
-$catName = '';
 if (isset($params['category_id'])) {
     $catName = $db->GetOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?',[(int)$params['category_id']]);
 }
+else {
+    $catName = '';
+}
 $tpl->assign('category_name',$catName);
-unset($params['article_id']);
-$tpl->assign('category_link',$this->CreateLink($id, 'default', $returnid, $catName, $params))
 
+unset($params['article_id']);
+
+$tpl->assign('category_link',$this->CreateLink($id, 'default', $returnid, $catName, $params))
  ->assign('category_label', $this->Lang('category_label'))
  ->assign('author_label', $this->Lang('author_label'))
  ->assign('extra_label', $this->Lang('extra_label'));
