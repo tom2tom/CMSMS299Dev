@@ -115,7 +115,7 @@ $lang['help_function_admin_icon'] = <<<EOT
  <li>id - <em>(optional)</em> - An optional id attribute for the img tag</li>
  <li>title - <em>(optional)</em> - An optional title attribute for the img tag</li>
  <li>accesskey - <em>(optional)</em> - An optional access key character for the img tag</li>
- <li>assign - <em>(optional)</em> - Assign the tag output to the named smarty variable</li>
+ <li>assign - <em>(optional)</em> - Assign the tag output to the named Smarty variable</li>
 </ul>
 <h3>Example:</h3>
 <pre><code>{admin_icon icon='edit.gif' class='editicon'}</code></pre>
@@ -131,7 +131,7 @@ $lang['help_function_cms_action_url'] = <<<EOT
  <li>returnid - <em>(optional)</em> - The integer pageid to display the results of the action in. This parameter is not necessary if the action is to be displayed on the current page, or if the URL is to an admin action from within an admin action.</li>
  <li>mid - <em>(optional)</em> - The module action id. This defaults to &quot;m1_&quot; for admin actions, and &quot;cntnt01&quot; for frontend actions.</li>
  <li>forjs - <em>(optional)</em> - An optional integer indicating that the generated URL should be suitable for use in JavaScript</li>
- <li>assign - <em>(optional)</em> - Assign the output URL to the named smarty variable</li>
+ <li>assign - <em>(optional)</em> - Assign the output URL to the named Smarty variable</li>
 </ul>
 <p><strong>Note:</strong> Any other parameters not accepted by this plugin are automatically passed to the called module action on the generated URL.</p>
 <h3>Example:</h3>
@@ -153,7 +153,7 @@ $lang['help_function_cms_admin_user'] = <<<EOT
  <li>fullname - output the full name for the specified uid</li>
  </ul>
  </li>
- <li>assign - <em>(optional)</em> - Assign the output to the named smarty variable</li>
+ <li>assign - <em>(optional)</em> - Assign the output to the named Smarty variable</li>
 </ul>
 <h3>Example:</h3>
 <pre><code>{cms_admin_user uid=1 mode=email}</code></pre>
@@ -163,7 +163,7 @@ $lang['help_function_cms_get_language'] = <<<EOT
 <h3>What does this do?</h3>
 <p>This plugin returns the current CMSMS language name. The language is used for translation strings and date formatting.</p>
 <h3>What parameters does it take?</h3>
-<p><em>(optional)assign</em> - Assign the output of the plugin to the named smarty variable.</p>
+<p><em>(optional)assign</em> - Assign the output of the plugin to the named Smarty variable.</p>
 EOT;
 
 $lang['help_function_cms_help'] = <<<EOT
@@ -175,7 +175,7 @@ $lang['help_function_cms_help'] = <<<EOT
  <li>key - <strong>(required string)</strong> - The second part in a unique key to identify the help string to display. This is usually the key from the appropriate realm\'s lang file.</li>
  <li>realm - <em>(optional string)</em> - The first part in a unique key to identify the help string. If this parameter is not specified, and this plugin is called from within a module action then the current module name is used. If no module name can be found then &quot;help&quot; is used as the lang realm.</li>
  <li>title - <em>(optional string)</em> - Help box title</li>
- <li>assign - <em>(optional string)</em> - Assign the output to the named smarty variable</li>
+ <li>assign - <em>(optional string)</em> - Assign the output to the named Smarty variable</li>
 </ul>
 <h3>Example:</h3>
 <pre><code>{cms_help key2='help_field_username' title=&#36;foo}</code></pre>
@@ -187,7 +187,7 @@ $lang['help_function_cms_init_editor'] = <<<EOT
 <h3>How is it used?</h3>
 <p>First, select the frontend WYSIWYG editor to be used, in the global settings page of the admin console. Next, if a frontend WYSIWYG editor is to be used on numerous pages, it might be best to include the {cms_init_editor} plugin in the relevant page template. Otherwise, that plugin may be included in the &quot;Page Specific Metadata&quot; field for each such page.</p>
 <h3>What parameters does it take?</h3>
-<p><em>(optional)assign</em> - Assign the output of the plugin to the named smarty variable.</p>
+<p><em>(optional)assign</em> - Assign the output of the plugin to the named Smarty variable.</p>
 EOT;
 
 $lang['help_function_cms_lang_info'] = <<<EOT
@@ -196,7 +196,7 @@ $lang['help_function_cms_lang_info'] = <<<EOT
 <h3>What parameters does it take?</h3>
 <ul>
  <li><em>(optional)lang</em> - The language to return information for. If the lang parameter is not specified then the information for the current CMSMS language is used.</li>
- <li><em>(optional)assign</em> - Assign the output of the plugin to the named smarty variable</li>
+ <li><em>(optional)assign</em> - Assign the output of the plugin to the named Smarty variable</li>
 </ul>
 <h3>Example:</h3>
 <pre>{cms_lang_info assign='nls'}{\$nls->locale()}</pre>
@@ -240,7 +240,7 @@ $lang['help_function_cms_yesno'] = <<<EOT
 <h3>What parameters does it take?</h3>
 <ul>
  <li>selected - <em>(optional integer)</em> - either 0 <em>(no)</em> or 1 <em>(yes)</em></li>
- <li>assign - <em>(optional string)</em> - Assign the output to the named smarty variable</li>
+ <li>assign - <em>(optional string)</em> - Assign the output to the named Smarty variable</li>
 </ul>
 <h3>Example:</h3>
 <pre><code>&lt;select name=&quot;{\$actionid}opt&quot;&gt;{cms_yesno selected=\$opt}&lt;/select&gt;</code></pre>
@@ -252,7 +252,7 @@ $lang['help_function_module_available'] = <<<EOT
 <h3>What parameters does it take?</h3>
 <ul>
  <li><strong>(required)module</strong> - (string) The name of the module</li>
- <li><em>(optional)assign</em> - Assign the output of the plugin to the named smarty variable</li>
+ <li><em>(optional)assign</em> - Assign the output of the plugin to the named Smarty variable</li>
 </ul>
 <h3>Example:</h3>
 {module_available module='News' assign='havenews'}{if \$havenews}{cms_module module=News}{/if}
@@ -448,14 +448,14 @@ $lang['help_function_current_date'] = <<<EOT
 <h3 style="color: red;">Deprecated</h3>
 <p>use <code>{\$smarty.now|cms_date_format}</code></p>
 <h3>What does this do?</h3>
-<p>Prints the current date and time. If no format is given, it will default to a format similar to 'Jan 01, 2004'.</p>
+<p>Prints the current date (and/or time). If no format is given, the 'defaultdateformat' site preference will be used.</p>
 <h3>How is it used?</h3>
 <p>Insert the tag into the template/content like: <code>{current_date format="%A %d-%b-%y %T %Z"}</code></p>
 <h3>What parameters does it take?</h3>
 <ul>
- <li><em>(optional)</em>format - Date/Time format using parameters from php's strftime function. See <a href="http://php.net/strftime" target="_blank">here</a> for a parameter list and information.</li>
+ <li><em>(optional)</em>format - Date/time format string acceptable to PHP's strftime function. See <a href="http://php.net/strftime" target="_blank">here</a> for a parameter list and information.</li>
  <li><em>(optional)</em>ucword - If true return uppercase the first character of each word</li>
- <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named Smarty variable</li>
 </ul>
 EOT;
 
@@ -472,7 +472,7 @@ $lang['help_function_tab_end'] = <<<EOT
 &lt;p&gt;This is tab Two&lt;/p&gt;
 <span style="color: blue;">{tab_end}</span></code></pre>
 <h3>What parameters does it take?</h3>
-<p>assign - <em>(optional)</em> - Assign the output to the named smarty variable.</p>
+<p>assign - <em>(optional)</em> - Assign the output to the named Smarty variable.</p>
 <h3>See Also:</h3>
 <ul>
  <li>{tab_header}</li>
@@ -498,7 +498,7 @@ $lang['help_function_tab_header'] = <<<EOT
  <li><strong>name - required string</strong> - The name of the tab. Must match the name of a tab passed to {tab_header}.</li>
  <li>label - <em>optional string</em> - The human readable label for the tab. If not specified, the tab name will be used.</li>
  <li>active - <em>optional mixed./em> - Indicates whether this is the active tab or not. The supplied value may be the name (string) of the active tab in a sequence of tab headers, or a boolean value.</li>
- <li>assign - <em>(optional)</em> - Assign the output to the named smarty variable</li>
+ <li>assign - <em>(optional)</em> - Assign the output to the named Smarty variable</li>
 </ul>
 <h3>See Also:</h3>
 <ul>
@@ -523,7 +523,7 @@ $lang['help_function_tab_start'] = <<<EOT
 <h3>What parameters does it take?</h3>
 <ul>
  <li><strong>name - required</strong> - The name of the tab. Must match the name of a tab passed to {tab_header}.</li>
- <li>assign - <em>(optional)</em> - Assign the output to the named smarty variable</li>
+ <li>assign - <em>(optional)</em> - Assign the output to the named Smarty variable</li>
 </ul>
 <h3>See Also:</h3>
  <ul>
@@ -552,7 +552,7 @@ $lang['help_function_stylesheet'] = <<<EOT
  <li><em>(optional)</em>name - Instead of getting all stylesheets for the given page, it will only get one specifically named one, whether it's attached to the current template or not</li>
  <li><em>(optional)</em>media - If name paramter is defined, media parameter sets a different media type for that stylesheet</li>
  <li><em>(optional)</em>templateid - If templateid is defined, return stylesheets associated with that template instead of the current one</li>
- <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named Smarty variable</li>
 </ul>
 EOT;
 
@@ -599,7 +599,7 @@ $lang['help_function_cms_textarea'] = <<<EOT
  <li>text - alias for the value parameter</li>
  <li>cssname - optional string : pass this stylesheet name to the WYSIWYG module if a WYSIWYG module is enabled</li>
  <li>addtext - optional string : additional text to add to the textarea tag</li>
- <li>assign - optional string : assign the output html to the named smarty variable</li>
+ <li>assign - optional string : assign the output html to the named Smarty variable</li>
 </ul>
 EOT;
 
@@ -637,7 +637,7 @@ $lang['help_function_recently_updated'] = <<<EOT
  <li><em>(optional)</em> showtitle='true' - Shows the title attribute if it exists as well (true|false). Example: {recently_updated showtitle='true'}.</li>
  <li><em>(optional)</em> css_class='some_name' - Warp a div tag with this class around the list. Example: {recently_updated css_class='some_name'}.</li>
  <li><em>(optional)</em> dateformat='d.m.y h:m' - Default is d.m.y h:m Example: {recently_updated dateformat='D M j G:i:s T Y'}</li>
- <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named Smarty variable</li>
 </ul>
 <p>or combined:</p>
 <pre>{recently_updated number='15' showtitle='false' leadin='Last Change: ' css_class='my_changes' dateformat='D M j G:i:s T Y'}</pre>
@@ -667,7 +667,7 @@ $lang['help_function_modified_date'] = <<<EOT
 <h3>What parameters does it take?</h3>
 <ul>
  <li><em>(optional)</em>format - Date/Time format using parameters from php's strftime function. See <a href="http://php.net/strftime" target="_blank">here</a> for a parameter list and information. If no format is given, it will default to a format similar to 'Jan 01, 2004'.</li>
- <li><em>(optional)</em>assign - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em>assign - Assign the results to the named Smarty variable</li>
 </ul>
 EOT;
 
@@ -679,7 +679,7 @@ $lang['help_function_metadata'] = <<<EOT
 <h3>What parameters does it take?</h3>
 <ul>
  <li><em>(optional)</em>showbase (true/false) - If set to false, The base tag will not be output</li>
- <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named Smarty variable</li>
 </ul>
 EOT;
 
@@ -708,7 +708,7 @@ $lang['help_function_last_modified_by'] = <<<EOT
 <h3>What parameters does it take?</h3>
 <ul>
  <li><em>(optional)</em>format - id, username, fullname</li>
- <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named Smarty variable</li>
 </ul>
 EOT;
 
@@ -727,7 +727,7 @@ $lang['help_function_image'] = <<<EOT
  <li><em>(optional)</em> <tt>class</tt> - CSS class for the image</li>
  <li><em>(optional)</em> <tt>title</tt> - Mouse over text for the image. Defaults to Alt text.</li>
  <li><em>(optional)</em> <tt>addtext</tt> - Additional text to put into the tag</li>
- <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named Smarty variable</li>
 </ul>
 EOT;
 
@@ -749,7 +749,7 @@ Note: Google needs an index of this website, for this to work. A website can be 
 <ul>
  <li><em>(optional)</em> domain - This tells google the website domain to search. This script tries to determine this automatically.</li>
  <li><em>(optional)</em> buttonText - The label for the search button. The default is "Search Site".</li>
- <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named Smarty variable</li>
 </ul>
 EOT;
 
@@ -781,7 +781,7 @@ $lang['help_function_page_error'] = <<<EOT
 <h3>What parameters does it take?</h3>
 <ul>
  <li>msg - <strong>required string</strong> - The error message to display</li>
- <li>assign - <em>(optional)</em> - Assign the output to the named smarty variable</li>
+ <li>assign - <em>(optional)</em> - Assign the output to the named Smarty variable</li>
 </ul>
 <h3>Example:</h3>
 <pre><code>{page_error msg='Error Encountered'}</code></pre>
@@ -793,7 +793,7 @@ $lang['help_function_page_warning'] = <<<EOT
 <h3>What parameters does it take?</h3>
 <ul>
  <li>msg - <strong>required string</strong> - The warning message to display</li>
- <li>assign - <em>(optional)</em> - Assign the output to the named smarty variable</li>
+ <li>assign - <em>(optional)</em> - Assign the output to the named Smarty variable</li>
 </ul>
 <h3>Example:</h3>
 <pre><code>{page_warning msg='Something smells fishy'}</code></pre>
@@ -842,13 +842,13 @@ EOT;
 
 $lang['help_function_created_date'] = <<<EOT
 <h3>What does this do?</h3>
-<p>Prints the date and time the page was created. If no format is given, it will default to a format similar to 'Jan 01, 2004'.</p>
+<p>Prints the date (and/or time) the page was created. If no format is given, the 'defaultdateformat' site preference will be used.</p>
 <h3>How is it used?</h3>
 <p>Insert the tag into the template/content like: <code>{created_date format="%A %d-%b-%y %T %Z"}</code></p>
 <h3>What parameters does it take?</h3>
 <ul>
- <li><em>(optional)</em>format - Date/Time format using parameters from php's strftime function. See <a href="http://php.net/strftime" target="_blank">here</a> for a parameter list and information.</li>
- <li><em>(optional)</em>assign - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em>format - Date/time format string acceptable to PHP's strftime function. See <a href="http://php.net/strftime" target="_blank">here</a> for a parameter list and information.</li>
+ <li><em>(optional)</em>assign - Assign the results to the named Smarty variable</li>
 </ul>
 EOT;
 
@@ -941,7 +941,7 @@ $lang['help_function_cms_selflink'] = <<<EOT
  <li><em>(optional)</em> <tt>width</tt> - Width to be used with image (no width attribute will be used on output img tag if not provided)</li>
  <li><em>(optional)</em> <tt>height</tt> - Height to be used with image (no height attribute will be used on output img tag if not provided)</li>
  <li><em>(optional)</em> <tt>imageonly</tt> - If using an image, whether to suppress display of text links. If you want no text in the link at all, also set lang=0 to suppress the label. <strong>Example:</strong> {cms_selflink dir=&quot;next&quot; image=&quot;next.png&quot; text=&quot;Next&quot; imageonly=1}.</li>
- <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named Smarty variable</li>
 </ul>
 EOT;
 
@@ -992,7 +992,7 @@ $lang['help_function_anchor'] = <<<EOT
  <li><tt>tabindex</tt> - The numeric tabindex for the link, if any</li>
  <li><tt>accesskey</tt> - The accesskey for the link, if any</li>
  <li><em>(optional)</em> <tt>onlyhref</tt> - Only display the href and not the entire link. No other options will work.</li>
- <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named Smarty variable</li>
 </ul>
 EOT;
 
@@ -1048,7 +1048,7 @@ $lang['help_function_cms_jquery'] = <<<EOT
  <li><em>(optional) </em><tt>ssl</tt> - unused, deprecated</li>
  <li><em>(optional) </em><tt>custom_root</tt> - use to set any base path wished.<code>custom_root='http://test.domain.com/'</code> <br/>NOTE: overwrites ssl option and works with the cdn option.</li>
  <li><em>(optional) </em><tt>include_css <em>(boolean)</em></tt> - use to prevent css from being included with the output. Default value is true.</li>
- <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named smarty variable</li>
+ <li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named Smarty variable</li>
 </ul>
 EOT;
 */
@@ -1083,7 +1083,7 @@ $lang['help_function_thumbnail_url'] = <<<EOT
 <ul>
  <li>file - <strong>required</strong> - The filename and path relative to the uploads directory</li>
  <li>dir - <em>(optional)</em> - An optional directory prefix to prepend to the filename</li>
- <li>assign - <em>(optional)</em> - Optionally assign the output to the named smarty variable</li>
+ <li>assign - <em>(optional)</em> - Optionally assign the output to the named Smarty variable</li>
 </ul>
 <h3>Example:</h3>
 <pre><code>&lt;img src="{thumbnail_url file='images/something.jpg'}" alt="something.jpg"/&gt;</code></pre>
@@ -1099,7 +1099,7 @@ $lang['help_function_file_url'] = <<<EOT
 <ul>
  <li>file - <strong>required</strong> - The filename and path relative to the uploads directory</li>
  <li>dir - <em>(optional)</em> - An optional directory prefix to prepend to the filename</li>
- <li>assign - <em>(optional)</em> - Optionally assign the output to the named smarty variable</li>
+ <li>assign - <em>(optional)</em> - Optionally assign the output to the named Smarty variable</li>
 </ul>
 <h3>Example:</h3>
 <pre><code>&lt;a href="{file_url file='images/something.jpg'}"&gt;view file&lt;/a&gt;</code></pre>
@@ -1112,7 +1112,7 @@ $lang['help_function_form_end'] = <<<EOT
 <p>This tag creates an end form tag.</p>
 <h3>What parameters does it take?</h3>
 <ul>
- <li>assign - <em>(optional)</em> - Assign the results of this tag to the named smarty variable</li>
+ <li>assign - <em>(optional)</em> - Assign the results of this tag to the named Smarty variable</li>
 </ul>
 <h3>Usage:</h3>
 <pre><code>{form_end}</code></pre>
@@ -1160,7 +1160,7 @@ $lang['help_function_form_start'] = <<<EOT
   <p>Allows specifying an associative (key/value) array with extra parameters for the form tag.
  </li>
  <li>assign = <em>(optional string)</em>
-  <p>Assign the output of the tag to the named smarty variable.</p>
+  <p>Assign the output of the tag to the named Smarty variable.</p>
  </li>
 </ul>
 <p>Extra attributes may be passed to to the {form_start} tag, by prepending the attribute with the &quot;form-&quot;prefix e.g.</p>
@@ -1206,12 +1206,14 @@ EOT;
 
 $lang['help_function_gather_content'] = <<<EOT
 <h3>What does this do?</h3>
- <p>This tag collects page content by running a hooklist. List member-functions could have been registered by anything.<br /><br />
+<p>This tag collects page content by running a hooklist. List member-functions could have been registered by anything.<br /><br />
 Each such registered function must be like<pre><code>
  public function myfuncname(\$a)
  {
-  array \$a\[\] = my content or \$a = array_merge(\$a, [my content])
-  return \$a; //supplied parameter, updated as required
+  \$a[] = my content
+  OR
+  \$a = array_merge(\$a, [my content])
+  return \$a; //send back the supplied parameter, updated as required
  }</code></pre>
 </p>
 <h3>What parameters does it take?</h3>
@@ -1220,8 +1222,34 @@ Each such registered function must be like<pre><code>
   <p>Name of the hooklist to run. Defaults to &quot;gatherlist&quot;.</p>
  </li>
  <li>assign <em>(optional string)</em>
-  <p>Assign the output of the tag to the named smarty variable.</p>
+  <p>Assign the output of the tag to the named Smarty variable.</p>
  </li>
+</ul>
+EOT;
+
+$lang['help_function_get_jquery'] = <<<EOT
+<h3>What does this do?</h3>
+<p>This tag generates html (normally for inclusion in the page header), to make the specified jQuery resources available for use in the page.</p>
+<p>The 'best' found version of each resource is used. This means prefer 'min' format, and prefer the highest version present.</p>
+<h3>How is it used?</h3>
+<p>Insert the tag into the template/content like: <code>{get_jquery migrate=true}</code></p>
+<h3>What parameters does it take?</h3>
+<ul>
+<li>core <em>(optional boolean or boolean-like string)</em> Default true.
+ <p>Provide jQuery javascript.</p>
+</li>
+<li>migrate <em>(optional boolean or boolean-like string)</em>
+ <p>Provide jQuery Migrate javascript.</p>
+</li>
+<li>ui <em>(optional boolean or boolean-like string)</em> Default true.
+ <p>Provide jQuery UI javascript.</p>
+</li>
+<li>uicss <em>(optional boolean or boolean-like string)</em> Assumed true if jQuery UI is provided.
+ <p>Provide jQuery UI styles (.css file).</p>
+</li>
+<li>assign <em>(optional string)</em>
+ <p>Assign the output of the tag to the named Smarty variable.</p>
+</li>
 </ul>
 EOT;
 
@@ -1257,11 +1285,10 @@ Tag output is the page-content appropriate to use that merged file, a string lik
 <h3>What parameters does it take?</h3>
 <ul>
  <li>assign <em>(optional string)</em>
-  <p>Assign the output of the tag to the named smarty variable.</p>
+  <p>Assign the output of the tag to the named Smarty variable.</p>
  </li>
 </ul>
 EOT;
-
 
 $lang['block'] = 'Block tags ...';
 $lang['function'] = 'Function tags might perform a task, or query the database, and typically display output. They can be called like {tagname [attribute=value...]}';
