@@ -16,8 +16,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use function get_template_vars\_cms_output_var;
-
 namespace get_template_vars {
 
 use LogicException;
@@ -97,6 +95,10 @@ use LogicException;
 	}
 } //namespace
 
+namespace {
+
+use function get_template_vars\_cms_output_var;
+
 function smarty_function_get_template_vars($params, $template)
 {
 	$tpl_vars = $template->getTemplateVars();
@@ -123,3 +125,5 @@ None
 </p>
 EOS;
 }
+
+} //namespace
