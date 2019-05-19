@@ -738,6 +738,9 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					break;
 				case 'designs':
+					if (!class_exists('DesignManager\Design')) {
+						break;
+					}
 					if (!$runtime) {
 						verbose_msg(lang('install_default_designs'));
 					}
@@ -759,6 +762,9 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					break;
 				case 'designstyles': //stylesheets assigned to designs
+					if (!class_exists('DesignManager\Design')) {
+						break;
+					}
 					$bank = [];
 					foreach ($typenode->children() as $node) {
 						$val = (int)$node->css_id;
@@ -785,6 +791,9 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					break;
 				case 'designtemplates': //templates assigned to designs
+					if (!class_exists('DesignManager\Design')) {
+						break;
+					}
 					$bank = [];
 					foreach ($typenode->children() as $node) {
 						$val = (int)$node->tpl_id;
