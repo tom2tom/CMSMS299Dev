@@ -269,6 +269,7 @@ if ($assign_group_perm && !$access_user) {
 }
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty->assign([
     'access_user' => $access_user,
@@ -280,8 +281,9 @@ $smarty->assign([
     'lastname' => $lastname,
     'manage_users' => $manage_users,
     'tplmaster' => $tplmaster,
-    'urlext' => $urlext,
     'selfurl' => $selfurl,
+	'extraparms' => $extras,
+    'urlext' => $urlext,
     'user_id' => $user_id,
     'users' => $out,
     'user' => $user,

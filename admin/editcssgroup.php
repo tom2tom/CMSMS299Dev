@@ -187,15 +187,15 @@ $(function() {
 EOS;
 $themeObject->add_footertext($js);
 
-$extras = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
-if ($gid) {
-	$extras['css'] = $gid;
-}
 $all_items = StylesheetOperations::get_all_stylesheets(true);
 $legend1 = lang_by_realm('layout','prompt_members');
 $legend2 = lang_by_realm('layout','prompt_nonmembers');
 $placeholder = lang_by_realm('layout','table_droptip');
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
+if ($gid) {
+	$extras['css'] = $gid;
+}
 
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign('group',$group)
@@ -205,8 +205,8 @@ $smarty->assign('group',$group)
  ->assign('unattached_legend',$legend2)
  ->assign('placeholder',$placeholder)
  ->assign('selfurl',$selfurl)
- ->assign('urlext',$urlext)
- ->assign('extraparms',$extras);
+ ->assign('extraparms',$extras)
+ ->assign('urlext',$urlext);
 
 include_once 'header.php';
 $smarty->display('editcssgroup.tpl');

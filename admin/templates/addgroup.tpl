@@ -1,5 +1,7 @@
 <div class="pagewarn">{lang('warn_addgroup')}</div>
-<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
+<form action="{$selfurl}" enctype="multipart/form-data" method="post">
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="groupname">{lang('name')}:</label>

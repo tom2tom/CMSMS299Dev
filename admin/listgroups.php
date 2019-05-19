@@ -56,14 +56,20 @@ $iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'), ''
 $icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'), '', '', 'systemicon');
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'access' => $access,
+    'padd' => $padd,
     'addurl' => 'addgroup.php',
     'assignurl' => 'changegroupassign.php',
     'deleteurl' => 'deletegroup.php',
     'editurl' => 'editgroup.php',
+    'permurl' => 'changegroupperm.php',
+    'selfurl' => $selfurl,
+	'extraparms' => $extras,
+    'urlext' => $urlext,
     'grouplist' => $grouplist,
     'iconadd' => $iconadd,
     'iconassign' => $iconassign,
@@ -74,11 +80,7 @@ $smarty->assign([
     'icontrue' => $icontrue,
     'maxsee' => $maxsee,
     'minsee' => $minsee,
-    'padd' => $padd,
     'pagination' => $pagination,
-    'permurl' => 'changegroupperm.php',
-    'urlext' => $urlext,
-    'selfurl' => $selfurl,
 ]);
 
 include_once 'header.php';

@@ -5,8 +5,12 @@
 {tab_header name='advanced' label=lang('advanced') active=$tab}
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='general'}
-<form id="siteprefform_general" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
-  <input type="hidden" name="active_tab" value="general" />
+<form id="siteprefform_general" action="{$selfurl}" enctype="multipart/form-data" method="post">
+  <div class="hidden">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
+    <input type="hidden" name="active_tab" value="general" />
+  </div>
   <div class="pageinput">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
@@ -161,8 +165,12 @@
 {/if}
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='editcontent'}
-<form id="siteprefform_editcontent" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
-  <input type="hidden" name="active_tab" value="editcontent" />
+<form id="siteprefform_editcontent" action="{$selfurl}" enctype="multipart/form-data" method="post">
+  <div class="hidden">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
+    <input type="hidden" name="active_tab" value="editcontent" />
+  </div>
   {if !$pretty_urls}
   <div class="pagewarn postgap">
     {$t=lang('warn_nosefurl')}{$t}
@@ -273,8 +281,12 @@
 </form>
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='sitedown'}
-<form id="siteprefform_sitedown" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
-  <input type="hidden" name="active_tab" value="sitedown" />
+<form id="siteprefform_sitedown" action="{$selfurl}" enctype="multipart/form-data" method="post">
+  <div class="hidden">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
+    <input type="hidden" name="active_tab" value="sitedown" />
+  </div>
   <div class="pageinput">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
@@ -325,9 +337,13 @@
 </form>
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='mail'}
-<div id="testpopup" title="{lang('title_mailtest')}" style="display: none;">
-  <form id="siteprefform_mailtest" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
-    <input type="hidden" name="active_tab" value="mail" />
+<div id="testpopup" title="{lang('title_mailtest')}" style="display:none;">
+  <form id="siteprefform_mailtest" action="{$selfurl}" enctype="multipart/form-data" method="post">
+    <div class="hidden">
+      {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
+      <input type="hidden" name="active_tab" value="mail" />
+    </div>
     <div class="pageinfo">{lang('info_mailtest')}</div>
     <div class="pageoverflow">
       <p class="pagetext">
@@ -344,8 +360,12 @@
   </form>
 </div>
 
-<form id="siteprefform_mail" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
-  <input type="hidden" name="active_tab" value="mail" />
+<form id="siteprefform_mail" action="{$selfurl}" enctype="multipart/form-data" method="post">
+  <div class="hidden">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
+    <input type="hidden" name="active_tab" value="mail" />
+  </div>
   <div class="pageinput postgap">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
@@ -483,8 +503,12 @@
 </form>
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='advanced'}
-<form id="siteprefform_advanced" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
-  <input type="hidden" name="active_tab" value="advanced" />
+<form id="siteprefform_advanced" action="{$selfurl}" enctype="multipart/form-data" method="post">
+  <div class="hidden">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
+    <input type="hidden" name="active_tab" value="advanced" />
+  </div>
   <div class="pageinput postgap">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>

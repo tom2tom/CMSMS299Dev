@@ -1,5 +1,9 @@
-<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
+<form action="{$selfurl}" enctype="multipart/form-data" method="post">
+<div class="hidden">
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
   <input type="hidden" name="old_default_cms_lang" value="{$old_default_cms_lang}" />
+</div>
   <div class="pageinput postgap">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>

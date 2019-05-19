@@ -90,6 +90,7 @@ if (isset($_POST['editgroup'])) {
 }
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 $userops = cmsms()->GetUserOperations();
 $useringroup = $userops->UserInGroup($userid, $group_id);
 
@@ -100,6 +101,7 @@ $smarty->assign([
     'group' => $group,
     'group_id' => $group_id,
     'selfurl' => $selfurl,
+    'extraparms' => $extras,
     'urlext' => $urlext,
     'useringroup' => $useringroup,
 ]);

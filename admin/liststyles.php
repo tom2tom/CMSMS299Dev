@@ -147,7 +147,7 @@ try {
     }
 
 
-    $extras = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
+    $extras = get_secure_param_array();
 
     $smarty->assign('urlext',$urlext)
      ->assign('extraparms',$extras);
@@ -490,11 +490,8 @@ else {
 }
 $smarty->assign('css_choices',$replacements);
 
-$extras = [
-    CMS_USER_KEY => $_REQUEST[CMS_SECURE_PARAM_NAME]
-];
-$extras2 = [
-    CMS_USER_KEY => $_REQUEST[CMS_SECURE_PARAM_NAME],
+$extras = get_secure_param_array();
+$extras2 = $extras + [
     'op' => 'replace',
     'css' => '', //populted by js
 ];

@@ -191,26 +191,28 @@ $(function() {
 EOS;
 $themeObject->add_footertext($js);
 
-$extras = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
-if ($gid) {
-	$extras['tpl'] = $gid;
-}
 $all_items = TemplateOperations::get_all_templates(true); //TODO include originator/type in the display
 $legend1 = lang_by_realm('layout','prompt_members');
 $legend2 = lang_by_realm('layout','prompt_nonmembers');
 $placeholder = lang_by_realm('layout','table_droptip');
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
+if ($gid) {
+	$extras['tpl'] = $gid;
+}
 
 $smarty = CmsApp::get_instance()->GetSmarty();
-$smarty->assign('group',$group)
- ->assign('group_items',$group_members)
- ->assign('all_items',$all_items)
- ->assign('attached_legend',$legend1)
- ->assign('unattached_legend',$legend2)
- ->assign('placeholder',$placeholder)
- ->assign('selfurl',$selfurl)
- ->assign('urlext',$urlext)
- ->assign('extraparms',$extras);
+$smarty->assign([
+	'selfurl'=>$selfurl,
+	'extraparms'=>$extras,
+	'urlext'=>$urlext,
+	'group'=>$group,
+	'group_items'=>$group_members,
+	'all_items'=>$all_items,
+	'attached_legend'=>$legend1,
+	'unattached_legend'=>$legend2,
+	'placeholder'=>$placeholder,
+]);
 
 include_once 'header.php';
 $smarty->display('edittplgroup.tpl');

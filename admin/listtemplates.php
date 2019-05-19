@@ -194,7 +194,7 @@ try {
 
     $locks = LockOperations::get_locks('template');
 //  $selfurl = basename(__FILE__);
-    $extras = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
+    $extras = get_secure_param_array();
     $smarty->assign('have_locks',$locks ? count($locks) : 0)
      ->assign('lock_timeout',$lock_timeout)
      ->assign('coretypename',CmsLayoutTemplateType::CORE)
@@ -585,8 +585,7 @@ if( $out ) {
 }
 
 // hidden inputs for filter form
-$extras = [
-    CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY],
+$extras = get_secure_param_array() + [
     '_activetab' => 'templates',
 ];
 // hidden inputs for replacement form

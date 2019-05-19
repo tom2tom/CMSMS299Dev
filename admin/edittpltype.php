@@ -151,13 +151,13 @@ EOS;
 	$themeObject->add_footertext($js);
 
 	$selfurl = basename(__FILE__);
-	$extraparms = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
+	$extras = get_secure_param_array();
 
 	$smarty = CmsApp::get_instance()->GetSmarty();
 	$smarty->assign('type',$type)
 	 ->assign('selfurl',$selfurl)
 	 ->assign('urlext',$urlext)
-	 ->assign('extraparms',$extraparms);
+	 ->assign('extraparms',$extras);
 
 	include_once 'header.php';
 	$smarty->display('edittpltype.tpl');

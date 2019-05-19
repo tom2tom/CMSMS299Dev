@@ -65,13 +65,15 @@ if (isset($_POST['addbookmark'])) {
 }
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'title' => $title,
     'url' => $url,
-    'urlext' => $urlext,
     'selfurl' => $selfurl,
+    'extraparms' => $extras,
+    'urlext' => $urlext,
 ]);
 
 include_once 'header.php';

@@ -79,11 +79,13 @@ if (isset($_POST['editbookmark'])) {
 }
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'bookmark_id' => $bookmark_id,
     'selfurl' => $selfurl,
+    'extraparms' => $extras,
     'title' => $title,
     'url' => $url,
     'urlext' => $urlext,

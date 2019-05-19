@@ -390,8 +390,10 @@ EOS;
 	$themeObject->add_footertext($js); //not $sm->queue_script() (embedded variables)
 
 	$selfurl = basename(__FILE__);
+	$extras = get_secure_param_array();
 
 	$smarty->assign('selfurl',$selfurl)
+	 ->assign('extraparms',$extras)
 	 ->assign('urlext',$urlext);
 
 	include_once 'header.php';

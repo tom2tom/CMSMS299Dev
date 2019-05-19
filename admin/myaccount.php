@@ -93,10 +93,12 @@ if (isset($_POST['submit'])) {
  */
 $userobj->password = '';
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'selfurl' => $selfurl,
+	'extraparms' => $extras,
     'urlext' => $urlext,
     'userobj'=>$userobj,
 ]);

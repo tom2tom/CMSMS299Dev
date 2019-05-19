@@ -150,11 +150,16 @@ if (!empty($message)) {
 }
 
 $selfurl = basename(__FILE__);
-$smarty->assign('selfurl', $selfurl)
-  ->assign('urlext', $urlext)
-  ->assign('disp_group', $disp_group)
-  ->assign('user_id', $userid)
-  ->assign('pagesubtitle', lang('groupassignments', $user_struct[$userid]->name));
+$extras = get_secure_param_array();
+
+$smarty->assign([
+	'selfurl'=>$selfurl,
+	'extraparms'=>$extras,
+	'urlext'=>$urlext,
+	'disp_group'=>$disp_group,
+	'user_id'=>$userid,
+]);
+$smarty->assign('pagesubtitle', lang('groupassignments', $user_struct[$userid]->name));
 
 include_once 'header.php';
 $smarty->display('changeusergroup.tpl');

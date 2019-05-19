@@ -50,21 +50,24 @@ $iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', lang('addboo
 $iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'),'','','systemicon');
 $icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),'','','systemicon');
 
+$extras = get_secure_param_array();
+
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
 	'access' => $access,
+	'padd' => $padd,
 	'addurl' => 'addbookmark.php',
 	'deleteurl' => 'deletebookmark.php',
 	'editurl' => 'editbookmark.php',
+	'extraparms' => $extras,
+	'urlext' => $urlext,
 	'iconadd' => $iconadd,
 	'icondel' => $icondel,
 	'iconedit' => $iconedit,
 	'marklist' => $marklist,
 	'maxsee' => $maxsee,
 	'minsee' => $minsee,
-	'padd' => $padd,
 	'pagination' => $pagination,
-	'urlext' => $urlext,
 ]);
 
 include_once 'header.php';

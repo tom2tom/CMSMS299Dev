@@ -334,8 +334,12 @@ function confirmsubmit(form,msg) {
 EOS;
 $themeObject->add_footertext($out);
 
+$selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
+
 $smarty->assign('backurl', $themeObject->BackUrl())
-  ->assign('selfurl', basename(__FILE__))
+  ->assign('selfurl', $selfurl)
+  ->assign('extraparms', $extras)
   ->assign('urlext', $urlext);
 
 include_once 'header.php';

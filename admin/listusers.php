@@ -49,6 +49,7 @@ $message      = '';
 $error        = '';
 $userops      = new UserOperations();
 $selfurl      = basename(__FILE__);
+$extras       = get_secure_param_array();
 
 /*--------------------
  * Logic
@@ -374,8 +375,9 @@ $smarty->assign([
     'iconrun' => $iconrun,
     'icontrue' => $icontrue,
     'my_userid' => $userid,
-    'urlext' => $urlext,
     'selfurl' => $selfurl,
+	'extraparms' => $extras,
+    'urlext' => $urlext,
     'userlist' => $userlist,
 ]);
 

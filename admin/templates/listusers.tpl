@@ -1,4 +1,6 @@
-<form id="listusers" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
+<form id="listusers" action="{$selfurl}" enctype="multipart/form-data" method="post">
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
   <div class="pageoptions">
   <a href="{$addurl}{$urlext}" title="{lang('info_adduser')}">{admin_icon icon='newobject.gif' class='systemicon'}&nbsp;{lang('adduser')}</a>
   </div>

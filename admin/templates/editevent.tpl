@@ -60,9 +60,13 @@
 {if $allhandlers}
 <div class="pageinput pregap">
  <p class="pageinfo">{lang('info_handlers')}</p>
- <form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
-  <input type="hidden" name="event" value="{$event}" />
-  <input type="hidden" name="originator" value="{$originator}" />
+ <form action="{$selfurl}" enctype="multipart/form-data" method="post">
+  <div class="hidden">
+   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
+   <input type="hidden" name="originator" value="{$originator}" />
+   <input type="hidden" name="event" value="{$event}" />
+  </div>
   <select name="handler">
   {foreach $allhandlers as $key => $value}
   <option value="{$value}">{$key}</option>

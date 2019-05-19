@@ -223,14 +223,16 @@ $tmp = base64_encode(serialize($sel_group_ids));
 $sig = md5(__FILE__.$tmp);
 $hidden = '<input type="hidden" name="sel_groups" value="'.$sig.'::'.base64_encode(serialize($sel_group_ids)).'" />';
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty->assign([
     'disp_group' => $disp_group,
     'hidden2' => $hidden,
     'pagesubtitle' => $pagesubtitle,
     'perms' => $perm_struct,
-    'urlext' => $urlext,
     'selfurl' => $selfurl,
+    'extraparms' => $extras,
+    'urlext' => $urlext,
 ]);
 
 include_once 'header.php';

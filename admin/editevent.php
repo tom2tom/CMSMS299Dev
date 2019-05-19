@@ -153,6 +153,7 @@ if ($access) {
 }
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
@@ -167,6 +168,7 @@ $smarty->assign([
 	'originator' => $sender, //internal name
 	'originname' => $sendername, //public/friendly name
 	'selfurl' => $selfurl,
+    'extraparms' => $extras,
 	'urlext' => $urlext,
 ]);
 

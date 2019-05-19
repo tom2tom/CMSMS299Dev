@@ -1,9 +1,11 @@
 {if $group}<h3 class="pagesubtitle">{lang('name')}:&nbsp;{$group}</h3>{/if}
 
-<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
-
+<form action="{$selfurl}" enctype="multipart/form-data" method="post">
+<div class="hidden">
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
   <input type="hidden" name="group_id" value="{$group_id}" />
-
+</div>
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="group">{lang('name')}:</label>

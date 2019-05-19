@@ -1,6 +1,8 @@
 <h3 class="pagesubtitle">{if $name!='-1'} {lang('edit_udt')}{else}{lang('add_udt')}{/if}</h3>
-<form id="userplugin" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
+<form id="userplugin" action="{$selfurl}" enctype="multipart/form-data" method="post">
 <div class="hidden">
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
   <input type="hidden" name="oldtagname" value="{$name}" />
 </div>
   <div class="pageoverflow">

@@ -4,7 +4,9 @@
 </div>
 
 <div class="pageoverflow">
-  <form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
+  <form action="{$selfurl}" enctype="multipart/form-data" method="post">
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
     <strong>{lang('selectgroup')}:</strong>&nbsp;
     <select name="groupsel" id="groupsel">
     {foreach $allgroups as $thisgroup}
@@ -19,8 +21,10 @@
   </form>
 </div>
 <br />
-<form id="groupname" action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
+<form id="groupname" action="{$selfurl}" enctype="multipart/form-data" method="post">
   <div class="hidden">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
     {$hidden2}
   </div>
 

@@ -11,7 +11,9 @@
   <p class='green'><strong>{lang('sysmain_nocontenterrors')}</strong></p>
   {/if}
   {if $invalidtypescount > 0}
-  <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmfixtypes")|escape:"javascript"}');return false;">
+  <form action="{$selfurl}" enctype="multipart/form-data" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmfixtypes")|escape:"javascript"}');return false;">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
     <div class="pageoverflow">
       <p class="pagetext">{lang('sysmain_pagesinvalidtypes',{$invalidtypescount})}:</p>
       <p class="pageinput">
@@ -22,7 +24,9 @@
   </form>
   {/if}
   {if $withoutaliascount > 0}
-  <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmfixaliases")|escape:"javascript"}');return false;">
+  <form action="{$selfurl}" enctype="multipart/form-data" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmfixaliases")|escape:"javascript"}');return false;">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
     <div class="pageoverflow">
       <p class="pagetext">{lang('sysmain_pagesmissinalias',{$withoutaliascount})}:</p>
       <p class="pageinput">
@@ -33,14 +37,18 @@
   </form>
   {/if}
 
-  <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmupdatehierarchy")|escape:"javascript"}');return false;">
+  <form action="{$selfurl}" enctype="multipart/form-data" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmupdatehierarchy")|escape:"javascript"}');return false;">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
     <div class="pageoverflow">
       <p class="pageinput pregap">
         <button type="submit" name="updatehierarchy" class="adminsubmit icon do" title="{lang('sysmain_tipupdatehierarchy')}">{lang('sysmain_updatehierarchy')}</button>
       </p>
     </div>
   </form>
-  <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmupdateroutes")|escape:"javascript"}');return false;">
+  <form action="{$selfurl}" enctype="multipart/form-data" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmupdateroutes")|escape:"javascript"}');return false;">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
     <div class="pageoverflow">
       <p class="pageinput pregap">
         <button type="submit" name="updateroutes" class="adminsubmit icon do" title="{lang('sysmain_tipupdateroutes')}">{lang('sysmain_updateroutes')}</button>
@@ -49,7 +57,9 @@
   </form>
 
 {if !empty($export)}
-  <form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
+  <form action="{$selfurl}" enctype="multipart/form-data" method="post">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
   <p class="pageinput pregap">
     <button type="submit" name="export" class="adminsubmit icon do" title="{lang('exportsite_tip')}">{lang('exportsite')}</button>
   </p>
@@ -58,7 +68,9 @@
 
 {tab_start name='cache'}
   {if isset($cachetype)}{lang('sysmain_cache_type',{$cachetype})}{/if}
-  <form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
+  <form action="{$selfurl}" enctype="multipart/form-data" method="post">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
     <div class="pageoverflow">
       <p class="pageinput pregap">
         <button type="submit" name="clearcache" class="adminsubmit icon do">{lang('clearcache')}</button>
@@ -67,7 +79,9 @@
   </form>
 
 {tab_start name='database'}
-<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
+<form action="{$selfurl}" enctype="multipart/form-data" method="post">
+    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
     <p>{lang('sysmain_tablesfound',$tablecount,$nonseqcount)}</p>
     {if $errorcount==0}
     <p class='green'><strong>{lang('sysmain_nostr_errors')}</strong></p>

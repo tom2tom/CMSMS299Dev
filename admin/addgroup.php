@@ -75,6 +75,7 @@ if (isset($_POST['addgroup'])) {
 }
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
@@ -83,6 +84,7 @@ $smarty->assign([
     'description' => $description,
     'group' => $group,
     'selfurl' => $selfurl,
+    'extraparms' => $extras,
     'urlext' => $urlext,
 ]);
 

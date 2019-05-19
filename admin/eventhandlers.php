@@ -60,6 +60,7 @@ if ($access) {
 $iconinfo = $themeObject->DisplayImage('icons/system/info.png', lang('help'),'','','systemicon');
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
@@ -72,6 +73,7 @@ $smarty->assign([
     'senders' => $senders,
     'senderfilter' => $senderfilter,
     'selfurl' => $selfurl,
+	'extraparms' => $extras,
     'urlext' => $urlext,
 ]);
 

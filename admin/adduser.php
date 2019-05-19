@@ -175,6 +175,7 @@ if ($assign_group_perm) {
 }
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty->assign([
     'active' => $active,
@@ -188,6 +189,7 @@ $smarty->assign([
     'passwordagain' => $passwordagain,
     'sel_groups' => $sel_groups,
     'selfurl' => $selfurl,
+    'extraparms' => $extras,
     'urlext' => $urlext,
     'user' => $user,
     'users' => $out,

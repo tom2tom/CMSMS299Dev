@@ -798,12 +798,16 @@ $smarty->assign('all_contenttypes', $all_contenttypes)
 
   ->assign('yesno', [0=>lang('no'),1=>lang('yes')])
   ->assign('titlemenu', [lang('menutext'),lang('title')])
-
   ->assign('backurl', $themeObject->backUrl());
 
 $selfurl = basename(__FILE__);
-$smarty->assign('selfurl', $selfurl)
-  ->assign('urlext', $urlext);
+$extras = get_secure_param_array();
+
+$smarty->assign([
+	'selfurl'=>$selfurl,
+	'extraparms'=>$extras,
+	'urlext'=>$urlext,
+]);
 
 include_once 'header.php';
 $smarty->display('siteprefs.tpl');

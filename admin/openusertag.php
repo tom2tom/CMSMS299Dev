@@ -124,16 +124,18 @@ EOS;
 $themeObject->add_footertext($js);
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
+    'selfurl' => $selfurl,
+	'extraparms' => $extras,
+    'urlext' => $urlext,
     'name' => $tagname,
     'description' => $meta['description'] ?? null,
     'parameters' => $meta['parameters'] ?? null,
     'license' => $meta['license'] ?? null,
     'code' => $code,
-    'urlext' => $urlext,
-    'selfurl' => $selfurl,
 ]);
 
 include_once 'header.php';

@@ -225,6 +225,7 @@ $sel = AdminUtils::CreateHierarchyDropdown(0, $default_parent, 'parent_id', fals
 $tmp = [10 => 10, 20 => 20, 50 => 50, 100 => 100];
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty->assign([
   'admintheme'=>$admintheme,
@@ -245,6 +246,7 @@ $smarty->assign([
   'pagelimit_opts'=>$tmp,
   'paging'=>$paging,
   'selfurl' => $selfurl,
+  'extraparms' => $extras,
 //'syntaxhighlighter'=>$syntaxhighlighter,
   'urlext' => $urlext,
   'userobj'=>$userobj,

@@ -52,10 +52,12 @@ $icondel = $themeObject->DisplayImage('icons/system/delete.png', lang('delete'),
 $iconinfo = $themeObject->DisplayImage('icons/system/help.png', lang('parameters'),'','','systemicon');
 
 $selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
 
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'access' => $access,
+    'pmod' => $pmod,
     'addurl' => 'openusertag.php',
     'editurl' => 'openusertag.php',
     'iconadd' => $iconadd,
@@ -63,9 +65,9 @@ $smarty->assign([
     'icondel' => $icondel,
     'iconinfo' => $iconinfo,
     'tags' => $tags,
-    'urlext' => $urlext,
     'selfurl' => $selfurl,
-    'pmod' => $pmod,
+	'extraparms' => $extras,
+    'urlext' => $urlext,
 ]);
 
 if ($access || $pmod) {

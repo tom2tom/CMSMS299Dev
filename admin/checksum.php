@@ -216,8 +216,10 @@ if( isset($_POST['action']) ) {
 
 if( !$res ) $themeObject->RecordNotice('error', $report);
 
-$smarty->assign('urlext',$urlext);
+$extras = get_secure_param_array();
 
+$smarty->assign('urlext',$urlext)
+ ->assign('extraparms',$extras);
 // Display the output
 include_once 'header.php';
 $smarty->display('checksum.tpl');

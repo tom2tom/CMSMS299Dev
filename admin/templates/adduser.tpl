@@ -1,4 +1,6 @@
-<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
+<form action="{$selfurl}" enctype="multipart/form-data" method="post">
+{foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
 {tab_header name='user' label=lang('myaccount')}
 {if isset($groups)}
   {tab_header name='groups' label=lang('groups')}

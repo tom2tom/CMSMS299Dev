@@ -1,8 +1,11 @@
 {if $user}<h3 class="pagesubtitle">{lang('username')}:&nbsp;{$user}</h3>{/if}
 
-<form action="{$selfurl}{$urlext}" enctype="multipart/form-data" method="post">
+<form action="{$selfurl}" enctype="multipart/form-data" method="post">
+<div class="hidden">
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
   <input type="hidden" value="{$user_id}" name="user_id" />
-
+</div>
   {tab_header name='user' label=lang('profile')}
   {if isset($groups)}{tab_header name='groups' label=lang('groups')}{/if}
   {if $manage_users}{tab_header name='settings' label=lang('settings')}{/if}
