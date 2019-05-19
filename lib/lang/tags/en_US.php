@@ -106,15 +106,15 @@ $lang['help_function_admin_icon'] = <<<EOT
 <p>This is an admin side only plugin to allow modules to easily display icons from the current admin theme. These icons are useful in link building or in displaying status information.</p>
 <h3>What parameters does it take?</h3>
 <ul>
- <li>icon - <strong>(required)</strong> - The filename of the icon e.g. run.gif</li>
- <li>height - <em>(optional)</em> - The height (in pixels) of the icon</li>
- <li>width - <em>(optional)</em> - The width (in pixels) of the icon</li>
- <li>alt - <em>(optional)</em> - Optional text for the img tag if the filename specified is not available</li>
- <li>rel - <em>(optional)</em> - An optional rel attribute for the img tag</li>
- <li>class - <em>(optional)</em> - An optional class attribute for the img tag</li>
- <li>id - <em>(optional)</em> - An optional id attribute for the img tag</li>
- <li>title - <em>(optional)</em> - An optional title attribute for the img tag</li>
- <li>accesskey - <em>(optional)</em> - An optional access key character for the img tag</li>
+ <li>icon - <strong>(required)</strong> - Icon identifier. An extension-stripped filename e.g. 'run', or theme-images-path-relative filepath e.g. 'icons/extra/warning'. Any provided file-extension is ignored.</li>
+ <li>height - <em>(optional)</em> - Height of the image (in pixels if no other sizer is provided)</li>
+ <li>width - <em>(optional)</em> - Width of the image (in pixels if no other sizer is provided)</li>
+ <li>alt - <em>(optional)</em> - Alt attribute for the tag</li>
+ <li>rel - <em>(optional)</em> - Rel attribute for the tag</li>
+ <li>class - <em>(optional)</em> - Class attribute for the tag</li>
+ <li>id - <em>(optional)</em> - Id attribute for the tag</li>
+ <li>title - <em>(optional)</em> - Title attribute for the tag</li>
+ <li>accesskey - <em>(optional)</em> - Access key character for the tag</li>
  <li>assign - <em>(optional)</em> - Assign the tag output to the named Smarty variable</li>
 </ul>
 <h3>Example:</h3>
