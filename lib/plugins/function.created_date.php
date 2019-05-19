@@ -1,5 +1,5 @@
 <?php
-#Plugin to get the creation date of a site page
+#Plugin to get the creation date/time of a site page
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -39,9 +39,9 @@ function smarty_cms_about_function_created_date()
 {
 	echo <<<'EOS'
 <p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-<p>Change History:</p>
+<p>Change History:<br />
 <ul>
-<li>None</li>
+<li>May 2019 Revert to site preference 'defaultdateformat' if no 'format' parameter is supplied</li>
 </ul>
 EOS;
 }
