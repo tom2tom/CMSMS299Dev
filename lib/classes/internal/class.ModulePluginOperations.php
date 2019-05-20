@@ -25,7 +25,6 @@ use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 use const CMS_DB_PREFIX;
 use function audit;
-use function endswith;
 
 /**
  * A class to manage smarty plugins registered by modules.
@@ -249,6 +248,7 @@ final class ModulePluginOperations
 	{
 		$callback = $this->validate_callback($callback);
 		if( !$callback ) return FALSE;
+
 		$all = self::AVAIL_FRONTEND + self::AVAIL_ADMIN;
 		if( $available == 0 ) {
 			$available = $all;
