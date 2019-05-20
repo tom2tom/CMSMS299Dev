@@ -615,7 +615,7 @@ final class CmsApp
      */
     public function test_state(string $state) : bool
     {
-        if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
+        if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is not a recognized CMSMS state');
         $this->set_states();
         return in_array($state,$this->_states);
     }
