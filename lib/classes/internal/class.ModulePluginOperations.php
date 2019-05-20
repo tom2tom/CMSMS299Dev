@@ -121,8 +121,15 @@ final class ModulePluginOperations
 			// load the module
 			$module = cms_utils::get_module($row['module']);
 			if( $module ) {
+				$cb = unserialize($row['callback']);
+				if( !$cb ) {
+					$cb = $row['callback'];
+				}
+				if( is_string($cb) && strpos($cb, '::') === false ) {
+					$cb = $row['module'].'::'.$cb;
+				}
 				return [
-					'callback' => $row['callback'],
+					'callback' => $cb,
 					'cachable' => (bool)$row['cachable']
 				];
 			}
