@@ -323,7 +323,7 @@ $dict->ExecuteSQLArray($sqlarray);
 
 $tbl = CMS_DB_PREFIX.StylesheetsGroup::TABLENAME; //layout_css_groups
 $flds = '
-id I(4) KEY AUTO,
+id I(4) AUTO KEY,
 name C(64),
 description X(1024),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
@@ -490,19 +490,22 @@ $dict->ExecuteSQLArray($sqlarray);
 //NOT YET
 //$sqlarray = $dict->DropColumnSQL($tbl,'cachable');
 //$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->DropIndexSQL($tbl,'idx_smp_module');
+$sqlarray = $dict->DropIndexSQL($tbl,CMS_DB_PREFIX.'idx_smp_module');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->AddColumnSQL($tbl,'id I(2) KEY AUTO FIRST');
+$sqlarray = $dict->AddColumnSQL($tbl,'id I(2) UNSIGNED FIRST AUTO KEY');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AlterColumnSQL($tbl,"name C(48) COLLATE 'utf8_bin' NOT NULL"); //case-sensitive
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('idx_tagname',$tbl,'name',['UNIQUE']);
+$sqlarray = $dict->CreateIndexSQL('idx_tagname',$tbl,'name,module',['UNIQUE']);
 $dict->ExecuteSQLArray($sqlarray);
 
+// remove duplicates (now we have caseless tagname-matching)
+$db->Execute("DELETE T1 FROM $tbl T1 INNER JOIN $tbl T2 
+WHERE T1.id > T2.id AND UPPER(T1.name) = UPPER(T2.name) AND UPPER(T1.module) = UPPER(T2.module)");
 // convert callbacks from serialized to plain string
 $rows = $db->GetArray('SELECT id,module,callback FROM '.$tbl);
 foreach ($rows as &$row) {
-    $val = unserialize($row['callback'], []);
+    $val = unserialize($row['callback']);
     if ($val) {
         if (is_array($val)) {
             $s = $val[0].'::'.$val[1];
@@ -523,7 +526,7 @@ foreach ($rows as &$row) {
     if ($s) {
         $db->Execute('UPDATE '.CMS_DB_PREFIX.'module_smarty_plugins SET callback=? WHERE id=?',[$s,$row['id']]);
     } else {
-        $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE sig=?',[$row['id']]);
+        $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE id=?',[$row['id']]);
     }
 }
 unset($row);
