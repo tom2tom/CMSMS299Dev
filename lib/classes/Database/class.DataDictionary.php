@@ -333,7 +333,14 @@ class DataDictionary
         $alter = self::ALTERTABLE.$this->TableName($tabname).self::ADDCOLUMN.' ';
         $sql = [];
         list($lines, $pkey) = $this->GenFields($defn);
-        foreach ($lines as $v) {
+        foreach ($lines as $k => $v) {
+			foreach ($pkey as $pk => $pf) {
+				if (strcasecmp($k,$pf) == 0) {
+					$v .= ", ADD PRIMARY KEY ($pf)";
+					$pkey[$pk] = '';
+					break;
+				}
+			}
             $sql[] = $alter.$v;
         }
 
@@ -355,7 +362,14 @@ class DataDictionary
         $alter = self::ALTERTABLE.$this->TableName($tabname).self::ALTERCOLUMN.' ';
         $sql = [];
         list($lines, $pkey) = $this->GenFields($defn);
-        foreach ($lines as $v) {
+        foreach ($lines as $k => $v) {
+			foreach ($pkey as $pk => $pf) {
+				if (strcasecmp($k,$pf) == 0) {
+					$v .= ", ADD PRIMARY KEY ($pf)";
+					$pkey[$pk] = '';
+					break;
+				}
+			}
             $sql[] = $alter.$v;
         }
 
@@ -382,7 +396,7 @@ class DataDictionary
             if ($newcolumn && strpos($defn, $newcolumn) !== 0) {
                 $defn = $newcolumn.' '.$defn;
             }
-            list($lines,) = $this->GenFields($defn);
+            list($lines, $pkey) = $this->GenFields($defn); //any primary-key info ignored, can't change that via rename
             $first = reset($lines);
             list($name, $column_def) = preg_split('/\s+/', $first, 2);
             if (!$newcolumn) {
@@ -636,7 +650,7 @@ class DataDictionary
         }
 
         // already exists, alter table instead
-        list($lines, $pkey) = $this->GenFields($defn);
+        list($lines, $pkey) = $this->GenFields($defn); //any primary-key info ignored CHECKME OK?
         $alter = self::ALTERTABLE.$this->TableName($tablename);
         $sql = [];
         $fixedsizetypes = ['CLOB', 'BLOB', 'TEXT', 'DATE', 'TIME'];
@@ -920,8 +934,8 @@ class DataDictionary
      * @param mixed $defn array of strings or comma-separated series in one string
      * @param bool  $widespacing optional flag whether to pad the field-name, default false
      * @return 2-member array
-     *  [0] = array of ? or empty
-     *  [1] = 1-member array with primary key, or empty
+     *  [0] = assoc. array, each member upper-case-fieldname=>fielddef, or empty
+     *  [1] = array of primary key fieldname(s), or empty
      */
     protected function GenFields($defn, $widespacing = false)
     {
@@ -1070,7 +1084,7 @@ class DataDictionary
                         $fforeign = $v;
                         break;
                     default:
-                        break 2; // don't clear unprocessed field
+                        continue 2; // don't clear unprocessed field
                 }
 				$fld[$i] = '';
             }
@@ -1328,10 +1342,14 @@ class DataDictionary
     }
 
     /**
-     * Build strings for generating tables.
-     *
+     * Build string for generating table.
      * @internal
-     */
+	 * @param string $tabname Table name
+	 * @param type $lines Field definition(s) from field-parsing
+	 * @param array $pkey Primary-key field(s) (hopefully only 1!) from field-parsing
+	 * @param type $tableoptions Whole-table definitions
+	 * @return string SQL
+	 */
     protected function TableSQL($tabname, $lines, $pkey, $tableoptions)
     {
         $sql = [];
