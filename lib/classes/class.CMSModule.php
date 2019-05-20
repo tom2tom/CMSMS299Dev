@@ -357,24 +357,26 @@ abstract class CMSModule
      * @final
      * @param bool $static Optional flag whether to record this registration
      *  in the database. Default false. If true, the module is not immediately
-     *  registered with smarty i.e. for use during module installation/upgrade.
-     * @param mixed bool|null $cachable Optional indicator Whether the plugin's
-	 *  (frontend) output is cachable by smarty. Default false.
-	 *  Deprecated since 2.3 (Make it always be cachable, with override in page|template)
+     *  registered with Smarty i.e. for use during module installation/upgrade.
+     * @param mixed bool|null $cachable Optional indicator whether the plugin's
+     *  (frontend) output is cachable by Smarty. Default false.
+     *  Deprecated since 2.3 (Make it always be cachable, with override in page|template)
      * @return bool
      */
     final public function RegisterModulePlugin(bool $static = false, $cachable = false) : bool
     {
         $name = $this->GetName();
-        if( !$static ) {
-            global $CMS_INSTALL_PAGE;
-            if( !isset($CMS_INSTALL_PAGE) ) {
-		        //non-static: add to 'module_plugins' cache
-		        return (new ModulePluginOperations())->add_dynamic($name, $name, 'function', $name.'::function_plugin', $cachable);
-            }
+        if( $static && $this->modinstall ) {
+            // we're doing install/upgrade, make a permanent record
+            return (new ModulePluginOperations())->add($name, $name, 'function', $name.'::function_plugin', $cachable);
         }
-        //static: make a 'permanent' record
-        return (new ModulePluginOperations())->add($name, $name, 'function', $name.'::function_plugin', $cachable);
+
+        global $CMS_INSTALL_PAGE;
+        if( !isset($CMS_INSTALL_PAGE) ) {
+            // record for this request
+            return (new ModulePluginOperations())->add_dynamic($name, $name, 'function', $name.'::function_plugin', $cachable);
+        }
+        return false;
     }
 
     /**
@@ -1129,13 +1131,16 @@ abstract class CMSModule
     public function Uninstall()
     {
         $filename = $this->GetModulePath().'/method.uninstall.php';
-        if (@is_file($filename)) {
+        if( @is_file($filename) ) {
             $gCms = CmsApp::get_instance();
             $db = $gCms->GetDb();
             $config = $gCms->GetConfig();
             $smarty = $gCms->GetSmarty();
 
+            $this->modinstall = true; // too bad if this method is sub-classed!
             $res = include $filename;
+            $this->modinstall = false;
+
             if( $res == 1 || $res == '' ) return false;
             if( is_string($res) ) {
                 $this->ShowErrors($res);
@@ -1184,10 +1189,10 @@ abstract class CMSModule
 
     /**
      * Function called when a module is upgraded. This method should be capable of
-     * applying changes from versions older than the immediately-prior one, though
-     * that's not mandatory. The default behavior of this method is to include the
-     * file named method.upgrade.php, located in the module's base directory, if
-     * such file exists.
+     * applying changes from versions older than the immediately-prior one, but
+     * that's not mandatory. The default behavior of this method is to include
+     * the file named method.upgrade.php, located in the module's base directory,
+	 * if such file exists.
      *
      * A falsy return value, or 1 (numeric), will be treated as an indication of
      * successful completion. Otherwise, the method should return an error message
@@ -1200,13 +1205,16 @@ abstract class CMSModule
     public function Upgrade($oldversion, $newversion)
     {
         $filename = $this->GetModulePath().'/method.upgrade.php';
-        if (@is_file($filename)) {
+        if( @is_file($filename) ) {
             $gCms = CmsApp::get_instance();
             $db = $gCms->GetDb();
             $config = $gCms->GetConfig();
             $smarty = $gCms->GetSmarty();
 
+            $this->modinstall = true; // too bad if this method is sub-classed!
             $res = include $filename;
+            $this->modinstall = false;
+
             if( $res && $res !== 1 ) return $res;
         }
         return false;
@@ -2017,14 +2025,14 @@ abstract class CMSModule
      * @since 1.10
      *
      * @param mixed $id string|null The module action id.
-	 *  Anything falsy will use the admin id.
-	 *  cntnt01 indicates that the default content block of the destination page should be used.
+     *  Anything falsy will use the admin id.
+     *  cntnt01 indicates that the default content block of the destination page should be used.
      * @param string $action The module action name
      * Optional parameters:
      * @param mixed  $returnid Optional page id (int|''|null) to return to. Default null (i.e. admin)
      * @param array  $params Optional parameters for the URL. Default []. These
      * will be ignored if the prettyurl argument is specified.
-	 * Since 2.3 array value(s) may be non-scalar.
+     * Since 2.3 array value(s) may be non-scalar.
      * @param bool   $inline Option flag whether the target of the output link
      *  is the same tag on the same page. Default false.
      * @param bool   $targetcontentonly Optional flag whether the target of the
@@ -2057,7 +2065,7 @@ abstract class CMSModule
      * Optional parameters:
      * @param mixed  $returnid Return-page identifier (int|''|null). Default null (i.e. admin)
      * @param array  $params Parameters for the action. Default []
-	 *  Since 2.3 array value(s) may be non-scalar.
+     *  Since 2.3 array value(s) may be non-scalar.
      * @param int    $format URL-format indicator
      *  0 = default: rawurlencoded parameter keys and values, '&amp;' for parameter separators
      *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
