@@ -295,11 +295,11 @@ abstract class CMSModule
      */
     public function RegisterSmartyPlugin($name, $type, $callback, $cachable = true, $usage = 0)
     {
-        if (!$name || !$type || !$callback) {
+        if( !$name || !$type || !$callback ) {
             throw new CmsException('Invalid data passed to RegisterSmartyPlugin');
         }
         // validate $type
-        switch ($type) {
+        switch( $type ) {
             case 'function':
             case 'modifier':
             case 'block':
@@ -313,17 +313,16 @@ abstract class CMSModule
             default:
             throw new CmsException('Invalid data passed to RegisterSmartyPlugin');
         }
-        // validate $callable (a bit!)
+
         $modname = $this->GetName();
-        if (is_callable($callback)) {
-            $callable = $callback;
-        } elseif (is_string($callback)) {
-            // funky - support handlers which are not (yet?) reqcognised
-            if (strpos($callback,'::') !== false) {
-                $callable = explode('::',$callback,2);
+        if( is_string($callback) ) {
+            if( strpos($callback,'::') !== false ) {
+                $callable = $callback;
             } else {
-                $callable = [$modname,$callback];
+                $callable = $modname.'::'.$callback;
             }
+        } elseif( is_callable($callback) ) {
+            $callable = $callback;
         } else {
             throw new CmsException('Invalid callable passed to RegisterSmartyPlugin');
         }
@@ -358,6 +357,7 @@ abstract class CMSModule
      * @param bool $static Optional flag whether to record this registration
      *  in the database. Default false. If true, the module is not immediately
      *  registered with Smarty i.e. for use during module installation/upgrade.
+     *  Ignored since 2.3. Automatic true|false per install/upgrade | not.
      * @param mixed bool|null $cachable Optional indicator whether the plugin's
      *  (frontend) output is cachable by Smarty. Default false.
      *  Deprecated since 2.3 (Make it always be cachable, with override in page|template)
@@ -366,14 +366,14 @@ abstract class CMSModule
     final public function RegisterModulePlugin(bool $static = false, $cachable = false) : bool
     {
         $name = $this->GetName();
-        if( $static && $this->modinstall ) {
-            // we're doing install/upgrade, make a permanent record
+        if( $this->modinstall ) {
+            // record in database
             return (new ModulePluginOperations())->add($name, $name, 'function', $name.'::function_plugin', $cachable);
         }
 
         global $CMS_INSTALL_PAGE;
         if( !isset($CMS_INSTALL_PAGE) ) {
-            // record for this request
+            // record in cache, for this request
             return (new ModulePluginOperations())->add_dynamic($name, $name, 'function', $name.'::function_plugin', $cachable);
         }
         return false;
@@ -410,8 +410,7 @@ abstract class CMSModule
      */
     public function AllowSmartyCaching()
     {
-        $val = (int)cms_siteprefs::get('smarty_cachelife',-1);
-        return $val != 0;
+        return (int)cms_siteprefs::get('smarty_cachelife',-1) != 0;
     }
 
     /**
