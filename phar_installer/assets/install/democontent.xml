@@ -2932,7 +2932,7 @@ a {
     &lt;li class='google'&gt;&lt;a title='Google Plus' href='https://plus.google.com/+cmsmadesimple/posts'&gt;&lt;i class='icon-google'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;Google Plus&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
     &lt;li class='pinterest'&gt;&lt;a title='Pinterest' href='http://www.pinterest.com/cmsmadesimple/'&gt;&lt;i class='icon-pinterest'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;Pinterest&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p class='copyright-info'&gt;Copyright &amp;copy; {$start_year}{if $start_year !== $current_year} - {$current_year}{/if} - CMS Made Simple&lt;br /&gt; This site is powered by &lt;a href='https://www.cmsmadesimple.org'&gt;CMS Made Simple&lt;/a&gt; version {cms_version}&lt;/p&gt;]]></content>
+&lt;p class='copyright-info'&gt;Copyright &amp;copy; {$start_year}{if $start_year !== $current_year} - {$current_year}{/if} &lt;a href='https://www.cmsmadesimple.org'&gt;CMS Made Simple&lt;/a&gt;&lt;br /&gt;This site is powered by CMS Made Simple version {cms_version}&lt;/p&gt;]]></content>
 			<description>Custom footer-section template for the Simplex theme</description>
 			<type_id>2</type_id>
 			<owner_id>1</owner_id>
