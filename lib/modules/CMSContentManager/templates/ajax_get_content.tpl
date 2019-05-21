@@ -210,7 +210,7 @@
         <select name="{$actionid}curpage" id="{$actionid}curpage">
         {html_options options=$pagelist selected=$curpage}
         </select>
-        <button name="{$actionid}submitpage" class="invisible adminsubmit icon check">{lang('go')}</button>
+        <button type="submit" name="{$actionid}submitpage" class="invisible adminsubmit icon check">{lang('go')}</button>
        </span>
       </form>
     {/if}
