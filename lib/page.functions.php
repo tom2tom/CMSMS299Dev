@@ -594,13 +594,13 @@ function cms_module_plugin(array $params, $template) : string
         $returnid = CmsApp::get_instance()->get_content_id();
         $params['returnid'] = $returnid;
 
-        @ob_start(); // probably redundant
+        ob_start(); // capture acion output, direct or returned
         $result = $modinst->DoActionBase($action, $id, $params, $returnid, $template);
-        if ($result !== false) {
+        if ($result || is_numeric($result)) {
             echo $result;
         }
-        $out = @ob_get_contents();
-        @ob_end_clean();
+        $out = ob_get_contents();
+        ob_end_clean();
 
         if (isset($params['assign'])) {
             $template->assign(trim($params['assign']),$out);
