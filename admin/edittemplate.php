@@ -120,7 +120,7 @@ try {
 //USELESS FOR SUCH TEST cms_utils::set_app_data('tmp_template', $_REQUEST['contents']);
 
 			// if we got here, we're golden.
-		   	$tpl_obj->set_content($_REQUEST['contents']);
+			$tpl_obj->set_content($_REQUEST['content']);
 			TemplateOperations::save_template($tpl_obj);
 
 			$message = lang_by_realm('layout','msg_template_saved');
@@ -390,7 +390,9 @@ EOS;
 	$themeObject->add_footertext($js); //not $sm->queue_script() (embedded variables)
 
 	$selfurl = basename(__FILE__);
-	$extras = get_secure_param_array();
+	$extras = get_secure_param_array() + [
+		'tpl' => $tpl_id
+	];
 
 	$smarty->assign('selfurl',$selfurl)
 	 ->assign('extraparms',$extras)
