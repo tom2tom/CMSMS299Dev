@@ -26,7 +26,7 @@ if( !isset($gCms) ) exit;
 //BAD in iframe if( !check_login(true) ) exit; // admin only.... but any admin
 
 $handlers = ob_list_handlers();
-for ($cnt = 0, $n = count($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
+for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 //
 // initialization

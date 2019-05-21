@@ -275,9 +275,7 @@ if ($exportable && isset($_POST['export'])) {
     export_content($xmlfile, $filesin, $db);
     // also download it
     $handlers = ob_list_handlers();
-    for ($c = 0, $n = count($handlers); $c < $n; ++$c) {
-        ob_end_clean();
-    }
+    for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
     $tmp = cms_siteprefs::get('sitename','CMSMS-Site');
     $xmlname = strtr("Exported-{$tmp}.xml", ' ', '_');
     header('Content-Description: File Transfer');

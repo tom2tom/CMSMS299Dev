@@ -67,10 +67,10 @@ if ($action == 'showpluginhelp') {
     if (function_exists('smarty_cms_help_'.$type.'_'.$plugin)) {
         // Get and display the plugin's help
         $func_name = 'smarty_cms_help_'.$type.'_'.$plugin;
-        @ob_start();
+        ob_start();
         $func_name([]);
-        $content = @ob_get_contents();
-        @ob_end_clean();
+        $content = ob_get_contents();
+        ob_end_clean();
     } elseif (LangOperations::key_exists("help_{$type}_{$plugin}",'tags')) {
         $content = LangOperations::lang_from_realm('tags',"help_{$type}_{$plugin}");
     } elseif (LangOperations::key_exists("help_{$type}_{$plugin}")) {
@@ -90,10 +90,10 @@ if ($action == 'showpluginhelp') {
     $smarty->assign('subheader',lang('pluginabout',$plugin));
     $func_name = 'smarty_cms_about_'.$type.'_'.$plugin;
     if (function_exists($func_name)) {
-        @ob_start();
+        ob_start();
         $func_name([]);
-        $content = @ob_get_contents();
-        @ob_end_clean();
+        $content = ob_get_contents();
+        ob_end_clean();
         $smarty->assign('content',$content);
     } else {
         $smarty->assign('error',lang('nopluginabout'));

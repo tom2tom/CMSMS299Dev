@@ -21,7 +21,7 @@ if( !isset($gCms) ) exit;
 // no permissions checks here
 
 $handlers = ob_list_handlers();
-for( $i = 0, $n = count($handlers); $i < $n; ++$i ) { ob_end_clean(); }
+for( $cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt ) { ob_end_clean(); }
 
 $userid = get_userid();
 $lock_timeout = cms_siteprefs::get('lock_timeout');

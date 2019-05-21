@@ -30,10 +30,10 @@ $themeObject = cms_utils::get_theme_object();
 $theme = $themeObject->themeName;
 
 $cms_readfile = function($filename) {
-  @ob_start();
+  ob_start();
   echo file_get_contents($filename);
-  $result = @ob_get_contents();
-  @ob_end_clean();
+  $result = ob_get_contents();
+  ob_end_clean();
   if( !empty($result) ) {
     echo $result;
     return TRUE;

@@ -28,10 +28,10 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
  * Rolf: only used in admin/style.php
  */
 $cms_readfile = function($filename) {
-  @ob_start();
+  ob_start();
   echo file_get_contents($filename);
-  $result = @ob_get_contents();
-  @ob_end_clean();
+  $result = ob_get_contents();
+  ob_end_clean();
   if( !empty($result) ) {
     echo $result;
     return TRUE;

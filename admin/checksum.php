@@ -180,7 +180,7 @@ function generate_checksum_file(&$report)
   }
 
   $handlers = ob_list_handlers();
-  for ($cnt = 0; $cnt < count($handlers); $cnt++) { ob_end_clean(); }
+  for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
   header('Pragma: public');
   header('Expires: 0');
   header('Cache-Control: must-revalidate, post-check=0, pre-check=0');

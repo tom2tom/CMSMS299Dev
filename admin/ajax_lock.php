@@ -23,7 +23,7 @@ use CMSMS\Lock;
 use CMSMS\LockOperations;
 
 $handlers = ob_list_handlers();
-for ($cnt = 0, $n = count($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
+for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 $CMS_ADMIN_PAGE = 1;
 

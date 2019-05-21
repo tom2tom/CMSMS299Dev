@@ -18,7 +18,7 @@ if( !file_exists($src) ) {
 $mimetype = Utils::mime_content_type($src);
 
 $handlers = ob_list_handlers();
-for ($cnt = 0; $cnt < count($handlers); $cnt++) { ob_end_clean(); }
+for ($cnt = 0; $cnt < count($handlers); ++$cnt) { ob_end_clean(); }
 header('Expires: Mon, 26 Jul 2027 05:00:00 GMT');
 header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 header('Cache-Control: no-store, no-cache, must-revalidate');

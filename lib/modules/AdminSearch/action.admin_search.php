@@ -29,9 +29,7 @@ function utf8_urldecode($str)
 
 // end/disable buffering
 $handlers = ob_list_handlers();
-for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) {
-    ob_end_clean();
-}
+for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 if( !isset($params['search_text']) || $params['search_text'] === '' ) {
     echo '<p class="red">'.$this->Lang('error_nosearchtext').'</p>';

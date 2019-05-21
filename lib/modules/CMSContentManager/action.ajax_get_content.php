@@ -30,7 +30,7 @@ else {
     // no permissions checks here.
 
     $handlers = ob_list_handlers();
-    for ($cnt = 0,$n = count($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
+    for ($cnt = 0,$n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
     $tpl = $smarty->createTemplate( $this->GetTemplateResource( 'ajax_get_content.tpl' ),null,null,$smarty );
     $ajax = true;

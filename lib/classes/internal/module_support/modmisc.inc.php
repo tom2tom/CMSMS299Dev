@@ -50,10 +50,10 @@ function cms_module_GetAbout(&$modinstance)
 function cms_module_GetHelpPage(&$modinstance)
 {
 	$str = '';
-	@ob_start();
+	ob_start();
 	echo $modinstance->GetHelp();
-	$str .= @ob_get_contents();
-	@ob_end_clean();
+	$str .= ob_get_contents();
+	ob_end_clean();
 	$dependencies = $modinstance->GetDependencies();
 	if (count($dependencies) > 0 ) {
 		$str .= '<h3>'.lang('dependencies').'</h3>';
