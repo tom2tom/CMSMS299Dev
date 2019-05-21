@@ -1,31 +1,32 @@
 {$formstart}
-<div class="pageoverflow">
-  <p class="pagetext">{$prompt_stopwords}:</p>
-  <p class="pageinput">{$input_stopwords|html_entity_decode}</p>
-  <p class="pagetext">{$prompt_resetstopwords}:</p>
-  <p class="pageinput">{$input_resetstopwords}</p>
+<div class="pageoverflow postgap">
+  <label class="pagetext" for="stops">{$prompt_stopwords}:</label>
+  <p class="pageinput" id="stops">{$input_stopwords|html_entity_decode}</p>
+
+  <label class="pagetext" for="resets">{$prompt_resetstopwords}:</label>
+  <p class="pageinput" id="resets">{$input_resetstopwords}</p>
 </div>
-<div class="pageoverflow">
-  <p class="pagetext">{$prompt_stemming}:</p>
-  <p class="pageinput">{$input_stemming}</p>
+<div class="pageoverflow postgap">
+  <label class="pagetext" for="dostem">{$prompt_stemming}:</label>
+  <p class="pageinput" id="dostem">{$input_stemming}</p>
 </div>
-<div class="pageoverflow">
-  <p class="pagetext">{$prompt_searchtext}:</p>
-  <p class="pageinput">{$input_searchtext}</p>
+<div class="pageoverflow postgap">
+  <label class="pagetext" for="place">{$prompt_searchtext}:</label>
+  <p class="pageinput" id="place">{$input_searchtext}</p>
 </div>
-<div class="pageoverflow">
-  <p class="pagetext">{$prompt_savephrases}:</p>
-  <p class="pageinput">{$input_savephrases}</p>
+<div class="pageoverflow postgap">
+  <label class="pagetext" for="save">{$prompt_savephrases}:</label>
+  <p class="pageinput" id="save">{$input_savephrases}</p>
 </div>
-<div class="pageoverflow">
-  <p class="pagetext">{$prompt_alpharesults}:</p>
-  <p class="pageinput">{$input_alpharesults}</p>
+<div class="pageoverflow postgap">
+  <label class="pagetext" for="sort">{$prompt_alpharesults}:</label>
+  <p class="pageinput" id="sort">{$input_alpharesults}</p>
 </div>
-<div class="pageoverflow">
-  <p class="pagetext">{$prompt_resultpage}:</p>
-  <p class="pageinput">{page_selector name="{$actionid}resultpage" value="{$mod->GetPreference('resultpage')}"}</p>
+<div class="pageoverflow postgap">
+  <label class="pagetext" for="page">{$prompt_resultpage}:</label>
+  <p class="pageinput" id="page">{page_selector name="{$actionid}resultpage" value="{$mod->GetPreference('resultpage')}"}</p>
 </div>
-<div class="pageinput pregap">
+<div class="pageinput">
   <button type="submit" name="{$actionid}submit" id="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
   <button type="submit" name="{$actionid}reindex" class="adminsubmit icon do" onclick="cms_confirm_btnclick(this, '{$mod->Lang("confirm_reindex")|escape:"javascript"}');return false;">{$mod->Lang('reindexallcontent')}</button>
 </div>
