@@ -410,6 +410,12 @@ $lang['event_desc_lostpasswordreset'] = 'Sent when the lost password form is sub
 $lang['event_desc_moduleinstalled'] = 'Sent after a module is installed';
 $lang['event_desc_moduleuninstalled'] = 'Sent after a module is uninstalled';
 $lang['event_desc_moduleupgraded'] = 'Sent after a module is upgraded';
+$lang['event_desc_pagebodyprerender'] = 'Sent before the page content after the head section (if any) is populated by Smarty';
+$lang['event_desc_pagebodypostrender'] = 'Sent after the page content after the head section (if any) is populated by Smarty';
+$lang['event_desc_pageheadprerender'] = 'Sent before the page head section is populated by Smarty';
+$lang['event_desc_pageheadpostrender'] = 'Sent after the page head section is populated by Smarty';
+$lang['event_desc_pagetopprerender'] = 'Sent before the page-top (from page start to &lt;head&gt;) is populated by Smarty';
+$lang['event_desc_pagetoppostrender'] = 'Sent after the page-top (from page start to &lt;head&gt;) is populated by Smarty';
 $lang['event_desc_smartypostcompile'] = 'Sent after any content destined for Smarty has been processed';
 $lang['event_desc_smartyprecompile'] = 'Sent before any content destined for Smarty is sent for processing';
 $lang['event_desc_stylesheetpostcompile'] = 'Sent after a stylesheet is compiled through Smarty';
@@ -774,10 +780,44 @@ $lang['event_help_templateprecompile'] = "<h4>Parameters</h4>
 <li>'type' - The type of template call.  i.e: template for a whole template, tpl_head, tpl_body, or tpl_top for a partial template.</li>
 </ul>
 ";
+
+$lang['event_help_pagebodyprerender'] = "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li>
+</ul>
+";
+$lang['event_help_pagebodypostrender'] = "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
+";
+$lang['event_help_pageheadprerender'] = "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
+";
+$lang['event_help_pageheadpostrender'] = "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
+";
+$lang['event_help_pagetopprerender'] = "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
+";
+$lang['event_help_pagetoppostrender'] = "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
+";
+
 $lang['event_help_templateprefetch'] = '<h4>Parameters</h4>
 <ul>
 <li>None</li>
 </ul>';
+
 $lang['event_name'] = 'Event Name';
 $lang['event'] = 'Event';
 $lang['eventhandlerdescription'] = 'Events and associated event-handlers';
