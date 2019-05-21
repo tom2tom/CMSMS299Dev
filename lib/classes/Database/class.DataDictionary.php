@@ -60,21 +60,21 @@ class DataDictionary
      *
      * @internal
      */
-    const ADDCOLUMN = ' ADD COLUMN';
+    const ADDCOLUMN = ' ADD COLUMN ';
 
     /**
      * SQL sub-string to use (in the alter table command) when altering a column.
      *
      * @internal
      */
-    const ALTERCOLUMN = ' MODIFY COLUMN';
+    const ALTERCOLUMN = ' MODIFY COLUMN ';
 
     /**
      * SQL sub-string to use (in the alter table command) when dropping a column.
      *
      * @internal
      */
-    const DROPCOLUMN = ' DROP COLUMN';
+    const DROPCOLUMN = ' DROP COLUMN ';
 
     /**
      * The database connection object.
@@ -84,6 +84,8 @@ class DataDictionary
     protected $connection;
 
     /**
+	 * Whether the table includes auto-increment field(s)
+	 *
      * @ignore
      */
     protected $autoIncrement = false;
@@ -330,18 +332,14 @@ class DataDictionary
      */
     public function AddColumnSQL($tabname, $defn)
     {
-        $alter = self::ALTERTABLE.$this->TableName($tabname).self::ADDCOLUMN.' ';
         $sql = [];
         list($lines, $pkey) = $this->GenFields($defn);
-        foreach ($lines as $k => $v) {
-			foreach ($pkey as $pk => $pf) {
-				if (strcasecmp($k,$pf) == 0) {
-					$v .= ", ADD PRIMARY KEY ($pf)";
-					$pkey[$pk] = '';
-					break;
-				}
-			}
-            $sql[] = $alter.$v;
+        if ($lines) {
+            $v = self::ALTERTABLE.$this->TableName($tabname).self::ADDCOLUMN.reset($lines);
+            if ($pkey) {
+                $v .= ', ADD PRIMARY KEY ('.reset($pkey).')';
+            }
+            $sql[] = $v;
         }
 
         return $sql;
@@ -359,18 +357,14 @@ class DataDictionary
      */
     public function AlterColumnSQL($tabname, $defn, $tableflds = '', $tableoptions = '')
     {
-        $alter = self::ALTERTABLE.$this->TableName($tabname).self::ALTERCOLUMN.' ';
         $sql = [];
         list($lines, $pkey) = $this->GenFields($defn);
-        foreach ($lines as $k => $v) {
-			foreach ($pkey as $pk => $pf) {
-				if (strcasecmp($k,$pf) == 0) {
-					$v .= ", ADD PRIMARY KEY ($pf)";
-					$pkey[$pk] = '';
-					break;
-				}
-			}
-            $sql[] = $alter.$v;
+        if ($lines) {
+            $v = self::ALTERTABLE.$this->TableName($tabname).self::ALTERCOLUMN.reset($lines);
+            if ($pkey) {
+                $v .= ', ADD PRIMARY KEY ('.reset($pkey).')';
+            }
+            $sql[] = $v;
         }
 
         return $sql;
@@ -396,7 +390,7 @@ class DataDictionary
             if ($newcolumn && strpos($defn, $newcolumn) !== 0) {
                 $defn = $newcolumn.' '.$defn;
             }
-            list($lines, $pkey) = $this->GenFields($defn); //any primary-key info ignored, can't change that via rename
+            list($lines, $pkey) = $this->GenFields($defn); // primary-key ignored, can't change that via rename
             $first = reset($lines);
             list($name, $column_def) = preg_split('/\s+/', $first, 2);
             if (!$newcolumn) {
@@ -426,7 +420,7 @@ class DataDictionary
             $colname = explode(',', $colname);
         }
 
-        $alter = self::ALTERTABLE.$this->TableName($tabname).self::DROPCOLUMN.' ';
+        $alter = self::ALTERTABLE.$this->TableName($tabname).self::DROPCOLUMN;
         $sql = [];
         foreach ($colname as $v) {
             $sql[] = $alter.$this->NameQuote(trim($v));
@@ -650,7 +644,7 @@ class DataDictionary
         }
 
         // already exists, alter table instead
-        list($lines, $pkey) = $this->GenFields($defn); //any primary-key info ignored CHECKME OK?
+        list($lines, $pkey) = $this->GenFields($defn);
         $alter = self::ALTERTABLE.$this->TableName($tablename);
         $sql = [];
         $fixedsizetypes = ['CLOB', 'BLOB', 'TEXT', 'DATE', 'TIME'];
@@ -662,13 +656,16 @@ class DataDictionary
                 if ($parts && in_array(strtoupper(substr($parts[0][1], 0, 4)), $fixedsizetypes)) { //TODO BLOB,TEXT are valid
                     continue;
                 }
-
-                $sql[] = $alter.self::ALTERCOLUMN.' '.$v;
+                $sql[] = $alter.self::ALTERCOLUMN.$v;
             } else {
-                $sql[] = $alter.self::ADDCOLUMN.' '.$v;
+                $sql[] = $alter.self::ADDCOLUMN.$v;
             }
         }
-
+        if ($pkey) {
+            $v = $alter.' ADD PRIMARY KEY(';
+            $v .= implode(', ', $pkey).')';
+			$sql[] = $v;
+        }
         return $sql;
     }
 
@@ -755,7 +752,7 @@ class DataDictionary
         // clean up input tableoptions
         if (!$tableoptions) {
             $tableoptions = [$dbtype =>
-	        'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci']; //default table options
+            'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci']; //default table options
         } elseif (is_string($tableoptions)) {
             $tableoptions = [$dbtype => $tableoptions];
         } elseif (is_array($tableoptions) && !isset($tableoptions[$dbtype]) && isset($tableoptions['mysql'])) {
@@ -928,14 +925,14 @@ class DataDictionary
     }
 
     /**
-     * Part of the process of parsing the data-dictionary format into MySQL commands.
+     * Parse data-dictionary format definition into MySQL-format field definition(s).
      *
      * @internal
      * @param mixed $defn array of strings or comma-separated series in one string
      * @param bool  $widespacing optional flag whether to pad the field-name, default false
      * @return 2-member array
-     *  [0] = assoc. array, each member upper-case-fieldname=>fielddef, or empty
-     *  [1] = array of primary key fieldname(s), or empty
+     *  [0] = assoc. array or empty. Each member ucase-fieldname=>field-defn
+     *  [1] = array of primary-key-field name(s), maybe empty
      */
     protected function GenFields($defn, $widespacing = false)
     {
@@ -973,6 +970,7 @@ class DataDictionary
         $this->autoIncrement = false;
         $lines = [];
         $pkey = [];
+
         foreach ($flds as $fld) {
             $fld = $this->UpperKeys($fld);
             $fname = false;
@@ -1076,7 +1074,7 @@ class DataDictionary
                         break;
                     case 'AFTER':
                         $fafter = $fld[$i+1] ?? false;
-						if ($fafter !== false) {
+                        if ($fafter !== false) {
                             $fld[$i+1] = '';
                         }
                         break;
@@ -1086,7 +1084,7 @@ class DataDictionary
                     default:
                         continue 2; // don't clear unprocessed field
                 }
-				$fld[$i] = '';
+                $fld[$i] = '';
             }
 
             //--------------------
@@ -1159,12 +1157,13 @@ class DataDictionary
                     }
                 }
             }
+
             $suffix = $this->CreateSuffix($fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned);
-			//TODO support extra suffix from ' '-joined $fld[2], ... e.g. ON UPDATE CURRENT_TIMESTAMP
-			$s = implode(' ', array_filter($fld));
-			if ($s) {
-				$suffix .= ' '.$s;
-			}
+
+            $s = implode(' ', array_filter($fld));
+            if ($s) {
+                $suffix .= ' '.$s;
+            }
 
             $s = ($widespacing) ? str_pad($fname, 24) : $fname;
             $s .= ' '.$ftype.$suffix;
@@ -1197,7 +1196,7 @@ class DataDictionary
     }
 
     /**
-     * Generate the size part of the datatype.
+     * Generate the size part of the field defn.
      *
      * @ignore
      *
@@ -1344,12 +1343,12 @@ class DataDictionary
     /**
      * Build string for generating table.
      * @internal
-	 * @param string $tabname Table name
-	 * @param type $lines Field definition(s) from field-parsing
-	 * @param array $pkey Primary-key field(s) (hopefully only 1!) from field-parsing
-	 * @param type $tableoptions Whole-table definitions
-	 * @return string SQL
-	 */
+     * @param string $tabname Table name
+     * @param type $lines Field definition(s) from field-parsing
+     * @param array $pkey Primary-key-field name(s), from field-parsing
+     * @param type $tableoptions Whole-table definitions
+     * @return string SQL
+     */
     protected function TableSQL($tabname, $lines, $pkey, $tableoptions)
     {
         $sql = [];
@@ -1368,7 +1367,7 @@ class DataDictionary
         }
         $s = "CREATE TABLE $tabname (\n";
         $s .= implode(",\n", $lines);
-        if (count($pkey) > 0) {
+        if ($pkey) {
             $s .= ",\nPRIMARY KEY (";
             $s .= implode(', ', $pkey).')';
         }
