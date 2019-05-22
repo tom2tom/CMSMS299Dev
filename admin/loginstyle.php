@@ -20,14 +20,15 @@
 
 use CMSMS\NlsOperations;
 
-$CMS_ADMIN_PAGE=1; //lazy ?
-$CMS_LOGIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
+$CMS_LOGIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 //require_once("../lib/classes/class.user.inc.php");
 
 $themeObject = cms_utils::get_theme_object();
 $theme = $themeObject->themeName;
+$defaulttheme = 'Marigold'; //TODO some sensible default
 
 $cms_readfile = function($filename) {
   ob_start();
@@ -43,10 +44,10 @@ $cms_readfile = function($filename) {
 
 header('Content-type: text/css; charset=' . NlsOperations::get_encoding());
 if (is_file(__DIR__."/themes/$theme/css/style.css")) {
-    echo file_get_contents(__DIR__."/themes/$theme/css/style.css");
+    echo file_get_contents(__DIR__.'/themes/'.$theme.'/css/style.css');
 }
 else {
-    echo file_get_contents(__DIR__.'/themes/Marigold/css/style.css');
+    echo file_get_contents(__DIR__.'/themes/'.$defaulttheme.'/css/style.css');
 }
 
 if (is_file(__DIR__.'/themes/'.$theme.'/extcss/style.css')) {
