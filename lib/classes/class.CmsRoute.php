@@ -39,12 +39,12 @@ class CmsRoute implements \ArrayAccess
 	 * @ignore
 	 */
 	const KEYS = [
-	 'absolute',
-	 'defaults',
-	 'key1',
-	 'key2',
-	 'key3',
-	 'term',
+	 'absolute', //whether term is plaintext
+	 'defaults', //parameters
+	 'key1', //destination e.g module name, or __CONTENT__
+	 'key2', //page id or null
+	 'key3', //user-defined data
+	 'term', //plaintext or regex to match
 	 'results',
     ];
 
@@ -61,14 +61,14 @@ class CmsRoute implements \ArrayAccess
 	/**
 	 * Construct a new route object.
 	 *
-	 * @param string $term The route string (or regular expression)
-	 * @param string $key1 The first key. Usually a module name.
+	 * @param string $term The route string (plaintext or regular expression)
+	 * @param string $key1 The first key. Usually a module name or int page id
 	 * @param array  $defaults An array of parameter defaults for this module.  Only applicable when the destination is a module.
 	 * @param bool $is_absolute Flag indicating whether the term is a regular expression or an absolute string.
-	 * @param string $key2 The second key.
-	 * @param string $key3 The second key.
+	 * @param string $key2 Optional second key.
+	 * @param string $key3 Optional third key.
 	 */
-	public function __construct($term,$key1 = '',$defaults = null,$is_absolute = FALSE,$key2 = null,$key3 = null)
+	public function __construct($term,$key1 = '',$defaults = [],$is_absolute = FALSE,$key2 = null,$key3 = null)
 	{
 		$this->_data['term'] = $term;
 		$this->_data['absolute'] = $is_absolute;
@@ -88,21 +88,23 @@ class CmsRoute implements \ArrayAccess
 	/**
 	 * Static convenience function to create a new route.
 	 *
-	 * @param string $term The route string (or regular expression)
+	 * @param string $term The route string (plaintext or regular expression)
 	 * @param string $key1 The first key. Usually a module name
-	 * @param string $key2 The second key
-	 * @param array  $defaults An array of parameter defaults for this module.  Only applicable when the destination is a module
-	 * @param bool $is_absolute Flag indicating whether the term is a regular expression or an absolute string
-	 * @param string $key3 The second key
+	 * @param string $key2 Optional second key. Default ''
+	 * @param array  $defaults Optional array of parameter defaults for this route.
+	 *  Ignored unless the destination is a module. Default []
+	 * @param bool   $is_absolute Optional Flag indicating whether $term is
+	 *  an absolute|plaintext string, or else a regular expression, Default false.
+	 * @param string $key3 Optional third key. For arbitrary data. Default ''.
 	 */
-	public static function &new_builder($term,$key1,$key2 = '',$defaults = null,$is_absolute = FALSE,$key3 = '')
+	public static function &new_builder($term,$key1,$key2 = '',$defaults = [],$is_absolute = FALSE,$key3 = '')
 	{
-		$obj = new CmsRoute($term,$key1,$defaults,$is_absolute,$key2,$key3);
+		$obj = new self($term,$key1,$defaults,$is_absolute,$key2,$key3);
 		return $obj;
 	}
 
 	/**
-	 * Return the signature for a route
+	 * Return the signature for this route
 	 */
 	public function signature()
 	{
@@ -132,10 +134,8 @@ class CmsRoute implements \ArrayAccess
 	 */
 	public function OffsetExists($key)
 	{
-		if( in_array($key,self::KEYS) && isset($this->_data[$key]) ) return TRUE;
-		return FALSE;
+		return in_array($key,self::KEYS) && isset($this->_data[$key]);
 	}
-
 
 	/**
 	 * @ignore
@@ -197,7 +197,7 @@ class CmsRoute implements \ArrayAccess
 	 */
 	public function is_content()
 	{
-		return ($this->_data['key1'] == '__CONTENT__')?TRUE:FALSE;
+		return ($this->_data['key1'] == '__CONTENT__');
 	}
 
 	/**
@@ -223,14 +223,13 @@ class CmsRoute implements \ArrayAccess
 	public function matches($str,$exact = false)
 	{
 		$this->_results = null;
-		if( (isset($this->_data['absolute']) && $this->_data['absolute']) || $exact ) {
+		if( !empty($this->_data['absolute']) || $exact ) {
 			$a = trim($this->_data['term']);
 			$a = trim($a,'/');
 			$b = trim($str);
 			$b = trim($b,'/');
 
-			if( !strcasecmp($a,$b) ) return TRUE;
-			return FALSE;
+			return strcasecmp($a,$b) == 0;
 		}
 
 		$tmp = [];
@@ -238,5 +237,4 @@ class CmsRoute implements \ArrayAccess
 		if( $res && is_array($tmp) ) $this->_results = $tmp;
 		return $res;
 	}
-
 } // class
