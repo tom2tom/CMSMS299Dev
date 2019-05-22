@@ -8,7 +8,7 @@
 CMSMS OneEleven theme functions v.1.1
 (C) 2014-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 License GPL2+
-*/ 
+*/
 (function(global, $) {
     'use strict';
     /*jslint nomen: true , devel: true*/
@@ -393,8 +393,9 @@ License GPL2+
          */
         setUIButtons: function() {
 
-            // Standard input buttons
+            // Standard named input buttons
             $('input[type="submit"], :button[data-ui-icon]').each(function() {
+                if(!this.value.trim()) return true;
                 var button = $(this),
                     icon = button.data('uiIcon') || 'ui-icon-circle-check',
                     label = button.val(),

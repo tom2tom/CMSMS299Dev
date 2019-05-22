@@ -9,7 +9,7 @@
 CMSMS Altbier theme functions v.1.0
 (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 License GPL2+
-*/ 
+*/
 (function(global, $) {
     'use strict';
     /*jslint nomen: true , devel: true*/
@@ -381,8 +381,9 @@ License GPL2+
          * @function setUIButtons()
          */
         setUIButtons: function() {
-            // Standard input buttons
+            // Standard named input buttons
             $('input[type="submit"], :button[data-ui-icon]').each(function() {
+                if(!this.value.trim()) return true;
                 var button = $(this),
                     icon = button.data('uiIcon') || 'ui-icon-circle-check',
                     label = button.val(),

@@ -308,14 +308,14 @@ var ggjs = {
     });
   },
   /**
-   * @description Substitute styled buttons for input-submits. And some links
+   * @description Substitute styled buttons for named input-submits. And some links
    * @function migrateUIElements()
    */
   migrateUIElements: function() {
     // Standard input buttons
     $('input[type="submit"], :button[data-ui-icon]').each(function() {
       var button = $(this);
-      if(!(button.hasClass('noautobtn') || button.hasClass('no-ui-btn'))) {
+      if(!(button.hasClass('noautobtn') || button.hasClass('no-ui-btn')) && button.val().trim()) {
         var xclass, label, $btn;
         if(button.is('[name*=submit]')) {
           xclass = 'iconcheck';
