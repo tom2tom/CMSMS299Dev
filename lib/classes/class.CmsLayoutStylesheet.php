@@ -22,6 +22,7 @@ use CMSMS\AdminUtils;
 use CMSMS\LockOperations;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
+use DeprecationNotice;
 
 /**
  * A class of methods for dealing with a CmsStylesheet object.
@@ -576,6 +577,7 @@ class CmsLayoutStylesheet
 	*/
 	public function has_content_file()
 	{
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','get_content_file'));
 		return $this->get_content_file();
 	}
 

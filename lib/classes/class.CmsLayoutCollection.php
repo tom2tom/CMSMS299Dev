@@ -1,3 +1,3 @@
 <?php
-if (CMS_DEBUG) throw new Exception('Deprecated class CmsLayoutCollection used');
+assert(empty(CMS_DEBUG), new DeprecationNotice('class','DesignManager\\Design'));
 class_alias('DesignManager\Design', 'CmsLayoutCollection');

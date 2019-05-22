@@ -18,6 +18,8 @@
 
 //namespace CMSMS;
 
+use CMSMS\Database\ResultSet;
+
 /**
  * An abstract class for building database queries and managing their results.
  *
@@ -180,6 +182,7 @@ abstract class CmsDbQueryBase
 	 */
 	public function Rewind()
 	{
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','MoveFirst'));
 		$this->execute();
 		if( $this->_rs ) return $this->_rs->MoveFirst();
 	}

@@ -222,3 +222,32 @@ class CmsXMLErrorException extends CmsException {}
  * @since 2.0
  */
 class CmsFileSystemException extends CmsException {}
+
+/**
+ * A throwable indicating a need to replace something deprecated.
+ *
+ * @package CMS
+ * @since 2.3
+ */
+class DeprecationNotice extends AssertionError
+{
+    public function __construct(...$args)
+    {
+        $type = $args[0] ?? '';
+        $replace = $args[1] ?? $args[0];
+        if ($replace && !$type) $type = 'function';
+        switch ($type) {
+            case 'function':
+            case 'method':
+            $msg = 'Instead call '.$type.' '.$replace.'()';
+            break;
+            case 'class':
+            case 'parameter':
+            case 'property':
+            $msg = 'Instead use '.$type.' '.$replace;
+            default:
+            $msg = $type;
+        }
+        parent::__construct($msg);
+    }
+}

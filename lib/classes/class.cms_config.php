@@ -65,7 +65,6 @@ final class cms_config implements ArrayAccess
         'debug' => self::TYPE_BOOL,
         'default_encoding' => self::TYPE_STRING,
         'default_upload_permission' => self::TYPE_STRING,
-        'ignore_lazy_load' => self::TYPE_BOOL,
         'image_uploads_path' => self::TYPE_STRING,
         'image_uploads_url' => self::TYPE_STRING,
         'locale' => self::TYPE_STRING,
@@ -274,11 +273,14 @@ final class cms_config implements ArrayAccess
         switch( $key ) {
         case 'use_adodb_lite':
         case 'use_hierarchy':
+            assert(empty(CMS_DEBUG), new DeprecationNotice($key.' property is no longer used'));
             // deprecated, backwards compat only
             return true;
 
         case 'use_smarty_php_tags':
         case 'output_compression':
+        case 'ignore_lazy_load':
+            assert(empty(CMS_DEBUG), new DeprecationNotice($key.' property is no longer used'));
             // deprecated, backwards compat only
             return false;
 
@@ -289,7 +291,8 @@ final class cms_config implements ArrayAccess
 
         case 'assume_mod_rewrite':
             // deprecated, backwards compat only
-            return $this['url_rewriting'] == 'mod_rewrite';
+            assert(empty(CMS_DEBUG), new DeprecationNotice('property','url_rewriting'));
+            return $this[''] == 'mod_rewrite';
 
         case 'internal_pretty_urls':
             // deprecated, backwards compat only
@@ -389,6 +392,7 @@ final class cms_config implements ArrayAccess
 
         case 'ssl_url':
             // as of v2.3 this is just an alias for the root_url
+            assert(empty(CMS_DEBUG), new DeprecationNotice('property','root_url'));
             return $this->offsetGet('root_url');
 
         case 'uploads_path':
@@ -413,6 +417,7 @@ final class cms_config implements ArrayAccess
 
         case 'ssl_image_uploads_url':
             // as of v2.3 this is just an alias for the image_uploads_url
+            assert(empty(CMS_DEBUG), new DeprecationNotice('property','image_uploads_url'));
             return $this->offsetGet('image_uploads_url');
 
         case 'previews_path':
@@ -472,9 +477,6 @@ final class cms_config implements ArrayAccess
         case 'admin_url':
             $this->_cache[$key] = $this->offsetGet('root_url').'/'.$this->offsetGet('admin_dir');
             return $this->_cache[$key];
-
-        case 'ignore_lazy_load':
-            return false;
 
         case 'css_path':
             return PUBLIC_CACHE_LOCATION.DIRECTORY_SEPARATOR;

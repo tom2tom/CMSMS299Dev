@@ -19,7 +19,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\Database;
 
+use DeprecationNotice;
 use mysqli_result;
+use const CMS_DEBUG;
 
 /**
  * A class for interacting with the results from a database selection.
@@ -201,6 +203,7 @@ class ResultSet
      */
     public function getRows()
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','getArray'));
         return $this->getArray();
     }
 
@@ -214,6 +217,7 @@ class ResultSet
      */
     public function getAll()
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','getArray'));
         return $this->getArray();
     }
 
@@ -353,6 +357,7 @@ class ResultSet
      */
     public function NumRows()
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','recordCount'));
         return $this->_nrows;
     }
 
@@ -369,7 +374,7 @@ class ResultSet
     /**
      * Return all the fields, or a single field, of the current row of the ResultSet.
      *
-     * @param string $field An optional field name, if not specified, the entire row will be returned
+     * @param string $key An optional field name, if not specified, the entire row will be returned
      *
      * @return mixed|array Either a single value, or an array, or null
      */
@@ -405,4 +410,3 @@ class ResultSet
         return [];
     }
 } //class
-

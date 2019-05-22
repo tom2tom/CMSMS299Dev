@@ -36,9 +36,11 @@ use CMSMS\internal\content_assistant;
 use CMSMS\internal\global_cache;
 use CMSMS\UserOperations;
 use CmsRoute;
+use DeprecationNotice;
 use Exception;
 use Serializable;
 use const CMS_DB_PREFIX;
+use const CMS_DEBUG;
 use const CMS_ROOT_URL;
 use function check_permission;
 use function cms_htmlentities;
@@ -806,6 +808,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 */
 	public function display_single_element($propname, $adding)
 	{
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','ShowElement'));
 		return $this->ShowElement($propname, $adding);
 	}
 

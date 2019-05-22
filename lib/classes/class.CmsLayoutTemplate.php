@@ -24,6 +24,7 @@ use CMSMS\LockOperations;
 use CMSMS\TemplateOperations;
 use CMSMS\User;
 use CMSMS\UserOperations;
+use DeprecationNotice;
 
 /**
  * A class to administer a layout template.
@@ -831,10 +832,12 @@ class CmsLayoutTemplate
 	* An alias for get_listable()
 	*
 	* @since 2.1
+	* @deprcated since 2.3
 	* @return bool
 	*/
 	public function is_listable()
 	{
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','get_listable'));
 		return $this->listable;
 	}
 
@@ -983,6 +986,7 @@ class CmsLayoutTemplate
 	*/
 	public function has_content_file()
 	{
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','get_content_file'));
 		return $this->contentfile;
 	}
 

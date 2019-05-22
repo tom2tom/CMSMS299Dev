@@ -131,9 +131,7 @@ class cms_content_tree extends cms_tree
 	 */
 	public function sureGetNodeByAlias($alias)
 	{
-		if( CMS_DEBUG ) {
-			throw new Exception('Replace deprecated method '.__METHOD__);
-		}
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','find_by_identifier'));
 		return $this->find_by_identifier($alias);
 	}
 
@@ -205,9 +203,7 @@ class cms_content_tree extends cms_tree
 	 */
 	public function getId()
 	{
-		if( CMS_DEBUG ) {
-			throw new Exception('Replace deprecated method '.__METHOD__);
-		}
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','get_tag(id'));
 		return $this->get_tag('id');
 	}
 

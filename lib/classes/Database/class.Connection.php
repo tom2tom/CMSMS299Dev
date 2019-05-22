@@ -26,6 +26,7 @@ use CMSMS\Database\ResultSet;
 use CMSMS\Database\Statement;
 use DateTime;
 use DateTimeZone;
+use DeprecationNotice;
 use Exception;
 use mysqli;
 use const CMS_DEBUG;
@@ -402,7 +403,7 @@ class Connection
     /**
      * An alias for the qStr method.
      *
-     * @deprecated
+     * @deprecated since 2.3
      *
      * @param string $str
      *
@@ -410,6 +411,7 @@ class Connection
      */
     public function QMagic($str)
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','qStr'));
         return $this->qStr($str);
     }
 
@@ -680,6 +682,7 @@ class Connection
      */
     public function getAll($sql, $valsarr = null, $nrows = 0, $offset = 0)
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','getArray'));
         return $this->getArray($sql, $valsarr, $nrows, $offset);
     }
 
@@ -1070,6 +1073,7 @@ class Connection
      */
     public function Time()
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','unixTimeStamp'));
         return $this->unixTimeStamp();
     }
 
@@ -1122,6 +1126,7 @@ class Connection
      */
     public function Date()
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('method','unixDate'));
         return $this->unixDate();
     }
 

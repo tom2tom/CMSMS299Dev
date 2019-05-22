@@ -1,4 +1,4 @@
 <?php
-if (CMS_DEBUG) throw new Exception('Deprecated class CmsNls used');
+assert(empty(CMS_DEBUG), new DeprecationNotice('class','CMSMS\\Nls'));
 require_once __DIR__.DIRECTORY_SEPARATOR.'class.Nls.php';
 \class_alias('CMSMS\\Nls', 'CmsNls', false);
