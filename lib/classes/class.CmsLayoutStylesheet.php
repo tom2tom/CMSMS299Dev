@@ -22,7 +22,6 @@ use CMSMS\AdminUtils;
 use CMSMS\LockOperations;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
-use DeprecationNotice;
 
 /**
  * A class of methods for dealing with a CmsStylesheet object.

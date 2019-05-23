@@ -24,7 +24,6 @@ use CMSMS\LockOperations;
 use CMSMS\TemplateOperations;
 use CMSMS\User;
 use CMSMS\UserOperations;
-use DeprecationNotice;
 
 /**
  * A class to administer a layout template.
