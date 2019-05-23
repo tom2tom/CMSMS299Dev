@@ -1284,7 +1284,7 @@ $lang['reset'] = 'Reset';
 $lang['results'] = 'Results';
 $lang['revert'] = 'Revert all changes';
 $lang['root'] = 'Root';
-$lang['routesrebuilt'] = 'The database routes are rebuilt';
+$lang['routesrebuilt'] = 'The logged routes have been rebuilt';
 $lang['run'] = 'Run';
 
 ## S
