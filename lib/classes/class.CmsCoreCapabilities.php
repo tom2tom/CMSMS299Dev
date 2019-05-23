@@ -60,6 +60,12 @@ final class CmsCoreCapabilities extends BasicEnum
 	const PLUGIN_MODULE = 'plugin';
 
 	/**
+	 * A constant indicating that the module sets [non-]static route(s) during construction and/or initialization
+	 * @since 2.3
+	 */
+	const ROUTE_MODULE = 'routable';
+
+	/**
 	 * A constant indicating that the module provides frontend search functionality.
 	 */
 	const SEARCH_MODULE = 'search';
