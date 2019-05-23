@@ -23,7 +23,7 @@ use CMSMS\ThemeBase;
 const THEME_DTD_VERSION = '1.0';
 const THEME_DTD_MINVERSION = '1.0';
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -313,7 +313,7 @@ if (isset($_FILES['import'])) {
 	$userid = get_userid();
 	if (check_permission($userid, 'Modify Site Preferences')) {
 		if (import_theme($_FILES['import']['tmp_name'])) {
-			$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+			$urlext = get_secure_param();
 			redirect('siteprefs.php'.$urlext);
 		}
 	} else {
@@ -328,7 +328,7 @@ if (isset($_POST['export'])) {
 
 if (isset($_POST['delete'])) {
 	if (delete_theme(cleanValue($_POST['delete']))) {
-		$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+		$urlext = get_secure_param();
 		redirect('siteprefs.php'.$urlext);
 	}
 }

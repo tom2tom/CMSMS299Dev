@@ -15,8 +15,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$CMS_ADMIN_PAGE=1;
-$CMS_LOGIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
+$CMS_LOGIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
