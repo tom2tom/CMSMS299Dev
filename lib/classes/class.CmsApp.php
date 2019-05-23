@@ -51,6 +51,12 @@ final class CmsApp
     const STATE_ADMIN_PAGE = 'admin_request';
 
     /**
+	 * A constant indicating that the request is for a frontend page
+	 * @since 2.3
+	 */
+	const STATE_FRONT_PAGE = 'fronted_request';
+
+	/**
      * A constant indicating that the request is taking place during the installation process
      */
     const STATE_INSTALL    = 'install_request';
@@ -62,6 +68,7 @@ final class CmsApp
 
     /**
      * A constant indicating that we are currently parsing page templates
+     * UNUSED. And not akin to the other states
      */
     const STATE_PARSE_TEMPLATE = 'parse_page_template';
 
@@ -73,7 +80,14 @@ final class CmsApp
     /**
      * @ignore
      */
-    const STATELIST = [self::STATE_ADMIN_PAGE,self::STATE_STYLESHEET, self::STATE_INSTALL,self::STATE_PARSE_TEMPLATE,self::STATE_LOGIN_PAGE];
+	const STATELIST = [
+		self::STATE_ADMIN_PAGE,
+		self::STATE_FRONT_PAGE,
+		self::STATE_STYLESHEET,
+		self::STATE_INSTALL,
+		self::STATE_PARSE_TEMPLATE,
+		self::STATE_LOGIN_PAGE
+	];
 
     /**
      * @ignore
@@ -583,7 +597,6 @@ final class CmsApp
      * Set all known states from global variables.
      *
      * @since 1.11.2
-     * @deprecated
      * @ignore
      */
     private function set_states()
@@ -601,6 +614,8 @@ final class CmsApp
             if( isset($CMS_ADMIN_PAGE) ) $this->_states[] = self::STATE_ADMIN_PAGE;
             if( isset($CMS_INSTALL_PAGE) ) $this->_states[] = self::STATE_INSTALL;
             if( isset($CMS_STYLESHEET) ) $this->_states[] = self::STATE_STYLESHEET; // the cms_stylesheet plugin is running
+			//self::STATE_PARSE_TEMPLATE?
+			if( !$this->_states ) $this->_states[] = self::STATE_FRONT_PAGE;
         }
     }
 
@@ -659,15 +674,16 @@ final class CmsApp
      * @author Robert Campbell
      *
      * @param string The state.  We recommend you use the class constants for this.
+     * @return bool indicating success
      * @throws CmsInvalidDataException if an invalid state is passed in.
      */
     public function remove_state(string $state) : bool
     {
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
         $this->set_states();
-        if( !is_array($this->_states) || !in_array($state,$this->_states) ) {
-            $key = array_search($state,$this->_states);
-            if( $key !== FALSE ) unset($this->_states[$key]);
+        $key = array_search($state,$this->_states);
+        if( $key !== FALSE ) {
+            unset($this->_states[$key]);
             return TRUE;
         }
         return FALSE;
@@ -694,7 +710,7 @@ final class CmsApp
      */
     public function is_frontend_request() : bool
     {
-        return !$this->get_states();
+		return $this->test_state(self::STATE_FRONT_PAGE);
     }
 
     /** Report whether the current request was over HTTPS.
