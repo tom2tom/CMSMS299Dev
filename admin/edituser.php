@@ -23,7 +23,6 @@ use CMSMS\UserOperations;
 use Exception;
 
 $CMS_ADMIN_PAGE = 1;
-//$CMS_ADMIN_TITLE = 'whatever';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 

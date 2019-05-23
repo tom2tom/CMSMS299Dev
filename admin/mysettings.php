@@ -24,8 +24,6 @@ use CMSMS\ThemeBase;
 use CMSMS\UserOperations;
 
 $CMS_ADMIN_PAGE = 1;
-$CMS_TOP_MENU = 'admin';
-$CMS_ADMIN_TITLE = 'mysettings';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -37,7 +35,6 @@ if (isset($_POST['cancel'])) {
 }
 
 $userid = get_userid();
-
 $themeObject = cms_utils::get_theme_object();
 
 if (!check_permission($userid,'Manage My Settings')) {

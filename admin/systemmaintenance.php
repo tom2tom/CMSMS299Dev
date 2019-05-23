@@ -20,7 +20,6 @@ use cms_installer\installer_base;
 use CMSMS\AdminUtils;
 
 $CMS_ADMIN_PAGE = 1;
-//$CMS_ADMIN_TITLE = 'whatever';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -37,8 +36,7 @@ if (!$access) {
     return;
 }
 
-$CMS_BASE = dirname(__DIR__);
-require_once cms_join_path($CMS_BASE, 'lib', 'test.functions.php');
+require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
 
 $gCms = CmsApp::get_instance();
 
@@ -289,7 +287,7 @@ if ($exportable && isset($_POST['export'])) {
 /*
  * Changelog
  */
-$ch_filename = cms_join_path($CMS_BASE, 'doc', 'CHANGELOG.txt');
+$ch_filename = cms_join_path(CMS_ROOT_PATH, 'doc', 'CHANGELOG.txt');
 
 if (is_readable($ch_filename)) {
     $close = false;

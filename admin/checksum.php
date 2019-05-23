@@ -16,12 +16,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$CMS_ADMIN_PAGE=1;
-$CMS_ADMIN_TITLE = 'system_verification';
+$CMS_ADMIN_PAGE = 1;
+
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
@@ -30,6 +29,7 @@ $access = check_permission($userid, 'Modify Site Preferences');
 
 $themeObject = cms_utils::get_theme_object();
 
+$urlext = get_secure_param();
 if (!$access) {
 //TODO some immediate popup  lang('needpermissionto', '"Modify Site Preferences"')
 	return;

@@ -20,8 +20,6 @@ use CMSMS\Events;
 use CMSMS\UserOperations;
 
 $CMS_ADMIN_PAGE = 1;
-$CMS_TOP_MENU = 'admin';
-$CMS_ADMIN_TITLE = 'myaccount';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 

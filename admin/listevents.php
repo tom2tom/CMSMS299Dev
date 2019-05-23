@@ -19,7 +19,7 @@
 use CMSMS\Events;
 
 $CMS_ADMIN_PAGE = 1;
-$CMS_LOAD_ALL_PLUGINS = 1;
+//$CMS_LOAD_ALL_PLUGINS = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
