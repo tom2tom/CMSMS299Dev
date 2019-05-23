@@ -51,12 +51,12 @@ final class CmsApp
     const STATE_ADMIN_PAGE = 'admin_request';
 
     /**
-	 * A constant indicating that the request is for a frontend page
-	 * @since 2.3
-	 */
-	const STATE_FRONT_PAGE = 'fronted_request';
+     * A constant indicating that the request is for a frontend page
+     * @since 2.3
+     */
+    const STATE_FRONT_PAGE = 'fronted_request';
 
-	/**
+    /**
      * A constant indicating that the request is taking place during the installation process
      */
     const STATE_INSTALL    = 'install_request';
@@ -80,14 +80,14 @@ final class CmsApp
     /**
      * @ignore
      */
-	const STATELIST = [
-		self::STATE_ADMIN_PAGE,
-		self::STATE_FRONT_PAGE,
-		self::STATE_STYLESHEET,
-		self::STATE_INSTALL,
-		self::STATE_PARSE_TEMPLATE,
-		self::STATE_LOGIN_PAGE
-	];
+    const STATELIST = [
+        self::STATE_ADMIN_PAGE,
+        self::STATE_FRONT_PAGE,
+        self::STATE_STYLESHEET,
+        self::STATE_INSTALL,
+        self::STATE_PARSE_TEMPLATE,
+        self::STATE_LOGIN_PAGE
+    ];
 
     /**
      * @ignore
@@ -110,13 +110,13 @@ final class CmsApp
     private $_showtemplate = true;
 
     /**
-     * List of current states.
+     * Array of current states.
      * @ignore
      */
     private $_states;
 
     /**
-     * Database object - handle/connection to the current database
+     * Connection object - handle|connection to the site database
      * @ignore
      */
     private $db;
@@ -329,7 +329,7 @@ final class CmsApp
      * Get a list of all installed and available modules
      *
      * This method will return an array of module names that are installed, loaded and ready for use.
-     * suotable for iteration with GetModuleInstance
+     * Suitable for iteration with GetModuleInstance
      *
      * @see CmsApp::GetModuleInstance()
      * @since 1.9
@@ -400,6 +400,7 @@ final class CmsApp
      */
     public function GetDbPrefix() : string
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('parameter','CMS_DB_PREFIX'));
         return CMS_DB_PREFIX;
     }
 
@@ -425,6 +426,7 @@ final class CmsApp
     */
     public function GetModuleOperations() : ModuleOperations
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('class','CMSMS\\ModuleOperations'));
         return new ModuleOperations();
     }
 
@@ -438,6 +440,7 @@ final class CmsApp
      */
     public function GetUserPluginOperations() : UserPluginOperations
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('class','CMSMS\\UserPluginOperations'));
         return new UserPluginOperations();
     }
 
@@ -462,6 +465,7 @@ final class CmsApp
     */
     public function GetContentOperations() : ContentOperations
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('class','CMSMS\\ContentOperations'));
         return ContentOperations::get_instance();
     }
 
@@ -474,6 +478,7 @@ final class CmsApp
     */
     public function GetBookmarkOperations() : BookmarkOperations
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('class','CMSMS\\BookmarkOperations'));
         return new BookmarkOperations();
     }
 
@@ -486,6 +491,7 @@ final class CmsApp
     */
     public function GetGroupOperations() : GroupOperations
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('class','CMSMS\\GroupOperations'));
         return new GroupOperations();
     }
 
@@ -498,6 +504,7 @@ final class CmsApp
     */
     public function GetUserTagOperations() : UserTagOperations
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('class','CMSMS\\UserPluginOperations'));
         return UserTagOperations::get_instance();
     }
 
@@ -591,6 +598,7 @@ final class CmsApp
      */
     public function clear_cached_files(int $age_days = 0)
     {
+        assert(empty(CMS_DEBUG), new DeprecationNotice('Method does nothing'));
     }
 
     /**
@@ -601,22 +609,17 @@ final class CmsApp
      */
     private function set_states()
     {
-        if( !isset($this->_states) ) {
-            // build the array.
-            global $CMS_ADMIN_PAGE;
-            global $CMS_INSTALL_PAGE;
-            global $CMS_STYLESHEET;
-            global $CMS_LOGIN_PAGE;
+        global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_LOGIN_PAGE, $CMS_STYLESHEET;
 
-            $this->_states = [];
+        $tmp = [];
+        if( isset($CMS_LOGIN_PAGE) ) $tmp[self::STATE_LOGIN_PAGE] = 1; // files also set STATE_ADMIN_PAGE
+        if( isset($CMS_ADMIN_PAGE) ) $tmp[self::STATE_ADMIN_PAGE] = 1;
+        if( isset($CMS_INSTALL_PAGE) ) $tmp[self::STATE_INSTALL] = 1;
+        if( !$tmp ) $tmp[self::STATE_FRONT_PAGE] = 1;
 
-            if( isset($CMS_LOGIN_PAGE) ) $this->_states[] = self::STATE_LOGIN_PAGE; // files also set STATE_ADMIN_PAGE
-            if( isset($CMS_ADMIN_PAGE) ) $this->_states[] = self::STATE_ADMIN_PAGE;
-            if( isset($CMS_INSTALL_PAGE) ) $this->_states[] = self::STATE_INSTALL;
-            if( isset($CMS_STYLESHEET) ) $this->_states[] = self::STATE_STYLESHEET; // the cms_stylesheet plugin is running
-			//self::STATE_PARSE_TEMPLATE?
-			if( !$this->_states ) $this->_states[] = self::STATE_FRONT_PAGE;
-        }
+        if( isset($CMS_STYLESHEET) ) $tmp[self::STATE_STYLESHEET] = 1; // the cms_stylesheet plugin is running
+//      if (?) $tmp[self::STATE_PARSE_TEMPLATE] = 1;
+        $this->_states = $tmp;
     }
 
     /**
@@ -626,13 +629,13 @@ final class CmsApp
      *
      * @param string $state A valid state name (see the state list above).  It is recommended that the class constants be used.
      * @return bool
-     * @throws CmsInvalidDataException if invalid data is passed in
+     * @throws CmsInvalidDataException if invalid state name is provided
      */
     public function test_state(string $state) : bool
     {
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is not a recognized CMSMS state');
         $this->set_states();
-        return in_array($state,$this->_states);
+        return isset($this->_states[$state]);
     }
 
     /**
@@ -645,7 +648,7 @@ final class CmsApp
     public function get_states() : array
     {
         $this->set_states();
-        return $this->_states;
+        return arary_keys($this->_states);
     }
 
     /**
@@ -655,14 +658,14 @@ final class CmsApp
      * @internal
      * @since 1.11.2
      * @author Robert Campbell
-     * @param string The state.  We recommend you use the class constants for this.
-     * @throws CmsInvalidDataException if an invalid state is passed in.
+     * @param string The state.  We recommend using a class constant for this.
+     * @throws CmsInvalidDataException if an invalid state is provided.
      */
     public function add_state(string $state)
     {
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
         $this->set_states();
-        if( !in_array($state,$this->_states) ) $this->_states[] = $state;
+        $this->_states[$state] = 1;
     }
 
     /**
@@ -673,17 +676,16 @@ final class CmsApp
      * @since 1.11.2
      * @author Robert Campbell
      *
-     * @param string The state.  We recommend you use the class constants for this.
+     * @param string The state.  We recommend using a class constant for this.
      * @return bool indicating success
-     * @throws CmsInvalidDataException if an invalid state is passed in.
+     * @throws CmsInvalidDataException if an invalid state is provided.
      */
     public function remove_state(string $state) : bool
     {
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
         $this->set_states();
-        $key = array_search($state,$this->_states);
-        if( $key !== FALSE ) {
-            unset($this->_states[$key]);
+        if( isset($this->_states[$state] ) {
+            unset($this->_states[$state]);
             return TRUE;
         }
         return FALSE;
@@ -710,7 +712,7 @@ final class CmsApp
      */
     public function is_frontend_request() : bool
     {
-		return $this->test_state(self::STATE_FRONT_PAGE);
+        return $this->test_state(self::STATE_FRONT_PAGE);
     }
 
     /** Report whether the current request was over HTTPS.
