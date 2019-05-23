@@ -19,13 +19,13 @@
 use CMSMS\Events;
 use CMSMS\Group;
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
 
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
     redirect('listgroups.php'.$urlext);
 //  return;

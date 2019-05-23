@@ -28,21 +28,17 @@ use CMSMS\SyntaxEditor;
 use CMSMS\ThemeBase;
 
 $CMS_ADMIN_PAGE = 1;
-$CMS_TOP_MENU = 'admin';
-$CMS_ADMIN_TITLE = 'preferences';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-$userid = get_userid(); // <- Also checks login
-
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
     redirect('index.php'.$urlext);
     return;
 }
 
+$userid = get_userid(); // <- Also checks login
 $access = check_permission($userid, 'Modify Site Preferences');
-
 $themeObject = cms_utils::get_theme_object();
 
 if (!$access) {

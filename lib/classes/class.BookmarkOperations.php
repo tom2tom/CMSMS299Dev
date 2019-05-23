@@ -71,7 +71,7 @@ final class BookmarkOperations
 	 */
 	private function _prep_for_saving(string $url) : string
 	{
-		$urlext = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+		$urlext = get_secure_param();
 		if( startswith($url,CMS_ROOT_URL) ) $url = str_replace(CMS_ROOT_URL,'[ROOT_URL]',$url);
 		$url = str_replace($urlext,'[SECURITYTAG]',$url);
 		return $url;
@@ -87,8 +87,7 @@ final class BookmarkOperations
 	 */
 	private function _prep_for_display(string $url) : string
 	{
-		$urlext = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-
+		$urlext = get_secure_param();
 		$map = ['[SECURITYTAG]'=>$urlext,'[ROOT_URL]'=>CMS_ROOT_URL];
 		foreach( $map as $from => $to ) {
 			$url = str_replace($from,$to,$url);

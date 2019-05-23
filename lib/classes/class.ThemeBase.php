@@ -743,7 +743,7 @@ abstract class ThemeBase
      */
     protected function populate_tree()
     {
-        $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+        $urlext = get_secure_param();
 
         $items = [
 
@@ -1221,7 +1221,7 @@ abstract class ThemeBase
         $marks = array_reverse($bookops->LoadBookmarks($this->userid));
 
         if( !$pure ) {
-            $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+            $urlext = get_secure_param();
             $mark= new Bookmark();
             $mark->title = lang('addbookmark');
             $mark->url = 'makebookmark.php'.$urlext.'&amp;title='.urlencode($this->_title);
@@ -1940,7 +1940,7 @@ abstract class ThemeBase
             return $url;
         }
         // rely on base href to redirect back to the admin home page
-        $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+        $urlext = get_secure_param();
         return 'index.php'.$urlext;
     }
 

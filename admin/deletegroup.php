@@ -22,13 +22,13 @@ if (!isset($_GET['group_id'])) {
     return;
 }
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
 
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 $userid = get_userid();
 if (!check_permission($userid, 'Manage Groups')) {
     cms_utils::get_theme_object()->ParkNotice('error', lang('needpermissionto', '"Manage Groups"'));

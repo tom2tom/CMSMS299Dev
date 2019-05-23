@@ -22,13 +22,13 @@ if (!isset($_GET['user_id'])) {
     return;
 }
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
 
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 $cur_userid = get_userid();
 if( !check_permission($cur_userid, 'Manage Users') ) {
     cms_utils::get_theme_object()->ParkNotice('error', lang('needpermissionto', '"Manage Users"'));
@@ -67,4 +67,3 @@ if ($key) {
     cms_utils::get_theme_object()->ParkNotice('error', lang($key));
 }
 redirect('listusers.php'.$urlext);
-

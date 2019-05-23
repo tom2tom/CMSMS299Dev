@@ -17,14 +17,14 @@
 
 use CMSMS\UserPluginOperations;
 
-$CMS_ADMIN_PAGE=1;
-$CMS_LOAD_ALL_PLUGINS=1;
+$CMS_ADMIN_PAGE = 1;
+//$CMS_LOAD_ALL_PLUGINS = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
 
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 $userid = get_userid();
 $pmod = check_permission($userid, 'Modify User Plugins');
 $access = $pmod || check_permission($userid, 'View Tag Help');

@@ -28,7 +28,7 @@ if (!isset($_GET['bookmark_id'])) {
 	return;
 }
 
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = get_secure_param();
 
 $bookmark_id = (int)$_GET['bookmark_id'];
 $markobj = (new BookmarkOperations())->LoadBookmarkByID($bookmark_id);

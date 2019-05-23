@@ -69,7 +69,7 @@ if (isset($_GET['switchuser'])) {
             $themeObject->RecordNotice('error', lang('userdisabled'));
         } else {
             (new LoginOperations())->set_effective_user($to_user);
-            $urlext = '?' . CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
+            $urlext = get_secure_param();
             redirect('index.php'.$urlext);
         }
     }

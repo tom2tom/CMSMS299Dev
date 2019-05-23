@@ -21,7 +21,7 @@ use CMSMS\LangOperations;
 $CMS_ADMIN_PAGE=1;
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 //check_login();
-//$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+//$urlext = get_secure_param();
 
 $key = ( isset($_GET['key']) ) ? filter_var(trim($_GET['key']),FILTER_SANITIZE_STRING) : 'help';
 if( strstr($key,'__') !== FALSE ) {

@@ -43,7 +43,7 @@ final class content_slave extends slave
         $dbr = $db->GetArray($query, [ $txt, $txt ] );
         if( $dbr ) {
             $output = [];
-            $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+            $urlext = get_secure_param();
 
             foreach( $dbr as $row ) {
                 $content_id = $row['content_id'];
