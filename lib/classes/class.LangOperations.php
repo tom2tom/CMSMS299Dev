@@ -258,8 +258,8 @@ final class LangOperations
 
 	/**
 	 * Allow non-admin requests to call lang functions.
-	 * normally, an error would be generated if calling core lang functions from an frontend action.
-	 * this method will disable or enable that check.
+	 * Normally, an error would be generated if calling core lang functions from
+	 * a frontend action. This method will disable or enable that check.
 	 *
 	 * @internal
 	 * @param bool flag
