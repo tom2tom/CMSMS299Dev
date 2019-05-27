@@ -84,8 +84,8 @@ class DataDictionary
     protected $connection;
 
     /**
-	 * Whether the table includes auto-increment field(s)
-	 *
+     * Whether the table includes auto-increment field(s)
+     *
      * @ignore
      */
     protected $autoIncrement = false;
@@ -202,8 +202,9 @@ class DataDictionary
      *
      * @internal
      *
-     * @param string $name          The input name
-     * @param bool   $allowBrackets Optional flag whether brackets should be quoted. Default false
+     * @param mixed  $name          The input name
+     * @param bool   $allowBrackets Optional flag whether $name with embedded brackets
+     *  should be quoted. Default false
      * @return string
      */
     protected function NameQuote($name = null, $allowBrackets = false)
@@ -223,6 +224,8 @@ class DataDictionary
         if (preg_match('/[^'.$patn.']/', $name)) {
             return '`'.$name.'`';
         }
+       // TODO if name is a reserved word, quote it
+
         return $name;
     }
 
@@ -293,6 +296,9 @@ class DataDictionary
      */
     public function CreateIndexSQL($idxname, $tabname, $flds, $idxoptions = false)
     {
+        if (strcasecmp($idxname, 'PRIMARY') == 0) {
+            $idxname = '`PRIMARY`'; // quote reserved word
+        }
         if (!is_array($flds)) {
             $flds = explode(',', $flds);
             $s = true;
@@ -312,11 +318,14 @@ class DataDictionary
      * Generate the SQL to drop an index.
      *
      * @param string $idxname Index name
-     * @param string $tabname Optional table name. Default null
+     * @param string $tabname Table name
      * @return array Strings suitable for use with the ExecuteSQLArray method
      */
-    public function DropIndexSQL($idxname, $tabname = null)
+    public function DropIndexSQL($idxname, $tabname)
     {
+        if (strcasecmp($idxname, 'PRIMARY') == 0) {
+            $idxname = '`PRIMARY`'; // quote reserved word
+        }
         return [sprintf(self::DROPINDEX, $this->NameQuote($idxname), $this->TableName($tabname))];
     }
 
@@ -373,38 +382,51 @@ class DataDictionary
     /**
      * Generate the SQL to rename one column.
      *
-     * @param string $tabname   table-name
-     * @param string $oldcolumn current column-name
-     * @param string $newcolumn new column-name, may be empty if the new name is at the start of $defn
-     * @param string $defn      optional column definition (using DataDictionary meta types). Default ''
-     * NOTE the resultant command will silently fail unless a non-empty $defn value
-     * is provided, but to preserve back-compatibility, it remains an optional parameter.
-     * May include FIRST or 'AFTER other-colname' to re-order the field.
-     * $newcolumn will be prepended to $defn if it's not already there.
+     * @param string $tabname Table-name
+     * @param string $oldname Current column-name
+     * @param string $newname New column-name, or full column-definition with
+     *  the new name at its start
+     * @param string $defn    Renamed-column definition (using DataDictionary meta types).
+     *
+     * NOTE: for back-compatibility a definition is optional, and recent
+     *  server-versions will work without one, but for older versions, without a
+     *  definition the rename will fail.
      * @return array Strings suitable for use with the ExecuteSQLArray method
      */
-    public function RenameColumnSQL($tabname, $oldcolumn, $newcolumn, $defn = '')
+    public function RenameColumnSQL($tabname, $oldname, $newname, $defn = '')
     {
-        if ($defn) {
-            $defn = trim($defn);
-            if ($newcolumn && strpos($defn, $newcolumn) !== 0) {
-                $defn = $newcolumn.' '.$defn;
+        $defn = trim($defn);
+        if (!$defn) {
+            if (($p = strpos($newname, ' ', 1)) != false) {
+                $defn = $newname;
+                $newname = '';
             }
+        } elseif (strpos($defn, $newname) !== 0) {
+            $defn = $newname.' '.$defn;
+        }
+        if ($defn) {
             list($lines, $pkey) = $this->GenFields($defn); // primary-key ignored, can't change that via rename
             $first = reset($lines);
             list($name, $column_def) = preg_split('/\s+/', $first, 2);
-            if (!$newcolumn) {
-                $newcolumn = $name;
+            if (!$newname) {
+                $newname = $name;
             }
         } else {
-            $column_def = '';  //BAD causes command to fail TODO find something
+            $column_def = '';
         }
 
-        return [sprintf('ALTER TABLE %s CHANGE COLUMN %s %s %s',
+        if ($column_def) {
+            return [sprintf('ALTER TABLE %s CHANGE COLUMN %s %s %s',
+                $this->TableName($tabname),
+                $this->NameQuote($oldname),
+                $this->NameQuote($newname),
+                $column_def)];
+        }
+        // recent db-server versions support this
+        return [sprintf('ALTER TABLE %s RENAME COLUMN %s TO %s',
             $this->TableName($tabname),
-            $this->NameQuote($oldcolumn),
-            $this->NameQuote($newcolumn),
-            $column_def)];
+            $this->NameQuote($oldname),
+            $this->NameQuote($newname))];
     }
 
     /**
@@ -664,7 +686,7 @@ class DataDictionary
         if ($pkey) {
             $v = $alter.' ADD PRIMARY KEY(';
             $v .= implode(', ', $pkey).')';
-			$sql[] = $v;
+            $sql[] = $v;
         }
         return $sql;
     }
