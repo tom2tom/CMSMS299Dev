@@ -12,9 +12,9 @@ final class tools
 
   public static function get_slave_classes()
   {
-    $ob = cms_cache_handler::get_instance();
-    $key = __CLASS__.'slaves'.get_userid(FALSE);
-    $results = $ob->get($key);
+    $key = 'slaves'.get_userid(FALSE);
+    $cache = cms_cache_handler::get_instance();
+    $results = $cache->get($key,__CLASS__);
     if( !$results ) {
       // cache needs populating
       //TODO force upon module installation
@@ -72,7 +72,7 @@ final class tools
       }
 
       // cache the results
-      $ob->set($key,$results);
+      $cache->set($key,$results,__CLASS__);
     }
 
     return $results;
