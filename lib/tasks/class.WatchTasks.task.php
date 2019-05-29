@@ -36,7 +36,7 @@ class WatchTasksTask implements CmsRegularTask
 				$fp = __DIR__.DIRECTORY_SEPARATOR.$file;
 				$sig .= filesize($fp).filemtime($fp);
 			}
-			$sig = md5($sig);
+			$sig = cms_utils::hash_string($sig);
 			$saved = cms_siteprefs::get(self::STATUS_SITEPREF,'');
 			if( $saved != $sig ) {
 				cms_siteprefs::set(self::STATUS_SITEPREF,$sig);
