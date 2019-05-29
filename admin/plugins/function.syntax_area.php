@@ -37,7 +37,7 @@ function smarty_function_syntax_area($params, $template)
 		'addtext'=>1,
 	]);
 
-	if (empty($parms['name']) $parms['name'] = 'editor_content';
+	if (empty($parms['name'])) $parms['name'] = 'editor_content';
 	$elemid = $parms['id'] ?? $parms['htmlid'] ?? 'work_area';
 	unset($parms['id']);
 	$parms['htmlid'] = $elemid;

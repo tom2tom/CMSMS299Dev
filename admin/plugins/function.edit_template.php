@@ -30,7 +30,7 @@ function smarty_function_edit_template($params, $template)
 			return $t->getMessage();
 		}
 	}
-	if (empty($params['name']) {
+	if (empty($params['name'])) {
 		$params['name'] = 'template_content';
 	}
 	$params['typer'] = 'smarty';
