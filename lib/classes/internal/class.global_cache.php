@@ -145,7 +145,8 @@ class global_cache
      */
     private static function _get_cache()
     {
-        static $_handler = null;
+        static $_handler = null; //global cache singleton
+
         if( !$_handler ) {
             $obj = new cms_cache_handler();
             $obj->connect([
