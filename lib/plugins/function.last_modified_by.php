@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\UserOperations;
+
 function smarty_function_last_modified_by($params, $template)
 {
 	$gCms = CmsApp::get_instance();
@@ -30,7 +32,7 @@ function smarty_function_last_modified_by($params, $template)
 
 	$format = 'id';
 	if(!empty($params['format'])) $format = $params['format'];
-	$thisuser = (new UserOperations())->LoadUserByID($id);
+	$thisuser = UserOperations::get_instance()->LoadUserByID($id);
 	if( !$thisuser ) return; // could not find user record.
 
 	$output = '';

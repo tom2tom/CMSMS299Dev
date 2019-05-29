@@ -15,6 +15,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentOperations;
+
 function smarty_function_cms_action_url($params, $template)
 {
 	$module = $template->getTemplateVars('_module');
@@ -71,8 +73,7 @@ function smarty_function_cms_action_url($params, $template)
 		if( $returnid == '' ) {
 			$returnid = cms_utils::get_current_pageid();
 			if( $returnid < 1 ) {
-				$contentops = $gCms->GetContentOperations();
-				$returnid = $contentops->GetDefaultContent();
+				$returnid = ContentOperations::get_instance()->GetDefaultContent();
 			}
 		}
 	}
