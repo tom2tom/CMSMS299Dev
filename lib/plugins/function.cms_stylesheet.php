@@ -1,5 +1,5 @@
 <?php
-#Plugin to...
+#Plugin to minimize and merge contents of stylesheets for frontend pages
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,21 +16,25 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+namespace {
+
 use CMSMS\Events;
+use function cms_stylesheet\toString;
+use function cms_stylesheet\writeCache;
 
 function smarty_function_cms_stylesheet($params, $template)
 {
 	global $CMS_LOGIN_PAGE, $CMS_STYLESHEET;
 
-	#---------------------------------------------
-	# Trivial Exclusion
-	#---------------------------------------------
+	//---------------------------------------------
+	// Trivial Exclusion
+	//---------------------------------------------
 
 	if( isset($CMS_LOGIN_PAGE) ) return;
 
-	#---------------------------------------------
-	# Initials
-	#---------------------------------------------
+	//---------------------------------------------
+	// Initials
+	//---------------------------------------------
 
 	$CMS_STYLESHEET = 1;
 	$gCms = CmsApp::get_instance();
@@ -47,9 +51,9 @@ function smarty_function_cms_stylesheet($params, $template)
 	$styles = null;
 
 	try {
-		#---------------------------------------------
-		# Read parameters
-		#---------------------------------------------
+		//---------------------------------------------
+		// Read parameters
+		//---------------------------------------------
 
 		if( !empty($params['name']) ) {
 			$name = trim($params['name']); //sheet-name prefix
@@ -79,9 +83,9 @@ function smarty_function_cms_stylesheet($params, $template)
 			$fnsuffix = '_e_';
 		}
 
-		#---------------------------------------------
-		# Build query
-		#---------------------------------------------
+		//---------------------------------------------
+		// Build query
+		//---------------------------------------------
 
 		$query = null;
 		if( $name ) {
@@ -100,9 +104,9 @@ function smarty_function_cms_stylesheet($params, $template)
 			throw new RuntimeException('Problem: failed to build a stylesheet query using the provided data');
 		}
 
-		#---------------------------------------------
-		# Execute
-		#---------------------------------------------
+		//---------------------------------------------
+		// Execute
+		//---------------------------------------------
 
 		$nrows = $query->TotalMatches();
 		if( !$nrows ) {
@@ -121,7 +125,7 @@ function smarty_function_cms_stylesheet($params, $template)
 				$mq = $one->get_media_query();
 				$mt = implode(',',$one->get_media_types());
 				if( !empty($mq) ) {
-					$key = md5($mq);
+					$key = cms_utils::hash_string($mq);
 					$all_media[$key][] = $one;
 					$all_timestamps[$key][] = $one->get_modified();
 				}
@@ -130,7 +134,7 @@ function smarty_function_cms_stylesheet($params, $template)
 					$all_timestamps['all'][] = $one->get_modified();
 				}
 				else {
-					$key = md5($mt);
+					$key = cms_utils::hash_string($mt);
 					$all_media[$key][] = $one;
 					$all_timestamps[$key][] = $one->get_modified();
 				}
@@ -141,7 +145,7 @@ function smarty_function_cms_stylesheet($params, $template)
 				// media parameter is deprecated.
 
 				// combine all matches into one stylesheet
-				$filename = 'stylesheet_combined_'.md5($design_id.serialize($params).serialize($all_timestamps).$fnsuffix).'.css';
+				$filename = 'combined_'.cms_utils::hash_string($design_id.serialize($params).serialize($all_timestamps).$fnsuffix).'.css';
 				$fn = cms_join_path($cache_dir,$filename);
 
 				if( !is_file($fn) ) {
@@ -150,18 +154,17 @@ function smarty_function_cms_stylesheet($params, $template)
 						if( in_array($params['media'],$one->get_media_types()) ) $list[] = $one->get_name();
 					}
 
-					cms_stylesheet_writeCache($fn, $list, $trimbackground, $template);
+					writeCache($fn, $list, $trimbackground, $template);
 				}
 
-				cms_stylesheet_toString($filename, $params['media'], '', $root_url, $stylesheet, $params);
-
+				toString($filename, $params['media'], '', $root_url, $stylesheet, $params);
 			}
 			else {
 
 				foreach($all_media as $hash=>$onemedia) {
 
 					// combine all matches into one stylesheet
-					$filename = 'stylesheet_combined_'.md5($design_id.serialize($params).serialize($all_timestamps[$hash]).$fnsuffix).'.css';
+					$filename = 'combined_'.cms_utils::hash_string($design_id.serialize($params).serialize($all_timestamps[$hash]).$fnsuffix).'.css';
 					$fn = cms_join_path($cache_dir,$filename);
 
 					// Get media_type and media_query
@@ -175,10 +178,10 @@ function smarty_function_cms_stylesheet($params, $template)
 							$list[] = $one->get_name();
 						}
 
-						cms_stylesheet_writeCache($fn, $list, $trimbackground, $template);
+						writeCache($fn, $list, $trimbackground, $template);
 					}
 
-					cms_stylesheet_toString($filename, $media_query, $media_type, $root_url, $stylesheet, $params);
+					toString($filename, $media_query, $media_type, $root_url, $stylesheet, $params);
 				}
 			}
 		}
@@ -196,18 +199,18 @@ function smarty_function_cms_stylesheet($params, $template)
 					$media_type  = implode(',',$one->get_media_types());
 				}
 
-				$filename = 'stylesheet_'.md5('single'.$one->get_id().$one->get_modified().$fnsuffix).'.css';
+				$filename = 'stylesheet_'.cms_utils::hash_string('single'.$one->get_id().$one->get_modified().$fnsuffix).'.css';
 				$fn = cms_join_path($cache_dir,$filename);
 
-				if( !is_file($fn) ) cms_stylesheet_writeCache($fn, $one->get_name(), $trimbackground, $template);
+				if( !is_file($fn) ) writeCache($fn, $one->get_name(), $trimbackground, $template);
 
-				cms_stylesheet_toString($filename, $media_query, $media_type, $root_url, $stylesheet, $params);
+				toString($filename, $media_query, $media_type, $root_url, $stylesheet, $params);
 			}
 		}
 
-		#---------------------------------------------
-		# Cleanup & output
-		#---------------------------------------------
+		//---------------------------------------------
+		// Cleanup & output
+		//---------------------------------------------
 
 		if( strlen($stylesheet) ) {
 			$stylesheet = preg_replace("/\{\/?php\}/", '', $stylesheet);
@@ -237,10 +240,34 @@ function smarty_function_cms_stylesheet($params, $template)
 } // main function
 
 /**********************************************************
+	Help functions
+**********************************************************/
+
+function smarty_cms_about_function_cms_stylesheet()
+{
+	echo <<<'EOS'
+<p>Author: jeff&lt;jeff@ajprogramming.com&gt;</p>
+<p>Change History:</p>
+<ul>
+ <li>Rework from {stylesheet}</li>
+ <li>(Stikki and Calguy1000) Code cleanup, Added grouping by media type / media query, Fixed cache issues</li>
+</ul>
+EOS;
+}
+
+} // namespace
+
+namespace cms_stylesheet {
+
+use CMSMS\Events;
+use SmartyException;
+use function cms_error;
+
+/**********************************************************
 	Misc functions
 **********************************************************/
 
-function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$template)
+function writeCache($filename, $list, $trimbackground, &$template)
 {
 	$_contents = '';
 	if( is_string($list) && !is_array($list) ) $list = [$list];
@@ -260,7 +287,7 @@ function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$template
 	}
 	catch (SmartyException $e) {
 		// why not just re-throw the exception as it may have a smarty error in it.
-		cms_error('cms_stylesheet: Smarty Compile process failed, an error in the template?');
+		cms_error('cms_stylesheet: Smarty compilation failed, is there an error in the template?');
 		return;
 	}
 
@@ -284,17 +311,16 @@ function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$template
 	$fh = fopen($filename,'w');
 	fwrite($fh, $_contents);
 	fclose($fh);
+}
 
-} // writeCache
-
-function cms_stylesheet_toString($filename, $media_query = '', $media_type = '', $root_url, &$stylesheet, &$params)
+function toString($filename, $media_query = '', $media_type = '', $root_url, &$stylesheet, &$params)
 {
 	if( !endswith($root_url,'/') ) $root_url .= '/';
 	if( isset($params['nolinks']) )	{
 		$stylesheet .= $root_url.$filename.',';
 	}
 	elseif( !empty($media_query) ) {
-			$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_query.'" />'."\n";
+		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_query.'" />'."\n";
 	}
 	elseif( !empty($media_type) ) {
 		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_type.'" />'."\n";
@@ -302,20 +328,6 @@ function cms_stylesheet_toString($filename, $media_query = '', $media_type = '',
 	else {
 		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" />'."\n";
 	}
-} // toString
-
-/**********************************************************
-	Help functions
-**********************************************************/
-
-function smarty_cms_about_function_cms_stylesheet()
-{
-	echo <<<'EOS'
-<p>Author: jeff&lt;jeff@ajprogramming.com&gt;</p>
-<p>Change History:</p>
-<ul>
- <li>Rework from {stylesheet}</li>
- <li>(Stikki and Calguy1000) Code cleanup, Added grouping by media type / media query, Fixed cache issues</li>
-</ul>
-EOS;
 }
+
+} //namespace
