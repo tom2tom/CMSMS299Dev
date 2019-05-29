@@ -15,12 +15,16 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\ContentOperations;
 use CMSMS\Events;
+use CMSMS\PageLoader;
 
 function smarty_function_send_content_notice($params, $template)
 {
-    $obj = ContentOperations::get_instance()->LoadContentFromId($params['pageid']);
+    try {
+        $obj = PageLoader::LoadContent($params['pageid']);
+    } catch (Exception $e) {
+        return;
+    }
     $originator = $params['originator'] ?? 'Core';
     Events::SendEvent($originator, $params['type'], ['content'=>$obj, 'html'=>&$params['content']]);
     if( !empty($params['assign']) ) {
@@ -30,7 +34,7 @@ function smarty_function_send_content_notice($params, $template)
 
 function smarty_cms_about_send_content_notice()
 {
-	echo <<<'EOS'
+    echo <<<'EOS'
 <p>Change History:</p>
 <ul>
 <li>Initial version (for CMSMS 2.3)</li>
@@ -40,13 +44,13 @@ EOS;
 
 function smarty_cms_help_send_content_notice()
 {
-	echo <<<'EOS'
+    echo <<<'EOS'
 Parameters:<br />
 <ul>
 <li>originator: event originator, default 'Core'</li>
 <li>type: event type, PageTopPreRender etc</li>
-<li>pageid: numeric identifier of the page being processed</li>
-<li>content: the current content, a html string</li>
+<li>pageid: identifier of the page being processed, numeric id or string alias</li>
+<li>content: the current content, a html string, maybe empty</li>
 <li>assign: optional variable to assign the (possibly modified) content to</li>
 </ul>
 EOS;
