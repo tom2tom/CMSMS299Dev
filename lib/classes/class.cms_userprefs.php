@@ -28,6 +28,7 @@ final class cms_userprefs
 {
 	/**
 	 * @ignore
+	 * Intra-request cache
 	 */
 	private static $_prefs;
 
