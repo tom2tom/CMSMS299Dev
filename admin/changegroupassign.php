@@ -18,6 +18,8 @@
 
 use CMSMS\AdminUtils;
 use CMSMS\Events;
+use CMSMS\GroupOperations;
+use CMSMS\UserOperations;
 
 $CMS_ADMIN_PAGE = 1;
 
@@ -43,11 +45,11 @@ if (!$access) {
 
 $group_id = (isset($_GET['group_id'])) ? (int)$_GET['group_id'] : -1;
 
-$gCms = CmsApp::get_instance();
-$userops = $gCms->GetUserOperations();
+$userops = UserOperations::get_instance();
 $adminuser = ($userops->UserInGroup($userid, 1) || $userid == 1);
 $message = '';
 
+$gCms = CmsApp::get_instance();
 $db = $gCms->GetDb();
 $smarty = $gCms->GetSmarty();
 
@@ -58,7 +60,7 @@ if (isset($_POST['filter'])) {
 $disp_group = cms_userprefs::get_for_user($userid, 'changegroupassign_group', -1);
 
 // always display the group pulldown
-$groupops = $gCms->GetGroupOperations();
+$groupops = GroupOperations::get_instance();
 $tmp = new stdClass();
 $tmp->name = lang('all_groups');
 $tmp->id=-1;
@@ -117,7 +119,8 @@ VALUES (?,?,$now,$now)");
     // put mention into the admin log
     audit($userid, 'Assignment User ID: '.$userid, 'Changed');
     $message = lang('assignmentchanged');
-    AdminUtils::clear_cache();
+//    AdminUtils::clear_cached_files();
+//   global_cache::release('IF ANY');
 }
 
 $query = 'SELECT u.user_id, u.username, ug.group_id FROM '.

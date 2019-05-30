@@ -17,8 +17,10 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminUtils;
+use CMSMS\GroupOperations;
 use CMSMS\HookManager;
 use CMSMS\LangOperations;
+use CMSMS\UserOperations;
 
 $CMS_ADMIN_PAGE = 1;
 
@@ -42,12 +44,12 @@ if (!$access) {
     return;
 }
 
-$gCms = CmsApp::get_instance();
-$userops = $gCms->GetUserOperations();
+$userops = UserOperations::get_instance();
 $adminuser = ($userops->UserInGroup($userid, 1) || $userid == 1);
 $group_name = '';
 $message = '';
 
+$gCms = CmsApp::get_instance();
 $db = $gCms->GetDb();
 $smarty = $gCms->GetSmarty();
 
@@ -139,7 +141,7 @@ if (isset($_POST['filter'])) {
 $disp_group = cms_userprefs::get_for_user($userid, 'changegroupassign_group', -1);
 
 // always display the group pull down
-$groupops = $gCms->GetGroupOperations();
+$groupops = GroupOperations::get_instance();
 $tmp = new stdClass();
 $tmp->name = lang('all_groups');
 $tmp->id=-1;
@@ -165,7 +167,7 @@ if (isset($_POST['submit'])) {
     // we have group permissions
     $parts = explode('::', $_POST['sel_groups']);
     if (count($parts) == 2) {
-        if (md5(__FILE__.$parts[1]) == $parts[0]) {
+        if (cms_utils::hash_string(__FILE__.$parts[1]) == $parts[0]) {
             $selected_groups = (array) unserialize(base64_decode($parts[1]), ['allowed_classes'=>false]);
             if ($selected_groups) {
                 // clean this array
@@ -209,7 +211,8 @@ VALUES (?,?,?,$now,$now)");
     // put mention into the admin log
     audit($userid, 'Permission Group ID: '.$userid, 'Changed');
     $message = lang('permissionschanged');
-    AdminUtils::clear_cache();
+//    AdminUtils::clear_cached_files();
+//    global_cache::release('IF ANY');
 }
 
 if (!empty($message)) {
@@ -219,7 +222,7 @@ $pagesubtitle = lang('groupperms', $group_name);
 $perm_struct = $load_perms();
 $perm_struct = $group_perms($perm_struct);
 $tmp = base64_encode(serialize($sel_group_ids));
-$sig = md5(__FILE__.$tmp);
+$sig = cms_utils::hash_string(__FILE__.$tmp);
 $hidden = '<input type="hidden" name="sel_groups" value="'.$sig.'::'.base64_encode(serialize($sel_group_ids)).'" />';
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();

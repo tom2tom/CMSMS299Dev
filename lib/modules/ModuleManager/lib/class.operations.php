@@ -118,7 +118,7 @@ class operations
         $dtdversion = $val;
         $current = (version_compare($val,self::MODULE_DTD_VERSION) == 0);
         $coremodule = (string)$xml->core; //'1', '0' or ''
-        $modops = new ModuleOperations();
+        $modops = ModuleOperations::get_instance();
         $moduledetails = [];
         $filedone = false;
 
@@ -275,18 +275,19 @@ class operations
     {
         $dir = $modinstance->GetModulePath();
         if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
-
+/*
         // generate a moduleinfo.ini file, if N/A now
 		$fn = $dir.'/moduleinfo.ini';
 		if( !is_file($fn) ) {
-	        (new ModuleOperations())->generate_moduleinfo($modinstance);
-//			global_cache::clear('modules');
-//			global_cache::clear('module_deps');
-//			global_cache::clear('module_plugins');
+	        ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
+//			global_cache::release('modules');
+//			global_cache::release('module_deps');
+//			global_cache::release('module_meta');
+//			global_cache::release('module_plugins');
 		}
-
+*/
         $xw = new XMLWriter();
-        $outfile = cms_join_path(TMP_CACHE_LOCATION,'module'.md5($dir).'.xml');
+        $outfile = cms_join_path(TMP_CACHE_LOCATION,'module'.cms_utils::hash_string($dir).'.xml');
         @unlink($outfile);
         $xw->openUri('file://'.$outfile);
 //        $xw->openMemory();

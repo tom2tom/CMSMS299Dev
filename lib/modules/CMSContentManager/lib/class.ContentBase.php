@@ -19,14 +19,13 @@
 namespace CMSContentManager;
 
 use cms_config;
-use cms_route_manager;
 use cms_siteprefs;
 use cms_utils;
 use CmsApp;
 use CmsContentException;
-use CMSContentManager\ContentEditor;
 use CmsInvalidDataException;
 use CMSMS\AdminUtils;
+use CMSMS\ContentEditor;
 use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\FileType;
@@ -34,10 +33,12 @@ use CMSMS\FormUtils;
 use CMSMS\GroupOperations;
 use CMSMS\internal\content_assistant;
 use CMSMS\internal\global_cache;
+use CMSMS\RouteOperations;
 use CMSMS\UserOperations;
 use CmsRoute;
 use DeprecationNotice;
 use Exception;
+use Search\Utils;
 use Serializable;
 use const CMS_DB_PREFIX;
 use const CMS_DEBUG;
@@ -769,7 +770,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 			if( !$adding && (check_permission(get_userid(),'Manage All Content') || $showadmin) ) {
 				$help = AdminUtils::get_help_tag($this->realm,'help_content_owner',$this->mod->Lang('help_title_content_owner'));
 				return ['<label for="owner">'.lang('owner').':</label>&nbsp;'.$help,
-				(new UserOperations())->GenerateDropdown($this->Owner(),$id.'owner_id')];
+				UserOperations::get_instance()->GenerateDropdown($this->Owner(),$id.'owner_id')];
 			}
 			break;
 
@@ -808,7 +809,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 */
 	public function display_single_element($propname, $adding)
 	{
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','ShowElement'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','ShowElement'));
 		return $this->ShowElement($propname, $adding);
 	}
 
@@ -822,11 +823,11 @@ abstract class ContentBase implements ContentEditor, Serializable
 	public static function GetAdditionalEditorOptions() : array
 	{
 		$opts = [];
-		$allusers = (new UserOperations())->LoadUsers();
+		$allusers = UserOperations::get_instance()->LoadUsers();
 		foreach( $allusers as &$one ) {
 			$opts[$one->id] = $one->username;
 		}
-		$allgroups = (new GroupOperations())->LoadGroups();
+		$allgroups = GroupOperations::get_instance()->LoadGroups();
 		foreach( $allgroups as &$one ) {
 			if( $one->id == 1 ) continue; // exclude admin group (they have all privileges anyways)
 			$val = - (int)$one->id;
@@ -1428,10 +1429,10 @@ WHERE content_id = ?';
 			$res = $this->_save_properties();
 		}
 
-		cms_route_manager::del_static('','__CONTENT__',$this->mId);
+		RouteOperations::del_static('','__CONTENT__',$this->mId);
 		if( $this->mURL ) {
-			$route = CmsRoute::new_builder($this->mURL,'__CONTENT__',$this->mId,null,true);
-			cms_route_manager::add_static($route);
+			$route = new CmsRoute($this->mURL,'__CONTENT__',null,true,$this->mId);
+			RouteOperations::add_static($route);
 		}
 	}
 
@@ -1521,8 +1522,8 @@ WHERE content_id = ?';
 		}
 
 		if( $this->mURL ) {
-			$route = CmsRoute::new_builder($this->mURL,'__CONTENT__',$this->mId,'',true);
-			cms_route_manager::add_static($route);
+			$route = new CmsRoute($this->mURL,'__CONTENT__',null,true,$this->mId);
+			RouteOperations::add_static($route);
 		}
 	}
 
@@ -1583,7 +1584,7 @@ WHERE content_id = ?';
 			$this->mAdditionalEditors = null;
 
 			// Delete route
-			if( $this->mURL ) cms_route_manager::del_static($this->mURL);
+			if( $this->mURL ) RouteOperations::del_static($this->mURL);
 		}
 
 		Events::SendEvent( 'Core', 'ContentDeletePost', [ 'content' => &$this ] );
@@ -1814,9 +1815,9 @@ WHERE content_id = ?';
 		}
 
 		$this->mAlias = $alias;
-		global_cache::clear('content_quicklist');
-		global_cache::clear('content_tree');
-		global_cache::clear('content_flatlist');
+		global_cache::release('content_quicklist');
+		global_cache::release('content_tree');
+		global_cache::release('content_flatlist');
 	}
 
 	/**
@@ -2091,8 +2092,8 @@ WHERE content_id = ?';
  WHERE content_id = ?';
 			$db->Execute($query,[$this->Id()]);
 		}
-		global_cache::clear('content_tree');
-		global_cache::clear('content_flatlist');
+		global_cache::release('content_tree');
+		global_cache::release('content_flatlist');
 	}
 
 	/**
@@ -2394,7 +2395,7 @@ WHERE content_id = ?';
 	public function IsEditable($main = true, $extra = true)
 	{
 		$uid = get_userid();
-		$ops = new UserOperations();
+		$ops = UserOperations::get_instance();
 		if( $main ) {
 			if( $ops->CheckPermission($uid,'Manage All Content')
 			 || $ops->CheckPermission($uid,'Modify Any Page')

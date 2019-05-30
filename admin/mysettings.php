@@ -17,7 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminUtils;
-use CMSMS\internal\module_meta;
+use CMSMS\ContentOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\SyntaxEditor;
 use CMSMS\ThemeBase;
@@ -42,7 +42,7 @@ if (!check_permission($userid,'Manage My Settings')) {
   return;
 }
 
-$userobj = (new UserOperations())->LoadUserByID($userid); // <- Safe to do, cause if $userid fails, it redirects automatically to login.
+$userobj = UserOperations::get_instance()->LoadUserByID($userid); // <- Safe to do, cause if $userid fails, it redirects automatically to login.
 $db = cmsms()->GetDb();
 
 /**
@@ -98,7 +98,8 @@ if (isset($_POST['submit'])) {
   // Audit, message, cleanup
   audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
   $themeObject->RecordNotice('success', lang('prefsupdated'));
-  AdminUtils::clear_cache();
+//  AdminUtils::clear_cached_files();
+//  global_cache::release('IF ANY');
 
   if ($themenow != $admintheme) {
     redirect(basename(__FILE__).$urlext);
@@ -130,12 +131,12 @@ $wysiwyg = cms_userprefs::get_for_user($userid, 'wysiwyg');
  * Build page
  */
 
-$contentops = CmsApp::get_instance()->GetContentOperations();
+$contentops = ContentOperations::get_instance();
+$modops = ModuleOperations::get_instance();
 $smarty = CmsApp::get_instance()->GetSmarty();
-$metops = new module_meta();
 
 // WYSIWYG editors
-$tmp = $metops->module_list_by_capability(CmsCoreCapabilities::WYSIWYG_MODULE);
+$tmp = $modops->GetCapableModules(CmsCoreCapabilities::WYSIWYG_MODULE);
 $n = count($tmp);
 $tmp2 = [-1 => lang('none')];
 for ($i = 0; $i < $n; ++$i) {
@@ -146,7 +147,7 @@ $smarty -> assign('wysiwyg_opts', $tmp2);
 
 // Syntax highlighters
 $editors = [];
-$tmp = $metops->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
+$tmp = $modops->GetCapableModules(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
 if ($tmp) {
   for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
     $ob = cms_utils::get_module($tmp[$i]);
@@ -209,7 +210,7 @@ if (count($tmp) < 2) {
 $smarty->assign('themes_opts',$tmp);
 
 // Modules
-$allmodules = (new ModuleOperations())->GetInstalledModules();
+$allmodules = $modops->GetInstalledModules();
 $modules = [];
 foreach ((array)$allmodules as $onemodule) {
   $modules[$onemodule] = $onemodule;

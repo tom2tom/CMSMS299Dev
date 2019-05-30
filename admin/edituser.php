@@ -105,8 +105,8 @@ if (isset($_POST['user_id'])) {
 }
 
 // this is now always true... but we may want to change how things work, so I'll leave it
-$userops           = $gCms->GetUserOperations();
-$groupops          = $gCms->GetGroupOperations();
+$userops           = UserOperations::get_instance();
+$groupops          = GroupOperations::get_instance();
 $group_list        = $groupops->LoadGroups();
 $access_user       = ($userid == $user_id);
 $access_group      = $userops->UserInGroup($userid, 1) || (!$userops->UserInGroup($user_id, 1));
@@ -222,7 +222,8 @@ if (isset($_POST['submit'])) {
             }
 
             Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$thisuser ] );
-            AdminUtils::clear_cache();
+//            AdminUtils::clear_cached_files();
+//            global_cache::release('IF ANY');
             $url = 'listusers.php?' . $urlext;
             if ($message) {
                 $message = urlencode($message);
@@ -253,7 +254,6 @@ if (!empty($error)) {
 
 $out      = [-1 => lang('none')];
 
-$userops = new UserOperations();
 $userlist = $userops->LoadUsers();
 foreach ($userlist as $one) {
     if ($one->id == $user_id) continue;
@@ -263,7 +263,7 @@ foreach ($userlist as $one) {
 $smarty = CmsApp::get_instance()->GetSmarty();
 
 if ($assign_group_perm && !$access_user) {
-    $smarty->assign('groups', (new GroupOperations())->LoadGroups())
+    $smarty->assign('groups', $groupops->LoadGroups())
       ->assign('membergroups', $userops->GetMemberGroups($user_id));
 }
 
