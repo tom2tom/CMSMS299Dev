@@ -20,6 +20,7 @@ namespace CMSMS\contenttypes;
 use cms_config;
 use cms_utils;
 use CmsApp;
+//use CMSMS\ContentDisplayer;
 use CMSMS\ContentOperations;
 use Exception;
 use Serializable;
@@ -29,7 +30,7 @@ use const CMS_ROOT_URL;
 use function cms_to_stamp;
 
 /**
- * Page content base class.
+ * Page content-display base class.
  * This is for preparation of displayed pages at runtime. Object properties
  * are modifiable only by [re]retrieval from the database. Content
  * properties which are only for 'management' are not used here.
@@ -132,7 +133,7 @@ class ContentBase implements Serializable
 			default:
 /*				if (CMS_DEBUG) {
 					TODO for some properties ...
-					throw new Exception('Attempt to retrieve unrecognised content-property: '.$key);
+					throw new Exception('Attempt to retrieve unrecognized content-property: '.$key);
 				}
 */
 				$this->_fields[$use] = $value;
@@ -152,9 +153,9 @@ class ContentBase implements Serializable
 			case '_props':
 				return $this->$use;
 			default:
-				if (isset($this->_fields[$use])) {
+				if (isset($this->_fields[$use]) || is_null($this->_fields[$use])) {
 					return $this->_fields[$use];
-				} elseif (isset($this->_props[$use])) {
+				} elseif (isset($this->_props[$use]) || is_null($this->_props[$use])) {
 					return $this->_props[$use];
 				}
 				if (CMS_DEBUG) {
@@ -305,7 +306,7 @@ class ContentBase implements Serializable
 	 * @param string $propname property key
 	 * @return mixed value, or null if the property does not exist.
 	 */
-	public function GetPropertyValue($propname)
+	public function GetPropertyValue(string $propname)
 	{
 		if ($this->HasProperty($propname)) {
 			return $this->_props[$propname];
@@ -606,9 +607,9 @@ $X = $CRASH;
 
 		$this->_fields['content_alias'] = $alias;
 		//CHECME are these caches worth retaining?
-		global_cache::clear('content_quicklist');
-		global_cache::clear('content_tree');
-		global_cache::clear('content_flatlist');
+		global_cache::release('content_quicklist');
+		global_cache::release('content_tree');
+		global_cache::release('content_flatlist');
 	}
 */
 
