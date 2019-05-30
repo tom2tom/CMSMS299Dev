@@ -211,7 +211,7 @@ final class wizard
         $url = $request->raw_server('REQUEST_URI');
         $urlmain = explode('?',$url);
         $url = $urlmain[0].'?'.self::$_stepvar.'='.$idx;
-        $url .= '&'.chr(random_int(97,122)).bin2hex(random_bytes(3)).'='.chr($idx+70); //sorta nonce
+        $url .= '&'.chr(random_int(97,122)).bin2hex(random_bytes(3)).chr($idx+70); //sorta nonce
         $this->set_data(self::$_stepvar,$url); //for security check
         return $url;
     }
@@ -231,9 +231,8 @@ final class wizard
         $url = $request->raw_server('REQUEST_URI');
         $urlmain = explode('?',$url);
         $url = $urlmain[0].'?'.self::$_stepvar.'='.$idx;
-        $url .= '&'.chr(random_int(97,122)).bin2hex(random_bytes(3)).'='.chr($idx+70); //sorta nonce
+        $url .= '&'.chr(random_int(97,122)).bin2hex(random_bytes(3)).chr($idx+70); //sorta nonce
         $this->set_data(self::$_stepvar,$url); //for security check
         return $url;
     }
 } // class
-
