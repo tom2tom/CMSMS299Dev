@@ -18,7 +18,6 @@
 
 namespace CMSMS;
 
-use cms_cache_handler;
 use cms_http_request;
 use cms_siteprefs;
 use cms_utils;
@@ -350,7 +349,7 @@ final class AdminUtils
 	 * @param $age_days Optional cache-item-modification threshold (days), 0 to whatever.
 	 *  Default 0 hence 'now'.
 	 */
-	public static function clear_cache(int $age_days = 0)
+	public static function clear_cached_files(int $age_days = 0)
 	{
 		global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE;
 
@@ -363,16 +362,6 @@ final class AdminUtils
 		$age_days = max(0, $age_days);
 		HookManager::do_hook_simple('clear_cached_files', ['older_than' => $age_days]);
 		$ttl = $age_days * 24 * 3600;
-
-		// no need for clear-files repetition
-		$obj = cms_cache_handler::get_instance();
-		$type = get_class($obj->get_driver());
-		if( !endswith($type, 'File') ) {
-			$obj = new cms_cache_handler();
-			$obj->connect();
-			$obj->clear();
-		}
-
 		$the_time = time() - $ttl;
 		$dirs = array_unique([TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION]);
 		foreach( $dirs as $start_dir ) {
