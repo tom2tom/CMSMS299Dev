@@ -18,6 +18,9 @@
 
 use cms_installer\installer_base;
 use CMSMS\AdminUtils;
+use CMSMS\ContentOperations;
+use CMSMS\internal\global_cache;
+use CMSMS\RouteOperations;
 
 $CMS_ADMIN_PAGE = 1;
 
@@ -133,22 +136,23 @@ if ($n > 0) {
  * Cache and content
  */
 if (isset($_POST['clearcache'])) {
-    //TODO also clear non-file caches, if used
-    AdminUtils::clear_cache();
+    global_cache::clear_all();
+    cms_cache_handler::get_instance()->clear();
+    AdminUtils::clear_cached_files();
     // put mention into the admin log
-    audit('', 'System maintenance', 'Cache cleared');
+    audit('', 'System maintenance', 'Caches cleared');
     $themeObject->RecordNotice('success', lang('cachecleared'));
     $smarty->assign('active_cache', 1);
 }
 
 if (isset($_POST['updateroutes'])) {
-    cms_route_manager::rebuild_static_routes();
+    RouteOperations::rebuild_static_routes();
     audit('', 'System maintenance', 'Static routes rebuilt');
     $themeObject->RecordNotice('success', lang('routesrebuilt'));
     $smarty->assign('active_content', 1);
 }
 
-$contentops = $gCms->GetContentOperations();
+$contentops = ContentOperations::get_instance();
 if (isset($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     audit('', 'System maintenance', 'Page hierarchy positions updated');
