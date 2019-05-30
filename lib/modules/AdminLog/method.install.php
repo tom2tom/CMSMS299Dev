@@ -43,4 +43,4 @@ $dict->ExecuteSQLArray($sqlarr);
 $this->CreatePermission('View Admin Log', 'View Admin Log');
 $this->CreatePermission('Clear Admin Log', 'Clear Admin Log');
 
-$this->SetPreference('lifetime', 3600*24*31); //log entries only live for 60 days
+cms_siteprefs::set(AdminLog::LIFETIME_SITEPREF, 3600*24*30); //log entries only live for 30 days
