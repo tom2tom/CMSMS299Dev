@@ -34,29 +34,31 @@ final class cms_siteprefs
 	 */
 	private function __construct() {}
 
-    /**
-     * @ignore
-     * @internal
-     */
-    public static function setup()
-    {
-        $obj = new global_cachable(__CLASS__,function()
-        {
-            return self::_read();
-        });
-        global_cache::add_cachable($obj);
-    }
+	/**
+	 * @ignore
+	 * @internal
+	 */
+	public static function setup()
+	{
+		$obj = new global_cachable(__CLASS__,function()
+		{
+			return self::_read();
+		});
+		global_cache::add_cachable($obj);
+	}
 
 	/**
 	 * Cache site- and module-preferences
 	 * @ignore
-     * @internal
+	 * @internal
 	 */
 	private static function _read()
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
-		if( !$db ) return;
+		if( !$db ) {
+			return;
+		}
 		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs';
 		$dbr = $db->GetArray($query);
 		if( is_array($dbr) ) {
@@ -65,13 +67,14 @@ final class cms_siteprefs
 				$row = $dbr[$i];
 				$_prefs[$row['sitepref_name']] = $row['sitepref_value'];
 			}
-            return $_prefs;
+			return $_prefs;
 		}
 	}
 
 	/**
 	 * Retrieve specified preference(s) without using the cache.
 	 * This is mostly for getting parameter(s) needed to init the cache.
+	 * Also for use in async tasks, where the cache is N/A.
 	 *
 	 * @since 2.3
 	 * @param mixed string | array $key Preference name(s)
@@ -82,7 +85,9 @@ final class cms_siteprefs
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
-		if( !$db ) return $dflt;
+		if( !$db ) {
+			return $dflt;
+		}
 		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name';
 		if( is_array($key) ) {
 			$query .= ' IN ('.str_repeat('?,', count($key) - 1).'?)';
@@ -110,8 +115,10 @@ final class cms_siteprefs
 	 */
 	public static function get($key,$dflt = '')
 	{
-        $prefs = global_cache::get(__CLASS__);
-		if( isset($prefs[$key]) && $prefs[$key] !== '' ) return $prefs[$key];
+		$prefs = global_cache::get(__CLASS__);
+		if( isset($prefs[$key]) && $prefs[$key] !== '' ) {
+			return $prefs[$key];
+		}
 		return $dflt;
 	}
 
@@ -124,7 +131,7 @@ final class cms_siteprefs
 	 */
 	public static function exists($key)
 	{
-        $prefs = global_cache::get(__CLASS__);
+		$prefs = global_cache::get(__CLASS__);
 		return ( is_array($prefs) && isset($prefs[$key]) && $prefs[$key] !== '' );
 	}
 
@@ -139,7 +146,7 @@ final class cms_siteprefs
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$tbl = CMS_DB_PREFIX.'siteprefs';
-        $now = $db->DbTimeStamp(time());
+		$now = $db->DbTimeStamp(time());
 		//self::exists() is uselsss here, it ignores null (hence '') values
 		//upsert TODO MySQL ON DUPLICATE KEY UPDATE useful here?
 		$query = "UPDATE $tbl SET sitepref_value=?,modified_date=$now WHERE sitepref_name=?";
@@ -153,7 +160,7 @@ EOS;
 //		$dbr =
 		$db->Execute($query,[$key,$value,$key]);
 
-        global_cache::clear(__CLASS__);
+		global_cache::release(__CLASS__);
 	}
 
 
@@ -172,7 +179,7 @@ EOS;
 		}
 		$db = CmsApp::get_instance()->GetDb();
 		$db->Execute($query,[$key]);
-		global_cache::clear(__CLASS__);
+		global_cache::release(__CLASS__);
 	}
 
 	/**

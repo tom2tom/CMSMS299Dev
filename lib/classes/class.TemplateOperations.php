@@ -78,7 +78,7 @@ class TemplateOperations
 		if( is_string($a) ) {
 			$a = trim($a);
 			if ($a !== '') {
-				$ops = cmsms()->GetUserOperations();
+				$ops = UserOperations::get_instance();
 				$ob = $ops->LoadUserByUsername($a);
 				if( $ob instanceof User ) return $ob->id;
 			}
@@ -316,7 +316,7 @@ WHERE id=?';
 			$stmt->close();
 		}
 
-		global_cache::clear('LayoutTemplates');
+		global_cache::release('LayoutTemplates');
 		audit($tpl->get_id(),'CMSMS','Template '.$tpl->get_name().' Updated');
 		return $tpl; //DODO what use ? event ?
 	}
@@ -398,7 +398,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			}
 		}
 
-		global_cache::clear('LayoutTemplates');
+		global_cache::release('LayoutTemplates');
 
 		audit($tplid,'CMSMS','Template '.$tpl->get_name().' Created');
 		// return a fresh instance of the object (e.g. to pass to event handlers ??)
@@ -452,7 +452,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 
 		audit($id,'CMSMS','Template '.$tpl->get_name().' Deleted');
 		Events::SendEvent('Core','DeleteTemplatePost',[ get_class($tpl) => &$tpl ]);
-		global_cache::clear('LayoutTemplates');
+		global_cache::release('LayoutTemplates');
 	}
 
 	/**
@@ -620,7 +620,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		$db = CmsApp::get_instance()->GetDb();
 		$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		$parms = $where = [];
-		if( !cmsms()->GetUserOperations()->CheckPermission($id,'Modify Templates') ) {
+		if( !UserOperations::get_instance()->CheckPermission($id,'Modify Templates') ) {
 			$sql .= ' WHERE owner_id = ?';
 			$parms[] = $id;
 		}
@@ -882,7 +882,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		if( $addt_users ) {
 			if( in_array($userid,$addt_users) ) return true;
 
-			$grouplist = (new UserOperations())->GetMemberGroups();
+			$grouplist = UserOperations::get_instance()->GetMemberGroups();
 			if( $grouplist ) {
 				foreach( $addt_users as $id ) {
 					if( $id < 0 && in_array(-((int)$id),$grouplist) ) return true;

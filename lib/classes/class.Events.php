@@ -98,7 +98,7 @@ WHERE NOT EXISTS (SELECT 1 FROM {$pref}events T WHERE T.originator=? AND T.event
 EOS;
 		$dbr = $db->Execute($sql, [$id, $originator, $eventname, $originator, $eventname]);
 		if( $dbr ) {
-			global_cache::clear(__CLASS__);
+			global_cache::release(__CLASS__);
 			return true;
 		}
 		return false;
@@ -132,7 +132,7 @@ EOS;
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'events WHERE event_id=?';
 		$db->Execute($sql, [$id]); // ignore failed result
 
-		global_cache::clear(__CLASS__);
+		global_cache::release(__CLASS__);
 		return true;
 	}
 
@@ -172,7 +172,7 @@ EOS;
 				  case 'U': //UDT
 					if( !empty($handler) ) {
 						if( $mgr === null ) {
-							$mgr = new UserPluginOperations();
+							$mgr = UserPluginOperations::get_instance();
 						}
 						debug_buffer($eventname.' event notice to user-plugin ' . $row['func']);
 						$mgr->DoEvent($handler, $originator, $eventname, $params);
@@ -442,7 +442,7 @@ EOS;
 		$sql = 'INSERT INTO '.CMS_DB_PREFIX.'event_handlers
 (handler_id,event_id,class,func,type,removable,handler_order) VALUES (?,?,?,?,?,?,?)';
 		$dbr = $db->Execute($sql, [$handler_id, $id, $class, $method, $type, $mode, $order]);
-		global_cache::clear(__CLASS__);
+		global_cache::release(__CLASS__);
 		return ($dbr != false);
 	}
 
@@ -521,7 +521,7 @@ EOS;
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE handler_id=? AND event_id=?';
 		$db->Execute($sql, [$handler['handler_id'], $id]);
 
-		global_cache::clear(__CLASS__);
+		global_cache::release(__CLASS__);
 	}
 
 	/**
@@ -632,7 +632,7 @@ EOS;
 		// delete handler(s) if any
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id= ?';
 		$dbr = $db->Execute($sql, [$id]);
-		global_cache::clear(__CLASS__);
+		global_cache::release(__CLASS__);
 		return ($dbr != false);
 	}
 
@@ -651,7 +651,7 @@ EOS;
 		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_order'] - 1 ] );
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE handler_id = ? AND event_id = ?';
 		$db->Execute( $sql, [ $handler['handler_id'], $handler['event_id'] ] );
-		global_cache::clear(__CLASS__);
+		global_cache::release(__CLASS__);
 	}
 
 	/**
@@ -671,7 +671,7 @@ EOS;
 		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_order'] + 1 ] );
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE handler_id = ? AND event_id = ?';
 		$db->Execute( $sql, [ $handler['handler_id'], $handler['event_id'] ] );
-		global_cache::clear(__CLASS__);
+		global_cache::release(__CLASS__);
 	}
 } //class
 
