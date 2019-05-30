@@ -52,8 +52,8 @@ try {
 catch( Throwable $t ) {
     $this->SetError($t->getMessage());
 }
-global_cache::clear('content_quicklist');
-global_cache::clear('content_tree');
-global_cache::clear('content_flatlist');
+global_cache::release('content_quicklist');
+global_cache::release('content_tree');
+global_cache::release('content_flatlist');
 
 $this->Redirect($id,'defaultadmin',$returnid);

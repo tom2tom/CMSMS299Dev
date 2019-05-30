@@ -71,9 +71,9 @@ if( isset($params['submit']) ) {
       cms_warning('Changing ownership on multiple pages failed: '.$t->getMessage());
       $this->SetError($t->getMessage());
   }
-  global_cache::clear('content_quicklist');
-  global_cache::clear('content_tree');
-  global_cache::clear('content_flatlist');
+  global_cache::release('content_quicklist');
+  global_cache::release('content_tree');
+  global_cache::release('content_flatlist');
 
   $this->Redirect($id,'defaultadmin',$returnid);
 }
@@ -98,7 +98,7 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_changeowne
 
 $tpl->assign('pagelist',$params['bulk_content'])
  ->assign('displaydata',$displaydata);
-$userlist = (new UserOperations())->LoadUsers();
+$userlist = UserOperations::get_instance()->LoadUsers();
 $tmp = [];
 foreach( $userlist as $user ) {
   $tmp[$user->id] = $user->username;

@@ -61,9 +61,9 @@ if( isset($params['submit']) ) {
         cms_warning('Changing styles on multiple pages failed: '.$t->getMessage());
         $this->SetError($t->getMessage());
     }
-    global_cache::clear('content_quicklist');
-    global_cache::clear('content_tree');
-    global_cache::clear('content_flatlist');
+    global_cache::release('content_quicklist');
+    global_cache::release('content_tree');
+    global_cache::release('content_flatlist');
 
     $this->Redirect($id,'defaultadmin',$returnid);
 }
