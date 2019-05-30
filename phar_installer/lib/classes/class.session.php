@@ -7,7 +7,7 @@ use RuntimeException;
 
 final class session implements ArrayAccess
 {
-	const SSLCIPHER = 'AES-256-CTR';
+    const SSLCIPHER = 'AES-256-CTR';
 
     private static $_instance;
 
@@ -74,7 +74,7 @@ final class session implements ArrayAccess
                 break;
             case 'openssl':
                 $pw = session_id().$seed;
-				$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
+                $l1 = openssl_cipher_iv_length(self::SSLCIPHER);
                 $str = openssl_encrypt($raw,self::SSLCIPHER,$pw,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($pw,0,$l1));
                 break;
             default: //CRAP obfuscation only!
@@ -123,7 +123,7 @@ final class session implements ArrayAccess
                     break;
                 case 'openssl':
                     $pw = session_id().$seed;
- 				    $l1 = openssl_cipher_iv_length(self::SSLCIPHER);
+                    $l1 = openssl_cipher_iv_length(self::SSLCIPHER);
                     $str = openssl_decrypt($raw,self::SSLCIPHER,$pw,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($pw,0,$l1));
                     break;
                 default: //CRAP obfuscation only!
