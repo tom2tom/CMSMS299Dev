@@ -16,12 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\AdminUtils;
-use CMSContentManager\contenttypes\Content;
 use CMSContentManager\ContentBase;
+use CMSContentManager\contenttypes\Content;
+use CMSMS\ContentOperations;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
-use CMSMS\internal\module_meta;
+use CMSMS\internal\global_cache;
 use CMSMS\Mailer;
 use CMSMS\ModuleOperations;
 use CMSMS\SyntaxEditor;
@@ -309,7 +309,7 @@ if (isset($_POST['submit'])) {
                 cms_siteprefs::set('smarty_cachelife', $val);
                 $val = (isset($_POST['use_smartycompilecheck'])) ? 1:0;
                 cms_siteprefs::set('use_smartycompilecheck', $val);
-                AdminUtils::clear_cache();
+//                AdminUtils::clear_cached_files();
 
                 $val = trim($_POST['editortype']);
                 if ($val) {
@@ -344,6 +344,8 @@ if (isset($_POST['submit'])) {
                 cms_siteprefs::set('adminlog_lifetime', (int) $_POST['adminlog_lifetime']);
                 break;
         } //switch tab
+
+        global_cache::release('site_preferences');
 
         if (!$errors) {
             // put mention into the admin log
@@ -586,11 +588,11 @@ $(function() {
 EOS;
 $themeObject->add_footertext($out);
 
-$modops = new ModuleOperations();
+$modops = ModuleOperations::get_instance();
 $smarty = CmsApp::get_instance()->GetSmarty();
 
 $tmp = [-1 => lang('none')];
-$modules = $modops->get_modules_with_capability('search');
+$modules = $modops->GetCapableModules('search');
 if ($modules) {
     for ($i = 0, $n = count($modules); $i < $n; $i++) {
         $tmp[$modules[$i]] = $modules[$i];
@@ -606,7 +608,7 @@ if ($devmode) {
 }
 
 $tmp = ['' => lang('theme')];
-$modules = $modops->get_modules_with_capability('adminlogin');
+$modules = $modops->GetCapableModules('adminlogin');
 if ($modules) {
     for ($i = 0, $n = count($modules); $i < $n; $i++) {
         if ($modules[$i] == 'CoreAdminLogin') {
@@ -636,9 +638,8 @@ $smarty->assign('secure_opts', $opts)
   ->assign('tab', $tab)
   ->assign('pretty_urls', $pretty_urls);
 
-$metops = new module_meta();
 // need a list of wysiwyg modules.
-$tmp = $metops->module_list_by_capability(CmsCoreCapabilities::WYSIWYG_MODULE); //pre 2.0 identifier?
+$tmp = $modops->GetCapableModules(CmsCoreCapabilities::WYSIWYG_MODULE); //pre 2.0 identifier?
 $n = count($tmp);
 $tmp2 = [-1 => lang('none')];
 for ($i = 0; $i < $n; $i++) {
@@ -788,7 +789,7 @@ $smarty->assign('all_attributes', $all_attributes)
   ->assign('smarty_cacheoptions2', ['always'=>lang('always'),'never'=>lang('never')]);
 
 $realm = 'CMSContentManager'; //TODO generalize
-$contentops = cmsms()->GetContentOperations();
+$contentops = ContentOperations::get_instance();
 $all_contenttypes = $contentops->ListContentTypes(false, false, false, $realm);
 $smarty->assign('all_contenttypes', $all_contenttypes)
 
