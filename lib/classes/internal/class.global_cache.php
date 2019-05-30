@@ -20,7 +20,7 @@ namespace CMSMS\internal;
 
 use cms_cache_handler;
 use CMSMS\internal\global_cachable;
-use LogicException;
+use UnexpectedValueException;
 
 /**
  * Class which enables data to be cached automatically, and fetched
@@ -37,14 +37,35 @@ class global_cache
 {
     const TIMEOUT = 604800; //1 week
 
+    /**
+     * global cache singleton
+     * @var cms_cache_handler
+     */
+    private static $instance;
+
+    /**
+     * intra-request cache
+     * @var array
+     */
     private static $_types = [];
-    private static $_dirty;
-    private static $_data;
+
+    /**
+     * values of members of $_types
+     * @var array | null to trigger loading
+     */
+    private static $_data = null;
+
+    /**
+     * members of $_types which include changed value(s)
+     * @var array
+     */
+    private static $_dirty = [];
 
     private function __construct() {}
     private function __clone() {}
 
     /**
+     * Add a cached-data type to the intra-request cache
      *
      * @param global_cachable $obj
      */
@@ -55,15 +76,31 @@ class global_cache
     }
 
     /**
+     * Remove from the intra-request cache the data of the specified type.
+     * Hence reload when such cache-data are next wanted.
+     *
+     * @param string $type
+     */
+    public static function release($type)
+    {
+        if( isset(self::$_data[$type]) ) {
+            unset(self::$_data[$type]);
+        }
+    }
+
+    /**
+     * Get all cached data in the specified type
      *
      * @param string $type
      * @return mixed
-     * @throws LogicException if $type is not a recorded/cachable type
+     * @throws UnexpectedValueException if $type is not a recorded/cachable type
      */
     public static function get($type)
     {
-//        if( !isset(self::$_types[$type]) ) return;
-        if( !isset(self::$_types[$type]) ) throw new LogicException('Unknown type '.$type);
+        //if( !isset(self::$_types[$type]) ) return; //DEBUG
+        if( !isset(self::$_types[$type]) ) {
+           throw new UnexpectedValueException('Unknown cache-data type: '.$type);
+        }
         if( !is_array(self::$_data) ) {
             self::_load();
         }
@@ -75,40 +112,46 @@ class global_cache
         return self::$_data[$type];
     }
 
-    /**
-     *
-     * @param string $type
-     */
-    public static function release($type)
+    private static function _load()
     {
-        if( isset(self::$_data[$type]) ) unset(self::$_data[$type]);
+        $cache = self::_get_cache();
+        $keys = array_keys(self::$_types);
+        self::$_data = [];
+        foreach( $keys as $key ) {
+            $tmp = $cache->get($key,__CLASS__);
+            self::$_data[$key] = $tmp;
+            unset($tmp);
+        }
     }
 
     /**
+     * Remove the specified type from the cache
      *
      * @param string $type
      */
     public static function clear($type)
     {
-        // clear it from the cache
-        $cache = self::_get_cache();
-        $cache->erase($type);
-        unset(self::$_data[$type]);
+        self::_get_cache()->erase($type);
+        unset(self::$_types[$type], self::$_data[$type], self::$_dirty[$type]);
     }
 
     /**
-     *
+     * Remove everything from the cache
      */
     public static function clear_all()
     {
         self::_get_cache()->clear();
-        self::$_data = [];
+        self::$_types = [];
+        self::$_data = null;
+        self::$_dirty = [];
     }
 
     /**
+     * [Re]cache the specified type using the specified data
+     *
      * @since 2.3
      * @param string $type
-	 * @param mixed $data
+     * @param mixed $data
      */
     public static function update($type, $data)
     {
@@ -139,35 +182,20 @@ class global_cache
 
     /**
      *
-     * @staticvar cms_cache_handler $_handler
      * @return cms_cache_handler object
      * @throws CmsException
      */
-    private static function _get_cache()
+    private static function _get_cache() : cms_cache_handler
     {
-        static $_handler = null; //global cache singleton
-
-        if( !$_handler ) {
+        if( !self::$instance ) {
             $obj = new cms_cache_handler();
             $obj->connect([
              'auto_cleaning'=>1,
              'lifetime'=>self::TIMEOUT,
              'group'=>__CLASS__,
             ]);
-            $_handler = $obj; //now we're connected
+            self::$instance = $obj; //now we're connected
         }
-        return $_handler;
-    }
-
-    private static function _load()
-    {
-        $cache = self::_get_cache();
-        $keys = array_keys(self::$_types);
-        self::$_data = [];
-        foreach( $keys as $key ) {
-            $tmp = $cache->get($key);
-            self::$_data[$key] = $tmp;
-            unset($tmp);
-        }
+        return self::$instance;
     }
 } // class
