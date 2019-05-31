@@ -22,7 +22,7 @@ final class utils
 
     public static function get_async_freq() : int
     {
-        $mod = (new ModuleOperations())->get_module_instance('CmsJobManager');
+        $mod = ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
         $minutes = (int) $mod->GetPreference('jobinterval');
         $minutes = max(1, $minutes);
         $minutes = min(10, $minutes);
@@ -92,7 +92,7 @@ final class utils
 
     public static function process_errors()
     {
-        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.md5(__FILE__).'.err';
+        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'cmsjobman_err_'.cms_utils::hash_string(__FILE__).'.log';
         if (!is_file($fn)) {
             return;
         }
@@ -131,7 +131,7 @@ final class utils
 	 */
     public static function put_error($job_id)
     {
-        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.md5(__FILE__).'.err';
+        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'cmsjobman_err_'.cms_utils::hash_string(__FILE__).'.log';
         $fh = fopen($fn, 'a');
         fwrite($fh, $job_id."\n");
         fclose($fh);
@@ -163,7 +163,7 @@ final class utils
         if ($err['type'] != E_ERROR) {
             return;
         }
-        $mod = (new ModuleOperations())->get_module_instance('CmsJobManager');
+        $mod = ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
         $job = $mod->get_current_job();
         if ($job) {
             self::joberrorhandler($job, $err['message'], $err['file'], $err['line']);
