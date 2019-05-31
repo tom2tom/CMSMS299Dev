@@ -177,7 +177,8 @@ DETAILS
   - New method: AdminUtils::get_module_icon()
   - New method: cms_utils::path_to_url()
   - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum
-
+  - New hook-replacement events: MetadataPostRender, MetadataPreRender, PageTopPostRender, PageTopPreRender,
+      PageHeadPostRender, PageHeadPreRender, PageBodyPostRender, PageBodyPreRender, PostRequest
   - CHANGE: Renamed permission: 'Modify User Plugins'
   - CHANGE: Management of page styles is much more flexible
   - CHANGE: URL-string constructor methods support non-scalar paramter values
