@@ -2,18 +2,15 @@ Version 2.3 - NO NAME SET
 ----------------------------------
 ADMIN USER-FACING CHANGES
 
-extra admin themes
+extra themes are available, and single-click installable
 'services' section in admin menu (for site-content administration, as distinct from page-content, i.e. user-interactive things like ecommerce, forms data)
 replacement notifications mechanism
 consistent js-initiated dialogs (no more 'native' popups)
 displayed images may also be svg, png or fonticon, with svg preferred if present
 revised UI for UDT processing (those are now files, not database records) see next item
-editing of templates, stylesheets, UDT's, site-operation-files (with respective permission) by syntax hilighter Ace or CodeMirror
-module-specific templates can also be processed via DesignManager
+editing of templates, stylesheets, UDT's by syntax hilighter Ace or CodeMirror
+module-specific templates can also be processed via the general template-edit UI (which is no longer driven by DesignManager module)
 extra core modules: CoreAdminLogin, CoreTextEditing, AdminLog
-renamed permission: 'Modify User Plugins'
-extra permissions: 'Modify Site Code','Remote Administration'
-extra users-group: CodeManager
 
 BEHIND THE SCENES
 
@@ -46,8 +43,8 @@ eventually, all core classes will be spaced. Devs are encouraged to start using 
 'CMSMS\Module' => 'CMSModule', MAYBE, TO BE CONFIRMED
 'CMSMS\ModuleContentType' => 'CMSModuleContentType',
 'CMSMS\Permission' => 'CmsPermission',
+'CMSMS\RegularTask' => 'CmsRegularTask', // an interface
 'CMSMS\Route' => 'CmsRoute',
-'CMSMS\RouteOperations' => 'cms_route_manager',
 'CMSMS\Siteprefs' => 'cms_siteprefs',
 'CMSMS\Tree' => 'cms_tree',
 'CMSMS\TreeOperations' => 'cms_tree_operations',
@@ -62,7 +59,7 @@ also support installation based on sources in a git repo
 
 INFRASTRUCTURE
 
-Coded for PHP 7+, compatible with 7.0.x to 7.3.0 (at least).
+Coded for PHP 7.1+, compatible with 7.1.x to 7.3.0 (at least).
 jQuery 2.2.4 (effective upgrades from 1.x to the current 3.x need to be in two stages, with an intermediate 2.x)
 jQuery migrate 1.4.1
 jQuery-UI & jQuery-UI-css 1.12.1
@@ -79,6 +76,7 @@ assets_url
 content_language - for PHP htmlentities() and html_entity_decode(), default 'xhtml'
 content_processing_mode - 0, 1 or 2 determines the order of processing during page-creation see details below
 pr_root_url - protocol-relative root URI
+deprecations - if this, and also debug, are not empty, deprecation notices will be thrown when something (method, property etc) deprecated is used
 
 deprecated
 
@@ -103,16 +101,21 @@ PLUGINS
 
 new
 
-admin_headtext
+add_footcontent
+add_headcontent
 assets_url
 cms_queue_css
 cms_render_css
 cms_queue_script
 cms_render_scripts
 disable_template
+edit_template
 gather_content
 get_jquery
+send_content_notice
 scripts_url
+syntax_area
+tabs_restart
 theme_root
 
 NOTE: The 'main' function in each function-type plugin takes 2 arguments, like
@@ -122,19 +125,23 @@ That 2nd parameter (whatever named) will be a Smarty Internal Template-class obj
 To access the main Smarty class: $smarty-object->smarty
 
 The main function name MUST NOT include a qualifier before the plugin type, like smarty[stuff]_xxxxx e.g. smarty_cms_xxxxx. Current smarty cannot process such.
+(Not to be confused with e.g. smarty_function_cms_xxxxx.)
 
 deprecated
 
-cms_jquery  //see  get_jquery
-cms_stylesheet // media parameter is deprecated
-current_date
+cms_jquery  see  get_jquery
+cms_stylesheet  media parameter is deprecated
+
+changed
+
+current_date  if no format is given, site-preference 'defaultdateformat' is used
 
 LOCATIONS
 
 deprecated
 
 non-core modules in <siterootpath>/modules
-  migrate to <siterootpath>/assets/modules (or whatever the 'assets' folder is named)
+  migrated to <siterootpath>/assets/modules (or whatever the 'assets' folder is named)
 javascript files in <siterootpath>/lib/jquery
   jQuery & cmsms core scripts migrated to <siterootpath>/lib/js, other scripts to <siterootpath>/assets/js (or whatever the 'assets' folder is named)
   links to relocated non-jquery files remain in <siterootpath>/lib/jquery
@@ -171,6 +178,7 @@ DETAILS
   - New method: cms_utils::path_to_url()
   - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum
 
+  - CHANGE: Renamed permission: 'Modify User Plugins'
   - CHANGE: Management of page styles is much more flexible
   - CHANGE: URL-string constructor methods support non-scalar paramter values
   - CHANGE: Page style(s) are applied directly, insead of via a Design. Each design is now just a tool to facilitate site development
@@ -178,13 +186,17 @@ DETAILS
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
   - CHANGE: News module is non-core, and in future will be distributed independently of the core files (and probably replaced)
   - BREAKING: Long-deprecated frontend creation of news items has been removed
+  - ADD: Extra permission: 'Remote Administration'
+  - ADD: extra member of CmsCoreCapabilities - ROUTE_MODULE, for polling the modules which create route(s) during contruction or initialization
   - CHANGE: DesignManager module is non-core, and in future will be distributed independently of the core files
   - FEATURE: Registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
   - FEATURE: Event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
   - FEATURE: get-support URL (for display in admin pages) may be specified in 'developer mode'
   - FEATURE: added jQuery Poller object, a more-flexible alternative to the autoRefresh widget
-  - FEATURE: added module CoreTextEditing allowing (for now) Ace|CodeMirror to edit templates, stylesheets, UDT's,
+  - FEATURE: added module CoreTextEditing allowing (for now) Ace|CodeMirror, to edit templates, stylesheets, UDT's,
       and related (but independent) get_editor_script(), {editorarea}, {edit_template}, and includable method.edittemplate.php
+  - DEPRECATED: String values for application-states. Such states are now bit-flags, which can be OR'd, AND'd, compared ordinally
+  - DEPRECATED: Module lazy-loading and related methods. Modules are now always loaded on-demand, effectively lazy.
   - DEPRECATED: Content pages' secure option
   - DEPRECATED: $config['ssl_url'] is now just an alias for root url
   - DEPRECATED: $config['ssl_uploads_url'] is now just an alias for uploads_url
