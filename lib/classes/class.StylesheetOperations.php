@@ -163,7 +163,7 @@ WHERE id = ?';
 			}
 		}
 */
-//		global_cache::clear('LayoutStylesheets');
+//		global_cache::release('LayoutStylesheets');
 		cms_notice('Stylesheet '.$sht->get_name().' Updated');
 	}
 
@@ -209,7 +209,7 @@ VALUES (?,?,?,?,?,?)';
 			}
 		}
 */
-//		global_cache::clear('LayoutStylesheets');
+//		global_cache::release('LayoutStylesheets');
 		cms_notice('Stylesheet '.$sht->get_name().' Updated');
 	}
 
@@ -265,7 +265,7 @@ VALUES (?,?,?,?,?,?)';
 
 		@unlink($sht->get_content_filename());
 
-//		global_cache::clear('LayoutStylesheets');
+//		global_cache::release('LayoutStylesheets');
 		cms_notice('Stylesheet '.$sht->get_name().' Deleted');
 		Events::SendEvent('Core', 'DeleteStylesheetPost',[get_class($sht)=>&$sht]);
 	}
