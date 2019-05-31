@@ -59,6 +59,7 @@ function cms_autoloader(string $classname)
 				'CMSMS\HttpRequest' => 'cms_http_request',
 				'CMSMS\internal\AdminThemeNotification' => 'CmsAdminThemeNotification',
 				'CMSMS\LanguageDetector' => 'CmsLanguageDetector',
+				'CMSMS\RegularTask' => 'CmsRegularTask', // interface
 				'CMSMS\Stylesheet' => 'CmsLayoutStylesheet',
 				'CMSMS\StylesheetQuery' => 'CmsLayoutStylesheetQuery',
 				'CMSMS\Template' => 'CmsLayoutTemplate',
@@ -69,7 +70,6 @@ function cms_autoloader(string $classname)
 				'CMSMS\ModuleContentType' => 'CMSModuleContentType',
 				'CMSMS\Permission' => 'CmsPermission',
 				'CMSMS\Route' => 'CmsRoute',
-				'CMSMS\RouteOperations' => 'cms_route_manager',
 				'CMSMS\Siteprefs' => 'cms_siteprefs',
 				'CMSMS\Tree' => 'cms_tree',
 				'CMSMS\TreeOperations' => 'cms_tree_operations',
