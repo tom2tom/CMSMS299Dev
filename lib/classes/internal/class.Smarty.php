@@ -146,7 +146,7 @@ smarty cache lifetime != global cache ttl, probably
                     $this->setCompileCheck(SmartyParent::COMPILECHECK_ON);
                     $this->setDebugging(true);
                 }
-                elseif( $v != 0 && cms_siteprefs::get('use_smartycompilecheck',0) ) {
+                elseif( $v != 0 && cms_siteprefs::get('use_smartycompilecheck',1) ) {
                     $this->setCompileCheck(SmartyParent::COMPILECHECK_CACHEMISS);
                 }
                 else {
@@ -293,8 +293,9 @@ smarty cache lifetime != global cache ttl, probably
 
         // check if it's a user-plugin
             try {
-                $callback = (new UserPluginOperations())->load_plugin( $name );
-//DEBUG                $cachable = false;
+                $callback = UserPluginOperations::get_instance()->load_plugin( $name );
+                //deprecated pre-2.3 behaviour, see above re cachability
+                $cachable = false;
                 return true;
             } catch (Exception $e) {
             }
