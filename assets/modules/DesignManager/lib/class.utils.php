@@ -23,7 +23,7 @@ use CMSMS\LockOperations;
 
 final class utils
 {
-    public function __construct() {}
+//    public function __construct() {}
 
     public static function locking_enabled()
     {
@@ -35,6 +35,7 @@ final class utils
 
     public static function get_template_locks()
     {
+		//NOTE static properties here
         static $_locks = null;
         static $_locks_loaded = FALSE;
         if( !$locks_loaded ) {
@@ -52,6 +53,7 @@ final class utils
 
     public static function get_css_locks()
     {
+		//NOTE static properties here
         static $_locks = null;
         static $_locks_loaded = FALSE;
         if( !$locks_loaded ) {
