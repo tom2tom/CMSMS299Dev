@@ -16,6 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
 use CMSMS\HookManager;
 
 // $USE_THEME inherited from parent scope
@@ -73,4 +74,4 @@ if (!isset($USE_THEME) || $USE_THEME) {
 	}
 }
 
-HookManager::do_hook_simple('PostRequest');
+Events::SendEvent('Core', 'PostRequest');
