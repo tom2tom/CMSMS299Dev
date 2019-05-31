@@ -27,6 +27,8 @@ use CMSMS\HookManager;
 
 final class AdminLog extends CMSModule
 {
+    const LIFETIME_SITEPREF = 'adminlog_lifetime';
+
     protected $storage;
     protected $auditor;
 
@@ -52,7 +54,7 @@ final class AdminLog extends CMSModule
             // ignore any error.
         }
 
-        //NOTE these cannot be used in multi-handler lists, cuz returned params are not suitable for next in list!
+        //NOTE these must be accessed with first_result hook-method
         HookManager::add_hook('localizeperm',function($perm_source,$perm_name) {
                 if( $perm_source != 'AdminLog' ) return;
                 $key = 'perm_'.str_replace(' ','_',$perm_name);
