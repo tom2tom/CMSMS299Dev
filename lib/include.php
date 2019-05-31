@@ -43,14 +43,13 @@
 use CMSMS\AuditOperations;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
-use CMSMS\HookManager;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 
-global $CMS_INSTALL_PAGE, $CMS_ADMIN_PAGE, $DONT_LOAD_DB, $DONT_LOAD_SMARTY;
+global $CMS_INSTALL_PAGE, $CMS_ADMIN_PAGE;
 
 define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php');
 
@@ -100,7 +99,7 @@ cleanArray($_GET);
 // Grab the current configuration & some define's
 $_app = CmsApp::get_instance(); // for use in this file only.
 $config = $_app->GetConfig();
-AuditOperations::init();
+AuditOperations::init(); // load some audit-methods & audit-classes which won't autoload
 
 // Set the timezone
 if ($config['timezone']) @date_default_timezone_set(trim($config['timezone']));
@@ -126,18 +125,19 @@ if (isset($CMS_ADMIN_PAGE)) {
     }
 }
 
+cms_siteprefs::setup();
+
+// deprecated since 2.3 useless
 $obj = new global_cachable('schema_version', function()
     {
-        $db = CmsApp::get_instance()->GetDb();
-        $query = 'SELECT version FROM '.CMS_DB_PREFIX.'version'; //TODO just get from file: CMS_WHATEVER
-        return $db->GetOne($query);
+        return $CMS_SCHEMA_VERSION; //NULL during installation!
     });
 global_cache::add_cachable($obj);
 $obj = new global_cachable('modules', function()
     {
         $db = CmsApp::get_instance()->GetDb();
-        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules ORDER BY module_name';
-        return $db->GetArray($query);
+        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules';
+        return $db->GetAssoc($query); // Keyed by module_name
      });
 global_cache::add_cachable($obj);
 $obj = new global_cachable('module_deps', function()
@@ -199,7 +199,6 @@ if ($CMS_JOB_TYPE < 2) {
 }
 
 // other global caches
-cms_siteprefs::setup();
 Events::setup();
 ModulePluginOperations::setup();
 
@@ -207,7 +206,7 @@ ModulePluginOperations::setup();
 if (isset($config['php_memory_limit']) && !empty($config['php_memory_limit'])) ini_set('memory_limit',trim($config['php_memory_limit']));
 
 // Load them into the usual variables.  This'll go away a little later on.
-if (!isset($DONT_LOAD_DB)) {
+if (!isset($CMS_INSTALL_PAGE)) {
     try {
         debug_buffer('Initialize database');
         $_app->GetDb();
@@ -229,26 +228,24 @@ if (!isset($CMS_INSTALL_PAGE)) {
     $global_umask = cms_siteprefs::get('global_umask','');
     if ($global_umask != '') umask( octdec($global_umask));
 
-    $modops = new ModuleOperations();
+    $modops = ModuleOperations::get_instance();
     // After autoloader & modules
-    $tmp = $modops->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
+    $tmp = $modops->GetCapableModules(CmsCoreCapabilities::JOBS_MODULE);
     if( $tmp ) {
         $mod_obj = $modops->get_module_instance($tmp[0]); //NOTE not $modinst !
         $_app->jobmgrinstance = $mod_obj; //cache it
         if ($CMS_JOB_TYPE == 0) {
-            HookManager::add_hook('PostRequest', [$tmp[0], 'trigger_async_hook'], HookManager::PRIORITY_LOW);
+			$callback = $tmp[0].'::begin_async_work';
+			Events::AddDynamicHandler('Core', 'PostRequest', $callback);
         }
     }
 }
 
 if ($CMS_JOB_TYPE < 2) {
-    // In case module lazy-loading is malformed, pre-register all module-plugins which are not recorded in the database
-//    (new ModulePluginOperations())->RegisterSessionPlugins();
-
     // Setup language stuff.... will auto-detect languages (launch only to admin at this point)
     if (isset($CMS_ADMIN_PAGE)) NlsOperations::set_language();
 
-    if (!isset($DONT_LOAD_SMARTY)) {
+    if (!isset($CMS_INSTALL_PAGE)) {
         debug_buffer('Initialize Smarty');
         $smarty = $_app->GetSmarty();
         debug_buffer('Finished initializing Smarty');
