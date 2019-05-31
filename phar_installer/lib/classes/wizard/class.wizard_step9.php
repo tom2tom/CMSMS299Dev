@@ -2,13 +2,18 @@
 
 namespace cms_installer\wizard;
 
+use cms_cache_handler;
 use cms_config;
 use cms_installer\installer_base;
 use cms_installer\session;
 use cms_installer\wizard\wizard_step;
 use CMSMS\AdminUtils;
+use CMSMS\ContentOperations;
+use CMSMS\ContentTypeOperations;
+use CMSMS\internal\global_cache;
 use CMSMS\ModuleOperations;
 use Exception;
+use mysqli;
 use const CMS_DB_PREFIX;
 use const CMS_VERSION;
 use const CONFIG_FILE_LOCATION;
@@ -22,6 +27,7 @@ use function cms_installer\smarty;
 use function cms_module_places;
 use function cmsms;
 use function endswith;
+use function import_content;
 
 class wizard_step9 extends wizard_step
 {
@@ -43,7 +49,7 @@ class wizard_step9 extends wizard_step
 
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
         $allmodules = $siteinfo['havemodules'] ?? [];
-        $modops = new ModuleOperations();
+        $modops = ModuleOperations::get_instance();
         foreach( $allmodules as $name ) {
             if( $modops->IsSystemModule($name) ) {
                 $this->verbose(lang('msg_upgrade_module',$name));
@@ -82,12 +88,17 @@ class wizard_step9 extends wizard_step
             }
         }
 
+        // content types
+        ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
+
         // write history
         audit('', 'System Upgraded', 'New version '.CMS_VERSION);
 
-        // clear the cache
+        // clear the caches
         $this->message(lang('msg_clearcache'));
-        AdminUtils::clear_cache();
+        global_cache::clear_all(); // clear all global-types' content
+        cms_cache_handler::get_instance()->clear();
+        AdminUtils::clear_cached_files();
 
         $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
         // write protect config.php
@@ -122,12 +133,13 @@ class wizard_step9 extends wizard_step
         $this->message(lang('install_modules'));
         $modops = cmsms()->GetModuleOperations();
         $db = cmsms()->GetDb();
+//(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
         $stmt1 = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'modules
-(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
-VALUES (?,?,\'installed\',?,1,?,?)');
+(module_name,version,status,admin_only,active)
+VALUES (?,?,\'installed\',?,1)');
         $stmt2 = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'module_deps
-(parent_module,child_module,minimum_version,create_date,modified_date)
-VALUES (?,?,?,NOW(),NOW())');
+(parent_module,child_module,minimum_version,create_date)
+VALUES (?,?,?,NOW())');
 
         $dirs = cms_module_places();
         foreach( $dirs as $bp ) {
@@ -159,6 +171,9 @@ VALUES (?,?,?,NOW(),NOW())');
         $stmt1->close();
         $stmt2->close();
 
+        // content types
+        ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
+
         // site content
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
         if( !$siteinfo ) throw new Exception(lang('error_internal',902));
@@ -189,8 +204,7 @@ VALUES (?,?,?,NOW(),NOW())');
                 }
                 // update pages hierarchy
                 $this->verbose(lang('install_updatehierarchy'));
-                $contentops = cmsms()->GetContentOperations();
-                $contentops->SetAllHierarchyPositions();
+                ContentOperations::get_instance()->SetAllHierarchyPositions();
             }
             catch (Exception $e) {
                 $ADBG = 1;
@@ -210,8 +224,8 @@ VALUES (?,?,?,NOW(),NOW())');
         if( !endswith($root_url,'/') ) $root_url .= '/';
         $admin_url = $root_url.'admin';
 
-        $this->message(lang('msg_clearcache'));
-        AdminUtils::clear_cache();
+//      $this->message(lang('msg_clearcache'));
+        AdminUtils::clear_cached_files(); //irrelevant during installation?
 
         // set the finished message.
         if( !$root_url || !$app->in_phar() ) {
@@ -241,12 +255,17 @@ VALUES (?,?,?,NOW(),NOW())');
         // another failsafe - write protect the config file
         @chmod(CONFIG_FILE_LOCATION,0440);
 
+        // freshen content types
+        ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
+
         // write history
         audit('', 'System Freshened', 'All core files renewed');
 
-        // clear the cache
+        // clear the caches
         $this->message(lang('msg_clearcache'));
-        AdminUtils::clear_cache();
+        global_cache::clear_all(); // clear all global-types' content
+        cms_cache_handler::get_instance()->clear();
+        AdminUtils::clear_cached_files();
 
         // set the finished message
         if( $app->has_custom_destdir() ) {
@@ -266,18 +285,16 @@ VALUES (?,?,?,NOW(),NOW())');
     }
 
     /**
-     * @global int $DONT_LOAD_SMARTY
      * @global type $CMS_VERSION
-     * @global int $CMS_PHAR_INSTALLER
+     * @global int $CMS_INSTALL_PAGE
      * @param sring $destdir
      */
     private function connect_to_cmsms($destdir)
     {
         // this loads the standard CMSMS stuff, except smarty cuz it's already done.
         // we do this here because both upgrade and install stuff needs it.
-        global $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
-        $CMS_PHAR_INSTALLER = 1;
-        $DONT_LOAD_SMARTY = 1;
+        global $CMS_VERSION, $CMS_INSTALL_PAGE;
+        $CMS_INSTALL_PAGE = 1;
         $CMS_VERSION = $this->get_wizard()->get_data('destversion');
         if( is_file("$destdir/include.php") ) {
             include_once $destdir.'/include.php';
@@ -311,15 +328,10 @@ VALUES (?,?,?,NOW(),NOW())');
             // a successful installation
             $modname = $modinst->GetName();
             $admin = ($modinst->IsAdminOnly()) ? 1 : 0;
-            $lazy_fe = ($admin || (method_exists($modinst,'LazyLoadFrontend') && $modinst->LazyLoadFrontend())) ? 1 : 0;
-            $lazy_admin = (method_exists($modinst,'LazyLoadAdmin') && $modinst->LazyLoadAdmin()) ? 1 : 0;
-/*
-stmt1: 'INSERT INTO '.CMS_DB_PREFIX.'modules
-(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
-VALUES (?,?,\'installed\',?,1,?,?)');
- */
+//            $lazy_fe = ($admin || (method_exists($modinst,'LazyLoadFrontend') && $modinst->LazyLoadFrontend())) ? 1 : 0;
+//            $lazy_admin = (method_exists($modinst,'LazyLoadAdmin') && $modinst->LazyLoadAdmin()) ? 1 : 0;
             $rs = $db->Execute($stmt1, [
-                $modname,$modinst->GetVersion(),$admin,$lazy_fe,$lazy_admin
+                $modname,$modinst->GetVersion(),$admin//,$lazy_fe,$lazy_admin
             ]);
 
             $deps = $modinst->GetDependencies();
@@ -335,7 +347,7 @@ VALUES (?,?,?,NOW(),NOW())');
                     }
                 }
             }
-            $modops->generate_moduleinfo($modinst); //uses defined CMS_VERSION
+//            $modops->generate_moduleinfo($modinst); //uses defined CMS_VERSION
         } else {
             throw new Exception($result); //send back numeric code or error-string
         }
