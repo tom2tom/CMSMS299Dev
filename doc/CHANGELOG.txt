@@ -214,6 +214,8 @@ DETAILS
      the <?php tag and must return, not echo, anything to be displayed.
      (Existing UDT's are migrated during upgrade)
   - UserTagOperations class is now merely a compatibility stub
+  - DEPRECATED: user-plugin cachability is always false (as was the case for UDT's). Should always be true, and overridden by nocache parameter in template where relevant
+  - DEPRECATED: module-plugin cachability is set permanently when module is installed. Should always be true, and overridden by nocache parameter in template where relevant
   - FEATURE: Sitedown mode now throws a 503 exception and outputs a 503 error code
   - FEATURE: The 503 error handler (maintenance mode) is now an Error Page.
   - DEPRECATED: Some seldom-used methods in the module API
