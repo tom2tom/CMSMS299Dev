@@ -1,5 +1,6 @@
 <?php
 
+use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
@@ -96,7 +97,12 @@ foreach ($files as $one) {
 //$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modified_date) VALUES (\'loginmodule\',?,?);';
 //$db->Execute($query,[$longnow,$longnow]);
 foreach([
+    'cdn_url' => 'https://cdnjs.cloudflare.com',
+    'editor_theme'  => '',
+    'lock_refresh' => 120,
+    'lock_timeout' => 60,
     'loginmodule' => '',
+    'site_help_url' => '',
     'smarty_cachelife' => -1, // smarty default
  ] as $name=>$val) {
     cms_siteprefs::set($name, $val);
@@ -137,7 +143,7 @@ if ($udt_list) {
         }
     }
 
-    $ops = new UserPluginOperations();
+    $ops = UserPluginOperations::get_instance();
     //$smarty defined upstream, used downstream
     foreach ($udt_list as $udt) {
         create_user_plugin($udt, $ops, $smarty);
@@ -198,6 +204,10 @@ $sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'content','collapsed');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'content','prop_names');
 $dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'modules','allow_fe_lazyload');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'modules','allow_admin_lazyload');
+$dict->ExecuteSQLArray($sqlarray);
 
 // extra fields
 $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'content','styles C(48)');
@@ -210,7 +220,7 @@ $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'users','username C(80)');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'users','password C(128)');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'routes','created','create_date DEFAULT CURRENT_TIMESTAMP');
+$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'routes','created','create_date','DT DEFAULT CURRENT_TIMESTAMP');
 $dict->ExecuteSQLArray($sqlarray);
 
 // 7.2 Migrate timestamp fields to auto-update datetime
@@ -304,15 +314,14 @@ $dict->ExecuteSQLArray($sqlarray);
 
 // templates table indices
 // replace this 'unique' by non- (_3 below becomes the validator)
-$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_1', $tbl, 'name');
+$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_1', $tbl);
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_1', $tbl, 'name');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_3', $tbl, 'originator,name', ['UNIQUE']);
 $dict->ExecuteSQLArray($sqlarray);
 // content table index used by name
-$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'index_content_by_idhier',
-    CMS_DB_PREFIX.'content', 'content_id,hierarchy');
+$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'index_content_by_idhier', CMS_DB_PREFIX.'content');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('idx_content_by_idhier',
     CMS_DB_PREFIX.'content', 'content_id,hierarchy');
@@ -399,7 +408,7 @@ if ($designs) {
         }
         $trans = [];
         foreach ($bank as $id => &$row) {
-            $ob = new CMSMS\StylesheetsGroup();
+            $ob = new StylesheetsGroup();
             $ob->set_properties([
                 'name'=>$designs[$id]['name'],
                 'description'=>'Stylesheets mirrored from design',
@@ -465,21 +474,37 @@ VALUES (?,?,?,-1)',
 
 $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
 $dict->ExecuteSQLArray($sqlarray);
-verbose_msg(lang('upgrade_deletetable', 'module_templates'));
+
+$tbl = CMS_DB_PREFIX.'content_types';
+$flds = '
+id I(2) UNSIGNED AUTO KEY,
+originator C(32) NOTNULL,
+name C(24) NOTNULL,
+publicname_key C(64),
+displayclass C(255) NOTNULL COLLATE ascii_bin,
+editclass C(255) COLLATE ascii_bin
+';
+$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
+$dict->ExecuteSQLArray($sqlarray);
+
+$sqlarray = $dict->CreateIndexSQL('idx_typename', $tbl, 'name', ['UNIQUE']);
+$dict->ExecuteSQLArray($sqlarray);
 
 // 7.4 Events
-$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'event_id'); //redundant duplicate index
+//redundant duplicate index
+$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'event_id', CMS_DB_PREFIX.'events');
 $dict->ExecuteSQLArray($sqlarray);
 // callable event handlers
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'event_handlers', 'type C(1) NOT NULL DEFAULT "C"');
+$tbl = CMS_DB_PREFIX.'event_handlers';
+$sqlarray = $dict->AddColumnSQL($tbl, 'type C(1) NOT NULL DEFAULT "C"');
 $dict->ExecuteSQLArray($sqlarray);
-$query = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET type="M" WHERE module_name IS NOT NULL';
+$query = 'UPDATE '.$tbl.' SET type="M" WHERE module_name IS NOT NULL';
 $db->Execute($query);
-$query = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET type="U" WHERE tag_name IS NOT NULL';
+$query = 'UPDATE '.$tbl.' SET type="U" WHERE tag_name IS NOT NULL';
 $db->Execute($query);
-$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'module_name', 'class', 'C(96)');
+$sqlarray = $dict->RenameColumnSQL($tbl, 'module_name', 'class', 'C(96)');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name', 'func', 'C(64)');
+$sqlarray = $dict->RenameColumnSQL($tbl, 'tag_name', 'func', 'C(64)');
 $dict->ExecuteSQLArray($sqlarray);
 verbose_msg(lang('upgrade_modifytable', 'event_handlers'));
 
@@ -490,7 +515,7 @@ $dict->ExecuteSQLArray($sqlarray);
 //NOT YET
 //$sqlarray = $dict->DropColumnSQL($tbl,'cachable');
 //$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->DropIndexSQL($tbl,CMS_DB_PREFIX.'idx_smp_module');
+$sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'idx_smp_module', $tbl);
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AddColumnSQL($tbl,'id I(2) UNSIGNED FIRST AUTO KEY');
 $dict->ExecuteSQLArray($sqlarray);
@@ -500,7 +525,7 @@ $sqlarray = $dict->CreateIndexSQL('idx_tagname',$tbl,'name,module',['UNIQUE']);
 $dict->ExecuteSQLArray($sqlarray);
 
 // remove duplicates (now we have caseless tagname-matching)
-$db->Execute("DELETE T1 FROM $tbl T1 INNER JOIN $tbl T2 
+$db->Execute("DELETE T1 FROM $tbl T1 INNER JOIN $tbl T2
 WHERE T1.id > T2.id AND UPPER(T1.name) = UPPER(T2.name) AND UPPER(T1.module) = UPPER(T2.module)");
 // convert callbacks from serialized to plain string
 $rows = $db->GetArray('SELECT id,module,callback FROM '.$tbl);
@@ -530,6 +555,44 @@ foreach ($rows as &$row) {
     }
 }
 unset($row);
+
+// 7.6 routes
+$tbl = CMS_DB_PREFIX.'routes';
+$sqlarray = $dict->DropIndexSQL('PRIMARY',$tbl);
+$dict->ExecuteSQLArray($sqlarray);
+
+$sqlarray = $dict->AddColumnSQL($tbl,'id I(2) UNSIGNED FIRST AUTO KEY');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->RenameColumnSQL($tbl,'data','object','X(512)');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL($tbl,'data X(512) AFTER object');
+$dict->ExecuteSQLArray($sqlarray);
+
+$query = 'SELECT id,object FROM '.$tbl;
+$data = $db->GetAssoc($query);
+$query = 'UPDATE '.$tbl.' SET data=? WHERE id=?';
+foreach ($data as $id => $val) {
+    $obj = unserialize($val,[]);
+    $arr = (array)$obj;
+    $raw = reset($arr);
+    $cooked = json_encode($raw, JSON_NUMERIC_CHECK|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+    $db->Execute($query, [$cooked,$id]);
+}
+
+$sqlarray = $dict->DropColumnSQL($tbl,'object');
+$dict->ExecuteSQLArray($sqlarray);
+
+// extra static events
+
+Events::CreateEvent('Core','MetadataPostRender');
+Events::CreateEvent('Core','MetadataPreRender');
+Events::CreateEvent('Core','PageTopPostRender');
+Events::CreateEvent('Core','PageTopPreRender');
+Events::CreateEvent('Core','PageHeadPostRender');
+Events::CreateEvent('Core','PageHeadPreRender');
+Events::CreateEvent('Core','PageBodyPostRender');
+Events::CreateEvent('Core','PageBodyPreRender');
+Events::CreateEvent('Core','PostRequest');
 
 //if ($return == 2) {
     $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 206';
