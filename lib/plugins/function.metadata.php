@@ -36,7 +36,8 @@ function smarty_function_metadata($params, $template)
 		if ($params['showbase'] == 'false')	$showbase = false;
 	}
 
-	HookManager::do_hook('metadata_prerender', [ 'content_id'=>$content_obj->Id(), 'showbase'=>&$showbase, 'html'=>&$result ]);
+	HookManager::do_hook('metadata_prerender', [ 'content_id'=>$content_obj->Id(), 'showbase'=>&$showbase, 'html'=>&$result ]); //deprecated since 2.3
+	Events::SendEvent('Core', 'MetadataPrerender', ['content_id'=>$content_obj->Id(), 'showbase'=>&$showbase, 'html'=>&$result ]);
 
 	if ($showbase)	{
 		$base = CMS_ROOT_URL;
