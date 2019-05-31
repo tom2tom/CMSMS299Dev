@@ -74,7 +74,7 @@ class design_exporter
 ]>\n
 EOT;
 
-    public function __construct(DesignManager\Design &$design)
+    public function __construct(Design $design)
     {
         $this->_design = $design;
         if( !is_array(self::$_mm_types ) ) {
