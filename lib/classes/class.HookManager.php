@@ -254,6 +254,10 @@ OR
         /**
          * Run a hook, progressively altering the value passed to handlers i.e. a filter.
          *
+ 		 * This method is akin to Events::SendEvent(), but with that method's
+		 * originator and name parameters merged like 'originator::name', and
+		 * the ability to prioritize the handlers.
+		 *
          * @param args This method accepts variable arguments.
          * The first of them (required) is the name of the hook to execute.
          * Any further argument(s) will be passed to the first-sorted registered
@@ -264,7 +268,7 @@ OR
          * the next handler. In most cases. the same number, order and types
          * of parameter(s) as were provided as argument(s) to the handler.
          * Returned parameter(s)' values may be different, of course.
-         *
+		 *
          * @return mixed Depends on the hook handlers. Null if nothing to do.
          */
         public static function do_hook(...$args)
@@ -299,6 +303,9 @@ OR
 
        /**
         * Run a hook.
+	    *
+	    * This is a variant of do_hook(), with the same parameter(s) supplied to
+	    * all handlers.
         *
         * @param args This method accepts variable arguments.
         * The first of them (required) is the name of the hook to execute.
@@ -328,7 +335,12 @@ OR
         }
 
         /**
-         * Run a hook, returning the first non-empty value from a handler.
+         * Run a hook, to retrieve a single result.
+		 *
+		 * This is a variant of do_hook_accumulate(), which returns the value
+		 * from the first handler which itself returns a non-empty value.
+		 * Tip: it may be convenient to register a PRIORITY_LOW handler to
+		 * return a default value.
          *
          * @param args This method accepts variable arguments.
          * The first of them (required) is the name of the hook to execute.
