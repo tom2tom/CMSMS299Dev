@@ -128,7 +128,7 @@ $admin_user->adminaccess = 1;
 $admin_user->password = password_hash( $adminaccount['password'], PASSWORD_DEFAULT );
 $admin_user->Save();
 
-(new UserOperations())->AddMemberGroup($admin_user->id,$gid1);
+UserOperations::get_instance()->AddMemberGroup($admin_user->id,$gid1);
 cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the only user-preference we need now
 
 //
@@ -202,6 +202,17 @@ Events::CreateEvent('Core','LostPasswordReset');
 Events::CreateEvent('Core','ModuleInstalled');
 Events::CreateEvent('Core','ModuleUninstalled');
 Events::CreateEvent('Core','ModuleUpgraded');
+Events::CreateEvent('Core','MetadataPostRender');
+Events::CreateEvent('Core','MetadataPreRender');
+
+Events::CreateEvent('Core','PageTopPostRender');
+Events::CreateEvent('Core','PageTopPreRender');
+Events::CreateEvent('Core','PageHeadPostRender');
+Events::CreateEvent('Core','PageHeadPreRender');
+Events::CreateEvent('Core','PageBodyPostRender');
+Events::CreateEvent('Core','PageBodyPreRender');
+Events::CreateEvent('Core','PostRequest');
+
 Events::CreateEvent('Core','SmartyPostCompile');
 Events::CreateEvent('Core','SmartyPreCompile');
 
