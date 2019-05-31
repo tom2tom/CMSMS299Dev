@@ -407,6 +407,8 @@ $lang['event_desc_loginpost'] = 'Sent after a user logs into the Admin panel';
 $lang['event_desc_logoutpost'] = 'Sent after a user logs out of the Admin panel';
 $lang['event_desc_lostpassword'] = 'Sent when the lost password form is submitted';
 $lang['event_desc_lostpasswordreset'] = 'Sent when the lost password form is submitted';
+$lang['event_desc_metadatapostrender'] = 'Sent from the metadata plugin after page metadata has been processed via Smarty';
+$lang['event_desc_metadataprerender'] = 'Sent from the metadata plugin before any processing has occurrred';
 $lang['event_desc_moduleinstalled'] = 'Sent after a module is installed';
 $lang['event_desc_moduleuninstalled'] = 'Sent after a module is uninstalled';
 $lang['event_desc_moduleupgraded'] = 'Sent after a module is upgraded';
@@ -416,6 +418,7 @@ $lang['event_desc_pageheadprerender'] = 'Sent before the page head section is po
 $lang['event_desc_pageheadpostrender'] = 'Sent after the page head section is populated by Smarty';
 $lang['event_desc_pagetopprerender'] = 'Sent before the page-top (from page start to &lt;head&gt;) is populated by Smarty';
 $lang['event_desc_pagetoppostrender'] = 'Sent after the page-top (from page start to &lt;head&gt;) is populated by Smarty';
+$lang['event_desc_postrequest'] = 'Sent at the end of processing each admin or frontend request';
 $lang['event_desc_smartypostcompile'] = 'Sent after any content destined for Smarty has been processed';
 $lang['event_desc_smartyprecompile'] = 'Sent before any content destined for Smarty is sent for processing';
 $lang['event_desc_stylesheetpostcompile'] = 'Sent after a stylesheet is compiled through Smarty';
@@ -780,7 +783,19 @@ $lang['event_help_templateprecompile'] = "<h4>Parameters</h4>
 <li>'type' - The type of template call.  i.e: template for a whole template, tpl_head, tpl_body, or tpl_top for a partial template.</li>
 </ul>
 ";
-
+$lang['event_help_metadatapostrender'] = "<h4>Parameters</h4>
+<ul>
+<li>'content_id' - Page numeric identifier.</li>
+<li>'html' - Reference to processed metadata (string) which may be amended as appropriate.</li>
+</ul>
+";
+$lang['event_help_metadataprerender'] = "<h4>Parameters</h4>
+<ul>
+<li>'content_id' - Page numeric identifier.</li>
+<li>'showbase' - Reference to boolean variable: whether to show a base tag.</li>
+<li>'html' - Reference to string which may be populated/amended with metadata as appropriate.</li>
+</ul>
+";
 $lang['event_help_pagebodyprerender'] = "<h4>Parameters</h4>
 <ul>
 <li>'content' - The page content-object.</li>
@@ -812,7 +827,10 @@ $lang['event_help_pagetoppostrender'] = "<h4>Parameters</h4>
 <li>'content' - The page content-object.</li>
 <li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
 ";
-
+$lang['event_help_postrequest'] = '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>';
 $lang['event_help_templateprefetch'] = '<h4>Parameters</h4>
 <ul>
 <li>None</li>
