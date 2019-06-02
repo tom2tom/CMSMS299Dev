@@ -282,8 +282,10 @@ DETAILS
   - Refactor the cms_module_plugin function for performance).
   - Refactor the route-lookup functionality for performance.
   - FEATURE: The database connection class now accepts a single scalar for an argument when only one parameter is required in functions like GetOne()
-  - CHANGE:
-  - Remove the startup_mact_processing config entry, and replace it with content_processing_mode config entry that supports 3 values
+  - FEATURE: Field definitions for database table creation|modification are more flexible.
+      In addition to sized varchar and integer fields, also text and blob e.g. C(255), I(4), T(1024), X(16383)
+      Field definition parameters pass through, so extras like UNSIGNED, FIRST, AFTER fieldname, COLLATION type, FOREIGN KEY etc are viable.
+  - CHANGE: Remove the startup_mact_processing config entry, and replace it with content_processing_mode config entry that supports 3 values
     0 - no content preprocessing.
     1 - do content preprocessing AFTER the template page top
     2 - do content preprocessing BEFORE any template processing.  (default)
