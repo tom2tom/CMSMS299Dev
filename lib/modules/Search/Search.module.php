@@ -37,9 +37,9 @@ class Search extends CMSModule
     public function GetVersion() { return '1.53'; }
     public function HandlesEvents () { return true; }
     public function HasAdmin() { return true; }
-    public function IsPluginModule() { return true; }
-    public function LazyLoadAdmin() { return true; }
-    public function LazyLoadFrontend() { return true; }
+    public function IsPluginModule() { return true; } //deprecated
+//    public function LazyLoadAdmin() { return true; }
+//    public function LazyLoadFrontend() { return false; }
     public function MinimumCMSVersion() { return '2.2.900'; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
@@ -58,7 +58,7 @@ class Search extends CMSModule
         $this->CreateParameter('search_method','get',$this->Lang('search_method'));
         $this->CreateParameter('searchtext','null',$this->Lang('param_searchtext'));
         $this->CreateParameter('submit',$this->Lang('searchsubmit'),$this->Lang('param_submit'));
-        $this->CreateParameter('use_or','true',$this->Lang('param_useor'));
+        $this->CreateParameter('use_or','true',$this->Lang('param_useor')); //CHECKME disabled?
     }
 
     public function InitializeFrontend()
@@ -77,7 +77,7 @@ class Search extends CMSModule
         $this->SetParameterType('searchinput',CLEAN_STRING);
         $this->SetParameterType('searchtext',CLEAN_STRING);
         $this->SetParameterType('submit',CLEAN_STRING);
-        $this->SetParameterType('use_or',CLEAN_INT);
+        $this->SetParameterType('use_or',CLEAN_INT); //CHECKME disabled?
         $this->SetParameterType(CLEAN_REGEXP.'/passthru_.*/',CLEAN_STRING);
     }
 
@@ -166,7 +166,7 @@ class Search extends CMSModule
 
     public static function reset_page_type_defaults(CmsLayoutTemplateType $type)
     {
-        if( $type->get_originator() != 'Search' ) throw new CmsLogicException('Cannot reset contents for this template type');
+        if( $type->get_originator() != 'Search' ) throw new UnexpectedValueException('Cannot reset contents for this template type');
 
         $mod = cms_utils::get_module('Search');
         if( !is_object($mod) ) return;
