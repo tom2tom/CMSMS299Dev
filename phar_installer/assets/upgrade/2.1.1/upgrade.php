@@ -1,23 +1,16 @@
 <?php
-
-use CMSMS\Group;
-
 status_msg('Upgrading schema for CMSMS 2.1.1');
 
 //$gCms = cmsms();
-$perms = ['Manage Designs','Manage My Settings','Manage My Account','Manage My Bookmarks'];
-$all_perms = [];
+$perms = array('Manage Designs','Manage My Settings','Manage My Account','Manage My Bookmarks');
+$all_perms = array();
 foreach( $perms as $one_perm ) {
     $permission = new CmsPermission();
     $permission->source = 'Core';
     $permission->name = $one_perm;
     $permission->text = $one_perm;
-	try {
-		$permission->save();
-		$all_perms[$one_perm] = $permission;
-	} catch (Exception $e) {
-		// nothing here
-	}
+    $permission->save();
+    $all_perms[$one_perm] = $permission;
 }
 
 $groups = Group::load_all();
@@ -29,4 +22,3 @@ foreach( $groups as $group ) {
     $group->GrantPermission('Manage My Account');
     $group->GrantPermission('Manage My Bookmarks');
 }
-
