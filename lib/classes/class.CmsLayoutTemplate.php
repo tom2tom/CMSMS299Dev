@@ -147,7 +147,7 @@ class CmsLayoutTemplate
 			case 'designs':
 				return null; //unused since 2.3
 			default:
-				throw new CmsLogicException("Attempt to retrieve invalid template property: $key");
+				throw new UnexpectedValueException("Attempt to retrieve invalid template property: $key");
 		}
 	}
 
@@ -189,7 +189,7 @@ class CmsLayoutTemplate
 				break;
 			case 'create_date':
 				if( isset($this->_data[$key]) ) {
-					throw new CmsLogicException("Attempt to set invalid template property: $key");
+					throw new UnexpectedValueException("Attempt to set invalid template property: $key");
 				}
 			// no break here
 			case 'modified_date':
@@ -207,7 +207,7 @@ class CmsLayoutTemplate
 			case 'designs':
 				return; //unused since 2.3
 			default:
-				throw new CmsLogicException("Attempt to set invalid template property: $key");
+				throw new UnexpectedValueException("Attempt to set invalid template property: $key");
 		}
 		$this->_dirty = true;
 	}
@@ -400,7 +400,7 @@ class CmsLayoutTemplate
 			$id = $type->get_id();
 		}
 		else {
-			throw new CmsLogicException('Invalid data passed to '.__METHOD__);
+			throw new UnexpectedValueException('Invalid data passed to '.__METHOD__);
 		}
 
 		$this->type_id = $id;
@@ -482,7 +482,7 @@ class CmsLayoutTemplate
 		elseif( $a instanceof CmsLayoutTemplateCategory ) {
 			return $a->get_id();
 		}
-		throw new CmsLogicException('Invalid data passed to '.__METHOD__);
+		throw new UnexpectedValueException('Invalid data passed to '.__METHOD__);
 	}
 
    /**
@@ -608,7 +608,7 @@ class CmsLayoutTemplate
 	* Get a numeric id corresponding to $a
 	* @param mixed $a A CmsLayoutCollection object, an integer design id, or a string design name.
 	* @return int
-	* @throws CmsLogicException
+	* @throws UnexpectedValueException
 	*/
 /*	protected function get_designid($a)
 	{
@@ -624,7 +624,7 @@ class CmsLayoutTemplate
 		elseif( $a instanceof DesignManager\Design ) {
 			return $a->get_id();
 		}
-		throw new CmsLogicException('Invalid data passed to '.__METHOD__);
+		throw new UnexpectedValueException('Invalid data passed to '.__METHOD__);
 	}
 */
    /**
@@ -708,7 +708,7 @@ class CmsLayoutTemplate
 		}
 		elseif( is_string($a) && $a !== '' ) {
 			// load the user by name.
-			$ob = (new UserOperations())->LoadUserByUsername($a);
+			$ob = UserOperations::get_instance()->LoadUserByUsername($a);
 			if( $ob instanceof User ) $id = $a->id;
 		}
 		elseif( $a instanceof User ) {
@@ -762,11 +762,11 @@ class CmsLayoutTemplate
 	{
 		if( is_numeric($a) && $a > 0 ) return $a;
 		if( is_string($a) && strlen($a) ) {
-			$ob = (new UserOperations())->LoadUserByUsername($a);
+			$ob = UserOperations::get_instance()->LoadUserByUsername($a);
 			if( $ob instanceof User ) return $a->id;
 		}
 		if( $a instanceof User ) return $a->id;
-		throw new CmsLogicException('Could not resolve '.$a.' to a user id');
+		throw new LogicException('Could not resolve '.$a.' to a user id');
 	}
 
    /**
@@ -836,7 +836,7 @@ class CmsLayoutTemplate
 	*/
 	public function is_listable()
 	{
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','get_listable'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_listable'));
 		return $this->listable;
 	}
 
@@ -985,7 +985,7 @@ class CmsLayoutTemplate
 	*/
 	public function has_content_file()
 	{
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','get_content_file'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_content_file'));
 		return $this->contentfile;
 	}
 

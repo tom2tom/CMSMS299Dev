@@ -19,15 +19,16 @@
 namespace ModuleManager;
 
 use cms_config;
+use cms_utils;
 use CmsFileSystemException;
 use CmsInvalidDataException;
 use CmsLogicException;
 use CMSModule;
 use CMSMS\FileTypeHelper;
-use CMSMS\internal\global_cache;
 use CMSMS\ModuleOperations;
 use ModuleManager;
 use RuntimeException;
+use UnexpectedValueException;
 use XMLWriter;
 use const CMS_VERSION;
 use const TMP_CACHE_LOCATION;
@@ -131,7 +132,7 @@ class operations
                     // check if this module is already installed
                     $loaded = $modops->GetLoadedModules();
                     if( isset($loaded[$val]) && !$overwrite && !$brief ) { //TODO check logic
-                        throw new CmsLogicException($this->_mod->Lang('err_xml_moduleinstalled'));
+                        throw new LogicException($this->_mod->Lang('err_xml_moduleinstalled'));
                     }
                     $moduledetails[$lkey] = $val;
                     break;
@@ -152,7 +153,7 @@ class operations
                 case 'mincmsversion':
                     $val = (string)$node;
                     if( !$brief && version_compare(CMS_VERSION,$val) < 0 ) {
-                         throw new CmsLogicException($this->_mod->Lang('err_xml_moduleincompatible'));
+                         throw new UnexpectedValueException($this->_mod->Lang('err_xml_moduleincompatible'));
                     }
                     $moduledetails[$lkey] = $val;
                     break;

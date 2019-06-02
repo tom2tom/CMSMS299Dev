@@ -20,13 +20,14 @@ namespace MicroTiny;
 
 use cms_utils;
 use CmsApp;
-use CmsLogicException;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptOperations;
 use CMSMS\StylesheetOperations;
 use MicroTiny;
 use MicroTiny\Profile;
 use PHPMailer\PHPMailer\Exception;
+use RuntimeException;
+use const CMS_JOB_KEY;
 use const CMS_ROOT_URL;
 use const TMP_CACHE_LOCATION;
 use function cms_join_path;
@@ -53,7 +54,7 @@ class Utils
 
 		// Check if we are in object instance
 		$mod = cms_utils::get_module('MicroTiny');
-		if( !is_object($mod) ) throw new CmsLogicException('Could not find the MicroTiny module...');
+		if( !is_object($mod) ) throw new RuntimeException('Could not find the MicroTiny module...');
 
 		$frontend = CmsApp::get_instance()->is_frontend_request();
 		$languageid = self::GetLanguageId($frontend);

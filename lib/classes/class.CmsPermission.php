@@ -134,7 +134,7 @@ VALUES (?,?,?,?,$now,$now)";
 	public function save()
 	{
 		if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) return $this->_insert();
-		throw new CmsLogicException('Cannot update an existing CmsPermission object');
+		throw new LogicException('Cannot update an existing CmsPermission object');
 	}
 
 	/**
@@ -145,7 +145,7 @@ VALUES (?,?,?,?,$now,$now)";
 	public function delete()
 	{
 		if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) {
-			throw new CmsLogicException('Cannnot delete a CmsPermission object that has not been saved');
+			throw new LogicException('Cannnot delete a CmsPermission object that has not been saved');
 		}
 
 		$db = CmsApp::get_instance()->GetDb();

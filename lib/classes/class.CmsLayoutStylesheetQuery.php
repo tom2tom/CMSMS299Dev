@@ -193,7 +193,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 	public function GetObject()
 	{
 		$this->execute();
-		if( !$this->_rs ) throw new CmsLogicException('Cannot get stylesheet from invalid stylesheet query object');
+		if( !$this->_rs ) throw new CmsInvalidDataException('Cannot get stylesheet from invalid stylesheet query object');
 		$id = $this->_rs->fields('id');
 		return StylesheetOperations::get_stylesheet((int)$id);
 	}
@@ -207,7 +207,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 	public function GetMatches()
 	{
 		$this->execute();
-		if( !$this->_rs ) throw new CmsLogicException('Cannot get template from invalid template query object');
+		if( !$this->_rs ) throw new CmsInvalidDataException('Cannot get template from invalid template query object');
 
 		$tmp = [];
 		while( !$this->EOF() ) {

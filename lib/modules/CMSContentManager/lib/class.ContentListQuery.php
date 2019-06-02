@@ -20,6 +20,7 @@ namespace CMSContentManager;
 
 use cms_utils;
 use CmsDbQueryBase;
+use CmsInvalidDataException;
 use CmsLogicException;
 use CmsSQLErrorException;
 use const CMS_DB_PREFIX;
@@ -112,13 +113,13 @@ final class ContentListQuery extends CmsDbQueryBase
 
 	/**
 	 *
-	 * @return type
+	 * @return int
 	 * @throws CmsLogicException
 	 */
-	public function &GetObject()
+	public function GetObject()
 	{
 		$this->execute();
-		if( !$this->_rs ) throw new CmsLogicException('Cannot get stylesheet from invalid stylesheet query object');
+		if( !$this->_rs ) throw new CmsInvalidDataException('Cannot get stylesheet from invalid stylesheet query object');
 
 		$out = (int) $this->_rs->fields['content_id'];
 		return $out;

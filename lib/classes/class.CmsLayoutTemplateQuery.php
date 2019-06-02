@@ -292,7 +292,7 @@ AS tmp1';
 	{
 		$this->execute();
 		if (!$this->_rs) {
-			throw new CmsLogicException('Cannot get template from invalid template query object');
+			throw new CmsInvalidDataException('Cannot get template from invalid template query object');
 		}
 		$id = $this->_rs->fields('id');
 		return TemplateOperations::get_template((int)$id);
@@ -309,7 +309,7 @@ AS tmp1';
 	{
 		$this->execute();
 		if (!$this->_rs) {
-			throw new CmsLogicException('Cannot get template from invalid template query object');
+			throw new CmsInvalidDataException('Cannot get template from invalid template query object');
 		}
 
 		$out = [];

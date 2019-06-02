@@ -21,7 +21,6 @@ namespace MicroTiny;
 use ArrayAccess;
 use cms_utils;
 use CmsInvalidDataException;
-use CmsLogicException;
 use MicroTiny;
 use function cms_to_bool;
 
@@ -150,7 +149,7 @@ class Profile implements ArrayAccess
 
 		case 'system':
 		case 'name':
-			throw new CmsLogicException('Cannot unset '.$key.' for '.__CLASS__);
+			throw new LogicException('Cannot unset '.$key.' for '.__CLASS__);
 
 		default:
 			throw new CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
