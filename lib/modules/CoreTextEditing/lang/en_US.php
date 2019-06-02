@@ -13,10 +13,8 @@ Ace themes can be evaluated at <a href="https://ace.c9.io/build/kitchen-sink">C9
 EOS;
 $lang['ace_theme'] = 'Default Ace Theme';
 $lang['ace_url'] = 'Ace Editor Script URL';
-$lang['apply'] = 'Apply';
 
 #C
-$lang['cancel'] = 'Cancel';
 $lang['codemirror_helpmain'] = <<<'EOS'
 A feature-rich, versatile, <a href="https://codemirror.net/doc/realworld.html">popular</a> open-source editor. Its support for mobile-device browsers is work-in-progress.
 <br /><br />
@@ -72,7 +70,7 @@ EOS;
 $lang['settings_acecdn'] = <<<'EOS'
 Enter here the URL which specifies which, and from where, text-editor source files will be retrieved at runtime in preparation for using the editor.
 <br /><br />
-The editor may be installed on and run from this website, or run from CDN. The last part of the URL will often be a version-number.
+The editor may be installed on and run from this website, or run from CDN. The last part of the URL will often be a version-number. To use onsite sources, they must be manually installed in the specified place.
 <br /><br />
 CDN example: https://somecdnsite.com/ace/1.2.3
 <br /><br />
@@ -81,7 +79,7 @@ EOS;
 $lang['settings_cmcdn'] = <<<'EOS'
 Enter here the URL which specifies which, and from where, text-editor source files will be retrieved at runtime in preparation for using the editor.
 <br /><br />
-The editor may be installed on and run from this website, or run from CDN. The last part of the URL will often be a version-number.
+The editor may be installed on and run from this website, or run from CDN. The last part of the URL will often be a version-number. To use onsite sources, they must be manually installed in the specified place.
 <br /><br />
 CDN example: https://somecdnsite.com/codemirror/5.4.3
 <br /><br />
@@ -90,4 +88,3 @@ EOS;
 
 $lang['settings_error'] = 'Settings problem: %s. Settings NOT updated';
 $lang['settings_success'] = 'Settings updated';
-

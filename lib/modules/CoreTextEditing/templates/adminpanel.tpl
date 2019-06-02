@@ -42,8 +42,8 @@
  </fieldset>
 
  <div class="pregap">
-  <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply ">{$mod->Lang('apply')}</button>
-  <button  type="submit" name="{$actionid}cancel" class="adminsubmit icon undo" formnovalidate>{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply ">{lang('apply')}</button>
+  <button  type="submit" name="{$actionid}cancel" class="adminsubmit icon undo" formnovalidate>{lang('cancel')}</button>
  </div>
 
 </form>
