@@ -41,6 +41,7 @@ $this->RemovePermission('Modify Any Page');
 $this->RemovePermission('Remove Pages');
 $this->RemovePermission('Reorder Content');
 
+$me = $this->GetName();
 // unregister events
 foreach([
  'ContentDeletePost',
@@ -52,6 +53,5 @@ foreach([
  'ContentPreCompile',
  'ContentPreRender', // 2.2
 ] as $name) {
-    Events::RemoveEvent('Core',$name);
+    Events::RemoveEvent($me,$name);
 }
-
