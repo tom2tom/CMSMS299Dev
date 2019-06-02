@@ -38,9 +38,9 @@ final class Navigator extends CMSModule
     public function GetName() { return 'Navigator'; }
     public function GetVersion() { return '1.3'; }
     public function HasAdmin() { return false; }
-    public function IsPluginModule() { return true; }
-    public function LazyLoadAdmin() { return true; }
-    public function LazyLoadFrontend() { return true; }
+    public function IsPluginModule() { return true; } //deprecated
+//    public function LazyLoadAdmin() { return true; }
+//    public function LazyLoadFrontend() { return true; }
     public function MinimumCMSVersion() { return '2.2.911'; }
 
     public function InitializeFrontend()
@@ -85,6 +85,15 @@ final class Navigator extends CMSModule
         $this->CreateParameter('template', '', $this->lang('help_template'));
     }
 
+    public function HasCapability($capability, $params=[])
+    {
+        switch ($capability) {
+            case CmsCoreCapabilities::PLUGIN_MODULE:
+            return TRUE;
+        }
+        return FALSE;
+    }
+
     final public static function nav_breadcrumbs($params, $smarty)
     {
         $params['action'] = 'breadcrumbs';
@@ -100,7 +109,7 @@ final class Navigator extends CMSModule
 
     public static function reset_page_type_defaults(CmsLayoutTemplateType $type)
     {
-        if( $type->get_originator() != __CLASS__ ) throw new CmsLogicException('Cannot reset contents for this template type');
+        if( $type->get_originator() != __CLASS__ ) throw new UnexpectedValueException('Cannot reset contents for this template type');
 
         $fn = null;
         switch( $type->get_name() ) {
