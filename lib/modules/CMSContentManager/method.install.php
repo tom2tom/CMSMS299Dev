@@ -16,12 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentTypeOperations;
 use CMSMS\Events;
 use CMSMS\Group;
 
 if (!isset($gCms)) {
     exit;
 }
+
+ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
 
 $this->SetPreference('locktimeout', 60);
 $this->SetPreference('lockrefresh', 120);
@@ -46,8 +49,8 @@ $group->GrantPermission('Manage My Bookmarks');
 $group->GrantPermission('Manage My Settings');
 $group->GrantPermission('View Tag Help');
 
+$me = $this->GetName();
 // register events for which other parts of the system may listen
-// these have been migrated from the main installer
 foreach([
  'ContentDeletePost',
  'ContentDeletePre',
@@ -58,6 +61,6 @@ foreach([
  'ContentPreCompile',
  'ContentPreRender', // 2.2
 ] as $name) {
-    Events::CreateEvent('Core',$name);
+    Events::CreateEvent($me,$name); //since 2.3
+    Events::CreateEvent('Core',$name); //deprecated since 2.3, migrated from the main installer
 }
-

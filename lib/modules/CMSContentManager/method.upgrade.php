@@ -15,8 +15,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentTypeOperations;
 //use CMSMS\Database\DataDictionary;
+use CMSMS\Events;
 
 if (!function_exists('cmsms')) exit;
 
 //$dict = new DataDictionary($db);
+
+if( version_compare($oldversion,'2.0') < 0 ) {
+    $me = $this->GetName();
+    // register events for which other parts of the system may listen
+    foreach([
+     'ContentDeletePost',
+     'ContentDeletePre',
+     'ContentEditPost',
+     'ContentEditPre',
+     'ContentPostCompile',
+     'ContentPostRender',
+     'ContentPreCompile',
+     'ContentPreRender', // 2.2
+    ] as $name) {
+        Events::CreateEvent($me,$name); //since 2.3
+    }
+}
+
+ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
