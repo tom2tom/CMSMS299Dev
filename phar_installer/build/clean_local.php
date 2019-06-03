@@ -50,4 +50,4 @@ rrmdir($tmpdir);
 $datadir = joinpath($phardir, 'data'); //place for data.tar.gz etc
 rrmdir($datadir);
 $outdir = joinpath($phardir, 'out'); //place for script results/output
-rrmdir($outdir);
+rrmdir($outdir, true);

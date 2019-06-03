@@ -513,11 +513,14 @@ try {
 
     if ($clean && is_dir($outdir)) {
         verbose(1, 'INFO: Removing old output file(s)');
-        rrmdir($outdir);
+        rrmdir($outdir, true);
     }
-    @mkdir($outdir, 0771, true);
-
-    @mkdir($datadir, 0771, true);
+    if (!is_dir($outdir)) {
+        @mkdir($outdir, 0771, true);
+    }
+    if (!is_dir($datadir)) {
+        @mkdir($datadir, 0771, true);
+    }
     if (!is_dir($datadir) || !is_dir($outdir)) {
         die('Problem creating working directories: '.$datadir.' and/or '.$outdir);
     }
