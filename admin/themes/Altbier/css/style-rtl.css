@@ -1035,19 +1035,6 @@ header .shortcuts li.notifications i {
     top: 30px;
 }
 
-/* main navigation */
-#ac_pagemenu {
-    border-bottom: 1px solid #adadad;
-}
-
-#ac_pagemenu li {
-/*    position: relative;
-    zoom: 1;
-    line-height: 40px;
-    padding: 0; */
-    border-bottom:1px solid #eee;
-}
-
 .sidebar-off #ac_sidebar nav.navigation li {
     text-align: center;
 }
@@ -1058,8 +1045,17 @@ header .shortcuts li.notifications i {
 
 /*** menu style ***/
 
-/* toggle submenu */
+#ac_pagemenu {
+    border-bottom: 1px solid #adadad;
+}
+
 #ac_pagemenu li {
+/*    position: relative;
+    zoom: 1;
+    line-height: 40px;
+    padding: 0; */
+    border-bottom:1px solid #eee;
+    font-size: 0.8rem;
     cursor: pointer;
 }
 
@@ -1254,7 +1250,7 @@ nav h3 a .svg-inline--fa {
 #ac_pagemenu li li {
 /*    background: none; */
     line-height: 1.4;
-/*    font-size: 0.9rem; */
+    font-size: 0.75rem;
 }
 
 #ac_pagemenu li li a {
