@@ -15,10 +15,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-const CMS_VERSION = '2.2.913';
-const CMS_VERSION_NAME = 'NO NAME SET';
-const CMS_SCHEMA_VERSION = '206';
+$CMS_VERSION = '2.2.913';
+$CMS_VERSION_NAME = 'NO NAME SET';
+$CMS_SCHEMA_VERSION = '206';
 
-$CMS_VERSION = CMS_VERSION;
-$CMS_VERSION_NAME = CMS_VERSION_NAME;
-$CMS_SCHEMA_VERSION = CMS_SCHEMA_VERSION;
+const CMS_VERSION = $CMS_VERSION;
+const CMS_VERSION_NAME = $CMS_VERSION_NAME;
+const CMS_SCHEMA_VERSION = $CMS_SCHEMA_VERSION;
