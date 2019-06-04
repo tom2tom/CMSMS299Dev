@@ -139,11 +139,11 @@ if ($_cli) {
 
             case 'i':
             case 'ask':
-				if (DIRECTORY_SEPARATOR !== '/') {
-	                $_interactive = true;
-				} else {
-			        fatal('Prompted input of parameters is not supported on Windows');
-				}
+                if (DIRECTORY_SEPARATOR !== '/') {
+                    $_interactive = true;
+                } else {
+                    fatal('Prompted input of parameters is not supported on Windows');
+                }
                 break;
 
             case 'k':
@@ -292,12 +292,12 @@ if (!(is_writable($_tmpdir) || mkdir($_tmpdir, 0771))) {
 }
 $_fromdir = $_tmpdir.DIRECTORY_SEPARATOR.'_from';
 if (is_dir($_fromdir)) {
-	rrmdir($_fromdir);
+    rrmdir($_fromdir);
 }
 mkdir($_fromdir, 0771);
 $_todir = $_tmpdir.DIRECTORY_SEPARATOR.'_to';
 if (is_dir($_todir)) {
-	rrmdir($_todir);
+    rrmdir($_todir);
 }
 mkdir($_todir, 0771);
 
@@ -406,6 +406,9 @@ if (defined('STDOUT') && $_outfile == STDOUT) {
         if ($dir != '.') {
             $file = joinpath($dir, 'assets', 'upgrade', $_to_ver);
             if (is_dir($file)) {
+                if (!is_file($file.DIRECTORY_SEPARATOR.'changelog.txt')) {
+                    touch($file.DIRECTORY_SEPARATOR.'changelog.txt');
+                }
                 $file .= DIRECTORY_SEPARATOR.$_outfile;
             } elseif (mkdir($file, 0771, true)) {
                 touch($file.DIRECTORY_SEPARATOR.'changelog.txt');
@@ -717,11 +720,21 @@ function get_version(string $basedir) : array
 {
     $file = joinpath($basedir, 'lib', 'version.php');
     if (is_file($file)) {
-        $lvl = error_reporting();
-        error_reporting(0);
-        require $file;
-        error_reporting($lvl);
-        return [CMS_VERSION, CMS_VERSION_NAME];
+        // cannot just include the file, constants in there cannot be re-defined ...
+        $txt = file_get_contents($file);
+        if ($txt) {
+			$txt = str_replace(['<?php','>?'], ['',''], $txt);
+			while (($p = strpos($txt, 'define')) !== false) {
+				$txt[$p] = '/';
+				$txt[$p+1] = '/';
+			}
+			while (($p = strpos($txt, 'const')) !== false) {
+				$txt[$p] = '/';
+				$txt[$p+1] = '/';
+			}
+			eval($txt);
+            return [$CMS_VERSION, $CMS_VERSION_NAME];
+        }
     }
     return ['',''];
 }
