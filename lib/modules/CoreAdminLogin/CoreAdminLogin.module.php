@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\IAuthModuleInterface;
+
 /**
  * Module: admin login/out processor
  * @since 2.3
@@ -24,7 +26,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  * @license GPL
  */
 
-class CoreAdminLogin extends CMSModule //uses CMSMS\AdminLogin
+class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
 {
     // minimum methods used by metafile processor
     public function GetAuthor() { return 'Robert Campbell'; }
@@ -51,8 +53,8 @@ class CoreAdminLogin extends CMSModule //uses CMSMS\AdminLogin
     // interface methods
 
     /**
-     * Process the current login 'phase', and generate appropriate page-content for
-     *  use upstream
+     * Process the current login 'phase', and generate appropriate page-content
+	 * for use upstream
      * No header / footer inclusions (js, css) are done (i.e. assumes upstream does that)
      * @return array including login-form content and related parameters
      */
