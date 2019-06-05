@@ -395,7 +395,7 @@ button.ui-button.ui-state-active {
     background: #fa8106
 }
 
-.adminsubmit:disabled, .loginsubmit:disabled, .ui-button:disabled { 
+.adminsubmit:disabled, .loginsubmit:disabled, .ui-button:disabled {
     background: #f2f2f2;
     color: #a6a6a6;
     cursor: default;
@@ -426,7 +426,7 @@ textarea {
 /* Notification messages */
 .ui-tooltip {
     font-size: 0.9rem;
-    box-shadow: 6px 6px 12px -6px rgba(120,120,120,1);}
+    box-shadow: 6px 6px 12px -6px rgba(120,120,120,1);
     -webkit-box-shadow: 6px 6px 12px -6px rgba(120,120,120,1);
     -moz-box-shadow: 6px 6px 12px -6px rgba(120,120,120,1);
 }
@@ -2616,7 +2616,7 @@ ul.social-icons li {
 
 /* --- SCREEN UP TO 992px --- */
 
-@media(max-width: 62rem) {
+@media (max-width: 62rem) {
 
     /* override our predefined min-with for smaller screens and full height stuff */
     body {
