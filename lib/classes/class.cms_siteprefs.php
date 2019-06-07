@@ -20,7 +20,7 @@ use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 
 /**
- * A class for working with site- and module-preferences
+ * A class for working with site- and module-preferences/properties/parameters
  *
  * @package CMS
  * @license GPL
@@ -32,7 +32,19 @@ final class cms_siteprefs
 	/**
 	 * @ignore
 	 */
+	const MODULE_PREFKEY = '_mapi_pref_';
+
+	/**
+	 * @ignore
+	 * Constant indicating a serialized value
+	 */
+	const SERIAL = '_S8D_'; // shortened '_SERIALIZED_'
+
+	/**
+	 * @ignore
+	 */
 	private function __construct() {}
+	private function __clone() {}
 
 	/**
 	 * @ignore
@@ -48,9 +60,10 @@ final class cms_siteprefs
 	}
 
 	/**
-	 * Cache site- and module-preferences
+	 * Read cached site-preferences, NOT module-preferences
 	 * @ignore
 	 * @internal
+	 * @return mixed array | null The array might be empty
 	 */
 	private static function _read()
 	{
@@ -59,26 +72,23 @@ final class cms_siteprefs
 		if( !$db ) {
 			return;
 		}
-		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs';
-		$dbr = $db->GetArray($query);
-		if( is_array($dbr) ) {
-			$_prefs = [];
-			for( $i = 0, $n = count($dbr); $i < $n; $i++ ) {
-				$row = $dbr[$i];
-				$_prefs[$row['sitepref_name']] = $row['sitepref_value'];
-			}
-			return $_prefs;
+		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name NOT LIKE "%'.self::MODULE_PREFKEY.'%" ORDER BY sitepref_name';
+		$dbr = $db->GetAssoc($query);
+		if( $dbr ) {
+			return $dbr;
 		}
+		return [];
 	}
 
 	/**
 	 * Retrieve specified preference(s) without using the cache.
-	 * This is mostly for getting parameter(s) needed to init the cache.
-	 * Also for use in async tasks, where the cache is N/A.
+	 * This is for getting parameter(s) needed to init the site-prefs cache, and
+	 * for getting module-preferences, and for use in async tasks, where the cache
+	 * is N/A.
 	 *
 	 * @since 2.3
 	 * @param mixed string | array $key Preference name(s)
-	 * @param mixed string | array $dflt Optional default value(s)
+	 * @param mixed singular | array $dflt Optional default value(s)
 	 * @return mixed value | array
 	 */
 	public static function getraw($key, $dflt = '')
@@ -88,12 +98,18 @@ final class cms_siteprefs
 		if( !$db ) {
 			return $dflt;
 		}
+		$l = strlen(self::SERIAL);
 		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name';
 		if( is_array($key) ) {
 			$query .= ' IN ('.str_repeat('?,', count($key) - 1).'?)';
 			$dbr = $db->GetAssoc($query, $key);
 			foreach( $key as $i => $one ) {
-				if( !isset($dbr[$one]) ) {
+				if( isset($dbr[$one]) ) {
+					if( strncmp($dbr[$one],self::SERIAL,$l) == 0 ) {
+						$dbr[$one] = unserialize(substr($prefs[$key],$l),['allowed_classes' => FALSE]);
+					}
+				}
+				else {
 					$dbr[$one] = $dflt[$i] ?? end($dflt);
 				}
 			}
@@ -101,30 +117,41 @@ final class cms_siteprefs
 		}
 		else {
 			$query .= '=?';
-			$dbr = $db->GetRow($query, [$key]);
-			return ( $dbr ) ? end($dbr) : $dflt;
+			$dbr = $db->GetRow($query,[$key]);
+			if( $dbr ) {
+				$value = end($dbr);
+				if( strncmp($value,self::SERIAL,$l) == 0 ) {
+					$value = unserialize(substr($val,$l),['allowed_classes' => FALSE]);
+				}
+				return $value;
+			}
+			return $dflt;
 		}
 	}
 
 	/**
-	 * Retrieve a site/module preference
+	 * Retrieve a site/module preference if it is set, or else
+	 * return a default value.
 	 *
 	 * @param string $key The preference name
-	 * @param string $dflt Optional default value
+	 * @param mixed  $dflt Optional default value
 	 * @return string
 	 */
-	public static function get($key,$dflt = '')
+	public static function get(string $key,$dflt = '')
 	{
 		$prefs = global_cache::get(__CLASS__);
 		if( isset($prefs[$key]) && $prefs[$key] !== '' ) {
+			$l = strlen(self::SERIAL);
+			if( strncmp($prefs[$key],self::SERIAL,$l) == 0 ) {
+				return unserialize(substr($prefs[$key],$l),['allowed_classes' => FALSE]);
+			}
 			return $prefs[$key];
 		}
 		return $dflt;
 	}
 
-
 	/**
-	 * Test if a preference exists and it's value is not ''
+	 * Test if a preference exists and its value is not ''
 	 *
 	 * @param string $key The preference name
 	 * @return bool
@@ -135,18 +162,20 @@ final class cms_siteprefs
 		return ( is_array($prefs) && isset($prefs[$key]) && $prefs[$key] !== '' );
 	}
 
-
 	/**
 	 * Set a site/module preference
 	 *
 	 * @param string $key The preference name
-	 * @param string $value The preference value
+	 * @param mixed  $value The preference value
 	 */
-	public static function set($key,$value)
+	public static function set(string $key,$value)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$tbl = CMS_DB_PREFIX.'siteprefs';
 		$now = $db->DbTimeStamp(time());
+		if( !(is_scalar($value) || is_null($value)) ) {
+			$value = self::SERIAL.serialize($value);
+		}
 		//self::exists() is uselsss here, it ignores null (hence '') values
 		//upsert TODO MySQL ON DUPLICATE KEY UPDATE useful here?
 		$query = "UPDATE $tbl SET sitepref_value=?,modified_date=$now WHERE sitepref_name=?";
@@ -160,36 +189,41 @@ EOS;
 //		$dbr =
 		$db->Execute($query,[$key,$value,$key]);
 
-		global_cache::release(__CLASS__);
+		if( strpos($key,self::MODULE_PREFKEY) === FALSE ) {
+			global_cache::release(__CLASS__);
+		}
 	}
-
 
 	/**
 	 * Remove a site/module preference
 	 *
 	 * @param string $key The preference name
-	 * @param bool $like Optional flag whether to use preference name approximation, default false
+	 * @param bool   $like Optional flag whether to interpret $key as a preference-name prefix. Default false.
 	 */
-	public static function remove($key,$like = FALSE)
+	public static function remove(string $key,bool $like = FALSE)
 	{
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name = ?';
 		if( $like ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
 			$key .= '%';
 		}
+		else {
+			$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name = ?';
+		}
 		$db = CmsApp::get_instance()->GetDb();
 		$db->Execute($query,[$key]);
-		global_cache::release(__CLASS__);
+		if( strpos($key,self::MODULE_PREFKEY) === FALSE) {
+			global_cache::release(__CLASS__);
+		}
 	}
 
 	/**
-	 * List preferences by prefix
-	 *
-	 * @param string $prefix
-	 * @return mixed array of preference names that match the prefix, or null
+	 * List preference-names having the specified prefix
 	 * @since 2.0
+	 *
+	 * @param string $prefix Preference-name prefix
+	 * @return mixed array of preference names that match the prefix, or null
 	 */
-	public static function list_by_prefix($prefix)
+	public static function list_by_prefix(string $prefix)
 	{
 		if( !$prefix ) return;
 		$query = 'SELECT sitepref_name FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
