@@ -21,6 +21,7 @@ namespace CMSMS\internal;
 use cms_cookies;
 use cms_siteprefs;
 use CmsApp;
+use CMSMS\AppState;
 use CMSMS\User;
 use CMSMS\UserOperations;
 use LogicException;
@@ -35,7 +36,7 @@ final class LoginOperations
     /**
      * @ignore
      */
-//    private static $_instance = null;
+    private static $_instance = null;
     /**
      * @ignore
      */
@@ -48,7 +49,7 @@ final class LoginOperations
     /**
      * @ignore
      */
-    public function __construct()
+    private function __construct()
     {
         self::$_loginkey = $this->_get_salt();
     }
@@ -56,17 +57,16 @@ final class LoginOperations
     /* *
      * @ignore
      */
-//    private function __clone() {}
+    private function __clone() {}
 
     /**
-     * Get an instance of this class.
-     * @deprecated since 2.3 use new LoginOperations()
+     * Get the instance of this class.
      * @return LoginOperations
      */
     public static function get_instance() : self
     {
-//        if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
-        return new self();
+        if( !self::$_instance ) { self::$_instance = new self(); }
+		return self::$_instance;
     }
 
     public function deauthenticate()
@@ -76,21 +76,21 @@ final class LoginOperations
     }
 
     /**
-     * get current or newly-generated salt
+     * Get current or newly-generated salt
+     * @ignore
      */
     private function _get_salt() : string
     {
-        global $CMS_INSTALL_PAGE;
-        if( !isset($CMS_INSTALL_PAGE) ) {
-            $salt = cms_siteprefs::get(__CLASS__);
+        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
+            $salt = cms_siteprefs::get('loginsalt');
             if( !$salt ) {
-                $salt = sha1( random_bytes(32) );
-                cms_siteprefs::set(__CLASS__,$salt);
+                $salt = $this->create_csrf_token();
+                cms_siteprefs::set('loginsalt',$salt);
             }
             return $salt;
         }
         else {  //must avoid siteprefs circularity
-            return sha1( random_bytes(32) );
+            return $this->create_csrf_token();
         }
     }
 
@@ -103,7 +103,7 @@ final class LoginOperations
     private function _check_passhash($uid,$hash) : bool
     {
         // we already validated that payload was not corrupt
-        $user = (new UserOperations())->LoadUserByID((int)$uid);
+        $user = UserOperations::get_instance()->LoadUserByID((int)$uid);
         if( !$user ) {
             return FALSE;
         }
@@ -161,7 +161,7 @@ final class LoginOperations
 
     public function create_csrf_token()
     {
-        $data = '            ';
+        $data = '123456789012';
         for( $i=0; $i<12; ++$i ) {
             $n = mt_rand(48, 122); // 0 .. z
             if (!(($n > 57 && $n < 66) || ($n > 90 && $n < 97))) {
@@ -257,7 +257,7 @@ final class LoginOperations
     {
         $uid = $this->get_loggedin_uid();
         if( $uid < 1 ) return;
-        $user = (new UserOperations())->LoadUserByID($uid);
+        $user = UserOperations::get_instance()->LoadUserByID($uid);
         return $user;
     }
 
