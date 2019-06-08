@@ -1165,7 +1165,7 @@ function is_email (string $email, bool $checkDNS=false)
 
 /**
  * Return a UNIX UTC timestamp corresponding to the supplied (typically
- * database datetime formatted) date/time string.
+ * database datetime formatted and timezoned) date/time string.
  * The supplied parameter is not validated, apart from ignoring a falsy value.
  * @since 2.3
  *
@@ -1176,16 +1176,23 @@ function is_email (string $email, bool $checkDNS=false)
 function cms_to_stamp($datetime, bool $is_utc = false) : int
 {
     static $dt = null;
+    static $offs = null;
 
     if ($datetime) {
         if ($dt === null) {
             $dt = new DateTime('@0', null);
         }
+        if (!$is_utc) {
+            if ($offs === null) {
+                $config = cms_config::get_instance();
+                $dtz = new DateTimeZone($config['timezone']);
+                $offs = timezone_offset_get($dtz, $dt);
+            }
+        }
         try {
             $dt->modify($datetime);
             if (!$is_utc) {
-                $s = strftzone_adjuster();
-                $dt->modify($s);
+                return $dt->getTimestamp() - $offs;
             }
             return $dt->getTimestamp();
         } catch (Throwable $t) {
@@ -1193,28 +1200,6 @@ function cms_to_stamp($datetime, bool $is_utc = false) : int
         }
     }
     return 1; // anything not falsy
-}
-
-/**
- * Generate a strftime-compatible string representing the site timezone-offset relative to UTC
- * @since 2.3
- * @return string like +/-HH:MM
- */
-function strftzone_adjuster() : string
-{
-    static $offstr = null;
-
-    if ($offstr === null) {
-        $config = cms_config::get_instance();
-        $dt = new DateTime();
-        $dtz = new DateTimeZone($config['timezone']);
-        $offset = timezone_offset_get($dtz, $dt);
-        $symbol = ($offset < 0) ? '-' : '+';
-        $hrs = abs((int)($offset / 3600));
-        $mins = abs((int)($offset % 3600));
-        $offstr = sprintf('%s%d:%02d', $symbol, $hrs, $mins);
-    }
-    return $offstr;
 }
 
 /**
