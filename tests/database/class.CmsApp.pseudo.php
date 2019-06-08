@@ -3,7 +3,7 @@
   //require_once('cms_test_base.php');
 require_once(CMSMS.'/lib/adodb_lite/adodb.inc.php');
 
-function &cmsms()
+function cmsms()
 {
   return CmsApp::get_instance();
 }
@@ -19,10 +19,10 @@ final class CmsApp
   private $_db;
   private static $_instance;
 
-  public static function get_instance()
+  public static function get_instance() : self
   {
     if( !self::$_instance ) {
-      self::$_instance = new CmsApp();
+      self::$_instance = new self();
     }
     return self::$_instance;
   }
