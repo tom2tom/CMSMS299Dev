@@ -27,6 +27,8 @@ use CmsLogicException;
 use CMSMS\AdminUtils;
 use CMSMS\Events;
 use CmsSQLErrorException;
+use InvalidArgumentException;
+use UnexpectedValueException;
 use const CMS_DB_PREFIX;
 use function cms_notice;
 use function cms_to_stamp;
@@ -211,8 +213,8 @@ class Design
 	/**
 	 * Set the list of stylesheets (maybe none) assigned to this design
 	 *
-	 * @throws CmsLogicException
 	 * @param array $id_array integer stylesheet id's, or maybe empty
+	 * @throws InvalidArgumentException
 	 */
 	public function set_stylesheets($id_array)
 	{
@@ -220,7 +222,7 @@ class Design
 
 		foreach( $id_array as $one ) {
 			if( !is_numeric($one) || $one < 1 ) {
-				throw new CmsLogicException(__METHOD__.' expects an array of integers');
+				throw new InvalidArgumentException(__METHOD__.' expects an array of integers');
 			}
 		}
 
@@ -231,8 +233,8 @@ class Design
 	/**
 	 * Add a stylesheet to the design
 	 *
-	 * @throws CmsLogicException
 	 * @param mixed $css Either an integer stylesheet id, or a CmsLayoutStylesheet object
+	 * @throws UnexpectedValueException
 	 */
 	public function add_stylesheet($css)
 	{
@@ -243,7 +245,7 @@ class Design
 		else if( is_numeric($css) && $css > 0 ) {
 			$css_t = (int) $css;
 		}
-		if( $css_t < 1 ) throw new CmsLogicException('Invalid css id specified to '.__METHOD__);
+		if( $css_t < 1 ) throw new UnexpectedValueException('Invalid css id specified to '.__METHOD__);
 
 		if( !in_array($css_t,$this->_css_members) ) {
 			$this->_css_members[] = (int) $css_t;
@@ -254,8 +256,8 @@ class Design
 	/**
 	 * Delete a stylesheet from the list of stylesheets assigned to this design
 	 *
-	 * @throws CmsLogicException
 	 * @param mixed $css Either an integer stylesheet id, or a CmsLayoutStylesheet object
+	 * @throws UnexpectedValueException
 	 */
 	public function delete_stylesheet($css)
 	{
@@ -266,7 +268,7 @@ class Design
 		else if( is_numeric($css) ) {
 			$css_t = (int) $css;
 		}
-		if( $css_t < 1 ) throw new CmsLogicException('Invalid css id specified to '.__METHOD__);
+		if( $css_t < 1 ) throw new UnexpectedValueException('Invalid css id specified to '.__METHOD__);
 
 		if( !in_array($css_t,$this->_css_members) ) return;
 		$t = [];

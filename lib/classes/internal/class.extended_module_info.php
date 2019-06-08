@@ -1,16 +1,17 @@
 <?php
+
 namespace CMSMS\internal;
 
 use CmsLogicException;
-use ModuleOperations;
+use CMSMS\ModuleOperations;
 
 class extended_module_info extends module_info
 {
     const EPROPS = [
      'active', //c.f. parent::notavailable
      'admin_only',
-     'allow_admin_lazyload', //c.f. parent::lazyloadadmin
-     'allow_fe_lazyload', //c.f. parent::lazyloadfrontend
+//     'allow_admin_lazyload', //c.f. parent::lazyloadadmin
+//     'allow_fe_lazyload', //c.f. parent::lazyloadfrontend
      'can_deactivate',
      'can_uninstall',
      'dependants', //c.f. parent::depends
@@ -26,7 +27,7 @@ class extended_module_info extends module_info
     public function __construct($module_name,$can_load = false)
     {
         parent::__construct($module_name,$can_load);
-        $ops = new ModuleOperations();
+        $ops = ModuleOperations::get_instance();
 
         $minfo = $ops->GetInstalledModuleInfo();
         $this['installed'] = false;
@@ -37,8 +38,8 @@ class extended_module_info extends module_info
             $this['installed_version'] = $minfo[$module_name]['version'];
             $this['admin_only'] = $minfo[$module_name]['admin_only'] ?? 0;
             $this['active'] = $minfo[$module_name]['active'];
-            $this['allow_fe_lazyload'] = $minfo[$module_name]['allow_fe_lazyload'];
-            $this['allow_admin_lazyload'] = $minfo[$module_name]['allow_admin_lazyload'];
+//            $this['allow_fe_lazyload'] = $minfo[$module_name]['allow_fe_lazyload'];
+//            $this['allow_admin_lazyload'] = $minfo[$module_name]['allow_admin_lazyload'];
 
             $this->_edata['can_deactivate'] = $this['name'] != 'ModuleManager';
             $this->_edata['can_uninstall'] = $this['name'] != 'ModuleManager';
