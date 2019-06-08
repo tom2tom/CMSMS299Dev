@@ -956,9 +956,9 @@ function get_secure_param() : string
     $out = '?';
     $str = ini_get('session.use_cookies');
     if ($str == '0' || strcasecmp($str,'off') == 0) {
-		//PHP constant SID is unreliable, we recreate it
-		$out .= rawurlencode(session_name()).'='.rawurlencode(session_id()).'&';
-	}
+        //PHP constant SID is unreliable, we recreate it
+        $out .= rawurlencode(session_name()).'='.rawurlencode(session_id()).'&';
+    }
     $out .= CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
     return $out;
 }
@@ -972,12 +972,12 @@ function get_secure_param() : string
  */
 function get_secure_param_array() : array
 {
-	$out = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
+    $out = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
     $str = ini_get('session.use_cookies');
     if ($str == '0' || strcasecmp($str,'off') == 0) {
-		$out[session_name()] = session_id();
-	}
-	return $out;
+        $out[session_name()] = session_id();
+    }
+    return $out;
 }
 
 /**
@@ -1169,10 +1169,11 @@ function is_email (string $email, bool $checkDNS=false)
  * The supplied parameter is not validated, apart from ignoring a falsy value.
  * @since 2.3
  *
- * @param mixed $datetime normally a string
+ * @param mixed $datetime normally a string reported by a query on a database datetime field
+ * @param bool  $is_utc Optional flag whether $datetime is for the UTC timezone. Default false.
  * @return int Default 1 (not false)
  */
-function cms_to_stamp($datetime) : int
+function cms_to_stamp($datetime, bool $is_utc = false) : int
 {
     static $dt = null;
 
@@ -1182,12 +1183,38 @@ function cms_to_stamp($datetime) : int
         }
         try {
             $dt->modify($datetime);
+            if (!$is_utc) {
+                $s = strftzone_adjuster();
+                $dt->modify($s);
+            }
             return $dt->getTimestamp();
         } catch (Throwable $t) {
             // nothing here
         }
     }
     return 1; // anything not falsy
+}
+
+/**
+ * Generate a strftime-compatible string representing the site timezone-offset relative to UTC
+ * @since 2.3
+ * @return string like +/-HH:MM
+ */
+function strftzone_adjuster() : string
+{
+    static $offstr = null;
+
+    if ($offstr === null) {
+        $config = cms_config::get_instance();
+        $dt = new DateTime();
+        $dtz = new DateTimeZone($config['timezone']);
+        $offset = timezone_offset_get($dtz, $dt);
+        $symbol = ($offset < 0) ? '-' : '+';
+        $hrs = abs((int)($offset / 3600));
+        $mins = abs((int)($offset % 3600));
+        $offstr = sprintf('%s%d:%02d', $symbol, $hrs, $mins);
+    }
+    return $offstr;
 }
 
 /**
@@ -1502,9 +1529,9 @@ function setup_session(bool $cachable = false)
 
     if ($cachable) {
         if ($_SERVER['REQUEST_METHOD'] != 'GET' ||
-		AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_INSTALL)) {
-			$cachable = false;
-		}
+        AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_INSTALL)) {
+            $cachable = false;
+        }
     }
     if ($cachable) $cachable = (int) cms_siteprefs::get('allow_browser_cache',0);
     if (!$cachable) {
