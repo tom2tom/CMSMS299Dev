@@ -22,7 +22,7 @@ use CmsRegularTask;
 use LogicException;
 
 /**
- * This class allows using CmsRegularTask pseudocron tasks as asynchronous background jobs
+ * This class allows using Cron Jobs as asynchronous background jobs
  *
  * @package CMS
  * @author Robert Campbell
@@ -52,6 +52,9 @@ class RegularTask extends CronJob
      */
     public function __construct(CmsRegularTask $task)
     {
+        $CMS_JOB_TYPE = 2; //in-scope for included file
+        require_once dirname(__DIR__,2).DIRECTORY_SEPARATOR.'include.php';
+
         parent::__construct();
         $this->_task = $task;
         $this->_interval = 86400; //default 1-day
