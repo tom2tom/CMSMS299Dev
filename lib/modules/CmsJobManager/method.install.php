@@ -32,9 +32,9 @@ module C(128),
 created I NOT NULL,
 start I NOT NULL,
 until I,
-recurs I(4),
-errors I(4) NOTNULL DEFAULT 0,
-data X(16384)
+recurs I(4) UNSIGNED,
+errors I(4) UNSIGNED DEFAULT 0 NOT NULL,
+data X(16383)
 ';
 $sqlarray = $dict->CreateTableSQL( CmsJobManager::TABLE_NAME, $flds, $taboptarray );
 $dict->ExecuteSQLArray($sqlarray);
