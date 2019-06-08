@@ -6,6 +6,7 @@ use cms_config;
 use cms_installer\wizard\wizard_step;
 use cms_siteprefs;
 use CmsApp;
+use CMSMS\AppState;
 use CMSMS\ThemeBase;
 use Exception;
 use function cms_installer\get_app;
@@ -42,27 +43,24 @@ class wizard_step8 extends wizard_step
 
     private function connect_to_cmsms(string $destdir)
     {
-        global $DONT_LOAD_DB, $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
-        $DONT_LOAD_DB = 1;
-        $DONT_LOAD_SMARTY = 1;
-        $CMS_PHAR_INSTALLER = 1;
+        global $CMS_VERSION;
         $CMS_VERSION = $this->get_wizard()->get_data('destversion');
 
+        require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+        AppState::add_state(AppState::STATE_INSTALL);
         // setup and initialize the CMSMS API's
-        // note DONT_LOAD_DB and DONT_LOAD_SMARTY are true
         if( is_file("$destdir/include.php") ) {
             include_once $destdir.'/include.php';
         }
         else {
             include_once $destdir.'/lib/include.php';
         }
-
     }
 
-	/**
-	 * @ignore
-	 * @throws Exception
-	 */
+    /**
+     * @ignore
+     * @throws Exception
+     */
     private function do_install()
     {
         $app = get_app();
@@ -81,15 +79,15 @@ class wizard_step8 extends wizard_step
 
         $cachtype = $wiz->get_data('cachemode');
 
+        $this->connect_to_cmsms($destdir);
+
         // create new config.php file to ebable database connection
         $this->write_config();
-
-        $this->connect_to_cmsms($destdir);
 
         // connect to the database, if possible
         $db = $this->db_connect($destconfig);
 
-		$dir = dirname(__DIR__,2).DIRECTORY_SEPARATOR.'install';
+        $dir = dirname(__DIR__,2).DIRECTORY_SEPARATOR.'install';
 /*
         $fn = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR;
         require_once $fn.'base.php';
@@ -145,7 +143,7 @@ class wizard_step8 extends wizard_step
 //           'sitemask' => '', // salt for old (md5-hashed) admin-user passwords - useless in new installs
              'sitename' => $siteinfo['sitename'],
              'smarty_cachelife' => -1, // smarty default
-             'use_smarty_compilecheck' => 1,
+             'use_smartycompilecheck' => 1,
             ] as $name=>$val) {
                 cms_siteprefs::set($name, $val);
             }
@@ -159,17 +157,14 @@ class wizard_step8 extends wizard_step
         }
     }
 
-	/**
-	 * @ignore
-	 * @param array $version_info
-	 * @throws Exception
-	 */
+    /**
+     * @ignore
+     * @param array $version_info
+     * @throws Exception
+     */
     private function do_upgrade(array $version_info)
     {
-        global $DONT_LOAD_DB, $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
-        $CMS_PHAR_INSTALLER = 1;
-        $DONT_LOAD_DB = 1;
-        $DONT_LOAD_SMARTY = 1;
+        global $CMS_VERSION;
         $CMS_VERSION = $this->get_wizard()->get_data('destversion');
 
         // get the list of all available versions that this upgrader knows about
@@ -196,6 +191,8 @@ class wizard_step8 extends wizard_step
         if( !$siteinfo ) throw new Exception(lang('error_internal',821));
 
         // setup and initialize the CMSMS API's
+        require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+        AppState::add_state(AppState::STATE_INSTALL);
         if( is_file("$destdir/include.php") ) {
             include_once $destdir.DIRECTORY_SEPARATOR.'include.php';
         }
@@ -305,4 +302,3 @@ class wizard_step8 extends wizard_step
         $this->finish();
     }
 } // class
-
