@@ -20,7 +20,7 @@ class storage
     public function clear()
     {
         $db = $this->_mod->GetDb();
-        $sql = 'TRUNCATE TABLE '.CMS_DB_PREFIX.self::TABLENAME;
+        $sql = 'TRUNCATE '.CMS_DB_PREFIX.self::TABLENAME;
         $db->Execute( $sql );
     }
 
