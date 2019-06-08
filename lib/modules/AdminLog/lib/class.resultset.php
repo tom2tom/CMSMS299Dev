@@ -54,7 +54,7 @@ class resultset extends CmsDbQueryBase
         else $this->_totalmatchingrows = $this->_db->GetOne( 'SELECT FOUND_ROWS()' );
     }
 
-    public function &GetObject()
+    public function GetObject()
     {
         $row = $this->fields;
         return $row;

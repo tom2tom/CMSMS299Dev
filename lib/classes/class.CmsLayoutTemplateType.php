@@ -677,7 +677,7 @@ WHERE id = ?';
 	 * @param string $name Optional template name
 	 * @return CmsLayoutTemplate object.
 	 */
-	public function &create_new_template($name = '')
+	public function create_new_template($name = '')
 	{
 		$ob = new CmsLayoutTemplate();
         $ob->set_originator($this->get_originator());
@@ -768,7 +768,7 @@ WHERE id = ?';
 
 	/**
 	 * Create a CmsLayoutTemplateType object reflecting the given properties array
-	 * (typically read from the database) 
+	 * (typically read from the database)
 	 *
 	 * @internal
 	 * @param array $row
@@ -964,7 +964,7 @@ WHERE id = ?';
 	 * @return TemplateTypeAssistant
 	 * @since 2.2
 	 */
-	public function &get_assistant()
+	public function get_assistant()
 	{
 		if( !$this->_assistant ) {
 			$classnames = [];

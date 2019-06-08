@@ -66,7 +66,7 @@ final class nlstools
         return array_keys(self::$_nls);
     }
 
-    public function &find(string $str)
+    public function find(string $str)
     {
         $this->load_nls();
         foreach( self::$_nls as $locale => &$nls ){
@@ -74,7 +74,6 @@ final class nlstools
             if( $nls->matches($str) ) return $nls;
         }
         unset($nls);
-        $obj = null;
-        return $obj;
+        return null;
     }
 } // class

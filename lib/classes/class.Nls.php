@@ -203,7 +203,7 @@ class Nls
 	 * @ignore
 	 * @param array $data
 	 */
-	public static function &from_array($data)
+	public static function from_array($data)
 	{
 		$obj = new self();
 

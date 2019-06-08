@@ -35,7 +35,7 @@ class ContentAssistantFactory
 	 * @return object
 	 * @throws CmsException
 	 */
-	public function &getEditContentAssistant()
+	public function getEditContentAssistant()
 	{
 		$classname = get_class($this->_content_obj);
 		$n = 0;

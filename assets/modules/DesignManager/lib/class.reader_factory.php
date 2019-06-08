@@ -26,7 +26,7 @@ final class reader_factory
 {
   private function __construct() {}
 
-  public static function &get_reader($xmlfile)
+  public static function get_reader($xmlfile)
   {
     $mod = cms_utils::get_module('DesignManager');
     if( !is_readable($xmlfile) ) throw new CmsFileSystemException($mod->Lang('error_filenotfound',$xmlfile));
