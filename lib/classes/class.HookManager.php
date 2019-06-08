@@ -25,7 +25,8 @@
 
 namespace CMSMS\Hooks {
 
-    use CMSMS\HookManager;
+use CMSMS\HookManager;
+use InvalidArgumentException;
 
     /**
      * An internal class to represent a hook handler.
@@ -92,14 +93,25 @@ namespace CMSMS\Hooks {
 
 namespace CMSMS {
 
-    use CMSMS\Hooks\HookDefn;
-    use CMSMS\Hooks\HookHandler;
+use CMSMS\Hooks\HookDefn;
+use CMSMS\Hooks\HookHandler;
+use InvalidArgumentException;
+
+    /*
+    TODO POLICY REVIEW
+    Should anything be entitled to interfere with a recorded hook-function ?
+    ATM not so.
+    Maybe so if hooks were to become non-static ?
+
+    TODO POLICY REVIEW
+    Should there be a hook-method essentially for sending notices ?
+    Same parameter(s) supplied to each (possibly-prioritized) handler, nothing returned
+    ATM not so.
+    */
 
     /**
-     * A class to manage hooks, and to call hook handlers.
-     *
-     * This class is capable of managing a flexible list of hooks,
-     * [un]registering handlers for those hooks, and calling the handlers
+     * A class to manage the members of and the running of hooks
+     * (a.k.a. hooklists in other contexts).
      *
      * @package CMS
      * @license GPL
@@ -211,38 +223,10 @@ OR
         }
 
         /**
-         * Remove a handler from a hook
-         * @since 2.3
-         * @param string $name The hook name.
-         * @param callable $callable A callable function, or a string representing a callable function.  Closures are also supported.
-         */
-        public static function remove_hook($name,$callable)
-        {
-            $name = trim($name);
-            $hash = self::calc_hash($callable);
-            unset(self::$_hooks[$name]->handlers[$hash]);
-        }
-
-        /* *
-         * Enable or disable a handler
-         * @since 2.3
-         * @param string $name The hook name.
-         * @param callable $callable A callable function, or a string representing a callable function.  Closures are also supported.
-         * @param bool $state Optiopnal flag whether the handler is to be disabled, default true
-         */
-/*        public static function block_hook($name, $callable, $state=true)
-        {
-            $name = trim($name);
-            $hash = self::calc_hash($callable);
-            if( !isset(self::$_hooks[$name]->handlers[$hash]) ) {
-              //TODO
-            }
-        }
-*/
-        /**
-         * Test if we are currently handling a hook or not.
+         * Test whether we are currently handling a hook.
          *
-         * @param null|string $name The hook name to test for.  If null is provided, the system will return true if any hook is being processed.
+         * @param null|string $name The hook name to test for | null.
+         *  If null, test for any hook at all.
          * @return bool
          */
         public static function in_hook($name = null)
@@ -251,24 +235,27 @@ OR
             return in_array($name,self::$_in_process);
         }
 
-        /**
-         * Run a hook, progressively altering the value passed to handlers i.e. a filter.
+		/*
+         * This method is akin to Events::SendEvent(), but with that method's
+         * originator and name parameters merged like 'originator::name', and
+         * the ability to prioritize the handlers, and handler-results returned,
+		 * instead of supplied-parameter-references altered when relevant.
+		 */
+		/**
+         * Run a hook, perhaps progressively altering the argument(s) passed to handlers.
          *
- 		 * This method is akin to Events::SendEvent(), but with that method's
-		 * originator and name parameters merged like 'originator::name', and
-		 * the ability to prioritize the handlers.
-		 *
          * @param args This method accepts variable arguments.
          * The first of them (required) is the name of the hook to execute.
-         * Any further argument(s) will be passed to the first-sorted registered
-         * handler, and, as progressively modified, to other such handlers.
+         * Any further argument(s) will be passed in turn to registered
+         * handler(s) (as sorted). Any one or more of the handlers may modify
+         * those parameters.
          *
          * The handlers must each return either null (signalling ignore the result),
-         * or else variable(s) that can be passed verbatim (keys ignored) to
-         * the next handler. In most cases. the same number, order and types
-         * of parameter(s) as were provided as argument(s) to the handler.
+         * or else variable(s) that can be passed verbatim as arguments to the
+		 * next handler. That is, the same number, order and types of parameter(s)
+		 * as were provided as argument(s) to the handler.
          * Returned parameter(s)' values may be different, of course.
-		 *
+         *
          * @return mixed Depends on the hook handlers. Null if nothing to do.
          */
         public static function do_hook(...$args)
@@ -277,19 +264,17 @@ OR
 
             if( $name === '' || !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
 
-            // note: $args is an array, maybe empty
+            // note: $args is an array, maybe empty, or maybe with array-members
             $value = $args;
             self::$_in_process[] = $name;
 
             self::sort_handlers($name);
 
             foreach( self::$_hooks[$name]->handlers as $obj ) {
-                //TODO if blocking is supported, is not blocked
-                $cb = $obj->callable;
                 if( is_array($value) ) {
-                    $out = $cb(...array_values($value));
+                    $out = ($obj->callable)(...array_values($value));
                 } else {
-                    $out = $cb($value);
+                    $out = ($obj->callable)($value);
                 }
                 if( !is_null($out) ) {
                     $value = $out;
@@ -301,46 +286,13 @@ OR
             return $out;
         }
 
-       /**
-        * Run a hook.
-	    *
-	    * This is a variant of do_hook(), with the same parameter(s) supplied to
-	    * all handlers.
-        *
-        * @param args This method accepts variable arguments.
-        * The first of them (required) is the name of the hook to execute.
-        * Any further argument(s) will be passed to all registered handler(s).
-        *
-        * @since 2.3
-        */
-        public static function do_hook_simple(...$args)
-        {
-            $name = trim(array_shift($args));
-
-            if( $name === '' || !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
-
-            // note: $args is an array, or empty
-            self::$_in_process[] = $name;
-
-            foreach( self::$_hooks[$name]->handlers as $obj ) {
-                //TODO if blocking is supported, is not blocked
-                $cb = $obj->callable;
-                if( $args ) {
-                    $cb(...$args);
-                } else {
-                    $cb();
-                }
-            }
-            array_pop(self::$_in_process);
-        }
-
         /**
          * Run a hook, to retrieve a single result.
-		 *
-		 * This is a variant of do_hook_accumulate(), which returns the value
-		 * from the first handler which itself returns a non-empty value.
-		 * Tip: it may be convenient to register a PRIORITY_LOW handler to
-		 * return a default value.
+         *
+         * This is a variant of do_hook_accumulate(), which returns the value
+         * from the first handler which itself returns a non-empty value.
+         * Tip: it may be convenient to register a PRIORITY_LOW handler to
+         * return a default value.
          *
          * @param args This method accepts variable arguments.
          * The first of them (required) is the name of the hook to execute.
@@ -361,12 +313,10 @@ OR
             self::sort_handlers($name);
 
             foreach( self::$_hooks[$name]->handlers as $obj ) {
-                //TODO if blocking is supported, is not blocked
-                $cb = $obj->callable;
                 if( $args ) {
-                    $out = $cb(...$args);
+                    $out = ($obj->callable)(...$args);
                 } else {
-                    $out = $cb();
+                    $out = ($obj->callable)();
                 }
                 if( !empty( $out ) ) break;
             }
@@ -383,7 +333,7 @@ OR
          * The first of them (required) is the name of the hook to execute.
          * Any further argument(s) will be passed to the sorted registered handlers
          * in turn. Each handler's non-null return is 'pushed' into an array,
-         * which is eventually returned to the caller.
+         * which is ultimately returned to the caller.
          *
          * @return mixed null or array, each member of which is a non-null value returned by a handler.
          */
@@ -414,5 +364,4 @@ OR
             return $out;
         }
     } // class
-
 } // namespace CMSMS
