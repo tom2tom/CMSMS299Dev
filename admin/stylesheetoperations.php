@@ -140,4 +140,4 @@ switch ($_REQUEST['op']) {
 		break;
 }
 
-redirect('liststylesheets.php'.$urlext);
+redirect('liststyles.php'.$urlext);
