@@ -20,8 +20,6 @@ class global_cachable
 
     public function fetch()
     {
-        $cb = $this->_fetchcb;
-        return $cb();
+        return ($this->_fetchcb)();
     }
-
 } // class
