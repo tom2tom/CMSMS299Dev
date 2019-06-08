@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$CMS_VERSION = '2.2.913';
+$CMS_VERSION = '2.2.914';
 $CMS_VERSION_NAME = 'NO NAME SET';
 $CMS_SCHEMA_VERSION = '206';
 
