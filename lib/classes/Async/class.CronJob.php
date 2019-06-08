@@ -1,5 +1,5 @@
 <?php
-# Base class for a cron job.
+# Base class for a Cron job.
 # Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,10 +19,10 @@
 namespace CMSMS\Async;
 
 /**
- * An abstract base class for a cronjob.
+ * An abstract base class for a CronJob.
  *
- * A Cron job is a regular job in that recurs at specified intervals and
- * can have an end/until date.
+ * A Cron job is a CMSMS Job in that recurs at a specified interval
+ * and can have an end/until datetime.
  *
  * @package CMS
  * @author Robert Campbell
