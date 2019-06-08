@@ -38,28 +38,32 @@ final class UserPluginOperations
     /**
      * @ignore
      */
-//    private static $_instance = null;
+    private static $_instance = null;
+
+    /**
+     * @ignore
+     */
     private static $_loaded = [];
 
     /**
      * @ignore
      */
-//    private function __construct() {}
+    private function __construct() {}
 
     /**
      * @ignore
      */
-//    private function __clone() {}
+    private function __clone() {}
 
 	/**
 	 * Get an instance of this class.
-	 * @deprecated since since 2.3 use new UserPluginOperations()
+	 * @deprecated since since 2.3 use UserPluginOperations::get_instance()
 	 * @return self
 	 */
     public static function get_instance() : self
     {
-//	    if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
-		return new self();
+	    if( !self::$_instance ) { self::$_instance = new self(); }
+		return self::$_instance;
     }
 
     /**
@@ -174,12 +178,11 @@ final class UserPluginOperations
 
         $code = trim($code, " \t\n\r");
         if( $code ) {
-	        global $CMS_INSTALL_PAGE;
             $code = filter_var($code, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_BACKTICK);
 /* TODO sensible PHP validation eval() often crashes due to smarty parameters
 			// variables which might be needed during content eval
             $params = [];
-	        if (empty($CMS_INSTALL_PAGE)) {
+	        if (!AppState::test_state(CMSMS\AppState::STATE_INSTALL)) {
 				$smarty = CmsApp::get_instance()->GetSmarty();
 			}
             $template = $smarty;
