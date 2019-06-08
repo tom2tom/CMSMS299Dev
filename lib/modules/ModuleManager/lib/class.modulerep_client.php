@@ -171,7 +171,7 @@ final class modulerep_client
         if( !$xmlfile ) return FALSE;
 
         // this is manually cached.
-        $tmpname = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'modmgr_'.md5(__DIR__.$xmlfile).'.dat';
+        $tmpname = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'modmgr_'.cms_utils::hash_string(__DIR__.$xmlfile).'.dat';
         $mod = cms_utils::get_module('ModuleManager');
         if( !file_exists($tmpname) || $mod->GetPreference('disable_caching',0) || (time() - filemtime($tmpname)) > 7200 ) {
             @unlink($tmpname);
@@ -315,7 +315,7 @@ final class modulerep_client
     {
         if( is_array(self::$_latest_installed_modules) ) return self::$_latest_installed_modules;
 
-        $modules = (new ModuleOperations())->GetInstalledModules();
+        $modules = ModuleOperations::get_instance()->GetInstalledModules();
         self::$_latest_installed_modules = self::get_modulelatest($modules);
         return self::$_latest_installed_modules;
     }
@@ -332,7 +332,7 @@ final class modulerep_client
 
         $out = [];
         foreach( $versions as $row ) {
-            $info = module_info::get_module_info( $row['name'] );
+            $info = ModuleInfo::get_module_info( $row['name'] );
             if( version_compare($row['version'],$info['version']) > 0 ) {
                 $data = [];
                 $out[$row['name']] = $row;
