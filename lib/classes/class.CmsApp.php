@@ -1,5 +1,5 @@
 <?php
-#Singleton class for accessing system variables
+#Singleton class for accessing intra-request system properties
 #Copyright (C) 2010-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,8 +18,10 @@
 
 /* for future use
 namespace CMSMS {
+final class AppData
 */
 
+use CMSMS\AppState;
 use CMSMS\BookmarkOperations;
 use CMSMS\ContentOperations;
 use CMSMS\contenttypes\ErrorPage;
@@ -46,61 +48,34 @@ use CMSMS\UserTagOperations;
 final class CmsApp
 {
     /**
-     * A bitflag constant indicating that the request is for a frontend page
-     * @since 2.3
-     */
-    const STATE_FRONT_PAGE = 1;
-
-    /**
      * A bitflag constant indicating that the request is for a page in the CMSMS admin console
+     * @deprecated since 2.3 use AppState::STATE_ADMIN_PAGE
      */
     const STATE_ADMIN_PAGE = 2;
 
     /**
      * A bitflag constant indicating that the request is for an admin login
+     * @deprecated since 2.3 use AppState::STATE_LOGIN_PAGE
      */
     const STATE_LOGIN_PAGE = 4;
 
     /**
      * A bitflag constant indicating that the request is taking place during the installation process
+     * @deprecated since 2.3 use AppState::STATE_INSTALL
      */
     const STATE_INSTALL = 0x80;
 
     /**
      * A bitflag constant indicating that the request is for a stylesheet
+     * @deprecated since 2.3 use AppState::STATE_STYLESHEET
      */
     const STATE_STYLESHEET = 0x100;
 
     /**
      * A bitflag constant indicating that we are currently parsing page templates
-     * UNUSED
+     * @deprecated since 2.3 use AppState::STATE_PARSE_TEMPLATE
      */
     const STATE_PARSE_TEMPLATE = 0x200;
-
-    /**
-     * @ignore
-     */
-    const STATELIST = [
-        self::STATE_ADMIN_PAGE,
-        self::STATE_FRONT_PAGE,
-        self::STATE_STYLESHEET,
-        self::STATE_INSTALL,
-        self::STATE_PARSE_TEMPLATE,
-        self::STATE_LOGIN_PAGE
-    ];
-
-    /**
-     * @ignore
-     * @since 2.3
-     * @deprecated since 2.3
-     */
-    const STRINGSTATES = [
-        'admin_request' => self::STATE_ADMIN_PAGE,
-        'install_request' => self::STATE_INSTALL,
-        'login_request' => self::STATE_LOGIN_PAGE,
-        'parse_page_template' => self::STATE_PARSE_TEMPLATE,
-        'stylesheet_request' => self::STATE_STYLESHEET,
-    ];
 
     /**
      * @ignore
@@ -123,12 +98,6 @@ final class CmsApp
     private $_showtemplate = true;
 
     /**
-     * Array of current states.
-     * @ignore
-     */
-    private $_states;
-
-    /**
      * Connection object - handle|connection to the site database
      * @ignore
      */
@@ -146,12 +115,6 @@ final class CmsApp
     private $hrinstance = null;
 
     /**
-     * Internal error array - So functions/modules can store up debug info and spit it all out at once
-     * @ignore
-     */
-    private $errors = [];
-
-    /**
      * @ignore
      */
     private $scriptsmerger = null;
@@ -166,6 +129,19 @@ final class CmsApp
      * This cache must be set externally, after autoloading is available
      */
     public $jobmgrinstance = null;
+
+    /**
+     * Cache for other properties
+     * @since 2.3
+     * @ignore
+     */
+    private $data = [];
+
+    /**
+     * Internal error array - So functions/modules can store up debug info and spit it all out at once
+     * @ignore
+     */
+    private $errors = [];
 
     /**
      * Constructor
@@ -189,8 +165,20 @@ final class CmsApp
         switch($key) {
         case 'config':
             return cms_config::get_instance();
-            break;
+        default:
+            if( isset($this->data[$key]) ) {
+                return $this->data[$key];
+            }
         }
+        return null;
+    }
+
+    /**
+     * @ignore
+     */
+    public function __set(string $key, $value)
+    {
+        $this->data[$key] = $value;
     }
 
     /**
@@ -211,7 +199,7 @@ final class CmsApp
      */
     public function get_installed_schema_version() : string
     {
-        if( self::test_state(self::STATE_INSTALL) ) {
+        if( AppState::test_state(AppState::STATE_INSTALL) ) {
             $db = $this->GetDb();
             $query = 'SELECT version FROM '.CMS_DB_PREFIX.'version';
             return $db->GetOne($query);
@@ -515,8 +503,7 @@ final class CmsApp
     */
     public function GetSmarty()
     {
-        global $CMS_INSTALL_PAGE;
-        if( !isset($CMS_INSTALL_PAGE) ) {
+                if( !AppState::test_state(CMSMS\AppState::STATE_INSTALL) ) {
             // we don't load the main Smarty class during installation
             if( is_null($this->smarty) ) {
                 $this->smarty = new Smarty();
@@ -599,146 +586,33 @@ final class CmsApp
     }
 
     /**
-     * Accumulate all known states from global variables.
-     * @todo transition to CmsApp::set_states()
-     * @since 1.11.2
-     * @ignore
-     */
-    private function _capture_states()
-    {
-        global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_LOGIN_PAGE, $CMS_STYLESHEET;
-
-        $tmp = 0;
-        if( isset($CMS_LOGIN_PAGE) ) $tmp += self::STATE_LOGIN_PAGE; // files also set STATE_ADMIN_PAGE
-        if( isset($CMS_ADMIN_PAGE) ) $tmp += self::STATE_ADMIN_PAGE;
-        if( isset($CMS_INSTALL_PAGE) ) $tmp += self::STATE_INSTALL;
-        if( $tmp == 0 ) $tmp = self::STATE_FRONT_PAGE;
-
-        if( isset($CMS_STYLESHEET) ) $tmp += self::STATE_STYLESHEET; // the cms_stylesheet plugin is running
-//      if (?) $tmp += self::STATE_PARSE_TEMPLATE;
-        $this->set_states($tmp);
-    }
-
-    /**
-     * [Un]set a global variable reflecting $flag and $value.
-     * Effectively the inverse of _capture_states()
-     * @since 2.3
-     * @deprecated since 2.3
-     * @ignore
-     */
-    private function _set_state_var(int $flag, bool $value = true)
-    {
-        switch( $flag ) {
-            case self::STATE_ADMIN_PAGE:
-				$name = 'CMS_ADMIN_PAGE';
-				break;
-            case self::STATE_STYLESHEET:
-				$name = 'CMS_STYLESHEET';
-				break;
-            case self::STATE_INSTALL:
-				$name = 'CMS_INSTALL_PAGE';
-				break;
-            case self::STATE_LOGIN_PAGE:
-				$name = 'CMS_LOGIN_PAGE';
-				break;
-//          case self::STATE_PARSE_TEMPLATE: $name = ??; break;
-            case self::STATE_FRONT_PAGE:
-				unset($CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_LOGIN_PAGE, $CMS_STYLESHEET);
-			default:
-				return;
-        }
-
-        global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_LOGIN_PAGE, $CMS_STYLESHEET;
-		if( $value ) {
-			$$name = 1;
-		}
-		else {
-			unset($$name);
-		}
-    }
-
-    /**
-     * Set the list of current states.
-     *
-     * @ignore
-     * @internal
-     * @since 2.3
-     * @param int $states State bit-flag(s), OR'd class constant(s).
-     */
-    public function set_states(int $states)
-    {
-        $tmp = [];
-        foreach( self::STATELIST as $flag ) {
-            if( $states & $flag ) {
-                $tmp[$flag] = $flag;
-                $this->_set_state_var($flag); //compatibility
-            }
-        }
-        $this->_states = $tmp;
-    }
-
-    /**
      * Get a list of all current states.
      *
      * @since 1.11.2
+     * @deprecated since 2.3 instead use CMSMS\AppState::get_states()
      * @author Robert Campbell
      * @return array  State constants (int's)
      */
     public function get_states() : array
     {
-        $this->_capture_states();
-        return array_keys($this->_states);
+//        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::get_states'));
+        return AppState::get_states();
     }
 
     /**
      * Report whether the specified state matches the current application state.
      * @since 1.11.2
+     * @deprecated since 2.3 instead use CMSMS\AppState::test_state()
      * @author Robert Campbell
      *
-     * @param mixed $state int | deprecated string State identifier, a class constant 
+     * @param mixed $state int | deprecated string State identifier, a class constant
      * @return bool
      * @throws CmsInvalidDataException if invalid identifier is provided
      */
     public function test_state($state) : bool
     {
-        if( is_string($state) ) {
-            $state = self::STRINGSTATES[$state] ?? (int)$state; //deprecated since 2.3
-        }
-        if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is not a recognized CMSMS state');
-        $this->_capture_states();
-        return isset($this->_states[$state]);
-    }
-
-    /**
-     * Report whether one or more of the specified state(s) is current.
-     *
-     * @ignore
-     * @internal
-     * @since 2.3
-     * @param int $states State bit-flag(s), OR'd class constant(s)
-     * @return bool
-     */
-    public function test_any_state(int $states) : bool
-    {
-        $this->_capture_states();
-        $tmp = array_sum($this->_states);
-        return ($tmp & $states) > 0;
-    }
-
-    /**
-     * Report whether all the specified state(s) are current.
-     *
-     * @ignore
-     * @internal
-     * @since 2.3
-     * @param int $states State bit-flag(s), OR'd class constant(s)
-     * @return bool
-     */
-    public function test_all_states(int $states) : bool
-    {
-        $this->_capture_states();
-        $tmp = array_sum($this->_states);
-        return ($tmp & $states) == $states;
+//        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::test_state'));
+        return AppState::test_state($state);
     }
 
     /**
@@ -747,19 +621,15 @@ final class CmsApp
      * @ignore
      * @internal
      * @since 1.11.2
+     * @deprecated since 2.3 instead use CMSMS\AppState::add_state()
      * @author Robert Campbell
      * @param mixed $state int | deprecated string The state, a class constant
      * @throws CmsInvalidDataException if an invalid state is provided.
      */
     public function add_state($state)
     {
-        if( is_string($state) ) {
-            $state = self::STRINGSTATES[$state] ?? (int)$state; //deprecated since 2.3
-        }
-        if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
-        $this->_capture_states();
-        $this->_states[$state] = $state;
-        $this->_set_state_var($state); //compatibility
+//        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::add_state'));
+        AppState::add_state($state);
     }
 
     /**
@@ -768,6 +638,7 @@ final class CmsApp
      * @ignore
      * @internal
      * @since 1.11.2
+     * @deprecated since 2.3 instead use CMSMS\AppState::remove_state()
      * @author Robert Campbell
      *
      * @param mixed $state int | deprecated string The state, a class constant
@@ -776,17 +647,8 @@ final class CmsApp
      */
     public function remove_state($state) : bool
     {
-        if( is_string($state) ) {
-            $state = self::STRINGSTATES[$state] ?? (int)$state; //deprecated since 2.3
-        }
-        if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
-        $this->_capture_states();
-        if( isset($this->_states[$state]) ) {
-            unset($this->_states[$state]);
-            $this->_set_state_var($state, 0); //compatibility
-            return TRUE;
-        }
-        return FALSE;
+//        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::remove_state'));
+        AppState::remove_state($state);
     }
 
     /**
@@ -810,7 +672,7 @@ final class CmsApp
      */
     public function is_frontend_request() : bool
     {
-        return $this->test_state(self::STATE_FRONT_PAGE);
+        return AppState::test_state(AppState::STATE_FRONT_PAGE);
     }
 
     /** Report whether the current request was over HTTPS.
