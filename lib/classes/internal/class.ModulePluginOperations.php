@@ -23,13 +23,14 @@ use cms_utils;
 use CmsApp;
 use CmsCoreCapabilities;
 use CMSModule;
+use CMSMS\AppState;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 use CMSMS\ModuleOperations;
 use DeprecationNotice;
 use Throwable;
 use const CMS_DB_PREFIX;
-use const CMS_DEBUG;
+use const CMS_DEPREC;
 use function audit;
 
 /**
@@ -131,11 +132,11 @@ final class ModulePluginOperations
 		$row = self::get_instance()->find($name,$type);
 		if( is_array($row) ) {
 	 		if( $row['available'] != self::AVAIL_ALL ) {
-				$states = CmsApp::get_instance()->get_states();
-				if( in_array(CmsApp::STATE_ADMIN_PAGE,$states) ) {
+				$states = AppState::get_states();
+				if( in_array(AppState::STATE_ADMIN_PAGE,$states) ) {
 					if( !($row['available'] & self::AVAIL_ADMIN) ) return;
 				}
-				elseif( in_array(CmsApp::STATE_FRONT_PAGE,$states) ) {
+				elseif( in_array(AppState::STATE_FRONT_PAGE,$states) ) {
 				    if( !($row['available'] & self::AVAIL_FRONTEND) ) return;
 				}
 				else {
