@@ -68,7 +68,7 @@ namespace CMSMS {
         protected function __construct() {}
         protected function __clone() {}
 
-        public static function init() {} // does nothing... just so we can audoload the thing.
+        public static function init() {} // just ensures other stuff in this file is loaded
 
         /**
          * @param AuditManager $mgr
@@ -112,7 +112,7 @@ namespace CMSMS {
 } // namespace
 
 
-namespace  {
+namespace {
 
     use CMSMS\AuditOperations;
 
