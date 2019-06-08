@@ -22,8 +22,7 @@ use CmsApp;
 use CMSMS\Bookmark;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_URL;
-use const CMS_SECURE_PARAM_NAME;
-use const CMS_USER_KEY;
+use function get_secure_param;
 use function startswith;
 
 /**
