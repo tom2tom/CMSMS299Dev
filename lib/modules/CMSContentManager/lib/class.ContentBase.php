@@ -1534,7 +1534,7 @@ WHERE content_id = ?';
 	 */
 	public function Save()
 	{
-		Events::SendEvent( 'Core', 'ContentEditPre', [ 'content' => &$this ] );
+		Events::SendEvent( 'Core', 'ContentEditPre', [ 'content' => &$this ] ); //TODO deprecate? module for originator?
 
 		if( !is_array($this->_props) ) {
 			debug_buffer('save is loading properties');
@@ -1551,7 +1551,7 @@ WHERE content_id = ?';
 		$contentops = ContentOperations::get_instance();
 		$contentops->SetContentModified();
 		$contentops->SetAllHierarchyPositions();
-		Events::SendEvent( 'Core', 'ContentEditPost', [ 'content' => &$this ] );
+		Events::SendEvent( 'Core', 'ContentEditPost', [ 'content' => &$this ] ); //TODO deprecate? module for originator?
 		return true;
 	}
 
@@ -1562,7 +1562,7 @@ WHERE content_id = ?';
 	 */
 	public function Delete()
 	{
-		Events::SendEvent( 'Core', 'ContentDeletePre', [ 'content' => &$this ] );
+		Events::SendEvent( 'Core', 'ContentDeletePre', [ 'content' => &$this ] ); //TODO deprecate? module for originator?
 		if( $this->mId > 0 ) {
 			$db = CmsApp::get_instance()->GetDb();
 
@@ -1587,7 +1587,7 @@ WHERE content_id = ?';
 			if( $this->mURL ) RouteOperations::del_static($this->mURL);
 		}
 
-		Events::SendEvent( 'Core', 'ContentDeletePost', [ 'content' => &$this ] );
+		Events::SendEvent( 'Core', 'ContentDeletePost', [ 'content' => &$this ] ); //TODO deprecate? module for originator?
 		$this->mId = -1;
 		$this->mItemOrder = -1;
 
