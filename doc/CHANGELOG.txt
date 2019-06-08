@@ -22,7 +22,7 @@ to speed autoloading at least, all PHP classes across the core, except those wit
 eventually, all core classes will be spaced. Devs are encouraged to start using ASAP these namespaced aliases for the core classes:
 'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
 'CMSMS\internal\AdminThemeNotification' => 'CmsAdminThemeNotification', DEPRECATED
-'CMSMS\App' => 'CmsApp',
+'CMSMS\AppData' => 'CmsApp',
 'CMSMS\CacheDriver' => 'cms_cache_driver',
 'CMSMS\CacheFile' => 'cms_filecache_driver',
 'CMSMS\CacheHandler' => 'cms_cache_handler',
@@ -219,8 +219,9 @@ DETAILS
   - FEATURE: Sitedown mode now throws a 503 exception and outputs a 503 error code
   - FEATURE: The 503 error handler (maintenance mode) is now an Error Page.
   - DEPRECATED: Some seldom-used methods in the module API
-  - DEPRECATED:  Method CmsApp::clear_cached_files - replaced by more-secure alternative
-  - DEPRECATED: method cms_db_prefix(). Constant CMS_DB_PREFIX replaces that
+  - DEPRECATED: Method CmsApp::clear_cached_files - replaced by more-secure alternative
+  - DEPRECATED: Method cms_db_prefix(). Constant CMS_DB_PREFIX replaces that
+  - DEPRECATED: Using PHP global variables (like $CMS_*) for recording/checking application-state. Instead use CMSMS\AppState methods and constants.
   - BREAKING: Removed the long-deprecated SetParameters method from the module API
   - BREAKING: Removed the long-deprecated $module->smarty property.
   - BREAKING: Removed some deprecated and/or seldom-used methods from the core API
@@ -244,6 +245,7 @@ DETAILS
   - Remove un-necessary moduleinterface.php from the root directory.
   - FEATURE: Adds a new hook method to the HookManager class to allow returning the first nonempty value.
   - CHANGE: refactor changegroupperm localization technique.
+  - CHANGE: CmsApp suports __get(), __set() for recording any intra-request property, instead of using PHP global variables 
   - FEATURE: Adds new root functions cms_notice, cms_warning, and cms_error
   - FEATURE: Adds new AuditOperations class that is enabled within include.php allows for swapping out auditing methods
     With no audit manager installed, audit messages will be output to the HTTP error log.
