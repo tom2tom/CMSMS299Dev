@@ -1,6 +1,6 @@
 <?php
 
-use ModuleManager\module_info;
+use ModuleManager\ModuleInfo;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) return;
@@ -11,11 +11,11 @@ if( !isset($params['mod']) ) {
 }
 $module = get_parameter_value($params,'mod');
 
-$info = module_info::get_module_info($module);
+$info = ModuleInfo::get_module_info($module);
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('local_missingdeps.tpl'),null,null,$smarty);
 
 $tpl->assign('back_url',$this->create_url($id,'defaultadmin',$returnid))
-->assign('info',$info);
+ ->assign('info',$info);
 
 $tpl->display();

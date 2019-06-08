@@ -16,13 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use ModuleManager\module_info;
+use ModuleManager\ModuleInfo;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) return;
 
 try {
-    $allmoduleinfo = module_info::get_all_module_info($connection_ok);
+    $allmoduleinfo = ModuleInfo::get_all_module_info($connection_ok);
 }
 catch( Exception $e ) {
     $this->SetError($e->GetMessage()); //probably useless before a return

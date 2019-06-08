@@ -17,7 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\ModuleOperations;
-use ModuleManager\module_info;
+use ModuleManager\ModuleInfo;
 use ModuleManager\ModuleNoDataException;
 use ModuleManager\modulerep_client;
 use ModuleManager\operations;
@@ -68,7 +68,7 @@ try {
             }
 
             // now put this data into the session and redirect for the install part
-            $key = '_'.md5(__FILE__.time());
+            $key = '_'.cms_utils::hash_string(__FILE__,true);
             $_SESSION[$key] = $modlist;
             $this->Redirect($id,'installmodule',$returnid,['doinstall'=>$key]);
         }
@@ -84,7 +84,7 @@ try {
         unset($_SESSION[$key]);
 
         // install/upgrade the modules that need to be installed or upgraded.
-        $ops = new ModuleOperations();
+        $ops = ModuleOperations::get_instance();
         foreach( $modlist as $name => $rec ) {
             switch( $rec['action'] ) {
             case 'i': // install
@@ -148,7 +148,7 @@ try {
                 } else {
                     // module not found in forge?? could be a system module,
                     // but it's still a dependency.
-                    if( !(new ModuleOperations())->IsSystemModule($name) ) throw new CmsInvalidDataException($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
+                    if( !ModuleOperations::get_instance()->IsSystemModule($name) ) throw new CmsInvalidDataException($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
                     $out[$name] = $onedep;
                 }
             }
@@ -252,7 +252,7 @@ try {
     // remove items that are already installed (where installed version is greater or equal)
     // and create actions as to what we're going to do.
     if( $alldeps ) {
-        $allmoduleinfo = module_info::get_all_module_info(FALSE);
+        $allmoduleinfo = ModuleInfo::get_all_module_info(FALSE); //from 'modules' cache if possible
         foreach( $alldeps as $name => &$rec ) {
             $rec['has_custom'] = FALSE;
             if( isset($allmoduleinfo[$name]) ) $rec['has_custom'] = ($allmoduleinfo[$name]['has_custom']) ? TRUE : FALSE;

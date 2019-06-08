@@ -22,7 +22,7 @@ use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\CLI\GetOptExt\Option;
 use GetOpt\Operand;
-use ModuleManager\module_info;
+use ModuleManager\ModuleInfo;
 
 class ModuleExistsCommand extends Command
 {
@@ -39,7 +39,7 @@ class ModuleExistsCommand extends Command
         $verbose = $this->getOption( 'verbose' )->value();
         $module = $this->getOperand( 'module' )->value();
 
-        $allmoduleinfo = module_info::get_all_module_info(TRUE);
+        $allmoduleinfo = ModuleInfo::get_all_module_info(TRUE);
         foreach( $allmoduleinfo as $one ) {
             if( $one['name'] == $module ) {
                 // yep... we know about it.
