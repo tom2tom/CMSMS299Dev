@@ -928,7 +928,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	public static function operation_copy($ids) : int
 	{
 		$n = 0;
-		list($tpls,$grps) = self::items_split($ids);
+		list($tpls, $grps) = self::items_split($ids);
 		if ($tpls) {
 			$sql = 'SELECT name,content,description,contentfile FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($tpls)-1).'?)';
 			$from = $db->GetArray($sql, $shts);
@@ -991,7 +991,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	public static function operation_delete($ids) : int
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		list($tpls,$grps) = self::items_split($ids);
+		list($tpls, $grps) = self::items_split($ids);
 		if ($grps) {
 			$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
@@ -1000,9 +1000,14 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		}
 		if ($tpls) {
 			list($pages, $skips) = self::affected_pages($tpls);
-			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=0 WHERE template_id IN ('.str_repeat('?,',count($pages)-1).'?)';
-			$db->Execute($sql, $pages);
-			$n = $db->affected_rows();
+			if ($pages) {
+				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=NULL WHERE content_id IN ('.str_repeat('?,',count($pages)-1).'?)';
+				$db->Execute($sql, array_column($pages, 'content_id'));
+				$n = $db->affected_rows();
+			}
+			else {
+				$n = 0;
+			}
 /* N/A in some db versions
 			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' T WHERE T.id IN ('.str_repeat('?,',count($tpls)-1).'?)';
 			$sql .= ' AND T.id NOT IN (SELECT template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id=T.id LIMIT 1)';
@@ -1035,7 +1040,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	public static function operation_deleteall($ids) : int
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		list($tpls,$grps) = self::items_split($ids);
+		list($tpls, $grps) = self::items_split($ids);
 		if ($grps) {
 			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$members = $db->GetCol($sql, $grps);
@@ -1047,9 +1052,14 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		}
 		if ($tpls) {
 			list($pages, $skips) = self::affected_pages($tpls);
-			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=NULL WHERE template_id IN ('.str_repeat('?,',count($pages)-1).'?)';
-			$db->Execute($sql, $pages);
-			$n = $db->affected_rows();
+			if ($pages) {
+				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=NULL WHERE content_id IN ('.str_repeat('?,',count($pages)-1).'?)';
+				$db->Execute($sql, array_column($pages,'content_id'));
+				$n = $db->affected_rows();
+			}
+			else {
+				$n = 0;
+			}
 			$sql = 'SELECT DISTINCT template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id IN ('.str_repeat('?,',count($tpls)-1).'?)';
 			$keeps = $db->GetCol($sql, $tpls);
 			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($tpls)-1).'?)';
@@ -1119,7 +1129,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	public static function operation_export($ids) : int
 	{
 		$n = 0;
-		list($tpls,$grps) = self::items_split($ids);
+		list($tpls, $grps) = self::items_split($ids);
 		if ($tpls) {
 			$db = CmsApp::get_instance()->GetDb();
 			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=0 AND id IN ('.str_repeat('?,',count($tpls)-1).'?)';
@@ -1154,7 +1164,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	public static function operation_import($ids) : int
 	{
 		$n = 0;
-		list($tpls,$grps) = self::items_split($ids);
+		list($tpls, $grps) = self::items_split($ids);
 		if ($tpls) {
 			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=1 AND id IN ('.str_repeat('?,',count($tpls)-1).'?)';
 			$from = $db->GetArray($sql, $shts);
@@ -1180,26 +1190,42 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	}
 
 	/**
-	 * @ignore
+	 * Get data for pages to be operated on or skipped
+	 * @param mixed $ids  int template id | id's array | string '*'
+	 * @return 2-member array
+	 *  [0] = array, each row having 'content_id', 'template_id'
+	 *  [1] = no. of unusable pages
 	 */
 	protected static function affected_pages($ids)
 	{
 		$uid = get_userid();
 		$modify_all = check_permission($uid,'Manage All Content') || check_permission($uid,'Modify Any Page');
-		$sql = 'SELECT content_id,template_id FROM '.CMS_DB_PREFIX.'content WHERE template_id';
-		$fillers = (is_array($ids)) ? ' IN ('.str_repeat('?,',count($ids)-1).'?)' :  '=?';
-		$sql .= $fillers;
-		$args = (is_array($ids)) ? $ids : [$ids];
-		if (!$modify_all) {
-			$sql .= ' AND owner_id=?';
-			$args[] = $uid;
+		$sql = 'SELECT content_id,template_id FROM '.CMS_DB_PREFIX.'content';
+		if ($ids != '*') {
+			$fillers = (is_array($ids)) ? ' IN ('.str_repeat('?,',count($ids)-1).'?)' :  '=?';
+			$sql .= ' WHERE template_id'.$fillers;
+			$args = (is_array($ids)) ? $ids : [$ids];
+			if (!$modify_all) {
+				$sql .= ' AND owner_id=?';
+				$args[] = $uid;
+			}
+		} elseif (!$modify_all) {
+			$sql .= ' WHERE owner_id=?';
+			$args = [$uid];
+		} else {
+			$args = null;
 		}
 		$db = CmsApp::get_instance()->GetDb();
 		$valid = $db->getArray($sql, $args);
 
 		if (!$modify_all) {
-			$sql = 'SELECT COUNT(1) AS num FROM '.CMS_DB_PREFIX.'content WHERE template_id'.$fillers;
-			$args = (is_array($ids)) ? $ids : [$ids];
+			if ($ids != '*') {
+				$sql = 'SELECT COUNT(1) AS num FROM '.CMS_DB_PREFIX.'content WHERE template_id'.$fillers;
+				$args = (is_array($ids)) ? $ids : [$ids];
+			} else {
+				$sql = 'SELECT COUNT(1) AS num FROM '.CMS_DB_PREFIX.'content';
+				$args = null;
+			}
 			$all = $db->getOne($sql, $args);
 			$other = $all - count($valid);
 		} else {
@@ -1209,7 +1235,10 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	}
 
 	/**
+	 * Partition $ids into template id(s) and/or template-group id(s)
 	 * @ignore
+	 * $param mixed $ids int | int[], group ids < 0
+	 * @return 2-member array [0] = tpl ids, [1] = group ids (> 0)
 	 */
 	protected static function items_split($ids)
 	{
