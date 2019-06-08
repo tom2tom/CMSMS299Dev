@@ -22,8 +22,6 @@ use CMSMS\ScriptOperations;
 use CMSMS\TemplateOperations;
 use CMSMS\UserOperations;
 
-global $CMS_JOB_TYPE;
-
 if( !isset($gCms) ) exit;
 // no permissions checks here.
 
@@ -495,7 +493,7 @@ if( $pmanage ) {
 	$list = TemplateOperations::template_query(['originator'=>CmsLayoutTemplateType::CORE, 'as_list'=>1]);
     $tpl->assign('template_list',$list)
     // list of admin users for filtering
-     ->assign('user_list',(new UserOperations())->GetList());
+     ->assign('user_list',UserOperations::get_instance()->GetList());
     // list of designs for filtering
 // ->assign('design_list',CmsLayoutCollection::get_list())  TODO replacement :: stylesheets and/or groups
 }

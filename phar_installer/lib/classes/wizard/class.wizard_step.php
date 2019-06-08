@@ -14,9 +14,6 @@ class wizard_step
 
     public function __construct()
     {
-        global $CMS_INSTALL_PAGE;
-        $CMS_INSTALL_PAGE = 1;
-
         $app = get_app();
         $dir = $app->get_destdir();
         if( !$dir ) throw new Exception('Session Failure');
