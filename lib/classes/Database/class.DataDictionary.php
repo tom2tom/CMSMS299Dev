@@ -91,6 +91,13 @@ class DataDictionary
     protected $autoIncrement = false;
 
     /**
+     * Array-rows indexer, to support 'adding' returned arrays
+     *
+     * @ignore
+     */
+    private static $ctr = 1;
+
+    /**
      * Constructor.
      *
      * @param Connection $conn
@@ -281,7 +288,7 @@ class DataDictionary
             $s .= ' '.$options[$this->upperName];
         }
 
-        return [$s];
+        return [self::$ctr++ => $s];
     }
 
     /**
@@ -326,7 +333,7 @@ class DataDictionary
         if (strcasecmp($idxname, 'PRIMARY') == 0) {
             $idxname = '`PRIMARY`'; // quote reserved word
         }
-        return [sprintf(self::DROPINDEX, $this->NameQuote($idxname), $this->TableName($tabname))];
+        return [self::$ctr++ => sprintf(self::DROPINDEX, $this->NameQuote($idxname), $this->TableName($tabname))];
     }
 
     /**
@@ -348,7 +355,7 @@ class DataDictionary
             if ($pkey) {
                 $v .= ', ADD PRIMARY KEY ('.reset($pkey).')';
             }
-            $sql[] = $v;
+            $sql[self::$ctr++] = $v;
         }
 
         return $sql;
@@ -373,7 +380,7 @@ class DataDictionary
             if ($pkey) {
                 $v .= ', ADD PRIMARY KEY ('.reset($pkey).')';
             }
-            $sql[] = $v;
+            $sql[self::$ctr++] = $v;
         }
 
         return $sql;
@@ -416,14 +423,14 @@ class DataDictionary
         }
 
         if ($column_def) {
-            return [sprintf('ALTER TABLE %s CHANGE COLUMN %s %s %s',
+            return [self::$ctr++ => sprintf('ALTER TABLE %s CHANGE COLUMN %s %s %s',
                 $this->TableName($tabname),
                 $this->NameQuote($oldname),
                 $this->NameQuote($newname),
                 $column_def)];
         }
         // recent db-server versions support this
-        return [sprintf('ALTER TABLE %s RENAME COLUMN %s TO %s',
+        return [self::$ctr++ => sprintf('ALTER TABLE %s RENAME COLUMN %s TO %s',
             $this->TableName($tabname),
             $this->NameQuote($oldname),
             $this->NameQuote($newname))];
@@ -445,7 +452,7 @@ class DataDictionary
         $alter = self::ALTERTABLE.$this->TableName($tabname).self::DROPCOLUMN;
         $sql = [];
         foreach ($colname as $v) {
-            $sql[] = $alter.$this->NameQuote(trim($v));
+            $sql[self::$ctr++] = $alter.$this->NameQuote(trim($v));
         }
 
         return $sql;
@@ -459,7 +466,7 @@ class DataDictionary
      */
     public function DropTableSQL($tabname)
     {
-        return [sprintf(self::DROPTABLE, $this->TableName($tabname))];
+        return [self::$ctr++ => sprintf(self::DROPTABLE, $this->TableName($tabname))];
     }
 
     /**
@@ -471,7 +478,7 @@ class DataDictionary
      */
     public function RenameTableSQL($tabname, $newname)
     {
-        return [sprintf('RENAME TABLE %s TO %s', $this->TableName($tabname), $this->TableName($newname))];
+        return [self::$ctr++ => sprintf('RENAME TABLE %s TO %s', $this->TableName($tabname), $this->TableName($newname))];
     }
 
     /**
@@ -678,15 +685,15 @@ class DataDictionary
                 if ($parts && in_array(strtoupper(substr($parts[0][1], 0, 4)), $fixedsizetypes)) { //TODO BLOB,TEXT are valid
                     continue;
                 }
-                $sql[] = $alter.self::ALTERCOLUMN.$v;
+                $sql[self::$ctr++] = $alter.self::ALTERCOLUMN.$v;
             } else {
-                $sql[] = $alter.self::ADDCOLUMN.$v;
+                $sql[self::$ctr++] = $alter.self::ADDCOLUMN.$v;
             }
         }
         if ($pkey) {
             $v = $alter.' ADD PRIMARY KEY(';
             $v .= implode(', ', $pkey).')';
-            $sql[] = $v;
+            $sql[self::$ctr++] = $v;
         }
         return $sql;
     }
@@ -1292,9 +1299,9 @@ class DataDictionary
 
         if (isset($idxoptions['REPLACE']) || isset($idxoptions['DROP'])) {
 //            if (1) { //this->alterTableAddIndex was always true
-                $sql[] = self::ALTERTABLE."$tabname DROP INDEX $idxname";
+                $sql[self::$ctr++] = self::ALTERTABLE."$tabname DROP INDEX $idxname";
 //            } else {
-//                $sql[] = sprintf(self::DROPINDEX, $idxname, $tabname);
+//                $sql[self::$ctr++] = sprintf(self::DROPINDEX, $idxname, $tabname);
 //            }
 
             if (isset($idxoptions['DROP'])) {
@@ -1330,7 +1337,7 @@ class DataDictionary
             $s .= $opts;
         }
 
-        $sql[] = $s;
+        $sql[self::$ctr++] = $s;
 
         return $sql;
     }
@@ -1376,11 +1383,11 @@ class DataDictionary
         $sql = [];
 
         if (isset($tableoptions['REPLACE']) || isset($tableoptions['DROP'])) {
-            $sql[] = sprintf(self::DROPTABLE, $tabname);
+            $sql[self::$ctr++] = sprintf(self::DROPTABLE, $tabname);
             if ($this->autoIncrement) {
                 $sInc = $this->DropAutoIncrement($tabname);
                 if ($sInc) {
-                    $sql[] = $sInc;
+                    $sql[self::$ctr++] = $sInc;
                 }
             }
             if (isset($tableoptions['DROP'])) {
@@ -1407,7 +1414,7 @@ class DataDictionary
         if ($str) {
             $s .= ' '.$str;
         }
-        $sql[] = $s;
+        $sql[self::$ctr++] = $s;
 
         return $sql;
     }
