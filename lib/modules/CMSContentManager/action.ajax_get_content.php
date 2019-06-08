@@ -220,7 +220,7 @@ try {
     }
 }
 catch( Throwable $t ) {
-    debug_to_log($e);
+    debug_to_log($t);
     echo '<div class="error">'.$t->getMessage().'</div>';
     if( $ajax ) {
         exit;
