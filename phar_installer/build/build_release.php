@@ -535,7 +535,7 @@ try {
         if (is_file($fp)) {
             // probably an installed site
             require_once $fp;
-            $CMS_JOB_TYPE = 2;
+            $CMS_JOB_TYPE = 2; //in-scope for included file
             $fp = joinpath($localroot, 'lib', 'include.php');
             require_once $fp;
             $arr = installer_base::CONTENTFILESDIR;
