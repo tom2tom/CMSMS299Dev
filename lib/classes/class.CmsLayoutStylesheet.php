@@ -308,9 +308,9 @@ class CmsLayoutStylesheet
    /* *
 	* Get the numeric id corresponding to $a
 	* @since 2.3
-	* @throws CmsLogicException
 	* @param mixed $a An Instance of a CmsLayoutCollection object, or an integer design id, or a string design name
 	* @return int
+	* @throws UnexpectedValueException
 	*/
 /*	protected function get_designid($a) : int
 	{
@@ -327,7 +327,7 @@ class CmsLayoutStylesheet
 			return $a->get_id();
 		}
 
-		throw new CmsLogicException('Invalid data passed to '.__METHOD__);
+		throw new UnexpectedValueException('Invalid data passed to '.__METHOD__);
 	}
 */
    /* *
@@ -576,7 +576,7 @@ class CmsLayoutStylesheet
 	*/
 	public function has_content_file()
 	{
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','get_content_file'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_content_file'));
 		return $this->get_content_file();
 	}
 
