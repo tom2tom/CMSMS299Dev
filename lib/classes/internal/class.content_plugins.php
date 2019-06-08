@@ -22,11 +22,11 @@ use cms_config;
 use cms_siteprefs;
 use cms_utils;
 use CmsApp;
+use CmsCoreCapabilities;
 use CmsError403Exception;
 use CmsError404Exception;
 use CMSMS\ModuleOperations;
-use const CMS_PREVIEW_PAGEID;
-use const CMS_PREVIEW;
+use Smarty_Internal_SmartyTemplateCompiler;
 use const CMS_UPLOADS_URL;
 use function cms_join_path;
 use function cms_to_bool;
@@ -260,14 +260,14 @@ final class content_plugins
         }
 
         if( $do_mact ) {
-            $modops = new ModuleOperations();
+            $modops = ModuleOperations::get_instance();
             $module_obj = $modops->get_module_instance($module);
             if( !$module_obj ) {
                 // module not found... couldn't even autoload it.
                 @trigger_error('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
                 throw new CmsError404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
             }
-            if( !$module_obj->IsPluginModule() ) {
+            if( !($module_obj->HasCapability(CmsCoreCapabilities::PLUGIN_MODULE) || $module_obj->IsPluginModule()) ) {
                 @trigger_error('Attempt to access module '.$module.' on a frontend request, which is not a plugin module');
                 throw new CmsError404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
             }
@@ -276,7 +276,7 @@ final class content_plugins
             ob_start();
             $result = $module_obj->DoActionBase($action, $id, $params, $page_id, $smarty);
 
-            if( $result !== false ) echo $result;
+            if( $result || is_numeric($result) ) echo $result;
             $result = ob_get_contents();
             ob_end_clean();
         }
