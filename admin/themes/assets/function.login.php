@@ -20,6 +20,7 @@ use CMSMS\internal\LoginOperations;
 use CMSMS\Mailer;
 use CMSMS\NlsOperations;
 use CMSMS\User;
+use CMSMS\UserOperations;
 
 global $csrf_key;
 
@@ -53,7 +54,7 @@ function send_recovery_email(User $user)
  */
 function find_recovery_user(string $hash)
 {
-    $user_ops = CmsApp::get_instance()->GetUserOperations();
+    $user_ops = UserOperations::get_instance();
 
     foreach ($user_ops->LoadUsers() as $user) {
         if ($hash == sha1($user->username . $user->password . CMS_ROOT_PATH)) return $user;
@@ -91,7 +92,7 @@ $gCms = CmsApp::get_instance();
 
 //Check for a forgot-pw job
 if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
-    $user_ops = $gCms->GetUserOperations();
+    $user_ops = UserOperations::get_instance();
     $forgot_username = filter_var($_REQUEST['forgottenusername'], FILTER_SANITIZE_STRING);
     unset($_REQUEST['forgottenusername'], $_POST['forgottenusername']);
     Events::SendEvent('Core', 'LostPassword', ['username'=>$forgot_username]);
@@ -156,7 +157,7 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
     }
 }
 
-$login_ops = new LoginOperations();
+$login_ops = LoginOperations::get_instance();
 $config = cms_config::get_instance();
 
 if (isset($_SESSION['logout_user_now'])) {
@@ -179,7 +180,7 @@ if (isset($_POST['cancel'])) {
     $login_ops->deauthenticate();
     $username = (isset($_POST['username'])) ? cleanValue($_POST['username']) : null;
     $password = $_POST['password'] ?? null; //no cleanup: any char is valid, & hashed before storage
-    $user_ops = $gCms->GetUserOperations();
+    $user_ops = UserOperations::get_instance();
 
     class CmsLoginError extends CmsException {}
 
