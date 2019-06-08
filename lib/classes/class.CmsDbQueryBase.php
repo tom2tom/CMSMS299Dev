@@ -182,7 +182,7 @@ abstract class CmsDbQueryBase
 	 */
 	public function Rewind()
 	{
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','MoveFirst'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','MoveFirst'));
 		$this->execute();
 		if( $this->_rs ) return $this->_rs->MoveFirst();
 	}

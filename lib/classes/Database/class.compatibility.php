@@ -19,7 +19,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\Database {
 
+use DeprecationNotice;
 use CMSMS\Database\Connection;
+use const CMS_DEBUG;
 
     /**
      * A class for providing some compatibility functionality with older module code.
@@ -37,6 +39,7 @@ use CMSMS\Database\Connection;
          */
         public static function init()
         {
+            assert(empty(CMS_DEPREC), new DeprecationNotice('Upgrade to current database API'));
             return new Connection();
         }
 
@@ -156,6 +159,7 @@ use CMSMS\Database\DataDictionary;
     function NewDataDictionary(Connection $conn)
     {
         // called by module installation routines.
+        assert(empty(CMS_DEPREC), new DeprecationNotice('class','CMSMS\\Database\\DataDictionary'));
         return new DataDictionary($conn);
     }
 

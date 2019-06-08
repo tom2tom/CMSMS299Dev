@@ -1,4 +1,4 @@
 <?php
-assert(empty(CMS_DEBUG), new DeprecationNotice('class','CMSMS\\ContentTypePlaceHolder'));
-require_once  __DIR__.DIRECTORY_SEPARATOR.'class.ContentTypePlaceHolder.php';
-\class_alias('CMSMS\\ContentTypePlaceHolder', 'CmsContentTypePlaceHolder', false);
+assert(empty(CMS_DEPREC), new DeprecationNotice('class','CMSMS\\ContentType'));
+require_once  __DIR__.DIRECTORY_SEPARATOR.'class.ContentType.php';
+\class_alias('CMSMS\\ContentType', 'CmsContentTypePlaceHolder', false);

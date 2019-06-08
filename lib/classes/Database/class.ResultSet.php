@@ -203,7 +203,7 @@ class ResultSet
      */
     public function getRows()
     {
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','getArray'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','getArray'));
         return $this->getArray();
     }
 
@@ -217,7 +217,7 @@ class ResultSet
      */
     public function getAll()
     {
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','getArray'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','getArray'));
         return $this->getArray();
     }
 
@@ -357,7 +357,7 @@ class ResultSet
      */
     public function NumRows()
     {
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','recordCount'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','recordCount'));
         return $this->_nrows;
     }
 

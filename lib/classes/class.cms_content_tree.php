@@ -131,7 +131,7 @@ class cms_content_tree extends cms_tree
 	 */
 	public function sureGetNodeByAlias($alias)
 	{
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','find_by_identifier'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','find_by_identifier'));
 		return $this->find_by_identifier($alias);
 	}
 
@@ -203,7 +203,7 @@ class cms_content_tree extends cms_tree
 	 */
 	public function getId()
 	{
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','get_tag(id'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_tag(id'));
 		return $this->get_tag('id');
 	}
 
@@ -231,7 +231,7 @@ class cms_content_tree extends cms_tree
 	 * @see cms_tree::get_parent()
 	 * @return cms_tree or null.
 	 */
-/*	public function &getParentNode()
+/*	public function getParentNode()
 	{
 		return $this->getParent();
 	}
