@@ -49,11 +49,10 @@ function lang_by_realm(...$args) : string
  *
  * @internal
  * @ignore
- * @return bool
  */
-function allow_admin_lang(bool $flag = true) : bool
+function allow_admin_lang(bool $flag = true)
 {
-  return LangOperations::allow_nonadmin_lang($flag);
+  LangOperations::allow_nonadmin_lang($flag);
 }
 
 /**
