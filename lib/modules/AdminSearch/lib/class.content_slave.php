@@ -3,12 +3,12 @@
 namespace AdminSearch;
 
 use cms_utils;
+use CMSMS\ContentOperations;
 use const CMS_DB_PREFIX;
-use const CMS_SECURE_PARAM_NAME;
-use const CMS_USER_KEY;
 use function check_permission;
 use function cms_htmlentities;
 use function cmsms;
+use function get_secure_param;
 use function get_userid;
 
 final class content_slave extends slave
@@ -48,12 +48,12 @@ final class content_slave extends slave
             foreach( $dbr as $row ) {
                 $content_id = $row['content_id'];
                 if( !check_permission($userid,'Manage All Content') && !check_permission($userid,'Modify Any Page') &&
-                    !cmsms()->GetContentOperations()->CheckPageAuthorship($userid,$content_id) ) {
+                    !ContentOperations::get_instance()->CheckPageAuthorship($userid,$content_id) ) {
                     // no access to this content page.
                     continue;
                 }
 
-                $content_obj = cmsms()->GetContentOperations()->LoadContentFromId($content_id); //both types of Content object support HasSearchableContent() and Name();
+                $content_obj = ContentOperations::get_instance()->LoadContentFromId($content_id); //both types of Content object support HasSearchableContent() and Name();
                 if( !is_object($content_obj) ) continue;
                 if( !$content_obj->HasSearchableContent() ) continue;
 

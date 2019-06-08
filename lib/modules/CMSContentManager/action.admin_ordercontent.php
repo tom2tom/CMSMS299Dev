@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage All Content') ) return;
 
@@ -87,8 +89,7 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
             $db->Execute($stmt,[$rec['order'],$rec['parent_id'],$rec['id']]);
         }
         $stmt->close();
-        $contentops = $gCms->GetContentOperations();
-        $contentops->SetAllHierarchyPositions();
+        ContentOperations::get_instance()->SetAllHierarchyPositions();
         audit('','Content','Content pages dynamically reordered');
         $this->RedirectToAdminTab('pages');
     }
