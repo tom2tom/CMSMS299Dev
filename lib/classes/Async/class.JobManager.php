@@ -105,7 +105,7 @@ final class JobManager
      * @param Job $job
      * @return mixed int | null The id of the job.
      */
-    public function save_job( Job &$job )
+    public function save_job( Job $job )
     {
         $mod = $this->get_mod();
         if( $mod ) return $mod->save_job($job);
@@ -119,7 +119,7 @@ final class JobManager
      * @param Job $job
 	 * @return mixed
      */
-    public function delete_job( Job &$job )
+    public function delete_job( Job $job )
     {
         $mod = $this->get_mod();
         if( $mod ) return $mod->delete_job($job);
