@@ -26,12 +26,12 @@ use cms_siteprefs;
 use cms_url;
 use cms_userprefs;
 use cms_utils;
-use CmsApp;
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminTabs;
 use CMSMS\AdminUtils;
 use CMSMS\ArrayTree;
 use CMSMS\Bookmark;
+use CMSMS\BookmarkOperations;
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
 use CMSMS\ModuleOperations;
@@ -46,10 +46,12 @@ use function audit;
 use function check_permission;
 use function cleanArray;
 use function cleanValue;
+use function cms_build_query;
 use function cms_join_path;
 use function cms_module_places;
 use function cms_path_to_url;
 use function endswith;
+use function get_secure_param;
 use function get_userid;
 use function lang;
 use function startswith;
@@ -272,7 +274,10 @@ abstract class ThemeBase
         if( is_object(self::$_instance) ) return self::$_instance;
 
         if( !$name ) {
-            $name = cms_userprefs::get_for_user(get_userid(FALSE),'admintheme');
+			$userid = get_userid(FALSE);
+			if( $userid !== NULL ) {
+	            $name = cms_userprefs::get_for_user($userid,'admintheme');
+			}
             if( !$name ) $name = self::GetDefaultTheme();
         }
         $themeObjName = 'CMSMS\\'.$name;
@@ -452,7 +457,7 @@ abstract class ThemeBase
         if (!$data) {
             // data doesn't exist, gotta build it
             $usermoduleinfo = [];
-            $modops = new ModuleOperations();
+            $modops = ModuleOperations::get_instance();
             $allmodules = $modops->GetInstalledModules();
             foreach ($allmodules as $modname) {
                 $modinst = $modops->get_module_instance($modname);
@@ -1217,7 +1222,7 @@ abstract class ThemeBase
      */
     public function get_bookmarks($pure = FALSE)
     {
-        $bookops = CmsApp::get_instance()->GetBookmarkOperations();
+        $bookops = new BookmarkOperations();
         $marks = array_reverse($bookops->LoadBookmarks($this->userid));
 
         if( !$pure ) {
