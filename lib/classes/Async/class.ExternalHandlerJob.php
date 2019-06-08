@@ -90,7 +90,7 @@ class ExternalHandlerJob extends Job
     public function execute()
     {
         if( $this->is_udt ) {
-            (new UserPluginOperations())->call_plugin($this->function);
+            UserPluginOperations::get_instance()->call_plugin($this->function);
 //TODO also support regular plugins
         }
         else {

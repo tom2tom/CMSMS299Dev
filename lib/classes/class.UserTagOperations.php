@@ -97,7 +97,7 @@ final class UserTagOperations
 	 */
 	public function UserTagExists($name)
 	{
-		return (new UserPluginOperations())->plugin_exists($name);
+		return UserPluginOperations::get_instance()->plugin_exists($name);
 	}
 
 	/**
@@ -134,7 +134,7 @@ final class UserTagOperations
 	 */
 	public function ListUserTags()
 	{
-		$tmp = (new UserPluginOperations())->get_list();
+		$tmp = UserPluginOperations::get_instance()->get_list();
 		if( !$tmp ) return;
 
 		$out = null;
@@ -154,7 +154,7 @@ final class UserTagOperations
 	 */
 	public function CallUserTag($name, &$params = [])
 	{
-		return (new UserPluginOperations())->call_plugin($name, $params);
+		return UserPluginOperations::get_instance()->call_plugin($name, $params);
 	}
 
 	/**

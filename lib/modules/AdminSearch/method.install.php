@@ -20,7 +20,7 @@ use CMSMS\GroupOperations;
 
 $this->CreatePermission('Use Admin Search',$this->Lang('perm_Use_Admin_Search'));
 
-$groups = (new GroupOperations())->LoadGroups();
+$groups = GroupOperations::get_instance()->LoadGroups();
 
 if( $groups ) {
   foreach( $groups as $one_group ) {

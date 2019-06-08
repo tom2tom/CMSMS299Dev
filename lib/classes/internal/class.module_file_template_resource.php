@@ -57,7 +57,7 @@ class module_file_template_resource extends Smarty_Resource_Custom
         }
 
         $module_name = trim($parts[0]);
-        $module = (new ModuleOperations())->get_module_instance($module_name); //loaded modules only
+        $module = ModuleOperations::get_instance()->get_module_instance($module_name); //loaded modules only
         if( $module ) {
             $module_path = $module->GetModulePath();
             $filename = trim($parts[1]);

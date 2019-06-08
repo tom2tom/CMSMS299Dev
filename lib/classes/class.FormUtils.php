@@ -22,6 +22,7 @@ use cms_config;
 use cms_utils;
 use CmsApp;
 use CmsCoreCapabilities;
+use CMSMS\ContentOperations;
 use CMSMS\ModuleOperations;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
@@ -851,7 +852,7 @@ class FormUtils
             } else {
                 $parms['class'] .= ' cmsms_wysiwyg';
             }
-            $module = (new ModuleOperations())->GetWYSIWYGModule($forcemodule);
+            $module = ModuleOperations::get_instance()->GetWYSIWYGModule($forcemodule);
             if ($module && $module->HasCapability(CmsCoreCapabilities::WYSIWYG_MODULE)) {
                 // TODO use $config['content_language']
                 $parms['data-cms-lang'] = 'html'; //park badly-named variable
@@ -867,7 +868,7 @@ class FormUtils
         $wantedsyntax = $wantedsyntax ?? '';
         if (!$module && $wantedsyntax) {
             $parms['data-cms-lang'] = $wantedsyntax; //park
-            $module = (new ModuleOperations())->GetSyntaxHighlighter($forcemodule);
+            $module = ModuleOperations::get_instance()->GetSyntaxHighlighter($forcemodule);
             if ($module && $module->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE)) {
                 $module_name = $module->GetName();
                 if (empty($parms['class'])) {
@@ -1236,7 +1237,7 @@ class FormUtils
         $config = cms_config::get_instance();
         if ($config['url_rewriting'] == 'mod_rewrite') {
             // mod_rewrite
-            $contentops = CmsApp::get_instance()->GetContentOperations();
+            $contentops = ContentOperations::get_instance();
             $alias = $contentops->GetPageAliasFromID($pageid);
             if ($alias) {
                 $out .= CMS_ROOT_URL.'/'.$alias.($config['page_extension'] ?? '.shtml');

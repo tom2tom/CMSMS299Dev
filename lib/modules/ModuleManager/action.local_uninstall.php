@@ -13,7 +13,7 @@ try {
         $this->RedirectToAdminTab();
     }
 
-    $ops = new ModuleOperations();
+    $ops = ModuleOperations::get_instance();
     $modinstance = $ops->get_module_instance($mod,'',TRUE);
     if( !is_object($modinstance) ) {
         // uh-oh

@@ -1,4 +1,7 @@
 <?php
+
+use CMSMS\ModuleOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) return;
 $this->SetCurrentTab('installed');
@@ -10,7 +13,7 @@ $state = 0;
 if( isset($params['state']) ) $state = (int)$params['state'];
 $module = trim(get_parameter_value($params,'mod'));
 
-$res = (new ModuleOperations())->ActivateModule( $module, $state );
+$res = ModuleOperations::get_instance()->ActivateModule( $module, $state );
 if( !$res ) {
     $this->SetError($this->Lang('error_active_failed'));
     $this->RedirectToAdminTab();

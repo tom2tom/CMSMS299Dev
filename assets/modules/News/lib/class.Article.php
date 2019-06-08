@@ -21,9 +21,8 @@ namespace News;
 use cms_config;
 use cms_utils;
 use CMSMS\ContentOperations;
-use Exception;
+use CMSMS\UserOperations;
 use News\Utils;
-use function cmsms;
 use function munge_string_to_url;
 
 class Article
@@ -70,7 +69,7 @@ class Article
             $this->_meta['author'] = $mod->Lang('anonymous');
             $this->_meta['authorname'] = $mod->Lang('unknown');
             if( $author_id > 0 ) {
-                $userops = cmsms()->GetUserOperations();
+                $userops = UserOperations::get_instance();
                 $theuser = $userops->LoadUserById($author_id);
                 if( is_object($theuser) ) {
                     $this->_meta['author'] = $theuser->username;

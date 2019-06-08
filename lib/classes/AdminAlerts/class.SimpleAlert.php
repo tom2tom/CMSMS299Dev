@@ -138,7 +138,7 @@ class SimpleAlert extends Alert
     {
         if( !$this->_perms ) return FALSE;
         $admin_uid = (int) $admin_uid;
-        $userops = new UserOperations();
+        $userops = UserOperations::get_instance();
         $perms = $this->_perms;
         if( !is_array($this->_perms) ) $perms = [$this->_perms];
         foreach( $perms as $permname ) {

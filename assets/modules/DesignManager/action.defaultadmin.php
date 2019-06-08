@@ -66,7 +66,7 @@ if( $designs && ($n = count($designs)) ) {
 }
 
 if( $pmod ) {
-    $userops = cmsms()->GetUserOperations();
+    $userops = UserOperations::get_instance();
     $allusers = $userops->LoadUsers();
     $users = [-1=>$this->Lang('prompt_unknown')];
     $tmp = [];

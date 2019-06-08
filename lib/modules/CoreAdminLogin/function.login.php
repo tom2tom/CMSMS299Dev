@@ -21,6 +21,7 @@ use CMSMS\Events;
 use CMSMS\internal\LoginOperations;
 use CMSMS\Mailer;
 use CMSMS\User;
+use CMSMS\UserOperations;
 
 /*
  * This expects some variables to be populated before inclusion:
@@ -62,7 +63,7 @@ function send_recovery_email(User $user, &$mod)
  */
 function find_recovery_user(string $hash)
 {
-    $userops = CmsApp::get_instance()->GetUserOperations();
+    $userops = UserOperations::get_instance();
 
     foreach ($userops->LoadUsers() as $user) {
         if ($hash == sha1($user->username . $user->password . CMS_ROOT_PATH)) {
@@ -99,8 +100,8 @@ if (!empty($usecsrf)) {
     $csrf_key = md5(__FILE__);
 }
 
-$userops = CmsApp::get_instance()->GetUserOperations();
-$login_ops = new LoginOperations();
+$userops = UserOperations::get_instance();
+$login_ops = LoginOperations::get_instance();
 
 //Check for a forgot-pw job
 if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {

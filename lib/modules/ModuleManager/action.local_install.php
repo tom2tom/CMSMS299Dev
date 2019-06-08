@@ -9,7 +9,7 @@ if( !$mod ) {
   $this->RedirectToAdminTab();
 }
 
-$ops = new ModuleOperations();
+$ops = ModuleOperations::get_instance();
 $result = $ops->InstallModule($mod);
 if( !is_array($result) || !isset($result[0]) ) $result = [FALSE,$this->Lang('error_moduleinstallfailed')];
 

@@ -37,10 +37,10 @@ use function lang;
  */
 final class GroupOperations
 {
-	/* *
+	/**
 	 * @ignore
 	 */
-//	private static $_instance = null;
+	private static $_instance = null;
 
 	/**
 	 * @ignore
@@ -50,22 +50,21 @@ final class GroupOperations
 	/**
 	 * @ignore
 	 */
-//	private function __construct() {}
+	private function __construct() {}
 
 	/**
 	 * @ignore
 	 */
-//	private function __clone() {}
+	private function __clone() {}
 
 	/**
-	 * Get an instance of this class.
-	 * @deprecated since 2.3 use new GroupOperations()
+	 * Get the instance of this class.
 	 * @return GroupOperations
 	 */
 	public static function get_instance() : self
 	{
-//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
-		return new self();
+		if( !self::$_instance ) { self::$_instance = new self(); }
+		return self::$_instance;
 	}
 
 	/**

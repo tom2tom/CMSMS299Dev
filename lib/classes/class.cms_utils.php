@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Database\Connection;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 use CMSMS\ThemeBase;
@@ -47,7 +48,7 @@ final class cms_utils
 	private function __clone() {}
 
 	/**
-	 * Get data that was stored elsewhere in the application.
+	 * Get intra-request stored data.
 	 *
 	 * @since 1.9
 	 * @param string $key The key to get.
@@ -62,7 +63,7 @@ final class cms_utils
 	 * Set data for later use.
 	 *
 	 * This method is typically used to store data for later use by another part of the application.
-	 * This data is not stored in the session, so it only exists for one request.
+	 * This data is not stored in the session, so it only exists during the current request.
 	 *
 	 * @since 1.9
 	 * @param string $key The name of this data.
@@ -90,7 +91,7 @@ final class cms_utils
 	 */
 	public static function get_module(string $name,string $version = '')
 	{
-		return (new ModuleOperations())->get_module_instance($name,$version);
+		return ModuleOperations::get_instance()->get_module_instance($name,$version);
 	}
 
 	/**
@@ -104,7 +105,7 @@ final class cms_utils
 	 */
 	public static function module_available(string $name)
 	{
-		return (new ModuleOperations())->IsModuleActive($name);
+		return ModuleOperations::get_instance()->IsModuleActive($name);
 	}
 
 	/**
@@ -114,7 +115,7 @@ final class cms_utils
 	 * @since 1.9
 	 * @return mixed \CMSMS\Database\Connection object or null
 	 */
-	public static function get_db()
+	public static function get_db() : Connection
 	{
 		return CmsApp::get_instance()->GetDb();
 	}
@@ -196,7 +197,7 @@ final class cms_utils
 	 */
 	public static function get_wysiwyg_module($module_name = null)
 	{
-		return (new ModuleOperations())->GetWYSIWYGModule($module_name);
+		return ModuleOperations::get_instance()->GetWYSIWYGModule($module_name);
 	}
 
 	/**
@@ -208,7 +209,7 @@ final class cms_utils
 	 */
 	public static function get_syntax_highlighter_module()
 	{
-		return (new ModuleOperations())->GetSyntaxHighlighter();
+		return ModuleOperations::get_instance()->GetSyntaxHighlighter();
 	}
 
 	/**
@@ -220,7 +221,7 @@ final class cms_utils
 	 */
 	public static function get_search_module()
 	{
-		return (new ModuleOperations())->GetSearchModule();
+		return ModuleOperations::get_instance()->GetSearchModule();
 	}
 
 	/**
@@ -232,7 +233,7 @@ final class cms_utils
 	 */
 	public static function get_filepicker_module()
 	{
-		return (new ModuleOperations())->GetFilePickerModule();
+		return ModuleOperations::get_instance()->GetFilePickerModule();
 	}
 
 	/**
@@ -384,16 +385,46 @@ final class cms_utils
 			$localpw = CMS_ROOT_URL.$passwd.__CLASS__;
 			$l1 = strlen($localpw);
 			$l2 = strlen($raw); //TODO check embedded null's ok
-			while( $l1 < $l2 ) {
+			while ($l1 < $l2) {
 				$localpw .= $localpw;
 				$l1 += $l1;
 			}
 			$l2 = min($l1,$l2);
 			$str = $raw;
-			for( $i = 0; $i < $l2; ++$i ) {
+			for ($i = 0; $i < $l2; ++$i) {
 				$str[$i] = $str[$i] ^ $localpw[$i];
 			}
 			return $str;
 		}
+	}
+
+	/**
+	 * Hash the the provided string using the (shortish, fastish, low collision) djb2a algorithm
+	 * @since 2.3
+	 *
+	 * @param string $raw the string to be processed, may be empty
+	 * @param bool seeded optional flag whether to seed the hash. Default false (unless $raw is empty)
+	 * @return string (13 alphanum bytes)
+	 */
+	public static function hash_string(string $raw, $seeded = false)
+	{
+		if (!$raw || $seeded) {
+			$seed = '1234';
+			for ($i = 0; $i < 4; ++$i) {
+				$n = mt_rand(48, 122); // 0 .. z
+				$seed[$i] = chr($n);
+			}
+			$raw .= $seed;
+		}
+		// actual byte-length (i.e. no mb interference);
+		$key = array_values(unpack('C*', $raw));
+		while (($kc = count($key)) < 32) {
+			$key = array_merge($key, $key);
+		}
+		$h = 5381;
+		for ($i = 0; $i < $kc; ++$i) {
+			$h = ($h + ($h << 5)) ^ (int)$key[$i]; //aka $h = $h*33 ^ $key[$i]
+		}
+		return base_convert((string)$h, 10, 30);
 	}
 } // class

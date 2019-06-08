@@ -38,7 +38,7 @@ final class utils
 	 */
     public static function get_installed_modules($include_inactive = FALSE, $as_hash = FALSE)
     {
-        $modops = new ModuleOperations();
+        $modops = ModuleOperations::get_instance();
         $module_list = $modops->GetInstalledModules($include_inactive);
 
         $results = [];

@@ -21,6 +21,8 @@ use CMSMS\AdminUtils;
 use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\FormUtils;
+use CMSMS\RouteOperations;
+use CMSMS\UserOperations;
 use News\AdminOperations;
 
 if (!isset($gCms))  exit ;
@@ -120,8 +122,8 @@ if (isset($params['submit']) || isset($params['apply'])) {
 
         // check this url isn't a duplicate.
         // we're adding an article, not editing... any matching route is bad.
-        cms_route_manager::load_routes();
-        $route = cms_route_manager::find_match($news_url);
+        RouteOperations::load_routes();
+        $route = RouteOperations::find_match($news_url);
         if ($route) {
             $this->ShowErrors($this->Lang('error_invalidurl'));
             $error = true;
@@ -337,7 +339,7 @@ $tpl->assign('formaction','addarticle')
     ->assign('formparms', $parms);
 
 if ($author_id > 0) {
-    $userops = $gCms->GetUserOperations();
+    $userops = UserOperations::get_instance();
     $theuser = $userops->LoadUserById($author_id);
     if ($theuser) {
         $tpl->assign('inputauthor', $theuser->username);

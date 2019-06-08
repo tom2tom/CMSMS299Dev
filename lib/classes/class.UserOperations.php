@@ -41,7 +41,7 @@ final class UserOperations
 	/**
 	 * @ignore
 	 */
-//	private static $_instance = null;
+	private static $_instance = null;
 
 	/**
 	 * @ignore
@@ -61,22 +61,22 @@ final class UserOperations
 	/**
 	 * @ignore
 	 */
-//	private function __construct() {}
+	private function __construct() {}
 
 	/**
      * @ignore
      */
-//    private function __clone() {}
+    private function __clone() {}
 
 	/**
 	 * Get an instance of this class.
-	 * @deprecated since 2.3 use new UserOperations()
+	 * @deprecated since 2.3 use UserOperations::get_instance()
 	 * @return UserOperations
 	 */
 	public static function get_instance() : self
 	{
-//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
-		return new self();
+		if( !self::$_instance ) { self::$_instance = new self(); }
+		return self::$_instance;
 	}
 
 	/**
@@ -538,7 +538,7 @@ VALUES ($new_user_id,?,?,?,?,?,?,?,$now,$now)";
 		}
 
 		try {
-			$ops = new GroupOperations();
+			$ops = GroupOperations::get_instance();
 			foreach ($groups as $gid) {
 				if ($ops->CheckPermission($gid, $permname)) {
 					return true;

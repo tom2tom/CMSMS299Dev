@@ -542,7 +542,7 @@ class Content extends ContentBase
 /* TODO any valid page-editor
 		if( cms_to_bool($this->_get_param($blockInfo,'adminonly',0)) ) {
 			$uid = get_userid(false);
-			$res = (new UserOperations())->UserInGroup($uid,1);
+			$res = CMSMS\UserOperations::get_instance()->UserInGroup($uid,1);
 			if( !$res ) return;
 		}
 */
@@ -608,7 +608,7 @@ class Content extends ContentBase
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
 			$uid = get_userid(false);
-			$res = (new UserOperations())->UserInGroup($uid,1);
+			$res = CMSMS\UserOperations::get_instance()->UserInGroup($uid,1);
 			if( !$res ) return;
 		}
 */
@@ -663,7 +663,7 @@ class Content extends ContentBase
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
 			$uid = get_userid(false);
-			$res = (new UserOperations())->UserInGroup($uid,1);
+			$res = CMSMS\UserOperations::get_instance()->UserInGroup($uid,1);
 			if( !$res ) return;
 		}
 */

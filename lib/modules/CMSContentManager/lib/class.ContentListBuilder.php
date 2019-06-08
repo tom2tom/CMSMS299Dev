@@ -660,7 +660,7 @@ final class ContentListBuilder
 	{
 		static $_users = null;
 		if( !$_users ) {
-			$tmp = (new UserOperations())->LoadUsers();
+			$tmp = UserOperations::get_instance()->LoadUsers();
 			if( is_array($tmp) && ($n = count($tmp)) ) {
 				$_users = [];
 				for( $i = 0; $i < $n; $i++ ) {

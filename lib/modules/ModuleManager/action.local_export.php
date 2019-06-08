@@ -14,7 +14,7 @@ if( !isset($params['mod']) ) {
 $module = get_parameter_value($params,'mod');
 
 try {
-    $modinstance = (new ModuleOperations())->get_module_instance($module,'',TRUE);
+    $modinstance = ModuleOperations::get_instance()->get_module_instance($module,'',TRUE);
     if( !is_object($modinstance) ) {
         $this->SetError($this->Lang('error_getmodule',$module));
         $this->RedirectToAdminTab();

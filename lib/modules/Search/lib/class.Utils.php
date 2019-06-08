@@ -225,7 +225,7 @@ class Utils
             }
         }
 
-        $modops = new ModuleOperations();
+        $modops = ModuleOperations::get_instance();
         $modules = $modops->GetInstalledModules();
         foreach( $modules as $name ) {
             if( !$name || $name == 'Search' ) continue;

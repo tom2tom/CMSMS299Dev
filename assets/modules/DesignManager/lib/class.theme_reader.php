@@ -484,7 +484,7 @@ class theme_reader extends reader_base
 
     // part6 ... Make sure MenuManager is activated.
     if( $have_mm_template ) {
-      (new ModuleOperations())->ActivateModule('MenuManager',1);
+      ModuleOperations::get_instance()->ActivateModule('MenuManager',1);
     }
   }
 } // class

@@ -14,7 +14,7 @@ $module = strip_tags(get_parameter_value($params,'mod'));
 $lang = strip_tags(get_parameter_value($params,'lang'));
 
 // get the module instance... force it to load if necessary.
-$modinstance = (new ModuleOperations())->get_module_instance($module,'',TRUE);
+$modinstance = ModuleOperations::get_instance()->get_module_instance($module,'',TRUE);
 if( !is_object($modinstance) ) {
     $this->SetError($this->Lang('error_getmodule',$module));
     $this->RedirectToAdminTab();

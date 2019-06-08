@@ -147,7 +147,7 @@ class User
 	{
 		$result = false;
 
-		$userops = new UserOperations();
+		$userops = UserOperations::get_instance();
 		if ($this->id > -1) {
 			$result = $userops->UpdateUser($this);
 		}
@@ -173,7 +173,7 @@ class User
 	{
 		$result = false;
 		if ($this->id > -1) {
-			$userops = new UserOperations();
+			$userops = UserOperations::get_instance();
 			$result = $userops->DeleteUserByID($this->id);
 			if ($result) $this->SetInitialValues();
 		}

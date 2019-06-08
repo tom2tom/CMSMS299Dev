@@ -25,10 +25,7 @@ use const CMS_ASSETS_PATH;
 use const CMS_VERSION;
 use function cms_join_path;
 use function cms_module_path;
-use function cms_to_bool;
-use function get_parameter_value;
 use function is_directory_writable;
-use function lang;
 
 class module_info implements ArrayAccess
 {
@@ -44,8 +41,8 @@ class module_info implements ArrayAccess
     'has_meta',
     'help',
     'is_system_module',
-    'lazyloadadmin',
-    'lazyloadfrontend',
+//    'lazyloadadmin',
+//    'lazyloadfrontend',
     'mincmsversion',
     'name',
     'notavailable',
@@ -59,27 +56,13 @@ class module_info implements ArrayAccess
 
     public function __construct($module_name,$can_load = true)
     {
-        $fn1 = $this->_get_module_meta_file( $module_name );
-        $if1 = is_file($fn1);
-        $ft1 = ( $if1 ) ? filemtime($fn1) : 0 ;
-        $fn2 = $this->_get_module_file( $module_name );
-        $if2 = is_file($fn2);
-        $ft2 = ( $if2) ? filemtime($fn2) : 0;
-        if( ($ft2 > $ft1 && $can_load) || ($if2 && !$if1) ) {
-            // module file is newer or the only choice
-            $arr = $this->_read_from_module($module_name);
-        } elseif( $if1 && $if2 ) {
-            // moduleinfo.ini file is newer
-            $arr = $this->_read_from_module_meta($module_name);
-        } else {
-            $arr = null;
-        }
+		$arr = $this->_read_from_module_cache($module_name);
         if( $arr ) {
             $arr2 = $this->_check_modulecustom($module_name);
-            $this->_setData( array_merge($arr2, $arr ));
+            $this->_setData(array_merge($arr2, $arr));
         } else {
             $arr['name'] = $module_name;
-            $this->_setData( $arr );
+            $this->_setData($arr);
             $this->_data['notavailable'] = true;
         }
     }
@@ -95,7 +78,7 @@ class module_info implements ArrayAccess
             return version_compare($this['mincmsversion'],CMS_VERSION,'<=');
 
         case 'dir':
-            return (new ModuleOperations())->get_module_path( $this->_data['name'] );
+            return ModuleOperations::get_instance()->get_module_path( $this->_data['name'] );
 
         case 'writable':
             $dir = $this['dir'];
@@ -107,7 +90,7 @@ class module_info implements ArrayAccess
             return is_writable($this['dir']);
 
         case 'is_system_module':
-            return (new ModuleOperations())->IsSystemModule( $this->_data['name'] );
+            return ModuleOperations::get_instance()->IsSystemModule( $this->_data['name'] );
 
         default:
             return $this->_data[$key] ?? null;
@@ -136,7 +119,7 @@ class module_info implements ArrayAccess
     {
     }
 
-    private function _get_module_meta_file( string $module_name ) : string
+/*  private function _get_module_meta_file( string $module_name ) : string
     {
         $path = cms_module_path($module_name);
         if( $path ) {
@@ -144,7 +127,7 @@ class module_info implements ArrayAccess
         }
         return '';
     }
-
+*/
     private function _get_module_file( string $module_name ) : string
     {
         return cms_module_path($module_name);
@@ -183,16 +166,16 @@ class module_info implements ArrayAccess
         return ['has_custom' => $has];
     }
 
-    private function _remove_module_meta(string  $module_name )
+/*    private function _remove_module_meta(string  $module_name )
     {
         $fn = $this->_get_module_meta_file( $module_name );
         if( is_file($fn) && is_writable($fn) ) unlink($fn);
     }
-
+*/
     /* return mixed array or null */
-    private function _read_from_module_meta(string $module_name)
+/*    private function _read_from_module_meta(string $module_name)
     {
-        $dir = (new ModuleOperations())->get_module_path( $module_name );
+        $dir = ModuleOperations::get_instance()->get_module_path( $module_name );
         $fn = $this->_get_module_meta_file( $module_name );
         if( !is_file($fn) ) return;
         $inidata = @parse_ini_file($fn,TRUE);
@@ -251,10 +234,11 @@ class module_info implements ArrayAccess
         return $arr;
     }
 
-    /* return mixed array or null */
+    /* return mixed array or null * /
+/*
     private function _read_from_module(string $module_name)
     {
-        $mod = (new ModuleOperations())->get_module_instance($module_name,'',TRUE);
+        $mod = ModuleOperations::get_instance()->get_module_instance($module_name,'',TRUE);
         if( !is_object($mod) ) {
             // if the module is not installed, try to interrogate it anyway
             $path = cms_module_path($module_name);
@@ -268,18 +252,56 @@ class module_info implements ArrayAccess
             $arr = [];
             $arr['name'] = $mod->GetName();
             $arr['description'] = $mod->GetDescription();
-            if( $arr['description'] == '' ) $arr['description'] = $mod->GetAdminDescription();
+            if( !$arr['description'] ) $arr['description'] = $mod->GetAdminDescription();
             $arr['version'] = $mod->GetVersion();
             $arr['depends'] = $mod->GetDependencies();
             $arr['mincmsversion'] = $mod->MinimumCMSVersion();
             $arr['author'] = $mod->GetAuthor();
             $arr['authoremail'] = $mod->GetAuthorEmail();
-            $arr['lazyloadadmin'] = $mod->LazyLoadAdmin();
-            $arr['lazyloadfrontend'] = $mod->LazyLoadFrontend();
+//            $arr['lazyloadadmin'] = $mod->LazyLoadAdmin();
+//            $arr['lazyloadfrontend'] = $mod->LazyLoadFrontend();
             $arr['help'] = $mod->GetHelp();
             $arr['changelog'] = $mod->GetChangelog();
             return $arr;
         }
     }
+*/
+    /* return mixed array or null */
+    private function _read_from_module_cache(string $module_name)
+    {
+		$tmp = global_cache::get('modules');
+		if( is_array($tmp) ) {
+			if( isset($tmp[$module_name]) ) {
+				if( $tmp[$module_name]['status'] != 'installed' || !$tmp[$module_name]['active'] ) {
+					return null;
+				}
+				if( isset($tmp[$module_name][self::PROPNAMES[1]]) ) { // anything not in raw table data
+					return $tmp[$module_name];
+				}
+				$mod = ModuleOperations::get_instance()->get_module_instance($module_name,'',TRUE);
+				if( is_object($mod) ) {
+					unset($tmp[$module_name]['version']); // we will use the version reported by the module
+					$tmp[$module_name] += ['name' => $module_name];
 
+					$arr = [];
+					$arr['description'] = $mod->GetDescription();
+					if( !$arr['description'] ) { $arr['description'] = $mod->GetAdminDescription(); }
+					$arr['version'] = $mod->GetVersion(); //might be different from database version
+					$arr['depends'] = $mod->GetDependencies();
+					$arr['mincmsversion'] = $mod->MinimumCMSVersion();
+					$arr['author'] = $mod->GetAuthor();
+					$arr['authoremail'] = $mod->GetAuthorEmail();
+//					$arr['lazyloadadmin'] = $mod->LazyLoadAdmin();
+//					$arr['lazyloadfrontend'] = $mod->LazyLoadFrontend();
+					$arr['help'] = $mod->GetHelp();
+					$arr['changelog'] = $mod->GetChangelog();
+
+					$tmp[$module_name] += $arr;
+					global_cache::update('modules', $tmp);
+					return $tmp[$module_name];
+				}
+			}
+		}
+		return null;
+	}
 } // class

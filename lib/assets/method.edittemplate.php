@@ -40,8 +40,10 @@ $show_cancel  optional bool display cancel button(s) default true
 $display      optional bool display (default) or == false to fetch & return template output
 */
 
+use CMSMS\GroupOperations;
 use CMSMS\ScriptOperations;
 use CMSMS\TemplateOperations;
+use CMSMS\UserOperations;
 
 if( !isset($params['tpl']) ) return;
 
@@ -197,12 +199,12 @@ if( $can_manage ) {
         }
     }
 
-    $allusers = cmsms()->GetUserOperations()->LoadUsers();
+    $allusers = UserOperations::get_instance()->LoadUsers();
     foreach( $allusers as &$one ) {
         $user_list[$one->id] = $one->username;
     }
 
-    $allgroups = cmsms()->GetGroupOperations()->LoadGroups();
+    $allgroups = GroupOperations::get_instance()->LoadGroups();
     foreach( $allgroups as &$one ) {
         if( $one->id == 1) continue;
         if( !$one->active) continue;
