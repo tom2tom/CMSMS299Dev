@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\RouteOperations;
 use News\AdjustStatusTask;
 use News\AdminOperations;
 use News\CreateDraftAlertTask;
@@ -42,9 +43,9 @@ class News extends CMSModule
     public function GetVersion() { return '3.0'; }
     public function HasAdmin() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall');  }
-    public function IsPluginModule() { return true; }
-    public function LazyLoadAdmin() { return true; }
-    public function LazyLoadFrontend() { return true; }
+    public function IsPluginModule() { return true; } //deprecated in favour of capability
+//    public function LazyLoadAdmin() { return true; }
+//    public function LazyLoadFrontend() { return true; }
     public function MinimumCMSVersion() { return '2.2.911'; }
 
     public function InitializeFrontend()
@@ -291,7 +292,7 @@ EOS;
     public function CreateStaticRoutes()
     {
         $str = $this->GetName();
-        cms_route_manager::del_static('',$str);
+        RouteOperations::del_static('',$str);
 
         $db = CmsApp::get_instance()->GetDb();
         $c = strtoupper($str[0]);
@@ -300,14 +301,14 @@ EOS;
 
         $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)\/(?P<junk>.*?)\/d,(?P<detailtemplate>.*?)$/',
                               $str);
-        cms_route_manager::add_static($route);
+        RouteOperations::add_static($route);
         $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)\/(?P<junk>.*?)$/',$str);
-        cms_route_manager::add_static($route);
+        RouteOperations::add_static($route);
         $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)$/',$str);
-        cms_route_manager::add_static($route);
+        RouteOperations::add_static($route);
         $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)$/',$str,
                               ['returnid'=>$this->GetPreference('detail_returnid',-1)]);
-        cms_route_manager::add_static($route);
+        RouteOperations::add_static($route);
 
         $now = time();
         $query = 'SELECT news_id,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE status = ? AND news_url != \'\' AND '

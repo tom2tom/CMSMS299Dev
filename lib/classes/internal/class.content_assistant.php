@@ -16,7 +16,7 @@
 
 namespace CMSMS\internal;
 
-use cms_route_manager;
+use CMSMS\RouteOperations;
 use cms_siteprefs;
 use function endswith;
 use function munge_string_to_url;
@@ -63,8 +63,8 @@ class content_assistant
 	if( munge_string_to_url($url,TRUE,TRUE) != $url ) return FALSE;
 
      // now check for duplicates.
-    cms_route_manager::load_routes();
-    $route = cms_route_manager::find_match($url,TRUE);
+    RouteOperations::load_routes();
+    $route = RouteOperations::find_match($url,TRUE);
     if( !$route ) return TRUE;
     if( $route->is_content() ) {
 		if($content_id == '' || ($route->get_content() == $content_id)) return TRUE;

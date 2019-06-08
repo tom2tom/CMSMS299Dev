@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Database\DataDictionary;
+use CMSMS\RouteOperations;
 
 if( !isset($gCms) ) exit;
 
@@ -68,7 +69,7 @@ if ($fp && is_dir($fp)) {
 
 $this->RemoveSmartyPlugin();
 
-cms_route_manager::del_static('',$me);
+RouteOperations::del_static('',$me);
 
 // And templates and template types
 $this->DeleteTemplate();
