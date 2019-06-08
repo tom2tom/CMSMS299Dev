@@ -15,6 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\ContentOperations;
 
 function smarty_function_cms_action_url($params, $template)
@@ -63,7 +64,7 @@ function smarty_function_cms_action_url($params, $template)
 	// validate params
 	$gCms = CmsApp::get_instance();
 	if( $module == '' ) return;
-	if( $gCms->test_state(CmsApp::STATE_ADMIN_PAGE) && $returnid == '' ) {
+	if( AppState::test_state(AppState::STATE_ADMIN_PAGE) && $returnid == '' ) {
 		if( $mid == '' ) $mid = 'm1_';
 		if( $action == '' ) $action = 'defaultadmin';
 	}

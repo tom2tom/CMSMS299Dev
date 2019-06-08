@@ -15,6 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\FormUtils;
 
 function smarty_function_syntax_area($params, $template)
@@ -72,7 +73,7 @@ function smarty_function_syntax_area($params, $template)
 
 	$jscript = get_editor_script($parms);
 	if( $jscript ) {
-		if( CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
+		if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
 			$theme = cms_utils::get_theme_object();
 			if( !empty($jscript['head']) ) {
 				$theme->add_headtext($jscript['head']); // css

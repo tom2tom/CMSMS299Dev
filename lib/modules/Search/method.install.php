@@ -15,11 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
 
 if( !isset($gCms) ) exit;
 
-$newsite = $gCms->test_state(CmsApp::STATE_INSTALL);
+$newsite = AppState::test_state(AppState::STATE_INSTALL);
 if( $newsite ) {
     $uid = 1; // templates owned by initial admin
 } else {

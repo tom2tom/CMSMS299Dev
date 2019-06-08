@@ -16,15 +16,18 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
+use CMSMS\UserOperations;
+
 function smarty_function_cms_admin_user($params, $template)
 {
 	$smarty = $template->smarty;
 	$out = null;
 
-	if( cmsms()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
+	if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
 		$uid = (int)get_parameter_value($params,'uid');
 		if( $uid > 0 ) {
-			$user = (new UserOperations())->LoadUserByID((int)$params['uid']);
+			$user = UserOperations::get_instance()->LoadUserByID((int)$params['uid']);
 			if( is_object($user) ) {
 				$mode = trim(get_parameter_value($params,'mode','username'));
 				switch( $mode ) {

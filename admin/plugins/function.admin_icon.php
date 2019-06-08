@@ -16,9 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminUtils;
+use CMSMS\AppState;
+
 function smarty_function_admin_icon($params, $template)
 {
-	if( !cmsms()->test_state(CmsApp::STATE_ADMIN_PAGE) ) return;
+	if( !AppState::test_state(AppState::STATE_ADMIN_PAGE) ) return;
 
 	$icon = null;
 	$tagparms = ['class'=>'systemicon'];
@@ -49,10 +52,10 @@ function smarty_function_admin_icon($params, $template)
 	if( !isset($tagparms['alt']) ) $tagparms['alt'] = pathinfo($icon, PATHINFO_FILENAME);
 
 	if( isset($params['module']) ) {
-		$out = CMSMS\AdminUtils::get_module_icon($icon,$tagparms);
+		$out = AdminUtils::get_module_icon($icon,$tagparms);
 	}
 	else {
-		$out = CMSMS\AdminUtils::get_icon($icon,$tagparms);
+		$out = AdminUtils::get_icon($icon,$tagparms);
 	}
 
 	if( !$out ) return;

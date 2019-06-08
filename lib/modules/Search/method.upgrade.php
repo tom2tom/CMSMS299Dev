@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
 
 if( !isset($gCms) ) exit;
@@ -24,7 +25,7 @@ if( version_compare($oldversion,'1.50') < 1 ) {
     $this->RegisterSmartyPlugin('search','function','function_plugin');
 
     $me = $this->GetName();
-    if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
+    if( AppState::test_state(AppState::STATE_INSTALL) ) {
         $user_id = 1; // hardcode to first user
     } else {
         $user_id = get_userid();

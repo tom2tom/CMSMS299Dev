@@ -16,9 +16,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
+
 function smarty_function_page_error($params, $template)
 {
-	if( !cmsms()->test_state(CmsApp::STATE_ADMIN_PAGE) ) return;
+	if( !AppState::test_state(AppState::STATE_ADMIN_PAGE) ) return;
 	if( empty($params['msg']) ) return;
 
 	$out = '<div class="pageerror">'.trim($params['msg']).'</div>';
@@ -28,4 +30,3 @@ function smarty_function_page_error($params, $template)
 	}
 	return $out;
 }
-

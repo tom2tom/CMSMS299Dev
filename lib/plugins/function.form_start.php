@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
+
 function smarty_function_form_start($params, $template)
 {
 	$mactparms = [];
@@ -29,10 +31,10 @@ function smarty_function_form_start($params, $template)
 	'enctype' => 'multipart/form-data',
 	];
 	$gCms = CmsApp::get_instance();
-	if( $gCms->test_state(CmsApp::STATE_LOGIN_PAGE) ) {
+	if( AppState::test_state(AppState::STATE_LOGIN_PAGE) ) {
 		$tagparms['action'] = 'login.php';
 	}
-	else if( $gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
+	else if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
 		// check if it's a module action
 		if( $mactparms['module'] ) {
 			$tmp = $template->getTemplateVars('_action');

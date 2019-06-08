@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminUtils;
+use CMSMS\AppState;
 use CMSMS\CmsException;
 use CMSMS\Database\DataDictionary;
 use CMSMS\TemplateOperations;
@@ -29,7 +30,7 @@ $me = $this->GetName();
 
 if( version_compare($oldversion,'2.50') < 0 ) {
     $uid = null;
-    if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
+    if( AppState::test_state(AppState::STATE_INSTALL) ) {
         $uid = 1; // hardcode to first user
     } else {
         $uid = get_userid();

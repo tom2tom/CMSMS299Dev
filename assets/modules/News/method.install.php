@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
 use News\AdminOperations;
 
@@ -28,7 +29,7 @@ if( !class_exists('AdminOperations') ) {
   require_once($fn);
 }
 
-$newsite = $gCms->test_state(CmsApp::STATE_INSTALL);
+$newsite = AppState::test_state(AppState::STATE_INSTALL);
 if( $newsite ) {
   $uid = 1; // templates owned by intitial admin
 } else {
