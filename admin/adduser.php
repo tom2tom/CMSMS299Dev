@@ -16,14 +16,15 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\GroupOperations;
 use CMSMS\ThemeBase;
 use CMSMS\User;
 use CMSMS\UserOperations;
 
-$CMS_ADMIN_PAGE = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
@@ -49,7 +50,7 @@ if (!check_permission($userid, 'Manage Users')) {
 
 $gCms              = cmsms();
 $assign_group_perm = check_permission($userid, 'Manage Groups');
-$groupops          = $gCms->GetGroupOperations();
+$groupops          = GroupOperations::get_instance();
 $errors            = [];
 
 if (isset($_POST['submit'])) {
@@ -163,14 +164,14 @@ if ($errors) {
 }
 
 $out      = [-1 => lang('none')];
-$userlist = (new UserOperations())->LoadUsers();
+$userlist = UserOperations::get_instance()->LoadUsers();
 
 foreach ($userlist as $one) {
     $out[$one->id] = $one->username;
 }
 
 if ($assign_group_perm) {
-    $groups = (new GroupOperations())->LoadGroups();
+    $groups = $groupops->LoadGroups();
     $smarty->assign('groups', $groups);
 }
 

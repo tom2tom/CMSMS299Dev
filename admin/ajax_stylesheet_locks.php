@@ -15,10 +15,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\LockOperations;
 
-$CMS_ADMIN_PAGE = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
@@ -39,7 +40,7 @@ foreach( $list as $lock ) {
     	$id = $lock['oid'];
     	if( $lock_timeout && $lock['expires'] < $now ) {
     		$locks1[$id] = 1; // stealable
-    	} else { 
+    	} else {
     	    $locks1[$id] = -1; // blocked
     	}
    	}
@@ -52,7 +53,7 @@ foreach( $list as $lock ) {
     	$id = $lock['oid'];
     	if( $lock_timeout && $lock['expires'] < $now ) {
     		$locks2[$id] = 1;
-    	} else { 
+    	} else {
     	    $locks2[$id] = -1;
     	}
     }

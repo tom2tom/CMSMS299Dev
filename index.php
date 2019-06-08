@@ -22,8 +22,8 @@
  * @package CMS
  */
 
+use CMSMS\AppState;
 use CMSMS\Events;
-use CMSMS\HookManager;
 use CMSMS\internal\content_plugins;
 use CMSMS\NlsOperations;
 use CMSMS\PageLoader;
@@ -36,6 +36,8 @@ if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
 	$_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
 }
 
+require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_FRONT_PAGE; // in scope for inclusion, sets initial state
 require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if (!is_writable(TMP_TEMPLATES_C_LOCATION) || !is_writable(TMP_CACHE_LOCATION)) {
@@ -49,6 +51,7 @@ tmp/templates_c</p><br />
 	exit;
 }
 
+$CMS_JOB_TYPE = CmsApp::get_instance()->JOBTYPE;
 if ($CMS_JOB_TYPE == 0) {
 	ob_start();
 }
@@ -82,7 +85,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			if (!isset($_SESSION[CMS_PREVIEW]) || !isset($_SESSION[CMS_PREVIEW_TYPE]) ) {
 				throw new CmsException('Preview page data not found');
 			}
-			PageLoader::load_type($_SESSION[CMS_PREVIEW_TYPE]); // load the class so it can be unserialized
+			PageLoader::LoadContentType($_SESSION[CMS_PREVIEW_TYPE]); // load the class so it can be unserialized
 			$contentobj = unserialize($_SESSION[CMS_PREVIEW]);
 			if (!$contentobj || !($contentobj instanceof CMSContentManager\ContentEditor)) {
 				throw new CmsException('Preview page content error');
@@ -93,7 +96,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			$contentobj->SetCachable(false);
 		} else {
 			// $page could be an integer ID or a string alias (or false if some error occurred)
-			$contentobj = PageLoader::get_content($page);
+			$contentobj = PageLoader::LoadContent($page);
 			if (!is_object($contentobj)) {
 				throw new CmsError404Exception('Page '.$page.' not found');
 			}
@@ -149,45 +152,11 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 
 		Events::SendEvent('Core', 'ContentPreRender', [ 'content' => &$contentobj ]);
 
-		if (!$showtemplate || $config['content_processing_mode'] == 2) { //default mode: process content before template(s)
-			debug_buffer('preprocess page content');
-			content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
-		}
-
 		$html = null;
 //		$showtemplate = $_app->template_processing_allowed();
 		if ($showtemplate) {
 			$tpl_rsrc = $contentobj->TemplateResource();
-			if( startswith( $tpl_rsrc, 'cms_template:')/* || startswith( $tpl_rsrc, 'cms_file:')*/ ) {
-
-				debug_buffer('process template top');
-				Events::SendEvent('Core', 'PageTopPreRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
-				$tpl = $smarty->createTemplate($tpl_rsrc.';top');
-				$top = ''.$tpl->fetch();
-				Events::SendEvent('Core', 'PageTopPostRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
-
-				if( $config['content_processing_mode'] == 1 ) { //process content after template page top
-					debug_buffer('preprocess module action');
-					content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
-				}
-
-				debug_buffer('process template body');
-				Events::SendEvent('Core', 'PageBodyPreRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
-				$tpl = $smarty->createTemplate($tpl_rsrc.';body');
-				$body = ''.$tpl->fetch();
-				Events::SendEvent('Core', 'PageBodyPostRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
-
-				debug_buffer('process template head');
-				Events::SendEvent('Core', 'PageHeadPreRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
-				$tpl = $smarty->createTemplate($tpl_rsrc.';head');
-				$head = ''.$tpl->fetch();
-				unset($tpl);
-				Events::SendEvent('Core', 'PageHeadPostRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
-
-				$html = $top.$head.$body;
-			}
-			elseif( $tpl_rsrc) {
-				// not a cms_file or cms_template resource, process it as a whole
+			if ($tpl_rsrc) {
 				$tpl = $smarty->createTemplate($tpl_rsrc);
 				$html = $tpl->fetch();
 				unset($tpl);
@@ -216,7 +185,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 		// specified page not found, load the 404 error page
-		$contentobj = PageLoader::get_content($page);
+		$contentobj = PageLoader::LoadContent($page);
 		if ($showtemplate && is_object($contentobj)) {
 			// we have a 404 error page
 			header('HTTP/1.0 404 Not Found');
@@ -244,7 +213,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 		// specified page not found, load the 404 error page.
-		$contentobj = PageLoader::get_content($page);
+		$contentobj = PageLoader::LoadContent($page);
 		$msg = $e->GetMessage();
 		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 		header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -272,7 +241,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 		// specified page not found, load the 404 error page
-		$contentobj = PageLoader::get_content($page);
+		$contentobj = PageLoader::LoadContent($page);
 		$msg = $e->GetMessage();
 		if (!$msg) $msg = '<p>You do not have permission to view this item.</p>';
 		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
@@ -360,5 +329,5 @@ if ($debug && !is_sitedown()) {
 	}
 }
 
-HookManager::do_hook_simple('PostRequest');
+Events::SendEvent('Core', 'PostRequest');
 exit;

@@ -16,19 +16,19 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\HookManager;
+use CMSMS\AppState;
+use CMSMS\Events;
 use CMSMS\ModuleOperations;
 
 //REMINDER: vars defined here might be used as globals by downstream hook functions
-
-$CMS_ADMIN_PAGE = 1;
-//$CMS_MODULE_PAGE = 1;
-
 $orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 $starttime = microtime();
 
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
+$CMS_JOB_TYPE = CmsApp::get_instance()->JOBTYPE;
 if ($CMS_JOB_TYPE < 2) {
 	check_login();
 //  $userid = get_userid();
@@ -46,7 +46,7 @@ if (isset($_REQUEST['mact'])) {
 	redirect('index.php');
 }
 
-$modops = new ModuleOperations();
+$modops = ModuleOperations::get_instance();
 $modinst = $modops->get_module_instance($module);
 if (!$modinst) {
 	trigger_error('Module '.$module.' not found. This could indicate that the module is awaiting upgrade, or that there are other problems');
@@ -103,4 +103,4 @@ switch ($CMS_JOB_TYPE) {
 		}
 }
 
-HookManager::do_hook_simple('PostRequest');
+Events::SendEvent('Core', 'PostRequest');

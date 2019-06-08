@@ -103,8 +103,7 @@ EOS;
 //		$sm->queue_matchedfile('jquery.cms_admin.js', 2); N/A
 	    $out .= $sm->render_inclusion('', false, false);
 
-		global $CMS_LOGIN_PAGE;
-		if( isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE) ) {
+		if( isset($_SESSION[CMS_USER_KEY]) && !AppState::test_state(AppState::STATE_LOGIN_PAGE) ) {
 			$sm->reset();
 			require_once CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'jsruntime.php';
 			$sm->queue_string($_out_);
@@ -171,7 +170,7 @@ EOS;
 	public function do_login($params = null)
 	{
 		$auth_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin');
-		$modinst = (new ModuleOperations())->get_module_instance($auth_module, '', true);
+		$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
 		if ($modinst) {
 			$data = $modinst->StageLogin(); //returns only if further processing is needed
 		} else {
@@ -331,7 +330,7 @@ EOS;
 			$smarty->assign('nav', $this->_havetree);
 		}
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
-		$user = (new UserOperations())->LoadUserByID($uid);
+		$user = UserOperations::get_instance()->LoadUserByID($uid);
 		$smarty->assign('username', $user->username);
 		// selected language
 		$lang = cms_userprefs::get_for_user($uid, 'default_cms_language');

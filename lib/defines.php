@@ -15,6 +15,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
+
 $config = cms_config::get_instance();
 
 /**
@@ -41,6 +43,11 @@ define('PUBLIC_CACHE_URL',$config['public_cache_url']);
  * Whether CMSMS is in debug mode.
  */
 define('CMS_DEBUG',$config['debug']);
+
+/**
+ * Whether to throw upon use of deprecated stuff.
+ */
+define('CMS_DEPREC',CMS_DEBUG && !empty($config['deprecations']));
 
 /**
  * Where CMSMS is installed.
@@ -88,7 +95,7 @@ define('CMS_UPLOADS_URL',$config['uploads_url']);
 /**
  * The database table prefix.
  */
-if( !isset($CMS_INSTALL_PAGE) ) {
+if( !AppState::test_state(AppState::STATE_INSTALL) ) {
     define('CMS_DB_PREFIX',$config['db_prefix']);
 }
 

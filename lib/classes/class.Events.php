@@ -21,6 +21,7 @@ namespace CMSMS;
 use cms_utils;
 use CmsApp;
 use CMSModule;
+use CMSMS\AppState;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 use const CMS_DB_PREFIX;
@@ -145,8 +146,7 @@ EOS;
 	 */
 	public static function SendEvent(string $originator, string $eventname, $params = [])
 	{
-		global $CMS_INSTALL_PAGE;
-		if( isset($CMS_INSTALL_PAGE) ) return;
+		if( AppState::test_state(AppState::STATE_INSTALL) ) return;
 		$results = self::ListEventHandlers($originator, $eventname);
 		if( $results ) {
 			$params['_modulename'] = $originator; //might be 'Core'
@@ -207,8 +207,9 @@ EOS;
 			}
 		}
 
-		// notify other 'dynamic' handlers, if any
-		HookManager::do_hook_simple($eventname, $originator, $eventname, $params); //too bad if same name for different originators!
+		// notify other 'dynamic' handlers, if any.
+		// in case of same name for different originators, handlers will need to filter
+		HookManager::do_hook($eventname, $originator, $eventname, $params);
 	}
 
 	/**
@@ -488,7 +489,9 @@ EOS;
 	public static function AddDynamicHandler(string $originator, string $eventname, $callback, string $type='C') : bool
 	{
 		$params = self::InterpretCallback($callback, $type);
-		if( !$params || (empty($params[0] && empty($params[1]))) ) return false;
+		if( !$params || (empty($params[0]) && empty($params[1])) ) {
+			return false;
+		}
 		list($class, $method, $type) = $params;
 
 		if( !is_array(self::$_dynamic) ) {

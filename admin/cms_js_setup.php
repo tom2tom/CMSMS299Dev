@@ -21,8 +21,10 @@ Deprecated since 2.3
 Use corresponding immediate setup via  jsruntime.php
 */
 
-$CMS_ADMIN_PAGE = 1;
+use CMSMS\AppState;
 
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();

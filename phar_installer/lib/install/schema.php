@@ -141,7 +141,7 @@ $tbl = CMS_DB_PREFIX.'content';
 $flds = '
 content_id I(2) UNSIGNED KEY,
 content_name C(255),
-type C(25),
+type C(24) COLLATE "ascii_general_ci" NOT NULL,
 default_content I(1) DEFAULT 0,
 show_in_menu I(1) DEFAULT 1,
 active I(1) DEFAULT 1,
@@ -204,7 +204,7 @@ verbose_msg(lang('install_creating_index', 'idx_content_by_modified', $msg_ret))
 $tbl = CMS_DB_PREFIX.'content_props';
 $flds = '
 content_id I(2) UNSIGNED,
-type C(25),
+type C(24),
 prop_name C(255),
 param1 C(255),
 param2 C(255),
@@ -222,6 +222,24 @@ $sqlarray = $dbdict->CreateIndexSQL('idx_content_props_by_content', $tbl, 'conte
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_content_props_by_content', $msg_ret));
+
+$tbl = CMS_DB_PREFIX.'content_types';
+$flds = '
+id I(2) UNSIGNED AUTO KEY,
+originator C(32) NOTNULL,
+name C(24) NOTNULL,
+publicname_key C(64),
+displayclass C(255) NOTNULL COLLATE ascii_bin,
+editclass C(255) COLLATE ascii_bin
+';
+$sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
+$dbdict->ExecuteSQLArray($sqlarray);
+$return = $dbdict->ExecuteSQLArray($sqlarray);
+$msg_ret = ($return == 2) ? $good : $bad;
+verbose_msg(lang('install_created_table', 'content_types', $msg_ret));
+
+$sqlarray = $dbdict->CreateIndexSQL('idx_typename',$tbl,'name',['UNIQUE']);
+$dbdict->ExecuteSQLArray($sqlarray);
 
 // type = C (callable,default) M (module) P (plugin) or U (UDT)
 //ex module_name >> (handler)[namespaced]class, tag_name >> (func)method or plugin/UDT name
@@ -294,14 +312,14 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'groups', $msg_ret));
 
+//allow_fe_lazyload I(1) DEFAULT 1,
+//allow_admin_lazyload I(1) DEFAULT 0
 $flds = '
 module_name C(32) KEY,
 status C(255),
 version C(255),
 admin_only I(1) DEFAULT 0,
-active I(1) DEFAULT 1,
-allow_fe_lazyload I(1) DEFAULT 1,
-allow_admin_lazyload I(1) DEFAULT 0
+active I(1) DEFAULT 1
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'modules', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -327,8 +345,8 @@ $flds = '
 id I(2) UNSIGNED AUTO KEY,
 name C(48) COLLATE "utf8_bin" NOT NULL,
 module C(32) NOT NULL,
-type C(32) NOT NULL,
-callback C(255) NOT NULL,
+type C(32) DEFAULT "function" COLLATE "ascii_general_ci" NOT NULL,
+callback C(255) COLLATE "ascii_bin" NOT NULL,
 available I(1) DEFAULT 1,
 cachable I(1) DEFAULT 1
 ';
@@ -337,7 +355,7 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'module_smarty_plugins', $msg_ret));
 
-$sqlarray = $dbdict->CreateIndexSQL('idx_tagname', $tbl, 'name', ['UNIQUE']);
+$sqlarray = $dbdict->CreateIndexSQL('idx_tagname', $tbl, 'name,module', ['UNIQUE']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_tagname', $msg_ret));
@@ -458,14 +476,15 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'version', $msg_ret));
 
-//CHECKME separate index on key1 field ?
+//CHECKME combined index on term,key1 fields ?
 //created DT renamed 2.3
 $flds = '
-term C(255) NOT NULL KEY,
-key1 C(48) NOT NULL KEY,
+id I(2) UNSIGNED AUTO KEY,
+term C(255) NOT NULL,
+key1 C(48) NOT NULL,
 key2 C(48),
 key3 C(48),
-data X,
+data X(512),
 create_date DT DEFAULT CURRENT_TIMESTAMP
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'routes', $flds, $taboptarray);

@@ -18,6 +18,7 @@
 
 use CMSContentManager\ContentBase;
 use CMSContentManager\contenttypes\Content;
+use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
@@ -27,8 +28,8 @@ use CMSMS\ModuleOperations;
 use CMSMS\SyntaxEditor;
 use CMSMS\ThemeBase;
 
-$CMS_ADMIN_PAGE = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 $urlext = get_secure_param();

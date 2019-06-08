@@ -43,78 +43,53 @@ use function startswith;
 class layout_template_resource extends Smarty_Resource_Custom
 {
 	/**
-	 * @ignore
-	 */
-	private static $db;
-
-	/**
-	 * @ignore
-	 * TODO cleanup when done
-	 */
-	private static $stmt;
-
-	/**
-	 * @ignore
-	 */
-	private static $loaded = [];
-
-	/**
-	 * @param string $name  template identifier (name or id), optionally with trailing ';[section]'
+	 * @param string $name  template identifier (name or numeric id)
 	 * @param mixed $source store for retrieved template content, if any
-	 * @param int $mtime    store for retrieved template modification timestamp
+	 * @param int $mtime    store for retrieved template modification timestamp, or false to abort
 	 */
 	protected function fetch($name,&$source,&$mtime)
 	{
 		if( $name == 'notemplate' ) {
 			$source = '{content}';
 			$mtime = time(); // never cache...
-			return;
 		}
 		elseif( startswith($name,'appdata;') ) {
 			$name = substr($name,8);
 			$source = cms_utils::get_app_data($name);
 			$mtime = time();
-			return;
-		}
-
-		$parts = explode(';',$name,2);
-		$name = $parts[0];
-
-		if( isset(self::$loaded[$name]) ) {
-			$data = self::$loaded[$name];
 		}
 		else {
-			if( !self::$db ) {
-				self::$db = CmsApp::get_instance()->GetDb();
-				self::$stmt = self::$db->Prepare('SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR name=?');
+			// here we replicate CmsLayoutTemplate::get_content() without the overhead of loading that class
+			$db = CmsApp::get_instance()->GetDb();
+			$sql = 'SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR name=?';
+			$data = $db->GetRow($sql,[$name,$name]);
+			if( $data ) {
+				if( $data['contentfile'] ) {
+					$fp = cms_join_path(CMS_ASSETS_PATH,'templates',$data['content']);
+					if( is_readable($fp) && is_file($fp) ) {
+						try {
+							$data['content'] = file_get_contents($fp);
+						} catch( Throwable $t ) {
+							cms_error("Template file $fp failed to load: ".$t->getMessage());
+							$mtime = false;
+							return;
+						}
+					}
+					else {
+						cms_error("Template file $fp is missing");
+						$mtime = false;
+						return;
+					}
+				}
 			}
-			$rst = self::$db->Execute(self::$stmt,[$name,$name]);
-			if( !$rst || $rst->EOF() ) {
-				if( $rst ) $rst->Close();
+			else {
 				cms_error('Missing template: '.$name);
 				$mtime = false;
 				return;
 			}
-			else {
-				$data = $rst->FetchRow();
-				$rst->Close();
-				self::$loaded[$data['id']] = $data;
-				self::$loaded[$data['name']] = &$data;
-				if( $data['contentfile'] ) {
-					$fp = cms_join_path(CMS_ASSETS_PATH,'templates',$data['content']);
-					$lvl = error_reporting();
-					error_reporting(0);
-					if( is_readable($fp) && is_file($fp) ) {
-						$data['content'] = file_get_contents($fp);
-					}
-					else {
-						$data['content'] = "'{* Template file $fp is missing *}";
-					}
-					error_reporting($lvl);
-				}
-			}
 		}
 
+		$id = $data['id'];
 		if( !empty($data['modified_date']) ) {
 			$mtime = cms_to_stamp($data['modified_date']);
 		}
@@ -126,44 +101,49 @@ class layout_template_resource extends Smarty_Resource_Custom
 		}
 		$content = $data['content'];
 
-		$section = $parts[1] ?? '';
-		switch( trim($section) ) {
-		case 'top':
+		if( startswith($name, 'cms_template:')/* || startswith( $name, 'cms_file:')*/ ) {
+			// out-of-order processing to allow header tailoring
 			$pos1 = stripos($content,'<head');
-			$pos2 = stripos($content,'<header');
+			$pos2 = stripos($content,'<header',(int)$pos1);
 			if( $pos1 === FALSE || $pos1 == $pos2 ) {
-				$source = '';
+				$topcontent = '';
 			}
 			else {
-				$source = trim(substr($content,0,$pos1));
+				$topcontent = trim(substr($content,0,$pos1));
 			}
-			return;
 
-		case 'head':
-			$pos1 = stripos($content,'<head');
-			$pos1a = stripos($content,'<header');
-			$pos2 = stripos($content,'</head>');
-			if( $pos1 === FALSE || $pos1 == $pos1a || $pos2 === FALSE ) {
-				$source = '';
+			$pos3 = stripos($content,'</head>',(int)$pos1);
+			if( $pos1 === FALSE || $pos1 == $pos2 || $pos3 === FALSE ) {
+				$headercontent = '';
 			}
 			else {
-				$source = trim(substr($content,$pos1,$pos2-$pos1+7));
+				$headercontent = trim(substr($content,$pos1,$pos3-$pos1+7));
 			}
-			return;
 
-		case 'body':
-			$pos = stripos($content,'</head>');
-			if( $pos !== FALSE ) {
-				$source = trim(substr($content,$pos+7));
+			if( $pos3 !== FALSE ) {
+				$bodycontent = trim(substr($content,$pos3+7));
 			}
 			else {
-				$source = $content;
+				$bodycontent = $content;
 			}
-			return;
 
-		default:
+			$source = <<<EOS
+{capture assign=toppart}{$topcontent}{/capture}
+{capture assign=bodypart}{$bodycontent}{/capture}
+{capture assign=headpart}{$headercontent}{/capture}
+{send_content_notice type=PageTopPreRender pageid=$id content=\$toppart assign=toppart}
+{capture}{\$toppart}{/capture}{\$smarty.capture.default}
+{send_content_notice type=PageTopPostRender pageid=$id content=\$smarty.capture.default}
+{send_content_notice type=PageHeadPreRender pageid=$id content=\$headpart assign=headpart}
+{capture}{\$headpart}{/capture}{\$smarty.capture.default}
+{send_content_notice type=PageHeadPostRender pageid=$id content=\$smarty.capture.default}
+{send_content_notice type=PageBodyPreRender pageid=$id content=\$bodypart assign=bodypart}
+{capture}{\$bodypart}{/capture}{\$smarty.capture.default}
+{send_content_notice type=PageBodyPostRender pageid=$id content=\$smarty.capture.default}
+EOS;
+		}
+		else {
 			$source = trim($content);
-			return;
 		}
 	}
 } // class

@@ -16,12 +16,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
 use CMSMS\StylesheetOperations;
 
 // variables for general use
-if (!isset($CMS_LOGIN_PAGE)) {
+if (!AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
 	$userid = get_userid(); //also checks login status
 }
 if (!isset($themeObject)) {
@@ -156,7 +157,7 @@ if ($list) {
 	}
 }
 
-if (empty($CMS_JOB_TYPE)) {
+if (CmsApp::get_instance()->JOBTYPE == 0) {
 	cms_admin_sendheaders(); //TODO only for $CMS_JOB_TYPE < 1 ?
 }
 
@@ -168,7 +169,7 @@ if (!isset($USE_OUTPUT_BUFFERING) || $USE_OUTPUT_BUFFERING) {
 }
 
 if (!isset($USE_THEME) || $USE_THEME) {
-	if (!isset($CMS_LOGIN_PAGE)) {
+	if (!AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 
 		// Display notification stuff from modules

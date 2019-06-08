@@ -18,12 +18,13 @@
 
 namespace CMSMS\internal;
 
+//use CMSMS\internal\cache_resource;
+//use CMSMS\internal\file_template_resource;
 use cms_config;
 use cms_siteprefs;
 use CmsApp;
-//use CMSMS\internal\cache_resource;
+use CMSMS\AppState;
 use CMSMS\internal\content_resource;
-//use CMSMS\internal\file_template_resource;
 use CMSMS\internal\layout_stylesheet_resource;
 use CMSMS\internal\layout_template_resource;
 use CMSMS\internal\module_db_template_resource;
@@ -119,9 +120,8 @@ smarty cache lifetime != global cache ttl, probably
         $_gCms = CmsApp::get_instance();
         if( $_gCms->is_frontend_request() ) {
             // just for frontend actions
-            global $CMS_INSTALL_PAGE;
-            // Check if we are at install page, don't register anything if so, as nothing below is needed.
-            if( isset($CMS_INSTALL_PAGE) ) return;
+                        // Check if we are at install page, don't register anything if so, as nothing below is needed.
+            if( AppState::test_state(AppState::STATE_INSTALL) ) return;
 
             if( is_sitedown() ) {
                 $this->setCaching(SmartyParent::CACHING_OFF); //actually, Smarty::
@@ -172,7 +172,7 @@ smarty cache lifetime != global cache ttl, probably
                 $this->enableSecurity('CMSMS\\internal\\smarty_security_policy');
             }
         }
-        elseif( $_gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
+        elseif( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
             // our configs folder could be added (i.e. to smarty's own config dir - but that doesn't exist in 3.1.33 at least)
             $this->setConfigDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'configs')
                  ->addPluginsDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'plugins')

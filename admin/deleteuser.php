@@ -16,14 +16,16 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\Events;
+use CMSMS\UserOperations;
 
 if (!isset($_GET['user_id'])) {
     return;
 }
 
-$CMS_ADMIN_PAGE = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
@@ -38,7 +40,7 @@ if( !check_permission($cur_userid, 'Manage Users') ) {
 $key = '';
 $user_id = (int)$_GET['user_id'];
 if ($user_id != $cur_userid) {
-    $userops = cmsms()->GetUserOperations();
+    $userops = UserOperations::get_instance();
     $ownercount = $userops->CountPageOwnershipByID($user_id);
     if ($ownercount <= 0) {
         $oneuser = $userops->LoadUserByID($user_id);

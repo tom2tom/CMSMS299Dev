@@ -1,5 +1,5 @@
 <?php
-#style retriever
+#style retriever used by some admin-themes
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,18 +16,22 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+/*
+This is used in some admin-themes to populate styles.
+Slow and inefficient, avoid using it if possible.
+*/
+
+use CMSMS\AppState;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 
-$CMS_ADMIN_PAGE = 1;
-$CMS_STYLESHEET = TRUE;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
+AppState::add_state(AppState::STATE_STYLESHEET);
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-/**
- * Rolf: only used in admin/style.php
- */
-$cms_readfile = function($filename) {
+$cms_readfile = function($filename)
+{
   ob_start();
   echo file_get_contents($filename);
   $result = ob_get_contents();
@@ -41,22 +45,28 @@ $cms_readfile = function($filename) {
 
 $themeObject = cms_utils::get_theme_object();
 $theme = $themeObject->themeName;
-$style='style';
+$style = 'style';
 cms_admin_sendheaders('text/css');
 
 $dir = NlsOperations::get_language_direction();
-if( $dir == 'rtl' ) $style.='-rtl';
-if (isset($_GET['ie'])) $style.='_ie';
+if( $dir == 'rtl' ) $style .= '-rtl';
+if( isset($_GET['ie']) ) $style .= '_ie';
 $style .= '.css';
 
-if (is_file(__DIR__.'/themes/'.$theme.'/css/'.$style)) $cms_readfile(__DIR__.'/themes/'.$theme.'/css/'.$style);
-if (is_file(__DIR__.'/themes/'.$theme.'/extcss/'.$style)) $cms_readfile(__DIR__.'/themes/'.$theme.'/extcss/'.$style);
+$fn = __DIR__.'/themes/'.$theme.'/css/'.$style;
+if( is_file($fn) ) $cms_readfile($fn);
+$fn = __DIR__.'/themes/'.$theme.'/extcss/'.$style;
+if( is_file($fn) ) $cms_readfile($fn);
 
-$allmodules = (new ModuleOperations())->GetLoadedModules();
+// this is crappily slow and inefficient !!
+$allmodules = ModuleOperations::get_instance()->GetLoadedModules();
 if( $allmodules ) {
-    foreach( $allmodules as $key => &$object ) {
-        if( !is_object($object) ) continue;
-        if( $object->HasAdmin() ) echo $object->AdminStyle();
-    }
-	unset($object);
+  foreach( $allmodules as &$object ) {
+    if( !is_object($object) ) continue;
+    if( $object->HasAdmin() ) echo $object->AdminStyle();
+  }
+  unset($object);
 }
+
+AppState::remove_state(CmsApp::STATE_ADMIN_PAGE);
+AppState::remove_state(CmsApp::STATE_STYLESHEET);

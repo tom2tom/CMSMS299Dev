@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
+
 /**
  * Handles test functions and values for CMSMS
  *
@@ -23,8 +25,7 @@
  * @ignore
  */
 
-global $CMS_INSTALL_PAGE;
-if( isset($CMS_INSTALL_PAGE) ) {
+if( AppState::test_state(AppState::STATE_INSTALL) ) {
 	$lang_fn = 'ilang';
 } else {
 	$lang_fn = 'lang';

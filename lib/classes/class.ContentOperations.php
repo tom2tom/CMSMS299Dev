@@ -20,21 +20,18 @@ namespace CMSMS;
 
 use cms_cache_handler;
 use cms_content_tree;
-use cms_siteprefs;
-use cms_utils;
 use CmsApp;
-use CmsCoreCapabilities;
 use CMSMS\AdminUtils;
-use CMSMS\ContentTypePlaceHolder;
+use CMSMS\ContentType;
+use CMSMS\ContentTypeOperations;
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\internal\global_cache;
-use CMSMS\ModuleOperations;
 use CMSMS\UserOperations;
+use DeprecationNotice;
 use Exception;
 use const CMS_DB_PREFIX;
+use const CMS_DEBUG;
 use function check_permission;
-use function cms_join_path;
-use function cms_module_path;
 use function debug_buffer;
 use function lang;
 use function munge_string_to_url;
@@ -54,10 +51,9 @@ use function munge_string_to_url;
  */
 final class ContentOperations
 {
-	const EDITORMODULE = 'CMSContentManager';
-
 	/**
 	 * @ignore
+	 * Singleton to protect static properties
 	 */
 	private static $_instance = null;
 
@@ -65,11 +61,6 @@ final class ContentOperations
 	 * @ignore
 	 */
 //	private $_quickfind;
-
-	/**
-	 * @ignore
-	 */
-	private $_content_types;
 
 	/**
 	 * @ignore
@@ -104,6 +95,54 @@ final class ContentOperations
 		}
 		return self::$_instance;
 	}
+
+	/**
+	 * Register a new content type
+	 *
+	 * @since 1.9
+	 * @deprecated since 2.3 instead use ContentTypeOperations::AddContentType()
+	 * @param ContentTypePlaceHolder Reference to placeholder object
+	 * @return bool
+	 */
+	public function register_content_type($obj) : bool
+	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ContentTypeOperations::AddContentType'));
+		return ContentTypeOperations::get_instance()->AddContentType($obj);
+	}
+
+	/**
+	 * Load a specific content type
+	 *
+	 * @since 1.9
+	 * @deprecated since 2.3 instead use ContentTypeOperations::LoadContentType()
+	 * @param mixed $type string type name or ContentType object
+	 * @return mixed ContentType object or null
+	 */
+	public function LoadContentType($type)
+	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ContentTypeOperations::LoadContentType'));
+		return ContentTypeOperations::get_instance()->LoadContentType($type);
+	}
+
+	/**
+	 * Return a hash of known content types.
+	 * Values are respective 'public' names (from the class FriendlyName() method)
+	 * if any, otherwise the raw type-name.
+	 * @deprecated since 2.3 instead use ContentTypeOperations::ListContentTypes()
+	 *
+	 * @param bool $byclassname optionally return keys as class names instead of type names. Default false.
+	 * @param bool $allowed optionally filter the list of content types by the
+	 *  'disallowed_contenttypes' site preference. Default false.
+	 * @param bool $system return only CMSMS-internal content types. Default false.
+	 * @return mixed array List of content types registered in the system | null
+	 */
+	public function ListContentTypes(bool $byclassname = FALSE, bool $allowed = FALSE, bool $system = FALSE)
+	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ContentTypeOperations::ListContentTypes'));
+		return ContentTypeOperations::get_instance()->ListContentTypes($byclassname,$allowed,$system);
+	}
+
+	// =========== END OF CONTENT-TYPE METHODS ===========
 
 	/**
 	 * Return a content object for the currently requested page.
@@ -146,7 +185,7 @@ final class ContentOperations
 	 * exist, the appropriate filename will be included and then, if possible,
 	 * a new object of the designated type will be instantiated.
 	 *
-	 * @param mixed $type string type name or an instance of ContentTypePlaceHolder
+	 * @param mixed $type string type name or an instance of ContentType
 	 * @param array since 2.3 initial object properties (replaces subsequent LoadFromData())
 	 * @param bool since 2.3 optional flag whether to create a ContentEditor-class
 	 * object. Default false (hence a shortform object)
@@ -154,21 +193,21 @@ final class ContentOperations
 	 */
 	public function CreateNewContent($type, array $params=[], bool $editable=false)
 	{
-		if( $type instanceof ContentTypePlaceHolder ) {
+		if( $type instanceof ContentType ) {
 			$type = $type->type;
 		}
-		$ctph = $this->LoadContentType($type, $editable);
-		if( is_object($ctph) ) {
-			if( $editable && empty($ctph->editorclass) ) {
+		$ctype = ContentTypeOperations::get_instance()->LoadContentType($type, $editable);
+		if( is_object($ctype) ) {
+			if( $editable && empty($ctype->editorclass) ) {
 				$editable = false; //revert to using displayable form, hopefully also editable
 			}
 			if( $editable ) {
-				if( class_exists($ctph->editorclass) ) {
-					return new $ctph->editorclass($params);
+				if( class_exists($ctype->editorclass) ) {
+					return new $ctype->editorclass($params);
 				}
 			}
-			elseif ( class_exists($ctph->class) ) {
-				return new $ctph->class($params);
+			elseif( class_exists($ctype->class) ) {
+				return new $ctype->class($params);
 			}
 		}
 		return null;
@@ -189,16 +228,16 @@ final class ContentOperations
 		if( $id < 1 ) { $id = $this->GetDefaultContent(); }
 
 		$cache = cms_cache_handler::get_instance();
-		$contentobj = $cache->get($id,'tree_pages'); //TODO relevant object type
+		$contentobj = $cache->get($id,'tree_pages');
 		if( !$contentobj ) {
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id=?';
 			$row = $db->GetRow($query, [$id]);
 			if( $row ) {
-				$ctph = $this->_get_content_type($row['type']);
-				if( $ctph ) {
-					unset($row['metadata']);
-					$classname = $ctph->class;
+				$ctype = ContentTypeOperations::get_instance()->get_content_type($row['type']);
+				if( $ctype ) {
+//					unset($row['metadata']);
+					$classname = $ctype->class;
 					$contentobj = new $classname($row);
 					 // legacy support deprecated since 2.3
 					if( method_exists( $contentobj,'LoadFromData') ) { $contentobj->LoadFromData($row); }
@@ -248,212 +287,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Returns the id of the content marked as default.
-	 *
-	 * @return int The id of the default content page, or 0 if none is recorded
-	 */
-	public function GetDefaultContent() : int
-	{
-		return (int)global_cache::get('default_content');
-	}
-
-	/**
-	 * Load standard CMSMS content types
-	 *
-	 * This method polls the contenttypes directory and constructs a placeholder
-	 * object for each discovered type. Types are not distinguished other than by name.
-	 * Corresponding ContentEditor classes are recorded if available.
-	 *
-	 * @since 1.9
-	 * @access private
-	 * @return array of ContentTypePlaceHolder objects
-	 */
-	private function _get_std_content_types() : array
-	{
-		$result = [];
-		$patn = __DIR__.DIRECTORY_SEPARATOR.'contenttypes'.DIRECTORY_SEPARATOR.'class.*.php';
-		$files = glob($patn);
-		if( is_array($files) ) {
-			$fp = cms_module_path(self::EDITORMODULE);
-			if( $fp ) {
-				$fp = cms_join_path(dirname($fp), 'lib', 'contenttypes', ''); //trailing separator
-			}
-			foreach( $files as $one ) {
-				$class = substr(basename($one,'.php'), 6);
-				$type = strtolower($class);
-				if( $type == 'contentbase' ) continue;
-
-				$obj = new ContentTypePlaceHolder();
-				$obj->class = 'CMSMS\\contenttypes\\'.$class;
-				$obj->type = strtolower($class);
-				$obj->filename = $one;
-				$obj->friendlyname_key = 'contenttype_'.$obj->type;
-				$obj->friendlyname = '';
-
-				if( $fp ) {
-					$path = $fp.basename($one);
-				}
-				else {
-					$path = '';
-				}
-				if( $path && is_file($path) ) {
-					$obj->editorclass = self::EDITORMODULE.'\\contenttypes\\'.$class;
-					$obj->editorfilename = $path;
-				}
-				else {
-					$obj->editorclass = $obj->class;
-					$obj->editorfilename = $obj->filename;
-				}
-
-				$result[$type] = $obj;
-			}
-		}
-		return $result;
-	}
-
-	/**
-	 * @ignore
-	 */
-	private function _get_content_types() : array
-	{
-		if( !is_array($this->_content_types) ) {
-			// get the standard types
-			$this->_content_types = $this->_get_std_content_types();
-			// get any additional types from relevant modules.
-			// such types are registered in the modules' respective constructors,
-			// which process eventually shoves them into $this->_content_types.
-			$module_list = (new ModuleOperations())->get_modules_with_capability(CmsCoreCapabilities::CONTENT_TYPES);
-			if( $module_list ) {
-				foreach( $module_list as $module_name ) {
-					cms_utils::get_module($module_name);
-				}
-			}
-		}
-
-		return $this->_content_types;
-	}
-
-	/**
-	 * Returns a content type placeholder corresponding to $name, if any
-	 *
-	 * @since 1.9
-	 * @access private
-	 * @internal
-	 * @param string $name The content type name
-	 * @return mixed ContentTypePlaceHolder object or null
-	 */
-	private function _get_content_type(string $name)
-	{
-		$this->_get_content_types();
-		if( is_array($this->_content_types) ) {
-			$name = strtolower($name);
-			if( isset($this->_content_types[$name]) && $this->_content_types[$name] instanceof ContentTypePlaceHolder ) {
-				return $this->_content_types[$name];
-			}
-		}
-	}
-
-	/**
-	 * Register a new content type
-	 *
-	 * @since 1.9
-	 * @param ContentTypePlaceHolder Reference to placeholder object
-	 * @return bool
-	 */
-	public function register_content_type(ContentTypePlaceHolder $obj) : bool
-	{
-		$this->_get_content_types();
-		if( isset($this->_content_types[$obj->type]) ) return FALSE;
-
-		$this->_content_types[$obj->type] = $obj;
-		return TRUE;
-	}
-
-	/**
-	 * Load a specific content type placeholder (settings)
-	 *
-	 * @since 1.9
-	 * @param mixed $type string type name or an instance of ContentTypePlaceHolder
-	 * @param bool since 2.3 optional flag whether to create a ContentEditor-class
-	 * object. Default false (hence a shortform object)
-	 * @return mixed ContentTypePlaceHolder object or null
-	 */
-	public function LoadContentType($type, bool $editable=false)
-	{
-		if( $type instanceof ContentTypePlaceHolder ) {
-			$type = $type->type;
-		}
-
-		$ctph = $this->_get_content_type($type);
-		if( is_object($ctph) ) {
-			if( $editable && empty($ctph->editorclass) ) {
-				$editable = false; //revert to using displayable form, hopefully also editable
-			}
-			if( $editable ) {
-				if( !class_exists($ctph->editorclass) && is_file($ctph->editorfilename) ) {
-					require_once $ctph->editorfilename;
-				}
-			}
-			elseif( !class_exists( $ctph->class ) && is_file( $ctph->filename ) ) {
-				require_once $ctph->filename;
-			}
-		}
-
-		return $ctph;
-	}
-
-	/**
-	 * Returns a hash of known content types (classes that extend ContentBase).
-	 * Values are respective 'public' names (from the class FriendlyName() method)
-	 * if any, otherwise the raw type-name.
-	 *
-	 * @param bool $byclassname optionally return keys as class names instead of type names. Default false.
-	 * @param bool $allowed optionally filter the list of content types by the
-	 *  'disallowed_contenttypes' site preference. Default false.
-	 * @param bool $system return only CMSMS-internal content types. Default false.
-	 * @param string $realm optional lang-strings realm. Default 'admin'.
-	 * @return mixed array List of content types registered in the system | null
-	 */
-	public function ListContentTypes(bool $byclassname = FALSE, bool $allowed = FALSE, bool $system = FALSE, string $realm = 'admin')
-	{
-		$tmp = cms_siteprefs::get('disallowed_contenttypes');
-		if( $tmp ) { $disallowed_a = explode(',',$tmp); }
-		else { $disallowed_a = []; }
-
-		$types = $this->_get_content_types();
-		if( $types ) {
-			$result = [];
-			foreach( $types as $obj ) {
-				if( $allowed && $disallowed_a && in_array($obj->type,$disallowed_a) ) {
-					continue;
-				}
-				if( $system && !startswith($obj->class,'CMSMS\\contenttypes\\') ) {
-					continue;
-				}
-
-				if( empty($obj->friendlyname) ) {
-					global $CMS_ADMIN_PAGE;
-					if( !(empty($obj->friendlyname_key) || empty($CMS_ADMIN_PAGE)) ) {
-						$obj->friendlyname = LangOperations::lang_from_realm($realm,$obj->friendlyname_key);
-					}
-					else {
-						$obj->friendlyname = ucfirst($obj->type);
-					}
-				}
-
-				if( $byclassname ) {
-					$result[$obj->class] = $obj->friendlyname;
-				}
-				else {
-					$result[$obj->type] = $obj->friendlyname;
-				}
-			}
-			return $result;
-		}
-	}
-
-	/**
-	 * Updates the hierarchy position of one item
+	 * Update the hierarchy position of one item
 	 *
 	 * @internal
 	 * @ignore
@@ -497,7 +331,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Updates the hierarchy position of all content items.
+	 * Update the hierarchy position of all content items.
 	 * This is an expensive operation on the database, but must be called each
 	 * time one or more content pages are updated if positions have changed in
 	 * the page structure.
@@ -555,11 +389,11 @@ final class ContentOperations
 	 */
 	public function SetContentModified()
 	{
-		global_cache::clear('latest_content_modification');
-		global_cache::clear('default_content');
-		global_cache::clear('content_flatlist');
-		global_cache::clear('content_tree');
-		global_cache::clear('content_quicklist');
+		global_cache::release('latest_content_modification');
+		global_cache::release('default_content');
+		global_cache::release('content_flatlist');
+		global_cache::release('content_tree');
+		global_cache::release('content_quicklist');
 		cms_cache_handler::get_instance()->clear('tree_pages');
 		//etc for CM list
 	}
@@ -641,7 +475,7 @@ final class ContentOperations
 			}
 		}
 
-		$valids = array_keys($this->_get_content_types()); // no translation needed
+		$valids = array_keys(ContentTypeOperations::get_instance()->get_content_types());
 
 		// build the content objects
 		while( !$dbr->EOF() ) {
@@ -751,7 +585,7 @@ final class ContentOperations
 			}
 		}
 
-		$valids = array_keys($this->_get_content_types()); // no translation needed
+		$valids = array_keys(ContentTypeOperations::get_instance()->get_content_types());
 
 		// build the content objects
 		for( $i = 0, $n = count($contentrows); $i < $n; $i++ ) {
@@ -764,7 +598,7 @@ final class ContentOperations
 			$id = (int)$row['content_id'];
 			$contentobj = $cache->get($id,'tree_pages');
 			if( !$contentobj ) {
-				unset($row['metadata']);
+//				unset($row['metadata']);
 				$contentobj = $this->CreateNewContent($row['type'], $row);
 				if ($contentobj) {
 					// legacy support
@@ -798,12 +632,35 @@ final class ContentOperations
 	public function SetDefaultContent(int $id)
 	{
 		$db = CmsApp::get_instance()->GetDb();
-
-		$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET default_content=0 WHERE default_content=1';
+		$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET default_content=0 WHERE default_content!=0';
 		$db->Execute($sql);
+
 		$contentobj = $this->LoadContentFromId($id); //TODO ensure relevant content-object
 		$contentobj->SetDefaultContent(true);
 		$contentobj->Save();
+
+		global_cache::release('default_content');
+	}
+
+	/**
+	 * Returns the (cached) id of the content marked as default.
+	 *
+	 * @return int The id of the default content page, or 0 if none is recorded
+	 */
+	public function GetDefaultContent() : int
+	{
+		return (int)global_cache::get('default_content');
+	}
+
+	/**
+	 * Return the content id of the page marked as default.
+	 * This is an alias for GetDefaultContent()
+	 *
+	 * @return int The id of the default page, 0 if not found.
+	 */
+	public function GetDefaultPageID() : int
+	{
+		return $this->GetDefaultContent();
 	}
 
 	/**
@@ -815,7 +672,7 @@ final class ContentOperations
 	 * @param bool $loadprops optional parameter for LoadAllContent(). Default true
 	 * @return array The array of content objects
 	 */
-	public function &GetAllContent(bool $loadprops=true)
+	public function GetAllContent(bool $loadprops=true)
 	{
 		debug_buffer('get all content...');
 		$hm = CmsApp::get_instance()->GetHierarchyManager();
@@ -853,16 +710,6 @@ final class ContentOperations
 		return AdminUtils::CreateHierarchyDropdown(
 			$current,$value,$name,$allow_current,$use_perms,$allow_all,$for_child
 		);
-	}
-
-	/**
-	 * Gets the content id of the page marked as default
-	 *
-	 * @return int The id of the default page. false if not found.
-	 */
-	public function GetDefaultPageID()
-	{
-		return $this->GetDefaultContent();
 	}
 
 	/**
@@ -1065,7 +912,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Return a list of pages that the user has edit access to.
+	 * Return a list of pages for which the user has edit-authority.
 	 *
 	 * @since 2.0
 	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
@@ -1080,7 +927,7 @@ final class ContentOperations
 
 			// Get all of the pages this user has access to.
 			$list = [$userid];
-			$groups = (new UserOperations())->GetMemberGroups($userid);
+			$groups = UserOperations::get_instance()->GetMemberGroups($userid);
 			if( $groups ) {
 				foreach( $groups as $group ) {
 					$list[] = $group * -1;
@@ -1104,7 +951,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Check if the specified user has the ability to edit the specified page id
+	 * Test whether the user has authority to edit the specified page
 	 *
 	 * @param int $userid
 	 * @param int $contentid
@@ -1117,7 +964,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Test if the specified user account has edit access to all of the peers of the specified page id
+	 * Test whether the user has edit-authority for all peers of the specified page id
 	 *
 	 * @param int $userid
 	 * @param int $contentid

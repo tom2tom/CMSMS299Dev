@@ -16,10 +16,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$CMS_ADMIN_PAGE = 1;
+use CMSMS\AppState;
 
-//$CMS_EXCLUDE_FROM_RECENT = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
@@ -34,3 +34,5 @@ $section = (isset($_GET['section'])) ? trim(cleanValue($_GET['section'])) : '';
 include_once 'header.php';
 $themeObject->do_toppage($section);
 include_once 'footer.php';
+
+AppState::remove_state(AppState::STATE_ADMIN_PAGE);

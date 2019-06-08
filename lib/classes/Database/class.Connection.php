@@ -21,6 +21,7 @@ namespace CMSMS\Database;
 
 use cms_config;
 use CmsApp;
+use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
 use CMSMS\Database\ResultSet;
 use CMSMS\Database\Statement;
@@ -30,6 +31,7 @@ use DeprecationNotice;
 use Exception;
 use mysqli;
 use const CMS_DEBUG;
+use const CMS_DEPREC;
 use function debug_bt_to_log;
 use function debug_display;
 use function debug_to_log;
@@ -209,8 +211,7 @@ class Connection
 						$this->_debug_cb = 'debug_buffer';
 					}
 
-					global $CMS_INSTALL_PAGE;
-					if (!isset($CMS_INSTALL_PAGE)) {
+					if (!AppState::test_state(AppState::STATE_INSTALL)) {
 						$this->_errorhandler = [$this, 'on_error'];
 					}
                     if (!empty($config['set_names'])) { //N/A during installation
@@ -411,7 +412,7 @@ class Connection
      */
     public function QMagic($str)
     {
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','qStr'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','qStr'));
         return $this->qStr($str);
     }
 
@@ -682,7 +683,7 @@ class Connection
      */
     public function getAll($sql, $valsarr = null, $nrows = 0, $offset = 0)
     {
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','getArray'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','getArray'));
         return $this->getArray($sql, $valsarr, $nrows, $offset);
     }
 
@@ -1073,7 +1074,7 @@ class Connection
      */
     public function Time()
     {
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','unixTimeStamp'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','unixTimeStamp'));
         return $this->unixTimeStamp();
     }
 
@@ -1126,7 +1127,7 @@ class Connection
      */
     public function Date()
     {
-        assert(empty(CMS_DEBUG), new DeprecationNotice('method','unixDate'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','unixDate'));
         return $this->unixDate();
     }
 

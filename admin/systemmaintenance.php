@@ -18,12 +18,13 @@
 
 use cms_installer\installer_base;
 use CMSMS\AdminUtils;
+use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\internal\global_cache;
 use CMSMS\RouteOperations;
 
-$CMS_ADMIN_PAGE = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
@@ -141,8 +142,8 @@ if (isset($_POST['clearcache'])) {
     AdminUtils::clear_cached_files();
     // put mention into the admin log
     audit('', 'System maintenance', 'Caches cleared');
-    $themeObject->RecordNotice('success', lang('cachecleared'));
-    $smarty->assign('active_cache', 1);
+    $themeObject->ParkNotice('success', lang('cachecleared'));
+    redirect(basename(__FILE__).$urlext); //go refresh the caches
 }
 
 if (isset($_POST['updateroutes'])) {

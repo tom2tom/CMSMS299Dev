@@ -8,6 +8,7 @@ use cms_installer\installer_base;
 use cms_installer\session;
 use cms_installer\wizard\wizard_step;
 use CMSMS\AdminUtils;
+use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\ContentTypeOperations;
 use CMSMS\internal\global_cache;
@@ -286,16 +287,18 @@ VALUES (?,?,?,NOW())');
 
     /**
      * @global type $CMS_VERSION
-     * @global int $CMS_INSTALL_PAGE
      * @param sring $destdir
      */
     private function connect_to_cmsms($destdir)
     {
         // this loads the standard CMSMS stuff, except smarty cuz it's already done.
         // we do this here because both upgrade and install stuff needs it.
-        global $CMS_VERSION, $CMS_INSTALL_PAGE;
-        $CMS_INSTALL_PAGE = 1;
+        global $CMS_VERSION;
         $CMS_VERSION = $this->get_wizard()->get_data('destversion');
+
+        require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+        AppState::add_state(AppState::STATE_INSTALL);
+
         if( is_file("$destdir/include.php") ) {
             include_once $destdir.'/include.php';
         } else {

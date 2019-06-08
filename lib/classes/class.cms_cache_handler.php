@@ -19,6 +19,7 @@
 //TODO admin developer-mode UI for related site-preferences
 //namespace CMSMS;
 
+use CMSMS\AppState;
 use CMSMS\CacheDriver;
 
 /**
@@ -42,43 +43,28 @@ final class cms_cache_handler
 {
   /**
    * @ignore
-   * Populated for the global cache
    */
-//  private static $_instance = null;
+  private static $_instance = null;
 
   /**
    * @ignore
    */
   private static $_driver = null;
 
-  /* *
-   * @ignore
-   */
-  public function __construct()
-  {
-    $this->connect();
-  }
-
-  /* *
-   * @ignore
-   */
-//  private function __clone() {}
-
   /**
-   * Get an instance of this class.
+   * Get the shared general-purpose cache object.
+   * (The global-cache object is different.)
    * @throws CmsException
    * @return static cms_cache_handler object | not at all
    */
   public static function get_instance() : self
   {
-/*    if( !is_object(self::$_instance) ) {
-        $ob = new self();
-        $ob->connect();
-        self::$_instance = $ob; //no we're connected (unless excepted already)
+    if( !self::$_instance ) {
+      $obj = new self();
+      $obj->connect();
+      self::$_instance = $obj; //now we're connected (unless Exception'd already)
     }
     return self::$_instance;
-*/
-      return new self();
   }
 
   /**
@@ -91,9 +77,8 @@ final class cms_cache_handler
    */
   public function connect(array $opts = []) : CacheDriver
   {
-    global $CMS_INSTALL_PAGE;
 
-    if ( self::$_driver instanceof CMSMS\CacheDriver ) {
+    if( self::$_driver instanceof CacheDriver ) {
       return self::$_driver; //just one connection per request
     }
 
@@ -124,7 +109,7 @@ final class cms_cache_handler
       }
     }
 
-    if( !empty($CMS_INSTALL_PAGE)) {
+    if( AppState::test_state(AppState::STATE_INSTALL) ) {
       $parms['lifetime'] = 120;
       $parms['auto_cleaning'] = true;
     }
@@ -220,7 +205,7 @@ final class cms_cache_handler
   public function clear(string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
-    if( self::$_driver instanceof CMSMS\CacheDriver) {
+    if( self::$_driver instanceof CacheDriver) {
 //    if( is_object(self::$_driver) ) {
       return self::$_driver->clear($group);
     }
@@ -238,27 +223,41 @@ final class cms_cache_handler
   public function get(string $key, string $group = '')
   {
 //    if( $this->can_cache() ) {
-    if( self::$_driver instanceof CMSMS\CacheDriver) {
+    if( self::$_driver instanceof CacheDriver) {
 //    if( is_object(self::$_driver) ) {
       return self::$_driver->get($key, $group);
     }
     return NULL;
   }
 
+  /**
+   * Get all cached values in the specified group
+   *
+   * @since 2.3
+   * @param string $group An optional cache group name.
+   * @return array
+   */
   public function getall(string $group = '') : array
   {
 //    if( $this->can_cache() ) {
-    if( self::$_driver instanceof CMSMS\CacheDriver) {
+    if( self::$_driver instanceof CacheDriver) {
 //    if( is_object(self::$_driver) ) {
       return self::$_driver->get_all($group);
     }
     return NULL;
   }
 
+  /**
+   * Get all cached keys in the specified group
+   *
+   * @since 2.3
+   * @param string $group An optional cache group name.
+   * @return array
+   */
   public function getindex(string $group = '') : array
   {
 //    if( $this->can_cache() ) {
-    if( self::$_driver instanceof CMSMS\CacheDriver) {
+    if( self::$_driver instanceof CacheDriver) {
 //    if( is_object(self::$_driver) ) {
       return self::$_driver->get_index($group);
     }
@@ -276,7 +275,7 @@ final class cms_cache_handler
   public function exists(string $key, string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
-    if( self::$_driver instanceof CMSMS\CacheDriver) {
+    if( self::$_driver instanceof CacheDriver) {
 //    if( is_object(self::$_driver) ) {
       return self::$_driver->exists($key, $group);
     }
@@ -294,7 +293,7 @@ final class cms_cache_handler
   public function erase(string $key, string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
-    if( self::$_driver instanceof CMSMS\CacheDriver) {
+    if( self::$_driver instanceof CacheDriver) {
 //    if( is_object(self::$_driver) ) {
       return self::$_driver->erase($key, $group);
     }
@@ -316,7 +315,7 @@ final class cms_cache_handler
   public function set(string $key, $value, string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
-    if( self::$_driver instanceof CMSMS\CacheDriver) {
+    if( self::$_driver instanceof CacheDriver) {
 //    if( is_object(self::$_driver) ) {
       if ($value === null ) { $value = 0; }
       return self::$_driver->set($key, $value, $group);
@@ -324,6 +323,19 @@ final class cms_cache_handler
     return FALSE;
   }
 
+  /* *
+   * Set/replace the contents of an entire cache-group
+   * @since 2.3
+   *
+   * @param array $values assoc. array each member like Kkey=>$val
+   * @param string $group An optional cache group name.
+   * @return bool
+   */
+/*public function set_all(array $values, string $group = '') : bool
+  {
+TODO
+  }
+*/
   /**
    * Set the cache group
    * Specifies the scope for all methods in this cache
@@ -333,7 +345,7 @@ final class cms_cache_handler
    */
   public function set_group(string $group) : bool
   {
-    if( self::$_driver instanceof CMSMS\CacheDriver) {
+    if( self::$_driver instanceof CacheDriver) {
 //    if( is_object(self::$_driver) ) {
       return self::$_driver->set_group($group);
     }
@@ -348,10 +360,9 @@ final class cms_cache_handler
    */
 /*  public function can_cache() : bool
   {
-/ *    global $CMS_INSTALL_PAGE;
-
+/ *
     if( !is_object(self::$_driver) ) return FALSE;
-    return empty($CMS_INSTALL_PAGE);
+    return !AppState::test_state(CMSMS\AppState::STATE_INSTALL);
 * /
     return self::$_driver instanceof CMSMS\CacheDriver;
   }

@@ -16,10 +16,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\Events;
+use CMSMS\Group;
+use CMSMS\UserOperations;
 
-$CMS_ADMIN_PAGE = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
@@ -91,7 +94,7 @@ if (isset($_POST['editgroup'])) {
 
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
-$userops = cmsms()->GetUserOperations();
+$userops = UserOperations::get_instance();
 $useringroup = $userops->UserInGroup($userid, $group_id);
 
 $smarty = CmsApp::get_instance()->GetSmarty();

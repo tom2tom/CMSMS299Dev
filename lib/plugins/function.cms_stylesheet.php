@@ -18,25 +18,24 @@
 
 namespace {
 
+use CMSMS\AppState;
 use CMSMS\Events;
 use function cms_stylesheet\toString;
 use function cms_stylesheet\writeCache;
 
 function smarty_function_cms_stylesheet($params, $template)
 {
-	global $CMS_LOGIN_PAGE, $CMS_STYLESHEET;
-
 	//---------------------------------------------
 	// Trivial Exclusion
 	//---------------------------------------------
 
-	if( isset($CMS_LOGIN_PAGE) ) return;
+	if( AppState::test_state(AppState::STATE_LOGIN_PAGE) ) return;
 
 	//---------------------------------------------
 	// Initials
 	//---------------------------------------------
 
-	$CMS_STYLESHEET = 1;
+	AppState::add_state(AppState::STATE_STYLESHEET);
 	$gCms = CmsApp::get_instance();
 	$config = $gCms->GetConfig();
 
@@ -227,8 +226,7 @@ function smarty_function_cms_stylesheet($params, $template)
 	}
 
 	// Notify core that we are no longer at stylesheet
-	unset($CMS_STYLESHEET);
-//	unset($GLOBALS['CMS_STYLESHEET']);
+	AppState::remove_state(AppState::STATE_STYLESHEET);
 
 	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']), $stylesheet);
@@ -261,7 +259,7 @@ namespace cms_stylesheet {
 
 use CMSMS\Events;
 use SmartyException;
-use function cms_error;
+use function endswith;
 
 /**********************************************************
 	Misc functions

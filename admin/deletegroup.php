@@ -16,14 +16,17 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\Events;
+use CMSMS\GroupOperations;
+use CMSMS\UserOperations;
 
 if (!isset($_GET['group_id'])) {
     return;
 }
 
-$CMS_ADMIN_PAGE = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
@@ -42,15 +45,14 @@ if ($group_id == 1) {
     redirect('listgroups.php'.$urlext);
 }
 
-$gCms = cmsms();
-$userops = $gCms->GetUserOperations();
+$userops = UserOperations::get_instance();
 if ($userops->UserInGroup($userid,$group_id)) {
     // can't delete a group to which the current user belongs
     cms_utils::get_theme_object()->ParkNotice('error', lang('cantremove')); //TODO
     redirect('listgroups.php'.$urlext);
 }
 
-$groupops = $gCms->GetGroupOperations();
+$groupops = GroupOperations::get_instance();
 $groupobj = $groupops->LoadGroupByID($group_id);
 
 if ($groupobj) {

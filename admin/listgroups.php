@@ -16,8 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$CMS_ADMIN_PAGE = 1;
+use CMSMS\AppState;
+use CMSMS\GroupOperations;
+use CMSMS\UserOperations;
 
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
@@ -28,8 +32,8 @@ $access = check_permission($userid, 'Manage Groups');
 $padd = $access || check_permission($userid, 'Add Groups');
 
 $gCms = cmsms();
-$userops = $gCms->GetUserOperations();
-$groupops = $gCms->GetGroupOperations();
+$userops = UserOperations::get_instance();
+$groupops = GroupOperations::get_instance();
 $grouplist = $groupops->LoadGroups();
 $n = count($grouplist);
 $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;

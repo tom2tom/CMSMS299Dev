@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppState;
 //use function codemirror_GetScript as GetScript;
 
 /**
@@ -35,8 +36,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 function GetScript(&$mod, array $params) : array
 {
-	global $CMS_ADMIN_PAGE;
-
 	extract($params + [
 		'edit' => false,
 		'handle' => 'editor',
@@ -95,7 +94,7 @@ function GetScript(&$mod, array $params) : array
 
 	$urlroot = $mod->GetPreference('codemirror_url', CoreTextEditing::CM_CDN); //local or CDN
 
-	if (!empty($CMS_ADMIN_PAGE)) {
+	if (AppState::test_state(AppState::STATE_ADMIN_PAGE)) {
 		if (!$theme) {
 			$theme = cms_userprefs::get_for_user(get_userid(false), 'editor_theme');
 			if (!$theme) {

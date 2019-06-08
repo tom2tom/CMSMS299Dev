@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
+
 /**
  * A singleton class for interacting with CMSMS configuration data.
  *
@@ -226,8 +228,7 @@ final class cms_config implements ArrayAccess
     {
         if( !is_array($newconfig) ) return;
 
-        global $CMS_INSTALL_PAGE;
-        if( !isset($CMS_INSTALL_PAGE) ) {
+                if( !AppState::test_state(AppState::STATE_INSTALL) ) {
             trigger_error('Modification of config variables is deprecated',E_USER_ERROR);
             return;
         }
@@ -273,14 +274,14 @@ final class cms_config implements ArrayAccess
         switch( $key ) {
         case 'use_adodb_lite':
         case 'use_hierarchy':
-            assert(empty(CMS_DEBUG), new DeprecationNotice($key.' property is no longer used'));
+            assert(empty(CMS_DEPREC), new DeprecationNotice($key.' property is no longer used'));
             // deprecated, backwards compat only
             return true;
 
         case 'use_smarty_php_tags':
         case 'output_compression':
         case 'ignore_lazy_load':
-            assert(empty(CMS_DEBUG), new DeprecationNotice($key.' property is no longer used'));
+            assert(empty(CMS_DEPREC), new DeprecationNotice($key.' property is no longer used'));
             // deprecated, backwards compat only
             return false;
 
@@ -291,7 +292,7 @@ final class cms_config implements ArrayAccess
 
         case 'assume_mod_rewrite':
             // deprecated, backwards compat only
-            assert(empty(CMS_DEBUG), new DeprecationNotice('property','url_rewriting'));
+            assert(empty(CMS_DEPREC), new DeprecationNotice('property','url_rewriting'));
             return $this[''] == 'mod_rewrite';
 
         case 'internal_pretty_urls':
@@ -319,7 +320,7 @@ final class cms_config implements ArrayAccess
         case 'dbms':
             return 'mysqli';
 
-		case 'db_prefix':
+        case 'db_prefix':
             return CMS_DB_PREFIX;
 
         case 'query_var':
@@ -330,7 +331,7 @@ final class cms_config implements ArrayAccess
             return false;
 
         case 'smart_urls':
-		case 'set_db_timezone':
+        case 'set_db_timezone':
         case 'set_names':
             return true;
 
@@ -392,7 +393,7 @@ final class cms_config implements ArrayAccess
 
         case 'ssl_url':
             // as of v2.3 this is just an alias for the root_url
-            assert(empty(CMS_DEBUG), new DeprecationNotice('property','root_url'));
+            assert(empty(CMS_DEPREC), new DeprecationNotice('property','root_url'));
             return $this->offsetGet('root_url');
 
         case 'uploads_path':
@@ -417,7 +418,7 @@ final class cms_config implements ArrayAccess
 
         case 'ssl_image_uploads_url':
             // as of v2.3 this is just an alias for the image_uploads_url
-            assert(empty(CMS_DEBUG), new DeprecationNotice('property','image_uploads_url'));
+            assert(empty(CMS_DEPREC), new DeprecationNotice('property','image_uploads_url'));
             return $this->offsetGet('image_uploads_url');
 
         case 'previews_path':
@@ -509,8 +510,7 @@ final class cms_config implements ArrayAccess
      */
     public function offsetSet($key,$value)
     {
-        global $CMS_INSTALL_PAGE;
-        if( !isset($CMS_INSTALL_PAGE) ) {
+        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
             trigger_error('Modification of config variables is deprecated',E_USER_ERROR);
             return;
         }

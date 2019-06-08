@@ -19,7 +19,6 @@ use CMSMS\TemplateOperations;
 
 if (!isset($gCms)) exit;
 
-$template = null;
 if (isset($params['formtemplate'])) {
     $template = trim($params['formtemplate']);
 }
@@ -47,33 +46,37 @@ if( isset( $params['resultpage'] ) ) {
 //Pretty URL compatibility
 $is_method = isset($params['search_method'])?'post':'get';
 
-// Variable named hogan in honor of moorezilla's Rhodesian Ridgeback :) https://forum.cmsmadesimple.org/index.php/topic,9580.0.html
+//Variable named hogan in honor of moorezilla's Rhodesian Ridgeback :) https://forum.cmsmadesimple.org/index.php/topic,9580.0.html
+$hogan = "onfocus=\"if(this.value==this.defaultValue) this.value='';\""." onblur=\"if(this.value=='') this.value=this.defaultValue;\"";
+
 $submittext = $params['submit'] ?? $this->Lang('searchsubmit');
 $searchtext = $params['searchtext'] ?? $this->GetPreference('searchtext','');
-$tpl->assign('search_actionid',$id)
- ->assign('searchtext',$searchtext)
- ->assign('destpage',$returnid)
- ->assign('form_method',$is_method)
- ->assign('inline',$inline)
- ->assign('startform', $this->CreateFormStart($id, 'dosearch', $returnid, $is_method, '', $inline ))
- ->assign('label', '<label for="'.$id.'searchinput">'.$this->Lang('search').'</label>')
- ->assign('searchprompt',$this->Lang('search'))
-// ->assign('inputbox', $this->CreateInputText($id, 'searchinput', $searchtext, 20, 50, $hogan))
-// ->assign('submitbutton', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon check">'.$submittext.'</button>')
- ->assign('submittext', $submittext);
+$prompt = $this->Lang('search');
 
-// only here for backwards compatibility.
-$hogan = "onfocus=\"if(this.value==this.defaultValue) this.value='';\""." onblur=\"if(this.value=='') this.value=this.defaultValue;\"";
-$tpl->assign('hogan',$hogan);
+//Some of these are only for back-compatibility
+$tpl->assign('startform', $this->CreateFormStart($id, 'dosearch', $returnid, $is_method, '', $inline ))
+ ->assign('endform', $this->CreateFormEnd())
+ ->assign('search_actionid', $id)
+ ->assign('destpage', $returnid)
+ ->assign('form_method', $is_method)
+ ->assign('inline', $inline)
+ ->assign('searchprompt', $prompt)
+ ->assign('label', '<label for="'.$id.'searchinput">'.$prompt.'</label>')
+ ->assign('searchtext', $searchtext)
+ ->assign('hogan', $hogan)
+//->assign('inputbox', $this->CreateInputText($id, 'searchinput', $searchtext, 20, 50, 'placeholder="'.$searchtext.'" '.$hogan))
+ ->assign('submittext', $submittext);
+//->assign('submitbutton', '<input type="submit" name="'.$id.'submit" id="'.$id.'submit" class="search-button" value=" " />');
 
 $hidden = '';
 if( $origreturnid != $returnid ) $hidden .= $this->CreateInputHidden($id, 'origreturnid', $origreturnid);
-if( isset( $params['modules'] ) ) $hidden .= $this->CreateInputHidden( $id, 'modules', trim($params['modules']) );
-if( isset( $params['detailpage'] ) ) $hidden .= $this->CreateInputHidden( $id, 'detailpage', trim($params['detailpage']) );
+if( isset( $params['modules'] ) ) $hidden .= $this->CreateInputHidden($id, 'modules', trim($params['modules']));
+if( isset( $params['detailpage'] ) ) $hidden .= $this->CreateInputHidden($id, 'detailpage', trim($params['detailpage']));
 foreach( $params as $key => $value ) {
     if( preg_match( '/^passthru_/', $key ) > 0 ) $hidden .= $this->CreateInputHidden($id,$key,$value);
 }
+if( $hidden ) {
+    $tpl->assign('hidden',$hidden);
+}
 
-if( $hidden != '' ) $tpl->assign('hidden',$hidden);
-$tpl->assign('endform', $this->CreateFormEnd());
 $tpl->display();

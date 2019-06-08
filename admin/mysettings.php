@@ -17,14 +17,15 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminUtils;
+use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\SyntaxEditor;
 use CMSMS\ThemeBase;
 use CMSMS\UserOperations;
 
-$CMS_ADMIN_PAGE = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();

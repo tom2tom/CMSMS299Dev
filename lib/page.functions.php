@@ -16,9 +16,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\FormUtils;
 use CMSMS\internal\LoginOperations;
+use CMSMS\internal\ModulePluginOperations;
+use CMSMS\ModuleOperations;
+use CMSMS\RouteOperations;
 use CMSMS\SyntaxEditor;
 use CMSMS\UserOperations;
 
@@ -73,7 +77,7 @@ function get_userid(bool $redirect = true)
         if( cmsms()->is_cli() ) {
             $uname = get_cliuser();
             if( $uname ) {
-                $user = (new UserOperations())->LoadUserByUsername($uname);
+                $user = UserOperations::get_instance()->LoadUserByUsername($uname);
                 if( $user ) {
                     return $user->id;
                 }
@@ -81,7 +85,7 @@ function get_userid(bool $redirect = true)
             return false;
         }
         //  TODO alias etc during other 'remote admin'
-        $uid = (new LoginOperations())->get_effective_uid();
+        $uid = LoginOperations::get_instance()->get_effective_uid();
         if( !$uid && $redirect ) {
             redirect($config['admin_url'].'/login.php');
         }
@@ -109,7 +113,7 @@ function get_username(bool $redirect = true)
             return get_cliuser();
         }
         //TODO alias etc during 'remote admin'
-        $uname = (new LoginOperations())->get_effective_username();
+        $uname = LoginOperations::get_instance()->get_effective_username();
         if( !$uname && $redirect ) {
             redirect($config['admin_url'].'/login.php');
         }
@@ -132,7 +136,7 @@ function check_login(bool $no_redirect = false)
 {
     $redirect = !$no_redirect;
     $uid = get_userid($redirect);
-	$login_ops = new LoginOperations();
+    $login_ops = LoginOperations::get_instance();
     if( $uid > 0 ) {
         if($login_ops->validate_requestkey() ) {
             return true;
@@ -163,7 +167,7 @@ function check_login(bool $no_redirect = false)
  */
 function check_permission(int $userid, string $permname)
 {
-    return (new UserOperations())->CheckPermission($userid,$permname);
+    return UserOperations::get_instance()->CheckPermission($userid,$permname);
 }
 
 /**
@@ -208,6 +212,7 @@ function author_pages(int $userid)
  */
 function get_site_preference(string $prefname, $defaultvalue = null)
 {
+//    assert(empty(CMS_DEPREC), new DeprecationNotice('method','cms_siteprefs::get'));
     return cms_siteprefs::get($prefname,$defaultvalue);
 }
 
@@ -223,6 +228,7 @@ function get_site_preference(string $prefname, $defaultvalue = null)
  */
 function remove_site_preference(string $prefname, bool $uselike = false)
 {
+//    assert(empty(CMS_DEPREC), new DeprecationNotice('method','cms_siteprefs::remove'));
     return cms_siteprefs::remove($prefname, $uselike);
 }
 
@@ -238,6 +244,7 @@ function remove_site_preference(string $prefname, bool $uselike = false)
  */
 function set_site_preference(string $prefname, $value)
 {
+//    assert(empty(CMS_DEPREC), new DeprecationNotice('method','cms_siteprefs::set'));
     return cms_siteprefs::set($prefname, $value);
 }
 
@@ -275,6 +282,7 @@ function create_textarea(
     string $wantedsyntax = '',
     string $addtext = ''
 ) {
+    assert(empty(CMS_DEPREC), new DeprecationNotice('method','FormUtils::create_textarea'));
     $parms = func_get_args() + [
         'height' => 15,
         'width' => 80,
@@ -291,8 +299,7 @@ function create_textarea(
  */
 function is_sitedown() : bool
 {
-    global $CMS_INSTALL_PAGE;
-    if( isset($CMS_INSTALL_PAGE) ) return true;
+    if( AppState::test_state(AppState::STATE_INSTALL) ) return true;
 
     if( cms_siteprefs::get('enablesitedownmessage') !== '1' ) return false;
 
@@ -322,16 +329,16 @@ function is_sitedown() : bool
  * @return string maybe empty
  */
 function create_file_dropdown(
-	string $name,
-	string $dir,
-	string $value,
-	string $allowed_extensions,
-	string $optprefix = '',
-	bool   $allownone = false,
-	string $extratext = '',
-	string $fileprefix = '',
-	bool   $excludefiles = true,
-	bool   $sortresults = false) : string
+    string $name,
+    string $dir,
+    string $value,
+    string $allowed_extensions,
+    string $optprefix = '',
+    bool   $allownone = false,
+    string $extratext = '',
+    string $fileprefix = '',
+    bool   $excludefiles = true,
+    bool   $sortresults = false) : string
 {
     $files = [];
     $files = get_matching_files($dir,$allowed_extensions,true,true,$fileprefix,$excludefiles);
@@ -356,12 +363,11 @@ function create_file_dropdown(
 }
 
 /**
- * A function that, given the current request information will return
- * a pageid or an alias that should be used for the display
+ * Return a page id or alias, determined from current request data.
  * This method also handles matching routes and specifying which module
- * should be called with what parameters
+ * should be called with what parameters.
  *
- * This is the main routine to do route dispatching
+ * This is the main routine to do route-dispatching
  *
  * @internal
  * @ignore
@@ -389,74 +395,79 @@ function get_pageid_or_alias_from_url()
         }
     }
     unset($_GET['query_var']);
-
-    $dflt_content = ContentOperations::get_instance()->GetDefaultContent();
     if( !$page ) {
-        // by here, if page is empty, use the default page id
-        return $dflt_content;
+        // use the default page id
+        return ContentOperations::get_instance()->GetDefaultContent();
     }
 
-    // by here, if we're not assuming pretty urls of any sort
-    // and we have a value... we're done.
-    if( $config['url_rewriting'] == 'none' ) return $page;
+    // by here, if we're not assuming pretty urls of any sort and we
+    // have a value... we're done.
+    if( $config['url_rewriting'] == 'none' ) {
+        return $page;
+    }
 
-    // some kind of a pretty url.
-    // strip off GET params.
+    // some kind of pretty-url
+    // strip GET params
     if( ($tmp = strpos($page,'?')) !== false ) $page = substr($page,0,$tmp);
 
-    // strip off page extension
+    // strip page extension
     if ($config['page_extension'] != '' && endswith($page, $config['page_extension'])) {
         $page = substr($page, 0, strlen($page) - strlen($config['page_extension']));
     }
 
-    // trim trailing and leading /
-    // it appears that some servers leave in the first / of a request some times which will stop rout matching.
+    // some servers leave in the first / of a request sometimes, which will stop route-matching
+    // so strip trailing and leading /
     $page = trim($page, '/');
 
-    // see if there's a route that matches.
+    // check if there's a route that matches.
     // note: we handle content routing separately at this time.
     // it'd be cool if contents were just another mact.
-    $route = cms_route_manager::find_match($page);
-    if( ! $route ) {
-        // if no route matched... assume it is an alias and that the alias begins after the last /
-        if( ($pos = strrpos($page,'/')) !== false ) $page = substr($page, $pos + 1);
-    }
-    else {
-        if( $route['key1'] == '__CONTENT__' ) {
-            // a route to a page.
+    $route = RouteOperations::find_match($page);
+    if( $route ) {
+        $to = $route->get_dest();
+        if( $to == '__CONTENT__' ) {
+            // a route to a page
             $page = (int)$route['key2'];
         }
         else {
-            $matches = $route->get_results();
-
-            // it's a module route... setup some default parameters.
-            $arr = ['id'=>'cntnt01', 'action'=>'defaulturl', 'inline'=>false, 'module'=>$route->get_dest() ];
-            $matches = array_merge( $arr, $matches );
+            // a module route
+            // setup some default parameters.
+            $arr = [ 'module'=>$to, 'id'=>'cntnt01', 'action'=>'defaulturl', 'inline'=>0 ];
             $tmp = $route->get_defaults();
-            if( $tmp ) $matches = array_merge( $dflts, $matches );
+            if( $tmp ) $arr = array_merge($tmp, $arr);
+            $arr = array_merge($arr, $route->get_results());
 
-            // Get rid of numeric matches, and put the data into the _REQUEST for later processing.
-            foreach( $matches as $key=>$val ) {
-                if( is_int($key) ) {
-                    // do nothing
-                }
-                elseif( $key != 'id'/*&& $key != 'returnid' && $key != 'action' 2.3 deprecation, breaks lot of stuff*/ ) {
-                    $_REQUEST[$matches['id'] . $key] = $val;
-                }
-
-            }
-
-            // Put the resulting mact into the request for later processing.
+            // put a constructed mact into $_REQUEST for later processing.
             // this is essentially our translation from pretty URLs to non-pretty URLS.
-            $_REQUEST['mact'] = $matches['module'] . ',' . $matches['id'] . ',' . $matches['action'] . ',' . $matches['inline'];
+            $_REQUEST['mact'] = $arr['module'] . ',' . $arr['id'] . ',' . $arr['action'] . ',' . $arr['inline'];
 
-            // Get a decent returnid
-            $page = $dflt_content;
-            if( $matches['returnid'] ) {
-                $page = (int) $matches['returnid'];
-                unset( $matches['returnid'] );
+            // put other parameters (except numeric matches) into $_REQUEST.
+            foreach( $arr as $key=>$val ) {
+				switch ($key) {
+					case 'module':
+					case 'id':
+					case 'action':
+					case 'inline':
+						break; //no need to repeat mact parameters
+					default:
+						if( !is_int($key) ) {
+		                    $_REQUEST[$arr['id'] . $key] = $val;
+						}
+                }
+            }
+            // get a decent returnid
+            if( $arr['returnid'] ) {
+                $page = (int) $arr['returnid'];
+//                unset( $arr['returnid'] );
+            }
+            else {
+                $page = ContentOperations::get_instance()->GetDefaultContent();
             }
         }
+    }
+    else // no route matched... assume it is an alias which begins after the last /
+      if( ($pos = strrpos($page,'/')) !== false ) {
+        $page = substr($page, $pos + 1);
     }
 
     return $page;
@@ -515,9 +526,8 @@ function get_editor_script(array $params) : array
 }
 
 /**
- * Process a module-tag via Smarty
+ * Process a module-tag
  * This method is used by the {cms_module} plugin and to process {ModuleName} tags
- * (It's in this file cuz that's included after autoloaders are available)
  *
  * @internal
  * @access private
@@ -527,14 +537,18 @@ function get_editor_script(array $params) : array
  */
 function cms_module_plugin(array $params, $template) : string
 {
-    if (isset($params['module'])) {
+    if (!empty($params['module'])) {
         $module = $params['module'];
-        unset($params['module']);
     }
     else {
         return '<!-- ERROR: module name not specified -->';
     }
 
+    if (!($modinst = ModulePluginOperations::get_plugin_module($module, 'function'))) {
+        return "<!-- ERROR: $module is not available, in this context at least -->\n";
+    }
+
+    unset($params['module']);
     if (!empty($params['action'])) {
         // action was set in the module tag
         $action = $params['action'];
@@ -573,43 +587,30 @@ function cms_module_plugin(array $params, $template) : string
                 // i.e. the results are supposed to replace the tag, not {content}
                 $action = $ary[2] ?? 'default';
                 $params['action'] = $action; // deprecated since 2.3
-                $params = array_merge($params, (new ModuleOperations())->GetModuleParameters($id));
+                $params = array_merge($params, ModuleOperations::get_instance()->GetModuleParameters($id));
             }
         }
     }
 
-    $modinst = cms_utils::get_module($module);
-    if (!$modinst) {
-        return "<!-- ERROR: $module is not a recognized module -->\n";
+    $params['id'] = $id; // deprecated since 2.3
+    if ($setid) {
+        $params['idprefix'] = $id; // might be needed per se, probably not
+        $modinst->SetParameterType('idprefix',CLEAN_STRING); // in case it's a frontend request
     }
+    $returnid = CmsApp::get_instance()->get_content_id();
+    $params['returnid'] = $returnid;
 
-    global $CMS_ADMIN_PAGE, $CMS_LOGIN_PAGE, $CMS_INSTALL;
-    // WHAAAT ? admin-request accepts ALL modules as plugins (lazy/bad module init?)
-    if ($modinst->isPluginModule() || (isset($CMS_ADMIN_PAGE) && !isset($CMS_INSTALL) && !isset($CMS_LOGIN_PAGE))) {
-        $params['id'] = $id; // deprecated since 2.3
-        if ($setid) {
-            $params['idprefix'] = $id; // might be needed per se, probably not
-            $modinst->SetParameterType('idprefix',CLEAN_STRING); // in case it's a frontend request
-        }
-        $returnid = CmsApp::get_instance()->get_content_id();
-        $params['returnid'] = $returnid;
-
-        ob_start(); // capture acion output, direct or returned
-        $result = $modinst->DoActionBase($action, $id, $params, $returnid, $template);
-        if ($result || is_numeric($result)) {
-            echo $result;
-        }
-        $out = ob_get_contents();
-        ob_end_clean();
-
-        if (isset($params['assign'])) {
-            $template->assign(trim($params['assign']),$out);
-            return '';
-        }
-        return $out;
+    ob_start(); // capture acion output, direct or returned
+    $result = $modinst->DoActionBase($action, $id, $params, $returnid, $template);
+    if ($result || is_numeric($result)) {
+        echo $result;
     }
-    elseif (!$modinst->isPluginModule()) {
-        return "<!-- ERROR: $module is not a plugin module -->\n";
+    $out = ob_get_contents();
+    ob_end_clean();
+
+    if (isset($params['assign'])) {
+        $template->assign(trim($params['assign']),$out);
+        return '';
     }
-    return '';
+    return $out;
 }

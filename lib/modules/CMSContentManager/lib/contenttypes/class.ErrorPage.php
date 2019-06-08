@@ -18,7 +18,9 @@
 
 namespace CMSContentManager\contenttypes;
 
-use function cmsms;
+use CMSMS\AppState;
+use CMSMS\ContentOperations;
+use function lang;
 
 /**
  * Implements the ErrorPage content type
@@ -36,8 +38,7 @@ class ErrorPage extends Content
 	{
 		parent::__construct();
 
-		global $CMS_ADMIN_PAGE;
-		if( isset($CMS_ADMIN_PAGE) ) {
+		if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
 			$this->error_types = ['404' => lang('404description'),
 								  '403' => lang('403description'),
 								  '503' => lang('503description') ];
@@ -136,8 +137,7 @@ class ErrorPage extends Content
 			$errors[] = lang('nofieldgiven', $this->mod->Lang('error_type'));
 		}
 		else if ($this->mAlias != $this->mOldAlias) {
-			$gCms = cmsms();
-			$contentops =& $gCms->GetContentOperations();
+			$contentops = ContentOperations::get_instance();
 			$error = $contentops->CheckAliasError($this->mAlias, $this->mId);
 			if ($error !== false) {
 				if ($error == $this->mod->Lang('aliasalreadyused')) {

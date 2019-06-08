@@ -1,5 +1,5 @@
 <?php
-# Class to hold information for a single route.
+# Class to manage information for a route.
 # Copyright (C) 2010-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,34 +18,29 @@
 
 //namespace CMSMS;
 
+use CMSMS\RouteOperations;
+
 /**
- * Simple global convenience object to hold information for a single route.
+ * Class to hold and interact with properties of a route.
  *
  * @package CMS
  * @license GPL
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since  1.9
- * @property string $term
- * @property string $key1
- * @property string $key2
- * @property string $key3
- * @property array  $defaults
- * @property string absolute
- * @property string results
  */
-class CmsRoute implements \ArrayAccess
+class CmsRoute implements ArrayAccess
 {
 	/**
 	 * @ignore
 	 */
 	const KEYS = [
-	 'absolute', //whether term is plaintext
-	 'defaults', //parameters
+	 'defaults', //module-parameters unused here but can be retrieved from outside
+	 'exact', //whether term is for exact-matching, if not, then regex
 	 'key1', //destination e.g module name, or __CONTENT__
-	 'key2', //page id or null
-	 'key3', //user-defined data
-	 'term', //plaintext or regex to match
-	 'results',
+	 'key2', //page id or NULL
+	 'key3', //user-defined parameter for 'refining' static-route deletions (usable during deletion if key1 and ke2 are both non-NULL)
+	 'term', //exact string or regex to check against
+	 'results', //matches-array populated by Operations class from preg_match() results
     ];
 
 	/**
@@ -54,24 +49,22 @@ class CmsRoute implements \ArrayAccess
 	private $_data;
 
 	/**
-	 * @ignore
-	 */
-	private $_results;
-
-	/**
 	 * Construct a new route object.
 	 *
-	 * @param string $term The route string (plaintext or regular expression)
-	 * @param string $key1 The first key. Usually a module name or int page id
-	 * @param array  $defaults An array of parameter defaults for this module.  Only applicable when the destination is a module.
-	 * @param bool $is_absolute Flag indicating whether the term is a regular expression or an absolute string.
+	 * @param string $pattern The route string (exact or regular expression)
+	 * @param mixed  $key1 Optional first key. Unless $pattern is exact,
+	 *  usually a module name or int page id. Default ''.
+	 * @param mixed  $defaults Optional array of parameter defaults for this
+	 *  route's destination-module | NULL.  Applicable only when the destination is a module.
+	 * @param bool   $is_exact Optional flag indicating whether $pattern is
+	 *  for exact-matching. Default FALSE (hence a regular expression).
 	 * @param string $key2 Optional second key.
-	 * @param string $key3 Optional third key.
+	 * @param string $key3 Optional third key. For user-defined data. Default ''.
 	 */
-	public function __construct($term,$key1 = '',$defaults = [],$is_absolute = FALSE,$key2 = null,$key3 = null)
+	public function __construct($pattern,$key1 = '',$defaults = NULL,$is_exact = FALSE,$key2 ='',$key3 = '')
 	{
-		$this->_data['term'] = $term;
-		$this->_data['absolute'] = $is_absolute;
+		$this->_data['term'] = $pattern;
+		$this->_data['exact'] = $is_exact;
 
 		if( is_numeric($key1) && empty($key2) ) {
 			$this->_data['key1'] = '__CONTENT__';
@@ -81,36 +74,32 @@ class CmsRoute implements \ArrayAccess
 			$this->_data['key1'] = $key1;
 			$this->_data['key2'] = $key2;
 		}
-		if( is_array($defaults) ) $this->_data['defaults'] = $defaults;
+		if( !empty($defaults) ) $this->_data['defaults'] = $defaults;
 		if( !empty($key3) ) $this->_data['key3'] = $key3;
 	}
 
 	/**
-	 * Static convenience function to create a new route.
-	 *
-	 * @param string $term The route string (plaintext or regular expression)
-	 * @param string $key1 The first key. Usually a module name
-	 * @param string $key2 Optional second key. Default ''
-	 * @param array  $defaults Optional array of parameter defaults for this route.
-	 *  Ignored unless the destination is a module. Default []
-	 * @param bool   $is_absolute Optional Flag indicating whether $term is
-	 *  an absolute|plaintext string, or else a regular expression, Default false.
-	 * @param string $key3 Optional third key. For arbitrary data. Default ''.
+	 * @ignore
 	 */
-	public static function &new_builder($term,$key1,$key2 = '',$defaults = [],$is_absolute = FALSE,$key3 = '')
+	public function __set($key,$value)
 	{
-		$obj = new self($term,$key1,$defaults,$is_absolute,$key2,$key3);
-		return $obj;
+		if( in_array($key,self::KEYS) ) $this->_data[$key] = $value;
 	}
 
 	/**
-	 * Return the signature for this route
+	 * @ignore
 	 */
-	public function signature()
+	public function __isset($key)
 	{
-		$tmp = serialize($this->_data);
-		$tmp = md5($tmp);
-		return $tmp;
+		return in_array($key,self::KEYS) && isset($this->_data[$key]);
+	}
+
+	/**
+	 * @ignore
+	 */
+	public function __get($key)
+	{
+		return $this->_data[$key] ?? NULL;
 	}
 
 	/**
@@ -146,9 +135,52 @@ class CmsRoute implements \ArrayAccess
 	}
 
 	/**
-	 * Returns the route term (string or regex)
+	 * Static convenience function to create a new route.
 	 *
-	 * @deprecated
+	 * @param string $pattern The route string (exact or regular expression)
+	 * @param string $key1 Optional first key. Usually a module name
+	 * @param string $key2 Optional second key. Default ''
+	 * @param array  $defaults Optional array of parameter defaults for this object.
+	 *  Ignored unless the destination is a module. Default NULL
+	 * @param bool   $is_exact Optional Flag indicating whether $pattern is
+	 *  for exact-matching. Default FALSE.
+	 * @param string $key3 Optional third key. For user-defined data. Default ''.
+	 */
+	public static function new_builder($pattern,$key1 = '',$key2 = '',$defaults = NULL,$is_exact = FALSE,$key3 = '')
+	{
+		return new self($pattern,$key1,$defaults,$is_exact,$key2,$key3);
+	}
+
+	/**
+	 * Return the signature of this object, a hash derived from its properties
+	 */
+	public function get_signature() : string
+	{
+		$tmp = array_intersect_key($this->_data, [
+		 'defaults'=>1,
+		 'exact'=>1,
+		 'key1'=>1,
+		 'key2'=>1,
+		 'key3'=>1,
+		 'term'=>1,
+		]);
+		$s = json_encode($tmp,JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		return cms_utils::hash_string($s);
+	}
+
+	/**
+	 * Return the signature of this object
+	 * @deprecated since 2.3 Instead use get_signature()
+	 */
+	public function signature()
+	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_signature'));
+		return $this->get_signature();
+	}
+
+	/**
+	 * Return the route term|pattern (exact string or regex)
+	 *
 	 * @return string
 	 */
 	public function get_term()
@@ -157,84 +189,67 @@ class CmsRoute implements \ArrayAccess
 	}
 
 	/**
-	 * Retrieve the destination module name.
+	 * Return the destination (module name etc) if any.
 	 *
-	 * @deprecated
-	 * @return string Destination module name. or null.
+	 * @return mixed string | NULL
 	 */
 	public function get_dest()
 	{
-		return $this->_data['key1'];
+		return $this->_data['key1'] ?? NULL;
 	}
 
 	/**
-	 * Retrieve the page id, if the destination is a content page.
+	 * Return the page id, if the destination is a content page.
 	 *
-	 * @deprecated
-	 * @return int Page id, or null.
+	 * @return mixed int page id | NULL
 	 */
 	public function get_content()
 	{
-		if( $this->is_content() ) return $this->_data['key2'];
+		if( $this->is_content() ) return $this->_data['key2'] ?? NULL;
 	}
 
 	/**
-	 * Retrieve the default parameters for this route
+	 * Return the default parameters recorded for this object
 	 *
-	 * @deprecated
-	 * @return array The default parameters for the route.. Null if no defaults specified.
+	 * @return mixed The default parameters for the route | NULL if none were recorded.
 	 */
 	public function get_defaults()
 	{
-		if( isset($this->_data['defaults']) && is_array($this->_data['defaults']) ) return $this->_data['defaults'];
+		if( !empty($this->_data['defaults']) ) return $this->_data['defaults'];
 	}
 
 	/**
-	 * Test whether this route is for a page.
+	 * Test whether this object is for a content page.
 	 *
-	 * @deprecated
 	 * @return bool
 	 */
 	public function is_content()
 	{
-		return ($this->_data['key1'] == '__CONTENT__');
+		return ( isset($this->_data['key1']) && $this->_data['key1'] == '__CONTENT__');
 	}
 
 	/**
-	 * Get matching parameter results.
+	 * Return matches reported by a regex match.
 	 *
-	 * @deprecated
-	 * @return array Matching parameters... or Null
+	 * @return mixed preg_match matches array | NULL
 	 */
 	public function get_results()
 	{
-		return $this->_results;
+		return $this->_data['results'] ?? NULL;
 	}
 
 	/**
-	 * Test if this route matches the specified string
-	 * Depending upon the route, either a string comparison or regular expression match
-	 * is performed.
+	 * Test if this object matches the specified string.
+	 * @deprecated since 2.3 instead use RouteOperations::is_match()
 	 *
 	 * @param string $str The input string
-	 * @param bool $exact Perform an exact string match rather than depending on the route values.
-	 * @return bool
+	 * @param bool $exact Optional flag whether to try for exact string-match
+	 *  regardless of recorded object properties.
+	 * @return bool indicating success
 	 */
-	public function matches($str,$exact = false)
+	public function matches($str,$exact = FALSE)
 	{
-		$this->_results = null;
-		if( !empty($this->_data['absolute']) || $exact ) {
-			$a = trim($this->_data['term']);
-			$a = trim($a,'/');
-			$b = trim($str);
-			$b = trim($b,'/');
-
-			return strcasecmp($a,$b) == 0;
-		}
-
-		$tmp = [];
-		$res = (bool)preg_match($this->_data['term'],$str,$tmp);
-		if( $res && is_array($tmp) ) $this->_results = $tmp;
-		return $res;
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','RouteOperations::is_match'));
+		return RouteOperations::is_match($this,$str,$exact);
 	}
 } // class

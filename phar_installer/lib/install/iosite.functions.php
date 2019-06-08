@@ -22,8 +22,10 @@ as well as normal operation.
 */
 //install-only methods - admin export ok?
 
+use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\Database\Connection;
+use CMSMS\RouteOperations;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
 use CMSMS\TemplateOperations;
@@ -456,7 +458,6 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 
 /**
  *
- * @global type $CMS_INSTALL_PAGE
  * @param string $xmlfile filesystem path of file to import
  * @param string $filesfolder Optional 'non-default' filesystem path of folder
  *  containing 'support' files e.g. images, iconfonts.
@@ -465,8 +466,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 function import_content(string $xmlfile, string $filesfolder = '') : string
 {
 	// security checks right here, to supplement upstream/external
-	global $CMS_INSTALL_PAGE;
-	if (isset($CMS_INSTALL_PAGE)) {
+	if (AppState::test_state(AppState::STATE_INSTALL)) {
 		$runtime = false;
 		//NOTE must conform this class with installer
 		$valid = class_exists('cms_installer\wizard\wizard'); //TODO some other check too
@@ -1084,7 +1084,7 @@ content) VALUES (?,?,?,?)';
 
 	if (!empty($page_url)) {
 		$route = CmsRoute::new_builder($page_url,'__CONTENT__',$content_id,'',true);
-		cms_route_manager::add_static($route);
+		RouteOperations::add_static($route);
 	}
 
 	return $content_id;

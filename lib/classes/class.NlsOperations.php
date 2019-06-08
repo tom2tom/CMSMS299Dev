@@ -23,6 +23,7 @@ use cms_siteprefs;
 use cms_userprefs;
 use CmsApp;
 use CmsLanguageDetector;
+use CMSMS\AppState;
 use CMSMS\Nls;
 use const CMS_ROOT_PATH;
 use function cms_join_path;
@@ -211,15 +212,11 @@ final class NlsOperations
 	 */
 	public static function get_default_language() : string
 	{
-		global $CMS_ADMIN_PAGE;
-		global $CMS_STYLESHEET;
-		global $CMS_INSTALL_PAGE;
-
 		if( self::$_stored_dflt_language ) return self::$_stored_dflt_language;
 
 		self::_load_nls();
-		$lang = '';
-		if (isset($CMS_ADMIN_PAGE) || isset($CMS_STYLESHEET) || isset($CMS_INSTALL_PAGE)) {
+
+		if( AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_STYLESHEET | AppState::STATE_INSTALL) ) {
 			$lang = self::get_admin_language();
 		}
 		else {
@@ -254,9 +251,8 @@ final class NlsOperations
 	 */
 	protected static function get_admin_language() : string
 	{
-		global $CMS_LOGIN_PAGE;
-		$uid = $lang = null;
-		if( !isset($CMS_LOGIN_PAGE) ) {
+				$uid = $lang = null;
+		if( !AppState::test_state(AppState::STATE_LOGIN_PAGE) ) {
 			$uid = get_userid(false);
 			if( $uid ) {
 				$lang = cms_userprefs::get_for_user($uid,'default_cms_language');

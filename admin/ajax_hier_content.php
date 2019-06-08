@@ -17,9 +17,11 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSContentManager\Utils;
+use CMSMS\AppState;
+use CMSMS\ContentOperations;
 
-$CMS_ADMIN_PAGE = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
@@ -33,7 +35,7 @@ for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 $user_id = get_userid(FALSE);
 $gCms = CmsApp::get_instance();
 $hm = $gCms->GetHierarchyManager();
-$contentops = $gCms->GetContentOperations();
+$contentops = ContentOperations::get_instance();
 try {
     $display = Utils::get_pagenav_display();
 }

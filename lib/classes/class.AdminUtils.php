@@ -22,6 +22,7 @@ use cms_http_request;
 use cms_siteprefs;
 use cms_utils;
 use CmsApp;
+use CMSMS\AppState;
 use CMSMS\HookManager;
 use ErrorException;
 use FilesystemIterator;
@@ -45,8 +46,8 @@ use function get_userid;
 use function lang;
 use function startswith;
 
-//this is also used during content installation i.e. STATE_INSTALL_PAGE, or nothing
-/*if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
+//this is also used during content installation i.e. STATE_INSTALL, or nothing
+/*if( !CMSMS\AppState::test_state(CMSMS\AppState::STATE_ADMIN_PAGE) ) {
     $name = __CLASS__;
     throw new ErrorException("Attempt to use $name class from an invalid request");
 }
@@ -280,7 +281,7 @@ final class AdminUtils
 	 */
 	public static function get_help_tag(...$args)
 	{
-		if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) return;
+		if( !AppState::test_state(AppState::STATE_ADMIN_PAGE) ) return;
 
 		$theme = cms_utils::get_theme_object();
 		if( !is_object($theme) ) return;
@@ -351,16 +352,15 @@ final class AdminUtils
 	 */
 	public static function clear_cached_files(int $age_days = 0)
 	{
-		global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE;
-
-		if( !(isset($CMS_ADMIN_PAGE) || isset($CMS_INSTALL_PAGE))
+		if( !AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_INSTALL)
 		 || !defined('TMP_CACHE_LOCATION') ) { // relevant permission(s) check too ?
 			$name = __METHOD__;
 			throw new ErrorException("Method $name may not be used");
 		}
 
 		$age_days = max(0, $age_days);
-		HookManager::do_hook_simple('clear_cached_files', ['older_than' => $age_days]);
+		HookManager::do_hook('clear_cached_files', ['older_than' => $age_days]); //TODO BAD no namespace, some miscreant handler can change the parameter ...  deprecate?
+		Events::SendEvent('Core','ClearCachedFiles', ['older_than' => $age_days]); //since 2.3
 		$ttl = $age_days * 24 * 3600;
 		$the_time = time() - $ttl;
 		$dirs = array_unique([TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION]);

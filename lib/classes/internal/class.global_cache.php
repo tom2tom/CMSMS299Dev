@@ -19,6 +19,8 @@
 namespace CMSMS\internal;
 
 use cms_cache_handler;
+use CmsException;
+use CMSMS\AppState;
 use CMSMS\internal\global_cachable;
 use UnexpectedValueException;
 
@@ -164,12 +166,10 @@ class global_cache
 
     /**
      *
-     * @global int $CMS_INSTALL_PAGE
      */
     public static function save()
     {
-        global $CMS_INSTALL_PAGE;
-        if( !empty($CMS_INSTALL_PAGE) ) return;
+        if( AppState::test_state(AppState::STATE_INSTALL) ) return;
         $cache = self::_get_cache();
         $keys = array_keys(self::$_types);
         foreach( $keys as $key ) {

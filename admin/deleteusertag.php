@@ -17,10 +17,11 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppState;
 use CMSMS\UserPluginOperations;
 
-$CMS_ADMIN_PAGE = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
@@ -32,7 +33,7 @@ if (!$pmod) exit;
 $themeObject = cms_utils::get_theme_object();
 
 $tagname = cleanValue($_GET['name']);
-$ops = new UserPluginOperations();
+$ops = UserPluginOperations::get_instance();
 $fp = $ops->file_path($tagname);
 if (is_file($fp)) {
 //? send event :: deleteuserdefinedtagpre

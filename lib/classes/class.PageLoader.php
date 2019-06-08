@@ -19,16 +19,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
 
-use cms_utils;
 use CmsApp;
 use CmsCoreCapabilities;
+use CMSMS\ContentTypeOperations;
+use CMSMS\ModuleOperations;
 use Exception;
 use const CMS_DB_PREFIX;
-use const CMS_ROOT_PATH;
-use function cms_join_path;
 
 /**
- * This is ...
+ * This is a speed- and size-optimized alternative to
+ *  ContentOperations::LoadContentFromId() and ...FromAlias()
+ * for getting page-content objects during a request.
  *
  * @package CMS
  * @license GPL
@@ -38,88 +39,92 @@ class PageLoader
 {
     /**
      * Cache for content-object(s) loaded during the current request.
-     * May be > 1 e.g. for cross-referencing
+     * Might be > 1 page e.g. for cross-referencing.
+     * Each object is stored by id and by alias.
      * @ignore
      */
     protected static $_loaded = [];
 
     /**
+     * Map: type => object-class for non-static content types
      * @ignore
      */
-    protected static $_loaded_names = [];
+    protected static $_xtype_classes;
 
     /**
+     * Whether _xtype_classes has been populated
      * @ignore
      */
-    protected static $_class_names = null;
+    protected static $_xtype_loaded = false;
 
     /**
-     * Cache all known content-classes
-	 * This is a cut-down alternative to ContentOperations::_get_content_types()
+     * Retrieve and cache data for non-core page-object-classes
      */
-    protected static function poll_classes()
+    protected static function poll_xclasses()
     {
-        $patn = cms_join_path(CMS_ROOT_PATH, 'lib', 'classes', 'contenttypes', 'class.*.php');
-        $list = glob($patn, GLOB_NOSORT);
-        foreach ($list as $fp) {
-            $class = substr(basename($fp), 6, -4);
-            $lc = strtolower($class);
-            if ($lc != 'contentbase') {
-                self::$_class_names[$lc] = 'CMSMS\\contenttypes\\'.$class;
+        $ops = ModuleOperations::get_instance();
+        $list = $ops->GetCapableModules(CmsCoreCapabilities::CONTENT_TYPES);
+        foreach ($list as $modname) {
+            $obj = $ops->get_module_instance($modname); // should register stuff for newly-loaded modules
+            $obj = null; // help the garbage-collector
+        }
+
+        $ops = ContentTypeOperations::get_instance();
+        $list = $ops->content_types;
+        if ($list) {
+            foreach ($list as $obj) { // $obj = ContentType
+                if (!isset(self::$_xtype_classes[$obj->type])) {
+                    self::$_xtype_classes[$obj->type] = $obj->class; //TODO if filepath instead of class
+                }
             }
         }
-
-        //TODO c.f. ContentOperations::register_content_type - handler classes registered THERE by loading modules
-        $list = (new ModuleOperations())->get_modules_with_capability(CmsCoreCapabilities::CONTENT_TYPES);
-        foreach ($list as $modname) {
-            cms_utils::get_module($modname);
-        }
-        //TODO GET DATA TO self::$_class_names
     }
 
     /**
-     * Return a frontend-display adapted page-data object, sourced from local cache or database.
-     * This constructs and populates a CMSMS\contenttypes\whatever object, and
-     * caches its properties locally. For the page being displayed, the object will
-     * be retrieved several times, to process different sections of its content.
-     * This is NOT for content-tree processing, or ContentManager page listing or editing.
-	 * Effectively a cut-down alternative to ContentOperations::LoadContentFromId & ...FromAlias
+     * Return a frontend-display adapted page-content object, sourced from database.
+     * This constructs and populates a CMSMS\contenttypes\whatever object, or
+     * some_module\noncore_content_class object.
+     *
+     * Effectively this is a cut-down alternative to
+     *  ContentOperations::LoadContentFromId and ...FromAlias
+     * It is NOT for content-tree processing, or ContentManager page listing or editing.
      *
      * @param mixed $a page identifier: id (int|numeric string) or alias (other string)
-     * @return mixed ContentBase object | null  TODO CONTENTPAGE
+     * @return mixed ContentBase-derived object | null
+     * @throws Exception if wanted content-type is N/A
      */
     public static function LoadContent($a)
     {
-        if (is_numeric($a)) {
-            $contentobj = self::$_loaded[$a] ?? null;
-        } else {
-            $contentobj = null;
-        }
+        $contentobj = self::$_loaded[$a] ?? null;
         if (!$contentobj) {
-            $id = self::$_loaded_names[$a] ?? false;
-            if ($id) {
-                $contentobj = self::$_loaded[$id];
-            } else {
-                if (self::$_class_names === null) {
-                    self::poll_classes();
+            $db = CmsApp::get_instance()->GetDb();
+            $sql = 'SELECT C.*,T.displayclass FROM '.CMS_DB_PREFIX.'content C LEFT JOIN '.
+            CMS_DB_PREFIX.'content_types T on C.type=T.name WHERE (content_id=? OR content_alias=?) AND active!=0';
+            $row = $db->GetRow($sql, [ $a,$a ]);
+            if ($row) {
+                if ($row['displayclass']) {
+                    $classname = $row['displayclass'];
+                } elseif (!self::$_xtype_loaded) {
+                    self::$_xtype_classes = [];
+                    self::poll_xclasses();
+                    self::$_xtype_loaded = true;
+                    $classname = self::$_xtype_classes[$row['type']] ?? '';
                 }
-                $db = CmsApp::get_instance()->GetDb();
-                $sql = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE (content_id=? OR content_alias=?) AND active!=0';
-                $row = $db->GetRow($sql, [ $a,$a ]);
-                if ($row) {
-                    $lc = strtolower($row['type']);
-                    $classname = self::$_class_names[$lc] ?? '';
-                    if (!$classname) {
-                        throw new Exception('Unrecognized content type: '.$row['type'].' in '.__METHOD__);
+                if ($classname) {
+                    if (is_file($classname)) {
+                        require_once $classname;
+                        $classname = substr(basename($classname), 6, -4);
                     }
+                    unset($row['displayclass']);
                     $contentobj = new $classname($row);
                     $id = (int)$row['content_id'];
                     self::$_loaded[$id] = $contentobj;
-                    self::$_loaded_names[$row['content_alias']] = $id;
+                    self::$_loaded[$row['content_alias']] = &$contentobj;
+                } else {
+                    throw new Exception('Unrecognized content type: '.$row['type'].' in '.__METHOD__);
                 }
             }
         }
-
         return $contentobj;
     }
 
@@ -127,12 +132,12 @@ class PageLoader
      * Identify and include the file defining the specified content type.
      * Not merely an autoloader-bypass, as types may instantiated by modules.
      *
-     * @param mixed CmsContentType | CmsContentTypePlaceholder $obj
-	 * @return mixed ContentTypePlaceHolder | null
+     * @param mixed CmsContentType | ContentType $obj
+     * @return mixed ContentType | null
      */
     public static function LoadContentType($obj)
     {
-		//TODO use trait to cut down footprint
-        return ContentOperations::get_instance()->LoadContentType($obj);
+        //MAYBE use trait to cut down footprint
+        return ContentTypeOperations::get_instance()->LoadContentType($obj);
     }
 }

@@ -129,8 +129,7 @@ EOS;
 		$sm->queue_file($p.'jquery.cms_admin.min.js', 2);
 		$out .= $sm->render_inclusion('', false, false);
 
-		global $CMS_LOGIN_PAGE;
-		if (isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE)) {
+		if (isset($_SESSION[CMS_USER_KEY]) && !AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
 			$sm->reset();
 			require_once $admin_path.DIRECTORY_SEPARATOR.'jsruntime.php';
             $sm->queue_string($_out_);

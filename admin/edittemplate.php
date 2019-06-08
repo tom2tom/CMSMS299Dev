@@ -16,15 +16,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\CmsLockException;
+use CMSMS\GroupOperations;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
 use CMSMS\ScriptOperations;
 use CMSMS\TemplateOperations;
+use CMSMS\UserOperations;
 use DesignManager\utils;
 
-$CMS_ADMIN_PAGE = 1;
-
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
@@ -269,7 +272,7 @@ try {
 //	 ->assign('has_themes_right', check_permission($userid,'Manage Designs'));
 
 	if ($pmod || $tpl_obj->get_owner_id() == $userid) {
-		$userops = cmsms()->GetUserOperations();
+		$userops = UserOperations::get_instance();
 		$allusers = $userops->LoadUsers();
 		$tmp = [];
 		foreach ($allusers as $one) {
@@ -280,7 +283,7 @@ try {
 		}
 		if ($tmp) $smarty->assign('user_list', $tmp);
 
-		$groupops = cmsms()->GetGroupOperations();
+		$groupops = GroupOperations::get_instance();
 		$allgroups = $groupops->LoadGroups();
 		foreach ($allgroups as $one) {
 			if ($one->id == 1) continue;

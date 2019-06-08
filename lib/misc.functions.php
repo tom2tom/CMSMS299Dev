@@ -16,6 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
 use CMSMS\NlsOperations;
 
 /**
@@ -85,9 +86,8 @@ function redirect(string $to)
 
     session_write_close();
 
-    global $CMS_INSTALL_PAGE;
 
-    if (empty($CMS_INSTALL_PAGE)) {
+    if (!AppState::test_state(AppState::STATE_INSTALL)) {
         $debug = constant('CMS_DEBUG');
     }
     else {
@@ -1494,7 +1494,6 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
  */
 function setup_session(bool $cachable = false)
 {
-    global $CMS_INSTALL_PAGE, $CMS_ADMIN_PAGE;
     static $_setup_already = false;
     if ($_setup_already) return;
 
@@ -1502,7 +1501,10 @@ function setup_session(bool $cachable = false)
     if (headers_sent($_f, $_l)) throw new LogicException("Attempt to set headers, but headers were already sent at: $_f::$_l");
 
     if ($cachable) {
-        if ($_SERVER['REQUEST_METHOD'] != 'GET' || isset($CMS_ADMIN_PAGE) || isset($CMS_INSTALL_PAGE)) $cachable = false;
+        if ($_SERVER['REQUEST_METHOD'] != 'GET' ||
+		AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_INSTALL)) {
+			$cachable = false;
+		}
     }
     if ($cachable) $cachable = (int) cms_siteprefs::get('allow_browser_cache',0);
     if (!$cachable) {
@@ -1517,9 +1519,9 @@ function setup_session(bool $cachable = false)
         @header_remove('Last-Modified');
     }
 
-    #Setup session with different id and start it
-    $session_name = 'CMSSESSID'.substr(md5(__DIR__.CMS_VERSION), 0, 12);
-    if (!isset($CMS_INSTALL_PAGE)) {
+    // setup session with different (constant) id and start it
+    $session_name = 'CMSSESSID'.cms_utils::hash_string(CMS_ROOT_PATH.CMS_VERSION);
+    if (!AppState::test_state(AppState::STATE_INSTALL)) {
         @session_name($session_name);
         @ini_set('url_rewriter.tags', '');
         @ini_set('session.use_trans_sid', 0);

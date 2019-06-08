@@ -1,5 +1,5 @@
 <?php
-#Translation functions/classesulp <ted@cmsmadesimple.org>
+#Translation functions/classes
 #Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,6 +18,7 @@
 
 namespace CMSMS;
 
+use CMSMS\AppState;
 use CMSMS\NlsOperations;
 use const CMS_ADMIN_PATH;
 use const CMS_ASSETS_PATH;
@@ -160,11 +161,8 @@ final class LangOperations
 		$key    = $args[1];
 		if( !$realm || !$key ) return;
 
-		global $CMS_ADMIN_PAGE;
-		global $CMS_STYLESHEET;
-		global $CMS_INSTALL_PAGE;
-		if (self::CMSMS_ADMIN_REALM == $realm && !isset($CMS_ADMIN_PAGE) &&
-			!isset($CMS_STYLESHEET) && !isset($CMS_INSTALL_PAGE) &&
+		if (self::CMSMS_ADMIN_REALM == $realm &&
+			!AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_STYLESHEET | AppState::STATE_INSTALL) &&
 			!self::$_allow_nonadmin_lang ) {
 			trigger_error('Attempt to load admin realm from non admin action');
 			return '';
@@ -190,8 +188,6 @@ final class LangOperations
 	 */
 	public static function lang_from_realm(...$args)
 	{
-		global $CMS_ADMIN_PAGE, $CMS_STYLESHEET, $CMS_INSTALL_PAGE;
-
 		if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
 		if( count($args) < 2 ) return;
 
@@ -200,9 +196,9 @@ final class LangOperations
 		if( !$realm || !$key ) return;
 
 		if( self::CMSMS_ADMIN_REALM == $realm &&
-			empty($CMS_ADMIN_PAGE) &&
-			!isset($CMS_STYLESHEET) &&
-			empty($CMS_INSTALL_PAGE) &&
+			!AppState::test_state(AppState::STATE_ADMIN_PAGE) &&
+			!AppState::test_state(AppState::STATE_STYLESHEET) &&
+			!AppState::test_state(AppState::STATE_INSTALL) &&
 			!self::$_allow_nonadmin_lang ) {
 			trigger_error('Attempt to load admin realm from non admin action');
 			return '';
@@ -212,8 +208,7 @@ final class LangOperations
 		$curlang = NlsOperations::get_current_language();
 		if( !isset(self::$_langdata[$curlang][$realm][$key]) ) {
 			// put mention into the admin log
-			global $CMS_LOGIN_PAGE;
-			if( !isset($CMS_LOGIN_PAGE) ) debug_to_log('Languagestring: "' . $key . '"', 'Is missing in the languagefile: '.  $realm);
+						if( !AppState::test_state(AppState::STATE_LOGIN_PAGE) ) debug_to_log('Languagestring: "' . $key . '"', 'Is missing in the languagefile: '.  $realm);
 			return "-- Missing Language String: $key --";
 		}
 

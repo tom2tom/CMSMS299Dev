@@ -18,6 +18,7 @@
 
 namespace CMSMS\contenttypes;
 
+use CMSMS\AppState;
 use CMSMS\contenttypes\Content;
 use function lang;
 
@@ -36,7 +37,6 @@ class ErrorPage extends Content
 	public $error_types;
 
 	/**
-	 * @global type $CMS_ADMIN_PAGE
 	 * @param mixed $params
 	 */
 	public function __construct($params)
@@ -58,8 +58,7 @@ class ErrorPage extends Content
 			$this->$key = $value;
 		}
 
-		global $CMS_ADMIN_PAGE;
-		if (isset($CMS_ADMIN_PAGE)) {
+		if (AppState::test_state(AppState::STATE_ADMIN_PAGE)) {
 			$this->error_types = [
 			'404' => lang('404description'),
 		 	'403' => lang('403description'),
