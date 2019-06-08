@@ -134,7 +134,7 @@ class Connection
      */
     protected $_database;
 
-	/**
+    /**
      * @internal
      *
      * @param string $type  The database connection type (mysqli)
@@ -147,8 +147,8 @@ class Connection
      */
     protected $_mysql;
 
-	/**
-	 * Whether $_mysql is the 'native driver' variant
+    /**
+     * Whether $_mysql is the 'native driver' variant
      * @internal
      */
     protected $_native = ''; //for PHP 5.4+, the MySQL native driver is a php.net compile-time default
@@ -159,24 +159,24 @@ class Connection
      */
     protected $_time_offset;
 
-	/**
+    /**
      * @internal
      */
     protected $_in_transaction = 0;
 
-	/**
+    /**
      * @internal
      */
     protected $_in_smart_transaction = 0;
 
-	/**
+    /**
      * @internal
      */
     protected $_transaction_status = true;
 
-	/**
+    /**
      * Queue of cached results from prior pretend-async commands, pending pretend-reaps
-	 * @internal
+     * @internal
      */
     protected $_asyncQ = [];
 
@@ -204,20 +204,21 @@ class Connection
                  $config['db_password'], $config['db_name'],
                  (int)$config['db_port']);
                 if (!$this->_mysql->connect_error) {
-					$this->_database = $config['db_name'];
+                    $this->_database = $config['db_name'];
                     $this->_type = 'mysqli';
-					$this->_debug = CMS_DEBUG;
-					if ($this->_debug) {
-						$this->_debug_cb = 'debug_buffer';
-					}
+                    $this->_debug = CMS_DEBUG;
+                    if ($this->_debug) {
+                        $this->_debug_cb = 'debug_buffer';
+                    }
 
-					if (!AppState::test_state(AppState::STATE_INSTALL)) {
-						$this->_errorhandler = [$this, 'on_error'];
-					}
+                    if (!AppState::test_state(AppState::STATE_INSTALL)) {
+                        $this->_errorhandler = [$this, 'on_error'];
+                    }
                     if (!empty($config['set_names'])) { //N/A during installation
                         $this->_mysql->set_charset('utf8');
                     }
                     if (!empty($config['set_db_timezone'])) { //ditto
+                        //see also strftzone_adjuster() in misc.functions.php
                         try {
                             $dt = new DateTime('', new DateTimeZone($config['timezone']));
                         } catch (Exception $e) {
@@ -244,17 +245,17 @@ class Connection
                         $this->_time_offset = $dt->getTimestamp() - $now;
                     }
                 } else {
-					$this->_database = null;
+                    $this->_database = null;
                     $this->_mysql = null;
                     $this->OnError(self::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
                 }
             } catch (Exception $e) {
-				$this->_database = null;
+                $this->_database = null;
                 $this->_mysql = null;
                 $this->OnError(self::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
             }
         } else {
-			$this->_database = null;
+            $this->_database = null;
             $this->_mysql = null;
             $this->OnError(self::ERROR_CONNECT, 98,
                 'Configuration error: mysqli class is not available');
@@ -267,8 +268,8 @@ class Connection
     public function __get($key)
     {
         switch ($key) {
-		 case 'database':
-			return $this->_database;
+         case 'database':
+            return $this->_database;
          case 'query_time_total':
             return $this->_query_time_total;
          case 'query_count':
@@ -286,8 +287,8 @@ class Connection
     public function __isset($key)
     {
         switch ($key) {
-		 case 'database':
-			return !empty($this->_database);
+         case 'database':
+            return !empty($this->_database);
          case 'query_time_total':
          case 'query_count':
             return true;
@@ -360,11 +361,11 @@ class Connection
         return $this->_type;
     }
 
-	/**
-	 * Return whether the database interface-type is the 'native driver' variant
-	 * @return bool
-	 */
-	public function isNative()
+    /**
+     * Return whether the database interface-type is the 'native driver' variant
+     * @return bool
+     */
+    public function isNative()
     {
         if ($this->_native === '') {
             $this->_native = function_exists('mysqli_fetch_all');
@@ -372,12 +373,12 @@ class Connection
         return $this->_native;
     }
 
-	/**
+    /**
      * Return the PHP database-interface object.
-	 *
-	 * @return object | null
-	 */
-	public function get_inner_mysql()
+     *
+     * @return object | null
+     */
+    public function get_inner_mysql()
     {
         return $this->_mysql;
     }
@@ -395,10 +396,10 @@ class Connection
      */
     public function qStr($str)
     {
-		if ($str !== '') {
-	        return  "'".$this->_mysql->real_escape_string($str)."'";
-		}
-		return '';
+        if ($str !== '') {
+            return  "'".$this->_mysql->real_escape_string($str)."'";
+        }
+        return '';
     }
 
     /**
@@ -416,7 +417,7 @@ class Connection
         return $this->qStr($str);
     }
 
-	/**
+    /**
      * qStr without surrounding single-quotes.
      *
      * @param string $str
@@ -961,7 +962,7 @@ class Connection
      */
     public function genId($seqname)
     {
-	    //kinda-atomic update + select TODO CHECK thread-safety
+        //kinda-atomic update + select TODO CHECK thread-safety
         $this->_mysql->query("UPDATE $seqname SET id = LAST_INSERT_ID(id) + 1");
         $rs = $this->_mysql->query('SELECT LAST_INSERT_ID()');
         if ($rs) {
@@ -1253,12 +1254,12 @@ class Connection
         }
     }
 
-	//// dictionary
+    //// dictionary
 
     /**
      * Create a new data dictionary object.
      * Data Dictionary objects are used for manipulating tables, i.e: creating, altering and editing them.
-	 * @deprecated since 2.3 use new DataDictionary()
+     * @deprecated since 2.3 use new DataDictionary()
      *
      * @return <namespace>DataDictionary
      */
