@@ -1,5 +1,5 @@
 <?php
-# Abstract class defining an asynchronous job.
+# Abstract class defining a CMSMS job.
 # Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,12 +19,12 @@
 namespace CMSMS\Async;
 
 use CmsApp;
-use CmsCoreCapabilities;
-use CMSMS\ModuleOperations;
+use cms_utils;
 use LogicException;
+use UnexpectedValueException;
 
 /**
- * A class defining an asynchronous job, and mechanisms for saving and retrieving that job.
+ * A class defining a job, and mechanisms for saving and retrieving that job.
  *
  * @package CMS
  * @author Robert Campbell
@@ -75,13 +75,13 @@ abstract class Job
      */
     public function __construct()
     {
-        $now = time();
-        $this->_created = $this->_start = $now;
-        $this->_name = md5(__CLASS__.random_bytes(24)); // a pretty random name for this job
+        $this->_created = $this->_start = time();
+        $this->_name = cms_utils::hash_string(__CLASS__,true); // a pretty random name for this job
     }
 
     /**
      * @ignore
+     * @throws UnexpectedValueException
      */
     public function __get($key)
     {
@@ -98,12 +98,13 @@ abstract class Job
             return trim($this->$tkey);
 
         default:
-            throw new LogicException("$key is not a gettable member of ".__CLASS__);
+            throw new UnexpectedValueException("$key is not a gettable member of ".__CLASS__);
         }
     }
 
     /**
      * @ignore
+     * @throws UnexpectedValueException
      */
     public function __set($key,$val)
     {
@@ -125,19 +126,20 @@ abstract class Job
             break;
 
         default:
-            throw new LogicException("$key is not a settable member of ".get_class($this));
+            throw new UnexpectedValueException("$key is not a settable member of ".get_class($this));
         }
     }
 
     /**
      * @final
      * @param type $id
+     * @throws UnexpectedValueException
      * @throws LogicException
      */
     final public function set_id($id)
     {
         $id = (int) $id;
-        if( $id < 1 ) throw new LogicException('Invalid id passed to '.__METHOD__);
+        if( $id < 1 ) throw new UnexpectedValueException('Invalid id passed to '.__METHOD__);
         if( $this->_id ) throw new LogicException('Cannot overwrite an id in a job that has one');
         $this->_id = $id;
     }
