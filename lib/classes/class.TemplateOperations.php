@@ -519,17 +519,17 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	/**
 	 * Get multiple templates
 	 *
-	 * @param array $list Integer template id(s)
+	 * @param array $ids Integer template id(s)
 	 * @param bool $deep Optional flag whether to load attached data. Default true.
 	 * @return array CmsLayoutTemplate object(s) or empty
 	 */
-	public static function get_bulk_templates(array $list, bool $deep = true) : array
+	public static function get_bulk_templates(array $ids, bool $deep = true) : array
 	{
-		if( !$list ) return [];
+		if( !$ids ) return [];
 
 		$out = [];
 		$db = CmsApp::get_instance()->GetDb();
-		$str = implode(',',$list);
+		$str = implode(',',$ids);
 		$sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.$str.')';
 		$rows = $db->GetArray($sql);
 		if( $rows ) {
