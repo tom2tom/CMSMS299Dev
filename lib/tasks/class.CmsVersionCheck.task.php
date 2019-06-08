@@ -4,7 +4,7 @@ use CMSMS\AdminAlerts\TranslatableAlert;
 
 class CmsVersionCheckTask implements CmsRegularTask
 {
-    const  LASTEXECUTE_SITEPREF   = __CLASS__;
+    const  LASTEXECUTE_SITEPREF = 'Core::VersionCheck_lastexecute';
     const  ENABLED_SITEPREF = 'checkversion';
 
     public function get_name()
@@ -23,7 +23,7 @@ class CmsVersionCheckTask implements CmsRegularTask
 
         // do we need to do this task now? (daily intervals)
         if( !$time ) $time = time();
-        $last_execute = cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
+        $last_execute = (int)cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
         return ($time - 24*3600) >= $last_execute;
     }
 

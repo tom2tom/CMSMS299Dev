@@ -9,7 +9,7 @@ use CmsRegularTask;
 
 final class ReduceLogTask implements CmsRegularTask
 {
-    const LASTEXECUTE_SITEPREF = 'ReduceAdminlog_lastexecute';
+    const LASTEXECUTE_SITEPREF = 'Adminlog::Reduce_lastexecute';
     private $_queue = [];
 
     public function get_name() { return get_class($this); }
@@ -20,7 +20,7 @@ final class ReduceLogTask implements CmsRegularTask
         // do we need to do this task.
         // we do it every 3 hours
         if (!$time) $time = time();
-        $last_execute = cms_siteprefs::get(self::LASTEXECUTE_SITEPREF, 0);
+        $last_execute = (int)cms_siteprefs::get(self::LASTEXECUTE_SITEPREF, 0);
         return ($last_execute < ($time - 3 * 3600)); // hardcoded
     }
 
@@ -84,7 +84,7 @@ final class ReduceLogTask implements CmsRegularTask
         $db = CmsApp::get_instance()->GetDB();
 
         $table = $this->table();
-        $last_execute = cms_siteprefs::get(self::LASTEXECUTE_SITEPREF, 0);
+        $last_execute = (int)cms_siteprefs::get(self::LASTEXECUTE_SITEPREF, 0);
         $mintime = max($last_execute - 60,$time - 24 * 3600);
         $sql = "SELECT * FROM $table WHERE timestamp >= ? ORDER BY timestamp ASC";
         $dbr = $db->Execute($sql,[$mintime]);

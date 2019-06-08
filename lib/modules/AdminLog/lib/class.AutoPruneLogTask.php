@@ -29,7 +29,7 @@ class AutoPruneLogTask implements CmsRegularTask
     const LASTEXECUTE_SITEPREF = 'AdminLog::Prune_lastexecute';
     const LIFETIME_SITEPREF = 'adminlog_lifetime';
 
-    protected static function &mod()
+    protected static function mod()
     {
         static $_mod;
         if( !$_mod ) $_mod = cms_utils::get_module('AdminLog');
@@ -50,7 +50,7 @@ class AutoPruneLogTask implements CmsRegularTask
     {
         $onemonth = 30 * 24 * 3600;
 
-        $lifetime = (int) cms_siteprefs::get(self::LIFETIME_SITEPREF,$onemonth);
+        $lifetime = (int)cms_siteprefs::get(self::LIFETIME_SITEPREF,$onemonth);
         if( $lifetime < 1 ) return;
         return $lifetime;
     }
@@ -62,7 +62,7 @@ class AutoPruneLogTask implements CmsRegularTask
 
         if( !$time ) $time = time();
         $oneday = 24 * 3600;
-        $last_execute = cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
+        $last_execute = (int)cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
         return ($last_execute < $time - $oneday );
     }
 

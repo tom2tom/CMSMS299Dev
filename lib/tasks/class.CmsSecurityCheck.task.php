@@ -4,7 +4,7 @@ use CMSMS\AdminAlerts\TranslatableAlert;
 
 class CmsSecurityCheckTask implements CmsRegularTask
 {
-    const  LASTEXECUTE_SITEPREF   = __CLASS__;
+    const  LASTEXECUTE_SITEPREF   = 'Core::SecurityCheck_lastexecute';
 
     public function get_name()
     {
@@ -20,7 +20,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
     {
         // do we need to do this task now? (daily intervals)
         if( !$time ) $time = time();
-        $last_execute = cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
+        $last_execute = (int)cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
         return ($time - 24*3600) >= $last_execute;
     }
 
@@ -54,7 +54,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
 
         // check if mail is configured
         // not really a security issue... but meh, it saves another class.
-        if(  !cms_siteprefs::get('mail_is_set',0) ) {
+        if( !cms_siteprefs::get('mail_is_set',false) ) {
             $alert = new TranslatableAlert('Modify Site Preferences');
             $alert->name = __CLASS__.'mail';
             $alert->msgkey = 'info_mail_notset';
