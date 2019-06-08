@@ -31,7 +31,7 @@ for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 //
 // initialization
 //
-$sesskey = md5(__FILE__);
+$sesskey = cms_utils::hash_string(__FILE__);
 if( isset($_GET['_enc']) ) {
     $parms = unserialize(base64_decode($_GET['_enc']), ['allowed_classes'=>false]);
     $_GET = array_merge($_GET,$parms);

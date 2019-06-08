@@ -2,6 +2,7 @@
 
 namespace FilePicker;
 
+use cms_utils;
 use CMSMS\FilePickerProfile;
 
 // store profiles temporarily in the session... uses uniqueid
@@ -13,27 +14,27 @@ class TemporaryProfileStorage
 
     public static function set(FilePickerProfile $profile)
     {
-        $key = md5(__FILE__);
-        $sig = md5(__FILE__.serialize($profile).microtime(TRUE).'1');
+        $key = cms_utils::hash_string(__FILE__);
+        $sig = cms_utils::hash_string(__FILE__.serialize($profile).microtime(TRUE).'1');
         $_SESSION[$key][$sig] = serialize($profile);
         return $sig;
     }
 
     public static function get($sig)
     {
-        $key = md5(__FILE__);
+        $key = cms_utils::hash_string(__FILE__);
         if( isset($_SESSION[$key][$sig]) ) return unserialize($_SESSION[$key][$sig], ['allowed_classes'=>['CMSMS\\FilePickerProfile']]);
     }
 
     public static function clear($sig)
     {
-        $key = md5(__FILE__);
+        $key = cms_utils::hash_string(__FILE__);
         if( isset($_SESSION[$key][$sig]) ) unset($_SESSION[$key][$sig]);
     }
 
     public static function reset()
     {
-        $key = md5(__FILE__);
+        $key = cms_utils::hash_string(__FILE__);
         if( isset($_SESSION[$key]) ) unset($_SESSION[$key]);
     }
 }

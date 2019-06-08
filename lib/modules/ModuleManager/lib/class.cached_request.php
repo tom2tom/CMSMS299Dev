@@ -46,7 +46,7 @@ final class cached_request //was modmgr_cached_request
     if( $age ) $age = max(1,(int)$age);
 
     // build a signature
-    $this->_signature = md5(serialize([$target,$data]));
+    $this->_signature = cms_utils::hash_string(serialize([$target,$data]));
     $fn = $this->_getCacheFile();
     if( !$fn ) return;
 

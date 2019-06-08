@@ -17,6 +17,7 @@
 
 namespace CMSMS;
 
+use cms_utils;
 use const TMP_CACHE_LOCATION;
 use function cms_get_css;
 use function cms_path_to_url;
@@ -73,7 +74,7 @@ class StylesOperations
      */
     public function queue_string(string $output, int $priority = 0, bool $force = false)
     {
-        $sig = md5(__FILE__.$output);
+        $sig = cms_utils::hash_string(__FILE__.$output);
         $output_file = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR."cms_$sig.css";
         if ($force || !is_file($output_file)) {
             file_put_contents($output_file, $output, LOCK_EX);
@@ -92,7 +93,7 @@ class StylesOperations
     {
         if (!is_file($filename)) return false;
 
-        $sig = md5($filename);
+        $sig = cms_utils::hash_string($filename);
         if (isset($this->_items[$sig])) return false;
 
         if ($priority < 1) {
@@ -164,8 +165,8 @@ class StylesOperations
                 $t_sig .= $sig;
                 $t_mtime = max($rec['mtime'], $t_mtime);
             }
-            $sig = md5(__FILE__.$t_sig.$t_mtime);
-            $cache_filename = "cms_$sig.css";
+            $sig = cms_utils::hash_string(__FILE__.$t_sig.$t_mtime);
+            $cache_filename = "combined_$sig.css";
             $output_file = $base_path.DIRECTORY_SEPARATOR.$cache_filename;
 
             if ($force || !is_file($output_file) || filemtime($output_file) < $t_mtime) {

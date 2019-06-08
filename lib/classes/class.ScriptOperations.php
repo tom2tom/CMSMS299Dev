@@ -18,6 +18,7 @@
 
 namespace CMSMS;
 
+use cms_utils;
 use const CMS_SCRIPTS_PATH;
 use const TMP_CACHE_LOCATION;
 use function cms_get_script;
@@ -75,7 +76,7 @@ class ScriptOperations
      */
     public function queue_string( string $output, int $priority = 0, bool $force = false )
     {
-        $sig = md5( __FILE__.$output );
+        $sig = cms_utils::hash_string( __FILE__.$output );
         $output_file = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR."cms_$sig.js";
         if( $force || !is_file($output_file) ) {
             file_put_contents( $output_file, $output, LOCK_EX );
@@ -94,7 +95,7 @@ class ScriptOperations
     {
         if( !is_file($filename) ) return false;
 
-        $sig = md5( $filename );
+        $sig = cms_utils::hash_string( $filename );
         if( isset( $this->_items[$sig]) ) return false;
 
         if( $priority < 1 ) {
@@ -118,7 +119,7 @@ class ScriptOperations
      * Find and record a script-file to be merged if necessary
      *
      * @param string $filename absolute or relative filepath or (base)name of the
-	 *  wanted script file, optionally including [.-]min before the .js extension
+     *  wanted script file, optionally including [.-]min before the .js extension
      *  If the name includes a version, that will be taken into account.
      *  Otherwise, any found version will be used. Min-format preferred over non-min.
      * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
@@ -174,8 +175,8 @@ class ScriptOperations
                 $t_sig .= $sig;
                 $t_mtime = max( $rec['mtime'], $t_mtime );
             }
-            $sig = md5( __FILE__.$t_sig.$t_mtime );
-            $cache_filename = "cms_$sig.js";
+            $sig = cms_utils::hash_string( __FILE__.$t_sig.$t_mtime );
+            $cache_filename = "combined_$sig.js";
             $output_file = $base_path.DIRECTORY_SEPARATOR.$cache_filename;
 
             if( $force || !is_file($output_file) || filemtime($output_file) < $t_mtime ) {

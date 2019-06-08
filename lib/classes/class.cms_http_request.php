@@ -338,7 +338,7 @@ class cms_http_request
         $this->useCookie    = true;
         $this->saveCookie   = true;
         $this->maxRedirect  = 3;
-        $this->cookiePath   = TMP_CACHE_LOCATION.'/c'.md5(get_class().session_id()).'.dat'; // by default, use a cookie file that is unique only to this session.
+        $this->cookiePath   = TMP_CACHE_LOCATION.'/c'.cms_utils::hash_string(get_class().session_id()).'.dat'; // by default, use a cookie file that is unique only to this session.
         $this->userAgent    = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.9 CMSMS:'.CMS_VERSION;
     }
 
