@@ -47,7 +47,7 @@ function cms_autoloader(string $classname)
 			if ($class_replaces === null) {
 				$class_replaces = [
 				'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
-				'CMSMS\App' => 'CmsApp',
+				'CMSMS\AppData' => 'CmsApp',
 				'CMSMS\Async\JobOperations' => 'CMSMS\Async\JobManager',
 				'CMSMS\CacheHandler' => 'cms_cache_handler',
 				'CMSMS\Config' => 'cms_config',
