@@ -19,12 +19,11 @@
 use CmsJobManager\JobQueue;
 use CmsJobManager\utils;
 use CMSMS\Async\Job;
-use CMSMS\Async\JobManagerInterface;
+use CMSMS\Async\AsyncJobManager;
 use CMSMS\Async\RegularTask;
-use CMSMS\internal\module_meta;
 use CMSMS\ModuleOperations;
 
-final class CmsJobManager extends CMSModule implements JobManagerInterface
+final class CmsJobManager extends CMSModule implements AsyncJobManager
 {
     const LOCKPREF = 'lock';
     const ASYNCFREQ_PREF = 'asyncfreq';
@@ -54,8 +53,8 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
     public function HasAdmin() { return TRUE; }
     public function IsAdminOnly()  { return FALSE; }
 //    public function IsPluginModule() { return TRUE; } //not actually a plugin, but trigger module load ??
-    public function LazyLoadAdmin() { return TRUE; }
-    public function LazyLoadFrontend() { return TRUE; }
+//    public function LazyLoadAdmin() { return TRUE; }
+//    public function LazyLoadFrontend() { return TRUE; }
     public function MinimumCMSVersion() { return '2.1.99'; }
     public function VisibleToAdminUser() { return $this->CheckPermission(self::MANAGE_JOBS); }
 
@@ -216,9 +215,9 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
         }
 
         // 2.  Get task objects from modules
-        $modules = (new module_meta())->module_list_by_method('get_tasks');
+        $modops = ModuleOperations::get_instance();
+        $modules = $modops->GetMethodicModules('get_tasks',TRUE);
         if (!$modules) return $res;
-        $modops = new ModuleOperations();
         foreach ($modules as $one) {
             $modinst = $modops->get_module_instance($one);
             $tasks = $modinst->get_tasks();
@@ -308,7 +307,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
      * @param Job $job
      * @return mixed bool or int job id
      */
-    public function load_job(Job &$job) : int
+    public function load_job(Job $job) : int
     {
         if (utils::job_recurs($job)) {
             $recurs = $job->frequency;
@@ -348,7 +347,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
      * An alias for the load_job method
      * @param Job $job
      */
-    public function save_job(Job &$job)
+    public function save_job(Job $job)
     {
         return $this->load_job($job);
     }
@@ -358,7 +357,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
      * @param Job $job
      * @throws BadMethodCallException
      */
-    public function unload_job(Job &$job)
+    public function unload_job(Job $job)
     {
         if (!$job->id) throw new BadMethodCallException('Cannot delete a job that has no id');
         $db = $this->GetDb();
@@ -370,7 +369,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
      * An alias for unload_job method
      * @param Job $job
      */
-    public function delete_job(Job &$job)
+    public function delete_job(Job $job)
     {
         $this->unload_job($job);
     }
@@ -440,9 +439,9 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
     }
 
     /**
-     * Initiate job-processing, after checking that it's appropriate to do so
+     * Initiate job-processing, after checking whether it's appropriate to do so
      */
-    public function trigger_async_processing()
+    public function begin_async_processing()
     {
         // if this module is disabled (but running anyway i.e. pre-hooklist) - do nothing
         if (!$this->GetPreference('enabled')) {
@@ -598,15 +597,14 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
     }
 
     /**
-     * static function to initiate async processing from a hook
+     * static function to initiate async processing
      * @since 2.3
      */
-    public static function trigger_async_hook()
+    public static function begin_async_work()
     {
         global $params;
-        $params = []; //hack
+        $params = []; //hack, for ?
 
-        $modinst = new self;
-        $modinst->trigger_async_processing();
+        (new self())->begin_async_processing();
     }
 } // class
