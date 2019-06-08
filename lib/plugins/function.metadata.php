@@ -1,5 +1,5 @@
 <?php
-#Plugin to...
+#Plugin to retrieve site metadata property
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -23,6 +23,7 @@ function smarty_function_metadata($params, $template)
 	$gCms = CmsApp::get_instance();
 	$config = cms_config::get_instance();
 	$content_obj = $gCms->get_content_object();
+	$cid = $content_obj->Id();
 
 	$result = '';
 	$showbase = true;
@@ -36,8 +37,8 @@ function smarty_function_metadata($params, $template)
 		if ($params['showbase'] == 'false')	$showbase = false;
 	}
 
-	HookManager::do_hook('metadata_prerender', [ 'content_id'=>$content_obj->Id(), 'showbase'=>&$showbase, 'html'=>&$result ]); //deprecated since 2.3
-	Events::SendEvent('Core', 'MetadataPrerender', ['content_id'=>$content_obj->Id(), 'showbase'=>&$showbase, 'html'=>&$result ]);
+	HookManager::do_hook('metadata_prerender',[ 'content_id'=>$cid,'showbase'=>&$showbase,'html'=>&$result ]); //deprecated since 2.3 TODO BAD no namespace, only valid for 1st handler ...
+	Events::SendEvent('Core','MetadataPrerender',[ 'content_id'=>$cid,'showbase'=>&$showbase,'html'=>&$result ]);
 
 	if ($showbase)	{
 		$base = CMS_ROOT_URL;
@@ -53,7 +54,8 @@ function smarty_function_metadata($params, $template)
 		$result = $template->fetch('string:'.$result);
 	}
 
-	HookManager::do_hook('metadata_postrender', [ 'content_id'=>$content_obj->Id(), 'html'=>&$result ]);
+	HookManager::do_hook('metadata_postrender',[ 'content_id'=>$cid,'html'=>&$result ]); //deprecated since 2.3 TODO BAD no namespace, only valid for 1st handler ...
+	Events::SendEvent('Core','MetadataPostrender',[ 'content_id'=>$cid,'html'=>&$result ]);
 	if( isset($params['assign']) )	{
 		$template->assign(trim($params['assign']),$result);
 		return;

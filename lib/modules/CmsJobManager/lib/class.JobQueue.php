@@ -9,6 +9,7 @@ namespace CmsJobManager;
 use cms_utils;
 use CmsApp;
 use CmsJobManager;
+use CMSMS\Events;
 use CMSMS\HookManager;
 use RuntimeException;
 use function audit;
@@ -118,7 +119,8 @@ final class JobQueue
                 }
                 $obj->set_id($row['id']);
                 $idlist[] = (int) $row['id'];
-                HookManager::do_hook_simple(CmsJobManager::EVT_ONFAILEDJOB, [ 'job' => $obj ]);
+                HookManager::do_hook(CmsJobManager::EVT_ONFAILEDJOB, [ 'job' => $obj ]); //TODO BAD no namespace, some miscreant handler can change the parameter ... 
+                Events::SendEvent('CmsJobManager',CmsJobManager::EVT_ONFAILEDJOB, [ 'job' => $obj ]); //since 2.3
             }
             $sql = 'DELETE FROM '.CmsJobManager::TABLE_NAME.' WHERE id IN ('.implode(',', $idlist).')';
             $db->Execute($sql);
