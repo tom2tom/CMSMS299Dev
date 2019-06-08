@@ -15,8 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$CMS_ADMIN_PAGE = 1;
+use CMSMS\AppState;
+use CMSMS\TemplateOperations;
 
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
@@ -40,7 +43,7 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_copy($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
+				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_copied'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -52,7 +55,7 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_delete($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_deleted'));
+				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_deleted',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -64,7 +67,7 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_deleteall($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
+				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -74,7 +77,7 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_replace($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
+				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -84,7 +87,7 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_applyall($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_TODO'));
+				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -112,7 +115,7 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_import($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_deleted'));
+				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_imported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -124,7 +127,7 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_export($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_deleted'));
+				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_exported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
