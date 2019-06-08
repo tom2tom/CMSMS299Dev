@@ -18,6 +18,9 @@
 
 use CMSContentManager\BulkOperations;
 use CMSMS\AdminTabs;
+use CMSMS\AppState;
+use CMSMS\ContentType;
+use CMSMS\ContentTypeOperations;
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\Events;
 use CMSMS\FormUtils;
@@ -25,6 +28,8 @@ use CMSMS\HookManager;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
+use CMSMS\RouteOperations;
+use CMSMS\UserPluginOperations;
 
 /**
  * Base module class.
@@ -105,7 +110,7 @@ abstract class CMSModule
      */
     public function __construct()
     {
-        global $CMS_FORCELOAD;
+        global $CMS_FORCELOAD; //TODO set where ?
 
         if( !empty($CMS_FORCELOAD)) return;
         if( CmsApp::get_instance()->is_cli() ) return;
@@ -371,8 +376,7 @@ abstract class CMSModule
             return (new ModulePluginOperations())->add($name, $name, 'function', $name.'::function_plugin', $cachable);
         }
 
-        global $CMS_INSTALL_PAGE;
-        if( !isset($CMS_INSTALL_PAGE) ) {
+        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
             // record in cache, for this request
             return (new ModulePluginOperations())->add_dynamic($name, $name, 'function', $name.'::function_plugin', $cachable);
         }
@@ -391,8 +395,7 @@ abstract class CMSModule
      */
     final public function can_cache_output() : bool
     {
-        global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_STYLESHEET;
-        if (isset($CMS_ADMIN_PAGE) || isset($CMS_INSTALL_PAGE) || isset($CMS_STYLESHEET)) {
+        if( AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_INSTALL | AppState::STATE_STYLESHEET) ) {
             return false;
         }
         return $this->AllowSmartyCaching();
@@ -463,7 +466,7 @@ abstract class CMSModule
      */
     final public function GetModulePath() : string
     {
-        return (new ModuleOperations())->get_module_path($this->GetName());
+        return ModuleOperations::get_instance()->get_module_path($this->GetName());
     }
 
     /**
@@ -541,15 +544,14 @@ abstract class CMSModule
      */
     public function AdminPageContent(string $text)
     {
-        global $CMS_ADMIN_PAGE, $CMS_JOB_TYPE;
-
-        if (!empty($CMS_JOB_TYPE)) {
-            echo $text;
-        } elseif (!empty($CMS_ADMIN_PAGE)) {
+        if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
             $text = trim($text);
             $obj = cms_utils::get_theme_object();
             if( $text && $obj ) $obj->set_content($text);
         }
+		elseif( CmsApp::get_instance()->JOBTYPE > 0 ) {
+            echo $text;
+		}
     }
 
     /**
@@ -562,15 +564,14 @@ abstract class CMSModule
      */
     public function AdminHeaderContent(string $text)
     {
-        global $CMS_ADMIN_PAGE, $CMS_JOB_TYPE;
-
-        if (!empty($CMS_JOB_TYPE)) {
-            echo $text;
-        } elseif (!empty($CMS_ADMIN_PAGE)) {
+        if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
             $text = trim($text);
             $obj = cms_utils::get_theme_object();
             if( $text && $obj ) $obj->add_headtext($text);
         }
+		elseif( CmsApp::get_instance()->JOBTYPE > 0 ) {
+            echo $text;
+		}
     }
 
     /**
@@ -583,15 +584,14 @@ abstract class CMSModule
      */
     public function AdminBottomContent(string $text)
     {
-        global $CMS_ADMIN_PAGE, $CMS_JOB_TYPE;
-
-        if (!empty($CMS_JOB_TYPE)) {
-            echo $text;
-        } elseif (!empty($CMS_ADMIN_PAGE)) {
+        if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
             $text = trim($text);
             $obj = cms_utils::get_theme_object();
             if( $text && $obj ) $obj->add_footertext($text);
         }
+		elseif( CmsApp::get_instance()->JOBTYPE > 0 ) {
+            echo $text;
+		}
     }
 
     /**
@@ -609,42 +609,61 @@ abstract class CMSModule
     }
 
     /**
-     * Register a dynamic route to use for pretty-url parsing
-     *
-     * Note: This method may not have the expected effects in lazy-loaded modules.
+     * Register an intra-request route to use for pretty-URL parsing
      *
      * @final
-     * @param string $routeregex Regular Expression Route to register
-     * @param array $defaults Associative array containing defaults
+     * @param string $pattern Route string, regular expression or exact string
+     * @param array $defaults Optional associative array containing defaults
+     * @param bool  $is_exact Since 2.3 Optional flag whether $pattern is strict|literal. Default false
      *  for parameters that might not be included in the url
      */
-    final public function RegisterRoute(string $routeregex, array $defaults = [])
+    final public function RegisterRoute(string $pattern, array $defaults = [], bool $is_exact = FALSE)
     {
-        $route = new CmsRoute($routeregex,$this->GetName(),$defaults);
-        cms_route_manager::add_dynamic($route);
+        $route = new CmsRoute($pattern,$this->GetName(),$defaults,$is_exact);
+        RouteOperations::add($route);
     }
 
     /**
-     * Register all static routes for this module.
-     * @since 2.3 this is an alias for CreateStaticRoutes()
+     * Register all static (database-recorded) routes for this module.
      *
      * @abstract
      * @since 1.11
+     * @since 2.3 this is a deprecated alias for CreateStaticRoutes()
      * @author Robert Campbell
      */
     public function CreateRoutes()
     {
-        $this->CreateStaticRoutes(); //TODO
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CreateStaticRoutes'));
+        $this->CreateStaticRoutes();
     }
 
     /**
-     * Register all static routes for this module.
+     * Register all static (database-recorded) routes for this module.
+     * This method should be called rarely e.g. during module installation
+     * or upgrade or after module-settings change.
      *
      * @abstract
      * @since 2.3
+     * @since 1.11 as CreateRoutes()
      * @author Robert Campbell
      */
     public function CreateStaticRoutes() {}
+
+    /**
+     * This is a transitional mechanism to speed up module processing.
+     * Returns true/false indicating whether the module registers route(s) during
+     * construction/intialization.  Defaults to true.
+     * @see CMSModule::RegisterRoute() and CreateStaticRoutes()
+     * @since 2.3
+     * @deprecated since 2.3 Instead CMSModule::HasCapability() should report CmsCoreCapabilities::ROUTE_MODULE
+     *
+     * @abstract
+     * @return bool
+     */
+    public function IsRoutableModule()
+    {
+        return true;
+    }
 
     /**
      * Returns a list of parameters and their help strings in a hash.
@@ -661,17 +680,19 @@ abstract class CMSModule
     }
 
     /**
-     * Method to sanitize all entries in a hash
-     * This method is called by the module api to clean incomming parameters in the frontend.
-     * It uses the map created with the SetParameterType() method in the module api.
+     * Sanitize the action-parameters in the provided data array.
+     * This method is called to deal with action-parameters incoming from the
+     * frontend. It uses the map created by the module's SetParameterType() method.
      *
      * @internal
      * @access private
-     * @param string Module Name
-     * @param array  Hash data
-     * @param array  A map of param names and type information
-     * @param bool A flag indicating whether unknown keys in the input data should be allowed.
-     * @param bool A flag indicating whether keys should be treated as strings and cleaned.
+     * @param string $modulename Module name
+     * @param array  $data The data to process
+     * @param array  $map  A map of registered parameter names and corresponding types
+     * @param bool   $allow_unknown A flag indicating whether unknown keys in $data
+     *  are acceptable. Default false.
+     * @param bool   $clean_keys A flag indicating whether $data keys should be
+     *  treated as strings and cleaned. Default true.
      * @return array
      */
     private function _cleanParamHash(string $modulename, array $data, array $map, bool $allow_unknown = false, bool $clean_keys = true) : array
@@ -770,10 +791,10 @@ abstract class CMSModule
      */
 
     /**
-     * Called from ModuleOperations::_load_module(), for module frontend actions
-     * ONLY .  This method should be overridden to create routes, set handled
-     * parameters, and perform other initialization tasks that need to be done
-     * for any frontend action.
+     * Called for module frontend actions only.
+     * This method should be overridden to create routes, set handled parameters,
+     * and perform other initialization tasks that need to be done for any
+     * frontend action.
      *
      * @abstract
      * @see CMSModule::SetParameterType()
@@ -785,10 +806,10 @@ abstract class CMSModule
     }
 
     /**
-     * Called from ModuleOperations::_load_module(), for module admin actions
-     * ONLY.  This method should be overridden to create routes, set handled
-     * parameters, and perform other initialization tasks that need to be done
-     * for any backend action.
+     * Called for module admin actions only.
+     * This method should be overridden to create routes, set handled parameters,
+     * and perform other initialization tasks that need to be done for any
+     * backend action.
      *
      * @abstract
      * @see CMSModule::CreateParameter()
@@ -801,7 +822,7 @@ abstract class CMSModule
      * A method to indicate that the system should drop and optionally
      * generate an error about unknown parameters on frontend actions.
      *
-     * This functionality was removed in 2.2.4 ?
+     * This functionality was removed in 2.2.4 ? Unknown parameters are always restricted.
      *
      * @see CMSModule::SetParameterType()
      * @see CMSModule::CreateParameter()
@@ -813,8 +834,7 @@ abstract class CMSModule
     }
 
     /**
-     * Indicate the name and type of a parameter that is
-     * acceptable for frontend actions.
+     * Indicate the name and type of acceptable parameter(s) for frontend actions.
      *
      * possible values for type are:
      * CLEAN_INT,CLEAN_FLOAT,CLEAN_NONE,CLEAN_STRING,CLEAN_REGEXP,CLEAN_FILE
@@ -824,16 +844,36 @@ abstract class CMSModule
      * @see CMSModule::CreateParameter()
      * @see CMSModule::SetParameters()
      * @final
-     * @param string $param Parameter name;
-     * @param string $type  Parameter type;
+     * @param mixed $param string Parameter name or (since 2.3) [name => type] array
+     * @param string $type  Parameter type
      */
-    final public function SetParameterType(string $param, string $type)
+    final public function SetParameterType($param, string $type)
     {
-        switch($type) {
+        if( is_array($param) ) {
+            foreach( $param as $name => $type ) {
+                switch( $type ) {
+                case CLEAN_INT:
+                case CLEAN_FLOAT:
+                case CLEAN_NONE:
+                case CLEAN_STRING:
+                case CLEAN_REGEXP:
+                case CLEAN_FILE:
+                    $this->param_map[trim($name)] = $type;
+                    break;
+                default:
+                    trigger_error('Attempt to set invalid parameter type');
+                    break;
+                }
+            }
+            return;
+        }
+
+        switch( $type ) {
         case CLEAN_INT:
         case CLEAN_FLOAT:
         case CLEAN_NONE:
         case CLEAN_STRING:
+        case CLEAN_REGEXP:
         case CLEAN_FILE:
             $this->param_map[trim($param)] = $type;
             break;
@@ -885,7 +925,7 @@ abstract class CMSModule
     }
 
     /**
-     * Returns whether this module should only be loaded from the admin
+     * Returns whether this module should only be loaded for admin purposes
      *
      * @abstract
      * @return bool
@@ -1066,6 +1106,52 @@ abstract class CMSModule
 
     /**
      * ------------------------------------------------------------------
+     * Content Type Related Functions
+     * ------------------------------------------------------------------
+     */
+
+    /**
+     * Register a custom content-type.
+     * This should be called from the module's constructor or from relevant
+     * Initialize method(s).
+     * The module must report CmsCoreCapabilities::CONTENT_TYPES or else
+     * this will probably never be called.
+     *
+     * @since 0.9 (but missing from 2.0-2.2)
+     *
+     * @param string $name Name of the content type
+     * @param string $locator Fully-qualified class, or if the class cannot be
+     *  autoloaded, the filesystem path of the file defining the content type
+     * @param mixed $friendlyname Optional public|friendly name of the content type. Default ''
+     * @param string $editorlocator since 2.3 Optional fully-qualified class, or
+     * if the class cannot be autoloaded, the filesystem path of the file defining
+     * the type's (ContentEditor-conformant) editable class.
+     *  Default '' hence no distinct class for editing pages of this type.
+     */
+    public function RegisterContentType($name, $locator, $friendlyname = '', $editorlocator = '')
+    {
+		$parms = [
+			'type' => $name,
+			'friendlyname' => $friendlyname,
+			'locator' => $locator,
+			'editorlocator' => $editorlocator,
+		];
+        $obj = new ContentType($parms);
+        ContentTypeOperations::get_instance()->AddContentType($obj);
+    }
+
+    /**
+     * Register all static (database-recorded) content types for this module.
+     * This should be called rarely e.g. during module installation or
+     * upgrade or after module-settings change.
+     *
+     * @abstract
+     * @since 2.3
+     */
+    public function CreateStaticContentTypes() {}
+
+    /**
+     * ------------------------------------------------------------------
      * Installation Related Functions
      * ------------------------------------------------------------------
      */
@@ -1091,8 +1177,7 @@ abstract class CMSModule
             $gCms = CmsApp::get_instance();
             $db = $gCms->GetDb();
             $config = $gCms->GetConfig();
-            global $CMS_INSTALL_PAGE;
-            if( !isset($CMS_INSTALL_PAGE) ) $smarty = $gCms->GetSmarty();
+                        if( !AppState::test_state(AppState::STATE_INSTALL) ) $smarty = $gCms->GetSmarty();
 
             $res = include $filename;
             if( $res == 1 || $res == '' ) return false;
@@ -1135,11 +1220,7 @@ abstract class CMSModule
             $db = $gCms->GetDb();
             $config = $gCms->GetConfig();
             $smarty = $gCms->GetSmarty();
-
-            $this->modinstall = true; // too bad if this method is sub-classed!
             $res = include $filename;
-            $this->modinstall = false;
-
             if( $res == 1 || $res == '' ) return false;
             if( is_string($res) ) {
                 $this->ShowErrors($res);
@@ -1191,7 +1272,7 @@ abstract class CMSModule
      * applying changes from versions older than the immediately-prior one, but
      * that's not mandatory. The default behavior of this method is to include
      * the file named method.upgrade.php, located in the module's base directory,
-	 * if such file exists.
+     * if such file exists.
      *
      * A falsy return value, or 1 (numeric), will be treated as an indication of
      * successful completion. Otherwise, the method should return an error message
@@ -1260,7 +1341,7 @@ abstract class CMSModule
      */
     final public function CreateXMLPackage(&$message, &$filecount)
     {
-        return (new ModuleOperations())->CreateXmlPackage($this, $message, $filecount);
+        return ModuleOperations::get_instance()->CreateXmlPackage($this, $message, $filecount);
     }
 
     /**
@@ -1325,6 +1406,7 @@ abstract class CMSModule
      * Returns true/false indicating whether the module should be treated as a
      * plugin module (like {cms_module module='name'}.  Defaults to false.
      * @see CMSModule::RegisterModulePlugin()
+     * @deprecated since 2.3 Instead CMSModule::HasCapability() should report CmsCoreCapabilities::PLUGIN_MODULE
      *
      * @abstract
      * @return bool
@@ -1336,50 +1418,34 @@ abstract class CMSModule
 
     /**
      * Returns true/false indicating whether the module may be lazy loaded during
-     *  a front-end request. Default false.
-     *
-     * Some properties (e.g. routes) are registered during each request, in which
-     * case a lazy load may cause such things to not work as expected.
-     *
-     * Note: This function is not called during each request, but only during
-     * install and upgrade and after caches are cleared. So if the return value
-     * of this function changes, clear the cache or increase the version number
-     * of the module to force a re-cache.
+     * a front-end request.
      *
      * @since 1.10
-     * @abstract
+     * Unused since 2.3 Modules are always loaded on-demand
      * @return bool
      */
     public function LazyLoadFrontend()
     {
-        return false;
+        return true;
     }
 
     /**
      * Returns true/false indicating whether the module may be lazy-loaded during
-     *  an admin/backend request. Default false.
-     *
-     * Some properties (e.g. routes) are registered during each request, in which
-     * case a lazy load may cause such things to not work as expected.
-     *
-     * Note: This function is not called during each request, but only during
-     * install and upgrade and after caches are cleared. So if the return value
-     * of this function changes, clear the cache or increase the version number
-     * of the module to force a re-cache.
+     * an admin/backend request.
      *
      * @since 1.10
-     * @abstract
+     * Unused since 2.3 Modules are always loaded on-demand
      * @return bool
      */
     public function LazyLoadAdmin()
     {
-        return false;
+        return true;
     }
 
     /**
-     * ------------------------------------------------------------------
-     * Module capabilities, a new way of checking what a module can do
-     * ------------------------------------------------------------------
+     * -------------------------------------------------------------
+     * Module capabilities, for checking what a module can do
+     * -------------------------------------------------------------
      */
 
     /**
@@ -1602,8 +1668,11 @@ abstract class CMSModule
                 unset($hints);
             }
 
-            // to try to avert XSS flaws, clean as many parameters as possible
-            // according to a map specified by SetParameterType methods.
+            $this->InitializeFrontend(); // just in case
+            // to try to avert XSS flaws, clean parameters according to the map generated
+            // by this module's InitializeFrontend() method. The map should have been populated
+            // using SetParameterType() calls.
+            // TODO if InitializeFrontend() has not been called? incomplete ->param_map here
             $params = $this->_cleanParamHash( $this->GetName(),$params,$this->param_map );
         }
 
@@ -1623,7 +1692,7 @@ abstract class CMSModule
             $returnid = filter_var($returnid, FILTER_SANITIZE_NUMBER_INT);
             $tmp = $params;
             $tmp['module'] = $this->GetName();
-            HookManager::do_hook('module_action', $tmp);
+            HookManager::do_hook('module_action', $tmp); //TODO BAD no namespace, some miscreant handler can change the parameters ... deprecate ?
         } else {
             $returnid = null;
         }
@@ -2189,11 +2258,11 @@ abstract class CMSModule
      */
     final public static function GetModuleInstance(string $module)
     {
-        return (new ModuleOperations())->get_module_instance($module, '');
+        return ModuleOperations::get_instance()->get_module_instance($module, '');
     }
 
     /**
-     * Returns an array of names of modules having the specified capability
+     * Returns an array of classes|names of modules having the specified capability
      *
      * @final
      * @param string $capability name of the capability we are checking for. could be "wysiwyg" etc.
@@ -2203,7 +2272,7 @@ abstract class CMSModule
     final public function GetModulesWithCapability(string $capability, array $params = []) : array
     {
         $result = [];
-        $tmp = ModuleOperations::get_modules_with_capability($capability,$params);
+        $tmp = ModuleOperations::get_instance()->GetCapableModules($capability,$params);
         if( $tmp ) {
             for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
                 if( is_object($tmp[$i]) ) {
@@ -2451,8 +2520,7 @@ abstract class CMSModule
      */
     final public function ListUserTags() : array
     {
-        $gCms = CmsApp::get_instance();
-        $ops = $gCms->GetUserPluginOperations();
+        $ops = UserPluginOperations::get_instance();
         return $ops->get_list();
     }
 
@@ -2467,8 +2535,7 @@ abstract class CMSModule
      */
     final public function CallUserTag(string $name, $params = [])
     {
-        $gCms = CmsApp::get_instance();
-        $ops = $gCms->GetUserPluginOperations();
+        $ops = UserPluginOperations::get_instance();
         return $ops->call_plugin($name, $params);
     }
 
@@ -2723,9 +2790,8 @@ abstract class CMSModule
      */
     public function ShowInfo($message)
     {
-        global $CMS_ADMIN_PAGE;
 
-        if( !empty($CMS_ADMIN_PAGE) ) {
+        if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
             $theme = cms_utils::get_theme_object();
             if( is_object($theme) ) $theme->RecordNotice('info', $message);
         }
@@ -2742,9 +2808,8 @@ abstract class CMSModule
      */
     public function ShowMessage($message)
     {
-        global $CMS_ADMIN_PAGE;
 
-        if( !empty($CMS_ADMIN_PAGE) ) {
+        if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
             $theme = cms_utils::get_theme_object();
             if( is_object($theme) ) $theme->RecordNotice('success', $message);
         }
@@ -2762,9 +2827,8 @@ abstract class CMSModule
      */
     public function ShowWarning($message)
     {
-        global $CMS_ADMIN_PAGE;
 
-        if( !empty($CMS_ADMIN_PAGE) ) {
+        if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
             $theme = cms_utils::get_theme_object();
             if( is_object($theme) ) $theme->RecordNotice('warn', $message);
         }
@@ -2782,9 +2846,8 @@ abstract class CMSModule
      */
     public function ShowErrors($message)
     {
-        global $CMS_ADMIN_PAGE;
 
-        if( !empty($CMS_ADMIN_PAGE) ) {
+        if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
             $theme = cms_utils::get_theme_object();
             if (is_object($theme)) $theme->RecordNotice('error', $message);
         }
@@ -2857,16 +2920,17 @@ abstract class CMSModule
      */
 
     /**
-     * Returns a module preference if it exists.
+     * Returns a module preference if it exists, or else the specified default value.
      *
      * @final
      * @param string $preference_name The name of the preference to check
-     * @param string $defaultvalue    Optional default value, returned if a stored value doesn't exist
-     * @return string
+     * @param mixed  $defaultvalue    Optional default value (single | array). Default ''.
+     * @return mixed
      */
-    final public function GetPreference(string $preference_name, string $defaultvalue='') : string
+    final public function GetPreference(string $preference_name, $defaultvalue='')
     {
-        return cms_siteprefs::get($this->GetName().'_mapi_pref_'.$preference_name, $defaultvalue);
+        //see cms_siteprefs::MODULE_SIG
+        return cms_siteprefs::getraw($this->GetName().'_mapi_pref_'.$preference_name, $defaultvalue);
     }
 
     /**
@@ -2878,12 +2942,13 @@ abstract class CMSModule
      */
     final public function SetPreference(string $preference_name, $value)
     {
+        //see cms_siteprefs::MODULE_SIG
         return cms_siteprefs::set($this->GetName().'_mapi_pref_'.$preference_name, $value);
     }
 
     /**
-     * Removes a module preference.  If no preference name
-     * is specified, removes all module preferences.
+     * Removes a module preference, or if no preference name is specified,
+	 * removes all module preferences.
      *
      * @final
      * @param string $preference_name Optional name of the preference to remove.  If empty, all preferences associated with the module are removed.
@@ -2891,6 +2956,7 @@ abstract class CMSModule
      */
     final public function RemovePreference(string $preference_name = '')
     {
+        //see cms_siteprefs::MODULE_SIG
         if( ! $preference_name ) return cms_siteprefs::remove($this->GetName().'_mapi_pref_',true);
         return cms_siteprefs::remove($this->GetName().'_mapi_pref_'.$preference_name);
     }
@@ -2906,6 +2972,7 @@ abstract class CMSModule
     final public function ListPreferencesByPrefix(string $prefix)
     {
         if( !$prefix ) return;
+        //see cms_siteprefs::MODULE_SIG
         $prefix = $this->GetName().'_mapi_pref_'.$prefix;
         $tmp = cms_siteprefs::list_by_prefix($prefix);
         if( $tmp ) {
@@ -3078,7 +3145,6 @@ abstract class CMSModule
     }
 
 } // class
-
 
 /**
  * Indicates that the incoming parameter is expected to be an integer.
