@@ -27,6 +27,7 @@ use CMSMS\AdminUtils;
 use CMSMS\Events;
 use CMSMS\StylesheetsGroup;
 use CmsSQLErrorException;
+use DateTime;
 use Exception;
 use const CMS_DB_PREFIX;
 use function check_permission;
@@ -75,10 +76,10 @@ class StylesheetOperations
 		// double check the name
 		if( $sht->get_id() ) {
 			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
-			$tmp = $db->GetOne($sql,[$sht->get_name(),$sht->get_id()]);
+			$tmp = $db->GetOne($sql, [$sht->get_name(), $sht->get_id()]);
 		} else {
 			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
-			$tmp = $db->GetOne($sql,[$sht->get_name()]);
+			$tmp = $db->GetOne($sql, [$sht->get_name()]);
 		}
 		if( $tmp ) {
 			throw new CmsInvalidDataException('Stylesheet with the same name already exists.');
@@ -605,9 +606,9 @@ VALUES (?,?,?,?,?,?)';
 	{
 		$n = 0;
 		$db = CmsApp::get_instance()->GetDb();
-		list($shts,$grps) = self::items_split($ids);
+		list($shts, $grps) = self::items_split($ids);
 		if ($shts) {
-			$sql = 'SELECT name,content,description,media_type,media_query,contentfile FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($shts)-1).'?)';
+			$sql = 'SELECT name,content,description,media_type,media_query,contentfile FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($shts)-1).'?)';
 			$from = $db->GetArray($sql, $shts);
 			$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,content,description,media_type,media_query,contentfile) VALUES (?,?,?,?,?,?)';
 			foreach ($from as $row) {
@@ -620,11 +621,11 @@ VALUES (?,?,?,?,?,?)';
 				if ($row['contentfile']) {
 					$id = $db->Insert_ID();
 					$fn = munge_string_to_url($row['name']).'.'.$id.'.css';
-					if (!isset($config)) $config = cms_config::get_instance();
-					$from = cms_join_path($config['assets_path'],'css',$row['content']);
-					$to = cms_join_path($config['assets_path'],'css',$fn);
-					if (copy($from,$to)) {
-						$db->Execute('UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?', [$fn,$id]);
+					if (!isset($config)) { $config = cms_config::get_instance(); }
+					$from = cms_join_path($config['assets_path'], 'css', $row['content']);
+					$to = cms_join_path($config['assets_path'], 'css', $fn);
+					if (copy($from, $to)) {
+						$db->Execute('UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=? WHERE id=?', [$fn, $id]);
 					} else {
 						//TODO handle error
 					}
@@ -633,9 +634,9 @@ VALUES (?,?,?,?,?,?)';
 			$n = count($from);
 		}
 		if ($grps) {
-			$sql = 'SELECT id,name,description FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT id,name,description FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($grps)-1).'?)';
 			$from = $db->GetArray($sql, $grps);
-			$sql = 'SELECT group_id,css_id,item_order FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT group_id,css_id,item_order FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,', count($grps)-1).'?)';
 			$members = $db->Execute($sql, $grps);
 			$sql = 'INSERT INTO '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' (name,description) VALUES (?,?)';
 			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' (group_id,css_id,item_order) VALUES (?,?,?)';
@@ -667,43 +668,42 @@ VALUES (?,?,?,?,?,?)';
 	public static function operation_delete($ids) : int
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		list($shts,$grps) = self::items_split($ids);
+		list($shts, $grps) = self::items_split($ids);
 		if ($grps) {
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,', count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
 		}
 		if ($shts) {
 			list($pages, $skips) = self::affected_pages($shts);
 			if ($pages) {
-				$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
-				$rows = $db->GetArray($sql, $spages);
 				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
-				foreach($rows as $row) {
+				foreach ($pages as &$row) {
 					$s = self::filter($row['styles'], $shts);
-					$db->Execute($sql, [$row['content_id'],$s]);
+					$db->Execute($sql, [$s, $row['content_id']]);
 				}
-				$n = count($rows);
+				unset($row);
+				$n = count($pages);
 			}
 			else {
 				$n = 0;
 			}
-			$fillers = (is_array($ids)) ? '('.str_repeat("'%?%' OR ",count($ids)-1)."'%?%')" : "'%?%'";
+			$fillers = (is_array($ids)) ? '('.str_repeat("'%?%' OR ", count($ids)-1)."'%?%')" : "'%?%'";
 			$sql = 'SELECT DISTINCT styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE '.$fillers;
 			$keeps = $db->GetCol($sql, $ids);
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($shts)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($shts)-1).'?)';
 			if ($keeps) {
 				$t = [];
 				foreach ($keeps as $s) {
-					$tmp = explode(',',$s);
-					$t = array_merge($t, array_intersect($shts,$tmp)); //any grp id < 0 will be ignored
+					$tmp = explode(',', $s);
+					$t = array_merge($t, array_intersect($shts, $tmp)); //any grp id < 0 will be ignored
 				}
 				if ($t) {
-					$sql .= ' AND id NOT IN ('.implode(',',$t).')';
+					$sql .= ' AND id NOT IN ('.implode(',', $t).')';
 				}
 			}
-			$db->Execute($sql, $tpls);
+			$db->Execute($sql, $shts);
 
 			return $n;
 		}
@@ -718,43 +718,42 @@ VALUES (?,?,?,?,?,?)';
 	public static function operation_deleteall($ids) : int
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		list($shts,$grps) = self::items_split($ids);
+		list($shts, $grps) = self::items_split($ids);
 		if ($grps) {
-			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,', count($grps)-1).'?)';
 			$members = $db->GetCol($sql, $grps);
 			$shts = array_unique(array_merge($shts, $members));
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,', count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.StylesheetsGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
 		}
 		if ($shts) {
 			list($pages, $skips) = self::affected_pages($shts);
 			if ($pages) {
-				$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
-				$rows = $db->GetArray($sql, $pages);
 				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
-				foreach ($rows as $row) {
+				foreach ($pages as &$row) {
 					$s = self::filter($row['styles'], $shts);
-					$db->Execute($sql, [$row['content_id'],$s]);
+					$db->Execute($sql, [$s, $row['content_id']]);
 				}
-				$n = count($rows);
+				unset($row);
+				$n = count($pages);
 			}
 			else {
 				$n = 0;
 			}
-			$fillers = (is_array($ids)) ? '('.str_repeat("'%?%' OR ",count($ids)-1)."'%?%')" : "'%?%'";
+			$fillers = (is_array($ids)) ? '('.str_repeat("'%?%' OR ", count($ids)-1)."'%?%')" : "'%?%'";
 			$sql = 'SELECT DISTINCT styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE '.$fillers;
 			$keeps = $db->GetCol($sql, $ids);
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($shts)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.str_repeat('?,', count($shts)-1).'?)';
 			if ($keeps) {
 				$t = [];
 				foreach ($keeps as $s) {
-					$tmp = explode(',',$s);
-					$t = array_merge($t, array_intersect($shts,$tmp)); //any grp id < 0 will be ignored
+					$tmp = explode(',', $s);
+					$t = array_merge($t, array_intersect($shts, $tmp)); //any grp id < 0 will be ignored
 				}
 				if ($t) {
-					$sql .= ' AND id NOT IN ('.implode(',',$t).')';
+					$sql .= ' AND id NOT IN ('.implode(',', $t).')';
 				}
 			}
 			$db->Execute($sql, $shts);
@@ -775,13 +774,12 @@ VALUES (?,?,?,?,?,?)';
 		list($pages, $skips) = self::affected_pages($from);
 		if ($pages) {
 			$db = CmsApp::get_instance()->GetDb();
-			$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
-			$rows = $db->GetArray($sql, $pages);
 			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
-			foreach($rows as $row) {
+			foreach($pages as &$row) {
 				$s = self::filter2($row['styles'], $from, $to);
-				$db->Execute($sql, [$row['content_id'], $s]);
+				$db->Execute($sql, [$s, $row['content_id']]);
 			}
+			unset($row);
 			return count($pages);
 		}
 		return 0;
@@ -797,16 +795,15 @@ VALUES (?,?,?,?,?,?)';
 		list($pages, $skips) = self::affected_pages('*');
 		if ($pages) {
 			$db = CmsApp::get_instance()->GetDb();
-			$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
-			$rows = $db->GetArray($sql, $pages);
-			$to = ','.implode(',',$ids);
+			$to = ','.implode(',', $ids);
 			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
-			foreach($rows as $row) {
+			foreach($pages as &$row) {
 				$s = self::filter($row['styles'], $ids);
-				$s = trim($s.$to,' ,');
-				$db->Execute($sql, [$row['content_id'],$s]);
+				$s = trim($s.$to, ' ,');
+				$db->Execute($sql, [$s, $row['content_id']]);
 			}
-			return count($rows);
+			unset($row);
+			return count($pages);
 		}
 		return 0;
 	}
@@ -821,15 +818,14 @@ VALUES (?,?,?,?,?,?)';
 		list($pages, $skips) = self::affected_pages('*');
 		if ($pages) {
 			$db = CmsApp::get_instance()->GetDb();
-			$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
-			$rows = $db->GetArray($sql, $pages);
-			$to = implode(',',$ids).',';
+			$to = implode(',', $ids).',';
 			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
-			foreach($rows as $row) {
+			foreach($pages as &$row) {
 				$s = self::filter($row['styles'], $ids);
-				$s = trim($to.$s,' ,');
-				$db->Execute($sql, [$row['content_id'],$s]);
+				$s = trim($to.$s, ' ,');
+				$db->Execute($sql, [$s, $row['content_id']]);
 			}
+			unset($row);
 			return count($pages);
 		}
 		return 0;
@@ -845,14 +841,13 @@ VALUES (?,?,?,?,?,?)';
 		list($pages, $skips) = self::affected_pages('*');
 		if ($pages) {
 			$db = CmsApp::get_instance()->GetDb();
-			$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.' WHERE content_id IN ('.implode(',',$pages).')';
-			$rows = $db->GetArray($sql, $pages);
 			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
-			foreach($rows as $row) {
+			foreach($pages as &$row) {
 				$s = self::filter($row['styles'], $ids);
-				$db->Execute($sql, [$row['content_id'],$s]);
+				$db->Execute($sql, [$s, $row['content_id']]);
 			}
-			return count($rows);
+			unset($row);
+			return count($pages);
 		}
 		return 0;
 	}
@@ -865,10 +860,10 @@ VALUES (?,?,?,?,?,?)';
 	public static function operation_export($ids) : int
 	{
 		$n = 0;
-		list($shts,$grps) = self::items_split($ids);
+		list($shts, $grps) = self::items_split($ids);
 		if ($shts) {
 			$db = CmsApp::get_instance()->GetDb();
-			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=0 AND id IN ('.str_repeat('?,',count($shts)-1).'?)';
+			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=0 AND id IN ('.str_repeat('?,', count($shts)-1).'?)';
 			$from = $db->GetArray($sql, $shts);
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=1 WHERE id=?';
 			$config = cms_config::get_instance();
@@ -877,10 +872,10 @@ VALUES (?,?,?,?,?,?)';
 					//replicate object::set_content_file()
 					$fn = munge_string_to_url($row['name']).'.'.$row['id'].'.css';
 					//replicate object::get_content_filename()
-					$outfile = cms_join_path($config['assets_path'],'css',$fn);
-					$res = file_put_contents($outfile,$row['content'],LOCK_EX);
+					$outfile = cms_join_path($config['assets_path'], 'css', $fn);
+					$res = file_put_contents($outfile, $row['content'], LOCK_EX);
 					if ($res !== false) {
-						$db->Execute($sql, [$fn,$row['id']]);
+						$db->Execute($sql, [$fn, $row['id']]);
 						++$n;
 					} else {
 						//some signal needed
@@ -899,10 +894,10 @@ VALUES (?,?,?,?,?,?)';
 	public static function operation_import($ids) : int
 	{
 		$n = 0;
-		list($shts,$grps) = self::items_split($ids);
+		list($shts, $grps) = self::items_split($ids);
 		if ($shts) {
 			$db = CmsApp::get_instance()->GetDb();
-			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=1 AND id IN ('.str_repeat('?,',count($shts)-1).'?)';
+			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=1 AND id IN ('.str_repeat('?,', count($shts)-1).'?)';
 			$from = $db->GetArray($sql, $shts);
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=0 WHERE id=?';
 			$config = cms_config::get_instance();
@@ -911,10 +906,10 @@ VALUES (?,?,?,?,?,?)';
 					//replicate object::set_content_file()
 					$fn = munge_string_to_url($row['name']).'.'.$row['id'].'.css';
 					//replicate object::get_content_filename()
-					$outfile = cms_join_path($config['assets_path'],'css',$fn);
+					$outfile = cms_join_path($config['assets_path'], 'css', $fn);
 					$content = file_get_contents($outfile);
 					if ($content !== false) {
-						$db->Execute($sql, [$content,$row['id']]);
+						$db->Execute($sql, [$content, $row['id']]);
 						++$n;
 					} else {
 						//some signal needed
@@ -926,26 +921,43 @@ VALUES (?,?,?,?,?,?)';
 	}
 
 	/**
-	 * @ignore
+	 * Get data for pages to be operated on or skipped
+	 * @param mixed $ids  int stylesheet id | id's array | string '*'
+	 * @return 2-member array
+	 *  [0] = array, each row having 'content_id', 'styles'
+	 *  [1] = no. of unusable pages
 	 */
 	protected static function affected_pages($ids)
 	{
 		$uid = get_userid();
 		$modify_all = check_permission($uid,'Manage All Content') || check_permission($uid,'Modify Any Page');
-		$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE ';
-		$fillers = (is_array($ids)) ? '('.str_repeat("'%?%' OR ",count($ids)-1)."'%?%')" : "'%?%'";
-		$sql .= $fillers;
-		$args = (is_array($ids)) ? $ids : [$ids];
-		if (!$modify_all) {
-			$sql .= ' AND owner_id=?';
-			$args[] = $uid;
+		$sql = 'SELECT content_id,styles FROM '.CMS_DB_PREFIX.'content';
+		if ($ids != '*') {
+			$sql .= ' WHERE styles LIKE ';
+			$fillers = (is_array($ids)) ? '('.str_repeat("'%?%' OR ", count($ids)-1)."'%?%')" : "'%?%'";
+			$sql .= $fillers;
+			$args = (is_array($ids)) ? $ids : [$ids];
+			if (!$modify_all) {
+				$sql .= ' AND owner_id=?';
+				$args[] = $uid;
+			}
+		} elseif (!$modify_all) {
+			$sql .= ' WHERE owner_id=?';
+			$args = [$uid];
+		} else {
+			$args = null;
 		}
 		$db = CmsApp::get_instance()->GetDb();
 		$valid = $db->getArray($sql, $args);
 
 		if (!$modify_all) {
-			$sql = 'SELECT COUNT(1) AS num FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE '.$fillers;
-			$args = (is_array($ids)) ? $ids : [$ids];
+			if ($ids != '*') {
+				$sql = 'SELECT COUNT(1) AS num FROM '.CMS_DB_PREFIX.'content WHERE styles LIKE '.$fillers;
+				$args = (is_array($ids)) ? $ids : [$ids];
+			} else {
+				$sql = 'SELECT COUNT(1) AS num FROM '.CMS_DB_PREFIX.'content';
+				$args = null;
+			}
 			$all = $db->getOne($sql, $args);
 			$other = $all - count($valid);
 		} else {
@@ -955,7 +967,10 @@ VALUES (?,?,?,?,?,?)';
 	}
 
 	/**
+	 * Partition $ids into sheet id(s) and/or sheet-group id(s)
 	 * @ignore
+	 * $param mixed $ids int | int[], group ids < 0
+	 * @return 2-member array [0] = sheet ids, [1] = group ids (> 0)
 	 */
 	protected static function items_split($ids)
 	{
@@ -978,8 +993,11 @@ VALUES (?,?,?,?,?,?)';
 	}
 
 	/**
+	 * Remove anything in $ids from $s
 	 * @ignore
-	 * @return string
+	 * @param string $s Stylesheets value (possibly comma-separated)
+	 * @param mixed $ids int | int[]
+	 * @return string (possibly comma-separated)
 	 */
 	protected static function filter(string $s, $ids) : string
 	{
@@ -992,8 +1010,12 @@ VALUES (?,?,?,?,?,?)';
 	}
 
 	/**
+	 * Replace $from by corresponding $to in $s
 	 * @ignore
-	 * @return string
+	 * @param string $s Stylesheets value (possibly comma-separated)
+	 * @param mixed $from int | int[]
+	 * @param mixed $to int | int[]
+	 * @return string (possibly comma-separated)
 	 */
 	protected static function filter2(string $s, $from, $to) : string
 	{
