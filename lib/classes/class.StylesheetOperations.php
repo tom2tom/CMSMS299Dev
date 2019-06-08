@@ -130,10 +130,10 @@ WHERE id = ?';
 		$dl = $sht->get_designs(); DISABLED
 		$new_dl = [];
 		$del_dl = [];
-		foreach( $dl as $one ) {
+		foreach ( $dl as $one ) {
 			if( !in_array($one,$design_list) ) $new_dl[] = $one;
 		}
-		foreach( $design_list as $one ) {
+		foreach ( $design_list as $one ) {
 			if( !in_array($one,$dl) ) $del_dl[] = $one;
 		}
 
@@ -142,7 +142,7 @@ WHERE id = ?';
 			$sql1 = 'SELECT css_order FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ? AND design_id = ?';
 			$sql2 = 'UPDATE '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' SET css_order = css_order - 1 WHERE design_id = ? AND css_order > ?';
 			$sql3 = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE design_id = ? AND css_id = ?';
-			foreach( $del_dl as $design_id ) {
+			foreach ( $del_dl as $design_id ) {
 				$design_id = (int)$design_id;
 				$css_order = (int)$db->GetOne($sql1,[$sid,$design_id]);
 				$dbr = $db->Execute($sql2,[$design_id,$css_order]);
@@ -156,7 +156,7 @@ WHERE id = ?';
 			// add new items
 			$sql1 = 'SELECT MAX(css_order) FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE design_id = ?';
 			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' (css_id,design_id,css_order) VALUES(?,?,?)';
-			foreach( $new_dl as $one ) {
+			foreach ( $new_dl as $one ) {
 				$one = (int)$one;
 				$num = (int)$db->GetOne($sql1,[$one])+1;
 				$dbr = $db->Execute($sql2,[$sid,$one,$num]);
@@ -326,12 +326,12 @@ VALUES (?,?,?,?,?,?)';
 	*
 	* @param array $ids stylesheet identifiers, all of them (int|numeric string) id's or (other string) names
 	* @param bool $deep whether or not to load associated data
-	* @return mixed array of CmsLayoutStylesheet objects | null
+	* @return array CmsLayoutStylesheet object(s) | empty
 	* @throws CmsInvalidDataException
 	*/
-	public static function get_bulk_stylesheets($ids,bool $deep = true)
+	public static function get_bulk_stylesheets(array $ids,bool $deep = true) : array
 	{
-		if( !$ids ) return;
+		if( !$ids ) return [];
 
 		$db = CmsApp::get_instance()->GetDb();
 		// clean up the input data
@@ -404,7 +404,7 @@ VALUES (?,?,?,?,?,?)';
 			}
 		}
 
-		if( $out ) return $out;
+		return $out;
 	}
 
    /**
@@ -529,7 +529,7 @@ VALUES (?,?,?,?,?,?)';
 				$out = $res;
 			}
 			else {
-				foreach($res as $id => $name ) {
+				foreach( $res as $id => $name ) {
 					$id = (int)$id;
 					try {
 						$out[$id] = StylesheetsGroup::load($id);
@@ -599,7 +599,7 @@ VALUES (?,?,?,?,?,?)';
 
 	/**
 	 * Clone stylesheet(s) and/or group(s)
-	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
+	 * @param mixed $ids int | int[] stylesheet identifier(s), any id < 0 means a group
 	 * @return int No of stylesheets cloned
 	 */
 	public static function operation_copy($ids) : int
@@ -662,7 +662,7 @@ VALUES (?,?,?,?,?,?)';
 
 	/**
 	 * Delete stylesheet(s) and/or group(s) but not group members (unless also specified individually)
-	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
+	 * @param mixed $ids int | int[] stylesheet identifier(s), any id < 0 means a group
 	 * @return int No of pages modified
 	 */
 	public static function operation_delete($ids) : int
@@ -712,7 +712,7 @@ VALUES (?,?,?,?,?,?)';
 
 	/**
 	 * Delete stylesheet(s) and/or group(s) and group-member(s)
-	 * @param mixed $ids int | int[] stylesheet identifier(s), < 0 means a group
+	 * @param mixed $ids int | int[] stylesheet identifier(s), any id < 0 means a group
 	 * @return int No of pages modified
 	 */
 	public static function operation_deleteall($ids) : int
@@ -765,8 +765,8 @@ VALUES (?,?,?,?,?,?)';
 
 	/**
 	 * Replace the stylesheet wherever used and the user is authorized
-	 * @param mixed $from int|int[] stylesheet identifier(s), <0 for a group
-	 * @param mixed $to int|int[] stylesheet identifier(s), <0 for a group
+	 * @param mixed $from int|int[] stylesheet identifier(s), < 0 for a group
+	 * @param mixed $to int|int[] stylesheet identifier(s), < 0 for a group
 	 * @return int No of pages modified
 	 */
 	public static function operation_replace($from, $to) : int
@@ -775,7 +775,7 @@ VALUES (?,?,?,?,?,?)';
 		if ($pages) {
 			$db = CmsApp::get_instance()->GetDb();
 			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
-			foreach($pages as &$row) {
+			foreach ($pages as &$row) {
 				$s = self::filter2($row['styles'], $from, $to);
 				$db->Execute($sql, [$s, $row['content_id']]);
 			}
@@ -795,9 +795,14 @@ VALUES (?,?,?,?,?,?)';
 		list($pages, $skips) = self::affected_pages('*');
 		if ($pages) {
 			$db = CmsApp::get_instance()->GetDb();
-			$to = ','.implode(',', $ids);
+			if (is_array($ids)) {
+				$to = ','.implode(',', $ids);
+			}
+			else {
+				$to = ','.$ids;
+			}
 			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
-			foreach($pages as &$row) {
+			foreach ($pages as &$row) {
 				$s = self::filter($row['styles'], $ids);
 				$s = trim($s.$to, ' ,');
 				$db->Execute($sql, [$s, $row['content_id']]);
@@ -818,9 +823,14 @@ VALUES (?,?,?,?,?,?)';
 		list($pages, $skips) = self::affected_pages('*');
 		if ($pages) {
 			$db = CmsApp::get_instance()->GetDb();
-			$to = implode(',', $ids).',';
+			if (is_array($ids)) {
+				$to = implode(',', $ids).',';
+			}
+			else {
+				$to = $ids.',';
+			}
 			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
-			foreach($pages as &$row) {
+			foreach ($pages as &$row) {
 				$s = self::filter($row['styles'], $ids);
 				$s = trim($to.$s, ' ,');
 				$db->Execute($sql, [$s, $row['content_id']]);
@@ -842,7 +852,7 @@ VALUES (?,?,?,?,?,?)';
 		if ($pages) {
 			$db = CmsApp::get_instance()->GetDb();
 			$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET styles=? WHERE content_id=?';
-			foreach($pages as &$row) {
+			foreach ($pages as &$row) {
 				$s = self::filter($row['styles'], $ids);
 				$db->Execute($sql, [$s, $row['content_id']]);
 			}
@@ -969,8 +979,8 @@ VALUES (?,?,?,?,?,?)';
 	/**
 	 * Partition $ids into sheet id(s) and/or sheet-group id(s)
 	 * @ignore
-	 * $param mixed $ids int | int[], group ids < 0
-	 * @return 2-member array [0] = sheet ids, [1] = group ids (> 0)
+	 * $param mixed $ids int | int[], any id < 0 means a group
+	 * @return 2-member array [0] = sheet ids, [1] = group ids (now > 0)
 	 */
 	protected static function items_split($ids)
 	{
