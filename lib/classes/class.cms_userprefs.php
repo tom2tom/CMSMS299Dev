@@ -34,6 +34,12 @@ final class cms_userprefs
 
 	/**
 	 * @ignore
+	 * Acceptable serialized classes in property values
+	 */
+	const PREF_CLASSES = ['stdClass'];
+
+	/**
+	 * @ignore
 	 * Intra-request cache
 	 */
 	private static $_prefs = null;
@@ -94,7 +100,7 @@ final class cms_userprefs
 			$value = self::$_prefs[$userid][$key];
 			$l = strlen(self::SERIAL);
 			if( strncmp($value,self::SERIAL,$l) == 0 ) {
-				$value = unserialize(substr($val,$l),['allowed_classes' => FALSE]);
+				$value = unserialize(substr($val,$l),['allowed_classes' => self::PREF_CLASSES]);
 			}
 			return $value;
 		}
@@ -128,7 +134,7 @@ final class cms_userprefs
 			$l = strlen(self::SERIAL);
 			foreach(self::$_prefs[$userid] as $key => $value ) {
 				if( strncmp($value,self::SERIAL,$l) == 0 ) {
-					$value = unserialize(substr($value,$l),['allowed_classes' => FALSE]);
+					$value = unserialize(substr($value,$l),['allowed_classes' => self::PREF_CLASSES]);
 				}
 				$ret[$key] = $value;
 			}

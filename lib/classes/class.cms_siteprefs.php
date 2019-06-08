@@ -32,13 +32,19 @@ final class cms_siteprefs
 	/**
 	 * @ignore
 	 */
-	const MODULE_PREFKEY = '_mapi_pref_';
+	const MODULE_SIG = '_mapi_pref_';
 
 	/**
 	 * @ignore
 	 * Constant indicating a serialized value
 	 */
 	const SERIAL = '_S8D_'; // shortened '_SERIALIZED_'
+
+	/**
+	 * @ignore
+	 * Acceptable serialized classes in property values
+	 */
+	const PREF_CLASSES = ['stdClass'];
 
 	/**
 	 * @ignore
@@ -72,7 +78,7 @@ final class cms_siteprefs
 		if( !$db ) {
 			return;
 		}
-		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name NOT LIKE "%'.self::MODULE_PREFKEY.'%" ORDER BY sitepref_name';
+		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name NOT LIKE "%'.self::MODULE_SIG.'%" ORDER BY sitepref_name';
 		$dbr = $db->GetAssoc($query);
 		if( $dbr ) {
 			return $dbr;
@@ -106,7 +112,7 @@ final class cms_siteprefs
 			foreach( $key as $i => $one ) {
 				if( isset($dbr[$one]) ) {
 					if( strncmp($dbr[$one],self::SERIAL,$l) == 0 ) {
-						$dbr[$one] = unserialize(substr($prefs[$key],$l),['allowed_classes' => FALSE]);
+						$dbr[$one] = unserialize(substr($prefs[$key],$l),['allowed_classes' => self::PREF_CLASSES]);
 					}
 				}
 				else {
@@ -121,7 +127,7 @@ final class cms_siteprefs
 			if( $dbr ) {
 				$value = end($dbr);
 				if( strncmp($value,self::SERIAL,$l) == 0 ) {
-					$value = unserialize(substr($val,$l),['allowed_classes' => FALSE]);
+					$value = unserialize(substr($val,$l),['allowed_classes' => self::PREF_CLASSES]);
 				}
 				return $value;
 			}
@@ -143,7 +149,7 @@ final class cms_siteprefs
 		if( isset($prefs[$key]) && $prefs[$key] !== '' ) {
 			$l = strlen(self::SERIAL);
 			if( strncmp($prefs[$key],self::SERIAL,$l) == 0 ) {
-				return unserialize(substr($prefs[$key],$l),['allowed_classes' => FALSE]);
+				return unserialize(substr($prefs[$key],$l),['allowed_classes' => self::PREF_CLASSES]);
 			}
 			return $prefs[$key];
 		}
@@ -189,7 +195,7 @@ EOS;
 //		$dbr =
 		$db->Execute($query,[$key,$value,$key]);
 
-		if( strpos($key,self::MODULE_PREFKEY) === FALSE ) {
+		if( strpos($key,self::MODULE_SIG) === FALSE ) {
 			global_cache::release(__CLASS__);
 		}
 	}
@@ -211,7 +217,7 @@ EOS;
 		}
 		$db = CmsApp::get_instance()->GetDb();
 		$db->Execute($query,[$key]);
-		if( strpos($key,self::MODULE_PREFKEY) === FALSE) {
+		if( strpos($key,self::MODULE_SIG) === FALSE) {
 			global_cache::release(__CLASS__);
 		}
 	}
