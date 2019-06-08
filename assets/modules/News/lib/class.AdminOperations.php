@@ -17,18 +17,17 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace News;
+//use function cms_move_uploaded_file;
 
-use cms_route_manager;
 use cms_utils;
+use CMSMS\ContentOperations;
 use CMSMS\Events;
+use CMSMS\RouteOperations;
 use CmsRoute;
 use const CMS_DB_PREFIX;
 use function audit;
-use function cms_join_path;
-//use function cms_move_uploaded_file;
 use function cmsms;
 use function get_userid;
-use function recursive_delete;
 
 final class AdminOperations
 {
@@ -227,7 +226,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
      */
     public static function delete_static_route($news_article_id)
     {
-        return cms_route_manager::del_static('','News',$news_article_id);
+        return RouteOperations::del_static('','News',$news_article_id);
     }
 
     /**
@@ -243,13 +242,12 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             $module = cms_utils::get_module('News');
             $detailpage = $module->GetPreference('detail_returnid',-1);
             if( $detailpage == -1 ) {
-                $detailpage = cmsms()->GetContentOperations()->GetDefaultContent();
+                $detailpage = ContentOperations::get_instance()->GetDefaultContent();
             }
         }
-        $parms = ['action'=>'detail','returnid'=>$detailpage,'articleid'=>$news_article_id];
-
-        $route = CmsRoute::new_builder($news_url,'News',$news_article_id,$parms,TRUE);
-        return cms_route_manager::add_static($route);
+        $dflts = ['action'=>'detail','returnid'=>$detailpage,'articleid'=>$news_article_id];
+        $route = new CmsRoute($news_url,'News',$dflts,TRUE,$news_article_id);
+        return RouteOperations::add_static($route);
     }
 
     /**
