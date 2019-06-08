@@ -16,16 +16,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\contenttypes\ContentBase;
+use CMSMS\LangOperations;
+
 /**
- * Class that module defined content types must extend.
+ * Class providing a framework for displaying non-core page-content-types.
+ * Module-defined content types may extend this class.
  *
  * @since		0.9
+ * @deprecated since 2.3 This does not provide anything useful.
+ * Instead, the content-type class (implementing ContentEditor), and if appropriate
+ * a separate display-only variant, should just be registered permanently or during
+ * each request via the CMSModule API.
  * @package		CMS
  */
 abstract class CMSModuleContentType extends ContentBase
 {
   /**
-   * A method for returning the module that the content type belongs to.
+   * Return the name of the module that the content type belongs to.
    *
    * @abstract
    * @return string
@@ -33,24 +41,7 @@ abstract class CMSModuleContentType extends ContentBase
   abstract public function ModuleName();
 
   /**
-   * Retrieve a language string from the module.
-   *
-   * @param string $name The key for the language string
-   * @param array  $params Optional parameters for use in vsprintf
-   */
-  public function Lang($name, $params=[])
-  {
-    $obj = cms_utils::get_module($this->ModuleName());
-    if( $obj ) {
-      return $obj->Lang($name, $params);
-    }
-    else {
-      return 'ModuleName() not defined properly';
-    }
-  }
-
-  /**
-   * Returns the instance of the module this content type belongs to
+   * Return the module-object the content type belongs to
    */
   final public function GetModuleInstance()
   {
@@ -58,5 +49,21 @@ abstract class CMSModuleContentType extends ContentBase
     if( $mod ) return $mod;
     return 'ModuleName() not defined properly';
   }
-} // class
 
+  /**
+   * Retrieve a translated string from the module.
+   * This method accepts variable arguments. The first one (required) is the
+   * translations-array key (a string). Any extra arguments are assumed to be
+   * sprintf arguments to be applied to the key.
+   * The original API, providing extra arguments in an array, may be used.
+   */
+  public function Lang($key, $params = [])
+  {
+    $realm = $this->ModuleName();
+    $args = func_get_args();
+    if( count($args) == 2 && $args[1] && is_array($args[1]) ) {
+      return LangOperations::lang_from_realm($realm, $args[0], ...$args[1]);
+    }
+    return LangOperations::lang_from_realm($realm, ...$args);
+  }
+} // class
