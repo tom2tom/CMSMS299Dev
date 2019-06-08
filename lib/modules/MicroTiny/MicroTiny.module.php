@@ -32,9 +32,9 @@ class MicroTiny extends CMSModule
   public function GetName() { return 'MicroTiny'; }
   public function GetVersion(){ return '2.3'; }
   public function HasAdmin() { return true; }
-  public function IsPluginModule() { return true; }
-  public function LazyLoadAdmin() { return true; }
-  public function LazyLoadFrontend() { return true; }
+  public function IsPluginModule() { return true; } //deprecated
+//  public function LazyLoadAdmin() { return true; }
+//  public function LazyLoadFrontend() { return true; }
   public function MinimumCMSVersion() { return '2.2.900'; }
   public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
@@ -45,7 +45,12 @@ class MicroTiny extends CMSModule
 
   public function HasCapability($capability, $params=[])
   {
-    return ($capability == CmsCoreCapabilities::WYSIWYG_MODULE);
+    switch ($capability) {
+      case CmsCoreCapabilities::PLUGIN_MODULE:
+	  case CmsCoreCapabilities::WYSIWYG_MODULE:
+        return TRUE;
+    }
+    return FALSE;
   }
 } // class
 

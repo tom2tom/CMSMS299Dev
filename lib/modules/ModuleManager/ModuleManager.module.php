@@ -42,7 +42,7 @@ class ModuleManager extends CMSModule
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return TRUE; }
 //    public function IsPluginModule() { return FALSE; } default
-    public function LazyLoadAdmin() { return TRUE; }
+//    public function LazyLoadAdmin() { return TRUE; }
     public function MinimumCMSVersion() { return '2.2.3'; }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
     public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }

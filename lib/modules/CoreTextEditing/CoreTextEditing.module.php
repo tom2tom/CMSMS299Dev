@@ -53,8 +53,8 @@ class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
 	public function GetVersion() { return '0.6'; }
 	public function HasAdmin() { return true; }
 	public function IsAdminOnly() { return true; }
-	public function LazyLoadAdmin() { return true; }
-	public function LazyLoadFrontend() { return true; }
+//	public function LazyLoadAdmin() { return true; }
+//	public function LazyLoadFrontend() { return true; }
 	public function MinimumCMSVersion() { return '2.2.910'; }
 	public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 

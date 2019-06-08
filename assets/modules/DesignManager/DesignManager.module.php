@@ -21,8 +21,8 @@ final class DesignManager extends CMSModule
     public function GetFriendlyName()  { return $this->Lang('friendlyname'); }
     public function GetVersion()  { return '2.0'; }
     public function MinimumCMSVersion()  { return '2.2.911'; }
-    public function LazyLoadAdmin() { return true; }
-    public function LazyLoadFrontend() { return true; }
+//    public function LazyLoadAdmin() { return true; }
+//    public function LazyLoadFrontend() { return true; }
     public function GetAuthor() { return 'Robert Campbell'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
     public function HasAdmin() { return true; }
