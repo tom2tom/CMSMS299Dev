@@ -13,7 +13,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
 
     public function get_description()
     {
-        return self::class; //lang_by_realm('tasks','TODO_taskdescription');
+        return lang_by_realm('tasks','securitycheck_taskdescription');
     }
 
     public function test($time = '')

@@ -17,7 +17,6 @@
 
 use CMSContentManager\Utils;
 use CMSMS\internal\global_cache;
-use CMSMS\StylesheetOperations;
 
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_setstyles' ) exit;

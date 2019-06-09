@@ -107,7 +107,6 @@ $lang['checkversion'] = 'New Version Checks';
 $lang['choose'] = 'Choose';
 $lang['clear'] = 'Clear';
 $lang['clearadminlog'] = 'Clear Admin Log';
-$lang['clearcache_taskdescription'] = 'Executed daily, this task will clear cached files that are older than the age pre-set in the global preferences';
 $lang['clearcache_taskname'] = 'Clear Cached Files';
 $lang['clearcache'] = 'Clear Cache';
 $lang['clearusersettings'] = 'Reset';

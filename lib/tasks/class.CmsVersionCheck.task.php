@@ -14,7 +14,7 @@ class CmsVersionCheckTask implements CmsRegularTask
 
     public function get_description()
     {
-        return self::class; //lang_by_realm('tasks','TODO_taskdescription')
+        return lang_by_realm('tasks','versioncheck_taskdescription');
     }
 
     public function test($time = '')
