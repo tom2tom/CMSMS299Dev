@@ -118,7 +118,7 @@ class CacheMemcached extends CacheDriver
     {
 		if (!$group) { $group = $this->_group; }
 
-        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+        $prefix = $this->get_cacheprefix(self::class, $group);
 		if ($prefix === '') { return []; }
 
         $out = [];
@@ -142,7 +142,7 @@ class CacheMemcached extends CacheDriver
     {
 		if (!$group) { $group = $this->_group; }
 
-        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+        $prefix = $this->get_cacheprefix(self::class, $group);
 		if ($prefix === '') { return []; }
 
         $out = [];
@@ -166,7 +166,7 @@ class CacheMemcached extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         $res = $this->instance->get($key);
         if (!$res && ($dbg = $this->instance->getResultCode()) != Memcached::RES_SUCCESS) {
             return null;
@@ -178,7 +178,7 @@ class CacheMemcached extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         return ($this->instance->get($key) != false ||
                 $this->instance->getResultCode() == Memcached::RES_SUCCESS);
     }
@@ -187,7 +187,7 @@ class CacheMemcached extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         return $this->_write_cache($key, $value);
     }
 
@@ -195,7 +195,7 @@ class CacheMemcached extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         return $this->instance->delete($key);
     }
 
@@ -223,7 +223,7 @@ class CacheMemcached extends CacheDriver
      */
     private function _clean(string $group, bool $aged = true) : int
     {
-        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+        $prefix = $this->get_cacheprefix(self::class, $group);
 		if ($prefix === '') { return 0; }//no global interrogation in shared key-space
 
         $nremoved = 0;

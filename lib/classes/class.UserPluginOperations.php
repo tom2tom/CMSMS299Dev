@@ -320,7 +320,7 @@ EOS;
             if( !preg_match('/^[\s\n]*<\?php/', $code) ) {
                 throw new RuntimeException('Invalid file content for user-plugin named '.$name);
             }
-            self::$_loaded[$name] = [__CLASS__, $name]; //fake callable to trigger __callStatic()
+            self::$_loaded[$name] = [self::class, $name]; //fake callable to trigger __callStatic()
         }
         return self::$_loaded[$name];
     }

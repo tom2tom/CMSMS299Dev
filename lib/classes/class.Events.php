@@ -64,7 +64,7 @@ final class Events
 	 */
 	public static function setup()
 	{
-		$obj = new global_cachable(__CLASS__,function()
+		$obj = new global_cachable(self::class,function()
 			{
 				$db = CmsApp::get_instance()->GetDb();
 				$pref = CMS_DB_PREFIX;
@@ -99,7 +99,7 @@ WHERE NOT EXISTS (SELECT 1 FROM {$pref}events T WHERE T.originator=? AND T.event
 EOS;
 		$dbr = $db->Execute($sql, [$id, $originator, $eventname, $originator, $eventname]);
 		if( $dbr ) {
-			global_cache::release(__CLASS__);
+			global_cache::release(self::class);
 			return true;
 		}
 		return false;
@@ -133,7 +133,7 @@ EOS;
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'events WHERE event_id=?';
 		$db->Execute($sql, [$id]); // ignore failed result
 
-		global_cache::release(__CLASS__);
+		global_cache::release(self::class);
 		return true;
 	}
 
@@ -277,7 +277,7 @@ EOS;
 	{
 		$handlers = [];
 		if( self::$_handlercache === null ) {
-			self::$_handlercache = global_cache::get(__CLASS__);
+			self::$_handlercache = global_cache::get(self::class);
 		}
 		if( self::$_handlercache ) {
 			foreach( self::$_handlercache as $row ) {
@@ -301,7 +301,7 @@ EOS;
 	public static function GetEventHandler(int $handler_id)
 	{
 		if( self::$_handlercache === null ) {
-			self::$_handlercache = global_cache::get(__CLASS__);
+			self::$_handlercache = global_cache::get(self::class);
 		}
 		if( self::$_handlercache ) {
 			foreach( self::$_handlercache as $row ) {
@@ -443,7 +443,7 @@ EOS;
 		$sql = 'INSERT INTO '.CMS_DB_PREFIX.'event_handlers
 (handler_id,event_id,class,func,type,removable,handler_order) VALUES (?,?,?,?,?,?,?)';
 		$dbr = $db->Execute($sql, [$handler_id, $id, $class, $method, $type, $mode, $order]);
-		global_cache::release(__CLASS__);
+		global_cache::release(self::class);
 		return ($dbr != false);
 	}
 
@@ -524,7 +524,7 @@ EOS;
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE handler_id=? AND event_id=?';
 		$db->Execute($sql, [$handler['handler_id'], $id]);
 
-		global_cache::release(__CLASS__);
+		global_cache::release(self::class);
 	}
 
 	/**
@@ -635,7 +635,7 @@ EOS;
 		// delete handler(s) if any
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id= ?';
 		$dbr = $db->Execute($sql, [$id]);
-		global_cache::release(__CLASS__);
+		global_cache::release(self::class);
 		return ($dbr != false);
 	}
 
@@ -654,7 +654,7 @@ EOS;
 		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_order'] - 1 ] );
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE handler_id = ? AND event_id = ?';
 		$db->Execute( $sql, [ $handler['handler_id'], $handler['event_id'] ] );
-		global_cache::release(__CLASS__);
+		global_cache::release(self::class);
 	}
 
 	/**
@@ -674,7 +674,7 @@ EOS;
 		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_order'] + 1 ] );
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE handler_id = ? AND event_id = ?';
 		$db->Execute( $sql, [ $handler['handler_id'], $handler['event_id'] ] );
-		global_cache::release(__CLASS__);
+		global_cache::release(self::class);
 	}
 } //class
 

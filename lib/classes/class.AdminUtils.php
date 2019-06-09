@@ -48,7 +48,7 @@ use function startswith;
 
 //this is also used during content installation i.e. STATE_INSTALL, or nothing
 /*if( !CMSMS\AppState::test_state(CMSMS\AppState::STATE_ADMIN_PAGE) ) {
-    $name = __CLASS__;
+    $name = self::class;
     throw new ErrorException("Attempt to use $name class from an invalid request");
 }
 */

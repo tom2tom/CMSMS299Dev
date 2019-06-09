@@ -14,7 +14,7 @@ final class tools
   {
     $key = 'slaves'.get_userid(FALSE);
     $cache = cms_cache_handler::get_instance();
-    $results = $cache->get($key,__CLASS__);
+    $results = $cache->get($key,self::class);
     if( !$results ) {
       // cache needs populating
       //TODO force upon module installation
@@ -72,7 +72,7 @@ final class tools
       }
 
       // cache the results
-      $cache->set($key,$results,__CLASS__);
+      $cache->set($key,$results,self::class);
     }
 
     return $results;

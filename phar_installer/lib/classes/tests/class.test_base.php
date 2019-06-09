@@ -92,19 +92,19 @@ abstract class test_base
 
   public function __get(string $key)
   {
-    if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
+    if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,self::class));
     if( isset($this->_data[$key]) ) return $this->_data[$key];
   }
 
   public function __isset(string $key)
   {
-    if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
+    if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,self::class));
     return isset($this->_data[$key]);
   }
 
   public function __set(string $key,$value)
   {
-    if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
+    if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,self::class));
     if( is_null($value) || $value === '' ) {
       unset($this->_data[$key]);
     }

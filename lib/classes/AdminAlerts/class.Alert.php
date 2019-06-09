@@ -345,7 +345,7 @@ abstract class Alert
      */
     public function save()
     {
-        if( !$this->name ) throw new LogicException('A '.__CLASS__.' object must have a name');
+        if( !$this->name ) throw new LogicException('A '.self::class.' object must have a name');
 
         // can only save if preference does not already exist
         //$tmp = cms_siteprefs::get($this->get_prefname());

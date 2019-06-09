@@ -8,12 +8,12 @@ class CmsSecurityCheckTask implements CmsRegularTask
 
     public function get_name()
     {
-        return __CLASS__; //assume no namespace
+        return self::class; //assume no namespace
     }
 
     public function get_description()
     {
-        return __CLASS__; //lazy
+        return self::class; //lang_by_realm('tasks','TODO_taskdescription');
     }
 
     public function test($time = '')
@@ -31,7 +31,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
         // check if config is writable
         if( is_writable(CONFIG_FILE_LOCATION) ) {
             $alert = new TranslatableAlert('Modify Site Preferences');
-            $alert->name = __CLASS__.'config'; // so that there can only ever be one alert of this type at a time.
+            $alert->name = self::class.'config'; // so that there can only ever be one alert of this type at a time.
             $alert->msgkey = 'config_writable';
             $alert->priority = $alert::PRIORITY_HIGH;
             $alert->titlekey = 'security_issue';
@@ -44,7 +44,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
         if( $files ) {
             $fn = basename($files[0]);
             $alert = new TranslatableAlert('Modify Site Preferences');
-            $alert->name = __CLASS__.'install';
+            $alert->name = self::class.'install';
             $alert->msgkey = 'installfileexists';
             $alert->msgargs = $fn;
             $alert->priority = $alert::PRIORITY_HIGH;
@@ -56,7 +56,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
         // not really a security issue... but meh, it saves another class.
         if( !cms_siteprefs::get('mail_is_set',false) ) {
             $alert = new TranslatableAlert('Modify Site Preferences');
-            $alert->name = __CLASS__.'mail';
+            $alert->name = self::class.'mail';
             $alert->msgkey = 'info_mail_notset';
             $alert->priority = $alert::PRIORITY_HIGH;
             $alert->titlekey = 'config_issue';

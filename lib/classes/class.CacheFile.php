@@ -96,7 +96,7 @@ class CacheFile extends CacheDriver
     {
 		if (!$group) { $group = $this->_group; }
 
-		$prefix = $this->get_cacheprefix(__CLASS__, $group);
+		$prefix = $this->get_cacheprefix(self::class, $group);
         $fn = $this->_cache_dir.DIRECTORY_SEPARATOR.$prefix;
         $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache';
         $files = glob($mask, GLOB_NOSORT);
@@ -119,7 +119,7 @@ class CacheFile extends CacheDriver
     {
 		if (!$group) { $group = $this->_group; }
 
-		$prefix = $this->get_cacheprefix(__CLASS__, $group);
+		$prefix = $this->get_cacheprefix(self::class, $group);
         $fn = $this->_cache_dir.DIRECTORY_SEPARATOR.$prefix;
         $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache';
         $files = glob($mask, GLOB_NOSORT);
@@ -191,7 +191,7 @@ class CacheFile extends CacheDriver
      */
     private function _get_filename(string $key, string $group) : string
     {
-        $fn = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->get_cachekey($key, __CLASS__, $group) . $group . '.cache';
+        $fn = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->get_cachekey($key, self::class, $group) . $group . '.cache';
         return $fn;
     }
 
@@ -312,7 +312,7 @@ class CacheFile extends CacheDriver
      */
     private function _clean_dir(string $dir, string $group, bool $aged = true) : int
     {
-        $fn = $dir.DIRECTORY_SEPARATOR.$this->get_cacheprefix(__CLASS__, $group);
+        $fn = $dir.DIRECTORY_SEPARATOR.$this->get_cacheprefix(self::class, $group);
         $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache';
         $files = glob($mask, GLOB_NOSORT);
 		if (!$files) { return 0; }

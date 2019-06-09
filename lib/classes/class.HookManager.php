@@ -55,7 +55,7 @@ use InvalidArgumentException;
                 $this->callable = $callable;
                 $this->priority = max(HookManager::PRIORITY_HIGH,min(HookManager::PRIORITY_LOW,(int)$priority));
             } else {
-                throw new InvalidArgumentException('Invalid callable passed to '. __CLASS__.'::'.__METHOD__);
+                throw new InvalidArgumentException('Invalid callable passed to '. self::class.'::'.__METHOD__);
             }
         }
     }

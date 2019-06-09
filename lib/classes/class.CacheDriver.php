@@ -167,7 +167,7 @@ abstract class CacheDriver
      */
     protected function get_cachekey(string $key, string $class, string $group) : string
     {
-        $nonce = CMS_ROOT_URL.__CLASS__;
+        $nonce = CMS_ROOT_URL.self::class;
         return $this->_myspace.$this->hash($nonce.$class.$group).':'.$this->hash($key.$class.$nonce);
     }
 
@@ -180,7 +180,7 @@ abstract class CacheDriver
     protected function get_cacheprefix(string $class, string $group) : string
     {
         if ($group) {
-            return $this->_myspace.$this->hash(CMS_ROOT_URL.__CLASS__.$class.$group).':';
+            return $this->_myspace.$this->hash(CMS_ROOT_URL.self::class.$class.$group).':';
         }
         return $this->_myspace;
     }

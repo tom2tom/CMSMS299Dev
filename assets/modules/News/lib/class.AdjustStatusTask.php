@@ -30,12 +30,12 @@ final class AdjustStatusTask implements CmsRegularTask
 
     public function get_name()
     {
-        return __CLASS__;
+        return self::class;
     }
 
     public function get_description()
     {
-        return __CLASS__;
+        return self::class; //$mod->Lang('TODO')
     }
 
     public function test($time = '')

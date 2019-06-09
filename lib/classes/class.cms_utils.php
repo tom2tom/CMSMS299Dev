@@ -331,15 +331,15 @@ final class cms_utils
 		$crypter = self::check_crypter($crypter);
 		switch ($crypter) {
 		case 'sodium':
-			$localpw = CMS_ROOT_URL.__CLASS__;
+			$localpw = CMS_ROOT_URL.self::class;
 			$nonce = substr(($localpw ^ $passwd),0,16);
 			return sodium_crypto_secretbox($raw,$nonce,$passwd);
 		case 'openssl':
-			$localpw = CMS_ROOT_URL.__CLASS__;
+			$localpw = CMS_ROOT_URL.self::class;
 			$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
 			return openssl_encrypt($raw,self::SSLCIPHER,$passwd,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
 		default:
-			$localpw = CMS_ROOT_URL.$passwd.__CLASS__;
+			$localpw = CMS_ROOT_URL.$passwd.self::class;
 			$l1 = strlen($localpw);
 			$l2 = strlen($raw);
 			while( $l1 < $l2 ) {
@@ -374,15 +374,15 @@ final class cms_utils
 		$crypter = self::check_crypter($crypter);
 		switch ($crypter) {
 		case 'sodium':
-			$localpw = CMS_ROOT_URL.__CLASS__;
+			$localpw = CMS_ROOT_URL.self::class;
 			$nonce = substr(($localpw ^ $passwd),0,16);
 			return sodium_crypto_box_open($raw,$nonce,$passwd);
 		case 'openssl':
-			$localpw = CMS_ROOT_URL.__CLASS__;
+			$localpw = CMS_ROOT_URL.self::class;
 			$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
 			return openssl_decrypt($raw,self::SSLCIPHER,$passwd,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
 		default:
-			$localpw = CMS_ROOT_URL.$passwd.__CLASS__;
+			$localpw = CMS_ROOT_URL.$passwd.self::class;
 			$l1 = strlen($localpw);
 			$l2 = strlen($raw); //TODO check embedded null's ok
 			while ($l1 < $l2) {

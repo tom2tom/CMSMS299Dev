@@ -25,7 +25,7 @@ class DraftMessageAlert extends TranslatableAlert
   public function __construct($count)
   {
     parent::__construct([ 'Approve News' ]);
-    $this->name = __CLASS__;
+    $this->name = self::class;
     $this->priority = parent::PRIORITY_LOW;
     $this->module = 'News';
     $this->titlekey = 'prompt_draft_entries';

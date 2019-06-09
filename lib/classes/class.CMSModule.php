@@ -270,7 +270,7 @@ abstract class CMSModule
     final public static function function_plugin(array $params, $template)
     {
         if( empty($params['module']) ) {
-            $class = get_called_class();
+            $class = static::class;
             if( $class != CMSModule::class ) {
                 $params['module'] = $class;
             }
@@ -2978,7 +2978,7 @@ abstract class CMSModule
         if( $tmp ) {
             for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
                 if( !startswith($tmp[$i],$prefix) ) {
-                    throw new CmsInvalidDataException(__CLASS__.'::'.__METHOD__.' invalid prefix for preference');
+                    throw new CmsInvalidDataException(self::class.'::'.__METHOD__.' invalid prefix for preference');
                 }
                 $tmp[$i] = substr($tmp[$i],strlen($prefix));
             }

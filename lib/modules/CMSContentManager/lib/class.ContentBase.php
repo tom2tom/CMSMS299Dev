@@ -2639,14 +2639,14 @@ WHERE content_id = ?';
 		$this->mod = $mod;
 		$mod = null; //force-garbage
 		//TODO can cachers cope with embedded null's?
-		return cms_utils::encrypt_string($str,__CLASS__,'');
+		return cms_utils::encrypt_string($str,self::class,'');
 // 		return $str;
 	}
 
 	public function unserialize($serialized)
 	{
 		//TODO consider un-fuscing the string
-		$serialized = cms_utils::decrypt_string($serialized,__CLASS__,'');
+		$serialized = cms_utils::decrypt_string($serialized,self::class,'');
 		$props = json_decode($serialized, true);
 		if( $props !== null ) {
 			foreach( $props as $key => $val ) {
@@ -2655,6 +2655,6 @@ WHERE content_id = ?';
 			$this->mod = cms_utils::get_module('CMSContentManager');
 			return;
 		}
-		throw new Exception('Invalid property data for '.__CLASS__);
+		throw new Exception('Invalid property data for '.self::class);
 	}
 } // class

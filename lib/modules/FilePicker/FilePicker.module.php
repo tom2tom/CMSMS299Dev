@@ -132,7 +132,7 @@ EOS;
         debug_display($value, '$value');
         debug_display($blockparams, '$blockparams');
         //debug_display($adding, '$adding');
-        echo('<br />' . __FILE__ . ' : (' . __CLASS__ . ' :: ' . __FUNCTION__ . ') : ' . __LINE__ . '<br />');
+        echo('<br />' . __FILE__ . ' : (' . self::class . ' :: ' . __FUNCTION__ . ') : ' . __LINE__ . '<br />');
         //die('<br />RIP!<br />');
     }
 */

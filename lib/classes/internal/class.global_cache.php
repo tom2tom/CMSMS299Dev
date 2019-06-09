@@ -120,7 +120,7 @@ class global_cache
         $keys = array_keys(self::$_types);
         self::$_data = [];
         foreach( $keys as $key ) {
-            $tmp = $cache->get($key,__CLASS__);
+            $tmp = $cache->get($key,self::class);
             self::$_data[$key] = $tmp;
             unset($tmp);
         }
@@ -192,7 +192,7 @@ class global_cache
             $obj->connect([
              'auto_cleaning'=>1,
              'lifetime'=>self::TIMEOUT,
-             'group'=>__CLASS__,
+             'group'=>self::class,
             ]);
             self::$instance = $obj; //now we're connected
         }

@@ -74,7 +74,7 @@ final class AdminSearch extends CMSModule
         $parts = explode('.',basename($onefile));
         $classname = implode('.',array_slice($parts,1,count($parts)-2));
         if( $classname == 'slave' ) continue;
-        $output[] = __CLASS__.'\\'.$classname;
+        $output[] = self::class.'\\'.$classname;
       }
       return $output;
     }

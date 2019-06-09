@@ -68,7 +68,7 @@ abstract class installer_base
     protected function __construct(string $configfile = '')
     {
         if (is_object(self::$_instance)) {
-            throw new Exception('Cannot create another '.__CLASS__.' object');
+            throw new Exception('Cannot create another '.self::class.' object');
         }
         self::$_instance = $this; //used during init()
         $this->init($configfile);
@@ -82,7 +82,7 @@ abstract class installer_base
     public static function get_instance() : self
     {
         if (!is_object(self::$_instance)) {
-            throw new Exception('No instance of '.__CLASS__.' is registered');
+            throw new Exception('No instance of '.self::class.' is registered');
         }
         return self::$_instance;
     }
@@ -151,7 +151,7 @@ lib/smarty/*                              no namespace
         );
 
         if ($config['tmpdir']) {
-            if (is_dir($config['tmpdir']) && is_writeable($config['tmpdir'])) {
+            if (is_dir($config['tmpdir']) && is_writable($config['tmpdir'])) {
                 $this->_custom_tmpdir = $config['tmpdir'];
             } else {
                 throw new Exception('Invalid temporary/working directory specified');
@@ -347,7 +347,7 @@ lib/smarty/*                              no namespace
 
     public function get_name() : string
     {
-        return __CLASS__;
+        return self::class;
     }
 
     public function get_tmpdir() : string

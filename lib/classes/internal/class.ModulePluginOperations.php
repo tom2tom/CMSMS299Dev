@@ -222,7 +222,7 @@ final class ModulePluginOperations
 			}
 			else {
 				// an array with only one member !?
-				audit('',__CLASS__,'Cannot register plugin '.$name.' for module '.$module_name.' - invalid callback');
+				audit('',self::class,'Cannot register plugin '.$name.' for module '.$module_name.' - invalid callback');
 				return;
 			}
 		}
@@ -238,7 +238,7 @@ final class ModulePluginOperations
 		}
 
 		if( !is_callable($callback) ) {
-			audit('',__CLASS__,'Substitute the default handler for plugin '.$name);
+			audit('',self::class,'Substitute the default handler for plugin '.$name);
 			$callback = $module_name.'::function_plugin';
 		}
 		return $callback;

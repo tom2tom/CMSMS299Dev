@@ -76,7 +76,7 @@ class CacheApcu extends CacheDriver
     public function get_index($group = '')
     {
         if (!$group) $group = $this->_group;
-        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+        $prefix = $this->get_cacheprefix(self::class, $group);
 		if ($prefix === '') { return []; }//no global interrogation in shared key-space
 		$len = strlen($prefix);
 
@@ -98,7 +98,7 @@ class CacheApcu extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+        $prefix = $this->get_cacheprefix(self::class, $group);
 		if ($prefix === '') { return []; }//no global interrogation in shared key-space
 
         $i = 0;
@@ -119,7 +119,7 @@ class CacheApcu extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         $success = false;
         $data = apcu_fetch($key, $success);
         return ($success) ? $data : null;
@@ -129,7 +129,7 @@ class CacheApcu extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         return apcu_exists($key);
     }
 
@@ -137,7 +137,7 @@ class CacheApcu extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         return $this->_write_cache($key, $value);
     }
 
@@ -145,7 +145,7 @@ class CacheApcu extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         return apcu_delete($key);
     }
 
@@ -168,7 +168,7 @@ class CacheApcu extends CacheDriver
      */
     private function _clean(string $group, bool $aged = true) : int
     {
-        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+        $prefix = $this->get_cacheprefix(self::class, $group);
         if ($prefix === '') return 0; //no global interrogation in shared key-space
 
         if ($aged) {

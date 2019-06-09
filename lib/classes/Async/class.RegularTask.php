@@ -107,7 +107,7 @@ class RegularTask extends CronJob
     {
         switch( $key ) {
         case 'task':
-            if( !$val instanceof CmsRegularTask ) throw new LogicException('Invalid value for '.$key.' in a '.__CLASS__);
+            if( !$val instanceof CmsRegularTask ) throw new LogicException('Invalid value for '.$key.' in a '.static::class);
             $this->_task = $val;
             break;
         case 'interval':
@@ -138,7 +138,7 @@ class RegularTask extends CronJob
 	 */
     public function execute()
     {
-        if( !$this->_task ) throw new LogicException(__CLASS__.' job is being executed, but has no task associated');
+        if( !$this->_task ) throw new LogicException(self::class.' job is being executed, but has no task associated');
         $time = time();
         if( $this->_task->test($time) ) {
             if( $this->_task->execute($time) ) {

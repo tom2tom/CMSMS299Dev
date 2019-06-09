@@ -143,7 +143,7 @@ $tmp[0]['allow_browser_cache'] = testBoolean(0, lang('allow_browser_cache'), $re
 $res = cms_siteprefs::get('browser_cache_expiry', 60);
 $tmp[0]['browser_cache_expiry'] = testRange(0, lang('browser_cache_expiry'), $res, lang('test_browser_cache_expiry'), 1, 60, false);
 /* N/A for PHP7
-if (version_compare(phpversion(), '5.5') >= 0) {
+if (version_compare(PHP_VERSION, '5.5') >= 0) {
     $opcache = ini_get('opcache.enable');
     $tmp[0]['php_opcache'] = testBoolean(0, lang('php_opcache'), $opcache, '', false, false, 'opcache_enabled');
 } else {
@@ -172,7 +172,7 @@ $session_save_path = ini_get('session.save_path');
 $open_basedir = ini_get('open_basedir');
 
 list($minimum, $recommended) = getTestValues('php_version');
-$tmp[0]['phpversion'] = testVersionRange(0, 'phpversion', phpversion(), '', $minimum, $recommended, false);
+$tmp[0]['phpversion'] = testVersionRange(0, 'phpversion', PHP_VERSION, '', $minimum, $recommended, false);
 
 $default_charset = ini_get('default_charset');
 $test = new CmsInstallTest();

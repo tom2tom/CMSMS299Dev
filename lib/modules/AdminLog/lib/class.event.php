@@ -43,9 +43,9 @@ class event
         }
 
         // validate this thing.  we need a timestamp, a severity, and a message.
-        if( $this->timestamp < 1 ) throw new InvalidArgumentException('value for timestamp in an '.__CLASS__.' is invalid');
-        if( $this->severity < 0 || $this->severity > 3 ) throw new InvalidArgumentException('value for severity in an '.__CLASS__.' is invalid');
-        if( !$this->msg )  throw new InvalidArgumentException('value for msg in an '.__CLASS__.' cannot be empty');
+        if( $this->timestamp < 1 ) throw new InvalidArgumentException('value for timestamp in an '.self::class.' is invalid');
+        if( $this->severity < 0 || $this->severity > 3 ) throw new InvalidArgumentException('value for severity in an '.self::class.' is invalid');
+        if( !$this->msg )  throw new InvalidArgumentException('value for msg in an '.self::class.' cannot be empty');
     }
 
     public function __get( $key )
@@ -67,7 +67,7 @@ class event
             return trim($this->_data[$key]);
 
         default:
-            throw new LogicException("$key is not a gettable member of ".__CLASS__);
+            throw new LogicException("$key is not a gettable member of ".self::class);
         }
     }
 } // class

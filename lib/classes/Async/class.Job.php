@@ -76,7 +76,7 @@ abstract class Job
     public function __construct()
     {
         $this->_created = $this->_start = time();
-        $this->_name = cms_utils::hash_string(__CLASS__,true); // a pretty random name for this job
+        $this->_name = cms_utils::hash_string(self::class,true); // a pretty random name for this job
     }
 
     /**
@@ -98,7 +98,7 @@ abstract class Job
             return trim($this->$tkey);
 
         default:
-            throw new UnexpectedValueException("$key is not a gettable member of ".__CLASS__);
+            throw new UnexpectedValueException("$key is not a gettable member of ".self::class);
         }
     }
 

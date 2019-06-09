@@ -30,11 +30,12 @@ class CreateDraftAlertTask implements CmsRegularTask
 
   public function get_name()
   {
-    return __CLASS__;
+    return self::class;
   }
 
   public function get_description()
   {
+    //$mod = ; return $mod->Lang('TODO');
     return 'A quarter-hourly task which generates a notice about draft news item(s)';
   }
 

@@ -11,7 +11,7 @@ class ClearCacheTask implements CmsRegularTask
 
     public function get_name()
     {
-        return __CLASS__; //assume no namespace
+        return self::class; //assume no namespace
     }
 
     public function get_description()

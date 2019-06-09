@@ -353,7 +353,7 @@ VALUES (?,?,?,?,?,?)';
 		}
 		else {
 			// what ??
-			throw new CmsInvalidDataException('Invalid data passed to '.__CLASS__.'::'.__METHOD__);
+			throw new CmsInvalidDataException('Invalid data passed to '.self::class.'::'.__METHOD__);
 		}
 
 		$sql = 'SELECT id,name,content,description,media_type,media_query,create_date,modified_date FROM '.CMS_DB_PREFIX.self::TABLENAME.$where;

@@ -102,7 +102,7 @@ class page_template_parser extends Smarty_Internal_Template
     public function defaultPluginHandler(string $name, string $type, $template, &$callback, &$script, &$cachable) : bool
     {
         if ($type == 'compiler') {
-            $callback = [__CLASS__,'_dflt_plugin'];
+            $callback = [self::class,'_dflt_plugin'];
             $cachable = false;
             return true;
         }

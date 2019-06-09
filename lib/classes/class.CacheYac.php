@@ -86,7 +86,7 @@ class CacheYac extends CacheDriver
     {
 	if (!$group) { $group = $this->_group; }
 
-		$prefix = $this->get_cacheprefix(__CLASS__, $group);
+		$prefix = $this->get_cacheprefix(self::class, $group);
 		if ($prefix === '') { return []; }
 
         $out = [];
@@ -113,7 +113,7 @@ class CacheYac extends CacheDriver
     {
 	if (!$group) { $group = $this->_group; }
 
-        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+        $prefix = $this->get_cacheprefix(self::class, $group);
 		if ($prefix === '') { return []; }
 
         $out = [];
@@ -140,7 +140,7 @@ class CacheYac extends CacheDriver
     {
 	if (!$group) { $group = $this->_group; }
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         $res = $this->instance->get($key);
         return ($res || !is_bool($res)) ? $res : null;
     }
@@ -149,7 +149,7 @@ class CacheYac extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         $res = $this->instance->get($key);
         return $res || !is_bool($res);
     }
@@ -158,7 +158,7 @@ class CacheYac extends CacheDriver
     {
 	if (!$group) { $group = $this->_group; }
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         if ($value === false) $value = 0; //ensure actual false isn't ignored
         return $this->_write_cache($key, $value);
     }
@@ -167,7 +167,7 @@ class CacheYac extends CacheDriver
     {
 		if (!$group) { $group = $this->_group; }
 
-        $key = $this->get_cachekey($key, __CLASS__, $group);
+        $key = $this->get_cachekey($key, self::class, $group);
         return  $this->instance->delete($key);
     }
 
@@ -194,7 +194,7 @@ class CacheYac extends CacheDriver
      */
     private function _clean(string $group) : int
     {
-        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+        $prefix = $this->get_cacheprefix(self::class, $group);
 		if ($prefix === '') { return 0; }//no global interrogation in shared key-space
 
         $nremoved = 0;

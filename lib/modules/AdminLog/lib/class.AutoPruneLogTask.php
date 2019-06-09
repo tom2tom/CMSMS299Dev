@@ -38,7 +38,7 @@ class AutoPruneLogTask implements CmsRegularTask
 
     public function get_name()
     {
-        return __CLASS__;
+        return self::class;
     }
 
     public function get_description()

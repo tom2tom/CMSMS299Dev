@@ -4,16 +4,16 @@ class WatchTasksTask implements CmsRegularTask
 {
     const  LASTEXECUTE_SITEPREF = 'Core::WatchTasks_lastexecute';
     const  ENABLED_SITEPREF = 'taskschanged';
-    const  STATUS_SITEPREF = __CLASS__.'signature';
+    const  STATUS_SITEPREF = self::class.'signature';
 
     public function get_name()
     {
-        return __CLASS__; //assume no namespace
+        return self::class; //assume no namespace
     }
 
     public function get_description()
     {
-        return __CLASS__; //lazy
+        return self::class; //lang_by_realm('tasks','TODO_taskdescription')
     }
 
     public function test($time = '')

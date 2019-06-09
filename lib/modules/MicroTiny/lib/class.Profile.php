@@ -78,7 +78,7 @@ class Profile implements ArrayAccess
 			return $this['name'];
 
 		default:
-			throw new CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
+			throw new CmsInvalidDataException('invalid key '.$key.' for '.self::class.' object');
 		}
 	}
 
@@ -107,7 +107,7 @@ class Profile implements ArrayAccess
 			break;
 
 		default:
-			throw new CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
+			throw new CmsInvalidDataException('invalid key '.$key.' for '.self::class.' object');
 		}
 	}
 
@@ -128,7 +128,7 @@ class Profile implements ArrayAccess
 			return isset($this->_data[$key]);
 
 		default:
-			throw new CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
+			throw new CmsInvalidDataException('invalid key '.$key.' for '.self::class.' object');
 		}
 	}
 
@@ -149,10 +149,10 @@ class Profile implements ArrayAccess
 
 		case 'system':
 		case 'name':
-			throw new LogicException('Cannot unset '.$key.' for '.__CLASS__);
+			throw new LogicException('Cannot unset '.$key.' for '.self::class);
 
 		default:
-			throw new CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
+			throw new CmsInvalidDataException('invalid key '.$key.' for '.self::class.' object');
 		}
 	}
 
@@ -175,11 +175,11 @@ class Profile implements ArrayAccess
 
 	private static function _load_from_data($data)
 	{
-		if( !is_array($data) || !count($data) ) throw new CmsInvalidDataException('Invalid data passed to '.__CLASS__.'::'.__METHOD__);
+		if( !is_array($data) || !count($data) ) throw new CmsInvalidDataException('Invalid data passed to '.self::class.'::'.__METHOD__);
 
 		$obj = new self();
 		foreach( $data as $key => $value ) {
-			if( !in_array($key,self::$_keys) ) throw new CmsInvalidDataException('Invalid key '.$key.' for data in .'.__CLASS__);
+			if( !in_array($key,self::$_keys) ) throw new CmsInvalidDataException('Invalid key '.$key.' for data in .'.self::class);
 			$obj->_data[$key] = trim($value);
 		}
 		return $obj;

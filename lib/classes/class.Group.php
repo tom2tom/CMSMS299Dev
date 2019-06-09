@@ -65,7 +65,7 @@ class Group
 	public function __get($key)
 	{
 		if( in_array($key,self::VALIDPROPS) ) return $this->$key;
-		throw new LogicException($key.' is not a member of '.__CLASS__);
+		throw new LogicException($key.' is not a property of '.self::class);
 	}
 
 	/**
@@ -74,12 +74,12 @@ class Group
 	public function __set($key,$val)
 	{
 		if( !in_array($key,self::VALIDPROPS) ) {
-			throw new LogicException($key.' is not a member of '.__CLASS__);
+			throw new LogicException($key.' is not a property of '.self::class);
 		}
 		switch( $key ) {
 		case 'id':
 			if( $this->id != -1 ) {
-				throw new LogicException($key.' is not a settable member of '.__CLASS__);
+				throw new LogicException($key.' is not a settable property of '.self::class);
 			}
 			$val = (int)$val;
 			break;

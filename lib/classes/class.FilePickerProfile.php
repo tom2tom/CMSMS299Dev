@@ -152,7 +152,7 @@ class FilePickerProfile
                 $this->_data[$key] = FileType::ANY;
                 break;
             default:
-                throw new CmsInvalidDataException("$val is an invalid value for type in ".__CLASS__);
+                throw new CmsInvalidDataException("$val is not a valid type in ".self::class);
                 break;
             }
             break;
@@ -168,8 +168,8 @@ class FilePickerProfile
                 $this->_data[$key] = $val;
                 break;
             default:
-                die('val is '.$val);
-                throw new CmsInvalidDataException("$val is an invalid value for $key in ".__CLASS__);
+//                die('val is '.$val);
+                throw new CmsInvalidDataException("$val is not a valid value for $key in ".self::class);
             }
             break;
 

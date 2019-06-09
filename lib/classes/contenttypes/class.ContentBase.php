@@ -744,13 +744,13 @@ $X = $CRASH;
 	public function serialize()
 	{
 		//TODO can all cachers cope with embedded null's in strings ?
-		return cms_utils::encrypt_string($this->__toString(),__CLASS__,'');
+		return cms_utils::encrypt_string($this->__toString(),self::class,'');
 //		return $this->__toString();
 	}
 
 	public function unserialize($serialized)
 	{
-		$serialized = cms_utils::decrypt_string($serialized,__CLASS__,'');
+		$serialized = cms_utils::decrypt_string($serialized,self::class,'');
 		$props = json_decode($serialized, true);
 		if ($props) {
 			foreach ($props as $key => $value) {
@@ -758,7 +758,7 @@ $X = $CRASH;
 			}
 			return;
 		}
-		throw new Exception('Invalid object data in '.__CLASS__);
+		throw new Exception('Invalid object data in '.self::class);
 	}
 } // class
 

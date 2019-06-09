@@ -54,7 +54,7 @@ final class ContentListFilter
 			return $this->$key;
 
 		default:
-			throw new InvalidArgumentException("$key is not a gettable member of ".__CLASS__);
+			throw new InvalidArgumentException("$key is not a gettable member of ".self::class);
 		}
 	}
 
@@ -76,7 +76,7 @@ final class ContentListFilter
 				$this->_type = $val;
 				break;
 			default:
-				throw new InvalidArgumentException("$val is an invalid type for ".__CLASS__);
+				throw new InvalidArgumentException("$val is an invalid type for ".self::class);
 			}
 			break;
 
@@ -85,7 +85,7 @@ final class ContentListFilter
 			break;
 
 		default:
-			throw new InvalidArgumentException("$key is not a settable member of ".__CLASS__);
+			throw new InvalidArgumentException("$key is not a settable member of ".self::class);
 		}
 	}
 } // class

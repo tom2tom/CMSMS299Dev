@@ -74,7 +74,7 @@ final class module_meta
         if( AppState::test_state(AppState::STATE_INSTALL) ) return;
 
         if( self::$_data === null ) {
-            $data = cms_cache_handler::get_instance()->get(__CLASS__,'module_meta');
+            $data = cms_cache_handler::get_instance()->get(self::class,'module_meta');
             if( $data ) {
                 self::$_data = $data;
             }
@@ -88,7 +88,7 @@ final class module_meta
     {
         if( AppState::test_state(AppState::STATE_INSTALL) ) return;
 
-        cms_cache_handler::get_instance()->set(__CLASS__,self::$_data,'module_meta');
+        cms_cache_handler::get_instance()->set(self::class,self::$_data,'module_meta');
     }
 
 

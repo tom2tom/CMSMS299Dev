@@ -58,7 +58,7 @@ final class cms_siteprefs
 	 */
 	public static function setup()
 	{
-		$obj = new global_cachable(__CLASS__,function()
+		$obj = new global_cachable(self::class,function()
 		{
 			return self::_read();
 		});
@@ -145,7 +145,7 @@ final class cms_siteprefs
 	 */
 	public static function get(string $key,$dflt = '')
 	{
-		$prefs = global_cache::get(__CLASS__);
+		$prefs = global_cache::get(self::class);
 		if( isset($prefs[$key]) && $prefs[$key] !== '' ) {
 			$l = strlen(self::SERIAL);
 			if( strncmp($prefs[$key],self::SERIAL,$l) == 0 ) {
@@ -164,7 +164,7 @@ final class cms_siteprefs
 	 */
 	public static function exists($key)
 	{
-		$prefs = global_cache::get(__CLASS__);
+		$prefs = global_cache::get(self::class);
 		return ( is_array($prefs) && isset($prefs[$key]) && $prefs[$key] !== '' );
 	}
 
@@ -196,7 +196,7 @@ EOS;
 		$db->Execute($query,[$key,$value,$key]);
 
 		if( strpos($key,self::MODULE_SIG) === FALSE ) {
-			global_cache::release(__CLASS__);
+			global_cache::release(self::class);
 		}
 	}
 
@@ -218,7 +218,7 @@ EOS;
 		$db = CmsApp::get_instance()->GetDb();
 		$db->Execute($query,[$key]);
 		if( strpos($key,self::MODULE_SIG) === FALSE) {
-			global_cache::release(__CLASS__);
+			global_cache::release(self::class);
 		}
 	}
 
