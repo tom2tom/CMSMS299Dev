@@ -55,7 +55,8 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_delete($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_deleted',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_template_deleted',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -67,7 +68,8 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_deleteall($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_pages_updated',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -77,7 +79,8 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_replace($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_pages_updated',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -87,7 +90,8 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_applyall($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_pages_updated',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -115,7 +119,8 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_import($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_imported',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_template_imported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -127,7 +132,8 @@ switch ($_REQUEST['op']) {
 		if( $template_id ) {
 			try {
 				$n = TemplateOperations::operation_export($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_exported',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_template_exported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}

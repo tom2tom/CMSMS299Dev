@@ -54,7 +54,8 @@ switch ($_REQUEST['op']) {
 		if ($css_id) {
 			try {
 				$n = StylesheetOperations::operation_delete($css_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_stylesheet_deleted',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_stylesheet_deleted',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -66,7 +67,8 @@ switch ($_REQUEST['op']) {
 		if ($css_id) {
 			try {
 				$n = StylesheetOperations::operation_deleteall($css_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_pages_updated',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -76,7 +78,8 @@ switch ($_REQUEST['op']) {
 		if ($css_id) {
 			try {
 				$n = StylesheetOperations::operation_replace($css_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_pages_updated',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -87,7 +90,8 @@ switch ($_REQUEST['op']) {
 		if ($css_id) {
 			try {
 				$n = StylesheetOperations::operation_append($css_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_pages_updated',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -97,7 +101,8 @@ switch ($_REQUEST['op']) {
 		if ($css_id) {
 			try {
 				$n = StylesheetOperations::operation_prepend($css_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_pages_updated',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -108,7 +113,8 @@ switch ($_REQUEST['op']) {
 		if ($css_id) {
 			try {
 				$n = StylesheetOperations::operation_remove($css_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_pages_updated',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -120,7 +126,8 @@ switch ($_REQUEST['op']) {
 		if ($css_id) {
 			try {
 				$n = StylesheetOperations::operation_import($css_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_stylesheet_imported',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_stylesheet_imported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -132,7 +139,8 @@ switch ($_REQUEST['op']) {
 		if ($css_id) {
 			try {
 				$n = StylesheetOperations::operation_export($css_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_stylesheet_exported',$n));
+				$type = ($n > 0) ? 'success' : 'info';
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_stylesheet_exported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
