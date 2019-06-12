@@ -73,7 +73,7 @@ try {
 
 /* see template
 //      $u = ibid
-        $t = lang_by_realm('layout','prompt_steal_lock');
+        $t = lang_by_realm('layout','title_steal_lock');
         $icon = $themeObject->DisplayImage('icons/system/permissions', $t, '', '', 'systemicon edit_tpl steal_tpl_lock');
         $linksteal = '<a href="'.$u.'" class="steal_tpl_lock" data-tpl-id="XXX" accesskey="e">'.$icon.'</a>'."\n";
 */

@@ -168,7 +168,7 @@ $s7 = json_encode(lang_by_realm('layout','confirm_removestyle'));
 $s8 = json_encode(lang_by_realm('layout','confirm_applystyle'));
 $s9 = json_encode(lang_by_realm('layout','confirm_clearlocks'));
 $t1 = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_stylesheet'));
-$t2 = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_styitllesgroup'));
+$t2 = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_stylesgroup'));
 $cancel = lang('cancel');
 $submit = lang('submit');
 $secs = cms_siteprefs::get('lock_refresh', 120);
@@ -483,7 +483,7 @@ if( $groups ) {
 }
 if( $list ) {
     asort($list,SORT_STRING);
-    $replacements = [-1 => lang_by_realm('layout','select one')] + $list;
+    $replacements = [-1 => lang_by_realm('layout','select_one')] + $list;
 }
 else {
     $replacements = null;
