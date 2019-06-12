@@ -18,13 +18,7 @@
 
 namespace CMSMS\contenttypes;
 
-use cms_utils;
-use CmsApp;
-use CmsContentException;
-use CmsCoreCapabilities;
 use CMSMS\contenttypes\ContentBase;
-use CMSMS\internal\page_template_parser;
-use SmartyException;
 
 /**
  * Implements the Content (page) content type.
