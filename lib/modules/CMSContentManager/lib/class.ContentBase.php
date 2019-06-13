@@ -23,6 +23,7 @@ use cms_siteprefs;
 use cms_utils;
 use CmsApp;
 use CmsContentException;
+use CMSContentManager\Utils;
 use CmsInvalidDataException;
 use CMSMS\AdminUtils;
 use CMSMS\ContentEditor;
@@ -38,10 +39,9 @@ use CMSMS\UserOperations;
 use CmsRoute;
 use DeprecationNotice;
 use Exception;
-use Search\Utils;
 use Serializable;
 use const CMS_DB_PREFIX;
-use const CMS_DEBUG;
+use const CMS_DEPREC;
 use const CMS_ROOT_URL;
 use function check_permission;
 use function cms_htmlentities;
@@ -2388,7 +2388,7 @@ WHERE content_id = ?';
 	/**
 	 * Return whether the current user is permitted to edit this content page
 	 *
-	 * @param $main optional flag whether to check for main-property editability. Default true
+	 * @param $main optional flag whether to check for global page-edit authority. Default true
 	 * @param $extra optional flag whether to check for membership of additional-editors. Default true
 	 * @return bool
 	 */
@@ -2400,9 +2400,7 @@ WHERE content_id = ?';
 			if( $ops->CheckPermission($uid,'Manage All Content')
 			 || $ops->CheckPermission($uid,'Modify Any Page')
 			 || $ops->CheckPermission($uid,'Add Pages') ) {
-				if( !$extra ) {
-					return true;
-				}
+				return true;
 			}
 		}
 		if( $extra ) {
