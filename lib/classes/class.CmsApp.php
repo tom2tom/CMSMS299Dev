@@ -568,6 +568,7 @@ final class CmsApp
         if (isset($this->db) && $this->db->IsConnected()) {
             $this->db->Close();
         }
+        $this->db = null; //no restarting during shutdown
     }
 
     /**
