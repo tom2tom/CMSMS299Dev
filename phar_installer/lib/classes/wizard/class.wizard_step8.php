@@ -115,6 +115,16 @@ class wizard_step8 extends wizard_step
             // init some of the system-wide default settings
             verbose_msg(lang('install_initsiteprefs'));
             $arr = ThemeBase::GetAvailableThemes();
+            // probably-unique signature of this site (not filesystem-specific)
+            $sig = '1234567890123456789012345678901234567890';
+            $length = strlen($sig);
+            $alphanum = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+             .'0123456789'
+             .'abcdefghijklmnopqrstuvwxyz';
+            $max = strlen($alphanum);
+            for ($i = 0; $i < $length; ++$i) {
+                $sig[$i] = $alphanum[mt_rand(0, $max-1)];
+            }
             foreach ([
              'adminlog_lifetime' => 3600*24*31, // admin log entries live for 60 days TODO AdminLog module setting
              'allow_browser_cache' => 1, // allow browser to cache cachable pages
@@ -140,6 +150,7 @@ class wizard_step8 extends wizard_step
              'logintheme' => reset($arr),
              'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
              'site_supporturl' => $siteinfo['supporturl'],
+             'site_signature' => $sig,
 //           'sitemask' => '', // salt for old (md5-hashed) admin-user passwords - useless in new installs
              'sitename' => $siteinfo['sitename'],
              'smarty_cachelife' => -1, // smarty default

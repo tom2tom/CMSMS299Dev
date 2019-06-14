@@ -96,6 +96,17 @@ foreach ($files as $one) {
 
 //$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modified_date) VALUES (\'loginmodule\',?,?);';
 //$db->Execute($query,[$longnow,$longnow]);
+// probably-unique signature of this site (not filesystem-specific)
+$sig = '1234567890123456789012345678901234567890';
+$length = strlen($sig);
+$alphanum = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+ .'0123456789'
+ .'abcdefghijklmnopqrstuvwxyz';
+$max = strlen($alphanum);
+for ($i = 0; $i < $length; ++$i) {
+    $sig[$i] = $alphanum[mt_rand(0, $max-1)];
+}
+
 foreach([
     'cdn_url' => 'https://cdnjs.cloudflare.com',
     'editor_theme'  => '',
@@ -103,6 +114,7 @@ foreach([
     'lock_timeout' => 60,
     'loginmodule' => '',
     'site_help_url' => '',
+    'site_signature' => $sig,
     'smarty_cachelife' => -1, // smarty default
  ] as $name=>$val) {
     cms_siteprefs::set($name, $val);
