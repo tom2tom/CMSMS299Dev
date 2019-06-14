@@ -67,6 +67,7 @@ final class cms_config implements ArrayAccess
         'debug' => self::TYPE_BOOL,
         'default_encoding' => self::TYPE_STRING,
         'default_upload_permission' => self::TYPE_STRING,
+        'generate_old_mact' => self::TYPE_BOOL,
         'image_uploads_path' => self::TYPE_STRING,
         'image_uploads_url' => self::TYPE_STRING,
         'locale' => self::TYPE_STRING,
@@ -328,6 +329,7 @@ final class cms_config implements ArrayAccess
 
         case 'permissive_smarty':
         case 'persist_db_conn':
+        case 'generate_old_mact':
             return false;
 
         case 'smart_urls':
