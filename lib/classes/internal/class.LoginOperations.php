@@ -20,6 +20,7 @@ namespace CMSMS\internal;
 
 use cms_cookies;
 use cms_siteprefs;
+use cms_utils;
 use CmsApp;
 use CMSMS\AppState;
 use CMSMS\User;
@@ -86,6 +87,7 @@ final class LoginOperations
             if( !$salt ) {
                 $salt = $this->create_csrf_token();
                 cms_siteprefs::set('loginsalt',$salt);
+                global_cache::release('site_preferences');
             }
             return $salt;
         }
@@ -161,16 +163,7 @@ final class LoginOperations
 
     public function create_csrf_token()
     {
-        $data = '123456789012';
-        for( $i=0; $i<12; ++$i ) {
-            $n = mt_rand(48, 122); // 0 .. z
-            if (!(($n > 57 && $n < 66) || ($n > 90 && $n < 97))) {
-                $data[$i] = chr($n); // ASCII alphanum
-            } else {
-                --$i; // try again
-            }
-        }
-        return $data;
+        return cms_utils::random_string(12, true);
     }
 
     /* @return mixed array | null : previously- or currently-generated data */
