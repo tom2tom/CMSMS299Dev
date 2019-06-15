@@ -325,7 +325,8 @@ final class cms_utils
 	public static function encrypt_string(string $raw, string $passwd = '', string $crypter = 'best')
 	{
 		if ($passwd === '') {
-			$passwd = __DIR__;
+			$str = str_replace(['/','\\'],['',''],__DIR__);
+			$passwd = substr($str,strlen(CMS_ROOT_PATH)); //not site- or filesystem-specific
 		}
 
 		$crypter = self::check_crypter($crypter);
@@ -368,7 +369,8 @@ final class cms_utils
 	public static function decrypt_string(string $raw, string $passwd = '', string $crypter = 'best')
 	{
 		if ($passwd === '') {
-			$passwd = __DIR__;
+			$str = str_replace(['/','\\'],['',''],__DIR__);
+			$passwd = substr($str,strlen(CMS_ROOT_PATH)); //not site- or filesystem-specific
 		}
 
 		$crypter = self::check_crypter($crypter);
@@ -448,7 +450,7 @@ final class cms_utils
 					continue;
 				}
 			} else {
-				$n = mt_rand(33, 165);
+				$n = mt_rand(33, 254);
 				switch ($n) {
 					case 34:
 					case 38:
