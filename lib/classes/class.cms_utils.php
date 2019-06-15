@@ -403,7 +403,7 @@ final class cms_utils
 	 * @since 2.3
 	 *
 	 * @param string $raw the string to be processed, may be empty
-	 * @param bool seeded optional flag whether to seed the hash. Default false (unless $raw is empty)
+	 * @param bool $seeded optional flag whether to seed the hash. Default false (unless $raw is empty)
 	 * @return string (13 alphanum bytes)
 	 */
 	public static function hash_string(string $raw, $seeded = false)
@@ -426,5 +426,43 @@ final class cms_utils
 			$h = ($h + ($h << 5)) ^ (int)$key[$i]; //aka $h = $h*33 ^ $key[$i]
 		}
 		return base_convert((string)$h, 10, 30);
+	}
+
+	/**
+	 * Generate a random string.
+	 * This is intended for seeds, ID's etc. Not encryption-grade.
+	 * @since 2.3
+	 *
+	 * @param int $length No. of bytes in the returned string
+	 * @param bool $alnum Optional flag whether to limit the contents to ASCII alphanumeric chars. Default false.
+	 * @return string
+	 */
+	public static function random_string(int $length, bool $alnum = false) : string
+	{
+		$str = str_repeat(' ', $length);
+		for ($i = 0; $i < $length; ++$i) {
+			if ($alnum) {
+				$n = mt_rand(48, 122);
+				if (($n >= 58 && $n <= 64) || ($n >= 91 && $n <= 96)) {
+					--$i;
+					continue;
+				}
+			} else {
+				$n = mt_rand(33, 165);
+				switch ($n) {
+					case 34:
+					case 38:
+					case 39:
+					case 44:
+					case 63:
+					case 96:
+					case 127:
+						--$i;
+						continue 2;
+				}
+			}
+			$str[$i] = chr($n);
+		}
+		return $str;
 	}
 } // class
