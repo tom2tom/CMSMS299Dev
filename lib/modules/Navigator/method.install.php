@@ -21,13 +21,6 @@ use CMSMS\TemplateOperations;
 
 if( !isset($gCms) ) exit;
 
-$newsite = AppState::test_state(AppState::STATE_INSTALL);
-if( $newsite ) {
-    $uid = 1; // tempplates owned by initial admin
-} else {
-    $uid = get_userid();
-}
-
 $me = $this->GetName();
 
 try {
@@ -64,6 +57,13 @@ catch( CmsException $e ) {
     debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
     audit('',$me,'Installation Error: '.$e->GetMessage());
     return $e->GetMessage();
+}
+
+$newsite = AppState::test_state(AppState::STATE_INSTALL);
+if( $newsite ) {
+    $uid = 1; // templates owned by initial admin
+} else {
+    $uid = get_userid();
 }
 
 try {
