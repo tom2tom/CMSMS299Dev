@@ -67,7 +67,6 @@ final class cms_config implements ArrayAccess
         'debug' => self::TYPE_BOOL,
         'default_encoding' => self::TYPE_STRING,
         'default_upload_permission' => self::TYPE_STRING,
-        'generate_old_mact' => self::TYPE_BOOL,
         'image_uploads_path' => self::TYPE_STRING,
         'image_uploads_url' => self::TYPE_STRING,
         'locale' => self::TYPE_STRING,
@@ -81,6 +80,7 @@ final class cms_config implements ArrayAccess
         'query_var' => self::TYPE_STRING,
         'root_path' => self::TYPE_STRING,
         'root_url' => self::TYPE_STRING,
+        'secure_request_url' => self::TYPE_BOOL,
         'set_db_timezone' => self::TYPE_BOOL,
         'set_names' => self::TYPE_BOOL,
         'timezone' => self::TYPE_STRING,
@@ -329,7 +329,7 @@ final class cms_config implements ArrayAccess
 
         case 'permissive_smarty':
         case 'persist_db_conn':
-        case 'generate_old_mact':
+        case 'secure_request_url':
             return false;
 
         case 'smart_urls':
