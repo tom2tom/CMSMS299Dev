@@ -96,15 +96,24 @@ foreach ($files as $one) {
 
 //$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modified_date) VALUES (\'loginmodule\',?,?);';
 //$db->Execute($query,[$longnow,$longnow]);
-// probably-unique signature of this site (not filesystem-specific)
-$sig = '1234567890123456789012345678901234567890';
-$length = strlen($sig);
-$alphanum = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
- .'0123456789'
- .'abcdefghijklmnopqrstuvwxyz';
-$max = strlen($alphanum);
-for ($i = 0; $i < $length; ++$i) {
-    $sig[$i] = $alphanum[mt_rand(0, $max-1)];
+// almost-certainly-unique signature of this site
+// this replicates cms_utils::random_string()
+$uuid = str_repeat(' ', 32);
+for ($i = 0; $i < 32; ++$i) {
+	$n = mt_rand(33, 165);
+	switch ($n) {
+		case 34:
+		case 38:
+		case 39:
+		case 44:
+		case 63:
+		case 96:
+		case 127:
+			--$i;
+			break;
+		default:
+		    $uuid[$i] = chr($n);
+	}
 }
 
 foreach([
@@ -114,7 +123,7 @@ foreach([
     'lock_timeout' => 60,
     'loginmodule' => '',
     'site_help_url' => '',
-    'site_signature' => $sig,
+    'site_uuid' => $uuid,
     'smarty_cachelife' => -1, // smarty default
  ] as $name=>$val) {
     cms_siteprefs::set($name, $val);
