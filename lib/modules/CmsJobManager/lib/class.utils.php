@@ -28,10 +28,10 @@ final class utils
         $minutes = min(10, $minutes);
         return $minutes * 60; // seconds
     }
-	/**
-	 * @param Job $job
-	 * @return bool
-	 */
+    /**
+     * @param Job $job
+     * @return bool
+     */
     public static function job_recurs(Job $job) : bool
     {
         if ($job instanceof CronJob) {
@@ -40,10 +40,10 @@ final class utils
         return false;
     }
 
-	/**
-	 * @param Job $job
-	 * @return mixed int|null
-	 */
+    /**
+     * @param Job $job
+     * @return mixed int|null
+     */
     public static function calculate_next_start_time(Job $job)
     {
         if (!self::job_recurs($job)) {
@@ -79,7 +79,7 @@ final class utils
             $out = strtotime('+1 month', $now);
             break;
         case RecurType::RECUR_SELF:
-			$out = (method_exists($job, 'nexttime')) ? $job->nexttime($now) : $now + 10 * 60;
+            $out = (method_exists($job, 'nexttime')) ? $job->nexttime($now) : $now + 10 * 60;
             break;
         case RecurType::RECUR_NONE:
             return null;
@@ -92,7 +92,7 @@ final class utils
 
     public static function process_errors()
     {
-        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'cmsjobman_err_'.cms_utils::hash_string(__FILE__).'.log';
+        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'cmsjobman_errjobs.log';
         if (!is_file($fn)) {
             return;
         }
@@ -126,23 +126,24 @@ final class utils
         debug_to_log('Increased error count on '.count($job_ids).' jobs ');
     }
 
-	/**
-	 * @param type $job_id
-	 */
+    /**
+     * Record id of job where error occurred, for later processing
+     * @param int $job_id
+     */
     public static function put_error($job_id)
     {
-        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'cmsjobman_err_'.cms_utils::hash_string(__FILE__).'.log';
+        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'cmsjobman_errjobs.log';
         $fh = fopen($fn, 'a');
         fwrite($fh, $job_id."\n");
         fclose($fh);
     }
 
-	/**
-	 * @param mixed $job
-	 * @param string $errmsg
-	 * @param string $errfile
-	 * @param string $errline
-	 */
+    /**
+     * @param mixed $job
+     * @param string $errmsg
+     * @param string $errfile
+     * @param string $errline
+     */
     public static function joberrorhandler($job, string $errmsg, string $errfile, string $errline)
     {
         debug_to_log('Fatal error occurred processing async jobs at: '.$errfile.':'.$errline);
@@ -154,6 +155,9 @@ final class utils
         self::put_error($job->id);
     }
 
+    /**
+     * Shutdown function
+     */
     public static function errorhandler()
     {
         $err = error_get_last();
