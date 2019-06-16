@@ -31,7 +31,7 @@ header("Content-Length: $size");
 header($out);
 flush();
 
-register_shutdown_function('\CmsJobManager\utils::errorhandler');
+register_shutdown_function('\\CmsJobManager\\utils::errorhandler');
 
 try {
     $now = time();
