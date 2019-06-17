@@ -237,7 +237,7 @@ final class cms_utils
 	}
 
 	/**
-	 * Attempt to retreive the IP address of the connected user.
+	 * Attempt to retrieve the IP address of the connected user.
 	 * This function attempts to compensate for proxy servers.
 	 *
 	 * @author calguy1000
@@ -265,11 +265,12 @@ final class cms_utils
 	 *
 	 * @author calguy1000
 	 * @since 1.11
+	 * @param mixed $name Since 2.3 Optional theme name. Default ''
 	 * @return mixed ThemeBase derived object, or null
 	 */
-	public static function get_theme_object()
+	public static function get_theme_object($name = '')
 	{
-		return ThemeBase::get_instance();
+		return ThemeBase::get_instance($name);
 	}
 
 	/**
