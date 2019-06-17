@@ -662,7 +662,7 @@ $smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences')
 // advanced/syntax editors
 //CHECKME cms_utils::get_syntax_highlighter_module()
 $editors = [];
-$tmp = $metops->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
+$tmp = $modops->GetCapableModules(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
 if ($tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
         $ob = cms_utils::get_module($tmp[$i]);
