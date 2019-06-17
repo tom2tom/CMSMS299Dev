@@ -1648,7 +1648,7 @@ abstract class CMSModule
      * @param mixed $action The action name, string|falsy (in which case an exception will be thrown)
      * @param mixed $id string|null The action identifier
      * @param array  $params The action parameters
-     * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin requests.
+     * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin|login requests.
      * @param mixed  $smartob  A CMSMS\internal\template_wrapper object, or CMSMS\internal\Smarty object, or null
      * @return mixed The action output, normally a string but maybe null.
      */
