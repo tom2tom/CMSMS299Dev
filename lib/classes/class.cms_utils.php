@@ -260,7 +260,7 @@ final class cms_utils
 	}
 
 	/**
-	 * Return the current theme object.
+	 * Return the current theme object or a named theme object.
 	 * Only valid during an admin request.
 	 *
 	 * @author calguy1000
@@ -379,11 +379,21 @@ final class cms_utils
 		case 'sodium':
 			$localpw = CMS_ROOT_URL.self::class;
 			$nonce = substr(($localpw ^ $passwd),0,16);
-			return sodium_crypto_box_open($raw,$nonce,$passwd);
+			$val = sodium_crypto_box_open($raw,$nonce,$passwd);
+			if ($val !== false) {
+				return $val;
+			}
+			sleep(2); // inhibit brute-forcing
+			return null;
 		case 'openssl':
 			$localpw = CMS_ROOT_URL.self::class;
 			$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
-			return openssl_decrypt($raw,self::SSLCIPHER,$passwd,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
+			$val = openssl_decrypt($raw,self::SSLCIPHER,$passwd,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
+			if ($val !== false) {
+				return $val;
+			}
+			sleep(2);
+			return null;
 		default:
 			$localpw = CMS_ROOT_URL.$passwd.self::class;
 			$l1 = strlen($localpw);
