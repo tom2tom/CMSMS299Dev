@@ -341,19 +341,17 @@ final class cms_utils
 			$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
 			return openssl_encrypt($raw,self::SSLCIPHER,$passwd,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
 		default:
-			$localpw = CMS_ROOT_URL.$passwd.self::class;
-			$l1 = strlen($localpw);
-			$l2 = strlen($raw);
-			while( $l1 < $l2 ) {
-				$localpw .= $localpw;
-				$l1 += $l1;
+			$p = $lp = strlen($passwd);
+			$lr = strlen($raw);
+			$j = -1;
+			for ($i = 0; $i < $lr; ++$i) {
+				$r = ord($raw[$i]);
+				if (++$j == $lp) { $j = 0; }
+				$k = ($r ^ ord($passwd[$j])) + $p;
+				$raw[$i] = chr($k);
+				$p = $r;
 			}
-			$l2 = min($l1,$l2);
-			$str = $raw;
-			for( $i = 0; $i < $l2; ++$i ) {
-				$str[$i] = $str[$i] ^ $localpw[$i];
-			}
-			return $str;
+			return $raw;
 		}
 	}
 
@@ -395,19 +393,20 @@ final class cms_utils
 			sleep(2);
 			return null;
 		default:
-			$localpw = CMS_ROOT_URL.$passwd.self::class;
-			$l1 = strlen($localpw);
-			$l2 = strlen($raw); //TODO check embedded null's ok
-			while ($l1 < $l2) {
-				$localpw .= $localpw;
-				$l1 += $l1;
+			$p = $lp = strlen($passwd);
+			$lr = strlen($raw);
+			$j = -1;
+
+			for ($i = 0; $i < $lr; ++$i) {
+				$k = ord($raw[$i]) - $p;
+				if ($k < 0) {
+					$k += 256;
+				}
+				if (++$j == $lp) { $j = 0; }
+				$p = $k ^ ord($passwd[$j]);
+				$raw[$i] = chr($p);
 			}
-			$l2 = min($l1,$l2);
-			$str = $raw;
-			for ($i = 0; $i < $l2; ++$i) {
-				$str[$i] = $str[$i] ^ $localpw[$i];
-			}
-			return $str;
+			return $raw;
 		}
 	}
 
