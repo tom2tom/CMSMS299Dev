@@ -74,9 +74,9 @@ new
 
 assets_url
 content_language - for PHP htmlentities() and html_entity_decode(), default 'xhtml'
-content_processing_mode - 0, 1 or 2 determines the order of processing during page-creation see details below
+deprecations - if this parameter, and also debug, are not empty, deprecation notices will be thrown when something (method, property etc) deprecated is used
 pr_root_url - protocol-relative root URI
-deprecations - if this, and also debug, are not empty, deprecation notices will be thrown when something (method, property etc) deprecated is used
+secure_action_url - whether to encrypt action get-parameters for inclusion in URL's (mostly for non-https sites)
 
 deprecated
 
@@ -84,7 +84,7 @@ output_compression ignored
 ssl_image_uploads_url see image_uploads_url
 ssl_uploads_url see uploads_url
 ssl_url see root_url
-startup_mact_processing see content_processing_mode
+startup_mact_processing ignored
 use_adodb_lite ignored
 use_hierarchy ignored
 use_smarty_php_tags ignored
