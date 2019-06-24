@@ -22,7 +22,7 @@ $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set i
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 $_SESSION['logout_user_now'] = '1';
-$name = cms_siteprefs::get('admintheme');
+$name = cms_siteprefs::get('logintheme');
 $ob = cms_utils::get_theme_object($name);
 if ($ob) {
     $ob->do_login();
