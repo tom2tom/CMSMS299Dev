@@ -19,10 +19,11 @@ use CMSMS\AppState;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-$_SESSION['logout_user_now'] = '1';
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-$ob = cms_utils::get_theme_object();
+$_SESSION['logout_user_now'] = '1';
+$name = cms_siteprefs::get('admintheme');
+$ob = cms_utils::get_theme_object($name);
 if ($ob) {
     $ob->do_login();
 } else {
