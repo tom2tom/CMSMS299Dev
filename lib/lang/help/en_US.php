@@ -11,7 +11,7 @@ $lang['help_group_permissions'] = <<<EOT
 EOT;
 
 $lang['help_myaccount_admincallout'] = 'If enabled administrative bookmarks <em>(bookmarks)</em> will be enabled allowing you to manage a list of frequently used actions in the admin console.';
-$lang['help_myaccount_admintheme'] = 'Select an administration theme to use.  Different administration themes have different menu layouts, work better for mobile displays, and have various additional features.';
+$lang['help_myaccount_admintheme'] = 'Select an admin console theme to use.  Themes may have different appearances and/or menu layouts, work differently on mobile devices, or have different features.';
 $lang['help_myaccount_ce_navdisplay'] = 'Select which content field should be displayed in content lists.  Options include the page title, or menu text.  If &quot;None&quot; is selected, then the site preference will be used';
 $lang['help_myaccount_dateformat'] = 'Specify a date format string to use when dates are displayed.  This string uses <a href="http://php.net/manual/en/function.strftime.php" class="external" target="_blank">strftime</a> format.  <strong>Note:</strong> some independently-developed modules and plugins might ignore this setting.</strong>';
 $lang['help_myaccount_dfltparent'] = 'Specify the default parent page for creating a new content page.  The use of this setting also depends on your content editing permissions.<br/><br/>Drill down to the selected default parent page by selecting the topmost parent, and successive child pages from the provided dropdowns.<br/><br/>The text field on the right will always indicate which page is currently selected.';
