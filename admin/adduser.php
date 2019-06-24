@@ -115,7 +115,7 @@ if (isset($_POST['submit'])) {
             } else {
                 cms_userprefs::set_for_user($userid, 'default_cms_language', cms_userprefs::get_for_user($adminid, 'default_cms_language'));
                 cms_userprefs::set_for_user($userid, 'wysiwyg', cms_userprefs::get_for_user($adminid, 'wysiwyg'));
-                $$val = cms_siteprefs::get('logintheme');
+                $val = cms_siteprefs::get('logintheme');
                 if( !$val ) $val = ThemeBase::GetDefaultTheme();
                 cms_userprefs::set_for_user($userid, 'admintheme', $val);
                 cms_userprefs::set_for_user($userid, 'bookmarks', cms_userprefs::get_for_user($adminid, 'bookmarks'));
