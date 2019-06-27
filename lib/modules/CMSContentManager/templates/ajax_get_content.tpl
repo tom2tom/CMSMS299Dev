@@ -235,7 +235,7 @@
             ><input type="checkbox" id="selectall" value="1" title="{$mod->Lang('select_all')}" />
           {elseif $column == 'page'}
             title="{$coltitle_page}">{$colhdr_page}
-          {elseif ($have_locks == '1') && $column == 'default'}
+          {elseif $column == 'default' && $have_locks}
             title="{$mod->Lang('error_action_contentlocked')}">({$mod->Lang("colhdr_{$column}")})
           {else}
             title="{$mod->Lang("coltitle_{$column}")}">{$mod->Lang("colhdr_{$column}")}
