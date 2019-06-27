@@ -186,7 +186,7 @@ final class LockOperations
 	public static function delete_for_nameduser (int $uid,string $type = '',int $oid = 0)
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		if( !$db ) return; //shutdown == gone ?
+		if( !$db ) return; //during shutdown, connection gone ?
 		$parms = [$uid];
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE.' WHERE uid = ?';
 		if( $type ) {
