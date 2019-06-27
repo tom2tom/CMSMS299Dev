@@ -71,16 +71,79 @@ if(empty($params['reset'])
 }
 
 if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
+
+$css = <<<EOS
+<style type="text/css">
+input.invalid {
+  background-color: salmon;
+}
+</style>
+EOS;
+//TODO put this in css file
+$this->AdminHeaderContent($css);
+
+$image_width = $imageinfo[0];
+$image = Utils::get_cwd_url()."/$filename";
+
+$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(function() {
+  // Apply jrac on some image
+  $('#img').jrac({
+    'crop_width': 250,
+    'crop_height': 170,
+    'crop_x': 100,
+    'crop_y': 100,
+    'image_width': $image_width,
+    'viewport_width': $('#test1').width() - 30,
+    'viewport_onload': function() {
+      var \$viewport = this;
+      var inputs = $('table#coords input:text');
+      var events = ['jrac_crop_x', 'jrac_crop_y', 'jrac_crop_width', 'jrac_crop_height', 'jrac_image_width', 'jrac_image_height'];
+      for(var i = 0; i < events.length; i++) {
+        var event_name = events[i];
+        // Register an event with an element.
+        \$viewport.observator.register(event_name, inputs.eq(i));
+        // Attach a handler to that event for the element.
+        inputs.eq(i).bind(event_name, function(event, \$viewport, value) {
+          $(this).val(Math.floor(value));
+        })
+        // Attach a handler for the built-in jQuery change event, handler
+        // which read user input and apply it to relevent viewport object.
+          .change(event_name, function(ev) {
+            var event_name = ev.data;
+            \$viewport.$image.scale_proportion_locked = \$viewport.\$container.parent('.pane').find('.coords input:checkbox').is(':checked');
+            \$viewport.observator.set_property(event_name, $(this).val());
+          });
+      }
+      $('#natsize').html(\$viewport.$image.originalWidth + ' x ' + \$viewport.$image.originalHeight);
+    }
+  })
+    // React on all viewport events
+    .bind('jrac_events', function(ev, \$viewport) {
+      var inputs = $('table#coords input:text');
+      if(\$viewport.observator.crop_consistent()) {
+        inputs.removeClass('invalid');
+        inputs.addClass('valid');
+      } else {
+        inputs.removeClass('valid');
+        inputs.addClass('invalid');
+      }
+      $('#submit').prop('disabled', (\$viewport.observator.crop_consistent()) ? false : true);
+  });
+});
+//]]>
+</script>
+EOS;
+$this->AdminBottomContent($js);
+
 //
 // build the form
 //
 $tpl = $smarty->createTemplate($this->GetTemplateResource('pie.tpl'),null,null,$smarty);
 
 $tpl->assign('formstart',$this->CreateFormStart($id,'resizecrop',$returnid,'post','',false,'',$params))
- ->assign('formend',$this->CreateFormEnd())
  ->assign('filename',$filename);
-$url = Utils::get_cwd_url()."/$filename";
-$tpl->assign('image',$url)
- ->assign('image_width',$imageinfo[0]);
 
 $tpl->display();
