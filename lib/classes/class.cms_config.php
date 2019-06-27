@@ -80,7 +80,7 @@ final class cms_config implements ArrayAccess
         'query_var' => self::TYPE_STRING,
         'root_path' => self::TYPE_STRING,
         'root_url' => self::TYPE_STRING,
-        'secure_request_url' => self::TYPE_BOOL,
+        'secure_action_url' => self::TYPE_BOOL,
         'set_db_timezone' => self::TYPE_BOOL,
         'set_names' => self::TYPE_BOOL,
         'timezone' => self::TYPE_STRING,
@@ -329,7 +329,7 @@ final class cms_config implements ArrayAccess
 
         case 'permissive_smarty':
         case 'persist_db_conn':
-        case 'secure_request_url':
+        case 'secure_action_url':
             return false;
 
         case 'smart_urls':
