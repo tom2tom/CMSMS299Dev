@@ -79,7 +79,7 @@ if( isset($params['save']) ) {
 
   // do the work
   $angle = (int)$params['angle'];
-  $angle = max(-180,min(180,$angle))*-1;
+  $angle = max(-180,min(180,$angle)) * -1;
   $source = imagecreatefromstring(file_get_contents($src));
   imagealphablending($source, false);
   imagesavealpha($source, true);
@@ -162,26 +162,74 @@ if( isset($params['save']) ) {
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
+$css = <<<EOS
+<style type="text/css">
+img#rotimg {
+  z-index: 0;
+}
+</style>
+EOS;
+//TODO into css file
+$this->AdminHeaderContent($css);
+
+$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(function() {
+  $('#rotangle').slider({
+    min: -180,
+    max: 180,
+    value: 0,
+    change: function(ev, ui) {
+      $('#angletxt').val(ui.value);
+    },
+    slide: function(ev, ui) {
+      $('#angletxt').val(ui.value);
+      $('#rotimg').rotate({
+        animateTo: ui.value
+      });
+    }
+  });
+  $('button.autorotate').on('click', function() {
+    var id = $(this).attr('id');
+    var dir = id.substr(0, 3);
+    var val = parseInt(id.substr(3), 10);
+    if(dir === 'neg') val = -val;
+    $('#angletxt').val(val);
+    $('#rotimg').rotate({
+      animateTo: val
+    });
+    $('#rotangle').slider('value', val);
+    return false;
+  });
+});
+//]]>
+</script>
+EOS;
+$this->AdminBottomContent($js);
+
 //
 // build the form
 //
-$opts = ['none'=>$this->Lang('none'),
-	      'crop'=>$this->Lang('crop'),
-	      'resize'=>$this->Lang('resize')];
+$opts = [
+'none'=>$this->Lang('none'),
+'crop'=>$this->Lang('crop'),
+'resize'=>$this->Lang('resize')
+];
+$url = Utils::get_cwd_url()."/$filename";
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('filerotate.tpl'),null,null,$smarty);
 
-$tpl->assign('opts',$opts);
-$url = Utils::get_cwd_url()."/$filename";
-$tpl->assign('postrotate',$postrotate)
- ->assign('createthumb',$createthumb)
+$tpl->assign('opts',$opts)
+ ->assign('image',$url)
  ->assign('filename',$filename)
+ ->assign('postrotate',$postrotate)
+ ->assign('createthumb',$createthumb)
  ->assign('width',$width)
- ->assign('height',$height)
- ->assign('image',$url);
+ ->assign('height',$height);
+
 if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
 $tpl->assign('formstart',$this->CreateFormStart($id,'rotate',$returnid,'post','',false,'',$params))
  ->assign('formend',$this->CreateFormEnd());
 
 $tpl->display();
-
