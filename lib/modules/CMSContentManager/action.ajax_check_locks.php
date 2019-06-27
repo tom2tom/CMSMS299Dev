@@ -34,7 +34,8 @@ foreach( $list as $lock ) {
         $id = $lock['oid'];
         if( $lock_timeout && $lock['expires'] < $now ) {
             $locks[$id] = 1; // stealable
-        } else { 
+        }
+        else {
             $locks[$id] = -1; // blocked
         }
     }
