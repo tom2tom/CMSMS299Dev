@@ -578,9 +578,9 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Given a content id, and a userid indicate whether the user has access to all peers of the content page.
+	 * Test whether the given|current user has edit-authority for all peers of the given content page.
 	 */
-	private function _check_peer_authorship($content_id,$userid = null)
+	private function _check_peer_authorship($content_id,$userid = 0)
 	{
 		if( $content_id < 1 ) return FALSE;
 		if( $userid <= 0 ) $userid = $this->_userid;
@@ -589,9 +589,9 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Checks if the specified user is the author of the specified content page
+	 * Test whether the given|current user is the author of the specified content page
 	 */
-	private function _check_authorship($content_id,$userid = null)
+	private function _check_authorship($content_id,$userid = 0)
 	{
 		if( $userid <= 0 ) $userid = $this->_userid;
 		return ContentOperations::get_instance()->CheckPageAuthorship($userid,$content_id);
@@ -603,7 +603,9 @@ final class ContentListBuilder
 	public function get_locks()
 	{
 		//if( $this->_module->GetPreference('locktimeout') < 1 ) return;
-		if( is_array($this->_locks) ) return $this->_locks;
+		if( is_array($this->_locks) ) {
+			return $this->_locks;
+		}
 		$this->_locks = [];
 		$tmp = LockOperations::get_locks('content');
 		if( $tmp ) {
@@ -615,37 +617,38 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Test if we have any locks.
+	 * Test whether there is any lock.
 	 */
 	public function have_locks()
 	{
-		if( $this->get_locks() ) return TRUE;
-		return FALSE;
+		return $this->get_locks() != FALSE;
 	}
 
 	/**
-	 * Checks if the current page is locked.
+	 * Test whether the specified page is locked (regardless of expiry).
 	 */
 	private function _is_locked($page_id)
 	{
-		//if( $this->_module->GetPreference('locktimeout') < 1 ) return FALSE;
+//		if( $this->_module->GetPreference('locktimeout') < 1 ) return FALSE;
 		$locks = $this->get_locks();
-		if( !$locks ) return FALSE;
-		return in_array($page_id,array_keys($locks));
+		return $locks && isset($locks[$page_id]);
 	}
 
+	/**
+	 * Test whether the default page is locked (regardless of expiry).
+	 */
 	private function _is_default_locked()
 	{
-		$dflt_content_id = ContentOperations::get_instance()->GetDefaultContent();
 		$locks = $this->get_locks();
-		if( is_array($locks) && count($locks) && in_array($dflt_content_id,array_keys($locks)) ) return TRUE;
-		return FALSE;
+		if( !$locks ) return FALSE;
+		$dflt_content_id = ContentOperations::get_instance()->GetDefaultContent();
+		return isset($locks[$dflt_content_id]);
 	}
 
 	private function _is_lock_expired($page_id)
 	{
 		$locks = $this->get_locks();
-		if( !is_array($locks) || count($locks) == 0 ) return FALSE;
+		if( !$locks ) return FALSE;
 		if( isset($locks[$page_id]) ) {
 			$lock = $locks[$page_id];
 			if( $lock->expired() ) return TRUE;
@@ -654,7 +657,7 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Load, and cache all users
+	 * Load and cache all users
 	 */
 	private function _get_users()
 	{
