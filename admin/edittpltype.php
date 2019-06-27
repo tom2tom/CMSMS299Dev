@@ -17,7 +17,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
-use CMSMS\LockOperations;
 use CMSMS\ScriptOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
@@ -31,7 +30,7 @@ if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) 
 check_login();
 
 $userid = get_userid();
-if( !check_permission($userid,'Modify Templates') ) {
+if( !check_permission($userid, 'Modify Templates') ) {
 	return;
 }
 
@@ -39,12 +38,12 @@ $urlext = get_secure_param();
 $themeObject = cms_utils::get_theme_object();
 
 if( isset($_REQUEST['cancel']) ) {
-	$themeObject->ParkNotice('info',lang_by_realm('layout','msg_cancelled'));
+	$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_cancelled'));
 	redirect('listtemplates.php'.$urlext.'&_activetab=types');
 }
 
 if( !isset($_REQUEST['type']) ) {
-	$themeObject->ParkNotice('error',lang_by_realm('layout','error_missingparam'));
+	$themeObject->ParkNotice('error', lang_by_realm('layout', 'error_missingparam'));
 	redirect('listtemplates.php'.$urlext.'&_activetab=types');
 }
 
@@ -64,7 +63,7 @@ try {
 		$type->set_description($_REQUEST['description']);
 		$type->save();
 
-		$themeObject->ParkNotice('info',lang_by_realm('layout','msg_type_saved'));
+		$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_type_saved'));
 		redirect('listtemplates.php'.$urlext.'&_activetab=types');
 	}
 
@@ -72,14 +71,12 @@ try {
 	$lock_timeout = cms_siteprefs::get('lock_timeout', 60);
 	$do_locking = ($type_id > 0 && $lock_timeout > 0) ? 1 : 0;
 	if( $do_locking ) {
-		register_shutdown_function(function($u) {
-          LockOperations::delete_for_nameduser($u);
-        }, $userid);
+		CmsApp::get_instance()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
 	$lock_refresh = cms_siteprefs::get('lock_refresh', 120);
-	$s1 = json_encode(lang_by_realm('layout','error_lock'));
-	$s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
-	$s3 = json_encode(lang_by_realm('layout','confirm_reset_type'));
+	$s1 = json_encode(lang_by_realm('layout', 'error_lock'));
+	$s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
+	$s3 = json_encode(lang_by_realm('layout', 'confirm_reset_type'));
 	$cancel = lang('cancel');
 
 	$sm = new ScriptOperations();
@@ -88,12 +85,12 @@ try {
 		$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 	}
 	$js = $sm->render_inclusion('', false, false);
-	if ($js) {
+	if( $js ) {
 		$themeObject->add_footertext($js);
 	}
 
 	$editorjs = get_editor_script(['edit'=>true, 'htmlid'=>'edit_area', 'typer'=>'smarty']);
-	if (!empty($editorjs['head'])) {
+	if( !empty($editorjs['head']) ) {
 		$themeObject->add_headtext($editorjs['head']);
 	}
 
@@ -134,10 +131,10 @@ $(function() {
  });
  $('[name="reset"]').on('click', function(ev) {
    ev.preventDefault();
-   cms_confirm_btnclick(this,$s3);
+   cms_confirm_btnclick(this, $s3);
    return false;
  });
- $('#submitbtn,#applybtn,#cancelbtn').on('click', function(ev) {
+ $('#submitbtn, #applybtn, #cancelbtn').on('click', function(ev) {
    if (this.id !== 'cancelbtn') {
      var v = geteditorcontent();
      setpagecontent(v);
@@ -155,16 +152,16 @@ EOS;
 	$extras = get_secure_param_array();
 
 	$smarty = CmsApp::get_instance()->GetSmarty();
-	$smarty->assign('type',$type)
-	 ->assign('selfurl',$selfurl)
-	 ->assign('urlext',$urlext)
-	 ->assign('extraparms',$extras);
+	$smarty->assign('type', $type)
+	 ->assign('selfurl', $selfurl)
+	 ->assign('urlext', $urlext)
+	 ->assign('extraparms', $extras);
 
 	include_once 'header.php';
 	$smarty->display('edittpltype.tpl');
 	include_once 'footer.php';
 }
 catch( CmsException $e ) {
-	$themeObject->ParkNotice('error',$e->GetMessage());
+	$themeObject->ParkNotice('error', $e->GetMessage());
 	redirect('listtemplates.php'.$urlext.'&_activetab=types');
 }

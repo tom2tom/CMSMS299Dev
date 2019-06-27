@@ -17,7 +17,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
-use CMSMS\LockOperations;
 use CMSMS\ScriptOperations;
 use CMSMS\TemplateOperations;
 
@@ -85,9 +84,7 @@ catch( CmsException $e ) {
 $lock_timeout = cms_siteprefs::get('lock_timeout', 60);
 $do_locking = ($gid > 0 && $lock_timeout > 0) ? 1 : 0;
 if ($do_locking) {
-	register_shutdown_function(function($u) {
-		LockOperations::delete_for_nameduser($u);
-	}, $userid);
+	CmsApp::get_instance()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
 }
 $lock_refresh = cms_siteprefs::get('lock_refresh', 120);
 $s1 = json_encode(lang_by_realm('layout','error_lock'));
