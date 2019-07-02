@@ -20,6 +20,7 @@ use CMSMS\AppState;
 
 function smarty_function_form_start($params, $template)
 {
+	//cuz this form will be POST'd, we don't use secure mact parameters 
 	$mactparms = [];
 	$mactparms['module'] = $template->getTemplateVars('_module');
 	$mactparms['mid'] = $template->getTemplateVars('actionid');
