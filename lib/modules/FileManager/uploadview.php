@@ -39,15 +39,17 @@ $post_max_size = Utils::str_to_bytes(ini_get('post_max_size'));
 $upload_max_filesize = Utils::str_to_bytes(ini_get('upload_max_filesize'));
 $max_chunksize = min($upload_max_filesize, $post_max_size - 1024);
 if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
+	//some things are not supported on IE browsers
     $tpl->assign('is_ie', 1);
 }
 $tpl->assign('ie_upload_message', $this->Lang('ie_upload_message'));
 
+/* see filemanager.css
 $css = <<<EOS
 <style type="text/css">
-/*.upload-wrapper {
+/ *.upload-wrapper {
  margin: 10px 0
-} */
+} * /
 .hcentered {
  text-align: center
 }
@@ -75,6 +77,7 @@ $css = <<<EOS
 </style>
 EOS;
 $this->AdminHeaderContent($css);
+*/
 
 $js = <<<EOS
 <script type="text/javascript">
@@ -160,4 +163,3 @@ EOS;
 $this->AdminBottomContent($js);
 
 $tpl->display();
-

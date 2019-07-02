@@ -1,9 +1,45 @@
 #filesarea img {
-  max-width: 32px
+ max-width: 32px
 }
+img#rotimg {
+ z-index: 0
+}
+
 .listicon {
-  border: 0;
-  width: 2em;
-  height: 2em;
-  vertical-align: middle;
+ border: 0;
+ width: 2em;
+ height: 2em;
+ vertical-align: middle;
+}
+
+input.invalid {
+ background-color: salmon
+}
+
+/*.upload-wrapper {
+ margin: 10px 0
+} */
+.hcentered {
+ text-align: center
+}
+.vcentered {
+ display: table-cell;
+ vertical-align: middle
+}
+#dropzone {
+ margin: 15px 0;
+ border-radius: 4px;
+ border: 2px dashed #ccc
+}
+#dropzone:hover {
+ cursor: move
+}
+#progressarea {
+ margin: 15px;
+ height: 2em;
+ line-height: 2em;
+ text-align: center;
+ border: 1px solid #aaa;
+ border-radius: 4px;
+ display: none
 }

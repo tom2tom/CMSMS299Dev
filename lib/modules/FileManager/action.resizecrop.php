@@ -72,6 +72,7 @@ if(empty($params['reset'])
 
 if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
 
+/* see filemanager.css
 $css = <<<EOS
 <style type="text/css">
 input.invalid {
@@ -79,8 +80,8 @@ input.invalid {
 }
 </style>
 EOS;
-//TODO put this in css file
 $this->AdminHeaderContent($css);
+*/
 
 $image_width = $imageinfo[0];
 $image = Utils::get_cwd_url()."/$filename";

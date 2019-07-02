@@ -29,30 +29,30 @@ if( !is_array($sel) ) {
 }
 unset($params['sel']);
 
-if (count($sel)==0) {
-  $params['fmerror']='nofilesselected';
+if (count($sel) == 0) {
+  $params['fmerror'] = 'nofilesselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 if (count($sel)>1) {
-  $params['fmerror']='morethanonefiledirselected';
+  $params['fmerror'] = 'morethanonefiledirselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
-$config=cmsms()->GetConfig();
+$config = cmsms()->GetConfig();
 $basedir = CMS_ROOT_PATH;
-$filename=$this->decodefilename($sel[0]);
+$filename = $this->decodefilename($sel[0]);
 $src = cms_join_path($basedir,Utils::get_cwd(),$filename);
 if( !file_exists($src) ) {
-  $params['fmerror']='filenotfound';
+  $params['fmerror'] = 'filenotfound';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 $imageinfo = getimagesize($src);
 if( !$imageinfo || !isset($imageinfo['mime']) || !startswith($imageinfo['mime'],'image') ) {
-  $params['fmerror']='filenotimage';
+  $params['fmerror'] = 'filenotimage';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 if( !is_writable($src) ) {
-  $params['fmerror']='notwritable';
+  $params['fmerror'] = 'notwritable';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 switch( $imageinfo['mime'] ) {
@@ -79,14 +79,14 @@ if( isset($params['save']) ) {
 
   // do the work
   $angle = (int)$params['angle'];
-  $angle = max(-180,min(180,$angle)) * -1;
+  $angle = max(-180,-(min(180,$angle)));
   $source = imagecreatefromstring(file_get_contents($src));
-  imagealphablending($source, false);
-  imagesavealpha($source, true);
-  $bgcolor = imageColorAllocateAlpha($source, 255, 255, 255, 127);
+  imagealphablending($source,false);
+  imagesavealpha($source,true);
+  $bgcolor = imageColorAllocateAlpha($source,255,255,255,127);
   $rotated = imagerotate($source,$angle,$bgcolor);
-  imagealphablending($rotated, false);
-  imagesavealpha($rotated, true);
+  imagealphablending($rotated,false);
+  imagesavealpha($rotated,true);
 
   if( $postrotate == 'crop' ) {
     // calculates crop dimensions based on center of image
@@ -117,12 +117,12 @@ if( isset($params['save']) ) {
     if( $width < $height ) {
       // height is greater...
       $new_h = $height;
-      $new_w = round(($new_h / $src_h) * $src_w, 0);
+      $new_w = round(($new_h / $src_h) * $src_w,0);
     }
     else {
       // width is greater.
       $new_w = $width;
-      $new_h = round(($new_w / $src_w) * $src_h, 0);
+      $new_h = round(($new_w / $src_w) * $src_h,0);
     }
 
     $x0 = (int)(($src_w - $new_w) / 2);
@@ -162,6 +162,7 @@ if( isset($params['save']) ) {
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
+/* see filemanager.css
 $css = <<<EOS
 <style type="text/css">
 img#rotimg {
@@ -169,9 +170,8 @@ img#rotimg {
 }
 </style>
 EOS;
-//TODO into css file
 $this->AdminHeaderContent($css);
-
+*/
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
