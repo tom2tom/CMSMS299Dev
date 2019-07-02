@@ -1000,8 +1000,9 @@ class FormUtils
         ]);
         $out .= '>'."\n".
         '<div class="hidden">'."\n".
+ 		// TODO if $method == 'get', also support secure action-parameters via GetParameters class
         '<input type="hidden" name="mact" value="'.$mod->GetName().','.$id.','.$action.','.($inline?1:0).'" />'."\n";
-        if ($returnid != '') { //NB not strict - it may be null
+       if ($returnid != '') { //NB not strict - it may be null
             $out .= '<input type="hidden" name="'.$id.'returnid" value="'.$returnid.'" />'."\n";
             if ($inline) {
                 $config = cms_config::get_instance();
@@ -1014,7 +1015,7 @@ class FormUtils
         foreach ($params as $key=>$val) {
 //          $val = TODOfunc($val); urlencode ? serialize?
             if (!in_array($key, $excludes)) {
-                if(is_array($val)) {
+                if (is_array($val)) {
 //TODO e.g. serialize $out .= '<input type="hidden" name="'.$id.$key.'" value="'.TODO.'" />'."\n";
                 } else {
                     $out .= '<input type="hidden" name="'.$id.$key.'" value="'.$val.'" />'."\n";
