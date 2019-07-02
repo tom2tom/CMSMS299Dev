@@ -743,14 +743,14 @@ $X = $CRASH;
 
 	public function serialize()
 	{
-		//TODO can all cachers cope with embedded null's in strings ?
-		return cms_utils::encrypt_string($this->__toString(),self::class,'');
+		//TODO can all cachers cope with embedded null's in strings ? NB internal cryption is slow!
+		return cms_utils::encrypt_string($this->__toString(),self::class,'best');
 //		return $this->__toString();
 	}
 
 	public function unserialize($serialized)
 	{
-		$serialized = cms_utils::decrypt_string($serialized,self::class,'');
+		$serialized = cms_utils::decrypt_string($serialized,self::class,'best');
 		$props = json_decode($serialized, true);
 		if ($props) {
 			foreach ($props as $key => $value) {
