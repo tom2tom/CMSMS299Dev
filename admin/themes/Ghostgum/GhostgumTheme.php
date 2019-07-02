@@ -26,6 +26,7 @@ use cms_userprefs;
 use cms_utils;
 use CmsApp;
 use CMSMS\AdminUtils;
+use CMSMS\internal\GetParameters;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
@@ -35,10 +36,12 @@ use const CMS_ADMIN_PATH;
 use const CMS_SCRIPTS_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
+use const TMP_CACHE_LOCATION;
 use function check_permission;
 use function cms_installed_jquery;
 use function cms_join_path;
 use function cms_path_to_url;
+use function cmsms;
 use function get_userid;
 use function lang;
 use function munge_string_to_url;
@@ -101,13 +104,13 @@ EOS;
 		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.cms_admin.min.js', 2);
 //		$sm->queue_matchedfile('jquery.cms_admin.js', 2); N/A
-	    $out .= $sm->render_inclusion('', false, false);
+		$out .= $sm->render_inclusion('', false, false);
 
 		if( isset($_SESSION[CMS_USER_KEY]) && !AppState::test_state(AppState::STATE_LOGIN_PAGE) ) {
 			$sm->reset();
 			require_once CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'jsruntime.php';
 			$sm->queue_string($_out_);
-		    $out .= $sm->render_inclusion('', false, false);
+			$out .= $sm->render_inclusion('', false, false);
 		}
 
 		$sm->reset();
@@ -118,7 +121,7 @@ EOS;
 		$p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.alertable.js', 2); //OR .min for production
 		$sm->queue_file($p.'standard.js', 3); //OR .min for production
-	    $out .= $sm->render_inclusion();
+		$out .= $sm->render_inclusion();
 
 		$add_list[] = $out;
 //      $vars[] = anything needed ?;
@@ -162,6 +165,58 @@ EOS;
 		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR. 'templates';
 		$smarty->display('topcontent.tpl');
 		$smarty->template_dir = $otd;
+	}
+
+	protected function render_minimal($tplname, $bodyid = null)
+	{
+		$incs = cms_installed_jquery(true, false, true, false);
+		$sm = new ScriptOperations();
+		$sm->queue_file($incs['jqcore'], 1);
+		$sm->queue_file($incs['jqui'], 1);
+		$fn = $sm->render_scripts('', false, false);
+		$url = cms_path_to_url(TMP_CACHE_LOCATION);
+		$header_includes = <<<EOS
+<script type="text/javascript" src="{$url}/{$fn}"></script>
+
+EOS;
+		$url = cms_config::get_instance()['admin_url'];
+		$lang = NlsOperations::get_current_language();
+		$info = NlsOperations::get_language_info($lang);
+		$smarty = cmsms()->GetSmarty();
+		$otd = $smarty->GetTemplateDir();
+		$smarty->SetTemplateDir(__DIR__.DIRECTORY_SEPARATOR.'templates');
+
+		$smarty->assign('admin_root', $url)
+		 ->assign('theme_root', $url.'/themes/Ghostgum')
+		 ->assign('title', $this->title)
+		 ->assign('lang_dir', $info->direction())
+		 ->assign('header_includes', $header_includes)
+//		 ->assign('bottom_includes', '') // TODO
+		 ->assign('bodyid', $bodyid)
+		 ->assign('content', $this->get_content());
+
+		$out = $smarty->fetch($tplname);
+		$smarty->SetTemplateDir($otd);
+		return $out;
+	}
+
+	/**
+	 * @todo this has been migrated more-or-less verbatim from old marigold
+	 * @return string (or maybe null if $smarty->fetch() fails?)
+	 */
+	public function do_minimal($bodyid = null) : string
+	{
+		return $this->render_minimal('minimal.tpl', $bodyid);
+	}
+
+	/**
+	 * @todo this has been migrated more-or-less verbatim from old marigold
+	 * @param mixed $bodyid Optional id for page 'body' element. Default null
+	 * @return string (or maybe null if $smarty->fetch() fails?)
+	 */
+	public function do_loginpage($bodyid = null)
+	{
+		return $this->render_minimal('login-minimal.tpl', $bodyid);
 	}
 
 	/**
@@ -227,15 +282,18 @@ EOS;
 		// prefer cached parameters, if any
 		// module name
 		$module_name = $this->get_value('module_name');
-		if (!$module_name && isset($_REQUEST['mact'])) {
-			$module_name = explode(',', $_REQUEST['mact'])[0];
+		if (!$module_name) {
+			$params = (new GetParameters())->get_action_values('module');
+			if ($params['module']) {
+				$module_name = $params['module'];
+			}
 		}
 		$smarty->assign('module_name', $module_name);
 
 		$module_help_type = $this->get_value('module_help_type');
 		// module_help_url
 		if ($module_name && ($module_help_type || $module_help_type === null) &&
-			!cms_userprefs::get_for_user($uid,'hide_help_links', 0)) {
+			!cms_userprefs::get_for_user($uid, 'hide_help_links', 0)) {
 			if (($module_help_url = $this->get_value('module_help_url'))) {
 				$smarty->assign('module_help_url', $module_help_url);
 			}

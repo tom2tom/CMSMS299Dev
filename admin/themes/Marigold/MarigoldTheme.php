@@ -24,6 +24,7 @@ use cms_userprefs;
 use cms_utils;
 use CmsApp;
 use CMSMS\AdminUtils;
+use CMSMS\internal\GetParameters;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
@@ -38,6 +39,7 @@ use function check_permission;
 use function cms_installed_jquery;
 use function cms_join_path;
 use function cms_path_to_url;
+use function cmsms;
 use function get_userid;
 use function lang;
 use function munge_string_to_url;
@@ -167,7 +169,7 @@ EOS;
 		$smarty->template_dir = $otd;
 	}
 
-	public function do_minimal()
+	protected function render_minimal($tplname, $bodyid = null)
 	{
 		$incs = cms_installed_jquery(true, false, true, false);
 		$sm = new ScriptOperations();
@@ -175,54 +177,50 @@ EOS;
 		$sm->queue_file($incs['jqui'], 1);
 		$fn = $sm->render_scripts('', false, false);
 		$url = cms_path_to_url(TMP_CACHE_LOCATION);
-
-		$smarty = CmsApp::get_instance()->GetSmarty();
-		$smarty->assign('dynamic_js', <<<EOS
+		$header_includes = <<<EOS
 <script type="text/javascript" src="{$url}/{$fn}"></script>
 
-EOS
-);
-		$smarty->assign('content',$this->get_content());
-		$smarty->assign('title',$this->title);
-		$smarty->assign('subtitle',$this->subtitle);
-		$config = cms_config::get_instance();
-		$smarty->assign('admin_root', $config['admin_url']);
-		$smarty->assign('theme_path', __DIR__);
-		$smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
-		$smarty->assign('footer', $this->do_footer());
-		return $smarty->fetch('minimal.tpl');
+EOS;
+		$url = cms_config::get_instance()['admin_url'];
+		$lang = NlsOperations::get_current_language();
+		$info = NlsOperations::get_language_info($lang);
+		$smarty = cmsms()->GetSmarty();
+		$otd = $smarty->GetTemplateDir();
+		$smarty->SetTemplateDir(__DIR__.DIRECTORY_SEPARATOR.'templates');
+
+		$smarty->assign('admin_root', $url)
+		 ->assign('theme_root', $url.'/themes/Marigold')
+		 ->assign('title', $this->title)
+		 ->assign('lang_dir', $info->direction())
+		 ->assign('header_includes', $header_includes)
+//		 ->assign('bottom_includes', '') // TODO
+		 ->assign('bodyid', $bodyid)
+		 ->assign('content', $this->get_content());
+
+		$out = $smarty->fetch($tplname);
+		$smarty->SetTemplateDir($otd);
+		return $out;
 	}
 
-/* ALTERNATE APPROACH TO LOGIN PROCESSING - NOT YET EVALUATED
-	public function do_login($params = null)
+	/**
+	 * @todo this has been migrated more-or-less verbatim from old marigold
+	 * @return string (or maybe null if $smarty->fetch() fails?)
+	 */
+	public function do_minimal($bodyid = null) : string
 	{
-		$auth_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin');
-		$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
-		if ($modinst) {
-			$data = $modinst->StageLogin(); //returns only if further processing is needed
-		} else {
-			die('System error');
-		}
-
-		$smarty = CmsApp::get_instance()->GetSmarty();
-		$smarty->assign($data);
-		$config = cms_config::get_instance();
-		// TODO
-		$smarty->assign('content', $this->get_content());
-		$smarty->assign('title', $this->title);
-		$smarty->assign('subtitle', $this->subtitle);
-		$smarty->assign('admin_root', $config['admin_url']);
-		$smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
-		$smarty->assign('theme_path', __DIR__);
-		$smarty->assign('footer', $this->do_footer());
-		$smarty->assign('lang_code', cms_siteprefs::get('frontendlang'));
-		$smarty->assign('pageid', $pageid);
-		$smarty->assign('dynamic_headtext', $this->get_headtext());
-
-		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
-		$smarty->display('login.tpl');
+		return $this->render_minimal('minimal.tpl', $bodyid);
 	}
-*/
+
+	/**
+	 * @todo this has been migrated more-or-less verbatim from old marigold
+	 * @param mixed $bodyid Optional id for page 'body' element. Default null
+	 * @return string (or maybe null if $smarty->fetch() fails?)
+	 */
+	public function do_loginpage($bodyid = null)
+	{
+		return $this->render_minimal('login-minimal.tpl', $bodyid);
+	}
+
 	/**
 	 * @param  mixed $params For parent-compatibility only, unused.
 	 */
@@ -298,8 +296,11 @@ EOS;
 		// prefer cached parameters, if any
 		// module name
 		$module_name = $this->get_value('module_name');
-		if (!$module_name && isset($_REQUEST['mact'])) {
-			$module_name = explode(',', $_REQUEST['mact'])[0];
+		if (!$module_name) {
+			$params = (new GetParameters())->get_action_values('module');
+			if ($params['module']) {
+				$module_name = $params['module'];
+			}
 		}
 		$smarty->assign('module_name', $module_name);
 

@@ -20,20 +20,24 @@
 
 namespace CMSMS;
 
+use cms_config;
 use cms_siteprefs;
 use cms_userprefs;
 use cms_utils;
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminUtils;
+use CMSMS\internal\GetParameters;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptOperations;
 use CMSMS\UserOperations;
+use Exception;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
+use const TMP_CACHE_LOCATION;
 use function check_permission;
 use function cleanValue;
 use function cms_installed_jquery;
@@ -206,7 +210,7 @@ EOS;
 	{
 		if ($this->currentversion()) {
 			parent::ShowHeader($title_name, $extra_lang_params, $link_text, $module_help_type);
-		} else {
+		} else { // pre 2.3
 
 		if ($title_name) $this->set_value('pagetitle', $title_name);
 		if ($extra_lang_params) $this->set_value('extra_lang_params', $extra_lang_params);
@@ -218,9 +222,18 @@ EOS;
 			$module = '';
 			if (isset($_REQUEST['module'])) {
 				$module = $_REQUEST['module'];
-			} elseif (isset($_REQUEST['mact'])) {
-				$tmp = explode(',', $_REQUEST['mact']);
-				$module = $tmp[0];
+			} else {
+				try {
+					$params = (new GetParameters())->get_action_values('module'); //2.3+
+					if ($params['module']) {
+						$module = $params['module'];
+					}
+				} catch (Exception $e) {
+					if (isset($_REQUEST['mact'])) {
+						$tmp = explode(',', $_REQUEST['mact']);
+						$module = $tmp[0];
+					}
+				}
 			}
 
 			// get the image url.
@@ -375,6 +388,58 @@ EOS;
 		return [$jqcss, $jqui, $jqcore];
 	}
 
+	protected function render_minimal($tplname, $bodyid = null)
+	{
+		$incs = cms_installed_jquery(true, false, true, false);
+		$sm = new ScriptOperations();
+		$sm->queue_file($incs['jqcore'], 1);
+		$sm->queue_file($incs['jqui'], 1);
+		$fn = $sm->render_scripts('', false, false);
+		$url = cms_path_to_url(TMP_CACHE_LOCATION);
+		$header_includes = <<<EOS
+<script type="text/javascript" src="{$url}/{$fn}"></script>
+
+EOS;
+		$url = cms_config::get_instance()['admin_url'];
+		$lang = NlsOperations::get_current_language();
+		$info = NlsOperations::get_language_info($lang);
+		$smarty = cmsms()->GetSmarty();
+		$otd = $smarty->GetTemplateDir();
+		$smarty->SetTemplateDir(__DIR__.DIRECTORY_SEPARATOR.'templates');
+
+		$smarty->assign('admin_root', $url)
+		 ->assign('theme_root', $url.'/themes/Altbier')
+		 ->assign('title', $this->title)
+		 ->assign('lang_dir', $info->direction())
+		 ->assign('header_includes', $header_includes)
+//		 ->assign('bottom_includes', '') // TODO
+		 ->assign('bodyid', $bodyid)
+		 ->assign('content', $this->get_content());
+
+		$out = $smarty->fetch($tplname);
+		$smarty->SetTemplateDir($otd);
+		return $out;
+	}
+
+	/**
+	 * @todo this has been migrated more-or-less verbatim from old marigold
+	 * @return string (or maybe null if $smarty->fetch() fails?)
+	 */
+	public function do_minimal($bodyid = null) : string
+	{
+		return $this->render_minimal('minimal.tpl', $bodyid);
+	}
+
+	/**
+	 * @todo this has been migrated more-or-less verbatim from old marigold
+	 * @param mixed $bodyid Optional id for page 'body' element. Default null
+	 * @return string (or maybe null if $smarty->fetch() fails?)
+	 */
+	public function do_loginpage($bodyid = null)
+	{
+		return $this->render_minimal('login-minimal.tpl', $bodyid);
+	}
+
 	/**
 	 * @param  $params Array of variables for smarty (CMSMS pre-2.3 only)
 	 */
@@ -490,8 +555,18 @@ EOS;
 		// prefer cached parameters, if any
 		// module name
 		$module_name = $this->get_value('module_name');
-		if (!$module_name && isset($_REQUEST['mact'])) {
-			$module_name = explode(',', $_REQUEST['mact'])[0];
+		if (!$module_name) {
+			try {
+				$params = (new GetParameters())->get_action_values('module'); //2.3+
+				if ($params['module']) {
+					$module_name = $params['module'];
+				}
+			}
+			catch (Exception $e) {
+				if (isset($_REQUEST['mact'])) {
+					$module_name = explode(',', $_REQUEST['mact'])[0];
+				}
+			}
 		}
 		$smarty->assign('module_name', $module_name);
 
