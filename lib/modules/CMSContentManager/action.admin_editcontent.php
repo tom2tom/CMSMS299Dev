@@ -226,6 +226,8 @@ try {
        elseif( isset($params['preview']) && $content_obj->HasPreview() ) {
             $_SESSION[CMS_PREVIEW] = serialize($content_obj);
             $_SESSION[CMS_PREVIEW_TYPE] = $content_type;
+            $tmp = ['response'=>'Success'];
+            echo json_encode($tmp);
             exit;
         }
     }
@@ -346,11 +348,11 @@ if( $content_obj->HasPreview() ) {
     $tpl->assign('has_preview',1);
     $preview_url = CMS_ROOT_URL.'/index.php?'.$config['query_var'].'='.CMS_PREVIEW_PAGEID;
     $tmp = $this->create_url($id,'admin_editcontent',$returnid,['preview'=>1]);
-    $preview_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=1';
+    $validate_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=1';
 }
 else {
     $preview_url = '';
-    $preview_ajax_url = '';
+    $validate_url = '';
 }
 
 if( $this->GetPreference('template_list_mode','allpage') != 'all')  {
@@ -378,9 +380,7 @@ $apply_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=
 $lock_timeout = cms_siteprefs::get('lock_timeout', 60);
 $do_locking = ($content_id > 0 && $lock_timeout > 0) ? 1:0;
 if ($do_locking) {
-    register_shutdown_function(function($u) {
-        LockOperations::delete_for_nameduser($u);
-    }, $user_id);
+    CmsApp::get_instance()->add_shutdown(10,'LockOperations::delete_for_nameduser',$user_id);
 }
 $lock_refresh = cms_siteprefs::get('lock_refresh', 120);
 $options_tab_name = ContentBase::TAB_OPTIONS;
@@ -440,22 +440,26 @@ if ($preview_url) {
     $js .= <<<EOS
   $('#_preview_').on('click', function() {
     if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave();
-    // serialize the form data
-    var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
-    data.push({
-      'name': '{$id}preview',
-      'value': 1
-    });
-    data.push({
-      'name': '{$id}ajax',
-      'value': 1
-    });
-    $.post('$preview_ajax_url', data, function(resultdata, textStatus, jqXHR) {
-      if (resultdata !== null && resultdata.response == 'Error') {
+    var params = [{
+      name: '{$id}ajax',
+      value: 1
+    },{
+      name: '{$id}preview',
+      value: 1
+    }].concat($('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray());
+    $.ajax('$validate_url', {
+      type: 'POST',
+      data: params,
+      cache: false,
+      dataType: 'json'
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      cms_notify('error', errorThrown);
+    }).done(function(data) {
+      if (data !== null && data.response == 'Error') {
         $('#previewframe').attr('src', '').hide();
         $('#preview_errors').html('<ul></ul>');
-        for (var i = 0; i < resultdata.details.length; i++) {
-          $('#preview_errors').append('<li>' + resultdata.details[i] + '</li>');
+        for (var i = 0; i < data.details.length; i++) {
+          $('#preview_errors').append('<li>' + data.details[i] + '</li>');
         }
         $('#previewerror').show();
       } else {
@@ -464,12 +468,13 @@ if ($preview_url) {
         $('#previewerror').hide();
         $('#previewframe').attr('src', url).show();
       }
-    }, 'json');
+    });
   });
 
 EOS;
 }
     $js .= <<<EOS
+  $('#template_id').data('lastValue', $('#template_id').val());
   // submit the form if disable wysiwyg, template id, and/or content-type fields are changed.
   $('#id_disablewysiwyg, #template_id, #content_type').on('change', function() {
     // disable the dirty form stuff, and unlock because we're gonna relockit on reload.
@@ -478,7 +483,7 @@ EOS;
     $('#Edit_Content').dirtyForm('disable');
     if (this_id != 'content_type') $('#active_tab').val('{$options_tab_name}');
     if (do_locking) {
-      if (do_locking) $('#Edit_Content').lockManager('unlock', 1).done(function() {
+      $('#Edit_Content').lockManager('unlock', 1).done(function() {
         $(self).closest('form').submit();
       });
     } else {
@@ -520,24 +525,24 @@ EOS;
     }
   });
 
-  // handle apply (ajax submit)
+  // handle apply (via ajax)
   $('[name$="apply"]').on('click', function() {
     // apply does not do an unlock
     if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave(); // TODO this needs better approach, create a common "ajax save" function that can be reused
-    var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
-    data.push({
-      'name': '{$id}ajax',
-      'value': 1
-    });
-    data.push({
-      'name': '{$id}apply',
-      'value': 1
-    });
-    $.ajax({
+    var params = [{
+      name: '{$id}ajax',
+      value: 1
+    },{
+      name: '{$id}apply',
+      value: 1
+    }].concat($('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray());
+    $.ajax('$apply_ajax_url', {
       type: 'POST',
-      url: '{$apply_ajax_url}',
-      data: data,
-      dataType: 'json',
+      data: params,
+      cache: false,
+      dataType: 'json'
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      cms_notify('error', errorThrown);
     }).done(function(data, text) {
       var event = $.Event('cms_ajax_apply');
       event.response = data.response;
@@ -557,6 +562,7 @@ EOS;
   });
 
 EOS;
+/*
 if ($designchanged_ajax_url) {
     $msg = json_encode($this->Lang('warn_notemplates_for_design'));
     $js .= <<<EOS
@@ -604,6 +610,7 @@ if ($designchanged_ajax_url) {
 
 EOS;
 }
+*/
     $js .= <<<EOS
 });
 //]]>
