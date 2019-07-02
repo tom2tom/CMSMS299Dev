@@ -32,7 +32,6 @@
   {if $content_obj->HasPreview()}
     {tab_header name='_preview_' label=$mod->Lang('prompt_preview')}
   {/if}
-
   {* tab content *}
   {foreach $tab_names as $key => $tabname}
     {tab_start name=$key}
@@ -48,7 +47,7 @@
   {/foreach}
   {if $content_obj->HasPreview()}
     {tab_start name='_preview_'}
-      <div class="pagewarn">{$mod->Lang('info_preview_notice')}</div>
+      <div class="pagewarn">{$mod->Lang('warn_preview')}</div>
       <iframe name="_previewframe_" class="preview" id="previewframe"></iframe>
       <div id="previewerror" style="display:none;">
         <fieldset>
