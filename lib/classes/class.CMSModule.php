@@ -1650,7 +1650,7 @@ abstract class CMSModule
      * @param array  $params The action parameters
      * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin|login requests.
      * @param mixed  $smartob  A CMSMS\internal\template_wrapper object, or CMSMS\internal\Smarty object, or null
-     * @return mixed The action output, normally a string but maybe null.
+     * @return mixed output from action 'controller' if relevant, or null, or '' if output is assigned to a smarty variable
      */
     public function DoActionBase($action, $id, $params, $returnid, &$smartob)
     {
