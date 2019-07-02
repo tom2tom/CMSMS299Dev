@@ -90,8 +90,8 @@ class Content extends ContentBase
 	public function SetProperties()
 	{
 		parent::SetProperties();
+		$this->AddProperty('template',1,parent::TAB_DISPLAY);
 //		$this->AddProperty('design_id',0,parent::TAB_OPTIONS);
-		$this->AddProperty('template',1,parent::TAB_OPTIONS);
 //		$this->AddProperty('template_rsrc',0,parent::TAB_OPTIONS);
 		$this->AddProperty('defaultcontent',3,parent::TAB_OPTIONS); //co-locate with 'main' checkboxes
 		$this->AddProperty('searchable',4,parent::TAB_OPTIONS);
@@ -198,14 +198,14 @@ class Content extends ContentBase
 			// add in content blocks
 			$blocks = $this->get_content_blocks();
 			if( $blocks ) {
-				$priority = 100; // == page_template_parser::$_priority
+				$priority = 100; // aka page_template_parser::$_priority default value
 				foreach( $blocks as &$block ) {
 					$prop = ['name' => $block['name']];
 					if( isset($block['tab']) && $block['tab'] !== '' ) {
 						$prop['tab'] = $block['tab'];
 					}
 					else {
-						$prop['tab'] = parent::TAB_MAIN;
+						$prop['tab'] = parent::TAB_DISPLAY;
 					}
 					if( isset($block['priority']) ) {
 						$prop['priority'] = $block['priority'];
