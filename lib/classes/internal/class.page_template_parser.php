@@ -1,5 +1,5 @@
 <?php
-#smarty template sub-class
+#Smarty template sub-class
 #Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -22,6 +22,10 @@ use Smarty_Internal_Template;
 use SmartyException;
 use function startswith;
 
+/**
+ * Currently used only by CMSContentManager::Content class, for backend-page or
+ * frontend-page-preview
+ */
 class page_template_parser extends Smarty_Internal_Template
 {
     /**
@@ -33,6 +37,7 @@ class page_template_parser extends Smarty_Internal_Template
     /**
      * @ignore
      * @var array, each member like 'blockname' => [blockparms]
+	 * intra-request block-parameters cache
      */
     protected static $_contentBlocks = [];
 
@@ -43,7 +48,9 @@ class page_template_parser extends Smarty_Internal_Template
 //    private static $_allowed_static_plugins = ['global_content'];
 
     /**
-     * Class constructor
+     * Class constructor.
+	 * Used only by CMSContentManager::content class i.e. for backend-page or
+	 * frontend-page-preview. No smarty caching.
      * @param string $template_resource template identifier
      * @param mixed $smarty
      * @param mixed $_parent optional, default null
@@ -67,14 +74,16 @@ class page_template_parser extends Smarty_Internal_Template
         $this->registerDefaultPluginHandler([$this,'defaultPluginHandler']);
         $this->merge_compiled_includes = true;
 
-        try { //these are repetitions of code in CMSMS\internal\Smarty constructor
+        try {
+            //the first of these is a variation of the plugin registered in CMSMS\internal\Smarty constructor for f/e pages
+            //each just sets parameters in local cache, no use in smarty cache too (even if were used for frontend?)
             $this->registerPlugin('compiler', 'content', [$this,'compile_contentblock'], false)
-                 ->registerPlugin('compiler', 'content_image', [$this,'compile_imageblock'], true)
-                 ->registerPlugin('compiler', 'content_module', [$this,'compile_moduleblock'], true)
-                 ->registerPlugin('compiler', 'content_text', [$this,'compile_contenttext'], true);
+                 ->registerPlugin('compiler', 'content_image', [$this,'compile_imageblock'], false)
+                 ->registerPlugin('compiler', 'content_module', [$this,'compile_moduleblock'], false)
+                 ->registerPlugin('compiler', 'content_text', [$this,'compile_contenttext'], false);
         } catch (SmartyException $e) {
             // ignore these... throws an error in Smarty 3.1.16 if plugin is
-			// already registered because plugin registration is global.
+            // already registered because plugin registration is global.
         }
     }
 
@@ -150,26 +159,28 @@ class page_template_parser extends Smarty_Internal_Template
         return self::$_contentBlocks;
     }
 
-    /**
-     * Compile a content block tag into PHP code
+    /* * EXPORTED TO class.content_plugins
+     * Generate PHP code to compile a content block tag.
+	 * This is the registered handler for frontend {content} tags
      *
      * @param array $params
      * @param Smarty_Internal_SmartyTemplateCompiler $template UNUSED
      * @return string
      */
-    public static function compile_fecontentblock(array $params, $template) : string
+/*    public static function compile_fecontentblock(array $params, $template) : string
     {
         $tmp = [];
         foreach ($params as $k => $v) {
             //CHECKME if $v is a string, quote it?
-            $tmp[] .= '\''.$k.'\'=>'.$v;
+            $tmp[] = "'$k'=>".$v;
         }
         $ptext = implode(',', $tmp);
         return '<?php \\CMSMS\\internal\\content_plugins::fetch_contentblock(['.$ptext.'],$_smarty_tpl); ?>';
     }
-
+*/
     /**
-     * Process a {content} tag
+     * Process a {content} tag.
+     * Adds parameters array to intra-request local cache. TODO cache in smarty instead?
      *
      * @param array $params
      * @param mixed $template UNUSED
@@ -240,6 +251,8 @@ class page_template_parser extends Smarty_Internal_Template
 
     /**
      * Process a {content_image} tag
+     * Adds parameters array to intra-request cache. TODO cache in smarty instead?
+     *
      * @param array $params
      * @param mixed $template UNUSED
      * @throws CmsEditContentException
@@ -299,6 +312,8 @@ class page_template_parser extends Smarty_Internal_Template
 
     /**
      * Process {content_module} tag
+     * Adds parameters array to intra-request cache. TODO cache in smarty instead?
+     *
      * @param array $params
      * @param mixed $template UNUSED
      * @throws CmsEditContentException
@@ -361,6 +376,7 @@ class page_template_parser extends Smarty_Internal_Template
 
     /**
      * Process {content_text} tag
+     * Adds parameters array to intra-request cache.
      *
      * @param array $params
      * @param mixed $template UNUSED
