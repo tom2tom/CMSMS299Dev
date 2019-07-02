@@ -20,11 +20,7 @@ namespace CMSMS\internal;
 
 use cms_siteprefs;
 use CmsApp;
-use CMSContentManager\ContentEditor;
-use CmsException;
 use Smarty_Resource_Custom;
-use const CMS_PREVIEW_PAGEID;
-use const CMS_PREVIEW;
 
 /**
  * A simple class for handling the content smarty resource.
