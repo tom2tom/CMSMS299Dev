@@ -151,10 +151,24 @@ try {
         $icon = $theme->DisplayImage('icons/system/delete',$t,'','','systemicon page_delete');
         $linkdel = '<a href="'.$u.'" class="page_delete" accesskey="r">'.$icon.'</a>'."\n";
 
+		$now = time();
+		$user_id = get_userid();
         $menus = [];
-        foreach( $editinfo as $row ) {
+        foreach( $editinfo as &$row ) {
             $acts = [];
             $rid = $row['id'];
+
+			if( isset($row['lock']) ) {
+				$obj = $row['lock'];
+				$locker = $obj['uid'];
+				if( $locker == $user_id ) {
+					unset($row['lock'], $row['lockuser']);
+				}
+				else {
+					$row['lock'] = ($obj['expires'] < $now) ? 1 : -1;
+				}
+			}
+
             if( isset($row['move']) ) {
                 if( $row['move'] == 'up' ) {
                     $acts[] = ['content'=>str_replace('XXX',$rid,$linkup)];
@@ -184,6 +198,7 @@ try {
             }
             $menus[] = FormUtils::create_menu($acts,['id'=>'Page'.$rid,'class'=>CMS_POPUPCLASS]);
         }
+		unset($row);
 
         $tpl->assign('content_list',$editinfo)
          ->assign('menus',$menus);
