@@ -477,9 +477,8 @@ License GPL2+
             var _row = $(target).closest('.alert-box');
             var _alert_name = _row.data('alert-name');
             if(!_alert_name) return;
-            return $.ajax({
+            return $.ajax(cms_data.ajax_alerts_url, {
               method: 'POST',
-              url: cms_data.ajax_alerts_url,
               data: {
                 op: 'delete',
                 alert: _alert_name
