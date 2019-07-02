@@ -21,7 +21,9 @@
  */
 namespace CMSMS\internal;
 
-use CmsApp;
+use cms_cache_handler;
+use cms_config;
+use cms_utils;
 use CMSModule;
 use function cms_error;
 use function cms_htmlentities;
@@ -34,104 +36,88 @@ use function startswith;
  */
 class MactEncoder
 {
-	/**
-	 * $_GET|$_POST|$_REQUEST key for secure mact's
-	 */
+    /**
+     * $_GET|$_POST|$_REQUEST key for secure mact's
+     */
     const KEY = '_R';
 
-	/**
-	 * NOTE:  the salt must be site-specific, but not filesystem-specific
-     * to allow the same URL to work after a site move, and on multi-domain sites
-	 * @var string
-	 */
-	private $salt;
-
-	/**
-	 * Whether to use plaintext mact
-	 * @var bool
-	 */
-    private $generate_old_mact;
-
-    public function __construct(CmsApp $app)
+    protected function get_pw() : string
     {
-        $this->salt = sha1($app->get_site_identifier());
-        $this->generate_old_mact = $app->getConfig()['generate_old_mact'];
+        $key = cms_utils::hash_string(self::KEY.self::class);
+        return cms_cache_handler::get_instance()->get($key,'general');
     }
 
-    protected function get_salt() : string
+    protected function set_pw() : string
     {
-        return $this->salt;
+        $key = cms_utils::hash_string(self::KEY.self::class);
+        $val = cms_utils::random_string(16);
+        cms_cache_handler::get_instance()->set($key,$val,'general');
+        return $val;
     }
 
-	/**
-	 * Create a MactInfo object from a secure request
-	 *
-	 * @param bool $strict_request_type Optional flag Default true.
-	 * @return mixed MactInfo | null
-	 */
-    protected function decode_encoded_mact(bool $strict_request_type = true)
+    /**
+     * Create a MactInfo object from a secure request-URL
+     *
+     * @param bool $strict_request_type Optional flag Default true.
+     * @return mixed MactInfo | null
+     */
+    protected function decode_secure_mact(bool $strict_request_type = true)
     {
         if( $strict_request_type ) {
             if( $_SERVER['REQUEST_METHOD'] == 'GET' ) {
-                $var = $_GET[self::KEY] ?? null;
+                $val = $_GET[self::KEY] ?? null;
             }
             else if( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
-                $var = $_POST[self::KEY] ?? null;
+                $val = $_POST[self::KEY] ?? null;
             }
-			else {
-			    $var = null;
-			}
+            else {
+                $val = null;
+            }
         } else {
-            $var = $_REQUEST[self::KEY] ?? null;
+            $val = $_REQUEST[self::KEY] ?? null;
         }
-        if( !$var ) return;
+        if( !$val ) return;
 
-        $decoded = base64_decode($var);
-        if( !$decoded ) return;
-
-        list($sig,$data) = explode(':::',$decoded);
-        if( sha1($data.$this->get_salt()) != $sig ) {
-            cms_error('When attempting to decode a signed module action request, signature did not validate');
-        }
-        else {
-            $data = json_decode($data,true);
-            if( is_array($data) && isset($data['action']) && isset($data['module']) && isset($data['id']) ) {
-                return MactInfo::from_array($data);
+        $key = $this->get_pw();
+        $data = cms_utils::decrypt_string(rawurldecode($val),$key);
+        if( $data ) {
+            $arr = json_decode($data,true);
+            if( is_array($arr) && isset($arr['action']) && isset($arr['module']) && isset($arr['id']) ) {
+                return MactInfo::from_array($arr);
             }
         }
     }
 
-	/**
-     * Create a MactInfo object from a request
-	 *
-	 * @param bool $strict_request_type optional flag Default true
-	 * @return mixed MactInfo | null
-	 */
-    public function decode_old_mact(bool $strict_request_type = true)
+    /**
+     * Create a MactInfo object from a plaintext request-URL
+     *
+     * @param bool $strict_request_type Optional flag Default true
+     * @return mixed MactInfo | null
+     */
+    public function decode_plain_mact(bool $strict_request_type = true)
     {
         if( $strict_request_type ) {
             if( $_SERVER['REQUEST_METHOD'] == 'GET' ) {
-                $var = $_GET['mact'] ?? null;
+                $val = $_GET['mact'] ?? null;
             }
             else if( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
-                $var = $_POST['mact'] ?? null;
+                $val = $_POST['mact'] ?? null;
             }
-			else {
-		        $var = null;
-			}
+            else {
+                $val = null;
+            }
         } else {
-            $var = $_REQUEST['mact'] ?? null;
+            $val = $_REQUEST['mact'] ?? null;
         }
-        if( !$var ) return;
+        if( !$val ) return;
 
-        // get the mactinfo
-        list($module,$id,$action,$inline) = explode(',',$var,4);
+        list($module,$id,$action,$inline) = explode(',',$val,4);
         $arr = [
-        'module' => trim($module),
-        'id' => trim($id),
-        'action' => trim($action),
-        'inline' => cms_to_bool($inline),
-		];
+         'module' => trim($module),
+         'id' => trim($id),
+         'action' => trim($action),
+         'inline' => cms_to_bool($inline),
+        ];
 
         $input = $_REQUEST;
         if( $strict_request_type ) {
@@ -147,51 +133,51 @@ class MactEncoder
         return MactInfo::from_array($arr);
     }
 
-	/**
-	 * Populate a MactInfo object reflecting request parameters
-	 * @param bool $strict_request_type optional flag Default true
-	 * @return mixed MactInfo | null
-	 */
+    /**
+     * Populate a MactInfo object reflecting request parameters
+     * @param bool $strict_request_type optional flag Default true
+     * @return mixed MactInfo | null
+     */
     public function decode(bool $strict_request_type = true)
     {
-        if( $this->encrypted_key_exists($strict_request_type) ) {
-            return $this->decode_encoded_mact($strict_request_type);
+        if( $this->secure_mact_exists($strict_request_type) ) {
+            return $this->decode_secure_mact($strict_request_type);
         }
-        return $this->decode_old_mact($strict_request_type);
+        return $this->decode_plain_mact($strict_request_type);
     }
 
-	/**
-	 * Determine whether the request parameters include a secured mact
-	 * @param bool $strict_request_type optional flag Default true
-	 * @return boolean
-	 */
-    protected function encrypted_key_exists(bool $strict_request_type = true) : bool
+    /**
+     * Determine whether the request parameters include a secured mact
+     * @param bool $strict_request_type optional flag Default true
+     * @return boolean
+     */
+    protected function secure_mact_exists(bool $strict_request_type = true) : bool
     {
         if( !$strict_request_type ) return isset($_REQUEST[self::KEY]);
         if( !isset($_SERVER['REQUEST_METHOD']) ) return false;
         if( $_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET[self::KEY]) ) return true;
         if( $_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST[self::KEY]) ) return true;
-		return false;
+        return false;
     }
 
-	/**
-	 * Determine whether the request parameters include a plaintext mact
-	 * @param bool $strict_request_type optional flag Default true
-	 * @return boolean
-	 */
-    public function old_mact_exists(bool $strict_request_type = true) : bool
+    /**
+     * Determine whether the request parameters include a plaintext mact
+     * @param bool $strict_request_type optional flag Default true
+     * @return boolean
+     */
+    public function plain_mact_exists(bool $strict_request_type = true) : bool
     {
         if( !$strict_request_type ) return isset($_REQUEST['mact']);
         if( !isset($_SERVER['REQUEST_METHOD']) ) return false;
         if( $_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['mact']) ) return true;
         if( $_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mact']) ) return true;
-		return false;
+        return false;
     }
 
-	/**
-	 *
-	 */
-	public function remove_old_mact_params()
+    /**
+     * Remove $_REQUEST members corresponding to a plaintext mact
+     */
+    public function remove_plain_mact_params()
     {
         $input = &$_REQUEST;
         if( isset($input['mact']) ) {
@@ -204,16 +190,16 @@ class MactEncoder
         }
     }
 
-	/**
-	 *
-	 * @param bool $strict_request_type optional flag Default true
-	 */
+    /**
+     * Populate $_REQUEST members corresponding to a secure mact
+     * @param bool $strict_request_type optional flag Default true
+     */
     public function expand_secure_mact(bool $strict_request_type = true)
     {
         // if we have a secure mact request, convert it into an old style mact request
         // only happens if the secure mact key issset and valid.
-        if( $this->encrypted_key_exists($strict_request_type) ) {
-            $mact = $this->decode_encoded_mact($strict_request_type);
+        if( $this->secure_mact_exists($strict_request_type) ) {
+            $mact = $this->decode_secure_mact($strict_request_type);
             if( $mact ) {
                 // repopulate mact.
                 $mact_str = "{$mact->module},{$mact->id},{$mact->action},{$mact->inline}";
@@ -226,18 +212,19 @@ class MactEncoder
         }
     }
 
-	/**
-     * Output an URL slug query string.
-	 *
-	 * @param MactInfo $mact
-	 * @param array $extraparms
-	 * @return string
-	 */
+    /**
+     * Generate secure URL-slug representing $mact and related action-parameters
+     *
+     * @param MactInfo $mact
+     * @param array $extraparms Optional additional request parameters which do not need mact-id in their key
+     * @return string
+     */
     protected function encode_to_secure_url(MactInfo $mact, array $extraparms = [])
     {
         $json = json_encode($mact);
-        $sig = sha1($json.$this->get_salt());
-        $str = self::KEY.'='.base64_encode($sig.':::'.$json);
+        $key = $this->set_pw();
+        $val = cms_utils::encrypt_string($json, $key);
+        $str = self::KEY.'='.rawurlencode($val);
         if( !empty($extraparms) ) {
             foreach( $extraparms as $key => $val ) {
                 $str .= '&amp;'.$key.'='.rawurlencode(cms_htmlentities($val));
@@ -246,13 +233,14 @@ class MactEncoder
         return $str;
     }
 
-	/**
-	 *
-	 * @param MactInfo $mact
-	 * @param array $extraparms
-	 * @return string
-	 */
-    protected function encode_to_mact_url(MactInfo $mact, array $extraparms = [])
+    /**
+     * Generate plaintext URL-slug representing $mact and related action-parameters
+     *
+     * @param MactInfo $mact
+     * @param array $extraparms Optional additional request parameters which do not need mact-id in their key
+     * @return string
+     */
+    protected function encode_to_plain_url(MactInfo $mact, array $extraparms = [])
     {
         // encodes to old style mact url.
         $arr = null;
@@ -290,41 +278,44 @@ class MactEncoder
         return $out;
     }
 
-	/**
-	 *
-	 * @param MactInfo $mact
-	 * @return array
-	 */
+    /**
+     *
+     * @param MactInfo $mact
+     * @return array
+     */
     public function encode_mact(MactInfo $mact)
     {
         $json = json_encode($mact);
-        $sig = sha1($json.$this->get_salt());
-        $arr = [ self::KEY => base64_encode($sig.':::'.$json)];
-        return $arr;
+        $key = $this->set_pw();
+        $val = cms_utils::encrypt_string($json, $key);
+        return [self::KEY => rawurlencode($val)];
     }
 
-	/**
-	 *
-	 * @param MactInfo $mact
-	 * @param array $extraparms
-	 * @return string
-	 */
+    /**
+     * Generate URL-slug representing mact and related action-parameters
+     * @param MactInfo $mact
+     * @param array $extraparms Optional additional request parameters which do not need mact-id in their key
+     * @return string
+     */
     public function encode_to_url(MactInfo $mact, array $extraparms = [])
     {
-        if( $this->generate_old_mact ) return $this->encode_to_mact_url($mact, $extraparms);
-        return $this->encode_to_secure_url($mact, $extraparms);
+        $secure = cms_config::get_instance()['secure_request_url'];
+        if ( $secure ) {
+            return $this->encode_to_secure_url($mact, $extraparms);
+        }
+        return $this->encode_to_plain_url($mact, $extraparms);
     }
 
-	/**
- 	 * Create a MactInfo object representing supplied parameters
-	 *
-	 * @param mixed CMSModule|string $module
-	 * @param string $id
-	 * @param string $action
-	 * @param bool $inline
-	 * @param array $params
-	 * @return MactInfo
-	 */
+    /**
+     * Create a MactInfo object representing supplied parameters
+     *
+     * @param mixed CMSModule|string $module
+     * @param string $id
+     * @param string $action
+     * @param bool $inline
+     * @param array $params
+     * @return MactInfo
+     */
     public function create_mactinfo($module, string $id, string $action, bool $inline = false, array $params = []) : MactInfo
     {
         $arr = [];
