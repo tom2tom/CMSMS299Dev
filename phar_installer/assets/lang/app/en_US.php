@@ -161,6 +161,7 @@ $lang['fail_safe_mode'] = 'CMSMS will not operate properly in an environment whe
 $lang['fail_session_save_path_exists'] = 'The session save path variable value is invalid or the directory does not exist';
 $lang['fail_session_save_path_writable'] = 'The session save path directory is not writeable';
 $lang['fail_session_use_cookies'] = 'CMSMS requires that PHP be configured to store the session key in a cookie';
+$lang['fail_ssl_extension'] = 'The openssl extension was not found. Some processes would work much faster if it were installed.';
 $lang['fail_tmpfile'] = 'The system tmpfile() function is not available. This is required to allow us to extract archives. The optional TMPDIR url argument can be provided to the installer to specify a writeable directory. See the README file that should be in included in this directory.';
 $lang['fail_tmp_dirs_empty'] = 'The CMSMS temporary-storage directories <em>(tmp/cache and tmp/templates_c) exist, and are not empty.  Please remove or empty them';
 $lang['fail_xml_functions'] = 'The XML extension was not found. Please enable this in the site\'s PHP environment';

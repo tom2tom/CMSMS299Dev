@@ -119,6 +119,13 @@ class wizard_step3 extends wizard_step
         $obj->fail_key = 'fail_curl_extension';
         $tests[] = $obj;
 
+		if( !defined('PHP_VERSION_ID') || PHP_VERSION_ID < 70200 ) {
+            // recommended test ... ssl extension for en/de-cryption
+            $obj = new boolean_test('ssl_extension',extension_loaded('openssl'));
+            $obj->fail_key = 'fail_ssl_extension';
+            $tests[] = $obj;
+		}
+
         // recommended test ... supported cache extension
         // preference order: [php]redis,apcu,yac,memcached(slowest)
         $obj = new matchany_test('cache_extension');
