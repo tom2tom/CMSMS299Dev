@@ -36,6 +36,7 @@ $post_max_size = Utils::str_to_bytes(ini_get('post_max_size'));
 $max_chunksize  = min($upload_max_filesize,$post_max_size-1024);
 
 if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
+    //some things are not supported on IE browsers
     $tpl->assign('is_ie',1);
 }
 elseif ($template == 'dropzone.tpl') {
