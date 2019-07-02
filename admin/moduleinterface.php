@@ -18,6 +18,7 @@
 
 use CMSMS\AppState;
 use CMSMS\Events;
+use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
 
 //REMINDER: vars defined here might be used as globals by downstream hook functions
@@ -36,29 +37,33 @@ if ($CMS_JOB_TYPE < 2) {
 	//TODO security for async ? $params[CMS_SECURE_PARAM_NAME] == $_SESSION[CMS_USER_KEY] etc
 }
 
-if (isset($_REQUEST['mact'])) {
-	$mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
-	$ary = explode(',', $mact, 4);
-	$module = $ary[0] ?? '';
-	$id = $ary[1] ?? 'm1_';
-	$action = $ary[2] ?? '';
+$ops = new GetParameters();
+$params = $ops->decode_action_params();
+if ($params) {
+	$modops = ModuleOperations::get_instance();
+	$module = $params['module'] ?? '';
+	$modinst = $modops->get_module_instance($module);
+	if (!$modinst) {
+		trigger_error('Module '.$module.' not found. This could indicate that the module is awaiting upgrade, or that there are other problems');
+		redirect('index.php');
+	}
+//	$params['id'] =
+	$id = ($params['id'] ?? 'm1_');
+//	$params['action'] =
+	$action = ($params['action'] ?? '');
+	unset($params['id'], $params['action']);
+	unset($params['module'], $params['inline']);
+	$params += $ops->retrieve_general_params($id);
 } else {
+	trigger_error('Module-action parameters not found');
 	redirect('index.php');
 }
 
-$modops = ModuleOperations::get_instance();
-$modinst = $modops->get_module_instance($module);
-if (!$modinst) {
-	trigger_error('Module '.$module.' not found. This could indicate that the module is awaiting upgrade, or that there are other problems');
-	redirect('index.php');
-}
 if ($modinst->SuppressAdminOutput($_REQUEST)) {
 	if ($CMS_JOB_TYPE == 0) {
 		$CMS_JOB_TYPE = 1; //too bad about irrelevant includes
 	}
 }
-
-$params = $modops->GetModuleParameters($id);
 
 switch ($CMS_JOB_TYPE) {
 	case 0:
@@ -66,7 +71,7 @@ switch ($CMS_JOB_TYPE) {
 		$themeObject->set_action_module($module);
 		// create a dummy template to be a proxy-parent for the action
 		$smarty = CmsApp::get_instance()->GetSmarty();
-        $template = $smarty->createTemplate('string:DUMMY PARENT');
+		$template = $smarty->createTemplate('string:DUMMY PARENT');
 
 		// retrieve and park the action-output first, in case the action also generates header content
 		ob_start();
@@ -85,7 +90,7 @@ switch ($CMS_JOB_TYPE) {
 		break;
 	case 1: // not full-page output
 		$smarty =  CmsApp::get_instance()->GetSmarty();
-        $template = $smarty->createTemplate('string:DUMMY PARENT');
+		$template = $smarty->createTemplate('string:DUMMY PARENT');
 		echo $modinst->DoActionBase($action, $id, $params, null, $template);
 		break;
 	case 2:	//minimal
