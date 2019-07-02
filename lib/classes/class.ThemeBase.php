@@ -34,6 +34,7 @@ use CMSMS\Bookmark;
 use CMSMS\BookmarkOperations;
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
+use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
 use PHPMailer\PHPMailer\Exception;
 use RecursiveArrayTreeIterator;
@@ -46,7 +47,6 @@ use function audit;
 use function check_permission;
 use function cleanArray;
 use function cleanValue;
-use function cms_build_query;
 use function cms_join_path;
 use function cms_module_places;
 use function cms_path_to_url;
@@ -209,23 +209,26 @@ abstract class ThemeBase
      */
     protected function __construct()
     {
-        if (is_object(self::$_instance)) throw new CmsLogicExceptin('Only one instance of a theme object is permitted');
+        if( is_object(self::$_instance) ) {
+            throw new CmsLogicException('Only one instance of a theme object is permitted');
+        }
 
         $this->_url = $_SERVER['SCRIPT_NAME'];
-        $this->_query = $_SERVER['QUERY_STRING']??'';
-        if( $this->_query == '' && isset($_POST['mact']) ) {
-            $tmp = explode(',',$_POST['mact']);
-            $this->_query = 'module='.$tmp[0];
+        $this->_query = $_SERVER['QUERY_STRING'] ?? '';
+        if( !$this->_query ) {
+			$parms = (new GetParameters())->get_action_values('module');
+			if( !empty($parms['module']) ) {
+	            $this->_query = 'module='.$parms['module'];
+			}
         }
-        //if ($this->_query == '' && isset($_POST['module']) && $_POST['module']) $this->_query = 'module='.$_POST['module'];
-        if (strpos( $this->_url, '/' ) === false) {
+        if( strpos($this->_url, '/') === false ) {
             $this->_script = $this->_url;
         } else {
             $tmp = explode('/',$this->_url);
             $this->_script = end($tmp);
         }
 
-        if ($this->_fontimages === null) {
+        if( $this->_fontimages === null ) {
             $path = cms_join_path(CMS_ADMIN_PATH,'themes',$this->themeName,'images','icons','system','*.i');
             $items = glob($path,GLOB_NOSORT);
             $this->_fontimages = ($items != false);
@@ -263,21 +266,26 @@ abstract class ThemeBase
 
     /**
      * Get the global admin theme object.
-     * This method will create the admin theme object if that has not yet been done.
-     * It will read CMSMS preferences and cross reference with available themes.
+     * This method will [re]create the theme object if that has not yet been done.
+     * It will read system preferences and cross reference with available themes.
      *
      * @param mixed string|null $name Optional theme name.
      * @return mixed ThemeBase The initialized admin theme object, or null
      */
     public static function get_instance($name = '')
     {
-        if( is_object(self::$_instance) ) return self::$_instance;
+        if( is_object(self::$_instance) ) {
+			if( $name == '' || $name = self::$_instance->themeName) {
+				return self::$_instance;
+			}
+			self::$_instance = null; // prevent exception when recreated
+		}
 
         if( !$name ) {
-			$userid = get_userid(FALSE);
-			if( $userid !== NULL ) {
-	            $name = cms_userprefs::get_for_user($userid,'admintheme');
-			}
+            $userid = get_userid(FALSE);
+            if( $userid !== NULL ) {
+                $name = cms_userprefs::get_for_user($userid,'admintheme');
+            }
             if( !$name ) $name = self::GetDefaultTheme();
         }
         $themeObjName = 'CMSMS\\'.$name;
@@ -327,10 +335,10 @@ abstract class ThemeBase
      */
     private function merger(array $strings)
     {
-        if ($strings) {
-            if (count($strings) > 1) {
-                foreach ($strings as &$one) {
-                    if ($one) {
+        if( $strings ) {
+            if( count($strings) > 1 ) {
+                foreach( $strings as &$one ) {
+                    if( $one ) {
                         $one = json_encode($one);
                     }
                 }
@@ -454,25 +462,25 @@ abstract class ThemeBase
 // TODO also clear cache group 'module_menus' after change of group membership or permission
         $data = cms_cache_handler::get_instance()->get('themeinfo'.$uid, 'module_menus');
         $data = false;  //DEBUG
-        if (!$data) {
+        if( !$data ) {
             // data doesn't exist, gotta build it
             $usermoduleinfo = [];
             $modops = ModuleOperations::get_instance();
             $allmodules = $modops->GetInstalledModules();
-            foreach ($allmodules as $modname) {
+            foreach( $allmodules as $modname ) {
                 $modinst = $modops->get_module_instance($modname);
-                if (is_object($modinst) && $modinst->HasAdmin()) {
+                if( is_object($modinst) && $modinst->HasAdmin() ) {
                     $recs = $modinst->GetAdminMenuItems();
-                    if ($recs) {
+                    if( $recs ) {
                         $sys = $modops->IsSystemModule($modname);
                         $suffix = 1;
-                        foreach ($recs as &$one) {
-                            if (!$one->valid()) continue;
+                        foreach( $recs as &$one ) {
+                            if( !$one->valid() ) continue;
                             $key = $modname.$suffix++;
                             $one->name = $key;
                             $url = (!empty($one->url)) ? $one->url :
                                 $modinst->create_url('m1_', $one->action);
-                            if (($p = strpos($url, 'moduleinterface.php')) === false) {
+                            if( ($p = strpos($url, 'moduleinterface.php')) === false ) {
                                 $one->url = $url;
                             } else {
                                 $one->url = substr($url, $p);
@@ -504,14 +512,14 @@ abstract class ThemeBase
      */
     private function _SetModuleAdminInterfaces()
     {
-        if ($this->_modules) {
+        if( $this->_modules ) {
             return; //once is enough
         }
 
         // get the info from the cache
         $usermoduleinfo = $this->_get_user_module_info();
         // is there any module with an admin interface?
-        if (is_array($usermoduleinfo)) {
+        if( is_array($usermoduleinfo) ) {
             //TODO prefer .svg if present
             $appends = [
                 ['images','icon.svg'],
@@ -530,36 +538,36 @@ abstract class ThemeBase
                 ['icons','icon-small.gif'],
             ];
 
-            foreach ($usermoduleinfo as $obj) {
-                if (empty($obj->section)) {
+            foreach( $usermoduleinfo as $obj ) {
+                if( empty($obj->section) ) {
                      $obj->section = 'extensions';
 /* PRESERVE ORIGINAL APPROACH
-                } elseif ($obj->section == 'content') {
+                } elseif( $obj->section == 'content') {
                     //hack pending non-core module updates by developers
-                    if ($obj->module != 'CMSContentManager') {
+                    if( $obj->module != 'CMSContentManager') {
                         $obj->section = 'services';
                     }
 */
                 }
                 // fix up the session key stuff
                 $obj->url = $this->_fix_url_userkey($obj->url);
-                if (!isset($obj->icon)) {
+                if( !isset($obj->icon) ) {
                     // find the 'best' icon
                     $modname = $obj->module;
                     $dirs = cms_module_places($modname);
-                    foreach ($dirs as $base) {
-                        if ($this->_smallicons) {
-                            foreach ($smallappends as $one) {
+                    foreach( $dirs as $base ) {
+                        if( $this->_smallicons ) {
+                            foreach( $smallappends as $one ) {
                                 $path = cms_join_path($base, ...$one);
-                                if (is_file($path)) {
+                                if( is_file($path) ) {
                                     $obj->icon = cms_path_to_url($path);
                                     break 2;
                                 }
                             }
                         }
-                        foreach ($appends as $one) {
+                        foreach( $appends as $one ) {
                             $path = cms_join_path($base, ...$one);
-                            if (is_file($path)) {
+                            if( is_file($path) ) {
                                 $obj->icon = cms_path_to_url($path);
                                 break 2;
                             }
@@ -648,52 +656,44 @@ abstract class ThemeBase
 
     /**
      * @ignore
+     * @todo export this for general use
      * @return 2-member array,
-     *  [0] = admin-relative url derived from the request
-     *  [1] = assoc. array of request variables
+     *  [0] = admin-root-relative URL including get-parameters derived from request parameters
+     *  [1] = assoc. array of request parameters
      */
     private function _parse_request() : array
     {
+		$ops = new GetParameters();
+		$parms = $ops->decode_action_params();
+		if( $parms ) {
+			// construct a mact-parameter in case something wants to use that
+			$module = $parms['module'] ?? '';
+			$action = $parms['action'] ?? '';
+			if( $module && $action ) {
+				$inline = $parms['inline'] ?? 0;
+				$id = $parms['id'] ?? '';
+				$parms['mact'] = "$module,$id,$action,$inline";
+			} else {
+				$id = '';
+			}
+		} else {
+			$parms = [];
+			$id = '';
+		}
+		$parms += $ops->retrieve_general_params($id);
+
         $config = cms_config::get_instance();
         $url_ob = new cms_url($config['admin_url']);
         $urlroot = $url_ob->get_path();
 
         $url_ob = new cms_url($_SERVER['REQUEST_URI']);
-        // if mact is available via post and not via get, we fake it
-        //  so that comparisons can get the mact from the query
-        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mact']) && !isset($_GET['mact'])) {
-            $value = cleanValue(rawurldecode($_POST['mact'])); //direct use N/A
-            $url_ob->set_queryvar('mact', $value);
-            $url_ob = new cms_url((string)$url_ob);
-        }
-        $urlparms = [];
-        parse_str($url_ob->get_query(), $urlparms);
-
         $urlpath = $url_ob->get_path();
         $text = substr($urlpath, strlen($urlroot) + 1);
-        if (!$text) {
+        if( !$text ) {
             $text = 'index.php';
         }
-        $first = true;
-        foreach ($urlparms as $key => $value) {
-            if ($first) {
-                $text .= '?';
-                $first = false;
-            } else {
-                $text .= '&amp;';
-            }
-            // cleanup
-            if ($key == CMS_SECURE_PARAM_NAME) {
-                $value = $_SESSION[CMS_USER_KEY];
-                $urlparms[$key] = $value;
-            }
-			if (is_scalar($value)) {
-				$text .= rawurlencode($key).'='.rawurlencode($value);
-			} else {
-				$text .= cms_build_query($key, $value);
-			}
-        }
-        return [$text, $urlparms];
+		$text .= '?'.$ops->create_plain_params($parms);
+        return [$text, $parms];
     }
 
     /**
@@ -1032,7 +1032,7 @@ abstract class ThemeBase
 */
         // append the user's module-related items, if any
         $this->_SetModuleAdminInterfaces();
-        foreach ($this->_modules as $key => $obj) {
+        foreach( $this->_modules as $key => $obj ) {
             $item = ['parent' => null] + $obj->get_all(); //may include 'icon' (a file url or false)
             $item['parent'] = (!empty($item['section'])) ? $item['section'] : 'extensions';
             unset($item['section']);
@@ -1048,14 +1048,14 @@ abstract class ThemeBase
                 new ArrayTreeIterator($tree),
                 RecursiveIteratorIterator::SELF_FIRST | RecursiveArrayTreeIterator::NONLEAVES_ONLY
                 );
-        foreach ($iter as $key => $value) {
-            if (!empty($value['children'])) {
+        foreach( $iter as $key => $value ) {
+            if( !empty($value['children']) ) {
                 $node = ArrayTree::node_get_data($tree, $value['path'], '*');
                 uasort($node['children'], function($a,$b) use ($value) {
                     $pa = $a['priority'] ?? 999;
                     $pb = $b['priority'] ?? 999;
                     $c = $pa <=> $pb;
-                    if ($c != 0) {
+                    if( $c != 0 ) {
                         return $c;
                     }
                     return strnatcmp($a['title'],$b['title']); //TODO mb_cmp if available
@@ -1091,17 +1091,17 @@ abstract class ThemeBase
      */
     public function get_navigation_tree($parent = null, $maxdepth = 3, $usepath = true, $alldepth = 3, $striproot = true)
     {
-        if (!$this->_menuTree) {
+        if( !$this->_menuTree ) {
             $this->populate_tree();
         }
         $tree = $this->_menuTree;
 
-        if ($parent == -1) {
+        if( $parent == -1 ) {
             $parent = null;
         }
-        if ($parent) {
+        if( $parent) {
             $path = ArrayTree::find($tree, 'name', $parent);
-            if ($path) {
+            if( $path ) {
                 $tree = ArrayTree::node_get_data($tree, $path, '*');
             }
         } else {
@@ -1112,24 +1112,24 @@ abstract class ThemeBase
                 new ArrayTreeIterator($tree),
                 RecursiveIteratorIterator::CHILD_FIRST
                 );
-        foreach ($iter as $value) {
-//            if (empty($value['show_in_menu'])) {
-            if (empty($value['children']) && empty($value['final'])) {
-                if (isset($value['path'])) {
+        foreach( $iter as $value ) {
+//            if( empty($value['show_in_menu'])) {
+            if( empty($value['children']) && empty($value['final']) ) {
+                if( isset($value['path']) ) {
                     ArrayTree::drop_node($tree, $value['path']);
                 }
-            } elseif ($maxdepth > 0 || $alldepth > 0) {
+            } elseif( $maxdepth > 0 || $alldepth > 0 ) {
                 $depth = $iter->getDepth();
-                if ($depth > $maxdepth) { //TODO $alldepth processing
-                    if (isset($value['path'])) {
+                if( $depth > $maxdepth ) { //TODO $alldepth processing
+                    if( isset($value['path']) ) {
                         ArrayTree::drop_node($tree, $value['path']);
                     }
                 }
             }
         }
 
-        if ($usepath) {
-            if (is_string($usepath)) {
+        if( $usepath) {
+            if( is_string($usepath)) {
                 $this->_activePath = ArrayTree::process_path($usepath);
             } else {
                 list($req_url, $req_vars) = $this->_parse_request();
@@ -1144,8 +1144,8 @@ abstract class ThemeBase
             $this->_activePath = [];
         }
 
-        if ($striproot) {
-            if ($parent) {
+        if( $striproot ) {
+            if( $parent ) {
                 return $tree['children']; //TODO bad logic want whole tree
             } else {
                 return reset($tree)['children'];
@@ -1209,7 +1209,7 @@ abstract class ThemeBase
     protected function find_menuitem_by_title($title)
     {
         $path = ArrayTree::find($this->menuTree, 'title', $title);
-        if ($path) {
+        if( $path) {
             return ArrayTree::node_get_data($this->menuTree, $path, 'name');
         }
     }
@@ -1247,11 +1247,11 @@ abstract class ThemeBase
      */
     public function get_breadcrumbs()
     {
-        if (!$this->_breadcrumbs) {
+        if( !$this->_breadcrumbs ) {
             $this->_breadcrumbs = [];
             $urls = ArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'url');
             $titles = ArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'title');
-            foreach ($urls as $key => $value) {
+            foreach( $urls as $key => $value ) {
                 $this->_breadcrumbs[] = [
                     'url' => $value,
                     'title' => $titles[$key],
@@ -1269,7 +1269,7 @@ abstract class ThemeBase
      */
     public function get_active(string $key)
     {
-        if ($this->_menuTree && $this->_activePath) {
+        if( $this->_menuTree && $this->_activePath ) {
             return ArrayTree::node_get_data($this->_menuTree, $this->_activePath, $key);
         }
     }
@@ -1338,9 +1338,9 @@ abstract class ThemeBase
     {
 /* TODO array-tree interrogation
         $displayableChildren=false;
-        foreach($this->_menuItems[$section]['children'] as $one) {
+        foreach( $this->_menuItems[$section]['children'] as $one ) {
             $thisItem = $this->_menuItems[$one];
-            if ($thisItem['show_in_menu']) {
+            if( $thisItem['show_in_menu'] ) {
                 $displayableChildren = true;
                 break;
             }
@@ -1369,15 +1369,15 @@ abstract class ThemeBase
      */
     public function DisplayImage($image, $alt = '', $width = '', $height = '', $class = null, $attrs = [])
     {
-        if (!is_array($this->_imageLink)) {
+        if( !is_array($this->_imageLink) ) {
             $this->_imageLink = [];
         }
 
-        if (!isset($this->_imageLink[$image])) {
-            if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~',$image)) { //not absolute
+        if( !isset($this->_imageLink[$image]) ) {
+            if( !preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~',$image) ) { //not absolute
                 $detail = preg_split('~\\/~',$image);
                 $fn = array_pop($detail);
-                if ($detail) {
+                if( $detail ) {
                     $rel = implode(DIRECTORY_SEPARATOR,$detail).DIRECTORY_SEPARATOR;
                 } else {
                     $rel = '';
@@ -1389,21 +1389,21 @@ abstract class ThemeBase
                 $rel = false;
             }
             $p = strrpos($fn,'.');
-            if ($p !== false) {
+            if( $p !== false ) {
                 $fn = substr($fn,0,$p+1);
             } else {
                 $fn .= '.';
             }
 
             $exts = ['i','svg','png','gif','jpg','jpeg'];
-            if (!$this->_fontimages) {
+            if( !$this->_fontimages ) {
                 unset($exts[0]);
             }
-            foreach ($exts as $type) {
+            foreach( $exts as $type ) {
                 $path = $base.$fn.$type;
-                if (is_file($path)) {
-                    if ($type != 'i') {
-                        if ($rel !== false) {
+                if( is_file($path) ) {
+                    if( $type != 'i' ) {
+                        if( $rel !== false ) {
                             //admin-relative URL will do
                             $path = substr($path, strlen(CMS_ADMIN_PATH) + 1);
                         }
@@ -1416,7 +1416,7 @@ abstract class ThemeBase
                     $path = '';
                 }
             }
-            if (!$path) {
+            if( !$path ) {
                 $this->_imageLink[$image] = 'themes/assets/images/space.png';
             }
         }
@@ -1425,14 +1425,14 @@ abstract class ThemeBase
         $p = strrpos($path,'.');
         $type = substr($path,$p+1);
 
-        if ($type == 'i') {
+        if( $type == 'i' ) {
             $props = parse_ini_file($path, false, INI_SCANNER_TYPED);
-            if ($props) {
-                foreach ($props as $key => $value) {
-                    if (isset($attrs[$key]) ) {
-                        if (is_numeric($value) || is_bool($value)) {
+            if( $props) {
+                foreach( $props as $key => $value ) {
+                    if( isset($attrs[$key]) ) {
+                        if( is_numeric($value) || is_bool($value) ) {
                             continue; //supplied attrib prevails
-                        } elseif (is_string($value)) {
+                        } elseif( is_string($value) ) {
                             $attrs[$key] = $value.' '.$attrs[$key];
                         }
                     } else {
@@ -1440,7 +1440,7 @@ abstract class ThemeBase
                     }
                 }
             }
-            if (isset($attrs['class'])) {
+            if( isset($attrs['class']) ) {
                 $attrs['class'] .= ' '.trim($class.' fontimage');
             } else {
                 $attrs['class'] = trim($class.' fontimage');
@@ -1448,14 +1448,14 @@ abstract class ThemeBase
         }
 
         $extras = array_merge(['width'=>$width, 'height'=>$height, 'class'=>$class, 'alt'=>$alt, 'title'=>''], $attrs);
-        if (!$extras['title']) {
-            if ($extras['alt']) {
+        if( !$extras['title'] ) {
+            if( $extras['alt'] ) {
                 $extras['title'] = $extras['alt'];
             } else {
                 $extras['title'] = pathinfo($path, PATHINFO_FILENAME);
             }
         }
-        if (!$extras['alt']) {
+        if( !$extras['alt'] ) {
             $p = strrpos($path,'/');
             $extras['alt'] = substr($path, $p+1);
         }
@@ -1474,12 +1474,12 @@ abstract class ThemeBase
             break;
         }
 
-        foreach ($extras as $key => $value) {
-            if ($value !== '' || $key == 'title') {
+        foreach( $extras as $key => $value ) {
+            if( $value !== '' || $key == 'title' ) {
                 $res .= " $key=\"$value\"";
             }
         }
-        if ($type != 'i') {
+        if( $type != 'i' ) {
             $res .= ' />';
         } else {
             $res .= '></i>';
@@ -1533,25 +1533,25 @@ abstract class ThemeBase
      */
     protected function PrepareStrings(array &$store, $message, string $title, $get_var = null)
     {
-        if ($get_var && !empty($_GET[$get_var])) {
-            if (is_array($_GET[$get_var])) {
+        if( $get_var && !empty($_GET[$get_var]) ) {
+            if( is_array($_GET[$get_var]) ) {
                 cleanArray($_GET[$get_var]);
-                foreach ($_GET[$get_var] as $one) {
-                    if ($one) {
+                foreach( $_GET[$get_var] as $one ) {
+                    if( $one ) {
                         $store[] = lang($one);
                     }
                 }
             } else {
                 $store[] = lang(cleanValue($_GET[$get_var]));
             }
-        } elseif ($title) {
-            if (isset($store[$title])) {
+        } elseif( $title ) {
+            if( isset($store[$title]) ) {
                 //TODO merge
             } else {
                 $store[$title] = $message;
             }
         } else {
-            if (is_array($message)) {
+            if( is_array($message) ) {
                 $store = array_merge($store, $message);
             } else {
                 $store[] = $message;
@@ -1574,9 +1574,9 @@ abstract class ThemeBase
     public function ParkNotice(string $type, $message, string $title = '', $get_var = null)
     {
         $from = 'cmsmsg_'.$type;
-        if (isset($_SESSION[$from])) {
+        if( isset($_SESSION[$from]) ) {
             $val = cleanValue($_SESSION[$from]);
-            if ($val) {
+            if( $val ) {
                 $store = json_decode(base64_decode($val), true);
             } else {
                 $store = [];
@@ -1596,9 +1596,9 @@ abstract class ThemeBase
     protected function retrieve_message($type, &$into)
     {
         $from = 'cmsmsg_'.$type;
-        if (isset($_SESSION[$from])) {
+        if( isset($_SESSION[$from]) ) {
             $val = cleanValue($_SESSION[$from]);
-            if ($val) {
+            if( $val ) {
                 $message = json_decode(base64_decode($val), true);
                 $this->PrepareStrings($into, $message, '');
             }
@@ -1655,7 +1655,7 @@ abstract class ThemeBase
      */
     public function RecordNotice(string $type, $message, string $title = '', bool $defer = false, $get_var = null)
     {
-        if (!$defer) {
+        if( !$defer ) {
             switch ($type) {
                 case 'error':
                     $into =& $this->_errors;
@@ -1701,30 +1701,29 @@ abstract class ThemeBase
      */
     public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = false)
     {
-        if ($title_name) {
+        if( $title_name ) {
             $this->set_value('pagetitle', $title_name);
-            if ($extra_lang_params) {
+            if( $extra_lang_params ) {
                 $this->set_value('extra_lang_params', $extra_lang_params);
             }
         }
 
         $this->set_value('module_help_type', $module_help_type);
-        if ($module_help_type) {
+        if( $module_help_type ) {
             // set the module help url TODO supply this TO the theme
             $this->set_value('module_help_url', $this->get_module_help_url());
         }
 
         // are we processing a module action?
         // TODO maybe cache this in $this->_modname ??
-        if (isset($_REQUEST['module'])) {
-            $module = $_REQUEST['module'];
-        } elseif (isset($_REQUEST['mact'])) {
-            $module = explode(',', $_REQUEST['mact'])[0];
+        if( isset($_REQUEST['module']) ) {
+            $module = cleanValue($_REQUEST['module']);
         } else {
-            $module = '';
-        }
+			$params = (new GetParameters())->get_action_values('module');
+			$module = $params['module'] ?? '';
+		}
 
-        if ($module) {
+        if( $module ) {
             $tag = AdminUtils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
         } else {
             $tag = ''; //TODO get icon for admin operation
@@ -1733,20 +1732,20 @@ abstract class ThemeBase
         $this->set_value('pageicon', $tag);
 /* TODO figure this out ... are breadcrumbs ever relevant in this context?
         $bc = $this->get_breadcrumbs();
-        if ($bc) {
+        if( $bc ) {
             $n = count($bc);
             for ($i = 0; $i < $n; ++$i) {
                 $rec = $bc[$i];
                 $title = $rec['title'];
-                if ($module_help_type && $i + 1 == $n) {
+                if( $module_help_type && $i + 1 == $n ) {
                     $module_name = $module;
                     $module_name = preg_replace('/([A-Z])/', "_$1", $module_name);
                     $module_name = preg_replace('/_([A-Z])_/', "$1", $module_name);
-                    if ($module_name[0] == '_') {
+                    if( $module_name[0] == '_' ) {
                         $module_name = substr($module_name, 1);
                     }
                 } else {
-                    if (($p = strrchr($title, ':')) !== false) {
+                    if( ($p = strrchr($title, ':')) !== false ) {
                         $title = substr($title, 0, $p);
                     }
                     // find the key of the item with this title.
@@ -1761,14 +1760,14 @@ abstract class ThemeBase
     /**
      * Return the name of the default admin theme.
      *
-     * @returns string
+     * @return string, maybe empty
      */
     public static function GetDefaultTheme()
     {
         $tmp = self::GetAvailableThemes();
         if( $tmp ) {
-            $logintheme = cms_siteprefs::get('logintheme');
-            if( $logintheme && in_array($logintheme,$tmp) ) return $logintheme;
+            $name = cms_siteprefs::get('logintheme');
+            if( $name && in_array($name,$tmp) ) return $name;
             return reset($tmp);
         }
         return '';
@@ -1787,7 +1786,7 @@ abstract class ThemeBase
         $files = glob(cms_join_path(CMS_ADMIN_PATH,'themes','*','*Theme.php'),GLOB_NOESCAPE);
         if( $files ) {
             foreach( $files as $one ) {
-                if( is_readable( $one )) {
+                if( is_readable($one) ) {
                     $name = basename($one,'Theme.php');
                     $res[$name] = ($fullpath) ? $one : $name;
                 }
@@ -1861,7 +1860,7 @@ abstract class ThemeBase
     public function GetAdminPages($none = true)
     {
         $opts = [];
-        if ($none) {
+        if( $none ) {
             $opts[lang('default')] = '';
         }
 
@@ -1871,14 +1870,14 @@ abstract class ThemeBase
                 new ArrayTreeIterator($nodes),
                 RecursiveIteratorIterator::SELF_FIRST | RecursiveArrayTreeIterator::NONLEAVES_ONLY
                 );
-        foreach ($iter as $key => $value) {
+        foreach( $iter as $key => $value) {
         }
 */
-        foreach ($nodes as $name=>$node) {
-            if (!$node['show_in_menu'] || empty($node['url'])) {
+        foreach( $nodes as $name=>$node ) {
+            if( !$node['show_in_menu'] || empty($node['url']) ) {
                 continue; // only visible stuff
             }
-            if ($name == 'main' || $name == 'logout') {
+            if( $name == 'main' || $name == 'logout' ) {
                 continue; // no irrelevant choices
             }
             try {
@@ -1887,12 +1886,12 @@ abstract class ThemeBase
                 continue;
             }
 
-            if ($node['children']) {
-                foreach ($node['children'] as $childname=>$one) {
-                    if ($name == 'home' || $name == 'logout' || $name == 'viewsite') {
+            if( $node['children'] ) {
+                foreach( $node['children'] as $childname=>$one ) {
+                    if( $name == 'home' || $name == 'logout' || $name == 'viewsite' ) {
                         continue;
                     }
-                    if (!$one['show_in_menu'] || empty($one['url'])) {
+                    if( !$one['show_in_menu'] || empty($one['url']) ) {
                         continue;
                     }
                     try {
@@ -1920,10 +1919,10 @@ abstract class ThemeBase
     public function GetAdminPageDropdown($name,$selected,$id = null)
     {
         $opts = $this->GetAdminPages();
-        if ($opts) {
+        if( $opts ) {
             $parms = ['type'=>'drop','name'=>trim((string)$name),
                 'options'=>$opts,'selectedvalue'=>$selected];
-            if ($id) {
+            if( $id ) {
                 $parms['id'] = trim((string)$id);
             }
             return FormUtils::create_select($parms);
@@ -1940,7 +1939,7 @@ abstract class ThemeBase
     {
         $this->get_breadcrumbs(); //ensure data are populated
         $count = $this->_breadcrumbs ? count($this->_breadcrumbs) - 2 : -1;
-        if ($count > -1) {
+        if( $count > -1 ) {
             $url = $this->_breadcrumbs[$count]['url'];
             return $url;
         }
@@ -2014,25 +2013,23 @@ abstract class ThemeBase
     }
 
     /**
-     * An abstract function to output generic content which precedes the specific
-     *  output of a module-action or admin operation. Themes may ignore this,
-     *  and instead deal with such content during postprocess(). Might be useful
-     *  for backward-compatibility.
+     * Output generic content which precedes the specific output of a module-action
+     *  or admin operation. Themes may ignore this, and instead deal with such
+     *  content during postprocess(). Might be useful for backward-compatibility.
      * @abstract
      */
     public function do_header() {}
 
     /**
-     * An abstract function to output generic content which follows the specific
-     *  output of a module-action or admin operation. Themes may ignore this,
-     *  and instead deal with such content during postprocess(). Might be useful
-     *  for backward-compatibility.
+     * Output generic content which follows the specific output of a module-action
+     *  or admin operation. Themes may ignore this, and instead deal with such
+     *  content during postprocess(). Might be useful for backward-compatibility.
+     * @abstract
      */
     public function do_footer() {}
 
     /**
-     * An abstract function to output the content of the menu-root (home) page
-     * or a menu-section. e.g. a dashboard
+     * Output the content of the menu-root (home) page or a menu-section. e.g. a dashboard
      *
      * @abstract
      * @param string $section_name A menu-section name, typically empty to work
@@ -2041,13 +2038,13 @@ abstract class ThemeBase
     abstract public function do_toppage($section_name);
 
     /**
-     * Record the content of a 'minimal' page.
+     * Cache the entire content of a 'minimal' page.
      * CHECKME can the subsequent processing of such content be a security risk?
      * Hence maybe some sanitize here?
      *
      * @since 2.3
      * @param string $content the entire displayable content
-     * @see ThemeBase::do_minimal()
+     * @see ThemeBase::get_content(), ThemeBase::do_minimal()
      */
     public function set_content(string $content)
     {
@@ -2055,10 +2052,10 @@ abstract class ThemeBase
     }
 
     /**
-     * Retrieve the recorded content of a 'minimal' page
+     * Retrieve the cached content of a 'minimal' page
      *
      * @since 2.3
-     * @see ThemeBase::do_minimal()
+     * @see ThemeBase::set_content(), ThemeBase::do_minimal()
      */
     public function get_content() : string
     {
@@ -2066,38 +2063,54 @@ abstract class ThemeBase
     }
 
     /**
-     * Output a self-managed admin page i.e. without the usual processing
+     * Return the content of a self-managed admin page i.e. without the usual processing
      * of header, footer, page-title, menu.
-     *
+     * @abstract
      * @since 2.3
+     *
+     * @param mixed $bodyid string|null  Optional id for page body-element. Default null.
+     *
+     * @return html string | null if smarty->fetch() fails
      */
-    public function do_minimal() {}
+    public function do_minimal($bodyid = null) {}
 
     /**
+     * Return the content of an authenticated page
+     * @abstract
      * @since 2.3
+     *
+     * @return html string
      */
-    public function do_authenticated_page() {}
+    public function do_authenticated_page() : string {}
 
-    /* *
-     * @param string $pageid Optional TODO:describe Default ''
+    /**
+     * Return the content of a login page.
+     * @abstract
      * @since 2.3
+     * @see ThemeBase::do_minimal()
+     *
+     * @param mixed $bodyid string | null  Optional id for page body-element. Default null.
+     * @return html string | null if smarty->fetch() fails
      */
-/*    public function do_loginpage(string $pageid = '') {}
-*/
+    public function do_loginpage($bodyid = null) {}
+
     /**
      * Display and process a login form
+     * @abstract
      *
      * @param  mixed $params Optional array. Default null.
      * @since 2.3, relevant parameters are supplied by a login module.
      * However some themes aspire to backward-compatibility, so $params
      *  remains as an option.
+     * @see ThemeBase::do_loginpage()
      */
-    abstract public function do_login($params = null);
+    public function do_login($params = null) {}
 
     /**
-     * An abstract function for processing the generated content.
-     * Called only via footer.php. Many admin themes will do most of their work
+     * Post-process the generated content of the current page.
+     * Called only via footer.php. Admin themes might do some of their work
      * in this method (e.g. passing the content through a smarty template)
+     * @abstract
      *
      * @param string $html The page content generated by a module action or admin operation
      * @return string  Modified content (or maybe null upon error?)
