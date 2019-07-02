@@ -72,6 +72,12 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 * Lang key for tab name
 	 * @ignore
 	 */
+	const TAB_DISPLAY = 'za_2display_tab__';
+
+	/**
+	 * Lang key for tab name
+	 * @ignore
+	 */
 	const TAB_OPTIONS = 'zz_1options_tab__';
 
 	/**
@@ -559,7 +565,12 @@ abstract class ContentBase implements ContentEditor, Serializable
 
 		//stylesheet id's (from checkboxes array)
 		if( !empty($params['styles'])) {
-			$this->mStyles = implode(',',$params['styles']);
+			if( is_array($params['styles']) ) {
+				$this->mStyles = implode(',',$params['styles']);
+			}
+			else {
+				$this->mStyles = trim($params['styles']);
+			}
 		}
 		else {
 			$this->mStyles = null;
@@ -873,8 +884,12 @@ abstract class ContentBase implements ContentEditor, Serializable
 		foreach( $props as &$one ) {
 			if( !isset($one['tab']) || $one['tab'] === '' ) $one['tab'] = self::TAB_MAIN;
 			$key = $one['tab'];
-			if( endswith($key,'_tab__') ) { $lbl = $this->mod->Lang($key); }
-			else { $lbl = $key; }
+			if( endswith($key,'_tab__') ) {
+				$lbl = $this->mod->Lang($key);
+			}
+			else {
+				$lbl = $key;
+			}
 			$arr[$key] = $lbl;
 		}
 		unset($one);
@@ -967,13 +982,14 @@ abstract class ContentBase implements ContentEditor, Serializable
 			'title'=>[1,self::TAB_MAIN,1],
 			'alias'=>[2,self::TAB_MAIN],
 
-			'styles'=>[2,self::TAB_OPTIONS],
+			'styles'=>[2,self::TAB_DISPLAY],
+			'image'=>[5,self::TAB_DISPLAY],
+			'thumbnail'=>[6,self::TAB_DISPLAY],
+
 			// priority 3 is also used by some subclasses
 			'active'=>[3,self::TAB_OPTIONS],
 			'secure'=>[3,self::TAB_OPTIONS], //deprecated property since 2.3
 			'cachable'=>[4,self::TAB_OPTIONS],
-			'image'=>[8,self::TAB_OPTIONS],
-			'thumbnail'=>[9,self::TAB_OPTIONS],
 			'extra1'=>[12,self::TAB_OPTIONS],
 			'extra2'=>[13,self::TAB_OPTIONS],
 			'extra3'=>[14,self::TAB_OPTIONS],
@@ -2636,15 +2652,14 @@ WHERE content_id = ?';
 		$str = $this->__toString();
 		$this->mod = $mod;
 		$mod = null; //force-garbage
-		//TODO can cachers cope with embedded null's?
-		return cms_utils::encrypt_string($str,self::class,'');
+		//TODO can cachers cope with embedded null's? NB 'internal' cryption is slow!
+		return cms_utils::encrypt_string($str,self::class,'best');
 // 		return $str;
 	}
 
 	public function unserialize($serialized)
 	{
-		//TODO consider un-fuscing the string
-		$serialized = cms_utils::decrypt_string($serialized,self::class,'');
+		$serialized = cms_utils::decrypt_string($serialized,self::class,'best');
 		$props = json_decode($serialized, true);
 		if( $props !== null ) {
 			foreach( $props as $key => $val ) {
