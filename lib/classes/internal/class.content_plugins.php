@@ -25,6 +25,7 @@ use CmsApp;
 use CmsCoreCapabilities;
 use CmsError403Exception;
 use CmsError404Exception;
+use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
 use Smarty_Internal_SmartyTemplateCompiler;
 use const CMS_UPLOADS_URL;
@@ -249,14 +250,14 @@ final class content_plugins
      */
     public static function get_default_content_block_content($page_id, &$smarty)
     {
-        $result = null;
         if( self::$_primary_content ) return self::$_primary_content;
 
-        $do_mact = $module = $id = $action = $inline = null;
-        if( isset($_REQUEST['mact']) ) {
-            list($module,$id,$action,$inline) = explode(',',$_REQUEST['mact'],4);
-            // do not process inline content.
-            if( $module && !$inline && $id == 'cntnt01' ) $do_mact = true;
+        $result = $do_mact = $module = $id = $action = $inline = null;
+        $params = (new GetParameters())->decode_action_params();
+        if( $params ) {
+            $module = $params['module'] ?? '';
+            $id = $params['id'] ?? '';
+            if( $module && $id == 'cntnt01' && empty($params['inline']) ) $do_mact = true;
         }
 
         if( $do_mact ) {
@@ -285,5 +286,29 @@ final class content_plugins
         }
         self::$_primary_content = $result;
         return $result;
+    }
+
+    /**
+     * Generate PHP code to compile a content block tag.
+     * This is the registered handler for frontend-page {content} tags
+     *
+     * @param array $params
+     * @param Smarty_Internal_SmartyTemplateCompiler $template UNUSED
+     * @return string
+     */
+    public static function compile_fecontentblock(array $params, $template) : string
+    {
+        $tmp = [];
+        foreach( $params as $k => $v ) {
+            if( is_numeric($v) ) {
+                $v += 0;
+            }
+            elseif( is_string($v) ) {
+                $v = "'".str_replace("'", "\'", $v)."'";
+            }
+            $tmp[] = "'$k'=>".$v;
+        }
+        $ptext = ($tmp) ? implode(',', $tmp) : '';
+        return '<?php '.self::class.'::fetch_contentblock(['.$ptext.'],$_smarty_tpl); ?>';
     }
 } // class

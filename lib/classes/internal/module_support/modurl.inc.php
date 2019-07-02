@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\internal\GetParameters;
+
 /**
  * Methods for modules to construct URL's.
  *
@@ -99,31 +101,30 @@ function cms_module_create_actionurl(
 		$text = $base_url.'/index.php/'.$prettyurl.$config['page_extension'];
 	} else {
 		$frontend = is_numeric($returnid);
+		if ($frontend) {
+			$text = $base_url . '/index.php';
+		} else {
+			$text = $config['admin_url'] . '/moduleinterface.php';
+		}
+
 		if ($targetcontentonly || ($frontend && !$inline)) {
 			$id = 'cntnt01';
 		}
-
 		$parms = [
-		'mact' => $modinstance->GetName().','.$id.','.$action.','.($inline ? 1 : 0)
+			'module' => $modinstance->GetName(),
+			'id' => $id,
+			'action' => $action,
+			'inline' => ($inline ? 1 : 0)
 		];
-
-		if ($frontend) {
-			$text = $base_url . '/index.php';
-		} elseif (isset($_SESSION[CMS_USER_KEY])) {
-			$text = $config['admin_url'] . '/moduleinterface.php';
-			$parms[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
-		} else {
-			//ignore missing data e.g. for async activities
-			$text = $config['admin_url'] . '/moduleinterface.php';
-			//TODO or redirect? or return error e.g.
+		if (!$frontend) {
+			if (isset($_SESSION[CMS_USER_KEY])) {
+				$parms[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
+			}
+			//TODO ELSE redirect? or return error e.g.
 			// '<!-- '.__METHOD__.' error : "session has expired -->';
 		}
 
-		if (!empty($params['returnid'])) {
-			unset($params['returnid']);
-		}
-
-		$ignores = ['assign', 'id', 'returnid', 'action', 'module'];
+		$ignores = ['assign', 'id', 'returnid', 'action', 'module']; //CHECKME assign?
 		foreach ($params as $key => $value) {
 			if (!in_array($key, $ignores)) {
 				$parms[$id.$key] = $value;
@@ -135,51 +136,11 @@ function cms_module_create_actionurl(
 				$parms[$id.$config['query_var']] = $returnid;
 			}
 		}
-
-		switch ($format) {
-			case 2:
-				$sep = '&';
-				$enc = true;
-				break;
-			case 3:
-				$sep = '&';
-				$enc = false;
-				break;
-			default:
-				$sep = '&amp;';
-				$enc = true;
-				break;
-		}
-
-		$first = true;
-		foreach ($parms as $key => $value) {
-			if (is_scalar($value)) {
-				if ($enc) {
-					$key = rawurlencode($key);
-				}
-				if ($format != 0 || $key != 'mact') {
-					$value = rawurlencode($value);
-				}
-				if ($first) {
-					$text .= '?'.$key.'='.$value;
-					$first = false;
-				} else {
-					$text .= $sep.$key.'='.$value;
-				}
-			} else {
-				if ($first) {
-					$text .= '?';
-					$first = false;
-				} else {
-					$text .= $sep;
-				}
-				$text .= cms_build_query($key, $value, $sep, $enc);
-			}
-		}
+		$text .= '?'.(new GetParameters())->create_action_params($parms, $format);
 	}
-	if ($format == 3) {
+    if ($format == 3) {
 		$text = cms_htmlentities($text);
-	}
+    }
 	return $text;
 }
 

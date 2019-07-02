@@ -21,6 +21,7 @@ use CMSMS\ContentOperations;
 use CMSMS\FormUtils;
 use CMSMS\internal\LoginOperations;
 use CMSMS\internal\ModulePluginOperations;
+use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
 use CMSMS\RouteOperations;
 use CMSMS\SyntaxEditor;
@@ -439,6 +440,7 @@ function get_pageid_or_alias_from_url()
 
             // put a constructed mact into $_REQUEST for later processing.
             // this is essentially our translation from pretty URLs to non-pretty URLS.
+			// TODO also support secure params via GetParameters class
             $_REQUEST['mact'] = $arr['module'] . ',' . $arr['id'] . ',' . $arr['action'] . ',' . $arr['inline'];
 
             // put other parameters (except numeric matches) into $_REQUEST.
@@ -572,7 +574,21 @@ function cms_module_plugin(array $params, $template) : string
         $setid = false;
     }
 
-    if (isset($_REQUEST['mact'])) {
+    $rparams = (new GetParameters())->decode_action_params();
+	if ($rparams) {
+		$mactmodulename = $rparams['module'] ?? '';
+    	if (strcasecmp($mactmodulename, $module) == 0) {
+			$checkid = $rparams['id'] ?? '';
+	        $inline = !empty($rparams['inline']);
+			if ($inline && $checkid == $id) {
+				$action = $rparams['action'] ?? 'default';
+                $params['action'] = $action; // deprecated since 2.3
+				unset($rparams['module'], $rparams['id'], $rparams['action'], $rparams['inline']);
+                $params = array_merge($params, $rparams, ModuleOperations::get_instance()->GetModuleParameters($id));
+			}
+		}
+	}
+/*  if (isset($_REQUEST['mact'])) {
         // We're handling an action.  Check if it is for this call.
         // We may be calling module plugins multiple times in the template,
         // but a POST or GET mact can only be for one of them.
@@ -591,7 +607,7 @@ function cms_module_plugin(array $params, $template) : string
             }
         }
     }
-
+*/
     $params['id'] = $id; // deprecated since 2.3
     if ($setid) {
         $params['idprefix'] = $id; // might be needed per se, probably not
