@@ -157,7 +157,7 @@ smarty cache lifetime != global cache ttl, probably
             // Load resources
             $this->registerResource('content',new content_resource())
                  ->setDefaultResourceType('content');
-            $this->registerPlugin('compiler','content','CMSMS\\internal\\page_template_parser::compile_fecontentblock',false)
+            $this->registerPlugin('compiler','content','CMSMS\\internal\\content_plugins::compile_fecontentblock',false) //CHECKME any point in Smarty caching for this
                  ->registerPlugin('function','content_image','CMSMS\\internal\\content_plugins::fetch_imageblock',true)
                  ->registerPlugin('function','content_module','CMSMS\\internal\\content_plugins::fetch_moduleblock',true)
                  ->registerPlugin('function','content_text','CMSMS\\internal\\content_plugins::fetch_textblock',true)
