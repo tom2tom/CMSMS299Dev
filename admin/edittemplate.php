@@ -31,7 +31,7 @@ $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set i
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-    exit;
+	exit;
 }
 
 check_login();
@@ -66,7 +66,7 @@ try {
 	if (isset($_REQUEST['import_type'])) {
 		$tpl_obj = TemplateOperations::get_template_by_type($_REQUEST['import_type']);
 		$tpl_obj->set_owner(get_userid());
-/*        $design = DesignManager\Design::load_default(); DISABLED
+/*		$design = DesignManager\Design::load_default(); DISABLED
 		if ($design) {
 			$tpl_obj->add_design($design);
 		}
@@ -74,7 +74,7 @@ try {
 		$extraparms['import_type'] = $_REQUEST['import_type'];
 	} else if (isset($_REQUEST['tpl'])) {
 		$tpl_obj = TemplateOperations::get_template($_REQUEST['tpl']);
-/*        $tpl_obj->get_designs(); */
+//		$tpl_obj->get_designs();
 		$extraparms['tpl'] = $_REQUEST['tpl'];
 	} else {
 		$tpl_obj = new CmsLayoutTemplate();
@@ -87,7 +87,7 @@ try {
 			$type_obj = CmsLayoutTemplateType::load($type_id);
 			$defaultable = $type_obj->get_dflt_flag();
 		} catch (Throwable $t) {
-            //nothing here
+			//nothing here
 		}
 	}
 
@@ -233,7 +233,7 @@ try {
 	 ->assign('tpl_candefault', $defaultable);
 
 /* for 'related file' message UNUSED
-  	if ($tpl_obj->get_content_file()) {
+	if ($tpl_obj->get_content_file()) {
 		$fn = $tpl_obj->content; // raw
 		$filepath = cms_join_path('','assets','templates',$fn);
 		$smarty->assign('relpath', $filepath);
@@ -315,9 +315,7 @@ try {
 
 	$do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 	if ($do_locking) {
-		register_shutdown_function(function($u) {
-			LockOperations::delete_for_nameduser($u);
-		}, $userid);
+		CmsApp::get_instance()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
 	}
 	$s1 = json_encode(lang_by_realm('layout','error_lock'));
 	$s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
@@ -374,9 +372,16 @@ $(function() {
     ev.preventDefault();
     var v = geteditorcontent();
     setpagecontent(v);
-    var url = $('#form_edittemplate').attr('action') + '?apply=1',
-      data = $('#form_edittemplate').serializeArray();
-    $.post(url, data, function(data, textStatus, jqXHR) {
+    var fm = $('#form_edittemplate'),
+	   url = fm.attr('action') + '?apply=1',
+    params = fm.serializeArray();
+    $.ajax(url, {
+      type: 'POST',
+      data: params,
+      cache: false
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      cms_notify('error', errorThrown);
+    }).done(function(data) {
       if(data.status === 'success') {
         cms_notify('success', data.message);
         $('#form_edittemplate').dirtyForm('option', 'dirty', false);

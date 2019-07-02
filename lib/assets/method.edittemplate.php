@@ -48,13 +48,13 @@ use CMSMS\UserOperations;
 if( !isset($params['tpl']) ) return;
 
 if( empty($module) ) {
-	if( empty($modname) ) {
-		throw new Exception(basename(__FILE__,'.php').': '.lang('missingparams'));
-	}
-	$module = cms_utils::get_module($modname);
-	if( !$module ) {
-		throw new Exception(basename(__FILE__,'.php').': '.lang('missingparams'));
-	}
+    if( empty($modname) ) {
+        throw new Exception(basename(__FILE__, '.php').': '.lang('missingparams'));
+    }
+    $module = cms_utils::get_module($modname);
+    if( !$module ) {
+        throw new Exception(basename(__FILE__, '.php').': '.lang('missingparams'));
+    }
 }
 
 if( isset($params['cancel']) ) {
@@ -62,6 +62,7 @@ if( isset($params['cancel']) ) {
    $module->RedirectToAdminTab(($returntab ?? ''), [], ($returnaction ?? 'defaultadmin'));
 }
 
+global $user_id;
 $originator = $module->GetName();
 
 if( isset($params['submit']) || isset($params['apply']) ) {
@@ -78,7 +79,7 @@ if( isset($params['submit']) || isset($params['apply']) ) {
             $tpl->set_name($val);
         }
         elseif( $adding ) {
-            $val = TemplateOperations::get_unique_template_name(lang_by_realm('layout','new_template'));
+            $val = TemplateOperations::get_unique_template_name(lang_by_realm('layout', 'new_template'));
             $tpl->set_name($val);
         }
         if( isset($params['description']) ) {
@@ -100,7 +101,6 @@ if( isset($params['submit']) || isset($params['apply']) ) {
             $tpl->set_owner($params['owner_id']);
         }
         elseif( $adding ) {
-            global $user_id;
             $tpl->set_owner($user_id);
         }
         if( isset($params['type']) ) {
@@ -185,12 +185,12 @@ if( $can_manage ) {
                 $type = CmsLayoutTemplateType::load($type_id);
                 $can_default = $type->get_dflt_flag();
                 if( empty($infomessage) ) {
-					$infomessage = $type->get_template_helptext();
-				}
-				else {
-					$msg = $type->get_template_helptext();
-					if( $msg ) $infomessage .= '<br /><br />'.$msg;
-				}
+                    $infomessage = $type->get_template_helptext();
+                }
+                else {
+                    $msg = $type->get_template_helptext();
+                    if( $msg ) $infomessage .= '<br /><br />'.$msg;
+                }
             }
             catch( Throwable $t ) {
                 $module->SetError($t->getMessage());
@@ -208,7 +208,7 @@ if( $can_manage ) {
     foreach( $allgroups as &$one ) {
         if( $one->id == 1) continue;
         if( !$one->active) continue;
-        $eds_list[-(int)$one->id] = lang_by_realm('layout','prompt_group') . ': ' . $one->name;
+        $eds_list[-(int)$one->id] = lang_by_realm('layout', 'prompt_group') . ': ' . $one->name;
     }
     unset($one);
 }
@@ -228,12 +228,10 @@ if( !empty($editorjs['head'])) {
 /*
 $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 if( $do_locking) {
-    register_shutdown_function(function($u) {
-        LockOperations::delete_for_nameduser($u);
-    }, $userid);
+    CmsApp::get_instance()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $user_id);
 }
-$s1 = json_encode(lang_by_realm('layout','error_lock'));
-$s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
+$s1 = json_encode(lang_by_realm('layout', 'error_lock'));
+$s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
 $cancel = lang('cancel');
 */
 /*
@@ -243,7 +241,7 @@ $cancel = lang('cancel');
     $('#form_edittemplate').lockManager({
       type: 'template',
       oid: $tpl_id,
-      uid: $userid,
+      uid: $user_id,
       lock_timeout: $lock_timeout,
       lock_refresh: $lock_refresh,
       error_handler: function(err) {
@@ -273,9 +271,16 @@ $cancel = lang('cancel');
     ev.preventDefault();
     var v = geteditorcontent();
     setpagecontent(v);
-    var url = $('#form_edittemplate').attr('action') + '?apply=1',
-      data = $('#form_edittemplate').serializeArray();
-    $.post(url, data, function(data, textStatus, jqXHR) {
+    var fm = $('#form_edittemplate'),
+       url = fm.attr('action') + '?apply=1',
+    params = fm.serializeArray();
+    $.ajax(url, {
+      type: 'POST',
+      data: params,
+      cache: false
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      cms_notify('error', errorThrown);
+    }).done(function(data) {
       if(data.status === 'success') {
         cms_notify('success', data.message);
         $('#form_edittemplate').dirtyForm('option', 'dirty', false);
@@ -286,7 +291,7 @@ $cancel = lang('cancel');
     return false;
   });
 
-  $('#submitbtn,#applybtn').on('click', function(ev) {
+  $('#submitbtn, #applybtn').on('click', function(ev) {
     if(this.id !== 'cancelbtn') {
       var v = geteditorcontent();
       setpagecontent(v);
@@ -312,23 +317,23 @@ $module->AdminBottomContent($js); //not $sm->queue_script() (embedded variables)
 
 $parms = ['tpl'=>$params['tpl']]; //TODO more
 
-$tpl = $smarty->createTemplate('editmoduletemplate.tpl',null,null,$smarty); //.tpl file in admin/templates folder
+$tpl = $smarty->createTemplate('editmoduletemplate.tpl', null, null, $smarty); //.tpl file in admin/templates folder
 
-$tpl->assign('formaction','edittemplate')
- ->assign('formparms',$parms)
- ->assign('title',$title ?? null)
- ->assign('infomessage',$infomessage ?? null)
- ->assign('warnmessage',$warnmessage ?? null)
- ->assign('tpl_obj',$template)
- ->assign('tpl_candefault',$can_default)
- ->assign('can_manage',$can_manage)
+$tpl->assign('formaction', 'edittemplate')
+ ->assign('formparms', $parms)
+ ->assign('title', $title ?? null)
+ ->assign('infomessage', $infomessage ?? null)
+ ->assign('warnmessage', $warnmessage ?? null)
+ ->assign('tpl_obj', $template)
+ ->assign('tpl_candefault', $can_default)
+ ->assign('can_manage', $can_manage)
  ->assign('edit_meta', empty($content_only))
- ->assign('userid',$user_id)
- ->assign('user_list',$user_list)
- ->assign('addt_editor_list',$eds_list)
- ->assign('type_list',$type_list)
- ->assign('withbuttons',!empty($show_buttons) || !empty($show_cancel))
- ->assign('withcancel',!empty($show_cancel));
+ ->assign('userid', $user_id)
+ ->assign('user_list', $user_list)
+ ->assign('addt_editor_list', $eds_list)
+ ->assign('type_list', $type_list)
+ ->assign('withbuttons', !empty($show_buttons) || !empty($show_cancel))
+ ->assign('withcancel', !empty($show_cancel));
 
 if( !isset($display) || $display ) {
     $tpl->display();

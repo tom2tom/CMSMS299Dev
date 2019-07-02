@@ -83,15 +83,22 @@ function news_dopreview() {
   }
   var fm = $('form'),
      url = fm.attr('action'),
-    data = fm.find('input:not([type=submit]), select, textarea').serializeArray();
-  data.push({ 'name': '{$id}ajax', 'value': 1 });
-  data.push({ 'name': '{$id}preview', 'value': 1 });
-  data.push({ 'name': '{$id}previewpage', 'value': $("input[name='preview_returnid']").val() });
-  data.push({ 'name': '{$id}detailtemplate', 'value': $('#preview_template').val() });
-  data.push({ 'name': cms_data.job_key, 'value': 1 }); //url param to curtail display
-  $.post(url, data, function(resultdata, textStatus, jqXHR) {
-    var resp = $(resultdata).find('Response').text(),
-     details = $(resultdata).find('Details').text();
+  params = [
+  {name: '{$id}ajax', 'value': 1},
+  {name: '{$id}preview', 'value': 1},
+  {name: '{$id}previewpage', 'value': $("input[name='preview_returnid']").val()},
+  {name: '{$id}detailtemplate', 'value': $('#preview_template').val()},
+  {name: cms_data.job_key, 'value': 1} //curtail display
+  ].concat(fm.find('input:not([type=submit]), select, textarea').serializeArray());
+  $.ajax(url, {
+    type: 'POST',
+    data: params,
+    dataType: 'xml'
+  }).fail(function(jqXHR, textStatus, errorThrown) {
+    cms_notify('error', errorThrown);
+  }).done(function(data) {
+    var resp = $(data).find('Response').text(),
+     details = $(data).find('Details').text();
     if(resp === 'Success' && details !== '') {
       // preview worked... now the details should contain the url
       details = details.replace(/amp;/g, '');
@@ -103,7 +110,7 @@ function news_dopreview() {
       // preview save did not work
       cms_notify('error', details);
     }
-  }, 'xml');
+  });
 }
 
 EOS;
@@ -140,12 +147,20 @@ if ($list) {
       tinyMCE.triggerSave();
     }
     var fm = $('form'),
-       url = fm.attr('action');
-      data = fm.find('input:not([type=submit]), select, textarea').serializeArray();
-    data.push({ 'name': '{$id}ajax', 'value': 1 });
-    data.push({ 'name': '{$id}apply', 'value': 1 });
-    data.push({ 'name': cms_data.job_key, 'value': 1 }); //url param to curtail display
-    $.post(url, data, function(resultdata, textStatus, jqXHR) { //TODO robust API
+       url = fm.attr('action'),
+    params = [
+    {name: '{$id}ajax', 'value': 1},
+    {name: '{$id}apply', 'value': 1},
+    {name: cms_data.job_key, 'value': 1} // curtail display
+	].concat(fm.find('input:not([type=submit]), select, textarea').serializeArray());
+    $.ajax(url, {
+      type: 'POST',
+      data: params,
+      cache: false,
+      dataType: 'xml'
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      cms_notify('error', errorThrown);
+    }).done(function(data) {
       var resp = $(resultdata).find('Response').text(),
        details = $(resultdata).find('Details').text();
       if(resp === 'Success' && details !== '') {
@@ -153,7 +168,8 @@ if ($list) {
       } else {
         cms_notify('error', details);
       }
-    }, 'xml');
+    });
+	return false;
   });
   $('#preview').on('click', function(ev) {
     ev.preventDefault();

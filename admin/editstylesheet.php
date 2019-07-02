@@ -225,9 +225,7 @@ try {
 
 	$do_locking = ($css_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 	if ($do_locking) {
-		register_shutdown_function(function($u) {
-			LockOperations::delete_for_nameduser($u);
-		}, $userid);
+		CmsApp::get_instance()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
 	}
 	$s1 = json_encode(lang_by_realm('layout','error_lock'));
 	$s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
@@ -284,9 +282,16 @@ $(function() {
     ev.preventDefault();
     var v = geteditorcontent();
     setpagecontent(v);
-    var url = $('#form_editcss').attr('action') + '?apply=1',
-      data = $('#form_editcss').serializeArray();
-    $.post(url, data, function(data, textStatus, jqXHR) {
+    var fm = $('#form_editcss'),
+       url = fm.attr('action') + '?apply=1',
+    params = fm.serializeArray();
+    $.ajax(url, {
+      type: 'POST',
+      data: params,
+      cache: false
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      cms_notify('error', errorThrown);
+    }).done(function(data) {
       if(data.status === 'success') {
         $('#form_editcss').dirtyForm('option', 'dirty', false);
         cms_notify('success', data.message);
