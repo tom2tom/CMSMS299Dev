@@ -87,7 +87,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			}
 			PageLoader::LoadContentType($_SESSION[CMS_PREVIEW_TYPE]); // load the class so it can be unserialized
 			$contentobj = unserialize($_SESSION[CMS_PREVIEW]);
-			if (!$contentobj || !($contentobj instanceof CMSContentManager\ContentEditor)) {
+			if (!$contentobj || !($contentobj instanceof CMSMS\ContentEditor)) {
 				throw new CmsException('Preview page content error');
 			}
 			unset($_SESSION[CMS_PREVIEW]);
@@ -178,9 +178,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		// Catch CMSMS 404 error
 		// 404 error thrown... gotta do this process all over again
 		$page = 'error404';
-		unset($_REQUEST['mact']);
-		unset($_REQUEST['module']);
-		unset($_REQUEST['action']);
+		unset($_REQUEST['mact'], $_REQUEST['module'], $_REQUEST['action']); //ignore any secure params
 		$handlers = ob_list_handlers();
 		for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
@@ -206,9 +204,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 	catch (CmsError403Exception $e) // <- Catch CMSMS 403 error
 	{
 		$page = 'error403';
-		unset($_REQUEST['mact']);
-		unset($_REQUEST['module']);
-		unset($_REQUEST['action']);
+		unset($_REQUEST['mact'], $_REQUEST['module'], $_REQUEST['action']); //ignore any secure params
 		$handlers = ob_list_handlers();
 		for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
@@ -234,9 +230,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 
 	catch (CmsError503Exception $e) { // <- Catch CMSMS 503 error
 		$page = 'error503';
-		unset($_REQUEST['mact']);
-		unset($_REQUEST['module']);
-		unset($_REQUEST['action']);
+		unset($_REQUEST['mact'], $_REQUEST['module'], $_REQUEST['action']); //ignore any secure params
 		$handlers = ob_list_handlers();
 		for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
