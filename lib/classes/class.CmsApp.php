@@ -131,6 +131,11 @@ final class CmsApp
     public $jobmgrinstance = null;
 
     /**
+     * @ignore
+     */
+    private $cookiemgr = null;
+
+    /**
      * Cache for other properties
      * @since 2.3
      * @ignore
@@ -138,18 +143,24 @@ final class CmsApp
     private $data = [];
 
     /**
-     * Internal error array - So functions/modules can store up debug info and spit it all out at once
+     * Error-messages array - So functions/modules can store up debug info and spit it all out at once
      * @ignore
      */
     private $errors = [];
 
     /**
-     * Constructor
+     * Callables array - methods to be called during shutdown
+     * @ignore
+     */
+    private $shutfuncs = [];
+
+    /**
      * @ignore
      */
     private function __construct()
     {
-        register_shutdown_function([$this, 'dbshutdown']);
+        $this->add_shutdown(500, [$this, 'dbshutdown']);
+        register_shutdown_function([$this, 'run_shutters']);
     }
 
     /**
@@ -503,7 +514,7 @@ final class CmsApp
     */
     public function GetSmarty()
     {
-                if( !AppState::test_state(CMSMS\AppState::STATE_INSTALL) ) {
+        if( !AppState::test_state(CMSMS\AppState::STATE_INSTALL) ) {
             // we don't load the main Smarty class during installation
             if( is_null($this->smarty) ) {
                 $this->smarty = new Smarty();
@@ -557,11 +568,69 @@ final class CmsApp
     }
 
     /**
-    * Disconnect from the database.
+     * Get a handle to the cookie manager
+     * @since 2.3
+     */
+    public function GetCookieManager() : CookieManager
+    {
+        if( !$this->cookiemgr ) $this->cookiemgr = new AutoCookieOperations($this);
+        return $this->cookiemgr;
+    }
+
+    /**
+     * Get this site's unique identifier
+     * @since 2.3
+     *
+     * @return string
+     */
+    public function GetSiteUUID()
+    {
+        $val = cms_siteprefs::get('site_uuid');
+        if( !$val ) {
+            $val = cms_utils::random_string(32);
+            cms_siteprefs::set('site_uuid', $val);
+            global_cache::release('site_preferences');
+        }
+        return $val;
+    }
+
+    /**
+     * Shutdown-function: process all recorded methods
+     * @ignore
+     * @internal
+     * @since 2.3
+     * @todo export this to elsewhere
+     */
+    public function run_shutters()
+    {
+        usort($this->shutfuncs, function($a,$b) {
+            return $a[0] <=> $b[0];
+        });
+        foreach( $this->shutfuncs as $row ) {
+            if( is_callable($row[1]) ) {
+                if( $row[2] ) ($row[1])(...$row[2]);
+                else ($row[1])();
+            }
+        }
+    }
+
+    /**
+     * Queue a shutdown-function
+     * @since 2.3
+     * @param int $priority 1(high)..big int(low). Default 1.
+     * @param callable $func
+     * @param(s) variable no. of arguments to supply to $func
+     */
+    public function add_shutdown(int $priority = 1, $func = null, ...$args)
+    {
+        $this->shutfuncs[] = [$priority, $func, $args];
+    }
+
+    /**
+    * A shutdown function: disconnect from the database.
     *
     * @internal
     * @ignore
-    * @access private
     */
     public function dbshutdown()
     {
