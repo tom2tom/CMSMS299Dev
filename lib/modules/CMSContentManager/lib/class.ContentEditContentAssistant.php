@@ -18,7 +18,6 @@
 
 namespace CMSContentManager;
 
-use cms_utils;
 use CMSContentManager\EditContentAssistant;
 
 class ContentEditContentAssistant extends EditContentAssistant
@@ -26,9 +25,17 @@ class ContentEditContentAssistant extends EditContentAssistant
 	// get javascript for editcontent for the Content object and its derived objects.
 	public function getExtraCode()
 	{
-		$mod = cms_utils::get_module('CMSContentManager');
-		$smarty = CmsApp::get_instance()->GetSmarty();
-		$tpl = $smarty->createTemplate( $mod->GetTemplateResource( 'content_editcontent_extra.tpl' ),null,null,$smarty );
-		return $tpl->fetch();
+		return <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(function() {
+  $('#design_id').change(function() {
+    var v = $(this).val();
+    //WHAT IS MISSING FROM HERE ??
+  });
+});
+//]]>
+</script>
+EOS;
 	}
 } // class
