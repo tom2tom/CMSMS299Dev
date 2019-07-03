@@ -467,7 +467,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
         // if we're not yet ready to re-trigger - do nothing
         $last_trigger = (int) $this->GetPreference('last_processing');
         $now = time();
-        $gap = $this->GetPreference('jobinterval');
+        $gap = (int)$this->GetPreference('jobinterval',1);
         if ($last_trigger >= $now - $gap * 60) {
 
             if (defined('ASYNCLOG')) {
