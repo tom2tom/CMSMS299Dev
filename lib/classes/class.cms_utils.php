@@ -435,7 +435,7 @@ final class cms_utils
 		}
 		$h = 5381;
 		for ($i = 0; $i < $kc; ++$i) {
-			$h = ($h + ($h << 5)) ^ (int)$key[$i]; //aka $h = $h*33 ^ $key[$i]
+			$h = ($h + ($h << 5)) ^ ord($key[$i]); //i.e. $h = $h*33 ^ $key[$i]
 		}
 		return base_convert((string)$h, 10, 30);
 	}

@@ -153,7 +153,7 @@ abstract class CacheDriver
         $klen = count($key);
         $h1 = 5381;
         for ($i = 0; $i < $klen; ++$i) {
-            $h1 = ($h1 + ($h1 << 5)) ^ (int)$key[$i]; //aka $h1 = $h1*33 ^ $key[$i]
+            $h1 = ($h1 + ($h1 << 5)) ^ ord($key[$i]); //i.e. $h1 = $h1*33 ^ $key[$i]
         }
         return base_convert((string)$h1, 10, 30);
     }
