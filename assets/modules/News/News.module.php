@@ -254,15 +254,6 @@ EOS;
 		return $fmt;
 	}
 
-    public function get_tasks()
-    {
-        $out = [new AdjustStatusTask()];
-        if( $this->GetPreference('alert_drafts',1) ) {
-            $out[] = new CreateDraftAlertTask();
-        }
-        return $out;
-    }
-
     public function GetNotificationOutput($priority = 2)
     {
         // if this user has permission to change News articles from
@@ -374,6 +365,15 @@ EOS;
               return true;
         }
         return false;
+    }
+
+    public function get_tasks()
+    {
+        $out = [new AdjustStatusTask()];
+        if( $this->GetPreference('alert_drafts',1) ) {
+            $out[] = new CreateDraftAlertTask();
+        }
+        return $out;
     }
 
     public function get_adminsearch_slaves()
