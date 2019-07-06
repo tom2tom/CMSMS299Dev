@@ -446,7 +446,7 @@ EOS;
 			$auth_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin');
 			$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
 			if ($modinst) {
-				$data = $modinst->StageLogin(); //returns only if further processing is needed
+				$data = $modinst->StageLogin();
 				if (isset($data['infomessage'])) $data['message'] = $data['infomessage'];
 				if (isset($data['warnmessage'])) $data['warning'] = $data['warnmessage'];
 				if (isset($data['errmessage'])) $data['error'] = $data['errmessage'];

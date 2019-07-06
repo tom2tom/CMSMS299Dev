@@ -227,7 +227,7 @@ EOS;
 		$auth_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin');
 		$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
 		if ($modinst) {
-			$data = $modinst->StageLogin(); //returns only if further processing is needed
+			$data = $modinst->StageLogin();
 		} else {
 			die('System error');
 		}

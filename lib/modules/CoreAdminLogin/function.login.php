@@ -74,7 +74,7 @@ function find_recovery_user(string $hash)
 }
 
 /**
- * Check csrf-token validity
+ * Check secure-key (aka CSRF-token) validity
  * $param string $id location-identifier used in exception message
  * @param object $mod current module-object
  * @throws RuntimeException upon invalid token

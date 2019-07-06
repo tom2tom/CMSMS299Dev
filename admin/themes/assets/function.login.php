@@ -22,6 +22,10 @@ use CMSMS\NlsOperations;
 use CMSMS\User;
 use CMSMS\UserOperations;
 
+/*
+ * This expects optional variable $usecsrf to be populated before inclusion
+ */
+
 global $csrf_key;
 
 /**
@@ -63,7 +67,7 @@ function find_recovery_user(string $hash)
 }
 
 /**
- * Check csrf-token validity
+ * Check secure-key (aka CSRF-token) validity
  * $param string location-identifier used in exception message
  * @throws RuntimeException upon invalid token
  */
@@ -281,4 +285,3 @@ if (isset($error)) $tplvars['error'] = $error;
 if (isset($warning)) $tplvars['warning'] = $warning;
 if (isset($message)) $tplvars['message'] = $message;
 if (isset($changepwhash)) $tplvars['changepwhash'] = $changepwhash;
-
