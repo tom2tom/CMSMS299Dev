@@ -11,7 +11,7 @@ class ClearCacheTask implements CmsRegularTask
 
     public function get_name()
     {
-        return self::class; //assume no namespace
+        return self::class;
     }
 
     public function get_description()
@@ -19,7 +19,7 @@ class ClearCacheTask implements CmsRegularTask
         return lang_by_realm('tasks','clearcache_taskdescription');
     }
 
-    public function test($time = '')
+    public function test($time = 0)
     {
         $this->_age_days = (int)cms_siteprefs::get(self::CACHEDFILEAGE_SITEPREF,0);
         if( $this->_age_days == 0 ) return FALSE;
@@ -35,20 +35,20 @@ class ClearCacheTask implements CmsRegularTask
         return FALSE;
     }
 
-    public function execute($time = '')
+    public function execute($time = 0)
     {
         // do the task.
         AdminUtils::clear_cached_files($this->_age_days);
         return TRUE;
     }
 
-    public function on_success($time = '')
+    public function on_success($time = 0)
     {
         if( !$time ) $time = time();
         cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
     }
 
-    public function on_failure($time = '')
+    public function on_failure($time = 0)
     {
         // we failed, try again at the next request
         cms_siteprefs::remove(self::LASTEXECUTE_SITEPREF);

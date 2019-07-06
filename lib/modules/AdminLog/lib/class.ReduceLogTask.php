@@ -12,10 +12,11 @@ final class ReduceLogTask implements CmsRegularTask
     const LASTEXECUTE_SITEPREF = 'Adminlog::Reduce_lastexecute';
     private $_queue = [];
 
-    public function get_name() { return get_class($this); }
-    public function get_description() { return ''; }
+    public function get_name() { self::class; }
+//  return lang_by_realm('Adminlog','TODO');
+    public function get_description() { return '3-hourly cleanup of admin log'; }
 
-    public function test($time = '')
+    public function test($time = 0)
     {
         // do we need to do this task.
         // we do it every 3 hours
@@ -78,7 +79,7 @@ final class ReduceLogTask implements CmsRegularTask
         $this->_queue = [];
     }
 
-    public function execute($time = '')
+    public function execute($time = 0)
     {
         if( !$time ) $time = time();
         $db = CmsApp::get_instance()->GetDB();
@@ -110,11 +111,11 @@ final class ReduceLogTask implements CmsRegularTask
         return TRUE;
     }
 
-    public function on_success($time = '')
+    public function on_success($time = 0)
     {
         if( !$time ) $time = time();
         cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
     }
 
-    public function on_failure($time = '') {}
+    public function on_failure($time = 0) {}
 } // class

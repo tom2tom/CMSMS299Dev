@@ -8,7 +8,7 @@ class WatchTasksTask implements CmsRegularTask
 
     public function get_name()
     {
-        return self::class; //assume no namespace
+        return self::class;
     }
 
     public function get_description()
@@ -16,7 +16,7 @@ class WatchTasksTask implements CmsRegularTask
         return lang_by_realm('tasks','watchtasks_taskdescription');
     }
 
-    public function test($time = '')
+    public function test($time = 0)
     {
         if( !cms_siteprefs::get(self::ENABLED_SITEPREF,1) ) return FALSE;
 
@@ -26,7 +26,7 @@ class WatchTasksTask implements CmsRegularTask
         return ($time - 12*3600) >= $last_execute;
     }
 
-    public function execute($time = '')
+    public function execute($time = 0)
     {
         $mod = CmsApp::get_instance()->GetJobManager();
 		if( $mod ) {
@@ -47,13 +47,13 @@ class WatchTasksTask implements CmsRegularTask
 		return FALSE;
     }
 
-    public function on_success($time = '')
+    public function on_success($time = 0)
     {
         if( !$time ) $time = time();
         cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
     }
 
-    public function on_failure($time = '')
+    public function on_failure($time = 0)
     {
         // nothing here.
     }

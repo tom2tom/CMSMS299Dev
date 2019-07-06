@@ -16,7 +16,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
         return lang_by_realm('tasks','securitycheck_taskdescription');
     }
 
-    public function test($time = '')
+    public function test($time = 0)
     {
         // do we need to do this task now? (daily intervals)
         if( !$time ) $time = time();
@@ -24,7 +24,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
         return ($time - 24*3600) >= $last_execute;
     }
 
-    public function execute($time = '')
+    public function execute($time = 0)
     {
         if( !$time ) $time = time();
 
@@ -65,13 +65,13 @@ class CmsSecurityCheckTask implements CmsRegularTask
         return TRUE;
     }
 
-    public function on_success($time = '')
+    public function on_success($time = 0)
     {
         if( !$time ) $time = time();
         cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
     }
 
-    public function on_failure($time = '')
+    public function on_failure($time = 0)
     {
         // nothing here.
     }

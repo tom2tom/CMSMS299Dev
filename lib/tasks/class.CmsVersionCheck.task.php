@@ -9,7 +9,7 @@ class CmsVersionCheckTask implements CmsRegularTask
 
     public function get_name()
     {
-        return self::class; //assume no namespace
+        return self::class;
     }
 
     public function get_description()
@@ -17,7 +17,7 @@ class CmsVersionCheckTask implements CmsRegularTask
         return lang_by_realm('tasks','versioncheck_taskdescription');
     }
 
-    public function test($time = '')
+    public function test($time = 0)
     {
         if( !cms_siteprefs::get(self::ENABLED_SITEPREF,1) ) return FALSE;
 
@@ -43,10 +43,8 @@ class CmsVersionCheckTask implements CmsRegularTask
         return $remote_ver;
     }
 
-    public function execute($time = '')
+    public function execute($time = 0)
     {
-        if( !$time ) $time = time();
-
         // do the task.
         $remote_ver = $this->fetch_latest_cmsms_ver();
         if( version_compare(CMS_VERSION,$remote_ver) < 0 ) {
@@ -61,13 +59,13 @@ class CmsVersionCheckTask implements CmsRegularTask
         return TRUE;
     }
 
-    public function on_success($time = '')
+    public function on_success($time = 0)
     {
         if( !$time ) $time = time();
         cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
     }
 
-    public function on_failure($time = '')
+    public function on_failure($time = 0)
     {
         // nothing here.
     }

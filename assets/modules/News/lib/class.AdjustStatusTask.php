@@ -35,10 +35,10 @@ final class AdjustStatusTask implements CmsRegularTask
 
     public function get_description()
     {
-        return self::class; //$mod->Lang('TODO')
+        return 'Task which updates the recorded status of news items'; //$mod->Lang('TODO')
     }
 
-    public function test($time = '')
+    public function test($time = 0)
     {
         if( !$time ) $time = time();
         $mod = cms_utils::get_module('News');
@@ -46,16 +46,16 @@ final class AdjustStatusTask implements CmsRegularTask
         return $lastrun <= ($time - 3600); // hardcoded to hourly
     }
 
-    public function on_success($time = '')
+    public function on_success($time = 0)
     {
         if( !$time ) $time = time();
         $mod = cms_utils::get_module('News');
         $mod->SetPreference(self::PREFNAME,$time);
     }
 
-    public function on_failure($time = '') {}
+    public function on_failure($time = 0) {}
 
-    public function execute($time = '')
+    public function execute($time = 0)
     {
         $db = CmsApp::get_instance()->GetDb();
         if( !$time ) $time = time();
@@ -66,4 +66,3 @@ final class AdjustStatusTask implements CmsRegularTask
         return true;
     }
 } // class
-

@@ -48,7 +48,7 @@ interface CmsRegularTask
    * @param   int $time The time at which any comparisons for execution should be performed.  If empty the current time is assumed.
    * @returns boolean TRUE IF the task should be executed, FALSE otherwise.
    */
-  public function test($time = '');
+  public function test($time = 0);
 
 
   /**
@@ -57,7 +57,7 @@ interface CmsRegularTask
    * @param  int $time The time at which the task should consider the execution occurred at.  Assume the current time if empty.
    * @return bool TRUE on success, FALSE otherwise.
    */
-  public function execute($time = '');
+  public function execute($time = 0);
 
 
   /**
@@ -66,7 +66,7 @@ interface CmsRegularTask
    *
    * @param  int $time The time at which the task should consider the execution occurred at.  Assume the current time if empty.
    */
-  public function on_success($time = '');
+  public function on_success($time = 0);
 
 
   /**
@@ -75,6 +75,6 @@ interface CmsRegularTask
    *
    * @param  int $time The time at which the task should consider the execution occurred at.  Assume the current time if empty.
    */
-  public function on_failure($time = '');
+  public function on_failure($time = 0);
 
 } // interface

@@ -55,7 +55,7 @@ class AutoPruneLogTask implements CmsRegularTask
         return $lifetime;
     }
 
-    public function test($time = '')
+    public function test($time = 0)
     {
         $lifetime = $this->get_lifetime();
         if( $lifetime < 1 ) return FALSE;
@@ -66,7 +66,7 @@ class AutoPruneLogTask implements CmsRegularTask
         return ($last_execute < $time - $oneday );
     }
 
-    public function execute($time = '')
+    public function execute($time = 0)
     {
         if( !$time ) $time = time();
         $oneday = 24 * 3600;
@@ -78,13 +78,13 @@ class AutoPruneLogTask implements CmsRegularTask
         return TRUE;
     }
 
-    public function on_success($time = '')
+    public function on_success($time = 0)
     {
         if( !$time ) $time = time();
         cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
     }
 
-    public function on_failure($time = '')
+    public function on_failure($time = 0)
     {
     }
 } // class

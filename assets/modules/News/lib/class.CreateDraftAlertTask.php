@@ -39,7 +39,7 @@ class CreateDraftAlertTask implements CmsRegularTask
     return 'A quarter-hourly task which generates a notice about draft news item(s)';
   }
 
-  public function test($time = '')
+  public function test($time = 0)
   {
     if( !$time ) $time = time();
     $mod = cms_utils::get_module('News');
@@ -47,16 +47,16 @@ class CreateDraftAlertTask implements CmsRegularTask
     return $lastrun <= ($time - 900); // hardcoded to quarter-hourly
   }
 
-  public function on_success($time = '')
+  public function on_success($time = 0)
   {
     if( !$time ) $time = time();
     $mod = cms_utils::get_module('News');
     $mod->SetPreference(self::PREFNAME,$time);
   }
 
-  public function on_failure($time = '') {}
+  public function on_failure($time = 0) {}
 
-  public function execute($time = '')
+  public function execute($time = 0)
   {
     if( !$time ) $time = time();
     $db = CmsApp::get_instance()->GetDb();
