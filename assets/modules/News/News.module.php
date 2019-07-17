@@ -362,6 +362,7 @@ EOS;
            case CmsCoreCapabilities::PLUGIN_MODULE:
            case CmsCoreCapabilities::ADMINSEARCH:
            case CmsCoreCapabilities::TASKS:
+         //case CmsCoreCapabilities::EVENTS: ? ROUTE_MODULE ?
               return true;
         }
         return false;
