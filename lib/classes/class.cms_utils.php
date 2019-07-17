@@ -411,16 +411,16 @@ final class cms_utils
 	}
 
 	/**
-	 * Hash the the provided string using the (shortish, fastish, low collision) djb2a algorithm
+	 * Hash the the provided string
 	 * @since 2.3
 	 *
 	 * @param string $raw the string to be processed, may be empty
 	 * @param bool $seeded optional flag whether to seed the hash. Default false (unless $raw is empty)
-	 * @return string (13 alphanum bytes)
+	 * @return string (12 alphanum bytes)
 	 */
 	public static function hash_string(string $raw, $seeded = false)
 	{
-		if (!$raw || $seeded) {
+		if ($raw === '' || $seeded) {
 			$seed = '1234';
 			for ($i = 0; $i < 4; ++$i) {
 				$n = mt_rand(48, 122); // 0 .. z
@@ -428,16 +428,8 @@ final class cms_utils
 			}
 			$raw .= $seed;
 		}
-		// actual byte-length (i.e. no mb interference);
-		$key = array_values(unpack('C*', $raw));
-		while (($kc = count($key)) < 32) {
-			$key = array_merge($key, $key);
-		}
-		$h = 5381;
-		for ($i = 0; $i < $kc; ++$i) {
-			$h = ($h + ($h << 5)) ^ ord($key[$i]); //i.e. $h = $h*33 ^ $key[$i]
-		}
-		return base_convert((string)$h, 10, 30);
+		$str = hash('fnv132', $raw);
+		return base_convert($str.$str, 16, 36);
 	}
 
 	/**
