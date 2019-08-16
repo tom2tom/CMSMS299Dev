@@ -640,7 +640,7 @@ $smarty->assign('secure_opts', $opts)
   ->assign('pretty_urls', $pretty_urls);
 
 // need a list of wysiwyg modules.
-$tmp = $modops->GetCapableModules(CmsCoreCapabilities::WYSIWYG_MODULE); //pre 2.0 identifier?
+$tmp = $modops->GetCapableModules(CmsCoreCapabilities::WYSIWYG_MODULE);
 $n = count($tmp);
 $tmp2 = [-1 => lang('none')];
 for ($i = 0; $i < $n; $i++) {
