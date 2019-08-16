@@ -23,9 +23,9 @@ use CmsApp;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptOperations;
 use CMSMS\StylesheetOperations;
+use Exception;
 use MicroTiny;
 use MicroTiny\Profile;
-use PHPMailer\PHPMailer\Exception;
 use RuntimeException;
 use const CMS_JOB_KEY;
 use const CMS_ROOT_URL;
@@ -43,8 +43,8 @@ class Utils
 
 	/**
 	 * @staticvar boolean $first_time
-	 * @param type $selector
-	 * @param string $css_name
+	 * @param string $selector Optional page-element id
+	 * @param string $css_name Optional stylesheet name
 	 * @return string
 	 * @throws Exception, CmsLogicException
 	 */
