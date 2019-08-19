@@ -440,21 +440,21 @@ function get_pageid_or_alias_from_url()
 
             // put a constructed mact into $_REQUEST for later processing.
             // this is essentially our translation from pretty URLs to non-pretty URLS.
-			// TODO also support secure params via GetParameters class
+            // TODO also support secure params via GetParameters class
             $_REQUEST['mact'] = $arr['module'] . ',' . $arr['id'] . ',' . $arr['action'] . ',' . $arr['inline'];
 
             // put other parameters (except numeric matches) into $_REQUEST.
             foreach( $arr as $key=>$val ) {
-				switch ($key) {
-					case 'module':
-					case 'id':
-					case 'action':
-					case 'inline':
-						break; //no need to repeat mact parameters
-					default:
-						if( !is_int($key) ) {
-		                    $_REQUEST[$arr['id'] . $key] = $val;
-						}
+                switch ($key) {
+                    case 'module':
+                    case 'id':
+                    case 'action':
+                    case 'inline':
+                        break; //no need to repeat mact parameters
+                    default:
+                        if( !is_int($key) ) {
+                            $_REQUEST[$arr['id'] . $key] = $val;
+                        }
                 }
             }
             // get a decent returnid
@@ -575,19 +575,19 @@ function cms_module_plugin(array $params, $template) : string
     }
 
     $rparams = (new GetParameters())->decode_action_params();
-	if ($rparams) {
-		$mactmodulename = $rparams['module'] ?? '';
-    	if (strcasecmp($mactmodulename, $module) == 0) {
-			$checkid = $rparams['id'] ?? '';
-	        $inline = !empty($rparams['inline']);
-			if ($inline && $checkid == $id) {
-				$action = $rparams['action'] ?? 'default';
+    if ($rparams) {
+        $mactmodulename = $rparams['module'] ?? '';
+        if (strcasecmp($mactmodulename, $module) == 0) {
+            $checkid = $rparams['id'] ?? '';
+            $inline = !empty($rparams['inline']);
+            if ($inline && $checkid == $id) {
+                $action = $rparams['action'] ?? 'default';
                 $params['action'] = $action; // deprecated since 2.3
-				unset($rparams['module'], $rparams['id'], $rparams['action'], $rparams['inline']);
+                unset($rparams['module'], $rparams['id'], $rparams['action'], $rparams['inline']);
                 $params = array_merge($params, $rparams, ModuleOperations::get_instance()->GetModuleParameters($id));
-			}
-		}
-	}
+            }
+        }
+    }
 /*  if (isset($_REQUEST['mact'])) {
         // We're handling an action.  Check if it is for this call.
         // We may be calling module plugins multiple times in the template,
