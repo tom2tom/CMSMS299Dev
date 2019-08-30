@@ -52,7 +52,7 @@ License GPL2+
                 callback = null,
                 load = true;
             //arg1 and arg2 can be interchangable
-            if($.isFunction(arg1)) {
+            if(typeof arg1 === "function") {
                 callback = arg1;
                 cache = arg2 || cache;
             } else {
@@ -73,7 +73,7 @@ License GPL2+
                 }).done(callback);
             } else {
                 //already loaded so just call the callback
-                if($.isFunction(callback)) {
+                if(typeof callback === "function") {
                     callback.call(this);
                 }
             }
