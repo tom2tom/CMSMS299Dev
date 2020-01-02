@@ -113,23 +113,9 @@ class Profile implements ArrayAccess
 
 	public function OffsetExists($key)
 	{
-		switch( $key ) {
-		case 'menubar':
-		case 'allowtables':
-		case 'allowimages':
-		case 'showstatusbar':
-		case 'allowresize':
-		case 'allowcssoverride':
-		case 'formats':
-		case 'dfltstylesheet':
-		case 'name':
-		case 'label':
-		case 'system':
-			return isset($this->_data[$key]);
+		if( in_array($key, self::$_keys) ) return isset($this->_data[$key]);
 
-		default:
-			throw new CmsInvalidDataException('invalid key '.$key.' for '.self::class.' object');
-		}
+		throw new CmsInvalidDataException('invalid key '.$key.' for '.self::class.' object');
 	}
 
 	public function OffsetUnset($key)
