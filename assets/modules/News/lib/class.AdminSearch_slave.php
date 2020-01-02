@@ -79,7 +79,7 @@ final class AdminSearch_slave extends slave
             $start = max(0,$pos - 50);
             $end = min(strlen($value),$pos+50);
             $text = substr($value,$start,$end-$start);
-            $text = cms_htmlentities($text);
+            $text = cms_htmlentities($text); //TODO sensible sanitization
             $text = str_replace($this->get_text(),'<span class="search_oneresult">'.$this->get_text().'</span>',$text);
             $text = str_replace(["\r\n","\r","\n"],[' ',' ',' '],$text);
             break;
