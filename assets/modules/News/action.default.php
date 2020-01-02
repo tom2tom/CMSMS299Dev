@@ -64,16 +64,20 @@ LEFT OUTER JOIN ' . CMS_DB_PREFIX . $grptbl . ' G ON N.news_category_id = G.news
 LEFT OUTER JOIN ' . CMS_DB_PREFIX . 'users U ON U.user_id = N.author_id
 WHERE status = \'published\' AND ';
 
-if( isset($params['idlist']) ) {
-    $idlist = $params['idlist'];
-    if( is_string($idlist) ) {
-        $tmp = explode(',',$idlist);
+if( !empty($params['idlist']) ) { //id = 0 N/A
+	if( is_numeric($params['idlist'])) {
+        $query1 .= ' (N.news_id = '.(int)$params['idlist'].') AND '; }
+    }
+    elseif( is_string($params['idlist']) ) {
+        $tmp = explode(',',$params['idlist']);
+        $idlist = [];
         for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
-            $tmp[$i] = (int)$tmp[$i];
-            if( $tmp[$i] < 1 ) unset($tmp[$i]);
+            $val = (int)$tmp[$i];
+            if( $val > 0 && !in_array($val,$idlist) ) $idlist[] = $val;
         }
-        $idlist = array_unique($tmp);
-        $query1 .= ' (N.news_id IN ('.implode(',',$idlist).')) AND ';
+        if ($idlist) {
+            $query1 .= ' (N.news_id IN ('.implode(',',$idlist).')) AND ';
+        }
     }
 }
 
@@ -323,7 +327,7 @@ elseif( isset($params['category_id']) && $items ) {
 //    $catName = $db->GetOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?',array($params['category_id']));
 }
 $tpl->assign('category_name',$catName)
- ->assign('count', count($items))
- ->assign('cats', $items);
+ ->assign('cats',$items)
+ ->assign('count',((items) ? count($items) : 0));
 
 $tpl->display();
