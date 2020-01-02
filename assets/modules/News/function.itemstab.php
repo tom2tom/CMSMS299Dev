@@ -315,7 +315,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-	$this->AdminBottomContent($js);
+	add_page_foottext($js);
 }
 else { //no rows
      $tpl->assign('items',[])
