@@ -23,6 +23,7 @@ use CMSMS\internal\LoginOperations;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
+use CMSMS\RichEditor;
 use CMSMS\RouteOperations;
 use CMSMS\SyntaxEditor;
 use CMSMS\UserOperations;
@@ -476,8 +477,63 @@ function get_pageid_or_alias_from_url()
 }
 
 /**
- * Get javascript for initialization of the configured 'advanced'
- *  (a.k.a. wysiwyg) text-editor
+ * Get page content (js, css) for initialization of and use by the configured
+ * 'rich-text' (a.k.a. wysiwyg) text-editor.
+ * @since 2.3
+ * @param array $params  Configuration details. Recognized members are:
+ *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
+ *  string 'handle' name of the js variable to be used for the created editor. Default 'editor'
+ *  string 'htmlid' id of the page-element whose content is to be edited. Default 'edit_area'.
+ *  string 'theme'  override for the normal editor theme/style.  Default ''
+ *  string 'workid' id of a div to be created (by some editors) to process
+ *    the content of the htmlid-element. (As always, avoid conflict with tab-name divs). Default 'edit_work'
+ *
+ * @return array up to 2 members, being 'head' and/or 'foot'
+ */
+function get_richeditor_setup(array $params) : array
+{
+	if( CmsApp::get_instance()->is_frontend_request() ) {
+		$val = cms_siteprefs::get('frontendwysiwyg'); //module name
+    }
+    else {
+        $userid = get_userid();
+        $val = cms_userprefs::get_for_user($userid, 'wysiwyg');
+        if( !$val ) {
+            $val = cms_siteprefs::get('wysiwyg');
+        }
+    }
+    if( $val ) {
+        $vars = explode ('::', $val);
+        $modname = $vars[0] ?? '';
+        if( $modname ) {
+            $modinst = cms_utils::get_module($modname);
+            if( $modinst ) {
+                if( $modinst instanceof RichEditor ) {
+                    $edname = $vars[1] ?? $modname;
+                    if (empty($params['theme'])) {
+                        $val = cms_userprefs::get_for_user($userid, 'richeditor_theme');
+                        if( !$val ) {
+                            $val = cms_siteprefs::get('richeditor_theme');
+                        }
+                        if( $val ) {
+                            $params['theme'] = $val;
+                        }
+                    }
+                    return $modinst->GetEditorSetup($edname, $params);
+                }
+                elseif( $modinst->HasCapability(CmsCoreCapabilities::WYSIWYG_MODULE) ) {
+                    $out = $modinst->WYSIWYGGenerateHeader();
+                    return ['head'=>$out];
+                }
+            }
+        }
+    }
+    return [];
+}
+
+/**
+ * Get page content (css, js) for initialization of and use by the configured
+ * 'advanced' (a.k.a. syntax-highlight) text-editor. Assumes that is for admin usage only.
  * @since 2.3
  * @param array $params  Configuration details. Recognized members are:
  *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
@@ -491,7 +547,7 @@ function get_pageid_or_alias_from_url()
  *
  * @return array up to 2 members, being 'head' and/or 'foot'
  */
-function get_editor_script(array $params) : array
+function get_syntaxeditor_setup(array $params) : array
 {
     $userid = get_userid();
     $val = cms_userprefs::get_for_user($userid, 'syntax_editor');
@@ -504,22 +560,22 @@ function get_editor_script(array $params) : array
         if( $modname ) {
             $modinst = cms_utils::get_module($modname);
             if( $modinst ) {
-                if (empty($params['theme'])) {
-                    $val = cms_userprefs::get_for_user($userid, 'editor_theme');
-                    if( !$val ) {
-                        $val = cms_siteprefs::get('editor_theme');
-                    }
-                    if( $val ) {
-                        $params['theme'] = $val;
-                    }
-                }
                 if( $modinst instanceof SyntaxEditor ) {
                     $edname = $vars[1] ?? $modname;
-                    return $modinst->GetEditorScript($edname, $params);
+                    if (empty($params['theme'])) {
+                        $val = cms_userprefs::get_for_user($userid, 'editor_theme');
+                        if( !$val ) {
+                            $val = cms_siteprefs::get('editor_theme');
+                        }
+                        if( $val ) {
+                            $params['theme'] = $val;
+                        }
+                    }
+                    return $modinst->GetEditorSetup($edname, $params);
                 }
                 elseif( $modinst->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE) ) {
-                   // TODO other modules ?
-                   // c.f. cms_utils::get_syntax_highlighter_module()
+                    $out = $modinst->SyntaxGenerateHeader();
+                    return ['head'=>$out];
                 }
             }
         }
