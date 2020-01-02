@@ -62,28 +62,6 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
     }
 
     /**
-     * Return the largest recorded interval between now and whatever is recorded
-     * in $data
-     *
-     * @param array  $data with member [0] whose sub-members are to be checked
-     * @param string $key  which time-key to scan for in $data
-     *
-     * @return float >= 0.0
-     */
-    private function longest_time($data, $key)
-    {
-        $now = $minval = microtime(true);
-        foreach ($data[0] as $subvals) {
-            if (isset($subvals[$key])) {
-                if ($subvals[$key] < $minval) {
-                    $minval = $subvals[$key];
-                }
-            }
-        }
-        return $now - $minval;
-    }
-
-    /**
      * End logging of cache time
      *
      * @param \Smarty_Internal_Template $template cached template
@@ -91,17 +69,6 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
     public function end_template(Smarty_Internal_Template $template)
     {
         $key = $this->get_key($template);
-
-        if (!isset($this->template_data[ $this->index ][ $key ][ 'start_template_time' ])) {
-            if (is_array($this->template_data[ $this->index ][ $key ])) {
-                $val = $this->longest_time($this->template_data, 'start_template_time');
-                if ($val > 0.0) {
-                    $this->template_data[ $this->index ][ $key ][ 'total_time' ] += $val;
-                }
-            }
-            return;
-        }
-
         $this->template_data[ $this->index ][ $key ][ 'total_time' ] +=
             microtime(true) - $this->template_data[ $this->index ][ $key ][ 'start_template_time' ];
         //$this->template_data[$this->index][$key]['properties'] = $template->properties;
@@ -152,17 +119,6 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
             }
             $key = $this->get_key($template);
         }
-
-        if (!isset($this->template_data[ $this->index ][ $key ][ 'start_time' ])) {
-            if (is_array($this->template_data[ $this->index ][ $key ])) {
-                $val = $this->longest_time($this->template_data, 'start_time');
-                if ($val > 0.0) {
-                    $this->template_data[ $this->index ][ $key ][ 'compile_time' ] += $val;
-                }
-            }
-            return;
-        }
-
         $this->template_data[ $this->index ][ $key ][ 'compile_time' ] +=
             microtime(true) - $this->template_data[ $this->index ][ $key ][ 'start_time' ];
     }
@@ -186,17 +142,6 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
     public function end_render(Smarty_Internal_Template $template)
     {
         $key = $this->get_key($template);
-
-        if (!isset($this->template_data[ $this->index ][ $key ][ 'start_time' ])) {
-            if (is_array($this->template_data[ $this->index ][ $key ])) {
-                $val = $this->longest_time($this->template_data, 'start_time');
-                if ($val > 0.0) {
-                    $this->template_data[ $this->index ][ $key ][ 'render_time' ] += $val;
-                }
-            }
-            return;
-        }
-
         $this->template_data[ $this->index ][ $key ][ 'render_time' ] +=
             microtime(true) - $this->template_data[ $this->index ][ $key ][ 'start_time' ];
     }
@@ -220,17 +165,6 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
     public function end_cache(Smarty_Internal_Template $template)
     {
         $key = $this->get_key($template);
-
-        if (!isset($this->template_data[ $this->index ][ $key ][ 'start_time' ])) {
-            if (is_array($this->template_data[ $this->index ][ $key ])) {
-                $val = $this->longest_time($this->template_data, 'start_time');
-                if ($val > 0.0) {
-                    $this->template_data[ $this->index ][ $key ][ 'cache_time' ] += $val;
-                }
-            }
-            return;
-        }
-
         $this->template_data[ $this->index ][ $key ][ 'cache_time' ] +=
             microtime(true) - $this->template_data[ $this->index ][ $key ][ 'start_time' ];
     }
