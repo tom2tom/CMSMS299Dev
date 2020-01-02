@@ -69,13 +69,13 @@ if (isset($_POST['submit'])) {
     if ($user == '') {
         $error = true;
         (lang('nofieldgiven', lang('username')));
-    } else if (!preg_match('/^[a-zA-Z0-9\._ ]+$/', $user)) {
+    } elseif (!preg_match('/^[a-zA-Z0-9\._ ]+$/', $user)) {
         $errors[] = lang('illegalcharacters', lang('username'));
     }
 
     if ($password == '') {
         $errors[] = lang('nofieldgiven', lang('password'));
-    } else if ($password != $passwordagain) {
+    } elseif ($password != $passwordagain) {
         // We don't want to see this if no password was given
         $errors[] = lang('nopasswordmatch');
     }
@@ -114,12 +114,16 @@ if (isset($_POST['submit'])) {
                 }
             } else {
                 cms_userprefs::set_for_user($userid, 'default_cms_language', cms_userprefs::get_for_user($adminid, 'default_cms_language'));
-                cms_userprefs::set_for_user($userid, 'wysiwyg', cms_userprefs::get_for_user($adminid, 'wysiwyg'));
+//                cms_userprefs::set_for_user($userid, 'wysiwyg', cms_userprefs::get_for_user($adminid, 'wysiwyg')); //rich-text-editor type
+//                cms_userprefs::set_for_user($userid, 'syntax_editor', cms_userprefs::get_for_user($adminid, 'syntax_editor')); //syntax-editor type
+//                cms_userprefs::set_for_user($userid, 'editor_theme', cms_userprefs::get_for_user($adminid, 'editor_theme'));
                 $val = cms_siteprefs::get('logintheme');
                 if( !$val ) $val = ThemeBase::GetDefaultTheme();
                 cms_userprefs::set_for_user($userid, 'admintheme', $val);
-                cms_userprefs::set_for_user($userid, 'bookmarks', cms_userprefs::get_for_user($adminid, 'bookmarks'));
-                cms_userprefs::set_for_user($userid, 'recent', cms_userprefs::get_for_user($adminid, 'recent'));
+//                cms_userprefs::set_for_user($userid, 'bookmarks', cms_userprefs::get_for_user($adminid, 'bookmarks'));
+//                cms_userprefs::set_for_user($userid, 'recent', cms_userprefs::get_for_user($adminid, 'recent'));
+                $val = cms_siteprefs::get('wysiwyg');
+                if( $val ) cms_userprefs::set_for_user($uid, 'wysiwyg', $val);
             }
 
             if ($assign_group_perm && $sel_groups) {
