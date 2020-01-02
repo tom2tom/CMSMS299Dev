@@ -46,21 +46,20 @@ if ($aout) {
 
 		if ($bundle[1]) {
 			foreach($bundle[1] as $list) {
-				$one = is_array($list) ? implode("\n",$list) : $list;
-				$themeObject->add_headtext($one."\n");
+				add_page_headtext($list);
 			}
 		}
 	}
 
 	if ($out) {
-		$themeObject->add_headtext(<<<EOT
+		add_page_headtext(<<<EOT
 <script type="text/javascript">
 //<![CDATA[
 
 EOT
 		);
-		$themeObject->add_headtext($out);
-		$themeObject->add_headtext(<<<EOT
+		add_page_headtext($out);
+		add_page_headtext(<<<EOT
 //]]>
 </script>
 
@@ -73,23 +72,23 @@ if (isset($modinst)) {
 	if ($modinst->HasAdmin()) {
 		$txt = $modinst->AdminStyle();
 		if ($txt) {
-			$themeObject->add_headtext($txt);
+			add_page_headtext($txt, false);
 		}
 	}
 	$txt = $modinst->GetHeaderHTML($action);
 	if ($txt) {
-		$themeObject->add_headtext($txt);
+		add_page_headtext($txt);
 	}
 }
 
-// initialize required WYSIWYG modules
-// (must be after action/content generation, which might create textarea(s))
+// setup for required rich-text-editors (deprecated since 2.3)
+// (must be after action/content generation, which might create such textarea(s))
 $list = FormUtils::get_requested_wysiwyg_modules();
 if ($list) {
 	foreach ($list as $module_name => $info) {
 		$obj = cms_utils::get_module($module_name);
 		if (!is_object($obj)) {
-			audit('','Core','WYSIWYG module '.$module_name.' requested, but could not be instantiated');
+			audit('','Core','rich-edit module '.$module_name.' requested, but could not be instantiated');
 			continue;
 		}
 
@@ -129,29 +128,29 @@ if ($list) {
 
 			$selector = 'textarea#'.$selector;
 			try {
-				$out = $obj->WYSIWYGGenerateHeader($selector,$cssname);
-				$themeObject->add_headtext($out);
+				$out = $obj->WYSIWYGGenerateHeader($selector,$cssname); //deprecated API
+				add_page_headtext($out);
 			} catch (Exception $e) {}
 		}
 		// do we need a generic textarea ?
 		if ($need_generic) {
 			try {
-				$out = $obj->WYSIWYGGenerateHeader();
-				$themeObject->add_headtext($out);
+				$out = $obj->WYSIWYGGenerateHeader(); //deprecated API
+				add_page_headtext($out);
 			} catch (Exception $e) {}
 		}
 	}
 }
 
-// initialize required syntax hilighter modules
+// setup for required syntax hilighters (deprecated since 2.3)
 $list = FormUtils::get_requested_syntax_modules();
 if ($list) {
 	foreach ($list as $one) {
 		$obj = cms_utils::get_module($one);
 		if (is_object($obj)) {
 			try {
-				$out = $obj->SyntaxGenerateHeader();
-				$themeObject->add_headtext($out);
+				$out = $obj->SyntaxGenerateHeader(); //deprecated API
+				add_page_headtext($out);
 			} catch (Exception $e) {}
 		}
 	}
