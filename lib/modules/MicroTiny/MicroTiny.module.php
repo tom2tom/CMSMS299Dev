@@ -47,7 +47,7 @@ class MicroTiny extends CMSModule
   {
     switch ($capability) {
       case CmsCoreCapabilities::PLUGIN_MODULE:
-	  case CmsCoreCapabilities::WYSIWYG_MODULE:
+      case CmsCoreCapabilities::WYSIWYG_MODULE:
         return TRUE;
     }
     return FALSE;
