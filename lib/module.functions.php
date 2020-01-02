@@ -27,14 +27,14 @@
 function cms_module_places(string $modname = '') : array
 {
     $dirlist = [];
-    $path = cms_join_path(CMS_ROOT_PATH,'lib','modules');
+    $path = cms_join_path(CMS_ROOT_PATH, 'lib', 'modules');
     if ($modname) {
         $path .= DIRECTORY_SEPARATOR . $modname;
     }
     if (is_dir($path)) {
         $dirlist[] = $path;
     }
-    $path = cms_join_path(CMS_ASSETS_PATH,'modules');
+    $path = cms_join_path(CMS_ASSETS_PATH, 'modules');
     if ($modname) {
         $path .= DIRECTORY_SEPARATOR . $modname;
     }
@@ -42,7 +42,7 @@ function cms_module_places(string $modname = '') : array
         $dirlist[] = $path;
     }
     // pre-2.3, deprecated
-    $path = cms_join_path(CMS_ROOT_PATH,'modules');
+    $path = cms_join_path(CMS_ROOT_PATH, 'modules');
     if ($modname) {
         $path .= DIRECTORY_SEPARATOR . $modname;
     }
