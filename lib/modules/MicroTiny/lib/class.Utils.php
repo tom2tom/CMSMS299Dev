@@ -20,6 +20,7 @@ namespace MicroTiny;
 
 use cms_utils;
 use CmsApp;
+use CMSMS\AppState;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptOperations;
 use CMSMS\StylesheetOperations;
@@ -90,13 +91,25 @@ class Utils
 		if( $first_time ) {
 			// only once per request
 			$first_time = false;
-			//this doesn't like relocation into a merged-scripts file
-			$output = '<script type="text/javascript" src="'.$mod->GetModuleURLPath().'/lib/js/tinymce/tinymce.min.js"></script>'."\n";
+			$url = $mod->GetModuleURLPath().'/lib/js';
+			//main source file doesn't like relocation into a merged-scripts file ? & must be addressable
+			$output = <<<EOS
+if(typeof String.prototype.trim === 'undefined') {
+ var xjS = document.createElement('script');
+ xjS.type = 'text/javascript';
+ xjS.src = "{$url}/ec5support.min.js";
+ document.getElementById('mainjssource').insertBefore(xjS); //CHECK compiles ok?
+}
+<script type="text/javascript" id="mainjssource" src="{$url}/tinymce/tinymce.min.js"></script>
+<script type="text/javascript" src="{$url}/tinymce/jquery.tinymce.min.js"></script>
+EOS;
 		} else {
 			$output = '';
 		}
 
 		$sm = new ScriptOperations();
+//		$fn = cms_join_path(__DIR__,'js','tinymce','jquery.tinymce.min.js'); 1st time only
+//		$sm->queue_file($fn, 1);
 		$configcontent = self::_generate_config($frontend, $selector, $css_name, $languageid);
 		$sm->queue_string($configcontent);
 		$config = cms_utils::get_config();
@@ -104,9 +117,15 @@ class Utils
 
 		$fn = $sm->render_scripts('', $force, false);
 		$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
-		$output .= sprintf('<script type="text/javascript" src="%s"></script>'."\n",$url);
-
-		return $output;
+		$output .=<<< EOS
+<script type="text/javascript" src="$url"></script>
+EOS;
+		if (AppState::test_state(AppState::STATE_ADMIN_PAGE)) {
+			add_page_headtext($output);
+}			return '';
+		} else {
+			return $output;
+		}
 	}
 
 	/**
