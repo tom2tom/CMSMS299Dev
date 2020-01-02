@@ -134,7 +134,7 @@ class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
 		return '';
 	}
 
-	public function GetEditorScript(string $editor, array $params) : array
+	public function GetEditorSetup(string $editor, array $params) : array
 	{
 		$fp = __DIR__.DIRECTORY_SEPARATOR.'editor.'.$editor.'.php';
 		if (is_file($fp)) {

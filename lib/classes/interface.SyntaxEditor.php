@@ -88,7 +88,7 @@ interface SyntaxEditor
 	public function GetThemeHelp(string $editor = '') : string;
 
 	/**
-	 * Get javascript for initialization of a text-editor
+	 * Get page content (css, js etc) needed for setup and operation of a text-editor
      *
 	 * @param string $editor editor name/type
 	 * @param array $params  configuration details
@@ -102,13 +102,13 @@ interface SyntaxEditor
 	 *   an extension or pseudo recognized by the editor (c.f. 'smarty'). Default ''
      *
 	 * @return array, up to 2 members 'head' and/or 'foot', string(s) for inclusion
-	 *  in a page header or footer respectively - to provide relevant css, javascript
+	 *  in a page header or footer respectively
 	 * The js includes (among other things) 3 functions:
 	 *  seteditorcontent(v[,m]) to supply text to the editor, and (optionally) set syntax type
 	 *  geteditorcontent() to get text from the editor
 	 *  setpagecontent(v) to put text into the original form element (probably for submission to the server)
 	 */
-	public function GetEditorScript(string $editor, array $params) : array;
+	public function GetEditorSetup(string $editor, array $params) : array;
 
     // DO NOT DELETE OR CHANGE OR MOVE THIS LINE - INDICATES END OF API HELPTEXT
 } // interface
