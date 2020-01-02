@@ -71,15 +71,15 @@ function smarty_function_syntax_area($params, $template)
 		'typer'=>$t,
 	];
 
-	$jscript = get_editor_script($parms);
+	$jscript = get_syntaxeditor_setup($parms);
 	if( $jscript ) {
 		if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
-			$theme = cms_utils::get_theme_object();
+//			$theme = cms_utils::get_theme_object();
 			if( !empty($jscript['head']) ) {
-				$theme->add_headtext($jscript['head']); // css
+				add_page_headtext($jscript['head']); // css ?
 			}
 			if( !empty($jscript['foot']) ) {
-				$theme->add_footertext($jscript['foot']);
+				add_page_foottext($jscript['foot']);
 			}
 		}
 		else {
@@ -133,7 +133,7 @@ As for <code>FormUtils::create_textarea()</code><br />
 <li>addtext: additional attribute(s) for the element e.g. style="whatever" cms-data-X="whatever" readonly</li>
 </ul>
 <br />
-As for <code>get_editor_script()</code><br />
+As for <code>get_syntaxeditor_setup()</code><br />
 <ul>
 <li>edit: bool whether editable (default) or read-only</li>
 <li>handle: js variable identifier (optional, internal use) </li>
