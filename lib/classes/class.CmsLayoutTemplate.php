@@ -428,7 +428,7 @@ class CmsLayoutTemplate
 	*/
 	public function set_type_dflt($flag = true)
 	{
-		$this->type_dflt = $flag;
+		$this->type_dflt = cms_to_bool($flag);
 		$this->_dirty = true;
 	}
 
@@ -848,7 +848,7 @@ class CmsLayoutTemplate
 	*/
 	public function set_listable($flag = true)
 	{
-		$this->listable = $flag;
+		$this->listable = cms_to_bool($flag);
 		$this->_dirty = true;
 	}
 
