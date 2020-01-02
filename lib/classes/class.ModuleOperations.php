@@ -1021,6 +1021,7 @@ VALUES (?,?,?,$now,$now)");
 	 * This method retrieves the specified syntax highlighter module, or uses the
 	 * current user preference for the syntax hightlighter module.
 	 * @since 1.10
+     * @deprecated since 2.3. Instead, generate and place content (js etc) directly
 	 *
 	 * @param mixed string|null|-1 $module_name allows bypassing the automatic
 	 *  detection process and specifying a wysiwyg module.
@@ -1045,7 +1046,7 @@ VALUES (?,?,?,$now,$now)");
 	 * Alias for GetSyntaxHiglighter().
 	 *
 	 * @see ModuleOperations::GetSyntaxHighlighter()
-	 * @deprecated
+	 * @deprecated since 2.3
 	 * @since 1.10
 	 * @param mixed $module_name string | null
 	 * @return CMSModule
@@ -1060,7 +1061,7 @@ VALUES (?,?,?,$now,$now)");
 	 * This method attempts to find the appropriate WYSIWYG module for the current
 	 * request context and admin user preference.
 	 * @since 1.10
-	 * @deprecated since 2.3
+     * @deprecated since 2.3. Instead, generate and place content (js etc) directly
 	 *
 	 * @param mixed string|null $module_name allows bypassing the automatic detection process
 	 *  and specifying a wysiwyg module.
