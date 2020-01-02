@@ -122,7 +122,7 @@ EOS;
 EOS;
 		if (AppState::test_state(AppState::STATE_ADMIN_PAGE)) {
 			add_page_headtext($output);
-}			return '';
+			return '';
 		} else {
 			return $output;
 		}
