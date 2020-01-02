@@ -196,8 +196,8 @@ class Connection
     public function __construct($config = null)
     {
         if (class_exists('mysqli')) {
-            if (!$config) $config = cms_config::get_instance(); //normal API
             mysqli_report(MYSQLI_REPORT_STRICT);
+            if (!$config) $config = cms_config::get_instance(); //normal API
             try {
                 $this->_mysql = new mysqli(
                  $config['db_hostname'], $config['db_username'],
@@ -275,7 +275,8 @@ class Connection
          case 'query_count':
             return $this->_query_count;
          case 'time_offset':
-            return isset($this->$_time_offset) ? $this->$_time_offset : null;
+            if (isset($this->$_time_offset)) return $this->$_time_offset;
+			//no break here
          default:
             return null;
         }
@@ -654,7 +655,7 @@ class Connection
      * Execute an SQL statement and return all the results as an array.
      *
      * @param string $sql     The SQL to execute
-     * @param array  $valsarr Value-parameters to fill placeholders (if any) in @sql
+     * @param mixed array|null $valsarr Optional value-parameters to fill placeholders (if any) in @sql
      * @param optional int   $nrows   The number of rows to return, default all (0)
      * @param optional int   $offset  0-based starting-offset of rows to return, default 0
      *
@@ -678,7 +679,7 @@ class Connection
      * An alias for the getArray method.
      *
      * @param string $sql     The SQL statement to execute
-     * @param array  $valsarr Value-parameters to fill placeholders (if any) in @sql
+     * @param mixed array|null  $valsarr Optional value-parameters to fill placeholders (if any) in @sql
      *
      * @return array Numeric-keyed matched results, or empty
      */
