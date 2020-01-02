@@ -18,3 +18,20 @@
 
 $this->RemovePermission('MicroTiny View HTML Source');
 
+$me = $this->GetName();
+$val = cms_siteprefs::get('wysiwyg');
+if ($val == $me) {
+	cms_siteprefs::set('wysiwyg', '');
+}
+$val = cms_siteprefs::get('frontendwysiwyg');
+if ($val == $me) {
+	cms_siteprefs::set('frontendwysiwyg', '');
+}
+
+$users = UserOperations::get_instance()->GetList();
+foreach ($users as $uid => $uname) {
+	$val = cms_userprefs::get_for_user($uid, 'wysiwyg');
+	if ($val == $me) {
+		cms_userprefs::set_for_user($uid, 'wysiwyg', '');
+	}
+}

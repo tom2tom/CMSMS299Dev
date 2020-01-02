@@ -39,3 +39,21 @@ $obj = new MicroTiny\Profile([
 	'allowresize'=>true,
 	'system'=>true]);
 $obj->save();
+
+$me = $this->GetName();
+$val = cms_siteprefs::get('wysiwyg');
+if (!$val) {
+	cms_siteprefs::set('wysiwyg', $me);
+}
+$val = cms_siteprefs::get('frontendwysiwyg');
+if (!$val) {
+	cms_siteprefs::set('frontendwysiwyg', $me);
+}
+
+$users = UserOperations::get_instance()->GetList();
+foreach ($users as $uid => $uname) {
+	$val = cms_userprefs::get_for_user($uid, 'wysiwyg');
+	if (!$val) {
+		cms_userprefs::set_for_user($uid, 'wysiwyg', $me);
+	}
+}
