@@ -157,7 +157,7 @@ catch( Throwable $t ) {
 //
 try {
     if( $content_id != -1 && $content_type != $content_obj->Type() ) {
-        // content type changed - create a new content object with the same id.
+        // content type changed - create a new content object with the same id etc.
 /*
         $tmpobj = $contentops->CreateNewContent($content_type);
         $tmpobj->SetId($content_obj->Id());
@@ -177,12 +177,10 @@ try {
         $tmpobj->SetHierarchy($content_obj->Hierarchy());
 //TODO replace        $tmpobj->SetLastModifiedBy($content_obj->LastModifiedBy());
 //TODO replace        $tmpobj->SetAdditionalEditors($content_obj->GetAdditionalEditors());
-        $tmpobj->Properties();
-        $content_obj = $tmpobj;
 */
-        $tmpobj = clone $content_obj;
-        $tmpobj->SetId($content_obj->Id());
-        $tmpobj->SetType($content_type);
+		$props = $content_obj->ToData();
+		unset($props['create_date'], $props['last_modified_by'], $props['modified_date']);
+        $tmpobj = $contentops->CreateNewContent($content_type, $props, true);
         $tmpobj->Properties();
         $content_obj = $tmpobj;
     }
@@ -394,7 +392,7 @@ if ($do_locking) {
 }
 $js = $sm->render_inclusion('', false, false);
 if ($js) {
-    $this->AdminBottomContent($js);
+    add_page_foottext($js);
 }
 
 $js = <<<EOS
@@ -617,6 +615,6 @@ EOS;
 </script>
 
 EOS;
-$this->AdminBottomContent($js);
+add_page_foottext($js);
 
 $tpl->display();
