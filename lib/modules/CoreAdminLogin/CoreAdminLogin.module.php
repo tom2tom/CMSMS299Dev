@@ -67,7 +67,7 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
         $fp = cms_join_path(__DIR__, 'function.login.php');
         require_once $fp;
 
-        $csrf = bin2hex(random_bytes(16));
+        $csrf = cms_utils::random_string(16, true); //encryption-grade hash not needed
 
         $smarty = CmsApp::get_instance()->GetSmarty();
         $smarty->assign('mod', $this)
@@ -100,7 +100,8 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
      */
     public function RunLogin()
     {
-        $fp = cms_join_path(__DIR__, 'action.login.php');
-        require_once $fp;
+        $id = '__';
+        $params = \ModuleOperations::get_instance()->GetModuleParameters($id);
+        $this->DoAction('admin_login', $id, $params, null);
     }
 } // class

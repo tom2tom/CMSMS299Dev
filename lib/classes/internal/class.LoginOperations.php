@@ -163,7 +163,7 @@ final class LoginOperations
 
     public function create_csrf_token()
     {
-        return cms_utils::random_string(12, true);
+        return cms_utils::random_string(16, true);
     }
 
     /* @return mixed array | null : previously- or currently-generated data */

@@ -278,7 +278,7 @@ if ($sitelogo) {
 $tplvars['sitelogo'] = $sitelogo;
 
 if (!empty($usecsrf)) {
-    $_SESSION[$csrf_key] = $tplvars['csrf'] = bin2hex(random_bytes(16));
+    $_SESSION[$csrf_key] = $tplvars['csrf'] = cms_utils::random_string(16, true);
 }
 
 if (isset($error)) $tplvars['error'] = $error;
