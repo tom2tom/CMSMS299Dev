@@ -1,5 +1,5 @@
 <?php
-#Plugin to...
+#Plugin to get the page-header content needed to set up and operate rich-text-editing
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -30,7 +30,7 @@ function smarty_function_cms_init_editor($params, $template)
 		$selector = 'textarea.cmsms_wysiwyg';
 	}
 	else {
-		// we're gonna calll the wysiwygs
+		// we're gonna call the wysiwygs
 		$wysiwygs = FormUtils::get_requested_wysiwyg_modules();
 		if( !is_array($wysiwygs) || count($wysiwygs) == 0 ) return;
 		$tmp = array_keys($wysiwygs);
@@ -45,7 +45,7 @@ function smarty_function_cms_init_editor($params, $template)
 	if( !$output ) return;
 
 	if( isset($params['assign']) ) {
-		$template->assign(trim($params['assign']).$output);
+		$template->assign(trim($params['assign']),$output);
 		return;
 	}
 	return $output;
