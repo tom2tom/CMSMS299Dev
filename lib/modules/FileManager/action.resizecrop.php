@@ -80,7 +80,7 @@ input.invalid {
 }
 </style>
 EOS;
-$this->AdminHeaderContent($css);
+add_page_headtext($css, false);
 */
 
 $image_width = $imageinfo[0];
@@ -107,7 +107,7 @@ $(function() {
         // Register an event with an element.
         \$viewport.observator.register(event_name, inputs.eq(i));
         // Attach a handler to that event for the element.
-        inputs.eq(i).bind(event_name, function(event, \$viewport, value) {
+        inputs.eq(i).on(event_name, function(event, \$viewport, value) {
           $(this).val(Math.floor(value));
         })
         // Attach a handler for the built-in jQuery change event, handler
@@ -122,7 +122,7 @@ $(function() {
     }
   })
     // React on all viewport events
-    .bind('jrac_events', function(ev, \$viewport) {
+    .on('jrac_events', function(ev, \$viewport) {
       var inputs = $('table#coords input:text');
       if(\$viewport.observator.crop_consistent()) {
         inputs.removeClass('invalid');
@@ -137,7 +137,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-$this->AdminBottomContent($js);
+add_page_foottext($js);
 
 //
 // build the form
