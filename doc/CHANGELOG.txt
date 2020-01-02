@@ -148,8 +148,8 @@ javascript files in <siterootpath>/lib/jquery
 
 gone
 
-UDT's stored in database
-  must become files in <siterootpath>/assets/user_plugins (or whatever the 'assets' folder is named)
+NOT IMPLEMENTED: UDT's stored in database
+  was suggested those might become files in <siterootpath>/assets/user_plugins (or whatever the 'assets' folder is named)
 
 MISC
 
@@ -169,7 +169,7 @@ module-related classes & interfaces without suitable namespace
 css styling using the '960 Grid System' - migrate to cssgrid with fallback to flexbox
 
 DETAILS
-  - New admin-page-content direct-placement methods: CMSModule::AdminPageContent(),AdminHeaderContent(),AdminBottomContent()
+  - New admin-page-content direct-placement methods: CMSModule::AdminPageContent(), add_page_content, add_page_headtext, add_page_foottext
   - New notification methods: CMSModule::ShowInfo(),ShowWarning(),SetInfo(),SetWarning()
   - New method: CMSModule::get_cli_commands()
   - New method: CMSModule::create_pageurl()
@@ -209,7 +209,7 @@ DETAILS
   - FEATURE: added new define in cms_config class: CMS_UPLOADS_URL
   - FEATURE: added new define in cms_config class: CMS_ADMIN_PATH
   - FEATURE: added the CMS_ASSETS_URL define and assets_url config entry.
-  - CHANGE: new 'user-plugin' API effectivly replaces UDT's.
+  - NOT IMPLEMENTED CHANGE: new 'user-plugin' API effectivly replaces UDT's.
      User plugins are files stored in /assets/user_plugins, and must contain
      the <?php tag and must return, not echo, anything to be displayed.
      (Existing UDT's are migrated during upgrade)
@@ -245,7 +245,7 @@ DETAILS
   - Remove un-necessary moduleinterface.php from the root directory.
   - FEATURE: Adds a new hook method to the HookManager class to allow returning the first nonempty value.
   - CHANGE: refactor changegroupperm localization technique.
-  - CHANGE: CmsApp suports __get(), __set() for recording any intra-request property, instead of using PHP global variables 
+  - CHANGE: CmsApp suports __get(), __set() for recording any intra-request property, instead of using PHP global variables
   - FEATURE: Adds new root functions cms_notice, cms_warning, and cms_error
   - FEATURE: Adds new AuditOperations class that is enabled within include.php allows for swapping out auditing methods
     With no audit manager installed, audit messages will be output to the HTTP error log.
