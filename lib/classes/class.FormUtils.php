@@ -51,12 +51,16 @@ class FormUtils
     const ERRTPL2 = 'a valid "%s" parameter is required for %s';
 
     /**
+	 * Names of rich-text-editor modules specified for use during the current request
      * @ignore
+	 * @deprecated since 2.3
      */
     protected static $_activated_wysiwyg = [];
 
     /**
+	 * Names of syntax-highlight-editor modules specified for use during the current request
      * @ignore
+	 * @deprecated since 2.3
      */
     protected static $_activated_syntax = [];
 
@@ -722,9 +726,10 @@ class FormUtils
     }
 
     /**
-     * Record a syntax module specified during generation of a textarea
+     * Record a syntax-highlighter module specified during generation of a textarea
      * @internal
      * @ignore
+     * @deprecated since 2.3. Instead, generate and record content (js etc) directly
      */
     protected static function add_syntax(string $module_name)
     {
@@ -737,6 +742,7 @@ class FormUtils
 
     /**
      * Get the specified syntax-highlighter module(s)
+     * @deprecated since 2.3. Instead, generate and record content (js etc) directly
      *
      * @return array
      */
@@ -747,7 +753,9 @@ class FormUtils
 
     /**
      * Record a wysiwyg module specified during generation of a textarea.
-     * In the frontend the {cms_init_editor} plugin must be included in the head part of the page template.
+     * For frontend editing, the {cms_init_editor} plugin must be included in the
+	 * head part of the page/template, to process the info recorded by this method.
+     * @deprecated since 2.3. Instead, generate and record content (js, css etc) directly
      *
      * @internal
      * @ignore
@@ -767,6 +775,7 @@ class FormUtils
 
     /**
      * Get the specified page-content editor module(s)
+     * @deprecated since 2.3. Instead, generate and record content (js, css etc) directly
      *
      * @return array
      */
@@ -790,8 +799,9 @@ class FormUtils
      *   forcemodule/forcewysiwyg = (optional string) used to specify the module to enable.  If specified, the module name will be added to the
      *                   class attribute.
      *   enablewysiwyg = (optional boolean) used to specify whether a wysiwyg textarea is required.  sets the language to html.
+     *         Deprecated since 2.3. Instead, generate and record content (js, css etc) directly
      *   wantedsyntax  = (optional string) used to specify the language (html,css,php,smarty) to use.  If non empty indicates that a
-     *                   syntax hilighter module is requested.
+     *                   syntax hilighter module is requested. Deprecated since 2.3. Instead, generate and record content (js etc) directly
      *   cols/width    = (optional integer) columns of the text area (css or the syntax/wysiwyg module may override this)
      *   rows/height   = (optional integer) rows of the text area (css or the syntax/wysiwyg module may override this)
      *   maxlength     = (optional integer) maxlength attribute of the text area (syntax/wysiwyg module may ignore this)
@@ -828,7 +838,7 @@ class FormUtils
 
         extract($parms);
 
-        // do we want a wysiwyg area ?
+        // do we want rich-text-editing for this textarea ?
         $enablewysiwyg = !empty($enablewysiwyg) && cms_to_bool($enablewysiwyg);
 
         if (empty($cols) || $cols <= 0) {
@@ -845,7 +855,7 @@ class FormUtils
         $forcemodule = $forcemodule ?? '';
         $module = null;
 
-        if ($enablewysiwyg) {
+        if ($enablewysiwyg) { //deprecated since 2.3
             // we want a wysiwyg
             if (empty($parms['class'])) {
                 $parms['class'] = 'cmsms_wysiwyg'; //not for CSS ?!
@@ -865,7 +875,7 @@ class FormUtils
             }
         }
 
-        $wantedsyntax = $wantedsyntax ?? '';
+        $wantedsyntax = $wantedsyntax ?? '';  //deprecated since 2.3
         if (!$module && $wantedsyntax) {
             $parms['data-cms-lang'] = $wantedsyntax; //park
             $module = ModuleOperations::get_instance()->GetSyntaxHighlighter($forcemodule);
