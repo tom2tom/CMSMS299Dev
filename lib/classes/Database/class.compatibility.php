@@ -122,7 +122,7 @@ use const CMS_DEBUG;
     {
         return $an_array;
     }
-    
+
     /**
      * @deprecated since 2.3 does nothing
      * @ignore
@@ -149,17 +149,18 @@ use CMSMS\Database\DataDictionary;
 
     /**
      * Create a new data dictionary object.
+     * called by module installation routines.
      *
-     * @param Connection $conn The existing database connection
+     * @param mixed Connection|null $conn Optional existing database connection object
      *
      * @return CMSMS\Database\DataDictionary
      *
-     * @deprecated
+     * @deprecated since 2.3
      */
-    function NewDataDictionary(Connection $conn)
+    function NewDataDictionary(Connection $conn = null)
     {
-        // called by module installation routines.
         assert(empty(CMS_DEPREC), new DeprecationNotice('class','CMSMS\\Database\\DataDictionary'));
+        if (!$conn) { $conn = CmsApp::get_instance()->GetDb(); }
         return new DataDictionary($conn);
     }
 
@@ -223,4 +224,3 @@ use CMSMS\Database\DataDictionary;
     {
     }
 } //namespace
-
