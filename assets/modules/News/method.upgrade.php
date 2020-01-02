@@ -24,7 +24,7 @@ use CMSMS\Database\DataDictionary;
 use CMSMS\TemplateOperations;
 
 if (!isset($gCms)) exit;
-$db = $this->GetDb();
+$db = $gCms->GetDb();
 $dict = new DataDictionary($db);
 $me = $this->GetName();
 
@@ -212,7 +212,6 @@ if( version_compare($oldversion,'2.90') < 0 ) {
     $this->SetPreference('default_category',1);
     $this->SetPreference('timeblock',News::HOURBLOCK);
 
-    $dict = new DataDictionary($db);
     $tbl = CMS_DB_PREFIX.'module_news';
     $query = 'UPDATE '.$tbl.' SET start_time=MAX(news_date,modified_date,create_date) WHERE (start_time IS NULL OR start_time=0) AND status!=\'draft\'';
     $db->Execute($query);
