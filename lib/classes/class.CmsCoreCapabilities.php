@@ -29,9 +29,9 @@ use CMSMS\BasicEnum;
 final class CmsCoreCapabilities extends BasicEnum
 {
 	/**
-	 * A constant for the admin search capability
+	 * A constant indicating the module supports admin. searches
 	 */
-	const ADMINSEARCH = 'AdminSearch'; // module supports admin search.
+	const ADMINSEARCH = 'AdminSearch';
 
 	/**
 	 * A constant for a capability indicating the module provides content block types
@@ -72,8 +72,9 @@ final class CmsCoreCapabilities extends BasicEnum
 
 	/**
 	 * A constant indicating that the module is a syntax editor module.
+	 * @since 2.0
 	 */
-	const SYNTAX_MODULE = 'syntaxhighlighting'; // string used pre-2.0
+	const SYNTAX_MODULE = 'syntaxhighlighting';
 
 	/**
 	 * A constant indicating that the module provides pseudocron tasks
@@ -83,7 +84,8 @@ final class CmsCoreCapabilities extends BasicEnum
 
 	/**
 	 * A capability indicating that the module is a WYSIWYG module
+	 * @since 2.0
 	 */
-	const WYSIWYG_MODULE = 'wysiwyg'; // string used pre-2.0
+	const WYSIWYG_MODULE = 'wysiwyg';
 
 } // class

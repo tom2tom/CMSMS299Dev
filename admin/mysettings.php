@@ -61,14 +61,14 @@ if (isset($_POST['submit'])) {
   $default_cms_language = $_POST['default_cms_language'];
   $default_parent = (int)$_POST['parent_id'];
   $editortheme = $_POST['editortheme'] ?? null;
-  $editortype = $_POST['editortype'] ?? null;
+  $editortype = $_POST['editortype'] ?? null; //advanced editor
   $hide_help_links = (isset($_POST['hide_help_links'])) ? 1 : 0;
   $homepage = $_POST['homepage'];
   $indent = (isset($_POST['indent'])) ? 1 : 0;
   $old_default_cms_lang = $_POST['old_default_cms_lang'];
   $paging = (isset($_POST['paging'])) ? 1 : 0;
 //  $syntaxhighlighter = $_POST['syntaxhighlighter'] ?? null;
-  $wysiwyg = $_POST['wysiwyg'];
+  $wysiwyg = $_POST['wysiwyg']; //rich-text-editor
 
   // Set prefs
   $themenow = cms_userprefs::get_for_user($userid, 'admintheme');
@@ -136,7 +136,7 @@ $contentops = ContentOperations::get_instance();
 $modops = ModuleOperations::get_instance();
 $smarty = CmsApp::get_instance()->GetSmarty();
 
-// WYSIWYG editors
+// Rich-text (html) editors
 $tmp = $modops->GetCapableModules(CmsCoreCapabilities::WYSIWYG_MODULE);
 $n = count($tmp);
 $tmp2 = [-1 => lang('none')];
@@ -146,9 +146,9 @@ for ($i = 0; $i < $n; ++$i) {
 
 $smarty -> assign('wysiwyg_opts', $tmp2);
 
-// Syntax highlighters
+// Syntax-highlight editors
 $editors = [];
-$tmp = $modops->GetCapableModules(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
+$tmp = $modops->GetCapableModules(CmsCoreCapabilities::SYNTAX_MODULE);
 if ($tmp) {
   for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
     $ob = cms_utils::get_module($tmp[$i]);
@@ -276,9 +276,8 @@ $(function() {
 </script>
 
 EOS;
-$themeObject->add_footertext($out);
+add_page_foottext($out);
 
 include_once 'header.php';
 $smarty->display('mysettings.tpl');
 include_once 'footer.php';
-
