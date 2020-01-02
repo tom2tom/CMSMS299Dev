@@ -80,9 +80,11 @@ class CacheFile extends CacheDriver
      */
     public function __construct($opts)
     {
-        $this->_auto_cleaning = false; //change default value
+        parent::__construct($opts);
+        $this->_globlspace = ''; //change default value
+        $this->_auto_cleaning = false; //ditto
         if (is_array($opts)) {
-            $_keys = ['lifetime','locking','cache_dir','auto_cleaning','blocking','group', 'myspace'];
+            $_keys = ['locking','cache_dir','blocking'];
             foreach ($opts as $key => $value) {
                 if (in_array($key,$_keys)) {
                     $tmp = '_'.$key;
@@ -94,53 +96,53 @@ class CacheFile extends CacheDriver
 
     public function get_index($group = '')
     {
-		if (!$group) { $group = $this->_group; }
+        if (!$group) { $group = $this->_group; }
 
-		$prefix = $this->get_cacheprefix(self::class, $group);
+        $prefix = $this->get_cacheprefix(static::class, $group);
         $fn = $this->_cache_dir.DIRECTORY_SEPARATOR.$prefix;
         $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache';
         $files = glob($mask, GLOB_NOSORT);
 
-		if (!$files) { return []; }
-		$len = strlen(prefix);
+        if (!$files) { return []; }
+        $len = strlen(prefix);
 
-		$out = [];
+        $out = [];
         foreach ($files as $fn) {
             if (is_file($fn)) {
-				$base = basename($fn, $group.'.cache');
-				$out[] = substr($base,$len);
+                $base = basename($fn, $group.'.cache');
+                $out[] = substr($base,$len);
             }
         }
-		sort($out);
+        sort($out);
         return $out;
     }
 
     public function get_all($group = '')
     {
-		if (!$group) { $group = $this->_group; }
+        if (!$group) { $group = $this->_group; }
 
-		$prefix = $this->get_cacheprefix(self::class, $group);
+        $prefix = $this->get_cacheprefix(static::class, $group);
         $fn = $this->_cache_dir.DIRECTORY_SEPARATOR.$prefix;
         $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache';
         $files = glob($mask, GLOB_NOSORT);
 
-		if (!$files) { return []; }
-		$len = strlen(prefix);
+        if (!$files) { return []; }
+        $len = strlen(prefix);
 
-		$out = [];
+        $out = [];
         foreach ($files as $fn) {
             if (is_file($fn)) {
-				$base = basename($fn, $group.'.cache');
-				$out[substr($base,$len)] = $this->_read_cache_file($fn);
+                $base = basename($fn, $group.'.cache');
+                $out[substr($base,$len)] = $this->_read_cache_file($fn);
             }
         }
-		asort($out);
+        asort($out);
         return $out;
     }
 
     public function get($key,$group = '')
     {
-		if (!$group) { $group = $this->_group; }
+        if (!$group) { $group = $this->_group; }
 
         $this->_auto_clean_files();
         $fn = $this->_get_filename($key, $group);
@@ -150,7 +152,7 @@ class CacheFile extends CacheDriver
 
     public function exists($key,$group = '')
     {
-        if (!$group) $group = $this->_group;
+        if (!$group) { $group = $this->_group; }
 
         $this->_auto_clean_files();
         $fn = $this->_get_filename($key, $group);
@@ -160,7 +162,7 @@ class CacheFile extends CacheDriver
 
     public function set($key,$value,$group = '')
     {
-		if (!$group) { $group = $this->_group; }
+        if (!$group) { $group = $this->_group; }
 
         $fn = $this->_get_filename($key,$group);
         $res = $this->_write_cache_file($fn, $value);
@@ -169,7 +171,7 @@ class CacheFile extends CacheDriver
 
     public function erase($key,$group = '')
     {
-		if (!$group) { $group = $this->_group; }
+        if (!$group) { $group = $this->_group; }
 
         $fn = $this->_get_filename($key, $group);
         if (is_file($fn)) {
@@ -181,7 +183,7 @@ class CacheFile extends CacheDriver
 
     public function clear($group = '')
     {
-		if (!$group) { $group = $this->_group; }
+        if (!$group) { $group = $this->_group; }
         return $this->_clean_dir($this->_cache_dir, $group, false);
     }
 
@@ -191,7 +193,7 @@ class CacheFile extends CacheDriver
      */
     private function _get_filename(string $key, string $group) : string
     {
-        $fn = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->get_cachekey($key, self::class, $group) . $group . '.cache';
+        $fn = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->get_cachekey($key, static::class, $group) . $group . '.cache';
         return $fn;
     }
 
@@ -312,10 +314,10 @@ class CacheFile extends CacheDriver
      */
     private function _clean_dir(string $dir, string $group, bool $aged = true) : int
     {
-        $fn = $dir.DIRECTORY_SEPARATOR.$this->get_cacheprefix(self::class, $group);
+        $fn = $dir.DIRECTORY_SEPARATOR.$this->get_cacheprefix(static::class, $group);
         $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache';
         $files = glob($mask, GLOB_NOSORT);
-		if (!$files) { return 0; }
+        if (!$files) { return 0; }
 
         if ($aged) {
             if ($this->_lifetime) {

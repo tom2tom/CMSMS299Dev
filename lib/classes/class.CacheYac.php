@@ -49,15 +49,7 @@ class CacheYac extends CacheDriver
     {
         if ($this->use_driver()) {
             if ($this->connectServer()) {
-                if (is_array($opts)) {
-                    $_keys = ['lifetime', 'group', 'myspace'];
-                    foreach ($opts as $key => $value) {
-                        if (in_array($key,$_keys)) {
-                            $tmp = '_'.$key;
-                            $this->$tmp = $value;
-                        }
-                    }
-                }
+                parent::__construct($opts);
                 $this->_lifetime = max($this->_lifetime, 600);
                 return;
             }
@@ -84,10 +76,10 @@ class CacheYac extends CacheDriver
 
     public function get_index($group = '')
     {
-	if (!$group) { $group = $this->_group; }
+    if (!$group) { $group = $this->_group; }
 
-		$prefix = $this->get_cacheprefix(self::class, $group);
-		if ($prefix === '') { return []; }
+        $prefix = $this->get_cacheprefix(static::class, $group);
+        if ($prefix === '') { return []; }
 
         $out = [];
         $info = $this->instance->info();
@@ -103,18 +95,18 @@ class CacheYac extends CacheDriver
                         $out[] = substr($key,$len);
                     }
                 }
-				sort($out);
-			}
-		}
-		return $out;
+                sort($out);
+            }
+        }
+        return $out;
     }
 
     public function get_all($group = '')
     {
-	if (!$group) { $group = $this->_group; }
+    if (!$group) { $group = $this->_group; }
 
-        $prefix = $this->get_cacheprefix(self::class, $group);
-		if ($prefix === '') { return []; }
+        $prefix = $this->get_cacheprefix(static::class, $group);
+        if ($prefix === '') { return []; }
 
         $out = [];
         $info = $this->instance->info();
@@ -130,7 +122,7 @@ class CacheYac extends CacheDriver
                         $out[substr($key,$len)] = $this->instance->get($key);
                     }
                 }
-				asort($out);
+                asort($out);
             }
         }
         return $out;
@@ -138,36 +130,36 @@ class CacheYac extends CacheDriver
 
     public function get($key, $group = '')
     {
-	if (!$group) { $group = $this->_group; }
+    if (!$group) { $group = $this->_group; }
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         $res = $this->instance->get($key);
         return ($res || !is_bool($res)) ? $res : null;
     }
 
     public function exists($key, $group = '')
     {
-        if (!$group) $group = $this->_group;
+    if (!$group) { $group = $this->_group; }
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         $res = $this->instance->get($key);
         return $res || !is_bool($res);
     }
 
     public function set($key, $value, $group = '')
     {
-	if (!$group) { $group = $this->_group; }
+    if (!$group) { $group = $this->_group; }
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         if ($value === false) $value = 0; //ensure actual false isn't ignored
         return $this->_write_cache($key, $value);
     }
 
     public function erase($key, $group = '')
     {
-		if (!$group) { $group = $this->_group; }
+        if (!$group) { $group = $this->_group; }
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         return  $this->instance->delete($key);
     }
 
@@ -194,8 +186,8 @@ class CacheYac extends CacheDriver
      */
     private function _clean(string $group) : int
     {
-        $prefix = $this->get_cacheprefix(self::class, $group);
-		if ($prefix === '') { return 0; }//no global interrogation in shared key-space
+        $prefix = $this->get_cacheprefix(static::class, $group);
+        if ($prefix === '') { return 0; }//no global interrogation in shared key-space
 
         $nremoved = 0;
         $info = $this->instance->info();

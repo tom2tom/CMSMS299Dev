@@ -116,10 +116,10 @@ class CacheMemcached extends CacheDriver
 
     public function get_index($group = '')
     {
-		if (!$group) { $group = $this->_group; }
+        if (!$group) { $group = $this->_group; }
 
-        $prefix = $this->get_cacheprefix(self::class, $group);
-		if ($prefix === '') { return []; }
+        $prefix = $this->get_cacheprefix(static::class, $group);
+        if ($prefix === '') { return []; }
 
         $out = [];
         $info = $this->instance->getAllKeys(); //NOT RELIABLE
@@ -127,23 +127,23 @@ class CacheMemcached extends CacheDriver
             $len = strlen($prefix);
             foreach ($info as $key) {
                 if (strncmp($key, $prefix, $len) == 0) {
-					$res = $this->instance->get($key);
-					if ($res || $this->instance->getResultCode() == Memcached::RES_SUCCESS) {
-						$out[] = substr($key,$len);
-					}
+                    $res = $this->instance->get($key);
+                    if ($res || $this->instance->getResultCode() == Memcached::RES_SUCCESS) {
+                        $out[] = substr($key,$len);
+                    }
                 }
             }
-			sort($out);
+            sort($out);
         }
         return $out;
     }
 
     public function get_all($group = '')
     {
-		if (!$group) { $group = $this->_group; }
+        if (!$group) { $group = $this->_group; }
 
-        $prefix = $this->get_cacheprefix(self::class, $group);
-		if ($prefix === '') { return []; }
+        $prefix = $this->get_cacheprefix(static::class, $group);
+        if ($prefix === '') { return []; }
 
         $out = [];
         $info = $this->instance->getAllKeys(); //NOT RELIABLE
@@ -151,13 +151,13 @@ class CacheMemcached extends CacheDriver
             $len = strlen($prefix);
             foreach ($info as $key) {
                 if (strncmp($key, $prefix, $len) == 0) {
-					$res = $this->instance->get($key);
-					if ($res || $this->instance->getResultCode() == Memcached::RES_SUCCESS) {
-						$out[substr($key,$len)] = $res;
-					}
+                    $res = $this->instance->get($key);
+                    if ($res || $this->instance->getResultCode() == Memcached::RES_SUCCESS) {
+                        $out[substr($key,$len)] = $res;
+                    }
                 }
             }
-			asort($out);
+            asort($out);
         }
         return $out;
     }
@@ -166,7 +166,7 @@ class CacheMemcached extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         $res = $this->instance->get($key);
         if (!$res && ($dbg = $this->instance->getResultCode()) != Memcached::RES_SUCCESS) {
             return null;
@@ -178,7 +178,7 @@ class CacheMemcached extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         return ($this->instance->get($key) != false ||
                 $this->instance->getResultCode() == Memcached::RES_SUCCESS);
     }
@@ -187,7 +187,7 @@ class CacheMemcached extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         return $this->_write_cache($key, $value);
     }
 
@@ -195,7 +195,7 @@ class CacheMemcached extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         return $this->instance->delete($key);
     }
 
@@ -223,8 +223,8 @@ class CacheMemcached extends CacheDriver
      */
     private function _clean(string $group, bool $aged = true) : int
     {
-        $prefix = $this->get_cacheprefix(self::class, $group);
-		if ($prefix === '') { return 0; }//no global interrogation in shared key-space
+        $prefix = $this->get_cacheprefix(static::class, $group);
+        if ($prefix === '') { return 0; }//no global interrogation in shared key-space
 
         $nremoved = 0;
         $info = $this->instance->getAllKeys(); //NOT RELIABLE

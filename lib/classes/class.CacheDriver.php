@@ -34,15 +34,14 @@ abstract class CacheDriver
 
     /**
      * @ignore
-     * Identifier for key-segregation in shared public data caches
+     * Cache keys prefix for targeting in shared public data caches, may be '' in non-shared caches
      */
-    const CORESPACE = 'cms_'; //CHECKME something more distinct c.f. UUID ?
+    protected $_globlspace;
 
     /**
      * @ignore
-     * Per-cache namespace, defaults to self::CORESPACE
      */
-    protected $_myspace = self::CORESPACE;
+    protected $_group = 'default'; //not empty
 
     /**
      * @ignore
@@ -55,10 +54,20 @@ abstract class CacheDriver
      */
     protected $_lifetime = 3600; //1 hour
 
-    /**
-     * @ignore
-     */
-    protected $_group = 'default'; //not empty
+    public function __construct($opts)
+    {
+        $this->_globlspace = $this->hash(self::SERIALIZED.CMS_ROOT_URL); //might be replaced in $opts or subclass
+
+        if (is_array($opts)) {
+            $_keys = ['lifetime', 'group', 'myspace', 'auto_cleaning'];
+            foreach ($opts as $key => $value) {
+                if (in_array($key,$_keys)) {
+                    $tmp = '_'.$key;
+                    $this->$tmp = $value;
+                }
+            }
+        }
+    }
 
     /**
      * Get a cached value
@@ -75,7 +84,7 @@ abstract class CacheDriver
      * If the $group parameter is not specified the current group will be used
      * @see CacheDriver::set_group()
      *
-     * @param string $group Optional name, default ''
+     * @param string $group Optional keys-space name, default ''
      * @return array, each member like $key=>$value, or maybe empty
      */
     abstract public function get_all($group = '');
@@ -85,7 +94,7 @@ abstract class CacheDriver
      * If the $group parameter is not specified the current group will be used
      * @see CacheDriver::set_group()
      *
-     * @param string $group Optional name, default ''
+     * @param string $group Optional keys-space name, default ''
      * @return array, each member like $key=>$value, or maybe empty
      */
     abstract public function get_index($group = '');
@@ -96,7 +105,7 @@ abstract class CacheDriver
      * @see CacheDriver::set_group()
      *
      * @param string $key
-     * @param string $group Optional name, default ''
+     * @param string $group Optional keys-space name, default ''
      * @return bool
      */
     abstract public function exists($key, $group = '');
@@ -108,7 +117,7 @@ abstract class CacheDriver
      *
      * @param string $key
      * @param mixed $value
-     * @param string $group Optional name, default ''
+     * @param string $group Optional keys-space name, default ''
      */
     abstract public function set($key, $value, $group = '');
 
@@ -118,7 +127,7 @@ abstract class CacheDriver
      *
      * @see CacheDriver::set_group()
      * @param string $key
-     * @param string $group Optional name, default ''
+     * @param string $group Optional keys-space name, default ''
      */
     abstract public function erase($key, $group = '');
 
@@ -127,7 +136,7 @@ abstract class CacheDriver
      * If the $group parameter is not specified the current group will be used
      * @see CacheDriver::set_group()
      *
-     * @param string $group Optional name, default ''
+     * @param string $group Optional keys-space name, default ''
      */
     abstract public function clear($group = '');
 
@@ -142,46 +151,42 @@ abstract class CacheDriver
     }
 
     /**
-     * Hash $key using the (shortish, fastish, low collision) djb2a algorithm
-     * @param string $key
-     * @return string (13 alphanum bytes)
+     * Hash $str
+     * @param string $str
+     * @param int $len hash-length default 10
+     * @return string
      */
-    private function hash(string $key) : string
+    private function hash(string $str, int $len = 10) : string
     {
-        // actual byte-length (i.e. no mb interference);
-        $key = array_values(unpack('C*',(string) $key));
-        $klen = count($key);
-        $h1 = 5381;
-        for ($i = 0; $i < $klen; ++$i) {
-            $h1 = ($h1 + ($h1 << 5)) ^ ord($key[$i]); //i.e. $h1 = $h1*33 ^ $key[$i]
+        $value = hash('fnv132', $str);
+        //conversion generates 6 output-bytes for each 8 input-bytes
+        for ($l = 6; $l < $len; $l += $l) {
+            $value .= $value;
         }
-        return base_convert((string)$h1, 10, 30);
+        $s = base_convert($value, 16, 36);
+        return substr($s, 0, $len);
     }
 
     /**
      * Construct a cache-key with identifiable group-prefix
      * @param string $key cache-item key
      * @param string $class initiator class
-     * @param string $group cache-group key
+     * @param string $group cache keys-space
      * @return string
      */
     protected function get_cachekey(string $key, string $class, string $group) : string
     {
-        $nonce = CMS_ROOT_URL.self::class;
-        return $this->_myspace.$this->hash($nonce.$class.$group).':'.$this->hash($key.$class.$nonce);
+        return $this->_globlspace.$this->hash(CMS_ROOT_URL.$class.$group).$key;
     }
 
     /**
      * Construct a cache-key group-prefix (matching the one generated by get_cachekey())
      * @param string $class initiator class
-     * @param string $group cache-group key or ''
+     * @param string $group cache keys-space name
      * @return string
      */
     protected function get_cacheprefix(string $class, string $group) : string
     {
-        if ($group) {
-            return $this->_myspace.$this->hash(CMS_ROOT_URL.self::class.$class.$group).':';
-        }
-        return $this->_myspace;
+        return $this->get_cachekey('', $class, $group);
     }
 } // class

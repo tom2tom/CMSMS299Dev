@@ -40,20 +40,12 @@ class CacheApcu extends CacheDriver
      * Associative array of some/all options as follows:
      *  lifetime  => seconds (default 3600, min 600)
      *  group => string (default 'default')
-     *  myspace => string cache differentiator (default cms_)
+     *  globlspace => string cache differentiator (default hashed const)
      */
     public function __construct($opts)
     {
         if ($this->use_driver()) {
-            if (is_array($opts)) {
-                $_keys = ['lifetime', 'group', 'myspace'];
-                foreach ($opts as $key => $value) {
-                    if (in_array($key,$_keys)) {
-                        $tmp = '_'.$key;
-                        $this->$tmp = $value;
-                    }
-                }
-            }
+            parent::__construct($opts);
             $this->_lifetime = max($this->_lifetime, 600);
             return;
         }
@@ -76,9 +68,9 @@ class CacheApcu extends CacheDriver
     public function get_index($group = '')
     {
         if (!$group) $group = $this->_group;
-        $prefix = $this->get_cacheprefix(self::class, $group);
-		if ($prefix === '') { return []; }//no global interrogation in shared key-space
-		$len = strlen($prefix);
+        $prefix = $this->get_cacheprefix(static::class, $group);
+        if ($prefix === '') { return []; }//no global interrogation in shared key-space
+        $len = strlen($prefix);
 
         $i = 0;
         $out = [];
@@ -90,7 +82,7 @@ class CacheApcu extends CacheDriver
                 ++$i;
             }
         }
-		sort($out);
+        sort($out);
         return $out;
     }
 
@@ -98,8 +90,8 @@ class CacheApcu extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $prefix = $this->get_cacheprefix(self::class, $group);
-		if ($prefix === '') { return []; }//no global interrogation in shared key-space
+        $prefix = $this->get_cacheprefix(static::class, $group);
+        if ($prefix === '') { return []; }//no global interrogation in shared key-space
 
         $i = 0;
         $out = [];
@@ -111,7 +103,7 @@ class CacheApcu extends CacheDriver
                 ++$i;
             }
         }
-		asort($out);
+        asort($out);
         return $out;
     }
 
@@ -119,7 +111,7 @@ class CacheApcu extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         $success = false;
         $data = apcu_fetch($key, $success);
         return ($success) ? $data : null;
@@ -129,7 +121,7 @@ class CacheApcu extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         return apcu_exists($key);
     }
 
@@ -137,7 +129,7 @@ class CacheApcu extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         return $this->_write_cache($key, $value);
     }
 
@@ -145,7 +137,7 @@ class CacheApcu extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         return apcu_delete($key);
     }
 
@@ -168,7 +160,7 @@ class CacheApcu extends CacheDriver
      */
     private function _clean(string $group, bool $aged = true) : int
     {
-        $prefix = $this->get_cacheprefix(self::class, $group);
+        $prefix = $this->get_cacheprefix(static::class, $group);
         if ($prefix === '') return 0; //no global interrogation in shared key-space
 
         if ($aged) {

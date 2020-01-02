@@ -56,15 +56,7 @@ class CachePredis extends CacheDriver
     {
         if ($this->use_driver()) {
             if ($this->connectServer($opts)) {
-                if (is_array($opts)) {
-                    $_keys = ['lifetime', 'group', 'myspace'];
-                    foreach ($opts as $key => $value) {
-                        if (in_array($key,$_keys)) {
-                            $tmp = '_'.$key;
-                            $this->$tmp = $value;
-                        }
-                    }
-                }
+                parent::__construct($opts);
                 $this->_lifetime = max($this->_lifetime, 600);
                 return;
             }
@@ -134,36 +126,36 @@ class CachePredis extends CacheDriver
 
     public function get_index($group = '')
     {
-		if (!$group) { $group = $this->_group; }
+        if (!$group) { $group = $this->_group; }
 
-        $prefix = $this->get_cacheprefix(self::class, $group);
-		if ($prefix === '') { return []; }//no global interrogation in shared key-space
-		$len = strlen($prefix);
+        $prefix = $this->get_cacheprefix(static::class, $group);
+        if ($prefix === '') { return []; }//no global interrogation in shared key-space
+        $len = strlen($prefix);
 
-		$out = [];
+        $out = [];
         $keys = $this->instance->keys($prefix.'*');
         foreach ($keys as $key) {
-			$out[] = substr($key,$len);
-		}
-		sort($out);
+            $out[] = substr($key,$len);
+        }
+        sort($out);
         return $out;
     }
 
     public function get_all($group = '')
     {
-        if (!$group) $group = $this->_group;
+        if (!$group) { $group = $this->_group; }
 
-        $prefix = $this->get_cacheprefix(self::class, $group);
-		if ($prefix === '') { return []; }//no global interrogation in shared key-space
-		$len = strlen($prefix);
+        $prefix = $this->get_cacheprefix(static::class, $group);
+        if ($prefix === '') { return []; }//no global interrogation in shared key-space
+        $len = strlen($prefix);
 
-		$out = [];
+        $out = [];
         $keys = $this->instance->keys($prefix.'*');
         foreach ($keys as $rawkey) {
-			$key = substr($rawkey,$len);
-			$out[$key] = $this->_read_cache($rawkey);
+            $key = substr($rawkey,$len);
+            $out[$key] = $this->_read_cache($rawkey);
         }
-		asort($out);
+        asort($out);
         return $out;
     }
 
@@ -171,7 +163,7 @@ class CachePredis extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         return $this->_read_cache($key);
     }
 
@@ -179,7 +171,7 @@ class CachePredis extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         return $this->instance->exists($key) > 0;
     }
 
@@ -187,7 +179,7 @@ class CachePredis extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         return $this->_write_cache($key, $value);
     }
 
@@ -195,7 +187,7 @@ class CachePredis extends CacheDriver
     {
         if (!$group) $group = $this->_group;
 
-        $key = $this->get_cachekey($key, self::class, $group);
+        $key = $this->get_cachekey($key, static::class, $group);
         return $this->instance->delete($key);
     }
 
@@ -244,8 +236,8 @@ class CachePredis extends CacheDriver
      */
     private function _clean(string $group) : int
     {
-        $prefix = $this->get_cacheprefix(self::class, $group);
-		if ($prefix === '') { return 0; }//no global interrogation in shared key-space
+        $prefix = $this->get_cacheprefix(static::class, $group);
+        if ($prefix === '') { return 0; }//no global interrogation in shared key-space
 
         $nremoved = 0;
         $keys = $this->instance->keys($prefix.'*');
