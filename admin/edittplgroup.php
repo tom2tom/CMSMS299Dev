@@ -98,7 +98,7 @@ if ($do_locking) {
 }
 $js = $sm->render_inclusion('', false, false);
 if ($js) {
-	$themeObject->add_footertext($js);
+	add_page_foottext($js);
 }
 
 $js = <<<EOS
@@ -187,7 +187,7 @@ $(function() {
 </script>
 
 EOS;
-$themeObject->add_footertext($js);
+add_page_foottext($js);
 
 $all_items = TemplateOperations::get_all_templates(true); //TODO include originator/type in the display
 $legend1 = lang_by_realm('layout','prompt_members');

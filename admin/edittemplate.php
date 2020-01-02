@@ -305,12 +305,12 @@ try {
 	$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 	$js = $sm->render_inclusion('', false, false);
 	if ($js) {
-		$themeObject->add_footertext($js);
+		add_page_foottext($js);
 	}
 
-	$editorjs = get_editor_script(['edit'=>true, 'htmlid'=>'edit_area', 'typer'=>'smarty']);
+	$editorjs = get_syntaxeditor_setup(['edit'=>true, 'htmlid'=>'edit_area', 'typer'=>'smarty']);
 	if (!empty($editorjs['head'])) {
-		$themeObject->add_headtext($editorjs['head']);
+		add_page_headtext($editorjs['head']);
 	}
 
 	$do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
@@ -395,7 +395,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-	$themeObject->add_footertext($js); //not $sm->queue_script() (embedded variables)
+	add_page_foottext($js); //not $sm->queue_script() (embedded variables)
 
 	$selfurl = basename(__FILE__);
 	$extras = get_secure_param_array() + [

@@ -156,7 +156,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-$this->AdminBottomContent($js);
+add_page_foottext($js);
 
 $hm = $gCms->GetHierarchyManager(); //TODO direct-use by Smarty OK?
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_ordercontent.tpl'),null,null,$smarty);

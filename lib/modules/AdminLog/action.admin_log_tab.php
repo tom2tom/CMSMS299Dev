@@ -105,7 +105,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-$this->AdminBottomContent($js);
+add_page_foottext($js);
 
 $severity_list = [
  $this->Lang('sev_msg'),

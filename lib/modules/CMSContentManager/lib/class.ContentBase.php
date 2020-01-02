@@ -698,7 +698,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 			list($sheets,$grouped,$js) = Utils::get_sheets_data($styles);
 			if( $sheets ) {
 				if( $js ) {
-					$this->mod->AdminbottomContent($js);
+					add_page_foottext($js);
 				}
 				$help = AdminUtils::get_help_tag($this->realm,'info_styles',$this->mod->Lang('help_title_styles'));
 				$smarty = CmsApp::get_instance()->GetSmarty();

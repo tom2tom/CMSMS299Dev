@@ -82,6 +82,7 @@ if (isset($_REQUEST[CMS_JOB_KEY])) {
 CmsApp::get_instance()->JOBTYPE = $CMS_JOB_TYPE;
 
 if ($CMS_JOB_TYPE < 2) {
+    require_once $dirpath.'placement.functions.php';
     require_once $dirpath.'translation.functions.php';
 }
 

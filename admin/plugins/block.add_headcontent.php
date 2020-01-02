@@ -1,5 +1,5 @@
 <?php
-#Plugin to inject supplied content into the (admin) page header
+#Plugin to accumulate supplied content for inclusion into the page header
 #Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -20,8 +20,9 @@ function smarty_block_add_headcontent($params, $content, $template, &$repeat)
     $repeat = false;
 	if( !($content) ) return;
 
-	$obj = cms_utils::get_theme_object();
-	if( $obj ) $obj->add_headtext( $content );
+//	$obj = cms_utils::get_theme_object();
+//	if( $obj ) $obj->add_headtext( $content );
+	add_page_headtext($content);
 }
 
 function smarty_cms_help_block_add_headcontent()

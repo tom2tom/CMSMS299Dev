@@ -267,7 +267,7 @@ $(function() {
 </script>
 
 EOS;
-		$this->AdminBottomContent($js); //CHECKME always admin?
+		add_page_foottext($js);
 
         $smarty = CmsApp::get_instance()->GetSmarty();
         $tpl = $smarty->createTemplate($this->GetTemplateResource('contentblock.tpl'),null,null,$smarty);

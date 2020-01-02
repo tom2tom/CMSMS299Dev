@@ -87,7 +87,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-    $this->AdminBottomContent($js);
+    add_page_foottext($js);
 }
 else {
     $tpl->assign('max_chunksize',$max_chunksize);

@@ -333,7 +333,7 @@ function confirmsubmit(form,msg) {
 //]]>
 </script>
 EOS;
-$themeObject->add_footertext($out);
+add_page_foottext($out);
 
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();

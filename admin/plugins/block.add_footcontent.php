@@ -1,5 +1,5 @@
 <?php
-#Plugin to inject supplied content into the bottom of the (admin) page
+#Plugin to accumulate supplied content for injection into the bottom of the page
 #Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -20,8 +20,9 @@ function smarty_block_add_footcontent($params, $content, $template, &$repeat)
 	$repeat = false;
 	if( !($content) ) return;
 
-	$obj = cms_utils::get_theme_object();
-	if( $obj ) $obj->add_footertext($content);
+//	$obj = cms_utils::get_theme_object();
+//	if( $obj ) $obj->add_footertext($content);
+	add_page_foottext($content);
 }
 
 function smarty_cms_help_block_add_footcontent()

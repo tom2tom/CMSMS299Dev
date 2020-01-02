@@ -231,7 +231,7 @@ a.filelink:visited {
 }
 </style>
 EOS;
-  $this->AdminHeaderContent($out);
+  add_page_headtext($out, false);
 
   $refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>$path])).'&'.CMS_JOB_KEY.'=1' ;
   $viewfile_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1])).'&'.CMS_JOB_KEY.'=1';
@@ -329,8 +329,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-  $this->AdminBottomContent($out);
+  add_page_foottext($out);
 }
 
 $tpl->display();
-

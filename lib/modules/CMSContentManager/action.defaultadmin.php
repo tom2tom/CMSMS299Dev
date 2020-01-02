@@ -189,7 +189,7 @@ $sm->queue_matchedfile('jquery.cmsms_poll.js', 2);
 $sm->queue_matchedfile('jquery.ContextMenu.js', 2);
 $out = $sm->render_inclusion('', false, false);
 if ($out) {
-    $this->AdminBottomContent($out);
+    add_page_foottext($out);
 }
 
 $js = <<<EOS
@@ -474,7 +474,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-$this->AdminBottomContent($js); //NOT for ScriptOperations
+add_page_foottext($js); //NOT for ScriptOperations
 
 if( !isset($pmanage) ) {
     // this should have been set in the included list-populator file

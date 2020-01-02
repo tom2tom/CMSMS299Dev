@@ -143,7 +143,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-    $this->AdminBottomContent($js);
+    add_page_foottext($js);
 
     $tpl->display();
     break;

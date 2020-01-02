@@ -325,7 +325,7 @@ $(function() {
 </script>
 EOS;
 
-$themeObject->add_footertext($out);
+add_page_foottext($out);
 
 /*--------------------
  * Display view

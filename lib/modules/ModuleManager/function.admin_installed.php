@@ -82,7 +82,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-$this->AdminBottomContent($js);
+add_page_foottext($js);
 
 uksort($allmoduleinfo,'strnatcasecmp');
 $tpl->assign('module_info',$allmoduleinfo);

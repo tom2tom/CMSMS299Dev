@@ -48,8 +48,9 @@ $aout = HookManager::do_hook_accumulate('AdminBottomSetup');
 if ($aout) {
 	foreach($aout as $bundle) {
 		foreach($bundle as $list) {
-			$out = is_array($list) ? implode("\n",$list) : $list;
-			$themeObject->add_footertext($out."\n");
+//			$out = is_array($list) ? implode("\n",$list) : $list;
+//			add_page_foottext($out);
+			add_page_foottext($list);
 		}
 	}
 }

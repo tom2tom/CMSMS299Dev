@@ -582,7 +582,7 @@ EOS;
 
 $out = $sm->render_inclusion('', false, false);
 if( $out ) {
-    $themeObject->add_footertext($out);
+    add_page_foottext($out);
 }
 
 // hidden inputs for filter form

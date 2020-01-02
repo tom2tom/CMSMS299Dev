@@ -47,7 +47,7 @@ $(function() {
 </script>
 
 EOS;
-$this->AdminBottomContent($js);
+add_page_foottext($js);
 
 if( isset($config['developer_mode']) ) {
   $tpl->assign('developer_mode',1)

@@ -37,7 +37,7 @@ $out = <<<EOS
 </style>
 
 EOS;
-$this->AdminHeaderContent($out);
+add_page_headtext($out, false);
 
 $s1 = json_encode($this->Lang('warn_clickthru'));
 $s2 = json_encode($this->Lang('error_search_text'));
@@ -116,7 +116,7 @@ $(function() {
 </script>
 
 EOS;
-$this->AdminBottomContent($out);
+add_page_foottext($out);
 
 $template = get_parameter_value($params,'template','defaultadmin.tpl');
 $tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);

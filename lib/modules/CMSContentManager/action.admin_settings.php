@@ -80,7 +80,7 @@ if( $types ) { //exclude types which are nonsense for default (maybe make this a
 
 list($stylerows,$grouped,$js) = Utils::get_sheets_data($prefs['styles'] ?? []);
 if( $js ) {
-  $this->AdminbottomContent($js);
+  add_page_foottext($js);
 }
 
 $tpl->assign('page_prefs',$prefs)

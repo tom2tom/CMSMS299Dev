@@ -36,7 +36,7 @@ use CMSMS\FormUtils;
 use CMSMS\HookManager;
 use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
-use PHPMailer\PHPMailer\Exception;
+use Exception;
 use RecursiveArrayTreeIterator;
 use RecursiveIteratorIterator;
 use const CMS_ADMIN_PATH;
@@ -173,17 +173,17 @@ abstract class ThemeBase
      */
     private $_subtitle;
 
-    /**
+    /* *
      * Cache for content to be included in the page header
      * @ignore
      */
-    private $_headtext;
+//    private $_headtext;
 
-    /**
+    /* *
      * Cache for content to be included in the page footer
      * @ignore
      */
-    private $_foottext;
+//    private $_foottext;
 
     /**
      * Cache for the entire content of a page
@@ -1956,15 +1956,18 @@ abstract class ThemeBase
      * @param string $txt The text to add to the head section.
      * @param bool   $after Since 2.3 Optional flag whether to append (instead of prepend) default true
      * @since 2.2
+     * @deprecated since 2.3 use add_page_headtext()
      * @author Robert Campbell
      */
     public function add_headtext($txt, $after = true)
     {
-        $txt = trim($txt);
+/*        $txt = trim($txt);
         if( $txt ) {
             if( $after ) { $this->_headtext .= "\n".$txt; }
             else { $this->_headtext = $txt."\n".$this->_headtext; }
         }
+*/
+        add_page_headtext($txt, $after);
     }
 
     /**
@@ -1972,13 +1975,15 @@ abstract class ThemeBase
      *
      * This method is typically called by the admin theme itself to get the text to render.
      *
-     * @return string
+     * @return mixed string | null
      * @since 2.2
+     * @deprecated since 2.3 use get_page_headtext()
      * @author Robert Campbell
      */
     public function get_headtext()
     {
-        return $this->_headtext;
+//        return $this->_headtext;
+        return get_page_headtext();
     }
 
     /**
@@ -1987,15 +1992,18 @@ abstract class ThemeBase
      * @param string $txt The text to add to the end of the output.
      * @param bool   $after Since 2.3 Optional flag whether to append (instead of prepend) default true
      * @since 2.2
+     * @deprecated since 2.3 use add_page_foottext()
      * @author Robert Campbell
      */
     public function add_footertext($txt, $after = true)
     {
-        $txt = trim($txt);
+/*        $txt = trim($txt);
         if( $txt ) {
             if( $after ) { $this->_foottext .= "\n".$txt; }
             else { $this->_foottext = $txt."\n".$this->_foottext; }
         }
+*/
+        add_page_foottext($txt, $after);
     }
 
     /**
@@ -2003,13 +2011,15 @@ abstract class ThemeBase
      *
      * This method is typically called by the admin theme itself to get the text to render.
      *
-     * @return string
+     * @return string | null
      * @since 2.2
+     * @deprecated since 2.3 use get_page_foottext()
      * @author Robert Campbell
      */
     public function get_footertext()
     {
-        return $this->_foottext;
+//        return $this->_foottext;
+        return get_page_foottext();
     }
 
     /**

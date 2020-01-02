@@ -46,7 +46,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-$this->AdminHeaderContent($js);
+add_page_headtext($js);
 //DEBUG - END
 
 $jobs = [];

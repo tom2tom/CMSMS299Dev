@@ -587,7 +587,7 @@ $(function() {
 </script>
 
 EOS;
-$themeObject->add_footertext($out);
+add_page_foottext($out);
 
 $modops = ModuleOperations::get_instance();
 $smarty = CmsApp::get_instance()->GetSmarty();
@@ -660,9 +660,8 @@ if ($tmp) {
 $smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences'));
 
 // advanced/syntax editors
-//CHECKME cms_utils::get_syntax_highlighter_module()
 $editors = [];
-$tmp = $modops->GetCapableModules(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
+$tmp = $modops->GetCapableModules(CmsCoreCapabilities::SYNTAX_MODULE);
 if ($tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
         $ob = cms_utils::get_module($tmp[$i]);

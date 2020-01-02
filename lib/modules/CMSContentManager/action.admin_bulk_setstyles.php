@@ -72,7 +72,7 @@ if( !$sheetrows ) {
     return; //no style, nothing to set
 }
 if( $js ) {
-    $this->AdminBottomContent($js);
+    add_page_foottext($js);
 }
 
 $displaydata = [];

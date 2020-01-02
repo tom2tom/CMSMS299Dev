@@ -76,7 +76,7 @@ $css = <<<EOS
 }
 </style>
 EOS;
-$this->AdminHeaderContent($css);
+add_page_headtext($css, false);
 */
 
 $js = <<<EOS
@@ -160,6 +160,6 @@ $(function() {
 //]]>
 </script>
 EOS;
-$this->AdminBottomContent($js);
+add_page_foottext($js);
 
 $tpl->display();

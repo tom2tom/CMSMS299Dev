@@ -96,7 +96,7 @@ $tpl->assign('pmod',$pmod);
 //$sm->queue_string($js, 3);
 //$out = $sm->render_inclusion('', false, false);
 //if ($out) {
-//    $this->AdminBottomContent($out);
+//    add_page_foottext($out);
 //}
 
 $tpl->display();

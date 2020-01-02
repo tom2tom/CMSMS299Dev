@@ -91,9 +91,8 @@ if ($do_locking) {
 }
 $js = $sm->render_inclusion('', false, false);
 if ($js) {
-	$themeObject->add_footertext($js);
+	add_page_foottext($js);
 }
-
 
 $js = <<<EOS
 <script type="text/javascript">
@@ -183,7 +182,7 @@ $(function() {
 </script>
 
 EOS;
-$themeObject->add_footertext($js);
+add_page_foottext($js);
 
 $all_items = StylesheetOperations::get_all_stylesheets(true);
 $legend1 = lang_by_realm('layout','prompt_members');

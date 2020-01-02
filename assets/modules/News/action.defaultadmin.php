@@ -95,7 +95,7 @@ $out = <<<EOS
  <link rel="stylesheet" href="{$baseurl}/css/module.css">
 
 EOS;
-$this->AdminHeaderContent($out);
+add_page_headtext($out);
 
 $out = cms_get_script('jquery.SSsort.js');
 $js = <<<EOS
@@ -126,7 +126,7 @@ var SSsopts = {
 //]]>
 </script>
 EOS;
-$this->AdminBottomContent($js);
+add_page_foottext($js);
 
 //variables in scope for inclusions
 $userid = get_userid();
