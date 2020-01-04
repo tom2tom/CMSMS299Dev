@@ -35,7 +35,9 @@
       {/if}
       <strong>{$mod->Lang('prompt_owner')}:</strong> {$row.owner}<br />
       <strong>{$mod->Lang('prompt_created')}:</strong> {$row.created|cms_date_format}<br />
+      {if !isset($columns['modified'])}
       <strong>{$mod->Lang('prompt_lastmodified')}:</strong> {$row.lastmodified|cms_date_format}<br />
+      {/if}
       {if isset($row.lastmodifiedby)}<strong>{$mod->Lang('prompt_lastmodifiedby')}:</strong> {$row.lastmodifiedby}<br />{/if}
       <strong>{$mod->Lang('prompt_cachable')}:</strong> {if $row.cachable}{lang('yes')}{else}{lang('no')}{/if}<br />
       <strong>{$mod->Lang('prompt_showinmenu')}:</strong> {if $row.showinmenu}{lang('yes')}{else}{lang('no')}{/if}<br />
@@ -88,7 +90,9 @@
     {elseif $column == 'owner'}
       {capture assign='tooltip_ownerinfo'}{strip}
         <strong>{$mod->Lang('prompt_created')}:</strong> {$row.created|cms_date_format}<br />
+        {if !isset($columns['modified'])}
         <strong>{$mod->Lang('prompt_lastmodified')}:</strong> {$row.lastmodified|cms_date_format}<br />
+        {/if}
         {if isset($row.lastmodifiedby)}
         <strong>{$mod->Lang('prompt_lastmodifiedby')}:</strong> {$row.lastmodifiedby}<br />
         {/if}
@@ -112,7 +116,9 @@
          {admin_icon icon='false.gif' class='systemicon page_setdefault' title=$mod->Lang('prompt_page_setdefault')}
         </a>
       {/if}
-{*
+    {elseif $column == 'modified'}
+       {$row.lastmodified|cms_date_format}
+{* replaced by actions menu items
     {elseif $column == 'move'}
       {if isset($row.move)}
         {if $row.move == 'up'}

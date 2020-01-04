@@ -62,6 +62,7 @@ $lang['colhdr_hier'] = 'Hierarchy';
 $lang['colhdr_icon1'] = 'Status Icon';
 $lang['colhdr_id'] = 'Id';
 $lang['colhdr_menutext'] = 'Menu Label';
+$lang['colhdr_modified'] = 'Latest Change';
 $lang['colhdr_move'] = 'Move'; // column optionally displayed if actions menu N/A
 $lang['colhdr_multiselect'] = 'Multi-select';
 $lang['colhdr_name'] = 'Name';

@@ -29,10 +29,11 @@ use CMSMS\internal\global_cache;
 use CMSMS\LockOperations;
 use CMSMS\TemplateOperations;
 use CMSMS\UserOperations;
-use Exception;
+use Throwable;
 use function audit;
 use function check_authorship;
 use function get_userid;
+use function lang;
 
 /**
  * A simple class for building and managing content lists.
@@ -393,7 +394,7 @@ final class ContentListBuilder
 		$mod = $this->_module;
 		$flat = $mod->GetPreference('list_visiblecolumns');
 		if( !$flat ) { $flat =
-		'expand,icon1,hier,page,alias,friendlyname,template,active,default,actions,multiselect'; }
+		'expand,icon1,hier,page,alias,friendlyname,template,active,default,modified,actions,multiselect'; }
 		$cols = explode(',',$flat);
 
 		$pall = $mod->CheckPermission('Manage All Content');
@@ -412,6 +413,7 @@ final class ContentListBuilder
 		$displaycols['template'] = in_array('template',$cols) ? 'normal' : null;
 		$displaycols['active'] = ($pall && in_array('active',$cols)) ? 'icon' : null;
 		$displaycols['default'] = ($pall && in_array('default',$cols)) ? 'icon' : null;
+		$displaycols['modified'] = ($pall && in_array('modified',$cols)) ? 'normal' : null;
 		$displaycols['actions'] = 'icon';
 		$displaycols['multiselect'] = ($pdel && in_array('multiselect',$cols)) ? 'icon' : null;
 		// the rest are probably actions-menu items, not displayed columns
