@@ -523,7 +523,7 @@ function get_richeditor_setup(array $params) : array
                 }
                 elseif( $modinst->HasCapability(CmsCoreCapabilities::WYSIWYG_MODULE) ) {
                     $out = $modinst->WYSIWYGGenerateHeader();
-                    return ['head'=>$out];
+					if ($out) { return ['head'=>$out]; }
                 }
             }
         }
@@ -575,7 +575,7 @@ function get_syntaxeditor_setup(array $params) : array
                 }
                 elseif( $modinst->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE) ) {
                     $out = $modinst->SyntaxGenerateHeader();
-                    return ['head'=>$out];
+					if ($out) { return ['head'=>$out]; }
                 }
             }
         }
