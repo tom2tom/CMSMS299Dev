@@ -1,7 +1,7 @@
 <?php
 /*
 Default action for CMSMS News module.
-Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -66,7 +66,7 @@ WHERE status = \'published\' AND ';
 
 if( !empty($params['idlist']) ) { //id = 0 N/A
 	if( is_numeric($params['idlist'])) {
-        $query1 .= ' (N.news_id = '.(int)$params['idlist'].') AND '; }
+        $query1 .= ' (N.news_id = '.(int)$params['idlist'].') AND ';
     }
     elseif( is_string($params['idlist']) ) {
         $tmp = explode(',',$params['idlist']);
