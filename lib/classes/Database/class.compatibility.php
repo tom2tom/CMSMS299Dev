@@ -157,10 +157,9 @@ use CMSMS\Database\DataDictionary;
      *
      * @deprecated since 2.3
      */
-    function NewDataDictionary(Connection $conn = null)
+    function NewDataDictionary(Connection $conn)
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('class','CMSMS\\Database\\DataDictionary'));
-        if (!$conn) { $conn = CmsApp::get_instance()->GetDb(); }
         return new DataDictionary($conn);
     }
 
