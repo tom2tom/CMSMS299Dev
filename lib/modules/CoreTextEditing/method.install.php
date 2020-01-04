@@ -16,13 +16,22 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
+use const CoreTextEditing\Ace\ACE_CDN;
+use const CoreTextEditing\Ace\ACE_THEME;
+use const CoreTextEditing\CodeMirror\CM_CDN;
+use const CoreTextEditing\CodeMirror\CM_THEME;
 
 if (!isset($gCms)) exit;
 
-cms_siteprefs::set('syntax_editor', $this->GetName().'::Ace');
+$val = cms_siteprefs::get('syntax_editor');
+if (!$val) {
+	cms_siteprefs::set('syntax_editor', $this->GetName().'::Ace');
+}
+//TODO user-prefs too
 
-$this->SetPreference('ace_url', CoreTextEditing::ACE_CDN);
-$this->SetPreference('ace_theme', CoreTextEditing::ACE_THEME);
-$this->SetPreference('codemirror_url', CoreTextEditing::CM_CDN);
-$this->SetPreference('codemirror_theme', CoreTextEditing::CM_THEME);
-
+require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'editor.Ace.php';
+$this->SetPreference('ace_source_url', ACE_CDN);
+$this->SetPreference('ace_theme', ACE_THEME);
+require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'editor.CodeMirror.php';
+$this->SetPreference('codemirror_source_url', CM_CDN);
+$this->SetPreference('codemirror_theme', CM_THEME);
