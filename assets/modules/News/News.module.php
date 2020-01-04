@@ -1,7 +1,7 @@
 <?php
 /*
 News module for CMSMS
-Copyright (C) 2005-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -40,7 +40,7 @@ class News extends CMSModule
     public function GetFriendlyName() { return $this->Lang('news'); }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetName() { return 'News'; }
-    public function GetVersion() { return '3.0'; }
+    public function GetVersion() { return '3.1'; }
     public function HasAdmin() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall');  }
     public function IsPluginModule() { return true; } //deprecated in favour of capability
