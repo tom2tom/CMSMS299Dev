@@ -204,13 +204,17 @@ EOS;
 	 * Remove a site/module preference
 	 *
 	 * @param string $key The preference name
-	 * @param bool   $like Optional flag whether to interpret $key as a preference-name prefix. Default false.
+	 * @param bool   $like Optional flag whether to interpret $key wildcard-enabled. Default false.
+	 * If $key does not include '%' char(s), then one such is appended i.e. $key
+	 * is treated as a prefix.
 	 */
 	public static function remove(string $key,bool $like = FALSE)
 	{
 		if( $like ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
-			$key .= '%';
+			if (strpos($key, '%') === FALSE) {
+				$key .= '%';
+			}
 		}
 		else {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name = ?';
