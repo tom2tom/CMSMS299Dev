@@ -1,7 +1,7 @@
 <?php
 /*
 CoreTextEditing: a CMS Made Simple module enabling feature-rich editing of website text files.
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -19,30 +19,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
 {
-    /**
-     * Default cdn URL for retrieving Ace text-editor code
-     */
-    const ACE_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.3';
-
-    /**
-     * Default theme/style for Ace text-editor
-     */
-    const ACE_THEME = 'clouds';
-
-    /**
-     * Default cdn URL for retrieving CodeMirror text-editor code
-     */
-    const CM_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.44.0';
-
-    /**
-     * Default theme/style for CodeMirror text-editor
-     */
-    const CM_THEME = 'elegant';
-
-    /**
-     * Supported editors (in display-order) (NB maybe some bug during install if this is before the other const's)
-     */
-    const EDITORS = ['Ace', 'CodeMirror'];
+	/**
+	 * @var array $editors
+	 * Supported editors (in alpha-order) each member like 'Ace'=>'CoreTextEditing::Ace';
+	 */
+	public $editors = null;
 
 	public function GetAdminDescription() { return $this->Lang('description'); }
 	public function GetAuthor() { return 'Tom Phane'; }
@@ -50,7 +31,7 @@ class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
 	public function GetChangeLog() { return ''.@file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
 	public function GetFriendlyName() { return $this->Lang('friendlyname'); }
 	public function GetName() { return 'CoreTextEditing'; }
-	public function GetVersion() { return '0.6'; }
+	public function GetVersion() { return '0.7'; }
 	public function HasAdmin() { return true; }
 	public function IsAdminOnly() { return true; }
 //	public function LazyLoadAdmin() { return true; }
@@ -80,22 +61,85 @@ class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
 		return $capability == CmsCoreCapabilities::SYNTAX_MODULE;
 	}
 
-	// interface methods
+	/**
+	 * Generate page-header content needed to run syntax-highlighter(s) in an admin page.
+	 * Does nothing for frontend pages.
+	 * CMSModule method
+	 * @return string always empty
+	 */
+	public function SyntaxGenerateHeader() //: string
+	{
+		$fe = CmsApp::get_instance()->is_frontend_request();
+		if ($fe) {
+			return '';
+		}
+		$themeObj = cms_utils::get_theme_object();
+		if (!$themeObj) {
+			return '';
+		}
+		/*
+		 *  array $params  Configuration details. Recognized members are:
+		 *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
+		 *  string 'handle' js variable (name) for the created editor. Default 'editor'
+		 *  string 'htmlclass' class of the page-element(s) whose content is to be edited. Default ''.
+		 *  string 'htmlid' id of the page-element whose content is to be edited. Default 'richeditor'.
+		 *  string 'theme'  override for the normal editor theme/style.  Default ''
+		 *  //string 'workid' id of a div to be created to work on the content of htmlid-element. Default 'edit_work'
+		 */
+   		$params = [];
+/*		if ($selector) {
+			$params['htmlid'] = $selector;
+		} else {
+*/
+			$params['htmlclass'] = 'textarea.'.$this->GetName();
+//		}
+		$params['edit'] = true; //TODO
 
+		$val = cms_userprefs::get_for_user(\get_userid(false), 'syntax_editor');
+		if (!$val) {
+			$val = cms_userprefs::get('syntax_editor');
+			if (!$val) {
+				$all = $this->ListEditors();
+				$val = reset($all);
+			}
+
+		}
+
+		$parts = explode('::', $val);
+		$editor = isset($parts[1]) ? $parts[1] : $parts[0]; //TODO handle invalid module::editor
+
+		$parts = $this->GetEditorSetup($editor, $params); //maybe empty
+
+		if (!empty($parts['head'])) {
+			$themeObj->add_headtext($parts['head']);
+		}
+		if (!empty($parts['foot'])) {
+			$themeObj->add_footertext($parts['foot']);
+		}
+		return '';
+	}
+
+	// SyntaxEditor interface methods
+
+	/**
+	 * @param bool $selectable Optional flag whether to return assoc array. Default true.
+	 * @return array
+	 */
 	public function ListEditors(bool $selectable = true) : array
 	{
-		$me = $this->GetName().'::';
-		$names = [];
-		foreach (self::EDITORS as $editor) {
-		    if (is_file(__DIR__.DIRECTORY_SEPARATOR.'editor.'.$editor.'.php')) {
-				if ($selectable) {
-					$names[$editor] = $me.$editor;
-				} else {
-					$names[] = $me.$editor;
-				}
+		if ($this->editors === null) {
+			$text = $this->GetName().'::';
+			$names = [];
+			$files = glob(__DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'editor.*.php', GLOB_NOSORT);
+			foreach ($files as $fp) {
+				$n = basename($fp, '.php');
+				$editor = substr($n, 7); //strip prefix
+				$names[$editor] = $text.$editor;
 			}
+			natcasesort($names); //caseless
+			$this->editors = $names;
 		}
-		return $names;
+		return ($selectable) ? $this->editors : array_values($this->editors);
 	}
 
 	public function GetMainHelpKey(string $editor = '') : array
@@ -136,11 +180,12 @@ class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
 
 	public function GetEditorSetup(string $editor, array $params) : array
 	{
-		$fp = __DIR__.DIRECTORY_SEPARATOR.'editor.'.$editor.'.php';
+		$fp = __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'editor.'.$editor.'.php';
 		if (is_file($fp)) {
-			include $fp;
-			return GetScript($this, $params);
+			require_once $fp;
+			$fname = $this->GetName().'\\'.$editor.'\\GetPageSetup'; //namespaced func
+			return $fname($this, $params);
 		}
-		return '';
+		return [];
 	}
 } // class
