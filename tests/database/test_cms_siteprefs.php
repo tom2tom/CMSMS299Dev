@@ -10,7 +10,8 @@ class Test_cms_siteprefs extends UnitTestCase
     parent::setUp();
 
     $config = cmsms()->GetConfig();
-    $dbdict = NewDataDictionary(cmsms()->GetDb());
+	$db = cmsms()->GetDb();
+    $dbdict = $db->NewDataDictionary();
     $taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
 
     $flds = '
@@ -26,7 +27,8 @@ class Test_cms_siteprefs extends UnitTestCase
   public function tearDown()
   {
     $config = cmsms()->GetConfig();
-    $dbdict = NewDataDictionary(cmsms()->GetDb());
+	$db = cmsms()->GetDb();
+    $dbdict = $db->NewDataDictionary();
     $sqlarray = $dbdict->DropTableSQL($config['db_prefix'].'siteprefs');
     $return = $dbdict->ExecuteSQLArray($sqlarray);
   }
