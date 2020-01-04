@@ -10,7 +10,7 @@ if( file_exists($fn) ) {
 status_msg('Upgrading database for CMSMS 2.0');
 
 $gCms = cmsms();
-$dbdict = NewDataDictionary($db);
+$dbdict = $db->NewDataDictionary();
 $taboptarray = array('mysql' => 'TYPE=MyISAM');
 
 verbose_msg('updating structure of content tabless');

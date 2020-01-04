@@ -31,7 +31,7 @@ $move_directory_files = function($srcdir,$destdir) {
 };
 
 //$gCms = cmsms();
-$dbdict = NewDataDictionary($db);
+$dbdict = $db->NewDataDictionary();
 $taboptarray = array('mysql' => 'TYPE=MyISAM');
 
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME,'help_content_cb C(255), one_only I1');

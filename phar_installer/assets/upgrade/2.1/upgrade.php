@@ -2,7 +2,7 @@
 status_msg('Upgrading schema for CMSMS 2.1');
 
 //$gCms = cmsms();
-$dbdict = NewDataDictionary($db);
+$dbdict = $db->NewDataDictionary();
 $taboptarray = array('mysql' => 'TYPE=MyISAM');
 
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,'listable I1 DEFAULT 1');

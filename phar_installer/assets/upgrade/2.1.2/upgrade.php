@@ -1,6 +1,6 @@
 <?php
 $gCms = cmsms();
-$dbdict = NewDataDictionary($db);
+$dbdict = $db->NewDataDictionary();
 $taboptarray = array('mysql' => 'TYPE=MyISAM');
 
 status_msg('performing database changes for CMSMS 2.1.2');
