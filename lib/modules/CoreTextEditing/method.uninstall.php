@@ -1,6 +1,6 @@
 <?php
 /*
-CoreTextEditing module method: uninstall
+CoreTextEditing module method: uninstallation
 Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -21,7 +21,18 @@ if (!isset($gCms)) exit;
 
 $this->RemovePreference();
 
+$text = $this->GetName().'::';
 $val = cms_siteprefs::get('syntax_editor');
-if ($val && startswith($val, $this->GetName())) {
+if ($val && startswith($val, $text)) {
     cms_siteprefs::set('syntax_editor','');
 }
+
+$users = UserOperations::get_instance()->GetList();
+foreach ($users as $uid => $uname) {
+	$val = cms_userprefs::get_for_user($uid, 'syntax_editor');
+	if ($val && startswith($val, $text)) {
+		cms_userprefs::set_for_user($uid, 'syntax_editor', '');
+	}
+}
+
+//TODO un-register handlers for events which allow user-preferences-change related to this module
