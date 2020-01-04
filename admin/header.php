@@ -129,14 +129,14 @@ if ($list) {
 			$selector = 'textarea#'.$selector;
 			try {
 				$out = $obj->WYSIWYGGenerateHeader($selector,$cssname); //deprecated API
-				add_page_headtext($out);
+				if ($out) { add_page_headtext($out); }
 			} catch (Exception $e) {}
 		}
 		// do we need a generic textarea ?
 		if ($need_generic) {
 			try {
 				$out = $obj->WYSIWYGGenerateHeader(); //deprecated API
-				add_page_headtext($out);
+				if ($out) { add_page_headtext($out); }
 			} catch (Exception $e) {}
 		}
 	}
@@ -150,7 +150,7 @@ if ($list) {
 		if (is_object($obj)) {
 			try {
 				$out = $obj->SyntaxGenerateHeader(); //deprecated API
-				add_page_headtext($out);
+				if ($out) { add_page_headtext($out); }
 			} catch (Exception $e) {}
 		}
 	}
