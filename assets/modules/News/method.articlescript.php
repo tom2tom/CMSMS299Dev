@@ -1,7 +1,7 @@
 <?php
 /*
 Page-resources generator for article add/edit actions
-Copyright (C) 2018-2019 CMS Made Simple Foundation News module installation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2020 CMS Made Simple Foundation News module installation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@ $css = <<<EOS
  <link rel="stylesheet" href="{$baseurl}/css/jquery.timepicker.css">
 
 EOS;
-$this->AdminHeaderContent($css);
+add_page_headtext($css);
 
 //js wants quoted period-names
 $t = $this->Lang('selector_days');
@@ -211,5 +211,5 @@ $sm->queue_file($p.'jquery.timepicker.min.js', 2);
 $sm->queue_string($js, 3);
 $out = $sm->render_inclusion('', false, false);
 if ($out) {
-    $this->AdminBottomContent($out);
+    add_page_foottext($out);
 }
