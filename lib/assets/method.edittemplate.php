@@ -1,7 +1,7 @@
 <?php
 /*
 Edit/add template method for CMSMS modules.
-Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -218,12 +218,12 @@ $sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 //$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 $js = $sm->render_inclusion('', false, false);
 if( $js) {
-    $module->AdminBottomContent($js);
+    add_page_foottext($js);
 }
 
 $editorjs = get_editor_script(['edit'=>$can_manage, 'typer'=>'smarty']);
 if( !empty($editorjs['head'])) {
-    $module->AdminHeaderContent($editorjs['head']);
+    add_page_headtext($editorjs['head']);
 }
 /*
 $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
@@ -313,7 +313,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-$module->AdminBottomContent($js); //not $sm->queue_script() (embedded variables)
+add_page_foottext($js); //not $sm->queue_script() (embedded variables)
 
 $parms = ['tpl'=>$params['tpl']]; //TODO more
 
