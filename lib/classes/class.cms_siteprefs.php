@@ -202,11 +202,12 @@ EOS;
 
 	/**
 	 * Remove a site/module preference
+	 * If $like is true and $key does not include '%' char(s), then one such is
+	 * appended i.e. $key is treated as a prefix.
 	 *
 	 * @param string $key The preference name
-	 * @param bool   $like Optional flag whether to interpret $key wildcard-enabled. Default false.
-	 * If $key does not include '%' char(s), then one such is appended i.e. $key
-	 * is treated as a prefix.
+	 * @param bool   $like Optional flag whether to interpret $key as
+	 *  wildcarded. Default false.
 	 */
 	public static function remove(string $key,bool $like = FALSE)
 	{
