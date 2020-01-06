@@ -116,7 +116,7 @@ if (isset($_POST['submit'])) {
                 cms_userprefs::set_for_user($userid, 'default_cms_language', cms_userprefs::get_for_user($adminid, 'default_cms_language'));
 //                cms_userprefs::set_for_user($userid, 'wysiwyg', cms_userprefs::get_for_user($adminid, 'wysiwyg')); //rich-text-editor type
 //                cms_userprefs::set_for_user($userid, 'syntax_editor', cms_userprefs::get_for_user($adminid, 'syntax_editor')); //syntax-editor type
-//                cms_userprefs::set_for_user($userid, 'editor_theme', cms_userprefs::get_for_user($adminid, 'editor_theme'));
+//                cms_userprefs::set_for_user($userid, 'syntax_theme', cms_userprefs::get_for_user($adminid, 'syntax_theme'));
                 $val = cms_siteprefs::get('logintheme');
                 if( !$val ) $val = ThemeBase::GetDefaultTheme();
                 cms_userprefs::set_for_user($userid, 'admintheme', $val);
