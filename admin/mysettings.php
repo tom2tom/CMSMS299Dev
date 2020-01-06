@@ -20,7 +20,7 @@ use CMSMS\AdminUtils;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\ModuleOperations;
-use CMSMS\SyntaxEditor;
+use CMSMS\MultiEditor;
 use CMSMS\ThemeBase;
 use CMSMS\UserOperations;
 
@@ -81,7 +81,7 @@ if (isset($_POST['submit'])) {
   cms_userprefs::set_for_user($userid, 'default_cms_language', $default_cms_language);
   cms_userprefs::set_for_user($userid, 'default_parent', $default_parent);
   if ($editortype !== null) {
-    cms_userprefs::set_for_user($userid, 'editor_theme', $editortheme);
+    cms_userprefs::set_for_user($userid, 'syntax_theme', $editortheme);
     cms_userprefs::set_for_user($userid, 'syntax_editor', $editortype);  //as module::editor or module::module
   } else {
     cms_userprefs::set_for_user($userid, 'syntax_editor', '');
@@ -116,7 +116,7 @@ $ce_navdisplay = cms_userprefs::get_for_user($userid,'ce_navdisplay');
 $date_format_string = cms_userprefs::get_for_user($userid, 'date_format_string', '%x %X');
 $default_cms_language = cms_userprefs::get_for_user($userid, 'default_cms_language');
 $default_parent = (int)cms_userprefs::get_for_user($userid, 'default_parent', -1);
-$editortheme = cms_userprefs::get_for_user($userid, 'editor_theme');
+$editortheme = cms_userprefs::get_for_user($userid, 'syntax_theme');
 $vars = explode ('::', cms_userprefs::get_for_user($userid, 'syntax_editor'));
 $editormodule = $vars[0] ?? '';
 $editortype = $vars[1] ?? $editormodule;
@@ -152,7 +152,7 @@ $tmp = $modops->GetCapableModules(CmsCoreCapabilities::SYNTAX_MODULE);
 if ($tmp) {
   for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
     $ob = cms_utils::get_module($tmp[$i]);
-    if ($ob instanceof SyntaxEditor) {
+    if ($ob instanceof MultiEditor) {
       $all = $ob->ListEditors(true);
       foreach ($all as $label=>$val) {
         $one = new stdClass();
