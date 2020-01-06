@@ -25,7 +25,7 @@ use CMSMS\FormUtils;
 use CMSMS\internal\global_cache;
 use CMSMS\Mailer;
 use CMSMS\ModuleOperations;
-use CMSMS\SyntaxEditor;
+use CMSMS\MultiEditor;
 use CMSMS\ThemeBase;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
@@ -322,7 +322,7 @@ if (isset($_POST['submit'])) {
                 if ($val) {
                     $val = strtolower(strtr($val, ' ', '_'));
                 }
-                cms_siteprefs::set('editor_theme', $val);
+                cms_siteprefs::set('syntax_theme', $val);
                 if ($devmode) {
                     $val = trim($_POST['help_url']);
                     if ($val) {
@@ -380,7 +380,7 @@ $content_thumbnailfield_path = cms_siteprefs::get('content_thumbnailfield_path',
 $contentimage_path = cms_siteprefs::get('contentimage_path', '');
 $defaultdateformat = cms_siteprefs::get('defaultdateformat', '');
 $disallowed_contenttypes = cms_siteprefs::get('disallowed_contenttypes', '');
-$editortheme = cms_siteprefs::get('editor_theme', '');
+$editortheme = cms_siteprefs::get('syntax_theme', '');
 $vars = explode ('::', cms_siteprefs::get('syntax_editor'));
 $editormodule = $vars[0] ?? ''; //TODO preserve this across request
 $editortype = $vars[1] ?? $editormodule;
@@ -665,7 +665,7 @@ $tmp = $modops->GetCapableModules(CmsCoreCapabilities::SYNTAX_MODULE);
 if ($tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
         $ob = cms_utils::get_module($tmp[$i]);
-        if ($ob instanceof SyntaxEditor) {
+        if ($ob instanceof MultiEditor) {
             $all = $ob->ListEditors(true);
             foreach ($all as $label=>$val) {
                 $one = new stdClass();
