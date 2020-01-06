@@ -313,6 +313,7 @@ foreach( $params as $key => $value ) {
 unset($params['pagenumber']);
 
 $items = Utils::get_categories($id,$params,$returnid);
+$c = ($items) ? count($items) : 0;
 $catName = '';
 if( isset($params['category']) ) {
     $catName = $params['category'];
@@ -326,8 +327,9 @@ elseif( isset($params['category_id']) && $items ) {
     }
 //    $catName = $db->GetOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?',array($params['category_id']));
 }
+
 $tpl->assign('category_name',$catName)
  ->assign('cats',$items)
- ->assign('count',((items) ? count($items) : 0));
+ ->assign('count',$c);
 
 $tpl->display();
