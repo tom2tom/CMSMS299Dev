@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
+class CoreTextEditing extends CMSModule implements CMSMS\MultiEditor
 {
 	/**
 	 * @var array $editors
@@ -42,7 +42,7 @@ class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
 	public function GetHelp()
 	{
 		$detail = 'Missing!';
-		$text = @file_get_contents(cms_join_path(CMS_ROOT_PATH,'lib','classes','interface.SyntaxEditor.php'));
+		$text = @file_get_contents(cms_join_path(CMS_ROOT_PATH,'lib','classes','interface.MultiEditor.php'));
 		if ($text) {
 			$p = strpos($text, 'DO NOT DELETE OR CHANGE');
 			if ($p !== false) {
@@ -119,7 +119,7 @@ class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
 		return '';
 	}
 
-	// SyntaxEditor interface methods
+	// MultiEditor interface methods
 
 	/**
 	 * @param bool $selectable Optional flag whether to return assoc array. Default true.

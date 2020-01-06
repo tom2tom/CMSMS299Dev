@@ -26,7 +26,7 @@ namespace CMSMS;
  * @license GPL
  */
 
-interface SyntaxEditor
+interface MultiEditor
 {
     /**
      * A CMSModule method, included here to ensure this mechanism for identifying
@@ -50,7 +50,7 @@ interface SyntaxEditor
 	/**
 	 * Get data for constructing a help message for the editor generally
 	 *
-	 * @see SyntaxEditor::GetMainHelp()
+	 * @see MultiEditor::GetMainHelp()
 	 * @param string $editor Optional editor name/type (for modules supporting > 1 such editor)
 	 *
 	 * @return array: 2-members, [0] = help-realm or null [1] = lang key for the realm
@@ -70,7 +70,7 @@ interface SyntaxEditor
 	/**
 	 * Get data for constructing a help message for the editor generally
 	 *
-	 * @see SyntaxEditor::GetMainHelp()
+	 * @see MultiEditor::GetMainHelp()
 	 * @param string $editor Optional editor name/type (for modules supporting > 1 such editor)
 	 *
 	 * @return array: 2-members, [0] = help-realm or null [1] = lang key for the realm
