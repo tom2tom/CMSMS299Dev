@@ -119,9 +119,9 @@ function GetPageSetup(&$mod, array $params) : array
 
 	if (AppState::test_state(AppState::STATE_ADMIN_PAGE)) {
 		if (!$theme) {
-			$theme = cms_userprefs::get_for_user(get_userid(false), 'editor_theme');
+			$theme = cms_userprefs::get_for_user(get_userid(false), 'syntax_theme');
 			if (!$theme) {
-				$theme = cms_siteprefs::get('editor_theme', ACE_THEME);
+				$theme = cms_siteprefs::get('syntax_theme', ACE_THEME);
 			}
 		}
 	}
