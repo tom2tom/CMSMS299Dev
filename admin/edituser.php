@@ -223,7 +223,7 @@ if (isset($_POST['submit'])) {
 
             Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$thisuser ] );
 //            AdminUtils::clear_cached_files();
-//            global_cache::release('IF ANY');
+//            CMSMS\internal\global_cache::release('IF ANY');
             $url = 'listusers.php?' . $urlext;
             if ($message) {
                 $message = urlencode($message);

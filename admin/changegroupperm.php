@@ -211,7 +211,7 @@ VALUES (?,?,?,$now,$now)");
     audit($userid, 'Permission Group ID: '.$userid, 'Changed');
     $message = lang('permissionschanged');
 //    AdminUtils::clear_cached_files();
-//    global_cache::release('IF ANY');
+//    CMSMS\internal\global_cache::release('IF ANY');
 }
 
 if (!empty($message)) {
