@@ -313,6 +313,26 @@ final class cms_utils
 		return $crypter;
 	}
 
+	private static function sodium_extend(string $passwd, string $local) : array
+	{
+		if (PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox')) {
+			$lr = strlen($passwd); //TODO handle php.ini setting mbstring.func_overload & 2 i.e. overloaded
+			$j = max(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES,SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
+			while ($lr < $j) {
+				$passwd .= $passwd;
+				$lr += $lr;
+			}
+			$c = $passwd[(int)$j/2];
+			if ($c == '\0') { $c = '\7e'; }
+			$t = substr(($passwd ^ $local),0,SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+			$nonce = strtr($t,'\0',$c);
+			$t = substr($passwd,0,SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
+			$key = strtr($t,'\0',$c);
+			return [$nonce,$key];
+		}
+		return [];
+	}
+
 	/**
 	 * Encrypt the the provided string
 	 * @since 2.3
@@ -334,14 +354,14 @@ final class cms_utils
 		switch ($crypter) {
 		case 'sodium':
 			$localpw = CMS_ROOT_URL.self::class;
-			$nonce = substr(($localpw ^ $passwd),0,16);
-			return sodium_crypto_secretbox($raw,$nonce,$passwd);
+			list($nonce, $key) = self::sodium_extend($passwd,$localpw);
+			return sodium_crypto_secretbox($raw,$nonce,$key);
 		case 'openssl':
 			$localpw = CMS_ROOT_URL.self::class;
 			$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
 			return openssl_encrypt($raw,self::SSLCIPHER,$passwd,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
 		default:
-			$p = $lp = strlen($passwd);
+			$p = $lp = strlen($passwd); //TODO handle php.ini setting mbstring.func_overload & 2 i.e. overloaded
 			$lr = strlen($raw);
 			$j = -1;
 			for ($i = 0; $i < $lr; ++$i) {
@@ -376,8 +396,8 @@ final class cms_utils
 		switch ($crypter) {
 		case 'sodium':
 			$localpw = CMS_ROOT_URL.self::class;
-			$nonce = substr(($localpw ^ $passwd),0,16);
-			$val = sodium_crypto_box_open($raw,$nonce,$passwd);
+			list($nonce, $key) = self::sodium_extend($passwd,$localpw);
+			$val = sodium_crypto_secretbox_open($raw,$nonce,$key);
 			if ($val !== false) {
 				return $val;
 			}
@@ -393,7 +413,7 @@ final class cms_utils
 			sleep(2);
 			return null;
 		default:
-			$p = $lp = strlen($passwd);
+			$p = $lp = strlen($passwd); //TODO handle php.ini setting mbstring.func_overload & 2 i.e. overloaded
 			$lr = strlen($raw);
 			$j = -1;
 
