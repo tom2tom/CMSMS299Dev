@@ -221,9 +221,9 @@ if( $js) {
     add_page_foottext($js);
 }
 
-$editorjs = get_editor_script(['edit'=>$can_manage, 'typer'=>'smarty']);
-if( !empty($editorjs['head'])) {
-    add_page_headtext($editorjs['head']);
+$pageincs = get_editor_script(['edit'=>$can_manage, 'typer'=>'smarty']);
+if( !empty($pageincs['head'])) {
+    add_page_headtext($pageincs['head']);
 }
 /*
 $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
@@ -299,7 +299,7 @@ $cancel = lang('cancel');
   });
 */
 //TODO duplicate sets of buttons exist
-$js = $editorjs['foot'] ?? '';
+$js = $pageincs['foot'] ?? '';
 $js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
