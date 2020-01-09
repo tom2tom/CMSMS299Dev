@@ -97,7 +97,7 @@ final class cms_utils
 	/**
 	 * Report whether a module is available.
 	 *
-	 * @see get_module()
+	 * @see get_module(), global_cache::get('modules')
 	 * @author calguy1000
 	 * @since 1.11
 	 * @param string $name The module name
@@ -111,7 +111,6 @@ final class cms_utils
 	/**
 	 * Return the current database instance.
 	 *
-	 * @link http://phplens.com/lens/adodb/docs-adodb.htm
 	 * @since 1.9
 	 * @return mixed \CMSMS\Database\Connection object or null
 	 */
