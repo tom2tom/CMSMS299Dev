@@ -61,6 +61,26 @@ final class session implements ArrayAccess
         $this->_data = null;
     }
 
+	private function _sodium_extend(string $passwd, string $seed)
+	{
+		if (PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox')) {
+			$lr = strlen($passwd); //TODO handle mb_ override
+			$j = max(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES,SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
+			while ($lr < $j) {
+				$passwd .= $passwd;
+				$lr += $lr;
+			}
+			$c = $passwd[(int)$j/2];
+			if ($c == '\0') { $c = '\7e'; }
+			$t = substr(($passwd ^ $seed),0,SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+			$nonce = strtr($t,'\0',$c);
+			$t = substr($passwd,0,SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
+			$key = strtr($t,'\0',$c);
+			return [$nonce,$key];
+		}
+		return [];
+	}
+
     private function _save()
     {
         $raw = serialize($this->_data);
@@ -69,8 +89,8 @@ final class session implements ArrayAccess
         switch( $this->_crypter ) {
             case 'sodium':
                 $pw = session_id();
-                $nonce = substr(($pw ^ $seed),0,16);
-                $str = sodium_crypto_secretbox($raw,$nonce,$pw);
+                list($nonce,$key) = $this->_sodium_extend($pw,$seed);
+                $str = sodium_crypto_secretbox($raw,$nonce,$key);
                 break;
             case 'openssl':
                 $pw = session_id().$seed;
@@ -118,8 +138,8 @@ final class session implements ArrayAccess
             switch( $this->_crypter ) {
                 case 'sodium':
                     $pw = session_id();
-                    $nonce = substr(($pw ^ $seed),0,16);
-                    $str = sodium_crypto_box_open($raw,$nonce,$pw);
+                    list($nonce,$key) = $this->_sodium_extend($pw,$seed);
+                    $str = sodium_crypto_secretbox_open($raw,$nonce,$key);
                     break;
                 case 'openssl':
                     $pw = session_id().$seed;
