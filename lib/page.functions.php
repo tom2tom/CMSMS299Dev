@@ -25,7 +25,7 @@ use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
 use CMSMS\RichEditor;
 use CMSMS\RouteOperations;
-use CMSMS\SyntaxEditor;
+use CMSMS\MultiEditor;
 use CMSMS\UserOperations;
 
 /**
@@ -492,8 +492,8 @@ function get_pageid_or_alias_from_url()
  */
 function get_richeditor_setup(array $params) : array
 {
-	if( CmsApp::get_instance()->is_frontend_request() ) {
-		$val = cms_siteprefs::get('frontendwysiwyg'); //module name
+    if( CmsApp::get_instance()->is_frontend_request() ) {
+        $val = cms_siteprefs::get('frontendwysiwyg'); //module name
     }
     else {
         $userid = get_userid();
@@ -523,7 +523,7 @@ function get_richeditor_setup(array $params) : array
                 }
                 elseif( $modinst->HasCapability(CmsCoreCapabilities::WYSIWYG_MODULE) ) {
                     $out = $modinst->WYSIWYGGenerateHeader();
-					if ($out) { return ['head'=>$out]; }
+                    if ($out) { return ['head'=>$out]; }
                 }
             }
         }
@@ -549,6 +549,10 @@ function get_richeditor_setup(array $params) : array
  */
 function get_syntaxeditor_setup(array $params) : array
 {
+    if( CmsApp::get_instance()->is_frontend_request() ) {
+        return [];
+    }
+
     $userid = get_userid();
     $val = cms_userprefs::get_for_user($userid, 'syntax_editor');
     if( !$val ) {
@@ -560,12 +564,12 @@ function get_syntaxeditor_setup(array $params) : array
         if( $modname ) {
             $modinst = cms_utils::get_module($modname);
             if( $modinst ) {
-                if( $modinst instanceof SyntaxEditor ) {
+                if( $modinst instanceof MultiEditor ) {
                     $edname = $vars[1] ?? $modname;
                     if (empty($params['theme'])) {
-                        $val = cms_userprefs::get_for_user($userid, 'editor_theme');
+                        $val = cms_userprefs::get_for_user($userid, 'syntax_theme');
                         if( !$val ) {
-                            $val = cms_siteprefs::get('editor_theme');
+                            $val = cms_siteprefs::get('syntax_theme');
                         }
                         if( $val ) {
                             $params['theme'] = $val;
@@ -575,7 +579,7 @@ function get_syntaxeditor_setup(array $params) : array
                 }
                 elseif( $modinst->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE) ) {
                     $out = $modinst->SyntaxGenerateHeader();
-					if ($out) { return ['head'=>$out]; }
+                    if ($out) { return ['head'=>$out]; }
                 }
             }
         }
