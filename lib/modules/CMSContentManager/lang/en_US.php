@@ -416,7 +416,7 @@ $lang['zz_2logic_tab__'] = 'Long Options';
 $lang['zz_3nav_tab__'] = 'Navigation';
 $lang['zz_4perms_tab__'] = 'Permissions';
 
-$lang['help_module'] = <<<EOT
+$lang['help_module'] = <<<'EOT'
 <h3>Introduction</h3>
 <p>This document describes the CMSMS Content Manager module. It is aimed primarily at website designers and developers, and describes in broad terms how content items work in CMS Made Simple.</p>
 <p>The primary interface of this module is the content list. It displays content items in a tabular format and provides the ability to quickly search, navigate, and manage multiple content items. This is a dynamic list. The display is adjusted depending on some site configuration items, some global settings, user permissions and the individual content items. The following text describes what content items are, and how the content list behaves with them.</p>
