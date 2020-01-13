@@ -2,7 +2,7 @@
 
 namespace cms_installer;
 
-use cms_installer\installer_base;
+//use cms_installer\installer_base;
 use cms_installer\request;
 use cms_installer\session;
 use Exception;
