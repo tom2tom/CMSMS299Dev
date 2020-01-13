@@ -726,10 +726,9 @@ class FormUtils
     }
 
     /**
-     * Record a syntax-highlighter module specified during generation of a textarea
+     * Record a syntax-highlight-editor module specified during generation of a textarea.
      * @internal
      * @ignore
-     * @deprecated since 2.3. Instead, generate and record content (js etc) directly
      */
     protected static function add_syntax(string $module_name)
     {
@@ -742,7 +741,6 @@ class FormUtils
 
     /**
      * Get the specified syntax-highlighter module(s)
-     * @deprecated since 2.3. Instead, generate and record content (js etc) directly
      *
      * @return array
      */
@@ -752,10 +750,10 @@ class FormUtils
     }
 
     /**
-     * Record a wysiwyg module specified during generation of a textarea.
+     * Record a richtext-editor (aka wysiwyg) module specified during generation
+	 * of a textarea.
      * For frontend editing, the {cms_init_editor} plugin must be included in the
 	 * head part of the page/template, to process the info recorded by this method.
-     * @deprecated since 2.3. Instead, generate and record content (js, css etc) directly
      *
      * @internal
      * @ignore
@@ -774,8 +772,7 @@ class FormUtils
     }
 
     /**
-     * Get the specified page-content editor module(s)
-     * @deprecated since 2.3. Instead, generate and record content (js, css etc) directly
+     * Get the specified richtext editor module(s)
      *
      * @return array
      */
@@ -785,7 +782,9 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for a text area input. Also used for a syntaxarea.
+     * Get xhtml for a text area input
+	 * The area may be used with a richtext editor or syntax highlight editor.
+	 * If so, the related js, css etc are not generated here.
      *
      * @param array $parms   Attribute(s)/property(ies) to be included in the
      *  element, each member like name=>value. Any name may be numeric, in which
@@ -796,12 +795,12 @@ class FormUtils
      *   id/htmlid = (optional string) id attribute for the text area element.  If not specified, name is used.
      *   class/classname = (optional string) class attribute for the text area element.  Some values will be added to this string.
      *                   default is cms_textarea
-     *   forcemodule/forcewysiwyg = (optional string) used to specify the module to enable.  If specified, the module name will be added to the
+     *   forcemodule/forcewysiwyg = (optional string) used to specify the editor-module to enable.  If specified, the module name will be added to the
      *                   class attribute.
-     *   enablewysiwyg = (optional boolean) used to specify whether a wysiwyg textarea is required.  sets the language to html.
+     *   enablewysiwyg = (optional boolean) used to specify whether a richtext-editor is required for the textarea.  Sets the language to html.
      *         Deprecated since 2.3. Instead, generate and record content (js, css etc) directly
      *   wantedsyntax  = (optional string) used to specify the language (html,css,php,smarty) to use.  If non empty indicates that a
-     *                   syntax hilighter module is requested. Deprecated since 2.3. Instead, generate and record content (js etc) directly
+     *                   syntax-highlight editor is required for the textarea. Deprecated since 2.3. Instead, generate and record content (js etc) directly
      *   cols/width    = (optional integer) columns of the text area (css or the syntax/wysiwyg module may override this)
      *   rows/height   = (optional integer) rows of the text area (css or the syntax/wysiwyg module may override this)
      *   maxlength     = (optional integer) maxlength attribute of the text area (syntax/wysiwyg module may ignore this)
@@ -851,8 +850,8 @@ class FormUtils
             unset($parms['maxlength']);
         }
 
-        $value = $value ?? '';
-        $forcemodule = $forcemodule ?? '';
+        if (!isset($value)) { $value = ''; }
+        if (!isset($forcemodule)) { $forcemodule = ''; }
         $module = null;
 
         if ($enablewysiwyg) { //deprecated since 2.3
@@ -875,7 +874,7 @@ class FormUtils
             }
         }
 
-        $wantedsyntax = $wantedsyntax ?? '';  //deprecated since 2.3
+        if (!isset($wantedsyntax)) { $wantedsyntax = ''; }
         if (!$module && $wantedsyntax) {
             $parms['data-cms-lang'] = $wantedsyntax; //park
             $module = ModuleOperations::get_instance()->GetSyntaxHighlighter($forcemodule);
