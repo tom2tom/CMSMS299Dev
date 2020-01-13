@@ -36,7 +36,7 @@ recurs I(4) UNSIGNED,
 errors I(4) UNSIGNED DEFAULT 0 NOT NULL,
 data X(16383)
 ';
-$sqlarray = $dict->CreateTableSQL( CmsJobManager::TABLE_NAME, $flds, $taboptarray );
+$sqlarray = $dict->CreateTableSQL(CmsJobManager::TABLE_NAME, $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
 $this->SetPreference('enabled',1); //whether async job-processing by this module is currently enabled
