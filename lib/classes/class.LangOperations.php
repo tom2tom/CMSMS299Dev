@@ -47,9 +47,9 @@ final class LangOperations
 	 */
 	private static $_langdata;
 
-
 	/**
 	 * @ignore
+	 * Unused
 	 */
 	private static $_do_conversions;
 
@@ -83,14 +83,14 @@ final class LangOperations
 
 		// load relevant english translations first
 		$files = [];
-		$is_module = false;
+		$is_module = FALSE;
 		if( $realm == self::CMSMS_ADMIN_REALM ) {
 			$files[] = CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
 		}
 		else {
-			$dir = cms_module_path($realm,true);
+			$dir = cms_module_path($realm,TRUE);
 			if( $dir ) {
-				$is_module = true;
+				$is_module = TRUE;
 				$files[] = $dir.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
 			}
 			$files[] = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.$realm.DIRECTORY_SEPARATOR.'en_US.php'; //for a module-related plugin?
@@ -126,17 +126,18 @@ final class LangOperations
 			if( !is_file($fn) ) continue;
 
 			$lang = [];
-			include($fn);
+			include_once $fn;
 			if( !isset(self::$_langdata[$curlang][$realm]) ) {
 				self::$_langdata[$curlang][$realm] = [];
 			}
-			self::$_langdata[$curlang][$realm] = array_merge(self::$_langdata[$curlang][$realm],$lang);
+			self::$_langdata[$curlang][$realm] = array_merge(self::$_langdata[$curlang][$realm], $lang);
 			unset($lang);
 		}
 	}
 
 	/**
 	 * @ignore
+	 * Does nothing
 	 */
 	private static function _convert_encoding($str)
 	{
@@ -148,30 +149,29 @@ final class LangOperations
 	 * @see also LangOperations::key_exists()
 	 *
 	 * @since 2.2
-	 * @param string $realm The realm name (required)
-	 * @param string $key The language key (required)
+	 * @param first, string $realm (required) The realm name, the 'namespace' for the language keys
+	 *  followed by string $key (required) The language key 
 	 * @return bool
 	 */
 	public static function lang_key_exists(...$args)
 	{
 		if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
-		if( count($args) < 2 ) return;
+		if( count($args) < 2 ) return FALSE;
 
 		$realm  = $args[0];
 		$key    = $args[1];
-		if( !$realm || !$key ) return;
+		if( !$realm || !$key ) return FALSE;
 
 		if (self::CMSMS_ADMIN_REALM == $realm &&
 			!AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_STYLESHEET | AppState::STATE_INSTALL) &&
 			!self::$_allow_nonadmin_lang ) {
 			trigger_error('Attempt to load admin realm from non admin action');
-			return '';
+			return FALSE;
 		}
 
 		$curlang = NlsOperations::get_current_language();
 		self::_load_realm($realm);
-		if( isset(self::$_langdata[$curlang][$realm][$key]) ) return TRUE;
-		return FALSE;
+		return isset(self::$_langdata[$curlang][$realm][$key]);
 	}
 
 	/**
@@ -181,9 +181,9 @@ final class LangOperations
 	 * This function uses the currently set language, and will load the translations from disk
 	 * if necessary.
 	 *
-	 * @param string The realm name (required)
-	 * @param string The language string key (required)
-	 * @param mixed  Further arguments to this function are passed to vsprintf
+	 * @param first, string $realm The realm name (required) The 'namespace' for the language keys
+	 *  followed by string $key The language key (required)
+	 *  and then by any substitution-parameter values to be applied to the string via vsprintf()
 	 * @return mixed string | null
 	 */
 	public static function lang_from_realm(...$args)
@@ -208,7 +208,7 @@ final class LangOperations
 		$curlang = NlsOperations::get_current_language();
 		if( !isset(self::$_langdata[$curlang][$realm][$key]) ) {
 			// put mention into the admin log
-						if( !AppState::test_state(AppState::STATE_LOGIN_PAGE) ) debug_to_log('Languagestring: "' . $key . '"', 'Is missing in the languagefile: '.  $realm);
+			if( !AppState::test_state(AppState::STATE_LOGIN_PAGE) ) debug_to_log('Languagestring: "' . $key . '"', 'Is missing in the languagefile: '.  $realm);
 			return "-- Missing Language String: $key --";
 		}
 
@@ -228,8 +228,9 @@ final class LangOperations
 			$result = self::$_langdata[$curlang][$realm][$key];
 		}
 
-		// conversion?
-		return self::_convert_encoding($result);
+		// conversion? e.g. to UTF-8
+//		return self::_convert_encoding($result); //TODO useless
+		return $result;
 	}
 
 	/**
@@ -238,9 +239,9 @@ final class LangOperations
 	 * This function accepts variable arguments.
 	 * @see LangOperations::lang_from_realm()
 	 *
-	 * @param string Key (required) the language string key
-	 * @param mixed  Optional further arguments.
-	 * @return string
+	 * @param first, string $key The language key (required)
+	 *  and then by any substitution-parameter values to be applied to the string via vsprintf()
+	 * @return mixed string | null
 	 */
 	public static function lang(...$args)
 	{
@@ -250,37 +251,34 @@ final class LangOperations
 		return self::lang_from_realm($args);
 	}
 
-
 	/**
 	 * Allow non-admin requests to call lang functions.
 	 * Normally, an error would be generated if calling core lang functions from
 	 * a frontend action. This method will disable or enable that check.
 	 *
 	 * @internal
-	 * @param bool flag
+	 * @param bool Optional flag Default true
 	 */
 	public static function allow_nonadmin_lang($flag = TRUE)
 	{
 		self::$_allow_nonadmin_lang = $flag;
 	}
 
-
 	/**
-	 * Test to see if a language key exists in the current lang file.
+	 * Test to see if a language key exists in the specified (or default) lang realm.
 	 * This function uses the current language.
 	 * @see also LangOperations::lang_key_exists()
 	 *
 	 * @param string $key The language key
-	 * @param string $realm The language realm
+	 * @param mixed string|null $realm Optional language realm. Default null.
 	 * @return bool
 	 */
-	public static function key_exists($key,$realm = null)
+	public static function key_exists($key,$realm = NULL) //: bool
 	{
-		if( $realm == null ) $realm = self::$_current_realm;
+		if( $realm == NULL ) $realm = self::$_current_realm;
 		self::_load_realm($realm);
 		$curlang = NlsOperations::get_current_language();
-		if( isset(self::$_langdata[$curlang][$realm][$key]) ) return TRUE;
-		return FALSE;
+		return isset(self::$_langdata[$curlang][$realm][$key]);
 	}
 
 	/**
@@ -288,10 +286,10 @@ final class LangOperations
 	 *
 	 * @since 2.0
 	 * @author Robert Campbell
-	 * @param string $realm The realm name.  If no name specified, self::CMSMS_ADMIN_REALM is assumed'
+	 * @param string $realm The realm name.  If no name specified, self::CMSMS_ADMIN_REALM is assumed
 	 * @return string the old realm name.
 	 */
-	public static function set_realm($realm = self::CMSMS_ADMIN_REALM)
+	public static function set_realm($realm = self::CMSMS_ADMIN_REALM) //: string
 	{
 		$old = self::$_current_realm;
 		if( $realm == '' ) $realm = self::CMSMS_ADMIN_REALM;
