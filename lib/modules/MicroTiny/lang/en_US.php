@@ -186,14 +186,20 @@ $lang['loading_info'] = 'Loading...';
 $lang['mailto_image'] = 'Create a mail image';
 $lang['mailto_text'] = 'Create a mail link';
 $lang['mailto_title'] = 'Create a mail link';
-$lang['microtiny_helpmain'] = <<<EOT
-MicroTiny is a CMSMS-customised variant of the TinyMCE editor.
-<br /><br />
-For more information, refer to the MicroTiny module help, or the <a href="http://www.tinymce.com" target="_blank">TinyMCE website</a>.
-EOT;
-$lang['microtiny_helptheme'] = <<<EOT
+// multi-editor-compatible strings
+$lang['microtiny_friendlyname'] = 'MicroTiny';
+$lang['microtiny_helpcdn'] = <<<'EOT'
 TODO
 EOT;
+$lang['microtiny_helpmain'] = <<<'EOT'
+MicroTiny is a CMSMS-customised variant of the TinyMCE editor.
+<br /><br />
+For more information, refer to the MicroTiny module help, or visit the <a href="http://www.tinymce.com" target="_blank">TinyMCE website</a>.
+EOT;
+$lang['microtiny_helptheme'] = <<<'EOT'
+TODO
+EOT;
+
 $lang['msg_cancelled'] = 'Operation canceled';
 $lang['mthelp_allowcssoverride'] = 'If enabled, then any code that initializes a MicroTiny WYSIWYG area will be able to specify the name of a stylesheet to use instead of the default stylesheet specified above.';
 $lang['mthelp_dfltstylesheet'] = 'Associate a stylesheet with MicroTiny.  This allows the editor to appear similar to the website appearance.';
