@@ -125,7 +125,7 @@ class CoreTextEditing extends CMSModule implements CMSMS\MultiEditor
 	 * @param bool $selectable Optional flag whether to return assoc array. Default true.
 	 * @return array
 	 */
-	public function ListEditors(bool $selectable = true) : array
+	public function ListEditors() : array
 	{
 		if ($this->editors === null) {
 			$text = $this->GetName().'::';
@@ -139,9 +139,25 @@ class CoreTextEditing extends CMSModule implements CMSMS\MultiEditor
 			natcasesort($names); //caseless
 			$this->editors = $names;
 		}
-		return ($selectable) ? $this->editors : array_values($this->editors);
+		return $this->editors;
 	}
 
+    /* *
+     * @return array
+     */
+/*    public function ShowEditors() : array
+    {
+		$names = $this->ListEditors();
+		if ($names) {
+			array_flip ($names);
+			foreach ($names as $val => $editor) {
+	            $n = strtolower($editor);
+				$names[$val] = $this->Lang($n.'_friendlyname');
+			}
+		}
+		return $names;
+	}
+*/
 	public function GetMainHelpKey(string $editor = '') : array
 	{
 		if ($editor) {
