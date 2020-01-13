@@ -256,7 +256,8 @@ function set_site_preference(string $prefname, $value)
  * @internal
  * @access private
  * @deprecated since 2.3 instead use CMSMS\FormUtils::create_textarea()
- * @param boolean $enablewysiwyg Whether or not we are enabling a wysiwyg.  If false, and forcewysiwyg is not empty then a syntax area is used.
+ * @param boolean $enablewysiwyg Whether to apply a richtext-editor.
+ *   If false, and forcewysiwyg is not empty, then a syntax-highlight editor is applied.
  * @param string  $value The contents of the text area
  * @param string  $name The name of the text area
  * @param string  $class An optional class name
@@ -265,8 +266,10 @@ function set_site_preference(string $prefname, $value)
  * @param string  $stylesheet Optional style information
  * @param integer $width Width (the number of columns) (CSS can and will override this)
  * @param integer $height Height (the number of rows) (CSS can and will override this)
- * @param string  $forcewysiwyg Optional name of the syntax hilighter or wysiwyg to use.  If empty, preferences indicate which a syntax editor or wysiwyg should be used.
- * @param string  $wantedsyntax Optional name of the language used.  If non empty it indicates that a syntax highlihter will be used.
+ * @param string  $forcewysiwyg Optional name of the richtext- or syntax-highligh-editor to use.
+ *   If empty, preferences indicate which editor to use.
+ * @param string  $wantedsyntax Optional name of the language/syntax used.
+ *   If non-empty it indicates that a syntax highlighter will be used.
  * @param string  $addtext Optional additional text to include in the textarea tag
  * @return string
  */
