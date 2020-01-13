@@ -1,7 +1,8 @@
 <?php
 /*
-An interface to define methods in syntax-highlight text-editor modules.
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+An interface to define methods in multi-editor modules, supporting
+rich-text (html) editing or syntax-highlight editing more generally.
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -28,24 +29,26 @@ namespace CMSMS;
 
 interface MultiEditor
 {
-    /**
-     * A CMSModule method, included here to ensure this mechanism for identifying
-     * syntax-capable modules.
-     * Return true when $capability is CmsCoreCapabilities::SYNTAX_MODULE.
-     * @see CMSModule::HasCapability();
-     */
-    public function HasCapability($capability, $params = []);
+	/**
+	 * A CMSModule method, included here to ensure this mechanism for
+	 * identifying capable modules.
+	 * Return true when $capability is CmsCoreCapabilities::WYSIWYG_MODULE
+	 * or CmsCoreCapabilities::SYNTAX_MODULE, as appropriate.
+	 * @see CMSModule::HasCapability();
+	 */
+	public function HasCapability($capability, $params = []);
 
-    // DO NOT DELETE OR CHANGE OR MOVE THIS LINE - INDICATES START OF API HELPTEXT
+	// DO NOT DELETE OR CHANGE OR MOVE THIS LINE - INDICATES START OF API HELPTEXT
 
 	/**
-     * Identify supported editor(s)
-     *
+	 * Identify supported editor(s)
+	 *
 	 * @param bool $selectable Optional flag whether to populate returned
-	 *  array-keys with UI-friendly identifiers, for use e.g. in a selector
-	 * @return array
+	 *  array-keys with (untranslated) editor names, for use e.g. in a selector
+	 * @return array, key-sorted, each member like 'editorname'=>'modulename::editorname',
+	 * where each (sub-)string is as recorded in the filesystem
 	 */
-	public function ListEditors(bool $selectable = true) : array;
+	public function ListEditors() : array;
 
 	/**
 	 * Get data for constructing a help message for the editor generally
@@ -53,7 +56,7 @@ interface MultiEditor
 	 * @see MultiEditor::GetMainHelp()
 	 * @param string $editor Optional editor name/type (for modules supporting > 1 such editor)
 	 *
-	 * @return array: 2-members, [0] = help-realm or null [1] = lang key for the realm
+	 * @return array: 2-members, [0] = help-realm or null, [1] = lang key for the realm
 	 */
 	public function GetMainHelpKey(string $editor = '') : array;
 
@@ -89,7 +92,7 @@ interface MultiEditor
 
 	/**
 	 * Get page content (css, js etc) needed for setup and operation of a text-editor
-     *
+	 *
 	 * @param string $editor editor name/type
 	 * @param array $params  configuration details
 	 *  Recognized members are:
@@ -100,15 +103,15 @@ interface MultiEditor
 	 * string 'style'  override for the normal editor theme/style.  Default ''
 	 * string 'typer'  content-type identifier, an absolute filepath or at least
 	 *   an extension or pseudo recognized by the editor (c.f. 'smarty'). Default ''
-     *
-	 * @return array, up to 2 members 'head' and/or 'foot', string(s) for inclusion
-	 *  in a page header or footer respectively
-	 * The js includes (among other things) 3 functions:
-	 *  seteditorcontent(v[,m]) to supply text to the editor, and (optionally) set syntax type
-	 *  geteditorcontent() to get text from the editor
-	 *  setpagecontent(v) to put text into the original form element (probably for submission to the server)
+	 *
+	 * @return array, up to 2 members 'head' and/or 'foot', being html and/or
+	 *  javascript for inclusion in a page header or footer respectively
+	 * The javascript includes (among other things) 3 functions:
+	 *  seteditorcontent(t[,m]) to supply text t to the editor-object, and (optionally) set syntax type
+	 *  geteditorcontent() to get text from the editor-object
+	 *  setpagecontent(t) to put text t into the original form element (probably for submission to the server)
 	 */
 	public function GetEditorSetup(string $editor, array $params) : array;
 
-    // DO NOT DELETE OR CHANGE OR MOVE THIS LINE - INDICATES END OF API HELPTEXT
+	// DO NOT DELETE OR CHANGE OR MOVE THIS LINE - INDICATES END OF API HELPTEXT
 } // interface
