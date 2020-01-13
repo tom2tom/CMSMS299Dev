@@ -81,7 +81,7 @@ if (isset($modinst)) {
 	}
 }
 
-// setup for required rich-text-editors (deprecated since 2.3)
+// setup for required rich-text-editors
 // (must be after action/content generation, which might create such textarea(s))
 $list = FormUtils::get_requested_wysiwyg_modules();
 if ($list) {
@@ -142,7 +142,7 @@ if ($list) {
 	}
 }
 
-// setup for required syntax hilighters (deprecated since 2.3)
+// setup for required syntax hilighters
 $list = FormUtils::get_requested_syntax_modules();
 if ($list) {
 	foreach ($list as $one) {
