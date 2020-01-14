@@ -182,7 +182,7 @@ final class cms_siteprefs
 		if( !(is_scalar($value) || is_null($value)) ) {
 			$value = self::SERIAL.serialize($value);
 		}
-		//self::exists() is uselsss here, it ignores null (hence '') values
+		//NB self::exists() ignores '' (hence null) values, leading possibly to key duplication error
 		//upsert TODO MySQL ON DUPLICATE KEY UPDATE useful here?
 		$query = "UPDATE $tbl SET sitepref_value=?,modified_date=$now WHERE sitepref_name=?";
 //		$dbr =
