@@ -56,7 +56,6 @@ if ( typeof Object.create !== 'function' ) {
 }
 
 ;(function( $, window, document, undefined ) {
-    "$:nomunge";
     "use strict";
 
     var Toast = {
