@@ -180,7 +180,7 @@ final class cms_userprefs
 		}
 		self::_read($userid);
 		$db = CmsApp::get_instance()->GetDb();
-		if( !self::exists_for_user($userid,$key) ) {
+		if(  !isset(self::$_prefs[$userid][$key]) ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.'userprefs (user_id,preference,value) VALUES (?,?,?)';
 //			$dbr =
 			$db->Execute($query,[$userid,$key,$value]);
