@@ -28,4 +28,3 @@ function smarty_function_theme_root($params, $template)
 	}
 	return $url;
 }
-
