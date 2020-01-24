@@ -94,12 +94,16 @@ class Utils
 			$url = $mod->GetModuleURLPath().'/lib/js';
 			//main source file doesn't like relocation into a merged-scripts file ? & must be addressable
 			$output = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
 if(typeof String.prototype.trim === 'undefined') {
  var xjS = document.createElement('script');
  xjS.type = 'text/javascript';
  xjS.src = "{$url}/ec5support.min.js";
  document.getElementById('mainjssource').insertBefore(xjS); //CHECK compiles ok?
 }
+//]]>
+</script>
 <script type="text/javascript" id="mainjssource" src="{$url}/tinymce/tinymce.min.js"></script>
 <script type="text/javascript" src="{$url}/tinymce/jquery.tinymce.min.js"></script>
 EOS;
