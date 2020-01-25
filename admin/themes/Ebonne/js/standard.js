@@ -73,7 +73,7 @@ var ggjs = {
     // open external links with rel="external" attribute in new window
     $('a[rel="external"]').attr('target', '_blank');
     // focus on input with .defaultfocus class
-    $('input.defaultfocus:eq(0), input[autofocus]').focus();
+    $('input.defaultfocus, input[autofocus]').eq(0).focus();
     // async-load a cookie handler if localStorage is not supported
     if(!this.isLocalStorage()) {
       this.loadScript(this.cookie_handler);

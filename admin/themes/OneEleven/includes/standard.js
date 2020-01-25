@@ -34,7 +34,7 @@ License GPL2+
             // open external links with rel="external" attribute in new window
             $('a[rel="external"]').attr('target', '_blank');
             // focus on input with .defaultfocus class
-            $('input.defaultfocus:eq(0), input[autofocus]').focus();
+            $('input.defaultfocus, input[autofocus]').eq(0).focus();
             // load cookie.js if localStorage is not supported
             if (!_this._isLocalStorage()) {
                 _this.loadScript('themes/OneEleven/includes/jquery.cookie.min.js');
