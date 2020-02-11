@@ -130,7 +130,7 @@ foreach ($checkarray as $check) {
 $n = count($errortables);
 $smarty->assign('errorcount', $n);
 if ($n > 0) {
-    $smarty->assign('errortables', implode(',', $errortables));
+    $smarty->assign('errortables', implode(',<br />', array_unique($errortables)));
 }
 
 /*
