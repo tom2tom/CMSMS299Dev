@@ -1,7 +1,12 @@
 /*!
+jQuery toast plugin v1.4.0
+(C) 2015-2018 Kamran Ahmed <http://kamranahmed.info>
+License: MIT
+*/
+/*
 jQuery toast plugin v.1.4.0
 Copyright (C) 2015-2018 Kamran Ahmed <http://kamranahmed.info>
-License MIT
+License: MIT
 */
 /*
 options and their default values:
