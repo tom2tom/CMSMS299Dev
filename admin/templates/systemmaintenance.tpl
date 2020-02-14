@@ -77,9 +77,11 @@
     <p class="red"><strong>
       {if $errorcount>1}
         {lang('sysmain_str_errors',{$errorcount})}:<br />
+        {foreach $errortables as $val}{$val}{if $val@last}<br />{else},<br />{/if}
+{/foreach}
       {else}
-        {lang('sysmain_str_error',{$errorcount})}:
-      {/if}{$errortables}
+        {lang('sysmain_str_error',{$errorcount})}: {$errortables}
+      {/if}
     </strong></p>
     {/if}
 

@@ -129,8 +129,10 @@ foreach ($checkarray as $check) {
 
 $n = count($errortables);
 $smarty->assign('errorcount', $n);
-if ($n > 0) {
-    $smarty->assign('errortables', implode(',<br />', array_unique($errortables)));
+if ($n == 1) {
+    $smarty->assign('errortables', $errortables[0]);
+} elseif ($n > 1) {
+    $smarty->assign('errortables', array_unique($errortables));
 }
 
 /*
