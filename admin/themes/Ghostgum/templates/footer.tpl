@@ -1,9 +1,9 @@
 {block name=footer}
 {strip}
   <div class="footer-left">
-   <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple&trade;</a> {cms_version} &ldquo;{cms_versionname}&rdquo;
+    <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple</a>&trade; {cms_version} &ldquo;{cms_versionname}&rdquo;
   </div>
-  <div class="footer-right cf">
+  <div class="footer-right">
     <ul class="links">
       <li>
         <a href="https://docs.cmsmadesimple.org/" rel="external" title="{lang('documentationtip')}">{lang('documentation')}</a>
