@@ -1,7 +1,7 @@
 /*
  * jQuery UI Touch Punch 0.3
  *
- * Copyright 2011–2020, Dave Furfero http://furf.com
+ * Copyright 2011-2020, Dave Furfero http://furf.com
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
  * Depends:
@@ -10,7 +10,7 @@
  */
 /*!
 jQuery UI Touch Punch v0.3
-(C) 2011–2020 Dave Furfero http://furf.com
+(C) 2011-2020 Dave Furfero http://furf.com
 License: MIT or GPL2
 */
 (function($, navigator, window, document, undefined) {
