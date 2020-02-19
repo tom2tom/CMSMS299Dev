@@ -9,7 +9,7 @@
         <a href="https://docs.cmsmadesimple.org/" rel="external" title="{lang('documentationtip')}">{lang('documentation')}</a>
       </li>
       <li>
-        <a href="https://forum.cmsmadesimple.org/" rel="external" title="{lang('forums')}">{lang('forums')}</a>
+        <a href="https://forum.cmsmadesimple.org/" rel="external" title="{lang('cms_forums')}">{lang('forums')}</a>
       </li>
       <li>
       {if isset($site_help_url)}
