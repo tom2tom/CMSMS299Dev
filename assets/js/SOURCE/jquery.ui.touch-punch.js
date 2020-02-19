@@ -35,13 +35,9 @@ License: MIT or GPL2
       }
       if (window.matchMedia) {
         var prefixes = ' -webkit- -moz- -o- -ms- '.split(' ');
-        var mq = function (query) {
-          return window.matchMedia(query).matches;
-        };
-        // include the 'Z' to help terminate the join
-        // https://git.io/vznFH
+        // include the 'Z' to help terminate the join (https://git.io/vznFH)
         var query = ['(', prefixes.join('touch-enabled),('), 'Z', ')'].join('').replace(',(Z)', '');
-        return mq(query);
+        return window.matchMedia(query).matches;
         // TODO consider also checking media hover and pointer props, per ref above
       }
       return false;
