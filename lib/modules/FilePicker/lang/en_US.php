@@ -14,8 +14,10 @@ $lang['diretory_named'] = 'Directory %s'; //tooltip c.f. changedir
 $lang['delete'] = 'Delete';
 $lang['deleteit'] = 'Delete %s'; //tooltip
 $lang['dependencies'] = 'Dependencies';
-$lang['displayit'] = 'Display %s';
+$lang['displayit'] = 'Display %s'; //tooltip
 $lang['displayup'] = 'Display parent directory'; //tooltip
+$lang['dropshort'] = 'Drop Zone';
+$lang['droplong'] = 'You may drop here file(s) dragged from your file manager, to automatically begin uploading'; //tooltip
 
 // E
 $lang['error_ajax_invalidfilename'] = 'That filename is invalid';
