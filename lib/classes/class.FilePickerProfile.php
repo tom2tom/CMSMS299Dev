@@ -33,7 +33,7 @@ use function cms_to_bool;
  * to allow building or altering a profile object.  Ths is the only time when properties of a profile can be adjusted.
  *
  * ```php
- * $obj = new \CMSMS\FilePickerProfile( [ 'type'=>FileType::TYPE_IMAGE,
+ * $obj = new CMSMS\FilePickerProfile( [ 'type'=>FileType::TYPE_IMAGE,
  *    'exclude_prefix'=>'foo' ] );
  *
  * @package CMS
@@ -94,10 +94,10 @@ class FilePickerProfile
     {
         switch( $key ) {
         case 'top':
-        case 'type':
             return trim($this->_data[$key]);
 
-        case 'can_mkdir':
+		case 'type': // FileType enum member
+		case 'can_mkdir': // self::FLAG_* value
         case 'can_upload':
         case 'can_delete':
             return (int) $this->_data[$key];
@@ -144,7 +144,7 @@ class FilePickerProfile
             case FileType::DOCUMENT:
             case FileType::ARCHIVE:
             case FileType::ANY:
-                $this->_data[$key] = $val;
+                $this->_data[$key] = (int)$val; // kill the trim()-conversion
                 break;
 			case 'image':
 				$this->_data[$key] = FileType::IMAGE; //TODO fix this hack - upstream use of string value
@@ -153,7 +153,6 @@ class FilePickerProfile
                 break;
             default:
                 throw new CmsInvalidDataException("$val is not a valid type in ".self::class);
-                break;
             }
             break;
 
