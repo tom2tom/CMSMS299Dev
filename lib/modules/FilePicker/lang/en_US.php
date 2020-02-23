@@ -2,16 +2,20 @@
 
 // C
 $lang['cancel'] = 'Cancel';
-$lang['changedir'] = 'Change directory to';
+$lang['changedir'] = 'Display directory %s'; //tooltip
+$lang['chooseit'] = 'Select %s'; //tooltip
 $lang['clear'] = 'Clear';
 $lang['confirm_delete'] = 'Are you sure you want to delete this?';
 $lang['create_dir'] = 'Create a new folder';
 
 // D
 $lang['dimension'] = 'Dimensions';
+$lang['diretory_named'] = 'Directory %s'; //tooltip c.f. changedir
 $lang['delete'] = 'Delete';
+$lang['deleteit'] = 'Delete %s'; //tooltip
 $lang['dependencies'] = 'Dependencies';
 $lang['displayit'] = 'Display %s';
+$lang['displayup'] = 'Display parent directory'; //tooltip
 
 // E
 $lang['error_ajax_invalidfilename'] = 'That filename is invalid';
