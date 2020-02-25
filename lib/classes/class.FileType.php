@@ -34,7 +34,7 @@ final class FileType extends BasicEnum
     const AUDIO     = 2;
     const VIDEO     = 3;
     const MEDIA     = 4;
-    const DOCUMENT  = 5;
+    const DOCUMENT  = 5; //'office' and text too?
     const SHOWABLE  = 9; //any of the above
     const ARCHIVE   = 15;
     const XML       = 20; //includes [x]html[5]
@@ -49,6 +49,7 @@ final class FileType extends BasicEnum
     const NONE      = 0; //careful! falsy matches
     const ANY       = 99;
     const ALL       = 99; //alias
+    const FILE      = 99; //alias
     //corresponding deprecated names
     const TYPE_IMAGE    = 1;
     const TYPE_AUDIO    = 2;
