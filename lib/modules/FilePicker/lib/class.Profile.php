@@ -68,10 +68,10 @@ class Profile extends FilePickerProfile
             // parent top is checked for relative or absolute
             // return relative to uploads path
             $val = parent::__get('top');
-       		if( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $val) ) {
-			   // path is absolute
+            if( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $val) ) {
+               // path is absolute
                 $config = cms_config::get_instance();
-			//TODO sometimes relative to site root
+            //TODO sometimes relative to site root
                 $uploads_path = $config['uploads_path'];
                 if( startswith( $val, $uploads_path ) ) $val = substr($val,strlen($uploads_path));
                 if( startswith( $val, DIRECTORY_SEPARATOR) ) $val = substr($val,1);
@@ -82,8 +82,8 @@ class Profile extends FilePickerProfile
             // parent top is checked for relative or absolute
             // if relative, prepend uploads path
             $val = parent::__get('top');
-       		if( !preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $val) ) {
-			//TODO sometimes relative to site root
+            if( !preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $val) ) {
+            //TODO sometimes relative to site root
                 $config = cms_config::get_instance();
                 $val = $config['uploads_path'].DIRECTORY_SEPARATOR.$val;
             }
