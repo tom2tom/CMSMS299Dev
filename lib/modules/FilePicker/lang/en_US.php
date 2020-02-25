@@ -33,7 +33,7 @@ $lang['error_upload_maxNumberOfFiles'] = 'You are uploading too many files at on
 
 // F
 $lang['filename'] = 'Filename';
-$lang['filterby'] = 'Filter by';
+$lang['filterby'] = 'Filters';
 $lang['filepickertitle'] = 'File Picker';
 $lang['fileview'] = 'File view';
 $lang['friendlyname'] = 'File Picker';
@@ -63,7 +63,7 @@ $lang['select_an_archive_file'] = 'Select an Archive File';
 $lang['select_a_file'] = 'Select a File';
 $lang['select_an_image'] = 'Select an Image';
 $lang['select_file'] = 'Select File'; //popup dialog title
-$lang['select_upload_files'] = 'Select files to upload';
+$lang['select_upload_files'] = 'Select file(s) to upload'; //tooltip
 $lang['show_thumbs'] = 'Show thumbnails';
 $lang['size'] = 'Size';
 $lang['submit'] = 'Submit';
