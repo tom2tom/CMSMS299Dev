@@ -42,6 +42,7 @@ use function cms_to_bool;
  * @since  2.2
  * @property-read string $top The top directory for the filepicker (relative to the CMSMS uploads directory, or ... TODO)
  * @property-read FileType $type A FileType enumerator representing files which may be used.
+ * @property-read string $typename enum identifier corresponding to $type.
  * @property-read string $match_prefix List only files/items that have the specified prefix.
  * @property-read string exclude_prefix  Exclude any files/items that have the specified prefix.
  * @property-read int $can_mkdir  Users of the filepicker can create new directories.
@@ -97,7 +98,7 @@ class FilePickerProfile
             return trim($this->_data[$key]);
 
 		case 'type': // FileType enum member
-		case 'can_mkdir': // self::FLAG_* value
+		case 'can_mkdir': // self::FLAG_* value, sometimes non-0 handled just as true
         case 'can_upload':
         case 'can_delete':
             return (int) $this->_data[$key];
@@ -106,6 +107,9 @@ class FilePickerProfile
         case 'show_hidden':
         case 'sort':
             return (bool) $this->_data[$key];
+
+        case 'typename':
+            return FileType::getName($this->_data['type']);
         }
     }
 
@@ -134,40 +138,38 @@ class FilePickerProfile
             break;
 
         case 'type':
-            $val = trim($val);
-            switch( $val ) {
-            case FileType::IMAGE:
-            case FileType::AUDIO:
-            case FileType::VIDEO:
-            case FileType::MEDIA:
-            case FileType::XML:
-            case FileType::DOCUMENT:
-            case FileType::ARCHIVE:
-            case FileType::ANY:
-                $this->_data[$key] = (int)$val; // kill the trim()-conversion
-                break;
-			case 'image':
-				$this->_data[$key] = FileType::IMAGE; //TODO fix this hack - upstream use of string value
-            case 'file':
-                $this->_data[$key] = FileType::ANY;
-                break;
-            default:
-                throw new CmsInvalidDataException("$val is not a valid type in ".self::class);
+            if( is_numeric($val) ) {
+                $n = (int)$val;
+                if( FileType::isValidValue($n) ) {
+                    $this->_data[$key] = $n;
+                    break;
+                }
+                throw new CmsInvalidDataException("$val is not a valid value for $key in ".self::class);
             }
-            break;
+            // no break here
+        case 'typename':
+            $s = strtoupper(trim($val));
+            if( ($n = FileType::getValue($s)) !== null ) {
+                $this->_data['type'] = $n;
+                break;
+            }
+            throw new CmsInvalidDataException("$val is not a valid value for $key in ".self::class);
 
         case 'can_mkdir':
         case 'can_delete':
         case 'can_upload':
-            $val = (int) $val;
-            switch( $val ) {
+            if( is_string($val) ) {
+                $n = (cms_to_bool($val)) ? self::FLAG_YES : self::FLAG_NONE;
+            } else {
+                $n = (int) $val;
+            }
+            switch( $n ) {
             case self::FLAG_NONE:
             case self::FLAG_YES:
             case self::FLAG_BYGROUP:
                 $this->_data[$key] = $val;
                 break;
             default:
-//                die('val is '.$val);
                 throw new CmsInvalidDataException("$val is not a valid value for $key in ".self::class);
             }
             break;
