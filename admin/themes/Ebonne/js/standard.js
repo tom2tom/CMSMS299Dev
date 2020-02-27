@@ -31,13 +31,14 @@ var ggjs = {
     this.handleSubMenu(this.$menu);
     // handle sub-menu display toggling
     this.$menu.find('.open-nav').on('click', function(e) {
-      //clicked span in a menu item title
+      // clicked span in a menu item title
       e.preventDefault();
       var $ob = $(this),
         $ul = $ob.next(), //sub-menu container for this item
         _p = [];
-      if(!$ul.is(':visible')) {
-        //close any other open submenu
+      // jQuery :visible selector is unreliable
+      if ($ul.length === 0 || $ul.css('visibility') === 'hidden' || $ul.css('display') === 'none') {
+        // close any other open submenu
         var $open = ggjs.$menu.find('.open-sub');
         if($open.length) {
           $open.removeClass('open-sub');
@@ -214,10 +215,10 @@ var ggjs = {
   },
   /**
    * @description Basic check for common mobile devices and touch capability
-   * @function isMobileDevice()
+   * @function _isMobileDevice()
    * @private
    */
-  isMobileDevice: function() {
+  _isMobileDevice: function() {
     var ua = navigator.userAgent.toLowerCase(),
       devices = /(Android|iPhone|iPad|iPod|Blackberry|Dolphin|IEMobile|WPhone|Windows Mobile|IEMobile9||IEMobile10||IEMobile11|Kindle|Mobile|MMP|MIDP|Pocket|PSP|Symbian|Smartphone|Sreo|Up.Browser|Up.Link|Vodafone|WAP|Opera Mini|Opera Tablet|Mobile|Fennec)/i;
     if(ua.match(devices) && (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || window.DocumentTouch && document instanceof DocumentTouch)) {
