@@ -66,7 +66,7 @@ class PathAssistant
     {
         $path_a = realpath($path_a);
         $path_b = realpath($path_b);
-        if (!$path_a || ! $path_b) return false;
+        if (!$path_a || !$path_b) return false;
 
         return startswith($path_a, $path_b);
     }
@@ -91,7 +91,10 @@ class PathAssistant
         $prefix = $this->get_top_url();
         if (endswith($prefix, '/')) $prefix = substr($prefix,0,-1);
         $relative = trim($relative, ' /\\');
-        return $prefix . '/' . strtr($relative,'\\','/');
+		if ($relative) {
+	        return $prefix . '/' . strtr($relative,'\\','/');
+		}
+		return $prefix;
     }
 
     public function is_valid_relative_path($path)
@@ -100,4 +103,3 @@ class PathAssistant
         return $this->is_relative($absolute);
     }
 } // class
-
