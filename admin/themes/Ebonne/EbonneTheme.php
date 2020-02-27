@@ -64,7 +64,7 @@ class EbonneTheme extends ThemeBase
 	 * included in the header of each displayed admin page
 	 *
 	 * @since 2.3
-	 * @return 2-member array (not typed to support back-compatible themes)
+	 * @return 2-member array (not typed, to support back-compatible themes)
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
 	 */
