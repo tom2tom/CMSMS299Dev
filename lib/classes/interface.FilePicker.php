@@ -54,7 +54,7 @@ interface FilePicker
     public function get_browser_url();
 
     /**
-     * Generate HTML to display an input field that is initialized with the filepicker plugin.
+     * Generate HTML & related js, css for an input field that can be used to specify a selected file.
      *
      * @param string $name The name for the input field.
      * @param string $value the current value for the input field
