@@ -455,4 +455,60 @@ class FileTypeHelper
         if( $this->is_archive( $filename ) ) return FileType::ARCHIVE;
         //TODO other types
     }
+
+	/**
+     * Get recognized file-extensions for the specified Filettype
+	 * @since 2.3
+     *
+     * @param mixed int|FileType|string identifier
+     * @return strings array, maybe empty
+	 */
+    public function get_file_type_extensions($id) : array
+	{
+		switch ($id) {
+			case FileType::IMAGE:
+				return $this->_image_extensions;
+			case FileType::AUDIO:
+				return $this->_audio_extensions;
+			case FileType::VIDEO:
+				return $this->_video_extensions;
+            case FileType::MEDIA:
+				return array_unique(array_merge($this->_audio_extensions, $this->_video_extensions));
+			case FileType::DOCUMENT:
+				return array_unique(array_merge($this->_document_extensions, $this->_text_extensions));
+			case FileType::ARCHIVE:
+				return $this->_archive_extensions;
+			case FileType::XML:
+				return $this->_xml_extensions;
+		}
+		return [];
+	}
+
+	/**
+     * Get mimetype identifier for the specified Filettype
+	 * @since 2.3
+     *
+     * @param mixed int|FileType|string identifier
+     * @return string, maybe ''
+	 */
+    public function get_file_type_mime($id) : string
+	{
+		switch ($id) {
+			case FileType::IMAGE:
+				return 'image/*';
+			case FileType::AUDIO:
+				return 'audio/*';
+			case FileType::VIDEO:
+				return 'video/*';
+			case FileType::MEDIA:
+				return ''; // too mant types
+			case FileType::DOCUMENT:
+				return ''; //too many types
+			case FileType::ARCHIVE:
+ 				return '';  // too many types
+			case FileType::XML:
+				return 'application/xml'; //or text/xml
+		}
+		return '';
+	}
 } // class
