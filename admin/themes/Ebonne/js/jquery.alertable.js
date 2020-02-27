@@ -1,7 +1,7 @@
 /*!
 jquery alertable plugin V.1.1 <github.com/claviska/jquery-alertable>
 (C) Cory LaViska <https://twitter.com/claviska>
-License: MIT 
+License: MIT
 */
 /* jquery-alertable 1.1.0
  Minimal alert, confirmation, and prompt alternatives
@@ -11,7 +11,6 @@ License: MIT
 //requires jQuery 1.7+
 
 ;(function($, window, document, undefined) {
-  "$:nomunge";
   'use strict';
 
   var modal,
