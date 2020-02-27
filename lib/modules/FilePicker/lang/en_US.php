@@ -6,7 +6,7 @@ $lang['changedir'] = 'Display directory %s'; //tooltip
 $lang['chooseit'] = 'Select %s'; //tooltip
 $lang['clear'] = 'Clear';
 $lang['confirm_delete'] = 'Are you sure you want to delete this?';
-$lang['create_dir'] = 'Create a new folder';
+$lang['create_dir'] = 'Create a new directory here';
 
 // D
 $lang['dimension'] = 'Dimensions';
@@ -39,7 +39,7 @@ $lang['fileview'] = 'File view';
 $lang['friendlyname'] = 'File Picker';
 
 //M
-$lang['moddescription'] = 'Manage custom property-sets for folders';
+$lang['moddescription'] = 'Manage custom property-sets for directories';
 
 // N
 $lang['na'] = 'Not available';
@@ -63,7 +63,7 @@ $lang['select_an_archive_file'] = 'Select an Archive File';
 $lang['select_a_file'] = 'Select a File';
 $lang['select_an_image'] = 'Select an Image';
 $lang['select_file'] = 'Select File'; //popup dialog title
-$lang['select_upload_files'] = 'Select file(s) to upload'; //tooltip
+$lang['select_upload_files'] = 'Select file(s) to upload to here'; //tooltip
 $lang['show_thumbs'] = 'Show thumbnails';
 $lang['size'] = 'Size';
 $lang['submit'] = 'Submit';
@@ -140,7 +140,7 @@ $lang['help'] = <<<EOT
 <li>to attach to a news article</li>
 </ul>
 </li>
-<li>manage folder profiles</li>
+<li>manage directory profiles</li>
 </ol>
 </p>
 <h3>How is it used?</h3>
@@ -150,6 +150,6 @@ $lang['help'] = <<<EOT
 <h3>Support</h3>
 <p>As per the license, this software is provided as-is. Please read the text of the license for the full disclaimer.</p>
 <h3>Copyright and License</h3>
-<p>Copyright &copy; 2017-2018, JoMorg and calguy1000. All rights reserved.</p>
+<p>Copyright &copy; 2017-2018, JoMorg and calguy1000, &copy; 2019-2020, CMSMS Foundation. All rights reserved.</p>
 <p>This module has been released under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU Public License</a>. The module must not be used otherwise than in accordance with that license, or a later version of that licence granted by the module distributor.</p>
 EOT;
