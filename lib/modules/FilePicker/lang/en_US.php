@@ -43,6 +43,7 @@ $lang['moddescription'] = 'Manage custom property-sets for directories';
 
 // N
 $lang['na'] = 'Not available';
+$lang['no'] = 'No';
 $lang['name'] = 'Name';
 
 // O
@@ -81,6 +82,7 @@ $lang['unknown'] = 'Unknown';
 $lang['upload'] = 'Upload';
 
 // Y
+$lang['yes'] = 'Yes';
 $lang['youareintext'] = 'The current working directory (relative to the top of the installation)';
 
 // PROFILE-RELATED TEXT
