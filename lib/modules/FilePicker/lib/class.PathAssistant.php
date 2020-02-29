@@ -21,10 +21,10 @@ class PathAssistant
         if (!$topdir || !is_dir($topdir)) throw new LogicException("Invalid topdir $topdir passed to ".__METHOD__);
         if (!$this->is_relative_to($topdir, CMS_ROOT_PATH)) throw new LogicException('Invalid topdir passed to '.__METHOD__);
 
-        if (endswith($topdir, DIRECTORY_SEPARATOR)) $topdir = substr($topdir,0,-1);
-        $this->_topdir = trim($topdir);
+//        if (endswith($topdir, DIRECTORY_SEPARATOR)) $topdir = substr($topdir,0,-1);
+        $this->_topdir = rtrim($topdir, ' '.DIRECTORY_SEPARATOR);
 
-        // now, look at the image uplaods path, the image path, the admin path, and the root path
+        // now, look at the image uploads path, the image path, the admin path, and the root path
         if ($this->is_relative_to($this->_topdir, $config['image_uploads_path'])) {
             $rel_url = $this->to_relative_sub($this->_topdir, $config['image_uploads_path']);
             $this->_topurl = $config['image_uploads_url'].'/'.$rel_url;
