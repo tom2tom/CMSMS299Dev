@@ -39,13 +39,19 @@ class FileTypeHelper
 
     /**
      * @ignore
+     * array
      */
-    private $_use_mimetype;
+    private $_member;
+
+    /* *
+     * @ignore
+     */
+    //private $_use_mimetype;
     /**
      * @ignore
      */
-    private $_config;
-    /**
+    //private $_config;
+    /* *
      * @ignore
      */
     private $_image_extensions = [
@@ -147,11 +153,12 @@ class FileTypeHelper
         'text',
         'txt',
         'xls',
+        'xlsm',
         'xlsx',
     ];
     /**
      * @ignore
-	 * xml'ish excluded cuz too hard to process in html context
+     * xml'ish excluded cuz too hard to process in html context
      */
     private $_text_extensions = [
         'txt', 'css', 'ini', 'conf', 'log', 'htaccess', 'passwd', 'ftpquota', 'sql', 'js', 'json', 'sh', 'config',
@@ -200,7 +207,7 @@ class FileTypeHelper
 
     /**
      * A utility method to allow overriding the extensions used to identify files of a specific type
-     *
+     * Seems useless!
      * @param string $member One of (_archive_extensions, _audio_extensions, _video_extensions, _xml_extensions, _document_extensions)
      * @param string $str A comma separated string of extensions for that file type
      */
@@ -209,14 +216,14 @@ class FileTypeHelper
         $str = trim($str);
         if( !$str ) return;
 
-        $out = $this->$member;
+        $out = $this->_member || [];
         $list = explode(',',$str);
         foreach( $list as $one ) {
             $one = strtolower(trim($one));
             if( !$one || in_array($one,$out) ) continue;
             $out[] = $one;
         }
-        $this->$member = $out;
+        $this->_member = $out;
     }
 
     /**
@@ -237,23 +244,30 @@ class FileTypeHelper
     /**
      * Get the extension of the specified file
      *
-     * @param string $filename Basename (at least) of a file. Assumes strtolower() works on the extension (ASCII)
+     * @param string $filename Basename (at least) of a file.
+     * @param bool $lower Optional flag, whether to lowercase the result. Default TRUE
      * @return string, lowercase
      */
-    public function get_extension( $filename )
+    public function get_extension( $filename, $lower = TRUE )
     {
-        return strtolower(substr($filename,strrpos($filename,'.')+1));
+        $p = \strrpos($filename, '.');
+        if( !$p ) { return ''; } // none or at start
+        $ext = \substr($filename, $p + 1);
+        if( !$lower) { return $ext; }
+        if( \function_exists('mb_strtolower') ) { return \mb_strtolower($ext); }
+        return \strtolower($ext);
     }
 
     /**
-     * Get the mime type of the specified file
+     * Get the media type of the specified file
      *
-     * @param string $filename Fileystem absolute path or include-path-resolvable path
+     * @param string $filename Filesystem absolute path or include-path-resolvable path
      * @return string
      */
     public function get_mime_type( $filename )
     {
         if( !isset($this->_finfo) ) {
+			// shonky hosts might not install this
             if( function_exists('finfo_open') ) {
                 $this->_finfo = finfo_open(FILEINFO_MIME_TYPE);
             } else {
@@ -267,14 +281,14 @@ class FileTypeHelper
         } elseif( !stristr(ini_get('disable_functions'), 'shell_exec')) {
              $file = escapeshellarg($filename);
              $type = shell_exec('file -bi ' . $file);
-             if ($type) return $type;
+             if ($type) { return $type; }
         }
         return '--';
     }
 
     /**
      * Test whether the specified file is an image.
-     * This method will use the mime type if possible, otherwise an extension is used to determine if the file is an image.
+     * This method will use the media type if possible, otherwise an extension is used to determine if the file is an image.
      *
      * @param string $filename
      * @return bool
@@ -284,7 +298,7 @@ class FileTypeHelper
         if( ($filename = $this->is_readable( $filename )) ) {
             $type = $this->get_mime_type( $filename );
             if($type && $type != '--') {
-                return startswith( $type, 'image/' );
+                return startswith( $type, 'image/' ); //TODO or svg ?
             }
             // fall back to extension-check
             $ext = $this->get_extension( $filename );
@@ -320,7 +334,7 @@ class FileTypeHelper
     }
 
     /**
-     * Using mime types if possible, or extensions, test whether the specified file is a known audio file.
+     * Using media types if possible, or extensions, test whether the specified file is a known audio file.
      *
      * @param string $filename Fileystem absolute path or include-path-resolvable path
      * @return bool
@@ -339,7 +353,7 @@ class FileTypeHelper
     }
 
     /**
-     * Using mime types if possible, or extensions, test whether the specified file is a known audio file.
+     * Using media types if possible, or extensions, test whether the specified file is a known audio file.
      *
      * @param string $filename Fileystem absolute path or include-path-resolvable path
      * @return bool
@@ -381,9 +395,9 @@ class FileTypeHelper
     {
         if( ($filename = $this->is_readable( $filename )) ) {
             $type = $this->get_mime_type( $filename );
-			if( $type && ($p = strpos($type, ';')) !== FALSE) {
-				$type = trim(substr($type, 0, $p));
-			}
+            if( $type && ($p = strpos($type, ';')) !== FALSE) {
+                $type = trim(substr($type, 0, $p));
+            }
             switch( $type ) {
                 case 'text/xml';
                 case 'application/xml':
@@ -410,7 +424,7 @@ class FileTypeHelper
     }
 
     /**
-     * Using mime type if possible, or extension, test whether the specified fule is (potentially-editable) text.
+     * Using media type if possible, or extension, test whether the specified fule is (potentially-editable) text.
      *
      * @since 2.3
      * @param string $filename Fileystem absolute path or include-path-resolvable path
@@ -423,12 +437,12 @@ class FileTypeHelper
             if( startswith($type, 'text/') ) {
                 return TRUE;
             }
-			if( $type && ($p = strpos($type, ';')) !== FALSE) {
-				$type = trim(substr($type, 0, $p));
-			}
-			if( in_array($type, $this->_text_mimes) ) {
+            if( $type && ($p = strpos($type, ';')) !== FALSE) {
+                $type = trim(substr($type, 0, $p));
+            }
+            if( in_array($type, $this->_text_mimes) ) {
                 return TRUE;
-			}
+            }
 
             $ext = $this->get_extension( $filename );
              // on a website, pretty much everything without an extension will be some form of editable text
@@ -456,59 +470,127 @@ class FileTypeHelper
         //TODO other types
     }
 
-	/**
+    /**
      * Get recognized file-extensions for the specified Filettype
-	 * @since 2.3
+     * @since 2.3
      *
      * @param mixed int|FileType|string identifier
      * @return strings array, maybe empty
-	 */
-    public function get_file_type_extensions($id) : array
-	{
-		switch ($id) {
-			case FileType::IMAGE:
-				return $this->_image_extensions;
-			case FileType::AUDIO:
-				return $this->_audio_extensions;
-			case FileType::VIDEO:
-				return $this->_video_extensions;
+     */
+    public function get_file_type_extensions( $id ) : array
+    {
+        switch( $id ) {
+            case FileType::IMAGE:
+                return $this->_image_extensions;
+            case FileType::AUDIO:
+                return $this->_audio_extensions;
+            case FileType::VIDEO:
+                return $this->_video_extensions;
             case FileType::MEDIA:
-				return array_unique(array_merge($this->_audio_extensions, $this->_video_extensions));
-			case FileType::DOCUMENT:
-				return array_unique(array_merge($this->_document_extensions, $this->_text_extensions));
-			case FileType::ARCHIVE:
-				return $this->_archive_extensions;
-			case FileType::XML:
-				return $this->_xml_extensions;
-		}
-		return [];
-	}
+                return array_unique(array_merge($this->_audio_extensions, $this->_video_extensions));
+            case FileType::DOCUMENT:
+                return array_unique(array_merge($this->_document_extensions, $this->_text_extensions));
+            case FileType::ARCHIVE:
+                return $this->_archive_extensions;
+            case FileType::XML:
+                return $this->_xml_extensions;
+        }
+        return [];
+    }
 
-	/**
-     * Get mimetype identifier for the specified Filettype
-	 * @since 2.3
+    /**
+     * Get mediatype identifier for the specified Filettype
+     * @since 2.3
      *
      * @param mixed int|FileType|string identifier
      * @return string, maybe ''
-	 */
-    public function get_file_type_mime($id) : string
-	{
-		switch ($id) {
-			case FileType::IMAGE:
-				return 'image/*';
-			case FileType::AUDIO:
-				return 'audio/*';
-			case FileType::VIDEO:
-				return 'video/*';
-			case FileType::MEDIA:
-				return ''; // too mant types
-			case FileType::DOCUMENT:
-				return ''; //too many types
-			case FileType::ARCHIVE:
- 				return '';  // too many types
-			case FileType::XML:
-				return 'application/xml'; //or text/xml
-		}
-		return '';
-	}
+     */
+    public function get_file_type_mime( $id ) : string
+    {
+        switch( $id ) {
+            case FileType::IMAGE:
+                return 'image/*';
+            case FileType::AUDIO:
+                return 'audio/*';
+            case FileType::VIDEO:
+                return 'video/*';
+            case FileType::MEDIA:
+                return ''; // too many types 'audio/*,video/*' OK ?
+            case FileType::DOCUMENT:
+                return ''; // too many types
+            case FileType::ARCHIVE:
+                return ''; // too many application/x-* types
+            case FileType::XML:
+                return 'application/xml,text/xml';
+        }
+        return '';
+    }
+
+    /**
+     * Check whether mediatype $filemime matches mediatype pattern(s) $haystack
+     * @since 2.3
+     *
+     * @param string $filemime mediatype of a file
+     * @param string $haystack mediatype maybe multiple, maybe wildcarded
+     * @return bool
+     */
+    public function match_mime(string $filemime, string $haystack) : bool
+    {
+        if( strpos($haystack, ',') !== FALSE ) {
+            $parts = explode(',', $haystack);
+        }
+        else {
+            $parts = [$haystack];
+        }
+        for( $i = 0, $n = count($parts); $i < $n; ++$i ) {
+            if( fnmatch($parts[$i], $filemime, FNM_PATHNAME|FNM_CASEFOLD) ) { return TRUE; }
+        }
+        return FALSE;
+    }
+
+    /**
+     * Check whether file extension $fileext matches extension(s) in $$haystack
+     * @since 2.3
+     *
+     * @param string $fileext maybe with leading '.'
+     * @param mixed $haystack string (maybe comma-separated) | array Any of them may have leading '.'
+     * @param bool $matchcase optional flag, whether to do a case-sensitive check. Default FALSE.
+     * @return bool
+     */
+    public function match_extension(string $fileext, $haystack, bool $matchcase = FALSE) : bool
+    {
+        if( is_string($haystack) ) {
+            if( strpos($haystack, ',') !== FALSE ) {
+                $parts = explode(',', $haystack);
+            }
+            else {
+                $parts = [trim($haystack, ' .')];
+            }
+        }
+        elseif( is_array($haystack) ) {
+            $parts = $haystack;
+        }
+        else {
+            //TODO exception
+            return FALSE;
+        }
+        $t1 = trim($fileext, ' .');
+        $t2 = '.' . $t1;
+        for( $i = 0, $n = count($parts); $i < $n; ++$i ) {
+            if( $matchcase ) {
+                if( $parts[$i] === $t1 || $parts[$i] === $t2 ) {
+                    return TRUE;
+                }
+            }
+            else {
+                if( strcasecmp($t1, $parts[$i]) === 0) {
+                    return TRUE;
+                }
+                if( strcasecmp($t2, $parts[$i]) === 0) {
+                    return TRUE;
+                }
+            }
+        }
+        return FALSE;
+    }
 } // class
