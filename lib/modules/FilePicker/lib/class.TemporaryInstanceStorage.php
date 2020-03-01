@@ -3,15 +3,15 @@ namespace FilePicker;
 
 use cms_utils;
 
-// store the CWD for every instance of a filepicker for each request in the session
-// this may pollute the session, but meh we can deal with that later.
+// store in the session the CWD for every instance of a filepicker for each request
+// this might be said to pollute the session, but meh we can deal with that later.
 class TemporaryInstanceStorage
 {
     private function __construct() {}
 
     public static function set($sig,$val)
     {
-        $val = trim($val); // make sure its a string
+        $val = trim($val); // make sure it's a string
         $key = cms_utils::hash_string(__FILE__);
         $_SESSION[$key][$sig] = $val;
         return $sig;

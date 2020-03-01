@@ -1,6 +1,6 @@
 <?php
 # Filepicker module: utility-methods class
-# Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -47,9 +47,9 @@ class Utils
     public static function get_file_icon(string $extension, bool $isdir = false) : string
     {
         static $mod = null;
-		if ($mod == null) {
-		    $mod = cms_utils::get_module('FilePicker');
-		}
+        if ($mod == null) {
+            $mod = cms_utils::get_module('FilePicker');
+        }
         $baseurl = $mod->GetModuleURLPath();
 
         if ($isdir) {
@@ -81,12 +81,12 @@ class Utils
 
         $path = cms_join_path(dirname(__DIR__),'images','types',$lcext.'.png');
         if (!is_file($path)) {
-			static $getem = true;
-			if ($getem) {
-				require_once cms_join_path(dirname(__DIR__),'images','types','typealias.php');
-				$getem = false;
-			}
-		    $lcext = $dups[$lcext] ?? '0';
+            static $getem = true;
+            if ($getem) {
+                require_once cms_join_path(dirname(__DIR__),'images','types','typealias.php');
+                $getem = false;
+            }
+            $lcext = $dups[$lcext] ?? '0';
         }
         return '<img src="'.$baseurl.'/images/types/'.$lcext.'.png" class="listicon" alt="'.$ext.'-file" />';
     }

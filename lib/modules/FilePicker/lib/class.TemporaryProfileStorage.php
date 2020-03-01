@@ -31,44 +31,44 @@ class TemporaryProfileStorage
 {
     private function __construct() {}
 
-	/**
-	 * Store $profile in $_SESSION[]
-	 * @param FilePickerProfile $profile
-	 * @return string
-	 */
-	public static function set(FilePickerProfile $profile)
+    /**
+     * Store $profile in $_SESSION[]
+     * @param FilePickerProfile $profile
+     * @return string
+     */
+    public static function set(FilePickerProfile $profile)
     {
         $key = cms_utils::hash_string(__FILE__);
-		$s = serialize($profile);
+        $s = serialize($profile);
         $sig = cms_utils::hash_string(__FILE__.$s.microtime(TRUE).'1');
         $_SESSION[$key][$sig] = $s;
         return $sig;
     }
 
-	/**
-	 * Retrieve profile having signature $sig from $_SESSION[]
-	 * @param string $sig
-	 * @return mixed FilePickerProfile | null
-	 */
+    /**
+     * Retrieve profile having signature $sig from $_SESSION[]
+     * @param string $sig
+     * @return mixed FilePickerProfile | null
+     */
     public static function get($sig)
     {
         $key = cms_utils::hash_string(__FILE__);
         if( isset($_SESSION[$key][$sig]) ) return unserialize($_SESSION[$key][$sig], ['allowed_classes'=>['CMSMS\\FilePickerProfile']]);
     }
 
-	/**
-	 * Clear profile having signature $sig from $_SESSION[]
-	 * @param string $sig
-	 */
-	public static function clear($sig)
+    /**
+     * Clear profile having signature $sig from $_SESSION[]
+     * @param string $sig
+     */
+    public static function clear($sig)
     {
         $key = cms_utils::hash_string(__FILE__);
         if( isset($_SESSION[$key][$sig]) ) unset($_SESSION[$key][$sig]);
     }
 
-	/**
-	 * Clear all profiles from $_SESSION[]
-	 */
+    /**
+     * Clear all profiles from $_SESSION[]
+     */
     public static function reset()
     {
         $key = cms_utils::hash_string(__FILE__);
