@@ -1,8 +1,8 @@
 <?php
 # FilePicker module action: filepicker
 # Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
-# Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Thanks to Fernando Morgado and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+/*
+ * This generates content (html, js, css) for a whole page, intended for
+ * an iframe which can support directory-change and -display.
+ * That page uses a non-CMSMS file-upload js plugin,
+ * (see https://github.com/LPology/Simple-Ajax-Uploader)
+ * and a CMSFileBrowser js object with methods to interact with the
+ * generated page and uploader
+ */
+
+use CMSMS\FilePickerProfile;
 use CMSMS\FileType;
+use CMSMS\NlsOperations;
+use CMSMS\ScriptOperations;
 use FilePicker\PathAssistant;
 use FilePicker\TemporaryProfileStorage;
 use FilePicker\Utils;
@@ -32,20 +44,36 @@ for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 // initialization
 //
 $sesskey = cms_utils::hash_string(__FILE__);
-if( isset($_GET['_enc']) ) {
-    $parms = unserialize(base64_decode($_GET['_enc']), ['allowed_classes'=>false]);
-    $_GET = array_merge($_GET,$parms);
-    unset($_GET['_enc']);
+if( !empty($params['_enc']) ) {
+    $eparms = json_decode(base64_decode($params['_enc']), true);
+    if( $eparms ) {
+        $params = array_merge($params, $eparms);
+    }
 }
 
 try {
-    $inst = trim(cleanValue(get_parameter_value($_GET,'inst')));
-    $sig = trim(cleanValue(get_parameter_value($_GET,'sig')));
-    $type = trim(cleanValue(get_parameter_value($_GET,'type'))); //TODO CHECKME Filetype enum value int
-    $nosub = (int) get_parameter_value($_GET,'nosub');
+    $inst = $params['inst'] ?? '';
+    $stype = $params['type'] ?? '';
+    if ($stype !== '') {
+        $itype = FileType::getValue($stype);
+    }
 
-    if( $sig ) {
-        $profile = TemporaryProfileStorage::get($sig);
+    $mime = trim(cleanValue(get_parameter_value($_GET,'mime')));
+    if ($mime) {
+        $mime = rawurldecode($mime); // defines filetypes to be displayed for potential upload
+    }
+    $extensions = trim(cleanValue(get_parameter_value($_GET,'extensions')));
+    if ($extensions) {
+         // defines extensions of files' names to be displayed for potential upload
+        $extensions = rawurldecode($extensions);
+        $extjs = '["'.str_replace(',', '","', $extensions).'"]';
+    }
+    else {
+        $extjs = '[]';
+    }
+
+    if( $inst ) {
+        $profile = TemporaryProfileStorage::get(substr($inst, 1)); // ignore prepended 'i'
     }
     else {
         $profile = null;
@@ -53,12 +81,16 @@ try {
     if( !$profile ) {
         $profile = $this->get_default_profile();
     }
-    if( !$sig && $type && $profile ) {
-        $profile = $profile->overrideWith( [ 'type'=>$type ] );
-        $sig = TemporaryProfileStorage::set($profile);
+    if( !$inst && $stype && $profile ) {
+        $profile = $profile->overrideWith( [ 'type'=>$itype ] );
+        $inst = 'i'.TemporaryProfileStorage::set($profile);
     }
     if( !$this->CheckPermission('Modify Files') ) {
-        $profile = $profile->overrideWith( ['can_upload'=>false, 'can_delete'=>false, 'can_mkdir'=>false ] );
+        $profile = $profile->overrideWith([
+            'can_upload' => FilePickerProfile::FLAG_NO,
+            'can_delete' => FilePickerProfile::FLAG_NO,
+            'can_mkdir' => FilePickerProfile::FLAG_NO
+        ]);
     }
 
     // get our absolute top directory, and its matching url
@@ -68,20 +100,27 @@ try {
     }
     $assistant = new PathAssistant($config, $topdir);
 
-    // get our current working directory relative to $topdir
-    // use cwd stored in session first... then if necessary the profile topdir, then if necessary, the absolute topdir
-    if( isset($_SESSION[$sesskey]) ) {
-        $cwd = trim($_SESSION[$sesskey]);
+    if( isset($_GET['seldir']) ) {
+         $cwd = trim(get_parameter_value($_GET,'seldir')); //one of the encoded params, no sanity check
     }
     else {
-        $cwd = '';
-    }
-    if( !$cwd && $profile->top ) {
-        $cwd = $assistant->to_relative($profile->top);
-    }
-    if( !$nosub && isset($_GET['subdir']) ) {
-        $cwd .= DIRECTORY_SEPARATOR . filter_var($_GET['subdir'], FILTER_SANITIZE_STRING);
-        $cwd = $assistant->to_relative($assistant->to_absolute($cwd));
+        // get our current working directory relative to $topdir
+        // use cwd stored in session first... then if necessary the profile topdir, then if necessary, the absolute topdir
+        if( isset($_SESSION[$sesskey]) ) {
+            $cwd = trim($_SESSION[$sesskey]);
+        }
+        else {
+            $cwd = '';
+        }
+        if( !$cwd && $profile->top ) {
+            $cwd = $assistant->to_relative($profile->top);
+        }
+
+        $nosub = (bool)get_parameter_value($_GET,'nosub');
+        if( !$nosub && isset($_GET['subdir']) ) {
+            $cwd .= DIRECTORY_SEPARATOR . filter_var($_GET['subdir'], FILTER_SANITIZE_STRING);
+            $cwd = $assistant->to_relative($assistant->to_absolute($cwd));
+        }
     }
     // failsafe, if we don't have a valid working directory, set it to the $topdir;
     if( $cwd && !$assistant->is_valid_relative_path( $cwd ) ) {
@@ -91,54 +130,48 @@ try {
     $_SESSION[$sesskey] = $cwd;
 
     // now we're set to go.
-	$topurl = $assistant->get_top_url();
+    $topurl = $assistant->get_top_url();
     $starturl = $assistant->relative_path_to_url($cwd);
     $startdir = $assistant->to_absolute($cwd);
-
-    function get_thumbnail_tag(string $file, string $path, string $baseurl) : string
-    {
-        $imagepath = $path.DIRECTORY_SEPARATOR.'thumb_'.$file;
-        if( is_file($imagepath) ) {
-            return "<img src='".$baseurl.'/thumb_'.$file."' alt='".$file."' title='".$file."' />";
-        }
-        return '';
-    }
-
     //
     // get file list TODO c.f. FilePicker\Utils::get_file_list()
     //
     $files = $thumbs = [];
-    $filesizename = [' Bytes', ' KB', ' MB'];
+    $filesizename = [' Bytes', ' kB', ' MB'];
     $items = scandir($startdir, SCANDIR_SORT_NONE);
     for( $name = reset($items); $name !== false; $name = next($items) ) {
-        if( $name == '.' ) {
+        if( $name == '.' || $name == '..' ) { // i.e. no .. (parent) item in list
             continue;
-        }
-        $fullname = cms_join_path($startdir,$name);
-        if( $name == '..' ) {
-            if ($assistant->is_relative($fullname)) {
-                continue;
-            }
         }
         if( !$profile->show_hidden && ($name[0] == '.' || $name[0] == '_') ) {
             continue;
         }
-        if( is_dir($fullname) && !$assistant->is_relative($fullname) ) {
+        $fullname = cms_join_path($startdir,$name);
+        if( is_dir($fullname) ) {
+            // anything here?
+        }
+        elseif( !$this->is_acceptable_filename( $profile, $fullname ) ) {
             continue;
         }
-        if( !$this->is_acceptable_filename( $profile, $fullname ) ) {
-            continue;
-        }
-
         $data = ['name' => $name, 'fullpath' => $fullname];
         $data['fullurl'] = $starturl.'/'.$name;
+        $info = @stat($fullname);
+        if( $info && $info['size'] > 0 ) {
+            $data['size'] = round($info['size']/pow(1024, ($i = floor(log($info['size'], 1024)))), 2) . $filesizename[$i];
+        }
+        else {
+            $data['size'] = '';
+        }
+        $data['dimensions'] = '';
         $data['isdir'] = is_dir($fullname);
         if( $data['isdir'] ) {
-            $data['isparent'] = ( $name == '..' );
+//            $data['filetype'] = null;
+            $data['isparent'] = false; //( $name == '..' );
             $data['relurl'] = $data['fullurl'];
             $data['ext'] = '';
             $data['is_image'] = false;
             $data['is_thumb'] = false;
+/*
             if( $name == '..' ) {
                 $t = 'up'; //TODO or 'home'
             }
@@ -146,36 +179,43 @@ try {
                 $t = '';
             }
             $data['icon'] = Utils::get_file_icon($t,TRUE);
+*/
+            $data['icon'] = Utils::get_file_icon('',TRUE);
+
+            $parms = [ 'subdir'=>$name, 'inst'=>$inst/*, 'sig'=>$sig*/ ];
+            $up = base64_encode(json_encode($parms,
+                JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE));
+            $url = $this->create_url($id, 'filepicker', $returnid); // come back here
+            $url = str_replace('&amp;', '&', $url).'&'.CMS_JOB_KEY.'=1&_enc='.$up;
+            $data['chdir_url'] = $url;
         }
         else {
             $data['isparent'] = false;
             $data['relurl'] = $assistant->to_relative($fullname);
             $data['ext'] = strtolower(substr($name,strrpos($name,'.')+1));
+            $itype = $this->_typehelper->get_file_type($fullname);
+            $stype = FileType::getName($itype);
+            $data['filetype'] = $stype;
             $data['is_image'] = $this->_typehelper->is_image($fullname);
-            $data['is_thumb'] = $this->_typehelper->is_thumb($name);
-            $data['icon'] = Utils::get_file_icon($data['ext'],false);
-        }
-        $type = $this->_typehelper->get_file_type($fullname);
-        $data['filetype'] = ($type) ? FileType::getName($type) : '';
-        $data['dimensions'] = '';
-        if( $data['is_image'] && !$data['is_thumb'] ) {
-            $data['thumbnail'] = get_thumbnail_tag($name,$startdir,$starturl);
-            $thumbs[] = 'thumb_'.$name;
-            $imgsize = @getimagesize($fullname);
-            if( $imgsize ) $data['dimensions'] = $imgsize[0].' x '.$imgsize[1];
-        }
-        $info = @stat($fullname);
-        if( $info && $info['size'] > 0 ) {
-            $data['size'] = round($info['size']/pow(1024, ($i = floor(log($info['size'], 1024)))), 2) . $filesizename[$i];
-        }
-        else {
-            $data['size'] = null;
-        }
-        if( $data['isdir'] ) {
-            $parms = [ 'subdir'=>$name, 'inst'=>$inst, 'sig'=>$sig ];
-            if( $type ) $parms['type'] = $type;
-            $url = $this->create_url($id,'filepicker',$returnid).'&'.CMS_JOB_KEY.'=1&_enc='.base64_encode(serialize($parms));
-            $data['chdir_url'] = $url;
+            $data['is_svg'] = $data['ext'] === 'svg';
+            if( $data['is_image'] && !$data['is_svg'] ) {
+                $small = false;
+                $imgsize = @getimagesize($fullname);
+                if( $imgsize ) {
+                    $data['dimensions'] = $imgsize[0].' x '.$imgsize[1];
+                    if( $imgsize[0] <= 100 && $imgsize[1] <= 40 ) {
+                        $small = true;
+                        $data['is_small'] = true;
+                    }
+                }
+                if( !$small ) {
+                    $data['is_thumb'] = $this->_typehelper->is_thumb($name);
+                    $imagepath = $startdir.DIRECTORY_SEPARATOR.'thumb_'.$name;
+                    $data['thumbnail'] = is_file($imagepath);
+                    $data['icon'] = Utils::get_file_icon($data['ext'],false); // in case we're not showing thumbnails
+                }
+                $thumbs[] = 'thumb_'.$name;
+            }
         }
         $files[$name] = $data;
     }
@@ -186,19 +226,66 @@ try {
             if( isset($files[$thumb]) ) unset($files[$thumb]);
         }
     }
-    // done the loop, now sort TODO per Profile
-    usort($files, function($file1,$file2) {
+    // done the loop, now sort
+    usort($files, function($file1,$file2) use ($profile) {
         if( $file1['isdir'] && !$file2['isdir'] ) return -1;
         if( !$file1['isdir'] && $file2['isdir'] ) return 1;
-        return strnatcmp($file1['name'],$file2['name']);
+        if ( $profile->sort ) return strnatcmp($file1['name'],$file2['name']);
+        return 0;
     });
 
     $assistant2 = new PathAssistant($config,CMS_ROOT_PATH);
-    $cwd_for_display = $assistant2->to_relative($startdir);
+    $t = $assistant2->to_relative($startdir);
+    if( strpos($t, '/' ) > 0) {
+        $parts = explode('/', $t);
+        $dir = NlsOperations::get_language_direction();
+        if( $dir == 'rtl' ) {
+            $cwd_for_display = implode (' &#171; ', $parts); // << separator for rtl locale
+        }
+        else {
+            $cwd_for_display = implode (' &#187; ', $parts); // >> for ltr
+        }
+    }
+    else {
+        $cwd_for_display = $t;
+    }
 
-    $theme = cms_utils::get_theme_object();
+    if( $cwd ) {
+        //changing to the parent dir is valid
+        $p = strrpos($cwd, DIRECTORY_SEPARATOR, 1);
+        if ($p !== false) {
+            $parent = substr($cwd, 0, $p);
+        }
+        else {
+            $parent = '';
+        }
+        $parms = [ 'seldir'=>$parent, 'inst'=>$inst/*, 'sig'=>$sig*/ ];
+        $up = base64_encode(json_encode($parms,
+            JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE));
+        $url = $this->create_url($id, 'filepicker', $returnid); // come back here
+        $upurl = str_replace('&amp;', '&', $url).'&'.CMS_JOB_KEY.'=1&_enc='.$up;
+    }
+    else {
+        $upurl = '';
+    }
+
+    $typename = $profile->typename;
+
     $baseurl = $this->GetModuleURLPath();
-	// get the latest relevant css TODO just have one
+
+    // NOTE to use actual (instead of fake) admin js, the full-page template needs
+    // fully-populated $headercontent, just as if the iframe were generated by a normal admin request
+    // c.f. admintheme::AdminHeaderSetup() etc which populate via an admin-request hooklist
+    // i.e. also needs at least: admin + theme js & admin + theme css
+
+    $incs = cms_installed_jquery(true, true, true, true);
+    $url = cms_path_to_url($incs['jquicss']);
+    $headinc = <<<EOS
+<link rel="stylesheet" type="text/css" href="{$url}" />
+
+EOS;
+
+    // get the latest relevant css
     $css_files = ['filepicker.css', 'filepicker.min.css'];
     $mtime = -1;
     $sel_file = null;
@@ -213,42 +300,61 @@ try {
             }
         }
     }
-
     if( $sel_file ) {
-        $out = <<<EOS
+        $headinc .= <<<EOS
 <link rel="stylesheet" type="text/css" href="{$baseurl}/lib/css/{$sel_file}" />
 
 EOS;
     }
-    else {
-        $out = '';
-    }
 
-	$scripts = cms_installed_jquery(true,false,false,false);
-    $url = cms_path_to_url($scripts['jqcore']);
-    $out .= '<script type="text/javascript" src="'.$url.'"></script>'."\n";
+    $sm = new ScriptOperations();
+    $sm->queue_file($incs['jqcore'], 1);
+    $sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ? or if CMS_DEBUG?
+    $sm->queue_file($incs['jqui'], 1);
+//  $sm->queue_file($path.'jquery.dm-uploader.min.js', 2);
+//  $sm->queue_file($path.'fakeadmin.js', 2);
+//  $sm->queue_file($path.'filebrowser.min.js', 2);
+    $headinc .= $sm->render_inclusion('', false, false);
 
     $url = $this->create_url($id,'ajax_cmd',$returnid,['forjs'=>1]);
     $url = str_replace('&amp;','&',$url).'&'.CMS_JOB_KEY.'=1';
 
-    $lang = [];
-    $lang['confirm_delete'] = $this->Lang('confirm_delete');
-    $lang['ok'] = $this->Lang('ok');
-    $lang['error_problem_upload'] = $this->Lang('error_problem_upload');
-    $lang['error_failed_ajax'] = $this->Lang('error_failed_ajax');
+    //CHECKME lang() usage ok if not an admin request ?
+    $lang = (object) [
+        'cancel' => $this->Lang('cancel'),
+        'choose' => $this->Lang('choose'),
+        'clear' => $this->Lang('clear'),
+        'confirm' => $this->Lang('confirm'),
+        'confirm_delete' => $this->Lang('confirm_delete'),
+        'error_ext' => $this->Lang('error_upload_ext', '%s'),
+        'error_size' => $this->Lang('error_upload_size', '%s'),
+        'error_type' => $this->Lang('error_upload_type', '%s'),
+        'error_failed_ajax' => $this->Lang('error_failed_ajax'),
+        'error_problem_upload' => $this->Lang('error_problem_upload'),
+        'error_title' => $this->Lang('error_title'),
+        'no' => $this->Lang('no'),
+        'ok' => $this->Lang('ok'),
+        'select_file' => $this->Lang('select_a_file'),
+        'yes' => $this->Lang('yes'),
+    ];
     $lang_js = json_encode($lang);
 
-    $js = <<<EOS
-<script type="text/javascript" src="{$baseurl}/lib/js/jquery.fileupload.js"></script>
-<script type="text/javascript" src="{$baseurl}/lib/js/filebrowser.js"></script>
+//BAD OLD <script type="text/javascript" src="{$baseurl}/lib/js/jquery.fileupload.js"></script>
+    $footinc = <<<EOS
+<script type="text/javascript" src="{$baseurl}/lib/js/jquery.dm-uploader.min.js"></script>
+<script type="text/javascript" src="{$baseurl}/lib/js/fakeadmin.js"></script>
+<script type="text/javascript" src="{$baseurl}/lib/js/filebrowser.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
  var filepicker = new CMSFileBrowser({
   cmd_url: '$url',
   cwd: '$cwd',
-  sig: '$sig',
+  cd_url: '$upurl',
   inst: '$inst',
+  type: '$typename',
+  mime: '$mime',
+  extensions: $extjs,
   lang: $lang_js
  });
 });
@@ -256,18 +362,18 @@ $(function() {
 </script>
 
 EOS;
-
-    // this template generates a full page, for inclusion in an iframe
+    // this template generates a full html page
     $tpl = $smarty->createTemplate($this->GetTemplateResource('filepicker.tpl'),null,null,$smarty);
 
     $tpl->assign('module_url',$baseurl)
-	 ->assign('topurl',$topurl)
+     ->assign('topurl',$topurl)
      ->assign('cwd_for_display',$cwd_for_display)
+     ->assign('cwd_up',$cwd != false)
      ->assign('files',$files)
      ->assign('inst',$inst)
      ->assign('profile',$profile)
-     ->assign('headercontent',$out)
-     ->assign('bottomcontent',$js);
+     ->assign('headercontent',$headinc)
+     ->assign('bottomcontent',$footinc);
 
     $tpl->display();
 }

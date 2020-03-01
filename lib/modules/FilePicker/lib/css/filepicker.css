@@ -1,557 +1,453 @@
 @font-face {
-  font-family: 'cmsms-filepicker';
-  src: url('../fonts/cmsms-filepicker.eot?88368796');
-  src: url('../fonts/cmsms-filepicker.eot?88368796#iefix') format('embedded-opentype'),
-       url('../fonts/cmsms-filepicker.woff2?88368796') format('woff2'),
-       url('../fonts/cmsms-filepicker.woff?88368796') format('woff'),
-       url('../fonts/cmsms-filepicker.ttf?88368796') format('truetype'),
-       url('../fonts/cmsms-filepicker.svg?88368796#cmsms-filepicker') format('svg');
-  font-weight: normal;
-  font-style: normal;
+	font-family: "cmsms-filepicker";
+	src: url("../font/cmsms-filepicker.eot?44234");
+	src: url("../font/cmsms-filepicker.eot?44234#iefix") format("embedded-opentype"), url("../font/cmsms-filepicker.woff2?44234") format("woff2"), url("../font/cmsms-filepicker.woff?44234") format("woff"), url("../font/cmsms-filepicker.ttf?44234") format("truetype"), url("../font/cmsms-filepicker.svg?44234#cmsms-filepicker") format("svg");
+	font-weight: normal;
+	font-style: normal;
 }
-/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
-/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
-/*
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  @font-face {
-    font-family: 'cmsms-filepicker';
-    src: url('../fonts/cmsms-filepicker.svg?88368796#cmsms-filepicker') format('svg');
-  }
-}
-*/
- 
- [class^="cmsms-fp-"]:before, [class*=" cmsms-fp-"]:before {
-  font-family: "cmsms-filepicker";
-  font-style: normal;
-  font-weight: normal;
-  speak: none;
- 
-  display: inline-block;
-  text-decoration: inherit;
-  width: 1em;
-/*  margin-right: 0.2em; */
-  text-align: center;
-/* opacity: 0.8; */
- 
-  /* For safety - reset parent styles that can break glyph codes*/
-  font-variant: normal;
-  text-transform: none;
- 
-  /* fix buttons height, for twitter bootstrap */
-  line-height: 1em;
- 
-  /* Animation center compensation - margins should be symmetric */
-  /* remove if not needed */
-/*  margin-left: 0.2em; */
- 
-  /* you can be more comfortable with increased icons size */
-  /* font-size: 120%; */
- 
-  /* Font smoothing. That was taken from TWBS */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
- 
-  /* Uncomment for 3D effect */
-  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
-}
- 
-.cmsms-fp-content:before { content: '\e60b'; } /* '' */
-.cmsms-fp-delete:before { content: '\e612'; } /* '' */
-.cmsms-fp-file:before { content: '\e603'; } /* '' */
-.cmsms-fp-film:before { content: '\e60a'; } /* '' */
-.cmsms-fp-folder-add:before { content: '\e610'; } /* '' */
-.cmsms-fp-folder-close:before { content: '\e606'; } /* '' */
-.cmsms-fp-folder-open:before { content: '\e605'; } /* '' */
-.cmsms-fp-level-up:before { content: '\e611'; } /* '' */
-.cmsms-fp-music:before { content: '\e600'; } /* '' */
-.cmsms-fp-picture:before { content: '\e608'; } /* '' */
-.cmsms-fp-reorder:before { content: '\e609'; } /* '' */
-.cmsms-fp-sound:before { content: '\e60f'; } /* '' */
-.cmsms-fp-th-list:before { content: '\e602'; } /* '' */
-.cmsms-fp-th:before { content: '\e601'; } /* '' */
-.cmsms-fp-upload:before { content: '\e60e'; } /* '' */
-.cmsms-fp-video:before { content: '\e607'; } /* '' */
-.cmsms-fp-zip:before { content: '\e604'; } /* '' */
 
-body.cmsms-filepicker {
-     margin: 0;
-     padding: 0;
-     background-color: #f0f0f0;
-     color: #444;
-     font-family: sans-serif;
-     font-size: 0.9em;
+[class^="fifp-"]:before {
+	font-family: "cmsms-filepicker";
+	font-style: normal;
+	font-weight: normal;
+	speak: none;
+	display: inline-block;
+	text-decoration: inherit;
+	width: 1em;
+	text-align: center;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1em;
 }
-body.dragging {
-     background-color: lightcyan;
+
+[class*=" fifp-"]:before {
+	font-family: "cmsms-filepicker";
+	font-style: normal;
+	font-weight: normal;
+	speak: none;
+	display: inline-block;
+	text-decoration: inherit;
+	width: 1em;
+	text-align: center;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1em;
 }
-a img, img {
-     border: none;
-     text-decoration: none;
+
+.fifp-folder-close:before {
+	content: '\e600';
 }
+
+.fifp-folder-add:before {
+	content: '\e601';
+}
+
+.fifp-folder-open:before {
+	content: '\e602';
+}
+
+.fifp-upload:before {
+	content: '\e603';
+}
+
+.fifp-level-up:before {
+	content: '\e604';
+}
+
+.fifp-all:before {
+	content: '\e607';
+}
+
+.fifp-file:before {
+	content: '\e608';
+}
+
+.fifp-image:before {
+	content: '\e609';
+}
+
+.fifp-audio:before {
+	content: '\e60a';
+}
+
+.fifp-video:before {
+	content: '\e60b';
+}
+
+.fifp-zip:before {
+	content: '\e60c';
+}
+
+.fifp-delete:before {
+	content: '\e60f';
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-size: 0.9em;
+}
+
+a {
+	color: #17174f;
+	text-decoration: none;
+}
+
+img {
+	border: none;
+}
+
 .visuallyhidden {
-     border: 0;
-     clip: rect(0 0 0 0);
-     height: 1px;
-     margin: -1px;
-     overflow: hidden;
-     padding: 0;
-     position: absolute;
-     width: 1px;
-}
-.filepicker-icon {
-     margin-right: 10px;
-}
-/*
-.filepicker-icon-stack {
-     position:relative;
-     display:inline-block;
-     width:2em;
-     height:2em;
-     line-height:2em;
-     vertical-align:middle;
-}
-.filepicker-icon-stack-1x, .filepicker-icon-stack-2x, .filepicker-icon-stack-text {
-
-     position:absolute;
-     left:0;
-     width:100%;
-     text-align:center;
-
-     left:-999em;
-}
-.filepicker-icon-stack-1x, .filepicker-icon-stack-text {
-     line-height:inherit;
-     left:-999em;
-}
-.filepicker-icon-stack-2x {
-     font-size:2em;
+	clip: rect(0 0 0 0);
+	overflow: hidden;
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	border: 0;
+	padding: 0;
+	z-index: -1;
 }
 
-.filepicker-button.make-dir .filepicker-icon-stack {
-     width:1em;
-     height:18px;
-     line-height:18px;
-     font-size:2em;
-}
-.filepicker-button.make-dir .filepicker-icon-stack-1x {
-     left:-1px;
-     top:-1px;
-     width:100%;
-     font-size:18px;
-     font-size:2em;
-
-}
-.filepicker-button.make-dir .cmsms-fp-folder-plus {
-     left:1px;
-     top:-1px;
-     color:#FFF;
-     text-shadow:none;
-     font-size:14px;
-     font-weight:bold;
-}
-*/
-.cmsms-filepicker .btn-file {
-     position: relative;
-     overflow: hidden;
-}
-.cmsms-filepicker .btn-file input[type=file] {
-     position: absolute;
-     top: 0;
-     right: 0;
-     min-width: 100%;
-     min-height: 100%;
-     font-size: 100px;
-     text-align: right;
-     filter: alpha(opacity=0);
-     opacity: 0;
-     outline: none;
-     background: white;
-     cursor: inherit;
-     display: block;
-}
-.cmsms-fp-upload {
-     margin-right:4px;
-     font-size:18px;
-}
-.filepicker-navbar {
-     position: fixed;
-     width: 100%;
-     z-index: 99;
-     -webkit-box-shadow: 0 1px 10px rgba(0,0,0,.1);
-     -moz-box-shadow: 0 1px 10px rgba(0,0,0,.1);
-     box-shadow: 0 1px 10px rgba(0,0,0,.1);
-     background-color: #fafafa;
-     background-image: -moz-linear-gradient(top,#fff,#f2f2f2);
-     background-image: -webkit-gradient(linear,0 0,0 100%,from(#fff),to(#f2f2f2));
-     background-image: -webkit-linear-gradient(top,#fff,#f2f2f2);
-     background-image: -o-linear-gradient(top,#fff,#f2f2f2);
-     background-image: linear-gradient(to bottom,#fff,#f2f2f2);
-     background-repeat: repeat-x;
-     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff',endColorstr='#fff2f2f2',GradientType=0);
-     -webkit-box-shadow: 0 1px 4px rgba(0,0,0,.1);
-     -moz-box-shadow: 0 1px 4px rgba(0,0,0,.1);
-     box-shadow: 0 1px 4px rgba(0,0,0,.1);
-     height: 42px;
-     border-bottom: 1px solid #c5c5c5;
-}
-.filepicker-navbar-inner {
-     position: relative;
-     padding: 6px 15px;
-     background-color: #fefefe;
-}
-/*
-.filepicker-navbar-inner p {
-     margin: 0;
-     margin-top: 2px;
-     font-size: 11px;
-}
-*/
-.filepicker-view-option {
-     display: inline-block;
-     max-width: 35%;
-}
-.filepicker-options {
-     display: inline-block;
-     max-width: 35%;
-}
-.filepicker-type-filter {
-     display: inline-block;
-     max-width: 65%;
-     position: absolute;
-     right: 15px;
-     text-align: right;
-}
-.filepicker-button {
-     text-shadow: 1px 1px #fff;
-     display: inline-block;
-     margin-right:3px;
-     padding: 3px 8px 2px 8px;
-     font-size: 1.2em;
-     line-height: 1.6em;
-     color: #444;
-     text-align: center;
-     text-shadow: 0 1px 1px rgba(255,255,255,0.75);
-     vertical-align: middle;
-     cursor: pointer;
-     background-color: #f5f5f5;
-     background-image: -moz-linear-gradient(top,#fff,#e6e6e6);
-     background-image: -webkit-gradient(linear,0 0,0 100%,from(#fff),to(#e6e6e6));
-     background-image: -webkit-linear-gradient(top,#fff,#e6e6e6);
-     background-image: -o-linear-gradient(top,#fff,#e6e6e6);
-     background-image: linear-gradient(to bottom,#fff,#e6e6e6);
-     background-repeat: repeat-x;
-     border: 1px solid #ccc;
-     border-color: #e6e6e6 #e6e6e6 #bfbfbf;
-     border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
-     border-bottom-color: #b3b3b3;
-     -webkit-border-radius: 2px;
-     -moz-border-radius: 2px;
-     border-radius: 2px;
-     zoom: 1;
-     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff',endColorstr='#ffe6e6e6',GradientType=0);
-     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-     -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
-     -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
-     box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
-}
-.filepicker-button:hover {
-     background-color: #f5f5f5;
-     background-image: none;
-}
-.filepicker-button.active {
-     border: 1px solid #b1b1b1;
-     background-color: #d6d6d6;
-     background-image: -moz-linear-gradient(top, #e6e6e6, #c0c0c0);
-     background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#e6e6e6), to(#c0c0c0));
-     background-image: -webkit-linear-gradient(top, #e6e6e6, #c0c0c0);
-     background-image: -o-linear-gradient(top, #e6e6e6, #c0c0c0);
-     background-image: linear-gradient(to bottom, #e6e6e6, #c0c0c0);
-     background-repeat: repeat-x;
-     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffe6e6e6', endColorstr='#ffc0c0c0', GradientType=0);
-     -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
-     -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
-     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-.filepicker-container {
-     padding: 100px 15px 8px 15px;
-}
-#filepicker-progress.filepicker-breadcrumb {
-/*
-     position:relative;
-     height:36px;
-     margin-bottom: 10px;
-     padding:0;
-     background:#fefefe;
-     -webkit-box-shadow: 0 1px 4px rgba(0,0,0,.065);
-     -moz-box-shadow: 0 1px 4px rgba(0,0,0,.065);
-     box-shadow: 0 1px 4px rgba(0,0,0,.065);
-     border:0;
-     border-bottom: 1px solid #c5c5c5;
-*/
-     padding: 5px 15px;
-     border: 0;
-     background-color: #fefefe;
+#fp-progress,
+#fp-progress-inner {
+	overflow: hidden;
+	height: 0.3em;
+	margin: 0;
+	border: 0;
+	border-radius: 0;
 }
 
-span.level-up {
-     margin-left: 2em;
+#fp-progress {
+	display: none;
+	width: 100%;
+	margin-top: calc(0.45em + 3px);
 }
 
-.filepicker-breadcrumb p {
-     margin:0;
-     padding:7px 10px;
-     line-height:22px;
+#fp-progress-inner {
+	width: 0;
+	background-color: #12a112;
+	z-index: 92;
 }
-#filepicker-progress-text {
-     position: absolute;
-     left: 48%;
-     top:1px;
-     font-size:13px;
-     font-weight:bold;
-     text-shadow:1px 1px 0 #fff;
+
+#fp-progress-text {
+	overflow: visible;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	-ms-transform: translateX(-50%);
+	-o-transform: translateX(-50%);
+	-moz-transform: translateX(-50%);
+	-webkit-transform: translateX(-50%);
+	transform: translateX(-50%);
+	margin: 0;
+	border: 0;
+	padding: 3px 6px;
+	text-align: center;
+	vertical-align: middle;
+	background-color: #12a112;
+	color: white;
+	font-size: 1em;
+	font-weight: bold;
+	z-index: 95;
 }
-#filepicker-progress .ui-progressbar-value {
-     height:36px;
-     margin:0;
-     border:0;
-     border-radius:0;
+
+#fp-dropzone {
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 3em;
+	width: 9em;
+	z-index: 90;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 2px dashed red;
+	background-color: #badeba;
+	color: #452145;
 }
-.filepicker-list {
-     width: 100%;
-     margin: 0 0 1em 0;
-     list-style: none;
-     padding: 0;
+
+#fp-dropzone.dragging {
+	background-color: #babade;
 }
-#filepicker-items > li {
-     border-bottom: 1px solid #ddd;
-     border-right: 1px solid #ddd;
-     background-color: #fff;
-     width: 134px;
-     margin: 3px;
-     display: inline-block;
+
+#fp-navbar {
+	width: 100%;
+	padding: 10px 0;
+	background-color: #fefefe;
 }
-#filepicker-items > li.visible {
-     display: inline-block !important;
+
+#fp-navbar-inner {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
 }
-.filepicker-list > li img {
-     max-width: 100%;
-     line-height: 0;
-     border: none;
+
+#fp-navbar-inner > div {
+	flex-grow: 0;
 }
-#filepicker-items > li:nth-child(odd) {
-     background-color: #fcfcfc;
+
+#fp-type-filter {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	font-size: 1.2em;
 }
-#filepicker-items > li.filepicker-item-heading {
-     display: none;
+
+#fp-filter-title {
+	margin: 0 0.5em;
+	text-align: right;
 }
-.filepicker-list .filepicker-thumb {
-     position: relative;
-     width: 139px;
-     overflow: hidden;
-     height: 90px;
-     display: table-cell;
-     text-align: center;
-     vertical-align: middle;
-     background-color: #F79838;
+
+.ui-dialog-buttonset button.ui-button {
+	background: none;
 }
-.filepicker-list .filepicker-thumb.no-background {
-     background-color: #f9f9f9;
+
+.ui-dialog-buttonset button.ui-button,
+.fp-button {
+	margin: 2px;
+	padding: 3px 6px;
+	font-size: 1.1em;
+	font-weight: normal;
+	color: #444;
+	cursor: pointer;
+	background-color: #f5f5f5;
+	border: 1px solid #e6e6e6;
+	border-radius: 2px;
 }
-.filepicker-list .filepicker-thumb .icon-no-thumb {
-     font-size: 60px;
-     color: #fff;
+
+.ui-dialog-buttonset button.ui-button.active,
+  .fp-button.active {
+	background-color: #d6d6d6;
+	border: 1px solid #b3b3b3;
 }
-.filepicker-list .filepicker-thumb.no-background .icon-no-thumb {
-     color: #777;
+
+.ui-dialog-buttonset button.ui-button:hover,
+  .fp-button:hover {
+	background-color: #d6d6d6;
 }
-.filepicker-list .filepicker-thumb * {
-     vertical-align: middle;
+
+.ui-dialog-buttonset button.ui-button.disabled,
+  .fp-button.disabled {
+	color: #7e6767;
+	background-color: #c6b9b9;
+	cursor: default;
 }
-.filepicker-list .filepicker-file-information {
-     padding: 4px;
-     font-size: 12px;
-     background-color: #fff;
+
+.ui-dialog-buttonset button.ui-button.disabled:hover,
+    .fp-button.disabled:hover {
+	background-color: #c6b9b9;
 }
-.filepicker-list .filepicker-file-title {
-     height: 18px;
-     white-space: nowrap;
-     overflow: hidden;
-     text-overflow: ellipsis;
-     font-weight: normal;
-     font-size: 12px;
-     margin: 0;
-     padding: 0;
-     text-align: center;
+
+#fp-file-upload:focus + .fp-button {
+	background-color: #d6d6d6;
+	border: 1px solid #b3b3b3;
 }
-.filepicker-list .filepicker-file-details {
-     color: #777;
-     font-size: 11px;
+
+#view-list, #view-grid {
+	display: none;
 }
-.filepicker-list a {
-     display:block;
-     color: #147fdb;
-     text-decoration: none;
+
+#fp-file-upload:hover + .fp-button {
+	background-color: #d6d6d6;
 }
-/* List view overrides */
-#filepicker-items.list-view > li {
-     border-bottom: 1px solid #ddd;
-     border-right: none;
-     background-color: #fff;
-     width: 100%;
-     margin: 0;
-     display: block;
-     position: relative;
+
+#fp-breadcrumb {
+	border: 0;
+	padding: 0 0 5px 0;
 }
-#filepicker-items.list-view > li.filepicker-item-heading {
-     display: block;
-     height: 30px;
-     background-color: #777;
-     border-bottom: 1px solid #444;
+
+#fp-breadcrumb .fifp-folder-open:before {
+	font-size: 1.8em;
+	vertical-align: middle;
 }
-#filepicker-items.list-view > li.visible {
-     display: block !important;
+
+.fp-delete {
+	cursor: pointer;
 }
-.list-view > li.filepicker-item-heading .filepicker-thumb, .list-view > li.filepicker-item-heading .filepicker-file-information, .list-view > li.filepicker-item-heading .filepicker-file-details, .list-view > li.filepicker-item-heading .filepicker-file-details span {
-     height: 30px;
-     line-height: 30px;
+
+.fp-delete:hover {
+	color: red;
 }
-.list-view .filepicker-item-heading .filepicker-file-details, .list-view .filepicker-item-heading h4 {
-     color: #fff;
-     text-shadow: 0 -1px 1px #666;
-     font-size: 12px;
+
+#fp-list.list-view {
+	display: table;
 }
-.list-view .filepicker-thumb {
-     overflow: hidden;
-     display: inline-block;
-     text-align: center;
-     vertical-align: middle;
-     width: 50px;
-     height: 45px;
-     background-color: transparent;
-     position: absolute;
-     left: 0;
-     top: 0;
+
+#fp-list.list-view > .fpitem {
+	display: table-row;
 }
-.list-view .filepicker-thumb a {
-     display: block;
-     line-height: 45px;
+
+#fp-list.list-view > .fpitem.header {
+	display: table-header-group;
+	background-color: #c0c0c0;
+	color: #17174f;
 }
-.list-view .filepicker-thumb.no-background {
-     background-color: transparent;
+
+#fp-list.list-view > .fpitem > div {
+	display: table-cell;
+	border-bottom: 1px solid #d6d6d6;
+	padding: 2px 5px;
 }
-.list-view .filepicker-thumb .icon-no-thumb {
-     font-size: 18px;
-     color: #777;
+
+#fp-list.list-view > .fpitem .fp-thumb {
+	max-width: 50px;
+	overflow: hidden;
 }
-.filepicker-thumb .filepicker-cmd {
-     cursor: pointer;
-     position: absolute;
-     top: 0;
-     right: 0px;
-     width: 20px;
-     height: 20px;
-     line-height: 14px;
-     opacity: 0.6;
+
+#fp-list.list-view > .fpitem .fp-thumb img.svgimg {
+	max-height: 3em;
 }
-.list-view .filepicker-file-information {
-     padding: 0 0 0 15px;
-     font-size: 12px;
-     background-color: transparent;
-     width: 60%;
-     display: inline-block;
-     position: relative;
-     overflow: hidden;
-     z-index: 1;
-     height: 45px;
-     line-height: 45px;
-     margin-left: 50px;
+
+#fp-list.list-view > .fpitem .filename a {
+	position: relative;
+	font-size: inherit;
+	color: #147fdb;
+	text-decoration: none;
 }
-.list-view .filepicker-file-title {
-     display: block;
-     height: auto;
-     overflow: hidden;
-     font-weight: normal;
-     font-size: 12px;
-     margin: 0;
-     padding: 0;
-     text-align: left;
+
+#fp-list.list-view .icon-no-thumb {
+	font-size: 2em;
 }
-.list-view .filepicker-file-details {
-     display: inline-block;
-     width: 235px;
-     height: 45px;
-     position: absolute;
-     right: 15px;
-     top: 0;
+
+#fp-list.list-view .fifp-delete::before {
+	font-size: 1.5em;
 }
-.list-view .filepicker-file-details span {
-     display: inline-block;
-     width: 90px;
-     height: 45px;
-     line-height: 45px;
-     overflow: hidden;
+
+#fp-list.list-view .ingrid {
+	display: none;
 }
-.list-view .filepicker-file-details span.filepicker-file-size {
-     width: 80px;
+
+#fp-list.grid-view {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	align-content: flex-start;
+	height: 100%;
 }
-.list-view .filepicker-file-details span.filepicker-file-ext {
-     width: 30px;
+
+#fp-list.grid-view > .fpitem {
+	flex-shrink: 0;
+	margin: 3px;
+	border: 1px solid #d6d6d6;
+	padding: 1px;
 }
-.list-view.filepicker-list a:hover {
-     text-decoration: underline;
+
+#fp-list.grid-view > .fpitem .fp-thumb {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	width: 140px;
+	height: 90px;
+	overflow: hidden;
 }
-.filepicker-delete {
-     cursor: pointer;
-     opacity: 0.7;
+
+#fp-list.grid-view > .fpitem .fp-thumb a {
+	flex-grow: 0.5;
 }
-.filepicker-delete:hover {
-     color: #FFF;
-     opacity: 1;
-     background-color:#454545;
+
+#fp-list.grid-view > .fpitem .fp-thumb img {
+	margin-right: -1.2em;
 }
-.filepicker-thumb .filepicker-delete {
-     position: absolute;
-     top: 1px;
-     right: 1px;
-     width: 18px;
-     height: 18px;
-     line-height: 12px;
-     border-radius: 3px;
+
+#fp-list.grid-view > .fpitem .fp-thumb img.svgimg {
+	max-height: 70px;
+	width: 3em;
 }
-.list-view .filepicker-file-details span.filepicker-delete {
-     width: 30px;
-     text-align: right;
-     font-size: 16px;
-     background-color:transparent;
+
+#fp-list.grid-view > .fpitem .fp-thumb > span.fp-delete {
+	align-self: flex-start;
+	order: 1;
 }
-.list-view .filepicker-delete:hover {
-     color: #000;
+
+#fp-list.grid-view > .fpitem .icon-no-thumb {
+	margin-right: -0.4em;
+	font-size: 3em;
 }
-.list-view .filepicker-thumb .filepicker-delete {
-     display:none;
+
+#fp-list.grid-view > .fpitem .icon-no-thumb i {
+	vertical-align: middle;
+	text-align: center;
 }
+
+#fp-list.grid-view > .fpitem .filename {
+	background-color: white;
+	text-align: center;
+}
+
+#fp-list.grid-view > .fpitem .filename a {
+	white-space: nowrap;
+	font-weight: normal;
+	font-size: 1.1em;
+	text-align: center;
+	text-decoration: none;
+	color: #147fdb;
+}
+
+#fp-list.grid-view > .fpitem .delete {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 3px;
+}
+
+#fp-list.grid-view > .fpitem .fifp-delete:before {
+	font-size: 1.5em;
+	opacity: 0.7;
+}
+
+#fp-list.grid-view > .fpitem .fifp-delete:before:hover {
+	opacity: 1;
+}
+
+#fp-list.grid-view .inlist {
+	display: none;
+}
+
+/* popup dialogs */
+/* not replaceable inside jQui */
+.ui-widget-overlay {
+	background: rgba(0, 0, 0, 0.8);
+}
+
+.anon-header {
+	border: 0;
+	background: #fefefe;
+}
+
+.popup-header {
+	border: 1px solid #c5c5c5;
+	background: #c0c0c0;
+}
+
+.popup-title {
+	text-align: center;
+	vertical-align: middle;
+	color: #17174f;
+}
+
+.popup-body {
+	background-color: #fefefe;
+}
+
+/* in mkdir popup dialog */
 .dlg-options {
-     text-align: right;
-     padding-top: 0.5em;
+	padding-top: 0.5em;
 }
+
 .listicon {
-     border: 0;
-     width: 2em;
-     height: 2em;
-     vertical-align: middle;
+	border: 0;
+	width: 2em;
+	height: 2em;
+	vertical-align: middle;
 }
 
 @media screen and (max-width: 430px) {
-    .list-view .filepicker-file-details span.filepicker-file-ext {
-         display: none;
-    }
-    .list-view .filepicker-file-details {
-         width: 170px;
-    }
-    .list-view .filepicker-file-information {
-         padding-right: 185px;
-    }
-    .filepicker-option-title {
-         display: none;
-    }
+	#fp-list.list-view .filename {
+		display: none;
+	}
+
+	#fp-dropzone {
+		width: 3em;
+	}
 }

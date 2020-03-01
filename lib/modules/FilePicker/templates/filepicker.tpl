@@ -1,5 +1,5 @@
-<!doctype html>
-<html lang="en" data-cmsfp-inst="{$inst}">
+<!DOCTYPE html>
+<html lang="en"{if !empty($rtl)} dir="rtl"{/if} data-cmsfp-inst="{$inst}">
  <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-type" content="text/html;charset=utf-8" />
@@ -7,120 +7,127 @@
   <base href="{$topurl}" />
   {$headercontent|default:''}
  </head>
- <body class="cmsms-filepicker">
- <div id="full-fp">
-  <div class="filepicker-navbar">
-    <div id="filepicker-progress" class="filepicker-breadcrumb">
-      <span class="filepicker-breadcrumb-text" title="{$mod->Lang('youareintext')}:"><i class="cmsms-fp-folder-open filepicker-icon"></i> {$cwd_for_display}</span>
-      <p id="filepicker-progress-text" style="display: none;"></p>
-      <span class="js-trigger filepicker-button level-up"><i class="cmsms-fp-level-up"></i></span>
+ <body>
+  {if $profile->can_upload}
+  <div id="fp-progress">
+    <span id="fp-progress-text"></span>
+  </div>
+  <div id="fp-dropzone" title="{$mod->Lang('droplong')}">{* TODO better layout for dropzone *}
+    <span>{$mod->Lang('dropshort')}</span>
+  </div>
+  {/if}
+  <div id="fp-navbar">
+    {strip}<div id="fp-breadcrumb">
+      <span id="fp-breadcrumb-text" title="{$mod->Lang('youareintext')}"><i class="fifp-folder-open fp-icon"></i> {$cwd_for_display}</span>
     </div>
-    <div class="filepicker-navbar-inner">
-          <span class="js-trigger view-list filepicker-button" title="{$mod->Lang('switchlist')}"><i class="cmsms-fp-th-list"></i></span>
-          <span class="js-trigger view-grid filepicker-button active" title="{$mod->Lang('switchgrid')}"><i class="cmsms-fp-th"></i></span>
-          {if $profile->can_mkdir}
-          <span class="make-dir filepicker-button filepicker-cmd" data-cmd="mkdir" title="{$mod->Lang('create_dir')}">
-            <i class="cmsms-fp-folder-add"></i>
-          </span>
-          {/if}
-          {if $profile->can_upload}
-          <span class="filepicker-button upload-file btn-file">
-           <i class="cmsms-fp-upload"></i> {$mod->Lang('upload')}
-           <input id="filepicker-file-upload" type="file" multiple="" title="{$mod->Lang('select_upload_files')}" />
-          </span>
-          {/if}
-      {$type=$profile->type|default:'ANY'}{if $type == 'ANY'}
-          <span class="filepicker-option-title">{$mod->Lang('filterby')}:&nbsp;</span>
-          <span class="js-trigger filepicker-button" data-fb-type='image' title="{$mod->Lang('switchimage')}"><i class="cmsms-fp-picture"></i></span>&nbsp;
-          <span class="js-trigger filepicker-button" data-fb-type='video' title="{$mod->Lang('switchvideo')}"><i class="cmsms-fp-film"></i></span>&nbsp;
-          <span class="js-trigger filepicker-button" data-fb-type='audio' title="{$mod->Lang('switchaudio')}"><i class="cmsms-fp-music"></i></span>&nbsp;
-          <span class="js-trigger filepicker-button" data-fb-type='archive' title="{$mod->Lang('switcharchive')}"><i class="cmsms-fp-zip"></i></span>&nbsp;
-          <span class="js-trigger filepicker-button" data-fb-type='file' title="{$mod->Lang('switchfiles')}"><i class="cmsms-fp-file"></i></span>&nbsp;
-          <span class="js-trigger filepicker-button active" data-fb-type='reset' title="{$mod->Lang('switchreset')}"><i class="cmsms-fp-reorder"></i></span>
+    <div id="fp-navbar-inner">
+     <div>{* boxchild *}
+{* DEBUG ONLY <span id="view-list" class="js-trigger fp-button" title="{$mod->Lang('switchlist')}">&#9776;</span>
+      <span id="view-grid" class="js-trigger fp-button" title="{$mod->Lang('switchgrid')}">&#x25A6;</span>*}
+      <span id="level-up" class="fp-button{if !$cwd_up} disabled{/if}"{if $cwd_up} title="{$mod->Lang('displayup')}"{/if}>
+        <i class="fifp-level-up"></i>
+      </span>
+      <span class="make-dir fp-button {if $profile->can_mkdir}filepicker-cmd{else}disabled{/if}"{if $profile->can_mkdir} data-cmd="mkdir" title="{$mod->Lang('create_dir')}"{/if}">
+        <i class="fifp-folder-add"></i>
+      </span>
+    {if $profile->can_upload}
+      <input type="file" id="fp-file-upload" class="visuallyhidden" name="fp-upload" multiple="" />
+    {/if}
+      <label class="fp-button upload-file btn-file{if !$profile->can_upload} disabled{/if}"{if $profile->can_upload} for="fp-file-upload" title="{$mod->Lang('select_upload_files')}"{/if}>
+         <i class="fifp-upload"></i>
+      </label>
+    </div>
+    {$type=$profile->typename|default:'ANY'}{if 1}{* DEBUG $type == 'ANY' *}
+      <div id="fp-type-filter">{* boxchild *}
+       <span id="fp-filter-title">{$mod->Lang('filterby')}:</span>
+       <span class="js-trigger fp-button" data-fb-type='IMAGE' title="{$mod->Lang('switchimage')}"><i class="fifp-image"></i></span>
+       <span class="js-trigger fp-button" data-fb-type='VIDEO' title="{$mod->Lang('switchvideo')}"><i class="fifp-video"></i></span>
+       <span class="js-trigger fp-button" data-fb-type='AUDIO' title="{$mod->Lang('switchaudio')}"><i class="fifp-audio"></i></span>
+       <span class="js-trigger fp-button" data-fb-type='ARCHIVE' title="{$mod->Lang('switcharchive')}"><i class="fifp-zip"></i></span>
+       <span class="js-trigger fp-button" data-fb-type='FILE' title="{$mod->Lang('switchfiles')}"><i class="fifp-file"></i></span>
+       <span class="js-trigger fp-button" data-fb-type='RESET' title="{$mod->Lang('switchreset')}"><i class="fifp-all"></i></span>
+   </div>{* filter elements child *}
+    {/if}
+    {/strip}</div>{* fp-navbar-inner *}
+  </div>{* fp-navbar *}
+  <div id="fp-list">
+   <div class="fpitem header inlist">{* list view title-row *}
+    <div>&nbsp;</div>
+    <div class="filename">{$mod->Lang('name')}</div>
+    <div>{$mod->Lang('dimension')}</div>
+    <div>{$mod->Lang('size')}</div>
+    <div>&nbsp;</div>
+   </div>
+  {foreach $files as $file}{strip}
+   <div class="fpitem {if $file.isdir}dir{else}{$file.filetype}{/if}"{if !$file.isdir} data-fb-ext='{$file.ext}'{/if} data-fb-fname="{$file.name}">
+    <div class="fp-thumb{if ($profile->show_thumbs && isset($file.thumbnail) && $file.thumbnail != '') || $file.isdir || ($profile->show_thumbs && $file.is_thumb)} no-background{/if}">
+    {if $file.isdir}
+      <a class="icon-no-thumb" href="{$file.chdir_url}" title="{$mod->Lang('changedir',$file.name)}">
+        <i class="fifp-folder-close"></i>
+      </a>
+    {elseif !empty($file.is_small)}
+      <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{$mod->Lang('chooseit',$file.name)}">
+        <img src="{$file.fullurl}" alt="{$file.name}" title="{$mod->Lang('chooseit',$file.name)}" />
+      </a>
+    {elseif !empty($file.is_svg)}
+      <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{$mod->Lang('chooseit',$file.name)}">
+        <img class="svgimg" src="{$file.fullurl}" alt="{$file.name}" title="{$mod->Lang('chooseit',$file.name)}" />
+      </a>
+    {elseif $profile->show_thumbs && !empty($file.thumbnail)}
+      <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{$mod->Lang('chooseit',$file.name)}">
+        <img src="thumb_{$file.name}" alt="{$file.name}" title="{$mod->Lang('chooseit',$file.name)}" />
+      </a>
+    {elseif $profile->show_thumbs && $file.is_thumb}
+      <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{$mod->Lang('chooseit',$file.name)}">
+        <img src="{$file.fullurl}" alt="{$file.name}" title="{$mod->Lang('displayit',$file.name)}" />
+      </a>
+    {else}
+      <a class="filepicker-file-action js-trigger-insert icon-no-thumb" href="{$file.relurl}" title="{$mod->Lang('chooseit',$file.name)}">
+      {if $file.filetype == 'IMAGE'}
+        <i class="fifp-image"></i>
+      {elseif $file.filetype == 'VIDEO'}
+        <i class="fifp-video"></i>
+      {elseif $file.filetype == 'AUDIO'}
+        <i class="fifp-audio"></i>
+      {elseif $file.filetype == 'ARCHIVE'}
+        <i class="fifp-zip"></i>
+      {else}
+        <i class="fifp-file"></i>
       {/if}
+      </a>
+    {/if}
+    {if $profile->can_delete && !$file.isparent}{* TODO check parenthood *}
+      <span class="ingrid fp-delete filepicker-cmd" data-cmd="del" title="{$mod->Lang('deleteit',$file.name)}">
+        <i class="fifp-delete"></i>
+      </span>
+    {/if}
+    </div>{* fp-thumb *}
+    <div class="filename">
+    {if $file.isdir}
+     <a class="filepicker-dir-action" href="{$file.chdir_url}" title="{$mod->Lang('changedir',$file.name)}">{$file.name}</a>
+    {else}
+     <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{$mod->Lang('chooseit',$file.name)}" data-fb-filetype="{$file.filetype}">{$file.name}</a>
+    {/if}
     </div>
+    <div class="inlist">{if !$file.isdir}{$file.dimensions}{/if}</div>{* TODO only for non-scalable image files *}
+    <div class="inlist">{if !$file.isdir}{$file.size}{/if}</div>
+    {if $profile->can_delete && !$file.isparent}
+     <div class="inlist fp-delete filepicker-cmd" data-cmd="del" title="{$mod->Lang('deleteit',$file.name)}">
+       <i class="fifp-delete"></i>
+     </div>
+    {else}
+     <div class="inlist"></div>
+    {/if}
+   </div>{* fpitem *}
+{/strip}{/foreach}
+  </div>{* fp-list *}
+  {if $profile->can_mkdir}{* popup dialog for mkdir *}
+  <div id="mkdir_dlg" title="{$mod->Lang('title_mkdir')}" style="display:none;">
+   <div class="dlg-options">
+    <label for="fld_mkdir">{$mod->Lang('name')}:</label> <input type="text" id="fld_mkdir" />
+   </div>
   </div>
-  <div class="filepicker-container">
-    <div id="filelist">
-      <ul class="filepicker-list" id="filepicker-items">
-        <li class="filepicker-item filepicker-item-heading">
-          <div class="filepicker-thumb no-background">&nbsp;</div>
-          <div class="filepicker-file-information">
-            <h4 class="filepicker-file-title">{$mod->Lang('name')}</h4>
-          </div>
-          <div class="filepicker-file-details">
-            <span class="filepicker-file-dimension">
-            {$mod->Lang('dimension')}
-            </span>
-            <span class="filepicker-file-size">
-            {$mod->Lang('size')}
-            </span>
-{*            <span class="filepicker-file-ext">
-            {$mod->Lang('type')}
-            </span>
-*}
-          </div>
-        </li>
-        {foreach $files as $file}
-        {strip}<li class="filepicker-item{if $file.isdir} dir{else} {$file.filetype}{/if}" title="{if $file.isdir}{$mod->Lang('changedir')}: {/if}{$file.name}" data-fb-ext='{$file.ext}' data-fb-fname="{$file.name}">
-          <div class="filepicker-thumb{if ($profile->show_thumbs && isset($file.thumbnail) && $file.thumbnail != '') || $file.isdir || ($profile->show_thumbs && $file.is_thumb)} no-background{/if}">
-            {if !$file.isdir && $profile->can_delete && !$file.isparent}
-            <span class="filepicker-delete filepicker-cmd" data-cmd="del" title="{$mod->Lang('delete')}">
-            <i class="cmsms-fp-delete"></i>
-            </span>{/if}
-            {if $file.isdir}
-              <a class="icon-no-thumb" href="{$file.chdir_url}" title="{if $file.isdir}{$mod->Lang('changedir')}: {/if}{$file.name}"><i class="cmsms-fp-folder-close"></i></a>
-            {elseif $profile->show_thumbs && isset($file.thumbnail) && $file.thumbnail != ''}
-              <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{$mod->Lang('displayit',$file.name)}">{$file.thumbnail}</a>
-            {elseif $profile->show_thumbs && $file.is_thumb}
-              <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{$mod->Lang('displayit',$file.name)}"><img src="{$file.fullurl}" alt="{$file.name}" /></a>
-            {else}
-              <a class="filepicker-file-action js-trigger-insert icon-no-thumb" title="{$file.name}" href="{$file.relurl}">
-              {if $file.filetype == 'IMAGE'}
-                <i class="cmsms-fp-picture"></i>
-              {elseif $file.filetype == 'VIDEO'}
-                <i class="cmsms-fp-video"></i>
-              {elseif $file.filetype == 'AUDIO'}
-                <i class="cmsms-fp-music"></i>
-              {elseif $file.filetype == 'ARCHIVE'}
-                <i class="cmsms-fp-zip"></i>
-              {else}
-                <i class="cmsms-fp-file"></i>
-              {/if}
-              </a>
-            {/if}
-          </div>
-          <div class="filepicker-file-information">
-            <h4 class="filepicker-file-title">
-              {if $file.isdir}
-                <a class="filepicker-dir-action" href="{$file.chdir_url}" title="{if $file.isdir}{$mod->Lang('changedir')}: {/if}{$file.name}">{$file.name}</a>
-              {else}
-                <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{if $file.isdir}{$mod->Lang('changedir')}: {/if}{$file.name}" data-fb-filetype='{$file.filetype}'>{$file.name}</a>
-              {/if}
-            </h4>
-          </div>
-          <div class="filepicker-file-details visuallyhidden">
-            <span class="filepicker-file-dimension">{$file.dimensions}</span>
-            <span class="filepicker-file-size">{if !$file.isdir}{$file.size}{/if}</span>
-            <span class="filepicker-file-ext">{if $file.isdir}dir{/if}</span>
-            {if !$file.isdir && $profile->can_delete && !$file.isparent}
-            <span class="filepicker-delete filepicker-cmd" data-cmd="del" title="{$mod->Lang('delete')}">
-            <i class="cmsms-fp-delete"></i>
-            </span>
-            {/if}
-          </div>
-        {/strip}</li>
-        {/foreach}
-      </ul>
-    </div>
-  </div>
- </div>
-{*popup dialog*}
- <div id="mkdir_dlg" title="{$mod->Lang('title_mkdir')}" style="display:none;" data-oklbl="{$mod->Lang('ok')}">
-  <div class="dlg-options">
-    <label for="fld_mkdir">{$mod->Lang('name')}:</label> <input type="text" id="fld_mkdir" size="40" />
-  </div>
- </div>
+  {/if}
+  {$bottomcontent|default:''}
  </body>
-{$bottomcontent|default:''}
 </html>
