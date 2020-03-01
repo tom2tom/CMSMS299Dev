@@ -43,12 +43,12 @@ use function cms_to_bool;
  * @property-read string $top The top directory for the filepicker (relative to the CMSMS uploads directory, or ... TODO)
  * @property-read FileType $type A FileType enumerator representing files which may be used.
  * @property-read string $typename enum identifier corresponding to $type.
- * @property-read string $match_prefix List only files/items that have the specified prefix.
- * @property-read string exclude_prefix  Exclude any files/items that have the specified prefix.
+ * @property-read string $match_prefix Process only files/items whose name has the specified prefix.
+ * @property-read string exclude_prefix  Skip any files/items whose name has the specified prefix.
  * @property-read int $can_mkdir  Users of the filepicker can create new directories.
  * @property-read int $can_upload  Users of the filepicker can upload new files (of the specified type)
  * @property-read int $can_delete  Users of the filepicker can remove files.
- * @property-read bool $show_thumbs Whether thumbnail images should be shown in place of normal icons for images.
+ * @property-read bool $show_thumbs Whether thumbnail images should be shown in the filepicker instead of normal icons for images.
  * @property-read bool $show_hidden Whether hidden files should be shown in the filepicker.
  * @property-read bool $sort Whether files should be sorted before listing them in the filepicker.
  */
