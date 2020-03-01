@@ -3,8 +3,10 @@
 // C
 $lang['cancel'] = 'Cancel';
 $lang['changedir'] = 'Display directory %s'; //tooltip
+$lang['choose'] = 'Choose';
 $lang['chooseit'] = 'Select %s'; //tooltip
 $lang['clear'] = 'Clear';
+$lang['confirm'] ='Confirm';
 $lang['confirm_delete'] = 'Are you sure you want to delete this?';
 $lang['create_dir'] = 'Create a new directory here';
 
@@ -26,6 +28,10 @@ $lang['error_ajax_mkdir'] = 'A problem occurred creating the directory %s';
 $lang['error_ajax_writepermission'] = 'You do not have permission to write to this directory';
 $lang['error_failed_ajax'] = 'A problem occurred with an ajax request';
 $lang['error_problem_upload'] = 'A problem occurred uploading';
+$lang['error_title'] = 'Reported error(s)';
+$lang['error_upload_ext'] = '%s extension is not acceptable';
+$lang['error_upload_size'] ='%s is too big';
+$lang['error_upload_type'] = '%s type is not acceptable';
 $lang['error_upload_acceptFileTypes'] = 'Files of this type are not acceptable in this scope.';
 $lang['error_upload_maxFileSize'] = 'The file is too large';
 $lang['error_upload_minFileSize'] = 'The file is too small';
