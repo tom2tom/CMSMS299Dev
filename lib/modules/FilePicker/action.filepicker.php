@@ -137,6 +137,7 @@ try {
     // get file list TODO c.f. FilePicker\Utils::get_file_list()
     //
     $files = $thumbs = [];
+    $dosize = function_exists('getimagesize'); // GD extension present
     $filesizename = [' Bytes', ' kB', ' MB'];
     $items = scandir($startdir, SCANDIR_SORT_NONE);
     for( $name = reset($items); $name !== false; $name = next($items) ) {
@@ -200,12 +201,14 @@ try {
             $data['is_svg'] = $data['ext'] === 'svg';
             if( $data['is_image'] && !$data['is_svg'] ) {
                 $small = false;
-                $imgsize = @getimagesize($fullname);
-                if( $imgsize ) {
-                    $data['dimensions'] = $imgsize[0].' x '.$imgsize[1];
-                    if( $imgsize[0] <= 100 && $imgsize[1] <= 40 ) {
-                        $small = true;
-                        $data['is_small'] = true;
+                if( $dosize ) {
+                    $imgsize = @getimagesize($fullname);
+                    if( $imgsize && ($imgsize[0] || $imgsize[1]) ) {
+                        $data['dimensions'] = $imgsize[0].' x '.$imgsize[1];
+                        if( $imgsize[0] <= 96 && $imgsize[1] <= 48 ) { //c.f. site_prefs ['thumbnail_width', 'thumbnail_height']
+                            $small = true;
+                            $data['is_small'] = true;
+                        }
                     }
                 }
                 if( !$small ) {
@@ -223,14 +226,14 @@ try {
     if( $profile->show_thumbs && count($thumbs) ) {
         // remove thumbnails that are not orphaned
         foreach( $thumbs as $thumb ) {
-            if( isset($files[$thumb]) ) unset($files[$thumb]);
+            if( isset($files[$thumb]) ) { unset($files[$thumb]); }
         }
     }
     // done the loop, now sort
     usort($files, function($file1,$file2) use ($profile) {
-        if( $file1['isdir'] && !$file2['isdir'] ) return -1;
-        if( !$file1['isdir'] && $file2['isdir'] ) return 1;
-        if ( $profile->sort ) return strnatcmp($file1['name'],$file2['name']);
+        if( $file1['isdir'] && !$file2['isdir'] ) { return -1; }
+        if( !$file1['isdir'] && $file2['isdir'] ) { return 1; }
+        if( $profile->sort ) { return strnatcmp($file1['name'],$file2['name']); }
         return 0;
     });
 
