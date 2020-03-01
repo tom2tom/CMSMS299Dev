@@ -22,7 +22,7 @@ $lang['dropshort'] = 'Drop Zone';
 $lang['droplong'] = 'You may drop here file(s) dragged from your file manager, to automatically begin uploading'; //tooltip
 
 // E
-$lang['error_ajax_invalidfilename'] = 'That filename is invalid';
+$lang['error_ajax_invalidfilename'] = 'Filename is invalid';
 $lang['error_ajax_fileexists'] = 'A file or directory with that name already exists';
 $lang['error_ajax_mkdir'] = 'A problem occurred creating the directory %s';
 $lang['error_ajax_writepermission'] = 'You do not have permission to write to this directory';
@@ -30,7 +30,7 @@ $lang['error_failed_ajax'] = 'A problem occurred with an ajax request';
 $lang['error_problem_upload'] = 'A problem occurred uploading';
 $lang['error_title'] = 'Reported error(s)';
 $lang['error_upload_ext'] = '%s extension is not acceptable';
-$lang['error_upload_size'] ='%s is too big';
+$lang['error_upload_size'] ='%s is too large';
 $lang['error_upload_type'] = '%s type is not acceptable';
 $lang['error_upload_acceptFileTypes'] = 'Files of this type are not acceptable in this scope.';
 $lang['error_upload_maxFileSize'] = 'The file is too large';
