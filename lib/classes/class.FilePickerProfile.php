@@ -1,6 +1,6 @@
 <?php
 # Class defining folder-specific properties and roles
-# Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -63,13 +63,13 @@ class FilePickerProfile
      * @ignore
      */
     protected $_data = [
-       'top'=>null,
+       'top'=>'',
        'type'=>FileType::ANY,
        'can_upload'=>self::FLAG_YES,
        'can_delete'=>self::FLAG_YES,
        'can_mkdir'=>self::FLAG_YES,
-       'match_prefix'=>null,
-       'exclude_prefix'=>null,
+       'match_prefix'=>'',
+       'exclude_prefix'=>'',
        'show_thumbs'=>true,
        'show_hidden'=>false,
        'sort'=>true
