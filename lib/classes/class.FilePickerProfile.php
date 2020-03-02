@@ -48,9 +48,9 @@ use function cms_to_bool;
  * @property-read int $can_mkdir  Users of the filepicker can create new directories.
  * @property-read int $can_upload  Users of the filepicker can upload new files (of the specified type)
  * @property-read int $can_delete  Users of the filepicker can remove files.
- * @property-read bool $show_thumbs Whether thumbnail images should be shown in the filepicker instead of normal icons for images.
- * @property-read bool $show_hidden Whether hidden files should be shown in the filepicker.
- * @property-read bool $sort Whether files should be sorted before listing them in the filepicker.
+ * @property-read bool $show_thumbs Whether thumbnail images should be shown in the filepicker instead of icons for images. Default true.
+ * @property-read bool $show_hidden Whether hidden files should be shown in the filepicker. Default false.
+ * @property-read bool $sort Whether files should be sorted before listing them in the filepicker. Default true.
  */
 class FilePickerProfile
 {
@@ -78,8 +78,8 @@ class FilePickerProfile
     /**
      * Constructor
      *
-     * @param array $params An associative array of params suitable for the setValue method.
-     */
+     * @param array $params Optional associative array of params suitable for the setValue method. Default null
+      */
     public function __construct( array $params = null )
     {
         if( !is_array($params) || !count($params) ) return;
@@ -90,6 +90,8 @@ class FilePickerProfile
 
     /**
      * @ignore
+     * @param string $key
+     * @return mixed
      */
     public function __get($key)
     {
@@ -97,8 +99,8 @@ class FilePickerProfile
         case 'top':
             return trim($this->_data[$key]);
 
-		case 'type': // FileType enum member
-		case 'can_mkdir': // self::FLAG_* value, sometimes non-0 handled just as true
+        case 'type': // FileType enum member
+        case 'can_mkdir': // self::FLAG_* value, sometimes non-0 handled just as true
         case 'can_upload':
         case 'can_delete':
             return (int) $this->_data[$key];
@@ -115,19 +117,21 @@ class FilePickerProfile
 
     /**
      * @ignore
+     * @param string $key
+     * @param mixed $val
      */
-    public function __set( string $key, $val )
+    public function __set( $key, $val )
     {
-		$this->setValue($key, $val);
-	}
+        $this->setValue($key, $val);
+    }
 
     /**
      * Set a value into this profile
      *
      * @param string $key The key to set
-     * @param mixed $val The value to set.
+     * @param mixed $val The value to set
      */
-    protected function setValue( string $key, $val )
+    protected function setValue( $key, $val )
     {
         switch( $key ) {
         case 'top':
@@ -200,7 +204,7 @@ class FilePickerProfile
     }
 
     /**
-     * Get the raw data of the profile.
+     * Get the raw data of the profile
      *
      * @internal
      * @return array
