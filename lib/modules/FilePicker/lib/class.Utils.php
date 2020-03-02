@@ -18,6 +18,7 @@
 namespace FilePicker;
 
 use cms_config;
+use cms_siteprefs;
 use cms_utils;
 use CMSMS\FilePickerProfile;
 use CMSMS\FileTypeHelper;
@@ -301,5 +302,102 @@ class Utils
             });
         }
         return $result;
+    }
+
+    /**
+     * Save a thumbnail if possible
+     * @param string $rootpath absolute filesystem path to be prepended if $path is relative
+     * @param string $path absolute or root-relative filesystem-path of original image
+     */
+    public static function create_file_thumb(string $rootpath, string $path)
+    {
+        if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $path)) {
+            // $path is relative
+            if (!$rootpath) { $rootpath = CMS_ROOT_PATH; }
+            $path = cms_join_path($rootpath, $path);
+        }
+        if (!startswith($path, CMS_ROOT_PATH)) {
+            return;
+        }
+        $dirname = dirname($path);
+        if (!is_dir($dirname) || !is_writable($dirname)) {
+            return;
+        }
+        if (!function_exists('getimagesize')) {
+            return; // no GD extension
+        }
+        $info = @getimagesize($path);
+        if (!$info || $info[0] === 0 || $info[1] === 0) {
+            return;
+        }
+        $width = (int) cms_siteprefs::get('thumbnail_width', 96);
+        $height = (int) cms_siteprefs::get('thumbnail_height', 96);
+        if ($width < 2 || $height < 2) {
+            return;
+        }
+
+        $types = imagetypes(); //IMG_BMP | IMG_GIF | IMG_JPG | IMG_PNG | IMG_WBMP | IMG_XPM | IMG_WEBP (7.0.10)
+        $ores = null;
+        switch ($info[2]) {
+            case IMAGETYPE_GIF:
+                if ($types & IMG_GIF) {
+                    $ores = imagecreatefromgif($path);
+                }
+                break;
+            case IMAGETYPE_JPEG:
+            case IMAGETYPE_JPEG2000:
+                if ($types & IMG_JPG) {
+                    $ores = imagecreatefromjpeg($path);
+                }
+                break;
+            case IMAGETYPE_PNG:
+                if ($types & IMG_PNG) {
+                    $ores = imagecreatefrompng($path);
+                }
+                break;
+            case IMAGETYPE_BMP:
+            case IMAGETYPE_WBMP:
+                if ($types & IMG_BMP) {
+                    $ores = imagecreatefrombmp($path);
+                }
+                break;
+            case IMAGETYPE_XBM:
+                if (1) { //($types & ) {
+                    $ores = imagecreatefromxbm($path);
+                }
+                break;
+            case IMAGETYPE_WEBP:
+                if ($types & IMG_WEBP) {
+                    $ores = imagecreatefromwebp($path);
+                }
+                break;
+/*          case IMAGETYPE_SWF:
+            case IMAGETYPE_PSD:
+            case IMAGETYPE_TIFF_II:
+            case IMAGETYPE_TIFF_MM:
+            case IMAGETYPE_IFF:
+            case IMAGETYPE_JB2:
+            case IMAGETYPE_JPC:
+            case IMAGETYPE_JP2:
+            case IMAGETYPE_JPX:
+            case IMAGETYPE_SWC:
+*/
+            default:
+                //TODO try to construct suitable image
+                $ores = imagecreatefromstring(file_get_contents($path));
+        }
+        if ($ores) {
+            // calc scaled height & width
+            $rh = $height / $info[1];
+            $rw = $width / $info[0];
+            $ru = min($rh, $rw);
+            $ih = (int) ($info[1] * $ru);
+            $iw = (int) ($info[0] * $ru);
+            if ($ih < $info[1] || $iw < $info[0]) {
+                $nres = imagescale($ores, $iw, $ih, IMG_BILINEAR_FIXED);
+                $fn = $dirname . DIRECTORY_SEPARATOR . 'thumb_' . basename($path);
+                imagepng($nres, $fn);
+            }
+        }
     }
 } //class
