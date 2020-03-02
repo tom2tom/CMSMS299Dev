@@ -45,7 +45,7 @@ function get_cliuser()
 {
     $uname = exec('whoami');
     if( !$uname ) {
-        $file  = tempnam(sys_get_temp_dir(), 'WHOMADE_');
+        $file = tempnam(TMP_CACHE_LOCATION, 'WHOMADE_'); //or PUBLIC_CACHE_LOCATION
         file_put_contents($file , 'test');
         $uid = fileowner($file ); //maybe false
         unlink($file );
