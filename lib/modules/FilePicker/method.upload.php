@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
+use FilePicker\Utils;
 
 header('Content-type:application/json;charset=utf-8');
 
@@ -98,34 +99,23 @@ try {
         if (is_dir($dest) || is_file($dest)) {
             throw new RuntimeException($this->Lang('error_ajax_fileexists'));
         }
+
         if (move_uploaded_file($tmppath, $dest)) {
-            // Check file extension (even tho it might be faked)
-            $fileext = $helper->get_extension($dest, false);
-            if (!$helper->match_extension($fileext, $exts)) {
-                unlink($dest);
-                throw new RuntimeException('Invalid file type');
-            }
+			// Check file name, extension (tho the ext might be faked)
+			if (!$this->is_acceptable_filename($profile, $dest)) {
+				throw new RuntimeException($this->Lang('error_upload_acceptFileTypes'));
+			}
             // Check mimetype (maybe dodgy, depending on installed capabilities)
             $filemime = $helper->get_mime_type($dest);
             if (!startswith($filemime, 'text/html;')) { // skip if the check found nothing recognisable
                 if (!$helper->match_mime($filemime, $mime)) {
                     unlink($dest);
-                    throw new RuntimeException('Invalid file type');
+                    throw new RuntimeException($this->Lang('error_upload_type', $fn));
                 }
             }
-            // ? $profile->match_prefix and $profile->exclude_prefix checks here
             chmod($dest, 0640);
-            if ($profile->type == FileType::IMAGE) {
-                if ($profile->show_thumbs && 0) { //$dest is scalable
-                     $width = (int) cms_siteprefs::get('thumbnail_width', 96);
-                    $height = (int) cms_siteprefs::get('thumbnail_height', 96);
-                    if ($width >= 1 && $height >= 1) {
-                        //$ores = imagecreatefrom*($dest);
-//                      calc new height & width from current values
-//                      $nres = imagescale($ores, int $new_width[, int $new_height = -1 [, int $mode = IMG_BILINEAR_FIXED]]);
-//                      save as $upload_dir .'thumb_'. $fn;
-                    }
-                }
+            if ($profile->type == FileType::IMAGE && $profile->show_thumbs) {
+                Utils::create_file_thumb('', $dest);
             }
         } else {
             throw new RuntimeException('Failed to move uploaded file');
