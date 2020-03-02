@@ -147,7 +147,7 @@ class wizard_step3 extends wizard_step
         $obj->fail_key = 'fail_func_ziparchive';
         $tests[] = $obj;
 
-        // required test ... tmpfile
+        // required test ... tmpfile function
         $fh = tmpfile();
         $b = $fh !== FALSE;
         $obj = new boolean_test('tmpfile',$b);
