@@ -320,7 +320,7 @@ EOS;
 
     /**
      * utility function
-     * @param Profile $profile
+     * @param FilePickerProfile $profile
      * @param string $filepath
      * @return boolean
      */
@@ -329,10 +329,15 @@ EOS;
         $filepath = trim($filepath);
         $filename = basename($filepath);
         if( !$filename ) return false;
-        if( !$profile->show_hidden && (startswith($filename,'.') || startswith($filename,'_') || $filename == 'index.html') ) return false;
-        if( $profile->match_prefix && !startswith( $filename, $profile->match_prefix) ) return false;
-        if( $profile->exclude_prefix && startswith( $filename, $profile->exclude_prefix) ) return false;
-
+        if( !$profile->show_hidden && (startswith($filename,'.') || startswith($filename,'_') || $filename == 'index.html') ) { return false; }
+        if( $profile->match_prefix ) {
+            //TODO support wildcards, regex match
+            if( !startswith( $filename, $profile->match_prefix) ) { return false; }
+        }
+        if( $profile->exclude_prefix ) {
+            //TODO support wildcards, regex match
+            if( startswith( $filename, $profile->exclude_prefix) ) { return false; }
+        }
         switch( $profile->type ) {
         case FileType::IMAGE:
             return $this->_typehelper->is_image( $filepath );
