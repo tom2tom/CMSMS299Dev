@@ -11,7 +11,6 @@ License: MIT
 //requires jQuery 1.7+
 
 ;(function($, window, document, undefined) {
-  "$:nomunge";
   'use strict';
 
   var modal,
