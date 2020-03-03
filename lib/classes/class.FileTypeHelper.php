@@ -243,19 +243,20 @@ class FileTypeHelper
 
     /**
      * Get the extension of the specified file
-     *
-     * @param string $filename Basename (at least) of a file.
-     * @param bool $lower Optional flag, whether to lowercase the result. Default TRUE
+     * For internal use but also a public convenience function, to avoid loading a PathAssistant etc
+     * @param string $filename Filesystem path, or at least the basename, of a file.
      * @return string, lowercase
      */
-    public function get_extension( $filename, $lower = TRUE )
+    public function get_extension( $filename )
     {
-        $p = \strrpos($filename, '.');
+        $p = strrpos($filename, '.');
         if( !$p ) { return ''; } // none or at start
-        $ext = \substr($filename, $p + 1);
-        if( !$lower) { return $ext; }
-        if( \function_exists('mb_strtolower') ) { return \mb_strtolower($ext); }
-        return \strtolower($ext);
+        $ext = substr($filename, $p + 1);
+        if( !$ext ) { return ''; } // at end
+        if( function_exists('mb_strtolower') ) {
+            return mb_strtolower($ext);
+        }
+        return strtolower($ext);
     }
 
     /**
@@ -267,7 +268,7 @@ class FileTypeHelper
     public function get_mime_type( $filename )
     {
         if( !isset($this->_finfo) ) {
-			// shonky hosts might not install this
+            // shonky hosts might not install this
             if( function_exists('finfo_open') ) {
                 $this->_finfo = finfo_open(FILEINFO_MIME_TYPE);
             } else {
