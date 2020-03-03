@@ -177,7 +177,7 @@ class Utils
         $pex = $profile->exclude_prefix ?? '';
         $pin = $profile->match_prefix ?? '';
 
-        $typer = new FileTypeHelper($config);
+        $helper = new FileTypeHelper($config);
         $posix = function_exists('posix_getpwuid');
         if (!$posix) {
             $ownerna = $mod->Lang('na');
@@ -207,17 +207,17 @@ class Utils
             }
 
             $filepath = $path.DIRECTORY_SEPARATOR.$name;
-            if (!$showthumb && $typer->is_thumb($filepath)) {
+            if (!$showthumb && $helper->is_thumb($filepath)) {
                 continue;
             }
 
             $info = ['fullpath' => $filepath, 'dir' => is_dir($filepath), 'name' => $name];
             if (!$info['dir']) {
-                $info['ext'] = $typer->get_extension($name);
-                $info['text'] = $typer->is_text($filepath);
-                $info['image'] = $typer->is_image($filepath);
-                $info['archive'] = !$info['text'] && !$info['image'] && $typer->is_archive($filepath);
-                $info['mime'] = $typer->get_mime_type($filepath);
+                $info['ext'] = $helper->get_extension($name);
+                $info['text'] = $helper->is_text($filepath);
+                $info['image'] = $helper->is_image($filepath);
+                $info['archive'] = !$info['text'] && !$info['image'] && $helper->is_archive($filepath);
+                $info['mime'] = $helper->get_mime_type($filepath);
                 $info['url'] = cms_path_to_url($filepath);
             }
 
