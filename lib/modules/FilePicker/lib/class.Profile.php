@@ -94,8 +94,8 @@ class Profile extends FileSystemProfile
                 $config = cms_config::get_instance();
                //TODO sometimes relative to site root
                 $uploads_path = $config['uploads_path'];
-				if( startswith( $val, $uploads_path ) ) { $val = substr($val,strlen($uploads_path)); }
-				if( startswith( $val, DIRECTORY_SEPARATOR) ) { $val = substr($val,1); }
+                if( startswith( $val, $uploads_path ) ) { $val = substr($val,strlen($uploads_path)); }
+                if( startswith( $val, DIRECTORY_SEPARATOR) ) { $val = substr($val,1); }
             }
             return $val;
 
@@ -163,15 +163,15 @@ class Profile extends FileSystemProfile
         }
     }
 
-	/**
+    /**
      * @return boolean
-	 * @throws ProfileException
-	 */
+     * @throws ProfileException
+     */
     public function validate()
     {
-		if( !$this->name ) { throw new ProfileException('err_profile_name'); }
-		if( $this->reltop && !is_dir($this->top) ) { throw new ProfileException('err_profile_topdir'); }
-		return true;
+        if( !$this->name ) { throw new ProfileException('err_profile_name'); }
+        if( $this->reltop && !is_dir($this->top) ) { throw new ProfileException('err_profile_topdir'); }
+        return true;
     }
 
     /**
