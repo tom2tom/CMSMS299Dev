@@ -835,7 +835,11 @@ function chmod_r(string $path, $mode) : bool
  */
 function startswith(string $str, string $sub) : bool
 {
-    return strncmp($str, $sub, strlen($sub)) === 0;
+    $o = strlen($sub);
+    if ($o > 0) {
+        return strncmp($str, $sub, $o) === 0;
+    }
+    return false;
 }
 
 /**
@@ -850,8 +854,8 @@ function startswith(string $str, string $sub) : bool
 function endswith(string $str, string $sub) : bool
 {
     $o = strlen($sub);
-    if ($o > 0 && $o <= strlen($str)) {
-        return strpos($str, $sub, -$o) !== false;
+    if ($o > 0) {
+        return substr_compare($str, $sub, -$o, $o) === 0;
     }
     return false;
 }
