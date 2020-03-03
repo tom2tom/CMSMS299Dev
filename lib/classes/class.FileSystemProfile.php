@@ -20,7 +20,9 @@ namespace CMSMS;
 
 use CmsInvalidDataException;
 use CMSMS\FileType;
+use const CMS_DEBUG;
 use function cms_to_bool;
+use function debug_to_log;
 
 /**
  * A simple class that defines a suite of properties and permissions,
@@ -47,7 +49,7 @@ use function cms_to_bool;
  * @property-read string $match_prefix Identifier of filenames to be processed. Default ''
  * @property-read string exclude_prefix  Identifier of filenames to be skipped. Default ''
  * @property-read int $can_mkdir  Whether new directories may be created here.
- * @property-read int $can_upload  Whether new files (of the specified type) may be uploaded to here. 
+ * @property-read int $can_upload  Whether new files (of the specified type) may be uploaded to here.
  * @property-read int $can_delete  Whether files/folders may be removed from here.
  * @property-read bool $show_thumbs Whether image thumbnails should be used. Default true.
  * @property-read bool $show_hidden Whether hidden files should be included when processing folder content. Default false.
@@ -207,11 +209,105 @@ class FileSystemProfile
     /**
      * Get the raw data of this profile
      *
-     * @internal
      * @return array
      */
     public function getRawData()
     {
         return $this->_data;
+    }
+
+   /**
+    * Helper function: check for a match between $pattern and $name
+    * Tries wildcard, regex and literal name-matching, case-insensitive
+    * @since 2.3
+    * @param string pattern
+    * @param string name
+    * @return bool indicating whether they match
+    */
+	protected function getMatch($pattern, $name)
+    {
+        if( !($pattern || is_numeric($pattern)) ) {
+            return true;
+        }
+        if( 0 ) { //$name contains non-ASCII
+            // TODO robust caseless name startswith pattern
+        }
+        if( preg_match('/[*?]/', $pattern) ) {
+            $s = rtrim($pattern, ' *');
+            if( fnmatch($s.'*', $name,
+            FNM_NOESCAPE | FNM_PATHNAME | FNM_PERIOD | FNM_CASEFOLD) ) {
+                return true;
+            }
+        }
+        if( strpbrk($pattern, '[({^|*+-.,$') !== false ) {
+            $s = trim($pattern, '^$ ');
+            if( preg_match('/^'.$s.'.*$/i', $name) ) {
+                return true;
+            }
+        }
+        $l = strlen($pattern);
+        if( strncasecmp($name, $pattern, $l) === 0 ) {
+            return true;
+        }
+		//etc?
+        return false;
+    }
+
+    /**
+     * Check whether $filename accords with relevant conditions among the profile properties
+     * @since 2.3 (migrated from sub-class)
+     * @param string $filename Absolute|relative filesystem path, or just basename, of a file
+     * @return boolean
+     */
+    public function is_file_name_acceptable( $filename )
+    {
+        $fn = basename($filename);
+        try {
+            if( !$this->_data['show_hidden'] && ($fn[0] === '.' || $fn[0] === '_') ) {
+                throw new Exception($fn.': name is not acceptable');
+            }
+
+            if( !$this->getMatch($this->_data['match_prefix'], $fn) ) {
+                throw new Exception($fn.': name is not acceptable');
+            }
+
+            if( $this->_data['exclude_prefix'] ) {
+                if( $this->getMatch($this->_data['exclude_prefix'], $fn) ) {
+                    throw new Exception($fn.': name is not acceptable');
+                }
+            }
+
+            if( $this->_data['file_extensions'] === '' ) {
+                return true;
+            }
+            // file must have acceptable extension
+            $p = strrpos($fn, '.');
+            if( !$p ) {
+                // file has no extension, or just an initial '.'
+                throw new Exception($fn.': type is not acceptable');
+            }
+            $ext = substr($fn, $p+1);
+            if( !$ext ) {
+                // file has empty extension
+                throw new Exception($fn.': type is not acceptable');
+            }
+            $s =& $this->_data['file_extensions'];
+            // we always do a caseless (hence ASCII) check,
+            // cuz patterns and/or extension might be case-insensitive
+            // and recognised extensions are all ASCII
+            $p = stripos($s, $ext);
+            if( $p !== false ) {
+                if( $s[$p - 1] === ',' ) {
+                    if( $s[$p + strlen($ext)] === ',' ) {
+                        return true;
+                    }
+                }
+            }
+            throw new Exception($fn.': type is not acceptable');
+        }
+        catch (Exception $e) {
+            if( CMS_DEBUG ) { debug_to_log($e->GetMessage()); }
+            return false;
+        }
     }
 } // class
