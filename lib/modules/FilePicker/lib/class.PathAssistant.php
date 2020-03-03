@@ -102,4 +102,41 @@ class PathAssistant
         $absolute = $this->to_absolute(trim($path));
         return $this->is_relative($absolute);
     }
+
+    /**
+     * Get the extension of the specified file
+     * @since 2.3
+     * @param string $path Filesystem path, or at least the basename, of a file
+     * @param bool $lower Optional flag, whether to lowercase the result. Default TRUE.
+     * @return string, lowercase if $lower is true or not set
+     */
+    public function get_extension($path, $lower = TRUE)
+    {
+        $p = strrpos($path, '.');
+        if( !$p ) { return ''; } // none or at start
+        $ext = substr($path, $p + 1);
+        if( $lower) {
+            if( function_exists('mb_strtolower') ) {
+                return mb_strtolower($ext);
+            }
+            return strtolower($ext);
+        }
+        return $ext;
+    }
+
+    /**
+     * Get a variant of the supplied $path with definitely-lowercase filename extension
+     * @since 2.3
+     * @param string $path Filesystem path, or at least the basename, of a file
+     * @return string
+     */
+    public function lower_extension($path)
+    {
+        $ext = $this->get_extension($path);
+        if ($ext !== '') {
+            $p = strrpos($path, '.');
+            return substr($path, 0, $p + 1) . $ext;
+        }
+        return $path;
+    }
 } // class
