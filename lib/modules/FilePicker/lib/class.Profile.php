@@ -1,6 +1,6 @@
 <?php
 # Class defining folder-specific properties and roles
-# Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -19,39 +19,55 @@
 namespace FilePicker;
 
 use cms_config;
-use CMSMS\FilePickerProfile;
+use CMSMS\FileSystemProfile;
 use Exception;
 use LogicException;
-use function debug_to_log;
+use const TMP_CACHE_LOCATION;
+use function cms_to_bool;
 use function startswith;
 
 class ProfileException extends Exception {}
 
-class Profile extends FilePickerProfile
+class Profile extends FileSystemProfile
 {
+    /**
+     * Constructor
+     * @internal
+     * @param array $params optional assoc array of profile props and vals. Default []
+     */
     public function __construct( array $params = [] )
     {
-        $this->_data += [
-         'create_date'=>null,
-         'file_extensions'=>null,
-         'id'=>null,
-         'modified_date'=>null,
-         'name'=>null,
-        ];
+        $props = [
+          'create_date'=>0,
+          'modified_date'=>0,
+          'file_extensions'=>'',
+          'file_mimes'=>'', //since 2.3
+          'id'=>0, //CHECKME just an index?
+          'case_sensitive'=>true, //since 2.3
+          'name'=>'',
+        ] + $params;
 
-        foreach( $params as $key => $value ) {
-            switch( $key ) {
-            case 'id':
-                $this->_data[$key] = (int) $value;
-                break;
-            default:
-                $this->setValue( $key, $value );
-                break;
-            }
+        $props['id'] = (int) $props['id'];
+        if( isset($params['case_sensitive']) ) {
+            $props['case_sensitive'] = cms_to_bool($params['case_sensitive']);
         }
+        else {
+            $fp = tempnam(TMP_CACHE_LOCATION, ''); // or PUBLIC_CACHE_LOCATION
+            $fn = $fp.'UC';
+            $fh = fopen($fn, 'c');
+            $props['case_sensitive'] = !is_file($fp.'uc');
+            fclose($fh);
+            unlink($fn);
+        }
+        parent::__construct($props);
     }
 
-    public function __get( string $key )
+    /**
+     *
+     * @param string $key
+     * @return string
+     */
+    public function __get( $key )
     {
         switch( $key ) {
         case 'id':
@@ -60,8 +76,13 @@ class Profile extends FilePickerProfile
             return (int) $this->_data[$key];
 
         case 'name':
-        case 'file_extensions':
             return trim($this->_data[$key]);
+        case 'file_extensions':
+        case 'file_mimes':
+            return trim($this->_data[$key], ' ,');
+
+        case 'case_sensitive':
+            return (bool) $this->_data[$key];
 
         case 'relative_top':
         case 'reltop':
@@ -71,10 +92,10 @@ class Profile extends FilePickerProfile
             if( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $val) ) {
                // path is absolute
                 $config = cms_config::get_instance();
-            //TODO sometimes relative to site root
+               //TODO sometimes relative to site root
                 $uploads_path = $config['uploads_path'];
-                if( startswith( $val, $uploads_path ) ) $val = substr($val,strlen($uploads_path));
-                if( startswith( $val, DIRECTORY_SEPARATOR) ) $val = substr($val,1);
+				if( startswith( $val, $uploads_path ) ) { $val = substr($val,strlen($uploads_path)); }
+				if( startswith( $val, DIRECTORY_SEPARATOR) ) { $val = substr($val,1); }
             }
             return $val;
 
@@ -83,7 +104,7 @@ class Profile extends FilePickerProfile
             // if relative, prepend uploads path
             $val = parent::__get('top');
             if( !preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $val) ) {
-            //TODO sometimes relative to site root
+                //TODO sometimes relative to site root
                 $config = cms_config::get_instance();
                 $val = $config['uploads_path'].DIRECTORY_SEPARATOR.$val;
             }
@@ -94,12 +115,42 @@ class Profile extends FilePickerProfile
         }
     }
 
-    protected function setValue( string $key, $val )
+    /**
+     *
+     * @param string $key
+     * @param mixed $val
+     */
+    protected function setValue( $key, $val )
     {
         switch( $key ) {
             case 'name':
-            case 'file_extensions':
                 $this->_data[$key] = trim($val);
+                break;
+            case 'file_extensions':
+                if( is_array($val) ) {
+                    $s = implode(',', $val);
+                }
+                else {
+                    $s = (string) $val;
+                }
+                // setup for easier searching
+                $s = strtr($s, [' ' => '', '.' => '']);
+                $this->_data[$key] = ',' . $s . ',';
+                break;
+            case 'file_mimes':
+                if( is_array($val) ) {
+                    $s = implode(',', $val);
+                }
+                else {
+                    $s = (string) $val;
+                }
+                // setup for easier searching
+                $s = trim($s, ' ,');
+                $s = str_replace([' ,',', '], [',',','], $s);
+                $this->_data[$key] = ',' . strtolower($s) . ',';
+                break;
+            case 'case_sensitive':
+                $this->_data[$key] = cms_to_bool($val);
                 break;
             case 'id':
             case 'create_date':
@@ -112,12 +163,23 @@ class Profile extends FilePickerProfile
         }
     }
 
+	/**
+     * @return boolean
+	 * @throws ProfileException
+	 */
     public function validate()
     {
-        if( !$this->name ) throw new ProfileException( 'err_profile_name' );
-        if( $this->reltop && !is_dir($this->top) ) throw new ProfileException('err_profile_topdir');
+		if( !$this->name ) { throw new ProfileException('err_profile_name'); }
+		if( $this->reltop && !is_dir($this->top) ) { throw new ProfileException('err_profile_topdir'); }
+		return true;
     }
 
+    /**
+     * Get a clone of this profile with the specified id
+     * @param mixed $new_id  Optional (number >= 1.0 | numeric string >= 1.0 | null) Default null
+     * @return Profile
+     * @throws LogicException
+     */
     public function withNewId( $new_id = null )
     {
         if( !is_null($new_id) ) {
@@ -130,7 +192,12 @@ class Profile extends FilePickerProfile
         return $obj;
     }
 
-    public function overrideWith( array $params )
+    /**
+     * Get a clone of this profile with replacement properties
+     * @param array $params assoc. array of profile props and their vals
+     * @return Profile
+     */
+    public function overrideWith( array $params = [] )
     {
         $obj = clone( $this );
         foreach( $params as $key => $val ) {
@@ -147,37 +214,14 @@ class Profile extends FilePickerProfile
         return $obj;
     }
 
+    /**
+     * Get a clone of this profile with the current time as its 'modified_date' property
+     * @return Profile
+     */
     public function markModified()
     {
         $obj = clone $this;
         $obj->_data['modified_date'] = time();
         return $obj;
-    }
-
-    public function getRawData()
-    {
-        $data = parent::getRawData();
-        $data = array_merge($data,$this->_data);
-        return $data;
-    }
-
-    public function is_filename_acceptable( $filename )
-    {
-        if( !parent::is_filename_acceptable( $filename) ) return FALSE;
-        if( !$this->file_extensions ) return FALSE;
-
-        // file must have this extension
-        $ext = strtolower(substr(strrchr($file_name, '.'), 1));
-        if( !$ext ) return FALSE; // uploaded file has no extension.
-        $list = explode(',',$this->_profile->file_extensions);
-
-        foreach( $list as $one ) {
-            $one = strtolower(trim($one));
-            if( !$one ) continue;
-            if( startswith( $one, '.') ) $one = substr($one,1);
-            if( $ext == $one ) return TRUE;
-        }
-        debug_to_log('file type is not acceptable');
-        return FALSE;
     }
 } // class
