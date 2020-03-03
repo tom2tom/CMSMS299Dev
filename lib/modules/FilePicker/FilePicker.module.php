@@ -326,16 +326,17 @@ EOS;
      */
     public function is_acceptable_filename( $profile, $filepath )
     {
+        //TODO c.f. $profile->is_file_name_acceptable($filepath);
         $filepath = trim($filepath);
         $filename = basename($filepath);
         if( !$filename ) return false;
         if( !$profile->show_hidden && (startswith($filename,'.') || startswith($filename,'_') || $filename == 'index.html') ) { return false; }
         if( $profile->match_prefix ) {
-            //TODO support wildcards, regex match
+            //TODO $profile->is_file_name_acceptable() supports wildcards, regex match
             if( !startswith( $filename, $profile->match_prefix) ) { return false; }
         }
         if( $profile->exclude_prefix ) {
-            //TODO support wildcards, regex match
+            //TODO $profile->is_file_name_acceptable() supports wildcards, regex match
             if( startswith( $filename, $profile->exclude_prefix) ) { return false; }
         }
         switch( $profile->type ) {
