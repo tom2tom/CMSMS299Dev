@@ -55,6 +55,7 @@ function cms_autoloader(string $classname)
 				'CMSMS\Cookies' => 'cms_cookies',
 				'CMSMS\CoreCapabilities' => 'CmsCoreCapabilities',
 				'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
+				'CMSMS\FileSystemProfile' => 'CMSMS\FilePickerProfile',
 				'CMSMS\HookOperations' => 'CMSMS\HookManager',
 				'CMSMS\HttpRequest' => 'cms_http_request',
 				'CMSMS\internal\AdminThemeNotification' => 'CmsAdminThemeNotification',
