@@ -1,11 +1,11 @@
 /*!
-jQuery Cookie Bar component  V.1.2.0 <https://github.com/kovarp/jquery.cookieBar>
+jQuery Cookie Bar component  V.1.2.1 <https://github.com/kovarp/jquery.cookieBar>
 (C) 2018 Pavel Kovář <www.pavelkovar.cz>
 license: MIT
 */
 
 if (typeof jQuery === 'undefined') {
-	throw new Error('Cookie Bar component requires jQuery')
+	throw new Error('Cookie Bar component requires jQuery');
 }
 
 /**
@@ -14,7 +14,7 @@ if (typeof jQuery === 'undefined') {
  * ------------------------------------------------------------------------
  */
 
-(function ( $ ) { '$:nomunge';
+(function ( $, document ) {
 
 	// Global variables
 	var cookieBar, config;
@@ -73,7 +73,7 @@ if (typeof jQuery === 'undefined') {
 				privacyContent: null
 			};
 
-			config = $.extend(defaults, options);
+			config = $.extend(defaults, options || {});
 
 			if(methods.getCookie('cookies-state') !== 'accepted') {
 				methods.displayBar();
@@ -181,4 +181,4 @@ if (typeof jQuery === 'undefined') {
 			$.error( 'Method ' +  methodOrOptions + ' does not exist on Cookie Bar component' );
 		}
 	};
-}( jQuery ));
+}( jQuery, document ));
