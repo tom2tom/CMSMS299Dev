@@ -1,9 +1,10 @@
 /*!
-jQuery Basictable v.1.0.8 <https://www.github.com/jerrylow/basictable>
+jQuery Basictable v.1.0.9 <https://www.github.com/jerrylow/basictable>
 (C) Jerry Low 2014-2018 <lowjer@gmail.com>
 License: MIT
 */
-(function($) { "$:nomunge";
+/* global $, jQuery */
+(function($, window) {
   $.fn.basictable = function(options) {
 
     var setup = function(table, data) {
@@ -182,7 +183,7 @@ License: MIT
       }
 
       // Extend Settings.
-      var settings = $.extend({}, $.fn.basictable.defaults, options);
+      var settings = $.extend({}, $.fn.basictable.defaults, options || {});
 
       var vars = {
         breakpoint: settings.breakpoint,
@@ -224,4 +225,4 @@ License: MIT
     showEmptyCells: false,
     header: true
   };
-})(jQuery);
+})(jQuery, window);
