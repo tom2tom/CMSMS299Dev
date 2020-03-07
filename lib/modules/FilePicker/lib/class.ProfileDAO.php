@@ -1,6 +1,6 @@
 <?php
-# Filepicker module: profile interaction class
-# Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Filepicker module class for managing database-cached profile data
+# Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,14 +20,17 @@ namespace FilePicker;
 use CmsInvalidDataException;
 use FilePicker;
 use LogicException;
+use OutOfBoundsException;
 use RuntimeException;
 use const CMS_DB_PREFIX;
 
 class ProfileDAO
 {
-    private $_mod;
-    private $_db;
     const DFLT_PREF = 'ProfileDAO_defaultProfileId';
+
+	protected $_mod;
+    protected $_db;
+	protected $_table;
 
     public static function table_name() { return CMS_DB_PREFIX.'mod_filepicker_profiles'; }
 
@@ -35,6 +38,7 @@ class ProfileDAO
     {
         $this->_mod = $mod;
         $this->_db = $mod->GetDb();
+		$this->_table = CMS_DB_PREFIX.'mod_filepicker_profiles';
     }
 
     protected function profile_from_row(array $row)
@@ -75,8 +79,8 @@ class ProfileDAO
     public function loadById( $id )
     {
         $id = (int) $id;
-        if( $id < 1 ) throw new LogicException('Invalid id passed to '.__METHOD__);
-        $sql = 'SELECT * FROM '.self::table_name().' WHERE id = ?';
+        if( $id < 1 ) throw new OutOfBoundsException('Invalid id passed to '.__METHOD__);
+        $sql = 'SELECT * FROM '.$this->_table.' WHERE id = ?';
         $row = $this->_db->GetRow($sql,[ $id ]);
         if( $row ) return $this->profile_from_row($row);
     }
@@ -84,8 +88,8 @@ class ProfileDAO
     public function loadByName( $name )
     {
         $name = trim($name);
-        if( !$name ) throw new LogicException('Invalid name passed to '.__METHOD__);
-        $sql = 'SELECT * FROM '.self::table_name().' WHERE name = ?';
+        if( !$name ) throw new OutOfBoundsException('Invalid name passed to '.__METHOD__);
+        $sql = 'SELECT * FROM '.$this->_table.' WHERE name = ?';
         $row = $this->_db->GetRow($sql,[ $name ]);
         if( $row ) return $this->profile_from_row($row);
     }
@@ -94,40 +98,37 @@ class ProfileDAO
     {
         if( $profile->id < 1 ) throw new LogicException('Invalid profile passed to '.__METHOD__);
 
-        $sql = 'DELETE FROM '.self::table_name().' WHERE id = ?';
+        $sql = 'DELETE FROM '.$this->_table.' WHERE id = ?';
         $this->_db->Execute( $sql, [ $profile->id ] );
 
-        $profile = $profile->withNewId();
-        return $profile;
+        return $profile->withNewId();
     }
 
     protected function _insert( Profile $profile )
     {
-        $sql = 'SELECT id FROM '.self::table_name().' WHERE name = ?';
+        $sql = 'SELECT id FROM '.$this->_table.' WHERE name = ?';
         $tmp = $this->_db->GetOne( $sql, [ $profile->name ] );
         if( $tmp ) throw new CmsInvalidDataException('err_profilename_exists');
 
-        $sql = 'INSERT INTO '.self::table_name().' (name, data, create_date, modified_date) VALUES (?, ?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())';
+        $sql = 'INSERT INTO '.$this->_table.' (name, data, create_date, modified_date) VALUES (?, ?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())';
         $dbr = $this->_db->Execute( $sql, [ $profile->name, serialize($profile->getRawData()) ] );
         if( !$dbr ) throw new RuntimeException('Problem inserting profile record');
 
         $new_id = $this->_db->Insert_ID();
-        $obj = $profile->withNewID( $new_id );
-        return $obj;
+        return $profile->withNewID($new_id);
     }
 
     protected function _update( Profile $profile )
     {
-        $sql = 'SELECT id FROM '.self::table_name().' WHERE name = ? AND id != ?';
+        $sql = 'SELECT id FROM '.$this->_table.' WHERE name = ? AND id != ?';
         $tmp = $this->_db->GetOne( $sql, [ $profile->name, $profile->id ] );
         if( $tmp ) throw new CmsInvalidDataException('err_profilename_exists');
 
-        $sql = 'UPDATE '.self::table_name().' SET name = ?, data = ?, modified_date = UNIX_TIMESTAMP() WHERE id = ?';
+        $sql = 'UPDATE '.$this->_table.' SET name = ?, data = ?, modified_date = UNIX_TIMESTAMP() WHERE id = ?';
         $dbr = $this->_db->Execute( $sql, [ $profile->name, serialize($profile->getRawData()), $profile->id ] );
         if( !$dbr ) throw new RuntimeException('Problem updating profile record');
 
-        $obj = $profile->markModified();
-        return $obj;
+        return $profile->markModified();
     }
 
     public function save( Profile $profile )
@@ -142,9 +143,9 @@ class ProfileDAO
 
     public function loadAll()
     {
-        $sql = 'SELECT * FROM '.self::table_name().' ORDER BY name';
+        $sql = 'SELECT * FROM '.$this->_table.' ORDER BY name';
         $list = $this->_db->GetArray($sql);
-        if( !count($list) ) return;
+        if( !$list ) return [];
 
         $out = [];
         foreach( $list as $row ) {
