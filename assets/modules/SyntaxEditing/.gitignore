@@ -1,0 +1,9 @@
+.git
+*~
+*.bak
+\#*\#
+.htaccess
+index.html
+*OLD
+UNUSED*
+*moduleinfo.ini
