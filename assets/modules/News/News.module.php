@@ -97,7 +97,7 @@ class News extends CMSModule
 //$params used in action.browsecat.php
 'browsecattemplate'
 */
-		//some of these are probably redundant in the frontend
+        //some of these are probably redundant in the frontend
         $this->SetParameterType('articleid', CLEAN_INT);
         $this->SetParameterType('browsecat', CLEAN_INT); //??
         $this->SetParameterType('browsecattemplate', CLEAN_STRING); //name
@@ -217,7 +217,7 @@ EOS;
 
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE searchable = 1 AND status = \'published\' OR status = \'final\' ORDER BY start_time';
         $rst = $db->Execute($query);
-		$nsexp = $this->GetPreference('expired_searchable',0) == 0;
+        $nsexp = $this->GetPreference('expired_searchable',0) == 0;
         while ($rst && !$rst->EOF) {
             $module->AddWords($this->GetName(),
                               $rst->fields['news_id'], 'article',
@@ -245,14 +245,14 @@ EOS;
         return $this->CreateInputDropdown($id, $name, array_flip($items), -1, $selected);
     }
 */
-	public function GetDateFormat() : string
-	{
-		$fmt = $this->GetPreference('date_format');
-		if (!$fmt) {
-			$fmt = cms_siteprefs::get('defaultdateformat','%Y-%m-%e %H:%M');
-		}
-		return $fmt;
-	}
+    public function GetDateFormat() : string
+    {
+        $fmt = $this->GetPreference('date_format');
+        if (!$fmt) {
+            $fmt = cms_siteprefs::get('defaultdateformat','%Y-%m-%e %H:%M');
+        }
+        return $fmt;
+    }
 
     public function GetNotificationOutput($priority = 2)
     {
