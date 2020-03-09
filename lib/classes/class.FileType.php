@@ -32,7 +32,7 @@ final class FileType extends BasicEnum
     const AUDIO     = 2;
     const VIDEO     = 3;
     const MEDIA     = 4;
-    const DOCUMENT  = 5; //'office' and text too?
+    const DOCUMENT  = 5; //'office', plaintext, see also TEXT
     const SHOWABLE  = 9; //any of the above
     const ARCHIVE   = 15;
     const XML       = 20; //includes [x]html[5]
@@ -44,6 +44,7 @@ final class FileType extends BasicEnum
     const FONT      = 34;
     const EXE       = 35; //executable shell script
     const OPERATION = 39; //any of the 30's
+    const TEXT      = 40; //plaintext DOCUMENT's, XML, OPERATION
     const NONE      = 0; //careful! falsy matches
     const ANY       = 99;
     const ALL       = 99; //alias
