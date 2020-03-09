@@ -64,7 +64,7 @@ class CoreTextEditing extends CMSModule implements CMSMS\MultiEditor
 	/**
 	 * Generate page-header content needed to run syntax-highlighter(s) in an admin page.
 	 * Does nothing for frontend pages.
-	 * CMSModule method
+     * This is a CMSModule method for SYNTAX_MODULE modules
 	 * @return string always empty
 	 */
 	public function SyntaxGenerateHeader() //: string
