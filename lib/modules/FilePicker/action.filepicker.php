@@ -26,15 +26,15 @@
  * generated page and uploader
  */
 
-use CMSMS\FilePickerProfile;
 use CMSMS\FileType;
 use CMSMS\NlsOperations;
+use CMSMS\ProfileValue;
 use CMSMS\ScriptOperations;
 use FilePicker\PathAssistant;
 use FilePicker\TemporaryProfileStorage;
 use FilePicker\Utils;
 
-if( !isset($gCms) ) exit;
+if (!function_exists('cmsms')) exit;
 //BAD in iframe if( !check_login(true) ) exit; // admin only.... but any admin
 
 $handlers = ob_list_handlers();
@@ -43,69 +43,84 @@ for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 //
 // initialization
 //
-$sesskey = cms_utils::hash_string(__FILE__);
 if( !empty($params['_enc']) ) {
-    $eparms = json_decode(base64_decode($params['_enc']), true);
+    $eparms = json_decode(base64_decode($params['_enc']), true); //'seldir'|'subdir','inst'
     if( $eparms ) {
+		cleanArray($eparms);
         $params = array_merge($params, $eparms);
     }
 }
 
 try {
-    $inst = $params['inst'] ?? '';
-    $stype = $params['type'] ?? '';
-    if ($stype !== '') {
-        $itype = FileType::getValue($stype);
-    }
-
-    $mime = trim(cleanValue(get_parameter_value($_GET,'mime')));
+/*
+	//$mime & $extensions replicate profile properties, if a suitable profile exists now
+    $mime = $params['mime'] ?? '';
     if ($mime) {
-        $mime = rawurldecode($mime); // defines filetypes to be displayed for potential upload
+		// defines filetypes to be displayed for potential upload c.f. $profile->file_extensions
+        $mime = rawurldecode(trim($mime));
     }
-    $extensions = trim(cleanValue(get_parameter_value($_GET,'extensions')));
+    $extensions = $params['extensions'] ?? '';
     if ($extensions) {
-         // defines extensions of files' names to be displayed for potential upload
-        $extensions = rawurldecode($extensions);
-        $extjs = '["'.str_replace(',', '","', $extensions).'"]';
+        // defines extensions of files' names to be displayed for potential upload c.f. $profile->file_mimes
+        $extensions = rawurldecode(trim($extensions));
     }
-    else {
-        $extjs = '[]';
-    }
-
-    if( $inst ) {
-        $profile = TemporaryProfileStorage::get(substr($inst, 1)); // ignore prepended 'i'
+*/
+	$save = false;
+    $inst = $params['inst'] ?? '';
+	if( $inst ) {
+        $profile = TemporaryProfileStorage::get($inst);
     }
     else {
         $profile = null;
     }
     if( !$profile ) {
         $profile = $this->get_default_profile();
+		$save = true;
     }
-    if( !$inst && $stype && $profile ) {
-        $profile = $profile->overrideWith( [ 'type'=>$itype ] );
-        $inst = 'i'.TemporaryProfileStorage::set($profile);
+
+    $stype = $params['type'] ?? ''; //TODO form needs to send this if no inst
+    if( $profile && !$inst && $stype ) {
+        $itype = FileType::getValue($stype);
+        $profile = $profile->overrideWith([
+			'type'=>$itype,
+		]);
+		$save = true;
     }
     if( !$this->CheckPermission('Modify Files') ) {
         $profile = $profile->overrideWith([
-            'can_upload' => FilePickerProfile::FLAG_NO,
-            'can_delete' => FilePickerProfile::FLAG_NO,
-            'can_mkdir' => FilePickerProfile::FLAG_NO
+            'can_upload' => ProfileValue::NO,
+            'can_delete' => ProfileValue::NO,
+            'can_mkdir' => ProfileValue::NO
         ]);
+		$save = true;
     }
+//TODO MAYBE 'id'=>0, //? an identifier corresponding to db table key? $db->GenId() ?
+//           'name'=>'', //something useful?
 
-    // get our absolute top directory, and its matching url
+    // get our absolute top directory
     $topdir = $profile->top;
     if( !$topdir ) {
-        $topdir = $profile->top = $config['uploads_path'];
+        $topdir = $config['uploads_path'];
+        $profile = $profile->overrideWith([
+            'top' => $topdir
+        ]);
+		$save = true;
     }
-    $assistant = new PathAssistant($config, $topdir);
 
-    if( isset($_GET['seldir']) ) {
-         $cwd = trim(get_parameter_value($_GET,'seldir')); //one of the encoded params, no sanity check
+	if( $save ) {
+        $inst = TemporaryProfileStorage::set($profile);
+	}
+
+    $assistant = new PathAssistant($config, $topdir);
+    $sesskey = cms_utils::hash_string(__FILE__);
+
+	$cwd = $params['seldir'] ?? '';
+    if( $cwd ) {
+        $cwd = trim($cwd);
     }
     else {
         // get our current working directory relative to $topdir
-        // use cwd stored in session first... then if necessary the profile topdir, then if necessary, the absolute topdir
+        // prefer: the value stored in session, then the profile topdir, then the absolute topdir
         if( isset($_SESSION[$sesskey]) ) {
             $cwd = trim($_SESSION[$sesskey]);
         }
@@ -116,13 +131,13 @@ try {
             $cwd = $assistant->to_relative($profile->top);
         }
 
-        $nosub = (bool)get_parameter_value($_GET,'nosub');
-        if( !$nosub && isset($_GET['subdir']) ) {
-            $cwd .= DIRECTORY_SEPARATOR . filter_var($_GET['subdir'], FILTER_SANITIZE_STRING);
+        $nosub = $params['nosub'] ?? false;
+        if( !($nosub || empty($params['subdir'])) ) {
+            $cwd .= DIRECTORY_SEPARATOR . $params['subdir'];
             $cwd = $assistant->to_relative($assistant->to_absolute($cwd));
         }
     }
-    // failsafe, if we don't have a valid working directory, set it to the $topdir;
+    // if we still don't have a valid working directory, set it to the $topdir
     if( $cwd && !$assistant->is_valid_relative_path( $cwd ) ) {
         $cwd = '';
     }
@@ -134,7 +149,7 @@ try {
     $starturl = $assistant->relative_path_to_url($cwd);
     $startdir = $assistant->to_absolute($cwd);
     //
-    // get file list TODO c.f. FilePicker\Utils::get_file_list()
+    // get file list c.f. Utils::get_file_list($profile,$startdir)
     //
     $files = $thumbs = [];
     $dosize = function_exists('getimagesize'); // GD extension present
@@ -183,7 +198,7 @@ try {
 */
             $data['icon'] = Utils::get_file_icon('',TRUE);
 
-            $parms = [ 'subdir'=>$name, 'inst'=>$inst/*, 'sig'=>$sig*/ ];
+            $parms = [ 'subdir'=>$name, 'inst'=>$inst ];
             $up = base64_encode(json_encode($parms,
                 JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE));
             $url = $this->create_url($id, 'filepicker', $returnid); // come back here
@@ -239,8 +254,8 @@ try {
 
     $assistant2 = new PathAssistant($config,CMS_ROOT_PATH);
     $t = $assistant2->to_relative($startdir);
-    if( strpos($t, '/' ) > 0) {
-        $parts = explode('/', $t);
+    if( strpos($t, DIRECTORY_SEPARATOR) > 0 ) {
+        $parts = explode(DIRECTORY_SEPARATOR, $t);
         $dir = NlsOperations::get_language_direction();
         if( $dir == 'rtl' ) {
             $cwd_for_display = implode (' &#171; ', $parts); // << separator for rtl locale
@@ -262,7 +277,7 @@ try {
         else {
             $parent = '';
         }
-        $parms = [ 'seldir'=>$parent, 'inst'=>$inst/*, 'sig'=>$sig*/ ];
+        $parms = [ 'seldir'=>$parent, 'inst'=>$inst ];
         $up = base64_encode(json_encode($parms,
             JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE));
         $url = $this->create_url($id, 'filepicker', $returnid); // come back here
@@ -273,6 +288,15 @@ try {
     }
 
     $typename = $profile->typename;
+	// input[file] parameters
+	$mime = $profile->file_mimes;
+	$extensions = $profile->file_extensions;
+	if ($extensions) {
+        $extjs = '["'.str_replace(',', '","', $extensions).'"]';
+	}
+    else {
+        $extjs = '[]';
+    }
 
     $baseurl = $this->GetModuleURLPath();
 
@@ -312,7 +336,9 @@ EOS;
 
     $sm = new ScriptOperations();
     $sm->queue_file($incs['jqcore'], 1);
-    $sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ? or if CMS_DEBUG?
+//    if( CMS_DEBUG )
+        $sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ? or keep if (CMS_DEBUG)?
+//    }
     $sm->queue_file($incs['jqui'], 1);
 //  $sm->queue_file($path.'jquery.dm-uploader.min.js', 2);
 //  $sm->queue_file($path.'fakeadmin.js', 2);
@@ -344,9 +370,9 @@ EOS;
 
 //BAD OLD <script type="text/javascript" src="{$baseurl}/lib/js/jquery.fileupload.js"></script>
     $footinc = <<<EOS
-<script type="text/javascript" src="{$baseurl}/lib/js/jquery.dm-uploader.min.js"></script>
+<script type="text/javascript" src="{$baseurl}/lib/js/jquery.dm-uploader.js"></script>
 <script type="text/javascript" src="{$baseurl}/lib/js/fakeadmin.js"></script>
-<script type="text/javascript" src="{$baseurl}/lib/js/filebrowser.min.js"></script>
+<script type="text/javascript" src="{$baseurl}/lib/js/filebrowser.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
