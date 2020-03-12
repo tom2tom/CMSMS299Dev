@@ -527,14 +527,28 @@ VALUES ($new_user_id,?,?,?,?,?,?,?,$now,$now)";
 			return false;
 		}
 		if ($userid == 1) {
-			return true; // super user
+			// some permissions are not automatically extended to the super-user
+			if (!in_array($permname, [
+				'Modify DataBase Direct',
+				'Modify Restricted Files',
+				'Remote Administration',
+			   ])) {
+				return true;
+			}
 		}
 		$groups = $this->GetMemberGroups($userid);
 		if (!is_array($groups)) {
 			return false;
 		}
 		if (in_array(1, $groups)) {
-			return true; // member of admin group
+			// member of the super-users group
+			if (!in_array($permname, [
+				'Modify DataBase Direct',
+				'Modify Restricted Files',
+				'Remote Administration',
+			   ])) {
+				return true;
+			}
 		}
 
 		try {
@@ -545,7 +559,7 @@ VALUES ($new_user_id,?,?,?,?,?,?,?,$now,$now)";
 				}
 			}
 		} catch (CmsException $e) {
-			// nothing here.
+			// nothing here
 		}
 		return false;
 	}

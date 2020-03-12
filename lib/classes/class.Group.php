@@ -173,7 +173,7 @@ class Group
 	}
 
 	/**
-	 * Check if the group has the specified permission.
+	 * Check whether this group has the specified permission.
 	 * @see GroupOperations::CheckPermission()
 	 *
 	 * @since 1.11
@@ -181,13 +181,19 @@ class Group
 	 * @internal
 	 * @access private
 	 * @ignore
-	 * @param mixed $perm Either the permission id, or permission name to test.
+	 * @param mixed $perm Either the permission id, or permission name, to test.
 	 * @return bool whether the group has the specified permission.
 	 */
 	public function HasPermission($perm)
 	{
-		if( $this->id <= 0 ) return false;
-		if( $this->id == 1 ) return true;
+		if( $this->id <= 0 ) { return false; }
+		// some permissions are not automatically extended to the super-users group
+		if( $this->id == 1 && !in_array($perm, [
+			'Modify DataBase Direct',
+			'Modify Restricted Files',
+			'Remote Administration',
+			//TODO exclude the corresponding id's for the above perms
+		]) ) { return true; }
 		return self::get_operations()->CheckPermission($this->id,$perm);
 	}
 
