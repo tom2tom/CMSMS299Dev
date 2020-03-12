@@ -12,7 +12,7 @@ use ReflectionClass;
 
 abstract class BasicEnum
 {
-    private static $constCacheArray = null;
+    private static $constCacheArray = [];
 
     /**
      * Get all names in the enum
@@ -21,9 +21,6 @@ abstract class BasicEnum
      */
     private static function getConstants()
     {
-        if (self::$constCacheArray === null) {
-            self::$constCacheArray = [];
-        }
         $calledClass = static::class;
         if (!isset(self::$constCacheArray[$calledClass])) {
             $reflect = new ReflectionClass($calledClass);
