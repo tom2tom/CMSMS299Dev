@@ -18,6 +18,8 @@
 
 namespace CMSMS;
 
+use CMSMS\BasicEnum;
+
 /**
  * A reflectable class that enumerates file-types.
  *
@@ -37,12 +39,14 @@ final class FileType extends BasicEnum
     const ARCHIVE   = 15;
     const XML       = 20; //includes [x]html[5]
     const ML        = 20; //alias
-    const CODE      = 30;
+    const PHP       = 30;
     const SCRIPT    = 31; //js & the like
     const TEMPLATE  = 32;
     const STYLE     = 33; //css, sass, less etc
     const FONT      = 34;
     const EXE       = 35; //executable shell script
+    const CODE      = 37; //30|31|sql
+    const LAYOUT    = 38; //32|33
     const OPERATION = 39; //any of the 30's
     const TEXT      = 40; //plaintext DOCUMENT's, XML, OPERATION
     const NONE      = 0; //careful! falsy matches
@@ -61,4 +65,4 @@ final class FileType extends BasicEnum
 
     private function __construct() {}
     private function __clone() {}
-} // class
+}
