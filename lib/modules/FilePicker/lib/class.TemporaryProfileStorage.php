@@ -1,9 +1,9 @@
 <?php
 /*
-TemporaryProfileStorage - a CMSMS class for caching profile data during a session
+TemporaryProfileStorage - a class for caching profile data during a session
 Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
 Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+Thanks to Fernando Morgado and all other contributors from the CMSMS Development Team.
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -21,57 +21,79 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace FilePicker;
 
+use cms_cache_handler;
 use cms_utils;
-use CMSMS\FilePickerProfile;
+use FilePicker\Profile;
 
 /**
- * Class to manage caching of profile data in the session data.
+ * Class to manage session-caching of profile data
  */
 class TemporaryProfileStorage
 {
     private function __construct() {}
+    private function __clone() {}
 
     /**
-     * Store $profile in $_SESSION[]
-     * @param FilePickerProfile $profile
-     * @return string
+     * Get the function to use for end-of-session cleanup
+     * @return callable
      */
-    public static function set(FilePickerProfile $profile)
+    public static function get_cleaner()
     {
-        $key = cms_utils::hash_string(__FILE__);
+        return [self::class, 'reset'];
+    }
+
+    /**
+     * @ignore
+     */
+    protected static function cachegroup()
+    {
+        return hash('adler32', __FILE__);
+    }
+
+    /**
+     * Store $profile in the cache
+     * @param Profile $profile
+     * @return string identifier for the stored data
+     */
+    public static function set(Profile $profile)
+    {
+        $grp = self::cachegroup();
         $s = serialize($profile);
-        $sig = cms_utils::hash_string(__FILE__.$s.microtime(TRUE).'1');
-        $_SESSION[$key][$sig] = $s;
-        return $sig;
+        $key = cms_utils::hash_string($grp . $s . microtime(true));
+        cms_cache_handler::get_instance()->set($key ,$s, $grp);
+        return $key;
     }
 
     /**
-     * Retrieve profile having signature $sig from $_SESSION[]
-     * @param string $sig
-     * @return mixed FilePickerProfile | null
+     * Retrieve the profile having signature $key from the cache
+     * @param string $key
+     * @return mixed FilePicker\Profile | null
      */
-    public static function get($sig)
+    public static function get($key)
     {
-        $key = cms_utils::hash_string(__FILE__);
-        if( isset($_SESSION[$key][$sig]) ) return unserialize($_SESSION[$key][$sig], ['allowed_classes'=>['CMSMS\\FilePickerProfile']]);
+        $grp = self::cachegroup();
+        $s = cms_cache_handler::get_instance()->get($key, $grp);
+        if ($s) {
+            return unserialize($s, ['allowed_classes'=>['FilePicker\\Profile']]);
+        }
     }
 
     /**
-     * Clear profile having signature $sig from $_SESSION[]
-     * @param string $sig
+     * Clear the profile having signature $key from the cache
+     * @param string $key
      */
-    public static function clear($sig)
+    public static function clear($key)
     {
-        $key = cms_utils::hash_string(__FILE__);
-        if( isset($_SESSION[$key][$sig]) ) unset($_SESSION[$key][$sig]);
+        $grp = self::cachegroup();
+        cms_cache_handler::get_instance()->erase($key, $grp);
     }
 
     /**
-     * Clear all profiles from $_SESSION[]
+     * Clear all profiles from the cache
      */
     public static function reset()
     {
-        $key = cms_utils::hash_string(__FILE__);
-        if( isset($_SESSION[$key]) ) unset($_SESSION[$key]);
+        $grp = self::cachegroup();
+        cms_cache_handler::get_instance()->clear($grp);
     }
 }

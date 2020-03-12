@@ -1,37 +1,68 @@
 <?php
+/*
+TemporaryInstanceStorage - a class for caching filesystem information during a session
+Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 namespace FilePicker;
 
+use cms_cache_handler;
 use cms_utils;
 
-// store in the session the CWD for every instance of a filepicker for each request
-// this might be said to pollute the session, but meh we can deal with that later.
+/**
+ * Class to manage session-caching of 'flat' data
+ */
 class TemporaryInstanceStorage
 {
     private function __construct() {}
+    private function __clone() {}
 
-    public static function set($sig,$val)
+    public static function get_cleaner()
     {
+        return [self::class, 'reset'];
+    }
+
+    protected static function cachegroup()
+	{
+		return hash('adler32', __FILE__);
+	}
+
+    public static function set($key, $val)
+    {
+        $grp = self::cachegroup();
         $val = trim($val); // make sure it's a string
-        $key = cms_utils::hash_string(__FILE__);
-        $_SESSION[$key][$sig] = $val;
-        return $sig;
+        cms_cache_handler::get_instance()->set($key ,$val, $grp);
+        return $key;
     }
 
-    public static function get($sig)
+    public static function get($key)
     {
-        $key = cms_utils::hash_string(__FILE__);
-        if( isset($_SESSION[$key][$sig]) ) return $_SESSION[$key][$sig];
+        $grp = self::cachegroup();
+        return cms_cache_handler::get_instance()->get($key, $grp);
     }
 
-    public static function clear($sig)
+    public static function clear($key)
     {
-        $key = cms_utils::hash_string(__FILE__);
-        if( isset($_SESSION[$key][$sig]) ) unset($_SESSION[$key][$sig]);
-    }
+        $grp = self::cachegroup();
+        cms_cache_handler::get_instance()->erase($key, $grp);
+     }
 
     public static function reset()
     {
-        $key = cms_utils::hash_string(__FILE__);
-        if( isset($_SESSION[$key]) ) unset($_SESSION[$key]);
+        $grp = self::cachegroup();
+        cms_cache_handler::get_instance()->clear($grp);
     }
 }
