@@ -5,7 +5,7 @@ use CMSMS\Group;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
 use CMSMS\TemplateOperations;
-use CMSMS\UserPluginOperations;
+//use CMSMS\UserPluginOperations;
 use function cms_installer\endswith;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
@@ -37,12 +37,13 @@ if ($generic_type) {
 $now = time();
 $longnow = trim($db->DbTimeStamp($now),"'");
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_name=?,permission_text=?,modified_date=? WHERE permission_name=?';
-$db->Execute($query, ['Modify User Plugins','Modify User-Defined Tag Files',$longnow,'Modify User-defined Tags']);
+$db->Execute($query, ['Modify User Plugins','Modify User-Defined Tags',$longnow,'Modify User-defined Tags']);
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
 $db->Execute($query);
 
 foreach ([
- 'Modify Site Code',
+ 'Modify DataBase Direct',
+ 'Modify Restricted Files',
 // 'Modify Site Assets',
  'Remote Administration',  //for app management sans admin console
 ] as $one_perm) {
@@ -66,7 +67,7 @@ try {
 } catch (Exception $e) {
     // nothing here
 }
-$group->GrantPermission('Modify Site Code');
+$group->GrantPermission('Modify Restricted Files');
 //$group->GrantPermission('Modify Site Assets');
 $group->GrantPermission('Modify User Plugins');
 /*
@@ -118,7 +119,7 @@ for ($i = 0; $i < 32; ++$i) {
 
 foreach([
     'cdn_url' => 'https://cdnjs.cloudflare.com',
-    'editor_theme'  => '',
+    'syntax_theme'  => '',
     'lock_refresh' => 120,
     'lock_timeout' => 60,
     'loginmodule' => '',
@@ -129,8 +130,9 @@ foreach([
     cms_siteprefs::set($name, $val);
 }
 
+/* IF UDT-files are used instead of database storage ...
 // 4. Convert UDT's to user-plugin files
-$udt_list = $db->GetArray('SELECT userplugin_name,description,code FROM '.CMS_DB_PREFIX.'userplugins');
+$udt_list = $db->GetArray('SELECT name,description,code FROM '.CMS_DB_PREFIX.'userplugins');
 if ($udt_list) {
 
     function create_user_plugin(array $row, UserPluginOperations $ops, $smarty)
@@ -170,12 +172,24 @@ if ($udt_list) {
         create_user_plugin($udt, $ops, $smarty);
     }
 
-    $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins_seq');
-    $dict->ExecuteSQLArray($sqlarr);
+    $db->DropSequence(CMS_DB_PREFIX.'userplugins_seq'); see  below
     $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins');
     $dict->ExecuteSQLArray($sqlarr);
     status_msg('Converted User Defined Tags to user-plugin files');
 }
+ELSE (retain UDT's in database)
+*/
+$sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins_seq');
+$dict->ExecuteSQLArray($sqlarr);
+$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'userplugins','userplugin_id','id I AUTO KEY');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'userplugins','userplugin_name','name C(255)');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'userplugins','description T(1023)');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'userplugins','create_date DT DEFAULT CURRENT_TIMESTAMP');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'userplugins','modified_date DT ON UPDATE CURRENT_TIMESTAMP');
 
 // 5. Cleanup plugins - remove reference from function-argument where appropriate
 foreach ([

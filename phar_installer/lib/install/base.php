@@ -33,16 +33,17 @@ foreach( [
 	'Manage Stylesheets',
 	'Manage Users',
 //	'Modify Any Page', >CM
+	'Modify DataBase Direct', //for remote management, sans admin console
 	'Modify Events',
 	'Modify User Plugins',
 	'Modify Files',
 	'Modify Modules',
 	'Modify Permissions',
+	'Modify Restricted Files',
 //	'Modify Site Assets', no deal !!
-	'Modify Site Code',
 	'Modify Site Preferences',
 	'Modify Templates',
-	'Remote Administration',  //for app management, sans admin console
+	'Remote Administration',  //for remote management, sans admin console kinda Modify DataBase Direct + Modify Restricted Files
 //	'Remove Pages', >CM
 //	'Reorder Content', >CM
 	'View Tag Help',
@@ -76,7 +77,7 @@ $group->name = 'CodeManager';
 $group->description = lang('grp_coder_desc');
 $group->active = 1;
 $group->Save();
-$group->GrantPermission('Modify Site Code');
+$group->GrantPermission('Modify Restricted Files');
 //$group->GrantPermission('Modify Site Assets');
 $group->GrantPermission('Modify User Plugins');
 /* too risky
@@ -129,7 +130,7 @@ $admin_user->password = password_hash( $adminaccount['password'], PASSWORD_DEFAU
 $admin_user->Save();
 
 UserOperations::get_instance()->AddMemberGroup($admin_user->id,$gid1);
-cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the only user-preference we need now
+cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // TODO if MicroTiny present -the only user-preference we need now
 
 //
 // standard events
@@ -242,7 +243,7 @@ $destdir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
 create_private_dir($destdir,'admin_custom');
 create_private_dir($destdir,'configs');
 create_private_dir($destdir,'css');
-create_private_dir($destdir,'user_plugins');
+//create_private_dir($destdir,'user_plugins');  NOT IMPLEMENTED UDTfiles
 create_private_dir($destdir,'images');
 create_private_dir($destdir,'module_custom');
 create_private_dir($destdir,'modules');
