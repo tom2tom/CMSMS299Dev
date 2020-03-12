@@ -276,7 +276,7 @@ WHERE news_id=?';
     unset($params['cancel']);
     unset($params['ajax']);
 
-    $tmpfname = tempnam(TMP_CACHE_LOCATION, $this->GetName() . '_preview');
+    $tmpfname = tempnam(PUBLIC_CACHE_LOCATION, $this->GetName() . '_preview');
     file_put_contents($tmpfname, serialize($params));
 
     $detail_returnid = $this->GetPreference('detail_returnid', -1);

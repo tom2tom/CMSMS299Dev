@@ -49,7 +49,7 @@ try {
         $reader->validate();
 
         // copy uploaded file to temporary location
-        $tmpfile = tempnam(TMP_CACHE_LOCATION,'dm_');
+        $tmpfile = tempnam(PUBLIC_CACHE_LOCATION,'dm_');
         if( $tmpfile === FALSE ) throw new CmsException($this->Lang('error_create_tempfile'));
         @copy($_FILES[$key]['tmp_name'],$tmpfile);
 
