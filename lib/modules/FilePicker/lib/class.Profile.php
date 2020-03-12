@@ -1,5 +1,5 @@
 <?php
-# Class defining folder-specific properties and roles
+# Class which defines folder-specific properties and roles
 # Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,16 +19,19 @@
 namespace FilePicker;
 
 use cms_config;
-use CMSMS\FileSystemProfile;
+use CmsException;
+use CMSMS\FilePickerProfile;
+use CMSMS\FileTypeHelper;
 use Exception;
 use LogicException;
-use const TMP_CACHE_LOCATION;
+use OutOfBoundsException;
+use const CMS_DEBUG;
+use const PUBLIC_CACHE_LOCATION;
 use function cms_to_bool;
+use function debug_to_log;
 use function startswith;
 
-class ProfileException extends Exception {}
-
-class Profile extends FileSystemProfile
+class Profile extends FilePickerProfile
 {
     /**
      * Constructor
@@ -38,21 +41,22 @@ class Profile extends FileSystemProfile
     public function __construct( array $params = [] )
     {
         $props = [
-          'create_date'=>0,
-          'modified_date'=>0,
+          'id'=>0, // if the profile data are db-stored, this is for the row-index
+          'name'=>'',
           'file_extensions'=>'',
           'file_mimes'=>'', //since 2.3
-          'id'=>0, //CHECKME just an index?
-          'case_sensitive'=>true, //since 2.3
-          'name'=>'',
         ] + $params;
 
+        if( empty($props['create_date']) ) {
+            $props['create_date'] = time();
+            $props['modified_date'] = 0;
+        }
         $props['id'] = (int) $props['id'];
         if( isset($params['case_sensitive']) ) {
             $props['case_sensitive'] = cms_to_bool($params['case_sensitive']);
         }
         else {
-            $fp = tempnam(TMP_CACHE_LOCATION, ''); // or PUBLIC_CACHE_LOCATION
+            $fp = tempnam(PUBLIC_CACHE_LOCATION, 'cased');
             $fn = $fp.'UC';
             $fh = fopen($fn, 'c');
             $props['case_sensitive'] = !is_file($fp.'uc');
@@ -63,9 +67,20 @@ class Profile extends FileSystemProfile
     }
 
     /**
-     *
+     * @ignore
+     */
+    public function __clone()
+    {
+        $this->id = 0;
+        $this->top = null;
+    }
+
+    // NOTE immutable class, no __set()
+
+    /**
+     * @ignore
      * @param string $key
-     * @return string
+     * @return mixed
      */
     public function __get( $key )
     {
@@ -133,9 +148,14 @@ class Profile extends FileSystemProfile
                 else {
                     $s = (string) $val;
                 }
-                // setup for easier searching
-                $s = strtr($s, [' ' => '', '.' => '']);
-                $this->_data[$key] = ',' . $s . ',';
+                if( $s ) {
+                    // setup for easier searching
+                    $s = strtr($s, [' ' => '', '.' => '']);
+                    $this->_data[$key] = ',' . $s . ',';
+                }
+                else {
+                    $this->_data[$key] = '';
+                }
                 break;
             case 'file_mimes':
                 if( is_array($val) ) {
@@ -144,10 +164,15 @@ class Profile extends FileSystemProfile
                 else {
                     $s = (string) $val;
                 }
-                // setup for easier searching
-                $s = trim($s, ' ,');
-                $s = str_replace([' ,',', '], [',',','], $s);
-                $this->_data[$key] = ',' . strtolower($s) . ',';
+                if( $s ) {
+                    // setup for easier searching
+                    $s = trim($s, ' ,');
+                    $s = str_replace([' ,',', '], [',',','], $s);
+                    $this->_data[$key] = ',' . strtolower($s) . ',';
+                }
+                else {
+                    $this->_data[$key] = '';
+                }
                 break;
             case 'case_sensitive':
                 $this->_data[$key] = cms_to_bool($val);
@@ -158,19 +183,19 @@ class Profile extends FileSystemProfile
                 $this->_data[$key] = (int) $val;
                 break;
             default:
-                parent::setValue( $key, $val );
+                parent::setValue($key, $val);
                 break;
         }
     }
 
     /**
      * @return boolean
-     * @throws ProfileException
+     * @throws CmsException
      */
     public function validate()
     {
-        if( !$this->name ) { throw new ProfileException('err_profile_name'); }
-        if( $this->reltop && !is_dir($this->top) ) { throw new ProfileException('err_profile_topdir'); }
+        if( !$this->name ) { throw new CmsException('err_profile_name'); }
+        if( $this->reltop && !is_dir($this->top) ) { throw new CmsException('err_profile_topdir'); }
         return true;
     }
 
@@ -184,7 +209,10 @@ class Profile extends FileSystemProfile
     {
         if( !is_null($new_id) ) {
             $new_id = (int) $new_id;
-            if( $new_id < 1 ) throw new LogicException('Invalid id passed to '.__METHOD__);
+            if( $new_id < 1 ) throw new OutOfBoundsException('Invalid id passed to '.__METHOD__);
+        }
+        else {
+            $new_id = 0;
         }
         $obj = clone $this;
         $obj->_data['id'] = $new_id;
@@ -194,7 +222,7 @@ class Profile extends FileSystemProfile
 
     /**
      * Get a clone of this profile with replacement properties
-     * @param array $params assoc. array of profile props and their vals
+     * @param array $params assoc. array of profile props and respective vals
      * @return Profile
      */
     public function overrideWith( array $params = [] )
@@ -203,9 +231,21 @@ class Profile extends FileSystemProfile
         foreach( $params as $key => $val ) {
             switch( $key ) {
             case 'id':
-                // cannot set a new id this way
+                // cannot change id this way
                 break;
 
+            case 'type':
+                if( !isset($params['file_extensions']) ) {
+                    $helper = new FileTypeHelper(cms_config::get_instance());
+                    $exts = $helper->get_file_type_extensions((int)$val);
+                    $obj->setValue('file_extensions',$exts);
+                }
+                if( !isset($params['file_mimes']) ) {
+                    if (!isset($helper) ) $helper = new FileTypeHelper(cms_config::get_instance());
+                    $mimes = $helper->get_file_type_mime((int)$val);
+                    $obj->setValue('file_mimes',$mimes);
+                }
+                //no break here
             default:
                 $obj->setValue($key,$val);
                 break;
@@ -223,5 +263,52 @@ class Profile extends FileSystemProfile
         $obj = clone $this;
         $obj->_data['modified_date'] = time();
         return $obj;
+    }
+
+    /**
+     * Check whether $filename accords with relevant conditions among the profile properties
+     * @since 2.3
+     * @param string $filename Absolute|relative filesystem path, or just basename, of a file
+     * @return boolean
+     */
+    public function is_file_name_acceptable($filename)
+    {
+        if (!parent::is_file_name_acceptable($filename)) {
+            return false;
+        }
+        if( $this->_data['file_extensions'] === '' ) {
+            return true;
+        }
+        // file must have acceptable extension
+        $fn = basename($filename);
+        $p = strrpos($fn, '.');
+        try {
+            if( !$p ) {
+                // file has no extension, or just an initial '.'
+                throw new OutOfBoundsException($fn.': type is not acceptable');
+            }
+            $ext = substr($fn, $p+1);
+            if( !$ext ) {
+                // file has empty extension
+                throw new OutOfBoundsException($fn.': type is not acceptable');
+            }
+            $s =& $this->_data['file_extensions'];
+            // we always do a caseless (hence ASCII) check,
+            // cuz patterns and/or extension might be case-insensitive
+            // and recognised extensions are all ASCII
+            $p = stripos($s, $ext);
+            if( $p !== false ) {
+                if( $s[$p - 1] === ',' ) {
+                    if( $s[$p + strlen($ext)] === ',' ) {
+                        return true;
+                    }
+                }
+            }
+            throw new OutOfBoundsException($fn.': type is not acceptable');
+        }
+        catch (Exception $e) {
+            if( CMS_DEBUG ) { debug_to_log($e->GetMessage()); }
+            return false;
+        }
     }
 } // class
