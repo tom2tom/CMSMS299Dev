@@ -488,12 +488,15 @@ final class cms_config implements ArrayAccess
             return PUBLIC_CACHE_URL;
 
         case 'tmp_cache_location':
-        case 'public_cache_location':
             $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','cache');
+            return $this->_cache[$key];
+ 
+        case 'public_cache_location':
+            $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','cache','public');
             return $this->_cache[$key];
 
         case 'public_cache_url':
-            $this->_cache[$key] = $this->offsetGet('root_url').'/tmp/cache';
+            $this->_cache[$key] = $this->offsetGet('root_url').'/tmp/cache/public';
             return $this->_cache[$key];
 
         case 'tmp_templates_c_location':
