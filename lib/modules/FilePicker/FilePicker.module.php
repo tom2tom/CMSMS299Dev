@@ -21,10 +21,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\FilePicker as IFilePicker;
-use CMSMS\FilePickerProfile;
 use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
+use FilePicker\Profile;
 use FilePicker\ProfileDAO;
+use FilePicker\TemporaryInstanceStorage;
 use FilePicker\TemporaryProfileStorage;
 use FilePicker\Utils;
 
@@ -38,6 +39,9 @@ final class FilePicker extends CMSModule implements IFilePicker
         parent::__construct();
         $this->_dao = new ProfileDAO( $this );
         $this->_typehelper = new FileTypeHelper( cms_config::get_instance() );
+        //TODO process these as end-of-session (not end-of-request) cleanups
+        $callable = TemporaryProfileStorage::get_cleaner();
+        $callable = TemporaryInstanceStorage::get_cleaner();
     }
 
     private function _encodefilename($filename)
@@ -65,7 +69,7 @@ final class FilePicker extends CMSModule implements IFilePicker
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp() { return $this->Lang('help'); }
-    public function GetVersion() { return '2.0'; }
+    public function GetVersion() { return '3.0'; }
     public function HasAdmin() { return true; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
@@ -146,7 +150,14 @@ EOS;
      */
     public function GetFileList($path = '')
     {
-        return Utils::get_file_list($path);
+        if( $path !== '') {
+            $user_id = get_userid(false);
+            $profile = $this->get_default_profile($path, $user_id); //CHECKME
+        }
+        else {
+
+        }
+        return Utils::get_file_list($profile, $path);
     }
 
     /**
@@ -154,7 +165,7 @@ EOS;
      * @param string $profile_name or NULL?
      * @param mixed $dir Optional
      * @param mixed $uid Optional
-     * @return FilePickerProfile
+     * @return Profile
      */
     public function get_profile_or_default( $profile_name, $dir = null, $uid = null )
     {
@@ -169,16 +180,15 @@ EOS;
 
     /**
      *
-     * @param mixed $dir Optional UNUSED
-     * @param mixed $uid Optional UNUSED
-     * @return FilePickerProfile
+     * @param mixed $dir Optional top-directory for the profile UNUSED TODO
+     * @param mixed $uid Optional current user id UNUSED TODO
+     * @return Profile
      */
     public function get_default_profile( $dir = null, $uid = null )
     {
-        /* $dir is absolute */
         $profile = $this->_dao->loadDefault();
         if( !$profile ) {
-            $profile = new FilePickerProfile();
+            $profile = new Profile();
         }
         return $profile;
     }
@@ -199,7 +209,7 @@ EOS;
      * @staticvar boolean $first_time
      * @param string $name the name-attribute of the element
      * @param string $value the initial value of the element
-     * @param FilePickerProfile $profile
+     * @param Profile $profile
      * @param bool $required Optional flag, whether some choice must be entered, default false
      * @return string
      */
@@ -207,17 +217,14 @@ EOS;
     {
         static $first_time = true;
 
-//        $inst = 'i'.uniqid();
-        if( $value === '-1' ) $value = null;
+        if( $value === '-1' ) { $value = null; }
 
         // store the profile as a 'useonce' and add its signature to the params on the url
-//        $sig = TemporaryProfileStorage::set( $profile );
-        $inst = 'i'.TemporaryProfileStorage::set($profile);
-
-        $helper = new FileTypeHelper();
-        $mime = $helper->get_file_type_mime((int)$profile->type); //NOTE ->type should never be string-form
-        $exts = $helper->get_file_type_extensions((int)$profile->type);
-
+        $inst = TemporaryProfileStorage::set($profile);
+/*
+        $mime = $this->_typehelper->get_file_type_mime((int)$profile->type); //NOTE ->type should never be string-form
+        $exts = $this->_typehelper->get_file_type_extensions((int)$profile->type);
+*/
         switch( $profile->type ) {
         case FileType::IMAGE:
             $key = 'select_an_image';
@@ -251,6 +258,7 @@ EOS;
          // CHECKME generated element also uses the html5 required-attribute
         $req = ( $required ) ? 'true':'false';
         $s1 = $this->Lang('clear');
+/*
         if ($mime) {
             $mime = rawurlencode($mime);
         }
@@ -259,13 +267,15 @@ EOS;
         } else {
             $extparm = '';
         }
+*/
         // where to go to generate the browse/select page content
         $url = str_replace('&amp;', '&', $this->get_browser_url()).'&'.CMS_JOB_KEY.'=1';
 
         if( $first_time ) {
             $first_time = false;
             //DEBUG
-            $js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.min.js"></script>'."\n";
+            $js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.js"></script>'."\n";
+//            $js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.min.js"></script>'."\n";
             //otherwise mebbe merge the file in with all used for the current-request ?
             //$combiner = CmsApp::get_instance()->GetScriptManager();
             //$combiner->queue_file($thejsfile, 2);
@@ -274,20 +284,21 @@ EOS;
             $js = '';
         }
 
-//  param_sig: '$sig',
+// parameters now in profile identified by param_inst:
+//  param_mime: '$mime',
+//  param_extensions: '$extparm',
+// CHECKME param_inst: '$inst',
+
         $js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
  $('input[data-cmsfp-instance="$inst"]').filepicker({
-  title: '$title',
-  param_sig: '$inst',
-  required: $req,
   btn_label: '$title',
   remove_label: '$s1',
   remove_title: '$s1',
-  param_mime: '$mime',
-  param_extensions: '$extparm',
+  required: $req,
+  title: '$title',
   url: '$url'
  });
 });
@@ -320,49 +331,13 @@ EOS;
 
     /**
      * utility function
-     * @param FilePickerProfile $profile
+     * @param Profile $profile
      * @param string $filepath
      * @return boolean
      */
     public function is_acceptable_filename( $profile, $filepath )
     {
-        //TODO c.f. $profile->is_file_name_acceptable($filepath);
-        $filepath = trim($filepath);
-        $filename = basename($filepath);
-        if( !$filename ) return false;
-        if( !$profile->show_hidden && (startswith($filename,'.') || startswith($filename,'_') || $filename == 'index.html') ) { return false; }
-        if( $profile->match_prefix ) {
-            //TODO $profile->is_file_name_acceptable() supports wildcards, regex match
-            if( !startswith( $filename, $profile->match_prefix) ) { return false; }
-        }
-        if( $profile->exclude_prefix ) {
-            //TODO $profile->is_file_name_acceptable() supports wildcards, regex match
-            if( startswith( $filename, $profile->exclude_prefix) ) { return false; }
-        }
-        switch( $profile->type ) {
-        case FileType::IMAGE:
-            return $this->_typehelper->is_image( $filepath );
-
-        case FileType::AUDIO:
-            return $this->_typehelper->is_audio( $filepath );
-
-        case FileType::VIDEO:
-            return $this->_typehelper->is_video( $filepath );
-
-        case FileType::MEDIA:
-            return $this->_typehelper->is_media( $filepath );
-
-        case FileType::XML:
-            return $this->_typehelper->is_xml( $filepath );
-
-        case FileType::DOCUMENT:
-            return $this->_typehelper->is_document( $filepath );
-
-        case FileType::ARCHIVE:
-            return $this->_typehelper->is_archive( $filepath );
-        }
-
-        // passed
-        return true;
+        if( endswith($filepath,'index.html') || endswith($filepath,'index.php') ) return false;
+        return $profile->is_file_name_acceptable($filepath);
     }
 } // class
