@@ -53,27 +53,30 @@ final class CmsPermission
 		'source' => '',
 		'name' => '',
 		'text' => '',
-		'create_date' => '',
-		'modified_date' => '',
+		'create_date' => '', // database DT-field value
+		'modified_date' => '', // ditto
         ];
 	}
 
 	/**
 	 * @ignore
+	 * @throws CmsInvalidDataException
+	 * @return mixed recorded value | null
 	 */
 	public function __get($key)
 	{
-		if( !in_array($key,self::KEYS) ) throw new CmsInvalidDataException($key.' is not a valid key for a CmsPermission Object');
+		if( !in_array($key,self::KEYS) ) throw new CmsInvalidDataException($key.' is not a valid key for a '.__CLASS__.' object');
 		return $this->_data[$key] ?? null;
 	}
 
 	/**
 	 * @ignore
+	 * @throws CmsInvalidDataException
 	 */
 	public function __set($key,$value)
 	{
-		if( $key == 'id' ) throw new CmsInvalidDataException($key.' cannot be set this way in a CmsPermission Object');
-		if( !in_array($key,self::KEYS) ) throw new CmsInvalidDataException($key.' is not a valid key for a CmsPermission Object');
+		if( $key == 'id' ) throw new CmsInvalidDataException($key.' cannot be set this way in a '.__CLASS__.' object');
+		if( !in_array($key,self::KEYS) ) throw new CmsInvalidDataException($key.' is not a valid key for a '.__CLASS__.' object');
 
 		$this->_data[$key] = $value;
 	}
@@ -102,25 +105,24 @@ VALUES (?,?,?,?,$now,$now)";
 	}
 
 	/**
-	 * Validate the exception
+	 * Validate the permission properties: source, name, text
 	 *
 	 * @throws CmsInvalidDataException
-	 * @throws CmsLogicException
 	 */
 	public function validate()
 	{
 		if( $this->_data['source'] == '' )
-			throw new CmsInvalidDataException('Source cannot be empty in a CmsPermission object');
+			throw new CmsInvalidDataException('Source cannot be empty in a '.__CLASS__.' object');
 		if( $this->_data['name'] == '' )
-			throw new CmsInvalidDataException('Name cannot be empty in a CmsPermission object');
+			throw new CmsInvalidDataException('Name cannot be empty in a '.__CLASS__.' object');
 		if( $this->_data['text'] == '' )
-			throw new CmsInvalidDataException('Text cannot be empty in a CmsPermission object');
+			throw new CmsInvalidDataException('Text cannot be empty in a '.__CLASS__.' object');
 
 		if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) {
 			// Name must be unique
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SElECT permission_id FROM '.CMS_DB_PREFIX.'permissions
-                WHERE permission_name = ?';
+ WHERE permission_name = ?';
 			$dbr = $db->GetOne($query,[$this->_data['name']]);
 			if( $dbr > 0 ) throw new CmsInvalidDataException('Permission with name '.$this->_data['name'].' already exists');
 		}
@@ -129,23 +131,24 @@ VALUES (?,?,?,?,$now,$now)";
 	/**
 	 * Save the permission to the database
 	 *
-	 * @throws CmsLogicException
+	 * @throws LogicException
 	 */
 	public function save()
 	{
 		if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) return $this->_insert();
-		throw new LogicException('Cannot update an existing CmsPermission object');
+		throw new LogicException('Cannot update an existing '.__CLASS__.' object');
 	}
 
 	/**
 	 * Delete this permission
 	 *
-	 * @throws CmsLogicExceptin
+	 * @throws LogicException
+	 * @throws CmsSQLErrorException
 	 */
 	public function delete()
 	{
 		if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) {
-			throw new LogicException('Cannnot delete a CmsPermission object that has not been saved');
+			throw new LogicException('Cannnot delete a '.__CLASS__.' object that has not been saved');
 		}
 
 		$db = CmsApp::get_instance()->GetDb();
@@ -164,6 +167,7 @@ VALUES (?,?,?,?,$now,$now)";
 	 *
 	 * @param string $name
 	 * @return CmsPermission
+	 * @throws CmsInvalidDataException
 	 */
 	public static function load($name)
 	{
@@ -189,7 +193,7 @@ VALUES (?,?,?,?,$now,$now)";
 			throw new CmsInvalidDataException('Could not find permission named '.$name);
 		}
 
-		$obj = new CmsPermission();
+		$obj = new self();
 		$obj->_data['id'] = $row['permission_id'];
 		$obj->_data['name'] = $row['permission_name'];
 		$obj->_data['text'] = $row['permission_text'];
@@ -202,10 +206,10 @@ VALUES (?,?,?,?,$now,$now)";
 	}
 
 	/**
-	 * Given a permission name, get it's id
+	 * Get the id of a named permission, if possible
 	 *
 	 * @param string $permname
-	 * @return int
+	 * @return mixed int|null
 	 */
 	public static function get_perm_id($permname)
 	{
