@@ -958,10 +958,9 @@ function cms_build_query(string $key, $val, string $sep = '&amp;', $encode = tru
 function get_secure_param() : string
 {
     $out = '?';
-    $str = ini_get('session.use_cookies');
-    if ($str == '0' || strcasecmp($str,'off') == 0) {
+    if (!ini_get_boolean('session.use_cookies')) {
         //PHP constant SID is unreliable, we recreate it
-        $out .= rawurlencode(session_name()).'='.rawurlencode(session_id()).'&';
+        $out .= rawurlencode(session_name()).'='.rawurlencode(session_id()).'&amp;';
     }
     $out .= CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
     return $out;
@@ -977,8 +976,7 @@ function get_secure_param() : string
 function get_secure_param_array() : array
 {
     $out = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
-    $str = ini_get('session.use_cookies');
-    if ($str == '0' || strcasecmp($str,'off') == 0) {
+    if (!ini_get_boolean('session.use_cookies')) {
         $out[session_name()] = session_id();
     }
     return $out;
@@ -1511,7 +1509,11 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
 function setup_session(bool $cachable = false)
 {
     static $_setup_already = false;
-    if ($_setup_already) return;
+
+    if ($_setup_already) {
+        //TODO maybe session_regenerate_id(), if so, rename cache-group accordingly
+        return;
+    }
 
     $_f = $_l = null;
     if (headers_sent($_f, $_l)) throw new LogicException("Attempt to set headers, but headers were already sent at: $_f::$_l");
@@ -1522,7 +1524,9 @@ function setup_session(bool $cachable = false)
             $cachable = false;
         }
     }
-    if ($cachable) $cachable = (int) cms_siteprefs::get('allow_browser_cache',0);
+    if ($cachable) {
+        $cachable = (int) cms_siteprefs::get('allow_browser_cache',0);
+    }
     if (!$cachable) {
         // admin pages can't be cached... period, at all.. never.
         @session_cache_limiter('nocache');
@@ -1544,19 +1548,35 @@ function setup_session(bool $cachable = false)
     }
 
     if (isset($_COOKIE[$session_name])) {
-        // validate the contents of the cookie.
+        // validate the content of the cookie
         if (!preg_match('/^[a-zA-Z0-9,\-]{22,40}$/', $_COOKIE[$session_name])) {
             session_id(uniqid());
             session_start();
-            session_regenerate_id();
+            session_regenerate_id(); //TODO rename cache-group accordingly
         }
     }
     if (!@session_id()) session_start();
+
+/* TODO session-shutdown function(s) processing, from handler(s) recorded in
+    session_set_save_handler(
+        callable1, ... callableN
+    );
+    session_register_shutdown();
+*/
     $_setup_already = true;
 }
 
 /**
- * Test if a string is base64-encoded
+ * @ignore
+ * @since 2.3
+ */
+function register_endsession_function(callable $handler)
+{
+    //TODO store $handler in $_SESSION[]
+}
+
+/**
+ * Test whether a string is base64-encoded
  *
  * @since 2.2
  * @param string $s The string to check
@@ -1582,7 +1602,7 @@ function cms_create_guid() : string
 }
 
 /**
- * Sort array of strings which include, or may do so, UTF-8 encoded char(s)
+ * Sort array of strings which include, or may do so, non-ASCII-encoded char(s)
  * @param array $arr data to be sorted
  * @param bool $preserve Optional flag whether to preserve key-value associations during the sort Default false
  * @since 2.3
@@ -1590,7 +1610,7 @@ function cms_create_guid() : string
 */
 function cms_utf8_sort(array $arr, bool $preserve = false) : array
 {
-    $enc = null; //TODO relevant to site lang e.g. 'en_US'
+    $enc = null; //TODO something relevant to site e.g. func($config), func(ini_get()), func(LOCALE), some Nls func
     $collator = new Collator($enc);
     if ($preserve) {
         $collator->asort($arr);
@@ -1598,4 +1618,29 @@ function cms_utf8_sort(array $arr, bool $preserve = false) : array
         $collator->sort($arr);
     }
     return $arr;
+}
+
+/**
+ * Return the permissions (names) which always require explicit authorization
+ *  i.e. even for super-admins (user 1 | group 1)
+ * @since 2.3
+ * @return array
+ */
+function restricted_cms_permissions() : array
+{
+    $val = cms_siteprefs::get('ultraroles');
+    if ($val) {
+        $out = json_decode($val);
+        if ($out) {
+            if (is_array($out)) {
+                return $out;
+            }
+            if (is_scalar($out)) {
+                return [$out];
+            }
+            return (array)$out;
+        }
+        //return TODO [defaults] upon error
+    }
+    return [];
 }
