@@ -1,0 +1,6 @@
+This is the parent folder for data which overrides out-of-box module-data. As such, probably of limited use ...
+
+Such data must be in a subfolder named the same as the module, and conforming to the standard module-folder structure e.g.
+<thisfolder>/modname/lang/en_US.php
+and/or
+<thisfolder>/modname/lang/ext/whatever.php

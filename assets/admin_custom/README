@@ -1,0 +1,7 @@
+This is the parent folder for data which overrides out-of-box admin-data. As such, probably of limited use ...
+
+Such data must be in a subfolder conforming to the corresponding admin-folder structure e.g.
+<thisfolder>/lang/en_US.php
+and/or
+<thisfolder>/lang/ext/whatever.php
+
