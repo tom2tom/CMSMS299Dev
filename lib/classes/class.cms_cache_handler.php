@@ -1,6 +1,6 @@
 <?php
 #generic cache handler wrapper class
-#Copyright (C) 2010-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -29,10 +29,11 @@ use CMSMS\CacheDriver;
  * Site-preferences which affect cache operation (unless overridden by supplied params):
  * 'cache_driver' string 'predis','memcached','apcu','yac','file' or 'auto'
  * 'cache_autocleaning' bool
- * 'cache_lifetime' int seconds (maybe 0)
+ * 'cache_lifetime' int seconds (may be 0)
  * 'cache_file_blocking' bool
  * 'cache_file_locking' bool
  *
+ * @see also CMSMS\internal\global_cache class, which caches system data in memory
  * @final
  * @package CMS
  * @license GPL

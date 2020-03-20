@@ -1,5 +1,5 @@
 <?php
-# Mechanism for automatic data-caching
+# Mechanism for automatic in-memory caching of 'slow' data
 # Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -25,10 +25,12 @@ use CMSMS\internal\global_cachable;
 use UnexpectedValueException;
 
 /**
- * Class which enables data to be cached automatically, and fetched
+ * Class for in-memory caching of data (sourced e.g. from database, system-polling
+ * etc) which enables such data to be cached automatically, and fetched
  * (or calculated) via a callback if the cache is too old, or the cached
  * data have been cleared or not yet saved.
  *
+ * @see also cms_cache_handler class, which manages data in a relevant storage
  * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since       2.0
  * @ignore
