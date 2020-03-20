@@ -67,9 +67,9 @@ function joinpath(...$args) : string
 function lang(...$args)
 {
 	try {
-		return langtools::get_instance()->translate($args);
+		return langtools::get_instance()->translate(...$args);
 	}
-	catch( Exception $e ) {
+	catch( Throwable $t ) {
 		return '';
 	}
 }

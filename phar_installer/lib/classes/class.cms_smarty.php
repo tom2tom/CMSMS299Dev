@@ -42,6 +42,6 @@ final class cms_smarty extends Smarty
 
     public function modifier_tr(...$args)
     {
-        return langtools::get_instance()->translate($args);
+        return langtools::get_instance()->translate(...$args);
     }
 }
