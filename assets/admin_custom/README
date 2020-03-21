@@ -1,4 +1,4 @@
-This is the parent folder for data which overrides out-of-box admin-data. As such, probably of limited use ...
+This is the parent folder for data which overrides out-of-box admin-data. Such data might sometimes be appropriate, e.g. when operating in 'app mode'.
 
 Such data must be in a subfolder conforming to the corresponding admin-folder structure e.g.
 <thisfolder>/lang/en_US.php
