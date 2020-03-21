@@ -53,7 +53,7 @@ class cms_tree_operations
 
 
   /**
-   * Load content tree from a flat array (from global_cache 'content_flatlist')
+   * Load content tree from a flat array (from SysDataCache 'content_flatlist')
    *
    * This method uses recursion to load the tree.
    *

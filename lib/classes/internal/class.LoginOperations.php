@@ -87,7 +87,7 @@ final class LoginOperations
             if( !$salt ) {
                 $salt = $this->create_csrf_token();
                 cms_siteprefs::set('loginsalt',$salt);
-                global_cache::release('site_preferences');
+                SysDataCache::release('site_preferences');
             }
             return $salt;
         }

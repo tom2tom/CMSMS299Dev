@@ -20,7 +20,7 @@ use cms_installer\installer_base;
 use CMSMS\AdminUtils;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 use CMSMS\RouteOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
@@ -139,7 +139,7 @@ if ($n == 1) {
  * Cache and content
  */
 if (isset($_POST['clearcache'])) {
-    global_cache::clear_all();
+    SysDataCache::clear_all();
     cms_cache_handler::get_instance()->clear();
     AdminUtils::clear_cached_files();
     // put mention into the admin log

@@ -33,7 +33,7 @@ use CMSMS\CacheDriver;
  * 'cache_file_blocking' bool
  * 'cache_file_locking' bool
  *
- * @see also CMSMS\internal\global_cache class, which caches system data in memory
+ * @see also CMSMS\internal\SysDataCache class, which caches system data in memory
  * @final
  * @package CMS
  * @license GPL

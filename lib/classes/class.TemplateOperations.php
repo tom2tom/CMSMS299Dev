@@ -27,7 +27,7 @@ use CmsLayoutTemplateQuery;
 use CmsLayoutTemplateType;
 use CMSMS\AdminUtils;
 use CMSMS\Events;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 use CMSMS\User;
 use CMSMS\UserOperations;
 use CmsSQLErrorException;
@@ -316,7 +316,7 @@ WHERE id=?';
 			$stmt->close();
 		}
 
-		global_cache::release('LayoutTemplates');
+		SysDataCache::release('LayoutTemplates');
 		audit($tpl->get_id(),'CMSMS','Template '.$tpl->get_name().' Updated');
 		return $tpl; //DODO what use ? event ?
 	}
@@ -398,7 +398,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			}
 		}
 
-		global_cache::release('LayoutTemplates');
+		SysDataCache::release('LayoutTemplates');
 
 		audit($tplid,'CMSMS','Template '.$tpl->get_name().' Created');
 		// return a fresh instance of the object (e.g. to pass to event handlers ??)
@@ -452,7 +452,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 
 		audit($id,'CMSMS','Template '.$tpl->get_name().' Deleted');
 		Events::SendEvent('Core','DeleteTemplatePost',[ get_class($tpl) => &$tpl ]);
-		global_cache::release('LayoutTemplates');
+		SysDataCache::release('LayoutTemplates');
 	}
 
 	/**

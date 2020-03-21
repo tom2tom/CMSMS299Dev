@@ -25,7 +25,7 @@ use CmsApp;
 use CMSContentManager;
 use CMSContentManager\Utils;
 use CMSMS\ContentOperations;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 use CMSMS\LockOperations;
 use CMSMS\TemplateOperations;
 use CMSMS\UserOperations;
@@ -689,7 +689,7 @@ final class ContentListBuilder
 		$mod = $this->_module;
 		$users = $this->_get_users();
 		$columns = $this->get_display_columns();
-		$cache = global_cache::get('content_quicklist');
+		$cache = SysDataCache::get('content_quicklist');
 
 		$out = [];
 		foreach( $page_list as $page_id ) {

@@ -27,13 +27,13 @@ use CMSMS\ContentOperations;
 use CMSMS\contenttypes\ErrorPage;
 use CMSMS\Database\Connection;
 use CMSMS\GroupOperations;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 use CMSMS\ScriptOperations;
 use CMSMS\StylesOperations;
 use CMSMS\UserOperations;
-use CMSMS\UserPluginOperations;
+//use CMSMS\UserPluginOperations;
 use CMSMS\UserTagOperations;
 
 /**
@@ -176,12 +176,12 @@ final class CmsApp
         switch($key) {
         case 'config':
             return cms_config::get_instance();
+        case 'get':
+        case 'instance':
+            return self::get_instance();
         default:
-            if( isset($this->data[$key]) ) {
-                return $this->data[$key];
-            }
+            return $this->data[$key] ?? null;
         }
-        return null;
     }
 
     /**
@@ -435,18 +435,6 @@ final class CmsApp
     }
 
     /**
-     * Get a handle to the user-plugin operations object.
-     * @since 2.3
-     * @see UserPluginOperations
-     *
-     * @return UserPluginOperations
-     */
-    public function GetUserPluginOperations() : UserPluginOperations
-    {
-        return UserPluginOperations::get_instance();
-    }
-
-    /**
     * Get a handle to the user operations object.
     * @see UserOperations
     *
@@ -493,15 +481,27 @@ final class CmsApp
     }
 
     /**
+     * Get a handle to the user-plugin operations object, for interacting with UDT-files.
+     * @since 2.3 NOT IMPLEMENTED
+     * @see UserPluginOperations
+     *
+     * @return UserPluginOperations
+     */
+    public function GetUserPluginOperations() //: UserPluginOperations
+    {
+//        return UserPluginOperations::get_instance();
+    }
+
+	/**
     * Get a handle to the UDT operations object (which is for back-compatibility only).
     * @see UserTagOperations
-    * @deprecated - since 2.3 UserTagOperations has been superseded by UserPluginOperations
+    * NO since 2.3 UserTagOperations has been superseded by UserPluginOperations
     *
     * @return UserTagOperations handle to the UserTagOperations object
     */
     public function GetUserTagOperations() : UserTagOperations
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('class','CMSMS\\UserPluginOperations'));
+//        assert(empty(CMS_DEPREC), new DeprecationNotice('class','CMSMS\\UserPluginOperations'));
         return UserTagOperations::get_instance();
     }
 
@@ -532,7 +532,7 @@ final class CmsApp
     public function GetHierarchyManager()
     {
         if( is_null($this->_hrinstance) ) {
-            $this->_hrinstance = global_cache::get('content_tree');
+            $this->_hrinstance = SysDataCache::get('content_tree');
         }
         return $this->_hrinstance;
     }
@@ -589,7 +589,7 @@ final class CmsApp
         if( !$val ) {
             $val = cms_utils::random_string(32);
             cms_siteprefs::set('site_uuid', $val);
-            global_cache::release('site_preferences');
+            SysDataCache::release('site_preferences');
         }
         return $val;
     }
@@ -608,8 +608,8 @@ final class CmsApp
         });
         foreach( $this->shutfuncs as $row ) {
             if( is_callable($row[1]) ) {
-                if( $row[2] ) ($row[1])(...$row[2]);
-                else ($row[1])();
+                if( $row[2] ) $row[1](...$row[2]);
+                else $row[1]();
             }
         }
     }
@@ -639,6 +639,14 @@ final class CmsApp
         }
         $this->db = null; //no restarting during shutdown
     }
+
+    /**
+     * End-of-session-function: process all recorded methods
+     * @ignore
+     * @internal
+     * @since 2.3
+     * @todo export this to elsewhere
+     */
 
     /**
      * Remove files from the website file-cache directories.

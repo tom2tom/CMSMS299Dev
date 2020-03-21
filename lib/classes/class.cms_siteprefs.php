@@ -17,7 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\internal\global_cachable;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 
 /**
  * A class for working with site- and module-preferences/properties/parameters
@@ -62,7 +62,7 @@ final class cms_siteprefs
 		{
 			return self::_read();
 		});
-		global_cache::add_cachable($obj);
+		SysDataCache::add_cachable($obj);
 	}
 
 	/**
@@ -145,7 +145,7 @@ final class cms_siteprefs
 	 */
 	public static function get(string $key,$dflt = '')
 	{
-		$prefs = global_cache::get(self::class);
+		$prefs = SysDataCache::get(self::class);
 		if( isset($prefs[$key]) && $prefs[$key] !== '' ) {
 			$l = strlen(self::SERIAL);
 			if( strncmp($prefs[$key],self::SERIAL,$l) == 0 ) {
@@ -164,7 +164,7 @@ final class cms_siteprefs
 	 */
 	public static function exists($key)
 	{
-		$prefs = global_cache::get(self::class);
+		$prefs = SysDataCache::get(self::class);
 		return ( is_array($prefs) && isset($prefs[$key]) && $prefs[$key] !== '' );
 	}
 
@@ -196,7 +196,7 @@ EOS;
 		$db->Execute($query,[$key,$value,$key]);
 
 		if( strpos($key,self::MODULE_SIG) === FALSE ) {
-			global_cache::release(self::class);
+			SysDataCache::release(self::class);
 		}
 	}
 
@@ -223,7 +223,7 @@ EOS;
 		$db = CmsApp::get_instance()->GetDb();
 		$db->Execute($query,[$key]);
 		if( strpos($key,self::MODULE_SIG) === FALSE) {
-			global_cache::release(self::class);
+			SysDataCache::release(self::class);
 		}
 	}
 

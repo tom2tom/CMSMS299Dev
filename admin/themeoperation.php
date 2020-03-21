@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
 use CMSMS\FileTypeHelper;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 use CMSMS\ThemeBase;
 
 const THEME_DTD_VERSION = '1.0';
@@ -304,7 +304,7 @@ function delete_theme(string $themename) : bool
 			if ($deftheme && $deftheme == $themename) {
 				unset($all[$themename]);
 				cms_siteprefs::set('logintheme', key($all));
-				global_cache::release('site_preferences');
+				SysDataCache::release('site_preferences');
 			}
 			return true;
 		}

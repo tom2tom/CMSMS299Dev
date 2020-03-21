@@ -17,7 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\ContentOperations;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 
 /**
  * Class that provides content retrieval abilities, using the content cache
@@ -64,7 +64,7 @@ class cms_content_tree extends cms_tree
 	 */
 	public function quickfind_node_by_id($id)
 	{
-		$list = global_cache::get('content_quicklist');
+		$list = SysDataCache::get('content_quicklist');
 		if( isset($list[$id]) ) return $list[$id];
 	}
 

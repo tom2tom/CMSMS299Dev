@@ -281,10 +281,10 @@ class operations
 		$fn = $dir.'/moduleinfo.ini';
 		if( !is_file($fn) ) {
 	        ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
-//			global_cache::release('modules');
-//			global_cache::release('module_deps');
-//			global_cache::release('module_meta');
-//			global_cache::release('module_plugins');
+//			SysDataCache::release('modules');
+//			SysDataCache::release('module_deps');
+//			SysDataCache::release('module_meta');
+//			SysDataCache::release('module_plugins');
 		}
 */
         $xw = new XMLWriter();

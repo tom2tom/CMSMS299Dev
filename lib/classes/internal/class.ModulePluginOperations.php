@@ -25,7 +25,7 @@ use CmsCoreCapabilities;
 use CMSModule;
 use CMSMS\AppState;
 use CMSMS\internal\global_cachable;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 use CMSMS\ModuleOperations;
 use DeprecationNotice;
 use Throwable;
@@ -115,7 +115,7 @@ final class ModulePluginOperations
 				}
 				return $data;
 			});
-		global_cache::add_cachable($obj);
+		SysDataCache::add_cachable($obj);
 	}
 
 	/**
@@ -192,7 +192,7 @@ final class ModulePluginOperations
 	 */
 	public function find(string $name,string $type)
 	{
-		$data = global_cache::get('module_plugins');
+		$data = SysDataCache::get('module_plugins');
 		if( $data ) {
 			foreach( $data as $row ) {
 				if( $row['type'] == $type && strcasecmp($row['name'],$name) == 0 ) return $row;
@@ -262,7 +262,7 @@ final class ModulePluginOperations
 		if( !$callback ) return FALSE;
 
 		$dirty = FALSE;
-		$data = global_cache::get('module_plugins');
+		$data = SysDataCache::get('module_plugins');
 		$sig = cms_utils::hash_string($name.$module_name.$callback);
 		if( !isset($data[$sig]) ) {
 			if( $available == 0 ) {
@@ -286,7 +286,7 @@ final class ModulePluginOperations
 			if( $data[$sig]['available'] != $available ) { $data[$sig]['available'] = $available; $dirty = TRUE; }
 		}
 		if( $dirty ) {
-			global_cache::update('module_plugins', $data);
+			SysDataCache::update('module_plugins', $data);
 		}
 		return TRUE;
 	}
@@ -342,7 +342,7 @@ EOS;
 		]);
 
 		if( $dbr ) {
-			global_cache::release('module_plugins');
+			SysDataCache::release('module_plugins');
 			return TRUE;
 		}
 		return FALSE;
@@ -381,7 +381,7 @@ EOS;
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?';
 		$dbr = $db->Execute($query,[$module_name]);
 		if( $dbr ) {
-			global_cache::release('module_plugins');
+			SysDataCache::release('module_plugins');
 		}
 	}
 
@@ -407,7 +407,7 @@ EOS;
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE name=?';
 		$dbr = $db->Execute($query,[$name]);
 		if( $dbr ) {
-			global_cache::release('module_plugins');
+			SysDataCache::release('module_plugins');
 		}
 	}
 } // class

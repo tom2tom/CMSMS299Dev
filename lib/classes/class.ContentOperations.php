@@ -25,7 +25,7 @@ use CMSMS\AdminUtils;
 use CMSMS\ContentType;
 use CMSMS\ContentTypeOperations;
 use CMSMS\contenttypes\ContentBase;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 use CMSMS\UserOperations;
 use DeprecationNotice;
 use Exception;
@@ -378,7 +378,7 @@ final class ContentOperations
 	 */
 	public function GetLastContentModification()
 	{
-		return global_cache::get('latest_content_modification');
+		return SysDataCache::get('latest_content_modification');
 	}
 
 	/**
@@ -389,11 +389,11 @@ final class ContentOperations
 	 */
 	public function SetContentModified()
 	{
-		global_cache::release('latest_content_modification');
-		global_cache::release('default_content');
-		global_cache::release('content_flatlist');
-		global_cache::release('content_tree');
-		global_cache::release('content_quicklist');
+		SysDataCache::release('latest_content_modification');
+		SysDataCache::release('default_content');
+		SysDataCache::release('content_flatlist');
+		SysDataCache::release('content_tree');
+		SysDataCache::release('content_quicklist');
 		cms_cache_handler::get_instance()->clear('tree_pages');
 		//etc for CM list
 	}
@@ -639,7 +639,7 @@ final class ContentOperations
 		$contentobj->SetDefaultContent(true);
 		$contentobj->Save();
 
-		global_cache::release('default_content');
+		SysDataCache::release('default_content');
 	}
 
 	/**
@@ -649,7 +649,7 @@ final class ContentOperations
 	 */
 	public function GetDefaultContent() : int
 	{
-		return (int)global_cache::get('default_content');
+		return (int)SysDataCache::get('default_content');
 	}
 
 	/**
@@ -1001,7 +1001,7 @@ final class ContentOperations
 	 */
 	public function quickfind_node_by_id(int $contentid)
 	{
-		$list = global_cache::get('content_quicklist');
+		$list = SysDataCache::get('content_quicklist');
 		if( isset($list[$contentid]) ) return $list[$contentid];
 	}
 } // class

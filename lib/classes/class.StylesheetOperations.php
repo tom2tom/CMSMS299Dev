@@ -25,7 +25,7 @@ use CmsLayoutStylesheet;
 use CmsLogicException;
 use CMSMS\AdminUtils;
 use CMSMS\Events;
-//use CMSMS\internal\global_cache;
+//use CMSMS\internal\SysDataCache;
 use CMSMS\StylesheetsGroup;
 use CmsSQLErrorException;
 use DateTime;
@@ -165,7 +165,7 @@ WHERE id = ?';
 			}
 		}
 */
-//		global_cache::release('LayoutStylesheets');
+//		SysDataCache::release('LayoutStylesheets');
 		cms_notice('Stylesheet '.$sht->get_name().' Updated');
 	}
 
@@ -211,7 +211,7 @@ VALUES (?,?,?,?,?,?)';
 			}
 		}
 */
-//		global_cache::release('LayoutStylesheets');
+//		SysDataCache::release('LayoutStylesheets');
 		cms_notice('Stylesheet '.$sht->get_name().' Updated');
 	}
 
@@ -267,7 +267,7 @@ VALUES (?,?,?,?,?,?)';
 
 		@unlink($sht->get_content_filename());
 
-//		global_cache::release('LayoutStylesheets');
+//		SysDataCache::release('LayoutStylesheets');
 		cms_notice('Stylesheet '.$sht->get_name().' Deleted');
 		Events::SendEvent('Core', 'DeleteStylesheetPost',[get_class($sht)=>&$sht]);
 	}

@@ -35,7 +35,7 @@ use UnexpectedValueException;
  * @see also global_cachable class, which defines how data are retrieved on-damand
  * @see also cms_cache_handler class, which defines the main system cache
  * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
- * @since       2.0 as global_cache class
+ * @since       2.0 as SysDataCache class
  * @since       2.9
  * @ignore
  * @internal
@@ -125,10 +125,10 @@ class SysDataCache
         return self::$_data[$type];
     }
 
-	/**
+    /**
      * Migrate required data from system cache to in-memory cache
-	 * @ignore
-	 */
+     * @ignore
+     */
     private static function _load()
     {
         $cache = self::_get_cache();
@@ -184,7 +184,7 @@ class SysDataCache
      */
     public static function save()
     {
-		if( AppState::test_state(AppState::STATE_INSTALL) ) { return; }
+        if( AppState::test_state(AppState::STATE_INSTALL) ) { return; }
         $cache = self::_get_cache();
         $keys = array_keys(self::$_types);
         foreach( $keys as $key ) {

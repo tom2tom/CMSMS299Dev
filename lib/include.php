@@ -23,7 +23,7 @@ use CMSMS\AuditOperations;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
 use CMSMS\internal\global_cachable;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
@@ -132,14 +132,14 @@ $obj = new global_cachable('schema_version', function()
     {
         return $CMS_SCHEMA_VERSION; //NULL during installation!
     });
-global_cache::add_cachable($obj);
+SysDataCache::add_cachable($obj);
 $obj = new global_cachable('modules', function()
     {
         $db = CmsApp::get_instance()->GetDb();
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules';
         return $db->GetAssoc($query); // Keyed by module_name
      });
-global_cache::add_cachable($obj);
+SysDataCache::add_cachable($obj);
 $obj = new global_cachable('module_deps', function()
     {
         $db = CmsApp::get_instance()->GetDb();
@@ -152,7 +152,7 @@ $obj = new global_cachable('module_deps', function()
         }
         return $out;
     });
-global_cache::add_cachable($obj);
+SysDataCache::add_cachable($obj);
 
 if ($CMS_JOB_TYPE < 2) {
     $obj = new global_cachable('latest_content_modification', function()
@@ -162,14 +162,14 @@ if ($CMS_JOB_TYPE < 2) {
             $tmp = $db->GetOne($query);
             return $db->UnixTimeStamp($tmp);
         });
-    global_cache::add_cachable($obj);
+    SysDataCache::add_cachable($obj);
     $obj = new global_cachable('default_content', function()
         {
             $db = CmsApp::get_instance()->GetDb();
             $query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
             return $db->GetOne($query);
         });
-    global_cache::add_cachable($obj);
+    SysDataCache::add_cachable($obj);
 
     // the pages flat list
     $obj = new global_cachable('content_flatlist', function()
@@ -178,24 +178,24 @@ if ($CMS_JOB_TYPE < 2) {
             $db = CmsApp::get_instance()->GetDb();
             return $db->GetArray($query);
         });
-    global_cache::add_cachable($obj);
+    SysDataCache::add_cachable($obj);
 
     // hence the tree
     $obj = new global_cachable('content_tree', function()
         {
-            $flatlist = global_cache::get('content_flatlist');
+            $flatlist = SysDataCache::get('content_flatlist');
             $tree = cms_tree_operations::load_from_list($flatlist);
             return $tree;
         });
-    global_cache::add_cachable($obj);
+    SysDataCache::add_cachable($obj);
 
     // hence the flat/quick list
     $obj = new global_cachable('content_quicklist', function()
         {
-            $tree = global_cache::get('content_tree');
+            $tree = SysDataCache::get('content_tree');
             return $tree->getFlatList();
         });
-    global_cache::add_cachable($obj);
+    SysDataCache::add_cachable($obj);
 }
 
 // other global caches

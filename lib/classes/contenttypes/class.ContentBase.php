@@ -607,9 +607,9 @@ $X = $CRASH;
 
 		$this->_fields['content_alias'] = $alias;
 		//CHECME are these caches worth retaining?
-		global_cache::release('content_quicklist');
-		global_cache::release('content_tree');
-		global_cache::release('content_flatlist');
+		SysDataCache::release('content_quicklist');
+		SysDataCache::release('content_tree');
+		SysDataCache::release('content_flatlist');
 	}
 */
 

@@ -120,7 +120,7 @@ VALUES (?,?,$now,$now)");
     audit($userid, 'Assignment User ID: '.$userid, 'Changed');
     $message = lang('assignmentchanged');
 //    AdminUtils::clear_cached_files();
-//    CMSMS\internal\global_cache::release('IF ANY');
+//    CMSMS\internal\SysDataCache::release('IF ANY');
 }
 
 $query = 'SELECT u.user_id, u.username, ug.group_id FROM '.

@@ -22,7 +22,7 @@ use cms_utils;
 use CmsApp;
 use CMSMS\AppState;
 use CMSMS\internal\global_cachable;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 use CMSMS\ModuleOperations;
 use CMSMS\RouteOperations;
 use CmsRoute;
@@ -130,11 +130,11 @@ final class RouteOperations
 
 			if( $tmp ) {
 				//TODO merge $tmp and self::$_dynamic_routes, if count bigger after that ...
-				global_cache::update('routes', self::$_dynamic_routes);
+				SysDataCache::update('routes', self::$_dynamic_routes);
 			}
 			return self::$_dynamic_routes; // old and new
 		});
-		global_cache::add_cachable($obj);
+		SysDataCache::add_cachable($obj);
 	}
 
 	// ========== FINDING|MATCHING ==========
@@ -416,7 +416,7 @@ final class RouteOperations
 	{
 		if( self::$_dynamic_routes_loaded ) return;
 		self::setup();
-		self::$_dynamic_routes = global_cache::get('routes');
+		self::$_dynamic_routes = SysDataCache::get('routes');
 		self::$_dynamic_routes_loaded = TRUE;
 	}
 

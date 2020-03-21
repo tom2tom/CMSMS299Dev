@@ -26,7 +26,7 @@ use CmsCoreCapabilities;
 use CmsLayoutTemplateType;
 use CMSModule;
 use CMSMS\AdminAlerts\Alert;
-use CMSMS\internal\global_cache;
+use CMSMS\internal\SysDataCache;
 use CMSMS\internal\module_meta;
 use CMSMS\TemplateOperations;
 use LogicException;
@@ -282,11 +282,11 @@ VALUES (?,?,?,'.$now.',NULL)');
 			}
 //			$this->generate_moduleinfo( $module_obj );
 			self::$_moduleinfo = [];
-			global_cache::release('modules');
-			global_cache::release('module_deps');
-			global_cache::release('module_plugins');
-			global_cache::release('module_meta');
-			global_cache::release('module_menus');
+			SysDataCache::release('modules');
+			SysDataCache::release('module_deps');
+			SysDataCache::release('module_plugins');
+			SysDataCache::release('module_meta');
+			SysDataCache::release('module_menus');
 
 			cms_notice('Installed module '.$module_name.' version '.$module_obj->GetVersion());
 			Events::SendEvent( 'Core', 'ModuleInstalled', [ 'name' => $module_name, 'version' => $module_obj->GetVersion() ] );
@@ -339,7 +339,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 	private function _get_module_info()
 	{
 		if( !self::$_moduleinfo ) {
-			$tmp = global_cache::get('modules');
+			$tmp = SysDataCache::get('modules');
 			if( is_array($tmp) ) {
 				self::$_moduleinfo = [];
 				foreach( $tmp as $module_name => $props ) {
@@ -566,16 +566,16 @@ VALUES (?,?,?,$now,$now)");
 			}
 //			$this->generate_moduleinfo( $module_obj );
 			self::$_moduleinfo = [];
-			global_cache::release('modules');
-			global_cache::release('module_deps');
-			global_cache::release('module_plugins');
-			global_cache::release('module_meta');
-			global_cache::release('module_menus');
+			SysDataCache::release('modules');
+			SysDataCache::release('module_deps');
+			SysDataCache::release('module_plugins');
+			SysDataCache::release('module_meta');
+			SysDataCache::release('module_menus');
 
 			cms_notice('Upgraded module '.$module_name.' to version '.$module_obj->GetVersion());
 			Events::SendEvent( 'Core', 'ModuleUpgraded', [ 'name' => $module_name, 'oldversion' => $dbversion, 'newversion' => $module_obj->GetVersion() ] );
 
-			global_cache::release('Events');
+			SysDataCache::release('Events');
 			return [TRUE];
 		}
 
@@ -666,11 +666,11 @@ VALUES (?,?,?,$now,$now)");
 			}
 
 			// clear related caches
-			global_cache::release('modules');
-			global_cache::release('module_deps');
-			global_cache::release('module_plugins');
-			global_cache::release('module_meta');
-			global_cache::release('module_menus');
+			SysDataCache::release('modules');
+			SysDataCache::release('module_deps');
+			SysDataCache::release('module_plugins');
+			SysDataCache::release('module_meta');
+			SysDataCache::release('module_menus');
 
 			// Removing module from info
 			self::$_moduleinfo = [];
@@ -678,7 +678,7 @@ VALUES (?,?,?,$now,$now)");
 			cms_notice('Uninstalled module '.$module_name);
 			Events::SendEvent( 'Core', 'ModuleUninstalled', [ 'name' => $module_name ] );
 
-			global_cache::release('Events');
+			SysDataCache::release('Events');
 			return [TRUE,''];
 		}
 
@@ -729,10 +729,10 @@ VALUES (?,?,?,$now,$now)");
 //			$dbr =
 			$db->Execute($query,[$info[$module_name]['active'],$module_name]);
 			self::$_moduleinfo = [];
-			global_cache::release('modules'); //force refresh of the cached active property
-			global_cache::release('module_plugins');
-			global_cache::release('module_meta');
-			global_cache::release('module_menus');
+			SysDataCache::release('modules'); //force refresh of the cached active property
+			SysDataCache::release('module_plugins');
+			SysDataCache::release('module_meta');
+			SysDataCache::release('module_menus');
 			Events::SendEvent( 'Core', 'AfterModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
 			if( $activate ) {
 				cms_notice("Module $module_name activated"); //TODO lang
@@ -908,7 +908,7 @@ VALUES (?,?,?,$now,$now)");
 	 */
 	private function _get_all_module_dependencies()
 	{
-		$out = global_cache::get('module_deps');
+		$out = SysDataCache::get('module_deps');
 		if( $out !== '-' ) return $out;
 	}
 

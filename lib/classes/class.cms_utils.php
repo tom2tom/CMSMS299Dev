@@ -97,7 +97,7 @@ final class cms_utils
 	/**
 	 * Report whether a module is available.
 	 *
-	 * @see get_module(), global_cache::get('modules')
+	 * @see get_module(), SysDataCache::get('modules')
 	 * @author calguy1000
 	 * @since 1.11
 	 * @param string $name The module name
