@@ -26,8 +26,8 @@ use CmsRegularTask;
 
 class AutoPruneLogTask implements CmsRegularTask
 {
-    const LASTEXECUTE_SITEPREF = 'AdminLog::Prune_lastexecute';
-    const LIFETIME_SITEPREF = 'adminlog_lifetime';
+    const LASTRUN_SITEPREF = 'AdminLog\\\\lastprune'; //sep was ::, now cms_siteprefs::NAMESPACER
+    const LIFETIME_SITEPREF = 'AdminLog\\\\lifetime';  // was  'adminlog_lifetime'
 
     protected static function mod()
     {
@@ -62,7 +62,7 @@ class AutoPruneLogTask implements CmsRegularTask
 
         if( !$time ) $time = time();
         $oneday = 24 * 3600;
-        $last_execute = (int)cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
+        $last_execute = (int)cms_siteprefs::get(self::LASTRUN_SITEPREF,0);
         return ($last_execute < $time - $oneday );
     }
 
@@ -81,7 +81,7 @@ class AutoPruneLogTask implements CmsRegularTask
     public function on_success($time = 0)
     {
         if( !$time ) $time = time();
-        cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
+        cms_siteprefs::set(self::LASTRUN_SITEPREF,$time);
     }
 
     public function on_failure($time = 0)

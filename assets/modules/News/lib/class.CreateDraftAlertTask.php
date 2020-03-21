@@ -26,7 +26,7 @@ use const CMS_DB_PREFIX;
 
 class CreateDraftAlertTask implements CmsRegularTask
 {
-  const PREFNAME = 'task1_lastrun';
+  const LASTRUN_SITEPREF = 'News\\\\lastdraftalert';
 
   public function get_name()
   {
@@ -43,7 +43,7 @@ class CreateDraftAlertTask implements CmsRegularTask
   {
     if( !$time ) $time = time();
     $mod = cms_utils::get_module('News');
-    $lastrun = (int) $mod->GetPreference(self::PREFNAME);
+    $lastrun = (int) $mod->GetPreference(self::LASTRUN_SITEPREF);
     return $lastrun <= ($time - 900); // hardcoded to quarter-hourly
   }
 
@@ -51,7 +51,7 @@ class CreateDraftAlertTask implements CmsRegularTask
   {
     if( !$time ) $time = time();
     $mod = cms_utils::get_module('News');
-    $mod->SetPreference(self::PREFNAME,$time);
+    $mod->SetPreference(self::LASTRUN_SITEPREF,$time);
   }
 
   public function on_failure($time = 0) {}

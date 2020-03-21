@@ -95,6 +95,13 @@ foreach ($files as $one) {
     }
 }
 
+//re-spaced task-related properties
+$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE "Core::%"';
+$db->Execute($query);
+//revised 'namespace' indicator in recorded names
+$query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_name = REPLACE(sitepref_name,"_mapi_pref_","\\\\"), modified_date = ? WHERE sitepref_name LIKE "%_mapi_pref_%"';
+$db->Execute($query,[$longnow]);
+
 //$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modified_date) VALUES (\'loginmodule\',?,?);';
 //$db->Execute($query,[$longnow,$longnow]);
 // almost-certainly-unique signature of this site
@@ -567,8 +574,9 @@ $rows = $db->GetArray('SELECT id,module,callback FROM '.$tbl);
 foreach ($rows as &$row) {
     $val = unserialize($row['callback']);
     if ($val) {
+		//CHECKME use generic spacer '\\\\' ?
         if (is_array($val)) {
-            $s = $val[0].'::'.$val[1];
+            $s = $val[0].'::'.$val[1]; // OR '\\\\' ?
         } elseif (is_string($val)) {
             if (($p = strpos($val,'::')) === false) {
                 $s = $row['module'].'::'.$val;

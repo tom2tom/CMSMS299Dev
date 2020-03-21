@@ -28,7 +28,7 @@ final class cms_userprefs
 {
 	/**
 	 * @ignore
-	 * Constant indicating a serialized value
+	 * Constant indicating a serialized value, prepended to the stored value
 	 */
 	const SERIAL = '_S8D_'; // shortened '_SERIALIZED_'
 

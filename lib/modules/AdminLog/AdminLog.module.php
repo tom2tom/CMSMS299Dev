@@ -27,7 +27,7 @@ use CMSMS\HookManager;
 
 final class AdminLog extends CMSModule
 {
-    const LIFETIME_SITEPREF = 'adminlog_lifetime';
+    const LIFETIME_SITEPREF = 'AdminLog\\\\lifetime';  //c.f. cms_siteprefs::NAMESPACER formerly 'adminlog_lifetime';
 
     protected $storage;
     protected $auditor;

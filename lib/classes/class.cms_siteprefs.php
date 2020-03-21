@@ -1,6 +1,6 @@
 <?php
-#Class and utilities for working with site- and module-preferences.
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Class for working with (optionally-namespaced) recorded parameters.
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -20,7 +20,7 @@ use CMSMS\internal\global_cachable;
 use CMSMS\internal\SysDataCache;
 
 /**
- * A class for working with site- and module-preferences/properties/parameters
+ * A class for working with (optionally-namespaced) recorded properties/parameters
  *
  * @package CMS
  * @license GPL
@@ -32,11 +32,11 @@ final class cms_siteprefs
 	/**
 	 * @ignore
 	 */
-	const MODULE_SIG = '_mapi_pref_';
+	const NAMESPACER = '\\\\'; //c.f. PHP namespace separator '\' Formerly '_mapi_pref_'
 
 	/**
 	 * @ignore
-	 * Constant indicating a serialized value
+	 * Constant indicating a serialized value, prepended to the stored value
 	 */
 	const SERIAL = '_S8D_'; // shortened '_SERIALIZED_'
 
@@ -78,7 +78,7 @@ final class cms_siteprefs
 		if( !$db ) {
 			return;
 		}
-		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name NOT LIKE "%'.self::MODULE_SIG.'%" ORDER BY sitepref_name';
+		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name NOT LIKE "%'.self::NAMESPACER.'%" ORDER BY sitepref_name';
 		$dbr = $db->GetAssoc($query);
 		if( $dbr ) {
 			return $dbr;
@@ -195,7 +195,7 @@ EOS;
 //		$dbr =
 		$db->Execute($query,[$key,$value,$key]);
 
-		if( strpos($key,self::MODULE_SIG) === FALSE ) {
+		if( strpos($key,self::NAMESPACER) === FALSE ) {
 			SysDataCache::release(self::class);
 		}
 	}
@@ -222,7 +222,7 @@ EOS;
 		}
 		$db = CmsApp::get_instance()->GetDb();
 		$db->Execute($query,[$key]);
-		if( strpos($key,self::MODULE_SIG) === FALSE) {
+		if( strpos($key,self::NAMESPACER) === FALSE) {
 			SysDataCache::release(self::class);
 		}
 	}

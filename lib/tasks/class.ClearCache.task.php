@@ -4,8 +4,8 @@ use CMSMS\AdminUtils;
 
 class ClearCacheTask implements CmsRegularTask
 {
-    const  LASTEXECUTE_SITEPREF   = 'Core::ClearCache_lastexecute';
-    const  CACHEDFILEAGE_SITEPREF = 'auto_clear_cache_age';
+    const  LASTRUN_SITEPREF = self::class.'\\\\lastexecute'; //sep was ::, now cms_siteprefs::NAMESPACER
+    const  LIFETIME_SITEPREF = self::class.'\\\\auto_clear_cache_age';
 
     private $_age_days;
 
@@ -21,15 +21,15 @@ class ClearCacheTask implements CmsRegularTask
 
     public function test($time = 0)
     {
-        $this->_age_days = (int)cms_siteprefs::get(self::CACHEDFILEAGE_SITEPREF,0);
+        $this->_age_days = (int)cms_siteprefs::get(self::LIFETIME_SITEPREF,0);
         if( $this->_age_days == 0 ) return FALSE;
 
         // do we need to do this task now? (daily intervals)
         if( !$time ) $time = time();
-        $last_execute = (int)cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
+        $last_execute = (int)cms_siteprefs::get(self::LASTRUN_SITEPREF,0);
         if( ($time - 24*3600) >= $last_execute ) {
             // set this preference here... prevents multiple requests at or about the same time from getting here.
-            cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
+            cms_siteprefs::set(self::LASTRUN_SITEPREF,$time);
             return TRUE;
         }
         return FALSE;
@@ -45,12 +45,12 @@ class ClearCacheTask implements CmsRegularTask
     public function on_success($time = 0)
     {
         if( !$time ) $time = time();
-        cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
+        cms_siteprefs::set(self::LASTRUN_SITEPREF,$time);
     }
 
     public function on_failure($time = 0)
     {
         // we failed, try again at the next request
-        cms_siteprefs::remove(self::LASTEXECUTE_SITEPREF);
+        cms_siteprefs::remove(self::LASTRUN_SITEPREF);
     }
 } // class

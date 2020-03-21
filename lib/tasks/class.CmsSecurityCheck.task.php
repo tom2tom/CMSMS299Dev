@@ -4,7 +4,7 @@ use CMSMS\AdminAlerts\TranslatableAlert;
 
 class CmsSecurityCheckTask implements CmsRegularTask
 {
-    const  LASTEXECUTE_SITEPREF   = 'Core::SecurityCheck_lastexecute';
+    const  LASTRUN_SITEPREF = self::class.'\\\\lastexecute'; //sep was ::, now cms_siteprefs::NAMESPACER
 
     public function get_name()
     {
@@ -20,7 +20,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
     {
         // do we need to do this task now? (daily intervals)
         if( !$time ) $time = time();
-        $last_execute = (int)cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
+        $last_execute = (int)cms_siteprefs::get(self::LASTRUN_SITEPREF,0);
         return ($time - 24*3600) >= $last_execute;
     }
 
@@ -68,7 +68,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
     public function on_success($time = 0)
     {
         if( !$time ) $time = time();
-        cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
+        cms_siteprefs::set(self::LASTRUN_SITEPREF,$time);
     }
 
     public function on_failure($time = 0)

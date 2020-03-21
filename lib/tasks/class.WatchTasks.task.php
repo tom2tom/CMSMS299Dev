@@ -2,9 +2,9 @@
 
 class WatchTasksTask implements CmsRegularTask
 {
-    const  LASTEXECUTE_SITEPREF = 'Core::WatchTasks_lastexecute';
-    const  ENABLED_SITEPREF = 'taskschanged';
-    const  STATUS_SITEPREF = self::class.'signature';
+    const  LASTRUN_SITEPREF = self::class.'\\\\lastexecute'; //sep was ::, now cms_siteprefs::NAMESPACER
+    const  ENABLED_SITEPREF = self::class.'\\\\taskschanged';
+    const  STATUS_SITEPREF = self::class.'\\\\signature';
 
     public function get_name()
     {
@@ -22,7 +22,7 @@ class WatchTasksTask implements CmsRegularTask
 
         // do we need to do this task now? (half-daily intervals)
         if( !$time ) $time = time();
-        $last_execute = (int)cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
+        $last_execute = (int)cms_siteprefs::get(self::LASTRUN_SITEPREF,0);
         return ($time - 12*3600) >= $last_execute;
     }
 
@@ -50,7 +50,7 @@ class WatchTasksTask implements CmsRegularTask
     public function on_success($time = 0)
     {
         if( !$time ) $time = time();
-        cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
+        cms_siteprefs::set(self::LASTRUN_SITEPREF,$time);
     }
 
     public function on_failure($time = 0)
