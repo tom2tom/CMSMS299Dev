@@ -66,7 +66,7 @@ final class module_meta
     public static function get_instance() : self
     {
         if( !self::$_instance ) { self::$_instance = new self(); }
-		return self::$_instance;
+        return self::$_instance;
     }
 
     private function _load_cache()
@@ -91,6 +91,15 @@ final class module_meta
         cms_cache_handler::get_instance()->set(self::class,self::$_data,'module_meta');
     }
 
+    /**
+     * Zap the capabilities-and-methods cache
+     * For use e.g. after module [un]install
+     */
+    public function clear_module_lists()
+    {
+        self::$_data = null;
+        cms_cache_handler::get_instance()->erase(self::class,'module_meta');
+    }
 
     /**
      * List modules by their capabilities
@@ -151,8 +160,8 @@ final class module_meta
      *
      * @param string Method name
      * @param mixed  Optional value to (non-strictly) compare with method return-value,
-	 *  and only report matches. May be ModuleOperations::ANY_RESULT for any value.
-	 *  Default true.
+     *  and only report matches. May be ModuleOperations::ANY_RESULT for any value.
+     *  Default true.
      * @return array of matching module names, maybe empty
      */
     public function module_list_by_method($method,$returnvalue = TRUE)
@@ -179,14 +188,14 @@ final class module_meta
                 }
                 if( !$object ) continue;
                 if( method_exists($object,$method) ) {
-					// check if this is just an inherited method
-					$reflector = new ReflectionMethod($object,$method);
-					if( $reflector->getDeclaringClass()->getName() == $onemodule ) { //or == get_class($object) if modules are namespaced
-					    // do the test
-					    $res = $object->$method();
-					    self::$_data['methods'][$method][$onemodule] = $res;
-					}
-				}
+                    // check if this is just an inherited method
+                    $reflector = new ReflectionMethod($object,$method);
+                    if( $reflector->getDeclaringClass()->getName() == $onemodule ) { //or == get_class($object) if modules are namespaced
+                        // do the test
+                        $res = $object->$method();
+                        self::$_data['methods'][$method][$onemodule] = $res;
+                    }
+                }
                 if( !$loaded ) $object = null; //help the garbage collector
             }
 
