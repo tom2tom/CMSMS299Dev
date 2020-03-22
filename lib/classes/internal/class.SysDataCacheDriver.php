@@ -2,7 +2,7 @@
 
 namespace CMSMS\internal;
 
-class SysDataCache
+class SysDataCacheDriver
 {
     private $_name;
     private $_fetchcb;
