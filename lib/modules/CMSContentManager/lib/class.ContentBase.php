@@ -795,7 +795,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 				$help = AdminUtils::get_help_tag($this->realm,'help_content_addteditor',$this->mod->Lang('help_title_content_addteditor'));
 
 				$out = '<input type="hidden" name="'.$id.'additional_editors" value="" /><select id="addteditors" name="'.$id.'additional_editors[]" multiple="multiple" size="5">';
-				$topts = self::GetAdditionalEditorOptions();
+				$topts = $this->GetPageEditorChoices();
 				foreach( $topts as $k => $v ) {
 					if( $k == $owner_id ) continue;
 					$out .= FormUtils::create_option(['label'=>$v,'value'=>$k],$addteditors);
@@ -825,13 +825,13 @@ abstract class ContentBase implements ContentEditor, Serializable
 	}
 
 	/**
-	 * Return all recorded user id's and group id's in a format suitable
-	 * for use in a select field.
+	 * Return all recorded user id's and group id's in a format suitable for use
+	 * in a select field.
 	 *
 	 * @return array each member like id => name
 	 * Note: group id's are expressed as negative integers in the keys.
 	 */
-	public static function GetAdditionalEditorOptions() : array
+	public function GetPageEditorChoices() : array
 	{
 		$opts = [];
 		$allusers = UserOperations::get_instance()->LoadUsers();
@@ -840,13 +840,23 @@ abstract class ContentBase implements ContentEditor, Serializable
 		}
 		$allgroups = GroupOperations::get_instance()->LoadGroups();
 		foreach( $allgroups as &$one ) {
-			if( $one->id == 1 ) continue; // exclude admin group (they have all privileges anyways)
+			if( $one->id == 1 ) continue; // exclude super-admin group (they have all privileges anyways)
 			$val = - (int)$one->id;
 			$opts[$val] = $this->mod->Lang('group').': '.$one->name;
 		}
 		unset($one);
 
 		return $opts;
+	}
+
+	/**
+	 * Static variant of GetPageEditorChoices()
+	 * TODO is it worth keeping as such?
+	 * @return array
+	 */
+	public static function GetAdditionalEditorOptions() : array
+	{
+		return (new self())->GetPageEditorChoices(); //prob doesn't work properly cuz no $params[]
 	}
 
 	/**
