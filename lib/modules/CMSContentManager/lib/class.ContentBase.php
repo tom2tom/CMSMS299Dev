@@ -43,6 +43,7 @@ use Serializable;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use const CMS_ROOT_URL;
+use function add_page_foottext;
 use function check_permission;
 use function cms_htmlentities;
 use function cms_join_path;
@@ -51,7 +52,6 @@ use function create_file_dropdown;
 use function debug_buffer;
 use function endswith;
 use function get_userid;
-use function $this->mod->Lang;
 use function munge_string_to_url;
 
 /**
@@ -66,7 +66,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 * Lang key for tab name
 	 * @ignore
 	 */
-	const TAB_MAIN = 'za_main_tab__';
+	const TAB_MAIN = 'za_1main_tab__';
 
 	/**
 	 * Lang key for tab name
@@ -81,7 +81,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 	const TAB_OPTIONS = 'zz_1options_tab__';
 
 	/**
-	 * Lang key for tab name
+	 * Lang key for tab names
 	 * @ignore
 	 */
 	const TAB_LONGOPTS = 'zz_2logic_tab__';
