@@ -1462,6 +1462,7 @@ abstract class ThemeBase
 
         switch ($type) {
           case 'svg':
+			$extras['class'] = trim('svgicon '.$extras['class']);
             // see https://css-tricks.com/using-svg
             $alt = str_replace('svg','png',$path);
             $res = '<img src="'.$path.'" onerror="this.onerror=null;this.src=\''.$alt.'\';"';
