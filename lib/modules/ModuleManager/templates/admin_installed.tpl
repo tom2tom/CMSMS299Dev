@@ -47,14 +47,14 @@
           {/if}
         </td>
         <td>{* status column *}{$ops=[]}
-          {if $item.notavailable}
-           {capture assign='op'}<strong title="{$mod->Lang('title_notavailable')}" class="red">{$mod->Lang('notavailable')}</strong>{/capture}{$ops[]=$op}
-          {elseif !$item.installed}
+          {if !$item.installed}
            {if $item.can_install}
-             {capture assign='op'}<strong title="{$mod->Lang('title_notinstalled')}">{$mod->Lang('notinstalled')}</strong>{/capture}{$ops[]=$op}
+             {capture assign='op'}<span title="{$mod->Lang('caninstall')}">{$mod->Lang('notinstalled')}</span>{/capture}{$ops[]=$op}
            {else if $item.missing_deps}
              {capture assign='op'}<a class="modop mod_missingdeps important" class="red" title="{$mod->Lang('title_missingdeps')}" href="{cms_action_url action='local_missingdeps' mod=$item.name}">{$mod->Lang('missingdeps')}</a>{/capture}{$ops[]=$op}
            {/if}
+          {elseif $item.notavailable}
+           {capture assign='op'}<span title="{$mod->Lang('title_notavailable')}" class="red" style="font-weight:bold;">{$mod->Lang('notavailable')}</span>{/capture}{$ops[]=$op}
           {else}
            {capture assign='op'}{$tmp='status_'|cat:$item.status}<span title="{$mod->Lang($tmp)}">{$mod->Lang($item.status)}</span>{/capture}{$ops[]=$op}
            {if $item.missing_deps}
