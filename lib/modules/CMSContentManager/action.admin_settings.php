@@ -62,7 +62,7 @@ $tpl->assign('list_visiblecolumns',$tmp);
 
 $prefs = Utils::get_pagedefaults();
 $templates = TemplateOperations::template_query(['originator'=>CmsLayoutTemplateType::CORE, 'as_list'=>1]);
-$eds = ContentBase::GetAdditionalEditorOptions();
+$eds = ContentBase::GetAdditionalEditorOptions(); //TODO use non-static variant GetPageEditorChoices()
 
 $realm = $this->GetName();
 $types = ContentOperations::get_instance()->ListContentTypes(false,false,false,$realm);
