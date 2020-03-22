@@ -1,6 +1,6 @@
 <?php
 #utility-methods available for every request
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -65,12 +65,10 @@ function redirect(string $to)
             //path is relative, append current directory first
             elseif (isset($_SERVER['PHP_SELF']) && !is_null($_SERVER['PHP_SELF'])) { //Apache
                 $to .= (strlen(dirname($_SERVER['PHP_SELF'])) > 1 ?  dirname($_SERVER['PHP_SELF']).'/' : '/') . $components['path'];
-            }
-            elseif (isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI'])) { //Lighttpd
+            } elseif (isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI'])) { //Lighttpd
                 if (endswith($_SERVER['REQUEST_URI'], '/')) {
                     $to .= (strlen($_SERVER['REQUEST_URI']) > 1 ? $_SERVER['REQUEST_URI'] : '/') . $components['path'];
-                }
-                else {
+                } else {
                     $dn = dirname($_SERVER['REQUEST_URI']);
                     if (!endswith($dn,'/')) $dn .= '/';
                     $to .= $dn . $components['path'];
@@ -79,8 +77,7 @@ function redirect(string $to)
         }
         $to .= isset($components['query']) ? '?' . $components['query'] : '';
         $to .= isset($components['fragment']) ? '#' . $components['fragment'] : '';
-    }
-    else {
+    } else {
         $to = $schema.'://'.$host.'/'.$to;
     }
 
@@ -89,8 +86,7 @@ function redirect(string $to)
 
     if (!AppState::test_state(AppState::STATE_INSTALL)) {
         $debug = constant('CMS_DEBUG');
-    }
-    else {
+    } else {
         $debug = false;
     }
 
@@ -102,8 +98,7 @@ function redirect(string $to)
 <noscript>
 <meta http-equiv="Refresh" content="0;URL='.$to.'">
 </noscript>';
-    }
-    elseif ($debug) {
+    } elseif ($debug) {
         echo 'Debug is on. Redirection is disabled... Please click this link to continue.<br />
 <a accesskey="r" href="'.$to.'">'.$to.'</a><br />
 <div id="DebugFooter">';
@@ -111,8 +106,7 @@ function redirect(string $to)
             echo $error;
         }
         echo '</div> <!-- end DebugFooter -->';
-    }
-    else {
+    } else {
         header("Location: $to");
     }
     exit;
@@ -139,7 +133,7 @@ function redirect_to_alias(string $alias)
         return;
     }
     $url = $contentobj->GetURL();
-    if ( $url ) {
+    if ($url} {
         redirect($url);
     }
 }
@@ -348,8 +342,7 @@ function stack_trace(string $title = '')
         if ($elem['function'] == 'stack_trace') continue;
         if (isset($elem['file'])) {
             echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br />';
-        }
-        else {
+        } else {
             echo ' - '.$elem['function'].'<br />';
         }
     }
@@ -443,8 +436,7 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
         if (function_exists('memory_get_usage')) {
             $net = memory_get_usage() - $orig_memory;
             $titleText .= ', memory usage: net '.$net;
-        }
-        else {
+        } else {
             $net = false;
         }
 
@@ -452,16 +444,14 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
         if ($memory_peak) {
             if ($net === false) {
                 $titleText .= ', memory usage: peak '.$memory_peak;
-            }
-            else {
+            } else {
                 $titleText .= ', peak '.$memory_peak;
             }
         }
 
         if ($use_html) {
             echo "<div><b>$titleText</b>\n";
-        }
-        else {
+        } else {
             echo "$titleText\n";
         }
     }
@@ -472,22 +462,17 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
         if (is_array($var)) {
             echo 'Number of elements: ' . count($var) . "\n";
             print_r($var);
-        }
-        elseif (is_object($var)) {
+        } elseif (is_object($var)) {
             print_r($var);
-        }
-        elseif (is_string($var)) {
+        } elseif (is_string($var)) {
             if ($use_html) {
                 print_r(htmlentities(str_replace("\t", '  ', $var)));
-            }
-            else {
+            } else {
                 print_r($var);
             }
-        }
-        elseif (is_bool($var)) {
+        } elseif (is_bool($var)) {
             echo ($var) ? 'true' : 'false';
-        }
-        elseif ($var || is_numeric($var)) {
+        } elseif ($var || is_numeric($var)) {
             print_r($var);
         }
         if ($use_html) echo '</pre>';
@@ -577,14 +562,12 @@ function _get_value_with_default($value, $default = '', $session_key = '')
             foreach($value as $element) {
                 $return_value[] = _get_value_with_default($element, $default);
             }
-        }
-        else {
+        } else {
             if (is_numeric($default)) {
                 if (is_numeric($value)) {
                     $return_value = $value;
                 }
-            }
-            else {
+            } else {
                 $return_value = trim($value);
             }
         }
@@ -617,22 +600,18 @@ function get_parameter_value(array $parameters, string $key, $default = '', stri
         if (is_bool($default)) {
             // want a bool return_value
             if (isset($parameters[$key])) $return_value = cms_to_bool((string)$parameters[$key]);
-        }
-        elseif (is_numeric($default)) {
+        } elseif (is_numeric($default)) {
             // default value is a number, we only like $parameters[$key] if it's a number too.
             if (is_numeric($parameters[$key])) $return_value = $parameters[$key] + 0;
-        }
-        elseif (is_string($default)) {
+        } elseif (is_string($default)) {
             $return_value = trim($parameters[$key]);
-        }
-        elseif (is_array($parameters[$key])) {
+        } elseif (is_array($parameters[$key])) {
             // $parameters[$key] is an array - validate each element.
             $return_value = [];
             foreach ($parameters[$key] as $element) {
                 $return_value[] = _get_value_with_default($element, $default);
             }
-        }
-        else {
+        } else {
              $return_value = $parameters[$key];
         }
     }
@@ -1132,8 +1111,7 @@ function cms_ipmatches(string $ip, $checklist) : bool
       for ($i=0; $i<4; $i++) {
         if (preg_match("/\[([0-9]+)\-([0-9]+)\]/",$maskocts[$i],$regs)) {
           if (($ipocts[$i] > $regs[2]) || ($ipocts[$i] < $regs[1])) $result = 0;
-        }
-        elseif ($maskocts[$i] <> $ipocts[$i]) $result = 0;
+        } elseif ($maskocts[$i] <> $ipocts[$i]) $result = 0;
       }
     }
     return $result;
@@ -1259,12 +1237,24 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
             $fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery';
             $allfiles = scandir($fp);
         }
+        $debug = constant('CMS_DEBUG');
         $m = preg_grep('~^jquery\-migrate\-\d[\d\.]+\d(\.min)?\.js$~', $allfiles);
         $best = '0';
         $use = reset($m);
         foreach ($m as $file) {
-            preg_match('~(\d[\d\.]+\d)~', $file, $matches);
-            if (version_compare($best, $matches[1]) < 0) {
+            preg_match('~(\d[\d\.]+\d)(\.min)?~', $file, $matches);
+            if ($debug) {
+                //prefer a non-min version, so that problems are logged
+                if ($best === '0') {
+                    $best = $matches[1];
+                    $use = $file;
+                    $min = !empty($matches[2]); //$use is .min
+                } elseif (version_compare($best, $matches[1]) < 0 || ($min && empty($matches[2]))) {
+                    $best = $matches[1];
+                    $use = $file;
+                    $min = !empty($matches[2]); //$use is .min
+                }
+            } elseif (version_compare($best, $matches[1]) < 0) {
                 $best = $matches[1];
                 $use = $file;
             }
@@ -1530,8 +1520,7 @@ function setup_session(bool $cachable = false)
     if (!$cachable) {
         // admin pages can't be cached... period, at all.. never.
         @session_cache_limiter('nocache');
-    }
-    else {
+    } else {
         // frontend request
         $expiry = (int)max(0,cms_siteprefs::get('browser_cache_expiry',60));
         session_cache_expire($expiry);
