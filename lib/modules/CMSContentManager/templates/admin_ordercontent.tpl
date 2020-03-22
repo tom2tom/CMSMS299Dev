@@ -23,8 +23,8 @@
 <input type="hidden" id="orderlist" name="{$actionid}orderlist" value="" />
 <div class="pageinfo">{$mod->Lang('info_ordercontent')}</div>
 <div class="pageinput postgap">
-  <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+  <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{$mod->Lang('revert')}</button>
 </div>
 <div class="pageoverflow">
@@ -35,8 +35,8 @@
 </div>
 {if $list|count > 10}
  <div class="pageinput pregap">
-  <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+  <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{$mod->Lang('revert')}</button>
  </div>
 {/if}

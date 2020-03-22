@@ -84,7 +84,7 @@ class PageLink extends ContentBase
 
 		$page = $this->GetPropertyValue('page');
 		if ($page == '-1') {
-			$errors[]= lang('nofieldgiven', $this->mod->Lang('page'));
+			$errors[]= $this->mod->Lang('nofieldgiven', $this->mod->Lang('page'));
 			$result = false;
 		}
 
@@ -110,8 +110,8 @@ class PageLink extends ContentBase
 
 	public function GetTabNames()
 	{
-		$res = [lang('main')];
-		if( check_permission(get_userid(),'Manage All Content') ) $res[] = lang('options');
+		$res = [$this->mod->Lang('main')];
+		if( check_permission(get_userid(),'Manage All Content') ) $res[] = $this->mod->Lang('options');
 		return $res;
 	}
 

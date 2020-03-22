@@ -26,7 +26,6 @@ use CMSMS\TemplateOperations;
 use stdClass;
 use Throwable;
 use function get_userid;
-use function lang;
 
 /**
  * Utility methods for the CMSContentManager module.
@@ -132,7 +131,8 @@ final class Utils
 					break;
 				}
 			}
-			$gname = lang('group').' : ';
+			$mod = cms_utils::get_module('CMSContentManager');
+			$gname = $mod->Lang('group').' : ';
 
 			$selrows = [];
 			$unselrows = [];

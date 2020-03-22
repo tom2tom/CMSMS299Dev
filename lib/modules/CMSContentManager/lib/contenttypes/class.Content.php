@@ -44,7 +44,6 @@ use function cms_to_bool;
 use function create_file_dropdown;
 use function get_parameter_value;
 use function get_userid;
-use function lang;
 use function startswith;
 
 /**
@@ -236,7 +235,7 @@ class Content extends ContentBase
 		if( $errors === false ) $errors = [];
 
 		if ($this->mTemplateId <= 0 ) {
-			$errors[] = lang('nofieldgiven', $this->mod->Lang('template'));
+			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('template'));
 			$result = false;
 		}
 
@@ -346,7 +345,7 @@ class Content extends ContentBase
 /*		}
 		else {
 			$raw = $config['page_template_list'];
-			if( is_string($raw) ) $raw = [ lang('default')=>$raw ];
+			if( is_string($raw) ) $raw = [ $this->mod->Lang('default')=>$raw ];
 
 			foreach( $raw as $label => $rsrc ) {
 				$_list[] = [ 'label'=>$label, 'value'=>$rsrc ];
@@ -701,7 +700,7 @@ class Content extends ContentBase
 		$required = cms_to_bool($this->_get_param($blockInfo,'required','false'));
 		if( $blockName == 'content_en' && $label == $blockName ) {
 			$help = '&nbsp;'.AdminUtils::get_help_tag($this->realm,'help_content_content_en',$this->mod->Lang('help_title_maincontent'));
-			$label = lang('content');
+			$label = $this->mod->Lang('content');
 		}
 		if( $required ) $label = '*'.$label;
 

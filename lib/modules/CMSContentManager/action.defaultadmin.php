@@ -179,8 +179,8 @@ $s4 = json_encode($this->Lang('confirm_steal_lock'));
 $s8 = json_encode($this->Lang('confirm_clearlocks'));
 $s5 = json_encode($this->Lang('error_contentlocked'));
 $s9 = json_encode($this->Lang('error_action_contentlocked'));
-$s6 = lang('submit');
-$s7 = lang('cancel');
+$s6 = $this->Lang('submit');
+$s7 = $this->Lang('cancel');
 $secs = cms_siteprefs::get('lock_refresh', 120);
 $secs = max(30,min(600,$secs));
 
@@ -483,7 +483,7 @@ if( !isset($pmanage) ) {
 
 if( $pmanage ) {
     // filter-selector items
-    $opts = ['' => lang('none'),
+    $opts = ['' => $this->Lang('none'),
 //  'DESIGN_ID' => $this->Lang('prompt_design'),
     'TEMPLATE_ID' => $this->Lang('prompt_template'),
     'OWNER_UID' => $this->Lang('prompt_owner'),

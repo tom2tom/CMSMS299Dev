@@ -62,8 +62,8 @@ class Separator extends ContentBase
 
 	public function GetTabNames()
 	{
-		$res = [lang('main')];
-		if( check_permission(get_userid(),'Manage All Content') ) $res[] = lang('options');
+		$res = [$this->mod->Lang('main')];
+		if( check_permission(get_userid(),'Manage All Content') ) $res[] = $this->mod->Lang('options');
 		return $res;
 	}
 

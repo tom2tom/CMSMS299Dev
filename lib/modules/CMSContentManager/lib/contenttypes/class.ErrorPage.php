@@ -20,7 +20,6 @@ namespace CMSContentManager\contenttypes;
 
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
-use function lang;
 
 /**
  * Implements the ErrorPage content type
@@ -39,9 +38,9 @@ class ErrorPage extends Content
 		parent::__construct();
 
 		if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
-			$this->error_types = ['404' => lang('404description'),
-								  '403' => lang('403description'),
-								  '503' => lang('503description') ];
+			$this->error_types = ['404' => $this->mod->Lang('404description'),
+								  '403' => $this->mod->Lang('403description'),
+								  '503' => $this->mod->Lang('503description') ];
 		}
 		$this->doAliasCheck = false;
 		$this->doAutoAliasIfEnabled = false;
@@ -97,7 +96,7 @@ class ErrorPage extends Content
 
 		switch($propname) {
 		case 'alias':
-//			$dropdownopts = '<option value="">'.lang('none').'</option>';
+//			$dropdownopts = '<option value="">'.$this->mod->Lang('none').'</option>';
 			$dropdownopts = '';
 			foreach ($this->error_types as $code=>$name) {
 				$dropdownopts .= '<option value="error' . $code . '"';
@@ -131,10 +130,10 @@ class ErrorPage extends Content
 
 		//Do our own alias check
 		if ($this->mAlias == '') {
-			$errors[] = lang('nofieldgiven', $this->mod->Lang('error_type'));
+			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('error_type'));
 		}
 		else if (in_array($this->mAlias, $this->error_types)) {
-			$errors[] = lang('nofieldgiven', $this->mod->Lang('error_type'));
+			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('error_type'));
 		}
 		else if ($this->mAlias != $this->mOldAlias) {
 			$contentops = ContentOperations::get_instance();

@@ -383,7 +383,7 @@ if ($do_locking) {
 $lock_refresh = cms_siteprefs::get('lock_refresh', 120);
 $options_tab_name = ContentBase::TAB_OPTIONS;
 $msg = json_encode($this->Lang('msg_lostlock'));
-$close = lang('close');
+$close = $this->Lang('close');
 
 $sm = new ScriptOperations();
 $sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
@@ -437,7 +437,7 @@ EOS;
 if ($preview_url) {
     $js .= <<<EOS
   $('#_preview_').on('click', function() {
-    if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave();
+    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } TODO a general API, to migrate editor-content into an input-element to be saved
     var params = [{
       name: '{$id}ajax',
       value: 1
@@ -526,7 +526,7 @@ EOS;
   // handle apply (via ajax)
   $('[name$="apply"]').on('click', function() {
     // apply does not do an unlock
-    if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave(); // TODO this needs better approach, create a common "ajax save" function that can be reused
+    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } TODO a general API, to migrate editor-content into an input-element to be saved
     var params = [{
       name: '{$id}ajax',
       value: 1

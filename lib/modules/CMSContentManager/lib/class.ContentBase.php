@@ -51,7 +51,7 @@ use function create_file_dropdown;
 use function debug_buffer;
 use function endswith;
 use function get_userid;
-use function lang;
+use function $this->mod->Lang;
 use function munge_string_to_url;
 
 /**
@@ -623,7 +623,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 		switch( $propname ) {
 		case 'title':
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_title',$this->mod->Lang('help_title_content_title'));
-			return ['<label for="in_title">*'.lang('title').':</label>&nbsp;' .$help,
+			return ['<label for="in_title">*'.$this->mod->Lang('title').':</label>&nbsp;' .$help,
 					'<input type="text" id="in_title" name="'.$id.'title" required="required" value="'.cms_htmlentities($this->mName).'" />'];
 
 		case 'menutext':
@@ -645,7 +645,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 		case 'active':
 			if( !$this->DefaultContent() ) {
 				$help = AdminUtils::get_help_tag($this->realm,'help_content_active',$this->mod->Lang('help_title_content_active'));
-				return ['<label for="id_active">'.lang('active').':</label>&nbsp;'.$help,
+				return ['<label for="id_active">'.$this->mod->Lang('active').':</label>&nbsp;'.$help,
 						'<input type="hidden" name="'.$id.'active" value="0" /><input type="checkbox" id="id_active" class="pagecheckbox" name="'.$id.'active" value="1"'.($this->mActive?' checked="checked"':'').' />'];
 			}
 			break;
@@ -657,7 +657,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 
 		case 'target':
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_target',$this->mod->Lang('help_title_content_target'));
-			$out = '<option value="---">'.lang('none').'</option>'
+			$out = '<option value="---">'.$this->mod->Lang('none').'</option>'
 				.'<option value="_blank"'.($this->GetPropertyValue('target')=='_blank'?' selected="selected"':'').'>_blank</option>'
 				.'<option value="_parent"'.($this->GetPropertyValue('target')=='_parent'?' selected="selected"':'').'>_parent</option>'
 				.'<option value="_self"'.($this->GetPropertyValue('target')=='_self'?' selected="selected"':'').'>_self</option>'
@@ -727,7 +727,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 			}
 			if( !$input ) return false;
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_image',$this->mod->Lang('help_title_content_image'));
-			return ['<label for="image">'.lang('image').':</label>&nbsp;'.$help,$input];
+			return ['<label for="image">'.$this->mod->Lang('image').':</label>&nbsp;'.$help,$input];
 
 		case 'thumbnail':
 			$config = cms_config::get_instance();
@@ -780,7 +780,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 			$showadmin = ContentOperations::get_instance()->CheckPageOwnership(get_userid(), $this->Id());
 			if( !$adding && (check_permission(get_userid(),'Manage All Content') || $showadmin) ) {
 				$help = AdminUtils::get_help_tag($this->realm,'help_content_owner',$this->mod->Lang('help_title_content_owner'));
-				return ['<label for="owner">'.lang('owner').':</label>&nbsp;'.$help,
+				return ['<label for="owner">'.$this->mod->Lang('owner').':</label>&nbsp;'.$help,
 				UserOperations::get_instance()->GenerateDropdown($this->Owner(),$id.'owner_id')];
 			}
 			break;
@@ -842,7 +842,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 		foreach( $allgroups as &$one ) {
 			if( $one->id == 1 ) continue; // exclude admin group (they have all privileges anyways)
 			$val = - (int)$one->id;
-			$opts[$val] = lang('group').': '.$one->name;
+			$opts[$val] = $this->mod->Lang('group').': '.$one->name;
 		}
 		unset($one);
 
@@ -1634,7 +1634,7 @@ WHERE content_id = ?';
 				$this->mName = $this->mMenuText;
 			}
 			else {
-				$errors[] = lang('nofieldgiven', lang('title'));
+				$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('title'));
 			}
 		}
 
@@ -1643,7 +1643,7 @@ WHERE content_id = ?';
 				$this->mMenuText = $this->mName;
 			}
 			else {
-				$errors[] = lang('nofieldgiven', $this->mod->Lang('menutext'));
+				$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('menutext'));
 			}
 		}
 

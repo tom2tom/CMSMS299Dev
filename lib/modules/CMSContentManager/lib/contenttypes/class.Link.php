@@ -74,7 +74,7 @@ class Link extends ContentBase
 		if( $errors === false )	$errors = [];
 
 		if ($this->GetPropertyValue('url') == '') {
-			$errors[]= lang('nofieldgiven', lang('url'));
+			$errors[]= $this->mod->Lang('nofieldgiven', $this->mod->Lang('url'));
 			$result = false;
 		}
 
@@ -83,9 +83,9 @@ class Link extends ContentBase
 
 	public function GetTabNames()
 	{
-		$res = [lang('main')];
+		$res = [$this->mod->Lang('main')];
 		if( check_permission(get_userid(),'Manage All Content') ) {
-			$res[] = lang('options');
+			$res[] = $this->mod->Lang('options');
 		}
 		return $res;
 	}
@@ -95,7 +95,7 @@ class Link extends ContentBase
 		$id = 'm1_';
 		switch($propname) {
 		case 'url':
-			return [lang('url').':','<input type="text" name="'.$id.'url" size="50" maxlength="255" value="'.cms_htmlentities($this->GetPropertyValue('url')).'" />'];
+			return [$this->mod->Lang('url').':','<input type="text" name="'.$id.'url" size="50" maxlength="255" value="'.cms_htmlentities($this->GetPropertyValue('url')).'" />'];
 			break;
 
 		default:

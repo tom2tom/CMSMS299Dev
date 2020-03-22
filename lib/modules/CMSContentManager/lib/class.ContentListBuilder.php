@@ -33,7 +33,6 @@ use Throwable;
 use function audit;
 use function check_authorship;
 use function get_userid;
-use function lang;
 
 /**
  * A simple class for building and managing content lists.
@@ -775,11 +774,11 @@ final class ContentListBuilder
 								$rec[$column] = $template->get_name();
 							}
 							catch( Throwable $t ) {
-								$rec[$column] = lang('critical_error');
+								$rec[$column] = $mod->Lang('critical_error');
 							}
 						}
 						else {
-							$rec[$column] = lang('none');
+							$rec[$column] = $mod->Lang('none');
 						}
 					}
 					break;

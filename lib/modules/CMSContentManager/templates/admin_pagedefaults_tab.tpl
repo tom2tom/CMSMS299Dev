@@ -1,8 +1,8 @@
 <div class="pageinfo postgap">{$mod->Lang('info_pagedflt')}</div>
 {form_start action='apply_settings' tab='pagedefaults'}
 <div class="pageinput postgap">
-  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 </div>
 <div class="pageoverflow postgap">
   {$t=$mod->Lang('prompt_pagedflt_contenttype')}<label class="pagetext" for="contenttype">{$t}</label>:
@@ -94,7 +94,7 @@
   </p>
 </div>
 <div class="pageinput">
-  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 </div>
 </form>

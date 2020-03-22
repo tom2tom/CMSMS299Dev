@@ -57,9 +57,9 @@ class SectionHeader extends ContentBase
 
 	public function GetTabNames() : array
 	{
-		$res = [lang('main')];
+		$res = [$this->mod->Lang('main')];
 		if( check_permission(get_userid(),'Manage All Content') ) {
-			$res[] = lang('options');
+			$res[] = $this->mod->Lang('options');
 		}
 		return $res;
 	}
