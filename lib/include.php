@@ -22,7 +22,7 @@ use CMSMS\AppState;
 use CMSMS\AuditOperations;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
-use CMSMS\internal\global_cachable;
+use CMSMS\internal\SysDataCacheDriver;
 use CMSMS\internal\SysDataCache;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\ModuleOperations;
@@ -128,19 +128,19 @@ if ($administering) {
 cms_siteprefs::setup();
 
 // deprecated since 2.3 useless
-$obj = new global_cachable('schema_version', function()
+$obj = new SysDataCacheDriver('schema_version', function()
     {
         return $CMS_SCHEMA_VERSION; //NULL during installation!
     });
 SysDataCache::add_cachable($obj);
-$obj = new global_cachable('modules', function()
+$obj = new SysDataCacheDriver('modules', function()
     {
         $db = CmsApp::get_instance()->GetDb();
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules';
         return $db->GetAssoc($query); // Keyed by module_name
      });
 SysDataCache::add_cachable($obj);
-$obj = new global_cachable('module_deps', function()
+$obj = new SysDataCacheDriver('module_deps', function()
     {
         $db = CmsApp::get_instance()->GetDb();
         $query = 'SELECT parent_module,child_module,minimum_version FROM '.CMS_DB_PREFIX.'module_deps ORDER BY parent_module';
@@ -155,7 +155,7 @@ $obj = new global_cachable('module_deps', function()
 SysDataCache::add_cachable($obj);
 
 if ($CMS_JOB_TYPE < 2) {
-    $obj = new global_cachable('latest_content_modification', function()
+    $obj = new SysDataCacheDriver('latest_content_modification', function()
         {
             $db = CmsApp::get_instance()->GetDb();
             $query = 'SELECT modified_date FROM '.CMS_DB_PREFIX.'content ORDER BY modified_date DESC';
@@ -163,7 +163,7 @@ if ($CMS_JOB_TYPE < 2) {
             return $db->UnixTimeStamp($tmp);
         });
     SysDataCache::add_cachable($obj);
-    $obj = new global_cachable('default_content', function()
+    $obj = new SysDataCacheDriver('default_content', function()
         {
             $db = CmsApp::get_instance()->GetDb();
             $query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
@@ -172,7 +172,7 @@ if ($CMS_JOB_TYPE < 2) {
     SysDataCache::add_cachable($obj);
 
     // the pages flat list
-    $obj = new global_cachable('content_flatlist', function()
+    $obj = new SysDataCacheDriver('content_flatlist', function()
         {
             $query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
             $db = CmsApp::get_instance()->GetDb();
@@ -181,7 +181,7 @@ if ($CMS_JOB_TYPE < 2) {
     SysDataCache::add_cachable($obj);
 
     // hence the tree
-    $obj = new global_cachable('content_tree', function()
+    $obj = new SysDataCacheDriver('content_tree', function()
         {
             $flatlist = SysDataCache::get('content_flatlist');
             $tree = cms_tree_operations::load_from_list($flatlist);
@@ -190,7 +190,7 @@ if ($CMS_JOB_TYPE < 2) {
     SysDataCache::add_cachable($obj);
 
     // hence the flat/quick list
-    $obj = new global_cachable('content_quicklist', function()
+    $obj = new SysDataCacheDriver('content_quicklist', function()
         {
             $tree = SysDataCache::get('content_tree');
             return $tree->getFlatList();

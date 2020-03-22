@@ -16,7 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\internal\global_cachable;
+use CMSMS\internal\SysDataCacheDriver;
 use CMSMS\internal\SysDataCache;
 
 /**
@@ -58,7 +58,7 @@ final class cms_siteprefs
 	 */
 	public static function setup()
 	{
-		$obj = new global_cachable(self::class,function()
+		$obj = new SysDataCacheDriver(self::class,function()
 		{
 			return self::_read();
 		});

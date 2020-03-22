@@ -84,7 +84,7 @@ final class UserTagOperations
 	 */
 	public static function setup()
 	{
-/*		$obj = new global_cachable(__CLASS__, function () {
+/*		$obj = new SysDataCacheDriver(__CLASS__, function () {
 			$db = CmsApp::get_instance()->GetDb();
 
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'userplugins ORDER BY name';

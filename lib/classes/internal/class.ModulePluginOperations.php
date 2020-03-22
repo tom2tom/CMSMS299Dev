@@ -24,7 +24,7 @@ use CmsApp;
 use CmsCoreCapabilities;
 use CMSModule;
 use CMSMS\AppState;
-use CMSMS\internal\global_cachable;
+use CMSMS\internal\SysDataCacheDriver;
 use CMSMS\internal\SysDataCache;
 use CMSMS\ModuleOperations;
 use DeprecationNotice;
@@ -76,7 +76,7 @@ final class ModulePluginOperations
 	 */
 	public static function setup()
 	{
-		$obj = new global_cachable('module_plugins', function()
+		$obj = new SysDataCacheDriver('module_plugins', function()
 			{
 				$data = [];
 				$modops = ModuleOperations::get_instance();

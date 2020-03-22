@@ -21,7 +21,7 @@ namespace CMSMS\internal;
 use cms_cache_handler;
 use CmsException;
 use CMSMS\AppState;
-use CMSMS\internal\global_cachable;
+use CMSMS\internal\SysDataCacheDriver;
 use UnexpectedValueException;
 
 /**
@@ -32,7 +32,7 @@ use UnexpectedValueException;
  * stored in-memory during the current request, and in-effect backed-up
  * in the main system cache.
  *
- * @see also global_cachable class, which defines how data are retrieved on-damand
+ * @see also SysDataCacheDriver class, which defines how data are retrieved on-damand
  * @see also cms_cache_handler class, which defines the main system cache
  * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since       2.0 as SysDataCache class
@@ -52,7 +52,7 @@ class SysDataCache
     private static $instance;
 
     /**
-     * global_cachable objects, each of which is tailored to retrieve the data of its type
+     * SysDataCacheDriver objects, each of which is tailored to retrieve the data of its type
      * @var array
      */
     private static $_types = [];
@@ -80,9 +80,9 @@ class SysDataCache
      * Add a cached-data type (or more particularly, the mechanism to
      * retrieve data of that type).
      *
-     * @param global_cachable $obj
+     * @param SysDataCacheDriver $obj
      */
-    public static function add_cachable(global_cachable $obj)
+    public static function add_cachable(SysDataCacheDriver $obj)
     {
         $name = $obj->get_name();
         self::$_types[$name] = $obj;

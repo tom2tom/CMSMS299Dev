@@ -22,7 +22,7 @@ use cms_utils;
 use CmsApp;
 use CMSModule;
 use CMSMS\AppState;
-use CMSMS\internal\global_cachable;
+use CMSMS\internal\SysDataCacheDriver;
 use CMSMS\internal\SysDataCache;
 use const CMS_DB_PREFIX;
 use function debug_buffer;
@@ -64,7 +64,7 @@ final class Events
 	 */
 	public static function setup()
 	{
-		$obj = new global_cachable(self::class,function()
+		$obj = new SysDataCacheDriver(self::class,function()
 			{
 				$db = CmsApp::get_instance()->GetDb();
 				$pref = CMS_DB_PREFIX;

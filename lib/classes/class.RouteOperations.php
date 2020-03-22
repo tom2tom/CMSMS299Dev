@@ -21,7 +21,7 @@ namespace CMSMS;
 use cms_utils;
 use CmsApp;
 use CMSMS\AppState;
-use CMSMS\internal\global_cachable;
+use CMSMS\internal\SysDataCacheDriver;
 use CMSMS\internal\SysDataCache;
 use CMSMS\ModuleOperations;
 use CMSMS\RouteOperations;
@@ -102,7 +102,7 @@ final class RouteOperations
 	 */
 	public static function setup()
 	{
-		$obj = new global_cachable('routes',function()
+		$obj = new SysDataCacheDriver('routes',function()
 		{
 			/*
 			Load all relevant modules and call relevant Initialize method
