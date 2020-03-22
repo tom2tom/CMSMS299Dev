@@ -1,138 +1,141 @@
 <?php
-
+$lang = [
+//*
 // C
-$lang['cancel'] = 'Cancel';
-$lang['changedir'] = 'Display directory %s'; //tooltip
-$lang['choose'] = 'Choose';
-$lang['chooseit'] = 'Select %s'; //tooltip
-$lang['clear'] = 'Clear';
-$lang['confirm'] ='Confirm';
-$lang['confirm_delete'] = 'Are you sure you want to delete this?';
-$lang['create_dir'] = 'Create a new directory here';
+'cancel' => 'Cancel',
+'changedir' => 'Display directory %s', //tooltip
+'choose' => 'Choose',
+'chooseit' => 'Select %s', //tooltip
+'clear' => 'Clear',
+'confirm' =>'Confirm',
+'confirm_delete' => 'Are you sure you want to delete this?',
+'create_dir' => 'Create a new directory here',
 
 // D
-$lang['dimension'] = 'Dimensions';
-$lang['diretory_named'] = 'Directory %s'; //tooltip c.f. changedir
-$lang['delete'] = 'Delete';
-$lang['deleteit'] = 'Delete %s'; //tooltip
-$lang['dependencies'] = 'Dependencies';
-$lang['displayit'] = 'Display %s'; //tooltip
-$lang['displayup'] = 'Display parent directory'; //tooltip
-$lang['dropshort'] = 'Drop Zone';
-$lang['droplong'] = 'You may drop here file(s) dragged from your file manager, to automatically begin uploading'; //tooltip
+'dimension' => 'Dimensions',
+'directory_named' => 'Directory %s', //tooltip c.f. changedir
+'delete' => 'Delete',
+'deleteit' => 'Delete %s', //tooltip
+'dependencies' => 'Dependencies',
+'displayit' => 'Display %s', //tooltip
+'displayup' => 'Display parent directory', //tooltip
+'dropshort' => 'Drop Zone',
+'droplong' => 'You may drop here file(s) dragged from your file manager, to automatically begin uploading', //tooltip
 
 // E
-$lang['error_ajax_invalidfilename'] = 'Filename is invalid';
-$lang['error_ajax_fileexists'] = 'A file or directory with that name already exists';
-$lang['error_ajax_mkdir'] = 'A problem occurred creating the directory %s';
-$lang['error_ajax_writepermission'] = 'You do not have permission to write to this directory';
-$lang['error_failed_ajax'] = 'A problem occurred with an ajax request';
-$lang['error_problem_upload'] = 'A problem occurred uploading';
-$lang['error_title'] = 'Reported error(s)';
-$lang['error_upload_ext'] = '%s extension is not acceptable';
-$lang['error_upload_size'] ='%s is too large';
-$lang['error_upload_type'] = '%s type is not acceptable';
-$lang['error_upload_acceptFileTypes'] = 'Files of this type are not acceptable in this scope.';
-$lang['error_upload_maxFileSize'] = 'The file is too large';
-$lang['error_upload_minFileSize'] = 'The file is too small';
-$lang['error_upload_maxNumberOfFiles'] = 'You are uploading too many files at once';
+'error_ajax_invalidfilename' => 'Filename is invalid',
+'error_ajax_fileexists' => 'A file or directory with that name already exists',
+'error_ajax_mkdir' => 'A problem occurred creating the directory %s',
+'error_ajax_writepermission' => 'You do not have permission to write to this directory',
+'error_failed_ajax' => 'A problem occurred with an ajax request',
+'error_problem_upload' => 'A problem occurred uploading',
+'error_title' => 'Reported error(s)',
+'error_upload_ext' => '%s extension is not acceptable',
+'error_upload_size' =>'%s is too large',
+'error_upload_type' => '%s type is not acceptable',
+'error_upload_acceptFileTypes' => 'Files of this type are not acceptable in this scope.',
+'error_upload_maxFileSize' => 'The file is too large',
+'error_upload_minFileSize' => 'The file is too small',
+'error_upload_maxNumberOfFiles' => 'You are uploading too many files at once',
 
 // F
-$lang['filename'] = 'Filename';
-$lang['filterby'] = 'Filters';
-$lang['filepickertitle'] = 'File Picker';
-$lang['fileview'] = 'File view';
-$lang['friendlyname'] = 'File Picker';
+'filename' => 'Filename',
+'filterby' => 'Filters',
+'filepickertitle' => 'File Picker',
+'fileview' => 'File view',
+//*/
+'friendlyname' => 'Folder Controls', //was 'File Picker'
 
 //M
-$lang['moddescription'] = 'Manage custom property-sets for directories';
+'moddescription' => 'Manage property-sets applied to filesystem directories',
 
+//*
 // N
-$lang['na'] = 'Not available';
-$lang['no'] = 'No';
-$lang['name'] = 'Name';
+'na' => 'Not available',
+'no' => 'No',
+'name' => 'Name',
 
 // O
-$lang['ok'] = 'Ok';
+'ok' => 'Ok',
 
 // P
-$lang['perm_r'] = 'read';
-$lang['perm_w'] = 'write';
-$lang['perm_x'] = 'exec';
-$lang['perm_xf'] = 'enter';
+'perm_r' => 'read',
+'perm_w' => 'write',
+'perm_x' => 'exec',
+'perm_xf' => 'enter',
 
 // S
-$lang['select_an_audio_file'] = 'Select an Audio File';
-$lang['select_a_video_file'] = 'Select a Video File';
-$lang['select_a_media_file'] = 'Select a Media File';
-$lang['select_a_document'] = 'Select a Document';
-$lang['select_an_archive_file'] = 'Select an Archive File';
-$lang['select_a_file'] = 'Select a File';
-$lang['select_an_image'] = 'Select an Image';
-$lang['select_file'] = 'Select File'; //popup dialog title
-$lang['select_upload_files'] = 'Select file(s) to upload to here'; //tooltip
-$lang['show_thumbs'] = 'Show thumbnails';
-$lang['size'] = 'Size';
-$lang['submit'] = 'Submit';
-$lang['switcharchive'] = 'Only show archive files';
-$lang['switchaudio'] = 'Only show audio files';
-$lang['switchfiles'] = 'Only show regular files';
-$lang['switchgrid'] = 'Display files in a grid';
-$lang['switchimage'] = 'Only show image files';
-$lang['switchlist'] = 'Display files as a list';
-$lang['switchreset'] = 'Show all files';
-$lang['switchvideo'] = 'Only show video files';
+'select_an_audio_file' => 'Select an Audio File',
+'select_a_video_file' => 'Select a Video File',
+'select_a_media_file' => 'Select a Media File',
+'select_a_document' => 'Select a Document',
+'select_an_archive_file' => 'Select an Archive File',
+'select_a_file' => 'Select a File',
+'select_an_image' => 'Select an Image',
+'select_file' => 'Select File', //popup dialog title
+'select_upload_files' => 'Select file(s) to upload to here', //tooltip
+'show_thumbs' => 'Show thumbnails',
+'size' => 'Size',
+'submit' => 'Submit',
+'switcharchive' => 'Only show archive files',
+'switchaudio' => 'Only show audio files',
+'switchfiles' => 'Only show regular files',
+'switchgrid' => 'Display files in a grid',
+'switchimage' => 'Only show image files',
+'switchlist' => 'Display files as a list',
+'switchreset' => 'Show all files',
+'switchvideo' => 'Only show video files',
 
 // U
-$lang['unknown'] = 'Unknown';
-$lang['upload'] = 'Upload';
+'unknown' => 'Unknown',
+'upload' => 'Upload',
 
 // Y
-$lang['yes'] = 'Yes';
-$lang['youareintext'] = 'The current working directory (relative to the top of the installation)';
-
+'yes' => 'Yes',
+'youareintext' => 'The current working directory (relative to the top of the installation)',
+//*/
 // PROFILE-RELATED TEXT
 
-$lang['add_profile'] = 'Add a new profile';
+'add_profile' => 'Add a new profile',
 
-$lang['can_delete'] = 'Allow file deletion';
-$lang['can_mkdir'] = 'Allow directory creation';
-$lang['can_mkfile'] = 'Allow file creation';
-$lang['can_upload'] = 'Allow uploads';
+'can_delete' => 'Allow file deletion',
+'can_mkdir' => 'Allow directory creation',
+'can_mkfile' => 'Allow file creation',
+'can_upload' => 'Allow uploads',
 
-$lang['delete_profile'] = 'Delete Profile';
+'delete_profile' => 'Delete Profile',
 
-$lang['edit_profile'] = 'Edit Profile';
+'edit_profile' => 'Edit Profile',
 
-$lang['hdr_add_profile'] = 'New profile';
-$lang['hdr_edit_profile'] = 'Edit profile';
-$lang['HelpPopupTitle_ProfileName'] = 'Profile Name';
-$lang['HelpPopup_ProfileName'] = 'Each profile should have a simple, unique name.  Names should only contain alphanumeric characters, and/or underscore(s).';
-$lang['HelpPopupTitle_ProfileCan_Delete'] = 'Allow deleting files and directories';
-$lang['HelpPopup_ProfileCan_Delete'] = 'Optionally allow users to delete files during the selection process';
-$lang['HelpPopupTitle_ProfileCan_Mkdir'] = 'Allow new directories';
-$lang['HelpPopup_ProfileCan_Mkdir'] = 'Optionally allow users to create new directories (below the specified top directory) during the selection process.';
-$lang['HelpPopupTitle_ProfileCan_Upload'] = 'Allow uploading';
-$lang['HelpPopup_ProfileCan_Upload'] = 'Optionally allow users to upload files during the selection process';
-$lang['HelpPopupTitle_ProfileDir'] = 'Top Directory';
-$lang['HelpPopup_ProfileDir'] = 'Optionally enter the relative path of a directory (relative to the uploads path) to restrict operations to.';
-$lang['HelpPopupTitle_ProfileShowthumbs'] = 'Show Thumbnails';
-$lang['HelpPopup_ProfileShowthumbs'] = 'If enabled, thumbnails will be visible for image files for which thumbnails are generated.';
+'hdr_add_profile' => 'New profile',
+'hdr_edit_profile' => 'Edit profile',
+'HelpPopupTitle_ProfileName' => 'Profile Name',
+'HelpPopup_ProfileName' => 'Each profile should have a simple, unique name.  Names should only contain alphanumeric characters, and/or underscore(s).',
+'HelpPopupTitle_ProfileCan_Delete' => 'Allow deleting files and directories',
+'HelpPopup_ProfileCan_Delete' => 'Optionally allow users to delete files during the selection process',
+'HelpPopupTitle_ProfileCan_Mkdir' => 'Allow new directories',
+'HelpPopup_ProfileCan_Mkdir' => 'Optionally allow users to create new directories (below the specified top directory) during the selection process.',
+'HelpPopupTitle_ProfileCan_Upload' => 'Allow uploading',
+'HelpPopup_ProfileCan_Upload' => 'Optionally allow users to upload files during the selection process',
+'HelpPopupTitle_ProfileDir' => 'Top Directory',
+'HelpPopup_ProfileDir' => 'Optionally enter the relative path of a directory (relative to the uploads path) to restrict operations to.',
+'HelpPopupTitle_ProfileShowthumbs' => 'Show Thumbnails',
+'HelpPopup_ProfileShowthumbs' => 'If enabled, thumbnails will be visible for image files for which thumbnails are generated.',
 
-$lang['no_profiles'] = 'No profile is recorded. You can add one by clicking the icon above.';
+'no_profiles' => 'No profile is recorded. You can add one by clicking the icon above.',
 
-$lang['th_created'] = 'Created';
-$lang['th_default'] = 'Default';
-$lang['th_id'] = 'ID';
-$lang['th_last_edited'] = 'Last Edited';
-$lang['th_name'] = 'Name';
-$lang['th_reltop'] = 'Top Directory';
-$lang['title_mkdir'] = 'Create Directory';
-$lang['topdir'] = 'Top directory';
-$lang['type'] = 'Type';
+'th_created' => 'Created',
+'th_default' => 'Default',
+'th_id' => 'ID',
+'th_last_edited' => 'Last Edited',
+'th_name' => 'Name',
+'th_reltop' => 'Top Directory',
+'title_mkdir' => 'Create Directory',
+'topdir' => 'Top directory',
+'type' => 'Type',
 
-// HELP TEXT
-$lang['help'] = <<<EOT
+// HELP TEXT TODO profiles-only
+'help' => <<<'EOT'
 <h3>What does this do?</h3>
 <p>This module provides some file-related capabilities for use by other modules:
 <ol>
@@ -160,4 +163,7 @@ $lang['help'] = <<<EOT
 <h3>Copyright and License</h3>
 <p>Copyright &copy; 2017-2018, JoMorg and calguy1000, &copy; 2019-2020, CMSMS Foundation. All rights reserved.</p>
 <p>This module has been released under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU Public License</a>. The module must not be used otherwise than in accordance with that license, or a later version of that licence granted by the module distributor.</p>
-EOT;
+EOT
+,
+
+] + $lang;
