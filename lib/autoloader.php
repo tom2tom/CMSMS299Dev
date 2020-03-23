@@ -89,8 +89,10 @@ function cms_autoloader(string $classname)
 				return;
 			}
 			$sroot = $root;
-		} elseif ($space == 'CMSASSETS') {
+		} elseif ($space == 'CMSAsset') {
 			$sroot = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR;
+		} elseif ($space == 'CMSResource') {
+			$sroot = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'resources'.DIRECTORY_SEPARATOR;
 		} else {
 			$mpath = cms_module_path($space);
 			if ($mpath) {
@@ -105,10 +107,11 @@ function cms_autoloader(string $classname)
 		if ($path != '.') {
 			$sroot .= $path.DIRECTORY_SEPARATOR;
 		}
+		$sysp = ($space == 'CMSMS' || $space == 'CMSAsset' || $space == 'CMSResource');
 		foreach (['class.', 'trait.', 'interface.', ''] as $test) {
 			$fp = $sroot.$test.$classname.'.php';
 			if (is_file($fp)) {
-				if (!($space == 'CMSMS' || $space == 'CMSASSETS' || class_exists($space, false))) {
+				if (!($sysp || class_exists($space, false))) {
 					//deprecated since 2.3 - some modules require existence of this, or assume, and actually use it
 					$gCms = CmsApp::get_instance();
 					require_once $mpath;
