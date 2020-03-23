@@ -1,6 +1,6 @@
 <?php
-#Class for consolidating specified stylesheets into a single file
-#Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Class for consolidating stylesheets into a single file
+#Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,10 @@ use function file_put_contents;
 
 /**
  * A class for consolidating specified stylesheet files and/or strings into a single file.
+ * NOTE: Because stylesheets are relatively small, and typically vary a
+ * lot between requests, it will often be more efficient to rely on normal
+ * browser-caching of actual .css files instead of mergers constructed
+ * using this class.
  *
  * @since 2.3
  * @package CMS
@@ -206,3 +210,6 @@ class StylesOperations
         return '';
     }
 } // class
+
+//back-compatiblity
+\class_alias(StylesOperations::class, 'CMSMS\StylesheetManager', false);
