@@ -1,5 +1,5 @@
 <?php
-# Mechanism for automatic in-memory caching of 'slow' data
+# Mechanism for automatic in-memory and in-global-cache caching of 'slow' system-data.
 # Copyright (C) 2013-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,26 +16,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-namespace CMSMS\internal;
+namespace CMSMS;
 
 use cms_cache_handler;
 use CmsException;
 use CMSMS\AppState;
-use CMSMS\internal\SysDataCacheDriver;
+use CMSMS\SysDataCacheDriver;
 use UnexpectedValueException;
 
 /**
  * Singleton class which handles caching of data retrieved e.g. from the
  * database, system-polling etc, and which enables such data to be fetched
- * (or calculated) on demand via a callback, if the respective cache is
- * empty (never filled or later cleared), or too old. Retrieved data are
- * stored in-memory during the current request, and in-effect backed-up
- * in the main system cache.
+ * (or calculated) on demand via a callback, if the respective cache is empty
+ * (never filled or later cleared), or too old. Retrieved data are stored
+ * in-memory during the current request, and backed-up in the main system cache
+ * for inter-request persistence.
  *
  * @see also SysDataCacheDriver class, which defines how data are retrieved on-damand
  * @see also cms_cache_handler class, which defines the main system cache
  * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
- * @since       2.0 as SysDataCache class
+ * @since       2.0 as CMSMS\internal\global_cache class
  * @since       2.9
  * @ignore
  * @internal
@@ -43,7 +43,7 @@ use UnexpectedValueException;
  */
 class SysDataCache
 {
-    const TIMEOUT = 604800; //1 week data lifetime in system cache
+    const TIMEOUT = 604800; //1 week data-lifetime in system cache
 
     /**
      * backup-class singleton

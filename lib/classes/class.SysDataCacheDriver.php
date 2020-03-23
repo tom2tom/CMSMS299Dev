@@ -1,7 +1,12 @@
 <?php
 
-namespace CMSMS\internal;
+namespace CMSMS;
 
+/**
+ * SysDataCache values-set populator
+ * @since 2.0  as CMSMS\internal\global_cachable
+ * @since 2.9
+ */
 class SysDataCacheDriver
 {
     private $_name;
