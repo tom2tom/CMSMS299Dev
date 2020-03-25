@@ -65,7 +65,7 @@ final class FilePicker extends CMSModule implements IFilePicker
      */
 
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
-    public function GetAdminSection() { return 'extensions'; }
+    public function GetAdminSection() { return 'siteadmin'; } //only the profiles stuff is present in admin UI
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp() { return $this->Lang('help'); }

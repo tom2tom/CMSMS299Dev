@@ -2,7 +2,7 @@
 # ModuleManager: an addon module for CMS Made Simple to allow browsing
 #  remotely stored modules, viewing information about them, and downloading
 #  or upgrading
-# Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2013-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -30,7 +30,7 @@ class ModuleManager extends CMSModule
     private $_operations;
 
     public function GetAdminDescription() { return $this->Lang('admindescription'); }
-    public function GetAdminSection() { return 'extensions'; }
+    public function GetAdminSection() { return 'siteadmin'; }
     public function GetAuthor() { return 'calguy1000'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
