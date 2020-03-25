@@ -96,6 +96,7 @@ function GetPageSetup(&$mod, array $params) : array
 				'js' => 'javascript',
 				'javascript' => 1,
 				'php' => 1,
+				'plugin' => 'php',
 				'smarty' => 1,
 				'tpl' => 'smarty',
 				'text' => 1,
