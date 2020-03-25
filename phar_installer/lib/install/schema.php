@@ -360,6 +360,20 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_tagname', $msg_ret));
 
+// needed if UDT's are db-stored (as before) instead of UDTfiles
+$flds = '
+id I AUTO KEY,
+name C(255),
+code T(16383) CHARACTER SET ascii,
+description T(1023),
+create_date DT DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
+';
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'userplugins', $flds, $taboptarray);
+$return = $dbdict->ExecuteSQLArray($sqlarray);
+$msg_ret = ($return == 2) ? $good : $bad;
+verbose_msg(lang('install_created_table', 'userplugins', $msg_ret));
+
 /* merged with layout_templates
 $flds = '
 module_name C(160),
@@ -408,9 +422,10 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'permissions', $msg_ret));
 
+// name-field sized to support max 32-char space-name (c.f. module) + 2-char \\ separator + 62 char varname
 $flds = '
-sitepref_name C(255) KEY,
-sitepref_value text,
+sitepref_name C(96) KEY,
+sitepref_value X(2048),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
@@ -434,8 +449,8 @@ verbose_msg(lang('install_created_table', 'user_groups', $msg_ret));
 $tbl = CMS_DB_PREFIX.'userprefs';
 $flds = '
 user_id I(2) UNSIGNED KEY,
-preference C(50) KEY,
-value X,
+preference C(64) KEY,
+value X(2048),
 type C(25)
 ';
 //CHECKME separate index on preference field ?
