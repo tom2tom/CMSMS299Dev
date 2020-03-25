@@ -2,10 +2,23 @@
 # It attempts to optimize traffic and configuration for your CMS Made Simple™ website.
 # Many options are disabled by default as some providers do not allow you to override some of these settings in the .htaccess file.
 
-#
+# For IIS (Internet Information Server), the equivalent of .htaccess is web.config
+# You can read more about web.config at
+# http://msdn.microsoft.com/en-us/library/w7w4sb0w.aspx
+# and
+# http://support.microsoft.com/kb/815179
+
+# A tutorial:
+# http://www.saotn.org/convert-apache-htaccess-iis-web-config/#.U_QdKvldUqx
+
+# Some online .htaccess to web.config conversion tools:
+# http://cbsa.com.br/tools/online-convert-htaccess-to-web-config.aspx
+# and
+# http://support.microsoft.com/kb/815179
+
 # Attempt to override some PHP settings.
-# These settings may be helpful on some hosts if your default configuration does not meet CMSMS's minimum requirements,
-# and your host has given your account appropriate permissions.
+# These settings may be helpful on some hosts if your default configuration does not meet
+# CMSMS's minimum requirements, and your host has given your account appropriate permissions.
 #
 #php_value upload_max_filesize "10M"
 #php_value session_save_path "tmp/cache"
@@ -20,17 +33,17 @@
 #Options -Indexes
 
 #
-# Don't allow the browser to know the type of signature.
+# Disallow browser-interrogation of the type of signature.
 #
 ServerSignature Off
 
 #
-# Allow the Apache server to follow symbolic links. This is usually not necessary.
+# Allow the server to follow symbolic links. This is usually not necessary.
 #
 #Options +FollowSymLinks
 
 #
-# The following is to enable pretty URLs, only applicable if url_rewriting is set to 'mod_rewrite' in the config.php
+# Enables 'pretty' URLs. Only applicable if url_rewriting is set to 'mod_rewrite' in the config.php file
 #
 <IfModule rewrite_module>
 	RewriteEngine on
@@ -46,18 +59,26 @@ ServerSignature Off
 
 #
 # The following are highly recommended security settings for files in your CMSMS install that should not be browsed directly.
+# e.g. block accessing .php, .js, .tpl, .css files in the common locations: (maybe ^.*/<relevant folder name>/.*\.(php|js|tpl|css)$)
 #
 RedirectMatch 403 ^/.*\.htaccess$
 RedirectMatch 403 ^/.*\.log$
 RedirectMatch 403 ^/.*\.ini$
 RedirectMatch 403 ^/.*config\.php$
 RedirectMatch 403 ^.*/doc/.*$
+RedirectMatch 403 ^.*/lib/.*\.js$
 RedirectMatch 403 ^.*/lib/.*\.php$
 RedirectMatch 403 ^.*/tmp/.*\.php$
 RedirectMatch 403 ^.*/modules/.*\.php$
-RedirectMatch 403 ^.*/uploads/.*\.php$
+RedirectMatch 403 ^.*/admin/.*\.js$
+RedirectMatch 403 ^.*/admin/.*\.php$
+RedirectMatch 403 ^.*/admin/.*\.css$
+RedirectMatch 403 ^.*/admin/.*\.tpl$
+RedirectMatch 403 ^.*/assets/.*\.js$
 RedirectMatch 403 ^.*/assets/.*\.php$
+RedirectMatch 403 ^.*/assets/.*\.css$
 RedirectMatch 403 ^.*/assets/.*\.tpl$
+RedirectMatch 403 ^.*/uploads/.*\.php$
 
 #
 # The following are performance optimizations and security enhancements for content that is served by your CMSMS installation.
