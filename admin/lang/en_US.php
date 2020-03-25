@@ -330,6 +330,7 @@ $lang = [
 'error_uploadproblem' => 'An error occurred in the upload',
 'error_usernamerequired' => 'A <b>username</b> is required for SMTP authentication',
 'error' => 'Error',
+'errorbadname' => 'Invalid item name',
 'errorcantcreatefile' => 'Could not create a file (permissions problem?)',
 'errorchildcontent' => 'Content still contains child contents. Please remove them first.',
 'errordefaultpage' => 'Cannot delete the current default page. Please set a different one first.',
