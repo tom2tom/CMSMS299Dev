@@ -96,6 +96,7 @@ new
 CMS_ASSETS_URL
 CMS_SCRIPTS_URL
 CMS_SCRIPTS_PATH - filesystem path of top folder containing js resource files
+CMS_UDT_PATH - filesystem path of folder containing user-plugin files
 
 PLUGINS
 

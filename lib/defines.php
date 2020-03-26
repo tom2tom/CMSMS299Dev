@@ -1,6 +1,6 @@
 <?php
 #Define session constants
-#Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -57,12 +57,18 @@ define('CMS_ROOT_PATH',$config['root_path']);
 /**
  * Where admin stuff is stored.
  */
-define('CMS_ADMIN_PATH',$config['root_path'] .DIRECTORY_SEPARATOR. $config['admin_dir']);
+define('CMS_ADMIN_PATH',$config['root_path'].DIRECTORY_SEPARATOR.$config['admin_dir']);
 
 /**
  * Where non-core assets are stored.
  */
 define('CMS_ASSETS_PATH',$config['assets_path']);
+
+/**
+ * Where UDTfiles are stored.
+ * @since 2.3
+ */
+define('CMS_UDT_PATH',$config['assets_path'].DIRECTORY_SEPARATOR.$config['usertags_dir']);
 
 /**
  * The 'top' directory where javascript files are stored
