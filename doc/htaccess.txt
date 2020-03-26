@@ -1,9 +1,16 @@
-# This file is specific to Apache configurations.
-# It attempts to optimize traffic and configuration for your CMS Made Simple™ website.
-# Many options are disabled by default as some providers do not allow you to override some of these settings in the .htaccess file.
+# This file details settings for Apache web-server, to be included in one or more
+# .htaccess files, each in a relevant website folder.
 
-# For IIS (Internet Information Server), the equivalent of .htaccess is web.config
-# You can read more about web.config at
+# For Internet Information Server, the equivalent of .htaccess is web.config, an
+# XML file like:
+# <?xml version="1.0" encoding="utf-8" ?>
+# <configuration>
+#  <system.webServer>
+#   settings ...
+#  </system.webServer>
+# </configuration>
+
+# You can read about web.config at
 # http://msdn.microsoft.com/en-us/library/w7w4sb0w.aspx
 # and
 # http://support.microsoft.com/kb/815179
@@ -11,10 +18,14 @@
 # A tutorial:
 # http://www.saotn.org/convert-apache-htaccess-iis-web-config/#.U_QdKvldUqx
 
-# Some online .htaccess to web.config conversion tools:
+# Online .htaccess to web.config conversion tools exist e.g.
 # http://cbsa.com.br/tools/online-convert-htaccess-to-web-config.aspx
-# and
-# http://support.microsoft.com/kb/815179
+
+# Internet Information Services Maanger v.7+ can import .htaccess files
+
+
+# The following are Apache-specific settings to optimize traffic and configuration for a CMS Made Simple™ website.
+# Many options are disabled by default, as some hosts do not allow overriding some of these settings in an .htaccess file.
 
 # Attempt to override some PHP settings.
 # These settings may be helpful on some hosts if your default configuration does not meet
@@ -58,27 +69,22 @@ ServerSignature Off
 </IfModule>
 
 #
-# The following are highly recommended security settings for files in your CMSMS install that should not be browsed directly.
-# e.g. block accessing .php, .js, .tpl, .css files in the common locations: (maybe ^.*/<relevant folder name>/.*\.(php|js|tpl|css)$)
-#
+# The following are security settings for files in your CMSMS install that should not be browsed directly.
+# Adjust 'assets' to match actual site folder for assets
+# Suffix-checks maybe not so useful, cuz malefactor can append &X=Y to URL
+# CHECKME (lib|admin)/index.php admin/login.php
+
 RedirectMatch 403 ^/.*\.htaccess$
 RedirectMatch 403 ^/.*\.log$
 RedirectMatch 403 ^/.*\.ini$
 RedirectMatch 403 ^/.*config\.php$
 RedirectMatch 403 ^.*/doc/.*$
-RedirectMatch 403 ^.*/lib/.*\.js$
-RedirectMatch 403 ^.*/lib/.*\.php$
-RedirectMatch 403 ^.*/tmp/.*\.php$
-RedirectMatch 403 ^.*/modules/.*\.php$
-RedirectMatch 403 ^.*/admin/.*\.js$
-RedirectMatch 403 ^.*/admin/.*\.php$
-RedirectMatch 403 ^.*/admin/.*\.css$
-RedirectMatch 403 ^.*/admin/.*\.tpl$
-RedirectMatch 403 ^.*/assets/.*\.js$
-RedirectMatch 403 ^.*/assets/.*\.php$
-RedirectMatch 403 ^.*/assets/.*\.css$
-RedirectMatch 403 ^.*/assets/.*\.tpl$
-RedirectMatch 403 ^.*/uploads/.*\.php$
+RedirectMatch 403 ^.*/lib/.*$
+RedirectMatch 403 ^.*/tmp/.*$
+RedirectMatch 403 (?i)^.*/modules/.*\.(php|js|css|tpl)$
+RedirectMatch 403 (?i)^.*/admin/.*\.(php|js|css|tpl)$
+RedirectMatch 403 (?i)^.*/assets/.*\.(php|js|css|tpl)$
+RedirectMatch 403 (?i)^.*/uploads/.*\.(php|js|css|tpl)$
 
 #
 # The following are performance optimizations and security enhancements for content that is served by your CMSMS installation.
