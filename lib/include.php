@@ -1,6 +1,6 @@
 <?php
 #setup classes, includes etc for request processing
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -16,22 +16,22 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//use CMSMS\internal\ModulePluginOperations;
-
 use CMSMS\AppState;
 use CMSMS\AuditOperations;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
-use CMSMS\internal\SysDataCacheDriver;
-use CMSMS\internal\SysDataCache;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
+use CMSMS\SysDataCache;
+use CMSMS\SysDataCacheDriver;
 
 /**
  * This file is included in every page.  It does all setup functions including
  * importing additional functions/classes, setting up sessions and nls, and
  * construction of various important variables like $gCms.
+ * In many cases, variable $CMS_APP_STATE should be set locally, before this file
+ * is included. In such cases, the AppState class would need to be loaded there.
  *
  * This file is not intended for use by third party applications to create access to CMSMS API's.
  * It is intended for and supported for use in core CMSMS operations only.
@@ -44,7 +44,7 @@ define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php'
 $dirpath = __DIR__.DIRECTORY_SEPARATOR;
 // include some stuff
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-if (isset($CMS_APP_STATE)) {
+if (isset($CMS_APP_STATE)) { //i.e. AppState class was loaded elsewhere
     AppState::add_state($CMS_APP_STATE);
 }
 $installing = AppState::test_state(AppState::STATE_INSTALL);
