@@ -366,6 +366,7 @@ id I AUTO KEY,
 name C(255),
 code T(16383) CHARACTER SET ascii,
 description T(1023),
+parameters T(1023),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
@@ -425,7 +426,7 @@ verbose_msg(lang('install_created_table', 'permissions', $msg_ret));
 // name-field sized to support max 32-char space-name (c.f. module) + 2-char \\ separator + 62 char varname
 $flds = '
 sitepref_name C(96) KEY,
-sitepref_value X(2048),
+sitepref_value T(2048),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';

@@ -137,14 +137,14 @@ foreach([
     cms_siteprefs::set($name, $val);
 }
 
-/* IF UDT-files are used instead of database storage ...
+/* IF UDTfiles are used instead of database storage ...
 // 4. Convert UDT's to user-plugin files
 $udt_list = $db->GetArray('SELECT name,description,code FROM '.CMS_DB_PREFIX.'userplugins');
 if ($udt_list) {
 
     function create_user_plugin(array $row, UserPluginOperations $ops, $smarty)
     {
-        $fp = $ops->file_path($row['userplugin_name']);
+        $fp = $ops->FilePath($row['userplugin_name']);
         if (is_file($fp)) {
             verbose_msg('user-plugin named '.$row['userplugin_name'].' already exists');
             return;
@@ -166,7 +166,7 @@ if ($udt_list) {
             }
         }
 
-        if ($ops->save($row['userplugin_name'], $meta, $code, $smarty)) {
+        if ($ops->SetUserTag($row['userplugin_name'], $meta, $code, $smarty)) {
             verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
         } else {
             verbose_msg('Error saving UDT named '.$row['userplugin_name']);
@@ -183,6 +183,8 @@ if ($udt_list) {
     $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins');
     $dict->ExecuteSQLArray($sqlarr);
     status_msg('Converted User Defined Tags to user-plugin files');
+
+    TODO rename/reformat UDTfiles PATH/*.cmsplugin to PATH/* UserPluginOperations::PLUGEXT
 }
 ELSE (retain UDT's in database)
 */
@@ -197,6 +199,9 @@ $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'userplugins','create_date DT DEFAULT CURRENT_TIMESTAMP');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'userplugins','modified_date DT ON UPDATE CURRENT_TIMESTAMP');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'userplugins','parameters T(1023) AFTER description');
+$dict->ExecuteSQLArray($sqlarray);
 
 // 5. Cleanup plugins - remove reference from function-argument where appropriate
 foreach ([
