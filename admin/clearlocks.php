@@ -1,6 +1,6 @@
 <?php
 # Clear locks
-# Copyright (C) 2014-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -57,7 +57,7 @@ default:
 	return;
 }
 
-$is_admin = UserOperations::get_instance($userid,1);
+$is_admin = UserOperations::get_instance()->UserInGroup($userid,1);
 if( $is_admin ) {
 	// clear all locks of type content
 	$db = cmsms()->GetDb();

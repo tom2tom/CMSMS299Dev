@@ -1,6 +1,6 @@
 <?php
 # CMSContentManager module action: clear locks
-# Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2013-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -23,7 +23,7 @@ use CMSMS\UserOperations;
 if( !isset($gCms) ) exit;
 
 $uid = get_userid();
-$is_admin = UserOperations::get_instance($uid,1);
+$is_admin = UserOperations::get_instance()->UserInGroup($uid,1);
 
 if( $is_admin ) {
     // clear all locks of type content
