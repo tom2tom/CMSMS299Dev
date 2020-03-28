@@ -36,7 +36,7 @@ use function audit;
 /**
  * A class to manage smarty plugins registered by modules. Methods may be called
  * statically ModulePluginOperations::function()
- * or not     (new ModulePluginOperations())->function() since 2.9
+ * or (since 2.9) non-static (new ModulePluginOperations())->_function() NOTE the '_' prefix
  *
  * @package CMS
  * @license GPL
@@ -67,7 +67,7 @@ final class ModulePluginOperations
 
 	/**
 	 * Call a class-method from a static context
-	 * @param string $name Method name. No aliasing here.
+	 * @param string $name Method name (no aliasing done here)
 	 * @param array $args Method argument(s)
 	 * @return mixed
 	 */
@@ -76,10 +76,11 @@ final class ModulePluginOperations
 		$obj = self::get_instance();
 		if( $name == 'addStatic' ) {
 			assert(empty(CMS_DEPREC), new DeprecationNotice('method','(ModulePluginOperations::add()'));
-			return $obj->add(...$args);
+			return $obj->_add(...$args);
 		}
-		if( method_exists($obj, $name) ) {
-			return $obj->$name(...$args);
+		$pname = '_'.$name;
+		if( method_exists($obj, $pname) ) {
+			return $obj->$pname(...$args);
 		}
 	}
 
@@ -98,7 +99,7 @@ final class ModulePluginOperations
 	 * Initialize 'module_plugins' system-data cache
 	 * @since 2.3
 	 */
-	public function setup()
+	public function _setup()
 	{
 		$obj = new SysDataCacheDriver('module_plugins', function()
 			{
@@ -151,9 +152,9 @@ final class ModulePluginOperations
 	 *  Default 'function'
 	 * @return mixed CMSModule | null
 	 */
-	public function get_plugin_module(string $name,string $type = 'function')
+	public function _get_plugin_module(string $name,string $type = 'function')
 	{
-		$row = $this->find($name,$type);
+		$row = $this->_find($name,$type);
 		if( is_array($row) ) {
 	 		if( $row['available'] != self::AVAIL_ALL ) {
 				$states = AppState::get_states();
@@ -182,11 +183,11 @@ final class ModulePluginOperations
 	 *  Default 'function'
 	 * @return mixed array | null Array members 'callback','cachable'
 	 */
-	public function load_plugin(string $name,string $type = 'function')
+	public function _load_plugin(string $name,string $type = 'function')
 	{
-		$module = $this->get_plugin_module($name,$type);
+		$module = $this->_get_plugin_module($name,$type);
 		if( $module ) {
-			$row = $this->find($name,$type);
+			$row = $this->_find($name,$type);
 			$cb = $row['callback'];
 			if( strncmp($cb,'s:',3) === 0 || strncmp($cb ,'a:2:{',5) === 0) {
 				try {
@@ -214,7 +215,7 @@ final class ModulePluginOperations
 	 * @param string $type
 	 * @return mixed array | null
 	 */
-	public function find(string $name,string $type)
+	public function _find(string $name,string $type)
 	{
 		$data = SysDataCache::get_instance()->get('module_plugins');
 		if( $data ) {
@@ -280,7 +281,7 @@ final class ModulePluginOperations
 	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
 	 * @return bool indicating success
 	 */
-	public function add_dynamic(string $module_name,string $name,string $type,callable $callback,bool $cachable = TRUE,int $available = 1) : bool
+	public function _add_dynamic(string $module_name,string $name,string $type,callable $callback,bool $cachable = TRUE,int $available = 1) : bool
 	{
 		$callback = $this->validate_callback($module_name,$callback);
 		if( !$callback ) return FALSE;
@@ -331,7 +332,7 @@ final class ModulePluginOperations
 	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
 	 * @return mixed boolean | null
 	 */
-	public function add(string $module_name,string $name,string $type,callable $callback,bool $cachable = TRUE,int $available = 1)
+	public function _add(string $module_name,string $name,string $type,callable $callback,bool $cachable = TRUE,int $available = 1)
 	{
 		$callback = $this->validate_callback($module_name,$callback);
 		if( !$callback ) return FALSE;
@@ -379,7 +380,7 @@ EOS;
 	 *
 	 * @param string $module_name
 	 */
-	public function remove_by_module(string $module_name)
+	public function _remove_by_module(string $module_name)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?';
@@ -395,7 +396,7 @@ EOS;
 	 *
 	 * @param string $name
 	 */
-	public function remove_by_name(string $name)
+	public function _remove_by_name(string $name)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE name=?';
