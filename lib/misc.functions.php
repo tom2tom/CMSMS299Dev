@@ -99,7 +99,7 @@ function redirect(string $to)
 <meta http-equiv="Refresh" content="0;URL='.$to.'">
 </noscript>';
     } elseif ($debug) {
-        echo 'Debug is on. Redirection is disabled. Please click this link to continue.<br />
+        echo 'Automatic redirection is disabled while debugging. Please click this link to continue.<br />
 <a accesskey="r" href="'.$to.'">'.$to.'</a><br />
 <div id="DebugFooter">';
         foreach ($app->get_errors() as $error) {
