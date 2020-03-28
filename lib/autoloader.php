@@ -102,14 +102,14 @@ function cms_autoloader(string $classname)
 			}
 		}
 		$path = str_replace('\\', DIRECTORY_SEPARATOR, substr($classname, $p + 1));
-		$classname = basename($path);
+		$base = basename($path);
 		$path = dirname($path);
 		if ($path != '.') {
 			$sroot .= $path.DIRECTORY_SEPARATOR;
 		}
 		$sysp = ($space == 'CMSMS' || $space == 'CMSAsset' || $space == 'CMSResource');
 		foreach (['class.', 'trait.', 'interface.', ''] as $test) {
-			$fp = $sroot.$test.$classname.'.php';
+			$fp = $sroot.$test.$base.'.php';
 			if (is_file($fp)) {
 				if (!($sysp || class_exists($space, false))) {
 					//deprecated since 2.3 - some modules require existence of this, or assume, and actually use it
@@ -121,18 +121,18 @@ function cms_autoloader(string $classname)
 			}
 		}
 
-		if (endswith($classname, 'Task')) {
+		if (endswith($base, 'Task')) {
 			if ($space == 'CMSMS') {
 				$sroot = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'tasks'.DIRECTORY_SEPARATOR;
 			}
-			$t2 = substr($classname, 0, -4).'.task';
+			$t2 = substr($base, 0, -4).'.task';
 			foreach (['class.', 'trait.', 'interface.', ''] as $test) {
 				$fp = $sroot.$test.$t2.'.php';
 				if (is_file($fp)) {
 					require_once $fp;
 					return;
 				}
-				$fp = $sroot.$test.$classname.'.php';
+				$fp = $sroot.$test.$base.'.php';
 				if (is_file($fp)) {
 					require_once $fp;
 					return;
@@ -141,17 +141,19 @@ function cms_autoloader(string $classname)
 		}
 		return; //failed
 	} elseif ($o) {
-		return;
-	}
+		return; //a 'foreign' namespace to be handled elsewhwere
+	} else {
+		$base = $classname;
+    }
 
-	if (strpos($classname, 'Smarty') !== false) {
-		if (strpos($classname, 'CMS') === false) {
+	if (strpos($base, 'Smarty') !== false) {
+		if (strpos($base, 'CMS') === false) {
 			return; //hand over to smarty autoloader
 		}
 	}
 
 	// standard classes
-	$fp = $root.'class.'.$classname.'.php';
+	$fp = $root.'class.'.$base.'.php';
 	if (is_file($fp)) {
 /* FUTURE
 		if (isset($class_replaces[$classname])) {
@@ -162,7 +164,7 @@ function cms_autoloader(string $classname)
 		}
 */
 		require_once $fp;
-		return;
+		if (class_exists($classname)) return;
 	}
 
 	// standard internal classes - all are spaced
@@ -170,46 +172,46 @@ function cms_autoloader(string $classname)
 	// lowercase internal classes - all are spaced
 
 	// standard interfaces
-	$fp = $root.'interface.'.$classname.'.php';
+	$fp = $root.'interface.'.$base.'.php';
 	if (is_file($fp)) {
 		require_once $fp;
-		return;
+		if (class_exists($classname)) return;
 	}
 
 	// internal interfaces
-	$fp = $root.'internal'.DIRECTORY_SEPARATOR.'interface.'.$classname.'.php';
+	$fp = $root.'internal'.DIRECTORY_SEPARATOR.'interface.'.$base.'.php';
 	if (is_file($fp)) {
 		require_once $fp;
-		return;
+		if (class_exists($classname)) return;
 	}
 
 	// standard tasks
-	if (endswith($classname, 'Task')) {
-		$class = substr($classname, 0, -4);
+	if (endswith($base, 'Task')) {
+		$class = substr($base, 0, -4);
 		$fp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'tasks'.DIRECTORY_SEPARATOR.'class.'.$class.'.task.php';
 		if (is_file($fp)) {
 			require_once $fp;
-			return;
+			if (class_exists($classname)) return;
 		}
 	}
 
 	// module classes
-	$fp = cms_module_path($classname);
+	$fp = cms_module_path($base);
 	if ($fp) {
 		//deprecated since 2.3 - some modules require existence of this, or assume, and actually use it
 		$gCms = CmsApp::get_instance();
 		require_once $fp;
-		return;
+		if (class_exists($classname)) return;
 	}
 
 	// unspaced module-ancillary classes
 	// (the module need not be loaded - we might be installing, upgrading)
 	foreach (cms_module_places() as $root) {
-		$fp = $root.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'{class.,,interface.,trait.}'.$classname.'.php';
+		$fp = $root.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'{class.,,interface.,trait.}'.$base.'.php';
 		$files = glob($fp, GLOB_NOSORT | GLOB_NOESCAPE | GLOB_BRACE);
 		if ($files) {
 			require_once $files[0];
-			return;
+			if (class_exists($classname)) return;
 		}
 	}
 }
