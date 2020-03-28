@@ -19,39 +19,43 @@ replacement database-interface, more tailored to extract performance from MySQL
 cache API revised to support caching by anything
 multi-mode caching, auto-selectable if suitable PHP capability is present (Predis|Memcached|APCu|YAC|roll-your-own) as alternates to the existing filesystem files
 to speed autoloading at least, all PHP classes across the core, except those with name-prefix 'CMS' (with whatever case), have a namespace. Non-spaced usage is deprecated, will work until further notice.
-eventually, all core classes will be spaced. Devs are encouraged to start using ASAP these namespaced aliases for the core classes:
+eventually, all core classes will be spaced. Devs are encouraged to start using ASAP these namespaced aliases for core classes:
+
 'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
-'CMSMS\internal\AdminThemeNotification' => 'CmsAdminThemeNotification', DEPRECATED
-'CMSMS\AppData' => 'CmsApp',
-'CMSMS\CacheDriver' => 'cms_cache_driver',
-'CMSMS\CacheFile' => 'cms_filecache_driver',
-'CMSMS\CacheHandler' => 'cms_cache_handler',
+'CMSMS\App' => 'CmsApp',
+'CMSMS\Async\JobOperations' => 'CMSMS\Async\JobManager',
 'CMSMS\Config' => 'cms_config',
 'CMSMS\ContentTree' => 'cms_content_tree',
 'CMSMS\Cookies' => 'cms_cookies',
 'CMSMS\CoreCapabilities' => 'CmsCoreCapabilities',
 'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
+'CMSMS\FileSystemProfile' => 'CMSMS\FilePickerProfile',
+'CMSMS\HookOperations' => 'CMSMS\HookManager',
 'CMSMS\HttpRequest' => 'cms_http_request',
+'CMSMS\internal\AdminNotification' => 'CmsAdminThemeNotification',
 'CMSMS\LanguageDetector' => 'CmsLanguageDetector',
-'DesignManager\Design' => 'CmsLayoutCollection',
-'CMSMS\LayoutStylesheet' => 'CmsLayoutStylesheet',
-'CMSMS\LayoutStylesheetQuery' => 'CmsLayoutStylesheetQuery',
-'CMSMS\LayoutTemplate' => 'CmsLayoutTemplate',
-'CMSMS\LayoutTemplateCategory' => 'CmsLayoutTemplateCategory',
-'CMSMS\LayoutTemplateQuery' => 'CmsLayoutTemplateQuery',
-'CMSMS\LayoutTemplateType' => 'CmsLayoutTemplateType',
-'CMSMS\Module' => 'CMSModule', MAYBE, TO BE CONFIRMED
+'CMSMS\Module' => 'CMSModule',	//mebbe not this one ?
 'CMSMS\ModuleContentType' => 'CMSModuleContentType',
 'CMSMS\Permission' => 'CmsPermission',
-'CMSMS\RegularTask' => 'CmsRegularTask', // an interface
+'CMSMS\RegularTask' => 'CmsRegularTask',
 'CMSMS\Route' => 'CmsRoute',
-'CMSMS\Siteprefs' => 'cms_siteprefs',
+'CMSMS\SiteVars' => 'cms_siteprefs',
+'CMSMS\Stylesheet' => 'CmsLayoutStylesheet',
+'CMSMS\StylesheetQuery' => 'CmsLayoutStylesheetQuery',
+'CMSMS\Template' => 'CmsLayoutTemplate',
+'CMSMS\TemplateQuery' => 'CmsLayoutTemplateQuery',
+'CMSMS\TemplatesGroup' => 'CmsLayoutTemplateCategory',
+'CMSMS\TemplateType' => 'CmsLayoutTemplateType',
 'CMSMS\Tree' => 'cms_tree',
 'CMSMS\TreeOperations' => 'cms_tree_operations',
 'CMSMS\Url' => 'cms_url',
-'CMSMS\Userprefs' => 'cms_userprefs',
-'CMSMS\Utils' => 'cms_utils'
-support namespace 'CMSASSETS' for non-core classes added into <siterootpath>/assets/classes and descendants
+'CMSMS\UserVars' => 'cms_userprefs',
+'CMSMS\Utils' => 'cms_utils',
+'DesignManager\Design' => 'CmsLayoutCollection'
+
+support namespace 'CMSAsset' for non-core classes added into <siterootpath>/assets/classes and descendants
+support namespace 'CMSResource' for classes etc <siterootpath>/assets/resources and descendants
+
 remote administration API (calguy to describe, please!)
 optional per-page inclusions (e.g. css, js urls/verbatim) for admin-pages and module-actions, to supplement and/or replace template content and CMSModule::GetHeaderHTML(). So e.g. js can be removed from templates, and inserted at page-bottom.
 pre-configuration of site-installation parameters
@@ -72,11 +76,14 @@ CONFIG PARAMETERS
 
 new
 
+app_mode - 1 when operating as a web-app i.e. no admin users, maybe no admin console at all
 assets_url
 content_language - for PHP htmlentities() and html_entity_decode(), default 'xhtml'
 deprecations - if this parameter, and also debug, are not empty, deprecation notices will be thrown when something (method, property etc) deprecated is used
+developer_mode - 1 when somebody authorized is working on the site content/operation
 pr_root_url - protocol-relative root URI
 secure_action_url - whether to encrypt action get-parameters for inclusion in URL's (mostly for non-https sites)
+usertags_dir - name of filesystem folder where user-plugin files are stored, default 'user_plugins'
 
 deprecated
 
@@ -93,9 +100,9 @@ DEFINES
 
 new
 
-CMS_ASSETS_URL
-CMS_SCRIPTS_URL
+CMS_ASSETS_URL - URL corresponding to CMS_ASSETS_PATH
 CMS_SCRIPTS_PATH - filesystem path of top folder containing js resource files
+CMS_SCRIPTS_URL - URL corresponding to CMS_SCRIPTS_PATH
 CMS_UDT_PATH - filesystem path of folder containing user-plugin files
 
 PLUGINS
