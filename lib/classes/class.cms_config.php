@@ -1,6 +1,6 @@
 <?php
 #Class for handling configuration data
-#Copyright (C) 2008-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2008-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -16,6 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//use CMSMS\AppSingle;
 use CMSMS\AppState;
 
 /**
@@ -47,6 +48,7 @@ final class cms_config implements ArrayAccess
     const TYPE_BOOL = 'B';
 
     const KNOWN = [
+        'app_mode' => self::TYPE_BOOL, //since 2.9
         'admin_dir' => self::TYPE_STRING,
         'admin_encoding' => self::TYPE_STRING,
         'admin_url' => self::TYPE_STRING,
@@ -67,6 +69,7 @@ final class cms_config implements ArrayAccess
         'debug' => self::TYPE_BOOL,
         'default_encoding' => self::TYPE_STRING,
         'default_upload_permission' => self::TYPE_STRING,
+        'developer_mode' => self::TYPE_BOOL, //since 2.9
         'image_uploads_path' => self::TYPE_STRING,
         'image_uploads_url' => self::TYPE_STRING,
         'locale' => self::TYPE_STRING,
@@ -89,12 +92,13 @@ final class cms_config implements ArrayAccess
         'uploads_path' => self::TYPE_STRING,
         'uploads_url' => self::TYPE_STRING,
         'url_rewriting' => self::TYPE_STRING,
+        'usertags_dir' => self::TYPE_STRING, //since 2.9 UDTfiles
     ];
 
-    /**
+    /* *
      * ignore
      */
-    private static $_instance;
+    private static $_instance = null;
 
     /**
      * ignore
@@ -109,12 +113,30 @@ final class cms_config implements ArrayAccess
     /**
      * ignore
      */
-    private function __construct() {}
+    private function __construct() { /*$this->load_config();*/}
 
     /**
      * @ignore
      */
     private function __clone() {}
+
+    /**
+     * Retrieve the global config object, after instantiating it if necessary
+     * @deprecated since 2.9 instead use CMSMS\AppSingle::cms_config()
+     *
+     * @return self
+     */
+    public static function get_instance() : self
+    {
+        if (!self::$_instance) {
+            self::$_instance = new self();
+
+            // populate from file
+            self::$_instance->load_config();
+        }
+        return self::$_instance;
+//      return AppSingle::cms_config();
+    }
 
     /**
      * @ignore
@@ -197,6 +219,11 @@ final class cms_config implements ArrayAccess
                         case 'uploads_url':
                             $value = rtrim($value,' /');
                             break;
+                        case 'admin_dir':
+                        case 'assets_dir':
+                        case 'usertags_dir':
+                            $value = strtr($value, ['\\' => '','/' => '',' ' => '_']);
+                            break;
                         }
                         $value = trim($value);
                         break;
@@ -235,24 +262,6 @@ final class cms_config implements ArrayAccess
         }
 
         $this->_data = array_merge($this->_data,$newconfig);
-    }
-
-
-    /**
-     * Retrieve the global config object
-     * This method will instantiate the object if necessary
-     *
-     * @return cms_config
-     */
-    public static function get_instance() : self
-    {
-        if (!isset(self::$_instance)) {
-            self::$_instance = new self();
-
-            // populate from file
-            self::$_instance->load_config();
-        }
-        return self::$_instance;
     }
 
     /**
@@ -429,7 +438,9 @@ final class cms_config implements ArrayAccess
         case 'admin_dir':
             return 'admin';
 
+        case 'app_mode':
         case 'debug':
+        case 'developer_mode':
             return false;
 
         case 'timezone':
@@ -490,7 +501,7 @@ final class cms_config implements ArrayAccess
         case 'tmp_cache_location':
             $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','cache');
             return $this->_cache[$key];
- 
+
         case 'public_cache_location':
             $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','cache','public');
             return $this->_cache[$key];
@@ -502,6 +513,9 @@ final class cms_config implements ArrayAccess
         case 'tmp_templates_c_location':
             $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','templates_c');
             return $this->_cache[$key];
+
+        case 'usertags_dir':
+            return 'user_plugins';
 
         default:
             // not a mandatory key for the config.php file... and one we don't understand.
