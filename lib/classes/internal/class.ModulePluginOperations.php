@@ -1,6 +1,6 @@
 <?php
 # Class of functions to manage modules' smarty plugins
-# Copyright (C) 2010-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -24,9 +24,9 @@ use CmsApp;
 use CmsCoreCapabilities;
 use CMSModule;
 use CMSMS\AppState;
-use CMSMS\internal\SysDataCacheDriver;
-use CMSMS\internal\SysDataCache;
 use CMSMS\ModuleOperations;
+use CMSMS\SysDataCache;
+use CMSMS\SysDataCacheDriver;
 use DeprecationNotice;
 use Throwable;
 use const CMS_DB_PREFIX;
@@ -34,7 +34,9 @@ use const CMS_DEPREC;
 use function audit;
 
 /**
- * A class to manage smarty plugins registered by modules.
+ * A class to manage smarty plugins registered by modules. Methods may be called
+ * statically ModulePluginOperations::function()
+ * or not     (new ModulePluginOperations())->function() since 2.9
  *
  * @package CMS
  * @license GPL
@@ -61,20 +63,42 @@ final class ModulePluginOperations
 	 */
 	const AVAIL_ALL = 3;
 
+	private static $_instance = null;
+
 	/**
-	 * Get an instance of this class.
-	 * @deprecated since 2.3 use new ModulePluginOperations()
+	 * Call a class-method from a static context
+	 * @param string $name Method name. No aliasing here.
+	 * @param array $args Method argument(s)
+	 * @return mixed
 	 */
-	public static function get_instance() : self
+	public static function __callStatic($name, $args)
 	{
-		return new self();
+		$obj = self::get_instance();
+		if( $name == 'addStatic' ) {
+			assert(empty(CMS_DEPREC), new DeprecationNotice('method','(ModulePluginOperations::add()'));
+			return $obj->add(...$args);
+		}
+		if( method_exists($obj, $name) ) {
+			return $obj->$name(...$args);
+		}
 	}
 
 	/**
-	 * Initialize 'module_plugins' global cache
+	 * Get an instance of this class, for use by class static-methods.
+	 * No properties to 'protect', not worth caching as AppSingle::ModulePluginOperations()
+	 * @return self
+	 */
+	public static function get_instance() : self
+	{
+		if( !self::$_instance ) { self::$_instance = new self(); }
+		return self::$_instance;
+	}
+
+	/**
+	 * Initialize 'module_plugins' system-data cache
 	 * @since 2.3
 	 */
-	public static function setup()
+	public function setup()
 	{
 		$obj = new SysDataCacheDriver('module_plugins', function()
 			{
@@ -115,7 +139,7 @@ final class ModulePluginOperations
 				}
 				return $data;
 			});
-		SysDataCache::add_cachable($obj);
+		SysDataCache::get_instance()->add_cachable($obj);
 	}
 
 	/**
@@ -127,9 +151,9 @@ final class ModulePluginOperations
 	 *  Default 'function'
 	 * @return mixed CMSModule | null
 	 */
-	public static function get_plugin_module(string $name,string $type = 'function')
+	public function get_plugin_module(string $name,string $type = 'function')
 	{
-		$row = self::get_instance()->find($name,$type);
+		$row = $this->find($name,$type);
 		if( is_array($row) ) {
 	 		if( $row['available'] != self::AVAIL_ALL ) {
 				$states = AppState::get_states();
@@ -158,11 +182,11 @@ final class ModulePluginOperations
 	 *  Default 'function'
 	 * @return mixed array | null Array members 'callback','cachable'
 	 */
-	public static function load_plugin(string $name,string $type = 'function')
+	public function load_plugin(string $name,string $type = 'function')
 	{
-		$module = self::get_plugin_module($name,$type);
+		$module = $this->get_plugin_module($name,$type);
 		if( $module ) {
-			$row = self::get_instance()->find($name,$type);
+			$row = $this->find($name,$type);
 			$cb = $row['callback'];
 			if( strncmp($cb,'s:',3) === 0 || strncmp($cb ,'a:2:{',5) === 0) {
 				try {
@@ -192,7 +216,7 @@ final class ModulePluginOperations
 	 */
 	public function find(string $name,string $type)
 	{
-		$data = SysDataCache::get('module_plugins');
+		$data = SysDataCache::get_instance()->get('module_plugins');
 		if( $data ) {
 			foreach( $data as $row ) {
 				if( $row['type'] == $type && strcasecmp($row['name'],$name) == 0 ) return $row;
@@ -245,7 +269,7 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * Add information about a plugin to the 'module_plugins' global cache
+	 * Add information about a plugin to the 'module_plugins' system-data cache
 	 * @since 2.3
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
@@ -262,7 +286,8 @@ final class ModulePluginOperations
 		if( !$callback ) return FALSE;
 
 		$dirty = FALSE;
-		$data = SysDataCache::get('module_plugins');
+		$cache = SysDataCache::get_instance();
+		$data = $cache->get('module_plugins');
 		$sig = cms_utils::hash_string($name.$module_name.$callback);
 		if( !isset($data[$sig]) ) {
 			if( $available == 0 ) {
@@ -286,14 +311,14 @@ final class ModulePluginOperations
 			if( $data[$sig]['available'] != $available ) { $data[$sig]['available'] = $available; $dirty = TRUE; }
 		}
 		if( $dirty ) {
-			SysDataCache::update('module_plugins', $data);
+			$cache->update('module_plugins', $data);
 		}
 		return TRUE;
 	}
 
 	/**
 	 * Add information to, or update, information about a plugin in the database
-	 * and clear, NOT add to, the 'module_plugins' global cache.
+	 * and clear, NOT add to, the 'module_plugins' system-data cache.
 	 * This method is normally called during a module's installation/upgrade
 	 * or after settings change i.e. not in every request.
 	 *
@@ -342,72 +367,41 @@ EOS;
 		]);
 
 		if( $dbr ) {
-			SysDataCache::release('module_plugins');
+			SysDataCache::get_instance()->release('module_plugins');
 			return TRUE;
 		}
 		return FALSE;
 	}
 
 	/**
-	 * Add information about a plugin to the database
-	 * @deprecated since 2.3 Instead use (new ModulePluginOperations())->add()
-	 * @see add()
-	 */
-	public static function addStatic(string $module_name,string $name,string $type,callable $callback,bool $cachable = TRUE,int $available = 1) : bool
-	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','(new ModulePluginOperations())->add'));
-		return self::get_instance()->add($module_name,$name,$type,$callback,$cachable,$available);
-	}
-
-	/**
-	 * Remove all plugins for a module from the database
-	 *
-	 * @param string $module_name
-	 */
-	public static function remove_by_module(string $module_name)
-	{
-		self::get_instance()->_remove_by_module($module_name);
-	}
-
-	/**
 	 * Remove all plugins for a module from the database, clear the
-	 * 'module_plugins' global cache
+	 * 'module_plugins' system-data cache
 	 *
 	 * @param string $module_name
 	 */
-	public function _remove_by_module(string $module_name)
+	public function remove_by_module(string $module_name)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?';
 		$dbr = $db->Execute($query,[$module_name]);
 		if( $dbr ) {
-			SysDataCache::release('module_plugins');
+			SysDataCache::get_instance()->release('module_plugins');
 		}
 	}
 
 	/**
-	 * Remove a named plugin from the local datacache and the database
-	 *
-	 * @param string $name
-	 */
-	public static function remove_by_name(string $name)
-	{
-		self::get_instance()->_remove_by_name($name);
-	}
-
-	/**
 	 * Remove a named plugin from the database, clear the 'module_plugins'
-	 * global cache
+	 * system-data cache
 	 *
 	 * @param string $name
 	 */
-	public function _remove_by_name(string $name)
+	public function remove_by_name(string $name)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE name=?';
 		$dbr = $db->Execute($query,[$name]);
 		if( $dbr ) {
-			SysDataCache::release('module_plugins');
+			SysDataCache::get_instance()->release('module_plugins');
 		}
 	}
 } // class
