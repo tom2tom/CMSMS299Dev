@@ -7,7 +7,7 @@ use cms_installer\wizard\wizard_step;
 use cms_siteprefs;
 use CmsApp;
 use CMSMS\AppState;
-use CMSMS\ThemeBase;
+use CMSMS\AdminTheme;
 use Exception;
 use function cms_installer\get_app;
 use function cms_installer\lang;
@@ -114,7 +114,7 @@ class wizard_step8 extends wizard_step
 
             // init some of the system-wide default settings
             verbose_msg(lang('install_initsiteprefs'));
-			$theme = reset(ThemeBase::GetAvailableThemes());
+			$theme = reset(AdminTheme::GetAvailableThemes());
 			$uuid = cms_utils::random_string(32);
 
             foreach ([

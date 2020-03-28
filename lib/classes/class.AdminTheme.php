@@ -75,7 +75,7 @@ use function startswith;
  * @property-read string $title The current page title
  * @property-read string $subtitle The current page subtitle
  */
-abstract class ThemeBase
+abstract class AdminTheme
 {
     /* *
      * @ignore

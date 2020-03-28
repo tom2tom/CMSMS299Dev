@@ -19,8 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
 use CMSMS\FileTypeHelper;
-use CMSMS\internal\SysDataCache;
-use CMSMS\ThemeBase;
+use CMSMS\SysDataCache;
+use CMSMS\AdminTheme;
 
 const THEME_DTD_VERSION = '1.0';
 const THEME_DTD_MINVERSION = '1.0';
@@ -53,7 +53,7 @@ function import_theme(string $xmlfile) : bool
 	}
 
 	$themename = (string)$xml->name;
-	$all = ThemeBase::GetAvailableThemes(true);
+	$all = AdminTheme::GetAvailableThemes(true);
 	if (isset($all[$themename])) {
 		// theme is installed now
 		include_once $all[$themename];
@@ -157,7 +157,7 @@ function export_theme(string $themename) : bool
 {
 	global $config;
 
-	$all = ThemeBase::GetAvailableThemes(true);
+	$all = AdminTheme::GetAvailableThemes(true);
 	if (!isset($all[$themename])) {
 		return false;
 	}
@@ -296,7 +296,7 @@ function export_theme(string $themename) : bool
 
 function delete_theme(string $themename) : bool
 {
-	$all = ThemeBase::GetAvailableThemes(true);
+	$all = AdminTheme::GetAvailableThemes(true);
 	if (isset($all[$themename]) && count($all) > 1) {
 		if (recursive_delete(dirname($all[$themename]))) {
 			//adjust default theme if needed
@@ -304,7 +304,7 @@ function delete_theme(string $themename) : bool
 			if ($deftheme && $deftheme == $themename) {
 				unset($all[$themename]);
 				cms_siteprefs::set('logintheme', key($all));
-				SysDataCache::release('site_preferences');
+				SysDataCache::get_instance()->release('site_preferences');
 			}
 			return true;
 		}

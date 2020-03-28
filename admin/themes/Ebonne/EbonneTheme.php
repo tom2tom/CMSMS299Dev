@@ -46,7 +46,7 @@ use function get_userid;
 use function lang;
 use function munge_string_to_url;
 
-class EbonneTheme extends ThemeBase
+class EbonneTheme extends AdminTheme
 {
 	/**
 	 * For theme exporting/importing

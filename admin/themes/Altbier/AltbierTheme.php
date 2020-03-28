@@ -48,7 +48,7 @@ use function get_userid;
 use function lang;
 use function munge_string_to_url;
 
-class AltbierTheme extends ThemeBase
+class AltbierTheme extends AdminTheme
 {
 	/**
 	 * For theme exporting/importing

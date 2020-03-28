@@ -19,7 +19,7 @@
 use CMSMS\Database\Connection;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
-use CMSMS\ThemeBase;
+use CMSMS\AdminTheme;
 
 /**
  * A class of static utility/convenience methods.
@@ -97,7 +97,7 @@ final class cms_utils
 	/**
 	 * Report whether a module is available.
 	 *
-	 * @see get_module(), SysDataCache::get('modules')
+	 * @see get_module(), SysDataCache::get_instance()->get('modules')
 	 * @author calguy1000
 	 * @since 1.11
 	 * @param string $name The module name
@@ -265,11 +265,11 @@ final class cms_utils
 	 * @author calguy1000
 	 * @since 1.11
 	 * @param mixed $name Since 2.3 Optional theme name. Default ''
-	 * @return mixed ThemeBase derived object, or null
+	 * @return mixed AdminTheme derived object, or null
 	 */
 	public static function get_theme_object($name = '')
 	{
-		return ThemeBase::get_instance($name);
+		return AdminTheme::get_instance($name);
 	}
 
 	/**
