@@ -49,7 +49,7 @@ $(function() {
 EOS;
 add_page_foottext($js);
 
-if( isset($config['developer_mode']) ) {
+if( !empty($config['developer_mode']) ) {
   $tpl->assign('developer_mode',1)
    ->assign('module_repository',$this->GetPreference('module_repository'))
    ->assign('disable_caching',$this->GetPreference('disable_caching',0));

@@ -21,7 +21,7 @@ if( !$this->CheckPermission('Modify Site Preferences' ) ) return;
 
 $this->SetCurrentTab('prefs');
 
-if( isset($config['developer_mode']) && !empty($params['reseturl']) ) {
+if( !(empty($config['developer_mode']) || empty($params['reseturl'])) ) {
     $this->SetPreference('module_repository',ModuleManager::_dflt_request_url);
     $this->SetMessage($this->Lang('msg_urlreset'));
     $this->RedirectToAdminTab();
@@ -31,7 +31,7 @@ $latestdepends = (int)get_parameter_value($params,'latestdepends');
 $this->SetPreference('latestdepends',$latestdepends);
 
 
-if( isset($config['developer_mode']) ) {
+if( !empty($config['developer_mode']) ) {
     if( isset($params['url']) ) $this->SetPreference('module_repository',trim($params['url']));
     $disable_caching = (int)get_parameter_value($params,'disable_caching');
     $this->SetPreference('disable_caching',$disable_caching);
