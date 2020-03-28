@@ -17,7 +17,8 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\ContentOperations;
-use CMSMS\internal\SysDataCache;
+use CMSMS\SysDataCache;
+use CMSMS\SystemCache;
 
 /**
  * Class that provides content retrieval abilities, using the content cache
@@ -64,7 +65,7 @@ class cms_content_tree extends cms_tree
 	 */
 	public function quickfind_node_by_id($id)
 	{
-		$list = SysDataCache::get('content_quicklist');
+		$list = SysDataCache::get_instance()->get('content_quicklist');
 		if( isset($list[$id]) ) return $list[$id];
 	}
 
@@ -262,7 +263,7 @@ class cms_content_tree extends cms_tree
 	public function getContent($deep = false,$loadsiblings = true,$loadall = false)
 	{
 		$id = $this->get_tag('id');
-		if( !$this->cache ) $this->cache = cms_cache_handler::get_instance();
+		if( !$this->cache ) $this->cache = SystemCache::get_instance();
 		if( !$this->cache->exists($id,'tree_pages') ) {
 			// not in cache
 			$parent = $this->getParent();
@@ -386,6 +387,7 @@ class cms_content_tree extends cms_tree
 	 */
 	public function &getFlatList()
 	{
+        // static properties here >> StaticProperties class ?
 		static $result = null;
 		if( is_null($result) ) {
 			$result = $this->_buildFlatList();
@@ -400,7 +402,7 @@ class cms_content_tree extends cms_tree
 	 */
 	public function isContentCached()
 	{
-		if( !$this->cache ) $this->cache = cms_cache_handler::get_instance();
+		if( !$this->cache ) $this->cache = SystemCache::get_instance();
 		return $this->cache->exists($this->get_tag('id'),'tree_pages');
 	}
 

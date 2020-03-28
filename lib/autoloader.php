@@ -49,7 +49,6 @@ function cms_autoloader(string $classname)
 				'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
 				'CMSMS\AppData' => 'CmsApp',
 				'CMSMS\Async\JobOperations' => 'CMSMS\Async\JobManager',
-				'CMSMS\CacheHandler' => 'cms_cache_handler',
 				'CMSMS\Config' => 'cms_config',
 				'CMSMS\ContentTree' => 'cms_content_tree',
 				'CMSMS\Cookies' => 'cms_cookies',

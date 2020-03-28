@@ -19,8 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace FilePicker;
 
-use cms_cache_handler;
-use cms_utils;
+use CMSMS\SystemCache;
 
 /**
  * Class to manage session-caching of 'flat' data
@@ -37,32 +36,32 @@ class TemporaryInstanceStorage
 
     protected static function cachegroup()
 	{
-		return hash('adler32', __FILE__);
+		return hash('adler32', session_id().self::class);
 	}
 
     public static function set($key, $val)
     {
         $grp = self::cachegroup();
         $val = trim($val); // make sure it's a string
-        cms_cache_handler::get_instance()->set($key ,$val, $grp);
+        SystemCache::get_instance()->set($key ,$val, $grp);
         return $key;
     }
 
     public static function get($key)
     {
         $grp = self::cachegroup();
-        return cms_cache_handler::get_instance()->get($key, $grp);
+        return SystemCache::get_instance()->get($key, $grp);
     }
 
     public static function clear($key)
     {
         $grp = self::cachegroup();
-        cms_cache_handler::get_instance()->erase($key, $grp);
+        SystemCache::get_instance()->erase($key, $grp);
      }
 
     public static function reset()
     {
         $grp = self::cachegroup();
-        cms_cache_handler::get_instance()->clear($grp);
+        SystemCache::get_instance()->clear($grp);
     }
 }

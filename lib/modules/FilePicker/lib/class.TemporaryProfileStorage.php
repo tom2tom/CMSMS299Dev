@@ -21,8 +21,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace FilePicker;
 
-use cms_cache_handler;
 use cms_utils;
+use CMSMS\SystemCache;
 use FilePicker\Profile;
 
 /**
@@ -47,7 +47,7 @@ class TemporaryProfileStorage
      */
     protected static function cachegroup()
     {
-        return hash('adler32', __FILE__);
+        return hash('adler32', session_id().self::class);
     }
 
     /**
@@ -60,7 +60,7 @@ class TemporaryProfileStorage
         $grp = self::cachegroup();
         $s = serialize($profile);
         $key = cms_utils::hash_string($grp . $s . microtime(true));
-        cms_cache_handler::get_instance()->set($key ,$s, $grp);
+        SystemCache::get_instance()->set($key ,$s, $grp);
         return $key;
     }
 
@@ -72,7 +72,7 @@ class TemporaryProfileStorage
     public static function get($key)
     {
         $grp = self::cachegroup();
-        $s = cms_cache_handler::get_instance()->get($key, $grp);
+        $s = SystemCache::get_instance()->get($key, $grp);
         if ($s) {
             return unserialize($s, ['allowed_classes'=>['FilePicker\\Profile']]);
         }
@@ -85,7 +85,7 @@ class TemporaryProfileStorage
     public static function clear($key)
     {
         $grp = self::cachegroup();
-        cms_cache_handler::get_instance()->erase($key, $grp);
+        SystemCache::get_instance()->erase($key, $grp);
     }
 
     /**
@@ -94,6 +94,6 @@ class TemporaryProfileStorage
     public static function reset()
     {
         $grp = self::cachegroup();
-        cms_cache_handler::get_instance()->clear($grp);
+        SystemCache::get_instance()->clear($grp);
     }
 }

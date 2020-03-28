@@ -2,8 +2,8 @@
 
 namespace AdminSearch;
 
-use cms_cache_handler;
 use cms_utils;
+use CMSMS\SystemCache;
 use function get_userid;
 
 final class tools
@@ -13,7 +13,7 @@ final class tools
   public static function get_slave_classes()
   {
     $key = 'slaves'.get_userid(FALSE);
-    $cache = cms_cache_handler::get_instance();
+    $cache = SystemCache::get_instance();
     $results = $cache->get($key,self::class);
     if( !$results ) {
       // cache needs populating

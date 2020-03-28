@@ -18,15 +18,16 @@
 
 namespace Navigator;
 
-use cms_cache_handler;
 use cms_siteprefs;
 use CmsApp;
+use CMSMS\SystemCache;
 use NavigatorNode;
 use function cms_htmlentities;
 use function startswith;
 
 final class utils
 {
+    // static properties here >> StaticProperties class ?
     private static $_excludes;
     private function __construct() {}
 
@@ -144,7 +145,7 @@ final class utils
             if( $node->has_children() ) {
                 $children = $node->getChildren($deep,$show_all); //loads children into cache : SLOW! TODO just get id's
                 if( $children ) {
-					$cache = cms_cache_handler::get_instance();
+					$cache = SystemCache::get_instance();
                     foreach( $children as &$node ) {
                         $id = $node->get_tag('id');
                         if( $cache->exists($id,'tree_pages') ) {

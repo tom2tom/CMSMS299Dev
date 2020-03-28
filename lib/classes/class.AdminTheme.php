@@ -19,7 +19,6 @@
 namespace CMSMS;
 
 use ArrayTreeIterator;
-use cms_cache_handler;
 use cms_config;
 use cms_siteprefs;
 use cms_url;
@@ -476,7 +475,7 @@ abstract class AdminTheme
     {
         $uid = get_userid(false);
 // TODO also clear cache group 'module_menus' after change of group membership or permission
-        $data = cms_cache_handler::get_instance()->get('themeinfo'.$uid, 'module_menus');
+        $data = SystemCache::get_instance()->get('themeinfo'.$uid, 'module_menus');
         $data = false;  //DEBUG
         if( !$data ) {
             // data doesn't exist, gotta build it
@@ -509,7 +508,7 @@ abstract class AdminTheme
                 }
             }
             // cache the array, even if empty
-            cms_cache_handler::get_instance()->set('themeinfo'.$uid, $usermoduleinfo, 'module_menus');
+            SystemCache::get_instance()->set('themeinfo'.$uid, $usermoduleinfo, 'module_menus');
             $data = $usermoduleinfo;
         }
 

@@ -22,6 +22,7 @@ namespace Search;
 use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\ModuleOperations;
+//use CMSMS\SystemCache;
 use PorterStemmer;
 use Search;
 use const CMS_DB_PREFIX;
@@ -201,7 +202,7 @@ class Utils
         $n = count($full_list);
         $nperloop = min(200,$n);
         $contentops = ContentOperations::get_instance();
-//		$cache = cms_cache_handler::get_instance();
+//		$cache = SystemCache::get_instance();
         $offset = 0;
 
         while( $offset < $n ) {
