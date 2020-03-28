@@ -1,6 +1,6 @@
 <?php
 #Base class for CMS admin themes
-#Copyright (C) 2010-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,7 +18,6 @@
 
 namespace CMSMS;
 
-//use CMSMS\internal\AdminThemeNotification;
 use ArrayTreeIterator;
 use cms_cache_handler;
 use cms_config;
@@ -26,6 +25,7 @@ use cms_siteprefs;
 use cms_url;
 use cms_userprefs;
 use cms_utils;
+use CmsLogicException;
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminTabs;
 use CMSMS\AdminUtils;
@@ -34,6 +34,7 @@ use CMSMS\Bookmark;
 use CMSMS\BookmarkOperations;
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
+use CMSMS\internal\AdminThemeNotification;
 use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
 use Exception;
@@ -43,6 +44,8 @@ use const CMS_ADMIN_PATH;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
+use function add_page_foottext;
+use function add_page_headtext;
 use function audit;
 use function check_permission;
 use function cleanArray;
@@ -51,6 +54,8 @@ use function cms_join_path;
 use function cms_module_places;
 use function cms_path_to_url;
 use function endswith;
+use function get_page_foottext;
+use function get_page_headtext;
 use function get_secure_param;
 use function get_userid;
 use function lang;
@@ -58,12 +63,12 @@ use function startswith;
 
 /**
  * This is the abstract base class for building CMSMS admin themes.
- * Each theme-class derived from this is a singleton object.
+ * The theme-object in use, derived from this, will be a singleton.
  *
  * @package CMS
  * @license GPL
- * @since 2.3
- * @since   1.11 as CmsAdminThemeBase
+ * @since 2.9
+ * @since   1.11 as CmsAdminAdminTheme
  * @author  Robert Campbell
  * @property-read string $themeName Return the theme name
  * @property-read int $userid Return the current logged in userid (deprecated)
@@ -78,6 +83,7 @@ abstract class ThemeBase
     //const VALIDSECTIONS = ['view','content','layout','files','usersgroups','extensions','services','ecommerce','siteadmin','myprefs'];
 
     /**
+     * @var AdminTheme sub-class instance
      * @ignore
      */
     private static $_instance = null;
@@ -205,8 +211,9 @@ abstract class ThemeBase
     protected $_smallicons = false;
 
     /**
+     * Init for all specific-theme sub-classes
      * @ignore
-     */
+	 */
     protected function __construct()
     {
         if( is_object(self::$_instance) ) {
@@ -243,6 +250,11 @@ abstract class ThemeBase
     /**
      * @ignore
      */
+	private function __clone() {}
+
+    /**
+     * @ignore
+     */
     public function __get($key)
     {
         switch( $key ) {
@@ -265,12 +277,14 @@ abstract class ThemeBase
     }
 
     /**
-     * Get the global admin theme object.
-     * This method will [re]create the theme object if that has not yet been done.
-     * It will read system preferences and cross reference with available themes.
+     * Get the singleton admin-theme object, a sub-class of this class, per the
+     * specified name or else the current user's preference or the system default.
+     * This method [re]creates the theme object if appropriate.
+	 * NOTE the hierarchy of theme classes prevents the theme singleton from
+	 * being populated and cached in CMSApp like most other singletons.
      *
      * @param mixed string|null $name Optional theme name.
-     * @return mixed ThemeBase The initialized admin theme object, or null
+     * @return mixed AdminTheme admin theme object | null
      */
     public static function get_instance($name = '')
     {
@@ -318,8 +332,10 @@ abstract class ThemeBase
     }
 
     /**
-     * Get the global admin theme object.
-     * @deprecated since 2.3 use ThemeBase::get_instance()
+     * This is an alias for get_instance().
+     * @see AdminTheme::get_instance()
+     * @param mixed string|null $name Optional theme name.
+     * @return mixed AdminTheme sub-class object | null
      */
     public static function GetThemeObject($name = '')
     {
@@ -2055,7 +2071,7 @@ abstract class ThemeBase
      *
      * @since 2.3
      * @param string $content the entire displayable content
-     * @see ThemeBase::get_content(), ThemeBase::do_minimal()
+     * @see AdminTheme::get_content(), AdminTheme::do_minimal()
      */
     public function set_content(string $content)
     {
@@ -2066,7 +2082,7 @@ abstract class ThemeBase
      * Retrieve the cached content of a 'minimal' page
      *
      * @since 2.3
-     * @see ThemeBase::set_content(), ThemeBase::do_minimal()
+     * @see AdminTheme::set_content(), AdminTheme::do_minimal()
      */
     public function get_content() : string
     {
@@ -2098,7 +2114,7 @@ abstract class ThemeBase
      * Return the content of a login page.
      * @abstract
      * @since 2.3
-     * @see ThemeBase::do_minimal()
+     * @see AdminTheme::do_minimal()
      *
      * @param mixed $bodyid string | null  Optional id for page body-element. Default null.
      * @return html string | null if smarty->fetch() fails
@@ -2113,7 +2129,7 @@ abstract class ThemeBase
      * @since 2.3, relevant parameters are supplied by a login module.
      * However some themes aspire to backward-compatibility, so $params
      *  remains as an option.
-     * @see ThemeBase::do_loginpage()
+     * @see AdminTheme::do_loginpage()
      */
     public function do_login($params = null) {}
 
