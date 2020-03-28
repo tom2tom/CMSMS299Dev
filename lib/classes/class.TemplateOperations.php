@@ -27,7 +27,7 @@ use CmsLayoutTemplateQuery;
 use CmsLayoutTemplateType;
 use CMSMS\AdminUtils;
 use CMSMS\Events;
-use CMSMS\internal\SysDataCache;
+use CMSMS\SysDataCache;
 use CMSMS\User;
 use CMSMS\UserOperations;
 use CmsSQLErrorException;
@@ -63,6 +63,7 @@ class TemplateOperations
 	 */
 	const ADDUSERSTABLE = 'layout_tpl_addusers';
 
+    // static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 */
@@ -316,7 +317,7 @@ WHERE id=?';
 			$stmt->close();
 		}
 
-		SysDataCache::release('LayoutTemplates');
+		SysDataCache::get_instance()->release('LayoutTemplates');
 		audit($tpl->get_id(),'CMSMS','Template '.$tpl->get_name().' Updated');
 		return $tpl; //DODO what use ? event ?
 	}
@@ -398,7 +399,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			}
 		}
 
-		SysDataCache::release('LayoutTemplates');
+		SysDataCache::get_instance()->release('LayoutTemplates');
 
 		audit($tplid,'CMSMS','Template '.$tpl->get_name().' Created');
 		// return a fresh instance of the object (e.g. to pass to event handlers ??)
@@ -452,7 +453,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 
 		audit($id,'CMSMS','Template '.$tpl->get_name().' Deleted');
 		Events::SendEvent('Core','DeleteTemplatePost',[ get_class($tpl) => &$tpl ]);
-		SysDataCache::release('LayoutTemplates');
+		SysDataCache::get_instance()->release('LayoutTemplates');
 	}
 
 	/**

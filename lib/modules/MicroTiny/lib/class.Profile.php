@@ -26,7 +26,7 @@ use function cms_to_bool;
 
 class Profile implements ArrayAccess
 {
-	private static $_keys = [
+	const KEYS = [
 		'allowcssoverride',
 		'allowimages',
 		'allowresize',
@@ -39,6 +39,7 @@ class Profile implements ArrayAccess
 		'showstatusbar',
 		'system',
 	];
+    // static properties here >> StaticProperties class ?
 	private static $_module = null;
 	private $_data = [];
 
@@ -113,7 +114,7 @@ class Profile implements ArrayAccess
 
 	public function OffsetExists($key)
 	{
-		if( in_array($key, self::$_keys) ) return isset($this->_data[$key]);
+		if( in_array($key, self::KEYS) ) return isset($this->_data[$key]);
 
 		throw new CmsInvalidDataException('invalid key '.$key.' for '.self::class.' object');
 	}
@@ -165,7 +166,7 @@ class Profile implements ArrayAccess
 
 		$obj = new self();
 		foreach( $data as $key => $value ) {
-			if( !in_array($key,self::$_keys) ) throw new CmsInvalidDataException('Invalid key '.$key.' for data in .'.self::class);
+			if( !in_array($key,self::KEYS) ) throw new CmsInvalidDataException('Invalid key '.$key.' for data in .'.self::class);
 			$obj->_data[$key] = trim($value);
 		}
 		return $obj;

@@ -42,6 +42,7 @@ final class css_slave extends slave
 
     private function get_mod()
     {
+        // static properties here >> StaticProperties class ?
         static $_mod;
         if( !$_mod ) $_mod = cms_utils::get_module('DesignManager');
         return $_mod;

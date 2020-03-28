@@ -63,6 +63,7 @@ class CmsLayoutTemplateCategory //TemplatesGroup
 	 */
 	protected $_members = [];
 
+    // static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 */

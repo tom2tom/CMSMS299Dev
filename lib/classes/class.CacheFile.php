@@ -298,6 +298,7 @@ class CacheFile extends CacheDriver
     private function _auto_clean_files() : int
     {
         if ($this->_auto_cleaning) {
+            // static properties here >> StaticProperties class ?
             // only clean files once per request.
             static $_have_cleaned = false;
             if (!$_have_cleaned) {

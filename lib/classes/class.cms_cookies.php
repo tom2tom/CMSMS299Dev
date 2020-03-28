@@ -27,6 +27,7 @@
  */
 final class cms_cookies
 {
+  // static properties here >> StaticProperties class ?
   /**
    * @ignore
    */

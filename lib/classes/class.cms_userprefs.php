@@ -38,6 +38,7 @@ final class cms_userprefs
 	 */
 	const PREF_CLASSES = ['stdClass'];
 
+    // static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 * Intra-request cache

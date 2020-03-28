@@ -59,6 +59,7 @@ class CmsLayoutTemplateType
 	 */
 	private $_data = [];
 
+    // static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 */

@@ -94,6 +94,7 @@ class CmsLayoutTemplate
 	*/
 	private $_groups;
 
+    // static properties here >> StaticProperties class ?
    /**
 	* @var array
 	* @ignore

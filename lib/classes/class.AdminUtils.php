@@ -419,6 +419,7 @@ final class AdminUtils
 		bool $allow_all = false,
 		bool $for_child = false) : string
 	{
+        // static properties here >> StaticProperties class ?
 		static $count = 1;
 
 		$first = ($count == 1) ? 'true' : 'false';

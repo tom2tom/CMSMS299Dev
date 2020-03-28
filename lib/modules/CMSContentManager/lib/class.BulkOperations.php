@@ -31,6 +31,7 @@ use function startswith;
  **/
 final class BulkOperations
 {
+    // static properties here >> StaticProperties class ?
 	private static $_list = [];
 
 	private function __construct() {}

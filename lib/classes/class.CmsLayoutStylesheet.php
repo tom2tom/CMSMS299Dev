@@ -42,6 +42,7 @@ class CmsLayoutStylesheet
 	*/
 	const TABLENAME = 'layout_stylesheets';
 
+    // static properties here >> StaticProperties class ?
 	/**
 	* @ignore
 	*/

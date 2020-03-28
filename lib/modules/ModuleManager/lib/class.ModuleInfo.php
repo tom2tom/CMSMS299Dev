@@ -37,6 +37,7 @@ class ModuleInfo extends extended_module_info // and thence module_info
     ];
     const DEPRECATED = ['CMSMailer','MenuManager'];
 
+    // static properties here >> StaticProperties class ?
     private static $_minfo;
     private $_mmdata = [];
 

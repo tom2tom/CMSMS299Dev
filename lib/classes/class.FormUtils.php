@@ -50,6 +50,7 @@ class FormUtils
     const ERRTPL = 'parameter "%s" is required for %s';
     const ERRTPL2 = 'a valid "%s" parameter is required for %s';
 
+    // static properties here >> StaticProperties class ?
     /**
 	 * Names of rich-text-editor modules specified for use during the current request
      * @ignore

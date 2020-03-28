@@ -21,8 +21,8 @@ namespace CMSMS;
 use cms_utils;
 use CmsApp;
 use CMSMS\AppState;
-use CMSMS\internal\SysDataCacheDriver;
-use CMSMS\internal\SysDataCache;
+use CMSMS\SysDataCacheDriver;
+use CMSMS\SysDataCache;
 use CMSMS\ModuleOperations;
 use CMSMS\RouteOperations;
 use CmsRoute;
@@ -53,6 +53,7 @@ if( !function_exists('__internal_cmp_routes') ) {
  */
 final class RouteOperations
 {
+    // static properties here >> StaticProperties class ?
 	/**
 	 * @var bool Whether the 'static' routes array has been populated
 	 * @ignore
@@ -130,11 +131,11 @@ final class RouteOperations
 
 			if( $tmp ) {
 				//TODO merge $tmp and self::$_dynamic_routes, if count bigger after that ...
-				SysDataCache::update('routes', self::$_dynamic_routes);
+				SysDataCache::get_instance()->update('routes', self::$_dynamic_routes);
 			}
 			return self::$_dynamic_routes; // old and new
 		});
-		SysDataCache::add_cachable($obj);
+		SysDataCache::get_instance()->add_cachable($obj);
 	}
 
 	// ========== FINDING|MATCHING ==========
@@ -416,7 +417,7 @@ final class RouteOperations
 	{
 		if( self::$_dynamic_routes_loaded ) return;
 		self::setup();
-		self::$_dynamic_routes = SysDataCache::get('routes');
+		self::$_dynamic_routes = SysDataCache::get_instance()->get('routes');
 		self::$_dynamic_routes_loaded = TRUE;
 	}
 

@@ -65,6 +65,7 @@ class StylesheetsGroup
 	 */
 	protected $_members = [];
 
+    // static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 */

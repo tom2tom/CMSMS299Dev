@@ -28,6 +28,7 @@ use const TMP_CACHE_LOCATION;
 
 final class modulerep_client
 {
+    // static properties here >> StaticProperties class ?
     private static $_latest_installed_modules;
 
     protected function __construct() {}

@@ -135,6 +135,7 @@ use InvalidArgumentException;
          */
         const PRIORITY_LOW = 3;
 
+        // static properties here >> StaticProperties class ?
         /**
          * @ignore
          */

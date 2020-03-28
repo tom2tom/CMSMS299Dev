@@ -660,6 +660,7 @@ class cms_http_request
      */
     public static function is_curl_suitable()
     {
+        // static properties here >> StaticProperties class ?
         static $_curlgood = null;
 
         if ($_curlgood === null) {

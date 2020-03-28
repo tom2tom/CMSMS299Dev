@@ -41,6 +41,7 @@ use function get_userid;
  */
 final class NlsOperations
 {
+    // static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 */

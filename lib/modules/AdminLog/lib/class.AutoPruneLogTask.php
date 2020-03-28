@@ -31,6 +31,7 @@ class AutoPruneLogTask implements CmsRegularTask
 
     protected static function mod()
     {
+        // static properties here >> StaticProperties class ?
         static $_mod;
         if( !$_mod ) $_mod = cms_utils::get_module('AdminLog');
         return $_mod;

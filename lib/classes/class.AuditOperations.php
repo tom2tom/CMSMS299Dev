@@ -62,6 +62,7 @@ namespace CMSMS {
 
     final class AuditOperations
     {
+        // static properties here >> StaticProperties class ?
         private static $_std_mgr = null;
         private static $_opt_mgr = null;
 

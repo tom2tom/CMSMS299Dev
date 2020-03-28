@@ -44,6 +44,7 @@ class Group
 	 */
 	const VALIDPROPS = ['id','name','description','active'];
 
+    // static properties here >> StaticProperties class ?
 	/**
 	 * GroupOperations object populated on demand
 	 * @ignore
@@ -181,19 +182,13 @@ class Group
 	 * @internal
 	 * @access private
 	 * @ignore
-	 * @param mixed $perm Either the permission id, or permission name, to test.
+	 * @param mixed $perm Permission name string, or (since 2.3) array of those, to test.
+	 * (Previous documentation referring to a numeric permission-id was incorrect)
 	 * @return bool whether the group has the specified permission.
 	 */
 	public function HasPermission($perm)
 	{
-		if( $this->id <= 0 ) { return false; }
-		// some permissions are not automatically extended to the super-users group
-		if( $this->id == 1 && !in_array($perm, [
-			'Modify DataBase Direct',
-			'Modify Restricted Files',
-			'Remote Administration',
-			//TODO exclude the corresponding id's for the above perms
-		]) ) { return true; }
+		if( $this->id < 1 ) { return false; }
 		return self::get_operations()->CheckPermission($this->id,$perm);
 	}
 
@@ -205,13 +200,16 @@ class Group
 	 * @author Robert Campbell
 	 * @internal
 	 * @ignore
-	 * @param mixed $perm Either the permission id, or permission name to test.
-	 * @return bool
+	 * @param string $perm Name of the permission to grant (Previous documentation
+	 *  about a numeric permission-id was incorrect)
+	 * @return bool, false if current user_id is invalid, or the named permission
+	 *  is already granted
 	 */
 	public function GrantPermission($perm)
 	{
-		if( $this->id < 1 ) return false;
-		if( $this->HasPermission($perm) ) return false;
+		if( $this->id < 1 ) { return false; }
+//		if( is_numeric($perm) ) { $perm = $TODO; }
+		if( $this->HasPermission($perm) ) { return false; }
 		return self::get_operations()->GrantPermission($this->id,$perm);
 	}
 
@@ -223,13 +221,16 @@ class Group
 	 * @author Robert Campbell
 	 * @internal
 	 * @ignore
-	 * @param mixed $perm Either the permission id, or permission name to test.
-	 * @return bool
+	 * @param string $perm Name of the permission to remove (Previous documentation
+	 *  about a numeric permission-id was incorrect)
+	 * @return bool, false if current user_id is invalid, or the named permission
+	 *  is not already granted
 	 */
 	public function RemovePermission($perm)
 	{
-		if( $this->id <= 0 ) return false;
-		if( !$this->HasPermission($perm) ) return false;
+		if( $this->id < 1 ) { return false; }
+//		if( is_numeric($perm) ) { $perm = $TODO; }
+		if( !$this->HasPermission($perm) ) { return false; }
 		return self::get_operations()->RemovPermission($this->id,$perm);
 	}
 }

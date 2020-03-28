@@ -19,10 +19,10 @@
 namespace CMSMS\internal;
 
 use CmsApp;
-use DateTime;
 use Smarty_Resource_Custom;
 use const CMS_DB_PREFIX;
 use function cms_error;
+use function cms_to_stamp;
 
 /**
  * A class for handling module templates as a resource.
@@ -35,6 +35,7 @@ use function cms_error;
  */
 class module_db_template_resource extends Smarty_Resource_Custom
 {
+    // static properties here >> StaticProperties class ?
     /**
      * @ignore
      */
@@ -42,7 +43,7 @@ class module_db_template_resource extends Smarty_Resource_Custom
 
     /**
      * @ignore
-	 * TODO cleanup when done 
+	 * TODO cleanup when done
      */
     private static $stmt;
 

@@ -32,11 +32,12 @@ use CmsApp;
  */
 final class JobManager
 {
-	//TODO namespaced global variables here
+	//TODO namespaced static properties here >> StaticProperties class ?
     /**
+	 * @var job-manager-module object, populated on demand
      * @ignore
      */
-    private static $_mod;
+    private static $_mod = null;
 
     /* *
      * @ignore
@@ -55,8 +56,8 @@ final class JobManager
 
     /**
      * Get an instance of this class.
-	 * @deprecated since 2.3 use new JobManager()
-     * @return CMSMS\Async\JobManager
+	 * @deprecated since 2.3 instead use new CMSMS\Async\JobManager()
+     * @return JobManager
      */
     public static function get_instance() : self
     {
@@ -72,7 +73,7 @@ final class JobManager
      */
     protected function get_mod()
     {
-        if( !isset(self::$_mod) ) self::$_mod = CmsApp::get_instance()->GetJobManager();
+		if( !self::$_mod ) { self::$_mod = CmsApp::get_instance()->GetJobManager(); }
         return self::$_mod;
     }
 

@@ -43,6 +43,7 @@ namespace CMSMS;
  */
 final class AdminTabs
 {
+    // static properties here >> StaticProperties class ?
     /**
      * @ignore
      */

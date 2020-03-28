@@ -92,7 +92,7 @@ class DataDictionary
 
     /**
      * Array-rows indexer, to support 'adding' returned arrays
-     *
+     * static properties here >> StaticProperties class ?
      * @ignore
      */
     private static $ctr = 1;

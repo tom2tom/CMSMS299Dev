@@ -33,6 +33,7 @@
  */
 class cms_tree_operations
 {
+  // static properties here >> StaticProperties class ?
   /**
    * @ignore
    */

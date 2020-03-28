@@ -37,6 +37,7 @@ use function endswith;
  */
 class layout_stylesheet_resource extends Smarty_Resource_Custom //fixed_smarty_custom_resource
 {
+    // static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 */

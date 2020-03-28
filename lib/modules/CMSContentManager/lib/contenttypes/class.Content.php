@@ -330,6 +330,7 @@ class Content extends ContentBase
 	 */
 	protected function get_template_list()
 	{
+        // static properties here >> StaticProperties class ?
 		static $_list;
 		if( $_list ) return $_list;
 
@@ -367,6 +368,7 @@ class Content extends ContentBase
 	 */
 	public function ShowElement($propname, $adding)
 	{
+        // static properties here >> StaticProperties class ?
 //		static $_designs;
 //		static $_types;
 //		static $_designtree;

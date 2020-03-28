@@ -33,6 +33,7 @@ use CMSMS\AdminTheme;
  */
 final class cms_utils
 {
+    // static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 */

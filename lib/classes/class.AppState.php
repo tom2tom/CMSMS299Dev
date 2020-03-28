@@ -83,6 +83,7 @@ final class AppState
         'stylesheet_request' => self::STATE_STYLESHEET,
     ];
 
+    // static properties here >> StaticProperties class ?
     /**
      * Array of current states.
      * @ignore

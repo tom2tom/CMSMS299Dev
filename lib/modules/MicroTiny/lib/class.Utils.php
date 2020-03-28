@@ -51,6 +51,7 @@ class Utils
 	 */
 	public static function WYSIWYGGenerateHeader($selector='', $css_name='')
 	{
+		// static properties here >> StaticProperties class ?
 		static $first_time = true;
 
 		// Check if we are in object instance

@@ -28,6 +28,7 @@ use function startswith;
  */
 class page_template_parser extends Smarty_Internal_Template
 {
+    // static properties here >> StaticProperties class ?
     /**
      * @ignore
      * @var int

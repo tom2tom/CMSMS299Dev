@@ -37,6 +37,7 @@ use const CMS_DB_PREFIX;
  */
 class PageLoader
 {
+    // static properties here >> StaticProperties class ?
     /**
      * Cache for content-object(s) loaded during the current request.
      * Might be > 1 page e.g. for cross-referencing.

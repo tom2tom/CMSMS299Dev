@@ -33,6 +33,7 @@ use function startswith;
 
 final class Utils
 {
+    // static properties here >> StaticProperties class ?
     private static $_can_do_advanced = -1;
 
     protected function __construct() {}

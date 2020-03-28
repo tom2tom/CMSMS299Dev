@@ -38,6 +38,7 @@ final class CmsPermission
 	 */
 	private $_data;
 
+    // static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 */
@@ -218,6 +219,24 @@ VALUES (?,?,?,?,$now,$now)";
 			return $perm->id;
 		}
 		catch( CmsException $e ) {
+			//nothing here
+		}
+	}
+
+	/**
+	 * Get the name of a numbered permission, if possible
+	 * @since 2.3
+	 * @param muixed $permid int | numeric string
+	 * @return mixed string|null
+	 */
+	public static function get_perm_name($permid)
+	{
+		try {
+			$perm = TODOfunc((int)$permid);
+			return $perm->name;
+		}
+		catch( CmsException $e ) {
+			//nothing here
 		}
 	}
 } // class

@@ -12,6 +12,7 @@ use ReflectionClass;
 
 abstract class BasicEnum
 {
+    // static properties here >> StaticProperties class ?
     private static $constCacheArray = [];
 
     /**

@@ -208,6 +208,7 @@ final class utils
 	 */
     public static function is_connection_ok()
     {
+        // static properties here >> StaticProperties class ?
         static $ok = -1;
         if( $ok != -1 ) return $ok;
 

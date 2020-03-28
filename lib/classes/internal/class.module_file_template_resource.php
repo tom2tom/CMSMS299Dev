@@ -34,6 +34,7 @@ use function cms_join_path;
  */
 class module_file_template_resource extends Smarty_Resource_Custom
 {
+    // static properties here >> StaticProperties class ?
     /**
      * @ignore
      */
