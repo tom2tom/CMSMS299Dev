@@ -35,7 +35,7 @@ final class utils
 
     public static function get_template_locks()
     {
-		//NOTE static properties here
+		// static properties here >> StaticProperties class ?
         static $_locks = null;
         static $_locks_loaded = FALSE;
         if( !$locks_loaded ) {

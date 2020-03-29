@@ -79,6 +79,7 @@ class Design
 	 */
 	private $_tpl_members = [];
 
+    // static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 */

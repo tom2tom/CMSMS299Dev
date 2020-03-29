@@ -27,7 +27,7 @@ use const CMS_DB_PREFIX;
 
 final class Utils
 {
-	//NOTE static properties here
+	//NOTE static properties here >> StaticProperties class ?
 	private static $_categories_loaded = FALSE;
 	private static $_cached_categories = [];
 

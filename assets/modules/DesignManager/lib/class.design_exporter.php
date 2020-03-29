@@ -43,6 +43,7 @@ class design_exporter
     private $_files;
     private $_image = null;
     private $_description;
+    // static properties here >> StaticProperties class ?
     public static $_mm_types;
     public static $_nav_types;
 
@@ -71,7 +72,8 @@ class design_exporter
   <!ELEMENT fkey (#PCDATA)>
   <!ELEMENT fvalue (#PCDATA)>
   <!ELEMENT fdata (#PCDATA)>
-]>\n
+]>
+
 EOT;
 
     public function __construct(Design $design)
