@@ -1,6 +1,6 @@
 <?php
 #procedure for displaying details about the website and its operating environment
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,6 +18,7 @@
 
 use CMSMS\AppState;
 use CMSMS\NlsOperations;
+use CMSMS\SystemCache;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -154,8 +155,8 @@ $res = cms_siteprefs::get('use_smartycompilecheck', 1);
 $tmp[0]['smarty_compilecheck'] = testBoolean(0, lang('smarty_compilecheck'), $res, lang('test_smarty_compilecheck'), false, true);
 $res = cms_siteprefs::get('auto_clear_cache_age', 0);
 $tmp[0]['auto_clear_cache_age'] = testRange(0, lang('autoclearcache2'), $res, lang('test_auto_clear_cache_age'), 0, 30, false);
-$obj = cms_cache_handler::get_instance();
-$type = get_class($obj->get_driver());
+$cache = SystemCache::get_instance();
+$type = get_class($cache->get_driver());
 $c = stripos($type, 'Cache');
 $res = ucfirst(substr($type, $c+5));
 if( $res != 'File' ) { $res .= ' (auto)'; } else { $res = 'Saved files'; } //TODO lang

@@ -20,8 +20,10 @@ use cms_installer\installer_base;
 use CMSMS\AdminUtils;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
-use CMSMS\internal\SysDataCache;
+use CMSMS\FilePickerProfile;
 use CMSMS\RouteOperations;
+use CMSMS\SysDataCache;
+use CMSMS\SystemCache;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -139,8 +141,9 @@ if ($n == 1) {
  * Cache and content
  */
 if (isset($_POST['clearcache'])) {
-    SysDataCache::clear_all();
-    cms_cache_handler::get_instance()->clear();
+    //TODO files in local TMP_CACHE_LOCATION etc
+    SysDataCache::get_instance()->clear_all();
+    SystemCache::get_instance()->clear();
     AdminUtils::clear_cached_files();
     // put mention into the admin log
     audit('', 'System maintenance', 'Caches cleared');
@@ -249,8 +252,8 @@ $smarty->assign('pagecount', $count)
   ->assign('pageswithinvalidtype', $invalidtypes)
   ->assign('invalidtypescount', count($invalidtypes));
 
-$obj = cms_cache_handler::get_instance();
-$type = get_class($obj->get_driver());
+$cache = SystemCache::get_instance();
+$type = get_class($cache->get_driver());
 if (!endswith($type, 'File')) {
     $c = stripos($type, 'Cache');
     $type = ucfirst(substr($type, $c+5));
