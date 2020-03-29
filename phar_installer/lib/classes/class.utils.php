@@ -198,28 +198,36 @@ final class utils
     /**
      * Recursive delete directory
      *
-     * @param string $dir filepath
+     * @param string $path filepath
+     * @param bool $withtop Since 2.9 Optional flag whether to remove $path
+     *  itself, as well as all its contents. Default true.
      */
-    public static function rrmdir($dir)
+    public static function rrmdir($path, $withtop = TRUE)
     {
-        if (is_dir($dir)) {
-            $objects = scandir($dir);
-            foreach ($objects as $object) {
-                if ($object != '.' && $object != '..') {
-                    if (filetype($dir.DIRECTORY_SEPARATOR.$object) == 'dir') {
-                        self::rrmdir($dir.DIRECTORY_SEPARATOR.$object);
-                    } else {
-                        unlink($dir.DIRECTORY_SEPARATOR.$object);
+        if( is_dir($path) ) {
+            $items = scandir($path);
+            foreach ($items as $name) {
+                if( !($name == '.' || $name == '..') ) {
+                    if( filetype($path.DIRECTORY_SEPARATOR.$name) == 'dir' ) {
+                        self::rrmdir($path.DIRECTORY_SEPARATOR.$name); //recurse
+                    }
+                    else {
+                        @unlink($path.DIRECTORY_SEPARATOR.$name);
                     }
                 }
             }
-            reset($objects);
-            if (is_link($dir)) {
-                return unlink($dir);
-            } elseif (is_dir($dir)) {
-                return rmdir($dir);
+            if( $withtop ) {
+                if( is_link($path) ) {
+                    return @unlink($path);
+                }
+                elseif( is_dir($path) ) {
+                    return @rmdir($path);
+                }
+                else {
+                    return false;
+                }
             }
-            return false;
+            return true;
         }
     }
 
