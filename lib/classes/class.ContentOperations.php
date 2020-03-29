@@ -18,19 +18,19 @@
 
 namespace CMSMS;
 
-use cms_cache_handler;
 use cms_content_tree;
 use CmsApp;
 use CMSMS\AdminUtils;
+use CMSMS\AppSingle;
 use CMSMS\ContentType;
 use CMSMS\ContentTypeOperations;
 use CMSMS\contenttypes\ContentBase;
-use CMSMS\internal\SysDataCache;
+use CMSMS\SysDataCache;
 use CMSMS\UserOperations;
 use DeprecationNotice;
 use Exception;
 use const CMS_DB_PREFIX;
-use const CMS_DEBUG;
+use const CMS_DEPREC;
 use function check_permission;
 use function debug_buffer;
 use function lang;
@@ -51,11 +51,11 @@ use function munge_string_to_url;
  */
 final class ContentOperations
 {
-	/**
+	/* *
 	 * @ignore
 	 * Singleton to protect static properties
 	 */
-	private static $_instance = null;
+//	private static $_instance = null;
 
 	/* *
 	 * @ignore
@@ -72,28 +72,27 @@ final class ContentOperations
 	 */
 	private $_ownedpages;
 
-	/**
+	/* *
 	 * @ignore
 	 */
-	private function __construct() {}
+	//private function __construct() {}
 
-	/**
+	/* *
 	 * @ignore
 	 */
-	private function __clone() {}
+	//private function __clone() {}
 
 	/**
 	 * Get the singleton instance of this class.
 	 * This method is called over a hundred times during a typical request,
 	 * so warrants being a singleton.
+	 * @deprecated since 2.3 instead use CMSMS\AppSingle::ContentOperations()
 	 * @return ContentOperations
 	 */
 	public static function get_instance() : self
 	{
-		if( !self::$_instance ) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::ContentOperations()'));
+		return AppSingle::ContentOperations();
 	}
 
 	/**
@@ -227,7 +226,7 @@ final class ContentOperations
 		$id = (int)$id;
 		if( $id < 1 ) { $id = $this->GetDefaultContent(); }
 
-		$cache = cms_cache_handler::get_instance();
+		$cache = SystemCache::get_instance();
 		$contentobj = $cache->get($id,'tree_pages');
 		if( !$contentobj ) {
 			$db = CmsApp::get_instance()->GetDb();
@@ -268,7 +267,7 @@ final class ContentOperations
 	 */
 	public function LoadContentFromAlias($alias, bool $only_active = false)  //TODO ensure relevant content-object
 	{
-		$contentobj = cms_cache_handler::get_instance()->get($alias,'tree_pages');
+		$contentobj = SystemCache::get_instance()->get($alias,'tree_pages');
 		if( $contentobj === null ) {
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE (content_id=? OR content_alias=?)';
@@ -316,6 +315,7 @@ final class ContentOperations
 		if (strlen($idhier) > 0) $idhier = substr($idhier, 0, strlen($idhier) - 1);
 		if (strlen($pathhier) > 0) $pathhier = substr($pathhier, 0, strlen($pathhier) - 1);
 
+        // static properties here >> StaticProperties class ?
 		// if we actually did something, return the row.
 		static $_cnt;
 		$a = ($hier == $saved_row['hierarchy']);
@@ -378,7 +378,7 @@ final class ContentOperations
 	 */
 	public function GetLastContentModification()
 	{
-		return SysDataCache::get('latest_content_modification');
+		return SysDataCache::get_instance()->get('latest_content_modification');
 	}
 
 	/**
@@ -389,12 +389,13 @@ final class ContentOperations
 	 */
 	public function SetContentModified()
 	{
-		SysDataCache::release('latest_content_modification');
-		SysDataCache::release('default_content');
-		SysDataCache::release('content_flatlist');
-		SysDataCache::release('content_tree');
-		SysDataCache::release('content_quicklist');
-		cms_cache_handler::get_instance()->clear('tree_pages');
+		$cache = SysDataCache::get_instance();
+		$cache->release('latest_content_modification');
+		$cache->release('default_content');
+		$cache->release('content_flatlist');
+		$cache->release('content_tree');
+		$cache->release('content_quicklist');
+		SystemCache::get_instance()->clear('tree_pages');
 		//etc for CM list
 	}
 
@@ -425,7 +426,7 @@ final class ContentOperations
 			return;
 		}
 		$_loaded = 1;
-		$cache = cms_cache_handler::get_instance();
+		$cache = SystemCache::get_instance();
 
 		$expr = [];
 		$loaded_ids = $cache->getindex('tree_pages');
@@ -521,7 +522,7 @@ final class ContentOperations
 	public function LoadChildren(int $id = null, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$cache = cms_cache_handler::get_instance();
+		$cache = SystemCache::get_instance();
 
 		if( $explicit_ids ) {
 			$loaded_ids = $cache->getindex('tree_pages');
@@ -639,7 +640,7 @@ final class ContentOperations
 		$contentobj->SetDefaultContent(true);
 		$contentobj->Save();
 
-		SysDataCache::release('default_content');
+		SysDataCache::get_instance()->release('default_content');
 	}
 
 	/**
@@ -649,7 +650,7 @@ final class ContentOperations
 	 */
 	public function GetDefaultContent() : int
 	{
-		return (int)SysDataCache::get('default_content');
+		return (int)SysDataCache::get_instance()->get('default_content');
 	}
 
 	/**
@@ -1001,7 +1002,7 @@ final class ContentOperations
 	 */
 	public function quickfind_node_by_id(int $contentid)
 	{
-		$list = SysDataCache::get('content_quicklist');
+		$list = SysDataCache::get_instance()->get('content_quicklist');
 		if( isset($list[$contentid]) ) return $list[$contentid];
 	}
 } // class
