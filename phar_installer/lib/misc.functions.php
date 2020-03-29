@@ -6,7 +6,7 @@ use cms_installer\cms_smarty;
 use cms_installer\installer_base;
 use cms_installer\langtools;
 use cms_installer\nlstools;
-use Exception;
+use Throwable;
 
 /**
  * @return installer_base object
