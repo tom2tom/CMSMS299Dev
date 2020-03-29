@@ -1,6 +1,6 @@
 <?php
-#Class for managing module metadata
-#Copyright (C) 2010-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Singleton class of methods for managing module metadata
+#Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,15 +18,18 @@
 
 namespace CMSMS\internal;
 
-use cms_cache_handler;
 use cms_utils;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\ModuleOperations;
+use CMSMS\SystemCache;
+use DeprecationNotice;
 use ReflectionMethod;
+use const CMS_DEPREC;
 use function debug_buffer;
 
 /**
- * A class for managing metadata acquired from modules.
+ * A singleton class for managing metadata polled from modules.
  *
  * This class caches information from modules as needed.
  *
@@ -39,20 +42,22 @@ use function debug_buffer;
  */
 final class module_meta
 {
-    /**
+    /* *
      * @ignore
      */
-    private static $_instance = null;
+    //private static $_instance = null;
     //TODO namespaced global variables here
     /**
+     * null to trigger cache loading, or array, possibly having member(s)
+	 *  'capability', 'methods' (those being arrays) or possibly no member
      * @ignore
      */
-    private static $_data = null;
+    private $_data = null;
 
-    /**
+    /* *
      * @ignore
      */
-    private function __construct() {}
+    //private function __construct() {}
 
     /**
      * @ignore
@@ -60,26 +65,30 @@ final class module_meta
     private function __clone() {}
 
     /**
-     * Get the instance of this class.
+     * Get the singleton instance of this class
+	 * @deprecated since 2.9 instead use CMSMS\AppSingle::module_meta()
      * @return object
      */
     public static function get_instance() : self
     {
-        if( !self::$_instance ) { self::$_instance = new self(); }
-        return self::$_instance;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::module_meta()'));
+		return AppSingle::module_meta();
     }
 
+    //we do not use SysDataCache + Driver(s) to populate the cache on demand
+    //cuz' not feasible to pre-check every module for every possible method
     private function _load_cache()
     {
         if( AppState::test_state(AppState::STATE_INSTALL) ) return;
 
-        if( self::$_data === null ) {
-            $data = cms_cache_handler::get_instance()->get(self::class,'module_meta');
+        if( $this->_data === null ) {
+            //TODO consider > 1 key for this group: 'capability', 'methods'
+            $data = SystemCache::get_instance()->get(self::class,'module_meta');
             if( $data ) {
-                self::$_data = $data;
+                $this->_data = $data;
             }
             else {
-                self::$_data = [];
+                $this->_data = [];
             }
         }
     }
@@ -87,42 +96,59 @@ final class module_meta
     private function _save_cache()
     {
         if( AppState::test_state(AppState::STATE_INSTALL) ) return;
-
-        cms_cache_handler::get_instance()->set(self::class,self::$_data,'module_meta');
+        //TODO consider > 1 key for this group: 'capability', 'methods'
+        SystemCache::get_instance()->set(self::class,$this->_data,'module_meta');
     }
 
     /**
      * Zap the capabilities-and-methods cache
-     * For use e.g. after module [un]install
      */
-    public function clear_module_lists()
+    public function clear_cache()
     {
-        self::$_data = null;
-        cms_cache_handler::get_instance()->erase(self::class,'module_meta');
+        $this->_data = null;
+        //TODO consider > 1 key for this group: 'capability', 'methods'
+        SystemCache::get_instance()->erase(self::class,'module_meta');
     }
 
     /**
-     * List modules by their capabilities
+     * Check whether the named module has ANY recorded capability
+     * @since 2.9
+     * @param string $modname The module name
+     * @return bool
+     */
+    public function module_is_capable($modname)
+    {
+        $this->_load_cache();
+        foreach( $this->_data['capability'] as $sig => $name ) {
+            if( $name == $modname ) {
+                if( $sig[$name] ) { return TRUE; }
+            }
+        }
+        return FALSE;
+    }
+
+    /**
+     * Return a list of installed modules which have the specified capability
      *
      * @param string $capability The capability name
      * @param array  $params Optional capability parameters
      * @param bool   $returnvalue Optional capability value to match. Default true.
-     * @return array of matching module names, maybe empty
+     * @return array of matching module names i.e. possibly empty
      */
     public function module_list_by_capability($capability,$params = [],$returnvalue = TRUE)
     {
-        if( empty($capability) ) return;
+        if( empty($capability) ) return [];
 
         $this->_load_cache();
         $sig = cms_utils::hash_string($capability.serialize($params));
-        if( !isset(self::$_data['capability']) || !isset(self::$_data['capability'][$sig]) ) {
+        if( !isset($this->_data['capability']) || !isset($this->_data['capability'][$sig]) ) {
             debug_buffer('start building module capability list');
-            if( !isset(self::$_data['capability']) ) self::$_data['capability'] = [];
+            if( !isset($this->_data['capability']) ) $this->_data['capability'] = [];
 
             $modops = ModuleOperations::get_instance();
             $installed_modules = $modops->GetInstalledModules();
             $loaded_modules = $modops->GetLoadedModules();
-            self::$_data['capability'][$sig] = [];
+            $this->_data['capability'][$sig] = [];
             foreach( $installed_modules as $onemodule ) {
                 if( isset($loaded_modules[$onemodule]) ) {
                     $object = $loaded_modules[$onemodule];
@@ -136,18 +162,18 @@ final class module_meta
 
                 // now do the test
                 $res = $object->HasCapability($capability,$params);
-                self::$_data['capability'][$sig][$onemodule] = $res;
+                $this->_data['capability'][$sig][$onemodule] = $res;
                 if( !$loaded ) $object = null; //help the garbage collector
             }
 
             debug_buffer('Finished building module capability list');
-            // store it.
+            // store it
             $this->_save_cache();
         }
 
         $res = [];
-        if( self::$_data['capability'][$sig] ) {
-            foreach( self::$_data['capability'][$sig] as $key => $value ) {
+        if( $this->_data['capability'][$sig] ) {
+            foreach( $this->_data['capability'][$sig] as $key => $value ) {
                 if( $value == $returnvalue ) $res[] = $key;
             }
         }
@@ -155,28 +181,28 @@ final class module_meta
     }
 
     /**
-     * Return a list of modules that have the specified method and it returns
-     * the specified result.
+     * Return a list of installed modules which have the specified method, and
+     * that method returns the specified result.
      *
      * @param string Method name
-     * @param mixed  Optional value to (non-strictly) compare with method return-value,
-     *  and only report matches. May be ModuleOperations::ANY_RESULT for any value.
-     *  Default true.
-     * @return array of matching module names, maybe empty
+     * @param mixed  Optional value to (non-strictly) compare with method
+     *  return-value, and only report matches. May be
+     *  ModuleOperations::ANY_RESULT for any value. Default true.
+     * @return array of matching module names i.e. possibly empty
      */
     public function module_list_by_method($method,$returnvalue = TRUE)
     {
-        if( empty($method) ) return;
+        if( empty($method) ) return [];
 
         $this->_load_cache();
-        if( !isset(self::$_data['methods']) || !isset(self::$_data['methods'][$method]) ) {
+        if( !isset($this->_data['methods']) || !isset($this->_data['methods'][$method]) ) {
             debug_buffer('Start building module method cache');
-            if( !isset(self::$_data['methods']) ) self::$_data['methods'] = [];
+            if( !isset($this->_data['methods']) ) $this->_data['methods'] = [];
 
             $modops = ModuleOperations::get_instance();
             $installed_modules = $modops->GetInstalledModules();
             $loaded_modules = $modops->GetLoadedModules();
-            self::$_data['methods'][$method] = [];
+            $this->_data['methods'][$method] = [];
             foreach( $installed_modules as $onemodule ) {
                 if( isset($loaded_modules[$onemodule]) ) {
                     $object = $loaded_modules[$onemodule];
@@ -193,20 +219,20 @@ final class module_meta
                     if( $reflector->getDeclaringClass()->getName() == $onemodule ) { //or == get_class($object) if modules are namespaced
                         // do the test
                         $res = $object->$method();
-                        self::$_data['methods'][$method][$onemodule] = $res;
+                        $this->_data['methods'][$method][$onemodule] = $res;
                     }
                 }
                 if( !$loaded ) $object = null; //help the garbage collector
             }
 
             debug_buffer('Finished building module method cache');
-            // store it.
+            // store it
             $this->_save_cache();
         }
 
         $res = [];
-        if( self::$_data['methods'][$method] ) {
-            foreach( self::$_data['methods'][$method] as $key => $value ) {
+        if( $this->_data['methods'][$method] ) {
+            foreach( $this->_data['methods'][$method] as $key => $value ) {
                 if( $returnvalue === ModuleOperations::ANY_RESULT || $returnvalue == $value ) $res[] = $key;
             }
         }
