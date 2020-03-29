@@ -2,22 +2,25 @@
 
 namespace cms_installer\wizard;
 
-use cms_cache_handler;
 use cms_config;
 use cms_installer\installer_base;
 use cms_installer\session;
+use cms_installer\utils;
 use cms_installer\wizard\wizard_step;
 use CMSMS\AdminUtils;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\ContentTypeOperations;
-use CMSMS\internal\global_cache;
 use CMSMS\ModuleOperations;
+use CMSMS\SysDataCache;
+use CMSMS\SystemCache;
 use Exception;
 use mysqli;
+use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_VERSION;
 use const CONFIG_FILE_LOCATION;
+use const PUBLIC_CACHE_LOCATION;
 use const TMP_CACHE_LOCATION;
 use const TMP_TEMPLATES_C_LOCATION;
 use function audit;
@@ -35,6 +38,37 @@ class wizard_step9 extends wizard_step
     protected function process()
     {
         // nothing here
+    }
+
+    //Try to create local cache directories if they're gone, otherwise try to clear
+    private function clear_filecaches()
+    {
+        if( is_dir(TMP_CACHE_LOCATION) ) {
+			if( is_writable(TMP_CACHE_LOCATION) ) {
+				utils::rrmdir(TMP_CACHE_LOCATION, FALSE);
+			}
+		}
+		else {
+            @mkdir(TMP_CACHE_LOCATION,0771,TRUE);
+        }
+        if( TMP_CACHE_LOCATION != PUBLIC_CACHE_LOCATION ) {
+            if( is_dir(PUBLIC_CACHE_LOCATION) ) {
+				if( is_writable(PUBLIC_CACHE_LOCATION) ) {
+					utils::rrmdir(PUBLIC_CACHE_LOCATION, FALSE);
+				}
+			}
+			else {
+                @mkdir(PUBLIC_CACHE_LOCATION,0771,TRUE);
+            }
+        }
+        if( is_dir(TMP_TEMPLATES_C_LOCATION) ) {
+	        if( is_writable(TMP_TEMPLATES_C_LOCATION) ) {
+                utils::rrmdir(TMP_TEMPLATES_C_LOCATION, FALSE);
+			}
+		}
+		else {
+            @mkdir(TMP_TEMPLATES_C_LOCATION,0771,TRUE);
+        }
     }
 
     private function do_upgrade($version_info)
@@ -67,7 +101,8 @@ class wizard_step9 extends wizard_step
                     $res = $modops->UpgradeModule($name);
                     if( $res[0] ) {
                         $this->verbose(lang('msg_upgrade_module',$name));
-                    } else {
+                    }
+                    else {
                         $msg = lang('error_modulebad',$name);
                         $msg .= ': '.$res[1];
                         $this->error($msg);
@@ -79,7 +114,8 @@ class wizard_step9 extends wizard_step
                     $res = $modops->InstallModule($name);
                     if( $res[0] ) {
                         $this->verbose(lang('install_module',$name));
-                    } else {
+                    }
+                    else {
                         $msg = lang('error_modulebad',$name);
                         $msg .= ': '.$res[1];
                         $this->error($msg);
@@ -95,21 +131,21 @@ class wizard_step9 extends wizard_step
         // write history
         audit('', 'System Upgraded', 'New version '.CMS_VERSION);
 
+        // security for the config file
+        @chmod(CONFIG_FILE_LOCATION,0440); //0400 would be better, if valid
+
         // clear the caches
         $this->message(lang('msg_clearcache'));
-        global_cache::clear_all(); // clear all global-types' content
-        cms_cache_handler::get_instance()->clear();
+        $this->clear_filecaches();
+        SysDataCache::get_instance()->clear_all(); // clear all global-types' content
+        SystemCache::get_instance()->clear();
         AdminUtils::clear_cached_files();
-
-        $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
-        // write protect config.php
-        @chmod($cfgfile,0440);
 
         // set the finished message
         $url = $app->get_root_url();
         $admin_url = $url;
         if( !endswith($url,'/') ) $admin_url .= '/';
-        include_once $cfgfile;
+        include_once CONFIG_FILE_LOCATION;
         $aname = (!empty($config['admin_dir'])) ? $config['admin_dir'] : 'admin';
         $admin_url .= $aname;
 
@@ -155,9 +191,10 @@ VALUES (?,?,?,NOW())');
                     if( $modinst ) {
                         try {
                             $this->mod_install($modops, $modinst, $db, $stmt1, $stmt2);
-                        } catch ( Exception $e ) {
+                        }
+                        catch( Throwable $t ) {
                             $msg = lang('error_modulebad', $modname);
-                            $tmp = $e->GetMessage();
+                            $tmp = $t->GetMessage();
                             if( is_string($tmp) ) {
                                 $msg .= ': '.$tmp;
                             }
@@ -181,7 +218,8 @@ VALUES (?,?,?,NOW())');
         if( !empty($siteinfo['samplecontent']) ) {
             $arr = installer_base::CONTENTXML;
             $fn = end($arr);
-        } else {
+        }
+        else {
             $fn = 'initial.xml';
         }
 
@@ -196,7 +234,8 @@ VALUES (?,?,?,NOW())');
             try {
                 if( $app->in_phar() ) {
                     $fp = $app->get_phar().'/lib/install/iosite.functions.php';
-                } else {
+                }
+                else {
                     $fp = joinpath(dirname(__DIR__,2),'install','iosite.functions.php');
                 }
                 require_once $fp;
@@ -207,10 +246,11 @@ VALUES (?,?,?,NOW())');
                 $this->verbose(lang('install_updatehierarchy'));
                 ContentOperations::get_instance()->SetAllHierarchyPositions();
             }
-            catch (Exception $e) {
+            catch( Throwable $t ) {
                 $ADBG = 1;
             }
-        } else {
+        }
+        else {
             $this->error(lang('error_nocontent',$fn));
         }
 
@@ -250,22 +290,20 @@ VALUES (?,?,?,NOW())');
 
         $this->connect_to_cmsms($destdir);
 
-        // in case they're gone, try to create tmp directories
-        @mkdir(TMP_CACHE_LOCATION,0771,TRUE);
-        @mkdir(TMP_TEMPLATES_C_LOCATION,0771,TRUE);
-        // another failsafe - write protect the config file
-        @chmod(CONFIG_FILE_LOCATION,0440);
-
         // freshen content types
         ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
 
         // write history
         audit('', 'System Freshened', 'All core files renewed');
 
+        // security for the config file
+        @chmod(CONFIG_FILE_LOCATION,0440); //0400 would be better, if valid
+
         // clear the caches
         $this->message(lang('msg_clearcache'));
-        global_cache::clear_all(); // clear all global-types' content
-        cms_cache_handler::get_instance()->clear();
+        $this->clear_filecaches();
+        SysDataCache::get_instance()->clear_all(); // clear all global-types' content
+        SystemCache::get_instance()->clear();
         AdminUtils::clear_cached_files();
 
         // set the finished message
@@ -301,7 +339,8 @@ VALUES (?,?,?,NOW())');
 
         if( is_file("$destdir/include.php") ) {
             include_once $destdir.'/include.php';
-        } else {
+        }
+        else {
             include_once $destdir.'/lib/include.php';
         }
 
@@ -351,7 +390,8 @@ VALUES (?,?,?,NOW(),NOW())');
                 }
             }
 //            $modops->generate_moduleinfo($modinst); //uses defined CMS_VERSION
-        } else {
+        }
+        else {
             throw new Exception($result); //send back numeric code or error-string
         }
     }
@@ -396,8 +436,8 @@ VALUES (?,?,?,NOW(),NOW())');
 
             $this->finish();
         }
-        catch( Exception $e ) {
-            $this->error($e->GetMessage());
+        catch( Throwable $t ) {
+            $this->error($t->GetMessage());
         }
 
         $app->cleanup();
