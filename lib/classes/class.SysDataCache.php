@@ -18,11 +18,12 @@
 
 namespace CMSMS;
 
-use cms_cache_handler;
 use CmsException;
 use CMSMS\AppState;
 use CMSMS\SysDataCacheDriver;
+use DeprecationNotice;
 use UnexpectedValueException;
+use const CMS_DEPREC;
 
 /**
  * Singleton class which handles caching of data retrieved e.g. from the
@@ -33,48 +34,71 @@ use UnexpectedValueException;
  * for inter-request persistence.
  *
  * @see also SysDataCacheDriver class, which defines how data are retrieved on-damand
- * @see also cms_cache_handler class, which defines the main system cache
+ * @see also SystemCache class, which defines the main system cache
  * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
- * @since       2.0 as CMSMS\internal\global_cache class
  * @since       2.9
- * @ignore
- * @internal
+ * @since       2.0 as CMSMS\internal\global_cache class
  * @package     CMS
  */
 class SysDataCache
 {
     const TIMEOUT = 604800; //1 week data-lifetime in system cache
 
-    /**
-     * backup-class singleton
-     * @var cms_cache_handler
-     */
-    private static $instance;
+    //private static $_instance = null;
 
     /**
-     * SysDataCacheDriver objects, each of which is tailored to retrieve the data of its type
-     * @var array
+     * CMSMS\SystemCache class singleton
+     * @var SystemCache
      */
-    private static $_types = [];
+    protected $_maincache;
 
     /**
-     * in-memory cache: data populated by members of $_types
+     * @var array SysDataCacheDriver objects
+     * each of which is tailored to retrieve the data of its type
+     */
+    protected $_types = [];
+
+    /**
      * @var array | null to trigger loading
+     * in-memory cache: data populated by members of $this->_types
      */
-    private static $_data = null;
+    protected $_data = null;
 
     /**
-     * members of $_types which include changed value(s)
      * @var array
+     * members of $this->_types which include changed value(s)
      */
-    private static $_dirty = [];
+    protected $_dirty = [];
 
     /**
      * This is a singleton
      * @ignore
      */
-    private function __construct() {}
+//  private function __construct() {}
     private function __clone() {}
+
+    /**
+     * Handle old-class/API calls corresponding to SysDataCache::method()
+     * @param string $name method name
+     * @param array $args enumerated method argument(s)
+     */
+    public static function __callStatic($name, $args)
+    {
+        $obj = AppSingle::SysDataCache();
+        return $obj->$name(...$args);
+    }
+
+    /**
+     * Get the singleton instance of this class
+     * @since 2.9
+     * @deprecated since 2.9 use CMSMS\AppSingle::SysDataCache()
+     * @return self
+     */
+    public static function get_instance() : self
+    {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::SysDataCache()'));
+        return AppSingle::SysDataCache();
+    }
 
     /**
      * Add a cached-data type (or more particularly, the mechanism to
@@ -82,10 +106,10 @@ class SysDataCache
      *
      * @param SysDataCacheDriver $obj
      */
-    public static function add_cachable(SysDataCacheDriver $obj)
+    public function add_cachable(SysDataCacheDriver $obj)
     {
         $name = $obj->get_name();
-        self::$_types[$name] = $obj;
+        $this->_types[$name] = $obj;
     }
 
     /**
@@ -94,10 +118,10 @@ class SysDataCache
      *
      * @param string $type
      */
-    public static function release(string $type)
+    public function release(string $type)
     {
-        if( isset(self::$_data[$type]) ) {
-            unset(self::$_data[$type]);
+        if( isset($this->_data[$type]) ) {
+            unset($this->_data[$type]);
         }
     }
 
@@ -108,35 +132,35 @@ class SysDataCache
      * @return mixed
      * @throws UnexpectedValueException if $type is not a recorded/cachable type
      */
-    public static function get(string $type)
+    public function get(string $type)
     {
-        //if( !isset(self::$_types[$type]) ) return; //DEBUG
-        if( !isset(self::$_types[$type]) ) {
+        //if( !isset($this->_types[$type]) ) return; //DEBUG
+        if( !isset($this->_types[$type]) ) {
            throw new UnexpectedValueException('Unknown cache-data type: '.$type);
         }
-        if( !is_array(self::$_data) ) {
-            self::_load();
+        if( !is_array($this->_data) ) {
+            $this->_load();
         }
-        if( !isset(self::$_data[$type]) ) {
-            self::$_data[$type] = self::$_types[$type]->fetch();
-            self::$_dirty[$type] = 1;
-            self::save();
+        if( !isset($this->_data[$type]) ) {
+            $this->_data[$type] = $this->_types[$type]->fetch();
+            $this->_dirty[$type] = 1;
+            $this->save();
         }
-        return self::$_data[$type];
+        return $this->_data[$type];
     }
 
     /**
      * Migrate required data from system cache to in-memory cache
      * @ignore
      */
-    private static function _load()
+    private function _load()
     {
-        $cache = self::_get_cache();
-        $keys = array_keys(self::$_types);
-        self::$_data = [];
+        $cache = $this->get_main_cache();
+        $keys = array_keys($this->_types);
+        $this->_data = [];
         foreach( $keys as $key ) {
             $tmp = $cache->get($key,self::class);
-            self::$_data[$key] = $tmp;
+            $this->_data[$key] = $tmp;
             unset($tmp);
         }
     }
@@ -146,21 +170,21 @@ class SysDataCache
      *
      * @param string $type
      */
-    public static function clear(string $type)
+    public function clear(string $type)
     {
-        self::_get_cache()->erase($type);
-        unset(self::$_types[$type], self::$_data[$type], self::$_dirty[$type]);
+        $this->get_main_cache()->erase($type);
+        unset($this->_types[$type], $this->_data[$type], $this->_dirty[$type]);
     }
 
     /**
      * Remove everything from the in-memory and system caches
      */
-    public static function clear_all()
+    public function clear_all()
     {
-        self::_get_cache()->clear();
-        self::$_types = [];
-        self::$_data = null;
-        self::$_dirty = [];
+        $this->get_main_cache()->clear();
+        $this->_types = [];
+        $this->_data = null;
+        $this->_dirty = [];
     }
 
     /**
@@ -170,47 +194,47 @@ class SysDataCache
      * @param string $type
      * @param mixed $data the data to be stored
      */
-    public static function update(string $type, $data)
+    public function update(string $type, $data)
     {
-        if( isset(self::$_types[$type]) ) {
-            self::$_data[$type] = $data;
-            self::$_dirty[$type] = 1;
-            self::save();
+        if( isset($this->_types[$type]) ) {
+            $this->_data[$type] = $data;
+            $this->_dirty[$type] = 1;
+            $this->save();
         }
     }
 
     /**
      * Migrate 'dirty' data from in-memory cache to system cache
      */
-    public static function save()
+    public function save()
     {
         if( AppState::test_state(AppState::STATE_INSTALL) ) { return; }
-        $cache = self::_get_cache();
-        $keys = array_keys(self::$_types);
+        $cache = $this->get_main_cache();
+        $keys = array_keys($this->_types);
         foreach( $keys as $key ) {
-            if( !empty(self::$_dirty[$key]) && isset(self::$_data[$key]) ) {
-                $cache->set($key,self::$_data[$key]);
-                unset(self::$_dirty[$key]);
+            if( !empty($this->_dirty[$key]) && isset($this->_data[$key]) ) {
+                $cache->set($key,$this->_data[$key]);
+                unset($this->_dirty[$key]);
             }
         }
     }
 
     /**
-     * Get the singleton system-cache object used here for backup
-     * @return cms_cache_handler object
+     * Get the singleton CMSMS\SystemCache object used here for backup
+     * @return SystemCache object
      * @throws CmsException
      */
-    private static function _get_cache() : cms_cache_handler
+    private function get_main_cache() : SystemCache
     {
-        if( !self::$instance ) {
-            $obj = new cms_cache_handler();
+        if( empty($this->_maincache) ) {
+            $obj = new SystemCache();
             $obj->connect([
              'auto_cleaning'=>1,
              'lifetime'=>self::TIMEOUT,
              'group'=>self::class,
             ]);
-            self::$instance = $obj; //now we're connected
+            $this->_maincache = $obj; //now we're connected
         }
-        return self::$instance;
+        return $this->_maincache;
     }
 } // class
