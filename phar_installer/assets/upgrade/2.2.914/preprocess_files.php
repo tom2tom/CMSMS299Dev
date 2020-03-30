@@ -32,6 +32,12 @@ if (is_dir($fp)) {
         touch($tp . DIRECTORY_SEPARATOR . 'index.html');
     }
 }
+// 1A. rename any existing 2.3BETA plugins UDTfiles plus any format change?
+$files = glob($tp.DIRECTORY_SEPARATOR.'*.cmsplugin', GLOB_NOESCAPE | GLOB_NOSORT);
+foreach ($files as $fp) {
+    $to = $tp.DIRECTORY_SEPARATOR.basename($fp, 'cmsplugin').'phphp'; //c.f. UserTagOperations::PLUGEXT
+    @rename($fp, $to);
+}
 
 // 2. Create new folders if necessary
 foreach ([
@@ -42,11 +48,12 @@ foreach ([
  ['assets','css'],
  ['assets','images'],
  ['assets','module_custom'],
- ['assets','modules'],
- ['assets','user_plugins'],
+ ['assets','modules'], //CHECKME
+ ['assets','user_plugins'], //UDTfiles
  ['assets','plugins'],
+ ['assets','resources'],
  ['assets','templates'],
- ['lib','modules'],
+ ['lib','modules'], //CHECKME
 ] as $segs) {
     switch($segs[0]) {
         case 'admin':
@@ -89,7 +96,7 @@ if (version_compare($fromvers, '2.2.900') >= 0 && version_compare($fromvers, '2.
     }
 }
 
-// 4. Move core modules to /lib/modules
+// 4. Move core modules to /lib/modules CHECKME
 foreach ([
  'AdminLog',
  'AdminSearch',
@@ -117,7 +124,7 @@ foreach ([
     }
 }
 
-// 5. Move our ex-core modules to /assets/modules //TODO get all in archive
+// 5. Move our ex-core modules to /assets/modules  CHECKME TODO get all in archive
 foreach (['DesignManager', 'MenuManager', 'CMSMailer', 'News'] as $modname) {
     $fp = $destdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
     if (is_dir($fp)) {
@@ -129,12 +136,5 @@ foreach (['DesignManager', 'MenuManager', 'CMSMailer', 'News'] as $modname) {
         } else {
             utils::rrmdir($fp);
         }
-    }
-}
-
-if (version_compare($fromvers, '2.2.910') < 0) {
-    $fp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
-    if (is_dir($fp)) {
-        rename($fp, $assetsdir . DIRECTORY_SEPARATOR . 'user_plugins');
     }
 }
