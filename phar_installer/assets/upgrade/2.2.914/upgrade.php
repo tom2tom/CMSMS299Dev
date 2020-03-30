@@ -137,7 +137,7 @@ foreach([
     cms_siteprefs::set($name, $val);
 }
 
-/* IF UDTfiles are used instead of database storage ...
+/* IF UDTfiles are used exclusively instead of database storage ...
 // 4. Convert UDT's to user-plugin files
 $udt_list = $db->GetArray('SELECT name,description,code FROM '.CMS_DB_PREFIX.'userplugins');
 if ($udt_list) {
@@ -183,10 +183,9 @@ if ($udt_list) {
     $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins');
     $dict->ExecuteSQLArray($sqlarr);
     status_msg('Converted User Defined Tags to user-plugin files');
-
-    TODO rename/reformat UDTfiles PATH/*.cmsplugin to PATH/* UserPluginOperations::PLUGEXT
 }
-ELSE (retain UDT's in database)
+ELSE | AND
+// 4. Re-format the content of pre-existing 2.3BETA UDTfiles in their folder ?
 */
 $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins_seq');
 $dict->ExecuteSQLArray($sqlarr);
