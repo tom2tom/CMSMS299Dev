@@ -11,6 +11,7 @@ class step_4 extends cli_step
 {
     protected function test_db_connection( $options )
     {
+        $config = $TODO;
         // try a test connection
         if( empty($config['db_port']) ) {
             $mysqli = new mysqli($config['db_hostname'], $config['db_username'],
