@@ -360,7 +360,7 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_tagname', $msg_ret));
 
-// needed if UDT's are db-stored (as before) instead of or as well as UDTfiles
+// UDT's continue to be dB-storable, as well as file-storable UDTfiles
 $flds = '
 id I AUTO KEY,
 name C(255),
