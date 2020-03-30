@@ -56,9 +56,11 @@ foreach( [
 	$permission->save();
 	$all_perms[$one_perm] = $permission;
   } catch (Exception $e) {
-	 // nothing here
+	// nothing here
   }
 }
+
+cms_siteprefs::set('ultraroles',json_encode(['Modify Restricted Files','Modify DataBase Direct','Remote Administration']));
 
 //
 // initial groups
@@ -224,7 +226,6 @@ Events::CreateEvent('Core','TemplatePostCompile');
 Events::CreateEvent('Core','TemplatePreCompile');
 Events::CreateEvent('Core','TemplatePreFetch');
 
-
 function create_private_dir(string $destdir, string $relative_dir)
 {
 //    $relative_dir = trim($relative_dir);
@@ -243,9 +244,10 @@ $destdir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
 create_private_dir($destdir,'admin_custom');
 create_private_dir($destdir,'configs');
 create_private_dir($destdir,'css');
-//create_private_dir($destdir,'user_plugins');  NOT IMPLEMENTED UDTfiles
 create_private_dir($destdir,'images');
 create_private_dir($destdir,'module_custom');
 create_private_dir($destdir,'modules');
 create_private_dir($destdir,'plugins');
+create_private_dir($destdir,'resources');
 create_private_dir($destdir,'templates');
+create_private_dir($destdir,'user_plugins');  //UDTfiles
