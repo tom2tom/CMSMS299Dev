@@ -247,6 +247,7 @@ $lang['install_templatetypes'] = 'Create standard template types';
 $lang['install_update_sequences'] = 'Update sequence tables';
 $lang['install_updatehierarchy'] = 'Update content hierarchy positions';
 $lang['install_updateseq'] = 'Update sequence for %s';
+$lang['install_usertags'] = 'Install user-defined-tags';
 $lang['installer_language'] = 'Use this language';
 $lang['installer_ver'] = 'Installer Version';
 
