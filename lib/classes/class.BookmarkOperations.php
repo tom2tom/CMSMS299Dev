@@ -1,6 +1,6 @@
 <?php
 #Class of bookmark-related functions
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -36,28 +36,34 @@ use function startswith;
 final class BookmarkOperations
 {
 	/**
+	 * Not worth caching centrally with singletons which include 'protected' properties
 	 * @ignore
 	 */
-//	private static $_instance = null;
+	private static $_instance = null;
 
-	/**
+	/* *
 	 * @ignore
 	 */
 //	private function __construct() {}
 
-	/**
+	/* *
 	 * @ignore
 	 */
 //	private function __clone() {}
 
 	/**
-	 * Get an instance of this class.
-	 * @deprecated since 2.3 instead use new BookmarkOperations()
-	 * @return BookmarkOperations
+	 * @ignore
+	 * @param string $name
+	 * @param array $args
+	 * @return mixed
 	 */
-	public static function get_instance() : self
+	public static function __callStatic($name, $args)
 	{
-		return new self();
+		if (!self::$_instance) { self::$_instance = new self(); }
+		if ($name == 'get_instance') {
+			return self::$_instance;
+		}
+		return self::$_instance->$name(...$args); //TODO may bomb with same method-names
 	}
 
 	/**
@@ -158,16 +164,13 @@ final class BookmarkOperations
 	 */
 	public function InsertBookmark(Bookmark $bookmark) : int
 	{
-		$result = -1;
 		$db = CmsApp::get_instance()->GetDb();
 
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
 		$new_bookmark_id = $db->GenID(CMS_DB_PREFIX.'admin_bookmarks_seq');
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'admin_bookmarks (bookmark_id, user_id, url, title) VALUES (?,?,?,?)';
 		$dbresult = $db->Execute($query, [$new_bookmark_id, $bookmark->user_id, $bookmark->url, $bookmark->title]);
-		if ($dbresult !== false) $result = $new_bookmark_id;
-
-		return $result;
+		return ($dbresult) ? $new_bookmark_id : -1;
 	}
 
 	/**
@@ -178,15 +181,12 @@ final class BookmarkOperations
 	 */
 	public function UpdateBookmark(Bookmark $bookmark) : bool
 	{
-		$result = false;
 		$db = CmsApp::get_instance()->GetDb();
 
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
 		$query = 'UPDATE '.CMS_DB_PREFIX.'admin_bookmarks SET user_id = ?, title = ?, url = ? WHERE bookmark_id = ?';
 		$dbresult = $db->Execute($query, [$bookmark->user_id, $bookmark->title, $bookmark->url, $bookmark->bookmark_id]);
-		if ($dbresult !== false) $result = true;
-
-		return $result;
+		return ($dbresult != false);
 	}
 
 	/**
@@ -197,13 +197,11 @@ final class BookmarkOperations
 	 */
 	public function DeleteBookmarkByID(int $id) : bool
 	{
-		$result = false;
 		$db = CmsApp::get_instance()->GetDb();
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'admin_bookmarks where bookmark_id = ?';
 		$dbresult = $db->Execute($query, [$id]);
-		if ($dbresult !== false) $result = true;
-		return $result;
+		return ($dbresult != false);
 	}
 } //class
 
