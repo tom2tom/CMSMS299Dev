@@ -1003,8 +1003,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			list($pages, $skips) = self::affected_pages($tpls);
 			if ($pages) {
 				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=NULL WHERE content_id IN ('.str_repeat('?,',count($pages)-1).'?)';
-				$db->Execute($sql, array_column($pages, 'content_id'));
-				$n = $db->affected_rows();
+				$n = (int)$db->Execute($sql, array_column($pages, 'content_id'));
 			}
 			else {
 				$n = 0;
@@ -1055,8 +1054,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			list($pages, $skips) = self::affected_pages($tpls);
 			if ($pages) {
 				$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id=NULL WHERE content_id IN ('.str_repeat('?,',count($pages)-1).'?)';
-				$db->Execute($sql, array_column($pages,'content_id'));
-				$n = $db->affected_rows();
+				$n = (int)$db->Execute($sql, array_column($pages,'content_id'));
 			}
 			else {
 				$n = 0;
@@ -1094,8 +1092,8 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			$args = [$to, $from, $uid];
 		}
 		$db = CmsApp::get_instance()->GetDb();
-		$db->Execute($sql, $args);
-		return $db->affected_rows();
+		$n = $db->Execute($sql, $args);
+		return (int)$n;
 	}
 
 	/**
@@ -1117,8 +1115,8 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			$args = [$to, $uid];
 		}
 		$db = CmsApp::get_instance()->GetDb();
-		$db->Execute($sql, $args);
-		return $db->affected_rows();
+		$n = $db->Execute($sql, $args);
+		return (int)$n;
 	}
 
 	/**
