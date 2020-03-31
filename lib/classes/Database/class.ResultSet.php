@@ -1,7 +1,7 @@
 <?php
 /*
 Class ResultSet: methods for interacting with MySQL selection-command result
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -38,12 +38,12 @@ class ResultSet
     protected $_native = ''; //for PHP 5.4+, the MySQL native driver is a php.net compile-time default
     protected $_nrows = 0;
     protected $_pos = -1;
-    protected $_result = null; //mysqli_result object (for query which returns data), or boolean
+    protected $_result = null; //mysqli_result object (for query which returns data), or boolean, or int
     protected $_row = [];
 
     /**
      * Constructor.
-     * @param mixed $result mysqli_result object (for queries which return data), or boolean
+     * @param mixed $result mysqli_result object (for queries which return data), or boolean or int no. of affected rows
      */
     public function __construct($result)
     {
@@ -99,6 +99,8 @@ class ResultSet
             return $this->recordCount();
          case 'fields':
             return $this->fields();
+         case 'result':
+            return $this->_result;
         }
     }
 
