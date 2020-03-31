@@ -19,7 +19,7 @@
 use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\GroupOperations;
-use CMSMS\ThemeBase;
+use CMSMS\AdminTheme;
 use CMSMS\User;
 use CMSMS\UserOperations;
 
@@ -118,7 +118,7 @@ if (isset($_POST['submit'])) {
 //                cms_userprefs::set_for_user($userid, 'syntax_editor', cms_userprefs::get_for_user($adminid, 'syntax_editor')); //syntax-editor type
 //                cms_userprefs::set_for_user($userid, 'syntax_theme', cms_userprefs::get_for_user($adminid, 'syntax_theme'));
                 $val = cms_siteprefs::get('logintheme');
-                if( !$val ) $val = ThemeBase::GetDefaultTheme();
+                if( !$val ) $val = AdminTheme::GetDefaultTheme();
                 cms_userprefs::set_for_user($userid, 'admintheme', $val);
 //                cms_userprefs::set_for_user($userid, 'bookmarks', cms_userprefs::get_for_user($adminid, 'bookmarks'));
 //                cms_userprefs::set_for_user($userid, 'recent', cms_userprefs::get_for_user($adminid, 'recent'));
