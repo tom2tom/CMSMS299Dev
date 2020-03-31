@@ -105,7 +105,7 @@ $lang = [
 'export' => 'Export',
 
 // F
-'friendlyname' => 'Modules',
+'friendlyname' => 'Modules Manager',
 
 // G
 'general_notice' => 'This shows the latest XML files in the CMSMS modules-repository.  The modules might or might not be the latest available versions. Additionally, the module repository might only contain modules released within the last few months.',
