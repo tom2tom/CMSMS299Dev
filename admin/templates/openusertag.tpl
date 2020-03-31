@@ -32,6 +32,7 @@
       <textarea id="parameters" name="parameters" rows="3" cols="80">{$parameters}</textarea>
     </p>
   </div>
+  {if $license !== null}{* processing a dB-stored plugin *}
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang_by_realm('tags','license')}<label for="license">{$t}:</label>
@@ -41,6 +42,7 @@
       <textarea id="license" name="license" rows="5" cols="80">{$license}</textarea>
     </p>
   </div>
+  {/if}
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('code')}* <label for="code">{$t}:</label>
