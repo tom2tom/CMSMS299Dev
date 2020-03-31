@@ -276,7 +276,7 @@ class Connection
             return $this->_query_count;
          case 'time_offset':
             if (isset($this->$_time_offset)) return $this->$_time_offset;
-			//no break here
+            //no break here
          default:
             return null;
         }
@@ -491,15 +491,24 @@ class Connection
      * The primary function for communicating with the database.
      *
      * @param string $sql SQL statement to be executed
-     * @return ResultSet object, or null
+     * @return mixed ResultSet object | integer (affected rows) | boolean | null
      */
     protected function do_sql($sql)
     {
         $this->_sql = $sql;
+        $dml = strncasecmp($sql, 'INSERT INTO', 11) == 0 ||
+               strncasecmp($sql, 'UPDATE', 6) == 0 ||
+               strncasecmp($sql, 'DELETE FROM', 11) == 0;
         if ($this->_debug) {
             $time_start = microtime(true);
-            $result = $this->_mysql->query($sql); //mysqli_result or boolean
+            if ($dml) {
+                $result = $this->_mysql->real_query($sql); //boolean
+            } else {
+                $result = $this->_mysql->query($sql); //mysqli_result or boolean
+            }
             $this->_query_time_total += microtime(true) - $time_start;
+        } elseif ($dml) {
+            $result = $this->_mysql->real_query($sql);
         } else {
             $result = $this->_mysql->query($sql);
         }
@@ -509,6 +518,13 @@ class Connection
             }
             $this->errno = 0;
             $this->error = '';
+            if ($dml) {
+				//workaround inappropriate '!== false' tests
+                $num = $this->_mysql->affected_rows;
+                return ($num > 0) ? $num : false; // TODO also cheap atomic ->insert_id for inserts
+            } elseif (is_bool($result)) {
+                return $result;
+            }
             return new ResultSet($result);
         }
         $this->failTrans();
@@ -964,12 +980,13 @@ class Connection
     public function genId($seqname)
     {
         //kinda-atomic update + select TODO CHECK thread-safety
-        $this->_mysql->query("UPDATE $seqname SET id = LAST_INSERT_ID(id) + 1");
-        $rs = $this->_mysql->query('SELECT LAST_INSERT_ID()');
-        if ($rs) {
-            $rs->data_seek(0);
-            $valsarr = $rs->fetch_array(MYSQLI_NUM);
-            return $valsarr[0] + 1;
+        $query = "UPDATE $seqname SET id = LAST_INSERT_ID(id) + 1;SELECT LAST_INSERT_ID()";
+        if ($this->_mysql->multi_query($query)) {
+            $this->_mysql->next_result();
+            $rs = $this->_mysql->use_result(); //block while we're working
+            $vals = $rs->fetch_row();
+            $rs->close();
+            return $vals[0] + 1;
         }
         //TODO handle error
         return -1;
