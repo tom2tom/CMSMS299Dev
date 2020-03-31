@@ -17,6 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
+//use CMSMS\SysDataCache;
 use CMSMS\Events;
 use CMSMS\GroupOperations;
 use CMSMS\UserOperations;
@@ -223,7 +224,7 @@ if (isset($_POST['submit'])) {
 
             Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$thisuser ] );
 //            AdminUtils::clear_cached_files();
-//            CMSMS\internal\SysDataCache::release('IF ANY');
+//            SysDataCache::get_instance()->release('IF ANY');
             $url = 'listusers.php?' . $urlext;
             if ($message) {
                 $message = urlencode($message);

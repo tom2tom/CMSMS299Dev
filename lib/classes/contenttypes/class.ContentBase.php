@@ -22,6 +22,7 @@ use cms_utils;
 use CmsApp;
 //use CMSMS\ContentDisplayer;
 use CMSMS\ContentOperations;
+//use CMSMS\	SysDataCache;
 use Exception;
 use Serializable;
 use const CMS_DB_PREFIX;
@@ -607,9 +608,10 @@ $X = $CRASH;
 
 		$this->_fields['content_alias'] = $alias;
 		//CHECME are these caches worth retaining?
-		SysDataCache::release('content_quicklist');
-		SysDataCache::release('content_tree');
-		SysDataCache::release('content_flatlist');
+        $cache = SysDataCache::get_instance()
+        $cache->release('content_quicklist');
+		$cache->release('content_tree');
+		$cache->release('content_flatlist');
 	}
 */
 

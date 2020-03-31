@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\internal\SysDataCache;
+use CMSMS\SysDataCache;
 
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_showinmenu' ) exit;
@@ -52,8 +52,9 @@ catch( Throwable $t ) {
     $this->SetError($t->getMessage());
 }
 
-SysDataCache::release('content_quicklist');
-SysDataCache::release('content_tree');
-SysDataCache::release('content_flatlist');
+$cache = SysDataCache::get_instance();
+$cache->release('content_quicklist');
+$cache->release('content_tree');
+$cache->release('content_flatlist');
 
 $this->Redirect($id,'defaultadmin',$returnid);

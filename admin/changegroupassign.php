@@ -17,7 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
-use CMSMS\Events;
+//use CMSMS\SysDataCache;
 use CMSMS\GroupOperations;
 use CMSMS\UserOperations;
 
@@ -120,7 +120,7 @@ VALUES (?,?,$now,$now)");
     audit($userid, 'Assignment User ID: '.$userid, 'Changed');
     $message = lang('assignmentchanged');
 //    AdminUtils::clear_cached_files();
-//    CMSMS\internal\SysDataCache::release('IF ANY');
+//    SysDataCache::get_instance()->release('IF ANY');
 }
 
 $query = 'SELECT u.user_id, u.username, ug.group_id FROM '.

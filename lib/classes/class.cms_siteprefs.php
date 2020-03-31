@@ -16,8 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\internal\SysDataCacheDriver;
-use CMSMS\internal\SysDataCache;
+use CMSMS\SysDataCacheDriver;
+use CMSMS\SysDataCache;
 
 /**
  * A class for working with (optionally-namespaced) recorded properties/parameters
@@ -62,7 +62,7 @@ final class cms_siteprefs
 		{
 			return self::_read();
 		});
-		SysDataCache::add_cachable($obj);
+		SysDataCache::get_instance()->add_cachable($obj);
 	}
 
 	/**
@@ -145,7 +145,7 @@ final class cms_siteprefs
 	 */
 	public static function get(string $key,$dflt = '')
 	{
-		$prefs = SysDataCache::get(self::class);
+		$prefs = SysDataCache::get_instance()->get(self::class);
 		if( isset($prefs[$key]) && $prefs[$key] !== '' ) {
 			$l = strlen(self::SERIAL);
 			if( strncmp($prefs[$key],self::SERIAL,$l) == 0 ) {
@@ -164,7 +164,7 @@ final class cms_siteprefs
 	 */
 	public static function exists($key)
 	{
-		$prefs = SysDataCache::get(self::class);
+		$prefs = SysDataCache::get_instance()->get(self::class);
 		return ( is_array($prefs) && isset($prefs[$key]) && $prefs[$key] !== '' );
 	}
 
@@ -196,7 +196,7 @@ EOS;
 		$db->Execute($query,[$key,$value,$key]);
 
 		if( strpos($key,self::NAMESPACER) === FALSE ) {
-			SysDataCache::release(self::class);
+			SysDataCache::get_instance()->release(self::class);
 		}
 	}
 
@@ -223,7 +223,7 @@ EOS;
 		$db = CmsApp::get_instance()->GetDb();
 		$db->Execute($query,[$key]);
 		if( strpos($key,self::NAMESPACER) === FALSE) {
-			SysDataCache::release(self::class);
+			SysDataCache::get_instance()->release(self::class);
 		}
 	}
 

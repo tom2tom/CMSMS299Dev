@@ -20,6 +20,7 @@ namespace CMSMS\internal;
 
 use ArrayAccess;
 use CmsLogicException;
+use CMSMS\SysDataCache;
 use ModuleOperations;
 use const CMS_ASSETS_PATH;
 use const CMS_VERSION;
@@ -269,7 +270,7 @@ class module_info implements ArrayAccess
     /* return mixed array or null */
     private function _read_from_module_cache(string $module_name)
     {
-		$tmp = SysDataCache::get('modules');
+		$tmp = SysDataCache::get_instance()->get('modules');
 		if( is_array($tmp) ) {
 			if( isset($tmp[$module_name]) ) {
 				if( $tmp[$module_name]['status'] != 'installed' || !$tmp[$module_name]['active'] ) {
@@ -297,7 +298,7 @@ class module_info implements ArrayAccess
 					$arr['changelog'] = $mod->GetChangelog();
 
 					$tmp[$module_name] += $arr;
-					SysDataCache::update('modules', $tmp);
+					SysDataCache::get_instance()->update('modules', $tmp);
 					return $tmp[$module_name];
 				}
 			}

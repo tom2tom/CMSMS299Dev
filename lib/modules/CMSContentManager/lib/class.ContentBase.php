@@ -33,7 +33,7 @@ use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\GroupOperations;
 use CMSMS\internal\content_assistant;
-use CMSMS\internal\SysDataCache;
+use CMSMS\SysDataCache;
 use CMSMS\RouteOperations;
 use CMSMS\UserOperations;
 use CmsRoute;
@@ -1841,9 +1841,10 @@ WHERE content_id = ?';
 		}
 
 		$this->mAlias = $alias;
-		SysDataCache::release('content_quicklist');
-		SysDataCache::release('content_tree');
-		SysDataCache::release('content_flatlist');
+		$cache = SysDataCache::get_instance();
+		$cache->release('content_quicklist');
+		$cache->release('content_tree');
+		$cache->release('content_flatlist');
 	}
 
 	/**
@@ -2118,8 +2119,9 @@ WHERE content_id = ?';
  WHERE content_id = ?';
 			$db->Execute($query,[$this->Id()]);
 		}
-		SysDataCache::release('content_tree');
-		SysDataCache::release('content_flatlist');
+		$cache = SysDataCache::get_instance();
+		$cache->release('content_tree');
+		$cache->release('content_flatlist');
 	}
 
 	/**

@@ -16,7 +16,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSContentManager\Utils;
-use CMSMS\internal\SysDataCache;
+use CMSMS\SysDataCache;
 
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_setstyles' ) exit;
@@ -60,9 +60,10 @@ if( isset($params['submit']) ) {
         cms_warning('Changing styles on multiple pages failed: '.$t->getMessage());
         $this->SetError($t->getMessage());
     }
-    SysDataCache::release('content_quicklist');
-    SysDataCache::release('content_tree');
-    SysDataCache::release('content_flatlist');
+    $cache = SysDataCache::get_instance();
+    $cache->release('content_quicklist');
+    $cache->release('content_tree');
+    $cache->release('content_flatlist');
 
     $this->Redirect($id,'defaultadmin',$returnid);
 }

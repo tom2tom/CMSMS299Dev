@@ -1,6 +1,6 @@
 <?php
 # ModuleManager class: module import/export operations
-# Copyright (C) 2011-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2011-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,7 +17,8 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace ModuleManager;
-
+//use CMSMS\internal\module_meta;
+//use CMSMS\SysDataCache;
 use cms_config;
 use cms_utils;
 use CmsFileSystemException;
@@ -281,10 +282,11 @@ class operations
 		$fn = $dir.'/moduleinfo.ini';
 		if( !is_file($fn) ) {
 	        ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
-//			SysDataCache::release('modules');
-//			SysDataCache::release('module_deps');
-//			SysDataCache::release('module_meta');
-//			SysDataCache::release('module_plugins');
+//			$cache = SysDataCache::get_instance();
+//			$cache->release('modules');
+//			$cache->release('module_deps');
+//			$cache->release('module_plugins');
+//			$cache->clear_cache();
 		}
 */
         $xw = new XMLWriter();

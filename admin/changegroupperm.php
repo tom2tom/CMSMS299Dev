@@ -17,6 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
+//use CMSMS\SysDataCache;
 use CMSMS\GroupOperations;
 use CMSMS\HookManager;
 use CMSMS\LangOperations;
@@ -211,7 +212,7 @@ VALUES (?,?,?,$now,$now)");
     audit($userid, 'Permission Group ID: '.$userid, 'Changed');
     $message = lang('permissionschanged');
 //    AdminUtils::clear_cached_files();
-//    CMSMS\internal\SysDataCache::release('IF ANY');
+//    SysDataCache::get_instance()->release('IF ANY');
 }
 
 if (!empty($message)) {
