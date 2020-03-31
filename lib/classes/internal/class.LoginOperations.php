@@ -1,6 +1,6 @@
 <?php
-#login methods class
-#Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Singleton class of login methods
+#Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -22,37 +22,39 @@ use cms_cookies;
 use cms_siteprefs;
 use cms_utils;
 use CmsApp;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\SysDataCache;
 use CMSMS\User;
-use CMSMS\UserOperations;
+use DeprecationNotice;
 use LogicException;
 use RuntimeException;
+use const CMS_DEPREC;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
 use function cleanValue;
 
 final class LoginOperations
 {
-    //TODO namespaced global variables here
+    /* *
+     * @ignore
+     */
+//    private static $_instance = null;
     /**
      * @ignore
      */
-    private static $_instance = null;
+    private $_loginkey;
     /**
      * @ignore
      */
-    private static $_loginkey;
-    /**
-     * @ignore
-     */
-    private static $_data;
+    private $_data;
 
     /**
      * @ignore
      */
-    private function __construct()
+    public function __construct()
     {
-        self::$_loginkey = $this->_get_salt();
+        $this->_loginkey = $this->_get_salt();
     }
 
     /* *
@@ -61,19 +63,20 @@ final class LoginOperations
     private function __clone() {}
 
     /**
-     * Get the instance of this class.
-     * @return LoginOperations
+     * Get the singleton instance of this class.
+     * @deprecated since 2.9 instead use CMSMS\AppSingle::LoginOperations()
+     * @return self i.e. LoginOperations
      */
     public static function get_instance() : self
     {
-        if( !self::$_instance ) { self::$_instance = new self(); }
-		return self::$_instance;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::LoginOperations()'));
+        return AppSingle::LoginOperations();
     }
 
     public function deauthenticate()
     {
-        cms_cookies::erase(self::$_loginkey);
-        unset($_SESSION[self::$_loginkey],$_SESSION[CMS_USER_KEY]);
+        cms_cookies::erase($this->_loginkey);
+        unset($_SESSION[$this->_loginkey],$_SESSION[CMS_USER_KEY]);
     }
 
     /**
@@ -87,7 +90,7 @@ final class LoginOperations
             if( !$salt ) {
                 $salt = $this->create_csrf_token();
                 cms_siteprefs::set('loginsalt',$salt);
-                SysDataCache::release('site_preferences');
+                SysDataCache::get_instance()->release('site_preferences');
             }
             return $salt;
         }
@@ -105,7 +108,7 @@ final class LoginOperations
     private function _check_passhash($uid,$hash) : bool
     {
         // we already validated that payload was not corrupt
-        $user = UserOperations::get_instance()->LoadUserByID((int)$uid);
+        $user = AppSingle::UserOperations()->LoadUserByID((int)$uid);
         if( !$user ) {
             return FALSE;
         }
@@ -154,10 +157,10 @@ final class LoginOperations
         $private_data['hash'] = password_hash(json_encode($data), PASSWORD_DEFAULT);
         $enc = base64_encode(json_encode($private_data));
         $hash = sha1($this->_get_salt() . $enc);
-        $_SESSION[self::$_loginkey] = $hash.'::'.$enc;
-        cms_cookies::set(self::$_loginkey,$_SESSION[self::$_loginkey]);
+        $_SESSION[$this->_loginkey] = $hash.'::'.$enc;
+        cms_cookies::set($this->_loginkey,$_SESSION[$this->_loginkey]);
 
-        self::$_data = null;
+        $this->_data = null;
         return true;
     }
 
@@ -169,14 +172,14 @@ final class LoginOperations
     /* @return mixed array | null : previously- or currently-generated data */
     private function _get_data()
     {
-        if( !empty(self::$_data) ) return self::$_data;
+        if( !empty($this->_data) ) return $this->_data;
 
         // use session- and/or cookie-data to check whether user is authenticated
-        if( isset($_SESSION[self::$_loginkey]) ) {
-            $private_data = $_SESSION[self::$_loginkey];
+        if( isset($_SESSION[$this->_loginkey]) ) {
+            $private_data = $_SESSION[$this->_loginkey];
         }
-        elseif( isset($_COOKIE[self::$_loginkey]) ) {
-            $private_data = $_SESSION[self::$_loginkey] = cleanValue($_COOKIE[self::$_loginkey]);
+        elseif( isset($_COOKIE[$this->_loginkey]) ) {
+            $private_data = $_SESSION[$this->_loginkey] = cleanValue($_COOKIE[$this->_loginkey]);
         }
         else {
             $private_data = null;
@@ -206,7 +209,7 @@ final class LoginOperations
             $_SESSION[CMS_USER_KEY] = $this->create_csrf_token();
         }
 
-        self::$_data = $private_data;
+        $this->_data = $private_data;
         return $private_data;
     }
 
@@ -250,7 +253,7 @@ final class LoginOperations
     {
         $uid = $this->get_loggedin_uid();
         if( $uid < 1 ) return;
-        $user = UserOperations::get_instance()->LoadUserByID($uid);
+        $user = AppSingle::UserOperations()->LoadUserByID($uid);
         return $user;
     }
 
