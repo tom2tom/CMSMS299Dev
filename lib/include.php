@@ -53,16 +53,17 @@ if (!$installing && (!is_file(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCA
 }
 
 require_once $dirpath.'version.php'; // some defines
-require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php';
-require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php';
-require_once $dirpath.'misc.functions.php'; //some used in defines setup
-require_once $dirpath.'defines.php'; //populate relevant defines
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php'; //used in defines setup
+require_once $dirpath.'misc.functions.php'; //some used in defines
+require_once $dirpath.'defines.php'; //populate relevant defines (uses cms_config::instance)
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php'; //used in autoloader
 require_once $dirpath.'module.functions.php'; //some used in autoloader
 require_once $dirpath.'autoloader.php';
 require_once $dirpath.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; //CHECKME Composer support on production system ?
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppSingle.php'; //uses cms_autoloader()
 require_once $dirpath.'compat.functions.php';
 require_once $dirpath.'page.functions.php';
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; //might be needed, save autoloading
 
 if (isset($_REQUEST[CMS_JOB_KEY])) {
     // since 2.3 value 0|1|2 indicates the type of request, hence appropriate inclusions
@@ -127,19 +128,20 @@ if ($administering) {
 
 cms_siteprefs::setup();
 
+$cache = SysDataCache::get_instance();
 // deprecated since 2.3 useless
 $obj = new SysDataCacheDriver('schema_version', function()
     {
         return $CMS_SCHEMA_VERSION; //NULL during installation!
     });
-SysDataCache::add_cachable($obj);
+$cache->add_cachable($obj);
 $obj = new SysDataCacheDriver('modules', function()
     {
         $db = CmsApp::get_instance()->GetDb();
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules';
         return $db->GetAssoc($query); // Keyed by module_name
      });
-SysDataCache::add_cachable($obj);
+$cache->add_cachable($obj);
 $obj = new SysDataCacheDriver('module_deps', function()
     {
         $db = CmsApp::get_instance()->GetDb();
@@ -152,7 +154,7 @@ $obj = new SysDataCacheDriver('module_deps', function()
         }
         return $out;
     });
-SysDataCache::add_cachable($obj);
+$cache->add_cachable($obj);
 
 if ($CMS_JOB_TYPE < 2) {
     $obj = new SysDataCacheDriver('latest_content_modification', function()
@@ -162,14 +164,14 @@ if ($CMS_JOB_TYPE < 2) {
             $tmp = $db->GetOne($query);
             return $db->UnixTimeStamp($tmp);
         });
-    SysDataCache::add_cachable($obj);
+    $cache->add_cachable($obj);
     $obj = new SysDataCacheDriver('default_content', function()
         {
             $db = CmsApp::get_instance()->GetDb();
             $query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
             return $db->GetOne($query);
         });
-    SysDataCache::add_cachable($obj);
+    $cache->add_cachable($obj);
 
     // the pages flat list
     $obj = new SysDataCacheDriver('content_flatlist', function()
@@ -178,24 +180,24 @@ if ($CMS_JOB_TYPE < 2) {
             $db = CmsApp::get_instance()->GetDb();
             return $db->GetArray($query);
         });
-    SysDataCache::add_cachable($obj);
+    $cache->add_cachable($obj);
 
     // hence the tree
     $obj = new SysDataCacheDriver('content_tree', function()
         {
-            $flatlist = SysDataCache::get('content_flatlist');
+            $flatlist = SysDataCache::get_instance()->get('content_flatlist');
             $tree = cms_tree_operations::load_from_list($flatlist);
             return $tree;
         });
-    SysDataCache::add_cachable($obj);
+    $cache->add_cachable($obj);
 
     // hence the flat/quick list
     $obj = new SysDataCacheDriver('content_quicklist', function()
         {
-            $tree = SysDataCache::get('content_tree');
+            $tree = SysDataCache::get_instance()->get('content_tree');
             return $tree->getFlatList();
         });
-    SysDataCache::add_cachable($obj);
+    $cache->add_cachable($obj);
 }
 
 // other global caches
@@ -203,7 +205,7 @@ Events::setup();
 ModulePluginOperations::setup();
 
 // Attempt to override the php memory limit
-if (isset($config['php_memory_limit']) && !empty($config['php_memory_limit'])) ini_set('memory_limit',trim($config['php_memory_limit']));
+if ($config['php_memory_limit']) ini_set('memory_limit',trim($config['php_memory_limit']));
 
 // Load them into the usual variables.  This'll go away a little later on.
 if (!$installing) {
