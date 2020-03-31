@@ -1,6 +1,6 @@
 <?php
 # class: ExternalHandlerJob for jobs with external handlers (plugins or static functions)
-# Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -19,7 +19,7 @@
 namespace CMSMS\Async;
 
 use CmsApp;
-use CMSMS\UserPluginOperations;
+use CMSMS\UserTagOperations;
 use RuntimeException;
 use function cms_to_bool;
 
@@ -46,9 +46,9 @@ class ExternalHandlerJob extends Job
      * @ignore
      */
     protected $_data = [
-		'function'=>null,
-		'is_udt'=>FALSE,
-	];
+        'function'=>null,
+        'is_udt'=>FALSE,
+    ];
 
     /**
      * @ignore
@@ -57,7 +57,7 @@ class ExternalHandlerJob extends Job
     {
         switch( $key ) {
         case 'function':
-		case 'is_udt':
+        case 'is_udt':
             return $this->_data[$key];
 
         default:
@@ -90,8 +90,7 @@ class ExternalHandlerJob extends Job
     public function execute()
     {
         if( $this->is_udt ) {
-            UserPluginOperations::get_instance()->call_plugin($this->function);
-//TODO also support regular plugins
+            UserTagOperations::get_instance()->CallUserTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO UDTfiles args
         }
         else {
             // call the function, pass in $this
@@ -101,6 +100,7 @@ class ExternalHandlerJob extends Job
                 if( !is_object($mod_obj) ) throw new RuntimeException('Job requires '.$module_name.' but the module could not be loaded');
             }
             call_user_func($this->function);
+//TODO also support regular plugins
 //TODO also support callables in general
         }
     }

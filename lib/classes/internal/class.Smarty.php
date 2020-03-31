@@ -1,6 +1,6 @@
 <?php
 #Class to tailor Smarty for CMSMS
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -29,7 +29,7 @@ use CMSMS\internal\layout_stylesheet_resource;
 use CMSMS\internal\layout_template_resource;
 use CMSMS\internal\module_db_template_resource;
 use CMSMS\internal\module_file_template_resource;
-use CMSMS\UserPluginOperations;
+use CMSMS\UserTagOperations;
 use Exception;
 use LogicException;
 use Smarty_Internal_Template;
@@ -120,7 +120,7 @@ smarty cache lifetime != global cache ttl, probably
         $_gCms = CmsApp::get_instance();
         if( $_gCms->is_frontend_request() ) {
             // just for frontend actions
-                        // Check if we are at install page, don't register anything if so, as nothing below is needed.
+            // Check if we are at install page, don't register anything if so, as nothing below is needed.
             if( AppState::test_state(AppState::STATE_INSTALL) ) return;
 
             if( is_sitedown() ) {
@@ -291,13 +291,13 @@ smarty cache lifetime != global cache ttl, probably
                 return true;
             }
 
-        // check if it's a user-plugin
-            try {
-                $callback = UserPluginOperations::get_instance()->load_plugin( $name );
-                //deprecated pre-2.3 behaviour, see above re cachability
-                $cachable = false;
+            //deprecated pre-2.9 behaviour, see above re cachability
+            $cachable = false;
+            // check if it's a user-plugin
+            $callback = UserTagOperations::get_instance()->CreateTagFunction($name); //however stored
+            if( $callback ) {
+                //$cachable = true; future
                 return true;
-            } catch (Exception $e) {
             }
 //        }
 
@@ -305,7 +305,7 @@ smarty cache lifetime != global cache ttl, probably
     }
 
     /**
-     * Report whether a smarty plugin (actual, not module or user-plugin)
+     * Report whether a smarty plugin (actual, not module- or user-plugin)
      * having the specified name exists.
      * @since 2.3
      *
@@ -342,7 +342,7 @@ smarty cache lifetime != global cache ttl, probably
     }
 
     /**
-     * Test if a smarty plugin with the specified name has been registered.
+     * Report whether a smarty plugin with the specified name has been registered.
      *
      * @param string the plugin name
      * @return bool
@@ -413,5 +413,5 @@ smarty cache lifetime != global cache ttl, probably
     }
 } // class
 
-//when BC not needed
+//when Smarty2 (BC) no longer needed
 //class_alias('CMSMS\internal\CmsSmarty', 'CMSMS\internal\Smarty', false);
