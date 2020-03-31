@@ -263,7 +263,7 @@ if (!endswith($type, 'File')) {
 /*
  * Site-content export
  */
-if (!empty($config['developer_mode'])) {
+if ($config['develop_mode']) {
     // try to get folder where 'support' files (if any) will be stored, pending site import
     $fp = cms_join_path(CMS_ROOT_PATH,'phar_installer','lib','classes','class.installer_base.php');
     $exportable = is_file($fp);

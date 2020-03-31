@@ -52,8 +52,8 @@ final class cached_request //was modmgr_cached_request
 
     // check for the cached file
     $atime = time() - ($age * 60);
-    if( (!empty($config['developer_mode']) && $mod->GetPreference('disable_caching',0)) ||
-    !file_exists($fn) || filemtime($fn) <= $atime ) {
+    if( ($config['develop_mode'] && $mod->GetPreference('disable_caching',0)) ||
+        !file_exists($fn) || filemtime($fn) <= $atime ) {
       // execute the request
       $req = new cms_http_request();
       if( $this->_timeout ) $req->setTimeout($this->_timeout);

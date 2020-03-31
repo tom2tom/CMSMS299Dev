@@ -336,7 +336,7 @@ class Content extends ContentBase
 
 		$_list = [];
 //		$config = cms_config::get_instance();
-//		if( empty($config['page_template_list']) ) { //WHAAAT ?
+//		if( !$config['page_template_list'] ) { //WHAAAT ?
 			$_tpl = TemplateOperations::template_query( ['as_list'=>1] );
 			if( $_tpl ) {
 				foreach( $_tpl as $tpl_id => $tpl_name ) {

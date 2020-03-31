@@ -204,7 +204,7 @@ try {
 		$smarty->assign('css_id', $css_ob->get_id());
 	}
 	$config = cms_config::get_instance();
-	if (!empty($config['developer_mode'])) {
+	if ($config['develop_mode']) {
 		$smarty->assign('devmode', 1);
 	}
 
@@ -218,9 +218,9 @@ try {
 		add_page_foottext($js);
 	}
 
-	$editorjs = get_syntaxeditor_setup(['edit'=>true, 'htmlid'=>'edit_area', 'typer'=>'css']);
-	if (!empty($editorjs['head'])) {
-		add_page_headtext($editorjs['head']);
+	$pageincs = get_syntaxeditor_setup(['edit'=>true, 'htmlid'=>'edit_area', 'typer'=>'css']);
+	if (!empty($pageincs['head'])) {
+		add_page_headtext($pageincs['head']);
 	}
 
 	$do_locking = ($css_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
@@ -231,7 +231,7 @@ try {
 	$s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
 	$cancel = lang('cancel');
 
-	$js = $editorjs['foot'] ?? '';
+	$js = $pageincs['foot'] ?? '';
 	$js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[

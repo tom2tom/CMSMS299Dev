@@ -81,7 +81,7 @@ final class DesignManager extends CMSModule
             $out[] = $obj;
 
             $config = cms_config::get_instance();
-            if (1) { //DEBUG !empty($config['developer_mode'])) {
+            if (1) { //DEBUG $config['develop_mode']) {
                 $obj = new CmsAdminMenuItem();
                 $obj->module = $this->GetName();
                 $obj->section = 'layout';

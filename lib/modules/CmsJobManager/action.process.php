@@ -105,7 +105,7 @@ try {
             } else {
                 $this->delete_job($job);
             }
-            if (!empty($config['developer_mode'])) {
+            if ($config['develop_mode']) {
                 audit('', 'CmsJobManager', 'Processed job '.$job->name);
             }
             $this->set_current_job(null);

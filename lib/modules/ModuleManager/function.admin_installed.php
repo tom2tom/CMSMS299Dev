@@ -86,7 +86,7 @@ add_page_foottext($js);
 
 uksort($allmoduleinfo,'strnatcasecmp');
 $tpl->assign('module_info',$allmoduleinfo);
-$devmode = !empty($config['developer_mode']);
+$devmode = $config['develop_mode'];
 $tpl->assign('allow_export',($devmode)?1:0);
 if ($devmode) {
     $themeObject = cms_utils::get_theme_object();

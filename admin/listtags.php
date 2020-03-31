@@ -26,20 +26,21 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 check_login();
 
 $urlext = get_secure_param();
-$userid = get_userid();
+$userid = get_userid(false);
 $access = true; //check_permission($userid, 'View Tags'); //TODO relevant permission
-$pdev = check_permission($userid, 'Modify Restricted Files') || !empty($config['developer_mode']);
+$pdev = $config['develop_mode'] || check_permission($userid, 'Modify Restricted Files');
 
 $themeObject = cms_utils::get_theme_object();
 
 if (!$access) {
-//TODO some immediate popup
+//TODO some popup or error page here or after redirect
     return;
 }
 
-$plugin = (isset($_GET['plugin'])) ? basename(cleanValue($_GET['plugin'])) : '';
-$type = (isset($_GET['type'])) ? basename(cleanValue($_GET['type'])) : '';
-$action = (isset($_GET['action'])) ? cleanValue($_GET['action']) : '';
+cleanArray($_GET);
+$plugin = (isset($_GET['plugin'])) ? basename($_GET['plugin']) : '';
+$type = (isset($_GET['type'])) ? basename($_GET['type']) : '';
+$action = $_GET['action'] ?? '';
 
 $dirs = [];
 $dirs[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins';

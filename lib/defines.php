@@ -47,7 +47,7 @@ define('CMS_DEBUG',$config['debug']);
 /**
  * Whether to throw upon use of deprecated stuff.
  */
-define('CMS_DEPREC',CMS_DEBUG && !empty($config['deprecations']));
+define('CMS_DEPREC',CMS_DEBUG && $config['deprecations']);
 
 /**
  * Where CMSMS is installed.

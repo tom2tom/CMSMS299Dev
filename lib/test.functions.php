@@ -315,7 +315,7 @@ function testConfig( string $title, string $varname, string $testfunc = '', stri
 	if( (isset($config[$varname])) && (is_bool($config[$varname])) ) {
 		$value = (true == $config[$varname]) ? 'true' : 'false';
 	}
-	else if(! empty($config[$varname])) {
+	elseif( $config[$varname] ) {
 		$value = $config[$varname];
 		if(! empty($testfunc)) {
 			$test = $testfunc('', $title, $value);
