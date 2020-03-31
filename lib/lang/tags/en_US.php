@@ -1402,7 +1402,7 @@ EOT
 </ul>',
 'help_tagdesc' => 'Enter details and notes about the tag for future reference when debugging or modifying the tag.',
 'help_taglicense' => 'If this tag is to be distributed, it should probably include a license. That must be compatible with CMSMS licensing i.e. GPL2+ or compatible',
-'help_tagname' => 'The name must be unique. It may contain only ASCII alphanumeric characters and underscores, and must not start with a digit.',
+'help_tagname' => 'The name must be unique. It may contain only alphanumeric characters and underscores, and must not start with a digit.',
 'help_tagparams' => 'Enter a description for each parameter, one per line. Specify at least a name, whether it is optional, default value if any, and brief purpose/nature/usage.',
 
 ] + $lang;
