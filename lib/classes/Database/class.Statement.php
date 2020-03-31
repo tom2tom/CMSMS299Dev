@@ -1,7 +1,7 @@
 <?php
 /*
 Class Statement: represents a prepared SQL statement
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -39,31 +39,31 @@ class Statement
     const NOPARMCMD = 1295; // MySQL/MariaDB errno for deprecated non-parameterizable command
 
     /**
-	 * Connection object
+     * Connection object
      * @ignore
      */
-	protected $_conn;
+    protected $_conn;
 
-	/**
-	 * mysqli_stmt object
+    /**
+     * mysqli_stmt object
      * @ignore
      */
-	protected $_stmt;
+    protected $_stmt;
 
-	/**
-	 * SQL command | null
+    /**
+     * SQL command | null
      * @ignore
      */
-	protected $_sql;
+    protected $_sql;
 
-	/**
-	 * Whether prepare() succeeded
+    /**
+     * Whether prepare() succeeded
      * @ignore
      */
     protected $_prep = false;
 
-	/**
-	 * Whether bind() succeeded
+    /**
+     * Whether bind() succeeded
      * @ignore
      */
     protected $_bound = false;
@@ -83,7 +83,7 @@ class Statement
 /* BAD !! TODO check proper cleanup happens anyway, upon destruction
     public function __destruct()
     {
-		$this->close();
+        $this->close();
     }
 */
     /**
@@ -97,7 +97,19 @@ class Statement
             return $this->_conn;
          case 'sql':
             return $this->_sql;
+         case 'affected':
+            return $this->_stmt->affected_rows;
         }
+    }
+
+    /**
+     * Get the no. of rows affected by execution of the prepared command.
+     *
+     * @return int
+     */
+    public function affected_rows()
+    {
+        return $this->_stmt->affected_rows;
     }
 
     protected function processerror ($type, $errno, $error)
@@ -304,7 +316,7 @@ class Statement
      *
      * @param array $valsarr parameters to bind, or not set if running a
      *   deprecated multi-bind command
-     * @return mixed object (ResultSet or EmptyResultSet or PrepResultSet) or null
+     * @return mixed object (ResultSet or EmptyResultSet or PrepResultSet) | int > 0 | false | null
      */
     public function execute($valsarr = null)
     {
@@ -417,14 +429,15 @@ class Statement
             $this->_conn->errno = 0;
             $this->_conn->error = '';
 
-            return true;
+            $num = $this->_stmt->affected_rows; //TODO only for INSERT,UPDATE,DELETE
+            return ($num > 0) ? $num : false; //work around inappropriate '!== false' tests
         }
     }
 
-	/**
-	 * Cleanup/release database resources
-	 * CHECKME automatic cleanup upon destruction?
-	 */
+    /**
+     * Cleanup/release database resources
+     * CHECKME automatic cleanup upon destruction?
+     */
     public function close()
     {
         if ($this->_stmt) {
