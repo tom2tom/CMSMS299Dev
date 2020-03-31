@@ -1,7 +1,7 @@
 <?php
 /*
 CoreTextEditing module method: uninstallation
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -29,10 +29,10 @@ if ($val && startswith($val, $text)) {
 
 $users = UserOperations::get_instance()->GetList();
 foreach ($users as $uid => $uname) {
-	$val = cms_userprefs::get_for_user($uid, 'syntax_editor');
-	if ($val && startswith($val, $text)) {
-		cms_userprefs::set_for_user($uid, 'syntax_editor', '');
-	}
+    $val = cms_userprefs::get_for_user($uid, 'syntax_editor');
+    if ($val && startswith($val, $text)) {
+        cms_userprefs::set_for_user($uid, 'syntax_editor', '');
+    }
 }
 
 //TODO un-register handlers for events which allow user-preferences-change related to this module

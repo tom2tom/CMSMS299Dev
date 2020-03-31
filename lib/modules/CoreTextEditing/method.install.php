@@ -1,7 +1,7 @@
 <?php
 /*
 CoreTextEditing module method: install
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@ if (!isset($gCms)) exit;
 
 $val = cms_siteprefs::get('syntax_editor');
 if (!$val) {
-	cms_siteprefs::set('syntax_editor', $this->GetName().'::Ace');
+    cms_siteprefs::set('syntax_editor', $this->GetName().'::Ace');
 }
 //TODO user-prefs too
 
