@@ -2,10 +2,10 @@
 
 use CMSMS\Events;
 use CMSMS\Group;
+use CMSMS\SimpleTagOperations;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
 use CMSMS\TemplateOperations;
-//use CMSMS\UserPluginOperations;
 use function cms_installer\endswith;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
@@ -108,20 +108,20 @@ $db->Execute($query,[$longnow]);
 // this replicates cms_utils::random_string()
 $uuid = str_repeat(' ', 32);
 for ($i = 0; $i < 32; ++$i) {
-	$n = mt_rand(33, 165);
-	switch ($n) {
-		case 34:
-		case 38:
-		case 39:
-		case 44:
-		case 63:
-		case 96:
-		case 127:
-			--$i;
-			break;
-		default:
-		    $uuid[$i] = chr($n);
-	}
+    $n = mt_rand(33, 165);
+    switch ($n) {
+        case 34:
+        case 38:
+        case 39:
+        case 44:
+        case 63:
+        case 96:
+        case 127:
+            --$i;
+            break;
+        default:
+            $uuid[$i] = chr($n);
+    }
 }
 
 foreach([
@@ -158,15 +158,14 @@ if ($udt_list) {
             return;
         }
 
-        $meta = ['name'=>$row['userplugin_name']];
+        $params = ['id' => $ops::MAXFID, 'code'=>$code];
         if ($row['description']) {
             $desc = trim($row['description'], " \t\n\r");
             if ($desc) {
-                $meta['description'] = $desc;
+                $params['description'] = $desc;
             }
         }
 
-		$params = [TODO] $meta, + 'code' $code etc
         if ($ops->SetSimpleTag($row['userplugin_name'], $params)) {
             verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
         } else {
@@ -174,7 +173,7 @@ if ($udt_list) {
         }
     }
 
-    $ops = UserPluginOperations::get_instance();
+    $ops = SimpleTagOperations::get_instance();
     //$smarty defined upstream, used downstream
     foreach ($udt_list as $udt) {
         create_user_plugin($udt, $ops, $smarty);
@@ -188,6 +187,16 @@ if ($udt_list) {
 ELSE | AND
 // 4. Re-format the content of pre-existing 2.3BETA UDTfiles in their folder ?
 */
+// ensure the simple_plugins folder includes a .htaccess file
+$ops = SimpleTagOperations::get_instance();
+$fp = $ops->FilePath('.htaccess');
+if (!is_file($fp)) {
+	$ext = strtr($ops::PLUGEXT, '.', '');
+	file_put_contents($fp, <<<EOS
+RedirectMatch 403 (?i)^.*\.($ext|cmsplugin)$
+EOS
+	);
+}
 // redundant sequence-table
 $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins_seq');
 $dict->ExecuteSQLArray($sqlarr);
@@ -584,7 +593,7 @@ $rows = $db->GetArray('SELECT id,module,callback FROM '.$tbl);
 foreach ($rows as &$row) {
     $val = unserialize($row['callback']);
     if ($val) {
-		//CHECKME use generic spacer '\\\\' ?
+        //CHECKME use generic spacer '\\\\' ?
         if (is_array($val)) {
             $s = $val[0].'::'.$val[1]; // OR '\\\\' ?
         } elseif (is_string($val)) {
