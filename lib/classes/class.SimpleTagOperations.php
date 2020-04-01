@@ -218,6 +218,63 @@ final class SimpleTagOperations
 	}
 
 	/**
+	 * Migrate plugin from dB-storage to file-storage
+	 * @since 2.9
+	 *
+	 * @param string $name Plugin name
+	 * @return bool indicating success
+	 */
+	public function ExportFile(string $name) : bool
+	{
+		if (isset($this->_misses[$name])) return false;
+		if (!isset($this->_cache[$name])) {
+			$this->SimpleTagExists($name); //populate the relevant cache
+		}
+		if (isset($this->_cache[$name])) {
+			if (!$this->IsFileID($this->_cache[$name][0])) {
+				$params = $this->GetSimpleTag($name, '*');
+				$params['id'] = self::MAXFID;
+				$res = $this->SetFileTag($name, $params);
+				if ($res) {
+					$db = CmsApp::get_instance()->GetDb();
+					$query = 'DELETE FROM '.CMS_DB_PREFIX.'simpleplugins WHERE name=?';
+					$db->Execute($query, [$name]);
+				}
+				return $res;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Migrate plugin from file-storage to dB-storage
+	 * @since 2.9
+	 *
+	 * @param string $name Plugin name
+	 * @return bool indicating success
+	 */
+	public function ImportFile(string $name) : bool
+	{
+		if (isset($this->_misses[$name])) return false;
+		if (!isset($this->_cache[$name])) {
+			$this->SimpleTagExists($name); //populate the relevant cache
+		}
+		if (isset($this->_cache[$name])) {
+			if ($this->IsFileID($this->_cache[$name][0])) {
+				$params = $this->GetFileTag($name, '*');
+				$params['id'] = -1;
+				$res = $this->SetSimpleTag($name, $params);
+				if ($res) {
+					$fp = $this->FilePath($name);
+					@unlink($fp);
+				}
+				return $res;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Retrieve property|ies of the file-stored plugin named $name
 	 *
 	 * @param string $name Plugin name
@@ -411,17 +468,20 @@ final class SimpleTagOperations
 	 *
 	 * @param string $name Tag name
 	 * @param array  $meta Assoc array of sanitized tag properties with any/all of
-	 *  'id','oldname','description','parameters','license'
-	 * @return bool indicating success
+	 *  'id','oldname','description','parameters','license','detail'
+	 * @return mixed bool indicating success | 2-member array,
+	 *  [0] = bool indicating success
+	 *  [1] = string lang-key (no spaces) or actual message, normally '' on success
 	 */
-	public function SetFileTag(string $name, array $params) : bool
+	public function SetFileTag(string $name, array $params)
 	{
+		$bare = empty($params['detail']);
 		if (!$this->IsValidName($name)) {
 			$this->_misses[$name] = 0;
-			return false;
+			return ($bare) ? false : [false, 'errorbadname'];
 		}
 
-		$code = trim($code, " \t\n\r");
+		$code = trim($params['code'], " \t\n\r");
 		if ($code) {
 			$code = preg_replace_callback_array([
 				'/^\s*<\?php[\s\r\n]*/i' => function() { return ''; },
@@ -430,13 +490,13 @@ final class SimpleTagOperations
 			try {
 				eval('if(0){ '.$code.' }'); // no code execution
 			} catch (Throwable $t) {
-				return false; //TODO log'simple-plugin '.$name.' code error: '.$t->GetMessage()];
+				return ($bare) ? false : [false, 'Plugin '.$name.' code error: '.$t->GetMessage()];
 			}
 			// More-complex code-sanitization cannot reasonably be performed
 			// out-of-context ($params etc etc).
 			// We'll trust the provided code as-is. But run it in a sandbox, if we can ...
 		} else {
-			return false;
+			return ($bare) ? false : [false, 'missingparams'];
 		}
 
 		$d = (!empty($params['description'])) ?
@@ -471,7 +531,8 @@ EOS;
 			@unlink($fp);
 		}
 		$fp = $this->FilePath($name);
-		return @file_put_contents($fp, $out, LOCK_EX);
+		$res = @file_put_contents($fp, $out, LOCK_EX);
+		return ($bare) ? $res : [$res, (($res) ? '' : 'error_internal')];
 	}
 
 	/**
@@ -487,18 +548,23 @@ EOS;
 	 *  'description'
 	 *  'parameters'
 	 *  'license' ignored for a dB-stored plugin
-	 * @return bool indicating success TODO API for returning error message
+	 *  'detail' bool indicating caller wants a status message
+	 * @return mixed bool indicating success | 2-member array,
+	 *  [0] = bool indicating success
+	 *  [1] = string lang-key (no spaces) or actual message, normally '' on success
 	 */
-	public function SetSimpleTag(string $name, ...$args) : bool
+	public function SetSimpleTag(string $name, ...$args)
 	{
-		if (!$this->IsValidName($name)) {
-			return false; // TODO log 'simple-plugin name error: ',$name
-		}
-
 		if (count($args) == 1 && is_array($args[0])) {
 			$params = $args[0];
 		} else { // pre-2.3 API
 			$params = ['id'=>-1, 'code'=>$args[0], 'description'=>$args[1] ?? ''];
+		}
+		$bare = empty($params['detail']);
+
+		if (!$this->IsValidName($name)) {
+			$this->_misses[$name] = 0;
+			return ($bare) ? false : [false, 'errorbadname'];
 		}
 
 		$val = $params['code'] ?? '';
@@ -518,7 +584,7 @@ EOS;
 		try {
 			eval('if(0){ '.$code.' }'); // no code execution
 		} catch (Throwable $t) {
-			return false; //TODO log'simple-plugin '.$name.' code error: '.$t->GetMessage()];
+			return ($bare) ? false : [false, 'Plugin '.$name.' code error: '.$t->GetMessage()];
 		}
 
 		$val = $params['oldname'] ?? '';
@@ -549,12 +615,11 @@ EOS;
 			} else {
 				$license = null;
 			}
-			//pass sanitized $params[]
-			$keys = array_keys($params);
-			$params = [];
-			foreach ($keys as $one) {
-				$params[$one] = $$one;
+			//pass the sanitized $params[]
+			foreach ($params as $key => &$val) {
+				if (isset($$key)) { $val = $$key; }
 			}
+			unset($val);
 			// process file-storage UDTfiles
 			return $this->SetFileTag($name, $params);
 		} elseif ($id == -1 || $id > 0) {
@@ -568,7 +633,8 @@ EOS;
 					$id = (int)$dbr;
 					$this->_cache[$name] = [$id, null];
 				}
-				return (bool)$dbr;
+				$res = (bool)$dbr;
+				return ($bare) ? $res : [$res, (($res) ? '' : 'error_internal')];
 			} else {
 				//prevent duplicate names
 				$query = <<<EOS
@@ -577,17 +643,18 @@ WHERE id=?
 AND NOT id IN (SELECT id FROM $tbl WHERE name=? AND id!=?)
 EOS;
 				$dbr = $db->Execute($query,[$name,$code,$description,$parameters,$id,$name,$id]);
-				if ($dbr) {
+				$res = (bool)$dbr;
+				if ($res) {
 					//update cache if renamed
 					if ($oldname && $name != $oldname) {
 						unset($this->_cache[$oldname]);
 						$this->_cache[$name] = [$id, null];
 					}
 				}
-				return (bool)$dbr;
+				return ($bare) ? $res : [$res, (($res) ? '' : 'error_internal')];
 			}
 		}
-		return false;
+		return ($bare) ? false : [false, 'missingparams'];
 	}
 
 	/**
@@ -670,8 +737,8 @@ EOS;
 
 	/**
 	 * If a dB-stored simple-plugin corresponding to $name exists, run it
-	 * This supports explicit tag-running. In most instances, the relevant handler
-	 * would instead be called directly by smarty.
+	 * This supports explicit tag-running. In most instances, the relevant
+	 * callable would instead be called directly by smarty.
 	 *
 	 * @param string $name   The name of the user defined tag
 	 * @param array  $params Optional tag parameters. Default []
@@ -800,17 +867,17 @@ EOS;
 	}
 
 	/**
-	 * If a simple-plugin corresponding to $name exists, arrange for it to
-	 * process an event identified by its originator and name.
-	 * Variables $gCms, $db, $config and (global) $smarty are in-scope for the
-	 * plugin code.
+	 * If a simple-plugin corresponding to $name exists, arrange for it
+	 * to process an event identified by its originator and name.
+	 * Variables $gCms, $db, $config and (global) $smarty are in-scope
+	 * for the plugin code.
 	 * @since 2.9
 	 *
 	 * @param string $name plugin identifier (as used in tags)
 	 * @param string $originator The name of the event originator, a module-name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param array  $params Reference to event parameter(s) provided by the originator.
-	 *  They may be altered by the handler.
+	 * @param array  $params Reference to event parameter(s) provided by
+	 *  the originator. They may be altered by the handler.
 	 * @return bool
 	 */
 	public function DoEvent(string $name, string $originator, string $eventname, array &$params)
