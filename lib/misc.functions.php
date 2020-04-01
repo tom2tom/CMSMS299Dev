@@ -1,5 +1,5 @@
 <?php
-#utility-methods available for every request
+#Utility-methods available for every request
 #Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -743,9 +743,11 @@ function get_recursive_file_list(string $path, array $excludes = [], int $maxdep
  * Delete directory $path, and all files and folders in it. Equivalent to command rm -r.
  *
  * @param string $path The directory filepath
+ * @param bool $withtop Since 2.9 Optional flag whether to remove the
+ *  topmost (first-nominated) folder (or just clear it). Default true.
  * @return bool indicating complete success
  */
-function recursive_delete(string $path) : bool
+function recursive_delete(string $path, bool $withtop = true) : bool
 {
     if (is_dir($path)) {
         $res = true;
@@ -763,7 +765,7 @@ function recursive_delete(string $path) : bool
                 $res = false;
             }
         }
-        if ($res) {
+        if ($res && $withtop) {
             $res = @rmdir($path);
         }
         return $res;
