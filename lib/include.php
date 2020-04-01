@@ -1,5 +1,5 @@
 <?php
-#setup classes, includes etc for request processing
+#Set up infrastructure for processing a request
 #Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,14 +16,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\AuditOperations;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
 use CMSMS\internal\ModulePluginOperations;
-use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
-use CMSMS\SysDataCache;
+use CMSMS\SingleSetter;
 use CMSMS\SysDataCacheDriver;
 
 /**
@@ -42,10 +42,11 @@ use CMSMS\SysDataCacheDriver;
 define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php');
 
 $dirpath = __DIR__.DIRECTORY_SEPARATOR;
-// include some stuff
-require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-if (isset($CMS_APP_STATE)) { //i.e. AppState class was loaded elsewhere
+
+if (isset($CMS_APP_STATE)) { //i.e. AppState class was included elsewhere
     AppState::add_state($CMS_APP_STATE);
+} else {
+	require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 }
 $installing = AppState::test_state(AppState::STATE_INSTALL);
 if (!$installing && (!is_file(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
@@ -53,17 +54,24 @@ if (!$installing && (!is_file(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCA
 }
 
 require_once $dirpath.'version.php'; // some defines
-require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php'; //used in defines setup
-require_once $dirpath.'misc.functions.php'; //some used in defines
-require_once $dirpath.'defines.php'; //populate relevant defines (uses cms_config::instance)
-require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php'; //used in autoloader
-require_once $dirpath.'module.functions.php'; //some used in autoloader
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php'; // used in defines setup
+require_once $dirpath.'misc.functions.php'; // some used in defines
+require_once $dirpath.'defines.php'; // populate relevant defines (uses cms_config::instance)
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php'; // used in autoloader
+require_once $dirpath.'module.functions.php'; // some used in autoloader
 require_once $dirpath.'autoloader.php';
-require_once $dirpath.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; //CHECKME Composer support on production system ?
-require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppSingle.php'; //uses cms_autoloader()
+require_once $dirpath.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; // easy autoloading of 'foreign' classes
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppSingle.php'; // uses cms_autoloader()
 require_once $dirpath.'compat.functions.php';
 require_once $dirpath.'page.functions.php';
-require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; //might be needed, save autoloading
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; // might be needed, save autoloading
+// begin to populate the singletons cache
+$_app = CmsApp::get_instance(); // for use in this file, not inclusions
+AppSingle::set('CmsApp', $_app); // cache this singleton like all others
+AppSingle::set('App', $_app); // an alias
+$config = cms_config::get_instance(); // already used in some inclusions above
+AppSingle::set('cms_config', $config); // now we can cache this singleton
+AppSingle::set('Config', $config); // and an alias
 
 if (isset($_REQUEST[CMS_JOB_KEY])) {
     // since 2.3 value 0|1|2 indicates the type of request, hence appropriate inclusions
@@ -80,7 +88,7 @@ if (isset($_REQUEST[CMS_JOB_KEY])) {
     //normal output
     $CMS_JOB_TYPE = 0;
 }
-CmsApp::get_instance()->JOBTYPE = $CMS_JOB_TYPE;
+$_app->JOBTYPE = $CMS_JOB_TYPE;
 
 if ($CMS_JOB_TYPE < 2) {
     require_once $dirpath.'placement.functions.php';
@@ -96,9 +104,6 @@ if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
 cleanArray($_SERVER);
 cleanArray($_GET);
 
-// Grab the current configuration & some define's
-$_app = CmsApp::get_instance(); // for use in this file only.
-$config = $_app->GetConfig();
 AuditOperations::init(); // load some audit-methods & audit-classes which won't autoload
 
 // Set the timezone
@@ -128,7 +133,7 @@ if ($administering) {
 
 cms_siteprefs::setup();
 
-$cache = SysDataCache::get_instance();
+$cache = AppSingle::SysDataCache();
 // deprecated since 2.3 useless
 $obj = new SysDataCacheDriver('schema_version', function()
     {
@@ -137,14 +142,14 @@ $obj = new SysDataCacheDriver('schema_version', function()
 $cache->add_cachable($obj);
 $obj = new SysDataCacheDriver('modules', function()
     {
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::CmsApp()->GetDb();
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules';
         return $db->GetAssoc($query); // Keyed by module_name
      });
 $cache->add_cachable($obj);
 $obj = new SysDataCacheDriver('module_deps', function()
     {
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::CmsApp()->GetDb();
         $query = 'SELECT parent_module,child_module,minimum_version FROM '.CMS_DB_PREFIX.'module_deps ORDER BY parent_module';
         $tmp = $db->GetArray($query);
         if (!is_array($tmp) || !$tmp) return '-';  // special value so that we actually return something to cache.
@@ -159,7 +164,7 @@ $cache->add_cachable($obj);
 if ($CMS_JOB_TYPE < 2) {
     $obj = new SysDataCacheDriver('latest_content_modification', function()
         {
-            $db = CmsApp::get_instance()->GetDb();
+            $db = AppSingle::CmsApp()->GetDb();
             $query = 'SELECT modified_date FROM '.CMS_DB_PREFIX.'content ORDER BY modified_date DESC';
             $tmp = $db->GetOne($query);
             return $db->UnixTimeStamp($tmp);
@@ -167,7 +172,7 @@ if ($CMS_JOB_TYPE < 2) {
     $cache->add_cachable($obj);
     $obj = new SysDataCacheDriver('default_content', function()
         {
-            $db = CmsApp::get_instance()->GetDb();
+            $db = AppSingle::CmsApp()->GetDb();
             $query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
             return $db->GetOne($query);
         });
@@ -177,7 +182,7 @@ if ($CMS_JOB_TYPE < 2) {
     $obj = new SysDataCacheDriver('content_flatlist', function()
         {
             $query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
-            $db = CmsApp::get_instance()->GetDb();
+            $db = AppSingle::CmsApp()->GetDb();
             return $db->GetArray($query);
         });
     $cache->add_cachable($obj);
@@ -185,7 +190,7 @@ if ($CMS_JOB_TYPE < 2) {
     // hence the tree
     $obj = new SysDataCacheDriver('content_tree', function()
         {
-            $flatlist = SysDataCache::get_instance()->get('content_flatlist');
+            $flatlist = AppSingle::SysDataCache()->get('content_flatlist');
             $tree = cms_tree_operations::load_from_list($flatlist);
             return $tree;
         });
@@ -194,13 +199,13 @@ if ($CMS_JOB_TYPE < 2) {
     // hence the flat/quick list
     $obj = new SysDataCacheDriver('content_quicklist', function()
         {
-            $tree = SysDataCache::get_instance()->get('content_tree');
+            $tree = AppSingle::SysDataCache()->get('content_tree');
             return $tree->getFlatList();
         });
     $cache->add_cachable($obj);
 }
 
-// other global caches
+// other SysDataCache contents
 Events::setup();
 ModulePluginOperations::setup();
 
@@ -230,7 +235,7 @@ if (!$installing) {
     $global_umask = cms_siteprefs::get('global_umask','');
     if ($global_umask != '') umask( octdec($global_umask));
 
-    $modops = ModuleOperations::get_instance();
+    $modops = AppSingle::ModuleOperations();
     // After autoloader & modules
     $tmp = $modops->GetCapableModules(CmsCoreCapabilities::JOBS_MODULE);
     if( $tmp ) {
