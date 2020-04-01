@@ -20,8 +20,11 @@ namespace CMSMS;
 use cms_siteprefs;
 use CmsApp;
 use CmsCoreCapabilities;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
+use DeprecationNotice;
 use const CMS_DB_PREFIX;
+use const CMS_DEPREC;
 use function cms_join_path;
 use function cms_module_path;
 use function lang_by_realm;
@@ -33,21 +36,21 @@ class ContentTypeOperations
 {
 	const EDITORMODULE = 'CMSContentManager';
 
-	/**
+	/* *
 	 * @ignore
 	 * Singleton class, to protect $_content_types
 	 */
-	private static $_instance = null;
+//	private static $_instance = null;
 
 	/**
 	 * @ignore
 	 */
 	private $_content_types;
 
-	/**
+	/* *
 	 * @ignore
 	 */
-	private function __construct() {}
+//	private function __construct() {}
 
 	/**
 	 * @ignore
@@ -67,15 +70,14 @@ class ContentTypeOperations
 	/**
 	 * Get the singleton instance of this class.
 	 * This method is called over a hundred times during a typical request,
-	 * so warrants being a singleton.
+	 * so definitely the class warrants being a singleton.
+	 * @deprecated since 2.3 instead use CMSMS\AppSingle::ContentTypeOperations()
 	 * @return ContentOperations
 	 */
 	public static function get_instance() : self
 	{
-		if( !self::$_instance ) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::ContentTypeOperations()'));
+		return AppSingle::ContentTypeOperations();
 	}
 
 	/**
@@ -222,7 +224,7 @@ class ContentTypeOperations
 				}
 
 				if( empty($obj->friendlyname) ) {
-					if( !(empty($obj->friendlyname_key) || !AppState::test_state(CMSMS\AppState::STATE_ADMIN_PAGE)) ) {
+					if( !(empty($obj->friendlyname_key) || !AppState::test_state(AppState::STATE_ADMIN_PAGE)) ) {
 						$obj->friendlyname = lang_by_realm($realm,$obj->friendlyname_key);
 					}
 					else {
