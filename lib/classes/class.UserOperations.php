@@ -1,6 +1,6 @@
 <?php
-#class of user-related functions
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Singleton class of user-related functions
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,16 +18,20 @@
 
 namespace CMSMS;
 
+use cms_siteprefs;
 use CmsApp;
 use CmsException;
-use cms_siteprefs;
+use CMSMS\GroupOperations;
+use CMSMS\User;
+use CMSMS\UserOperations;
+use DeprecationNotice;
 use const CMS_DB_PREFIX;
-use function check_permission;
+use const CMS_DEPREC;
 use function get_userid;
 
 /**
- * Class for doing user related functions. Many User-class functions
- * are just wrappers around these.
+ * Singleton class for doing user-related functions.
+ * Many User-class methods are just wrappers around these.
  *
  * @final
  * @package CMS
@@ -38,30 +42,30 @@ use function get_userid;
 final class UserOperations
 {
 	//TODO namespaced global variables here
-	/**
+	/* *
 	 * @ignore
 	 */
-	private static $_instance = null;
+//	private static $_instance = null;
 
 	/**
 	 * @ignore
 	 */
-	private static $_user_groups;
+	private $_user_groups;
 
 	/**
 	 * @ignore
 	 */
-	private static $_users;
+	private $_users;
 
 	/**
 	 * @ignore
 	 */
-	private static $_saved_users = [];
+	private $_saved_users = [];
 
-	/**
+	/* *
 	 * @ignore
 	 */
-	private function __construct() {}
+//	private function __construct() {}
 
 	/**
      * @ignore
@@ -69,14 +73,14 @@ final class UserOperations
     private function __clone() {}
 
 	/**
-	 * Get an instance of this class.
-	 * @deprecated since 2.3 use UserOperations::get_instance()
+	 * Get the singleton instance of this class.
+	 * @deprecated since 2.9 use CMSMS\AppSingle::UserOperations()
 	 * @return UserOperations
 	 */
 	public static function get_instance() : self
 	{
-		if( !self::$_instance ) { self::$_instance = new self(); }
-		return self::$_instance;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::UserOperations()'));
+		return AppSingle::UserOperations();
 	}
 
 	/**
@@ -90,9 +94,8 @@ final class UserOperations
 	 */
 	public function LoadUsers(int $limit = 10000, int $offset = 0) : array
 	{
-		if (!is_array(self::$_users)) {
-			$gCms = CmsApp::get_instance();
-			$db = $gCms->GetDb();
+		if (!is_array($this->_users)) {
+			$db = CmsApp::get_instance()->GetDb();
 			$result = [];
 
 			$query = 'SELECT user_id, username, password, first_name, last_name, email, active, admin_access
@@ -114,10 +117,10 @@ final class UserOperations
 				$dbresult->MoveNext();
 			}
 
-			self::$_users = $result;
+			$this->_users = $result;
 		}
 
-		return self::$_users;
+		return $this->_users;
 	}
 
 	/**
@@ -129,8 +132,7 @@ final class UserOperations
 	 */
 	public function LoadUsersInGroup(int $groupid) : array
 	{
-		$gCms = CmsApp::get_instance();
-		$db = $gCms->GetDb();
+		$db = CmsApp::get_instance()->GetDb();
 		$result = [];
 
 		$query = 'SELECT u.user_id, u.username, u.password, u.first_name, u.last_name, u.email, u.active, u.admin_access FROM '.CMS_DB_PREFIX.'users u, '.CMS_DB_PREFIX.'groups g, '.CMS_DB_PREFIX.'user_groups cg WHERE cg.user_id = u.user_id AND cg.group_id = g.group_id AND g.group_id = ? ORDER BY username';
@@ -211,7 +213,7 @@ final class UserOperations
 				$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';
 				$db->Execute($query, [$oneuser->password, $row['user_id']]);
 			}
-			return self::LoadUserByID($row['user_id']);
+			return $this->LoadUserByID($row['user_id']);
 		}
 	}
 
@@ -230,13 +232,12 @@ final class UserOperations
 		if ($id < 1) {
 			return false;
 		}
-		if (isset(self::$_saved_users[$id])) {
-			return self::$_saved_users[$id];
+		if (isset($this->_saved_users[$id])) {
+			return $this->_saved_users[$id];
 		}
 
 		$result = false;
-		$gCms = CmsApp::get_instance();
-		$db = $gCms->GetDb();
+		$db = CmsApp::get_instance()->GetDb();
 
 		$query = 'SELECT username, password, active, first_name, last_name, admin_access, email FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?';
 		$dbresult = $db->Execute($query, [$id]);
@@ -254,7 +255,7 @@ final class UserOperations
 			$result = $oneuser;
 		}
 
-		self::$_saved_users[$id] = $result;
+		$this->_saved_users[$id] = $result;
 		return $result;
 	}
 
@@ -335,7 +336,8 @@ VALUES ($new_user_id,?,?,?,?,?,?,?,$now,$now)";
 		if ($id <= 1) {
 			return false;
 		}
-		if (!check_permission(get_userid(), 'Manage Users')) {
+
+        if (!$this->CheckPermission(get_userid(false), 'Manage Users')) {
 			return false;
 		}
 
@@ -368,8 +370,7 @@ VALUES ($new_user_id,?,?,?,?,?,?,?,$now,$now)";
 	public function CountPageOwnershipByID($id)
 	{
 		$result = 0;
-		$gCms = CmsApp::get_instance();
-		$db = $gCms->GetDb();
+		$db = CmsApp::get_instance()->GetDb();
 
 		$query = 'SELECT count(*) AS count FROM '.CMS_DB_PREFIX.'content WHERE owner_id = ?';
 		$dbresult = $db->Execute($query, [$id]);
@@ -456,7 +457,7 @@ VALUES ($new_user_id,?,?,?,?,?,?,?,$now,$now)";
 		if ($uid == 1) {
 			return true;
 		}
-		$groups = $this->GetMemberGroups();
+		$groups = $this->GetMemberGroups(1);
 		if ($groups) {
 			if (in_array($uid, $groups)) {
 				return true;
@@ -474,16 +475,16 @@ VALUES ($new_user_id,?,?,?,?,?,?,?,$now,$now)";
 	 */
 	public function GetMemberGroups($uid)
 	{
-		if (!is_array(self::$_user_groups) || !isset(self::$_user_groups[$uid])) {
+		if (!is_array($this->_user_groups) || !isset($this->_user_groups[$uid])) {
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.'user_groups WHERE user_id = ?';
 			$col = $db->GetCol($query, [(int) $uid]);
-			if (!is_array(self::$_user_groups)) {
-				self::$_user_groups = [];
+			if (!is_array($this->_user_groups)) {
+				$this->_user_groups = [];
 			}
-			self::$_user_groups[$uid] = $col;
+			$this->_user_groups[$uid] = $col;
 		}
-		return self::$_user_groups[$uid];
+		return $this->_user_groups[$uid];
 	}
 
 	/**
@@ -506,18 +507,16 @@ VALUES ($new_user_id,?,?,?,?,?,?,?,$now,$now)";
 (group_id,user_id,create_date,modified_date) VALUES (?,?,$now,$now)";
 //		$dbresult =
 		$db->Execute($query, [$gid, $uid]);
-		if (isset(self::$_user_groups[$uid])) {
-			unset(self::$_user_groups[$uid]);
+		if (isset($this->_user_groups[$uid])) {
+			unset($this->_user_groups[$uid]);
 		}
 	}
 
 	/**
-	 * Test if the user has the specified permission, by reason of group membership
+	 * Test if any users-group of which the specified user is a member has the specified permission(s).
 	 *
-	 * Given the users member groups, test if any of those groups have the specified permission.
-	 *
-	 * @param int	 $userid
-	 * @param string $permname
+	 * @param int	$userid
+	 * @param mixed $permname single string or (since 2.3) an array of them, optionally with following bool
 	 *
 	 * @return bool
 	 */
@@ -526,35 +525,27 @@ VALUES ($new_user_id,?,?,?,?,?,?,?,$now,$now)";
 		if ($userid <= 0) {
 			return false;
 		}
-		if ($userid == 1) {
-			// some permissions are not automatically extended to the super-user
-			if (!in_array($permname, [
-				'Modify DataBase Direct',
-				'Modify Restricted Files',
-				'Remote Administration',
-			   ])) {
-				return true;
-			}
-		}
 		$groups = $this->GetMemberGroups($userid);
-		if (!is_array($groups)) {
+		if ($userid == 1) {
+			array_unshift($groups, 1);
+			$groups = array_unique($groups, SORT_NUMERIC);
+        }
+		if (!$groups) {
 			return false;
 		}
-		if (in_array(1, $groups)) {
-			// member of the super-users group
-			if (!in_array($permname, [
-				'Modify DataBase Direct',
-				'Modify Restricted Files',
-				'Remote Administration',
-			   ])) {
-				return true;
-			}
+		if (is_string($permname)) {
+			$perms = [$permname];
+		} elseif (is_array($permname)) {
+			$arr = func_get_args(); //since we're not breaking the method API
+			unset($arr[0]);
+			$perms = $arr;
+		} else {
+			return false;
 		}
-
+		$ops = GroupOperations::get_instance();
 		try {
-			$ops = GroupOperations::get_instance();
 			foreach ($groups as $gid) {
-				if ($ops->CheckPermission($gid, $permname)) {
+				if ($ops->CheckPermission($gid, ...$perms)) {
 					return true;
 				}
 			}
