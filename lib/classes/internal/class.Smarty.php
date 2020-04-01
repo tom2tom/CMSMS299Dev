@@ -29,7 +29,7 @@ use CMSMS\internal\layout_stylesheet_resource;
 use CMSMS\internal\layout_template_resource;
 use CMSMS\internal\module_db_template_resource;
 use CMSMS\internal\module_file_template_resource;
-use CMSMS\UserTagOperations;
+use CMSMS\SimpleTagOperations;
 use Exception;
 use LogicException;
 use Smarty_Internal_Template;
@@ -293,8 +293,8 @@ smarty cache lifetime != global cache ttl, probably
 
             //deprecated pre-2.9 behaviour, see above re cachability
             $cachable = false;
-            // check if it's a user-plugin
-            $callback = UserTagOperations::get_instance()->CreateTagFunction($name); //however stored
+            // check if it's a simple-plugin
+            $callback = SimpleTagOperations::get_instance()->CreateTagFunction($name);
             if( $callback ) {
                 //$cachable = true; future
                 return true;
@@ -305,7 +305,7 @@ smarty cache lifetime != global cache ttl, probably
     }
 
     /**
-     * Report whether a smarty plugin (actual, not module- or user-plugin)
+     * Report whether a smarty plugin (actual, not module- or simple-plugin)
      * having the specified name exists.
      * @since 2.3
      *

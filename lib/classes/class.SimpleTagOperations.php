@@ -20,6 +20,7 @@ namespace CMSMS;
 
 use CmsApp;
 use DeprecationNotice;
+use BadMethodCallException;
 use RuntimeException;
 use Smarty;
 use Throwable;
@@ -71,7 +72,7 @@ final class SimpleTagOperations
 	//TODO consider making this a session-cache (for admin) but for frontend ?
 	private $_cache = [];
 	/**
-	 * @var bool whether $_cache[] has been fully-populated (by ListUserTags())
+	 * @var bool whether $_cache[] has been fully-populated (by ListSimpleTags())
 	 * which is unlikely since checks for individual tags will mostly be from a
 	 * frontend request, but sometimes involve a selection from the list.
 	 * @ignore
@@ -97,7 +98,7 @@ final class SimpleTagOperations
 	private function __clone() {}
 
 	/**
-	 * Support for simplified explicit tag-running
+	 * Support for pre-2.3 method-names, and simplified explicit tag-running
 	 * @ignore
 	 * @param string $name simple-plugin name
 	 * @param array $args plugin-API variable(s) in some form.
@@ -105,8 +106,19 @@ final class SimpleTagOperations
 	 */
 	public function __call($name, $args)
 	{
+		if (strpos($name, 'User') !== false) {
+			$sn = str_replace('User', 'Simple', $name);
+			if (method_exists($this, $sn)) {
+				try {
+					return $this->$sn(...$args);
+				} catch (Throwable $t) {
+					return;
+				}
+			}
+			//fall into running a tag whose name includes 'User'
+		}
 		try {
-			return $this->CallUserTag($name, ...$args);
+			return $this->CallSimpleTag($name, ...$args);
 		}
 		catch (Throwable $t) {
 			// nothing here
@@ -189,7 +201,7 @@ final class SimpleTagOperations
 	 * Establish local data cache for all simple-plugins
 	 *
 	 * @ignore
-	 * @deprecated since 2.9 does nothing. No SysDataCache for simple-plugins
+	 * @deprecated since 2.9 does nothing. There is no SysDataCache for simple-plugins
 	 * @internal
 	 */
 	public static function setup()
@@ -199,9 +211,9 @@ final class SimpleTagOperations
 	/**
 	 * Cache all information about all simple plugins (onetime only)
 	 * @deprecated since 2.9 does nothing. Local cache is populated on demand
-	 * and to the extent needed, by class methods e.g. ListUserTags()
+	 * and to the extent needed, by class methods e.g. ListSimpleTags()
 	 */
-	public function LoadUserTags()
+	public function LoadSimpleTags()
 	{
 	}
 
@@ -294,12 +306,12 @@ final class SimpleTagOperations
 	 *
 	 * @param string $name Plugin name
 	 * @param mixed $props @since 2.9 string|strings[] Optional dB
-	 *  userplugins-table field name(s) (comma-separated ok), or '*', or falsy
+	 *  simpleplugins-table field name(s) (comma-separated ok), or '*', or falsy
 	 *  for an existence-check. Default 'code'.
 	 *
 	 * @return mixed array | field-value | true (exists) | null
 	 */
-	public function GetUserTag(string $name, $props = 'code')
+	public function GetSimpleTag(string $name, $props = 'code')
 	{
 		if (isset($this->_cache[$name])) {
 			$filetag = $this->_cache[$name][0] < 0;
@@ -331,7 +343,7 @@ final class SimpleTagOperations
 				$multi = false;
 			}
 			$db = CmsApp::get_instance()->GetDb();
-			$query = 'SELECT '.$fields.' FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
+			$query = 'SELECT '.$fields.' FROM '.CMS_DB_PREFIX.'simpleplugins WHERE name=?';
 			$dbr = $db->GetRow($query, [$name]);
 			if ($dbr) {
 				if ($filetag === null) {
@@ -359,7 +371,7 @@ final class SimpleTagOperations
 	 * @param $name plugin identifier (as used in tags)
 	 * @return bool since 2.9, formerly $name|false
 	*/
-	public function UserTagExists(string $name) : bool
+	public function SimpleTagExists(string $name) : bool
 	{
 		if (!$this->IsValidName($name)) {
 			$this->_misses[$name] = 0;
@@ -367,7 +379,7 @@ final class SimpleTagOperations
 		}
 		if (isset($this->_cache[$name])) { return true; }
 		if (isset($this->_misses[$name])) { return false; }
-		return ($this->GetUserTag($name, '') != false);
+		return ($this->GetSimpleTag($name, '') != false);
 	}
 
 	/**
@@ -390,7 +402,7 @@ final class SimpleTagOperations
 			}
 		}
 
-		return $this->UserTagExists($name);
+		return $this->SimpleTagExists($name);
 	}
 
 	/**
@@ -466,7 +478,7 @@ EOS;
 	 * Insert/store or update a simple-plugin in the database or in file
 	 *
 	 * @param string $name   plugin name now, perhaps different from $params[oldname]
-	 * @param varargs $params  since 2.9 normally just a single assoc array of
+	 * @param varargs $args  since 2.9 normally just a single assoc array of
 	 *  additional properties, some/all of
 	 *  'id' -1 for new plugin, > 0 for an existing dB-stored plugin,
 	 *    <= self::MAXFID for an existing file-stored plugin
@@ -477,16 +489,16 @@ EOS;
 	 *  'license' ignored for a dB-stored plugin
 	 * @return bool indicating success TODO API for returning error message
 	 */
-	public function SetUserTag(string $name, ...$params) : bool
+	public function SetSimpleTag(string $name, ...$args) : bool
 	{
 		if (!$this->IsValidName($name)) {
 			return false; // TODO log 'simple-plugin name error: ',$name
 		}
 
-		if (count($params) == 1 && is_array($params[0])) {
-			$params = $params[0];
-		} else { // pre-2.9 API
-			$params = ['id'=>-1, 'code'=>$params[0], 'description'=>$params[1] ?? ''];
+		if (count($args) == 1 && is_array($args[0])) {
+			$params = $args[0];
+		} else { // pre-2.3 API
+			$params = ['id'=>-1, 'code'=>$args[0], 'description'=>$args[1] ?? ''];
 		}
 
 		$val = $params['code'] ?? '';
@@ -548,7 +560,7 @@ EOS;
 		} elseif ($id == -1 || $id > 0) {
 			//upsert dB
 			$db = CmsApp::get_instance()->GetDb();
-			$tbl = CMS_DB_PREFIX.'userplugins';
+			$tbl = CMS_DB_PREFIX.'simpleplugins';
 			if ($id == -1) {
 				$query = "INSERT INTO $tbl (name,code,description,parameters) VALUES (?,?,?,?)";
 				$dbr = $db->Execute($query,[$name,$code,$description,$parameters]);
@@ -584,18 +596,18 @@ EOS;
 	 * @param string $name plugin name
 	 * @return bool indicating success
 	 */
-	public function RemoveUserTag(string $name) : bool
+	public function RemoveSimpleTag(string $name) : bool
 	{
 		if (isset($this->_misses[$name])) return false;
 		if (!isset($this->_cache[$name])) {
-			$this->UserTagExists($name); //populate the relevant cache
+			$this->SimpleTagExists($name); //populate the relevant cache
 		}
 		if (isset($this->_cache[$name])) {
 			//$this->_cache[$name] => dB|fake id, callable|null
 			if ($this->_cache[$name][0] > 0) {
 				//process dB-stored plugin
 				$db = CmsApp::get_instance()->GetDb();
-				$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
+				$query = 'DELETE FROM '.CMS_DB_PREFIX.'simpleplugins WHERE name=?';
 				$dbr = $db->Execute($query, [$name]);
 				$res = ($dbr != false);
 				if ($res) {
@@ -624,11 +636,11 @@ EOS;
 	 * @return array each member like id => tagname, where id <= self::MAXFID
 	 *  to indicate a file-stored plugin
 	 */
-	public function ListUserTags() : array
+	public function ListSimpleTags() : array
 	{
 		if (!$this->_loaded) {
 			$db = CmsApp::get_instance()->GetDb();
-			$query = 'SELECT name,id FROM '.CMS_DB_PREFIX.'userplugins ORDER BY name';
+			$query = 'SELECT name,id FROM '.CMS_DB_PREFIX.'simpleplugins ORDER BY name';
 			$out = $db->GetAssoc($query);
 
 			$patn = $this->FilePath('*');
@@ -670,7 +682,7 @@ EOS;
 	 *
 	 * @return mixed value returned by tag|false
 	 */
-	public function CallUserTag(string $name, array &$params = [], $smarty_ob = null)
+	public function CallSimpleTag(string $name, array &$params = [], $smarty_ob = null)
 	{
 		$processor = $this->CreateTagFunction($name);
 		if ($processor) {
@@ -742,7 +754,7 @@ EOS;
 		if (!isset($this->_cache[$name])) {
 			if (isset($this->_misses[$name])) return null;
 			try {
-				$this->UserTagExists($name); //populate relevant cache
+				$this->SimpleTagExists($name); //populate relevant cache
 			} catch (Throwable $t) {
 				return null;
 			}
@@ -752,7 +764,7 @@ EOS;
 				if ($this->_cache[$name][0] > 0) {
 					$processor = 'cms_simple_tag_'.$name;
 					if (!function_exists($processor)) {
-						$code = $this->GetUserTag($name, 'code');
+						$code = $this->GetSimpleTag($name, 'code');
 						try {
 							if (!$code) {
 								throw new UnexpectedValueException();
@@ -788,15 +800,17 @@ EOS;
 	}
 
 	/**
-	 * If a simple-plugin-file corresponding to $name exists, arrange for it to
-	 * to process an event identified by $originator and $eventname.
-	 * Variables $gCms, $db, $config and (global) $smarty are in-scope for the inclusion.
+	 * If a simple-plugin corresponding to $name exists, arrange for it to
+	 * process an event identified by its originator and name.
+	 * Variables $gCms, $db, $config and (global) $smarty are in-scope for the
+	 * plugin code.
 	 * @since 2.9
 	 *
 	 * @param string $name plugin identifier (as used in tags)
 	 * @param string $originator The name of the event originator, a module-name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param array  $params Event parameters provided by the originator
+	 * @param array  $params Reference to event parameter(s) provided by the originator.
+	 *  They may be altered by the handler.
 	 * @return bool
 	 */
 	public function DoEvent(string $name, string $originator, string $eventname, array &$params)

@@ -19,7 +19,7 @@
 namespace CMSMS\Async;
 
 use CmsApp;
-use CMSMS\UserTagOperations;
+use CMSMS\SimpleTagOperations;
 use RuntimeException;
 use function cms_to_bool;
 
@@ -90,7 +90,7 @@ class ExternalHandlerJob extends Job
     public function execute()
     {
         if( $this->is_udt ) {
-            UserTagOperations::get_instance()->CallUserTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO UDTfiles args
+            SimpleTagOperations::get_instance()->CallSimpleTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO plugin parameters missing
         }
         else {
             // call the function, pass in $this
