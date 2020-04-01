@@ -167,7 +167,7 @@ class CachePredis extends CacheDriver
         return $this->_read_cache($key);
     }
 
-    public function exists($key, $group = '')
+    public function has($key, $group = '')
     {
         if (!$group) $group = $this->_group;
 
@@ -183,7 +183,7 @@ class CachePredis extends CacheDriver
         return $this->_write_cache($key, $value);
     }
 
-    public function erase($key, $group = '')
+    public function delete($key, $group = '')
     {
         if (!$group) $group = $this->_group;
 

@@ -264,7 +264,7 @@ class cms_content_tree extends cms_tree
 	{
 		$id = $this->get_tag('id');
 		if( !$this->cache ) $this->cache = SystemCache::get_instance();
-		if( !$this->cache->exists($id,'tree_pages') ) {
+		if( !$this->cache->has($id,'tree_pages') ) {
 			// not in cache
 			$parent = $this->getParent();
 			if( !$loadsiblings || !$parent ) {
@@ -273,7 +273,7 @@ class cms_content_tree extends cms_tree
 			}
 			else {
 				$parent->getChildren($deep,$loadall);
-				if( $this->cache->exists($id,'tree_pages') ) {
+				if( $this->cache->has($id,'tree_pages') ) {
 					return $this->cache->get($id,'tree_pages');
 				}
 			}
@@ -403,7 +403,7 @@ class cms_content_tree extends cms_tree
 	public function isContentCached()
 	{
 		if( !$this->cache ) $this->cache = SystemCache::get_instance();
-		return $this->cache->exists($this->get_tag('id'),'tree_pages');
+		return $this->cache->has($this->get_tag('id'),'tree_pages');
 	}
 
 	/**

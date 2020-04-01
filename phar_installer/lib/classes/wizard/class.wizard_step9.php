@@ -137,7 +137,7 @@ class wizard_step9 extends wizard_step
         // clear the caches
         $this->message(lang('msg_clearcache'));
         $this->clear_filecaches();
-        SysDataCache::get_instance()->clear_all(); // clear all global-types' content
+        SysDataCache::get_instance()->clear(); // clear all global-types' content
         SystemCache::get_instance()->clear();
         AdminUtils::clear_cached_files();
 
@@ -302,7 +302,7 @@ VALUES (?,?,?,NOW())');
         // clear the caches
         $this->message(lang('msg_clearcache'));
         $this->clear_filecaches();
-        SysDataCache::get_instance()->clear_all(); // clear all global-types' content
+        SysDataCache::get_instance()->clear(); // clear all global-types' content
         SystemCache::get_instance()->clear();
         AdminUtils::clear_cached_files();
 

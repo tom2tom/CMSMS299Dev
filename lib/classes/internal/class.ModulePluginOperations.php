@@ -312,7 +312,7 @@ final class ModulePluginOperations
 			if( $data[$sig]['available'] != $available ) { $data[$sig]['available'] = $available; $dirty = TRUE; }
 		}
 		if( $dirty ) {
-			$cache->update('module_plugins', $data);
+			$cache->set('module_plugins', $data);
 		}
 		return TRUE;
 	}

@@ -150,7 +150,7 @@ class CacheFile extends CacheDriver
         return $data;
     }
 
-    public function exists($key,$group = '')
+    public function has($key,$group = '')
     {
         if (!$group) { $group = $this->_group; }
 
@@ -169,7 +169,7 @@ class CacheFile extends CacheDriver
         return $res;
     }
 
-    public function erase($key,$group = '')
+    public function delete($key,$group = '')
     {
         if (!$group) { $group = $this->_group; }
 

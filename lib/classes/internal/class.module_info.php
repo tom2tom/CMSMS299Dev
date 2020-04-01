@@ -298,7 +298,7 @@ class module_info implements ArrayAccess
 					$arr['changelog'] = $mod->GetChangelog();
 
 					$tmp[$module_name] += $arr;
-					SysDataCache::get_instance()->update('modules', $tmp);
+					SysDataCache::get_instance()->set('modules', $tmp);
 					return $tmp[$module_name];
 				}
 			}

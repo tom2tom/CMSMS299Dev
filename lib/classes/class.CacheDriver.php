@@ -108,7 +108,7 @@ abstract class CacheDriver
      * @param string $group Optional keys-space name, default ''
      * @return bool
      */
-    abstract public function exists($key, $group = '');
+    abstract public function has($key, $group = '');
 
     /**
      * Set a cached value
@@ -122,17 +122,17 @@ abstract class CacheDriver
     abstract public function set($key, $value, $group = '');
 
     /**
-     * Erase a cached value
+     * Delete a cached value
      * If the $group parameter is not specified the current group will be used
      *
      * @see CacheDriver::set_group()
      * @param string $key
      * @param string $group Optional keys-space name, default ''
      */
-    abstract public function erase($key, $group = '');
+    abstract public function delete($key, $group = '');
 
     /**
-     * Erase all cached values in a group
+     * Delete all cached values in a group
      * If the $group parameter is not specified the current group will be used
      * @see CacheDriver::set_group()
      *

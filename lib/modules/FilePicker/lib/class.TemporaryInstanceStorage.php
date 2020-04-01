@@ -56,7 +56,7 @@ class TemporaryInstanceStorage
     public static function clear($key)
     {
         $grp = self::cachegroup();
-        SystemCache::get_instance()->erase($key, $grp);
+        SystemCache::get_instance()->delete($key, $grp);
      }
 
     public static function reset()

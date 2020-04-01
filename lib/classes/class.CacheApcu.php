@@ -117,7 +117,7 @@ class CacheApcu extends CacheDriver
         return ($success) ? $data : null;
     }
 
-    public function exists($key, $group = '')
+    public function has($key, $group = '')
     {
         if (!$group) $group = $this->_group;
 
@@ -133,7 +133,7 @@ class CacheApcu extends CacheDriver
         return $this->_write_cache($key, $value);
     }
 
-    public function erase($key, $group = '')
+    public function delete($key, $group = '')
     {
         if (!$group) $group = $this->_group;
 

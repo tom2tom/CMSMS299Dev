@@ -107,7 +107,7 @@ final class module_meta
     {
         $this->_data = null;
         //TODO consider > 1 key for this group: 'capability', 'methods'
-        SystemCache::get_instance()->erase(self::class,'module_meta');
+        SystemCache::get_instance()->delete(self::class,'module_meta');
     }
 
     /**

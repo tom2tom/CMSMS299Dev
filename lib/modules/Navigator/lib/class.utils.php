@@ -148,7 +148,7 @@ final class utils
 					$cache = SystemCache::get_instance();
                     foreach( $children as &$node ) {
                         $id = $node->get_tag('id');
-                        if( $cache->exists($id,'tree_pages') ) {
+                        if( $cache->has($id,'tree_pages') ) {
                             $obj->children_exist = TRUE;
                             break;
                         }

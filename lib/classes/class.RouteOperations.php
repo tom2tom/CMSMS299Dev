@@ -131,7 +131,7 @@ final class RouteOperations
 
 			if( $tmp ) {
 				//TODO merge $tmp and self::$_dynamic_routes, if count bigger after that ...
-				SysDataCache::get_instance()->update('routes', self::$_dynamic_routes);
+				SysDataCache::get_instance()->set('routes', self::$_dynamic_routes);
 			}
 			return self::$_dynamic_routes; // old and new
 		});

@@ -137,7 +137,7 @@ class CacheYac extends CacheDriver
         return ($res || !is_bool($res)) ? $res : null;
     }
 
-    public function exists($key, $group = '')
+    public function has($key, $group = '')
     {
     if (!$group) { $group = $this->_group; }
 
@@ -155,7 +155,7 @@ class CacheYac extends CacheDriver
         return $this->_write_cache($key, $value);
     }
 
-    public function erase($key, $group = '')
+    public function delete($key, $group = '')
     {
         if (!$group) { $group = $this->_group; }
 

@@ -85,7 +85,7 @@ class TemporaryProfileStorage
     public static function clear($key)
     {
         $grp = self::cachegroup();
-        SystemCache::get_instance()->erase($key, $grp);
+        SystemCache::get_instance()->delete($key, $grp);
     }
 
     /**

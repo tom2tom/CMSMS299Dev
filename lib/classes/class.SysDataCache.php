@@ -113,19 +113,6 @@ class SysDataCache
     }
 
     /**
-     * Remove from the in-memory cache the data of the specified type.
-     * Hence reload the data when the data-type is next wanted.
-     *
-     * @param string $type
-     */
-    public function release(string $type)
-    {
-        if( isset($this->_data[$type]) ) {
-            unset($this->_data[$type]);
-        }
-    }
-
-    /**
      * Get all cached data recorded for the specified type
      *
      * @param string $type
@@ -166,25 +153,53 @@ class SysDataCache
     }
 
     /**
-     * Remove the specified type from the in-memory and system caches
+     * Remove from the in-memory cache the data of the specified type.
+     * Hence reload then-current data when the data-type is next wanted.
      *
      * @param string $type
      */
-    public function clear(string $type)
+    public function release(string $type)
     {
-        $this->get_main_cache()->erase($type);
+        if( isset($this->_data[$type]) ) {
+            unset($this->_data[$type]);
+        }
+    }
+
+    /**
+     * Remove the specified type from the in-memory and system caches
+     * @since 2.9
+     * @param string $type
+     */
+    public function delete(string $type)
+    {
+        $this->get_main_cache()->delete($type);
         unset($this->_types[$type], $this->_data[$type], $this->_dirty[$type]);
     }
 
     /**
      * Remove everything from the in-memory and system caches
+     * @deprecated since 2.9 instead use interface-compatible delete(type)
+     * to remove only that type
+     */
+    public function clear()
+    {
+        if (func_num_args() == 0) {
+            $this->get_main_cache()->clear();
+            $this->_types = [];
+            $this->_data = null;
+            $this->_dirty = [];
+        } else {
+            $args = func_get_args();
+            $this->delete($args[0]);
+        }
+    }
+
+    /**
+     * @deprecated since 2.9 instead use interface-compatible clear()
      */
     public function clear_all()
     {
-        $this->get_main_cache()->clear();
-        $this->_types = [];
-        $this->_data = null;
-        $this->_dirty = [];
+        $this->clear();
     }
 
     /**
@@ -194,13 +209,24 @@ class SysDataCache
      * @param string $type
      * @param mixed $data the data to be stored
      */
-    public function update(string $type, $data)
+    public function set(string $type, $data)
     {
         if( isset($this->_types[$type]) ) {
             $this->_data[$type] = $data;
             $this->_dirty[$type] = 1;
             $this->save();
         }
+    }
+
+    /**
+     * @since 2.9
+     * @deprecated since 2.9 instead use interface-compatibile set()
+     * @param string $type
+     * @param mixed $data the data to be stored
+     */
+    public function update(string $type, $data)
+    {
+        $this->set($type, $data);
     }
 
     /**

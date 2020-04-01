@@ -168,7 +168,7 @@ final class SystemCache
 				} catch (Exception $e) {}
 				break;
 			case 'auto':
-//        debug_buffer('Start cache-driver polling');
+//				debug_buffer('Start cache-driver polling');
 				foreach( $drivers as $type => $classname ) {
 				$tmp = $parms;
 				if( isset($settings[$type]) ) $tmp += $settings[$type];
@@ -211,7 +211,7 @@ final class SystemCache
 	}
 
 	/**
-	 * Clear the cache
+	 * Clear some/all of the cache
 	 * If the group is not specified, the current set group will be used.
 	 * If the group is empty, all cached values will be cleared.
 	 * Use with caution, especially in shared public caches like Memcached.
@@ -222,9 +222,9 @@ final class SystemCache
 	 */
 	public function clear(string $group = '') : bool
 	{
-//    if( $this->can_cache() ) {
+//		if( $this->can_cache() ) {
 		if( $this->_driver instanceof CacheDriver ) {
-//    if( is_object($this->_driver) ) {
+//		if( is_object($this->_driver) ) {
 			return $this->_driver->clear($group);
 		}
 		return FALSE;
@@ -240,9 +240,9 @@ final class SystemCache
 	 */
 	public function get(string $key, string $group = '')
 	{
-//    if( $this->can_cache() ) {
+//		if( $this->can_cache() ) {
 		if( $this->_driver instanceof CacheDriver ) {
-//    if( is_object($this->_driver) ) {
+//		if( is_object($this->_driver) ) {
 			return $this->_driver->get($key, $group);
 		}
 		return NULL;
@@ -257,9 +257,9 @@ final class SystemCache
 	 */
 	public function getall(string $group = '') : array
 	{
-//    if( $this->can_cache() ) {
+//		if( $this->can_cache() ) {
 		if( $this->_driver instanceof CacheDriver ) {
-//    if( is_object($this->_driver) ) {
+//		if( is_object($this->_driver) ) {
 			return $this->_driver->get_all($group);
 		}
 		return NULL;
@@ -274,9 +274,9 @@ final class SystemCache
 	 */
 	public function getindex(string $group = '') : array
 	{
-//    if( $this->can_cache() ) {
+//		if( $this->can_cache() ) {
 		if( $this->_driver instanceof CacheDriver ) {
-//    if( is_object($this->_driver) ) {
+//		if( is_object($this->_driver) ) {
 			return $this->_driver->get_index($group);
 		}
 		return NULL;
@@ -290,14 +290,24 @@ final class SystemCache
 	 * @param string $group An optional cache group name.
 	 * @return bool
 	 */
-	public function exists(string $key, string $group = '') : bool
+	public function has(string $key, string $group = '') : bool
 	{
-//    if( $this->can_cache() ) {
+//		if( $this->can_cache() ) {
 		if( $this->_driver instanceof CacheDriver ) {
-//    if( is_object($this->_driver) ) {
-			return $this->_driver->exists($key, $group);
+//		if( is_object($this->_driver) ) {
+			return $this->_driver->has($key, $group);
 		}
 		return FALSE;
+	}
+
+	/**
+	* @deprecated since 2.9 instead use interface-compatible has()
+	* @param string $key The primary key for the cached value
+	* @param string $group An optional cache group name.
+	 */
+	public function exists(string $key, string $group = '') : bool
+	{
+		return $this->has($key, $group);
 	}
 
 	/**
@@ -308,14 +318,24 @@ final class SystemCache
 	 * @param string $group An optional cache group name.
 	 * @return bool
 	 */
-	public function erase(string $key, string $group = '') : bool
+	public function delete(string $key, string $group = '') : bool
 	{
-//    if( $this->can_cache() ) {
+//		if( $this->can_cache() ) {
 		if( $this->_driver instanceof CacheDriver ) {
-//    if( is_object($this->_driver) ) {
-			return $this->_driver->erase($key, $group);
+//		if( is_object($this->_driver) ) {
+			return $this->_driver->delete($key, $group);
 		}
 		return FALSE;
+	}
+
+	/**
+	* @deprecated since 2.9 instead use interface-compatible delete()
+	* @param string $key The primary key for the cached value
+	* @param string $group An optional cache group name.
+	 */
+	public function erase(string $key, string $group = '') : bool
+	{
+		return $this->delete($key, $group);
 	}
 
 	/**
@@ -332,9 +352,9 @@ final class SystemCache
 	 */
 	public function set(string $key, $value, string $group = '') : bool
 	{
-//    if( $this->can_cache() ) {
+//		if( $this->can_cache() ) {
 		if( $this->_driver instanceof CacheDriver ) {
-//    if( is_object($this->_driver) ) {
+//		if( is_object($this->_driver) ) {
 			if ($value === null ) { $value = 0; }
 			return $this->_driver->set($key, $value, $group);
 		}
@@ -364,7 +384,7 @@ TODO
 	public function set_group(string $group) : bool
 	{
 		if( $this->_driver instanceof CacheDriver ) {
-//    if( is_object($this->_driver) ) {
+//		if( is_object($this->_driver) ) {
 			return $this->_driver->set_group($group);
 		}
 		return FALSE;
@@ -378,10 +398,8 @@ TODO
 	 */
 /*  public function can_cache() : bool
 	{
-/ *
 		if( !is_object($this->_driver) ) return FALSE;
 		return !AppState::test_state(CMSMS\AppState::STATE_INSTALL);
-* /
 		return $this->_driver instanceof CMSMS\CacheDriver;
 	}
 */

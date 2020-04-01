@@ -142,7 +142,7 @@ if ($n == 1) {
  */
 if (isset($_POST['clearcache'])) {
     //TODO files in local TMP_CACHE_LOCATION etc
-    SysDataCache::get_instance()->clear_all();
+    SysDataCache::get_instance()->clear();
     SystemCache::get_instance()->clear();
     AdminUtils::clear_cached_files();
     // put mention into the admin log
