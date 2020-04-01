@@ -307,6 +307,7 @@ final class SystemCache
 	 */
 	public function exists(string $key, string $group = '') : bool
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','has()'));
 		return $this->has($key, $group);
 	}
 
@@ -335,6 +336,7 @@ final class SystemCache
 	 */
 	public function erase(string $key, string $group = '') : bool
 	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','delete()'));
 		return $this->delete($key, $group);
 	}
 
