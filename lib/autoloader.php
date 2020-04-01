@@ -136,7 +136,7 @@ function cms_autoloader(string $classname)
 
 	if (strpos($base, 'Smarty') !== false) {
 		if (strpos($base, 'CMS') === false) {
-			return; //hand over to smarty autoloader
+			return; //hand over ASAP to slow smarty autoloading
 		}
 	}
 
