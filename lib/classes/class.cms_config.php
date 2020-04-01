@@ -16,7 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//use CMSMS\AppSingle;
+//namespace CMSMS; future
+
 use CMSMS\AppState;
 
 /**
@@ -48,7 +49,6 @@ final class cms_config implements ArrayAccess
     const TYPE_BOOL = 'B';
 
     const KNOWN = [
-        'app_mode' => self::TYPE_BOOL, //since 2.9
         'admin_dir' => self::TYPE_STRING,
         'admin_encoding' => self::TYPE_STRING,
         'admin_url' => self::TYPE_STRING,
@@ -69,7 +69,6 @@ final class cms_config implements ArrayAccess
         'debug' => self::TYPE_BOOL,
         'default_encoding' => self::TYPE_STRING,
         'default_upload_permission' => self::TYPE_STRING,
-        'developer_mode' => self::TYPE_BOOL, //since 2.9
         'image_uploads_path' => self::TYPE_STRING,
         'image_uploads_url' => self::TYPE_STRING,
         'locale' => self::TYPE_STRING,
@@ -86,16 +85,16 @@ final class cms_config implements ArrayAccess
         'secure_action_url' => self::TYPE_BOOL,
         'set_db_timezone' => self::TYPE_BOOL,
         'set_names' => self::TYPE_BOOL,
+        'simpletags_dir' => self::TYPE_STRING, //since 2.9 UDTfiles
         'timezone' => self::TYPE_STRING,
         'tmp_cache_location' => self::TYPE_STRING,
         'tmp_templates_c_location' => self::TYPE_STRING,
         'uploads_path' => self::TYPE_STRING,
         'uploads_url' => self::TYPE_STRING,
         'url_rewriting' => self::TYPE_STRING,
-        'usertags_dir' => self::TYPE_STRING, //since 2.9 UDTfiles
     ];
 
-    /* *
+    /**
      * ignore
      */
     private static $_instance = null;
@@ -113,7 +112,7 @@ final class cms_config implements ArrayAccess
     /**
      * ignore
      */
-    private function __construct() { /*$this->load_config();*/}
+    private function __construct() {}
 
     /**
      * @ignore
@@ -121,21 +120,23 @@ final class cms_config implements ArrayAccess
     private function __clone() {}
 
     /**
-     * Retrieve the global config object, after instantiating it if necessary
-     * @deprecated since 2.9 instead use CMSMS\AppSingle::cms_config()
+     * Retrieve the singleton instance of this class.
+     * This method is used during request-setup, when caching via the
+     * AppSingle class might not yet be possible. Later, use
+     * CMSMS\AppSingle::Config() instead of this method, to get the
+     * (same) singleton.
      *
      * @return self
      */
     public static function get_instance() : self
     {
-        if (!self::$_instance) {
+        if( !self::$_instance ) {
             self::$_instance = new self();
 
             // populate from file
             self::$_instance->load_config();
         }
-        return self::$_instance;
-//      return AppSingle::cms_config();
+	    return self::$_instance;
     }
 
     /**
@@ -221,7 +222,7 @@ final class cms_config implements ArrayAccess
                             break;
                         case 'admin_dir':
                         case 'assets_dir':
-                        case 'usertags_dir':
+                        case 'simpletags_dir':
                             $value = strtr($value, ['\\' => '','/' => '',' ' => '_']);
                             break;
                         }
@@ -438,10 +439,14 @@ final class cms_config implements ArrayAccess
         case 'admin_dir':
             return 'admin';
 
-        case 'app_mode':
-        case 'debug':
-        case 'developer_mode':
-            return false;
+        case 'developer_mode';
+            // deprecated from v2.9 this is just an alias for develop_mode
+            assert(empty(CMS_DEPREC), new DeprecationNotice('property', 'develop_mode'));
+            return $this->offsetGet('develop_mode');
+//        case 'app_mode':
+//        case 'debug':
+//        case 'develop_mode':
+//            return false; c.f. default return null
 
         case 'timezone':
             return 'UTC';
@@ -514,8 +519,8 @@ final class cms_config implements ArrayAccess
             $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','templates_c');
             return $this->_cache[$key];
 
-        case 'usertags_dir':
-            return 'user_plugins';
+        case 'simpletags_dir':
+            return 'simple_plugins';
 
         default:
             // not a mandatory key for the config.php file... and one we don't understand.
