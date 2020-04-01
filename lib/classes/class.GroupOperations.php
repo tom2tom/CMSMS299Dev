@@ -20,15 +20,19 @@ namespace CMSMS;
 
 use CmsApp;
 use CmsInvalidDataException;
+use CMSMS\AppSingle;
 use CMSMS\Group;
 use CmsPermission;
+use DeprecationNotice;
 use LogicException;
 use const CMS_DB_PREFIX;
+use const CMS_DEPREC;
 use function lang;
+use function restricted_cms_permissions;
 
 /**
- * A class of methods for performing group-related functions.
- * Many of the Group object functions are just wrappers around these.
+ * A singleton class of methods for performing group-related functions.
+ * Many of the Group-class methods are just wrappers around these.
  *
  * @since 0.6
  * @final
@@ -37,20 +41,21 @@ use function lang;
  */
 final class GroupOperations
 {
-	/**
+	/* *
 	 * @ignore
 	 */
-	private static $_instance = null;
+//	private static $_instance = null;
 
 	/**
+	 * @var array
 	 * @ignore
 	 */
-	private static $_perm_cache;
+	private $_perm_cache;
 
-	/**
+	/* *
 	 * @ignore
 	 */
-	private function __construct() {}
+//	private function __construct() {}
 
 	/**
 	 * @ignore
@@ -58,13 +63,14 @@ final class GroupOperations
 	private function __clone() {}
 
 	/**
-	 * Get the instance of this class.
+	 * Get the singleton instance of this class.
+	 * @deprecated since 2.3 instead use CMSMS\AppSingle::GroupOperations()
 	 * @return GroupOperations
 	 */
 	public static function get_instance() : self
 	{
-		if( !self::$_instance ) { self::$_instance = new self(); }
-		return self::$_instance;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::GroupOperations()'));
+		return AppSingle::GroupOperations();
 	}
 
 	/**
@@ -129,10 +135,11 @@ final class GroupOperations
 VALUES ($id,?,?,?,$now,$now)";
 			$dbr = $db->Execute($query, [$group->name, $group->description, $group->active]);
 			return ($dbr != FALSE) ? $id : -1;
-		} else {
-			$sql = 'UPDATE '.CMS_DB_PREFIX.'groups SET group_name = ?, group_desc = ?, active = ?, modified_date = NOW() WHERE group_id = ?';
+		}
+		else {
+			$query = 'UPDATE '.CMS_DB_PREFIX.'groups SET group_name = ?, group_desc = ?, active = ?, modified_date = NOW() WHERE group_id = ?';
 //			$dbr =
-			$db->Execute($sql, [$group->name,$group->description,$group->active,$id]);
+			$db->Execute($query, [$group->name,$group->description,$group->active,$id]);
 //			return $dbr != FALSE; useless - post-update result on MySQL is always unreliable
 			return TRUE;
 		}
@@ -195,26 +202,78 @@ VALUES ($id,?,?,?,$now,$now)";
 	}
 
 	/**
-	 * Test if a group has the specified permission
+	 * Test if a group has the specified permission(s)
 	 *
 	 * @param int $groupid The group id
-	 * @param string $perm The permission name
+	 * @param mixed $perm The permission name string, or (since 2.3) an array of them.
+	 * If the latter, and an optional true-valued argument follows, then
+	 * the named permission(s) in the array will be AND'd instead of OR'd
 	 * @return bool
 	 */
-	public function CheckPermission(int $groupid,string $perm) : bool
+	public function CheckPermission(int $groupid, ...$perm) : bool
 	{
-		if( $groupid == 1 ) return TRUE;
-		$permid = CmsPermission::get_perm_id($perm);
-		if( $permid < 1 ) return FALSE;
+		if( $groupid == 1 ) {
+			$checks = restricted_cms_permissions();
+			if( is_numeric($perm[0]) ) {
+//				$t = CmsPermission::get_perm_name($perm[0]);
+//				if( !$t ) return FALSE;
+//				if( !in_array($t,$checks) ) return TRUE;
+				return FALSE;
+			}
+			elseif( is_string($perm[0]) ) {
+				if( !in_array($perm[0],$checks) ) return TRUE;
+			}
+			elseif( is_array($perm[0]) ) {
+				if( !array_intersect($checks,$perm[0]) ) return TRUE;
+			}
+			return FALSE;
+		}
 
-		if( !isset(self::$_perm_cache) || !is_array(self::$_perm_cache) || !isset(self::$_perm_cache[$groupid]) ) {
+		if( !isset($this->_perm_cache) || !is_array($this->_perm_cache) || !isset($this->_perm_cache[$groupid]) ) {
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT permission_id FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ?';
 			$dbr = $db->GetCol($query,[(int)$groupid]);
-			if( $dbr ) self::$_perm_cache[$groupid] = $dbr;
+			if( $dbr ) {
+				$this->_perm_cache[$groupid] = $dbr;
+			}
+			else {
+				$this->_perm_cache[$groupid] = [];
+			}
 		}
 
-		return isset(self::$_perm_cache[$groupid]) && in_array($permid,self::$_perm_cache[$groupid]);
+		//TODO some cases,  $config['develop_mode'] >> return TRUE;
+		if( empty($this->_perm_cache[$groupid]) ) return FALSE;
+
+		if( is_numeric($perm[0]) ) {
+			return in_array((int)$perm[0],$this->_perm_cache[$groupid]);
+		}
+		elseif( is_string($perm[0]) ) {
+			$permid = (int)CmsPermission::get_perm_id($perm[0]);
+			if( $permid < 1 ) return FALSE;
+			return in_array($permid,$this->_perm_cache[$groupid]);
+		}
+		elseif( is_array($perm[0]) ) {
+			if( !empty($perm[1]) ) {
+				foreach( $perm[0] as $pname ) {
+					$permid = (int)CmsPermission::get_perm_id($pname);
+					if( $permid < 1 ) return FALSE;
+					if( !in_array($permid,$this->_perm_cache[$groupid]) ) {
+						return FALSE;
+					}
+				}
+				return TRUE;
+			}
+			else {
+				foreach( $perm[0] as $pname ) {
+					$permid = (int)CmsPermission::get_perm_id($pname);
+					if( $permid < 1 ) return FALSE;
+					if( in_array($permid,$this->_perm_cache[$groupid]) ) {
+						return TRUE;
+					}
+				}
+			}
+		}
+		return FALSE;
 	}
 
 	/**
@@ -225,9 +284,15 @@ VALUES ($id,?,?,?,$now,$now)";
 	 */
 	public function GrantPermission(int $groupid,string $perm)
 	{
-		$permid = CmsPermission::get_perm_id($perm);
+		$permid = (int)CmsPermission::get_perm_id($perm);
 		if( $permid < 1 ) return;
-		if( $groupid <= 1 ) return;
+		if( $groupid < 1 ) return;
+		if( $groupid == 1) {
+			$checks = restricted_cms_permissions();
+			if( !in_array($perm,$checks) ) {
+				return; //no need to record
+			}
+		}
 
 		$db = CmsApp::get_instance()->GetDb();
 
@@ -240,7 +305,7 @@ VALUES ($id,?,?,?,$now,$now)";
 VALUES ($new_id,?,?,$now,$now)";
 // 		$dbr =
 		$db->Execute($query,[$groupid,$permid]);
-		self::$_perm_cache = null;
+		unset($this->_perm_cache);
 	}
 
 	/**
@@ -251,16 +316,22 @@ VALUES ($new_id,?,?,$now,$now)";
 	 */
 	public function RemovePermission(int $groupid,string $perm)
 	{
-		$permid = CmsPermission::get_perm_id($perm);
+		$permid = (int)CmsPermission::get_perm_id($perm);
 		if( $permid < 1 ) return;
-		if( $groupid <= 1 ) return;
+		if( $groupid < 1 ) return;
+		if( $groupid == 1 ) {
+			$checks = restricted_cms_permissions();
+			if( !in_array($perm,$checks) ) {
+				return; //nothing recorded
+			}
+		}
 
 		$db = CmsApp::get_instance()->GetDb();
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND perm_id = ?';
 //		$dbr =
 		$db->Execute($query,[$groupid,$permid]);
-		self::$_perm_cache = null;
+		unset($this->_perm_cache);
 	}
 } // class
 
