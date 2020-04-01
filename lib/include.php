@@ -60,7 +60,7 @@ require_once $dirpath.'defines.php'; // populate relevant defines (uses cms_conf
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php'; // used in autoloader
 require_once $dirpath.'module.functions.php'; // some used in autoloader
 require_once $dirpath.'autoloader.php';
-require_once $dirpath.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; // easy autoloading of 'foreign' classes
+require_once $dirpath.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; // Composer's autoloader makes light work of 'foreign' classes
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppSingle.php'; // uses cms_autoloader()
 require_once $dirpath.'compat.functions.php';
 require_once $dirpath.'page.functions.php';
