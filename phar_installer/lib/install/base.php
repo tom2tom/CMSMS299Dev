@@ -249,5 +249,5 @@ create_private_dir($destdir,'module_custom');
 create_private_dir($destdir,'modules');
 create_private_dir($destdir,'plugins');
 create_private_dir($destdir,'resources');
+create_private_dir($destdir,'simple_plugins');  //UDTfiles
 create_private_dir($destdir,'templates');
-create_private_dir($destdir,'user_plugins');  //UDTfiles

@@ -1,6 +1,6 @@
 <?php
 #procedure to list all user-defined plugins (formerly called UDT's, user tags)
-#Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
-use CMSMS\UserPluginOperations;
+use CMSMS\SimpleTagOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -29,19 +29,15 @@ $userid = get_userid();
 $pmod = check_permission($userid, 'Modify User Plugins');
 $access = $pmod || check_permission($userid, 'View Tag Help');
 
-$ops = UserPluginOperations::get_instance();
-$patn = $ops->file_path('*');
-$files = glob($patn, GLOB_NOESCAPE);
-$tags = [];
-
-foreach ($files as $fp) {
-    $name = basename($fp, '.php');
-    $meta = $ops->get_meta_data($name, '*');
+$ops = SimpleTagOperations::get_instance();
+$items = $ops->ListSimpleTags();
+foreach ($items as $id=>$name) {
+	$data = $ops->GetSimpleTag($name, 'description');
     $tags[] = [
+		'id' => $id, //fake id <= $ops::MAXFID for UDTFiles
         'name' => $name,
-        'description' => $meta['description'] ?? null,
-        'help' => !empty($meta['parameters']),
-    ];
+        'description' => $data['description'] ?? null,
+	];
 }
 
 $themeObject = cms_utils::get_theme_object();
@@ -120,7 +116,7 @@ EOS;
 </script>
 EOS;
 }
-$themeObject->add_footertext($out);
+add_page_foottext($out);
 
 include_once 'header.php';
 $smarty->display('listusertags.tpl');

@@ -8,7 +8,7 @@ replacement notifications mechanism
 consistent js-initiated dialogs (no more 'native' popups)
 displayed images may also be svg, png or fonticon, with svg preferred if present
 revised UI for UDT processing (those are now files, not database records) see next item
-editing of templates, stylesheets, UDT's by syntax hilighter Ace or CodeMirror
+editing of templates, stylesheets, user-defined-tags by syntax hilighter Ace or CodeMirror
 module-specific templates can also be processed via the general template-edit UI (which is no longer driven by DesignManager module)
 extra core modules: CoreAdminLogin, CoreTextEditing, AdminLog
 
@@ -80,7 +80,7 @@ app_mode - 1 when operating as a web-app i.e. no admin users, maybe no admin con
 assets_url
 content_language - for PHP htmlentities() and html_entity_decode(), default 'xhtml'
 deprecations - if this parameter, and also debug, are not empty, deprecation notices will be thrown when something (method, property etc) deprecated is used
-developer_mode - 1 when somebody authorized is working on the site content/operation
+develop_mode (formerly developer_mode) - 1 when somebody authorized is working on the site content/operation
 pr_root_url - protocol-relative root URI
 secure_action_url - whether to encrypt action get-parameters for inclusion in URL's (mostly for non-https sites)
 usertags_dir - name of filesystem folder where user-plugin files are stored, default 'user_plugins'
@@ -153,11 +153,7 @@ non-core modules in <siterootpath>/modules
 javascript files in <siterootpath>/lib/jquery
   jQuery & cmsms core scripts migrated to <siterootpath>/lib/js, other scripts to <siterootpath>/assets/js (or whatever the 'assets' folder is named)
   links to relocated non-jquery files remain in <siterootpath>/lib/jquery
-
-gone
-
-NOT IMPLEMENTED: UDT's stored in database
-  was suggested those might become files in <siterootpath>/assets/user_plugins (or whatever the 'assets' folder is named)
+smarty templates, stylesheets, UDT's can be stored as standalone files instead of database records. The location and type of storage is transparent to the user.
 
 MISC
 
@@ -217,12 +213,8 @@ DETAILS
   - FEATURE: added new define in cms_config class: CMS_UPLOADS_URL
   - FEATURE: added new define in cms_config class: CMS_ADMIN_PATH
   - FEATURE: added the CMS_ASSETS_URL define and assets_url config entry.
-  - NOT IMPLEMENTED CHANGE: new 'user-plugin' API effectivly replaces UDT's.
-     User plugins are files stored in /assets/user_plugins, and must contain
-     the <?php tag and must return, not echo, anything to be displayed.
-     (Existing UDT's are migrated during upgrade)
-  - UserTagOperations class is now merely a compatibility stub
-  - DEPRECATED: user-plugin cachability is always false (as was the case for UDT's). Should always be true, and overridden by nocache parameter in template where relevant
+  - DEPRECATED: UserTagOperations class is now merely an alias for SimpleTagOperations
+  - DEPRECATED: simple-plugin cachability is always false (as was the case for UDT's). Should always be true, and overridden by nocache parameter in template where relevant
   - DEPRECATED: module-plugin cachability is set permanently when module is installed. Should always be true, and overridden by nocache parameter in template where relevant
   - FEATURE: Sitedown mode now throws a 503 exception and outputs a 503 error code
   - FEATURE: The 503 error handler (maintenance mode) is now an Error Page.

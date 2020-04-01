@@ -1,8 +1,8 @@
 <?php
 /*
-Procedure to process ajax calls for retrieving parameters-information
-for a named User Defined Tag (aka user-plugin)
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Procedure to process ajax call to retrieve parameters-information for a
+named simple-plugin
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -19,18 +19,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppState;
-use CMSMS\UserPluginOperations;
+use CMSMS\SimpleTagOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-$userid = get_userid();
+$userid = get_userid(false);
 if (check_permission($userid, 'View Tag Help')) {
-	$name = cleanValue($_GET['name']);
-	$meta = UserPluginOperations::get_instance()->get_meta_data($name, 'parameters');
-	if (!empty($meta)) {
-		echo (nl2br(cms_htmlentities(trim($meta, " \t\n\r"))));
+	$name = cleanValue($_GET['name']); //checkme non-ASCII chars in name ok?
+	$info = SimpleTagOperations::get_instance()->GetSimpleTag($name, 'parameters');
+	if (!empty($info)) {
+		echo (nl2br(cms_htmlentities(trim($info, " \t\n\r"))));
 	}
 }
 exit;

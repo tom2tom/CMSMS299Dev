@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to delete a named User Defined Tag (aka user-plugin) file
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppState;
-use CMSMS\UserPluginOperations;
+use CMSMS\SimpleTagOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -32,14 +32,13 @@ if (!$pmod) exit;
 
 $themeObject = cms_utils::get_theme_object();
 
-$tagname = cleanValue($_GET['name']);
-$ops = UserPluginOperations::get_instance();
-$fp = $ops->file_path($tagname);
-if (is_file($fp)) {
-//? send event :: deleteuserdefinedtagpre
-    if ($ops->delete($tagname)) {
+$tagname = cleanValue($_GET['name']); //CHECKME ok if name has non-ASCII chars?
+$ops = SimpleTagOperations::get_instance();
+if ($ops->SimpleTagExists($tagname)) {  // UDTfiles included
+//? $ops->DoEvent( deleteudtpre etc);
+    if ($ops->RemoveSimpleTag($tagname)) {
         $themeObject->ParkNotice('success', lang('deleted_udt'));
-//? send event :: deleteuserdefinedtagpost
+//?     $ops->DoEvent( deleteudtpost etc);
     } else {
         $themeObject->ParkNotice('error', lang('errordeletag'));
     }

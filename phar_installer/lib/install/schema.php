@@ -361,19 +361,20 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_tagname', $msg_ret));
 
 // UDT's continue to be dB-storable, as well as file-storable UDTfiles
+// code field mostly/entirely ASCII, but might include UTF8 text for UI
 $flds = '
 id I AUTO KEY,
 name C(255),
-code T(16383) CHARACTER SET ascii,
+code T(16383),
 description T(1023),
 parameters T(1023),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'userplugins', $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'simpleplugins', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', 'userplugins', $msg_ret));
+verbose_msg(lang('install_created_table', 'simpleplugins', $msg_ret));
 
 /* merged with layout_templates
 $flds = '

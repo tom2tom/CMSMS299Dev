@@ -1,6 +1,6 @@
 <?php
 #procedure to modify an event
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,7 +18,7 @@
 
 use CMSMS\AppState;
 use CMSMS\Events;
-use CMSMS\UserPluginOperations;
+use CMSMS\SimpleTagOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -127,23 +127,24 @@ if ($access) {
 	// get the handlers for this event
 	$handlers = Events::ListEventHandlers($sender, $event);
 
-	// get all available handlers
-	$allhandlers = null;
-	// some of them being user-defined tags
-	$ops = UserPluginOperations::get_instance();
-	$plugins = $ops->get_list();
-	foreach ($plugins as $plugin_name) {
-		$allhandlers[$plugin_name] = $plugin_name;
+	// get all available event handlers
+	$allhandlers = [];
+	// user-defined tags (lowest priority, may be replaced by same-name below)
+	$ops = SimpleTagOperations::get_instance();
+	$plugins = $ops->ListSimpleTags(); //UDTfiles included
+	foreach ($plugins as $name) {
+		$allhandlers[$name] = $name;
 	}
-	// and others being modules
-	$allmodules = $ops->GetInstalledModules();
-	foreach ($allmodules as $key) {
-		if ($key == $sendername) continue;
-		$modinstance = $ops->get_module_instance($key);
+	// module-tags
+	$allmodules = $ops->GetInstalledModules(); //TODO use module_meta data
+	foreach ($allmodules as $name) {
+		if ($name == $sendername) continue;
+		$modinstance = $ops->get_module_instance($name);
 		if ($modinstance && $modinstance->HandlesEvents()) {
-			$allhandlers[$key] = 'm:'.$key;
+			$allhandlers[$name] = 'm:'.$name;
 		}
 	}
+	// TODO etc e.g. regular plugins, any callable ?
 } else {
 	$allhandlers = null;
 	$handlers = null;

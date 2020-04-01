@@ -1,5 +1,7 @@
 <?php
 
+use CMSMS\SimpleTagOperations;
+
 set_time_limit(3600);
 status_msg('Fixing errors with deprecated plugins in versions prior to CMSMS 2.0');
 $fn = $destdir.'/plugins/function.process_pagedata.php';
@@ -485,10 +487,14 @@ $query = 'DELETE FROM '.CMS_DB_PREFIX.'modules WHERE module_name = ?';
 $db->Execute($query,array('CMSPrinting'));
 
 verbose_msg('Creating print UDT');
-$txt = <<<EOT
-echo '<!-- print tag removed in CMS Made Simple 2.0.  -->';
-EOT;
-UserTagOperations::get_instance()->SetUserTag('print',$txt,'Stub function to replace the print plugin');
+$params = [
+'code' => <<<'EOT'
+return '<!-- print tag removed in CMS Made Simple 2.0 -->';
+EOT
+,
+'description' => 'Stub function to replace the print plugin'
+];
+SimpleTagOperations::get_instance()->SetSimpleTag('print',$params);
 
 $sql = 'SELECT username FROM '.CMS_DB_PREFIX.'users WHERE user_id = 1';
 $un = $db->GetOne($sql);

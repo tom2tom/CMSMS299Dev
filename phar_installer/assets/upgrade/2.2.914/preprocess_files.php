@@ -16,6 +16,7 @@ $admindir = $destdir . DIRECTORY_SEPARATOR . $s;
 $s = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
 $assetsdir = $destdir . DIRECTORY_SEPARATOR . $s;
 
+/*
 // 1. Rename folder if necessary
 $tp = $assetsdir . DIRECTORY_SEPARATOR . 'user_plugins';
 $fp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
@@ -32,10 +33,12 @@ if (is_dir($fp)) {
         touch($tp . DIRECTORY_SEPARATOR . 'index.html');
     }
 }
-// 1A. rename any existing 2.3BETA plugins UDTfiles plus any format change?
+*/
+// 1. rename any existing 2.3BETA plugins UDTfiles plus any format change?
+$tp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
 $files = glob($tp.DIRECTORY_SEPARATOR.'*.cmsplugin', GLOB_NOESCAPE | GLOB_NOSORT);
 foreach ($files as $fp) {
-    $to = $tp.DIRECTORY_SEPARATOR.basename($fp, 'cmsplugin').'phphp'; //c.f. UserTagOperations::PLUGEXT
+    $to = $tp.DIRECTORY_SEPARATOR.basename($fp, 'cmsplugin').'phphp'; //c.f. SimpleTagOperations::PLUGEXT
     @rename($fp, $to);
 }
 
@@ -49,9 +52,9 @@ foreach ([
  ['assets','images'],
  ['assets','module_custom'],
  ['assets','modules'], //CHECKME
- ['assets','user_plugins'], //UDTfiles
  ['assets','plugins'],
  ['assets','resources'],
+ ['assets','simple_plugins'], //UDTfiles
  ['assets','templates'],
  ['lib','modules'], //CHECKME
 ] as $segs) {

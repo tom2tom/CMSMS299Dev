@@ -1,6 +1,6 @@
 <?php
 #procedure to add or edit a user-defined-tag / user-plugin
-#Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
-use CMSMS\UserPluginOperations;
+use CMSMS\SimpleTagOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -24,7 +24,6 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 check_login();
 
-$userid = get_userid();
 $urlext = get_secure_param();
 
 if (isset($_POST['cancel'])) {
@@ -36,32 +35,30 @@ $themeObject = cms_utils::get_theme_object();
 if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     $err = false;
     $tagname = cleanValue($_POST['tagname']);
-    $oldname = cleanValue($_POST['oldtagname']);
-
-    $ops = UserPluginOperations::get_instance();
-    if ($oldname == '-1' || $oldname !== $tagname ) {
-        if (!$ops->is_valid_plugin_name($tagname)) {
-            $themeObject->RecordNotice('error', lang('udt_exists'));
-            $err = true;
-        }
-    }
-
-//? send :: adduserdefinedtagpre
-//? send :: edituserdefinedtagpre
-    $meta = ['name' => $tagname];
-    //these are sanitized downstream, before storage ?
-    $val = $_POST['description'];
-    if ($val) $meta['description'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
-    $val = $_POST['parameters'];
-    if ($val) $meta['parameters'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
-    $val = $_POST['license'];
-    if ($val) $meta['license'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
-
-    if ($ops->save($tagname, $meta, $_POST['code'])) {
-//? send :: adduserdefinedtagpost
-//? send :: edituserdefinedtagpost
+    $oldname = cleanValue($_POST['oldname']);
+    $ops = SimpleTagOperations::get_instance();
+//? $ops->DoEvent( add | edit udtpre  etc)
+    //these $_POST variables are sanitized downstream, before use
+    $props = [
+        'id' => (int)$_POST['id'],
+        'name' => $tagname,
+        'oldname' => $oldname,
+        'code' => $_POST['code'] ?? null,
+        'description' => $_POST['description'] ?? null,
+        'parameters' => $_POST['parameters'] ?? null,
+        'license' => $_POST['license'] ?? null,
+		'detail' => 1 // return spcific error message
+    ];
+	$res = $ops->SetSimpleTag($tagname, $props);
+	if ($res[0]) {
+//?     $ops->DoEvent(:: add | edit udtpost etc)
     } else {
-        $msg = ($oldname == '-1') ? lang('errorinserting_utd') : lang('errorupdating_udt');
+        $msg = $res[1];
+		if ($msg) {
+			if (strpos(' ', $msg) === false) $msg = lang($msg);
+		} else {
+			$msg = ($oldname == '') ? lang('errorinserting_utd') : lang('errorupdating_udt');
+		}
         $themeObject->RecordNotice('error', $msg);
         $err = true;
     }
@@ -78,21 +75,33 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
 }
 
 if ($tagname != '-1') {
-    $ops = UserPluginOperations::get_instance();
-    list($meta, $code) = $ops->get($tagname);
+    if (!isset($ops)) $ops = SimpleTagOperations::get_instance();
+    $props = $ops->GetSimpleTag($tagname, '*');
+    if ($props) {
+        $props['oldname'] = $tagname;
+    } else {
+        $themeObject->RecordNotice('error', lang('error_internal'));
+        redirect('listusertags.php'.$urlext);
+    }
 } else {
-    $meta = [];
-    $code = '';
+    $props = [
+        'id' => -1, //new-tag indicator
+        'oldname' => '', //ditto
+        'code' => '',
+        'description' => '',
+        'parameters' => '',
+        'license' => ''
+    ];
 }
 
+$userid = get_userid(false);
 $edit = check_permission($userid, 'Modify User Plugins');
-//TODO also $_GET['mode'] == 'edit'
 
-$editorjs = get_editor_script(['edit'=>$edit, 'htmlid'=>'code', 'typer'=>'php']);
-if (!empty($editorjs['head'])) {
-    $themeObject->add_headtext($editorjs['head']);
+$pageincs = get_syntaxeditor_setup(['edit'=>$edit, 'htmlid'=>'code', 'typer'=>'php']);
+if (!empty($pageincs['head'])) {
+    add_page_headtext($pageincs['head']);
 }
-$js = $editorjs['foot'] ?? '';
+$js = $pageincs['foot'] ?? '';
 
 if ($edit) {
     $s1 = json_encode(lang('error_udt_name_chars'));
@@ -122,22 +131,29 @@ $(function() {
 
 EOS;
 }
-$themeObject->add_footertext($js);
+add_page_foottext($js);
 
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
+//id = -1 for new tag | dB id > 0 | fake id <= SimpleTagOperations::MAXFID for file
+$extras['id'] = $props['id'];
+$extras['oldname'] = $props['oldname'];
 
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'selfurl' => $selfurl,
-	'extraparms' => $extras,
+    'extraparms' => $extras,
     'urlext' => $urlext,
     'name' => $tagname,
-    'description' => $meta['description'] ?? null,
-    'parameters' => $meta['parameters'] ?? null,
-    'license' => $meta['license'] ?? null,
-    'code' => $code,
+    'description' => $props['description'] ?? '',
+    'parameters' => $props['parameters'] ?? '',
+    'code' => $props['code'] ?? '',
 ]);
+if ($props['id'] > 0) {
+    $smarty->assign('license', null); //hence not displayed for dB-stored plugin
+} else {
+    $smarty->assign('license', $props['license'] ?? '');
+}
 
 include_once 'header.php';
 $smarty->display('openusertag.tpl');
