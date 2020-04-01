@@ -166,7 +166,8 @@ if ($udt_list) {
             }
         }
 
-        if ($ops->SetUserTag($row['userplugin_name'], $meta, $code, $smarty)) {
+		$params = [TODO] $meta, + 'code' $code etc
+        if ($ops->SetSimpleTag($row['userplugin_name'], $params)) {
             verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
         } else {
             verbose_msg('Error saving UDT named '.$row['userplugin_name']);
@@ -187,19 +188,24 @@ if ($udt_list) {
 ELSE | AND
 // 4. Re-format the content of pre-existing 2.3BETA UDTfiles in their folder ?
 */
+// redundant sequence-table
 $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins_seq');
 $dict->ExecuteSQLArray($sqlarr);
-$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'userplugins','userplugin_id','id I AUTO KEY');
+
+$tbl = CMS_DB_PREFIX.'simpleplugins';
+$sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'userplugins',$tbl);
+$dict->ExecuteSQLArray($sqlarr);
+$sqlarray = $dict->RenameColumnSQL($tbl,'userplugin_id','id I AUTO KEY');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'userplugins','userplugin_name','name C(255)');
+$sqlarray = $dict->RenameColumnSQL($tbl,'userplugin_name','name C(255)');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'userplugins','description T(1023)');
+$sqlarray = $dict->AlterColumnSQL($tbl,'description T(1023)');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'userplugins','create_date DT DEFAULT CURRENT_TIMESTAMP');
+$sqlarray = $dict->AlterColumnSQL($tbl,'create_date DT DEFAULT CURRENT_TIMESTAMP');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'userplugins','modified_date DT ON UPDATE CURRENT_TIMESTAMP');
+$sqlarray = $dict->AlterColumnSQL($tbl,'modified_date DT ON UPDATE CURRENT_TIMESTAMP');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'userplugins','parameters T(1023) AFTER description');
+$sqlarray = $dict->AddColumnSQL($tbl,'parameters T(1023) AFTER description');
 $dict->ExecuteSQLArray($sqlarray);
 
 // 5. Cleanup plugins - remove reference from function-argument where appropriate
