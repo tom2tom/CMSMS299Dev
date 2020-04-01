@@ -1,6 +1,6 @@
 <?php
 #Class for handling and dispatching events
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -22,8 +22,8 @@ use cms_utils;
 use CmsApp;
 use CMSModule;
 use CMSMS\AppState;
-use CMSMS\internal\SysDataCacheDriver;
-use CMSMS\internal\SysDataCache;
+use CMSMS\SysDataCache;
+use CMSMS\SysDataCacheDriver;
 use const CMS_DB_PREFIX;
 use function debug_buffer;
 use function lang;
@@ -36,8 +36,9 @@ use function lang;
  */
 final class Events
 {
+    // static properties here >> StaticProperties class ?
 	/**
-	 * Cache data for 'static' handlers (stored in database)
+	 * Cache data for 'static' event-handlers (stored in database)
 	 * @ignore
 	 */
 	private static $_handlercache = null;
@@ -76,7 +77,7 @@ ORDER BY originator,event_name,handler_order
 EOS;
 				return $db->GetArray($sql);
 			});
-		SysDataCache::add_cachable($obj);
+		SysDataCache::get_instance()->add_cachable($obj);
 	}
 
 	/**
@@ -99,7 +100,7 @@ WHERE NOT EXISTS (SELECT 1 FROM {$pref}events T WHERE T.originator=? AND T.event
 EOS;
 		$dbr = $db->Execute($sql, [$id, $originator, $eventname, $originator, $eventname]);
 		if( $dbr ) {
-			SysDataCache::release(self::class);
+			SysDataCache::get_instance()->release(self::class);
 			return true;
 		}
 		return false;
@@ -133,7 +134,7 @@ EOS;
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'events WHERE event_id=?';
 		$db->Execute($sql, [$id]); // ignore failed result
 
-		SysDataCache::release(self::class);
+		SysDataCache::get_instance()->release(self::class);
 		return true;
 	}
 
@@ -172,12 +173,10 @@ EOS;
 				  case 'U': //UDT
 					if( !empty($handler) ) {
 						if( $mgr === null ) {
-//							$mgr = UserPluginOperations::get_instance(); TODO
-							$mgr = UserTagOperations::get_instance();
+							$mgr = SimpleTagOperations::get_instance();
 						}
 						debug_buffer($eventname.' event notice to user-plugin ' . $row['func']);
-//						$mgr->DoEvent($handler, $originator, $eventname, $params);
-						$mgr->TODO($handler, $originator, $eventname, $params);
+						$mgr->DoEvent($handler, $originator, $eventname, $params); //CHECKME $handler for UDTfiles
 					}
 					break;
 				  case 'P': //regular plugin
@@ -279,7 +278,7 @@ EOS;
 	{
 		$handlers = [];
 		if( self::$_handlercache === null ) {
-			self::$_handlercache = SysDataCache::get(self::class);
+			self::$_handlercache = SysDataCache::get_instance()->get(self::class);
 		}
 		if( self::$_handlercache ) {
 			foreach( self::$_handlercache as $row ) {
@@ -303,7 +302,7 @@ EOS;
 	public static function GetEventHandler(int $handler_id)
 	{
 		if( self::$_handlercache === null ) {
-			self::$_handlercache = SysDataCache::get(self::class);
+			self::$_handlercache = SysDataCache::get_instance()->get(self::class);
 		}
 		if( self::$_handlercache ) {
 			foreach( self::$_handlercache as $row ) {
@@ -445,7 +444,7 @@ EOS;
 		$sql = 'INSERT INTO '.CMS_DB_PREFIX.'event_handlers
 (handler_id,event_id,class,func,type,removable,handler_order) VALUES (?,?,?,?,?,?,?)';
 		$dbr = $db->Execute($sql, [$handler_id, $id, $class, $method, $type, $mode, $order]);
-		SysDataCache::release(self::class);
+		SysDataCache::get_instance()->release(self::class);
 		return ($dbr != false);
 	}
 
@@ -526,7 +525,7 @@ EOS;
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE handler_id=? AND event_id=?';
 		$db->Execute($sql, [$handler['handler_id'], $id]);
 
-		SysDataCache::release(self::class);
+		SysDataCache::get_instance()->release(self::class);
 	}
 
 	/**
@@ -637,7 +636,7 @@ EOS;
 		// delete handler(s) if any
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id= ?';
 		$dbr = $db->Execute($sql, [$id]);
-		SysDataCache::release(self::class);
+		SysDataCache::get_instance()->release(self::class);
 		return ($dbr != false);
 	}
 
@@ -656,7 +655,7 @@ EOS;
 		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_order'] - 1 ] );
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE handler_id = ? AND event_id = ?';
 		$db->Execute( $sql, [ $handler['handler_id'], $handler['event_id'] ] );
-		SysDataCache::release(self::class);
+		SysDataCache::get_instance()->release(self::class);
 	}
 
 	/**
@@ -676,7 +675,7 @@ EOS;
 		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_order'] + 1 ] );
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE handler_id = ? AND event_id = ?';
 		$db->Execute( $sql, [ $handler['handler_id'], $handler['event_id'] ] );
-		SysDataCache::release(self::class);
+		SysDataCache::get_instance()->release(self::class);
 	}
 } //class
 
