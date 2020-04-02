@@ -47,4 +47,4 @@ if ($ops->SimpleTagExists($tagname)) {  // UDTfiles included
 }
 
 $urlext = get_secure_param();
-redirect('listusertags.php'.$urlext);
+redirect('listsimpletags.php'.$urlext);
