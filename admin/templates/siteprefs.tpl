@@ -105,9 +105,32 @@
       <input id="thumbnail_height" class="pagenb" type="text" name="thumbnail_height" size="3" maxlength="3" value="{$thumbnail_height}" />
     </p>
   </div>
+  {if !empty($wysiwyg_opts)}
+    <div class="pageoverflow">
+      <p class="pagetext">
+        {$t=lang('backendwysiwyg')}<label>{$t}:</label>
+        {cms_help key2='siteprefs_backendwysiwyg' title=$t}
+      </p>
+      {$t=lang('about')}
+      {foreach $wysiwyg_opts as $i=>$one}
+       <input type="radio" name="backendwysiwyg" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked="checked"{/if}>
+       <label for="edt{$i}">{$one->label}</label>
+       {if !empty($one->mainkey)}
+       <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$helpicon}</span>
+       {/if}<br />
+      {/foreach}
+      <p class="pagetext">
+        {$t=lang('wysiwyg_deftheme')}<label for="wysiwygtheme">{$t}:</label>
+        {cms_help key2='siteprefs_wysiwygtheme' title=$t}
+      </p>
+      <p class="pageinput">
+        <input id="wysiwygtheme" type="text" name="wysiwygtheme" size="30" value="{$wysiwygtheme}" maxlength="40" />
+      </p>
+    </div>
+  {/if}
   <div class="pageoverflow">
     <p class="pagetext">
-      {$t=lang('frontendwysiwygtouse')}<label for="frontendwysiwyg">{$t}:</label>
+      {$t=lang('frontendwysiwyg')}<label for="frontendwysiwyg">{$t}:</label>
       {cms_help key2='siteprefs_frontendwysiwyg' title=$t}
     </p>
     <p class="pageinput">
@@ -603,28 +626,28 @@
     </div>
   </fieldset>
 
-  {if $editors}
+ {if !empty($syntax_opts)}
   <fieldset>
-    <legend>{lang('text_editor_settings')}</legend>
+    <legend>{lang('syntax_editor_settings')}</legend>
     <div class="pageoverflow">
       <p class="pagetext">
         {$t=lang('default_editor')}<label>{$t}:</label>
-        {cms_help key2='settings_editor' title=$t}
+        {cms_help key2='settings_syntax' title=$t}
       </p>
       {$t=lang('about')}
-      {foreach $editors as $i=>$one}
-       <input type="radio" name="editortype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked{/if}>
+      {foreach $syntax_opts as $i=>$one}
+       <input type="radio" name="syntaxtype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked{/if}>
        <label for="edt{$i}">{$one->label}</label>
        {if !empty($one->mainkey)}
        <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$helpicon}</span>
        {/if}<br />
       {/foreach}
       <p class="pagetext">
-        <label for="editortheme">{lang('text_editor_deftheme')}:</label>
-        <span id="theme_help">{$helpicon}</span>
+        {$t=lang('syntax_editor_deftheme')}<label for="syntaxtheme">{$t}:</label>
+        {cms_help key2='siteprefs_syntaxtheme' title=$t}
       </p>
       <p class="pageinput">
-        <input id="editortheme" type="text" name="editortheme" size="30" value="{$editortheme}" maxlength="40" />
+        <input id="syntaxtheme" type="text" name="syntaxtheme" size="30" value="{$syntaxtheme}" maxlength="40" />
       </p>
     </div>
   </fieldset>

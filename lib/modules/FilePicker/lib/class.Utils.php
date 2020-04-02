@@ -20,19 +20,18 @@ namespace FilePicker;
 use cms_config;
 use cms_siteprefs;
 use cms_utils;
-use CMSMS\FilePickerProfile;
 use CMSMS\FileTypeHelper;
 use CMSMS\NlsOperations;
+use CMSMS\ProfileValue;
 use Collator;
-use FilePicker;
+use FilePicker; //the module-class
 use const CMS_ROOT_PATH;
 use function cms_join_path;
 use function cms_path_to_url;
-use function get_userid;
 use function startswith;
 
 /**
- * A class of utility-methods for the FilePicker module
+ * A class of static utility-methods for the FilePicker module
  *
  * @package CMS
  * @license GPL
@@ -47,6 +46,7 @@ class Utils
      */
     public static function get_file_icon(string $extension, bool $isdir = false) : string
     {
+        // static properties here >> StaticProperties class ?
         static $mod = null;
         if ($mod == null) {
             $mod = cms_utils::get_module('FilePicker');
@@ -93,220 +93,8 @@ class Utils
     }
 
     /**
-     * @param FilePicker $mod
-     * @param int $mode
-     * @param bool $isdir
-     * @return string
-     */
-    public static function format_permissions(FilePicker &$mod, int $mode, bool $isdir) : string
-    {
-        static $pr = null;
-        static $pw, $px, $pxf;
-        if ($pr == null) {
-            $pr = $mod->Lang('perm_r');
-            $pw = $mod->Lang('perm_w');
-            $px = $mod->Lang('perm_x');
-            $pxf = $mod->Lang('perm_xf');
-        }
-        $perms = [];
-        if ($mode & 0x0100) {
-            $perms[] = $pr;
-        }
-        if ($mode & 0x0080) {
-            $perms[] = $pw;
-        }
-        if ($mode & 0x0040) {
-            $perms[] = ($isdir) ? $pxf : $px;
-        } //ignore static flag
-        return implode('+', $perms);
-    }
-
-    /* *
-     * @ignore
-     */
-    /*    private function file_details(string $filepath, array &$info) : string
-        {
-            if (!empty($info['image'])) {
-                $imginfo = @getimagesize($filepath);
-                if ($imginfo) {
-                    $t = $imginfo[0].' x '.$imginfo[1];
-                    if (isset($imginfo['bits'])) {
-                        $t .= ' x '.$imginfo['bits'];
-                    }
-                    return $t;
-                }
-            }
-            return '';
-        }
-    */
-    /**
-     * Return data for relevant files/sub-folders in folder $path
-     * @param string $path Optional absolute or root-relative filesystem-path
-     *  of folder to be reported. Default '' (hence use relevant root)
-     * @return array (maybe empty)
-     */
-    public static function get_file_list(string $path = '') : array
-    {
-        $config = cms_config::get_instance();
-        $mod = cms_utils::get_module('FilePicker');
-        $devmode = $mod->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
-        $rootpath = ($devmode) ? CMS_ROOT_PATH : $config['uploads_path'];
-
-        if (!$path) {
-            $path = $rootpath;
-        } elseif (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $path)) {
-            // $path is relative
-            $path = cms_join_path($rootpath, $path);
-        } elseif (!startswith($path, CMS_ROOT_PATH)) {
-            return [];
-        }
-        if (!is_dir($path)) {
-            return [];
-        }
-
-        // not a huge no. of items in website folders, no need for opendir/readdir/closedir
-        $items = scandir($path, SCANDIR_SORT_NONE);
-        if (!$items) {
-            return [];
-        }
-
-        $user_id = get_userid(false);
-        $profile = $mod->get_default_profile($path, $user_id); //CHECKME
-        $showhidden = $profile->show_hidden || $devmode;
-        $showthumb = $profile->show_thumbs;
-        $pex = $profile->exclude_prefix ?? '';
-        $pin = $profile->match_prefix ?? '';
-
-        $helper = new FileTypeHelper($config);
-        $posix = function_exists('posix_getpwuid');
-        if (!$posix) {
-            $ownerna = $mod->Lang('na');
-        }
-        $showup = ($path != $rootpath);
-
-        $result = [];
-        for ($name = current($items); $name !== false; $name = next($items)) {
-            if ($name == '.') {
-                continue;
-            }
-            if ($name == '..') {
-                // can we go up ?
-                if (!$showup) {
-                    continue;
-                }
-            } elseif ($name[0] == '.' || $name[0] == '_' || $name[0] == '~') {
-                if (!$showhidden) {
-                    continue;
-                }
-            }
-            if ($pin !== '' && !startswith($name, $pin)) {
-                continue;
-            }
-            if ($pex !== '' && startswith($name, $pex)) {
-                continue;
-            }
-
-            $filepath = $path.DIRECTORY_SEPARATOR.$name;
-            if (!$showthumb && $helper->is_thumb($filepath)) {
-                continue;
-            }
-
-            $info = ['fullpath' => $filepath, 'dir' => is_dir($filepath), 'name' => $name];
-            if (!$info['dir']) {
-                $info['ext'] = $helper->get_extension($name);
-                $info['text'] = $helper->is_text($filepath);
-                $info['image'] = $helper->is_image($filepath);
-                $info['archive'] = !$info['text'] && !$info['image'] && $helper->is_archive($filepath);
-                $info['mime'] = $helper->get_mime_type($filepath);
-                $info['url'] = cms_path_to_url($filepath);
-            }
-
-            $statinfo = stat($filepath);
-            $info['mode'] = $statinfo['mode'];
-            $info['size'] = $statinfo['size'];
-            $info['date'] = $statinfo['mtime']; //timestamp
-            if ($posix) {
-                $userinfo = @posix_getpwuid($statinfo['uid']);
-                $info['fileowner'] = $userinfo['name'] ?? $mod->Lang('unknown');
-            } else {
-                $info['fileowner'] = $ownerna;
-            }
-            $info['writable'] = is_writable($filepath);
-
-            $result[] = $info;
-        }
-
-        $sortby = $profile->sort;
-        if ($sortby !== FilePickerProfile::FLAG_NO) {
-            if (class_exists('Collator')) {
-                $lang = NlsOperations::get_default_language();
-                $col = new Collator($lang); // e.g. new Collator('pl_PL') TODO if.UTF-8 ?? ini 'output_encoding' ??
-            } else {
-                $col = false;
-                // fallback ?? e.g. setlocale() then strcoll()
-            }
-
-            usort($result, function ($a, $b) use ($col, $sortby) {
-                if ($a['name'] == '..') {
-                    return -1;
-                }
-                if ($b['name'] == '..') {
-                    return 1;
-                }
-
-                //dirs first
-                if ($a['dir'] xor $b['dir']) {
-                    // only one is a dir
-                    return ($a['dir']) ? -1 : 1;
-                }
-
-                switch ($sortby) {
-                    case 'name,d':
-                    case 'name,desc':
-                    case 'namedesc':
-                        return ($col) ? $col->compare($b['name'], $a['name']) : strncmp($b['name'], $a['name'], strlen($b['name']));
-                    case 'size':
-                    case 'size,a':
-                    case 'size,asc':
-                    case 'sizeasc':
-                        if (($a['dir'] && $b['dir']) || $a['size'] == $b['size']) {
-                            break;
-                        }
-                        return ($a['size'] <=> $b['size']);
-                    case 'size,d':
-                    case 'size,desc':
-                    case 'sizedesc':
-                        if (($a['dir'] && $b['dir']) || $a['size'] == $b['size']) {
-                            break;
-                        }
-                        return ($b['size'] <=> $a['size']);
-                    case 'date':
-                    case 'date,a':
-                    case 'date,asc':
-                    case 'dateasc':
-                        if ($a['date'] == $b['date']) {
-                            break;
-                        }
-                        return ($a['date'] <=> $b['date']);
-                    case 'date,d':
-                    case 'date,desc':
-                    case 'datedesc':
-                        if ($a['date'] == $b['date']) {
-                            break;
-                        }
-                        return ($b['date'] <=> $a['date']);
-                    default:
-                        break;
-                }
-                return ($col) ? $col->compare($a['name'], $b['name']) : strncmp($a['name'], $b['name'], strlen($a['name']));
-            });
-        }
-        return $result;
-    }
-
-    /**
      * Save a thumbnail if possible
-     * @param string $rootpath absolute filesystem path to be prepended if $path is relative
+     * @param string $rootpath absolute filesystem path to be prepended to $path if the latter is relative
      * @param string $path absolute or root-relative filesystem-path of original image
      */
     public static function create_file_thumb(string $rootpath, string $path)
@@ -399,5 +187,282 @@ class Utils
                 imagepng($nres, $fn);
             }
         }
+    }
+
+    /**
+     * @param FilePicker $mod
+     * @param int $mode
+     * @param bool $isdir
+     * @return string
+     */
+    public static function format_permissions(FilePicker &$mod, int $mode, bool $isdir) : string
+    {
+        static $pr = null;
+        static $pw, $px, $pxf;
+        if ($pr == null) {
+            $pr = $mod->Lang('perm_r');
+            $pw = $mod->Lang('perm_w');
+            $px = $mod->Lang('perm_x');
+            $pxf = $mod->Lang('perm_xf');
+        }
+        $perms = [];
+        if ($mode & 0x0100) {
+            $perms[] = $pr;
+        }
+        if ($mode & 0x0080) {
+            $perms[] = $pw;
+        }
+        if ($mode & 0x0040) {
+            $perms[] = ($isdir) ? $pxf : $px;
+        } //ignore static flag
+        return implode('+', $perms);
+    }
+
+    /* *
+     * @ignore
+     */
+/*   private function file_details(string $filepath, array &$info) : string
+    {
+        if (!empty($info['image'])) {
+            $imginfo = @getimagesize($filepath);
+            if ($imginfo) {
+                $t = $imginfo[0].' x '.$imginfo[1];
+                if (isset($imginfo['bits'])) {
+                    $t .= ' x '.$imginfo['bits'];
+                }
+                return $t;
+            }
+        }
+        return '';
+    }
+*/
+    /**
+     * Return data for relevant files/sub-folders in folder $dirpath
+     * @param Profile $profile Filesystem properties suite
+     * @param string $dirpath Optional absolute or root-relative filesystem-path
+     *  of folder to be reported. Default '' (hence use relevant root)
+     * @return array (maybe empty)
+     */
+    public static function get_file_list(Profile $profile, string $dirpath = '') : array
+    {
+        $config = cms_config::get_instance();
+        $mod = cms_utils::get_module('FilePicker');
+        $devmode = $mod->CheckPermission('Modify Restricted Files') || !empty($config['developer_mode']);
+        $rootpath = ($devmode) ? CMS_ROOT_PATH : $profile->top;
+
+        if (!$dirpath) {
+            $dirpath = $rootpath;
+        } elseif (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $dirpath)) {
+            // $dirpath is relative
+            $dirpath = cms_join_path($rootpath, $dirpath);
+        } elseif (!startswith($dirpath, CMS_ROOT_PATH)) {
+            return [];
+        }
+        if (!is_dir($dirpath)) {
+            return [];
+        }
+
+        // not a huge no. of items in website folders, no need for opendir/readdir/closedir
+        $items = scandir($dirpath, SCANDIR_SORT_NONE);
+        if (!$items) {
+            return [];
+        }
+
+        $showhidden = $profile->show_hidden || $devmode;
+        $showthumb = $profile->show_thumbs;
+        $pex = $profile->exclude_prefix ?? '';
+        $pin = $profile->match_prefix ?? '';
+
+        $helper = new FileTypeHelper($config);
+        $posix = function_exists('posix_getpwuid');
+        if (!$posix) {
+            $ownerna = $mod->Lang('na');
+        }
+        $showup = ($dirpath != $rootpath);
+
+        $result = [];
+        for ($name = current($items); $name !== false; $name = next($items)) {
+            if ($name == '.') {
+                continue;
+            }
+            if ($name == '..') {
+                // can we go up ?
+                if (!$showup) {
+                    continue;
+                }
+            } elseif ($name[0] == '.' || $name[0] == '_' || $name[0] == '~') {
+                if (!$showhidden) {
+                    continue;
+                }
+            }
+            if ($pin !== '' && !startswith($name, $pin)) {
+                continue;
+            }
+            if ($pex !== '' && startswith($name, $pex)) {
+                continue;
+            }
+
+            $filepath = $dirpath.DIRECTORY_SEPARATOR.$name;
+            if (!$showthumb && $helper->is_thumb($filepath)) {
+                continue;
+            }
+
+            $info = ['fullpath' => $filepath, 'dir' => is_dir($filepath), 'name' => $name];
+            if (!$info['dir']) {
+                $info['ext'] = $helper->get_extension($name);
+                $info['text'] = $helper->is_text($filepath);
+                $info['image'] = $helper->is_image($filepath);
+                $info['archive'] = !$info['text'] && !$info['image'] && $helper->is_archive($filepath);
+                $info['mime'] = $helper->get_mime_type($filepath);
+                $info['url'] = cms_path_to_url($filepath);
+            }
+
+            $statinfo = stat($filepath);
+            $info['mode'] = $statinfo['mode'];
+            $info['size'] = $statinfo['size'];
+            $info['date'] = $statinfo['mtime']; //timestamp
+            if ($posix) {
+                $userinfo = @posix_getpwuid($statinfo['uid']);
+                $info['fileowner'] = $userinfo['name'] ?? $mod->Lang('unknown');
+            } else {
+                $info['fileowner'] = $ownerna;
+            }
+            $info['writable'] = is_writable($filepath);
+
+            $result[] = $info;
+        }
+
+        $sortby = $profile->sort;
+        if ($sortby !== ProfileValue::NONE) {
+            if (class_exists('Collator')) {
+                $lang = NlsOperations::get_default_language();
+                $col = new Collator($lang); // e.g. new Collator('pl_PL') TODO if.UTF-8 ?? ini 'output_encoding' ??
+            } else {
+                $col = false;
+                // fallback ?? e.g. setlocale() then strcoll()
+            }
+
+            usort($result, function ($a, $b) use ($col, $sortby) {
+                if ($a['name'] == '..') {
+                    return -1;
+                }
+                if ($b['name'] == '..') {
+                    return 1;
+                }
+
+                //dirs first
+                if ($a['dir'] xor $b['dir']) {
+                    // only one is a dir
+                    return ($a['dir']) ? -1 : 1;
+                }
+
+                switch ($sortby) {
+                    case 'name,d':
+                    case 'name,desc':
+                    case 'namedesc':
+                        return ($col) ? $col->compare($b['name'], $a['name']) : strncmp($b['name'], $a['name'], strlen($b['name']));
+                    case 'size':
+                    case 'size,a':
+                    case 'size,asc':
+                    case 'sizeasc':
+                        if (($a['dir'] && $b['dir']) || $a['size'] == $b['size']) {
+                            break;
+                        }
+                        return ($a['size'] <=> $b['size']);
+                    case 'size,d':
+                    case 'size,desc':
+                    case 'sizedesc':
+                        if (($a['dir'] && $b['dir']) || $a['size'] == $b['size']) {
+                            break;
+                        }
+                        return ($b['size'] <=> $a['size']);
+                    case 'date':
+                    case 'date,a':
+                    case 'date,asc':
+                    case 'dateasc':
+                        if ($a['date'] == $b['date']) {
+                            break;
+                        }
+                        return ($a['date'] <=> $b['date']);
+                    case 'date,d':
+                    case 'date,desc':
+                    case 'datedesc':
+                        if ($a['date'] == $b['date']) {
+                            break;
+                        }
+                        return ($b['date'] <=> $a['date']);
+                    default:
+                        break;
+                }
+                return ($col) ? $col->compare($a['name'], $b['name']) : strncmp($a['name'], $b['name'], strlen($a['name']));
+            });
+        }
+        return $result;
+    }
+
+    /**
+     * Get the extension of the specified file
+     * @param string $path Filesystem path, or at least the basename, of a file
+     * @param bool $lower Optional flag, whether to lowercase the result. Default true.
+     * @return string, lowercase if $lower is true or not set
+     * The extensions we're interested in are all ASCII, but if otherwise
+     * here, too bad about the lowercase !
+     */
+    public static function get_extension(string $path, bool $lower = true) : string
+    {
+        $p = strrpos($path, '.');
+        if( !$p ) { return ''; } // none or at start
+        $ext = substr($path, $p + 1);
+        if( $lower) {
+            return strtolower($ext);
+        }
+        return $ext;
+    }
+
+    /**
+     * Get a variant of the supplied $path with definitely-lowercase filename extension
+     * @param string $path Filesystem path, or at least the basename, of a file
+     * @return string
+     */
+    public static function lower_extension(string $path) : string
+    {
+        $ext = self::get_extension($path);
+        if ($ext !== '') {
+            $p = strrpos($path, '.');
+            return substr($path, 0, $p + 1) . $ext;
+        }
+        return $path;
+    }
+
+    /**
+     * Get a variant of the supplied $path without any suspect chars in the
+     *  last path-segment (normally a filename)
+     * @param string $rootpath absolute filesystem path to be prepended to $path
+     *  if the latter is relative, and to use for path validation
+     * @param string $path absolute or root-relative filesystem-path of file or folder
+     * @return string, the valid absolute filepath, or empty if there's a problem
+     */
+    public static function clean_path(string $rootpath, string $path) : string
+    {
+        if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $path)) {
+            // $path is relative
+            $path = cms_join_path($rootpath, $path);
+        }
+        $dirpath = dirname($path);
+        if (realpath($dirpath) === false) {
+            return '';
+        }
+        if (!startswith($dirpath, CMS_ROOT_PATH)) {
+            return '';
+        }
+        if (!startswith($dirpath, $rootpath)) {
+            return '';
+        }
+        $fn = basename($path);
+        if ($fn) {
+            $fn = filter_var($fn, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_LOW);
+            return $dirpath . DIRECTORY_SEPARATOR . $fn;
+        }
+        return '';
     }
 } //class

@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
   <title>{strip}
@@ -43,39 +43,30 @@
      {/if}
      </div>
 
-{*     <div id="header-links"> *}
-      <div>
+     <div>
        <!-- logotext -->
        <span id="cms-text">{lang('power_by')}</span>
        <!-- logo -->
        <div id="cms-logo">
-        <a href="http://www.cmsmadesimple.org" rel="external" title="CMS Made Simple">
-          <img src="{$admin_url}/themes/assets/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$admin_url}/themes/assets/images/CMSMS-logotext-dark.png';" />
+        <a href="http://www.cmsmadesimple.org" rel="external" title="{lang('cms_home')}">
         </a>
        </div>
-      </div>
-
+     </div>
       <!-- shortcuts -->
       {include file='shortcuts.tpl'}{block name=shortcuts}{/block}
 
-{*     </div> *}
-
-   </div> {*flex horz*}
+   </div>{*flex horz*}
   </div>{* end header *}
 
   <!-- start body -->
-  <div id="ggp_body">
-
   <div id="ggp_container">
    <div id="ggp_navwrap" class="sidebar-on">
     <div id="ggp_navhead">
-     <ul><li class="nav">
-      <a href="javascript:ggjs.clickSidebar()" class="icon" title="{lang('open')}/{lang('close')}">
+      <a href="#0" id="ggp_headlink" class="icon" title="{lang('open')}/{lang('close')}">
       <svg class="navshut"><use xlink:href="themes/Ghostgum/images/navsprite.svg#ltr"/></svg>
       <svg class="navopen"><use xlink:href="themes/Ghostgum/images/navsprite.svg#rtl"/></svg>
       </a>
-      <span title="{lang('close')}" onclick="ggjs.clickSidebar();">&nbsp;</span>
-     </li></ul>
+      <span id="ggp_headzone" title="{lang('close')}">&nbsp;</span>
     </div>
     <div id="ggp_nav">
      {include file='navigation.tpl'}{block name=navigation}{/block}
@@ -83,12 +74,10 @@
    </div>
    <div id="ggp_contentwrap">
      <div id="ggp_contenthead">
-{*      <div class="{if isset($is_ie)}drop-hidden {/if}"> *}
       {if !empty($pageicon) || !empty($pagetitle)}<h1>
         {if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}
       </h1>{/if}
       {if !empty($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
-{*      </div> *}
     {if !empty($pagetitle) && !empty($subtitle)}
       <div class="subheader">
        <h3 class="subtitle">{$subtitle}</h3>
@@ -96,18 +85,15 @@
     {/if}
     </div>
     <div id="ggp_content">
-     <div style="float:none"></div>
      <div class="pagecontainer">{$content}</div>
     </div>
    </div>
-  </div> {* end content container row *}
-
-</div>
+  </div>{* end nested content container row *}
 
   <!-- start footer -->
   <div id="ggp_footer">
    {include file='footer.tpl'}{block name=footer}{/block}
-  </div> {*-- end footer --*}
+  </div>{*-- end footer --*}
 
   {$bottom_includes|default:''}
  </body>

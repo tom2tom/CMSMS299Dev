@@ -35,15 +35,6 @@
     <legend>{lang('content_editor_legend')}:</legend>
     <div class="pageoverflow">
       <p class="pagetext">
-        {$t=lang('wysiwygtouse')}<label for="wysiwyg">{$t}:</label>
-        {cms_help key2='help_myaccount_wysiwyg' title=$t}
-      </p>
-      <p class="pageinput">
-        <select id="wysiwyg" name="wysiwyg">
-          {html_options options=$wysiwyg_opts selected=$wysiwyg}
-        </select>
-      </p>
-      <p class="pagetext">
         {$t=lang('ce_navdisplay')}<label for="ce_navdisplay">{$t}:</label>
         {cms_help key2='help_myaccount_ce_navdisplay' title=$t}
       </p>
@@ -84,25 +75,45 @@
         </select>
       </p>
      {/if}
-     {if !empty($editors)}
-       <p class="pagetext">
-        {$t=lang('text_editor_touse')}<label>{$t}:</label>
-        {cms_help key2='settings_editor' title=$t}
-       </p>
-      {$t=lang('about')}
-      {foreach $editors as $i=>$one}
-       <input type="radio" name="editortype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked{/if}>
+     {if !empty($wysiwyg_opts)}
+      <p class="pagetext">
+        {$t=lang('wysiwygtouse')}<label for="wysiwygtype">{$t}:</label>
+        {cms_help key2='settings_wysiwyg' title=$t}
+      </p>
+      {foreach $wysiwyg_opts as $i=>$one}
+       <input type="radio" name="wysiwygtype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked="checked"{/if} />
        <label for="edt{$i}">{$one->label}</label>
        {if !empty($one->mainkey)}
        <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$helpicon}</span>
        {/if}<br />
       {/foreach}
       <p class="pagetext">
-        <label for="editortheme">{lang('text_editor_theme')}:</label>
-        <span id="theme_help">{$helpicon}</span>
+        {$t=lang('wysiwyg_theme')}<label for="wysiwygtheme">{$t}:</label>
+        {cms_help key2='help_myaccount_wysiwygtheme' title=$t}
       </p>
       <p class="pageinput">
-        <input id="editortheme" type="text" name="editortheme" size="30" value="{$editortheme}" maxlength="40" />
+        <input id="wysiwygtheme" type="text" name="wysiwygtheme" size="30" value="{$wysiwygtheme}" maxlength="40" />
+      </p>
+     {/if}
+     {if !empty($syntax_opts)}
+       <p class="pagetext">
+        {$t=lang('syntax_editor_touse')}<label for="syntaxtype">{$t}:</label>
+        {cms_help key2='settings_syntax' title=$t}
+       </p>
+      {$t=lang('about')}
+      {foreach $syntax_opts as $i=>$one}
+       <input type="radio" name="syntaxtype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked="checked"{/if} />
+       <label for="edt{$i}">{$one->label}</label>
+       {if !empty($one->mainkey)}
+       <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$helpicon}</span>
+       {/if}<br />
+      {/foreach}
+      <p class="pagetext">
+        {$t=lang('syntax_editor_theme')}<label for="syntaxtheme">{$t}:</label>
+        {cms_help key2='help_myaccount_syntaxtheme' title=$t}
+      </p>
+      <p class="pageinput">
+        <input id="syntaxtheme" type="text" name="syntaxtheme" size="30" value="{$syntaxtheme}" maxlength="40" />
       </p>
      {/if}
       <p class="pagetext">

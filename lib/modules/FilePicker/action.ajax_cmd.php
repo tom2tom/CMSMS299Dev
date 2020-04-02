@@ -21,8 +21,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use FilePicker\PathAssistant;
 use FilePicker\TemporaryProfileStorage;
+use FilePicker\Utils;
 
-if (!isset($gCms)) exit;
+if (!function_exists('cmsms')) exit;
 
 try {
     if (strtolower($_SERVER['REQUEST_METHOD']) != 'post') {
@@ -31,17 +32,17 @@ try {
 
     $inst = $params['inst'] ?? '';
     // get the profile
-    $profile = ($inst) ? TemporaryProfileStorage::get(substr($inst, 1)) : null; // ignore prepended 'i'
+    $profile = ($inst) ? TemporaryProfileStorage::get($inst) : null;
     if (!$profile) {
-        $profile = $this->get_default_profile();
+        throw new RuntimeException('Missing profile data');
     }
-    // check that the cwd is ok
     $topdir = $profile->top;
     if (!$topdir) {
-        $topdir = $config['uploads_path'];
+        throw new RuntimeException('Invalid profile data');
     }
     $assistant = new PathAssistant($config, $topdir);
 
+    // check that the cwd is ok
     $cwd = $params['cwd'] ?? '';
     $fullpath = $assistant->to_absolute($cwd);
     if (!$assistant->is_relative($fullpath)) {
@@ -55,20 +56,25 @@ try {
             if (!$profile->can_mkdir) {
                 throw new LogicException('Internal error: mkdir command executed, but profile says we cannot do this');
             }
+            // no hidden folders
             if (startswith($val, '.') || startswith($val, '_')) {
                 throw new RuntimeException($this->Lang('error_ajax_invalidfilename'));
             }
             if (!is_writable($fullpath)) {
                 throw new RuntimeException($this->Lang('error_ajax_writepermission'));
             }
-            $destpath = cms_join_path($fullpath, $val);
+            $testpath = cms_join_path($fullpath, $val);
+            $destpath = Utils::clean_path($topdir, $testpath);
+            if (!$destpath) {
+                throw new RuntimeException('Invalid path: '.$testpath);
+            }
             if (is_dir($destpath) || is_file($destpath)) {
                 throw new RuntimeException($this->Lang('error_ajax_fileexists'));
             }
             if (!@mkdir($destpath)) {
                 throw new RuntimeException($this->Lang('error_ajax_mkdir ', $cwd . '/' . $val));
             }
-        break;
+            break;
 
         case 'del':
             if (!$profile->can_delete) {
@@ -77,7 +83,14 @@ try {
             if (startswith($val, '.') || startswith($val, '_')) {
                 throw new RuntimeException($this->Lang('error_ajax_invalidfilename'));
             }
-            $destpath = $fullpath . DIRECTORY_SEPARATOR . $val;
+            $testpath = cms_join_path($fullpath, $val);
+            $destpath = Utils::clean_path($topdir, $testpath);
+            if (!$destpath) {
+                throw new RuntimeException('Invalid path: '.$testpath);
+            }
+            if (!(is_file($destpath) || is_dir($destpath))) {
+                throw new RuntimeException($this->Lang('error_ajax_invalidfilename'));
+            }
             if (!is_writable($destpath)) {
                 throw new RuntimeException($this->Lang('error_ajax_writepermission') . ' ' . $destpath);
             }
@@ -96,20 +109,24 @@ try {
             break;
 
         case 'upload':
-            if (!$profile->can_upload) {
-                throw new LogicException('Internal error: upload command executed, but profile forbids uploads');
+            if ($profile->can_upload) {
+                require_once __DIR__ . DIRECTORY_SEPARATOR . 'method.upload.php';
+                //should never return
             }
-            require_once __DIR__ . DIRECTORY_SEPARATOR . 'method.upload.php';
-
+            else {
+                throw new LogicException('Internal error: profile forbids uploads');
+            }
+            // no break here
         default:
-            throw new RuntimeException('Invalid cmd ' . $cmd);
+            throw new RuntimeException('Invalid command ' . $cmd);
         }
     }
-    catch(Exception $e) {
-        // throw a 500 error
+    catch (Exception $e) {
         debug_to_log('Exception: ' . $e->GetMessage());
+//      if (CMS_DEBUG) {
         debug_to_log($e->GetTraceAsString());
+//      }
+        // throw a 500 error
         header('HTTP/1.1 500 ' . $e->GetMessage());
     }
-
-    exit;
+exit;

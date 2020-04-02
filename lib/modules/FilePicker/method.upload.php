@@ -1,6 +1,6 @@
 <?php
 /*
-FilePicker module method - support for file uploading
+FilePicker module method - process a file-upload
 Copyright (C) 2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -47,31 +47,18 @@ try {
             throw new RuntimeException('Unknown error');
     }
 
-    $config = cms_config::get_instance();
-    if (!empty($fullpath)) {
-        $upload_dir = $fullpath;
-    }
-    else {
-        $upload_dir = $config['uploads_path'];
-        if (!empty($cwd)) {
-            $upload_dir .= DIRECTORY_SEPARATOR . $cwd;
-        }
-    }
-    if( !endswith($upload_dir, DIRECTORY_SEPARATOR) ) {
-        $upload_dir .= DIRECTORY_SEPARATOR;
-    }
+    //$topdir, $fullpath, $profile are set in parent code
     $maxsize = $config['max_upload_size'];
     $helper = new FileTypeHelper();
     $mime = $helper->get_file_type_mime($profile->type);
-    $exts = $helper->get_file_type_extensions($profile->type);
-    $dest = null;
+    $destpath = null;
 
     // crappy $_FILES[] arrangement forces these funcs
     $fileval = function($key, $idx = null) use($f)
     {
        return ($idx === null) ? $f[$key] : $f[$key][$idx];
     };
-    $do_file = function($idx = null) use($f, $fileval, $upload_dir, $maxsize, $profile, $helper, $mime, $exts, &$dest)
+    $do_file = function($idx = null) use($f, $fileval, $topdir, $fullpath, $profile, $maxsize, $helper, $mime, &$destpath)
     {
         // Check filesize
         if ($maxsize > 0 && $fileval('size', $idx) > $maxsize) {
@@ -83,7 +70,7 @@ try {
         if ($profile->type == FileType::IMAGE) {
             if( function_exists('exif_imagetype') ) {
                 if (!exif_imagetype($tmppath)) {
-                    if (1) { //extra check needed e.g. svg files
+                    if (1) { //TODO extra check needed e.g. svg files
                         $here = 1; //DEBUG
                     } else {
                         throw new RuntimeException('Invalid file type');
@@ -94,31 +81,38 @@ try {
         }
         // else others TODO
 
-        $fn = filter_var($fileval('name', $idx), FILTER_SANITIZE_STRING);
-        $dest = $upload_dir . $fn;
-        if (is_dir($dest) || is_file($dest)) {
-            throw new RuntimeException($this->Lang('error_ajax_fileexists'));
+        $fn = $fileval('name', $idx);
+        $testpath = cms_join_path($fullpath, $fn);
+        $destpath = Utils::clean_path($topdir, $testpath);
+        if (!$destpath) {
+            throw new RuntimeException('Invalid path: '.$testpath);
+        }
+        $destpath = Utils::lower_extension($destpath);
+
+        if (is_dir($destpath) || is_file($destpath)) {
+            throw new RuntimeException($fn.': '.$this->Lang('error_ajax_fileexists'));
         }
 
-        if (move_uploaded_file($tmppath, $dest)) {
-			// Check file name, extension (tho the ext might be faked)
-			if (!$this->is_acceptable_filename($profile, $dest)) {
-				throw new RuntimeException($this->Lang('error_upload_acceptFileTypes'));
-			}
+        if (move_uploaded_file($tmppath, $destpath)) {
+            // Check file name, extension (tho the ext might be faked)
+            if (!$profile->is_file_name_acceptable($destpath)) {
+                unlink($destpath);
+                throw new RuntimeException($fn.': '.$this->Lang('error_upload_acceptFileTypes'));
+            }
             // Check mimetype (maybe dodgy, depending on installed capabilities)
-            $filemime = $helper->get_mime_type($dest);
+            $filemime = $helper->get_mime_type($destpath);
             if (!startswith($filemime, 'text/html;')) { // skip if the check found nothing recognisable
                 if (!$helper->match_mime($filemime, $mime)) {
-                    unlink($dest);
-                    throw new RuntimeException($this->Lang('error_upload_type', $fn));
+                    unlink($destpath);
+                    throw new RuntimeException($fn.': '.$this->Lang('error_upload_type', $fn));
                 }
             }
-            chmod($dest, 0640);
+            chmod($destpath, 0640);
             if ($profile->type == FileType::IMAGE && $profile->show_thumbs) {
-                Utils::create_file_thumb('', $dest);
+                Utils::create_file_thumb($topdir, $destpath);
             }
         } else {
-            throw new RuntimeException('Failed to move uploaded file');
+            throw new RuntimeException('Failed to move uploaded file '.$fn);
         }
     };
 
@@ -133,7 +127,7 @@ try {
     // All good, send a response
     echo json_encode([
         'status' => 'ok',
-        'path' => $dest
+        'path' => $destpath
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
 
 } catch (Exception $e) {
@@ -146,6 +140,8 @@ try {
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
     // mimic outer catcher
     debug_to_log('Exception: ' . $e->GetMessage());
+//  if (CMS_DEBUG) {
     debug_to_log($e->GetTraceAsString());
+//  }
 }
 exit;

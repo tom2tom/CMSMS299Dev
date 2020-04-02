@@ -1,0 +1,70 @@
+/* Tabs */
+.tab {
+	padding: 0 10px;
+}
+.tab::after {
+	content: '';
+	display: table;
+	clear: left;
+}
+.tab button {
+	border: 1px solid #ddd;
+	border-top: 0;
+	outline: none;
+	background-color: #f1f1f1;
+	float: left;
+	cursor: pointer;
+	padding: 14px 16px;
+	transition: 0.3s;
+}
+.tab button:hover {
+	background-color: #d2d2d2;
+}
+.tab button.active {
+	background-color: #bebebe;
+}
+/* Tab content */
+.tabcontent {
+	display: none;
+	padding: 0 10px;
+	animation: fadeEffect 0.2s; /* fading effect takes 1/5 second */
+}
+.tabcontent.active {
+	display: block;
+}
+/* Fade from nil- to full-opacity */
+@keyframes fadeEffect {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* Extra dialog-elements : see main .css */
+/*
+.trumbowyg-modal-input span {
+	align-self: flex-end;
+	height: 27px;
+	line-height: 27px;
+	text-align: left; / * TODO if rtl styling * /
+	font-size: 14px;
+	max-width: 330px;
+	width: 70%;
+	padding: 0 7px;
+	margin: 12px 0 0 0
+}
+
+.trumbowyg-modal-input select {
+	align-self: flex-end;
+	height: 29px;
+	border: 1px solid #dedede;
+	background: #fff;
+	font-size: 14px;
+	max-width: 330px;
+	width: 70%;
+	padding: 0 3px;
+	margin: 12px 0 0 0
+}
+*/

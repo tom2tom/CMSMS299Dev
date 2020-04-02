@@ -18,35 +18,22 @@
 
 namespace CMSMS;
 
+use cms_config;
 use CmsInvalidDataException;
 use CMSMS\FileType;
+use CMSMS\ProfileValue;
 use const CMS_DEBUG;
+use const CMS_ROOT_PATH;
 use function cms_to_bool;
 use function debug_to_log;
-
-class ProfileValue extends BasicEnum
-{
-    const NO = 0; //sometimes treated as boolean false
-    const NONE = 0; // ditto
-    const YES = 1;
-    const BYGROUP = 2;
-    const BYUSER = 3;
-    // deprecated aliases from FilePickerProfile class
-    const FLAG_NO = 0;
-    const FLAG_NONE = 0;
-    const FLAG_YES = 1;
-    const FLAG_BYGROUP = 2;
-
-    private function __construct() {}
-    private function __clone() {}
-}
+use function startswith;
 
 /**
  * A simple class that defines a suite of properties and permissions, for use by
  * e.g. a filepicker to indicate how it should behave and what functionality
  * should be provided.
  *
- * This is an immutable class.
+ * This is an immutable class. (security?)
  *
  * The constructor and overrideWith methods of this class accept an associative
  * array of parameters (see the properties below) to allow building or altering
@@ -105,15 +92,23 @@ class FilePickerProfile
     /**
      * Constructor
      *
-     * @param array $params Optional associative array of params suitable for the setValue method. Default null
+     * @param array $params Associative array of params suitable for the setValue method
       */
-    public function __construct( array $params = null )
+    public function __construct( $params )
     {
-        if( !is_array($params) || !count($params) ) return;
+        if( empty($params) || !is_array($params) || count($params) == 0 ) return;
         foreach( $params as $key => $val ) {
             $this->setValue($key,$val);
         }
+        if( !$this->_data['top'] ) {
+            $config = cms_config::get_instance();
+            $this->setValue('top',$config['uploads_path']);
+//          $devmode = $config['develop_mode'] || (($userid = get_userid(false) && check_permission($userid,'Modify Restricted Files')) || $userid == 0);
+//          $toppath = ($devmode) ? CMS_ROOT_PATH : $config['uploads_path'];
+        }
     }
+
+    // NOTE immutable class, no __set()
 
     /**
      * @ignore
@@ -143,16 +138,6 @@ class FilePickerProfile
     }
 
     /**
-     * @ignore
-     * @param string $key
-     * @param mixed $val
-     */
-    public function __set( $key, $val )
-    {
-        $this->setValue($key, $val);
-    }
-
-    /**
      * Set a value into this profile
      *
      * @param string $key The key to set
@@ -162,7 +147,13 @@ class FilePickerProfile
     {
         switch( $key ) {
         case 'top':
-           //TODO relevant path-checks
+           $s = trim($val);
+           //TODO other relevant top-path-checks
+           if( startswith($s,CMS_ROOT_PATH) ) {
+               $this->_data[$key] = $s;
+               break;
+           }
+           throw new CmsInvalidDataException("$s is not a valid value for $key in ".self::class);
         case 'match_prefix':
         case 'exclude_prefix':
             $this->_data[$key] = trim($val);
@@ -248,12 +239,12 @@ class FilePickerProfile
     * @param string name
     * @return bool indicating whether they match
     */
-	protected function getMatch($pattern, $name)
+    protected function getMatch($pattern, $name)
     {
         if( !($pattern || is_numeric($pattern)) ) {
             return true;
         }
-        if( 0 ) { //$name contains non-ASCII
+        if( 0 ) { //some mb_* method $name contains non-ASCII
             // TODO robust caseless name startswith pattern
         }
         if( preg_match('/[*?]/', $pattern) ) {
@@ -273,7 +264,7 @@ class FilePickerProfile
         if( strncasecmp($name, $pattern, $l) === 0 ) {
             return true;
         }
-		//etc?
+        //etc?
         return false;
     }
 
@@ -300,34 +291,7 @@ class FilePickerProfile
                     throw new Exception($fn.': name is not acceptable');
                 }
             }
-
-            if( $this->_data['file_extensions'] === '' ) {
-                return true;
-            }
-            // file must have acceptable extension
-            $p = strrpos($fn, '.');
-            if( !$p ) {
-                // file has no extension, or just an initial '.'
-                throw new Exception($fn.': type is not acceptable');
-            }
-            $ext = substr($fn, $p+1);
-            if( !$ext ) {
-                // file has empty extension
-                throw new Exception($fn.': type is not acceptable');
-            }
-            $s =& $this->_data['file_extensions'];
-            // we always do a caseless (hence ASCII) check,
-            // cuz patterns and/or extension might be case-insensitive
-            // and recognised extensions are all ASCII
-            $p = stripos($s, $ext);
-            if( $p !== false ) {
-                if( $s[$p - 1] === ',' ) {
-                    if( $s[$p + strlen($ext)] === ',' ) {
-                        return true;
-                    }
-                }
-            }
-            throw new Exception($fn.': type is not acceptable');
+            return true;
         }
         catch (Exception $e) {
             if( CMS_DEBUG ) { debug_to_log($e->GetMessage()); }
