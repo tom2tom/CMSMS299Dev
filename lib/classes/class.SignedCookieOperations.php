@@ -1,6 +1,6 @@
 <?php
 #Secure cookie operations class
-#Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ use const CMS_VERSION;
 /**
  * A class of cookie operations that are capable of obfuscating cookie names,
  * and signing cookie values to minimize the risk of MITM or corruption attacks.
+ * This class is used like a singleton, tho not coded like others in CMSMS.
  *
  * @package CMS
  * @license GPL
@@ -45,9 +46,9 @@ class SignedCookieOperations implements CookieManager
     /**
      * Constructor.
      *
-     * @param CmsApp $app The application instance.
+     * @param mixed $app CmsApp | null The application instance. Optional since 2.9
      */
-    public function __construct( CmsApp $app )
+    public function __construct($app = null)
     {
         $this->_parts = parse_url(CMS_ROOT_URL);
         if( !isset($this->_parts['host']) || $this->_parts['host'] == '' ) {
@@ -56,6 +57,7 @@ class SignedCookieOperations implements CookieManager
         if( !isset($this->_parts['path']) || $this->_parts['path'] == '' ) {
             $this->_parts['path'] = '/';
         }
+        if( !$app ) $app = CmsApp::get_instance();
         $this->_secure = $app->is_https_request();
     }
 
