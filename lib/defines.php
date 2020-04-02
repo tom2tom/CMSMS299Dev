@@ -68,7 +68,7 @@ define('CMS_ASSETS_PATH',$config['assets_path']);
  * Where UDTfiles are stored.
  * @since 2.3
  */
-define('CMS_UDT_PATH',$config['assets_path'].DIRECTORY_SEPARATOR.$config['usertags_dir']);
+define('CMS_FILETAGS_PATH',$config['assets_path'].DIRECTORY_SEPARATOR.$config['simpletags_dir']);
 
 /**
  * The 'top' directory where javascript files are stored

@@ -27,7 +27,7 @@ use Throwable;
 use UnexpectedValueException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
-use const CMS_UDT_PATH;
+use const CMS_FILETAGS_PATH;
 //use CMSMS\SysDataCache;
 
 /**
@@ -164,7 +164,7 @@ final class SimpleTagOperations
 	 */
 	public function FilePath(string $name) : string
 	{
-		return CMS_UDT_PATH.DIRECTORY_SEPARATOR.$name.self::PLUGEXT;
+		return CMS_FILETAGS_PATH.DIRECTORY_SEPARATOR.$name.self::PLUGEXT;
 	}
 
 	/**
