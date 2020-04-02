@@ -8,8 +8,8 @@
 <br />
 {if $pmod && count($tags) > 20}
 <div class="pageoptions">
-  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{lang('add_udt')}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}&amp;tagname=-1">{lang('add_udt')}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{lang('add_splg')}">{$iconadd}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1">{lang('add_splg')}</a>
 </div>
 <br />
 {/if}
@@ -30,7 +30,7 @@
       {strip}{$n=$tag.name}
       <td>
        {if $pmod}
-        <a href="{$editurl}{$urlext}&amp;tagname={$n}" title="{lang('edit_udt', {$n})}">{$n}</a>
+        <a href="{$editurl}{$urlext}&amp;tagname={$n}" title="{lang('edit_splg', {$n})}">{$n}</a>
        {else}
         {$n}
        {/if}
@@ -53,8 +53,8 @@
 {if $pmod}
 <br />
 <div class="pageoptions">
-  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{lang('add_udt')}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}&amp;tagname=-1">{lang('add_udt')}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{lang('add_splg')}">{$iconadd}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1">{lang('add_splg')}</a>
 </div>
 {/if}
 
