@@ -27,7 +27,7 @@ check_login();
 $urlext = get_secure_param();
 
 if (isset($_POST['cancel'])) {
-    redirect('listusertags.php'.$urlext);
+    redirect('listsimpletags.php'.$urlext);
 }
 
 $themeObject = cms_utils::get_theme_object();
@@ -66,12 +66,12 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     if (isset($_POST['submit']) && !$err) {
         $msg = ($oldname == '-1') ? lang('added_udt') : lang('udt_updated');
         $themeObject->ParkNotice('success', $msg);
-        redirect('listusertags.php'.$urlext);
+        redirect('listsimpletags.php'.$urlext);
     }
 } elseif (isset($_GET['tagname'])) {
     $tagname = cleanValue($_GET['tagname']);
 } else {
-    redirect('listusertags.php'.$urlext);
+    redirect('listsimpletags.php'.$urlext);
 }
 
 if ($tagname != '-1') {
@@ -81,7 +81,7 @@ if ($tagname != '-1') {
         $props['oldname'] = $tagname;
     } else {
         $themeObject->RecordNotice('error', lang('error_internal'));
-        redirect('listusertags.php'.$urlext);
+        redirect('listsimpletags.php'.$urlext);
     }
 } else {
     $props = [
@@ -156,5 +156,5 @@ if ($props['id'] > 0) {
 }
 
 include_once 'header.php';
-$smarty->display('openusertag.tpl');
+$smarty->display('opensimpletag.tpl');
 include_once 'footer.php';
