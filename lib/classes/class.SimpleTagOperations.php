@@ -297,12 +297,13 @@ final class SimpleTagOperations
 			}
 			if (!is_array($props)) {
 				if ($props == '*') {
-					$props = ['description','parameters','license','code'];
+					$props = ['id','description','parameters','license','code'];
 				} else {
 					$props = explode(',',$props);
 				}
 			}
 			$res = array_combine($props, array_fill(0, count($props), ''));
+			if (isset($res['id'])) { $res['id'] = self::MAXFID; }
 			$ps = strpos($cont, '<metadata>');
 			$pe = strpos($cont, '</metadata>', $ps);
 			if ($ps !== false && $pe !== false) {
