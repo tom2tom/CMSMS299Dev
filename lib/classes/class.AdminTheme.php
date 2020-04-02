@@ -958,10 +958,10 @@ abstract class AdminTheme
         'description'=>lang('tagdescription'),
         'final'=>true,
         'show_in_menu'=>$this->HasPerm('taghelpPerms')];
-        $items[] = ['name'=>'usertags','parent'=>'extensions',
-        'url'=>'listusertags.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('usertags')),
-        'description'=>lang('udt_description'),
+        $items[] = ['name'=>'simpletags','parent'=>'extensions',
+        'url'=>'listsimpletags.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('simpletags')),
+        'description'=>lang('simpletags_description'),
         'final'=>true,
         'show_in_menu'=>$this->HasPerm('usertagPerms')];
         $items[] = ['name'=>'eventhandlers','parent'=>'extensions',
