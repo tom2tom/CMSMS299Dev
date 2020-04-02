@@ -54,8 +54,8 @@ $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'access' => $access,
     'pmod' => $pmod,
-    'addurl' => 'openusertag.php',
-    'editurl' => 'openusertag.php',
+    'addurl' => 'opensimpletag.php',
+    'editurl' => 'opensimpletag.php',
     'iconadd' => $iconadd,
     'iconedit' => $iconedit,
     'icondel' => $icondel,
@@ -77,7 +77,7 @@ EOS;
         $out .= <<<EOS
 function getParms(tagname) {
  var dlg = $('#params_dlg');
- $.get('usertagparams.php{$urlext}', {
+ $.get('simpletagparams.php{$urlext}', {
   name: tagname
  }, function(data) {
   dlg.find('#params').html(data);
@@ -104,7 +104,7 @@ EOS;
         $out .= <<<EOS
 function doDelete(tagname) {
  cms_confirm($confirm).done(function() {
-  var u = 'deleteusertag.php{$urlext}&name=' + tagname;
+  var u = 'deletesimpletag.php{$urlext}&name=' + tagname;
   window.location.replace(u);
  });
 }
@@ -119,5 +119,5 @@ EOS;
 add_page_foottext($out);
 
 include_once 'header.php';
-$smarty->display('listusertags.tpl');
+$smarty->display('listsimpletags.tpl');
 include_once 'footer.php';
