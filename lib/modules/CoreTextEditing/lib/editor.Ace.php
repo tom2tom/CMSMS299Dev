@@ -96,7 +96,7 @@ function GetPageSetup(&$mod, array $params) : array
 				'js' => 'javascript',
 				'javascript' => 1,
 				'php' => 1,
-				'phphp' => 'php', //i.e. UserTagOperations::PLUGEXT
+				'phphp' => 'php', //i.e. SimpleTagOperations::PLUGEXT
 //				'plugin' => 'php',
 //				'cmsplugin' => 'php',
 				'smarty' => 1,
