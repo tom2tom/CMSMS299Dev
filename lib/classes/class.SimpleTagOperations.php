@@ -48,7 +48,7 @@ final class SimpleTagOperations
 	/**
 	 * Filename extension of simple-plugin files, something that the web server won't execute
 	 */
-	const PLUGEXT = '.phphp'; //c.f. vanilla 2.3DEV uses .cmsplugin
+	const PLUGEXT = '.phphp'; //c.f. vanilla 2.3BETA uses .cmsplugin
 
 	/**
 	 * Maximum fake-id used for identifying simple-plugin files
@@ -217,14 +217,15 @@ final class SimpleTagOperations
 	{
 	}
 
-	/**
-	 * Migrate plugin from dB-storage to file-storage
+	/* *
+	 * Migrate plugin from dB-storage to file-storage.
+	 * Note: there is no operational advantage from such change. 
 	 * @since 2.9
 	 *
 	 * @param string $name Plugin name
 	 * @return bool indicating success
 	 */
-	public function ExportFile(string $name) : bool
+/*	public function ExportFile(string $name) : bool
 	{
 		if (isset($this->_misses[$name])) return false;
 		if (!isset($this->_cache[$name])) {
@@ -245,15 +246,16 @@ final class SimpleTagOperations
 		}
 		return false;
 	}
-
-	/**
+*/
+	/* *
 	 * Migrate plugin from file-storage to dB-storage
+	 * Note: there is no operational advantage from such change. 
 	 * @since 2.9
 	 *
 	 * @param string $name Plugin name
 	 * @return bool indicating success
 	 */
-	public function ImportFile(string $name) : bool
+/*	public function ImportFile(string $name) : bool
 	{
 		if (isset($this->_misses[$name])) return false;
 		if (!isset($this->_cache[$name])) {
@@ -273,7 +275,7 @@ final class SimpleTagOperations
 		}
 		return false;
 	}
-
+*/
 	/**
 	 * Retrieve property|ies of the file-stored plugin named $name
 	 *
@@ -479,7 +481,7 @@ final class SimpleTagOperations
 		$bare = empty($params['detail']);
 		if (!$this->IsValidName($name)) {
 			$this->_misses[$name] = 0;
-			return ($bare) ? false : [false, 'errorbadname'];
+			return ($bare) ? false : [false, 'error_splg_name'];
 		}
 
 		$code = trim($params['code'], " \t\n\r");
@@ -497,7 +499,7 @@ final class SimpleTagOperations
 			// out-of-context ($params etc etc).
 			// We'll trust the provided code as-is. But run it in a sandbox, if we can ...
 		} else {
-			return ($bare) ? false : [false, 'missingparams'];
+			return ($bare) ? false : [false, 'error_splg_nocode'];
 		}
 
 		$d = (!empty($params['description'])) ?
@@ -565,7 +567,7 @@ EOS;
 
 		if (!$this->IsValidName($name)) {
 			$this->_misses[$name] = 0;
-			return ($bare) ? false : [false, 'errorbadname'];
+			return ($bare) ? false : [false, 'error_splg_name'];
 		}
 
 		$val = $params['code'] ?? '';
