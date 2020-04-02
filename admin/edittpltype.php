@@ -1,6 +1,6 @@
 <?php
 # Edit template type
-# Copyright (C) 2012-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -89,12 +89,12 @@ try {
 		add_page_foottext($js);
 	}
 
-	$editorjs = get_syntaxeditor_setup(['edit'=>true, 'htmlid'=>'edit_area', 'typer'=>'smarty']);
-	if( !empty($editorjs['head']) ) {
-		add_page_headtext($editorjs['head']);
+	$pageincs = get_syntaxeditor_setup(['edit'=>true, 'htmlid'=>'edit_area', 'typer'=>'smarty']);
+	if( !empty($pageincs['head']) ) {
+		add_page_headtext($pageincs['head']);
 	}
 
-	$js = $editorjs['foot'] ?? '';
+	$js = $pageincs['foot'] ?? '';
 	$js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
