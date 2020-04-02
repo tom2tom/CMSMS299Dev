@@ -18,10 +18,10 @@
 namespace CMSMS;
 
 use cms_utils;
+use CMSMS\Events;
 use const TMP_CACHE_LOCATION;
 use function cms_get_css;
 use function cms_path_to_url;
-use function file_put_contents;
 
 //TODO a job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
 

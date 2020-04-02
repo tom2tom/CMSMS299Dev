@@ -1,6 +1,6 @@
 <?php
 #Class for consolidating specified javascript's into a single file
-#Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -19,11 +19,11 @@
 namespace CMSMS;
 
 use cms_utils;
+use CMSMS\Events;
 use const CMS_SCRIPTS_PATH;
 use const TMP_CACHE_LOCATION;
 use function cms_get_script;
 use function cms_path_to_url;
-use function file_put_contents;
 
 //TODO a job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
 
