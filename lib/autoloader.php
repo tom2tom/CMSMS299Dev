@@ -100,11 +100,9 @@ function cms_autoloader(string $classname)
 					//deprecated since 2.3 - some modules require existence of this, or assume, and actually use it
 					$gCms = CmsApp::get_instance();
 					require_once $mpath;
-					if (class_exists($classname)) return;
-				} else {
-					require_once $fp;
-					if (class_exists($classname)) return;
 				}
+				require_once $fp;
+				if (class_exists($classname)) return;
 			}
 		}
 
