@@ -25,7 +25,6 @@ use const CMS_VERSION;
 /**
  * A class of cookie operations that are capable of obfuscating cookie names,
  * and signing cookie values to minimize the risk of MITM or corruption attacks.
- * This class is used like a singleton, tho not coded like others in CMSMS.
  *
  * @package CMS
  * @license GPL
@@ -46,7 +45,7 @@ class SignedCookieOperations implements CookieManager
     /**
      * Constructor.
      *
-     * @param mixed $app CmsApp | null The application instance. Optional since 2.9
+     * @param mixed $app CmsApp | null. Optional since 2.9
      */
     public function __construct($app = null)
     {
