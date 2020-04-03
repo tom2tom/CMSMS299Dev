@@ -238,7 +238,7 @@ smarty cache lifetime != global cache ttl, probably
      * @param string  &$callback returned callable
      * @param string  &$script   optional returned script filepath if function is external
      * @param bool    &$cachable true by default, set it false here if relevant
-     * @return bool true on success, false on failure
+     * @return bool indicating success
      */
     public function defaultPluginHandler($name, $type, $template, &$callback, &$script, &$cachable)
     {
@@ -276,30 +276,36 @@ smarty cache lifetime != global cache ttl, probably
             }
         }
 */
+        $cachable = false;
         if( $type != 'function' ) {
-            return;
+            return false;
         }
 
-        // check if it's a module-plugin (tabled or not)
-//        if( CmsApp::get_instance()->is_frontend_request() ) {
+        //Deprecated pre-2.9 approach: plugins never cachable
+        //In future, allow caching and expect users to override that in templates where needed
+        //Otherwise, module-plugin cachability is opaque to page-builders
+        if( CmsApp::get_instance()->is_frontend_request() ) {
+            // check if it's a module-plugin (tabled or not)
             $row = ModulePluginOperations::load_plugin($name,$type);
             if( $row && is_callable($row['callback']) ) {
                 $callback = $row['callback'];
-                //deprecated from 2.3 We should assume cachable and override that in templates where needed
-                //Otherwise, module-cachability is opaque to page-builders
-                $cachable = !empty($row['cachable']);
+                if (0) {
+                    $val = cms_siteprefs::get('smarty_cachemodules', !empty($row['cachable']));
+                    $cachable = (bool)$val;
+                }
                 return true;
             }
 
-            //deprecated pre-2.9 behaviour, see above re cachability
-            $cachable = false;
             // check if it's a simple-plugin
             $callback = SimpleTagOperations::get_instance()->CreateTagFunction($name);
             if( $callback ) {
-                //$cachable = true; future
+                if (0) {
+                    $val = cms_siteprefs::get('smarty_cachesimples', false);
+                    $cachable = (bool)$val;
+                }
                 return true;
             }
-//        }
+        }
 
         return false;
     }
