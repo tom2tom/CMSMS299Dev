@@ -69,6 +69,8 @@ AppSingle::set('App', $_app); // an alias
 $config = cms_config::get_instance(); // this object previously used in defines-processing above
 AppSingle::set('cms_config', $config); // now we can cache it with other singletons
 AppSingle::set('Config', $config); // and an alias
+$db = $_app->GetDb();
+AppSingle::set('db', $db); // easier retrieval
 require_once $dirpath.'page.functions.php'; // system-dependent methods
 require_once $dirpath.'compat.functions.php';
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; // might be needed, save autoloading
