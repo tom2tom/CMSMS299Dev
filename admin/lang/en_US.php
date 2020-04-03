@@ -14,14 +14,14 @@ $lang = [
 'actioncontains' => 'Action Contains',
 'actionstatus' => 'Action/Status',
 'active' => 'Active',
-'add_udt' => 'Add User Defined Tag', //title
+'add_splg' => 'Add Simple Plugin', //title
 'add' => 'Add',
 'addbookmark' => 'Add bookmark',
 'addcontent' => 'Add New Content',
 'added_content' => 'Added Content',
 'added_group' => 'Added Group',
 'added_template' => 'Added template',
-'added_udt' => 'Added User Defined Tag', //status message
+'added_splg' => 'Added simple plugin', //status message
 'added_user' => 'Added User',
 'addgroup' => 'Add New Group',
 'addhandler' => 'Add selected event handler',
@@ -145,7 +145,7 @@ $lang = [
 'config_issue' => 'Configuration Issue',
 'config_writable' => 'config.php is writeable. The system is safer when that file is read-only',
 'confirm_bulkuserop' => "Be cautious about performing operations on multiple users simultaneously.\n\nAre you sure you want to continue?",
-'confirm_delete_udt' => 'Are you sure you want to delete this User Defined Tag?',
+'confirm_delete_splg' => 'Are you sure you want to delete this plugin?',
 'confirm_delete_user' => 'Are you sure you want to delete this user account',
 'confirm_edituser' => 'Are you sure you want to apply changes to this user account',
 'confirm_leave' => 'Are you sure you want to leave this page? Any unsaved change(s) will be lost.',
@@ -239,13 +239,13 @@ $lang = [
 'deleteconfirm' => 'Are you sure you want to delete &quot;%s&quot; ?',
 'deletecontent' => 'Delete Content',
 'deleted_content' => 'Deleted content',
-'deleted_directory' => 'Deleted Directory',
-'deleted_file' => 'Deleted File',
-'deleted_group' => 'Deleted Group',
+'deleted_directory' => 'Deleted directory',
+'deleted_file' => 'Deleted file',
+'deleted_group' => 'Deleted group',
 'deleted_module' => 'Permanently removed %s',
+'deleted_splg' => 'Deleted plugin',
 'deleted_template' => 'Deleted template', //USED?
-'deleted_udt' => 'Deleted User Defined Tag',
-'deleted_user' => 'Deleted User',
+'deleted_user' => 'Deleted user',
 'deletepages' => 'Delete these pages?',
 'deletetemplate' => 'Delete Template', //USED?
 'deletetemplates' => 'Delete Templates', //USED?
@@ -274,14 +274,14 @@ $lang = [
 'E_STRICT' => 'Is E_STRICT disabled in error_reporting ?',
 'ecommerce_desc' => 'E-commerce services',
 'ecommerce' => 'E-Commerce',
-'edit_udt' => 'Edit User Defined Tag', //title
+'edit_splg' => 'Edit Simple Plugin', //title
 'edit' => 'Edit',
 'editconfiguration' => 'Edit Configuration',
 'editcontent_settings' => 'Content Editing',
 'edited_group' => 'Edited Group',
-'edited_udt' => 'Edited User Defined Tag', //status message
-'edited_user_preferences' => 'Edited User Preferences',
-'edited_user' => 'Edited User',
+'edited_splg' => 'Edited plugin', //status message
+'edited_user_preferences' => 'Edited user preferences',
+'edited_user' => 'Edited user',
 'editgroup' => 'Edit Group',
 'edittemplate' => 'Edit Template', //USED?
 'edittemplatesuccess' => 'Template updated', //USED?
@@ -323,10 +323,15 @@ $lang = [
 'error_portinvalid' => 'Port number is invalid',
 'error_retrieving_file_list' => 'Error retrieving file list',
 'error_sitedownmessage' => 'It appears that the site-down message is empty.  Please at least display some text to inform visitors that this website is down for maintenance',
+'error_splg_del' => 'Error deleting plugin. Permissions problem?',
+'error_splg_exists' => 'A simple-plugin with this name already exists. Please choose another.',
+'error_splg_name' => 'A simple-plugin\'s name must start with a letter or underscore, with any number of letters, numbers or underscores to follow.',
+'error_splg_nocode' => 'No code is specified for the plugin',
+'error_splg_save' => 'Error saving plugin',
+'error_splg_update' => 'Error updating plugin',
 'error_timedifference2' => 'A discrepancy in time with the PHP environment was detected. This might cause problems when publishing i.e. news articles.',
 'error_timeoutinvalid' => 'The time-out specified is invalid (must be between 1 and 3600 seconds)',
 'error_type' => 'Error Type',
-'error_udt_name_chars' => 'A valid UDT name starts with a letter or underscore, followed by any number of letters, numbers, or underscores.',
 'error_uploadproblem' => 'An error occurred in the upload',
 'error_usernamerequired' => 'A <b>username</b> is required for SMTP authentication',
 'error' => 'Error',
@@ -334,7 +339,6 @@ $lang = [
 'errorcantcreatefile' => 'Could not create a file (permissions problem?)',
 'errorchildcontent' => 'Content still contains child contents. Please remove them first.',
 'errordefaultpage' => 'Cannot delete the current default page. Please set a different one first.',
-'errordeletag' => 'Error deleting tagfile. Permissions problem?',
 'errordeletingassociation' => 'Error deleting association',
 'errordeletingcontent' => 'Error deleting content (either this page has children or is the default content)',
 'errordeletingdirectory' => 'Could not delete directory. Permissions problem?',
@@ -342,7 +346,6 @@ $lang = [
 'errordirectorynotwritable' => 'No permission to write in directory.  This could be caused by file permissions and ownership.  Safe mode might also be in effect.',
 'errorfilenotwritable' => 'No permission to write to file \'%s\'.',
 'errorgroupexists' => 'A group named \'%s\' already exists',
-'errorinserting_udt' => 'Error inserting User Defined Tag',
 'errorinsertinggroup' => 'Error inserting group',
 'errorinsertinguser' => 'Error inserting user',
 'errormodulenotfound' => 'Internal error, could not find the instance of a module',
@@ -352,7 +355,6 @@ $lang = [
 'errornofilesexported' => 'Error exporting files to XML',
 'errorsendingemail' => 'There was an error sending the email.  Contact your administrator.',
 'errorupdatetemplateallpages' => 'Template is not active',
-'errorupdating_udt' => 'Error updating User Defined Tag',
 'errorupdatinggroup' => 'Error updating group',
 'errorupdatingpages' => 'Error updating pages',
 'errorupdatingtemplate' => 'Error updating template',
@@ -483,12 +485,12 @@ $lang = [
   <li>'CmsLayoutTemplateType' - Reference to the affected template type object.</li>
 </ul>",
 /*
-'event_help_adduserdefinedtagpost' => '<h4>Parameters</h4>
+'event_help_addsimplepluginpost' => '<h4>Parameters</h4>
 <ul>
 <li>None</li>
 </ul>
 ',
-'event_help_adduserdefinedtagpre' => '<h4>Parameters</h4>
+'event_help_addsimplepluginpre' => '<h4>Parameters</h4>
 <ul>
 <li>None</li>
 </ul>
@@ -610,12 +612,12 @@ $lang = [
   <li>'CmsLayoutTemplateType' - Reference to the affected template type object.</li>
 </ul>",
 /*
-'event_help_deleteuserdefinedtagpost' => '<h4>Parameters</h4>
+'event_help_deletesimplepluginpost' => '<h4>Parameters</h4>
 <ul>
 <li>None</li>
 </ul>
 ',
-'event_help_deleteuserdefinedtagpre' => '<h4>Parameters</h4>
+'event_help_deletesimplepluginpre' => '<h4>Parameters</h4>
 <ul>
 <li>None</li>
 </ul>
@@ -680,12 +682,12 @@ $lang = [
   <li>'CmsLayoutTemplateType' - Reference to the affected template type object.</li>
 </ul>",
 /*
-'event_help_edituserdefinedtagpost' => '<h4>Parameters</h4>
+'event_help_editsimplepluginpost' => '<h4>Parameters</h4>
 <ul>
 <li>None</li>
 </ul>
 ',
-'event_help_edituserdefinedtagpre' => '<h4>Parameters</h4>
+'event_help_editsimplepluginpre' => '<h4>Parameters</h4>
 <ul>
 <li>None</li>
 </ul>
@@ -968,18 +970,13 @@ $lang = [
 'importtheme' => 'Import Theme',
 'inactive' => 'Inactive',
 'indent' => 'Indent Pagelist to Emphasize Hierarchy',
-'info_adduser_username' => 'The username field must consist of alphanumeric characters, dot(.), underscore, or space',
 'info_adduser' => 'Add a administrative new user account',
 'info_autoalias' => 'If this field is empty, an alias will be created automatically.',
 'info_changegroupperms' => 'Here you can specify the permission(s) of each admin user group.  Keep in mind: any admin user can belong to multiple admin groups.<br /><strong>Note:</strong> the &quot;Admin&quot; group is a special group and is automatically granted all permissions.',
 'info_changeusergroup' => 'Group membership determines which permissions the user has, hence her/his capabilities in the admin console.<br /><strong>Note:</strong> the &quot;Admin&quot; group is automatically granted all permissions.',
-'info_clearusersettings' => 'This will cause all of this user\'s settings to be returned to default values',
-'info_copyusersettings' => 'Change this user\'s settings to match those of another existing user',
 'info_default_contenttype' => 'Applicable when adding new content objects, this control specifies the type that is selected by default.  Please ensure that the selected item is not one of the &quot;disallowed types&quot;.',
 'info_deletepages' => 'Note: due to permission restrictions, some of the pages you selected for deletion might not be listed below',
 'info_edeprecated_failed' => 'If E_DEPRECATED is enabled in your error reporting users will see a lot of warning messages that could affect the display and functionality',
-'info_edituser_password' => 'Change this field to change the current password',
-'info_edituser_passwordagain' => 'Match this field to the other password entry, to change the password',
 'info_estrict_failed' => 'Some libraries that CMSMS uses do not work well with E_STRICT.  Please disable this before continuing',
 'info_generate_cksum_file' => 'This will generate a checksum file and save it on your local computer for later validation.  This should be done prior to rolling out the website, and/or after any upgrade or major modification.',
 'info_group_inactive' => 'This group is inactive.  Members of this group will not realize the permissions associated with the group',
@@ -997,13 +994,10 @@ $lang = [
 1. xxx.xxx.xxx.xxx -- (exact IP address)<br />
 2. xxx.xxx.xxx.[yyy-zzz] -- (IP address range)<br />
 3. xxx.xxx.xxx.xxx/nn -- (nnn = number of bits, cisco style.  i.e:  192.168.0.100/24 = entire 192.168.0 class C subnet)',
-'info_smarty_cachemodules' => 'Select how to cache tags in various templates that call module actions.  If enabled, all module calls will be cached.  This might have negative effects on some modules, or modules with forms.  <em>(note: you can override this using the nocache option as described in the Smarty manual)</em>.  If disabled no module calls will be cached which might have an effect on performance.   If you select to allow the module to decide, the default is that caching is not performed.  The module can override this, and you can disable caching using the nocache parameter when calling the module.',
-'info_smarty_cacheudt' => 'If enabled, all calls to User Defined Tags will be cached.  This will be useful for tags that display the output of database queries.  You can disable caching using the nocache parameter in the UDT call.  i.e: <code>{myusertag nocache}</code>',
 'info_smarty_options' => 'The following options have effect only when the above caching options are enabled',
 'info_target' => 'This option might used by the Menu Manager to indicate when and how new frames or windows should be opened.  Some menu manager templates might ignore this option.',
-'info_templateuser' => 'This account is the template user account.  New users will be created using this accounts settings',
+'info_templateuser' => 'This account is the template user account.  New users will be created using this account\'s settings',
 'info_this_templateuser' => 'This account is set as the template user.  New accounts will inherit this users settings, and you can copy this users settings to any user account',
-'info_user_active' => 'Toggle this checkbox off to preserve the user information, but prevent the user from logging in to the admin console',
 'info_user_active2' => 'Toggle this flag to preserve the user information, but prevent the user from logging in to the admin console',
 'info_user_switch' => 'Test as this user',
 'info_validation' => 'This will compare the checksums found in the uploaded file with the files on the current installation.  It can assist in finding problems with uploads, or exactly what files were modified if this system has been hacked.',
@@ -1114,6 +1108,7 @@ $lang = [
 'module_help' => 'Module Help',
 'module_name' => 'Module Name',
 'module_param_lang' => '<strong>Deprecated</strong> - Override the current language that is used for selecting translated strings.',
+'module_setting' => 'Module Specific',
 'module' => 'Module',
 'moduleabout' => 'About the %s module',
 'moduledecides' => 'Module Decides',
@@ -1183,7 +1178,6 @@ $lang = [
 'notifications' => 'Notifications',
 'notinstalled' => 'Not installed',
 'notspecified' => 'Not specified / Empty',
-'noudtcode' => 'No code is specified for the User Defined Tag',
 
 // O
 'of' => 'of',
@@ -1362,6 +1356,8 @@ $lang = [
 'showsite' => 'Show Site',
 'sibling_duplicate_order' => 'Two sibling pages cannot have the same order. Pages were not reordered.',
 'signed_in' => 'Signed in as: %s',
+'simpletags' => 'Simple Plugins',
+'simpletags_description' => 'Limited-capability plugins added by authorised users',
 'site_support' => 'Seek Help',
 'siteadmin' => 'Site Admin',
 'sitedown_settings' => 'Maintenance Mode',
@@ -1375,6 +1371,8 @@ $lang = [
 'siteprefs' => 'Global Settings',
 'siteprefsupdated' => 'Global settings updated',
 'smarty_cachelife' => 'Cache Item Lifetime <em>(seconds)</em>',
+'smarty_cachemodules' => 'Cache Module-Action Plugins',
+'smarty_cachesimples' => 'Cache Simple Plugins',
 'smarty_compilecheck' => 'Do a Compilation Check',
 'smarty_settings' => 'Smarty',
 'smtp_settings' => 'SMTP Settings',
@@ -1481,7 +1479,7 @@ $lang = [
 'thumbnail_height' => 'Thumbnail Height',
 'thumbnail_width' => 'Thumbnail Width',
 'thumbnail' => 'Thumbnail',
-'title_apply_udt' => 'Save this User Defined Tag, and continue editing',
+'title_apply_splg' => 'Save this plugin, and continue editing',
 'title_event_description' => 'This column contains brief descriptions for each event',
 'title_event_handlers' => 'This column indicates the number of handlers for each event (if any)',
 'title_event_name' => 'This column contains a unique name for each event',
@@ -1501,14 +1499,11 @@ $lang = [
 'typenotvalid' => 'Type is not valid',
 
 // U
-'udt_added' => 'The User Defined Tag was successfully added',
-'udt_description' => 'Tags added by authorised users',
-'udt_exists' => 'A User Defined Tag with this name already exists. Please choose another.',
-'udt_updated' => 'The User Defined Tag was successfully updated.',
 'unknown' => 'Unknown',
 'unlimited' => 'Unlimited',
 'untested' => 'Not Tested',
 'up' => 'Up',
+'updated_splg' => 'The plugin was successfully updated.',
 'updateperm' => 'Update Permissions',
 'upload_cksum_file' => 'Upload Checksum File',
 'upload_filetobig' => 'This file is too large to upload',
@@ -1537,7 +1532,6 @@ $lang = [
 'usersettings' => 'User Settings',
 'usersgroups' => 'Users &amp; Groups',
 'usersgroupsdescription' => 'User and user-group related functions',
-'usertags' => 'User Defined Tags',
 'usewysiwyg' => 'Use rich-text-editor for content', //see also 'use_wysiwyg'
 
 // V
