@@ -1444,8 +1444,8 @@ $lang = [
 
 // T
 'tag' => 'Tag',
-'tagdescription' => 'System tags/plugins',
-'tags' => 'Tags',
+'tagdescription' => 'System plugins/tags',
+'tags' => 'Plugins',
 'team' => 'Team',
 'template' => 'Template', //USED?
 'templateexists' => 'Template name already exists', //USED?
