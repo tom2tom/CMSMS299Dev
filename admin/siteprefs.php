@@ -364,7 +364,7 @@ if (isset($_POST['submit'])) {
 //              cms_siteprefs::set('xmlmodulerepository', $_POST['xmlmodulerepository']);
                 cms_siteprefs::set('checkversion', !empty($_POST['checkversion']));
                 cms_siteprefs::set('global_umask', $_POST['global_umask']);
-                cms_siteprefs::set('allow_browser_cache', (int) $_POST['allow_browser_cache']);
+                cms_siteprefs::set('allow_browser_cache', !empty($_POST['allow_browser_cache']));
                 cms_siteprefs::set('browser_cache_expiry', (int) $_POST['browser_cache_expiry']);
                 cms_siteprefs::set('auto_clear_cache_age', (int) $_POST['auto_clear_cache_age']);
                 cms_siteprefs::set('adminlog_lifetime', (int) $_POST['adminlog_lifetime']);
