@@ -1,5 +1,5 @@
 <?php
-#Class to tailor Smarty for CMSMS
+#Class to tailor Smarty for CMSMS.
 #Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -41,16 +41,23 @@ use const CMS_ROOT_PATH;
 use const TMP_CACHE_LOCATION;
 use const TMP_TEMPLATES_C_LOCATION;
 use function cms_error;
+use function cms_join_path;
 use function get_userid;
 use function is_sitedown;
 use function startswith;
 
-//require_once CMS_ROOT_PATH.'/lib/smarty/Smarty.class.php'; //when BC not needed
-require_once CMS_ROOT_PATH.'/lib/smarty/SmartyBC.class.php'; //deprecated - support for Smarty2 API
+/*
+if not using composer-installed smarty ...
+ require_once cms_join_path(CMS_ROOT_PATH,'lib','smarty','SmartyBC.class.php'); //deprecated - support for Smarty2 API
+OR
+ require_once cms_join_path(CMS_ROOT_PATH,'lib','smarty','Smarty.class.php'); //when BC not needed
+else
+*/ 
+require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'vendor', 'smarty', 'smarty', 'libs', 'SmartyBC.class.php'); //deprecated - support for Smarty2 API
 
 /**
- * Extends the Smarty class for CMSMS.
- * Retains support for the Smarty2 API, but that's deprecated since 2.3
+ * Class to tailor Smarty for CMSMS use.
+ * This retains support for the Smarty2 API, but that's deprecated since 2.3
  *
  * @package CMS
  * @since 0.1
@@ -290,9 +297,12 @@ smarty cache lifetime != global cache ttl, probably
             if( $row && is_callable($row['callback']) ) {
                 $callback = $row['callback'];
 //                if (0) {
-                    $val = cms_siteprefs::get('smarty_cachemodules', 0));
-                    if ($val == 2) { $val = !empty($row['cachable']; }
-                    $cachable = (bool)$val;
+                    $val = cms_siteprefs::get('smarty_cachemodules', 0);
+                    if ($val != 2) {
+                        $cachable = (bool)$val;
+                    } else {
+                        $cachable = !empty($row['cachable']);
+                    }
 //                }
                 return true;
             }
