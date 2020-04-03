@@ -290,7 +290,8 @@ smarty cache lifetime != global cache ttl, probably
             if( $row && is_callable($row['callback']) ) {
                 $callback = $row['callback'];
 //                if (0) {
-                    $val = cms_siteprefs::get('smarty_cachemodules', !empty($row['cachable']));
+                    $val = cms_siteprefs::get('smarty_cachemodules', 0));
+                    if ($val == 2) { $val = !empty($row['cachable']; }
                     $cachable = (bool)$val;
 //                }
                 return true;
