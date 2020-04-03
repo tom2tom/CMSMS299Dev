@@ -22,6 +22,7 @@ use CMSMS\FormUtils;
 use CMSMS\internal\GetParameters;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\MultiEditor;
+use CMSMS\NlsOperations;
 use CMSMS\RichEditor;
 use CMSMS\RouteOperations;
 
@@ -100,8 +101,8 @@ function setup_session(bool $cachable = false)
 
 /**
  * A convenience function to test if the site is marked as down according to the config panel.
- * This method includes handling the preference that indicates that site-down behavior should
- * be disabled for certain IP address ranges.
+ * This method recognizes the site-preference relating to disabling
+ * site-down status for certain IP address ranges.
  *
  * @return boolean
  */
@@ -223,9 +224,9 @@ function check_login(bool $no_redirect = false)
 {
     $redirect = !$no_redirect;
     $userid = get_userid($redirect);
-    $login_ops = AppSingle::LoginOperations();
+    $ops = AppSingle::LoginOperations();
     if( $userid > 0 ) {
-        if( $login_ops->validate_requestkey() ) {
+        if( $ops->validate_requestkey() ) {
             return true;
         }
         // still here if logged in, but no/invalid secure-key in the request
@@ -236,7 +237,7 @@ function check_login(bool $no_redirect = false)
         if( startswith($_SERVER['SCRIPT_FILENAME'],CMS_ROOT_PATH) ) {
             $_SESSION['login_redirect_to'] = $_SERVER['REQUEST_URI'];
         }
-        $login_ops->deauthenticate();
+        $ops->deauthenticate();
         $config = AppSingle::Config();
         redirect($config['admin_url'].'/login.php');
     }
@@ -328,7 +329,7 @@ function author_pages(int $userid)
  */
 function redirect(string $to)
 {
-    $app = CmsApp::get_instance();
+    $app = AppSingle::App();
     if ($app->is_cli()) die("ERROR: no redirect on cli based scripts ---\n");
 
     $_SERVER['PHP_SELF'] = null;
@@ -409,7 +410,7 @@ function redirect(string $to)
  */
 function redirect_to_alias(string $alias)
 {
-    $hm = CmsApp::get_instance()->GetHierarchyManager();
+    $hm = AppSingle::App()->GetHierarchyManager();
     $node = $hm->find_by_tag('alias',$alias);
     if (!$node) {
         // put mention into the admin log
@@ -543,7 +544,7 @@ function get_pageid_or_alias_from_url()
  * Gets the given site preference
  * @since 0.6
  *
- * @deprecated since 1.10
+ * @deprecated since 1.10 NOPE
  * @see cms_siteprefs::get
  *
  * @param string $prefname The preference name
@@ -552,9 +553,6 @@ function get_pageid_or_alias_from_url()
  */
 function get_site_preference(string $prefname, $defaultvalue = null)
 {
-//    assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::SiteVars()->get());
-//    return CMSMS\AppSingle::SiteVars()->get($prefname,$defaultvalue);
-//    assert(empty(CMS_DEPREC), new DeprecationNotice('method','cms_siteprefs::get'));
     return cms_siteprefs::get($prefname,$defaultvalue);
 }
 
@@ -562,7 +560,7 @@ function get_site_preference(string $prefname, $defaultvalue = null)
  * Removes the given site preference.
  * @since 0.6
  *
- * @deprecated since 1.10
+ * @deprecated since 1.10 NOPE
  * @see cms_siteprefs::remove
  *
  * @param string $prefname Preference name to remove
@@ -570,7 +568,6 @@ function get_site_preference(string $prefname, $defaultvalue = null)
  */
 function remove_site_preference(string $prefname, bool $uselike = false)
 {
-//    assert(empty(CMS_DEPREC), new DeprecationNotice('method','cms_siteprefs::remove'));
     return cms_siteprefs::remove($prefname, $uselike);
 }
 
@@ -578,7 +575,7 @@ function remove_site_preference(string $prefname, bool $uselike = false)
  * Sets the given site preference with the given value.
  * @since 0.6
  *
- * @deprecated since 1.10
+ * @deprecated since 1.10 NOPE
  * @see cms_siteprefs::set
  *
  * @param string $prefname The preference name
@@ -586,223 +583,41 @@ function remove_site_preference(string $prefname, bool $uselike = false)
  */
 function set_site_preference(string $prefname, $value)
 {
-//    assert(empty(CMS_DEPREC), new DeprecationNotice('method','cms_siteprefs::set'));
     return cms_siteprefs::set($prefname, $value);
 }
 
 /**
- * A method to create a text area control
+ * Return the secure param query-string used in all admin links.
  *
  * @internal
  * @access private
- * @deprecated since 2.3 instead use CMSMS\FormUtils::create_textarea()
- * @param boolean $enablewysiwyg Whether to apply a richtext-editor.
- *   If false, and forcewysiwyg is not empty, then a syntax-highlight editor is applied.
- * @param string  $value The contents of the text area
- * @param string  $name The name of the text area
- * @param string  $class An optional class name
- * @param string  $id An optional ID (HTML ID) value
- * @param string  $encoding The optional encoding
- * @param string  $stylesheet Optional style information
- * @param integer $width Width (the number of columns) (CSS can and will override this)
- * @param integer $height Height (the number of rows) (CSS can and will override this)
- * @param string  $forcewysiwyg Optional name of the richtext- or syntax-highligh-editor to use.
- *   If empty, preferences indicate which editor to use.
- * @param string  $wantedsyntax Optional name of the language/syntax used.
- *   If non-empty it indicates that a syntax highlighter will be used.
- * @param string  $addtext Optional additional text to include in the textarea tag
  * @return string
  */
-function create_textarea(
-    bool $enablewysiwyg,
-    string $value,
-    string $name,
-    string $class = '',
-    string $id = '',
-    string $encoding = '',
-    string $stylesheet = '',
-    int $width = 80,
-    int $height = 15,
-    string $forcewysiwyg = '',
-    string $wantedsyntax = '',
-    string $addtext = ''
-) {
-    assert(empty(CMS_DEPREC), new DeprecationNotice('method','FormUtils::create_textarea'));
-    $parms = func_get_args() + [
-        'height' => 15,
-        'width' => 80,
-    ];
-    return FormUtils::create_textarea($parms);
-}
-
-/**
- * Create a dropdown/select html element containing a list of files that match certain conditions
- *
- * @internal
- * @param string The name (and id) for the select element.
- * @param string The directory name to search.
- * @param string The name of the file to be selected
- * @param string A comma separated series of file-extensions that should be displayed in the list
- * @param string An optional string with which to prefix each value in the output. Default ''
- * @param boolean n An optional flag indicating whether 'none' should be an allowed option. Default false.
- * @param string An optional string containing additional parameters for the dropdown element. Default ''
- * @param string An optional string to use as name-prefix when filtering files. Default ''
- * @param boolean An optional flag indicating whether the files matching the extension and the prefix should be included or excluded from the result set. Default true.
- * @param boolean An optional flag indicating whether the output should be sorted. Default false.
- * @return string maybe empty
- */
-function create_file_dropdown(
-    string $name,
-    string $dir,
-    string $value,
-    string $allowed_extensions,
-    string $optprefix = '',
-    bool   $allownone = false,
-    string $extratext = '',
-    string $fileprefix = '',
-    bool   $excludefiles = true,
-    bool   $sortresults = false) : string
+function get_secure_param() : string
 {
-    $files = [];
-    $files = get_matching_files($dir,$allowed_extensions,true,true,$fileprefix,$excludefiles);
-    if( $files === false ) return '';
-    $out = "<select name=\"{$name}\" id=\"{$name}\" {$extratext}>\n";
-    if( $allownone ) {
-        $txt = '';
-        if( empty($value) ) $txt = 'selected="selected"';
-        $out .= "<option value=\"-1\" $txt>--- ".lang('none')." ---</option>\n";
+    $out = '?';
+    if (!ini_get_boolean('session.use_cookies')) {
+        //PHP constant SID is unreliable, we recreate it
+        $out .= rawurlencode(session_name()).'='.rawurlencode(session_id()).'&amp;';
     }
-
-    if( $sortresults ) natcasesort($files);
-    foreach( $files as $file ) {
-        $txt = '';
-        $opt = $file;
-        if( !empty($optprefix) ) $opt = $optprefix.'/'.$file;
-        if( $opt == $value ) $txt = 'selected="selected"';
-        $out .= "<option value=\"{$opt}\" {$txt}>{$file}</option>\n";
-    }
-    $out .= '</select>';
+    $out .= CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
     return $out;
 }
 
 /**
- * Get page content (js, css) for initialization of and use by the configured
- * 'rich-text' (a.k.a. wysiwyg) text-editor.
- * @since 2.3
- * @param array $params  Configuration details. Recognized members are:
- *  string 'editor' name of editor to use. Default '' hence recorded preference.
- *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
- *  string 'handle' name of the js variable to be used for the created editor. Default 'editor'
- *  string 'htmlid' id of the page-element whose content is to be edited. Default 'edit_area'.
- *  string 'theme'  override for the normal editor theme/style.  Default ''
- *  string 'workid' id of a div to be created (by some editors) to process
- *    the content of the htmlid-element. (As always, avoid conflict with tab-name divs). Default 'edit_work'
+ * Return the secure params in a form-friendly format.
  *
- * @return array up to 2 members, being 'head' and/or 'foot'
+ * @internal
+ * @access private
+ * @return array
  */
-function get_richeditor_setup(array $params) : array
+function get_secure_param_array() : array
 {
-    if( AppSingle::App()->is_frontend_request() ) {
-        $val = cms_siteprefs::get('frontendwysiwyg'); //module name
+    $out = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
+    if (!ini_get_boolean('session.use_cookies')) {
+        $out[session_name()] = session_id();
     }
-    else {
-        $userid = get_userid();
-        $val = cms_userprefs::get_for_user($userid, 'wysiwyg');
-        if( !$val ) {
-            $val = cms_siteprefs::get('wysiwyg');
-        }
-    }
-    if( $val ) {
-        $vars = explode ('::', $val);
-        $modname = $vars[0] ?? '';
-        if( $modname ) {
-            $modinst = cms_utils::get_module($modname);
-            if( $modinst ) {
-                if( $modinst instanceof RichEditor ) {
-                    $edname = $params['editor'] ?? $vars[1] ?? $modname;
-                    if (empty($params['theme'])) {
-                        $val = cms_userprefs::get_for_user($userid, 'richeditor_theme');
-                        if( !$val ) {
-                            $val = cms_siteprefs::get('richeditor_theme');
-                        }
-                        if( $val ) {
-                            $params['theme'] = $val;
-                        }
-                    }
-                    return $modinst->GetEditorSetup($edname, $params);
-                }
-                elseif( $modinst->HasCapability(CmsCoreCapabilities::WYSIWYG_MODULE) ) {
-                    if( empty($params['editor']) ) { $params['editor'] = $vars[1] ?? $modname; }
-                    //$params[] will be ignored by modules without relevant capability
-                    $out = $modinst->WYSIWYGGenerateHeader($params);
-                    if( $out ) { return ['head'=>$out]; }
-                }
-            }
-        }
-    }
-    return [];
-}
-
-/**
- * Get page content (css, js) for initialization of and use by the configured
- * 'advanced' (a.k.a. syntax-highlight) text-editor. Assumes that is for admin usage only.
- * @since 2.3
- * @param array $params  Configuration details. Recognized members are:
- *  string 'editor' name of editor to use. Default '' hence recorded preference.
- *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
- *  string 'handle' name of the js variable to be used for the created editor. Default 'editor'
- *  string 'htmlclass' class of the page-element(s) whose content is to be edited.
- *   An alternative to 'htmlid' Default ''.
- *  string 'htmlid' id of the page-element whose content is to be edited.
- *    (As always, avoid conflict with tab-name divs). Default 'edit_area'.
- *  string 'workid' id of a div to be created (by some editors) to process the
- *    content of the htmlid-element if the latter is a textarea. Default 'edit_work'
- *  string 'typer'  content-type identifier, an absolute filepath or filename or
- *    at least an extension or pseudo (like 'smarty'). Default ''
- *  string 'theme' name to override the recorded theme/style for the editor. Default ''
- *
- * @return array up to 2 members, being 'head' and/or 'foot'
- */
-function get_syntaxeditor_setup(array $params) : array
-{
-    if( AppSingle::App()->is_frontend_request() ) {
-        return [];
-    }
-
-    $userid = get_userid();
-    $val = cms_userprefs::get_for_user($userid, 'syntax_editor');
-    if( !$val ) {
-        $val = cms_siteprefs::get('syntax_editor');
-    }
-    if( $val ) {
-        $vars = explode ('::', $val);
-        $modname = $vars[0] ?? '';
-        if( $modname ) {
-            $modinst = cms_utils::get_module($modname);
-            if( $modinst ) {
-                if( $modinst instanceof MultiEditor ) {
-                    $edname = $params['editor'] ?? $vars[1] ?? $modname;
-                    if (empty($params['theme'])) {
-                        $val = cms_userprefs::get_for_user($userid, 'syntax_theme');
-                        if( !$val ) {
-                            $val = cms_siteprefs::get('syntax_theme');
-                        }
-                        if( $val ) {
-                            $params['theme'] = $val;
-                        }
-                    }
-                    return $modinst->GetEditorSetup($edname, $params);
-                }
-                elseif( $modinst->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE) ) {
-                    if( empty($params['editor']) ) { $params['editor'] = $vars[1] ?? $modname; }
-                    //$params[] will be ignored by modules without relevant capability
-                    $out = $modinst->SyntaxGenerateHeader($params);
-                    if( $out ) { return ['head'=>$out]; }
-                }
-            }
-        }
-    }
-    return [];
+    return $out;
 }
 
 /**
@@ -962,8 +777,7 @@ function cms_relative_path(string $in, string $relative_to = null) : string
  */
 function cms_preferred_lang() : int
 {
-    $config = CmsApp::get_instance()->GetConfig();
-    $val = str_toupper($config['content_language']);
+    $val = str_toupper(AppSingle::Config()['content_language']);
     switch ($val) {
         case 'HTML5';
             return ENT_HTML5;
@@ -1066,15 +880,14 @@ function cms_html_entity_decode(string $val, int $param = 0, string $charset = '
  *
  * @param string $tmpfile The temporary file specification
  * @param string $destination The destination file specification
- * @return bool.
+ * @return bool
  */
 function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 {
-    $config = CmsApp::get_instance()->GetConfig();
-
-    if (!@move_uploaded_file($tmpfile, $destination)) return false;
-    @chmod($destination,octdec($config['default_upload_permission']));
-    return true;
+    if (@move_uploaded_file($tmpfile, $destination)) {
+        return @chmod($destination, octdec(AppSingle::Config()['default_upload_permission']));
+    }
+    return false;
 }
 
 /**
@@ -1098,8 +911,7 @@ function cms_to_stamp($datetime, bool $is_utc = false) : int
         }
         if (!$is_utc) {
             if ($offs === null) {
-                $config = cms_config::get_instance();
-                $dtz = new DateTimeZone($config['timezone']);
+                $dtz = new DateTimeZone(AppSingle::Config()['timezone']);
                 $offs = timezone_offset_get($dtz, $dt);
             }
         }
@@ -1325,13 +1137,12 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
         // $filename is relative, try to find it
         //TODO if relevant, support somewhere module-relative
         //TODO partial path-intersection too, any separators
-        $config = cms_config::get_instance();
         $base_path = ltrim(dirname($filename),' \\/');
         $places = [
          $base_path,
          CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'js',
          CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets',
-         $config['uploads_path'],
+         AppSingle::Config()['uploads_path'],
          CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'js',
          CMS_ROOT_PATH,
         ];
@@ -1380,13 +1191,12 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
         // $filename is relative, try to find it
         //TODO if relevant, support somewhere module-relative
         //TODO partial path-intersection too, any separators
-        $config = cms_config::get_instance();
         $base_path = ltrim(dirname($filename),' \\/');
         $places = [
          $base_path,
          CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'css',
          CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets',
-         $config['uploads_path'],
+         AppSingle::Config()['uploads_path'],
          CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'css',
          CMS_ROOT_PATH,
         ];
@@ -1405,6 +1215,221 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
 }
 
 /**
+ * A method to create a text area control
+ *
+ * @internal
+ * @access private
+ * @deprecated since 2.3 instead use CMSMS\FormUtils::create_textarea()
+ * @param boolean $enablewysiwyg Whether to apply a richtext-editor.
+ *   If false, and forcewysiwyg is not empty, then a syntax-highlight editor is applied.
+ * @param string  $value The contents of the text area
+ * @param string  $name The name of the text area
+ * @param string  $class An optional class name
+ * @param string  $id An optional ID (HTML ID) value
+ * @param string  $encoding The optional encoding
+ * @param string  $stylesheet Optional style information
+ * @param integer $width Width (the number of columns) (CSS can and will override this)
+ * @param integer $height Height (the number of rows) (CSS can and will override this)
+ * @param string  $forcewysiwyg Optional name of the richtext- or syntax-highligh-editor to use.
+ *   If empty, preferences indicate which editor to use.
+ * @param string  $wantedsyntax Optional name of the language/syntax used.
+ *   If non-empty it indicates that a syntax highlighter will be used.
+ * @param string  $addtext Optional additional text to include in the textarea tag
+ * @return string
+ */
+function create_textarea(
+    bool $enablewysiwyg,
+    string $value,
+    string $name,
+    string $class = '',
+    string $id = '',
+    string $encoding = '',
+    string $stylesheet = '',
+    int $width = 80,
+    int $height = 15,
+    string $forcewysiwyg = '',
+    string $wantedsyntax = '',
+    string $addtext = ''
+) {
+    assert(empty(CMS_DEPREC), new DeprecationNotice('method','FormUtils::create_textarea'));
+    $parms = func_get_args() + [
+        'height' => 15,
+        'width' => 80,
+    ];
+    return FormUtils::create_textarea($parms);
+}
+
+/**
+ * Create a dropdown/select html element containing a list of files that match certain conditions
+ *
+ * @internal
+ * @param string The name (and id) for the select element.
+ * @param string The directory name to search.
+ * @param string The name of the file to be selected
+ * @param string A comma separated series of file-extensions that should be displayed in the list
+ * @param string An optional string with which to prefix each value in the output. Default ''
+ * @param boolean n An optional flag indicating whether 'none' should be an allowed option. Default false.
+ * @param string An optional string containing additional parameters for the dropdown element. Default ''
+ * @param string An optional string to use as name-prefix when filtering files. Default ''
+ * @param boolean An optional flag indicating whether the files matching the extension and the prefix should be included or excluded from the result set. Default true.
+ * @param boolean An optional flag indicating whether the output should be sorted. Default false.
+ * @return string maybe empty
+ */
+function create_file_dropdown(
+    string $name,
+    string $dir,
+    string $value,
+    string $allowed_extensions,
+    string $optprefix = '',
+    bool   $allownone = false,
+    string $extratext = '',
+    string $fileprefix = '',
+    bool   $excludefiles = true,
+    bool   $sortresults = false) : string
+{
+    $files = [];
+    $files = get_matching_files($dir,$allowed_extensions,true,true,$fileprefix,$excludefiles);
+    if( $files === false ) return '';
+    $out = "<select name=\"{$name}\" id=\"{$name}\" {$extratext}>\n";
+    if( $allownone ) {
+        $txt = '';
+        if( empty($value) ) $txt = 'selected="selected"';
+        $out .= "<option value=\"-1\" $txt>--- ".lang('none')." ---</option>\n";
+    }
+
+    if( $sortresults ) natcasesort($files);
+    foreach( $files as $file ) {
+        $txt = '';
+        $opt = $file;
+        if( !empty($optprefix) ) $opt = $optprefix.'/'.$file;
+        if( $opt == $value ) $txt = 'selected="selected"';
+        $out .= "<option value=\"{$opt}\" {$txt}>{$file}</option>\n";
+    }
+    $out .= '</select>';
+    return $out;
+}
+
+/**
+ * Get page content (js, css) for initialization of and use by the configured
+ * 'rich-text' (a.k.a. wysiwyg) text-editor.
+ * @since 2.3
+ * @param array $params  Configuration details. Recognized members are:
+ *  string 'editor' name of editor to use. Default '' hence recorded preference.
+ *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
+ *  string 'handle' name of the js variable to be used for the created editor. Default 'editor'
+ *  string 'htmlid' id of the page-element whose content is to be edited. Default 'edit_area'.
+ *  string 'theme'  override for the normal editor theme/style.  Default ''
+ *  string 'workid' id of a div to be created (by some editors) to process
+ *    the content of the htmlid-element. (As always, avoid conflict with tab-name divs). Default 'edit_work'
+ *
+ * @return array up to 2 members, being 'head' and/or 'foot'
+ */
+function get_richeditor_setup(array $params) : array
+{
+    if( AppSingle::App()->is_frontend_request() ) {
+        $val = cms_siteprefs::get('frontendwysiwyg'); //module name
+    }
+    else {
+        $userid = get_userid();
+        $val = cms_userprefs::get_for_user($userid, 'wysiwyg');
+        if( !$val ) {
+            $val = cms_siteprefs::get('wysiwyg');
+        }
+    }
+    if( $val ) {
+        $vars = explode ('::', $val);
+        $modname = $vars[0] ?? '';
+        if( $modname ) {
+            $modinst = cms_utils::get_module($modname);
+            if( $modinst ) {
+                if( $modinst instanceof RichEditor ) {
+                    $edname = $params['editor'] ?? $vars[1] ?? $modname;
+                    if (empty($params['theme'])) {
+                        $val = cms_userprefs::get_for_user($userid, 'richeditor_theme');
+                        if( !$val ) {
+                            $val = cms_siteprefs::get('richeditor_theme');
+                        }
+                        if( $val ) {
+                            $params['theme'] = $val;
+                        }
+                    }
+                    return $modinst->GetEditorSetup($edname, $params);
+                }
+                elseif( $modinst->HasCapability(CmsCoreCapabilities::WYSIWYG_MODULE) ) {
+                    if( empty($params['editor']) ) { $params['editor'] = $vars[1] ?? $modname; }
+                    //$params[] will be ignored by modules without relevant capability
+                    $out = $modinst->WYSIWYGGenerateHeader($params);
+                    if( $out ) { return ['head'=>$out]; }
+                }
+            }
+        }
+    }
+    return [];
+}
+
+/**
+ * Get page content (css, js) for initialization of and use by the configured
+ * 'advanced' (a.k.a. syntax-highlight) text-editor. Assumes that is for admin usage only.
+ * @since 2.3
+ * @param array $params  Configuration details. Recognized members are:
+ *  string 'editor' name of editor to use. Default '' hence recorded preference.
+ *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
+ *  string 'handle' name of the js variable to be used for the created editor. Default 'editor'
+ *  string 'htmlclass' class of the page-element(s) whose content is to be edited.
+ *   An alternative to 'htmlid' Default ''.
+ *  string 'htmlid' id of the page-element whose content is to be edited.
+ *    (As always, avoid conflict with tab-name divs). Default 'edit_area'.
+ *  string 'workid' id of a div to be created (by some editors) to process the
+ *    content of the htmlid-element if the latter is a textarea. Default 'edit_work'
+ *  string 'typer'  content-type identifier, an absolute filepath or filename or
+ *    at least an extension or pseudo (like 'smarty'). Default ''
+ *  string 'theme' name to override the recorded theme/style for the editor. Default ''
+ *
+ * @return array up to 2 members, being 'head' and/or 'foot'
+ */
+function get_syntaxeditor_setup(array $params) : array
+{
+    if( AppSingle::App()->is_frontend_request() ) {
+        return [];
+    }
+
+    $userid = get_userid();
+    $val = cms_userprefs::get_for_user($userid, 'syntax_editor');
+    if( !$val ) {
+        $val = cms_siteprefs::get('syntax_editor');
+    }
+    if( $val ) {
+        $vars = explode ('::', $val);
+        $modname = $vars[0] ?? '';
+        if( $modname ) {
+            $modinst = cms_utils::get_module($modname);
+            if( $modinst ) {
+                if( $modinst instanceof MultiEditor ) {
+                    $edname = $params['editor'] ?? $vars[1] ?? $modname;
+                    if (empty($params['theme'])) {
+                        $val = cms_userprefs::get_for_user($userid, 'syntax_theme');
+                        if( !$val ) {
+                            $val = cms_siteprefs::get('syntax_theme');
+                        }
+                        if( $val ) {
+                            $params['theme'] = $val;
+                        }
+                    }
+                    return $modinst->GetEditorSetup($edname, $params);
+                }
+                elseif( $modinst->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE) ) {
+                    if( empty($params['editor']) ) { $params['editor'] = $vars[1] ?? $modname; }
+                    //$params[] will be ignored by modules without relevant capability
+                    $out = $modinst->SyntaxGenerateHeader($params);
+                    if( $out ) { return ['head'=>$out]; }
+                }
+            }
+        }
+    }
+    return [];
+}
+
+/**
  * Output a backtrace into the generated log file.
  *
  * @see debug_to_log, debug_bt
@@ -1412,7 +1437,8 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
  */
 function debug_bt_to_log()
 {
-    if (CmsApp::get_instance()->config['debug_to_log'] || (function_exists('get_userid') && get_userid(false))) {
+    if (AppSingle::Config()['debug_to_log'] ||
+        (function_exists('get_userid') && get_userid(false))) {
         $bt = debug_backtrace();
         $file = $bt[0]['file'];
         $line = $bt[0]['line'];
@@ -1571,8 +1597,7 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
  */
 function debug_output($var, string $title='')
 {
-    $config = cms_config::get_instance();
-    if ($config['debug']) debug_display($var, $title, true);
+    if (AppSingle::Config()['debug']) { debug_display($var, $title, true); }
 }
 
 /**
@@ -1585,8 +1610,8 @@ function debug_output($var, string $title='')
  */
 function debug_to_log($var, string $title='',string $filename = '')
 {
-    $config = cms_config::get_instance();
-    if ($config['debug_to_log'] || (function_exists('get_userid') && get_userid(false))) {
+    if (AppSingle::Config()['debug_to_log'] ||
+        (function_exists('get_userid') && get_userid(false))) {
         if ($filename == '') {
             $filename = TMP_CACHE_LOCATION . '/debug.log';
             $x = (is_file($filename)) ? @filemtime($filename) : time();
@@ -1600,7 +1625,7 @@ function debug_to_log($var, string $title='',string $filename = '')
 }
 
 /**
- * Display $var nicely to the CmsApp::get_instance()->errors array if $config['debug'] is set.
+ * Add $var to the global errors array if $config['debug'] is in effect.
  *
  * @param mixed $var
  * @param string $title
@@ -1608,6 +1633,6 @@ function debug_to_log($var, string $title='',string $filename = '')
 function debug_buffer($var, string $title='')
 {
     if (constant('CMS_DEBUG')) {
-        CmsApp::get_instance()->add_error(debug_display($var, $title, false, true));
+        AppSingle::App()->add_error(debug_display($var, $title, false, true));
     }
 }
