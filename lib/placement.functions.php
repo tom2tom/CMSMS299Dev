@@ -57,7 +57,7 @@ function add_page_content($content, &$holder, $after = true)
                 $holder[] = $txt;
             }
             else {
-                array_shift($holder, $txt);
+                array_unshift($holder, $txt);
             }
         }
     }
