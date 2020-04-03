@@ -299,7 +299,8 @@ License GPL2+
                     cur = $t.hasClass('open-sub'),
                     ul = $t.next(),
                     _p = [];
-                if (ul.is(':visible') === false) {
+                // jQuery :visible selector is unreliable
+                if (ul.length === 0 || ul.css('visibility') === 'hidden' || ul.css('display') === 'none') {
                     _p.push(obj.find('ul').slideUp(duration));
                 }
                 obj.find('.nav').removeClass('current').find('span').removeClass('open-sub');
