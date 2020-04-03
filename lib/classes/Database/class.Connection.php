@@ -519,7 +519,7 @@ class Connection
             $this->errno = 0;
             $this->error = '';
             if ($dml) {
-				//workaround inappropriate '!== false' tests
+                //workaround inappropriate '!== false' tests
                 $num = $this->_mysql->affected_rows;
                 return ($num > 0) ? $num : false; // TODO also cheap atomic ->insert_id for inserts
             } elseif (is_bool($result)) {
@@ -538,16 +538,31 @@ class Connection
     /**
      * @internal
      * no error checking
-     * no return data
+     * @return array of individual statements' results
      */
     protected function do_multisql($sql)
     {
         if ($this->_mysql->multi_query($sql)) {
+            $result = [];
             do {
-                $res = $this->_mysql->store_result();
+                $result[] = $this->_mysql->store_result(); //maybe bad, no actual data
             } while ($this->_mysql->more_results() && $this->_mysql->next_result());
+            return $result;
         }
     }
+
+    /**
+     * Parse and execute multiple ';'-joined parameterized or plain SQL statements or queries.
+     */
+    public function multi_execute($sql, $valsarr = null)
+    {
+        if ($valsarr) {
+            //TODO parse into $this->do_multisql($sql) etc
+        } else {
+            $result = $this->do_multisql($sql);
+            //TODO deal with results
+        }
+    } 
 
     /**
      * Prepare (compile) @sql for parameterized and/or repeated execution.
