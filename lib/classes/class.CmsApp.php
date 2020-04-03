@@ -1,6 +1,6 @@
 <?php
 #Singleton class for accessing intra-request system properties
-#Copyright (C) 2010-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,27 +18,27 @@
 
 /* for future use
 namespace CMSMS {
-final class AppData
+
+final class App
 */
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\AutoCookieOperations;
 use CMSMS\BookmarkOperations;
 use CMSMS\ContentOperations;
 use CMSMS\contenttypes\ErrorPage;
 use CMSMS\Database\Connection;
 use CMSMS\GroupOperations;
-use CMSMS\internal\SysDataCache;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 use CMSMS\ScriptOperations;
+use CMSMS\SimpleTagOperations;
 use CMSMS\StylesOperations;
 use CMSMS\UserOperations;
-//use CMSMS\UserPluginOperations;
-use CMSMS\UserTagOperations;
 
 /**
- * Singleton class that contains various functions and properties representing
- * the application.
+ * Singleton class for accessing intra-request system properties and classes.
  *
  * @final
  * @package CMS
@@ -49,35 +49,36 @@ final class CmsApp
 {
     /**
      * A bitflag constant indicating that the request is for a page in the CMSMS admin console
-     * @deprecated since 2.3 use AppState::STATE_ADMIN_PAGE
+     * @deprecated since 2.9 use AppState::STATE_ADMIN_PAGE
      */
     const STATE_ADMIN_PAGE = 2;
 
     /**
      * A bitflag constant indicating that the request is for an admin login
-     * @deprecated since 2.3 use AppState::STATE_LOGIN_PAGE
+     * @deprecated since 2.9 use AppState::STATE_LOGIN_PAGE
      */
     const STATE_LOGIN_PAGE = 4;
 
     /**
      * A bitflag constant indicating that the request is taking place during the installation process
-     * @deprecated since 2.3 use AppState::STATE_INSTALL
+     * @deprecated since 2.9 use AppState::STATE_INSTALL
      */
     const STATE_INSTALL = 0x80;
 
     /**
      * A bitflag constant indicating that the request is for a stylesheet
-     * @deprecated since 2.3 use AppState::STATE_STYLESHEET
+     * @deprecated since 2.9 use AppState::STATE_STYLESHEET
      */
     const STATE_STYLESHEET = 0x100;
 
     /**
      * A bitflag constant indicating that we are currently parsing page templates
-     * @deprecated since 2.3 use AppState::STATE_PARSE_TEMPLATE
+     * @deprecated since 2.9 use AppState::STATE_PARSE_TEMPLATE
      */
     const STATE_PARSE_TEMPLATE = 0x200;
 
     /**
+     * @var object Singleton instance of this class
      * @ignore
      */
     private static $_instance = null;
@@ -109,31 +110,17 @@ final class CmsApp
     private $smarty = null;
 
     /**
-     * cms_content_tree object with nested descendent-objects
+     * @var cms_content_tree object, with nested descendent-objects
      * @ignore
      */
     private $hrinstance = null;
 
     /**
-     * @ignore
-     */
-    private $scriptsmerger = null;
-
-    /**
-     * @ignore
-     */
-    private $stylesmerger = null;
-
-    /**
+     * @var singleton module-object
      * @ignore
      * This cache must be set externally, after autoloading is available
      */
     public $jobmgrinstance = null;
-
-    /**
-     * @ignore
-     */
-    private $cookiemgr = null;
 
     /**
      * Cache for other properties
@@ -143,16 +130,19 @@ final class CmsApp
     private $data = [];
 
     /**
-     * Error-messages array - So functions/modules can store up debug info and spit it all out at once
+     * @var array Error-messages
+     * So functions/modules can store up debug info and spit it all out at once
      * @ignore
      */
     private $errors = [];
 
     /**
-     * Callables array - methods to be called during shutdown
+     * @var array Callables methods to be called during shutdown
      * @ignore
      */
     private $shutfuncs = [];
+
+    //TODO another batch of callables for end-of-session cleanup, cached in $_SESSION etc
 
     /**
      * @ignore
@@ -193,13 +183,29 @@ final class CmsApp
     }
 
     /**
-     * Retrieve the single app instance.
+     * Retrieve the singleton instance of another class.
+     * @ignore
+     * @throws RuntimeException if $name is not recognized
+     */
+    public function __call(string $name, $args)
+    {
+        return AppSingle::$name(...$args);
+    }
+
+    /**
+     * Retrieve the singleton instance of this class.
+     * This method is used during request-setup, when caching via the
+     * AppSingle class might not yet be possible. Later, use
+     * CMSMS\AppSingle::[Cms]App() instead of this method, to get the
+     * (same) singleton.
      *
      * @since 1.10
      */
     public static function get_instance() : self
     {
-        if( !self::$_instance  ) self::$_instance = new self();
+        if( !self::$_instance ) {
+            self::$_instance = new self();
+        }
         return self::$_instance;
     }
 
@@ -338,6 +344,18 @@ final class CmsApp
     }
 
     /**
+    * Get a handle to the module operations instance.
+    * @see ModuleOperations
+    * @since 2.9 CMSMS\AppSingle::ModuleOperations() may be used instead
+    *
+    * @return ModuleOperations handle to the ModuleOperations object
+    */
+    public function GetModuleOperations() : ModuleOperations
+    {
+        return AppSingle::ModuleOperations();
+    }
+
+    /**
      * Get a list of all installed and available modules
      *
      * This method will return an array of module names that are installed, loaded and ready for use.
@@ -349,25 +367,27 @@ final class CmsApp
      */
     public function GetAvailableModules()
     {
-        return ModuleOperations::get_instance()->get_available_modules();
+        $obj = $this->GetModuleOperations();
+        return $obj->get_available_modules();
     }
 
     /**
-     * Get a reference to an installed module instance.
+     * Get an installed-module instance.
      *
-     * This method will return a reference to the module object specified if it is installed, and available.
-     * Optionally, a version check can be performed to test if the version of the requeted module matches
-     * that specified.
+     * This method will return an instance of the specified module class, if it
+     * is installed and available. Optionally, a check can be performed to test
+     * whether the version of the requested module matches the one specified.
      *
      * @since 1.9
      * @param string $module_name The module name.
      * @param mixed  $version (optional) string|float version number for a check. Default ''
-     * @return mixed CMSModule Reference to the module object, or null.
+     * @return mixed CMSModule sub-class object | null.
      * @deprecated
      */
     public function GetModuleInstance(string $module_name,$version = '')
     {
-        return ModuleOperations::get_instance()->get_module_instance($module_name,$version);
+        $obj = $this->GetModuleOperations();
+        return $obj->get_module_instance($module_name,$version);
     }
 
     /**
@@ -391,16 +411,16 @@ final class CmsApp
     {
         if (isset($this->db)) return $this->db;
 
-        $config = cms_config::get_instance();
+        $config = AppSingle::Config();
         $this->db = new Connection($config);
-        //deprecated since 2.3 at most: make old stuff available
+        //deprecated since 2.3 (at most): make old stuff available
         require_once cms_join_path(__DIR__, 'Database', 'class.compatibility.php');
         return $this->db;
     }
 
     /**
      * Get the database prefix.
-     * @deprecated since 2.3 Instead, use const CMS_DB_PREFIX
+     * @deprecated since 2.3 Instead, use constant CMS_DB_PREFIX
      *
      * @return string
      */
@@ -411,98 +431,89 @@ final class CmsApp
     }
 
     /**
-    * Get a handle to the global CMS config.
+    * Get a handle to the CMS config instance.
     * That object contains global paths and settings that do not belong in the database.
     * @see cms_config
     *
-    * @return cms_config The configuration object.
+    * @return cms_config The configuration object
     */
     public function GetConfig() : cms_config
     {
-        return cms_config::get_instance();
+        return AppSingle::Config();
     }
 
     /**
-    * Get a handle to the module operations instance.
-    * If it does not yet exist, this method will instantiate it.
-    * @see ModuleOperations
-    *
-    * @return ModuleOperations handle to the ModuleOperations object
-    */
-    public function GetModuleOperations() : ModuleOperations
-    {
-        return ModuleOperations::get_instance();
-    }
-
-    /**
-    * Get a handle to the user operations object.
+    * Get a handle to the user operations instance.
     * @see UserOperations
+    * @since 2.9 CMSMS\AppSingle::UserOperations() may be used instead
     *
     * @return UserOperations handle to the UserOperations object
     */
     public function GetUserOperations() : UserOperations
     {
-        return UserOperations::get_instance();
+        return AppSingle::UserOperations();
     }
 
     /**
-    * Get a handle to the content operations object.
+    * Get a handle to the content operations instance.
     * @see ContentOperations
+    * @since 2.9 CMSMS\AppSingle::ContentOperations() may be used instead
     *
     * @return ContentOperations handle to the ContentOperations object
     */
     public function GetContentOperations() : ContentOperations
     {
-        return ContentOperations::get_instance();
+        return AppSingle::ContentOperations();
     }
 
     /**
-    * Get a handle to the bookmark operations object.
+    * Get a bookmark-operations instance.
     * @see BookmarkOperations
-    * @deprecated since 2.3 get the object directly
     *
-    * @return BookmarkOperations handle to the BookmarkOperations object, useful only in the admin
+    * @return BookmarkOperations
     */
     public function GetBookmarkOperations() : BookmarkOperations
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('class','CMSMS\\BookmarkOperations'));
         return new BookmarkOperations();
     }
 
     /**
-    * Get a handle to the group operations object.
+    * Get a handle to the group operations instance.
     * @see GroupOperations
+    * @since 2.9 CMSMS\AppSingle::GroupOperations() may be used instead
     *
     * @return GroupOperations handle to the GroupOperations instance
     */
     public function GetGroupOperations() : GroupOperations
     {
-        return GroupOperations::get_instance();
+        return AppSingle::GroupOperations();
     }
 
     /**
-     * Get a handle to the user-plugin operations object, for interacting with UDT-files.
-     * @since 2.3 NOT IMPLEMENTED
-     * @see UserPluginOperations
+     * Get a handle to the simple-plugin operations instance, for interacting with UDT-files.
+     * @since 2.3
+     * @deprecated since 2.9 The SimpleTagOperations class extends the former
+     *  UserTagOperations class to also support file-stored UDT's
+     * @see SimpleTagOperations
      *
-     * @return UserPluginOperations
+    * @return the SimpleTagOperations singleton
      */
-    public function GetUserPluginOperations() //: UserPluginOperations
+    public function GetSimplePluginOperations() //: SimpleTagOperations
     {
-//        return UserPluginOperations::get_instance();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','GetSimpleTagOperations'));
+        return AppSingle::SimpleTagOperations(); //UDTfiles
     }
 
-	/**
-    * Get a handle to the UDT operations object (which is for back-compatibility only).
-    * @see UserTagOperations
-    * NO since 2.3 UserTagOperations has been superseded by UserPluginOperations
+    /**
+    * Get a handle to the simple-plugin operations instance
+    * @see SimpleTagOperations
+    * @since 2.9 CMSMS\AppSingle::SimpleTagOperations() may be used instead
     *
-    * @return UserTagOperations handle to the UserTagOperations object
+    * @return the SimpleTagOperations singleton
     */
-    public function GetUserTagOperations() : UserTagOperations
+    public function GetSimpleTagOperations() : SimpleTagOperations
     {
-//        assert(empty(CMS_DEPREC), new DeprecationNotice('class','CMSMS\\UserPluginOperations'));
-        return UserTagOperations::get_instance();
+        return AppSingle::SimpleTagOperations();
     }
 
     /**
@@ -514,7 +525,7 @@ final class CmsApp
     */
     public function GetSmarty()
     {
-        if( !AppState::test_state(CMSMS\AppState::STATE_INSTALL) ) {
+        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
             // we don't load the main Smarty class during installation
             if( is_null($this->smarty) ) {
                 $this->smarty = new Smarty();
@@ -532,49 +543,53 @@ final class CmsApp
     public function GetHierarchyManager()
     {
         if( is_null($this->_hrinstance) ) {
-            $this->_hrinstance = SysDataCache::get('content_tree');
+            $this->_hrinstance = AppSingle::SysDataCache()->get('content_tree');
         }
         return $this->_hrinstance;
     }
 
     /**
-     * Get a handle to the scripts combiner
+     * Get a scripts-combiner instance.
      * @since 2.3
+     *
+     * @return ScriptOperations
      */
     public function GetScriptManager() : ScriptOperations
     {
-        if( is_null($this->scriptsmerger) ) $this->scriptsmerger = new ScriptOperations();
-        return $this->scriptsmerger;
+        return new ScriptOperations();
     }
 
     /**
-     * Get a handle to the styles combiner
+     * Get a styles-combiner instance.
      * @since 2.3
+     *
+     * @return StylesOperations
      */
     public function GetStylesManager() : StylesOperations
     {
-        if( is_null($this->stylesmerger) ) $this->stylesmerger = new StylesOperations();
-        return $this->stylesmerger;
+        return new StylesOperations();
     }
 
     /**
      * Get the async-jobs manager module
      * @since 2.3
+     *
      * @return mixed CMSModule object|null
      */
     public function GetJobManager()
     {
-        return $this->jobmgrinstance;
+        return $this->jobmgrinstance;// not a system-class singleton
     }
 
     /**
-     * Get a handle to the cookie manager
+     * Get a cookie-manager instance
      * @since 2.3
+     *
+     * @return AutoCookieOperations
      */
-    public function GetCookieManager() : CookieManager
+    public function GetCookieManager() : AutoCookieOperations
     {
-        if( !$this->cookiemgr ) $this->cookiemgr = new AutoCookieOperations($this);
-        return $this->cookiemgr;
+        return new AutoCookieOperations($this);
     }
 
     /**
@@ -589,7 +604,7 @@ final class CmsApp
         if( !$val ) {
             $val = cms_utils::random_string(32);
             cms_siteprefs::set('site_uuid', $val);
-            SysDataCache::release('site_preferences');
+            AppSingle::SysDataCache()->release('site_preferences');
         }
         return $val;
     }
@@ -598,7 +613,7 @@ final class CmsApp
      * Shutdown-function: process all recorded methods
      * @ignore
      * @internal
-     * @since 2.3
+     * @since 2.9
      * @todo export this to elsewhere
      */
     public function run_shutters()
@@ -616,7 +631,7 @@ final class CmsApp
 
     /**
      * Queue a shutdown-function
-     * @since 2.3
+     * @since 2.9
      * @param int $priority 1(high)..big int(low). Default 1.
      * @param callable $func
      * @param(s) variable no. of arguments to supply to $func
@@ -640,17 +655,17 @@ final class CmsApp
         $this->db = null; //no restarting during shutdown
     }
 
-    /**
+    /* TODO
      * End-of-session-function: process all recorded methods
+     * Maybe elsewhere
      * @ignore
      * @internal
-     * @since 2.3
-     * @todo export this to elsewhere
+     * @since 2.9
      */
 
     /**
      * Remove files from the website file-cache directories.
-     * @deprecated since 2.3 Now does nothing.
+     * @deprecated since 2.9 Now does nothing.
      * This functionality has been relocated, and surrounded with
      * appropriate security.
      *
@@ -660,27 +675,27 @@ final class CmsApp
      */
     public function clear_cached_files(int $age_days = 0)
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('Method does nothing'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('Method '.__METHOD__.' does nothing'));
     }
 
     /**
      * Get a list of all current states.
      *
      * @since 1.11.2
-     * @deprecated since 2.3 instead use CMSMS\AppState::get_states()
+     * @deprecated since 2.9 instead use CMSMS\AppState::get_states()
      * @author Robert Campbell
      * @return array  State constants (int's)
      */
     public function get_states() : array
     {
-//        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::get_states'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::get_states'));
         return AppState::get_states();
     }
 
     /**
      * Report whether the specified state matches the current application state.
      * @since 1.11.2
-     * @deprecated since 2.3 instead use CMSMS\AppState::test_state()
+     * @deprecated since 2.9 instead use CMSMS\AppState::test_state()
      * @author Robert Campbell
      *
      * @param mixed $state int | deprecated string State identifier, a class constant
@@ -689,7 +704,7 @@ final class CmsApp
      */
     public function test_state($state) : bool
     {
-//        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::test_state'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::test_state'));
         return AppState::test_state($state);
     }
 
@@ -699,14 +714,14 @@ final class CmsApp
      * @ignore
      * @internal
      * @since 1.11.2
-     * @deprecated since 2.3 instead use CMSMS\AppState::add_state()
+     * @deprecated since 2.9 instead use CMSMS\AppState::add_state()
      * @author Robert Campbell
      * @param mixed $state int | deprecated string The state, a class constant
      * @throws CmsInvalidDataException if an invalid state is provided.
      */
     public function add_state($state)
     {
-//        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::add_state'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::add_state'));
         AppState::add_state($state);
     }
 
@@ -716,7 +731,7 @@ final class CmsApp
      * @ignore
      * @internal
      * @since 1.11.2
-     * @deprecated since 2.3 instead use CMSMS\AppState::remove_state()
+     * @deprecated since 2.9 instead use CMSMS\AppState::remove_state()
      * @author Robert Campbell
      *
      * @param mixed $state int | deprecated string The state, a class constant
@@ -725,7 +740,7 @@ final class CmsApp
      */
     public function remove_state($state) : bool
     {
-//        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::remove_state'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::remove_state'));
         AppState::remove_state($state);
     }
 
@@ -769,8 +784,10 @@ final class CmsApp
 
 //namespace {
 
+//use CMSMS\AppSingle;
+
 /**
- * Return the global CmsApp object.
+ * Return the CmsApp singleton object.
  *
  * @since 1.7
  * @return CmsApp
@@ -778,7 +795,7 @@ final class CmsApp
  */
 function cmsms() : CmsApp
 {
-    return CmsApp::get_instance();
+    return AppSingle::App();
 }
 
 //} //namespace
