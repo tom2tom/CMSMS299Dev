@@ -281,7 +281,7 @@ smarty cache lifetime != global cache ttl, probably
             return false;
         }
 
-        //Deprecated pre-2.9 approach: plugins never cachable
+        //Deprecated pre-2.9 approach - non-system plugins were never cachable
         //In future, allow caching and expect users to override that in templates where needed
         //Otherwise, module-plugin cachability is opaque to page-builders
         if( CmsApp::get_instance()->is_frontend_request() ) {
@@ -289,20 +289,20 @@ smarty cache lifetime != global cache ttl, probably
             $row = ModulePluginOperations::load_plugin($name,$type);
             if( $row && is_callable($row['callback']) ) {
                 $callback = $row['callback'];
-                if (0) {
+//                if (0) {
                     $val = cms_siteprefs::get('smarty_cachemodules', !empty($row['cachable']));
                     $cachable = (bool)$val;
-                }
+//                }
                 return true;
             }
 
             // check if it's a simple-plugin
             $callback = SimpleTagOperations::get_instance()->CreateTagFunction($name);
             if( $callback ) {
-                if (0) {
+//                if (0) {
                     $val = cms_siteprefs::get('smarty_cachesimples', false);
                     $cachable = (bool)$val;
-                }
+//                }
                 return true;
             }
         }
