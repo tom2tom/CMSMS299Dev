@@ -799,13 +799,13 @@ static $defenc = '';
  * @see htmlentities
  *
  * @param mixed  $val     The input string, or maybe null
- * @param int    $param   Optional flag(s) indicating how htmlentities() should handle quotes etc. Default 0, hence ENT_QUOTES | cms_preferred_lang().
+ * @param int    $flags   Optional bit-flag(s) indicating how htmlentities() should handle quotes etc. Default 0, hence ENT_QUOTES | cms_preferred_lang().
  * @param string $charset Optional character set of $val. Default 'UTF-8'. If empty the system setting will be used.
  * @param bool   $convert_single_quotes Optional flag indicating whether single quotes should be converted to entities. Default false.
  *
  * @return string the converted string
  */
-function cms_htmlentities($val, int $param = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
+function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
 {
     if ($val === '' || $val === null) {
         return '';
@@ -813,17 +813,17 @@ function cms_htmlentities($val, int $param = 0, string $charset = 'UTF-8', bool 
 
     global $deflang, $defenc;
 
-    if ($param === 0) {
-        $param = ($convert_single_quotes) ? ENT_QUOTES : ENT_COMPAT;
+    if ($flags === 0) {
+        $flags = ($convert_single_quotes) ? ENT_QUOTES : ENT_COMPAT;
     }
-    if ($param & (ENT_HTML5 | ENT_XHTML | ENT_HTML401) == 0) {
+    if ($flags & (ENT_HTML5 | ENT_XHTML | ENT_HTML401) == 0) {
         if ($deflang === 0) {
             $deflang = cms_preferred_lang();
         }
-        $param |= $deflang;
+        $flags |= $deflang;
     }
     if ($convert_single_quotes) {
-        $param &= ~(ENT_COMPAT | ENT_NOQUOTES);
+        $flags &= ~(ENT_COMPAT | ENT_NOQUOTES);
     }
 
     if (!$charset) {
@@ -832,7 +832,7 @@ function cms_htmlentities($val, int $param = 0, string $charset = 'UTF-8', bool 
         }
         $charset = $defenc;
     }
-    return htmlentities($val, $param, $charset, false);
+    return htmlentities($val, $flags, $charset, false);
 }
 
 /**
