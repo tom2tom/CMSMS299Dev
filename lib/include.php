@@ -53,25 +53,25 @@ if (!$installing && (!is_file(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCA
     die('FATAL ERROR: config.php file not found or invalid');
 }
 
+require_once $dirpath.'misc.functions.php'; // system-independent methods
 require_once $dirpath.'version.php'; // some defines
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php'; // used in defines setup
-require_once $dirpath.'misc.functions.php'; // some used in defines
-require_once $dirpath.'defines.php'; // populate relevant defines (uses cms_config::instance)
+require_once $dirpath.'defines.php'; // populate relevant defines (uses cms_config instance)
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php'; // used in autoloader
-require_once $dirpath.'module.functions.php'; // some used in autoloader
-require_once $dirpath.'autoloader.php';
+require_once $dirpath.'module.functions.php'; // used in autoloader
+require_once $dirpath.'autoloader.php';  //uses defines, modulefuncs and (for module-class loads) CmsApp::get_instance()
 require_once $dirpath.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; // Composer's autoloader makes light work of 'foreign' classes
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppSingle.php'; // uses cms_autoloader()
-require_once $dirpath.'compat.functions.php';
-require_once $dirpath.'page.functions.php';
-require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; // might be needed, save autoloading
 // begin to populate the singletons cache
 $_app = CmsApp::get_instance(); // for use in this file, not inclusions
 AppSingle::set('CmsApp', $_app); // cache this singleton like all others
 AppSingle::set('App', $_app); // an alias
-$config = cms_config::get_instance(); // already used in some inclusions above
-AppSingle::set('cms_config', $config); // now we can cache this singleton
+$config = cms_config::get_instance(); // this object previously used in defines-processing above
+AppSingle::set('cms_config', $config); // now we can cache it with other singletons
 AppSingle::set('Config', $config); // and an alias
+require_once $dirpath.'page.functions.php'; // system-dependent methods
+require_once $dirpath.'compat.functions.php';
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; // might be needed, save autoloading
 
 if (isset($_REQUEST[CMS_JOB_KEY])) {
     // since 2.3 value 0|1|2 indicates the type of request, hence appropriate inclusions
