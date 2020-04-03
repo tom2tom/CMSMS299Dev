@@ -16,12 +16,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminTheme;
 use CMSMS\AdminUtils;
 use CMSMS\AppState;
+//use CMSMS\SysDataCache;
 use CMSMS\ContentOperations;
 use CMSMS\ModuleOperations;
 //use CMSMS\MultiEditor;
-use CMSMS\ThemeBase;
 use CMSMS\UserOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
@@ -117,7 +118,7 @@ if (isset($_POST['submit'])) {
     audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
     $themeObject->RecordNotice('success', lang('prefsupdated'));
 //    AdminUtils::clear_cached_files();
-//    SysDataCache::release('IF ANY');
+//    SysDataCache::get_instance()->release('IF ANY');
 
     if ($themenow != $admintheme) {
         redirect(basename(__FILE__).$urlext);
@@ -127,7 +128,7 @@ if (isset($_POST['submit'])) {
 /*
  * Get current preferences
  */
-$admintheme = cms_userprefs::get_for_user($userid, 'admintheme', ThemeBase::GetDefaultTheme());
+$admintheme = cms_userprefs::get_for_user($userid, 'admintheme', AdminTheme::GetDefaultTheme());
 $bookmarks = cms_userprefs::get_for_user($userid, 'bookmarks', 0);
 $ce_navdisplay = cms_userprefs::get_for_user($userid,'ce_navdisplay');
 $date_format_string = cms_userprefs::get_for_user($userid, 'date_format_string', '%x %X');
@@ -148,6 +149,18 @@ $wysiwygtype = cms_userprefs::get_for_user($userid, 'wysiwyg_type');
 $wysiwyg = $wysiwygmodule;
 if ($wysiwygtype) { $wysiwyg .= '::'.$wysiwygtype; }
 $wysiwygtheme = cms_userprefs::get_for_user($userid, 'wysiwyg_theme');
+
+/*
+ * TODO	run a hooklist to retrieve user-settings derived from modules etc
+ * a module capability for this (in case not currently loaded)
+ * collect:
+ * prefgroup name | default = ?
+ * prefgroup order | default as-reported
+ * prefname
+ * publictitle
+ * publichelp
+ * validation stuff
+ */
 
 /*
  * Build page
@@ -265,7 +278,7 @@ $theme = cms_utils::get_theme_object();
 $smarty->assign('helpicon', $theme->DisplayImage('icons/system/info.png', 'help','','','cms_helpicon'));
 
 // Admin themes
-$tmp = ThemeBase::GetAvailableThemes();
+$tmp = AdminTheme::GetAvailableThemes();
 if (count($tmp) < 2) {
     $tmp = null;
 }
