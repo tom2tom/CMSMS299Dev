@@ -37,7 +37,7 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     $tagname = cleanValue($_POST['tagname']);
     $oldname = cleanValue($_POST['oldname']);
     $ops = SimpleTagOperations::get_instance();
-//? $ops->DoEvent( add | edit udtpre  etc)
+//if exists $ops->DoEvent( add | edit simplepluginpre  etc)
     //these $_POST variables are sanitized downstream, before use
     $props = [
         'id' => (int)$_POST['id'],
@@ -47,24 +47,24 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
         'description' => $_POST['description'] ?? null,
         'parameters' => $_POST['parameters'] ?? null,
         'license' => $_POST['license'] ?? null,
-		'detail' => 1 // return spcific error message
+        'detail' => 1 // specific message upon error
     ];
-	$res = $ops->SetSimpleTag($tagname, $props);
-	if ($res[0]) {
-//?     $ops->DoEvent(:: add | edit udtpost etc)
+    $res = $ops->SetSimpleTag($tagname, $props);
+    if ($res[0]) {
+//if exists $ops->DoEvent( add | edit simplepluginpost etc)
     } else {
         $msg = $res[1];
-		if ($msg) {
-			if (strpos(' ', $msg) === false) $msg = lang($msg);
-		} else {
-			$msg = ($oldname == '') ? lang('errorinserting_utd') : lang('errorupdating_udt');
-		}
+        if ($msg) {
+            if (strpos(' ', $msg) === false) $msg = lang($msg);
+        } else {
+            $msg = ($oldname == '') ? lang('error_splg_save') : lang('error_splg_update');
+        }
         $themeObject->RecordNotice('error', $msg);
         $err = true;
     }
 
     if (isset($_POST['submit']) && !$err) {
-        $msg = ($oldname == '-1') ? lang('added_udt') : lang('udt_updated');
+        $msg = ($oldname == '-1') ? lang('added_splg') : lang('updated_splg');
         $themeObject->ParkNotice('success', $msg);
         redirect('listsimpletags.php'.$urlext);
     }
@@ -104,15 +104,15 @@ if (!empty($pageincs['head'])) {
 $js = $pageincs['foot'] ?? '';
 
 if ($edit) {
-    $s1 = json_encode(lang('error_udt_name_chars'));
-    $s2 = json_encode(lang('noudtcode'));
+    $s1 = json_encode(lang('error_splg_name'));
+    $s2 = json_encode(lang('error_splg_nocode'));
     $js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
  $('#userplugin button[name="submit"], #userplugin button[name="apply"]').on('click', function(ev) {
   var v = $('#name').val();
-  if (v === '' || !v.match(/^[a-zA-Z_][0-9a-zA-Z_]*$/)) {
+  if (v === '' || !v.match(/^[a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*$/)) {
    ev.preventDefault();
    cms_notify('error', $s1);
    return false;

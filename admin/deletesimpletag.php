@@ -35,12 +35,12 @@ $themeObject = cms_utils::get_theme_object();
 $tagname = cleanValue($_GET['name']); //CHECKME ok if name has non-ASCII chars?
 $ops = SimpleTagOperations::get_instance();
 if ($ops->SimpleTagExists($tagname)) {  // UDTfiles included
-//? $ops->DoEvent( deleteudtpre etc);
+//if exists $ops->DoEvent( deletesimplepluginpre etc);
     if ($ops->RemoveSimpleTag($tagname)) {
-        $themeObject->ParkNotice('success', lang('deleted_udt'));
-//?     $ops->DoEvent( deleteudtpost etc);
+        $themeObject->ParkNotice('success', lang('deleted_splg'));
+//     $ops->DoEvent( deletesimplepluginpost etc);
     } else {
-        $themeObject->ParkNotice('error', lang('errordeletag'));
+        $themeObject->ParkNotice('error', lang('error_splg_del'));
     }
 } else {
     $themeObject->ParkNotice('error', lang('error_internal'));
