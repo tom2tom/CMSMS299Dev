@@ -100,7 +100,7 @@ function getParms(tagname) {
 EOS;
     }
     if ($pmod) {
-        $confirm = json_encode(lang('confirm_delete_udt'));
+        $confirm = json_encode(lang('confirm_delete_splg'));
         $out .= <<<EOS
 function doDelete(tagname) {
  cms_confirm($confirm).done(function() {
