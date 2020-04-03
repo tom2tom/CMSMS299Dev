@@ -18,7 +18,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('sitename')}<label for="sitename">{$t}:</label>
-      {cms_help key2='siteprefs_sitelogo' title=$t}
+      {cms_help key2='settings_sitelogo' title=$t}
     </p>
     <p class="pageinput">
       <input type="text" id="sitename" class="pagesmalltextarea" name="sitename" size="30" value="{$sitename}" />
@@ -27,7 +27,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('sitelogo')}<label for="sitelogo">{$t}:</label>
-      {cms_help key2='siteprefs_sitelogo' title=$t}
+      {cms_help key2='settings_sitelogo' title=$t}
     </p>
     <p class="pageinput">
       {$logoselect}
@@ -36,7 +36,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('frontendlang')}<label for="frontendlang">{$t}:</label>
-      {cms_help key2='siteprefs_frontendlang' title=$t}
+      {cms_help key2='settings_frontendlang' title=$t}
     </p>
     <p class="pageinput">
       <select id="frontendlang" name="frontendlang" style="vertical-align: middle;">
@@ -47,7 +47,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('globalmetadata')}<label for="globalmetadata">{$t}:</label>
-      {cms_help key2='siteprefs_globalmetadata' title=$t}
+      {cms_help key2='settings_globalmetadata' title=$t}
     </p>
     <p class="pageinput"><textarea id="globalmetadata" class="pagesmalltextarea" name="metadata" cols="80" rows="20">{$metadata}</textarea></p>
   </div>
@@ -55,7 +55,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('master_admintheme')}<label for="logintheme">{$t}:</label>
-      {cms_help key2='siteprefs_logintheme' title=$t}
+      {cms_help key2='settings_logintheme' title=$t}
     </p>
     <p class="pageinput">
       <select id="logintheme" name="logintheme">
@@ -81,7 +81,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('date_format_string')}<label for="defaultdateformat">{$t}:</label>
-      {cms_help key2='siteprefs_dateformat' title=$t}
+      {cms_help key2='settings_dateformat' title=$t}
     </p>
     <p class="pageinput">
       <input class="pagenb" id="defaultdateformat" type="text" name="defaultdateformat" size="20" maxlength="255" value="{$defaultdateformat}" />
@@ -90,7 +90,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
        {$t=lang('thumbnail_width')}<label for="thumbnail_width">{$t}:</label>
-       {cms_help key2='siteprefs_thumbwidth' title=$t}
+       {cms_help key2='settings_thumbwidth' title=$t}
    </p>
     <p class="pageinput">
       <input class="pagenb" id="thumbnail_width" type="text" name="thumbnail_width" size="3" maxlength="3" value="{$thumbnail_width}" />
@@ -99,7 +99,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('thumbnail_height')}<label for="thumbnail_height">{$t}:</label>
-      {cms_help key2='siteprefs_thumbheight' title=$t}
+      {cms_help key2='settings_thumbheight' title=$t}
     </p>
     <p class="pageinput">
       <input id="thumbnail_height" class="pagenb" type="text" name="thumbnail_height" size="3" maxlength="3" value="{$thumbnail_height}" />
@@ -109,7 +109,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
         {$t=lang('backendwysiwyg')}<label>{$t}:</label>
-        {cms_help key2='siteprefs_backendwysiwyg' title=$t}
+        {cms_help key2='settings_backendwysiwyg' title=$t}
       </p>
       {$t=lang('about')}
       {foreach $wysiwyg_opts as $i=>$one}
@@ -121,7 +121,7 @@
       {/foreach}
       <p class="pagetext">
         {$t=lang('wysiwyg_deftheme')}<label for="wysiwygtheme">{$t}:</label>
-        {cms_help key2='siteprefs_wysiwygtheme' title=$t}
+        {cms_help key2='settings_wysiwygtheme' title=$t}
       </p>
       <p class="pageinput">
         <input id="wysiwygtheme" type="text" name="wysiwygtheme" size="30" value="{$wysiwygtheme}" maxlength="40" />
@@ -131,7 +131,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('frontendwysiwyg')}<label for="frontendwysiwyg">{$t}:</label>
-      {cms_help key2='siteprefs_frontendwysiwyg' title=$t}
+      {cms_help key2='settings_frontendwysiwyg' title=$t}
     </p>
     <p class="pageinput">
       <select id="frontendwysiwyg" name="frontendwysiwyg">
@@ -583,6 +583,24 @@
         <input type="text" id="cache_life" name="smarty_cachelife" value="{$smarty_cachelife}" size="6" maxlength="6" />
       </p>
       <p class="pagetext">
+        {$t=lang('smarty_cachemodules')}<label for="cachemodules">{$t}:</label>
+        {cms_help key2='settings_smarty_cachemodules' title=$t}
+      </p>
+      <p class="pageinput">
+      {foreach $smarty_cachemodules as $i=>$one}
+        <input type="radio" name="smarty_cachemodules" id="smc{$i}" value="{$one->value}"{if !empty($one->checked)} checked="checked"{/if}>
+        <label for="smc{$i}">{$one->label}</label><br />
+      {/foreach}
+      </p>
+      <p class="pagetext">
+        {$t=lang('smarty_cachesimples')}<label for="cachesimples">{$t}:</label>
+        {cms_help key2='settings_smarty_cachesimples' title=$t}
+      </p>
+      <input type="hidden" name="smarty_cachesimples" value="0" />
+      <p class="pageinput">
+        <input type="checkbox" name="smarty_cachesimples" id="cachesimples" value="1"{if $smarty_cachesimples} checked="checked"{/if} />
+      </p>
+      <p class="pagetext">
         {$t=lang('smarty_compilecheck')}<label for="compilecheck">{$t}:</label>
         {cms_help key2='settings_smartycompilecheck' title=$t}
       </p>
@@ -644,7 +662,7 @@
       {/foreach}
       <p class="pagetext">
         {$t=lang('syntax_editor_deftheme')}<label for="syntaxtheme">{$t}:</label>
-        {cms_help key2='siteprefs_syntaxtheme' title=$t}
+        {cms_help key2='settings_syntaxtheme' title=$t}
       </p>
       <p class="pageinput">
         <input id="syntaxtheme" type="text" name="syntaxtheme" size="30" value="{$syntaxtheme}" maxlength="40" />

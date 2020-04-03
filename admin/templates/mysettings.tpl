@@ -14,7 +14,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
         {$t=lang('language')}<label for="language">{$t}:</label>
-        {cms_help key2='help_myaccount_language' title=$t}
+        {cms_help key2='user_language' title=$t}
       </p>
       <p class="pageinput">
         <select id="language" name="default_cms_language">
@@ -23,7 +23,7 @@
       </p>
       <p class="pagetext">
         {$t=lang('date_format_string')}<label for="dateformat">{$t}:</label>
-        {cms_help key2='help_myaccount_dateformat' title=$t}
+        {cms_help key2='user_dateformat' title=$t}
       </p>
       <p class="pageinput">
         <input class="pagenb" size="20" maxlength="255" type="text" name="date_format_string" value="{$date_format_string}" />
@@ -36,7 +36,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
         {$t=lang('ce_navdisplay')}<label for="ce_navdisplay">{$t}:</label>
-        {cms_help key2='help_myaccount_ce_navdisplay' title=$t}
+        {cms_help key2='user_ce_navdisplay' title=$t}
       </p>
       <p class="pageinput">
         {$opts['']=lang('none')} {$opts['menutext']=lang('menutext')} {$opts['title']=lang('title')}
@@ -46,14 +46,14 @@
       </p>
       <p class="pagetext">
         {$t=lang('adminindent')}<label for="indent">{$t}:</label>
-        {cms_help key2='help_myaccount_indent' title=$t}
+        {cms_help key2='user_indent' title=$t}
       </p>
       <p class="pageinput">
         <input class="pagenb" type="checkbox" id="indent" name="indent"{if $indent} checked="checked"{/if} />
       </p>
       <p class="pagetext">
         {$t=lang('defaultparentpage')}<label for="parent_id">{$t}:</label>
-        {cms_help key2='help_myaccount_dfltparent' title=$t}
+        {cms_help key2='user_dfltparent' title=$t}
       </p>
       <p class="pageinput">{$default_parent}</p>
     </div>
@@ -67,7 +67,7 @@
      {else}
       <p class="pagetext">
         {$t=lang('admintheme')}<label for="admintheme">{$t}:</label>
-        {cms_help key2='help_myaccount_admintheme' title=$t}
+        {cms_help key2='user_admintheme' title=$t}
       </p>
       <p class="pageinput">
         <select id="admintheme" name="admintheme">
@@ -89,7 +89,7 @@
       {/foreach}
       <p class="pagetext">
         {$t=lang('wysiwyg_theme')}<label for="wysiwygtheme">{$t}:</label>
-        {cms_help key2='help_myaccount_wysiwygtheme' title=$t}
+        {cms_help key2='user_wysiwygtheme' title=$t}
       </p>
       <p class="pageinput">
         <input id="wysiwygtheme" type="text" name="wysiwygtheme" size="30" value="{$wysiwygtheme}" maxlength="40" />
@@ -110,7 +110,7 @@
       {/foreach}
       <p class="pagetext">
         {$t=lang('syntax_editor_theme')}<label for="syntaxtheme">{$t}:</label>
-        {cms_help key2='help_myaccount_syntaxtheme' title=$t}
+        {cms_help key2='user_syntaxtheme' title=$t}
       </p>
       <p class="pageinput">
         <input id="syntaxtheme" type="text" name="syntaxtheme" size="30" value="{$syntaxtheme}" maxlength="40" />
@@ -118,21 +118,21 @@
      {/if}
       <p class="pagetext">
         {$t=lang('homepage')}<label for="homepage">{$t}:</label>
-        {cms_help key2='help_myaccount_homepage' title=$t}
+        {cms_help key2='user_homepage' title=$t}
       </p>
       <p class="pageinput">
         {$homepage}
       </p>
       <p class="pagetext">
         {$t=lang('admincallout')}<label for="admincallout">{$t}:</label>
-        {cms_help key2='help_myaccount_admincallout' title=$t}
+        {cms_help key2='user_admincallout' title=$t}
       </p>
       <p class="pageinput">
         <input class="pagenb" id="admincallout" type="checkbox" name="bookmarks"{if $bookmarks} checked="checked"{/if} />
       </p>
       <p class="pagetext">
         {$t=lang('hide_help_links')}<label for="hidehelp">{$t}:</label>
-        {cms_help key2='help_myaccount_hidehelp' title=$t}
+        {cms_help key2='user_hidehelp' title=$t}
       </p>
       <p class="pageinput">
         <input class="pagenb" id="hidehelp" type="checkbox" name="hide_help_links"{if $hide_help_links} checked="checked"{/if} />

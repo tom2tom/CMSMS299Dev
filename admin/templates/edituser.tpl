@@ -15,7 +15,7 @@
   <div class="pageoverflow">
   <p class="pagetext">
     <label for="username">{lang('username')}:</label>
-    {cms_help realm='admin' key2='info_adduser_username' title=lang('username')}
+    {cms_help key2='user_name' title=lang('username')}
   </p>
   <p class="pageinput">
     <input type="text" id="username" name="user" maxlength="25" value="{$user}" class="standard" />
@@ -24,7 +24,7 @@
   <div class="pageoverflow">
   <p class="pagetext">
     <label for="password">{lang('password')}:</label>
-    {cms_help realm='admin' key2='info_edituser_password' title=lang('password')}
+    {cms_help key2='user_edit_password' title=lang('password')}
   </p>
   <p class="pageinput">
     <input type="password" name="password" id="password" autocomplete="off" maxlength="100" value="" class="standard" />
@@ -33,7 +33,7 @@
   <div class="pageoverflow">
   <p class="pagetext">
     <label for="passwordagain">{lang('passwordagain')}:</label>
-    {cms_help realm='admin' key2='info_edituser_passwordagain' title=lang('passwordagain')}
+    {cms_help key2='user_edit_passwordagain' title=lang('passwordagain')}
   </p>
   <p class="pageinput">
     <input type="password" name="passwordagain" id="passwordagain" maxlength="100" value="" class="standard" />
@@ -42,7 +42,7 @@
   <div class="pageoverflow">
   <p class="pagetext">
     <label for="firstname">{lang('firstname')}:</label>
-    {cms_help key2='help_myaccount_firstname' title=lang('firstname')}
+    {cms_help key2='user_firstname' title=lang('firstname')}
   </p>
   <p class="pageinput">
     <input id="firstname" type="text" name="firstname" maxlength="50" value="{$firstname}" class="standard" />
@@ -51,7 +51,7 @@
   <div class="pageoverflow">
   <p class="pagetext">
     <label for="lastname">{lang('lastname')}:</label>
-    {cms_help key2='help_myaccount_lastname' title=lang('lastname')}
+    {cms_help key2='user_lastname' title=lang('lastname')}
   </p>
   <p class="pageinput">
     <input id="lastname" type="text" name="lastname" maxlength="50" value="{$lastname}" class="standard" />
@@ -60,7 +60,7 @@
   <div class="pageoverflow">
   <p class="pagetext">
     <label for="email">{lang('email')}:</label>
-    {cms_help key2='help_myaccount_email' title=lang('email')}
+    {cms_help key2='user_email' title=lang('email')}
   </p>
   <p class="pageinput">
     <input id="email" type="text" name="email" size="50" maxlength="255" value="{$email}" class="standard" />
@@ -71,7 +71,7 @@
   <div class="pageoverflow">
   <p class="pagetext">
     <label for="active">{lang('active')}:</label>
-    {cms_help realm='admin' key2='info_user_active' title=lang('active')}
+    {cms_help key2='user_active' title=lang('active')}
   </p>
   <input type="hidden" name="active" value="0" />
   <p class="pageinput">
@@ -123,7 +123,7 @@
   <div class="pageoverflow">
   <p class="pagetext">
     <label for="copyusersettings">{lang('copyusersettings')}:</label>
-    {cms_help realm='admin' key2='info_copyusersettings' title=lang('copyusersettings')}
+    {cms_help key2='user_copysettings' title=lang('copyusersettings')}
   </p>
   <p class="pageinput">
     <select id="copyusersettings" name="copyusersettings">
@@ -134,7 +134,7 @@
   <div class="pageoverflow">
   <p class="pagetext">
     <label for="clearusersettings">{lang('clearusersettings')}:</label>
-    {cms_help realm='admin' key2='info_clearusersettings' title=lang('clearusersettings')}
+    {cms_help key2='user_clearsettings' title=lang('clearusersettings')}
   </p>
   <input type="hidden" name="clearusersettings" value="0" />
   <p class="pageinput">
