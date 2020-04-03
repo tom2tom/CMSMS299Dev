@@ -79,7 +79,7 @@ if ($list) {
     $js .= <<<EOS
 function news_dopreview() {
   if(typeof tinyMCE !== 'undefined') {
-    tinyMCE.triggerSave();
+    tinyMCE.triggerSave(); //TODO a general API, to migrate editor-content into an input-element to be saved
   }
   var fm = $('form'),
      url = fm.attr('action'),
@@ -144,7 +144,7 @@ if ($list) {
   $('[name="{$id}apply"]').on('click', function(ev) {
     ev.preventDefault();
     if(typeof tinyMCE !== 'undefined') {
-      tinyMCE.triggerSave();
+      tinyMCE.triggerSave(); TODO a general API, to migrate editor-content into an input-element to be saved
     }
     var fm = $('form'),
        url = fm.attr('action'),
