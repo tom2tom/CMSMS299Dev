@@ -35,7 +35,7 @@
     </p>
   </div>
 
-{if isset($developer_mode)}
+{if !empty($develop_mode)}
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="allowuninstall">{$mod->Lang('allowuninstall')}:</label>
