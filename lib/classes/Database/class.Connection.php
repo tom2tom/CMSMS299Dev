@@ -538,7 +538,10 @@ class Connection
     /**
      * @internal
      * no error checking
-     * @return array of individual statements' results
+     * @return array : individual statements' results, normally as many
+     * of them as there were separate SQL commands, but any error will
+     * abort the reaults hence truncate the array.
+     * Array members may be boolean | mysqli_result object
      */
     protected function do_multisql($sql)
     {
@@ -549,6 +552,7 @@ class Connection
             } while ($this->_mysql->more_results() && $this->_mysql->next_result());
             return $result;
         }
+        return [];
     }
 
     /**
@@ -556,11 +560,14 @@ class Connection
      */
     public function multi_execute($sql, $valsarr = null)
     {
-        if ($valsarr) {
-            //TODO parse into $this->do_multisql($sql) etc
+        if ($valsarr !== null) {
+            if (!is_array($valsarr)) {
+                $valsarr = [$valsarr];
+            }
+            //TODO parse and process, $this->do_multisql($sql) etc
         } else {
             $result = $this->do_multisql($sql);
-            //TODO deal with results
+            //TODO deal with $result[]
         }
     } 
 
@@ -585,14 +592,14 @@ class Connection
      * Parse and execute an SQL prepared statement or query.
      *
      * @param string or Statement object $sql
-     * @param optional array             $valsarr Value-parameters to fill placeholders (if any) in @sql
-     *  when a SELECT retrieves nothing or other command fails, default false
+     * @param mixed $valsarr Optional value-parameters to fill placeholders (if any) in @sql
+     *  when a SELECT retrieves nothing or other command fails, default null
      *
      * @return <namespace>ResultSet or a subclass of that
      */
     public function execute($sql, $valsarr = null)
     {
-        if ($valsarr) {
+        if ($valsarr !== null) {
             if (!is_array($valsarr)) {
                 $valsarr = [$valsarr];
             }
@@ -657,10 +664,10 @@ class Connection
     /**
      * Execute an SQL command, to retrieve (at most) @nrows records.
      *
-     * @param string           $sql     The SQL to execute
-     * @param optional int     $nrows   The number of rows to return, default all (0)
-     * @param optional int     $offset  0-based starting-offset of rows to return, default 0
-     * @param optional array   $valsarr Value-parameters to fill placeholders (if any) in @sql
+     * @param string $sql    The SQL to execute
+     * @param int   $nrows   Optional number of rows to return, default all (0)
+     * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
+     * @param mixed $valsarr Optional value-parameter(s) to fill placeholders (if any) in @sql
      *  when a SELECT retrieves nothing or other command fails, default false
      *
      * @return mixed <namespace>ResultSet or a subclass
@@ -685,10 +692,10 @@ class Connection
     /**
      * Execute an SQL statement and return all the results as an array.
      *
-     * @param string $sql     The SQL to execute
+     * @param string $sql  The SQL to execute
      * @param mixed array|null $valsarr Optional value-parameters to fill placeholders (if any) in @sql
-     * @param optional int   $nrows   The number of rows to return, default all (0)
-     * @param optional int   $offset  0-based starting-offset of rows to return, default 0
+     * @param int $nrows   Optional number of rows to return, default all (0)
+     * @param int $offset  Optional 0-based starting-offset of rows to return, default 0
      *
      * @return array Numeric-keyed matched results, or empty
      */
@@ -724,12 +731,12 @@ class Connection
      * Execute an SQL statement and return all the results as an array, with
      * the value of the first-requested-column as the key for each row.
      *
-     * @param string $sql         The SQL statement to execute
-     * @param array  $valsarr     VAlue-parameters to fill placeholders (if any) in @sql
+     * @param string $sql     The SQL statement to execute
+     * @param mixed  $valsarr Optional Value-parameters to fill placeholders (if any) in @sql
      * @param bool   $force_array Optionally force each element of the Return to be an associative array
      * @param bool   $first2cols  Optionally Return only the first 2 columns in an associative array.  Does not work with force_array
-     * @param optional int   $nrows   The number of rows to return, default all (0)
-     * @param optional int   $offset  0-based starting-offset of rows to return, default 0
+     * @param int    $nrows   Optional number of rows to return, default all (0)
+     * @param int    $offset  Optional 0-based starting-offset of rows to return, default 0
      *
      * @return associative array of matched results, or empty
      */
@@ -752,10 +759,10 @@ class Connection
      * matches as an array.
      *
      * @param string $sql     The SQL statement to execute
-     * @param array  $valsarr Value-parameters to fill placeholders (if any) in @sql
+     * @param mixed  $valsarr Value-parameters to fill placeholders (if any) in @sql
      * @param bool   $trim    Optionally trim the Return results
-     * @param optional int   $nrows   The number of rows to return, default all (0)
-     * @param optional int   $offset  0-based starting-offset of rows to return, default 0
+     * @param int    $nrows   Optional number of rows to return, default all (0)
+     * @param int    $offset  Optional 0-based starting-offset of rows to return, default 0
      *
      * @return array of results, one member per row matched, or empty
      */
@@ -778,8 +785,8 @@ class Connection
      * as an associative array.
      *
      * @param string $sql     The SQL statement to execute
-     * @param array  $valsarr Value-parameters to fill placeholders (if any) in @sql
-     * @param optional int   $offset  0-based starting-offset of rows to return, default 0
+     * @param mixed  $valsarr Optional value-parameters to fill placeholders (if any) in @sql
+     * @param int    $offset  Optional 0-based starting-offset of rows to return, default 0
      *
      * @return associative array representing a single ResultSet row, or empty
      */
@@ -804,8 +811,8 @@ class Connection
      * Execute an SQL statement and return a single value.
      *
      * @param string $sql     The SQL statement to execute
-     * @param array  $valsarr Parameters to fill placeholders (if any) in @sql
-     * @param optional int   $offset  0-based starting-offset of rows to return, default 0
+     * @param mixed  $valsarr Optional values to fill placeholders (if any) in @sql
+     * @param int    $offset  Optional 0-based starting-offset of rows to return, default 0
      *
      * @return mixed value or null
      */
