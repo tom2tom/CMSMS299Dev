@@ -467,7 +467,7 @@ function create_source_archive()
     }
 }
 
-// compress smarty stuff into $datadir, for the expanded installer
+// compress smarty stuff in the sources tree into a distinct tarball in $datadir, for the expanded installer
 function create_smarty_archive()
 {
     global $datadir;
@@ -478,11 +478,11 @@ function create_smarty_archive()
     @unlink($fp.'.gz');
 
     verbose(1, 'INFO: Creating archive smarty.tar.gz');
-    $sp = joinpath(current_root(), 'lib', 'smarty');
+    $sp = joinpath(current_root(), 'lib', 'vendor', 'smarty', 'smarty'); //composer-conformant location
     try {
         $phar = new PharData($fp);
         $phar->buildFromDirectory($sp);
-        $phar->compress(Phar::GZ);
+        $phar->compress(Phar::GZ); //TODO can a windows-based system handle tar.gz without PHP phar extension?
         unset($phar); //close it
         unlink($fp);
     } catch (Exception $e) {
