@@ -8,7 +8,7 @@ Creating a CMSMS release involves these steps:
      MANIFEST.DAT -- this file is created with the 'create_manifest.php' script (see below)
      (a MANIFEST.DAT.gz file is acceptable too)
      upgrade.php  -- (optional) the script to do any changes to the database or settings
-        note: when this script is executed $db is available, the CMSMS api is created, however smarty is not available.
+        note: when this script is executed $db is available, the CMSMS API is created, however smarty is not available.
      readme.txt   -- (optional) readme file for display in the upgrade assistant
      changelog.txt -- (recommended) a text file describing specific changes to that version
      preprocess_files.php -- (optional) executed at the start of step 7 (if files step is enabled) to perform various tasks related to files
@@ -42,7 +42,7 @@ Building the files manifest
       will be calculated, normally the prior release. Either or both filesets
       may be local (stored on the running system), or in the CMSMS subversion
       repo, or in a git repo somewhere.
-      By way of example, with both file-sets in CMSMS svn, the parameters 
+      By way of example, with both file-sets in CMSMS svn, the parameters
       supplied to the script would include something like:
        --from=svn://branches/2.2.whatever --to=svn://trunk
     - if the script is running on a windows system, all relevant configuration
