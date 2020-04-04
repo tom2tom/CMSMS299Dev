@@ -52,7 +52,7 @@ if not using composer-installed smarty ...
 OR
  require_once cms_join_path(CMS_ROOT_PATH,'lib','smarty','Smarty.class.php'); //when BC not needed
 else
-*/ 
+*/
 require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'vendor', 'smarty', 'smarty', 'libs', 'SmartyBC.class.php'); //deprecated - support for Smarty2 API
 
 /**
