@@ -232,12 +232,12 @@ class Nls
 		if( isset($data['locale'][$obj->_key]) ) $obj->_locale = $data['locale'][$obj->_key];
 
 		// get the encoding
-		if( isset($data['encoding'][$obj->_key]) ) $obj->_encoding = $data['encoding'][$obj->_key];
+		if( isset($data['encoding'][$obj->_key]) ) $obj->_encoding = strtoupper($data['encoding'][$obj->_key]);
 
 		if( isset($data['htmlarea'][$obj->_key]) ) $obj->_htmlarea = $data['htmlarea'][$obj->_key];
 
 		// get the direction
-		if( isset($data['direction'][$obj->_key]) ) $obj->_direction = $data['direction'][$obj->_key];
+		if( isset($data['direction'][$obj->_key]) ) $obj->_direction = strtolower($data['direction'][$obj->_key]);
 
 		// get aliases
 		if( isset($data['alias']) ) $obj->_aliases= array_keys($data['alias']);

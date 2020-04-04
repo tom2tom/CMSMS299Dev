@@ -79,7 +79,7 @@ abstract class nls
         if (!$this->_encoding) {
             return 'UTF-8';
         }
-        return $this->_encoding;
+        return strtoupper($this->_encoding);
     }
 
     public function fullname()

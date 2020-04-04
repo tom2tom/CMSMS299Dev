@@ -340,11 +340,14 @@ final class NlsOperations
 	public static function get_encoding() : string
 	{
 		// has it been explicity set somewhere?
-		if( self::$_encoding ) return self::$_encoding;
-
+		if( self::$_encoding ) {
+			return self::$_encoding;
+		}
 		// is it specified in the config.php?
 		$config = cms_config::get_instance();
-		if( isset($config['default_encoding']) && $config['default_encoding'] != '' ) return $config['default_encoding'];
+		if( !empty($config['default_encoding']) ) {
+			return strtoupper($config['default_encoding']);
+		}
 
 		$lang = self::get_current_language();
 		if( !$lang ) return 'UTF-8'; // no language.. weird.
@@ -364,7 +367,7 @@ final class NlsOperations
 			self::$_encoding = null;
 			return;
 		}
-		self::$_encoding = $str;
+		self::$_encoding = strtoupper($str);
 	}
 
 	/**
