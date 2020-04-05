@@ -60,8 +60,6 @@ foreach( [
   }
 }
 
-cms_siteprefs::set('ultraroles',json_encode(['Modify Restricted Files','Modify DataBase Direct','Remote Administration']));
-
 //
 // initial groups
 //
