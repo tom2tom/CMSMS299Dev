@@ -99,21 +99,22 @@ final class CmsApp
     private $_showtemplate = true;
 
     /**
-     * Connection object - handle|connection to the site database
+     * @var Connection object - handle|connection to the site database
      * @ignore
      */
     private $db;
 
     /**
+     * @var CMSMS\internal\Smarty object
      * @ignore
      */
-    private $smarty = null;
+    private $smarty;
 
     /**
      * @var cms_content_tree object, with nested descendent-objects
      * @ignore
      */
-    private $hrinstance = null;
+    private $hrinstance;
 
     /**
      * @var singleton module-object
@@ -517,17 +518,17 @@ final class CmsApp
     }
 
     /**
-    * Get a handle to the CMS Smarty object.
+    * Get a handle to the Smarty instance, except during install/upgrade/refresh.
     * @see Smarty
     * @link http://www.smarty.net/manual/en/
     *
-    * @return mixed Smarty handle to the CMSMS Smarty object, or null
+    * @return mixed CMSMS\internal\Smarty object | null
     */
     public function GetSmarty()
     {
         if( !AppState::test_state(AppState::STATE_INSTALL) ) {
             // we don't load the main Smarty class during installation
-            if( is_null($this->smarty) ) {
+            if( empty($this->smarty) ) {
                 $this->smarty = new Smarty();
             }
             return $this->smarty;
@@ -542,10 +543,10 @@ final class CmsApp
     */
     public function GetHierarchyManager()
     {
-        if( is_null($this->_hrinstance) ) {
-            $this->_hrinstance = AppSingle::SysDataCache()->get('content_tree');
+        if( empty($this->hrinstance) ) {
+            $this->hrinstance = AppSingle::SysDataCache()->get('content_tree');
         }
-        return $this->_hrinstance;
+        return $this->hrinstance;
     }
 
     /**
