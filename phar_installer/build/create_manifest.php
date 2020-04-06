@@ -97,7 +97,7 @@ if ($_configfile && $_configfile != '-') {
     if (!is_readable($_configfile)) {
         fatal("No valid config file at: $_configfile");
     }
-    $_config = parse_ini_file($_configfile);
+    $_config = parse_ini_file($_configfile, false, INI_SCANNER_TYPED);
     if ($_config === false) {
         fatal("Problem processing config file: $_configfile");
     }
