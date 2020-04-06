@@ -133,6 +133,12 @@ img, object, embed, video {
 	max-width: 100%;
 }
 
+img.cmslogo {
+	max-width: 30%;
+	max-height: 4em;
+	width: 18em;
+}
+
 strong {
 	font-weight: 700;
 }
