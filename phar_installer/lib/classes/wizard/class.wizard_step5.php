@@ -51,12 +51,13 @@ class wizard_step5 extends wizard_step
         $app = get_app();
         $config = $app->get_config();
 
-        if( isset($_POST['xmodules']) ) {
+        if( isset($_POST['wantedextras']) ) {
+			//record the selected members of $app_config['extramodules']
             $tmp = [];
-            foreach ( $_POST['xmodules'] as $name ) {
+            foreach ( $_POST['wantedextras'] as $name ) {
                 $tmp[] = utils::clean_string($name);
             }
-            $this->_siteinfo['xmodules'] = $tmp;
+            $this->_siteinfo['wantedextras'] = $tmp;
         }
 
         if( isset($_POST['samplecontent']) ) {
@@ -177,6 +178,7 @@ class wizard_step5 extends wizard_step
             if( $raw && $action == 'upgrade' ) {
                 // exclude installed modules
                 $fp = $app->get_destdir();
+				//TODO if not using assets/modules for non-core modules
                 $v = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
                 $dirs = [
                     $fp.DIRECTORY_SEPARATOR.$v.DIRECTORY_SEPARATOR.'modules',
@@ -199,7 +201,7 @@ class wizard_step5 extends wizard_step
                 $modules = null;
             }
             $smarty->assign('modules_list',$modules);
-            $smarty->assign('modules_sel', (($modules) ? $config['modules'] ?? null : null));
+            $smarty->assign('modules_sel', (($modules) ? $config['modules'] ?? null : null)); //TODO what is 'modules' item in $config ?
         }
 
         $smarty->display('wizard_step5.tpl');
