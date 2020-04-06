@@ -365,9 +365,9 @@ verbose_msg(lang('install_creating_index', 'idx_tagname', $msg_ret));
 $flds = '
 id I AUTO KEY,
 name C(255),
-code T(16383),
-description T(1023),
-parameters T(1023),
+code X(16383),
+description X(1023),
+parameters X(1023),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
