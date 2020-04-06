@@ -24,13 +24,13 @@
       <script src="assets/js/html5.js"></script>
       <script src="assets/js/css3-mediaqueries.js"></script>
     <![endif]-->
-    <link rel="stylesheet" type="text/css" href="assets/css/install.css"/>
-    <link rel="icon" type="image/ico" href="assets/images/favicon.ico"/>
+    <link rel="stylesheet" type="text/css" href="assets/css/install.css" />
+    <link rel="icon" type="image/ico" href="assets/images/favicon.ico" />
   </head>
   <body class="cmsms-ui">
     <div class="row header-section">
       <a href="http://www.cmsmadesimple.org" rel="external" target="_blank" class="cmsms-logo" title="CMS Made Simple&trade;">
-        <img src="assets/images/cmsms-logo.png" alt="CMS Made Simple" title="CMS Made Simple" width="332" height="77" />
+       <img class="cmslogo" src="assets/images/cmsms-logo.svg" onerror="this.onerror=null;this.src='assets/images/cmsms-logo.png';" alt="CMS Made Simple" title="CMS Made Simple" />
       </a>
       <span class="installer-title">{'apptitle'|tr}</span>
     </div>
