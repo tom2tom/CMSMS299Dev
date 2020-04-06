@@ -35,6 +35,7 @@ class wizard_step2 extends wizard_step
         $app = get_app();
         if( $aname != 'admin' ) $app->set_config_val('admindir', $aname);
         if( !empty($config['assets_dir']) && $config['assets_dir'] != 'assets' ) $app->set_config_val('assetsdir', $config['assets_dir']);
+        if( !empty($config['simpletags_dir']) && $config['simpletags_dir'] != 'simple_plugins' ) $app->set_config_val('pluginsdir', $config['simpletags_dir']);
 
         $info = [];
         $info['config_file'] = $fn;
@@ -125,7 +126,7 @@ class wizard_step2 extends wizard_step
         $app = get_app();
 
         $rpwd = $app->get_destdir();
-        $info = $this->get_cmsms_info($rpwd);
+        $info = $this->get_cmsms_info($rpwd); //null when installing
         $wizard = $this->get_wizard();
         $smarty = smarty();
         $smarty->assign('pwd',$rpwd);
@@ -156,7 +157,7 @@ class wizard_step2 extends wizard_step
                 throw new Exception(lang('error_invalid_directory'));
             }
 
-            $wizard->clear_data('version_info');
+            $wizard->clear_data('version_info'); //actually does nothing (no config info available yet when installing)
 
             $empty_dir = $this->is_dir_empty($rpwd,$app->get_phar());
             $existing_files = $this->list_files($rpwd);
