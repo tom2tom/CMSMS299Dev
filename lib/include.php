@@ -23,7 +23,6 @@ use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\NlsOperations;
-use CMSMS\SingleSetter;
 use CMSMS\SysDataCacheDriver;
 
 /**
