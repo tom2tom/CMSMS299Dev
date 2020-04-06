@@ -124,8 +124,13 @@ for ($i = 0; $i < 32; ++$i) {
     }
 }
 
+$app = get_app();
+$config = $app->get_config();
+$cores = $config['coremodules'];
+$str = implode(',', $cores);
 foreach([
     'cdn_url' => 'https://cdnjs.cloudflare.com',
+	'coremodules', $str,
     'syntax_theme'  => '',
     'lock_refresh' => 120,
     'lock_timeout' => 60,
@@ -256,7 +261,7 @@ $db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
 $db->DropSequence(CMS_DB_PREFIX.'userplugins_seq');
 
 // 7. Other table revisions
-$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
+$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci']; //i.e. case-insensitive matching unless overridden
 
 // 7.1 Misc
 
