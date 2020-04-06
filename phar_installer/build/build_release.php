@@ -205,7 +205,7 @@ function joinpath(...$segments) : string
     return str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $fp);
 }
 
-function rrmdir(string $fp, bool $keepdirs = false) : bool
+function rrmdir(string $fp, bool $keepdirs = false, bool $keeptop = false) : bool
 {
     if (is_dir($fp)) {
         $res = true;
@@ -226,7 +226,7 @@ function rrmdir(string $fp, bool $keepdirs = false) : bool
                 $res = false;
             }
         }
-        if ($res && !$keepdirs) {
+        if ($res && !($keeptop || $keepdirs)) {
             $res = @rmdir($fp);
         }
         return $res;
@@ -318,6 +318,48 @@ function copy_local_files()
 
     $localroot = current_root();
 
+    // default config settings
+    $fp = dirname(__DIR__).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'config.ini';
+    $config = (is_file($fp)) ? parse_ini_file($fp, false, INI_SCANNER_TYPED) : [];
+    foreach ($config as $key => &$val) {
+        switch ($key) {
+            case 'coremodules':
+            case 'extramodules':
+                if (!is_array($val)) {
+                    $val = [$val];
+                }
+                break;
+            default:
+                $val = null;
+        }
+    }
+    unset($val);
+    // custom config settings
+    $fp = $localroot.DIRECTORY_SEPARATOR.'config.ini';
+    if (!is_file($fp)) {
+        $fp = __DIR__.DIRECTORY_SEPARATOR.'config.ini';
+    }
+    $xconfig = (is_file($fp)) ? parse_ini_file($fp, false, INI_SCANNER_TYPED) : [];
+    foreach ($xconfig as $key => $val) {
+        switch ($key) {
+            case 'extramodules':
+                if (!is_array($val)) {
+                    $val = [$val];
+                }
+                if (isset($config[$key])) {
+                    $config[$key] = array_merge($config[$key], $val);
+                } else {
+                    $config[$key] = $val;
+                }
+            default:
+                break;
+        }
+    }
+    $modules = array_merge($config['coremodules'], $config['extramodules']);
+    unset($config, $xconfig);
+    $modcheck = DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR;
+    $mclen = strlen($modcheck);
+
     verbose(1, "INFO: Copying source files from $localroot to $tmpdir");
 
     $iter = new RecursiveIteratorIterator(
@@ -335,11 +377,27 @@ function copy_local_files()
     $len = strlen($localroot.DIRECTORY_SEPARATOR);
 
     foreach ($iter as $fn=>$fp) {
+        // ignore unwanted filepath patterns
         foreach ($src_excludes as $excl) {
             if (preg_match($excl, $fp, $matches, 0, $len)) {
                 $relpath = substr($fp, $len);
                 verbose(2, "EXCLUDED: $relpath (matched pattern $excl)");
                 continue 2;
+            }
+        }
+        // ignore unwanted modules
+        if (($p = strpos($fp, $modcheck)) !== false) {
+            $ep = strpos($fp, DIRECTORY_SEPARATOR, $p + $mclen);
+            if ($ep !== false) {
+	            $modname = substr($fp, $p + $mclen, $ep - $p - $mclen);
+                $parent = false;
+            } else {
+                $modname = $fn;
+                $parent = true;
+            }
+            if (!in_array($modname, $modules)) {
+                if ($parent) { verbose(2, "EXCLUDED: unwanted module $modname"); }
+                continue;
             }
         }
 
@@ -482,7 +540,7 @@ function create_smarty_archive()
     try {
         $phar = new PharData($fp);
         $phar->buildFromDirectory($sp);
-        $phar->compress(Phar::GZ); //TODO can a windows-based system handle tar.gz without PHP phar extension?
+        $phar->compress(Phar::GZ); //TODO can a windows-based system decompress tar.gz without PHP phar extension?
         unset($phar); //close it
         unlink($fp);
     } catch (Exception $e) {
