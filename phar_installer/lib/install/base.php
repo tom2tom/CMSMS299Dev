@@ -244,7 +244,7 @@ create_private_dir($destdir,'configs');
 create_private_dir($destdir,'css');
 create_private_dir($destdir,'images');
 create_private_dir($destdir,'module_custom');
-create_private_dir($destdir,'modules');
+create_private_dir($destdir,'modules'); //using distinct place for non-core modules
 create_private_dir($destdir,'plugins');
 create_private_dir($destdir,'resources');
 create_private_dir($destdir,'simple_plugins');  //UDTfiles
