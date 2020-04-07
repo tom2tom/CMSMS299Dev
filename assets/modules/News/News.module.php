@@ -22,6 +22,10 @@ use News\AdjustStatusTask;
 use News\AdminOperations;
 use News\CreateDraftAlertTask;
 
+/**
+ * @todo this News uses many 2.9-conformant renamed/respaced classes
+ */
+
 class News extends CMSModule
 {
     // publication-time-granularity enum
@@ -46,7 +50,7 @@ class News extends CMSModule
     public function IsPluginModule() { return true; } //deprecated in favour of capability
 //    public function LazyLoadAdmin() { return true; }
 //    public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.2.911'; }
+    public function MinimumCMSVersion() { return '2.8.900'; }
 
     public function InitializeFrontend()
     {
