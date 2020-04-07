@@ -319,7 +319,7 @@ function copy_local_files()
     $localroot = current_root();
 
     // default config settings
-    $fp = dirname(__DIR__).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'config.ini';
+    $fp = dirname(__DIR__).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'installer.ini';
     $config = (is_file($fp)) ? parse_ini_file($fp, false, INI_SCANNER_TYPED) : [];
     foreach ($config as $key => &$val) {
         switch ($key) {
@@ -335,9 +335,9 @@ function copy_local_files()
     }
     unset($val);
     // custom config settings
-    $fp = $localroot.DIRECTORY_SEPARATOR.'config.ini';
+    $fp = $localroot.DIRECTORY_SEPARATOR.'installer.ini';
     if (!is_file($fp)) {
-        $fp = __DIR__.DIRECTORY_SEPARATOR.'config.ini';
+        $fp = __DIR__.DIRECTORY_SEPARATOR.'installer.ini';
     }
     $xconfig = (is_file($fp)) ? parse_ini_file($fp, false, INI_SCANNER_TYPED) : [];
     foreach ($xconfig as $key => $val) {
@@ -677,7 +677,7 @@ try {
         $phar = new Phar($fp); // no iterator flags, we will self-manage
         $phar->startBuffering();
 
-        $relpath = joinpath('assets', 'config.ini');
+        $relpath = joinpath('assets', 'installer.ini');
         $t = time();
         $u = get_current_user();
         $h = gethostname();
