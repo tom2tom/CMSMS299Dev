@@ -82,7 +82,7 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 							$xwm->text($pref."\t\t");
 							if ($val && isset($A['isdata']) && is_string($val) && !is_numeric($val)) {
 								$xwm->startElement($key);
-								$xwm->writeCdata(htmlspecialchars($val, ENT_XML1));
+								$xwm->writeCdata(htmlspecialchars($val, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false));
 								$xwm->endElement();
 							} else {
 								$xwm->writeElement($key, (string)$val);
@@ -124,6 +124,8 @@ function fill_filessection(XMLWriter $xw, string $section, string $frombase, str
 	foreach ($iter as $p=>$info) {
 		if (!$info->isDir()) {
 			$name = $info->getBasename();
+			//TODO support explicit [list of] name pattern(s) to skip
+			if ($name[0] == '.') continue;
 			if (fnmatch('index.htm?', $name)) continue;
 			$tail = substr($p, $skip);
 			if ($copyfiles) {
@@ -171,10 +173,13 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 /*	data arrangement
 	mostly, table- and field-names must be manually reconciled with database schema
 	optional sub-key parameters:
-	 isdata >> process field value via htmlspecialchars($val, ENT_XML1) to prevent parser confusion
+	 isdata >> process field value via htmlspecialchars($val,
+      ENT_XML1 | ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') to prevent parser confusion
 	 optional >> ignore/omit a field whose value is falsy i.e. optional item in the dtd
      keeps >> array of field-value(s) which will be included (subject to optional)
 */
+	$corename = CmsLayoutTemplateType::CORE;
+
 	$skeleton = [
      'stylesheets' => [
       'table' => 'layout_stylesheets',
@@ -212,7 +217,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
       ]
      ],
      'templatetypes' => [
-      'sql' => 'SELECT * FROM %slayout_tpl_type WHERE originator=\'__CORE__\' ORDER BY name',
+      'sql' => 'SELECT * FROM %slayout_tpl_type WHERE originator="'.$corename.'" ORDER BY name',
       'subtypes' => [
        'tpltype' => [
         'id' => [],
@@ -231,7 +236,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
       ]
      ],
      'templates' => [
-      'sql' => 'SELECT * FROM %slayout_templates WHERE originator=\'__CORE__\' ORDER BY name',
+      'sql' => 'SELECT * FROM %slayout_templates WHERE originator="'.$corename.'" ORDER BY name',
       'subtypes' => [
        'template' => [
         'id' => [],
@@ -314,6 +319,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
         'show_in_menu' => ['keeps'=>[1]],
         'menu_text' => ['isdata'=>1],
         'cachable' => ['keeps'=>[1]],
+        'styles' => [],
        ]
       ]
      ],
@@ -427,9 +433,12 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT frompath (#PCDATA)>
  <!ELEMENT embedded (#PCDATA)>
  <!ELEMENT simpletags (tag*)>
- <!ELEMENT tag (name,description?,parameters?code)>
+ <!ELEMENT tag (name,description?,parameters?,code)>
  <!ELEMENT parameters (#PCDATA)>
  <!ELEMENT code (#PCDATA)>
+ <!ELEMENT simpletagfiles (sourcedir?,file*)>
+ <!ELEMENT templatefiles (sourcedir?,file*)>
+ <!ELEMENT stylefiles (sourcedir?,file*)>
 ');
 
 	$xw->startElement('cmsmssitedata');
@@ -452,7 +461,63 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 		fill_filessection($xw, 'uploadfiles', $frombase, $filesfolder);
 	}
 
-    // 'custom' files (templates stylesheets etc) elsewhere in the source tree will be handled just like all other files
+	$frombase =	CMS_FILETAGS_PATH;
+	if (is_dir($frombase)) {
+		//TODO ensure any such files are omitted from the sources tarball
+		if ($copyfiles) {
+			$tobase = $filesfolder.DIRECTORY_SEPARATOR.'simple_plugins'; // 'definite' basename for importing
+			if (is_dir($tobase)) {
+//done before recursive_delete($tobase, false);
+			} else {
+				@mkdir($tobase, 0771, true);
+			}
+		} else {
+			$tobase = '';
+		}
+		$copycount = fill_filessection($xw, 'simpletagfiles', $frombase, $tobase);
+		if ($copyfiles && $copycount == 0) {
+			@rmdir($tobase);
+		}
+	}
+
+	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates';
+	if (is_dir($frombase)) {
+		//TODO ensure any such files are omitted from the sources tarball
+		if ($copyfiles) {
+			$tobase = $filesfolder.DIRECTORY_SEPARATOR.'templates';
+			if (is_dir($tobase)) {
+//done before recursive_delete($tobase, false);
+			} else {
+				@mkdir($tobase, 0771, true);
+			}
+		} else {
+			$tobase = '';
+		}
+		$copycount = fill_filessection($xw, 'templatefiles', $frombase, $tobase);
+		if ($copyfiles && $copycount == 0) {
+			@rmdir($tobase);
+		}
+	}
+
+	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'css';
+	if (is_dir($frombase)) {
+		//TODO ensure any such files are omitted from the sources tarball
+		if ($copyfiles) {
+			$tobase = $filesfolder.DIRECTORY_SEPARATOR.'css';
+			if (is_dir($tobase)) {
+//done			recursive_delete($tobase, false);
+			} else {
+				@mkdir($tobase, 0771, true);
+			}
+		} else {
+			$tobase = '';
+		}
+		$copycount = fill_filessection($xw, 'stylefiles', $frombase, $tobase);
+		if ($copyfiles && $copycount == 0) {
+			@rmdir($tobase);
+		}
+	}
+
 	$xw->endElement(); // cmsmsinstall
 	$xw->endDocument();
 	$xw->flush(false);
@@ -469,7 +534,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 {
 	// security checks right here, to supplement upstream/external
 	if (AppState::test_state(AppState::STATE_INSTALL)) {
-		$runtime = false;
+		$runtime = function_exists('lang');
 		//NOTE must conform this class with installer
 		$valid = class_exists('cms_installer\wizard\wizard'); //TODO some other check too
 	} else {
@@ -490,9 +555,9 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 	$xml = simplexml_load_file($xmlfile, 'SimpleXMLElement', LIBXML_NOCDATA);
 	if ($xml === false) {
 		if ($runtime) {
-			$val = 'Failed to load file '.$xmlfile; //TODO lang('')
-		} else {
 			$val = lang('error_filebad',$xmlfile);
+		} else {
+			$val = 'Failed to load file '.$xmlfile; //TODO lang('')
 		}
 		foreach (libxml_get_errors() as $error) {
 			$val .= "\n".'Line '.$error->line.': '.$error->message;
@@ -504,12 +569,13 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 	$val = (string)$xml->dtdversion;
 	if (version_compare($val, CONTENT_DTD_MINVERSION) < 0) {
 		if ($runtime) {
-			return 'Invalid file format';
-		} else {
 			return lang('error_filebad',$xmlfile);
+		} else {
+			return 'Invalid file format';
 		}
 	}
 
+	$corename = CmsLayoutTemplateType::CORE;
 	$styles = [-1 => -1];
 	$cssgrps = [-1 => -1];
 	$types = [-1 => -1];
@@ -522,7 +588,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 		if ($typenode->count() > 0) {
 			switch ($typenode->getName()) {
 				case 'stylesheets':
-					if (!$runtime) {
+					if ($runtime) {
 						verbose_msg(lang('install_stylesheets'));
 					}
 					foreach ($typenode->children() as $node) {
@@ -530,7 +596,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						try {
 							$ob->set_name((string)$node->name);
 							$ob->set_description((string)$node->description);
-							$ob->set_content(htmlspecialchars_decode((string)$node->content));
+							$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
 							if ((string)$node->media_type) {
 								$ob->set_media_types((string)$node->media_type); //assume a single type
 							}
@@ -592,16 +658,15 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					break;
 				case 'templatetypes':
-					if (!$runtime) {
+					if ($runtime) {
 						verbose_msg(lang('install_templatetypes'));
 					}
-					$val2 = CmsLayoutTemplateType::CORE;
 					$pattern = '/^([as]:\d+:|[Nn](ull)?;)/';
 					foreach ($typenode->children() as $node) {
 						$val = (string)$node->originator;
 						if (!$val) {
-							$val = $val2;
-						} elseif ($val != $val2) {
+							$val = $corename;
+						} elseif ($val != $corename) {
 							continue; //core-only: modules' template-data installed by them
 						}
 						$ob = new CmsLayoutTemplateType();
@@ -613,7 +678,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							$ob->set_owner(1);
 							$val3 = (string)$node->dflt_contents;
 							if ($val3 !== '') {
-								$ob->set_dflt_contents(htmlspecialchars_decode($val3));
+								$ob->set_dflt_contents(htmlspecialchars_decode($val3, ENT_XML1 | ENT_QUOTES));
 								$ob->set_dflt_flag(true);
 							} else {
 								$ob->set_dflt_flag(false);
@@ -625,6 +690,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 								if (preg_match($pattern, $val)) {
 									$val = unserialize($val, []);
 								}
+								$val = str_replace('\\\\', '\\', $val); // PHP doesn't recognize callable including double-backslash
 								$ob->set_lang_callback($val);
 							}
 							$val = (string)$node->help_content_cb;
@@ -632,6 +698,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 								if (preg_match($pattern, $val)) {
 									$val = unserialize($val, []);
 								}
+								$val = str_replace('\\\\', '\\', $val);
 								$ob->set_help_callback($val);
 							}
 							if ($val3 !== '') {
@@ -640,6 +707,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 									if (preg_match($pattern, $val)) {
 										$val = unserialize($val, []);
 									}
+									$val = str_replace('\\\\', '\\', $val);
 									$ob->set_content_callback($val);
 									$ob->reset_content_to_factory();
 								}
@@ -659,17 +727,16 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					break;
 				case 'templates':
-					if (!$runtime) {
+					if ($runtime) {
 						verbose_msg(lang('install_templates'));
 					}
-					$val3 = CmsLayoutTemplateType::CORE;
 					foreach ($typenode->children() as $node) {
 						$val = (int)$node->type_id;
 						if ($val && !isset($types[$val])) {
 							continue;
 						}
 						$val2 = (string)$node->originator;
-						if ($val2 && $val2 !== $val3) {
+						if ($val2 && $val2 !== $corename) {
 							continue; //anonymous && core only: modules' template-data installed by them
 						}
 						$ob = new CmsLayoutTemplate();
@@ -682,7 +749,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 //							$val = (string)$node->group_id; //name or id DEPRECATED & maybe wrong GROUP ID
 //							if ($val !== '') { $ob->set_group($val); }
 							$ob->set_type_dflt((bool)$node->type_dflt);
-							$ob->set_content(htmlspecialchars_decode((string)$node->content));
+							$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
 							$ob->save();
 						} catch (Throwable $t) {
 							//TODO report error
@@ -695,7 +762,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					break;
 				case 'templategroups':
-					if (!$runtime) {
+					if ($runtime) {
 						verbose_msg(lang('install_groups'));
 					}
 					foreach ($typenode->children() as $node) {
@@ -743,7 +810,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					if (!class_exists('DesignManager\Design')) {
 						break;
 					}
-					if (!$runtime) {
+					if ($runtime) {
 						verbose_msg(lang('install_default_designs'));
 					}
 					foreach ($typenode->children() as $node) {
@@ -822,7 +889,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					break;
 				case 'pages':
-					if (!$runtime) {
+					if ($runtime) {
 						verbose_msg(lang('install_contentpages'));
 					}
 					$bank = [];
@@ -837,7 +904,18 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$val = $parms['item_order'] ?? -1;
 						if ($val < 1) { $parms['item_order'] = ++$eo; }
 						$val = $parms['menu_text'] ?? '';
-						if ($val) { $parms['menu_text'] = htmlspecialchars_decode($val); }
+						if ($val) { $parms['menu_text'] = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES); }
+						$val = $parms['styles'];
+						if ($val) {
+							$oid = explode(',', $val);
+							$nid = [];
+							foreach ($oid as $id) {
+								if (isset($styles[$id])) {
+									$nid[] = $styles[$id];
+								}
+							}
+							$parms['styles'] = implode(',',$nid);
+						}
 						$bank[] = $parms;
 					}
 					$col1 = array_column($bank, 'parent_id');
@@ -864,7 +942,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						if ($val2 === '') { continue; }
 						if (empty($pages[$val])) { $pages[$val] = []; }
 						if (empty($pages[$val]['props'])) { $pages[$val]['props'] = []; }
-						$pages[$val]['props'][(string)$node->prop_name] = htmlspecialchars_decode($val2);
+						$pages[$val]['props'][(string)$node->prop_name] = htmlspecialchars_decode($val2, ENT_XML1 | ENT_QUOTES);
 					}
 					break;
 				case 'uploadfiles':
@@ -873,7 +951,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					if ($tobase) {
 						$tobase .= DIRECTORY_SEPARATOR;
 					} else {
-						continue;
+						break;
 					}
 					if ($filesfolder) {
 						//TODO validity check e.g. somewhere absolute in installer tree
@@ -927,7 +1005,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						}
 					break;
 				case 'simpletags':
-					if (!$runtime) {
+					if ($runtime) {
 						verbose_msg(lang('install_simpletags'));
 					}
 					$db = CmsApp::get_instance()->GetDb();
@@ -940,19 +1018,124 @@ parameters) VALUES (?,?,?,?)';
 						$parms = (array)$node;
 						$args = [$params['name']];
 						$val = $parms['code'] ?? null;
-						if ($val) { $args[] = htmlspecialchars_decode($val); } else { $args[] = null; }
+						if ($val) { $args[] = htmlspecialchars_decode($val,ENT_XML1 | ENT_QUOTES); } else { $args[] = null; }
 						$val = $parms['description'] ?? null;
-						if ($val) { $args[] = htmlspecialchars_decode($val); } else { $args[] = null; }
+						if ($val) { $args[] = htmlspecialchars_decode($val,ENT_XML1 | ENT_QUOTES); } else { $args[] = null; }
 						$val = $parms['parameters'] ?? null;
-						if ($val) { $args[] = htmlspecialchars_decode($val); } else { $args[] = null; }
+						if ($val) { $args[] = htmlspecialchars_decode($val,ENT_XML1 | ENT_QUOTES); } else { $args[] = null; }
 						if (!$db->Execute($query, $args)) {
 							return false;
 						}
 					}
 					break;
-			}
-		}
-	}
+				case 'simpletagfiles': //UDTfiles
+					$tobase = CMS_FILETAGS_PATH.DIRECTORY_SEPARATOR;
+					if ($filesfolder) {
+						//TODO validity check e.g. somewhere absolute in installer tree
+						$frombase = $filesfolder.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR;
+					} else {
+						$frombase = '';
+					}
+
+					foreach ($typenode->children() as $node) {
+						$name = (string)$node->name;
+						if ((bool)$node->embedded) {
+							@file_put_contents($tobase.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
+						} else {
+							$from = (string)$node->frompath;
+							if ($from) {
+ 								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
+									if ($frombase) {
+										$from = $frombase.$from;
+									} else {
+										$from = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$from;
+									}
+								} else {
+									//TODO validity check e.g. somewhere absolute in installer tree
+								}
+								$from .= DIRECTORY_SEPARATOR;
+							} elseif ($frombase) {
+								$from = $frombase;
+							} else {
+								continue;
+							}
+							@copy($from.$name, $tobase.$name);
+						}
+					}
+					break;
+				case 'templatefiles':
+					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR;
+					if ($filesfolder) {
+						//TODO validity check e.g. somewhere absolute in installer tree
+						$frombase = $filesfolder.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR;
+					} else {
+						$frombase = '';
+					}
+
+					foreach ($typenode->children() as $node) {
+						$name = (string)$node->name;
+						if ((bool)$node->embedded) {
+							@file_put_contents($tobase.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
+						} else {
+							$from = (string)$node->frompath;
+							if ($from) {
+ 								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
+									if ($frombase) {
+										$from = $frombase.$from;
+									} else {
+										$from = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$from;
+									}
+								} else {
+									//TODO validity check e.g. somewhere absolute in installer tree
+								}
+								$from .= DIRECTORY_SEPARATOR;
+							} elseif ($frombase) {
+								$from = $frombase;
+							} else {
+								continue;
+							}
+							@copy($from.$name, $tobase.$name);
+						}
+					}
+					break;
+				case 'stylefiles':
+					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR;
+					if ($filesfolder) {
+						//TODO validity check e.g. somewhere absolute in installer tree
+						$frombase = $filesfolder.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR;
+					} else {
+						$frombase = '';
+					}
+
+					foreach ($typenode->children() as $node) {
+						$name = (string)$node->name;
+						if ((bool)$node->embedded) {
+							@file_put_contents($tobase.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
+						} else {
+							$from = (string)$node->frompath;
+							if ($from) {
+ 								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
+									if ($frombase) {
+										$from = $frombase.$from;
+									} else {
+										$from = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$from;
+									}
+								} else {
+									//TODO validity check e.g. somewhere absolute in installer tree
+								}
+								$from .= DIRECTORY_SEPARATOR;
+							} elseif ($frombase) {
+								$from = $frombase;
+							} else {
+								continue;
+							}
+							@copy($from.$name, $tobase.$name);
+						}
+					}
+					break;
+			} // switch
+		} // count > 0
+	} // xml children
 
 	if ($pages) {
 		$map = [-1 => -1]; // maps proffered id's to installed id's
@@ -968,9 +1151,9 @@ parameters) VALUES (?,?,?,?)';
 }
 
 /**
- * Save page  content direct to database. We do this here cuz during
- * site installation, there may not yet be a PageEditor-compatible class to use
- * for saving content.
+ * Save page content direct to database. We do this here cuz during
+ * site installation, there may not yet be a PageEditor-compatible
+ * class to use for saving content.
  *
  * @param array $parms 2 members: 'fields' and 'props', each an assoc.
  * array suitable for stuffing into database tables
