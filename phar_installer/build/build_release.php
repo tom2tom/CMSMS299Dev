@@ -413,7 +413,9 @@ function copy_local_files()
     //clear all tmp/*/* files
     $tp = joinpath($tmpdir, 'tmp');
     rrmdir($tp, true);
-    //TODO maybe clear all relevant from {...[assets]/templates, ...[assets]/css, ...[assets]/[simple_plugins]}
+    //TODO maybe clear all relevant from ...[assets]/[simple_plugins]
+    //BUT no change to {...[assets]/templates/*, ...[assets]/css/*}, those files will be recorded in the relevant table
+
     //workaround failed exclusion
     $tp = joinpath($tmpdir, 'config.php');
     @unlink($tp);
