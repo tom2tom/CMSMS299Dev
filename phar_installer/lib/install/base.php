@@ -238,14 +238,17 @@ function create_private_dir(string $destdir, string $relative_dir)
 // create the assets directory structure
 verbose_msg(lang('install_createassets'));
 $app = get_app();
-$destdir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
+$config = $app->get_config();
+$na = $config['assetsdir'] ?? 'assets';
+$np = $config['pluginsdir'] ?? 'simple_plugins';
+$destdir = $app->get_destdir().DIRECTORY_SEPARATOR.$na;
 create_private_dir($destdir,'admin_custom');
 create_private_dir($destdir,'configs');
 create_private_dir($destdir,'css');
 create_private_dir($destdir,'images');
 create_private_dir($destdir,'module_custom');
-create_private_dir($destdir,'modules'); //using distinct place for non-core modules
+create_private_dir($destdir,'modules'); //CHECKME if distinct place for non-core modules
 create_private_dir($destdir,'plugins');
 create_private_dir($destdir,'resources');
-create_private_dir($destdir,'simple_plugins');  //UDTfiles
+create_private_dir($destdir,$np); //UDTfiles
 create_private_dir($destdir,'templates');

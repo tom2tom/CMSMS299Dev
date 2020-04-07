@@ -15,30 +15,35 @@ $s = (!empty($config['admindir'])) ? $config['admindir'] : 'admin';
 $admindir = $destdir . DIRECTORY_SEPARATOR . $s;
 $s = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
 $assetsdir = $destdir . DIRECTORY_SEPARATOR . $s;
+$sp = (!empty($config['pluginsdir'])) ? $config['pluginsdir'] : 'simple_plugins';
+$plugsdir = $assetsdir . DIRECTORY_SEPARATOR . $sp;
 
 /*
 // 1. Rename folder if necessary
-$tp = $assetsdir . DIRECTORY_SEPARATOR . 'user_plugins';
 $fp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
-if (is_dir($fp)) {
-    @rename($fp, $tp);
-    touch($tp . DIRECTORY_SEPARATOR . 'index.html');
+if ($fp != $plugsdir && is_dir($fp)) {
+    @rename($fp, $plugsdir);
+    touch($plugsdir . DIRECTORY_SEPARATOR . 'index.html');
 } else {
     $fp = $assetsdir . DIRECTORY_SEPARATOR . 'file_plugins';
-    if (is_dir($fp)) {
-        @rename($fp, $tp);
-        touch($tp . DIRECTORY_SEPARATOR . 'index.html');
-    } elseif (!is_dir($tp)) {
-        @mkdir($tp, 0771, true);
-        touch($tp . DIRECTORY_SEPARATOR . 'index.html');
+    if ($fp != $plugsdir && is_dir($fp)) {
+        @rename($fp, $plugsdir);
+        touch($plugsdir . DIRECTORY_SEPARATOR . 'index.html');
+    } elseif (!is_dir($plugsdir)) {
+        @mkdir($plugsdir, 0771, true);
+        touch($plugsdir . DIRECTORY_SEPARATOR . 'index.html');
     }
 }
 */
 // 1. rename any existing 2.3BETA plugins UDTfiles plus any format change?
 $tp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
-$files = glob($tp.DIRECTORY_SEPARATOR.'*.cmsplugin', GLOB_NOESCAPE | GLOB_NOSORT);
+if ($tp != $plugsdir && is_dir($tp)) {
+    @rename($tp, $plugsdir);
+    touch($plugsdir . DIRECTORY_SEPARATOR . 'index.html');
+}
+$files = glob($plugsdir.DIRECTORY_SEPARATOR.'*.cmsplugin', GLOB_NOESCAPE | GLOB_NOSORT);
 foreach ($files as $fp) {
-    $to = $tp.DIRECTORY_SEPARATOR.basename($fp, 'cmsplugin').'phphp'; //c.f. SimpleTagOperations::PLUGEXT
+    $to = $plugsdir.DIRECTORY_SEPARATOR.basename($fp, 'cmsplugin').'phphp'; //c.f. SimpleTagOperations::PLUGEXT
     @rename($fp, $to);
 }
 
@@ -51,12 +56,12 @@ foreach ([
  ['assets','css'],
  ['assets','images'],
  ['assets','module_custom'],
- ['assets','modules'], //CHECKME
+ ['assets','modules'], //CHECKME iff using distinct non-core-modules place
  ['assets','plugins'],
  ['assets','resources'],
- ['assets','simple_plugins'], //UDTfiles
+ ['assets',$sp], //UDTfiles
  ['assets','templates'],
- ['lib','modules'], //CHECKME
+ ['lib','modules'], //CHECKME iff using distinct core-modules place
 ] as $segs) {
     switch($segs[0]) {
         case 'admin':
