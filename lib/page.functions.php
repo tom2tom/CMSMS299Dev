@@ -64,7 +64,8 @@ function setup_session(bool $cachable = false)
     if (!$cachable) {
         // admin pages can't be cached... period, at all.. never.
         @session_cache_limiter('nocache');
-    } else {
+    }
+    else {
         // frontend request
         $expiry = (int)max(0,cms_siteprefs::get('browser_cache_expiry',60));
         session_cache_expire($expiry);
@@ -355,10 +356,12 @@ function redirect(string $to)
             //path is relative, append current directory first
             elseif (isset($_SERVER['PHP_SELF']) && !is_null($_SERVER['PHP_SELF'])) { //Apache
                 $to .= (strlen(dirname($_SERVER['PHP_SELF'])) > 1 ?  dirname($_SERVER['PHP_SELF']).'/' : '/') . $components['path'];
-            } elseif (isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI'])) { //Lighttpd
+            }
+            elseif (isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI'])) { //Lighttpd
                 if (endswith($_SERVER['REQUEST_URI'], '/')) {
                     $to .= (strlen($_SERVER['REQUEST_URI']) > 1 ? $_SERVER['REQUEST_URI'] : '/') . $components['path'];
-                } else {
+                }
+                else {
                     $dn = dirname($_SERVER['REQUEST_URI']);
                     if (!endswith($dn,'/')) $dn .= '/';
                     $to .= $dn . $components['path'];
@@ -367,7 +370,8 @@ function redirect(string $to)
         }
         $to .= isset($components['query']) ? '?' . $components['query'] : '';
         $to .= isset($components['fragment']) ? '#' . $components['fragment'] : '';
-    } else {
+    }
+    else {
         $to = $schema.'://'.$host.'/'.$to;
     }
 
@@ -376,7 +380,8 @@ function redirect(string $to)
 
     if (!AppState::test_state(AppState::STATE_INSTALL)) {
         $debug = constant('CMS_DEBUG');
-    } else {
+    }
+    else {
         $debug = false;
     }
 
@@ -388,7 +393,8 @@ function redirect(string $to)
 <noscript>
 <meta http-equiv="Refresh" content="0;URL='.$to.'">
 </noscript>';
-    } elseif ($debug) {
+    }
+    elseif ($debug) {
         echo 'Automatic redirection is disabled while debugging. Please click this link to continue.<br />
 <a accesskey="r" href="'.$to.'">'.$to.'</a><br />
 <div id="DebugFooter">';
@@ -396,7 +402,8 @@ function redirect(string $to)
             echo $error;
         }
         echo '</div> <!-- end DebugFooter -->';
-    } else {
+    }
+    else {
         header("Location: $to");
     }
     exit;
@@ -738,11 +745,13 @@ function cms_path_to_url(string $in, string $relative_to = '') : string
     if ($relative_to) {
         $in = realpath(cms_join_path($relative_to, $in));
         return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
-    } elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $in)) {
+    }
+    elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $in)) {
         // $in is absolute
         $in = realpath($in);
         return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
-    } else {
+    }
+    else {
         return strtr($in, DIRECTORY_SEPARATOR, '/');
     }
 }
@@ -921,7 +930,8 @@ function cms_to_stamp($datetime, bool $is_utc = false) : int
                 return $dt->getTimestamp() - $offs;
             }
             return $dt->getTimestamp();
-        } catch (Throwable $t) {
+        }
+        catch (Throwable $t) {
             // nothing here
         }
     }
@@ -973,12 +983,14 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
                     $best = $matches[1];
                     $use = $file;
                     $min = !empty($matches[2]); //$use is .min
-                } elseif (version_compare($best, $matches[1]) < 0 || ($min && empty($matches[2]))) {
+                }
+                elseif (version_compare($best, $matches[1]) < 0 || ($min && empty($matches[2]))) {
                     $best = $matches[1];
                     $use = $file;
                     $min = !empty($matches[2]); //$use is .min
                 }
-            } elseif (version_compare($best, $matches[1]) < 0) {
+            }
+            elseif (version_compare($best, $matches[1]) < 0) {
                 $best = $matches[1];
                 $use = $file;
             }
@@ -1045,7 +1057,8 @@ function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false
 <link rel="stylesheet" type="text/css" href="{$url1}" />
 
 EOS;
-    } else {
+    }
+    else {
         $s1 = '';
     }
     $url2 = cms_path_to_url($incs['jqcore']);
@@ -1067,7 +1080,8 @@ function get_best_file($places, $target, $ext, $as_url)
 {
     if (($p = stripos($target, 'min')) !== false) {
         $base = substr($target, 0, $p-1); //strip [.-]min & type-suffix
-    } elseif (($p = stripos($target, '.'.$ext)) !== false) {
+    }
+    elseif (($p = stripos($target, '.'.$ext)) !== false) {
         $base = substr($target, 0, $p); //strip type-suffix
     }
     $base = strtr($base, ['.'=>'\\.', '-'=>'\\-']);
@@ -1084,14 +1098,17 @@ function get_best_file($places, $target, $ext, $as_url)
                         preg_match($patn, $target, $matches);
                         if (!empty($matches[2])) {
                             break; //use the min TODO check versions too
-                        } elseif (!empty($matches[1])) {
+                        }
+                        elseif (!empty($matches[1])) {
                             //TODO a candidate, but try for later-version/min
-                        } else {
+                        }
+                        else {
                             //TODO a candidate, but try for min
                         }
                     }
 //                    $target = $best;
-                } else {
+                }
+                else {
                     $target = reset($files);
                 }
                 $out = $base_path.DIRECTORY_SEPARATOR.$target;
@@ -1130,10 +1147,12 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
          CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery',
          CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
         ];
-    } elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename)) {
+    }
+    elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename)) {
         // $filename is absolute
         $places = [dirname($filename)];
-    } else {
+    }
+    else {
         // $filename is relative, try to find it
         //TODO if relevant, support somewhere module-relative
         //TODO partial path-intersection too, any separators
@@ -1151,7 +1170,8 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
     if ($custompaths) {
         if (is_array($custompaths)) {
             $places = array_merge($custompaths, $places);
-        } else {
+        }
+        else {
             array_unshift($places, $custompaths);
         }
         $places = array_unique($places);
@@ -1184,10 +1204,12 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
          CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery',
          CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
         ];
-    } elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename)) {
+    }
+    elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename)) {
         // $filename is absolute
         $places = [dirname($filename)];
-    } else {
+    }
+    else {
         // $filename is relative, try to find it
         //TODO if relevant, support somewhere module-relative
         //TODO partial path-intersection too, any separators
@@ -1205,7 +1227,8 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
     if ($custompaths) {
         if (is_array($custompaths)) {
             $places = array_merge($custompaths, $places);
-        } else {
+        }
+        else {
             array_unshift($places, $custompaths);
         }
         $places = array_unique($places);
@@ -1322,7 +1345,7 @@ function create_file_dropdown(
  *  string 'workid' id of a div to be created (by some editors) to process
  *    the content of the htmlid-element. (As always, avoid conflict with tab-name divs). Default 'edit_work'
  *
- * @return array up to 2 members, being 'head' and/or 'foot'
+ * @return array up to 2 members, those being 'head' and/or 'foot', or perhaps [1] or []
  */
 function get_richeditor_setup(array $params) : array
 {
@@ -1360,6 +1383,7 @@ function get_richeditor_setup(array $params) : array
                     //$params[] will be ignored by modules without relevant capability
                     $out = $modinst->WYSIWYGGenerateHeader($params);
                     if( $out ) { return ['head'=>$out]; }
+                    return [1]; //anything not falsy
                 }
             }
         }
@@ -1385,7 +1409,7 @@ function get_richeditor_setup(array $params) : array
  *    at least an extension or pseudo (like 'smarty'). Default ''
  *  string 'theme' name to override the recorded theme/style for the editor. Default ''
  *
- * @return array up to 2 members, being 'head' and/or 'foot'
+ * @return array up to 2 members, those being 'head' and/or 'foot', or perhaps [1] or []
  */
 function get_syntaxeditor_setup(array $params) : array
 {
@@ -1422,6 +1446,7 @@ function get_syntaxeditor_setup(array $params) : array
                     //$params[] will be ignored by modules without relevant capability
                     $out = $modinst->SyntaxGenerateHeader($params);
                     if( $out ) { return ['head'=>$out]; }
+                    return [1]; //anything not falsy
                 }
             }
         }
@@ -1483,7 +1508,8 @@ function stack_trace(string $title = '')
         if ($elem['function'] == 'stack_trace') continue;
         if (isset($elem['file'])) {
             echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br />';
-        } else {
+        }
+        else {
             echo ' - '.$elem['function'].'<br />';
         }
     }
@@ -1539,7 +1565,8 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
         if (function_exists('memory_get_usage')) {
             $net = memory_get_usage() - $orig_memory;
             $titleText .= ', memory usage: net '.$net;
-        } else {
+        }
+        else {
             $net = false;
         }
 
@@ -1547,14 +1574,16 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
         if ($memory_peak) {
             if ($net === false) {
                 $titleText .= ', memory usage: peak '.$memory_peak;
-            } else {
+            }
+            else {
                 $titleText .= ', peak '.$memory_peak;
             }
         }
 
         if ($use_html) {
             echo "<div><b>$titleText</b>\n";
-        } else {
+        }
+        else {
             echo "$titleText\n";
         }
     }
@@ -1565,25 +1594,29 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
         if (is_array($var)) {
             echo 'Number of elements: ' . count($var) . "\n";
             print_r($var);
-        } elseif (is_object($var)) {
+        }
+        elseif (is_object($var)) {
             print_r($var);
-        } elseif (is_string($var)) {
+        }
+        elseif (is_string($var)) {
             if ($use_html) {
                 print_r(htmlentities(str_replace("\t", '  ', $var)));
-            } else {
+            }
+            else {
                 print_r($var);
             }
-        } elseif (is_bool($var)) {
+        }
+        elseif (is_bool($var)) {
             echo ($var) ? 'true' : 'false';
-        } elseif ($var || is_numeric($var)) {
+        }
+        elseif ($var || is_numeric($var)) {
             print_r($var);
         }
         if ($use_html) echo '</pre>';
     }
     if ($use_html) echo "</div>\n";
 
-    $out = ob_get_contents();
-    ob_end_clean();
+    $out = ob_get_clean();
 
     if ($echo_to_screen) echo $out;
     return $out;
