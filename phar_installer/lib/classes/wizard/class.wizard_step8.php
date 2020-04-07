@@ -136,7 +136,7 @@ class wizard_step8 extends wizard_step
             $corenames = $app->get_config()['coremodules'];
             $cores = implode(',',$corenames);
             $theme = reset(AdminTheme::GetAvailableThemes());
-            $uuid = cms_utils::random_string(32);
+            $uuid = trim(base64_encode(cms_utils::random_string(24)), '='); //db hates some chars
             $ultras = json_encode(['Modify Restricted Files','Modify DataBase Direct','Remote Administration']);
 
             foreach ([
@@ -253,8 +253,10 @@ class wizard_step8 extends wizard_step
 
         $corenames = $app->get_config()['coremodules'];
         $cores = implode(',',$corenames);
+        $uuid = trim(base64_encode(cms_utils::random_string(24)), '='); //db hates some chars
         $arr = [
             'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
+            'site_uuid' => $uuid, // almost-certainly-unique signature of this site
             'ultraroles' => json_encode(['Modify Restricted Files','Modify DataBase Direct','Remote Administration']),
         ];
         if( issset($siteinfo['supporturl']) ) { //TODO only if verbose etc
