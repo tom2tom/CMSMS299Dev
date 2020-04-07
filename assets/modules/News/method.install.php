@@ -11,7 +11,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
@@ -24,16 +24,17 @@ use News\AdminOperations;
 if( !isset($gCms) ) exit;
 
 // best to avoid module-specific class autoloading during installation
-if( !class_exists('AdminOperations') ) {
-  $fn = cms_join_path(__DIR__,'lib','class.AdminOperations.php');
-  require_once($fn);
+if( !class_exists('News\\AdminOperations') ) {
+    $fn = cms_join_path(__DIR__,'lib','class.AdminOperations.php');
+    require_once $fn;
 }
 
-$newsite = AppState::test_state(AppState::STATE_INSTALL);
-if( $newsite ) {
-  $uid = 1; // templates owned by intitial admin
-} else {
-  $uid = get_userid();
+$installer_working = AppState::test_state(AppState::STATE_INSTALL);
+if( $installer_working ) {
+    $uid = 1; // templates owned by intitial admin
+}
+else {
+    $uid = get_userid(FALSE);
 }
 
 $dict = new DataDictionary($db);
@@ -69,7 +70,7 @@ $sqlarray = $dict->CreateIndexSQL('news_author', $tbl, 'author_id');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('news_hier', $tbl, 'news_category_id');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('news_url',  $tbl, 'news_url');
+$sqlarray = $dict->CreateIndexSQL('news_url', $tbl, 'news_url');
 $dict->ExecuteSQLArray($sqlarray);
 
 $db->CreateSequence(CMS_DB_PREFIX.'module_news_seq'); //race-preventer
@@ -95,11 +96,11 @@ $now = time();
 $catid = $db->GenID(CMS_DB_PREFIX.'module_news_categories_seq');
 $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories (news_category_id, news_category_name, parent_id, create_date, modified_date) VALUES (?,?,?,?,?)';
 $db->Execute($query, [
-	$catid,
-	'General',
-	-1,
-	$now,
-	$now,
+    $catid,
+    'General',
+    -1,
+    $now,
+    $now,
 ]);
 
 AdminOperations::UpdateHierarchyPositions();
@@ -129,233 +130,233 @@ $group_id = $db->GetOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE grou
 
 $count = $db->GetOne('SELECT COUNT(*) FROM ' . CMS_DB_PREFIX . 'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
 if ((int)$count == 0) {
-  $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');
-  $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'group_perms (group_perm_id, group_id, permission_id, create_date, modified_date) VALUES ('.$new_id.', '.$group_id.', '.$perm_id.', '. $now . ', ' . $now . ')';
-  $db->Execute($query);
+    $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');
+    $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'group_perms (group_perm_id, group_id, permission_id, create_date, modified_date) VALUES ('.$new_id.', '.$group_id.', '.$perm_id.', '. $now . ', ' . $now . ')';
+    $db->Execute($query);
 }
 
 $group_id = $db->GetOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE group_name = 'Editor'");
 
 $count = $db->GetOne('SELECT COUNT(*) FROM ' . CMS_DB_PREFIX . 'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
 if (isset($count) && (int)$count == 0) {
-  $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');
-  $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'group_perms (group_perm_id, group_id, permission_id, create_date, modified_date) VALUES ('.$new_id.', '.$group_id.', '.$perm_id.', '. $now . ', ' . $now . ')';
-  $db->Execute($query);
+    $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');
+    $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'group_perms (group_perm_id, group_id, permission_id, create_date, modified_date) VALUES ('.$new_id.', '.$group_id.', '.$perm_id.', '. $now . ', ' . $now . ')';
+    $db->Execute($query);
 }
 
 $me = $this->GetName();
 // Setup summary templates type
 try {
-  $type = new CmsLayoutTemplateType();
-  $type->set_originator($me);
-  $type->set_name('summary');
-  $type->set_dflt_flag(TRUE);
-  $type->set_lang_callback('News::page_type_lang_callback');
-  $type->set_content_callback('News::reset_page_type_defaults');
-  $type->set_help_callback('News::template_help_callback');
-  $type->reset_content_to_factory();
-  $type->save();
+    $type = new CmsLayoutTemplateType();
+    $type->set_originator($me);
+    $type->set_name('summary');
+    $type->set_dflt_flag(TRUE);
+    $type->set_lang_callback('News::page_type_lang_callback');
+    $type->set_content_callback('News::reset_page_type_defaults');
+    $type->set_help_callback('News::template_help_callback');
+    $type->reset_content_to_factory();
+    $type->save();
 }
 catch( CmsException $e ) {
-  // log it
-  debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-  audit('',$me,'Installation error: '.$e->getMessage());
-}
-
-try {
-  // And type-default template
-  $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_summary_template.tpl';
-  if( is_file( $fn ) ) {
-    $content = @file_get_contents($fn);
-    $tpl = new CmsLayoutTemplate();
-    $tpl->set_originator($me);
-    $tpl->set_name('News Summary Sample');
-    $tpl->set_owner($uid);
-    $tpl->set_content($content);
-    $tpl->set_type($type);
-    $tpl->set_type_dflt(TRUE);
-    $tpl->save();
-  }
-}
-catch( CmsException $e ) {
-  // log it
-  debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-  audit('',$me,'Installation error: '.$e->getMessage());
-}
-
-if( $newsite ) {
-  $extras = [];
-  try {
-    // And Simplex theme sample summary template
-    $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Summary_Simplex_template.tpl';
-    if( is_file( $fn ) ) {
-      $content = @file_get_contents($fn);
-      $tpl = new CmsLayoutTemplate();
-      $tpl->set_originator($me);
-      $tpl->set_name('Simplex News Summary');
-      $tpl->set_owner($uid);
-      $tpl->set_content($content);
-      $tpl->set_type($type);
-      $tpl->save();
-      $extras[] = $tpl->get_id();
-    }
-  }
-  catch( CmsException $e ) {
     // log it
     debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
     audit('',$me,'Installation error: '.$e->getMessage());
-  }
 }
 
 try {
-  // Setup detail templates type
-  $type = new CmsLayoutTemplateType();
-  $type->set_originator($me);
-  $type->set_name('detail');
-  $type->set_dflt_flag(TRUE);
-  $type->set_lang_callback('News::page_type_lang_callback');
-  $type->set_content_callback('News::reset_page_type_defaults');
-  $type->reset_content_to_factory();
-  $type->set_help_callback('News::template_help_callback');
-  $type->save();
-}
-catch( CmsException $e ) {
-  // log it
-  debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-  audit('',$me,'Installation error: '.$e->getMessage());
-}
-
-try {
-  // And type-default template
-  $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_detail_template.tpl';
-  if( is_file( $fn ) ) {
-    $content = @file_get_contents($fn);
-    $tpl = new CmsLayoutTemplate();
-    $tpl->set_originator($me);
-    $tpl->set_name('News Detail Sample');
-    $tpl->set_owner($uid);
-    $tpl->set_content($content);
-    $tpl->set_type($type);
-    $tpl->set_type_dflt(TRUE);
-    $tpl->save();
-  }
-}
-catch( CmsException $e ) {
-  // log it
-  debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-  audit('',$me,'Installation error: '.$e->getMessage());
-}
-
-if( $newsite ) {
-  try {
-    // And Simplex theme sample detail template
-    $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Detail_template.tpl';
+    // And type-default template
+    $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_summary_template.tpl';
     if( is_file( $fn ) ) {
-      $content = @file_get_contents($fn);
-      $tpl = new CmsLayoutTemplate();
-      $tpl->set_originator($me);
-      $tpl->set_name('Simplex News Detail');
-      $tpl->set_owner($uid);
-      $tpl->set_content($content);
-      $tpl->set_type($type);
-      $tpl->save();
-      $extras[] = $tpl->get_id();
+        $content = @file_get_contents($fn);
+        $tpl = new CmsLayoutTemplate();
+        $tpl->set_originator($me);
+        $tpl->set_name('News Summary Sample');
+        $tpl->set_owner($uid);
+        $tpl->set_content($content);
+        $tpl->set_type($type);
+        $tpl->set_type_dflt(TRUE);
+        $tpl->save();
     }
-  }
-  catch( CmsException $e ) {
+}
+catch( CmsException $e ) {
     // log it
     debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
     audit('',$me,'Installation error: '.$e->getMessage());
-  }
+}
 
-  if( $extras ) {
+if( $installer_working ) {
+    $extras = [];
     try {
-      $ob = CmsLayoutTemplateCategory::load('Simplex');
-      $ob->add_members($extras);
-      $ob->save();
+        // And Simplex theme sample summary template
+        $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Summary_Simplex_template.tpl';
+        if( is_file( $fn ) ) {
+            $content = @file_get_contents($fn);
+            $tpl = new CmsLayoutTemplate();
+            $tpl->set_originator($me);
+            $tpl->set_name('Simplex News Summary');
+            $tpl->set_owner($uid);
+            $tpl->set_content($content);
+            $tpl->set_type($type);
+            $tpl->save();
+            $extras[] = $tpl->get_id();
+        }
     }
-    catch( Throwable $t) {
-    //if modules are installed before demo content, that group won't yet exist
+    catch( CmsException $e ) {
+        // log it
+        debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
+        audit('',$me,'Installation error: '.$e->getMessage());
     }
-  }
+}
+
+try {
+    // Setup detail templates type
+    $type = new CmsLayoutTemplateType();
+    $type->set_originator($me);
+    $type->set_name('detail');
+    $type->set_dflt_flag(TRUE);
+    $type->set_lang_callback('News::page_type_lang_callback');
+    $type->set_content_callback('News::reset_page_type_defaults');
+    $type->reset_content_to_factory();
+    $type->set_help_callback('News::template_help_callback');
+    $type->save();
+}
+catch( CmsException $e ) {
+    // log it
+    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
+    audit('',$me,'Installation error: '.$e->getMessage());
+}
+
+try {
+    // And type-default template
+    $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_detail_template.tpl';
+    if( is_file( $fn ) ) {
+        $content = @file_get_contents($fn);
+        $tpl = new CmsLayoutTemplate();
+        $tpl->set_originator($me);
+        $tpl->set_name('News Detail Sample');
+        $tpl->set_owner($uid);
+        $tpl->set_content($content);
+        $tpl->set_type($type);
+        $tpl->set_type_dflt(TRUE);
+        $tpl->save();
+    }
+}
+catch( CmsException $e ) {
+    // log it
+    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
+    audit('',$me,'Installation error: '.$e->getMessage());
+}
+
+if( $installer_working ) {
+    try {
+        // And Simplex theme sample detail template
+        $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Detail_template.tpl';
+        if( is_file( $fn ) ) {
+            $content = @file_get_contents($fn);
+            $tpl = new CmsLayoutTemplate();
+            $tpl->set_originator($me);
+            $tpl->set_name('Simplex News Detail');
+            $tpl->set_owner($uid);
+            $tpl->set_content($content);
+            $tpl->set_type($type);
+            $tpl->save();
+            $extras[] = $tpl->get_id();
+        }
+    }
+    catch( CmsException $e ) {
+        // log it
+        debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
+        audit('',$me,'Installation error: '.$e->getMessage());
+    }
+
+    if( $extras ) {
+        try {
+            $ob = CmsLayoutTemplateCategory::load('Simplex');
+            $ob->add_members($extras);
+            $ob->save();
+        }
+        catch( Throwable $t) {
+            //if modules are installed before demo content, that group won't yet exist
+        }
+    }
 }
 /*
 try {
-  // Setup form template type
-  $type = new CmsLayoutTemplateType();
-  $type->set_originator($me);
-  $type->set_name('form');
-  $type->set_dflt_flag(TRUE);
-  $type->set_lang_callback('News::page_type_lang_callback');
-  $type->set_content_callback('News::reset_page_type_defaults');
-  $type->reset_content_to_factory();
-  $type->set_help_callback('News::template_help_callback');
-  $type->save();
+    // Setup form template type
+    $type = new CmsLayoutTemplateType();
+    $type->set_originator($me);
+    $type->set_name('form');
+    $type->set_dflt_flag(TRUE);
+    $type->set_lang_callback('News::page_type_lang_callback');
+    $type->set_content_callback('News::reset_page_type_defaults');
+    $type->reset_content_to_factory();
+    $type->set_help_callback('News::template_help_callback');
+    $type->save();
 }
 catch( CmsException $e ) {
-  // log it
-  debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-  audit('',$me,'Installation error: '.$e->getMessage());
+    // log it
+    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
+    audit('',$me,'Installation error: '.$e->getMessage());
 }
 
 try {
-  // And type-default template
-  $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_form_template.tpl';
-  if( is_file( $fn ) ) {
-    $content = @file_get_contents($fn);
-    $tpl = new CmsLayoutTemplate();
-    $tpl->set_originator($me);
-    $tpl->set_name('News FEsubmit Form Sample');
-    $tpl->set_owner($uid);
-    $tpl->set_content($content);
-    $tpl->set_type($type);
-    $tpl->set_type_dflt(TRUE);
-    $tpl->save();
-  }
+    // And type-default template
+    $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_form_template.tpl';
+    if( is_file( $fn ) ) {
+        $content = @file_get_contents($fn);
+        $tpl = new CmsLayoutTemplate();
+        $tpl->set_originator($me);
+        $tpl->set_name('News FEsubmit Form Sample');
+        $tpl->set_owner($uid);
+        $tpl->set_content($content);
+        $tpl->set_type($type);
+        $tpl->set_type_dflt(TRUE);
+        $tpl->save();
+    }
 }
 catch( CmsException $e ) {
-  // log it
-  debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-  audit('',$me,'Installation error: '.$e->getMessage());
+    // log it
+    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
+    audit('',$me,'Installation error: '.$e->getMessage());
 }
 */
 try {
-  // Setup browsecat template type
-  $type = new CmsLayoutTemplateType();
-  $type->set_originator($me);
-  $type->set_name('browsecat');
-  $type->set_dflt_flag(TRUE);
-  $type->set_lang_callback('News::page_type_lang_callback');
-  $type->set_content_callback('News::reset_page_type_defaults');
-  $type->reset_content_to_factory();
-  $type->set_help_callback('News::template_help_callback');
-  $type->save();
+    // Setup browsecat template type
+    $type = new CmsLayoutTemplateType();
+    $type->set_originator($me);
+    $type->set_name('browsecat');
+    $type->set_dflt_flag(TRUE);
+    $type->set_lang_callback('News::page_type_lang_callback');
+    $type->set_content_callback('News::reset_page_type_defaults');
+    $type->reset_content_to_factory();
+    $type->set_help_callback('News::template_help_callback');
+    $type->save();
 }
 catch( CmsException $e ) {
-  // log it
-  debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-  audit('',$me,'Installation error: '.$e->getMessage());
+    // log it
+    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
+    audit('',$me,'Installation error: '.$e->getMessage());
 }
 
 try {
-  // And type-default template
-  $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'browsecat.tpl';
-  if( is_file( $fn ) ) {
-    $content = @file_get_contents($fn);
-    $tpl = new CmsLayoutTemplate();
-    $tpl->set_originator($me);
-    $tpl->set_name('News Browse Category Sample');
-    $tpl->set_owner($uid);
-    $tpl->set_content($content);
-    $tpl->set_type($type);
-    $tpl->set_type_dflt(TRUE);
-    $tpl->save();
-  }
+    // And type-default template
+    $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'browsecat.tpl';
+    if( is_file( $fn ) ) {
+        $content = @file_get_contents($fn);
+        $tpl = new CmsLayoutTemplate();
+        $tpl->set_originator($me);
+        $tpl->set_name('News Browse Category Sample');
+        $tpl->set_owner($uid);
+        $tpl->set_content($content);
+        $tpl->set_type($type);
+        $tpl->set_type_dflt(TRUE);
+        $tpl->save();
+    }
 }
 catch( CmsException $e ) {
-  // log it
-  debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-  audit('',$me,'Installation error: '.$e->getMessage());
+    // log it
+    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
+    audit('',$me,'Installation error: '.$e->getMessage());
 }
 
 // Default email template and email preferences
@@ -386,8 +387,8 @@ $this->CreateStaticRoutes();
 // and uploads
 $fn = $config['uploads_path'];
 if( $fn && is_dir($fn) ) {
-  $fn .= DIRECTORY_SEPARATOR.$me;
-  if( !is_dir($fn) ) {
-    @mkdir($fn, 0771, TRUE);
-  }
+    $fn .= DIRECTORY_SEPARATOR.$me;
+    if( !is_dir($fn) ) {
+        @mkdir($fn, 0771, TRUE);
+    }
 }
