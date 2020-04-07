@@ -19,5 +19,5 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 $modname = cms_siteprefs::get('loginmodule');
 if( !$modname ) {
-    cms_siteprefs::set('loginmodule', $this->GetName());
+//NOPE DEFAULT TO THEME cms_siteprefs::set('loginmodule', $this->GetName());
 }
