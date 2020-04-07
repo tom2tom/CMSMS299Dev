@@ -1,6 +1,8 @@
 <?php
-# Module: content_assistant (c) 2010 by Robert Campbell (calguy1000@cmsmadesimple.org)
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#Module: content_assistant
+#Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,8 +18,8 @@
 
 namespace CMSMS\internal;
 
-use CMSMS\RouteOperations;
 use cms_siteprefs;
+use CMSMS\RouteOperations;
 use function endswith;
 use function munge_string_to_url;
 use function startswith;
