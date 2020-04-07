@@ -1,6 +1,6 @@
 <?php
 #admin functions: site-content export/import
-#Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -32,11 +32,11 @@ use CMSMS\TemplateOperations;
 use DesignManager\Design;
 use function cms_installer\lang;
 
-const CONTENT_DTD_VERSION = '0.8';
-const CONTENT_DTD_MINVERSION = '0.8';
+const CONTENT_DTD_VERSION = '0.9';
+const CONTENT_DTD_MINVERSION = '0.9';
 
 /**
- *
+ * Populate a section of the XML file related to database content
  * @param XMLWriter $xwm
  * @param Connection $db database connection
  * @param array $structarray
@@ -100,13 +100,70 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 }
 
 /**
+ * Populate a section of the XML file related to filesystem files
+ * @param XMLWriter $xw worker object
+ * @param string $section xml file section name
+ * @param string $frombase source folder filepath
+ * @param string $tobase destination folder filepath, or '' if $copyfiles is false
+ * @return int no. of copied files
+ */
+function fill_filessection(XMLWriter $xw, string $section, string $frombase, string $tobase)
+{
+	$skip = strlen($frombase) + 1;
+	$copied = 0;
+	$copyfiles = !empty($tobase);
+
+	$xw->startElement($section);
+	$iter = new RecursiveIteratorIterator(
+		new RecursiveDirectoryIterator($frombase,
+			FilesystemIterator::KEY_AS_PATHNAME |
+			FilesystemIterator::FOLLOW_SYMLINKS |
+			FilesystemIterator::SKIP_DOTS),
+		RecursiveIteratorIterator::LEAVES_ONLY |
+		RecursiveIteratorIterator::CHILD_FIRST);
+	foreach ($iter as $p=>$info) {
+		if (!$info->isDir()) {
+			$name = $info->getBasename();
+			if (fnmatch('index.htm?', $name)) continue;
+			$tail = substr($p, $skip);
+			if ($copyfiles) {
+				$tp = $tobase.DIRECTORY_SEPARATOR.$tail;
+				$dir = dirname($tp);
+				@mkdir($dir, 0771, true);
+				if (@copy($p, $tp)) {
+					++$copied;
+				}
+			} else {
+				//TODO consider embedding files as base64_encoded, esp. if only a few
+			}
+			$xw->startElement('file');
+			$xw->writeElement('name', $name);
+			$td = dirname($tail);
+			if ($td == '.') {
+				$td = '';
+			}
+			$xw->writeElement('frompath', $td); // $frombase-relative
+			$xw->writeElement('topath', $td); // is also $tobase-relative
+			$xw->endElement(); // file
+		}
+	}
+	if ($copied > 0) {
+		$xw->writeElement('sourcedir', $tobase);
+	}
+	$xw->endElement(); // $section
+	return $copied;
+}
+
+/**
  * Export site content (pages, templates, designs, styles etc) to XML file.
- * Support files (in the uploads folder) and UDT's (in the assets/user_plugins folder)
- * are recorded as such, and will be copied into the specified $filesfolder if it exists.
+ * Support files (in the uploads folder) and simple-plugin files, template files
+ * and stylesheet files (in their respective assets sub-folders) are recorded
+ * as such, and will be copied into the specified $filesfolder if it exists.
  * Otherwise, that remains a manual task.
  *
  * @param string $xmlfile filesystem path of file to use
- * @param string $filesfolder path of installer-tree folder which will contain any 'support' files
+ * @param string $filesfolder path of installer-tree folder to contain any
+ *  files to be installed verbatim, or empty if file-copying is disabled
  * @param Connection $db database connection
  */
 function export_content(string $xmlfile, string $filesfolder, Connection $db)
@@ -270,6 +327,17 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        ]
       ]
      ],
+     'simpletags' => [
+      'table' => 'simpleplugins',
+      'subtypes' => [
+        'tag' => [
+        'name' => [],
+        'code' => ['isdata'=>1],
+        'description' => ['isdata'=>1, 'optional' => 1],
+        'parameters' => ['isdata'=>1, 'optional' => 1],
+       ]
+      ]
+     ],
     ];
 
 	@unlink($xmlfile);
@@ -353,13 +421,15 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
- <!ELEMENT files (sourcedir?,file*)>
+ <!ELEMENT uploadfiles (sourcedir?,file*)>
  <!ELEMENT file (name,topath,(frompath|embedded),content?)>
  <!ELEMENT topath (#PCDATA)>
  <!ELEMENT frompath (#PCDATA)>
  <!ELEMENT embedded (#PCDATA)>
- <!ELEMENT userplugins (sourcedir?,file*)>
- <!ELEMENT file (name,(frompath|embedded),content?)>
+ <!ELEMENT simpletags (tag*)>
+ <!ELEMENT tag (name,description?,parameters?code)>
+ <!ELEMENT parameters (#PCDATA)>
+ <!ELEMENT code (#PCDATA)>
 ');
 
 	$xw->startElement('cmsmssitedata');
@@ -372,85 +442,17 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 
 	$xw->text("\n");
 
-	$copynow = is_dir($filesfolder);
+	$copyfiles = is_dir($filesfolder);
+	if ($copyfiles) {
+		recursive_delete($filesfolder, false); //clear it
+	}
 	$config = cms_config::get_instance();
 	$frombase = $config['uploads_path'];
-	if(is_dir($frombase)) {
-		$skip = strlen($frombase) + 1;
-
-		$xw->startElement('files');
-		$iter = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($frombase,
-				FilesystemIterator::KEY_AS_PATHNAME |
-				FilesystemIterator::FOLLOW_SYMLINKS |
-				FilesystemIterator::SKIP_DOTS),
-			RecursiveIteratorIterator::LEAVES_ONLY |
-			RecursiveIteratorIterator::CHILD_FIRST);
-		foreach ($iter as $p=>$info) {
-			if (!$info->isDir()) {
-				$name = $info->getBasename();
-				if (fnmatch('index.htm?', $name)) continue;
-				$tail = substr($p, $skip);
-				if ($copynow) {
-					$tp = $filesfolder.DIRECTORY_SEPARATOR.$tail;
-					$dir = dirname($tp);
-					@mkdir($dir, 0771, true);
-					@copy($p, $tp);
-				}
-				$xw->startElement('file');
-				$xw->writeElement('name', $name);
-				//TODO if !$copynow, consider embedding some files as base64_encoded esp. if only a few
-				$td = dirname($tail);
-				if ($td == '.') $td = '';
-				$xw->writeElement('frompath', $td);
-				$xw->writeElement('topath', $td);
-				$xw->endElement(); // file
-			}
-		}
-		$xw->endElement(); // files
+	if (is_dir($frombase)) {
+		fill_filessection($xw, 'uploadfiles', $frombase, $filesfolder);
 	}
 
-	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'user_plugins'.DIRECTORY_SEPARATOR;
-	$skip = strlen($frombase);
-	if ($copynow) {
-		$dir = $filesfolder.DIRECTORY_SEPARATOR.'user_plugins';
-		@mkdir($dir, 0771, true);
-		$copycount = 0;
-	}
-
-	$xw->startElement('userplugins');
-	$iter = new RecursiveIteratorIterator(
-		new RecursiveDirectoryIterator($frombase,
-			FilesystemIterator::KEY_AS_PATHNAME |
-			FilesystemIterator::FOLLOW_SYMLINKS |
-			FilesystemIterator::SKIP_DOTS),
-		RecursiveIteratorIterator::LEAVES_ONLY |
-		RecursiveIteratorIterator::CHILD_FIRST);
-	foreach ($iter as $p=>$info) {
-		if (!$info->isDir()) {
-			$name = $info->getBasename();
-			if (!endswith($name, '.php')) continue;
-			if ($copynow) {
-				@copy($p, $dir.DIRECTORY_SEPARATOR.$name);
-				++$copycount;
-			}
-			$xw->startElement('file');
-			$xw->writeElement('name', $name);
-			//TODO if !$copynow, consider embedding some files as htmlspecialchars-encoded esp. if only a few
-/*			$tail = substr($p, $skip);
-            $td = dirname($tail);
-            if ($td == '.') $td = '';
-			$xw->writeElement('frompath', $td);
-*/
-			$xw->writeElement('frompath', '');
-			$xw->endElement(); // file
-		}
-	}
-	$xw->endElement(); // userplugins
-	if ($copynow && $copycount == 0) {
-		@rmdir($dir);
-	}
-
+    // 'custom' files (templates stylesheets etc) elsewhere in the source tree will be handled just like all other files
 	$xw->endElement(); // cmsmsinstall
 	$xw->endDocument();
 	$xw->flush(false);
@@ -865,7 +867,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$pages[$val]['props'][(string)$node->prop_name] = htmlspecialchars_decode($val2);
 					}
 					break;
-				case 'files':
+				case 'uploadfiles':
 					$config = cms_config::get_instance();
 					$tobase = $config['uploads_path'];
 					if ($tobase) {
@@ -924,38 +926,27 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							}
 						}
 					break;
-				case 'userplugins':
-					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'user_plugins'.DIRECTORY_SEPARATOR;
-					if ($filesfolder) {
-						//TODO validity check e.g. somewhere absolute in installer tree
-						$frombase = $filesfolder.DIRECTORY_SEPARATOR;
-					} else {
-						$frombase = '';
+				case 'simpletags':
+					if (!$runtime) {
+						verbose_msg(lang('install_simpletags'));
 					}
-
+					$db = CmsApp::get_instance()->GetDb();
+					$query = 'INSERT INTO '.CMS_DB_PREFIX.'simpleplugins (
+name,
+code,
+description,
+parameters) VALUES (?,?,?,?)';
 					foreach ($typenode->children() as $node) {
-						$name = (string)$node->name;
-						if ((bool)$node->embedded) {
-							@file_put_contents($tobase.$name, htmlspecialchars_decode((string)$node->content));
-						} else {
-							$from = (string)$node->frompath;
-							if ($from) {
- 								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
-									if ($frombase) {
-										$from = $frombase.$from;
-									} else {
-										$from = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$from;
-									}
-								} else {
-									//TODO validity check e.g. somewhere absolute in installer tree
-								}
-								$from .= DIRECTORY_SEPARATOR;
-							} elseif ($frombase) {
-								$from = $frombase;
-							} else {
-								continue;
-							}
-							@copy($from.$name, $tobase.$name);
+						$parms = (array)$node;
+						$args = [$params['name']];
+						$val = $parms['code'] ?? null;
+						if ($val) { $args[] = htmlspecialchars_decode($val); } else { $args[] = null; }
+						$val = $parms['description'] ?? null;
+						if ($val) { $args[] = htmlspecialchars_decode($val); } else { $args[] = null; }
+						$val = $parms['parameters'] ?? null;
+						if ($val) { $args[] = htmlspecialchars_decode($val); } else { $args[] = null; }
+						if (!$db->Execute($query, $args)) {
+							return false;
 						}
 					}
 					break;
