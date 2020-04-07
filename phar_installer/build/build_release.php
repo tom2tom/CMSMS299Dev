@@ -389,7 +389,7 @@ function copy_local_files()
         if (($p = strpos($fp, $modcheck)) !== false) {
             $ep = strpos($fp, DIRECTORY_SEPARATOR, $p + $mclen);
             if ($ep !== false) {
-	            $modname = substr($fp, $p + $mclen, $ep - $p - $mclen);
+                $modname = substr($fp, $p + $mclen, $ep - $p - $mclen);
                 $parent = false;
             } else {
                 $modname = $fn;
@@ -413,6 +413,7 @@ function copy_local_files()
     //clear all tmp/*/* files
     $tp = joinpath($tmpdir, 'tmp');
     rrmdir($tp, true);
+    //TODO maybe clear all relevant from {...[assets]/templates, ...[assets]/css, ...[assets]/[simple_plugins]}
     //workaround failed exclusion
     $tp = joinpath($tmpdir, 'config.php');
     @unlink($tp);
