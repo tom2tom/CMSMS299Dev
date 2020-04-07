@@ -35,11 +35,9 @@ use DeprecationNotice;
 use LogicException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
-use const CMS_ROOT_PATH;
 use const CMS_SCHEMA_VERSION;
 use const CMS_VERSION;
 use function cms_error;
-use function cms_join_path;
 use function cms_module_path;
 use function cms_module_places;
 use function cms_notice;
@@ -334,10 +332,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 
 		$names = $this->_list_system_modules();
 		if( $names && in_array($module_name,$names) ) {
-			//TODO support post-install manual [re-]installation of core modules
-			// needs test of some inherent indicator of core|non-core module, independent of name
-			if( 0 && !AppState::test_state(AppState::STATE_INSTALL) ) {
-				// put mention into the admin log
+			if( !property_exists($obj, 'CMSMScore') ) {
 				cms_error('Installation of module '.$module_name.' failed: re-use core-module name');
 				return [FALSE,lang('errorbadname')];
 			}
@@ -411,13 +406,13 @@ VALUES (?,?,?,'.$now.',NULL)');
 		bool $force = FALSE,
 		bool $dependents = TRUE) : bool
 	{
-		$gCms = CmsApp::get_instance(); // backwards compatibility... set the global.
-
 		$info = $this->_get_module_info();
 		if( !isset($info[$module_name]) && !$force ) {
 			cms_warning("Nothing is known about $module_name... can't load it");
 			return FALSE;
 		}
+
+		$gCms = CmsApp::get_instance(); // compatibility for some crappy old modules, deprecated since 2.9
 
 		// okay, lessee if we can load the dependants
 		if( $dependents ) {
@@ -537,7 +532,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 			}
 		}
 
-		sort($result);
+		sort($result, SORT_STRING);
 		return $result;
 	}
 
@@ -1043,7 +1038,8 @@ VALUES (?,?,?,$now,$now)");
 			}
 		}
 		else {
-			//TODO some absolutely definite names could be hardcoded e.g. as self::CORENAMES_DEFAULT
+			//TODO some absolutely definite names could be hardcoded e.g.
+			//$val = explode(',', self::CORENAMES_DEFAULT);
 			$val = [self::STD_AUTH_MODULE];
 		}
 		sort($val, SORT_STRING);
@@ -1063,22 +1059,30 @@ VALUES (?,?,?,$now,$now)");
 			$this->RegisterSystemModules();
 		}
 		if( $this->_coremodules === null ) {
-			//revert to polling for core modules, assuming a particular place
-			$names = [];
-			$path = cms_join_path(CMS_ROOT_PATH,'lib','modules');
-			if( is_dir($path) ) {
-				$patn = $path.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'*.module.php';
-				$files = glob($patn,GLOB_NOESCAPE);
-				foreach ($files as $fn) {
-					$names[] = basename($fn,'.module.php');
+			//revert to expensive slow polling for core modules
+			$gCms = CmsApp::get_instance(); // compatibility for some crappy old modules, deprecated since 2.9
+			$cores = [];
+			$names = $this->FindAllModules();
+			foreach( $names as $onename ) {
+				// we assume namespace for modules is still global
+				if( !class_exists($onename) ) {
+					require_once cms_module_path($onename);
 				}
+				$obj = new $onename();
+				if( property_exists($obj, 'CMSMScore') ) {
+					$cores[] = $onename;
+				}
+				unset($obj);
+				$obj = null;
 			}
+			sort($cores, SORT_STRING);
+
 			if( AppState::test_state(AppState::STATE_INSTALL) ) {
 				//don't cache, hence re-scan each time, when the installer is running
-				return ($names) ? in_array($module_name,$names) : false;
+				return ($cores) ? in_array($module_name,$cores) : false;
 			}
 			else {
-				$this->_coremodules = $names;
+				$this->_coremodules = $cores;
 			}
 		}
 		return  ($this->_coremodules) ? in_array($module_name, $this->_coremodules) : false;
