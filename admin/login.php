@@ -16,7 +16,6 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
-use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
