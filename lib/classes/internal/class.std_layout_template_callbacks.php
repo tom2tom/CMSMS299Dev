@@ -1,10 +1,15 @@
 <?php
 namespace CMSMS\internal;
-use \CmsLayoutTemplateType;
+
+use CmsLayoutTemplateType;
+use const CMS_ADMIN_PATH;
+use function cms_join_path;
+use function lang;
 
 final class std_layout_template_callbacks
 {
-    protected function __construct() {}
+	private function __construct() {}
+	private function __clone() {}
 
 	public static function page_type_lang_callback($key)
 	{
@@ -26,12 +31,11 @@ final class std_layout_template_callbacks
 		return $contents;
 	}
 
-    public static function template_help_callback($typename)
-    {
-        $typename = trim($typename);
-        if( $typename == 'generic' ) return;
-        $key = 'tplhelp_'.$typename;
-        return lang($key);
-    }
-
+	public static function template_help_callback($typename)
+	{
+		$typename = trim($typename);
+		if( $typename == 'generic' ) return;
+		$key = 'tplhelp_'.$typename;
+		return lang($key);
+	}
 } // class
