@@ -66,21 +66,27 @@
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
- <!ELEMENT files (sourcedir?,file*)>
+ <!ELEMENT uploadfiles (sourcedir?,file*)>
  <!ELEMENT file (name,topath,(frompath|embedded),content?)>
  <!ELEMENT topath (#PCDATA)>
  <!ELEMENT frompath (#PCDATA)>
  <!ELEMENT embedded (#PCDATA)>
- <!ELEMENT userplugins (sourcedir?,file*)>
- <!ELEMENT file (name,(frompath|embedded),content?)>
+ <!ELEMENT simpletags (tag*)>
+ <!ELEMENT tag (name,description?,parameters?,code)>
+ <!ELEMENT parameters (#PCDATA)>
+ <!ELEMENT code (#PCDATA)>
+ <!ELEMENT simpletagfiles (sourcedir?,file*)>
+ <!ELEMENT templatefiles (sourcedir?,file*)>
+ <!ELEMENT stylefiles (sourcedir?,file*)>
 ]>
 <cmsmssitedata>
-	<dtdversion>0.8</dtdversion>
+	<dtdversion>0.9</dtdversion>
+
 	<stylesheets>
 		<stylesheet>
 			<id>1</id>
 			<name>Simplex Core</name>
-			<description>Simplex theme core stylesheet, containing 12 column grid system and HTML5 resets (normalize.css)</description>
+			<description>Simplex theme core stylesheet, containing 12-column grid system and HTML5 resets (normalize.css)</description>
 			<media_type>screen</media_type>
 			<content><![CDATA[[[strip]]
 
@@ -256,7 +262,7 @@ pre {
  */ *]]
 
 q {
-	quotes: "\201C" "\201D" "\2018" "\2019";
+	quotes: &quot;\201C&quot; &quot;\201D&quot; &quot;\2018&quot; &quot;\2019&quot;;
 }
 
 [[* /**
@@ -334,7 +340,7 @@ fieldset {
 
 [[* /**
  * 1. Correct `color` not being inherited in IE 8/9.
- * 2. Remove padding so people aren''t caught out if they zero out fieldsets.
+ * 2. Remove padding so people aren&apos;&apos;t caught out if they zero out fieldsets.
  */ *]]
 
 legend {
@@ -382,8 +388,8 @@ button, select {
  *    `input` and others.
  */ *]]
 
-button, html input[type="button"], [[* /* 1 */ *]]
-input[type="reset"], input[type="submit"] {
+button, html input[type=&quot;button&quot;], [[* /* 1 */ *]]
+input[type=&quot;reset&quot;], input[type=&quot;submit&quot;] {
 	-webkit-appearance: button; [[* /* 2 */ *]]
 	cursor: pointer; [[* /* 3 */ *]]
 }
@@ -401,7 +407,7 @@ button[disabled], html input[disabled] {
  * 2. Remove excess padding in IE 8/9/10.
  */ *]]
 
-input[type="checkbox"], input[type="radio"] {
+input[type=&quot;checkbox&quot;], input[type=&quot;radio&quot;] {
 	box-sizing: border-box; [[* /* 1 */ *]]
 	padding: 0; [[* /* 2 */ *]]
 }
@@ -412,7 +418,7 @@ input[type="checkbox"], input[type="radio"] {
  *    (include `-moz` to future-proof).
  */ *]]
 
-input[type="search"] {
+input[type=&quot;search&quot;] {
 	-webkit-appearance: textfield; [[* /* 1 */ *]]
 	-moz-box-sizing: content-box;
 	-webkit-box-sizing: content-box; [[* /* 2 */ *]]
@@ -424,7 +430,7 @@ input[type="search"] {
  * on OS X.
  */ *]]
 
-input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-decoration {
+input[type=&quot;search&quot;]::-webkit-search-cancel-button, input[type=&quot;search&quot;]::-webkit-search-decoration {
 	-webkit-appearance: none;
 }
 
@@ -581,7 +587,7 @@ textarea {
  */ *]]
 
 .cf:before, .cf:after {
-	content: " "; [[* /* 1 */ *]]
+	content: &quot; &quot;; [[* /* 1 */ *]]
 	display: table; [[* /* 2 */ *]]
 }
 
@@ -638,7 +644,7 @@ q {
 }
 
 q:before, q:after {
-	content: "";
+	content: &quot;&quot;;
 	content: none
 }
 
@@ -684,7 +690,7 @@ body {
 }
 
 .row:before, .row:after, .form-row:before, .form-row:after {
-	content: " ";
+	content: &quot; &quot;;
 	display: table;
 }
 
@@ -742,7 +748,7 @@ body {
 }
 
 [[* /* Animate position of columns */ *]]
-.row [class*="-col"] {
+.row [class*=&quot;-col&quot;] {
 	-webkit-transition:all .4s ease;
 	-moz-transition:all .4s ease;
 	-o-transition:all .4s ease;
@@ -804,7 +810,7 @@ body {
 		width: 100%;
 		margin-left: 0;
 	}
-	.row [class*="-col"]:first-child, .row [class*="-col"].first {
+	.row [class*=&quot;-col&quot;]:first-child, .row [class*=&quot;-col&quot;].first {
 		margin-left: 0;
 	}
 
@@ -928,6 +934,7 @@ body {
 }
 
 [[/strip]]]]></content>
+			<contentfile>0</contentfile>
 		</stylesheet>
 		<stylesheet>
 			<id>2</id>
@@ -943,14 +950,14 @@ body {
 	 * @author Goran Ilic (uniqu3e@gmail.com)
 	 * @version 1.1 (CMSMS 2.0 Package)
 	 *
-	 * The Simplex theme comes with two predefined style variations. One is a "boxed" style as seen in a
-	 * default installation which is controlled with a "boxed" ID that is set in the Simplex theme &lt;body&gt; tag.
+	 * The Simplex theme comes with two predefined style variations. One is a &quot;boxed&quot; style as seen in a
+	 * default installation which is controlled with a &quot;boxed&quot; ID that is set in the Simplex theme &lt;body&gt; tag.
 	 * If you remove this ID, a grey background on page body will be removed and layout will no longer
-	 * be wrapped inside a "box" but appear in a single background color which is by default white.
+	 * be wrapped inside a &quot;box&quot; but appear in a single background color which is by default white.
 	 *
 	 * Besides there are also predefined class names and styles that you can use on &lt;body&gt; tag to
 	 * change alignment of complete layout/page.
-	 * If you rightaligned class to body (example: &lt;body class='rightaligned and other classes'&gt;)
+	 * If you rightaligned class to body (example: &lt;body class=&apos;rightaligned and other classes&apos;&gt;)
 	 * then whole page layout will be positioned to right window side instead of centered position
 	 * and with class leftaligned the page layout will be positioned to left.
 	 *
@@ -964,43 +971,43 @@ body {
 	 * The Simplex theme has been tested in modern browsers and IE8 (with graceful fallback).
 	 *
 	 * Grid usage:
-	 * Simplex is using a custom Yetti Framework 12 column grid (https://github.com/Stikki/Yetti/tree/master)
-	 * based on Andy Taylors (http://cssgrid.net) 1140px Grid.
+	 * Simplex uses a custom Yetti Framework 12 column grid (https://github.com/Stikki/Yetti/tree/master)
+	 * based on Andy Taylor&apos;s (http://cssgrid.net) 1140px Grid.
 	 *
-	 * Using the grid system is fairly simple. Make sure that grid columns
-	 * are wrapped inside a element with .row class.
+	 * Using the grid system is fairly simple. Make sure that grid columns are wrapped inside an element
+	 * with .row class.
 	 * When grid columns are inside a row element, floats are auto cleared,
-	 * therefore you do not need anything like some empty clear element ie. &lt;div class="clear"&gt;&lt;/div&gt;
-	 * Grid columns have a spacing (margin-left) of 3.8% of the layout, whereby first column after
+	 * So it is not necessary to add an empty clear element ie. &lt;div class=&quot;clear&quot;&gt;&lt;/div&gt;
+	 * Grid columns have a spacing (margin-left) of 3.8% of the layout, whereby the first column after
 	 * .row opening element will have no spacing (margin-left).
-	 * Grid columns are only applied to Browser and Screen size which are greater then 768px;
+	 * Grid columns are only applied to browser and screen size which are greater than 768px;
 	 *
 	 * Example (three column row):
 	 *
 	 * &lt;!-- container has a preset padding to left and right with 20px --&gt;
-	 * &lt;div class="container"&gt;
+	 * &lt;div class=&quot;container&quot;&gt;
 	 *     &lt;!-- clears floating row of columns, sets maximum width of 1440px --&gt;
-	 *     &lt;div class="row some-class-to-apply-styles"&gt;
+	 *     &lt;div class=&quot;row some-class-to-apply-styles&quot;&gt;
 	 *         &lt;!--
 	 *             four-col explanation: a simple math, grid is built out of 12 columns, so we say we want
 	 *             a grid column in size of four columns width therefore the name four- and to fill
 	 *             our .row it is three times four-col column makes twelve columns (3 x 4 = 12)
 	 *         --&gt;
-	 *         &lt;div class="four-col my-class"&gt;
+	 *         &lt;div class=&quot;four-col my-class&quot;&gt;
 	 *             Some content
 	 *         &lt;/div&gt;
-	 *         &lt;div class="four-col my-class"&gt;
+	 *         &lt;div class=&quot;four-col my-class&quot;&gt;
 	 *             Some content
 	 *         &lt;/div&gt;
-	 *         &lt;div class="four-col my-class"&gt;
+	 *         &lt;div class=&quot;four-col my-class&quot;&gt;
 	 *             Some content
 	 *         &lt;/div&gt;
 	 *     &lt;/div&gt;
-	 *     &lt;div class="row"&gt;
-	 *         &lt;div class="six-col"&gt;
+	 *     &lt;div class=&quot;row&quot;&gt;
+	 *         &lt;div class=&quot;six-col&quot;&gt;
 	 *             Half width content
 	 *         &lt;/div&gt;
-	 *         &lt;div class="six-col"&gt;
+	 *         &lt;div class=&quot;six-col&quot;&gt;
 	 *             Half width content
 	 *         &lt;/div&gt;
 	 *     &lt;/div&gt;
@@ -1010,37 +1017,37 @@ body {
 *]]
 
 [[* /* assign the images path to a variable */ *]]
-[[capture assign='path']][[uploads_url]]/simplex/images[[/capture]]
-[[capture assign='font']][[uploads_url]]/simplex/fonts[[/capture]]
+[[capture assign=&apos;path&apos;]][[uploads_url]]/simplex/images[[/capture]]
+[[capture assign=&apos;font&apos;]][[uploads_url]]/simplex/fonts[[/capture]]
 
 [[* /* --- COLORS --- */ *]]
 
-[[$light_grey='#f1f1f1']]
-[[$grey='#e9e9e9']]
-[[$dark_grey='#555' scope=global]]
-[[$white='#fff']]
-[[$off_white='#fefefe']]
-[[$orange='#f39c2c' scope=global]]
-[[$dark_orange='#e6870e']]
-[[$yellow='#fdbd34']]
+[[$light_grey=&apos;#f1f1f1&apos;]]
+[[$grey=&apos;#e9e9e9&apos;]]
+[[$dark_grey=&apos;#555&apos; scope=global]]
+[[$white=&apos;#fff&apos;]]
+[[$off_white=&apos;#fefefe&apos;]]
+[[$orange=&apos;#f39c2c&apos; scope=global]]
+[[$dark_orange=&apos;#e6870e&apos;]]
+[[$yellow=&apos;#fdbd34&apos;]]
 
 [[* /* =====================================
  ICON FONT
  ===================================== */ *]]
 [[* /* Will fail on Windows Phone 7, sorry developer life sucks */ *]]
 @font-face {
-	font-family: 'simplex';
-	src: url('[[$font]]/simplex.eot');
-	src: url('[[$font]]/simplex.eot?#iefix') format('embedded-opentype'),
-		url('[[$font]]/simplex.woff') format('woff'),
-		url('[[$font]]/simplex.ttf') format('truetype'),
-		url('[[$font]]/simplex.svg#simplex') format('svg');
+	font-family: &apos;simplex&apos;;
+	src: url(&apos;[[$font]]/simplex.eot&apos;);
+	src: url(&apos;[[$font]]/simplex.eot?#iefix&apos;) format(&apos;embedded-opentype&apos;),
+		url(&apos;[[$font]]/simplex.woff&apos;) format(&apos;woff&apos;),
+		url(&apos;[[$font]]/simplex.ttf&apos;) format(&apos;truetype&apos;),
+		url(&apos;[[$font]]/simplex.svg#simplex&apos;) format(&apos;svg&apos;);
 	font-weight: normal;
 	font-style: normal;
 }
 
-[class^="icon-"], [class*=" icon-"] {
-	font-family: 'simplex';
+[class^=&quot;icon-&quot;], [class*=&quot; icon-&quot;] {
+	font-family: &apos;simplex&apos;;
 	speak: none;
 	font-style: normal;
 	font-weight: normal;
@@ -1052,47 +1059,47 @@ body {
 }
 
 .icon-arrow-up:before {
-	content: "\e600";
+	content: &quot;\e600&quot;;
 }
 
 .icon-arrow-left:before {
-	content: "\e601";
+	content: &quot;\e601&quot;;
 }
 
 .icon-search:before {
-	content: "\e603";
+	content: &quot;\e603&quot;;
 }
 
 .icon-printer:before {
-	content: "\e604";
+	content: &quot;\e604&quot;;
 }
 
 .icon-linkedin:before {
-	content: "\e605";
+	content: &quot;\e605&quot;;
 }
 
 .icon-pinterest:before {
-	content: "\e606";
+	content: &quot;\e606&quot;;
 }
 
 .icon-youtube:before {
-	content: "\e607";
+	content: &quot;\e607&quot;;
 }
 
 .icon-facebook:before {
-	content: "\e608";
+	content: &quot;\e608&quot;;
 }
 
 .icon-google:before {
-	content: "\e609";
+	content: &quot;\e609&quot;;
 }
 
 .icon-twitter:before {
-	content: "\e60a";
+	content: &quot;\e60a&quot;;
 }
 
 .icon-link:before {
-	content: "\e602";
+	content: &quot;\e602&quot;;
 }
 
 [[* /* =====================================
@@ -1100,8 +1107,8 @@ body {
  ===================================== */ *]]
 body {
 	background: [[$white]];
-	font-family: 'Noto Sans', sans-serif;
-	font-size: 1em; [[* /* base browser font size: 16px, now do math "XX / 16 = ??" where XX is desired font size */ *]]
+	font-family: &apos;Noto Sans&apos;, sans-serif;
+	font-size: 1em; [[* /* base browser font size: 16px, now do math &quot;XX / 16 = ??&quot; where XX is desired font size */ *]]
 	color: [[$dark_grey]];
 	line-height: 1.5;
 }
@@ -1146,7 +1153,7 @@ a img {
 }
 
 [[* /* if image needs some space add this class to img tag
- * so at the end a left floating image would be &lt;img src='some.jpg' class='left spacing' alt='foo' /&gt;
+ * so at the end a left floating image would be &lt;img src=&apos;some.jpg&apos; class=&apos;left spacing&apos; alt=&apos;foo&apos; /&gt;
  */ *]]
 .spacing {
 	margin: 15px;
@@ -1167,7 +1174,7 @@ a img {
 
 [[* /* some styling for code chunks */ *]]
 pre, code, kbd, samp {
-	font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', monospace;
+	font-family: Consolas, &apos;Andale Mono WT&apos;, &apos;Andale Mono&apos;, &apos;Lucida Console&apos;, &apos;Lucida Sans Typewriter&apos;, monospace;
 	color: [[$dark_grey]];
 }
 
@@ -1247,15 +1254,15 @@ a:hover, a:active {
 
 [[* /* add icon to links with class external */ *]]
 a.external:after {
-	content: "\e602";
+	content: &quot;\e602&quot;;
 	padding-left: 4px;
-	font-family: 'simplex';
+	font-family: &apos;simplex&apos;;
 	text-decoration: none;
 }
 
 [[* /* default heading styles */ *]]
 h1, h2 {
-	font-family: 'Oswald', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	font-family: &apos;Oswald&apos;, Impact, Haettenschweiler, &apos;Arial Narrow Bold&apos;, sans-serif;
 	font-weight: 700;
 }
 
@@ -1315,7 +1322,7 @@ blockquote cite {
 }
 
 blockquote cite:before {
-	content: "\2014 \0020";
+	content: &quot;\2014 \0020&quot;;
 }
 
 blockquote cite a, blockquote cite a:visited, blockquote cite a:visited {
@@ -1367,7 +1374,7 @@ blockquote cite a, blockquote cite a:visited, blockquote cite a:visited {
 
 [[* /* catchphrase */ *]]
 .phrase span {
-	font-family: 'Oswald', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	font-family: &apos;Oswald&apos;, Impact, Haettenschweiler, &apos;Arial Narrow Bold&apos;, sans-serif;
 	text-transform: uppercase;
 	color: #ddd;
 	font-weight: 700;
@@ -1445,7 +1452,7 @@ input.search-input:focus {
 
 #main-menu &gt; li &gt; a,
 #main-menu &gt; li.sectionheader &gt; span {
-	font-family: 'Oswald', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	font-family: &apos;Oswald&apos;, Impact, Haettenschweiler, &apos;Arial Narrow Bold&apos;, sans-serif;
 	text-transform: uppercase;
 	color: [[$dark_grey]];
 	text-decoration: none;
@@ -1553,7 +1560,7 @@ input.search-input:focus {
 }
 
 .content-top .title-border {
-	content: '';
+	content: &apos;&apos;;
 	height: 1px;
 	display: block;
 	width: 100%;
@@ -1615,7 +1622,7 @@ a.printbutton {
 }
 
 .news-article h2 a {
-	font-family: 'Oswald', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	font-family: &apos;Oswald&apos;, Impact, Haettenschweiler, &apos;Arial Narrow Bold&apos;, sans-serif;
 	text-transform: uppercase;
 	color: [[$dark_grey]];
 	font-size: 16px;
@@ -1743,7 +1750,7 @@ a.printbutton {
 }
 
 .sidebar .news-summary span.heading:after {
-	content: '';
+	content: &apos;&apos;;
 	height: 1px;
 	display: block;
 	width: 100%;
@@ -1772,7 +1779,7 @@ a.printbutton {
 
 [[* /* creating a bubble box with css3 */ *]]
 .sidebar .news-article:before {
-	content: '';
+	content: &apos;&apos;;
 	position: absolute;
 	bottom: -15px;
 	right: 25px;
@@ -1801,7 +1808,7 @@ a.printbutton {
 }
 
 .footer:before {
-	content: ' ';
+	content: &apos; &apos;;
 	border-top: 2px dotted [[$white]];
 	border-bottom: 2px dotted [[$white]];
 	height: 4px;
@@ -1911,7 +1918,7 @@ a.printbutton {
 
 #footer-menu &gt; li &gt; a,
 #footer-menu &gt; li.sectionheader &gt; span {
-	font-family: 'Oswald', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	font-family: &apos;Oswald&apos;, Impact, Haettenschweiler, &apos;Arial Narrow Bold&apos;, sans-serif;
 	text-transform: uppercase;
 	text-decoration: none;
 	display: block;
@@ -2122,7 +2129,7 @@ a.printbutton {
 
 	#main-menu &gt; li &gt; ul &gt; li:hover &gt; ul:after,
 	#main-menu &gt; li &gt; ul &gt; li.active &gt; ul:after {
-		content: ' ';
+		content: &apos; &apos;;
 		width: 0px;
 		height: 0px;
 		border-style: solid;
@@ -2267,7 +2274,7 @@ a.printbutton {
 }
 
 [[* /* ================================================
- WHEN LAYOUT BREAKS IT'S TIME FOR NEW MEDIA QUERY
+ WHEN LAYOUT BREAKS IT&apos;S TIME FOR NEW MEDIA QUERY
  ================================================== */ *]]
 @media only screen and (max-width: 780px) {
 
@@ -2402,6 +2409,7 @@ a.printbutton {
 	width: device-width;
 }
 [[/strip]]]]></content>
+			<contentfile>0</contentfile>
 		</stylesheet>
 		<stylesheet>
 			<id>3</id>
@@ -2411,11 +2419,11 @@ a.printbutton {
 			<content><![CDATA[[[strip]]
 
 [[* /* --- COLORS --- */ *]]
-[[$dark_grey='#555' scope=global]]
-[[$light_grey='#f1f1f1']]
-[[$mid_grey='#e9e9e9']]
-[[$off_white='#fefefe']]
-[[$orange='#f39c2c' scope=global]]
+[[$dark_grey=&apos;#555&apos; scope=global]]
+[[$light_grey=&apos;#f1f1f1&apos;]]
+[[$mid_grey=&apos;#e9e9e9&apos;]]
+[[$off_white=&apos;#fefefe&apos;]]
+[[$orange=&apos;#f39c2c&apos; scope=global]]
 
 [[* /* ------ BANNER AREA ------ */  *]]
 .banner {
@@ -2430,7 +2438,7 @@ a.printbutton {
 }
 
 .lt-ie9 .banner {
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fefefe', endColorstr='#e9e9e9',GradientType=0 );
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=&apos;#fefefe&apos;, endColorstr=&apos;#e9e9e9&apos;,GradientType=0 );
 }
 
 #sx-slides {
@@ -2507,7 +2515,7 @@ a.printbutton {
 	margin-top: 0;
 	z-index: 5;
 	color: [[$dark_grey]];
-	font-family: 'Oswald', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	font-family: &apos;Oswald&apos;, Impact, Haettenschweiler, &apos;Arial Narrow Bold&apos;, sans-serif;
 	font-weight: 700;
 	font-size: 1.8125em;
 	left: 35%;
@@ -2654,11 +2662,12 @@ a.printbutton {
 }
 
 [[/strip]]]]></content>
+			<contentfile>0</contentfile>
 		</stylesheet>
 		<stylesheet>
 			<id>4</id>
 			<name>Simplex Print</name>
-			<description>Print style rules for the Simplex theme</description>
+			<description>Default print styles for the Simplex theme</description>
 			<media_type>print</media_type>
 			<content><![CDATA[[[strip]]
 
@@ -2681,53 +2690,48 @@ img {
 }
 [[* /* links arent clickable on paper, lets display url */ *]]
 a:link:after {
-    content: " (" attr(href) ") ";
+    content: &quot; (&quot; attr(href) &quot;) &quot;;
 }
 a {
     text-decoration: underline
 }
 
 [[/strip]]]]></content>
+			<contentfile>0</contentfile>
 		</stylesheet>
 	</stylesheets>
 	<stylegroups>
-		<stylegroup>
-			<id>1</id>
-			<name>Demonstration stylesheets group</name>
-			<description>The styles in this group will be applied in order to each page which specifies the group as (one of) its style(s).</description>
-		</stylegroup>
+		<group>
+			<id>3</id>
+			<name>Demonstration stylesheets category</name>
+			<description>The templates here will be applied in sort-order to each page which specifies this category for its styles-source.</description>
+			<create_date>2019-04-17 17:55:28</create_date>
+			<modified_date></modified_date>
+		</group>
 	</stylegroups>
-	<stylegroupmembers>
-		<stylegroupmember>
-			<group_id>1</group_id>
-			<css_id>1</css_id>
-			<item_order>1</item_order>
-		</stylegroupmember>
-		<stylegroupmember>
-			<group_id>1</group_id>
-			<css_id>2</css_id>
-			<item_order>2</item_order>
-		</stylegroupmember>
-		<stylegroupmember>
-			<group_id>1</group_id>
-			<css_id>3</css_id>
-			<item_order>3</item_order>
-		</stylegroupmember>
-		<stylegroupmember>
-			<group_id>1</group_id>
-			<css_id>4</css_id>
-			<item_order>4</item_order>
-		</stylegroupmember>
-	</stylegroupmembers>
 	<templatetypes>
 		<tpltype>
-			<id>1</id>
+			<id>15</id>
+			<originator>__CORE__</originator>
+			<name>generic</name>
+			<dflt_contents></dflt_contents>
+			<description></description>
+			<lang_cb>CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
+			<dflt_content_cb></dflt_content_cb>
+			<help_content_cb>CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
+			<has_dflt>0</has_dflt>
+			<requires_contentblocks>0</requires_contentblocks>
+			<one_only>0</one_only>
+			<owner>1</owner>
+		</tpltype>
+		<tpltype>
+			<id>14</id>
 			<originator>__CORE__</originator>
 			<name>page</name>
 			<dflt_contents><![CDATA[{strip}
 	{process_pagedata}
 {/strip}&lt;!doctype html&gt;
-&lt;html lang="{cms_get_language}"&gt;
+&lt;html lang=&quot;{cms_get_language}&quot;&gt;
 
 &lt;head&gt;
 	&lt;title&gt;{title} - {sitename}&lt;/title&gt;
@@ -2736,15 +2740,15 @@ a {
 &lt;/head&gt;
 
 &lt;body&gt;
-	&lt;header id="header"&gt;
+	&lt;header id=&quot;header&quot;&gt;
 		&lt;h1&gt;{sitename}&lt;/h1&gt;
 	&lt;/header&gt;
 
-	&lt;nav id="menu"&gt;
+	&lt;nav id=&quot;menu&quot;&gt;
 		{Navigator}
 	&lt;/nav&gt;
 
-	&lt;section id="content"&gt;
+	&lt;section id=&quot;content&quot;&gt;
 		&lt;h1&gt;{title}&lt;/h1&gt;
 		{content}
 	&lt;/section&gt;
@@ -2752,25 +2756,11 @@ a {
 
 &lt;/html&gt;]]></dflt_contents>
 			<description></description>
-			<lang_cb>CMSMS\internal\std_layout_template_callbacks::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>CMSMS\internal\std_layout_template_callbacks::reset_page_type_defaults</dflt_content_cb>
-			<help_content_cb>CMSMS\internal\std_layout_template_callbacks::template_help_callback</help_content_cb>
+			<lang_cb>CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback</lang_cb>
+			<dflt_content_cb>CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults</dflt_content_cb>
+			<help_content_cb>CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
 			<has_dflt>1</has_dflt>
 			<requires_contentblocks>1</requires_contentblocks>
-			<one_only>0</one_only>
-			<owner>1</owner>
-		</tpltype>
-		<tpltype>
-			<id>2</id>
-			<originator>__CORE__</originator>
-			<name>generic</name>
-			<dflt_contents></dflt_contents>
-			<description></description>
-			<lang_cb>CMSMS\internal\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
-			<dflt_content_cb></dflt_content_cb>
-			<help_content_cb>CMSMS\internal\std_layout_template_callbacks::template_help_callback</help_content_cb>
-			<has_dflt>0</has_dflt>
-			<requires_contentblocks>0</requires_contentblocks>
 			<one_only>0</one_only>
 			<owner>1</owner>
 		</tpltype>
@@ -2779,292 +2769,70 @@ a {
 		<template>
 			<id>1</id>
 			<originator>__CORE__</originator>
-			<name>Simplex</name>
-			<content><![CDATA[{strip}{* using strip as we don't want useless whitespace, especially not before doctype *}
-{* used for page specific data or logic in Edit Content -&gt; Logic *}
-{process_pagedata}
-{block name='top'}
-  {*=== THEME LOGIC ===*}
-  {* assign variables for ease of use throughout templates *}
-  {cms_lang_info assign='nls'}
-  {$nls=$nls scope=global}
-  {$theme_path="{uploads_url}/simplex" scope=global}
-  {$main_title="{title nocache}" scope=global} {* the 'source' plugin must be nocache, to prevent crashes *}
-  {$main_content="{content nocache}" scope=global}
-{/block}
-{/strip}&lt;!doctype html&gt;
-&lt;html lang='{$nls-&gt;htmlarea()}' dir='{$nls-&gt;direction()}'&gt;
-    &lt;head&gt;
-        {metadata} {* Don't remove this! Metadata is entered in Site Admin/Global settings. *}
-        &lt;title&gt;{$main_title} - {sitename}&lt;/title&gt;
-        &lt;meta name='HandheldFriendly' content='True' /&gt;
-        &lt;meta name='MobileOptimized' content='320' /&gt;
-        &lt;meta name='viewport' content='width=device-width, initial-scale=1' /&gt;
-        &lt;meta name='msapplication-TileImage' content='{$theme_path}/images/icons/cmsms-152x152.png' /&gt;
-        &lt;meta name='msapplication-TileColor' content='#5C5A59' /&gt;
-        {if isset($canonical)}&lt;link rel='canonical' href='{$canonical}' /&gt;{elseif isset($content_obj)}&lt;link rel='canonical' href='{$content_obj-&gt;GetURL()}' /&gt;{/if} {* See in news detail template how cannonical url can be assigned from module *}
-        {cms_stylesheet} {* This is how all the stylesheets attached to this template are linked to *}
-        &lt;link href='//fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic|Oswald:700' rel='stylesheet' type='text/css' /&gt;
-        &lt;link rel='apple-touch-icon-precomposed' sizes='152x152' href='{$theme_path}/images/icons/cmsms-152x152.png' /&gt;
-        &lt;link rel='apple-touch-icon-precomposed' sizes='120x120' href='{$theme_path}/images/icons/cmsms-120x120.png' /&gt;
-        &lt;link rel='apple-touch-icon-precomposed' sizes='72x72' href='{$theme_path}/images/icons/cmsms-76x76.png' /&gt;
-        &lt;link rel='apple-touch-icon-precomposed' href='{$theme_path}/images/icons/cmsms-60x60.png' /&gt;
-        &lt;link rel='shortcut icon' sizes='196x196' href='{$theme_path}/images/icons/cmsms-196x196.png' /&gt;
-        &lt;link rel='shortcut icon' href='{$theme_path}/images/icons/cmsms-60x60.png' /&gt;
-        &lt;link rel='icon' href='{$theme_path}/images/icons/favicon_cms.ico' type='image/x-icon' /&gt;
-        {get_jquery}{*include relevant jquery scripts, styles*}
-        {cms_selflink dir='start' rellink='1'} {* Relational links for interconnections between pages, good for accessibility and Search Engine Optimization *}
-        {cms_selflink dir='prev' rellink='1'}
-        {cms_selflink dir='next' rellink='1'}
-    &lt;/head&gt;
+			<name>Default</name>
+			<content><![CDATA[{strip} {process_pagedata} {/strip}
+&lt;!doctype html&gt;
+&lt;html lang=&quot;{cms_get_language}&quot;&gt;
+&lt;head&gt;
+  &lt;title&gt;{title} - {sitename}&lt;/title&gt;
+  {metadata}
+  {cms_stylesheet}
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;header id=&quot;header&quot;&gt;
+    &lt;h1&gt;{sitename}&lt;/h1&gt;
+  &lt;/header&gt;
 
-    &lt;body id='boxed' class='container page-wrapper page-{$page_alias} page-{$content_id}'&gt;
-        &lt;!-- #wrapper (wrapping content in a box) --&gt;
-        &lt;div class='row' id='wrapper'&gt;
-            &lt;!-- accessibility links, jump to nav or content --&gt;
-            &lt;ul class="visuallyhidden"&gt;
-                &lt;li&gt;{anchor anchor='nav' title='Skip to navigation' accesskey='n' text='Skip to navigation'}&lt;/li&gt;
-                &lt;li&gt;{anchor anchor='main' title='Skip to content' accesskey='s' text='Skip to content'}&lt;/li&gt;
-            &lt;/ul&gt;
-            &lt;!-- accessibility //--&gt;
-            &lt;!-- .top (top section of page containing logo, navigation search...) --&gt;
-            &lt;header class='top inner-section'&gt;
-                &lt;div class='row header'&gt;
-                    &lt;!-- .logo (cmsms logo on the left side) --&gt;
-                    &lt;div class='logo four-col'&gt;
-                        &lt;a href='{root_url}' title='{sitename}'&gt;
-                            &lt;img src='{$theme_path}/images/cmsmadesimple-logo.png' width='227' height='59' alt='{sitename}' /&gt;
-                            &lt;span class='palm'&gt;&lt;/span&gt;
-                        &lt;/a&gt;
-                    &lt;/div&gt;
-                    &lt;!-- .logo //--&gt;
-                    &lt;!-- .main-navigation (main navigation on the right side) --&gt;
-                    &lt;nav class='main-navigation eight-col cf noprint' id='nav'&gt;
-                        {Navigator template='Simplex Main Navigation' loadprops='0'} {* display a menu using a Navigator-module demonstration template *}
-                    &lt;/nav&gt;
-                    &lt;!-- .main-navigation //--&gt;
-                &lt;/div&gt;
-                &lt;!-- .header-bottom (bottom part of header containing catchphrase and search field) --&gt;
-                &lt;div class='row header-bottom'&gt;
-                    &lt;section class='phrase cf'&gt;
-                        &lt;span class='seven-col phrase-text'&gt;Power for professionals&lt;br class='lt-768' /&gt; Simplicity for end users&lt;/span&gt;
-                        {Search|strip formtemplate='Simplex Search'} {* a Search-module template. Use the 'resultpage' parameter for search results (see module help) *}
-                    &lt;/section&gt;
-                &lt;/div&gt;
-                &lt;!-- .header-bottom //--&gt;
-{block name='banner'}{/block}
-            &lt;/header&gt;
-            &lt;!-- .top //--&gt;
-            &lt;!-- .content-wrapper (wrapping div for content area) --&gt;
-            &lt;div class='content-wrapper inner-section'&gt;
-                &lt;div class='row'&gt;
-{block name='content'}
-                    &lt;!-- .content-inner (display content first) --&gt;
-                    &lt;div class='content-inner eight-col push-four'&gt;
-                        &lt;!-- .content-top (breadcrumbs) --&gt;
-                        &lt;div class='content-top cf' itemscope itemtype='http://data-vocabulary.org/Breadcrumb'&gt;
-                            {Navigator action='breadcrumbs'} {* you can instead create your own breadcrumbs-template and apply it with the 'template' parameter *}
-                            &lt;span class='title-border' aria-hidden='true'&gt;&lt;/span&gt;
-                        &lt;/div&gt;
-                        &lt;!-- .content-top //--&gt;
-                        &lt;!-- .content (actual content with title and content tags) --&gt;
-                        &lt;article class='content' id='main'&gt;
-                            &lt;h1&gt;{$main_title} &lt;/h1&gt; {* title tag *}
-                                {$main_content} {* content entered in page editor area, variable is assigned on top in template logic, using nocache as variables are cached with Smarty cache on *}
-                        &lt;/article&gt;
-                        &lt;!-- .content //--&gt;
-                    &lt;/div&gt;
-                    &lt;!-- .content-inner //--&gt;
-{/block}
+  &lt;nav id=&quot;menu&quot;&gt;
+    {Navigator}
+  &lt;/nav&gt;
 
-{block name='sidebar'}{/block}
-                    &lt;div class='cf eight-col push-four'&gt;
-                        {if !empty($prev_page)}&lt;span class='previous'&gt;{$prev_page nocache}&lt;/span&gt;{/if}
-                        {if !empty($next_page)}&lt;span class='next'&gt;{$next_page nocache}&lt;/span&gt;{/if}
-                    &lt;/div&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;!-- .content-wrapper //--&gt;
-            &lt;!-- .footer (footer area) --&gt;
-            &lt;footer class='footer inner-section'&gt;
-                &lt;span class='back-top'&gt;&lt;a href='{anchor anchor='main' onlyhref='1'}' id='scroll-top'&gt;&lt;i class='icon-arrow-up' aria-hidden='true'&gt;&lt;/i&gt;&lt;/a&gt;&lt;/span&gt;
-                &lt;div class='row'&gt;
-                    &lt;section class='eight-col push-four noprint hide-for-small'&gt;
-                        &lt;nav class='footer-navigation row'&gt;
-                            {Navigator template='Simplex Footer Navigation' excludeprefix='home' number_of_levels='2' loadprops='0'} {* a Navigator-module demonstration template *}
-                        &lt;/nav&gt;
-                    &lt;/section&gt;
-                    &lt;section class='four-col pull-eight copyright'&gt;
-                        {include file='cms_template:Simplex Footer'}
-                    &lt;/section&gt;
-                &lt;/div&gt;
-            &lt;/footer&gt;
-        &lt;!-- #wrapper //--&gt;
-        &lt;/div&gt;
-    {*cms_jquery exclude='nestedSortable,json,migrate' append='uploads/simplex/js/jquery.sequence-min.js,uploads/simplex/js/functions.js'*}
-    &lt;script type="text/javascript" src="uploads/simplex/js/jquery.sequence-min.js"&gt;&lt;/script&gt;
-    &lt;script type="text/javascript" src="uploads/simplex/js/functions.js"&gt;&lt;/script&gt;
-{strip}
-    {* If you are using some older jQuery plugin that relies on capabilities that are no longer supported in jQuery 2.2.4, try including the jQuery Migrate 1.2.1 script.
-       For more information about removed functions see: http://jquery.com/upgrade-guide/1.9/ *}{/strip}
-    &lt;/body&gt;
+  &lt;section id=&quot;content&quot;&gt;
+    &lt;h1&gt;{title}&lt;/h1&gt;
+    {content}
+  &lt;/section&gt;
+&lt;/body&gt;
 &lt;/html&gt;]]></content>
-			<description>A HTML5 based responsive template</description>
-			<type_id>1</type_id>
+			<description>A simple starting point to build templates from</description>
+			<type_id>14</type_id>
 			<owner_id>1</owner_id>
 			<type_dflt>0</type_dflt>
 			<listable>1</listable>
+			<contentfile>0</contentfile>
 		</template>
 		<template>
-			<id>2</id>
+			<id>16</id>
 			<originator>__CORE__</originator>
-			<name>Simplex Footer</name>
-			<content><![CDATA[{* Logic *}
-{$start_year = '2004'}
-{$current_year = $smarty.now|date_format:'%Y'}
-
-{* Template *}
-&lt;ul class='social cf'&gt;
-    &lt;li class='twitter'&gt;&lt;a title='Twitter' href='http://twitter.com/#!/cmsms'&gt;&lt;i class='icon-twitter'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;Twitter&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-    &lt;li class='facebook'&gt;&lt;a title='Facebook' href='https://www.facebook.com/cmsmadesimple'&gt;&lt;i class='icon-facebook'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;Facebook&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-    &lt;li class='linkedin'&gt;&lt;a title='LinkedIn' href='http://www.linkedin.com/groups?gid=1139537'&gt;&lt;i class='icon-linkedin'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;LinkedIn&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-    &lt;li class='youtube'&gt;&lt;a title='YouTube' href='http://www.youtube.com/user/cmsmadesimple'&gt;&lt;i class='icon-youtube'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;YouTube&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-    &lt;li class='google'&gt;&lt;a title='Google Plus' href='https://plus.google.com/+cmsmadesimple/posts'&gt;&lt;i class='icon-google'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;Google Plus&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-    &lt;li class='pinterest'&gt;&lt;a title='Pinterest' href='http://www.pinterest.com/cmsmadesimple/'&gt;&lt;i class='icon-pinterest'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;Pinterest&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p class='copyright-info'&gt;Copyright &amp;copy; {$start_year}{if $start_year !== $current_year} - {$current_year}{/if} &lt;a href='https://www.cmsmadesimple.org'&gt;CMS Made Simple&lt;/a&gt;&lt;br /&gt;This site is powered by CMS Made Simple version {cms_version}&lt;/p&gt;]]></content>
-			<description>Custom footer-section template for the Simplex theme</description>
-			<type_id>2</type_id>
-			<owner_id>1</owner_id>
-			<type_dflt>0</type_dflt>
-			<listable>1</listable>
-		</template>
-		<template>
-			<id>3</id>
-			<originator>__CORE__</originator>
-			<name>Simplex Home</name>
-			<content><![CDATA[{extends file='cms_template:Simplex'}{* This template uses template-inheritance *}
-
-{block name="banner"}
-{strip}
-
-{* A simple Smarty array for our slideshow *}
-{$slides = []}
-
-{$slides.0.heading = 'Power for professionals'}
-{$slides.0.subheading = 'Simplicity for end users'}
-{$slides.0.image = 'palm-logo.png'}
-
-{$slides.1.heading = 'Faster &amp; Easier'}
-{$slides.1.subheading = 'Website management'}
-{$slides.1.image = 'mate-zimple.png'}
-
-{$slides.2.heading = 'Flexible &amp; Powerful'}
-{$slides.2.subheading = 'Manage the website anywhere and anytime'}
-{$slides.2.image = 'mobile-devices-scene.png'}
-
-{$slides.3.heading = 'Secure &amp; Robust'}
-{$slides.3.subheading = 'Take control of your application'}
-{$slides.3.image = 'browser-scene.png'}
-
-{* Markup *}
-&lt;section class='banner row noprint' id='sx-slides' role='banner'&gt;
-    &lt;ul class="sequence-canvas"&gt;
-        {foreach $slides as $slide}
-        &lt;li{if $slide@first} class='animate-in'{/if}&gt;
-            {if !empty($slide.heading)}&lt;h2 class='title'&gt;{$slide.heading}&lt;/h2&gt;{/if}
-            {if !empty($slide.subheading)}&lt;h3 class='subtitle'&gt;{$slide.subheading}&lt;/h3&gt;{/if}
-            {if !empty($slide.image)}&lt;img class='image' src='{uploads_url}/simplex/teaser/{$slide.image}' alt='{$slide.heading|cms_escape:'htmlall'}' /&gt;{/if}
-        &lt;/li&gt;
-        {/foreach}
-    &lt;/ul&gt;
-&lt;/section&gt;
-
-{/strip}
-{/block}
-
-{block name='sidebar'}
-                    &lt;!-- .sidebar (then show sidebar) --&gt;
-                    &lt;aside class='sidebar four-col pull-eight'&gt;
-                        {* sample of using News Module tag for summary of latest two articles, you will probably want to create a News page and specify it with the detailpage parameter *}
-                        {News summarytemplate='Simplex News Summary' number='2' detailtemplate='Simplex News Detail'} {* display news items using News-module demonstration templates *}
-                    &lt;/aside&gt;
-                    &lt;!-- .sidebar //--&gt;
-{/block}]]></content>
-			<description></description>
-			<type_id>1</type_id>
-			<owner_id>1</owner_id>
-			<type_dflt>0</type_dflt>
-			<listable>1</listable>
-		</template>
-		<template>
-			<id>4</id>
-			<originator>__CORE__</originator>
-			<name>Simplex Sub</name>
-			<content><![CDATA[{extends file='cms_template:Simplex'}{* This template uses template-inheritance *}
-
-{block name='top' append}
-  {$sidebar_image="{content_image block='sidebar_image' label='Sidebar Image:' urlonly=true}" scope=global}
-{/block}
-
-{block name='sidebar'}
-  &lt;aside class='sidebar four-col pull-eight'&gt;
-    &lt;img src={$sidebar_image|default:"{$theme_path}/images/Edit-anywhere.png"} /&gt;
-  &lt;/aside&gt;
-{/block}]]></content>
-			<description></description>
-			<type_id>1</type_id>
+			<name>Filetest</name>
+			<content><![CDATA[TemplateFileDemo_16.tpl]]></content>
+			<description>A demontration file-tempate</description>
+			<type_id>14</type_id>
 			<owner_id>1</owner_id>
 			<type_dflt>1</type_dflt>
 			<listable>1</listable>
+			<contentfile>1</contentfile>
 		</template>
 	</templates>
-	<templategroups>
-		<templategroup>
-			<id>1</id>
-			<name>Simplex</name>
-			<description>This group contains all the demonstration templates installed on a new CMSMS-powered website</description>
-		</templategroup>
-	</templategroups>
-	<templategroupmembers>
-		<templategroupmember>
-			<group_id>1</group_id>
-			<tpl_id>1</tpl_id>
-		</templategroupmember>
-		<templategroupmember>
-			<group_id>1</group_id>
-			<tpl_id>3</tpl_id>
-		</templategroupmember>
-		<templategroupmember>
-			<group_id>1</group_id>
-			<tpl_id>4</tpl_id>
-		</templategroupmember>
-		<templategroupmember>
-			<group_id>1</group_id>
-			<tpl_id>2</tpl_id>
-		</templategroupmember>
-	</templategroupmembers>
 	<designs>
 		<design>
 			<id>1</id>
+			<name>Default</name>
+			<description>Default design with just the default template</description>
+		</design>
+		<design>
+			<id>2</id>
 			<name>Simplex</name>
 			<description>Simplex is a HTML5-based theme introduced with CMSMS 1.11.&#13;
 The purpose of that theme is to demonstrate what and how can be done with CMSMS templates using HTML5 and responsive CSS for a better mobile experience.&#13;
 All Smarty templates used by the Simplex theme are prefixed with &quot;Simplex&quot;. Be careful when renaming or deleting those templates.&#13;
 The theme uses jQuery. Theme-specific javascript is in a minified file. If you wish to change some of that javascript, refer to /uploads/simplex/js/functions.js file and replace functions.min.js file.</description>
-			<dflt>1</dflt>
 		</design>
 	</designs>
 	<designstyles>
 		<designcss>
 			<design_id>1</design_id>
-			<css_id>1</css_id>
-			<css_order>1</css_order>
-		</designcss>
-		<designcss>
-			<design_id>1</design_id>
 			<css_id>2</css_id>
-			<css_order>2</css_order>
+			<css_order>1</css_order>
 		</designcss>
 		<designcss>
 			<design_id>1</design_id>
@@ -3074,54 +2842,69 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 		<designcss>
 			<design_id>1</design_id>
 			<css_id>4</css_id>
-			<css_order>4</css_order>
+			<css_order>2</css_order>
 		</designcss>
 	</designstyles>
 	<designtemplates>
 		<designtpl>
 			<design_id>1</design_id>
 			<tpl_id>1</tpl_id>
-			<tpl_order>1</tpl_order>
+			<tpl_order>4</tpl_order>
 		</designtpl>
 		<designtpl>
 			<design_id>1</design_id>
-			<tpl_id>2</tpl_id>
-			<tpl_order>1</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>3</tpl_id>
-			<tpl_order>1</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>4</tpl_id>
+			<tpl_id>5</tpl_id>
 			<tpl_order>1</tpl_order>
 		</designtpl>
 		<designtpl>
 			<design_id>1</design_id>
 			<tpl_id>6</tpl_id>
-			<tpl_order>1</tpl_order>
+			<tpl_order>2</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>7</tpl_id>
+			<tpl_order>3</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>8</tpl_id>
+			<tpl_order>7</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>9</tpl_id>
+			<tpl_order>11</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>10</tpl_id>
+			<tpl_order>9</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>11</tpl_id>
+			<tpl_order>10</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>12</tpl_id>
+			<tpl_order>8</tpl_order>
 		</designtpl>
 		<designtpl>
 			<design_id>1</design_id>
 			<tpl_id>13</tpl_id>
-			<tpl_order>1</tpl_order>
+			<tpl_order>5</tpl_order>
 		</designtpl>
 		<designtpl>
 			<design_id>1</design_id>
-			<tpl_id>14</tpl_id>
-			<tpl_order>1</tpl_order>
+			<tpl_id>15</tpl_id>
+			<tpl_order>12</tpl_order>
 		</designtpl>
 		<designtpl>
 			<design_id>1</design_id>
 			<tpl_id>16</tpl_id>
-			<tpl_order>1</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>18</tpl_id>
-			<tpl_order>1</tpl_order>
+			<tpl_order>6</tpl_order>
 		</designtpl>
 	</designtemplates>
 	<pages>
@@ -3133,37 +2916,76 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
-			<parent_id>-1</parent_id>
-			<template_id>3</template_id>
+			<parent_id>0</parent_id>
+			<template_id>1</template_id>
 			<menu_text><![CDATA[Home]]></menu_text>
 			<content_alias>home</content_alias>
-			<styles>1,2,3,4</styles>
+			<styles>2,1,4</styles>
 		</page>
 		<page>
 			<content_id>2</content_id>
 			<content_name>Help</content_name>
-			<type>sectionheader</type>
+			<type>content</type>
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
-			<parent_id>-1</parent_id>
-			<template_id>-1</template_id>
+			<parent_id>0</parent_id>
+			<template_id>1</template_id>
 			<menu_text><![CDATA[Help]]></menu_text>
 			<content_alias>help</content_alias>
-			<styles>1,2,3,4</styles>
+			<styles>2,1,4</styles>
 		</page>
 		<page>
 			<content_id>3</content_id>
 			<content_name>About CMSMS</content_name>
-			<type>sectionheader</type>
+			<type>content</type>
 			<show_in_menu>1</show_in_menu>
 			<active>1</active>
 			<cachable>1</cachable>
-			<parent_id>-1</parent_id>
-			<template_id>-1</template_id>
+			<parent_id>0</parent_id>
+			<template_id>1</template_id>
 			<menu_text><![CDATA[About]]></menu_text>
 			<content_alias>about-cmsms</content_alias>
-			<styles>1,2,3,4</styles>
+			<styles>3,2</styles>
+		</page>
+		<page>
+			<content_id>5</content_id>
+			<content_name>Why use CMS Made Simple?</content_name>
+			<type>content</type>
+			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
+			<parent_id>0</parent_id>
+			<template_id>1</template_id>
+			<menu_text><![CDATA[Why use CMS Made Simple?]]></menu_text>
+			<content_alias>why-use-cms-made-simple</content_alias>
+			<styles>3,2</styles>
+		</page>
+		<page>
+			<content_id>6</content_id>
+			<content_name>Support Options</content_name>
+			<type>content</type>
+			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
+			<parent_id>2</parent_id>
+			<template_id>1</template_id>
+			<menu_text><![CDATA[Support Options]]></menu_text>
+			<content_alias>support-options</content_alias>
+			<styles>2,1,4</styles>
+		</page>
+		<page>
+			<content_id>7</content_id>
+			<content_name>Documentation</content_name>
+			<type>content</type>
+			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
+			<parent_id>2</parent_id>
+			<template_id>1</template_id>
+			<menu_text><![CDATA[Documentation]]></menu_text>
+			<content_alias>documentation</content_alias>
+			<styles>2,1,4</styles>
 		</page>
 		<page>
 			<content_id>4</content_id>
@@ -3173,49 +2995,10 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 			<active>1</active>
 			<cachable>1</cachable>
 			<parent_id>3</parent_id>
-			<template_id>4</template_id>
+			<template_id>1</template_id>
 			<menu_text><![CDATA[Who is CMSMS for?]]></menu_text>
 			<content_alias>who-is-cmsms-for</content_alias>
-			<styles>1,2,3,4</styles>
-		</page>
-		<page>
-			<content_id>5</content_id>
-			<content_name>Why use CMS Made Simple?</content_name>
-			<type>content</type>
-			<show_in_menu>1</show_in_menu>
-			<active>1</active>
-			<cachable>1</cachable>
-			<parent_id>-1</parent_id>
-			<template_id>4</template_id>
-			<menu_text><![CDATA[Why use CMS Made Simple?]]></menu_text>
-			<content_alias>why-use-cms-made-simple</content_alias>
-			<styles>1,2,3,4</styles>
-		</page>
-		<page>
-			<content_id>6</content_id>
-			<content_name>Support Options</content_name>
-			<type>link</type>
-			<show_in_menu>1</show_in_menu>
-			<active>1</active>
-			<cachable>1</cachable>
-			<parent_id>2</parent_id>
-			<template_id>1</template_id>
-			<menu_text><![CDATA[Support Options]]></menu_text>
-			<content_alias>support-options</content_alias>
-			<styles>1,2,3,4</styles>
-		</page>
-		<page>
-			<content_id>7</content_id>
-			<content_name>Documentation</content_name>
-			<type>link</type>
-			<show_in_menu>1</show_in_menu>
-			<active>1</active>
-			<cachable>1</cachable>
-			<parent_id>2</parent_id>
-			<template_id>1</template_id>
-			<menu_text><![CDATA[Documentation]]></menu_text>
-			<content_alias>documentation</content_alias>
-			<styles>1,2,3,4</styles>
+			<styles>2,1,4</styles>
 		</page>
 		<page>
 			<content_id>8</content_id>
@@ -3225,10 +3008,10 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 			<active>1</active>
 			<cachable>1</cachable>
 			<parent_id>3</parent_id>
-			<template_id>4</template_id>
+			<template_id>1</template_id>
 			<menu_text><![CDATA[History]]></menu_text>
 			<content_alias>history</content_alias>
-			<styles>1,2,3,4</styles>
+			<styles>2,1,4</styles>
 		</page>
 	</pages>
 	<properties>
@@ -3241,11 +3024,12 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 			<content_id>1</content_id>
 			<prop_name>content_en</prop_name>
 			<content><![CDATA[&lt;p&gt;This fully functional installation of CMS Made Simple is ready to be built into anything you can imagine.&lt;/p&gt;
-&lt;p&gt;If you are new to CMS Made Simple, the best place to start is with the &lt;a title="CMS Made Simple documentation site" href="http://docs.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;documentation&lt;/a&gt;. If you're ready to get your hands dirty, log in to the site admin console &lt;a title="CMSMS Demo Admin Panel" href="admin"&gt;here&lt;/a&gt; (or if this is not your site, go to yoursite.com/[path]/admin). Explore the templates provided. This page uses Simplex, which is sprinkled with comments and tips for modifying or building your own designs.&lt;/p&gt;
-&lt;p&gt;If you need further help, various support options are described &lt;a href="https://www.cmsmadesimple.org/support/options/" target="_blank" rel="noopener"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you are new to CMS Made Simple, the best place to start is with the &lt;a title=&quot;CMS Made Simple documentation site&quot; href=&quot;http://docs.cmsmadesimple.org/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;documentation&lt;/a&gt;. If you&apos;re ready to get your hands dirty, log in to the site admin console &lt;a title=&quot;CMSMS Demo Admin Panel&quot; href=&quot;admin&quot;&gt;here&lt;/a&gt; (or if this is not your site, go to yoursite.com/[path]/admin). Explore the templates provided. This page uses Simplex, which is sprinkled with comments and tips for modifying or building your own designs.&lt;/p&gt;
+&lt;p&gt;If you need further help, various support options are described &lt;a href=&quot;https://www.cmsmadesimple.org/support/options/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;h3&gt;License&lt;/h3&gt;
-&lt;p&gt;CMS Made Simple is distributed under the &lt;a class="external" title="General Public License" href="http://www.gnu.org/licenses/licenses.html#GPL" target="_blank" rel="noopener"&gt;GPL&lt;/a&gt; license. This site doesn't need to publish a link back to CMSMS, as much as we would like such acknowledgement.&lt;/p&gt;
-&lt;p&gt;Some independently-developed add-on modules may have a different (compatible) license.&lt;/p&gt;]]></content>
+&lt;p&gt;CMS Made Simple is distributed under the &lt;a class=&quot;external&quot; title=&quot;General Public License&quot; href=&quot;http://www.gnu.org/licenses/licenses.html#GPL&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;GPL&lt;/a&gt; license. This site doesn&apos;t need to publish a link back to CMSMS, as much as we would like such acknowledgement.&lt;/p&gt;
+&lt;p&gt;Some independently-developed add-on modules may have a different (compatible) license.&lt;/p&gt;
+{News}]]></content>
 		</property>
 		<property>
 			<content_id>1</content_id>
@@ -3375,16 +3159,16 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 		<property>
 			<content_id>4</content_id>
 			<prop_name>content_en</prop_name>
-			<content><![CDATA[&lt;p&gt;CMS Made Simple is an open source Content Management System. It&amp;rsquo;s built using PHP and the&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;template engine, which keep content, functionality, and display separate.&lt;/p&gt;
+			<content><![CDATA[&lt;p&gt;CMS Made Simple is an open source Content Management System. It&amp;rsquo;s built using PHP and the&amp;nbsp;&lt;a title=&quot;Smarty&quot; href=&quot;http://www.smarty.net/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Smarty&lt;/a&gt;&amp;nbsp;template engine, which keep content, functionality, and display separate.&lt;/p&gt;
 &lt;h3&gt;FOR EDITORS&lt;/h3&gt;
-&lt;p&gt;At its most simple level, CMSMS is a system to help you keep a website updated through a comprehensive&amp;nbsp;&lt;a title="Content Manager" href="https://docs.cmsmadesimple.org/content-2/content-manager" target="_blank" rel="noopener"&gt;Content Manager&lt;/a&gt;, which allows both editing and creation of new pages in real time, and a News module which allows the creation and control of article-based content such as news or blog posts. Supported by a&amp;nbsp;&lt;a title="File Manager" href="https://docs.cmsmadesimple.org/content-2/file-manager"&gt;File Manager&lt;/a&gt;&amp;nbsp;for uploads and images, a&amp;nbsp;&lt;a title="Search Module" href="https://docs.cmsmadesimple.org/tags/search" target="_blank" rel="noopener"&gt;frontend&lt;/a&gt;&amp;nbsp;and&amp;nbsp;&lt;a title="Admin Search" href="https://docs.cmsmadesimple.org/tags/admin-search" target="_blank" rel="noopener"&gt;backend&lt;/a&gt;&amp;nbsp;Search Module, and a permissions-based&amp;nbsp;&lt;a title="Backend Users" href="https://docs.cmsmadesimple.org/user-management/backend-users" target="_blank" rel="noopener"&gt;Backend Users&lt;/a&gt;&amp;nbsp;manager, CMSMS is extremely easy to use, making it a delight for non-technical content editors to manage the day-to-day running of a site.&lt;br /&gt;[&lt;a title="For Editors" href="https://www.cmsmadesimple.org/why-cmsms/for-designers" target="_blank" rel="noopener"&gt;More&lt;/a&gt;]&lt;/p&gt;
+&lt;p&gt;At its most simple level, CMSMS is a system to help you keep a website updated through a comprehensive&amp;nbsp;&lt;a title=&quot;Content Manager&quot; href=&quot;https://docs.cmsmadesimple.org/content-2/content-manager&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Content Manager&lt;/a&gt;, which allows both editing and creation of new pages in real time, and a News module which allows the creation and control of article-based content such as news or blog posts. Supported by a&amp;nbsp;&lt;a title=&quot;File Manager&quot; href=&quot;https://docs.cmsmadesimple.org/content-2/file-manager&quot;&gt;File Manager&lt;/a&gt;&amp;nbsp;for uploads and images, a&amp;nbsp;&lt;a title=&quot;Search Module&quot; href=&quot;https://docs.cmsmadesimple.org/tags/search&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;frontend&lt;/a&gt;&amp;nbsp;and&amp;nbsp;&lt;a title=&quot;Admin Search&quot; href=&quot;https://docs.cmsmadesimple.org/tags/admin-search&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;backend&lt;/a&gt;&amp;nbsp;Search Module, and a permissions-based&amp;nbsp;&lt;a title=&quot;Backend Users&quot; href=&quot;https://docs.cmsmadesimple.org/user-management/backend-users&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Backend Users&lt;/a&gt;&amp;nbsp;manager, CMSMS is extremely easy to use, making it a delight for non-technical content editors to manage the day-to-day running of a site.&lt;br /&gt;[&lt;a title=&quot;For Editors&quot; href=&quot;https://www.cmsmadesimple.org/why-cmsms/for-designers&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;More&lt;/a&gt;]&lt;/p&gt;
 &lt;h3&gt;FOR DESIGNERS&lt;/h3&gt;
-&lt;p&gt;Beyond content management, CMSMS is actually a powerful and customisable system that makes the perfect core for markedly more advanced sites and applications. For designers, the&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;-based templating engine means that there are virtually no restrictions on how the site can look. Unlike many other systems on the market, you will not be forced to shoehorn your design ideas into a pre-purchased template structure. Although there are commercial and free&amp;nbsp;&lt;a title="CMSMS Themes Site" href="https://themes.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;themes&lt;/a&gt;&amp;nbsp;available, templating is so simple (with no need to know PHP!) that most designers find themselves adapting an existing design&amp;mdash;or building a new one from scratch&amp;mdash;in no time. The system lends itself to responsive design, and works extremely well with responsive frameworks such as&amp;nbsp;&lt;a title="Get Bootstrap" href="http://getbootstrap.com/" target="_blank" rel="noopener"&gt;Twitter Bootstrap&lt;/a&gt;&amp;nbsp;and&amp;nbsp;&lt;a title="Zurb Foundation" href="http://foundation.zurb.com/" target="_blank" rel="noopener"&gt;Zurb Foundation&lt;/a&gt;.&lt;br /&gt;[&lt;a title="For Designers" href="https://www.cmsmadesimple.org/why-cmsms/for-designers" target="_blank" rel="noopener"&gt;More&lt;/a&gt;]&lt;/p&gt;
+&lt;p&gt;Beyond content management, CMSMS is actually a powerful and customisable system that makes the perfect core for markedly more advanced sites and applications. For designers, the&amp;nbsp;&lt;a title=&quot;Smarty&quot; href=&quot;http://www.smarty.net/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Smarty&lt;/a&gt;-based templating engine means that there are virtually no restrictions on how the site can look. Unlike many other systems on the market, you will not be forced to shoehorn your design ideas into a pre-purchased template structure. Although there are commercial and free&amp;nbsp;&lt;a title=&quot;CMSMS Themes Site&quot; href=&quot;https://themes.cmsmadesimple.org/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;themes&lt;/a&gt;&amp;nbsp;available, templating is so simple (with no need to know PHP!) that most designers find themselves adapting an existing design&amp;mdash;or building a new one from scratch&amp;mdash;in no time. The system lends itself to responsive design, and works extremely well with responsive frameworks such as&amp;nbsp;&lt;a title=&quot;Get Bootstrap&quot; href=&quot;http://getbootstrap.com/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Twitter Bootstrap&lt;/a&gt;&amp;nbsp;and&amp;nbsp;&lt;a title=&quot;Zurb Foundation&quot; href=&quot;http://foundation.zurb.com/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Zurb Foundation&lt;/a&gt;.&lt;br /&gt;[&lt;a title=&quot;For Designers&quot; href=&quot;https://www.cmsmadesimple.org/why-cmsms/for-designers&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;More&lt;/a&gt;]&lt;/p&gt;
 &lt;h3&gt;FOR DEVELOPERS&lt;/h3&gt;
-&lt;p&gt;CMS Made Simple's core provides for powerful expansion through the use of the&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;templating engine, a robust module&amp;nbsp;&lt;a title="CMSMS API" href="http://www.cmsmadesimple.org/APIDOC2_0/" target="_blank" rel="noopener"&gt;API&lt;/a&gt;, and the ability to include your own PHP functions via&amp;nbsp;&lt;a title="User Defined Tags" href="https://docs.cmsmadesimple.org/tags/user-defined-tags" target="_blank" rel="noopener"&gt;User Defined Tags&lt;/a&gt;. Combined, these provide the ability to make sites into powerful applications while keeping the content and design separate. You can choose between file or database templates (including template inheritance), complete control over caching, and a granular permissions system.&lt;br /&gt;[&lt;a title="For Developers" href="https://www.cmsmadesimple.org/why-cmsms/for-developers"&gt;More&lt;/a&gt;]&lt;/p&gt;
+&lt;p&gt;CMS Made Simple&apos;s core provides for powerful expansion through the use of the&amp;nbsp;&lt;a title=&quot;Smarty&quot; href=&quot;http://www.smarty.net/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Smarty&lt;/a&gt;&amp;nbsp;templating engine, a robust module&amp;nbsp;&lt;a title=&quot;CMSMS API&quot; href=&quot;http://www.cmsmadesimple.org/APIDOC2_0/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;API&lt;/a&gt;, and the ability to include your own PHP functions via&amp;nbsp;&lt;a title=&quot;User Defined Tags&quot; href=&quot;https://docs.cmsmadesimple.org/tags/user-defined-tags&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;User Defined Tags&lt;/a&gt;. Combined, these provide the ability to make sites into powerful applications while keeping the content and design separate. You can choose between file or database templates (including template inheritance), complete control over caching, and a granular permissions system.&lt;br /&gt;[&lt;a title=&quot;For Developers&quot; href=&quot;https://www.cmsmadesimple.org/why-cmsms/for-developers&quot;&gt;More&lt;/a&gt;]&lt;/p&gt;
 &lt;h3&gt;FOR EVERYONE&lt;/h3&gt;
-&lt;p&gt;In addition to the above sections there is a vast array of powerful&amp;nbsp;&lt;a title="CMSMS Modules" href="http://dev.cmsmadesimple.org/project/list/module"&gt;modules&lt;/a&gt;&amp;nbsp;created by the extended CMSMS community, many of which can be installed and ready to use at the click of a button within the&amp;nbsp;&lt;a title="Module Manager" href="https://docs.cmsmadesimple.org/modules/core/module-manager" target="_blank" rel="noopener"&gt;Module Manager&lt;/a&gt;. Adding a suite of modules, combining them with templates and core or user defined tags, rapidly allows for the creation of sites and applications with complex functionality without ever losing the simplicity of use for the website editor.&lt;/p&gt;
-&lt;p&gt;You can find out more about why CMSMS is ideal for your project&amp;nbsp;&lt;a href="{cms_selflink href='why-use-cms-made-simple'}"&gt;here&lt;/a&gt;.&lt;/p&gt;]]></content>
+&lt;p&gt;In addition to the above sections there is a vast array of powerful&amp;nbsp;&lt;a title=&quot;CMSMS Modules&quot; href=&quot;http://dev.cmsmadesimple.org/project/list/module&quot;&gt;modules&lt;/a&gt;&amp;nbsp;created by the extended CMSMS community, many of which can be installed and ready to use at the click of a button within the&amp;nbsp;&lt;a title=&quot;Module Manager&quot; href=&quot;https://docs.cmsmadesimple.org/modules/core/module-manager&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Module Manager&lt;/a&gt;. Adding a suite of modules, combining them with templates and core or user defined tags, rapidly allows for the creation of sites and applications with complex functionality without ever losing the simplicity of use for the website editor.&lt;/p&gt;
+&lt;p&gt;You can find out more about why CMSMS is ideal for your project&amp;nbsp;&lt;a href=&quot;{cms_selflink href=&apos;why-use-cms-made-simple&apos;}&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;]]></content>
 		</property>
 		<property>
 			<content_id>4</content_id>
@@ -3444,16 +3228,16 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 		<property>
 			<content_id>5</content_id>
 			<prop_name>content_en</prop_name>
-			<content><![CDATA[&lt;p&gt;The fastest, most efficient way to create stunning and sophisticated websites.&lt;/p&gt;
+			<content><![CDATA[&lt;p&gt;A fast and efficient way to create stunning and sophisticated websites.&lt;/p&gt;
 &lt;h3&gt;ADDING SITE CONTENT IS JUST A FEW CLICKS AWAY&lt;/h3&gt;
-&lt;p&gt;The Content Manager makes content management simple. That's sort of our thing! Reorder site pages via drag and drop, and edit their contents with a click. All with no knowledge of HTML. Let the designers worry about the look, while the editors focus on content. Editing content is done with a simple editor with all the tools you'll recognize from word processors.&lt;/p&gt;
+&lt;p&gt;The Content Manager makes content management simple. That&apos;s sort of our thing! Reorder site pages via drag and drop, and edit their contents with a click. All with no knowledge of HTML. Let the designers worry about the look, while the editors focus on content. Editing content is done with a simple editor with all the tools you&apos;ll recognize from word processors.&lt;/p&gt;
 &lt;h3&gt;ANY DESIGN YOU CAN IMAGINE&lt;/h3&gt;
 &lt;h4&gt;Join the growing number of design professionals who have discovered the foolproof elegance of CMS Made Simple.&lt;/h4&gt;
-&lt;p&gt;A question regularly asked is "where are the templates?" Although there are&amp;nbsp;&lt;a title="CMSMS Themes Site" href="https://themes.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;themes&lt;/a&gt;&amp;nbsp;available, CMSMS was designed to eliminate the need to restrict yourself to premade or purchased templates. With some HTML and CSS knowledge, a developer can use Design Manager to put together a completely custom design in short order. With the inclusion of a responsive framework, it's even faster. Still want to use an existing design? No problem, CMSMS makes it easy to add your existing code: insert a few Smarty tags in key places, and you're off to the races. If you need a bit of help getting started, review the theme used for this page (Simplex) or one of the themes available on the &lt;a href="https://themes.cmsmadesimple.org" target="_blank" rel="noopener"&gt;CMSMS Themes&lt;/a&gt; site.&lt;/p&gt;
+&lt;p&gt;A question we often get asked is &quot;where are the templates?&quot; Although there are&amp;nbsp;&lt;a title=&quot;CMSMS Themes Site&quot; href=&quot;https://themes.cmsmadesimple.org/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;themes&lt;/a&gt;&amp;nbsp;available, CMSMS was designed to eliminate the need to restrict yourself to premade or purchased templates. With some HTML and CSS knowledge, a developer can use Design Manager to put together a completely custom design in short order. With the inclusion of a responsive framework, it&apos;s even faster. Still want to use an existing design? No problem, CMSMS makes it easy to add your existing code: insert a few Smarty tags in key places, and you&apos;re off to the races. If you need a bit of help getting started, review the theme used for this page (Simplex) or one of the themes available on the &lt;a href=&quot;https://themes.cmsmadesimple.org&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;CMSMS Themes&lt;/a&gt; site.&lt;/p&gt;
 &lt;h3&gt;EDIT SITE LAYOUT ON THE FLY&lt;/h3&gt;
-&lt;p&gt;Using file or database templates, and a bit of &lt;a title="Smarty" href="http://www.smarty.net/"&gt;Smarty&lt;/a&gt; knowledge, developers have full control over layouts. Responsive sites, especially with frameworks, are simple (there it is again) to test and maintain.&lt;/p&gt;
+&lt;p&gt;Using file or database templates, and a bit of &lt;a title=&quot;Smarty&quot; href=&quot;http://www.smarty.net/&quot;&gt;Smarty&lt;/a&gt; knowledge, developers have full control over layouts. Responsive sites, especially with frameworks, are simple (there it is again) to test and maintain.&lt;/p&gt;
 &lt;h3&gt;EXTENDING A WEBSITE HAS NEVER BEEN MORE SIMPLE&lt;/h3&gt;
-&lt;p&gt;With a wide range of core and independently-developed&amp;nbsp;&lt;a title="CMSMS Forge" href="http://dev.cmsmadesimple.org/project/list/module" target="_blank" rel="noopener"&gt;modules&lt;/a&gt;, a fully documented&amp;nbsp;&lt;a title="CMSMS API" href="http://www.cmsmadesimple.org/APIDOC2_0/" target="_blank" rel="noopener"&gt;API&lt;/a&gt;, the ability to include PHP code via&amp;nbsp;&lt;a title="CMSMS Documentation Site - UDTs" href="https://docs.cmsmadesimple.org/tags/user-defined-tags" target="_blank" rel="noopener"&gt;User Defined Tags&lt;/a&gt;, and full&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;template inheritance, there's no limit to the complexity you can include in the website. CMSMS is fully extensible, and is a perfect base for your applications.&lt;/p&gt;]]></content>
+&lt;p&gt;With a wide range of core and independently-developed&amp;nbsp;&lt;a title=&quot;CMSMS Forge&quot; href=&quot;http://dev.cmsmadesimple.org/project/list/module&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;modules&lt;/a&gt;, a fully documented&amp;nbsp;&lt;a title=&quot;CMSMS API&quot; href=&quot;http://www.cmsmadesimple.org/APIDOC2_0/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;API&lt;/a&gt;, the ability to include PHP code via&amp;nbsp;&lt;a title=&quot;CMSMS Documentation Site - UDTs&quot; href=&quot;https://docs.cmsmadesimple.org/tags/user-defined-tags&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;User Defined Tags&lt;/a&gt;, and full&amp;nbsp;&lt;a title=&quot;Smarty&quot; href=&quot;http://www.smarty.net/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Smarty&lt;/a&gt;&amp;nbsp;template inheritance, there&apos;s no limit to the complexity you can include in the website. CMSMS is fully extensible, and is a perfect base for your applications.&lt;/p&gt;]]></content>
 		</property>
 		<property>
 			<content_id>5</content_id>
@@ -3603,14 +3387,14 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 		<property>
 			<content_id>8</content_id>
 			<prop_name>content_en</prop_name>
-			<content><![CDATA[&lt;p&gt;CMS Made Simple&amp;trade; was first released in July 2004 as an open source (&lt;a href="http://www.gnu.org/licenses/gpl-2.0.html"&gt;GPL&lt;/a&gt;) package, which it remains to this day. That separation of content, function, and design has been a key ethic from day one and it&amp;rsquo;s why so many of our users stop looking for further solutions once they have found us.&lt;/p&gt;
+			<content><![CDATA[&lt;p&gt;CMS Made Simple&amp;trade; was first released in July 2004 as an open source (&lt;a href=&quot;http://www.gnu.org/licenses/gpl-2.0.html&quot;&gt;GPL&lt;/a&gt;) package, which it remains to this day. That separation of content, function, and design has been a key ethic from day one and it&amp;rsquo;s why so many of our users stop looking for further solutions once they have found us.&lt;/p&gt;
 &lt;p&gt;It&amp;rsquo;s not just our own user base that has given us such great support. CMS Made Simple has garnered a number of awards since its creation including runner up (twice) and winner of Pact Publishing&amp;rsquo;s &amp;lsquo;Best Overall Open Source Content Management System&amp;rsquo; in their annual Open Source Awards.&lt;/p&gt;
 &lt;p&gt;Since 2004, the core system has been regularly improved and updated with features, security releases, code improvements and much more. In that time, we have released countless new versions, each an improvement on the previous. In the summer of 2015, we released version 2.0, which was a nearly complete overhaul of the system. As we noticed our user base maturing to more advanced developers creating sites and applications, and larger design firms producing hundreds of CMSMS projects, it helped steer the project towards the powerful application base it is today with the 2.3 branch.&lt;/p&gt;
 &lt;h3&gt;The Development Team&lt;/h3&gt;
-&lt;p&gt;CMSMS is developed by an international team of professionals who volunteer their time and efforts to design, develop, maintain, and market the system. In many cases this is in addition to running busy web and software development businesses themselves. Over the past years, many outstanding individuals have contributed their time and helped to shape the system that you can download today. You can find out more about the current Dev Team &lt;a title="CMSMS Dev Team" href="https://www.cmsmadesimple.org/about/team/" target="_blank" rel="noopener"&gt;here&lt;/a&gt;, as well as what they can offer through their own professional services.&lt;/p&gt;
-&lt;p&gt;The Development Team meets officially once a month, but remains in contact daily, collaborating within a defined organisational structure. The Dev Team is always delighted to hear from individuals who feel they have the resources and time to get involved. If you think you may be one such person, click &lt;a title="Join the CMSMS Dev Team" href="https://www.cmsmadesimple.org/community/get-involved/develop/" target="_blank" rel="noopener"&gt;here&lt;/a&gt; to find out more.&lt;/p&gt;
+&lt;p&gt;CMSMS is developed by an international team of professionals who volunteer their time and efforts to design, develop, maintain, and market the system. In many cases this is in addition to running busy web and software development businesses themselves. Over the past years, many outstanding individuals have contributed their time and helped to shape the system that you can download today. You can find out more about the current Dev Team &lt;a title=&quot;CMSMS Dev Team&quot; href=&quot;https://www.cmsmadesimple.org/about/team/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;here&lt;/a&gt;, as well as what they can offer through their own professional services.&lt;/p&gt;
+&lt;p&gt;The Development Team meets officially once a month, but remains in contact daily, collaborating within a defined organisational structure. The Dev Team is always delighted to hear from individuals who feel they have the resources and time to get involved. If you think you may be one such person, click &lt;a title=&quot;Join the CMSMS Dev Team&quot; href=&quot;https://www.cmsmadesimple.org/community/get-involved/develop/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;here&lt;/a&gt; to find out more.&lt;/p&gt;
 &lt;h3&gt;You and CMS Made Simple&lt;/h3&gt;
-&lt;p&gt;CMS Made Simple is available for &lt;a title="Download CMSMS" href="https://www.cmsmadesimple.org/downloads/cmsms/" target="_blank" rel="noopener"&gt;download&lt;/a&gt; and use for free under the terms of the GPL license. You can use CMSMS on commercial or personal projects. In most cases will be able to use appropriate modules that have been developed (though you should check their individual licenses). If you have not already &lt;a href="http://www.softaculous.com/demos/CMS_Made_Simple" target="_blank" rel="noopener"&gt;tried the demo&lt;/a&gt; or &lt;a title="Download CMSMS" href="https://www.cmsmadesimple.org/downloads/cmsms/" target="_blank" rel="noopener"&gt;downloaded the core package&lt;/a&gt;, please do so.&lt;/p&gt;]]></content>
+&lt;p&gt;CMS Made Simple is available for &lt;a title=&quot;Download CMSMS&quot; href=&quot;https://www.cmsmadesimple.org/downloads/cmsms/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;download&lt;/a&gt; and use for free under the terms of the GPL license. You can use CMSMS on commercial or personal projects. In most cases will be able to use appropriate modules that have been developed (though you should check their individual licenses). If you have not already &lt;a href=&quot;http://www.softaculous.com/demos/CMS_Made_Simple&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;tried the demo&lt;/a&gt; or &lt;a title=&quot;Download CMSMS&quot; href=&quot;https://www.cmsmadesimple.org/downloads/cmsms/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;downloaded the core package&lt;/a&gt;, please do so.&lt;/p&gt;]]></content>
 		</property>
 		<property>
 			<content_id>8</content_id>
@@ -3663,12 +3447,41 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 			<content></content>
 		</property>
 	</properties>
-	<files>
-		<file>
-			<name>simpleLogo.png</name>
-			<frompath>images</frompath>
-			<topath>images</topath>
-		</file>
+	<simpletags>
+		<tag>
+			<name>user_agent</name>
+			<code><![CDATA[return $_SERVER[&quot;HTTP_USER_AGENT&quot;];]]></code>
+			<description><![CDATA[Display the user&#39;s user&#45;agent information]]></description>
+			<parameters></parameters>
+		</tag>
+		<tag>
+			<name>custom_copyright</name>
+			<code><![CDATA[$thisYear=date(&apos;Y&apos;);
+if(!empty($params[&apos;start&apos;]) &amp;&amp; is_numeric($params[&apos;start&apos;]) &amp;&amp; $params[&apos;start&apos;] &gt;= 2004 &amp;&amp; $params[&apos;start&apos;] &lt;= $thisYear){
+ $startCopyRight=$params[&apos;start&apos;];
+}else{
+ $startCopyRight=&apos;2004&apos;;
+}
+// check if start year is this year
+if($thisYear == $startCopyRight){
+// it was, just print this year
+ return $startCopyRight;
+}else{
+// it wasn&apos;t, print start year and this year separated by a dash
+ return $startCopyRight.&apos;-&apos;.$thisYear;
+}]]></code>
+			<description><![CDATA[Display year or years-range YYYY[-YYYY]
+Usage: {custom_copyright [start=&#39;YYYY&#39;]}]]></description>
+			<parameters><![CDATA[start : optional first year of the copyright interval, default 2004]]></parameters>
+		</tag>
+		<tag>
+			<name>newname</name>
+			<code><![CDATA[asdfasf]]></code>
+			<description><![CDATA[adfsd]]></description>
+			<parameters><![CDATA[adfsf]]></parameters>
+		</tag>
+	</simpletags>
+	<uploadfiles>
 		<file>
 			<name>logo1.gif</name>
 			<frompath>images</frompath>
@@ -3824,15 +3637,38 @@ The theme uses jQuery. Theme-specific javascript is in a minified file. If you w
 			<frompath>simplex/teaser</frompath>
 			<topath>simplex/teaser</topath>
 		</file>
-	</files>
-	<userplugins>
+		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/assets/install/uploadfiles</sourcedir>
+	</uploadfiles>
+	<simpletagfiles>
 		<file>
-			<name>custom_copyright.php</name>
+			<name>web.config</name>
 			<frompath></frompath>
+			<topath></topath>
 		</file>
 		<file>
-			<name>user_agent.php</name>
+			<name>file_custom_copyright.phphp</name>
 			<frompath></frompath>
+			<topath></topath>
 		</file>
-	</userplugins>
+		<file>
+			<name>file_user_agent.phphp</name>
+			<frompath></frompath>
+			<topath></topath>
+		</file>
+		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/assets/install/uploadfiles/simple_plugins</sourcedir>
+	</simpletagfiles>
+	<templatefiles>
+		<file>
+			<name>COPY-TemplateFileDemo_16.tpl</name>
+			<frompath></frompath>
+			<topath></topath>
+		</file>
+		<file>
+			<name>TemplateFileDemo_16.tpl</name>
+			<frompath></frompath>
+			<topath></topath>
+		</file>
+		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/assets/install/uploadfiles/templates</sourcedir>
+	</templatefiles>
+	<stylefiles/>
 </cmsmssitedata>
