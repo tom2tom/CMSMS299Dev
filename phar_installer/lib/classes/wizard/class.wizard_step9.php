@@ -49,7 +49,7 @@ class wizard_step9 extends wizard_step
 			}
 		}
 		else {
-            @mkdir(TMP_CACHE_LOCATION,0771,TRUE);
+            @mkdir(TMP_CACHE_LOCATION, 0771, TRUE);
         }
         if( TMP_CACHE_LOCATION != PUBLIC_CACHE_LOCATION ) {
             if( is_dir(PUBLIC_CACHE_LOCATION) ) {
@@ -58,7 +58,7 @@ class wizard_step9 extends wizard_step
 				}
 			}
 			else {
-                @mkdir(PUBLIC_CACHE_LOCATION,0771,TRUE);
+                @mkdir(PUBLIC_CACHE_LOCATION, 0771, TRUE);
             }
         }
         if( is_dir(TMP_TEMPLATES_C_LOCATION) ) {
@@ -67,7 +67,7 @@ class wizard_step9 extends wizard_step
 			}
 		}
 		else {
-            @mkdir(TMP_TEMPLATES_C_LOCATION,0771,TRUE);
+            @mkdir(TMP_TEMPLATES_C_LOCATION, 0771, TRUE);
         }
     }
 
@@ -82,11 +82,14 @@ class wizard_step9 extends wizard_step
         // upgrade modules
         $this->message(lang('msg_upgrademodules'));
 
+        $modops = ModuleOperations::get_instance();
+        $corenames = $app->get_config()['coremodules'];
+		$modops->RegisterSystemModules($corenames);
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
         $allmodules = $siteinfo['havemodules'] ?? [];
-        $modops = ModuleOperations::get_instance();
+
         foreach( $allmodules as $name ) {
-            if( $modops->IsSystemModule($name) ) {
+            if( in_array($name, $corenames) ) {
                 $this->verbose(lang('msg_upgrade_module',$name));
                 // force all system modules to be loaded
                 // any such module which needs upgrade should automagically do so
@@ -166,9 +169,12 @@ class wizard_step9 extends wizard_step
 
         $this->connect_to_cmsms($destdir);
 
+        $corenames = $app->get_config()['coremodules'];
         // install modules
         $this->message(lang('install_modules'));
         $modops = cmsms()->GetModuleOperations();
+		$modops->RegisterSystemModules($corenames);
+
         $db = cmsms()->GetDb();
 //(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
         $stmt1 = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'modules
@@ -242,9 +248,11 @@ VALUES (?,?,?,NOW())');
                 if( ($res = import_content($xmlfile, $filesfolder)) ) {
                     $this->error($res);
                 }
-                // update pages hierarchy
-                $this->verbose(lang('install_updatehierarchy'));
-                ContentOperations::get_instance()->SetAllHierarchyPositions();
+                else {
+                    // update pages hierarchy
+                    $this->verbose(lang('install_updatehierarchy'));
+                    ContentOperations::get_instance()->SetAllHierarchyPositions();
+                }
             }
             catch( Throwable $t ) {
                 $ADBG = 1;
@@ -332,16 +340,23 @@ VALUES (?,?,?,NOW())');
         // this loads the standard CMSMS stuff, except smarty cuz it's already done.
         // we do this here because both upgrade and install stuff needs it.
         global $CMS_VERSION;
-        $CMS_VERSION = $this->get_wizard()->get_data('destversion');
-
+/* downsteam included file sets this
+        $info = $this->get_wizard()->get_data('version_info'); // N/A during install
+        if( $info && !empty($info['version']) ) {
+            $CMS_VERSION = $info['version'];
+        } else {
+            $CMS_VERSION = 'TODO'; from incuded version.php ?
+        }
+*/
         require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
         AppState::add_state(AppState::STATE_INSTALL);
 
-        if( is_file("$destdir/include.php") ) {
-            include_once $destdir.'/include.php';
+        $fp = $destdir.DIRECTORY_SEPARATOR.'include.php';
+        if( is_file($fp) ) {
+            include_once $fp;
         }
         else {
-            include_once $destdir.'/lib/include.php';
+            include_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
         }
 
         if( !defined('CMS_VERSION') ) {

@@ -156,7 +156,7 @@ class wizard_step5 extends wizard_step
             }
         }
         $smarty->assign('language_list',$languages);
-        $raw = $config['exlangs'] ?? null;
+        $raw = $config['selectlangs'] ?? null;
         if( $raw ) {
             if( is_array($raw) ) {
                 array_walk($raw,function(&$v) {
@@ -201,7 +201,7 @@ class wizard_step5 extends wizard_step
                 $modules = null;
             }
             $smarty->assign('modules_list',$modules);
-            $smarty->assign('modules_sel', (($modules) ? $config['modules'] ?? null : null)); //TODO what is 'modules' item in $config ?
+            $smarty->assign('modules_sel', (($modules) ? $config['selectmodules'] ?? null : null));
         }
 
         $smarty->display('wizard_step5.tpl');

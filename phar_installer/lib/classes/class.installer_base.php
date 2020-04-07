@@ -61,8 +61,8 @@ abstract class installer_base
     private $_orig_tz;
 
     /**
-     * @param string $configfile Optional filepath of a non-default 'config.ini'
-     *  containing build settings. Default ''.
+     * @param string $configfile Optional filepath of a 'installer.ini' file
+     * containing settings to be used instead of default settings. Default ''.
      * @throws Exception
      */
     protected function __construct(string $configfile = '')
@@ -109,7 +109,8 @@ lib/classes/smarty/*                      no namespace
                 $path = dirname($path);
                 if ($path != '.') {
                     $sroot .= 'classes'.DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR;
-                } else {
+                }
+                else {
                     $sroot .= 'classes'.DIRECTORY_SEPARATOR;
                 }
                 foreach (['class.', ''] as $test) {
@@ -120,7 +121,8 @@ lib/classes/smarty/*                      no namespace
                     }
                 }
 /* now composer-autoloaded
-            } elseif ($space == 'PHPArchive') { //files-archive classes
+            }
+            elseif ($space == 'PHPArchive') { //files-archive classes
                 $path = str_replace('\\', DIRECTORY_SEPARATOR, substr($classname, $o));
                 $fp = __DIR__.DIRECTORY_SEPARATOR.$path.'.php';
                 if (is_file($fp)) {
@@ -140,30 +142,35 @@ lib/classes/smarty/*                      no namespace
     {
         $config = $this->merge_config(
         [
-            'coremodules' => [],
+            'coremodules' => [], // core module names
             'debug' => false,
-            'dest' => null,
-            'lang' => null,
+            'dest' => null, // top filepath for installation
+            'extramodules' => [], // non-core module names
+            'lang' => null, // installer translation
             'nobase' => false,
             'nofiles' => false,
-            'timezone' => null,
-            'tmpdir' => null,
-            'verbose' => false,
-            'extramodules' => [],
+            'selectlangs' => [], // translations to be selected for installation
+            'selectmodules' => [], // member(s) of extramodules to be selected for installation
+            'timezone' => null, // site timezone
+            'tmpdir' => null, // working directory
+            'verbose' => false, // verbose operation of installer
         ], $this->_config);
 
         if ($config['tmpdir']) {
             if (is_dir($config['tmpdir']) && is_writable($config['tmpdir'])) {
                 $this->_custom_tmpdir = $config['tmpdir'];
-            } else {
+            }
+            else {
                 throw new Exception('Invalid temporary/working directory specified');
             }
-        } else {
+        }
+        else {
             $tmp = utils::get_sys_tmpdir().DIRECTORY_SEPARATOR.chr(random_int(97,122)).bin2hex(random_bytes(10));
             if (mkdir($tmp, 0771, true)) {
                 $this->_custom_tmpdir = $tmp;
                 $config['tmpdir'] = $tmp;
-            } else {
+            }
+            else {
                 throw new Exception('No temporary/working directory is available');
             }
         }
@@ -185,16 +192,33 @@ lib/classes/smarty/*                      no namespace
         $config['dest'] = $tmp;
         return $config;
     }
-
+    /**
+     * Merge .ini file contents
+     * @internal
+     * @param array $config1 Merge into this
+     * @param array $config2 Merge from this (if not empty)
+     * @return array
+     */
     private function merge_config(array $config1, array $config2) : array
     {
         if ($config2) {
             foreach ($config2 as $k =>$v) {
                 if (is_array($v)) {
-                    $config1[$k] = array_unique(array_merge(($config1[$k] ?? []), $v), SORT_STRING);
-                } elseif ($v) {
+                    if (!isset($config1[$k]) || $config1[$k] === '') {
+                        $config1[$k] = [];
+                    }
+                    elseif (!is_array ($v)) {
+                        $config1[$k] = [$config1[$k]];
+                    }
+                    $config1[$k] = array_unique(array_merge($config1[$k] , $v), SORT_STRING);
+                }
+                elseif (isset($config1[$k]) && is_array($config1[$k]) ) {
+                    $config1[$k] = array_unique(array_merge($config1[$k] , [$v]), SORT_STRING);
+                }
+                elseif ($v) {
                     $config1[$k] = $v;
-                } elseif (is_numeric($v)) {
+                }
+                elseif (is_numeric($v)) {
                     $config1[$k] = $v + 0;
                 }
             }
@@ -213,7 +237,7 @@ lib/classes/smarty/*                      no namespace
             $tmp = dirname($tmp);
         }
         // supplement/override default config with custom config file if any
-        $config_file = joinpath($tmp, 'config.ini');
+        $config_file = joinpath($tmp, 'installer.ini');
         if (is_file($config_file) && is_readable($config_file)) {
             $xconfig = parse_ini_file($config_file, false, INI_SCANNER_TYPED);
             if ($xconfig) {
@@ -466,7 +490,8 @@ lib/classes/smarty/*                      no namespace
                 FilesystemIterator::SKIP_DOTS |
                 FilesystemIterator::UNIX_PATHS
             );
-        } else {
+        }
+        else {
             $config = self::get_instance()->get_config();
             if (empty($config['archdir'])) {
                 $path = tempnam($this->get_tmpdir(), 'CMSfiles');
@@ -474,7 +499,8 @@ lib/classes/smarty/*                      no namespace
                 $config['archdir'] = $path;
                 $sess = session::get_instance();
                 $sess['config'] = $config;
-            } else {
+            }
+            else {
                 $path = $config['archdir'];
             }
             if (!is_dir($path)) {
@@ -614,17 +640,21 @@ lib/classes/smarty/*                      no namespace
     /**
      * Once-per-request initialization
      * @ignore
-     * @param string $configfile Optional filepath of a non-default 'config.ini'
-     *  containing build settings. Default ''.   *
+     * @param string $configfile Optional filepath of a 'installer.ini' file
+     * containing settings to be used instead of defaults, and implicitly
+     * defining the 'installer-assets' folder to be used. Default ''.
      * @throws Exception
      */
-    private function init(string $configfile)
+    private function init(string $configfile = '')
     {
         if (!$configfile) {
-            $configfile = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'config.ini';
+            $this->_assetdir = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'assets';
+            $p = $this->_assetdir.DIRECTORY_SEPARATOR.'installer.ini';
         }
-        $this->_assetdir = dirname($configfile);
-        $p = $this->_assetdir.DIRECTORY_SEPARATOR.'config.ini';
+        else {
+            $this->_assetdir = dirname($configfile);
+            $p = $configfile;
+        }
         $config = (is_file($p)) ? parse_ini_file($p, false, INI_SCANNER_TYPED) : [];
         $this->_config = ($config) ? $config : [];
 
@@ -731,7 +761,8 @@ lib/classes/smarty/*                      no namespace
         }
         elseif ($this->in_phar()) {
             $p = joinpath($this->get_tmpdir(), 'lib', 'vendor', 'smarty', 'smarty');
-        } else {
+        }
+        else {
             $p = __DIR__.DIRECTORY_SEPARATOR.'smarty';
         }
 
@@ -739,9 +770,10 @@ lib/classes/smarty/*                      no namespace
         // smarty's autoloader may be absent when composer handles smarty autoloading
         if (is_file($p)) {
             require_once $p;
-        } else {
+        }
+        else {
             // revert to our local backup
-			define('SMARTY_DIR', dirname($p, 2));
+            define('SMARTY_DIR', dirname($p, 2));
             require_once __DIR__.DIRECTORY_SEPARATOR.'smarty'.DIRECTORY_SEPARATOR.'BackupAutoloader.php';
         }
         Smarty_Autoloader::register();
@@ -756,7 +788,8 @@ lib/classes/smarty/*                      no namespace
             $this->_dest_version = $ver['version'];
             $this->_dest_name = $ver['version_name'];
             $this->_dest_schema = $ver['schema_version'];
-        } else {
+        }
+        else {
             $verfile = dirname($src_archive).DIRECTORY_SEPARATOR.'version.php';
             if (!is_file($verfile)) {
                 throw new Exception('Could not find version file');

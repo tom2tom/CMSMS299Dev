@@ -5,9 +5,10 @@ namespace cms_installer\wizard;
 use cms_config;
 use cms_installer\wizard\wizard_step;
 use cms_siteprefs;
+use cms_utils;
 use CmsApp;
-use CMSMS\AppState;
 use CMSMS\AdminTheme;
+use CMSMS\AppState;
 use Exception;
 use function cms_installer\get_app;
 use function cms_installer\lang;
@@ -43,17 +44,25 @@ class wizard_step8 extends wizard_step
 
     private function connect_to_cmsms(string $destdir)
     {
+/* downstream included file sets this
         global $CMS_VERSION;
-        $CMS_VERSION = $this->get_wizard()->get_data('destversion');
 
+        $info = $this->get_wizard()->get_data('version_info'); // N/A during install
+        if( $info && !empty($info['version']) ) {
+            $CMS_VERSION = $info['version'];
+        } else {
+            $CMS_VERSION = '2.8.900'; //TODO include version.php file?
+        }
+*/
         require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
         AppState::add_state(AppState::STATE_INSTALL);
         // setup and initialize the CMSMS API's
-        if( is_file("$destdir/include.php") ) {
-            include_once $destdir.'/include.php';
+        $fp = $destdir.DIRECTORY_SEPARATOR.'include.php';
+        if( is_file($fp) ) {
+            include_once $fp;
         }
         else {
-            include_once $destdir.'/lib/include.php';
+            include_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
         }
     }
 
@@ -79,10 +88,10 @@ class wizard_step8 extends wizard_step
 
         $cachtype = $wiz->get_data('cachemode');
 
-        $this->connect_to_cmsms($destdir);
-
-        // create new config.php file to ebable database connection
+        // create new config.php file to enable database connection
         $this->write_config();
+
+        $this->connect_to_cmsms($destdir);
 
         // connect to the database, if possible
         $db = $this->db_connect($destconfig);
@@ -109,13 +118,26 @@ class wizard_step8 extends wizard_step
 
             // create tmp directories
             $this->verbose(lang('install_createtmpdirs'));
-            @mkdir($destdir.DIRECTORY_SEPARATOR.'tmp/cache',0771,TRUE);
-            @mkdir($destdir.DIRECTORY_SEPARATOR.'tmp/templates_c',0771,TRUE);
+            $fp = constant('TMP_CACHE_LOCATION');
+            if( !$fp ) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/cache';
+            @mkdir($fp,0771,TRUE);
+            touch($fp.DIRECTORY_SEPARATOR.'index.html');
+            $fp = constant('PUBLIC_CACHE_LOCATION');
+            if( !$fp ) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/cache/public';
+            @mkdir($fp,0771,TRUE);
+            touch($fp.DIRECTORY_SEPARATOR.'index.html');
+            $fp = constant('TMP_TEMPLATES_C_LOCATION');
+            if( !$fp ) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/templates_c';
+            @mkdir($fp,0771,TRUE);
+            touch($fp.DIRECTORY_SEPARATOR.'index.html');
 
             // init some of the system-wide default settings
             verbose_msg(lang('install_initsiteprefs'));
-			$theme = reset(AdminTheme::GetAvailableThemes());
-			$uuid = cms_utils::random_string(32);
+            $corenames = $app->get_config()['coremodules'];
+            $cores = implode(',',$corenames);
+            $theme = reset(AdminTheme::GetAvailableThemes());
+            $uuid = cms_utils::random_string(32);
+            $ultras = json_encode(['Modify Restricted Files','Modify DataBase Direct','Remote Administration']);
 
             foreach ([
              'adminlog_lifetime' => 3600*24*31, // admin log entries live for 60 days TODO AdminLog module setting
@@ -132,6 +154,7 @@ class wizard_step8 extends wizard_step
              'content_imagefield_path' => '',
              'contentimage_path' => '',
              'content_thumbnailfield_path' => '',
+             'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
              'defaultdateformat' => '%e %B %Y',
              'enablesitedownmessage' => 0,
              'frontendlang' => 'en_US',
@@ -146,6 +169,7 @@ class wizard_step8 extends wizard_step
 //           'sitemask' => '', // salt for old (md5-hashed) admin-user passwords - useless in new installs
              'sitename' => $siteinfo['sitename'],
              'smarty_cachelife' => -1, // smarty default
+             'ultraroles' => $ultras,
              'use_smartycompilecheck' => 1,
             ] as $name=>$val) {
                 cms_siteprefs::set($name, $val);
@@ -168,7 +192,9 @@ class wizard_step8 extends wizard_step
     private function do_upgrade(array $version_info)
     {
         global $CMS_VERSION;
-        $CMS_VERSION = $this->get_wizard()->get_data('destversion');
+
+        $info = $this->get_wizard()->get_data('version_info');
+        $CMS_VERSION = $info['version'];
 
         // get the list of all available versions that this upgrader knows about
         $app = get_app();
@@ -225,12 +251,17 @@ class wizard_step8 extends wizard_step
             $this->error($e->GetMessage());
         }
 
-        if( 0 ) {
-            foreach ([
-             'site_support' => $siteinfo['supporturl'], //TODO only if verbose etc
-            ] as $name=>$val) {
-                cms_siteprefs::set($name, $val);
-            }
+        $corenames = $app->get_config()['coremodules'];
+        $cores = implode(',',$corenames);
+        $arr = [
+            'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
+            'ultraroles' => json_encode(['Modify Restricted Files','Modify DataBase Direct','Remote Administration']),
+        ];
+        if( issset($siteinfo['supporturl']) ) { //TODO only if verbose etc
+            $arr['site_support'] = $siteinfo['supporturl'];
+         }
+        foreach ($arr as $name=>$val) {
+            cms_siteprefs::set($name, $val);
         }
     }
 
@@ -256,10 +287,13 @@ class wizard_step8 extends wizard_step
 
         $this->message(lang('install_createconfig'));
         // get a 'real' config object
-        require_once $destdir.DIRECTORY_SEPARATOR.'lib/misc.functions.php';
-        require_once $destdir.DIRECTORY_SEPARATOR.'lib/classes/class.cms_config.php';
+        $fp = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
+        require_once $fp.'misc.functions.php';
+        require_once $fp.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+        AppState::add_state(AppState::STATE_INSTALL); //enable $config property-setting
+        require_once $fp.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php';
         $newconfig = cms_config::get_instance();
-//        $newconfig['dbms'] = 'mysqli'; //trim($destconfig['db_type']); redundant always mysqli
+//      $newconfig['dbms'] = 'mysqli'; //trim($destconfig['db_type']); redundant always mysqli
         $newconfig['db_hostname'] = trim($destconfig['db_hostname']);
         $newconfig['db_username'] = trim($destconfig['db_username']);
         $newconfig['db_password'] = trim($destconfig['db_password']);

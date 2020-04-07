@@ -16,8 +16,8 @@ require_once __DIR__.DIRECTORY_SEPARATOR.'class.installer_base.php';
 class gui_install extends installer_base
 {
     /**
-     * @param string $configfile Optional filepath of a non-default 'config.ini'
-     *  containing build settings. Default ''.
+     * @param string $configfile Optional filepath of a '.ini' file
+     *  containing installer settings to be used instead of defaults. Default ''.
      * @throws Exception
      */
     public function __construct(string $configfile = '')

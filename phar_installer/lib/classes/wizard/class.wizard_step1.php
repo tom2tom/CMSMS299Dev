@@ -77,10 +77,11 @@ class wizard_step1 extends wizard_step
             break;
 
         case 'assets':
-            if( is_file($dir.DIRECTORY_SEPARATOR.'config.ini') ) return FALSE;
+            if( is_file($dir.DIRECTORY_SEPARATOR.'installer.ini') ) return FALSE;
             break;
 
         case 'modules':
+			//TODO check for presence of $app_config['coremodules'] member(s)
             if( is_dir($dir.DIRECTORY_SEPARATOR.'ModuleManager') || is_dir($dir.DIRECTORY_SEPARATOR.'CmsJobManager') ) return FALSE;
             break;
 

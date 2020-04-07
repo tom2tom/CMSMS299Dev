@@ -130,9 +130,14 @@ class wizard_step7 extends wizard_step
             $to[] = '/'.$aname;
             $lens[] = strlen($s);
         }
-
+        if( isset($app_config['pluginsdir']) && ($aname = $app_config['pluginsdir']) != 'simple_plugins' ) {
+            $s = '/simple_plugins';
+            $from[] = $s;
+            $to[] = '/'.$aname;
+            $lens[] = strlen($s);
+        }
         if( $siteinfo !== NULL ) {
-            $xmodules = $siteinfo['xmodules'] ?? []; //non-core modules to be processed
+            $xmodules = $siteinfo['wantedextras'] ?? []; //non-core modules to be processed
             if( !is_array($xmodules) ) $xmodules = [$xmodules];
         }
         else {
@@ -140,7 +145,9 @@ class wizard_step7 extends wizard_step
         }
         $action = $this->get_wizard()->get_data('action');
         if( $action != 'install' ) {
-			//add any installed non-core modules
+			//add any installed non-core modules, which might need to be freshened ?
+			// TODO anything not in $app_config['coremodules'] or $app_config['extramodules']
+			// in any module location
 	        $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
 	        include_once $cfgfile;
             $s = ( !empty($config['assetsdir']) ) ? $config['assetsdir'] : 'assets';
@@ -151,7 +158,7 @@ class wizard_step7 extends wizard_step
 			}
 			if( $paths ) $xmodules = array_unique($xmodules);
         }
-        $allmodules = [];
+        $allmodules = []; //TODO $app_config['coremodules'] + $xmodules;
 
         $this->message(lang('install_extractfiles'));
 
@@ -160,6 +167,7 @@ class wizard_step7 extends wizard_step
 
         foreach ($iter as $fn=>$fp) {
             if( strpos($fp,'modules') !== FALSE ) {
+				//TODO any module location
                 if( strpos($fp,'/lib/modules/') !== FALSE ) {
                     if( endswith($fn,'.module.php') ) {
                         $allmodules[] = substr($fn,0,strlen($fn) - 11);
