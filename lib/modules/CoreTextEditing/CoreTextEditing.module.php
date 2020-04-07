@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 class CoreTextEditing extends CMSModule implements CMSMS\MultiEditor
 {
+	public $CMSMScore = true; // core-module indicator
 	/**
 	 * @var array $editors
 	 * Supported editors (in alpha-order) each member like 'Ace'=>'CoreTextEditing::Ace';

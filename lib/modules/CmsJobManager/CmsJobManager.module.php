@@ -31,6 +31,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
     const EVT_ONFAILEDJOB = 'OnJobFailed';
     const TABLE_NAME = CMS_DB_PREFIX.'mod_cmsjobmgr';
 
+    public $CMSMScore = true; // core-module indicator
     private $_current_job;
     private $_lock;
 

@@ -24,6 +24,8 @@ const NON_INDEXABLE_CONTENT = '<!-- pageAttribute: NotSearchable -->';
 
 class Search extends CMSModule
 {
+    public $CMSMScore = true; // core-module indicator
+
     public function GetAdminDescription() { return $this->Lang('description'); }
     public function GetAdminSection() { return 'siteadmin'; }
     public function GetAuthor() { return 'Ted Kulp'; }

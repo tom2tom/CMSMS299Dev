@@ -28,6 +28,8 @@ use CMSMS\IAuthModuleInterface;
 
 class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
 {
+    public $CMSMScore = true; // core-module indicator
+
     // minimum methods used by metafile processor
     public function GetAuthor() { return 'Robert Campbell'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }

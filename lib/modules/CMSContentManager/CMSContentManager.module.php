@@ -18,6 +18,8 @@
 
 final class CMSContentManager extends CMSModule
 {
+    public $CMSMScore = true; // core-module indicator
+
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetVersion() { return '2.0'; }
     public function GetHelp() { return $this->Lang('help_module'); }

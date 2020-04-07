@@ -18,6 +18,8 @@
 
 final class AdminSearch extends CMSModule
 {
+  public $CMSMScore = true; // core-module indicator
+
   public function GetAdminDescription() { return $this->Lang('moddescription'); }
   public function GetAdminSection() { return 'siteadmin'; }
   public function GetAuthor() { return 'Robert Campbell'; }

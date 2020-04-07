@@ -22,6 +22,8 @@ class MicroTiny extends CMSModule
   const PROFILE_FRONTEND = '__frontend__';
   const PROFILE_ADMIN = '__admin__';
 
+  public $CMSMScore = true; // core-module indicator
+
   public function GetAdminDescription() { return $this->Lang('admindescription'); }
   public function GetAuthor() { return 'Morten Poulsen'; }
   public function GetAuthorEmail() { return '&lt;morten@poulsen.org&gt;'; }

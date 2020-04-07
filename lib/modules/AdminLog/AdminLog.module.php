@@ -29,6 +29,7 @@ final class AdminLog extends CMSModule
 {
     const LIFETIME_SITEPREF = 'AdminLog\\\\lifetime';  //c.f. cms_siteprefs::NAMESPACER formerly 'adminlog_lifetime';
 
+    public $CMSMScore = true; // core-module indicator
     protected $storage;
     protected $auditor;
 

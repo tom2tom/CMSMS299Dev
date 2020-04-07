@@ -28,6 +28,8 @@ final class Navigator extends CMSModule
 {
     const __DFLT_PAGE = '**DFLT_PAGE**';
 
+    public $CMSMScore = true; // core-module indicator
+
     public function GetAdminDescription() { return $this->Lang('description'); }
     public function GetAdminSection() { return 'layout'; }
     public function GetAuthor() { return 'Robert Campbell'; }

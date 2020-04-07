@@ -31,6 +31,7 @@ use FilePicker\Utils;
 
 final class FilePicker extends CMSModule implements IFilePicker
 {
+    public $CMSMScore = true; // core-module indicator
     protected $_dao;
     protected $_typehelper;
 

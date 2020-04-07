@@ -27,6 +27,8 @@ const MINIMUM_REPOSITORY_VERSION = '1.5';
 class ModuleManager extends CMSModule
 {
     const _dflt_request_url = 'https://www.cmsmadesimple.org/ModuleRepository/request/v2';
+
+    public $CMSMScore = true; // core-module indicator
     private $_operations;
 
     public function GetAdminDescription() { return $this->Lang('admindescription'); }

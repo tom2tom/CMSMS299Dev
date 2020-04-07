@@ -23,7 +23,9 @@ include_once __DIR__.DIRECTORY_SEPARATOR.'fileinfo.php';
 
 final class FileManager extends CMSModule
 {
-    public function AccessAllowed() { return $this->CheckPermission('Modify Files'); }
+	public $CMSMScore = true; // core-module indicator
+
+	public function AccessAllowed() { return $this->CheckPermission('Modify Files'); }
     public function AdvancedAccessAllowed() { return $this->CheckPermission('Use FileManager Advanced',0); }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'files'; }
