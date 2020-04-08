@@ -197,7 +197,7 @@ VALUES (?,?,?,$now,$now)");
             $keyparts = explode('_', $key);
             $keyparts[1] = (int)$keyparts[1];
             if ($keyparts[1] > 0 && $keyparts[2] != '1' && $value == '1') {
-                $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');
+                $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq'); //OR use $db->Insert_ID(); for autoincrement group_perm_id
                 $result = $db->Execute($stmt, [$new_id,$keyparts[2],$keyparts[1]]);
                 if (!$result) {
                     echo 'FATAL: '.$db->ErrorMsg().'<br />'.$db->sql;

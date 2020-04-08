@@ -63,7 +63,7 @@ author_id,
 news_extra,
 news_url,
 searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-            $row['news_id'] = $db->GenID(CMS_DB_PREFIX.'module_news_seq');
+            $row['news_id'] = $db->GenID(CMS_DB_PREFIX.'module_news_seq'); //OR use $db->Insert_ID(); for autoincrement news_id
             $row['news_title'] .= ' : Copy';
             $row['start_time'] = 0;
             $row['end_time'] = 0;

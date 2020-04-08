@@ -167,10 +167,11 @@ final class BookmarkOperations
 		$db = CmsApp::get_instance()->GetDb();
 
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
-		$new_bookmark_id = $db->GenID(CMS_DB_PREFIX.'admin_bookmarks_seq');
+		$new_bookmark_id = $db->GenID(CMS_DB_PREFIX.'admin_bookmarks_seq');//OR use $db->Insert_ID();
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'admin_bookmarks (bookmark_id, user_id, url, title) VALUES (?,?,?,?)';
 		$dbresult = $db->Execute($query, [$new_bookmark_id, $bookmark->user_id, $bookmark->url, $bookmark->title]);
-		return ($dbresult) ? $new_bookmark_id : -1;
+		return ($dbresult) ? $new_bookmark_id : -1; //OR use $db->Insert_ID(); for autoincrement bookmark_id
+
 	}
 
 	/**

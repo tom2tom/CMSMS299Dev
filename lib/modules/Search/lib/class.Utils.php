@@ -147,7 +147,7 @@ class Utils
                 $itemid = (int) $row['id'];
             }
             else {
-                $itemid = (int) $db->GenID(CMS_DB_PREFIX.'module_search_items_seq');
+                $itemid = (int) $db->GenID(CMS_DB_PREFIX.'module_search_items_seq');//OR use $db->Insert_ID();
                 $db->Execute('INSERT INTO '.CMS_DB_PREFIX.'module_search_items (id, module_name, content_id, extra_attr, expires) VALUES (?,?,?,?,?)', [$itemid, $modname, $id, $attr, ($expires != NULL ? trim($db->DbTimeStamp($expires), "'") : NULL) ]);
             }
 

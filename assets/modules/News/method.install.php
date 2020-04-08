@@ -93,7 +93,7 @@ $db->CreateSequence(CMS_DB_PREFIX.'module_news_categories_seq'); //race-prevente
 
 $now = time();
 // General category
-$catid = $db->GenID(CMS_DB_PREFIX.'module_news_categories_seq');
+$catid = $db->GenID(CMS_DB_PREFIX.'module_news_categories_seq');//OR use $db->Insert_ID(); for autoincrement news_category_id
 $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories (news_category_id, news_category_name, parent_id, create_date, modified_date) VALUES (?,?,?,?,?)';
 $db->Execute($query, [
     $catid,
@@ -106,7 +106,7 @@ $db->Execute($query, [
 AdminOperations::UpdateHierarchyPositions();
 
 // Initial news article
-$articleid = $db->GenID(CMS_DB_PREFIX.'module_news_seq');
+$articleid = $db->GenID(CMS_DB_PREFIX.'module_news_seq'); //OR use $db->Insert_ID();
 $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news (news_id,news_category_id,author_id,news_title,news_data,status,start_time,create_date) VALUES (?,?,?,?,?,?,?,?)';
 $db->Execute($query, [
 $articleid,
@@ -130,7 +130,7 @@ $group_id = $db->GetOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE grou
 
 $count = $db->GetOne('SELECT COUNT(*) FROM ' . CMS_DB_PREFIX . 'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
 if ((int)$count == 0) {
-    $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');
+    $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');//OR use $db->Insert_ID();
     $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'group_perms (group_perm_id, group_id, permission_id, create_date, modified_date) VALUES ('.$new_id.', '.$group_id.', '.$perm_id.', '. $now . ', ' . $now . ')';
     $db->Execute($query);
 }
@@ -139,7 +139,7 @@ $group_id = $db->GetOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE grou
 
 $count = $db->GetOne('SELECT COUNT(*) FROM ' . CMS_DB_PREFIX . 'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
 if (isset($count) && (int)$count == 0) {
-    $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');
+    $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');//OR use $db->Insert_ID();
     $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'group_perms (group_perm_id, group_id, permission_id, create_date, modified_date) VALUES ('.$new_id.', '.$group_id.', '.$perm_id.', '. $now . ', ' . $now . ')';
     $db->Execute($query);
 }

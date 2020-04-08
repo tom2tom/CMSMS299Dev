@@ -92,7 +92,7 @@ final class CmsPermission
 		$this->validate();
 
 		$db = CmsApp::get_instance()->GetDb();
-		$new_id = $db->GenID(CMS_DB_PREFIX.'permissions_seq');
+		$new_id = $db->GenID(CMS_DB_PREFIX.'permissions_seq'); //OR use $db->Insert_ID();
 		if( !$new_id ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$now = $db->DbTimeStamp(time());
