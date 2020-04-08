@@ -26,8 +26,8 @@ use function debug_bt_to_log;
 use function debug_to_log;
 
 /**
- * A class defining a prepared database statement, and methods for interacting
- * with such statements.
+ * A class defining a prepared database statement, and methods for
+ * interacting with such statements.
  *
  * @since 2.3
  *
@@ -181,7 +181,7 @@ class Statement
 
     /*
      * @deprecated support for binding multiple sets of command-parameters
-     *   in a single 2-D array, to be processed with ->next() until ->EOF()
+     *  in a single 2-D array, to be processed with ->next() until ->EOF()
      */
     private $all_tobind = [];
     private $now_bind = false;
@@ -314,8 +314,8 @@ class Statement
     /**
      * Execute the query, using supplied $valsarr (if any) as bound values.
      *
-     * @param array $valsarr parameters to bind, or not set if running a
-     *   deprecated multi-bind command
+     * @param mixed $valsarr array of parameters to bind, or not set if
+     *   running a deprecated multi-bind command
      * @return mixed object (ResultSet or EmptyResultSet or PrepResultSet) | int > 0 | false | null
      */
     public function execute($valsarr = null)
@@ -400,6 +400,7 @@ class Statement
         }
 
         if ($this->_stmt->field_count > 0) {
+            //doing a select/show/describe query
             if ($this->_conn->isNative()) {
                 $rs = $this->_stmt->get_result(); //mysqli_result or false
                 if ($rs) {
@@ -429,8 +430,11 @@ class Statement
             $this->_conn->errno = 0;
             $this->_conn->error = '';
 
-            $num = $this->_stmt->affected_rows; //TODO only for INSERT,UPDATE,DELETE
-            return ($num > 0) ? $num : false; //work around inappropriate '!== false' tests
+            $num = $this->_stmt->affected_rows;
+            //TODO only for INSERT,UPDATE,DELETE
+            // TODO if $num == 1 and is INSERT, return (($num = $this->_stmt->insert_id 1st-use ? | $this->_conn->get_inner_mysql()->insert_id every use?) > 0) ? $num : 1;
+            // support strict 'false' checks
+            return ($num > 0) ? $num : false;
         }
     }
 
