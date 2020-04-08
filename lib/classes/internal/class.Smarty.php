@@ -153,7 +153,7 @@ smarty cache lifetime != global cache ttl, probably
                     $this->setCompileCheck(SmartyParent::COMPILECHECK_ON);
                     $this->setDebugging(true);
                 }
-                elseif( $v != 0 && cms_siteprefs::get('use_smartycompilecheck',1) ) {
+                elseif( $v != 0 && cms_siteprefs::get('smarty_compilecheck',1) ) {
                     $this->setCompileCheck(SmartyParent::COMPILECHECK_CACHEMISS);
                 }
                 else {
