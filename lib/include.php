@@ -45,7 +45,7 @@ $dirpath = __DIR__.DIRECTORY_SEPARATOR;
 if (isset($CMS_APP_STATE)) { //i.e. AppState class was included elsewhere
     AppState::add_state($CMS_APP_STATE);
 } else {
-	require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
+    require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 }
 $installing = AppState::test_state(AppState::STATE_INSTALL);
 if (!$installing && (!is_file(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
@@ -135,10 +135,13 @@ if ($administering) {
 cms_siteprefs::setup();
 
 $cache = AppSingle::SysDataCache();
-// deprecated since 2.3 useless
+// deprecated since 2.3 useless, saves no time | effort
 $obj = new SysDataCacheDriver('schema_version', function()
     {
-        return $CMS_SCHEMA_VERSION; //NULL during installation!
+        if (!empty($CMS_SCHEMA_VERSION)) { //null during installation!
+            return $CMS_SCHEMA_VERSION;
+        }
+        return (int)cms_siteprefs::get('schema_version');
     });
 $cache->add_cachable($obj);
 $obj = new SysDataCacheDriver('modules', function()
