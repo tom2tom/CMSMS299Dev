@@ -1,5 +1,8 @@
 <?php
 
+use cms_siteprefs;
+use cms_utils;
+use CMSMS\AdminTheme;
 use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\User;
@@ -7,13 +10,75 @@ use CMSMS\UserOperations;
 use function cms_installer\get_app;
 use function cms_installer\lang;
 
-global $admin_user;
+const CURRENT_SCHEMA = 206;
+
+// vars set in includer: $admin_user, $siteinfo, $wiz, $app etc
+
+if (!isset($app)) {
+	$app = get_app();
+}
+$config = $app->get_config(); //more-or-less same as $siteinfo[]
+
+//
+// some of the system-wide default settings
+//
+verbose_msg(lang('install_initsiteprefs'));
+$cachtype = $wiz->get_data('cachemode');
+$corenames = $config['coremodules'];
+$cores = implode(',',$corenames);
+$theme = reset(AdminTheme::GetAvailableThemes());
+$helpurl =  ( !empty($siteinfo['supporturl']) ) ? $siteinfo['supporturl'] : '';
+$uuid = trim(base64_encode(cms_utils::random_string(24)), '='); //db hates storing some chars verbatim
+$ultras = json_encode(['Modify Restricted Files','Modify DataBase Direct','Remote Administration']);
+
+foreach ([
+	'allow_browser_cache' => 1, // allow browser to cache cachable pages
+	'auto_clear_cache_age' => 60, // tasks-parameter: cache files for 60 days by default (see also cache_lifetime)
+	'browser_cache_expiry' => 60, // browser can cache pages for 60 minutes
+	'cache_autocleaning' => 1,
+	'cache_driver' => $cachtype, //'auto', or 'file' if no supported cache-extension was detected
+	'cache_file_blocking' => 0,
+	'cache_file_locking' => 1,
+	'cache_lifetime' => 3600, // cache entries live for 1 hr
+	'cdn_url' => 'https://cdnjs.cloudflare.com', // or e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
+	'checkversion' => 1,
+	'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
+	'defaultdateformat' => '%e %B %Y',
+	'enablesitedownmessage' => 0, //deprecated since 2.9 use site_downnow
+	'frontendlang' => 'en_US',
+	'global_umask' => '022',
+	'lock_refresh' => 120,
+	'lock_timeout' => 60,
+	'loginmodule' => '', // login UI defined by current theme
+	'logintheme' => $theme,
+	'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
+	'schema_version' => CURRENT_SCHEMA,
+	'site_help_url' => $helpurl,
+	'site_uuid' => $uuid, // almost-certainly-unique signature of this site
+	'sitedownexcludeadmins' => 0,
+	'sitedownexcludes' => '',
+	'sitedownmessage' => '',
+	'site_downnow' => 0, //see also deprecated enablesitedownmessage
+	'site_logo' => '',
+//	'sitemask' => '', for old (md5-hashed) admin-user passwords - useless in new installs
+	'sitename' => $siteinfo['sitename'],
+	'smarty_cachelife' => -1, // smarty default
+	'smarty_cachemodules' => 0,
+	'smarty_cachesimples' => 0,
+	'smarty_compilecheck' => 1, //see also deprecated use_smartycompilecheck
+	'thumbnail_height' => 96,
+	'thumbnail_width' => 96,
+	'ultraroles' => $ultras,
+	'use_smartycompilecheck' => 1, //deprecated since 2.9 use smarty_compilecheck
+] as $name => $val) {
+	cms_siteprefs::set($name, $val);
+}
 
 status_msg(lang('install_requireddata'));
 
-$query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (206)';
-$db->Execute($query);
-verbose_msg(lang('install_setschemaver'));
+//$query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (CURRENT_SCHEMA)';
+//$db->Execute($query);
+//verbose_msg(lang('install_setschemaver'));
 
 //
 // permissions
@@ -237,8 +302,6 @@ function create_private_dir(string $destdir, string $relative_dir)
 
 // create the assets directory structure
 verbose_msg(lang('install_createassets'));
-$app = get_app();
-$config = $app->get_config();
 $na = $config['assetsdir'] ?? 'assets';
 $np = $config['pluginsdir'] ?? 'simple_plugins';
 $destdir = $app->get_destdir().DIRECTORY_SEPARATOR.$na;
