@@ -7,14 +7,12 @@ use cms_installer\wizard\wizard_step;
 use cms_siteprefs;
 use cms_utils;
 use CmsApp;
-use CMSMS\AdminTheme;
 use CMSMS\AppState;
 use Exception;
 use function cms_installer\get_app;
 use function cms_installer\lang;
 use function cms_installer\smarty;
 use function GetDb;
-use function verbose_msg;
 
 class wizard_step8 extends wizard_step
 {
@@ -57,12 +55,12 @@ class wizard_step8 extends wizard_step
         require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
         AppState::add_state(AppState::STATE_INSTALL);
         // setup and initialize the CMSMS API's
-        $fp = $destdir.DIRECTORY_SEPARATOR.'include.php';
+        $fp = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
         if( is_file($fp) ) {
             include_once $fp;
         }
         else {
-            include_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+            require_once $destdir.DIRECTORY_SEPARATOR.'include.php';
         }
     }
 
@@ -131,51 +129,7 @@ class wizard_step8 extends wizard_step
             @mkdir($fp,0771,TRUE);
             touch($fp.DIRECTORY_SEPARATOR.'index.html');
 
-            // init some of the system-wide default settings
-            verbose_msg(lang('install_initsiteprefs'));
-            $corenames = $app->get_config()['coremodules'];
-            $cores = implode(',',$corenames);
-            $theme = reset(AdminTheme::GetAvailableThemes());
-            $uuid = trim(base64_encode(cms_utils::random_string(24)), '='); //db hates some chars
-            $ultras = json_encode(['Modify Restricted Files','Modify DataBase Direct','Remote Administration']);
-
-            foreach ([
-             'adminlog_lifetime' => 3600*24*31, // admin log entries live for 60 days TODO AdminLog module setting
-             'allow_browser_cache' => 1, // allow browser to cache cachable pages
-             'auto_clear_cache_age' => 60, // tasks-parameter: cache files for 60 days by default (see also cache_lifetime)
-             'browser_cache_expiry' => 60, // browser can cache pages for 60 minutes
-             'cache_autocleaning' => 1,
-             'cache_driver' => $cachtype, //'auto', or 'file' if no supported cache-extension was detected
-             'cache_file_blocking' => 0,
-             'cache_file_locking' => 1,
-             'cache_lifetime' => 3600, // cache entries live for 1 hr
-             'cdn_url' => 'https://cdnjs.cloudflare.com', // or e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
-             'content_autocreate_urls' => 0,
-             'content_imagefield_path' => '',
-             'contentimage_path' => '',
-             'content_thumbnailfield_path' => '',
-             'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
-             'defaultdateformat' => '%e %B %Y',
-             'enablesitedownmessage' => 0,
-             'frontendlang' => 'en_US',
-             'global_umask' => '022',
-             'lock_refresh' => 120,
-             'lock_timeout' => 60,
-             'loginmodule' => '',  // login processing by current theme
-             'logintheme' => $theme,
-             'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
-             'site_supporturl' => $siteinfo['supporturl'],
-             'site_uuid' => $uuid, // almost-certainly-unique signature of this site
-//           'sitemask' => '', // salt for old (md5-hashed) admin-user passwords - useless in new installs
-             'sitename' => $siteinfo['sitename'],
-             'smarty_cachelife' => -1, // smarty default
-             'ultraroles' => $ultras,
-             'use_smartycompilecheck' => 1,
-            ] as $name=>$val) {
-                cms_siteprefs::set($name, $val);
-            }
-
-            // permisssions etc
+            // site-preferences, permisssions etc
             require_once $dir.DIRECTORY_SEPARATOR.'base.php';
         }
         catch( Exception $e ) {
@@ -222,17 +176,18 @@ class wizard_step8 extends wizard_step
         // setup and initialize the CMSMS API's
         require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
         AppState::add_state(AppState::STATE_INSTALL);
-        if( is_file("$destdir/include.php") ) {
-            include_once $destdir.DIRECTORY_SEPARATOR.'include.php';
+        $fp = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+        if( is_file($fp) ) {
+            include_once $fp;
         }
         else {
-            include_once $destdir.DIRECTORY_SEPARATOR.'lib/include.php';
+            require_once $destdir.DIRECTORY_SEPARATOR.'include.php';
+
         }
 
         // setup database connection
         $db = $this->db_connect($destconfig);
-
-        $smarty = smarty(); //in scope for inclusions
+        $smarty = smarty(); // this too in-scope for inclusions
 
         try {
             // ready to do the upgrading now (in a loop)
@@ -253,15 +208,15 @@ class wizard_step8 extends wizard_step
 
         $corenames = $app->get_config()['coremodules'];
         $cores = implode(',',$corenames);
-        $uuid = trim(base64_encode(cms_utils::random_string(24)), '='); //db hates some chars
+        $uuid = trim(base64_encode(cms_utils::random_string(24)), '='); //db hates storing some chars
         $arr = [
             'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
             'site_uuid' => $uuid, // almost-certainly-unique signature of this site
             'ultraroles' => json_encode(['Modify Restricted Files','Modify DataBase Direct','Remote Administration']),
         ];
         if( issset($siteinfo['supporturl']) ) { //TODO only if verbose etc
-            $arr['site_support'] = $siteinfo['supporturl'];
-         }
+            $arr['site_help_url'] = $siteinfo['supporturl'];
+        }
         foreach ($arr as $name=>$val) {
             cms_siteprefs::set($name, $val);
         }
