@@ -351,12 +351,12 @@ VALUES (?,?,?,NOW())');
         require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
         AppState::add_state(AppState::STATE_INSTALL);
 
-        $fp = $destdir.DIRECTORY_SEPARATOR.'include.php';
+        $fp = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
         if( is_file($fp) ) {
             include_once $fp;
         }
         else {
-            include_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+            require_once $destdir.DIRECTORY_SEPARATOR.'include.php';
         }
 
         if( !defined('CMS_VERSION') ) {
