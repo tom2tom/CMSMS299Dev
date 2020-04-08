@@ -1,4 +1,5 @@
 <?php
+
 $gCms = cmsms();
 $dbdict = $db->NewDataDictionary();
 $taboptarray = array('mysql' => 'TYPE=MyISAM');
