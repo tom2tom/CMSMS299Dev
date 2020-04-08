@@ -192,7 +192,7 @@ if (isset($_POST['submit'])) {
         switch ($tab) {
             case 'general':
                 cms_siteprefs::set('sitename', trim($_POST['sitename']));
-                cms_siteprefs::set('sitelogo', trim(filter_var($_POST['sitelogo'], FILTER_SANITIZE_URL)));
+                cms_siteprefs::set('site_logo', trim(filter_var($_POST['site_logo'], FILTER_SANITIZE_URL)));
                 $val = (!empty($_POST['frontendlang'])) ? trim($_POST['frontendlang']) : '';
                 cms_siteprefs::set('frontendlang', $val);
                 cms_siteprefs::set('metadata', $_POST['metadata']);
@@ -249,17 +249,17 @@ if (isset($_POST['submit'])) {
                 cms_siteprefs::set('sitedownexcludes', $val);
                 cms_siteprefs::set('sitedownexcludeadmins', !empty($_POST['sitedownexcludeadmins']));
 
-                $enablesitedownmessage = !empty($_POST['enablesitedownmessage']);
+                $sitedown = !empty($_POST['site_downnow']);
                 $val = (!empty($_POST['sitedownmessage'])) ? trim(strip_tags($_POST['sitedownmessage'])) : '';
-                if ($val || !$enablesitedownmessage) {
-                    $prevsitedown = cms_siteprefs::get('enablesitedownmessage');
-                    if (!$prevsitedown && $enablesitedownmessage) {
+                if ($val || !$sitedown) {
+                    $prevsitedown = cms_siteprefs::get('site_downnow', 0);
+                    if (!$prevsitedown && $sitedown) {
                         audit('', 'Global Settings', 'Sitedown enabled');
-                    } elseif ($prevsitedown && !$enablesitedownmessage) {
+                    } elseif ($prevsitedown && !$sitedown) {
                        audit('', 'Global Settings', 'Sitedown disabled');
                     }
                     cms_siteprefs::set('sitedownmessage', $val);
-                    cms_siteprefs::set('enablesitedownmessage', $enablesitedownmessage);
+                    cms_siteprefs::set('site_downnow', $sitedown);
                 } else {
                     $errors[] = lang('error_sitedownmessage');
                 }
@@ -326,7 +326,7 @@ if (isset($_POST['submit'])) {
                 cms_siteprefs::set('smarty_cachelife', $val);
                 cms_siteprefs::set('smarty_cachemodules', (int)$_POST['smarty_cachemodules']);
                 cms_siteprefs::set('smarty_cachesimples', !empty($_POST['smarty_cachesimples']));
-                cms_siteprefs::set('use_smartycompilecheck', !empty($_POST['use_smartycompilecheck']));
+                cms_siteprefs::set('smarty_compilecheck', !empty($_POST['smarty_compilecheck']));
 //               AdminUtils::clear_cached_files();
 
                 $val = trim($_POST['syntaxtype']);
@@ -404,7 +404,6 @@ $content_thumbnailfield_path = cms_siteprefs::get('content_thumbnailfield_path',
 $contentimage_path = cms_siteprefs::get('contentimage_path', '');
 $defaultdateformat = cms_siteprefs::get('defaultdateformat', '');
 $disallowed_contenttypes = cms_siteprefs::get('disallowed_contenttypes', '');
-$enablesitedownmessage = cms_siteprefs::get('enablesitedownmessage', 0);
 $frontendlang = cms_siteprefs::get('frontendlang', '');
 $frontendwysiwyg = cms_siteprefs::get('frontendwysiwyg', '');
 if ($frontendwysiwyg && strpos($frontendwysiwyg, '::') === false) {
@@ -421,10 +420,11 @@ $search_module = cms_siteprefs::get('searchmodule', 'Search');
 if ($devmode) {
     $help_url = cms_siteprefs::get('site_help_url', '');
 }
-$sitedownexcludeadmins = cms_siteprefs::get('sitedownexcludeadmins', '');
+$sitedown = cms_siteprefs::get('site_downnow', 0);
+$sitedownexcludeadmins = cms_siteprefs::get('sitedownexcludeadmins', 0);
 $sitedownexcludes = cms_siteprefs::get('sitedownexcludes', '');
-$sitedownmessage = cms_siteprefs::get('sitedownmessage', '<p>Site is currently down.  Check back later.</p>');
-$sitelogo = cms_siteprefs::get('sitelogo', '');
+$sitedownmessage = cms_siteprefs::get('sitedownmessage', '<p>Website is currently down. Check back later.</p>');
+$sitelogo = cms_siteprefs::get('site_logo', '');
 $sitename = cms_html_entity_decode(cms_siteprefs::get('sitename', 'CMSMS Website'));
 $smarty_cachelife = cms_siteprefs::get('smarty_cachelife', -1);
 if ($smarty_cachelife < 0) {
@@ -432,13 +432,13 @@ if ($smarty_cachelife < 0) {
 }
 $smarty_cachemodules = cms_siteprefs::get('smarty_cachemodules', 0); // default value back-compatible
 $smarty_cachesimples = cms_siteprefs::get('smarty_cachesimples', false);
+$smarty_compilecheck = cms_siteprefs::get('smarty_compilecheck', 1);
 $syntaxmodule = cms_siteprefs::get('syntax_editor');
 $syntaxtype = cms_siteprefs::get('syntax_type');
 $syntaxer = ($syntaxtype) ? $syntaxmodule .'::'.$syntaxtype : $syntaxmodule ;
 $syntaxtheme = cms_siteprefs::get('syntax_theme', '');
 $thumbnail_height = cms_siteprefs::get('thumbnail_height', 96);
 $thumbnail_width = cms_siteprefs::get('thumbnail_width', 96);
-$use_smartycompilecheck = cms_siteprefs::get('use_smartycompilecheck', 1);
 //$xmlmodulerepository = cms_siteprefs::get('xmlmodulerepository', '');
 $wysiwygmodule = cms_siteprefs::get('wysiwyg', ''); //aka 'richtext_editor' ?
 $wysiwygtype = cms_siteprefs::get('wysiwyg_type', '');
@@ -486,7 +486,7 @@ if ($filepicker) {
     $tmp = $filepicker->get_default_profile($dir, $userid);
     $profile = $tmp->overrideWith(['top'=>$dir, 'type'=>FileType::IMAGE]);
     $logoselector = $filepicker->get_html('image', $sitelogo, $profile);
-    $logoselector = str_replace(['name="image"', 'size="50"', 'readonly="readonly"'], ['id="sitelogo" name="sitelogo"', 'size="60"', ''], $logoselector);
+    $logoselector = str_replace(['name="image"', 'size="50"', 'readonly="readonly"'], ['id="sitelogo" name=site_logo"', 'size="60"', ''], $logoselector);
 }
 else {
     $logoselector = create_file_dropdown('image', $dir, $sitelogo, 'jpg,jpeg,png,gif', '', true, '', 'thumb_', 0, 1);
@@ -822,7 +822,7 @@ $smarty->assign('helpicon', $themeObject->DisplayImage('icons/system/info.png', 
   ->assign('contentimage_path', $contentimage_path)
   ->assign('defaultdateformat', $defaultdateformat)
   ->assign('disallowed_contenttypes', explode(',', $disallowed_contenttypes))
-  ->assign('enablesitedownmessage', $enablesitedownmessage)
+  ->assign('site_downnow', $sitedown)
   ->assign('frontendlang', $frontendlang)
   ->assign('global_umask', $global_umask)
   ->assign('lock_refresh', $lock_refresh)
@@ -837,11 +837,11 @@ $smarty->assign('helpicon', $themeObject->DisplayImage('icons/system/info.png', 
   ->assign('sitename', $sitename)
   ->assign('smarty_cachelife', $smarty_cachelife)
   ->assign('smarty_cachesimples', $smarty_cachesimples)
+  ->assign('smarty_compilecheck', $smarty_compilecheck)
   ->assign('syntax_theme', $syntaxtheme)
   ->assign('testresults', lang('untested'))
   ->assign('thumbnail_height', $thumbnail_height)
   ->assign('thumbnail_width', $thumbnail_width)
-  ->assign('use_smartycompilecheck', $use_smartycompilecheck)
   ->assign('wysiwyg_theme', $wysiwygtheme)
   ->assign('textarea_sitedownmessage', FormUtils::create_textarea([
   'enablewysiwyg' => 1,

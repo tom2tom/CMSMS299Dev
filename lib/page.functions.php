@@ -111,7 +111,7 @@ function is_sitedown() : bool
 {
     if( AppState::test_state(AppState::STATE_INSTALL) ) return true;
 
-    if( cms_siteprefs::get('enablesitedownmessage') !== '1' ) return false;
+    if( !cms_siteprefs::get('site_downnow') ) return false;
 
     $userid = get_userid(false);
     if( $userid && cms_siteprefs::get('sitedownexcludeadmins') ) return false;

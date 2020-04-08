@@ -268,7 +268,7 @@ if (($p = strpos($lang,'_')) !== false) {
 }
 $tplvars['lang_code'] = $lang;
 $tplvars['lang_dir'] = NlsOperations::get_language_direction();
-$sitelogo = cms_siteprefs::get('sitelogo');
+$sitelogo = cms_siteprefs::get('site_logo');
 if ($sitelogo) {
     if (!preg_match('~^\w*:?//~',$sitelogo)) {
         $config = cms_config::get_instance();

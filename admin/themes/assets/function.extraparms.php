@@ -16,7 +16,7 @@ $tplvars['lang_dir'] = NlsOperations::get_language_direction();
 
 //optional, or theme-specific ?
 
-$sitelogo = cms_siteprefs::get('sitelogo');
+$sitelogo = cms_siteprefs::get('site_logo');
 if ($sitelogo) {
     if (!preg_match('~^\w*:?//~',$sitelogo)) {
         $sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');

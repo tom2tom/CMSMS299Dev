@@ -316,7 +316,7 @@ EOS;
 			$smarty->assign('site_help_url', $url);
 		}
 		// is the website set down for maintenance?
-		if (cms_siteprefs::get('enablesitedownmessage')) {
+		if (cms_siteprefs::get('site_downnow')) {
 			$smarty->assign('is_sitedown', 1);
 		}
 
@@ -608,7 +608,7 @@ EOS;
 
 		$config = cmsms()->GetConfig();
 		// site logo
-		$sitelogo = cms_siteprefs::get('sitelogo');
+		$sitelogo = cms_siteprefs::get('site_logo');
 		if ($sitelogo) {
 			if (!preg_match('~^\w*:?//~', $sitelogo)) {
 				$sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
@@ -674,7 +674,7 @@ EOS
 		}
 
 		// is the website set down for maintenance?
-		if (cms_siteprefs::get('enablesitedownmessage')) {
+		if (cms_siteprefs::get('site_downnow')) {
 			$smarty->assign('is_sitedown', 1);
 		}
 
