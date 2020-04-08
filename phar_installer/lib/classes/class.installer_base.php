@@ -446,9 +446,9 @@ lib/classes/smarty/*                      no namespace
         return $this->_dest_name ?? '';
     }
 
-    public function get_dest_schema() : string
+    public function get_dest_schema() : int
     {
-        return $this->_dest_schema ?? '';
+        return (int)($this->_dest_schema ?? 0);
     }
 
     public function get_phar() : string

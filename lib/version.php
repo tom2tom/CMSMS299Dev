@@ -1,6 +1,6 @@
 <?php
 #version data for CMSMS
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #
 #This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 
 $CMS_VERSION = '2.8.900';
 $CMS_VERSION_NAME = 'NO NAME SET';
-$CMS_SCHEMA_VERSION = '206';
+$CMS_SCHEMA_VERSION = 206;
 
 define('CMS_VERSION', $CMS_VERSION);
 define('CMS_VERSION_NAME', $CMS_VERSION_NAME);
