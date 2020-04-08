@@ -1133,7 +1133,7 @@ parameters) VALUES (?,?,?,?)';
 						}
 					}
 					break;
-			} // switch
+			} // node-name switch
 		} // count > 0
 	} // xml children
 
