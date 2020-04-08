@@ -215,14 +215,16 @@ final class CmsApp
      *
      * @since 2.0
      */
-    public function get_installed_schema_version() : string
+    public function get_installed_schema_version() : int
     {
         if( AppState::test_state(AppState::STATE_INSTALL) ) {
-            $db = $this->GetDb();
+/*          $db = $this->GetDb();
             $query = 'SELECT version FROM '.CMS_DB_PREFIX.'version';
             return $db->GetOne($query);
+*/
+            return (int)cms_siteprefs::get('schema_version'); //most-recently cached value (if any)
         }
-        return CMS_SCHEMA_VERSION;
+        return CMS_SCHEMA_VERSION; //value from old|new version.php file
     }
 
     /**
