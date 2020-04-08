@@ -85,12 +85,12 @@ final class ModuleOperations
 	/* *
 	 * @ignore
 	 */
-//	private static $_instance = null;
+//	private static $_instance = NULL;
 
 	/**
 	 * @ignore
 	 */
-	private $_auth_module = null;
+	private $_auth_module = NULL;
 
 	/**
 	 * @var array Recorded module-class aliases
@@ -107,14 +107,14 @@ final class ModuleOperations
 	 * @var array Cached modules, each member like modname => modobject
 	 * @ignore
 	 */
-	private $_modules = null;
+	private $_modules = NULL;
 
 	/**
 	 * @var strings array Currently-installed core/system modules' names
 	 * The population of such modules can change, so names are not hardcoded
 	 * @ignore
 	 */
-	private $_coremodules = null;
+	private $_coremodules = NULL;
 
 	/**
 	 * @var array Cached details, each member like modname => [modprops]
@@ -397,8 +397,10 @@ VALUES (?,?,?,'.$now.',NULL)');
 	/**
 	 * @internal
 	 * @param string $module_name
-	 * @param bool $force Optional flag, whether to reload the module if already loaded. Default false.
-	 * @param bool $dependents Optional flag, whether to also load module-dependants. Default true.
+	 * @param bool $force Optional flag, whether to reload the module
+	 *  if already loaded. Default false.
+	 * @param bool $dependents Optional flag, whether to also load
+	 *  module-dependants. Default true, but always false when installer is running.
 	 * @return boolean indicating success
 	 */
 	private function _load_module(
@@ -410,6 +412,11 @@ VALUES (?,?,?,'.$now.',NULL)');
 		if( !isset($info[$module_name]) && !$force ) {
 			cms_warning("Nothing is known about $module_name... can't load it");
 			return FALSE;
+		}
+
+		$installing = AppState::test_state(AppState::STATE_INSTALL);
+		if( $installing ) {
+			$dependents = FALSE;
 		}
 
 		$gCms = CmsApp::get_instance(); // compatibility for some crappy old modules, deprecated since 2.9
@@ -459,11 +466,10 @@ VALUES (?,?,?,'.$now.',NULL)');
 
 		$this->_modules[$module_name] = $obj;
 
-		// when the installer is running, and the module is 'core', try to install/upgrade it
-		if( AppState::test_state(AppState::STATE_INSTALL) &&
-			$this->IsSystemModule($module_name) ) {
-			// auto-upgrade core modules only if schema version matches
-			$tmp = $gCms->get_installed_schema_version();
+		// when the installer is running, or the module is 'core', try to install/upgrade it
+		if( $installing || $this->IsSystemModule($module_name) ) {
+			// auto-upgrade modules only if schema-version is up-to-date
+			$tmp = $gCms->get_installed_schema_version(); // int from cms_siteprefs table, if any
 			if( $tmp == CMS_SCHEMA_VERSION ) {
 				if( !isset($info[$module_name]) || $info[$module_name]['status'] != 'installed' ) {
 					$res = $this->_install_module($obj);
@@ -497,12 +503,12 @@ VALUES (?,?,?,'.$now.',NULL)');
 			return FALSE;
 		}
 
-//		if( !(AppState::test_any_state(CMSMS\AppState::STATE_STYLESHEET || CMSMS\AppState::STATE_INSTALL) ) {
-
-		if( !AppState::test_state(AppState::STATE_INSTALL) ) {
+//		if( !($installing || AppState::test_state(CMSMS\AppState::STATE_STYLESHEET)) ) {
+		if( !$installing ) {
 			if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
 				$obj->InitializeAdmin();
-			} else if( !$force ) { // CHECKME
+			}
+			elseif( !$force ) { // CHECKME
 				if( $gCms->is_frontend_request() ) {
 					$obj->InitializeFrontend();
 				}
@@ -790,7 +796,7 @@ VALUES (?,?,?,$now,$now)");
 	 * @param mixed $callback Optional callable | null
 	 * Processing is terminated if $callback returns false.
 	 */
-	public function PollModules(array $poll_modules, $callback = null)
+	public function PollModules(array $poll_modules, $callback = NULL)
 	{
 		$flag = AppState::test_state(AppState::STATE_ADMIN_PAGE);
 
@@ -895,7 +901,7 @@ VALUES (?,?,?,$now,$now)");
 	 * @param mixed $args Optional CMSModule::HasCapability() arguments other than the name
 	 * @return array Names of all modules which match the given parameters
 	 */
-	public static function get_modules_with_capability(string $capability, $args = null )
+	public static function get_modules_with_capability(string $capability, $args = NULL )
 	{
 		return (new self())->GetCapableModules($capability, $args);
 	}
@@ -908,10 +914,10 @@ VALUES (?,?,?,$now,$now)");
 	 * @since 2.3 this is a non-static equivalent to get_modules_with_capability()
 	 *
 	 * @param string $capability The capability name
-	 * @param mixed $args Optional CMSModule::HasCapability() arguments other than the name
+	 * @param mixed $args Optional CMSModule::HasCapability() arguments other than the name. Default null.
 	 * @return array Names of all modules which match the given parameters
 	 */
-	public function GetCapableModules(string $capability, $args = null)
+	public function GetCapableModules(string $capability, $args = NULL)
 	{
 		if( !is_array($args) ) {
 			if( !empty($args) ) {
@@ -990,11 +996,11 @@ VALUES (?,?,?,$now,$now)");
 				$module_name = $this->variables['module'];
 			}
 			else {
-				return null;
+				return NULL;
 			}
 		}
 
-		$obj = null;
+		$obj = NULL;
 		if( isset($this->_modules[$module_name]) ) {
 			if( $force ) {
 				unset($this->_modules[$module_name]);
@@ -1006,12 +1012,12 @@ VALUES (?,?,?,$now,$now)");
 		if( !is_object($obj) ) {
 			// gotta load it.
 			$res = $this->_load_module($module_name, $force);
-			if( $res ) $obj = $this->_modules[$module_name];
+			if( $res ) { $obj = $this->_modules[$module_name]; }
 		}
 
 		if( is_object($obj) && !empty($version) ) {
 			$res = version_compare($obj->GetVersion(),$version);
-			if( $res < 0 || $res === FALSE ) $obj = null;
+			if( $res < 0 || $res === FALSE ) { $obj = NULL; }
 		}
 
 		return $obj;
@@ -1038,9 +1044,24 @@ VALUES (?,?,?,$now,$now)");
 			}
 		}
 		else {
-			//TODO some absolutely definite names could be hardcoded e.g.
-			//$val = explode(',', self::CORENAMES_DEFAULT);
-			$val = [self::STD_AUTH_MODULE];
+			//TODO absolutely definite module-names could be hardcoded
+			// e.g.	$val = explode(',', self::CORENAMES_DEFAULT);
+			//OR do expensive, slow, probably-incomplete during installation, poll
+			$gCms = CmsApp::get_instance(); // compatibility for some crappy old modules, deprecated since 2.9
+			$val = [];
+			$names = $this->FindAllModules();
+			foreach( $names as $module_name ) {
+				// we assume namespace for modules is still global
+				if( !class_exists($module_name) ) {
+					require_once cms_module_path($onename);
+				}
+				$obj = new $module_name();
+				if( property_exists($obj, 'CMSMScore') ) {
+					$val[] = $module_name;
+				}
+				unset($obj);
+				$obj = NULL;
+			}
 		}
 		sort($val, SORT_STRING);
 		$this->_coremodules = $val;
@@ -1048,44 +1069,24 @@ VALUES (?,?,?,$now,$now)");
 
 	/**
 	 * Determine whether the specified name corresponds to a system/core module.
-	 " Perhaps this is of most use when the installer is running.
 	 *
 	 * @param string $module_name The module name
 	 * @return bool
 	 */
 	public function IsSystemModule(string $module_name) : bool
 	{
-		if( $this->_coremodules === null ) {
+		if( $this->_coremodules === NULL ) {
 			$this->RegisterSystemModules();
 		}
-		if( $this->_coremodules === null ) {
-			//revert to expensive slow polling for core modules
-			$gCms = CmsApp::get_instance(); // compatibility for some crappy old modules, deprecated since 2.9
-			$cores = [];
-			$names = $this->FindAllModules();
-			foreach( $names as $onename ) {
-				// we assume namespace for modules is still global
-				if( !class_exists($onename) ) {
-					require_once cms_module_path($onename);
-				}
-				$obj = new $onename();
-				if( property_exists($obj, 'CMSMScore') ) {
-					$cores[] = $onename;
-				}
-				unset($obj);
-				$obj = null;
-			}
-			sort($cores, SORT_STRING);
-
+		if( $this->_coremodules ) {
+			$res = in_array($module_name, $this->_coremodules);
 			if( AppState::test_state(AppState::STATE_INSTALL) ) {
-				//don't cache, hence re-scan each time, when the installer is running
-				return ($cores) ? in_array($module_name,$cores) : false;
+				//revert the modules-list, in case they change during install
+				$this->_coremodules = NULL;
 			}
-			else {
-				$this->_coremodules = $cores;
-			}
+			return $res;
 		}
-		return  ($this->_coremodules) ? in_array($module_name, $this->_coremodules) : false;
+		return FALSE;
 	}
 
 	/**
@@ -1124,7 +1125,7 @@ VALUES (?,?,?,$now,$now)");
      * module to be used instead of the user's recorded preference.
 	 * @return mixed CMSModule | null
 	 */
-	public function GetSyntaxHighlighter($module_name = null)
+	public function GetSyntaxHighlighter($module_name = NULL)
 	{
 		if( !$module_name ) {
 			if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) $module_name = cms_userprefs::get_for_user(get_userid(FALSE),'syntaxhighlighter');
@@ -1148,7 +1149,7 @@ VALUES (?,?,?,$now,$now)");
 	 * @param mixed $module_name string | null
 	 * @return CMSModule
 	 */
-	public function GetSyntaxModule($module_name = null)
+	public function GetSyntaxModule($module_name = NULL)
 	{
 		return $this->GetSyntaxHighlighter($module_name);
 	}
@@ -1165,7 +1166,7 @@ VALUES (?,?,?,$now,$now)");
 	 *  and specifying a wysiwyg module.
 	 * @return mixed CMSModule | null
 	 */
-	public function GetWYSIWYGModule($module_name = null)
+	public function GetWYSIWYGModule($module_name = NULL)
 	{
 		if( !$module_name ) {
 			if( CmsApp::get_instance()->is_frontend_request() ) {
