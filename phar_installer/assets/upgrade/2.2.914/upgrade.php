@@ -11,26 +11,29 @@ use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\startswith;
 
-$dict = GetDataDictionary($db);
+const CURRENT_SCHEMA = 206; //see also same const in file base.php
+
+$corename = CmsLayoutTemplateType::CORE;
 
 // 1. Tweak callbacks for page and generic layout template types
-$page_type = CmsLayoutTemplateType::load('__CORE__::page');
+$page_type = CmsLayoutTemplateType::load($corename.'::page');
 if ($page_type) {
+	//TODO sometimes double-backslashes in a callable are not accepted by PHP
     $page_type->set_lang_callback('CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
     $page_type->set_content_callback('CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults');
     $page_type->set_help_callback('CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
     $page_type->save();
 } else {
-    error_msg('__CORE__::page template update '.lang('failed'));
+    error_msg($corename.'::page template update '.lang('failed'));
 }
 
-$generic_type = CmsLayoutTemplateType::load('__CORE__::generic');
+$generic_type = CmsLayoutTemplateType::load($corename.'::generic');
 if ($generic_type) {
     $generic_type->set_lang_callback('CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback');
     $generic_type->set_help_callback('CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
     $generic_type->save();
 } else {
-    error_msg('__CORE__::generic template update '.lang('failed'));
+    error_msg($corename.'::generic template update '.lang('failed'));
 }
 
 // 2. Revised/extra permissions
@@ -41,12 +44,14 @@ $db->Execute($query, ['Modify User Plugins','Modify User-Defined Tags',$longnow,
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
 $db->Execute($query);
 
-foreach ([
- 'Modify DataBase Direct',
- 'Modify Restricted Files',
-// 'Modify Site Assets',
- 'Remote Administration',  //for app management sans admin console
-] as $one_perm) {
+//	'Modify Site Assets',
+$ultras = [
+	'Modify DataBase Direct',
+	'Modify Restricted Files',
+	'Remote Administration',  //for app management sans admin console
+];
+
+foreach ($ultras as $one_perm) {
     $permission = new CmsPermission();
     $permission->source = 'Core';
     $permission->name = $one_perm;
@@ -67,7 +72,7 @@ try {
 } catch (Exception $e) {
     // nothing here
 }
-$group->GrantPermission('Modify Restricted Files');
+$group->GrantPermission($ultras[1]);
 //$group->GrantPermission('Modify Site Assets');
 $group->GrantPermission('Modify User Plugins');
 /*
@@ -106,7 +111,7 @@ $db->Execute($query,[$longnow]);
 //$db->Execute($query,[$longnow,$longnow]);
 // almost-certainly-unique signature of this site
 // this replicates cms_utils::random_string()
-$uuid = str_repeat(' ', 32);
+/* $uuid = str_repeat(' ', 32);
 for ($i = 0; $i < 32; ++$i) {
     $n = mt_rand(33, 165);
     switch ($n) {
@@ -123,24 +128,54 @@ for ($i = 0; $i < 32; ++$i) {
             $uuid[$i] = chr($n);
     }
 }
+*/
+// includer-defined variables: $app, $siteinfo;
 
-$app = get_app();
 $config = $app->get_config();
-$cores = $config['coremodules'];
-$str = implode(',', $cores);
-foreach([
+$corenames = $config['coremodules'];
+$cores = implode(',', $corenames);
+if (defined('CURRENT_SCHEMA')) {
+	$schema = (int)CURRENT_SCHEMA;
+} else {
+	global $CMS_SCHEMA_VERSION;
+	if (!empty($CMS_SCHEMA_VERSION)) {
+		// newly-loaded from a version.php file
+		$schema = (int)$CMS_SCHEMA_VERSION;
+	} else {
+	    $schema = $app->get_dest_schema();
+		if ($schema === 0) {
+			$here = 1; //TODO
+		}
+	}
+}
+$uuid = trim(base64_encode(cms_utils::random_string(24)), '='); //db hates storing some chars
+$url =  ( !empty($siteinfo['supporturl']) ) ? $siteinfo['supporturl'] : '';
+$down = cms_siteprefs::get('enablesitedownmessage', 0);
+$check = cms_siteprefs::get('use_smartycompilecheck', 1);
+
+$arr = [
     'cdn_url' => 'https://cdnjs.cloudflare.com',
-	'coremodules', $str,
-    'syntax_theme'  => '',
+    'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
     'lock_refresh' => 120,
     'lock_timeout' => 60,
     'loginmodule' => '',
-    'site_help_url' => '',
-    'site_uuid' => $uuid,
+    'schema_version' => $schema,
+    'site_help_url' => $url,
+    'site_uuid' => $uuid, // almost-certainly-unique signature of this site
+    'site_downnow' => $down, // renamed
     'smarty_cachelife' => -1, // smarty default
- ] as $name=>$val) {
+    'smarty_cachemodules' => 0, // nope
+    'smarty_cachesimples' => 0,
+    'smarty_compilecheck' => $check, // renamed
+    'syntax_theme'  => '',
+    'ultraroles' => json_encode($ultras),
+];
+foreach ($arr as $name=>$val) {
     cms_siteprefs::set($name, $val);
 }
+cms_siteprefs::set('smarty_compilecheck',  cms_siteprefs::get('use_smartycompilecheck', 1));
+
+$dict = GetDataDictionary($db);
 
 /* IF UDTfiles are used exclusively instead of database storage ...
 // 4. Convert UDT's to user-plugin files
@@ -196,11 +231,11 @@ ELSE | AND
 $ops = SimpleTagOperations::get_instance();
 $fp = $ops->FilePath('.htaccess');
 if (!is_file($fp)) {
-	$ext = strtr($ops::PLUGEXT, '.', '');
-	file_put_contents($fp, <<<EOS
+    $ext = strtr($ops::PLUGEXT, '.', '');
+    file_put_contents($fp, <<<EOS
 RedirectMatch 403 (?i)^.*\.($ext|cmsplugin)$
 EOS
-	);
+    );
 }
 // redundant sequence-table
 $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins_seq');
