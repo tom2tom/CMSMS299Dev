@@ -18,7 +18,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('sitename')}<label for="sitename">{$t}:</label>
-      {cms_help key2='settings_sitelogo' title=$t}
+      {cms_help key2='settings_sitename' title=$t}
     </p>
     <p class="pageinput">
       <input type="text" id="sitename" class="pagesmalltextarea" name="sitename" size="30" value="{$sitename}" />
@@ -316,12 +316,12 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      {$t=lang('enablesitedown')}<label for="enablesitedown">{$t}:</label>
+      {$t=lang('enablesitedown')}<label for="sitedownnow">{$t}:</label>
       {cms_help key2='settings_enablesitedown' title=$t}
     </p>
-    <input type="hidden" name="enablesitedownmessage" value="0" />
+    <input type="hidden" name="site_downnow" value="0" />
     <p class="pageinput">
-      <input type="checkbox" name="enablesitedownmessage" id="enablesitedown" value="1"{if $enablesitedownmessage} checked="checked"{/if} />
+      <input type="checkbox" name="site_downnow" id="sitedownnow" value="1"{if $sitedown} checked="checked"{/if} />
     </p>
   </div>
   <div class="pageoverflow">
@@ -604,9 +604,9 @@
         {$t=lang('smarty_compilecheck')}<label for="compilecheck">{$t}:</label>
         {cms_help key2='settings_smartycompilecheck' title=$t}
       </p>
-      <input type="hidden" name="use_smartycompilecheck" value="0" />
+      <input type="hidden" name="smarty_compilecheck" value="0" />
       <p class="pageinput">
-        <input type="checkbox" name="use_smartycompilecheck" id="compilecheck" value="1"{if $use_smartycompilecheck} checked="checked"{/if} />
+        <input type="checkbox" name="smarty_compilecheck" id="compilecheck" value="1"{if $smarty_compilecheck} checked="checked"{/if} />
       </p>
     </div>
   </fieldset>
