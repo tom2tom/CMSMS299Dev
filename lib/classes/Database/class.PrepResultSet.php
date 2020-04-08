@@ -81,8 +81,8 @@ class PrepResultSet extends ResultSet
 
     public function __destruct()
     {
-		$this->_stmt->free_result();
-	}
+        $this->_stmt->free_result();
+    }
 
     protected function move($idx)
     {
@@ -144,7 +144,7 @@ class PrepResultSet extends ResultSet
                     } else {
                         //dereference the values
                         $row = [];
-						while (($val = next($this->_row)) !== false) {
+                        while (($val = next($this->_row)) !== false) {
                             $k = key($this->_row);
                             $row[$k] = $val;
                         }
