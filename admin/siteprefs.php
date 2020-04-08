@@ -325,7 +325,7 @@ if (isset($_POST['submit'])) {
                 }
                 cms_siteprefs::set('smarty_cachelife', $val);
                 cms_siteprefs::set('smarty_cachemodules', (int)$_POST['smarty_cachemodules']);
-				cms_siteprefs::set('smarty_cachesimples', !empty($_POST['smarty_cachesimples']));
+                cms_siteprefs::set('smarty_cachesimples', !empty($_POST['smarty_cachesimples']));
                 cms_siteprefs::set('use_smartycompilecheck', !empty($_POST['use_smartycompilecheck']));
 //               AdminUtils::clear_cached_files();
 
@@ -431,7 +431,7 @@ if ($smarty_cachelife < 0) {
     $smarty_cachelife = '';
 }
 $smarty_cachemodules = cms_siteprefs::get('smarty_cachemodules', 0); // default value back-compatible
-$smarty_cachesimples = cms_siteprefs::get('$smarty_cachesimples', false);
+$smarty_cachesimples = cms_siteprefs::get('smarty_cachesimples', false);
 $syntaxmodule = cms_siteprefs::get('syntax_editor');
 $syntaxtype = cms_siteprefs::get('syntax_type');
 $syntaxer = ($syntaxtype) ? $syntaxmodule .'::'.$syntaxtype : $syntaxmodule ;
@@ -465,11 +465,11 @@ if ($tmp) {
 }
 
 /*
- * TODO	run a hooklist to retrieve site-settings derived from modules etc
+ * TODO run a hooklist to retrieve site-settings derived from modules etc
  * a module capability for this (in case not currently loaded)
  * collect:
  * prefgroup name | default = ?
- * prefgroup order |	 default as-reported
+ * prefgroup order |     default as-reported
  * prefname
  * publictitle
  * publichelp
@@ -854,11 +854,11 @@ $smarty->assign('helpicon', $themeObject->DisplayImage('icons/system/info.png', 
 $tmp = [];
 $keys = ['yes','no','module_setting'];
 foreach ([1, 0, 2] as $i => $val) {
-	$one = new stdClass();
-	$one->label = lang($keys[$i]);
-	$one->value = $val;
-	$one->checked = ($val == $smarty_cachemodules);
-	$tmp[] = $one;
+    $one = new stdClass();
+    $one->label = lang($keys[$i]);
+    $one->value = $val;
+    $one->checked = ($val == $smarty_cachemodules);
+    $tmp[] = $one;
 }
 $smarty->assign('smarty_cachemodules', $tmp);
 
