@@ -491,7 +491,7 @@ class Connection
      * The primary function for communicating with the database.
      *
      * @param string $sql SQL statement to be executed
-     * @return mixed ResultSet object | integer (affected rows) | boolean | null
+     * @return mixed ResultSet object | integer (affected rows|last insert id) | boolean | null
      */
     protected function do_sql($sql)
     {
@@ -519,9 +519,12 @@ class Connection
             $this->errno = 0;
             $this->error = '';
             if ($dml) {
-                //workaround inappropriate '!== false' tests
                 $num = $this->_mysql->affected_rows;
-                return ($num > 0) ? $num : false; // TODO also cheap atomic ->insert_id for inserts
+                if ($num == 1 && ($sql[0] == 'I' || $sql[0] == 'i')) {
+                    return (($num = $this->_mysql->insert_id) > 0) ? $num : 1;
+                }
+                //support strict false-checks by callers
+                return ($num > 0) ? $num : false;
             } elseif (is_bool($result)) {
                 return $result;
             }
@@ -537,7 +540,7 @@ class Connection
 
     /**
      * @internal
-     * no error checking
+     * No error checking
      * @return array : individual statements' results, normally as many
      * of them as there were separate SQL commands, but any error will
      * abort the reaults hence truncate the array.
@@ -569,7 +572,7 @@ class Connection
             $result = $this->do_multisql($sql);
             //TODO deal with $result[]
         }
-    } 
+    }
 
     /**
      * Prepare (compile) @sql for parameterized and/or repeated execution.
