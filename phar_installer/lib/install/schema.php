@@ -483,8 +483,9 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'users', $msg_ret));
 
+/* schema-version cache replaced by siteprefs table entry
 $flds = '
-version I
+version I(4)
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'version', $flds,
     ['mysqli' => 'ENGINE=MYISAM COLLATE ascii_general_ci']
@@ -492,6 +493,7 @@ $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'version', $flds,
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'version', $msg_ret));
+*/
 
 //CHECKME combined index on term,key1 fields ?
 //created DT renamed 2.3
