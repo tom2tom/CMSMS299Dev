@@ -1,4 +1,5 @@
 <?php
+
 status_msg('Performing structure changes for CMSMS 2.2');
 
 $create_private_dir = function($relative_dir) {
@@ -41,11 +42,11 @@ verbose_msg(ilang('upgrading_schema',202));
 $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 202';
 $db->Execute($query);
 
-$type = \CmsLayoutTemplateType::load('__CORE__::page');
+$type = CmsLayoutTemplateType::load('__CORE__::page');
 $type->set_help_callback('CmsTemplateResource::template_help_callback');
 $type->save();
 
-$type = \CmsLayoutTemplateType::load('__CORE__::generic');
+$type = CmsLayoutTemplateType::load('__CORE__::generic');
 $type->set_help_callback('CmsTemplateResource::template_help_callback');
 $type->save();
 

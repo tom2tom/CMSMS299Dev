@@ -1,5 +1,8 @@
 <?php
 
+use CMSMS\ContentOperations;
+use CMSMS\Events;
+use CMSMS\ModuleOperations;
 use CMSMS\SimpleTagOperations;
 
 set_time_limit(3600);
@@ -200,19 +203,19 @@ for( $tries = 0; $tries < 2; $tries++ ) {
         $gcb_template_type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::generic');
         break;
     }
-    catch( \CmsDataNotFoundException $e ) {
+    catch( CmsDataNotFoundException $e ) {
         // we insert the records manually... because later versions of the template type
         // add different columns... and the save() method won't work.
         verbose_msg('create initial template types');
 
         $contents = \CmsTemplateResource::reset_page_type_defaults();
-        $sql = 'INSERT INTO '.CMS_DB_PREFIX.\CmsLayoutTemplateType::TABLENAME.' (originator,name,has_dflt,dflt_contents,description,
+        $sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' (originator,name,has_dflt,dflt_contents,description,
                     lang_cb, dflt_content_cb, requires_contentblocks, owner, created, modified)
                 VALUES (?,?,?,?,?,?,?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
-        $dbr = $db->Execute( $sql, [ \CmsLayoutTemplateType::CORE, 'page', TRUE, $contents, null,
+        $dbr = $db->Execute( $sql, [ CmsLayoutTemplateType::CORE, 'page', TRUE, $contents, null,
                                      serialize('CmsTemplateResource::page_type_lang_callback'),serialize('CmsTemplateResource::reset_page_type_default'), TRUE, null ] );
         $contents = null;
-        $dbr = $db->Execute( $sql, [ \CmsLayoutTemplateType::CORE, 'generic', FALSE, null, null,
+        $dbr = $db->Execute( $sql, [ CmsLayoutTemplateType::CORE, 'generic', FALSE, null, null,
                                      serialize('CmsTemplateResource::generic_type_lang_callback'), null, FALSE, null ] );
     }
 } // tries
@@ -237,7 +240,7 @@ for( $tries = 0; $tries < 2; $tries++ ) {
     */
 if( !is_object($page_template_type) || !is_object($gcb_template_type) ) {
     error_msg('The page template type and/or GCB template type could not be found or created');
-    throw new \LogicException('This is bad');
+    throw new LogicException('This is bad');
 }
 
 $_fix_name = function($str) {
@@ -253,7 +256,7 @@ $_fix_name = function($str) {
         $str = str_replace('__','_',$str);
         if( $in == $str ) break;
     }
-    if( $str == '_' ) throw new \Exception('Invalid name '.$orig.' and cannot be corrected');
+    if( $str == '_' ) throw new Exception('Invalid name '.$orig.' and cannot be corrected');
     return $str;
 };
 
@@ -271,7 +274,7 @@ $_fix_css_name = function($str) {
         $str = str_replace('__','_',$str);
         if( $in == $str ) break;
     }
-    if( $str == '_' ) throw new \Exception('Invalid name '.$orig.' and cannot be corrected');
+    if( $str == '_' ) throw new Exception('Invalid name '.$orig.' and cannot be corrected');
     return $str;
 };
 
@@ -303,7 +306,7 @@ if( is_array($tmp) && count($tmp) ) {
             $template = CmsLayoutTemplate::load($new_name);
             // nothing here, template with this name exists.
         }
-        catch( \CmsDataNotFoundException $e ) {
+        catch( CmsDataNotFoundException $e ) {
             $db->Execute($sql2,array($new_name,$gcb['html'],$gcb['description'],$gcb_template_type->get_id(),$gcb['owner']));
             $gcb['template_id'] = $db->Insert_ID();
             $gcblist[$gcb['htmlblob_id']] = $gcb;
@@ -360,7 +363,7 @@ if( is_array($tmp) && count($tmp) ) {
       try {
           $tmp = CmsLayoutStylesheet::load($new_name);
       }
-      catch( \CmsLogicException $e ) {
+      catch( CmsLogicException $e ) {
           $css_id = $row['css_id'];
           $stylesheet = new CmsLayoutStylesheet();
           $stylesheet->set_name($new_name);
@@ -505,7 +508,7 @@ if( $un ) {
         $sql = 'INSERT INTO '.CMS_DB_PREFIX.'user_groups (group_id,user_id) VALUES (1,1)';
         $db->Execute($sql);
     }
-    catch( \Exception $e ) {
+    catch( Exception $e ) {
         // this can throw an exception, if the user is already in this group... let it.
     }
 }
