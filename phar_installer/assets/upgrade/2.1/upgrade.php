@@ -1,4 +1,5 @@
 <?php
+
 status_msg('Upgrading schema for CMSMS 2.1');
 
 //$gCms = cmsms();
