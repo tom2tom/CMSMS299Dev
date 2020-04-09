@@ -6,7 +6,7 @@ status_msg(lang('install_setsequence'));
 
 $table_ids = [
 	'additional_users' => ['id' => 'additional_users_id'], //deprecated since 2.3
-	'admin_bookmarks'  => ['id' => 'bookmark_id'],
+	'admin_bookmarks'  => ['id' => 'bookmark_id'], //deprecated since 2.3
 	'content'          => ['id' => 'content_id'],
 	'event_handlers'   => ['id' => 'handler_id', 'seq' => 'event_handler_seq'], //deprecated since 2.3
 	'events'           => ['id' => 'event_id'],  //deprecated since 2.3
