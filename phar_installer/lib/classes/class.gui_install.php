@@ -6,6 +6,7 @@ use cms_installer\installer_base;
 use cms_installer\wizard\wizard;
 use Exception;
 use RuntimeException;
+use Throwable;
 use function cms_installer\endswith;
 use function cms_installer\smarty;
 use function cms_installer\startswith;
@@ -113,10 +114,13 @@ class gui_install extends installer_base
             $tmp = 'm'.substr(md5(realpath(getcwd()).session_id()),0,8);
             $wizard->set_step_var($tmp);
             $res = $wizard->process();
+            if( $res === null ) {
+                throw new Exception('Something went wrong!?');
+            }
         }
-        catch( Exception $e ) {
+        catch( Throwable $t ) {
             $smarty = smarty();
-            $smarty->assign('error',$e->GetMessage());
+            $smarty->assign('error',$t->GetMessage());
             $smarty->display('error.tpl');
         }
     }
