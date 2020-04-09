@@ -182,8 +182,8 @@ class Connection
 
     /**
      * Constructor.
-     * @param array $config Optional assoc. array of db connection parameters etc,
-     * including at least:
+     * @param array $config Optional assoc array of parameters
+     * including (among others) the ones used here:
      *  'db_hostname'
      *  'db_username'
      *  'db_password'
