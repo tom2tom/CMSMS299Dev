@@ -404,7 +404,7 @@ if (defined('STDOUT') && $_outfile == STDOUT) {
             $dir = dirname($dir);
         }
         if ($dir != '.') {
-            $file = joinpath($dir, 'assets', 'upgrade', $_to_ver);
+            $file = joinpath($dir, 'lib', 'upgrade', $_to_ver);
             if (is_dir($file)) {
                 if (!is_file($file.DIRECTORY_SEPARATOR.'changelog.txt')) {
                     touch($file.DIRECTORY_SEPARATOR.'changelog.txt');

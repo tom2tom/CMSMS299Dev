@@ -319,7 +319,7 @@ function copy_local_files()
     $localroot = current_root();
 
     // default config settings
-    $fp = dirname(__DIR__).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'installer.ini';
+    $fp = joinpath(dirname(__DIR__),'lib','assets','installer.ini');
     $config = (is_file($fp)) ? parse_ini_file($fp, false, INI_SCANNER_TYPED) : [];
     foreach ($config as $key => &$val) {
         switch ($key) {
@@ -602,7 +602,7 @@ try {
             $arr = installer_base::CONTENTFILESDIR;
             $filesin = joinpath($phardir, ...$arr);
             $db = CmsApp::get_instance()->GetDb();
-            require_once joinpath($phardir,'lib','install','iosite.functions.php');
+            require_once joinpath($phardir,'lib','iosite.functions.php');
             verbose(1, "INFO: export site content to $xmlfile");
             export_content($xmlfile, $filesin, $db);
         }
@@ -638,7 +638,7 @@ try {
     $version_num = CMS_VERSION;
     verbose(1, "INFO: found version: $version_num");
 
-    $fp = joinpath($phardir, 'assets', 'upgrade', $version_num);
+    $fp = joinpath($phardir, 'lib', 'upgrade', $version_num);
     @mkdir($fp, 0771, true);
     if (!(is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT.gz') || is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT'))) {
         verbose(1, 'ERROR: no upgrade-files manifest is present');
@@ -680,7 +680,7 @@ try {
         $phar = new Phar($fp); // no iterator flags, we will self-manage
         $phar->startBuffering();
 
-        $relpath = joinpath('assets', 'installer.ini');
+        $relpath = joinpath('lib', 'assets', 'installer.ini');
         $t = time();
         $u = get_current_user();
         $h = gethostname();
