@@ -11,8 +11,6 @@ use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\startswith;
 
-const CURRENT_SCHEMA = 206; //see also same const in file method.base.php
-
 $corename = CmsLayoutTemplateType::CORE;
 
 // 1. Tweak callbacks for page and generic layout template types
@@ -134,24 +132,10 @@ for ($i = 0; $i < 32; ++$i) {
 $config = $app->get_config();
 $corenames = $config['coremodules'];
 $cores = implode(',', $corenames);
-if (defined('CURRENT_SCHEMA')) {
-	$schema = (int)CURRENT_SCHEMA;
-} else {
-	global $CMS_SCHEMA_VERSION;
-	if (!empty($CMS_SCHEMA_VERSION)) {
-		// newly-loaded from a version.php file
-		$schema = (int)$CMS_SCHEMA_VERSION;
-	} else {
-	    $schema = $app->get_dest_schema();
-		if ($schema === 0) {
-			$here = 1; //TODO
-		}
-	}
-}
-$uuid = trim(base64_encode(cms_utils::random_string(24)), '='); //db hates storing some chars
 $url =  ( !empty($siteinfo['supporturl']) ) ? $siteinfo['supporturl'] : '';
-$down = cms_siteprefs::get('enablesitedownmessage', 0);
-$check = cms_siteprefs::get('use_smartycompilecheck', 1);
+$uuid = trim(base64_encode(cms_utils::random_string(24)), '='); //db hates storing some chars
+$down = cms_siteprefs::get('enablesitedownmessage', 0); //for rename
+$check = cms_siteprefs::get('use_smartycompilecheck', 1); //ditto
 
 $arr = [
     'cdn_url' => 'https://cdnjs.cloudflare.com',
@@ -159,7 +143,6 @@ $arr = [
     'lock_refresh' => 120,
     'lock_timeout' => 60,
     'loginmodule' => '',
-    'schema_version' => $schema,
     'site_help_url' => $url,
     'site_uuid' => $uuid, // almost-certainly-unique signature of this site
     'site_downnow' => $down, // renamed
@@ -173,7 +156,6 @@ $arr = [
 foreach ($arr as $name=>$val) {
     cms_siteprefs::set($name, $val);
 }
-cms_siteprefs::set('smarty_compilecheck',  cms_siteprefs::get('use_smartycompilecheck', 1));
 
 $dict = GetDataDictionary($db);
 
