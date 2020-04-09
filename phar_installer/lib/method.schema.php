@@ -98,7 +98,7 @@ $dbdict->ExecuteSQLArray($sqlarray);
 
 status_msg(lang('install_createtablesindexes'));
 
-// NOTE site-content-related changes here must be replicated in the data 'skeleton' and DTD in file lib/install/iosite.functions.php
+// NOTE site-content-related changes here must be replicated in the data 'skeleton' and DTD in file lib/iosite.functions.php
 
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 //$innotaboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];

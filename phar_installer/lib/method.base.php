@@ -300,7 +300,7 @@ function create_private_dir(string $destdir, string $relative_dir)
     @touch($dir.DIRECTORY_SEPARATOR.'index.html');
 }
 
-// create the assets directory structure
+// create the assets (however named) directory structure
 verbose_msg(lang('install_createassets'));
 $na = $config['assetsdir'] ?? 'assets';
 $np = $config['pluginsdir'] ?? 'simple_plugins';

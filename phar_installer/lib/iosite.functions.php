@@ -159,9 +159,9 @@ function fill_filessection(XMLWriter $xw, string $section, string $frombase, str
 /**
  * Export site content (pages, templates, designs, styles etc) to XML file.
  * Support files (in the uploads folder) and simple-plugin files, template files
- * and stylesheet files (in their respective assets sub-folders) are recorded
- * as such, and will be copied into the specified $filesfolder if it exists.
- * Otherwise, that remains a manual task.
+ * and stylesheet files (in their respective assets (however named) sub-folders)
+ * are recorded as such, and will be copied into the specified $filesfolder if
+ * it exists. Otherwise, that remains a manual task.
  *
  * @param string $xmlfile filesystem path of file to use
  * @param string $filesfolder path of installer-tree folder to contain any
