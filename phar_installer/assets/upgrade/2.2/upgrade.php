@@ -1,13 +1,14 @@
 <?php
 
+use function cms_installer\get_app;
+
 status_msg('Performing structure changes for CMSMS 2.2');
 
 $create_private_dir = function($relative_dir) {
-    $app = \__appbase\get_app();
-    $destdir = $app->get_destdir();
     $relative_dir = trim($relative_dir);
     if( !$relative_dir ) return;
 
+    $destdir = get_app()->get_destdir();
     $dir = $destdir.'/'.$relative_dir;
     if( !is_dir($dir) ) {
         @mkdir($dir,0777,true);
@@ -59,7 +60,7 @@ $create_private_dir('assets/admin_custom');
 $create_private_dir('assets/plugins');
 $create_private_dir('assets/images');
 $create_private_dir('assets/css');
-$destdir = \__appbase\get_app()->get_destdir();
+$destdir = get_app()->get_destdir();
 $srcdir = $destdir.'/module_custom';
 if( is_dir($srcdir) ) {
     $move_directory_files($srcdir,$destdir.'/assets/module_custom');

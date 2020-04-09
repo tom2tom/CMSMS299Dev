@@ -1,7 +1,11 @@
 <?php
+
+use cms_installer\utils;
+use function cms_installer\get_app;
+
 status_msg('Performing directory changes for CMSMS 2.2.1');
 
-$destdir = \__appbase\get_app()->get_destdir();
+$destdir = get_app()->get_destdir();
 $plugins_from = $destdir.'/plugins';
 if( !is_dir($plugins_from) ) return;
 $plugins_to = $destdir.'/assets/plugins';
@@ -25,7 +29,7 @@ $remove = function( $in ) {
         @unlink($in);
     }
     else if( is_dir( $in ) ) {
-        \__appbase\utils::rrmdir($in);
+        utils::rrmdir($in);
     }
 };
 
@@ -47,5 +51,5 @@ if( count($files) == 1 ) {
     $bn = strtolower(basename($files[0]));
     if( $bn == 'index.html' ) $do_remove == true;
 }
-if( $do_remove ) \__appbase\utils::rrmdir($plugins_from);
+if( $do_remove ) utils::rrmdir($plugins_from);
 @touch($plugins_to.'/index.html');
