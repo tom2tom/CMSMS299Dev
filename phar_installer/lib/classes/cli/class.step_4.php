@@ -5,6 +5,7 @@ namespace cms_installer\cli;
 use cms_installer\cli\cli_step;
 use Exception;
 use mysqli;
+use Throwable;
 use function cms_installer\lang;
 
 class step_4 extends cli_step
@@ -150,8 +151,8 @@ class step_4 extends cli_step
                         $error = false;
                         break;
                     }
-                    catch( Exception $e ) {
-                        $console->show('ERROR: '.$e->Getmessage(), 'red_bg+white')->lf();
+                    catch( Throwable $t ) {
+                        $console->show('ERROR: '.$t->Getmessage(), 'red_bg+white')->lf();
                         $error = true; // ask for the information next go round
                     }
                 }

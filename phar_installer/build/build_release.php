@@ -523,12 +523,12 @@ function create_source_archive()
         $phar->compress(Phar::GZ);
         unset($phar); //close it
         unlink($fp);
-    } catch (Exception $e) {
-        die('ERROR: sources tarball creation failed : '.$e->GetMessage()."\n");
+    } catch (Throwable $t) {
+        die('ERROR: sources tarball creation failed : '.$t->GetMessage()."\n");
     }
 }
 
-// compress smarty stuff in the sources tree into a distinct tarball in $datadir, for the expanded installer
+// compress smarty stuff in the sources tree into a distinct tarball in $datadir, for use by the expanded installer
 function create_smarty_archive()
 {
     global $datadir;
@@ -546,8 +546,8 @@ function create_smarty_archive()
         $phar->compress(Phar::GZ); //TODO can a windows-based system decompress tar.gz without PHP phar extension?
         unset($phar); //close it
         unlink($fp);
-    } catch (Exception $e) {
-        die('ERROR: installer-smarty tarball creation failed : '.$e->GetMessage()."\n");
+    } catch (Throwable $t) {
+        die('ERROR: installer-smarty tarball creation failed : '.$t->GetMessage()."\n");
     }
 }
 
@@ -619,8 +619,8 @@ try {
         if ($fp === '' || $fp == 'local') {
             try {
                 copy_local_files();
-            } catch (Exception $e) {
-                die($e->GetMessage());
+            } catch (Throwable $t) {
+                die($t->GetMessage());
             }
         } elseif (!get_alternate_files()) {
             die('ERROR: sources not available');
@@ -846,6 +846,6 @@ EOS;
     rrmdir($datadir);
 
     echo "INFO: Done, see files in $outdir\n";
-} catch (Exception $e) {
-    echo 'ERROR: Problem building phar file '.$outdir.': '.$e->GetMessage()."\n";
+} catch (Throwable $t) {
+    echo 'ERROR: Problem building phar file '.$outdir.': '.$t->GetMessage()."\n";
 }

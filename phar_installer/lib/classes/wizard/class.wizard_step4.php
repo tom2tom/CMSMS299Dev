@@ -5,9 +5,10 @@ namespace cms_installer\wizard;
 use cms_installer\utils;
 use Exception;
 use mysqli;
+use Throwable;
+use function cms_installer\get_app;
 use function cms_installer\lang;
 use function cms_installer\smarty;
-use function cms_installer\get_app;
 
 class wizard_step4 extends wizard_step
 {
@@ -150,9 +151,9 @@ class wizard_step4 extends wizard_step
             $url = $this->get_wizard()->next_url();
             utils::redirect($url);
         }
-        catch( Exception $e ) {
+        catch( Throwable $t ) {
             $smarty = smarty();
-            $smarty->assign('error',$e->GetMessage());
+            $smarty->assign('error',$t->GetMessage());
         }
     }
 

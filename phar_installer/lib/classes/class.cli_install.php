@@ -1,9 +1,11 @@
 <?php
 
-namespace cms_installer;
+namespace cms_installer; //TODO
 
-use Exception;
-use user_aborted; //TODO
+use DirectoryIterator;
+use RegexIterator;
+use Throwable;
+use user_aborted;
 use function cms_installer\translator;
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'class.installer_base.php';
@@ -144,8 +146,8 @@ class cli_install extends installer_base
         catch( user_aborted $e ) {
             exit(0);
         }
-        catch( Exception $e ) {
-            fprintf(STDERR,"ERROR: ".$e->GetMessage()."\n");
+        catch( Throwable $t ) {
+            fprintf(STDERR,"ERROR: ".$t->GetMessage()."\n");
             exit(1);
         }
     }

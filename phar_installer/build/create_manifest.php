@@ -304,8 +304,8 @@ mkdir($_todir, 0771);
 // retrieve sources
 try {
     $res = get_sources($uri_from, $_fromdir);
-} catch (Exception $e) {
-    info($e->GetMessage());
+} catch (Throwable $t) {
+    info($t->GetMessage());
     $res = false;
 }
 if (!$res) {
@@ -317,8 +317,8 @@ if (!is_file(joinpath($_fromdir, 'lib', 'version.php')) || !is_dir(joinpath($_fr
 
 try {
     $res = get_sources($uri_to, $_todir);
-} catch (Exception $e) {
-    info($e->GetMessage());
+} catch (Throwable $t) {
+    info($t->GetMessage());
     $res = false;
 }
 if (!$res) {
@@ -330,8 +330,8 @@ if (!is_file(joinpath($_todir, 'lib', 'version.php')) || !is_dir(joinpath($_todi
 
 try {
     $obj = new compare_dirs($_fromdir, $_todir, $do_md5);
-} catch (Exception $e) {
-    fatal($e->GetMessage());
+} catch (Throwable $t) {
+    fatal($t->GetMessage());
 }
 
 // get version data

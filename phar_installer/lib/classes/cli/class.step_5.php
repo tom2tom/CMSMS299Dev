@@ -6,6 +6,7 @@ use cms_installer\cli\cli_step;
 use cms_installer\utils;
 use console; //TODO
 use Exception;
+use Throwable;
 use function cms_installer\lang;
 
 class step_5 extends cli_step
@@ -65,8 +66,8 @@ class step_5 extends cli_step
                 $this->validate( $options );
                 break;
             }
-            catch( Exception $e ) {
-                $console->lf()->show( 'ERROR: '.$e->GetMessage(), 'red_bg' )->lf();
+            catch( Throwable $t ) {
+                $console->lf()->show( 'ERROR: '.$t->GetMessage(), 'red_bg' )->lf();
             }
         }
     }

@@ -1,10 +1,10 @@
 <?php
 
-// unlike accessor.functions.php, this has no namespace
+// unlike accessor.functions.php, this has global namespace
 
 /**
  * @param array $config parameters for connection
- * @return CMSMS\Database\mysqli\Connection object
+ * @return Connection object
  * @throws Exception
  */
 function GetDb(array $config)
@@ -25,7 +25,7 @@ function GetDb(array $config)
                 if (!$db->Connect()) {
                     $db = null;
                 }
-            } catch (Exception $e) {
+            } catch (Throwable $t) {
                 $db = null;
             }
         } else {

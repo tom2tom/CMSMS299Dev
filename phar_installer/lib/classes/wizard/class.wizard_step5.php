@@ -4,6 +4,7 @@ namespace cms_installer\wizard;
 
 use cms_installer\utils;
 use Exception;
+use Throwable;
 use function cms_installer\get_app;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
@@ -95,9 +96,9 @@ class wizard_step5 extends wizard_step
             }
             utils::redirect($url);
         }
-        catch( Exception $e ) {
+        catch( Throwable $t ) {
             $smarty = smarty();
-            $smarty->assign('error',$e->GetMessage());
+            $smarty->assign('error',$t->GetMessage());
         }
     }
 

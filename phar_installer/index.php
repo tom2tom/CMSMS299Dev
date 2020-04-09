@@ -18,7 +18,7 @@ function _detect_bad_ioncube()
 //
 try {
     // some basic system wide pre-requisites
-    if( version_compare(PHP_VERSION,'7.1') < 0 ) throw new Exception('Sorry, this installer requires PHP 7.1 or higher');
+    if( version_compare(PHP_VERSION,'7.1') < 0 ) throw new Exception('This installer requires PHP 7.1 or higher');
     _detect_bad_ioncube();
 
     // disable some stuff.
@@ -32,14 +32,14 @@ try {
     }
     else {
         require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.gui_install.php';
-        $app = new gui_install(); //no custom config-file specified
+        $app = new gui_install();
     }
     $app->run();
 }
-catch( Exception $e ) {
+catch( Throwable $t ) {
     // this handles fatal, serious errors.
-    // cannot use stylesheets, scripts, or images here, as the problem may be a phar based problem
-    $msg = $e->GetMessage();
+    // cannot use stylesheets, scripts, or images here, in case the problem is phar-initiation-related
+    $msg = $t->GetMessage();
     echo <<<EOT
 <!DOCTYPE html>
 <html lang="en">

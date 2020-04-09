@@ -15,7 +15,7 @@ foreach( $perms as $one_perm ) {
        $permission->save();
        $all_perms[$one_perm] = $permission;
     }
-    catch( Exception $e ) {
+    catch( Throwable $t ) {
        // if it already exists, skip adding it to groups
        verbose_msg("Permission $one_perm already exists");
     }

@@ -56,7 +56,7 @@ foreach ($ultras as $one_perm) {
     $permission->text = $one_perm;
     try {
         $permission->save();
-    } catch (Exception $e) {
+    } catch (Throwable $t) {
         // nothing here
     }
 }
@@ -67,7 +67,7 @@ $group->description = lang('grp_coder_desc');
 $group->active = 1;
 try {
     $group->Save();
-} catch (Exception $e) {
+} catch (Throwable $t) {
     // nothing here
 }
 $group->GrantPermission($ultras[1]);

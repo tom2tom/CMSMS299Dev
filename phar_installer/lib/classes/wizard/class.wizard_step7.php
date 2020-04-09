@@ -10,6 +10,7 @@ use FilesystemIterator;
 use PharData;
 use RecursiveIteratorIterator;
 use splitbrain\PHPArchive\Tar;
+use Throwable;
 use function cms_installer\endswith;
 use function cms_installer\get_app;
 use function cms_installer\joinpath;
@@ -102,7 +103,7 @@ class wizard_step7 extends wizard_step
             try {
                 $languages = array_merge($languages, $this->detect_languages());
             }
-            catch (Exception $e) {/* nothing here */}
+            catch (Throwable $t) {/* nothing here */}
         }
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
         if( $siteinfo && isset($siteinfo['languages']) ) {
@@ -328,8 +329,8 @@ class wizard_step7 extends wizard_step
             // create index.html files in directories.
             $this->do_index_html();
         }
-        catch( Exception $e ) {
-            $this->error($e->GetMessage());
+        catch( Throwable $t ) {
+            $this->error($t->GetMessage());
         }
 
         $this->finish();

@@ -508,8 +508,8 @@ if( $un ) {
         $sql = 'INSERT INTO '.CMS_DB_PREFIX.'user_groups (group_id,user_id) VALUES (1,1)';
         $db->Execute($sql);
     }
-    catch( Exception $e ) {
-        // this can throw an exception, if the user is already in this group... let it.
+    catch( Throwable $t ) {
+        // this can throw if the user is already in this group... let it.
     }
 }
 

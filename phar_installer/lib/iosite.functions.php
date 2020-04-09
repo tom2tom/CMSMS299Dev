@@ -604,10 +604,10 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 								$ob->set_media_query((string)$node->media_query);
 							}
 							$ob->save();
-						} catch (Throwable $t) {
+						} catch (CmsInvalidDataException $e) {
 							//TODO report error
 							continue;
-						} catch (CmsInvalidDataException $e) {
+						} catch (Throwable $t) {
 							//TODO report error
 							continue;
 						}
@@ -621,10 +621,10 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							$ob->set_name((string)$node->name);
 							$ob->set_description((string)$node->description);
 							$ob->save();
-						} catch (Throwable $t) {
+						} catch (CmsInvalidDataException $e) {
 							//TODO report error
 							continue;
-						} catch (CmsInvalidDataException $e) {
+						} catch (Throwable $t) {
 							//TODO report error
 							continue;
 						}
@@ -649,9 +649,6 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							$ob->set_members($arr[0]);
 							$ob->save();
 						} catch (Throwable $t) {
-							//TODO report error
-							continue;
-						} catch (Exception $e) {
 							//TODO report error
 							continue;
 						}
@@ -713,13 +710,13 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 								}
 							}
 							$ob->save();
-						} catch (Throwable $t) {
-							//TODO report error
-							continue;
 						} catch (CmsInvalidDataException $e) {
 							//TODO report error
 							continue;
 						} catch (CmsDataNotFoundException $e) {
+							//TODO report error
+							continue;
+						} catch (Throwable $t) {
 							//TODO report error
 							continue;
 						}
@@ -754,9 +751,6 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						} catch (Throwable $t) {
 							//TODO report error
 							continue;
-						} catch (Exception $e) {
-							//TODO report error
-							continue;
 						}
 						$templates[(int)$node->id] = $ob->get_id();
 					}
@@ -772,9 +766,6 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							$ob->set_description((string)$node->description);
 							$ob->save();
 						} catch (Throwable $t) {
-							//TODO report error
-							continue;
-						} catch (Exception $e) {
 							//TODO report error
 							continue;
 						}
@@ -801,8 +792,6 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						} catch (Throwable $t) {
 							//TODO report error
 							continue;
-						} catch (Exception $e) {
-							continue;
 						}
 					}
 					break;
@@ -821,9 +810,6 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 //							$ob->set_default((bool)$node->dflt);
 							$ob->save();
 						} catch (Throwable $t) {
-							//TODO report error
-							continue;
-						} catch (Exception $e) {
 							//TODO report error
 							continue;
 						}
@@ -853,9 +839,6 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						} catch (Throwable $t) {
 							//TODO report error
 							continue;
-						} catch (Exception $e) {
-							//TODO report error
-							continue;
 						}
 					}
 					break;
@@ -880,9 +863,6 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							$ob->set_designs($arr[0]);
 							$ob->save();
 						} catch (Throwable $t) {
-							//TODO report error
-							continue;
-						} catch (Exception $e) {
 							//TODO report error
 							continue;
 						}
