@@ -528,7 +528,9 @@ function create_source_archive()
     }
 }
 
-// compress smarty stuff in the sources tree into a distinct tarball in $datadir, for use by the expanded installer
+// compress all smarty stuff in the sources tree into a distinct tarball
+// in $datadir, for use by the expanded installer when PHP phar support
+// is N/A (at least)
 function create_smarty_archive()
 {
     global $datadir;
