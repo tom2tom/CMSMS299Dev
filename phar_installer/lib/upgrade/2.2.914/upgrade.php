@@ -340,7 +340,7 @@ function migrate_stamps(string $name, string $fid, $db, $dict)
 }
 
 foreach ([
-//    ['layout_designs','id'],
+//  ['layout_designs','id'],
     ['layout_stylesheets','id'],
     ['layout_templates','id'],
     ['layout_tpl_type','id'],
@@ -350,6 +350,19 @@ foreach ([
     migrate_stamps($tbl[0],$tbl[1],$db,$dict);
 }
 
+/* NOT YET deprecate instead
+// 7.2A Migrate some formerly genID-populated index-fields to autoincrement
+foreach ([
+    ['additional_users','additional_users_id'],
+    ['admin_bookmarks','bookmark_id'],
+    ['event_handlers','handler_id',
+    ['events','event_id'],
+    ['group_perms','group_perm_id'],
+] as $tbl) {
+    $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.$tbl[0], $$tbl[1].' UNSIGNED AUTO KEY');
+    $dict->ExecuteSQLArray($sqlarray);
+}
+*/
 // 7.3 Re-organize layout-related tables
 // template-groups table tweaks
 $tbl = CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME; //layout_tpl_groups
@@ -557,6 +570,9 @@ VALUES (?,?,?,-1)',
 
 $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
 $dict->ExecuteSQLArray($sqlarray);
+
+$sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'version');
+$dict->ExecuteSQLArray($sqlarr);
 
 $tbl = CMS_DB_PREFIX.'content_types';
 $flds = '
