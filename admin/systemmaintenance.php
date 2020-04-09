@@ -265,7 +265,7 @@ if (!endswith($type, 'File')) {
  */
 if ($config['develop_mode']) {
     // try to get folder where 'support' files (if any) will be stored, pending site import
-    $fp = cms_join_path(CMS_ROOT_PATH,'phar_installer','lib','classes','class.installer_base.php');
+    $fp = cms_join_path(CMS_ROOT_PATH,'phar_installer', 'lib', 'classes', 'class.installer_base.php');
     $exportable = is_file($fp);
 } else {
     $exportable = false;
@@ -275,11 +275,11 @@ $smarty->assign('export', $exportable);
 if ($exportable && isset($_POST['export'])) {
     include $fp;
     $arr = installer_base::CONTENTFILESDIR;
-    $filesin = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
+    $filesin = cms_join_path(CMS_ROOT_PATH, 'phar_installer', ...$arr);
     $arr = installer_base::CONTENTXML;
-    $xmlfile = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
+    $xmlfile = cms_join_path(CMS_ROOT_PATH, 'phar_installer', ...$arr);
 
-    include cms_join_path(CMS_ROOT_PATH,'phar_installer','lib','install','iosite.functions.php');
+    include cms_join_path(CMS_ROOT_PATH, 'phar_installer', 'lib', 'iosite.functions.php');
     export_content($xmlfile, $filesin, $db);
     // also download it
     $handlers = ob_list_handlers();
