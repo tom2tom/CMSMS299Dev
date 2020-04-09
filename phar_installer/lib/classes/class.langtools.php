@@ -305,9 +305,8 @@ final class langtools
      */
     public function get_lang_dir($realm = '')
     {
-        if( !$realm ) $realm = self::DFLT_REALM;
-        if( $realm == self::DFLT_REALM ) $realm = 'app';
-        $dir = get_app()->get_assetsdir().'/lang/'.$realm;
+        if( !$realm || $realm == self::DFLT_REALM ) $realm = 'app';
+        $dir = dirname(__DIR__).'/lang/'.$realm;
         if( !is_dir($dir) ) throw new langtools_Exception('Language directory '.$dir.' not found');
 
         return $dir;

@@ -77,7 +77,7 @@ class wizard_step1 extends wizard_step
             break;
 
         case 'assets':
-            if( is_file($dir.DIRECTORY_SEPARATOR.'installer.ini') ) return FALSE;
+            if( is_dir($dir.DIRECTORY_SEPARATOR.'templates') ) return FALSE;
             break;
 
         case 'modules':
@@ -104,8 +104,7 @@ class wizard_step1 extends wizard_step
 // see installer_base::init()            @include $dir.DIRECTORY_SEPARATOR.'lib/version.php'; // defines in this file can throw notices
             return 'CMSMS '.$CMS_VERSION;
         }
-
-        if( is_dir($dir.DIRECTORY_SEPARATOR.'assets') && is_file($dir.DIRECTORY_SEPARATOR.'lib/classes/class.installer_base.php') ) {
+        if( is_dir($dir.DIRECTORY_SEPARATOR.'lib') && is_file($dir.DIRECTORY_SEPARATOR.'lib/classes/class.installer_base.php') ) {
             return 'CMSMS installation assistant';
         }
     }

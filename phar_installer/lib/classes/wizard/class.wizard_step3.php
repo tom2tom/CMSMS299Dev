@@ -82,7 +82,8 @@ class wizard_step3 extends wizard_step
         $obj->fail_msg = lang('fail_php_version',$v,$obj->minimum);
         if (version_compare($obj->minimum, $obj->recommended) < 0) {
             $obj->warn_msg = lang('fail_php_version2',$v,$obj->recommended);
-        } else {
+        }
+        else {
             $obj->warn_msg = lang('msg_yourvalue',$v);
         }
         $obj->pass_msg = lang('msg_yourvalue',$v);
@@ -119,12 +120,12 @@ class wizard_step3 extends wizard_step
         $obj->fail_key = 'fail_curl_extension';
         $tests[] = $obj;
 
-		if( !defined('PHP_VERSION_ID') || PHP_VERSION_ID < 70200 ) {
+        if( !defined('PHP_VERSION_ID') || PHP_VERSION_ID < 70200 ) {
             // recommended test ... ssl extension for en/de-cryption
             $obj = new boolean_test('ssl_extension',extension_loaded('openssl'));
             $obj->fail_key = 'fail_ssl_extension';
             $tests[] = $obj;
-		}
+        }
 
         // recommended test ... supported cache extension
         // preference order: [php]redis,apcu,yac,memcached(slowest)
@@ -324,33 +325,33 @@ class wizard_step3 extends wizard_step
         $tests[] = $obj;
 
         // required test... check if most files are writable.
-            $dirs = ['lib','admin','uploads','doc','tmp','assets'];
-            if( $version_info ) {
-                // it's an upgrade
-                if( !empty($version_info['config']['admin_dir']) ) {
-                    $dirs[1] = $version_info['config']['admin_dir'];
-                }
-                if( !empty($version_info['config']['assets_dir']) ) {
-                    $dirs[5] = $version_info['config']['assets_dir'];
-                }
+        $dirs = ['lib','admin','uploads','doc','tmp','assets'];
+        if( $version_info ) {
+            // it's an upgrade
+            if( !empty($version_info['config']['admin_dir']) ) {
+                $dirs[1] = $version_info['config']['admin_dir'];
             }
+            if( !empty($version_info['config']['assets_dir']) ) {
+                $dirs[5] = $version_info['config']['assets_dir'];
+            }
+        }
 
-            $failed = [];
-            $list = glob($app->get_destdir().DIRECTORY_SEPARATOR.'*');
-            foreach( $list as $one ) {
-                $basename = basename($one);
-                if( is_file($one) ) {
-                    $relative = substr($one,strlen($app->get_destdir())+1);
-                    if( !is_writable($one) ) $failed[] = $relative;
-                }
-                else if( in_array($basename,$dirs) ) {
-                    $b = utils::is_directory_writable($one,TRUE);
-                    if( !$b ) {
-                        $tmp = utils::get_writable_error();
-                        $failed = array_merge($failed,utils::get_writable_error());
-                    }
+        $failed = [];
+        $list = glob($app->get_destdir().DIRECTORY_SEPARATOR.'*');
+        foreach( $list as $one ) {
+            $basename = basename($one);
+            if( is_file($one) ) {
+                $relative = substr($one,strlen($app->get_destdir())+1);
+                if( !is_writable($one) ) $failed[] = $relative;
+            }
+            else if( in_array($basename,$dirs) ) {
+                $b = utils::is_directory_writable($one,TRUE);
+                if( !$b ) {
+                    $tmp = utils::get_writable_error();
+                    $failed = array_merge($failed,utils::get_writable_error());
                 }
             }
+        }
 
         if( $version_info ) {
             // during an upgrade (not a freshen), config file must be writable
@@ -361,7 +362,14 @@ class wizard_step3 extends wizard_step
                 $tests[] = $obj;
 
                 if( version_compare($version_info['version'],'2.2') < 0 ) {
-                    $dir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
+                    // assets folder must exist
+                    if( !empty($version_info['config']['assets_dir']) ) {
+                        $aname = $version_info['config']['assets_dir'];
+                    }
+                    else {
+                        $aname = 'assets';
+                    }
+                    $dir = $app->get_destdir().DIRECTORY_SEPARATOR.$aname;
                     if( is_dir($dir) ) {
                         $obj = new boolean_test('assets_dir_exists',FALSE);
                         $obj->fail_key = 'fail_assets_dir';
@@ -370,7 +378,8 @@ class wizard_step3 extends wizard_step
                     }
                 }
             }
-        } else {
+        }
+        else {
             $dest = $app->get_destdir();
             $config_file = $dest.DIRECTORY_SEPARATOR.'config.php';
             $obj = new boolean_test('config_writable',!is_file($config_file) || is_writable($config_file));

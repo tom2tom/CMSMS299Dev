@@ -33,9 +33,13 @@ class wizard_step2 extends wizard_step
         }
 
         $app = get_app();
-        if( $aname != 'admin' ) $app->set_config_val('admindir', $aname);
-        if( !empty($config['assets_dir']) && $config['assets_dir'] != 'assets' ) $app->set_config_val('assetsdir', $config['assets_dir']);
-        if( !empty($config['simpletags_dir']) && $config['simpletags_dir'] != 'simple_plugins' ) $app->set_config_val('pluginsdir', $config['simpletags_dir']);
+        if( $aname != 'admin' ) { $app->set_config_val('admindir', $aname); }
+        if( !empty($config['assets_dir']) && $config['assets_dir'] != 'assets' ) {
+            $app->set_config_val('assetsdir', $config['assets_dir']);
+        }
+        if( !empty($config['simpletags_dir']) && $config['simpletags_dir'] != 'simple_plugins' ) {
+            $app->set_config_val('pluginsdir', $config['simpletags_dir']);
+        }
 
         $info = [];
         $info['config_file'] = $fn;
@@ -134,7 +138,7 @@ class wizard_step2 extends wizard_step
         $smarty->assign('nofiles',$app_config['nofiles']);
 
         if( $info ) {
-            // we're doing an upgrade/freshen
+            // we're doing an upgrade|freshen
             $wizard->set_data('version_info',$info); //store data in session
             $smarty->assign('cmsms_info',$info);
             if( !isset($info['error_status']) || $info['error_status'] != 'same_ver' ) {
@@ -152,7 +156,7 @@ class wizard_step2 extends wizard_step
         else {
             // looks like a new install
             // double-check for the phar stuff.
-            if( is_file($rpwd.DIRECTORY_SEPARATOR.'index.php') && is_dir($rpwd.DIRECTORY_SEPARATOR.'assets') && is_dir($rpwd.DIRECTORY_SEPARATOR.'lib') && is_file($rpwd.DIRECTORY_SEPARATOR.'lib/classes/class.installer_base.php') ) {
+            if( is_file($rpwd.DIRECTORY_SEPARATOR.'index.php') && is_dir($rpwd.DIRECTORY_SEPARATOR.'lib') && is_file($rpwd.DIRECTORY_SEPARATOR.'lib/classes/class.installer_base.php') ) {
                 // should never happen except if you're working on this project.
                 throw new Exception(lang('error_invalid_directory'));
             }

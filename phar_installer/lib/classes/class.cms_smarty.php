@@ -18,8 +18,7 @@ final class cms_smarty extends Smarty
         $app = get_app();
 //        $rootdir = $app->get_rootdir();
         $tmpdir = $app->get_tmpdir().'/m'.md5(__FILE__);
-        $assdir = $app->get_assetsdir();
-//        $basedir = dirname(__DIR__,2);
+        $assdir = dirname(__DIR__);
 
         $this->setTemplateDir($assdir.'/templates');
         $this->setConfigDir($assdir.'/configs');

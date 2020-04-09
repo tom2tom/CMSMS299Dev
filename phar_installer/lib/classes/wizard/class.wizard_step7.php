@@ -118,19 +118,19 @@ class wizard_step7 extends wizard_step
         $from = $to = $lens = [];
         $app_config = $app->get_config();
         //we rename filepaths, not the actual folders followed by rename-back
-        if( isset($app_config['admindir']) && ($aname = $app_config['admindir']) != 'admin' ) {
+        if( !empty($app_config['admindir']) && ($aname = $app_config['admindir']) != 'admin' ) {
             $s = '/admin'; //hardcoded '/' filepath-separators in phar tarball
             $from[] = $s;
             $to[] = '/'.$aname; //the separator may be migrated, downstream
             $lens[] = strlen($s);
         }
-        if( isset($app_config['assetsdir']) && ($aname = $app_config['assetsdir']) != 'assets' ) {
+        if( !empty($app_config['assetsdir']) && ($aname = $app_config['assetsdir']) != 'assets' ) {
             $s = '/assets';
             $from[] = $s;
             $to[] = '/'.$aname;
             $lens[] = strlen($s);
         }
-        if( isset($app_config['pluginsdir']) && ($aname = $app_config['pluginsdir']) != 'simple_plugins' ) {
+        if( !empty($app_config['pluginsdir']) && ($aname = $app_config['pluginsdir']) != 'simple_plugins' ) {
             $s = '/simple_plugins';
             $from[] = $s;
             $to[] = '/'.$aname;
@@ -205,10 +205,9 @@ class wizard_step7 extends wizard_step
 
     private function preprocess_files()
     {
-        $app = get_app();
-        $upgrade_dir = $app->get_assetsdir().'/upgrade';
+        $upgrade_dir = dirname(__DIR__, 2).'/upgrade';
         if( !is_dir($upgrade_dir) ) throw new Exception(lang('error_internal',710));
-        $destdir = $app->get_destdir();
+        $destdir = get_app()->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',711));
 
         $version_info = $this->get_wizard()->get_data('version_info');
@@ -231,10 +230,9 @@ class wizard_step7 extends wizard_step
     private function do_manifests()
     {
         // get the list of all available versions that this upgrader knows about
-        $app = get_app();
-        $upgrade_dir =  $app->get_assetsdir().'/upgrade';
+        $upgrade_dir = dirname(__DIR__,2).'/upgrade';
         if( !is_dir($upgrade_dir) ) throw new Exception(lang('error_internal',720));
-        $destdir = $app->get_destdir();
+        $destdir = get_app()->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',721));
 
         $version_info = $this->get_wizard()->get_data('version_info');

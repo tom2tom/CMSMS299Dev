@@ -229,7 +229,7 @@ VALUES (?,?,?,NOW())');
             $fn = 'initial.xml';
         }
 
-        $dir = $app->get_assetsdir().DIRECTORY_SEPARATOR.'install';
+        $dir = $app->get_assetsdir();
         $xmlfile = $dir.DIRECTORY_SEPARATOR.$fn;
         if( is_file($xmlfile) ) {
             $arr = installer_base::CONTENTFILESDIR;
@@ -239,10 +239,10 @@ VALUES (?,?,?,NOW())');
             }
             try {
                 if( $app->in_phar() ) {
-                    $fp = $app->get_phar().'/lib/install/iosite.functions.php';
+                    $fp = $app->get_phar().'/lib/iosite.functions.php';
                 }
                 else {
-                    $fp = joinpath(dirname(__DIR__,2),'install','iosite.functions.php');
+                    $fp = joinpath(dirname(__DIR__,2),'iosite.functions.php');
                 }
                 require_once $fp;
                 if( ($res = import_content($xmlfile, $filesfolder)) ) {

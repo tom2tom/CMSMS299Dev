@@ -43,8 +43,8 @@ class FilePatternFilter extends FilterIterator
 abstract class installer_base
 {
     const CONFIG_ROOT_URL = 'root_url';
-    const CONTENTXML = ['assets','install','democontent.xml']; //path segments rel to top phardir
-    const CONTENTFILESDIR = ['assets','install','uploadfiles']; //ditto
+    const CONTENTXML = ['lib','assets','democontent.xml']; //path segments rel to top phardir
+    const CONTENTFILESDIR = ['uploadfiles']; //ditto
 
     private static $_instance;
     private $_archive;
@@ -62,7 +62,9 @@ abstract class installer_base
 
     /**
      * @param string $configfile Optional filepath of a 'installer.ini' file
-     * containing settings to be used instead of default settings. Default ''.
+     * containing parameters to be used during installer operation, and
+	 * implicitly defining the 'installer-assets' folder to be used. Default ''.
+	 * (That folder will also be interrogated for *.xml initial content during installation.)
      * @throws Exception
      */
     protected function __construct(string $configfile = '')
@@ -75,6 +77,172 @@ abstract class installer_base
     }
 
     /**
+     * Once-per-request initialization
+     * @ignore
+	 * @see __construct()
+     * @param string $configfile Optional filepath
+     * @throws Exception
+     */
+    private function init(string $configfile = '')
+    {
+        $p = dirname(__DIR__).DIRECTORY_SEPARATOR;
+        if (!$configfile) {
+            $this->_assetdir = $p.'assets';
+            $fp = $this->_assetdir.DIRECTORY_SEPARATOR.'installer.ini';
+        }
+        else {
+            $this->_assetdir = dirname($configfile);
+            $fp = $configfile;
+        }
+        $config = (is_file($fp)) ? parse_ini_file($fp, false, INI_SCANNER_TYPED) : [];
+        $this->_config = ($config) ? $config : [];
+
+        // handle debug mode
+        if (!empty($config['debug'])) {
+            @ini_set('display_errors', 1);
+            @error_reporting(E_ALL);
+        }
+
+        $this->_have_phar = extension_loaded('phar');
+
+        // setup core autoloading
+        spl_autoload_register([installer_base::class,'autoload']);
+
+        require_once $p.'compat.functions.php';
+        require_once $p.'misc.functions.php';
+
+        // get the session
+        $sess = session::get_instance();
+
+        // get the request
+        $request = request::get_instance();
+        if (isset($request['clear'])) {
+            $sess->reset();
+        }
+
+        // process (once, or again if a clearance happened) our files-archives
+        if (!empty($sess['sourceball'])) {
+            // TODO different check: standalone smarty autoloader might have been omitted,
+            // not needed with composer-style autoloading
+            $p = joinpath($this->get_tmpdir(), 'lib', 'vendor', 'smarty', 'smarty', 'libs', 'Autoloader.php');
+            if (!is_file($p)) {
+                $sess['sourceball'] = null;
+            }
+        }
+        if (empty($sess['sourceball'])) {
+            $p = $config['archive'] ?? 'data/data.tar.gz';
+            $src_archive = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.$p;
+            if (!is_file($src_archive)) {
+                throw new Exception('Could not find installation archive at '.$src_archive);
+            }
+
+            if ($this->in_phar()) {
+                // copy and rename it securely, because in some environments,
+                // we cannot read from a tarball embedded within a phar
+                $src_md5 = md5_file($src_archive);
+                $dest_archive = $this->get_tmpdir().DIRECTORY_SEPARATOR.'f'.md5($src_archive.session_id()).'.tgz';
+
+                for ($i = 0; $i < 2; $i++) {
+                    if (!is_file($dest_archive)) {
+                        @copy($src_archive, $dest_archive);
+                    }
+                    $dest_md5 = md5_file($dest_archive);
+                    if (is_readable($dest_archive) && $src_md5 == $dest_md5) {
+                        break;
+                    }
+                    @unlink($dest_archive);
+                }
+                if ($i == 2) {
+                    throw new Exception('Checksum of temporary archive does not match... copying/permissions problem');
+                }
+
+                $sess['sourceball'] = $dest_archive;
+
+                // extract installer-Smarty (once) from the sources to an enduring place
+                $p = $this->get_tmpdir();
+
+                $tmpdir = 'phar://'.$dest_archive;  //contents are unpacked as descendents of the archive
+                $len = strlen($tmpdir) + 1; //separator offset
+                $adata = new PharData(
+                    $dest_archive,
+                    FilesystemIterator::CURRENT_AS_PATHNAME |
+                    FilesystemIterator::SKIP_DOTS |
+                    FilesystemIterator::UNIX_PATHS
+                );
+                $iter = new RecursiveIteratorIterator($adata,
+                    RecursiveIteratorIterator::SELF_FIRST);
+                $iter = new FilePatternFilter($iter,
+                    '~[\\/]lib[\\/]vendor[\\/]smarty[\\/]smarty[\\/].+~');
+                foreach ($iter as $fp) {
+                    $from = substr($fp, $len);
+                    $adata->extractTo($p, $from, true);
+                }
+                $p = joinpath($p, 'lib', 'vendor', 'smarty', 'smarty');
+            }
+            else { // !in_phar()
+                $sess['sourceball'] = $src_archive;
+
+                // extract installer-smarty from the archive into a local folder
+                $p = __DIR__.DIRECTORY_SEPARATOR.'smarty';
+                $sp = joinpath(dirname(__DIR__, 2), 'data', 'smarty.tar.gz');
+                if ($this->_have_phar) {
+                    $adata = new PharData($sp);
+                    $adata->extractTo($p, null, true);
+                }
+                else {
+                    @mkdir($p, 0771, true);
+                    $adata = new Tar();
+                    $adata->open($sp);
+                    $adata->extract($p);
+                }
+            }
+        }
+        elseif ($this->in_phar()) {
+            $p = joinpath($this->get_tmpdir(), 'lib', 'vendor', 'smarty', 'smarty');
+        }
+        else {
+            $p = __DIR__.DIRECTORY_SEPARATOR.'smarty';
+        }
+
+        $p .= DIRECTORY_SEPARATOR.'libs'.DIRECTORY_SEPARATOR.'Autoloader.php';
+        // smarty's autoloader may be absent when composer handles smarty autoloading
+        if (is_file($p)) {
+            require_once $p;
+        }
+        else {
+            // revert to our local backup
+            define('SMARTY_DIR', dirname($p, 2));
+            require_once __DIR__.DIRECTORY_SEPARATOR.'smarty'.DIRECTORY_SEPARATOR.'BackupAutoloader.php';
+        }
+        Smarty_Autoloader::register();
+        // 'foreign-class' autoloading init after our Smarty-loading is in place
+        require_once __DIR__.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
+        $this->_archive = $sess['sourceball'];
+
+        // get details of the version we are installing, save them in the session,
+        // if not already there
+        if (isset($sess['CMSMS:version'])) {
+            $ver = $sess['CMSMS:version'];
+            $this->_dest_version = $ver['version'];
+            $this->_dest_name = $ver['version_name'];
+            $this->_dest_schema = $ver['schema_version'];
+        }
+        else {
+            $verfile = dirname($src_archive).DIRECTORY_SEPARATOR.'version.php';
+            if (!is_file($verfile)) {
+                throw new Exception('Could not find version file');
+            }
+            include_once $verfile;
+            $ver = ['version' => CMS_VERSION, 'version_name' => CMS_VERSION_NAME, 'schema_version' => CMS_SCHEMA_VERSION];
+            $sess['CMSMS:version'] = $ver;
+            $this->_dest_version = CMS_VERSION;
+            $this->_dest_name = CMS_VERSION_NAME;
+            $this->_dest_schema = CMS_SCHEMA_VERSION;
+        }
+//        register_shutdown_function ([$this, 'endit']);
+    }
+
+	/**
      * Return the singleton object of this class
      * @return installer_base
      * @throws Exception
@@ -182,7 +350,7 @@ lib/classes/smarty/*                      no namespace
         $this->_orig_tz = $config['timezone'] = $tmp;
         $tmp = realpath(getcwd());
 
-        $adbg = joinpath($tmp, 'assets', 'install', 'initial.xml');
+        $adbg = joinpath($tmp, 'lib', 'assets', 'initial.xml');
         $msg = (is_file($adbg)) ? 'XML EXISTS' : 'NO XML at '.$adbg;
         file_put_contents('/tmp/guiinstaller-cwd.txt', $msg); //DEBUG
 
@@ -231,12 +399,11 @@ lib/classes/smarty/*                      no namespace
         // setup default config properties
         $config = $this->set_config_defaults();
 
-        // override default config with config file(s)
+        // supplement/override default config with custom config file if any
         $tmp = realpath(getcwd());
         if (endswith($tmp, 'phar_installer') || endswith($tmp, 'installer')) {
             $tmp = dirname($tmp);
         }
-        // supplement/override default config with custom config file if any
         $config_file = joinpath($tmp, 'installer.ini');
         if (is_file($config_file) && is_readable($config_file)) {
             $xconfig = parse_ini_file($config_file, false, INI_SCANNER_TYPED);
@@ -637,171 +804,4 @@ lib/classes/smarty/*                      no namespace
         $sess->clear();
     }
 */
-    /**
-     * Once-per-request initialization
-     * @ignore
-     * @param string $configfile Optional filepath of a 'installer.ini' file
-     * containing settings to be used instead of defaults, and implicitly
-     * defining the 'installer-assets' folder to be used. Default ''.
-     * @throws Exception
-     */
-    private function init(string $configfile = '')
-    {
-        if (!$configfile) {
-            $this->_assetdir = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'assets';
-            $p = $this->_assetdir.DIRECTORY_SEPARATOR.'installer.ini';
-        }
-        else {
-            $this->_assetdir = dirname($configfile);
-            $p = $configfile;
-        }
-        $config = (is_file($p)) ? parse_ini_file($p, false, INI_SCANNER_TYPED) : [];
-        $this->_config = ($config) ? $config : [];
-
-        // handle debug mode
-        if (!empty($config['debug'])) {
-            @ini_set('display_errors', 1);
-            @error_reporting(E_ALL);
-        }
-
-        $this->_have_phar = extension_loaded('phar');
-
-        // setup core autoloading
-        spl_autoload_register([installer_base::class,'autoload']);
-
-        $p = dirname(__DIR__).DIRECTORY_SEPARATOR;
-        require_once $p.'compat.functions.php';
-        require_once $p.'misc.functions.php';
-
-        // get the session
-        $sess = session::get_instance();
-
-        // get the request
-        $request = request::get_instance();
-        if (isset($request['clear'])) {
-            $sess->reset();
-        }
-
-        // process (once, or again if a clearance happened) our files-archives
-        if (!empty($sess['sourceball'])) {
-            // TODO different check: standalone smarty autoloader might have been omitted,
-            // not needed with composer-style autoloading
-            $p = joinpath($this->get_tmpdir(), 'lib', 'vendor', 'smarty', 'smarty', 'libs', 'Autoloader.php');
-            if (!is_file($p)) {
-                $sess['sourceball'] = null;
-            }
-        }
-        if (empty($sess['sourceball'])) {
-            $p = $config['archive'] ?? 'data/data.tar.gz';
-            $src_archive = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.$p;
-            if (!is_file($src_archive)) {
-                throw new Exception('Could not find installation archive at '.$src_archive);
-            }
-
-            if ($this->in_phar()) {
-                // copy and rename it securely, because in some environments,
-                // we cannot read from a tarball embedded within a phar
-                $src_md5 = md5_file($src_archive);
-                $dest_archive = $this->get_tmpdir().DIRECTORY_SEPARATOR.'f'.md5($src_archive.session_id()).'.tgz';
-
-                for ($i = 0; $i < 2; $i++) {
-                    if (!is_file($dest_archive)) {
-                        @copy($src_archive, $dest_archive);
-                    }
-                    $dest_md5 = md5_file($dest_archive);
-                    if (is_readable($dest_archive) && $src_md5 == $dest_md5) {
-                        break;
-                    }
-                    @unlink($dest_archive);
-                }
-                if ($i == 2) {
-                    throw new Exception('Checksum of temporary archive does not match... copying/permissions problem');
-                }
-
-                $sess['sourceball'] = $dest_archive;
-
-                // extract installer-Smarty (once) from the sources to an enduring place
-                $p = $this->get_tmpdir();
-
-                $tmpdir = 'phar://'.$dest_archive;  //contents are unpacked as descendents of the archive
-                $len = strlen($tmpdir) + 1; //separator offset
-                $adata = new PharData(
-                    $dest_archive,
-                    FilesystemIterator::CURRENT_AS_PATHNAME |
-                    FilesystemIterator::SKIP_DOTS |
-                    FilesystemIterator::UNIX_PATHS
-                );
-                $iter = new RecursiveIteratorIterator($adata,
-                    RecursiveIteratorIterator::SELF_FIRST);
-                $iter = new FilePatternFilter($iter,
-                    '~[\\/]lib[\\/]vendor[\\/]smarty[\\/]smarty[\\/].+~');
-                foreach ($iter as $fp) {
-                    $from = substr($fp, $len);
-                    $adata->extractTo($p, $from, true);
-                }
-                $p = joinpath($p, 'lib', 'vendor', 'smarty', 'smarty');
-            }
-            else { // !in_phar()
-                $sess['sourceball'] = $src_archive;
-
-                // extract installer-smarty from the archive into a local folder
-                $p = __DIR__.DIRECTORY_SEPARATOR.'smarty';
-                $sp = joinpath(dirname(__DIR__, 2), 'data', 'smarty.tar.gz');
-                if ($this->_have_phar) {
-                    $adata = new PharData($sp);
-                    $adata->extractTo($p, null, true);
-                }
-                else {
-                    @mkdir($p, 0771, true);
-                    $adata = new Tar();
-                    $adata->open($sp);
-                    $adata->extract($p);
-                }
-            }
-        }
-        elseif ($this->in_phar()) {
-            $p = joinpath($this->get_tmpdir(), 'lib', 'vendor', 'smarty', 'smarty');
-        }
-        else {
-            $p = __DIR__.DIRECTORY_SEPARATOR.'smarty';
-        }
-
-        $p .= DIRECTORY_SEPARATOR.'libs'.DIRECTORY_SEPARATOR.'Autoloader.php';
-        // smarty's autoloader may be absent when composer handles smarty autoloading
-        if (is_file($p)) {
-            require_once $p;
-        }
-        else {
-            // revert to our local backup
-            define('SMARTY_DIR', dirname($p, 2));
-            require_once __DIR__.DIRECTORY_SEPARATOR.'smarty'.DIRECTORY_SEPARATOR.'BackupAutoloader.php';
-        }
-        Smarty_Autoloader::register();
-        // 'foreign-class' autoloading init after our Smarty-loading is in place
-        require_once __DIR__.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
-        $this->_archive = $sess['sourceball'];
-
-        // get details of the version we are installing, save them in the session,
-        // if not already there
-        if (isset($sess['CMSMS:version'])) {
-            $ver = $sess['CMSMS:version'];
-            $this->_dest_version = $ver['version'];
-            $this->_dest_name = $ver['version_name'];
-            $this->_dest_schema = $ver['schema_version'];
-        }
-        else {
-            $verfile = dirname($src_archive).DIRECTORY_SEPARATOR.'version.php';
-            if (!is_file($verfile)) {
-                throw new Exception('Could not find version file');
-            }
-            include_once $verfile;
-            $ver = ['version' => CMS_VERSION, 'version_name' => CMS_VERSION_NAME, 'schema_version' => CMS_SCHEMA_VERSION];
-            $sess['CMSMS:version'] = $ver;
-            $this->_dest_version = CMS_VERSION;
-            $this->_dest_name = CMS_VERSION_NAME;
-            $this->_dest_schema = CMS_SCHEMA_VERSION;
-        }
-
-//        register_shutdown_function ([$this, 'endit']);
-    }
 } // class
