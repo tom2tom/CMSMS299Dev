@@ -63,7 +63,7 @@ $phar_excludes = [
 '/out\/|out$/',
 '/scripts\/|scripts$/',
 '/source\/|source$/',
-'/UNUSED.*/',
+'/UNUSED.*/'
 ];
 //'/README.*/',
 
@@ -71,7 +71,7 @@ $phar_excludes = [
 //'*/',
 //'tmp/',
 //'.#*',
-//'#*'.
+//'#*',
 //'*.bak'
 //];
 
@@ -266,7 +266,7 @@ function rchmod(string $fp) : bool
 
 function get_alternate_files() : bool
 {
-    global $sourceuri,$tmpdir;
+    global $sourceuri, $tmpdir;
 
     if (strncmp($sourceuri, 'file://', 7) == 0) {
         $tmpdir = substr($sourceuri, 7);
@@ -314,12 +314,12 @@ function get_alternate_files() : bool
 
 function copy_local_files()
 {
-    global $tmpdir,$src_excludes;
+    global $tmpdir, $src_excludes;
 
     $localroot = current_root();
 
     // default config settings
-    $fp = joinpath(dirname(__DIR__),'lib','assets','installer.ini');
+    $fp = joinpath(dirname(__DIR__), 'lib', 'assets', 'installer.ini');
     $config = (is_file($fp)) ? parse_ini_file($fp, false, INI_SCANNER_TYPED) : [];
     foreach ($config as $key => &$val) {
         switch ($key) {
@@ -460,7 +460,7 @@ function create_checksums(string $dir, string $salt) : array
 
 function create_checksum_dat()
 {
-    global $outdir,$tmpdir,$version_php,$version_num;
+    global $outdir, $tmpdir, $version_php, $version_num;
 
     verbose(1, 'INFO: Creating checksum file');
     $salt = md5_file($version_php).md5_file($tmpdir.DIRECTORY_SEPARATOR.'index.php'); //TODO joinpath
@@ -481,7 +481,7 @@ function create_checksum_dat()
 
 function create_source_archive()
 {
-    global $tmpdir,$datadir;
+    global $tmpdir, $datadir;
 
     @mkdir($datadir, 0771, true);
     $fp = joinpath($datadir, 'data.tar');
@@ -516,7 +516,7 @@ function create_source_archive()
                 }
                 unset($iter2);
 //          } else {
-//              $phar->addFile($tp,substr($tp, $len));
+//              $phar->addFile($tp, substr($tp, $len));
             }
         }
 
@@ -602,7 +602,7 @@ try {
             $arr = installer_base::CONTENTFILESDIR;
             $filesin = joinpath($phardir, ...$arr);
             $db = CmsApp::get_instance()->GetDb();
-            require_once joinpath($phardir,'lib','iosite.functions.php');
+            require_once joinpath($phardir, 'lib', 'iosite.functions.php');
             verbose(1, "INFO: export site content to $xmlfile");
             export_content($xmlfile, $filesin, $db);
         }
