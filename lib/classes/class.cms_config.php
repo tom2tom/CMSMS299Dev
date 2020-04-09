@@ -257,7 +257,7 @@ final class cms_config implements ArrayAccess
     {
         if( !is_array($newconfig) ) return;
 
-                if( !AppState::test_state(AppState::STATE_INSTALL) ) {
+        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
             trigger_error('Modification of config variables is deprecated',E_USER_ERROR);
             return;
         }
@@ -324,7 +324,9 @@ final class cms_config implements ArrayAccess
         case 'db_password':
         case 'db_name':
             // these guys have to be set
-            stack_trace();
+            if( !AppState::test_state(AppState::STATE_INSTALL) ) {
+                stack_trace();
+            }
             die('FATAL ERROR: Could not find database connection key "'.$key.'" in the config file');
             break;
 
@@ -547,7 +549,11 @@ final class cms_config implements ArrayAccess
      */
     public function offsetUnset($key)
     {
-        trigger_error('Unsetting config variable '.$key.' is invalid',E_USER_ERROR);
+        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
+            trigger_error('Unsetting config variable '.$key.' is invalid',E_USER_ERROR);
+            return;
+        }
+        unset($this->_data[$key]);
     }
 
     /**
