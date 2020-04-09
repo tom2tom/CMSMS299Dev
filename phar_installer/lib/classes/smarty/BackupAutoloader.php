@@ -1,7 +1,7 @@
 <?php
 /**
  * This is a copy of a vanilla smarty autoloader. It might be needed
- * during install/upgrade/refresh on a system where smarty autoloading
+ * during install|upgrade|refresh on a system where smarty autoloading
  * is handled in composer-manner, in which case the redundant original
  * of this file might have been omitted from the sources-tree.
  *
