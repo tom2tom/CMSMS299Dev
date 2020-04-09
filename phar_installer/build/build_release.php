@@ -77,7 +77,7 @@ $phar_excludes = [
 
 $phardir = dirname(__DIR__); //parent, a.k.a. phar_installer
 
-$tmpdir = joinpath($phardir, 'source'); //place for sources to go into data.tar.gz
+$tmpdir = joinpath($phardir, 'source'); //place for sources that will go into data.tar.gz
 $datadir = joinpath($phardir, 'data'); //place for data.tar.gz etc
 $outdir = joinpath($phardir, 'out'); //place for script results/output
 
@@ -528,28 +528,43 @@ function create_source_archive()
     }
 }
 
-// compress all smarty stuff in the sources tree into a distinct tarball
-// in $datadir, for use by the expanded installer when PHP phar support
-// is N/A (at least)
-function create_smarty_archive()
+// avoid the need for manual conformance, copy current smarty sources to local folder
+function get_smarty()
 {
-    global $datadir;
+    global $phardir;
 
-    @mkdir($datadir, 0771, true);
-    $fp = joinpath($datadir, 'smarty.tar');
-    @unlink($fp);
-    @unlink($fp.'.gz');
-
-    verbose(1, 'INFO: Creating archive smarty.tar.gz');
-    $sp = joinpath(current_root(), 'lib', 'vendor', 'smarty', 'smarty'); //composer-conformant location
-    try {
-        $phar = new PharData($fp);
-        $phar->buildFromDirectory($sp);
-        $phar->compress(Phar::GZ); //TODO can a windows-based system decompress tar.gz without PHP phar extension?
-        unset($phar); //close it
-        unlink($fp);
-    } catch (Throwable $t) {
-        die('ERROR: installer-smarty tarball creation failed : '.$t->GetMessage()."\n");
+    verbose(1, 'INFO: Refreshing local smarty sources');
+    $localroot = joinpath($phardir, 'lib', 'classes', 'smarty');
+    rrmdir($localroot, false, true);
+    $sourceroot = joinpath(current_root(), 'lib', 'vendor', 'smarty', 'smarty'); //composer-conformant location
+    $len = strlen($sourceroot);
+    $iter = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(
+            $sourceroot,
+            FilesystemIterator::CURRENT_AS_PATHNAME |
+            FilesystemIterator::SKIP_DOTS |
+            FilesystemIterator::UNIX_PATHS //|
+//          FilesystemIterator::FOLLOW_SYMLINKS too bad if links not relative !!
+        ),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+    foreach ($iter as $fp) {
+        $tp = $localroot.substr($fp, $len);
+        if (!is_dir($fp)) {
+            copy($fp, $tp);
+        } else {
+            mkdir($tp, 0771, true);
+        }
+    }
+    //smarty's own autoloader may have been omitted, when composer autoloads smarty
+    $tp = joinpath($localroot, 'libs', 'Autoloader.php');
+    if (!is_file($tp)) {
+        $fp = __DIR__.DIRECTORY_SEPARATOR.'BackupSmartyAutoloader.php';
+        if (is_file($fp)) {
+            copy($fp, $tp);
+        } else {
+            die('build-file BackupSmartyAutoloader.php is missing');
+        }
     }
 }
 
@@ -587,6 +602,8 @@ try {
     if (!is_dir($datadir) || !is_dir($outdir)) {
         die('Problem creating working directories: '.$datadir.' and/or '.$outdir);
     }
+
+    get_smarty();
 
     $fp = joinpath($phardir, 'lib', 'classes', 'class.installer_base.php');
     require_once $fp;
@@ -793,8 +810,6 @@ EOS;
             @unlink($infile);
 
             rrmdir($tmpdir); //sources can go now
-
-            create_smarty_archive();
 
             // zip up most of the install dir contents, plus the sources archive
             $outfile = joinpath($outdir, $basename.'.expanded.zip');
