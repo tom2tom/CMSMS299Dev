@@ -15,7 +15,6 @@ use CMSMS\ModuleOperations;
 use CMSMS\SysDataCache;
 use CMSMS\SystemCache;
 use Exception;
-use mysqli;
 use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_VERSION;
