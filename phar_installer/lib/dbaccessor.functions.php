@@ -1,6 +1,10 @@
 <?php
 
-// unlike accessor.functions.php, this has global namespace
+namespace cms_installer;
+
+use Exception;
+
+// these functions are included and used only in wizard step 8
 
 /**
  * @param array $config parameters for connection
