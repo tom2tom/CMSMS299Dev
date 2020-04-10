@@ -103,7 +103,7 @@ class FilePickerProfile
         if( !$this->_data['top'] ) {
             $config = cms_config::get_instance();
             $this->setValue('top',$config['uploads_path']);
-//          $devmode = $config['develop_mode'] || (($userid = get_userid(false) && check_permission($userid,'Modify Restricted Files')) || $userid == 0);
+//          $devmode = $config['develop_mode'] || (($userid = get_userid(false) && check_permission($userid,'Manage Restricted Files')) || $userid == 0);
 //          $toppath = ($devmode) ? CMS_ROOT_PATH : $config['uploads_path'];
         }
     }

@@ -26,7 +26,7 @@ check_login();
 
 $urlext = get_secure_param();
 $userid = get_userid();
-$pmod = check_permission($userid, 'Modify User Plugins');
+$pmod = check_permission($userid, 'Manage Simple Plugins');
 $access = $pmod || check_permission($userid, 'View Tag Help');
 
 $ops = SimpleTagOperations::get_instance();

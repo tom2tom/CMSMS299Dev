@@ -28,7 +28,7 @@ check_login();
 $urlext = get_secure_param();
 $userid = get_userid(false);
 $access = true; //check_permission($userid, 'View Tags'); //TODO relevant permission
-$pdev = $config['develop_mode'] || check_permission($userid, 'Modify Restricted Files');
+$pdev = $config['develop_mode'] || check_permission($userid, 'Manage Restricted Files');
 
 $themeObject = cms_utils::get_theme_object();
 

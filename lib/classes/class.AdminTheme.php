@@ -635,7 +635,7 @@ abstract class AdminTheme
         $this->_perms['filePerms'] = check_permission($this->userid, 'Modify Files');
 
         // UDT/user-plugin files (2.3+)
-        $this->_perms['plugPerms'] = check_permission($this->userid, 'Modify User Plugins');
+        $this->_perms['plugPerms'] = check_permission($this->userid, 'Manage Simple Plugins');
 
         // myprefs
         $this->_perms['myaccount'] = check_permission($this->userid,'Manage My Account');
@@ -663,7 +663,7 @@ abstract class AdminTheme
         $this->_perms['eventPerms'] = $config['develop_mode'] && check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
         $this->_perms['usertagPerms'] = $this->_perms['taghelpPerms'] |
-            check_permission($this->userid, 'Modify User Plugins');
+            check_permission($this->userid, 'Manage Simple Plugins');
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
             $this->_perms['modulePerms'] | $this->_perms['eventPerms'] |
             $this->_perms['taghelpPerms'];

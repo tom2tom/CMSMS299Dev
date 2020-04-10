@@ -247,7 +247,7 @@ class Utils
     {
         $config = cms_config::get_instance();
         $mod = cms_utils::get_module('FilePicker');
-        $devmode = $mod->CheckPermission('Modify Restricted Files') || $config['develop_mode'];
+        $devmode = $mod->CheckPermission('Manage Restricted Files') || $config['develop_mode'];
         $rootpath = ($devmode) ? CMS_ROOT_PATH : $profile->top;
 
         if (!$dirpath) {

@@ -95,7 +95,7 @@ if ($tagname != '-1') {
 }
 
 $userid = get_userid(false);
-$edit = check_permission($userid, 'Modify User Plugins');
+$edit = check_permission($userid, 'Manage Simple Plugins');
 
 $pageincs = get_syntaxeditor_setup(['edit'=>$edit, 'htmlid'=>'code', 'typer'=>'php']);
 if (!empty($pageincs['head'])) {

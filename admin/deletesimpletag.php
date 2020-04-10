@@ -27,7 +27,7 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 check_login();
 
 $userid = get_userid();
-$pmod = check_permission($userid, 'Modify User Plugins');
+$pmod = check_permission($userid, 'Manage Simple Plugins');
 if (!$pmod) exit;
 
 $themeObject = cms_utils::get_theme_object();
