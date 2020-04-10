@@ -406,7 +406,7 @@ final class CmsApp
     public function _setDb(Connection $conn)
     {
         if( !AppState::test_state(AppState::STATE_INSTALL) ) {
-            throw new RuntimeException('Invalid use of 'self::class.'..'.__METHOD__);
+            throw new RuntimeException('Invalid use of '.self::class.'..'.__METHOD__);
         }
         $this->db = $conn;
     }
