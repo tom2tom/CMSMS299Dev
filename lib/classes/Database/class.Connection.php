@@ -182,7 +182,7 @@ class Connection
 
     /**
      * Constructor.
-     * @param array $config Optional assoc array of parameters
+     * @param array $config Optional assoc array of CMSMS settings
      * including (among others) the ones used here:
      *  'db_hostname'
      *  'db_username'
