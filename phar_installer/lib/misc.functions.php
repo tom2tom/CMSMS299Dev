@@ -74,11 +74,13 @@ function lang(...$args)
 	}
 }
 
-} //namespace
+} //cms_installer namespace
 
 namespace {
 
 use cms_installer\wizard\wizard;
+
+// functions to generate GUI-installer messages
 
 function verbose_msg(string $str)
 {
@@ -98,4 +100,4 @@ function error_msg(string $str)
 	if( method_exists($obj,'error') ) $obj->error($str);
 }
 
-} //namespace
+} //global namespace
