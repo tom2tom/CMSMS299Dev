@@ -7,10 +7,10 @@ use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
 use CMSMS\TemplateOperations;
 use function cms_installer\endswith;
-use function cms_installer\GetDataDictionary;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\startswith;
+use function GetDataDictionary;
 
 $corename = CmsLayoutTemplateType::CORE;
 
