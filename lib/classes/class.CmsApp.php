@@ -395,6 +395,9 @@ final class CmsApp
 
     /**
      * Set the database connection object.
+     * For use when the installer is running, when the db connection
+     * cannot be created via self::GetDb(). That expects the global
+     * $config to already be populated with connection parameters.
      *
      * @internal
      * @ignore
@@ -402,6 +405,9 @@ final class CmsApp
      */
     public function _setDb(Connection $conn)
     {
+        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
+            throw new RuntimeException('Invalid use of 'self::class.'..'.__METHOD__);
+        }
         $this->db = $conn;
     }
 
