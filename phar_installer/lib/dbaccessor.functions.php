@@ -46,11 +46,13 @@ function GetDb(array $config)
     }
     throw new Exception('Failed to connect to database');
 }
-/**
+/* *
+ * Instead, use the global version of this function
  * @param Connection object
  * @return DataDictionary object
  */
-function GetDataDictionary($db)
+/*function GetDataDictionary($db)
 {
     return $db->NewDataDictionary(); //works for old and new
 }
+*/
