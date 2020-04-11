@@ -1,7 +1,7 @@
 <?php
 /*
 Methods for creating, modifying a database or its components
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -247,29 +247,6 @@ class DataDictionary
     protected function TableName($name)
     {
         return $this->NameQuote($name);
-    }
-
-    /**
-     * Given an array of SQL commands execute them in sequence.
-     *
-     * @param array $sql             Array of sql command string(s)
-     * @param bool  $continueOnError Whether to continue on errors
-     * @return int 0 immediately after error, 1 if continued after an error, 2 for no errors
-     */
-    public function ExecuteSQLArray($sql, $continueOnError = true)
-    {
-        $res = 2;
-        foreach ($sql as $line) {
-            $this->connection->execute($line);
-            if ($this->connection->errno > 0) {
-                if (!$continueOnError) {
-                    return 0;
-                }
-                $res = 1;
-            }
-        }
-
-        return $res;
     }
 
     /**
@@ -807,6 +784,29 @@ class DataDictionary
         $sql = $this->TableSQL($tabname, $lines, $pkey, $taboptions);
 
         return $sql;
+    }
+
+    /**
+     * Execute the members of the given array of SQL commands.
+     *
+     * @param array $sql             Array of sql command string(s)
+     * @param bool  $continueOnError Whether to continue on errors
+     * @return int 0 immediately after error, 1 if continued after an error, 2 for no errors
+     */
+    public function ExecuteSQLArray($sql, $continueOnError = true)
+    {
+        $res = 2;
+        foreach ($sql as $line) {
+            $rs = $this->connection->execute($line);
+            if (!$rs || $this->connection->errno > 0) {
+                if (!$continueOnError) {
+                    return 0;
+                }
+                $res = 1;
+            }
+        }
+
+        return $res;
     }
 
     /**
