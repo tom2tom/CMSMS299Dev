@@ -465,7 +465,7 @@ final class cms_config implements ArrayAccess
             return $this->_cache[$key];
 
         case 'db_port':
-            return '';
+            return (!empty($this->_cache[$key]) || is_numeric($this->_cache[$key])) ? (int)$this->_cache[$key] : '';
 
         case 'max_upload_size':
         case 'upload_max_filesize':
