@@ -262,6 +262,10 @@ WHERE news_id=?';
     $db->Execute($query,[time()]);
 
     $tbl = CMS_DB_PREFIX.'module_news_categories';
+    $sqlarray = $dict->AlterColumnSQL($tbl,'news_category_id I2 UNSIGNED AUTO KEY');
+    $dict->ExecuteSQLArray($sqlarray);
+    $sqlarray = $dict->AddColumnSQL($tbl,'item_order I2 UNSIGNED');
+    $dict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dict->AlterColumnSQL($tbl, 'create_date I');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
     $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I DEFAULT 0');
@@ -274,6 +278,8 @@ WHERE news_id=?';
     $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator="News" AND name="form"';
     $db->Execute($query);
 
+    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_categories_seq');
+    $dict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fielddefs');
     $dict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fieldvals');

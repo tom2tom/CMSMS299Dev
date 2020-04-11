@@ -76,8 +76,8 @@ $dict->ExecuteSQLArray($sqlarray);
 $db->CreateSequence(CMS_DB_PREFIX.'module_news_seq'); //race-preventer
 
 $flds = '
-news_category_id I(2) UNSIGNED KEY,
-news_category_name C(255) NOTNULL,
+news_category_id I(2) UNSIGNED AUTO KEY,
+news_category_name C(255) NOT NULL,
 parent_id I(4),
 hierarchy C(255),
 item_order I(2) UNSIGNED,
@@ -89,7 +89,7 @@ modified_date I DEFAULT 0
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news_categories', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
-$db->CreateSequence(CMS_DB_PREFIX.'module_news_categories_seq'); //race-preventer
+//$db->CreateSequence(CMS_DB_PREFIX.'module_news_categories_seq'); //race-preventer not really useful here
 
 $now = time();
 // General category
