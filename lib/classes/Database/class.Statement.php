@@ -233,6 +233,7 @@ class Statement
             }
         }
 
+        $valsarr = $this->_conn->check_params($valsarr);
         if (is_array($valsarr) && count($valsarr) == 1 && is_array($valsarr[0])) {
             $valsarr = $valsarr[0];
         } elseif (is_array($valsarr[0])) {
@@ -338,6 +339,7 @@ class Statement
         }
 
         $pc = $this->_stmt->param_count;
+        $valsarr = $this->_conn->check_params($valsarr);
         //check for deprecated multi-bind process
         if ($valsarr === null) {
             $valsarr = $this->now_bind;
@@ -429,12 +431,21 @@ class Statement
         } else { //INSERT,UPDATE,DELETE etc
             $this->_conn->errno = 0;
             $this->_conn->error = '';
-
-            $num = $this->_stmt->affected_rows;
-            //TODO only for INSERT,UPDATE,DELETE
-            // TODO if $num == 1 and is INSERT, return (($num = $this->_stmt->insert_id 1st-use ? | $this->_conn->get_inner_mysql()->insert_id every use?) > 0) ? $num : 1;
-            // support strict 'false' checks
-            return ($num > 0) ? $num : false;
+//*
+            if (strncasecmp($this->_sql, 'INSERT INTO', 11) == 0 ||
+                strncasecmp($this->_sql, 'UPDATE', 6) == 0 ||
+                strncasecmp($this->_sql, 'DELETE FROM', 11) == 0) {
+                $num = $this->_stmt->affected_rows;
+                if ($num == 1 && ($this->_sql[0] == 'I' || $this->_sql[0] == 'i')) {
+                    // TODO $num = $this->_stmt->insert_id valid only for 1st-use ?
+                    // | $this->_conn->get_inner_mysql()->insert_id valid for every use?
+                    return (($num = $this->_stmt->insert_id) > 0) ? $num : 1;
+                }
+                // support strict 'false' check by caller
+                return ($num > 0) ? $num : false;
+            }
+//*/
+            return true;
         }
     }
 
