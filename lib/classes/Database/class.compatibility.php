@@ -58,27 +58,27 @@ use const CMS_DEBUG;
 
         /**
          * For parameterized SQL commands which cannot be natively prepared.
-         * Interpret '?'-parameterized $sql and corresponding $valsarr
+         * Interpret '?'-parameterized $sql and corresponding $bindvars
          * into a non-parameterized command, i.e. emulate parameterization.
          *
          * @param object $conn the database-connection object
          * @param string $sql the command
-         * @param mixed  $valsarr array of command-parameter value[s], or a single scalar value
+         * @param mixed  $bindvars array of command-parameter value[s], or a single scalar value
          * @return mixed replacment command or null
          *
          * @since 2.3
          */
-        public static function interpret(Connection &$conn, $sql, $valsarr)
+        public static function interpret(Connection &$conn, $sql, $bindvars)
         {
-            if ($valsarr) {
-                if (!is_array($valsarr)) {
-                    $valsarr = [$valsarr];
+            if ($bindvars) {
+                if (!is_array($bindvars)) {
+                    $bindvars = [$bindvars];
                 }
 
                 $sqlarr = explode('?', $sql);
                 $i = 0;
                 $sql = '';
-                foreach ($valsarr as $v) {
+                foreach ($bindvars as $v) {
                     $sql .= $sqlarr[$i];
                     switch (gettype($v)) {
                         case 'string':
