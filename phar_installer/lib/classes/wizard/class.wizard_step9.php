@@ -43,29 +43,29 @@ class wizard_step9 extends wizard_step
     private function clear_filecaches()
     {
         if( is_dir(TMP_CACHE_LOCATION) ) {
-			if( is_writable(TMP_CACHE_LOCATION) ) {
-				utils::rrmdir(TMP_CACHE_LOCATION, FALSE);
-			}
-		}
-		else {
+            if( is_writable(TMP_CACHE_LOCATION) ) {
+                utils::rrmdir(TMP_CACHE_LOCATION, FALSE);
+            }
+        }
+        else {
             @mkdir(TMP_CACHE_LOCATION, 0771, TRUE);
         }
         if( TMP_CACHE_LOCATION != PUBLIC_CACHE_LOCATION ) {
             if( is_dir(PUBLIC_CACHE_LOCATION) ) {
-				if( is_writable(PUBLIC_CACHE_LOCATION) ) {
-					utils::rrmdir(PUBLIC_CACHE_LOCATION, FALSE);
-				}
-			}
-			else {
+                if( is_writable(PUBLIC_CACHE_LOCATION) ) {
+                    utils::rrmdir(PUBLIC_CACHE_LOCATION, FALSE);
+                }
+            }
+            else {
                 @mkdir(PUBLIC_CACHE_LOCATION, 0771, TRUE);
             }
         }
         if( is_dir(TMP_TEMPLATES_C_LOCATION) ) {
-	        if( is_writable(TMP_TEMPLATES_C_LOCATION) ) {
+            if( is_writable(TMP_TEMPLATES_C_LOCATION) ) {
                 utils::rrmdir(TMP_TEMPLATES_C_LOCATION, FALSE);
-			}
-		}
-		else {
+            }
+        }
+        else {
             @mkdir(TMP_TEMPLATES_C_LOCATION, 0771, TRUE);
         }
     }
@@ -83,12 +83,13 @@ class wizard_step9 extends wizard_step
 
         $modops = ModuleOperations::get_instance();
         $corenames = $app->get_config()['coremodules'];
-		$modops->RegisterSystemModules($corenames);
+        $modops->RegisterSystemModules($corenames);
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
         $allmodules = $siteinfo['havemodules'] ?? [];
 
         foreach( $allmodules as $name ) {
             if( in_array($name, $corenames) ) {
+                // TODO merge upgraded modules|files back into main module-place (we don't use location to define status)
                 $this->verbose(lang('msg_upgrade_module',$name));
                 // force all system modules to be loaded
                 // any such module which needs upgrade should automagically do so
@@ -100,6 +101,7 @@ class wizard_step9 extends wizard_step
             else {
                 $module = $modops->get_module_instance($name,'',FALSE);
                 if( is_object($module) ) {
+                    // TODO merge upgraded modules|files back into main module-place (we don't use location to define status)
                     $res = $modops->UpgradeModule($name);
                     if( $res[0] ) {
                         $this->verbose(lang('msg_upgrade_module',$name));
@@ -172,7 +174,7 @@ class wizard_step9 extends wizard_step
         // install modules
         $this->message(lang('install_modules'));
         $modops = cmsms()->GetModuleOperations();
-		$modops->RegisterSystemModules($corenames);
+        $modops->RegisterSystemModules($corenames);
 
         $db = cmsms()->GetDb();
 //(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
@@ -183,6 +185,8 @@ VALUES (?,?,\'installed\',?,1)');
 (parent_module,child_module,minimum_version,create_date)
 VALUES (?,?,?,NOW())');
 
+        $modplace = $destdir.DIRECTORY_SEPARATOR.'modules';
+        $len = strlen($modplace);
         $dirs = cms_module_places();
         foreach( $dirs as $bp ) {
             $contents = scandir($bp, SCANDIR_SORT_NONE);
@@ -190,6 +194,13 @@ VALUES (?,?,?,NOW())');
                 if( $modname == '.' || $modname == '..' || $modname == 'index.html' ) continue;
                 $fp = $bp.DIRECTORY_SEPARATOR.$modname.DIRECTORY_SEPARATOR.$modname.'.module.php';
                 if( is_file($fp) ) {
+                    // move modules to historical place (we don't need|use their location to define status)
+                    if( strncmp($bp, $modplace, $len) != 0 ) {
+                        $fp = $bp.DIRECTORY_SEPARATOR.$modname;
+                        $tp = $modplace.DIRECTORY_SEPARATOR.$modname;
+                        if( !@rename($fp, $tp)) { throw new Exception('Failed to migrate module '.$modname); }
+                        $fp = $tp.DIRECTORY_SEPARATOR.$modname.'.module.php';
+                    }
                     require_once $fp;
                     $name = '\\'.$modname;
                     $modinst = new $name();
@@ -331,25 +342,12 @@ VALUES (?,?,?,NOW())');
     }
 
     /**
-     * @global type $CMS_VERSION
      * @param sring $destdir
      */
     private function connect_to_cmsms($destdir)
     {
-        // this loads the standard CMSMS stuff, except smarty cuz it's already done.
-        // we do this here because both upgrade and install stuff needs it.
-        global $CMS_VERSION;
-/* downsteam included file sets this
-        $info = $this->get_wizard()->get_data('version_info'); // N/A during install
-        if( $info && !empty($info['version']) ) {
-            $CMS_VERSION = $info['version'];
-        } else {
-            $CMS_VERSION = 'TODO'; from incuded version.php ?
-        }
-*/
         require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
         AppState::add_state(AppState::STATE_INSTALL);
-
         $fp = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
         if( is_file($fp) ) {
             include_once $fp;
@@ -357,15 +355,7 @@ VALUES (?,?,?,NOW())');
         else {
             require_once $destdir.DIRECTORY_SEPARATOR.'include.php';
         }
-
-        if( !defined('CMS_VERSION') ) {
-            define('CMS_VERSION',$CMS_VERSION);
-        }
-        // we do this here, because the config.php class may not set the define when in an installer.
-        if( !defined('CMS_DB_PREFIX') ) {
-            $config = cms_config::get_instance();
-            define('CMS_DB_PREFIX',$config['db_prefix']);
-        }
+        $ADEBUG = 1; //breakpoint catcher
     }
 
     /**
@@ -396,8 +386,8 @@ VALUES (?,?,?,NOW())');
                     if( $depname && $depversion ) {
 /*
 stmt2: 'INSERT INTO '.CMS_DB_PREFIX.'module_deps
-(parent_module,child_module,minimum_version,create_date,modified_date)
-VALUES (?,?,?,NOW(),NOW())');
+(parent_module,child_module,minimum_version,create_date)
+VALUES (?,?,?,NOW())');
 */
                         $rs = $db->Execute($stmt2,[$depname,$modname,$depversion]);
                     }
