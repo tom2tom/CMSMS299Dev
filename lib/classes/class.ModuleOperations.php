@@ -284,10 +284,10 @@ VALUES (?,?,?,?,?)';
 
 			$deps = $module_obj->GetDependencies();
 			if( $deps ) {
-				$now = $db->DbTimeStamp(time());
+				//setting create_date should be redundant with DT setting
 				$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'module_deps
-(parent_module,child_module,minimum_version,create_date,modified_date)
-VALUES (?,?,?,'.$now.',NULL)');
+(parent_module,child_module,minimum_version,create_date)
+VALUES (?,?,?,NOW())');
 				foreach( $deps as $depname => $depversion ) {
 					if( !$depname || !$depversion ) continue;
 //					$dbr =
@@ -597,8 +597,8 @@ VALUES (?,?,?,'.$now.',NULL)');
 			if( $deps ) {
 				$now = $db->dbTimeStamp(time());
 				$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX."module_deps
-(parent_module,child_module,minimum_version,create_date,modified_date)
-VALUES (?,?,?,$now,$now)");
+(parent_module,child_module,minimum_version,create_date)
+VALUES (?,?,?,$now)");
 				foreach( $deps as $depname => $depversion ) {
 					if( !$depname || !$depversion ) continue;
 //					$dbr =

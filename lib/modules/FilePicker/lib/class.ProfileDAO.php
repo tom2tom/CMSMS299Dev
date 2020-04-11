@@ -110,7 +110,7 @@ class ProfileDAO
         $tmp = $this->_db->GetOne( $sql, [ $profile->name ] );
         if( $tmp ) throw new CmsInvalidDataException('err_profilename_exists');
 
-        $sql = 'INSERT INTO '.$this->_table.' (name, data, create_date, modified_date) VALUES (?, ?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())';
+        $sql = 'INSERT INTO '.$this->_table.' (name, data, create_date) VALUES (?, ?, UNIX_TIMESTAMP())';
         $dbr = $this->_db->Execute( $sql, [ $profile->name, serialize($profile->getRawData()) ] );
         if( !$dbr ) throw new RuntimeException('Problem inserting profile record');
 

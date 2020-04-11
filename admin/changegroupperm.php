@@ -186,10 +186,10 @@ if (isset($_POST['submit'])) {
     }
     unset($parts);
 
-    $now = $db->DbTimeStamp(time());
-    $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.
-        "group_perms (group_perm_id, group_id, permission_id, create_date, modified_date)
-VALUES (?,?,?,$now,$now)");
+    //setting create_date should be redundant with DT setting
+    $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'group_perms
+(group_perm_id, group_id, permission_id, create_date)
+VALUES (?,?,?,NOW())');
 
     cleanArray($_POST);
     foreach ($_POST as $key=>$value) {

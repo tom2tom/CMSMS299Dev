@@ -95,10 +95,10 @@ final class CmsPermission
 		$new_id = $db->GenID(CMS_DB_PREFIX.'permissions_seq'); //OR use $db->Insert_ID();
 		if( !$new_id ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
-		$now = $db->DbTimeStamp(time());
+		//setting create_date should be redundant with DT setting
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."permissions
-(permission_id,permission_name,permission_text,permission_source,create_date,modified_date)
-VALUES (?,?,?,?,$now,$now)";
+(permission_id,permission_name,permission_text,permission_source,create_date)
+VALUES (?,?,?,?,NOW())";
 		$dbr = $db->Execute($query,
 							[$new_id, $this->_data['name'], $this->_data['text'], $this->_data['source']]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());

@@ -278,11 +278,11 @@ final class UserOperations
 			return -1;
 		}
 
-		$now = $db->DbTimeStamp(time());
 		$new_user_id = $db->GenID(CMS_DB_PREFIX.'users_seq');
+		//setting create_date should be redundant with DT setting
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."users
-(user_id, username, password, active, first_name, last_name, email, admin_access, create_date, modified_date)
-VALUES ($new_user_id,?,?,?,?,?,?,?,$now,$now)";
+(user_id, username, password, active, first_name, last_name, email, admin_access, create_date)
+VALUES ($new_user_id,?,?,?,?,?,?,?,NOW())";
 		$dbresult = $db->Execute($query, [$user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, 1]); //Force admin access on
 		if ($dbresult !== false) {
 			return $new_user_id;
@@ -504,7 +504,7 @@ VALUES ($new_user_id,?,?,?,?,?,?,?,$now,$now)";
 		$db = CmsApp::get_instance()->GetDb();
 		$now = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."user_groups
-(group_id,user_id,create_date,modified_date) VALUES (?,?,$now,$now)";
+(group_id,user_id,create_date) VALUES (?,?,$now)";
 //		$dbresult =
 		$db->Execute($query, [$gid, $uid]);
 		if (isset($this->_user_groups[$uid])) {

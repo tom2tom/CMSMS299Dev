@@ -436,7 +436,7 @@ unset($tmp);
 verbose_msg('adjusting pages');
 $query = 'SELECT content_id,template_id,content_alias FROM '.CMS_DB_PREFIX.'content WHERE template_id > 0';
 $uquery = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id = ? WHERE content_id = ?';
-$iquery = 'INSERT INTO '.CMS_DB_PREFIX.'content_props (content_id,type,prop_name,content,create_date,modified_date) VALUES (?,?,?,?,NOW(),NOW())';
+$iquery = 'INSERT INTO '.CMS_DB_PREFIX.'content_props (content_id,type,prop_name,content,create_date) VALUES (?,?,?,?,NOW())';
 $content_rows = $db->GetArray($query);
 $contentops = ContentOperations::get_instance();
 if( is_array($content_rows) && count($content_rows) ) {
