@@ -1,13 +1,14 @@
 <?php
 
-use CMSMS\Lock;
-use CMSMS\StylesheetOperations;
-use CMSMS\TemplateOperations;
+//use CMSMS\Lock;
+//use CMSMS\StylesheetOperations;
+//use CMSMS\TemplateOperations;
+use function cms_installer\GetDataDictionary;
 use function cms_installer\lang;
 
 $name = $db->database;
 if ($name) {
-	$name = '`'.$name.'`';
+    $name = '`'.$name.'`';
 } else {
     throw new Exception('Unable to retrieve databsase name');
 }
@@ -130,7 +131,7 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'admin_bookmarks', $msg_ret));
 
 $sqlarray = $dbdict->CreateIndexSQL('idx_admin_bookmarks_by_user_id',
-	CMS_DB_PREFIX.'admin_bookmarks', 'user_id');
+    CMS_DB_PREFIX.'admin_bookmarks', 'user_id');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'admin_bookmarks', $msg_ret));
