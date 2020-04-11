@@ -183,8 +183,12 @@ DETAILS
   - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum
   - New hook-replacement events: MetadataPostRender, MetadataPreRender, PageTopPostRender, PageTopPreRender,
       PageHeadPostRender, PageHeadPreRender, PageBodyPostRender, PageBodyPreRender, PostRequest
-  - CHANGE: Renamed permission: 'Modify User Plugins'
+  - CHANGE: Renamed permission: 'Modify Simple Plugins'
   - CHANGE: Management of page styles is much more flexible
+  - CHANGE: Database connection supports parameterized commands with a single non-array value (other than null) instead of an array including just that value
+  - CHANGE: Database connection reports success as the insert-id after an INSERT command applied to a table with an autoincrement field, instead of just true
+  - CHANGE: Database connection reports success as the the no. of affected rows after a DELETE command
+  - CHANGE: Database connection reliably reports success (as the no. of affected rows) after an UPDATE command
   - CHANGE: URL-string constructor methods support non-scalar paramter values
   - CHANGE: Page style(s) are applied directly, insead of via a Design. Each design is now just a tool to facilitate site development
   - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
