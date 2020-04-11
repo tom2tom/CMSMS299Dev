@@ -7,17 +7,54 @@ use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\User;
 use CMSMS\UserOperations;
-use function cms_installer\get_app;
 use function cms_installer\lang;
 
-const CURRENT_SCHEMA = 206;
+// vars set in includer: $admin_user, $siteinfo[], $wiz, $app, $destdir etc
 
-// vars set in includer: $admin_user, $siteinfo, $wiz, $app etc
+//
+// create tmp directories
+//
+verbose_msg(lang('install_createtmpdirs'));
+$fp = constant('TMP_CACHE_LOCATION');
+if( !$fp ) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/cache';
+@mkdir($fp,0771,true);
+touch($fp.DIRECTORY_SEPARATOR.'index.html');
+$fp = constant('PUBLIC_CACHE_LOCATION');
+if( !$fp ) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/cache/public';
+@mkdir($fp,0771,true);
+touch($fp.DIRECTORY_SEPARATOR.'index.html');
+$fp = constant('TMP_TEMPLATES_C_LOCATION');
+if( !$fp ) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/templates_c';
+@mkdir($fp,0771,true);
+touch($fp.DIRECTORY_SEPARATOR.'index.html');
 
-if (!isset($app)) {
-	$app = get_app();
+function create_private_dir(string $basedir, string $reldir)
+{
+    $fp = $basedir.DIRECTORY_SEPARATOR.$reldir;
+    if( !is_dir($fp) ) {
+        @mkdir($fp, 0771, true);
+    } // else clear it!
+    @touch($fp.DIRECTORY_SEPARATOR.'index.html');
 }
+
 $config = $app->get_config(); //more-or-less same as $siteinfo[]
+//
+// create the assets (however named) folders tree
+//
+verbose_msg(lang('install_createassets'));
+$name = $config['assetsdir'] ?? 'assets';
+$bp = $destdir.DIRECTORY_SEPARATOR.$name;
+$name = $config['pluginsdir'] ?? 'simple_plugins';
+create_private_dir($bp,'admin_custom');
+create_private_dir($bp,'configs');
+create_private_dir($bp,'css');
+create_private_dir($bp,'images');
+create_private_dir($bp,'module_custom');
+create_private_dir($bp,'modules'); //CHECKME if distinct place for non-core modules
+create_private_dir($bp,'plugins');
+create_private_dir($bp,'resources');
+create_private_dir($bp,$name); //UDTfiles
+create_private_dir($bp,'templates');
 
 //
 // some of the system-wide default settings
@@ -27,9 +64,10 @@ $cachtype = $wiz->get_data('cachemode');
 $corenames = $config['coremodules'];
 $cores = implode(',',$corenames);
 $theme = reset(AdminTheme::GetAvailableThemes());
+$schema = $app->get_dest_schema();
 $helpurl =  ( !empty($siteinfo['supporturl']) ) ? $siteinfo['supporturl'] : '';
 $uuid = trim(base64_encode(cms_utils::random_string(24)), '='); //db hates storing some chars verbatim
-$ultras = json_encode(['Modify Restricted Files','Modify DataBase Direct','Remote Administration']);
+$ultras = json_encode(['Manage Restricted Files','Manage Database Content','Remote Administration']);
 
 foreach ([
 	'allow_browser_cache' => 1, // allow browser to cache cachable pages
@@ -52,7 +90,7 @@ foreach ([
 	'loginmodule' => '', // login UI defined by current theme
 	'logintheme' => $theme,
 	'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
-	'schema_version' => CURRENT_SCHEMA,
+	'schema_version' => $schema,
 	'site_help_url' => $helpurl,
 	'site_uuid' => $uuid, // almost-certainly-unique signature of this site
 	'sitedownexcludeadmins' => 0,
@@ -98,17 +136,17 @@ foreach( [
 	'Manage Stylesheets',
 	'Manage Users',
 //	'Modify Any Page', >CM
-	'Modify DataBase Direct', //for remote management, sans admin console
+	'Manage Database Content', //for remote management, sans admin console
 	'Modify Events',
-	'Modify User Plugins',
+	'Manage Simple Plugins',
 	'Modify Files',
 	'Modify Modules',
 	'Modify Permissions',
-	'Modify Restricted Files',
+	'Manage Restricted Files',
 //	'Modify Site Assets', no deal !!
 	'Modify Site Preferences',
 	'Modify Templates',
-	'Remote Administration',  //for remote management, sans admin console kinda Modify DataBase Direct + Modify Restricted Files
+	'Remote Administration',  //for remote management, sans admin console kinda Manage Database Content + Manage Restricted Files
 //	'Remove Pages', >CM
 //	'Reorder Content', >CM
 	'View Tag Help',
@@ -120,7 +158,7 @@ foreach( [
   try {
 	$permission->save();
 	$all_perms[$one_perm] = $permission;
-  } catch (Exception $e) {
+  } catch (Throwable $t) {
 	// nothing here
   }
 }
@@ -142,9 +180,9 @@ $group->name = 'CodeManager';
 $group->description = lang('grp_coder_desc');
 $group->active = 1;
 $group->Save();
-$group->GrantPermission('Modify Restricted Files');
+$group->GrantPermission('Manage Restricted Files');
 //$group->GrantPermission('Modify Site Assets');
-$group->GrantPermission('Modify User Plugins');
+$group->GrantPermission('Manage Simple Plugins');
 /* too risky
 $group = new Group();
 $group->name = 'AssetManager';
@@ -288,30 +326,3 @@ Events::CreateEvent('Core','StylesheetPreCompile');
 Events::CreateEvent('Core','TemplatePostCompile');
 Events::CreateEvent('Core','TemplatePreCompile');
 Events::CreateEvent('Core','TemplatePreFetch');
-
-function create_private_dir(string $destdir, string $relative_dir)
-{
-//    $relative_dir = trim($relative_dir);
-//    if( !$relative_dir ) return;
-    $dir = $destdir.DIRECTORY_SEPARATOR.$relative_dir;
-    if( !is_dir($dir) ) {
-        @mkdir($dir,0771,true);
-    }
-    @touch($dir.DIRECTORY_SEPARATOR.'index.html');
-}
-
-// create the assets (however named) directory structure
-verbose_msg(lang('install_createassets'));
-$na = $config['assetsdir'] ?? 'assets';
-$np = $config['pluginsdir'] ?? 'simple_plugins';
-$destdir = $app->get_destdir().DIRECTORY_SEPARATOR.$na;
-create_private_dir($destdir,'admin_custom');
-create_private_dir($destdir,'configs');
-create_private_dir($destdir,'css');
-create_private_dir($destdir,'images');
-create_private_dir($destdir,'module_custom');
-create_private_dir($destdir,'modules'); //CHECKME if distinct place for non-core modules
-create_private_dir($destdir,'plugins');
-create_private_dir($destdir,'resources');
-create_private_dir($destdir,$np); //UDTfiles
-create_private_dir($destdir,'templates');
