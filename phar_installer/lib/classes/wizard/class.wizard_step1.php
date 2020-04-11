@@ -4,8 +4,8 @@ namespace cms_installer\wizard;
 
 use cms_installer\utils;
 use Exception;
-//use const CMS_VERSION; from inclusion
 use function cms_installer\get_app;
+use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\smarty;
 use function cms_installer\startswith;
@@ -29,7 +29,7 @@ class wizard_step1 extends wizard_step
         if( isset($_POST['verbose']) ) $verbose = (int)$_POST['verbose'];
         else $verbose = 0;
         $app->set_config_val('verbose',$verbose);
-//        $this->get_wizard()->set_data('verbose',$verbose);
+//      $this->get_wizard()->set_data('verbose',$verbose);
 
         if( isset($_POST['next']) ) {
             // redirect to the next step.
@@ -81,7 +81,7 @@ class wizard_step1 extends wizard_step
             break;
 
         case 'modules':
-			//TODO check for presence of $app_config['coremodules'] member(s)
+            //TODO check for presence of $app_config['coremodules'] member(s)
             if( is_dir($dir.DIRECTORY_SEPARATOR.'ModuleManager') || is_dir($dir.DIRECTORY_SEPARATOR.'CmsJobManager') ) return FALSE;
             break;
 
@@ -92,46 +92,76 @@ class wizard_step1 extends wizard_step
         return TRUE;
     }
 
-    // $dir = CMS_ROOT_DIR / OLD-plugins ??
-    private function _get_annotation(string $dir)
+    /**
+     * Get a short 'identifier' for the contents of folder $dir
+     * @internal
+     * @param string $dir filepath of folder
+     * @return string, maybe empty
+     */
+    private function _get_annotation(string $dir) : string
     {
-        if( !is_dir($dir) || !is_readable($dir) ) return;
-        $bn = basename($dir);
-        if( $bn != 'lib' && is_file($dir.DIRECTORY_SEPARATOR.'version.php' ) ) {
-// see installer_base::init()            @include $dir.DIRECTORY_SEPARATOR.'version.php'; // defines in this file can throw notices
-            return 'CMSMS '.$CMS_VERSION;
-        } elseif( is_file($dir.DIRECTORY_SEPARATOR.'lib/version.php') ) {
-// see installer_base::init()            @include $dir.DIRECTORY_SEPARATOR.'lib/version.php'; // defines in this file can throw notices
-            return 'CMSMS '.$CMS_VERSION;
+        if( !is_dir($dir) || !is_readable($dir) ) return '';
+        if( basename($dir) != 'lib' ) {
+            $p = $dir.DIRECTORY_SEPARATOR.'version.php';
+            if( is_file($p) ) {
+                // including version-files probably triggers a re-definition problem
+                $cnt = file_get_contents($p);
+                // find a string like $CMS_VERSION = 'N1.N2.N3'
+                if( $cnt && preg_match('~\$CMS_VERSION *= *[\'"] *([\d.]+) *[\'"]~', $cnt, $matches) ) {
+                    return 'CMSMS '.$matches[1];
+                }
+                return 'CMSMS missing version';
+            }
         }
-        if( is_dir($dir.DIRECTORY_SEPARATOR.'lib') && is_file($dir.DIRECTORY_SEPARATOR.'lib/classes/class.installer_base.php') ) {
-            return 'CMSMS installation assistant';
+        $p = joinpath($dir, 'lib', 'version.php');
+        if( is_file($p) ) {
+            $cnt = file_get_contents($p);
+            if( $cnt && preg_match('~\$CMS_VERSION *= *[\'"] *([\d.]+) *[\'"]~', $cnt, $matches) ) {
+                return 'CMSMS '.$matches[1];
+            }
+            return 'CMSMS missing version';
         }
+        if( is_dir($dir.DIRECTORY_SEPARATOR.'lib') ) {
+            $p = joinpath($dir, 'lib', 'classes', 'class.installer_base.php');
+            if( is_file($p) ) {
+                return 'CMSMS installation assistant';
+            }
+        }
+        return '';
     }
 
+    /**
+     * Recursive method to identify potential installation-places,
+     * folders down to 3 levels below the pre-recursion $start.
+     * @internal
+     * @param string $start filepath. Before recursion, the site-root.
+     * @param int $depth current recursion-depth (internal use only)
+     * @return mixed array | null
+     */
     private function _find_dirs(string $start, int $depth = 0)
     {
         if( !is_readable( $start ) ) return;
         $dh = opendir($start);
         if( !$dh ) return;
         $out = [];
-        while( ($file = readdir($dh)) !== FALSE ) {
-            if( $file == '.' || $file == '..' ) continue;
-            if( startswith($file,'.') || startswith($file,'_') ) continue;
-            $dn = $start.DIRECTORY_SEPARATOR.$file;  // cuz windows blows, and windoze guys are whiners :)
-            if( !@is_readable($dn) ) continue;
-            if( !@is_dir($dn) ) continue;
-            if( !$this->_is_valid_dir( $dn ) ) continue;
-            $str = $dn;
-            $ann = $this->_get_annotation( $dn );
+        while( ($name = readdir($dh)) !== FALSE ) {
+            if( $name == '.' || $name == '..' ) continue;
+            if( startswith($name,'.') || startswith($name,'_') ) continue;
+            $fp = $start.DIRECTORY_SEPARATOR.$name;
+            if( !@is_readable($fp) ) continue;
+            if( !@is_dir($fp) ) continue;
+            if( !$this->_is_valid_dir( $fp ) ) continue;
+            $str = $fp;
+            $ann = $this->_get_annotation( $fp );
             if( $ann ) $str .= " ($ann)";
 
-            $out[$dn] = $str;
+            $out[$fp] = $str;
             if( $depth < 3 ) {
-                $tmp = $this->_find_dirs($dn,$depth + 1); // recursion
+                $tmp = $this->_find_dirs($fp,$depth + 1); // recursion
                 if( $tmp ) $out = array_merge($out,$tmp);
             }
         }
+        closedir($dh);
         if( $out ) return $out;
     }
 
@@ -152,7 +182,7 @@ class wizard_step1 extends wizard_step
     {
         parent::display();
 
-        // get the list of directories we can install to.
+        // get a list of directories we could install into.
         $smarty = smarty();
         $app = get_app();
         $config = $app->get_config();
@@ -165,7 +195,7 @@ class wizard_step1 extends wizard_step
 
                 $custom_destdir = $app->has_custom_destdir();
                 $smarty->assign('custom_destdir',$custom_destdir);
-                $raw = $config['dest'] ?? null;
+                $raw = $config['dest'] ?? NULL;
                 $v = ($raw) ? trim($raw) : $app->get_destdir();
                 $smarty->assign('destdir',$v);
             } else {
@@ -173,13 +203,13 @@ class wizard_step1 extends wizard_step
             }
         }
         $raw = $config['verbose'] ?? 0;
-//        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
+//      $v = ($raw === NULL) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
         $smarty->assign('verbose',(int)$raw);
         $tr = translator();
         $arr = $tr->get_language_list($tr->get_allowed_languages());
         asort($arr,SORT_LOCALE_STRING);
         $smarty->assign('languages',$arr);
-        $raw = $config['lang'] ?? null;
+        $raw = $config['lang'] ?? NULL;
         $v = ($raw) ? trim($raw) : $tr->get_current_language();
         $smarty->assign('curlang',$v);
         $smarty->assign('yesno',[0=>lang('no'),1=>lang('yes')]);
@@ -187,5 +217,4 @@ class wizard_step1 extends wizard_step
 
         $this->finish();
     }
-
 } // class
