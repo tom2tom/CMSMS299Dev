@@ -7,10 +7,10 @@ use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
 use CMSMS\TemplateOperations;
 use function cms_installer\endswith;
+use function cms_installer\GetDataDictionary;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\startswith;
-use function GetDataDictionary;
 
 $corename = CmsLayoutTemplateType::CORE;
 
@@ -39,14 +39,14 @@ if ($generic_type) {
 $now = time();
 $longnow = trim($db->DbTimeStamp($now),"'");
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_name=?,permission_text=?,modified_date=? WHERE permission_name=?';
-$db->Execute($query, ['Modify User Plugins','Modify User-Defined Tags',$longnow,'Modify User-defined Tags']);
+$db->Execute($query, ['Manage Simple Plugins','Modify User-Defined Tags',$longnow,'Modify User-defined Tags']);
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
 $db->Execute($query);
 
 //	'Modify Site Assets',
 $ultras = [
-	'Modify DataBase Direct',
-	'Modify Restricted Files',
+	'Manage Database Content',
+	'Manage Restricted Files',
 	'Remote Administration',  //for app management sans admin console
 ];
 
@@ -73,7 +73,7 @@ try {
 }
 $group->GrantPermission($ultras[1]);
 //$group->GrantPermission('Modify Site Assets');
-$group->GrantPermission('Modify User Plugins');
+$group->GrantPermission('Manage Simple Plugins');
 /*
 $group = new Group();
 $group->name = 'AssetManager';
@@ -539,8 +539,8 @@ $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,t
 $data = $db->GetArray($query);
 if ($data) {
     $query = 'INSERT INTO '.CMS_DB_PREFIX.'layout_templates
-(originator,name,content,type_id,create_date,modified_date)
-VALUES (?,?,?,?,?,?)';
+(originator,name,content,type_id,create_date)
+VALUES (?,?,?,?,?)';
     $types = [];
     $now = time();
     foreach ($data as $row) {
