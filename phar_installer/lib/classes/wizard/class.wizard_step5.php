@@ -53,7 +53,7 @@ class wizard_step5 extends wizard_step
         $config = $app->get_config();
 
         if( isset($_POST['wantedextras']) ) {
-			//record the selected members of $app_config['extramodules']
+            //record the selected members of $app_config['extramodules']
             $tmp = [];
             foreach ( $_POST['wantedextras'] as $name ) {
                 $tmp[] = utils::clean_string($name);
@@ -68,8 +68,19 @@ class wizard_step5 extends wizard_step
         if( isset($_POST['sitename']) ) $this->_siteinfo['sitename'] = utils::clean_string($_POST['sitename']);
 
         if( isset($_POST['supporturl']) ) {
-            $url = utils::clean_string(trim($_POST['supporturl']));
-            $this->_siteinfo['supporturl'] = filter_var($url, FILTER_SANITIZE_URL);
+            $url = filter_var($_POST['supporturl'], FILTER_SANITIZE_URL);
+            $pass = filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED, FILTER_FLAG_HOST_REQUIRED);
+            // the test above barfs for non-ASCII chars
+            if( !$pass && preg_match('/[\x80-\xFF]/', $url) &&
+                // fallback to a rough check (ignores dodgy chars in it)
+                parse_url($url, PHP_URL_SCHEME) && parse_url($url, PHP_URL_HOST) ) {
+                $pass = true;
+            }
+            if ($pass) {
+                $this->_siteinfo['supporturl'] = $url;
+            } else {
+                unset($this->_siteinfo['supporturl']);
+            }
         }
 
         if( isset($_POST['languages']) ) {
@@ -80,7 +91,7 @@ class wizard_step5 extends wizard_step
             $this->_siteinfo['languages'] = $tmp;
         }
 
-		$wiz = $this->get_wizard();
+        $wiz = $this->get_wizard();
         $wiz->set_data('siteinfo',$this->_siteinfo);
         try {
             $this->validate($this->_siteinfo);
@@ -179,7 +190,7 @@ class wizard_step5 extends wizard_step
             if( $raw && $action == 'upgrade' ) {
                 // exclude installed modules
                 $fp = $app->get_destdir();
-				//TODO if not using assets/modules for non-core modules
+                //TODO if not using assets/modules for non-core modules
                 $v = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
                 $dirs = [
                     $fp.DIRECTORY_SEPARATOR.$v.DIRECTORY_SEPARATOR.'modules',
