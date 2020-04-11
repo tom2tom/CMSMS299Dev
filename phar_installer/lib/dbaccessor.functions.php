@@ -2,7 +2,12 @@
 
 namespace cms_installer;
 
+use CMSMS\Database\Connection;
+use CMSMS\Database\ConnectionSpec;
+use CMSMS\Database\mysqli\Connection as OldConnection;
 use Exception;
+use function cms_installer\get_app;
+use function cms_installer\joinpath;
 
 // these functions are included and used only in wizard step 8
 
@@ -13,18 +18,19 @@ use Exception;
  */
 function GetDb(array $config)
 {
-    if (is_file(__DIR__.DIRECTORY_SEPARATOR.'Database'.DIRECTORY_SEPARATOR.'class.ConnectionSpec.php')) {
-        // old Connection class
-        $spec = new CMSMS\Database\ConnectionSpec();
+    $fp = joinpath(get_app()->get_destdir(), 'lib', 'classes', 'Database', 'mysqli');
+    if (is_dir($fp)) {
+        // we have the old database class
+        $spec = new ConnectionSpec();
         $spec->type = $config['db_type'];
         $spec->host = $config['db_host'];
         $spec->username = $config['db_username'];
         $spec->password = $config['db_password'];
         $spec->dbname = $config['db_name'];
-        $spec->port = $config['db_port'] ?? null;
+        $spec->port = $config['db_port'] ?? '';
         $spec->prefix = $config['db_prefix'];
-        $db = new CMSMS\Database\mysqli\Connection($spec);
-        if ($db instanceof CMSMS\Database\Connection) {
+        $db = new OldConnection($spec);
+        if ($db instanceof Connection) {
             try {
                 if (!$db->Connect()) {
                     $db = null;
@@ -36,7 +42,7 @@ function GetDb(array $config)
             $db = null;
         }
     } else {
-        $db = new CMSMS\Database\Connection($config);
+        $db = new Connection($config);
         if ($db->errno != 0) {
             $db = null;
         }
@@ -46,13 +52,15 @@ function GetDb(array $config)
     }
     throw new Exception('Failed to connect to database');
 }
-/* *
- * Instead, use the global version of this function
- * @param Connection object
+
+/**
+ * Old-database-class dictionary getter
+ * Deprecated since 2.9 instead use $db->NewDataDictionary()
+ *
+ * @param $db Connection object
  * @return DataDictionary object
  */
-/*function GetDataDictionary($db)
+function GetDataDictionary($db)
 {
     return $db->NewDataDictionary(); //works for old and new
 }
-*/
