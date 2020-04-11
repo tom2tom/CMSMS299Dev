@@ -22,11 +22,12 @@
  * @since 2.3
  * @param string $modname Optional name of a module
  * @return array of absolute filepaths, no trailing separators, or maybe empty.
- *  Core-modules-path first, deprecated last.
+ *  Core-modules-path first, deprecated last. NOPE
  */
 function cms_module_places(string $modname = '') : array
 {
     $dirlist = [];
+/* higher priorities if we support distinct places for core, non-core modules
     $path = cms_join_path(CMS_ROOT_PATH, 'lib', 'modules');
     if ($modname) {
         $path .= DIRECTORY_SEPARATOR . $modname;
@@ -41,8 +42,22 @@ function cms_module_places(string $modname = '') : array
     if (is_dir($path)) {
         $dirlist[] = $path;
     }
-    // pre-2.3, deprecated
+*/
     $path = cms_join_path(CMS_ROOT_PATH, 'modules');
+    if ($modname) {
+        $path .= DIRECTORY_SEPARATOR . $modname;
+    }
+    if (is_dir($path)) {
+        $dirlist[] = $path;
+    }
+    $path = cms_join_path(CMS_ROOT_PATH, 'lib', 'modules');
+    if ($modname) {
+        $path .= DIRECTORY_SEPARATOR . $modname;
+    }
+    if (is_dir($path)) {
+        $dirlist[] = $path;
+    }
+    $path = cms_join_path(CMS_ASSETS_PATH, 'modules');
     if ($modname) {
         $path .= DIRECTORY_SEPARATOR . $modname;
     }
