@@ -48,49 +48,44 @@ class wizard_step4 extends wizard_step
             // read config data from config.php for these actions
             $app = get_app();
             $destdir = $app->get_destdir();
+            $config = [];
             $config_file = $destdir.DIRECTORY_SEPARATOR.'config.php';
             include_once $config_file;
-//            $this->_config['db_type'] = /*$config['db_type'] ?? $config['dbms'] ??*/ 'mysqli';
+//          $this->_config['db_type'] = /*$config['db_type'] ?? $config['dbms'] ??*/ 'mysqli';
             $this->_config['db_hostname'] = $config['db_hostname'];
             $this->_config['db_username'] = $config['db_username'];
             $this->_config['db_password'] = $config['db_password'];
             $this->_config['db_name'] = $config['db_name'];
             $this->_config['db_prefix'] = $config['db_prefix'];
-            if( isset($config['db_port']) ) $this->_config['db_port'] = $config['db_port'];
-            if( isset($config['timezone']) ) $this->_config['timezone'] = $config['timezone'];
-            if( isset($config['query_var']) ) $this->_config['query_var'] = $config['query_var'];
+            if( !empty($config['db_port']) || is_numeric($config['db_port']) ) $this->_config['db_port'] = (int)$config['db_port'];
+            if( !empty($config['timezone']) ) $this->_config['timezone'] = $config['timezone'];
+            if( !empty($config['query_var']) ) $this->_config['query_var'] = $config['query_var'];
         }
     }
 
     private function validate($config)
     {
         $action = $this->get_wizard()->get_data('action');
-//        if( empty($config['db_type']) ) throw new Exception(lang('error_nodbtype'));
-        if( empty($config['db_hostname']) ) throw new Exception(lang('error_nodbhost'));
-        if( empty($config['db_name']) ) throw new Exception(lang('error_nodbname'));
-        if( empty($config['db_username']) ) throw new Exception(lang('error_nodbuser'));
-        if( empty($config['db_password']) ) throw new Exception(lang('error_nodbpass'));
-        if( empty($config['db_prefix']) && $action == 'install' ) throw new Exception(lang('error_nodbprefix'));
+//      if( empty($config['db_type']) ) throw new Exception(lang('error_nodbtype'));
+        if( empty($config['db_hostname']) ) { throw new Exception(lang('error_nodbhost')); } else { /* TODO sanitize*/ }
+        if( empty($config['db_name']) ) { throw new Exception(lang('error_nodbname')); } else { /* TODO sanitize*/ }
+        if( empty($config['db_username']) ) { throw new Exception(lang('error_nodbuser')); } else { /* TODO sanitize*/ }
+        if( empty($config['db_password']) ) { throw new Exception(lang('error_nodbpass')); } else { /* TODO sanitize*/ }
+        if( empty($config['db_prefix']) && $action == 'install' ) { throw new Exception(lang('error_nodbprefix'));  } else { /* TODO sanitize*/ }
+        $s = ( !empty($config['query_var']) ) ? trim($config['query_var']) : '';
+        if( $s && !preg_match('~^[A-Za-z0-9_\.]*$~',$s) ) { throw new Exception(lang('error_invalidqueryvar')); } elseif ($s) { $config['query_var'] = $s; }
         if( empty($config['timezone']) ) throw new Exception(lang('error_notimezone'));
-
-        $regex = '/^[a-zA-Z0-9_\.]*$/';
-        if( !empty($config['query_var']) && !preg_match($regex,$config['query_var']) ) {
-            throw new Exception(lang('error_invalidqueryvar'));
-        }
-
+        $s = trim($config['timezone']);
+        if( !(preg_match('~^[A-Za-z]+/[A-Za-z]+$~',$s) || strcasecmp($s,'UTC') == 0) ) throw new Exception(lang('error_invalidtimezone'));
         $all_timezones = timezone_identifiers_list();
-        if( !in_array($config['timezone'],$all_timezones) ) {
+        if( !in_array($s,$all_timezones) ) {
             throw new Exception(lang('error_invalidtimezone'));
+        } else {
+            $config['timezone'] = $s;
         }
 
-        $config['db_password'] = trim($config['db_password']);
-        if( $config['db_password'] ) {
-            $tmp = filter_var($config['db_password'], FILTER_SANITIZE_STRING,
-                FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES);
-            if( $tmp != $config['db_password'] ) {
-                throw new Exception(lang('error_invaliddbpassword'));
-            }
-        }
+        // password must exist, and may validly contain anything
+        if( empty($config['db_password']) ) throw new Exception(lang('error_invaliddbpassword'));
 
         // try a test connection
         if( empty($config['db_port']) ) {
