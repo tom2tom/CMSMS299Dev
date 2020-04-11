@@ -882,7 +882,7 @@ WHERE id = ?';
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ?';
 		if( self::$_cache ) $query .= ' AND id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
-		$query .= ' ORDER BY modified_date DESC, create_date DESC';
+		$query .= ' ORDER BY IF(modified_date, modified_date, create_date) DESC';
 		$list = $db->GetArray($query,[$originator]);
 		if( !$list ) return;
 
@@ -907,7 +907,7 @@ WHERE id = ?';
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		if( self::$_cache && count(self::$_cache) ) $query .= ' WHERE id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
-		$query .= '	ORDER BY modified_date,create_date';
+		$query .= '	ORDER BY IF(modified_date, modified_date, create_date)';
 		$list = $db->GetArray($query);
 		if( !$list ) return;
 

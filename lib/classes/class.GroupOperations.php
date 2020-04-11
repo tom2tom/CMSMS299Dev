@@ -129,12 +129,12 @@ final class GroupOperations
 		$id = $group->id;
 		if( $id < 1 ) {
 			$id = $db->GenID(CMS_DB_PREFIX.'groups_seq');
-			$now = $db->DbTimeStamp(time());
+			//setting create_date should be redundant with DT setting
 			$query = 'INSERT INTO '.CMS_DB_PREFIX."groups
-(group_id, group_name, group_desc, active, create_date, modified_date)
-VALUES ($id,?,?,?,$now,$now)";
+(group_id, group_name, group_desc, active, create_date)
+VALUES ($id,?,?,?,NOW())";
 			$dbr = $db->Execute($query, [$group->name, $group->description, $group->active]);
-			return ($dbr != FALSE) ? $id : -1;
+			return ($dbr) ? $id : -1;
 		}
 		else {
 			$query = 'UPDATE '.CMS_DB_PREFIX.'groups SET group_name = ?, group_desc = ?, active = ?, modified_date = NOW() WHERE group_id = ?';
@@ -299,10 +299,10 @@ VALUES ($id,?,?,?,$now,$now)";
 		$new_id = $db->GenId(CMS_DB_PREFIX.'group_perms_seq');
 		if( !$new_id ) return;
 
-		$now = $db->DbTimeStamp(time());
+		//setting create_date should be redundant with DT setting
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."group_perms
-(group_perm_id,group_id,permission_id,create_date,modified_date)
-VALUES ($new_id,?,?,$now,$now)";
+(group_perm_id,group_id,permission_id,create_date)
+VALUES ($new_id,?,?,NOW())";
 // 		$dbr =
 		$db->Execute($query,[$groupid,$permid]);
 		unset($this->_perm_cache);

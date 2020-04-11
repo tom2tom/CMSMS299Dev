@@ -169,7 +169,7 @@ if ($CMS_JOB_TYPE < 2) {
     $obj = new SysDataCacheDriver('latest_content_modification', function()
         {
             $db = AppSingle::CmsApp()->GetDb();
-            $query = 'SELECT modified_date FROM '.CMS_DB_PREFIX.'content ORDER BY modified_date DESC';
+            $query = 'SELECT modified_date FROM '.CMS_DB_PREFIX.'content ORDER BY IF(modified_date, modified_date, create_date) DESC';
             $tmp = $db->GetOne($query);
             return $db->UnixTimeStamp($tmp);
         });

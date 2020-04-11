@@ -1498,9 +1498,10 @@ WHERE content_id = ?';
 		$newid = $db->GenID(CMS_DB_PREFIX.'content_seq');
 		$this->mId = $newid;
 
-		$this->mModifiedDate = $this->mCreationDate = trim($db->DbTimeStamp(time()), "'");
+		$this->mModifiedDate = null;
+		$this->mCreationDate = trim($db->DbTimeStamp(time()), "'"); //should be redundant with DT default
 
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (content_id, content_name, content_alias, type, owner_id, parent_id, template_id, item_order, hierarchy, id_hierarchy, active, default_content, show_in_menu, cachable, secure, page_url, menu_text, metadata, titleattribute, accesskey, styles, tabindex, last_modified_by, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (content_id, content_name, content_alias, type, owner_id, parent_id, template_id, item_order, hierarchy, id_hierarchy, active, default_content, show_in_menu, cachable, secure, page_url, menu_text, metadata, titleattribute, accesskey, styles, tabindex, last_modified_by, create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 		$dbr = $db->Execute($query, [
 			$newid,
@@ -1516,7 +1517,7 @@ WHERE content_id = ?';
 			($this->mActive		 ? 1 : 0),
 			($this->mDefaultContent ? 1 : 0),
 			($this->mShowInMenu	 ? 1 : 0),
-			($this->mCachable	   ? 1 : 0),
+			($this->mCachable	 ? 1 : 0),
 			($this->mSecure		 ? 1 : 0),
 			$this->mURL,
 			$this->mMenuText,
@@ -1526,8 +1527,7 @@ WHERE content_id = ?';
 			$this->mStyles,
 			$this->mTabIndex,
 			$this->mLastModifiedBy,
-			$this->mCreationDate,
-			$this->mModifiedDate,
+			$this->mCreationDate
 		]);
 
 		if( !$dbr ) {

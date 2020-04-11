@@ -63,7 +63,7 @@ final class AdminSearch_slave extends slave
     $query = 'SELECT '.implode(',',$fields).' FROM '.CMS_DB_PREFIX.'module_news N';
     if( $joins ) $query .= ' ' . implode(' ',$joins);
     if( $where ) $query .= ' WHERE '.implode(' OR ',$where);
-    $query .= ' ORDER BY N.modified_date DESC';
+    $query .= ' ORDER BY IF(N.modified_date, N.modified_date, N.create_date) DESC';
 
     $dbr = $db->GetArray($query,[$parms]);
     if( $dbr ) {

@@ -43,7 +43,7 @@ function smarty_function_recently_updated($params, $template)
 	// Get list of most recently updated pages excluding the home page
 	$q = 'SELECT * FROM '.CMS_DB_PREFIX."content WHERE (type='content' OR type='link')
 AND default_content != 1 AND active = 1 AND show_in_menu = 1
-ORDER BY modified_date DESC LIMIT ".((int)$number);
+ORDER BY IF(modified_date, modified_date, create_date) DESC LIMIT ".((int)$number);
 	$dbresult = $db->Execute( $q );
 	if( !$dbresult ) {
 		// @todo: throw an exception here

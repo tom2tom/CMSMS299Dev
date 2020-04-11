@@ -442,11 +442,11 @@ VALUES (?,?,?,?,?,?)';
 
 		$out = [];
 		if( $by_name ) {
-			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY modified_date DESC';
+			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY IF(modified_date, modified_date, create_date) DESC';
 			return $db->GetAssoc($sql);
 		}
 		else {
-			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY modified_date DESC';
+			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY IF(modified_date, modified_date, create_date) DESC';
 			$ids = $db->GetCol($sql);
 			return self::get_bulk_stylesheets($ids,false);
 		}
