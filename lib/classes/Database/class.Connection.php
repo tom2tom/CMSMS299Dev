@@ -1,7 +1,7 @@
 <?php
 /*
 Class Connection: interaction with a MySQL database
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -182,8 +182,8 @@ class Connection
 
     /**
      * Constructor.
-     * @param array $config Optional assoc array of CMSMS settings
-     * including (among others) the ones used here:
+     * @param array $config Optional array | array-accessible object of
+     * CMSMS settings including (among others) the ones used here:
      *  'db_hostname'
      *  'db_username'
      *  'db_password'
@@ -196,13 +196,19 @@ class Connection
     public function __construct($config = null)
     {
         if (class_exists('mysqli')) {
-            mysqli_report(MYSQLI_REPORT_STRICT);
             if (!$config) $config = cms_config::get_instance(); //normal API
+            $parms = [
+                $config['db_hostname'],
+                $config['db_username'],
+                $config['db_password'],
+                $config['db_name'],
+            ];
+            if (!empty($config['db_port']) || is_numeric($config['db_port'])) {
+                $parms[] = (int)$config['db_port'];
+            }
+            mysqli_report(MYSQLI_REPORT_STRICT);
             try {
-                $this->_mysql = new mysqli(
-                 $config['db_hostname'], $config['db_username'],
-                 $config['db_password'], $config['db_name'],
-                 (int)$config['db_port']);
+                $this->_mysql = new mysqli( ...$parms);
                 if (!$this->_mysql->connect_error) {
                     $this->_database = $config['db_name'];
                     $this->_type = 'mysqli';
@@ -214,10 +220,10 @@ class Connection
                     if (!AppState::test_state(AppState::STATE_INSTALL)) {
                         $this->_errorhandler = [$this, 'on_error'];
                     }
-                    if (!empty($config['set_names'])) { //N/A during installation
+                    if (!empty($config['set_names'])) {
                         $this->_mysql->set_charset('utf8');
                     }
-                    if (!empty($config['set_db_timezone'])) { //ditto
+                    if (!empty($config['set_db_timezone'])) {
                         //see also strftzone_adjuster() in misc.functions.php
                         try {
                             $dt = new DateTime('', new DateTimeZone($config['timezone']));
@@ -558,15 +564,34 @@ class Connection
         return [];
     }
 
+
+    /**
+     * Interpret the $valsarr parameter supplied directly or indirectly to execute methods
+     * This allows a single parameter (other than null) to be supplied
+     * to the method verbatim, instead of as an array member.
+     *
+     * $param mixed $arg null | array | other parameter supplied to the method
+     * @return mixed null | array
+     */
+    public function check_params($vals)
+    {
+        if ($vals === null) { return null; }
+        if (is_array($vals)) {
+            return (count($vals) > 0) ? $vals : null;
+        }
+        if (is_bool($vals)) {
+            return ($vals) ? [1] : [0];
+        }
+        return (is_scalar($vals)) ? [$vals] : null;
+    }
+
     /**
      * Parse and execute multiple ';'-joined parameterized or plain SQL statements or queries.
      */
     public function multi_execute($sql, $valsarr = null)
     {
+        $valsarr = $this->check_params($valsarr);
         if ($valsarr !== null) {
-            if (!is_array($valsarr)) {
-                $valsarr = [$valsarr];
-            }
             //TODO parse and process, $this->do_multisql($sql) etc
         } else {
             $result = $this->do_multisql($sql);
@@ -595,20 +620,18 @@ class Connection
      * Parse and execute an SQL prepared statement or query.
      *
      * @param string or Statement object $sql
-     * @param mixed $valsarr Optional value-parameters to fill placeholders (if any) in @sql
-     *  when a SELECT retrieves nothing or other command fails, default null
+     * @param mixed $valsarr null | array | other Optional value-parameter(s)
+     *  to fill placeholders (if any) in $sql when a SELECT retrieves 
+     *  nothing or other command fails. Default null.
      *
      * @return <namespace>ResultSet or a subclass of that
      */
     public function execute($sql, $valsarr = null)
     {
+        $valsarr = $this->check_params($valsarr);
         if ($valsarr !== null) {
-            if (!is_array($valsarr)) {
-                $valsarr = [$valsarr];
-            }
             if (is_string($sql)) {
                 $stmt = new Statement($this, $sql);
-
                 return $stmt->execute($valsarr);
             } elseif (is_object($sql) && ($sql instanceof Statement)) {
                 return $sql->execute($valsarr);
@@ -629,6 +652,7 @@ class Connection
      */
     public function async_execute($sql, $valsarr = null)
     {
+/* NOT YET IMPLEMENTED
         if ($this->isNative()) {
 //TODO
         } else {
@@ -639,6 +663,8 @@ class Connection
 //TODO arrange to handle error when 'reaped'
             }
         }
+*/
+        return null;
     }
 
     /**
