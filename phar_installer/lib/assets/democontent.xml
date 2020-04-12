@@ -3637,7 +3637,7 @@ Usage: {custom_copyright [start=&#39;YYYY&#39;]}]]></description>
 			<frompath>simplex/teaser</frompath>
 			<topath>simplex/teaser</topath>
 		</file>
-		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/assets/install/uploadfiles</sourcedir>
+		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/uploadfiles</sourcedir>
 	</uploadfiles>
 	<simpletagfiles>
 		<file>
@@ -3655,20 +3655,15 @@ Usage: {custom_copyright [start=&#39;YYYY&#39;]}]]></description>
 			<frompath></frompath>
 			<topath></topath>
 		</file>
-		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/assets/install/uploadfiles/simple_plugins</sourcedir>
+		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/uploadfiles/simple_plugins</sourcedir>
 	</simpletagfiles>
 	<templatefiles>
-		<file>
-			<name>COPY-TemplateFileDemo_16.tpl</name>
-			<frompath></frompath>
-			<topath></topath>
-		</file>
 		<file>
 			<name>TemplateFileDemo_16.tpl</name>
 			<frompath></frompath>
 			<topath></topath>
 		</file>
-		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/assets/install/uploadfiles/templates</sourcedir>
+		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/uploadfiles/templates</sourcedir>
 	</templatefiles>
 	<stylefiles/>
 </cmsmssitedata>
