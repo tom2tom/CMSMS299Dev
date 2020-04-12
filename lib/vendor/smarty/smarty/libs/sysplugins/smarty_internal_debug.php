@@ -252,7 +252,7 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data
         $_template->assign('execution_time', microtime(true) - $smarty->start_time);
         $_template->assign('display_mode', $debugging === 2 || !$full);
         $_template->assign('offset', $this->offset * 50);
-        echo $_template->fetch();
+        $_template->display();
         if (isset($full)) {
             $this->index--;
         }
