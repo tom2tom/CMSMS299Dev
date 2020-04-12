@@ -274,7 +274,9 @@ final class content_plugins
                 throw new CmsError404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
             }
 
+			$action = $params['action'];
             $params = $modops->GetModuleParameters($id);
+			$params['action'] = $action; //deprecated since 2.3
             ob_start();
             $result = $module_obj->DoActionBase($action, $id, $params, $page_id, $smarty);
 
