@@ -99,11 +99,9 @@ define('CMS_SCRIPTS_URL',$config['root_url'].'/lib/js');
 define('CMS_UPLOADS_URL',$config['uploads_url']);
 
 /**
- * The database table prefix.
+ * The database-table prefix.
  */
-if( !AppState::test_state(AppState::STATE_INSTALL) ) {
-    define('CMS_DB_PREFIX',$config['db_prefix']);
-}
+define('CMS_DB_PREFIX',$config['db_prefix']);
 
 if( CMS_DEBUG ) {
     //for async DEBUG
@@ -126,7 +124,7 @@ const __CMS_PREVIEW_PAGE__ = -100; //deprecated since 2.3
 /**
  * popup-menus css class.
  * Context-menu class(es) with this name must be established in each admin theme's css file(s)
- * @since 2.3
+ * @since 2.9
  * TODO consider supporting a config file parameter
  */
 const CMS_POPUPCLASS = 'ContextMenu';
