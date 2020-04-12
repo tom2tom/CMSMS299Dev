@@ -209,11 +209,11 @@ class Statement
     }
 
     /**
-     * Bind parameters in $valsarr to the sql statement.
+     * Bind the value(s) in $bindvars to the sql statement.
      *
      * @return bool indicating success
      */
-    public function bind($valsarr)
+    public function bind($bindvars)
     {
         if (!$this->_stmt) {
             if ($this->_sql) {
@@ -233,18 +233,23 @@ class Statement
             }
         }
 
-        $valsarr = $this->_conn->check_params($valsarr);
-        if (is_array($valsarr) && count($valsarr) == 1 && is_array($valsarr[0])) {
-            $valsarr = $valsarr[0];
-        } elseif (is_array($valsarr[0])) {
-            //deprecated stuff
-            $this->all_bound = $valsarr;
-            $valsarr = $this->now_bind = reset($this->all_bound);
+        if (is_array($bindvars)) {
+            if (is_array($bindvars[0])) {
+                if (count($bindvars) == 1) {
+                    $bindvars = $bindvars[0];
+                } else {
+                    //2-D array of vars deprecated since 2.9
+                    $this->all_bound = $bindvars;
+                    $bindvars = $this->now_bind = reset($this->all_bound);
+                }
+            }
+        } else {
+           $bindvars = [$bindvars];
         }
 
         //deprecated - attempt emulation
         if ($this->_conn->errno == self::NOPARMCMD) {
-            $sql = compatibility::interpret($this->_conn, $this->sql, $valsarr);
+            $sql = compatibility::interpret($this->_conn, $this->sql, $bindvars);
             if ($sql) {
                 $this->_sql = $sql;
                 $this->_bound = false;
@@ -259,14 +264,14 @@ class Statement
 
         $types = '';
         $bound = [''];
-        foreach ($valsarr as $k => &$val) {
+        foreach ($bindvars as $k => &$val) {
             switch (gettype($val)) {
              case 'double': //i.e. float
 //          $val = strtr($val, ',', '.');
                 $types .= 'd';
                 break;
              case 'boolean':
-                $valsarr[$k] = $val ? 1 : 0;
+                $bindvars[$k] = $val ? 1 : 0;
              case 'integer':
                 $types .= 'i';
                 break;
@@ -287,7 +292,7 @@ class Statement
                 $types .= 's';
                 break;
             }
-            $bound[] = &$valsarr[$k];
+            $bound[] = &$bindvars[$k];
         }
         unset($val);
         $bound[0] = $types;
@@ -313,13 +318,14 @@ class Statement
     }
 
     /**
-     * Execute the query, using supplied $valsarr (if any) as bound values.
+     * Execute the prepared query, using supplied $bindvars (if any) as bound values.
      *
-     * @param mixed $valsarr array of parameters to bind, or not set if
-     *   running a deprecated multi-bind command
+     * @param varargs $bindvars array | series of parameter-value(s) to
+     *  fill placeholders in the prepared sql
+     *  | nothing if this is a deprecated multi-bind (2-D values) operation
      * @return mixed object (ResultSet or EmptyResultSet or PrepResultSet) | int > 0 | false | null
      */
-    public function execute($valsarr = null)
+    public function execute(...$bindvars)
     {
         if (!$this->_stmt) {
             if ($this->_sql) {
@@ -339,18 +345,17 @@ class Statement
         }
 
         $pc = $this->_stmt->param_count;
-        $valsarr = $this->_conn->check_params($valsarr);
-        //check for deprecated multi-bind process
-        if ($valsarr === null) {
-            $valsarr = $this->now_bind;
+        //check whether we're working with 2-D bind-values deprecated  since 2.9
+        if (!$bindvars) {
+            $bindvars = $this->now_bind;
         }
 
-        if ($valsarr) {
-            if (is_array($valsarr) && count($valsarr) == 1 && is_array($valsarr[0])) {
-                $valsarr = $valsarr[0];
+        if ($bindvars) {
+            if (is_array($bindvars) && count($bindvars) == 1 && is_array($bindvars[0])) {
+                $bindvars = $bindvars[0];
             }
-            if ($pc == count($valsarr)) {
-                $this->bind($valsarr);
+            if ($pc == count($bindvars)) {
+                $this->bind($bindvars);
                 if (!$this->_bound) {
                     return null;
                 }
@@ -358,7 +363,7 @@ class Statement
                 //TODO this is in wrong spot : maybe not yet bound
                 //check for deprecated emulation of non-parameterizable command
                 if ($this->_conn->errno == self::NOPARMCMD) {
-                    $sql = compatibility::interpret($this->_conn, $this->sql, $valsarr);
+                    $sql = compatibility::interpret($this->_conn, $this->sql, $bindvars);
                     if ($sql) {
                         $this->_sql = $sql;
                     }
