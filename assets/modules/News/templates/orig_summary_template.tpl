@@ -1,28 +1,31 @@
 <!-- Start News Display Template -->
-{* This section shows a clickable list of your News categories. *}
+{* this section displays a clickable list of News categories which have displayable items *}
+{if $count > 0}
 <ul class="list1">
 {foreach $cats as $node}
-{if $node.depth > $node.prevdepth}
-{repeat string="<ul>" times=$node.depth-$node.prevdepth}
-{elseif $node.depth < $node.prevdepth}
-{repeat string="</li></ul>" times=$node.prevdepth-$node.depth}
+ {if $node.depth > $node.prevdepth}
+  {repeat string="<ul>" times=$node.depth-$node.prevdepth}
+ {elseif $node.depth < $node.prevdepth}
+  {repeat string="</li></ul>" times=$node.prevdepth-$node.depth}
 </li>
-{elseif $node.index > 0}</li>
-{/if}
+ {elseif $node.index > 0}</li>
+ {/if}
 <li{if $node.index == 0} class="firstnewscat"{/if}>
-{if $node.count > 0}
-  <a href="{$node.url}">{$node.news_category_name}</a>{else}<span>{$node.news_category_name} </span>{/if}
+ {if $node.count > 0}
+  <a href="{$node.url}">{$node.news_category_name}</a>{else}<span>{$node.news_category_name} </span>
+ {/if}
 {/foreach}
 {repeat string="</li></ul>" times=$node.depth-1}</li>
 </ul>
-
+{/if}
+{strip}
 {* this displays the category name if you're browsing by category *}
 {if $category_name}
 <h1>{$category_name}</h1>
 {/if}
 
-{* if you don't want category browsing on your summary page, remove this line and everything above it *}
-
+{* if you don't want category-browsing on your summary page, remove this line and everything above it *}
+{/strip}
 {if $pagecount > 1}
   <p>
 {if $pagenumber > 1}
