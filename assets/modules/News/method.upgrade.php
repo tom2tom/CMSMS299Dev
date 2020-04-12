@@ -258,7 +258,7 @@ WHERE news_id=?';
 
     $query = 'UPDATE '.$tbl.' SET modified_date=0 WHERE modified_date<=create_date';
     $db->Execute($query);
-    $query = 'UPDATE '.$tbl.' SET status=\'archived\' WHERE status=\'published\' AND end_time IS NOT NULL AND end_time<=?';
+    $query = 'UPDATE '.$tbl.' SET status=\'archived\' WHERE status=\'published\' AND end_time IS NOT NULL AND end_time>0 AND end_time<=?';
     $db->Execute($query,[time()]);
 
     $tbl = CMS_DB_PREFIX.'module_news_categories';

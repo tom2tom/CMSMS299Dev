@@ -269,8 +269,8 @@ EOS;
             if( $this->CheckPermission('Approve News') ) {
                 $db = $this->GetDb();
                 $now = time();
-                $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status != \'published\' AND status != \'final\'
-                  AND (end_time IS NULL OR end_time > '.$now.')';
+                $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status!=\'published\' AND status!=\'final\'
+                  AND (end_time IS NULL OR end_time=0 OR end_time>'.$now.')';
                 $count = $db->GetOne($query);
                 if( $count ) {
                     $obj = new stdClass();
@@ -307,7 +307,7 @@ EOS;
 
         $now = time();
         $query = 'SELECT news_id,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE status = ? AND news_url != \'\' AND '
-            . '('.$db->ifNull('start_time',1).' < '.$now.') AND ('.$db->ifNull('end_time',0).' = 0 OR end_time > '.$now.')';
+            . '('.$db->ifNull('start_time',1).'<'.$now.') AND (end_time IS NULL OR end_time=0 OR end_time>'.$now.')';
         $query .= ' ORDER BY start_time DESC';
         $tmp = $db->GetArray($query,['published']);
 
