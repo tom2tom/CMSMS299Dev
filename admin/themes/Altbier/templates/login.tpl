@@ -18,8 +18,8 @@
   {$header_includes|default:''}
  </head>{if 0}{$c=''}{elseif empty($smarty.get.forgotpw)}{$c=' class="login"'}{else}{$c=' class="forgotpw"'}{/if}
  <body id="login"{$c}>
-  <div class="container py-5">
-   <div class="row">
+  <div class="container py-5" style="height:100%;">
+   <div class="row" style="align-items:center;height:100%;">
     <div class="mx-auto">
      <div class="login-box p-2 p-sm-4"{if isset($error)} id="error"{/if}>
       {if empty($smarty.get.forgotpw)}
@@ -77,12 +77,12 @@
       </div>
                         {/if}
      </div>
+     <div class="col-12 mx-auto text-center">
+      <a rel="external" href="http://www.cmsmadesimple.org">
+       <img class="img-fluid" src="themes/Altbier/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/Altbier/images/CMSMS-logotext-dark.png';" style="height:30px;margin-top:5px" alt="CMS Made Simple" />
+      </a>
+     </div>
     </div>
-   </div>
-   <div class="col-12 mx-auto text-center">
-    <a rel="external" href="http://www.cmsmadesimple.org">
-     <img class="img-fluid" src="themes/Altbier/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/Altbier/images/CMSMS-logotext-dark.png';" style="height:30px;margin-top:5px" alt="CMS Made Simple" />
-    </a>
    </div>
   </div>
   {$bottom_includes|default:''}
