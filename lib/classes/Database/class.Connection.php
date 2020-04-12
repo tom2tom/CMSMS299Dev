@@ -566,37 +566,21 @@ class Connection
 
 
     /**
-     * Interpret the $valsarr parameter supplied directly or indirectly to execute methods
-     * This allows a single parameter (other than null) to be supplied
-     * to the method verbatim, instead of as an array member.
+     * Interpret the varargs parameters supplied directly or indirectly
+     * to execute methods.
      *
-     * $param mixed $arg null | array | other parameter supplied to the method
-     * @return mixed null | array
+     * $param mixed $vals maybe-empty array | anything else
+     * @return maybe-empty array
      */
-    public function check_params($vals)
+    public function check_params($vals) : array
     {
-        if ($vals === null) { return null; }
         if (is_array($vals)) {
-            return (count($vals) > 0) ? $vals : null;
+            if (count($vals) == 1 && is_array($vals[0])) {
+                return $vals[0];
+            }
+            return $vals;
         }
-        if (is_bool($vals)) {
-            return ($vals) ? [1] : [0];
-        }
-        return (is_scalar($vals)) ? [$vals] : null;
-    }
-
-    /**
-     * Parse and execute multiple ';'-joined parameterized or plain SQL statements or queries.
-     */
-    public function multi_execute($sql, $valsarr = null)
-    {
-        $valsarr = $this->check_params($valsarr);
-        if ($valsarr !== null) {
-            //TODO parse and process, $this->do_multisql($sql) etc
-        } else {
-            $result = $this->do_multisql($sql);
-            //TODO deal with $result[]
-        }
+        return [];
     }
 
     /**
@@ -619,22 +603,21 @@ class Connection
     /**
      * Parse and execute an SQL prepared statement or query.
      *
-     * @param string or Statement object $sql
-     * @param mixed $valsarr null | array | other Optional value-parameter(s)
-     *  to fill placeholders (if any) in $sql when a SELECT retrieves 
-     *  nothing or other command fails. Default null.
+     * @param mixed $sql string | Statement object
+     * @param varargs $bindvars array | series of command-parameter-value(s)
+     *  to fill placeholders in $sql | nothing
      *
-     * @return <namespace>ResultSet or a subclass of that
+     * @return mixed <namespace>ResultSet or a subclass of that | num > 0 | bool | null
      */
-    public function execute($sql, $valsarr = null)
+    public function execute($sql, ...$bindvars)
     {
-        $valsarr = $this->check_params($valsarr);
-        if ($valsarr !== null) {
+        $bindvars = $this->check_params($bindvars);
+        if ($bindvars) {
             if (is_string($sql)) {
                 $stmt = new Statement($this, $sql);
-                return $stmt->execute($valsarr);
+                return $stmt->execute($bindvars);
             } elseif (is_object($sql) && ($sql instanceof Statement)) {
-                return $sql->execute($valsarr);
+                return $sql->execute($bindvars);
             } else {
                 $errno = 4;
                 $error = 'Invalid bind-parameter(s) supplied to execute method';
@@ -649,14 +632,18 @@ class Connection
     /**
      * As for execute, but non-blocking. Works as such only if the native driver
      * is present. Otherwise reverts to normal execution, and caches the result.
+     *
+     * @param mixed $sql string | Statement object
+     * @param varargs $bindvars array | series of command-parameter-value(s)
+     *  to fill placeholders in $sql | nothing
      */
-    public function async_execute($sql, $valsarr = null)
+    public function async_execute($sql, ...$bindvars)
     {
 /* NOT YET IMPLEMENTED
         if ($this->isNative()) {
 //TODO
         } else {
-            $rs = $this->execute($sql, $valsarr);
+            $rs = $this->execute($sql, $bindvars);
             if ($rs) {
                 $this->_asyncQ[] = $rs;
             } else {
@@ -691,17 +678,39 @@ class Connection
     }
 
     /**
+     * Parse and execute multiple ';'-joined parameterized or plain SQL statements or queries.
+     *
+     * @param mixed $sql string | Statement object
+     * @param varargs $bindvars array | series of command-parameter-value(s)
+     *  to fill placeholders in $sql | nothing
+     */
+    public function multi_execute($sql, ...$bindvars)
+    {
+/* NOT YET IMPLEMENTED
+        $bindvars = $this->check_params($bindvars);
+        if ($bindvars) {
+            //TODO parse and process, $this->do_multisql($sql) etc
+        } else {
+            $result = $this->do_multisql($sql);
+            //TODO deal with $result[]
+        }
+*/
+        return null;
+    }
+
+    /**
      * Execute an SQL command, to retrieve (at most) @nrows records.
      *
      * @param string $sql    The SQL to execute
      * @param int   $nrows   Optional number of rows to return, default all (0)
      * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
-     * @param mixed $valsarr Optional value-parameter(s) to fill placeholders (if any) in @sql
-     *  when a SELECT retrieves nothing or other command fails, default false
+     * @param varargs $bindvars array | series of parameter-value(s) to
+     *  fill placeholders in $sql | nothing
      *
      * @return mixed <namespace>ResultSet or a subclass
+     *  when a SELECT retrieves nothing or other command fails, default false
      */
-    public function selectLimit($sql, $nrows = 0, $offset = 0, $valsarr = null)
+    public function selectLimit($sql, $nrows = 0, $offset = 0, ...$bindvars)
     {
         if ($nrows > 0) {
             $xql = ' LIMIT '.$nrows;
@@ -710,30 +719,33 @@ class Connection
         }
         if ($offset > 0) {
             $xql .= ' OFFSET '.$offset;
+        } elseif ($offset < 0) {
+            //TODO N = SELECT COUNT results, then use OFFSET = N + $offset ...
         }
         if ($xql) {
             $sql .= $xql;
         }
 
-        return $this->execute($sql, $valsarr);
+        return $this->execute($sql, $bindvars);
     }
 
     /**
      * Execute an SQL statement and return all the results as an array.
      *
-     * @param string $sql  The SQL to execute
-     * @param mixed array|null $valsarr Optional value-parameters to fill placeholders (if any) in @sql
-     * @param int $nrows   Optional number of rows to return, default all (0)
-     * @param int $offset  Optional 0-based starting-offset of rows to return, default 0
+     * @param mixed $sql string | Statement object
+     * @param mixed $bindvars array | falsy Optional value-parameters to fill placeholders (if any) in @sql
+     * @param int   $nrows   Optional number of rows to return, default all (0)
+     * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
      *
      * @return array Numeric-keyed matched results, or empty
      */
-    public function getArray($sql, $valsarr = null, $nrows = 0, $offset = 0)
+    public function getArray($sql, $bindvars = false, $nrows = 0, $offset = 0)
     {
-        if ($nrows < 1 && $offset < 1) {
-            $rs = $this->execute($sql, $valsarr);
+        if (!$bindvars) { $bindvars = []; } // don't mistake a single falsy parameter
+        if ($nrows == 0 && $offset == 0) {
+            $rs = $this->execute($sql, $bindvars);
         } else {
-            $rs = $this->selectLimit($sql, $nrows, $offset, $valsarr);
+            $rs = $this->selectLimit($sql, $nrows, $offset, $bindvars);
         }
         if ($rs) {
             return $rs->getArray();
@@ -744,16 +756,17 @@ class Connection
 
     /**
      * An alias for the getArray method.
+     * @deprecated since 2.9 instead use getArray()
      *
      * @param string $sql     The SQL statement to execute
-     * @param mixed array|null  $valsarr Optional value-parameters to fill placeholders (if any) in @sql
+     * @param mixed  $bindvars array | falsy Optional value-parameters to fill placeholders (if any) in @sql
      *
      * @return array Numeric-keyed matched results, or empty
      */
-    public function getAll($sql, $valsarr = null, $nrows = 0, $offset = 0)
+    public function getAll($sql, $bindvars = false, $nrows = 0, $offset = 0)
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','getArray'));
-        return $this->getArray($sql, $valsarr, $nrows, $offset);
+        return $this->getArray($sql, $bindvars, $nrows, $offset);
     }
 
     /**
@@ -761,7 +774,7 @@ class Connection
      * the value of the first-requested-column as the key for each row.
      *
      * @param string $sql     The SQL statement to execute
-     * @param mixed  $valsarr Optional Value-parameters to fill placeholders (if any) in @sql
+     * @param mixed  $bindvars array | falsy Optional Value-parameters to fill placeholders (if any) in @sql
      * @param bool   $force_array Optionally force each element of the Return to be an associative array
      * @param bool   $first2cols  Optionally Return only the first 2 columns in an associative array.  Does not work with force_array
      * @param int    $nrows   Optional number of rows to return, default all (0)
@@ -769,12 +782,13 @@ class Connection
      *
      * @return associative array of matched results, or empty
      */
-    public function getAssoc($sql, $valsarr = null, $force_array = false, $first2cols = false, $nrows = 0, $offset = 0)
+    public function getAssoc($sql, $bindvars = false, $force_array = false, $first2cols = false, $nrows = 0, $offset = 0)
     {
-        if ($nrows < 1 && $offset < 1) {
-            $rs = $this->execute($sql, $valsarr);
+        if (!$bindvars) { $bindvars = []; } // don't mistake a single falsy parameter
+        if ($nrows == 0 && $offset == 0) {
+            $rs = $this->execute($sql, $bindvars);
         } else {
-            $rs = $this->selectLimit($sql, $nrows, $offset, $valsarr);
+            $rs = $this->selectLimit($sql, $nrows, $offset, $bindvars);
         }
         if ($rs) {
             return $rs->getAssoc($force_array, $first2cols);
@@ -788,19 +802,20 @@ class Connection
      * matches as an array.
      *
      * @param string $sql     The SQL statement to execute
-     * @param mixed  $valsarr Value-parameters to fill placeholders (if any) in @sql
-     * @param bool   $trim    Optionally trim the Return results
+     * @param mixed  $bindvars array | falsy Optional Value-parameters to fill placeholders (if any) in @sql
+     * @param bool   $trim    Optionally trim the returned values
      * @param int    $nrows   Optional number of rows to return, default all (0)
      * @param int    $offset  Optional 0-based starting-offset of rows to return, default 0
      *
      * @return array of results, one member per row matched, or empty
      */
-    public function getCol($sql, $valsarr = null, $trim = false, $nrows = 0, $offset = 0)
+    public function getCol($sql, $bindvars = false, $trim = false, $nrows = 0, $offset = 0)
     {
-        if ($nrows < 1 && $offset < 1) {
-            $rs = $this->execute($sql, $valsarr);
+        if (!$bindvars) { $bindvars = []; } // don't mistake a single falsy parameter
+        if ($nrows == 0 && $offset == 0) {
+            $rs = $this->execute($sql, $bindvars);
         } else {
-            $rs = $this->selectLimit($sql, $nrows, $offset, $valsarr);
+            $rs = $this->selectLimit($sql, $nrows, $offset, $bindvars);
         }
         if ($rs) {
             return $rs->getCol($trim);
@@ -813,21 +828,22 @@ class Connection
      * Execute an SQL statement that returns one row of results, and return that row
      * as an associative array.
      *
-     * @param string $sql     The SQL statement to execute
-     * @param mixed  $valsarr Optional value-parameters to fill placeholders (if any) in @sql
-     * @param int    $offset  Optional 0-based starting-offset of rows to return, default 0
+     * @param mixed $sql string | Statement object
+     * @param mixed $bindvars array | falsy Optional value-parameters to fill placeholders (if any) in @sql
+     * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
      *
      * @return associative array representing a single ResultSet row, or empty
      */
-    public function getRow($sql, $valsarr = null, $offset = 0)
+    public function getRow($sql, $bindvars = false, $offset = 0)
     {
-        if ($offset < 1) {
+        if (!$bindvars) { $bindvars = []; } // don't mistake a single falsy parameter
+        if ($offset == 0) {
             if (stripos($sql, 'LIMIT') === false) {
                 $sql .= ' LIMIT 1';
             }
-            $rs = $this->execute($sql, $valsarr);
+            $rs = $this->execute($sql, $bindvars);
         } else {
-            $rs = $this->selectLimit($sql, 1, $offset, $valsarr);
+            $rs = $this->selectLimit($sql, 1, $offset, $bindvars);
         }
         if ($rs) {
             return $rs->fields();
@@ -839,21 +855,22 @@ class Connection
     /**
      * Execute an SQL statement and return a single value.
      *
-     * @param string $sql     The SQL statement to execute
-     * @param mixed  $valsarr Optional values to fill placeholders (if any) in @sql
-     * @param int    $offset  Optional 0-based starting-offset of rows to return, default 0
+     * @param mixed $sql string | Statement object
+     * @param mixed $bindvars array | falsy Optional values to fill placeholders (if any) in @sql
+     * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
      *
-     * @return mixed value or null
+     * @return mixed value | null
      */
-    public function getOne($sql, $valsarr = null, $offset = 0)
+    public function getOne($sql, $bindvars = false, $offset = 0)
     {
-        if ($offset < 1) {
+        if (!$bindvars) { $bindvars = []; } // don't mistake a single falsy parameter
+        if ($offset == 0) {
             if (stripos($sql, 'LIMIT') === false) {
                 $sql .= ' LIMIT 1';
             }
-            $rs = $this->execute($sql, $valsarr);
+            $rs = $this->execute($sql, $bindvars);
         } else {
-            $rs = $this->selectLimit($sql, 1, $offset, $valsarr);
+            $rs = $this->selectLimit($sql, 1, $offset, $bindvars);
         }
         if ($rs) {
             return $rs->getOne();
@@ -870,7 +887,7 @@ class Connection
      * @param optional string $where  SQL condition, must include the
      *                                requested column e.g. “WHERE name > 'A'”
      *
-     * @return mixed value or null
+     * @return mixed value | null
      */
 /*    public function getMedian($table, $column, $where = '')
     {
@@ -1015,6 +1032,22 @@ class Connection
         return false;
     }
 
+    /* *
+     * Create a row- (and if specified, column-) lock for the duration of
+     * a transaction. If no transaction has been started, one is begun.
+     * As in ADOdb v.5
+     *
+     * @param string $tablelist Name(s) of table(s) to be processed. Comma-separated if < 1.
+     * @param string $where     Optional row identifier, effectively an SQL WHERE string but without actual 'WHERE'
+     * @param string $colname   Optional name of column to be locked
+     * @return bool indicating success
+     */
+/*  public function rowLock(string $tablelist, string $where = '', string $colname = '') : bool
+    {
+        //TODO MySQL row locks work only with InnoDB engine, others lock whole table
+    }
+*/
+
     //// sequence tables
 
     /**
@@ -1031,13 +1064,13 @@ class Connection
     public function genId($seqname)
     {
         //kinda-atomic update + select TODO CHECK thread-safety
-        $query = "UPDATE $seqname SET id = LAST_INSERT_ID(id) + 1;SELECT LAST_INSERT_ID()";
+        $query = "UPDATE $seqname SET id = LAST_INSERT_ID(id + 1);SELECT LAST_INSERT_ID()";
         if ($this->_mysql->multi_query($query)) {
             $this->_mysql->next_result();
             $rs = $this->_mysql->use_result(); //block while we're working
             $vals = $rs->fetch_row();
             $rs->close();
-            return $vals[0] + 1;
+            return $vals[0];
         }
         //TODO handle error
         return -1;
@@ -1093,7 +1126,7 @@ class Connection
      * A utility method to convert a *NIX timestamp into a database-specific
      * string suitable for use in queries.
      *
-     * @param mixed $time int timestamp, or string (e.g. from PHP Date()), or DateTime object
+     * @param mixed $time int timestamp | string (e.g. from PHP Date()), or DateTime object
      * @param bool $quoted optional flag whether to quote the returned string
      *
      * @return mixed optionally quoted string representing server/local date & time, or NULL
@@ -1151,7 +1184,7 @@ class Connection
     /**
      * Convert a date into something that is suitable for writing to a database.
      *
-     * @param mixed $date A string date, or an integer timestamp, or a DateTime object
+     * @param mixed $date string date | integer timestamp | DateTime object
      *
      * @return quoted, locale-formatted string representing server/local date, or 'NULL'
      */
