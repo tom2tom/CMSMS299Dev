@@ -23,19 +23,22 @@ use cms_utils;
 use CmsApp;
 use CmsCoreCapabilities;
 use CMSModule;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
 use CMSMS\SysDataCache;
 use CMSMS\SysDataCacheDriver;
 use DeprecationNotice;
 use Throwable;
+use const CLEAN_STRING;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use function audit;
 
 /**
  * A class to manage smarty plugins registered by modules. Methods may be called
- * statically ModulePluginOperations::function()
+ * statically as ModulePluginOperations::function()
  * or (since 2.9) non-static (new ModulePluginOperations())->_function() NOTE the '_' prefix
  *
  * @package CMS
@@ -144,6 +147,112 @@ final class ModulePluginOperations
 	}
 
 	/**
+	 * Process a module-tag
+	 * This method (or its static equivalent) is used by the {cms_module} plugin
+	 * and to process {ModuleName} tags
+	 * @since 2.9 this does the work for global method cms_module_plugin()
+	 *
+	 * @param array $params A hash of action-parameters
+	 * @param object $template A Smarty_Internal_Template object
+	 * @return string The module output string or an error message string or ''
+	 */
+	public function _call_plugin_module(array $params, $template) : string
+	{
+		if( !empty($params['module']) ) {
+			$module = $params['module'];
+		}
+		else {
+			return '<!-- ERROR: module name not specified -->';
+		}
+
+		if( !($modinst = $this->_get_plugin_module($module)) ) {
+			return "<!-- ERROR: $module is not available, in this context at least -->\n";
+		}
+
+		unset($params['module']);
+		if( !empty($params['action']) ) {
+			// action was set in the module tag
+			$action = $params['action'];
+	//	   unset($params['action']);  unfortunate 2.3 deprecation
+		}
+		else {
+			$params['action'] = $action = 'default'; //2.3 deprecation
+		}
+
+		if( !empty($params['idprefix']) ) {
+			// idprefix was set in the module tag
+			$id = $params['idprefix'];
+			$setid = true;
+		}
+		else {
+			// multiple modules might be used in a page|template
+			// just in case they get confused ...
+			static $modnum = 1;
+			++$modnum;
+			$id = "m{$modnum}_";
+			$setid = false;
+		}
+
+		$rparams = (new GetParameters())->decode_action_params();
+		if( $rparams ) {
+			$mactmodulename = $rparams['module'] ?? '';
+			if( strcasecmp($mactmodulename, $module) == 0 ) {
+				$checkid = $rparams['id'] ?? '';
+				$inline = !empty($rparams['inline']);
+				if( $inline && $checkid == $id ) {
+					$action = $rparams['action'] ?? 'default';
+					$params['action'] = $action; // deprecated since 2.3
+					unset($rparams['module'], $rparams['id'], $rparams['action'], $rparams['inline']);
+					$params = array_merge($params, $rparams, AppSingle::ModuleOperations()->GetModuleParameters($id));
+				}
+			}
+		}
+	/*  if( isset($_REQUEST['mact']) ) {
+			// We're handling an action.  Check if it is for this call.
+			// We may be calling module plugins multiple times in the template,
+			// but a POST or GET mact can only be for one of them.
+			$mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
+			$ary = explode(',', $mact, 4);
+			$mactmodulename = $ary[0] ?? '';
+			if( strcasecmp($mactmodulename, $module) == 0 ) {
+				$checkid = $ary[1] ?? '';
+				$inline = isset($ary[3]) && $ary[3] === 1;
+				if( $inline && $checkid == $id ) { // presumbly $setid true i.e. not a random id
+					// the action is for this instance of the module and we're inline
+					// i.e. the results are supposed to replace the tag, not {content}
+					$action = $ary[2] ?? 'default';
+					$params['action'] = $action; // deprecated since 2.3
+					$params = array_merge($params, AppSingle::ModuleOperations()->GetModuleParameters($id));
+				}
+			}
+		}
+	*/
+		$params['id'] = $id; // deprecated since 2.3
+		if( $setid ) {
+			$params['idprefix'] = $id; // might be needed per se, probably not
+			$modinst->SetParameterType('idprefix', CLEAN_STRING); // in case it's a frontend request
+		}
+		$returnid = AppSingle::App()->get_content_id();
+		$params['returnid'] = $returnid;
+
+		// collect action output (echoed and/or returned, but ignoring literal 1,
+		// probably from inclusion of action code without explict return value
+		// too bad if the action actually returned 1!
+		ob_start();
+		$ret = $modinst->DoActionBase($action, $id, $params, $returnid, $template);
+		if( $ret !== 1 && ($ret || is_numeric($ret)) ) {
+			echo $ret;
+		}
+		$out = ob_get_clean();
+
+		if( isset($params['assign']) ) {
+			$template->assign(trim($params['assign']), $out);
+			return '';
+		}
+		return $out;
+	}
+
+	/**
 	 * Return the module (if any) to use for processing the specified tag.
 	 * @since 2.3
 	 * @param string $name Name of the tag whose processor-module is wanted
@@ -162,7 +271,7 @@ final class ModulePluginOperations
 					if( !($row['available'] & self::AVAIL_ADMIN) ) return;
 				}
 				elseif( in_array(AppState::STATE_FRONT_PAGE,$states) ) {
-				    if( !($row['available'] & self::AVAIL_FRONTEND) ) return;
+					if( !($row['available'] & self::AVAIL_FRONTEND) ) return;
 				}
 				else {
 					return;

@@ -19,7 +19,6 @@
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\FormUtils;
-use CMSMS\internal\GetParameters;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\MultiEditor;
 use CMSMS\NlsOperations;
@@ -630,105 +629,16 @@ function get_secure_param_array() : array
 /**
  * Process a module-tag
  * This method is used by the {cms_module} plugin and to process {ModuleName} tags
- *
  * @internal
- * @access private
- * @param array A hash of parameters
- * @param object A Smarty_Internal_Template object
+ * @since 2.9 ModulePluginOperations::call_plugin_module() may be used instead
+ *
+ * @param array $params A hash of action-parameters
+ * @param object $template A Smarty_Internal_Template object
  * @return string The module output string or an error message string or ''
  */
 function cms_module_plugin(array $params, $template) : string
 {
-    if( !empty($params['module']) ) {
-        $module = $params['module'];
-    }
-    else {
-        return '<!-- ERROR: module name not specified -->';
-    }
-
-    if( !($modinst = ModulePluginOperations::get_plugin_module($module, 'function')) ) {
-        return "<!-- ERROR: $module is not available, in this context at least -->\n";
-    }
-
-    unset($params['module']);
-    if( !empty($params['action']) ) {
-        // action was set in the module tag
-        $action = $params['action'];
-//       unset($params['action']);  unfortunate 2.3 deprecation
-    }
-    else {
-        $params['action'] = $action = 'default'; //2.3 deprecation
-    }
-
-    if( !empty($params['idprefix']) ) {
-        // idprefix was set in the module tag
-        $id = $params['idprefix'];
-        $setid = true;
-    }
-    else {
-        // multiple modules might be used in a page|template
-        // just in case they get confused ...
-        static $modnum = 1;
-        ++$modnum;
-        $id = "m{$modnum}_";
-        $setid = false;
-    }
-
-    $rparams = (new GetParameters())->decode_action_params();
-    if( $rparams ) {
-        $mactmodulename = $rparams['module'] ?? '';
-        if( strcasecmp($mactmodulename, $module) == 0 ) {
-            $checkid = $rparams['id'] ?? '';
-            $inline = !empty($rparams['inline']);
-            if( $inline && $checkid == $id ) {
-                $action = $rparams['action'] ?? 'default';
-                $params['action'] = $action; // deprecated since 2.3
-                unset($rparams['module'], $rparams['id'], $rparams['action'], $rparams['inline']);
-                $params = array_merge($params, $rparams, AppSingle::ModuleOperations()->GetModuleParameters($id));
-            }
-        }
-    }
-/*  if( isset($_REQUEST['mact']) ) {
-        // We're handling an action.  Check if it is for this call.
-        // We may be calling module plugins multiple times in the template,
-        // but a POST or GET mact can only be for one of them.
-        $mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
-        $ary = explode(',', $mact, 4);
-        $mactmodulename = $ary[0] ?? '';
-        if( strcasecmp($mactmodulename, $module) == 0 ) {
-            $checkid = $ary[1] ?? '';
-            $inline = isset($ary[3]) && $ary[3] === 1;
-            if( $inline && $checkid == $id ) { // presumbly $setid true i.e. not a random id
-                // the action is for this instance of the module and we're inline
-                // i.e. the results are supposed to replace the tag, not {content}
-                $action = $ary[2] ?? 'default';
-                $params['action'] = $action; // deprecated since 2.3
-                $params = array_merge($params, AppSingle::ModuleOperations()->GetModuleParameters($id));
-            }
-        }
-    }
-*/
-    $params['id'] = $id; // deprecated since 2.3
-    if( $setid ) {
-        $params['idprefix'] = $id; // might be needed per se, probably not
-        $modinst->SetParameterType('idprefix',CLEAN_STRING); // in case it's a frontend request
-    }
-    $returnid = AppSingle::App()->get_content_id();
-    $params['returnid'] = $returnid;
-
-    ob_start(); // capture acion output, direct or returned
-    $result = $modinst->DoActionBase($action, $id, $params, $returnid, $template);
-    if( $result || is_numeric($result) ) {
-        echo $result;
-    }
-    $out = ob_get_contents();
-    ob_end_clean();
-
-    if( isset($params['assign']) ) {
-        $template->assign(trim($params['assign']),$out);
-        return '';
-    }
-    return $out;
+    return ModulePluginOperations::call_plugin_module($params, $template);
 }
 
 /**
