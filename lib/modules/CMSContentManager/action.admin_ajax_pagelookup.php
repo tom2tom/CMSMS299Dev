@@ -60,4 +60,3 @@ if( $term ) {
 
 echo json_encode($out);
 exit;
-
