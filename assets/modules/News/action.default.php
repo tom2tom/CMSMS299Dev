@@ -65,7 +65,7 @@ LEFT OUTER JOIN ' . CMS_DB_PREFIX . 'users U ON U.user_id = N.author_id
 WHERE status = \'published\' AND ';
 
 if( !empty($params['idlist']) ) { //id = 0 N/A
-	if( is_numeric($params['idlist'])) {
+    if( is_numeric($params['idlist'])) {
         $query1 .= ' (N.news_id = '.(int)$params['idlist'].') AND ';
     }
     elseif( is_string($params['idlist']) ) {
@@ -121,31 +121,31 @@ else {
 $sortrandom = false;
 $sortby = trim(get_parameter_value($params,'sortby','start_time'));
 switch( $sortby ) {
-  case 'news_category':
-    if (isset($params['sortasc']) && (strtolower($params['sortasc']) == 'true')) {
-        $query1 .= 'ORDER BY G.long_name ASC, N.start_time ';
-    }
-    else {
-        $query1 .= 'ORDER BY G.long_name DESC, N.start_time ';
-    }
+    case 'news_category':
+        if (isset($params['sortasc']) && (strtolower($params['sortasc']) == 'true')) {
+            $query1 .= 'ORDER BY G.long_name ASC, N.start_time ';
+        }
+        else {
+            $query1 .= 'ORDER BY G.long_name DESC, N.start_time ';
+        }
     break;
 
-  case 'random':
-    $query1 .= 'ORDER BY RAND() ';
-    $sortrandom = true;
-    break;
+    case 'random':
+        $query1 .= 'ORDER BY RAND() ';
+        $sortrandom = true;
+        break;
 
-  case 'summary':
-  case 'news_data':
-  case 'news_category':
-  case 'news_title':
-  case 'end_time':
-  case 'news_extra':
-    $query1 .= "ORDER BY $sortby ";
-    break;
-  default:
-    $query1 .= 'ORDER BY start_time ';
-    break;
+    case 'summary':
+    case 'news_data':
+    case 'news_category':
+    case 'news_title':
+    case 'end_time':
+    case 'news_extra':
+        $query1 .= "ORDER BY $sortby ";
+        break;
+    default:
+        $query1 .= 'ORDER BY start_time ';
+        break;
 }
 
 if( !$sortrandom ) {
@@ -183,6 +183,9 @@ if( isset( $params['start'] ) ) {
 $rst = $db->SelectLimit($query1,$pagelimit,$startelement);
 $entryarray = [];
 if( $rst ) {
+
+    $dopretty = $config['url_rewriting'] != 'none';
+
     // build a list of news id's so we can preload stuff from other tables.
     $result_ids = [];
     while( !$rst->EOF() ) {
@@ -190,7 +193,7 @@ if( $rst ) {
         $rst->MoveNext();
     }
 
-	$fmt = $this->GetDateFormat();
+    $fmt = $this->GetDateFormat();
     $rst->MoveFirst();
     while( !$rst->EOF() ) {
         $row = $rst->fields;
@@ -231,37 +234,53 @@ if( $rst ) {
         if( isset($params['pagelimit']) ) { $sendtodetail['pagelimit'] = $params['pagelimit']; }
         if( isset($params['showall']) ) { $sendtodetail['showall'] = $params['showall']; }
 
-        $prettyurl = $row['news_url'];
-        if( !$prettyurl ) {
-            $aliased_title = munge_string_to_url($row['news_title']);
-            $prettyurl = 'News/'.$row['news_id'].'/'.($detailpage!=''?$detailpage:$returnid)."/$aliased_title";
-            if( isset($sendtodetail['detailtemplate']) ) {
-                $prettyurl .= '/d,' . $sendtodetail['detailtemplate'];
-            }
-        }
-
         $moretext = $params['moretext'] ?? $this->Lang('moreprompt');
         $backto = ($detailpage) ? $detailpage : $returnid;
-        $onerow->detail_url = $this->create_url($id,'detail',$backto,
-			$sendtodetail);
-        $onerow->moreurl = $this->CreateLink($id,'detail',$backto,
-			$moretext,$sendtodetail,'',true,false,'',true,$prettyurl);
-        $onerow->link = $this->CreateLink($id,'detail',$backto,
-			'',$sendtodetail,'',true,false,'',true,$prettyurl);
-        $onerow->titlelink = $this->CreateLink($id,'detail',$backto,
-			$row['news_title'],$sendtodetail,'',false,false,'',true,$prettyurl);
-        $onerow->morelink = $this->CreateLink($id,'detail',$backto,
-			$moretext,$sendtodetail,'',false,false,'',true,$prettyurl);
-
+        $onerow->detail_url = $this->create_url($id,'detail',$backto,$sendtodetail);
+        if( $dopretty ) {
+            $prettyurl = $row['news_url'];
+            if( !$prettyurl ) {
+                $aliased_title = munge_string_to_url($row['news_title']);
+                $prettyurl = 'News/'.$row['news_id'].'/'.($detailpage!=''?$detailpage:$returnid)."/$aliased_title";
+                if( isset($sendtodetail['detailtemplate']) ) {
+                    $prettyurl .= '/d,' . $sendtodetail['detailtemplate'];
+                }
+            }
+            $onerow->moreurl = $this->CreateLink($id,'detail',$backto,
+                $moretext,         $sendtodetail,'',true,false,'',true,$prettyurl);
+            $onerow->link = $this->CreateLink($id,'detail',$backto,
+                '',                $sendtodetail,'',true,false,'',true,$prettyurl);
+            $onerow->titlelink = $this->CreateLink($id,'detail',$backto,
+                $row['news_title'],$sendtodetail,'',false,false,'',true,$prettyurl);
+            $onerow->morelink = $this->CreateLink($id,'detail',$backto,
+                $moretext,         $sendtodetail,'',false,false,'',true,$prettyurl);
+        }
+        else {
+            $urlparms = [
+                'articleid' => $row['news_id'],
+                'returnid' => ($detailpage) ? $detailpage : $returnid,
+            ];
+            if( !empty($sendtodetail['detailtemplate']) ) {
+                $urlparms['detailtemplate'] = $sendtodetail['detailtemplate'];
+            }
+            $onerow->moreurl = $this->CreateLink($id,'detail',$backto,
+                $moretext,         $urlparms,'',true);
+            $onerow->link = $this->CreateLink($id,'detail',$backto,
+                '',                $urlparms,'',true);
+            $onerow->titlelink = $this->CreateLink($id,'detail',$backto,
+                $row['news_title'],$urlparms,'',false);
+            $onerow->morelink = $this->CreateLink($id,'detail',$backto,
+                $moretext,         $urlparms,'',false);
+        }
         $entryarray[] = $onerow;
         $rst->MoveNext();
     } // while
 
     // determine number of pages
     $ecount = count($entryarray);
-	if( isset( $params['start'] ) ) { $ecount -= (int)$params['start']; }
+    if( isset( $params['start'] ) ) { $ecount -= (int)$params['start']; }
     $pagecount = (int)($ecount / $pagelimit);
-	if( ($ecount % $pagelimit) != 0 ) { $pagecount++; }
+    if( ($ecount % $pagelimit) != 0 ) { $pagecount++; }
 } // resultset
 else {
     $ecount = 0;
@@ -325,7 +344,7 @@ elseif( isset($params['category_id']) && $items ) {
             break;
         }
     }
-//    $catName = $db->GetOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?',array($params['category_id']));
+//  $catName = $db->GetOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?',array($params['category_id']));
 }
 
 $tpl->assign('category_name',$catName)
@@ -333,4 +352,4 @@ $tpl->assign('category_name',$catName)
  ->assign('count',$c);
 
 $tpl->display();
-return false; //explicit falsy return needed
+return false;
