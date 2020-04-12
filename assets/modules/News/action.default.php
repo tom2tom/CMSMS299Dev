@@ -115,7 +115,7 @@ if( isset($params['showarchive']) ) {
     $query1 .= 'end_time IS NOT NULL AND end_time BETWEEN 1 AND '.$now.' ';
 }
 else {
-    $query1 .= 'start_time IS NOT NULL AND start_time > 0 AND (end_time IS NULL OR end_time = 0 OR '.$now.' BETWEEN start_time AND end_time) ';
+    $query1 .= 'start_time IS NOT NULL AND start_time>0 AND (end_time IS NULL OR end_time=0 OR '.$now.' BETWEEN start_time AND end_time) ';
 }
 
 $sortrandom = false;

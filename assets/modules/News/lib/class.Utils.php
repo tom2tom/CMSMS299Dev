@@ -358,7 +358,7 @@ final class Utils
 LEFT OUTER JOIN '.CMS_DB_PREFIX.'module_news_categories G ON G.news_category_id = N.news_category_id
 WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).' < '.$now.')';
 		if( !$allow_expired ) {
-			$query .= ' AND (end_time IS NULL OR end_time=0 OR end_time > '.$now.')';
+			$query .= ' AND (end_time IS NULL OR end_time=0 OR end_time>'.$now.')';
 		}
 		$row = $db->GetRow($query, [$article_id]);
 		if( $row ) {
