@@ -18,8 +18,6 @@
 
 final class CMSContentManager extends CMSModule
 {
-    public $CMSMScore = true; // core-module indicator
-
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetVersion() { return '2.0'; }
     public function GetHelp() { return $this->Lang('help_module'); }
@@ -36,6 +34,16 @@ final class CMSContentManager extends CMSModule
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
     public function UninstallPreMessage() { return $this->Lang('preuninstall'); }
+
+    public function HasCapability($capability, $params = [])
+    {
+        switch ($capability) {
+            case CmsCoreCapabilities::CORE_MODULE:
+                return true;
+            default:
+                return false;
+        }
+    }
 
     /**
      * Tests whether the currently logged in user has the ability to edit ANY content page

@@ -28,7 +28,6 @@ class ModuleManager extends CMSModule
 {
     const _dflt_request_url = 'https://www.cmsmadesimple.org/ModuleRepository/request/v2';
 
-    public $CMSMScore = true; // core-module indicator
     private $_operations;
 
     public function GetAdminDescription() { return $this->Lang('admindescription'); }
@@ -93,9 +92,16 @@ class ModuleManager extends CMSModule
         return parent::DoAction( $action, $id, $params, $returnid );
     }
 
-    public function HasCapability($capability,$params = [])
+    public function HasCapability($capability, $params = [])
     {
-        if( $capability == 'clicommands' ) return class_exists('CMSMS\\CLI\\App'); // TODO better namespace
+        switch ($capability) {
+            case CmsCoreCapabilities::CORE_MODULE:
+                return true;
+            case 'clicommands':
+                return class_exists('CMSMS\\CLI\\App'); // TODO better namespace
+            default:
+                return false;
+        }
     }
 
     /**

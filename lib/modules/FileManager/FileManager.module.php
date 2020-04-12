@@ -1,7 +1,7 @@
 <?php
 #FileManager: a module for CMS Made Simple to allow website file placement, viewing etc
 #Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
-#Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -23,8 +23,6 @@ include_once __DIR__.DIRECTORY_SEPARATOR.'fileinfo.php';
 
 final class FileManager extends CMSModule
 {
-	public $CMSMScore = true; // core-module indicator
-
 	public function AccessAllowed() { return $this->CheckPermission('Modify Files'); }
     public function AdvancedAccessAllowed() { return $this->CheckPermission('Use FileManager Advanced',0); }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
@@ -41,6 +39,7 @@ final class FileManager extends CMSModule
     public function GetName() { return 'FileManager'; }
     public function GetVersion() { return '1.7.0'; }
     public function HasAdmin() { return TRUE; }
+	public function HasCapability($capability, $params = []) { return $capability == CmsCoreCapabilities::CORE_MODULE; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return TRUE; }
 //    public function LazyLoadFrontend() { return TRUE; }

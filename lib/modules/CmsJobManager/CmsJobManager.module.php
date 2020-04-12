@@ -18,8 +18,8 @@
 
 use CmsJobManager\JobQueue;
 use CmsJobManager\utils;
-use CMSMS\Async\Job;
 use CMSMS\Async\AsyncJobManager;
+use CMSMS\Async\Job;
 use CMSMS\Async\RegularTask;
 use CMSMS\ModuleOperations;
 
@@ -31,7 +31,6 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
     const EVT_ONFAILEDJOB = 'OnJobFailed';
     const TABLE_NAME = CMS_DB_PREFIX.'mod_cmsjobmgr';
 
-    public $CMSMScore = true; // core-module indicator
     private $_current_job;
     private $_lock;
 
@@ -42,7 +41,6 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
 //        $this->RegisterModulePlugin();
     }
 */
-
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'siteadmin'; }
     public function GetAuthor() { return 'Robert Campbell'; }
@@ -62,12 +60,14 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-//           case CmsCoreCapabilities::PLUGIN_MODULE:
-//           case CmsCoreCapabilities::TASKS:
-           case CmsCoreCapabilities::JOBS_MODULE:
-               return TRUE;
+            case CmsCoreCapabilities::CORE_MODULE:
+//          case CmsCoreCapabilities::PLUGIN_MODULE:
+//          case CmsCoreCapabilities::TASKS:
+            case CmsCoreCapabilities::JOBS_MODULE:
+                return TRUE;
+            default:
+                return FALSE;
         }
-        return FALSE;
     }
 
     public function DoEvent($originator, $eventname, &$params)
@@ -326,7 +326,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
                 $db->Execute($sql,[$job->start,$dbr]);
                 return $dbr;
             }
-			//TODO consider merits of DT field for created etc
+            //TODO consider merits of DT field for created etc
             $sql = 'INSERT INTO '.self::TABLE_NAME.' (name,created,module,errors,start,recurs,until,data) VALUES (?,?,?,?,?,?,?,?)';
             $dbr = $db->Execute($sql,[$job->name,$job->created,$job->module,$job->errors,$job->start,$recurs,$until,serialize($job)]);
             $new_id = $db->Insert_ID();

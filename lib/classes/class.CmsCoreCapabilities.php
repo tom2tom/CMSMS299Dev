@@ -44,6 +44,12 @@ final class CmsCoreCapabilities extends BasicEnum
 	const CONTENT_TYPES = 'content_types';
 
 	/**
+	 * A constant indicating that the module is core/system
+	 * @since 2.9
+	 */
+	const CORE_MODULE = 'coremodule';
+
+	/**
 	 * A constant indicating that the module handles events
 	 */
 	const EVENTS = 'handles_events';

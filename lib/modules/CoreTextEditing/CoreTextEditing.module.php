@@ -17,9 +17,10 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-class CoreTextEditing extends CMSModule implements CMSMS\MultiEditor
+use CMSMS\MultiEditor;
+
+class CoreTextEditing extends CMSModule implements MultiEditor
 {
-	public $CMSMScore = true; // core-module indicator
 	/**
 	 * @var array $editors
 	 * Supported editors (in alpha-order) each member like 'Ace'=>'CoreTextEditing::Ace';
@@ -59,7 +60,13 @@ class CoreTextEditing extends CMSModule implements CMSMS\MultiEditor
 
 	public function HasCapability($capability, $params = [])
 	{
-		return $capability == CmsCoreCapabilities::SYNTAX_MODULE;
+		switch ($capability) {
+			case CmsCoreCapabilities::CORE_MODULE:
+			case CmsCoreCapabilities::SYNTAX_MODULE;
+				return true;
+			default:
+				return false;
+		}
 	}
 
 	/**
@@ -96,7 +103,7 @@ class CoreTextEditing extends CMSModule implements CMSMS\MultiEditor
 //		}
 		$params['edit'] = true; //TODO
 
-		$val = cms_userprefs::get_for_user(\get_userid(false), 'syntax_editor');
+		$val = cms_userprefs::get_for_user(get_userid(false), 'syntax_editor');
 		if (!$val) {
 			$val = cms_userprefs::get('syntax_editor');
 			if (!$val) {

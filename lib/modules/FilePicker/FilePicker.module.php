@@ -31,7 +31,6 @@ use FilePicker\Utils;
 
 final class FilePicker extends CMSModule implements IFilePicker
 {
-    public $CMSMScore = true; // core-module indicator
     protected $_dao;
     protected $_typehelper;
 
@@ -77,6 +76,7 @@ final class FilePicker extends CMSModule implements IFilePicker
     public function HasCapability( $capability, $params = [] )
     {
         switch( $capability ) {
+        case CmsCoreCapabilities::CORE_MODULE:
         case 'contentblocks':
         case 'filepicker':
         case 'upload':

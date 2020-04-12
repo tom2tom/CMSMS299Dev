@@ -22,8 +22,6 @@ class MicroTiny extends CMSModule
   const PROFILE_FRONTEND = '__frontend__';
   const PROFILE_ADMIN = '__admin__';
 
-  public $CMSMScore = true; // core-module indicator
-
   public function GetAdminDescription() { return $this->Lang('admindescription'); }
   public function GetAuthor() { return 'Morten Poulsen'; }
   public function GetAuthorEmail() { return '&lt;morten@poulsen.org&gt;'; }
@@ -48,6 +46,7 @@ class MicroTiny extends CMSModule
   public function HasCapability($capability, $params=[])
   {
     switch ($capability) {
+      case CmsCoreCapabilities::CORE_MODULE:
       case CmsCoreCapabilities::PLUGIN_MODULE:
       case CmsCoreCapabilities::WYSIWYG_MODULE:
         return TRUE;

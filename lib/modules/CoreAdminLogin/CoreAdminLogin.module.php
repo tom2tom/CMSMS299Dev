@@ -1,7 +1,7 @@
 <?php
 /*
 Module: CoreAdminLogin - standalone and theme-support login/out
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -25,11 +25,8 @@ use CMSMS\IAuthModuleInterface;
  * @package CMS
  * @license GPL
  */
-
 class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
 {
-    public $CMSMScore = true; // core-module indicator
-
     // minimum methods used by metafile processor
     public function GetAuthor() { return 'Robert Campbell'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
@@ -49,14 +46,20 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
 
     public function HasCapability($capability, $params = [])
     {
-        return ($capability == 'adminlogin');
+        switch ($capability) {
+            case CmsCoreCapabilities::CORE_MODULE:
+            case 'adminlogin':
+                return true;
+            default:
+                return false;
+        }
     }
 
     // interface methods
 
     /**
      * Process the current login 'phase', and generate appropriate page-content
-	 * for use upstream
+     * for use upstream
      * No header / footer inclusions (js, css) are done (i.e. assumes upstream does that)
      * @return array including login-form content and related parameters
      */

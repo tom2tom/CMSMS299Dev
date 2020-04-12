@@ -1,6 +1,6 @@
 <?php
 #Search: a module to find words/phrases in 'core' site pages and some modules' pages
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -24,8 +24,6 @@ const NON_INDEXABLE_CONTENT = '<!-- pageAttribute: NotSearchable -->';
 
 class Search extends CMSModule
 {
-    public $CMSMScore = true; // core-module indicator
-
     public function GetAdminDescription() { return $this->Lang('description'); }
     public function GetAdminSection() { return 'siteadmin'; }
     public function GetAuthor() { return 'Ted Kulp'; }
@@ -151,6 +149,7 @@ class Search extends CMSModule
     public function HasCapability($capability,$params = [])
     {
         switch( $capability ) {
+        case CmsCoreCapabilities::CORE_MODULE:
         case CmsCoreCapabilities::SEARCH_MODULE:
         case CmsCoreCapabilities::PLUGIN_MODULE:
             return true;

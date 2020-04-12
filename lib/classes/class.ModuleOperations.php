@@ -332,7 +332,7 @@ VALUES (?,?,?,NOW())');
 
 		$names = $this->_list_system_modules();
 		if( $names && in_array($module_name,$names) ) {
-			if( !property_exists($obj, 'CMSMScore') ) {
+			if( !$obj->HasCapability(CmsCoreCapabilities::CORE_MODULE) ) {
 				cms_error('Installation of module '.$module_name.' failed: re-use core-module name');
 				return [FALSE,lang('errorbadname')];
 			}
@@ -1056,7 +1056,7 @@ VALUES (?,?,?,$now)");
 					require_once cms_module_path($onename);
 				}
 				$obj = new $module_name();
-				if( property_exists($obj, 'CMSMScore') ) {
+				if( $obj->HasCapability(CmsCoreCapabilities::CORE_MODULE) ) {
 					$val[] = $module_name;
 				}
 				unset($obj);

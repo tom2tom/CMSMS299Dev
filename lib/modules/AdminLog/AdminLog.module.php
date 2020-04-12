@@ -29,7 +29,6 @@ final class AdminLog extends CMSModule
 {
     const LIFETIME_SITEPREF = 'AdminLog\\\\lifetime';  //c.f. cms_siteprefs::NAMESPACER formerly 'adminlog_lifetime';
 
-    public $CMSMScore = true; // core-module indicator
     protected $storage;
     protected $auditor;
 
@@ -70,8 +69,15 @@ final class AdminLog extends CMSModule
 
     public function HasCapability($capability, $params = [])
     {
-        if( $capability == CmsCoreCapabilities::TASKS ) return true;
-        if( $capability == 'clicommands' ) return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
+        switch ($capability) {
+            case CmsCoreCapabilities::CORE_MODULE:
+            case CmsCoreCapabilities::TASKS:
+                return true;
+            case 'clicommands':
+                return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
+            default:
+                return false;
+        }
     }
 
     public function get_tasks()

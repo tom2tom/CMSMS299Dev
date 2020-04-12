@@ -28,8 +28,6 @@ final class Navigator extends CMSModule
 {
     const __DFLT_PAGE = '**DFLT_PAGE**';
 
-    public $CMSMScore = true; // core-module indicator
-
     public function GetAdminDescription() { return $this->Lang('description'); }
     public function GetAdminSection() { return 'layout'; }
     public function GetAuthor() { return 'Robert Campbell'; }
@@ -90,10 +88,12 @@ final class Navigator extends CMSModule
     public function HasCapability($capability, $params=[])
     {
         switch ($capability) {
+            case CmsCoreCapabilities::CORE_MODULE:
             case CmsCoreCapabilities::PLUGIN_MODULE:
-            return TRUE;
+                return TRUE;
+            default:
+                return FALSE;
         }
-        return FALSE;
     }
 
     final public static function nav_breadcrumbs($params, $smarty)
