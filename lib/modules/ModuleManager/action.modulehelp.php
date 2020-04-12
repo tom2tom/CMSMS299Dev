@@ -76,3 +76,4 @@ $tpl->assign('title',$this->Lang('helptxt'))
  ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module_manager')));
 
 $tpl->display();
+return false;

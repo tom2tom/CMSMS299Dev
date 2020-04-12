@@ -306,6 +306,7 @@ try {
 
      ->assign('dependencies',$alldeps);
 	$tpl->display();
+	return false;
 }
 catch( Exception $e ) {
     $this->SetError($e->GetMessage());

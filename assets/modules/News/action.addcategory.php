@@ -98,3 +98,4 @@ $tpl->assign('formaction','addcategory')
  ->assign('categories',$categories);
 
 $tpl->display();
+return false;

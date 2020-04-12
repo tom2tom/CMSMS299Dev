@@ -44,3 +44,4 @@ $tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, '
 // ->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
 
 $tpl->display();
+return false;

@@ -212,3 +212,4 @@ $tpl->assign('use_or_text', $this->Lang('use_or'))
  ->assign('noresultsfound', $this->Lang('noresultsfound'))
  ->assign('timetaken', $this->Lang('timetaken'));
 $tpl->display();
+return false;

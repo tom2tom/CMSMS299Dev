@@ -163,3 +163,4 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_ordercontent.tp
 $tpl->assign('tree',$hm);
 
 $tpl->display();
+return false;

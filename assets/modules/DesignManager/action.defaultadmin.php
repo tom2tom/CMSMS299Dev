@@ -100,3 +100,4 @@ $tpl->assign('pmod',$pmod);
 //}
 
 $tpl->display();
+return false;

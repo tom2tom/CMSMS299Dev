@@ -39,3 +39,4 @@ catch( Exception $e ) {
 }
 
 $tpl->display();
+return false;

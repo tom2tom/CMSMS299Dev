@@ -233,3 +233,4 @@ $tpl->assign('formstart',$this->CreateFormStart($id,'rotate',$returnid,'post',''
  ->assign('formend',$this->CreateFormEnd());
 
 $tpl->display();
+return false;

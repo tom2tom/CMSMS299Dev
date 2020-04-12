@@ -68,3 +68,4 @@ foreach ($all as $editor => $val) {
 $tpl->assign('editors', $editors);
 
 $tpl->display();
+return false;

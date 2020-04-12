@@ -241,3 +241,4 @@ catch( Throwable $t ) {
         exit;
     }
 }
+return false;

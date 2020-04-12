@@ -21,7 +21,7 @@ if( !function_exists('cmsms') ) exit;
 $fp = cms_join_path(CMS_ROOT_PATH, 'lib', 'assets', 'method.edittemplate.php');
 if( !is_file($fp) ) {
     echo '<p class="page_error">'.lang('error_internal').'</p>';
-    return;
+    return false;
 }
 
 $user_id = get_userid();

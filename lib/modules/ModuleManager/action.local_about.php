@@ -25,3 +25,4 @@ $tpl->assign('module_name',$module)
  ->assign('about_title',$this->Lang('about_title',$modinstance->GetName()));
 
 $tpl->display();
+return false;

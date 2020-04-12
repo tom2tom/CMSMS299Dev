@@ -91,6 +91,7 @@ try {
      ->assign('design',$design);
 
     $tpl->display();
+    return false;
 }
 catch( CmsException $e ) {
     $this->SetError($e->GetMessage());

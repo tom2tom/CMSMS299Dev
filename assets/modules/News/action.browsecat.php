@@ -44,3 +44,4 @@ $tpl->assign('count', count($items))
  ->assign('cats', $items);
 
 $tpl->display();
+return false;

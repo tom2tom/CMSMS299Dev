@@ -139,3 +139,4 @@ $slaves = tools::get_slave_classes();
 $tpl->assign('slaves',$slaves);
 
 $tpl->display();
+return false;

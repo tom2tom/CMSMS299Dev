@@ -27,3 +27,4 @@ $tpl->assign('dflt_profile_id',$this->_dao->getDefaultProfileId())
  ->assign('profiles',$this->_dao->loadAll());
 
 $tpl->display();
+return false;

@@ -176,6 +176,7 @@ EOS;
   default:
     break;
   } // switch
+  return false;
 }
 catch( CmsException $e ) {
   $this->SetError($e->GetMessage());

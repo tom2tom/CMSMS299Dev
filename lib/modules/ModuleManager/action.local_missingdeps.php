@@ -19,3 +19,4 @@ $tpl->assign('back_url',$this->create_url($id,'defaultadmin',$returnid))
  ->assign('info',$info);
 
 $tpl->display();
+return false;

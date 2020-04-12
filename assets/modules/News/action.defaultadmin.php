@@ -165,3 +165,4 @@ if( $pset ) {
 }
 
 $tpl->display();
+return false;

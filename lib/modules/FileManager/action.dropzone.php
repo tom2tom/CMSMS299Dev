@@ -134,3 +134,4 @@ if( $output ) {
 }
 
 $tpl->display();
+return false;

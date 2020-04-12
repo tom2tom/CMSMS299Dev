@@ -112,3 +112,4 @@ EOS;
 add_page_foottext($js);
 
 $tpl->display();
+return false;

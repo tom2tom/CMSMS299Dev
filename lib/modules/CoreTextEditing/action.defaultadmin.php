@@ -56,3 +56,4 @@ $tpl->assign([
 ]);
 
 $tpl->display();
+return false;

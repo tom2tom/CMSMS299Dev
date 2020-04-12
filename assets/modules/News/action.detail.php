@@ -100,3 +100,4 @@ $tpl->assign('category_link',$this->CreateLink($id, 'default', $returnid, $catNa
  ->assign('extra_label', $this->Lang('extra_label'));
 
 $tpl->display();
+return false;

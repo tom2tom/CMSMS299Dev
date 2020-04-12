@@ -117,3 +117,4 @@ $tpl->assign('formaction','editcategory')
  ->assign('categories',$categories);
 
 $tpl->display();
+return false;

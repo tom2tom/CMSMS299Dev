@@ -42,4 +42,4 @@ if (isset($params['newmode'])) {
 
 	$tpl->display();
 }
-
+return false;

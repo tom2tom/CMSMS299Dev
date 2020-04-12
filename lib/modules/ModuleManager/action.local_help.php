@@ -51,3 +51,4 @@ if( $our_lang != 'en_US' && $lang != '' ) {
 }
 
 $tpl->display();
+return false;

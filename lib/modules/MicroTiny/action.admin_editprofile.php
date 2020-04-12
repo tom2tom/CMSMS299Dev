@@ -65,6 +65,7 @@ try {
   $tpl->assign('stylesheets',$stylesheets);
 
   $tpl->display();
+  return false;
 }
 catch( Exception $e ) {
   $this->SetError($e->GetMessage());

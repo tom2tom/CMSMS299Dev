@@ -100,3 +100,4 @@ $tpl->assign('pagelist',$pagelist)
  ->assign('sheets',$sheetrows);
 
 $tpl->display();
+return false;

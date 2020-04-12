@@ -55,3 +55,4 @@ $tpl->display();
 include __DIR__.DIRECTORY_SEPARATOR.'uploadview.php';
 // get the files table
 include __DIR__.DIRECTORY_SEPARATOR.'action.admin_fileview.php'; // this is also an action, for ajax processing
+return false;

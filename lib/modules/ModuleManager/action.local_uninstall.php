@@ -53,3 +53,4 @@ try {
 catch( Exception $e ) {
     $this->SetError($e->GetMessage());
 }
+return false;

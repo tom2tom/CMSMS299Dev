@@ -97,3 +97,4 @@ $tpl->display();
 unset($tpl);
 
 debug_buffer('Finished Navigator breadcrumbs action');
+return false;

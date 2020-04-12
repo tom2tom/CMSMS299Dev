@@ -144,3 +144,4 @@ $tpl->assign('pagelist',$xlist)
  ->assign('displaydata',$displaydata);
 
 $tpl->display();
+return false;

@@ -257,4 +257,4 @@ $tpl->display();
 unset($tpl);
 debug_buffer('Finished Navigator default action');
 
-return null;
+return false;

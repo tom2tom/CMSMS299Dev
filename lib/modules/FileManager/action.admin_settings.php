@@ -26,3 +26,4 @@ $tpl->assign('permstyles',array_flip($permstyles))
  ->assign('permissionstyle',$permissionstyle);
 
 $tpl->display();
+return false;

@@ -421,3 +421,4 @@ try {
 include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 
 $tpl->display();
+return false;

@@ -107,3 +107,4 @@ if( $this->CheckPermission('Modify Site Preferences') ) {
 }
 
 $tpl->display();
+return false;

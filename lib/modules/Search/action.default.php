@@ -80,3 +80,4 @@ if( $hidden ) {
 }
 
 $tpl->display();
+return false;

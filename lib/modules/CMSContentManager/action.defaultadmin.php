@@ -499,3 +499,5 @@ if( $pmanage ) {
 }
 
 $tpl->display();
+return false;
+return false;

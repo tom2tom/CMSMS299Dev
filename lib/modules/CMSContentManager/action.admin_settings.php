@@ -91,3 +91,4 @@ $tpl->assign('page_prefs',$prefs)
  ->assign('addteditor_list',$eds);
 
 $tpl->display();
+return false;

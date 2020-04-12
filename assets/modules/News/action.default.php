@@ -115,7 +115,7 @@ if( isset($params['showarchive']) ) {
     $query1 .= 'end_time IS NOT NULL AND end_time BETWEEN 1 AND '.$now.' ';
 }
 else {
-    $query1 .= 'start_time IS NOT NULL AND start_time>0 AND (end_time IS NULL OR end_time=0 OR '.$now.' BETWEEN start_time AND end_time) ';
+    $query1 .= 'start_time IS NOT NULL AND start_time > 0 AND (end_time IS NULL OR end_time = 0 OR '.$now.' BETWEEN start_time AND end_time) ';
 }
 
 $sortrandom = false;
@@ -234,7 +234,7 @@ if( $rst ) {
         $prettyurl = $row['news_url'];
         if( !$prettyurl ) {
             $aliased_title = munge_string_to_url($row['news_title']);
-            $prettyurl = 'news/'.$row['news_id'].'/'.($detailpage!=''?$detailpage:$returnid)."/$aliased_title";
+            $prettyurl = 'News/'.$row['news_id'].'/'.($detailpage!=''?$detailpage:$returnid)."/$aliased_title";
             if( isset($sendtodetail['detailtemplate']) ) {
                 $prettyurl .= '/d,' . $sendtodetail['detailtemplate'];
             }
@@ -333,3 +333,4 @@ $tpl->assign('category_name',$catName)
  ->assign('count',$c);
 
 $tpl->display();
+return false; //explicit falsy return needed

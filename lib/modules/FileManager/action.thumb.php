@@ -76,3 +76,4 @@ $tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,'p
  ->assign('formend', $this->CreateFormEnd());
 
 $tpl->display();
+return false;

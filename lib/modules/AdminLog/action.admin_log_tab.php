@@ -124,3 +124,4 @@ $tpl->assign('filter',$filter)
  ->assign('filter_applied',$filter_applied);
 
 $tpl->display();
+return false;

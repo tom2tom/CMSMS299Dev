@@ -108,3 +108,4 @@ $tpl->assign('userlist',$tmp)
  ->assign('userid',get_userid());
 
 $tpl->display();
+return false;

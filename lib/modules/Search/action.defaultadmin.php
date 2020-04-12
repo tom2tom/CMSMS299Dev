@@ -43,7 +43,7 @@ else if (isset($params['exportcsv']) ) {
             $output .= "\"{$data[$i]['word']}\",{$data[$i]['count']}\n";
         }
         echo $output;
-        exit();
+        exit;
     }
 }
 else if (isset($params['resettodefault'])) {
@@ -123,3 +123,4 @@ $tpl->assign('input_resultpage',
 				AdminUtils::CreateHierarchyDropdown(0,$this->GetPreference('resultpage',-1),$id.'resultpage',true));
 
 $tpl->display();
+return false;

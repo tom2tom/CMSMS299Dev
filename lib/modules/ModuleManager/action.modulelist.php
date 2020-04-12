@@ -147,3 +147,4 @@ $tpl->assign('nametext',$this->Lang('nametext'))
  ->assign('header',$this->Lang('versionsformodule',$prefix));
 
 $tpl->display();
+return false;

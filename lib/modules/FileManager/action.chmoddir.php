@@ -21,7 +21,7 @@ function chmodRecursive(string $path,$newmode, FileManager &$module)
 
 		if (is_file( "$path/$entry")) {
 			$module->SetMode($newmode,$path,$entry);
-					//echo "hi";die();
+			//echo "hi";die();
 		} elseif (is_dir("$path/$entry") && $entry!='.' && $entry!='..') {
 			chmodRecursive("$path/$entry",$newmode,$module);
 		}
@@ -92,3 +92,4 @@ if (isset($params['newmode'])) {
 
 	$tpl->display();
 }
+return false;

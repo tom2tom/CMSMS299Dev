@@ -80,3 +80,4 @@ else {
 $tpl->assign('content',$txt);
 
 $tpl->display();
+return false;
