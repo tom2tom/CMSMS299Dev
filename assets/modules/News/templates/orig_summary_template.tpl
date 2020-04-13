@@ -1,5 +1,5 @@
 <!-- Start News Display Template -->
-{* this section displays a clickable list of News categories which have displayable items *}
+{* this section displays a tree of clickable News categories which have displayable items *}
 {if $count > 0}
 <ul class="list1">
 {foreach $cats as $node}
@@ -24,7 +24,7 @@
 <h1>{$category_name}</h1>
 {/if}
 
-{* if you don't want category-browsing on your summary page, remove this line and everything above it *}
+{* if you don't want category-browsing on your summary page, remove this line and everything above it and the following line *}
 {/strip}
 {if $pagecount > 1}
   <p>
@@ -61,7 +61,7 @@
 {/if}
 
 {if $entry->summary}
-  {* note, for security purposes, incase News articles can come from untrused sources, we do not pass the summary or content through smarty in the default templates *}
+  {* note, for security purposes, because News articles might come from untrusted sources, we do not pass the summary or content through smarty in the default templates *}
   <div class="NewsSummarySummary">
     {$entry->summary}
   </div>
@@ -71,7 +71,7 @@
   </div>
 
 {else if $entry->content}
-  {* note, for security purposes, in case News articles can come from untrused sources, we do not pass the summary or content through smarty in the default templates *}
+  {* note, for security purposes, because News articles might come from untrusted sources, we do not pass the summary or content through smarty in the default templates *}
   <div class="NewsSummaryContent">
     {$entry->content}
   </div>
