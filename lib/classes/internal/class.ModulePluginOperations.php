@@ -70,7 +70,7 @@ final class ModulePluginOperations
 
 	/**
 	 * Call a class-method from a static context
-	 * @param string $name Method name (no aliasing done here)
+	 * @param string $name Method name | static proxy | module name
 	 * @param array $args Method argument(s)
 	 * @return mixed
 	 */
@@ -84,6 +84,10 @@ final class ModulePluginOperations
 		$pname = '_'.$name;
 		if( method_exists($obj, $pname) ) {
 			return $obj->$pname(...$args);
+		}
+		if( count($args) == 2 && is_array($args[0]) ) {
+			$args[0]['module'] = $name;
+			return $obj->_call_plugin_module(...$args);
 		}
 	}
 
@@ -100,7 +104,7 @@ final class ModulePluginOperations
 
 	/**
 	 * Initialize 'module_plugins' system-data cache
-	 * @since 2.3
+	 * @since 2.9
 	 */
 	public function _setup()
 	{
@@ -109,19 +113,27 @@ final class ModulePluginOperations
 				$data = [];
 				$modops = ModuleOperations::get_instance();
 				$tmp = $modops->GetCapableModules(CmsCoreCapabilities::PLUGIN_MODULE);
-				$tmp2 = $modops->GetMethodicModules('IsPluginModule',TRUE); //deprecated since 2.3
+				$tmp2 = $modops->GetMethodicModules('IsPluginModule',TRUE); //deprecated since 2.9
 				if( $tmp || $tmp2 ) {
-					$val = (int)cms_siteprefs::get('smarty_cachelife',-1);
-					if( $val != 0 ) $val = 1;
-					foreach( array_unique( array_merge($tmp, $tmp2)) as $module ) {
-						$callback = $module.'::function_plugin';
-						$sig = cms_utils::hash_string($module.$module.$callback);
+					$val = cms_siteprefs::get('smarty_cachemodules', 0);
+					if( $val ) {
+						$val = (int)cms_siteprefs::get('smarty_cachelife', -1);
+						//$val -1 for CACHING_LIFETIME_CURRENT (3600 secs)
+						//$val 0 for CACHING_OFF
+						//$val >0 for explicit cache ttl (secs)
+					}
+
+					foreach( array_unique( array_merge($tmp, $tmp2)) as $module_name ) {
+//						$callable = $module.'::function_plugin';
+//						$sig = cms_utils::hash_string($module.$module.$callable);
+						$callable = self::class.'::'.$module_name; // hence handle via our __callStatic()
+						$sig = cms_utils::hash_string($module_name.$module_name.$callable);
 						$data[$sig] = [
-							'name'=>$module,
-							'module'=>$module,
+							'name'=>$module_name,
+							'module'=>$module_name,
 							'type'=>'function',
-							'callback'=>$callback,
-							'cachable'=>$val, //maybe changed later
+							'callback'=>$callable,
+							'cachable'=>($val != 0), //maybe changed later
 							'available'=>self::AVAIL_ALL, //ditto
 						];
 					}
@@ -290,27 +302,31 @@ final class ModulePluginOperations
 	 * @param string $type Optional tag type (commonly Smarty::PLUGIN_FUNCTION, maybe Smarty::PLUGIN_BLOCK,
 	 *  Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
 	 *  Default 'function'
-	 * @return mixed array | null Array members 'callback','cachable'
+	 * @return mixed array | null Array members 'callback'=>string,'cachable'=>bool
 	 */
 	public function _load_plugin(string $name,string $type = 'function')
 	{
 		$module = $this->_get_plugin_module($name,$type);
 		if( $module ) {
 			$row = $this->_find($name,$type);
-			$cb = $row['callback'];
-			if( strncmp($cb,'s:',3) === 0 || strncmp($cb ,'a:2:{',5) === 0) {
+			$callable = $row['callback'];
+			if( !$callable || $callable == $row['module'].'::function_plugin' ) {
+				$callable = self::class.'::'.$row['module']; //substitute our handler
+			}
+			elseif( strncmp($callable,'s:',2) === 0 || strncmp($callable ,'a:2:{',5) === 0) {
 				try {
-					$cb = unserialize($row['callback']);
+					$callable = @unserialize($row['callback']);
 				}
 				catch (Throwable $t) {
-					$cb = false;
+					$callable = false;
 				}
 			}
-			if( is_string($cb) && strpos($cb, '::') === false ) {
-				$cb = $row['module'].'::'.$cb;
+			if( is_string($callable) && strpos($callable, '::') === false ) {
+				$callable = $row['module'].'::'.$callable;
 			}
+
 			return [
-				'callback' => $cb,
+				'callback' => $callable,
 				'cachable' => (bool)$row['cachable']
 			];
 		}
@@ -338,21 +354,24 @@ final class ModulePluginOperations
 	 * @since 2.3
 	 * @ignore
 	 * @param string $module_name The module name
-	 * @param mixed $callback string|array
+	 * @param mixed $callable string|array
 	 * @return string|null
 	 */
-	private function validate_callback(string $module_name,$callback)
+	private function validate_callback(string $module_name,$callable)
 	{
-		if( is_array($callback) ) {
-			if( count($callback) == 2 ) {
+		if( !$callable || $callable == $module_name.'::function_plugin' ) {
+			$callable = self::class.'::'.$module_name;
+		}
+		elseif( is_array($callable) ) {
+			if( count($callable) == 2 ) {
 				// ensure first member refers to a module (not necessarily the one doing the registration)
-				if( $callback[0] instanceof CMSModule ) {
-					$callback[0] = $callback[0]->GetName();
+				if( $callable[0] instanceof CMSModule ) {
+					$callable[0] = $callable[0]->GetName();
 				}
-				elseif( !is_string($callback[0]) || strtolower($callback[0]) == 'this') {
-					$callback[0] = $module_name;
+				elseif( !is_string($callable[0]) || strtolower($callable[0]) == 'this') {
+					$callable[0] = $module_name;
 				}
-				$callback = $callback[0].'::'.$callback[1];
+				$callable = $callable[0].'::'.$callable[1];
 			}
 			else {
 				// an array with only one member !?
@@ -360,22 +379,23 @@ final class ModulePluginOperations
 				return;
 			}
 		}
-		elseif( ($p = strpos($callback,'::')) !== FALSE ) {
+		elseif( ($p = strpos($callable,'::')) !== FALSE ) {
 			if( $p === 0 ) {
-				// ::method syntax (implies module name)
-				$callback = $module_name.$callback;
+				// '::method' syntax (implies module name)
+				$callable = $module_name.$callable;
 			}
 		}
 		else {
 			// assume it's just a method name
-			$callback = $module_name.'::'.$callback;
+			$callable = $module_name.'::'.$callable;
 		}
 
-		if( !is_callable($callback) ) {
+		if( !is_callable($callable) ) {
 			audit('',self::class,'Substitute the default handler for plugin '.$name);
-			$callback = $module_name.'::function_plugin';
+//			$callable = $module_name.'::function_plugin';
+			$callable = self::class.'::'.$module_name;
 		}
-		return $callback;
+		return $callable;
 	}
 
 	/**
@@ -384,21 +404,25 @@ final class ModulePluginOperations
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
 	 * @param string $type  The plugin type (normally 'function')
-	 * @param callable $callback A static function to call e.g. 'function_plugin' or 'module_name::function_plugin' or [$module_name,'function_plugin']
+	 * @param mixed $callable callable | falsy Static callable e.g.
+	 *  'module_name::plugin_handler'
+	 *  [$module_name,'plugin_handler']
+	 *  'plugin_handler' (in which case the module name will be added)
+	 *  or a falsy value results in the default handler being used
 	 * @param bool $cachable Deprecated since 2.3 Whether the plugin is cachable. Default true
 	 * @param int  $available Flag(s) indicating the intended use(s) of the plugin. Default AVAIL_FRONTEND.
 	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
 	 * @return bool indicating success
 	 */
-	public function _add_dynamic(string $module_name,string $name,string $type,callable $callback,bool $cachable = TRUE,int $available = 1) : bool
+	public function _add_dynamic(string $module_name,string $name,string $type,callable $callable,bool $cachable = TRUE,int $available = 1) : bool
 	{
-		$callback = $this->validate_callback($module_name,$callback);
-		if( !$callback ) return FALSE;
+		$callable = $this->validate_callback($module_name,$callable);
+		if( !$callable ) return FALSE;
 
 		$dirty = FALSE;
 		$cache = SysDataCache::get_instance();
 		$data = $cache->get('module_plugins');
-		$sig = cms_utils::hash_string($name.$module_name.$callback);
+		$sig = cms_utils::hash_string($name.$module_name.$callable);
 		if( !isset($data[$sig]) ) {
 			if( $available == 0 ) {
 				$available = self::AVAIL_FRONTEND;
@@ -409,14 +433,14 @@ final class ModulePluginOperations
 				'name'=>$name,
 				'module'=>$module_name,
 				'type'=>$type,
-				'callback'=>$callback,
+				'callback'=>$callable,
 				'cachable'=>$cachable,
 				'available'=>$available,
 			];
 			$dirty = TRUE;
 		}
 		else {
-			if( $data[$sig]['callback'] != $callback ) { $data[$sig]['callback'] = $callback; $dirty = TRUE; }
+			if( $data[$sig]['callback'] != $callable ) { $data[$sig]['callback'] = $callable; $dirty = TRUE; }
 			if( $data[$sig]['cachable'] != $cachable ) { $data[$sig]['cachable'] = $cachable; $dirty = TRUE; }
 			if( $data[$sig]['available'] != $available ) { $data[$sig]['available'] = $available; $dirty = TRUE; }
 		}
@@ -435,17 +459,22 @@ final class ModulePluginOperations
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
 	 * @param string $type  The plugin type (function,block,modifier)
-	 * @param callable $callback A static function to call e.g. 'function_plugin' or 'module_name::function_plugin' or [$module_name,'function_plugin']
+	 * @param mixed $callable callable | falsy Static callable e.g.
+	 *  'module_name::plugin_handler'
+	 *  [$module_name,'plugin_handler']
+	 *  'plugin_handler' (in which case the module name will be added)
+	 *  or a falsy value results in the default handler being used
 	 * @param bool $cachable Deprecated since 2.3 Whether the plugin is cachable. Default true
 	 * @param int  $available Flag(s) indicating the intended use(s) of the plugin. Default AVAIL_FRONTEND.
 	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
 	 * @return mixed boolean | null
 	 */
-	public function _add(string $module_name,string $name,string $type,callable $callback,bool $cachable = TRUE,int $available = 1)
+	public function _add(string $module_name,string $name,string $type,callable $callable,bool $cachable = TRUE,int $available = 1)
 	{
-		$callback = $this->validate_callback($module_name,$callback);
-		if( !$callback ) return FALSE;
+		$callable = $this->validate_callback($module_name,$callable);
+		if( !$callable ) return FALSE;
 
+		if( startswith($callable, self::classname.'::') ) $callable = NULL; // no need to store the default
 		if( $available == 0 ) {
 			$available = self::AVAIL_FRONTEND;
 		}
@@ -459,7 +488,7 @@ final class ModulePluginOperations
 		$query = <<<EOS
 UPDATE {$pref}module_smarty_plugins SET type=?,callback=?,available=?,cachable=? WHERE name=? AND module=?
 EOS;
-		$db->Execute($query, [$type,$callback,$available,$cachable,$name,$module_name]);
+		$db->Execute($query, [$type,$callable,$available,$cachable,$name,$module_name]);
 		$query = <<<EOS
 INSERT INTO {$pref}module_smarty_plugins (name,module,type,callback,available,cachable)
 SELECT ?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z
@@ -469,7 +498,7 @@ EOS;
 			$name,
 			$module_name,
 			$type,
-			$callback,
+			$callable,
 			$available,
 			$cachable,
 			$name,
