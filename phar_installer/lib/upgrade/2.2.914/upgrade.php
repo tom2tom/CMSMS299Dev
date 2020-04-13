@@ -134,7 +134,7 @@ $config = $app->get_config();
 $corenames = $config['coremodules'];
 $cores = implode(',', $corenames);
 $url =  ( !empty($siteinfo['supporturl']) ) ? $siteinfo['supporturl'] : '';
-$uuid = trim(base64_encode(cms_utils::random_string(24)), '='); //db hates storing some chars
+$uuid = trim(base64_encode(random_bytes(24)), '=');
 $down = cms_siteprefs::get('enablesitedownmessage', 0); //for rename
 $check = cms_siteprefs::get('use_smartycompilecheck', 1); //ditto
 

@@ -611,7 +611,7 @@ final class CmsApp
     {
         $val = cms_siteprefs::get('site_uuid');
         if( !$val ) {
-            $val = trim(base64_encode(cms_utils::random_string(24)), '=');
+            $val = trim(base64_encode(random_bytes(24)), '=');
             cms_siteprefs::set('site_uuid', $val);
             AppSingle::SysDataCache()->release('site_preferences');
         }
