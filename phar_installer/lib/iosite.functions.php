@@ -50,10 +50,23 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 
 	if (!empty($props['table'])) {
 		$contents = reset($props['subtypes']);
-		$fields = implode(',',array_keys($contents));
-		$sql = 'SELECT '.$fields.' FROM '.CMS_DB_PREFIX.$props['table'];
+		$fields = array_keys($contents);
+		$sql = 'SELECT '.implode(',', $fields).' FROM '.CMS_DB_PREFIX.$props['table'];
 	} elseif (!empty($props['sql'])) {
 		$sql = sprintf($props['sql'], CMS_DB_PREFIX);
+		if (!empty($props['subtypes'])) {
+			$contents = $props['subtypes'][key($props['subtypes'])];
+			switch (key($contents)) {
+				case null:
+				case 'isdata':
+				case 'optional':
+				case 'keeps':
+					$fields = array_keys($props['subtypes']);
+					break;
+				default:
+					$fields = array_keys($contents);
+			}
+		}
 	} elseif (empty($props['subtypes'])) {
 		$sql = '';
 	} else {
@@ -68,13 +81,25 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 	if ($sql) {
 		$rows = $db->getArray($sql);
 		if ($rows) {
+//TODO check this works for newsitems|categories
+if ($thistype == 'newscategories') {
+$stophere = 1;
+} elseif ($thistype == 'newsitems') {
+$stophere = 2;
+}
 			$xwm->text($pref);
 			$xwm->startElement($thistype);
 			$name = key($props['subtypes']);
 			foreach ($rows as $row) {
 				$xwm->text($pref."\t");
 				$xwm->startElement($name);
+				if (!isset($fields)) {
+					$fields = array_keys($row);
+				}
 				foreach ($row as $key=>$val) {
+					if (!in_array($key, $fields)) {
+						continue;
+					}
 					if (isset($props['subtypes'][$name][$key])) {
 						$A = $props['subtypes'][$name][$key];
 						if ((empty($A['keeps']) || in_array($val, $A['keeps'])) &&
@@ -344,6 +369,32 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        ]
       ]
      ],
+     'newscategories' => [
+      'sql' => 'SELECT * FROM %smodule_news_categories ORDER BY news_category_id',
+      'subtypes' => [
+       'newscategory' => [
+        'news_category_id' => [],
+        'news_category_name' => ['isdata'=>1, 'optional' => 1],
+        'parent_id' => [],
+        'hierarchy' => [],
+        'item_order'=> ['optional' => 1],
+        'long_name' => ['isdata'=>1, 'optional' => 1],
+       ]
+      ]
+     ],
+     'newsitems' => [
+      'sql' => 'SELECT * FROM %smodule_news ORDER BY news_category_id',
+      'subtypes' => [
+       'newsitem' => [
+        'news_category_id' => [],
+        'news_title' => ['isdata'=>1],
+        'news_data' => ['isdata'=>1, 'optional' => 1],
+        'news_extra'=> ['optional' => 1],
+        'news_url' => ['optional' => 1],
+        'summary' => ['isdata'=>1, 'optional' => 1],
+       ]
+      ]
+     ],
     ];
 
 	@unlink($xmlfile);
@@ -359,7 +410,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 	$xw->setIndentString("\t");
 	$xw->startDocument('1.0', 'UTF-8');
 
-	//these data must be manually reconciled with $skeleton[] above
+	//these xml data must be manually reconciled with $skeleton[] above
 	$xw->writeDtd('cmsmssitedata', null, null, '
  <!ELEMENT dtdversion (#PCDATA)>
  <!ELEMENT stylesheets (stylesheet*)>
@@ -439,6 +490,19 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT simpletagfiles (sourcedir?,file*)>
  <!ELEMENT templatefiles (sourcedir?,file*)>
  <!ELEMENT stylefiles (sourcedir?,file*)>
+ <!ELEMENT newscategories (newscategory*)>
+ <!ELEMENT newscategory (news_category_id,news_category_name?,parent_id,hierarchy,item_order?,long_name?)>
+ <!ELEMENT news_category_id (#PCDATA)>
+ <!ELEMENT news_category_name (#PCDATA)>
+ <!ELEMENT hierarchy (#PCDATA)>
+ <!ELEMENT long_name (#PCDATA)>
+ <!ELEMENT newsitems (newsitem*)>
+ <!ELEMENT newsitem (news_category_id,news_title,news_data?,news_extra?,news_url?,summary?)>
+ <!ELEMENT news_title (#PCDATA)>
+ <!ELEMENT news_data (#PCDATA)>
+ <!ELEMENT news_extra (#PCDATA)>
+ <!ELEMENT news_url (#PCDATA)>
+ <!ELEMENT summary (#PCDATA)>
 ');
 
 	$xw->startElement('cmsmssitedata');
@@ -796,11 +860,9 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					break;
 				case 'designs':
+					//TODO must do this after modules are installed
 					if (!class_exists('DesignManager\Design')) {
 						break;
-					}
-					if ($runtime) {
-						verbose_msg(lang('install_default_designs'));
 					}
 					foreach ($typenode->children() as $node) {
 						$ob = new Design();
@@ -817,6 +879,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					break;
 				case 'designstyles': //stylesheets assigned to designs
+					//TODO must do this after modules are installed
 					if (!class_exists('DesignManager\Design')) {
 						break;
 					}
@@ -843,6 +906,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					break;
 				case 'designtemplates': //templates assigned to designs
+					//TODO must do this after modules are installed
 					if (!class_exists('DesignManager\Design')) {
 						break;
 					}
@@ -1111,6 +1175,16 @@ parameters) VALUES (?,?,?,?)';
 							}
 							@copy($from.$name, $tobase.$name);
 						}
+					}
+					break;
+				case 'newscategories':
+					foreach ($typenode->children() as $node) {
+					//TODO must do this after modules are installed
+					}
+					break;
+				case 'newsitems':
+					foreach ($typenode->children() as $node) {
+					//TODO must do this after modules are installed
 					}
 					break;
 			} // node-name switch
