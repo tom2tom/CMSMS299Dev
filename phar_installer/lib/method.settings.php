@@ -1,7 +1,6 @@
 <?php
 
 use cms_siteprefs;
-use cms_utils;
 use CMSMS\AdminTheme;
 use CMSMS\Events;
 use CMSMS\Group;
@@ -55,6 +54,17 @@ create_private_dir($bp,'plugins');
 create_private_dir($bp,'resources');
 create_private_dir($bp,$name); //UDTfiles
 create_private_dir($bp,'templates');
+
+foreach ([
+    $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules',
+    $bp.DIRECTORY_SEPARATOR.'modules',
+] as $fp) {
+    file_put_contents ($fp.DIRECTORY_SEPARATOR.'DO NOT DELETE', <<<EOS
+This directory is used during system install | upgrade | refresh but otherwise should contain just this file, and a dummy index.html.
+
+EOS
+);
+}
 
 //
 // some of the system-wide default settings
