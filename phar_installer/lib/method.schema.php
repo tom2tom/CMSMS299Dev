@@ -25,16 +25,8 @@ $dbdict = GetDataDictionary($db);
 /*
 //force-drop tables which will be created (just in case, during install we've already checked for an empty database)
 //status_msg(lang('install_dropping_tables'));
-$db->DropSequence(CMS_DB_PREFIX.'additional_users_seq'); //deprecated since 2.3
-$db->DropSequence(CMS_DB_PREFIX.'admin_bookmarks_seq');
 $db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
 $db->DropSequence(CMS_DB_PREFIX.'content_seq');
-$db->DropSequence(CMS_DB_PREFIX.'event_handler_seq'); //deprecated since 2.3
-$db->DropSequence(CMS_DB_PREFIX.'events_seq'); //deprecated since 2.3
-$db->DropSequence(CMS_DB_PREFIX.'group_perms_seq'); //deprecated since 2.3
-$db->DropSequence(CMS_DB_PREFIX.'groups_seq');
-$db->DropSequence(CMS_DB_PREFIX.'permissions_seq');
-$db->DropSequence(CMS_DB_PREFIX.'users_seq');
 
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'additional_users');
 $dbdict->ExecuteSQLArray($sqlarray);
@@ -47,8 +39,6 @@ $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'events');
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'event_handlers');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'group_perms');
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'groups');
 $dbdict->ExecuteSQLArray($sqlarray);
@@ -107,10 +97,9 @@ $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_gener
 $good = lang('done');
 $bad = lang('failed');
 
-//non AUTO additional_users_id deprecated since 2.3
 //page_id I, removed 2.3 never used
 $flds = '
-additional_users_id I NOT NULL KEY,
+additional_users_id I(2) UNSIGNED AUTO KEY,
 user_id I(2) UNSIGNED,
 content_id I(2) UNSIGNED
 ';
@@ -120,7 +109,7 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'additional_users', $msg_ret));
 
 $flds = '
-bookmark_id I(2) UNSIGNED KEY,
+bookmark_id I(2) UNSIGNED AUTO KEY,
 user_id I(2) UNSIGNED,
 title C(64),
 url C(255)
@@ -246,7 +235,7 @@ $dbdict->ExecuteSQLArray($sqlarray);
 //ex module_name >> (handler)[namespaced]class, tag_name >> (func)method or plugin/UDT name
 //deprecated since 2.3 non AUTO handler_id
 $flds = '
-handler_id I(2) UNSIGNED KEY,
+handler_id I(2) UNSIGNED AUTO KEY,
 event_id I(2) UNSIGNED,
 class C(96),
 func C(64),
@@ -262,7 +251,7 @@ verbose_msg(lang('install_created_table', 'event_handlers', $msg_ret));
 $tbl = CMS_DB_PREFIX.'events';
 //deprecated since 2.3 non AUTO event_id
 $flds = '
-event_id I(2) UNSIGNED KEY,
+event_id I(2) UNSIGNED AUTO KEY,
 originator C(32) NOT NULL,
 event_name C(64) NOT NULL
 ';
@@ -282,9 +271,8 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'event_name', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'group_perms';
-//deprecated since 2.3 non AUTO group_perm_id
 $flds = '
-group_perm_id I(2) UNSIGNED KEY,
+group_perm_id I(2) UNSIGNED AUTO KEY,
 group_id I(2) UNSIGNED,
 permission_id I(2) UNSIGNED,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
@@ -301,7 +289,7 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_grp_perms_by_grp_id_perm_id', $msg_ret));
 
 $flds = '
-group_id I(2) UNSIGNED KEY,
+group_id I(2) UNSIGNED AUTO KEY,
 group_name C(25),
 group_desc C(255),
 active I(1) DEFAULT 1,
@@ -413,7 +401,7 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_module_templates_by_module_and_tpl_name', $msg_ret));
 */
 $flds = '
-permission_id I(2) UNSIGNED KEY,
+permission_id I(2) UNSIGNED AUTO KEY,
 permission_name C(255),
 permission_text C(255),
 permission_source C(255),
@@ -468,7 +456,7 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_userprefs_by_user_id', $msg_ret));
 
 $flds = '
-user_id I(2) KEY,
+user_id I(2) UNSIGNED AUTO KEY,
 username C(80),
 password C(128),
 first_name C(50),

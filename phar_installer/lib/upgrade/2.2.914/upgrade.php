@@ -202,7 +202,6 @@ if ($udt_list) {
         create_user_plugin($udt, $ops, $smarty);
     }
 
-    $db->DropSequence(CMS_DB_PREFIX.'userplugins_seq'); see  below
     $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins');
     $dict->ExecuteSQLArray($sqlarr);
     status_msg('Converted User Defined Tags to user-plugin files');
@@ -220,16 +219,13 @@ RedirectMatch 403 (?i)^.*\.($ext|cmsplugin)$
 EOS
     );
 }
-// redundant sequence-table
-$sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins_seq');
-$dict->ExecuteSQLArray($sqlarr);
 
 $tbl = CMS_DB_PREFIX.'simpleplugins';
 $sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'userplugins',$tbl);
 $dict->ExecuteSQLArray($sqlarr);
-$sqlarray = $dict->RenameColumnSQL($tbl,'userplugin_id','id I AUTO KEY');
+$sqlarray = $dict->AlterColumnSQL($tbl,'userplugin_id','id I(2) AUTO KEY');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->RenameColumnSQL($tbl,'userplugin_name','name C(255)');
+$sqlarray = $dict->AlterColumnSQL($tbl,'userplugin_name','name C(255)');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AlterColumnSQL($tbl,'description T(1023)');
 $dict->ExecuteSQLArray($sqlarray);
@@ -275,8 +271,31 @@ foreach ([
 }
 
 // 6. Drop redundant sequence-tables
+$db->DropSequence(CMS_DB_PREFIX.'additional_users_seq');
+$db->DropSequence(CMS_DB_PREFIX.'admin_bookmarks_seq');
 $db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
+$db->DropSequence(CMS_DB_PREFIX.'event_handler_seq');
+$db->DropSequence(CMS_DB_PREFIX.'events_seq');
+$db->DropSequence(CMS_DB_PREFIX.'groups_seq');
+$db->DropSequence(CMS_DB_PREFIX.'group_perms_seq');
+$db->DropSequence(CMS_DB_PREFIX.'permissions_seq');
 $db->DropSequence(CMS_DB_PREFIX.'userplugins_seq');
+$db->DropSequence(CMS_DB_PREFIX.'users_seq');
+
+// 6A Migrate some formerly genID-populated index-fields to autoincrement
+foreach ([
+    ['additional_users','additional_users_id'],
+    ['admin_bookmarks','bookmark_id'],
+    ['event_handlers','handler_id'],
+    ['events','event_id'],
+    ['groups','group_id'],
+    ['group_perms','group_perm_id'],
+    ['permissions', 'permission_id'],
+    ['users', 'user_id'],
+] as $tbl) {
+    $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.$tbl[0], $$tbl[1].' I(2) UNSIGNED AUTO KEY');
+    $dict->ExecuteSQLArray($sqlarray);
+}
 
 // 7. Other table revisions
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci']; //i.e. case-insensitive matching unless overridden
@@ -351,19 +370,6 @@ foreach ([
     migrate_stamps($tbl[0],$tbl[1],$db,$dict);
 }
 
-/* NOT YET deprecate instead
-// 7.2A Migrate some formerly genID-populated index-fields to autoincrement
-foreach ([
-    ['additional_users','additional_users_id'],
-    ['admin_bookmarks','bookmark_id'],
-    ['event_handlers','handler_id',
-    ['events','event_id'],
-    ['group_perms','group_perm_id'],
-] as $tbl) {
-    $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.$tbl[0], $$tbl[1].' UNSIGNED AUTO KEY');
-    $dict->ExecuteSQLArray($sqlarray);
-}
-*/
 // 7.3 Re-organize layout-related tables
 // template-groups table tweaks
 $tbl = CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME; //layout_tpl_groups
