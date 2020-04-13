@@ -92,6 +92,32 @@ class wizard_step1 extends wizard_step
         return TRUE;
     }
 
+	/**
+	 * Get a CMSMS version without including the file declaring the version
+	 * (so we don't cause a re-definition problem for PHP)
+     * @internal
+	 * @param string $filepath of a version.php file
+	 * @return string discovered version or ''
+	 */
+	private function _read_version(string $filepath) : string
+	{
+		$text = @file_get_contents($filepath);
+		if( !$text ) return '';
+		// try first for a string like $CMS_VERSION = 'whatever'
+		if( preg_match('~\$CMS_VERSION *= *[\'"] *([\d.]+) *[\'"]~', $text, $matches) ) {
+            return $matches[1];
+        }
+		// and then for a const CMS_VERSION declaration
+		if( preg_match('~(const|CONST) +CMS_VERSION *= *[\'"] *([\d.]+) *[\'"]~', $text, $matches) ) {
+            return $matches[2];
+        }
+		// and finally for a defined 'CMS_VERSION'
+		if( preg_match('~(define|DEFINE) +\( *[\'"]CMS_VERSION[\'"] *, *[\'"] *([\d.]+) *[\'"].*\)~', $text, $matches) ) {
+            return $matches[2];
+        }
+		return '';
+	}
+
     /**
      * Get a short 'identifier' for the contents of folder $dir
      * @internal
@@ -104,22 +130,14 @@ class wizard_step1 extends wizard_step
         if( basename($dir) != 'lib' ) {
             $p = $dir.DIRECTORY_SEPARATOR.'version.php';
             if( is_file($p) ) {
-                // including version-files probably triggers a re-definition problem
-                $cnt = file_get_contents($p);
-                // find a string like $CMS_VERSION = 'N1.N2.N3'
-                if( $cnt && preg_match('~\$CMS_VERSION *= *[\'"] *([\d.]+) *[\'"]~', $cnt, $matches) ) {
-                    return 'CMSMS '.$matches[1];
-                }
-                return 'CMSMS missing version';
+				if( ($ver = $this->_read_version($p)) ) return 'CMSMS '.$ver;
+                return 'Unrecognized CMSMS version';
             }
         }
         $p = joinpath($dir, 'lib', 'version.php');
         if( is_file($p) ) {
-            $cnt = file_get_contents($p);
-            if( $cnt && preg_match('~\$CMS_VERSION *= *[\'"] *([\d.]+) *[\'"]~', $cnt, $matches) ) {
-                return 'CMSMS '.$matches[1];
-            }
-            return 'CMSMS missing version';
+			if( ($ver = $this->_read_version($p)) ) return 'CMSMS '.$ver;
+            return 'Unrecognized CMSMS version';
         }
         if( is_dir($dir.DIRECTORY_SEPARATOR.'lib') ) {
             $p = joinpath($dir, 'lib', 'classes', 'class.installer_base.php');
