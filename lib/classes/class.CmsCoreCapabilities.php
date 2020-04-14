@@ -1,6 +1,6 @@
 <?php
 # Enum-class that identifies various standard core capabilities
-# Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -10,7 +10,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # BUT withOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
@@ -56,9 +56,15 @@ final class CmsCoreCapabilities extends BasicEnum
 
 	/**
 	 * A constant indicating that the module manages async jobs
-	 * @since 2.3
+	 * @since 2.9
 	 */
-    const JOBS_MODULE = 'jobmanager';
+	const JOBS_MODULE = 'handles_jobs';
+
+	/**
+	 * A constant indicating that the module handles admin console logins
+	 * @since 2.9
+	 */
+	const LOGIN_MODULE = 'handles_login';
 
 	/**
 	 * A constant indicating that the module is a plugin module
@@ -74,24 +80,24 @@ final class CmsCoreCapabilities extends BasicEnum
 	/**
 	 * A constant indicating that the module provides frontend search functionality.
 	 */
-	const SEARCH_MODULE = 'search';
+	const SEARCH_MODULE = 'handles_search';
 
 	/**
 	 * A constant indicating that the module is a syntax editor module.
 	 * @since 2.0
 	 */
-	const SYNTAX_MODULE = 'syntaxhighlighting';
+	const SYNTAX_MODULE = 'handles_syntax';
 
 	/**
 	 * A constant indicating that the module provides pseudocron tasks
 	 * See also JOBS_MODULE
 	 */
-	const TASKS = 'tasks';  // string used pre-2.0
+	const TASKS = 'tasks'; // string used pre-2.0
 
 	/**
-	 * A capability indicating that the module is a WYSIWYG module
+	 * A capability indicating that the module is a page-content editor module
 	 * @since 2.0
 	 */
-	const WYSIWYG_MODULE = 'wysiwyg';
+	const WYSIWYG_MODULE = 'handles_wysiwyg';
 
 } // class

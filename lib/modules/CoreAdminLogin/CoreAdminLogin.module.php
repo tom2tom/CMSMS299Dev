@@ -48,7 +48,7 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
     {
         switch ($capability) {
             case CmsCoreCapabilities::CORE_MODULE:
-            case 'adminlogin':
+            case CmsCoreCapabilities::LOGIN_MODULE:
                 return true;
             default:
                 return false;
