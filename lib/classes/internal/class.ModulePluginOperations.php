@@ -474,7 +474,7 @@ final class ModulePluginOperations
 		$callable = $this->validate_callback($module_name,$callable);
 		if( !$callable ) return FALSE;
 
-		if( startswith($callable, self::classname.'::') ) $callable = NULL; // no need to store the default
+		if( startswith($callable, self::class.'::') ) $callable = NULL; // no need to store the default
 		if( $available == 0 ) {
 			$available = self::AVAIL_FRONTEND;
 		}
