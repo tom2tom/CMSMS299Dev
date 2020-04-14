@@ -278,7 +278,7 @@ EOS;
             $js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.js"></script>'."\n";
 //            $js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.min.js"></script>'."\n";
             //otherwise mebbe merge the file in with all used for the current-request ?
-            //$combiner = CmsApp::get_instance()->GetScriptManager(); deprecated since 2.9 use CMSMS\AppSingle:: ...()
+            //$combiner = CmsApp::get_instance()->GetScriptsManager(); deprecated since 2.9 use CMSMS\AppSingle:: ...()
             //$combiner->queue_file($thejsfile, 2);
         }
         else {

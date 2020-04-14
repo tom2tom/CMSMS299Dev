@@ -1,6 +1,6 @@
 <?php
 #Plugin which aggregates accumulated javascript for use in a page or template
-#Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,7 +18,7 @@
 
 function smarty_function_cms_render_scripts( $params, $template )
 {
-	$combiner = CmsApp::get_instance()->GetScriptManager();
+	$combiner = CmsApp::get_instance()->GetScriptsManager();
 	$force = (isset($params['force'])) ? cms_to_bool($params['force']) : false;
 	$nocache = (isset($params['nocache'])) ? cms_to_bool($params['nocache']) : false;
 	$defer = (isset($params['defer'])) ? cms_to_bool($params['defer']) : true;

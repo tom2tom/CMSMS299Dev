@@ -19,7 +19,7 @@
 function smarty_function_cms_queue_script( $params, $template )
 {
 	if( !isset($params['file']) ) return;
-	$combiner = CmsApp::get_instance()->GetScriptManager();
+	$combiner = CmsApp::get_instance()->GetScriptsManager();
 
 	$file = trim($params['file']);
 	$priority = $params['priority'] ?? 0;
