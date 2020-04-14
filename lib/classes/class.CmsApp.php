@@ -105,7 +105,7 @@ final class CmsApp
     private $db;
 
     /**
-     * @var CMSMS\internal\Smarty object
+     * @var Smarty object
      * @ignore
      */
     private $smarty;
@@ -563,7 +563,7 @@ final class CmsApp
      *
      * @return ScriptOperations
      */
-    public function GetScriptManager() : ScriptOperations
+    public function GetScriptsManager() : ScriptOperations
     {
         return new ScriptOperations();
     }
@@ -611,7 +611,7 @@ final class CmsApp
     {
         $val = cms_siteprefs::get('site_uuid');
         if( !$val ) {
-            $val = trim(base64_encode(random_bytes(24)), '=');
+            $val = cms_utils::random_string(24, false, true);
             cms_siteprefs::set('site_uuid', $val);
             AppSingle::SysDataCache()->release('site_preferences');
         }
@@ -805,6 +805,18 @@ final class CmsApp
 function cmsms() : CmsApp
 {
     return AppSingle::App();
+}
+
+/**
+ * Check whether the supplied identifier matches the site UUID
+ * This is a security function e.g. in module actions: <pre>if (!checkuuid($uuid)) exit;</pre>
+ * @since 2.9
+ * @param mixed $uuid identifier to be checked
+ * @return bool indicating success
+ */
+function checkuuid($uuid) : bool
+{
+    return hash_equals(AppSingle::App()->GetSiteUUID(), $uuid.'');
 }
 
 //} //namespace
