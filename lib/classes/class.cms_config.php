@@ -35,6 +35,12 @@ final class cms_config implements ArrayAccess
 {
     /**
      * @ignore
+     * Where to get advice on config settings
+     */
+    private const HELPURL = 'https://docs.cmsmadesimple.org/configuration/config-file/config-reference';
+
+    /**
+     * @ignore
      */
     const TYPE_STRING = 'S';
 
@@ -136,7 +142,7 @@ final class cms_config implements ArrayAccess
             // populate from file
             self::$_instance->load_config();
         }
-	    return self::$_instance;
+        return self::$_instance;
     }
 
     /**
@@ -286,14 +292,14 @@ final class cms_config implements ArrayAccess
         case 'use_adodb_lite':
         case 'use_hierarchy':
             assert(empty(CMS_DEPREC), new DeprecationNotice($key.' property is no longer used'));
-            // deprecated, backwards compat only
+            // deprecated, back-compat only
             return true;
 
         case 'use_smarty_php_tags':
         case 'output_compression':
         case 'ignore_lazy_load':
             assert(empty(CMS_DEPREC), new DeprecationNotice($key.' property is no longer used'));
-            // deprecated, backwards compat only
+            // deprecated, back-compat only
             return false;
 
         case 'default_upload_permission':
@@ -302,12 +308,12 @@ final class cms_config implements ArrayAccess
             return sprintf('%o',$val);
 
         case 'assume_mod_rewrite':
-            // deprecated, backwards compat only
+            // deprecated, back-compat only
             assert(empty(CMS_DEPREC), new DeprecationNotice('property','url_rewriting'));
             return $this[''] == 'mod_rewrite';
 
         case 'internal_pretty_urls':
-            // deprecated, backwards compat only
+            // deprecated, back-compat only
             return $this['url_rewriting'] == 'internal';
         }
 
@@ -419,7 +425,7 @@ final class cms_config implements ArrayAccess
             return $this->_cache[$key];
 
         case 'ssl_uploads_url':
-            // as of v2.3 this is just an alias for the uploads_url
+            // From v 2.3 this is just an alias for the uploads_url
             return $this->offsetGet('uploads_url');
 
         case 'image_uploads_path':
@@ -431,7 +437,7 @@ final class cms_config implements ArrayAccess
             return $this->_cache[$key];
 
         case 'ssl_image_uploads_url':
-            // as of v2.3 this is just an alias for the image_uploads_url
+            // From v 2.3 this is just an alias for the image_uploads_url
             assert(empty(CMS_DEPREC), new DeprecationNotice('property','image_uploads_url'));
             return $this->offsetGet('image_uploads_url');
 
@@ -442,7 +448,7 @@ final class cms_config implements ArrayAccess
             return 'admin';
 
         case 'developer_mode';
-            // deprecated from v2.9 this is just an alias for develop_mode
+            // deprecated from v 2.9 this is just an alias for develop_mode
             assert(empty(CMS_DEPREC), new DeprecationNotice('property', 'develop_mode'));
             return $this->offsetGet('develop_mode');
 //        case 'app_mode':
@@ -499,11 +505,14 @@ final class cms_config implements ArrayAccess
             $this->_cache[$key] = $this->offsetGet('root_url').'/'.$this->offsetGet('admin_dir');
             return $this->_cache[$key];
 
-        case 'css_path':
-            return PUBLIC_CACHE_LOCATION.DIRECTORY_SEPARATOR;
+        case 'css_path': // since 2.9 officially the same as tmp_cache_location, instead of relying on public == tmp
+            return $this->offsetGet('tmp_cache_location');
 
         case 'css_url':
-            return PUBLIC_CACHE_URL;
+            $len = strlen($this->offsetGet('root_path'));
+            $str = substr($this->offsetGet('tmp_cache_location'), $len);
+            $this->_cache[$key] = $this->offsetGet('root_url') . strtr($str, '\\', '/');
+            return $this->_cache[$key];
 
         case 'tmp_cache_location':
             $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','cache');
@@ -619,26 +628,39 @@ final class cms_config implements ArrayAccess
      * @param bool $verbose indicates whether comments should be stored in the config.php file.
      * @param string $filename An optional complete file specification.  If not specified the standard config file location will be used.
      */
-    public function save(bool $verbose = true,string $filename = '')
+    public function save(bool $verbose = true, string $filename = '')
     {
-        if( !$filename ) $filename = CONFIG_FILE_LOCATION;
+        if( !$filename ) {
+            $filename = CONFIG_FILE_LOCATION;
+        }
 
         // backup the original config.php file (just in case)
-        if( is_file($filename) ) @copy($filename,cms_join_path(TMP_CACHE_LOCATION,basename($filename).time().'.bak'));
+        if( is_file($filename) ) {
+            @copy($filename, cms_join_path(PUBLIC_CACHE_LOCATION, basename($filename).time().'.bak'));
+        }
 
-        $output = "<?php\n# CMS Made Simple configuration\n# Documentation: https://docs.cmsmadesimple.org/configuration/config-file/config-reference\n\n";
-        // output header to the config file.
+        $u = self::HELPURL;
+        $output = <<<EOS
+<?php
+// CMS Made Simple system configuration parameters
+// Details are at $u
+// PROTECT THIS FILE AGAINST INVALID INSPECTION OR CHANGE !
 
+EOS;
+        ksort ($this->_data);
         foreach( $this->_data as $key => $value ) {
-            $outvalue = $this->_printable_value($key,$value);
-            $output .= "\$config['{$key}'] = $outvalue;\n";
+            $outvalue = $this->_printable_value($key, $value);
+            $output .= "\$config['$key'] = $outvalue;\n";
         }
 
         // and write it.
-        $fh = fopen($filename,'w');
+        $fh = fopen($filename, 'w');
         if( $fh ) {
-            fwrite($fh,$output);
+            fwrite($fh, $output);
             fclose($fh);
+        }
+        else {
+            throw new RuntimeException('Failed to save configuration');
         }
     }
 
