@@ -24,11 +24,12 @@ $newsite = AppState::test_state(AppState::STATE_INSTALL);
 if( $newsite ) {
     $uid = 1; // templates owned by initial admin
 } else {
-    $uid = get_userid();
+    $uid = get_userid(false);
 }
 
 $dict = new DataDictionary($db);
-$taboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
+//$taboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];  InnoDB engine
+$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
 $flds = '
 id I KEY,
@@ -117,13 +118,13 @@ try {
                 $tpl->save();
 
                 $id = $tpl->get_id();
-				try {
-		            $ob = CmsLayoutTemplateCategory::load('Simplex');
-		            $ob->add_members([$id]);
-		            $ob->save();
-				} catch( Throwable $t) {
-					//if modules are installed before demo content, that group won't yet exist
-				}
+                try {
+                    $ob = CmsLayoutTemplateCategory::load('Simplex');
+                    $ob->add_members([$id]);
+                    $ob->save();
+                } catch( Throwable $t) {
+                    //if modules are installed before demo content, that group won't yet exist
+                }
             }
         } catch( Exception $e ) {
             audit('', $me, 'Installation error: '.$e->GetMessage());
