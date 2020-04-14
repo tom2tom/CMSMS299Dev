@@ -1,7 +1,7 @@
 <?php
 
 #Methods for administering stylesheet objects
-#Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -42,9 +42,9 @@ use function munge_string_to_url;
 /**
  * A class of static methods for dealing with CmsLayoutStylesheet objects.
  *
- * This class is for stylesheet administration. It is not used for runtime stylesheet
- * retrieval, except when a WYSIWWYG is used in an admin page, in which case
- * get_bulk_stylesheets() is called.
+ * This class is for stylesheet administration. It is not used for runtime
+ * stylesheet retrieval, except when a WYSIWWYG is used in an admin page,
+ * in which case get_bulk_stylesheets() is called.
  *
  * @since 2.3
  * @package CMS
@@ -174,7 +174,7 @@ WHERE id = ?';
 	*/
 	protected static function insert_stylesheet($sht)
 	{
-		$now = time();
+//		$now = time();
 		// insert the record
 		$tmp = '';
 		if( isset($sht->_data['media_type']) ) $tmp = implode(',',$sht->_data['media_type']);
