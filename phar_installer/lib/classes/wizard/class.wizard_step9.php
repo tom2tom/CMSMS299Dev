@@ -2,10 +2,7 @@
 
 namespace cms_installer\wizard;
 
-use cms_config;
 use cms_installer\installer_base;
-use cms_installer\session;
-use cms_installer\utils;
 use cms_installer\wizard\wizard_step;
 use CMSMS\AdminUtils;
 use CMSMS\AppState;
@@ -23,13 +20,14 @@ use const PUBLIC_CACHE_LOCATION;
 use const TMP_CACHE_LOCATION;
 use const TMP_TEMPLATES_C_LOCATION;
 use function audit;
+use function cms_installer\endswith;
 use function cms_installer\get_app;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
+use function cms_installer\rrmdir;
 use function cms_installer\smarty;
 use function cms_module_places;
 use function cmsms;
-use function endswith;
 use function import_content;
 
 class wizard_step9 extends wizard_step
@@ -44,7 +42,7 @@ class wizard_step9 extends wizard_step
     {
         if( is_dir(TMP_CACHE_LOCATION) ) {
             if( is_writable(TMP_CACHE_LOCATION) ) {
-                utils::rrmdir(TMP_CACHE_LOCATION, FALSE);
+                rrmdir(TMP_CACHE_LOCATION, FALSE);
             }
         }
         else {
@@ -53,7 +51,7 @@ class wizard_step9 extends wizard_step
         if( TMP_CACHE_LOCATION != PUBLIC_CACHE_LOCATION ) {
             if( is_dir(PUBLIC_CACHE_LOCATION) ) {
                 if( is_writable(PUBLIC_CACHE_LOCATION) ) {
-                    utils::rrmdir(PUBLIC_CACHE_LOCATION, FALSE);
+                    rrmdir(PUBLIC_CACHE_LOCATION, FALSE);
                 }
             }
             else {
@@ -62,7 +60,7 @@ class wizard_step9 extends wizard_step
         }
         if( is_dir(TMP_TEMPLATES_C_LOCATION) ) {
             if( is_writable(TMP_TEMPLATES_C_LOCATION) ) {
-                utils::rrmdir(TMP_TEMPLATES_C_LOCATION, FALSE);
+                rrmdir(TMP_TEMPLATES_C_LOCATION, FALSE);
             }
         }
         else {
@@ -355,7 +353,6 @@ VALUES (?,?,?,NOW())');
         else {
             require_once $destdir.DIRECTORY_SEPARATOR.'include.php';
         }
-        $ADEBUG = 1; //breakpoint catcher
     }
 
     /**
@@ -433,10 +430,6 @@ VALUES (?,?,?,NOW())');
             else {
                 throw new Exception(lang('error_internal',910));
             }
-
-            // clear the session.
-            $sess = session::get_instance();
-            $sess->clear();
 
             $this->finish();
         }
