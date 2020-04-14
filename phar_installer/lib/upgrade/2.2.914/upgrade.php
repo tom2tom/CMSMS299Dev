@@ -109,7 +109,7 @@ $db->Execute($query,[$longnow]);
 //$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modified_date) VALUES (\'loginmodule\',?,?);';
 //$db->Execute($query,[$longnow,$longnow]);
 // almost-certainly-unique signature of this site
-// this replicates cms_utils::random_string()
+// this replicates cms_random_string()
 /* $uuid = str_repeat(' ', 32);
 for ($i = 0; $i < 32; ++$i) {
     $n = mt_rand(33, 165);
@@ -134,7 +134,7 @@ $config = $app->get_config();
 $corenames = $config['coremodules'];
 $cores = implode(',', $corenames);
 $url =  ( !empty($siteinfo['supporturl']) ) ? $siteinfo['supporturl'] : '';
-$uuid = trim(base64_encode(random_bytes(24)), '=');
+$uuid = cms_random_string(24, false, true);
 $down = cms_siteprefs::get('enablesitedownmessage', 0); //for rename
 $check = cms_siteprefs::get('use_smartycompilecheck', 1); //ditto
 

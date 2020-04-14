@@ -1,6 +1,5 @@
 <?php
 
-use cms_siteprefs;
 use CMSMS\AdminTheme;
 use CMSMS\Events;
 use CMSMS\Group;
@@ -72,11 +71,11 @@ EOS
 verbose_msg(lang('install_initsiteprefs'));
 $cachtype = $wiz->get_data('cachemode');
 $corenames = $config['coremodules'];
-$cores = implode(',',$corenames);
+$cores = implode(',', $corenames);
 $theme = reset(AdminTheme::GetAvailableThemes());
 $schema = $app->get_dest_schema();
 $helpurl =  ( !empty($siteinfo['supporturl']) ) ? $siteinfo['supporturl'] : '';
-$uuid = trim(base64_encode(random_bytes(24)), '=');
+$uuid = cms_utils::random_string(24, false, true);
 $ultras = json_encode(['Manage Restricted Files','Manage Database Content','Remote Administration']);
 
 foreach ([
