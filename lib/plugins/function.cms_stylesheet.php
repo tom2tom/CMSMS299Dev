@@ -1,6 +1,6 @@
 <?php
 #Plugin to minimize and merge contents of stylesheets for frontend pages
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -39,14 +39,14 @@ function smarty_function_cms_stylesheet($params, $template)
 	$gCms = CmsApp::get_instance();
 	$config = $gCms->GetConfig();
 
+	$cache_dir = $config['css_path'];
+	$root_url = $config['css_url'];
 	$name = null;
 	$design_id = -1;
-	$cache_dir = $config['css_path'];
 	$stylesheet = '';
 	$combine_stylesheets = true;
 	$fnsuffix = '';
 	$trimbackground = false;
-	$root_url = $config['css_url'];
 	$styles = null;
 
 	try {
@@ -216,7 +216,7 @@ function smarty_function_cms_stylesheet($params, $template)
 
 			// Remove last comma at the end when $params['nolinks'] is set
 			if( isset($params['nolinks']) && cms_to_bool($params['nolinks']) && endswith($stylesheet,',') ) {
-				$stylesheet = substr($stylesheet,0,strlen($stylesheet)-1);
+				$stylesheet = substr($stylesheet,0,-1);
 			}
 		}
 	}
@@ -276,15 +276,17 @@ function writeCache($filename, $list, $trimbackground, &$template)
 
 	try {
 		foreach( $list as $name ) {
-			// force the stylesheet to compile because of smarty bug:  https://github.com/smarty-php/smarty/issues/72
-			$tmp = $template->smarty->force_compile;
-			$template->smarty->force_compile = 1;
+			// force the stylesheet to compile because of smarty bug:  https://github.com/smarty-php/smarty/issues/72 FIXED upstream in 2015
+//			$tmp = $template->smarty->force_compile;
+//			$template->smarty->force_compile = 1;
 			$_contents .= $template->fetch('cms_stylesheet:'.$name);
-			$template->smarty->force_compile = $tmp;
+//			$template->smarty->force_compile = $tmp;
 		}
 	}
 	catch (SmartyException $e) {
-		// why not just re-throw the exception as it may have a smarty error in it.
+		$template->smarty->left_delimiter = '{';
+		$template->smarty->right_delimiter = '}';
+		// why not just re-throw the exception as it may have a smarty error in it ?
 		cms_error('cms_stylesheet: Smarty compilation failed, is there an error in the template?');
 		return;
 	}
