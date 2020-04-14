@@ -276,7 +276,7 @@ final class cms_utils
 	/**
 	 * Return the url corresponding to the provided site-path
 	 *
-	 * @since 2.3
+	 * @since 2.9
 	 * @param string $in The input path, absolute or relative
 	 * @param string $relative_to Optional absolute path which (relative) $in is relative to
 	 * @return string
@@ -335,7 +335,7 @@ final class cms_utils
 
 	/**
 	 * Encrypt the the provided string
-	 * @since 2.3
+	 * @since 2.9
 	 * @see also cms_utils::decrypt_string()
 	 *
 	 * @param string $raw the string to be processed
@@ -377,7 +377,7 @@ final class cms_utils
 
 	/**
 	 * Decrypt the the provided string
-	 * @since 2.3
+	 * @since 2.9
 	 * @see also cms_utils::encrypt_string()
 	 *
 	 * @param string $raw the string to be processed
@@ -432,7 +432,7 @@ final class cms_utils
 
 	/**
 	 * Hash the the provided string
-	 * @since 2.3
+	 * @since 2.9
 	 *
 	 * @param string $raw the string to be processed, may be empty
 	 * @param bool $seeded optional flag whether to seed the hash. Default false (unless $raw is empty)
@@ -455,17 +455,18 @@ final class cms_utils
 	/**
 	 * Generate a random string.
 	 * This is intended for seeds, ID's etc. Not encryption-grade.
-	 * @since 2.3
+	 * @since 2.9
 	 *
 	 * @param int $length No. of bytes in the returned string
 	 * @param bool $alnum Optional flag whether to limit the contents to ASCII alphanumeric chars. Default false.
+	 * @param bool $encode Optional flag whether to base-64-encode the result. Default false.
 	 * @return string
 	 */
-	public static function random_string(int $length, bool $alnum = false) : string
+	public static function random_string(int $length, bool $alnum = false, bool $encode = false) : string
 	{
 		$str = str_repeat(' ', $length);
 		for ($i = 0; $i < $length; ++$i) {
-			if ($alnum) {
+			if ($alnum && !$encode) {
 				$n = mt_rand(48, 122);
 				if (($n >= 58 && $n <= 64) || ($n >= 91 && $n <= 96)) {
 					--$i;
@@ -486,6 +487,20 @@ final class cms_utils
 				}
 			}
 			$str[$i] = chr($n);
+		}
+		if ($encode) {
+			$val = base64_encode($str);
+			$val = substr($val, 0, $length);
+			$val = rtrim($val, '=');
+			if ($alnum) {
+				$val = preg_replace_callback(
+					'~[^A-Za-z0-9]~',
+					function() {
+						return mt_rand(65, 90);
+					},
+					$val);
+			}
+			return $val;
 		}
 		return $str;
 	}
