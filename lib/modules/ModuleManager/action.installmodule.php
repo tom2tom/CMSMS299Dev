@@ -64,7 +64,7 @@ try {
                 if( $rec['action'] != 'i' && $rec['action'] != 'u' ) continue;
                 $xml_filename = utils::get_module_xml($rec['filename'],$rec['size'],$rec['md5sum']??'');
                 $rec['tmpfile'] = $xml_filename;
-				$ops->expand_xml_package( $xml_filename, true ); //may throw ...
+                $ops->expand_xml_package( $xml_filename, true ); //may throw ...
             }
 
             // now put this data into the session and redirect for the install part
@@ -289,7 +289,7 @@ try {
         $this->RedirectToAdminTab();
     }
 
-	$tpl = $smarty->createTemplate($this->GetTemplateResource('installinfo.tpl'),null,null,$smarty);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('installinfo.tpl'),null,null,$smarty);
 
     $tpl->assign('return_url',$this->create_url($id,'defaultadmin',$returnid, ['__activetab'=>'modules']));
     $parms = ['name'=>$module_name,'version'=>$module_version,'filename'=>$module_filename,'size'=>$module_size];
@@ -303,10 +303,10 @@ try {
     $key = $tmp[$n];
     $action = $alldeps[$key]['action'];
     $tpl->assign('is_upgrade',($action == 'u')?1:0)
-
      ->assign('dependencies',$alldeps);
-	$tpl->display();
-	return false;
+
+    $tpl->display();
+    return false;
 }
 catch( Exception $e ) {
     $this->SetError($e->GetMessage());
