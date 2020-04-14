@@ -15,50 +15,54 @@ final class wizard
     const STATUS_BACK  = 'BACK';
     const STATUS_NEXT  = 'NEXT';
 
-//    private static $_instance = null;
+    private static $_instance = null;
 
     //TODO namespaced global variables here
-//    private static $_name = null;
+    public static $_classdir = __DIR__;
+//  public static $_name;
+    public static $_namespace = __NAMESPACE__;
+    private static $_initialized = false; //blocker for re-init's
     private static $_stepvar = 's';
     private static $_steps;
     private static $_stepobj;
-    private static $_classdir;
-    private static $_namespace;
-    private static $_initialized;
 
     /**
-     * @access private
-     * @param string $classdir Optional file-path of folder containing step-classes. Default current
-     * @param string $namespace Optional namespace of step-classes. Default current
-     * @throws Exception if supplied $classdir is invalid
+     * @ignore
      */
-    public function __construct($classdir = '', $namespace = '')
-    {
-        if( !$classdir ) {
-            $classdir = __DIR__;
-        }
-        else {
-            $classdir = rtrim($classdir,' \\/');
-            if( !is_dir($classdir) ) throw new Exception('Invalid wizard directory '.$classdir);
-        }
-        self::$_classdir = $classdir;
-//        $this->_name = basename($classdir);
-
-        if( !$namespace ) $namespace = __NAMESPACE__;
-        self::$_namespace = $namespace;
-    }
+    private function __construct() {}
+    /**
+     * @ignore
+     */
+    private function __clone() {}
 
     /**
-     * Get a wizard object
-     * @deprecated since 1.4 use new wizard() instead
-     * @param string $classdir Optional file-path of folder containing wizard-step classes
-     * @param string $namespace Optional namespace of wizard-step classes
-     * @return object
+     * Get the singleton instance of this class
+     * This class is accessed many times during an installer-run, efficiency
+     * favours just one instance.
+     *
+     * @param string $classdir Optional file-path of folder containing alternative step classes
+     * @param string $namespace Optional namespace of alternative step classes
+     * @return self
+     * @throws Exception if supplied $classdir is invalid
      */
     public static function get_instance($classdir = '', $namespace = '') : self
     {
-//        if( !self::$_instance ) { self::$_instance = new self($classdir,$namespace); } return self::$_instance;
-        return new self($classdir, $namespace);
+        if( !self::$_instance ) {
+            self::$_instance = new self();
+            if( $classdir ) {
+                $classdir = rtrim($classdir,' \\/');
+                if( !is_dir($classdir) ) throw new Exception('Invalid wizard directory '.$classdir);
+                $me = self::$_instance;
+                $me::$_classdir = $classdir;
+//              $me::$_name = basename($classdir);
+            }
+//          else { $me =self::$_instance; $me::$_name = basename(__DIR__); }
+            if( $namespace ) {
+                if (!isset($me)) $me = self::$_instance;
+                $me::$_namespace = $namespace;
+            }
+        }
+        return self::$_instance;
     }
 
     /**
