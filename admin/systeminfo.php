@@ -97,7 +97,7 @@ $smarty->assign('themename', $themeObject->themeName)
  ->assign('backurl', $themeObject->BackUrl())
  ->assign('sysinfurl', $selfurl)
 
-// Default help url
+// Default help url TODO a const somewhere, to support revision
  ->assign('cms_install_help_url', 'https://docs.cmsmadesimple.org/installation/installing/permissions-and-php-settings')
 
 // CMSMS install information
