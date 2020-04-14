@@ -9,8 +9,9 @@ use Exception;
 use function cms_installer\get_app;
 use function cms_installer\joinpath;
 
-// these functions are included and used only in wizard step 8
-
+// these functions are used only in wizard step 8 and/or 9 after
+// 'connecting' to CMSMS, for creating / upgrading tables and their contents
+ 
 /**
  * @param array $config parameters for connection
  * @return Connection object
@@ -22,12 +23,12 @@ function GetDb(array $config)
     if (is_dir($fp)) {
         // we have the old database class
         $spec = new ConnectionSpec();
-        $spec->type = $config['db_type'];
+        $spec->type = $config['db_type'] ?? 'mysqli';
         $spec->host = $config['db_host'];
         $spec->username = $config['db_username'];
         $spec->password = $config['db_password'];
         $spec->dbname = $config['db_name'];
-        $spec->port = $config['db_port'] ?? '';
+        $spec->port = $config['db_port'] ?? null;
         $spec->prefix = $config['db_prefix'];
         $db = new OldConnection($spec);
         if ($db instanceof Connection) {
