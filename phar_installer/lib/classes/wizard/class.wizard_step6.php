@@ -2,11 +2,13 @@
 
 namespace cms_installer\wizard;
 
-use cms_installer\utils;
 use Exception;
 use Throwable;
+use function cms_installer\clean_string;
 use function cms_installer\get_app;
+use function cms_installer\is_email;
 use function cms_installer\lang;
+use function cms_installer\redirect;
 use function cms_installer\smarty;
 
 class wizard_step6 extends wizard_step
@@ -36,7 +38,7 @@ class wizard_step6 extends wizard_step
         if( !isset($acct['repeatpw']) || $acct['repeatpw'] != $acct['password'] ) {
             throw new Exception(lang('error_adminacct_repeatpw'));
         }
-        if( !empty($acct['emailaddr']) && !utils::is_email($acct['emailaddr']) ) {
+        if( !empty($acct['emailaddr']) && !is_email($acct['emailaddr']) ) {
             throw new Exception(lang('error_adminacct_emailaddr'));
         }
 /*      if( empty($acct['emailaddr']) && !empty($acct['emailaccountinfo']) ) {
@@ -47,8 +49,8 @@ class wizard_step6 extends wizard_step
 
     protected function process()
     {
-        $this->_adminacct['username'] = utils::clean_string($_POST['username']);
-        $this->_adminacct['emailaddr'] = utils::clean_string($_POST['emailaddr']);
+        $this->_adminacct['username'] = clean_string($_POST['username']);
+        $this->_adminacct['emailaddr'] = clean_string($_POST['emailaddr']);
         $this->_adminacct['password'] = trim(filter_var($_POST['password'], FILTER_SANITIZE_STRING,
             FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES));
         $this->_adminacct['repeatpw'] = trim(filter_var($_POST['repeatpw'], FILTER_SANITIZE_STRING,
@@ -61,7 +63,7 @@ class wizard_step6 extends wizard_step
         try {
             $this->validate($this->_adminacct);
             $url = $this->get_wizard()->next_url();
-            utils::redirect($url);
+            redirect($url);
         }
         catch( Throwable $t ) {
             $smarty = smarty();

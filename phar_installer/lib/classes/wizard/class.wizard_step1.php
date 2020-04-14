@@ -2,11 +2,13 @@
 
 namespace cms_installer\wizard;
 
-use cms_installer\utils;
+use cms_installer\wizard\wizard_step;
 use Exception;
+use function cms_installer\clean_string;
 use function cms_installer\get_app;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
+use function cms_installer\redirect;
 use function cms_installer\smarty;
 use function cms_installer\startswith;
 use function cms_installer\translator;
@@ -16,13 +18,13 @@ class wizard_step1 extends wizard_step
     protected function process()
     {
         if( isset($_POST['lang']) ) {
-            $lang = trim(utils::clean_string($_POST['lang']));
+            $lang = trim(clean_string($_POST['lang']));
             if( $lang ) translator()->set_selected_language($lang);
         }
 
         $app = get_app();
         if( isset($_POST['destdir']) ) {
-            $dir = trim(utils::clean_string($_POST['destdir']));
+            $dir = trim(clean_string($_POST['destdir']));
             if( $dir) $app->set_destdir($dir);
         }
 
@@ -33,7 +35,7 @@ class wizard_step1 extends wizard_step
 
         if( isset($_POST['next']) ) {
             // redirect to the next step.
-            utils::redirect($this->get_wizard()->next_url());
+            redirect($this->get_wizard()->next_url());
         }
         return TRUE;
     }

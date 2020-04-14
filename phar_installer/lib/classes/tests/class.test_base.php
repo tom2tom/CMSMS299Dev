@@ -3,9 +3,9 @@
 namespace cms_installer\tests;
 
 use cms_installer\http_request;
-use cms_installer\utils;
 use Exception;
 use function cms_installer\lang;
+use function cms_installer\to_bool;
 
 /*
 This method is useless, extension_loaded() is caseless
@@ -17,7 +17,6 @@ function test_extension_loaded(string $name) : bool
   return $a;
 }
 
-
 function test_apache_module($name) : bool
 {
   if( !$name ) return FALSE;
@@ -26,18 +25,15 @@ function test_apache_module($name) : bool
   return in_array($name,$modules);
 }
 
-
 function test_is_false($val) : bool
 {
-  return (utils::to_bool($val) == FALSE);
+  return (to_bool($val) == FALSE);
 }
-
 
 function test_is_true($val) : bool
 {
-  return (utils::to_bool($val) == TRUE);
+  return (to_bool($val) == TRUE);
 }
-
 
 function test_remote_file(string $url, int $timeout = 3,string $searchString = '') : bool
 {

@@ -2,12 +2,13 @@
 
 namespace cms_installer\wizard;
 
-use cms_installer\utils;
 use Exception;
 use Throwable;
+use function cms_installer\clean_string;
 use function cms_installer\get_app;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
+use function cms_installer\redirect;
 use function cms_installer\smarty;
 use function cms_installer\translator;
 
@@ -56,7 +57,7 @@ class wizard_step5 extends wizard_step
             //record the selected members of $app_config['extramodules']
             $tmp = [];
             foreach ( $_POST['wantedextras'] as $name ) {
-                $tmp[] = utils::clean_string($name);
+                $tmp[] = clean_string($name);
             }
             $this->_siteinfo['wantedextras'] = $tmp;
         }
@@ -65,7 +66,7 @@ class wizard_step5 extends wizard_step
             $this->_siteinfo['samplecontent'] = filter_var($_POST['samplecontent'], FILTER_VALIDATE_BOOLEAN);
         }
 
-        if( isset($_POST['sitename']) ) $this->_siteinfo['sitename'] = utils::clean_string($_POST['sitename']);
+        if( isset($_POST['sitename']) ) $this->_siteinfo['sitename'] = clean_string($_POST['sitename']);
 
         if( isset($_POST['supporturl']) ) {
             $url = filter_var($_POST['supporturl'], FILTER_SANITIZE_URL);
@@ -86,7 +87,7 @@ class wizard_step5 extends wizard_step
         if( isset($_POST['languages']) ) {
             $tmp = [];
             foreach( $_POST['languages'] as $lang ) {
-                $tmp[] = utils::clean_string($lang);
+                $tmp[] = clean_string($lang);
             }
             $this->_siteinfo['languages'] = $tmp;
         }
@@ -105,7 +106,7 @@ class wizard_step5 extends wizard_step
             else {  // upgrade or freshen
                 $url = $wiz->step_url(7);
             }
-            utils::redirect($url);
+            redirect($url);
         }
         catch( Throwable $t ) {
             $smarty = smarty();

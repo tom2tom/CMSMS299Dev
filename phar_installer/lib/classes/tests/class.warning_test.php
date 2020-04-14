@@ -2,7 +2,7 @@
 
 namespace cms_installer\tests;
 
-use cms_installer\utils;
+use function cms_installer\to_bool;
 
 // like a boolean test, but uses TEST_WARN instead of TEST_FAIL
 class warning_test extends test_base
@@ -15,7 +15,7 @@ class warning_test extends test_base
 
   public function execute() : string
   {
-    $val = utils::to_bool($this->value);
+    $val = to_bool($this->value);
     return ( $val ) ? parent::TEST_PASS : parent::TEST_WARN;
   }
 }

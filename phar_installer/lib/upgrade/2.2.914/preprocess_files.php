@@ -127,7 +127,7 @@ foreach ([
             rename($d, $to);
             @unlink($fp);
         } else {
-            utils::rrmdir($fp);
+            rrmdir($fp);
         }
     }
 }
@@ -142,7 +142,7 @@ foreach (['DesignManager', 'MenuManager', 'CMSMailer', 'News'] as $modname) {
             rename($d, $to);
             @unlink($fp);
         } else {
-            utils::rrmdir($fp);
+            rrmdir($fp);
         }
     }
 }

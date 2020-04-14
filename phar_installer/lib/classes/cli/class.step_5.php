@@ -81,7 +81,7 @@ class step_5 extends cli_step
         if( !isset($acct['repeatpw']) || $acct['repeatpw'] != $acct['password'] ) {
             throw new Exception(lang('error_adminacct_repeatpw'));
         }
-        if( isset($acct['emailaddr']) && $acct['emailaddr'] != '' && !utils::is_email($acct['emailaddr']) ) {
+        if( isset($acct['emailaddr']) && $acct['emailaddr'] != '' && !is_email($acct['emailaddr']) ) {
             throw new Exception(lang('error_adminacct_emailaddr'));
         }
     }

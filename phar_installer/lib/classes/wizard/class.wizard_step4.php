@@ -2,12 +2,13 @@
 
 namespace cms_installer\wizard;
 
-use cms_installer\utils;
 use Exception;
 use mysqli;
 use Throwable;
+use function cms_installer\clean_string;
 use function cms_installer\get_app;
 use function cms_installer\lang;
+use function cms_installer\redirect;
 use function cms_installer\smarty;
 
 class wizard_step4 extends wizard_step
@@ -127,16 +128,16 @@ class wizard_step4 extends wizard_step
     protected function process()
     {
         $this->_config['db_type'] = 'mysqli';
-//        if( isset($_POST['db_type']) ) $this->_config['db_type'] = utils::clean_string($_POST['db_type']);
-        $this->_config['db_hostname'] = utils::clean_string($_POST['db_hostname']);
-        $this->_config['db_name'] = utils::clean_string($_POST['db_name']);
-        $this->_config['db_username'] = utils::clean_string($_POST['db_username']);
+//        if( isset($_POST['db_type']) ) $this->_config['db_type'] = clean_string($_POST['db_type']);
+        $this->_config['db_hostname'] = clean_string($_POST['db_hostname']);
+        $this->_config['db_name'] = clean_string($_POST['db_name']);
+        $this->_config['db_username'] = clean_string($_POST['db_username']);
         $this->_config['db_password'] = trim(filter_var($_POST['db_password'], FILTER_SANITIZE_STRING,
             FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES));
         if( isset($_POST['db_port']) ) $this->_config['db_port'] = filter_var($_POST['db_port'],FILTER_SANITIZE_NUMBER_INT);
-        if( isset($_POST['db_prefix']) ) $this->_config['db_prefix'] = utils::clean_string($_POST['db_prefix']);
-        $this->_config['timezone'] = utils::clean_string($_POST['timezone']);
-        if( isset($_POST['query_var']) ) $this->_config['query_var'] = utils::clean_string($_POST['query_var']);
+        if( isset($_POST['db_prefix']) ) $this->_config['db_prefix'] = clean_string($_POST['db_prefix']);
+        $this->_config['timezone'] = clean_string($_POST['timezone']);
+        if( isset($_POST['query_var']) ) $this->_config['query_var'] = clean_string($_POST['query_var']);
         $this->get_wizard()->set_data('config',$this->_config);
 
         try {
@@ -144,7 +145,7 @@ class wizard_step4 extends wizard_step
             $config = $app->get_config();
             $this->validate($this->_config);
             $url = $this->get_wizard()->next_url();
-            utils::redirect($url);
+            redirect($url);
         }
         catch( Throwable $t ) {
             $smarty = smarty();

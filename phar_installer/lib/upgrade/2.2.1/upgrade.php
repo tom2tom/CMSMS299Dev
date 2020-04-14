@@ -33,7 +33,7 @@ $remove = function( $in ) {
         @unlink($in);
     }
     else if( is_dir( $in ) ) {
-        utils::rrmdir($in);
+        rrmdir($in);
     }
 };
 
@@ -55,5 +55,5 @@ if( count($files) == 1 ) {
     $bn = strtolower(basename($files[0]));
     if( $bn == 'index.html' ) $do_remove == true;
 }
-if( $do_remove ) utils::rrmdir($plugins_from);
+if( $do_remove ) rrmdir($plugins_from);
 @touch($plugins_to.'/index.html');

@@ -4,7 +4,6 @@ namespace cms_installer\wizard;
 
 use cms_installer\install_filehandler;
 use cms_installer\manifest_reader;
-use cms_installer\utils;
 use Exception;
 use FilesystemIterator;
 use PharData;
@@ -13,8 +12,10 @@ use splitbrain\PHPArchive\Tar;
 use Throwable;
 use function cms_installer\endswith;
 use function cms_installer\get_app;
+use function cms_installer\get_upgrade_versions;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
+use function cms_installer\rrmdir;
 use function cms_installer\smarty;
 
 class wizard_step7 extends wizard_step
@@ -212,7 +213,7 @@ class wizard_step7 extends wizard_step
         if( !$destdir ) throw new Exception(lang('error_internal',711));
 
         $version_info = $this->get_wizard()->get_data('version_info');
-        $versions = utils::get_upgrade_versions();
+        $versions = get_upgrade_versions();
         if( $versions ) {
             $this->message(lang('preprocessing_files'));
             $smarty = smarty(); // in scope for inclusions
@@ -237,7 +238,7 @@ class wizard_step7 extends wizard_step
         if( !$destdir ) throw new Exception(lang('error_internal',721));
 
         $version_info = $this->get_wizard()->get_data('version_info');
-        $versions = utils::get_upgrade_versions();
+        $versions = get_upgrade_versions();
         if( $versions ) {
             $this->message(lang('processing_file_manifests'));
             foreach( $versions as $one_version ) {
@@ -269,7 +270,7 @@ class wizard_step7 extends wizard_step
                             $nfailed++;
                         }
                         elseif( is_dir($fn) ) {
-                            if( utils::rrmdir($fn) ) {
+                            if( rrmdir($fn) ) {
                                 $this->verbose('Removed directory: '.$fn);
                                 $ndeleted++;
                             }

@@ -2,13 +2,19 @@
 
 namespace cms_installer\wizard;
 
-use cms_installer\utils;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use function cms_installer\lang;
-use function cms_installer\smarty;
+use const CMS_SCHEMA_VERSION;
+use const CMS_VERSION;
+use const CMS_VERSION_NAME;
 use function cms_installer\get_app;
+use function cms_installer\get_upgrade_changelog;
+use function cms_installer\get_upgrade_readme;
+use function cms_installer\get_upgrade_versions;
+use function cms_installer\lang;
+use function cms_installer\redirect;
+use function cms_installer\smarty;
 
 class wizard_step2 extends wizard_step
 {
@@ -120,7 +126,7 @@ class wizard_step2 extends wizard_step
         else {
             throw new Exception(lang('error_internal',200));
         }
-        utils::redirect($this->get_wizard()->next_url());
+        redirect($this->get_wizard()->next_url());
     }
 
     protected function display()
@@ -142,12 +148,12 @@ class wizard_step2 extends wizard_step
             $wizard->set_data('version_info',$info); //store data in session
             $smarty->assign('cmsms_info',$info);
             if( !isset($info['error_status']) || $info['error_status'] != 'same_ver' ) {
-                $versions = utils::get_upgrade_versions();
+                $versions = get_upgrade_versions();
                 $out = [];
                 foreach( $versions as $version ) {
                     if( version_compare($version,$info['version']) < 1 ) continue;
-                    $readme = utils::get_upgrade_readme($version);
-                    $changelog = utils::get_upgrade_changelog($version);
+                    $readme = get_upgrade_readme($version);
+                    $changelog = get_upgrade_changelog($version);
                     if( $readme || $changelog ) $out[$version] = ['readme'=>$readme,'changelog'=>$changelog];
                 }
                 $smarty->assign('upgrade_info',$out);

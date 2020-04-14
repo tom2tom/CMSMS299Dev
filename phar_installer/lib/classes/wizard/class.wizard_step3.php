@@ -8,11 +8,13 @@ use cms_installer\tests\matchany_test;
 use cms_installer\tests\range_test;
 use cms_installer\tests\test_base;
 use cms_installer\tests\version_range_test;
-use cms_installer\utils;
 use cms_installer\wizard\wizard_step;
-use function cms_installer\lang;
-use function cms_installer\smarty;
 use function cms_installer\get_app;
+use function cms_installer\get_writable_error;
+use function cms_installer\is_directory_writable;
+use function cms_installer\lang;
+use function cms_installer\redirect;
+use function cms_installer\smarty;
 use function cms_installer\tests\test_is_false;
 use function cms_installer\tests\test_is_true;
 use function cms_installer\tests\test_remote_file;
@@ -345,10 +347,10 @@ class wizard_step3 extends wizard_step
                 if( !is_writable($one) ) $failed[] = $relative;
             }
             else if( in_array($basename,$dirs) ) {
-                $b = utils::is_directory_writable($one,TRUE);
+                $b = is_directory_writable($one,TRUE);
                 if( !$b ) {
-                    $tmp = utils::get_writable_error();
-                    $failed = array_merge($failed,utils::get_writable_error());
+                    $tmp = get_writable_error();
+                    $failed = array_merge($failed,get_writable_error());
                 }
             }
         }
@@ -459,7 +461,7 @@ class wizard_step3 extends wizard_step
         else {
             $url = $this->get_wizard()->next_url();
         }
-        utils::redirect($url);
+        redirect($url);
     }
 
     protected function display()
