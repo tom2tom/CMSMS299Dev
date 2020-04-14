@@ -3,6 +3,8 @@
 
 use cms_installer\installer_base;
 
+const SVNROOT = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
+
 /* NOTE
 this REQUIRES php extensions phar, zlib, and usually, zip
 this benefits from php extension Fileinfo - probably built by default
@@ -276,7 +278,7 @@ function get_alternate_files() : bool
         }
     } elseif (strncmp($sourceuri, 'svn://', 6) == 0) {
         $remnant = substr($sourceuri, 6);
-        $url = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
+        $url = SVNROOT;
         switch (strtolower(substr($remnant(0, 4)))) {
             case '':
             case 'trun':
@@ -861,6 +863,8 @@ EOS;
     } // archive only
 
     rrmdir($datadir);
+    $fp = joinpath($phardir, 'lib', 'classes', 'smarty');
+    rrmdir($fp, false, true);
 
     echo "INFO: Done, see files in $outdir\n";
 } catch (Throwable $t) {
