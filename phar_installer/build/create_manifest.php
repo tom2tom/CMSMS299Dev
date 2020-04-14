@@ -759,7 +759,7 @@ function get_sources(string $sourceuri, string $tmpdir) : bool
         }
     } elseif (strncmp($sourceuri, 'svn://', 6) == 0) {
         $remnant = substr($sourceuri, 6);
-        $url = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
+        $url = SVNROOT;
         switch (strtolower(substr($remnant, 0, 4))) {
             case '':
             case 'trun':
