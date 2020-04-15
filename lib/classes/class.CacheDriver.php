@@ -1,6 +1,6 @@
 <?php
 # Base class for data-cache drivers.
-# Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,6 +17,8 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
+
+use const CMS_ROOT_URL;
 
 /**
  * Base class for data-cache drivers
@@ -56,7 +58,8 @@ abstract class CacheDriver
 
     public function __construct($opts)
     {
-        $this->_globlspace = $this->hash(self::SERIALIZED.CMS_ROOT_URL); //might be replaced in $opts or subclass
+        $uuid = AppSingle::App()->GetSiteUUID();
+        $this->_globlspace = $this->hash($uuid); //might be replaced in $opts or subclass
 
         if (is_array($opts)) {
             $_keys = ['lifetime', 'group', 'myspace', 'auto_cleaning'];
