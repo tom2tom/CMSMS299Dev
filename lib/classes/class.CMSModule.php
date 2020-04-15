@@ -1665,7 +1665,7 @@ abstract class CMSModule
         // handle the stupid input type='image' problem.
         foreach( $params as $key => $value ) {
             if( endswith($key,'_x') ) {
-                $base = substr($key,0,strlen($key)-2);
+                $base = substr($key,0,-2);
                 if( isset($params[$base.'_y']) && !isset($params[$base]) ) $params[$base] = $base;
             }
         }

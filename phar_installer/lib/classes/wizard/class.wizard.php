@@ -83,7 +83,7 @@ final class wizard
         $_data = [];
         foreach( $iter as $inf ) {
             $filename = $inf->getFilename();
-            $tmp = substr($filename,0,strlen($filename) - 4);
+            $tmp = substr($filename,0,-4);
             $classname = substr($tmp,6);
             $idx = (int)substr($classname,11);
             $rec = ['fn'=>$filename,'class'=>'','classname'=>$classname,'description'=>'','active'=>0];

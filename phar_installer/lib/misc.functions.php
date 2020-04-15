@@ -220,10 +220,10 @@ function get_sys_tmpdir() : string
  */
 function is_directory_writable( string $path, bool $ignore_specialfiles = true ) : bool
 {
-	if( substr ( $path, strlen ( $path ) - 1 ) != '/' ) $path .= '/' ;
+	global $_writable_error;
 
-	$result = true;
 	if( $handle = @opendir( $path ) ) {
+		if( !endswith( $path,DIRECTORY_SEPARATOR ) ) $path .= DIRECTORY_SEPARATOR;
 		while( false !== ( $file = readdir( $handle ) ) ) {
 			if( $file == '.' || $file == '..' ) continue;
 
@@ -241,22 +241,17 @@ function is_directory_writable( string $path, bool $ignore_specialfiles = true )
 			}
 
 			if( @is_dir( $p ) ) {
-				$result = is_directory_writable( $p, $ignore_specialfiles );
-				if( !$result ) {
-					$_writable_error[] = $p;
+				if( !is_directory_writable( $p, $ignore_specialfiles ) ) {
 					@closedir( $handle );
 					return false;
 				}
 			}
 		}
 		@closedir( $handle );
+		return true;
 	}
-	else {
-		$_writable_error[] = $p;
-		return false;
-	}
-
-	return true;
+	$_writable_error[] = $path;
+	return false;
 }
 
 /**

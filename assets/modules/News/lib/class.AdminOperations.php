@@ -207,11 +207,11 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             }
 
             if (strlen($current_hierarchy_position) > 0) {
-                $current_hierarchy_position = substr($current_hierarchy_position, 0, strlen($current_hierarchy_position) - 1);
+                $current_hierarchy_position = substr($current_hierarchy_position, 0, -1);
             }
 
             if (strlen($current_long_name) > 0) {
-                $current_long_name = substr($current_long_name, 0, strlen($current_long_name) - 3);
+                $current_long_name = substr($current_long_name, 0, -3);
             }
 
             $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET hierarchy = ?, long_name = ? WHERE news_category_id = ?';

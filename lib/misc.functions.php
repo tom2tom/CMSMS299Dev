@@ -158,20 +158,24 @@ function get_parameter_value(array $parameters, string $key, $default = '', stri
  */
 function is_directory_writable(string $path)
 {
-    if (substr($path, strlen ($path) - 1) != '/') $path .= '/' ;
-
     if (!is_dir($path)) return false;
-    $result = true;
+
     if ($handle = opendir($path)) {
+        if (!endswith($path,DIRECTORY_SEPARATOR)) $path .= DIRECTORY_SEPARATOR;
         while (false !== ($file = readdir($handle))) {
             if ($file == '.' || $file == '..') continue;
 
             $p = $path.$file;
-            if (!@is_writable($p)) return false;
+            if (!@is_writable($p)) {
+                closedir($handle);
+                return false;
+            }
 
             if (@is_dir($p)) {
-                $result = is_directory_writable($p);
-                if (!$result) return false;
+                if (!is_directory_writable($p)) { //recurse
+                    closedir($handle);
+                    return false;
+                }
             }
         }
         closedir($handle);

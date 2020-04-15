@@ -311,9 +311,9 @@ final class ContentOperations
 			$row = $hash[$current_parent_id];
 		}
 
-		if (strlen($hier) > 0) $hier = substr($hier, 0, strlen($hier) - 1);
-		if (strlen($idhier) > 0) $idhier = substr($idhier, 0, strlen($idhier) - 1);
-		if (strlen($pathhier) > 0) $pathhier = substr($pathhier, 0, strlen($pathhier) - 1);
+		if (strlen($hier) > 0) $hier = substr($hier, 0, -1);
+		if (strlen($idhier) > 0) $idhier = substr($idhier, 0, -1);
+		if (strlen($pathhier) > 0) $pathhier = substr($pathhier, 0, -1);
 
         // static properties here >> StaticProperties class ?
 		// if we actually did something, return the row.

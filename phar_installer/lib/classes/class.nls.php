@@ -45,7 +45,7 @@ abstract class nls
     {
         $name = get_class();
         if (endswith($name, '_nls')) {
-            $name = substr($name, 0, strlen($name)-4);
+            $name = substr($name, 0, -4);
         }
         return $name;
     }
