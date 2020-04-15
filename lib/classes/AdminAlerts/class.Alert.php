@@ -327,7 +327,7 @@ abstract class Alert
         if( !$out ) return;
 
         // now sort these fuggers by priority
-        $map = [ Alert::PRIORITY_HIGH => 0, Alert::PRIORITY_NORMAL => 1, Alert::PRIORITY_LOW => 2 ];
+        $map = [ self::PRIORITY_HIGH => 0, self::PRIORITY_NORMAL => 1, self::PRIORITY_LOW => 2 ];
         usort($out,function($a,$b) use ($map) {
                 $pa = $map[$a->priority];
                 $pb = $map[$b->priority];
