@@ -22,71 +22,6 @@ $db->Execute('USE DATABASE '.$name);
 
 $dbdict = GetDataDictionary($db);
 
-/*
-//force-drop tables which will be created (just in case, during install we've already checked for an empty database)
-//status_msg(lang('install_dropping_tables'));
-$db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
-$db->DropSequence(CMS_DB_PREFIX.'content_seq');
-
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'additional_users');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'admin_bookmarks');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'content');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'content_props');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'events');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'event_handlers');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'groups');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'modules');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_deps');
-$dbdict->ExecuteSQLArray($sqlarray);
-//$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates'); now in layout_templates
-//$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'permissions');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'siteprefs');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'user_groups');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'userprefs');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'users');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'version');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_smarty_plugins');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'routes');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.Lock::LOCK_TABLE);
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME);
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.TemplateOperations::ADDUSERSTABLE);
-$dbdict->ExecuteSQLArray($sqlarray);
-// these are used mainly by DesignManager module (but some other modules too)
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME);
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME);
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE); //aka TPLTABLE
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME);
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME);
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE);
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE);
-$dbdict->ExecuteSQLArray($sqlarray);
-*/
-
 status_msg(lang('install_createtablesindexes'));
 
 // NOTE site-content-related changes here must be replicated in the data 'skeleton' and DTD in file lib/iosite.functions.php
@@ -149,7 +84,7 @@ hierarchy_path X(1024),
 metadata X(8192),
 titleattribute C(255),
 page_url C(255),
-tabindex I(1) DEFAULT 0,
+tabindex I(1) UNSIGNED DEFAULT 0,
 accesskey C(8),
 styles C(48),
 last_modified_by I(2) UNSIGNED,
@@ -241,7 +176,7 @@ class C(96),
 func C(64),
 type C(1) NOT NULL DEFAULT "C",
 removable I(1) DEFAULT 1,
-handler_order I(1) DEFAULT 0
+handler_order I(1) UNSIGNED DEFAULT 0
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'event_handlers', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -290,7 +225,7 @@ verbose_msg(lang('install_creating_index', 'idx_grp_perms_by_grp_id_perm_id', $m
 
 $flds = '
 group_id I(2) UNSIGNED AUTO KEY,
-group_name C(25),
+group_name C(32),
 group_desc C(255),
 active I(1) DEFAULT 1,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
@@ -317,9 +252,9 @@ verbose_msg(lang('install_created_table', 'modules', $msg_ret));
 //deleted here: a duplicate index on the module_name field
 
 $flds = '
-parent_module C(25),
-child_module C(25),
-minimum_version C(25),
+parent_module C(32),
+child_module C(32),
+minimum_version C(24),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
@@ -352,8 +287,8 @@ verbose_msg(lang('install_creating_index', 'idx_tagname', $msg_ret));
 // UDT's continue to be dB-storable, as well as file-storable UDTfiles
 // code field mostly/entirely ASCII, but might include UTF8 text for UI
 $flds = '
-id I AUTO KEY,
-name C(255),
+id I(2) UNSIGNED AUTO KEY,
+name C(48),
 code X(16383),
 description X(1023),
 parameters X(1023),
@@ -367,7 +302,7 @@ verbose_msg(lang('install_created_table', 'simpleplugins', $msg_ret));
 
 /* merged with layout_templates
 $flds = '
-module_name C(160),
+module_name C(32),
 template_name C(160),
 content X(TODO),
 create_date DT,
@@ -402,9 +337,9 @@ verbose_msg(lang('install_creating_index', 'idx_module_templates_by_module_and_t
 */
 $flds = '
 permission_id I(2) UNSIGNED AUTO KEY,
-permission_name C(255),
+permission_name C(48),
 permission_text C(255),
-permission_source C(255),
+permission_source C(64),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
@@ -415,7 +350,7 @@ verbose_msg(lang('install_created_table', 'permissions', $msg_ret));
 
 // name-field sized to support max 32-char space-name (c.f. module) + 2-char \\ separator + 62 char varname
 $flds = '
-sitepref_name C(96) KEY,
+sitepref_name C(48) KEY,
 sitepref_value X(2048),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
@@ -440,9 +375,9 @@ verbose_msg(lang('install_created_table', 'user_groups', $msg_ret));
 $tbl = CMS_DB_PREFIX.'userprefs';
 $flds = '
 user_id I(2) UNSIGNED KEY,
-preference C(64) KEY,
+preference C(48) KEY,
 value X(2048),
-type C(25)
+type C(24)
 ';
 //CHECKME separate index on preference field ?
 $sqlarray = $dbdict->CreateTableSQL($tbl, $flds, $taboptarray);
@@ -459,8 +394,8 @@ $flds = '
 user_id I(2) UNSIGNED AUTO KEY,
 username C(80),
 password C(128),
-first_name C(50),
-last_name C(50),
+first_name C(64),
+last_name C(64),
 email C(255),
 admin_access I(1) DEFAULT 1,
 active I(1) DEFAULT 1,
@@ -474,7 +409,7 @@ verbose_msg(lang('install_created_table', 'users', $msg_ret));
 
 /* schema-version cache replaced by siteprefs table entry
 $flds = '
-version I(4)
+version I(4) UNSIGNED
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'version', $flds,
     ['mysqli' => 'ENGINE=MYISAM COLLATE ascii_general_ci']
@@ -551,9 +486,9 @@ $tbl = CMS_DB_PREFIX.'layout_tpl_type'; // aka CmsLayoutTemplateType::TABLENAME
 //created I, <<< DT replaced 2.3
 //modified I <<< DT ditto
 $flds = '
-id I AUTO KEY,
+id I(2) UNSIGNED AUTO KEY,
 originator C(32) NOT NULL,
-name C(64) NOT NULL,
+name C(48) NOT NULL,
 dflt_contents X,
 description X(1024),
 lang_cb C(255),
@@ -580,7 +515,7 @@ $tbl = CMS_DB_PREFIX.'layout_tpl_groups'; // aka CmsLayoutTemplateCategory::TABL
 // item_order I(1) DEFAULT 0, removed 2.3
 $flds = '
 id I(2) UNSIGNED AUTO KEY,
-name C(64) NOT NULL,
+name C(48) NOT NULL,
 description X(1024),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
@@ -615,8 +550,8 @@ verbose_msg(lang('install_creating_index', 'idx_layout_tplgrp_1', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'layout_stylesheets'; // aka StylesheetOperations::TABLENAME
 $flds = '
-id I AUTO KEY,
-name C(64) NOT NULL,
+id I(2) UNSIGNED AUTO KEY,
+name C(48) NOT NULL,
 content X,
 description X(1024),
 media_type C(255),
@@ -636,8 +571,8 @@ verbose_msg(lang('install_created_index', 'idx_layout_css_1', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'layout_css_groups';  // aka StylesheetsGroup::TABLENAME
 $flds = '
-id I(1) UNSIGNED AUTO KEY,
-name C(64),
+id I(2) UNSIGNED AUTO KEY,
+name C(48),
 description X(1024),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
@@ -713,7 +648,7 @@ verbose_msg(lang('install_created_table', 'layout_design_cssassoc', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'locks'; // aka Lock::LOCK_TABLE
 $flds = '
-id I AUTO KEY,
+id I(4) UNSIGNED AUTO KEY,
 type C(24) NOT NULL,
 oid I NOT NULL,
 uid I NOT NULL,
