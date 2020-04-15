@@ -110,7 +110,7 @@ foreach ([
  'AdminSearch',
  'CMSContentManager',
  'CmsJobManager',
- 'CoreAdminLogin',
+ 'CoreAdminLogin', // a.k.a. ModuleOperations::STD_LOGIN_MODULE
  'CoreTextEditing',
  'FileManager',
  'FilePicker',
