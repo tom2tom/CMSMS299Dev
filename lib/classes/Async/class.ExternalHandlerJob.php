@@ -40,7 +40,7 @@ class ExternalHandlerJob extends Job
     /**
      * @ignore
      */
-    const HANDLER_UDT   = '_UDT_'; //unused ?
+    const HANDLER_UDT   = '_UDT_'; //unused
 
     /**
      * @ignore
