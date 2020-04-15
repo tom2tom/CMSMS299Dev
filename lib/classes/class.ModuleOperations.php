@@ -80,7 +80,7 @@ final class ModuleOperations
 	/**
 	 * @ignore
 	 */
-	private const ANY_RESULT = '.*';
+	const ANY_RESULT = '.*';
 
 	/* *
 	 * @ignore
