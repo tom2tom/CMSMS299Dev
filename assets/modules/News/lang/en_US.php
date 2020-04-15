@@ -70,6 +70,7 @@ $lang['endrequiresstart'] = 'Entering an end date requires a start date also';
 $lang['entries'] = '%s Entries';
 $lang['error_categorynotfound'] = 'The category specified was not found';
 $lang['error_categoryparent'] = 'Invalid category parent';
+$lang['error_detailed'] = 'Error: %s';
 $lang['error_duplicatename'] = 'An item with that name already exists';
 $lang['error_filesize'] = 'An uploaded file exceeded the maximum allowed size';
 $lang['error_insufficientparams'] = 'Insufficient (or empty) parameters';
