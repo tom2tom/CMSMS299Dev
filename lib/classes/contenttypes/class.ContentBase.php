@@ -45,7 +45,7 @@ class ContentBase implements Serializable
 	 * Property-name aliases
 	 * @ignore
 	 */
-	const PROPALIAS = [
+	private const PROPALIAS = [
 	'alias' => 'content_alias',
 	'content' => 'content_en',
 	'creationdate' => 'create_date',

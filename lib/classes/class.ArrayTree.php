@@ -1,6 +1,6 @@
 <?php
 #classes for creating, interrogating, modifying tree-structured arrays
-#Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -25,15 +25,15 @@ use RecursiveIteratorIterator;
 /**
  * A class for creating and modifying tree-structured arrays
  *
- * @since 2.3
+ * @since 2.9
  * @package CMS
  * @license GPL
  */
 class ArrayTree
 {
-	const SELFKEY = 'name';
-	const PARENTKEY = 'parent';
-	const CHILDKEY = 'children';
+	private const SELFKEY = 'name';
+	private const PARENTKEY = 'parent';
+	private const CHILDKEY = 'children';
 
 	/**
 	 * Converts flat $data to corresponding tree-form array, using
@@ -406,7 +406,7 @@ namespace
  */
 class ArrayTreeIterator extends RecursiveArrayIterator implements RecursiveIterator
 {
-	const CHILDKEY = 'children';
+	private const CHILDKEY = 'children';
 	protected $flags;
 	protected $childkey;
 
@@ -434,7 +434,7 @@ class ArrayTreeIterator extends RecursiveArrayIterator implements RecursiveItera
  */
 class RecursiveArrayTreeIterator extends RecursiveIteratorIterator implements OuterIterator
 {
-	const NONLEAVES_ONLY = 16384;
+	private const NONLEAVES_ONLY = 16384;
 	protected $noleaves;
 
 	public function __construct(Traversable $iterator, int $mode = RecursiveIteratorIterator::LEAVES_ONLY, int $flags = 0)

@@ -38,13 +38,13 @@ final class cms_siteprefs
 	 * @ignore
 	 * Constant indicating a serialized value, prepended to the stored value
 	 */
-	const SERIAL = '_S8D_'; // shortened '_SERIALIZED_'
+	private const SERIAL = '_S8D_'; // shortened '_SERIALIZED_'
 
 	/**
 	 * @ignore
 	 * Acceptable serialized classes in property values
 	 */
-	const PREF_CLASSES = ['stdClass'];
+	private const PREF_CLASSES = ['stdClass'];
 
 	/**
 	 * @ignore

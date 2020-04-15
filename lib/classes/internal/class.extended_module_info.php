@@ -7,7 +7,7 @@ use CMSMS\ModuleOperations;
 
 class extended_module_info extends module_info
 {
-    const EPROPS = [
+    private const EPROPS = [
      'active', //c.f. parent::notavailable
      'admin_only',
 //     'allow_admin_lazyload', //c.f. parent::lazyloadadmin

@@ -42,19 +42,19 @@ final class cms_config implements ArrayAccess
     /**
      * @ignore
      */
-    const TYPE_STRING = 'S';
+    private const TYPE_STRING = 'S';
 
     /**
      * @ignore
      */
-    const TYPE_INT = 'I';
+    private const TYPE_INT = 'I';
 
     /**
      * @ignore
      */
-    const TYPE_BOOL = 'B';
+    private const TYPE_BOOL = 'B';
 
-    const KNOWN = [
+    private const KNOWN = [
         'admin_dir' => self::TYPE_STRING,
         'admin_encoding' => self::TYPE_STRING,
         'admin_url' => self::TYPE_STRING,

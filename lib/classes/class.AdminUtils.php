@@ -68,7 +68,7 @@ final class AdminUtils
 	/**
 	 * A regular expression to use when testing if an item has a valid name.
 	 */
-	const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x7f-\xff][a-zA-Z0-9_\ \/\+\-\,\.\x7f-\xff]*$>';
+	private const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x7f-\xff][a-zA-Z0-9_\ \/\+\-\,\.\x7f-\xff]*$>';
 
 	/**
 	 * @ignore

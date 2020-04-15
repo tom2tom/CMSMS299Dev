@@ -45,10 +45,10 @@ class FormUtils
     /**
      * @ignore
      */
-    const NONE = '__none__';
+    private const NONE = '__none__';
     //untranslated error messages
-    const ERRTPL = 'parameter "%s" is required for %s';
-    const ERRTPL2 = 'a valid "%s" parameter is required for %s';
+    private const ERRTPL = 'parameter "%s" is required for %s';
+    private const ERRTPL2 = 'a valid "%s" parameter is required for %s';
 
     // static properties here >> StaticProperties class ?
     /**

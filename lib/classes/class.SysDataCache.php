@@ -42,7 +42,7 @@ use const CMS_DEPREC;
  */
 class SysDataCache
 {
-    const TIMEOUT = 604800; //1 week data-lifetime in system cache
+    private const TIMEOUT = 604800; //1 week data-lifetime in system cache
 
     //private static $_instance = null;
 

@@ -60,13 +60,13 @@ final class ModuleOperations
      * Preference name for recorded module-aliases
 	 * @ignore
 	 */
-	const CLASSMAP_PREF = 'module_classmap';
+	private const CLASSMAP_PREF = 'module_classmap';
 
 	/**
      * Preference name for recorded core module names
 	 * @ignore
 	 */
-	const CORENAMES_PREF = 'coremodules';
+	private const CORENAMES_PREF = 'coremodules';
 
 //	const CORENAMES_DEFAULT = TODO
 //'AdminLog,AdminSearch,CMSContentManager,CmsJobManager,CoreAdminLogin,FileManager,FilePicker,MicroTiny,ModuleManager,Navigator,Search';
@@ -75,12 +75,12 @@ final class ModuleOperations
      * Name of default login-processor module
 	 * @ignore
 	 */
-	const STD_AUTH_MODULE = 'CoreAdminLogin';
+	const STD_LOGIN_MODULE = 'CoreAdminLogin';
 
 	/**
 	 * @ignore
 	 */
-	const ANY_RESULT = '.*';
+	private const ANY_RESULT = '.*';
 
 	/* *
 	 * @ignore
@@ -1111,7 +1111,7 @@ VALUES (?,?,?,$now)");
 	public function GetAdminLoginModule()
 	{
 		if( $this->_auth_module ) return $this->_auth_module;
-		return $this->get_module_instance( self::STD_AUTH_MODULE, '', TRUE );
+		return $this->get_module_instance( self::STD_LOGIN_MODULE, '', TRUE );
 	}
 
 	/**

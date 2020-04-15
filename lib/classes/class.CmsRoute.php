@@ -33,7 +33,7 @@ class CmsRoute implements ArrayAccess
 	/**
 	 * @ignore
 	 */
-	const KEYS = [
+	private const KEYS = [
 	 'defaults', //module-parameters unused here but can be retrieved from outside
 	 'exact', //whether term is for exact-matching, if not, then regex
 	 'key1', //destination e.g module name, or __CONTENT__

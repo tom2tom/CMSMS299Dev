@@ -42,7 +42,7 @@ class Group
 	/**
 	 * @ignore
 	 */
-	const VALIDPROPS = ['id','name','description','active'];
+	private const PROPS = ['id','name','description','active'];
 
     // static properties here >> StaticProperties class ?
 	/**
@@ -65,7 +65,7 @@ class Group
 	 */
 	public function __get($key)
 	{
-		if( in_array($key,self::VALIDPROPS) ) return $this->$key;
+		if( in_array($key,self::PROPS) ) return $this->$key;
 		throw new LogicException($key.' is not a property of '.self::class);
 	}
 
@@ -74,7 +74,7 @@ class Group
 	 */
 	public function __set($key,$val)
 	{
-		if( !in_array($key,self::VALIDPROPS) ) {
+		if( !in_array($key,self::PROPS) ) {
 			throw new LogicException($key.' is not a property of '.self::class);
 		}
 		switch( $key ) {

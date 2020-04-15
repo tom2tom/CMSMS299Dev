@@ -39,42 +39,42 @@ class DataDictionary
      *
      * @internal
      */
-    const ALTERTABLE = 'ALTER TABLE ';
+    private const ALTERTABLE = 'ALTER TABLE ';
 
     /**
      * SQL command template for creating a drop table command.
      *
      * @internal
      */
-    const DROPTABLE = 'DROP TABLE IF EXISTS %s'; // requires MySQL 3.22+
+    private const DROPTABLE = 'DROP TABLE IF EXISTS %s'; // requires MySQL 3.22+
 
     /**
      * SQL command template for dropping an index.
      *
      * @internal
      */
-    const DROPINDEX = 'DROP INDEX %s ON %s';
+    private const DROPINDEX = 'DROP INDEX %s ON %s';
 
     /**
      * SQL sub-string to use (in the alter table command) when adding a column.
      *
      * @internal
      */
-    const ADDCOLUMN = ' ADD COLUMN ';
+    private const ADDCOLUMN = ' ADD COLUMN ';
 
     /**
      * SQL sub-string to use (in the alter table command) when altering a column.
      *
      * @internal
      */
-    const ALTERCOLUMN = ' MODIFY COLUMN ';
+    private const ALTERCOLUMN = ' MODIFY COLUMN ';
 
     /**
      * SQL sub-string to use (in the alter table command) when dropping a column.
      *
      * @internal
      */
-    const DROPCOLUMN = ' DROP COLUMN ';
+    private const DROPCOLUMN = ' DROP COLUMN ';
 
     /**
      * The database connection object.

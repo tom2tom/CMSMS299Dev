@@ -35,7 +35,7 @@ class GetParameters
     /**
      * Salt for keys related to obscured parameters
      */
-    const SECURESALT = '_SE_';
+    private const SECURESALT = '_SE_';
 
     /**
      * @var string rawurlencode()'d parameter key used for obscure params

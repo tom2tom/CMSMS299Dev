@@ -37,17 +37,17 @@ class CacheFile extends CacheDriver
     /**
      * @ignore
      */
-    const LOCK_READ   = '_read';
+    private const LOCK_READ   = '_read';
 
     /**
      * @ignore
      */
-    const LOCK_WRITE  = '_write';
+    private const LOCK_WRITE  = '_write';
 
     /**
      * @ignore
      */
-    const LOCK_UNLOCK = '_unlock';
+    private const LOCK_UNLOCK = '_unlock';
 
     /**
      * @ignore
@@ -63,7 +63,6 @@ class CacheFile extends CacheDriver
      * @ignore
      */
     protected $_cache_dir = TMP_CACHE_LOCATION;
-
 
     /**
      * Constructor

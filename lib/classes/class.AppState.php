@@ -62,7 +62,7 @@ final class AppState
     /**
      * @ignore
      */
-    const STATELIST = [
+    private const STATELIST = [
         self::STATE_ADMIN_PAGE,
         self::STATE_FRONT_PAGE,
         self::STATE_STYLESHEET,
@@ -72,10 +72,11 @@ final class AppState
     ];
 
     /**
+	 * Interpretations of pre-2.9 identifiers of various states
      * @ignore
-     * @deprecated since 2.3
+     * @deprecated since 2.9
      */
-    const STRINGSTATES = [
+    private const STATESTRINGS = [
         'admin_request' => self::STATE_ADMIN_PAGE,
         'install_request' => self::STATE_INSTALL,
         'login_request' => self::STATE_LOGIN_PAGE,
@@ -195,7 +196,7 @@ final class AppState
     public static function test_state($state) : bool
     {
         if( is_string($state) ) {
-            $state = self::STRINGSTATES[$state] ?? (int)$state; //deprecated since 2.3
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.3
         }
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is not a recognized CMSMS state');
         self::_capture_states();
@@ -237,7 +238,7 @@ final class AppState
     public static function add_state($state)
     {
         if( is_string($state) ) {
-            $state = self::STRINGSTATES[$state] ?? (int)$state; //deprecated since 2.3
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.3
         }
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
         self::$_states[$state] = $state;
@@ -255,7 +256,7 @@ final class AppState
     public static function remove_state($state) : bool
     {
         if( is_string($state) ) {
-            $state = self::STRINGSTATES[$state] ?? (int)$state; //deprecated since 2.3
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.3
         }
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
         self::_capture_states();

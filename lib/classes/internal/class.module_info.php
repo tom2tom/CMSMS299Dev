@@ -30,7 +30,7 @@ use function is_directory_writable;
 
 class module_info implements ArrayAccess
 {
-    const PROPNAMES = [
+    private const PROPNAMES = [
     'about',
     'author',
     'authoremail',

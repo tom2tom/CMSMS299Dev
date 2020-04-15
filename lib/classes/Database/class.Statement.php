@@ -36,7 +36,7 @@ use function debug_to_log;
  */
 class Statement
 {
-    const NOPARMCMD = 1295; // MySQL/MariaDB errno for deprecated non-parameterizable command
+    private const NOPARMCMD = 1295; // MySQL/MariaDB errno for deprecated non-parameterizable command
 
     /**
      * Connection object
