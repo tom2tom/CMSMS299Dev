@@ -42,7 +42,7 @@ class CmsLayoutTemplateType
 	/**
 	 * This constant indicates a serialized string
 	 */
-	const SERIAL = '_S8D_'; // shortened '_SERIALIZED_'
+	const SERIAL = '_|SE6ED|_'; // shortened '_SERIALIZED_'
 
 	/**
 	 * @ignore
