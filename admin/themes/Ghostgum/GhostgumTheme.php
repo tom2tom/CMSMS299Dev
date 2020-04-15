@@ -232,7 +232,7 @@ EOS;
 	 */
 	public function do_login($params = null)
 	{
-		$auth_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin');
+		$auth_module = cms_siteprefs::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
 		$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
 		if ($modinst) {
 			$data = $modinst->StageLogin();

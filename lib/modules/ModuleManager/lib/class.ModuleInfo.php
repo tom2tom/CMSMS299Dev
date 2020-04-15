@@ -1,6 +1,6 @@
 <?php
-# ModuleManager class: ..
-# Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# ModuleInfo class: 
+# Copyright (C) 2017-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -26,7 +26,7 @@ use function debug_display;
 
 class ModuleInfo extends extended_module_info // and thence module_info
 {
-    const MMKEYS = [
+    private const MMKEYS = [
      'can_install',
      'can_uninstall',
      'can_upgrade',
@@ -35,7 +35,8 @@ class ModuleInfo extends extended_module_info // and thence module_info
      'missing_deps',
      'needs_upgrade',
     ];
-    const DEPRECATED = ['CMSMailer','MenuManager'];
+
+    private const DEPRECATED = ['CMSMailer','MenuManager'];
 
     // static properties here >> StaticProperties class ?
     private static $_minfo;
@@ -173,15 +174,14 @@ class ModuleInfo extends extended_module_info // and thence module_info
             // check if this module can be uninstalled
             if( !$this['installed'] ) return FALSE;
 
-            // check for installed modules that are dependent upon this one
             $name = $this['name'];
-            if( $name == 'ModuleManager' || $name == 'CoreAdminLogin' ) return FALSE;
+            if( $name == 'ModuleManager' || $name == ModuleOperations::STD_LOGIN_MODULE ) return FALSE;
 
-            foreach( self::$_minfo as $mname => $minfo ) {
+            // check for installed modules that are dependent upon this one
+            foreach( self::$_minfo as $minfo ) {
                 if( $minfo['dependants'] ) {
-                    if( in_array($name,$minfo['dependants']) ) return FALSE;
+                    if( in_array($name, $minfo['dependants']) ) return FALSE;
                 }
-
             }
             return TRUE;
         }

@@ -657,7 +657,7 @@ $tmp = ['' => lang('theme')];
 $modules = $modops->GetCapableModules('adminlogin');
 if ($modules) {
     for ($i = 0, $n = count($modules); $i < $n; $i++) {
-        if ($modules[$i] == 'CoreAdminLogin') {
+        if ($modules[$i] == $modops::STD_LOGIN_MODULE) {
             $tmp[$modules[$i]] = lang('default');
         } else {
             $tmp[$modules[$i]] = $modules[$i];
