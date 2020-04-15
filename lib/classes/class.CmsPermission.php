@@ -1,6 +1,6 @@
 <?php
 #Class and utilities for working with permissions.
-#Copyright (C) 2014-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -31,7 +31,7 @@ final class CmsPermission
 	/**
 	 * @ignore
 	 */
-	const KEYS = ['id','source','name','text','create_date','modified_date'];
+	private const PROPS = ['id','source','name','text','create_date','modified_date'];
 
 	/**
 	 * @ignore
@@ -66,7 +66,7 @@ final class CmsPermission
 	 */
 	public function __get($key)
 	{
-		if( !in_array($key,self::KEYS) ) throw new CmsInvalidDataException($key.' is not a valid key for a '.__CLASS__.' object');
+		if( !in_array($key,self::PROPS) ) throw new CmsInvalidDataException($key.' is not a valid key for a '.__CLASS__.' object');
 		return $this->_data[$key] ?? null;
 	}
 
@@ -77,7 +77,7 @@ final class CmsPermission
 	public function __set($key,$value)
 	{
 		if( $key == 'id' ) throw new CmsInvalidDataException($key.' cannot be set this way in a '.__CLASS__.' object');
-		if( !in_array($key,self::KEYS) ) throw new CmsInvalidDataException($key.' is not a valid key for a '.__CLASS__.' object');
+		if( !in_array($key,self::PROPS) ) throw new CmsInvalidDataException($key.' is not a valid key for a '.__CLASS__.' object');
 
 		$this->_data[$key] = $value;
 	}
@@ -85,24 +85,26 @@ final class CmsPermission
 	/**
 	 * Insert a new permission
 	 *
-	 * @throws CmsSQLErrorException
+	 * @throws CmsSQLErrorException if saving fails
 	 */
 	protected function _insert()
 	{
 		$this->validate();
 
 		$db = CmsApp::get_instance()->GetDb();
-		$new_id = $db->GenID(CMS_DB_PREFIX.'permissions_seq'); //OR use $db->Insert_ID();
-		if( !$new_id ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		//setting create_date should be redundant with DT setting
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."permissions
-(permission_id,permission_name,permission_text,permission_source,create_date)
-VALUES (?,?,?,?,NOW())";
+(permission_name,permission_text,permission_source,create_date)
+VALUES (?,?,?,NOW())";
 		$dbr = $db->Execute($query,
-							[$new_id, $this->_data['name'], $this->_data['text'], $this->_data['source']]);
-		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
-		$this->_data['id'] = $new_id;
+		[$this->_data['name'], $this->_data['text'], $this->_data['source']]);
+		if( $dbr ) {
+			$this->_data['id'] = $db->Insert_ID();
+		}
+		else {
+			throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		}
 	}
 
 	/**

@@ -1,6 +1,6 @@
 <?php
 #Class of group-related functions
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -128,13 +128,12 @@ final class GroupOperations
 		$db = CmsApp::get_instance()->GetDb();
 		$id = $group->id;
 		if( $id < 1 ) {
-			$id = $db->GenID(CMS_DB_PREFIX.'groups_seq');
 			//setting create_date should be redundant with DT setting
-			$query = 'INSERT INTO '.CMS_DB_PREFIX."groups
-(group_id, group_name, group_desc, active, create_date)
-VALUES ($id,?,?,?,NOW())";
+			$query = 'INSERT INTO '.CMS_DB_PREFIX.'groups
+(group_name,group_desc,active,create_date)
+VALUES (?,?,?,NOW())';
 			$dbr = $db->Execute($query, [$group->name, $group->description, $group->active]);
-			return ($dbr) ? $id : -1;
+			return ($dbr) ? $db->Insert_ID() : -1;
 		}
 		else {
 			$query = 'UPDATE '.CMS_DB_PREFIX.'groups SET group_name = ?, group_desc = ?, active = ?, modified_date = NOW() WHERE group_id = ?';
@@ -296,13 +295,10 @@ VALUES ($id,?,?,?,NOW())";
 
 		$db = CmsApp::get_instance()->GetDb();
 
-		$new_id = $db->GenId(CMS_DB_PREFIX.'group_perms_seq');
-		if( !$new_id ) return;
-
 		//setting create_date should be redundant with DT setting
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."group_perms
-(group_perm_id,group_id,permission_id,create_date)
-VALUES ($new_id,?,?,NOW())";
+(group_id,permission_id,create_date)
+VALUES (?,?,NOW())";
 // 		$dbr =
 		$db->Execute($query,[$groupid,$permid]);
 		unset($this->_perm_cache);

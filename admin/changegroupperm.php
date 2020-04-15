@@ -188,8 +188,8 @@ if (isset($_POST['submit'])) {
 
     //setting create_date should be redundant with DT setting
     $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'group_perms
-(group_perm_id, group_id, permission_id, create_date)
-VALUES (?,?,?,NOW())');
+(group_id, permission_id, create_date)
+VALUES (?,?,NOW())');
 
     cleanArray($_POST);
     foreach ($_POST as $key=>$value) {
@@ -197,8 +197,7 @@ VALUES (?,?,?,NOW())');
             $keyparts = explode('_', $key);
             $keyparts[1] = (int)$keyparts[1];
             if ($keyparts[1] > 0 && $keyparts[2] != '1' && $value == '1') {
-                $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq'); //OR use $db->Insert_ID(); for autoincrement group_perm_id
-                $result = $db->Execute($stmt, [$new_id,$keyparts[2],$keyparts[1]]);
+                $result = $db->Execute($stmt, [$keyparts[2],$keyparts[1]]);
                 if (!$result) {
                     echo 'FATAL: '.$db->ErrorMsg().'<br />'.$db->sql;
                     exit;

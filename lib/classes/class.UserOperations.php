@@ -271,24 +271,26 @@ final class UserOperations
 	public function InsertUser($user) : int
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		// check for conflict in username
-		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE username = ?';
-		$tmp = $db->GetOne($query, [$user->username]);
-		if ($tmp) {
-			return -1;
-		}
-
-		$new_user_id = $db->GenID(CMS_DB_PREFIX.'users_seq');
+		$pref = CMS_DB_PREFIX;
 		//setting create_date should be redundant with DT setting
-		$query = 'INSERT INTO '.CMS_DB_PREFIX."users
-(user_id, username, password, active, first_name, last_name, email, admin_access, create_date)
-VALUES ($new_user_id,?,?,?,?,?,?,?,NOW())";
-		$dbresult = $db->Execute($query, [$user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, 1]); //Force admin access on
-		if ($dbresult !== false) {
-			return $new_user_id;
-		}
+		$query = <<<EOS
+INSERT INTO {$pref}users
+(username, password, active, first_name, last_name, email, admin_access, create_date)
+SELECT ?,?,?,?,?,?,?,NOW() FROM (SELECT 1 AS dmy) Z
+WHERE NOT EXISTS (SELECT 1 FROM {$pref}users T WHERE T.username=?)
+EOS;
+		$dbr = $db->Execute($query, [
+			$user->username,
+			$user->password,
+			$user->active,
+			$user->firstname,
+			$user->lastname,
+			$user->email,
+			1,
+			$user->username
+		]);
 
-		return -1;
+		return ($dbr) ? $db->Insert_ID() : -1;
 	}
 
 	/**

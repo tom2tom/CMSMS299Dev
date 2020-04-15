@@ -1440,13 +1440,13 @@ WHERE content_id = ?';
 		]);
 
 		if( isset($this->mAdditionalEditors) ) {
+			$content_id = (int) $this->mId;
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'additional_users WHERE content_id = ?';
-			$dbr = $db->Execute($query, [$this->Id()]);
+			$dbr = $db->Execute($query, [$content_id]);
 
+			$query = 'INSERT INTO '.CMS_DB_PREFIX.'additional_users (user_id, content_id) VALUES (?,?)';
 			foreach( $this->mAdditionalEditors as $oneeditor ) {
-				$new_addt_id = $db->GenID(CMS_DB_PREFIX.'additional_users_seq'); //deprecated since 2.3 non AUTO additional_users_id
-				$query = 'INSERT INTO '.CMS_DB_PREFIX.'additional_users (additional_users_id, user_id, content_id) VALUES (?,?,?)';
-				$dbr = $db->Execute($query, [$new_addt_id, $oneeditor, $this->Id()]);
+				$dbr = $db->Execute($query, [$oneeditor, $content_id]);
 			}
 		}
 
@@ -1564,10 +1564,10 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			$this->_save_properties();
 		}
 		if( isset($this->mAdditionalEditors) ) {
+			$query = 'INSERT INTO '.CMS_DB_PREFIX.'additional_users (user_id, content_id) VALUES (?,?)';
+			$content_id = $this->Id();
 			foreach( $this->mAdditionalEditors as $oneeditor ) {
-				$new_addt_id = $db->GenID(CMS_DB_PREFIX.'additional_users_seq');
-				$query = 'INSERT INTO '.CMS_DB_PREFIX.'additional_users (additional_users_id, user_id, content_id) VALUES (?,?,?)';
-				$db->Execute($query, [$new_addt_id, $oneeditor, $this->Id()]);
+				$db->Execute($query, [$oneeditor, $content_id]);
 			}
 		}
 

@@ -90,15 +90,14 @@ EOS;
 	public static function CreateEvent(string $originator, string $eventname) : bool
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$id = $db->GenID( CMS_DB_PREFIX.'events_seq' ); //deprecated since 2.3 non AUTO event_id
 		$originator = trim($originator);
 		$eventname = trim($eventname);
 		$pref = CMS_DB_PREFIX;
 		$sql = <<<EOS
-INSERT INTO {$pref}events (event_id,originator,event_name) SELECT ?,?,? FROM (SELECT 1 AS dmy) Z
+INSERT INTO {$pref}events (originator,event_name) SELECT ?,? FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM {$pref}events T WHERE T.originator=? AND T.event_name=?)
 EOS;
-		$dbr = $db->Execute($sql, [$id, $originator, $eventname, $originator, $eventname]);
+		$dbr = $db->Execute($sql, [$originator, $eventname, $originator, $eventname]);
 		if( $dbr ) {
 			SysDataCache::get_instance()->release(self::class);
 			return true;
@@ -429,7 +428,6 @@ EOS;
 			return false; // ach, something matches already
 		}
 
-		$handler_id = $db->GenId(CMS_DB_PREFIX.'event_handler_seq');  //deprecated since 2.3 non AUTO handler_id
 		// get a new handler order
 		$sql = 'SELECT MAX(handler_order) AS newid FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=?';
 		$order = (int) $db->GetOne($sql, [$originator, $eventname]);
@@ -442,8 +440,8 @@ EOS;
 		$mode = ( $removable ) ? 1:0;
 
 		$sql = 'INSERT INTO '.CMS_DB_PREFIX.'event_handlers
-(handler_id,event_id,class,func,type,removable,handler_order) VALUES (?,?,?,?,?,?,?)';
-		$dbr = $db->Execute($sql, [$handler_id, $id, $class, $method, $type, $mode, $order]);
+(event_id,class,func,type,removable,handler_order) VALUES (?,?,?,?,?,?)';
+		$dbr = $db->Execute($sql, [$id, $class, $method, $type, $mode, $order]);
 		SysDataCache::get_instance()->release(self::class);
 		return ($dbr != false);
 	}

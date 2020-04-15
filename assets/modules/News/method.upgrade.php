@@ -278,8 +278,7 @@ WHERE news_id=?';
     $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator="News" AND name="form"';
     $db->Execute($query);
 
-    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_categories_seq');
-    $dict->ExecuteSQLArray($sqlarray);
+    $db->DropSequence(CMS_DB_PREFIX.'module_news_categories_seq');
     $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fielddefs');
     $dict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fieldvals');

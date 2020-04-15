@@ -50,10 +50,7 @@ if (isset($params['name'])) {
             $item_order = (int)$db->GetOne($query,[$parent]);
             $item_order++;
 
-//          $catid = $db->GenID(CMS_DB_PREFIX.'module_news_categories_seq'); //OR use $db->Insert_ID(); for autoincrement news_category_id
             $now = time();
-//          $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories
-//(news_category_id, news_category_name, parent_id, item_order, create_date) VALUES (?,?,?,?,?)';
             $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories
 (news_category_name, parent_id, item_order, create_date) VALUES (?,?,?,?)';
             $parms = [$name,$parent,$item_order,$now];
@@ -70,7 +67,7 @@ if (isset($params['name'])) {
                 $this->SetMessage($this->Lang('categoryadded'));
                 $this->RedirectToAdminTab('groups');
             }
-            $this->ShowErrors($this->Lang('TODO')); // duplicate name error ?
+            $this->ShowErrors($this->Lang('error_detailed', $db->errorMsg()));
         }
     }
     else {

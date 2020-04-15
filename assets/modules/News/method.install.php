@@ -93,10 +93,9 @@ $dict->ExecuteSQLArray($sqlarray);
 
 $now = time();
 // General category
-$catid = $db->GenID(CMS_DB_PREFIX.'module_news_categories_seq');//OR use $db->Insert_ID(); for autoincrement news_category_id
-$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories (news_category_id, news_category_name, parent_id, create_date) VALUES (?,?,?,?)';
+$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories
+(news_category_name,parent_id,create_date) VALUES (?,?,?)';
 $db->Execute($query, [
-    $catid,
     'General',
     -1,
     $now,
@@ -127,20 +126,20 @@ $this->CreatePermission('Modify News Preferences', 'Modify News Module Settings'
 $perm_id = $db->GetOne('SELECT permission_id FROM '.CMS_DB_PREFIX."permissions WHERE permission_name = 'Modify News'");
 $group_id = $db->GetOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE group_name = 'Admin'");
 
-$count = $db->GetOne('SELECT COUNT(*) FROM ' . CMS_DB_PREFIX . 'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
+$count = $db->GetOne('SELECT COUNT(*) FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
 if ((int)$count == 0) {
-    $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');//OR use $db->Insert_ID();
-    $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'group_perms (group_perm_id, group_id, permission_id, create_date) VALUES ('.$new_id.', '.$group_id.', '.$perm_id.', '. $now . ')';
-    $db->Execute($query);
+    $query = 'INSERT INTO '.CMS_DB_PREFIX.'group_perms
+(group_id,permission_id,create_date) VALUES (?,?,?)';
+    $db->Execute($query, [$group_id, $perm_id, $now]);
 }
 
 $group_id = $db->GetOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE group_name = 'Editor'");
 
-$count = $db->GetOne('SELECT COUNT(*) FROM ' . CMS_DB_PREFIX . 'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
-if (isset($count) && (int)$count == 0) {
-    $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');//OR use $db->Insert_ID();
-    $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'group_perms (group_perm_id, group_id, permission_id, create_date) VALUES ('.$new_id.', '.$group_id.', '.$perm_id.', '. $now . ')';
-    $db->Execute($query);
+$count = $db->GetOne('SELECT COUNT(*) FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
+if ((int)$count == 0) {
+    $query = 'INSERT INTO '.CMS_DB_PREFIX.'group_perms
+(group_id,permission_id,create_date) VALUES (?,?,?)';
+    $db->Execute($query, [$group_id, $perm_id, $now]);
 }
 
 $me = $this->GetName();
