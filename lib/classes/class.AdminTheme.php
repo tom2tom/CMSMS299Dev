@@ -212,7 +212,7 @@ abstract class AdminTheme
     /**
      * Init for all specific-theme sub-classes
      * @ignore
-	 */
+     */
     protected function __construct()
     {
         if( is_object(self::$_instance) ) {
@@ -222,10 +222,10 @@ abstract class AdminTheme
         $this->_url = $_SERVER['SCRIPT_NAME'];
         $this->_query = $_SERVER['QUERY_STRING'] ?? '';
         if( !$this->_query ) {
-			$parms = (new GetParameters())->get_action_values('module');
-			if( !empty($parms['module']) ) {
-	            $this->_query = 'module='.$parms['module'];
-			}
+            $parms = (new GetParameters())->get_action_values('module');
+            if( !empty($parms['module']) ) {
+                $this->_query = 'module='.$parms['module'];
+            }
         }
         if( strpos($this->_url, '/') === false ) {
             $this->_script = $this->_url;
@@ -249,7 +249,7 @@ abstract class AdminTheme
     /**
      * @ignore
      */
-	private function __clone() {}
+    private function __clone() {}
 
     /**
      * @ignore
@@ -279,8 +279,8 @@ abstract class AdminTheme
      * Get the singleton admin-theme object, a sub-class of this class, per the
      * specified name or else the current user's preference or the system default.
      * This method [re]creates the theme object if appropriate.
-	 * NOTE the hierarchy of theme classes prevents the theme singleton from
-	 * being populated and cached in CMSApp like most other singletons.
+     * NOTE the hierarchy of theme classes prevents the theme singleton from
+     * being populated and cached in CMSApp like most other singletons.
      *
      * @param mixed string|null $name Optional theme name.
      * @return mixed AdminTheme admin theme object | null
@@ -288,11 +288,11 @@ abstract class AdminTheme
     public static function get_instance($name = '')
     {
         if( is_object(self::$_instance) ) {
-			if( $name == '' || $name = self::$_instance->themeName) {
-				return self::$_instance;
-			}
-			self::$_instance = null; // prevent exception when recreated
-		}
+            if( $name == '' || $name = self::$_instance->themeName) {
+                return self::$_instance;
+            }
+            self::$_instance = null; // prevent exception when recreated
+        }
 
         if( !$name ) {
             $userid = get_userid(FALSE);
@@ -678,24 +678,24 @@ abstract class AdminTheme
      */
     private function _parse_request() : array
     {
-		$ops = new GetParameters();
-		$parms = $ops->decode_action_params();
-		if( $parms ) {
-			// construct a mact-parameter in case something wants to use that
-			$module = $parms['module'] ?? '';
-			$action = $parms['action'] ?? '';
-			if( $module && $action ) {
-				$inline = $parms['inline'] ?? 0;
-				$id = $parms['id'] ?? '';
-				$parms['mact'] = "$module,$id,$action,$inline";
-			} else {
-				$id = '';
-			}
-		} else {
-			$parms = [];
-			$id = '';
-		}
-		$parms += $ops->retrieve_general_params($id);
+        $ops = new GetParameters();
+        $parms = $ops->decode_action_params();
+        if( $parms ) {
+            // construct a mact-parameter in case something wants to use that
+            $module = $parms['module'] ?? '';
+            $action = $parms['action'] ?? '';
+            if( $module && $action ) {
+                $inline = $parms['inline'] ?? 0;
+                $id = $parms['id'] ?? '';
+                $parms['mact'] = "$module,$id,$action,$inline";
+            } else {
+                $id = '';
+            }
+        } else {
+            $parms = [];
+            $id = '';
+        }
+        $parms += $ops->retrieve_general_params($id);
 
         $config = cms_config::get_instance();
         $url_ob = new cms_url($config['admin_url']);
@@ -707,7 +707,7 @@ abstract class AdminTheme
         if( !$text ) {
             $text = 'index.php';
         }
-		$text .= '?'.$ops->create_plain_params($parms);
+        $text .= '?'.$ops->create_plain_params($parms);
         return [$text, $parms];
     }
 
@@ -1477,7 +1477,7 @@ abstract class AdminTheme
 
         switch ($type) {
           case 'svg':
-			$extras['class'] = trim('svgicon '.$extras['class']);
+            $extras['class'] = trim('svgicon '.$extras['class']);
             // see https://css-tricks.com/using-svg
             $alt = str_replace('svg','png',$path);
             $res = '<img src="'.$path.'" onerror="this.onerror=null;this.src=\''.$alt.'\';"';
@@ -1735,9 +1735,9 @@ abstract class AdminTheme
         if( isset($_REQUEST['module']) ) {
             $module = cleanValue($_REQUEST['module']);
         } else {
-			$params = (new GetParameters())->get_action_values('module');
-			$module = $params['module'] ?? '';
-		}
+            $params = (new GetParameters())->get_action_values('module');
+            $module = $params['module'] ?? '';
+        }
 
         if( $module ) {
             $tag = AdminUtils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
