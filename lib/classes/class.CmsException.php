@@ -227,7 +227,7 @@ class CmsFileSystemException extends CmsException {}
  * A throwable indicating a need to replace something deprecated.
  *
  * @package CMS
- * @since 2.3
+ * @since 2.9
  */
 class DeprecationNotice extends AssertionError
 {
