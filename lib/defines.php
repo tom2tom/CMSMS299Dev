@@ -44,6 +44,7 @@ define('CMS_DEBUG',$config['debug']);
 
 /**
  * Whether to throw upon use of deprecated stuff.
+ * @since 2.9
  */
 define('CMS_DEPREC',CMS_DEBUG && $config['deprecations']);
 
@@ -63,14 +64,14 @@ define('CMS_ADMIN_PATH',$config['root_path'].DIRECTORY_SEPARATOR.$config['admin_
 define('CMS_ASSETS_PATH',$config['assets_path']);
 
 /**
- * Where UDTfiles are stored.
- * @since 2.3
+ * Where simple-plugin files are stored.
+ * @since 2.9
  */
-define('CMS_FILETAGS_PATH',$config['assets_path'].DIRECTORY_SEPARATOR.$config['simpletags_dir']);
+define('CMS_FILETAGS_PATH',$config['simpletags_path']);
 
 /**
  * The 'top' directory where javascript files are stored
- * @since 2.3
+ * @since 2.9
  */
 define('CMS_SCRIPTS_PATH',$config['root_path'].DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'js');
 
@@ -81,13 +82,13 @@ define('CMS_ROOT_URL',$config['root_url']);
 
 /**
  * The site assets URL.
- * @since 2.3
+ * @since 2.9
  */
 define('CMS_ASSETS_URL',$config['assets_url']);
 
 /**
  * The 'top' URL where javascript files are stored
- * @since 2.3
+ * @since 2.9
  */
 define('CMS_SCRIPTS_URL',$config['root_url'].'/lib/js');
 
@@ -102,9 +103,16 @@ define('CMS_UPLOADS_URL',$config['uploads_url']);
 define('CMS_DB_PREFIX',$config['db_prefix']);
 
 if( CMS_DEBUG ) {
-    //for async DEBUG
+    //for async DEBUG since 2.9
     define('ASYNCLOG', TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'debug.log');
 }
+
+/**
+ * popup-menus css class.
+ * Context-menu class(es) with this name must be established in each admin theme's css file(s)
+ * @since 2.9
+ */
+define('CMS_POPUPCLASS', $config['menu_cssclass']);
 
 const CMS_DEFAULT_VERSIONCHECK_URL = 'https://www.cmsmadesimple.org/latest_version.php';
 const CMS_SECURE_PARAM_NAME = '_sk_';
@@ -118,11 +126,3 @@ const CMS_PREVIEW = '__cms_preview__';
 const CMS_PREVIEW_TYPE = '__cms_preview_type__';
 const CMS_PREVIEW_PAGEID = -100;
 const __CMS_PREVIEW_PAGE__ = -100; //deprecated since 2.3
-
-/**
- * popup-menus css class.
- * Context-menu class(es) with this name must be established in each admin theme's css file(s)
- * @since 2.9
- * TODO consider supporting a config file parameter
- */
-const CMS_POPUPCLASS = 'ContextMenu';
