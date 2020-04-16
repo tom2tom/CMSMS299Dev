@@ -81,12 +81,15 @@ assets_url
 content_language - for PHP htmlentities() and html_entity_decode(), default 'xhtml'
 deprecations - if this parameter, and also debug, are not empty, deprecation notices will be thrown when something (method, property etc) deprecated is used
 develop_mode (formerly developer_mode) - 1 when somebody authorized is working on the site content/operation
+menu_cssclass css class to be applied to admin console context menus. Each admin theme should have such class(es)
 pr_root_url - protocol-relative root URI
 secure_action_url - whether to encrypt action get-parameters for inclusion in URL's (mostly for non-https sites)
-usertags_dir - name of filesystem folder where user-plugin files are stored, default 'user_plugins'
+simpletags_path - name of filesystem folder where 'simple-plugin' files are stored, default 'assets-path'/'simple_plugins'
 
 deprecated
 
+assets_dir instead use (longtime-present) assets_path
+max_upload_size ignored (php.ini upload_max_filesize value prevails)
 output_compression ignored
 ssl_image_uploads_url see image_uploads_url
 ssl_uploads_url see uploads_url
@@ -95,15 +98,17 @@ startup_mact_processing ignored
 use_adodb_lite ignored
 use_hierarchy ignored
 use_smarty_php_tags ignored
+upload_max_filesize ignored (php.ini value prevails)
 
 DEFINES
 
 new
 
 CMS_ASSETS_URL - URL corresponding to CMS_ASSETS_PATH
+CMS_FILETAGS_PATH - filesystem path of folder containing simple-plugin files
 CMS_SCRIPTS_PATH - filesystem path of top folder containing js resource files
 CMS_SCRIPTS_URL - URL corresponding to CMS_SCRIPTS_PATH
-CMS_UDT_PATH - filesystem path of folder containing user-plugin files
+CMS_POPUPCLASS - admin context-menus css classname
 
 PLUGINS
 
