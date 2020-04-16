@@ -45,7 +45,7 @@ class FormUtils
     /**
      * @ignore
      */
-    private const NONE = '__none__';
+    const NONE = '__none__';
     //untranslated error messages
     private const ERRTPL = 'parameter "%s" is required for %s';
     private const ERRTPL2 = 'a valid "%s" parameter is required for %s';
