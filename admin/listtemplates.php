@@ -132,7 +132,7 @@ try {
             }
 
             if( $acts ) {
-                $menus[] = FormUtils::create_menu($acts, ['id'=>'Template'.$tid, 'class'=>CMS_POPUPCLASS]);
+                $menus[] = FormUtils::create_menu($acts, ['id'=>'Template'.$tid]);
             }
         }
 
@@ -549,7 +549,7 @@ if( $groups ) {
 //TODO lock processing, if relevant
 
         if( $acts ) {
-            $menus[] = FormUtils::create_menu($acts, ['id'=>'Templategroup'.$gid, 'class'=>CMS_POPUPCLASS]);
+            $menus[] = FormUtils::create_menu($acts, ['id'=>'Templategroup'.$gid]);
         }
     }
     unset($group);

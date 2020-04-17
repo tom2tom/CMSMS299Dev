@@ -113,7 +113,7 @@ try {
                 }
             }
             if( $acts ) {
-                $menus[] = FormUtils::create_menu($acts, ['id'=>'Stylesheet'.$sid, 'class'=>CMS_POPUPCLASS]);
+                $menus[] = FormUtils::create_menu($acts, ['id'=>'Stylesheet'.$sid]);
             }
         }
 
@@ -436,7 +436,7 @@ if( $groups ) {
 //TODO lock processing, if relevant
 
         if( $acts ) {
-            $menus[] = FormUtils::create_menu($acts, ['id'=>'Sheetsgroup'.$gid, 'class'=>CMS_POPUPCLASS]);
+            $menus[] = FormUtils::create_menu($acts, ['id'=>'Sheetsgroup'.$gid]);
         }
     }
     unset($group);
@@ -470,7 +470,7 @@ EOS;
 
 $out = $sm->render_inclusion('', false, false);
 if( $out ) {
-	add_page_foottext($out);
+    add_page_foottext($out);
 }
 
 $list = StylesheetOperations::get_all_stylesheets(true);

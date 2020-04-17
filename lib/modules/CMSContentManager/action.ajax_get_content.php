@@ -196,7 +196,7 @@ try {
             if( $row['can_delete'] && $row['delete'] ) {
                 $acts[] = ['content'=>str_replace('XXX',$rid,$linkdel)];
             }
-            $menus[] = FormUtils::create_menu($acts,['id'=>'Page'.$rid,'class'=>CMS_POPUPCLASS]);
+            $menus[] = FormUtils::create_menu($acts,['id'=>'Page'.$rid]);
         }
 		unset($row);
 

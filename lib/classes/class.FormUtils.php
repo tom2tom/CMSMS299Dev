@@ -1,6 +1,6 @@
 <?php
 # A class providing functionality for generating page-elements.
-# Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -52,16 +52,16 @@ class FormUtils
 
     // static properties here >> StaticProperties class ?
     /**
-	 * Names of rich-text-editor modules specified for use during the current request
+     * Names of rich-text-editor modules specified for use during the current request
      * @ignore
-	 * @deprecated since 2.3
+     * @deprecated since 2.3
      */
     protected static $_activated_wysiwyg = [];
 
     /**
-	 * Names of syntax-highlight-editor modules specified for use during the current request
+     * Names of syntax-highlight-editor modules specified for use during the current request
      * @ignore
-	 * @deprecated since 2.3
+     * @deprecated since 2.3
      */
     protected static $_activated_syntax = [];
 
@@ -752,9 +752,9 @@ class FormUtils
 
     /**
      * Record a richtext-editor (aka wysiwyg) module specified during generation
-	 * of a textarea.
+     * of a textarea.
      * For frontend editing, the {cms_init_editor} plugin must be included in the
-	 * head part of the page/template, to process the info recorded by this method.
+     * head part of the page/template, to process the info recorded by this method.
      *
      * @internal
      * @ignore
@@ -784,8 +784,8 @@ class FormUtils
 
     /**
      * Get xhtml for a text area input
-	 * The area may be used with a richtext editor or syntax highlight editor.
-	 * If so, the related js, css etc are not generated here.
+     * The area may be used with a richtext editor or syntax highlight editor.
+     * If so, the related js, css etc are not generated here.
      *
      * @param array $parms   Attribute(s)/property(ies) to be included in the
      *  element, each member like name=>value. Any name may be numeric, in which
@@ -1010,7 +1010,7 @@ class FormUtils
         ]);
         $out .= '>'."\n".
         '<div class="hidden">'."\n".
- 		// TODO if $method == 'get', also support secure action-parameters via GetParameters class
+         // TODO if $method == 'get', also support secure action-parameters via GetParameters class
         '<input type="hidden" name="mact" value="'.$mod->GetName().','.$id.','.$action.','.($inline?1:0).'" />'."\n";
        if ($returnid != '') { //NB not strict - it may be null
             $out .= '<input type="hidden" name="'.$id.'returnid" value="'.$returnid.'" />'."\n";
@@ -1338,7 +1338,7 @@ class FormUtils
     /**
      * Get xhtml for a nest of ul(s) and li's suitable for a popup/context menu
      *
-     * @since 2.3
+     * @since 2.9
      * @param array $items Each member is an assoc. array, with member 'content' and optional 'children' sub-array
      * @param array  $parms Attribute(s)/property(ies) to be included in
      *  the element, each member like 'name'=>'value'. Of special note:
@@ -1348,6 +1348,14 @@ class FormUtils
      */
     public static function create_menu(array $items, array $parms = [], $level = 0) : string
     {
+        static $mainclass = null;
+
+        if (empty($params['class'])) {
+            if (!$mainclass) {
+                $mainclass = cms_siteprefs::get(CMS_POPUPCLASS, 'ContextMenu');
+            }
+            $params['class'] = $mainclass;
+        }
         if ($level == 0) {
             $out = '<div';
             if ($parms) {
