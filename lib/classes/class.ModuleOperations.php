@@ -530,7 +530,7 @@ VALUES (?,?,?,NOW())');
 		$result = [];
 		foreach( cms_module_places() as $dir ) {
 			if( is_dir($dir) && $handle = @opendir($dir) ) {
-				while( ($file = readdir($handle)) !== false ) { //not glob(), which recurses infinitely
+				while( ($file = readdir($handle)) !== false ) {
 					if( $file == '..' || $file == '.' ) continue;
 					$fn = "$dir/$file/$file.module.php";
 					if( @is_file($fn) && !in_array($file,$result) ) $result[] = $file;
