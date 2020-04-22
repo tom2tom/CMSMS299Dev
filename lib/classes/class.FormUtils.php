@@ -1352,11 +1352,11 @@ class FormUtils
     {
         static $mainclass = null;
 
-        if (empty($params['class'])) {
+        if (empty($parms['class'])) {
             if (!$mainclass) {
                 $mainclass = cms_siteprefs::get(CMS_POPUPCLASS, 'ContextMenu');
             }
-            $params['class'] = $mainclass;
+            $parms['class'] = $mainclass;
         }
         if ($level == 0) {
             $out = '<div';
