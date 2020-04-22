@@ -1,6 +1,6 @@
 <?php
 #The main Content class
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -527,7 +527,7 @@ class Content extends ContentBase
 		}
 	}
 
-	private function _get_param($in,$key,$dflt = null)
+	private function _get_param($in, $key, $dflt = null)
 	{
 		if( !is_array($in) ) return $dflt;
 		if( is_array($key) ) return $dflt;
@@ -537,14 +537,17 @@ class Content extends ContentBase
 
 	/**
 	 * @ignore
+	 * @param array $blockInfo
+	 * @param mixed $value string|null
+	 * @return string
 	 */
-	private function _display_text_block(array $blockInfo, string $value/*, bool $adding*/)
+	private function _display_text_block(array $blockInfo, $value/*, bool $adding*/)
 	{
 /* TODO any valid page-editor
 		if( cms_to_bool($this->_get_param($blockInfo,'adminonly',0)) ) {
 			$uid = get_userid(false);
 			$res = CMSMS\UserOperations::get_instance()->UserInGroup($uid,1);
-			if( !$res ) return;
+			if( !$res ) return '';
 		}
 */
 		if( $this->Id() < 1 && $value === '' ) {
@@ -601,7 +604,7 @@ class Content extends ContentBase
 	 * @ignore
 	 * @param array $blockInfo
 	 * @param mixed $value string|null
-	 * @return mixed string|null
+	 * @return string
 	 */
 	private function _display_image_block(array $blockInfo, $value/*, bool $adding*/)
 	{
@@ -610,7 +613,7 @@ class Content extends ContentBase
 		if( $adminonly ) {
 			$uid = get_userid(false);
 			$res = CMSMS\UserOperations::get_instance()->UserInGroup($uid,1);
-			if( !$res ) return;
+			if( !$res ) return '';
 		}
 */
 		$config = cms_config::get_instance();
@@ -655,7 +658,7 @@ class Content extends ContentBase
 	 * @param string $blockName
 	 * @param array $blockInfo
 	 * @param mixed $value string|null
-	 * @param bool   $adding	Flag indicating whether the content editor is in create mode (adding) vs. edit mode.
+	 * @param bool  $adding	Flag indicating whether the content editor is in create mode (adding) vs. edit mode.
 	 * @return mixed
 	 */
 	private function _display_module_block(string $blockName, array $blockInfo, $value, bool $adding)
@@ -665,7 +668,7 @@ class Content extends ContentBase
 		if( $adminonly ) {
 			$uid = get_userid(false);
 			$res = CMSMS\UserOperations::get_instance()->UserInGroup($uid,1);
-			if( !$res ) return;
+			if( !$res ) return '';
 		}
 */
 		if( !isset($blockInfo['module']) ) return false;
@@ -686,7 +689,7 @@ class Content extends ContentBase
 	 * @param array $blockInfo
 	 * @param mixed $value string|null
 	 * @param bool $adding Optional flag indicating whether the content editor is in create mode (adding) vs. edit mode. Default false
-	 * @return mixed
+	 * @return mixed null|false|array
 	 */
 	private function display_content_block(string $blockName, array $blockInfo, $value, bool $adding = false)
 	{
