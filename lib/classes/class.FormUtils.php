@@ -19,11 +19,13 @@
 namespace CMSMS;
 
 use cms_config;
+use cms_siteprefs;
 use cms_utils;
 use CmsApp;
 use CmsCoreCapabilities;
 use CMSMS\ContentOperations;
 use CMSMS\ModuleOperations;
+use const CMS_POPUPCLASS;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
