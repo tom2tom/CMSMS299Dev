@@ -92,21 +92,38 @@
     </select>
   </div>
 
-{*  {if $verbose} *}
   <h3{if !$verbose} class="disabled"{/if}>{'prompt_queryvar'|tr}</h3>
   <p{if !$verbose} class="disabled"{/if}>{'info_queryvar'|tr}</p>
   <div class="row form-row">
     <div class="four-col">
-      <label{if !$verbose} class="disabled"{/if} for="qvar">{'prompt_queryvar'|tr}</label>
-    </div>
-    <div class="eight-col">
-      <input class="form-field{if !$verbose} disabled{/if}" type="text" id="qvar" name="query_var" value="{$config.query_var}"{if !$verbose} disabled="disabled"{/if} />
+      <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="qvar" name="query_var" value="{$config.query_var}"{if !$verbose} disabled="disabled"{/if} />
     </div>
   </div>
-{*  {else}
-    <input type="hidden" name="query_var" value="{$config.query_var}" />
-  {/if}
-*}
+
+  <h3{if !$verbose} class="disabled"{/if}>{'prompt_adminpath'|tr}</h3>
+  <p{if !$verbose} class="disabled"{/if}>{'info_adminpath'|tr}</p>
+  <div class="row form-row">
+    <div class="six-col">
+      <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="adminp" name="admin_path" value="{$config.admin_path}"{if !$verbose} disabled="disabled"{/if} />
+    </div>
+  </div>
+
+  <h3{if !$verbose} class="disabled"{/if}>{'prompt_assetspath'|tr}</h3>
+  <p{if !$verbose} class="disabled"{/if}>{'info_assetspath'|tr}</p>
+  <div class="row form-row">
+    <div class="six-col">
+      <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="assetp" name="assets_path" value="{$config.assets_path}"{if !$verbose} disabled="disabled"{/if} />
+    </div>
+  </div>
+
+  <h3{if !$verbose} class="disabled"{/if}>{'prompt_plugspath'|tr}</h3>
+  <p{if !$verbose} class="disabled"{/if}>{'info_plugspath'|tr}</p>
+  <div class="row form-row">
+    <div class="six-col">
+      <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="simplep" name="simpleplugins_path" value="{$config.simple_plugins_path}"{if !$verbose} disabled="disabled"{/if} />
+    </div>
+  </div>
+
   <div id="bottom_nav">
     <button class="action-button positive" type="submit" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
   </div>
