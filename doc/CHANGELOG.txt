@@ -162,11 +162,14 @@ smarty templates, stylesheets, UDT's can be stored as standalone files instead o
 
 INSTALLER
 
+build-parameters are read from a .ini file
+one such parameter prescribes installer files form: zip (default) tar.bz2 tar.gz tar (intended for further manipulation by system commands)
+symlinks in the source-files are handled properly
 user-inputs required during an installer session can be pre-defined in a .ini fle. With all of them in place, an installer session takes only about 90 seconds.
 non-core modules can also be included by the release-builder among installer source-files, in which case those modules become optional selections during installation
 a custom 'support-url' can be specified, in which case it will be displayed in the admin console instead of a link to CMSMS website
 the 'expanded' variant of the installer can operate without PHP's phar extension
-system upgrades support renamed admin and/or assets and/or simple_plugins folders
+system installs and upgrades support renamed admin and/or assets and/or simple_plugins folders
 installer cleans up after itself
 
 deprecated
