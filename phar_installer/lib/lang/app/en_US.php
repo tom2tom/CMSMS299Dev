@@ -1,5 +1,5 @@
 <?php
-# A
+// A
 $lang['action_freshen'] = 'Freshening / Repairing a CMSMS %s installation';
 $lang['action_install'] = 'Creating a new CMSMS %s website';
 $lang['action_upgrade'] = 'Upgrading a CMSMS website to version %s';
@@ -7,10 +7,10 @@ $lang['advanced_mode'] = 'Enable advanced mode';
 $lang['apptitle'] = 'Installation and upgrade assistant';
 $lang['assets_dir_exists'] = 'Assets directory exists ?';
 
-# B
+// B
 $lang['build_date'] = 'Build Date';
 
-# C
+// C
 $lang['cache_extension'] = 'Suitable PHP cache extension is available ?';
 $lang['cache_apcu'] = 'APCu will be used';
 $lang['cache_memcached'] = 'Memcached will be used';
@@ -24,12 +24,12 @@ $lang['confirm_upgrade'] = 'Are you sure you want to begin the upgrade process ?
 $lang['curl_extension'] = 'PHP cURL extension is available ?';
 $lang['create_assets_structure'] = 'Create a location for file resources';
 
-# CLI
+// CLI
 $lang['cli_welcome'] = 'Welcome to the CMSMS installation assistant';
 $lang['cli_cmsver'] = 'for CMSMS version %s';
 $lang['cli_hdr_op'] = '%s CMSMS in %s';
 
-# D
+// D
 $lang['database_support'] = 'PHP database interface extension is available ?';
 $lang['default_charset'] = 'Default Character-encoding';
 $lang['desc_wizard_step1'] = 'Start the installation or upgrade process';
@@ -46,7 +46,7 @@ $lang['dest_writable'] = 'Write permission in destination directory';
 $lang['disable_functions'] = 'PHP core functions are enabled ?';
 $lang['done'] = 'Done';
 
-# E
+// E
 /*
 $lang['email_accountinfo_message'] = <<<EOT
 Installation of CMS Made Simple is complete.
@@ -123,7 +123,7 @@ $lang['errorlevel_edeprecated'] = 'E_DEPRECATED is disabled ?';
 $lang['edeprecated_enabled'] = 'E_DEPRECATED is enabled in the PHPs error_reporting.  Although this will not prevent CMSMS from operating, it might result in warnings being displayed in the output screen, particularly from older non-core modules';
 $lang['estrict_enabled'] = 'E_STRICT is enabled in the PHPs error_reporting. Although this will not prevent CMSMS from operating, it might result in warnings being displayed in the HTML output, particularly from older non-core modules';
 
-# F
+// F
 $lang['fail_assets_dir'] = 'An assets directory already exists.  This application might write to this directory to rationalize the location of files.  Please ensure that you have a backup';
 $lang['fail_assets_msg'] = 'An assets directory already exists.  This application might write to this directory to rationalize the location of files.  Please ensure that you have a backup';
 $lang['fail_cache_extension'] = 'No such cache extension was found. If possible, enable the operation of any of
@@ -182,25 +182,28 @@ $lang['func_tempnam'] = 'tempnam() method is available ?';
 $lang['func_gzopen'] = 'gzopen() method is available ?';
 $lang['func_ziparchive'] = 'ZipArchive class is available ?';
 
-# G
+// G
 $lang['gd_version'] = 'PHP GD2 extension is available ?';
 $lang['goback'] = 'Back';
 $lang['grp_admin_desc'] = 'Members of this group can manage the entire site';
 $lang['grp_coder_desc'] = 'Members of this group can add/edit/delete files which run the website';
 
-# H
+// H
 
-# I
+// I
 $lang['info_addlanguages'] = 'Select languages (in addition to English) to install. <strong>Note:</strong> not all translations are complete.';
 $lang['info_addmodules'] = 'Select modules to install.';
 $lang['info_adminaccount'] = 'Please provide credentials for the initial administrator account. This account will have access to all of the functionality of the CMSMS admin console.';
-$lang['info_advanced'] = 'Advanced mode enables several more options (database tables prefix, database-server port, key used for page-alias in requests) during site installation, and provides extra feedback.';
+$lang['info_adminpath'] = "Optional substitute for the website system-folder 'admin'. If so desired, enter a file-system relative path (which will be relative to the website's root folder) e.g. 'adminBLAH' or 'over/there'. Without the surrounding quotes shown in these examples. No leading or trailing path separator. Any internal separator(s) to be '/' or '\\' in accord with the underlying file system."; 
+$lang['info_advanced'] = 'Advanced mode enables several more options (database tables prefix, database-server port, key used for page-alias in requests, custom locations) during site installation, and provides extra feedback.';
+$lang['info_assetspath'] = "Optional substitute for the website system-folder 'assets'. If so desired, enter a website-root-path-relative path e.g. 'hiddenassets' or 'not/here' (without surrounding quotes or leading or trailing separator, and internal separator(s) according with the file system.)";
 $lang['info_dbinfo'] = 'CMS Made Simple stores most of its data in a database. A MySQL 5.6+ or compatible database is mandatory. The user specified here must have ALL PRIVILEGES on the specified database to allow creating, dropping and modifying tables, indexes and views.';
 $lang['info_errorlevel_edeprecated'] = 'E_DEPRECATED is a flag for PHP&quot;s error reporting that indicates that warnings should be displayed about code that is using deprecated techniques.  Although the CMSMS core attempts to ensure that we no longer use deprecated techniques, some modules might not.  This setting should be disabled in the PHP configuration';
 $lang['info_errorlevel_estrict'] = 'E_STRICT is a flag for PHP&#39;s error reporting which indicates that strict coding standards should be respected. Although the CMSMS core attempts to conform to E_STRICT standards, some modules might not. It is recommended that this setting be disabled in the PHP configuration';
 $lang['info_supporturl'] = 'An optional URL (e.g. email or website) to open when a site-help link is activated. If none is specified, the CMSMS website support-page will be used.';
 $lang['info_installcontent'] = 'You can install a series of sample pages, stylesheets and templates. Those provide information and tips to aid in building websites with CMSMS and is useful to read. However, if you are already familiar with CMS Made Simple, skipping this installation will still result in a minimal set of templates, stylesheets and content pages.';
 $lang['info_open_basedir_session_save_path'] = 'open_basedir is enabled in the site PHP configuration. Session capabilities could not be properly tested. However, getting to this point in the installation process probably indicates that sessions are working okay.';
+$lang['info_plugspath'] = "Optional substitute for the website system-folder 'assets/simple_plugins'. If so desired, enter a website-root-path-relative path e.g. 'goodstuff' or 'hackers/cant/findme' (without surrounding quotes or leading or trailing separator, and internal separator(s) according with the file system).";
 $lang['info_pwd_writable'] = 'This application needs write permission to the current working directory';
 $lang['info_queryvar'] = 'The name used internally by CMSMS to identify the page requested. In most circumstances you should not need to adjust this.';
 $lang['info_server_api'] = 'The type of interface that PHP is using';
@@ -251,14 +254,14 @@ $lang['install_usertags'] = 'Install user-defined-tags';
 $lang['installer_language'] = 'Use this language';
 $lang['installer_ver'] = 'Installer Version';
 
-# J
+// J
 
-# K
+// K
 
-# L
+// L
 $lang['legend'] = 'Legend';
 
-# M
+// M
 $lang['magic_quotes_runtime'] = 'Magic quotes are disabled ?';
 $lang['max_execution_time'] = 'PHP script max execution time is sufficient ?';
 $lang['meaning'] = 'Meaning';
@@ -270,17 +273,17 @@ $lang['msg_upgrademodules'] = 'Upgrade modules';
 $lang['msg_yourvalue'] = 'Current value: %s';
 $lang['multibyte_support'] = 'PHP Multibyte extension is available ?';
 
-# N
+// N
 $lang['next'] = 'Next';
 $lang['no'] = 'No';
 $lang['none'] = 'None';
 
-# O
+// O
 $lang['open_basedir'] = 'open_basedir is disabled ?';
 $lang['open_basedir_session_save_path'] = 'open_basedir is in enabled. Cannot test session save path.';
 $lang['output_buffering'] = 'Output buffering is enabled ?';
 
-# P
+// P
 $lang['pass_cache_extension'] = 'Extension %s was found';
 $lang['pass_config_writable'] = 'The HTTP process has write permission to the config.php file';
 $lang['pass_database_support'] = 'At least one compatible database driver found';
@@ -298,6 +301,8 @@ $lang['preprocessing_files'] = 'Adjust file organization as required';
 $lang['processing_file_manifests'] = 'Remove unused files according to manifests';
 $lang['prompt_addlanguages'] = 'Additional Languages';
 $lang['prompt_addmodules'] = 'Additional (Non-Core) Modules';
+$lang['prompt_adminpath'] = 'Site Admin-Folder';
+$lang['prompt_assetspath'] = 'Site Assets-Folder';
 $lang['prompt_createtables'] = 'Create Database Tables';
 $lang['prompt_dbhost'] = 'Database Hostname';
 $lang['prompt_dbinfo'] = 'Database Information';
@@ -307,17 +312,18 @@ $lang['prompt_dbport'] = 'Database Port Number';
 $lang['prompt_dbprefix'] = 'Database Table Name Prefix';
 $lang['prompt_dbuser'] = 'Database User';
 $lang['prompt_dir'] = 'Installation Directory';
+$lang['prompt_plugspath'] = 'Site Plugins-Folder';
 $lang['prompt_supporturl'] = 'Custom Support-URL';
 $lang['prompt_installcontent'] = 'Sample Content';
 $lang['prompt_queryvar'] = 'Page-Query Variable';
 $lang['prompt_sitename'] = 'Web Site Name';
-$lang['prompt_timezone'] = 'Server Timezone';
+$lang['prompt_timezone'] = 'Web-Server Timezone';
 $lang['pwd_writable'] = 'Directory Writeable';
 
-# Q
+// Q
 $lang['queue_for_upgrade'] = 'Queued non-core module %s for upgrade at the next step.';
 
-# R
+// R
 $lang['readme_uc'] = 'README';
 $lang['register_globals'] = '&quot;register globals&quot; is disabled ?';
 $lang['remote_url'] = 'Outgoing HTTP connections are possible ?';
@@ -326,7 +332,7 @@ $lang['reset_site_preferences'] = 'Reset some site preferences';
 $lang['reset_user_settings'] = 'Reset user preferences';
 $lang['retry'] = 'Retry';
 
-# S
+// S
 $lang['safe_mode'] = '&quot;safe mode&quot; is disabled ?';
 $lang['select_language'] = 'Select your preferred language from the list below. The selection will be used during this installation/upgrade, but will not affect the site\'s CMSMS installation.';
 //$lang['send_admin_email'] = 'Send Admin login credentials email';
@@ -368,7 +374,7 @@ $lang['step9_removethis'] = '<strong>Warning</strong> For security, it is import
 $lang['symbol'] = 'Symbol';
 $lang['social_message'] = 'I have successfully installed CMS Made Simple!';
 
-# T
+// T
 $lang['test_failed'] = 'A required test failed';
 $lang['test_passed'] = 'A test passed <em>(passed tests are only displayed in advanced mode)</em>';
 $lang['test_warning'] = 'A setting is above the required value, but below the recommended value, or...<br />A capability that might be required for some optional functionality is unavailable';
@@ -378,7 +384,7 @@ $lang['th_value'] = 'Value';
 $lang['title_error'] = 'Houston, we have a problem!';
 $lang['title_step2'] = 'Step 2 - Detect pre-existing contents';
 $lang['title_step3'] = 'Step 3 - Tests';
-$lang['title_step4'] = 'Step 4 - Basic Configuration Information';
+$lang['title_step4'] = 'Step 4 - Configuration Information';
 $lang['title_step5'] = 'Step 5 - Site Settings';
 $lang['title_step6'] = 'Step 6 - Site Administrator Information';
 $lang['title_step7'] = 'Step 7 - Install Files';
@@ -393,7 +399,7 @@ $lang['title_share'] = 'Share your experience with your friends.';
 $lang['tmpfile'] = 'tmpfile() method is available ?';
 $lang['tmp_dirs_empty'] = 'Temporary directories are empty or absent ?';
 
-# U
+// U
 $lang['upgrade'] = 'Upgrade';
 $lang['upgrade_deleteoldevents'] = 'Delete old events';
 $lang['upgrade_deletetable'] = 'Deleted old table %s';
@@ -402,9 +408,9 @@ $lang['upgrading_schema'] = 'Update database schema';
 $lang['upload_max_filesize'] = 'Maximum size of uploaded files is sufficient ?';
 $lang['username'] = 'Login/Account';
 
-# V
+// V
 
-# W
+// W
 $lang['warn_default_charset'] = 'The site\'s default character-encoding is: %s.  A value other than UTF-8 may cause difficulties with text processing in non-english languages';
 $lang['warn_disable_functions'] = 'Note: one or more PHP core functions are disabled. This can have negative impact on your CMSMS installation, particularly with third party extensions. Please keep an eye on your error log. Your disabled functions are: <br /><br />%s';
 $lang['warn_max_execution_time'] = 'Although the max execution time (%s) meets or exceeds the minimum value of %s, we recommend it be increased to %s or greater';
@@ -424,10 +430,10 @@ $lang['wizard_step7'] = 'Files';
 $lang['wizard_step8'] = 'CMSMS Infrastructure';
 $lang['wizard_step9'] = 'Finish';
 
-# X
+// X
 $lang['xml_functions'] = 'PHP XML extension is available ?';
 
-# Y
+// Y
 $lang['yes'] = 'Yes';
 
-# Z
+// Z
