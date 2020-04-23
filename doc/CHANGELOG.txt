@@ -108,7 +108,6 @@ CMS_ASSETS_URL - URL corresponding to CMS_ASSETS_PATH
 CMS_FILETAGS_PATH - filesystem path of folder containing simple-plugin files
 CMS_SCRIPTS_PATH - filesystem path of top folder containing js resource files
 CMS_SCRIPTS_URL - URL corresponding to CMS_SCRIPTS_PATH
-CMS_POPUPCLASS - for internal use by admin themes
 
 PLUGINS
 

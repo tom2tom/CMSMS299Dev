@@ -119,11 +119,3 @@ const CMS_PREVIEW = '__cms_preview__';
 const CMS_PREVIEW_TYPE = '__cms_preview_type__';
 const CMS_PREVIEW_PAGEID = -100;
 const __CMS_PREVIEW_PAGE__ = -100; //deprecated since 2.3
-
-/**
- * Site-preferences key of the name of the current admin theme's popup-menus css-class.
- * Each admin theme which supports context menus pages must set this preference,
- * and have a correspondingly-named class in its css file(s)
- * @since 2.9
- */
-const CMS_POPUPCLASS = 'menu_cssname';
