@@ -60,10 +60,10 @@ class GhostgumTheme extends AdminTheme
 	private $_havetree = null;
 
 	/**
-	 * Hook accumulator-function to nominate runtime resources, which will be
+	 * Hook accumulator-function to nominate runtime 'resources' to be
 	 * included in the header of each displayed admin page
 	 *
-	 * @since 2.3
+	 * @since 2.9
 	 * @return 2-member array (not typed to support back-compatible themes)
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
@@ -132,6 +132,18 @@ EOS;
 //      $vars[] = anything needed ?;
 
 		return [$vars, $add_list];
+	}
+
+	/**
+	 * Hook first-result-function to report the default 'main' css class
+	 * to be applied to generated context menus when this theme is in operation.
+	 *
+	 * @since 2.9
+	 * @return string
+	 */
+	public function MenuCssClassname()
+	{
+		return 'ContextMenu';
 	}
 
 	/**

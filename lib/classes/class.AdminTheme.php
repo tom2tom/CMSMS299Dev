@@ -244,6 +244,8 @@ abstract class AdminTheme
 
         HookManager::add_hook('AdminHeaderSetup', [$this, 'AdminHeaderSetup']);
         HookManager::add_hook('AdminBottomSetup', [$this, 'AdminBottomSetup']);
+        // generate name on demand by FormUtils::create_menu()
+        HookManager::add_hook('ThemeMenuCssClass', [$this, 'MenuCssClassname']);
     }
 
     /**

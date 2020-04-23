@@ -87,7 +87,7 @@ class AltbierTheme extends AdminTheme
 	 * Hook accumulator-function to nominate runtime resources, which will be
 	 * included in the header of each displayed admin page
 	 *
-	 * @since 2.3
+	 * @since 2.9
 	 * @return 2-member array
 	 * [0] = array of data for js vars, members like varname=>varvalue
      * [1] = array of string(s) for includables
@@ -127,15 +127,19 @@ EOS;
 
 		$sm = new ScriptOperations();
 		$sm->queue_file($incs['jqcore'], 1);
-		$sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
+//		if (CMS_DEBUG) {
+		$sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this or keep if (CMS_DEBUG)
+//		}
 		$sm->queue_file($incs['jqui'], 1);
-		$p = cms_join_path($config['root_path'], 'lib', 'js', '');
+		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
+//		$sm->queue_matchedfile('jquery.cms_admin.js', 2); N/A
+//		$sm->queue_file($p.'jquery.cms_admin.js', 2);
 		$sm->queue_file($p.'jquery.cms_admin.min.js', 2);
 		$out .= $sm->render_inclusion('', false, false);
 
 		if (isset($_SESSION[CMS_USER_KEY]) && !AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
 			$sm->reset();
-			require_once $admin_path.DIRECTORY_SEPARATOR.'jsruntime.php';
+			require_once CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'jsruntime.php';
             $sm->queue_string($_out_);
 		    $out .= $sm->render_inclusion('', false, false);
 		}
@@ -151,6 +155,18 @@ EOS;
 //		$vars[] = anything needed ?;
 
 		return [$vars, $add_list];
+	}
+
+	/**
+	 * Hook first-result-function to report the default 'main' css class
+	 * to be applied to generated context menus when this theme is in operation.
+	 *
+	 * @since 2.9
+	 * @return string
+	 */
+	public function MenuCssClassname()
+	{
+		return 'ContextMenu';
 	}
 
 	public function ShowErrors($errors, $get_var = '')

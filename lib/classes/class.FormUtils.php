@@ -23,9 +23,7 @@ use cms_siteprefs;
 use cms_utils;
 use CmsApp;
 use CmsCoreCapabilities;
-use CMSMS\ContentOperations;
-use CMSMS\ModuleOperations;
-use const CMS_POPUPCLASS;
+use CMSMS\HookManager;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -1344,7 +1342,7 @@ class FormUtils
      * @param array $items Each member is an assoc. array, with member 'content' and optional 'children' sub-array
      * @param array  $parms Attribute(s)/property(ies) to be included in
      *  the element, each member like 'name'=>'value'. Of special note:
-     *  optional attrs 'submenuclass' (for ul's) and/or 'itemclass' (for li's)
+     *  optional attrs 'class' (for top level), 'submenuclass' (for ul's) and/or 'itemclass' (for li's)
      *
      * @return string
      */
@@ -1354,7 +1352,10 @@ class FormUtils
 
         if (empty($parms['class'])) {
             if (!$mainclass) {
-                $mainclass = cms_siteprefs::get(CMS_POPUPCLASS, 'ContextMenu');
+                $mainclass = HookManager::do_hook_first_result('ThemeMenuCssClass');
+                if (!$mainclass) {
+                    $mainclass = 'ContextMenu';
+                }
             }
             $parms['class'] = $mainclass;
         }

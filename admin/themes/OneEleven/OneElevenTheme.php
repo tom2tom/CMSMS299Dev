@@ -1,6 +1,6 @@
 <?php
 # OneEleven- an Admin Console theme for CMS Made Simple
-# Copyright (C) 2012-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Goran Ilic, Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -76,11 +76,11 @@ class OneElevenTheme extends AdminTheme
 	}
 
 	/**
-	 * Hook accumulator-function to nominate runtime resources, which will be
+	 * Hook accumulator-function to nominate runtime 'resources' to be
 	 * included in the header of each displayed admin page
 	 *
-	 * @since 2.3
-	 * @return 2-member array
+	 * @since 2.9
+	 * @return 2-member array (not typed to support back-compatible themes)
 	 * [0] = array of data for js vars, members like varname=>varvalue
      * [1] = array of string(s) for includables
 	 */
@@ -142,6 +142,18 @@ EOS;
 //		$vars[] = anything needed ?;
 
 		return [$vars, $add_list];
+	}
+
+	/**
+	 * Hook first-result-function to report the default 'main' css class
+	 * to be applied to generated context menus when this theme is in operation.
+	 *
+	 * @since 2.9
+	 * @return string
+	 */
+	public function MenuCssClassname()
+	{
+		return 'ContextMenu';
 	}
 
 	public function ShowErrors($errors, $get_var = '')

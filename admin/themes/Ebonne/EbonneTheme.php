@@ -1,7 +1,7 @@
 <?php
 /*
 Ebonne - an admin theme for CMS Made Simple
-Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Tom Phane and all other contributors from the CMSMS Development Team
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -60,11 +60,11 @@ class EbonneTheme extends AdminTheme
 	private $_havetree = null;
 
 	/**
-	 * Hook accumulator-function to nominate runtime resources, which will be
+	 * Hook accumulator-function to nominate runtime 'resources' to be
 	 * included in the header of each displayed admin page
 	 *
-	 * @since 2.3
-	 * @return 2-member array (not typed, to support back-compatible themes)
+	 * @since 2.9
+	 * @return 2-member array (not typed to support back-compatible themes)
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
 	 */
@@ -99,11 +99,14 @@ EOS;
 
 		$sm = new ScriptOperations();
 		$sm->queue_file($incs['jqcore'], 1);
-		$sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
+//		if (CMS_DEBUG) {
+		$sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this or keep if (CMS_DEBUG)
+//		}
 		$sm->queue_file($incs['jqui'], 1);
 		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
-		$sm->queue_file($p.'jquery.cms_admin.min.js', 2);
 //		$sm->queue_matchedfile('jquery.cms_admin.js', 2); N/A
+//		$sm->queue_file($p.'jquery.cms_admin.js', 2);
+		$sm->queue_file($p.'jquery.cms_admin.min.js', 2);
 	    $out .= $sm->render_inclusion('', false, false);
 
 		if( isset($_SESSION[CMS_USER_KEY]) && !AppState::test_state(AppState::STATE_LOGIN_PAGE) ) {
@@ -114,19 +117,33 @@ EOS;
 		}
 
 		$sm->reset();
-		$sm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1);
+		$sm->queue_matchedfile('jquery.ui.touch-punch.js', 1); //OR .min for production
 		$sm->queue_matchedfile('jquery.toast.min.js', 1);
 		$sm->queue_matchedfile('jquery.basictable.min.js', 1); //TESTER
 
 		$p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
-		$sm->queue_file($p.'jquery.alertable.js', 2); //OR .min for production
-		$sm->queue_file($p.'standard.js', 3); //OR .min for production
+//		$sm->queue_file($p.'jquery.alertable.js', 2);
+		$sm->queue_file($p.'jquery.alertable.min.js', 2); // for production
+//		$sm->queue_file($p.'standard.js', 3);
+		$sm->queue_file($p.'standard.min.js', 3); // for production
 	    $out .= $sm->render_inclusion();
 
 		$add_list[] = $out;
 //      $vars[] = anything needed ?;
 
 		return [$vars, $add_list];
+	}
+
+	/**
+	 * Hook first-result-function to report the default 'main' css class
+	 * to be applied to generated context menus when this theme is in operation.
+	 *
+	 * @since 2.9
+	 * @return string
+	 */
+	public function MenuCssClassname()
+	{
+		return 'ContextMenu';
 	}
 
 	/**
@@ -169,9 +186,12 @@ EOS;
 
 	protected function render_minimal($tplname, $bodyid = null)
 	{
-		$incs = cms_installed_jquery(true, false, true, false);
+		$incs = cms_installed_jquery(true, true, true, false);
 		$sm = new ScriptOperations();
 		$sm->queue_file($incs['jqcore'], 1);
+//		if (CMS_DEBUG) {
+		$sm->queue_file($incs['jqmigrate'], 1); // for developmant phase, at least
+//		}
 		$sm->queue_file($incs['jqui'], 1);
 		$fn = $sm->render_scripts('', false, false);
 		$url = cms_path_to_url(TMP_CACHE_LOCATION);
@@ -410,6 +430,7 @@ EOS;
 
 	public function DisplayImage($image, $alt = '', $width = '', $height = '', $class = null, $attrs = [])
 	{
+		//[.../]icons/system/* are processed here, custom handling is needed for in-sprite svg's
 		if (strpos($image, 'system') === false) {
 			return parent::DisplayImage($image, $alt, $width, $height, $class, $attrs);
 		}
