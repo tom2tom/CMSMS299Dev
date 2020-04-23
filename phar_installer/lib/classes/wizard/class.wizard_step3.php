@@ -330,11 +330,13 @@ class wizard_step3 extends wizard_step
         $dirs = ['lib','admin','uploads','doc','tmp','assets'];
         if( $version_info ) {
             // it's an upgrade
-            if( !empty($version_info['config']['admin_dir']) ) {
-                $dirs[1] = $version_info['config']['admin_dir'];
+            if( !empty($version_info['config']['admin_path']) ) {
+                //TODO handle relative 'admin_path', possibly > 1 segment
+                $dirs[1] = $version_info['config']['admin_path'];
             }
-            if( !empty($version_info['config']['assets_dir']) ) {
-                $dirs[5] = $version_info['config']['assets_dir'];
+            if( !empty($version_info['config']['assets_path']) ) {
+                //TODO handle relative 'assets_path', possibly > 1 segment
+                $dirs[5] = $version_info['config']['assets_path'];
             }
         }
 
@@ -365,13 +367,17 @@ class wizard_step3 extends wizard_step
 
                 if( version_compare($version_info['version'],'2.2') < 0 ) {
                     // assets folder must exist
-                    if( !empty($version_info['config']['assets_dir']) ) {
-                        $aname = $version_info['config']['assets_dir'];
+                    if( !empty($version_info['config']['assets_path']) ) {
+                        $aname = $version_info['config']['assets_path'];
+                        //TODO if > 1 segment in name
+                        $dir = $app->get_destdir().DIRECTORY_SEPARATOR.$aname;
+                        //TODO if absolute
+                        $dir = $app->get_destdir().$aname;
+
                     }
                     else {
-                        $aname = 'assets';
+                       $dir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
                     }
-                    $dir = $app->get_destdir().DIRECTORY_SEPARATOR.$aname;
                     if( is_dir($dir) ) {
                         $obj = new boolean_test('assets_dir_exists',FALSE);
                         $obj->fail_key = 'fail_assets_dir';
@@ -383,10 +389,11 @@ class wizard_step3 extends wizard_step
         }
         else {
             $dest = $app->get_destdir();
+            // an existing config file will be backed up and replaced, but that still needs write-permission
             $config_file = $dest.DIRECTORY_SEPARATOR.'config.php';
             $obj = new boolean_test('config_writable',!is_file($config_file) || is_writable($config_file));
             $obj->required = 1;
-            $obj->fail_key = 'fail_config_writable';
+            $obj->fail_key = 'fail_config_writable'; //TODO something more-informative
             $tests[] = $obj;
 
             $is_dir_empty = function(string $dir) : bool

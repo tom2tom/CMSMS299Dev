@@ -27,7 +27,7 @@ class wizard_step2 extends wizard_step
 
         include_once $fn;
 
-        $aname = ( !empty($config['admin_dir']) ) ? $config['admin_dir'] : 'admin';
+        $aname = ( !empty($config['admin_path']) ) ? $config['admin_path'] : 'admin';
 //      if( !is_file($dir.DIRECTORY_SEPARATOR.$aname.DIRECTORY_SEPARATOR.'moduleinterface.php') ) return;
 //      if( !is_dir($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules') ) return;
         if( !is_file($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php') ) return;
@@ -39,18 +39,25 @@ class wizard_step2 extends wizard_step
         }
 
         $app = get_app();
-        if( $aname != 'admin' ) { $app->set_config_val('admindir', $aname); }
-        if( !empty($config['assets_dir']) && $config['assets_dir'] != 'assets' ) {
-            $app->set_config_val('assetsdir', $config['assets_dir']);
+        if( $aname != 'admin' ) {
+            $str = trim($aname, ' \\/');
+            $app->set_config_val('admin_path', strtr($str, '\\', '/'));
         }
-        if( !empty($config['simpletags_dir']) && $config['simpletags_dir'] != 'simple_plugins' ) {
-            $app->set_config_val('pluginsdir', $config['simpletags_dir']);
+        if( !empty($config['assets_path']) && $config['assets_path'] != 'assets' ) {
+            $str = trim($config['assets_path'], ' \\/');
+            $app->set_config_val('assets_path', strtr($str, '\\', '/'));
+        }
+        if( !empty($config['simpletags_path']) ) {
+            $str = strtr(trim($config['simpletags_path'], ' \\/'), '\\', '/');
+            if( !($str == 'simple_plugins' || $str == 'assets/simple_plugins') ) {
+                $app->set_config_val('simpletags_path', $str);
+            }
         }
 
         $info = [];
         $info['config_file'] = $fn;
-        $s = ( !empty($config['timezone']) ) ? $config['timezone'] : 'UTC';
-        $dt = new DateTime(null, new DateTimeZone($s));
+        $str = ( !empty($config['timezone']) ) ? $config['timezone'] : 'UTC';
+        $dt = new DateTime(null, new DateTimeZone($str));
         $dt->setTimestamp($t);
         $info['mdate'] = $dt->format('j F Y');
         $info['mtime'] = $t;
@@ -68,24 +75,22 @@ class wizard_step2 extends wizard_step
         return $info;
     }
 
-    private function is_dir_empty(string $dir, string $phar_url) : bool
+    private function is_dir_empty(string $dir, string $phar_path) : bool
     {
         if( !$dir ) return FALSE;
         if( !is_dir($dir) ) return FALSE;
         $files = glob($dir.DIRECTORY_SEPARATOR.'*');
         if( !$files ) return TRUE;
         if( count($files) > 3 ) return FALSE;
-        if( $phar_url ) {
-            $phar_bn = basename( $phar_url );
+        if( $phar_path ) {
+            $phar_bn = strtolower(basename($phar_path));
         }
         // trivial check for index.html
         foreach( $files as $file ) {
             $bn = strtolower(basename($file));
             if( fnmatch('index.htm?',$bn) ) continue; // this is ok
             if( fnmatch('readme*.txt',$bn) ) continue; // this is ok
-            if( $phar_url ) {
-                if( fnmatch($phar_bn, $bn) ) continue; // this is ok
-            }
+            if( $phar_path && $phar_bn == $bn ) continue; // this is ok
             // found a not-ok file
             return FALSE;
         }

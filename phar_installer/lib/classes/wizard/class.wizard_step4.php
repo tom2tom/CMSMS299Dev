@@ -13,7 +13,7 @@ use function cms_installer\smarty;
 
 class wizard_step4 extends wizard_step
 {
-    private $_config;
+    private $_params;
     private $_dbms_options;
 
     public function __construct()
@@ -27,7 +27,7 @@ class wizard_step4 extends wizard_step
             $tz = 'UTC';
             @date_default_timezone_set('UTC');
         }
-        $this->_config = [
+        $this->_params = [
             'db_type'=>'mysqli',
             'db_hostname'=>'localhost',
             'db_name'=>'',
@@ -37,34 +37,36 @@ class wizard_step4 extends wizard_step
             'db_port'=>'',
             'query_var'=>'',
             'timezone'=>$tz,
-            'samplecontent'=>FALSE,
+//            'samplecontent'=>FALSE,
+            'admin_path'=>'',
+            'assets_path'=>'',
+            'simpleplugins_path'=>'',
         ];
 
         // get saved data
         $tmp = $this->get_wizard()->get_data('config');
-        if( $tmp ) $this->_config = array_merge($this->_config,$tmp);
+        if( $tmp ) $this->_params = array_merge($this->_params,$tmp);
 
         $action = $this->get_wizard()->get_data('action');
-        if( $action == 'upgrade' ) {  //freshen skips this step
+        if( $action == 'upgrade' ) {  //install|freshen skips this step
             // read config data from config.php for these actions
-            $app = get_app();
-            $destdir = $app->get_destdir();
+            $destdir = get_app()->get_destdir();
             $config = [];
             $config_file = $destdir.DIRECTORY_SEPARATOR.'config.php';
             include_once $config_file;
-//          $this->_config['db_type'] = /*$config['db_type'] ?? $config['dbms'] ??*/ 'mysqli';
-            $this->_config['db_hostname'] = $config['db_hostname'];
-            $this->_config['db_username'] = $config['db_username'];
-            $this->_config['db_password'] = $config['db_password'];
-            $this->_config['db_name'] = $config['db_name'];
-            $this->_config['db_prefix'] = $config['db_prefix'];
-            if( !empty($config['db_port']) || is_numeric($config['db_port']) ) $this->_config['db_port'] = (int)$config['db_port'];
-            if( !empty($config['timezone']) ) $this->_config['timezone'] = $config['timezone'];
-            if( !empty($config['query_var']) ) $this->_config['query_var'] = $config['query_var'];
+//          $this->_params['db_type'] = /*$config['db_type'] ?? $config['dbms'] ??*/ 'mysqli';
+            $this->_params['db_hostname'] = $config['db_hostname'];
+            $this->_params['db_username'] = $config['db_username'];
+            $this->_params['db_password'] = $config['db_password'];
+            $this->_params['db_name'] = $config['db_name'];
+            $this->_params['db_prefix'] = $config['db_prefix'];
+            if( !empty($config['db_port']) || is_numeric($config['db_port']) ) $this->_params['db_port'] = (int)$config['db_port'];
+            if( !empty($config['timezone']) ) $this->_params['timezone'] = $config['timezone'];
+            if( !empty($config['query_var']) ) $this->_params['query_var'] = $config['query_var'];
         }
     }
 
-    private function validate($config)
+    private function validate(&$config)
     {
         $action = $this->get_wizard()->get_data('action');
 //      if( empty($config['db_type']) ) throw new Exception(lang('error_nodbtype'));
@@ -127,23 +129,35 @@ class wizard_step4 extends wizard_step
 
     protected function process()
     {
-        $this->_config['db_type'] = 'mysqli';
-//        if( isset($_POST['db_type']) ) $this->_config['db_type'] = clean_string($_POST['db_type']);
-        $this->_config['db_hostname'] = clean_string($_POST['db_hostname']);
-        $this->_config['db_name'] = clean_string($_POST['db_name']);
-        $this->_config['db_username'] = clean_string($_POST['db_username']);
-        $this->_config['db_password'] = trim(filter_var($_POST['db_password'], FILTER_SANITIZE_STRING,
+        $this->_params['db_type'] = 'mysqli';
+//      if( isset($_POST['db_type']) ) $this->_params['db_type'] = clean_string($_POST['db_type']);
+        $this->_params['db_hostname'] = clean_string($_POST['db_hostname']);
+        $this->_params['db_name'] = clean_string($_POST['db_name']);
+        $this->_params['db_username'] = clean_string($_POST['db_username']);
+        $this->_params['db_password'] = trim(filter_var($_POST['db_password'], FILTER_SANITIZE_STRING,
             FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES));
-        if( isset($_POST['db_port']) ) $this->_config['db_port'] = filter_var($_POST['db_port'],FILTER_SANITIZE_NUMBER_INT);
-        if( isset($_POST['db_prefix']) ) $this->_config['db_prefix'] = clean_string($_POST['db_prefix']);
-        $this->_config['timezone'] = clean_string($_POST['timezone']);
-        if( isset($_POST['query_var']) ) $this->_config['query_var'] = clean_string($_POST['query_var']);
-        $this->get_wizard()->set_data('config',$this->_config);
+        if( isset($_POST['db_port']) ) $this->_params['db_port'] = filter_var($_POST['db_port'],FILTER_SANITIZE_NUMBER_INT);
+        if( isset($_POST['db_prefix']) ) $this->_params['db_prefix'] = clean_string($_POST['db_prefix']);
+        $this->_params['timezone'] = clean_string($_POST['timezone']);
+        if( isset($_POST['query_var']) ) $this->_params['query_var'] = clean_string($_POST['query_var']);
+
+        foreach( ['admin_path', 'assets_path', 'simpleplugins_path'] as $key ) {
+            if( isset($_POST[$key]) ) {
+                $s = trim($_POST[$key], ' /\\"\'');
+                if( $s ) {
+                    $s = strtr($s, '\\', '/');
+                    $s = filter_var($s, FILTER_SANITIZE_URL);
+                    $this->_params[$key] = strtr($s, '/\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
+                }
+                else {
+                    $this->_params[$key] = '';
+                }
+            }
+        }
 
         try {
-            $app = get_app();
-            $config = $app->get_config();
-            $this->validate($this->_config);
+            $this->validate($this->_params);
+            $this->get_wizard()->merge_data('config',$this->_params);
             $url = $this->get_wizard()->next_url();
             redirect($url);
         }
@@ -164,10 +178,10 @@ class wizard_step4 extends wizard_step
         $smarty->assign('timezones',array_merge([''=>lang('none')],$tmp2));
 //        $smarty->assign('db_types',$this->_dbms_options);
         $smarty->assign('action',$this->get_wizard()->get_data('action'));
-        $raw = $this->_config['verbose'] ?? 0;
+        $raw = $this->_params['verbose'] ?? 0;
 //        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
         $smarty->assign('verbose',(int)$raw);
-        $smarty->assign('config',$this->_config);
+        $smarty->assign('config',$this->_params);
         $smarty->display('wizard_step4.tpl');
 
         $this->finish();
