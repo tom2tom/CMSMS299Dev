@@ -150,18 +150,30 @@ final class wizard
         }
     }
 
+    // effectively installer_base::get_config()[$key] with a default
     public function get_data($key,$dflt = null)
     {
         $sess = session::get_instance();
         return $sess[$key] ?? $dflt;
     }
 
+    // this replicates installer_base::set_config_val()
     public function set_data($key,$value)
     {
         $sess = session::get_instance();
         $sess[$key] = $value;
     }
 
+    // this replicates installer_base::merge_config_vals()
+    public function merge_data($key,$valsarray)
+    {
+        $sess = session::get_instance();
+        $current = $sess[$key] ?? [];
+		if( !is_array($current) ) { $current = [$key => $current]; }
+        $sess[$key] = $valsarray + $current;
+    }
+
+    // this replicates installer_base::remove_config_val()
     public function clear_data($key)
     {
         $sess = session::get_instance();
