@@ -66,31 +66,18 @@
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
- <!ELEMENT uploadfiles (sourcedir?,file*)>
- <!ELEMENT file (name,topath,(frompath|embedded),content?)>
- <!ELEMENT topath (#PCDATA)>
- <!ELEMENT frompath (#PCDATA)>
- <!ELEMENT embedded (#PCDATA)>
  <!ELEMENT simpletags (tag*)>
  <!ELEMENT tag (name,description?,parameters?,code)>
  <!ELEMENT parameters (#PCDATA)>
  <!ELEMENT code (#PCDATA)>
- <!ELEMENT simpletagfiles (sourcedir?,file*)>
- <!ELEMENT templatefiles (sourcedir?,file*)>
- <!ELEMENT stylefiles (sourcedir?,file*)>
- <!ELEMENT newscategories (newscategory*)>
- <!ELEMENT newscategory (news_category_id,news_category_name?,parent_id,hierarchy,item_order?,long_name?)>
- <!ELEMENT news_category_id (#PCDATA)>
- <!ELEMENT news_category_name (#PCDATA)>
- <!ELEMENT hierarchy (#PCDATA)>
- <!ELEMENT long_name (#PCDATA)>
- <!ELEMENT newsitems (newsitem*)>
- <!ELEMENT newsitem (news_category_id,news_title,news_data?,news_extra?,news_url?,summary?)>
- <!ELEMENT news_title (#PCDATA)>
- <!ELEMENT news_data (#PCDATA)>
- <!ELEMENT news_extra (#PCDATA)>
- <!ELEMENT news_url (#PCDATA)>
- <!ELEMENT summary (#PCDATA)>
+ <!ELEMENT simpletagfiles (file*)>
+ <!ELEMENT file (name,relto,(relfrom|embedded),content?)>
+ <!ELEMENT relto (#PCDATA)>
+ <!ELEMENT relfrom (#PCDATA)>
+ <!ELEMENT embedded (#PCDATA)>
+ <!ELEMENT templatefiles (file*)>
+ <!ELEMENT stylefiles (file*)>
+ <!ELEMENT uploadfiles (file*)>
 ]>
 <cmsmssitedata>
 	<dtdversion>0.9</dtdversion>
@@ -3494,209 +3481,186 @@ Usage: {custom_copyright [start=&#39;YYYY&#39;]}]]></description>
 			<parameters><![CDATA[adfsf]]></parameters>
 		</tag>
 	</simpletags>
-	<newscategories>
-		<newscategory>
-			<news_category_id>1</news_category_id>
-			<news_category_name><![CDATA[General]]></news_category_name>
-			<parent_id>-1</parent_id>
-			<hierarchy>00000</hierarchy>
-			<item_order></item_order>
-			<long_name><![CDATA[General]]></long_name>
-		</newscategory>
-	</newscategories>
-	<newsitems>
-		<newsitem>
-			<news_category_id>1</news_category_id>
-			<news_title><![CDATA[News Module Installed]]></news_title>
-			<news_data><![CDATA[The news module was installed. Exciting. This news article has no Summary field and so there is no link to read more. But you can click on the news heading to read only this article.]]></news_data>
-			<news_extra></news_extra>
-			<news_url></news_url>
-			<summary></summary>
-		</newsitem>
-	</newsitems>
 	<uploadfiles>
 		<file>
 			<name>logo1.gif</name>
-			<frompath>images</frompath>
-			<topath>images</topath>
+			<relto>images</relto>
+			<relfrom>images</relfrom>
 		</file>
 		<file>
 			<name>thumb_logo1.gif</name>
-			<frompath>images</frompath>
-			<topath>images</topath>
+			<relto>images</relto>
+			<relfrom>images</relfrom>
 		</file>
 		<file>
 			<name>screen_DM.png</name>
-			<frompath>simplex/images</frompath>
-			<topath>simplex/images</topath>
+			<relto>simplex/images</relto>
+			<relfrom>simplex/images</relfrom>
 		</file>
 		<file>
 			<name>thumb_screen_DM.png</name>
-			<frompath>simplex/images</frompath>
-			<topath>simplex/images</topath>
+			<relto>simplex/images</relto>
+			<relfrom>simplex/images</relfrom>
 		</file>
 		<file>
 			<name>Edit-anywhere.png</name>
-			<frompath>simplex/images</frompath>
-			<topath>simplex/images</topath>
+			<relto>simplex/images</relto>
+			<relfrom>simplex/images</relfrom>
 		</file>
 		<file>
 			<name>cmsms-76x76.png</name>
-			<frompath>simplex/images/icons</frompath>
-			<topath>simplex/images/icons</topath>
+			<relto>simplex/images/icons</relto>
+			<relfrom>simplex/images/icons</relfrom>
 		</file>
 		<file>
 			<name>cmsms-60x60.png</name>
-			<frompath>simplex/images/icons</frompath>
-			<topath>simplex/images/icons</topath>
+			<relto>simplex/images/icons</relto>
+			<relfrom>simplex/images/icons</relfrom>
 		</file>
 		<file>
 			<name>cmsms-152x152.png</name>
-			<frompath>simplex/images/icons</frompath>
-			<topath>simplex/images/icons</topath>
+			<relto>simplex/images/icons</relto>
+			<relfrom>simplex/images/icons</relfrom>
 		</file>
 		<file>
 			<name>favicon_cms.ico</name>
-			<frompath>simplex/images/icons</frompath>
-			<topath>simplex/images/icons</topath>
+			<relto>simplex/images/icons</relto>
+			<relfrom>simplex/images/icons</relfrom>
 		</file>
 		<file>
 			<name>cmsms-120x120.png</name>
-			<frompath>simplex/images/icons</frompath>
-			<topath>simplex/images/icons</topath>
+			<relto>simplex/images/icons</relto>
+			<relfrom>simplex/images/icons</relfrom>
 		</file>
 		<file>
 			<name>cmsms-196x196.png</name>
-			<frompath>simplex/images/icons</frompath>
-			<topath>simplex/images/icons</topath>
+			<relto>simplex/images/icons</relto>
+			<relfrom>simplex/images/icons</relfrom>
 		</file>
 		<file>
 			<name>body-background.png</name>
-			<frompath>simplex/images</frompath>
-			<topath>simplex/images</topath>
+			<relto>simplex/images</relto>
+			<relfrom>simplex/images</relfrom>
 		</file>
 		<file>
 			<name>cmsmadesimple-logo.png</name>
-			<frompath>simplex/images</frompath>
-			<topath>simplex/images</topath>
+			<relto>simplex/images</relto>
+			<relfrom>simplex/images</relfrom>
 		</file>
 		<file>
 			<name>palm-circle.png</name>
-			<frompath>simplex/images</frompath>
-			<topath>simplex/images</topath>
+			<relto>simplex/images</relto>
+			<relfrom>simplex/images</relfrom>
 		</file>
 		<file>
 			<name>Adding-pages.png</name>
-			<frompath>simplex/images</frompath>
-			<topath>simplex/images</topath>
+			<relto>simplex/images</relto>
+			<relfrom>simplex/images</relfrom>
 		</file>
 		<file>
 			<name>thumb_screen_MM.png</name>
-			<frompath>simplex/images</frompath>
-			<topath>simplex/images</topath>
+			<relto>simplex/images</relto>
+			<relfrom>simplex/images</relfrom>
 		</file>
 		<file>
 			<name>thumb_Adding-pages.png</name>
-			<frompath>simplex/images</frompath>
-			<topath>simplex/images</topath>
+			<relto>simplex/images</relto>
+			<relfrom>simplex/images</relfrom>
 		</file>
 		<file>
 			<name>screen_MM.png</name>
-			<frompath>simplex/images</frompath>
-			<topath>simplex/images</topath>
+			<relto>simplex/images</relto>
+			<relfrom>simplex/images</relfrom>
 		</file>
 		<file>
 			<name>simplex.ttf</name>
-			<frompath>simplex/fonts</frompath>
-			<topath>simplex/fonts</topath>
+			<relto>simplex/fonts</relto>
+			<relfrom>simplex/fonts</relfrom>
 		</file>
 		<file>
 			<name>simplex.svg</name>
-			<frompath>simplex/fonts</frompath>
-			<topath>simplex/fonts</topath>
+			<relto>simplex/fonts</relto>
+			<relfrom>simplex/fonts</relfrom>
 		</file>
 		<file>
 			<name>simplex.eot</name>
-			<frompath>simplex/fonts</frompath>
-			<topath>simplex/fonts</topath>
+			<relto>simplex/fonts</relto>
+			<relfrom>simplex/fonts</relfrom>
 		</file>
 		<file>
 			<name>simplex.woff</name>
-			<frompath>simplex/fonts</frompath>
-			<topath>simplex/fonts</topath>
+			<relto>simplex/fonts</relto>
+			<relfrom>simplex/fonts</relfrom>
 		</file>
 		<file>
 			<name>touchr.js</name>
-			<frompath>simplex/js</frompath>
-			<topath>simplex/js</topath>
+			<relto>simplex/js</relto>
+			<relfrom>simplex/js</relfrom>
 		</file>
 		<file>
 			<name>functions.min.js</name>
-			<frompath>simplex/js</frompath>
-			<topath>simplex/js</topath>
+			<relto>simplex/js</relto>
+			<relfrom>simplex/js</relfrom>
 		</file>
 		<file>
 			<name>functions.js</name>
-			<frompath>simplex/js</frompath>
-			<topath>simplex/js</topath>
+			<relto>simplex/js</relto>
+			<relfrom>simplex/js</relfrom>
 		</file>
 		<file>
 			<name>jquery.sequence-min.js</name>
-			<frompath>simplex/js</frompath>
-			<topath>simplex/js</topath>
+			<relto>simplex/js</relto>
+			<relfrom>simplex/js</relfrom>
 		</file>
 		<file>
 			<name>palm-logo.png</name>
-			<frompath>simplex/teaser</frompath>
-			<topath>simplex/teaser</topath>
+			<relto>simplex/teaser</relto>
+			<relfrom>simplex/teaser</relfrom>
 		</file>
 		<file>
 			<name>notebook-scene.png</name>
-			<frompath>simplex/teaser</frompath>
-			<topath>simplex/teaser</topath>
+			<relto>simplex/teaser</relto>
+			<relfrom>simplex/teaser</relfrom>
 		</file>
 		<file>
 			<name>mate-zimple.png</name>
-			<frompath>simplex/teaser</frompath>
-			<topath>simplex/teaser</topath>
+			<relto>simplex/teaser</relto>
+			<relfrom>simplex/teaser</relfrom>
 		</file>
 		<file>
 			<name>browser-scene.png</name>
-			<frompath>simplex/teaser</frompath>
-			<topath>simplex/teaser</topath>
+			<relto>simplex/teaser</relto>
+			<relfrom>simplex/teaser</relfrom>
 		</file>
 		<file>
 			<name>mobile-devices-scene.png</name>
-			<frompath>simplex/teaser</frompath>
-			<topath>simplex/teaser</topath>
+			<relto>simplex/teaser</relto>
+			<relfrom>simplex/teaser</relfrom>
 		</file>
-		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/uploadfiles</sourcedir>
 	</uploadfiles>
 	<simpletagfiles>
 		<file>
 			<name>web.config</name>
-			<frompath></frompath>
-			<topath></topath>
+			<relto></relto>
+			<relfrom>simple_plugins</relfrom>
 		</file>
 		<file>
 			<name>file_custom_copyright.phphp</name>
-			<frompath></frompath>
-			<topath></topath>
+			<relto></relto>
+			<relfrom>simple_plugins</relfrom>
 		</file>
 		<file>
 			<name>file_user_agent.phphp</name>
-			<frompath></frompath>
-			<topath></topath>
+			<relto></relto>
+			<relfrom>simple_plugins</relfrom>
 		</file>
-		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/uploadfiles/simple_plugins</sourcedir>
 	</simpletagfiles>
 	<templatefiles>
 		<file>
 			<name>TemplateFileDemo_16.tpl</name>
-			<frompath></frompath>
-			<topath></topath>
+			<relto></relto>
+			<relfrom>templates</relfrom>
 		</file>
-		<sourcedir>/var/www/html/cmsms-23DEV/phar_installer/uploadfiles/templates</sourcedir>
 	</templatefiles>
 	<stylefiles/>
 </cmsmssitedata>
