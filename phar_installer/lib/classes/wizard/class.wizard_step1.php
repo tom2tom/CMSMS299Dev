@@ -87,8 +87,8 @@ class wizard_step1 extends wizard_step
             if( is_dir($dir.DIRECTORY_SEPARATOR.'ModuleManager') || is_dir($dir.DIRECTORY_SEPARATOR.'CmsJobManager') ) return FALSE;
             break;
 
-        case 'data':
-            if( is_file($dir.DIRECTORY_SEPARATOR.'data.tar.gz') ) return FALSE;
+        case 'sources':
+            if( is_file($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'version.php') ) return FALSE;
             break;
         }
         return TRUE;
@@ -152,7 +152,7 @@ class wizard_step1 extends wizard_step
 
     /**
      * Recursive method to identify potential installation-places,
-     * folders down to 3 levels below the pre-recursion $start.
+     * folders down to 3 levels below the pre-recursion value of $start.
      * @internal
      * @param string $start filepath. Before recursion, the site-root.
      * @param int $depth current recursion-depth (internal use only)
