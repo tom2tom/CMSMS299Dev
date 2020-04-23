@@ -28,7 +28,6 @@ use function cms_installer\rrmdir;
 use function cms_installer\smarty;
 use function cms_module_places;
 use function cmsms;
-use function import_content;
 
 class wizard_step9 extends wizard_step
 {
@@ -80,13 +79,13 @@ class wizard_step9 extends wizard_step
         $this->message(lang('msg_upgrademodules'));
 
         $modops = ModuleOperations::get_instance();
-        $corenames = $app->get_config()['coremodules'];
-        $modops->RegisterSystemModules($corenames);
-        $siteinfo = $this->get_wizard()->get_data('siteinfo');
-        $allmodules = $siteinfo['havemodules'] ?? [];
+        $coremodules = $app->get_config()['coremodules'];
+        $modops->RegisterSystemModules($coremodules);
+        $choices = $this->get_wizard()->get_data('sessionchoices');
+        $allmodules = $choices['havemodules'] ?? $coremodules;
 
         foreach( $allmodules as $name ) {
-            if( in_array($name, $corenames) ) {
+            if( in_array($name, $coremodules) ) {
                 // TODO merge upgraded modules|files back into main module-place (we don't use location to define status)
                 $this->verbose(lang('msg_upgrade_module',$name));
                 // force all system modules to be loaded
@@ -148,7 +147,7 @@ class wizard_step9 extends wizard_step
         $admin_url = $url;
         if( !endswith($url,'/') ) $admin_url .= '/';
         include_once CONFIG_FILE_LOCATION;
-        $aname = (!empty($config['admin_dir'])) ? $config['admin_dir'] : 'admin';
+        $aname = (!empty($config['admin_path'])) ? $config['admin_path'] : 'admin';
         $admin_url .= $aname;
 
         if( $app->has_custom_destdir() || !$app->in_phar() ) {
@@ -165,14 +164,16 @@ class wizard_step9 extends wizard_step
         $app = get_app();
         $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',901));
+        $choices = $this->get_wizard()->get_data('sessionchoices');
+        if( !$choices ) throw new Exception(lang('error_internal',902));
 
         $this->connect_to_cmsms($destdir);
 
-        $corenames = $app->get_config()['coremodules'];
         // install modules
         $this->message(lang('install_modules'));
+        $coremodules = $app->get_config()['coremodules'];
         $modops = cmsms()->GetModuleOperations();
-        $modops->RegisterSystemModules($corenames);
+        $modops->RegisterSystemModules($coremodules);
 
         $db = cmsms()->GetDb();
 //(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
@@ -183,6 +184,7 @@ VALUES (?,?,\'installed\',?,1)');
 (parent_module,child_module,minimum_version,create_date)
 VALUES (?,?,?,NOW())');
 
+        $allmodules = $choices['havemodules'] ?? $coremodules;
         $modplace = $destdir.DIRECTORY_SEPARATOR.'modules';
         $len = strlen($modplace);
         $dirs = cms_module_places();
@@ -190,33 +192,38 @@ VALUES (?,?,?,NOW())');
             $contents = scandir($bp, SCANDIR_SORT_NONE);
             foreach( $contents as $modname ) {
                 if( $modname == '.' || $modname == '..' || $modname == 'index.html' ) continue;
-                $fp = $bp.DIRECTORY_SEPARATOR.$modname.DIRECTORY_SEPARATOR.$modname.'.module.php';
-                if( is_file($fp) ) {
-                    // move modules to historical place (we don't need|use their location to define status)
-                    if( strncmp($bp, $modplace, $len) != 0 ) {
-                        $fp = $bp.DIRECTORY_SEPARATOR.$modname;
-                        $tp = $modplace.DIRECTORY_SEPARATOR.$modname;
-                        if( !@rename($fp, $tp)) { throw new Exception('Failed to migrate module '.$modname); }
-                        $fp = $tp.DIRECTORY_SEPARATOR.$modname.'.module.php';
-                    }
-                    require_once $fp;
-                    $name = '\\'.$modname;
-                    $modinst = new $name();
-                    if( $modinst ) {
-                        try {
-                            $this->mod_install($modops, $modinst, $db, $stmt1, $stmt2);
+                if( in_array($modname, $allmodules) ) {
+                    $fp = $bp.DIRECTORY_SEPARATOR.$modname.DIRECTORY_SEPARATOR.$modname.'.module.php';
+                    if( is_file($fp) ) {
+                        // move modules to historical place (we don't need|use their location to define status)
+                        if( strncmp($bp, $modplace, $len) != 0 ) {
+                            $fp = $bp.DIRECTORY_SEPARATOR.$modname;
+                            $tp = $modplace.DIRECTORY_SEPARATOR.$modname;
+                            if( !@rename($fp, $tp)) { throw new Exception('Failed to migrate module '.$modname); }
+                            $fp = $tp.DIRECTORY_SEPARATOR.$modname.'.module.php';
                         }
-                        catch( Throwable $t ) {
-                            $msg = lang('error_modulebad', $modname);
-                            $tmp = $t->GetMessage();
-                            if( is_string($tmp) ) {
-                                $msg .= ': '.$tmp;
+                        require_once $fp;
+                        $name = '\\'.$modname;
+                        $modinst = new $name();
+                        if( $modinst ) {
+                            try {
+                                $this->mod_install($modops, $modinst, $db, $stmt1, $stmt2);
                             }
-                            $this->error($msg);
-                            continue;
+                            catch( Throwable $t ) {
+                                $msg = lang('error_modulebad', $modname);
+                                $tmp = $t->GetMessage();
+                                if( is_string($tmp) ) {
+                                    $msg .= ': '.$tmp;
+                                }
+                                $this->error($msg);
+                                continue;
+                            }
+                            $this->verbose(lang('install_module', $modname));
                         }
-                        $this->verbose(lang('install_module', $modname));
                     }
+                }
+                else {
+                    rrmdir($bp.DIRECTORY_SEPARATOR.$modname);
                 }
             }
         }
@@ -227,9 +234,7 @@ VALUES (?,?,?,NOW())');
         ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
 
         // site content
-        $siteinfo = $this->get_wizard()->get_data('siteinfo');
-        if( !$siteinfo ) throw new Exception(lang('error_internal',902));
-        if( !empty($siteinfo['samplecontent']) ) {
+        if( !empty($choices['samplecontent']) ) {
             $arr = installer_base::CONTENTXML;
             $fn = end($arr);
         }
@@ -240,20 +245,29 @@ VALUES (?,?,?,NOW())');
         $dir = $app->get_assetsdir();
         $xmlfile = $dir.DIRECTORY_SEPARATOR.$fn;
         if( is_file($xmlfile) ) {
-            $arr = installer_base::CONTENTFILESDIR;
-            $filesfolder = $dir . DIRECTORY_SEPARATOR . end($arr);
             if( $fn != 'initial.xml' ) {
                 $this->message(lang('install_samplecontent'));
             }
+            // these are irrelevant for 'initial.xml' but the importer API still wants them
+            $dir = $app->get_rootdir();
+            $arr = installer_base::UPLOADFILESDIR;
+            $uploadsfolder = joinpath($dir, ...$arr);
+            $arr = installer_base::CUSTOMFILESDIR;
+            $workersfolder = joinpath($dir, ...$arr);
+
             try {
-                if( $app->in_phar() ) {
-                    $fp = $app->get_phar().'/lib/iosite.functions.php';
+                if( ($fp = $app->get_phar()) ) {//NOT url-format: wrappers may be disabled
+                    $fp = joinpath($fp,'lib','iosite.functions.php');
                 }
                 else {
                     $fp = joinpath(dirname(__DIR__,2),'iosite.functions.php');
                 }
-                require_once $fp;
-                if( ($res = import_content($xmlfile, $filesfolder)) ) {
+                $space = require_once $fp;
+                if ($space === false) { /* TODO handle error */ }
+                elseif ($space === 1) { $space = ''; }
+
+                $funcname = ($space) ? $space.'\\import_content' : 'import_content';
+                if( ($res = $funcname($xmlfile, $uploadsfolder, $workersfolder)) ) {
                     $this->error($res);
                 }
                 else {
@@ -261,9 +275,14 @@ VALUES (?,?,?,NOW())');
                     $this->verbose(lang('install_updatehierarchy'));
                     ContentOperations::get_instance()->SetAllHierarchyPositions();
                 }
-            }
-            catch( Throwable $t ) {
-                $ADBG = 1;
+            } catch( Throwable $t ) {
+                if( $fn != 'initial.xml' ) {
+                    $msg = 'Demonstration-content';
+                }
+                else {
+                    $msg = 'Default-content';
+                }
+                $this->error($msg.' installation error: '.$t->getMessage());
             }
         }
         else {
@@ -274,7 +293,7 @@ VALUES (?,?,?,NOW())');
         audit('', 'System Installed', 'Version '.CMS_VERSION);
 
         // write-protect config.php
-        @chmod("$destdir/config.php",0440);
+        @chmod($destdir.DIRECTORY_SEPARATOR.'config.php',0440);
 
 //        $adminacct = $this->get_wizard()->get_data('adminaccount');
         $root_url = $app->get_root_url();
@@ -328,7 +347,7 @@ VALUES (?,?,?,NOW())');
         }
         else {
             include_once CONFIG_FILE_LOCATION;
-            $aname = (!empty($config['admin_dir'])) ? $config['admin_dir'] : 'admin';
+            $aname = (!empty($config['admin_path'])) ? $config['admin_path'] : 'admin';
 
             $url = $app->get_root_url();
             $admin_url = $url;
@@ -412,7 +431,6 @@ VALUES (?,?,?,NOW())');
         $smarty->display('wizard_step9.tpl');
         $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',905));
-
 
         // here, we do either the upgrade, or the install stuff.
         try {
