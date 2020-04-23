@@ -10,9 +10,9 @@ use CMSMS\AppState;
 use Exception;
 use Throwable;
 use function cms_installer\get_app;
+use function cms_installer\GetDb;
 use function cms_installer\lang;
 use function cms_installer\smarty;
-use function cms_installer\GetDb;
 
 class wizard_step8 extends wizard_step
 {
@@ -81,22 +81,24 @@ class wizard_step8 extends wizard_step
             $destconfig = $wiz->get_data('config');
             if( !$destconfig ) throw new Exception(lang('error_internal', 802));
 
-            $siteinfo = $wiz->get_data('siteinfo');
-            if( !$siteinfo ) throw new Exception(lang('error_internal', 803));
-
+            $choices = $wiz->get_data('sessionchoices');
+            if( !$choices ) throw new Exception(lang('error_internal', 803));
+/*
             // create temporary dummy config file, to enable database connection
             // during CMSMS init
             $dmycfg = $destdir.DIRECTORY_SEPARATOR.'config.php';
 
             $app_config = $app->get_config();
-            $admin = ( !empty($app_config['admindir']) && $app_config['admindir'] != 'admin' ) ? $app_config['admindir'] : '';
-            $assets = ( !empty($app_config['assetsdir']) && $app_config['assetsdir'] != 'assets' ) ? $app_config['assetsdir'] : '';
-            $tags = ( !empty($app_config['pluginsdir']) && $app_config['pluginsdir'] != 'simple_plugins' ) ? $app_config['pluginsdir'] : '';
+            $admin = ( !empty($app_config['admin_path']) && $app_config['admin_path'] != 'admin' ) ? $app_config['admin_path'] : '';
+            //TODO ensure absolute paths e.g. prepend destdir if needed
+            $assets = ( !empty($app_config['assets_path']) && $app_config['assets_path'] != 'assets' ) ? $app_config['assets_path'] : '';
+            $tags = ( !empty($app_config['simpletags_path']) && $app_config['simpletags_path'] != 'assets/simple_plugins' ) ? $app_config['simpletags_path'] : '';  //TODO any separator and/or just 'simple_plugins'
             $host = trim($destconfig['db_hostname']);
             $name = trim($destconfig['db_name']);
             if( empty($destconfig['db_port']) ) {
                 $port = "''"; // filter it out
-            } else {
+            }
+            else {
                 $port = (int)$destconfig['db_port'];
                 if( $port < 1 ) $port = "''";
             }
@@ -104,37 +106,44 @@ class wizard_step8 extends wizard_step
             $pass = trim($destconfig['db_password']);
             if( empty($destconfig['db_prefix']) ) {
                 $pref = 'cms_';
-            } else {
+            }
+            else {
                 $pref = trim($destconfig['db_prefix']);
             }
+            $qvar = (!empty($destconfig['query_var'])) ? trim($destconfig['query_var']) : '';
             $zone = (!empty($destconfig['timezone'])) ? trim($destconfig['timezone']) : '';
             $set = $zone ? true : "''";
+
             file_put_contents($dmycfg, <<<EOS
 <?php
 \$config = array_filter([
-'admin_dir' => '$admin',
-'assets_dir' => '$assets',
-'db_hostname' => '$host',
-'db_name' => '$name',
+'admin_path' => "$admin",
+'assets_path' => "$assets",
+'db_hostname' => "$host",
+'db_name' => "$name",
 'db_port' => $port,
-'db_username' => '$user',
-'db_password' => '$pass',
-'db_prefix' => '$pref',
-'simpletags_dir' => '$tags',
-'timezone' => '$zone',
+'db_username' => "$user",
+'db_password' => "$pass",
+'db_prefix' => "$pref",
+'simpletags_path' => "$tags",
+'timezone' => "$zone",
 'set_db_timezone' => $set,
 'set_names' => true,
 ], function(\$v){ return \$v !== ''; }) + (\$config ?? []);
 
 EOS
             , LOCK_EX);
-            $this->connect_to_cmsms($destdir);
+
+            $this->connect_to_cmsms($destdir, $config); //TODO conform to new config API
 
             // now we can save the 'real' config file
             $this->write_config($destconfig);
             $fp = str_replace('config.php','bak.config.php', $dmycfg);
             @unlink($fp);
+*/
+            $this->write_config($destconfig, true);
 
+            $this->connect_to_cmsms($destdir);
             // connect to the database, if possible
             $db = $this->db_connect($destconfig);
             if( !is_object($db) ) throw new Exception($db);
@@ -192,8 +201,10 @@ EOS
         $destconfig = $this->get_wizard()->get_data('config');
         if( !$destconfig ) throw new Exception(lang('error_internal', 820));
 
-        $siteinfo = $this->get_wizard()->get_data('siteinfo');
-        if( !$siteinfo ) throw new Exception(lang('error_internal', 821));
+        $choices = $this->get_wizard()->get_data('sessionchoices');
+        if( !$choices ) throw new Exception(lang('error_internal', 821));
+
+        $this->write_config($destconfig, false);
 
         // setup and initialize the CMSMS API's
         require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
@@ -220,8 +231,6 @@ EOS
                 if( !is_file($fp) ) continue;
                 include_once $fp;
             }
-
-            $this->write_config($destconfig);
         }
         catch( Throwable $t ) {
             $this->error($t->GetMessage());
@@ -235,8 +244,8 @@ EOS
             'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
             'schema_version' => $schema,
         ];
-        if( !empty($siteinfo['supporturl']) ) {
-            $arr['site_help_url'] = $siteinfo['supporturl'];
+        if( !empty($choices['supporturl']) ) {
+            $arr['site_help_url'] = $choices['supporturl'];
         }
         foreach ($arr as $name=>$val) {
             cms_siteprefs::set($name, $val);
@@ -248,41 +257,77 @@ EOS
         // nothing here
     }
 
-    private function write_config($destconfig)
+    private function write_config(array $destconfig, bool $install = true)
     {
-        $destdir = get_app()->get_destdir();
+        $app = get_app();
+        $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal', 831));
 
-        $fp = $destdir.DIRECTORY_SEPARATOR.'config.php';
-        if( is_file($fp) ) {
-            $this->verbose(lang('install_backupconfig'));
-            $destfn = $destdir.DIRECTORY_SEPARATOR.'bak.config.php';
-            if( !copy($fp,$destfn) ) throw new Exception(lang('error_backupconfig'));
+        if( $install ) {
+            $this->message(lang('install_createconfig'));
+
+            $app_config = $app->get_config();
+            $admin = ( !empty($app_config['admin_path']) && $app_config['admin_path'] != 'admin' ) ? $app_config['admin_path'] : '';
+            //TODO ensure site-root-relative path (no leading separator) for these
+            $assets = ( !empty($app_config['assets_path']) && $app_config['assets_path'] != 'assets' ) ? $app_config['assets_path'] : '';
+            $tags = ( !empty($app_config['simpletags_path']) && $app_config['simpletags_path'] != 'assets/simple_plugins' ) ? $app_config['simpletags_path'] : ''; //TODO any separator and/or just 'simple_plugins'
+        }
+        else {
+            $admin = null; // filter it out
+            $assets = null;
+            $tags = null;
         }
 
-        $this->message(lang('install_createconfig'));
-        // get a 'real' config object
+        $host = trim($destconfig['db_hostname']);
+        $name = trim($destconfig['db_name']);
+        if( empty($destconfig['db_port']) ) {
+            $port = "";
+        }
+        else {
+            $port = (int)$destconfig['db_port'];
+            if( $port < 1 ) $port = "";
+        }
+        $user = trim($destconfig['db_username']);
+        $pass = trim($destconfig['db_password']);
+        if( empty($destconfig['db_prefix']) ) {
+            $pref = 'cms_';
+        }
+        else {
+            $pref = trim($destconfig['db_prefix']);
+        }
+
+        $qvar = (!empty($destconfig['query_var'])) ? trim($destconfig['query_var']) : '';
+        $zone = (!empty($destconfig['timezone'])) ? trim($destconfig['timezone']) : '';
+        $set = $zone ? true : "";
+
+        $params = array_filter([
+            'admin_path' => "$admin",
+            'assets_path' => "$assets",
+            'db_hostname' => "$host",
+            'db_name' => "$name",
+            'db_port' => $port,
+            'db_username' => "$user",
+            'db_password' => "$pass",
+            'db_prefix' => "$pref",
+            'query_var' => "$qvar",
+            'simpletags_path' => "$tags",
+            'timezone' => "$zone",
+            'set_db_timezone' => $set,
+            'set_names' => true,
+        ], function($v){ return $v !== ""; });
+
+        // get the system config instance
         $fp = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
         require_once $fp.'misc.functions.php';
         require_once $fp.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-        AppState::add_state(AppState::STATE_INSTALL); //enable $config property-setting
         require_once $fp.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php';
-        $newconfig = cms_config::get_instance();
+        $config = cms_config::get_instance();
 
-//      $newconfig['dbms'] = 'mysqli'; //trim($destconfig['db_type']); redundant always mysqli
-        $newconfig['db_hostname'] = trim($destconfig['db_hostname']);
-        if( !empty($destconfig['db_port']) ) {
-            $num = (int)$destconfig['db_port'];
-            if( $num > 0 ) $newconfig['db_port'] = $num;
+        AppState::add_state(AppState::STATE_INSTALL); //enable $config property-setting
+        $config->merge($params);
+        if( $install ) {
+            $config->save();
         }
-        $newconfig['db_username'] = trim($destconfig['db_username']);
-        $newconfig['db_password'] = trim($destconfig['db_password']);
-        $newconfig['db_name'] = trim($destconfig['db_name']);
-        $newconfig['db_prefix'] = trim($destconfig['db_prefix']);
-        $newconfig['timezone'] = trim($destconfig['timezone']);
-        if( !empty($destconfig['query_var']) ) $newconfig['query_var'] = trim($destconfig['query_var']);
-
-        $newconfig->save();
     }
 
     protected function display()
