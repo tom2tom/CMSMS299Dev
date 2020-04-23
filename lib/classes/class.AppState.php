@@ -1,21 +1,26 @@
 <?php
-#Singleton class for accessing system state
-#Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Singleton class for accessing system state
+Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
 
 namespace CMSMS;
+
+use CmsInvalidDataException;
+use RuntimeException;
 
 /**
  * Singleton class that contains various functions and properties representing
@@ -72,7 +77,7 @@ final class AppState
     ];
 
     /**
-	 * Interpretations of pre-2.9 identifiers of various states
+     * Interpretations of pre-2.9 identifiers of various states
      * @ignore
      * @deprecated since 2.9
      */
@@ -124,11 +129,13 @@ final class AppState
     /**
      * [Un]set a global variable reflecting $flag and $value.
      * Effectively the inverse of _capture_states()
-     * @deprecated since 2.3
+     * @deprecated since 2.9
      * @ignore
      */
     private static function _set_state_var(int $flag, bool $value = true)
     {
+        global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_LOGIN_PAGE, $CMS_STYLESHEET;
+
         switch( $flag ) {
             case self::STATE_ADMIN_PAGE:
                 $name = 'CMS_ADMIN_PAGE';
@@ -145,11 +152,11 @@ final class AppState
 //          case self::STATE_PARSE_TEMPLATE: $name = ??; break;
             case self::STATE_FRONT_PAGE:
                 unset($CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_LOGIN_PAGE, $CMS_STYLESHEET);
+            // no break here
             default:
                 return;
         }
 
-        global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_LOGIN_PAGE, $CMS_STYLESHEET;
         if( $value ) {
             $$name = 1;
         }
@@ -159,7 +166,29 @@ final class AppState
     }
 
     /**
+     * Check whether [un]setting a state value is currently valid
+     * @param int $flag enumerator of the state to be processed
+     * @param mixed $value bool value to be set | null for either value (i.e. we're checking/testing)
+     * @return bool
+     * @throws CmsInvalidDataException
+     * @throws RuntimeException
+     */
+    private static function _validate_state_var(int $flag, $value) : bool
+    {
+        if( !in_array($flag, self::STATELIST) ) {
+            throw new CmsInvalidDataException($flag.' is not a recognised CMSMS state');
+        }
+        if( $flag == self::STATE_INSTALL && $value !== null ) {
+            if (!property_exists('cms_installer\\installer_base', 'signature')) { // TODO not hardcoded names
+                throw new RuntimeException('Invalid state-change');
+            }
+        }
+        return TRUE;
+    }
+
+    /**
      * Set the list of current states.
+     * Any invalid state is ignored, if if does not throw an exception.
      *
      * @param int $states State bit-flag(s), OR'd class constant(s).
      */
@@ -168,8 +197,10 @@ final class AppState
         $tmp = [];
         foreach( self::STATELIST as $flag ) {
             if( $states & $flag ) {
-                $tmp[$flag] = $flag;
-                self::_set_state_var($flag); //compatibility
+                if( self::_validate_state_var($flag, TRUE) ) {
+                    $tmp[$flag] = $flag;
+                    self::_set_state_var($flag); //compatibility
+                }
             }
         }
         self::$_states = $tmp;
@@ -188,19 +219,21 @@ final class AppState
 
     /**
      * Report whether the specified state matches the current application state.
+     * Returns false or throws an exception if the state is invalid.
      *
      * @param mixed $state int | deprecated string State identifier, a class constant
      * @return bool
-     * @throws CmsInvalidDataException if invalid identifier is provided
      */
     public static function test_state($state) : bool
     {
         if( is_string($state) ) {
             $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.3
         }
-        if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is not a recognized CMSMS state');
-        self::_capture_states();
-        return isset(self::$_states[$state]);
+        if( self::_validate_state_var($state, null) ) {
+            self::_capture_states();
+            return isset(self::$_states[$state]);
+        }
+        return FALSE;
     }
 
     /**
@@ -231,39 +264,41 @@ final class AppState
 
     /**
      * Add a state to the list of current states.
+     * Does nothing or throws an exception if the state-change is invalid.
      *
      * @param mixed $state int | deprecated string The state, a class constant
-     * @throws CmsInvalidDataException if an invalid state is provided.
      */
     public static function add_state($state)
     {
         if( is_string($state) ) {
-            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.3
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.9
         }
-        if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
-        self::$_states[$state] = $state;
-        self::_capture_states();
-        self::_set_state_var($state); //compatibility
+        if( self::_validate_state_var($state, TRUE) ) {
+            self::$_states[$state] = $state;
+            self::_capture_states();
+            self::_set_state_var($state); //compatibility
+        }
     }
 
     /**
      * Remove a state from the list of current states.
+     * Returns false or throws an exception if the state-change is invalid.
      *
      * @param mixed $state int | deprecated string The state, a class constant
      * @return bool indicating success
-     * @throws CmsInvalidDataException if an invalid state is provided.
      */
     public static function remove_state($state) : bool
     {
         if( is_string($state) ) {
-            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.3
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.9
         }
-        if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
-        self::_capture_states();
-        if( isset(self::$_states[$state]) ) {
-            unset(self::$_states[$state]);
-            self::_set_state_var($state, 0); //compatibility
-            return TRUE;
+        if( self::_validate_state_var($state, FALSE) ) {
+            self::_capture_states();
+            if( isset(self::$_states[$state]) ) {
+                unset(self::$_states[$state]);
+                self::_set_state_var($state, 0); //compatibility
+                return TRUE;
+            }
         }
         return FALSE;
     }
