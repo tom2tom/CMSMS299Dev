@@ -14,7 +14,7 @@ use function cms_installer\translator;
 
 class wizard_step5 extends wizard_step
 {
-    private $_siteinfo;
+    private $_params;
 
     public function run()
     {
@@ -23,28 +23,28 @@ class wizard_step5 extends wizard_step
         $tz = date_default_timezone_get();
         if( !$tz ) @date_default_timezone_set('UTC');
 
-        $this->_siteinfo = ['languages'=>[]];
+        $this->_params = ['languages'=>[]];
 
         $action = $wiz->get_data('action');
         if( $action == 'install' ) {
-            $this->_siteinfo += ['sitename'=>'','supporturl'=>''];
+            $this->_params += ['sitename'=>'','supporturl'=>''];
         }
 
         $tmp = $wiz->get_data('config');
-        if( $tmp ) $this->_siteinfo = array_merge($this->_siteinfo,$tmp);
+        if( $tmp ) $this->_params = array_merge($this->_params,$tmp);
         $lang = translator()->get_selected_language();
-        if( $lang != 'en_US' ) $this->_siteinfo['languages'] = [$lang];
+        if( $lang != 'en_US' ) $this->_params['languages'] = [$lang];
 
-        $tmp = $wiz->get_data('siteinfo');
-        if( $tmp ) $this->_siteinfo = array_merge($this->_siteinfo,$tmp);
+        $tmp = $wiz->get_data('sessionchoices');
+        if( $tmp ) $this->_params = array_merge($this->_params,$tmp);
         return parent::run();
     }
 
-    private function validate($siteinfo)
+    private function validate($params)
     {
         $action = $this->get_wizard()->get_data('action');
         if( $action == 'install' ) {
-            if( empty($siteinfo['sitename']) ) throw new Exception(lang('error_nositename'));
+            if( empty($params['sitename']) ) throw new Exception(lang('error_nositename'));
         }
     }
 
@@ -53,20 +53,11 @@ class wizard_step5 extends wizard_step
         $app = get_app();
         $config = $app->get_config();
 
-        if( isset($_POST['wantedextras']) ) {
-            //record the selected members of $app_config['extramodules']
-            $tmp = [];
-            foreach ( $_POST['wantedextras'] as $name ) {
-                $tmp[] = clean_string($name);
-            }
-            $this->_siteinfo['wantedextras'] = $tmp;
-        }
-
         if( isset($_POST['samplecontent']) ) {
-            $this->_siteinfo['samplecontent'] = filter_var($_POST['samplecontent'], FILTER_VALIDATE_BOOLEAN);
+            $this->_params['samplecontent'] = filter_var($_POST['samplecontent'], FILTER_VALIDATE_BOOLEAN);
         }
 
-        if( isset($_POST['sitename']) ) $this->_siteinfo['sitename'] = clean_string($_POST['sitename']);
+        if( isset($_POST['sitename']) ) $this->_params['sitename'] = clean_string($_POST['sitename']);
 
         if( isset($_POST['supporturl']) ) {
             $url = filter_var($_POST['supporturl'], FILTER_SANITIZE_URL);
@@ -78,9 +69,9 @@ class wizard_step5 extends wizard_step
                 $pass = true;
             }
             if ($pass) {
-                $this->_siteinfo['supporturl'] = $url;
+                $this->_params['supporturl'] = $url;
             } else {
-                unset($this->_siteinfo['supporturl']);
+                unset($this->_params['supporturl']);
             }
         }
 
@@ -89,13 +80,22 @@ class wizard_step5 extends wizard_step
             foreach( $_POST['languages'] as $lang ) {
                 $tmp[] = clean_string($lang);
             }
-            $this->_siteinfo['languages'] = $tmp;
+            $this->_params['languages'] = $tmp;
+        }
+
+        if( isset($_POST['wantedextras']) ) {
+            //record the selected members of $app_config['extramodules']
+            $tmp = [];
+            foreach ( $_POST['wantedextras'] as $name ) {
+                $tmp[] = clean_string($name);
+            }
+            $this->_params['wantedextras'] = $tmp;
         }
 
         $wiz = $this->get_wizard();
-        $wiz->set_data('siteinfo',$this->_siteinfo);
         try {
-            $this->validate($this->_siteinfo);
+            $this->validate($this->_params);
+            $wiz->merge_data('sessionchoices',$this->_params);
 
             if( $config['nofiles'] ) {
                 $url = $wiz->step_url(8);
@@ -130,7 +130,7 @@ class wizard_step5 extends wizard_step
 
         if( $action == 'install' ) {
             $raw = $config['sitename'] ?? null;
-            $v = ($raw === null) ? $this->_siteinfo['sitename'] : trim($raw);
+            $v = ($raw === null) ? $this->_params['sitename'] : trim($raw);
             $smarty->assign('sitename',$v);
 
             $raw = $config['supporturl'] ?? null;
@@ -156,7 +156,7 @@ class wizard_step5 extends wizard_step
         unset($languages['en_US']);
         if( $languages && $action == 'upgrade' ) {
             // exclude installed languages
-            $v = (!empty($config['admindir'])) ? $config['admindir'] : 'admin';
+            $v = (!empty($config['admin_path'])) ? $config['admin_path'] : 'admin';
             $fp = joinpath($app->get_destdir(),$v,'lang','ext','');
             $raw = glob($fp.'*.php',GLOB_NOSORT);
             if( $raw ) {
@@ -192,7 +192,7 @@ class wizard_step5 extends wizard_step
                 // exclude installed modules
                 $fp = $app->get_destdir();
                 //TODO if not using assets/modules for non-core modules
-                $v = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
+                $v = (!empty($config['assets_path'])) ? $config['assets_path'] : 'assets';
                 $dirs = [
                     $fp.DIRECTORY_SEPARATOR.$v.DIRECTORY_SEPARATOR.'modules',
                     $fp.DIRECTORY_SEPARATOR.'modules',
