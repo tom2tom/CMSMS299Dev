@@ -2,18 +2,18 @@
 
 namespace cms_installer;
 
+//use splitbrain\PHPArchive\Tar;
 use cms_installer\request;
 use Exception;
 use FilesystemIterator;
 use FilterIterator;
 use Iterator;
 use Phar;
-use PharData;
+//use PharData;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use Smarty_Autoloader;
-use splitbrain\PHPArchive\Tar;
 use function cms_installer\endswith;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
@@ -41,10 +41,16 @@ abstract class installer_base
 {
     const CONFIG_ROOT_URL = 'root_url';
     const CONTENTXML = ['lib','assets','democontent.xml']; //path segments rel to top phardir
-    const CONTENTFILESDIR = ['uploadfiles']; //ditto
+    const UPLOADFILESDIR = ['uploadfiles']; //ditto (interim, contents will be migrated by installer from there to .../data/uploads
+    const CUSTOMFILESDIR = ['workfiles']; //ditto, for non-db-stored templates, stylesheets, simple-plugins etc (interim, contents will be migrated by installer from there to relevant place in sources tree
+
+    /**
+     * @var string property which can be checked externally (notably in
+     * the AppState class) for confirmation whether the installer is running
+     */
+    public $signature;
 
     private static $_instance;
-    private $_archive;
     private $_assetdir;
     private $_config; //array or false
     private $_custom_destdir;
@@ -74,6 +80,7 @@ abstract class installer_base
         if (is_object(self::$_instance)) {
             throw new Exception('Cannot create another '.self::class.' object');
         }
+        $this->signature = hash('fnv132', self::class); //ATM only existence is checked, so any value would do
         self::$_instance = $this; //used during init()
         $this->init($configfile);
     }
@@ -114,7 +121,11 @@ abstract class installer_base
         require_once $p.'misc.functions.php';
 
         // and the other auto's
-        $p = joinpath(__DIR__, 'smarty', 'libs', 'Autoloader.php');
+//        $p = joinpath(__DIR__, 'smarty', 'libs', 'Autoloader.php');
+        //composer-installed place, plus trailing separator (Smarty path-defines always assume the latter)
+        $p = joinpath(dirname(__DIR__, 2), 'sources', 'lib', 'vendor', 'smarty', 'smarty', 'libs', '') ;
+        define('SMARTY_DIR', $p);
+        $p = joinpath(dirname(__DIR__), 'BackupSmartyAutoloader.php');
         require_once $p;
         Smarty_Autoloader::register();
         $p = joinpath(__DIR__, 'vendor', 'autoload.php');
@@ -135,10 +146,11 @@ abstract class installer_base
             $ver = $sess['CMSMS:version'];
         }
         else {
-            $p = $config['archive'] ?? 'data/data.tar.gz';
-            $p = strtr($p, '/\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
-            $p = str_replace(basename($p), 'version.php', $p);
-            $verfile = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.$p;
+//            $p = $config['archive'] ?? 'data/data.tar.gz';
+//            $p = strtr($p, '/\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
+//            $p = str_replace(basename($p), 'version.php', $p);
+//            $verfile = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.$p;
+            $verfile = joinpath(dirname(__DIR__, 2), 'sources', 'lib', 'version.php');
             if (!is_file($verfile)) {
                 throw new Exception('Could not find version file');
             }
@@ -215,6 +227,42 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
     abstract public function run();
 
     /**
+     * Merge config data arrays (e.g. from .ini files)
+     * Unlike array_merge_recusive(), this does some filtering of values
+     * and is limited to 2-D arrays.
+     * @internal
+     * @param array $config1 Merge into this
+     * @param array $config2 Merge from this (if not empty)
+     * @return array
+     */
+    private function merge_config(array $config1, array $config2) : array
+    {
+        if ($config2) {
+            foreach ($config2 as $k =>$v) {
+                if (is_array($v)) {
+                    if (!isset($config1[$k]) || $config1[$k] === '') {
+                        $config1[$k] = [];
+                    }
+                    elseif (!is_array ($v)) {
+                        $config1[$k] = [$config1[$k]];
+                    }
+                    $config1[$k] = array_unique(array_merge($config1[$k] , $v), SORT_STRING);
+                }
+                elseif (isset($config1[$k]) && is_array($config1[$k]) ) {
+                    $config1[$k] = array_unique(array_merge($config1[$k] , [$v]), SORT_STRING);
+                }
+                elseif ($v) {
+                    $config1[$k] = $v;
+                }
+                elseif (is_numeric($v)) {
+                    $config1[$k] = $v + 0;
+                }
+            }
+        }
+        return $config1;
+    }
+
+    /**
      * @throws Exception
      */
     protected function set_config_defaults() : array
@@ -271,39 +319,6 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         }
         $config['dest'] = $fp;
         return $config;
-    }
-    /**
-     * Merge .ini file contents
-     * @internal
-     * @param array $config1 Merge into this
-     * @param array $config2 Merge from this (if not empty)
-     * @return array
-     */
-    private function merge_config(array $config1, array $config2) : array
-    {
-        if ($config2) {
-            foreach ($config2 as $k =>$v) {
-                if (is_array($v)) {
-                    if (!isset($config1[$k]) || $config1[$k] === '') {
-                        $config1[$k] = [];
-                    }
-                    elseif (!is_array ($v)) {
-                        $config1[$k] = [$config1[$k]];
-                    }
-                    $config1[$k] = array_unique(array_merge($config1[$k] , $v), SORT_STRING);
-                }
-                elseif (isset($config1[$k]) && is_array($config1[$k]) ) {
-                    $config1[$k] = array_unique(array_merge($config1[$k] , [$v]), SORT_STRING);
-                }
-                elseif ($v) {
-                    $config1[$k] = $v;
-                }
-                elseif (is_numeric($v)) {
-                    $config1[$k] = $v + 0;
-                }
-            }
-        }
-        return $config1;
     }
 
     protected function load_config() : array
@@ -412,11 +427,12 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
                 $config[$key] = $val;
                 break;
             default:
+//            cases 'admin_path': 'assets_path': 'simpletags_path':
 //            case 'extramodules':
-//            case 'timezone':
 //            case 'debug':
 //            case 'nofiles':
 //            case 'nobase':
+//            case 'timezone':
                 // do nothing
                 break;
             }
@@ -449,6 +465,26 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
     {
         $config = $this->get_config();
         $config[trim($key)] = $val;
+
+        $sess = session::get_instance();
+        $sess['config'] = $config;
+    }
+
+    public function merge_config_vals(array $config)
+    {
+        if ($config) {
+            $current = $this->get_config();
+            $new = $this->merge_config($current, $config);
+
+            $sess = session::get_instance();
+            $sess['config'] = $new;
+        }
+    }
+
+    public function remove_config_val(string $key)
+    {
+        $config = $this->get_config();
+        unset($config[trim($key)]);
 
         $sess = session::get_instance();
         $sess['config'] = $config;
@@ -530,9 +566,9 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         return (int)($this->_dest_schema ?? 0);
     }
 
-    public function get_phar() : string
+    public function get_phar($asurl = false) : string
     {
-        return $this->_have_phar ? Phar::running() : '';
+        return ($this->_have_phar) ? Phar::running($asurl) : '';
     }
 
     public function in_phar() : bool
@@ -540,116 +576,26 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         return $this->_have_phar && Phar::running() != '';
     }
 
-    public function get_archive() : string
-    {
-        if (!empty($this->_archive) && is_file($this->_archive)) {
-            return $this->_archive;
-        }
-        $sess = session::get_instance();
-        if (!empty($sess['sourceball']) && is_file($sess['sourceball'])) {
-            $this->_archive = $sess['sourceball'];
-            return $this->_archive;
-        }
-
-        $config = $this->get_config();
-        $p = $config['archive'] ?? 'data/data.tar.gz';
-        $p = strtr($p, '/\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
-        $src_archive = joinpath(dirname(__DIR__, 2), $p);
-        if (!is_file($src_archive)) {
-            throw new Exception('Could not find installation archive at '.$src_archive);
-        }
-
-        if ($this->in_phar()) {
-            // in some environments, reading from a tarball embedded
-            // within a phar is N/A, so we  securely copy and rename it
-            $src_md5 = md5_file($src_archive);
-            $dest_archive = $this->get_tmpdir().DIRECTORY_SEPARATOR.'f'.md5($src_archive.session_id()).'.tgz';
-
-            for ($i = 0; $i < 2; $i++) {
-                if (!is_file($dest_archive)) {
-                    @copy($src_archive, $dest_archive);
-                }
-                if (is_readable($dest_archive)) {
-                    if (md5_file($dest_archive) == $src_md5) {
-                        $sess['sourceball'] = $dest_archive;
-                        break;
-                    }
-                }
-                @unlink($dest_archive);
-            }
-            if ($i == 2) {
-                throw new Exception('Failed to create temporary archive... copying/permissions problem');
-            }
-        }
-        else { // !in_phar()
-            $sess['sourceball'] = $src_archive;
-        }
-        $this->_archive = $sess['sourceball'];
-
-        return $this->_archive;
-    }
-
     /**
-     * Setup to interrogate the source-files archive, with or without PHP's Phar extension
-     * @param string $pattern Optional regex to be matched for returned item-paths
-     * @return 2-member array: [0] = files iterator [1] = root path of each file
+     * Setup to interrogate the source files
+     * @param string $pattern Optional regex to be matched for wanted-item paths
+     * @return 2-member array:
+     *  [0] = files iterator
+     *  [1] = root|base path of each file that the iterator will report
      */
-    public function start_archive_scan(string $pattern = '') : array
+    public function setup_sources_scan(string $pattern = '') : array
     {
-        if ($this->_have_phar) {
-            $archive = $this->get_archive();
-            if (!is_file($archive)) {
-                $archive = str_replace('\\', '/', $archive);
-                if (!is_file($archive)) {
-                    throw new Exception(lang('error_noarchive'));
-                }
-            }
-
-            $path = 'phar://'.$archive;  //contents are unpacked as descendents of the archive
-            $iter = new PharData(
-                $archive,
+        $path = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'sources';
+        $iter = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(
+                $path,
                 FilesystemIterator::KEY_AS_FILENAME |
                 FilesystemIterator::CURRENT_AS_PATHNAME |
                 FilesystemIterator::SKIP_DOTS |
                 FilesystemIterator::UNIX_PATHS
-            );
-        }
-        else {
-            $config = $this->get_config();
-            if (empty($config['archdir'])) {
-                $path = tempnam($this->get_tmpdir(), 'CMSfiles');
-                unlink($path); //we will use this as a dir, not file
-                $config['archdir'] = $path;
-                $sess = session::get_instance();
-                $sess['config'] = $config;
-            }
-            else {
-                $path = $config['archdir'];
-            }
-            if (!is_dir($path)) {
-                //onetime unpack (it's slow)
-                $archive = $this->get_archive();
-                if (!is_file($archive)) {
-                    $archive = str_replace('\\', '/', $archive);
-                    if (!is_file($archive)) {
-                        throw new Exception(lang('error_noarchive'));
-                    }
-                }
+            ),
+            RecursiveIteratorIterator::SELF_FIRST);
 
-                $adata = new Tar();
-                $adata->open($archive);
-                $adata->extract($path);
-            }
-            $iter = new RecursiveDirectoryIterator(
-                $path,
-                  FilesystemIterator::KEY_AS_FILENAME |
-                  FilesystemIterator::CURRENT_AS_PATHNAME |
-                  FilesystemIterator::SKIP_DOTS |
-                  FilesystemIterator::UNIX_PATHS
-            );
-        }
-
-        $iter = new RecursiveIteratorIterator($iter, RecursiveIteratorIterator::SELF_FIRST);
         if ($pattern) {
             $iter = new FilePatternFilter($iter, $pattern);
         }
@@ -670,11 +616,11 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
             return $this->_nls;
         }
 
-        list($iter, $tmpdir) = $this->start_archive_scan('~[\\/]lib[\\/]nls[\\/].+\.nls\.php$~');
+        list($iter, $topdir) = $this->setup_sources_scan('~[\\/]lib[\\/]nls[\\/].+\.nls\.php$~');
 
         $nls = [];
-        foreach ($iter as $fn => $file) {
-            include $file; //populates $nls[]
+        foreach ($iter as $fp) {
+            include $fp; //populates $nls[]
         }
 
         if (!$nls) {
@@ -713,7 +659,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
     {
         $dir = $this->get_tmpdir();
         $iter = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($dir) //LEAVES_ONLY
+            new RecursiveDirectoryIterator($dir) //LEAVES_ONLY i.e. won't find empty dirs
         );
         foreach ($iter as $file => $info) {
             if ($info->isFile()) {
@@ -723,10 +669,10 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
 
         if ($do_index_html) {
             $iter = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($dir) //LEAVES_ONLY
+                new RecursiveDirectoryIterator($dir) //LEAVES_ONLY i.e. won't find empty dirs
             );
             foreach ($iter as $file => $info) {
-                if ($info->isFile()) { //WHAT??
+                if ($info->isFile()) { //WHAT? some attempted workaround for empty dirs??
                     @touch($info->getPathInfo().'/index.html');
                 }
             }
@@ -750,15 +696,18 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         $sess = session::get_instance();
         if ($this->in_phar()) {
             // in case it's somewhere outside tmpdir ...
+/*
             if (!empty($sess['sourceball'])) {
                 $fp = dirname($sess['sourceball']);
                 if (is_dir($fp)) {
                     rrmdir($fp);
                 }
             }
+*/
             if ($clear) {
+                $fp = $this->get_phar();
                 $sess->clear();
-                @unlink(Phar::running());
+                @unlink($fp);
                 exit;
             }
         } elseif ($clear) {
