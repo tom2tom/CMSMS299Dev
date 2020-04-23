@@ -168,8 +168,8 @@ symlinks in the source-files are handled properly
 user-inputs required during an installer session can be pre-defined in a .ini fle. With all of them in place, an installer session takes only about 90 seconds.
 non-core modules can also be included by the release-builder among installer source-files, in which case those modules become optional selections during installation
 a custom 'support-url' can be specified, in which case it will be displayed in the admin console instead of a link to CMSMS website
-the 'expanded' variant of the installer can operate without PHP's phar extension
-system installs and upgrades support renamed admin and/or assets and/or simple_plugins folders
+installs and upgrades support renamed admin and/or assets and/or simple_plugins folders
+installer can operate on a host without PHP's phar extension
 installer cleans up after itself
 
 deprecated
