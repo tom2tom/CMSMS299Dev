@@ -4,19 +4,17 @@
 use cms_installer\installer_base;
 
 const SVNROOT = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
+const INSTALLERTOP = 'installer'; // extended-intaller top folder name, no trailing separator
 
 /* NOTE
-this REQUIRES php extensions phar, zlib, and usually, zip
-this benefits from php extension Fileinfo - probably built by default
+This REQUIRES PHP's phar extension, and usually one of the archivers zip, zlib, bzip2
+This benefits from PHP extension fileinfo - probably built by default
 */
 if (!extension_loaded('phar')) {
     die('PHP\'s phar extension is required for this process');
 }
 if (ini_get('phar.readonly')) {
     die('phar.readonly must be turned OFF in your php.ini');
-}
-if (!extension_loaded('zlib')) {
-    die('PHP\'s zlib extension is required for this process');
 }
 
 // setup
@@ -25,146 +23,60 @@ $owd = getcwd();
 $script_file = basename(__FILE__);
 
 if ($cli) {
-    // check to make sure we are in the correct directory.
+    // ensure we are in the correct directory
     if (!is_file(joinpath($owd, $script_file))) {
         die('This script must be executed from the same directory as the '.$script_file.' script');
     }
 }
 
-// regex patterns for sources not copied to tempdir for inclusion in the sources tarball,
-// checked against root-dir-relative filepaths, after converting windoze path-sep's to *NIX
+$installerdir = dirname($owd); //parent, probably 'phar_installer'
+$sourcedir = joinpath($installerdir, 'sources'); //place for accumulating sourcefiles that will be passed to the installer
+$outdir = joinpath($installerdir, 'out'); //place for this script's results/output
+
+// regex patterns for source files/dirs to NOT be processed by the installer.
+// all exclusion checks are against sources-tree root-dir-relative filepaths,
+// after converting any windoze path-sep's to *NIX form
+$all_excludes = [
+'~\.git.*~',
+'~\.md$~i',
+'~\.svn~',
+'~svn\-~',
+'~index\.html?$~',
+'~\.bak$~',
+'/~$/',
+'~\.#~',
+'~UNUSED~',
+];
+
+// members of $src_excludes which need double-check before exclusion to confirm they're 'ours'
+$src_checks = ['scripts', 'tmp', 'tests'];
+
+$s = basename($installerdir);
 $src_excludes = [
-'/\.#.*/',
-'/\.bak$/',
-'/\.git.*/',
-'/\.md$/i',
-'/\.svn/',
-'/\/index\.html?$/',
-'/#.*/',
-'/^config\.php$/', //TODO does not exclude main config file! (must keep class.cms_config.php)
-'/~$/',
-'/phar_installer\/|phar_installer$/',
-'/scripts\/|scripts$/',
-'/svn-.*/',
-'/tests\/|tests$/',
-'/UNUSED.*/',
-'/uploads\/.+/',
-];
-//TODO root-dir  '/\.htaccess$/',
+-4 => "~$s~",
+-3 => '~scripts~',
+-2 => '~tmp~',
+-1 => '~tests~',
+] + $all_excludes;
 
-// regex patterns for sources in the phar_intaller folder, but not included in the created phar file or expanded-zip
-// NOTE README*.TXT will need to be independently processed into the respective files
+// members of $phar_excludes which need double-check before exclusion to confirm they're 'ours'
+$phar_checks = ['build', 'data', 'out'];
+
 $phar_excludes = [
-'/\.#/',
-'/\.bak$/',
-'/\.git.*/',
-'/\.svn\//',
-'/#/',
-'/~$/',
-'/build\/|build$/',
-'/out\/|out$/',
-'/scripts\/|scripts$/',
-'/source\/|source$/',
-'/UNUSED.*/'
-];
+'~build~',
+'~data~',
+'~out~',
+] + $all_excludes;
 //'/README.*/',
-
-//$zip_excludes = [ same as $phar_excludes
-//'*/',
-//'tmp/',
-//'.#*',
-//'#*',
-//'*.bak'
-//];
-
-$phardir = dirname(__DIR__); //parent, a.k.a. phar_installer
-
-$tmpdir = joinpath($phardir, 'source'); //place for sources that will go into data.tar.gz
-$datadir = joinpath($phardir, 'data'); //place for data.tar.gz etc
-$outdir = joinpath($phardir, 'out'); //place for script results/output
+$phar_excludes = $all_excludes;
 
 $archive_only = 0;
 $clean = 1;
 $checksums = 1;
+$pack = 'zip'; //default archive type
 $rename = 1;
 $sourceuri = 'file://'; // file-set source
 $verbose = 0;
-$zip = 1;
-
-$config_file = str_replace('.php', '.ini', $script_file);
-$fp = joinpath($owd, $config_file);
-if (is_readable($fp)) {
-    $config = parse_ini_file($fp);
-    if ($config !== false) {
-        verbose(1, "INFO: read config data from $config_file");
-        extract($config);
-    } else {
-        verbose(1, "ERROR: Problem processing config file: $config_file");
-    }
-}
-
-if ($cli) {
-    $options = getopt('ahckru:vz', [
-    'archive',
-    'help',
-    'clean',
-    'checksums',
-    'rename',
-    'uri',
-    'verbose',
-    'zip'
-    ]);
-
-    if ($options) {
-        foreach ($options as $k => $v) {
-            switch ($k) {
-             case 'a':
-             case 'archive':
-                $archive_only = !$archive_only;
-                break;
-             case 'c':
-             case 'clean':
-                $clean = !$clean;
-                break;
-             case 'k':
-             case 'checksums':
-                $checksums = !$checksums;
-                break;
-             case 'v':
-             case 'verbose':
-                ++$verbose;
-                break;
-             case 'h':
-             case 'help':
-                output_usage();
-                exit;
-             case 'r':
-             case 'rename':
-                $rename = !$rename;
-                break;
-             case 'u':
-             case 'uri':
-                if (!preg_match('~^(file|svn|git)://~', $v)) {
-                    die("$v is not valid for the source-uri parameter");
-                }
-                if (strncmp($v, 'file://', 7) == 0) {
-                    $fp = substr($v, 7);
-                    if ($fp === '' || $fp == 'local') {
-                        $v = 'file://';
-                    } elseif (!is_dir($fp) || !is_readable($fp)) {
-                        die("The path specified in the uri parameter ($fp) is not a valid directory");
-                    }
-                }
-                $sourceuri = $v;
-                break;
-             case 'z':
-             case 'zip':
-                $zip = !$zip;
-                break;
-            }
-        }
-    }
-} //cli
 
 function output_usage()
 {
@@ -175,6 +87,9 @@ options:
   -a|--archive   only create the data archive, do not create a phar
   -c|--clean     toggle cleaning of old output directories (default is on)
   -k|--checksums toggle creation of checksum files (default is on)
+  -p|--pack      specify the type of compression for the created files,
+                 one of: zip (the default), gzip, bzip2,
+                 or none to create uncompressed tar archives
   -r|--rename    toggle renaming of .phar file to .php (default is on)
   -u|--uri       specify files source, one of
                    file://detail or svn://detail or git://detail
@@ -187,6 +102,7 @@ options:
                  With 'git', the detail is the urlpath of the repo.
   -v|--verbose   increment verbosity level (can be used multiple times)
   -z|--zip       toggle zipping the output (phar or php) into a .zip file (default is on)
+                 deprecated equivalent to -p none
 EOS;
 }
 
@@ -207,72 +123,91 @@ function joinpath(...$segments) : string
     return str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $fp);
 }
 
-function rrmdir(string $fp, bool $keepdirs = false, bool $keeptop = false) : bool
+function rrmdir(string $topdir, bool $keepdirs = false, bool $keeptop = false) : bool
 {
-    if (is_dir($fp)) {
+    if (is_dir($topdir)) {
         $res = true;
+        //TODO to prevent massive duplication, use recursive readdir()'s instead
         $iter = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator(
-                $fp,
-                FilesystemIterator::CURRENT_AS_PATHNAME |
-                FilesystemIterator::SKIP_DOTS
-            ),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-        foreach ($iter as $p) {
-            if (is_dir($p)) {
-                if ($keepdirs || !@rmdir($p)) {
-                    $res = false;
-                }
-            } elseif (!@unlink($p)) {
-                $res = false;
-            }
-        }
-        if ($res && !($keeptop || $keepdirs)) {
-            $res = @rmdir($fp);
-        }
-        return $res;
-    }
-    return false;
-}
-
-function rchmod(string $fp) : bool
-{
-    $res = true;
-    if (is_dir($fp)) {
-        $iter = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator(
-                $fp,
+                $topdir,
                 FilesystemIterator::CURRENT_AS_PATHNAME |
                 FilesystemIterator::SKIP_DOTS
             ),
             RecursiveIteratorIterator::CHILD_FIRST
         );
         foreach ($iter as $fp) {
-            if (!is_link($fp)) {
-                $mode = (is_dir($fp)) ? 0751 : 0644;
-                if (!@chmod($fp, $mode)) {
+            if (is_dir($fp)) {
+                if (is_link($fp) ) {
+                    if ($keepdirs || !@unlink($fp)) {
+                        $res = false;
+                    }
+                } elseif ($keepdirs || !@rmdir($fp)) {
                     $res = false;
                 }
+            } elseif (is_link($fp) ) {
+                if (!@unlink($fp)) {
+                    $res = false;
+                }
+            } elseif (!@unlink($fp)) {
+                $res = false;
             }
         }
-        if (!is_link($fp)) {
-            $mode = (is_dir($fp)) ? 0751 : 0644;
-            return @chmod($fp, $mode) && $res;
+        if ($res && !($keeptop || $keepdirs)) {
+            $res = @rmdir($topdir);
         }
-    } elseif (!is_link($fp)) {
-        return @chmod($fp, 0644);
+        return $res;
     }
-    return $res;
+    return false;
+}
+
+function rchmod(string $topdir) : bool
+{
+    if (is_dir($topdir)) {
+        //TODO to prevent massive duplication, use recursive readdir()'s instead
+        $iter = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(
+                $topdir,
+                FilesystemIterator::CURRENT_AS_PATHNAME |
+                FilesystemIterator::SKIP_DOTS
+            ),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+        $res = true;
+        foreach ($iter as $fp) {
+            $mode = (is_dir($fp)) ? 0770 : 0660;
+            if (!@chmod($fp, $mode)) {
+                $res = false;
+            }
+        }
+        return $res;
+    }
+    return @chmod($topdir, 0660);
+}
+
+function valid_link($fp)
+{
+    $target = readlink($fp);
+    if (@is_dir($fp)) {
+        return $target;
+    }
+    if ($target) {
+        if (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $target)) { //absolute path
+            if (@is_file($target)) { return $target; }
+        } elseif (realpath(joinpath(dirname($fp), $target))) {
+            return $target;
+        }
+    }
+    return false;
 }
 
 function get_alternate_files() : bool
 {
-    global $sourceuri, $tmpdir;
+    global $sourceuri, $sourcedir;
 
     if (strncmp($sourceuri, 'file://', 7) == 0) {
-        $tmpdir = substr($sourceuri, 7);
-        if (is_dir($tmpdir)) {
+        $sourcedir = substr($sourceuri, 7);
+        if (is_dir($sourcedir)) {
             //use files in that place
             return true;
         }
@@ -298,14 +233,14 @@ function get_alternate_files() : bool
                 return false;
         }
 
-        $cmd = escapeshellcmd("svn export -q $url $tmpdir");
+        $cmd = escapeshellcmd("svn export -q $url $sourcedir");
 
         verbose(1, "INFO: retrieving files from SVN ($url)");
         system($cmd, $retval);
         return true; //$retval == 0?
     } elseif (strncmp($sourceuri, 'git://', 6) == 0) {
         $url = 'https://'.substr($sourceuri, 6);
-        $cmd = escapeshellcmd("git clone -q $url $tmpdir");
+        $cmd = escapeshellcmd("git clone -q $url $sourcedir");
 
         verbose(1, "INFO: retrieving files from GIT ($url)");
         system($cmd, $retval);
@@ -314,9 +249,10 @@ function get_alternate_files() : bool
     return false;
 }
 
+// get a filtered set of source-files from the original tree into $sourcedir
 function copy_local_files()
 {
-    global $tmpdir, $src_excludes;
+    global $sourcedir, $src_excludes, $src_checks, $verbose;
 
     $localroot = current_root();
 
@@ -357,13 +293,24 @@ function copy_local_files()
                 break;
         }
     }
-    $modules = array_merge($config['coremodules'], $config['extramodules']);
+    $modules = array_merge($config['coremodules'] ?? [], $config['extramodules'] ?? []);
     unset($config, $xconfig);
-    $modcheck = DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR;
-    $mclen = strlen($modcheck);
+    if ($modules) {
+        $modcheck = DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR;
+        $mclen = strlen($modcheck);
+    } else {
+        $modcheck = ',,,,'; // something not matchable in a filepath
+        $mclen = 2;
+    }
 
-    verbose(1, "INFO: Copying source files from $localroot to $tmpdir");
+    $len = strlen($localroot.DIRECTORY_SEPARATOR);
+    $xchecks = [];
+    foreach ($src_checks as $name) {
+         $xchecks[$name] = $len + strlen($name);
+    }
 
+    verbose(1, "INFO: Copying source files from $localroot to $sourcedir");
+    //TODO to prevent massive duplication, use recursive readdir()'s instead
     $iter = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator(
             $localroot,
@@ -376,14 +323,21 @@ function copy_local_files()
         RecursiveIteratorIterator::SELF_FIRST
     );
 
-    $len = strlen($localroot.DIRECTORY_SEPARATOR);
-
     foreach ($iter as $fn=>$fp) {
         // ignore unwanted filepath patterns
         foreach ($src_excludes as $excl) {
             if (preg_match($excl, $fp, $matches, 0, $len)) {
-                $relpath = substr($fp, $len);
-                verbose(2, "EXCLUDED: $relpath (matched pattern $excl)");
+                $name = $matches[0];
+                if (isset($xchecks[$name])) {  // isset($xchecks[$fn]) && ...
+                    $cfp = $localroot.DIRECTORY_SEPARATOR.$name;
+                    if (strncmp($fp, $cfp, $xchecks[$name]) != 0 || 0 || 0) { //TODO $fp[$xchecks[$name] + 1] NOT DIRECTORY_SEPARATOR | nothing
+                        continue;
+                    }
+                }
+                if ($verbose >= 2) {
+                    $relpath = substr($fp, $len);
+                    verbose(2, "EXCLUDED: $relpath (matched pattern $excl)");
+                }
                 continue 2;
             }
         }
@@ -398,29 +352,176 @@ function copy_local_files()
                 $parent = true;
             }
             if (!in_array($modname, $modules)) {
-                if ($parent) { verbose(2, "EXCLUDED: unwanted module $modname"); }
+                if ($parent && $verbose >= 2) {
+                    verbose(2, "EXCLUDED: unwanted module $modname");
+                }
                 continue;
             }
         }
 
         $relpath = substr($fp, $len);
-        $tp = joinpath($tmpdir, $relpath);
-        if (!is_dir($fp)) {
+        $tp = joinpath($sourcedir, $relpath);
+
+        if (@is_dir($fp)) {
+            if (!@is_link($fp)) {
+                mkdir($tp, 0770, true);
+            } else {
+                $target = readlink($fp);
+                symlink($target, $tp);
+                verbose(2, "MIGRATED LINK $fn to $tp");
+            }
+        } elseif (@is_link($fp)) {
+            if (($target = valid_link($fp))) {
+                // migrate to corresponding $sourcedir-link
+                symlink($target, $tp);
+                verbose(2, "MIGRATED LINK $fn to $tp");
+            } else {
+                verbose(0, "ERROR: failed to migrate link $fp");
+            }
+        } elseif (@is_file($fp)) {
             copy($fp, $tp);
             verbose(2, "COPIED $fn to $tp");
-        } else {
-            mkdir($tp, 0771, true);
         }
     }
-    //clear all tmp/*/* files
-    $tp = joinpath($tmpdir, 'tmp');
-    rrmdir($tp, true);
-    //TODO maybe clear all relevant from ...[assets]/[simple_plugins]
-    //BUT no change to {...[assets]/templates/*, ...[assets]/css/*}, those files will be recorded in the relevant table
 
-    //workaround failed exclusion
-    $tp = joinpath($tmpdir, 'config.php');
-    @unlink($tp);
+    $fp = $sourcedir.DIRECTORY_SEPARATOR;
+    $config = [];
+    require_once $fp.'config.php';
+
+    if (!empty($config['admin_dir'])) {
+        @rename($fp.$config['admin_dir'], $fp.'admin');
+    } elseif (!empty($config['admin_path'])) {
+        @rename($fp.$config['admin_path'], $fp.'admin');
+    } elseif (!empty($config['admin_url'])) {
+        if (!empty($config['root_url'])) {
+            $s = substr($config['admin_url'], strlen($config['root_url']));
+            $t = trim($s, ' /');
+            if ($t) $t = '/'.$t;
+            else $t = '/assets';
+        } else {
+            $s = rtrim($config['admin_url'], ' /');
+            $p = strrpos($s, '/');
+            if ($p !== false) {
+                $t = substr($s, $p);
+            } else {
+                $t = '/assets';
+            }
+        }
+        @rename($fp.$t, $fp.'admin');
+    }
+
+    if (!empty($config['uploads_path'])) {
+        @rename($fp.$config['uploads_path'], $fp.'uploads');
+    } elseif (!empty($config['uploads_url'])) {
+        if (!empty($config['root_url'])) {
+            $s = substr($config['uploads_url'], strlen($config['root_url']));
+            $t = trim($s, ' /');
+            if ($t) $t = '/'.$t;
+            else $t = '/uploads';
+        } else {
+            $s = rtrim($config['uploads_url'], ' /');
+            $p = strrpos($s, '/');
+            if ($p !== false) {
+                $t = substr($s, $p);
+            } else {
+                $t = '/uploads';
+            }
+        }
+        @rename($fp.$t, $fp.'uploads');
+    }
+    rrmdir($fp.'uploads', false, true);
+
+    if (!empty($config['assets_path'])) {
+        @rename($fp.$config['assets_path'], $fp.'assets');
+    } elseif (!empty($config['assets_url'])) {
+//        @rename($fp.TODOfunc($config['assets_url']), $fp.'assets');
+    }
+
+    if (!empty($config['simpletags_path'])) {
+        @rename($fp.$config['simpletags_path'], $fp.'assets'.DIRECTORY_SEPARATOR.'simple_plugins');
+    }
+    $fp2 = joinpath($sourcedir,'assets','');
+    // no change to {...[assets]/templates/*, ...[assets]/css/*}, those files will be recorded in the relevant table
+    foreach ([/*'templates','css',*/'simple_plugins'] as $name) {
+        @rrmdir($fp2.$name, false, true);
+    }
+    $dh = opendir($sourcedir);
+    while (($fn = readdir($dh)) !== false) {
+        $fp2 = $fp.$fn;
+        if (!is_dir($fp2)) {
+            unlink ($fp2);
+        }
+    }
+    closedir($dh);
+}
+
+// get a filtered set of ...our_path/libs files into TODO WHERE?
+function copy_installer_files()
+{
+    global $all_excludes, $xchecks;
+
+    $cleaninstalls = $TODO; //desination filepath
+
+    $fp = dirname(__DIR__).DIRECTORY_SEPARATOR.'lib';
+    //TODO to prevent massive duplication, use recursive readdir()'s instead
+    $iter = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(
+            $fp,
+            FilesystemIterator::KEY_AS_FILENAME |
+            FilesystemIterator::CURRENT_AS_PATHNAME |
+            FilesystemIterator::SKIP_DOTS |
+            FilesystemIterator::UNIX_PATHS //|
+//          FilesystemIterator::FOLLOW_SYMLINKS too bad if links not relative !!
+        ),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    $len = strlen(dirname(__DIR__).DIRECTORY_SEPARATOR);
+
+    foreach ($iter as $fn=>$fp) {
+        // ignore unwanted filepath patterns
+        foreach ($all_excludes as $excl) {
+            if (preg_match($excl, $fp, $matches, 0, $len)) {
+                $name = $matches[0];
+                if (isset($xchecks[$name])) {  // isset($xchecks[$fn]) && ...
+                    //TODO use substr_compare()
+                    $cfp = $localroot.DIRECTORY_SEPARATOR.$name;
+                    if (strncmp($fp, $cfp, $xchecks[$name]) != 0 || 0 || 0) { //TODO $fp[$xchecks[$name] + 1] NOT DIRECTORY_SEPARATOR | nothing
+                        continue;
+                    }
+                }
+                if ($verbose >= 2) {
+                    $relpath = substr($fp, $len);
+                    verbose(2, "EXCLUDED: $relpath (matched pattern $excl)");
+                }
+                continue 2;
+            }
+        }
+
+        $relpath = substr($fp, $len);
+        $tp = joinpath($cleaninstalls, $relpath);
+
+        if (@is_dir($fp)) {
+            if (!@is_link($fp)) {
+                mkdir($tp, 0770, true);
+            } else {
+                $target = readlink($fp);
+                symlink($target, $tp);
+                verbose(2, "MIGRATED LINK $fn to $tp");
+            }
+        } elseif (@is_link($fp)) {
+            if (($target = valid_link($fp))) {
+                // migrate to corresponding $sourcedir-link
+                symlink($target, $tp);
+                verbose(2, "MIGRATED LINK $fn to $tp");
+            } else {
+                verbose(0, "ERROR: failed to migrate link $fp");
+            }
+        } elseif (@is_file($fp)) {
+            copy($fp, $tp);
+            verbose(2, "COPIED $fn to $tp");
+        }
+    }
 }
 
 function get_version_php(string $startdir) : string
@@ -435,9 +536,9 @@ function get_version_php(string $startdir) : string
 // recursive method
 function create_checksums(string $dir, string $salt) : array
 {
-    global $tmpdir;
+    global $sourcedir;
 
-    $len = strlen($tmpdir); //paths have leading DIRECTORY_SEPARATOR
+    $len = strlen($sourcedir); //paths have leading DIRECTORY_SEPARATOR
     $out = [];
     $dh = opendir($dir);
 
@@ -447,12 +548,25 @@ function create_checksums(string $dir, string $salt) : array
         }
 
         $fp = joinpath($dir, $fn);
-        if (is_dir($fp)) {
-            $tmp = create_checksums($fp, $salt); //recurse
-            if ($tmp) {
-                $out = array_merge($out, $tmp);
+        if (@is_dir($fp)) {
+            if (!@is_link($fp)) {
+                $tmp = create_checksums($fp, $salt); //recurse
+                if ($tmp) {
+                    $out = array_merge($out, $tmp);
+                }
+            } else {
+                $relpath = substr($fp, $len);
+                $target = readlink($fp);
+                $out[$relpath] = md5($salt.$target);
             }
-        } else {
+        } elseif (@is_link($fp)) {
+            if (($target = valid_link($fp))) {
+                $relpath = substr($fp, $len);
+                $out[$relpath] = md5($salt.$target);
+            } else {
+                verbose(0, 'WARNING: no checksum for invalid link '.$fp);
+            }
+        } elseif (@is_file($fp)) {
             $relpath = substr($fp, $len);
             $out[$relpath] = md5($salt.md5_file($fp));
         }
@@ -462,12 +576,12 @@ function create_checksums(string $dir, string $salt) : array
 
 function create_checksum_dat()
 {
-    global $outdir, $tmpdir, $version_php, $version_num;
+    global $outdir, $sourcedir, $version_php, $version_num;
 
     verbose(1, 'INFO: Creating checksum file');
-    $salt = md5_file($version_php).md5_file($tmpdir.DIRECTORY_SEPARATOR.'index.php'); //TODO joinpath
+    $salt = md5_file($version_php);
 
-    $out = create_checksums($tmpdir, $salt);
+    $out = create_checksums($sourcedir, $salt);
     $outfile = joinpath($outdir, "cmsms-{$version_num}-checksum.dat");
 
     $fh = fopen($outfile, 'c');
@@ -483,22 +597,23 @@ function create_checksum_dat()
 
 function create_source_archive()
 {
-    global $tmpdir, $datadir;
+    global $outdir, $pack, $packext;
 
-    @mkdir($datadir, 0771, true);
-    $fp = joinpath($datadir, 'data.tar');
-    @unlink($fp);
-    @unlink($fp.'.gz');
+    @mkdir($outdir, 0770, true);
+    $archpath = joinpath($outdir, 'sources.phar');
+    @unlink($archpath);
+    if ($packext) @unlink($archpath.$packext);
 
     try {
-        verbose(1, 'INFO: Creating sources archive data.tar.gz');
-        $phar = new PharData($fp);
+        verbose(1, 'INFO: Creating sources archive '.basename($archpath.$packext));
+        $phar = new PharData($archpath);
         //get files
-        $phar->buildFromDirectory($tmpdir);
-        //get empty dirs
+        $phar->buildFromDirectory($sourcedir);
+        //backfill empty dirs
+        //TODO to prevent massive duplication, use recursive readdir()'s instead
         $iter = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator(
-                $tmpdir,
+                $sourcedir,
                 FilesystemIterator::KEY_AS_FILENAME |
                 FilesystemIterator::CURRENT_AS_PATHNAME |
                 FilesystemIterator::UNIX_PATHS |
@@ -506,8 +621,8 @@ function create_source_archive()
             ),
             RecursiveIteratorIterator::SELF_FIRST
         );
-        $len = strlen($tmpdir.DIRECTORY_SEPARATOR);
-        foreach ($iter as $tp) {
+        $len = strlen($sourcedir.DIRECTORY_SEPARATOR);
+        foreach ($iter as $fn=>$tp) {
 //          $fn = basename($tp);
 //          if ($fn == '.') {
             if (is_dir($tp)) {
@@ -517,123 +632,569 @@ function create_source_archive()
                     $phar->addEmptyDir(substr($dir, $len));
                 }
                 unset($iter2);
-//          } else {
-//              $phar->addFile($tp, substr($tp, $len));
             }
         }
 
-        $phar->compress(Phar::GZ);
+        switch ($pack) {
+            case 'zip':
+                $phar->convertToData(Phar::ZIP, Phar::NONE, $packext);
+                break;
+            case 'zlib':
+                $phar->compress(Phar::GZ, $packext); //TODO care with '.' chars in filename before extension
+                break;
+            case 'bzip2':
+                $phar->compress(Phar::BZ2, $packext); //TODO care with '.' chars in filename before extension
+                break;
+            default:
+                $phar->convertToData(Phar::TAR, Phar::NONE, $packext);
+                break;
+        }
+
         unset($phar); //close it
-        unlink($fp);
+        if ($packext) unlink($archpath);
     } catch (Throwable $t) {
-        die('ERROR: sources tarball creation failed : '.$t->GetMessage()."\n");
+        die('ERROR: sources archive creation failed : '.$t->GetMessage()."\n");
     }
 }
 
-// avoid the need for manual conformance, copy current smarty sources to local folder
-function get_smarty()
+function create_phar_installer()
 {
-    global $phardir;
+    global $installerdir, $outdir, $version_num, $arch, $nfiles, $ndirs, $pack, $packext, $rename;
 
-    verbose(1, 'INFO: Refreshing local smarty sources');
-    $localroot = joinpath($phardir, 'lib', 'classes', 'smarty');
-    rrmdir($localroot, false, true);
-    $sourceroot = joinpath(current_root(), 'lib', 'vendor', 'smarty', 'smarty'); //composer-conformant location
-    $len = strlen($sourceroot);
-    $iter = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator(
-            $sourceroot,
-            FilesystemIterator::CURRENT_AS_PATHNAME |
-            FilesystemIterator::SKIP_DOTS |
-            FilesystemIterator::UNIX_PATHS //|
-//          FilesystemIterator::FOLLOW_SYMLINKS too bad if links not relative !!
-        ),
-        RecursiveIteratorIterator::SELF_FIRST
-    );
-    foreach ($iter as $fp) {
-        $tp = $localroot.substr($fp, $len);
-        if (!is_dir($fp)) {
-            copy($fp, $tp);
-        } else {
-            mkdir($tp, 0771, true);
+    $basename = 'cmsms-'.$version_num.'-install';
+    $destname = $basename.'.phar';
+    $destname2 = $basename.'.php';
+
+    // new phar file
+    // useless message, browsers buffer until request is completed, so this won't be displayed immediately
+    verbose(1, "INFO: Coffee break time - adding 000's of items to the archive will take a while ...");
+
+    $skips = ['build', 'data', 'out'];
+    //CHECKME keep these ? demo-content installer needs them?
+//  $arr = installer_base::UPLOADFILESDIR;
+//  $skips[] = end($arr);
+//  $arr = installer_base::CUSTOMFILESDIR;
+//  $skips[] = end($arr);
+    $scans = [];
+    $dirs = glob($installerdir.DIRECTORY_SEPARATOR.'*', GLOB_NOSORT|GLOB_NOESCAPE|GLOB_ONLYDIR);
+    $len = strlen($installerdir) + 1;
+
+    foreach ($dirs as $fp) {
+        $name = basename($fp);
+        if (!in_array($name, $skips)) {
+            $scans[$name] = $len;
         }
     }
-    //smarty's own autoloader may have been omitted, when composer autoloads smarty
-    $tp = joinpath($localroot, 'libs', 'Autoloader.php');
-    if (!is_file($tp)) {
-        $fp = __DIR__.DIRECTORY_SEPARATOR.'BackupSmartyAutoloader.php';
-        if (is_file($fp)) {
-            copy($fp, $tp);
-        } else {
-            die('build-file BackupSmartyAutoloader.php is missing');
+
+    $arch = new PharData($basename.'.tar'); //output stored initially in current directory, dummy name acceptable to PharData
+    $arch->startBuffering();
+
+    $nfiles = 0;
+    $ndirs = 0;
+
+    foreach (['index.php'] as $fn) {
+        $fp = joinpath($installerdir.DIRECTORY_SEPARATOR.$fn);
+        $relpath = substr($fp, $len);
+        $arch->addFile($fp, $relpath);
+        ++$nfiles;
+    }
+
+    foreach ($scans as $name => $skip) {
+        $fp = $installerdir.DIRECTORY_SEPARATOR.$name;
+        phartree($fp, $skip);
+    }
+
+    $arch->stopBuffering();
+    $phar = $arch->convertToExecutable(null, Phar::NONE);
+    $phar->setMetaData(['bootstrap'=>'index.php']);
+    $stub = $phar->createDefaultStub('cli.php', 'index.php');
+    $phar->setStub($stub);
+    $phar->setSignatureAlgorithm(Phar::SHA1);
+    unset($phar); //close it
+    verbose(1, "INFO: added $nfiles files and $ndirs empty directories to the phar archive");
+    $arch = null;
+    unset($arch);
+
+    $fp = __DIR__.DIRECTORY_SEPARATOR.$basename.'.tar';
+    unlink($fp);
+    $fp = __DIR__.DIRECTORY_SEPARATOR.$basename.'.phar.tar';
+    if ($rename) {
+        // rename it to a php file so it's executable on pretty much all hosts
+        verbose(1, 'INFO: Renaming phar file to php');
+        $tp = joinpath($outdir, $destname2);
+    } else {
+        $tp = joinpath($outdir, $destname);
+    }
+    rename($fp, $tp);
+
+    $infile = $tp;
+    $outfile = joinpath($outdir, $basename.$packext);
+    verbose(1, "INFO: compressing phar file into $outfile");
+
+    switch ($pack) {
+        case 'zip':
+            $arch = new ZipArchive();
+            $arch->open($outfile, ZipArchive::OVERWRITE | ZipArchive::CREATE);
+            $arch->addFile($installerdir.DIRECTORY_SEPARATOR.'README-PHAR.TXT', 'README-PHAR.TXT');
+            $arch->setExternalAttributesName('README-PHAR.TXT', ZipArchive::OPSYS_UNIX, 0660 << 16);
+            $arch->addFile($infile, basename($infile));
+            $arch->setExternalAttributesName(basename($infile), ZipArchive::OPSYS_UNIX, 0660 << 16);
+            $arch->close();
+            break;
+        case 'zlib':
+        case 'bzip2':
+        case 'none':
+            // NOTE subsequent compression/conversion removes everything after
+            // the 1st '.' in this supplied filename, before appending the new extension
+            // hence a dummy for now, later renamed
+            $workfile = joinpath($outdir, 'phar-installer.work');
+            $arch = new PharData($workfile);
+            $fp = $installerdir.DIRECTORY_SEPARATOR.'README-PHAR.TXT';
+            chmod($fp, 0664);
+            $arch->addFile($fp, 'README-PHAR.TXT');
+            chmod($infile, 0660);
+            $arch->addFile($infile, basename($infile));
+            switch ($pack) {
+                case 'zlib':
+                    $arch->compress(Phar::GZ, $packext);
+                    break;
+                case 'bzip2':
+                    $arch->compress(Phar::BZ2, $packext);
+                    break;
+                case 'none':
+                    $arch->convertToData(Phar::TAR, Phar::NONE, $packext);
+                    break;
+            }
+            unset($arch); //close it
+            $fp = joinpath($outdir, 'phar-installer'.$packext);
+            rename($fp, $outfile);
+            unlink($workfile);
+            break;
+        default;
+            break;
+    }
+    unlink($infile); //finished with the original
+}
+
+function phartree($dirpath, $baselen)
+{
+    global $arch, $phar_excludes, $nfiles, $ndirs, $installerdir; //$xchecks
+
+    $dh = opendir($dirpath);
+    if ($dh == false) {
+        throw new Exception('Directory "'.$dirpath.'" cannot be read');
+    }
+    $len = strlen($installerdir) + 1; //TODO calc this once-only
+
+    while (($name = readdir($dh)) !== false) {
+        if ($name == '.' || $name == '..') { continue; }
+        $fp = $dirpath.DIRECTORY_SEPARATOR.$name;
+        // check and store 'portable' sub-paths
+        $relpath = strtr(substr($fp, $baselen), '\\', '/');
+        if (strncmp($relpath, 'lib', 3) == 0) {
+            // screen items in the $installerdir/libs tree only (not yet sanitized)
+            foreach ($phar_excludes as $excl) {
+                if (preg_match($excl, $fp, $matches, 0, $len)) {
+//                  $name = $matches[0];
+//                  if (isset($xchecks[$name])) {
+//                      if (substr_compare($fp, $name, $len, $xchecks[$name]) != 0) { //TODO $fp[$xchecks[$name] + 1] NOT DIRECTORY_SEPARATOR | nothing
+//                          continue;
+//                      }
+//                  }
+                    verbose(2, "EXCLUDED: $relpath (matched pattern $excl)");
+                    continue 2;
+                }
+            }
+        }
+        // keep this one
+        if (@is_dir($fp)) {
+            if (!@is_link($fp)) {
+                $iter = new FilesystemIterator($fp);
+                $check = $iter->valid();
+                unset($iter);
+                if ($check) {
+                    phartree($fp, $baselen); //recurse
+                } else {
+                    $arch->addEmptyDir($relpath);
+                    ++$ndirs;
+                }
+            } else {
+                $arch->addFile($fp, $relpath);
+                ++$nfiles;
+            }
+        } elseif (@is_link($fp)) {
+            if (($target = valid_link($fp))) {
+                try {
+                    $arch->addFile($fp, $relpath);
+                    ++$nfiles;
+                } catch (Throwable $t) {
+                    verbose(0, "WARNING: ignored invalid link $fp (target: $target)");
+                }
+            } else {
+                verbose(0, "WARNING: ignored invalid link $fp");
+            }
+        } elseif (@is_file($fp)) {
+            $arch->addFile($fp, $relpath);
+            ++$nfiles;
         }
     }
+    closedir($dh);
+}
+
+function create_extended_installer()
+{
+    global $installerdir, $outdir, $version_num, $arch, $nfiles, $ndirs, $pack, $packext;
+
+    $nfiles = 0;
+    $ndirs = 0;
+
+    $skips = ['build', 'data', 'out'];
+    //CHECKME keep these ? demo-content installer needs them?
+//  $arr = installer_base::UPLOADFILESDIR;
+//  $skips[] = end($arr);
+//  $arr = installer_base::CUSTOMFILESDIR;
+//  $skips[] = end($arr);
+    $scans = [];
+    $dirs = glob($installerdir.DIRECTORY_SEPARATOR.'*', GLOB_NOSORT|GLOB_NOESCAPE|GLOB_ONLYDIR);
+    $len = strlen($installerdir) + 1;
+
+    foreach ($dirs as $fp) {
+        $name = basename($fp);
+        if (!in_array($name, $skips)) {
+            $scans[$name] = $len;
+        }
+    }
+
+    $outfile = joinpath($outdir, 'cmsms-'.$version_num.'-install.expanded'.$packext);
+    verbose(1, "INFO: compressing installation and system files into $outfile");
+
+    switch ($pack) {
+        case 'zip':
+            // we use an actual zip, not phardata-converted-to-zip, to avoid a symlink-related bug
+            // and it's mucho faster
+            $arch = new ZipArchive();
+            $arch->open($outfile, ZipArchive::OVERWRITE | ZipArchive::CREATE);
+            $fp = joinpath($installerdir.DIRECTORY_SEPARATOR.'README.TXT');
+            $arch->addFile($fp,  INSTALLERTOP.'/README.TXT');
+            $arch->setExternalAttributesName( INSTALLERTOP.'/README.TXT', ZipArchive::OPSYS_UNIX, 0664 << 16);
+            $fp = joinpath($installerdir.DIRECTORY_SEPARATOR.'index.php');
+            $arch->addFile($fp, INSTALLERTOP.'/index.php');
+            $arch->setExternalAttributesName(INSTALLERTOP.'/index.php', ZipArchive::OPSYS_UNIX, 0660 << 16);
+            $nfiles = 2;
+            break;
+        case 'zlib':
+        case 'bzip2':
+        case 'none':
+            // NOTE subsequent processing by phar removes everything after the
+            // 1st '.' in this supplied filename, before appending the new extension
+            // hence a dummy for now, later renamed
+            $workfile = joinpath($outdir, 'expanded-installer.work');
+            $arch = new PharData($workfile);
+            $arch->startBuffering();
+            $fp = joinpath($installerdir.DIRECTORY_SEPARATOR.'README.TXT');
+            chmod($fp, 0664);
+            $arch->addFile($fp, INSTALLERTOP.'/README.TXT');
+            $fp = joinpath($installerdir.DIRECTORY_SEPARATOR.'index.php');
+            chmod($fp, 0660);
+            $arch->addFile($fp, INSTALLERTOP.'/index.php');
+            $nfiles = 2;
+            break;
+        default:
+            return;
+    }
+
+    foreach ($scans as $name => $skip) {
+        $fp = $installerdir.DIRECTORY_SEPARATOR.$name;
+        populatetree($fp, $skip);
+    }
+
+    try {
+        switch ($pack) {
+            case 'zip':
+                $arch->close();
+                break;
+            case 'zlib':
+            case 'bzip2':
+            case 'none':
+                $arch->stopBuffering();
+                switch ($pack) {
+                    case 'zlib':
+                        $arch->convertToData(Phar::TAR, Phar::GZ, $packext);
+                        break;
+                    case 'bzip2':
+                        $arch->convertToData(Phar::TAR, Phar::BZ2, $packext);
+                        break;
+                    case 'none':
+                        $arch->convertToData(Phar::TAR, Phar::NONE, $packext);
+                        break;
+                }
+                unset($arch); // close it
+                $fp = joinpath($outdir, 'expanded-installer'.$packext);
+                rename($fp, $outfile);
+                unlink($workfile);
+                break;
+        }
+        verbose(1, "INFO: added $nfiles files and $ndirs empty directories to the output archive");
+    } catch (Throwable $t) {
+        verbose(0, 'ERROR: creating extended installer failed: '.$t->getMessage());
+    }
+}
+
+function populatetree($dirpath, $baselen)
+{
+    global $arch, $phar_excludes, $nfiles, $ndirs, $installerdir, $pack; //$xchecks
+
+    $dh = opendir($dirpath);
+    if ($dh == false) {
+        throw new Exception('Directory "'.$dirpath.'" cannot be read');
+    }
+    $len = strlen($installerdir) + 1; //TODO calc this once-only
+
+    while (($name = readdir($dh)) !== false) {
+        if ($name == '.' || $name == '..') { continue; }
+        $fp = $dirpath.DIRECTORY_SEPARATOR.$name;
+        // check and store 'portable' sub-paths
+        $relpath = strtr(substr($fp, $baselen), '\\', '/');
+        if (strncmp($relpath, 'lib', 3) == 0) {
+            // screen items in the $installerdir/libs tree only (not yet sanitized)
+            foreach ($phar_excludes as $excl) {
+                if (preg_match($excl, $fp, $matches, 0, $len)) {
+//                  $name = $matches[0];
+//                  if (isset($xchecks[$name])) {
+//                      if (substr_compare($fp, $name, $len, $xchecks[$name]) != 0) { //TODO $fp[$xchecks[$name] + 1] NOT DIRECTORY_SEPARATOR | nothing
+//                          continue;
+//                      }
+//                  }
+                    verbose(2, "EXCLUDED: $relpath (matched pattern $excl)");
+                    continue 2;
+                }
+            }
+        }
+        // keep this one
+        $relpath = INSTALLERTOP.'/'.$relpath;
+        if (@is_dir($fp)) {
+            if (!@is_link($fp)) {
+                $iter = new FilesystemIterator($fp);
+                $check = $iter->valid();
+                unset($iter);
+                if ($check) {
+                    populatetree($fp, $baselen); //recurse
+                } else {
+                    $arch->addEmptyDir($relpath);
+                    ++$ndirs;
+                }
+            } elseif (($target = valid_link($fp))) {
+                if ($pack == 'zip') {
+                    // a zip archive cannot include (valid) links to folders, so we add a proxy
+                    $arch->addFromString($relpath.' FOLDER ',strtr($target, '\\/', '||').' SYMLINK PROXY', "TODO: convert this to a link to $target");
+                    $s = substr($fp, $baselen); //hide the INSTALLERTOP.'/' prefix
+                    verbose(0, "NOTE: folder-link $s (target: $target) will need to be re-created after the extended intaller is unpacked");
+                } else {
+                    $arch->addFile($fp, $relpath);
+                }
+                ++$nfiles;
+            } else {
+                verbose(0, "WARNING: ignored invalid link $fp");
+            }
+        } elseif (@is_link($fp)) {
+            if (($target = valid_link($fp))) {
+                try {
+                    $arch->addFile($fp, $relpath);
+                    ++$nfiles;
+                } catch (Throwable $t) {
+                    verbose(0, "WARNING: ignored invalid link $fp (target: $target)");
+                }
+            } else {
+                verbose(0, "WARNING: ignored invalid link $fp");
+            }
+        } elseif (@is_file($fp)) {
+            $arch->addFile($fp, $relpath);
+            ++$nfiles;
+        }
+    }
+
+    closedir($dh);
 }
 
 function verbose(int $lvl, string $msg)
 {
-    global $verbose;
+    global $verbose, $cli;
 
     if ($verbose >= $lvl) {
-        echo $msg."\n";
+        if ($cli) {
+            echo $msg."\n";
+        } else {
+            echo $msg."<br/>";
+        }
     }
 }
 
-// our "main function"
-if (!$archive_only) {
-    if (!extension_loaded('zip')) {
-        die('PHP\'s zip extension is required for this process');
+// our "main" functionality
+$config_file = str_replace('.php', '.ini', $script_file);
+$fp = joinpath($owd, $config_file);
+if (is_readable($fp)) {
+    $config = parse_ini_file($fp);
+    if ($config !== false) {
+        verbose(1, "INFO: read config data from $config_file");
+        extract($config);
+    } else {
+        verbose(0, "ERROR: Problem processing config file: $config_file");
     }
+}
+
+if ($cli) {
+    $options = getopt('ahckru:vz', [
+    'archive',
+    'help',
+    'clean',
+    'checksums',
+    'rename',
+    'uri',
+    'verbose',
+    'zip'
+    ]);
+
+    if ($options) {
+        foreach ($options as $k => $v) {
+            switch ($k) {
+             case 'a':
+             case 'archive':
+                $archive_only = !$archive_only;
+                break;
+             case 'c':
+             case 'clean':
+                $clean = !$clean;
+                break;
+             case 'k':
+             case 'checksums':
+                $checksums = !$checksums;
+                break;
+             case 'v':
+             case 'verbose':
+                ++$verbose;
+                break;
+             case 'h':
+             case 'help':
+                output_usage();
+                exit;
+             case 'p':
+             case 'pack':
+                $pack = $v;
+             case 'r':
+             case 'rename':
+                $rename = !$rename;
+                break;
+             case 'u':
+             case 'uri':
+                if (!preg_match('~^(file|svn|git)://~', $v)) {
+                    die("$v is not valid for the source-uri parameter");
+                }
+                if (strncmp($v, 'file://', 7) == 0) {
+                    $fp = substr($v, 7);
+                    if ($fp === '' || $fp == 'local') {
+                        $v = 'file://';
+                    } elseif (!is_dir($fp) || !is_readable($fp)) {
+                        die("The path specified in the uri parameter ($fp) is not a valid directory");
+                    }
+                }
+                $sourceuri = $v;
+                break;
+             case 'z':
+             case 'zip':
+                $pack = 'none';
+                break;
+            }
+        }
+    }
+} else {
+    echo "<br/>";
+} //cli
+
+if (empty($pack)) {
+    $pack = 'zip';
+}
+switch($pack) {
+    case 'zip':
+    case 'zlib':
+        if (!extension_loaded($pack)) {
+            die("PHP's $pack extension is required for this process");
+        }
+        break;
+    case 'bzip2':
+        if (!extension_loaded('bz2')) {
+            die("PHP's bz2 extension is required for this process");
+        }
+        break;
+    default:
+        if ($pack != 'none') {
+            die("Unrecognized archive compression type '$pack'");
+        }
+        break;
+}
+switch($pack) {
+    case 'zip':
+        $packext = '.zip';
+        break;
+    case 'zlib':
+        $packext = '.tar.gz';
+        break;
+    case 'bzip2':
+        $packext = '.tar.bz2';
+        break;
+    default:
+        $packext = '.tar';
+        break;
 }
 
 try {
-    if (!is_dir($phardir) || !is_file(joinpath($phardir, 'index.php'))) {
-        die('Problem finding source files in '.$phardir);
+    if (!is_dir($installerdir) || !is_file(joinpath($installerdir, 'index.php'))) {
+        die('Problem finding source files in '.$installerdir);
     }
 
-    if ($clean && is_dir($outdir)) {
-        verbose(1, 'INFO: Removing old output file(s)');
-        rrmdir($outdir, true);
-    }
     if (!is_dir($outdir)) {
-        @mkdir($outdir, 0771, true);
+        @mkdir($outdir, 0770, true);
     }
-    if (!is_dir($datadir)) {
-        @mkdir($datadir, 0771, true);
+    elseif ($clean) {
+        verbose(1, 'INFO: Removing old output file(s)');
+        rrmdir($outdir, false, true);
     }
-    if (!is_dir($datadir) || !is_dir($outdir)) {
-        die('Problem creating working directories: '.$datadir.' and/or '.$outdir);
+    // used for accumulating sources
+    if (!is_dir($sourcedir)) {
+        mkdir($sourcedir, 0770, true);
+    }
+    else {
+        rrmdir($sourcedir, false, true);
     }
 
-    get_smarty();
+    if (!is_dir($outdir) || !is_dir($sourcedir)) {
+        die('Problem creating working directories: '.$outdir.' and/or '.$sourcedir);
+    }
 
-    $fp = joinpath($phardir, 'lib', 'classes', 'class.installer_base.php');
+    $fp = joinpath($installerdir, 'lib', 'classes', 'class.installer_base.php');
     require_once $fp;
     $arr = installer_base::CONTENTXML;
-    $xmlfile = joinpath($phardir, ...$arr);
+    $xmlfile = joinpath($installerdir, ...$arr);
     if (!is_file($xmlfile)) {
         $localroot = current_root();
-        $fp = joinpath($localroot, 'config.php');
-        if (is_file($fp)) {
-            // probably an installed site
+        $CMS_JOB_TYPE = 2; //in-scope for included file
+        $fp = joinpath($localroot, 'lib', 'include.php');
+        try {
             require_once $fp;
-            $CMS_JOB_TYPE = 2; //in-scope for included file
-            $fp = joinpath($localroot, 'lib', 'include.php');
-            require_once $fp;
-            $arr = installer_base::CONTENTFILESDIR;
-            $filesin = joinpath($phardir, ...$arr);
-            $db = CmsApp::get_instance()->GetDb();
-            require_once joinpath($phardir, 'lib', 'iosite.functions.php');
-            verbose(1, "INFO: export site content to $xmlfile");
-            export_content($xmlfile, $filesin, $db);
+        } catch (Throwable $t) {
+            die('Failed to generate demo content: no access to CMSMS system resources');
         }
-    }
-
-    if ($clean && is_dir($tmpdir)) {
-        verbose(1, 'INFO: removing old temporary files');
-        rrmdir($tmpdir);
-    }
-    @mkdir($tmpdir, 0771, true);
+		$arr = installer_base::UPLOADFILESDIR;
+		$uploadspath = joinpath($installerdir, ...$arr);
+		$arr = installer_base::CUSTOMFILESDIR;
+		$workerspath = joinpath($installerdir, ...$arr);
+		$db = CmsApp::get_instance()->GetDb();
+		$space = @require_once joinpath($installerdir, 'lib', 'iosite.functions.php');
+		if ($space === false) { die('Site-content exporter is missing.'); }
+		elseif ($space === 1) { $space = ''; }
+		$funcname = ($space) ? $space.'\\export_content' : 'export_content';
+		verbose(1, "INFO: export site content to $xmlfile");
+		$funcname($xmlfile, $uploadspath, $workerspath, $db);
+	}
 
     if (strncmp($sourceuri, 'file://', 7) == 0) {
         $fp = substr($sourceuri, 7);
@@ -650,223 +1211,44 @@ try {
         die('ERROR: sources not available');
     }
 
-    $version_php = get_version_php($tmpdir);
-    if (!is_file($version_php)) {
-        die('Could not find file version.php in the source tree.');
-    }
-
-    include_once $version_php;
+	$version_php = get_version_php($sourcedir);
+	if (!is_file($version_php)) {
+		die('Could not find file version.php in the source tree.');
+	}
+	if (!defined('CMS_VERSION')) {
+		include_once $version_php;
+	}
     $version_num = CMS_VERSION;
     verbose(1, "INFO: found version: $version_num");
 
-    $fp = joinpath($phardir, 'lib', 'upgrade', $version_num);
-    @mkdir($fp, 0771, true);
+    $fp = joinpath($installerdir, 'lib', 'upgrade', $version_num);
+    @mkdir($fp, 0770, true);
     if (!(is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT.gz') || is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT'))) {
-        verbose(1, 'ERROR: no upgrade-files manifest is present');
+        verbose(0, "ERROR: no $version_num-upgrade files-manifest is present");
         // MAYBE create MANIFEST.DAT.gz using create_manifest.php, but what 'reference' fileset?
     }
     if (!is_file($fp.DIRECTORY_SEPARATOR.'changelog.txt')) {
-        verbose(1, 'WARNING: no upgrade changelog is present');
+        verbose(0, "WARNING: no $version_num-upgrade changelog is present");
         // MAYBE extract some of doc/CHANGELOG.txt ?
     }
 
     verbose(1, 'INFO: Recursively setting permissions');
-    rchmod($tmpdir);
+    rchmod($sourcedir);
 
     if ($checksums) {
         create_checksum_dat();
     }
 
-    create_source_archive();
-
-    if (!$archive_only) {
-        $basename = 'cmsms-'.$version_num.'-install';
-        $destname = $basename.'.phar';
-        $destname2 = $basename.'.php';
-
-        @copy($version_php, joinpath($datadir, 'version.php'));
-
-        if (function_exists('finfo_open')) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        } else {
-            $finfo = null;
-        }
-
-        $len = strlen($phardir.DIRECTORY_SEPARATOR);
-        $matches = null;
-
-        // new phar file
-        $fp = joinpath($outdir, $destname);
-        verbose(1, "INFO: Creating phar file $fp");
-        $phar = new Phar($fp); // no iterator flags, we will self-manage
-        $phar->startBuffering();
-
-        $relpath = joinpath('lib', 'assets', 'installer.ini');
-        $t = time();
-        $u = get_current_user();
-        $h = gethostname();
-        $phar[$relpath] = <<<EOS
-[build]
-build_time = $t
-build_user = $u
-build_host = $h
-EOS;
-        $phar[$relpath]->setMetaData(['mime-type'=>'text/plain']);
-
-        $iter = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator(
-                $phardir,
-                FilesystemIterator::CURRENT_AS_PATHNAME |
-                FilesystemIterator::FOLLOW_SYMLINKS |
-                FilesystemIterator::SKIP_DOTS
-            )
-            // NB default RecursiveIteratorIterator::LEAVES_ONLY means no folders
-        );
-        foreach ($iter as $fp) {
-            $relpath = substr($fp, $len);
-            // skip unwanted
-            foreach ($phar_excludes as $excl) {
-                if (preg_match($excl, $fp, $matches, 0, $len)) {
-                    verbose(2, "EXCLUDED: $relpath (matched pattern $excl)");
-                    continue 2;
-                }
-            }
-            if (strcasecmp($relpath, 'README.TXT') == 0) {
-                verbose(2, "EXCLUDED: $relpath");
-                continue; //zip-specific file not covered by a regex
-            }
-
-            verbose(2, "ADDING: $relpath to the phar");
-
-            $extension = substr($relpath, strrpos($relpath, '.') + 1);
-            switch (strtolower($extension)) {
-                case 'inc':
-                case 'php':
-                case 'php4':
-                case 'php5':
-                case 'phps':
-                    $mimetype = Phar::PHP;
-                    break;
-                case 'js':
-                    $mimetype = 'text/javascript';
-                    break;
-                case 'css':
-                    $mimetype = 'text/css';
-                    break;
-                case 'xml':
-                    $mimetype = 'application/xml';
-                    break;
-                default:
-                    if ($finfo) {
-                        $mimetype = finfo_file($fp);
-                        if ($mimetype == 'unknown' || $mimetype == 0) {
-                            $mimetype = 'text/plain';
-                        }
-                    } elseif ($extension == 'png') {
-                        $mimetype = 'image/png';
-                    } elseif ($extension == 'gif') {
-                        $mimetype = 'image/gif';
-                    } elseif ($extension == 'svg') {
-                        $mimetype = 'image/svg+xml';
-                    } else {
-                        $mimetype = 'text/plain';
-                    }
-                    break;
-            }
-
-            $phar[$relpath] = file_get_contents($fp);
-            $phar[$relpath]->setMetaData(['mime-type'=>$mimetype]);
-        }
-
-        $phar->setMetaData(['bootstrap'=>'index.php']);
-        $stub = $phar->createDefaultStub('cli.php', 'index.php');
-        $phar->setStub($stub);
-        $phar->setSignatureAlgorithm(Phar::SHA1);
-        $phar->stopBuffering();
-        unset($phar); //close it
-
-        if ($finfo) {
-            finfo_close($finfo);
-        }
-
-        $fp = joinpath($outdir, $destname);
-        if ($rename) {
-            // rename it to a php file so it's executable on pretty much all hosts
-            verbose(1, 'INFO: Renaming phar file to php');
-            $tp = joinpath($outdir, $destname2);
-            rename($fp, $tp);
-        }
-
-        if ($zip) {
-            $infile = ($rename) ? $tp : $fp;
-            $outfile = joinpath($outdir, $basename.'.zip');
-
-            verbose(1, "INFO: compressing phar file into $outfile");
-            $arch = new ZipArchive();
-            $arch->open($outfile, ZipArchive::OVERWRITE | ZipArchive::CREATE);
-            $arch->addFile($infile, basename($infile));
-            $arch->setExternalAttributesName(basename($infile), ZipArchive::OPSYS_UNIX, 0751 << 16);
-            $arch->addFile($phardir.DIRECTORY_SEPARATOR.'README-PHAR.TXT', 'README-PHAR.TXT');
-            $arch->setExternalAttributesName('README-PHAR.TXT', ZipArchive::OPSYS_UNIX, 0644 << 16);
-            $arch->close();
-            @unlink($infile);
-
-            rrmdir($tmpdir); //sources can go now
-
-            // zip up most of the install dir contents, plus the sources archive
-            $outfile = joinpath($outdir, $basename.'.expanded.zip');
-            verbose(1, "INFO: zipping phar_installer and source data into $outfile");
-            $arch = new ZipArchive();
-            $arch->open($outfile, ZipArchive::OVERWRITE | ZipArchive::CREATE);
-/*          $fp = joinpath($tmpdir, 'zip_excludes.dat');
-            $str = implode("\n", $zip_excludes);
-            file_put_contents($fp, $str);
-            $arch->addFile($fp, basename($fp));
-*/
-//          rchmod($phardir); NO: build scripts are there
-
-            $pharname = 'installer'.DIRECTORY_SEPARATOR;
-            $len = strlen($phardir.DIRECTORY_SEPARATOR);
-            $iter = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator(
-                    $phardir,
-                    FilesystemIterator::FOLLOW_SYMLINKS |
-                    FilesystemIterator::SKIP_DOTS |
-                    FilesystemIterator::CURRENT_AS_PATHNAME
-                )
-                //NB default RecursiveIteratorIterator::LEAVES_ONLY
-            );
-            foreach ($iter as $fp) {
-                $relpath = substr($fp, $len);
-                if (strncmp($relpath, 'build', 5) == 0 ||
-                    strncmp($relpath, 'out', 3) == 0 ||
-                    strncasecmp($relpath, 'README-PHAR', 11) == 0) { //phar-specific file not covered by a regex
-                    verbose(2, "EXCLUDED: $relpath from the zip");
-                } else {
-                    foreach ($phar_excludes as $excl) {
-                        if (preg_match($excl, $fp, $matches, 0, $len)) {
-                            verbose(2, "EXCLUDED: $relpath from the zip");
-                            continue 2;
-                        }
-                    }
-                    verbose(2, "ADDING: $relpath to the zip");
-                    $arch->addFile($fp, $pharname.$relpath);
-                }
-            }
-
-            $arch->close();
-
-            rrmdir($tp);
-        } else { // zip
-            rrmdir($tmpdir); //sources can go now
-        }
-    } // archive only
-
-    rrmdir($datadir);
-    $fp = joinpath($phardir, 'lib', 'classes', 'smarty');
-    rrmdir($fp, false, true);
-
-    echo "INFO: Done, see files in $outdir\n";
+    if ($archive_only) {
+        create_source_archive();
+    } else {
+//      copy_installer_files();
+        // for sane memory usage, we constuct these serially
+        create_extended_installer();
+        create_phar_installer(); // slow! TODO find a way to migrate extended to phar
+    }
+    rrmdir($sourcedir); //sources can go now
+    verbose(0, "Done, see files in $outdir");
 } catch (Throwable $t) {
-    echo 'ERROR: Problem building phar file '.$outdir.': '.$t->GetMessage()."\n";
+    verbose(0, 'ERROR: Problem building phar file '.$outdir.': '.$t->GetMessage());
 }
