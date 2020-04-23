@@ -1,6 +1,6 @@
 <?php
 #procedure for displaying system-maintenance actions
-#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -205,7 +205,7 @@ if (isset($_POST['addaliases'])) {
         }
     }
     $stmt->close();
-	audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
+    audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
     $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_aliasesfixed'));
     $smarty->assign('active_content', 1);
 }
@@ -261,38 +261,50 @@ if (!endswith($type, 'File')) {
 }
 
 /*
- * Site-content export
+ * Site-content export if now in develop-mode
  */
+$exportable = false;
 if ($config['develop_mode']) {
-    // try to get folder where 'support' files (if any) will be stored, pending site import
-    $fp = cms_join_path(CMS_ROOT_PATH,'phar_installer', 'lib', 'classes', 'class.installer_base.php');
-    $exportable = is_file($fp);
-} else {
-    $exportable = false;
+    $installer_path = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'phar_installer'; // TODO not hardcoded
+    // check for the installer base class
+    $fp = cms_join_path($installer_path, 'lib', 'classes', 'class.installer_base.php');
+    if (isset($_POST['export']) && is_file($fp)) {
+        // check for the installer export/import methods
+        $space = @require_once cms_join_path($installer_path, 'lib', 'iosite.functions.php');
+        if ($space === 1) {
+            $space = '';
+        } elseif ($space !== false) {
+            include $fp;
+            $arr = installer_base::UPLOADFILESDIR;
+            if (is_array($arr)) {
+                $uploadsin = cms_join_path($installer_path, ...$arr);
+                $arr = installer_base::CUSTOMFILESDIR;
+                $customin = cms_join_path($installer_path, ...$arr);
+                $arr = installer_base::CONTENTXML;
+                $xmlfile = cms_join_path($installer_path, ...$arr);
+
+                $function = ($space) ? $space.'\\export_content' : 'export_content';
+                // save the content in installer tree
+                $function($xmlfile, $uploadsin, $customin, $db);
+                // and also download it
+                $handlers = ob_list_handlers();
+                for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+                $tmp = cms_siteprefs::get('sitename','CMSMS-Site');
+                $xmlname = strtr("Exported-{$tmp}.xml", ' ', '_');
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/force-download');
+                header('Content-Disposition: attachment; filename='.$xmlname);
+                echo file_get_contents($xmlfile);
+
+                exit;
+            }
+        }
+        $themeObject->RecordNotice('error', lang('errornofilesexported'));
+    } elseif (is_file($fp)) {
+        $exportable = true;
+    }
 }
 $smarty->assign('export', $exportable);
-
-if ($exportable && isset($_POST['export'])) {
-    include $fp;
-    $arr = installer_base::CONTENTFILESDIR;
-    $filesin = cms_join_path(CMS_ROOT_PATH, 'phar_installer', ...$arr);
-    $arr = installer_base::CONTENTXML;
-    $xmlfile = cms_join_path(CMS_ROOT_PATH, 'phar_installer', ...$arr);
-
-    include cms_join_path(CMS_ROOT_PATH, 'phar_installer', 'lib', 'iosite.functions.php');
-    export_content($xmlfile, $filesin, $db);
-    // also download it
-    $handlers = ob_list_handlers();
-    for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
-    $tmp = cms_siteprefs::get('sitename','CMSMS-Site');
-    $xmlname = strtr("Exported-{$tmp}.xml", ' ', '_');
-    header('Content-Description: File Transfer');
-    header('Content-Type: application/force-download');
-    header('Content-Disposition: attachment; filename='.$xmlname);
-    echo file_get_contents($xmlfile);
-
-    exit;
-}
 
 /*
  * Changelog
