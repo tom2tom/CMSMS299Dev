@@ -6,9 +6,8 @@ use cms_installer\install_filehandler;
 use cms_installer\manifest_reader;
 use Exception;
 use FilesystemIterator;
-use PharData;
+use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use splitbrain\PHPArchive\Tar;
 use Throwable;
 use function cms_installer\endswith;
 use function cms_installer\get_app;
@@ -53,7 +52,7 @@ class wizard_step7 extends wizard_step
 
         $destdir = get_app()->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',701));
-
+/*
         $archive = get_app()->get_archive();
         if( class_exists('PharData') ) {
             $len = strlen('phar://'.$archive); //each file's prefix-length
@@ -91,6 +90,26 @@ class wizard_step7 extends wizard_step
                 @touch($idxfile);
             }
         }
+*/
+        $path = dirname(__DIR__, 3).DIRECTORY_SEPARATOR.'sources';
+        $len = strlen($path); //each file's prefix-length
+        $iter = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(
+                $path,
+                FilesystemIterator::CURRENT_AS_PATHNAME |
+                FilesystemIterator::SKIP_DOTS |
+                FilesystemIterator::UNIX_PATHS
+            ),
+            RecursiveIteratorIterator::SELF_FIRST);
+        foreach( $iter as $fp ) {
+            $dn = $destdir.substr($fp, $len);
+            if( is_dir($fp) ) {
+                $idxfile = $dn.DIRECTORY_SEPARATOR.'index.html';
+            } else {
+                $idxfile = dirname($dn).DIRECTORY_SEPARATOR.'index.html';
+            }
+           @touch($idxfile); //ignore failure
+        }
     }
 
     private function do_files(bool $checklangs = false)
@@ -106,9 +125,9 @@ class wizard_step7 extends wizard_step
             }
             catch (Throwable $t) {/* nothing here */}
         }
-        $siteinfo = $this->get_wizard()->get_data('siteinfo');
-        if( $siteinfo && isset($siteinfo['languages']) ) {
-            $languages = array_merge($languages, $siteinfo['languages']);
+        $choices = $this->get_wizard()->get_data('sessionchoices');
+        if( $choices && isset($choices['languages']) ) {
+            $languages = array_merge($languages, $choices['languages']);
         }
         $languages = array_unique($languages);
 
@@ -120,68 +139,71 @@ class wizard_step7 extends wizard_step
         $from = $to = $lens = [];
         $app_config = $app->get_config();
         //we rename filepaths, not the actual folders followed by rename-back
-        if( !empty($app_config['admindir']) && ($aname = $app_config['admindir']) != 'admin' ) {
+        if( !empty($app_config['admin_path']) && ($aname = $app_config['admin_path']) != 'admin' ) {
             $s = '/admin'; //hardcoded '/' filepath-separators in phar tarball
             $from[] = $s;
             $to[] = '/'.$aname; //the separator may be migrated, downstream
             $lens[] = strlen($s);
         }
-        if( !empty($app_config['assetsdir']) && ($aname = $app_config['assetsdir']) != 'assets' ) {
+        if( !empty($app_config['assets_path']) && ($aname = $app_config['assets_path']) != 'assets' ) {
             $s = '/assets';
             $from[] = $s;
             $to[] = '/'.$aname;
             $lens[] = strlen($s);
         }
-        if( !empty($app_config['pluginsdir']) && ($aname = $app_config['pluginsdir']) != 'simple_plugins' ) {
-            $s = '/simple_plugins';
-            $from[] = $s;
-            $to[] = '/'.$aname;
-            $lens[] = strlen($s);
+        if( !empty($app_config['simpletags_path']) ) {
+            $aname = $app_config['simpletags_path'];
+            $aname = strtr(trim($aname, ' \\/'), '\\', '/');
+            if( !($aname == 'simple_plugins' || $aname == 'assets/simple_plugins') ) {
+                $s = '/assets/simple_plugins';
+                $from[] = $s;
+                $to[] = '/'.$aname;
+                $lens[] = strlen($s);
+            }
         }
-        if( $siteinfo !== NULL ) {
-            $xmodules = $siteinfo['wantedextras'] ?? []; //non-core modules to be processed
+
+        $coremodules = $app_config['coremodules'];
+        if( $choices && !empty($choices['wantedextras']) ) {
+            $xmodules = $choices['wantedextras']; //non-core modules to be processed
             if( !is_array($xmodules) ) $xmodules = [$xmodules];
         }
         else {
             $xmodules = NULL;
         }
+        
         $action = $this->get_wizard()->get_data('action');
         if( $action != 'install' ) {
-			//add any installed non-core modules, which might need to be freshened ?
-			// TODO anything not in $app_config['coremodules'] or $app_config['extramodules']
-			// in any module location
-	        $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
-	        include_once $cfgfile;
-            $s = ( !empty($config['assetsdir']) ) ? $config['assetsdir'] : 'assets';
-			$fp = joinpath($destdir,$s,'modules','*','*.module.php');
+            //add any installed non-core modules, which might need to be freshened ?
+            // TODO anything not in $coremodules or $xmodules
+            // in any module location
+            $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
+            include_once $cfgfile;
+            $s = ( !empty($config['assets_path']) ) ? $config['assets_path'] : 'assets';
+            $fp = joinpath($destdir,$s,'modules','*','*.module.php');
             $paths = glob($fp);
-			foreach($paths as $fp) {
-				$xmodules[] = basename($fp,'.module.php');
-			}
-			if( $paths ) $xmodules = array_unique($xmodules);
+            if( $paths ) {
+                if( !$xmodules ) $xmodules = [];
+                foreach($paths as $fp) {
+                    $xmodules[] = basename($fp,'.module.php');
+                }
+                $xmodules = array_unique($xmodules);
+            }
         }
-        $allmodules = []; //TODO $app_config['coremodules'] + $xmodules;
+        $havemodules = [];
 
         $this->message(lang('install_extractfiles'));
 
-        list($iter,$archdir) = $app->start_archive_scan();
-        $len = strlen($archdir);
+        list($iter,$topdir) = $app->setup_sources_scan();
+        $len = strlen($topdir); //suffix retains leading separator
 
         foreach ($iter as $fn=>$fp) {
-            if( strpos($fp,'modules') !== FALSE ) {
-				//TODO any module location
-                if( strpos($fp,'/lib/modules/') !== FALSE ) {
-                    if( endswith($fn,'.module.php') ) {
-                        $allmodules[] = substr($fn,0,strlen($fn) - 11);
-                    }
+            if( strpos($fp,'modules') !== FALSE && endswith($fn,'.module.php') ) {
+                $tmp = substr($fn,0,-11);
+                if( in_array($tmp,$coremodules) ) {
+                    array_unshift($havemodules,$tmp);
                 }
-                elseif( ($up = strpos($fp,'/assets/modules/')) !== FALSE ) {
-                    if( !($xmodules === NULL || $xmodules) ) continue; //no non-core modules used
-                    $parts = explode('/',substr($fp,$up + 16));
-                    if( !$parts[0] || ($xmodules !== NULL && !in_array($parts[0],$xmodules)) ) continue; //this one not used
-                    if( endswith($fn,'.module.php') ) {
-                        $allmodules[] = $parts[0];
-                    }
+                elseif( $xmodules && in_array($tmp,$xmodules) ) {
+                    $havemodules[] = $tmp;
                 }
             }
 
@@ -199,9 +221,10 @@ class wizard_step7 extends wizard_step
             $filehandler->handle_file($spec,$fp);
         }
 
-        if( $allmodules ) {
-            $siteinfo['havemodules'] = array_unique($allmodules);
-            $this->get_wizard()->set_data('siteinfo',$siteinfo);
+        if( $havemodules ) {
+            if( !$choices ) $choices = [];
+            $choices['havemodules'] = array_unique($havemodules);
+            $this->get_wizard()->merge_data('sessionchoices',$choices);
         }
     }
 
