@@ -221,7 +221,7 @@ class operations
                         }
                         $from = ['\\','/'];
                         $to = [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR];
-                        $aname = cms_config::get_instance()['assets_dir'];
+                        $aname = cms_config::get_instance()['assets_path'];
                         if( $aname != 'assets' ) {
                             $from[] = 'assets';
                             $to[] = $aname;
@@ -345,7 +345,7 @@ class operations
         $filecount = 0;
         $from = [DIRECTORY_SEPARATOR];
         $to = ['/'];
-        $aname = $config['assets_dir'];
+        $aname = $config['assets_path'];
         if( $aname != 'assets' ) {
             $from[] = $aname;
             $to[] = 'assets';
