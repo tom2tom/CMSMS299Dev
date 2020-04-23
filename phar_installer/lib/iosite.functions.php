@@ -15,13 +15,16 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/*
-This file is used during site installation (among other uses).
-So API's, classes, methods, globals etc must be valid during installation
-as well as normal operation.
-*/
-//install-only methods - admin export ok?
+namespace cms_installer;
 
+use cms_config;
+use CmsApp;
+use CmsDataNotFoundException;
+use CmsInvalidDataException;
+use CmsLayoutStylesheet;
+use CmsLayoutTemplate;
+use CmsLayoutTemplateCategory;
+use CmsLayoutTemplateType;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\Database\Connection;
@@ -29,8 +32,29 @@ use CMSMS\RouteOperations;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
 use CMSMS\TemplateOperations;
+use CmsRoute;
 use DesignManager\Design;
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use Throwable;
+use XMLWriter;
+use const CMS_ASSETS_PATH;
+use const CMS_DB_PREFIX;
+use const CMS_FILETAGS_PATH;
+use const CMS_ROOT_PATH;
+use function check_permission;
 use function cms_installer\lang;
+use function file_put_contents;
+use function get_userid;
+use function recursive_delete;
+use function verbose_msg;
+
+/*
+This file is used during site installation (among other uses).
+So API's, classes, methods, globals etc must be valid during installation
+as well as normal operation.
+*/
 
 const CONTENT_DTD_VERSION = '0.9';
 const CONTENT_DTD_MINVERSION = '0.9';
@@ -81,12 +105,6 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 	if ($sql) {
 		$rows = $db->getArray($sql);
 		if ($rows) {
-//TODO check this works for newsitems|categories
-if ($thistype == 'newscategories') {
-$stophere = 1;
-} elseif ($thistype == 'newsitems') {
-$stophere = 2;
-}
 			$xwm->text($pref);
 			$xwm->startElement($thistype);
 			$name = key($props['subtypes']);
@@ -130,9 +148,10 @@ $stophere = 2;
  * @param string $section xml file section name
  * @param string $frombase source folder filepath
  * @param string $tobase destination folder filepath, or '' if $copyfiles is false
+ * @param string $install_relative installer-relative sub-path, or ''
  * @return int no. of copied files
  */
-function fill_filessection(XMLWriter $xw, string $section, string $frombase, string $tobase)
+function fill_filessection(XMLWriter $xw, string $section, string $frombase, string $tobase, string $install_relative)
 {
 	$skip = strlen($frombase) + 1;
 	$copied = 0;
@@ -144,7 +163,6 @@ function fill_filessection(XMLWriter $xw, string $section, string $frombase, str
 			FilesystemIterator::KEY_AS_PATHNAME |
 			FilesystemIterator::FOLLOW_SYMLINKS |
 			FilesystemIterator::SKIP_DOTS),
-		RecursiveIteratorIterator::LEAVES_ONLY |
 		RecursiveIteratorIterator::CHILD_FIRST);
 	foreach ($iter as $p=>$info) {
 		if (!$info->isDir()) {
@@ -156,7 +174,7 @@ function fill_filessection(XMLWriter $xw, string $section, string $frombase, str
 			if ($copyfiles) {
 				$tp = $tobase.DIRECTORY_SEPARATOR.$tail;
 				$dir = dirname($tp);
-				@mkdir($dir, 0771, true);
+				@mkdir($dir, 0770, true);
 				if (@copy($p, $tp)) {
 					++$copied;
 				}
@@ -168,32 +186,111 @@ function fill_filessection(XMLWriter $xw, string $section, string $frombase, str
 			$td = dirname($tail);
 			if ($td == '.') {
 				$td = '';
+			} else {
+				$td = strtr($td, '\\', '/'); // always use *NIX separators in these data
 			}
-			$xw->writeElement('frompath', $td); // $frombase-relative
-			$xw->writeElement('topath', $td); // is also $tobase-relative
+			$xw->writeElement('relto', $td); // system-sources-filepath-relative
+			if ($install_relative) {
+				if ($td !== '') {
+					$td = $install_relative.'/'.$td;
+				} else {
+					$td = $install_relative;
+				}
+			}
+			$xw->writeElement('relfrom', $td); // installer-root-filepath-relative
+
 			$xw->endElement(); // file
 		}
-	}
-	if ($copied > 0) {
-		$xw->writeElement('sourcedir', $tobase);
 	}
 	$xw->endElement(); // $section
 	return $copied;
 }
 
 /**
+ * Construct an installer-root-relative sub-path for use in a files section of
+ * the xml file
+ *
+ * @param string $toroot Base filepath, no trailing separator
+ * @param string $tobase
+ * @return string always having *NIX separators
+ */
+function file_relpath(string $toroot, string $tobase) : string
+{
+	$toroot = rtrim($toroot, ' \\/');
+	$len = strlen($toroot);
+	$rel = substr($tobase, $len + 1); //skip base-path + trailing separator
+	return ($rel) ? strtr($rel, '\\', '/') : '';
+}
+
+/* News-module processing, if that module does not itself install enough on a new site
+     'newscategories' => [
+      'sql' => 'SELECT * FROM %smodule_news_categories ORDER BY news_category_id',
+      'subtypes' => [
+       'newscategory' => [
+        'news_category_id' => [],
+        'news_category_name' => ['isdata'=>1, 'optional' => 1],
+        'parent_id' => [],
+        'hierarchy' => [],
+        'item_order'=> ['optional' => 1],
+        'long_name' => ['isdata'=>1, 'optional' => 1],
+       ]
+      ]
+     ],
+     'newsitems' => [
+      'sql' => 'SELECT * FROM %smodule_news ORDER BY news_category_id',
+      'subtypes' => [
+       'newsitem' => [
+        'news_category_id' => [],
+        'news_title' => ['isdata'=>1],
+        'news_data' => ['isdata'=>1, 'optional' => 1],
+        'news_extra'=> ['optional' => 1],
+        'news_url' => ['optional' => 1],
+        'summary' => ['isdata'=>1, 'optional' => 1],
+       ]
+      ]
+     ],
+
+ <!ELEMENT newscategories (newscategory*)>
+ <!ELEMENT newscategory (news_category_id,news_category_name?,parent_id,hierarchy,item_order?,long_name?)>
+ <!ELEMENT news_category_id (#PCDATA)>
+ <!ELEMENT news_category_name (#PCDATA)>
+ <!ELEMENT hierarchy (#PCDATA)>
+ <!ELEMENT long_name (#PCDATA)>
+ <!ELEMENT newsitems (newsitem*)>
+ <!ELEMENT newsitem (news_category_id,news_title,news_data?,news_extra?,news_url?,summary?)>
+ <!ELEMENT news_title (#PCDATA)>
+ <!ELEMENT news_data (#PCDATA)>
+ <!ELEMENT news_extra (#PCDATA)>
+ <!ELEMENT news_url (#PCDATA)>
+ <!ELEMENT summary (#PCDATA)>
+
+				case 'newscategories':
+					foreach ($typenode->children() as $node) {
+					//TODO must do this after modules are installed
+					}
+					break;
+				case 'newsitems':
+					foreach ($typenode->children() as $node) {
+					//TODO must do this after modules are installed
+					}
+					break;
+*/
+
+/**
  * Export site content (pages, templates, designs, styles etc) to XML file.
  * Support files (in the uploads folder) and simple-plugin files, template files
  * and stylesheet files (in their respective assets (however named) sub-folders)
- * are recorded as such, and will be copied into the specified $filesfolder if
+ * are recorded as such, and will be copied into the specified $uploadspath if
  * it exists. Otherwise, that remains a manual task.
  *
- * @param string $xmlfile filesystem path of file to use
- * @param string $filesfolder path of installer-tree folder to contain any
- *  files to be installed verbatim, or empty if file-copying is disabled
- * @param Connection $db database connection
+ * @param string $xmlfile filesystem path of the putput xml file
+ * @param string $uploadspath path of installer-tree folder to contain any
+ *  uploaded files to be processed, or empty if file-copying is disabled
+ * @param string $workerspath path of installer-tree folder to contain any
+ *  custom page-production (etc) files to be processed, or empty if file-copying is disabled
+ * @param Connection $db database connection object
  */
-function export_content(string $xmlfile, string $filesfolder, Connection $db)
+function export_content(string $xmlfile, string $uploadspath, string $workerspath, Connection $db)
 {
 /*	data arrangement
 	mostly, table- and field-names must be manually reconciled with database schema
@@ -369,32 +466,6 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        ]
       ]
      ],
-     'newscategories' => [
-      'sql' => 'SELECT * FROM %smodule_news_categories ORDER BY news_category_id',
-      'subtypes' => [
-       'newscategory' => [
-        'news_category_id' => [],
-        'news_category_name' => ['isdata'=>1, 'optional' => 1],
-        'parent_id' => [],
-        'hierarchy' => [],
-        'item_order'=> ['optional' => 1],
-        'long_name' => ['isdata'=>1, 'optional' => 1],
-       ]
-      ]
-     ],
-     'newsitems' => [
-      'sql' => 'SELECT * FROM %smodule_news ORDER BY news_category_id',
-      'subtypes' => [
-       'newsitem' => [
-        'news_category_id' => [],
-        'news_title' => ['isdata'=>1],
-        'news_data' => ['isdata'=>1, 'optional' => 1],
-        'news_extra'=> ['optional' => 1],
-        'news_url' => ['optional' => 1],
-        'summary' => ['isdata'=>1, 'optional' => 1],
-       ]
-      ]
-     ],
     ];
 
 	@unlink($xmlfile);
@@ -478,31 +549,18 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
- <!ELEMENT uploadfiles (sourcedir?,file*)>
- <!ELEMENT file (name,topath,(frompath|embedded),content?)>
- <!ELEMENT topath (#PCDATA)>
- <!ELEMENT frompath (#PCDATA)>
- <!ELEMENT embedded (#PCDATA)>
  <!ELEMENT simpletags (tag*)>
  <!ELEMENT tag (name,description?,parameters?,code)>
  <!ELEMENT parameters (#PCDATA)>
  <!ELEMENT code (#PCDATA)>
- <!ELEMENT simpletagfiles (sourcedir?,file*)>
- <!ELEMENT templatefiles (sourcedir?,file*)>
- <!ELEMENT stylefiles (sourcedir?,file*)>
- <!ELEMENT newscategories (newscategory*)>
- <!ELEMENT newscategory (news_category_id,news_category_name?,parent_id,hierarchy,item_order?,long_name?)>
- <!ELEMENT news_category_id (#PCDATA)>
- <!ELEMENT news_category_name (#PCDATA)>
- <!ELEMENT hierarchy (#PCDATA)>
- <!ELEMENT long_name (#PCDATA)>
- <!ELEMENT newsitems (newsitem*)>
- <!ELEMENT newsitem (news_category_id,news_title,news_data?,news_extra?,news_url?,summary?)>
- <!ELEMENT news_title (#PCDATA)>
- <!ELEMENT news_data (#PCDATA)>
- <!ELEMENT news_extra (#PCDATA)>
- <!ELEMENT news_url (#PCDATA)>
- <!ELEMENT summary (#PCDATA)>
+ <!ELEMENT simpletagfiles (file*)>
+ <!ELEMENT file (name,relto,(relfrom|embedded),content?)>
+ <!ELEMENT relto (#PCDATA)>
+ <!ELEMENT relfrom (#PCDATA)>
+ <!ELEMENT embedded (#PCDATA)>
+ <!ELEMENT templatefiles (file*)>
+ <!ELEMENT stylefiles (file*)>
+ <!ELEMENT uploadfiles (file*)>
 ');
 
 	$xw->startElement('cmsmssitedata');
@@ -515,30 +573,49 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 
 	$xw->text("\n");
 
-	$copyfiles = is_dir($filesfolder);
-	if ($copyfiles) {
-		recursive_delete($filesfolder, false); //clear it
-	}
 	$config = cms_config::get_instance();
 	$frombase = $config['uploads_path'];
 	if (is_dir($frombase)) {
-		fill_filessection($xw, 'uploadfiles', $frombase, $filesfolder);
+		$copyfiles = is_dir($uploadspath);
+		if ($copyfiles) {
+			recursive_delete($uploadspath, false); //clear it
+			$tobase = $uploadspath;
+			$install_relative = file_relpath($uploadspath, $tobase); //stored in intaller-top-sub-folder
+		} else {
+			$copyfiles = @mkdir($uploadspath, 0770, true);
+			$tobase = ($copyfiles) ? $uploadspath : '';
+			$install_relative = ($tobase) ? file_relpath($uploadspath, $tobase) : '';
+	 	}
+		$copycount = fill_filessection($xw, 'uploadfiles', $frombase, $tobase, $install_relative);
+		if ($copyfiles && $copycount == 0) {
+			//nothing here, maybe subfolders needed later
+		}
 	}
 
+	$copyfiles = is_dir($workerspath);
+	if ($copyfiles) {
+		recursive_delete($workerspath, false); //clear it
+	} else {
+		$copyfiles = @mkdir($workerspath, 0770, true);
+ 	}
 	$frombase =	CMS_FILETAGS_PATH;
 	if (is_dir($frombase)) {
-		//TODO ensure any such files are omitted from the sources tarball
+		//TODO ensure any such files are omitted from the sources-only archive
 		if ($copyfiles) {
-			$tobase = $filesfolder.DIRECTORY_SEPARATOR.'simple_plugins'; // 'definite' basename for importing
+			$tobase = $workerspath.DIRECTORY_SEPARATOR.'simple_plugins'; // 'definite' basename for importing
 			if (is_dir($tobase)) {
 //done before recursive_delete($tobase, false);
+				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
+			} elseif (@mkdir($tobase, 0770, true)) {
+				$install_relative = file_relpath($workerspath, $tobase);
 			} else {
-				@mkdir($tobase, 0771, true);
+				$install_relative = '';
 			}
 		} else {
 			$tobase = '';
+			$install_relative = '';
 		}
-		$copycount = fill_filessection($xw, 'simpletagfiles', $frombase, $tobase);
+		$copycount = fill_filessection($xw, 'simpletagfiles', $frombase, $tobase, $install_relative);
 		if ($copyfiles && $copycount == 0) {
 			@rmdir($tobase);
 		}
@@ -548,16 +625,20 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 	if (is_dir($frombase)) {
 		//TODO ensure any such files are omitted from the sources tarball
 		if ($copyfiles) {
-			$tobase = $filesfolder.DIRECTORY_SEPARATOR.'templates';
+			$tobase = $workerspath.DIRECTORY_SEPARATOR.'templates';
 			if (is_dir($tobase)) {
 //done before recursive_delete($tobase, false);
+				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
+			} elseif (@mkdir($tobase, 0770, true)) {
+				$install_relative = file_relpath($workerspath, $tobase);
 			} else {
-				@mkdir($tobase, 0771, true);
+				$install_relative = '';
 			}
 		} else {
 			$tobase = '';
+			$install_relative = '';
 		}
-		$copycount = fill_filessection($xw, 'templatefiles', $frombase, $tobase);
+		$copycount = fill_filessection($xw, 'templatefiles', $frombase, $tobase, $install_relative);
 		if ($copyfiles && $copycount == 0) {
 			@rmdir($tobase);
 		}
@@ -567,16 +648,20 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 	if (is_dir($frombase)) {
 		//TODO ensure any such files are omitted from the sources tarball
 		if ($copyfiles) {
-			$tobase = $filesfolder.DIRECTORY_SEPARATOR.'css';
+			$tobase = $workerspath.DIRECTORY_SEPARATOR.'css';
 			if (is_dir($tobase)) {
-//done			recursive_delete($tobase, false);
+//done before recursive_delete($tobase, false);
+				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
+			} elseif (@mkdir($tobase, 0770, true)) {
+				$install_relative = file_relpath($workerspath, $tobase);
 			} else {
-				@mkdir($tobase, 0771, true);
+				$install_relative = '';
 			}
 		} else {
 			$tobase = '';
+			$install_relative = '';
 		}
-		$copycount = fill_filessection($xw, 'stylefiles', $frombase, $tobase);
+		$copycount = fill_filessection($xw, 'stylefiles', $frombase, $tobase, $install_relative);
 		if ($copyfiles && $copycount == 0) {
 			@rmdir($tobase);
 		}
@@ -588,13 +673,15 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 }
 
 /**
- *
+ * Import site content
  * @param string $xmlfile filesystem path of file to import
- * @param string $filesfolder Optional 'non-default' filesystem path of folder
- *  containing 'support' files e.g. images, iconfonts.
+ * @param string $uploadspath Optional 'non-default' filesystem path of
+ *  folder containing 'uploaded' files e.g. images, iconfonts.
+ * @param string $workerspath Optional 'non-default' filesystem path of
+ *  folder containing non-db-stored operation files e.g. templates, css, simple-plugins
  * @return string status/error message or ''
  */
-function import_content(string $xmlfile, string $filesfolder = '') : string
+function import_content(string $xmlfile, string $uploadspath = '', string $workerspath = '') : string
 {
 	// security checks right here, to supplement upstream/external
 	if (AppState::test_state(AppState::STATE_INSTALL)) {
@@ -860,9 +947,9 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					break;
 				case 'designs':
-					//TODO must do this after modules are installed
+					//TODO must do this section after modules are installed, and if DesignManager is present
 					if (!class_exists('DesignManager\Design')) {
-						break;
+						break; //TODO try to load the class
 					}
 					foreach ($typenode->children() as $node) {
 						$ob = new Design();
@@ -997,23 +1084,25 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					} else {
 						break;
 					}
-					if ($filesfolder) {
+					if ($uploadspath) {
 						//TODO validity check e.g. somewhere absolute in installer tree
-						$frombase = $filesfolder.DIRECTORY_SEPARATOR;
+						$frombase = $uploadspath.DIRECTORY_SEPARATOR;
 					} else {
 						$frombase = '';
 					}
 
 					foreach ($typenode->children() as $node) {
-						$name = (string)$node->name;
-						$to = $tobase.(string)$node->topath;
-						if (!endswith($to, DIRECTORY_SEPARATOR)) {
-							$to .= DIRECTORY_SEPARATOR;
+						$val = (string)$node->relto;
+						if ($val) {
+							$to = $tobase . strtr($val, '/', DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+						} else {
+							$to = $tobase;
 						}
+						$name = (string)$node->name;
 						if ((bool)$node->embedded) {
 							@file_put_contents($to.$name, base64_decode((string)$node->content));
 						} else {
-							$from = (string)$node->frompath;
+							$from = (string)$node->relfrom;
 							if ($from) {
  								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
 									if ($frombase) {
@@ -1030,13 +1119,16 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							} else {
 								continue;
 							}
-							$dir = dirname($to.$name);
-							@mkdir($dir, 0771, true);
+							$dir = dirname($to.$name); //$to sans trailing separator
+							if (!is_dir($dir)) {
+								@mkdir($dir, 0770, true);
+								@touch($to.DIRECTORY_SEPARATOR.'index.html');
+							}
 							// intentional fail if path(s) bad
 							@copy($from.$name, $to.$name);
 						}
 					}
-
+/*
 					$iter = new RecursiveIteratorIterator(
 						new RecursiveDirectoryIterator($config['uploads_path'],
 						  FilesystemIterator::CURRENT_AS_PATHNAME |
@@ -1047,6 +1139,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 								@touch($to.DIRECTORY_SEPARATOR.'index.html');
 							}
 						}
+*/
 					break;
 				case 'simpletags':
 					if ($runtime) {
@@ -1074,19 +1167,34 @@ parameters) VALUES (?,?,?,?)';
 					break;
 				case 'simpletagfiles': //UDTfiles
 					$tobase = CMS_FILETAGS_PATH.DIRECTORY_SEPARATOR;
-					if ($filesfolder) {
+/*					if (isset($typenode['installrel'])) {
+						$rel = (string)$typenode->installrel;
+						if ($rel) {
+							$frombase = dirname(__DIR__).DIRECTORY_SEPARATOR.strtr($rel, '\\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+						} else {
+							$frombase = ''; //TODO abort
+						}
+					} else
+*/
+					if ($workerspath) {
 						//TODO validity check e.g. somewhere absolute in installer tree
-						$frombase = $filesfolder.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR;
+						$frombase = $workerspath.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR;
 					} else {
 						$frombase = '';
 					}
 
 					foreach ($typenode->children() as $node) {
+						$val = (string)$node->relto;
+						if ($val) {
+							$to = $tobase . strtr($val, '/', DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+						} else {
+							$to = $tobase;
+						}
 						$name = (string)$node->name;
 						if ((bool)$node->embedded) {
-							@file_put_contents($tobase.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
+							@file_put_contents($to.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
 						} else {
-							$from = (string)$node->frompath;
+							$from = (string)$node->relfrom;
 							if ($from) {
  								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
 									if ($frombase) {
@@ -1103,25 +1211,32 @@ parameters) VALUES (?,?,?,?)';
 							} else {
 								continue;
 							}
-							@copy($from.$name, $tobase.$name);
+							@copy($from.$name, $to.$name);
+							@touch($to.'index.html');
 						}
 					}
 					break;
 				case 'templatefiles':
 					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR;
-					if ($filesfolder) {
+					if ($workerspath) {
 						//TODO validity check e.g. somewhere absolute in installer tree
-						$frombase = $filesfolder.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR;
+						$frombase = $workerspath.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR;
 					} else {
 						$frombase = '';
 					}
 
 					foreach ($typenode->children() as $node) {
+						$val = (string)$node->relto;
+						if ($val) {
+							$to = $tobase . strtr($val, '/', DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+						} else {
+							$to = $tobase;
+						}
 						$name = (string)$node->name;
 						if ((bool)$node->embedded) {
-							@file_put_contents($tobase.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
+							@file_put_contents($to.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
 						} else {
-							$from = (string)$node->frompath;
+							$from = (string)$node->relfrom;
 							if ($from) {
  								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
 									if ($frombase) {
@@ -1138,25 +1253,32 @@ parameters) VALUES (?,?,?,?)';
 							} else {
 								continue;
 							}
-							@copy($from.$name, $tobase.$name);
+							@copy($from.$name, $to.$name);
+							@touch($to.'index.html');
 						}
 					}
 					break;
 				case 'stylefiles':
 					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR;
-					if ($filesfolder) {
+					if ($workerspath) {
 						//TODO validity check e.g. somewhere absolute in installer tree
-						$frombase = $filesfolder.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR;
+						$frombase = $workerspath.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR;
 					} else {
 						$frombase = '';
 					}
 
 					foreach ($typenode->children() as $node) {
+						$val = (string)$node->relto;
+						if ($val) {
+							$to = $tobase . strtr($val, '/', DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+						} else {
+							$to = $tobase;
+						}
 						$name = (string)$node->name;
 						if ((bool)$node->embedded) {
-							@file_put_contents($tobase.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
+							@file_put_contents($to.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
 						} else {
-							$from = (string)$node->frompath;
+							$from = (string)$node->relfrom;
 							if ($from) {
  								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
 									if ($frombase) {
@@ -1173,18 +1295,9 @@ parameters) VALUES (?,?,?,?)';
 							} else {
 								continue;
 							}
-							@copy($from.$name, $tobase.$name);
+							@copy($from.$name, $to.$name);
+							@touch($to.'index.html');
 						}
-					}
-					break;
-				case 'newscategories':
-					foreach ($typenode->children() as $node) {
-					//TODO must do this after modules are installed
-					}
-					break;
-				case 'newsitems':
-					foreach ($typenode->children() as $node) {
-					//TODO must do this after modules are installed
 					}
 					break;
 			} // node-name switch
@@ -1317,3 +1430,5 @@ content) VALUES (?,?,?,?)';
 
 	return $content_id;
 }
+
+return __NAMESPACE__;  //tell the includer where we are
