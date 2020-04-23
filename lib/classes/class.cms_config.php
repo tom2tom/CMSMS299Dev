@@ -1,5 +1,5 @@
 <?php
-#Class for handling configuration data
+#Class for handling system-configuration data
 #Copyright (C) 2008-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -23,7 +23,8 @@ use CMSMS\AppState;
 /**
  * A singleton class for interacting with CMSMS configuration data.
  *
- * This class uses the ArrayAccess interface to behave like a PHP array.
+ * This class implements PHP's ArrayAccess interface, so properties
+ * may be dealt with like array members.
  *
  * @final
  * @since 1.9
@@ -37,7 +38,7 @@ final class cms_config implements ArrayAccess
      * @ignore
      * Where to get advice on config settings
      */
-    private const HELPURL = 'https://docs.cmsmadesimple.org/configuration/config-file/config-reference';
+    private const CMS_CONFIGHELP_URL = 'https://docs.cmsmadesimple.org/configuration/config-file/config-reference';
 
     /**
      * @ignore
@@ -54,11 +55,11 @@ final class cms_config implements ArrayAccess
      */
     private const TYPE_BOOL = 'B';
 
-    private const KNOWN = [
+    private const PROPS = [
         'admin_dir' => self::TYPE_STRING,
         'admin_encoding' => self::TYPE_STRING,
         'admin_url' => self::TYPE_STRING,
-        'assets_dir' => self::TYPE_STRING,
+        'assets_dir' => self::TYPE_STRING, //deprecated since 2.9 see assets_{path,url}
         'assets_path' => self::TYPE_STRING,
         'assets_url' => self::TYPE_STRING,
         'auto_alias_content' => self::TYPE_BOOL,
@@ -91,7 +92,7 @@ final class cms_config implements ArrayAccess
         'secure_action_url' => self::TYPE_BOOL,
         'set_db_timezone' => self::TYPE_BOOL,
         'set_names' => self::TYPE_BOOL,
-        'simpletags_dir' => self::TYPE_STRING, //since 2.9 UDTfiles
+        'simpletags_path' => self::TYPE_STRING, //since 2.9 UDTfiles
         'timezone' => self::TYPE_STRING,
         'tmp_cache_location' => self::TYPE_STRING,
         'tmp_templates_c_location' => self::TYPE_STRING,
@@ -138,137 +139,10 @@ final class cms_config implements ArrayAccess
     {
         if( !self::$_instance ) {
             self::$_instance = new self();
-
-            // populate from file
-            self::$_instance->load_config();
+            // initialize settings, if possible
+            self::$_instance->load();
         }
         return self::$_instance;
-    }
-
-    /**
-     * @ignore
-     */
-    private function calculate_request_hostname()
-    {
-        if( $_SERVER['HTTP_HOST'] === $_SERVER['SERVER_NAME'] ) return $_SERVER['SERVER_NAME'];
-
-        // $_SERVER['HTTP_HOST'] can be spoofed... so if a root_url is not specified
-        // we determine if the requested host is in a whitelist.
-        // if all else fails, we use $_SERVER['SERVER_NAME']
-        $whitelist = (isset($this['host_whitelist'])) ? $this['host_whitelist'] : null;
-        if( !$whitelist ) return $_SERVER['SERVER_NAME'];
-        $requested = $_SERVER['HTTP_HOST'];
-
-        $out = null;
-        if( is_callable($whitelist) ) {
-            $out = call_user_func($whitelist,$requested);
-        }
-        else if( is_array($whitelist) ) {
-            // could use array_search here, but can't rely on the quality of the input (empty strings, whitespace etc).
-            for( $i = 0, $n = count($whitelist); $i < $n; $i++ ) {
-                $item = $whitelist[$i];
-                if( !is_string($item) ) continue;
-                if( !$item ) continue;
-                if( strcasecmp($requested,$item) == 0 ) {
-                    $out = $item;
-                    break;
-                }
-            }
-        }
-        else if( is_string($whitelist) ) {
-            $whitelist = explode(',',$whitelist);
-            // could use array_search here, but can't rely on the quality of the input (empty strings, whitespace etc).
-            for( $i = 0, $n = count($whitelist); $i < $n; $i++ ) {
-                $item = $whitelist[$i];
-                if( !is_string($item) ) continue;
-                $item = strtolower(trim($item));
-                if( !$item ) continue;
-                if( strcasecmp($requested,$item) == 0 ) {
-                    $out = $item;
-                    break;
-                }
-            }
-        }
-        if( !$out ) {
-            trigger_error('HTTP_HOST attack prevention: The host value of '.$requested.' is not whitelisted.  Using '.$_SERVER['SERVER_NAME']);
-            $out = $_SERVER['SERVER_NAME'];
-        }
-        return $out;
-    }
-
-    /**
-     * @ignore
-     */
-    private function load_config()
-    {
-        $config = [];
-        if (defined('CONFIG_FILE_LOCATION') && is_file(CONFIG_FILE_LOCATION)) {
-            include CONFIG_FILE_LOCATION;
-            foreach( $config as $key => &$value ) {
-                if( isset(self::KNOWN[$key]) ) {
-                    switch( self::KNOWN[$key] ) {
-                    case self::TYPE_STRING:
-                        switch( $key ) {
-                        case 'assets_path':
-                        case 'image_uploads_path':
-                        case 'public_cache_location':
-                        case 'root_path':
-                        case 'tmp_cache_location':
-                        case 'tmp_templates_c_location':
-                        case 'uploads_path':
-                            $value = rtrim($value,' /\\');
-                            break;
-                        case 'admin_url':
-                        case 'assets_url':
-                        case 'image_uploads_url':
-                        case 'public_cache_url':
-                        case 'root_url':
-                        case 'uploads_url':
-                            $value = rtrim($value,' /');
-                            break;
-                        case 'admin_dir':
-                        case 'assets_dir':
-                        case 'simpletags_dir':
-                            $value = strtr($value, ['\\' => '','/' => '',' ' => '_']);
-                            break;
-                        }
-                        $value = trim($value);
-                        break;
-
-                    case self::TYPE_BOOL:
-                        $value = cms_to_bool($value);
-                        break;
-
-                    case self::TYPE_INT:
-                        $value = (int)$value;
-                        break;
-                    }
-                }
-            }
-            unset($value);
-            //we will always get these from INI
-            unset($config['max_upload_size']);
-            unset($config['upload_max_filesize']);
-        }
-
-        $this->_data = $config;
-    }
-
-    /**
-     * @ignore
-     * @internal
-     * @access private
-     */
-    public function merge($newconfig)
-    {
-        if( !is_array($newconfig) ) return;
-
-        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
-            trigger_error('Modification of config variables is deprecated',E_USER_ERROR);
-            return;
-        }
-
-        $this->_data = array_merge($this->_data,$newconfig);
     }
 
     /**
@@ -277,7 +151,7 @@ final class cms_config implements ArrayAccess
      */
     public function offsetExists($key)
     {
-        return isset(self::KNOWN[$key]) || isset($this->_data[$key]);
+        return isset(self::PROPS[$key]) || isset($this->_data[$key]); //TODO de we want to allow 'foreign' parameters in there?
     }
 
     /**
@@ -364,29 +238,40 @@ final class cms_config implements ArrayAccess
             return $str;
 
         case 'root_url':
-            if( !isset($_SERVER['HTTP_HOST']) ) return;
+            if( !isset($_SERVER['HTTP_HOST']) ) { return ''; }
             $parts = parse_url($_SERVER['PHP_SELF']);
-            $path = '';
             if( !empty($parts['path']) ) {
-                $path = dirname($parts['path']);
-                if( endswith($path,'install') ) {
-                    $path = substr($path,0,strlen($path)-strlen('install')-1);
-                }
-                elseif( endswith($path,$this->offsetGet('admin_dir')) ) {
-                    $path = substr($path,0,strlen($path)-strlen($this->offsetGet('admin_dir'))-1);
-                }
-                else {
-                    $lseg = DIRECTORY_SEPARATOR.'lib';
-                    if( strstr($path,$lseg) !== false ) {
-                        while( strstr($path,$lseg) !== false ) {
-                            $path = dirname($path);
-                        }
+                $path = rtrim($parts['path'],' /');
+//              if( ($pos = strrpos($path, '/')) !== false ) { $path = substr($path,0,$pos); }
+                $str = $this->offsetGet('admin_dir');
+                if( ($pos = stripos($path,'/'.$str.'/')) !== false ) { $path = substr($path,0,$pos); }
+                if( ($pos = stripos($path,'/index.php')) !== false ) { $path = substr($path,0,$pos); }
+                elseif( ($pos = stripos($path,'install/')) !== false ) {
+                    if( ($pos2 = strrpos($path, '/', $pos-strlen($path))) !== false ) {
+                        $path = substr($path,0,$pos2);
+                    }
+                    else {
+                        $path = substr($path,0,$pos);
                     }
                 }
-                while(endswith($path, DIRECTORY_SEPARATOR)) {
-                    $path = substr($path,0,strlen($path)-1);
+                elseif( ($pos = stripos($path,'installer/')) !== false ) {
+                    if( ($pos2 = strrpos($path, '/', $pos-strlen($path))) !== false ) {
+                        $path = substr($path,0,$pos2);
+                    }
+                    else {
+                        $path = substr($path,0,$pos);
+                    }
                 }
-                if( ($pos = strpos($path,DIRECTORY_SEPARATOR.'index.php')) !== false ) $path = substr($path,0,$pos);
+                elseif( ($pos = strpos($path,'/lib')) !== false ) {
+                    do {
+                        $path = substr($path,0,$pos);
+                    } while ( ($pos = strpos($path,'/lib')) !== false );
+                }
+//              else {}
+                $path = rtrim($path,' /');
+            }
+            else {
+                $path = '';
             }
             //TODO generally support the websocket protocol
             if(!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') { //c.f. CmsApp::get_instance()->is_https_request() but CmsApp N/A at this stage
@@ -417,10 +302,12 @@ final class cms_config implements ArrayAccess
             return $this->offsetGet('root_url');
 
         case 'uploads_path':
+            //TODO $this->url2path();
             $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'uploads');
             return $this->_cache[$key];
 
         case 'uploads_url':
+            //TODO $this->path2url();
             $this->_cache[$key] = $this->offsetGet('root_url').'/uploads';
             return $this->_cache[$key];
 
@@ -429,10 +316,12 @@ final class cms_config implements ArrayAccess
             return $this->offsetGet('uploads_url');
 
         case 'image_uploads_path':
+            //TODO $this->url2path();
             $this->_cache[$key] = cms_join_path($this->offsetGet('uploads_path'),'images');
             return $this->_cache[$key];
 
         case 'image_uploads_url':
+            //TODO $this->path2url();
             $this->_cache[$key] = $this->offsetGet('uploads_url').'/images';
             return $this->_cache[$key];
 
@@ -456,24 +345,29 @@ final class cms_config implements ArrayAccess
 //        case 'develop_mode':
 //            return false; c.f. default return null
 
-        case 'timezone':
-            return 'UTC';
-
         case 'assets_dir':
+            assert(empty(CMS_DEPREC), new DeprecationNotice('property', 'assets_path'));
             return 'assets';
 
         case 'assets_path':
-            $this->_cache[$key] = cms_join_path($this->OffsetGet('root_path'),$this->OffsetGet('assets_dir'));
+            //TODO $this->url2path();
+            $this->_cache[$key] = cms_join_path($this->OffsetGet('root_path'),'assets');
             return $this->_cache[$key];
 
         case 'assets_url':
+            //TODO $this->path2url();
             $this->_cache[$key] = $this->offsetGet('root_url').'/'.$this->offsetGet('assets_dir');
             return $this->_cache[$key];
 
         case 'db_port':
-            return (!empty($this->_cache[$key]) || is_numeric($this->_cache[$key])) ? (int)$this->_cache[$key] : '';
+            if( isset($this->_cache[$key]) && is_numeric($this->_cache[$key]) ) {
+                return (int)$this->_cache[$key];
+            }
+            return null;
 
-        case 'max_upload_size':
+        case 'max_upload_size': //deprecated since 2.9
+            assert(empty(CMS_DEPREC), new DeprecationNotice('property', 'upload_max_filesize'));
+            // no break here
         case 'upload_max_filesize':
             $this->_cache[$key] = $this->get_upload_size();
             return $this->_cache[$key];
@@ -487,6 +381,9 @@ final class cms_config implements ArrayAccess
         case 'page_extension':
             return '';
 
+        case 'timezone':
+            return 'UTC';
+
         case 'locale':
             return '';
 
@@ -498,162 +395,357 @@ final class cms_config implements ArrayAccess
             return 'xhtml';
 
         case 'admin_path':
+            //TODO $this->url2path();
             $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),$this->offsetGet('admin_dir'));
             return $this->_cache[$key];
 
         case 'admin_url':
+            //TODO $this->path2url();
             $this->_cache[$key] = $this->offsetGet('root_url').'/'.$this->offsetGet('admin_dir');
             return $this->_cache[$key];
 
         case 'css_path': // since 2.9 officially the same as tmp_cache_location, instead of relying on public == tmp
+            //TODO $this->url2path();
             return $this->offsetGet('tmp_cache_location');
 
         case 'css_url':
+            //TODO $this->path2url();
             $len = strlen($this->offsetGet('root_path'));
             $str = substr($this->offsetGet('tmp_cache_location'), $len);
             $this->_cache[$key] = $this->offsetGet('root_url') . strtr($str, '\\', '/');
+            return $this->_cache[$key];
+
+        case 'public_cache_location':
+            //TODO $this->url2path();
+            $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','cache','public');
+            return $this->_cache[$key];
+
+        case 'public_cache_url':
+            //TODO $this->path2url();
+            $this->_cache[$key] = $this->offsetGet('root_url').'/tmp/cache/public';
             return $this->_cache[$key];
 
         case 'tmp_cache_location':
             $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','cache');
             return $this->_cache[$key];
 
-        case 'public_cache_location':
-            $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','cache','public');
-            return $this->_cache[$key];
-
-        case 'public_cache_url':
-            $this->_cache[$key] = $this->offsetGet('root_url').'/tmp/cache/public';
-            return $this->_cache[$key];
-
         case 'tmp_templates_c_location':
             $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','templates_c');
             return $this->_cache[$key];
 
-        case 'simpletags_dir':
-            return 'simple_plugins';
+        case 'simpletags_path':
+            $this->_cache[$key] = cms_join_path($this->OffsetGet('assets_path'),'simple_plugins');
+            return $this->_cache[$key];
 
         default:
-            // not a mandatory key for the config.php file... and one we don't understand.
-            return null;
+            return null; // a key that we can't autofill
         }
     }
 
     /**
-     * interface method
+     * interface method, use of which is deprecated since 2.9
+     * instead supply install-time settings directly : cms_config::get_instance($config)
      * @ignore
      */
     public function offsetSet($key,$value)
     {
-        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
-            trigger_error('Modification of config variables is deprecated',E_USER_ERROR);
-            return;
-        }
-        $this->_data[$key] = $value;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('Direct setting of a config property is not supported'));
     }
 
     /**
-     * interface method
+     * interface method, use of which is deprecated since 2.9
+     * instead supply install-time settings directly : cms_config::get_instance($config)
      * @ignore
      */
     public function offsetUnset($key)
     {
-        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
-            trigger_error('Unsetting config variable '.$key.' is invalid',E_USER_ERROR);
-            return;
-        }
-        unset($this->_data[$key]);
+        assert(empty(CMS_DEPREC), new DeprecationNotice('Direct removal of a config property is not supported'));
     }
 
     /**
      * @ignore
-     * Retrieve the maximum file upload size (in bytes)
      */
-    private function get_upload_size()
+    private function url2path(string $urlkey, string $pathkey, string $default) : string
+    {
+        return 'TODO';
+    }
+
+    /**
+     * @ignore
+     */
+    private function path2url2(string $pathkey, string $urlkey, string $default) : string
+    {
+        return 'TODO';
+    }
+
+    /**
+     * @ignore
+     */
+    private function calculate_request_hostname()
+    {
+        if( $_SERVER['HTTP_HOST'] === $_SERVER['SERVER_NAME'] ) return $_SERVER['SERVER_NAME'];
+
+        // $_SERVER['HTTP_HOST'] can be spoofed... so if a root_url is not specified
+        // we determine if the requested host is in a whitelist.
+        // if all else fails, we use $_SERVER['SERVER_NAME']
+        $whitelist = (isset($this['host_whitelist'])) ? $this['host_whitelist'] : null;
+        if( !$whitelist ) return $_SERVER['SERVER_NAME'];
+        $requested = $_SERVER['HTTP_HOST'];
+
+        $out = null;
+        if( is_callable($whitelist) ) {
+            $out = call_user_func($whitelist,$requested);
+        }
+        else if( is_array($whitelist) ) {
+            // could use array_search here, but can't rely on the quality of the input (empty strings, whitespace etc).
+            for( $i = 0, $n = count($whitelist); $i < $n; $i++ ) {
+                $item = $whitelist[$i];
+                if( !is_string($item) ) continue;
+                if( !$item ) continue;
+                if( strcasecmp($requested,$item) == 0 ) {
+                    $out = $item;
+                    break;
+                }
+            }
+        }
+        else if( is_string($whitelist) ) {
+            $whitelist = explode(',',$whitelist);
+            // could use array_search here, but can't rely on the quality of the input (empty strings, whitespace etc).
+            for( $i = 0, $n = count($whitelist); $i < $n; $i++ ) {
+                $item = $whitelist[$i];
+                if( !is_string($item) ) continue;
+                $item = strtolower(trim($item));
+                if( !$item ) continue;
+                if( strcasecmp($requested,$item) == 0 ) {
+                    $out = $item;
+                    break;
+                }
+            }
+        }
+        if( !$out ) {
+            trigger_error('HTTP_HOST attack prevention: The host value of '.$requested.' is not whitelisted.  Using '.$_SERVER['SERVER_NAME']);
+            $out = $_SERVER['SERVER_NAME'];
+        }
+        return $out;
+    }
+
+    /**
+     * Return the maximum file upload size (in bytes)
+     * @ignore
+     */
+    private function get_upload_size() : int
     {
         $maxFileSize = ini_get('upload_max_filesize');
-        if (!is_numeric($maxFileSize)) {
-            $l=strlen($maxFileSize);
-            $i=0;$ss='';$x=0;
-            while ($i < $l) {
-                if (is_numeric($maxFileSize[$i])) {
+        if( !is_numeric($maxFileSize) ) {
+            $l = strlen($maxFileSize);
+            $i = 0; $ss = ''; $x = 0;
+            while( $i < $l ) {
+                if( is_numeric($maxFileSize[$i]) ) {
                     $ss .= $maxFileSize[$i];
                 }
                 else {
-                    if (strtolower($maxFileSize[$i]) == 'g') $x=1000000000;
-                    if (strtolower($maxFileSize[$i]) == 'm') $x=1000000;
-                    if (strtolower($maxFileSize[$i]) == 'k') $x=1000;
+                    $c = strtolower($maxFileSize[$i]);
+                    if( $c == 'g' ) { $x = 1000000000; }
+                    elseif( $c == 'm' ) { $x = 1000000; }
+                    elseif( $c == 'k' ) { $x = 1000; }
                 }
                 $i++;
             }
-            $maxFileSize=$ss;
-            if ($x >0) $maxFileSize = $ss * $x;
+            if( $x == 0 ) { return (int)$ss; }
+            else { return ($ss * $x); }
+        }
+        elseif( $maxFileSize ) {
+            return (int)maxFileSize;
         }
         else {
-            $maxFileSize = 1000000;
+            return 1000000;
         }
-        return $maxFileSize;
     }
 
     /**
+     * Return a config-file-friendly version of $value
      * @ignore
+     * @param string $key
+     * @param mixed $value int | bool | string | null
+     * @return string
      */
-    private function _printable_value(string $key,$value) : string
+    private function _printable_value(string $key, $value) : string
     {
-        if( isset(self::KNOWN[$key]) ) $type = self::KNOWN[$key];
-        else $type = self::TYPE_STRING;
+        if( isset(self::PROPS[$key]) ) { $type = self::PROPS[$key]; }
+        else { $type = self::TYPE_STRING; }
 
-        $str = '';
         switch( $type ) {
         case self::TYPE_STRING:
-            $str = "'".$value."'";
-            break;
-
+            return "'".$value."'";
         case self::TYPE_BOOL:
-            $str = ($value)?'true':'false';
-            break;
-
+            return ( $value )?'true':'false';
         case self::TYPE_INT:
-            $str = (int)$value;
-            break;
+            if( $value !== null ) return (int)$value;
+            // no break here
+        default:
+            return '';
         }
-        return $str;
     }
 
     /**
-     * Save the current state of the config.php file in TMP_CACHE_LOCATION.
-     * Any existing file is backed up before overwriting.
+     * Sanitize and [re]populate configuration properties
+     * @access private
+     * @ignore
+     * @param array $config Optional config parameters. Default [].
+     *  Ignored unless installer is running.
+     */
+    private function load(array $config = [])
+    {
+        if( defined('CONFIG_FILE_LOCATION') && is_file(CONFIG_FILE_LOCATION) ) {
+            $config = [];
+            include_once CONFIG_FILE_LOCATION;
+        }
+        elseif( !AppState::test_state(AppState::STATE_INSTALL) || !$config) {
+            $this->_data = [];
+            return;
+        }
+
+        foreach( $config as $key => &$value ) {
+            if( isset(self::PROPS[$key]) ) {
+                switch( self::PROPS[$key] ) {
+                case self::TYPE_STRING:
+                    switch( $key ) {
+                    case 'root_path':
+                        $value = strtr(rtrim($value,' /\\'), '/\\ ', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR.'_');
+                        break 2;
+                    case 'simpletags_path':
+                    case 'tmp_cache_location':
+                    case 'tmp_templates_c_location':
+                        // root-relative, no leading separator
+                        $value = strtr(trim($value,' /\\'), '/\\ ', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR.'_');
+                        break 2;
+                    case 'assets_path':
+                    case 'image_uploads_path':
+                    case 'public_cache_location':
+                    case 'uploads_path':
+                        // root-relative, no leading separator
+                        $tmp = strtr(trim($value, ' /\\'), '\\ ', '/_');
+                        $tmp = filter_var($tmp, FILTER_SANITIZE_URL);
+                        $value = strtr($tmp, '/', DIRECTORY_SEPARATOR);
+                        break 2;
+                    case 'admin_url':
+                    case 'assets_url':
+                    case 'image_uploads_url':
+                    case 'public_cache_url':
+                    case 'root_url':
+                    case 'uploads_url':
+                        $value = filter_var(rtrim($value,' /'), FILTER_SANITIZE_URL);
+                        break 2;
+                    case 'admin_dir':
+                    case 'assets_dir': // deprecated since 2.9 use assets_path
+                        $value = strtr(trim($value, ' /\\'), ['\\' => '', '/' => '', ' ' => '_']);
+                        break 2;
+                    default:
+                        $value = trim($value);
+                        break 2;
+                    }
+                    // no break here
+
+                case self::TYPE_BOOL:
+                    $value = cms_to_bool($value);
+                    break;
+
+                case self::TYPE_INT:
+                    switch( $key ) {
+                    case 'db_port':
+                        // port 0 is 'reserved' - probably also invalid in this context
+                        if( !is_numeric($value) || $value < 0 ) {
+                            unset($config[$key]);
+                            break;
+                        }
+                    // no break here
+                    default:
+                        $value = (int)$value;
+                        break;
+                    }
+                }
+            }
+            unset($value);
+            // always retrieve these from php.ini
+            unset($config['max_upload_size']); // deprecated, not an ini setting
+            unset($config['upload_max_filesize']);
+        }
+
+        $this->_data = $config;
+    }
+
+    /**
+     * If the installer is running, merge the supplied config settings
+     * into the current config (if any)
+     * @ignore
+     * @internal
+     * @param array $newconfig config parameters to be processed
+     */
+    public function merge(array $newconfig)
+    {
+        if( AppState::test_state(AppState::STATE_INSTALL) ) {
+            $this->load($newconfig + ($this->_data ?? []));
+        }
+    }
+
+    /**
+     * Save a config.php file reflecting current config parameters.
+     * Any existing file of the same name is backed up into the same
+     * folder as $filename.
+     * This method might be called when the installer is running, and
+     * other CMSMS infrastructure is not accessible.
      *
-     *
-     * @param bool $verbose indicates whether comments should be stored in the config.php file.
-     * @param string $filename An optional complete file specification.  If not specified the standard config file location will be used.
+     * @param bool $verbose Optional flag whether to include extra
+     *  comments in the saved file. Default true.
+     * @param string $filename Optional absolute filepath. Default ''.
+     *  If empty, the standard config file path, or 'config.php' in
+     *  the grandparent of this file's folder, will be used.
+     * @throws RuntimeException if the folder to contain the file does not exist
      */
     public function save(bool $verbose = true, string $filename = '')
     {
         if( !$filename ) {
-            $filename = CONFIG_FILE_LOCATION;
+            $filename = constant('CONFIG_FILE_LOCATION');
+            if( !$filename ) {
+                $filename = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'config.php';
+            }
         }
-
-        // backup the original config.php file (just in case)
+//      elseif( !preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename) ) { //not absolute
+//          $filename = somebasepath.DIRECTORY_SEPARATOR.$filename;
+//      }
+        if( !is_dir(dirname($filename)) ) {
+            throw new RuntimeException('Configuration file location is invalid');
+        }
+        // backup the current version, if any and possible
         if( is_file($filename) ) {
-            @copy($filename, cms_join_path(PUBLIC_CACHE_LOCATION, basename($filename).time().'.bak'));
+            $str = gmdate('-Ymd-His', @filemtime($filename)).'.bak';
+            $path = dirname($filename).DIRECTORY_SEPARATOR.basename($filename, '.php').$str;
+            if( @copy($filename, $path) ) {
+                @chmod($path, 0440);
+            }
+            else {
+                throw new RuntimeException('Configuration file backup failed');
+            }
         }
 
-        $u = self::HELPURL;
-        $output = <<<EOS
-<?php
+        $output = "<?php\n";
+        if( $verbose ) {
+            $u = self::CMS_CONFIGHELP_URL;
+            $output .= <<<EOS
 // CMS Made Simple system configuration parameters
 // Details are at $u
-// PROTECT THIS FILE AGAINST INVALID INSPECTION OR CHANGE !
 
 EOS;
+        }
+        $output .= "// PROTECT THIS FILE AGAINST INVALID INSPECTION OR CHANGE !\n";
         ksort ($this->_data);
         foreach( $this->_data as $key => $value ) {
             $outvalue = $this->_printable_value($key, $value);
-            $output .= "\$config['$key'] = $outvalue;\n";
+            if( $outvalue !== '' ) {
+                $output .= "\$config['$key'] = $outvalue;\n";
+            }
         }
-
-        // and write it.
+        // write the [new] version
         $fh = fopen($filename, 'w');
         if( $fh ) {
             fwrite($fh, $output);
@@ -672,6 +764,7 @@ EOS;
      */
     public function smart_root_url() : string
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('property','root_url'));
         return $this->offsetGet('root_url');
     }
 
@@ -683,6 +776,7 @@ EOS;
      */
     public function smart_uploads_url() : string
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('property','uploads_url'));
         return $this->offsetGet('uploads_url');
     }
 
@@ -694,6 +788,7 @@ EOS;
      */
     public function smart_image_uploads_url() : string
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('property','image_uploads_url'));
         return $this->offsetGet('image_uploads_url');
     }
 } // class
