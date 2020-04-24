@@ -116,51 +116,51 @@ try {
         $tpl->save();
     }
 
-	if( $newsite ) { //TODO also check for demo-content installation
-		$extras = [];
-		try {
-			$fn = cms_join_path(__DIR__,'templates','Simplex_Main_Navigation.tpl');
-			if( is_file($fn) ) {
-				$content = @file_get_contents($fn);
-				$tpl = new CmsLayoutTemplate();
-				$tpl->set_originator($me);
-				$tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Main Navigation'));
-				$tpl->set_owner($uid);
-				$tpl->set_content($content);
-				$tpl->set_type($menu_type);
-				$tpl->save();
-				$extras[] = $tpl->get_id();
-			}
+    if( $newsite ) { //TODO also check for demo-content installation
+        $extras = [];
+        try {
+            $fn = cms_join_path(__DIR__,'templates','Simplex_Main_Navigation.tpl');
+            if( is_file($fn) ) {
+                $content = @file_get_contents($fn);
+                $tpl = new CmsLayoutTemplate();
+                $tpl->set_originator($me);
+                $tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Main Navigation'));
+                $tpl->set_owner($uid);
+                $tpl->set_content($content);
+                $tpl->set_type($menu_type);
+                $tpl->save();
+                $extras[] = $tpl->get_id();
+            }
 
-			$fn = cms_join_path(__DIR__,'templates','Simplex_Footer_Navigation.tpl');
-			if( is_file($fn) ) {
-				$content = @file_get_contents($fn);
-				$tpl = new CmsLayoutTemplate();
-				$tpl->set_originator($me);
-				$tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Footer Navigation'));
-				$tpl->set_owner($uid);
-				$tpl->set_content($content);
-				$tpl->set_type($menu_type);
-				$tpl->save();
-				$extras[] = $tpl->get_id();
-			}
-		}
-		catch( Exception $e ) {
-			// if we got here, it's prolly because default content was not installed.
-			audit('',$me,'Installation Error: '.$e->GetMessage());
-		}
+            $fn = cms_join_path(__DIR__,'templates','Simplex_Footer_Navigation.tpl');
+            if( is_file($fn) ) {
+                $content = @file_get_contents($fn);
+                $tpl = new CmsLayoutTemplate();
+                $tpl->set_originator($me);
+                $tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Footer Navigation'));
+                $tpl->set_owner($uid);
+                $tpl->set_content($content);
+                $tpl->set_type($menu_type);
+                $tpl->save();
+                $extras[] = $tpl->get_id();
+            }
+        }
+        catch( Exception $e ) {
+            // if we got here, it's prolly because default content was not installed.
+            audit('',$me,'Installation Error: '.$e->GetMessage());
+        }
 
-		if( $extras ) {
-			try {
-				$ob = CmsLayoutTemplateCategory::load('Simplex');
-				$ob->add_members($extras);
-				$ob->save();
-			}
-			catch( Throwable $t) {
-				//if modules are installed before demo content, that group won't yet exist
-			}
-		}
-	}
+        if( $extras ) {
+            try {
+                $ob = CmsLayoutTemplateCategory::load('Simplex');
+                $ob->add_members($extras);
+                $ob->save();
+            }
+            catch( Throwable $t) {
+                //if modules are installed before demo content, that group won't yet exist
+            }
+        }
+    }
 
     $fn = cms_join_path(__DIR__,'templates','dflt_breadcrumbs.tpl');
     if( is_file($fn) ) {
@@ -176,9 +176,9 @@ try {
     }
 }
 catch( Exception $e ) {
-	debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
-	audit('',$me,'Installation Error: '.$e->GetMessage());
-	return $e->GetMessage();
+    debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
+    audit('',$me,'Installation Error: '.$e->GetMessage());
+    return $e->GetMessage();
 }
 
 // register plugins
