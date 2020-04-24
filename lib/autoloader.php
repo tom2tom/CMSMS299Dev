@@ -222,7 +222,6 @@ function get_forward_classes()
 	'CMSMS\Config' => 'cms_config',
 	'CMSMS\ContentTree' => 'cms_content_tree',
 	'CMSMS\Cookies' => 'cms_cookies',
-	'CMSMS\CoreCapabilities' => 'CmsCoreCapabilities',
 	'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
 	'CMSMS\FileSystemProfile' => 'CMSMS\FilePickerProfile',
 	'CMSMS\HookOperations' => 'CMSMS\HookManager',
