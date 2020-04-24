@@ -421,6 +421,7 @@ if (defined('STDOUT') && $_outfile == STDOUT) {
     }
     info('Copy manifest to '.$file);
     copy($_tmpfile, $file);
+    chmod($file, 0640);
 }
 
 if ($_writecfg) {
@@ -655,6 +656,7 @@ function write_config_file(array $config_data, string $filename)
     }
     fwrite($fh, "\n");
     fclose($fh);
+    chmod($filename, 0640);
 }
 
 function get_config_file() : string
