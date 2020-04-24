@@ -445,11 +445,12 @@ function copy_local_files()
     foreach ([/*'templates','css',*/'simple_plugins'] as $name) {
         @rrmdir($fp2.$name, false, true);
     }
+
     $dh = opendir($sourcedir);
     while (($fn = readdir($dh)) !== false) {
         $fp2 = $fp.$fn;
-        if (!is_dir($fp2)) {
-            unlink ($fp2);
+        if (!($fn == 'index.php' || is_dir($fp2))) {
+            unlink($fp2);
         }
     }
     closedir($dh);
