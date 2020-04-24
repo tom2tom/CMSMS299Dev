@@ -144,7 +144,7 @@ if ($list) {
   $('[name="{$id}apply"]').on('click', function(ev) {
     ev.preventDefault();
     if(typeof tinyMCE !== 'undefined') {
-      tinyMCE.triggerSave(); TODO a general API, to migrate editor-content into an input-element to be saved
+      tinyMCE.triggerSave(); //TODO a general API, to migrate editor-content into an input-element to be saved
     }
     var fm = $('form'),
        url = fm.attr('action'),

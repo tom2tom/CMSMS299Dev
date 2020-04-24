@@ -188,7 +188,7 @@ try {
     $was_defaultcontent = $content_obj->DefaultContent();
     if( strtoupper($_SERVER['REQUEST_METHOD']) == 'POST' ) {
         // if we're in a POST action, another item may have changed that requires reloading the page
-        // filling the prperties from supplied params will make sure that no edited content was lost.
+        // filling the properties from supplied params will ensure that no edited content gets lost.
         $content_obj->FillParams($params,($content_id > 0));
     }
 
@@ -437,7 +437,7 @@ EOS;
 if ($preview_url) {
     $js .= <<<EOS
   $('#_preview_').on('click', function() {
-    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } TODO a general API, to migrate editor-content into an input-element to be saved
+    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } //TODO a general API, to migrate editor-content into an input-element to be saved
     var params = [{
       name: '{$id}ajax',
       value: 1
@@ -526,7 +526,7 @@ EOS;
   // handle apply (via ajax)
   $('[name$="apply"]').on('click', function() {
     // apply does not do an unlock
-    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } TODO a general API, to migrate editor-content into an input-element to be saved
+    if (typeof tinyMCE !== 'undefined') { tinyMCE.triggerSave(); } //TODO a general API, to migrate editor-content into an input-element to be saved
     var params = [{
       name: '{$id}ajax',
       value: 1
