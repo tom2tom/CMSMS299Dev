@@ -33,6 +33,7 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
     public function GetName() { return 'CoreAdminLogin'; }
     public function GetVersion() { return '0.2'; }
     public function IsAdminOnly() { return true; }
+    public function MinimumCMSVersion() { return '2.8.900'; }
 
     public function GetChangeLog()
     {
@@ -49,11 +50,14 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
         switch ($capability) {
             case CmsCoreCapabilities::CORE_MODULE:
             case CmsCoreCapabilities::LOGIN_MODULE:
+            case CmsCoreCapabilities::SITE_PREFERENCER:
                 return true;
             default:
                 return false;
         }
     }
+
+	//TODO hook function to populate 'centralised' site settings update
 
     // interface methods
 

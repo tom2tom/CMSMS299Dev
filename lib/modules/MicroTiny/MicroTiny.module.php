@@ -35,7 +35,7 @@ class MicroTiny extends CMSModule
   public function IsPluginModule() { return true; } //deprecated
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
-  public function MinimumCMSVersion() { return '2.2.900'; }
+  public function MinimumCMSVersion() { return '2.8.900'; }
   public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
   public function WYSIWYGGenerateHeader($selector = '',$cssname = '')
@@ -49,10 +49,15 @@ class MicroTiny extends CMSModule
       case CmsCoreCapabilities::CORE_MODULE:
       case CmsCoreCapabilities::PLUGIN_MODULE:
       case CmsCoreCapabilities::WYSIWYG_MODULE:
+      case CmsCoreCapabilities::SITE_PREFERENCER:
+      case CmsCoreCapabilities::USER_PREFERENCER:
         return TRUE;
     }
     return FALSE;
   }
+
+  //TODO hook functions to populate 'centralised' site and user settings update
+
 } // class
 
 /**

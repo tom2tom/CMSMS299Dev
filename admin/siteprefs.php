@@ -465,16 +465,20 @@ if ($tmp) {
 }
 
 /*
- * TODO run a hooklist to retrieve site-settings derived from modules etc
- * a module capability for this (in case not currently loaded)
- * collect:
- * prefgroup name | default = ?
- * prefgroup order |     default as-reported
- * prefname
- * publictitle
- * publichelp
- * validation stuff
- */
+TODO run a hooklist to retrieve UI for site-settings derived from modules
+having CmsCoreCapabilities::SITE_PREFERENCER
+Load such modules if not already done
+Run the list, to collect:
+* prefgroup name | default = ?
+* intra-prefgroup order | default as-reported
+* prefname
+* publictitle
+* public on-page guide &\| onclick popup help
+* input type
+* js
+(OR just produce all the content as a package for passing direct to smarty
+  akin to file-selector )
+*/
 
 /**
  * Build page

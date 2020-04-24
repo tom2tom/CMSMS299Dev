@@ -36,7 +36,7 @@ class SyntaxEditing extends CMSModule //implements CMSMS\MultiEditor 2.3 interfa
     public function IsAdminOnly() { return true; }
     public function LazyLoadAdmin() { return true; } //deprecated 2.3
     public function LazyLoadFrontend() { return true; } //ditto
-    public function MinimumCMSVersion() { return '2.2'; }
+    public function MinimumCMSVersion() { return '2.8.900'; }
 //    public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
 //    public function UninstallPreMessage() { return $this->Lang('confirm_uninstall'); }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
@@ -66,8 +66,17 @@ class SyntaxEditing extends CMSModule //implements CMSMS\MultiEditor 2.3 interfa
 
     public function HasCapability($capability, $params = [])
     {
-        return $capability == CmsCoreCapabilities::SYNTAX_MODULE;
+        switch ($capability) {
+            case CmsCoreCapabilities::SYNTAX_MODULE:
+            case CmsCoreCapabilities::USER_PREFERENCER:
+            case CmsCoreCapabilities::SITE_PREFERENCER:
+                return true;
+            default:
+                return false;
+        }
     }
+
+    //TODO hook functions to populate 'centralised' site and user settings update
 
     /**
      * Generate page-header content needed to run syntax-highlighter(s) in an admin page.

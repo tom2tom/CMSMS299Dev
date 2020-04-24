@@ -38,7 +38,7 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 	public function IsAdminOnly() { return true; }
 //	public function LazyLoadAdmin() { return true; }
 //	public function LazyLoadFrontend() { return true; }
-	public function MinimumCMSVersion() { return '2.2.910'; }
+	public function MinimumCMSVersion() { return '2.8.900'; }
 	public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
 	public function GetHelp()
@@ -62,17 +62,21 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 	{
 		switch ($capability) {
 			case CmsCoreCapabilities::CORE_MODULE:
-			case CmsCoreCapabilities::SYNTAX_MODULE;
+			case CmsCoreCapabilities::SYNTAX_MODULE:
+			case CmsCoreCapabilities::SITE_PREFERENCER:
+			case CmsCoreCapabilities::USER_PREFERENCER:
 				return true;
 			default:
 				return false;
 		}
 	}
 
+	//TODO hook functions to populate 'centralised' site and user settings update
+
 	/**
 	 * Generate page-header content needed to run syntax-highlighter(s) in an admin page.
 	 * Does nothing for frontend pages.
-     * This is a CMSModule method for SYNTAX_MODULE modules
+	 * This is a CMSModule method for SYNTAX_MODULE modules
 	 * @return string always empty
 	 */
 	public function SyntaxGenerateHeader() //: string
@@ -150,16 +154,16 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 		return $this->editors;
 	}
 
-    /* *
-     * @return array
-     */
+	/* *
+	 * @return array
+	 */
 /*    public function ShowEditors() : array
-    {
+	{
 		$names = $this->ListEditors();
 		if ($names) {
 			array_flip ($names);
 			foreach ($names as $val => $editor) {
-	            $n = strtolower($editor);
+				$n = strtolower($editor);
 				$names[$val] = $this->Lang($n.'_friendlyname');
 			}
 		}

@@ -38,6 +38,7 @@ final class AdminLog extends CMSModule
     public function HasAdmin() { return true; }
     public function GetAdminSection() { return 'siteadmin'; }
     public function IsAdminOnly() { return true; }
+	public function MinimumCMSVersion() { return '2.8.900'; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function InitializeAdmin()
@@ -72,6 +73,7 @@ final class AdminLog extends CMSModule
         switch ($capability) {
             case CmsCoreCapabilities::CORE_MODULE:
             case CmsCoreCapabilities::TASKS:
+            case CmsCoreCapabilities::SITE_PREFERENCER:
                 return true;
             case 'clicommands':
                 return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
@@ -79,6 +81,8 @@ final class AdminLog extends CMSModule
                 return false;
         }
     }
+
+	//TODO hook function to populate 'centralised' site settings update
 
     public function get_tasks()
     {
