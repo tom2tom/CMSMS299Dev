@@ -83,6 +83,15 @@ final class CmsCoreCapabilities extends BasicEnum
 	const SEARCH_MODULE = 'handles_search';
 
 	/**
+	 * A constant indicating that the module can contribute to site
+	 * operations in accord with recorded preferences/settings. In effect,
+	 * a generalisation of WYSIWYG_MODULE, SYNTAX_MODULE etc but geared
+     * toward value-management via admin UI
+	 * @since 2.9
+	 */
+	const SITE_PREFERENCER = 'handles_sitevars';
+
+	/**
 	 * A constant indicating that the module is a syntax editor module.
 	 * @since 2.0
 	 */
@@ -95,7 +104,17 @@ final class CmsCoreCapabilities extends BasicEnum
 	const TASKS = 'tasks'; // string used pre-2.0
 
 	/**
-	 * A capability indicating that the module is a page-content editor module
+	 * A constant indicating that the module contributes to site
+	 * operations as they apply to individual admin users, in accord
+	 * with recorded user preferences/settings. In effect, a
+	 * generalisation of WYSIWYG_MODULE, SYNTAX_MODULE etc but
+	 * geared toward value-management via admin UI
+	 * @since 2.9
+	 */
+	const USER_PREFERENCER = 'handles_uservars';
+
+	/**
+	 * A constant indicating that the module is a page-content editor module
 	 * @since 2.0
 	 */
 	const WYSIWYG_MODULE = 'handles_wysiwyg';
