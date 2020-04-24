@@ -194,6 +194,7 @@ DETAILS
   - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum
   - New hook-replacement events: MetadataPostRender, MetadataPreRender, PageTopPostRender, PageTopPreRender,
       PageHeadPostRender, PageHeadPreRender, PageBodyPostRender, PageBodyPreRender, PostRequest
+  - CHANGE: Formerly hard-coded admin-menu data have been migrated into a standalone file. Those data can be tailored e.g. by the theme at runtime or by the site-developer anytime
   - FEATURE: New globally-available security-check function e.g. in module-actions :: if (!checkuuid($uuid)) exit;
   - CHANGE: Management of page styles is much more flexible
   - CHANGE: Database connection supports parameterized commands with a single non-array value (other than null) instead of an array including just that value

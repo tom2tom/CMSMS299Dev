@@ -628,9 +628,12 @@ abstract class AdminTheme
             check_permission($this->userid, 'Add Templates') |
             check_permission($this->userid, 'Modify Templates');
 
+        $this->_perms['stylePerms'] =
+            check_permission($this->userid, 'Manage Stylesheets');
+
         $this->_perms['layoutPerms'] =
             check_permission($this->userid, 'Manage Designs') |
-            check_permission($this->userid, 'Manage Stylesheets') |
+            $this->_perms['stylePerms'] |
             $this->_perms['templatePerms'];
 
         // file
@@ -760,294 +763,61 @@ abstract class AdminTheme
      * populate_tree
      *
      * @ignore
-     * Generate admin menu data
-     * @since 2.3
+     * Generate admin menu (default) data
+     * @since 2.9
      */
     protected function populate_tree()
     {
         $urlext = get_secure_param();
+        $items = [];
+        require_once cms_join_path(CMS_ADMIN_PATH, 'configs', 'method.adminmenu.php');
 
-        $items = [
+        foreach( $menucontent as $item ) {
+            $val = ( !empty($item['url']) ) ? $item['url'] : (($item['parent']!= null) ? 'index.php' : '');
+            if( $val ) { //not the root node
+                if( !(strpos($val, '://') > 0 || strpos($val, '//') === 0) ) {
+                    $val .= $urlext;
+                }
+                if( !empty($item['urlparm']) ) {
+                    $val .= $item['urlparm'];
+                    unset($item['urlparm']);
+                }
+                $item['url'] = $val;
 
-        ['name'=>'root','parent'=>null,
-        'show_in_menu'=>false],
+                $val = $item['labelkey'] ?? ''; // should always be present, except for root node
+                if( $val ) {
+                    $item['title'] = $this->_FixSpaces(lang($item['labelkey']));
+                    unset($item['labelkey']);
+                }
 
-        ['name'=>'main','parent'=>'root',
-        'url'=>'index.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('home')),
-        'description'=>'', //lang('viewdescription'),
-        'priority'=>1,
-        'show_in_menu'=>true],
+                $val = $item['description'] ?? '';
+                if( !$val ) {
+                    $val = $item['descriptionkey'] ?? '';
+                    if( $val ) {
+                        $val = lang($val);
+                        unset($item['descriptionkey']);
+                    }
+                }
+                $item['description'] = $val;
 
-        ['name'=>'content','parent'=>'root',
-        'url'=>'index.php'.$urlext.'&section=content',
-        'title'=>$this->_FixSpaces(lang('content')),
-        'description'=>lang('contentdescription'),
-        'priority'=>2,
-        'show_in_menu'=>$this->HasPerm('contentPerms')],
+                $val = $item['priority'] ?? 1;
+                $item['priority'] = (int)$val;
+                $item['final'] = !empty($item['final']);
+                $val = $item['show'] ?? true;
+                unset($item['show']);
+                if( !is_bool($val) ) {
+                    $val = $this->HasPerm($val);
+                }
+                $one['show_in_menu'] = $val;
+            }
+            else {
+                $item['show_in_menu'] = false;
+            }
+            $items[] = $item;
+        }
+        unset($menucontent);
 
-        ['name'=>'layout','parent'=>'root',
-        'url'=>'index.php'.$urlext.'&section=layout',
-        'title'=>$this->_FixSpaces(lang('layout')),
-        'description'=>lang('layoutdescription'),
-        'priority'=>3,
-        'show_in_menu'=>$this->HasPerm('layoutPerms')],
-
-        ['name'=>'extensions','parent'=>'root',
-        'url'=>'index.php'.$urlext.'&section=extensions',
-        'title'=>$this->_FixSpaces(lang('extensions')),
-        'description'=>lang('extensionsdescription'),
-        'priority'=>5,
-        'show_in_menu'=>$this->HasPerm('extensionsPerms')],
-
-        ['name'=>'services','parent'=>'root',
-        'url'=>'index.php'.$urlext.'&section=services',
-        'title'=>$this->_FixSpaces(lang('services')),
-        'description'=>lang('servicesdescription'),
-        'priority'=>6,
-        'show_in_menu'=>true],
-
-        ['name'=>'siteadmin','parent'=>'root',
-        'url'=>'index.php'.$urlext.'&section=siteadmin',
-        'title'=>$this->_FixSpaces(lang('admin')),
-        'description'=>lang('admindescription'),
-        'priority'=>7,
-        'show_in_menu'=>$this->HasPerm('siteAdminPerms')],
-
-        ['name'=>'usersgroups','parent'=>'root',
-        'url'=>'index.php'.$urlext.'&section=usersgroups',
-        'title'=>$this->_FixSpaces(lang('usersgroups')),
-        'description'=>lang('usersgroupsdescription'),
-        'priority'=>8,
-        'show_in_menu'=>$this->HasPerm('usersGroupsPerms')],
-/* moved to submenu
-        ['name'=>'myprefs','parent'=>'root',
-        'url'=>'index.php'.$urlext.'&section=myprefs',
-        'title'=>$this->_FixSpaces(lang('myprefs')),
-        'description'=>lang('myprefsdescription'),
-        'priority'=>9,
-        'show_in_menu'=>$this->HasPerm('myprefPerms')],
-*/
-        ['name'=>'logout','parent'=>'root',
-        'url'=>'logout.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('logout')),
-        'description'=>'',
-        'final'=>true, //force keep
-        'priority'=>10,
-        'show_in_menu'=>true],
-
-        ];
-
-        // ~~~~~~~~~~ main menu items ~~~~~~~~~~
-/* this is essentially a duplication
-        $items[] = ['name'=>'home','parent'=>'main',
-        'url'=>'index.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('home')),
-        'description'=>'',
-        'priority'=>1,
-        'show_in_menu'=>false];
-*/
-        $items[] = ['name'=>'site','parent'=>'main',
-        'url'=>CMS_ROOT_URL.'/index.php',
-        'title'=>$this->_FixSpaces(lang('viewsite')),
-        'type'=>'external',
-        'description'=>'',
-        'priority'=>2,
-        'final'=>true,
-        'show_in_menu'=>true,
-        'target'=>'_blank'];
-
-        // ~~~~~~~~~~ layout menu items ~~~~~~~~~~
-
-        $items[] = ['name'=>'listtemplates','parent'=>'layout',
-        'url'=>'listtemplates.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('menulabel_templates')),
-        'description'=>lang('menutitle_templates'),
-        'priority'=>1,
-        'final'=>true,
-        'show_in_menu'=>$this->HasPerm('templatePerms')];
-
-        $items[] = ['name'=>'liststyles','parent'=>'layout',
-        'url'=>'liststyles.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('menulabel_styles')),
-        'description'=>lang('menutitle_styles'),
-        'priority'=>3,
-        'final'=>true,
-        'show_in_menu'=>check_permission($this->userid, 'Manage Stylesheets')];
-
-        // ~~~~~~~~~~ services menu items ~~~~~~~~~~
-
-        $items[] = ['name'=>'ecommerce','parent'=>'services',
-        'url'=>'index.php'.$urlext.'&section=ecommerce',
-        'title'=>$this->_FixSpaces(lang('ecommerce')),
-        'description'=>lang('ecommerce_desc'),
-        'show_in_menu'=>true]; //TODO relevant perm
-
-        // ~~~~~~~~~~ user/groups menu items ~~~~~~~~~~
-
-        $items[] = ['name'=>'listusers','parent'=>'usersgroups',
-        'url'=>'listusers.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('currentusers')),
-        'description'=>lang('usersdescription'),
-        'priority'=>1,
-        'final'=>true,
-        'show_in_menu'=>$this->HasPerm('userPerms')];
-/*
-        $items[] = ['name'=>'adduser','parent'=>'usersgroups',
-        'url'=>'adduser.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('adduser')),
-        'description'=>'',
-        'priority'=>1,
-        'show_in_menu'=>false]; //?? TODO why include it, if never seen
-
-        $items[] = ['name'=>'edituser','parent'=>'usersgroups',
-        'url'=>'edituser.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('edituser')),
-        'description'=>'',
-        'priority'=>1,
-        'show_in_menu'=>false]; //??
-*/
-        $items[] = ['name'=>'listgroups','parent'=>'usersgroups',
-        'url'=>'listgroups.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('currentgroups')),
-        'description'=>lang('groupsdescription'),
-        'priority'=>2,
-        'final'=>true,
-        'show_in_menu'=>$this->HasPerm('groupPerms')];
-/*
-        $items[] = ['name'=>'addgroup','parent'=>'usersgroups',
-        'url'=>'addgroup.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('addgroup')),
-        'description'=>'',
-        'priority'=>2,
-        'show_in_menu'=>false]; //??
-
-        $items[] = ['name'=>'editgroup','parent'=>'usersgroups',
-        'url'=>'editgroup.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('editgroup')),
-        'description'=>'',
-        'priority'=>2,
-        'show_in_menu'=>false]; //??
-*/
-        $items[] = ['name'=>'groupmembers','parent'=>'usersgroups',
-        'url'=>'changegroupassign.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('groupassignments')),
-        'description'=>lang('groupassignmentdescription'),
-        'priority'=>3,
-        'final'=>true,
-        'show_in_menu'=>$this->HasPerm('groupPerms')];
-
-        $items[] = ['name'=>'groupperms','parent'=>'usersgroups',
-        'url'=>'changegroupperm.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('grouppermissions')),
-        'description'=>lang('grouppermsdescription'),
-        'priority'=>3,
-        'final'=>true,
-        'show_in_menu'=>$this->HasPerm('groupPerms')];
-
-        $items[] = ['name'=>'myprefs','parent'=>'usersgroups',
-        'url'=>'index.php'.$urlext.'&section=myprefs',
-        'title'=>$this->_FixSpaces(lang('myprefs')),
-        'description'=>lang('myprefsdescription'),
-        'priority'=>4,
-        'show_in_menu'=>$this->HasPerm('myprefPerms')];
-
-        // ~~~~~~~~~~ extensions menu items ~~~~~~~~~~
-
-        $items[] = ['name'=>'tags','parent'=>'extensions',
-        'url'=>'listtags.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('tags')),
-        'description'=>lang('tagdescription'),
-        'final'=>true,
-        'show_in_menu'=>$this->HasPerm('taghelpPerms')];
-        $items[] = ['name'=>'simpletags','parent'=>'extensions',
-        'url'=>'listsimpletags.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('simpletags')),
-        'description'=>lang('simpletags_description'),
-        'final'=>true,
-        'show_in_menu'=>$this->HasPerm('usertagPerms')];
-        $items[] = ['name'=>'eventhandlers','parent'=>'extensions',
-        'url'=>'listevents.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('eventhandlers')),
-        'description'=>lang('eventhandlerdescription'),
-        'final'=>true,
-        'show_in_menu'=>$this->HasPerm('eventPerms')];
-/*
-        $items[] = ['name'=>'editeventhandler','parent'=>'eventhandlers',
-        'url'=>'editevent.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('editeventhandler')),
-        'description'=>lang('editeventhandlerdescription'),
-        'show_in_menu'=>false]; //??
-*/
-        // ~~~~~~~~~~ site-admin menu items ~~~~~~~~~~
-
-        $items[] = ['name'=>'siteprefs','parent'=>'siteadmin',
-        'url'=>'siteprefs.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('globalconfig')),
-        'description'=>lang('preferencesdescription'),
-        'priority'=>1,
-        'final'=>true,
-        'show_in_menu'=>$this->HasPerm('sitePrefPerms')];
-        $items[] = ['name'=>'systeminfo','parent'=>'siteadmin',
-        'url' => 'systeminfo.php'.$urlext,
-        'title' => $this->_FixSpaces(lang('systeminfo')),
-        'description' => lang('systeminfodescription'),
-        'priority'=>2,
-        'final'=>true,
-        'show_in_menu' => $this->HasPerm('adminPerms')];
-        $items[] = ['name'=>'systemmaintenance','parent'=>'siteadmin',
-        'url' => 'systemmaintenance.php'.$urlext,
-        'title' => $this->_FixSpaces(lang('systemmaintenance')),
-        'description' => lang('systemmaintenancedescription'),
-        'priority'=>3,
-        'final'=>true,
-        'show_in_menu' => $this->HasPerm('adminPerms')];
-        $items[] = ['name'=>'checksum','parent'=>'siteadmin',
-        'url' => 'checksum.php'.$urlext,
-        'title' => $this->_FixSpaces(lang('system_verification')),
-        'description' => lang('checksumdescription'),
-        'priority'=>4,
-        'final'=>true,
-        'show_in_menu' => $this->HasPerm('adminPerms')];
-        $items[] = ['name'=>'files','parent'=>'siteadmin',
-        'url'=>'index.php'.$urlext.'&section=files',
-        'title'=>$this->_FixSpaces(lang('files')),
-        'description'=>lang('filesdescription'),
-        'priority'=>5,
-        'show_in_menu'=>$this->HasPerm('filePerms')];
-
-        // ~~~~~~~~~~ myprefs menu items ~~~~~~~~~~
-
-        $items[] = ['name'=>'myaccount','parent'=>'myprefs',
-        'url'=>'myaccount.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('myaccount')),
-        'description'=>lang('myaccountdescription'),
-        'final'=>true,
-        'show_in_menu'=>$this->_perms['myaccount']];
-        $items[] = ['name'=>'mysettings','parent'=>'myprefs',
-        'url'=>'mysettings.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('mysettings')),
-        'description'=>lang('mysettingsdescription'),
-        'final'=>true,
-        'show_in_menu'=>$this->_perms['mysettings']];
-        $items[] = ['name'=>'mybookmarks','parent'=>'myprefs',
-        'url'=>'listbookmarks.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('mybookmarks')),
-        'description'=>lang('mybookmarksdescription'),
-        'final'=>true,
-        'show_in_menu'=>$this->_perms['bookmarks']];
-/*      $items[] = ['name'=>'addbookmark','parent'=>'myprefs',
-        'url'=>'addbookmark.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('addbookmark')),
-        'description'=>''),
-        'show_in_menu'=>false];
-        $items[] = ['name'=>'editbookmark','parent'=>'myprefs',
-        'url'=>'editbookmark.php'.$urlext,
-        'title'=>$this->_FixSpaces(lang('editbookmark')),
-        'description'=>''),
-        'show_in_menu'=>false];
-*/
-        // append the user's module-related items, if any
+        // merge module-related items, if any
         $this->_SetModuleAdminInterfaces();
         foreach( $this->_modules as $key => $obj ) {
             $item = ['parent' => null] + $obj->get_all(); //may include 'icon' (a file url or false)
@@ -1092,7 +862,7 @@ abstract class AdminTheme
      *
      * @since 1.11
      * @param mixed $parent    Optional name of the wanted root node, or
-     *  null for actual root node. The formerly used -1 is also recognised
+     *  null for actual root node. The formerly-used -1 is also recognised
      *  as an indicator of the root node. Default null
      * @param int   $maxdepth  Optional no. of sub-root levels to be displayed
      *  for $parent. < 1 indicates no maximum depth. Default 3
