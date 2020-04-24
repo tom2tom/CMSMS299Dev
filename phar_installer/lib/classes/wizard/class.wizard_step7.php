@@ -104,11 +104,13 @@ class wizard_step7 extends wizard_step
         foreach( $iter as $fp ) {
             $dn = $destdir.substr($fp, $len);
             if( is_dir($fp) ) {
-                $idxfile = $dn.DIRECTORY_SEPARATOR.'index.html';
+                $ip = $dn.DIRECTORY_SEPARATOR;
             } else {
-                $idxfile = dirname($dn).DIRECTORY_SEPARATOR.'index.html';
+                $ip = dirname($dn).DIRECTORY_SEPARATOR;
             }
-           @touch($idxfile); //ignore failure
+            if( !@is_file($ip.'index.php') ) {
+                @touch($ip.'index.html'); //ignore failure
+            }
         }
     }
 
@@ -170,7 +172,7 @@ class wizard_step7 extends wizard_step
         else {
             $xmodules = NULL;
         }
-        
+
         $action = $this->get_wizard()->get_data('action');
         if( $action != 'install' ) {
             //add any installed non-core modules, which might need to be freshened ?
