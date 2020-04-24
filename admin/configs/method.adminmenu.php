@@ -181,7 +181,7 @@ $menucontent = [
 	[
 	'name'=>'siteprefs',
 	'parent'=>'siteadmin',
-	'url'=>'siteprefs.php',
+	'url'=>'sitesettings.php',
 	'labelkey'=>'globalconfig',
 	'descriptionkey'=>'preferencesdescription',
 	'priority'=>1,

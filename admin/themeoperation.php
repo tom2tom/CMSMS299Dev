@@ -317,7 +317,7 @@ if (isset($_FILES['import'])) {
 	if (check_permission($userid, 'Modify Site Preferences')) {
 		if (import_theme($_FILES['import']['tmp_name'])) {
 			$urlext = get_secure_param();
-			redirect('siteprefs.php'.$urlext);
+			redirect('sitesettings.php'.$urlext);
 		}
 	} else {
 		//cms_notify('error', lang('needpermissionto', '"Modify Site Preferences"'));
@@ -332,7 +332,7 @@ if (isset($_POST['export'])) {
 if (isset($_POST['delete'])) {
 	if (delete_theme(cleanValue($_POST['delete']))) {
 		$urlext = get_secure_param();
-		redirect('siteprefs.php'.$urlext);
+		redirect('sitesettings.php'.$urlext);
 	}
 }
 
