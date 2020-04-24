@@ -1,7 +1,7 @@
 <?php
 # Module: FilePicker - A CMSMS addon module to provide various support services.
 # Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
-# Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #

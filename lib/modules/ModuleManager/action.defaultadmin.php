@@ -1,6 +1,6 @@
 <?php
 # action: defaultadmin
-# Copyright (C) 2008-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2008-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of ModuleManager, an addon module for
 # CMS Made Simple to allow browsing remotely stored modules, viewing

@@ -1,7 +1,7 @@
 <?php
 # uninstallation-process  for CmsJobManager, a core module for CMS Made Simple
 # to manage asynchronous jobs and cron jobs.
-# Copyright (C) 2016-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # See license details at the top of file CmsJobManager.module.php
 

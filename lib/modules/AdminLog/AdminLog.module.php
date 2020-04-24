@@ -1,7 +1,7 @@
 <?php
 # AdminLog - a CMSMS module providing functionality for working with the
 #   CMSMS audit log
-# Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2017-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #

@@ -1,6 +1,6 @@
 <?php
 #Plugin to generate html and js for a syntax highlight textarea
-#Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify

@@ -1,7 +1,7 @@
 <?php
 /*
 AdminLog module action: install process
-Copyright (C) 2017-2019 CMS Made Simple Foundation <foundationcmsmadesimple.org>
+Copyright (C) 2017-2020 CMS Made Simple Foundation <foundationcmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify

@@ -1,6 +1,6 @@
 <?php
 # CMSContentManger module action: ajax_get_content
-# Copyright (C) 2014-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify

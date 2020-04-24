@@ -1,6 +1,6 @@
 <?php
 # ModuleManager class: ...
-# Copyright (C) 2011-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2011-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #
 # This program is free software; you can redistribute it and/or modify
