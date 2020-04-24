@@ -32,7 +32,7 @@
     </span>
     <span class="icon">
       {if isset($myaccount)}
-       <a href="myaccount.php?{$secureparam}" title="{lang('myaccount')} - {$username}"><svg><use xlink:href="themes/Ebonne/images/navsprite.svg#myaccount"/></svg></a>
+       <a href="useraccount.php?{$secureparam}" title="{lang('myaccount')} - {$username}"><svg><use xlink:href="themes/Ebonne/images/navsprite.svg#myaccount"/></svg></a>
       {else}
        {lang('signed_in',{$username})}
       {/if}

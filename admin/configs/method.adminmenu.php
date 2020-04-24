@@ -292,7 +292,7 @@ $menucontent = [
 		[
 		'name'=>'myaccount',
 		'parent'=>'myprefs',
-		'url'=>'myaccount.php',
+		'url'=>'useraccount.php',
 		'labelkey'=>'myaccount',
 		'descriptionkey'=>'myaccountdescription',
 		'final'=>true,
@@ -301,7 +301,7 @@ $menucontent = [
 		[
 		'name'=>'mysettings',
 		'parent'=>'myprefs',
-		'url'=>'mysettings.php',
+		'url'=>'usersettings.php',
 		'labelkey'=>'mysettings',
 		'descriptionkey'=>'mysettingsdescription',
 		'final'=>true,

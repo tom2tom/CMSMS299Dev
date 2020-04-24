@@ -46,7 +46,7 @@
      <!-- welcome -->
      <div class="welcome">
      {if isset($myaccount)}
-      <span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user-circle-o"></i></a> {'welcome_user'|lang}: <a href="myaccount.php?{$secureparam}">{$username}</a></span>
+      <span><a class="welcome-user" href="useraccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user-circle-o"></i></a> {'welcome_user'|lang}: <a href="useraccount.php?{$secureparam}">{$username}</a></span>
      {else}
       <span><a class="welcome-user"><i class="fa fa-user-circle-o"></i></a> {'welcome_user'|lang}: {$username}</span>
      {/if}
