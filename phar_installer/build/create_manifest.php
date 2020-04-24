@@ -61,7 +61,7 @@ $compare_excludes = [
 '.#*','#*',
 'config.php',
 'index.html',
-'UNUSED*',
+'*UNUSED*',
 'tmp',
 'scripts',
 'tests',
@@ -653,6 +653,7 @@ function write_config_file(array $config_data, string $filename)
         }
         fwrite($fh, "$key = $val\n");
     }
+    fwrite($fh, "\n");
     fclose($fh);
 }
 
@@ -723,16 +724,16 @@ function get_version(string $basedir) : array
         // cannot just include the file, constants in there cannot be re-defined ...
         $txt = file_get_contents($file);
         if ($txt) {
-			$txt = str_replace(['<?php','>?'], ['',''], $txt);
-			while (($p = strpos($txt, 'define')) !== false) {
-				$txt[$p] = '/';
-				$txt[$p+1] = '/';
-			}
-			while (($p = strpos($txt, 'const')) !== false) {
-				$txt[$p] = '/';
-				$txt[$p+1] = '/';
-			}
-			eval($txt);
+            $txt = str_replace(['<?php','>?'], ['',''], $txt);
+            while (($p = strpos($txt, 'define')) !== false) {
+                $txt[$p] = '/';
+                $txt[$p+1] = '/';
+            }
+            while (($p = strpos($txt, 'const')) !== false) {
+                $txt[$p] = '/';
+                $txt[$p+1] = '/';
+            }
+            eval($txt);
             return [$CMS_VERSION, $CMS_VERSION_NAME];
         }
     }
@@ -813,7 +814,7 @@ class compare_dirs
     private $_has_run = null;
     private $_base_dir;
     private $_ignored = [];
-    private $_donotdelete;
+    private $_donotdelete = [];
 
     public function __construct(string $dir_a, string $dir_b, bool $do_md5 = false)
     {
@@ -976,12 +977,12 @@ class compare_dirs
         $tmp_a = array_keys($this->_list_a);
         $tmp_b = array_keys($this->_list_b);
         $out = array_diff($tmp_a, $tmp_b);
-        if (count($out) && count($this->_donotdelete)) {
+        if ($out && $this->_donotdelete) {
             foreach ($out as $file) {
                 $skipped = false;
                 foreach ($this->_donotdelete as $nd) {
                     if (startswith($file, $nd)) {
-                        // skip this file at this stage.
+                        // skip this file at this stage
                         $skipped = true;
                         break;
                     }
