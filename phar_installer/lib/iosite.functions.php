@@ -1128,18 +1128,16 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							@copy($from.$name, $to.$name);
 						}
 					}
-/*
 					$iter = new RecursiveIteratorIterator(
 						new RecursiveDirectoryIterator($config['uploads_path'],
 						  FilesystemIterator::CURRENT_AS_PATHNAME |
 						  FilesystemIterator::SKIP_DOTS),
 						RecursiveIteratorIterator::SELF_FIRST);
-						foreach ($iter as $to) {
-							if (is_dir($to)) {
-								@touch($to.DIRECTORY_SEPARATOR.'index.html');
-							}
+					foreach ($iter as $to) {
+						if (is_dir($to)) {
+							@touch($to.DIRECTORY_SEPARATOR.'index.html');
 						}
-*/
+					}
 					break;
 				case 'simpletags':
 					if ($runtime) {
