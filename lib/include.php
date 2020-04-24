@@ -19,6 +19,7 @@
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\AuditOperations;
+use CMSMS\CoreCapabilities;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
 use CMSMS\internal\ModulePluginOperations;
@@ -241,7 +242,7 @@ if (!$installing) {
 
     $modops = AppSingle::ModuleOperations();
     // After autoloader & modules
-    $tmp = $modops->GetCapableModules(CmsCoreCapabilities::JOBS_MODULE);
+    $tmp = $modops->GetCapableModules(CoreCapabilities::JOBS_MODULE);
     if( $tmp ) {
         $mod_obj = $modops->get_module_instance($tmp[0]); //NOTE not $modinst !
         $_app->jobmgrinstance = $mod_obj; //cache it

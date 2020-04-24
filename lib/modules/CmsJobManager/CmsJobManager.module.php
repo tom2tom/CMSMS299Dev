@@ -21,6 +21,7 @@ use CmsJobManager\utils;
 use CMSMS\Async\AsyncJobManager;
 use CMSMS\Async\Job;
 use CMSMS\Async\RegularTask;
+use CMSMS\CoreCapabilities;
 use CMSMS\ModuleOperations;
 
 final class CmsJobManager extends CMSModule implements AsyncJobManager
@@ -60,10 +61,10 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-            case CmsCoreCapabilities::CORE_MODULE:
-//          case CmsCoreCapabilities::PLUGIN_MODULE:
-//          case CmsCoreCapabilities::TASKS:
-            case CmsCoreCapabilities::JOBS_MODULE:
+            case CoreCapabilities::CORE_MODULE:
+//          case CoreCapabilities::PLUGIN_MODULE:
+//          case CoreCapabilities::TASKS:
+            case CoreCapabilities::JOBS_MODULE:
                 return TRUE;
             default:
                 return FALSE;

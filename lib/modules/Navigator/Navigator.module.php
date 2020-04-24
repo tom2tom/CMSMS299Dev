@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\CoreCapabilities;
+
 class NavigatorNode
 {
     /**
@@ -88,8 +90,8 @@ final class Navigator extends CMSModule
     public function HasCapability($capability, $params=[])
     {
         switch ($capability) {
-            case CmsCoreCapabilities::CORE_MODULE:
-            case CmsCoreCapabilities::PLUGIN_MODULE:
+            case CoreCapabilities::CORE_MODULE:
+            case CoreCapabilities::PLUGIN_MODULE:
                 return TRUE;
             default:
                 return FALSE;

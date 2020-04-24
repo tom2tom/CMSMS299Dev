@@ -21,10 +21,10 @@ namespace CMSMS\internal;
 use cms_siteprefs;
 use cms_utils;
 use CmsApp;
-use CmsCoreCapabilities;
 use CMSModule;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\CoreCapabilities;
 use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
 use CMSMS\SysDataCache;
@@ -35,6 +35,7 @@ use const CLEAN_STRING;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use function audit;
+use function startswith;
 
 /**
  * A class to manage smarty plugins registered by modules. Methods may be called
@@ -112,7 +113,7 @@ final class ModulePluginOperations
 			{
 				$data = [];
 				$modops = ModuleOperations::get_instance();
-				$tmp = $modops->GetCapableModules(CmsCoreCapabilities::PLUGIN_MODULE);
+				$tmp = $modops->GetCapableModules(CoreCapabilities::PLUGIN_MODULE);
 				$tmp2 = $modops->GetMethodicModules('IsPluginModule',TRUE); //deprecated since 2.9
 				if( $tmp || $tmp2 ) {
 					$val = cms_siteprefs::get('smarty_cachemodules', 0);

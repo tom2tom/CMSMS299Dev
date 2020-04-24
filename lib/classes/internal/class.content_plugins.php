@@ -22,9 +22,9 @@ use cms_config;
 use cms_siteprefs;
 use cms_utils;
 use CmsApp;
-use CmsCoreCapabilities;
 use CmsError403Exception;
 use CmsError404Exception;
+use CMSMS\CoreCapabilities;
 use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
 use Smarty_Internal_SmartyTemplateCompiler;
@@ -269,7 +269,7 @@ final class content_plugins
                 @trigger_error('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
                 throw new CmsError404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
             }
-            if( !($module_obj->HasCapability(CmsCoreCapabilities::PLUGIN_MODULE) || $module_obj->IsPluginModule()) ) {
+            if( !($module_obj->HasCapability(CoreCapabilities::PLUGIN_MODULE) || $module_obj->IsPluginModule()) ) {
                 @trigger_error('Attempt to access module '.$module.' on a frontend request, which is not a plugin module');
                 throw new CmsError404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
             }

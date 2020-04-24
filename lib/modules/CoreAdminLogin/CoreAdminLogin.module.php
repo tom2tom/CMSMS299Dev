@@ -48,9 +48,9 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-            case CmsCoreCapabilities::CORE_MODULE:
-            case CmsCoreCapabilities::LOGIN_MODULE:
-            case CmsCoreCapabilities::SITE_PREFERENCER:
+            case CMSMS\CoreCapabilities::CORE_MODULE:
+            case CMSMS\CoreCapabilities::LOGIN_MODULE:
+            case CMSMS\CoreCapabilities::SITE_PREFERENCER:
                 return true;
             default:
                 return false;

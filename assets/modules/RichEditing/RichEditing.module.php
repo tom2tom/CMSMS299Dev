@@ -15,6 +15,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
 <https://www.gnu.org/licenses/#AGPL>
 */
+
+use CMSMS\CoreCapabilities;
 use RichEditing\Utils;
 
 class RichEditing extends CMSModule //implements CMSMS\RichEditor
@@ -62,9 +64,9 @@ class RichEditing extends CMSModule //implements CMSMS\RichEditor
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-            case CmsCoreCapabilities::WYSIWYG_MODULE:
-            case CmsCoreCapabilities::USER_PREFERENCER:
-            case CmsCoreCapabilities::SITE_PREFERENCER:
+            case CoreCapabilities::WYSIWYG_MODULE:
+            case CoreCapabilities::USER_PREFERENCER:
+            case CoreCapabilities::SITE_PREFERENCER:
                 return true;
             default:
                 return false;

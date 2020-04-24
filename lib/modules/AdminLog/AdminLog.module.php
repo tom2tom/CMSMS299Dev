@@ -23,6 +23,7 @@ use AdminLog\Command\ClearLogCommand;
 use AdminLog\ReduceLogTask;
 use AdminLog\storage;
 use CMSMS\AuditOperations;
+use CMSMS\CoreCapabilities;
 use CMSMS\HookManager;
 
 final class AdminLog extends CMSModule
@@ -71,9 +72,9 @@ final class AdminLog extends CMSModule
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-            case CmsCoreCapabilities::CORE_MODULE:
-            case CmsCoreCapabilities::TASKS:
-            case CmsCoreCapabilities::SITE_PREFERENCER:
+            case CoreCapabilities::CORE_MODULE:
+            case CoreCapabilities::TASKS:
+            case CoreCapabilities::SITE_PREFERENCER:
                 return true;
             case 'clicommands':
                 return class_exists('CMSMS\\CLI\\App'); //TODO better namespace

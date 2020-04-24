@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\CoreCapabilities;
+
 final class CMSContentManager extends CMSModule
 {
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
@@ -38,7 +40,7 @@ final class CMSContentManager extends CMSModule
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-            case CmsCoreCapabilities::CORE_MODULE:
+            case CoreCapabilities::CORE_MODULE:
                 return true;
             default:
                 return false;

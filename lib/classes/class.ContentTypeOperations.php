@@ -1,6 +1,6 @@
 <?php
 #Class of methods for processing page-content types.
-#Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -19,9 +19,12 @@ namespace CMSMS;
 
 use cms_siteprefs;
 use CmsApp;
-use CmsCoreCapabilities;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\ContentOperations;
+use CMSMS\ContentType;
+use CMSMS\CoreCapabilities;
+use CMSMS\ModuleOperations;
 use DeprecationNotice;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -132,7 +135,7 @@ class ContentTypeOperations
 			// such types are registered in the modules' respective constructors,
 			// which process eventually shoves them into $this->_content_types.
 			$modops = ModuleOperations::get_instance();
-			$module_list = $modops->GetCapableModules(CmsCoreCapabilities::CONTENT_TYPES);
+			$module_list = $modops->GetCapableModules(CoreCapabilities::CONTENT_TYPES);
 			if( $module_list ) {
 				foreach( $module_list as $module_name ) {
 					$obj = $modops->get_module_instance($module_name);

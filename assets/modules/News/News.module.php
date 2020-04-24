@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\CoreCapabilities;
 use CMSMS\RouteOperations;
 use News\AdjustStatusTask;
 use News\AdminOperations;
@@ -363,10 +364,10 @@ EOS;
     public function HasCapability($capability, $params = [])
     {
         switch( $capability ) {
-           case CmsCoreCapabilities::PLUGIN_MODULE:
-           case CmsCoreCapabilities::ADMINSEARCH:
-           case CmsCoreCapabilities::TASKS:
-         //case CmsCoreCapabilities::EVENTS: ? ROUTE_MODULE ?
+           case CoreCapabilities::PLUGIN_MODULE:
+           case CoreCapabilities::ADMINSEARCH:
+           case CoreCapabilities::TASKS:
+         //case CoreCapabilities::EVENTS: ? ROUTE_MODULE ?
               return true;
         }
         return false;

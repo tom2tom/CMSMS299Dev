@@ -16,13 +16,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//use CMSMS\SysDataCache;
+//use CMSMS\MultiEditor;
 use CMSMS\AdminTheme;
 use CMSMS\AdminUtils;
 use CMSMS\AppState;
-//use CMSMS\SysDataCache;
 use CMSMS\ContentOperations;
+use CMSMS\CoreCapabilities;
 use CMSMS\ModuleOperations;
-//use CMSMS\MultiEditor;
 use CMSMS\UserOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
@@ -152,7 +153,7 @@ $wysiwygtheme = cms_userprefs::get_for_user($userid, 'wysiwyg_theme');
 
 /*
 TODO run a hooklist to retrieve UI for user-settings derived from modules
-having CmsCoreCapabilities::USER_PREFERENCER
+having CMSMS\CoreCapabilities::USER_PREFERENCER
 Load such modules if not already done
 Run the list, to collect:
 * prefgroup name | default = ?
@@ -166,7 +167,7 @@ Run the list, to collect:
   akin to file-selector )
 * validation stuff
 */
- 
+
 /*
  * Build page
  */
@@ -176,7 +177,7 @@ $modops = ModuleOperations::get_instance();
 $smarty = CmsApp::get_instance()->GetSmarty();
 
 // Rich-text (html) editors
-$tmp = $modops->GetCapableModules(CmsCoreCapabilities::WYSIWYG_MODULE);
+$tmp = $modops->GetCapableModules(CoreCapabilities::WYSIWYG_MODULE);
 $editors = [];
 if ($tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
@@ -229,7 +230,7 @@ $smarty -> assign('wysiwyg_opts', $editors);
 
 // Syntax-highlight editors
 $editors = [];
-$tmp = $modops->GetCapableModules(CmsCoreCapabilities::SYNTAX_MODULE);
+$tmp = $modops->GetCapableModules(CoreCapabilities::SYNTAX_MODULE);
 if ($tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
         $ob = cms_utils::get_module($tmp[$i]);

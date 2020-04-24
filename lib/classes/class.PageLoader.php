@@ -20,7 +20,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CmsApp;
-use CmsCoreCapabilities;
 use CMSMS\ContentTypeOperations;
 use CMSMS\ModuleOperations;
 use Exception;
@@ -64,7 +63,7 @@ class PageLoader
     protected static function poll_xclasses()
     {
         $ops = ModuleOperations::get_instance();
-        $list = $ops->GetCapableModules(CmsCoreCapabilities::CONTENT_TYPES);
+        $list = $ops->GetCapableModules(CoreCapabilities::CONTENT_TYPES);
         foreach ($list as $modname) {
             $obj = $ops->get_module_instance($modname); // should register stuff for newly-loaded modules
             $obj = null; // help the garbage-collector

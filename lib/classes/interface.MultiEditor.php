@@ -20,6 +20,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
 
+use CMSModule;
+use CMSMS\MultiEditor;
+
 /**
  * An interface to define methods in syntax-highlight text-editor modules.
  * @since 2.3
@@ -32,8 +35,8 @@ interface MultiEditor
 	/**
 	 * A CMSModule method, included here to ensure this mechanism for
 	 * identifying capable modules.
-	 * Return true when $capability is CmsCoreCapabilities::WYSIWYG_MODULE
-	 * or CmsCoreCapabilities::SYNTAX_MODULE, as appropriate.
+	 * Return true when $capability is CMSMS\CoreCapabilities::WYSIWYG_MODULE
+	 * or CMSMS\CoreCapabilities::SYNTAX_MODULE, as appropriate.
 	 * @see CMSModule::HasCapability();
 	 */
 	public function HasCapability($capability, $params = []);

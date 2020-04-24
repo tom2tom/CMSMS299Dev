@@ -23,6 +23,7 @@ use CMSContentManager\contenttypes\Content;
 use CMSMS\AdminTheme;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
+use CMSMS\CoreCapabilities;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\Mailer;
@@ -466,7 +467,7 @@ if ($tmp) {
 
 /*
 TODO run a hooklist to retrieve UI for site-settings derived from modules
-having CmsCoreCapabilities::SITE_PREFERENCER
+having CMSMS\CoreCapabilities::SITE_PREFERENCER
 Load such modules if not already done
 Run the list, to collect:
 * prefgroup name | default = ?
@@ -700,7 +701,7 @@ if ($tmp) {
 $smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences'));
 
 // Rich-text (html) editors
-$tmp = $modops->GetCapableModules(CmsCoreCapabilities::WYSIWYG_MODULE);
+$tmp = $modops->GetCapableModules(CoreCapabilities::WYSIWYG_MODULE);
 if ($tmp) {
   $editors = []; //for backend
   $fronts = [];
@@ -756,7 +757,7 @@ $smarty->assign('wysiwyg', $fronts)
   ->assign('frontendwysiwyg', $frontendwysiwyg);
 
 // Syntax-highlight editors
-$tmp = $modops->GetCapableModules(CmsCoreCapabilities::SYNTAX_MODULE);
+$tmp = $modops->GetCapableModules(CoreCapabilities::SYNTAX_MODULE);
 if ($tmp) {
   $editors = [];
   for ($i = 0, $n = count($tmp); $i < $n; ++$i) {

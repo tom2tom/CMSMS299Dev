@@ -20,6 +20,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\contenttypes\ContentBase;
+use CMSMS\CoreCapabilities;
 use CMSMS\FilePicker as IFilePicker;
 use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
@@ -76,7 +77,7 @@ final class FilePicker extends CMSModule implements IFilePicker
     public function HasCapability( $capability, $params = [] )
     {
         switch( $capability ) {
-        case CmsCoreCapabilities::CORE_MODULE:
+        case CoreCapabilities::CORE_MODULE:
         case 'contentblocks':
         case 'filepicker':
         case 'upload':

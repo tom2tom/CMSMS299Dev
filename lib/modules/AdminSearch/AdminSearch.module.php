@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\CoreCapabilities;
+
 final class AdminSearch extends CMSModule
 {
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
@@ -62,8 +64,8 @@ final class AdminSearch extends CMSModule
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-            case CmsCoreCapabilities::CORE_MODULE:
-            case CmsCoreCapabilities::ADMINSEARCH:
+            case CoreCapabilities::CORE_MODULE:
+            case CoreCapabilities::ADMINSEARCH:
                 return true;
             default:
                 return false;

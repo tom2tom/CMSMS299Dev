@@ -16,6 +16,8 @@ GNU Affero General Public License for more details.
 <https://www.gnu.org/licenses/#AGPL>
 */
 
+use CMSMS\CoreCapabilities;
+
 class SyntaxEditing extends CMSModule //implements CMSMS\MultiEditor 2.3 interface
 {
     /**
@@ -67,9 +69,9 @@ class SyntaxEditing extends CMSModule //implements CMSMS\MultiEditor 2.3 interfa
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-            case CmsCoreCapabilities::SYNTAX_MODULE:
-            case CmsCoreCapabilities::USER_PREFERENCER:
-            case CmsCoreCapabilities::SITE_PREFERENCER:
+            case CoreCapabilities::SYNTAX_MODULE:
+            case CoreCapabilities::USER_PREFERENCER:
+            case CoreCapabilities::SITE_PREFERENCER:
                 return true;
             default:
                 return false;
@@ -141,7 +143,7 @@ class SyntaxEditing extends CMSModule //implements CMSMS\MultiEditor 2.3 interfa
 			$editor = $params['editor'];
 			unset($params['editor']);
 		} else {
-			$val = cms_userprefs::get_for_user(\get_userid(false), 'syntax_editor');
+			$val = cms_userprefs::get_for_user(get_userid(false), 'syntax_editor');
 			if (!$val) {
 				$val = cms_userprefs::get('syntax_editor');
 				if (!$val) {

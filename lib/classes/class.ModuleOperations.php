@@ -23,7 +23,6 @@ use cms_siteprefs;
 use cms_userprefs;
 use cms_utils;
 use CmsApp;
-use CmsCoreCapabilities;
 use CmsLayoutTemplateType;
 use CMSModule;
 use CMSMS\AdminAlerts\Alert;
@@ -332,7 +331,7 @@ VALUES (?,?,?,NOW())');
 
 		$names = $this->_list_system_modules();
 		if( $names && in_array($module_name,$names) ) {
-			if( !$obj->HasCapability(CmsCoreCapabilities::CORE_MODULE) ) {
+			if( !$obj->HasCapability(CoreCapabilities::CORE_MODULE) ) {
 				cms_error('Installation of module '.$module_name.' failed: re-use core-module name');
 				return [FALSE,lang('errorbadname')];
 			}
@@ -1056,7 +1055,7 @@ VALUES (?,?,?,$now)");
 					require_once cms_module_path($onename);
 				}
 				$obj = new $module_name();
-				if( $obj->HasCapability(CmsCoreCapabilities::CORE_MODULE) ) {
+				if( $obj->HasCapability(CoreCapabilities::CORE_MODULE) ) {
 					$val[] = $module_name;
 				}
 				unset($obj);
@@ -1134,7 +1133,7 @@ VALUES (?,?,?,$now)");
 
 		if( $module_name && $module_name != -1 ) {
 			$obj = $this->get_module_instance($module_name);
-			if( $obj && $obj->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE) ) {
+			if( $obj && $obj->HasCapability(CoreCapabilities::SYNTAX_MODULE) ) {
 				return $obj;
 			}
 		}
@@ -1180,7 +1179,7 @@ VALUES (?,?,?,$now)");
 
 		if( !$module_name || $module_name == -1 ) return;
 		$obj = $this->get_module_instance($module_name);
-		if( $obj && $obj->HasCapability(CmsCoreCapabilities::WYSIWYG_MODULE) ) return $obj;
+		if( $obj && $obj->HasCapability(CoreCapabilities::WYSIWYG_MODULE) ) return $obj;
 	}
 
 	/**
@@ -1194,7 +1193,7 @@ VALUES (?,?,?,$now)");
 		$module_name = cms_siteprefs::get('searchmodule','Search');
 		if( $module_name && $module_name != 'none' && $module_name != '-1' ) {
 			$obj = $this->get_module_instance($module_name);
-			if( $obj && $obj->HasCapability(CmsCoreCapabilities::SEARCH_MODULE) ) return $obj;
+			if( $obj && $obj->HasCapability(CoreCapabilities::SEARCH_MODULE) ) return $obj;
 		}
 	}
 

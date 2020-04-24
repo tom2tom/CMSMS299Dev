@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\CoreCapabilities;
 use CMSMS\MultiEditor;
 
 class CoreTextEditing extends CMSModule implements MultiEditor
@@ -61,10 +62,10 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 	public function HasCapability($capability, $params = [])
 	{
 		switch ($capability) {
-			case CmsCoreCapabilities::CORE_MODULE:
-			case CmsCoreCapabilities::SYNTAX_MODULE:
-			case CmsCoreCapabilities::SITE_PREFERENCER:
-			case CmsCoreCapabilities::USER_PREFERENCER:
+			case CoreCapabilities::CORE_MODULE:
+			case CoreCapabilities::SYNTAX_MODULE:
+			case CoreCapabilities::SITE_PREFERENCER:
+			case CoreCapabilities::USER_PREFERENCER:
 				return true;
 			default:
 				return false;

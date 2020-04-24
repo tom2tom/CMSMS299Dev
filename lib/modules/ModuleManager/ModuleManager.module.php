@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\CoreCapabilities;
 use CMSMS\LogicException;
 use ModuleManager\Command;
 use ModuleManager\operations;
@@ -95,7 +96,7 @@ class ModuleManager extends CMSModule
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-            case CmsCoreCapabilities::CORE_MODULE:
+            case CoreCapabilities::CORE_MODULE:
                 return true;
             case 'clicommands':
                 return class_exists('CMSMS\\CLI\\App'); // TODO better namespace

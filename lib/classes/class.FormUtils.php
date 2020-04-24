@@ -19,10 +19,8 @@
 namespace CMSMS;
 
 use cms_config;
-use cms_siteprefs;
 use cms_utils;
 use CmsApp;
-use CmsCoreCapabilities;
 use CMSMS\HookManager;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
@@ -863,7 +861,7 @@ class FormUtils
                 $parms['class'] .= ' cmsms_wysiwyg';
             }
             $module = ModuleOperations::get_instance()->GetWYSIWYGModule($forcemodule);
-            if ($module && $module->HasCapability(CmsCoreCapabilities::WYSIWYG_MODULE)) {
+            if ($module && $module->HasCapability(CoreCapabilities::WYSIWYG_MODULE)) {
                 // TODO use $config['content_language']
                 $parms['data-cms-lang'] = 'html'; //park badly-named variable
                 $module_name = $module->GetName();
@@ -879,7 +877,7 @@ class FormUtils
         if (!$module && $wantedsyntax) {
             $parms['data-cms-lang'] = $wantedsyntax; //park
             $module = ModuleOperations::get_instance()->GetSyntaxHighlighter($forcemodule);
-            if ($module && $module->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE)) {
+            if ($module && $module->HasCapability(CoreCapabilities::SYNTAX_MODULE)) {
                 $module_name = $module->GetName();
                 if (empty($parms['class'])) {
                     $parms['class'] = $module_name; //not for CSS ?!

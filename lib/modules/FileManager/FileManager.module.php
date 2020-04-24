@@ -16,6 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\CoreCapabilities;
 use FileManager\Utils as Utils2;
 use FilePicker\Utils;
 
@@ -39,7 +40,7 @@ final class FileManager extends CMSModule
     public function GetName() { return 'FileManager'; }
     public function GetVersion() { return '1.7.0'; }
     public function HasAdmin() { return TRUE; }
-	public function HasCapability($capability, $params = []) { return $capability == CmsCoreCapabilities::CORE_MODULE; }
+	public function HasCapability($capability, $params = []) { return $capability == CoreCapabilities::CORE_MODULE; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return TRUE; }
 //    public function LazyLoadFrontend() { return TRUE; }

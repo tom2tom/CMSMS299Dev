@@ -616,7 +616,7 @@ abstract class CMSModule
      * construction/intialization.  Defaults to true.
      * @see CMSModule::RegisterRoute() and CreateStaticRoutes()
      * @since 2.9
-     * @deprecated since 2.9 Instead CMSModule::HasCapability() should report CmsCoreCapabilities::ROUTE_MODULE
+     * @deprecated since 2.9 Instead CMSModule::HasCapability() should report CMSMS\CoreCapabilities::ROUTE_MODULE
      *
      * @abstract
      * @return bool
@@ -1017,7 +1017,7 @@ abstract class CMSModule
     /**
      * Validate the value for a module generated content block type.
      *
-     * This mehod is called from a {content_module} tag, when the content edit form is being validated.
+     * This method is called from a {content_module} tag, when the content edit form is being validated.
      *
      * This method can be overridden if the module is providing content
      * block types to the CMSMS content objects.
@@ -1079,7 +1079,7 @@ abstract class CMSModule
      * Register a custom content-type.
      * This should be called from the module's constructor or from relevant
      * Initialize method(s).
-     * The module must report CmsCoreCapabilities::CONTENT_TYPES or else
+     * The module must report CMSMS\CoreCapabilities::CONTENT_TYPES or else
      * this will probably never be called.
      *
      * @since 0.9 (but missing from 2.0-2.2)
@@ -1370,7 +1370,7 @@ abstract class CMSModule
      * Returns true/false indicating whether the module should be treated as a
      * plugin module (like {cms_module module='name'}.  Defaults to false.
      * @see CMSModule::RegisterModulePlugin()
-     * @deprecated since 2.9 Instead CMSModule::HasCapability() should report CmsCoreCapabilities::PLUGIN_MODULE
+     * @deprecated since 2.9 Instead CMSModule::HasCapability() should report CMSMS\CoreCapabilities::PLUGIN_MODULE
      *
      * @abstract
      * @return bool

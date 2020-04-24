@@ -18,6 +18,7 @@
 
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\CoreCapabilities;
 use CMSMS\FormUtils;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\MultiEditor;
@@ -1288,7 +1289,7 @@ function get_richeditor_setup(array $params) : array
                     }
                     return $modinst->GetEditorSetup($edname, $params);
                 }
-                elseif( $modinst->HasCapability(CmsCoreCapabilities::WYSIWYG_MODULE) ) {
+                elseif( $modinst->HasCapability(CoreCapabilities::WYSIWYG_MODULE) ) {
                     if( empty($params['editor']) ) { $params['editor'] = $vars[1] ?? $modname; }
                     //$params[] will be ignored by modules without relevant capability
                     $out = $modinst->WYSIWYGGenerateHeader($params);
@@ -1351,7 +1352,7 @@ function get_syntaxeditor_setup(array $params) : array
                     }
                     return $modinst->GetEditorSetup($edname, $params);
                 }
-                elseif( $modinst->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE) ) {
+                elseif( $modinst->HasCapability(CoreCapabilities::SYNTAX_MODULE) ) {
                     if( empty($params['editor']) ) { $params['editor'] = $vars[1] ?? $modname; }
                     //$params[] will be ignored by modules without relevant capability
                     $out = $modinst->SyntaxGenerateHeader($params);

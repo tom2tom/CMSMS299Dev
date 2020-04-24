@@ -15,6 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\CoreCapabilities;
 use MicroTiny\Utils;
 
 class MicroTiny extends CMSModule
@@ -46,11 +47,11 @@ class MicroTiny extends CMSModule
   public function HasCapability($capability, $params=[])
   {
     switch ($capability) {
-      case CmsCoreCapabilities::CORE_MODULE:
-      case CmsCoreCapabilities::PLUGIN_MODULE:
-      case CmsCoreCapabilities::WYSIWYG_MODULE:
-      case CmsCoreCapabilities::SITE_PREFERENCER:
-      case CmsCoreCapabilities::USER_PREFERENCER:
+      case CoreCapabilities::CORE_MODULE:
+      case CoreCapabilities::PLUGIN_MODULE:
+      case CoreCapabilities::WYSIWYG_MODULE:
+      case CoreCapabilities::SITE_PREFERENCER:
+      case CoreCapabilities::USER_PREFERENCER:
         return TRUE;
     }
     return FALSE;
