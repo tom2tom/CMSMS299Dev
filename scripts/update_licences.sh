@@ -3,6 +3,7 @@
 # scans the first 6 lines of relevant files
 
 #this is where the things are executed from, must be parent of twigs
+#and by default the parent of this script's folder
 SHAREDROOT='..'
 #dirs to scan
 TWIGS="lib admin assets uploads tests phar_installer"
