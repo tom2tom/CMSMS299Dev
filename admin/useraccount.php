@@ -97,7 +97,7 @@ $extras = get_secure_param_array();
 $smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'selfurl' => $selfurl,
-	'extraparms' => $extras,
+    'extraparms' => $extras,
     'urlext' => $urlext,
     'userobj'=>$userobj,
 ]);
