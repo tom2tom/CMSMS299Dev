@@ -103,5 +103,5 @@ $smarty->assign([
 ]);
 
 include_once 'header.php';
-$smarty->display('myaccount.tpl');
+$smarty->display('useraccount.tpl');
 include_once 'footer.php';
