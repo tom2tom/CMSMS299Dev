@@ -16,6 +16,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU Affero General Public License for more details.
 <https://www.gnu.org/licenses/#AGPL>
 */
+
 use CMSMS\LangOperations;
 
 if (!isset($gCms)) exit;
