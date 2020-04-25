@@ -233,7 +233,6 @@ function get_forward_classes()
 	'CMSMS\Permission' => 'CmsPermission',
 	'CMSMS\RegularTask' => 'CmsRegularTask', //interface
 	'CMSMS\Route' => 'CmsRoute',
-	'CMSMS\SiteVars' => 'cms_siteprefs',
 	'CMSMS\Stylesheet' => 'CmsLayoutStylesheet',
 	'CMSMS\StylesheetQuery' => 'CmsLayoutStylesheetQuery',
 	'CMSMS\Template' => 'CmsLayoutTemplate',
@@ -241,9 +240,7 @@ function get_forward_classes()
 	'CMSMS\TemplatesGroup' => 'CmsLayoutTemplateCategory',
 	'CMSMS\TemplateType' => 'CmsLayoutTemplateType',
 	'CMSMS\Tree' => 'cms_tree',
-	'CMSMS\TreeOperations' => 'cms_tree_operations',
 	'CMSMS\Url' => 'cms_url',
-	'CMSMS\UserVars' => 'cms_userprefs',
 	'CMSMS\Utils' => 'cms_utils',
 	'DesignManager\Design' => 'CmsLayoutCollection', //CHECK this works
 	];

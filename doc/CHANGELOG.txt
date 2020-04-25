@@ -25,9 +25,7 @@ eventually, all core classes will be spaced. Devs are encouraged to start using 
 'CMSMS\App' => 'CmsApp',
 'CMSMS\Async\JobOperations' => 'CMSMS\Async\JobManager',
 'CMSMS\Config' => 'cms_config',
-'CMSMS\ContentTree' => 'cms_content_tree',
 'CMSMS\Cookies' => 'cms_cookies',
-'CMSMS\CoreCapabilities' => 'CmsCoreCapabilities',
 'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
 'CMSMS\FileSystemProfile' => 'CMSMS\FilePickerProfile',
 'CMSMS\HookOperations' => 'CMSMS\HookManager',
@@ -39,7 +37,6 @@ eventually, all core classes will be spaced. Devs are encouraged to start using 
 'CMSMS\Permission' => 'CmsPermission',
 'CMSMS\RegularTask' => 'CmsRegularTask',
 'CMSMS\Route' => 'CmsRoute',
-'CMSMS\SiteVars' => 'cms_siteprefs',
 'CMSMS\Stylesheet' => 'CmsLayoutStylesheet',
 'CMSMS\StylesheetQuery' => 'CmsLayoutStylesheetQuery',
 'CMSMS\Template' => 'CmsLayoutTemplate',
@@ -47,14 +44,11 @@ eventually, all core classes will be spaced. Devs are encouraged to start using 
 'CMSMS\TemplatesGroup' => 'CmsLayoutTemplateCategory',
 'CMSMS\TemplateType' => 'CmsLayoutTemplateType',
 'CMSMS\Tree' => 'cms_tree',
-'CMSMS\TreeOperations' => 'cms_tree_operations',
 'CMSMS\Url' => 'cms_url',
-'CMSMS\UserVars' => 'cms_userprefs',
 'CMSMS\Utils' => 'cms_utils',
 'DesignManager\Design' => 'CmsLayoutCollection'
 
 support namespace 'CMSAsset' for non-core classes added into <siterootpath>/assets/classes and descendants
-support namespace 'CMSResource' for classes etc <siterootpath>/assets/resources and descendants
 
 remote administration API (calguy to describe, please!)
 optional per-page inclusions (e.g. css, js urls/verbatim) for admin-pages and module-actions, to supplement and/or replace template content and CMSModule::GetHeaderHTML(). So e.g. js can be removed from templates, and inserted at page-bottom.
