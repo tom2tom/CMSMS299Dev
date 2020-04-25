@@ -40,7 +40,7 @@
       <div class="header-bottom row">
        <div class="col-6 welcome">
         {if isset($myaccount)}
-        <span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i aria-label="username and account" class="fas fa-user-edit"></i></a> {'welcome_user'|lang}: <a href="myaccount.php?{$secureparam}">{$username}</a></span>
+        <span><a class="welcome-user" href="useraccount.php?{$secureparam}" title="{'myaccount'|lang}"><i aria-label="username and account" class="fas fa-user-edit"></i></a> {'welcome_user'|lang}: <a href="useraccount.php?{$secureparam}">{$username}</a></span>
         {else}
         <span class="welcome-user"><i aria-hidden="true" class="fas fa-user"></i> {'welcome_user'|lang}: {$username}</span>
         {/if}
