@@ -803,12 +803,13 @@ abstract class AdminTheme
                 $val = $item['priority'] ?? 1;
                 $item['priority'] = (int)$val;
                 $item['final'] = !empty($item['final']);
+
                 $val = $item['show'] ?? true;
                 unset($item['show']);
                 if( !is_bool($val) ) {
                     $val = $this->HasPerm($val);
                 }
-                $one['show_in_menu'] = $val;
+                $item['show_in_menu'] = $val;
             }
             else {
                 $item['show_in_menu'] = false;
