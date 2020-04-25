@@ -1,6 +1,6 @@
 <?php
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Modules') ) return;
+if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 
 $mod = get_parameter_value($params,'mod');

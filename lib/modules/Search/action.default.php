@@ -26,7 +26,7 @@ else {
     $tpl = TemplateOperations::get_default_template_by_type('Search::searchform');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default summary template found');
-        return;
+        return '';
     }
     $template = $tpl->get_name();
 }
@@ -80,4 +80,4 @@ if( $hidden ) {
 }
 
 $tpl->display();
-return false;
+return '';

@@ -21,7 +21,7 @@ use CMSMS\TemplateOperations;
 use DesignManager\Design;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Manage Designs') ) return;
+if( !$this->CheckPermission('Manage Designs') ) exit;
 
 if( isset($params['cancel']) ) {
   $this->SetInfo($this->Lang('msg_cancelled'));
@@ -177,7 +177,7 @@ EOS;
   add_page_foottext($js);
 
   $tpl->display();
-  return false;
+  return '';
 }
 catch( CmsException $e ) {
   $this->SetError($e->GetMessage());

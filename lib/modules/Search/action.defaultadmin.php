@@ -123,4 +123,4 @@ $tpl->assign('input_resultpage',
 				AdminUtils::CreateHierarchyDropdown(0,$this->GetPreference('resultpage',-1),$id.'resultpage',true));
 
 $tpl->display();
-return false;
+return '';

@@ -25,8 +25,8 @@ use CMSMS\RouteOperations;
 use CMSMS\UserOperations;
 use News\AdminOperations;
 
-if (!isset($gCms))  exit ;
-if (!$this->CheckPermission('Modify News'))  return;
+if (!isset($gCms)) exit;
+if (!$this->CheckPermission('Modify News')) exit;
 if (isset($params['cancel'])) $this->Redirect($id, 'defaultadmin', $returnid);
 
 $cz = $config['timezone'];
@@ -421,4 +421,4 @@ try {
 include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 
 $tpl->display();
-return false;
+return '';

@@ -17,7 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Site Preferences' ) ) return;
+if( !$this->CheckPermission('Modify Site Preferences' ) ) exit;
 
 $this->SetCurrentTab('prefs');
 
@@ -43,4 +43,3 @@ else {
 
 $this->SetMessage($this->Lang('msg_prefssaved'));
 $this->RedirectToAdminTab();
-

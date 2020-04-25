@@ -18,7 +18,7 @@
 use CMSContentManager\Utils;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Site Preferences') ) return;
+if( !$this->CheckPermission('Modify Site Preferences') ) exit;
 
 if( isset($params['cancel']) ) {
 	$this->RedirectToAdminTab('','','admin_settings');

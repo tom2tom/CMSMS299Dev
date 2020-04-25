@@ -50,7 +50,7 @@ try {
     $tpl = $smarty->createTemplate($this->GetTemplateResource('edit_profile.tpl'),null,null,$smarty);
     $tpl->assign('profile',$profile);
     $tpl->display();
-    return false;
+    return '';
 }
 catch( CmsInvalidDataException $e ) {
     $this->SetError( $this->Lang( $e->GetMessage() ) );

@@ -20,7 +20,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 use News\AdminOperations;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Delete News') ) return;
+if( !$this->CheckPermission('Delete News') ) exit;
 
 $articleid = $params['articleid'] ?? '';
 if( AdminOperations::delete_article($articleid) ) {

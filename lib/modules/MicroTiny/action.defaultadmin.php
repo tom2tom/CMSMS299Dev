@@ -17,8 +17,8 @@
 
 use MicroTiny\Profile;
 
-if( !function_exists('cmsms') )exit;
-if(!$this->VisibleToAdminUser() ) return;
+if( !function_exists('cmsms') ) exit;
+if(!$this->VisibleToAdminUser() ) exit;
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
 
@@ -39,4 +39,4 @@ catch( Exception $e ) {
 }
 
 $tpl->display();
-return false;
+return '';

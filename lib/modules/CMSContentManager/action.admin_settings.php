@@ -22,7 +22,7 @@ use CMSMS\ContentOperations;
 use CMSMS\TemplateOperations;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Site Preferences') ) return;
+if( !$this->CheckPermission('Modify Site Preferences') ) exit;
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl'),null,null,$smarty);
 
@@ -91,4 +91,4 @@ $tpl->assign('page_prefs',$prefs)
  ->assign('addteditor_list',$eds);
 
 $tpl->display();
-return false;
+return '';

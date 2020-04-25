@@ -25,8 +25,8 @@ use CMSMS\RouteOperations;
 use CMSMS\UserOperations;
 use News\AdminOperations;
 
-if (!isset($gCms))  exit ;
-if (!$this->CheckPermission('Modify News'))  return;
+if (!isset($gCms)) exit;
+if (!$this->CheckPermission('Modify News')) exit;
 if (isset($params['cancel'])) {
     $this->Redirect($id, 'defaultadmin', $returnid);
 }
@@ -219,14 +219,13 @@ WHERE news_id=?';
             }
             $response .= '</EditArticle>';
             echo $response;
-            return;
+            return '';
         }
 
         if (!$error && !isset($params['apply'])) {
             // redirect out of here.
             $this->SetMessage($this->Lang('articlesubmitted'));
             $this->Redirect($id, 'defaultadmin', $returnid);
-            return;
         }
 
     }
@@ -482,4 +481,4 @@ try {
 include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 
 $tpl->display();
-return false;
+return '';

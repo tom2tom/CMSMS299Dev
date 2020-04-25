@@ -18,7 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 if (!isset($gCms)) exit;
-if( !$this->CheckPermission( 'Modify News Preferences' ) ) return;
+if( !$this->CheckPermission( 'Modify News Preferences' ) ) exit;
 if( isset($params['cancel']) ) {
     $this->RedirectToAdminTab('settings');
 }

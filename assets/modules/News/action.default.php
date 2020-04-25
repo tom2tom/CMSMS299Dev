@@ -35,7 +35,7 @@ else {
     $tpl = TemplateOperations::get_default_template_by_type($me.'::summary');
     if( !is_object($tpl) ) {
         audit('',$me,'No default summary template found');
-        return;
+        return '';
     }
     $template = $tpl->get_name();
 }
@@ -352,4 +352,4 @@ $tpl->assign('category_name',$catName)
  ->assign('count',$c);
 
 $tpl->display();
-return false;
+return '';

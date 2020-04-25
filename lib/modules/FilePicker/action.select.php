@@ -36,4 +36,4 @@ try {
 catch( Exception $e ) {
     $this->SetError($e->GetMessage()); //probably useless here
 }
-return false;
+return '';

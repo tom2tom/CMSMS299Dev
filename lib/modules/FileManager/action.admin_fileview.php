@@ -333,4 +333,4 @@ EOS;
 }
 
 $tpl->display();
-return false;
+return '';

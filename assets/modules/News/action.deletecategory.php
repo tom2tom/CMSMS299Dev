@@ -21,7 +21,7 @@ use CMSMS\Events;
 use News\AdminOperations;
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify News Preferences')) return;
+if (!$this->CheckPermission('Modify News Preferences')) exit;
 
 $catid = $params['catid'] ?? '';
 if (is_numeric($catid)) {

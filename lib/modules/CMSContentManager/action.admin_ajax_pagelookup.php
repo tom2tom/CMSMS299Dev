@@ -1,6 +1,6 @@
 <?php
 # CMSContentManager module ajax-processor action
-# Coopyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# Coopyright (C) 2013-2020 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,7 @@ if( $term ) {
 
     if( !($this->CheckPermission('Manage All Content') || $this->CheckPermission('Modify Any Page')) ) {
         $pages = author_pages(get_userid(FALSE));
-        if( !$pages ) return;
+        if( !$pages ) exit;
 
         // query only these pages.
         $query .= ' AND content_id IN ('.implode(',',$pages).')';

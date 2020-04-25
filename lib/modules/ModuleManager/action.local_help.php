@@ -4,7 +4,7 @@ use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 
 if( !isset($gCms) ) exit;
-//if( !$this->CheckPermission('Modify Modules') ) return;
+//if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 if( !isset($params['mod']) ) {
     $this->SetError($this->Lang('error_missingparam'));
@@ -51,4 +51,4 @@ if( $our_lang != 'en_US' && $lang != '' ) {
 }
 
 $tpl->display();
-return false;
+return '';

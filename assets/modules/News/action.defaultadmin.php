@@ -25,7 +25,7 @@ $papp = $this->CheckPermission('Approve News');
 $pmod = $this->CheckPermission('Modify News');
 $pdel = $this->CheckPermission('Delete News');
 $pset = $this->CheckPermission('Modify News Preferences');
-if( !($papp || $pmod || $pdel || $pset) ) return;
+if( !($papp || $pmod || $pdel || $pset) ) exit;
 
 if (isset($params['bulk_action']) ) {
     if( empty($params['sel']) ) {
@@ -165,4 +165,4 @@ if( $pset ) {
 }
 
 $tpl->display();
-return false;
+return '';

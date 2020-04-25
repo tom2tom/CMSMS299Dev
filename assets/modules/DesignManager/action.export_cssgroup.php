@@ -19,7 +19,7 @@ use CMSMS\StylesheetsGroup;
 use DesignManager\Design;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Manage Stylesheets') ) return;
+if( !$this->CheckPermission('Manage Stylesheets') ) exit;
 
 $this->SetCurrentTab('designs');
 

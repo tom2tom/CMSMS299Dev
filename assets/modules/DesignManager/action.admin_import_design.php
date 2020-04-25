@@ -20,7 +20,7 @@ use DesignManager\Design;
 use DesignManager\reader_factory;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Manage Designs') ) return;
+if( !$this->CheckPermission('Manage Designs') ) exit;
 
 $this->SetCurrentTab('designs');
 
@@ -176,7 +176,7 @@ EOS;
   default:
     break;
   } // switch
-  return false;
+  return '';
 }
 catch( CmsException $e ) {
   $this->SetError($e->GetMessage());

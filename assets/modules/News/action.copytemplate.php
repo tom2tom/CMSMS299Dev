@@ -20,8 +20,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\TemplateOperations;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify News Preferences') ) return;
-if( !isset($params['tpl']) ) return;
+if( !$this->CheckPermission('Modify News Preferences') ) exit;
+if( !isset($params['tpl']) ) exit;
 
 try {
 	$tpl = TemplateOperations::get_template($params['tpl']);

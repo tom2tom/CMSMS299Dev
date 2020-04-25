@@ -32,7 +32,7 @@ else {
     $tpl = TemplateOperations::get_default_template_by_type('Navigator::breadcrumbs');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default breadcrumbs template found');
-        return;
+        return '';
     }
     $template = $tpl->get_name();
 }
@@ -42,15 +42,15 @@ else {
 //
 $content_obj = $gCms->get_content_object();
 if( !$content_obj ) {
-    return; // no current page?
+    return ''; // no current page?
 }
 $thispageid = $content_obj->Id();
 if( !$thispageid ) {
-    return; // no current page?
+    return ''; // no current page?
 }
 $hm = $gCms->GetHierarchyManager();
 $endNode = $hm->find_by_tag('id',$thispageid);
-if( !$endNode ) return; // no current page?
+if( !$endNode ) return ''; // no current page?
 $starttext = $this->Lang('youarehere');
 if( isset($params['start_text']) ) $starttext = trim($params['start_text']);
 
@@ -97,4 +97,4 @@ $tpl->display();
 unset($tpl);
 
 debug_buffer('Finished Navigator breadcrumbs action');
-return false;
+return '';

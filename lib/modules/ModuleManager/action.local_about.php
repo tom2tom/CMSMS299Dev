@@ -3,7 +3,7 @@
 use CMSMS\ModuleOperations;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Modules') ) return;
+if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 if( !isset($params['mod']) ) {
   $this->SetError($this->Lang('error_missingparam'));
@@ -25,4 +25,4 @@ $tpl->assign('module_name',$module)
  ->assign('about_title',$this->Lang('about_title',$modinstance->GetName()));
 
 $tpl->display();
-return false;
+return '';

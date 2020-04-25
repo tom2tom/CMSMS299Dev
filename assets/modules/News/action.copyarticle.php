@@ -23,7 +23,7 @@ if (!isset($gCms)) exit;
 
 if (!$this->CheckPermission('Modify News')) {
     $this->SetError($this->Lang('needpermission', 'Modify News')); //probsaly useless before return
-    return;
+    return '';
 }
 
 $articleid = $params['articleid'] ?? '';

@@ -20,7 +20,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Events;
 
 if( !isset($gCms) ) exit();
-if( !$this->CheckPermission('Approve News') ) exit();
+if( !$this->CheckPermission('Approve News') ) exit;
 
 if( !isset($params['approve']) || !isset($params['articleid']) ) {
   die('missing parameter, this should not happen');
@@ -51,7 +51,10 @@ if( is_object($search) ) {
   else if( $status == 'published' ) {
     $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
     $article = $db->GetRow($query,[$articleid]);
-    if( !$article ) return;
+    if( !$article ) {
+        $this->SetError($this->Lang('error_detailed', 'Record not found'));
+        $this->Redirect($id, 'defaultadmin', $returnid);
+    }
 
     if( $article['end_time'] != '' ) {
       $useexp = 1;

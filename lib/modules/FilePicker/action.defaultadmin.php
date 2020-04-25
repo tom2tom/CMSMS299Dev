@@ -20,11 +20,11 @@
 use FilePicker\ProfileDAO;
 
 if( !defined('CMS_VERSION') ) exit;
-if( !$this->VisibleToAdminUser() ) return;
+if( !$this->VisibleToAdminUser() ) exit;
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),null,null,$smarty);
 $tpl->assign('dflt_profile_id',$this->_dao->getDefaultProfileId())
  ->assign('profiles',$this->_dao->loadAll());
 
 $tpl->display();
-return false;
+return '';

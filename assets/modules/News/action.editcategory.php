@@ -22,7 +22,7 @@ use News\AdminOperations;
 use News\Utils;
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify News Preferences')) return;
+if (!$this->CheckPermission('Modify News Preferences')) exit;
 
 if (isset($params['cancel'])) $this->RedirectToAdminTab('groups');
 
@@ -117,4 +117,4 @@ $tpl->assign('formaction','editcategory')
  ->assign('categories',$categories);
 
 $tpl->display();
-return false;
+return '';

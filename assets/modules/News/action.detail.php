@@ -39,7 +39,7 @@ else {
     $tpl = TemplateOperations::get_default_template_by_type($me.'::detail');
     if( !is_object($tpl) ) {
         audit('',$me,'No usable detail template found');
-        return;
+        return '';
     }
     $template = $tpl->get_name();
 }
@@ -100,4 +100,4 @@ $tpl->assign('category_link',$this->CreateLink($id, 'default', $returnid, $catNa
  ->assign('extra_label', $this->Lang('extra_label'));
 
 $tpl->display();
-return false;
+return '';

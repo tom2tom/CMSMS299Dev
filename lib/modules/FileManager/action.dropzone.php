@@ -3,7 +3,7 @@
 use FileManager\Utils;
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Files')) return;
+if (!$this->CheckPermission('Modify Files')) exit;
 
 $cwd = Utils::get_cwd();
 
@@ -134,4 +134,4 @@ if( $output ) {
 }
 
 $tpl->display();
-return false;
+return '';

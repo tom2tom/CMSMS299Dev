@@ -33,7 +33,7 @@ function cmscm_admin_bulk_delete_can_delete($node)
   // test if can delete this node (not its children)
   $mod = cms_utils::get_module('CMSContentManager');
   if( $mod->CheckPermission('Manage All Content') ) return TRUE;
-  if( $mod->CheckPermission('Modify Any Page') && $mod->CheckPermission('Remove Pages') ) return true;
+  if( $mod->CheckPermission('Modify Any Page') && $mod->CheckPermission('Remove Pages') ) return TRUE;
   if( !$mod->CheckPermission('Remove Pages') ) return FALSE;
 
   $id = (int)$node->get_tag('id');
@@ -144,4 +144,4 @@ $tpl->assign('pagelist',$xlist)
  ->assign('displaydata',$displaydata);
 
 $tpl->display();
-return false;
+return '';

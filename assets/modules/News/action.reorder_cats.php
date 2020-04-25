@@ -20,7 +20,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 use News\AdminOperations;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify News Preferences') ) return;
+if( !$this->CheckPermission('Modify News Preferences') ) exit;
 
 function news_reordercats_create_flatlist($tree,$parent_id = -1)
 {
@@ -112,4 +112,4 @@ EOS;
 add_page_foottext($js);
 
 $tpl->display();
-return false;
+return '';

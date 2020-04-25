@@ -88,4 +88,4 @@ $tpl->assign('sel',$sel)
  ->assign('formend', $this->CreateFormEnd());
 
 $tpl->display();
-return false;
+return '';

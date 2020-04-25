@@ -4,7 +4,7 @@ use CMSMS\Events;
 use ModuleManager\operations;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Modules') ) return;
+if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 
 $key = $id.'upload';

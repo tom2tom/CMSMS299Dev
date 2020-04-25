@@ -410,4 +410,4 @@ catch( Exception $e ) {
     audit('','FilePicker',$e->GetMessage());
     echo $smarty->errorConsole( $e, false );
 }
-return false;
+return '';

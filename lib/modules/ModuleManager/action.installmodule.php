@@ -24,7 +24,7 @@ use ModuleManager\operations;
 use ModuleManager\utils;
 
 if (!isset($gCms)) exit;
-if( !$this->CheckPermission('Modify Modules') ) return;
+if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('modules');
 
 if( isset($params['cancel']) ) {
@@ -306,7 +306,7 @@ try {
      ->assign('dependencies',$alldeps);
 
     $tpl->display();
-    return false;
+    return '';
 }
 catch( Exception $e ) {
     $this->SetError($e->GetMessage());

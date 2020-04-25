@@ -26,15 +26,14 @@ if( isset($params['modulehelp']) ) {
     // this is done before permissions checks
     $params['mod'] = $params['modulehelp'];
     unset($params['modulehelp']);
-    require __DIR__.DIRECTORY_SEPARATOR.'action.local_help.php';
-    return;
+    return require __DIR__.DIRECTORY_SEPARATOR.'action.local_help.php';
 }
 
-if( !$this->VisibleToAdminUser() ) return;
+if( !$this->VisibleToAdminUser() ) exit;
 
 $pmod = $this->CheckPermission('Modify Modules');
 $pset = $this->CheckPermission('Modify Site Preferences');
-if( !($pmod || $pset) ) return;
+if( !($pmod || $pset) ) exit;
 
 $connection_ok = utils::is_connection_ok();
 if( !$connection_ok ) {
@@ -64,4 +63,4 @@ if( $pset ) {
 }
 
 $tpl->display();
-return false;
+return '';

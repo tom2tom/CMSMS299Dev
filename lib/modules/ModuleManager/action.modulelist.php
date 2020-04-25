@@ -34,7 +34,7 @@ $repmodules = $repmodules[1];
 $result = utils::get_installed_modules();
 if( ! $result[0] ) {
   $this->_DisplayErrorPage( $id, $params, $returnid, $result[1] );
-  return;
+  return '';
 }
 
 $instmodules = $result[1];
@@ -147,4 +147,4 @@ $tpl->assign('nametext',$this->Lang('nametext'))
  ->assign('header',$this->Lang('versionsformodule',$prefix));
 
 $tpl->display();
-return false;
+return '';

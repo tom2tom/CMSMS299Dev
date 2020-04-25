@@ -148,4 +148,4 @@ $tpl->assign('formstart',$this->CreateFormStart($id,'resizecrop',$returnid,'post
  ->assign('filename',$filename);
 
 $tpl->display();
-return false;
+return '';

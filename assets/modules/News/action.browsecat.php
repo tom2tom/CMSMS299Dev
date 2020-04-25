@@ -30,7 +30,7 @@ else {
   $tpl = TemplateOperations::get_default_template_by_type($me.'::browsecat');
   if( !is_object($tpl) ) {
     audit('',$me,'No usable categories-template found');
-    return;
+    return '';
   }
   $template = $tpl->get_name();
 }
@@ -44,4 +44,4 @@ $tpl->assign('count', count($items))
  ->assign('cats', $items);
 
 $tpl->display();
-return false;
+return '';

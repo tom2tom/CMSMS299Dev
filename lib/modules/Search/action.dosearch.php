@@ -29,7 +29,7 @@ else {
     $tpl = TemplateOperations::get_default_template_by_type('Search::searchresults');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default summary template found');
-        return;
+        return '';
     }
     $template = $tpl->get_name();
 }
@@ -212,4 +212,4 @@ $tpl->assign('use_or_text', $this->Lang('use_or'))
  ->assign('noresultsfound', $this->Lang('noresultsfound'))
  ->assign('timetaken', $this->Lang('timetaken'));
 $tpl->display();
-return false;
+return '';

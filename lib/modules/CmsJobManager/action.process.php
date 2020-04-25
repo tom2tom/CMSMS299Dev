@@ -41,7 +41,7 @@ try {
         if (defined('ASYNCLOG')) {
             error_log('async action: process - too soon'."\n", 3, ASYNCLOG);
         }
-        return;
+        return '';
     }
 */
     utils::process_errors();
@@ -52,7 +52,7 @@ try {
         if (defined('ASYNCLOG')) {
             error_log('async action: process - no jobs'."\n", 3, ASYNCLOG);
         }
-        return; // nothing to do
+        return ''; // nothing to do
     }
 
     if ($this->is_locked()) {

@@ -41,7 +41,7 @@ else {
     $tpl = TemplateOperations::get_default_template_by_type('Navigator::navigation');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default template found');
-        return;
+        return '';
     }
     $template = $tpl->get_name();
 }
@@ -235,7 +235,7 @@ else {
     }
 }
 
-if( count($rootnodes) == 0 ) return; // nothing to do.
+if( count($rootnodes) == 0 ) return ''; // nothing to do.
 
 // ready to fill the nodes
 $outtree = [];
@@ -257,4 +257,4 @@ $tpl->display();
 unset($tpl);
 debug_buffer('Finished Navigator default action');
 
-return false;
+return '';

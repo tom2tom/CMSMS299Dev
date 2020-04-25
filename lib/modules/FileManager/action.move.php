@@ -116,4 +116,4 @@ $tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, '
 //see DoActionBase() ->assign('mod',$this);
 
 $tpl->display();
-return false;
+return '';

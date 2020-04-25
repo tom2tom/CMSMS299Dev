@@ -19,7 +19,7 @@
 use CMSMS\ContentOperations;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Manage All Content') ) return;
+if( !$this->CheckPermission('Manage All Content') ) exit;
 
 if( isset($params['cancel']) ) {
   $this->SetInfo($this->Lang('msg_cancelled'));
@@ -163,4 +163,4 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_ordercontent.tp
 $tpl->assign('tree',$hm);
 
 $tpl->display();
-return false;
+return '';

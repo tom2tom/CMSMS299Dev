@@ -70,7 +70,7 @@ if( isset($params['submit']) ) {
 
 list($sheetrows,$grouped,$js) = Utils::get_sheets_data();
 if( !$sheetrows ) {
-    return; //no style, nothing to set
+    return ''; //no style, nothing to set
 }
 if( $js ) {
     add_page_foottext($js);
@@ -100,4 +100,4 @@ $tpl->assign('pagelist',$pagelist)
  ->assign('sheets',$sheetrows);
 
 $tpl->display();
-return false;
+return '';

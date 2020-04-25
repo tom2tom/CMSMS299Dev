@@ -18,8 +18,8 @@
 use CMSMS\StylesheetOperations;
 use MicroTiny\Profile;
 
-if( !cmsms() ) exit;
-if (!$this->VisibleToAdminUser()) return;
+if( !function_exists('cmsms') ) exit;
+if (!$this->VisibleToAdminUser()) exit;
 $this->SetCurrentTab('settings');
 
 try {
@@ -65,7 +65,7 @@ try {
   $tpl->assign('stylesheets',$stylesheets);
 
   $tpl->display();
-  return false;
+  return '';
 }
 catch( Exception $e ) {
   $this->SetError($e->GetMessage());

@@ -21,7 +21,7 @@
 use DesignManager\Design;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Manage Designs') ) return;
+if( !$this->CheckPermission('Manage Designs') ) exit;
 
 $this->SetCurrentTab('designs');
 if( isset($params['cancel']) ) {
@@ -91,7 +91,7 @@ try {
      ->assign('design',$design);
 
     $tpl->display();
-    return false;
+    return '';
 }
 catch( CmsException $e ) {
     $this->SetError($e->GetMessage());

@@ -3,7 +3,7 @@
 use CMSMS\ModuleOperations;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Modules') ) return;
+if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 
 try {
@@ -53,4 +53,4 @@ try {
 catch( Exception $e ) {
     $this->SetError($e->GetMessage());
 }
-return false;
+return '';

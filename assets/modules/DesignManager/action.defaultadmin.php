@@ -19,7 +19,7 @@
 use DesignManager\Design;
 
 if( !isset($gCms) ) exit;
-if( !$this->VisibleToAdminUser() ) return;
+if( !$this->VisibleToAdminUser() ) exit;
 
 $pmod = $this->CheckPermission('Manage Designs');
 
@@ -100,4 +100,4 @@ $tpl->assign('pmod',$pmod);
 //}
 
 $tpl->display();
-return false;
+return '';

@@ -19,7 +19,7 @@
 use AdminSearch\tools;
 
 if( !isset($gCms) ) exit;
-if( !$this->VisibleToAdminUser() ) return;
+if( !$this->VisibleToAdminUser() ) exit;
 
 $out = <<<EOS
 <style type="text/css">
@@ -139,4 +139,4 @@ $slaves = tools::get_slave_classes();
 $tpl->assign('slaves',$slaves);
 
 $tpl->display();
-return false;
+return '';

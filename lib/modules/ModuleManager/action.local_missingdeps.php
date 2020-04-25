@@ -3,7 +3,7 @@
 use ModuleManager\ModuleInfo;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Modules') ) return;
+if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 if( !isset($params['mod']) ) {
   $this->SetError($this->Lang('error_missingparam'));
@@ -19,4 +19,4 @@ $tpl->assign('back_url',$this->create_url($id,'defaultadmin',$returnid))
  ->assign('info',$info);
 
 $tpl->display();
-return false;
+return '';

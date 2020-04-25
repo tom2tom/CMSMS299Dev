@@ -19,26 +19,27 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 if( !function_exists('cmsms') ) exit;
 $fp = cms_join_path(CMS_ROOT_PATH, 'lib', 'assets', 'method.edittemplate.php');
-if( !is_file($fp) ) {
-    echo '<p class="page_error">'.lang('error_internal').'</p>';
-    return false;
-}
+if( is_file($fp) ) {
+    $user_id = get_userid();
+    $can_manage = check_permission($user_id, 'Modify News Preferences');  // || Modify Templates etc ??
+    if( !$can_manage ) exit;
+    $content_only = false; //TODO per actual permmissions
 
-$user_id = get_userid();
-$can_manage = check_permission($user_id, 'Modify News Preferences');  // || Modify Templates etc ??
-if( !$can_manage ) return;
-$content_only = false; //TODO per actual permmissions
+    $module = $this;
+    $returntab = 'templates';
 
-$module = $this;
-$returntab = 'templates';
+    if( $params['tpl'] > 0 ) {
+        $title = $this->Lang('prompt_edittemplate');
+    }
+    else {
+        $title = $this->Lang('prompt_addtemplate');
+    }
+    $show_buttons = true;
+    $show_cancel = true;
 
-if( $params['tpl'] > 0 ) {
-    $title = $this->Lang('prompt_edittemplate');
+    include_once $fp;
 }
 else {
-    $title = $this->Lang('prompt_addtemplate');
+    echo '<p class="page_error">'.lang('error_internal').'</p>';
 }
-$show_buttons = true;
-$show_cancel = true;
-
-include_once $fp;
+return '';
