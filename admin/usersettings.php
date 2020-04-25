@@ -152,20 +152,20 @@ if ($wysiwygtype) { $wysiwyg .= '::'.$wysiwygtype; }
 $wysiwygtheme = cms_userprefs::get_for_user($userid, 'wysiwyg_theme');
 
 /*
-TODO run a hooklist to retrieve UI for user-settings derived from modules
 $modules = ModuleOperations::get_modules_with_capability(CMSMS\CoreCapabilities::USER_SETTINGS);
 Load such modules if not already done
-Run the list, to collect:
-* prefgroup name | default = ?
-* intra-prefgroup order | default as-reported
-* prefname
-* publictitle
-* public on-page guide &\| onclick popup help
-* input type
-* js
+Run a hooklist to retrieve from those modules, a bunch of:
+ * prefgroup name | default = ?
+ * intra-prefgroup order | default as-reported
+ * prefname
+ * publictitle
+ * public on-page guide &\| onclick popup help
+ * input type
+ * js
+ * validation stuff
+for use in some micro-formbuilder thingy here
 (OR just produce all the content as a package for passing direct to smarty
   akin to file-selector )
-* validation stuff
 */
 
 /*
