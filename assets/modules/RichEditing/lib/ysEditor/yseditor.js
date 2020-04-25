@@ -52,106 +52,106 @@
   //
 
   var predefinedButtons = {
-    'bold': {
+    bold: {
       title: 'Bold',
       command: 'bold',
       text: '<b>B</b>'
     },
-    'italic': {
+    italic: {
       title: 'Italic',
       command: 'italic',
       text: '<i>I</i>'
     },
-    'underline': {
+    underline: {
       title: 'Underline',
       command: 'underline',
       text: '<u>U</u>'
     },
-    'strikethrough': {
+    strikethrough: {
       title: 'Strike through',
       command: 'strikeThrough',
       text: '<strike>S</strike>'
     },
-    'left': {
+    left: {
       title: 'Align left',
       command: 'justifyLeft',
-      text: 'Left'
+      text: '<b>&#8866;</b>'
     },
-    'center': {
+    center: {
       title: 'Align center',
       command: 'justifyCenter',
-      text: 'Center'
+      text: '<b>&#926;</b>'
     },
-    'right': {
+    right: {
       title: 'Align right',
       command: 'justifyRight',
-      text: 'Right'
+      text: '<b>&#8867;</b>'
     },
-    'justify': {
-      title: 'Align justify',
+    justify: {
+      title: 'Justify',
       command: 'justifyFull',
-      text: 'Justify'
+      text: '<b>&#9776;</b>'
     },
-    'sub': {
+    sub: {
       title: 'Subscript',
       command: 'subscript',
       text: 'X<sub>2</sub>'
     },
-    'sup': {
+    sup: {
       title: 'Superscript',
       command: 'superscript',
-      text: 'X<sup>2</sub>'
+      text: 'X<sup>2</sup>'
     },
-    'ol': {
+    ol: {
       title: 'Ordered list',
       command: 'insertOrderedList',
       text: '<b>&#35;</b>'
     },
-    'ul': {
+    ul: {
       title: 'Unordered list',
       command: 'insertUnorderedList',
       text: '<b>&#8942;</b>'
     },
-    'removeformat': {
+    removeformat: {
       title: 'Clear formatting',
       command: 'removeFormat',
-      text: '<b>&#8709;</b>'
+      text: '<b>&#9021;</b>'
     },
-    'undo': {
+    undo: {
       title: 'Undo',
       command: 'undo',
       text: '&#8630;'
     },
-    'redo': {
+    redo: {
       title: 'Redo',
       command: 'redo',
       text: '&#8631;'
     },
-    'h1': {
+    h1: {
       title: 'Heading 1',
       command: 'formatBlock',
       text: 'H1',
       value: 'h1'
     },
-    'h2': {
+    h2: {
       title: 'Heading 2',
       command: 'formatBlock',
       text: 'H2',
       value: 'h2'
     },
-    'h3': {
+    h3: {
       title: 'Heading 3',
       command: 'formatBlock',
       text: 'H3',
       value: 'h3'
     },
-    'p': {
+    p: {
       title: 'Paragraph',
       command: 'formatBlock',
       text: '&#182;',
       value: 'p'
     },
-    'quote': {
+    quote: {
       title: 'Quote',
       command: 'formatBlock',
       text: '&#10077;&#10078;',
