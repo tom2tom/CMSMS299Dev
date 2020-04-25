@@ -89,7 +89,7 @@ final class CoreCapabilities extends BasicEnum
      * toward value-management via admin UI
 	 * @since 2.9
 	 */
-	const SITE_PREFERENCER = 'handles_sitevars';
+	const SITE_SETTINGS = 'handles_sitevars';
 
 	/**
 	 * A constant indicating that the module is a syntax editor module.
@@ -111,7 +111,7 @@ final class CoreCapabilities extends BasicEnum
 	 * geared toward value-management via admin UI
 	 * @since 2.9
 	 */
-	const USER_PREFERENCER = 'handles_uservars';
+	const USER_SETTINGS = 'handles_uservars';
 
 	/**
 	 * A constant indicating that the module is a page-content editor module

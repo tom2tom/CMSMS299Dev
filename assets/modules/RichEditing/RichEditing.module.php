@@ -65,8 +65,8 @@ class RichEditing extends CMSModule //implements CMSMS\RichEditor
     {
         switch ($capability) {
             case CoreCapabilities::WYSIWYG_MODULE:
-            case CoreCapabilities::USER_PREFERENCER:
-            case CoreCapabilities::SITE_PREFERENCER:
+            case CoreCapabilities::USER_SETTINGS:
+            case CoreCapabilities::SITE_SETTINGS:
                 return true;
             default:
                 return false;

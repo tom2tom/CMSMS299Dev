@@ -70,8 +70,8 @@ class SyntaxEditing extends CMSModule //implements CMSMS\MultiEditor 2.3 interfa
     {
         switch ($capability) {
             case CoreCapabilities::SYNTAX_MODULE:
-            case CoreCapabilities::USER_PREFERENCER:
-            case CoreCapabilities::SITE_PREFERENCER:
+            case CoreCapabilities::USER_SETTINGS:
+            case CoreCapabilities::SITE_SETTINGS:
                 return true;
             default:
                 return false;

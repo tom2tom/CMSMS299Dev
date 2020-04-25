@@ -50,8 +50,8 @@ class MicroTiny extends CMSModule
       case CoreCapabilities::CORE_MODULE:
       case CoreCapabilities::PLUGIN_MODULE:
       case CoreCapabilities::WYSIWYG_MODULE:
-      case CoreCapabilities::SITE_PREFERENCER:
-      case CoreCapabilities::USER_PREFERENCER:
+      case CoreCapabilities::SITE_SETTINGS:
+      case CoreCapabilities::USER_SETTINGS:
         return TRUE;
     }
     return FALSE;

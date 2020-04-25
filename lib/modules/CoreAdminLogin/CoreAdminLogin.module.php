@@ -50,7 +50,7 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
         switch ($capability) {
             case CMSMS\CoreCapabilities::CORE_MODULE:
             case CMSMS\CoreCapabilities::LOGIN_MODULE:
-            case CMSMS\CoreCapabilities::SITE_PREFERENCER:
+            case CMSMS\CoreCapabilities::SITE_SETTINGS:
                 return true;
             default:
                 return false;

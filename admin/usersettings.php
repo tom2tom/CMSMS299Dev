@@ -153,7 +153,7 @@ $wysiwygtheme = cms_userprefs::get_for_user($userid, 'wysiwyg_theme');
 
 /*
 TODO run a hooklist to retrieve UI for user-settings derived from modules
-having CMSMS\CoreCapabilities::USER_PREFERENCER
+$modules = ModuleOperations::get_modules_with_capability(CMSMS\CoreCapabilities::USER_SETTINGS);
 Load such modules if not already done
 Run the list, to collect:
 * prefgroup name | default = ?

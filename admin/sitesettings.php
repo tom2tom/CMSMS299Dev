@@ -467,7 +467,7 @@ if ($tmp) {
 
 /*
 TODO run a hooklist to retrieve UI for site-settings derived from modules
-having CMSMS\CoreCapabilities::SITE_PREFERENCER
+$modules = ModuleOperations::get_modules_with_capability(CMSMS\CoreCapabilities::SITE_SETTINGS);
 Load such modules if not already done
 Run the list, to collect:
 * prefgroup name | default = ?

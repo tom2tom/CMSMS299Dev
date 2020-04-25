@@ -64,8 +64,8 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 		switch ($capability) {
 			case CoreCapabilities::CORE_MODULE:
 			case CoreCapabilities::SYNTAX_MODULE:
-			case CoreCapabilities::SITE_PREFERENCER:
-			case CoreCapabilities::USER_PREFERENCER:
+			case CoreCapabilities::SITE_SETTINGS:
+			case CoreCapabilities::USER_SETTINGS:
 				return true;
 			default:
 				return false;

@@ -74,7 +74,7 @@ final class AdminLog extends CMSModule
         switch ($capability) {
             case CoreCapabilities::CORE_MODULE:
             case CoreCapabilities::TASKS:
-            case CoreCapabilities::SITE_PREFERENCER:
+            case CoreCapabilities::SITE_SETTINGS:
                 return true;
             case 'clicommands':
                 return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
