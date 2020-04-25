@@ -242,3 +242,6 @@ VALUES (?,?,?,NOW())";
 		}
 	}
 } // class
+
+//future replacement
+\class_alias(CmsPermission::class, 'CMSMS\Permission', false);

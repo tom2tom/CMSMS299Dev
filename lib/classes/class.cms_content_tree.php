@@ -458,3 +458,6 @@ class cms_content_tree extends cms_tree
 		return $out;
 	}
 } // class
+
+//for future use
+\class_alias(cms_content_tree::class, 'CMSMS\ContentTree', false);

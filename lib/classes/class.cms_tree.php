@@ -289,3 +289,6 @@ class cms_tree
 		return $res;
 	}
 } // class
+
+//future replacement
+\class_alias(cms_tree::class, 'CMSMS\Tree', false);

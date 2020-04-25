@@ -67,3 +67,6 @@ abstract class CMSModuleContentType extends ContentBase
     return LangOperations::lang_from_realm($realm, ...$args);
   }
 } // class
+
+//future replacement
+\class_alias(CMSModuleContentType::class, 'CMSMS\ModuleContentType', false);

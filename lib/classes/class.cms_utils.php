@@ -505,3 +505,6 @@ final class cms_utils
 		return $str;
 	}
 } // class
+
+//future replacement
+\class_alias(cms_utils::class, 'CMSMS\Utils', false);

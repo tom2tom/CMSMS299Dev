@@ -253,3 +253,6 @@ class CmsRoute implements ArrayAccess
 		return RouteOperations::is_match($this,$str,$exact);
 	}
 } // class
+
+//future replacement
+\class_alias(CmsRoute::class, 'CMSMS\Route', false);

@@ -1250,3 +1250,6 @@ class cms_http_request
         }
     }
 }
+
+//future replacement
+\class_alias(cms_http_request::class, 'CMSMS\HttpRequest', false);

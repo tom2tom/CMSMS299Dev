@@ -42,3 +42,6 @@ abstract class CmsLanguageDetector
   abstract public function find_language();
 
 } // class
+
+//future replacement
+\class_alias(CmsLanguageDetector::class, 'CMSMS\LanguageDetector', false);

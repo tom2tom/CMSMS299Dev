@@ -1216,3 +1216,6 @@ class CmsLayoutTemplate
 		return self::get_operations()::get_unique_template_name($prototype,$prefix);
 	}
 } // class
+
+//future replacement
+\class_alias(CmsLayoutTemplate::class, 'CMSMS\Template', false);

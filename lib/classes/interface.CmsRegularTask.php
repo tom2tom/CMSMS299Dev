@@ -78,3 +78,6 @@ interface CmsRegularTask
   public function on_failure($time = 0);
 
 } // interface
+
+//future replacement
+\class_alias('CmsRegularTask', 'CMSMS\RegularTask', false);

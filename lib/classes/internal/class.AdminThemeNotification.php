@@ -82,3 +82,6 @@ class AdminThemeNotification
         throw new CmsInvalidDataException('Attempt to set invalid property from CmsAdminThemeNotification');
     }
 } // class
+
+//future replacement
+\class_alias(AdminThemeNotification::class, 'CMSMS\internal\AdminNotification', false);

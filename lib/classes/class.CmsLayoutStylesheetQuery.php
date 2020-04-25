@@ -220,3 +220,6 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 		return StylesheetOperations::get_bulk_stylesheets($tmp,$deep);
 	}
 } // class
+
+//future replacement
+\class_alias(CmsLayoutStylesheetQuery::class, 'CMSMS\StylesheetQuery', false);

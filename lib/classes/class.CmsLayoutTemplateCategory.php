@@ -534,3 +534,6 @@ class CmsLayoutTemplateCategory //TemplatesGroup
 		return TemplateOperations::get_bulk_groups($prefix);
 	}
 } // class
+
+//future replacement
+\class_alias(CmsLayoutTemplateCategory::class, 'CMSMS\TemplatesGroup', false);

@@ -299,3 +299,6 @@ class FilePickerProfile
         }
     }
 } // class
+
+//future replacement
+\class_alias(FilePickerProfile::class, 'CMSMS\FileSystemProfile', false);

@@ -135,3 +135,5 @@ final class cms_cookies
 
 } // class
 
+//for future use
+\class_alias(cms_cookies::class, 'CMSMS\Cookies', false);

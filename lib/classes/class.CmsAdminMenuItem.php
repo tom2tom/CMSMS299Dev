@@ -161,3 +161,6 @@ final class CmsAdminMenuItem
         return $obj;
     }
 } // class
+
+//for future use
+\class_alias(CmsAdminMenuItem::class, 'CMSMS\AdminMenuItem', false);

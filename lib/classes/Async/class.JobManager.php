@@ -138,3 +138,6 @@ final class JobManager
         if( $mod ) return $mod->delete_job($module_name);
     }
 } // class
+
+//for future use
+\class_alias(JobManager::class, 'CMSMS\Async\JobOperations', false);

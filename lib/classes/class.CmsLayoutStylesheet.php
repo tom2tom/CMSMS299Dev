@@ -727,3 +727,6 @@ class CmsLayoutStylesheet
 		return $this->get_operations()::get_unique_name($prototype,$prefix);
 	}
 } // class
+
+//future replacement
+\class_alias(CmsLayoutStylesheet::class, 'CMSMS\Stylesheet', false);

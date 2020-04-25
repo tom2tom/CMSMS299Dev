@@ -359,3 +359,5 @@ class cms_url
         return $url;
     }
 } // class
+
+\class_alias(cms_url::class, 'CMSMS\Url', false);

@@ -1004,3 +1004,6 @@ WHERE id = ?';
 		return $assistant->get_usage_string($name);
 	}
 } // class
+
+//future replacement
+\class_alias(CmsLayoutTemplateType::class, 'CMSMS\TemplateType', false);

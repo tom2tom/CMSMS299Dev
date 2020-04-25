@@ -334,3 +334,6 @@ AS tmp1';
 		return TemplateOperations::get_bulk_templates($this->GetMatchedTemplateIds());
 	}
 } // class
+
+//future replacement
+\class_alias(CmsLayoutTemplateQuery::class, 'CMSMS\TemplateQuery', false);

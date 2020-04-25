@@ -250,3 +250,6 @@ abstract class CmsDbQueryBase
 		if( $out ) return $out;
 	}
 } // class
+
+//future replacement
+\class_alias(CmsDbQueryBase::class, 'CMSMS\DbQueryBase', false);

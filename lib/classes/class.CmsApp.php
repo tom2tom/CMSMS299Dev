@@ -789,6 +789,9 @@ final class CmsApp
     }
 }
 
+//future replacement
+\class_alias(CmsApp::class, 'CMSMS\App', false);
+
 //} //namespace
 
 //namespace {

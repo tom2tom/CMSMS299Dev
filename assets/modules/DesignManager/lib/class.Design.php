@@ -754,4 +754,4 @@ class Design
 	}
 } // class
 
-class_alias('DesignManager\Design','CmsLayoutCollection',false);
+\class_alias(Design::class, 'CmsLayoutCollection', false);

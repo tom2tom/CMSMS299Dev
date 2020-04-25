@@ -290,3 +290,6 @@ OR
         return $out;
     }
 } // class
+
+//future replacement
+\class_alias(HookManager::class, 'CMSMS\HookOperations', false);

@@ -792,3 +792,6 @@ EOS;
         return $this->offsetGet('image_uploads_url');
     }
 } // class
+
+//for future use
+\class_alias(cms_config::class, 'CMSMS\Config', false);
