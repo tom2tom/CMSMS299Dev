@@ -645,9 +645,9 @@ abstract class AdminTheme
         // myprefs
         $this->_perms['myaccount'] = check_permission($this->userid,'Manage My Account');
         $this->_perms['mysettings'] = check_permission($this->userid,'Manage My Settings');
-        $this->_perms['bookmarks'] = check_permission($this->userid,'Manage My Bookmarks');
+        $this->_perms['mybookmarks'] = check_permission($this->userid,'Manage My Bookmarks');
         $this->_perms['myprefPerms'] = $this->_perms['myaccount'] |
-            $this->_perms['mysettings'] | $this->_perms['bookmarks'];
+            $this->_perms['mysettings'] | $this->_perms['mybookmarks'];
 
         // user/group
         $this->_perms['userPerms'] = check_permission($this->userid, 'Manage Users');

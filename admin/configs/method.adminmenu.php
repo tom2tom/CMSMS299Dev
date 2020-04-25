@@ -314,7 +314,7 @@ $menucontent = [
 		'labelkey'=>'mybookmarks',
 		'descriptionkey'=>'mybookmarksdescription',
 		'final'=>true,
-		'show'=>'bookmarks',
+		'show'=>'mybookmarks',
 		],
 //============ SECTION ===========
 [
