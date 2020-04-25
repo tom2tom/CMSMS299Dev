@@ -22,7 +22,7 @@ use CmsApp;
 use cms_siteprefs;
 use cms_userprefs;
 use RichEditing as Modclass;
-//use function get_userid; 2.3
+use function get_userid;
 
 class Utils
 {
@@ -129,7 +129,7 @@ class Utils
 		if ($fe) {
 			$editor = cms_siteprefs::get('frontendwysiwyg'); //TODO already know module, want editor-type here
 		} else {
-			$uid = \get_userid(false);
+			$uid = get_userid(false);
 			$editor = cms_userprefs::get_for_user($uid, 'wysiwyg_type');
 		}
 		if (!$editor) {
