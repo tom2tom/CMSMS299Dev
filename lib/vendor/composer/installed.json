@@ -1,59 +1,5 @@
 [
     {
-        "name": "nikic/php-parser",
-        "version": "v4.3.0",
-        "version_normalized": "4.3.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/nikic/PHP-Parser.git",
-            "reference": "9a9981c347c5c49d6dfe5cf826bb882b824080dc"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/9a9981c347c5c49d6dfe5cf826bb882b824080dc",
-            "reference": "9a9981c347c5c49d6dfe5cf826bb882b824080dc",
-            "shasum": ""
-        },
-        "require": {
-            "ext-tokenizer": "*",
-            "php": ">=7.0"
-        },
-        "require-dev": {
-            "ircmaxell/php-yacc": "0.0.5",
-            "phpunit/phpunit": "^6.5 || ^7.0 || ^8.0"
-        },
-        "time": "2019-11-08T13:50:10+00:00",
-        "bin": [
-            "bin/php-parse"
-        ],
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "4.3-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "PhpParser\\": "lib/PhpParser"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Nikita Popov"
-            }
-        ],
-        "description": "A PHP parser written in PHP",
-        "keywords": [
-            "parser",
-            "php"
-        ]
-    },
-    {
         "name": "phpmailer/phpmailer",
         "version": "v6.1.5",
         "version_normalized": "6.1.5.0",
@@ -132,55 +78,6 @@
         ]
     },
     {
-        "name": "psx/sandbox",
-        "version": "v0.3.0",
-        "version_normalized": "0.3.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/apioo/psx-sandbox.git",
-            "reference": "f1659ac5f1e32213b13d7fa063a6435b709acf5d"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/apioo/psx-sandbox/zipball/f1659ac5f1e32213b13d7fa063a6435b709acf5d",
-            "reference": "f1659ac5f1e32213b13d7fa063a6435b709acf5d",
-            "shasum": ""
-        },
-        "require": {
-            "nikic/php-parser": "^4.0",
-            "php": ">=7.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "^6.0"
-        },
-        "time": "2019-10-28T20:13:22+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "PSX\\Sandbox\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "Apache-2.0"
-        ],
-        "authors": [
-            {
-                "name": "Christoph Kappestein",
-                "email": "christoph.kappestein@gmail.com",
-                "homepage": "http://christoph.kappestein.com/"
-            }
-        ],
-        "description": "PHP sandbox to execute a safe subset of the PHP programming language",
-        "homepage": "http://phpsx.org",
-        "keywords": [
-            "parser",
-            "php",
-            "sandbox"
-        ]
-    },
-    {
         "name": "smarty/smarty",
         "version": "v3.1.34",
         "version_normalized": "3.1.34.0",
@@ -237,5 +134,60 @@
         "keywords": [
             "templating"
         ]
+    }
+    {
+        "name": "eftec/validationone",
+        "description": "PHP library for fetch and validate fields",
+        "version": "1.23.2",
+        "type": "library",
+        "keywords": ["php","library","validation"],
+        "homepage": "https://github.com/EFTEC/ValidationOne",
+        "license": "LGPL-3.0-or-later",
+        "authors": [
+            {
+                "name": "Jorge Castro",
+                "email": "jorge.castro.c@gmail.com"
+            }
+        ],
+        "require": {
+            "php": ">=5.6",
+            "ext-ctype": "*"
+        },
+        "autoload": {
+            "psr-4": {
+                "eftec\\": "lib/"
+            }
+        },
+        "suggest": {
+            "eftec/formone": "Allows to create form and integrates with the validation"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "5.7.27"
+        }    
+    }
+    {
+        "name": "eftec/formone",
+        "description": "Creates HTML web Form on PHP ",
+        "version": "1.8",
+        "type": "library",
+        "keywords": ["php","library","form"],
+        "homepage": "https://github.com/EFTEC/formone",
+        "license": "LGPL-2.1-or-later",
+        "authors": [
+            {
+                "name": "Jorge Castro",
+                "email": "jorge.castro.c@gmail.com"
+            }
+        ],
+        "require": {
+            "php": ">=5.6",
+            "ext-ctype": "*",
+            "eftec/validationone": "^1.13"
+        },
+        "autoload": {
+            "psr-4": {
+                "eftec\\": "lib/"
+            }
+        }
     }
 ]
