@@ -921,5 +921,5 @@ $smarty->assign([
 ]);
 
 include_once 'header.php';
-$smarty->display('siteprefs.tpl');
+$smarty->display('sitesettings.tpl');
 include_once 'footer.php';

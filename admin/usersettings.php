@@ -360,5 +360,5 @@ EOS;
 add_page_foottext($out);
 
 include_once 'header.php';
-$smarty->display('mysettings.tpl');
+$smarty->display('usersettings.tpl');
 include_once 'footer.php';
