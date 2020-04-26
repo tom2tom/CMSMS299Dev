@@ -73,7 +73,7 @@ require_once $dirpath.'page.functions.php'; // system-dependent methods
 $db = $_app->GetDb();
 AppSingle::set('db', $db); // easier retrieval
 require_once $dirpath.'compat.functions.php'; // old function and/or class aliases
-//require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; // hopefully not needed, but save on autoloading anyway?
+require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; // bundle of exception-classes in 1 file
 
 if (isset($_REQUEST[CMS_JOB_KEY])) {
     // since 2.3 value 0|1|2 indicates the type of request, hence appropriate inclusions
