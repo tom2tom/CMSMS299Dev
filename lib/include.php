@@ -72,8 +72,8 @@ AppSingle::set('Config', $config); // and an alias
 require_once $dirpath.'page.functions.php'; // system-dependent methods
 $db = $_app->GetDb();
 AppSingle::set('db', $db); // easier retrieval
-require_once $dirpath.'compat.functions.php';
-require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; // might be needed, save autoloading
+require_once $dirpath.'compat.functions.php'; // old function and/or class aliases
+//require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; // hopefully not needed, but save on autoloading anyway?
 
 if (isset($_REQUEST[CMS_JOB_KEY])) {
     // since 2.3 value 0|1|2 indicates the type of request, hence appropriate inclusions
@@ -265,8 +265,4 @@ if ($CMS_JOB_TYPE < 2) {
         debug_buffer('Finished initializing Smarty');
         $smarty->assignGlobal('sitename', cms_siteprefs::get('sitename', 'CMSMS Site'));
     }
-}
-
-if (!$installing) {
-    require_once($dirpath.'classes'.DIRECTORY_SEPARATOR.'internal'.DIRECTORY_SEPARATOR.'class_compatibility.php');
 }
