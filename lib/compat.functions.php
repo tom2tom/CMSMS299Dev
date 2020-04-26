@@ -53,3 +53,7 @@ function cms_db_prefix() : string
 {
     return CMS_DB_PREFIX;
 }
+
+/*
+ * Every-request class-aliasing (if any) follows ...
+ */
