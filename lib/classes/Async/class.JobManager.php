@@ -32,9 +32,9 @@ use CmsApp;
  */
 final class JobManager
 {
-	//TODO namespaced static properties here >> StaticProperties class ?
+    //TODO namespaced static properties here >> StaticProperties class ?
     /**
-	 * @var job-manager-module object, populated on demand
+     * @var job-manager-module object, populated on demand
      * @ignore
      */
     private static $_mod = null;
@@ -56,13 +56,13 @@ final class JobManager
 
     /**
      * Get an instance of this class.
-	 * @deprecated since 2.3 instead use new CMSMS\Async\JobManager()
+     * @deprecated since 2.3 instead use new CMSMS\Async\JobManager()
      * @return JobManager
      */
     public static function get_instance() : self
     {
-//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
-		return new self();
+//      if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
+        return new self();
     }
 
     /**
@@ -73,7 +73,7 @@ final class JobManager
      */
     protected function get_mod()
     {
-		if( !self::$_mod ) { self::$_mod = CmsApp::get_instance()->GetJobManager(); }
+        if( !self::$_mod ) { self::$_mod = CmsApp::get_instance()->GetJobManager(); }
         return self::$_mod;
     }
 
@@ -118,7 +118,7 @@ final class JobManager
      * Note: After calling this method, the job object itself is invalid and cannot be saved.
      *
      * @param Job $job
-	 * @return mixed
+     * @return mixed
      */
     public function delete_job( Job $job )
     {
@@ -130,7 +130,7 @@ final class JobManager
      * Remove all jobs originating from a specific module
      *
      * @param mixed string $module_name | null
-	 * @return mixed
+     * @return mixed
      */
     public function delete_jobs_by_module( $module_name )
     {
@@ -138,6 +138,3 @@ final class JobManager
         if( $mod ) return $mod->delete_job($module_name);
     }
 } // class
-
-//for future use
-\class_alias(JobManager::class, 'CMSMS\Async\JobOperations', false);
