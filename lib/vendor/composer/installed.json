@@ -134,7 +134,7 @@
         "keywords": [
             "templating"
         ]
-    }
+    },
     {
         "name": "eftec/validationone",
         "description": "PHP library for fetch and validate fields",
@@ -163,8 +163,8 @@
         },
         "require-dev": {
             "phpunit/phpunit": "5.7.27"
-        }    
-    }
+        }
+    },
     {
         "name": "eftec/formone",
         "description": "Creates HTML web Form on PHP ",
