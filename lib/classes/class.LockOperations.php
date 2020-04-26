@@ -200,3 +200,5 @@ final class LockOperations
 		$db->Execute($query,$parms);
 	}
 } // class
+
+\class_alias(LockOperations::class, 'CmsLockOperations', false);

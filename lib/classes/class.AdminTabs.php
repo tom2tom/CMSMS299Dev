@@ -262,3 +262,5 @@ final class AdminTabs
         return "\n".'</div> <!-- EndTab -->';
     }
 } // class
+
+\class_alias(AdminTabs::class, 'cms_admin_tabs', false);

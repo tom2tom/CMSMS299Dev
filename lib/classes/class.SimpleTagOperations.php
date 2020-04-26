@@ -922,5 +922,4 @@ EOS;
 	}
 } // class
 
-//backward-compatibility shiv
 \class_alias(SimpleTagOperations::class, 'UserTagOperations', false);

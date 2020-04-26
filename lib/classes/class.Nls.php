@@ -17,6 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
+
 use function debug_display;
 
 /**
@@ -249,3 +250,5 @@ class Nls
 		return $obj;
 	}
 } // class
+
+\class_alias(Nls::class, 'CmsNls', false);

@@ -340,3 +340,5 @@ WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
         throw new CmsNoLockException('CMSEX_L005','',[$type,$uid,$uid]);
     }
 } // class
+
+\class_alias(Lock::class, 'CmsLock', false);

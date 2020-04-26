@@ -1402,3 +1402,5 @@ EOS;
         return $out;
     }
 } // class
+
+\class_alias(FormUtils::class, 'CmsFormUtils', false);

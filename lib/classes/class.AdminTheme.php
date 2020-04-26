@@ -2019,3 +2019,5 @@ abstract class AdminTheme
         return AdminTabs::end_tab();
     }
 } // class
+
+\class_alias(AdminTheme::class, 'CmsAdminTheme', false);

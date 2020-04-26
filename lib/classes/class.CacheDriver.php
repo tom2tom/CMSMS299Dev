@@ -193,3 +193,5 @@ abstract class CacheDriver
         return $this->get_cachekey('', $class, $group);
     }
 } // class
+
+\class_alias(CacheDriver::class, 'cms_cache_driver', false);

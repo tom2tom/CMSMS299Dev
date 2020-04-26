@@ -264,3 +264,5 @@ class SysDataCache
         return $this->_maincache;
     }
 } // class
+
+\class_alias(SysDataCache::class, 'CMSMS\internal\global_cache', false);

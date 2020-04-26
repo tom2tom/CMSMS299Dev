@@ -182,3 +182,5 @@ class SignedCookieOperations implements CookieManager
         $this->set_cookie($key,null,time()-3600);
     }
 } // class
+
+\class_alias(SignedCookieOperations::class, 'CMSMS\SignedCookieManager', false);

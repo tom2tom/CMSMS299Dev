@@ -434,3 +434,5 @@ final class NlsOperations
 		}
 	}
 } // class
+
+\class_alias(NlsOperations::class, 'CmsNlsOperations', false);

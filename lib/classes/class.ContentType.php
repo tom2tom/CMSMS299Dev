@@ -19,7 +19,7 @@ namespace CMSMS;
 
 /**
  * Convenience class to hold and interact with page-content type parameters
- * @since 2.3 this supplements the former ContentTypePlaceHolder class
+ * @since 2.3 this replaces the former ContentTypePlaceHolder class
  *
  * @package CMS
  */
@@ -138,3 +138,5 @@ class ContentType implements \ArrayAccess
 		unset($this->$key);
     }
 }
+
+\class_alias(ContentType::class, 'CmsContentTypePlaceHolder', false);

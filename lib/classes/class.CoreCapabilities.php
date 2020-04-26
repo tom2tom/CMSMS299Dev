@@ -121,5 +121,4 @@ final class CoreCapabilities extends BasicEnum
 
 } // class
 
-// back compatibility shiv
 \class_alias(CoreCapabilities::class, 'CmsCoreCapabilities', false);

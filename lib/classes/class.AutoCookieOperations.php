@@ -96,3 +96,5 @@ class AutoCookieOperations extends SignedCookieOperations
         }
     }
 } // class
+
+\class_alias(AutoCookieOperations::class, 'CMSMS\AutoCookieManager', false);

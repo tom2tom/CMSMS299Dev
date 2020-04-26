@@ -629,3 +629,5 @@ EOS;
 		return TRUE;
 	}
 } // class
+
+\class_alias(RouteOperations::class, 'cms_route_manager', false);

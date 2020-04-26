@@ -877,3 +877,5 @@ class Mailer
   }
 
 } // class
+
+\class_alias(Mailer:class, 'cms_mailer', false);

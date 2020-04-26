@@ -217,3 +217,5 @@ class ScriptOperations
         return '';
     }
 } // class
+
+\class_alias(ScriptOperations::class, 'CMSMS\ScriptManager', false);

@@ -83,5 +83,4 @@ class AdminThemeNotification
     }
 } // class
 
-//future replacement
 \class_alias(AdminThemeNotification::class, 'CMSMS\internal\AdminNotification', false);

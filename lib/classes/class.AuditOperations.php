@@ -110,8 +110,9 @@ namespace CMSMS {
         }
 
     } // class
-} // namespace
 
+    \class_alias(AuditOperations::class, 'CMSMS\AuditManager', false);
+} // namespace
 
 namespace {
 
@@ -136,4 +137,4 @@ namespace {
     {
         AuditOperations::error( $msg, $subject );
     }
-} // namespace
+} // global namespace
