@@ -16,4 +16,3 @@ class frontend_theme_placeholder
     public function has_template() {}
     public function get_template_file() {}
 }
-
