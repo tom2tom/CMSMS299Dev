@@ -31,12 +31,13 @@ use function endswith;
 use function sanitize;
 
 /**
- * A static class providing functionality for generating page elements.
+ * A class of static methods which generate various page-elements.
  *
  * @package CMS
  * @license GPL
  * @author  Robert Campbell
- * @since   2.0
+ * @since   2.9
+ * @since   2.0 as global-space CmsFormUtils
  */
 class FormUtils
 {
@@ -52,14 +53,14 @@ class FormUtils
     /**
      * Names of rich-text-editor modules specified for use during the current request
      * @ignore
-     * @deprecated since 2.3
+     * @deprecated since 2.9
      */
     protected static $_activated_wysiwyg = [];
 
     /**
      * Names of syntax-highlight-editor modules specified for use during the current request
      * @ignore
-     * @deprecated since 2.3
+     * @deprecated since 2.9
      */
     protected static $_activated_syntax = [];
 
@@ -71,7 +72,7 @@ class FormUtils
     /**
      * Migrate content of string $addtext to members of $converted
      * @ignore
-     * @since 2.3
+     * @since 2.9
      * @param string $addtext element attributes, may be empty
      * @param array  $converted where results are stored
      */
@@ -102,8 +103,8 @@ class FormUtils
      * This is an interface between the deprecated CMSModule methods for form
      * element creation, and their replacements in this class.
      *
-     * @since 2.3
-     * @deprecated since 2.3 needed only while the CMSModule methods are supported
+     * @since 2.9
+     * @deprecated since 2.9 needed only while the CMSModule content-creation methods are supported
      *
      * @param object $mod    The initiator module, a CMSModule derivative
      * @param string $method Name of deprecated-method that was called in $mod. Like 'Create*'
@@ -246,7 +247,7 @@ class FormUtils
     /**
      * Check existence of compulsory members of $parms, and they each have an acceptable value
      * @ignore
-     * @since 2.3
+     * @since 2.9
      * @param array $parms element parameters/attributes
      * @param array $must key(s) which must be set in $parms, each with a value-check code.
      * @return mixed Error-message string (template) or false if no error
@@ -312,7 +313,7 @@ class FormUtils
     /**
      * Check and update element-properties.
      * @ignore
-     * @since 2.3
+     * @since 2.9
      * @param array  $parms element parameters/attributes. Must include 'name', unless $withname = false
      * @param bool   $withname optional flag whether a 'name' parameter is required. Default true
      * @param array  $alts optional extra renames for keys in $parms, each member like 'oldname'=>'newname'
@@ -424,7 +425,7 @@ class FormUtils
      * $parms with array-value are automatically ignored.
      * There is no 'sanitization' of URL keys or values.
      * @ignore
-     * @since 2.3
+     * @since 2.9
      * @param array $parms element parameters/attributes
      * @param array $excludes $parms key(s) to be skipped
      * @return string
@@ -558,7 +559,7 @@ class FormUtils
     /**
      * Get xhtml for a selector (checkbox, radiogroup, list, dropdown)
      *
-     * @since 2.3
+     * @since 2.9
      *
      * @param array  $parms   Attribute(s)/definition(s) to be included in
      *  the element, each member like name=>value. Any name may be numeric,
@@ -685,7 +686,7 @@ class FormUtils
     /**
      * Get xhtml for a single-element input (text, textarea, button, submit etc)
      *
-     * @since 2.3
+     * @since 2.9
      *
      * @param array  $parms   Attribute(s)/definition(s) to be included in
      *  the element, each member like name=>value. Any name may be numeric,
@@ -797,9 +798,9 @@ class FormUtils
      *   forcemodule/forcewysiwyg = (optional string) used to specify the editor-module to enable.  If specified, the module name will be added to the
      *                   class attribute.
      *   enablewysiwyg = (optional boolean) used to specify whether a richtext-editor is required for the textarea.  Sets the language to html.
-     *         Deprecated since 2.3. Instead, generate and record content (js, css etc) directly
+     *         Deprecated since 2.9. Instead, generate and record content (js, css etc) directly
      *   wantedsyntax  = (optional string) used to specify the language (html,css,php,smarty) to use.  If non empty indicates that a
-     *                   syntax-highlight editor is required for the textarea. Deprecated since 2.3. Instead, generate and record content (js etc) directly
+     *                   syntax-highlight editor is required for the textarea. Deprecated since 2.9. Instead, generate and record content (js etc) directly
      *   cols/width    = (optional integer) columns of the text area (css or the syntax/wysiwyg module may override this)
      *   rows/height   = (optional integer) rows of the text area (css or the syntax/wysiwyg module may override this)
      *   maxlength     = (optional integer) maxlength attribute of the text area (syntax/wysiwyg module may ignore this)
@@ -853,7 +854,7 @@ class FormUtils
         if (!isset($forcemodule)) { $forcemodule = ''; }
         $module = null;
 
-        if ($enablewysiwyg) { //deprecated since 2.3
+        if ($enablewysiwyg) { //deprecated since 2.9
             // we want a wysiwyg
             if (empty($parms['class'])) {
                 $parms['class'] = 'cmsms_wysiwyg'; //not for CSS ?!
@@ -913,7 +914,7 @@ class FormUtils
     /**
      * Get xhtml for a label for another element
      *
-     * @since 2.3
+     * @since 2.9
      *
      * @param array  $parms   Attribute(s)/property(ies) to be included in the
      *  element, each member like name=>value. Any name may be numeric, in which
@@ -944,7 +945,7 @@ class FormUtils
     /**
      * Get xhtml for the start of a module form
      *
-     * @since 2.3
+     * @since 2.9
      *
      * @param object $mod    The initiator module, a CMSModule derivative
      * @param array  $parms  Attribute(s)/property(ies) to be included in
@@ -1037,7 +1038,7 @@ class FormUtils
     /**
      * Get xhtml for the end of a module form
      *
-     * @since 2.3
+     * @since 2.9
      *
      * This is basically just a wrapper around </form>, but might be
      * extended in the future. It's here mainly for consistency.
@@ -1052,7 +1053,7 @@ class FormUtils
     /**
      * Get xhtml for the start of a fieldset, with optional legend
      *
-     * @since 2.3
+     * @since 2.9
      *
      * @return string
      */
@@ -1081,7 +1082,7 @@ class FormUtils
     /**
      * Get xhtml for the end of a fieldset
      *
-     * @since 2.3
+     * @since 2.9
      *
      * This is basically just a wrapper around </fieldset>, but might be
      * extended in the future. It's here mainly for consistency.
@@ -1097,7 +1098,7 @@ class FormUtils
      * Get xhtml for a link to run a module action, or just the URL for that
      * action
      *
-     * @since 2.3
+     * @since 2.9
      *
      * @param object $mod    The initiator module, a CMSModule derivative
      * @param array  $parms  Attribute(s)/property(ies) to be included in
@@ -1402,5 +1403,3 @@ EOS;
         return $out;
     }
 } // class
-
-\class_alias(FormUtils::class, 'CmsFormUtils', false);

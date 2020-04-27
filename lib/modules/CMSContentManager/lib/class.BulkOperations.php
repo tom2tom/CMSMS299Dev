@@ -25,8 +25,8 @@ use function startswith;
  *
  * @package CMS
  * @author Robert Campbell
- * @since 1.7 as internal core class
- * @since 2.3 as CMSContentManager module class
+ * @since 2.9
+ * @since 1.7 as global-namespace core class
  * @license GPL
  **/
 final class BulkOperations
