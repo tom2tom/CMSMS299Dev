@@ -75,9 +75,11 @@ switch ($CMS_JOB_TYPE) {
 
 		// retrieve and park the action-output first, in case the action also generates header content
 		ob_start();
-		echo $modinst->DoActionBase($action, $id, $params, null, $template);
-		$content = ob_get_contents();
-		ob_end_clean();
+		$content = $modinst->DoActionBase($action, $id, $params, null, $template);
+		if (($content && $content !== 1) || is_numeric($content)) { //ignore PHP's 'inclusion' status indicators
+			echo $content;
+		}
+		$content = ob_get_clean();
 
 		include_once 'header.php';
 		// back into the buffer,  now that 'pre-content' things are in place
@@ -91,7 +93,12 @@ switch ($CMS_JOB_TYPE) {
 	case 1: // not full-page output
 		$smarty =  CmsApp::get_instance()->GetSmarty();
 		$template = $smarty->createTemplate('string:DUMMY PARENT');
-		echo $modinst->DoActionBase($action, $id, $params, null, $template);
+		$content = $modinst->DoActionBase($action, $id, $params, null, $template);
+		if (($content && $content !== 1) || is_numeric($content)) { //ignore PHP's 'inclusion' status indicators
+			echo $content;
+		} else {
+			echo '';
+		}
 		break;
 	case 2:	//minimal
 		$fp = $modinst->GetModulePath().DIRECTORY_SEPARATOR.'action.'.$action.'.php';

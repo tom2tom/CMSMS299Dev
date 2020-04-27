@@ -279,10 +279,10 @@ final class content_plugins
 			$params['action'] = $action; //deprecated since 2.3
             ob_start();
             $result = $module_obj->DoActionBase($action, $id, $params, $page_id, $smarty);
-
-            if( $result || is_numeric($result) ) echo $result;
-            $result = ob_get_contents();
-            ob_end_clean();
+            if( ($result && $result !== 1) || is_numeric($result) ) { //ignore PHP 'successful inclusion' report
+                echo $result;
+            }
+            $result = ob_get_clean();
         }
         else {
             $result = $smarty->fetch('content:content_en', '|content_en', $page_id.'content_en');

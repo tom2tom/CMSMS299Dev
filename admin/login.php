@@ -39,11 +39,15 @@ if ($modname) {
 		throw new RuntimeException('Invalid login module');
 	}
 /*	$params = array_diff_key($params, ['module'=>1,'id'=>1,'action'=>1]);
-	$content = $modinst->DoActionBase($action, $id, $params, null, $smarty);
-
+    ob_start();
+    $result = $modinst->DoActionBase($action, $id, $params, null, $smarty);
+    if (($result && $result !== 1) || is_numeric($result)) { // ignore PHP 'successful inclusion' report
+        echo $result;
+    }
+    $result = ob_get_clean();
 	$themeobj = cms_utils::get_theme_object();
 	$themeobj->SetTitle($modinst->Lang('logintitle'));
-	$themeobj->set_content($content);
+	$themeobj->set_content($result);
 
 	cms_admin_sendheaders();
 	header('Content-Language: ' . CmsNlsOperations::get_current_language());
