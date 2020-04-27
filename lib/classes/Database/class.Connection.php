@@ -643,7 +643,7 @@ class Connection
         if ($this->isNative()) {
 //TODO
         } else {
-            $rs = $this->execute($sql, $bindvars);
+            $rs = $this->execute($sql, ...$bindvars);
             if ($rs) {
                 $this->_asyncQ[] = $rs;
             } else {
@@ -726,7 +726,7 @@ class Connection
             $sql .= $xql;
         }
 
-        return $this->execute($sql, $bindvars);
+        return $this->execute($sql, ...$bindvars);
     }
 
     /**
