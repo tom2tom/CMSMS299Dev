@@ -29,4 +29,4 @@ if( is_file($fn) ) {
     }
 }
 
-include(__DIR__.DIRECTORY_SEPARATOR.'action.admin_log_tab.php');
+return include(__DIR__.DIRECTORY_SEPARATOR.'action.admin_log_tab.php');

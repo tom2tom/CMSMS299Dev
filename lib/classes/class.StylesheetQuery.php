@@ -1,0 +1,232 @@
+<?php
+#Class to perform advanced queries on layout stylesheets
+#Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+namespace CMSMS;
+
+use CmsInvalidDataException;
+use CmsLogicException;
+use CMSMS\DbQueryBase;
+use CMSMS\Stylesheet;
+use CMSMS\StylesheetOperations;
+use CmsSQLErrorException;
+use const CMS_DB_PREFIX;
+use function cmsms;
+
+/**
+ * @package CMS
+ * @since 2.9
+ * @since 2.0 as CmsLayoutStylesheetQuery
+ * Class to perform advanced database queries on layout stylesheets
+ * @see DbQueryBase
+ * @property int $id The stylesheet id.  This will result in at most 1 result being returned.
+ * @property string $name A stylesheet name to filter upon.  If a partial name is provided, it is assumed to be a prefix.
+ * @property int $design A design id to filter upon.
+ * @property string $sortby Possible values are id,item_order,design,name  Default is to sort by name.
+ * @property string $sortorder Possible values are ASC, DESC.  Default is ASC.
+ */
+class StylesheetQuery extends DbQueryBase
+{
+	/**
+	 * Execute the query in this object.
+	 *
+	 * @return void
+	 * @throws CmsInvalidDataException
+	 * @throws CmsSQLErrorException
+	 */
+	public function execute()
+	{
+		if( !is_null($this->_rs) ) return; //already established
+
+		$dflt_sort = TRUE;
+		$have_design = FALSE;
+		$have_styles = FALSE;
+		foreach( $this->_args as $key => $val ) {
+			switch( $key ) {
+			case 'sortby':
+				$dflt_sort = FALSE;
+				break;
+			case 's':
+			case 'styles':
+				$have_styles = TRUE;
+				break;
+			case 'd':
+			case 'design':
+				$have_design = TRUE;
+				break;
+			}
+		}
+
+		if( $dflt_sort && ($have_styles || $have_design)) $this->_args['sortby'] = 'item_order'; //CHECKME
+
+		$query = 'SELECT S.id FROM '.CMS_DB_PREFIX.Stylesheet::TABLENAME.' S';
+		$sortorder = 'ASC';
+		$sortby = 'S.name';
+		$this->_limit = 1000;
+		$this->_offset = 0;
+		$db = cmsms()->GetDb();
+		$where = [];
+		foreach( $this->_args as $key => $val ) {
+			if( empty($val) ) continue;
+			if( is_numeric($key) && $val[1] == ':' ) list($key,$val) = explode(':',$val,2);
+			switch( strtolower($key) ) {
+			case 'i':
+			case 'id':
+				$val = (int)$val;
+				$where[] = 'S.id = '.$val;
+				break;
+
+			case 'n': // name (prefix)
+			case 'name':
+				$val = trim($val);
+				if( strpos($val,'%') === FALSE ) $val .= '%';
+				$where[] = 'S.name LIKE '.$db->qStr($val);
+				break;
+
+			case 's': // stylesheet id's and/or stylesheet-group id's
+			case 'styles':
+				$grps = [];
+				$all = array_filter(explode(',',$val));
+				foreach( $all as $i => $id ) {
+					if( is_numeric($id) && $id < 0 ) {
+						$grps[] = -$id;
+						unset($all[$i]);
+					}
+					elseif( !is_numeric($id) ) {
+						unset($all[$i]);
+					}
+				}
+				if( $grps ) {
+					$q2 = 'SELECT css_id FROM '.CMS_DB_PREFIX.'layout_cssgroup_members WHERE group_id IN('.implode(',',$grps).') ORDER BY item_order';
+					$extras = $db->GetCol($q2);
+					if( $extras ) {
+						$all = array_unique(array_merge($extras,$all), SORT_NUMERIC);
+						$sortby = $sortorder = '';
+					}
+				}
+				if( $all ) {
+					$where[] = 'S.id IN('.implode(',',$all).')';
+				}
+				break;
+/*
+			case 'd': // design
+			case 'design':
+				// if we are using a design id argument
+				// we do join, and sort by item order in the design
+				$query .= ' LEFT JOIN '.CMS_DB_PREFIX.DesignManager\Design::CSSTABLE.' D ON S.id = D.css_id'; DISABLED
+				$val = (int)$val;
+				$where[] = "D.design_id = $val";
+				break;
+*/
+			case 'limit':
+				$this->_limit = max(1,min(1000,$val));
+				break;
+
+			case 'offset':
+				$this->_offset = max(0,$val);
+				break;
+
+			case 'sortby':
+				$val = strtolower($val);
+				switch( $val ) {
+				case 'item_order':
+					$sortby = $sortorder = '';
+					break;
+				case 'id':
+					$sortby = 'S.id';
+					break;
+				case 'design':
+					if( !$have_design ) {
+						throw new CmsInvalidDataException('Cannot sort by design if design_id is not known');
+					}
+					$sortby = 'D.name';
+					break;
+				case 'name':
+				default:
+					$sortby = 'S.name';
+					break;
+				}
+				break;
+
+			case 'sortorder':
+				$val = strtoupper($val);
+				switch( $val ) {
+				case 'DESC':
+					$sortorder = 'DESC';
+					break;
+
+				case 'ASC':
+				default:
+					$sortorder = 'ASC';
+					break;
+				}
+				break;
+			}
+		}
+
+		if( $where ) $query .= ' WHERE '.implode(' AND ',$where);
+		if( $sortby && empty($extras) ) {
+			$query .= ' ORDER BY '.$sortby.' '.$sortorder;
+		}
+
+		$this->_rs = $db->SelectLimit($query,$this->_limit,$this->_offset);
+		if( !$this->_rs || $this->_rs->errno !== 0 ) {
+			throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		}
+		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()');
+	}
+
+	/**
+	 * Get a Stylesheet object for the current data in the fieldset.
+	 *
+	 * This method is not as efficient as the GetMatches() method when the resultset has multiple items.
+	 *
+	 * @return Stylesheet
+	 * @throws CmsLogicException
+	 */
+	public function GetObject()
+	{
+		$this->execute();
+		if( !$this->_rs ) throw new CmsInvalidDataException('Cannot get stylesheet from invalid stylesheet query object');
+		$id = $this->_rs->fields('id');
+		return StylesheetOperations::get_stylesheet((int)$id);
+	}
+
+	/**
+	 * Return all the matches for this query
+	 *
+	 * @return mixed array Stylesheet objects | null
+	 * @throws CmsLogicException
+	 */
+	public function GetMatches()
+	{
+		$this->execute();
+		if( !$this->_rs ) throw new CmsInvalidDataException('Cannot get template from invalid template query object');
+
+		$tmp = [];
+		while( !$this->EOF() ) {
+			$id = $this->_rs->fields('id');
+			$tmp[] = (int)$id;
+			$this->MoveNext();
+		}
+
+		$deep = !empty($this->_args['deep']);
+		return StylesheetOperations::get_bulk_stylesheets($tmp,$deep);
+	}
+} // class
+
+\class_alias(StylesheetQuery::class, 'CmsLayoutStylesheetQuery', false);
