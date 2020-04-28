@@ -32,7 +32,7 @@ class auditor implements AuditManager
         return $parms;
     }
 
-    public function audit( string $subject, string $msg, $item_id = null )
+    public function audit( string $msg, string $subject = '', $item_id = null )
     {
         $parms = array_merge($this->get_event_parms(),
         [ 'severity'=>event::TYPE_MSG, 'subject'=>$subject, 'msg'=>$msg, 'item_id'=>$item_id ]
