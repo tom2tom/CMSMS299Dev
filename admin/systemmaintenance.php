@@ -20,7 +20,6 @@ use cms_installer\installer_base;
 use CMSMS\AdminUtils;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
-use CMSMS\FilePickerProfile;
 use CMSMS\RouteOperations;
 use CMSMS\SysDataCache;
 use CMSMS\SystemCache;
