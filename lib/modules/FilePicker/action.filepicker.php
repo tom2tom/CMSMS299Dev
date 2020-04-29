@@ -28,7 +28,7 @@
 
 use CMSMS\FileType;
 use CMSMS\NlsOperations;
-use CMSMS\ProfileValue;
+use CMSMS\FSControlsValue;
 use CMSMS\ScriptOperations;
 use FilePicker\PathAssistant;
 use FilePicker\TemporaryProfileStorage;
@@ -88,9 +88,9 @@ try {
     }
     if( !$this->CheckPermission('Modify Files') ) {
         $profile = $profile->overrideWith([
-            'can_upload' => ProfileValue::NO,
-            'can_delete' => ProfileValue::NO,
-            'can_mkdir' => ProfileValue::NO
+            'can_upload' => FSControlsValue::NO,
+            'can_delete' => FSControlsValue::NO,
+            'can_mkdir' => FSControlsValue::NO
         ]);
 		$save = true;
     }

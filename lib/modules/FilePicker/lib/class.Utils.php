@@ -22,7 +22,7 @@ use cms_siteprefs;
 use cms_utils;
 use CMSMS\FileTypeHelper;
 use CMSMS\NlsOperations;
-use CMSMS\ProfileValue;
+use CMSMS\FSControlsValue;
 use Collator;
 use FilePicker; //the module-class
 use const CMS_ROOT_PATH;
@@ -333,7 +333,7 @@ class Utils
         }
 
         $sortby = $profile->sort;
-        if ($sortby !== ProfileValue::NONE) {
+        if ($sortby !== FSControlsValue::NONE) {
             if (class_exists('Collator')) {
                 $lang = NlsOperations::get_default_language();
                 $col = new Collator($lang); // e.g. new Collator('pl_PL') TODO if.UTF-8 ?? ini 'output_encoding' ??
