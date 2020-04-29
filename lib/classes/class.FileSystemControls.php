@@ -21,7 +21,9 @@ namespace CMSMS;
 use cms_config;
 use CmsInvalidDataException;
 use CMSMS\FileType;
-use CMSMS\ProfileValue;
+use CMSMS\FSControlsValue;
+use Exception;
+use Throwable;
 use const CMS_DEBUG;
 use const CMS_ROOT_PATH;
 use function cms_to_bool;
@@ -29,9 +31,9 @@ use function debug_to_log;
 use function startswith;
 
 /**
- * A simple class that defines a suite of properties and permissions, for use by
- * e.g. a filepicker to indicate how it should behave and what functionality
- * should be provided.
+ * A class that defines a suite of properties and permissions, a bit like OS
+ * access controls. For use by e.g. a filepicker to indicate how it should
+ * behave and what functionality should be provided.
  *
  * This is an immutable class. (security?)
  *
@@ -40,7 +42,7 @@ use function startswith;
  * a profile object. Those are the only ways that properties of a profile can be adjusted.
  *
  * ```php
- * $obj = new CMSMS\FilePickerProfile(
+ * $obj = new CMSMS\FileSystemControls(
  *  [ 'type'=>FileType::TYPE_IMAGE,
  *    'exclude_prefix'=>'foo'
  *  ]);
@@ -48,8 +50,8 @@ use function startswith;
  * @package CMS
  * @license GPL
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
- * @since 2.2
- * @deprecated since 2.3 instead use FileSystemProfile
+ * @since 2.9
+ * @since 2.2 as FilePickerProfile
  * @property-read string $top The top directory for the filepicker (relative to the CMSMS uploads directory, or ... TODO)
  * @property-read FileType $type A FileType enumerator representing files which may be used.
  * @property-read string $typename enum identifier corresponding to $type.
@@ -62,11 +64,11 @@ use function startswith;
  * @property-read bool $show_hidden Whether hidden files should be included when processing folder content. Default false.
  * @property-read bool $sort Whether files here should be sorted before listing. Default true.
  */
-class FilePickerProfile
+class FileSystemControls
 {
     /**
      * @ignore
-     * Constants deprecated since 2.3. Instead use corresponding ProfileValue
+     * Constants deprecated since 2.9. Instead use corresponding FSControlsValue
      */
     const FLAG_NONE = 0;
     const FLAG_NO = 0;
@@ -79,9 +81,9 @@ class FilePickerProfile
     protected $_data = [
        'top'=>'',
        'type'=>FileType::ANY,
-       'can_upload'=>ProfileValue::YES,
-       'can_delete'=>ProfileValue::YES,
-       'can_mkdir'=>ProfileValue::YES,
+       'can_upload'=>FSControlsValue::YES,
+       'can_delete'=>FSControlsValue::YES,
+       'can_mkdir'=>FSControlsValue::YES,
        'match_prefix'=>'',
        'exclude_prefix'=>'',
        'show_thumbs'=>true,
@@ -94,7 +96,7 @@ class FilePickerProfile
      *
      * @param array $params Associative array of params suitable for the setValue method
       */
-    public function __construct( $params )
+    public function __construct($params)
     {
         if( empty($params) || !is_array($params) || count($params) == 0 ) return;
         foreach( $params as $key => $val ) {
@@ -122,7 +124,7 @@ class FilePickerProfile
             return trim($this->_data[$key]);
 
         case 'type': // FileType enum member
-        case 'can_mkdir': // ProfileValue::* value, sometimes non-0 handled just as true
+        case 'can_mkdir': // FSControlsValue::* value, sometimes non-0 handled just as true
         case 'can_upload':
         case 'can_delete':
             return (int) $this->_data[$key];
@@ -143,7 +145,7 @@ class FilePickerProfile
      * @param string $key The key to set
      * @param mixed $val The value to set
      */
-    protected function setValue( $key, $val )
+    protected function setValue($key, $val)
     {
         switch( $key ) {
         case 'top':
@@ -181,14 +183,14 @@ class FilePickerProfile
         case 'can_delete':
         case 'can_upload':
             if( is_string($val) ) {
-                $n = (cms_to_bool($val)) ? ProfileValue::YES : ProfileValue::NO;
+                $n = (cms_to_bool($val)) ? FSControlsValue::YES : FSControlsValue::NO;
             } else {
                 $n = (int) $val;
             }
             switch( $n ) {
-            case ProfileValue::NO:
-            case ProfileValue::YES:
-            case ProfileValue::BYGROUP:
+            case FSControlsValue::NO:
+            case FSControlsValue::YES:
+            case FSControlsValue::BYGROUP:
                 $this->_data[$key] = $val;
                 break;
             default:
@@ -210,9 +212,9 @@ class FilePickerProfile
      *  property-adjustments per $params.
      *
      * @param array $params Associative array of parameters for the setValue method
-     * @return FilePickerProfile
+     * @return self (FileSystemControls)
      */
-    public function overrideWith( array $params )
+    public function overrideWith(array $params)
     {
         $obj = clone $this;
         foreach( $params as $key => $val ) {
@@ -234,7 +236,7 @@ class FilePickerProfile
    /**
     * Helper function: check for a match between $pattern and $name
     * Tries wildcard, regex and literal name-matching, case-insensitive
-    * @since 2.3
+    * @since 2.9
     * @param string pattern
     * @param string name
     * @return bool indicating whether they match
@@ -270,11 +272,11 @@ class FilePickerProfile
 
     /**
      * Check whether $filename accords with relevant conditions among the profile properties
-     * @since 2.3 (migrated from sub-class)
+     * @since 2.9 (migrated from sub-class)
      * @param string $filename Absolute|relative filesystem path, or just basename, of a file
      * @return boolean
      */
-    public function is_file_name_acceptable( $filename )
+    public function is_file_name_acceptable($filename)
     {
         $fn = basename($filename);
         try {
@@ -293,12 +295,9 @@ class FilePickerProfile
             }
             return true;
         }
-        catch (Exception $e) {
-            if( CMS_DEBUG ) { debug_to_log($e->GetMessage()); }
+        catch (Throwable $t) {
+            if( CMS_DEBUG ) { debug_to_log($t->GetMessage()); }
             return false;
         }
     }
 } // class
-
-//future replacement
-\class_alias(FilePickerProfile::class, 'CMSMS\FileSystemProfile', false);
