@@ -23,8 +23,8 @@ use SmartyException;
 use function startswith;
 
 /**
- * Currently used only by CMSContentManager::Content class, for backend-page or
- * frontend-page-preview
+ * Currently used only by CMSContentManager::Content class, for
+ * backend-page or frontend-page-preview
  */
 class page_template_parser extends Smarty_Internal_Template
 {
@@ -38,7 +38,7 @@ class page_template_parser extends Smarty_Internal_Template
     /**
      * @ignore
      * @var array, each member like 'blockname' => [blockparms]
-	 * intra-request block-parameters cache
+     * intra-request block-parameters cache
      */
     protected static $_contentBlocks = [];
 
@@ -50,8 +50,8 @@ class page_template_parser extends Smarty_Internal_Template
 
     /**
      * Class constructor.
-	 * Used only by CMSContentManager::content class i.e. for backend-page or
-	 * frontend-page-preview. No smarty caching.
+     * Used only by CMSContentManager::content class i.e. for backend-page or
+     * frontend-page-preview. No smarty caching.
      * @param string $template_resource template identifier
      * @param mixed $smarty
      * @param mixed $_parent optional, default null
@@ -162,7 +162,7 @@ class page_template_parser extends Smarty_Internal_Template
 
     /* * EXPORTED TO class.content_plugins
      * Generate PHP code to compile a content block tag.
-	 * This is the registered handler for frontend {content} tags
+     * This is the registered handler for frontend {content} tags
      *
      * @param array $params
      * @param Smarty_Internal_SmartyTemplateCompiler $template UNUSED
