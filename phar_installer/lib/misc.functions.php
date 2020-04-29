@@ -345,7 +345,9 @@ function rcopy(string $frompath, string $topath, bool $dummy = false)
  */
 function get_writable_error() : array
 {
-	return $_writable_error;
+	global $_writable_error;
+
+	return $_writable_error ?? [];
 }
 
 /**
