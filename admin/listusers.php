@@ -384,4 +384,4 @@ $smarty->assign([
 
 include_once 'header.php';
 $smarty->display('listusers.tpl');
-include_once('footer.php');
+include_once 'footer.php';
