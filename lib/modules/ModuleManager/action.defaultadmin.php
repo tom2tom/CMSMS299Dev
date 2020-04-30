@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use ModuleManager\utils;
+use ModuleManager\Utils;
 
 if( !isset($gCms) ) exit;
 
@@ -35,7 +35,7 @@ $pmod = $this->CheckPermission('Modify Modules');
 $pset = $this->CheckPermission('Modify Site Preferences');
 if( !($pmod || $pset) ) exit;
 
-$connection_ok = utils::is_connection_ok();
+$connection_ok = Utils::is_connection_ok();
 if( !$connection_ok ) {
     $this->ShowErrors($this->Lang('error_request_problem'));
 }
@@ -50,7 +50,7 @@ $tpl->assign('tab',$seetab)
  ->assign('connected',$connection_ok);
 
 if( $pmod ) {
-	utils::get_images($tpl);
+    Utils::get_images($tpl);
     require __DIR__.DIRECTORY_SEPARATOR.'function.admin_installed.php';
     if( $connection_ok ) {
         require __DIR__.DIRECTORY_SEPARATOR.'function.newversionstab.php';

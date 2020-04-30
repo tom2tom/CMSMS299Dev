@@ -17,7 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use ModuleManager\modulerep_client;
-use ModuleManager\utils;
+use ModuleManager\Utils;
 
 $dir = CMS_ASSETS_PATH.'/modules';
 $caninstall = (is_dir($dir) && is_writable($dir));
@@ -37,7 +37,7 @@ $clear_search = function() use (&$search_data) {
 
 // get the modules that are already installed
 $instmodules = '';
-$result = utils::get_installed_modules();
+$result = Utils::get_installed_modules();
 if( ! $result[0] ) {
     $this->_DisplayErrorPage( $id, $params, $returnid, $result[1] );
     return;
@@ -58,7 +58,7 @@ if( isset($params['submit']) ) {
 
         $res = $res[1];
         $data = [];
-        if( $res ) $res = utils::build_module_data($res, $instmodules);
+        if( $res ) $res = Utils::build_module_data($res, $instmodules);
 
         $writable = true;
         foreach( cms_module_places() as $dir ) {
@@ -92,7 +92,7 @@ if( isset($params['submit']) ) {
             $obj->aboutlink = $this->CreateLink( $id, 'moduleabout', $returnid,
                                                  $this->Lang('abouttxt'),
                                                  ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
-            $obj->age = utils::get_status($row['date']);
+            $obj->age = Utils::get_status($row['date']);
             $obj->date = $row['date'];
             $obj->downloads = $row['downloads']??$this->Lang('unknown');
             $obj->candownload = false;
@@ -112,10 +112,13 @@ if( isset($params['submit']) ) {
                 if( (($writable && is_dir($mod) && is_directory_writable( $mod )) ||
                      ($writable && !file_exists( $mod ) )) && $caninstall ) {
                     $obj->candownload = true;
-                    $obj->status = $this->CreateLink( $id, 'installmodule', $returnid,
-                                                      $this->Lang('download'),
-                                                      ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'],
-                                                       'size' => $row['size']]);
+                    $obj->status = $this->CreateLink($id, 'installmodule', $returnid,
+                      $this->Lang('download'),
+                      ['name' => $row['name'],
+                       'version' => $row['version'],
+                       'filename' => $row['filename'],
+                       'size' => $row['size'],
+                      ]);
                 }
                 else {
                     $obj->status = $this->Lang('cantdownload');

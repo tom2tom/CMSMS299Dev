@@ -20,6 +20,7 @@ namespace ModuleManager\Command;
 
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
+use ModuleManager\Utils;
 use RuntimeException;
 
 class PingModuleServerCommand extends Command
@@ -32,7 +33,7 @@ class PingModuleServerCommand extends Command
 
     public function handle()
     {
-        $connection_ok = utils::is_connection_ok();
+        $connection_ok = Utils::is_connection_ok();
         if( !$connection_ok ) throw new RuntimeException('A problem occurred communicating with the module server');
     }
 } // class

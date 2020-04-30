@@ -17,13 +17,13 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use ModuleManager\modulerep_client;
-use ModuleManager\utils;
+use ModuleManager\Utils;
 
 if (!$this->CheckPermission('Modify Modules')) {
     exit;
 }
 
-if (!utils::is_connection_ok()) {
+if (!Utils::is_connection_ok()) {
     $this->ShowErrors($this->Lang('error_request_problem'));
 }
 
@@ -52,7 +52,7 @@ $repmodules = '';
 // get the modules that are already installed
 $instmodules = '';
 
-$result = utils::get_installed_modules();
+$result = Utils::get_installed_modules();
 if (! $result[0]) {
     $this->_DisplayErrorPage($id, $params, $returnid, $result[1]);
     return;
@@ -70,7 +70,7 @@ foreach ($tmp as $i) {
 // cross reference them
 $data = [];
 if ($repmodules) {
-    $data = utils::build_module_data($repmodules, $instmodules);
+    $data = Utils::build_module_data($repmodules, $instmodules);
 }
 if ($data) {
     $size = count($data);
@@ -133,7 +133,7 @@ if ($data) {
             $this->Lang('abouttxt'),
             ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]
         );
-        $onerow->age = utils::get_status($row['date']);
+        $onerow->age = Utils::get_status($row['date']);
         $onerow->date = $row['date'];
         $onerow->downloads = $row['downloads']??$this->Lang('unknown');
         $onerow->candownload = false;
