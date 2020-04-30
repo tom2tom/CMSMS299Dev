@@ -1,7 +1,7 @@
 <?php
 
 use CmsJobManager\JobQueue;
-use CmsJobManager\utils;
+use CmsJobManager\Utils;
 use CMSMS\Async\RecurType;
 
 if( !isset($gCms) ) exit;
@@ -52,41 +52,41 @@ add_page_headtext($js);
 $jobs = [];
 $job_objs = JobQueue::get_all_jobs();
 if( $job_objs ) {
-	$list = [
-		RecurType::RECUR_15M => $this->Lang('recur_15m'),
-		RecurType::RECUR_30M => $this->Lang('recur_30m'),
-		RecurType::RECUR_HOURLY => $this->Lang('recur_hourly'),
-		RecurType::RECUR_120M => $this->Lang('recur_120m'),
-		RecurType::RECUR_180M => $this->Lang('recur_180m'),
-		RecurType::RECUR_DAILY => $this->Lang('recur_daily'),
-		RecurType::RECUR_WEEKLY => $this->Lang('recur_weekly'),
-		RecurType::RECUR_MONTHLY => $this->Lang('recur_monthly'),
-		RecurType::RECUR_NONE => '',
-	];
-	$custom = $this->Lang('pollgap', '%s');
+    $list = [
+        RecurType::RECUR_15M => $this->Lang('recur_15m'),
+        RecurType::RECUR_30M => $this->Lang('recur_30m'),
+        RecurType::RECUR_HOURLY => $this->Lang('recur_hourly'),
+        RecurType::RECUR_120M => $this->Lang('recur_120m'),
+        RecurType::RECUR_180M => $this->Lang('recur_180m'),
+        RecurType::RECUR_DAILY => $this->Lang('recur_daily'),
+        RecurType::RECUR_WEEKLY => $this->Lang('recur_weekly'),
+        RecurType::RECUR_MONTHLY => $this->Lang('recur_monthly'),
+        RecurType::RECUR_NONE => '',
+    ];
+    $custom = $this->Lang('pollgap', '%s');
 
     foreach( $job_objs as $job ) {
         $obj = new stdClass();
-		$name = $job->name;
-		if( ($t = strrpos($name, '\\')) !== false ) {
-			$name = substr($name, $t+1);
-		}
+        $name = $job->name;
+        if( ($t = strrpos($name, '\\')) !== false ) {
+            $name = substr($name, $t+1);
+        }
         $obj->name = $name;
         $obj->module = $job->module;
-		if (utils::job_recurs($job)) {
-			if (isset($list[$job->frequency])) {
-				$obj->frequency = $list[$job->frequency];
-			} elseif ($job->frequency == RecurType::RECUR_SELF) {
-				$t = floor($job->interval / 3600) . gmdate(":i", $job->interval % 3600);
-				$obj->frequency = sprintf($custom, $t);
-			} else {
-				$obj->frequency = ''; //unknown parameter
-			}
-	        $obj->until = $job->until;
-		} else {
-			$obj->frequency = null;
-			$obj->until = null;
-		}
+        if (Utils::job_recurs($job)) {
+            if (isset($list[$job->frequency])) {
+                $obj->frequency = $list[$job->frequency];
+            } elseif ($job->frequency == RecurType::RECUR_SELF) {
+                $t = floor($job->interval / 3600) . gmdate(":i", $job->interval % 3600);
+                $obj->frequency = sprintf($custom, $t);
+            } else {
+                $obj->frequency = ''; //unknown parameter
+            }
+            $obj->until = $job->until;
+        } else {
+            $obj->frequency = null;
+            $obj->until = null;
+        }
         $obj->created = $job->created;
         $obj->start = $job->start;
         $obj->errors = $job->errors;

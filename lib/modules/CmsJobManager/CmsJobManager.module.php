@@ -17,12 +17,13 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CmsJobManager\JobQueue;
-use CmsJobManager\utils;
+use CmsJobManager\Utils as ManagerUtils;
 use CMSMS\Async\AsyncJobManager;
 use CMSMS\Async\Job;
 use CMSMS\Async\RegularTask;
 use CMSMS\CoreCapabilities;
 use CMSMS\ModuleOperations;
+use CMSMS\Utils;
 
 final class CmsJobManager extends CMSModule implements AsyncJobManager
 {
@@ -127,7 +128,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
     protected function lock_expired()
     {
         $this->_lock = (int) $this->GetPreference(self::LOCKPREF);
-        return ($this->_lock && $this->_lock < time() - utils::get_async_freq());
+        return ($this->_lock && $this->_lock < time() - ManagerUtils::get_async_freq());
     }
 
     protected function lock()
@@ -260,7 +261,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      */
     public function load_jobs_by_module($module)
     {
-        if (!is_object($module)) $module = cms_utils::get_module($module);
+        if (!is_object($module)) $module = Utils::get_module($module);
         if (!method_exists($module,'get_tasks')) return;
 
         $tasks = $module->get_tasks();
@@ -311,7 +312,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      */
     public function load_job(Job $job) : int
     {
-        if (utils::job_recurs($job)) {
+        if (ManagerUtils::job_recurs($job)) {
             $recurs = $job->frequency;
             $until = $job->until;
         } else {
