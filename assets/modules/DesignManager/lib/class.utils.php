@@ -29,8 +29,7 @@ final class utils
     {
         $mod = cms_utils::get_module('DesignManager');
         $timeout = $mod->GetPreference('lock_timeout');
-        if( $timeout > 0 ) return TRUE;
-        return FALSE;
+        return $timeout > 0;
     }
 
     public static function get_template_locks()
