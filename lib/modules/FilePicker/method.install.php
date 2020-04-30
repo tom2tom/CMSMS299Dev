@@ -36,6 +36,6 @@ try {
     $sqlarray = $dict->CreateIndexSQL(CMS_DB_PREFIX.'cmsfp_idx0', ProfileDAO::table_name(), 'name', [ 'UNIQUE' ] );
     $dict->ExecuteSQLArray($sqlarray);
 }
-catch(Exception $e) {
-    return $e->getMessage();
+catch( Throwable $t ) {
+    return $t->getMessage();
 }

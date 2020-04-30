@@ -99,7 +99,7 @@ try {
 	$group->GrantPermission('Modify Files');
 	$group->GrantPermission('Modify Templates');
 	$group->GrantPermission('View Tag Help');
-} catch (Exception $e) {
+} catch (Throwable $t) {
     //TODO delete group & try again
 }
 // register events for which other parts of the system may listen

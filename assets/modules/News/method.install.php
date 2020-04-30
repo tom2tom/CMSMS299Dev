@@ -29,8 +29,8 @@ if( !class_exists('News\\AdminOperations') ) {
     require_once $fn;
 }
 
-$installer_working = AppState::test_state(AppState::STATE_INSTALL);
-if( $installer_working ) {
+$newsite = AppState::test_state(AppState::STATE_INSTALL);
+if( $newsite ) {
     $uid = 1; // templates owned by intitial admin
 }
 else {
@@ -155,10 +155,15 @@ try {
     $type->reset_content_to_factory();
     $type->save();
 }
-catch( CmsException $e ) {
-    // log it
-    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-    audit('',$me,'Installation error: '.$e->getMessage());
+catch( Throwable $t ) {
+    if( $newsite) {
+        return $t->getMessage();
+    }
+    else {
+        // log it
+        debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
+        audit('',$me,'Installation error: '.$t->getMessage());
+    }
 }
 
 try {
@@ -176,13 +181,17 @@ try {
         $tpl->save();
     }
 }
-catch( CmsException $e ) {
-    // log it
-    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-    audit('',$me,'Installation error: '.$e->getMessage());
+catch( Throwable $t ) {
+    if( $newsite) {
+        return $t->getMessage();
+    }
+    else {
+        debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
+        audit('',$me,'Installation error: '.$t->getMessage());
+    }
 }
 
-if( $installer_working ) {
+if( $newsite ) {
     $extras = [];
     try {
         // And Simplex theme sample summary template
@@ -199,10 +208,8 @@ if( $installer_working ) {
             $extras[] = $tpl->get_id();
         }
     }
-    catch( CmsException $e ) {
-        // log it
-        debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-        audit('',$me,'Installation error: '.$e->getMessage());
+    catch( Throwable $t ) {
+        return $t->getMessage();
     }
 }
 
@@ -218,10 +225,14 @@ try {
     $type->set_help_callback('News::template_help_callback');
     $type->save();
 }
-catch( CmsException $e ) {
-    // log it
-    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-    audit('',$me,'Installation error: '.$e->getMessage());
+catch( Throwable $t ) {
+    if( $newsite) {
+        return $t->getMessage();
+    }
+    else {
+        debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
+        audit('',$me,'Installation error: '.$t->getMessage());
+    }
 }
 
 try {
@@ -239,13 +250,17 @@ try {
         $tpl->save();
     }
 }
-catch( CmsException $e ) {
-    // log it
-    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-    audit('',$me,'Installation error: '.$e->getMessage());
+catch( Throwable $t ) {
+    if( $newsite) {
+        return $t->getMessage();
+    }
+    else {
+        debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
+        audit('',$me,'Installation error: '.$t->getMessage());
+    }
 }
 
-if( $installer_working ) {
+if( $newsite ) {
     try {
         // And Simplex theme sample detail template
         $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Detail_template.tpl';
@@ -261,10 +276,8 @@ if( $installer_working ) {
             $extras[] = $tpl->get_id();
         }
     }
-    catch( CmsException $e ) {
-        // log it
-        debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-        audit('',$me,'Installation error: '.$e->getMessage());
+    catch( Throwable $t ) {
+        return $t->getMessage();
     }
 
     if( $extras ) {
@@ -291,10 +304,14 @@ try {
     $type->set_help_callback('News::template_help_callback');
     $type->save();
 }
-catch( CmsException $e ) {
-    // log it
-    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-    audit('',$me,'Installation error: '.$e->getMessage());
+catch( Throwable $t ) {
+    if( $newsite) {
+        return $t->getMessage();
+    }
+    else {
+        debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
+        audit('',$me,'Installation error: '.$t->getMessage());
+    }
 }
 
 try {
@@ -312,10 +329,14 @@ try {
         $tpl->save();
     }
 }
-catch( CmsException $e ) {
-    // log it
-    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-    audit('',$me,'Installation error: '.$e->getMessage());
+catch( Throwable $t ) {
+    if( $newsite) {
+        return $t->getMessage();
+    }
+    else {
+        debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
+        audit('',$me,'Installation error: '.$t->getMessage());
+    }
 }
 */
 try {
@@ -330,10 +351,14 @@ try {
     $type->set_help_callback('News::template_help_callback');
     $type->save();
 }
-catch( CmsException $e ) {
-    // log it
-    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-    audit('',$me,'Installation error: '.$e->getMessage());
+catch( Throwable $t ) {
+    if( $newsite) {
+        return $t->getMessage();
+    }
+    else {
+        debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
+        audit('',$me,'Installation error: '.$t->getMessage());
+    }
 }
 
 try {
@@ -351,10 +376,15 @@ try {
         $tpl->save();
     }
 }
-catch( CmsException $e ) {
+catch( Throwable $t ) {
     // log it
-    debug_to_log(__FILE__.':'.__LINE__.' '.$e->getMessage());
-    audit('',$me,'Installation error: '.$e->getMessage());
+    if( $newsite) {
+        return $t->getMessage();
+    }
+    else {
+        debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
+        audit('',$me,'Installation error: '.$t->getMessage());
+    }
 }
 
 // Default email template and email preferences

@@ -38,8 +38,8 @@ try {
     if ($group->Delete()) {
         Events::SendEvent('Core', 'DeleteGroupPost', ['group'=>&$group]);
     }
-} catch (Exception $e) {
-    return $e->GetMessage();
+} catch (Throwable $t) {
+    return $t->GetMessage();
 }
 
 //$this->RemovePreference();

@@ -126,8 +126,12 @@ try {
                     //if modules are installed before demo content, that group won't yet exist
                 }
             }
-        } catch( Exception $e ) {
-            audit('', $me, 'Installation error: '.$e->GetMessage());
+        } catch( Throwable $t ) {
+            if( $newsite ) {
+                return $t->GetMessage();
+            } else {
+                audit('', $me, 'Installation error: '.$t->GetMessage());
+            }
         }
     }
 
@@ -148,8 +152,12 @@ try {
     $tpl->set_type($results_type);
     $tpl->set_type_dflt(TRUE);
     $tpl->save();
-} catch( CmsException $e ) {
-    audit('',$me,'Installation error: '.$e->GetMessage());
+} catch( Throwable $t ) {
+    if( $newsite ) {
+        return $t->GetMessage();
+    } else {
+        audit('', $me, 'Installation error: '.$t->GetMessage());
+    }
 }
 
 $this->CreateEvent('SearchInitiated');

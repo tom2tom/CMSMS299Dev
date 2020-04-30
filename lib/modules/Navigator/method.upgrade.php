@@ -11,9 +11,9 @@ if( version_compare($oldversion,'1.0.5') < 0 ) {
             }
         }
     }
-    catch( Exception $e ) {
+    catch( Throwable $t ) {
         // log it
-        audit('',$this->GetName(),'Upgrade error: '.$e->GetMessage());
-        return FALSE;
+        audit('',$this->GetName(),'Upgrade error: '.$t->GetMessage());
+        return $t->GetMessage();
     }
 }

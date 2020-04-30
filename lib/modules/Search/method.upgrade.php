@@ -42,8 +42,8 @@ if( version_compare($oldversion,'1.50') < 1 ) {
             $type->reset_content_to_factory();
             $type->save();
         }
-        catch( CmsInvalidDataException $e ) {
-            // ignore this error.
+        catch( Throwable $t ) {
+            // ignore this error
         }
 
         $content = $this->GetTemplate('displaysearch');
@@ -69,8 +69,8 @@ if( version_compare($oldversion,'1.50') < 1 ) {
             $type->reset_content_to_factory();
             $type->save();
         }
-        catch( CmsInvalidDataException $e ) {
-            // ignore this error.
+        catch( Throwable $t ) {
+            // ignore this error
         }
 
         $content = $this->GetTemplate('displayresult');
@@ -86,8 +86,9 @@ if( version_compare($oldversion,'1.50') < 1 ) {
             $this->DeleteTemplate('displayresult');
         }
     }
-    catch( CmsException $e ) {
-        audit('',$me,'Installation error: '.$e->GetMessage());
+    catch( Throwable $t ) {
+        audit('',$me,'Installation error: '.$t->GetMessage());
+		return $t->GetMessage();
     }
 }
 

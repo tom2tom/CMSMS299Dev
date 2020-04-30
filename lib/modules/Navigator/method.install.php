@@ -34,11 +34,11 @@ try {
     $menu_type->reset_content_to_factory();
     $menu_type->save();
 }
-catch( CmsException $e ) {
+catch( Throwable $t ) {
     // log it
-    debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
-    audit('',$me,'Installation Error: '.$e->GetMessage());
-    return $e->GetMessage();
+    debug_to_log(__FILE__.':'.__LINE__.' '.$t->GetMessage());
+    audit('',$me,'Installation Error: '.$t->GetMessage());
+    return $t->GetMessage();
 }
 
 try {
@@ -52,11 +52,11 @@ try {
     $crumb_type->reset_content_to_factory();
     $crumb_type->save();
 }
-catch( CmsException $e ) {
+catch( Throwable $t ) {
     // log it
-    debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
-    audit('',$me,'Installation Error: '.$e->GetMessage());
-    return $e->GetMessage();
+    debug_to_log(__FILE__.':'.__LINE__.' '.$t->GetMessage());
+    audit('',$me,'Installation Error: '.$t->GetMessage());
+    return $t->GetMessage();
 }
 
 $newsite = AppState::test_state(AppState::STATE_INSTALL);
@@ -145,9 +145,9 @@ try {
                 $extras[] = $tpl->get_id();
             }
         }
-        catch( Exception $e ) {
+        catch( Throwable $t ) {
             // if we got here, it's prolly because default content was not installed.
-            audit('',$me,'Installation Error: '.$e->GetMessage());
+            audit('',$me,'Installation Error: '.$t->GetMessage());
         }
 
         if( $extras ) {
@@ -175,10 +175,10 @@ try {
         $tpl->save();
     }
 }
-catch( Exception $e ) {
-    debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
-    audit('',$me,'Installation Error: '.$e->GetMessage());
-    return $e->GetMessage();
+catch( Throwable $t ) {
+    debug_to_log(__FILE__.':'.__LINE__.' '.$t->GetMessage());
+    audit('',$me,'Installation Error: '.$t->GetMessage());
+    return $t->GetMessage();
 }
 
 // register plugins

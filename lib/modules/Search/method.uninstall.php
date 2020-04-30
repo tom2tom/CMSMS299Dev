@@ -66,7 +66,8 @@ try {
     }
   }
 }
-catch( Exception $e ) {
+catch( Throwable $t ) {
   // log it
-  audit('',$this->GetName(),'Uninstall Error: '.$e->GetMessage());
+  audit('',$this->GetName(),'Uninstall Error: '.$t->GetMessage());
+  return $t->GetMessage();
 }

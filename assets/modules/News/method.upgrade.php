@@ -74,7 +74,8 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
             $mod->DeleteTemplate($tplname);
         }
-        catch( CmsInvalidDataException $e ) {
+        catch( Throwable $t ) {
+            // ignore this error
         }
 
     };
@@ -117,8 +118,8 @@ if( version_compare($oldversion,'2.50') < 0 ) {
                 $upgrade_template($summary_template_type,'summary',$tplname,'current_summary_template','News-Summary-');
             }
         }
-        catch( CmsInvalidDataException $e ) {
-            // ignore this error.
+        catch( Throwable $t ) {
+            // ignore this error
         }
 
         try {
@@ -134,8 +135,8 @@ if( version_compare($oldversion,'2.50') < 0 ) {
                 $upgrade_template($detail_template_type,'detail',$tplname,'current_detail_template','News-Detail-');
             }
         }
-        catch( CmsInvalidDataException $e ) {
-            // ignore this error.
+        catch( Throwable $t ) {
+            // ignore this error
         }
 
         try {
@@ -151,8 +152,8 @@ if( version_compare($oldversion,'2.50') < 0 ) {
                 $upgrade_template($form_template_type,'form',$tplname,'current_form_template','News-Form-');
             }
         }
-        catch( CmsInvalidDataException $e ) {
-            // ignore this error.
+        catch( Throwable $t ) {
+            // ignore this error
         }
 
         try {
@@ -168,13 +169,13 @@ if( version_compare($oldversion,'2.50') < 0 ) {
                 $upgrade_template($browsecat_template_type,'browsecat',$tplname,'current_browsecat_template','News-Browsecat-');
             }
         }
-        catch( CmsInvalidDataException $e ) {
-            // ignore this error.
+        catch( Throwable $t ) {
+            // ignore this error
         }
     }
-    catch( CmsException $e ) {
-        audit('',$me,'Upgrade Error: '.$e->GetMessage());
-        return;
+    catch( Throwable $t ) {
+        audit('',$me,'Upgrade Error: '.$t->GetMessage());
+        return $t->GetMessage();
     }
 
     $this->RegisterModulePlugin(TRUE);
@@ -192,10 +193,10 @@ if( version_compare($oldversion,'2.50.8') < 0 ) {
             }
         }
     }
-    catch( Exception $e ) {
+    catch( Throwable $t ) {
         // log it
-        audit('',$me,'Uninstall Error: '.$e->GetMessage());
-        return FALSE;
+        audit('',$me,'Uninstall Error: '.$t->GetMessage());
+        return $t->GetMessage();
     }
 }
 

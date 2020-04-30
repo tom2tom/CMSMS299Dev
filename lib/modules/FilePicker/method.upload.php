@@ -130,18 +130,18 @@ try {
         'path' => $destpath
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
 
-} catch (Exception $e) {
+} catch (Throwable $t) {
     // Something went wrong, send an err response
     http_response_code(400);
 
     echo json_encode([
         'status' => 'error',
-        'message' => trim($e->getMessage())
+        'message' => trim($t->getMessage())
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
     // mimic outer catcher
-    debug_to_log('Exception: ' . $e->GetMessage());
+    debug_to_log('Exception: ' . $t->GetMessage());
 //  if (CMS_DEBUG) {
-    debug_to_log($e->GetTraceAsString());
+    debug_to_log($t->GetTraceAsString());
 //  }
 }
 exit;
