@@ -70,7 +70,7 @@ final class AppSingle
 			foreach ([
 				'CMSMS\\'.$name, //most likely namespace
 				$name,
-				'CMSMS\\internal\\'.$name, //least likely
+				'CMSMS\\internal\\'.$name, //least likely (mainly Smarty)
 			] as $i => $one) {
 				if (class_exists($one, false)) {
 					try {
