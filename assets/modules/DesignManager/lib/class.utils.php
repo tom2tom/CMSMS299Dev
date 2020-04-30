@@ -28,7 +28,7 @@ final class utils
     public static function locking_enabled()
     {
         $mod = cms_utils::get_module('DesignManager');
-        $timeout = $mod->GetPreference('lock_timeout');
+        $timeout = $mod->GetPreference('lock_timeout', 60);
         return $timeout > 0;
     }
 

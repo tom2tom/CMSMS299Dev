@@ -24,7 +24,7 @@ $handlers = ob_list_handlers();
 for( $cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt ) { ob_end_clean(); }
 
 $userid = get_userid();
-$lock_timeout = cms_siteprefs::get('lock_timeout');
+$lock_timeout = cms_siteprefs::get('lock_timeout', 60);
 $now = time();
 
 $list = LockOperations::get_locks('content');

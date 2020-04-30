@@ -83,7 +83,7 @@ if( $pmod ) {
 $tpl->assign('pmod',$pmod);
 
 //$admin_url = $config['admin_url'];
-//$tpl->assign('lock_timeout', $this->GetPreference('lock_timeout'));
+//$tpl->assign('lock_timeout', $this->GetPreference('lock_timeout', 60));
 //$url = $this->create_url($id,'ajax_get_templates');
 //$ajax_templates_url = str_replace('amp;','',$url);
 //$url = $this->create_url($id,'ajax_get_stylesheets');
