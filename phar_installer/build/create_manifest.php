@@ -512,8 +512,8 @@ function output(string $str)
 
 function info(string $str)
 {
-    if (defined('STDERR')) {
-        fwrite(STDERR, "INFO: $str\n");
+    if (defined('STDOUT')) {
+        fwrite(STDOUT, "INFO: $str\n");
     } else {
         echo ("<br/>INFO: $str");
     }
@@ -523,8 +523,8 @@ function debug(string $str)
 {
     global $_debug;
     if ($_debug) {
-        if (defined('STDERR')) {
-            fwrite(STDERR, "DEBUG: $str\n");
+        if (defined('STDOUT')) {
+            fwrite(STDOUT, "DEBUG: $str\n");
         } else {
             echo("<br/>DEBUG: $str");
         }
