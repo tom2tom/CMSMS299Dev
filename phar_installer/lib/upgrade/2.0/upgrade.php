@@ -4,6 +4,7 @@ use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\ModuleOperations;
 use CMSMS\SimpleTagOperations;
+//use DesignManager\Design; //TODO N/A
 
 set_time_limit(3600);
 status_msg('Fixing errors with deprecated plugins in versions prior to CMSMS 2.0');
@@ -53,13 +54,14 @@ Events::CreateEvent('Core','EditTemplateTypePre');
 Events::CreateEvent('Core','EditTemplateTypePost');
 Events::CreateEvent('Core','DeleteTemplateTypePre');
 Events::CreateEvent('Core','DeleteTemplateTypePost');
+/* DesignManager module
 Events::CreateEvent('Core','AddDesignPre');
 Events::CreateEvent('Core','AddDesignPost');
 Events::CreateEvent('Core','EditDesignPre');
 Events::CreateEvent('Core','EditDesignPost');
 Events::CreateEvent('Core','DeleteDesignPre');
 Events::CreateEvent('Core','DeleteDesignPost');
-
+*/
 // create new tables
 verbose_msg('create table '.CmsLayoutTemplateType::TABLENAME);
 $flds = "
@@ -138,7 +140,8 @@ $flds = "
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::ADDUSERSTABLE, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
-verbose_msg('create table '.CmsLayoutCollection::TABLENAME);
+/* these tables are now part of DesignManager module
+verbose_msg('create table '.Design::TABLENAME);
 $flds = "
          id   I KEY AUTO,
          name C(100) NOTNULL,
@@ -147,31 +150,30 @@ $flds = "
          created I,
          modified I
         ";
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME, $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.Design::TABLENAME, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_dsn_1',CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME, 'name', array('unique'));
+$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_dsn_1',CMS_DB_PREFIX.Design::TABLENAME, 'name', array('unique'));
 $dbdict->ExecuteSQLArray($sqlarray);
 
-
-verbose_msg('create table '.CmsLayoutCollection::TPLTABLE);
+verbose_msg('create table '.Design::TPLTABLE);
 $flds = "
          design_id I KEY NOTNULL,
          tpl_id   I KEY NOTNULL
         ";
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE, $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.Design::TPLTABLE, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'index_dsnassoc1', CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE, 'tpl_id');
+$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'index_dsnassoc1', CMS_DB_PREFIX.Design::TPLTABLE, 'tpl_id');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
-verbose_msg('create table '.CmsLayoutCollection::CSSTABLE);
+verbose_msg('create table '.Design::CSSTABLE);
 $flds = "
          design_id I KEY NOTNULL,
          css_id   I KEY NOTNULL,
          item_order I NOTNULL
         ";
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE, $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.Design::CSSTABLE, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
-
+*/
 verbose_msg('create table '.CmsLock::LOCK_TABLE);
 $flds = "
          id I AUTO KEY NOTNULL,
@@ -385,7 +387,7 @@ verbose_msg('converting page templates');
 @ini_set('display_errors',1);
 @error_reporting(E_ALL);
 
-
+/* this is now DesignManager module stuff
 $tpl_query = 'SELECT * FROM '.CMS_DB_PREFIX.'templates';
 $tpl_insert_query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' (name,content,description,type_id,type_dflt,owner_id,created,modified) VALUES (?,?,?,?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
 $css_assoc_query = 'SELECT * FROM '.CMS_DB_PREFIX.'css_assoc WHERE assoc_to_id = ? ORDER BY assoc_order ASC';
@@ -398,7 +400,7 @@ if( is_array($tmp) && count($tmp) ) {
 
         // create the design (one design per page template)
         $tpl_id = $row['template_id'];
-        $design = new CmsLayoutCollection();
+        $design = new Design();
         $design->set_name($row['template_name']);
         $design->set_description('CMSMS Upgraded on '.$db->DbTimeStamp(time()));
         $design->set_default($is_default);
@@ -464,6 +466,7 @@ if( is_array($content_rows) && count($content_rows) ) {
         verbose_msg('adjusted page '.$row['content_alias']);
   }
 }
+*/
 
 verbose_msg('dropping old template tables');
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'templates');

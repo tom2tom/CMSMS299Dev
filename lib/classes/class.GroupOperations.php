@@ -23,7 +23,7 @@ use CmsInvalidDataException;
 use CMSMS\AppSingle;
 use CMSMS\Group;
 use CmsPermission;
-use DeprecationNotice;
+use CMSMS\DeprecationNotice;
 use LogicException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;

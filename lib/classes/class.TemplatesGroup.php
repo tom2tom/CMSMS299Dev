@@ -41,7 +41,7 @@ use function cms_to_stamp;
  * @package CMS
  * @license GPL
  * @since 2.9
- * @since 2.0 as CmsLayoutTemplateCategory
+ * @since 2.0 as global-namespace CmsLayoutTemplateCategory
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 class TemplatesGroup
@@ -545,5 +545,3 @@ class TemplatesGroup
 		return TemplateOperations::get_bulk_groups($prefix);
 	}
 } // class
-
-\class_alias(TemplatesGroup::class, 'CmsLayoutTemplateCategory', false);

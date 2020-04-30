@@ -23,6 +23,7 @@ use CmsInvalidDataException;
 use CmsLogicException;
 use CMSMS\AdminUtils;
 use CMSMS\App;
+use CMSMS\DeprecationNotice;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
 use CMSMS\Template;
@@ -32,8 +33,7 @@ use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
 use CMSMS\User;
 use CMSMS\UserOperations;
-use DeprecationNotice;
-use DesignManager\Design;
+//use DesignManager\Design;
 use UnexpectedValueException;
 use const CMS_ASSETS_PATH;
 use const CMS_DEPREC;
@@ -45,32 +45,32 @@ use function munge_string_to_url;
 /**
  * A class to administer a layout template.
  * This class is for onetime creation and destruction, and property-modification
- * using the DesignManager module or the like. It is not used for runtime
- * template retrieval.
+ * using the admin-console UI or DesignManager-module etc.
+ * The class is not used for intra-request template retrieval.
  *
  * @package CMS
  * @license GPL
  * @since 2.9
- * @since 2.0 as CmsLayoutTemplate
+ * @since 2.0 as global-namespace CmsLayoutTemplate
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 class Template
 {
    /**
-	* @deprecated since 2.3 instead use TemplateOperations::TABLENAME
+	* @deprecated since 2.9 instead use TemplateOperations::TABLENAME
 	* @ignore
 	*/
 	const TABLENAME = 'layout_templates';
 
    /**
-	* @deprecated since 2.3 instead use TemplateOperations::ADDUSERSTABLE
+	* @deprecated since 2.9 instead use TemplateOperations::ADDUSERSTABLE
 	* @ignore
 	*/
 	const ADDUSERSTABLE = 'layout_tpl_addusers';
 
 	/**
 	 * Originator for core templates
-	 * @since 2.3
+	 * @since 2.9
 	 * @see also TemplateType::CORE
 	 */
 	const CORE = '__CORE__';
@@ -1234,5 +1234,3 @@ class Template
 		return self::get_operations()::get_unique_template_name($prototype,$prefix);
 	}
 } // class
-
-\class_alias(Template::class, 'CmsLayoutTemplate', false);

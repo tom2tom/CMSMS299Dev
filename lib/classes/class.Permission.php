@@ -29,7 +29,7 @@ use const CMS_DB_PREFIX;
  * Simple class for dealing with a permission.
  *
  * @since 2.9
- * @since 2.0 as CmsPermission
+ * @since 2.0 as global-namespace CmsPermission
  * @package CMS
  * @license GPL
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
@@ -250,5 +250,3 @@ VALUES (?,?,?,NOW())";
 		}
 	}
 } // class
-
-\class_alias(Permission::class, 'CmsPermission', false);

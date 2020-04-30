@@ -19,6 +19,7 @@
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\CoreCapabilities;
+use CMSMS\DeprecationNotice;
 use CMSMS\FormUtils;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\MultiEditor;

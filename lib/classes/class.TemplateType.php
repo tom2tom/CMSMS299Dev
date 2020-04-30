@@ -42,7 +42,7 @@ use function lang;
  * @package CMS
  * @license GPL
  * @since 2.9
- * @since 2.0 as CmsLayoutTemplateType
+ * @since 2.0 as global-namespace CmsLayoutTemplateType
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 class TemplateType
@@ -1018,5 +1018,3 @@ WHERE id = ?';
 		return $assistant->get_usage_string($name);
 	}
 } // class
-
-\class_alias(TemplateType::class, 'CmsLayoutTemplateType', false);

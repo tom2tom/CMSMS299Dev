@@ -67,7 +67,7 @@ use function startswith;
  * @package CMS
  * @license GPL
  * @since 2.9
- * @since   1.11 as CmsAdminAdminTheme
+ * @since 1.11 as global-namespace CmsAdminAdminTheme
  * @author  Robert Campbell
  * @property-read string $themeName Return the theme name
  * @property-read int $userid Return the current logged in userid (deprecated)
@@ -394,12 +394,13 @@ abstract class AdminTheme
 */
     /**
      * Hook function to populate page content at runtime
-     * These will normally be subclassed for specific themes, and such methods
+     * This will normally be sub-classed by specific themes, and such methods
      * should call here (their parent) as well as their own specific setup
-     * @since 2.3
+     * @since 2.9
      * @return 2-member array (not typed to support back-compatible themes)
      * [0] = array of data for js vars, members like varname=>varvalue
-     * [1] = array of string(s) for includables
+     * [1] = array of [x]html string(s) which the browser will interpret
+	 *  as files to fetch and process - css and/or js mainly
      */
     public function AdminHeaderSetup()
     {
@@ -2019,5 +2020,3 @@ abstract class AdminTheme
         return AdminTabs::end_tab();
     }
 } // class
-
-\class_alias(AdminTheme::class, 'CmsAdminTheme', false);

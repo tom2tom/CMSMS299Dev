@@ -848,7 +848,7 @@ class Mailer
 
   /**
    * Close the SMTP connection
-   * Only necessary when using the SMTP mailer with keepalive enaboed.
+   * Only necessary when using the SMTP mailer with keepalive enabled.
    * @see Mailer::SetSMTPKeepAlive
    */
   public function SmtpClose()
@@ -877,5 +877,3 @@ class Mailer
   }
 
 } // class
-
-\class_alias(Mailer:class, 'cms_mailer', false);

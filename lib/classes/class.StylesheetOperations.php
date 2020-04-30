@@ -1,5 +1,4 @@
 <?php
-
 #Methods for administering stylesheet objects
 #Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -123,7 +122,7 @@ WHERE id = ?';
 		}
 /*
 		// get the designs that include the specified stylesheet again.
-		$sql = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WhERE css_id = ?'; DISABLED
+		$sql = 'SELECT design_id FROM '.CMS_DB_PREFIX.{??DesignManager\Design}::CSSTABLE.' WhERE css_id = ?'; DISABLED
 		$design_list = $db->GetCol($sql,[$sid]);
 		if( !is_array($design_list) ) $design_list = [];
 
@@ -140,9 +139,9 @@ WHERE id = ?';
 
 		if( $del_dl ) {
 			// delete deleted items
-			$sql1 = 'SELECT css_order FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ? AND design_id = ?';
-			$sql2 = 'UPDATE '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' SET css_order = css_order - 1 WHERE design_id = ? AND css_order > ?';
-			$sql3 = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE design_id = ? AND css_id = ?';
+			$sql1 = 'SELECT css_order FROM '.CMS_DB_PREFIX.{??DesignManager\Design::CSSTABLE.' WHERE css_id = ? AND design_id = ?';
+			$sql2 = 'UPDATE '.CMS_DB_PREFIX.{??DesignManager\Design::CSSTABLE.' SET css_order = css_order - 1 WHERE design_id = ? AND css_order > ?';
+			$sql3 = 'DELETE FROM '.CMS_DB_PREFIX.{??DesignManager\Design::CSSTABLE.' WHERE design_id = ? AND css_id = ?';
 			foreach ( $del_dl as $design_id ) {
 				$design_id = (int)$design_id;
 				$css_order = (int)$db->GetOne($sql1,[$sid,$design_id]);
@@ -155,8 +154,8 @@ WHERE id = ?';
 
 		if( $new_dl ) {
 			// add new items
-			$sql1 = 'SELECT MAX(css_order) FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE design_id = ?';
-			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' (css_id,design_id,css_order) VALUES(?,?,?)';
+			$sql1 = 'SELECT MAX(css_order) FROM '.CMS_DB_PREFIX.{??DesignManager\Design::CSSTABLE.' WHERE design_id = ?';
+			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.{??DesignManager\Design::CSSTABLE.' (css_id,design_id,css_order) VALUES(?,?,?)';
 			foreach ( $new_dl as $one ) {
 				$one = (int)$one;
 				$num = (int)$db->GetOne($sql1,[$one])+1;
@@ -205,7 +204,7 @@ VALUES (?,?,?,?,?,?)';
 /*
 		$t = $sht->get_designs(); DISABLED
 		if( $t ) {
-			$sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' (css_id,design_id) VALUES(?,?)';
+			$sql = 'INSERT INTO '.CMS_DB_PREFIX.{??DesignManager\Design::CSSTABLE.' (css_id,design_id) VALUES(?,?)';
 			foreach( $t as $one ) {
 				$dbr = $db->Execute($sql,[$sid,(int)$one]);
 			}
@@ -259,7 +258,7 @@ VALUES (?,?,?,?,?,?)';
 
 		Events::SendEvent('Core', 'DeleteStylesheetPre',[get_class($sht)=>&$sht]);
 		$db = CmsApp::get_instance()->GetDb();
-/*		$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ?'; DesignManager\Design
+/*		$sql = 'DELETE FROM '.CMS_DB_PREFIX.{??DesignManager\Design::CSSTABLE.' WHERE css_id = ?';
 		$dbr = $db->Execute($sql,[$sid]); // just in case ...
 */
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
@@ -368,7 +367,7 @@ VALUES (?,?,?,?,?,?)';
 					$ids2[] = $row['id'];
 					$designs_by_css[$row['id']] = [];
 				}
-/*				$dquery = 'SELECT design_id,css_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id IN ('.implode(',',$ids2).') ORDER BY css_id';
+/*				$dquery = 'SELECT design_id,css_id FROM '.CMS_DB_PREFIX.{??DesignManager\Design::CSSTABLE.' WHERE css_id IN ('.implode(',',$ids2).') ORDER BY css_id';
 				$dbr2 = $db->GetArray($dquery);
 				foreach( $dbr2 as $row ) {
 					$designs_by_css[$row['css_id']][] = $row['design_id'];

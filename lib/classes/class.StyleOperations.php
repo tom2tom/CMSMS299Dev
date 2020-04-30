@@ -210,5 +210,3 @@ class StyleOperations
         return '';
     }
 } // class
-
-\class_alias(StyleOperations::class, 'CMSMS\StylesheetManager', false);

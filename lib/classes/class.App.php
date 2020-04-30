@@ -19,6 +19,7 @@
 namespace CMSMS {
 
 use CmsInvalidDataException;
+use CMSMS\AppConfig;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
@@ -26,7 +27,8 @@ use CMSMS\AutoCookieOperations;
 use CMSMS\BookmarkOperations;
 use CMSMS\ContentOperations;
 use CMSMS\contenttypes\ErrorPage;
-use CMSMS\Database\mysqli\Connection;
+use CMSMS\Database\Connection;
+use CMSMS\DeprecationNotice;
 use CMSMS\GroupOperations;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
@@ -34,7 +36,6 @@ use CMSMS\ScriptOperations;
 use CMSMS\SimpleTagOperations;
 use CMSMS\UserOperations;
 use CMSMS\Utils;
-use DeprecationNotice;
 use RuntimeException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -48,7 +49,7 @@ use function cms_join_path;
  * @package CMS
  * @license GPL
  * @since 2.9
- * @since 0.5 as App etc
+ * @since 0.5 as global-namespace CmsApp etc
  */
 final class App
 {
@@ -171,7 +172,7 @@ final class App
     {
         switch($key) {
         case 'config':
-            return Config::get_instance();
+            return AppConfig::get_instance();
         case 'get':
         case 'instance':
             return self::get_instance();
@@ -425,7 +426,7 @@ final class App
     {
         if (isset($this->db)) return $this->db;
 
-        $config = AppSingle::Config();
+        $config = AppSingle::AppConfig();
         $this->db = new Connection($config);
         //deprecated since 2.3 (at most): make old stuff available
         require_once cms_join_path(__DIR__, 'Database', 'class.compatibility.php');
@@ -447,13 +448,13 @@ final class App
     /**
     * Get a handle to the CMS config instance.
     * That object contains global paths and settings that do not belong in the database.
-    * @see Config
+    * @see AppConfig
     *
-    * @return Config The configuration object
+    * @return AppConfig The configuration object
     */
-    public function GetConfig() : Config
+    public function GetConfig() : AppConfig
     {
-        return AppSingle::Config();
+        return AppSingle::AppConfig();
     }
 
     /**
@@ -793,8 +794,6 @@ final class App
         return !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off';
     }
 }
-
-\class_alias(App::class, 'CmsApp', false);
 
 } //namespace
 

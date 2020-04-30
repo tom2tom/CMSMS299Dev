@@ -138,5 +138,3 @@ class ContentType implements \ArrayAccess
 		unset($this->$key);
     }
 }
-
-\class_alias(ContentType::class, 'CmsContentTypePlaceHolder', false);

@@ -18,7 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use DeprecationNotice;
+use CMSMS\DeprecationNotice;
 use const CMS_DEPREC;
 
 /**

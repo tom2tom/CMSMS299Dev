@@ -29,7 +29,7 @@ use const CMS_DB_PREFIX;
  * @package CMS
  * @license GPL
  * @since 2.9
- * @since 1.10 as cms_siteprefs
+ * @since 1.10 as global-namespace cms_siteprefs
  * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
 final class AppParams
@@ -248,5 +248,3 @@ EOS;
 		if( $dbr ) return $dbr;
 	}
 } // class
-
-\class_alias(AppParams::class, 'cms_siteprefs', false);

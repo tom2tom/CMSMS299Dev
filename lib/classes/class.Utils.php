@@ -20,7 +20,7 @@ namespace CMSMS;
 
 use CMSMS\AdminTheme;
 use CMSMS\App;
-use CMSMS\Config;
+use CMSMS\AppConfig;
 use CMSMS\Database\Connection;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
@@ -38,7 +38,7 @@ use function cms_path_to_url;
  *
  * @final
  * @since 2.9
- * @since 1.9 as cms_utils
+ * @since 1.9 as global-namespace cms_utils
  */
 final class Utils
 {
@@ -133,11 +133,11 @@ final class Utils
 	 * Return the global CMSMS config.
 	 *
 	 * @since 1.9
-	 * @return Config The global configuration object.
+	 * @return AppConfig The global configuration object.
 	 */
-	public static function get_config() : Config
+	public static function get_config() : AppConfig
 	{
-		return Config::get_instance();
+		return AppConfig::get_instance();
 	}
 
 	/**
@@ -251,7 +251,7 @@ final class Utils
 	 *
 	 * @author calguy1000
 	 * @since 1.10
-	 * @return string IP address in dotted notation, or null
+	 * @return mixed IP address in dotted notation | null
 	 */
 	public static function get_real_ip()
 	{
@@ -514,5 +514,3 @@ final class Utils
 		return $str;
 	}
 } // class
-
-\class_alias(Utils::class, 'cms_utils', false);

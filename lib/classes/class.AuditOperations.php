@@ -22,7 +22,7 @@ namespace CMSMS {
 
     interface AuditManager
     {
-        public function audit( string $msg, string $subject, $item_id = null );
+        public function audit( string $msg, string $subject = '', $item_id = null );
         public function notice( string $msg, string $subject = '' );
         public function warning( string $msg, string $subject = '' );
         public function error( string $msg, string $subject = '' );
@@ -30,7 +30,7 @@ namespace CMSMS {
 
     class HttpErrorLogAuditor implements AuditManager
     {
-        public function audit( string $msg, string $subject, $itemid = null )
+        public function audit( string $msg, string $subject = '', $itemid = null )
         {
             $userid = get_userid(FALSE);
             if( $userid < 1 ) $userid = '';
@@ -111,7 +111,6 @@ namespace CMSMS {
 
     } // class
 
-    \class_alias(AuditOperations::class, 'CMSMS\AuditManager', false);
 } // namespace
 
 namespace {

@@ -466,6 +466,3 @@ EOS;
 		return $out;
 	}
 } // class
-
-\class_alias(AdminUtils::class, 'CmsAdminUtils', false);
-\class_alias(AdminUtils::class, 'cms_admin_utils', false);

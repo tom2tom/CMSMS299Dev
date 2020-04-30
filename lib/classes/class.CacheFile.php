@@ -345,6 +345,3 @@ class CacheFile extends CacheDriver
         return $nremoved;
     }
 } // class
-
-//backward-compatibility shiv
-\class_alias(CacheFile::class, 'cms_filecache_driver', false);

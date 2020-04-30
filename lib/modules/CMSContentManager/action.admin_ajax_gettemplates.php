@@ -30,7 +30,7 @@ try {
         switch( $mode ) {
         case 'alldesign':
             // all templates for this design
-            $design = CmsLayoutCollection::load($design_id); DISABLED
+            $design = DesignManager\Design::load($design_id); DISABLED
             $template_list = $design->get_templates();
 
             $templates = TemplateOperations::get_bulk_templates($template_list);
@@ -44,7 +44,7 @@ try {
         case 'designpage':
             $type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
             $type_id = $type->get_id();
-            $design = CmsLayoutCollection::load($design_id); DISABLED
+            $design = DesignManager\Design::load($design_id); DISABLED
             $template_list = $design->get_templates();
 
             $templates = TemplateOperations::get_bulk_templates($template_list);

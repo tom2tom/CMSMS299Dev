@@ -20,8 +20,8 @@ namespace CMSMS;
 
 use CmsException;
 use CMSMS\AppState;
+use CMSMS\DeprecationNotice;
 use CMSMS\SysDataCacheDriver;
-use DeprecationNotice;
 use UnexpectedValueException;
 use const CMS_DEPREC;
 
@@ -264,5 +264,3 @@ class SysDataCache
         return $this->_maincache;
     }
 } // class
-
-\class_alias(SysDataCache::class, 'CMSMS\internal\global_cache', false);

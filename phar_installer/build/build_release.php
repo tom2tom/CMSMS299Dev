@@ -2,6 +2,7 @@
 <?php
 
 use cms_installer\installer_base;
+use CMSMS\App;
 
 const SVNROOT = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
 const INSTALLERTOP = 'installer'; // extended-intaller top folder name, no trailing separator
@@ -1188,7 +1189,7 @@ try {
 		$uploadspath = joinpath($installerdir, ...$arr);
 		$arr = installer_base::CUSTOMFILESDIR;
 		$workerspath = joinpath($installerdir, ...$arr);
-		$db = CmsApp::get_instance()->GetDb();
+		$db = App::get_instance()->GetDb();
 		$space = @require_once joinpath($installerdir, 'lib', 'iosite.functions.php');
 		if ($space === false) { die('Site-content exporter is missing.'); }
 		elseif ($space === 1) { $space = ''; }

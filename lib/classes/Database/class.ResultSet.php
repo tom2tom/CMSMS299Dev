@@ -19,9 +19,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\Database;
 
-use DeprecationNotice;
+use CMSMS\DeprecationNotice;
 use mysqli_result;
-use const CMS_DEBUG;
+use const CMS_DEPREC;
 
 /**
  * A class for interacting with the results from a database selection.

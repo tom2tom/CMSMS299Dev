@@ -374,5 +374,3 @@ final class LangOperations
 		return $old;
 	}
 } // class
-
-\class_alias(LangOperations::class, 'CmsLangOperations', false);

@@ -18,7 +18,7 @@
 
 namespace CMSContentManager\contenttypes;
 
-//use CmsLayoutCollection;
+//use DesignManager\Design;
 use cms_config;
 use cms_siteprefs;
 use cms_utils;
@@ -385,7 +385,7 @@ class Content extends ContentBase
 				$design_id = $this->GetPropertyValue('design_id');
 				if( $design_id < 1 ) {
 					try {
-						$dflt_design = CmsLayoutCollection::load_default(); DISABLED
+						$dflt_design = DesignManager\Design::load_default(); DISABLED
 						$design_id = $dflt_design->get_id();
 					}
 					catch( Throwable $t ) {
@@ -428,7 +428,7 @@ class Content extends ContentBase
 							$_templates[] = ['value'=>$tpl_id,'label'=>$tpl_name];
 						}
 					}
-//			$_designlist = CmsLayoutCollection::get_list(); DISABLED
+//			$_designlist = DesignManager\Design::get_list(); DISABLED
 				}
 
 				$out = FormUtils::create_dropdown('template_id',$_templates,$template_id,['prefix'=>$id,'id'=>'template_id']);

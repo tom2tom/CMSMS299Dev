@@ -29,7 +29,7 @@ use RuntimeException;
  * @author  Robert Campbell
  *
  * @since 2.9
- * @since 1.9 as cms_tree_operations
+ * @since 1.9 as global-namespace cms_tree_operations
  */
 class TreeOperations
 {
@@ -93,5 +93,3 @@ class TreeOperations
       return $tree;
   }
 } // class
-
-\class_alias(TreeOperations::class, 'cms_tree_operations', false);

@@ -1,4 +1,5 @@
 <?php
+
 # A caching tree for CMSMS content objects
 # Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
@@ -19,10 +20,10 @@
 namespace CMSMS;
 
 use CMSMS\ContentOperations;
+use CMSMS\DeprecationNotice;
 use CMSMS\SysDataCache;
 use CMSMS\SystemCache;
 use CMSMS\Tree;
-use DeprecationNotice;
 use const CMS_DEPREC;
 
 /**
@@ -31,7 +32,7 @@ use const CMS_DEPREC;
  * in CMSMS versions prior to 1.9, for backward compatibility.
  *
  * @since 2.9
- * @since 1.9 as cms_content_tree
+ * @since 1.9 as global-namespace cms_content_tree
  * @package CMS
  * @license GPL
  * @author  Robert Campbell
@@ -464,5 +465,3 @@ class ContentTree extends Tree
 		return $out;
 	}
 } // class
-
-\class_alias(ContentTree::class, 'cms_content_tree', false);

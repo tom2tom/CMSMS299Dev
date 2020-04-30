@@ -19,7 +19,7 @@
 namespace CMSMS;
 
 use CMSMS\AppSingle;
-use DeprecationNotice;
+use CMSMS\DeprecationNotice;
 use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -921,5 +921,3 @@ EOS;
 			null;
 	}
 } // class
-
-\class_alias(SimpleTagOperations::class, 'UserTagOperations', false);

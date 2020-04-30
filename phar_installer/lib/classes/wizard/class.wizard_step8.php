@@ -2,10 +2,9 @@
 
 namespace cms_installer\wizard;
 
-use cms_config;
 use cms_installer\wizard\wizard_step;
-use cms_siteprefs;
-use CmsApp;
+use CMSMS\App;
+use CMSMS\AppConfig;
 use CMSMS\AppState;
 use Exception;
 use Throwable;
@@ -23,7 +22,7 @@ class wizard_step8 extends wizard_step
 
     /**
      * Get a handle to the system database.
-     * Without using CmsApp::GetDb(), which doesn't accept $config data
+     * Without using App::GetDb(), which doesn't accept $config data
      * and effectively assumes $config (including db connection params)
      * is already set. But here it aint so!
      *
@@ -41,7 +40,7 @@ class wizard_step8 extends wizard_step
             return $t->getMessage();
         }
         AppState::add_state(AppState::STATE_INSTALL);
-        CmsApp::get_instance()->_setDb($db);
+        App::get_instance()->_setDb($db);
         return $db;
     }
 
@@ -320,8 +319,8 @@ EOS
         $fp = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
         require_once $fp.'misc.functions.php';
         require_once $fp.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-        require_once $fp.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php';
-        $config = cms_config::get_instance();
+        require_once $fp.'classes'.DIRECTORY_SEPARATOR.'class.AppConfig.php';
+        $config = AppConfig::get_instance();
 
         AppState::add_state(AppState::STATE_INSTALL); //enable $config property-setting
         $config->merge($params);

@@ -21,7 +21,7 @@ namespace CMSMS;
 use ArrayAccess;
 use CMSMS\AppParams;
 use CMSMS\AppState;
-use DeprecationNotice;
+use CMSMS\DeprecationNotice;
 use RuntimeException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -40,12 +40,12 @@ use function startswith;
  *
  * @final
  * @since 2.9
- * @since 1.9 as cms_config
+ * @since 1.9 as global-namespace cms_config
  * @package CMS
  * @license GPL
  * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
-final class Config implements ArrayAccess
+final class AppConfig implements ArrayAccess
 {
     /**
      * @ignore
@@ -805,5 +805,3 @@ EOS;
         return $this->offsetGet('image_uploads_url');
     }
 } // class
-
-\class_alias(Config::class, 'cms_config', false);

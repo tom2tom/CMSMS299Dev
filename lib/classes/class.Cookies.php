@@ -29,7 +29,7 @@ use const CMS_ROOT_URL;
  * @author Robert Campbell
  *
  * @since 2.9
- * @since 1.10 as cms_cookies
+ * @since 1.10 as global-namespace cms_cookies
  */
 final class Cookies
 {
@@ -140,5 +140,3 @@ final class Cookies
   }
 
 } // class
-
-\class_alias(Cookies::class, 'cms_cookies', false);

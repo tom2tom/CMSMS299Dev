@@ -19,9 +19,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\Database {
 
-use DeprecationNotice;
 use CMSMS\Database\Connection;
+use CMSMS\DeprecationNotice;
 use const CMS_DEBUG;
+use const CMS_DEPREC;
 
     /**
      * A class for providing some compatibility functionality with older module code.
@@ -138,6 +139,7 @@ namespace {
 
 use CMSMS\Database\Connection;
 use CMSMS\Database\DataDictionary;
+use CMSMS\DeprecationNotice;
 
     // root namespace stuff
     /*

@@ -25,7 +25,7 @@ namespace CMSMS;
  * @author  Robert Campbell
  *
  * @since 2.9
- * @since 1.9 as cms_tree
+ * @since 1.9 as global-namespace cms_tree
  */
 class Tree
 {
@@ -292,5 +292,3 @@ class Tree
 		return $res;
 	}
 } // class
-
-\class_alias(Tree::class, 'cms_tree', false);

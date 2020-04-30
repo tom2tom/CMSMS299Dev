@@ -25,14 +25,15 @@ use CmsInvalidDataException;
  *
  * @package CMS
  * @license GPL
- * @since   1.11
- * @deprecated since 2.3
+ * @since 2.9
+ * @since  1.11 as AdminThemeNotification
+ * @deprecated since 2.9
  * @author  Robert Campbell
  * @property string $module Module name
  * @property int $priority Priority between 1 and 3
  * @property string $html HTML contents of the notification
  */
-class AdminThemeNotification
+class AdminNotification
 {
     /**
      * @ignore
@@ -82,5 +83,3 @@ class AdminThemeNotification
         throw new CmsInvalidDataException('Attempt to set invalid property from CmsAdminThemeNotification');
     }
 } // class
-
-\class_alias(AdminThemeNotification::class, 'CMSMS\internal\AdminNotification', false);

@@ -120,5 +120,3 @@ final class CoreCapabilities extends BasicEnum
 	const WYSIWYG_MODULE = 'handles_wysiwyg';
 
 } // class
-
-\class_alias(CoreCapabilities::class, 'CmsCoreCapabilities', false);

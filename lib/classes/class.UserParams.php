@@ -252,12 +252,11 @@ final class UserParams
 	}
 } // class
 
-\class_alias(UserParams::class, 'cms_userprefs', false);
-
 } //namespace
 
 namespace {
 
+use CMSMS\DeprecationNotice;
 use CMSMS\UserParams;
 
 /**

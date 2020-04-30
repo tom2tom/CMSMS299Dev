@@ -28,5 +28,3 @@ class SysDataCacheDriver
         return ($this->_fetchcb)();
     }
 } // class
-
-\class_alias(SysDataCacheDriver::class, 'CMSMS\internal\global_cachable', false);

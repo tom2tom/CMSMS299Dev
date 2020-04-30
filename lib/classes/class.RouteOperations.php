@@ -21,12 +21,12 @@ namespace CMSMS;
 use cms_utils;
 use CmsApp;
 use CMSMS\AppState;
+use CMSMS\DeprecationNotice;
 use CMSMS\SysDataCacheDriver;
 use CMSMS\SysDataCache;
 use CMSMS\ModuleOperations;
 use CMSMS\RouteOperations;
 use CmsRoute;
-use DeprecationNotice;
 use Exception;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -629,5 +629,3 @@ EOS;
 		return TRUE;
 	}
 } // class
-
-\class_alias(RouteOperations::class, 'cms_route_manager', false);

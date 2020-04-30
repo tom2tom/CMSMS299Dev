@@ -495,7 +495,7 @@ if( $pmanage ) {
     // list of admin users for filtering
      ->assign('user_list',UserOperations::get_instance()->GetList());
     // list of designs for filtering
-// ->assign('design_list',CmsLayoutCollection::get_list())  TODO replacement :: stylesheets and/or groups
+// ->assign('design_list',DesignManager\Design::get_list()) TODO replacement :: stylesheets and/or groups
 }
 
 $tpl->display();

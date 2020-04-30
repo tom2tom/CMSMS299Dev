@@ -250,5 +250,3 @@ class Nls
 		return $obj;
 	}
 } // class
-
-\class_alias(Nls::class, 'CmsNls', false);

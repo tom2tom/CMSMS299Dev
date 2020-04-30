@@ -27,7 +27,7 @@ use function startswith;
  * @author  Robert Campbell
  *
  * @since 2.9
- * @since 1.9 as cms_url
+ * @since 1.9 as global-namespace cms_url
  */
 class Url
 {
@@ -364,5 +364,3 @@ class Url
         return $url;
     }
 } // class
-
-\class_alias(Url::class, 'cms_url', false);

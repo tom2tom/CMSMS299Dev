@@ -11,7 +11,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # BUT withOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
@@ -24,8 +24,7 @@ use CMSMS\Utils;
 
 /**
  * @since 2.9
- * @since ? as CmsAdminMenuItem
- *
+ * @since 2.0 as global-namespace CmsAdminMenuItem
  */
 final class AdminMenuItem
 {
@@ -110,17 +109,17 @@ final class AdminMenuItem
     public function valid()
     {
         foreach (self::ITEMKEYS as $ok) {
-			switch ($ok) {
-				case 'name':
-				case 'description':
-				case 'icon':
-				case 'system':
-				case 'priority':
-				case 'url':
-					break 2;  // we don't care whether these are set
-				default:
-					if (!isset($this->_data[$ok])) return false;
-			}
+            switch ($ok) {
+                case 'name':
+                case 'description':
+                case 'icon':
+                case 'system':
+                case 'priority':
+                case 'url':
+                    break 2;  // we don't care whether these are set
+                default:
+                    if (!isset($this->_data[$ok])) return false;
+            }
         }
         return true;
     }
@@ -149,5 +148,3 @@ final class AdminMenuItem
         return $obj;
     }
 } // class
-
-\class_alias(AdminMenuItem::class, 'CmsAdminMenuItem', false);

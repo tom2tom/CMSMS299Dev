@@ -18,10 +18,10 @@
 
 namespace CMSMS;
 
+use CmsDbQueryBase;
 use CmsInvalidDataException;
 use CmsLogicException;
 use CMSMS\App;
-use CMSMS\DbQueryBase;
 use CMSMS\TemplateOperations;
 use CmsSQLErrorException;
 use const CMS_DB_PREFIX;
@@ -52,14 +52,13 @@ use function cms_to_bool;
  *
  * @package CMS
  * @license GPL
- * @since 2.9
- * @since 2.0 as CmsLayoutTemplateQuery
+ * @since 2.0
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
- * @see DbQueryBase
+ * @see CmsDbQueryBase
  * @property string $sortby The sorting field for the returned results.  Possible values are: id,name,create_date,modified_date,type.  The default is to sort by template name.';
  * @property string $sortorder The sorting order for the returned results.  Possible values are: ASC,DESC.  The default is ASC.
  */
-class TemplateQuery extends DbQueryBase
+class TemplateQuery extends CmsDbQueryBase
 {
 	/**
 	 * @ignore
@@ -342,5 +341,3 @@ AS tmp1';
 		return TemplateOperations::get_bulk_templates($this->GetMatchedTemplateIds());
 	}
 } // class
-
-\class_alias(TemplateQuery::class, 'CmsLayoutTemplateQuery', false);

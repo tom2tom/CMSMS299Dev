@@ -1,5 +1,5 @@
 <?php
-#Class for dealing with a CmsLayoutStylesheet object
+#Class for dealing with a Stylesheet object
 #Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,18 +19,15 @@
 namespace CMSMS;
 
 use CmsInvalidDataException;
-use CmsLayoutCollection;
-use CmsLayoutStylesheet;
 use CmsLogicException;
 use CMSMS\AdminUtils;
 use CMSMS\App;
-use CMSMS\Config;
+use CMSMS\AppConfig;
+use CMSMS\DeprecationNotice;
 use CMSMS\LockOperations;
-use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
 use CmsSQLErrorException;
-use DeprecationNotice;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use function cms_join_path;
@@ -39,16 +36,16 @@ use function cms_to_stamp;
 use function munge_string_to_url;
 
 /**
- * A class of methods for dealing with a CmsStylesheet object.
- * This class is for stylesheet administration, by DesignManager module
- * and the like. It is not used for runtime stylesheet retrieval.
+ * A class of methods for dealing with a Stylesheet object.
+ * This class is for stylesheet administration via the admin-console UI, or by
+ * DesignManager-module etc.
+ * The class is not used for intra-request stylesheet processing.
  *
  * @package CMS
  * @license GPL
  * @since 2.9
- * @since 2.0 as CmsLayoutStylesheet
+ * @since 2.0 as global-namespace CmsLayoutStylesheet
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
- * @see CmsLayoutCollection
  */
 class Stylesheet
 {
@@ -305,7 +302,7 @@ class Stylesheet
    /* *
 	* Get the list of design id's (if any) that this stylesheet is assigned to
 	*
-	* @see CmsLayoutCollection
+	* @see DesignManager\Design
 	* @return array Array of integer design id's
 	*/
 /*	public function get_designs() DISABLED
@@ -314,7 +311,7 @@ class Stylesheet
 		if( !$sid ) return [];
 		if( !is_array($this->_designs) ) {
 			$db = App::get_instance()->GetDb();
-			$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ?'; DISABLED
+			$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.{??DesignManager\Design}::CSSTABLE.' WHERE css_id = ?'; DISABLED
 			$tmp = $db->GetCol($query,[$sid]);
 			if( $tmp ) $this->_designs = $tmp;
 			else $this->_designs = [];
@@ -325,7 +322,7 @@ class Stylesheet
    /* *
 	* Get the numeric id corresponding to $a
 	* @since 2.3
-	* @param mixed $a An Instance of a CmsLayoutCollection object, or an integer design id, or a string design name
+	* @param mixed $a An Instance of a DesignManager\Design object, or an integer design id, or a string design name
 	* @return int
 	* @throws UnexpectedValueException
 	*/
@@ -335,12 +332,12 @@ class Stylesheet
 			return (int)$a;
 		}
 		elseif( is_string($a) && $a !== '' ) {
-			$ob = CmsLayoutCollection::load($a);
+			$ob = DesignManager\Design::load($a);
 			if( $ob ) {
 				return $ob->get_id();
 			}
 		}
-		elseif( $a instanceof CmsLayoutCollection ) {
+		elseif( $a instanceof DesignManager\Design ) {
 			return $a->get_id();
 		}
 
@@ -350,7 +347,7 @@ class Stylesheet
    /* *
 	* Set the list of design id's that this stylesheet is assigned to
 	*
-	* @see CmsLayoutCollection
+	* @see DesignManager\Design
 	* @throws CmsInvalidDataException
 	* @param array $all Array of integer design id's, maybe empty
 	*/
@@ -370,8 +367,8 @@ class Stylesheet
 	* Assign this stylesheet to a design
 	*
 	* @throws CmsLogicException
-	* @see CmsLayoutCollection
-	* @param mixed $a An Instance of a CmsLayoutCollection object, or an integer design id, or a string design name
+	* @see DesignManager\Design
+	* @param mixed $a An Instance of a DesignManager\Design object, or an integer design id, or a string design name
 	*/
 /*	public function add_design($a)
 	{
@@ -387,8 +384,8 @@ class Stylesheet
 	* Remove this stylesheet from a design
 	*
 	* @throws CmsLogicException
-	* @see CmsLayoutCollection
-	* @param mixed $a An Instance of a CmsLayoutCollection object, or an integer design id, or a string design name
+	* @see DesignManager\Design
+	* @param mixed $a An Instance of a DesignManager\Design object, or an integer design id, or a string design name
 	*/
 /*	public function remove_design($a)
 	{
@@ -462,7 +459,7 @@ class Stylesheet
     * @since 2.3
 	*
 	* @throws CmsLogicException
-	* @see CmsLayoutCollection
+	* @see DesignManager\Design
 	* @param mixed $a An integer group id, or a string group name
 	*/
 	public function add_group($a)
@@ -485,7 +482,7 @@ class Stylesheet
     * @since 2.3
 	*
 	* @throws CmsLogicException
-	* @see CmsLayoutCollection
+	* @see DesignManager\Design
 	* @param mixed $a An integer group id, or a string group name
 	*/
 	public function remove_group($a)
@@ -567,7 +564,7 @@ class Stylesheet
 	public function get_content_filename()
 	{
 		if( $this->get_content_file() ) {
-			$config = Config::get_instance();
+			$config = AppConfig::get_instance();
 			return cms_join_path($config['assets_path'],'css',$this->get_content());
 		}
 		return '';
@@ -679,7 +676,7 @@ class Stylesheet
 	* @deprecated since 2.3 use the corresponding StylesheetOperations method
 	*
 	* @param mixed $a Either an integer stylesheet id, or a string stylesheet name.
-	* @return CmsLayoutStylesheet
+	* @return Stylesheet
 	* @throws CmsInvalidDataException
 	*/
 	public static function load($a)
@@ -695,7 +692,7 @@ class Stylesheet
 	*
 	* @param array $ids Array of integer stylesheet id's or an array of string stylesheet names.
 	* @param bool $deep whether or not to load associated data
-	* @return array Array of CmsLayoutStylesheet objects
+	* @return array Array of Stylesheet objects
 	* @throws CmsInvalidDataException
 	*/
 	public static function load_bulk($ids,$deep = true)
@@ -709,7 +706,7 @@ class Stylesheet
 	*
 	* @param bool $by_name Optional flag indicating the output format. Default false.
 	* @return mixed If $by_name is true then the output will be an array of rows
-    *  each with stylesheet id and name. Otherwise, id and CmsLayoutStylesheet object
+    *  each with stylesheet id and name. Otherwise, id and Stylesheet object
 	*/
 	public static function get_all($by_name = false)
 	{
@@ -743,5 +740,3 @@ class Stylesheet
 		return $this->get_operations()::get_unique_name($prototype,$prefix);
 	}
 } // class
-
-\class_alias(Stylesheet::class, 'CmsLayoutStylesheet', false);

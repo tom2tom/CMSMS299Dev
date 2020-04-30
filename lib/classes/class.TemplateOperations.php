@@ -17,6 +17,7 @@
 
 namespace CMSMS;
 
+//use DesignManager\Design;
 use cms_config;
 use CmsApp;
 use CmsDataNotFoundException;
@@ -42,9 +43,10 @@ use function get_userid;
 use function munge_string_to_url;
 
 /**
- * A class of static methods for dealing with CmsLayoutTemplate objects.
- * This class is for template administration, by DesignManager module
- * and the like. It is not used for runtime template retrieval.
+ * A class of static methods for dealing with Template objects.
+ * This class is for template administration, via the admin console
+ * or by DesignManager module etc.
+ * The class is not involved with intra-request template processing.
  *
  * @since 2.3
  * @package CMS
@@ -290,12 +292,12 @@ WHERE id=?';
 			}
 		}
 /*
-		$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE tpl_id = ?'; DISABLED
+		$sql = 'DELETE FROM '.CMS_DB_PREFIX.Design::TPLTABLE.' WHERE tpl_id = ?'; DISABLED
 		$dbr = $db->Execute($sql,[ $tplid ]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' --6 '.$db->ErrorMsg());
 		$t = $tpl->get_designs(); DISABLED
 		if( $t ) {
-			$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)'); DISABLED
+			$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.Design::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)'); DISABLED
 			$i = 1;
 			foreach( $t as $id ) {
 				$db->Execute($stmt,[ (int)$id,$tplid,$i ]);
@@ -381,8 +383,8 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 
 /*        $designs = $tpl->get_designs();
 		if( $designs ) {
-			$sql = 'SELECT MAX(tpl_order) AS v FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE design_id=?'; DISABLED
-			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)';
+			$sql = 'SELECT MAX(tpl_order) AS v FROM '.CMS_DB_PREFIX.Design::TPLTABLE.' WHERE design_id=?'; DISABLED
+			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.Design::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)';
 			foreach( $designs as $id ) {
 				$mid = (int)$db->GetOne($sql,[ $id ]);
 				$db->Execute($sql2,[ (int)$id,$tplid,$mid + 1 ]);
@@ -441,7 +443,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 
 		Events::SendEvent('Core','DeleteTemplatePre',[ get_class($tpl) => &$tpl ]);
 		$db = CmsApp::get_instance()->GetDb();
-/*        $sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE tpl_id = ?';  DISABLED
+/*        $sql = 'DELETE FROM '.CMS_DB_PREFIX.Design::TPLTABLE.' WHERE tpl_id = ?';  DISABLED
 		//$dbr =
 		$db->Execute($sql,[ $id ]);
 */
@@ -536,7 +538,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		if( $rows ) {
 			$sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
 			$alleditors = $db->GetArray($sql);
-			// table aka CmsLayoutCollection::TPLTABLE
+			// table aka Design::TPLTABLE
 /*          $sql = 'SELECT * FROM '.CMS_DB_PREFIX.'layout_design_tplassoc WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
 			$alldesigns = $db->GetArray($sql);
 */

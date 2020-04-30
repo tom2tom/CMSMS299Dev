@@ -7,7 +7,7 @@
 
 namespace CMSMS;
 
-use CMSMS\Config;
+use CMSMS\AppConfig;
 use CMSMS\Utils;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;
@@ -30,7 +30,7 @@ use const TMP_CACHE_LOCATION;
  *
  * @link        http://www.phpfour.com/lib/http
  * @since       2.9
- * @since       0.1 as cms_http_request
+ * @since       0.1 as global-namespace cms_http_request
  */
 class HttpRequest
 {
@@ -286,7 +286,7 @@ class HttpRequest
      * $http->initialize($httpConfig);
      * </pre>
      *
-     * @param array $config Config values as associative array
+     * @param array $config AppConfig values as associative array
      */
     public function initialize($config = [])
     {
@@ -313,7 +313,7 @@ class HttpRequest
      */
     public function clear()
     {
-        $config = Config::get_instance();
+        $config = AppConfig::get_instance();
 
         // Set the request defaults
         $this->host         = '';
@@ -1258,5 +1258,3 @@ class HttpRequest
         }
     }
 }
-
-\class_alias(HttpRequest::class, 'cms_http_request', false);

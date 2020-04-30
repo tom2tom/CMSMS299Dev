@@ -22,6 +22,7 @@ use CMSMS\AppState;
 use CMSMS\ContentType;
 use CMSMS\ContentTypeOperations;
 use CMSMS\contenttypes\ContentBase;
+use CMSMS\DeprecationNotice;
 use CMSMS\Events;
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
@@ -1128,9 +1129,10 @@ abstract class CMSModule
      * method.install.php located in the module's base directory, if such file
      * exists.
      *
-     * A falsy return value, or 1 (numeric), will be treated as an indication of
-     * successful completion. Otherwise, the method should return an error message
-     * (string), or a different number (e.g. 2).
+     * A falsy return value, or 1 (numeric, also PHP's 'successful inclusion'
+     * indicator), will be treated as an indication of successful completion.
+     * Otherwise, the method should return an error message (string), or
+     * a different number (e.g. 2).
      *
      * @abstract
      * @return mixed included-method-supplied (e.g. string|int != {0,1}) upon failure, or false upon success
@@ -1169,9 +1171,10 @@ abstract class CMSModule
      * method.uninstall.php located in the module's base directory, if such file
      * exists.
      *
-     * A falsy return value, or 1 (numeric), will be treated as an indication of
-     * successful completion. Otherwise, the method should return an error message
-     * (string), or a different number (e.g. 2).
+     * A falsy return value, or 1 (numeric, also PHP's 'successful inclusion'
+     * indicator), will be treated as an indication of successful completion.
+     * Otherwise, the method should return an error message (string), or
+     * a different number (e.g. 2).
      *
      * @abstract
      * @return mixed false | string | int
@@ -1238,9 +1241,10 @@ abstract class CMSModule
      * the file named method.upgrade.php, located in the module's base directory,
      * if such file exists.
      *
-     * A falsy return value, or 1 (numeric), will be treated as an indication of
-     * successful completion. Otherwise, the method should return an error message
-     * (string), or a different number (e.g. 2).
+     * A falsy return value, or 1 (numeric, also PHP's 'successful inclusion'
+     * indicator), will be treated as an indication of successful completion.
+     * Otherwise, the method should return an error message (string), or
+     * a different number (e.g. 2).
      *
      * @param string $oldversion The version we are upgrading from
      * @param string $newversion The version we are upgrading to

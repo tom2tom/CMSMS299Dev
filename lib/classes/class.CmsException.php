@@ -16,9 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//namespace CMSMS;
+namespace CMSMS;
 
+use AssertionError;
+use CMSMS\Exception;
 use CMSMS\LangOperations;
+use Exception as MainException;
 
 /**
  * The base CMSMS exception class. It preserves extended information, and
@@ -29,7 +32,7 @@ use CMSMS\LangOperations;
  * @package CMS
  * @since 1.10
  */
-class CmsException extends Exception
+class Exception extends MainException
 {
     /**
     * @ignore
@@ -47,7 +50,19 @@ class CmsException extends Exception
     */
     public function __construct(...$args)
     {
-        $msg = $args[0] ?? '';
+        $msg = $args[0] ?? 'Unknown error'; // $args[0] may be explicitly ''
+        if( is_numeric($msg) ) {
+            $msg = 'CMSEX_'.trim($msg);
+            if( LangOperations::key_exists($msg) ) {
+                $msg = LangOperations::lang($msg);
+            }
+            else {
+                $msg = 'MISSING TRANSLATION FOR '.$msg;
+            }
+        }
+        elseif( $msg && strpos($msg,' ') === FALSE && LangOperations::key_exists($msg) ) {
+            $msg = LangOperations::lang($msg);
+        }
         $code = $args[1] ?? 0;
         $prev = $args[2] ?? null; //Throwable | null, or something else for $this->_extra
         $tmp = $args[3] ?? null;  //ditto, if present
@@ -65,16 +80,6 @@ class CmsException extends Exception
         }
 
         parent::__construct($msg,(int)$code,$prev);
-
-        if( is_int($this->message) ) {
-            $this->messsage = 'CMSEX_'.$msg;
-            if( !LangOperations::key_exists($this->message) ) {
-                $this->message = 'MISSING TRANSLATION FOR '.$this->message;
-            }
-        }
-        if( strpos($this->message,' ') === FALSE && LangOperations::key_exists($this->message) ) {
-            $this->message = LangOperations::lang($this->message);
-        }
     }
 
     /**
@@ -86,75 +91,71 @@ class CmsException extends Exception
         return $this->_extra;
     }
 }
+\class_alias('CMSMS\Exception', 'CmsException', false);
 
 /**
- * Backward compatibility, unlikely to be used
- */
-class_alias('CmsException','CmsExtraDataException', false);
-
-/**
- * A CMSMS Logic Exception
+ * Logic exception
  *
  * @package CMS
  * @since 1.10
  */
-class CmsLogicException extends CmsException {}
+class LogicException extends Exception {}
+\class_alias('CMSMS\LogicException', 'CmsLogicException', false);
 
 /**
- * A CMSMS Communications Exception
+ * Communications exception
  *
  * @package CMS
  * @since 1.10
  */
-class CmsCommunicationException extends CmsException {}
+class CommunicationException extends Exception {}
+\class_alias('CMSMS\CommunicationException', 'CmsCommunicationException', false);
 
 /**
- * A CMSMS Privacy Exception
+ * Privacy exception
  *
  * @package CMS
  * @since 1.10
  */
-class CmsPrivacyException extends CmsException {}
+class PrivacyException extends Exception {}
+\class_alias('CMSMS\PrivacyException', 'CmsPrivacyException', false);
 
 /**
- * A CMSMS Singleton Exception
+ * Singleton exception
  *
  * @package CMS
  * @since 1.10
  */
-class CmsSingletonException extends CmsException {}
+class SingletonException extends Exception {}
+\class_alias('CMSMS\SingletonException', 'CmsSingletonException', false);
 
 /**
- * An exception indicating invalid data was supplied to a function or class.
+ * Invalid data exceptions
  *
  * @package CMS
  * @since 1.10
  */
-class CmsInvalidDataException extends CmsLogicException {}
+class DataException extends Exception {}
+\class_alias('CMSMS\DataException', 'CmsDataException', false);
+\class_alias('CMSMS\DataException', 'CmsExtraDataException', false);
+\class_alias('CMSMS\DataException', 'CmsInvalidDataException', false);
+\class_alias('CMSMS\DataException', 'CmsDataNotFoundException', false);
 
 /**
- * An exception indicating that the requested data could not be found.
- *
- * @package CMS
- * @since 1.10
- */
-class CmsDataNotFoundException extends CmsException {}
-
-/**
- * An exception indicating that a 404 error should be supplied.
+ * An exception indicating that a 400 error should be supplied.
  *
  * @package CMS
  * @since 2.3
  */
-class CmsError400Exception extends CmsException {}
-
-/**
- * An exception indicating that a 404 error should be supplied.
- *
- * @package CMS
- * @since 1.11
- */
-class CmsError404Exception extends CmsException {}
+class Error400Exception extends Exception
+{
+    public function __construct(...$args)
+    {
+        $args[0] = 'Bad request';
+        parent::__construct(...$args);
+    }
+}
+\class_alias('CMSMS\Error400Exception', 'CmsError400Exception', false);
 
 /**
  * An exception indicating that a 403 error should be supplied.
@@ -162,7 +163,31 @@ class CmsError404Exception extends CmsException {}
  * @package CMS
  * @since 1.12
  */
-class CmsError403Exception extends CmsException {}
+class Error403Exception extends Exception
+{
+    public function __construct(...$args)
+    {
+        $args[0] = 'Forbidden';
+        parent::__construct(...$args);
+    }
+}
+\class_alias('CMSMS\Error403Exception', 'CmsError403Exception', false);
+
+/**
+ * An exception indicating that a 404 error should be supplied.
+ *
+ * @package CMS
+ * @since 1.11
+ */
+class Error404Exception extends Exception 
+{
+    public function __construct(...$args)
+    {
+        $args[0] = 'Not found';
+        parent::__construct(...$args);
+    }
+}
+\class_alias('CMSMS\Error404Exception', 'CmsError404Exception', false);
 
 /**
  * An exception indicating that the install is temporarily unavailable
@@ -171,7 +196,15 @@ class CmsError403Exception extends CmsException {}
  * @package CMS
  * @since 1.12
  */
-class CmsError503Exception extends CmsException {}
+class Error503Exception extends Exception
+{
+    public function __construct(...$args)
+    {
+        $args[0] = 'Service unavailable';
+        parent::__construct(...$args);
+    }
+}
+\class_alias('CMSMS\Error503Exception', 'CmsError503Exception', false);
 
 /**
  * An exception indicating that content processing should stop, but
@@ -180,7 +213,15 @@ class CmsError503Exception extends CmsException {}
  * @package CMS
  * @since 2.3
  */
-class CmsStopProcessingContentException extends CmsException {}
+class StopProcessingContentException extends Exception
+{
+    public function __construct(...$args)
+    {
+        $args[0] = '';
+        parent::__construct(...$args);
+    }
+}
+\class_alias('CMSMS\StopProcessingContentException', 'CmsStopProcessingContentException', false);
 
 /**
  * An exception indicating an error with a content object
@@ -188,7 +229,8 @@ class CmsStopProcessingContentException extends CmsException {}
  * @package CMS
  * @since 2.0
  */
-class CmsContentException extends CmsException {}
+class ContentException extends Exception {}
+\class_alias('CMSMS\ContentException', 'CmsContentException', false);
 
 /**
  * An exception indicating an error when editing content.
@@ -196,7 +238,8 @@ class CmsContentException extends CmsException {}
  * @package CMS
  * @since 1.11
  */
-class CmsEditContentException extends CmsContentException {}
+class EditContentException extends ContentException {}
+\class_alias('CMSMS\EditContentException', 'CmsEditContentException', false);
 
 /**
  * An exception indicating an SQL Error.
@@ -204,8 +247,8 @@ class CmsEditContentException extends CmsContentException {}
  * @package CMS
  * @since 2.0
  */
-class CmsSQLErrorException extends CmsException {}
-
+class SQLErrorException extends Exception {}
+\class_alias('CMSMS\SQLErrorException', 'CmsSQLErrorException', false);
 
 /**
  * An exception indicating an XML Error.
@@ -213,7 +256,8 @@ class CmsSQLErrorException extends CmsException {}
  * @package CMS
  * @since 2.0
  */
-class CmsXMLErrorException extends CmsException {}
+class XMLErrorException extends Exception {}
+\class_alias('CMSMS\XMLErrorException', 'CmsXMLErrorException', false);
 
 /**
  * An exception indicating a problem with a file, directory, or filesystem.
@@ -221,10 +265,11 @@ class CmsXMLErrorException extends CmsException {}
  * @package CMS
  * @since 2.0
  */
-class CmsFileSystemException extends CmsException {}
+class FileSystemException extends Exception {}
+\class_alias('CMSMS\FileSystemException', 'CmsFileSystemException', false);
 
 /**
- * A throwable indicating a need to replace something deprecated.
+ * An error-throwable to signal a need to replace something deprecated.
  *
  * @package CMS
  * @since 2.9

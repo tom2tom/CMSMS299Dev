@@ -18,36 +18,7 @@ enhanced security - latest PHP-password-cache algorithm, better user-input sanit
 replacement database-interface, more tailored to extract performance from MySQL
 cache API revised to support caching by anything
 multi-mode caching, auto-selectable if suitable PHP capability is present (Predis|Memcached|APCu|YAC|roll-your-own) as alternates to the existing filesystem files
-to speed autoloading at least, all PHP classes across the core, except those with name-prefix 'CMS' (with whatever case), have a namespace. Non-spaced usage is deprecated, will work until further notice.
-eventually, all core classes will be spaced. Devs are encouraged to start using ASAP these namespaced aliases for core classes:
-
-'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
-'CMSMS\App' => 'CmsApp',
-'CMSMS\Async\JobOperations' => 'CMSMS\Async\JobManager',
-'CMSMS\Config' => 'cms_config',
-'CMSMS\Cookies' => 'cms_cookies',
-'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
-'CMSMS\FileSystemProfile' => 'CMSMS\FilePickerProfile',
-'CMSMS\HookOperations' => 'CMSMS\HookManager',
-'CMSMS\HttpRequest' => 'cms_http_request',
-'CMSMS\internal\AdminNotification' => 'CmsAdminThemeNotification',
-'CMSMS\LanguageDetector' => 'CmsLanguageDetector',
-'CMSMS\Module' => 'CMSModule',	//mebbe not this one ?
-'CMSMS\ModuleContentType' => 'CMSModuleContentType',
-'CMSMS\Permission' => 'CmsPermission',
-'CMSMS\RegularTask' => 'CmsRegularTask',
-'CMSMS\Route' => 'CmsRoute',
-'CMSMS\Stylesheet' => 'CmsLayoutStylesheet',
-'CMSMS\StylesheetQuery' => 'CmsLayoutStylesheetQuery',
-'CMSMS\Template' => 'CmsLayoutTemplate',
-'CMSMS\TemplateQuery' => 'CmsLayoutTemplateQuery',
-'CMSMS\TemplatesGroup' => 'CmsLayoutTemplateCategory',
-'CMSMS\TemplateType' => 'CmsLayoutTemplateType',
-'CMSMS\Tree' => 'cms_tree',
-'CMSMS\Url' => 'cms_url',
-'CMSMS\Utils' => 'cms_utils',
-'DesignManager\Design' => 'CmsLayoutCollection'
-
+to facilitate autoloading at least, all PHP classes across the CMSMS core (except CMSModule), have been migrated to the CMSMS namespace, and in some cases that merited a rename as well (CMSMS\cms_config BAH!). Until further notice (way in the future, but dev's should migrate soonish) the former classes will continue to work. In some contexts,  PHP can't deal with aliases (e.g. for method type-declarations) so a former class-space/name MUST continue to be used there until adjustments are made.
 support namespace 'CMSAsset' for non-core classes added into <siterootpath>/assets/classes and descendants
 
 remote administration API (calguy to describe, please!)

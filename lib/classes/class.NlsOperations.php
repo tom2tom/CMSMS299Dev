@@ -403,27 +403,28 @@ final class NlsOperations
 	}
 
 	/**
-	 * Used to allow third party modules to override the language detection mechanism for frontend requests.
-	 * The module can provide an object derived from CmsLanguageDetector to this method.
+	 * Override the default language detection mechanism for frontend requests.
+	 * One (and only one!) module may specify a detection-object derived from
+	 * CmsLanguageDetector.
 	 *
-	 * i.e:  NlsOperations::set_language_detector(myLanguageDetector)
+	 * e.g. NlsOperations::set_language_detector(myLanguageDetector)
 	 *
-	 * Note, this module must return a language for which there is an available NLS file.
+	 * Note: the detector must return a language for which there is an available NLS file.
 	 *
-	 * @param CmsLanguageDetector Object containing methods to detect a compatible, desired language
+	 * @param CmsLanguageDetector $obj Object containing methods to detect a
+	 *  compatible, desired language
 	 */
-	public static function set_language_detector(CmsLanguageDetector& $obj)
+	public static function set_language_detector(CmsLanguageDetector $obj)
 	{
 		if( is_object(self::$_fe_language_detector) ) die('language detector already set');
 		self::$_fe_language_detector = $obj;
 	}
 
-
 	/**
 	 * Find a match for a specific language
 	 * This method will try to find the NLS information closest to the language specified.
 	 *
-	 * @param string $str An approximate language specification (an alias matchis done if possible).
+	 * @param string $str An approximate language specification (an alias match is done if possible).
 	 * @return hash containing NLS information.
 	 */
 	protected static function find_nls_match($str)
@@ -434,5 +435,3 @@ final class NlsOperations
 		}
 	}
 } // class
-
-\class_alias(NlsOperations::class, 'CmsNlsOperations', false);

@@ -15,7 +15,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$config = cms_config::get_instance();
+use CMSMS\AppConfig;
+
+$config = AppConfig::get_instance();
 
 /**
  * Where private cachable files can be written.

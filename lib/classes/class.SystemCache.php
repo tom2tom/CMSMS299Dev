@@ -23,7 +23,7 @@ use CmsException;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\CacheDriver;
-use DeprecationNotice;
+use CMSMS\DeprecationNotice;
 use Exception;
 use Throwable;
 use const CMS_DEPREC;
@@ -406,5 +406,3 @@ TODO
 	}
 */
 }
-
-\class_alias(SystemCache::class, 'cms_cache_handler', false);

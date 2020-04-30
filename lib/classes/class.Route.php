@@ -19,9 +19,9 @@
 namespace CMSMS;
 
 use ArrayAccess;
+use CMSMS\DeprecationNotice;
 use CMSMS\RouteOperations;
 use CMSMS\Utils;
-use DeprecationNotice;
 use const CMS_DEPREC;
 
 /**
@@ -31,7 +31,7 @@ use const CMS_DEPREC;
  * @license GPL
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since 2.9
- * @since  1.9 as CmsRoute
+ * @since 1.9 as global-namespace CmsRoute
  */
 class Route implements ArrayAccess
 {
@@ -258,5 +258,3 @@ class Route implements ArrayAccess
 		return RouteOperations::is_match($this,$str,$exact);
 	}
 } // class
-
-\class_alias(Route::class, 'CmsRoute', false);
