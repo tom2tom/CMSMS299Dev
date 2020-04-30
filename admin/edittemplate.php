@@ -16,15 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\CmsLockException;
 use CMSMS\GroupOperations;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
 use CMSMS\ScriptOperations;
 use CMSMS\TemplateOperations;
 use CMSMS\UserOperations;
-use DesignManager\utils;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -37,7 +37,7 @@ if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) 
 check_login();
 
 $urlext = get_secure_param();
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (isset($_REQUEST['cancel'])) {
 	$themeObject->ParkNotice('info',lang_by_realm('layout','msg_cancelled'));
@@ -120,7 +120,7 @@ try {
 			}
 */
 			// lastly, check for errors in the template before we save.
-//USELESS FOR SUCH TEST cms_utils::set_app_data('tmp_template', $_REQUEST['contents']);
+//USELESS FOR SUCH TEST Utils::set_app_data('tmp_template', $_REQUEST['contents']);
 
 			// if we got here, we're golden.
 			$tpl_obj->set_content($_REQUEST['content']);
@@ -161,22 +161,26 @@ try {
 	//
 	// prepare to display
 	//
-	if (!$apply && $tpl_obj && $tpl_obj->get_id() && utils::locking_enabled()) {
-		$lock_timeout = cms_siteprefs::get('lock_timeout', 0);
-		$lock_refresh = cms_siteprefs::get('lock_refresh', 0);
-		try {
-			$lock_id = LockOperations::is_locked('template', $tpl_obj->get_id());
-			$lock = null;
-			if ($lock_id > 0) {
-				// it's locked... by somebody, make sure it's expired before we allow stealing it.
-				$lock = Lock::load('template',$tpl_obj->get_id());
-				if (!$lock->expired()) throw new CmsLockException('CMSEX_L010');
-				LockOperations::unlock($lock_id,'template',$tpl_obj->get_id());
+	if (!$apply && $tpl_obj && $tpl_obj->get_id()) {
+		$lock_timeout = AppParams::get('lock_timeout', 0);
+		if ($lock_timeout > 0) {
+			$lock_refresh = AppParams::get('lock_refresh', 0);
+			try {
+				$lock_id = LockOperations::is_locked('template', $tpl_obj->get_id());
+				$lock = null;
+				if ($lock_id > 0) {
+					// it's locked... by somebody, make sure it's expired before we allow stealing it.
+					$lock = Lock::load('template',$tpl_obj->get_id());
+					if (!$lock->expired()) throw new CmsLockException('CMSEX_L010');
+					LockOperations::unlock($lock_id,'template',$tpl_obj->get_id());
+				}
+			} catch( CmsException $e) {
+				$message = $e->GetMessage();
+				$themeObject->ParkNotice('error',$message);
+				redirect('listtemplates.php'.$urlext);
 			}
-		} catch( CmsException $e) {
-			$message = $e->GetMessage();
-			$themeObject->ParkNotice('error',$message);
-			redirect('listtemplates.php'.$urlext);
+		} else {
+			$lock_refresh = 0;
 		}
 	} else {
 		$lock_timeout = 0;
