@@ -298,57 +298,57 @@ class StylesheetsGroup
 	}
 
 	/**
- 	 * @ignore
- 	 */
- 	private static function get_locks() : array
- 	{
- 		if( !self::$_lock_cache_loaded ) {
- 			self::$_lock_cache = [];
- 			$tmp = LockOperations::get_locks('stylesheetgroup');
- 			if( $tmp ) {
- 				foreach( $tmp as $one ) {
- 					self::$_lock_cache[$one['oid']] = $one;
- 				}
- 			}
- 			self::$_lock_cache_loaded = true;
- 		}
- 		return self::$_lock_cache;
- 	}
+	 * @ignore
+	 */
+	private static function get_locks() : array
+	{
+		if( !self::$_lock_cache_loaded ) {
+			self::$_lock_cache = [];
+			$tmp = LockOperations::get_locks('stylesheetgroup');
+			if( $tmp ) {
+				foreach( $tmp as $one ) {
+					self::$_lock_cache[$one['oid']] = $one;
+				}
+			}
+			self::$_lock_cache_loaded = true;
+		}
+		return self::$_lock_cache;
+	}
 
 	/**
- 	 * Get any applicable lock for this group
- 	 *
- 	 * @return mixed Lock | null
- 	 * @see Lock
- 	 */
- 	public function get_lock()
- 	{
- 		$locks = self::get_locks();
- 		return $locks[$this->get_id()] ?? null;
- 	}
+	 * Get any applicable lock for this group
+	 *
+	 * @return mixed Lock | null
+	 * @see Lock
+	 */
+	public function get_lock()
+	{
+		$locks = self::get_locks();
+		return $locks[$this->get_id()] ?? null;
+	}
 
-    /**
- 	* Test whether this group currently has a lock
- 	*
- 	* @return bool
- 	*/
- 	public function locked() : bool
- 	{
- 		$lock = $this->get_lock();
- 		return is_object($lock);
- 	}
+	/**
+	* Test whether this group currently has a lock
+	*
+	* @return bool
+	*/
+	public function locked() : bool
+	{
+		$lock = $this->get_lock();
+		return is_object($lock);
+	}
 
-    /**
+	/**
 	 * Test whether any lock on this group has expired
- 	 *
- 	 * @return bool
- 	 */
+	 *
+	 * @return bool
+	 */
 	public function lock_expired() : bool
- 	{
- 		$lock = $this->get_lock();
- 		if( is_object($lock) ) return $lock->expired();
- 		return false;
- 	}
+	{
+		$lock = $this->get_lock();
+		if( is_object($lock) ) return $lock->expired();
+		return false;
+	}
 
 	/**
 	 * Validate the properties of this object
