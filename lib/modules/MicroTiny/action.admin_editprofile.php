@@ -57,7 +57,7 @@ try {
   }
 
   // display data, strange formatting but it works...
-  $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_editprofile.tpl'),null,null,$smarty);
+  $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_editprofile.tpl')); //,null,null,$smarty);
   $tpl->assign('profile',$name)
    ->assign('data',$profile);
 

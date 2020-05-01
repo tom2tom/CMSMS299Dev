@@ -46,7 +46,7 @@ else {
     $template = $tpl->get_name();
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 $hm = $gCms->GetHierarchyManager();
 foreach( $params as $key => $value ) {
     switch( $key ) {

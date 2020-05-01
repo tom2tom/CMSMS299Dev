@@ -17,7 +17,7 @@ if( !is_object($modinstance) ) {
   $this->RedirectToAdminTab();
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('local_about.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('local_about.tpl')); //,null,null,$smarty);
 
 $tpl->assign('module_name',$module)
  ->assign('back_url',$this->create_url($id,'defaultadmin',$returnid))

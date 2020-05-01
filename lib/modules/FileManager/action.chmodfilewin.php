@@ -25,7 +25,7 @@ if (isset($params['newmode'])) {
 	}
 } else {
 	$currentmode = $this->GetModeWin($params['path'],$params['filename']);
-	$tpl = $smarty->createTemplate($this->GetTemplateResource('chmodfilewin.tpl'),null,null,$smarty);
+	$tpl = $smarty->createTemplate($this->GetTemplateResource('chmodfilewin.tpl')); //,null,null,$smarty);
 	$tpl->assign('formstart', $this->CreateFormStart($id, 'chmodfilewin', $returnid))
 
 	 ->assign('filename', $this->CreateInputHidden($id,'filename',$params['filename']))

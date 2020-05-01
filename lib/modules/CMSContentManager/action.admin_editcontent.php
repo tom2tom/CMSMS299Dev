@@ -340,7 +340,7 @@ if( $error ) {
 
 $active_tab = $params['active_tab'] ?? null;
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_editcontent.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_editcontent.tpl')); //,null,null,$smarty);
 
 if( $content_obj->HasPreview() ) {
     $tpl->assign('has_preview',1);

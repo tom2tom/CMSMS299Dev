@@ -142,7 +142,7 @@ add_page_foottext($js);
 //
 // build the form
 //
-$tpl = $smarty->createTemplate($this->GetTemplateResource('pie.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('pie.tpl')); //,null,null,$smarty);
 
 $tpl->assign('formstart',$this->CreateFormStart($id,'resizecrop',$returnid,'post','',false,'',$params))
  ->assign('filename',$filename);

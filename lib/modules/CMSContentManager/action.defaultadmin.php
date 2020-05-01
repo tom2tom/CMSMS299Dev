@@ -145,7 +145,7 @@ function urlsplit(string $u) : array
 
 $firstlist = 1; // status indicator for included code
 // used by included code
-$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
 
 require __DIR__.DIRECTORY_SEPARATOR.'action.ajax_get_content.php';
 

@@ -116,7 +116,7 @@ if( isset($params['copy']) ) {
 if( $errors ) $this->ShowErrors($errors);
 if( is_array($params['sel']) ) $params['sel'] = rawurlencode(json_encode($params['sel']));
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('copy.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('copy.tpl')); //,null,null,$smarty);
 
 $tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,'post','',false,'',$params))
  ->assign('formend', $this->CreateFormEnd())

@@ -20,7 +20,7 @@ use MicroTiny\Profile;
 if( !function_exists('cmsms') ) exit;
 if(!$this->VisibleToAdminUser() ) exit;
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl')); //,null,null,$smarty);
 
 // some default profiles
 

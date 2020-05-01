@@ -119,7 +119,7 @@ EOS;
 add_page_foottext($out);
 
 $template = get_parameter_value($params,'template','defaultadmin.tpl');
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 
 $userid = get_userid(false);
 $tmp = cms_userprefs::get_for_user($userid,$this->GetName().'saved_search');

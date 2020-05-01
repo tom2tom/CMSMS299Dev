@@ -8,7 +8,7 @@ $showthumbnails = $this->GetPreference('showthumbnails',1);
 $iconsize=$this->GetPreference('iconsize',0);
 $permissionstyle = $this->GetPreference('permissionstyle','xxx');
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl')); //,null,null,$smarty);
 
 //$tpl->assign('path',$this->CreateInputHidden($id,"path",$path)); //why?
 $tpl->assign('advancedmode',$advancedmode)

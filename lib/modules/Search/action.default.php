@@ -31,7 +31,7 @@ else {
     $template = $tpl->get_name();
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 $inline = false;
 if( isset( $params['inline'] ) ) {
     $txt = strtolower(trim($params['inline']));

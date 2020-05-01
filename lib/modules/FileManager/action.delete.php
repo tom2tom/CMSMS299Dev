@@ -74,7 +74,7 @@ if( isset($params['delete']) ) {
 } // if submit
 
 // give everything to smarty
-$tpl = $smarty->createTemplate($this->GetTemplateResource('delete.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('delete.tpl')); //,null,null,$smarty);
 
 if( $errors ) {
   $this->ShowErrors($errors);

@@ -24,7 +24,7 @@ use CMSMS\TemplateOperations;
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) exit;
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl')); //,null,null,$smarty);
 
 // general tab
 

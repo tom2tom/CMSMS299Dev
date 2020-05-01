@@ -90,7 +90,7 @@ if( !$have_stopnode && $stopat == $this::__DFLT_PAGE ) {
     $pagestack[$dflt_content_id] = utils::fill_node($node,$deep,0,$showall);
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 $tpl->assign('starttext',$starttext)
  ->assign('nodelist',array_reverse($pagestack));
 $tpl->display();

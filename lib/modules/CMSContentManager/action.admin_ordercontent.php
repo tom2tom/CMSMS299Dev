@@ -159,7 +159,7 @@ EOS;
 add_page_foottext($js);
 
 $hm = $gCms->GetHierarchyManager(); //TODO direct-use by Smarty OK?
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_ordercontent.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_ordercontent.tpl')); //,null,null,$smarty);
 $tpl->assign('tree',$hm);
 
 $tpl->display();

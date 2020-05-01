@@ -114,7 +114,7 @@ $severity_list = [
  $this->Lang('sev_error'),
 ];
 
-$tpl = $smarty->createTemplate( $this->GetTemplateResource('admin_log_tab.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate( $this->GetTemplateResource('admin_log_tab.tpl')); //,null,null,$smarty);
 $tpl->assign('filter',$filter)
  ->assign('filterimage',cms_join_path(__DIR__,'images','filter'))
  ->assign('results',$results)

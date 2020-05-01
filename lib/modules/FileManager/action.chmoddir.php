@@ -69,7 +69,7 @@ if (isset($params['newmode'])) {
 	}
 } else {
 	$currentmode=$this->GetMode($params['path'],$params['dirname']);
-	$tpl = $smarty->createTemplate($this->GetTemplateResource('chmoddir.tpl'),null,null,$smarty);
+	$tpl = $smarty->createTemplate($this->GetTemplateResource('chmoddir.tpl')); //,null,null,$smarty);
 	$tpl->assign('formstart', $this->CreateFormStart($id, 'chmoddir', $returnid))
 
 	 ->assign('filename', $this->CreateInputHidden($id,'dirname',$params['dirname']))

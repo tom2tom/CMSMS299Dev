@@ -16,6 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentOperations;
+//use CMSMS\Utils;
+
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_delete' ) exit;
 
@@ -28,10 +31,13 @@ if( !isset($params['bulk_content']) ) {
   $this->Redirect($id,'defaultadmin',$returnid);
 }
 
+$mod = $this;
+
 function cmscm_admin_bulk_delete_can_delete($node)
 {
+  global $mod;
   // test if can delete this node (not its children)
-  $mod = cms_utils::get_module('CMSContentManager');
+  //$mod = Utils::get_module('CMSContentManager');
   if( $mod->CheckPermission('Manage All Content') ) return TRUE;
   if( $mod->CheckPermission('Modify Any Page') && $mod->CheckPermission('Remove Pages') ) return TRUE;
   if( !$mod->CheckPermission('Remove Pages') ) return FALSE;
@@ -45,19 +51,19 @@ function cmscm_admin_bulk_delete_can_delete($node)
 
 function cmscm_get_deletable_pages($node)
 {
-    $out = [];
-    if( cmscm_admin_bulk_delete_can_delete($node) ) {
-        // we can delete the parent node.
-        $out[] = $node->get_tag('id');
-        if( $node->has_children() ) {
-            // it has children.
-            $children = $node->get_children();
-            foreach( $children as $child_node ) {
-                $tmp = cmscm_get_deletable_pages($child_node);
-                $out = array_merge($out,$tmp);
-            }
-        }
+  $out = [];
+  if( cmscm_admin_bulk_delete_can_delete($node) ) {
+    // we can delete the parent node.
+    $out[] = $node->get_tag('id');
+    if( $node->has_children() ) {
+      // it has children.
+      $children = $node->get_children();
+      foreach( $children as $child_node ) {
+        $tmp = cmscm_get_deletable_pages($child_node);
+        $out = array_merge($out,$tmp);
+      }
     }
+  }
   return $out;
 }
 
@@ -73,39 +79,39 @@ if( isset($params['submit']) ) {
     //
     $i = 0;
     try {
-        foreach( $pagelist as $pid ) {
-            $node = $hm->quickfind_node_by_id($pid);
-            if( !$node ) continue;
-            $content = $node->getContent(FALSE,FALSE,TRUE);
-            if( !is_object($content) ) continue;
-            if( $content->DefaultContent() ) continue;
-            $content->Delete();
-            $i++;
-        }
-        if( $i > 0 ) {
-            $contentops->SetAllHierarchyPositions();
-            $contentops->SetContentModified();
-            audit('','Content','Deleted '.$i.' pages');
-            $this->SetMessage($this->Lang('msg_bulk_successful'));
-        }
+      foreach( $pagelist as $pid ) {
+        $node = $hm->quickfind_node_by_id($pid);
+        if( !$node ) continue;
+        $content = $node->getContent(FALSE,FALSE,TRUE);
+        if( !is_object($content) ) continue;
+        if( $content->DefaultContent() ) continue;
+        $content->Delete();
+        $i++;
+      }
+      if( $i > 0 ) {
+        $contentops->SetAllHierarchyPositions();
+        $contentops->SetContentModified();
+        audit('','Content','Deleted '.$i.' pages');
+        $this->SetMessage($this->Lang('msg_bulk_successful'));
+      }
     }
     catch( Throwable $t ) {
-        $this->SetError($t->getMessage());
+      $this->SetError($t->getMessage());
     }
     $this->Redirect($id,'defaultadmin',$returnid);
   }
   else {
-      $this->SetError($this->Lang('error_notconfirmed'));
-      $this->Redirect($id,'defaultadmin',$returnid);
+    $this->SetError($this->Lang('error_notconfirmed'));
+    $this->Redirect($id,'defaultadmin',$returnid);
   }
 }
 
 $xlist = [];
 foreach( $pagelist as $pid ) {
-    $node = $hm->quickfind_node_by_id($pid);
-    if( !$node ) continue;
-    $tmp = cmscm_get_deletable_pages($node);
-    $xlist = array_merge($xlist,$tmp);
+  $node = $hm->quickfind_node_by_id($pid);
+  if( !$node ) continue;
+  $tmp = cmscm_get_deletable_pages($node);
+  $xlist = array_merge($xlist,$tmp);
 }
 $xlist = array_unique($xlist);
 
@@ -139,7 +145,7 @@ if( !$displaydata ) {
   $this->Redirect($id,'defaultadmin',$returnid);
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_delete.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_delete.tpl')); //,null,null,$smarty);
 $tpl->assign('pagelist',$xlist)
  ->assign('displaydata',$displaydata);
 

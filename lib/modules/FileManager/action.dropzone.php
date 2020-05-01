@@ -15,7 +15,7 @@ if( isset($params['template']) ) {
 } else {
     $template = 'dropzone.tpl';
 }
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 
 $tpl->assign('formstart',$this->CreateFormStart($id,'upload',$returnid,'post','multipart/form-data'))
  ->assign('chdir_formstart',$this->CreateFormStart($id,'changedir',$returnid,'','',[

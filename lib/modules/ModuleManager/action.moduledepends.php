@@ -53,7 +53,7 @@ if( !is_array($depends) || count($depends) != 2 || $depends[0] == false ) {
   $this->RedirectToAdminTab();
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('remotecontent.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('remotecontent.tpl')); //,null,null,$smarty);
 
 $tpl->assign('title',$this->Lang('dependstxt'))
  ->assign('moduletext',$this->Lang('nametext'))

@@ -96,7 +96,7 @@ foreach( $pagelist as $pid ) {
     $displaydata[] = $rec;
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_settemplate.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_settemplate.tpl')); //,null,null,$smarty);
 
 $tpl->assign('showmore',cms_userprefs::get('cgcm_bulk_showmore'))
  ->assign('pagelist',$params['bulk_content'])

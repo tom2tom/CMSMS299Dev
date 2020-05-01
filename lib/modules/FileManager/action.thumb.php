@@ -65,7 +65,7 @@ $thumb = cms_join_path($basedir,Utils::get_cwd(),'thumb_'.$filename);
 //
 // build the form
 //
-$tpl = $smarty->createTemplate($this->GetTemplateResource('filethumbnail.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('filethumbnail.tpl')); //,null,null,$smarty);
 $tpl->assign('filename',$filename)
  ->assign('filespec',$src)
  ->assign('thumb',$thumb)

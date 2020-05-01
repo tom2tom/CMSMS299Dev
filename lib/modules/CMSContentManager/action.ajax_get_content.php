@@ -17,8 +17,9 @@
 
 use CMSContentManager\BulkOperations;
 use CMSContentManager\ContentListBuilder;
-use CMSContentManager\Utils;
+use CMSContentManager\Utils as ManagerUtils;
 use CMSMS\FormUtils;
+use CMSMS\Utils;
 
 if( !empty($firstlist) ) {
     $ajax = false;
@@ -32,7 +33,7 @@ else {
     $handlers = ob_list_handlers();
     for ($cnt = 0,$n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
-    $tpl = $smarty->createTemplate( $this->GetTemplateResource( 'ajax_get_content.tpl' ),null,null,$smarty );
+    $tpl = $smarty->createTemplate( $this->GetTemplateResource( 'ajax_get_content.tpl' )); //,null,null,$smarty );
     $ajax = true;
 }
 
@@ -41,7 +42,7 @@ $tpl->assign('can_manage_content',$pmanage)
  ->assign('can_reorder_content',$pmanage)
  ->assign('can_add_content',$pmanage || $this->CheckPermission('Add Pages'));
 
-$theme = cms_utils::get_theme_object();
+$theme = Utils::get_theme_object();
 $builder = new ContentListBuilder($this);
 
 try {
@@ -90,7 +91,7 @@ try {
     $locks = $builder->get_locks();
     $have_locks = ($locks) ? 1 : 0;
 
-    $tpl->assign('locking',Utils::locking_enabled())
+    $tpl->assign('locking',ManagerUtils::locking_enabled())
      ->assign('have_locks',$have_locks)
      ->assign('pagelimit',$pagelimit)
      ->assign('pagelimits',[10=>10,25=>25,100=>100,250=>250,500=>500])
@@ -104,7 +105,7 @@ try {
     $tpl->assign('ajax_get_content_url',str_replace('amp;','',$url))
       ->assign('settingsicon',cms_join_path(__DIR__,'images','settings'));
 */
-    if( Utils::get_pagenav_display() == 'title' ) {
+    if( ManagerUtils::get_pagenav_display() == 'title' ) {
         $tpl->assign('colhdr_page',$this->Lang('colhdr_pagetitle'))
          ->assign('coltitle_page',$this->Lang('coltitle_name'));
     }

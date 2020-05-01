@@ -74,7 +74,7 @@ else if (isset($params['submit'])) {
     $this->SetPreference('resultpage', (int)$params['resultpage']);
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl')); //,null,null,$smarty);
 
 //The tabs
 if (!empty($params['active_tab'])) $tab = $params['active_tab'];

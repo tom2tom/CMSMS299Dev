@@ -42,7 +42,7 @@ if( !$connection_ok ) {
 
 $seetab = $params['active_tab'] ?? 'installed';
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl')); //,null,null,$smarty);
 
 $tpl->assign('tab',$seetab)
  ->assign('pmod',$pmod)

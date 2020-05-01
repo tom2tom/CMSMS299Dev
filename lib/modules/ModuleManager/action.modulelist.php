@@ -47,7 +47,7 @@ foreach (cms_module_places() as $dir) {
   }
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('showmodule.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('showmodule.tpl')); //,null,null,$smarty);
 
 $data = Utils::build_module_data($repmodules,$instmodules,false);
 if( $data ) {

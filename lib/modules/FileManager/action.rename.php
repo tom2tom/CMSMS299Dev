@@ -60,7 +60,7 @@ if (isset($params['newname'])) {
 if( is_array($params['sel']) ) {
   $params['sel'] = rawurlencode(json_encode($params['sel']));
 }
-$tpl = $smarty->createTemplate($this->GetTemplateResource('renamefile.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('renamefile.tpl')); //,null,null,$smarty);
 
 $tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,'post','',false,'',$params))
 //$this->CreateInputHidden($id,"fileaction","rename")

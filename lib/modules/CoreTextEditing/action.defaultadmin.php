@@ -41,7 +41,7 @@ require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'editor.CodeM
 $codemirror_url = $this->GetPreference('codemirror_source_url', CM_CDN);
 $codemirror_theme = $this->GetPreference('codemirror_theme', CM_THEME);
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl')); //,null,null,$smarty);
 
 $tpl->assign('info', $this->Lang('info_settings'))
  ->assign('form_start', $this->CreateFormStart($id, 'defaultadmin'));

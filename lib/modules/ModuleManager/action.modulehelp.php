@@ -62,7 +62,7 @@ if( !$help ) {
   $this->RedirectToAdminTab();
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('remotecontent.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('remotecontent.tpl')); //,null,null,$smarty);
 
 $tpl->assign('title',$this->Lang('helptxt'))
  ->assign('moduletext',$this->Lang('nametext'))

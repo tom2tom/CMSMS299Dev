@@ -161,7 +161,7 @@ if (!empty($params['viewfile'])) {
 
 // build display
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('filemanager.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('filemanager.tpl')); //,null,null,$smarty);
 
 $tpl->assign('path', $path)
  ->assign('hiddenpath', $this->CreateInputHidden($id, 'path', $path))

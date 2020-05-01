@@ -17,6 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use AdminSearch\tools;
+use CMSMS\Utils;
 
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
@@ -61,7 +62,7 @@ if( $slaves ) {
             continue;
         }
         //assume a module must be present for its associated classes to function ...
-        $module = cms_utils::get_module($one_slave['module']);
+        $module = Utils::get_module($one_slave['module']);
         if( !is_object($module) ) {
             continue;
         }
@@ -102,7 +103,7 @@ if( $slaves ) {
          }
     }
     if( $sections ) {
-        $tpl = $smarty->createTemplate($this->GetTemplateResource('adminsearch.tpl'),null,null,$smarty);
+        $tpl = $smarty->createTemplate($this->GetTemplateResource('adminsearch.tpl')); //,null,null,$smarty);
         $tpl->assign('sections',$sections);
         $tpl->display();
     }

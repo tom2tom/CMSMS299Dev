@@ -95,7 +95,7 @@ foreach( $pagelist as $pid ) {
   $displaydata[] = $rec;
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_changeowner.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_changeowner.tpl')); //,null,null,$smarty);
 
 $tpl->assign('pagelist',$params['bulk_content'])
  ->assign('displaydata',$displaydata);

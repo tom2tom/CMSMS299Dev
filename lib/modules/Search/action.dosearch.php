@@ -34,7 +34,7 @@ else {
     $template = $tpl->get_name();
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 
 if ($params['searchinput'] != '') {
 // $_POST/$_GET parameters are filter_var()'d before passing them here

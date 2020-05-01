@@ -218,7 +218,7 @@ $opts = [
 ];
 $url = Utils::get_cwd_url()."/$filename";
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('filerotate.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('filerotate.tpl')); //,null,null,$smarty);
 
 $tpl->assign('opts',$opts)
  ->assign('image',$url)

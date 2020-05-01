@@ -34,7 +34,7 @@ if (isset($params['newdirname'])) {
     }
   }
 }
-$tpl = $smarty->createTemplate($this->GetTemplateResource('newdir.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('newdir.tpl')); //,null,null,$smarty);
 
 $tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, 'post', '', false, '', $params))
  ->assign('newdirtext', $this->lang('newdir'))

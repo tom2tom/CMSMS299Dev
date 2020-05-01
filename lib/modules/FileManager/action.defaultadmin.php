@@ -44,7 +44,7 @@ for( $i = 0, $n = count($tmp_path_parts); $i < $n; $i++ ) {
     $path_parts[] = $obj;
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('fmpath.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('fmpath.tpl')); //,null,null,$smarty);
 $tpl->assign('path',$path)
  ->assign('path_parts',$path_parts)
  ->assign('sep', '&raquo;'); //TODO or '&laquo;' for rtl context
