@@ -48,7 +48,7 @@ deprecations - if this parameter, and also debug, are not empty, deprecation not
 develop_mode (formerly developer_mode) - 1 when somebody authorized is working on the site content/operation
 menu_cssclass css class to be applied to admin console context menus. Each admin theme should have such class(es)
 pr_root_url - protocol-relative root URI
-secure_action_url - whether to encrypt action get-parameters for inclusion in URL's (mostly for non-https sites)
+obscure_urls - whether to encrypt/obfuscate the get-parameters included in created URL's (mostly for non-https sites)
 simpletags_path - name of filesystem folder where 'simple-plugin' files are stored, default 'assets-path'/'simple_plugins'
 
 deprecated
