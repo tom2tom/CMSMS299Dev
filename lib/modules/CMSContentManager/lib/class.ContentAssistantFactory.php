@@ -18,8 +18,8 @@
 
 namespace CMSContentManager;
 
-use CMSMS\CmsException;
 use CMSContentManager\ContentBase;
+use Exception;
 
 class ContentAssistantFactory
 {
@@ -33,7 +33,7 @@ class ContentAssistantFactory
 	/**
 	 *
 	 * @return object
-	 * @throws CmsException
+	 * @throws Exception
 	 */
 	public function getEditContentAssistant()
 	{
@@ -52,6 +52,6 @@ class ContentAssistantFactory
 				return $obj;
 			}
 		}
-		throw new CmsException('Too many levels of hierarchy without finding an assistant');
+		throw new Exception('Too many levels of hierarchy without finding an assistant');
   }
 } // class

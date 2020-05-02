@@ -127,7 +127,7 @@ abstract class reader_base
         $name = "$orig_name $n";
       }
       if( $n >= 100 ) {
-        throw new CmsException('Could not determine a new name for this design');
+        throw new Exception('Could not determine a new name for this design');
       }
     }
 

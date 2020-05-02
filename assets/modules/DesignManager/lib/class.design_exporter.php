@@ -83,7 +83,7 @@ EOT;
             self::$_mm_types = CmsLayoutTemplateType::load_all_by_originator('MenuManager');
             self::$_nav_types = CmsLayoutTemplateType::load_all_by_originator('Navigator');
             if( (!is_array(self::$_mm_types) || count(self::$_mm_types) == 0) && (!is_array(self::$_nav_types) || count(self::$_nav_types) == 0) ) {
-                throw new CmsException('Cannot find any Navigation template types (is MenuManager or Navigator installed and enabled?');
+                throw new Exception('Cannot find any Navigation template types (is MenuManager or Navigator installed and enabled?');
             }
         }
     }
@@ -267,10 +267,10 @@ EOT;
         case 'MM':
             // MenuManager file template
             $mod = cms_utils::get_module('MenuManager');
-            if( !$mod ) throw new CmsException('MenuManager file template specified, but MenuManager could not be loaded.');
+            if( !$mod ) throw new Exception('MenuManager file template specified, but MenuManager could not be loaded.');
 
             $content = $mod->GetTemplateFromFile($name);
-            if( !$content ) throw new CmsException('Could not find MenuMaager template '.$name);
+            if( !$content ) throw new Exception('Could not find MenuMaager template '.$name);
             $content = $this->_parse_tpl_urls($content);
 
             // create a new CmsLayoutTemplate object for this template
@@ -298,7 +298,7 @@ EOT;
         $replace_mm = function($matches) use ($ob) {
             // Menu Manager (optional template param)
             $mod = cms_utils::get_module('MenuManager');
-            if( !$mod ) throw new CmsException('MenuManager tag specified, but MenuManager could not be loaded.');
+            if( !$mod ) throw new Exception('MenuManager tag specified, but MenuManager could not be loaded.');
 
             $have_template = false;
             $out = preg_replace_callback("/template\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
@@ -326,7 +326,7 @@ EOT;
         $replace_navigator = function($matches) use ($ob) {
             // Navigator (optional template param)
             $mod = cms_utils::get_module('Navigator');
-            if( !$mod ) throw new CmsException('Navigator tag specified, but Navigator could not be loaded.');
+            if( !$mod ) throw new Exception('Navigator tag specified, but Navigator could not be loaded.');
 
             $have_template = false;
             $out = preg_replace_callback("/template\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
@@ -362,7 +362,7 @@ EOT;
                 function($matches) use ($ob)
                 {
                     if( !startswith($matches[1],'cms_template:') ) {
-                        throw new CmsException('Only templates that use {include} with cms_template resources can be exported.');
+                        throw new Exception('Only templates that use {include} with cms_template resources can be exported.');
                     }
                     $tpl = substr($matches[1],strlen('cms_template:'));
                     $sig = $ob->_add_template($tpl);
@@ -397,7 +397,7 @@ EOT;
             $idlist = $this->_design->get_templates();
             if( $idlist ) {
                 $tpllist = TemplateOperations::get_bulk_templates($idlist);
-                if( count($idlist) != count($tpllist) ) throw new CmsException('Internal error... could not directly load all of the templates associated with this design');
+                if( count($idlist) != count($tpllist) ) throw new Exception('Internal error... could not directly load all of the templates associated with this design');
                 foreach( $tpllist as $tpl ) {
                     $this->_add_template($tpl);
                 }
@@ -447,13 +447,13 @@ EOT;
 
     private function _xml_output_template(CmsLayoutTemplate $tpl,$name,$lvl = 0)
     {
-        if( $tpl->get_content() == '' ) throw new CmsException('Cannot export empty template');
+        if( $tpl->get_content() == '' ) throw new Exception('Cannot export empty template');
         $output = $this->_open_tag('template',$lvl);
         $output .= $this->_output('tkey',$tpl->get_name(),$lvl+1);
         $output .= $this->_output_data('tname',$name,$lvl+1);
         $output .= $this->_output_data('tdesc',$tpl->get_description(),$lvl+1);
         $output .= $this->_output_data('tdata',$tpl->get_content(),$lvl+1);
-        if( !$tpl->get_type_id() ) throw new CmsException('Cannot get template type for '.$tpl->get_name());
+        if( !$tpl->get_type_id() ) throw new Exception('Cannot get template type for '.$tpl->get_name());
 
         $type = CmsLayoutTemplateType::load($tpl->get_type_id());
         $output .= $this->_output_data('ttype_originator',$type->get_originator(),$lvl+1);
@@ -464,7 +464,7 @@ EOT;
 
     private function _xml_output_stylesheet(CmsLayoutStylesheet $css,$name,$lvl = 0)
     {
-        if( $css->get_content() == '' ) throw new CmsException('Cannot export empty stylesheet');
+        if( $css->get_content() == '' ) throw new Exception('Cannot export empty stylesheet');
         $output = $this->_open_tag('stylesheet',$lvl);
         $output .= $this->_output('csskey',$css->get_name(),$lvl+1);
         $output .= $this->_output_data('cssname',$name,$lvl+1);
@@ -515,10 +515,10 @@ EOT;
                 $fn = str_replace(CMS_ROOT_URL,CMS_ROOT_PATH,$nvalue);
             }
 
-            if( !is_file($fn) ) throw new CmsException($mod->Lang('error_nophysicalfile',$value));
+            if( !is_file($fn) ) throw new Exception($mod->Lang('error_nophysicalfile',$value));
 
             $data = file_get_contents($fn);
-            if( strlen($data) == 0 ) throw new CmsException('No data found for '.$value);
+            if( strlen($data) == 0 ) throw new Exception('No data found for '.$value);
 
             $nvalue = basename($nvalue);
             $output .= $this->_output('fvalue',$nvalue,$lvl+1);

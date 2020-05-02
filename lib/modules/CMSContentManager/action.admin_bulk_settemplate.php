@@ -63,7 +63,7 @@ if( isset($params['submit']) ) {
             ++$i;
         }
         if( $i != count($pagelist) ) {
-            throw new CmsException('Bulk operation to set template did not adjust all selected pages');
+            throw new Exception('Bulk operation to set template did not adjust all selected pages');
         }
         audit('','Content','Changed template of '.$i.' pages');
         $this->SetMessage($this->Lang('msg_bulk_successful'));

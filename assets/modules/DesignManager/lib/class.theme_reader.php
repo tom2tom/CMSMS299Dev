@@ -222,13 +222,13 @@ class theme_reader extends reader_base
   {
     $this->_scan();
     if( !isset($this->_design_info['name']) || $this->_design_info['name'] == '' ) {
-      throw new CmsException('Invalid XML FILE (test1)');
+      throw new Exception('Invalid XML FILE (test1)');
     }
     if( count($this->_tpl_info) == 0 ) {
-      throw new CmsException('Invalid XML FILE (test2)');
+      throw new Exception('Invalid XML FILE (test2)');
     }
     if( count($this->_css_info) == 0 ) {
-      throw new CmsException('Invalid XML FILE (test3)');
+      throw new Exception('Invalid XML FILE (test3)');
     }
     // it validates.
   }
@@ -292,7 +292,7 @@ class theme_reader extends reader_base
     $dir = cms_join_path($config['uploads_path'],'themes',$dirname);
     @mkdir($dir,0771,TRUE);
     if( !is_dir($dir) || !is_writable($dir) ) {
-      throw new CmsException('Could not create directory, or could not write in directory '.$dir);
+      throw new Exception('Could not create directory, or could not write in directory '.$dir);
     }
 
     return $dirname;

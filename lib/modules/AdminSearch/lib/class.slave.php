@@ -2,7 +2,7 @@
 
 namespace AdminSearch;
 
-use CMSMS\CmsException;
+use Exception;
 use function cms_to_bool;
 
 abstract class slave
@@ -29,7 +29,7 @@ abstract class slave
                 break;
 
             default:
-                throw new CmsException('Invalid parameter '.$key.' in search params');
+                throw new Exception('Invalid parameter '.$key.' in search params');
             }
         }
 

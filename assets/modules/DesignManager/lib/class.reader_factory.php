@@ -31,18 +31,18 @@ final class reader_factory
     $mod = cms_utils::get_module('DesignManager');
     if( !is_readable($xmlfile) ) throw new CmsFileSystemException($mod->Lang('error_filenotfound',$xmlfile));
     $fh = fopen($xmlfile,'r');
-    if( !$fh ) throw new CmsException($this->Lang('error_fileopen',$xmlfile));
+    if( !$fh ) throw new Exception($this->Lang('error_fileopen',$xmlfile));
     $str = fread($fh,200);
     fclose($fh);
-    if( strpos($str,'<!DOCTYPE') === FALSE ) throw new CmsException($mod->Lang('error_readxml'));
+    if( strpos($str,'<!DOCTYPE') === FALSE ) throw new Exception($mod->Lang('error_readxml'));
 
     // get the first element
     $x = '<!ELEMENT ';
     $p = strpos($str,$x);
-    if( $p === FALSE ) throw new CmsException($this->Lang('error_readxml'));
+    if( $p === FALSE ) throw new Exception($this->Lang('error_readxml'));
     $str = substr($str,$p+strlen($x));
     $p = strpos($str,' ');
-    if( $p === FALSE ) throw new CmsException($this->Lang('error_readxml'));  // highly unlikely.
+    if( $p === FALSE ) throw new Exception($this->Lang('error_readxml'));  // highly unlikely.
     $word = substr($str,0,$p);
 
         $ob = null;

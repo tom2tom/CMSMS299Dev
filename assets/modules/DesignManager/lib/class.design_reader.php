@@ -55,7 +55,7 @@ class design_reader extends reader_base
     {
         while( $this->_xml->read() ) {
             if( !$this->_xml->isValid() ) {
-        throw new CmsException('Invalid XML FILE ');
+        throw new Exception('Invalid XML FILE ');
             }
         }
         // it validates.
@@ -358,7 +358,7 @@ class design_reader extends reader_base
     $dir = cms_join_path($config['uploads_path'],'designs',$dirname);
     @mkdir($dir,0771,TRUE);
     if( !is_dir($dir) || !is_writable($dir) ) {
-      throw new CmsException('Could not create directory, or could not write in directory '.$dir);
+      throw new Exception('Could not create directory, or could not write in directory '.$dir);
     }
 
     return $dirname;

@@ -45,7 +45,7 @@ final class AdminMenuItem
      */
     public function __get($k)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new CmsException('Invalid key: '.$k.' for '.self::class.' object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new Exception('Invalid key: '.$k.' for '.self::class.' object');
         switch( $k ) {
         case 'url':
             if( isset($this->_data[$k]) && $this->_data[$k] ) return $this->_data[$k];
@@ -70,7 +70,7 @@ final class AdminMenuItem
      */
     public function __set($k,$v)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new CmsException('Invalid key: '.$k.' for '.self::class.' object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new Exception('Invalid key: '.$k.' for '.self::class.' object');
         $this->_data[$k] = $v;
     }
 
@@ -79,7 +79,7 @@ final class AdminMenuItem
      */
     public function __isset($k)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new CmsException('Invalid key: '.$k.' for '.self::class.' object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new Exception('Invalid key: '.$k.' for '.self::class.' object');
         return isset($this->_data[$k]);
     }
 
@@ -88,8 +88,8 @@ final class AdminMenuItem
      */
     public function __unset($k)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new CmsException('Invalid key: '.$k.' for '.self::class.' object');
-        throw new CmsException('Cannot unset data from a AdminMenuItem object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new Exception('Invalid key: '.$k.' for '.self::class.' object');
+        throw new Exception('Cannot unset data from a AdminMenuItem object');
     }
 
     /**

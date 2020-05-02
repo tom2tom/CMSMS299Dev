@@ -25,7 +25,7 @@ $this->SetCurrentTab('designs');
 
 try {
     if( !isset($params['design']) ) {
-        throw new CmsException($this->Lang('error_missingparam'));
+        throw new Exception($this->Lang('error_missingparam'));
     }
 
 	$sql = 'SELECT D.name,D.description,M.css_id FROM '.

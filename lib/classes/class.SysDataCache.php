@@ -248,7 +248,7 @@ class SysDataCache
     /**
      * Get the singleton CMSMS\SystemCache object used here for backup
      * @return SystemCache object
-     * @throws CmsException
+     * @throws Exception
      */
     private function get_main_cache() : SystemCache
     {

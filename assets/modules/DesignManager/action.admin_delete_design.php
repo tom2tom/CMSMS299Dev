@@ -31,7 +31,7 @@ if( isset($params['cancel']) ) {
 
 try {
     if( !isset($params['design']) ) {
-        throw new CmsException($this->Lang('error_missingparam'));
+        throw new Exception($this->Lang('error_missingparam'));
     }
     $design = Design::load($params['design']);
 

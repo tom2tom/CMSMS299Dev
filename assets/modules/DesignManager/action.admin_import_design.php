@@ -39,18 +39,18 @@ try {
       if( isset($params['next1']) ) {
         // check for uploaded file
         $key = $id.'import_xml_file';
-        if( !isset($_FILES[$key]) || $_FILES[$key]['name'] == '' ) throw new CmsException($this->Lang('error_nofileuploaded'));
+        if( !isset($_FILES[$key]) || $_FILES[$key]['name'] == '' ) throw new Exception($this->Lang('error_nofileuploaded'));
         if( $_FILES[$key]['error'] != 0 || $_FILES[$key]['tmp_name'] == '' || $_FILES[$key]['type'] == '') {
-            throw new CmsException($this->Lang('error_uploading','xml'));
+            throw new Exception($this->Lang('error_uploading','xml'));
         }
-        if( $_FILES[$key]['type'] != 'text/xml' ) throw new CmsException($this->Lang('error_upload_filetype',$_FILES[$key]['type']));
+        if( $_FILES[$key]['type'] != 'text/xml' ) throw new Exception($this->Lang('error_upload_filetype',$_FILES[$key]['type']));
 
         $reader = reader_factory::get_reader($_FILES[$key]['tmp_name']);
         $reader->validate();
 
         // copy uploaded file to temporary location
         $tmpfile = tempnam(PUBLIC_CACHE_LOCATION,'dm_');
-        if( $tmpfile === FALSE ) throw new CmsException($this->Lang('error_create_tempfile'));
+        if( $tmpfile === FALSE ) throw new Exception($this->Lang('error_create_tempfile'));
         @copy($_FILES[$key]['tmp_name'],$tmpfile);
 
         // redirect to this action, with step2.
@@ -153,7 +153,7 @@ EOS;
     if( !isset($params['tmpfile']) || !isset($params['newname']) ||
         $params['newname'] == '') {
         // bad error, redirect to admin tab.
-        throw new CmsException($this->Lang('error_missingparam'));
+        throw new Exception($this->Lang('error_missingparam'));
     }
     $tmpfile = trim($params['tmpfile']);
     $newname = trim($params['newname']);
@@ -161,7 +161,7 @@ EOS;
 
     if( !is_file($tmpfile) ) {
         // bad error, redirect to admin tab.
-        throw new CmsException($this->Lang('error_filenotfound',$tmpfile));
+        throw new Exception($this->Lang('error_filenotfound',$tmpfile));
     }
 
     $destdir = $config['uploads_path'].'/designmanager_import';
