@@ -43,8 +43,8 @@ class Exception extends MainException
     * Constructor
     * This method accepts variable arguments
     *
-    * e.g.throw new CmsException($msg_str,$msg_code,$prev)
-    * e.g.throw new CmsException($msg_str,$msg_code,$extra,$prev)
+    * e.g.throw new CMSMS\Exception($msg_str,$msg_code,$prev)
+    * e.g.throw new CMSMS\Exception($msg_str,$msg_code,$extra,$prev)
     *
     * @see Exception
     */
@@ -60,7 +60,7 @@ class Exception extends MainException
                 $msg = 'MISSING TRANSLATION FOR '.$msg;
             }
         }
-        elseif( $msg && strpos($msg,' ') === FALSE && LangOperations::key_exists($msg) ) {
+        elseif( $msg && strpos($msg,' ') === false && LangOperations::key_exists($msg) ) {
             $msg = LangOperations::lang($msg);
         }
         $code = $args[1] ?? 0;
@@ -142,6 +142,37 @@ class DataException extends Exception {}
 \class_alias('CMSMS\DataException', 'CmsDataNotFoundException', false);
 
 /**
+ * Prepend a generic 'type' to the error message string
+ * @since 2.9
+ * @param string $msg
+ * @param array $args
+ */
+function prefix_message($msg, &$args)
+{
+    if( strpos($msg,' ') === false && LangOperations::key_exists($msg) ) {
+        $msg = LangOperations::lang($msg);
+    }
+    if ($args[0]) {
+		$msg2 = $args[0];
+        if( is_numeric($msg2) ) {
+            $msg2 = 'CMSEX_'.trim($msg2);
+            if( LangOperations::key_exists($msg2) ) {
+                $msg2 = LangOperations::lang($msg2);
+            }
+            else {
+                $msg2 = 'MISSING TRANSLATION FOR '.$msg2;
+            }
+        }
+        elseif( $msg2 && strpos($msg2,' ') === false && LangOperations::key_exists($msg2) ) {
+            $msg2 = LangOperations::lang($msg2);
+        }
+        $args[0] = $msg.' - '.$msg2;
+    } else {
+        $args[0] = $msg;
+    }
+}
+
+/**
  * An exception indicating that a 400 error should be supplied.
  *
  * @package CMS
@@ -151,7 +182,7 @@ class Error400Exception extends Exception
 {
     public function __construct(...$args)
     {
-        $args[0] = 'Bad request';
+        prefix_message('Bad request', $args);
         parent::__construct(...$args);
     }
 }
@@ -167,7 +198,7 @@ class Error403Exception extends Exception
 {
     public function __construct(...$args)
     {
-        $args[0] = 'Forbidden';
+        prefix_message('Forbidden', $args);
         parent::__construct(...$args);
     }
 }
@@ -179,11 +210,11 @@ class Error403Exception extends Exception
  * @package CMS
  * @since 1.11
  */
-class Error404Exception extends Exception 
+class Error404Exception extends Exception
 {
     public function __construct(...$args)
     {
-        $args[0] = 'Not found';
+        prefix_message('Not found', $args);
         parent::__construct(...$args);
     }
 }
@@ -200,7 +231,7 @@ class Error503Exception extends Exception
 {
     public function __construct(...$args)
     {
-        $args[0] = 'Service unavailable';
+        prefix_message('Service unavailable', $args);
         parent::__construct(...$args);
     }
 }
