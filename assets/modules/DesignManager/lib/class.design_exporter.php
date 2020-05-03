@@ -122,7 +122,7 @@ EOT;
             {
                 $config = cmsms()->GetConfig();
                 $url = $matches[1];
-	            //TODO generally support the websocket protocol
+	            //TODO generally support the websocket protocol 'wss' : 'ws'
                 if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) || startswith($url,'[[root_url]]') ) {
                     $sig = $ob->_get_signature($url);
                     $sig = 'url('.$sig.')';

@@ -286,7 +286,7 @@ final class AppConfig implements ArrayAccess
             else {
                 $path = '';
             }
-            //TODO generally support the websocket protocol
+            //TODO generally support the websocket protocol 'wss' : 'ws'
             if(!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') { //c.f. CmsApp::get_instance()->is_https_request() but CmsApp N/A at this stage
                 $prefix = 'https://';
             }
@@ -299,7 +299,7 @@ final class AppConfig implements ArrayAccess
 
         case 'pr_root_url':
             $str = $this->offsetGet('root_url');
-            //TODO generally support the websocket protocol
+            //TODO generally support the websocket protocol 'wss' : 'ws'
             if( startswith($str,'http:') ) {
                 $str = substr($str,5);
             }

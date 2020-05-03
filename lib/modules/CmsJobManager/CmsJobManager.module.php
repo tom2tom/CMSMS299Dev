@@ -520,7 +520,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
         }
 
         $remote = $transport.'://'.$host.':'.$port;
-        //TODO generally support the websocket protocol
+        //TODO generally support the websocket protocol 'wss' : 'ws'
         $opts = ['http' => ['method' => 'POST']];
         if ($transport != 'tcp') {
             //internal-use only, can skip verification
