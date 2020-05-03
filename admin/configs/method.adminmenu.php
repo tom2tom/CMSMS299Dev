@@ -51,7 +51,7 @@ $menucontent = [
 [
 'name'=>'main',
 'parent'=>'root',
-'url'=>'index.php',
+'url'=>'menu.php',
 'labelkey'=>'home',
 'description'=>'', //'descriptionkey'=>'viewdescription',
 'priority'=>$sp++,
@@ -71,7 +71,7 @@ $menucontent = [
 [
 'name'=>'content',
 'parent'=>'root',
-'url'=>'index.php',
+'url'=>'menu.php',
 'urlparm'=>'&section=content', // this item's name
 'labelkey'=>'content',
 'descriptionkey'=>'contentdescription',
@@ -82,7 +82,7 @@ $menucontent = [
 [
 'name'=>'layout',
 'parent'=>'root',
-'url'=>'index.php',
+'url'=>'menu.php',
 'urlparm'=>'&section=layout',
 'labelkey'=>'layout',
 'descriptionkey'=>'layoutdescription',
@@ -113,7 +113,7 @@ $menucontent = [
 [
 'name'=>'extensions',
 'parent'=>'root',
-'url'=>'index.php',
+'url'=>'menu.php',
 'urlparm'=>'&section=extensions', // this item's name
 'labelkey'=>'extensions',
 'descriptionkey'=>'extensionsdescription',
@@ -151,7 +151,7 @@ $menucontent = [
 [
 'name'=>'services',
 'parent'=>'root',
-'url'=>'index.php',
+'url'=>'menu.php',
 'urlparm'=>'&section=services', // this item's name
 'labelkey'=>'services',
 'descriptionkey'=>'servicesdescription',
@@ -160,7 +160,7 @@ $menucontent = [
 	[
 	'name'=>'ecommerce',
 	'parent'=>'services',
-	'url'=>'index.php',
+	'url'=>'menu.php',
 	'urlparm'=>'&section=ecommerce', // this item's name
 	'labelkey'=>'ecommerce',
 	'descriptionkey'=>'ecommerce_desc',
@@ -171,7 +171,7 @@ $menucontent = [
 [
 'name'=>'siteadmin',
 'parent'=>'root',
-'url'=>'index.php',
+'url'=>'menu.php',
 'urlparm'=>'&section=siteadmin', // this item's name
 'labelkey'=>'admin',
 'descriptionkey'=>'admindescription',
@@ -221,7 +221,7 @@ $menucontent = [
 	[
 	'name'=>'files',
 	'parent'=>'siteadmin',
-	'url'=>'index.php',
+	'url'=>'menu.php',
 	'urlparm'=>'&section=files', // this item's name
 	'labelkey'=>'files',
 	'descriptionkey'=>'filesdescription',
@@ -232,7 +232,7 @@ $menucontent = [
 [
 'name'=>'usersgroups',
 'parent'=>'root',
-'url'=>'index.php',
+'url'=>'menu.php',
 'urlparm'=>'&section=usersgroups', // this item's name
 'labelkey'=>'usersgroups',
 'descriptionkey'=>'usersgroupsdescription',
@@ -282,7 +282,7 @@ $menucontent = [
 	[
 	'name'=>'myprefs',
 	'parent'=>'usersgroups',
-	'url'=>'index.php',
+	'url'=>'menu.php',
 	'urlparm'=>'&section=myprefs', // this item's name
 	'labelkey'=>'myprefs',
 	'descriptionkey'=>'myprefsdescription',
