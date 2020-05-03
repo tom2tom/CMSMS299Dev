@@ -17,7 +17,7 @@ $corename = CmsLayoutTemplateType::CORE;
 // 1. Tweak callbacks for page and generic layout template types
 $page_type = CmsLayoutTemplateType::load($corename.'::page');
 if ($page_type) {
-	//TODO sometimes double-backslashes in a callable are not accepted by PHP
+    //TODO sometimes double-backslashes in a callable are not accepted by PHP
     $page_type->set_lang_callback('CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
     $page_type->set_content_callback('CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults');
     $page_type->set_help_callback('CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
@@ -43,11 +43,11 @@ $db->Execute($query, ['Manage Simple Plugins','Modify User-Defined Tags',$longno
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
 $db->Execute($query);
 
-//	'Modify Site Assets',
+//  'Modify Site Assets',
 $ultras = [
-	'Manage Database Content',
-	'Manage Restricted Files',
-	'Remote Administration',  //for app management sans admin console
+    'Manage Database Content',
+    'Manage Restricted Files',
+    'Remote Administration',  //for app management sans admin console
 ];
 
 foreach ($ultras as $one_perm) {
@@ -99,10 +99,14 @@ foreach ($files as $one) {
     }
 }
 
-//re-spaced task-related properties
+// migrate user-homepages like 'index.php*' to 'menu.php*'
+$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value = REPLACE(value,"index.php","menu.php") WHERE preference=\'homepage\' AND value LIKE \'index.php%\'';
+$db->Execute($query);
+
+// re-spaced task-related properties
 $query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE "Core::%"';
 $db->Execute($query);
-//revised 'namespace' indicator in recorded names
+// revised 'namespace' indicator in recorded names
 $query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_name = REPLACE(sitepref_name,"_mapi_pref_","\\\\"), modified_date = ? WHERE sitepref_name LIKE "%_mapi_pref_%"';
 $db->Execute($query,[$longnow]);
 

@@ -11,13 +11,17 @@ if (!$destdir || !is_dir($destdir)) {
     throw new LogicException('Destination directory does not exist');
 }
 $config = $app->get_config();
-$s = (!empty($config['admindir'])) ? $config['admindir'] : 'admin';
+$s = (!empty($config['admin_path'])) ? $config['admin_path'] : 'assets';
 $admindir = $destdir . DIRECTORY_SEPARATOR . $s;
-$s = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
+$s = (!empty($config['assets_path'])) ? $config['assets_path'] : 'assets';
 $assetsdir = $destdir . DIRECTORY_SEPARATOR . $s;
-$sp = (!empty($config['pluginsdir'])) ? $config['pluginsdir'] : 'simple_plugins';
-$plugsdir = $assetsdir . DIRECTORY_SEPARATOR . $sp;
+$s = (!empty($config['simpletags_path'])) ? $config['simpletags_path'] : '';
+$plugsdir = ($s) ? $destdir . DIRECTORY_SEPARATOR . $s : $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
 
+// Remove/replace redundant files
+unlink($admindir . DIRECTORY_SEPARATOR . 'moduleinteface.php');
+unlink($admindir . DIRECTORY_SEPARATOR . 'index.php');
+touch($admindir . DIRECTORY_SEPARATOR . 'index.html');
 /*
 // 1. Rename folder if necessary
 $fp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
@@ -59,8 +63,8 @@ foreach ([
  ['assets','modules'], //CHECKME iff using distinct non-core-modules place
  ['assets','plugins'],
  ['assets','resources'],
- ['assets',$sp], //UDTfiles
  ['assets','templates'],
+ ['tags',$plugsdir], //UDTfiles
  ['lib','modules'], //CHECKME iff using distinct core-modules place
 ] as $segs) {
     switch($segs[0]) {
@@ -72,6 +76,9 @@ foreach ([
             break;
         case 'lib':
             $fp = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . $segs[1];
+            break;
+        case 'tags':
+            $fp = $segs[1];
             break;
         default:
             break 2;
