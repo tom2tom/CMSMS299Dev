@@ -42,7 +42,7 @@ $tpl->assign('can_manage_content',$pmanage)
  ->assign('can_reorder_content',$pmanage)
  ->assign('can_add_content',$pmanage || $this->CheckPermission('Add Pages'));
 
-$theme = Utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 $builder = new ContentListBuilder($this);
 
 try {
@@ -117,26 +117,26 @@ try {
     if( $editinfo ) {
         $u = $this->create_url($id,'defaultadmin',$returnid,['moveup'=>'XXX']);
         $t = $this->Lang('prompt_page_sortup');
-        $icon = $theme->DisplayImage('icons/system/arrow-u',$t,'','','systemicon');
+        $icon = $themeObject->DisplayImage('icons/system/arrow-u',$t,'','','systemicon');
         $linkup = '<a href="'.$u.'" class="page_sortup" accesskey="m">'.$icon.'</a>'."\n";
 
         $u = $this->create_url($id,'defaultadmin',$returnid,['movedown'=>'XXX']);
         $t = $this->Lang('prompt_page_sortdown');
-        $icon = $theme->DisplayImage('icons/system/arrow-d',$t,'','','systemicon');
+        $icon = $themeObject->DisplayImage('icons/system/arrow-d',$t,'','','systemicon');
         $linkdown = '<a href="'.$u.'" class="page_sortdown" accesskey="m">'.$icon.'</a>'."\n";
 
         $t = $this->Lang('prompt_page_view');
-        $icon = $theme->DisplayImage('icons/system/view',$t,'','','systemicon');
+        $icon = $themeObject->DisplayImage('icons/system/view',$t,'','','systemicon');
         $linkview = '<a target="_blank" href="XXX" class="page_view" accesskey="v">'.$icon.'</a>'."\n";
 
         $u = $this->create_url($id,'admin_copycontent',$returnid,['page'=>'XXX']);
         $t = $this->Lang('prompt_page_copy');
-        $icon = $theme->DisplayImage('icons/system/copy',$t,'','','systemicon page_copy');
+        $icon = $themeObject->DisplayImage('icons/system/copy',$t,'','','systemicon page_copy');
         $linkcopy = '<a href="'.$u.'" accesskey="o">'.$icon.'</a>'."\n";
 
         $u = $this->create_url($id,'admin_editcontent',$returnid,['content_id'=>'XXX']);
         $t = $this->Lang('prompt_page_edit');
-        $icon = $theme->DisplayImage('icons/system/edit',$t,'','','systemicon page_edit');
+        $icon = $themeObject->DisplayImage('icons/system/edit',$t,'','','systemicon page_edit');
         $linkedit = '<a href="'.$u.'" class="page_edit" accesskey="e" data-cms-content="XXX">'.$icon.'</a>'."\n";
 
         $u = str_replace('XXX','%s',$u).'&m1_steal=1'; //sprintf template
@@ -144,12 +144,12 @@ try {
 
         $u = $this->create_url($id,'admin_editcontent',$returnid,['parent_id'=>'XXX']);
         $t = $this->Lang('prompt_page_addchild');
-        $icon = $theme->DisplayImage('icons/system/newobject',$t,'','','systemicon page_addchild');
+        $icon = $themeObject->DisplayImage('icons/system/newobject',$t,'','','systemicon page_addchild');
         $linkchild = '<a href="'.$u.'" class="page_edit" accesskey="a">'.$icon.'</a>'."\n";
 
         $u = $this->create_url($id,'defaultadmin',$returnid,['delete'=>'XXX']);
         $t = $this->Lang('prompt_page_delete');
-        $icon = $theme->DisplayImage('icons/system/delete',$t,'','','systemicon page_delete');
+        $icon = $themeObject->DisplayImage('icons/system/delete',$t,'','','systemicon page_delete');
         $linkdel = '<a href="'.$u.'" class="page_delete" accesskey="r">'.$icon.'</a>'."\n";
 
 		$now = time();

@@ -38,8 +38,8 @@ if( !is_object($modinstance) ) {
     $this->SetError($this->Lang('error_getmodule',$module));
     $this->RedirectToAdminTab();
 }
-$theme = Utils::get_theme_object();
-$theme->SetTitle('module_help');
+$themeObject = Utils::get_theme_object();
+$themeObject->SetTitle('module_help');
 
 $our_lang = NlsOperations::get_current_language();
 
