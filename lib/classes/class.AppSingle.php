@@ -52,8 +52,12 @@ final class AppSingle
 	private function __clone() {}
 
 	/**
-	 * Retrieve class singleton-object, after construction if necessary.
-	 * Typically this requires existence of cms_autoloader()
+	 * Retrieve a class singleton-object, after construction if necessary.
+	 * Typically this requires existence of cms_autoloader().
+	 * Some singletons e.g. the database connection (::Db() and the
+	 * admin theme ::Theme()) can't be simply autoloaded, so must be
+	 * set() by some external process before retrieval from here.
+	 *
 	 * @param string $name Class name, without namespace. No aliases.
 	 * @param array $args  Object constructor-argument(s) (rare for CMSMS singletons)
 	 * @return object | not at all
