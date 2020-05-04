@@ -18,10 +18,9 @@ $assetsdir = $destdir . DIRECTORY_SEPARATOR . $s;
 $s = (!empty($config['simpletags_path'])) ? $config['simpletags_path'] : '';
 $plugsdir = ($s) ? $destdir . DIRECTORY_SEPARATOR . $s : $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
 
-// Remove/replace redundant files
+// 0. Remove/replace redundant files
 unlink($admindir . DIRECTORY_SEPARATOR . 'moduleinteface.php');
-unlink($admindir . DIRECTORY_SEPARATOR . 'index.php');
-touch($admindir . DIRECTORY_SEPARATOR . 'index.html');
+
 /*
 // 1. Rename folder if necessary
 $fp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
