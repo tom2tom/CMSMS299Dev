@@ -24,9 +24,22 @@ use Smarty_Internal_Template;
 
 /**
  * Default Smarty template class for CMSMS
+ * Enables intervention in template-processing
  */
 class template_wrapper extends Smarty_Internal_Template
 {
+    public function createTemplate($template, $cache_id = null, $compile_id = null, $parent = null, $do_clone = true)
+    {
+        if( $parent == null ) {
+            $parent = $this;
+        }
+//        try {
+            return $this->smarty->createTemplate($template, $cache_id, $compile_id, $parent, $do_clone);
+//        } catch (Throwable $t) {
+//            //TODO handle error nicely
+//        }
+    }
+
     /**
      * fetch a rendered Smarty template
      *
@@ -52,4 +65,3 @@ class template_wrapper extends Smarty_Internal_Template
         return parent::fetch($template,$cache_id,$compile_id,$parent);
     }
 }
-
