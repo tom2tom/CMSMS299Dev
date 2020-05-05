@@ -28,7 +28,7 @@ class wizard_step2 extends wizard_step
         include_once $fn;
 
         $aname = ( !empty($config['admin_path']) ) ? $config['admin_path'] : 'admin';
-//      if( !is_file($dir.DIRECTORY_SEPARATOR.$aname.DIRECTORY_SEPARATOR.'moduleinterface.php') ) return;
+//      if( !is_file($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'moduleinterface.php') ) return;
 //      if( !is_dir($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules') ) return;
         if( !is_file($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php') ) return;
         $fv = $dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'version.php';

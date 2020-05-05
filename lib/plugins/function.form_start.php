@@ -20,7 +20,7 @@ use CMSMS\AppState;
 
 function smarty_function_form_start($params, $template)
 {
-	//cuz this form will be POST'd, we don't use secure mact parameters 
+	//cuz this form will be POST'd, we don't use secure mact parameters
 	$mactparms = [];
 	$mactparms['module'] = $template->getTemplateVars('_module');
 	$mactparms['mid'] = $template->getTemplateVars('actionid');
@@ -41,10 +41,10 @@ function smarty_function_form_start($params, $template)
 			$tmp = $template->getTemplateVars('_action');
 			if( $tmp ) $mactparms['action'] = $tmp;
 
-			$tagparms['action'] = 'moduleinterface.php';
-			if( !isset($mactparms['action']) ) $mactparms['action'] = 'defaultadmin';
+			$tagparms['action'] = 'lib/moduleinterface.php';
+			if( empty($mactparms['action']) ) $mactparms['action'] = 'defaultadmin';
 			$mactparms['returnid'] = '';
-			if( !$mactparms['mid'] ) $mactparms['mid'] = 'm1_';
+			if( empty($mactparms['mid']) ) $mactparms['mid'] = 'm1_';
 		}
 	}
 	else if( $gCms->is_frontend_request() ) {
@@ -52,7 +52,7 @@ function smarty_function_form_start($params, $template)
 			$tmp = $template->getTemplateVars('actionparams');
 			if( is_array($tmp) && isset($tmp['action']) ) $mactparms['action'] = $tmp['action'];
 
-			$tagparms['action'] = 'moduleinterface.php';
+			$tagparms['action'] = 'lib/moduleinterface.php';
 			if( !$mactparms['returnid'] ) $mactparms['returnid'] = CmsApp::get_instance()->get_content_id();
 			$hm = $gCms->GetHierarchyManager();
 			$node = $hm->find_by_tag('id',$mactparms['returnid']);
