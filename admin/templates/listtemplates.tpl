@@ -67,7 +67,7 @@
   <p>{lang_by_realm('layout','prompt_current')}<br />
   <span id="from"></span>
   </p>
-  <div class="pregap">
+  <div class="pageinput pregap">
   {$t=lang_by_realm('layout','prompt_replacement')}<label for="replacement">{$t}</label>&nbsp;
   {cms_help realm='layout' key2='help_replace_template' title=$t}
   <br />

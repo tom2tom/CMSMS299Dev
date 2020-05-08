@@ -10,7 +10,7 @@
     </label>
   </p>
 </div>
-<div class="pregap">
+<div class="pageinput pregap">
   <button type="submit" name="{$actionid}submit" class="adminsubmit icon undo">{$mod->Lang('uninstall')}</button>
   <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 </div>

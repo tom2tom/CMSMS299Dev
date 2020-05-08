@@ -52,7 +52,7 @@
       <textarea id="code" name="code" rows="10" cols="80">{$code}</textarea>
     </p>
   </div>
-  <div class="pregap">
+  <div class="pageinput pregap">
     <button type="submit" name="submit" id="submitme" class="adminsubmit icon check">{lang('submit')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
     <button type="submit" name="apply" id="applybtn" title="{lang('title_apply_splg')}" class="adminsubmit icon apply">{lang('apply')}</button>

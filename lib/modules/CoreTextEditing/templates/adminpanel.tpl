@@ -41,7 +41,7 @@
  </p>
  </fieldset>
 
- <div class="pregap">
+ <div class="pageinput pregap">
   <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply ">{lang('apply')}</button>
   <button  type="submit" name="{$actionid}cancel" class="adminsubmit icon undo" formnovalidate>{lang('cancel')}</button>
  </div>

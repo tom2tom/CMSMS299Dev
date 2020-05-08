@@ -36,7 +36,7 @@
       <input class="boxchild" id="f_user" name="{$actionid}f_user" value="{$filter->username}" />
     </div>
   </div>
-  <div class="pregap">
+  <div class="pageinput pregap">
     <button type="submit" name="{$actionid}filter" class="adminsubmit icon do">{$mod->Lang('filter')}</button>
     <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo">{$mod->Lang('reset')}</button>
   </div>
