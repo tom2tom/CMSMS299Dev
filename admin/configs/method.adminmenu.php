@@ -72,7 +72,7 @@ $menucontent = [
 'name'=>'content',
 'parent'=>'root',
 'url'=>'menu.php',
-'urlparm'=>'&section=content', // this item's name
+'urlparm'=>'&amp;section=content', // this item's name
 'labelkey'=>'content',
 'descriptionkey'=>'contentdescription',
 'priority'=>$sp++,
@@ -83,7 +83,7 @@ $menucontent = [
 'name'=>'layout',
 'parent'=>'root',
 'url'=>'menu.php',
-'urlparm'=>'&section=layout',
+'urlparm'=>'&amp;section=layout',
 'labelkey'=>'layout',
 'descriptionkey'=>'layoutdescription',
 'priority'=>$sp++,
@@ -114,7 +114,7 @@ $menucontent = [
 'name'=>'extensions',
 'parent'=>'root',
 'url'=>'menu.php',
-'urlparm'=>'&section=extensions', // this item's name
+'urlparm'=>'&amp;section=extensions', // this item's name
 'labelkey'=>'extensions',
 'descriptionkey'=>'extensionsdescription',
 'priority'=>$sp++,
@@ -152,7 +152,7 @@ $menucontent = [
 'name'=>'services',
 'parent'=>'root',
 'url'=>'menu.php',
-'urlparm'=>'&section=services', // this item's name
+'urlparm'=>'&amp;section=services', // this item's name
 'labelkey'=>'services',
 'descriptionkey'=>'servicesdescription',
 'priority'=>$sp++,
@@ -161,7 +161,7 @@ $menucontent = [
 	'name'=>'ecommerce',
 	'parent'=>'services',
 	'url'=>'menu.php',
-	'urlparm'=>'&section=ecommerce', // this item's name
+	'urlparm'=>'&amp;section=ecommerce', // this item's name
 	'labelkey'=>'ecommerce',
 	'descriptionkey'=>'ecommerce_desc',
 	'priority'=>1,
@@ -172,7 +172,7 @@ $menucontent = [
 'name'=>'siteadmin',
 'parent'=>'root',
 'url'=>'menu.php',
-'urlparm'=>'&section=siteadmin', // this item's name
+'urlparm'=>'&amp;section=siteadmin', // this item's name
 'labelkey'=>'admin',
 'descriptionkey'=>'admindescription',
 'priority'=>$sp++,
@@ -222,7 +222,7 @@ $menucontent = [
 	'name'=>'files',
 	'parent'=>'siteadmin',
 	'url'=>'menu.php',
-	'urlparm'=>'&section=files', // this item's name
+	'urlparm'=>'&amp;section=files', // this item's name
 	'labelkey'=>'files',
 	'descriptionkey'=>'filesdescription',
 	'priority'=>5,
@@ -233,7 +233,7 @@ $menucontent = [
 'name'=>'usersgroups',
 'parent'=>'root',
 'url'=>'menu.php',
-'urlparm'=>'&section=usersgroups', // this item's name
+'urlparm'=>'&amp;section=usersgroups', // this item's name
 'labelkey'=>'usersgroups',
 'descriptionkey'=>'usersgroupsdescription',
 'priority'=>$sp++,
@@ -283,7 +283,7 @@ $menucontent = [
 	'name'=>'myprefs',
 	'parent'=>'usersgroups',
 	'url'=>'menu.php',
-	'urlparm'=>'&section=myprefs', // this item's name
+	'urlparm'=>'&amp;section=myprefs', // this item's name
 	'labelkey'=>'myprefs',
 	'descriptionkey'=>'myprefsdescription',
 	'priority'=>5,
