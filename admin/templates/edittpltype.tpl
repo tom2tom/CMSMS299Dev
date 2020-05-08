@@ -3,7 +3,7 @@
 <form id="form_edittype" action="{$selfurl}" enctype="multipart/form-data" method="post">
 {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />{/foreach}
 <fieldset>
-  <div class="pagecontainer" style="width: 49%; float: left;">{* left container *}
+  <div style="width: 49%; float: left;">{* left container *}
     <div class="pageoverflow">
       <p class="pagetext">
       <label for="originator">{lang_by_realm('layout','prompt_originator')}:</label>
@@ -27,11 +27,9 @@
       </p>
       <p class="pageinput">{$type->get_langified_display_value()}</p>
     </div>
+  </div>{* end left container *}
 
-  </div>{* left container *}
-
-  {* right container *}
-  <div style="width: 45%; float: right;">
+  <div style="width: 45%; float: right;">{* right container *}
     <div class="pageoverflow">
       <p class="pagetext">
       <label for="hasdflt">{lang_by_realm('layout','prompt_has_dflt')}:</label>
@@ -62,7 +60,7 @@
       </p>
       <p class="pageinput">{$type->get_modified()|cms_date_format|cms_escape}</p>
     </div>
-  </div>{* right container *}
+  </div>{* end right container *}
   <div style="clear: both;"></div>
 </fieldset>{* container *}
 
@@ -93,7 +91,7 @@
   <p class="pageinput">
     {cms_textarea id=content name=content value=$type->get_dflt_contents() type='smarty' rows=20 cols=80}
   </p>
-  <div class="pagecontainer pregap">
+  <div class="pageinput pregap">
     <button type="button" name="reset" class="adminsubmit icon undo">{lang_by_realm('layout','reset_factory')}</button>
   </div>
 </div>
