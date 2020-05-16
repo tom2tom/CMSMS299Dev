@@ -17,25 +17,24 @@
 
 namespace CMSMS;
 
-use cms_utils;
+use CMSMS\Crypto;
 use CMSMS\Events;
 use const TMP_CACHE_LOCATION;
 use function cms_get_css;
 use function cms_path_to_url;
+use function file_put_contents;
 
 //TODO a job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
 
 /**
- * A class for consolidating specified stylesheet files and/or strings into a single file.
- * NOTE: Because stylesheets are relatively small, and typically vary a
- * lot between requests, it will often be more efficient to rely on normal
- * browser-caching of actual .css files instead of mergers constructed
- * using this class.
+ * A class for consolidating specified stylesheet files and/or strings
+ * into a single file.
  *
- * @since 2.3
+ * @since 2.9
+ * @since 2.3 as StylesheetManager
  * @package CMS
  */
-class StyleOperations
+class StylesMerger
 {
     private $_items = [];
     private $_item_priority = 2;
@@ -43,7 +42,7 @@ class StyleOperations
     /**
      * Get default priority for items to be merged
      *
-     * @return int 1..3 The current default priority
+     * @return int 1..5 The current default priority
      */
     public function get_style_priority() : int
     {
@@ -53,11 +52,11 @@ class StyleOperations
     /**
      * Set default priority for items to be merged
      *
-     * @param int $val The new default priority value (constrained to 1..3)
+     * @param int $val The new default priority value (constrained to 1..5)
      */
     public function set_style_priority(int $val)
     {
-        $this->_item_priority = max(1,min(3,$val));
+        $this->_item_priority = max(1,min(5,$val));
     }
 
     /**
@@ -73,37 +72,41 @@ class StyleOperations
      * Record a string to be merged
      *
      * @param string $output   css string
-     * @param int    $priority Optional priority 1..3 for the style. Default 0 (use current default)
+     * @param int    $priority Optional priority 1..3 for the style. Default 0
+	 *  hence use current default
+     * @param bool   $min since 2.9 Optional flag whether to force minimize
+     *  this script in the merged file. Default false
      * @param bool   $force    Optional flag whether to force recreation of the merged file. Default false
      */
-    public function queue_string(string $output, int $priority = 0, bool $force = false)
+    public function queue_string(string $output, int $priority = 0, bool $min = false, bool $force = false)
     {
-        $sig = cms_utils::hash_string(__FILE__.$output);
+        $sig = Crypto::hash_string(__FILE__.$output);
         $output_file = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR."cms_$sig.css";
         if ($force || !is_file($output_file)) {
             file_put_contents($output_file, $output, LOCK_EX);
         }
-        $this->queue_file($output_file, $priority);
+        $this->queue_file($output_file, $priority, $min);
     }
 
     /**
      * Record a file to be merged if necessary
      *
      * @param string $filename Filesystem path of styles file
-     * @param int    $priority Optional priority 1..3 for the file. Default 0 (use current default)
+     * @param int    $priority Optional priority 1... for the file. Default 0
+	 *  hence use current default
+     * @param bool   $min since 2.9 Optional flag whether to force minimize
+     *  this script in the merged file. Default false
      * @return bool indicating success
      */
-    public function queue_file(string $filename, int $priority = 0)
+    public function queue_file(string $filename, int $priority = 0, bool $min = false)
     {
         if (!is_file($filename)) return false;
 
-        $sig = cms_utils::hash_string($filename);
+        $sig = Crypto::hash_string($filename);
         if (isset($this->_items[$sig])) return false;
 
         if ($priority < 1) {
             $priority = $this->_item_priority;
-        } elseif ($priority > 3) {
-            $priority = 3;
         } else {
             $priority = (int)$priority;
         }
@@ -112,7 +115,8 @@ class StyleOperations
             'file' => $filename,
             'mtime' => filemtime($filename),
             'priority' => $priority,
-            'index' => count($this->_items)
+            'index' => count($this->_items),
+            'min' => $min,
         ];
         return true;
     }
@@ -123,16 +127,39 @@ class StyleOperations
      * @param string $filename absolute or relative filepath of the wanted styles file,
      *  optionally including [.-]min before its .css extension
      *  If searching is needed, a discovered mMin-format version will be preferred over non-min.
-     * @param int    $priority Optional priority 1..3 for the style. Default 0 (use current default)
+     * @param int    $priority Optional priority 1..3 for the style. Default 0
+	 *  hence use current default
+     * @param bool   $min since 2.9 Optional flag whether to force minimize
+     *  this script in the merged file. Default false
+     * @param mixed  $custompaths since 2.9 Optional string | string[] custom places to search before defaults
      * @return bool indicating success
      */
-    public function queue_matchedfile(string $filename, int $priority = 0) : bool
+    public function queue_matchedfile(string $filename, int $priority = 0, bool $min = false, $custompaths = '') : bool
     {
-        $cache_filename = cms_get_css($filename, false);
+        $cache_filename = cms_get_css($filename, false, $custompaths);
         if ($cache_filename) {
-            return $this->queue_file($cache_filename, $priority);
+            return $this->queue_file($cache_filename, $priority, $min);
         }
         return false;
+    }
+
+    /**
+     * @internal
+     * @param string $content
+     * @return string
+     */
+    protected function minimize(string $content) : string
+    {
+		// not perfect, but not bad ...
+        $str = preg_replace(
+            ['~^\s+~','~\s+$~','~\s+~', '~/\*[^!](\*(?!\/)|[^*])*\*/~'],
+            [''      ,''      ,' '    , ''],
+            $content);
+        $str = strtr($str, ['\r' => '', '\n' => '']);
+        return str_replace(
+            [ '  ', ': ', ', ', '{ ', '; ', '( ', '} ', ' :', ' {', '; }', ';}', ' }', ' )'],
+            [ ' ' , ':' , ',' , '{' , ';' , '(' , '}' , ':' , '{' , '}'  , '}' , '}' , ')' ],
+            $str);
     }
 
     /**
@@ -169,15 +196,20 @@ class StyleOperations
                 $t_sig .= $sig;
                 $t_mtime = max($rec['mtime'], $t_mtime);
             }
-            $sig = cms_utils::hash_string(__FILE__.$t_sig.$t_mtime);
+            $sig = Crypto::hash_string(__FILE__.$t_sig.$t_mtime);
             $cache_filename = "combined_$sig.css";
             $output_file = $base_path.DIRECTORY_SEPARATOR.$cache_filename;
 
             if ($force || !is_file($output_file) || filemtime($output_file) < $t_mtime) {
                 $output = '';
-                foreach($items as $sig => $rec) {
+                foreach ($items as $rec) {
                     $content = @file_get_contents($rec['file']);
-                    if ($content) $output .= $content."\n\n";
+                    if ($content) {
+                        if ($rec['min'] && stripos($rec['file'], 'min') === false) {
+                            $content = $this->minimize($content);
+                        }
+                        $output .= $content."\n";
+                    }
                 }
 
                 $tmp = Events::SendEvent('Core', 'PostProcessStyles', $output);
@@ -190,15 +222,18 @@ class StyleOperations
 
     /**
      * Construct a merged file from previously-queued files, if such file
-     * doesn't exist or is out-of-date.
-     * Then generate the corresponding html for direct use.
-     * @see also StylesOperations::render_styles()
+     * doesn't exist or is out-of-date. Then generate the corresponding
+     * page-content.
+     * @see also StylesMerger::render_styles()
      *
-     * @param string $output_path Optional Filesystem absolute path of folder to hold the styles file. Default '' (use TMP_CACHE_LOCATION)
-     * @param bool   $force       Optional flag whether to force recreation of the merged file. Default false
+     * @since 2.9
+     * @param string $output_path Optional file system absolute path of folder
+     *  to hold the styles file. Default '' hence use TMP_CACHE_LOCATION
+     * @param bool   $force       Optional flag whether to force re-creation
+     *  of the merged file. Default false
      * @return string html string <link ...  /> | ''
      */
-    public function render_inclusion(string $output_path = '', bool $force = false) : string
+    public function page_content(string $output_path = '', bool $force = false) : string
     {
         $base_path = ($output_path) ? rtrim($output_path, ' /\\') : TMP_CACHE_LOCATION;
         $cache_filename = $this->render_styles($base_path, $force);
