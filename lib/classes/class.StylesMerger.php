@@ -73,7 +73,7 @@ class StylesMerger
      *
      * @param string $output   css string
      * @param int    $priority Optional priority 1..3 for the style. Default 0
-	 *  hence use current default
+     *  hence use current default
      * @param bool   $min since 2.9 Optional flag whether to force minimize
      *  this script in the merged file. Default false
      * @param bool   $force    Optional flag whether to force recreation of the merged file. Default false
@@ -93,7 +93,7 @@ class StylesMerger
      *
      * @param string $filename Filesystem path of styles file
      * @param int    $priority Optional priority 1... for the file. Default 0
-	 *  hence use current default
+     *  hence use current default
      * @param bool   $min since 2.9 Optional flag whether to force minimize
      *  this script in the merged file. Default false
      * @return bool indicating success
@@ -128,7 +128,7 @@ class StylesMerger
      *  optionally including [.-]min before its .css extension
      *  If searching is needed, a discovered mMin-format version will be preferred over non-min.
      * @param int    $priority Optional priority 1..3 for the style. Default 0
-	 *  hence use current default
+     *  hence use current default
      * @param bool   $min since 2.9 Optional flag whether to force minimize
      *  this script in the merged file. Default false
      * @param mixed  $custompaths since 2.9 Optional string | string[] custom places to search before defaults
@@ -144,13 +144,14 @@ class StylesMerger
     }
 
     /**
+     * Convert $content to miminal size
      * @internal
      * @param string $content
      * @return string
      */
     protected function minimize(string $content) : string
     {
-		// not perfect, but not bad ...
+        // not perfect, but very close ...
         $str = preg_replace(
             ['~^\s+~','~\s+$~','~\s+~', '~/\*[^!](\*(?!\/)|[^*])*\*/~'],
             [''      ,''      ,' '    , ''],
@@ -205,8 +206,13 @@ class StylesMerger
                 foreach ($items as $rec) {
                     $content = @file_get_contents($rec['file']);
                     if ($content) {
-                        if ($rec['min'] && stripos($rec['file'], 'min') === false) {
-                            $content = $this->minimize($content);
+                        if ($rec['min']) {
+                            $fn = basename($rec['file']);
+                            if (($p = stripos($fn, 'min')) === false ||
+                                ($p > 0 && $fn[$p-1] != '.' && $fn[$p-1] != '-') ||
+                                ($p < strlen($fn) - 3 && $fn[$p+4] != '.' && $fn[$p+4] != '-')) {
+                                $content = $this->minimize($content);
+                            }
                         }
                         $output .= $content."\n";
                     }
