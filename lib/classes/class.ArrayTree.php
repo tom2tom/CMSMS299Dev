@@ -395,35 +395,35 @@ class ArrayTree
         return true;
     }
 
-	/**
-	 * Child-first descendants' property-accumulator
+    /**
+     * Child-first descendants' property-accumulator
      * @param array $node     tree-structured array to process
      * @param string $getkey  $tree key-identifier
-	 * @param int $moredepth optional limit on no. of levels to descend. Default no limit.
+     * @param int $moredepth optional limit on no. of levels to descend. Default no limit.
      * @param string $childkey  $data key-identifier default self::CHILDKEY
-	 * @return array
-	 */
-	public static function get_descend_data(array $node, string $getkey,
-		int $moredepth = -1, string $childkey = self::CHILDKEY) : array
-	{
+     * @return array
+     */
+    public static function get_descend_data(array $node, string $getkey,
+        int $moredepth = -1, string $childkey = self::CHILDKEY) : array
+    {
         $ret = [];
-		$tree = reset($node);
-		if (isset($tree[$getkey])) {
-			$k = isset($tree['path']) ? implode('/', $tree['path']) : $tree['name'];
-			$ret[$k] = $tree[$getkey];
-		}
-		if ($moredepth != 0) {
-			if (!empty($tree[$childkey])) {
-				foreach ($tree[$childkey] as $subtree) {
-					$down = self::get_descend_data($subtree, $getkey, $moredepth - 1, $childkey);
-					if ($down) {
-						$ret = array_merge($ret, $down);
-					}
-				}
-			}
-		}
-		return $ret;
-	}
+        $tree = reset($node);
+        if (isset($tree[$getkey])) {
+            $k = isset($tree['path']) ? implode('/', $tree['path']) : $tree['name'];
+            $ret[$k] = $tree[$getkey];
+        }
+        if ($moredepth != 0) {
+            if (!empty($tree[$childkey])) {
+                foreach ($tree[$childkey] as $subtree) {
+                    $down = self::get_descend_data($subtree, $getkey, $moredepth - 1, $childkey);
+                    if ($down) {
+                        $ret = array_merge($ret, $down);
+                    }
+                }
+            }
+        }
+        return $ret;
+    }
 } //class
 
 } //namespace
