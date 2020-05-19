@@ -66,4 +66,3 @@ function smarty_function_admin_icon($params, $template)
 	}
 	return $out;
 }
-

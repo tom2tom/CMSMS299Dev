@@ -57,4 +57,3 @@ function smarty_function_cms_admin_user($params, $template)
 	}
 	return $out;
 }
-
