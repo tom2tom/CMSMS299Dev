@@ -1,8 +1,8 @@
 {if $can_set}
-{tab_header name='articles' label=$mod->Lang('articles')}
-{tab_header name='groups' label=$mod->Lang('categories')}
-{tab_header name='templates' label=lang('templates')}
-{tab_header name='settings' label=lang('settings')}
+{tab_header name='articles' label=$mod->Lang('articles') active=$tab}
+{tab_header name='groups' label=$mod->Lang('categories') active=$tab}
+{tab_header name='templates' label=lang('templates') active=$tab}
+{tab_header name='settings' label=lang('settings') active=$tab}
 
 {tab_start name='articles'}
 {/if}

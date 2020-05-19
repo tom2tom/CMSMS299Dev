@@ -27,7 +27,7 @@ $pdel = $this->CheckPermission('Delete News');
 $pset = $this->CheckPermission('Modify News Preferences');
 if( !($papp || $pmod || $pdel || $pset) ) exit;
 
-if (isset($params['bulk_action']) ) {
+if( isset($params['bulk_action']) ) {
     if( empty($params['sel']) ) {
         $this->ShowErrors($this->Lang('error_noarticlesselected'));
     }
@@ -88,7 +88,8 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),nu
 $tpl->assign('can_add',$pmod)
  ->assign('can_mod',$pmod)
  ->assign('can_del',$pmod && $pdel)
- ->assign('can_set',$pset);
+ ->assign('can_set',$pset)
+ ->assign('tab',$params['activetab'] ?? false);
 
 $baseurl = $this->GetModuleURLPath();
 $out = <<<EOS
@@ -139,7 +140,7 @@ if( $pmod ) {
 if( $pset ) {
     require_once __DIR__.DIRECTORY_SEPARATOR.'function.categoriestab.php';
     // module settings
-	$str = AdminUtils::CreateHierarchyDropdown(0,(int)$this->GetPreference('detail_returnid',-1),'detail_returnid');
+    $str = AdminUtils::CreateHierarchyDropdown(0,(int)$this->GetPreference('detail_returnid',-1),'detail_returnid');
     $tpl
  ->assign('detail_returnid',$str)
  ->assign('label_alert_drafts',$this->Lang('alert_drafts'))
