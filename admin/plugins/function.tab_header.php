@@ -30,7 +30,7 @@ function smarty_function_tab_header($params, $template)
 		if( $tmp == $name ) {
 			$active = TRUE;
 		}
-		else {
+		elseif( 1 ) { //TODO NOT some other tab-name looking like a bool
 			$active = cms_to_bool($tmp);
 		}
 	}
@@ -42,4 +42,3 @@ function smarty_function_tab_header($params, $template)
 	}
 	return $out;
 }
-
