@@ -21,15 +21,14 @@ $urlext = get_secure_param();
 
 if (!isset($vars)) { $vars = []; }
 
+//NOTE nothing of any security-risk should ever be in these data
 $vars['root_url'] = CMS_ROOT_URL;
 $vars['admin_url'] = $config['admin_url'];
 $vars['ajax_alerts_url'] = $config['admin_url'].'/ajax_alerts.php'.$urlext;
 $vars['ajax_help_url'] = $config['admin_url'].'/ajax_help.php'.$urlext;
 $vars['job_key'] = CMS_JOB_KEY;
 $vars['secure_param_name'] = CMS_SECURE_PARAM_NAME;
-/* NOPE!!  hack-facilitator
-$vars['user_key'] = $_SESSION[CMS_USER_KEY];
-*/
+/* hack-facilitator $vars['user_key'] = $_SESSION[CMS_USER_KEY]; */
 $vars['lang_alert'] = lang('alert');
 $vars['lang_cancel'] = lang('cancel');
 $vars['lang_close'] = lang('close');
@@ -57,6 +56,7 @@ reset($vars);
 foreach ($vars as $key => $value) {
     $obj->$key = $value;
 }
+//TODO for a bit of privacy (not security), lightweight obfuscation for this (but js is crap for recovery!)
 $enc = json_encode($obj, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 $js = <<<EOS
 <script type="text/javascript">
