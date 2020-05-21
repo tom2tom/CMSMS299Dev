@@ -16,8 +16,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-
+/* NOPE DEFAULT TO THEME-DRIVEN LOGIN
 $modname = cms_siteprefs::get('loginmodule');
 if( !$modname ) {
-//NOPE DEFAULT TO THEME cms_siteprefs::set('loginmodule', $this->GetName());
+    cms_siteprefs::set('loginmodule', $this->GetName());
 }
+*/
