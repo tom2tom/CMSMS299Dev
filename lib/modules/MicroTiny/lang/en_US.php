@@ -249,6 +249,7 @@ $lang['prompt_texttodisplay'] = 'Text to Display';
 $lang['savesettings'] = 'Save settings';
 $lang['settings'] = 'Settings';
 $lang['settingssaved'] = 'Settings saved';
+$lang['settings_title'] = 'MicroTiny Editor Settings';
 $lang['size'] = 'Size';
 $lang['submit'] = 'Submit';
 $lang['switchgrid'] = 'Switch to grid view';

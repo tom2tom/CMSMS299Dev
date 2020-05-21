@@ -259,7 +259,7 @@ $lang['selector_months'] = 'January,February,March,April,May,June,July,August,Se
 $lang['selector_shortdays'] = 'Sun,Mon,Tue,Wed,Thu,Fri,Sat';
 $lang['selector_shortmonths'] = 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec';
 $lang['selector_times'] = 'am,pm,AM,PM,.,mins,hr,hrs';
-
+$lang['settings_title'] = 'News Settings';
 $lang['showchildcategories'] = 'With All Descendants';
 $lang['startdate'] = 'Publish';
 $lang['startdatetoolate'] = 'The start date is too late (after end date?)';

@@ -97,5 +97,6 @@ EOS
 // S
 'settings_error' => 'Settings problem: %s. Settings NOT updated',
 'settings_success' => 'Settings updated',
+'settings_title' => '%s Settings',
 
 ] + $lang;

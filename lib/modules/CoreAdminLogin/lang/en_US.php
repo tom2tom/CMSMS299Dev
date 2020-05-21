@@ -33,6 +33,7 @@ $lang['passwordchangedlogin'] = 'Password changed.  Please log in using the new 
 $lang['power_by'] = 'Powered by';
 $lang['recover_start'] = 'Start recovery';
 $lang['recoveryemailsent'] = 'Email sent to recorded address.  Please check your inbox for further instructions.';
+$lang['settings_title'] = 'Login-Module Settings';
 $lang['submit'] = 'Submit';
 $lang['title_login'] = 'Log in to<br />website Admin&nbsp;Console';
 $lang['title_login_named'] = 'Log in to<br />%s Admin&nbsp;Console';

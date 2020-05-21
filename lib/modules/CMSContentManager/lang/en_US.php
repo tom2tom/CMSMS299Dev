@@ -394,6 +394,7 @@ $lang = [
 'secure_page' => 'Secure Access Only',
 'secure' => 'Secure (HTTPS)', // ??
 'select_all' => 'Select All',
+'settings_title' => 'Content Editor Settings',
 'showinmenu' => 'Show in Menu',
 'styles' => 'Stylesheets',
 'stylesheets' => 'Stylesheet(s)',

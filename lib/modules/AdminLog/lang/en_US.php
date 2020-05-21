@@ -19,6 +19,7 @@ $lang = [
 'permdesc_View_Admin_Log' => 'Admin users with this permission can view and download the admin log',
 'perm_View_Admin_Log' => 'View Admin Log',
 'reset' => 'Reset',
+'settings_title' => 'Information Log Settings',
 'severity' => 'Status',
 'sev_error' => 'Error',
 'sev_msg' => 'Message',
