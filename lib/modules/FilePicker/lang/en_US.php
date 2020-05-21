@@ -37,6 +37,7 @@ $lang = [
 'error_upload_maxFileSize' => 'The file is too large',
 'error_upload_minFileSize' => 'The file is too small',
 'error_upload_maxNumberOfFiles' => 'You are uploading too many files at once',
+'error_upload_maxTotalSize' => 'The total size of files to upload exceeds the limit specified in the PHP configuration',
 
 // F
 'filename' => 'Filename',
