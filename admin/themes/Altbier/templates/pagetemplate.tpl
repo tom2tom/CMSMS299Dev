@@ -12,13 +12,13 @@
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
   <meta name="HandheldFriendly" content="true" />
   <meta name="msapplication-TileColor" content="#f89938" />
-  <meta name="msapplication-TileImage" content="{$admin_url}/themes/Altbier/images/favicon/ms-application-icon.png" />
+  <meta name="msapplication-TileImage" content="{$admin_url}/themes/assets/images/ms-application-icon.png" />
   <base href="{$admin_url}/" />
-  <link rel="shortcut icon" href="themes/Altbier/images/favicon/cmsms-favicon.ico" />
-  <link rel="apple-touch-icon" href="themes/Altbier/images/favicon/apple-touch-icon-iphone.png" />
-  <link rel="apple-touch-icon" sizes="72x72" href="themes/Altbier/images/favicon/apple-touch-icon-ipad.png" />
-  <link rel="apple-touch-icon" sizes="114x114" href="themes/Altbier/images/favicon/apple-touch-icon-iphone4.png" />
-  <link rel="apple-touch-icon" sizes="144x144" href="themes/Altbier/images/favicon/apple-touch-icon-ipad3.png" />
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
+  <link rel="apple-touch-icon" href="themes/assets/images/apple-touch-icon-iphone.png" />
+  <link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png" />
+  <link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png" />
+  <link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png" />
   {$font_includes}
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,600,600i" />
   <link rel="stylesheet" href="themes/Altbier/css/bootstrap_reboot-grid.min.css" />
