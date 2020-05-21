@@ -3,7 +3,7 @@
 {tab_header name='sitedown' label=lang('sitedown_settings') active=$tab}
 {tab_header name='mail' label=lang('mail_settings') active=$tab}
 {tab_header name='advanced' label=lang('advanced') active=$tab}
-{if !empty($ext_setters)}
+{if !empty($externals)}
 {tab_header name='external' label=lang('external_settings') active=$tab}
 {/if}
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
@@ -736,16 +736,16 @@
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
-{if !empty($ext_setters)}
+{if !empty($externals)}
 {tab_start name='external'}
 <p class="pageinfo">{lang('external_setdesc')}</p>
-{foreach $ext_setters as $val}
-  <label for="ext{$val@index}" class="pagetext" style="display:block;">{$val->title}</label>
-  {if !empty($val->desc)}<p class="pageinput">{$val->desc}</p>{/if}
-  {if !empty($val->url)}
-   <a id="ext{$val@index}" class="pageinput postgap" href="{$val->url}" target="_blank">{$val->text}</a>
+{foreach $externals as $val}
+  <label for="ext{$val@index}" class="pagetext" style="display:block;">{$val.title}</label>
+  {if !empty($val.desc)}<p class="pageinput">{$val.desc}</p>{/if}
+  {if !empty($val.url)}
+   <a id="ext{$val@index}" class="pageinput postgap" href="{$val.url}" target="_blank">{$val.text}</a>
   {else}
-  {$val->text}
+  {$val.text}
   {/if}
 {/foreach}
 {/if}
