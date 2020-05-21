@@ -28,7 +28,9 @@ use function file_put_contents;
 
 /**
  * A class for consolidating specified stylesheet files and/or strings
- * into a single file.
+ * into a single file. Might be useful for modularizing admin css resources.
+ * REMEMBER: relative urls/paths in css are almost never relocatable, so
+ * this cannot be used for such.
  *
  * @since 2.9
  * @since 2.3 as StylesheetManager
@@ -71,6 +73,7 @@ class StylesMerger
     /**
      * Record a string to be merged
      *
+     * @since 2.9
      * @param string $output   css string
      * @param int    $priority Optional priority 1..3 for the style. Default 0
      *  hence use current default
@@ -124,14 +127,15 @@ class StylesMerger
     /**
      * Find and record a style-file to be merged if necessary
      *
+     * @since 2.9
      * @param string $filename absolute or relative filepath of the wanted styles file,
      *  optionally including [.-]min before its .css extension
      *  If searching is needed, a discovered mMin-format version will be preferred over non-min.
      * @param int    $priority Optional priority 1..3 for the style. Default 0
      *  hence use current default
-     * @param bool   $min since 2.9 Optional flag whether to force minimize
-     *  this script in the merged file. Default false
-     * @param mixed  $custompaths since 2.9 Optional string | string[] custom places to search before defaults
+     * @param bool   $min  Optional flag whether to force-minimize the
+     *  specified script in the merged file. Default false
+     * @param mixed  $custompaths Optional string | string[] custom places to search before defaults
      * @return bool indicating success
      */
     public function queue_matchedfile(string $filename, int $priority = 0, bool $min = false, $custompaths = '') : bool
