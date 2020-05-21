@@ -76,18 +76,16 @@
        <h1>{if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}</h1>
       {/if}
       {if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{'module_help'|lang}</a></span>{/if}
-     </header>
+       </header>
      {if $pagetitle && $subtitle}<header class="subheader"><h3 class="subtitle">{$subtitle}</h3></header>{/if}
-      <section class="cf">
-       <div class="pagecontainer">{$content}</div>
-      </section>
+       <section class="cf">
+        <div class="pagecontainer">{$content}</div>
+       </section>
      </article>
      {/strip}
     </div>
     <!-- end main -->
-    <div class="spacer">
-     &nbsp;
-    </div>
+    <div class="spacer">&nbsp;</div>
    </div>
    <!-- end content -->
    <!-- start footer -->
