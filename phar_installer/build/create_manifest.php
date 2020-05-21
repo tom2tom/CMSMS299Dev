@@ -45,6 +45,7 @@ $src_excludes = [
 '/tests/',
 '/UNUSED/',
 '/HIDE/',
+'/DEVELOP/',
 '/uploads/',
 '/~$/',
 '/\.bak$/',

@@ -47,6 +47,8 @@ $all_excludes = [
 '/~$/',
 '~\.#~',
 '~UNUSED~',
+'~DEVELOP~',
+'~HIDE~',
 ];
 
 // members of $src_excludes which need double-check before exclusion to confirm they're 'ours'
