@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="Lightweight grid with the power of flexbox" name="description">
+    <title>Flex Grid Lite</title>
+    <link href="flex-grid-lite.min.css" rel="stylesheet" />
+    <style>
+body {
+	color: white; 
+	background-color: #4d6f80;
+}
+code {
+	margin: 1em;
+	background-color: grey;
+}
+code, .mono {
+	font-family: 'Courier New', Courier, monospace;
+}
+code.inline {
+	margin: 0;
+}
+span.pre {
+	display: block;
+	padding: 0;
+	margin: 0 0 0 1em;
+	background-color: grey;
+}
+.cell {
+	border: 1px solid white;
+	border-collapse: collapse;
+	background-color: #264859;
+	text-align: center;
+}
+.accent {
+	color: #dc9518;
+}
+.box-accent {
+	height: 8px;
+	border: solid 1px #dc9518;
+	border-bottom: 0;
+	margin-bottom: 8px;
+}
+    </style>
+  </head>
+  <body>
+
+    <h1>Flex Grid Lite</h1>
+    <h3>The Functional Flexbox Column Grid</h3>
+    <p>
+      Flex Grid Lite is a lightweight column grid with all the power of flexbox. Built using a
+      <a href="http://www.jon.gold/2015/07/functional-css/" target="_blank">functional CSS</a>
+      approach which means you get exactly what you ask for without any hidden surprises. The resulting file size is far smaller than a traditional column grid.
+    </p>
+
+    <h2>Basic Layout</h2>
+    <p>Each cell inside a grid row is by default assigned an equal share of the total width. The cells are configured to respect the layout over the content.</p>
+    <div class="flexrow">
+      <div class="cell">.cell</div>
+      <div class="cell">.cell</div>
+      <div class="cell">.cell</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow"&gt;
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">Auto Column</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+      <span class="pre">&lt;div class="flexrow"&gt;
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">Auto Column</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+      <span class="pre">&lt;div class="flexrow"&gt;
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">Auto Column</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Gutters</h2>
+    <p>
+        Padding is built into the grid. The default size is 8 pixels (vertical and horizontal). The amount(s) can be modified by setting margins and padding of relevant css classes. Padding can be removed by adding class <code class="inline">.nogutter</code> to the relevant row(s).
+    </p>
+    <div class="flexrow nogutter">
+      <div class="cell">.flexrow .nogutter .cell</div>
+      <div class="cell">.flexrow .nogutter .cell</div>
+      <div class="cell">.flexrow .nogutter .cell</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow nogutter"&gt;
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">Auto Column</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+      <span class="pre">&lt;div class="flexrow nogutter"&gt;
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">Auto Column</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+      <span class="pre">&lt;div class="flexrow nogutter"&gt;
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">Auto Column</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Columns-Share Widths</h2>
+    <p>Based on the familiar n/12 column system.</p>
+    <div class="flexrow">
+      <div class="cell cols_3">.cell .cols_3</div>
+      <div class="cell cols_9">.cell .cols_9</div>
+    </div>
+    <div class="flexrow">
+      <div class="cell cols_4">.cell .cols_4</div>
+      <div class="cell cols_4">.cell .cols_4</div>
+      <div class="cell cols_4">.cell .cols_4</div>
+    </div>
+    <div class="flexrow">
+      <div class="cell cols_5">.cell .cols_5</div>
+      <div class="cell cols_2">.cell .cols_2</div>
+      <div class="cell cols_2">.cell .cols_2</div>
+      <div class="cell cols_3">.cell .cols_3</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow"&gt;
+        <span class="pre">&lt;div class="cell cols_3"&gt;
+          <span class="pre">25% (3/12)</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell cols_9"&gt;
+          <span class="pre">75% (9/12)</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Growable Cells</h2>
+    <p>
+      Based on
+      <a href="https://css-tricks.com/almanac/properties/f/flex-grow/" target="_blank">flex-grow</a>
+      this layout style allows for dynamic content distribution. These cells will respect their given ratio and resist dropping onto a second row, unlike a percentage-based cell.
+    </p>
+    <div class="flexrow">
+      <div class="cell grow_2">.cell .grow_2</div>
+      <div class="cell">.cell</div>
+      <div class="cell">.cell</div>
+    </div>
+    <div class="flexrow">
+      <div class="cell grow_3">.cell .grow_3</div>
+      <div class="cell grow_2">.cell .grow_2</div>
+      <div class="cell">.cell</div>
+    </div>
+    <div class="flexrow">
+      <div class="cell grow_3">.cell .grow_3</div>
+      <div class="cell">.cell</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow"&gt;
+        <span class="pre">&lt;div class="cell grow_3"&gt;
+          <span class="pre">Grow 3 Columns</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">Auto Column</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Fixed Widths</h2>
+    <p>Add in the fixed width class and pass the cell a defined width or allow content like an image to dictate the desired width. It's recommended to fill the space with dynamic flex cells however you can mix in percent-based cells too. Utilizing a fixed column with only percent-based cells will make it difficult to reach 100%.</p>
+    <div class="flexrow mtxl">
+      <div class="cell fixed" style="width:168px;">
+        <div class="mono accent">Fixed 168px</div>
+        <div class="box-accent"></div>
+      </div>
+      <div class="cell">
+        <div class="mono accent">Auto Width</div>
+        <div class="box-accent"></div>
+      </div>
+    </div>
+    <div class="flexrow">
+      <div class="cell fixed" style="width:168px;">.cell .fixed</div>
+      <div class="cell">.cell</div>
+      <div class="cell">.cell</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow"&gt;
+        <span class="pre">&lt;div class="cell fixed" style"width:168px;"&gt;
+          <span class="pre">cell fixed</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">cell</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">cell</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Mixed Widths</h2>
+    <p>This is the real power of flexbox at work in your layouts.</p>
+    <div class="flexrow mtxl">
+      <div class="cell fixed" style="width:168px;">
+        <div class="mono accent">Fixed 168px</div>
+        <div class="box-accent"></div>
+      </div>
+      <div class="cell">
+        <div class="mono accent">Dynamic Width</div>
+        <div class="box-accent"></div>
+      </div>
+    </div>
+    <div class="flexrow">
+      <div class="cell fixed" style="width:168px;">.cell .fixed</div>
+      <div class="cell grow_2">.cell .grow_2</div>
+      <div class="cell">.cell</div>
+    </div>
+    <div class="flexrow mtxl">
+      <div class="cell fixed" style="width:168px;">
+        <div class="mono accent">Fixed 168px</div>
+        <div class="box-accent"></div>
+      </div>
+      <div class="cell">
+        <div class="mono accent">Dynamic Width</div>
+        <div class="box-accent"></div>
+      </div>
+      <div class="cell cols_3">
+        <div class="mono accent">25% of Total Width</div>
+        <div class="box-accent"></div>
+      </div>
+    </div>
+    <div class="flexrow">
+      <div class="cell fixed" style="width:168px;">.cell .fixed</div>
+      <div class="cell grow_2">.cell .grow_2</div>
+      <div class="cell">.cell</div>
+      <div class="cell cols_3">.cell .cols_3</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow"&gt;
+        <span class="pre">&lt;div class="cell fixed" style="width:168px;"&gt;
+          <span class="pre">Fixed Column</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell grow_2"&gt;
+          <span class="pre">Grow 2 Column</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">Auto Column</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell cols_3"&gt;
+          <span class="pre">25% (3/12)</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Content Vertical Alignment</h2>
+    <p>Position cell-content vertically in the cell.</p>
+    <div class="flexrow">
+      <div class="cell content_top" style="height:96px;">.cell .content_top</div>
+      <div class="cell content_middle" style="height:96px;">.cell .content_middle</div>
+      <div class="cell content_bottom" style="height:96px;">.cell .content_bottom</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow"&gt;
+        <span class="pre">&lt;div class="cell content_top" style="height:96px;"&gt;
+          <span class="pre">Content aligned to top</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell content_middle" style="height:96px;"&gt;
+          <span class="pre">Content aligned to middle</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell content_bottom" style="height:96px;"&gt;
+          <span class="pre">Content aligned to bottom</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Cells Vertical Alignment</h2>
+    <p>
+      Position cells relative to each other within a <code class="inline">.flexrow</code> element.
+    </p>
+    <div class="flexrow">
+      <div class="cell align_top">.cell .align_top</div>
+      <div class="cell align_middle">.cell .align_middle</div>
+      <div class="cell align_bottom">.cell .align_bottom</div>
+      <div class="cell" style="height:112px;">
+        <p style="margin-bottom:1em;">Tall cell expanding</p>
+        <p style="margin-bottom:1em;">the height of</p>
+        <p>the grid row</p>
+      </div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow"&gt;
+        <span class="pre">&lt;div class="cell align_top"&gt;
+          <span class="pre">Top-Aligned Cell</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell align_middle"&gt;
+          <span class="pre">Middle-Aligned Cell</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell align_bottom"&gt;
+          <span class="pre">Bottom-Aligned Cell</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell" style="height:112px;"&gt;
+          <span class="pre">Tall Cell</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Cells Horizontal Alignment</h2>
+    <p>
+      Apply modifier classes to the <code class="inline">.flexrow</code> element to change the alignment of cells.
+    </p>
+    <div class="flexrow start">
+      <div class="cell cols_6">.flexrow .start .cell .cols_6</div>
+    </div>
+    <div class="flexrow center">
+      <div class="cell cols_3">.flexrow .center .cell .cols_3</div>
+      <div class="cell cols_3">.flexrow .center .cell .cols_3</div>
+    </div>
+    <div class="flexrow end">
+      <div class="cell cols_6">.flexrow .end .cell .cols_6</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow flexrow_end"&gt;
+        <span class="pre">&lt;div class="cell cols_6"&gt;
+          <span class="pre">Aligned to the end</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Cells Distribution</h2>
+    <p>Distribute space around or between cells equally.</p>
+    <div class="flexrow around">
+      <div class="cell cols_3">.flexrow .around .cell .cols_3</div>
+      <div class="cell cols_3">.flexrow .around .cell .cols_3</div>
+      <div class="cell cols_3">.flexrow .around .cell .cols_3</div>
+    </div>
+    <div class="flexrow between">
+      <div class="cell cols_3">.flexrow .between .cell .cols_3</div>
+      <div class="cell cols_3">.flexrow .between .cell .cols_3</div>
+      <div class="cell cols_3">.flexrow .between .cell .cols_3</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow flexrow_between"&gt;
+        <span class="pre">&lt;div class="cell cols_3"&gt;
+          <span class="pre">Equal space between cells</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell cols_3"&gt;
+          <span class="pre">Equal space between cells</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell cols_3"&gt;
+          <span class="pre">Equal space between cells</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Cell Ordering</h2>
+    <p>
+      Change the order of cells by applying modifier class <code class="inline">.first</code>
+      to position a cell first or <code class="inline">.last</code> for the cell to be last.
+    </p>
+    <div class="flexrow">
+      <div class="cell">1</div>
+      <div class="cell">2</div>
+      <div class="cell">3</div>
+    </div>
+    <div class="flexrow">
+      <div class="cell">1</div>
+      <div class="cell">2</div>
+      <div class="cell first">.cell .first</div>
+    </div>
+    <div class="flexrow">
+      <div class="cell last">.cell .last</div>
+      <div class="cell">2</div>
+      <div class="cell">3</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow"&gt;
+        <span class="pre">&lt;div class="cell last"&gt;
+          <span class="pre">1st Column</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">2nd Column</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">3rd Column</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+    <p>
+      Use <code class="inline">.flexrow .reverse</code> to reverse the order of all cells.
+    </p>
+    <div class="flexrow reverse">
+      <div class="cell">1</div>
+      <div class="cell">2</div>
+      <div class="cell">3</div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow flexrow_reverse"&gt;
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">1st Column</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">2nd Column</span>
+        &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">3rd Column</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Grid Nesting</h2>
+    <p>Grids nest easily, with no cascading conflicts. Great for complex layouts.</p>
+    <div class="flexrow">
+      <div class="cell">
+        Auto Column
+        <div class="flexrow">
+          <div class="cell">
+            Nested inside
+          </div>
+          <div class="cell">
+            Nested inside
+          </div>
+        </div>
+      </div>
+      <div class="cell">
+        Auto Column
+      </div>
+    </div>
+    <code>
+      <span class="pre">&lt;div class="flexrow"&gt;
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">Auto Column</span>
+            <span class="pre">&lt;div class="cell"&gt;
+              <span class="pre">Nested Inside</span>
+            &lt;/div&gt;</span>
+            <span class="pre">&lt;div class="cell"&gt;
+              <span class="pre">Nested Inside</span>
+            &lt;/div&gt;</span>
+          &lt;/div&gt;</span>
+        <span class="pre">&lt;div class="cell"&gt;
+          <span class="pre">Auto Column</span>
+        &lt;/div&gt;</span>
+      &lt;/div&gt;</span>
+    </code>
+
+    <h2>Media Breakpoints</h2>
+    <p>
+      Media breakpoint classes define the screen size below which cells go to 100% width. The small
+    <code class="inline">.cell_sm</code> snaps to 100% at 480px,
+    <code class="inline">.cell_md</code> at 624px, and
+    <code class="inline">.cell_lg</code> at 744px. The breakpoint classes will override any other percentage- or grow-based modifier class.
+    </p>
+    <div class="flexrow">
+      <div class="cell cell_md">.cell .cell_md</div>
+      <div class="cell cell_md">.cell .cell_md</div>
+      <div class="cell cell_lg">.cell .cell_lg</div>
+    </div>
+    <div class="flexrow">
+      <div class="cell cell_sm">.cell .cell_sm</div>
+      <div class="cell cols_5 cell_sm">.cell .cols_5 .cell_sm</div>
+      <div class="cell cell_lg">.cell .cell_lg</div>
+    </div>
+    <div class="flexrow">
+      <div class="cell grow_2 cell_md">.cell .grow_2 .cell_md</div>
+      <div class="cell cell_md">.cell .cell_md</div>
+      <div class="cell cell_lg">.cell .cell_lg</div>
+    </div>
+
+  </body>
+</html>
