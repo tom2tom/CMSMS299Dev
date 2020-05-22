@@ -255,7 +255,7 @@ class Crypto
 
 	/**
 	 * Munge a string. Not for security-purposes.
-	 * Uses simple protocol, js-compatible i.e. no lookups, translations. 
+	 * Uses simple protocol, js-compatible i.e. no lookups, translations.
 	 * Method derived from https://github.com/felixmc/cabd.js/blob/master/cabd.js
 	 * @param string $raw the string to be processed, may be empty
 	 * @return string
@@ -265,11 +265,31 @@ class Crypto
 		$str = $raw;
 		$length = strlen($raw);
 		$offset = ($length % 2 === 0) ? 2 : 1;
+		$k = $length - $offset;
 		$mid = $length / 2;
 		for ($i = 0; $i < $length; ++$i) {
-			$j = ($i < $mid) ?
-				$length - $i - $i - $offset :
-				$i + $i + $offset - 1 - $length;
+			$j = ($i < $mid) ? $k - $i - $i : $i + $i - $k - 1;
+			$str[$i] = $raw[$j];
+		}
+		return $str;
+	}
+
+	/**
+	 * Un-munge a string.
+	 * For reference, mainly. Probably never used server-side.
+	 * @see Crypto::scramble_string();
+	 * Method derived from https://github.com/felixmc/cabd.js/blob/master/cabd.js
+	 * @param string $raw the string to be processed, may be empty
+	 * @return string
+	 */
+	public static function unscramble_string(string $raw) : string
+	{
+		$str = $raw;
+		$length = strlen($raw);
+		$offset = ($length % 2 === 0) ? 1 : 0;
+		$k = $length - $offset;
+		for ($i = 0; $i < $length; ++$i) {
+			$j = ($i % 2 === 0) ? ($k - $i - 1) / 2 : ($k + $i) / 2;
 			$str[$i] = $raw[$j];
 		}
 		return $str;
