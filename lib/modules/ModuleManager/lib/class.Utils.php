@@ -1,5 +1,5 @@
 <?php
-# ModuleManager class: utils
+# ModuleManager class: Utils
 # Copyright (C) 2011-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,24 +18,28 @@
 
 namespace ModuleManager;
 
-use cms_utils;
 use CmsCommunicationException;
 use CmsInvalidDataException;
 use CMSMS\ModuleOperations;
+use CMSMS\Utils as AppUtils;
+use const CMS_VERSION;
 use const MINIMUM_REPOSITORY_VERSION;
 use function cms_join_path;
-use function cmsms;
 
-final class utils
+final class Utils
 {
-    protected function __construct() {}
+    /**
+     * @ignore
+     */
+    private function __construct() {}
+    private function __clone() {}
 
-	/**
-	 *
-	 * @param bool $include_inactive Whether to also report inactive modules. Default false
-	 * @param bool $as_hash Whether returned array keys are respective module-names. Default false
-	 * @return array
-	 */
+    /**
+     *
+     * @param bool $include_inactive Whether to also report inactive modules. Default false
+     * @param bool $as_hash Whether returned array keys are respective module-names. Default false
+     * @return array
+     */
     public static function get_installed_modules($include_inactive = FALSE, $as_hash = FALSE)
     {
         $modops = ModuleOperations::get_instance();
@@ -81,7 +85,7 @@ final class utils
             $v2 = $e2['version'];
         }
 
-		$r = strcasecmp($n1,$n2);
+        $r = strcasecmp($n1,$n2);
         if( $r < 0 ) {
             return -1;
         }
@@ -91,21 +95,21 @@ final class utils
         return version_compare( $v2, $v1 );
     }
 
-	/**
-	 *
-	 * @param type $xmldetails
-	 * @param type $installdetails
-	 * @param type $newest
-	 * @return mixed array|null
-	 */
+    /**
+     *
+     * @param type $xmldetails
+     * @param type $installdetails
+     * @param type $newest
+     * @return mixed array|null
+     */
     public static function build_module_data( &$xmldetails, &$installdetails, $newest = true )
     {
         if( !is_array($xmldetails) ) return;
 
         // sort
-        uasort( $xmldetails, 'ModuleManager\\utils::uasort_cmp_details' );
+        uasort( $xmldetails, 'ModuleManager\\Utils::uasort_cmp_details' );
 
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = AppUtils::get_module('ModuleManager');
 
         //
         // Process the xmldetails, and only keep the latest version
@@ -171,22 +175,22 @@ final class utils
 
         // now we have everything
         // let's try sorting it
-        uasort( $results, 'ModuleManager\\utils::uasort_cmp_details' );
+        uasort( $results, 'ModuleManager\\Utils::uasort_cmp_details' );
         return $results;
     }
 
-	/**
-	 *
-	 * @param type $filename
-	 * @param type $size
-	 * @param type $md5sum
-	 * @return string
-	 * @throws CmsCommunicationException
-	 * @throws CmsInvalidDataException
-	 */
+    /**
+     *
+     * @param type $filename
+     * @param type $size
+     * @param type $md5sum
+     * @return string
+     * @throws CmsCommunicationException
+     * @throws CmsInvalidDataException
+     */
     public static function get_module_xml($filename,$size,$md5sum = null)
     {
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = AppUtils::get_module('ModuleManager');
         $xml_filename = modulerep_client::get_repository_xml($filename,$size);
         if( !$xml_filename ) throw new CmsCommunicationException($mod->Lang('error_downloadxml',$filename));
 
@@ -201,18 +205,18 @@ final class utils
         return $xml_filename;
     }
 
-	/**
-	 *
-	 * @staticvar bool $ok
-	 * @return boolean
-	 */
+    /**
+     *
+     * @staticvar bool $ok
+     * @return boolean
+     */
     public static function is_connection_ok()
     {
         // static properties here >> StaticProperties class ?
         static $ok = -1;
         if( $ok != -1 ) return $ok;
 
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = AppUtils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
         if( $url ) {
             $url .= '/version';
@@ -241,11 +245,11 @@ final class utils
         return FALSE;
     }
 
-	/**
-	 *
-	 * @param string $date
-	 * @return mixed string|null
-	 */
+    /**
+     *
+     * @param string $date
+     * @return mixed string|null
+     */
     public static function get_status($date)
     {
         $ts = strtotime($date);
@@ -257,14 +261,14 @@ final class utils
         if( $ts >= $new_ts ) return 'new';
     }
 
-	/**
-	 * set smarty vars for various image tags
-	 */
+    /**
+     * set smarty vars for various image tags
+     */
     public static function get_images($template)
     {
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = AppUtils::get_module('ModuleManager');
         $base = cms_join_path($mod->GetModulePath(),'images').DIRECTORY_SEPARATOR;
-        $themeObject = cms_utils::get_theme_object();
+        $themeObject = AppUtils::get_theme_object();
 
         foreach ([
             ['error','stale'],
