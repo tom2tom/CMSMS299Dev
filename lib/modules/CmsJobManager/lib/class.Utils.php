@@ -7,8 +7,8 @@
 
 namespace CmsJobManager;
 
-use cms_utils;
 use CmsJobManager;
+use CMSMS\AppSingle;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\Job;
 use CMSMS\Async\RecurType;
@@ -16,9 +16,10 @@ use CMSMS\ModuleOperations;
 use const TMP_CACHE_LOCATION;
 use function debug_to_log;
 
-final class utils
+final class Utils
 {
-//    public function __construct() {}
+//    private function __construct() {}
+//    private function __clone() {}
 
     public static function get_async_freq() : int
     {
@@ -120,7 +121,7 @@ final class utils
         }
 
         // have jobs to increase error count on.
-        $db = cms_utils::get_db();
+        $db = AppSingle::Db();
         $sql = 'UPDATE '.CmsJobManager::TABLE_NAME.' SET errors = errors + 1 WHERE id IN ('.implode(',', $job_ids).')';
         $db->Execute($sql);
         debug_to_log('Increased error count on '.count($job_ids).' jobs ');
