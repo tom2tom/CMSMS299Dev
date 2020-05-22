@@ -20,7 +20,7 @@ namespace CMSMS;
 
 use CMSMS\BasicEnum;
 
-class FSControlsValue extends BasicEnum
+class FSControlValue extends BasicEnum
 {
     const NO = 0; //sometimes treated as boolean false
     const NONE = 0; // ditto
