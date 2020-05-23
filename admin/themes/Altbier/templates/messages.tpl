@@ -6,7 +6,7 @@
 			<div class="col-10"><span class="fas fa-lg fa-exclamation-circle"></span> <strong class="h3 text-uppercase">Error</strong></div>
 			<div class="col-2 text-right"><span aria-label="close dialog" class="close-warning"><span class="fas fa-times"></span></span></div>
 		</div>
-		<div class="row py-3">
+		<div class="row pt-3">
 		{foreach from=$errors item='error'}
 			{if $error}
 			<div class="col-12">
@@ -23,7 +23,7 @@
 			<div class="col-10"><span class="fas fa-lg fa-check-circle"></span> <strong class="h3 text-uppercase">Success</strong></div>
 			<div class="col-2 text-right"><span aria-label="close dialog" class="close-warning"><span class="fas fa-times"></span></span></div>
 		</div>
-		<div class="row py-3">
+		<div class="row pt-3">
 		{foreach from=$messages item='message'}
 			{if $message}
 			<div class="col-12">

@@ -18,7 +18,7 @@
   {$header_includes|default:''}
  </head>{if 0}{$c=''}{elseif empty($smarty.get.forgotpw)}{$c=' class="login"'}{else}{$c=' class="forgotpw"'}{/if}
  <body id="login"{$c}>
-  <div class="container py-5" style="height:100%;">
+  <div class="container pt-5" style="height:100%;">
    <div class="row" style="align-items:center;height:100%;">
     <div class="mx-auto">
      <div class="login-box p-2 p-sm-4"{if isset($error)} id="error"{/if}>
@@ -29,7 +29,7 @@
         <p>{'login_info'|lang}</p>
         {'login_info_params'|lang}
         <p class="pl-4"><strong>({$smarty.server.HTTP_HOST})</strong></p>
-        <div class="warning-message mt-3 py-3 row">
+        <div class="warning-message mt-3 pt-3 row">
          <div class="col-2"><i aria-hidden="true" class="fas fa-2x fa-exclamation-triangle" style="color:#d4a711"></i> </div>
          <p class="col-10">{'warn_admin_ipandcookies'|lang}</p>
         </div>
@@ -44,27 +44,27 @@
       {if isset($form)}{$form}{else}{include file='form.tpl'}{block name=form}{/block}{/if}
       </div>
       {if !empty($smarty.get.forgotpw)}
-       <div tabindex="0" role="alertdialog" class="col-12 message information mt-2 py-2">
+       <div tabindex="0" role="alertdialog" class="col-12 message information mt-2 pt-2">
         {'forgotpwprompt'|lang}
        </div>
       {/if}
       {if !empty($error)}
-       <div tabindex="0" role="alertdialog" class="col-12 message error mt-2 py-2">
+       <div tabindex="0" role="alertdialog" class="col-12 message error mt-2 pt-2">
         {$error}
        </div>
       {/if}
       {if !empty($warning)}
-       <div tabindex="0" role="alertdialog" class="col-12 message warning mt-2 py-2">
+       <div tabindex="0" role="alertdialog" class="col-12 message warning mt-2 pt-2">
         {$warning}
        </div>
       {/if}
       {if !empty($message)}
-       <div tabindex="0" role="alertdialog" class="col-12 message success mt-2 py-2">
+       <div tabindex="0" role="alertdialog" class="col-12 message success mt-2 pt-2">
         {$message}
        </div>
       {/if}
       {if !empty($changepwhash)}
-       <div tabindex="0" role="alertdialog" class="col-12 message information mt-2 py-2">
+       <div tabindex="0" role="alertdialog" class="col-12 message information mt-2 pt-2">
         {'passwordchange'|lang}
        </div>
       {/if}

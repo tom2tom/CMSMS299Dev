@@ -29,7 +29,7 @@
    <div class="container-fluid">
     <header role="banner" class="header row">
      <div class="col-12">
-      <div class="header-top row py-1">
+      <div class="header-top row pt-1">
        <div class="cms-logo">
         <a href="http://www.cmsmadesimple.org" rel="external">
          <img class="img-fluid" src="themes/Altbier/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/Altbier/images/CMSMS-logotext-dark.png';" alt="CMS Made Simple" title="CMS Made Simple" />

@@ -2,7 +2,7 @@
 {strip}
 <footer class="w-100 row" id="ac_footer">
 	<div class="container-fluid">
-		<div class="row py-2">
+		<div class="row pt-2">
 			<div class="col align-self-start">
 				<small class="copyright">Copyright &copy; <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple&trade; {cms_version} &ldquo;{cms_versionname}&rdquo;</a></small>
 			</div>
