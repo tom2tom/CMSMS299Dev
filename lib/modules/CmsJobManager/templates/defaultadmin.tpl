@@ -51,6 +51,7 @@
     {$t=$mod->Lang('prompt_enabled')}<label for="enabled">{$t}:</label>
     {cms_help realm=$_module key2='help_enabled' title={$t}}
   </p>
+  <input type="hidden" name="{$actionid}enabled" value="0" />
   <p class="pageinput">
     <input type="checkbox" id="enabled" name="{$actionid}enabled" value="1"{if $enabled} checked="checked"{/if} />
   </p>
