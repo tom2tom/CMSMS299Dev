@@ -40,18 +40,21 @@ final class RecurType extends BasicEnum
      * Constant indicating that the job should recur every 2 hours.
      */
     const RECUR_120M = 5;
+    const RECUR_2H = 5; //alias
 
     /**
      * Constant indicating that the job should recur every 3 hours.
      */
     const RECUR_180M = 6;
+    const RECUR_3H = 6; //alias
 
-	/**
+    /**
      * Constant indicating that the job should recur twice per day.
      */
     const RECUR_HALFDAILY = 9;
+    const RECUR_12H = 9; //alias
 
-	/**
+    /**
      * Constant indicating that the job should recur daily.
      */
     const RECUR_DAILY = 10;
@@ -70,6 +73,7 @@ final class RecurType extends BasicEnum
      * Constant indicating that the job determines its own recurrence interval.
      */
     const RECUR_SELF = 200;
+    const RECUR_ALWAYS = 200; //alias
 
     /**
      * Constant indicating that the job does not recur.
