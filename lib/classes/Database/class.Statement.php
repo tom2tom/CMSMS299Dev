@@ -29,12 +29,12 @@ use function debug_to_log;
  * A class defining a prepared database statement, and methods for
  * interacting with such statements.
  *
- * @since 2.3
+ * @since 2.9
  *
  * @property-read Connection $db The database connection
  * @property-read string $sql The SQL query
  */
-class Statement
+final class Statement
 {
     private const NOPARMCMD = 1295; // MySQL/MariaDB errno for deprecated non-parameterizable command
 
