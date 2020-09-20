@@ -1,6 +1,6 @@
 <?php
 /*
-Class ResultSet: methods for interacting with MySQL selection-command result
+Class ResultSet: methods for interacting with MySQL or compatible selection-command result
 Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

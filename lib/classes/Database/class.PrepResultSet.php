@@ -1,6 +1,7 @@
 <?php
 /*
-Class PrepResultSet: methods for interacting with MySQL prepared selection-command result
+Class PrepResultSet: methods for interacting with MySQL or compatible 
+ prepared selection-command result
 Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -25,7 +26,7 @@ use mysqli_stmt;
 /**
  * A class for interacting with the results from a prepared-selection from the database.
  *
- * @since 2.3
+ * @since 2.9
  */
 class PrepResultSet extends ResultSet
 {
@@ -217,4 +218,3 @@ class PrepResultSet extends ResultSet
         return null;
     }
 } //class
-
