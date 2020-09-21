@@ -473,14 +473,14 @@ function sanitize(string $str) : string
 }
 
 /**
- * Sanitize input to prevent against XSS and other nasty stuff.
+ * Sanitize a variable value to prevent XSS and other nasty stuff
  * Used (almost entirely) on member(s) of $_POST[] or $_GET[]
  *
  * @internal
  * @param mixed $val input value
- * @return string
+ * @return mixed
  */
-function cleanValue($val) : string
+function cleanValue($val)
 {
 /*
 // Taken from cakephp (http://cakephp.org)
@@ -514,26 +514,94 @@ function cleanValue($val) : string
   //Swap user-inputted backslashes (?)
   $val = preg_replace("/\\\(?!&amp;#|\?#)/", "\\", $val);
 */
-    if (!is_string($val) || $val === '') {
-        return $val;
+    if (is_array($val)) {
+        return cleanArray($val); // iterate
     }
-    return filter_var($val, FILTER_SANITIZE_SPECIAL_CHARS, 0);
+    if (is_string($val) && $val !== '') {
+        // eliminate multi-backslashes other than valid backslash-pairs
+        $l = strlen($val);
+        $p = 0;
+        while (($p = strpos($val, '\\', $p)) !== false) {
+            if ($p+3 < $l && $val[$p+1] == '\\' && $val[$p+2] == '\\') {
+                switch ($val[$p+3]) {
+                    case '\\': // skip past '\\\\'
+                        $p += 4;
+                        break;
+                    case '`': // omit '\\\' followed by ASCII char to be encoded
+                    case "'":
+                    case '"':
+                    case '<':
+                    case '>':
+                        $val = substr($val, 0,  $p) . substr($val, $p+3);
+                        $l -= 3;
+                    break;
+                    default: // omit '\\' followed by '\'
+                        $val = substr($val, 0,  $p) . substr($val, $p+2);
+                        $l -= 2;
+                        break;
+                }
+            }
+             elseif ($p+1 < $l) {
+                switch ($val[$p+1]) {
+                    case '`': // omit '\' followed by char to be encoded
+                    case "'":
+                    case '"':
+                    case '<':
+                    case '>':
+                        $val = substr($val, 0,  $p) . substr($val, $p+1);
+                        --$l;
+                        break;
+                    default:
+                        ++$p;
+                        break;
+                }
+            }
+             elseif ($p+1 == $l) {
+                $val = substr($val, 0,  $p);
+                --$l;
+                break;
+            }
+             else {
+                ++$p;
+            }
+        }
+        $val = '' . preg_replace_callback('/[\x00-\x1f`\'"<>\x7f]/', function($matches) {
+            $n = ord($matches[0]);
+            switch ($n) {
+                case 9:
+                    return '\t';
+                case 10:
+                    return '\n';
+                case 13:
+                    return '\r';
+                case 27:
+                    return '\e';
+                default:
+                    return ($n > 9) ? "&#{$n};" : "&#0{$n};";
+            }
+        }, $val);
+    }
+
+    $val = preg_replace_callback('/(javascript\s*):\s*(.+)?/i', function($matches) {
+        if ($matches[2]) {
+            return 'javascrip&#116;&#58;'.strtr($matches[2], ['('=>'&#40;', ')'=>'&#41;']);
+        }
+        return $matches[0];
+    }, $val);
+    return $val;
 }
 
 /**
- * Sanitize input to prevent against XSS and other nasty stuff.
+ * Sanitize an array of values to prevent XSS and other nasty stuff.
  * Used (almost entirely) on $_SERVER[] and/or $_GET[]
  *
  * @internal
- * @param array $array reference to array of input values
+ * @param array $array reference to array of values
  */
 function cleanArray(array &$array)
 {
     foreach ($array as &$val) {
-        if (is_string($val) && $val !== '') {
-            $val = filter_var($val, FILTER_SANITIZE_STRING,
-                    FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
-        }
+        $val = cleanValue($val);
     }
     unset($val);
 }
@@ -592,7 +660,7 @@ function cms_ipmatches(string $ip, $checklist) : bool
       if (count($maskocts) != count($ipocts) && count($maskocts) != 4) return 0;
 
       // perform a range match
-      for ($i=0; $i<4; $i++) {
+      for ($i = 0; $i < 4; $i++) {
         if (preg_match("/\[([0-9]+)\-([0-9]+)\]/",$maskocts[$i],$regs)) {
           if (($ipocts[$i] > $regs[2]) || ($ipocts[$i] < $regs[1])) $result = 0;
         } elseif ($maskocts[$i] <> $ipocts[$i]) $result = 0;
@@ -609,21 +677,24 @@ function cms_ipmatches(string $ip, $checklist) : bool
 }
 
 /**
- * Test whether the string provided is a valid email address.
+ * Test whether the string provided is (potentially) a valid email address.
+ * NOTE: this test is more tolerant than for SMTP-transferred emails
+ * @see RFC5321
  *
- * @param string  $email
- * @param bool $checkDNS
- * @return bool
+ * @param mixed string | null $email
+ * @param bool $checkDNS Optional flag, whether to check (if possible) the address-domain. Default false
+ * @return mixed string (trim()'d $email) | false
  */
-function is_email (string $email, bool $checkDNS=false)
+function is_email ($email, bool $checkDNS = false)
 {
-    if (!filter_var($email,FILTER_VALIDATE_EMAIL)) return false;
+    //PHP's FILTER_VALIDATE_EMAIL mechanism is not entirely reliable - see notes at https://www.php.net/manual/en/function.filter-var.php
+    $email = trim('' . $email);
+    if (!preg_match('/\S+.*@[\w.\-\x80-\xff]+$/', $email)) return false;
     if ($checkDNS && function_exists('checkdnsrr')) {
         list($user,$domain) = explode('@',$email,2);
-        if (!$domain) return false;
         if (!(checkdnsrr($domain, 'A') || checkdnsrr($domain, 'MX'))) return false; // Domain doesn't actually exist
     }
-    return true;
+    return $email;
 }
 
 /**
@@ -635,7 +706,7 @@ function is_email (string $email, bool $checkDNS=false)
 function cms_to_bool($val) : bool
 {
     if (is_bool($val)) return $val;
-    if (is_numeric($val)) return (int)$val !== 0;
+    if (is_numeric($val)) return $val + 0 != 0;
 
     switch (strtolower($val)) {
         case 'y':
@@ -650,7 +721,7 @@ function cms_to_bool($val) : bool
 
 /**
  * @ignore
- * @since 2.3
+ * @since 2.9
  */
 function register_endsession_function(callable $handler)
 {
@@ -658,7 +729,7 @@ function register_endsession_function(callable $handler)
 }
 
 /**
- * Test whether a string is base64-encoded
+ * Test whether a string is (potentially) base64-encoded
  *
  * @since 2.2
  * @param string $s The string to check
@@ -666,28 +737,25 @@ function register_endsession_function(callable $handler)
  */
 function is_base64(string $s) : bool
 {
-    return (bool) preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s);
+    return (bool) preg_match('~^[a-zA-Z0-9+/\r\n]+={0,2}$~', $s);
 }
 
 /**
  * Create an almost-certainly-unique identifier.
  *
  * @since 2.3
- * @return string
+ * @return aphanumeric string
  */
 function cms_create_guid() : string
 {
-    if (function_exists('com_create_guid')) {
-        return trim(com_create_guid(), '{}'); //windows
-    }
-    return random_bytes(32);
+    return chr(mt_rand(97, 122)) . base_convert(bin2hex(random_bytes(20)), 16, 36); //32 alphanum bytes starting with letter
 }
 
 /**
  * Sort array of strings which include, or may do so, non-ASCII-encoded char(s)
  * @param array $arr data to be sorted
  * @param bool $preserve Optional flag whether to preserve key-value associations during the sort Default false
- * @since 2.3
+ * @since 2.9
  * @return sorted array
 */
 function cms_utf8_sort(array $arr, bool $preserve = false) : array
