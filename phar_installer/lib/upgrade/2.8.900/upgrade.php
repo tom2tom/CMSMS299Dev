@@ -35,6 +35,10 @@ if ($generic_type) {
     error_msg($corename.'::generic template update '.lang('failed'));
 }
 
+// Change to 4-byte-utf8 default charset
+$query = 'ALTER DATABASE `'.$db->database.'` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci';
+$db->Execute($query);
+
 // 2. Revised/extra permissions
 $now = time();
 $longnow = trim($db->DbTimeStamp($now),"'");
@@ -302,7 +306,7 @@ foreach ([
 }
 
 // 7. Other table revisions
-$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci']; //i.e. case-insensitive matching unless overridden
+$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci']; //i.e. case-insensitive matching unless overridden
 
 // 7.1 Misc
 
@@ -321,6 +325,10 @@ $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'content','styles C(48)');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'layout_tpl_categories', 'created I'); //for datetime migration, below
 $dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'users','oldpassword C(128) AFTER email'); //for p/w differentiation
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'users','passmodified_date DT'); //for p/w timeout
+$dict->ExecuteSQLArray($sqlarray);
 
 // modified fields
 $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'users','username C(80)');
@@ -329,6 +337,10 @@ $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'users','password C(128)');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'routes','created','create_date','DT DEFAULT CURRENT_TIMESTAMP');
 $dict->ExecuteSQLArray($sqlarray);
+
+// backup each user's create_date to passmodified_date
+$sql = 'UPDATE '.CMS_DB_PREFIX.'users SET passmodified_date = create_date';
+$db->Execute($sql);
 
 // 7.2 Migrate timestamp fields to auto-update datetime
 function migrate_stamps(string $name, string $fid, $db, $dict)
@@ -523,7 +535,7 @@ if ($designs) {
                 'modified_date'=>$designs[$id]['modified_date']
             ]);
             $ob->set_members($row);
-        $ob->save();
+            $ob->save();
             $trans[$id] = $ob->get_id();
         }
         unset($row);
@@ -629,7 +641,7 @@ $sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'idx_smp_module', $tbl);
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AddColumnSQL($tbl,'id I(2) UNSIGNED FIRST AUTO KEY');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->AlterColumnSQL($tbl,"name C(48) COLLATE 'utf8_bin' NOT NULL"); //case-sensitive
+$sqlarray = $dict->AlterColumnSQL($tbl,"name C(48) COLLATE 'utf8mb4_bin' NOT NULL"); //case-sensitive
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('idx_tagname',$tbl,'name,module',['UNIQUE']);
 $dict->ExecuteSQLArray($sqlarray);
