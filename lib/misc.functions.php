@@ -744,11 +744,12 @@ function is_base64(string $s) : bool
  * Create an almost-certainly-unique identifier.
  *
  * @since 2.3
- * @return aphanumeric string
+ * @return string 32 random hexits
  */
 function cms_create_guid() : string
 {
-    return chr(mt_rand(97, 122)) . base_convert(bin2hex(random_bytes(20)), 16, 36); //32 alphanum bytes starting with letter
+//  return chr(mt_rand(97, 122)) . base_convert(bin2hex(random_bytes(20)), 16, 36); //32 alphanum bytes starting with letter
+    return bin2hex(random_bytes(16));
 }
 
 /**
