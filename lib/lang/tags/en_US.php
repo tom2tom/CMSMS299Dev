@@ -979,7 +979,8 @@ EOT
 <ul>
  <li><em>(optional)</em> <tt>page</tt> - Page ID or alias to link to</li>
  <li><em>(optional)</em> <tt>anchorlink</tt> - Specifies an anchor to add to the generated URL</li>
- <li><em>(optional)</em> <tt>urlparam</tt> - Specify additional parameters to the URL. <strong>Do not use this in conjunction with the <em>anchorlink</em> parameter</strong>.</li>
+ <li><em>(optional)</em> <tt>fragment</tt> - An alias for &quot;anchorlink&quot;</li>
+ <li><em>(optional)</em> <tt>urlparam</tt> - Specify additional parameter(s) for the URL</li>
  <li><em>(optional)</em> <tt>tabindex =&quot;a value&quot;</tt> - Set a tabindex for the link</li> <!-- Russ - 22-06-2005 -->
  <li><em>(optional)</em> <tt>dir start/next/prev/up (previous)</tt> - Links to the default start page or the next or previous page, or the parent page (up). If this is used <tt>page</tt> should not be set.</li>
 </ul>
