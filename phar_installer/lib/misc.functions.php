@@ -155,22 +155,24 @@ function to_bool($in, bool $strict = false)
  */
 function is_email(string $str) : bool
 {
-	return filter_var($str,FILTER_VALIDATE_EMAIL) !== false;
+	$str = trim('' . $str);
+	return (bool)preg_match('/\S+.*@[\w.\-\x80-\xff]+$/', $str);
 }
 
 /**
  *
  * @param mixed $val
- * @return mixed
+ * @return mixed, normally a string stripped of HTML,XML,PHP tags, and bytes < ' ', backtick
  */
 function clean_string($val)
 {
-	if( !$val ) return $val;
-	$val = filter_var($val.'', FILTER_SANITIZE_STRING,
-		FILTER_FLAG_NO_ENCODE_QUOTES |
-		FILTER_FLAG_STRIP_LOW |
-		FILTER_FLAG_STRIP_BACKTICK);
-	return strip_tags($val);
+	if( $val ) {
+		return filter_var($val.'', FILTER_SANITIZE_STRING, //strip HTML,XML,PHP tags, NULL bytes
+		 FILTER_FLAG_NO_ENCODE_QUOTES |
+		 FILTER_FLAG_STRIP_LOW |
+		 FILTER_FLAG_STRIP_BACKTICK);
+	}
+	return $val;
 }
 
 /**
