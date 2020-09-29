@@ -341,10 +341,10 @@ class DataDictionary
     /**
      * Generate the SQL to change the definition of one column.
      *
-     * @param string       $tabname      table-name
-     * @param string       $defn         column-name and type for the changed column
+     * @param string $tabname The table-name
+     * @param string $defn    The column-name and definition for the changed column
      *  May include FIRST or 'AFTER other-colname' to re-order the field.
-     * @param string       $tableflds    UNUSED optional complete columns-definition of the revised table
+     * @param string $tableflds    UNUSED optional complete columns-definition of the revised table
      * @param array/string $tableoptions UNUSED optional options for the revised table see CreateTableSQL, default ''
      * @return array Strings suitable for use with the ExecuteSQLArray method
      */
