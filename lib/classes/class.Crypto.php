@@ -184,7 +184,7 @@ class Crypto
 	 *
 	 * @param string $raw the string to be processed, may be empty
 	 * @param bool $seeded optional flag whether to seed the hash. Default false (unless $raw is empty)
-	 * @return string (12 alphanum bytes)
+	 * @return string (12|13 alphanum bytes)
 	 */
 	public static function hash_string(string $raw, $seeded = false)
 	{
@@ -194,7 +194,7 @@ class Crypto
 				$n = mt_rand(48, 122); // 0 .. z
 				$seed[$i] = chr($n);
 			}
-			$raw .= $seed;
+			$raw = $seed.$raw;
 		}
 		$str = hash('fnv132', $raw);
 		return base_convert($str.$str, 16, 36);
