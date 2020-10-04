@@ -17,14 +17,13 @@
 
 namespace CMSMS;
 
-use CmsApp;
-use LogicException;
+use CMSMS\App;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;
 
 /**
- * A class of cookie operations that are capable of obfuscating cookie names,
- * and signing cookie values to minimize the risk of MITM or corruption attacks.
+ * A class of cookie operations that use obfuscated cookie names and signed
+ *  cookie values, to reduce the risk of MITM or corruption attacks.
  *
  * @package CMS
  * @license GPL
@@ -43,9 +42,14 @@ class SignedCookieOperations implements CookieManager
     private $_secure;
 
     /**
+     * @ignore
+     */
+    private $_uuid;
+
+    /**
      * Constructor.
      *
-     * @param mixed $app CmsApp | null. Optional since 2.9
+     * @param mixed $app App | null. Optional since 2.9
      */
     public function __construct($app = null)
     {
@@ -56,20 +60,21 @@ class SignedCookieOperations implements CookieManager
         if( !isset($this->_parts['path']) || $this->_parts['path'] == '' ) {
             $this->_parts['path'] = '/';
         }
-        if( !$app ) $app = CmsApp::get_instance();
+        if( !$app ) { $app = App::get_instance(); }
         $this->_secure = $app->is_https_request();
+        $this->_uuid = $app->GetSiteUUID();
     }
 
     /**
      * Encode a key.
      *
-     * The cookie name is encoded to be obfuscated to minimize the opportunity of attacks.
+     * The cookie name is obfuscated to minimize the opportunity for attacks.
      *
      * @param string $key The cookie name
      */
     protected function get_key(string $key) : string
     {
-        return 'c'.sha1(__FILE__.$key.CMS_VERSION);
+        return 'c'.hash('sha3-224',CMS_VERSION.$this->_uuid.$key);
     }
 
     /**
@@ -117,12 +122,10 @@ class SignedCookieOperations implements CookieManager
     }
 
     /**
-     * Retrieve the value of a cookie.
+     * Retrieve the value of a validated cookie.
      *
-     * This method will retrieve the value of the cookie by first obfuscating
-     * the cookie name, then ensuring that the signature of retrieved cookie
-     * can be verified. If the attached signature does not match the generated
-     * signature, no value is returned.
+     * This method will retrieve the value of a cookie if the signature of the
+     * cookie is valid. Otherwise, no value is returned.
      *
      * @param string $okey The cookie name
      * @return string|null
@@ -130,35 +133,36 @@ class SignedCookieOperations implements CookieManager
     public function get(string $okey)
     {
         $key = $this->get_key($okey);
-        if( isset($_COOKIE[$key]) ) {
+        if( !empty($_COOKIE[$key]) ) {
             list($sig,$val) = explode(':::',$_COOKIE[$key],2);
-            if( sha1($val.__FILE__.$okey.CMS_VERSION) == $sig ) return $val;
+            if( hash('sha3-224',$val.$this->_uuid.$okey) == $sig ) return $val;
         }
     }
 
     /**
      * Set a cookie.
+     * @since 2.9, the supplied $value need not be a string.
+     * If not scalar, the value  will be json_encode()'d before storage.
      *
-     * This method will first obfuscate the cookie name.
-     * Then it will generate a signature for the cookie contents, then append it to the cookie value.
-     * Then generate a standard cookie.
-     *
-     * @param string $okey The input cookie name
-     * @param string $value The cookie value.
-     * @param int $expires The expiry timestamp of the cookie.  A value of 0 indicates that a session cookie should be created.
+     * @param string $okey The cookie name
+     * @param string $value The cookie value
+     * @param int $expires Optional expiry timestamp of the cookie. Default 0,
+     *  hence a session cookie.
      */
     public function set(string $okey, $value, int $expires = 0) : bool
     {
-        if( !is_string($value) ) throw new LogicException('Cookie value passed to '.__METHOD__.' must be a string');
+        $val = is_scalar($value) ? ''.$value : json_encode($value,
+            JSON_NUMERIC_CHECK |
+            JSON_UNESCAPED_UNICODE |
+            JSON_UNESCAPED_SLASHES |
+            JSON_PARTIAL_OUTPUT_ON_ERROR);
         $key = $this->get_key($okey);
-        $sig = sha1($value.__FILE__.$okey.CMS_VERSION);
-        return $this->set_cookie($key,$sig.':::'.$value,$expires);
+        $sig = hash('sha3-224',$val.$this->_uuid.$okey);
+        return $this->set_cookie($key,$sig.':::'.$val,$expires);
     }
 
     /**
-     * Test if a cookie exists.
-     *
-     * This method will obfuscate the input cookie name.
+     * Check whether a cookie exists (regardless of cookie value).
      *
      * @param string $key The input cookie name.
      */
@@ -171,9 +175,7 @@ class SignedCookieOperations implements CookieManager
     /**
      * Erase a cookie.
      *
-     * This method will obfuscate the input cookie name.
-     *
-     * @param string $key The input cookie name.
+     * @param string $key The cookie name.
      */
     public function erase(string $key)
     {
