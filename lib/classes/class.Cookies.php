@@ -15,10 +15,9 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-
 namespace CMSMS;
 
-use CMSMS\App;
+use CMSMS\AppSingle;
 use const CMS_ROOT_URL;
 
 /**
@@ -33,110 +32,113 @@ use const CMS_ROOT_URL;
  */
 final class Cookies
 {
-  // static properties here >> StaticProperties class ?
-  /**
-   * @ignore
-   */
-  private static $_parts;
+    // static properties here >> StaticProperties class ?
+    /**
+     * @ignore
+     */
+    private static $_parts;
 
-  /**
-   * @ignore
-   */
-  final private function __construct() {}
+    /**
+     * @ignore
+     */
+    private function __construct() {}
 
-  /**
-   * @ignore
-   */
-  private static function __path()
-  {
-      if( !is_array(self::$_parts) ) {
-          self::$_parts = parse_url(CMS_ROOT_URL);
-      }
-      if( !isset(self::$_parts['path']) || self::$_parts['path'] == '' ) {
-          self::$_parts['path'] = '/';
-      }
-      return self::$_parts['path'];
-  }
+    /**
+     * @ignore
+     * @return string
+     */
+    private static function __path()
+    {
+        if (!is_array(self::$_parts)) {
+            self::$_parts = parse_url(CMS_ROOT_URL);
+        }
+        if (!isset(self::$_parts['path']) || self::$_parts['path'] == '') {
+            self::$_parts['path'] = '/';
+        }
+        return self::$_parts['path'];
+    }
 
-  /**
-   * @ignore
-   */
-  private static function __domain()
-  {
-      if( !is_array(self::$_parts) ) {
-          self::$_parts = parse_url(CMS_ROOT_URL);
-      }
-      if( !isset(self::$_parts['host']) || self::$_parts['host'] == '' ) {
-          self::$_parts['host'] = CMS_ROOT_URL;
-      }
-      return self::$_parts['host'];
-  }
+    /**
+     * @ignore
+     * @return string
+     */
+    private static function __domain() : string
+    {
+        if (!is_array(self::$_parts)) {
+            self::$_parts = parse_url(CMS_ROOT_URL);
+        }
+        if (!isset(self::$_parts['host']) || self::$_parts['host'] == '') {
+            self::$_parts['host'] = CMS_ROOT_URL;
+        }
+        return self::$_parts['host'];
+    }
 
-
-  /**
-   * @ignore
-   * @param mixed $key string|null
-   * @param mixed $value string|null
-   * @param int $expire
-   */
-  private static function __setcookie($key,$value,int $expire)
-  {
-    $res = setcookie($key,$value,$expire,
+    /**
+     * @ignore
+     * @param string $key
+     * @param string $value
+     * @param int $expire
+     * @return bool indicating success
+     */
+    private static function __setcookie(string $key, string $value, int $expire) : bool
+    {
+        $res = setcookie($key,$value,$expire,
                      self::__path(),
                      self::__domain(),
-                     App::get_instance()->is_https_request(),
-                     TRUE);
-  }
+                     AppSingle::App()->is_https_request(),
+                     true);
+        return $res;
+    }
 
+    /**
+     * Set a cookie
+     *
+     * @param string $key The cookie name
+     * @param string $value The cookie value
+     * @param int    $expire *NIX timestamp of the time the cookie will expire.
+     *  By default, cookies that expire when the browser closes will be created.
+     * @return bool indicating success
+     */
+    public static function set(string $key, string $value, int $expire = 0) : bool
+    {
+        return self::__setcookie($key, $value, $expire);
+    }
 
-  /**
-   * Set a cookie
-   *
-   * @param string $key The cookie name
-   * @param string $value The cookie value
-   * @param int    $expire Unix timestamp of the time the cookie will expire.   By default cookies that expire when the browser closes will be created.
-   * @return bool
-   */
-  public static function set($key,$value,$expire = 0)
-  {
-    return self::__setcookie($key,$value,$expire);
-  }
+    /**
+     * Get the value of a cookie
+     *
+     * @param string $key The cookie name
+     * @return mixed NULL if the cookie does not exist, otherwise a string containing the cookie value.
+     */
+    public static function get(string $key)
+    {
+        if (isset($_COOKIE[$key])) {
+            return $_COOKIE[$key];
+        }
+    }
 
+    /**
+     * Test whether a cookie exists
+     *
+     * @since 1.11
+     * @param string $key The cookie name.
+     * @return bool
+     */
+    public static function exists(string $key) : bool
+    {
+        return isset($_COOKIE[$key]);
+    }
 
-  /**
-   * Get the value of a cookie
-   *
-   * @param string $key The cookie name
-   * @return mixed.  Null if the cookie does not exist, otherwise a string containing the cookie value.
-   */
-  public static function get($key)
-  {
-    if( isset($_COOKIE[$key]) ) return $_COOKIE[$key];
-  }
-
-
-  /**
-   * Test if a cookie exists.
-   *
-   * @since 1.11
-   * @param string $key The cookie name.
-   * @return bool
-   */
-  public static function exists($key)
-  {
-      return isset($_COOKIE[$key]);
-  }
-
-
-  /**
-   * Erase a cookie
-   *
-   * @param string $key The cookie name
-   */
-  public static function erase($key)
-  {
-    unset($_COOKIE[$key]);
-    self::__setcookie($key,null,time()-3600);
-  }
-
+    /**
+     * Erase a cookie
+     *
+     * @param string $key The cookie name
+     */
+    public static function erase(string $key)
+    {
+        unset($_COOKIE[$key]);
+        self::__setcookie($key, '', 1);
+    }
 } // class
+
+\class_alias(Cookies::class, 'cms_cookies', false);
