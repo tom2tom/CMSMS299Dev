@@ -16,44 +16,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CmsJobManager\JobQueue;
 use CmsJobManager\Utils as ManagerUtils;
-use CMSMS\Async\AsyncJobManager;
 use CMSMS\Async\Job;
-use CMSMS\Async\RegularTask;
 use CMSMS\CoreCapabilities;
-use CMSMS\ModuleOperations;
-use CMSMS\Utils;
+use CMSMS\HookOperations;
 
-final class CmsJobManager extends CMSModule implements AsyncJobManager
+final class CmsJobManager extends CMSModule //DEBUG implements AsyncJobManager
 {
     const LOCKPREF = 'lock';
-    const ASYNCFREQ_PREF = 'asyncfreq';
     const MANAGE_JOBS = 'Manage Jobs';
     const EVT_ONFAILEDJOB = 'OnJobFailed';
     const TABLE_NAME = CMS_DB_PREFIX.'mod_cmsjobmgr';
 
     private $_current_job;
     private $_lock;
+//    private $ASYNCLOG = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'debug.log';
 
-/*  public function __construct()
-    {
-        parent::__construct();
-// why would this essentially-async module be a plugin ? anyway, ignored with lazy-loading. Just to force-load module each session ?
-//        $this->RegisterModulePlugin();
-    }
-*/
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'siteadmin'; }
     public function GetAuthor() { return 'Robert Campbell'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp() { return $this->Lang('help'); }
-    public function GetVersion() { return '0.3'; }
+    public function GetVersion() { return '0.4'; }
     public function HandlesEvents() { return TRUE; }
     public function HasAdmin() { return TRUE; }
+    public function InitializeFrontend() {}
     public function IsAdminOnly()  { return FALSE; }
-//    public function IsPluginModule() { return TRUE; } //not actually a plugin, but trigger module load ??
+//    public function IsPluginModule() { return FALSE; }
 //    public function LazyLoadAdmin() { return TRUE; }
 //    public function LazyLoadFrontend() { return TRUE; }
     public function MinimumCMSVersion() { return '2.1.99'; }
@@ -66,6 +56,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
 //          case CoreCapabilities::PLUGIN_MODULE:
 //          case CoreCapabilities::TASKS:
             case CoreCapabilities::JOBS_MODULE:
+            case CoreCapabilities::SITE_SETTINGS:
                 return TRUE;
             default:
                 return FALSE;
@@ -79,17 +70,34 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
                 case 'ModuleInstalled':
                 case 'ModuleUninstalled':
                 case 'ModuleUpgraded':
-                    $this->check_for_jobs_or_tasks(TRUE);
+                    $this->refresh_jobs();
             }
         }
         parent::DoEvent($originator, $eventname, $params);
     }
 
-/*    public function InitializeFrontend()
-   {
-//2.3 does nothing        $this->RestrictUnknownParams();
+    public function InitializeAdmin()
+    {
+        HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
     }
-*/
+
+    /**
+     * Hook function to populate 'centralised' site settings UI
+     * @internal
+     * @since 2.9
+     * @return array
+     */
+    public function ExtraSiteSettings()
+    {
+        //TODO check permission local or Site Prefs
+        return [
+         'title'=> $this->Lang('settings_title'),
+         //'desc'=> 'useful text goes here', // optional useful text
+         'url'=> $this->create_url('m1_','defaultadmin','',['activetab'=>'settings']), // if permitted
+         //optional 'text' => custom link-text | explanation e.g need permission
+        ];
+    }
+
     public function GetEventHelp($name)
     {
         return $this->Lang('evthelp_'.$name);
@@ -143,117 +151,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
         $this->RemovePreference(self::LOCKPREF);
     }
 
-    /**
-     * 'deep' checks occur upon:
-     * any module change (per $this->DoEvent())
-     * any system upgrade - TODO initiated how ?
-     * 12-hourly signature-check of <root>/lib/tasks dir (per WatchTasks task)
-     * @param bool $deep
-     * @return boolean whether an update was done
-     */
-    protected function check_for_jobs_or_tasks(bool $deep)
-    {
-        if (!$deep) {
-            // this is cheaper
-            if (JobQueue::get_jobs(TRUE)) {
-                return TRUE;
-            }
-            $deep = TRUE;
-        }
-
-        // maybe check for tasks, which is more expensive
-        if ($deep) {
-            if ($this->create_jobs_from_eligible_tasks()) {
-                return TRUE;
-            }
-        } else {
-            $now = time();
-            $lastcheck = (int) $this->GetPreference('last_check');
-            if ($lastcheck < $now - 900) {
-                $this->SetPreference('last_check',$now);
-                if ($this->create_jobs_from_eligible_tasks()) {
-                    return TRUE;
-                }
-            }
-        }
-        audit('','CmsJobManager','Found nothing to do');
-        return FALSE;
-    }
-
-    /**
-     * Create jobs from task-objects that need to be executed.
-     *
-     * @return bool
-     */
-    protected function create_jobs_from_eligible_tasks() : bool
-    {
-//        $now = time();
-        $res = FALSE;
-
-        // 1.  Get task objects from files in the tasks folder
-        // fairly expensive to iterate a directory and load files and create objects.
-        $patn = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'tasks'.DIRECTORY_SEPARATOR.'class.*.task.php';
-        $files = glob($patn);
-        foreach ($files as $p) {
-            $tmp = explode('.',basename($p));
-            if (count($tmp) == 4) { //this could reasonably be omitted
-                require_once $p;
-                $classname = $tmp[1].'Task';
-                $obj = new $classname();
-                if ($obj instanceof Job) {
-                    if ($this->load_job($obj)) {
-                        $res = TRUE;
-                    } else {
-                        throw new Exception('Failed to record job:'.$job->name);
-                    }
-                } elseif ($obj instanceof CmsRegularTask) {
-                    $job = new RegularTask($obj);
-                    if ($this->load_job($job)) {
-                        $res = TRUE;
-                    } else {
-                        throw new Exception('Failed to record job: '.$job->name);
-                    }
-                }
-            }
-        }
-
-        // 2.  Get task objects from modules
-        $modops = ModuleOperations::get_instance();
-        $modules = $modops->GetMethodicModules('get_tasks',TRUE);
-        if (!$modules) return $res;
-        foreach ($modules as $one) {
-            $modinst = $modops->get_module_instance($one);
-            $tasks = $modinst->get_tasks();
-            if (!$tasks) {
-                continue;
-            }
-            if (!is_array($tasks)) $tasks = [$tasks];
-
-            foreach ($tasks as $obj) {
-                if ($obj instanceof Job) {
-                    if ($this->load_job($obj)) {
-                        $res = TRUE;
-                    } else {
-                        throw new Exception('Failed to record job:'.$job->name);
-                    }
-                } elseif ($obj instanceof CmsRegularTask) {
-                    $job = new RegularTask($obj);
-                    $job->module = $one;
-                    if ($this->load_job($job)) {
-                        $res = TRUE;
-                    } else {
-                        throw new Exception('Failed to record job: '.$job->name);
-                    }
-                } elseif (is_file($obj)) {
-                //TODO also support task(s) reported as class-file path
-                }
-            }
-        }
-
-        return $res;
-    }
-
-    // JobManager interface stuff - maybe into a relevant class or trait?
+    // JobManager interface stuff
 
     /**
      * Load jobs for the specified module
@@ -261,24 +159,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      */
     public function load_jobs_by_module($module)
     {
-        if (!is_object($module)) $module = Utils::get_module($module);
-        if (!method_exists($module,'get_tasks')) return;
-
-        $tasks = $module->get_tasks();
-        if (!$tasks) return;
-        if (!is_array($tasks)) $tasks = [$tasks];
-
-        foreach ($tasks as $obj) {
-            if ($obj instanceof Job) {
-                $this->load_job($obj);
-            } elseif ($obj instanceof CmsRegularTask) {
-                $job = new RegularTask($obj);
-                $job->module = $module->GetName();
-                $this->load_job($job);
-            } elseif (is_file($obj)) {
-            //TODO also support task(s) reported as class-file path
-            }
-        }
+        ManagerUtils::load_jobs_by_module($module);
     }
 
     /**
@@ -289,17 +170,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      */
     public function load_job_by_id(int $job_id)
     {
-        $job_id = (int) $job_id;
-        if ($job_id < 1) throw new InvalidArgumentException('Invalid job_id passed to '.__METHOD__);
-
-        $db = $this->GetDb();
-        $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE id = ?';
-        $row = $db->GetRow($sql, [ $job_id]);
-        if (!$row) return;
-
-        $obj = unserialize($row['data']); //, ['allowed_classes'=>['CMSMS\\Async\\Job']]);
-        $obj->set_id($row['id']);
-        return $obj;
+        return ManagerUtils::load_job_by_id($job_id);
     }
 
     /**
@@ -310,49 +181,18 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      * @param Job $job
      * @return mixed bool or int job id
      */
-    public function load_job(Job $job) : int
+    public function load_job(Job $job)
     {
-        if (ManagerUtils::job_recurs($job)) {
-            $recurs = $job->frequency;
-            $until = $job->until;
-        } else {
-            $recurs = $until = null;
-        }
-
-        $db = $this->GetDb();
-        if (!$job->id) {
-            $sql = 'SELECT id FROM '.self::TABLE_NAME.' WHERE name = ? AND module = ?';
-            $dbr = $db->GetOne($sql,[$job->name,$job->module]);
-            if ($dbr) {
-                $sql = 'UPDATE '.self::TABLE_NAME.' SET start = ? WHERE id = ?';
-                $db->Execute($sql,[$job->start,$dbr]);
-                return $dbr;
-            }
-            //TODO consider merits of DT field for created etc
-            $sql = 'INSERT INTO '.self::TABLE_NAME.' (name,created,module,errors,start,recurs,until,data) VALUES (?,?,?,?,?,?,?,?)';
-            $dbr = $db->Execute($sql,[$job->name,$job->created,$job->module,$job->errors,$job->start,$recurs,$until,serialize($job)]);
-            $new_id = $db->Insert_ID();
-            try {
-                $job->set_id($new_id);
-                return $new_id;
-            } catch (LogicException $e) {
-                return 0;
-            }
-        } else {
-            // note... we do not at any time play with the module, the data, or recurs/until stuff for existing jobs.
-            $sql = 'UPDATE '.self::TABLE_NAME.' SET start = ? WHERE id = ?';
-            $db->Execute($sql,[$job->start,$job->id]);
-            return $job->id;
-        }
+        return ManagerUtils::load_job($job);
     }
 
     /**
      * An alias for the load_job method
      * @param Job $job
      */
-    public function save_job(Job $job)
+    public function save_job(Job &$job)
     {
-        return $this->load_job($job);
+        return ManagerUtils::load_job($job);
     }
 
     /**
@@ -362,10 +202,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      */
     public function unload_job(Job $job)
     {
-        if (!$job->id) throw new BadMethodCallException('Cannot delete a job that has no id');
-        $db = $this->GetDb();
-        $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id = ?';
-        $db->Execute($sql,[$job->id]);
+        ManagerUtils::unload_job($job);
     }
 
     /**
@@ -374,7 +211,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      */
     public function delete_job(Job $job)
     {
-        $this->unload_job($job);
+        ManagerUtils::unload_job($job);
     }
 
     /**
@@ -384,12 +221,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      */
     public function unload_job_by_id(int $job_id)
     {
-        $job_id = (int) $job_id;
-        if ($job_id < 1) throw new InvalidArgumentException('Invalid job_id passed to '.__METHOD__);
-
-        $db = $this->GetDb();
-        $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id = ?';
-        $db->Execute($sql,[$job_id]);
+        ManagerUtils::unload_job_by_id($job_id);
     }
 
     /**
@@ -400,13 +232,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      */
     public function unload_job_by_name(string $module_name, string $job_name)
     {
-        $db = $this->GetDb();
-        $sql = 'SELECT id FROM '.self::TABLE_NAME.' WHERE name = ? AND module = ?';
-        $job_id = $db->GetOne($sql,[$job_name, $module_name]);
-        if (!$job_id) throw new InvalidArgumentException('Invalid identifier(s) passed to '.__METHOD__);
-
-        $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id = ?';
-        $db->Execute($sql,[$job_id]);
+        ManagerUtils::unload_job_by_name($module_name, $job_name);
     }
 
     /**
@@ -416,12 +242,7 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      */
     public function unload_jobs_by_module(string $module_name)
     {
-        $module_name = trim($module_name);
-        if (!$module_name) throw new InvalidArgumentException('Invalid module name passed to '.__METHOD__);
-
-        $db = $this->GetDb();
-        $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE module = ?';
-        $db->Execute($sql,[$module_name]);
+        ManagerUtils::unload_jobs_by_module($module_name);
     }
 
     /**
@@ -430,15 +251,15 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      */
     public function delete_jobs_by_module(string $module_name)
     {
-        $this->unload_jobs_by_module($module_name);
+        ManagerUtils::unload_jobs_by_module($module_name);
     }
 
     /**
-     * Regenerate the tasks database
+     * Regenerate the tasks-cache database
      */
     public function refresh_jobs()
     {
-        $this->create_jobs_from_eligible_tasks();
+        ManagerUtils::refresh_jobs();
     }
 
     /**
@@ -446,131 +267,90 @@ final class CmsJobManager extends CMSModule implements AsyncJobManager
      */
     public function begin_async_processing()
     {
+        static $_returnid = -1;
+
         // if this module is disabled (but running anyway i.e. pre-hooklist) - do nothing
         if (!$this->GetPreference('enabled')) {
             return;
         }
 
-        global $params; //stupid when run from a hook
-
-        if (defined('ASYNCLOG')) {
-            error_log('trigger_async_processing: $params: '.print_r($params, true)."\n", 3, ASYNCLOG);
-        }
-
+//      error_log('trigger_async_processing @start'."\n", 3, $this->ASYNCLOG);
+        $id = 'aj_'; //custom id for this operation
         // if we're processing a prior job-manager request - do nothing
-        if (isset($params['cms_jobman'])) {
-
-            if (defined('ASYNCLOG')) {
-                error_log('prior job detected: prevent reentrance'."\n", 3, ASYNCLOG);
-            }
-
-            return; // no re-entrance
-        }
-
-        // if we're not yet ready to re-trigger - do nothing
-        $last_trigger = (int) $this->GetPreference('last_processing');
-        $now = time();
-        $gap = (int)$this->GetPreference('jobinterval',1);
-        if ($last_trigger >= $now - $gap * 60) {
-
-            if (defined('ASYNCLOG')) {
-                error_log('check again later'."\n", 3, ASYNCLOG);
-            }
-
+        if( isset($_REQUEST[$id.'cms_jobman']) ) {
+//            error_log('jobman module: abort re-entry'."\n", 3, $this->ASYNCLOG);
             return;
         }
 
-        //profiler indicates this check is very trivial, even with deep scans
-        if (!$this->check_for_jobs_or_tasks(true)) {
-
-            if (defined('ASYNCLOG')) {
-                error_log('no current job'."\n", 3, ASYNCLOG);
-            }
-
-            return; // nothing to do
-/*        } else {
-            if (defined('ASYNCLOG')) {
-                error_log('trigger_async_processing @4'."\n", 3, ASYNCLOG);
-            }
-*/
+        // ensure this method only operates once-per-request
+        if( $_returnid !== -1 ) {
+//            error_log('jobman module: abort no repeat during request'."\n", 3, $this->ASYNCLOG);
+            return;
         }
-
+/* DEBUG sync operation
+        $params = ['cms_jobman' => 1];
+        $gCms = cmsms();
+        include_once __DIR__.DIRECTORY_SEPARATOR.'action.process.php';
+        return;
+*/
         $joburl = $this->GetPreference('joburl');
         if (!$joburl) {
             $joburl = $this->create_url('aj_','process', '', ['cms_jobman'=>1]) . '&'.CMS_JOB_KEY.'=2';
         }
         $joburl = str_replace('&amp;', '&', $joburl);  //fix needed for direct use ??
 
-        if (defined('ASYNCLOG')) {
-            error_log('async job url: '.$joburl."\n", 3, ASYNCLOG);
-        }
-
         list($host, $path, $transport, $port) = $this->get_url_params($joburl);
-        if (!$host) {
-            if (defined('ASYNCLOG')) {
-                error_log('bad async-job url: '.$joburl."\n", 3, ASYNCLOG);
-            }
-            return;
-        }
-        if (defined('ASYNCLOG')) {
-            error_log('host: '.$host."\n", 3, ASYNCLOG);
-            error_log('path: '.$path."\n", 3, ASYNCLOG);
-            error_log('transport: '.$transport."\n", 3, ASYNCLOG);
-            error_log('port: '.$port."\n", 3, ASYNCLOG);
-        }
+/* DEBUG sync operation
+        $root = CMS_ROOT_URL;
+        $p = strpos($root, $host);
+        $urlroot = substr($root, 0, $p+strlen($host));
+        redirect($urlroot.$path);
+*/
+//        error_log('trigger_async_processing path '.$path."\n", 3, $this->ASYNCLOG);
 
         $remote = $transport.'://'.$host.':'.$port;
-        //TODO generally support the websocket protocol 'wss' : 'ws'
-        $opts = ['http' => ['method' => 'POST']];
-        if ($transport != 'tcp') {
-            //internal-use only, can skip verification
-            $opts['ssl'] = [
-//              'allow_self_signed' => TRUE,
-                'verify_host' => FALSE,
-                'verify_peer' => FALSE,
+        if ($transport == 'tcp') {
+            $context = stream_context_create();
+        } else {
+            //internal-use only, skip verification
+            $opts = [
+            'ssl' => [
+//              'allow_self_signed' => true,
+                'verify_host' => false,
+                'verify_peer' => false,
+             ],
+            'tls' => [
+//              'allow_self_signed' => true,
+                'verify_host' => false,
+                'verify_peer' => false,
+             ]
             ];
+            $context = stream_context_create($opts); //, $params);
         }
-        $context = stream_context_create($opts); //, $params);
 
         $res = stream_socket_client($remote, $errno, $errstr, 1, STREAM_CLIENT_ASYNC_CONNECT, $context);
         if ($res) {
-            if (defined('ASYNCLOG')) {
-                error_log('stream-socket client created: '.$remote."\n", 3, ASYNCLOG);
-            }
+//            error_log('jobman module: open stream '.$remote."\n", 3, $this->ASYNCLOG);
             $req = "GET $path HTTP/1.1\r\nHost: {$host}\r\nContent-type: text/plain\r\nContent-length: 0\r\nConnection: Close\r\n\r\n";
             fputs($res, $req);
-            if (defined('ASYNCLOG')) {
-                error_log('stream-socket sent: '.$req."\n", 3, ASYNCLOG);
-            }
-
+//            error_log('stream-socket sent: '.$req."\n", 3, $this->ASYNCLOG);
             stream_socket_shutdown($res, STREAM_SHUT_RDWR);
-
-            if ($errno == 0) {
-                $this->SetPreference('last_processing',$now+1);
+            if ($errno ==  0) {
                 return;
-            }
+            } //else {
+//              error_log('stream-socket client failure: '.$remote."\n", 3, $this->ASYNCLOG);
+//            }
+        }
+
+        if ($errno > 0) {
+//            error_log('stream-socket error: '.$errstr."\n", 3, $this->ASYNCLOG);
+            debug_to_log($this->GetName().': stream-socket error: '.$errstr);
         } else {
-            if (defined('ASYNCLOG')) {
-                error_log('stream-socket client failure: '.$remote."\n", 3, ASYNCLOG);
-            }
+//            error_log('stream-socket error: connection failure'."\n", 3, $this->ASYNCLOG);
+            debug_to_log($this->GetName().': stream-socket error: connection failure');
         }
-
-        if (defined('ASYNCLOG')) {
-            if ($errno > 0) {
-                error_log('stream-socket error: '.$errstr."\n", 3, ASYNCLOG);
-            } else {
-                error_log('stream-socket error: connection failure'."\n", 3, ASYNCLOG);
-            }
-        }
-
     }
 
-    /**
-     * Parse $url into parts suitable for stream creation
-     * @since 2.3
-     * @param string $url
-     * @return array
-     */
     protected function get_url_params(string $url) : array
     {
         $urlparts = parse_url($url);
