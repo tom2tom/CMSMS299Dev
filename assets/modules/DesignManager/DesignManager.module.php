@@ -43,15 +43,14 @@ final class DesignManager extends CMSModule
     {
         $out = '';
         $urlpath = $this->GetModuleURLPath();
-
         $fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
         $cssfiles = [
         'css/module.css',
         ];
         foreach( $cssfiles as $one ) {
-            $out .= sprintf($fmt,$urlpath,$one)."\n";
+            $out .= sprintf($fmt,$urlpath,$one).PHP_EOL;
         }
-        return $out;
+        add_page_headtext($out, false);
     }
 
     public function GetAdminMenuItems()

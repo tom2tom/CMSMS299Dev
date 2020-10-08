@@ -90,15 +90,14 @@ final class CMSContentManager extends CMSModule
     {
         $out = '';
         $urlpath = $this->GetModuleURLPath();
-
         $fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
         $cssfiles = [
         'css/module.css',
         ];
         foreach( $cssfiles as $one ) {
-            $out .= sprintf($fmt,$urlpath,$one)."\n";
+            $out .= sprintf($fmt,$urlpath,$one).PHP_EOL;
         }
-        return $out;
+        add_page_headtext($out, false);
     }
 
     public function GetAdminMenuItems()
@@ -127,49 +126,49 @@ final class CMSContentManager extends CMSModule
 
     public function GetContentEditor($page_id)
     {
-		if( $page_id < 1 ) {
-			//TODO create new object
-			return null;
-		}
+        if( $page_id < 1 ) {
+            //TODO create new object
+            return null;
+        }
 
         $db = cmsms()->GetDb();
         $params = $db->GetRow('SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id=?',[$page_id]);
-		if( $params ) {
-			switch( $params['type'] ) {
-				case 'content':
-				case 'Content':
-					$type = 'Content';
-					break;
-				case 'errorpage':
-				case 'ErrorPage':
-					$type = 'ErrorPage';
-					break;
-				case 'link':
-				case 'Link':
-					$type = 'Link';
-					break;
-				case 'pagelink':
-				case 'PageLink':
-					$type = 'PageLink';
-					break;
-				case 'sectionheader':
-				case 'SectionHeader':
-					$type = 'SectionHeader';
-					break;
-				case 'separator':
-				case 'Separator':
-					$type = 'Separator';
-					break;
-				default:
-					$type = null;
-					break;
-			}
-			if( $type ) {
-	            $classname = 'CMSContentManager\\contenttypes\\'.$type;
-		        return new $classname($params);
-			} else {
-				//TODO API needed to retrieve one of these
-			}
+        if( $params ) {
+            switch( $params['type'] ) {
+                case 'content':
+                case 'Content':
+                    $type = 'Content';
+                    break;
+                case 'errorpage':
+                case 'ErrorPage':
+                    $type = 'ErrorPage';
+                    break;
+                case 'link':
+                case 'Link':
+                    $type = 'Link';
+                    break;
+                case 'pagelink':
+                case 'PageLink':
+                    $type = 'PageLink';
+                    break;
+                case 'sectionheader':
+                case 'SectionHeader':
+                    $type = 'SectionHeader';
+                    break;
+                case 'separator':
+                case 'Separator':
+                    $type = 'Separator';
+                    break;
+                default:
+                    $type = null;
+                    break;
+            }
+            if( $type ) {
+                $classname = 'CMSContentManager\\contenttypes\\'.$type;
+                return new $classname($params);
+            } else {
+                //TODO API needed to retrieve one of these
+            }
         }
         return null;
     }
