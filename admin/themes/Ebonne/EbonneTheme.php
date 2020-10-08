@@ -28,6 +28,7 @@ use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
+use CMSMS\StylesMerger;
 use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -82,15 +83,26 @@ class EbonneTheme extends AdminTheme
 				$fn .= '-rtl';
 			}
 		}
-//		$csm = new StylesMerger();
-//		$csm->queue_matchedile('normalize.css', 1);
-//		$csm->queue_matchedile('flex-grid-lite.css', 2);
-//		$csm->queue_matchedile('grid-960.css', 2);
 		$incs = cms_installed_jquery(true, true, true, true);
 		$url = cms_path_to_url($incs['jquicss']);
+		// css files which include relative paths/urls cannot be relocated
+		$csm = new StylesMerger();
+		$csm->queue_matchedfile('normalize.css', 1);
+		$csm->queue_matchedfile('flex-grid-lite.css', 2);
+//		$csm->queue_matchedfile('grid-960.css', 2);
+
 		$out = <<<EOS
 <link rel="stylesheet" type="text/css" href="{$url}" />
+
+EOS;
+		$out .= $csm->page_content();
+		$out .= <<<EOS
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
+
+EOS;
+		//DEBUG
+		$out .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$rel_url}/css/superfishnav.css" />
 
 EOS;
 		if (is_file(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
@@ -109,9 +121,14 @@ EOS;
 		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
 //		$jsm->queue_matchedfile('jquery.cmsms_admin.js', 2); N/A
 //		$jsm->queue_file($p.'jquery.cmsms_admin.js', 2);
-		$jsm->queue_file($p.'jquery.cmsms_admin.min.js', 2);
+//		$jsm->queue_file($p.'jquery.cmsms_admin.min.js', 2);
 	    $out .= $jsm->page_content('', false, false);
+		//DEBUG
+		$u = $config['root_url'];
+		$out .= <<<EOS
+<script type="text/javascript" src="{$u}/lib/js/jquery.cmsms_admin.js"></script>
 
+EOS;
 		$jsm->reset();
 		$jsm->queue_matchedfile('jquery.ui.touch-punch.js', 1); //OR .min for production
 		$jsm->queue_matchedfile('jquery.toast.min.js', 1);
@@ -121,13 +138,16 @@ EOS;
 //		$jsm->queue_file($p.'jquery.alertable.js', 2);
 		$jsm->queue_file($p.'jquery.alertable.min.js', 2); // for production
 //		$jsm->queue_file($p.'standard.js', 3);
-		$jsm->queue_file($p.'standard.min.js', 3); // for production
+//		$jsm->queue_matchedfile('standard.js', 3, $p); // for production
 	    $out .= $jsm->page_content();
+		//DEBUG
+		$out .= <<<EOS
+<script type="text/javascript" src="{$rel_url}/js/standard.js"></script>
 
+EOS;
 		$add_list[] = $out;
 //      $vars[] = anything needed ?;
-
-		return [$vars, $add_list];
+		return [[], $add_list];
 	}
 
 	/**
@@ -168,10 +188,6 @@ EOS;
 		$url = AppParams::get('site_help_url');
 		if ($url) {
 			$smarty->assign('site_help_url', $url);
-		}
-		// is the website set down for maintenance?
-		if (AppParams::get('site_downnow')) {
-			$smarty->assign('is_sitedown', 1);
 		}
 
 		$otd = $smarty->template_dir;
@@ -268,7 +284,7 @@ EOS;
 			}
 		}
 
-		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
+		$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
 
 		// scripts: jquery, jquery-ui
 		$incs = cms_installed_jquery(true, false, true, false);
@@ -411,9 +427,10 @@ EOS;
 		$smarty->assign('lang_code', $lang)
 		// language direction
 		  ->assign('lang_dir', NlsOperations::get_language_direction());
-		// is the website down for maintenance?
-		if (AppParams::get('site_downnow')) {
-			$smarty->assign('is_sitedown', 1);
+		// custom support-URL?
+		$url = AppParams::get('site_help_url');
+		if ($url) {
+			$smarty->assign('site_help_url', $url);
 		}
 
 		$otd = $smarty->template_dir;
@@ -448,26 +465,23 @@ EOS;
 
 		unset($attrs['width'], $attrs['height']);
 		$extras = array_merge(['class'=>$class, 'alt'=>$alt, 'title'=>''], $attrs);
-		if ($extras['title']) {
-			$title = $extras['title'];
-		} elseif ($extras['alt']) {
-			$title = $extras['alt'];
-		} else {
-			$title = $type;
-		}
-		unset($extras['title']);
-
-		if (!$extras['alt']) {
-			$extras['alt'] = $type;
+		if( !$extras['alt'] ) {
+			if ($extras['title']) {
+				$extras['alt'] = $extras['title'];
+			} else {
+				$extras['alt'] = $type;
+			}
 		}
 
 		$res = '<svg';
 		foreach ($extras as $key => $value) {
-			if ($value !== '') {
+			if ($value !== '' && $key != 'title') {
 				$res .= " $key=\"$value\"";
 			}
 		}
-		$res .= ">\n<title>$title</title>\n<use xlink:href=\"themes/Ebonne/images/icons/system/sprite.svg#{$type}\"/>\n</svg>";
+		$res .= '>'.PHP_EOL;
+		if ($extras['title']) $res .= "<title>{$extras['title']}</title>".PHP_EOL;
+		$res .= "<use xlink:href=\"themes/Ebonne/images/icons/system/sprite.svg#{$type}\"/>\n</svg>";
 		return $res;
 	}
 }
