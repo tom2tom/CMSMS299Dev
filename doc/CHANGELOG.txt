@@ -33,8 +33,8 @@ jQuery 2.2.4 (effective upgrades from 1.x to the current 3.x need to be in two s
 jQuery migrate 1.4.1
 jQuery-UI & jQuery-UI-css 1.12.1
 support-js (cookies, sortable, uploads etc) latest releases as of 1/9/2018
-Smarty 3.1.34
-phpmailer 6.1.5
+Smarty 3.1.36
+phpmailer 6.1.7
 TinyMCE (MicroTiny module) 4.9.5
 
 CONFIG PARAMETERS
