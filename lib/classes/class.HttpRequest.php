@@ -765,7 +765,7 @@ class HttpRequest
                 }
             }
 
-            $cookieString = join('&', $tempString);
+            $cookieString = implode('&', $tempString);
         }
 
         // Do we want to use cURL ? If not, we'll use fsockopen
