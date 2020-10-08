@@ -179,14 +179,14 @@ class Crypto
 	}
 
 	/**
-	 * Hash the the provided string
+	 * Hash the the provided string. Not encryption-grade.
 	 * @since 2.9
 	 *
 	 * @param string $raw the string to be processed, may be empty
 	 * @param bool $seeded optional flag whether to seed the hash. Default false (unless $raw is empty)
 	 * @return string (12|13 alphanum bytes)
 	 */
-	public static function hash_string(string $raw, $seeded = false)
+	public static function hash_string(string $raw, bool $seeded = false)
 	{
 		if ($raw === '' || $seeded) {
 			$seed = '1234';
@@ -196,8 +196,8 @@ class Crypto
 			}
 			$raw = $seed.$raw;
 		}
-		$str = hash('fnv132', $raw);
-		return base_convert($str.$str, 16, 36);
+		$str = hash('fnv1a32', $raw); // 8 hexits
+		return base_convert($str.strrev($str), 16, 36);
 	}
 
 	/**
