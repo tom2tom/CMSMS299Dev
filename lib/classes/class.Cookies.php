@@ -1,5 +1,5 @@
 <?php
-# class for working with cookies in CMSMS
+# Cookie operations class
 # Copyright (C) 2015-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -29,8 +29,9 @@ use const CMS_ROOT_URL;
  *
  * @since 2.9
  * @since 1.10 as global-namespace cms_cookies
+ * @deprecated since 2.9 instead use SignedCookieOperations
  */
-final class Cookies
+final class Cookies implements CookieManager
 {
     // static properties here >> StaticProperties class ?
     /**
@@ -140,5 +141,3 @@ final class Cookies
         self::__setcookie($key, '', 1);
     }
 } // class
-
-\class_alias(Cookies::class, 'cms_cookies', false);
