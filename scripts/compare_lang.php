@@ -153,7 +153,7 @@ function load_lang( $filename, &$data, &$out_realm, $in_realm = null )
 
 function output_php_lang( $slave_data, $master_data, $output_master_val )
 {
-    $out = "<?php\n";
+    $out = '<?php'.PHP_EOL;
     foreach( $master_data as $key => $mval ) {
         $key = trim($key);
         if( !$key ) continue;
@@ -165,14 +165,14 @@ function output_php_lang( $slave_data, $master_data, $output_master_val )
         // unescape slashes
         $val = stripslashes($val);
         $val = addslashes($val);
-        $out .= "\$lang['{$key}'] = '{$val}';\n";
+        $out .= "\$lang['{$key}'] = '{$val}';".PHP_EOL;
     }
     return $out;
 }
 
 function output_ini_lang( $slave_data, $master_data, $output_master_val )
 {
-    $out = "[lang]\n";
+    $out = '[lang]'.PHP_EOL;
     foreach( $master_data as $key => $mval ) {
         $key = trim($key);
         if( !$key ) continue;
@@ -184,7 +184,7 @@ function output_ini_lang( $slave_data, $master_data, $output_master_val )
         // unescape slashes
         $val = stripslashes($val);
         $val = addslashes($val);
-        $out .= "$key=\"$val\"\n";
+        $out .= "$key=\"$val\"".PHP_EOL;
     }
     return $out;
 }
@@ -204,7 +204,7 @@ function output_json_lang( $slave_data, $master_data, $output_master_val )
         $val = stripslashes($val);
         $out[$key] = $val;
     }
-    return json_encode( $out, JSON_PRETTY_PRINT )."\n";
+    return json_encode( $out, JSON_PRETTY_PRINT ).PHP_EOL;
 }
 
 function output_csv_lang( $slave_data, $master_data, $output_master_val )
@@ -225,7 +225,7 @@ function output_csv_lang( $slave_data, $master_data, $output_master_val )
         $key = '"'.$key.'"';
         $val = '"'.$val.'"';
         $row = [ $key, $val ];
-        $out .= implode(',',$row)."\n";
+        $out .= implode(',',$row).PHP_EOL;
     }
     return $out;
 }
