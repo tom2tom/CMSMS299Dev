@@ -835,8 +835,8 @@ final class ContentOperations
 	}
 
 	/**
-	 * Convert a friendly hierarchy (1.1.1) to an unfriendly hierarchy
-	 * (00001.00001.00001) for use in the database.
+	 * Convert an unfriendly hierarchy (00001.00001.00001) to a
+	 * friendly hierarchy (1.1.1) for use in the database.
 	 *
 	 * @param string $position The hierarchy position to convert
 	 * @return string The unfriendly version of the hierarchy string
@@ -854,8 +854,8 @@ final class ContentOperations
 	}
 
 	/**
-	 * Convert an unfriendly hierarchy (00001.00001.00001) to a 
-	 * friendly hierarchy (1.1.1) for use in the database.
+	 * Convert a friendly hierarchy (1.1.1) to an unfriendly hierarchy
+	 * (00001.00001.00001) for use in the database.
 	 *
 	 * @param string $position The hierarchy position to convert
 	 * @return string The friendly version of the hierarchy string
