@@ -230,6 +230,7 @@ $lang = [
 'date' => 'Date',
 'day' => 'day',
 'days' => 'days',
+'days_counted' => '%s days',
 'default_charset' => 'Is the default character-endoding UTF-8',
 'default_contenttype' => 'Default Content Type',
 'default_editor' => 'Default Editor',
@@ -346,6 +347,7 @@ $lang = [
 'errordirectorynotwritable' => 'No permission to write in directory.  This could be caused by file permissions and ownership.  Safe mode might also be in effect.',
 'errorfilenotwritable' => 'No permission to write to file \'%s\'.',
 'errorgroupexists' => 'A group named \'%s\' already exists',
+'errorinsertingbookmark' => 'Error inserting bookmark',
 'errorinsertinggroup' => 'Error inserting group',
 'errorinsertinguser' => 'Error inserting user',
 'errormodulenotfound' => 'Internal error, could not find the instance of a module',
@@ -355,6 +357,7 @@ $lang = [
 'errornofilesexported' => 'Error exporting files to XML',
 'errorsendingemail' => 'There was an error sending the email.  Contact your administrator.',
 'errorupdatetemplateallpages' => 'Template is not active',
+'errorupdatingbookmark' => 'Error updating bookmark',
 'errorupdatinggroup' => 'Error updating group',
 'errorupdatingpages' => 'Error updating pages',
 'errorupdatingtemplate' => 'Error updating template',
@@ -892,6 +895,7 @@ $lang = [
 'firstname' => 'First Name',
 'forge' => 'Forge',
 'forgotpwprompt' => 'Enter your admin username.  After submitting, an email containing new login information will be sent to the address associated with the entered username.',
+'forgotpwtitle' => 'Recover login credentials for<br />%s',
 'forums' => 'Forums',
 'frontendlang' => 'Default Language',
 'frontendwysiwyg' => 'Rich-Text-Editor for Frontend Use',
@@ -1055,16 +1059,16 @@ $lang = [
 'lostpw' => 'Forgot your password?',
 'lostpwemail' => '
 <h3>Hello</h3>
-<p>You are receiving this e-mail because a request has been made to change the (%s) password associated with this user account (%s).  If you would like to reset the password for this account simply click on the recovery link below or paste it into the URL field on your favorite browser:</p>
-<p><a href="%s">%s</a></p>
-<p>If you feel this is incorrect or made in error, simply ignore the email and nothing will change.</p>',
+<p>You have received this e-mail because a request has been made to change the (%s) password associated with a website user account (%s).  If you would like to reset the password for this account, paste the recovery link (below) into the URL field of your web browser.</p>
+<p>%s</p>
+<p>If you consider this is incorrect or made in error, simply ignore this email and nothing will change.</p>',
 'lostpwemailsubject' => '[%s] Password Recovery',
 
 // M
-'magic_quotes_gpc_on' => 'Single-quote, double quote and backslash are escaped automatically. You can experience problems when saving templates',
-'magic_quotes_gpc' => 'Magic quotes for Get/Post/Cookie',
-'magic_quotes_runtime_on' => 'Most functions that return data will have quotes escaped with a backslash. You can experience problems',
-'magic_quotes_runtime' => 'Magic quotes in runtime',
+//N/A PHP7+'magic_quotes_gpc_on' => 'Single-quote, double quote and backslash are escaped automatically. You can experience problems when saving templates',
+//'magic_quotes_gpc' => 'Magic quotes for Get/Post/Cookie',
+//'magic_quotes_runtime_on' => 'Most functions that return data will have quotes escaped with a backslash. You can experience problems',
+//'magic_quotes_runtime' => 'Magic quotes in runtime',
 'mail_settings' => 'Email',
 'mail_testbody' => '<h2 style=&quot;color: green;&quot;>Greetings</h2><p>You are receiving this message from an installation of <strong>CMS Made Simple</strong>.  This message is proving the validity of the settings used for sending email messages.   If you are reading this message, then everything appears to be working fine.  However, if you did not solicit this email from a CMS Made Simple admin console, please contact the website administrator.</p>',
 'mail_testsubject' => 'CMSMS Mail Test message',
@@ -1127,6 +1131,7 @@ $lang = [
 'moduleuninstallmessage' => 'Uninstall Message for %s Module',
 'moduleupgraded' => 'Upgrade Successful',
 'moduleupgradeerror' => 'There was an error upgrading the module.',
+'months_counted' => '%s months',
 'move' => 'Move',
 'movecontent' => 'Move Pages',
 'msg_default_charset' => 'The site default character-encoding is %s. A value other than UTF-8 may cause content problems.  Use at your own risk',
@@ -1211,6 +1216,9 @@ $lang = [
 'pages' => 'Pages',
 'pagesdescription' => 'Add and edit site pages and other content',
 'parameters' => 'Parameters',
+'password_level' => 'Security Level',
+'password_settings' => 'Passwords',
+'password_timeout' => 'Replacement Interval',
 'password' => 'Password',
 'passwordagain' => 'Password (again)',
 'passwordchange' => 'Please provide the new password',
@@ -1288,7 +1296,6 @@ $lang = [
 'read' => 'Read',
 'recentpages' => 'Recent Pages',
 'recover_start' => 'Start recovery',
-'recoversitetitle' => 'Recover login credentials for<br />%s',
 'recoveryemailsent' => 'Email sent to recorded address.  Please check your inbox for further instructions.',
 'register_globals' => 'PHP register_globals',
 'remote_connection_timeout' => 'Connection Timed Out!',
@@ -1297,6 +1304,8 @@ $lang = [
 'remote_response_ok' => 'Remote response: OK!',
 'remove_alert' => 'Remove this alert',
 'remove' => 'Remove',
+'renewpwprompt' => 'Your password has expired. Enter and submit a replacement.',
+'renewpwtitle' => 'Renew password for<br />%s',
 'reorder' => 'Reorder',
 'reorderpages' => 'Reorder Pages',
 'reset' => 'Reset',
@@ -1571,6 +1580,8 @@ $lang = [
 'xmlreader_class' => 'Checking for the XMLReader class',
 
 // Y
+'years_1' => '1 year',
+'years_counted' => '%s years',
 'yes' => 'Yes',
 'your_ipaddress' => 'Your IP address is',
 

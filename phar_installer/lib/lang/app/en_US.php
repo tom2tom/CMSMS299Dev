@@ -145,7 +145,7 @@ $lang['fail_func_md5'] = 'md5 functionality was not found';
 $lang['fail_func_tempnam'] = 'The tempnam function does not exist. It is required for CMSMS to function';
 $lang['fail_func_ziparchive'] = 'ZipArchive functionality was not found.  This might limit some modules\' functionality';
 $lang['fail_ini_set'] = 'It appears that we cannot change ini settings. This could cause problems in non-core (independently-developed) modules (or when enabling debug mode)';
-$lang['fail_magic_quotes_runtime'] = 'It appears that magic quotes are enabled in the site configuration. Please disable them and retry';
+//N/A PHP7+  $lang['fail_magic_quotes_runtime'] = 'It appears that magic quotes are enabled in the site configuration. Please disable them and retry';
 $lang['fail_max_execution_time'] = 'The current max execution time (%s) is too low. At least %s is required, and %s or greater is recommend';
 $lang['fail_memory_limit'] = 'The current memory limit value (%s) is too low. At least %s is required, and %s or greater is recommended';
 $lang['fail_multibyte_support'] = 'Multibyte support is not enabled in the site configuration';
@@ -262,7 +262,7 @@ $lang['installer_ver'] = 'Installer Version';
 $lang['legend'] = 'Legend';
 
 // M
-$lang['magic_quotes_runtime'] = 'Magic quotes are disabled ?';
+//N/A PHP7+ $lang['magic_quotes_runtime'] = 'Magic quotes are disabled ?';
 $lang['max_execution_time'] = 'PHP script max execution time is sufficient ?';
 $lang['meaning'] = 'Meaning';
 $lang['memory_limit'] = 'PHP memory limit is sufficient ?';

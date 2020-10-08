@@ -36,7 +36,7 @@ $access = check_permission($userid, 'Modify Site Preferences');
 $themeObject = Utils::get_theme_object();
 
 if (!$access) {
-//TODO some immediate popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
+//TODO some pushed popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
     return;
 }
 $selfurl = basename(__FILE__);
@@ -197,7 +197,7 @@ $tmp[0]['gd_version'] = testGDVersion(0, 'gd_version', $minimum, '', 'min_GD_ver
 
 $tmp[0]['tempnam_function'] = testBoolean(0, 'tempnam_function', function_exists('tempnam'), '', false, false, 'Function_tempnam_disabled');
 
-$tmp[0]['magic_quotes_runtime'] = testBoolean(0, 'magic_quotes_runtime', 'magic_quotes_runtime', lang('magic_quotes_runtime_on'), true, true, 'magic_quotes_runtime_On');
+//N/A PHP7+ $tmp[0]['magic_quotes_runtime'] = testBoolean(0, 'magic_quotes_runtime', 'magic_quotes_runtime', lang('magic_quotes_runtime_on'), true, true, 'magic_quotes_runtime_On');
 $tmp[0]['E_ALL'] = testIntegerMask(0, lang('test_error_eall'), 'error_reporting', E_ALL, lang('test_eall_failed'));
 $tmp[0]['E_STRICT'] = testIntegerMask(0, lang('test_error_estrict'), 'error_reporting', E_STRICT, '', true, true);
 if (defined('E_DEPRECATED')) {

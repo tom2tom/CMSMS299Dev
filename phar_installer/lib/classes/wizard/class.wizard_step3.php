@@ -188,13 +188,13 @@ class wizard_step3 extends wizard_step
         $obj->required = 1;
         $obj->fail_key = 'fail_file_get_contents';
         $tests[] = $obj;
-
+/* N/A PHP7+
         // required test ... magic_quotes_runtime
         $obj = new boolean_test('magic_quotes_runtime',!get_magic_quotes_runtime());
         $obj->required = 1;
         $obj->fail_key = 'fail_magic_quotes_runtime';
         $tests[] = $obj;
-
+*/
         // recommended test ... open basedir
         $obj = new boolean_test('open_basedir',ini_get('open_basedir') == '');
         $obj->warn_key = 'warn_open_basedir';
