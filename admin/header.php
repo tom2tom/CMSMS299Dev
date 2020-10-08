@@ -63,10 +63,10 @@ if (isset($modinst)) {
 	if ($modinst->HasAdmin()) {
 		$txt = $modinst->AdminStyle();
 		if ($txt) {
-			add_page_headtext($txt, false);
+			add_page_headtext('<style>'.PHP_EOL.$txt.PHP_EOL.'</style>'.PHP_EOL, false);
 		}
 	}
-	$txt = $modinst->GetHeaderHTML($action);
+	$txt = $modinst->GetHeaderHTML();
 	if ($txt) {
 		add_page_headtext($txt);
 	}
