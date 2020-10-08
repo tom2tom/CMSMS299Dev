@@ -1,20 +1,20 @@
 <?php
-#FileManager: a module for CMS Made Simple to allow website file placement, viewing etc
-#Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
-#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+# FileManager: a module for CMS Made Simple to allow website file placement, viewing etc
+# Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
+# Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 #
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminMenuItem;
 use CMSMS\App;
@@ -26,7 +26,7 @@ include_once __DIR__.DIRECTORY_SEPARATOR.'fileinfo.php';
 
 final class FileManager extends CMSModule
 {
-	public function AccessAllowed() { return $this->CheckPermission('Modify Files'); }
+    public function AccessAllowed() { return $this->CheckPermission('Modify Files'); }
     public function AdvancedAccessAllowed() { return $this->CheckPermission('Use FileManager Advanced',0); }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'files'; }
@@ -34,15 +34,14 @@ final class FileManager extends CMSModule
     public function GetAuthorEmail() { return 'morten@poulsen.org'; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetDependencies() { return ['FilePicker'=>'1.1']; }
-    public function GetEventDescription($name) { return $this->Lang('eventdesc_'.$name);	}
+    public function GetEventDescription($name) { return $this->Lang('eventdesc_'.$name);    }
     public function GetEventHelp($name) { return $this->Lang('eventhelp_'.$name); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetHeaderHTML() { return $this->_output_header_content(); }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetName() { return 'FileManager'; }
     public function GetVersion() { return '1.7.0'; }
     public function HasAdmin() { return TRUE; }
-	public function HasCapability($capability, $params = []) { return $capability == CoreCapabilities::CORE_MODULE; }
+    public function HasCapability($capability, $params = []) { return $capability == CoreCapabilities::CORE_MODULE; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return TRUE; }
 //    public function LazyLoadFrontend() { return TRUE; }
@@ -204,8 +203,8 @@ final class FileManager extends CMSModule
     protected function Slash($str, $str2='', $str3='')
     {
         $parts=[$str];
-		if($str2 !== '') $parts[]=$str2;
-		if($str3 !== '') $parts[]=$str3;
+        if($str2 !== '') $parts[]=$str2;
+        if($str3 !== '') $parts[]=$str3;
         return cms_join_path(...$parts);
     }
 
@@ -219,20 +218,21 @@ final class FileManager extends CMSModule
         return str_replace(['\\','//'], ['/','/'], $url);
     }
 
-    protected function _output_header_content()
+    public function GetHeaderHTML()
     {
         $out='';
         $urlpath=$this->GetModuleURLPath();
-
         $fmt='<link rel="stylesheet" type="text/css" href="%s/lib/%s" />';
         $cssfiles = [
         'css/filemanager.css',
         'js/jrac/style.jrac.min.css'
         ];
         foreach ($cssfiles as $one) {
-            $out .= sprintf($fmt, $urlpath, $one)."\n";
+            $out .= sprintf($fmt, $urlpath, $one).PHP_EOL;
         }
+        add_page_headtext($out, false);
 
+        $out = '';
         $fmt = '<script type="text/javascript" src="%s/lib/js/%s"></script>';
         //needed if global jq-ui not loaded 'jquery-file-upload/jquery.ui.widget.min.js',
         $jsfiles = [
@@ -241,12 +241,10 @@ final class FileManager extends CMSModule
         'jqueryrotate/jQueryRotate.min.js',
         'jrac/jquery.jrac.min.js',
         ];
-
         foreach ($jsfiles as $one) {
-            $out .= sprintf($fmt, $urlpath, $one)."\n";
+            $out .= sprintf($fmt, $urlpath, $one).PHP_EOL;
         }
-
-        return $out;
+        add_page_foottext($out);
     }
 
     protected function encodefilename($filename)
@@ -274,7 +272,7 @@ final class FileManager extends CMSModule
             $obj->title=$this->Lang('title_filemanager_settings');
             $obj->description=$this->Lang('desc_filemanager_settings');
             $obj->action='admin_settings';
-			$obj->icon = false;
+            $obj->icon = false;
             $obj->url=$this->create_url('m1_', $obj->action);
             $out[]=$obj;
         }
