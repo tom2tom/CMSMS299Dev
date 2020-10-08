@@ -19,6 +19,7 @@
 namespace CMSMS\AdminAlerts;
 
 use CMSMS\AppParams;
+use CMSMS\Crypto;
 use CMSMS\Utils;
 use InvalidArgumentException;
 use LogicException;
@@ -95,11 +96,11 @@ abstract class Alert
     /**
      * Constructor.
      *
-     * Initialize the name to a unique name, the priority to normal, and the creaed time.
+     * Initialize the name to a unique name, the priority to normal, and the creation time.
      */
     public function __construct()
     {
-        $this->_name = md5(get_class($this).microtime().rand(0,9999));
+        $this->_name = Crypto::random_string(24, true);
         $this->_priority = self::PRIORITY_NORMAL;
         $this->_created = time();
     }
@@ -221,7 +222,7 @@ abstract class Alert
 
     protected static function get_fixed_prefname( $name )
     {
-        return 'adminalert_'.md5($name);
+        return 'adminalert_'.hash('fnv132', $name);
     }
 
     /**

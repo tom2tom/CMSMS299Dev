@@ -117,7 +117,7 @@ class GetParameters
             while (1) {
                 $key = str_shuffle($chars);
                 $subkey = substr($key, 0, 6);
-                $val = md5($subkey.$str);
+                $val = hash('tiger128,3', $subkey.$str); // 32-hexits
                 $savekey = self::KEYPREF.$subkey;
                 if (!AppParams::exists($savekey)) {
                     AppParams::set($savekey, $val); // a bit racy!
@@ -126,7 +126,7 @@ class GetParameters
                 }
             }
         } else {
-            $parms[self::JOBKEY] = hash('fnv132', $str);
+            $parms[self::JOBKEY] = hash('tiger128,3', $str);
         }
         $parms[CMS_JOB_KEY] = 2;
 
@@ -284,7 +284,7 @@ class GetParameters
         if (isset($parms[self::JOBKEY])) {
             $str = $parms['action'] ?? 'job';
             $str .= AppSingle::App()->GetUUID();
-            return $parms[self::JOBKEY] == hash('fnv132', $str);
+            return $parms[self::JOBKEY] == hash('tiger128,3', $str);
         }
         if (isset($parms[self::JOBONCEKEY])) {
             $key = $parms[self::JOBONCEKEY];
@@ -293,7 +293,7 @@ class GetParameters
                 $val = AppParams::get($savekey);
                 AppParams::remove($savekey);
                 $str = $parms['action'] ?? 'job';
-                $hash = md5($key.$str.AppSingle::App()->GetUUID());
+                $hash = hash('tiger128,3', $key.$str.AppSingle::App()->GetUUID());
                 return $hash == $val;
             }
             return false;
