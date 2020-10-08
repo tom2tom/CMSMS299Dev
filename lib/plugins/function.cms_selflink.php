@@ -27,7 +27,7 @@ function smarty_function_cms_selflink($params, $template)
 	$urlparam = '';
 	$label_side = 'left';
 	$label = '';
-	$urlonly = 0;
+	$urlonly = false;
 	$node = null;
 	$dir = null;
 	$pageid = null;
@@ -39,7 +39,7 @@ function smarty_function_cms_selflink($params, $template)
 		$page = null;
 		if (isset($params['href'])) {
 			$page = trim($params['href']);
-			$urlonly = 1;
+			$urlonly = true;
 		}
 		else {
 			$page = trim($params['page']);
@@ -180,16 +180,12 @@ function smarty_function_cms_selflink($params, $template)
 	$content = $node->getContent();
 	if( !$content || !is_object($content) || !$content->Active() || !$content->HasUsableLink() ) return;
 
-	// get our raw display data
-	$alias = $content->Alias();
-	$name = $content->Name();
 	$url = $content->GetUrl();
-	$menu_text = $content->MenuText();
-	$titleattr = $content->TitleAttribute();
-	if (isset($params['anchorlink'])) $url .= '#' . ltrim($params['anchorlink'], '#');
-	if( $urlparam != '' ) $url .= $urlparam;
+	if( $urlparam ) $url .= $urlparam;
+	if( $url && !empty($params['anchorlink']) ) { $url .= '#' . ltrim($params['anchorlink'], ' #'); }
+	elseif( $url && !empty($params['fragment']) ) { $url .= '#' . ltrim($params['fragment'], ' #'); }
 
-	if( empty($url) ) return; // no url to link to, therefore nothing to do.
+	if( !$url ) return; // no url to link to, therefore nothing to do.
 
 	if( isset($params['urlonly']) ) $urlonly = cms_to_bool($params['urlonly']);
 
@@ -203,16 +199,17 @@ function smarty_function_cms_selflink($params, $template)
 
 	// Now we build the output.
 	$result = '';
-	if (isset($params['label'])) {
-		$label = $params['label'];
-		$label = cms_htmlentities($label);
+	if (!empty($params['label'])) {
+		$label = cms_htmlentities($params['label']);
 	}
 
+	$name = $content->Name();
+	$titleattr = $content->TitleAttribute();
 	$title = $name ?? '';
 	if( isset($params['title']) ) {
 		$title = $params['title'];
 	}
-	else if( !empty($titleattr) ) {
+	elseif( $titleattr ) {
 		$title = $titleattr;
 	}
 	$title = cms_htmlentities(strip_tags($title));
@@ -242,18 +239,19 @@ function smarty_function_cms_selflink($params, $template)
 		if( $label_side == 'left' ) $result .= $label.' ';
 		$result .= '<a href="'.$url.'"';
 		$result .= ' title="'.$title.'" ';
-		if (isset($params['target'])) $result .= ' target="'.$params['target'].'"';
-		if (isset($params['id'])) $result .= ' id="'.$params['id'].'"';
-		if (isset($params['class'])) $result .= ' class="'.$params['class'].'"';
-		if (isset($params['tabindex'])) $result .= ' tabindex="'.$params['tabindex'].'"';
-		if (isset($params['more'])) $result .= ' '.$params['more'];
+		if( isset($params['target']) ) $result .= ' target="'.$params['target'].'"';
+		if( isset($params['id']) ) $result .= ' id="'.$params['id'].'"';
+		if( isset($params['class']) ) $result .= ' class="'.$params['class'].'"';
+		if( isset($params['tabindex']) ) $result .= ' tabindex="'.$params['tabindex'].'"';
+		if( isset($params['more']) ) $result .= ' '.$params['more'];
 		$result .= '>';
 
-		$linktext = $name;
-		if (isset($params['text'])) {
+		if( isset($params['text']) ) {
 			$linktext = $params['text'];
-		} elseif (isset($params['menu']) && $params['menu'] == '1') {
-			$linktext = $menu_text;
+		} elseif( !empty($params['menu']) ) {
+			$linktext = $content->MenuText();
+		} else {
+			$linktext = $name;
 		}
 
 		if( !empty($params['image']) ) {
