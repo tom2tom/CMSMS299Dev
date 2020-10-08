@@ -1,0 +1,100 @@
+<?php
+# Class RegularJob: for processing old style pseudocron tasks as asynchronous jobs.
+# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+namespace CMSMS\Async;
+
+use CMSMS\Async\RecurType;
+use CMSMS\IRegularTask;
+use LogicException;
+use UnexpectedValueException;
+
+/**
+ * This class enables using old CmsRegularTask pseudocron tasks as asynchronous background jobs
+ *
+ * @package CMS
+ * @author Robert Campbell
+ *
+ * @since 2.9
+ * @since 2.2 as RegularTask
+ * @property CmsRegularTask | IRegularTask $task The task to convert
+ */
+class RegularJob extends CronJob
+{
+    /**
+     * Constructor
+     *
+     * @param CmsRegularTask | IRegularTask $task
+     */
+    public function __construct($task)
+    {
+        parent::__construct();
+        $this->_data['task'] = $task;
+        $this->name = $task->get_name();
+        $this->frequency = RecurType::RECUR_SELF;
+    }
+
+    /**
+     * @ignore
+     *
+     * @param string $key
+     * @return mixed
+     */
+/*    public function __get($key)
+    {
+        return parent::__get($key);
+    }
+*/
+
+    /**
+     * @ignore
+     *
+     * @param string $key
+     * @param mixed $val
+     * @throws UnexpectedValueException
+     */
+    public function __set($key,$val)
+    {
+        switch( $key ) {
+        case 'task':
+            //TODO also accept CmsRegularTask
+            if( !$val instanceof IRegularTask ) throw new UnexpectedValueException("Invalid value for $key in ".static::class);
+            $this->_data['task'] = $val;
+            break;
+        default:
+            parent::__set($key,$val);
+        }
+    }
+
+    /**
+     * Perform the task, if its test() affirms
+     * @throws LogicException
+     */
+    public function execute()
+    {
+        $task = $this->__data['task'];
+        if( !$task ) throw new LogicException(__CLASS__.' job is being executed, but has no task associated');
+        $now = time();
+        if( $task->test($now) ) {
+            if( $task->execute($now) ) {
+                $task->on_success($now);
+            } else {
+                $task->on_failure($now);
+            }
+        }
+    }
+}
