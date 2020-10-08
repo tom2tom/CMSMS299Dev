@@ -29,6 +29,7 @@ $lang['recur_hourly'] = 'Hourly';
 $lang['recur_monthly'] = 'Monthly';
 $lang['recur_weekly'] = 'Weekly';
 $lang['settings'] = 'Settings';
+$lang['settings_title'] = 'Background Job Settings'; // for admin site-settings info
 $lang['start'] = 'Start';
 $lang['until'] = 'Until';
 
