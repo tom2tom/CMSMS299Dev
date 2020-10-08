@@ -1,20 +1,19 @@
 <?php
-#Secure cookie operations class
-#Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+# Secure cookie operations class
+# Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 #
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AppSingle;
@@ -22,168 +21,181 @@ use const CMS_ROOT_URL;
 use const CMS_VERSION;
 
 /**
- * A class of cookie operations that use obfuscated cookie names and signed
- *  cookie values, to reduce the risk of MITM or corruption attacks.
+ * A class of convenience utilities for using cookies having an obfuscated name
+ * and signed value, to reduce the risk of MITM or corruption attacks.
  *
  * @package CMS
  * @license GPL
  */
-class SignedCookieOperations implements CookieManager
+final class SignedCookieOperations implements CookieManager
 {
+    /**
+     * @ignore
+     */
+    private $_parts;
 
-	/**
-	 * @ignore
-	 */
-	private $_parts;
+    /**
+     * @ignore
+     */
+    private $_secure;
 
-	/**
-	 * @ignore
-	 */
-	private $_secure;
+    /**
+     * @ignore
+     */
+    private $_uuid;
 
-	/**
-	 * @ignore
-	 */
-	private $_uuid;
+    /**
+     * Constructor.
+     *
+     * @param mixed $app App | null. Optional since 2.9
+     */
+    public function __construct($app = null)
+    {
+        $this->_parts = parse_url(CMS_ROOT_URL);
+        if (!isset($this->_parts['host']) || $this->_parts['host'] == '') {
+            self::$parts['host'] = CMS_ROOT_URL;
+        }
+        if (!isset($this->_parts['path']) || $this->_parts['path'] == '') {
+            $this->_parts['path'] = '/';
+        }
+        if (!$app) {
+            $app = AppSingle::App();
+        }
+        $this->_secure = $app->is_https_request();
+        $this->_uuid = $app->GetSiteUUID();
+    }
 
-	/**
-	 * Constructor.
-	 *
-	 * @param mixed $app App | null. Optional since 2.9
-	 */
-	public function __construct($app = null)
-	{
-		$this->_parts = parse_url(CMS_ROOT_URL);
-		if( !isset($this->_parts['host']) || $this->_parts['host'] == '' ) {
-			self::$parts['host'] = CMS_ROOT_URL;
-		}
-		if( !isset($this->_parts['path']) || $this->_parts['path'] == '' ) {
-			$this->_parts['path'] = '/';
-		}
-		if( !$app ) { $app = AppSingle::App(); }
-		$this->_secure = $app->is_https_request();
-		$this->_uuid = $app->GetSiteUUID();
-	}
+    /**
+     * Retrieve the validated value of a cookie.
+     *
+     * This method will retrieve the value of a cookie if the signature of the
+     * cookie is valid. Otherwise, an empty string is returned.
+     *
+     * @param string $okey The cookie name
+     * @return string
+     */
+    public function get(string $okey) : string
+    {
+        $key = $this->get_key($okey);
+        if (!empty($_COOKIE[$key])) {
+            list($sig, $val) = explode(':::', $_COOKIE[$key], 2);
+            if (hash('sha3-224', $val.$this->_uuid.$okey) == $sig) {
+                return $val;
+            }
+        }
+        return '';
+    }
 
-	/**
-	 * Get the cookie name for $key.
-	 *
-	 * The name is obfuscated to minimize the opportunity for attacks.
-	 *
-	 * @param string $key The cookie name
-	 */
-	public function get_key(string $key) : string
-	{
-		return 'c'.hash('sha3-224',CMS_VERSION.$this->_uuid.$key);
-	}
+    /**
+     * Set a cookie.
+     *
+     * @param string $okey The cookie name
+     * @param mixed $value The cookie value
+     *  Since 2.9, the supplied $value need not be a string.
+     *  If not scalar, the value  will be json_encode()'d before storage.
+     * @param int $expires Optional expiry timestamp of the cookie. Default 0,
+     *  hence a session cookie.
+     * @return bool indicating success
+     */
+    public function set(string $okey, $value, int $expires = 0) : bool
+    {
+        $val = is_scalar($value) ? ''.$value : json_encode($value,
+            JSON_NUMERIC_CHECK |
+            JSON_UNESCAPED_UNICODE |
+            JSON_UNESCAPED_SLASHES |
+            JSON_PARTIAL_OUTPUT_ON_ERROR);
+        $key = $this->get_key($okey);
+        $sig = hash('sha3-224', $val.$this->_uuid.$okey);
+        return $this->set_cookie($key, $sig.':::'.$val, $expires);
+    }
 
-	/**
-	 * Generate the cookie path.
-	 *
-	 * By default, this is the path portion of the root URL.
-	 */
-	protected function cookie_path() : string
-	{
-		return $this->_parts['path'];
-	}
+    /**
+     * Check whether a cookie exists (regardless of cookie value).
+     *
+     * @param string $key The input cookie name.
+     */
+    public function exists(string $key) : bool
+    {
+        $key = $this->get_key($key);
+        return isset($_COOKIE[$key]);
+    }
 
-	/**
-	 * Generate the cookie domain.
-	 *
-	 * By default, this is the host portion of the root URL.
-	 */
-	protected function cookie_domain() : string
-	{
-		return $this->_parts['host'];
-	}
+    /**
+     * Erase a cookie.
+     *
+     * @param string $key The cookie name.
+     */
+    public function erase(string $key)
+    {
+        $key = $this->get_key($key);
+        unset($_COOKIE[$key]);
+        $this->set_cookie($key, '', 1);
+    }
 
-	/**
-	 * Generate the cookie secure flag.
-	 *
-	 * This reflects whether or not the current request uses HTTPS.
-	 */
-	protected function cookie_secure() : bool
-	{
-		return $this->_secure;
-	}
+    /**
+     * Get the cookie name for $key.
+     *
+     * The name is obfuscated to reduce the opportunity for attacks.
+     *
+     * @param string $key The cookie name
+     * @return string
+     */
+    private function get_key(string $key) : string
+    {
+		//any algo >= 36 bytes will do, this one is fastest
+        $s = hash('sha1', CMS_VERSION.$this->_uuid.$key);
+        $s = substr($s, 0, 18) ^ substr($s, -18, 18);
+        $s = strtr(base64_encode($s), '+/', 'qd'); //24 alphanums
+		$s[0] = 'c';
+        return $s;
+    }
 
-	/**
-	 * Set the actual cookie.
-	 *
-	 * @param string $key The final cookie name (may be obfuscated)
-	 * @param string $encoded The final cookie value.
-	 * @param int $expire The expiry timestamp.
-	 *   0 indicates a session cookie
-	 *   < now (e.g. 1) indicates that the cookie may be removed
-	 */
-	protected function set_cookie(string $key, string $encoded, int $expire) : bool
-	{
-		$res = setcookie($key, $encoded, $expire, $this->cookie_path(), $this->cookie_domain(), $this->cookie_secure(), TRUE);
-		return $res;
-	}
+    /**
+     * Generate the cookie path.
+     *
+     * By default, this is the path portion of the root URL.
+     * @return string
+     */
+    private function cookie_path() : string
+    {
+        return $this->_parts['path'];
+    }
 
-	/**
-	 * Retrieve the value of a validated cookie.
-	 *
-	 * This method will retrieve the value of a cookie if the signature of the
-	 * cookie is valid. Otherwise, no value is returned.
-	 *
-	 * @param string $okey The cookie name
-	 * @return string|null
-	 */
-	public function get(string $okey)
-	{
-		$key = $this->get_key($okey);
-		if( !empty($_COOKIE[$key]) ) {
-			list($sig,$val) = explode(':::',$_COOKIE[$key],2);
-			if( hash('sha3-224',$val.$this->_uuid.$okey) == $sig ) return $val;
-		}
-	}
+    /**
+     * Generate the cookie domain.
+     *
+     * By default, this is the host portion of the root URL.
+     * @return string
+     */
+    private function cookie_domain() : string
+    {
+        return $this->_parts['host'];
+    }
 
-	/**
-	 * Set a cookie.
-	 * @since 2.9, the supplied $value need not be a string.
-	 * If not scalar, the value  will be json_encode()'d before storage.
-	 *
-	 * @param string $okey The cookie name
-	 * @param string $value The cookie value
-	 * @param int $expires Optional expiry timestamp of the cookie. Default 0,
-	 *  hence a session cookie.
-	 */
-	public function set(string $okey, $value, int $expires = 0) : bool
-	{
-		$val = is_scalar($value) ? ''.$value : json_encode($value,
-			JSON_NUMERIC_CHECK |
-			JSON_UNESCAPED_UNICODE |
-			JSON_UNESCAPED_SLASHES |
-			JSON_PARTIAL_OUTPUT_ON_ERROR);
-		$key = $this->get_key($okey);
-		$sig = hash('sha3-224',$val.$this->_uuid.$okey);
-		return $this->set_cookie($key,$sig.':::'.$val,$expires);
-	}
+    /**
+     * Generate the cookie secure flag.
+     *
+     * This reflects whether or not the current request uses HTTPS.
+     * @return bool
+     */
+    private function cookie_secure() : bool
+    {
+        return $this->_secure;
+    }
 
-	/**
-	 * Check whether a cookie exists (regardless of cookie value).
-	 *
-	 * @param string $key The input cookie name.
-	 */
-	public function exists(string $key) : bool
-	{
-		$key = $this->get_key($key);
-		return isset($_COOKIE[$key]);
-	}
-
-	/**
-	 * Erase a cookie.
-	 *
-	 * @param string $key The cookie name.
-	 */
-	public function erase(string $key)
-	{
-		$key = $this->get_key($key);
-		unset($_COOKIE[$key]);
-		$this->set_cookie($key,'',1);
-	}
+    /**
+     * Set the actual cookie.
+     *
+     * @param string $key The cookie name (obfuscated)
+     * @param string $value The cookie value (encoded)
+     * @param int $expire The expiry timestamp
+     *   0 indicates a session cookie
+     *   < now (e.g. 1) indicates that the cookie is to be removed
+     * @return bool indicating success
+     */
+    private function set_cookie(string $key, string $value, int $expire) : bool
+    {
+        return setcookie($key, $value, $expire, $this->cookie_path(),
+          $this->cookie_domain(), $this->cookie_secure(), true);
+    }
 } // class
-
-\class_alias(SignedCookieOperations::class, 'CMSMS\SignedCookies', false);
