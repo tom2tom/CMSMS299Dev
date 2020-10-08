@@ -1452,15 +1452,15 @@ abstract class CMSModule
         return false;
     }
 
-    /**
+    /* *
      * Returns a list of the CLI commands that this module supports
      * Modules supporting such commands must subclass this, and therein call
      * here for a security-check before returning commands data
      *
-     * @since 2.9
+     * @since MAYBE IN FUTURE
      * @param CMSMS\CLI\App $app (this class may not exist) TODO better namespace
      * @return mixed array of CMSMS\CLI\GetOptExt\Command objects, or one such object, or NULL if not handled.
-     */
+     * /
     public function get_cli_commands($app)
     {
         $config = AppSingle::Config();
@@ -1470,7 +1470,7 @@ abstract class CMSModule
         if( !class_exists('CMSMS\\CLI\\GetOptExt\\Command') ) return null;
         return [];
     }
-
+*/
     /**
      * ------------------------------------------------------------------
      * Syntax Highlighter Related Functions
@@ -1736,7 +1736,7 @@ abstract class CMSModule
         }
 
         if( isset($params['assign']) ) {
-            $smartob->assign(sanitize($params['assign']),$output);
+            $smartob->assign(cleanString($params['assign'],1),$output);
             return '';
         }
         return $output;

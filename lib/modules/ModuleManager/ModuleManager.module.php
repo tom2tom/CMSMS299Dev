@@ -105,12 +105,12 @@ class ModuleManager extends CMSModule
         }
     }
 
-    /**
-     * @since 2.3
+    /* *
+     * @since MAYBE IN FUTURE
      * @throws LogicException
      * @param CMSMS\CLI\App $app (exists only in App mode) TODO better namespace
      * @return array
-     */
+     * /
     public function get_cli_commands( $app ) : array
     {
         if( parent::get_cli_commands($app) === null ) return [];
@@ -129,4 +129,5 @@ class ModuleManager extends CMSModule
         $out[] = new Command\ReposGetXMLCommand( $app );
         return $out;
     }
+*/
 } // class

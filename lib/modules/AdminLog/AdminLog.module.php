@@ -103,18 +103,18 @@ final class AdminLog extends CMSModule
 
     public function get_tasks()
     {
-        $out = [];
-        $out[] = new AutoPruneLogTask();
-        $out[] = new ReduceLogTask();
-        return $out;
+        return [
+            new AutoPruneLogTask(),
+            new ReduceLogTask(),
+        ];
     }
 
-    /**
-     * @since 2.3
+    /* *
+     * @since MAYBE IN FUTURE
      * @throws LogicException
      * @param CMSMS\CLI\App $app (exists only in App mode) TODO better namespace
      * @return array
-     */
+     * /
     public function get_cli_commands( $app ) : array
     {
         $out = [];
@@ -123,4 +123,5 @@ final class AdminLog extends CMSModule
         }
         return $out;
     }
+*/
 } // class
