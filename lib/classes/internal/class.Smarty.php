@@ -20,9 +20,8 @@ namespace CMSMS\internal;
 
 //use CMSMS\internal\cache_resource;
 //use CMSMS\internal\file_template_resource;
-use cms_config;
-use cms_siteprefs;
-use CmsApp;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\internal\content_resource;
 use CMSMS\internal\layout_stylesheet_resource;
@@ -33,7 +32,7 @@ use CMSMS\SimpleTagOperations;
 use Exception;
 use LogicException;
 use Smarty_Internal_Template;
-use SmartyBC as SmartyParent;  //or Smarty in future
+use SmartyBC as SmartyParent; //or Smarty in future
 use const CMS_ADMIN_PATH;
 use const CMS_ASSETS_PATH;
 use const CMS_DEBUG;
@@ -124,7 +123,7 @@ smarty cache lifetime != global cache ttl, probably
              ->setTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates') //template-assets prevail
              ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates'); // internal, never renamed
 
-        $_gCms = CmsApp::get_instance();
+        $_gCms = AppSingle::App();
         if( $_gCms->is_frontend_request() ) {
             // just for frontend actions
             // Check if we are at install page, don't register anything if so, as nothing below is needed.
@@ -136,7 +135,7 @@ smarty cache lifetime != global cache ttl, probably
             }
             else {
                 // Setup caching
-                $v = (int)cms_siteprefs::get('smarty_cachelife',-1);
+                $v = (int)AppParams::get('smarty_cachelife',-1);
                 switch( $v ) {
                     case -1:
                         $this->setCaching(SmartyParent::CACHING_LIFETIME_CURRENT);
@@ -153,7 +152,7 @@ smarty cache lifetime != global cache ttl, probably
                     $this->setCompileCheck(SmartyParent::COMPILECHECK_ON);
                     $this->setDebugging(true);
                 }
-                elseif( $v != 0 && cms_siteprefs::get('smarty_compilecheck',1) ) {
+                elseif( $v != 0 && AppParams::get('smarty_compilecheck',1) ) {
                     $this->setCompileCheck(SmartyParent::COMPILECHECK_CACHEMISS);
                 }
                 else {
@@ -173,7 +172,7 @@ smarty cache lifetime != global cache ttl, probably
             // Autoload filters
             $this->autoloadFilters();
 
-            $config = cms_config::get_instance();
+            $config = AppSingle::Config();
             if( !$config['permissive_smarty'] ) {
                 // Apply our security object
                 $this->enableSecurity('CMSMS\\internal\\smarty_security_policy');
@@ -291,13 +290,13 @@ smarty cache lifetime != global cache ttl, probably
         //Deprecated pre-2.9 approach - non-system plugins were never cachable
         //In future, allow caching and expect users to override that in templates where needed
         //Otherwise, module-plugin cachability is opaque to page-builders
-        if( CmsApp::get_instance()->is_frontend_request() ) {
+        if( AppSingle::App()->is_frontend_request() ) {
             // check if it's a module-plugin (tabled or not)
             $row = ModulePluginOperations::load_plugin($name,$type);
             if( $row && is_callable($row['callback']) ) {
                 $callback = $row['callback'];
 //                if (0) {
-                    $val = cms_siteprefs::get('smarty_cachemodules', 0);
+                    $val = AppParams::get('smarty_cachemodules', 0);
                     if ($val != 2) {
                         $cachable = (bool)$val;
                     } else {
@@ -311,7 +310,7 @@ smarty cache lifetime != global cache ttl, probably
             $callback = SimpleTagOperations::get_instance()->CreateTagFunction($name);
             if( $callback ) {
 //                if (0) {
-                    $val = cms_siteprefs::get('smarty_cachesimples', false);
+                    $val = AppParams::get('smarty_cachesimples', false);
                     $cachable = (bool)$val;
 //                }
                 return true;

@@ -16,8 +16,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\LangOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -28,9 +30,9 @@ check_login();
 $urlext = get_secure_param();
 $userid = get_userid(false);
 $access = true; //check_permission($userid, 'View Tags'); //TODO relevant permission
-$pdev = $config['develop_mode'] || check_permission($userid, 'Manage Restricted Files');
+$pdev = $config['develop_mode'] || check_permission($userid, 'Modify Restricted Files');
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (!$access) {
 //TODO some popup or error page here or after redirect
@@ -57,7 +59,7 @@ $find_file = function($filename) use ($dirs) {
     }
 };
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $selfurl = basename(__FILE__);
 
 if ($action == 'showpluginhelp') {
@@ -230,6 +232,7 @@ $smarty->assign([
     'selfurl' => $selfurl,
 ]);
 
-include_once 'header.php';
-$smarty->display('listtags.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('listtags.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

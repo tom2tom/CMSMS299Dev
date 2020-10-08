@@ -11,7 +11,7 @@ if( !FileManager\Utils::test_valid_path($params['path']) ) {
   $this->Redirect($id, 'defaultadmin', $returnid, ['fmerror' => 'fileoutsideuploads']);
 }
 
-$config = & $gCms->GetConfig();
+$config = $gCms->GetConfig();
 $fullname = cms_join_path(CMS_ROOT_PATH, $params['path'], $params['filename']);
 
 if (isset($params['newmode'])) {

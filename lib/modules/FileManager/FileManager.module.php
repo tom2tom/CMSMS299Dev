@@ -16,9 +16,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminMenuItem;
+use CMSMS\App;
 use CMSMS\CoreCapabilities;
-use FileManager\Utils as Utils2;
-use FilePicker\Utils;
+use FileManager\Utils;
+use FilePicker\Utils as PickerUtils;
 
 include_once __DIR__.DIRECTORY_SEPARATOR.'fileinfo.php';
 
@@ -54,7 +56,7 @@ final class FileManager extends CMSModule
      */
     public function GetFileIcon($extension, $isdir=false)
     {
-        return Utils::get_file_icon($extension, $isdir);
+        return PickerUtils::get_file_icon($extension, $isdir);
     }
 
     public function GetPermissions($path, $file)
@@ -68,7 +70,7 @@ final class FileManager extends CMSModule
     {
         $realpath=cms_join_path(CMS_ROOT_PATH, $path, $file);
         $statinfo=stat($realpath);
-        return Utils2::format_permissions($statinfo['mode']);
+        return Utils::format_permissions($statinfo['mode']);
     }
 
     public function GetModeWin($path, $file)
@@ -83,7 +85,7 @@ final class FileManager extends CMSModule
 
     public function GetModeTable($id, $permissions)
     {
-        $smarty=CmsApp::get_instance()->GetSmarty();
+        $smarty=App::get_instance()->GetSmarty();
         $tpl = $smarty->createTemplate($this->GetTemplateResource('modetable.tpl'), null, null, $smarty);
 
         $tpl->assign('ownertext', $this->Lang('owner'))
@@ -182,7 +184,7 @@ final class FileManager extends CMSModule
      */
     public function GetThumbnailLink($id, $file, $path)
     {
-//        $advancedmode = FileManager\Utils::check_advanced_mode();
+//        $advancedmode = Utils::check_advanced_mode();
         $imagepath=cms_join_path(CMS_ROOT_PATH, $path, 'thumb_'.$file['name']);
         if (file_exists($imagepath)) {
             $imageurl=CMS_ROOT_URL.'/'.$this->Slashes($path).'/thumb_'.$file['name'];
@@ -262,11 +264,11 @@ final class FileManager extends CMSModule
         $out=[];
 
         if ($this->CheckPermission('Modify Files')) {
-            $out[]=CmsAdminMenuItem::from_module($this);
+            $out[]=AdminMenuItem::from_module($this);
         }
 
         if ($this->CheckPermission('Modify Site Preferences')) {
-            $obj=new CmsAdminMenuItem();
+            $obj=new AdminMenuItem();
             $obj->module=$this->GetName();
             $obj->section='files';
             $obj->title=$this->Lang('title_filemanager_settings');

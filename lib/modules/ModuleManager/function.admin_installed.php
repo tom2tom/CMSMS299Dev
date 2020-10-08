@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Utils;
 use ModuleManager\ModuleInfo;
 
 if( !isset($gCms) ) exit;
@@ -89,7 +90,7 @@ $tpl->assign('module_info',$allmoduleinfo);
 $devmode = $config['develop_mode'];
 $tpl->assign('allow_export',($devmode)?1:0);
 if ($devmode) {
-    $themeObject = cms_utils::get_theme_object();
+    $themeObject = Utils::get_theme_object();
     $path = cms_join_path($this->GetModulePath(),'images','xml');
     $tpl->assign('exporticon',
        $themeObject->DisplayImage($path, 'export', '', '', 'systemicon', ['title'=>$this->Lang('title_moduleexport')]));

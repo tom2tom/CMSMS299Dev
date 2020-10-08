@@ -16,6 +16,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//use CMSMS\App;
+use CMSMS\ContentOperations;
+use CMSMS\Utils;
+
 function smarty_function_page_attr($params, $template)
 {
 	$key = trim(get_parameter_value($params,'key'));
@@ -39,7 +43,7 @@ function smarty_function_page_attr($params, $template)
 		}
 	}
 	else {
-		$contentobj = cms_utils::get_current_content();
+		$contentobj = Utils::get_current_content();
 	}
 
 	$result = null;

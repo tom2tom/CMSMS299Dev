@@ -18,8 +18,8 @@
 
 namespace CMSMS\internal;
 
-use cms_siteprefs;
 use CmsApp;
+use CMSMS\AppParams;
 use Smarty_Resource_Custom;
 
 /**
@@ -58,7 +58,7 @@ class content_resource extends Smarty_Resource_Custom //fixed_smarty_custom_reso
         header('Status: 404 Not Found');
 
         $mtime = time();
-        if ($name == 'content_en') { $source = trim(cms_siteprefs::get('custom404')); }
+        if ($name == 'content_en') { $source = trim(AppParams::get('custom404')); }
         else { $source = ''; }
     }
 } // class

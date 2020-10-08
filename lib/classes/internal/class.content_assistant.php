@@ -18,7 +18,7 @@
 
 namespace CMSMS\internal;
 
-use cms_siteprefs;
+use CMSMS\AppParams;
 use CMSMS\RouteOperations;
 use function endswith;
 use function munge_string_to_url;
@@ -46,7 +46,7 @@ class content_assistant
    */
   public static function auto_create_url()
   {
-    return cms_siteprefs::get('content_autocreate_urls',0);
+    return AppParams::get('content_autocreate_urls',0);
   }
 
 

@@ -18,10 +18,14 @@
 
 namespace ModuleManager\Command;
 
-use cms_utils;
 use CMSMS\CLI\App;
+use CMSMS\Utils;
+use GetOpt\Operand;
 use ModuleManager\modulerep_client;
 use ModuleNoDataException;
+use RemoteAdmin\CLI\GetOptExt\Command;
+use RemoteAdmin\CLI\GetOptExt\GetOpt;
+use RemoteAdmin\CLI\GetOptExt\Option;
 use RuntimeException;
 
 class ReposGetXMLCommand extends Command
@@ -49,7 +53,7 @@ EOT;
     public function handle()
     {
         try {
-            $moma = cms_utils::get_module('ModuleManager');
+            $moma = Utils::get_module('ModuleManager');
             $module = $this->getOperand('module')->value();
 
             $data = modulerep_client::get_modulelatest( [ $module ] );

@@ -19,11 +19,8 @@
 namespace CMSMS;
 
 use CmsDataNotFoundException;
-use CmsException;
 use CmsInvalidDataException;
-use CmsLayoutTemplate;
-use CmsLayoutTemplateType;
-use CMSMS\App;
+use CMSMS\AppSingle;
 use CMSMS\Events;
 use CMSMS\Layout\TemplateTypeAssistant;
 use CMSMS\LockOperations;
@@ -31,6 +28,7 @@ use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\Utils;
 use CmsSQLErrorException;
+use Exception;
 use const CMS_DB_PREFIX;
 use function audit;
 use function cms_to_stamp;
@@ -49,7 +47,7 @@ class TemplateType
 {
 	/**
 	 * This constant indicates a core template-type
-	 * @see also CmsLayoutTemplate::CORE
+	 * @see also Template::CORE
 	 */
 	const CORE = '__CORE__';
 
@@ -475,7 +473,7 @@ class TemplateType
 			if( !isset($this->_data['id']) || (int)$this->_data['id'] < 1 ) throw new CmsInvalidDataException('id is not set');
 
 			// check for item with the same name
-			$db = App::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
 			' WHERE originator = ? AND name = ? AND id != ?';
 			$dbr = $db->GetOne($query,[$this->get_originator(),$this->get_name(),$this->get_id()]);
@@ -483,7 +481,7 @@ class TemplateType
 		}
 		else {
 			// check for item with the same name
-			$db = App::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
 			' WHERE originator = ? AND name = ?';
 			$dbr = $db->GetOne($query,[$this->get_originator(),$this->get_name()]);
@@ -533,7 +531,7 @@ class TemplateType
 			$cbc = null;
 		}
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.
 ' (originator,name,has_dflt,one_only,dflt_contents,description,lang_cb,help_content_cb,dflt_content_cb,requires_contentblocks,owner)
 VALUES (?,?,?,?,?,?,?,?,?,?,?)';
@@ -600,7 +598,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 			$cbc = null;
 		}
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET
 originator = ?,
 name = ?,
@@ -653,7 +651,7 @@ WHERE id = ?';
 	/**
 	 * Get a list of templates for the current template-type.
 	 *
-	 * @return mixed array of CmsLayoutTemplate objects | null
+	 * @return mixed array of Template objects | null
 	 */
 	public function get_template_list()
 	{
@@ -673,7 +671,7 @@ WHERE id = ?';
 		Events::SendEvent('Core', 'DeleteTemplateTypePre', [ get_class($this) => &$this ]);
 		$tmp = TemplateOperations::template_query(['t:'.$this->get_id()]);
 		if( $tmp ) throw new CmsInvalidDataException('Cannot delete a template-type with existing templates');
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$dbr = $db->Execute($query,[$this->_data['id']]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
@@ -690,11 +688,11 @@ WHERE id = ?';
 	 * This method will throw an exception if the template cannot be created.
 	 *
 	 * @param string $name Optional template name
-	 * @return CmsLayoutTemplate object.
+	 * @return Template object.
 	 */
 	public function create_new_template($name = '')
 	{
-		$ob = new CmsLayoutTemplate();
+		$ob = new Template();
         $ob->set_originator($this->get_originator());
 		if( $name ) $ob->set_name($name);
 		$ob->set_type( $this );
@@ -708,7 +706,7 @@ WHERE id = ?';
 	 * This method will throw an exception if the template cannot be created.
 	 *
 	 * @see TemplateOperations::get_default_template_by_type()
-	 * @return mixed CmsLayoutTemplate object | null
+	 * @return mixed Template object | null
 	 */
 	public function get_dflt_template()
 	{
@@ -765,13 +763,13 @@ WHERE id = ?';
 	 /**
 	 * Reset the default contents of this template-type back to factory default
 	 *
-	 * @throws CmsException
+	 * @throws Exception
 	 * @throws CmsDataNotFoundException
 	 */
 	public function reset_content_to_factory()
 	{
 		if( !$this->get_dflt_flag() ) {
-			throw new CmsException('This template-type does not have default contents');
+			throw new Exception('This template-type does not have default contents');
 		}
 		$cb = $this->get_content_callback();
 		if( !$cb || !is_callable($cb) ) {
@@ -782,12 +780,12 @@ WHERE id = ?';
 	}
 
 	/**
-	 * Create a CmsLayoutTemplateType object reflecting the given properties array
+	 * Create a TemplateType object reflecting the given properties array
 	 * (typically read from the database)
 	 *
 	 * @internal
 	 * @param array $row
-	 * @return CmsLayoutTemplateType
+	 * @return TemplateType
 	 */
 	private static function _load_from_data($row) : self
 	{
@@ -846,17 +844,17 @@ WHERE id = ?';
 	}
 
 	/**
-	 * Load a CmsLayoutTemplateType object from the database.
+	 * Load a TemplateType object from the database.
 	 *
 	 * This method throws an exception when the requested object cannot be found.
 	 *
 	 * @throws CmsDataNotFoundException
 	 * @param mixed $val An integer template-type id, or a string in the form of Originator::Name
-	 * @return CmsLayoutTemplateType
+	 * @return TemplateType
 	 */
 	public static function load($val)
 	{
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$row = null;
 		if( is_numeric($val) && (int)$val > 0 ) {
 			$val = (int) $val;
@@ -886,14 +884,14 @@ WHERE id = ?';
 	 * Load all template-types whose originator is as specified.
 	 *
 	 * @param string $originator The originator name
-	 * @return array of CmsLayoutTemplateType objects, or null if no match is found.
+	 * @return mixed array of TemplateType objects | null if no match is found.
 	 * @throws CmsInvalidDataException
 	 */
 	public static function load_all_by_originator($originator)
 	{
 		if( !$originator ) throw new CmsInvalidDataException('Orignator is empty');
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ?';
 		if( self::$_cache ) $query .= ' AND id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
 		$query .= ' ORDER BY IF(modified_date, modified_date, create_date) DESC';
@@ -914,11 +912,11 @@ WHERE id = ?';
 	/**
 	 * Load all template-types
 	 *
-	 * @return array Array of CmsLayoutTemplateType objects, or null
+	 * @return mixed array of TemplateType objects | null
 	 */
 	public static function get_all()
 	{
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		if( self::$_cache && count(self::$_cache) ) $query .= ' WHERE id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
 		$query .= '	ORDER BY IF(modified_date, modified_date, create_date)';
@@ -936,7 +934,7 @@ WHERE id = ?';
 	 * Load all template-types included in the provided list
 	 *
 	 * @param int[] $list Array of template-type ids
-	 * @return array Array of CmsLayoutTemplateType objects, or null
+	 * @return mixed array of TemplateType objects | null
 	 */
 	public static function load_bulk($list)
 	{
@@ -951,7 +949,7 @@ WHERE id = ?';
 		}
 		if( !$list2 ) return;
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.implode(',',$list).')';
 		$list = $db->GetArray($query);
 		if( !$list ) return;

@@ -18,8 +18,7 @@
 
 namespace CMSMS;
 
-use cms_siteprefs;
-use CmsException;
+use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\CacheDriver;
@@ -77,7 +76,7 @@ final class SystemCache
 	 * Get the singleton general-purpose cache object.
 	 * @deprecated since 2.9 instead use CMSMS\AppSingle::SystemCache()
 	 * @return self | not at all
-	 * @throws CmsException if driver-connection fails
+	 * @throws Exception if driver-connection fails
 	 */
 	public static function get_instance() : self
 	{
@@ -91,7 +90,7 @@ final class SystemCache
 	 * @since 2.3
 	 * @param $opts Optional connection-parameters. Default []
 	 * @return CacheDriver object | not at all
-	 * @throws CmsException
+	 * @throws Exception
 	 */
 	public function connect(array $opts = []) : CacheDriver
 	{
@@ -111,9 +110,9 @@ final class SystemCache
 
 		$parms = $opts;
 		// preferences cache maybe N/A now, so get pref data directly
-		$driver_name = $opts['driver'] ?? cms_siteprefs::getraw('cache_driver', 'auto');
+		$driver_name = $opts['driver'] ?? AppParams::getraw('cache_driver', 'auto');
 		unset($parms['driver']);
-		$ttl = $opts['lifetime'] ?? cms_siteprefs::getraw('cache_lifetime', 3600);
+		$ttl = $opts['lifetime'] ?? AppParams::getraw('cache_lifetime', 3600);
 		$ttl = (int)$ttl;
 		if( $ttl < 1 ) $ttl = 0;
 		if( $ttl < 1 ) {
@@ -123,7 +122,7 @@ final class SystemCache
 		else {
 			$parms['lifetime'] = $ttl;
 			if( !isset($parms['auto_cleaning']) ) {
-				$parms['auto_cleaning'] = cms_siteprefs::getraw('cache_autocleaning', true);
+				$parms['auto_cleaning'] = AppParams::getraw('cache_autocleaning', true);
 			}
 		}
 
@@ -133,7 +132,7 @@ final class SystemCache
 		}
 
 		$host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
-		$tmp = cms_siteprefs::getraw(['cache_file_blocking', 'cache_file_locking'],[0, 1]);
+		$tmp = AppParams::getraw(['cache_file_blocking', 'cache_file_locking'],[0, 1]);
 		$settings = [
 			 'predis' => [
 			 'host' => $host,
@@ -184,7 +183,7 @@ final class SystemCache
 				break;
 		}
 		$this->_driver = null;
-		throw new CmsException('Cache ('.$driver_name.') setup failed');
+		throw new Exception('Cache ('.$driver_name.') setup failed');
 	}
 
 	/**

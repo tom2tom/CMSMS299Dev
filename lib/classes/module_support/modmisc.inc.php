@@ -16,57 +16,60 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+namespace CMSMS\module_support;
+
 /**
- * Methods for modules to do miscellaneous functions
+ * Miscellaneous methods for modules.
  *
- * @since		1.0
- * @package		CMS
+ * @internal
+ * @since   1.0
+ * @package CMS
  * @license GPL
  */
-
 /**
- * @access private
+ * @param $modinst the module-object
+ * @return string
  */
-function cms_module_GetAbout(&$modinstance)
+function GetAbout($modinst) : string
 {
 	$str = '';
-	if ($modinstance->GetAuthor() != '') {
-		$str .= '<br />'.lang('author').': ' . $modinstance->GetAuthor();
-		if ($modinstance->GetAuthorEmail() != '') $str .= ' &lt;' . $modinstance->GetAuthorEmail() . '&gt;';
+	if (($val = $modinst->GetAuthor())) {
+		$str .= '<br />'.lang('author').': ' . $val;
+		if (($val = $modinst->GetAuthorEmail())) $str .= ' &lt;' . $val . '&gt;';
 		$str .= '<br />';
 	}
-	$str .= '<br />'.lang('version').': ' .$modinstance->GetVersion() . '<br />';
+	$str .= '<br />'.lang('version').': ' .$modinst->GetVersion() . '<br />';
 
-	if ($modinstance->GetChangeLog() != '') {
+	if (($val = $modinst->GetChangeLog())) {
 		$str .= '<br />'.lang('changehistory').':<br />';
-		$str .= $modinstance->GetChangeLog() . '<br />';
+		$str .= $val . '<br />';
 	}
 	return $str;
-}
+};
 
 /**
- * @access private
+ * @param $modinst the module-object
+ * @return string
  */
-function cms_module_GetHelpPage(&$modinstance)
+function GetHelpPage($modinst) : string
 {
-	$str = '';
 	ob_start();
-	echo $modinstance->GetHelp();
-	$str .= ob_get_contents();
-	ob_end_clean();
-	$dependencies = $modinstance->GetDependencies();
-	if (count($dependencies) > 0 ) {
+	echo $modinst->GetHelp();
+	$str = ob_get_clean();
+	$dependencies = $modinst->GetDependencies();
+	if ($dependencies) {
 		$str .= '<h3>'.lang('dependencies').'</h3>';
 		$str .= '<ul>';
-		foreach( $dependencies as $dep => $ver ) {
+		foreach ($dependencies as $dep => $ver) {
 			$str .= '<li>';
 			$str .= $dep.' =&gt; '.$ver;
 			$str .= '</li>';
 		}
 		$str .= '</ul>';
 	}
-	$paramarray = $modinstance->GetParameters();
-	if (count($paramarray) > 0) {
+
+	$paramarray = $modinst->GetParameters();
+	if ($paramarray) {
 		$str .= '<h3>'.lang('parameters').'</h3>';
 		$str .= '<ul>';
 		foreach ($paramarray as $oneparam) {
@@ -79,4 +82,4 @@ function cms_module_GetHelpPage(&$modinstance)
 		$str .= '</ul>';
 	}
 	return $str;
-}
+};

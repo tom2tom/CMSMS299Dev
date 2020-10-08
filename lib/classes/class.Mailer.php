@@ -1,6 +1,7 @@
 <?php
 # class Mailer - a simple wrapper around PHPMailer
-# Copyright (C) Robert Campbell 2016-2018 <calguy1000@cmsmadesimple.org>
+# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,21 +18,22 @@
 
 namespace CMSMS;
 
-use cms_siteprefs;
+use CMSMS\AppParams;
+use CMSMS\DeprecationNotice;
 use PHPMailer\PHPMailer\PHPMailer;
-use function get_parameter_value;
+use const CMS_DEPREC;
 
 /**
- * A class for sending email.
+ * A class for interfacing with PHPMailer to send email.
  *
- * Prior to CMSMS 2.0 this class was implemented as a core module.
- *
+ * Prior to CMSMS 2.0 this class was implemented as a module.
  * @package CMS
  * @license GPL
  * @since 2.0
+ * @deprecated since 2.9 due to PHPMailer's incompatible license. Instead
+ *  use e.g. CMSMailer\Mailer in the un-deprecated CMSMailer module.
  * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
-
 class Mailer
 {
   /**
@@ -42,29 +44,14 @@ class Mailer
   /**
    * Constructor
    *
-   * @param bool $exceptions Optionally disable exceptions, and rely on error strings.
+   * @param bool $exceptions Optionally disable exceptions and rely on
+   *  error strings.
    */
   public function __construct($exceptions = true)
   {
-    if (spl_autoload_register([$this, 'PHPMailerAutoload'], $exceptions)) {
-      $this->_mailer = new PHPMailer($exceptions);
-      $this->reset();
-    } else {
-      $this->_mailer = null;
-    }
-  }
-
-  public function PHPMailerAutoload($classname)
-  {
-    $p = strpos($classname, 'PHPMailer\\PHPMailer');
-    if ($p === 0 || ($p == 1 && $classname[0] == '\\')) {
-      $parts = explode('\\', $classname);
-      $class = end($parts);
-      $fp = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'phpmailer' . DIRECTORY_SEPARATOR . $class . '.php';
-      if (is_readable($fp)) {
-        require_once $fp;
-      }
-    }
+    assert(empty(CMS_DEPREC), new DeprecationNotice('class', 'e.g. CMSMailer\\Mailer'));
+    $this->_mailer = new PHPMailer($exceptions);
+    $this->reset();
   }
 
   /**
@@ -86,9 +73,9 @@ class Mailer
    */
   public function reset()
   {
-    $val = cms_siteprefs::get('mailprefs');
+    $val = AppParams::get('mailprefs');
     $prefs = ($val) ? unserialize($val) : null;
-    if(!$prefs) {
+    if (!$prefs) {
       $prefs = [
        'mailer'=>'mail',
        'host'=>'localhost',
@@ -104,18 +91,18 @@ class Mailer
        'charset'=>'utf-8',
       ];
     }
-    $this->_mailer->Mailer = get_parameter_value($prefs,'mailer','mail');
-    $this->_mailer->Sendmail = get_parameter_value($prefs,'sendmail','/usr/sbin/sendmail');
-    $this->_mailer->Timeout = get_parameter_value($prefs,'timeout',60);
-    $this->_mailer->Port = get_parameter_value($prefs,'port',25);
-    $this->_mailer->FromName = get_parameter_value($prefs,'fromuser');
-    $this->_mailer->From = get_parameter_value($prefs,'from');
-    $this->_mailer->Host = get_parameter_value($prefs,'host');
-    $this->_mailer->SMTPAuth = get_parameter_value($prefs,'smtpauth',0);
-    $this->_mailer->Username = get_parameter_value($prefs,'username');
-    $this->_mailer->Password = get_parameter_value($prefs,'password');
-    $this->_mailer->SMTPSecure = get_parameter_value($prefs,'secure');
-    $this->_mailer->CharSet = get_parameter_value($prefs,'charset','utf-8');
+    $this->_mailer->Mailer = $prefs['mailer'] ?? 'mail';
+    $this->_mailer->Sendmail = $prefs['sendmail'] ?? '/usr/sbin/sendmail';
+    $this->_mailer->Timeout = $prefs['timeout'] ?? 60;
+    $this->_mailer->Port = $prefs['port'] ?? 25;
+    $this->_mailer->FromName = $prefs['fromuser'] ?? '';
+    $this->_mailer->From = $prefs['from'] ?? '';
+    $this->_mailer->Host = $prefs['host'] ?? '';
+    $this->_mailer->SMTPAuth = $prefs['smtpauth'] ?? 0;
+    $this->_mailer->Username = $prefs['username'] ?? '';
+    $this->_mailer->Password = $prefs['password'] ?? '';
+    $this->_mailer->SMTPSecure = $prefs['secure'] ?? '';
+    $this->_mailer->CharSet = $prefs['charset'] ?? 'utf-8';
     $this->_mailer->ErrorInfo = '';
     $this->_mailer->ClearAllRecipients();
     $this->_mailer->ClearAttachments();
@@ -138,7 +125,7 @@ class Mailer
    * For HTML messages the alternate body contains a text only string for email clients without HTML support.
    * @param string $txt
    */
-  public function SetAltBody( $txt )
+  public function SetAltBody($txt)
   {
     $this->_mailer->AltBody = $txt;
   }
@@ -159,7 +146,7 @@ class Mailer
    * If the email message is in HTML format this can contain HTML code.  Otherwise it should contain only text.
    * @param string $txt
    */
-  public function SetBody( $txt )
+  public function SetBody($txt)
   {
     $this->_mailer->Body = $txt;
   }
@@ -179,7 +166,7 @@ class Mailer
    *
    * @param string $charset
    */
-  public function SetCharSet( $charset )
+  public function SetCharSet($charset)
   {
     $this->_mailer->CharSet = $charset;
   }
@@ -199,7 +186,7 @@ class Mailer
    *
    * @param string $email
    */
-  public function SetConfirmReadingTo( $email )
+  public function SetConfirmReadingTo($email)
   {
     $this->_mailer->ConfirmReadingTo = $email;
   }
@@ -214,14 +201,14 @@ class Mailer
   }
 
   /**
-   * Sets the encoding of the message.
+   * Set the encoding of the message.
    *
    * Possible values are: 8bit, 7bit, binary, base64, and quoted-printable
    * @param string $encoding
    */
-  public function SetEncoding( $encoding )
+  public function SetEncoding($encoding)
   {
-    switch( strtolower($encoding) ) {
+    switch(strtolower($encoding)) {
     case '8bit':
     case '7bit':
     case 'binary':
@@ -258,7 +245,7 @@ class Mailer
    *
    * @param string $email Th email address that the email will be from.
    */
-  public function SetFrom( $email )
+  public function SetFrom($email)
   {
     $this->_mailer->From = $email;
   }
@@ -277,13 +264,13 @@ class Mailer
    *
    * @param string $name
    */
-  public function SetFromName( $name )
+  public function SetFromName($name)
   {
     $this->_mailer->FromName = $name;
   }
 
   /**
-   * Gets the SMTP HELO of the message
+   * Get the SMTP HELO of the message
    * @return string
    */
   public function GetHelo()
@@ -292,10 +279,10 @@ class Mailer
   }
 
   /**
-   * Sets the SMTP HELO of the message (Default is $Hostname)
+   * Set the SMTP HELO of the message (Default is $Hostname)
    * @param string $helo
    */
-  public function SetHelo( $helo )
+  public function SetHelo($helo)
   {
     $this->_mailer->Helo = $helo;
   }
@@ -319,7 +306,7 @@ class Mailer
    * Hosts will be tried in order
    * @param string $host
    */
-  public function SetSMTPHost( $host )
+  public function SetSMTPHost($host)
   {
     $this->_mailer->Host = $host;
   }
@@ -339,7 +326,7 @@ class Mailer
    * and as the default HELO string.  If empty the value will be calculated
    * @param string $hostname
    */
-  public function SetHostname( $hostname )
+  public function SetHostname($hostname)
   {
     $this->_mailer->Hostname = $hostname;
   }
@@ -359,7 +346,7 @@ class Mailer
    * possible values for this field are 'mail','smtp', and 'sendmail'
    * @param string $mailer
    */
-  public function SetMailer( $mailer )
+  public function SetMailer($mailer)
   {
     $this->_mailer->Mailer = $mailer;
   }
@@ -380,7 +367,7 @@ class Mailer
    *
    * @param string $password
    */
-  public function SetSMTPPassword( $password )
+  public function SetSMTPPassword($password)
   {
     $this->_mailer->Password = $password;
   }
@@ -401,7 +388,7 @@ class Mailer
    *
    * @param int $port
    */
-  public function SetSMTPPort( $port )
+  public function SetSMTPPort($port)
   {
     $port = max(1,(int) $port);
     $this->_mailer->Port = $port;
@@ -421,7 +408,7 @@ class Mailer
    * (1 = High, 3 = Normal, 5 = low)
    * @param int $priority
    */
-  public function SetPriority( $priority )
+  public function SetPriority($priority)
   {
     $priority = max(1,min(5,$priority));
     $this->_mailer->Priority = $priority;
@@ -440,7 +427,7 @@ class Mailer
    * Set the Sender email (return-path) of the message.
    * @param string $sender
    */
-  public function SetSender( $sender )
+  public function SetSender($sender)
   {
     $this->_mailer->Sender = $sender;
   }
@@ -461,7 +448,7 @@ class Mailer
    * @param string $path
    * @see Mailer::SetMailer
    */
-  public function SetSendmail( $path )
+  public function SetSendmail($path)
   {
     $this->_mailer->Sendmail = $path;
   }
@@ -482,7 +469,7 @@ class Mailer
    * @param bool $flag
    * @see Mailer::SetMailer
    */
-  public function SetSMTPAuth( $flag = true )
+  public function SetSMTPAuth($flag = true)
   {
     $this->_mailer->SMTPAuth = $flag;
   }
@@ -504,7 +491,7 @@ class Mailer
    * @param bool $flag
    * @see Mailer::SetMailer
    */
-  public function SetSMTPDebug( $flag = TRUE )
+  public function SetSMTPDebug($flag = TRUE)
   {
     $this->_mailer->SMTPDebug = $flag;
   }
@@ -519,7 +506,7 @@ class Mailer
   }
 
   /**
-   * Prevents the SMTP connection from being closed after sending each message.
+   * Prevent the SMTP connection from being closed after sending each message.
    * If this is set to true then SmtpClose must be used to close the connection
    *
    * This method is only useful when using the SMTP mailer.
@@ -528,7 +515,7 @@ class Mailer
    * @see Mailer::SetMailer
    * @see Mailer::SmtpClose
    */
-  public function SetSMTPKeepAlive( $flag = true )
+  public function SetSMTPKeepAlive($flag = true)
   {
     $this->_mailer->SMTPKeepAlive = $flag;
   }
@@ -546,7 +533,7 @@ class Mailer
    * Set the subject of the message
    * @param string $subject
    */
-  public function SetSubject( $subject )
+  public function SetSubject($subject)
   {
     $this->_mailer->Subject = $subject;
   }
@@ -566,7 +553,7 @@ class Mailer
    * @param int $timeout
    * @see Mailer::SetMailer
    */
-  public function SetSMTPTimeout( $timeout )
+  public function SetSMTPTimeout($timeout)
   {
     $this->_mailer->Timeout = $timeout;
   }
@@ -587,7 +574,7 @@ class Mailer
    * @param string $username
    * @see Mailer::SetMailer
    */
-  public function SetSMTPUsername( $username )
+  public function SetSMTPUsername($username)
   {
     $this->_mailer->Username = $username;
   }
@@ -606,7 +593,7 @@ class Mailer
    * Set word wrapping on the body of the message to the given number of characters
    * @param int $chars
    */
-  public function SetWordWrap( $chars )
+  public function SetWordWrap($chars)
   {
     $chars = max(0,min(1000,$chars));
     $this->_mailer->WordWrap = $chars;
@@ -618,22 +605,22 @@ class Mailer
    * @param string $name    The real name
    * @return bool true on success, false if address already used
    */
-  public function AddAddress( $address, $name = '' )
+  public function AddAddress($address, $name = '')
   {
-    return $this->_mailer->AddAddress( $address, $name );
+    return $this->_mailer->AddAddress($address, $name);
   }
 
   /**
-   * Adds an attachment from a path on the filesystem
+   * Add an attachment from a path on the filesystem
    * @param string $path Complete file specification to the attachment
    * @param string $name Set the attachment name
    * @param string $encoding File encoding (see $encoding)
    * @param string $type (mime type for the attachment)
    * @return bool true on success, false on failure.
    */
-  public function AddAttachment( $path, $name = '', $encoding = 'base64', $type = 'application/octet-stream' )
+  public function AddAttachment($path, $name = '', $encoding = 'base64', $type = 'application/octet-stream')
   {
-    return $this->_mailer->AddAttachment( $path, $name, $encoding, $type );
+    return $this->_mailer->AddAttachment($path, $name, $encoding, $type);
   }
 
   /**
@@ -642,9 +629,9 @@ class Mailer
    * @param string $name The real name.
    * @return bool true on success, false on failure.
    */
-  public function AddBCC( $addr, $name = '' )
+  public function AddBCC($addr, $name = '')
   {
-    $this->_mailer->AddBCC( $addr, $name );
+    $this->_mailer->AddBCC($addr, $name);
   }
 
   /**
@@ -653,9 +640,9 @@ class Mailer
    * @param string $name The real name.
    * @return bool true on success, false on failure.
    */
-  public function AddCC( $addr, $name = '' )
+  public function AddCC($addr, $name = '')
   {
-    $this->_mailer->AddCC( $addr, $name );
+    $this->_mailer->AddCC($addr, $name);
   }
 
   /**
@@ -664,13 +651,13 @@ class Mailer
    * i.e: $obj->AddCustomHeader('X-MYHEADER: some-value');
    * @param string $header
    */
-  public function AddCustomHeader( $header )
+  public function AddCustomHeader($header)
   {
-    $this->_mailer->AddCustomHeader( $header );
+    $this->_mailer->AddCustomHeader($header);
   }
 
   /**
-   * Adds an embedded attachment.  This can include images, sounds, and
+   * Add an embedded attachment.  This can include images, sounds, and
    * just about any other document.  Make sure to set the $type to an
    * image type.  For JPEG images use "image/jpeg" and for GIF images
    * use "image/gif".
@@ -682,38 +669,38 @@ class Mailer
    * @param string $type File extension (MIME) type.
    * @return bool
    */
-  public function AddEmbeddedImage( $path, $cid, $name = '', $encoding = 'base64', $type = 'application/octet-stream' )
+  public function AddEmbeddedImage($path, $cid, $name = '', $encoding = 'base64', $type = 'application/octet-stream')
   {
-    return $this->_mailer->AddEmbeddedImage( $path, $cid, $name, $encoding, $type );
+    return $this->_mailer->AddEmbeddedImage($path, $cid, $name, $encoding, $type);
   }
 
   /**
-   * Adds a "Reply-to" address.
+   * Add a "Reply-to" address.
    * @param string $addr
    * @param string $name
    * @return bool
    */
-  public function AddReplyTo( $addr, $name = '' )
+  public function AddReplyTo($addr, $name = '')
   {
-    $this->_mailer->AddReplyTo( $addr, $name );
+    $this->_mailer->AddReplyTo($addr, $name);
   }
 
   /**
-   * Adds a string or binary attachment (non-filesystem) to the list.
-   * This method can be used to attach ascii or binary data,
+   * Add a string or binary attachment (non-filesystem) to the list.
+   * This method can be used to attach ASCII or binary data,
    * such as a BLOB record from a database.
    * @param string $string String attachment data.
    * @param string $filename Name of the attachment.
    * @param string $encoding File encoding (see $Encoding).
    * @param string $type File extension (MIME) type.
    */
-  public function AddStringAttachment( $string, $filename, $encoding = 'base64', $type = 'application/octet-stream' )
+  public function AddStringAttachment($string, $filename, $encoding = 'base64', $type = 'application/octet-stream')
   {
-    $this->_mailer->AddStringAttachment( $string, $filename, $encoding, $type );
+    $this->_mailer->AddStringAttachment($string, $filename, $encoding, $type);
   }
 
   /**
-   * Clears all recipients in the To list
+   * Clear all recipients in the To list
    * @see Mailer::AddAddress
    */
   public function ClearAddresses()
@@ -722,7 +709,7 @@ class Mailer
   }
 
   /**
-   * Clears all recipients in the To,CC, and BCC lists
+   * Clear all recipients in the To, CC and BCC lists
    * @see Mailer::AddAddress
    * @see Mailer::AddCC
    * @see Mailer::AddBCC
@@ -733,7 +720,7 @@ class Mailer
   }
 
   /**
-   * Clears all attachments
+   * Clear all attachments
    * @see Mailer::AddAttachment
    * @see Mailer::AddStringAttachment
    * @see Mailer::AddEmbeddedImage
@@ -780,7 +767,7 @@ class Mailer
   }
 
   /**
-   * Test if there was an error on the last message send
+   * Check whether there was an error on the last message send
    * @return bool
    */
   public function IsError()
@@ -798,7 +785,7 @@ class Mailer
   }
 
   /**
-   * Test if the mailer is set to 'mail'
+   * Check whether the mailer is set to 'mail'
    * @return bool
    */
   public function IsMail()
@@ -807,7 +794,7 @@ class Mailer
   }
 
   /**
-   * Test if the mailer is set to 'sendmail'
+   * Check whether the mailer is set to 'sendmail'
    * @return bool
    */
   public function IsSendmail()
@@ -816,7 +803,7 @@ class Mailer
   }
 
   /**
-   * Test if the mailer is set to 'SMTP'
+   * Check whether the mailer is set to 'SMTP'
    * @return bool
    */
   public function IsSMTP()
@@ -827,7 +814,8 @@ class Mailer
   /**
    * Send the current message using all current settings.
    *
-   * This method may throw exceptions if $exceptions were enabled in the constructor
+   * This method might throw an exception if $exceptions were enabled
+   *  in the constructor (which they are, by default)
    *
    * @return bool
    * @see Mailer::__construct
@@ -857,7 +845,7 @@ class Mailer
   }
 
   /**
-   * Gets the secure SMTP connection mode, or none
+   * Get the secure SMTP connection mode, or none
    * @return string
    */
   public function GetSMTPSecure()
@@ -867,13 +855,11 @@ class Mailer
 
   /**
    * Set the secure SMTP connection mode, or none
-   * possible values are "", "ssl", or "tls"
-   * @param string $value
+   * @param string $value Valid values are "", "ssl" or "tls"
    */
   public function SetSMTPSecure($value)
   {
     $value = strtolower($value);
-    if( $value == '' || $value == 'ssl' || $value == 'tls' ) $this->_mailer->SMTPSecure = $value;
+    if ($value == '' || $value == 'ssl' || $value == 'tls') $this->_mailer->SMTPSecure = $value;
   }
-
 } // class

@@ -617,6 +617,32 @@
   </fieldset>
 
   <fieldset>
+    <legend>{lang('password_settings')}</legend>
+    <div class="pageoverflow">
+      <div class="pagetext">{$t=lang('password_timeout')}
+        <label for="passlife">{$t}:</label>
+        {cms_help key2='settings_password_life' title=$t}
+      </div>
+      <div class="pageinput">
+        <select id="passlife" name="password_life">
+          {html_options options=$pass_lives selected=$passwordlife}
+        </select>
+      </div>
+    </div>
+    <div class="pageoverflow">
+      <div class="pagetext">{$t=lang('password_level')}
+        <label for="passlevel">{$t}:</label>
+        {cms_help key2='settings_password_level' title=$t}
+      </div>
+      <div class="pageinput">
+        <select id="passlevel" name="password_level">
+          {html_options options=$pass_levels selected=$passwordlevel}
+        </select>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
     <legend>{lang('duration_settings')}</legend>
     <div class="pageoverflow">
       <div class="pagetext">{$t=lang('admin_lock_timeout')}

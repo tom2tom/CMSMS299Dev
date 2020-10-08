@@ -16,8 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Utils;
 use ModuleManager\modulerep_client;
-use ModuleManager\utils;
+use ModuleManager\Utils as ManagerUtils;
 
 //TODO what's expected to go into the alternate dir ?
 $dir = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules';
@@ -54,13 +55,13 @@ if( $newversions ) {
         else {
             $mver = $mod->GetVersion();
             if( version_compare($row['version'],$mver) > 0 ) {
-                $modinst = cms_utils::get_module($row['name']);
+                $modinst = Utils::get_module($row['name']);
                 if( is_object($modinst) ) $onerow->haveversion = $modinst->GetVersion();
 
-                $onerow->age = utils::get_status($row['date']);
+                $onerow->age = ManagerUtils::get_status($row['date']);
                 $onerow->downloads = $row['downloads'];
                 $onerow->date = $row['date'];
-                $onerow->age = utils::get_status($row['date']);
+                $onerow->age = ManagerUtils::get_status($row['date']);
 
                 $onerow->name = $this->CreateLink( $id, 'modulelist', $returnid, $row['name'], ['name'=>$row['name']]);
                 $onerow->version = $row['version'];

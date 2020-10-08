@@ -18,17 +18,19 @@
 
 namespace CMSContentManager;
 
-use cms_config;
-use cms_tree;
-use cms_userprefs;
-use CmsApp;
-use CMSContentManager;
+use CMSContentManager; // the module-class
+use CMSContentManager\ContentBase;
+use CMSContentManager\ContentListFilter;
+use CMSContentManager\ContentListQuery;
 use CMSContentManager\Utils;
+use CMSMS\AppSingle;
 use CMSMS\ContentOperations;
-use CMSMS\SysDataCache;
 use CMSMS\LockOperations;
+use CMSMS\SysDataCache;
 use CMSMS\TemplateOperations;
+use CMSMS\Tree;
 use CMSMS\UserOperations;
+use CMSMS\UserParams;
 use Throwable;
 use function audit;
 use function check_authorship;
@@ -69,7 +71,7 @@ final class ContentListBuilder
 	{
 		$this->_module = $mod;
 		$this->_userid = get_userid();
-		$tmp = cms_userprefs::get('opened_pages');
+		$tmp = UserParams::get('opened_pages');
 		if( $tmp ) $this->_opened_array = explode(',',$tmp);
 	}
 
@@ -95,7 +97,7 @@ final class ContentListBuilder
 		$tmp[] = $parent_page_id;
 		asort($tmp);
 		$this->_opened_array = array_unique($tmp);
-		cms_userprefs::set('opened_pages',implode(',',$this->_opened_array));
+		UserParams::set('opened_pages',implode(',',$this->_opened_array));
 	}
 
 	/**
@@ -103,7 +105,7 @@ final class ContentListBuilder
 	 */
 	public function expand_all()
 	{
-		$hm = CmsApp::get_instance()->GetHierarchyManager(); //TODO below find all children better
+		$hm = AppSingle::App()->GetHierarchyManager(); //TODO below find all children better
 
 		// find all the pages (recursively) that have children.
 		// anonymous, recursive function.
@@ -123,7 +125,7 @@ final class ContentListBuilder
 		}; // function.
 
 		$this->_opened_array = $func($hm);
-		cms_userprefs::set('opened_pages',implode(',',$this->_opened_array));
+		UserParams::set('opened_pages',implode(',',$this->_opened_array));
 	}
 
 	/**
@@ -132,7 +134,7 @@ final class ContentListBuilder
 	public function collapse_all()
 	{
 		$this->_opened_array = [];
-		cms_userprefs::remove('opened_pages');
+		UserParams::remove('opened_pages');
 	}
 
 	/**
@@ -150,10 +152,10 @@ final class ContentListBuilder
 		asort($tmp);
 		$this->_opened_array = array_unique($tmp);
 		if( $this->_opened_array ) {
-			cms_userprefs::set('opened_pages',implode(',',$this->_opened_array));
+			UserParams::set('opened_pages',implode(',',$this->_opened_array));
 		}
 		else {
-			cms_userprefs::remove('opened_pages');
+			UserParams::remove('opened_pages');
 		}
 		return TRUE;
 	}
@@ -168,7 +170,7 @@ final class ContentListBuilder
 		if( $page_id < 1 ) return FALSE;
 		if( !$this->_module->CheckPermission('Manage All Content') ) return FALSE;
 
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$hm = AppSingle::App()->GetHierarchyManager();
 		$node = $hm->quickfind_node_by_id($page_id);
 		if( !$node ) return FALSE;
 		$content = $node->getContent(FALSE,FALSE,FALSE);
@@ -352,7 +354,7 @@ final class ContentListBuilder
 
 		if( !$test ) return $this->_module->Lang('error_delete_permission');
 
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$hm = AppSingle::App()->GetHierarchyManager();
 		$node = $hm->quickfind_node_by_id($page_id);
 		if( !$node ) return $this->_module->Lang('error_invalidpageid');
 		if( $node->has_children() ) return $this->_module->Lang('error_delete_haschildren');
@@ -377,7 +379,7 @@ final class ContentListBuilder
 
 	public function pretty_urls_configured()
 	{
-		$config = cms_config::get_instance();
+		$config = AppSingle::Config();
 		return isset($config['url_rewriting']) && $config['url_rewriting'] != 'none';
 	}
 
@@ -435,7 +437,7 @@ final class ContentListBuilder
 	/**
 	 * Recursive function to generate a list of all content pages.
 	 */
-	private function _get_all_pages(cms_tree $node)
+	private function _get_all_pages(Tree $node)
 	{
 		$out = [];
 		if( $node->get_tag('id') ) $out[] = $node->get_tag('id');
@@ -463,7 +465,7 @@ final class ContentListBuilder
 			 if got to root, add items children
 		3. reduce list by items we are able to view (author pages)
 */
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$hm = AppSingle::App()->GetHierarchyManager();
 		$display = [];
 
 		// filter the display list by what we're authorized to view.
@@ -753,7 +755,7 @@ final class ContentListBuilder
 					break;
 
 				case 'page':
-					if( $content->MenuText() == CMSContentManager\ContentBase::CMS_CONTENT_HIDDEN_NAME ) break;
+					if( $content->MenuText() == ContentBase::CMS_CONTENT_HIDDEN_NAME ) break;
 					if( Utils::get_pagenav_display() == 'title' ) { $rec[$column] = strip_tags($content->Name()); }
 					else { $rec[$column] = $rec['menutext']; }
 					break;

@@ -16,6 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
+use CMSMS\Utils;
+
 function smarty_function_page_image($params, $template)
 {
 	$get_bool = function(array $params,$key,$dflt) {
@@ -34,7 +37,7 @@ function smarty_function_page_image($params, $template)
 	if( $thumbnail ) $propname = 'thumbnail';
 	if( $tag ) $full = true;
 
-	$contentobj = cms_utils::get_current_content();
+	$contentobj = Utils::get_current_content();
 	$val = null;
 	if( is_object($contentobj) ) {
 		$val = $contentobj->GetPropertyValue($propname);
@@ -44,7 +47,7 @@ function smarty_function_page_image($params, $template)
 	$out = null;
 	if( $val ) {
 		$orig_val = $val;
-		$config = cms_config::get_instance();
+		$config = AppSingle::Config();
 		if( $full ) $val = $config['image_uploads_url'].'/'.$val;
 		if( ! $tag ) {
 			$out = $val;

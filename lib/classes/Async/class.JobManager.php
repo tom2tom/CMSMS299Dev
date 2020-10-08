@@ -18,7 +18,7 @@
 
 namespace CMSMS\Async;
 
-use CmsApp;
+use CMSMS\App;
 
 /**
  * A class for asynchronous jobs.
@@ -73,7 +73,7 @@ final class JobManager
      */
     protected function get_mod()
     {
-        if( !self::$_mod ) { self::$_mod = CmsApp::get_instance()->GetJobManager(); }
+        if( !self::$_mod ) { self::$_mod = App::get_instance()->GetJobManager(); }
         return self::$_mod;
     }
 

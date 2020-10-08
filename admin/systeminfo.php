@@ -16,9 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\NlsOperations;
 use CMSMS\SystemCache;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -30,7 +33,7 @@ $urlext = get_secure_param();
 $userid = get_userid();
 $access = check_permission($userid, 'Modify Site Preferences');
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (!$access) {
 //TODO some immediate popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
@@ -81,7 +84,7 @@ EOS;
 }
 
 // smarty
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->registerPlugin('function', 'si_lang', function($params, $smarty)
 {
     if ($params) {
@@ -103,7 +106,7 @@ $smarty->assign('themename', $themeObject->themeName)
 // CMSMS install information
  ->assign('cms_version', $GLOBALS['CMS_VERSION']);
 
-$db = CmsApp::get_instance()->GetDb();
+$db = AppSingle::Db();
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules WHERE active=1';
 $modules = $db->GetArray($query);
 asort($modules);
@@ -139,9 +142,9 @@ $smarty->assign('count_config_info', count($tmp[0]))
 /* Performance Information */
 $tmp = [[],[]];
 
-$res = cms_siteprefs::get('allow_browser_cache', 0);
+$res = AppParams::get('allow_browser_cache', 0);
 $tmp[0]['allow_browser_cache'] = testBoolean(0, lang('allow_browser_cache'), $res, lang('test_allow_browser_cache'), false);
-$res = cms_siteprefs::get('browser_cache_expiry', 60);
+$res = AppParams::get('browser_cache_expiry', 60);
 $tmp[0]['browser_cache_expiry'] = testRange(0, lang('browser_cache_expiry'), $res, lang('test_browser_cache_expiry'), 1, 60, false);
 /* N/A for PHP7
 if (version_compare(PHP_VERSION, '5.5') >= 0) {
@@ -151,9 +154,9 @@ if (version_compare(PHP_VERSION, '5.5') >= 0) {
     $tmp[0]['php_opcache'] = testBoolean(0, lang('php_opcache'), false, '', false, false, 'opcache_notavailable');
 }
 */
-$res = cms_siteprefs::get('smarty_compilecheck', 1);
+$res = AppParams::get('smarty_compilecheck', 1);
 $tmp[0]['smarty_compilecheck'] = testBoolean(0, lang('smarty_compilecheck'), $res, lang('test_smarty_compilecheck'), false, true);
-$res = cms_siteprefs::get('auto_clear_cache_age', 0);
+$res = AppParams::get('auto_clear_cache_age', 0);
 $tmp[0]['auto_clear_cache_age'] = testRange(0, lang('autoclearcache2'), $res, lang('test_auto_clear_cache_age'), 0, 30, false);
 $cache = SystemCache::get_instance();
 $type = get_class($cache->get_driver());
@@ -161,7 +164,7 @@ $c = stripos($type, 'Cache');
 $res = ucfirst(substr($type, $c+5));
 if( $res != 'File' ) { $res .= ' (auto)'; } else { $res = 'Saved files'; } //TODO lang
 $tmp[0]['cache_driver'] = testDummy(lang('system_cachetype'),$res,'');
-$res = cms_siteprefs::get('cache_lifetime', 0);
+$res = AppParams::get('cache_lifetime', 0);
 $tmp[0]['cache_lifetime'] = testDummy(lang('system_cachelife'),$res,'');
 
 $smarty->assign('performance_info', $tmp);
@@ -295,7 +298,7 @@ if (!$hascurl) {
 $smarty->assign('count_php_information', count($tmp[0]))
  ->assign('php_information', $tmp);
 
-//$config = cms_config::get_instance();
+//$config = AppSingle::Config();
 
 /* Server Information */
 $tmp = [[],[]];
@@ -351,7 +354,7 @@ $tmp[0]['modules'] = testMultiDirWrite(0, 'Module directories', cms_module_place
 $dir = $config['uploads_path'];
 $tmp[0]['uploads'] = testDirWrite(0, $dir, $dir);
 
-$global_umask = cms_siteprefs::get('global_umask', '022');
+$global_umask = AppParams::get('global_umask', '022');
 $tmp[0][lang('global_umask')] = testUmask(0, lang('global_umask'), $global_umask);
 
 $result = is_writable(CONFIG_FILE_LOCATION);
@@ -364,16 +367,15 @@ $smarty->assign('count_permission_info', count($tmp[0]))
  ->assign('selfurl', $selfurl)
  ->assign('urlext', $urlext);
 
-include_once 'header.php';
-
-if (isset($_GET['cleanreport']) && $_GET['cleanreport'] == 1) {
+if (!empty($_GET['cleanreport'])) {
     $orig_lang = NlsOperations::get_current_language();
     NlsOperations::set_language('en_US');
-    $smarty->display('systeminfo.txt.tpl');
+    $content = $smarty->fetch('systeminfo.txt.tpl');
     NlsOperations::set_language($orig_lang);
 } else {
-    $smarty->display('systeminfo.tpl');
+    $content = $smarty->fetch('systeminfo.tpl');
 }
 
-include_once 'footer.php';
-
+require './header.php';
+echo $content;
+require './footer.php';

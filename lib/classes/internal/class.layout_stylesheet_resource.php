@@ -18,7 +18,7 @@
 
 namespace CMSMS\internal;
 
-use CmsApp;
+use CMSMS\AppSingle;
 use Smarty_Resource_Custom;
 use const CMS_DB_PREFIX;
 use function cms_error;
@@ -73,7 +73,7 @@ class layout_stylesheet_resource extends Smarty_Resource_Custom //fixed_smarty_c
 		}
 		else {
 			if( !self::$db ) {
-				self::$db = CmsApp::get_instance()->GetDb();
+				self::$db = AppSingle::Db();
 				// TODO DT field for modified
 				self::$stmt = self::$db->Prepare('SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE id=? OR name=?');
 			}

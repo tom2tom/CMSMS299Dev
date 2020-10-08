@@ -16,9 +16,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Utils;
+
 function smarty_function_anchor($params, $template)
 {
-	$content = cms_utils::get_current_content();
+	$content = Utils::get_current_content();
 	if( !is_object($content) ) return;
 
 	$class='';

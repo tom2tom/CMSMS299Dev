@@ -17,14 +17,17 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
+use CMSMS\Template;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplatesGroup;
+use CMSMS\TemplateType;
 
 if( !isset($gCms) ) exit;
 
 $me = $this->GetName();
 
 try {
-    $menu_type = new CmsLayoutTemplateType();
+    $menu_type = new TemplateType();
     $menu_type->set_originator($me);
     $menu_type->set_name('navigation');
     $menu_type->set_dflt_flag(TRUE);
@@ -42,7 +45,7 @@ catch( Throwable $t ) {
 }
 
 try {
-    $crumb_type = new CmsLayoutTemplateType();
+    $crumb_type = new TemplateType();
     $crumb_type->set_originator($me);
     $crumb_type->set_name('breadcrumbs');
     $crumb_type->set_dflt_flag(TRUE);
@@ -70,7 +73,7 @@ try {
     $fn = cms_join_path(__DIR__,'templates','simple_navigation.tpl');
     if( is_file($fn) ) {
         $content = @file_get_contents($fn);
-        $tpl = new CmsLayoutTemplate();
+        $tpl = new Template();
         $tpl->set_originator($me);
         $tpl->set_name(TemplateOperations::get_unique_template_name('Simple Navigation'));
         $tpl->set_owner($uid);
@@ -83,7 +86,7 @@ try {
     $fn = cms_join_path(__DIR__,'templates','cssmenu.tpl');
     if( is_file($fn) ) {
         $content = @file_get_contents($fn);
-        $tpl = new CmsLayoutTemplate();
+        $tpl = new Template();
         $tpl->set_originator($me);
         $tpl->set_name(TemplateOperations::get_unique_template_name('cssmenu'));
         $tpl->set_owner($uid);
@@ -95,7 +98,7 @@ try {
     $fn = cms_join_path(__DIR__,'templates','cssmenu_ulshadow.tpl');
     if( is_file($fn) ) {
         $content = @file_get_contents($fn);
-        $tpl = new CmsLayoutTemplate();
+        $tpl = new Template();
         $tpl->set_originator($me);
         $tpl->set_name(TemplateOperations::get_unique_template_name('cssmenu_ulshadow'));
         $tpl->set_owner($uid);
@@ -107,7 +110,7 @@ try {
     $fn = cms_join_path(__DIR__,'templates','minimal_menu.tpl');
     if( is_file($fn) ) {
         $content = @file_get_contents($fn);
-        $tpl = new CmsLayoutTemplate();
+        $tpl = new Template();
         $tpl->set_originator($me);
         $tpl->set_name(TemplateOperations::get_unique_template_name('minimal_menu'));
         $tpl->set_owner($uid);
@@ -122,7 +125,7 @@ try {
             $fn = cms_join_path(__DIR__,'templates','Simplex_Main_Navigation.tpl');
             if( is_file($fn) ) {
                 $content = @file_get_contents($fn);
-                $tpl = new CmsLayoutTemplate();
+                $tpl = new Template();
                 $tpl->set_originator($me);
                 $tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Main Navigation'));
                 $tpl->set_owner($uid);
@@ -135,7 +138,7 @@ try {
             $fn = cms_join_path(__DIR__,'templates','Simplex_Footer_Navigation.tpl');
             if( is_file($fn) ) {
                 $content = @file_get_contents($fn);
-                $tpl = new CmsLayoutTemplate();
+                $tpl = new Template();
                 $tpl->set_originator($me);
                 $tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Footer Navigation'));
                 $tpl->set_owner($uid);
@@ -152,7 +155,7 @@ try {
 
         if( $extras ) {
             try {
-                $ob = CmsLayoutTemplateCategory::load('Simplex');
+                $ob = TemplatesGroup::load('Simplex');
                 $ob->add_members($extras);
                 $ob->save();
             }
@@ -165,7 +168,7 @@ try {
     $fn = cms_join_path(__DIR__,'templates','dflt_breadcrumbs.tpl');
     if( is_file($fn) ) {
         $content = @file_get_contents($fn);
-        $tpl = new CmsLayoutTemplate();
+        $tpl = new Template();
         $tpl->set_originator($me);
         $tpl->set_name(TemplateOperations::get_unique_template_name('Breadcrumbs'));
         $tpl->set_owner($uid);

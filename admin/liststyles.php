@@ -15,10 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\FormUtils;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
 use CMSMS\StylesheetOperations;
+use CMSMS\StylesheetQuery;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -42,15 +46,15 @@ if( $pmanage ) {
     }
 }
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 
 // individual stylesheets
 
 try {
-    $css_query = new CmsLayoutStylesheetQuery(); //$filter);
+    $css_query = new StylesheetQuery(); //$filter);
     $sheetslist = $css_query->GetMatches();
     if( $sheetslist ) {
-        $themeObject = cms_utils::get_theme_object();
+        $themeObject = Utils::get_theme_object();
         $u = 'editstylesheet.php'.$urlext.'&amp;css=XXX';
         $t = lang_by_realm('layout','title_edit_stylesheet');
         $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
@@ -139,7 +143,7 @@ try {
          ->assign('currentlength',$sellength);
     }
     else {
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::Db();
         $query = 'SELECT EXISTS (SELECT 1 FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.')';
         if( $db->GetOne($query) ) {
             $smarty->assign('stylesheets',false); //signal rows exist, but none matches
@@ -152,7 +156,7 @@ try {
     $smarty->assign('urlext',$urlext)
      ->assign('extraparms',$extras);
 }
-catch( Exception $e ) {
+catch( Throwable $e ) {
     echo '<div class="error">'.$e->GetMessage().'</div>';
 }
 
@@ -171,14 +175,14 @@ $t1 = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prom
 $t2 = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_stylesgroup'));
 $cancel = lang('cancel');
 $submit = lang('submit');
-$secs = cms_siteprefs::get('lock_refresh', 120);
+$secs = AppParams::get('lock_refresh', 120);
 $secs = max(30,min(600,$secs));
 
-$sm = new ScriptOperations();
-$sm->queue_matchedfile('jquery.SSsort.js', 1);
-$sm->queue_matchedfile('jquery.ContextMenu.js', 1);
-$sm->queue_matchedfile('jquery.cmsms_poll.js', 2);
-$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
+$jsm = new ScriptsMerger();
+$jsm->queue_matchedfile('jquery.SSsort.js', 1);
+$jsm->queue_matchedfile('jquery.ContextMenu.js', 1);
+$jsm->queue_matchedfile('jquery.cmsms_poll.js', 2);
+$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 
 $js = <<<EOS
 var pagetable;
@@ -374,9 +378,9 @@ $(function() {
   });
 });
 EOS;
-$sm->queue_string($js, 3);
+$jsm->queue_string($js, 3);
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 // stylesheet groups
 
@@ -465,10 +469,10 @@ $(function() {
 });
 
 EOS;
-    $sm->queue_string($js, 3);
+    $jsm->queue_string($js, 3);
 }
 
-$out = $sm->render_inclusion('', false, false);
+$out = $jsm->page_content('', false, false);
 if( $out ) {
     add_page_foottext($out);
 }
@@ -504,8 +508,9 @@ $smarty->assign('manage_stylesheets',$pmanage)
  ->assign('urlext',$urlext)
  ->assign('extraparms',$extras)
  ->assign('extraparms2',$extras2);
-// ->assign('lock_timeout',cms_siteprefs::get('lock_timeout'))
+// ->assign('lock_timeout',AppParams::get('lock_timeout', 60))
 
-include_once 'header.php';
-$smarty->display('liststyles.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('liststyles.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

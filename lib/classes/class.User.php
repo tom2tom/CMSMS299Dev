@@ -18,7 +18,7 @@
 
 namespace CMSMS;
 
-use cms_siteprefs;
+use CMSMS\AppParams;
 
 /**
  * Generic admin user class.
@@ -36,42 +36,43 @@ class User
 	public $id;
 
 	/**
-	 * @var string Username
+	 * @var string Username / login / account
 	 */
 	public $username;
 
 	/**
-	 * @var string $password Password (md5 encoded)
+	 * @var string $password Password password_hash()'d
 	 */
 	public $password;
 
 	/**
-	 * @var string $firstname Users First Name
+	 * @var string $firstname User's 'first' name
 	 */
 	public $firstname;
 
 	/**
-	 * @var string $lastname Last Name
+	 * @var string $lastname User's 'last' name
 	 */
 	public $lastname;
 
 	/**
-	 * @var string $email Users Email Address
+	 * @var string $email User's email address
 	 */
 	public $email;
 
 	/**
-	 * @var bool $active Active Flag
+	 * @var bool $active Flag whether the user is 'normal' (FALSE implies 'ignored')
 	 */
 	public $active;
 
 	/**
-	 * @var bool $adminaccess Flag to tell whether user can login to admin panel
+	 * @var bool $adminaccess Flag whether the user may log in to the admin console
+	 * @deprecated since 2.9 This is of no practical use, as a distinction from the 'active' property
 	 */
 	public $adminaccess;
 
 	/**
-	 * Generic constructor.  Runs the SetInitialValues fuction.
+	 * Generic constructor.  Runs the SetInitialValues function.
 	 */
 	public function __construct()
 	{
@@ -91,8 +92,8 @@ class User
 		$this->firstname = '';
 		$this->lastname = '';
 		$this->email = '';
-		$this->active = false;
-		$this->adminaccess = false;
+		$this->active = true;
+		$this->adminaccess = true; //deprecated since 2.9
 	}
 
 	/**
@@ -114,7 +115,7 @@ class User
 	 */
 	public function SetPassword($password)
 	{
-		$this->password = password_hash( $password, PASSWORD_DEFAULT );
+		$this->password = password_hash($password, PASSWORD_DEFAULT);
 	}
 
 	/**
@@ -128,7 +129,7 @@ class User
 	{
 		if( strlen($this->password) == 32 && strpos( $this->password, '.') === FALSE ) {
 			// old md5 methodology
-			$hash = md5( cms_siteprefs::get('sitemask','').$password);
+			$hash = md5( AppParams::get('sitemask','').$password);
 			return ($hash == $this->password);
 		} else {
 			return password_verify( $password, $this->password );

@@ -18,26 +18,25 @@
 
 namespace CMSContentManager;
 
-use cms_config;
-use cms_siteprefs;
-use cms_utils;
-use CmsApp;
 use CmsContentException;
 use CMSContentManager\Utils;
 use CmsInvalidDataException;
 use CMSMS\AdminUtils;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\ContentEditor;
 use CMSMS\ContentOperations;
+use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\Events;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
-use CMSMS\GroupOperations;
 use CMSMS\internal\content_assistant;
-use CMSMS\SysDataCache;
+use CMSMS\Route;
 use CMSMS\RouteOperations;
+use CMSMS\SysDataCache;
 use CMSMS\UserOperations;
-use CmsRoute;
+use CMSMS\Utils as AppUtils;
 use Exception;
 use Serializable;
 use const CMS_DB_PREFIX;
@@ -341,7 +340,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 */
 	public function __construct($params = null)
 	{
-		$this->mod = cms_utils::get_module('CMSContentManager');
+		$this->mod = AppUtils::get_module('CMSContentManager');
 		$this->realm = $this->mod->GetName();
 		if( is_array($params) ) {
 			$this->LoadFromData($params);
@@ -682,11 +681,11 @@ abstract class ContentBase implements ContentEditor, Serializable
 
 		case 'page_url':
 			if( !$this->DefaultContent() ) {
-				$config = cms_config::get_instance();
+				$config = AppSingle::Config();
 				$pretty_urls = $config['url_rewriting'] == 'none' ? 0 : 1;
 				if( $pretty_urls != 0) {
 					$help = AdminUtils::get_help_tag($this->realm,'help_page_url',$this->mod->Lang('help_title_page_url'));
-					$marker = ( cms_siteprefs::get('content_mandatory_urls',0) ) ? '*' : '';
+					$marker = ( AppParams::get('content_mandatory_urls',0) ) ? '*' : '';
 					return [$marker.'<label for="page_url">'.$this->mod->Lang('page_url').':</label>&nbsp;'.$help,
 							'<input type="text" id="page_url" name="'.$id.'page_url" size="50" maxlength="255" value="'.$this->mURL.'" />'];
 				}
@@ -701,7 +700,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 					add_page_foottext($js);
 				}
 				$help = AdminUtils::get_help_tag($this->realm,'info_styles',$this->mod->Lang('help_title_styles'));
-				$smarty = CmsApp::get_instance()->GetSmarty();
+				$smarty = AppSingle::Smarty();
 				$tpl = $smarty->createTemplate($this->mod->GetTemplateResource('page_stylesheets.tpl'),null,null,$smarty);
 				$tpl->assign('mod',$this->mod)
 				 ->assign('actionid',$id)
@@ -713,10 +712,10 @@ abstract class ContentBase implements ContentEditor, Serializable
 			break;
 
 		case 'image':
-			$config = cms_config::get_instance();
-			$dir = cms_join_path($config['image_uploads_path'],cms_siteprefs::get('content_imagefield_path'));
+			$config = AppSingle::Config();
+			$dir = cms_join_path($config['image_uploads_path'],AppParams::get('content_imagefield_path'));
 			$data = $this->GetPropertyValue('image');
-			$filepicker = cms_utils::get_filepicker_module();
+			$filepicker = AppUtils::get_filepicker_module();
 			if( $filepicker ) {
 				$profile = $filepicker->get_default_profile( $dir, get_userid() );
 				$profile = $profile->overrideWith([ 'top'=>$dir,'type'=>FileType::IMAGE ]);
@@ -730,10 +729,10 @@ abstract class ContentBase implements ContentEditor, Serializable
 			return ['<label for="image">'.$this->mod->Lang('image').':</label>&nbsp;'.$help,$input];
 
 		case 'thumbnail':
-			$config = cms_config::get_instance();
-			$dir = cms_join_path($config['image_uploads_path'],cms_siteprefs::get('content_thumbnailfield_path'));
+			$config = AppSingle::Config();
+			$dir = cms_join_path($config['image_uploads_path'],AppParams::get('content_thumbnailfield_path'));
 			$data = $this->GetPropertyValue('thumbnail');
-			$filepicker = cms_utils::get_filepicker_module();
+			$filepicker = AppUtils::get_filepicker_module();
 			if( $filepicker ) {
 				$profile = $filepicker->get_default_profile( $dir, get_userid() );
 				$profile = $profile->overrideWith([ 'top'=>$dir,'type'=>FileType::IMAGE,'match_prefix'=>'thumb_' ]);
@@ -795,7 +794,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 				$help = AdminUtils::get_help_tag($this->realm,'help_content_addteditor',$this->mod->Lang('help_title_content_addteditor'));
 
 				$out = '<input type="hidden" name="'.$id.'additional_editors" value="" /><select id="addteditors" name="'.$id.'additional_editors[]" multiple="multiple" size="5">';
-				$topts = $this->GetPageEditorChoices();
+				$topts = ContentOperations::get_instance()->ListAdditionalEditors();
 				foreach( $topts as $k => $v ) {
 					if( $k == $owner_id ) continue;
 					$out .= FormUtils::create_option(['label'=>$v,'value'=>$k],$addteditors);
@@ -820,43 +819,22 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 */
 	public function display_single_element($propname, $adding)
 	{
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','ShowElement'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ShowElement'));
 		return $this->ShowElement($propname, $adding);
 	}
 
 	/**
-	 * Return all recorded user id's and group id's in a format suitable for use
-	 * in a select field.
+	 * Return all recorded user id's and group id's in a format suitable
+	 * for use in a select field.
+	 * @deprecated since 2.9 instead use ContentOperations->ListAdditionalEditors();
 	 *
 	 * @return array each member like id => name
 	 * Note: group id's are expressed as negative integers in the keys.
 	 */
-	public function GetPageEditorChoices() : array
-	{
-		$opts = [];
-		$allusers = UserOperations::get_instance()->LoadUsers();
-		foreach( $allusers as &$one ) {
-			$opts[$one->id] = $one->username;
-		}
-		$allgroups = GroupOperations::get_instance()->LoadGroups();
-		foreach( $allgroups as &$one ) {
-			if( $one->id == 1 ) continue; // exclude super-admin group (they have all privileges anyways)
-			$val = - (int)$one->id;
-			$opts[$val] = $this->mod->Lang('group').': '.$one->name;
-		}
-		unset($one);
-
-		return $opts;
-	}
-
-	/**
-	 * Static variant of GetPageEditorChoices()
-	 * TODO is it worth keeping as such?
-	 * @return array
-	 */
 	public static function GetAdditionalEditorOptions() : array
 	{
-		return (new self())->GetPageEditorChoices(); //prob doesn't work properly cuz no $params[]
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ContentOperations->ListAdditionalEditors()'));
+		return ContentOperations::get_instance()->ListAdditionalEditors();
 	}
 
 	/**
@@ -1091,7 +1069,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 		$all = $this->IsEditable(true,false);
 		if( !$all ) {
 			$basic_properties = ['title','parent'];
-			$tmp_basic_properties = cms_siteprefs::get('basic_attributes');
+			$tmp_basic_properties = AppParams::get('basic_attributes');
 			if( $tmp_basic_properties ) {
 				$tmp = explode(',',$tmp_basic_properties);
 				$tmp_basic_properties = array_walk($tmp,function(&$one) { return trim($one); });
@@ -1178,7 +1156,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 		if( $this->mId <= 0 ) return false;
 
 		$this->_props = [];
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'SELECT prop_name,content FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
 		$dbr = $db->GetAssoc($query,[(int)$this->mId]);
 		if( $dbr !== false ) {
@@ -1196,7 +1174,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 		if( $this->mId <= 0 ) return false;
 		if( !$this->_props ) return false;
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'SELECT prop_name FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
 		$gotprops = $db->GetCol($query,[$this->mId]);
 
@@ -1373,7 +1351,7 @@ VALUES (?,?,?,?,$now,$now)";
 	 */
 	protected function Update()
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		// Figure out the item_order (if necessary)
 		if( $this->mItemOrder < 1 ) {
@@ -1457,7 +1435,7 @@ WHERE content_id = ?';
 
 		RouteOperations::del_static('','__CONTENT__',$this->mId);
 		if( $this->mURL ) {
-			$route = new CmsRoute($this->mURL,'__CONTENT__',null,true,$this->mId);
+			$route = new Route($this->mURL,'__CONTENT__',null,true,$this->mId);
 			RouteOperations::add_static($route);
 		}
 	}
@@ -1476,7 +1454,7 @@ WHERE content_id = ?';
 		# :TODO: This function should return something
 		# :TODO: Careful about hierarchy here, it has no value !
 		# :TODO: Figure out proper item_order
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
 		$dflt_pageid = (int)$db->GetOne($query);
@@ -1572,7 +1550,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		}
 
 		if( $this->mURL ) {
-			$route = new CmsRoute($this->mURL,'__CONTENT__',null,true,$this->mId);
+			$route = new Route($this->mURL,'__CONTENT__',null,true,$this->mId);
 			RouteOperations::add_static($route);
 		}
 	}
@@ -1614,7 +1592,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	{
 		Events::SendEvent( 'Core', 'ContentDeletePre', [ 'content' => &$this ] ); //TODO deprecate? module for originator?
 		if( $this->mId > 0 ) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'content WHERE content_id = ?';
 			$dbr = $db->Execute($query, [$this->mId]);
@@ -1692,16 +1670,16 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		}
 
 		$auto_type = content_assistant::auto_create_url();
-		if( $this->mURL === '' && cms_siteprefs::get('content_autocreate_urls') ) {
+		if( $this->mURL === '' && AppParams::get('content_autocreate_urls') ) {
 			// create a valid url.
 			if( !$this->DefaultContent() ) {
-				if( cms_siteprefs::get('content_autocreate_flaturls',0) ) {
+				if( AppParams::get('content_autocreate_flaturls',0) ) {
 					// the default url is the alias... but not synced to the alias.
 					$this->mURL = $this->mAlias;
 				}
 				else {
 					// if it doesn't explicitly say 'flat' we're creating a hierarchical url.
-					$hm = CmsApp::get_instance()->GetHierarchyManager();
+					$hm = AppSingle::App()->GetHierarchyManager();
 					$node = $hm->find_by_tag('id',$this->ParentId());
 					$stack = [$this->mAlias];
 					$parent_url = '';
@@ -1729,7 +1707,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 				}
 			}
 		}
-		if( $this->mURL === '' && cms_siteprefs::get('content_mandatory_urls') &&
+		if( $this->mURL === '' && AppParams::get('content_mandatory_urls') &&
 			!$this->mDefaultContent && $this->HasUsableLink() ) {
 			// page url is empty and mandatory
 			$errors[] = $this->mod->Lang('content_mandatory_urls');
@@ -1822,7 +1800,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	public function SetAlias($alias = '', $doAutoAliasIfEnabled = true)
 	{
 		$contentops = ContentOperations::get_instance();
-		$config = cms_config::get_instance();
+		$config = AppSingle::Config();
 		if( $alias === '' && $doAutoAliasIfEnabled && $config['auto_alias_content'] ) {
 			$alias = trim($this->mMenuText);
 			if( $alias === '' ) $alias = trim($this->mName);
@@ -2121,7 +2099,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 */
 	public function ChangeItemOrder($direction)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$now = $db->DbTimeStamp(time());
 		$parentid = $this->ParentId();
 		$order = $this->ItemOrder();
@@ -2360,7 +2338,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 */
 	public function GetURL($rewrite = true)
 	{
-		$config = cms_config::get_instance();
+		$config = AppSingle::Config();
 		$url = '';
 		$alias = ($this->mAlias?$this->mAlias:$this->mId);
 
@@ -2602,7 +2580,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 */
 	public function ChildCount()
 	{
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$hm = AppSingle::App()->GetHierarchyManager();
 		$node = $hm->find_by_tag('id',$this->mId);
 		if( $node ) return $node->count_children();
 	}
@@ -2616,7 +2594,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	public function HasChildren($activeonly = false)
 	{
 		if( $this->mId <= 0 ) return false;
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$hm = AppSingle::App()->GetHierarchyManager();
 		$node = $hm->quickfind_node_by_id($this->mId);
 		if( !$node || !$node->has_children() ) return false;
 
@@ -2654,7 +2632,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	public function GetAdditionalEditors()
 	{
 		if( !isset($this->mAdditionalEditors) ) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 
 			$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'additional_users WHERE content_id = ?';
 			$dbr = $db->GetCol($query,[$this->mId]);
@@ -2689,19 +2667,19 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		$this->mod = $mod;
 		$mod = null; //force-garbage
 		//TODO can cachers cope with embedded null's? NB 'internal' cryption is slow!
-		return cms_utils::encrypt_string($str,self::class,'best');
+		return Crypto::encrypt_string($str,self::class,'best');
 // 		return $str;
 	}
 
 	public function unserialize($serialized)
 	{
-		$serialized = cms_utils::decrypt_string($serialized,self::class,'best');
+		$serialized = Crypto::decrypt_string($serialized,self::class,'best');
 		$props = json_decode($serialized, true);
 		if( $props !== null ) {
 			foreach( $props as $key => $val ) {
 				$this->$key = $val;
 			}
-			$this->mod = cms_utils::get_module('CMSContentManager');
+			$this->mod = AppUtils::get_module('CMSContentManager');
 			return;
 		}
 		throw new Exception('Invalid property data for '.self::class);

@@ -15,8 +15,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\SimpleTagOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -40,7 +42,7 @@ foreach ($items as $id=>$name) {
 	];
 }
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 $iconadd = $themeObject->DisplayImage('icons/system/newobject.png', lang('add'),'','','systemicon');
 $iconedit = $themeObject->DisplayImage('icons/system/edit.png', lang('edit'),'','','systemicon');
@@ -50,7 +52,7 @@ $iconinfo = $themeObject->DisplayImage('icons/system/help.png', lang('parameters
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign([
     'access' => $access,
     'pmod' => $pmod,
@@ -118,6 +120,7 @@ EOS;
 }
 add_page_foottext($out);
 
-include_once 'header.php';
-$smarty->display('listsimpletags.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('listsimpletags.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

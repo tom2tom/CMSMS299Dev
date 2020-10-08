@@ -18,10 +18,10 @@
 
 namespace CMSMS;
 
-use cms_config;
 use CmsInvalidDataException;
+use CMSMS\AppSingle;
 use CMSMS\FileType;
-use CMSMS\FSControlsValue;
+use CMSMS\FSControlValue;
 use Exception;
 use Throwable;
 use const CMS_DEBUG;
@@ -68,7 +68,7 @@ class FileSystemControls
 {
     /**
      * @ignore
-     * Constants deprecated since 2.9. Instead use corresponding FSControlsValue
+     * Constants deprecated since 2.9. Instead use corresponding FSControlValue
      */
     const FLAG_NONE = 0;
     const FLAG_NO = 0;
@@ -81,9 +81,9 @@ class FileSystemControls
     protected $_data = [
        'top'=>'',
        'type'=>FileType::ANY,
-       'can_upload'=>FSControlsValue::YES,
-       'can_delete'=>FSControlsValue::YES,
-       'can_mkdir'=>FSControlsValue::YES,
+       'can_upload'=>FSControlValue::YES,
+       'can_delete'=>FSControlValue::YES,
+       'can_mkdir'=>FSControlValue::YES,
        'match_prefix'=>'',
        'exclude_prefix'=>'',
        'show_thumbs'=>true,
@@ -103,9 +103,9 @@ class FileSystemControls
             $this->setValue($key,$val);
         }
         if( !$this->_data['top'] ) {
-            $config = cms_config::get_instance();
+            $config = AppSingle::Config();
             $this->setValue('top',$config['uploads_path']);
-//          $devmode = $config['develop_mode'] || (($userid = get_userid(false) && check_permission($userid,'Manage Restricted Files')) || $userid == 0);
+//          $devmode = $config['develop_mode'] || (($userid = get_userid(false) && check_permission($userid,'Modify Restricted Files')) || $userid == 0);
 //          $toppath = ($devmode) ? CMS_ROOT_PATH : $config['uploads_path'];
         }
     }
@@ -124,7 +124,7 @@ class FileSystemControls
             return trim($this->_data[$key]);
 
         case 'type': // FileType enum member
-        case 'can_mkdir': // FSControlsValue::* value, sometimes non-0 handled just as true
+        case 'can_mkdir': // FSControlValue::* value, sometimes non-0 handled just as true
         case 'can_upload':
         case 'can_delete':
             return (int) $this->_data[$key];
@@ -183,14 +183,14 @@ class FileSystemControls
         case 'can_delete':
         case 'can_upload':
             if( is_string($val) ) {
-                $n = (cms_to_bool($val)) ? FSControlsValue::YES : FSControlsValue::NO;
+                $n = (cms_to_bool($val)) ? FSControlValue::YES : FSControlValue::NO;
             } else {
                 $n = (int) $val;
             }
             switch( $n ) {
-            case FSControlsValue::NO:
-            case FSControlsValue::YES:
-            case FSControlsValue::BYGROUP:
+            case FSControlValue::NO:
+            case FSControlValue::YES:
+            case FSControlValue::BYGROUP:
                 $this->_data[$key] = $val;
                 break;
             default:

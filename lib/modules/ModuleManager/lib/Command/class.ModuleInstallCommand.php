@@ -18,11 +18,11 @@
 
 namespace ModuleManager\Command;
 
-use cms_utils;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
+use CMSMS\Utils;
 use GetOpt\Operand;
 use RuntimeException;
 use function audit;
@@ -39,7 +39,7 @@ class ModuleInstallCommand extends Command
     public function handle()
     {
         $ops = ModuleOperations::get_instance();
-        $moma = cms_utils::get_module('ModuleManager');
+        $moma = Utils::get_module('ModuleManager');
         $module = $this->getOperand('module')->value();
 
         LangOperations::allow_nonadmin_lang(TRUE);

@@ -18,18 +18,18 @@
 
 namespace CMSMS;
 
-use cms_config;
-use cms_siteprefs;
-use cms_userprefs;
-use cms_utils;
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminUtils;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\internal\GetParameters;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
 use CMSMS\UserOperations;
+use CMSMS\UserParams;
+use CMSMS\Utils;
 use Exception;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
@@ -80,7 +80,7 @@ class OneElevenTheme extends AdminTheme
 	 * included in the header of each displayed admin page
 	 *
 	 * @since 2.9
-	 * @return 2-member array (not typed to support back-compatible themes)
+	 * @return 2-member array
 	 * [0] = array of data for js vars, members like varname=>varvalue
      * [1] = array of string(s) for includables
 	 */
@@ -116,27 +116,22 @@ EOS;
 EOS;
 		}
 
-		$sm = new ScriptOperations();
-		$sm->queue_file($incs['jqcore'], 1);
-		$sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
-		$sm->queue_file($incs['jqui'], 1);
+		$jsm = new ScriptsMerger();
+		$jsm->queue_file($incs['jqcore'], 1);
+//		if (CMS_DEBUG) {
+		$jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this or keep if (CMS_DEBUG)
+//		}
+		$jsm->queue_file($incs['jqui'], 1);
 		$p = cms_join_path($config['root_path'],'lib','js','');
-		$sm->queue_file($p.'jquery.cms_admin.min.js', 2);
-	    $out .= $sm->render_inclusion('', false, false);
+		$jsm->queue_file($p.'jquery.cmsms_admin.min.js', 2);
+		$out .= $jsm->page_content('', false, false);
 
-		if (isset($_SESSION[CMS_USER_KEY]) && !AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
-			$sm->reset();
-			require_once $admin_path.DIRECTORY_SEPARATOR.'jsruntime.php';
-			$sm->queue_string($_out_);
-		    $out .= $sm->render_inclusion('', false, false);
-		}
-
-		$sm->reset();
-		$sm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1);
-		$sm->queue_matchedfile('jquery.toast.min.js', 1);
+		$jsm->reset();
+		$jsm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1);
+		$jsm->queue_matchedfile('jquery.toast.min.js', 1);
 		$p = __DIR__.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR;
-		$sm->queue_file($p.'standard.js', 3); //OR .min for production
-	    $out .= $sm->render_inclusion();
+		$jsm->queue_file($p.'standard.js', 3); //OR .min for production
+		$out .= $jsm->page_content();
 
 		$add_list[] = $out;
 //		$vars[] = anything needed ?;
@@ -213,7 +208,7 @@ EOS;
 	{
 		if ($this->currentversion()) {
 			parent::ShowHeader($title_name, $extra_lang_params, $link_text, $module_help_type);
-		} else {
+		} else { // pre 2.3
 
 		if ($title_name) $this->set_value('pagetitle', $title_name);
 		if ($extra_lang_params) $this->set_value('extra_lang_params', $extra_lang_params);
@@ -227,17 +222,17 @@ EOS;
 				$module = $_REQUEST['module'];
 			} else {
 				try {
-					$params = (new GetParameters())->get_action_values('module'); //2.3+
-					if ($params['module']) {
-						$module = $params['module'];
-					}
-				} catch (Exception $e) {
+					$params = (new GetParameters())->get_request_values('module'); //2.3+
+					if (!$params) exit;
+					$module = $params['module']; // maybe null
+				} catch (Throwable $e) {
 					if (isset($_REQUEST['mact'])) {
 						$tmp = explode(',', $_REQUEST['mact']);
 						$module = $tmp[0];
 					}
 				}
 			}
+
 			// get the image url.
 			$icon = "modules/{$module}/images/icon.gif";
 			$path = cms_join_path($config['root_path'], $icon);
@@ -323,12 +318,12 @@ EOS;
 		$smarty->assign('theme', $this);
 
 		//custom support-URL?
-		$url = cms_siteprefs::get('site_help_url');
+		$url = AppParams::get('site_help_url');
 		if ($url) {
 			$smarty->assign('site_help_url', $url);
 		}
 		// is the website set down for maintenance?
-		if (cms_siteprefs::get('site_downnow')) {
+		if (AppParams::get('site_downnow')) {
 			$smarty->assign('is_sitedown', 1);
 		}
 
@@ -342,7 +337,7 @@ EOS;
 	 * Get URL's for installed jquery, jquery-ui & related css
 	 * Only for pre-2.3 operation
 	 * @return 3-member array
-     */
+	 */
 	protected function find_installed_jq()
 	{
 		$config = cmsms()->GetConfig();
@@ -397,16 +392,16 @@ EOS;
 	protected function render_minimal($tplname, $bodyid = null)
 	{
 		$incs = cms_installed_jquery(true, false, true, false);
-		$sm = new ScriptOperations();
-		$sm->queue_file($incs['jqcore'], 1);
-		$sm->queue_file($incs['jqui'], 1);
-		$fn = $sm->render_scripts('', false, false);
+		$jsm = new ScriptsMerger();
+		$jsm->queue_file($incs['jqcore'], 1);
+		$jsm->queue_file($incs['jqui'], 1);
+		$fn = $jsm->render_scripts('', false, false);
 		$url = cms_path_to_url(TMP_CACHE_LOCATION);
 		$header_includes = <<<EOS
 <script type="text/javascript" src="{$url}/{$fn}"></script>
 
 EOS;
-		$url = cms_config::get_instance()['admin_url'];
+		$url = AppSingle::Config()['admin_url'];
 		$lang = NlsOperations::get_current_language();
 		$info = NlsOperations::get_language_info($lang);
 		$smarty = cmsms()->GetSmarty();
@@ -455,7 +450,7 @@ EOS;
 		$gCms = cmsms();
 
 		if ($this->currentversion()) {
-			$auth_module = cms_siteprefs::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
+			$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
 			$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
 			if ($modinst) {
 				$data = $modinst->StageLogin();
@@ -484,7 +479,7 @@ EOS;
 				}
 			}
 
-//TODO	ensure $smarty->assign('lang_code', cms_siteprefs::get('frontendlang'));
+//TODO	ensure $smarty->assign('lang_code', AppParams::get('frontendlang'));
 
 			$dir = ''; //TODO or '-rtl'
 			// scripts: jquery, jquery-ui
@@ -554,15 +549,24 @@ EOS;
 		// prefer cached parameters, if any
 		// module name
 		$module_name = $this->get_value('module_name');
-		if (!$module_name && isset($_REQUEST['mact'])) {
-			$module_name = explode(',', $_REQUEST['mact'])[0];
+		if (!$module_name) {
+			try {
+				$params = (new GetParameters())->get_request_values('module'); //2.3+
+			    if (!$params) exit;
+				$module_name = $params['module']; //maybe null
+			}
+			catch (Throwable $e) {
+				if (isset($_REQUEST['mact'])) {
+					$module_name = explode(',', $_REQUEST['mact'])[0];
+				}
+			}
 		}
 		$smarty->assign('module_name', $module_name);
 
 		$module_help_type = $this->get_value('module_help_type');
 		// module_help_url
 		if ($module_name && ($module_help_type || $module_help_type === null) &&
-			!cms_userprefs::get_for_user($uid,'hide_help_links', 0)) {
+			!UserParams::get_for_user($uid,'hide_help_links', 0)) {
 			if (($module_help_url = $this->get_value('module_help_url'))) {
 				$smarty->assign('module_help_url', $module_help_url);
 			}
@@ -586,7 +590,7 @@ EOS;
 			if ($title) {
 			$subtitle = $this->subtitle;
 		} elseif ($module_name) {
-			$modinst = cms_utils::get_module($module_name);
+			$modinst = Utils::get_module($module_name);
 			$title = $modinst->GetFriendlyName();
 			$subtitle = $modinst->GetAdminDescription();
 /*			} else {
@@ -620,7 +624,7 @@ EOS;
 
 		$config = cmsms()->GetConfig();
 		// site logo
-		$sitelogo = cms_siteprefs::get('site_logo');
+		$sitelogo = AppParams::get('site_logo');
 		if ($sitelogo) {
 			if (!preg_match('~^\w*:?//~', $sitelogo)) {
 				$sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
@@ -635,7 +639,7 @@ EOS;
 		}
 
 		// bookmarks UI
-		if (cms_userprefs::get_for_user($uid, 'bookmarks') && check_permission($uid, 'Manage My Bookmarks')) {
+		if (UserParams::get_for_user($uid, 'bookmarks') && check_permission($uid, 'Manage My Bookmarks')) {
 			$marks = $this->get_bookmarks();
 			$smarty->assign('marks', $marks);
 		}
@@ -650,8 +654,8 @@ EOS;
 		$user = $userops->LoadUserByID($uid);
 		$smarty->assign('username', $user->username);
 		// user-selected language
-		$lang = cms_userprefs::get_for_user($uid, 'default_cms_language');
-		if (!$lang) $lang = cms_siteprefs::get('frontendlang');
+		$lang = UserParams::get_for_user($uid, 'default_cms_language');
+		if (!$lang) $lang = AppParams::get('frontendlang');
 		$smarty->assign('lang_code', $lang);
 		// language direction
 		$lang = NlsOperations::get_current_language();
@@ -686,7 +690,7 @@ EOS
 		}
 
 		// is the website set down for maintenance?
-		if (cms_siteprefs::get('site_downnow')) {
+		if (AppParams::get('site_downnow')) {
 			$smarty->assign('is_sitedown', 1);
 		}
 
@@ -697,6 +701,7 @@ EOS
 		return $_contents;
 	}
 
+	// for pre-2.3 compatibility
 	public function get_my_alerts()
 	{
 		//TODO check namespace ok for pre-2.3

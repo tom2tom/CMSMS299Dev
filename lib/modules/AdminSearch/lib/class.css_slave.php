@@ -2,9 +2,9 @@
 
 namespace AdminSearch;
 
-use cms_utils;
-use CmsLayoutStylesheet;
+use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
+use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
 use function check_permission;
@@ -16,13 +16,13 @@ final class css_slave extends slave
 {
     public function get_name()
     {
-        $mod = cms_utils::get_module('AdminSearch');
+        $mod = Utils::get_module('AdminSearch');
         return $mod->Lang('lbl_css_search');
     }
 
     public function get_description()
     {
-        $mod = cms_utils::get_module('AdminSearch');
+        $mod = Utils::get_module('AdminSearch');
         return $mod->Lang('desc_css_search');
     }
 
@@ -32,7 +32,7 @@ final class css_slave extends slave
         return check_permission($userid,'Manage Stylesheets');
     }
 
-    private function check_css_matches(CmsLayoutStylesheet $css)
+    private function check_css_matches(Stylesheet $css)
     {
         if( strpos($css->get_name(),$this->get_text()) !== FALSE ) return TRUE;
         if( strpos($css->get_content(),$this->get_text()) !== FALSE ) return TRUE;
@@ -44,11 +44,11 @@ final class css_slave extends slave
     {
         // static properties here >> StaticProperties class ?
         static $_mod;
-        if( !$_mod ) $_mod = cms_utils::get_module('DesignManager');
+        if( !$_mod ) $_mod = Utils::get_module('AdminSearch'); //TODO relevant module
         return $_mod;
     }
 
-    private function get_css_match_info(CmsLayoutStylesheet $css)
+    private function get_css_match_info(Stylesheet $css)
     {
         $one = $css->get_id();
         $intext = $this->get_text();

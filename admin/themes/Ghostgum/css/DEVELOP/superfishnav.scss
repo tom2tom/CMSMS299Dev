@@ -1,0 +1,282 @@
+
+$leftwards: true; // or false for rtl styling
+
+@if $leftwards {
+    $start-side: left !global;
+    $end-side: right !global;
+} @else {
+    $start-side: right !global;
+    $end-side: left !global;
+}
+
+@function sidedValues($top, $right, $bottom, $left:$right) {
+    @if $left != null {
+        @if $leftwards {
+            @return $top $right $bottom $left;
+        } @else {
+            @return $top $left $bottom $right;
+        }
+    }
+    @else {
+        @return $top $right $bottom $left;
+    }
+}
+
+//colors
+$accent2: #58814c;
+$accent-focus: lighten($accent2, 15%);
+$back-color: #fcf9f3;
+
+//Mixins from https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Mixins
+@mixin flexbox {
+	display: -webkit-box;
+	display: -moz-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+}
+
+@mixin flex-direction($value: row) {
+	@if $value == row-reverse {
+		-ms-box-direction: reverse;
+		-ms-box-orient: horizontal;
+		-webkit-box-direction: reverse;
+		-webkit-box-orient: horizontal;
+		-moz-box-direction: reverse;
+		-moz-box-orient: horizontal;
+	} @else if $value == column {
+		-ms-box-direction: normal;
+		-ms-box-orient: vertical;
+		-webkit-box-direction: normal;
+		-webkit-box-orient: vertical;
+		-moz-box-direction: normal;
+		-moz-box-orient: vertical;
+	} @else if $value == column-reverse {
+		-ms-box-direction: reverse;
+		-ms-box-orient: vertical;
+		-webkit-box-direction: reverse;
+		-webkit-box-orient: vertical;
+		-moz-box-direction: reverse;
+		-moz-box-orient: vertical;
+	} @else {
+		-ms-box-direction: normal;
+		-ms-box-orient: horizontal;
+		-webkit-box-direction: normal;
+		-webkit-box-orient: horizontal;
+		-moz-box-direction: normal;
+		-moz-box-orient: horizontal;
+	}
+	-webkit-flex-direction: $value;
+	-ms-flex-direction: $value;
+	flex-direction: $value;
+}
+
+@mixin flex-wrap($value: nowrap) {
+	// No Webkit/FF Box fallback.
+	-webkit-flex-wrap: $value;
+	@if $value == nowrap {
+		-ms-flex-wrap: none;
+	} @else {
+		-ms-flex-wrap: $value;
+	}
+	flex-wrap: $value;
+}
+
+@mixin flex($fg: 0, $fs: 1, $fb: auto) {
+	// Set a variable to be used by box-flex properties
+	$fg-boxflex: $fg;
+
+	// Box-Flex only supports a flex-grow value so lets grab the
+	// first item in the list and just return that.
+	@if type-of($fg) == 'list' {
+		$fg-boxflex: nth($fg, 1);
+	}
+
+	-webkit-box: $fg-boxflex;
+	-moz-box: $fg-boxflex;
+	-webkit-flex: $fg $fs $fb;
+	-ms-flex: $fg $fs $fb;
+	flex: $fg $fs $fb;
+}
+
+@mixin justify-content($value: flex-start) {
+	@if $value == flex-start {
+		-ms-box-pack: start;
+		-webkit-box-pack: start;
+		-moz-box-pack: start;
+		-ms-flex-pack: start;
+	} @else if $value == flex-end {
+		-ms-box-pack: end;
+		-webkit-box-pack: end;
+		-moz-box-pack: end;
+		-ms-flex-pack: end;
+	} @else if $value == space-between {
+		-ms-box-pack: justify;
+		-webkit-box-pack: justify;
+		-moz-box-pack: justify;
+		-ms-flex-pack: justify;
+	} @else if $value == space-around {
+		-ms-flex-pack: distribute;
+	} @else {
+		-ms-box-pack: $value;
+		-webkit-box-pack: $value;
+		-moz-box-pack: $value;
+		-ms-flex-pack: $value;
+	}
+	-webkit-justify-content: $value;
+	justify-content: $value;
+}
+
+@mixin align-self($value: auto) {
+	// No Webkit Box Fallback.
+	-webkit-align-self: $value;
+	@if $value == flex-start {
+		-ms-flex-item-align: start;
+	} @else if $value == flex-end {
+		-ms-flex-item-align: end;
+	} @else {
+		-ms-flex-item-align: $value;
+	}
+	align-self: $value;
+}
+
+#ggp_navwrap {
+	@include flex(0, 0, auto);
+}
+
+#burger {
+	display: none;
+    width: calc(1.5rem + 4px); //match svg width + right-padding
+	background-color: $accent2;
+	padding: sidedValues(4px, 0, 0, 4px);
+	z-index: 50;
+	&:hover {
+		background-color: $accent-focus;
+		cursor: pointer;
+	}
+	> svg {
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+}
+
+#ggp_menu {
+	@include flexbox;
+	@include flex-wrap(wrap);
+	@include justify-content(center);
+	.descend::after {
+		display: block;
+		background-image: url(../images/navindicators.png);
+		float: $end-side;
+		width: 12px;
+		height: 12px;
+		content: ' ';
+		z-index: 60;
+	}
+	a {
+        padding: 0; //sidedValues(0.12rem, 4px, 0.3rem, 4px);
+		text-decoration: none;
+		color: $back-color;
+		&:link,
+		&:visited {
+			color: $back-color;
+		}
+	}
+	li {
+        position: relative;
+		margin: 0;
+        padding-#{$start-side}: 4px;
+		background-color: $accent2;
+		color: $back-color;
+		font-size: 0.95em; // NOT rem
+        &.descend.subsub::after {
+        	margin-#{$end-side}: 8px;
+            margin-top: calc(0.65em - 4px); // line-height-related : (1.3em + 4px pad - 12px img ht) / 2
+        	background-position: 24px 0; // right-arrow
+        }
+        &.descend.subsubL::after {
+        	margin-#{$end-side}: 8px;
+            margin-top: calc(0.65em - 4px); // line-height-related : (1.3em + 4px pad - 12px img ht) / 2
+        	background-position: 12px 0; // left-arrow
+        }
+        > svg, > a > svg, > img, > a > img {
+            height: 1.3em;
+            width: 1.3em;
+            padding: 2px;
+            margin-#{$start-side}: 0;
+            margin-bottom: -0.5em;
+        }
+        > span, > a > span {
+            display: inline-block;
+            height: 1.3em;
+            padding: 2px 4px;
+			font-size: 0.95em; // NOT rem
+            vertical-align: middle;
+            cursor: pointer;
+		}
+	}
+	> li {
+		font-size: 1.1rem;
+        > svg, > a > svg, > img, > a > img {
+			width: 1.5rem;
+			height: 1.5rem;
+			margin-bottom: -0.5rem;
+		}
+        > span, > a > span {
+            height: 1.5rem;
+            font-size: 1.1rem;
+		}
+        > ul {
+			margin-top: 4px;
+		}
+        &.descend::after {
+    		margin-#{$end-side}: 4px;
+    		margin-top: calc(0.75rem - 4px); // line-height-related :: (1.5rem + 4px pad - 12px img ht) / 2
+    		background-position: 48px 0; // down arrow
+    	}
+	}
+	ul {
+        @include flexbox;
+        @include flex-direction(column);
+		margin: sidedValues(2px, 0, 0, 0);
+		position: absolute;
+		z-index: 50;
+		ul {
+			margin-top: calc(-1.125rem - 8px);
+			z-index: 55;
+		}
+	}
+
+	a:hover, li:hover, span:hover, img:hover, svg:hover {
+		background-color: $accent-focus;
+		cursor: pointer;
+	}
+}
+
+@media all and(max-width : 40rem) {
+	#burger {
+		display: block;
+	}
+	#ggp_menu {
+		@include flex-direction(column);
+		@include justify-content(flex-start);
+		position: absolute;
+		z-index: 50;
+		overflow: auto;
+		> li {
+			padding: sidedValues(0, 4px, 2px);
+			> ul {
+				position: relative;
+				$start-side: 10rem;
+				margin: 0;
+				padding: 0 2px;
+			}
+		}
+		ul {
+			position: relative;
+			$start-side: 0;
+			margin: 2px 0;
+			padding: 0;
+		}
+	}
+}

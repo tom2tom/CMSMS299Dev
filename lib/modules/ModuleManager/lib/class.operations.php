@@ -17,17 +17,18 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace ModuleManager;
+
 //use CMSMS\internal\module_meta;
 //use CMSMS\SysDataCache;
-use cms_config;
-use cms_utils;
 use CmsFileSystemException;
 use CmsInvalidDataException;
-use CmsLogicException;
 use CMSModule;
+use CMSMS\AppSingle;
+use CMSMS\Crypto;
 use CMSMS\FileTypeHelper;
 use CMSMS\ModuleOperations;
-use ModuleManager;
+use LogicException;
+use ModuleManager; // the module-class
 use RuntimeException;
 use UnexpectedValueException;
 use XMLWriter;
@@ -36,7 +37,6 @@ use const TMP_CACHE_LOCATION;
 use function audit;
 use function cms_join_path;
 use function cms_module_places;
-use function cmsms;
 use function file_put_contents;
 use function get_recursive_file_list;
 use function lang;
@@ -97,7 +97,6 @@ class operations
      * @return array A hash of details about the installed module (if it returns at all)
      * @throws CmsInvalidDataException
      * @throws CmsFileSystemException
-     * @throws CmsLogicException
      * @throws RuntimeException
      */
     public function expand_xml_package( $xmlfile, $overwrite = false, $brief = false )
@@ -221,7 +220,7 @@ class operations
                         }
                         $from = ['\\','/'];
                         $to = [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR];
-                        $aname = cms_config::get_instance()['assets_path'];
+                        $aname = AppSingle::Config()['assets_path'];
                         if( $aname != 'assets' ) {
                             $from[] = 'assets';
                             $to[] = $aname;
@@ -290,7 +289,7 @@ class operations
 		}
 */
         $xw = new XMLWriter();
-        $outfile = cms_join_path(TMP_CACHE_LOCATION,'module'.cms_utils::hash_string($dir).'.xml');
+        $outfile = cms_join_path(TMP_CACHE_LOCATION,'module'.Crypto::hash_string($dir).'.xml');
         @unlink($outfile);
         $xw->openUri('file://'.$outfile);
 //        $xw->openMemory();
@@ -340,12 +339,11 @@ class operations
         }
 
         $len = strlen($dir) + 1; //preserve relative path only
-        $config = cmsms()->GetConfig();
-        $helper = new FileTypeHelper($config);
+        $helper = new FileTypeHelper();
         $filecount = 0;
         $from = [DIRECTORY_SEPARATOR];
         $to = ['/'];
-        $aname = $config['assets_path'];
+        $aname = AppSingle::Config()['assets_path'];
         if( $aname != 'assets' ) {
             $from[] = $aname;
             $to[] = 'assets';

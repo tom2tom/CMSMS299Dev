@@ -17,12 +17,11 @@
 
 namespace CMSMS\contenttypes;
 
-use cms_config;
-use cms_utils;
-use CmsApp;
 //use CMSMS\ContentDisplayer;
+//use CMSMS\SysDataCache;
+use CMSMS\AppSingle;
 use CMSMS\ContentOperations;
-//use CMSMS\	SysDataCache;
+use CMSMS\Crypto;
 use Exception;
 use Serializable;
 use const CMS_DB_PREFIX;
@@ -238,7 +237,7 @@ class ContentBase implements Serializable
 	{
 		if (isset($this->_fields['content_id']) && $this->_fields['content_id'] > 0) {
 			$this->_props = [];
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT prop_name,content FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
 			$dbr = $db->GetAssoc($query, [(int)$this->_fields['content_id'] ]);
 			if ($dbr) {
@@ -557,7 +556,7 @@ $X = $CRASH;
 /*	public function SetAlias(string $alias = '', bool $doAutoAliasIfEnabled = true)
 	{
 		$contentops = ContentOperations::get_instance();
-		$config = cms_config::get_instance();
+		$config = AppSingle::Config();
 		if ($alias === '' && $doAutoAliasIfEnabled && $config['auto_alias_content']) {
 			$alias = trim($this->_fields['menu_text']);
 			if ($alias === '') {
@@ -668,7 +667,7 @@ $X = $CRASH;
 			return $base_url . '/';
 		}
 
-		$config = cms_config::get_instance();
+		$config = AppSingle::Config();
 		if ($rewrite) {
 			$url_rewriting = $config['url_rewriting'];
 			$page_extension = $config['page_extension'];
@@ -703,7 +702,7 @@ $X = $CRASH;
 		if ($this->_fields['content_id'] <= 0) {
 			return false;
 		}
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$hm = AppSingle::App()->GetHierarchyManager();
 		$node = $hm->quickfind_node_by_id($this->_fields['content_id']);
 		if (!$node || !$node->has_children()) {
 			return false;
@@ -732,7 +731,7 @@ $X = $CRASH;
 	 */
 /*	public function ChildCount() : int
 	{
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$hm = AppSingle::App()->GetHierarchyManager();
 		$node = $hm->find_by_tag('id', $this->_fields['content_id']);
 		if ($node) {
 			return $node->count_children();
@@ -746,13 +745,13 @@ $X = $CRASH;
 	public function serialize()
 	{
 		//TODO can all cachers cope with embedded null's in strings ? NB internal cryption is slow!
-		return cms_utils::encrypt_string($this->__toString(),self::class,'best');
+		return Crypto::encrypt_string($this->__toString(),self::class,'best');
 //		return $this->__toString();
 	}
 
 	public function unserialize($serialized)
 	{
-		$serialized = cms_utils::decrypt_string($serialized,self::class,'best');
+		$serialized = Crypto::decrypt_string($serialized,self::class,'best');
 		$props = json_decode($serialized, true);
 		if ($props) {
 			foreach ($props as $key => $value) {

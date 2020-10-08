@@ -16,10 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Utils;
+
 function smarty_function_theme_root($params, $template)
 {
-	$theme = cms_utils::get_theme_object();
-	$url = $theme->root_url;
+	$themeObject = Utils::get_theme_object();
+	$url = $themeObject->root_url;
 
 	$assign = get_parameter_value( $params, 'assign' );
 	if( $assign ) {

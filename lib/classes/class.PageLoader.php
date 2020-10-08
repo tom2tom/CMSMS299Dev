@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
 
-use CmsApp;
+use CMSMS\AppSingle;
 use CMSMS\ContentTypeOperations;
 use CMSMS\ModuleOperations;
 use Exception;
@@ -97,7 +97,7 @@ class PageLoader
     {
         $contentobj = self::$_loaded[$a] ?? null;
         if (!$contentobj) {
-            $db = CmsApp::get_instance()->GetDb();
+            $db = AppSingle::Db();
             $sql = 'SELECT C.*,T.displayclass FROM '.CMS_DB_PREFIX.'content C LEFT JOIN '.
             CMS_DB_PREFIX.'content_types T on C.type=T.name WHERE (content_id=? OR content_alias=?) AND active!=0';
             $row = $db->GetRow($sql, [ $a,$a ]);

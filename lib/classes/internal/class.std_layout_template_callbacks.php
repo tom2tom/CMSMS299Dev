@@ -1,7 +1,7 @@
 <?php
 namespace CMSMS\internal;
 
-use CmsLayoutTemplateType;
+use CMSMS\TemplateType;
 use const CMS_ADMIN_PATH;
 use function cms_join_path;
 use function lang;
@@ -13,13 +13,13 @@ final class std_layout_template_callbacks
 
 	public static function page_type_lang_callback($key)
 	{
-		if( $key == CmsLayoutTemplateType::CORE ) return 'Core';
+		if( $key == TemplateType::CORE ) return 'Core';
 		return lang($key);
 	}
 
 	public static function generic_type_lang_callback($key)
 	{
-		if( $key == CmsLayoutTemplateType::CORE ) return 'Core';
+		if( $key == TemplateType::CORE ) return 'Core';
 		return lang($key);
 	}
 

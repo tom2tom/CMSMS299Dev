@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
 use CMSMS\SimpleTagOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -30,7 +31,7 @@ $userid = get_userid();
 $pmod = check_permission($userid, 'Manage Simple Plugins');
 if (!$pmod) exit;
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 $tagname = cleanValue($_GET['name']); //CHECKME ok if name has non-ASCII chars?
 $ops = SimpleTagOperations::get_instance();

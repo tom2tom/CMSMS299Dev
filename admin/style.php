@@ -24,6 +24,7 @@ Slow and inefficient, avoid using it if possible.
 use CMSMS\AppState;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -43,7 +44,7 @@ $cms_readfile = function($filename)
   return FALSE;
 };
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 $theme = $themeObject->themeName;
 $style = 'style';
 cms_admin_sendheaders('text/css');
@@ -68,5 +69,5 @@ if( $allmodules ) {
   unset($object);
 }
 
-AppState::remove_state(CmsApp::STATE_ADMIN_PAGE);
-AppState::remove_state(CmsApp::STATE_STYLESHEET);
+AppState::remove_state(AppState::STATE_ADMIN_PAGE);
+AppState::remove_state(AppState::STATE_STYLESHEET);

@@ -15,11 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\FormUtils;
 use CMSMS\LockOperations;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
+use CMSMS\Template;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplatesGroup;
+use CMSMS\TemplateType;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -49,9 +55,9 @@ if( $padd ) {
 */
 }
 
-$themeObject = cms_utils::get_theme_object();
-$lock_timeout = cms_siteprefs::get('lock_timeout');
-$smarty = CmsApp::get_instance()->GetSmarty();
+$themeObject = Utils::get_theme_object();
+$lock_timeout = AppParams::get('lock_timeout', 60);
+$smarty = AppSingle::Smarty();
 
 // individual templates
 
@@ -101,7 +107,7 @@ try {
 
 //TODO where relevant, an action to revert template content to type-default
 
-        $patn = CmsLayoutTemplate::CORE;
+        $patn = Template::CORE;
         $now = time();
         $menus = [];
         for( $i = 0, $n = count($templates); $i < $n; ++$i ) {
@@ -158,7 +164,7 @@ try {
         $pagelengths = [];
         $sellength = 1;
 
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::Db();
         $query = 'SELECT EXISTS (SELECT 1 FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.')';
         if( $db->GetOne($query) ) {
             $smarty->assign('templates',false); //signal row(s) exist, but none matches
@@ -170,7 +176,7 @@ try {
      ->assign('currentlength',$sellength);
 
     // populate types (objects and their names)
-    $types = CmsLayoutTemplateType::get_all();
+    $types = TemplateType::get_all();
     if( $types ) {
         $tmp = [];
         $tmp2 = [];
@@ -198,13 +204,13 @@ try {
     $extras = get_secure_param_array();
     $smarty->assign('have_locks',$locks ? count($locks) : 0)
      ->assign('lock_timeout',$lock_timeout)
-     ->assign('coretypename',CmsLayoutTemplateType::CORE)
+     ->assign('coretypename',TemplateType::CORE)
      ->assign('manage_templates',$pmod)
      ->assign('has_add_right',$padd)
      ->assign('extraparms',$extras);
 
 }
-catch( Exception $e ) {
+catch( Throwable $e ) {
     echo '<div class="error">'.$e->GetMessage().'</div>';
 }
 
@@ -214,7 +220,7 @@ $smarty->assign('tpl_filter',$filter);
 
 $opts = ['' => lang('all')];
 // groups for display in filter selector
-$groups = CmsLayoutTemplateCategory::get_all();
+$groups = TemplatesGroup::get_all();
 if( $groups ) {
     $tmp = [];
     foreach( $groups as $k => $val ) {
@@ -248,7 +254,7 @@ if( $list ) {
 $smarty->assign('filter_tpl_options',$opts);
 
 // core templates for display in replacement selector
-$list = TemplateOperations::get_originated_templates(CmsLayoutTemplate::CORE, true);
+$list = TemplateOperations::get_originated_templates(Template::CORE, true);
 asort($list,SORT_STRING);
 $replacements = [-1 => lang_by_realm('layout','select_one')] + $list;
 $smarty->assign('tpl_choices',$replacements);
@@ -268,14 +274,14 @@ $title = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','p
 $cancel = lang('cancel');
 $submit = lang('submit');
 $reset = lang('reset');
-$secs = cms_siteprefs::get('lock_refresh', 120);
+$secs = AppParams::get('lock_refresh', 120);
 $secs = max(30,min(600,$secs));
 
-$sm = new ScriptOperations();
-$sm->queue_matchedfile('jquery.SSsort.js', 1);
-$sm->queue_matchedfile('jquery.ContextMenu.js', 1);
-$sm->queue_matchedfile('jquery.cmsms_poll.js', 2);
-$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
+$jsm = new ScriptsMerger();
+$jsm->queue_matchedfile('jquery.SSsort.js', 1);
+$jsm->queue_matchedfile('jquery.ContextMenu.js', 1);
+$jsm->queue_matchedfile('jquery.cmsms_poll.js', 2);
+$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 
 $js = <<<EOS
 var tpltable,typetable;
@@ -512,7 +518,7 @@ $(function() {
   });
 });
 EOS;
-$sm->queue_string($js, 3);
+$jsm->queue_string($js, 3);
 
 // template groups
 
@@ -577,10 +583,10 @@ $(function() {
 });
 
 EOS;
-    $sm->queue_string($js, 3);
+    $jsm->queue_string($js, 3);
 }
 
-$out = $sm->render_inclusion('', false, false);
+$out = $jsm->page_content('', false, false);
 if( $out ) {
     add_page_foottext($out);
 }
@@ -604,10 +610,11 @@ $smarty->assign('manage_templates',$pmod)
  ->assign('urlext',$urlext)
  ->assign('activetab', $_REQUEST['_activetab'] ?? null)
  ->assign('extraparms3',$extras2)
- ->assign('coretypename',CmsLayoutTemplateType::CORE)
+ ->assign('coretypename',TemplateType::CORE)
 // ->assign('import_url',TODOfuncURL('import_template'))  N/A as standalone
- ->assign('lock_timeout',cms_siteprefs::get('lock_timeout'));
+ ->assign('lock_timeout',AppParams::get('lock_timeout', 60));
 
-include_once 'header.php';
-$smarty->display('listtemplates.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('listtemplates.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

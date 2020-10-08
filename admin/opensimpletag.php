@@ -15,8 +15,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\SimpleTagOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -30,7 +32,7 @@ if (isset($_POST['cancel'])) {
     redirect('listsimpletags.php'.$urlext);
 }
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     $err = false;
@@ -139,7 +141,7 @@ $extras = get_secure_param_array();
 $extras['id'] = $props['id'];
 $extras['oldname'] = $props['oldname'];
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign([
     'selfurl' => $selfurl,
     'extraparms' => $extras,
@@ -155,6 +157,7 @@ if ($props['id'] > 0) {
     $smarty->assign('license', $props['license'] ?? '');
 }
 
-include_once 'header.php';
-$smarty->display('opensimpletag.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('opensimpletag.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

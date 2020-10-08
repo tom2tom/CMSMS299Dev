@@ -19,21 +19,20 @@
 namespace CMSContentManager\contenttypes;
 
 //use DesignManager\Design;
-use cms_config;
-use cms_siteprefs;
-use cms_utils;
-use CmsApp;
 use CmsContentException;
 use CMSContentManager\ContentBase;
 use CmsException;
-use CmsLayoutTemplateType;
 use CMSMS\AdminUtils;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\ContentOperations;
 use CMSMS\CoreCapabilities;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\internal\page_template_parser;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
+use CMSMS\Utils;
 use SmartyException;
 use Throwable;
 use function check_permission;
@@ -129,7 +128,7 @@ class Content extends ContentBase
 					$name = $blockInfo['id'];
 					$parameters[] = $name;
 					if( isset($blockInfo['type']) && $blockInfo['type'] == 'module' ) {
-						$module = cms_utils::get_module($blockInfo['module']);
+						$module = Utils::get_module($blockInfo['module']);
 						if( !is_object($module) ) continue;
 						if( !$module->HasCapability(CoreCapabilities::CONTENT_BLOCKS) ) continue;
 						$tmp = $module->GetContentBlockFieldValue($blockName,$blockInfo['params'],$params,$this);
@@ -253,7 +252,7 @@ class Content extends ContentBase
 					$errors[] = $this->mod->Lang('emptyblock', $blockName);
 				}
 				if( isset($blockInfo['type']) && $blockInfo['type'] == 'module' ) {
-					$module = cms_utils::get_module($blockInfo['module']);
+					$module = Utils::get_module($blockInfo['module']);
 					if( !is_object($module) ) continue;
 					if( !$module->HasCapability(CoreCapabilities::CONTENT_BLOCKS) ) continue;
 					$value = $this->GetPropertyValue($blockInfo['id']);
@@ -286,7 +285,7 @@ class Content extends ContentBase
 			return $this->_contentBlocks;
 		}
 
-		$smarty = CmsApp::get_instance()->GetSmarty();
+		$smarty = AppSingle::Smarty();
 		try {
 			$parser = new page_template_parser('cms_template:'.$this->TemplateId(),$smarty);
 //redundant  page_template_parser::reset();
@@ -335,7 +334,7 @@ class Content extends ContentBase
 		if( $_list ) return $_list;
 
 		$_list = [];
-//		$config = cms_config::get_instance();
+//		$config = CMSMS\AppSingle::Config();
 //		if( !$config['page_template_list'] ) { //WHAAAT ?
 			$_tpl = TemplateOperations::template_query( ['as_list'=>1] );
 			if( $_tpl ) {
@@ -411,7 +410,7 @@ class Content extends ContentBase
 				$template_id = $this->TemplateId();
 				if( $template_id < 1 ) {
 					try {
-						$dflt_tpl = TemplateOperations::get_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
+						$dflt_tpl = TemplateOperations::get_default_template_by_type(TemplateType::CORE.'::page');
 						$template_id = $dflt_tpl->get_id();
 					}
 					catch( Throwable $t ) {
@@ -577,7 +576,7 @@ class Content extends ContentBase
 			$parms['width'] = (int) $this->_get_param($blockInfo,'width',80);
 			$parms['height'] = (int) $this->_get_param($blockInfo,'height',10);
 			if( isset($blockInfo['cssname']) && $blockInfo['cssname'] ) $parms['cssname'] = $blockInfo['cssname'];
-			if( (!isset($parms['cssname']) || $parms['cssname'] == '') && cms_siteprefs::get('content_cssnameisblockname',1) ) {
+			if( (!isset($parms['cssname']) || $parms['cssname'] == '') && AppParams::get('content_cssnameisblockname',1) ) {
 				$parms['cssname'] = $blockInfo['id'];
 			}
 			foreach( $blockInfo as $key => $val ) {
@@ -616,8 +615,8 @@ class Content extends ContentBase
 			if( !$res ) return '';
 		}
 */
-		$config = cms_config::get_instance();
-		$adddir = cms_siteprefs::get('contentimage_path');
+		$config = AppSingle::Config();
+		$adddir = AppParams::get('contentimage_path');
 		if( $blockInfo['dir'] != '' ) $adddir = $blockInfo['dir'];
 		$dir = cms_join_path($config['uploads_path'],$adddir);
 		$rp1 = realpath($config['uploads_path']);
@@ -635,7 +634,7 @@ class Content extends ContentBase
 		$prefix = '';
 		if( isset($blockInfo['sort']) ) $sort = (int)$blockInfo['sort'];
 		if( isset($blockInfo['exclude']) ) $prefix = $blockInfo['exclude'];
-		$filepicker = cms_utils::get_filepicker_module();
+		$filepicker = Utils::get_filepicker_module();
 		if( $filepicker ) {
 			$profile_name = get_parameter_value($blockInfo,'profile');
 			$profile = $filepicker->get_profile_or_default($profile_name, $dir, get_userid() );
@@ -672,7 +671,7 @@ class Content extends ContentBase
 		}
 */
 		if( !isset($blockInfo['module']) ) return false;
-		$module = cms_utils::get_module($blockInfo['module']);
+		$module = Utils::get_module($blockInfo['module']);
 		if( !is_object($module) ) return false;
 		if( !$module->HasCapability(CoreCapabilities::CONTENT_BLOCKS) ) return false;
 		if( !empty($blockInfo['inputname']) ) {

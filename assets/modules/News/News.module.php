@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\CoreCapabilities;
+use CMSMS\HookOperations;
 use CMSMS\RouteOperations;
 use News\AdjustStatusTask;
 use News\AdminOperations;
@@ -127,6 +128,8 @@ class News extends CMSModule
 
     public function InitializeAdmin()
     {
+        HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
+
         $this->CreateParameter('action','default',$this->Lang('helpaction'));
         $this->CreateParameter('articleid','',$this->Lang('help_articleid'));
         $this->CreateParameter('browsecat', 0, $this->Lang('helpbrowsecat'));
@@ -368,9 +371,27 @@ EOS;
            case CoreCapabilities::ADMINSEARCH:
            case CoreCapabilities::TASKS:
          //case CoreCapabilities::EVENTS: ? ROUTE_MODULE ?
+           case CoreCapabilities::SITE_SETTINGS:
               return true;
         }
         return false;
+    }
+
+    /**
+     * Hook function to populate 'centralised' site settings UI
+     * @internal
+     * @since 2.9
+     * @return array
+     */
+    public function ExtraSiteSettings()
+    {
+        //TODO check permission local or Site Prefs
+        return [
+         'title' => $this->Lang('settings_title'),
+         //'desc' => 'useful text goes here', // optional useful text
+         'url' => $this->create_url('m1_','defaultadmin','',['activetab'=>'settings']), // if permitted
+         //optional 'text' => custom link-text | explanation e.g need permission
+        ];
     }
 
     public function get_tasks()

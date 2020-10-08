@@ -16,15 +16,17 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Utils;
+
 function smarty_function_cms_module_hint($params, $template)
 {
 	if( !isset($params['module']) ) return;
 
 	$module = trim($params['module']);
-	$modobj = cms_utils::get_module($module);
+	$modobj = Utils::get_module($module);
 	if( !is_object($modobj) ) return;
 
-	$data = cms_utils::get_app_data('__CMS_MODULE_HINT__'.$module);
+	$data = Utils::get_app_data('__CMS_MODULE_HINT__'.$module);
 	if( !$data ) $data = [];
 
 	// warning, no check here if the module understands the parameter.
@@ -33,6 +35,6 @@ function smarty_function_cms_module_hint($params, $template)
 	  $data[$key] = $value;
 	}
 
-	cms_utils::set_app_data('__CMS_MODULE_HINT__'.$module,$data);
+	Utils::set_app_data('__CMS_MODULE_HINT__'.$module,$data);
 }
 

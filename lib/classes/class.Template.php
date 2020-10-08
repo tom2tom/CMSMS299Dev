@@ -22,7 +22,7 @@ use CmsDataNotFoundException;
 use CmsInvalidDataException;
 use CmsLogicException;
 use CMSMS\AdminUtils;
-use CMSMS\App;
+use CMSMS\AppSingle;
 use CMSMS\DeprecationNotice;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
@@ -878,7 +878,7 @@ class Template
 	*/
 	public function process()
 	{
-		$smarty = App::get_instance()->GetSmarty();
+		$smarty = AppSingle::Smarty();
 		return $smarty->fetch('cms_template:id='.$this->id);
 	}
 

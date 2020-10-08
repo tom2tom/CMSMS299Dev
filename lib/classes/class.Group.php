@@ -18,7 +18,8 @@
 
 namespace CMSMS;
 
-use CmsApp;
+use CMSMS\AppSingle;
+use CMSMS\Group;
 use CmsInvalidDataException;
 use LogicException;
 use const CMS_DB_PREFIX;
@@ -117,7 +118,7 @@ class Group
 	public function validate()
 	{
 		if( !$this->name ) throw new LogicException('No name specified for this group');
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'SELECT group_id FROM '.CMS_DB_PREFIX.'groups WHERE group_name = ? AND group_id != ?';
 		$dbresult = $db->GetOne($sql,[$this->name,$this->id]);
 		if( $dbresult ) throw new CmsInvalidDataException(lang('errorgroupexists',$this->name));

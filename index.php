@@ -1,6 +1,6 @@
 <?php
 #Entry point for all non-admin pages
-#Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -16,17 +16,18 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppState;
+use CMSMS\ContentEditor;
+use CMSMS\Events;
+use CMSMS\internal\content_plugins;
+use CMSMS\NlsOperations;
+use CMSMS\PageLoader;
+
 /**
  * Entry point for all non-admin pages
  *
  * @package CMS
  */
-
-use CMSMS\AppState;
-use CMSMS\Events;
-use CMSMS\internal\content_plugins;
-use CMSMS\NlsOperations;
-use CMSMS\PageLoader;
 
 $starttime = microtime();
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
@@ -48,29 +49,18 @@ tmp/cache<br />
 tmp/templates_c</p><br />
 <p>Please correct by executing:<br /><em>chmod 777 tmp/cache<br />chmod 777 tmp/templates_c</em><br />or the equivalent for your platform before continuing.</p>
 </body></html>';
+	Events::SendEvent('Core', 'PostRequest');
 	exit;
 }
 
-$CMS_JOB_TYPE = CmsApp::get_instance()->JOBTYPE;
-if ($CMS_JOB_TYPE == 0) {
-	ob_start();
-}
-
-// initial setup
-$_app = CmsApp::get_instance(); // internal use only, subject to change.
-$config = cms_config::get_instance();
+// further setup (see also include.php)
 $params = array_merge($_GET, $_POST);
-if ($CMS_JOB_TYPE > 0) {
-	$showtemplate = false;
-	$_app->disable_template_processing();
-} else {
-	$showtemplate = true;
-}
+if (!isset($smarty)) $smarty = $_app->GetSmarty();
+$page = get_pageid_or_alias_from_url();
+$contentobj = null;
+$showtemplate = true;
 
-//TODO which of the following should be $CMS_JOB_TYPE-dependant ?
-$smarty = $_app->GetSmarty(); //<2
-$page = get_pageid_or_alias_from_url(); //<2
-$contentobj = null; //<2
+ob_start();
 
 for ($trycount = 0; $trycount < 2; ++$trycount) {
 	try {
@@ -83,12 +73,12 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			// preview
 			setup_session(false);
 			if (!isset($_SESSION[CMS_PREVIEW]) || !isset($_SESSION[CMS_PREVIEW_TYPE]) ) {
-				throw new CmsException('Preview page data not found');
+				throw new Exception('Preview page data not found');
 			}
 			PageLoader::LoadContentType($_SESSION[CMS_PREVIEW_TYPE]); // load the class so it can be unserialized
 			$contentobj = unserialize($_SESSION[CMS_PREVIEW]);
-			if (!$contentobj || !($contentobj instanceof CMSMS\ContentEditor)) {
-				throw new CmsException('Preview page content error');
+			if (!$contentobj || !($contentobj instanceof ContentEditor)) {
+				throw new Exception('Preview page content error');
 			}
 			unset($_SESSION[CMS_PREVIEW]);
 			isset($_SESSION[CMS_PREVIEW_TYPE]);
@@ -119,9 +109,9 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			$url = $contentobj->GetURL(); // CMS_ROOT_URL... i.e. absolute
 			if (startswith($url, 'http://')) {
 				str_replace('http://', 'https://', $url);
-			} elseif (startswith($url, 'ws://')) {
-				//TODO generally support the websocket protocol
-				str_replace('ws://', 'wss://', $url);
+//			} elseif (startswith($url, 'ws://')) {
+				//TODO generally support the websocket protocol 'wss' : 'ws'
+//				str_replace('ws://', 'wss://', $url);
 			}
 			redirect($url);
 		}
@@ -133,8 +123,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		$uid = get_userid(false);
 		if ($page == CMS_PREVIEW_PAGEID || $uid || $_SERVER['REQUEST_METHOD'] != 'GET') {
 			$cachable = false;
-		}
-		else {
+		} else {
 			$cachable = $contentobj->Cachable();
 		}
 
@@ -169,13 +158,12 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 
 	catch (CmsStopProcessingContentException $e) {
 		// we do not display an error message.
-		// this can be useful for caching siutations or in certain situations
-		// where we only want to gather limited output
+		// this can be useful for caching siutations or in certain
+		// situations where we only want to gather limited output
 		break;
 	}
 
-	catch (CmsError404Exception $e) {
-		// Catch CMSMS 404 error
+	catch (CmsError404Exception $e) { // <- Catch CMSMS 404 error
 		// 404 error thrown... gotta do this process all over again
 		$page = 'error404';
 		unset($_REQUEST['mact'], $_REQUEST['module'], $_REQUEST['action']); //ignore any secure params
@@ -201,8 +189,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		}
 	}
 
-	catch (CmsError403Exception $e) // <- Catch CMSMS 403 error
-	{
+	catch (CmsError403Exception $e) { // <- Catch CMSMS 403 error
 		$page = 'error403';
 		unset($_REQUEST['mact'], $_REQUEST['module'], $_REQUEST['action']); //ignore any secure params
 		$handlers = ob_list_handlers();
@@ -219,11 +206,12 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		if ($showtemplate && is_object($contentobj)) {
 			// we have a 403 error page.
 		} else {
-			if (!$msg) $msg = '<p>Sorry, you do not have the appropriate permission to view this item.</p>';
+			if (!$msg) $msg = 'You do not have the appropriate permission to view the requested page.';
 			echo '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html><head><title>403 Forbidden</title></head><body>
-<h1>Forbidden</h1>'.$msg.'
-</body></html>';
+<h1>Forbidden</h1>
+<p>'.$msg.'
+</p></body></html>';
 			exit;
 		}
 	}
@@ -237,7 +225,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		// specified page not found, load the 404 error page
 		$contentobj = PageLoader::LoadContent($page);
 		$msg = $e->GetMessage();
-		if (!$msg) $msg = '<p>You do not have permission to view this item.</p>';
+		if (!$msg) $msg = 'The site is down for maintenance.';
 		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 		header('Cache-Control: no-store, no-cache, must-revalidate');
 		header('Cache-Control: post-check=0, pre-check=0', false);
@@ -249,14 +237,14 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			@ob_end_clean();
 			echo '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html><head><title>503 Site down for maintenance</title></head><body>
-<h1>Sorry, down for maintenance.  Check back shortly.</h1>'.$msg.'
-</body></html>';
+<h1>Site Not Available</h1>
+<p>'.$msg.'
+</p><br /><p>Please check back again shortly.</p></body></html>';
 			exit;
 		}
 	}
 
-	catch (Exception $e) {
-		// catch other sorts of exceptions
+	catch (Throwable $t) { // <- Catch other exceptions|errors
 		$handlers = ob_list_handlers();
 		for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 		if (CMS_DEBUG) {
@@ -264,8 +252,8 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			$data = array_map(function($a) use ($keeps)
 			{
 				return array_intersect_key($a,$keeps);
-			}, $e->getTrace());
-			debug_display($data, $e->GetMessage().'<br /><br />Backtrace:');
+			}, $t->getTrace());
+			debug_display($data, $t->GetMessage().'<br /><br />Backtrace:');
 		} else {
 			header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 			header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -273,9 +261,8 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			echo '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html><head><title>Site Operation Error</title></head><body>
 <h1>Site Operation Error</h1>
-'.$e->GetMessage().'<br /><br />
-Please notify the site administrator.
-</body></html>';
+<p>'.$t->GetMessage().'
+</p><br /><p>Please notify the site administrator.</p></body></html>';
 		}
 		exit;
 	}
@@ -288,13 +275,12 @@ if (!headers_sent()) {
 }
 echo $html;
 
-if ($CMS_JOB_TYPE == 0) {
-	ob_flush();
-}
+ob_flush();
 
 //unset($_SESSION[CMS_PREVIEW]); // if any
 
 $debug = constant('CMS_DEBUG');
+//$config assigned in 'include.php'
 if ($debug || isset($config['log_performance_info']) || (isset($config['show_performance_info']) && $showtemplate)) {
 	$endtime = microtime();
 	$time = microtime_diff($starttime,$endtime);

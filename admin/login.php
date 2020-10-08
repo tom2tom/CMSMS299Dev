@@ -15,17 +15,21 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
 use CMSMS\AppState;
+//use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 AppState::add_state(AppState::STATE_LOGIN_PAGE);
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-$modname = cms_siteprefs::get('loginmodule');
+$modname = AppParams::get('loginmodule');
 if ($modname) {
-/*  $params = (new GetParameters())->get_action_values(['module','id','action']);
+/*  $params = (new GetParameters())->get_request_values(['module','id','action']);
+    if (!$params) exit;
 	$module = $params['module'];
 	if ($module && $module != $modname) throw new RuntimeException('Invalid login-module parameter');
 	$id = $params['id'];
@@ -39,26 +43,22 @@ if ($modname) {
 		throw new RuntimeException('Invalid login module');
 	}
 /*	$params = array_diff_key($params, ['module'=>1,'id'=>1,'action'=>1]);
-    ob_start();
-    $result = $modinst->DoActionBase($action, $id, $params, null, $smarty);
-    if (($result && $result !== 1) || is_numeric($result)) { // ignore PHP 'successful inclusion' report
-        echo $result;
-    }
-    $result = ob_get_clean();
-	$themeobj = cms_utils::get_theme_object();
-	$themeobj->SetTitle($modinst->Lang('logintitle'));
-	$themeobj->set_content($result);
+    $content = $modinst->DoActionBase($action, $id, $params, null, $smarty);
+
+ 	$themeObject = Utils::get_theme_object();
+	$themeObject->SetTitle($modinst->Lang('logintitle'));
+	$themeObject->set_content($content);
 
 	cms_admin_sendheaders();
 	header('Content-Language: ' . CmsNlsOperations::get_current_language());
-	echo $themeobj->do_loginpage('login');
+	echo $themeObject->do_loginpage('login');
 */
     $modinst->RunLogin();
 } else {
-	$themename = cms_siteprefs::get('logintheme');
-	$themeobj = cms_utils::get_theme_object($themename);
-	if ($themeobj) {
-		$themeobj->do_login();
+	$themename = AppParams::get('logintheme');
+	$themeObject = Utils::get_theme_object($themename);
+	if ($themeObject) {
+		$themeObject->do_login();
 	} else {
 		throw new RuntimeException('Invalid login theme');
 	}

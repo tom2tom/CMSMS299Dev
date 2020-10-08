@@ -18,7 +18,7 @@
 
 namespace CMSMS;
 
-use CmsApp;
+use CMSMS\AppSingle;
 use CMSMS\SysDataCache;
 use CMSMS\SysDataCacheDriver;
 use const CMS_DB_PREFIX;
@@ -78,8 +78,7 @@ final class AppParams
 	 */
 	private static function _read()
 	{
-		$db = CmsApp::get_instance()->GetDb();
-
+		$db = AppSingle::Db();
 		if( !$db ) {
 			return;
 		}
@@ -97,46 +96,53 @@ final class AppParams
 	 * for getting module-preferences, and for use in async tasks, where the cache
 	 * is N/A.
 	 *
-	 * @since 2.3
-	 * @param mixed string | array $key Preference name(s)
-	 * @param mixed singular | array $dflt Optional default value(s)
+	 * @since 2.9
+	 * @param mixed string (may be empty) | array $key Preference name(s)
+	 * @param mixed scalar | array $dflt Optional default value(s)
+	 * @param bool   $like Optional flag whether to interpret $key as
+	 *  wildcarded. Default false.
 	 * @return mixed value | array
 	 */
-	public static function getraw($key, $dflt = '')
+	public static function getraw($key = '',$dflt = '',bool $like = FALSE)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		if( !$db ) {
 			return $dflt;
 		}
 		$l = strlen(self::SERIAL);
-		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name';
-		if( is_array($key) ) {
-			$query .= ' IN ('.str_repeat('?,', count($key) - 1).'?)';
-			$dbr = $db->GetAssoc($query, $key);
-			foreach( $key as $i => $one ) {
-				if( isset($dbr[$one]) ) {
-					if( strncmp($dbr[$one],self::SERIAL,$l) == 0 ) {
-						$dbr[$one] = unserialize(substr($prefs[$key],$l),['allowed_classes' => self::PREF_CLASSES]);
+		if ($like) {
+			//TODO
+			return $dflt;
+		} else {
+			$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name';
+			if( is_array($key) ) {
+				$query .= ' IN ('.str_repeat('?,', count($key) - 1).'?)';
+				$dbr = $db->GetAssoc($query, $key);
+				foreach( $key as $i => $one ) {
+					if( isset($dbr[$one]) ) {
+						if( strncmp($dbr[$one],self::SERIAL,$l) == 0 ) {
+							$dbr[$one] = unserialize(substr($prefs[$key],$l),['allowed_classes' => self::PREF_CLASSES]);
+						}
+					}
+					else {
+						$dbr[$one] = $dflt[$i] ?? end($dflt);
 					}
 				}
-				else {
-					$dbr[$one] = $dflt[$i] ?? end($dflt);
-				}
+				return $dbr;
 			}
-			return $dbr;
-		}
-		else {
-			$query .= '=?';
-			$dbr = $db->GetRow($query,[$key]);
-			if( $dbr ) {
-				$value = end($dbr);
-				if( strncmp($value,self::SERIAL,$l) == 0 ) {
-					$value = unserialize(substr($val,$l),['allowed_classes' => self::PREF_CLASSES]);
+			else {
+				$query .= '=?';
+				$dbr = $db->GetRow($query,[$key]);
+				if( $dbr ) {
+					$value = end($dbr);
+					if( strncmp($value,self::SERIAL,$l) == 0 ) {
+						$value = unserialize(substr($val,$l),['allowed_classes' => self::PREF_CLASSES]);
+					}
+					return $value;
 				}
-				return $value;
+				return $dflt;
 			}
-			return $dflt;
 		}
 	}
 
@@ -144,21 +150,28 @@ final class AppParams
 	 * Retrieve a site/module preference if it is set, or else
 	 * return a default value.
 	 *
-	 * @param string $key The preference name
-	 * @param mixed  $dflt Optional default value
+	 * @param string $key The preference name (may be empty)
+	 * @param mixed scalar | array $dflt Optional default value(s)
+	 * @param bool  Since 2.9 $like Optional flag whether to interpret $key as
+	 *  wildcarded. Default false.
 	 * @return string
 	 */
-	public static function get(string $key,$dflt = '')
+	public static function get(string $key = '',$dflt = '',bool $like = FALSE)
 	{
 		$prefs = SysDataCache::get_instance()->get(self::class);
-		if( isset($prefs[$key]) && $prefs[$key] !== '' ) {
-			$l = strlen(self::SERIAL);
-			if( strncmp($prefs[$key],self::SERIAL,$l) == 0 ) {
-				return unserialize(substr($prefs[$key],$l),['allowed_classes' => self::PREF_CLASSES]);
+		if ($like) {
+			//TODO
+			return $dflt;
+		} else {
+			if( isset($prefs[$key]) && $prefs[$key] !== '' ) {
+				$l = strlen(self::SERIAL);
+				if( strncmp($prefs[$key],self::SERIAL,$l) == 0 ) {
+					return unserialize(substr($prefs[$key],$l),['allowed_classes' => self::PREF_CLASSES]);
+				}
+				return $prefs[$key];
 			}
-			return $prefs[$key];
+			return $dflt;
 		}
-		return $dflt;
 	}
 
 	/**
@@ -181,7 +194,7 @@ final class AppParams
 	 */
 	public static function set(string $key,$value)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$tbl = CMS_DB_PREFIX.'siteprefs';
 		$now = $db->DbTimeStamp(time());
 		if( !(is_scalar($value) || is_null($value)) ) {
@@ -210,11 +223,11 @@ EOS;
 	 * If $like is true and $key does not include '%' char(s), then one such is
 	 * appended i.e. $key is treated as a prefix.
 	 *
-	 * @param string $key The preference name
+	 * @param string $key The preference name (may be empty)
 	 * @param bool   $like Optional flag whether to interpret $key as
 	 *  wildcarded. Default false.
 	 */
-	public static function remove(string $key,bool $like = FALSE)
+	public static function remove(string $key = '',bool $like = FALSE)
 	{
 		if( $like ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
@@ -225,7 +238,7 @@ EOS;
 		else {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name = ?';
 		}
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$db->Execute($query,[$key]);
 		if( strpos($key,self::NAMESPACER) === FALSE) {
 			SysDataCache::get_instance()->release(self::class);
@@ -243,7 +256,7 @@ EOS;
 	{
 		if( !$prefix ) return;
 		$query = 'SELECT sitepref_name FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$dbr = $db->GetCol($query,[$prefix.'%']);
 		if( $dbr ) return $dbr;
 	}

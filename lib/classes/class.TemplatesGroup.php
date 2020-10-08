@@ -20,14 +20,12 @@ namespace CMSMS;
 
 use CmsDataNotFoundException;
 use CmsInvalidDataException;
-use CmsLayoutTemplateCategory;
 use CMSMS\AdminUtils;
-use CMSMS\App;
+use CMSMS\AppSingle;
 use CMSMS\Database\Connection;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
 use CMSMS\TemplateOperations;
-use CMSMS\TemplatesGroup;
 use CmsSQLErrorException;
 use const CMS_DB_PREFIX;
 use function audit;
@@ -191,7 +189,7 @@ class TemplatesGroup
 	 * @since 2.3
 	 *
 	 * @param bool   $by_name Whether to return members' names. Default false.
-	 * @return assoc. array of CmsLayoutTemplate objects or name strings. May be empty.
+	 * @return assoc. array of Template objects or name strings. May be empty.
 	 * Keys (if any) are respective numeric id's.
 	 */
 	public function get_members(bool $by_name = false)
@@ -200,7 +198,7 @@ class TemplatesGroup
 
 		$out = [];
 		if( $by_name ) {
-			$db = App::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->_members).')';
 			$dbr = $db->GetAssoc($query);
 			foreach( $this->_members as $id ) {
@@ -231,7 +229,7 @@ class TemplatesGroup
 				}
 				else {
 					$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE name IN ('.str_repeat('?,',count($a)-1).'?)';
-					$db = App::get_instance()->GetDb();
+					$db = AppSingle::Db();
 					$dbr = $db->GetAssoc($query,[$a]);
 					if( $dbr ) {
 						$ids = [];
@@ -247,7 +245,7 @@ class TemplatesGroup
 			}
 			else {
 				$query = 'SELECT id FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE name = ?';
-				$db = App::get_instance()->GetDb();
+				$db = AppSingle::Db();
 				$id = $db->GetOne($query,[$a]);
 				if( $id ) return [$id];
 			}
@@ -382,7 +380,7 @@ class TemplatesGroup
 			throw new CmsInvalidDataException('Name may contain only letters, numbers and underscores.');
 		}
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$gid = $this->get_id();
 		if( !$gid ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
@@ -430,7 +428,7 @@ class TemplatesGroup
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)';
 		$dbr = $db->Execute($query,[
 			$this->get_name(),
@@ -453,7 +451,7 @@ class TemplatesGroup
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?';
 		$db->Execute($query,[
 			$this->get_name(),
@@ -491,7 +489,7 @@ class TemplatesGroup
 		$gid = $this->get_id();
 		if( !$gid ) return;
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$dbr = $db->Execute($query,[$gid]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
@@ -512,7 +510,7 @@ class TemplatesGroup
 	 */
 	public static function load($val)
 	{
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		if( is_numeric($val) && $val > 0 ) {
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 			$row = $db->GetRow($query,[(int)$val]);
@@ -538,7 +536,7 @@ class TemplatesGroup
 	 * @deprecated since 2.3 instead use TemplateOperations::get_bulk_groups()
 	 *
 	 * @param string $prefix An optional group-name prefix to be matched
-	 * @return array of CmsLayoutTemplateCategory objects, maybe empty
+	 * @return array of TemplatesGroup objects, maybe empty
 	 */
 	public static function get_all($prefix = '')
 	{

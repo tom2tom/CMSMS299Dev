@@ -16,6 +16,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppParams;
+use CMSMS\Crypto;
 
 $urlext = get_secure_param();
 
@@ -51,17 +52,14 @@ if (AppParams::get('site_downnow')) {
     $vars['sitedown'] = false;
 }
 
-$obj = new stdClass();
-reset($vars);
-foreach ($vars as $key => $value) {
-    $obj->$key = $value;
-}
-//TODO for a bit of privacy (not security), lightweight obfuscation for this (but js is crap for recovery!)
-$enc = json_encode($obj, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$enc = json_encode((object)$vars, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+//for privacy (not security) a simple munge (js is very crap for retrieval!)
+$enc2 = Crypto::scramble_string($enc);
+//we also define cms_data, in case something wants to use that object prematurely
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
- var cms_runtime = '$enc',
+ var cms_runtime = '$enc2',
   cms_data = {};
 //]]>
 </script>

@@ -17,6 +17,8 @@
 
 use CMSMS\AppState;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -30,7 +32,7 @@ check_login();
 $userid = get_userid();
 $pmod = check_permission($userid,'Manage Templates');
 $urlext = get_secure_param();
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 cleanArray($_REQUEST);
 $template_id = isset($_REQUEST['tpl']) ? (int)$_REQUEST['tpl'] : null; //< 0 for a group
@@ -101,7 +103,7 @@ switch ($_REQUEST['op']) {
 		if( !$pmod ) exit;
 		if( !empty($_REQUEST['type']) ) {
 			try {
-				$type = CmsLayoutTemplateType::load($_REQUEST['type']);
+				$type = TemplateType::load($_REQUEST['type']);
 				$type->reset_content_to_factory();
 				$type->save();
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_reset',$type->get_langified_display_value()));

@@ -17,5 +17,5 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 $tplvars = ['assets_url' => $config['admin_url'] . '/themes/assets'];
-//TODO	ensure 'lang_code' = cms_siteprefs::get('frontendlang');
+//TODO	ensure 'lang_code' = AppParams::get('frontendlang');
 //TODO	ensure 'lang_dir' = ...;

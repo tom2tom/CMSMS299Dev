@@ -17,22 +17,22 @@
 
 namespace cms_installer;
 
-use cms_config;
-use CmsApp;
 use CmsDataNotFoundException;
 use CmsInvalidDataException;
-use CmsLayoutStylesheet;
-use CmsLayoutTemplate;
-use CmsLayoutTemplateCategory;
-use CmsLayoutTemplateType;
+use CMSMS\AppConfig;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\Database\Connection;
+use CMSMS\Route;
 use CMSMS\RouteOperations;
+use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
+use CMSMS\Template;
 use CMSMS\TemplateOperations;
-use CmsRoute;
+use CMSMS\TemplatesGroup;
+use CMSMS\TemplateType;
 use DesignManager\Design;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
@@ -300,7 +300,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 	 optional >> ignore/omit a field whose value is falsy i.e. optional item in the dtd
      keeps >> array of field-value(s) which will be included (subject to optional)
 */
-	$corename = CmsLayoutTemplateType::CORE;
+	$corename = TemplateType::CORE;
 
 	$skeleton = [
      'stylesheets' => [
@@ -573,7 +573,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 
 	$xw->text("\n");
 
-	$config = cms_config::get_instance();
+	$config = AppSingle::Config();
 	$frombase = $config['uploads_path'];
 	if (is_dir($frombase)) {
 		$copyfiles = is_dir($uploadspath);
@@ -726,7 +726,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 		}
 	}
 
-	$corename = CmsLayoutTemplateType::CORE;
+	$corename = TemplateType::CORE;
 	$styles = [-1 => -1];
 	$cssgrps = [-1 => -1];
 	$types = [-1 => -1];
@@ -743,7 +743,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						verbose_msg(lang('install_stylesheets'));
 					}
 					foreach ($typenode->children() as $node) {
-						$ob = new CmsLayoutStylesheet();
+						$ob = new Stylesheet();
 						try {
 							$ob->set_name((string)$node->name);
 							$ob->set_description((string)$node->description);
@@ -817,7 +817,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						} elseif ($val != $corename) {
 							continue; //core-only: modules' template-data installed by them
 						}
-						$ob = new CmsLayoutTemplateType();
+						$ob = new TemplateType();
 						try {
 							$ob->set_name((string)$node->name);
 							$ob->set_originator($val);
@@ -887,7 +887,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						if ($val2 && $val2 !== $corename) {
 							continue; //anonymous && core only: modules' template-data installed by them
 						}
-						$ob = new CmsLayoutTemplate();
+						$ob = new Template();
 						try {
 							if ($val2) { $ob->set_originator($val2); }
 							$ob->set_name((string)$node->name);
@@ -911,7 +911,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						verbose_msg(lang('install_groups'));
 					}
 					foreach ($typenode->children() as $node) {
-						$ob = new CmsLayoutTemplateCategory(); //TODO cache for members saving
+						$ob = new TemplatesGroup(); //TODO cache for members saving
 						try {
 							$ob->set_name((string)$node->name);
 							$ob->set_description((string)$node->description);
@@ -937,7 +937,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 					foreach ($bank as $gid=>$arr) {
 						array_multisort($arr[1], $arr[0]);
 						try {
-							$ob = CmsLayoutTemplateCategory::load($gid); //or use cached object
+							$ob = TemplatesGroup::load($gid); //or use cached object
 							$ob->set_members($arr[0]);
 							$ob->save();
 						} catch (Throwable $t) {
@@ -1077,7 +1077,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 					}
 					break;
 				case 'uploadfiles':
-					$config = cms_config::get_instance();
+					$config = AppSingle::Config();
 					$tobase = $config['uploads_path'];
 					if ($tobase) {
 						$tobase .= DIRECTORY_SEPARATOR;
@@ -1143,7 +1143,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 					if ($runtime) {
 						verbose_msg(lang('install_simpletags'));
 					}
-					$db = CmsApp::get_instance()->GetDb();
+					$db = AppSingle::Db();
 					$query = 'INSERT INTO '.CMS_DB_PREFIX.'simpleplugins (
 name,
 code,
@@ -1304,7 +1304,7 @@ parameters) VALUES (?,?,?,?)';
 
 	if ($pages) {
 		$map = [-1 => -1]; // maps proffered id's to installed id's
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		foreach ($pages as $val => $arr) {
 			//TODO revert to using CMSContentManager\contenttypes\whatever class
 			$map[$val] = SavePage($arr, $map, $db);
@@ -1422,7 +1422,7 @@ content) VALUES (?,?,?,?)';
 	}
 
 	if (!empty($page_url)) {
-		$route = CmsRoute::new_builder($page_url,'__CONTENT__',$content_id,'',true);
+		$route = Route::new_builder($page_url,'__CONTENT__',$content_id,'',true);
 		RouteOperations::add_static($route);
 	}
 

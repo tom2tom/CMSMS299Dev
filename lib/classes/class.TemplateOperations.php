@@ -18,17 +18,16 @@
 namespace CMSMS;
 
 //use DesignManager\Design;
-use cms_config;
-use CmsApp;
 use CmsDataNotFoundException;
 use CmsInvalidDataException;
-use CmsLayoutTemplate;
-use CmsLayoutTemplateCategory;
-use CmsLayoutTemplateQuery;
-use CmsLayoutTemplateType;
 use CMSMS\AdminUtils;
+use CMSMS\AppSingle;
 use CMSMS\Events;
 use CMSMS\SysDataCache;
+use CMSMS\Template;
+use CMSMS\TemplateQuery;
+use CMSMS\TemplatesGroup;
+use CMSMS\TemplateType;
 use CMSMS\User;
 use CMSMS\UserOperations;
 use CmsSQLErrorException;
@@ -36,7 +35,6 @@ use const CMS_DB_PREFIX;
 use function audit;
 use function check_permission;
 use function cms_join_path;
-use function cmsms;
 use function endswith;
 use function file_put_contents;
 use function get_userid;
@@ -101,7 +99,7 @@ class TemplateOperations
 			$a = trim($a);
 			if ($a !== '') {
 				if( !isset(self::$identifiers) ) {
-					$db = CmsApp::get_instance()->GetDb();
+					$db = AppSingle::Db();
 					$sql = 'SELECT id,originator,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY id';
 					self::$identifiers = $db->GetAssoc($sql);
 				}
@@ -116,8 +114,8 @@ class TemplateOperations
 				}
 				else {
 					foreach( self::$identifiers as $id => &$row ) {
-						//aka CmsLayoutTemplateType::CORE
-						if( strcasecmp($row['name'],$a) == 0 && ($row['originator'] == CmsLayoutTemplate::CORE || $row['originator'] == '') ) {
+						//aka TemplateType::CORE
+						if( strcasecmp($row['name'],$a) == 0 && ($row['originator'] == Template::CORE || $row['originator'] == '') ) {
 							unset($row);
 							return $id;
 						}
@@ -136,7 +134,7 @@ class TemplateOperations
 	 * Get the template originator from $tpl data directly, or indirectly from the template-type data for $tpl
 	 *
 	 * @ignore
-	 * @param CmsLayoutTemplate $tpl
+	 * @param Template $tpl (or perhaps a deprecated CmsLayoutTemplate)
 	 * @return mixed string | null
 	 */
 	protected static function get_originator($tpl)
@@ -147,8 +145,8 @@ class TemplateOperations
 		}
 		$id = $tpl->get_type_id();
 		if( $id > 0 ) {
-			$db = CmsApp::get_instance()->GetDb();
-			$sql = 'SELECT originator FROM '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' WHERE id = ?';
+			$db = AppSingle::Db();
+			$sql = 'SELECT originator FROM '.CMS_DB_PREFIX.TemplateType::TABLENAME.' WHERE id = ?';
 			$dbr = $db->GetOne($sql,[ $id ]);
 			if( $dbr ) {
 				return $dbr;
@@ -163,15 +161,13 @@ class TemplateOperations
 	*
 	* @param array $props
 	* @param mixed $editors optional array of id's | null
-	* @param mixed $groups    optional array of id's | null
-	* @returns CmsLayoutTemplate
+	* @param mixed $groups  optional array of id's | null
+	* @returns Template
 	*/
-	protected static function create_template(array $props, $editors = null, $groups = null) : CmsLayoutTemplate
+	protected static function create_template(array $props, $editors = null, $groups = null) : Template
 	{
-		$tpl = new CmsLayoutTemplate();
-
 		if( $editors == null ) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$sql = 'SELECT user_id FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id=? ORDER BY user_id';
 			$editors = $db->GetCol($sql,[ $props['id'] ]);
 		}
@@ -180,9 +176,9 @@ class TemplateOperations
 		}
 
 		if( $groups == null ) {
-			if( !isset($db) ) $db = CmsApp::get_instance()->GetDb();
-			// table aka CmsLayoutTemplateCategory::MEMBERSTABLE
-			$sql = 'SELECT DISTINCT group_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE tpl_id=? ORDER BY group_id';
+			if( !isset($db) ) $db = AppSingle::Db();
+			// table aka TemplatesGroup::MEMBERSTABLE
+			$sql = 'SELECT DISTINCT group_id FROM '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' WHERE tpl_id=? ORDER BY group_id';
 			$groups = $db->GetCol($sql,[ $props['id'] ]);
 		}
 		elseif( is_numeric($groups) ) {
@@ -193,6 +189,7 @@ class TemplateOperations
 			'editors' => $editors,
 			'groups' => $groups,
 		];
+		$tpl = new Template();
 		$tpl->set_properties($params);
 		return $tpl;
 	}
@@ -200,10 +197,10 @@ class TemplateOperations
 	/**
 	 * Check whether template properties are valid
 	 *
-	 * @param CmsLayoutTemplate $tpl
+	 * @param Template $tpl (or perhaps a deprecated CmsLayoutTemplate)
 	 * @throws CmsInvalidDataException if any checked property is invalid
 	 */
-	public static function validate_template(CmsLayoutTemplate $tpl)
+	public static function validate_template($tpl)
 	{
 		$name = $tpl->get_name();
 		if( !$name ) throw new CmsInvalidDataException('Each template must have a name');
@@ -215,30 +212,29 @@ class TemplateOperations
 		if( !$tpl->get_content() ) throw new CmsInvalidDataException('Each template must have some content');
 		if( $tpl->get_type_id() <= 0 ) throw new CmsInvalidDataException('Each template must be associated with a type');
 
-		$db = CmsApp::get_instance()->GetDb();
-		$tmp = null;
+		$db = AppSingle::Db();
 		if( $tpl->get_id() ) {
 			// double check the name.
 			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
-			$tmp = $db->GetOne($sql,[ $tpl->get_name(),$tpl->get_id() ]);
+			$dbr = $db->GetOne($sql,[ $tpl->get_name(),$tpl->get_id() ]);
 		} else {
 			// double check the name.
 			$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
-			$tmp = $db->GetOne($sql,[ $tpl->get_name() ]);
+			$dbr = $db->GetOne($sql,[ $tpl->get_name() ]);
 		}
-		if( $tmp ) throw new CmsInvalidDataException('Template with the same name already exists.');
+		if( $dbr ) throw new CmsInvalidDataException('Template with the same name already exists.');
 	}
 
 	/**
 	 * Update the data for a template object in the database
 	 *
 	 * @internal
-	 * @param CmsLayoutTemplate $tpl
-	 * @returns CmsLayoutTemplate
+	 * @param Template $tpl (or perhaps a deprecated CmsLayoutTemplate)
+	 * @returns Template (or whatever else was provided)
 	 */
-	protected static function update_template(CmsLayoutTemplate $tpl) : CmsLayoutTemplate
+	protected static function update_template($tpl)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET
 originator=?,
 name=?,
@@ -306,11 +302,11 @@ WHERE id=?';
 			$stmt->close();
 		}
 */
-		$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE tpl_id = ?';
+		$sql = 'DELETE FROM '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' WHERE tpl_id = ?';
 		$db->Execute($sql,[ $tplid ]);
 		$t = $tpl->get_groups();
 		if( $t ) {
-			$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' (group_id,tpl_id,item_order) VALUES(?,?,?)');
+			$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' (group_id,tpl_id,item_order) VALUES(?,?,?)');
 			$i = 1;
 			foreach( $t as $id ) {
 				$db->Execute($stmt,[ (int)$id,$tplid,$i ]);
@@ -321,19 +317,18 @@ WHERE id=?';
 
 		SysDataCache::get_instance()->release('LayoutTemplates');
 		audit($tpl->get_id(),'CMSMS','Template '.$tpl->get_name().' Updated');
-		return $tpl; //DODO what use ? event ?
+		return $tpl; //DODO what use ? event ? chain-methods?
 	}
 
 	/**
 	 * Insert the data for a template into the database
 	 *
-	 * @param CmsLayoutTemplate $tpl
-	 * @return CmsLayoutTemplate template object representing the inserted template
+	 * @param Template $tpl (or perhaps a deprecated CmsLayoutTemplate)
+	 * @return Template template object representing the inserted template
 	 */
-	protected static function insert_template(CmsLayoutTemplate $tpl) : CmsLayoutTemplate
+	protected static function insert_template($tpl) : Template
 	{
-		$now = time();
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.'
 (originator,name,content,description,type_id,type_dflt,owner_id,listable,contentfile)
 VALUES (?,?,?,?,?,?,?,?,?)';
@@ -393,7 +388,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 */
 		$groups = $tpl->get_groups();
 		if( $groups ) {
-			$sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' (group_id,tpl_id,item_order) VALUES(?,?,?)';
+			$sql = 'INSERT INTO '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' (group_id,tpl_id,item_order) VALUES(?,?,?)';
 			$i = 1;
 			foreach( $groups as $id ) {
 				$db->Execute($sql,[ (int)$id,$tplid,$i ]);
@@ -413,9 +408,9 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	/**
 	 * Save a template
 	 *
-	 * @param CmsLayoutTemplate $tpl The template object.
+	 * @param Template $tpl The template object. (or perhaps a deprecated CmsLayoutTemplate)
 	 */
-	public static function save_template(CmsLayoutTemplate $tpl)
+	public static function save_template($tpl)
 	{
 		self::validate_template($tpl);
 
@@ -435,14 +430,14 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 * Delete a template
 	 * This does not modify the template object itself, nor any pages which use the template.
 	 *
-	 * @param CmsLayoutTemplate $tpl
+	 * @param Template $tpl (or perhaps a deprecated CmsLayoutTemplate)
 	 */
-	public static function delete_template(CmsLayoutTemplate $tpl)
+	public static function delete_template($tpl)
 	{
 		if( !($id = $tpl->get_id()) ) return;
 
 		Events::SendEvent('Core','DeleteTemplatePre',[ get_class($tpl) => &$tpl ]);
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 /*        $sql = 'DELETE FROM '.CMS_DB_PREFIX.Design::TPLTABLE.' WHERE tpl_id = ?';  DISABLED
 		//$dbr =
 		$db->Execute($sql,[ $id ]);
@@ -462,14 +457,14 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 * Get a specific template
 	 *
 	 * @param mixed $a  The template id or name (possibly as originator::name) of the wanted template
-	 * @return mixed CmsLayoutTemplate|null
+	 * @return mixed Template|null
 	 * @throws CmsDataNotFoundException
 	 */
 	public static function get_template($a)
 	{
 		$id = self::resolve_template($a);
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id=?';
 		$row = $db->GetRow($sql,[ $id ]);
 		if( $row ) return self::create_template($row);
@@ -480,12 +475,12 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @since 2.3
 	 * @deprecated since 2.3 this enables the deprecated CmsLaoutTemplate::load() method
-	 * @param CmsLayoutTemplate $tpl The template to be updated
+	 * @param Template $tpl The template to be updated (or perhaps a deprecated CmsLayoutTemplate)
 	 * @param mixed $a  The id or name of the template from which to source the replacement properties
 	 * @throws CmsInvalidDataException
 	 * @throws CmsDataNotFoundException
 	 */
-	public static function replicate_template(CmsLayoutTemplate $tpl, $a)
+	public static function replicate_template($tpl, $a)
 	{
 		$src = self::get_template($a);
 		$data = $src->get_properties();
@@ -524,14 +519,14 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param array $ids Integer template id(s)
 	 * @param bool $deep Optional flag whether to load attached data. Default true.
-	 * @return array CmsLayoutTemplate object(s) or empty
+	 * @return array Template object(s) or empty
 	 */
 	public static function get_bulk_templates(array $ids, bool $deep = true) : array
 	{
 		if( !$ids ) return [];
 
 		$out = [];
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$str = implode(',',$ids);
 		$sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.$str.')';
 		$rows = $db->GetArray($sql);
@@ -542,8 +537,8 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 /*          $sql = 'SELECT * FROM '.CMS_DB_PREFIX.'layout_design_tplassoc WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
 			$alldesigns = $db->GetArray($sql);
 */
-			// table aka CmsLayoutTemplateCategory::MEMBERSTABLE
-			$sql = 'SELECT * FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
+			// table aka TemplatesGroup::MEMBERSTABLE
+			$sql = 'SELECT * FROM '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
 			$allgroups = $db->GetArray($sql);
 
 			// put it all together, into object(s)
@@ -561,7 +556,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 * Get all templates owned by the specified user
 	 *
 	 * @param mixed $a user id (int) or user name (string)
-	 * @return array CmsLayoutTemplate object(s) or empty
+	 * @return array Template object(s) or empty
 	 * @throws CmsInvalidDataException
 	 */
 	public static function get_owned_templates($a) : array
@@ -569,7 +564,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		$id = self::resolve_user($a);
 		if( $id <= 0 ) throw new CmsInvalidDataException('Invalid user specified to '.__METHOD__);
 
-		$ob = new CmsLayoutTemplateQuery([ 'u'=>$id ]);
+		$ob = new TemplateQuery([ 'u'=>$id ]);
 		$list = $ob->GetMatchedTemplateIds();
 		if( $list ) {
 			return self::get_bulk_templates($list);
@@ -581,23 +576,23 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 * Get all templates whose originator is the one specified
 	 * @since 2.3
 	 *
-	 * @param string $orig name of originator - core (CmsLayoutTemplate::CORE or '') or a module name
+	 * @param string $orig name of originator - core (Template::CORE or '') or a module name
 	 * @param bool $by_name Optional flag indicating the output format. Default false.
 	 * @return mixed If $by_name is true then the output will be an array of rows
-	 *  each with template id and template name. Otherwise, id and CmsLayoutTemplate object
-	 * @return array CmsLayoutTemplate object(s) or empty
+	 *  each with template id and template name. Otherwise, id and Template object
+	 * @return array Template object(s) or empty
 	 * @throws CmsInvalidDataException
 	 */
 	public static function get_originated_templates(string $orig, bool $by_name = false) : array
 	{
 		if( !$orig ) {
-			$orig = CmsLayoutTemplate::CORE;
+			$orig = Template::CORE;
 		}
-		$ob = new CmsLayoutTemplateQuery([ 'o'=>$orig ]);
+		$ob = new TemplateQuery([ 'o'=>$orig ]);
 		$list = $ob->GetMatchedTemplateIds();
 		if( $list ) {
 			if( $by_name ) {
-				$db = CmsApp::get_instance()->GetDb();
+				$db = AppSingle::Db();
 				$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN('.implode(',',$list).') ORDER BY name';
 				return $db->GetAssoc($sql);
 			}
@@ -612,7 +607,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 * Get all templates that the specified user owns or may otherwise edit
 	 *
 	 * @param mixed $a user id (int) or user name (string)
-	 * @return array CmsLayoutTemplate object(s) or empty
+	 * @return array Template object(s) or empty
 	 * @throws CmsInvalidDataException
 	 */
 	public static function get_editable_templates($a) : array
@@ -620,7 +615,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		$id = self::resolve_user($a);
 		if( $id <= 0 ) throw new CmsInvalidDataException('Invalid user specified to '.__METHOD__);
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		$parms = $where = [];
 		if( !UserOperations::get_instance()->CheckPermission($id,'Modify Templates') ) {
@@ -648,11 +643,11 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param bool $by_name Optional flag indicating the output format. Default false.
 	 * @return mixed If $by_name is true then the output will be an array of rows
-	 *  each with template id and template name. Otherwise, id and CmsLayoutTemplate object
+	 *  each with template id and template name. Otherwise, id and Template object
 	 */
 	public static function get_all_templates(bool $by_name = false) : array
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		if( $by_name ) {
 			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY IF(modified_date, modified_date, create_date) DESC';
@@ -668,13 +663,13 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	/**
 	 * Get all templates of the specified type
 	 *
-	 * @param CmsLayoutTemplateType $type
-	 * @return mixed CmsLayoutTemplate[]|null
+	 * @param TemplateType $type (or perhaps a deprecated CmsLayoutTemplateType)
+	 * @return mixed Template[]|null
 	 * @throws CmsDataNotFoundException
 	 */
-	public static function get_all_templates_by_type(CmsLayoutTemplateType $type)
+	public static function get_all_templates_by_type($type)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_id=?';
 		$list = $db->GetCol($sql,[ $type->get_id() ]);
 		if( $list ) {
@@ -686,8 +681,8 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 * Get the default template of the specified type
 	 *
 	 * @param mixed $a  a template-type name (like originator::name), or
-	 *  a (numeric) template-type id, or a CmsLayoutTemplateType object
-	 * @return mixed CmsLayoutTemplate | null
+	 *  a (numeric) template-type id, or a TemplateType object
+	 * @return mixed Template | null
 	 * @throws CmsInvalidDataException
 	 * @throws CmsDataNotFoundException
 	 */
@@ -697,10 +692,10 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			$tid = (int)$a;
 		}
 		elseif( is_string($a) ) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$parts = explode('::',$a);
 			if( count($parts) == 1 ) {
-				$corename = CmsLayoutTemplateType::CORE;
+				$corename = TemplateType::CORE;
 				$sql = 'SELECT id FROM '.CMS_DB_PREFIX."layout_tpl_type WHERE name=? AND (originator='$corename' OR originator='' OR originator IS NULL)";
 				$tid = $db->GetOne($sql,[ $a ]);
 			}
@@ -709,7 +704,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 				$tid = $db->GetOne($sql,[ $parts[1],$parts[0] ]);
 			}
 		}
-		elseif( $a instanceof CmsLayoutTemplateType ) {
+		elseif( $a instanceof TemplateType ) {
 			$tid = $a->get_id();
 		}
 		else {
@@ -718,7 +713,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 
 		if( !$tid ) throw new CmsInvalidDataException('Invalid data passed to '.__METHOD__);
 
-		if( !isset($db) ) $db = CmsApp::get_instance()->GetDb();
+		if( !isset($db) ) $db = AppSingle::Db();
 		$sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_dflt=1 AND type_id=?';
 		$id = $db->GetOne($sql,[ $tid ]);
 		if( $id ) return self::get_template($id);
@@ -730,18 +725,18 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 *
 	 * @param string $prefix An optional group-name prefix to be matched. Default ''.
 	 * @param bool   $by_name Whether to return group names. Default false
-	 * @return assoc. array of CmsLayoutTemplateCategory objects or name strings
+	 * @return assoc. array of TemplatesGroup objects or name strings
 	 */
 	public static function get_bulk_groups($prefix = '', $by_name = false)
 	{
 		$out = [];
-		$db = cmsms()->GetDb();
+		$db = AppSingle::Db();
 		if( $prefix ) {
-			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' WHERE name LIKE ? ORDER BY name';
+			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplatesGroup::TABLENAME.' WHERE name LIKE ? ORDER BY name';
 			$res = $db->GetAssoc($sql,[$prefix.'%']);
 		}
 		else {
-			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' ORDER BY name';
+			$sql = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplatesGroup::TABLENAME.' ORDER BY name';
 			$res = $db->GetAssoc($sql);
 		}
 		if( $res ) {
@@ -752,7 +747,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 				foreach( $res as $id => $name ) {
 					$id = (int)$id;
 					try {
-						$out[$id] = CmsLayoutTemplateCategory::load($id);
+						$out[$id] = TemplatesGroup::load($id);
 					}
 					catch (Exception $e) {
 						//ignore problem
@@ -771,7 +766,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 */
 	public static function get_all_originators(bool $friendly = false) : array
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'SELECT DISTINCT originator FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		if( $friendly ) {
 			$sql .= ' ORDER BY originator';
@@ -779,7 +774,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		$list = $db->GetCol($sql);
 		if( $list ) {
 			if( $friendly ) {
-				$p = array_search(CmsLayoutTemplate::CORE,$list);
+				$p = array_search(Template::CORE,$list);
 				if( $p !== FALSE ) {
 					unset($list[$p]);
 					$list = [-1 => 'Core'] + $list;
@@ -791,23 +786,23 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		return [];
 	}
 
-//============= OTHER FORMER CmsLayoutTemplate METHODS ============
+//============= OTHER FORMER Template METHODS ============
 
    /**
 	* Get a new template of the specified type
 	*
 	* @param mixed $a  a template-type name (like originator::name), or
-	* a (numeric) template-type id, or a CmsLayoutTemplateType object
-	* @return CmsLayoutTemplate
+	* a (numeric) template-type id, or a TemplateType object
+	* @return Template
 	* @throws CmsInvalidDataException
 	*/
 	public static function get_template_by_type($a)
 	{
 		if( is_int($a) || is_string($a) ) {
-			$tt = CmsLayoutTemplateType::load($a);
+			$tt = TemplateType::load($a);
 			if( $tt ) return $tt->create_new_template();
 		}
-		elseif( $a instanceof CmsLayoutTemplateType ) {
+		elseif( $a instanceof TemplateType ) {
 			return $a->create_new_template();
 		}
 
@@ -826,7 +821,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	{
 		if( !$prototype ) throw new CmsInvalidDataException('Prototype name cannot be empty');
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME." WHERE name LIKE '%?%'";
 		$all = $db->GetCol($sql,[ $prototype ]);
 		if( $all ) {
@@ -843,13 +838,13 @@ VALUES (?,?,?,?,?,?,?,?,?)';
    /**
 	* Perform an advanced database-query on templates
 	*
-	* @see CmsLayoutTemplateQuery
+	* @see TemplateQuery
 	* @param array $params
 	* @return type
 	*/
 	public static function template_query(array $params)
 	{
-		$ob = new CmsLayoutTemplateQuery($params);
+		$ob = new TemplateQuery($params);
 		$out = self::get_bulk_templates($ob->GetMatchedTemplateIds());
 
 		if( isset($params['as_list']) && count($out) ) {
@@ -903,19 +898,19 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	*/
 	public static function process_named_template(string $name)
 	{
-		$smarty = CmsApp::get_instance()->GetSmarty();
+		$smarty = AppSingle::Smarty();
 		return $smarty->fetch('cms_template:name='.$name);
 	}
 
    /**
 	* Process the default template of a specified type
 	*
-	* @param mixed $t A CmsLayoutTemplateType object, an integer template type id, or a string template type identifier
+	* @param mixed $t A TemplateType object, an integer template type id, or a string template type identifier
 	* @return string
 	*/
 	public static function process_default_template($t)
 	{
-		$smarty = CmsApp::get_instance()->GetSmarty();
+		$smarty = AppSingle::Smarty();
 		$tpl = self::get_default_template_by_type($t);
 		return $smarty->fetch('cms_template:id='.$tpl->get_id());
 	}
@@ -946,7 +941,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 				if ($row['contentfile']) {
 					$id = $db->Insert_ID();
 					$fn = munge_string_to_url($row['name']).'.'.$id.'.css';
-					if (!isset($config)) { $config = cms_config::get_instance(); }
+					if (!isset($config)) { $config = AppSingle::Config(); }
 					$from = cms_join_path($config['assets_path'],'templates',$row['content']);
 					$to = cms_join_path($config['assets_path'],'templates',$fn);
 					if (copy($from,$to)) {
@@ -959,12 +954,12 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			$n = count($from);
 		}
 		if ($grps) {
-			$sql = 'SELECT id,name,description FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT id,name,description FROM '.CMS_DB_PREFIX.TemplatesGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$from = $db->GetArray($sql, $grps);
-			$sql = 'SELECT group_id,tpl_id,item_order FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT group_id,tpl_id,item_order FROM '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$members = $db->Execute($sql, $grps);
-			$sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' (name,description) VALUES (?,?)';
-			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' (group_id,tpl_id,item_order) VALUES (?,?,?)';
+			$sql = 'INSERT INTO '.CMS_DB_PREFIX.TemplatesGroup::TABLENAME.' (name,description) VALUES (?,?)';
+			$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' (group_id,tpl_id,item_order) VALUES (?,?,?)';
 			foreach ($from as $row) {
 				if ($row['name']) {
 					$name = self::get_unique_name($row['name']);
@@ -993,12 +988,12 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 */
 	public static function operation_delete($ids) : int
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		list($tpls, $grps) = self::items_split($ids);
 		if ($grps) {
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.TemplatesGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
 		}
 		if ($tpls) {
@@ -1041,15 +1036,15 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 	 */
 	public static function operation_deleteall($ids) : int
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		list($tpls, $grps) = self::items_split($ids);
 		if ($grps) {
-			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'SELECT DISTINCT tpl_id FROM '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$members = $db->GetCol($sql, $grps);
 			$tpls = array_unique(array_merge($tpls, $members));
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE.' WHERE group_id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
-			$sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
+			$sql = 'DELETE FROM '.CMS_DB_PREFIX.TemplatesGroup::TABLENAME.' WHERE id IN ('.str_repeat('?,',count($grps)-1).'?)';
 			$db->Execute($sql, $grps);
 		}
 		if ($tpls) {
@@ -1093,7 +1088,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			$sql .= ' AND owner_id=?';
 			$args = [$to, $from, $uid];
 		}
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$n = $db->Execute($sql, $args);
 		return (int)$n;
 	}
@@ -1116,7 +1111,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			$sql .= ' WHERE owner_id=?';
 			$args = [$to, $uid];
 		}
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$n = $db->Execute($sql, $args);
 		return (int)$n;
 	}
@@ -1132,11 +1127,11 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		$n = 0;
 		list($tpls, $grps) = self::items_split($ids);
 		if ($tpls) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=0 AND id IN ('.str_repeat('?,',count($tpls)-1).'?)';
 			$from = $db->GetArray($sql, $tpls);
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=1 WHERE id=?';
-			$config = cms_config::get_instance();
+			$config = AppSingle::Config();
 			foreach ($from as $row) {
 				if ($row['name']) {
 					//replicate object::set_content_file()
@@ -1170,7 +1165,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 			$sql = 'SELECT id,name,content FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE contentfile=1 AND id IN ('.str_repeat('?,',count($tpls)-1).'?)';
 			$from = $db->GetArray($sql, $shts);
 			$sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET content=?,contentfile=0 WHERE id=?';
-			$config = cms_config::get_instance();
+			$config = AppSingle::Config();
 			foreach ($from as $row) {
 				if ($row['name']) {
 					//replicate object::set_content_file()
@@ -1216,7 +1211,7 @@ VALUES (?,?,?,?,?,?,?,?,?)';
 		} else {
 			$args = null;
 		}
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$valid = $db->getArray($sql, $args);
 
 		if (!$modify_all) {

@@ -25,76 +25,68 @@
  </head>
  <body>
   <!-- start header -->
-  <div id="ggp_header">
-   <div>
+  <div id="ggp_header">{*h container*}
 
-     <div id="site-logo">
-     <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}">
-     {if isset($sitelogo)}
-      <img src="{$sitelogo}" alt="{sitename}" />
-     {else}
-      {sitename}
-     {/if}
-     </a>
-     {if isset($sitelogo)}
-      <div class="site-text">{lang('adminpaneltitle')}</div>
-     {else}
-      <span class="site-text">- {lang('adminpaneltitle')}</span>
-     {/if}
-     </div>
-
-     <div>
-       <!-- logotext -->
-       <span id="cms-text">{lang('power_by')}</span>
-       <!-- logo -->
-       <div id="cms-logo">
-        <a href="http://www.cmsmadesimple.org" rel="external" title="{lang('cms_home')}">
-        </a>
-       </div>
-     </div>
-      <!-- shortcuts -->
-      {include file='shortcuts.tpl'}{block name=shortcuts}{/block}
-
-   </div>{*flex horz*}
-  </div>{* end header *}
-
-  <!-- start body -->
-  <div id="ggp_container">
-   <div id="ggp_navwrap" class="sidebar-on">
-    <div id="ggp_navhead">
-      <a href="#0" id="ggp_headlink" class="icon" title="{lang('open')}/{lang('close')}">
-      <svg class="navshut"><use xlink:href="themes/Ghostgum/images/navsprite.svg#ltr"/></svg>
-      <svg class="navopen"><use xlink:href="themes/Ghostgum/images/navsprite.svg#rtl"/></svg>
+     <div id="site-logo">{*h boxchild *}
+      <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}">
+      {if isset($sitelogo)}
+       <img src="{$sitelogo}" alt="{sitename}" />
+      {else}
+       {sitename}
+      {/if}
       </a>
-      <span id="ggp_headzone" title="{lang('close')}">&nbsp;</span>
-    </div>
+      {if isset($sitelogo)}
+       <span id="site-text">{lang('adminpaneltitle')}</span>
+      {else}
+       <span id="site-text">- {lang('adminpaneltitle')}</span>
+      {/if}
+     </div>
+
+     <div id="system-logo">{*h boxchild *}
+       <span id="system-text">{lang('power_by')}</span>
+       <span id="cms-logo">
+        <a href="http://www.cmsmadesimple.org" rel="external" title="{lang('cms_home')}"></a>
+       </span>
+     </div>
+
+     <div id="shortcuts">{*h boxchild*}
+     {include file='shortcuts.tpl'}{block name=shortcuts}{/block}
+     </div>
+  </div>{*end header*}
+
+  <!-- start content -->
+  <div id="ggp_container">{*v boxchild and h container*}
+
+   <div id="ggp_navwrap" class="sidebar-on">
     <div id="ggp_nav">
      {include file='navigation.tpl'}{block name=navigation}{/block}
     </div>
    </div>
+
    <div id="ggp_contentwrap">
-     <div id="ggp_contenthead">
-      {if !empty($pageicon) || !empty($pagetitle)}<h1>
-        {if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}
-      </h1>{/if}
-      {if !empty($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
-    {if !empty($pagetitle) && !empty($subtitle)}
-      <div class="subheader">
-       <h3 class="subtitle">{$subtitle}</h3>
-      </div>
-    {/if}
-    </div>
     <div id="ggp_content">
-     <div class="pagecontainer">{$content}</div>
+     <div id="ggp_contenthead">
+       {strip}{if !empty($pageicon) || !empty($pagetitle)}<h1>
+       {if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}
+       </h1>{/if}
+      {if !empty($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
+      {if !empty($pagetitle) && !empty($subtitle)}
+       <div class="subheader">
+        <h3 class="subtitle">{$subtitle}</h3>
+       </div>{/if}
+     </div>{* end contenthead *}
+     {/strip}
+     <div id="pagecontainer">{$content}</div>
     </div>
    </div>
-  </div>{* end nested content container row *}
+
+  </div>{*end container*}
 
   <!-- start footer -->
-  <div id="ggp_footer">
+  <div id="ggp_footer">{*h container*}
    {include file='footer.tpl'}{block name=footer}{/block}
-  </div>{*-- end footer --*}
-
+  </div>{*end footer*}
+  {include file='dialogs.tpl'}{block name=hiddendialogs}{/block}
   {$bottom_includes|default:''}
  </body>
 </html>

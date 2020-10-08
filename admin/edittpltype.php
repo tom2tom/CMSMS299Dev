@@ -16,8 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
+use CMSMS\TemplateType;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -35,7 +39,7 @@ if( !check_permission($userid, 'Modify Templates') ) {
 }
 
 $urlext = get_secure_param();
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if( isset($_REQUEST['cancel']) ) {
 	$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_cancelled'));
@@ -50,7 +54,7 @@ if( !isset($_REQUEST['type']) ) {
 cleanArray($_REQUEST);
 
 try {
-	$type = CmsLayoutTemplateType::load($_REQUEST['type']);
+	$type = TemplateType::load($_REQUEST['type']);
 
 	if( isset($_REQUEST['reset']) ) {
 		$type->reset_content_to_factory();
@@ -68,23 +72,23 @@ try {
 	}
 
 	$type_id = $type->get_id();
-	$lock_timeout = cms_siteprefs::get('lock_timeout', 60);
+	$lock_timeout = AppParams::get('lock_timeout', 60);
 	$do_locking = ($type_id > 0 && $lock_timeout > 0) ? 1 : 0;
 	if( $do_locking ) {
-		CmsApp::get_instance()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
+		AppSingle::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
-	$lock_refresh = cms_siteprefs::get('lock_refresh', 120);
+	$lock_refresh = AppParams::get('lock_refresh', 120);
 	$s1 = json_encode(lang_by_realm('layout', 'error_lock'));
 	$s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
 	$s3 = json_encode(lang_by_realm('layout', 'confirm_reset_type'));
 	$cancel = lang('cancel');
 
-	$sm = new ScriptOperations();
-	$sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
+	$jsm = new ScriptsMerger();
+	$jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 	if( $do_locking ) {
-		$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
+		$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 	}
-	$js = $sm->render_inclusion('', false, false);
+	$js = $jsm->page_content('', false, false);
 	if( $js ) {
 		add_page_foottext($js);
 	}
@@ -151,15 +155,16 @@ EOS;
 	$selfurl = basename(__FILE__);
 	$extras = get_secure_param_array();
 
-	$smarty = CmsApp::get_instance()->GetSmarty();
+	$smarty = AppSingle::Smarty();
 	$smarty->assign('type', $type)
 	 ->assign('selfurl', $selfurl)
 	 ->assign('urlext', $urlext)
 	 ->assign('extraparms', $extras);
 
-	include_once 'header.php';
-	$smarty->display('edittpltype.tpl');
-	include_once 'footer.php';
+	$content = $smarty->fetch('edittpltype.tpl');
+	require './header.php';
+	echo $content;
+	require './footer.php';
 }
 catch( CmsException $e ) {
 	$themeObject->ParkNotice('error', $e->GetMessage());

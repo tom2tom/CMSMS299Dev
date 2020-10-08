@@ -18,9 +18,9 @@
 
 namespace CMSMS\internal;
 
-use cms_utils;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\ModuleOperations;
 use CMSMS\SystemCache;
@@ -49,7 +49,7 @@ final class module_meta
     //TODO namespaced global variables here
     /**
      * null to trigger cache loading, or array, possibly having member(s)
-	 *  'capability', 'methods' (those being arrays) or possibly no member
+     *  'capability', 'methods' (those being arrays) or possibly no member
      * @ignore
      */
     private $_data = null;
@@ -66,13 +66,13 @@ final class module_meta
 
     /**
      * Get the singleton instance of this class
-	 * @deprecated since 2.9 instead use CMSMS\AppSingle::module_meta()
+     * @deprecated since 2.9 instead use CMSMS\AppSingle::module_meta()
      * @return object
      */
     public static function get_instance() : self
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::module_meta()'));
-		return AppSingle::module_meta();
+        return AppSingle::module_meta();
     }
 
     //we do not use SysDataCache + Driver(s) to populate the cache on demand
@@ -128,19 +128,20 @@ final class module_meta
     }
 
     /**
-     * Return a list of installed modules which have the specified capability
+     * Return a list of installed modules which have, or don't have,
+     * the specified capability
      *
      * @param string $capability The capability name
      * @param array  $params Optional capability parameters
-     * @param bool   $returnvalue Optional capability value to match. Default true.
+     * @param bool   $match  Optional capability-status to match. Default true.
      * @return array of matching module names i.e. possibly empty
      */
-    public function module_list_by_capability($capability,$params = [],$returnvalue = TRUE)
+    public function module_list_by_capability($capability,$params = [],$match = TRUE)
     {
-        if( empty($capability) ) return [];
+        if( !$capability ) return [];
 
+        $sig = Crypto::hash_string($capability.serialize($params));
         $this->_load_cache();
-        $sig = cms_utils::hash_string($capability.serialize($params));
         if( !isset($this->_data['capability']) || !isset($this->_data['capability'][$sig]) ) {
             debug_buffer('start building module capability list');
             if( !isset($this->_data['capability']) ) $this->_data['capability'] = [];
@@ -149,20 +150,20 @@ final class module_meta
             $installed_modules = $modops->GetInstalledModules();
             $loaded_modules = $modops->GetLoadedModules();
             $this->_data['capability'][$sig] = [];
-            foreach( $installed_modules as $onemodule ) {
-                if( isset($loaded_modules[$onemodule]) ) {
-                    $object = $loaded_modules[$onemodule];
+            foreach( $installed_modules as $modname ) {
+                if( isset($loaded_modules[$modname]) ) {
+                    $object = $loaded_modules[$modname];
                     $loaded = TRUE;
                 }
                 else {
-                    $object = $modops->get_module_instance($onemodule);
+                    $object = $modops->get_module_instance($modname);
                     $loaded = FALSE;
                 }
                 if( !$object ) continue;
 
                 // now do the test
                 $res = $object->HasCapability($capability,$params);
-                $this->_data['capability'][$sig][$onemodule] = $res;
+                $this->_data['capability'][$sig][$modname] = $res;
                 if( !$loaded ) $object = null; //help the garbage collector
             }
 
@@ -172,17 +173,15 @@ final class module_meta
         }
 
         $res = [];
-        if( $this->_data['capability'][$sig] ) {
-            foreach( $this->_data['capability'][$sig] as $key => $value ) {
-                if( $value == $returnvalue ) $res[] = $key;
-            }
+        foreach( $this->_data['capability'][$sig] as $key => $value ) {
+            if( $value == $match ) $res[] = $key;
         }
         return $res;
     }
 
     /**
-     * Return a list of installed modules which have the specified method, and
-     * that method returns the specified result.
+     * Return a list of installed modules which have the specified method,
+     * and that method returns the specified result.
      *
      * @param string Method name
      * @param mixed  Optional value to (non-strictly) compare with method
@@ -203,23 +202,23 @@ final class module_meta
             $installed_modules = $modops->GetInstalledModules();
             $loaded_modules = $modops->GetLoadedModules();
             $this->_data['methods'][$method] = [];
-            foreach( $installed_modules as $onemodule ) {
-                if( isset($loaded_modules[$onemodule]) ) {
-                    $object = $loaded_modules[$onemodule];
+            foreach( $installed_modules as $modname ) {
+                if( isset($loaded_modules[$modname]) ) {
+                    $object = $loaded_modules[$modname];
                     $loaded = TRUE;
                 }
                 else {
-                    $object = $modops->get_module_instance($onemodule);
+                    $object = $modops->get_module_instance($modname);
                     $loaded = FALSE;
                 }
                 if( !$object ) continue;
                 if( method_exists($object,$method) ) {
                     // check if this is just an inherited method
                     $reflector = new ReflectionMethod($object,$method);
-                    if( $reflector->getDeclaringClass()->getName() == $onemodule ) { //or == get_class($object) if modules are namespaced
+                    if( $reflector->getDeclaringClass()->getName() == $modname ) { //or == get_class($object) if modules are namespaced
                         // do the test
                         $res = $object->$method();
-                        $this->_data['methods'][$method][$onemodule] = $res;
+                        $this->_data['methods'][$method][$modname] = $res;
                     }
                 }
                 if( !$loaded ) $object = null; //help the garbage collector

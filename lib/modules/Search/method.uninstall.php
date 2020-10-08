@@ -16,6 +16,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Database\DataDictionary;
+use CMSMS\TemplateType;
 
 if (!isset($gCms)) exit;
 
@@ -53,7 +54,7 @@ $this->RemoveSmartyPlugin();
 // remove templates
 // and template types.
 try {
-  $types = CmsLayoutTemplateType::load_all_by_originator($this->GetName());
+  $types = TemplateType::load_all_by_originator($this->GetName());
   if( $types ) {
     foreach( $types as $type ) {
       $templates = $type->get_template_list();

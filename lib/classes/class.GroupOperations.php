@@ -18,12 +18,11 @@
 
 namespace CMSMS;
 
-use CmsApp;
 use CmsInvalidDataException;
 use CMSMS\AppSingle;
-use CMSMS\Group;
-use CmsPermission;
 use CMSMS\DeprecationNotice;
+use CMSMS\Group;
+use CMSMS\Permission;
 use LogicException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -74,13 +73,44 @@ final class GroupOperations
 	}
 
 	/**
-	 * Loads all the groups from the database and returns them
+	 * Get all the user-id's in the specified group(s)
+	 * @since 2.9
+	 * @param mixed $from optional group(s) identifier, [ints] | comma-sep-ints string | scalar int Default null (hence all groups)
+	 * @return array
+	 */
+	public function GetGroupMembers($from = NULL) : array
+	{
+		$db = AppSingle::Db();
+		$query = 'SELECT group_id,user_id FROM '.CMS_DB_PREFIX.'user_groups';
+		$args = [];
+		if( $from ) {
+			if( is_numeric($from) ) {
+				$args = [(int)$from];
+				$query .= ' WHERE group_id = ?';
+			}
+			elseif( is_array($from) ) {
+				$args = $from;
+				$fillers = str_repeat('?,', count($args) - 1);
+				$query .= ' WHERE group_id IN('.$fillers.'?)';
+			}
+			elseif( is_string($from) ){
+				$args = explode(',', $from);
+				$fillers = str_repeat('?,', count($args) - 1);
+				$query .= ' WHERE group_id IN('.$fillers.'?)';
+			}
+		}
+		$query .= ' ORDER BY group_id';
+		return $db->GetArray($query, $args);
+	}
+
+	/**
+	 * Load all groups from the database and return them
 	 *
-	 * @return mixed array The list of Group-objects | null
+	 * @return mixed array of Group-objects | null
 	 */
 	public function LoadGroups()
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'SELECT group_id, group_name, group_desc, active FROM '.CMS_DB_PREFIX.'groups ORDER BY group_id';
 		$list = $db->GetArray($query);
 		$out = [];
@@ -100,32 +130,35 @@ final class GroupOperations
 	 * Load a group from the database by its id
 	 *
 	 * @param mixed  int|null $id The id of the group to load
-	 * @return mixed The group if found. If it's not found, then false
+	 * @return mixed Group object (if found) | null
+	 * @throws CmsInvalidDataException
 	 */
 	public function LoadGroupByID($id)
 	{
 		$id = (int) $id;
 		if( $id < 1 ) throw new CmsInvalidDataException(lang('missingparams'));
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'SELECT group_id, group_name, group_desc, active FROM '.CMS_DB_PREFIX.'groups WHERE group_id = ? ORDER BY group_id';
 		$row = $db->GetRow($query, [$id]);
 
-		$obj = new Group();
-		$obj->id = $row['group_id'];
-		$obj->name = $row['group_name'];
-		$obj->description = $row['group_desc'];
-		$obj->active = $row['active'];
-		return $obj;
+		if( $row ) {
+			$obj = new Group();
+			$obj->id = $row['group_id'];
+			$obj->name = $row['group_name'];
+			$obj->description = $row['group_desc'];
+			$obj->active = $row['active'];
+			return $obj;
+		}
 	}
 
 	/**
-	 * @since 2.3
+	 * @since 2.9
 	 * @return mixed int | bool
 	 */
 	public function Upsert(Group $group)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$id = $group->id;
 		if( $id < 1 ) {
 			//setting create_date should be redundant with DT setting
@@ -147,7 +180,7 @@ VALUES (?,?,?,NOW())';
 	/**
 	 * Given a group object, inserts it into the database.
 	 *
-	 * @deprecated since 2.3 use GroupOperations::Upsert()
+	 * @deprecated since 2.9 use GroupOperations::Upsert()
 	 * @param Group $group The group object to save to the database
 	 * @return int The id of the newly created group. If none is created, -1
 	 */
@@ -163,7 +196,7 @@ VALUES (?,?,?,NOW())';
 	/**
 	 * Given a group object, update its attributes in the database.
 	 *
-	 * @deprecated since 2.3 use GroupOperations::Upsert()
+	 * @deprecated since 2.9 use GroupOperations::Upsert()
 	 * @param mixed $group The group to update
 	 * @return bool indication whether the update was successful
 	 */
@@ -190,7 +223,7 @@ VALUES (?,?,?,NOW())';
 	{
 		if( $id < 1 ) throw new CmsInvalidDataException(lang('missingparams'));
 		if( $id == 1 ) throw new LogicException(lang('error_deletespecialgroup'));
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups where group_id = ?';
 		$dbr = $db->Execute($query, [$id]);
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms where group_id = ?';
@@ -201,7 +234,7 @@ VALUES (?,?,?,NOW())';
 	}
 
 	/**
-	 * Test if a group has the specified permission(s)
+	 * Check whether a group has specified permission(s)
 	 *
 	 * @param int $groupid The group id
 	 * @param mixed $perm The permission name string, or (since 2.3) an array of them.
@@ -214,7 +247,7 @@ VALUES (?,?,?,NOW())';
 		if( $groupid == 1 ) {
 			$checks = restricted_cms_permissions();
 			if( is_numeric($perm[0]) ) {
-//				$t = CmsPermission::get_perm_name($perm[0]);
+//				$t = Permission::get_perm_name($perm[0]);
 //				if( !$t ) return FALSE;
 //				if( !in_array($t,$checks) ) return TRUE;
 				return FALSE;
@@ -229,7 +262,7 @@ VALUES (?,?,?,NOW())';
 		}
 
 		if( !isset($this->_perm_cache) || !is_array($this->_perm_cache) || !isset($this->_perm_cache[$groupid]) ) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT permission_id FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ?';
 			$dbr = $db->GetCol($query,[(int)$groupid]);
 			if( $dbr ) {
@@ -240,21 +273,21 @@ VALUES (?,?,?,NOW())';
 			}
 		}
 
-		//TODO some cases,  $config['develop_mode'] >> return TRUE;
+		//TODO some cases, $config['develop_mode'] >> return TRUE;
 		if( empty($this->_perm_cache[$groupid]) ) return FALSE;
 
 		if( is_numeric($perm[0]) ) {
 			return in_array((int)$perm[0],$this->_perm_cache[$groupid]);
 		}
 		elseif( is_string($perm[0]) ) {
-			$permid = (int)CmsPermission::get_perm_id($perm[0]);
+			$permid = (int)Permission::get_perm_id($perm[0]);
 			if( $permid < 1 ) return FALSE;
 			return in_array($permid,$this->_perm_cache[$groupid]);
 		}
 		elseif( is_array($perm[0]) ) {
 			if( !empty($perm[1]) ) {
 				foreach( $perm[0] as $pname ) {
-					$permid = (int)CmsPermission::get_perm_id($pname);
+					$permid = (int)Permission::get_perm_id($pname);
 					if( $permid < 1 ) return FALSE;
 					if( !in_array($permid,$this->_perm_cache[$groupid]) ) {
 						return FALSE;
@@ -264,7 +297,7 @@ VALUES (?,?,?,NOW())';
 			}
 			else {
 				foreach( $perm[0] as $pname ) {
-					$permid = (int)CmsPermission::get_perm_id($pname);
+					$permid = (int)Permission::get_perm_id($pname);
 					if( $permid < 1 ) return FALSE;
 					if( in_array($permid,$this->_perm_cache[$groupid]) ) {
 						return TRUE;
@@ -283,7 +316,7 @@ VALUES (?,?,?,NOW())';
 	 */
 	public function GrantPermission(int $groupid,string $perm)
 	{
-		$permid = (int)CmsPermission::get_perm_id($perm);
+		$permid = (int)Permission::get_perm_id($perm);
 		if( $permid < 1 ) return;
 		if( $groupid < 1 ) return;
 		if( $groupid == 1) {
@@ -293,7 +326,7 @@ VALUES (?,?,?,NOW())';
 			}
 		}
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		//setting create_date should be redundant with DT setting
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."group_perms
@@ -305,14 +338,14 @@ VALUES (?,?,NOW())";
 	}
 
 	/**
-	 * Disassociate the specified permission with the group
+	 * Remove the specified permission from a group
 	 *
 	 * @param int $groupid The group id
 	 * @param string $perm The permission name
 	 */
 	public function RemovePermission(int $groupid,string $perm)
 	{
-		$permid = (int)CmsPermission::get_perm_id($perm);
+		$permid = (int)Permission::get_perm_id($perm);
 		if( $permid < 1 ) return;
 		if( $groupid < 1 ) return;
 		if( $groupid == 1 ) {
@@ -322,7 +355,7 @@ VALUES (?,?,NOW())";
 			}
 		}
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND perm_id = ?';
 //		$dbr =
@@ -332,4 +365,4 @@ VALUES (?,?,NOW())";
 } // class
 
 //backward-compatibility shiv
-\class_alias(GroupOperations::class, 'GroupOperations', false);
+\class_alias(GroupOperations::class, 'GroupOperations', FALSE);

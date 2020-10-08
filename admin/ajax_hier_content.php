@@ -17,6 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSContentManager\Utils;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
 
@@ -33,7 +34,7 @@ for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 //$urlext = get_secure_param();
 $user_id = get_userid(FALSE);
-$gCms = CmsApp::get_instance();
+$gCms = AppSingle::App();
 $hm = $gCms->GetHierarchyManager();
 $contentops = ContentOperations::get_instance();
 try {

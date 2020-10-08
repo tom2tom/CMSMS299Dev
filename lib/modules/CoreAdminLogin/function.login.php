@@ -17,11 +17,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use CMSMS\Events;
 use CMSMS\internal\LoginOperations;
 use CMSMS\Mailer;
 use CMSMS\User;
 use CMSMS\UserOperations;
+use CMSMS\Utils;
 
 /*
  * This expects some variables to be populated before inclusion:
@@ -97,7 +99,7 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
 }
 
 if (!empty($usecsrf)) {
-    $csrf_key = md5(__FILE__);
+    $csrf_key = hash('tiger192,3', AppSingle::App()->GetSiteUUID());
 }
 
 $userops = UserOperations::get_instance();
@@ -151,7 +153,7 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
             $user->SetPassword($_REQUEST['password']);
             $user->Save();
             // put mention into the admin log
-            $ip_passw_recovery = cms_utils::get_real_ip();
+            $ip_passw_recovery = Utils::get_real_ip();
             audit('', 'Core', 'Completed lost password recovery for: '.$user->username.' (IP: '.$ip_passw_recovery.')');
             Events::SendEvent('Core', 'LostPasswordReset', ['uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery]);
 //            $infomessage = $this->Lang('passwordchangedlogin');
@@ -229,7 +231,7 @@ if (isset($_POST['cancel'])) {
             // find the user's homepage, if any, and redirect there.
             $url = cms_userprefs::get_for_user($user->id, 'homepage');
             if (!$url) {
-                $url = $config['admin_url'];
+                $url = $config['admin_url'].'/menu.php';
             }
             // quick hacks to remove old secure param name from homepage url
             // and replace with the correct one.
@@ -251,7 +253,7 @@ if (isset($_POST['cancel'])) {
 
             // and redirect.
             $url = cms_html_entity_decode($url); //???
-            //TODO generally support the websocket protocol
+            //TODO generally support the websocket protocol 'wss' : 'ws'
             if (!startswith($url, 'http') && !startswith($url, '//') && startswith($url, '/')) {
                 $url = CMS_ROOT_URL.$url;
             }
@@ -263,7 +265,7 @@ if (isset($_POST['cancel'])) {
 		$username = $_REQUEST['username'] ?? $_REQUEST['forgottenusername'] ?? 'Missing';
         Events::SendEvent('Core', 'LoginFailed', ['user'=>$username]);
         // put mention into the admin log
-        $ip_login_failed = cms_utils::get_real_ip();
+        $ip_login_failed = Utils::get_real_ip();
         audit('', '(IP: ' . $ip_login_failed . ') ' . 'Admin Username: ' . $username, 'Login Failed');
     }
     unset($_REQUEST['forgottenusername'],$_POST['forgottenusername']);

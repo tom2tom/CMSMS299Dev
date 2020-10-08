@@ -24,7 +24,7 @@ use AdminLog\ReduceLogTask;
 use AdminLog\storage;
 use CMSMS\AuditOperations;
 use CMSMS\CoreCapabilities;
-use CMSMS\HookManager;
+use CMSMS\HookOperations;
 
 final class AdminLog extends CMSModule
 {
@@ -39,7 +39,7 @@ final class AdminLog extends CMSModule
     public function HasAdmin() { return true; }
     public function GetAdminSection() { return 'siteadmin'; }
     public function IsAdminOnly() { return true; }
-	public function MinimumCMSVersion() { return '2.8.900'; }
+    public function MinimumCMSVersion() { return '2.8.900'; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function InitializeAdmin()
@@ -56,13 +56,14 @@ final class AdminLog extends CMSModule
             // ignore any error.
         }
 
+        HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
         //NOTE these must be accessed with first_result hook-method
-        HookManager::add_hook('localizeperm',function($perm_source,$perm_name) {
+        HookOperations::add_hook('localizeperm',function($perm_source,$perm_name) {
                 if( $perm_source != 'AdminLog' ) return;
                 $key = 'perm_'.str_replace(' ','_',$perm_name);
                 return $this->Lang($key);
             });
-        HookManager::add_hook('getperminfo',function($perm_source,$perm_name) {
+        HookOperations::add_hook('getperminfo',function($perm_source,$perm_name) {
                 if( $perm_source != 'AdminLog' ) return;
                 $key = 'permdesc_'.str_replace(' ','_',$perm_name);
                 return $this->Lang($key);
@@ -83,7 +84,22 @@ final class AdminLog extends CMSModule
         }
     }
 
-	//TODO hook function to populate 'centralised' site settings update
+    /**
+     * Hook function to populate 'centralised' site settings UI
+     * @internal
+     * @since 2.9
+     * @return array
+     */
+    public function ExtraSiteSettings()
+    {
+        //TODO check permission local or Site Prefs
+        return [
+         'title'=> $this->Lang('settings_title'),
+         //'desc'=> 'useful text goes here', // optional useful text
+         'url'=> $this->create_url('m1_','defaultadmin','',['activetab'=>'settings']), // if permitted
+         //optional 'text' => custom link-text | explanation e.g need permission
+        ];
+    }
 
     public function get_tasks()
     {

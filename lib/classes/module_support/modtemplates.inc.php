@@ -16,65 +16,67 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+namespace CMSMS\module_support;
+
+use CMSMS\AppSingle;
 use CMSMS\TemplateOperations;
+use CMSMS\Utils;
+use const CMS_DB_PREFIX;
+use function endswith;
 
 /**
- * Template-related methods for modules
+ * Template-related methods for modules.
  *
- * @since		1.0
- * @package		CMS
+ * @internal
+ * @since   1.0
+ * @package CMS
  * @license GPL
  */
-
 /**
  * Return a sorted array of database-stored-template names.
- * @access private
  *
- * @param CMSModule $modinstance Current module
- * @param string $mod_name Optional enables override of $modinstance
+ * @param $modinst The current module-object
+ * @param string $mod_name Optional name of module to use instead of  $modinst
  * @return array
  */
-
-function cms_module_ListTemplates(&$modinstance, $mod_name = '')
+function ListTemplates($modinst, $mod_name = '')
 {
-	$db = CmsApp::get_instance()->GetDb();
+	$db = AppSingle::Db();
 	if (!$mod_name) {
-		$mod_name = $modinstance->GetName();
+		$mod_name = $modinst->GetName();
 	}
 	$query = 'SELECT name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE listable!=0 AND originator=? ORDER BY name';
 	return $db->GetCol($query, [$mod_name]);
-}
+};
 
 /**
  * Return the content of a database-stored template.
  * This should be used for admin purposes only, as it doesn't implement smarty caching.
- * @access private
  *
- * @param CMSModule $modinstance Current module
+ * @param $modinst The current module-object
  * @param string $tpl_name Template name
- * @param string $mod_name Optional enables override of $modinstance
+ * @param string $mod_name Optional name of module to use instead of  $modinst
  * @return string
  */
-function cms_module_GetTemplate(&$modinstance, $tpl_name, $mod_name = '')
+function GetTemplate($modinst, $tpl_name, $mod_name = '')
 {
-	$db = CmsApp::get_instance()->GetDb();
+	$db = AppSingle::Db();
 	if (!$mod_name) {
-		$mod_name = $modinstance->GetName();
+		$mod_name = $modinst->GetName();
 	}
 	$query = 'SELECT content FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE name=? AND originator=?';
 	return $db->GetOne($query, [$tpl_name, $mod_name]);
-}
+};
 
 /**
  * Return contents of the template that resides in path-to/ModuleName/templates/{template_name}.tpl
- * @access private
  *
- * @param CMSModule $modinstance Current module
+ * @param $modinst The current module-object
  * @param string $tpl_name Template name
- * @param since 2.3 string $mod_name Optional enables override of $modinstance
- * @return string or false
+ * @param since 2.3 string $mod_name Optional name of module to use instead of $modinst
+ * @return mixed string | null
  */
-function cms_module_GetTemplateFromFile(&$modinstance, $tpl_name, $mod_name = '')
+function GetTemplateFromFile($modinst, $tpl_name, $mod_name = '')
 {
 	if (strpos($tpl_name, '..') !== false) return;
 
@@ -82,35 +84,35 @@ function cms_module_GetTemplateFromFile(&$modinstance, $tpl_name, $mod_name = ''
 
 	$template = '';
 	if ($mod_name) {
-		$myname = $modinstance->GetName();
+		$myname = $modinst->GetName();
 		if ($mod_name != $myname) {
-			$ob = cms_utils::get_module($mod_name);
+			$ob = Utils::get_module($mod_name);
 			if ($ob) {
 				$template = $ob->GetModulePath().DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.$tpl_name;
 			}
 		}
 	}
 	if (!$template) {
-		$template = $modinstance->GetModulePath().DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.$tpl_name;
+		$template = $modinst->GetModulePath().DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.$tpl_name;
 	}
 	if (is_file($template)) {
 		return @file_get_contents($template);
 	}
-}
+};
 
 /**
- * @access private
+ * Save a template
  *
- * @param CMSModule $modinstance Current module
+ * @param $modinst The current module-object
  * @param string $tpl_name Template name
  * @param string $content
- * @param string $mod_name Optional enables override of $modinstance
+ * @param string $mod_name Optional name of module to use instead of $modinst
  */
-function cms_module_SetTemplate(&$modinstance, $tpl_name, $content, $mod_name = '')
+function SetTemplate($modinst, $tpl_name, $content, $mod_name = '')
 {
-	$db = CmsApp::get_instance()->GetDb();
+	$db = AppSingle::Db();
 	if (!$mod_name) {
-		$mod_name = $modinstance->GetName();
+		$mod_name = $modinst->GetName();
 	}
 	$now = time();
 	$pref = CMS_DB_PREFIX;
@@ -143,22 +145,21 @@ WHERE NOT EXISTS (SELECT 1 FROM {$tbl} T WHERE T.originator=? AND T.name=?)
 EOS;
 	$db->Execute($query,
 	 [$mod_name, $tpl_name, $content, $tt, $now, $now, $mod_name, $tpl_name]);
-}
+};
 
 /**
- * Delete named template
- * @access private
+ * Delete named template or all
  *
- * @param CMSModule $modinstance Current module
- * @param string $tpl_name Optional template name. Delete all, if name is empty
- * @param string $mod_name Optional enables override of $modinstance
+ * @param $modinst The current module-object
+ * @param string $tpl_name Optional template name. Delete all, if this is empty
+ * @param string $mod_name Optional name of module to use instead of $modinst
  * @return bool
  */
-function cms_module_DeleteTemplate(&$modinstance, $tpl_name = '', $mod_name = '')
+function DeleteTemplate($modinst, $tpl_name = '', $mod_name = '')
 {
-	$db = CmsApp::get_instance()->GetDb();
+	$db = AppSingle::Db();
 	if (!$mod_name) {
-		$mod_name = $modinstance->GetName();
+		$mod_name = $modinst->GetName();
 	}
 	$query = 'DELETE FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE originator=?';
 	$vars = [$mod_name];
@@ -169,4 +170,4 @@ function cms_module_DeleteTemplate(&$modinstance, $tpl_name = '', $mod_name = ''
 	$result = $db->Execute($query, $vars);
 
 	return ($result !== false);
-}
+};

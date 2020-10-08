@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
+
 function smarty_function_file_url($params, $template)
 {
 	$file = trim(get_parameter_value($params,'file'));
@@ -24,7 +26,7 @@ function smarty_function_file_url($params, $template)
 		return;
 	}
 
-	$config = cms_config::get_instance();
+	$config = AppSingle::Config();
 	$dir = $config['uploads_path'];
 	$add_dir = trim(get_parameter_value($params,'dir'));
 

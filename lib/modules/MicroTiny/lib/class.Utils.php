@@ -18,12 +18,12 @@
 
 namespace MicroTiny;
 
-use cms_utils;
-use CmsApp;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\NlsOperations;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
 use CMSMS\StylesheetOperations;
+use CMSMS\Utils as AppUtils;
 use Exception;
 use MicroTiny;
 use MicroTiny\Profile;
@@ -31,6 +31,7 @@ use RuntimeException;
 use const CMS_JOB_KEY;
 use const CMS_ROOT_URL;
 use const TMP_CACHE_LOCATION;
+use function add_page_headtext;
 use function cms_join_path;
 use function cms_path_to_url;
 use function cms_to_bool;
@@ -55,10 +56,10 @@ class Utils
 		static $first_time = true;
 
 		// Check if we are in object instance
-		$mod = cms_utils::get_module('MicroTiny');
+		$mod = AppUtils::get_module('MicroTiny');
 		if( !is_object($mod) ) throw new RuntimeException('Could not find the MicroTiny module...');
 
-		$frontend = CmsApp::get_instance()->is_frontend_request();
+		$frontend = AppSingle::App()->is_frontend_request();
 		$languageid = self::GetLanguageId($frontend);
 
 		// get the cssname that we're going to use (either passed in, or from profile)
@@ -112,15 +113,15 @@ EOS;
 			$output = '';
 		}
 
-		$sm = new ScriptOperations();
+		$jsm = new ScriptsMerger();
 //		$fn = cms_join_path(__DIR__,'js','tinymce','jquery.tinymce.min.js'); 1st time only
-//		$sm->queue_file($fn, 1);
+//		$jsm->queue_file($fn, 1);
 		$configcontent = self::_generate_config($frontend, $selector, $css_name, $languageid);
-		$sm->queue_string($configcontent);
-		$config = cms_utils::get_config();
+		$jsm->queue_string($configcontent);
+		$config = AppUtils::get_config();
 		$force = isset($config['mt_disable_cache']) && cms_to_bool($config['mt_disable_cache']);
 
-		$fn = $sm->render_scripts('', $force, false);
+		$fn = $jsm->render_scripts('', $force, false);
 		$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$output .=<<< EOS
 <script type="text/javascript" src="$url"></script>
@@ -169,10 +170,10 @@ EOS;
 		$image2 = ($profile['allowimages']) ? ' media image' : '';
         $table = ($profile['allowtables']) ? ' table' : '';
 
-		$mod = cms_utils::get_module('MicroTiny');
-		$_gCms = CmsApp::get_instance();
-		$smarty = $_gCms->GetSmarty();
-		$page_id = ($_gCms->is_frontend_request()) ? $smarty->getTemplateVars('content_id') : '';
+		$mod = AppUtils::get_module('MicroTiny');
+		$gCms = AppSingle::App();
+		$smarty = $gCms->GetSmarty();
+		$page_id = ($gCms->is_frontend_request()) ? $smarty->getTemplateVars('content_id') : '';
 		$url = $mod->create_url('m1_','linker',$page_id);
 		$linker_url = $ajax_url($url);
 		$url = $mod->create_url('m1_','ajax_getpages',$page_id);
@@ -185,7 +186,7 @@ var cmsms_tiny = {
  filebrowser_title: '{$mod->Lang('title_cmsms_filebrowser')}',
 
 EOS;
-		$fp = cms_utils::get_filepicker_module();
+		$fp = AppUtils::get_filepicker_module();
 		if( $fp ) {
 			$url = $fp->get_browser_url();
 			$filepicker_url = $ajax_url($url);
@@ -318,7 +319,7 @@ EOS;
 		if ($mylang=='') return 'en'; //Lang setting "No default selected"
 		$shortlang = substr($mylang,0,2);
 
-		$mod = cms_utils::get_module('MicroTiny');
+		$mod = AppUtils::get_module('MicroTiny');
 		$dir = cms_join_path($mod->GetModulePath(),'lib','js','tinymce','langs');
 		$langs = [];
 		$files = glob($dir.DIRECTORY_SEPARATOR.'*.js');

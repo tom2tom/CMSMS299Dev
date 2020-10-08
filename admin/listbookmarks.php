@@ -16,8 +16,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\BookmarkOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -45,7 +47,7 @@ if ($n > $limit) {
 	$maxsee = $n;
 }
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 $iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', lang('addbookmark'),'','','systemicon');
 $iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'),'','','systemicon');
@@ -53,7 +55,7 @@ $icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),
 
 $extras = get_secure_param_array();
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign([
 	'access' => $access,
 	'padd' => $padd,
@@ -71,6 +73,7 @@ $smarty->assign([
 	'pagination' => $pagination,
 ]);
 
-include_once 'header.php';
-$smarty->display('listbookmarks.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('listbookmarks.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

@@ -17,7 +17,7 @@
 
 // since 2.3
 
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
 
 function smarty_function_get_jquery($params, $template)
 {
@@ -38,11 +38,11 @@ EOS;
 		$out = '';
 	}
 
-	$sm = new ScriptOperations();
-	if ($core) $sm->queue_file($incs['jqcore'], 1);
-	if ($migrate) $sm->queue_file($incs['jqmigrate'], 1);
-	if ($ui) $sm->queue_file($incs['jqui'], 1);
-	$out .= $sm->render_inclusion('', false, false);
+	$jsm = new ScriptsMerger();
+	if ($core) $jsm->queue_file($incs['jqcore'], 1);
+	if ($migrate) $jsm->queue_file($incs['jqmigrate'], 1);
+	if ($ui) $jsm->queue_file($incs['jqui'], 1);
+	$out .= $jsm->page_content('', false, false);
 
 	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']), $out);

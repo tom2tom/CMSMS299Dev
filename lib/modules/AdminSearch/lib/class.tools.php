@@ -2,8 +2,8 @@
 
 namespace AdminSearch;
 
-use cms_utils;
 use CMSMS\SystemCache;
+use CMSMS\Utils;
 use function get_userid;
 
 final class tools
@@ -21,11 +21,11 @@ final class tools
       $results = [];
 
       // get module search-slaves
-      $mod = cms_utils::get_module('AdminSearch');
+      $mod = Utils::get_module('AdminSearch');
       $modulelist = $mod->GetModulesWithCapability('AdminSearch');
       if( $modulelist ) {
         foreach( $modulelist as $module_name ) {
-          $mod = cms_utils::get_module($module_name);
+          $mod = Utils::get_module($module_name);
           if( !is_object($mod) ) {
               continue;
           }

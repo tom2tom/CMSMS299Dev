@@ -21,8 +21,7 @@ namespace CMSMS;
 use CmsInvalidDataException;
 use CmsLogicException;
 use CMSMS\AdminUtils;
-use CMSMS\App;
-use CMSMS\AppConfig;
+use CMSMS\AppSingle;
 use CMSMS\DeprecationNotice;
 use CMSMS\LockOperations;
 use CMSMS\StylesheetOperations;
@@ -51,11 +50,11 @@ class Stylesheet
 {
    /**
 	* @ignore
-	* @deprecated since 2.3 use StylesheetOperations::TABLENAME
+	* @deprecated since 2.9 use StylesheetOperations::TABLENAME
 	*/
 	const TABLENAME = 'layout_stylesheets';
 
-    // static properties here >> StaticProperties class ?
+	// static properties here >> StaticProperties class ?
 	/**
 	* @ignore
 	*/
@@ -67,7 +66,7 @@ class Stylesheet
 	private $_dirty = FALSE;
 
    /**
-    * No setter/getter, so this is populated directly
+	* No setter/getter, so this is populated directly
 	* @ignore
 	*/
 	public $_data = [];
@@ -310,7 +309,7 @@ class Stylesheet
 		$sid = $this->get_id();
 		if( !$sid ) return [];
 		if( !is_array($this->_designs) ) {
-			$db = App::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.{??DesignManager\Design}::CSSTABLE.' WHERE css_id = ?'; DISABLED
 			$tmp = $db->GetCol($query,[$sid]);
 			if( $tmp ) $this->_designs = $tmp;
@@ -367,7 +366,7 @@ class Stylesheet
 	* Assign this stylesheet to a design
 	*
 	* @throws CmsLogicException
-	* @see DesignManager\Design
+	* @see Design
 	* @param mixed $a An Instance of a DesignManager\Design object, or an integer design id, or a string design name
 	*/
 /*	public function add_design($a)
@@ -406,7 +405,7 @@ class Stylesheet
 */
    /**
 	* Get the list of group id's (if any) that this stylesheet belongs to
-    * @since 2.3
+	* @since 2.3
 	*
 	* @return array Array of integer group id's
 	*/
@@ -415,7 +414,7 @@ class Stylesheet
 		$sid = $this->get_id();
 		if( !$sid ) return [];
 		if( !is_array($this->_groups) ) {
-			$db = App::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.StylesheetsGroup::MEMBERSTABLE.' WHERE css_id = ?';
 			$tmp = $db->GetCol($query,[$sid]);
 			if( $tmp ) $this->_groups = $tmp;
@@ -432,7 +431,7 @@ class Stylesheet
 
    /**
 	* Set the list of group id's that this stylesheet belongs to
-    * @since 2.3
+	* @since 2.3
 	*
 	* @throws CmsInvalidDataException
 	* @param array $all Array of integer group id's, maybe empty
@@ -456,10 +455,10 @@ class Stylesheet
 */
    /**
 	* Add this stylesheet to a group
-    * @since 2.3
+	* @since 2.3
 	*
 	* @throws CmsLogicException
-	* @see DesignManager\Design
+	* @see Design
 	* @param mixed $a An integer group id, or a string group name
 	*/
 	public function add_group($a)
@@ -474,15 +473,15 @@ class Stylesheet
 				$this->_groups[] = (int)$id;
 				$this->_dirty = TRUE;
 			}
-        }
+		}
 	}
 
    /**
 	* Remove this stylesheet from a group
-    * @since 2.3
+	* @since 2.3
 	*
 	* @throws CmsLogicException
-	* @see DesignManager\Design
+	* @see Design
 	* @param mixed $a An integer group id, or a string group name
 	*/
 	public function remove_group($a)
@@ -495,7 +494,7 @@ class Stylesheet
 			$this->get_groups();
 			if( $this->_groups ) {
 				if( ($p = array_search($id, $this->_groups)) !== FALSE ) {
-				     unset($this->_groups[$p]);
+					 unset($this->_groups[$p]);
 				}
 			}
 			$this->_dirty = TRUE;
@@ -564,7 +563,7 @@ class Stylesheet
 	public function get_content_filename()
 	{
 		if( $this->get_content_file() ) {
-			$config = AppConfig::get_instance();
+			$config = AppSingle::Config();
 			return cms_join_path($config['assets_path'],'css',$this->get_content());
 		}
 		return '';
@@ -590,7 +589,7 @@ class Stylesheet
 	*/
 	public function has_content_file()
 	{
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_content_file'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_content_file'));
 		return $this->get_content_file();
 	}
 
@@ -706,7 +705,7 @@ class Stylesheet
 	*
 	* @param bool $by_name Optional flag indicating the output format. Default false.
 	* @return mixed If $by_name is true then the output will be an array of rows
-    *  each with stylesheet id and name. Otherwise, id and Stylesheet object
+	*  each with stylesheet id and name. Otherwise, id and Stylesheet object
 	*/
 	public static function get_all($by_name = false)
 	{

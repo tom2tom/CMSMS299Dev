@@ -6,11 +6,11 @@
 
 namespace CmsJobManager;
 
-use cms_utils;
-use CmsApp;
 use CmsJobManager;
+use CMSMS\AppSingle;
 use CMSMS\Events;
-use CMSMS\HookManager;
+use CMSMS\HookOperations;
+use CMSMS\Utils;
 use RuntimeException;
 use function audit;
 use function debug_to_log;
@@ -34,7 +34,7 @@ final class JobQueue
 	 */
     public static function get_all_jobs()
     {
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::Db();
         $sql = 'SELECT * FROM '.CmsJobManager::TABLE_NAME.' WHERE created < UNIX_TIMESTAMP() ORDER BY created ASC LIMIT '.self::MAXJOBS;
         $list = $db->GetArray($sql);
         if (!$list) {
@@ -44,7 +44,7 @@ final class JobQueue
         $out = [];
         foreach ($list as $row) {
             if (!empty($row['module'])) {
-                $mod = cms_utils::get_module($row['module']);
+                $mod = Utils::get_module($row['module']);
                 if (!is_object($mod)) {
                     throw new RuntimeException('Job '.$row['name'].' requires module '.$row['module'].' That could not be loaded');
                 }
@@ -64,7 +64,7 @@ final class JobQueue
 	 */
     public static function get_jobs($check_only = false)
     {
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::Db();
 
         $limit = ($check_only) ? 1 : self::MAXJOBS;
 
@@ -80,7 +80,7 @@ final class JobQueue
         $out = [];
         foreach ($list as $row) {
             if (!empty($row['module'])) {
-                $mod = cms_utils::get_module($row['module']);
+                $mod = Utils::get_module($row['module']);
                 if (!is_object($mod)) {
                     audit('', 'CmsJobManager', sprintf('Could not load module %s required by job %s', $row['module'], $row['name']));
                     continue;
@@ -97,7 +97,7 @@ final class JobQueue
 
     public static function clear_bad_jobs()
     {
-        $mod = cms_utils::get_module('CmsJobManager');
+        $mod = Utils::get_module('CmsJobManager');
         $now = time();
         $lastrun = (int) $mod->GetPreference('last_badjob_run');
         if ($lastrun + self::MINGAP >= $now) {
@@ -119,7 +119,7 @@ final class JobQueue
                 }
                 $obj->set_id($row['id']);
                 $idlist[] = (int) $row['id'];
-                HookManager::do_hook(CmsJobManager::EVT_ONFAILEDJOB, [ 'job' => $obj ]); //TODO BAD no namespace, some miscreant handler can change the parameter ... 
+                HookOperations::do_hook(CmsJobManager::EVT_ONFAILEDJOB, [ 'job' => $obj ]); //TODO BAD no namespace, some miscreant handler can change the parameter ...
                 Events::SendEvent('CmsJobManager',CmsJobManager::EVT_ONFAILEDJOB, [ 'job' => $obj ]); //since 2.3
             }
             $sql = 'DELETE FROM '.CmsJobManager::TABLE_NAME.' WHERE id IN ('.implode(',', $idlist).')';

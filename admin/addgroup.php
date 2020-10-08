@@ -16,9 +16,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\Group;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -29,22 +31,20 @@ check_login();
 $urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
     redirect('listgroups.php'.$urlext);
-//  return;
 }
-
-$group= '';
-$description= '';
-$active = 1;
 
 $userid = get_userid();
-$access = check_permission($userid, 'Manage Groups');
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
-if (!$access) {
-//TODO some immediate popup lang('needpermissionto', '"Manage Groups"'));
+if (!check_permission($userid, 'Manage Groups')) {
+//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
     return;
 }
+
+$group = '';
+$description = '';
+$active = 1;
 
 if (isset($_POST['addgroup'])) {
     $group = cleanValue($_POST['group']);
@@ -66,11 +66,10 @@ if (isset($_POST['addgroup'])) {
             // put mention into the admin log
             audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Added');
             redirect('listgroups.php'.$urlext);
-            return;
         } else {
             throw new RuntimeException(lang('errorinsertinggroup'));
         }
-    } catch( Exception $e ) {
+    } catch( Throwable $e ) {
         $themeObject->RecordNotice('error', $e->GetMessage());
     }
 }
@@ -78,9 +77,9 @@ if (isset($_POST['addgroup'])) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign([
-    'access' => $access,
+//    'access' => $access,
     'active' => $active,
     'description' => $description,
     'group' => $group,
@@ -89,6 +88,7 @@ $smarty->assign([
     'urlext' => $urlext,
 ]);
 
-include_once 'header.php';
-$smarty->display('addgroup.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('addgroup.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

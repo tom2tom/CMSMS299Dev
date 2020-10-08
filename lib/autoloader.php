@@ -15,6 +15,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\App;
+
 /**
  * A function for auto-loading core- and module-related- CMSMS classes.
  *
@@ -79,7 +81,7 @@ function cms_autoloader(string $classname)
 			if (is_file($fp)) {
 				if (!($sysp || class_exists($space, false))) {
 					//deprecated since 2.3 - some modules require existence of this, or assume, and actually use it
-					$gCms = CmsApp::get_instance();
+					$gCms = App::get_instance();
 					require_once $mpath;
 				}
 				require_once $fp;
@@ -178,7 +180,7 @@ function cms_autoloader(string $classname)
 	$fp = cms_module_path($base);
 	if ($fp) {
 		//deprecated since 2.3 - some modules require existence of this, or assume, and actually use it
-		$gCms = CmsApp::get_instance();
+		$gCms = App::get_instance();
 		require_once $fp;
 		if (class_exists($classname, false)) return;
 	}

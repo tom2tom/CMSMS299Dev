@@ -49,8 +49,9 @@ $db->Execute($query);
 
 //  'Modify Site Assets',
 $ultras = [
-    'Manage Database Content',
-    'Manage Restricted Files',
+    'Modify Database', //for db structure i.e. +/- tables, change table-propertiies
+    'Modify Database Content',
+    'Modify Restricted Files',
     'Remote Administration',  //for app management sans admin console
 ];
 
@@ -58,7 +59,7 @@ foreach ($ultras as $one_perm) {
     $permission = new CmsPermission();
     $permission->source = 'Core';
     $permission->name = $one_perm;
-    $permission->text = $one_perm;
+    $permission->text = ucfirst($one_perm); //TODO c.f. fresh installation text
     try {
         $permission->save();
     } catch (Throwable $t) {
@@ -75,7 +76,7 @@ try {
 } catch (Throwable $t) {
     // nothing here
 }
-$group->GrantPermission($ultras[1]);
+$group->GrantPermission($ultras[2]);
 //$group->GrantPermission('Modify Site Assets');
 $group->GrantPermission('Manage Simple Plugins');
 /*
@@ -142,7 +143,10 @@ $config = $app->get_config();
 $corenames = $config['coremodules'];
 $cores = implode(',', $corenames);
 $url =  ( !empty($siteinfo['supporturl']) ) ? $siteinfo['supporturl'] : '';
-$uuid = cms_random_string(24, false, true);
+$salt = Crypto::random_string(16, true);
+$r = substr($salt, 0, 2);
+$s = Crypto::random_string(32, false, true);
+$uuid = strtr($s, '+/', $r);
 $down = cms_siteprefs::get('enablesitedownmessage', 0); //for rename
 $check = cms_siteprefs::get('use_smartycompilecheck', 1); //ditto
 
@@ -152,6 +156,9 @@ $arr = [
     'lock_refresh' => 120,
     'lock_timeout' => 60,
     'loginmodule' => '',
+    'loginsalt' => $salt,
+    'password_level' => 0, // min-strength enumerator
+    'password_life' => 0, // lifetime (days)
     'site_help_url' => $url,
     'site_uuid' => $uuid, // almost-certainly-unique signature of this site
     'site_downnow' => $down, // renamed
@@ -319,6 +326,10 @@ $sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'modules','allow_fe_lazyload');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'modules','allow_admin_lazyload');
 $dict->ExecuteSQLArray($sqlarray);
+$sql = 'UPDATE '.CMS_DB_PREFIX.'users SET active = 0 WHERE active = 1 AND admin_access = 0';
+$db->Execute($sql);
+$sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'users','admin_access');
+$dict->ExecuteSQLArray($sqlarray);
 
 // extra fields
 $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'content','styles C(48)');
@@ -331,11 +342,11 @@ $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'users','passmodified_date DT'); /
 $dict->ExecuteSQLArray($sqlarray);
 
 // modified fields
+$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'routes','created','create_date','DT DEFAULT CURRENT_TIMESTAMP');
+$dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'users','username C(80)');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'users','password C(128)');
-$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'routes','created','create_date','DT DEFAULT CURRENT_TIMESTAMP');
 $dict->ExecuteSQLArray($sqlarray);
 
 // backup each user's create_date to passmodified_date

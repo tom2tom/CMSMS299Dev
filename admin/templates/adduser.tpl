@@ -61,6 +61,7 @@
 {if $active} checked="checked"
 {/if} />
 </div>
+{*
 <div class="pageoverflow">
   <p class="pagetext">{$t=lang('adminaccess')}
     <label for="adminaccess">{$t}:</label>
@@ -71,7 +72,7 @@
 {if adminaccess} checked="checked"
 {/if} />
 </div>
-
+*}
 {if isset($groups)}
 <!-- groups -->
 {tab_start name='groups'}

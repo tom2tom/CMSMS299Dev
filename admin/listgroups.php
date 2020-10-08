@@ -1,5 +1,5 @@
 <?php
-#procedure to display all user-groups
+#Display all user-groups
 #Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,9 +16,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\GroupOperations;
 use CMSMS\UserOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -28,12 +30,8 @@ check_login();
 
 $urlext = get_secure_param();
 $userid = get_userid();
-$access = check_permission($userid, 'Manage Groups');
-$padd = $access || check_permission($userid, 'Add Groups');
 
-$gCms = cmsms();
-$userops = UserOperations::get_instance();
-$groupops = GroupOperations::get_instance();
+$groupops = AppSingle::GroupOperations();
 $grouplist = $groupops->LoadGroups();
 $n = count($grouplist);
 $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
@@ -49,7 +47,8 @@ if ($n > $limit) {
     $maxsee = $n;
 }
 
-$themeObject = cms_utils::get_theme_object();
+$access = check_permission($userid, 'Manage Groups');
+$themeObject = Utils::get_theme_object();
 
 $icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('true'), '', '', 'systemicon');
 $iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('false'), '', '', 'systemicon');
@@ -62,17 +61,16 @@ $icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign([
-    'access' => $access,
-    'padd' => $padd,
+    'pmod' => $access,
     'addurl' => 'addgroup.php',
     'assignurl' => 'changegroupassign.php',
     'deleteurl' => 'deletegroup.php',
     'editurl' => 'editgroup.php',
     'permurl' => 'changegroupperm.php',
     'selfurl' => $selfurl,
-	'extraparms' => $extras,
+    'extraparms' => $extras,
     'urlext' => $urlext,
     'grouplist' => $grouplist,
     'iconadd' => $iconadd,
@@ -87,6 +85,7 @@ $smarty->assign([
     'pagination' => $pagination,
 ]);
 
-include_once 'header.php';
-$smarty->display('listgroups.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('listgroups.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

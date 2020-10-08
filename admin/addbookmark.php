@@ -16,8 +16,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Bookmark;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -31,9 +33,8 @@ if (isset($_POST['cancel'])) {
     return;
 }
 
-$themeObject = cms_utils::get_theme_object();
-
-$title= '';
+$themeObject = Utils::get_theme_object();
+$title = '';
 $url = '';
 
 if (isset($_POST['addbookmark'])) {
@@ -68,7 +69,7 @@ if (isset($_POST['addbookmark'])) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign([
     'title' => $title,
     'url' => $url,
@@ -77,6 +78,7 @@ $smarty->assign([
     'urlext' => $urlext,
 ]);
 
-include_once 'header.php';
-$smarty->display('addbookmark.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('addbookmark.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

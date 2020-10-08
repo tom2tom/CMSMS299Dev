@@ -17,6 +17,8 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\CoreCapabilities;
+use CMSMS\TemplateType;
+use CMSMS\Utils;
 
 class NavigatorNode
 {
@@ -107,11 +109,11 @@ final class Navigator extends CMSModule
 
     final public static function page_type_lang_callback($str)
     {
-        $mod = cms_utils::get_module(self::class);
+        $mod = Utils::get_module(self::class);
         if( is_object($mod) ) return $mod->Lang('type_'.$str);
     }
 
-    public static function reset_page_type_defaults(CmsLayoutTemplateType $type)
+    public static function reset_page_type_defaults(TemplateType $type)
     {
         if( $type->get_originator() != self::class ) throw new UnexpectedValueException('Cannot reset contents for this template type');
 
@@ -132,7 +134,7 @@ final class Navigator extends CMSModule
     public static function template_help_callback($str)
     {
         $str = trim($str);
-        $mod = cms_utils::get_module('Navigator');
+        $mod = Utils::get_module('Navigator');
         if( is_object($mod) ) {
             $file = $mod->GetModulePath().'/doc/tpltype_'.$str.'.inc';
             if( is_file($file) ) return file_get_contents($file);

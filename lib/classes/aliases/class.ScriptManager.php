@@ -1,4 +1,4 @@
 <?php
-assert(empty(CMS_DEPREC), new CMSMS\DeprecationNotice('class', 'CMSMS\\ScriptOperations'));
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'class.ScriptOperations.php';
-class_alias('CMSMS\ScriptOperations', 'CMSMS\ScriptManager', false);
+assert(empty(CMS_DEPREC), new CMSMS\DeprecationNotice('class', 'CMSMS\\ScriptsMerger'));
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'class.ScriptsMerger.php';
+class_alias('CMSMS\ScriptsMerger', 'CMSMS\ScriptManager', false);

@@ -18,12 +18,13 @@
 
 namespace CMSMS;
 
-use cms_utils;
-use CmsApp;
 use CMSModule;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\HookOperations;
 use CMSMS\SysDataCache;
 use CMSMS\SysDataCacheDriver;
+use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function debug_buffer;
 use function lang;
@@ -67,7 +68,7 @@ final class Events
 	{
 		$obj = new SysDataCacheDriver(self::class,function()
 			{
-				$db = CmsApp::get_instance()->GetDb();
+				$db = AppSingle::Db();
 				$pref = CMS_DB_PREFIX;
 				$sql = <<<EOS
 SELECT e.event_id, eh.type, eh.class, eh.func, e.originator, e.event_name, eh.handler_order, eh.handler_id, eh.removable
@@ -89,7 +90,7 @@ EOS;
 	 */
 	public static function CreateEvent(string $originator, string $eventname) : bool
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$originator = trim($originator);
 		$eventname = trim($eventname);
 		$pref = CMS_DB_PREFIX;
@@ -115,7 +116,7 @@ EOS;
 	 */
 	public static function RemoveEvent(string $originator, string $eventname) : bool
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		// get the id
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
@@ -180,7 +181,7 @@ EOS;
 					break;
 				  case 'P': //regular plugin
 					if( $smarty === null ) {
-						$smarty = CmsApp::get_instance()->GetSmarty();
+						$smarty = AppSingle::Smarty();
 					}
 					if( $smarty->is_plugin($handler) ) {
 						if( function_exists('smarty_function_'.$handler) ) {
@@ -209,7 +210,7 @@ EOS;
 
 		// notify other 'dynamic' handlers, if any.
 		// in case of same name for different originators, handlers will need to filter
-		HookManager::do_hook($eventname, $originator, $eventname, $params);
+		HookOperations::do_hook($eventname, $originator, $eventname, $params);
 	}
 
 	/**
@@ -220,7 +221,7 @@ EOS;
 	 */
 	public static function ListEvents()
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		$pref = CMS_DB_PREFIX;
 		$sql = <<<EOS
@@ -234,7 +235,7 @@ EOS;
 
 		$result = [];
 		while( $row = $dbr->FetchRow() ) {
-			if( $row['originator'] == 'Core' || cms_utils::module_available($row['originator']) ) {
+			if( $row['originator'] == 'Core' || Utils::module_available($row['originator']) ) {
 				$result[] = $row;
 			}
 		}
@@ -396,7 +397,7 @@ EOS;
 		$params = self::InterpretCallback($callback, $type);
 		if( !$params || (empty($params[0] && empty($params[1]))) ) return false;
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		// find the event, if any
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
 		$id = (int) $db->GetOne($sql, [$originator, $eventname]);
@@ -512,7 +513,7 @@ EOS;
 	 */
 	protected static function InternalRemoveHandler($handler)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$id = $handler['event_id'];
 
 		// update any subsequent handlers
@@ -554,7 +555,7 @@ EOS;
 		$params = self::InterpretCallback($callback, $type);
 		if( !$params || (empty($params[0] && empty($params[1]))) ) return false;
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		// find the event id
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
 		$id = (int) $db->GetOne($sql, [$originator, $eventname]);
@@ -621,7 +622,7 @@ EOS;
 	 */
 	public static function RemoveAllEventHandlers(string $originator, string $eventname)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		// find the event id
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
@@ -648,7 +649,7 @@ EOS;
 		$handler = self::GetEventHandler($handler_id);
 		if( !$handler ) return;
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE event_id = ? AND handler_order = ?';
 		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_order'] - 1 ] );
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE handler_id = ? AND event_id = ?';
@@ -668,7 +669,7 @@ EOS;
 
 		if( $handler['handler_order'] < 2 ) return;
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE event_id = ? AND handler_order = ?';
 		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_order'] + 1 ] );
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE handler_id = ? AND event_id = ?';

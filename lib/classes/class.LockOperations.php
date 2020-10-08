@@ -19,8 +19,8 @@
 namespace CMSMS;
 
 use CmsApp;
-use CMSMS\CmsNoLockException;
 use CMSMS\Lock;
+use CmsNoLockException;
 use const CMS_DB_PREFIX;
 use function get_userid;
 

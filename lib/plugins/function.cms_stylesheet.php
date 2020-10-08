@@ -19,7 +19,8 @@
 namespace {
 
 use CMSMS\AppState;
-use CMSMS\Events;
+use CMSMS\Crypto;
+use CMSMS\StylesheetQuery;
 use function cms_stylesheet\toString;
 use function cms_stylesheet\writeCache;
 
@@ -89,15 +90,15 @@ function smarty_function_cms_stylesheet($params, $template)
 		$query = null;
 		if( $name ) {
 			// stylesheet by name(prefix)
-			$query = new CmsLayoutStylesheetQuery([ 'name'=>$name ]);
+			$query = new StylesheetQuery([ 'name'=>$name ]);
 		}
 		elseif( $styles ) {
 			// stylesheet(s) by id
-			$query = new CmsLayoutStylesheetQuery([ 'styles'=>$styles ]);
+			$query = new StylesheetQuery([ 'styles'=>$styles ]);
 		}
 		elseif( $design_id > 0 ) {
 			// stylesheet(s) by design id
-			$query = new CmsLayoutStylesheetQuery([ 'design'=>$design_id ]);
+			$query = new StylesheetQuery([ 'design'=>$design_id ]);
 		}
 		if( !$query ) {
 			throw new RuntimeException('Problem: failed to build a stylesheet query using the provided data');
@@ -124,7 +125,7 @@ function smarty_function_cms_stylesheet($params, $template)
 				$mq = $one->get_media_query();
 				$mt = implode(',',$one->get_media_types());
 				if( !empty($mq) ) {
-					$key = cms_utils::hash_string($mq);
+					$key = Crypto::hash_string($mq);
 					$all_media[$key][] = $one;
 					$all_timestamps[$key][] = $one->get_modified();
 				}
@@ -133,7 +134,7 @@ function smarty_function_cms_stylesheet($params, $template)
 					$all_timestamps['all'][] = $one->get_modified();
 				}
 				else {
-					$key = cms_utils::hash_string($mt);
+					$key = Crypto::hash_string($mt);
 					$all_media[$key][] = $one;
 					$all_timestamps[$key][] = $one->get_modified();
 				}
@@ -144,7 +145,7 @@ function smarty_function_cms_stylesheet($params, $template)
 				// media parameter is deprecated.
 
 				// combine all matches into one stylesheet
-				$filename = 'combined_'.cms_utils::hash_string($design_id.serialize($params).serialize($all_timestamps).$fnsuffix).'.css';
+				$filename = 'combined_'.Crypto::hash_string($design_id.serialize($params).serialize($all_timestamps).$fnsuffix).'.css';
 				$fn = cms_join_path($cache_dir,$filename);
 
 				if( !is_file($fn) ) {
@@ -163,7 +164,7 @@ function smarty_function_cms_stylesheet($params, $template)
 				foreach($all_media as $hash=>$onemedia) {
 
 					// combine all matches into one stylesheet
-					$filename = 'combined_'.cms_utils::hash_string($design_id.serialize($params).serialize($all_timestamps[$hash]).$fnsuffix).'.css';
+					$filename = 'combined_'.Crypto::hash_string($design_id.serialize($params).serialize($all_timestamps[$hash]).$fnsuffix).'.css';
 					$fn = cms_join_path($cache_dir,$filename);
 
 					// Get media_type and media_query
@@ -198,7 +199,7 @@ function smarty_function_cms_stylesheet($params, $template)
 					$media_type  = implode(',',$one->get_media_types());
 				}
 
-				$filename = 'stylesheet_'.cms_utils::hash_string('single'.$one->get_id().$one->get_modified().$fnsuffix).'.css';
+				$filename = 'stylesheet_'.Crypto::hash_string('single'.$one->get_id().$one->get_modified().$fnsuffix).'.css';
 				$fn = cms_join_path($cache_dir,$filename);
 
 				if( !is_file($fn) ) writeCache($fn, $one->get_name(), $trimbackground, $template);
@@ -253,7 +254,7 @@ function smarty_cms_about_function_cms_stylesheet()
 EOS;
 }
 
-} // namespace
+} // global namespace
 
 namespace cms_stylesheet {
 

@@ -19,23 +19,23 @@
 namespace CMSMS;
 
 use ArrayTreeIterator;
-use cms_config;
-use cms_siteprefs;
-use cms_url;
-use cms_userprefs;
-use cms_utils;
 use CmsLogicException;
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminTabs;
 use CMSMS\AdminUtils;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\ArrayTree;
 use CMSMS\Bookmark;
 use CMSMS\BookmarkOperations;
 use CMSMS\FormUtils;
-use CMSMS\HookManager;
+use CMSMS\HookOperations;
 use CMSMS\internal\AdminThemeNotification;
 use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
+use CMSMS\Url;
+use CMSMS\UserParams;
+use CMSMS\Utils;
 use Exception;
 use RecursiveArrayTreeIterator;
 use RecursiveIteratorIterator;
@@ -61,7 +61,7 @@ use function lang;
 use function startswith;
 
 /**
- * This is the abstract base class for building CMSMS admin themes.
+ * Base class for CMSMS admin themes.
  * The theme-object in use, derived from this, will be a singleton.
  *
  * @package CMS
@@ -222,9 +222,10 @@ abstract class AdminTheme
         $this->_url = $_SERVER['SCRIPT_NAME'];
         $this->_query = $_SERVER['QUERY_STRING'] ?? '';
         if( !$this->_query ) {
-            $parms = (new GetParameters())->get_action_values('module');
-            if( !empty($parms['module']) ) {
-                $this->_query = 'module='.$parms['module'];
+            $params = (new GetParameters())->get_request_values('module');
+            if( !$params ) exit;
+            if( $params['module'] ) {
+                $this->_query = 'module='.$params['module'];
             }
         }
         if( strpos($this->_url, '/') === false ) {
@@ -242,10 +243,10 @@ abstract class AdminTheme
 
         $this->UnParkNotices();
 
-        HookManager::add_hook('AdminHeaderSetup', [$this, 'AdminHeaderSetup']);
-        HookManager::add_hook('AdminBottomSetup', [$this, 'AdminBottomSetup']);
+        HookOperations::add_hook('AdminHeaderSetup', [$this, 'AdminHeaderSetup']);
+        HookOperations::add_hook('AdminBottomSetup', [$this, 'AdminBottomSetup']);
         // generate name on demand by FormUtils::create_menu()
-        HookManager::add_hook('ThemeMenuCssClass', [$this, 'MenuCssClassname']);
+        HookOperations::add_hook('ThemeMenuCssClass', [$this, 'MenuCssClassname']);
     }
 
     /**
@@ -272,17 +273,18 @@ abstract class AdminTheme
         case 'subtitle':
             return $this->_subtitle;
         case 'root_url':
-            $config = cms_config::get_instance();
-            return $config['admin_url'].'/themes/'.$this->themeName;
+            return AppSingle::Config()['admin_url'].'/themes/'.$this->themeName;
         }
     }
 
     /**
-     * Get the singleton admin-theme object, a sub-class of this class, per the
-     * specified name or else the current user's preference or the system default.
+     * Get the singleton admin-theme object (a sub-class of this class)
+     * per the specified name or else the current user's recorded preference
+     * or else the system default.
      * This method [re]creates the theme object if appropriate.
-     * NOTE the hierarchy of theme classes prevents the theme singleton from
-     * being populated and cached in CMSApp like most other singletons.
+     * NOTE the hierarchy of theme-classes prevents the theme singleton
+     * from being populated and cached in App|AppSingle like most other
+     * singletons.
      *
      * @param mixed string|null $name Optional theme name.
      * @return mixed AdminTheme admin theme object | null
@@ -299,7 +301,7 @@ abstract class AdminTheme
         if( !$name ) {
             $userid = get_userid(FALSE);
             if( $userid !== NULL ) {
-                $name = cms_userprefs::get_for_user($userid,'admintheme');
+                $name = UserParams::get_for_user($userid,'admintheme');
             }
             if( !$name ) $name = self::GetDefaultTheme();
         }
@@ -334,7 +336,8 @@ abstract class AdminTheme
 
     /**
      * This is an alias for get_instance().
-     * @see AdminTheme::get_instance()
+     * @deprecated since 2.9 instead use AdminTheme::get_instance($name)
+     *
      * @param mixed string|null $name Optional theme name.
      * @return mixed AdminTheme sub-class object | null
      */
@@ -369,30 +372,6 @@ abstract class AdminTheme
     }
 
     /**
-     * Hook function to populate runtime js variables
-     * This will probably be subclassed for specific themes, to also do extra setup
-     * @since 2.3
-     * @param array $vars to be populated with members like key=>value
-     * @param array $add_list to be populated with ...
-     * @param array $exclude_list to be populated with ...
-     * @return array updated values of each of the supplied arguments
-     */
-/*    public function JsSetup(array $vars, array $add_list, array $exclude_list) : array
-    {
-        $msgs = [
-            'errornotices' => $this->merger($this->_errors),
-            'warnnotices' => $this->merger($this->_warnings),
-            'successnotices' => $this->merger($this->_successes),
-            'infonotices' => $this->merger($this->_infos),
-        ];
-        $vars += array_filter($msgs);
-
-//        $add_list['toast'] = cms_path_to_url(CMS_ASSETS_PATH).'/js/jquery.toast.min.js';
-
-        return [$vars, $add_list, $exclude_list];
-    }
-*/
-    /**
      * Hook function to populate page content at runtime
      * This will normally be sub-classed by specific themes, and such methods
      * should call here (their parent) as well as their own specific setup
@@ -400,7 +379,7 @@ abstract class AdminTheme
      * @return 2-member array (not typed to support back-compatible themes)
      * [0] = array of data for js vars, members like varname=>varvalue
      * [1] = array of [x]html string(s) which the browser will interpret
-	 *  as files to fetch and process - css and/or js mainly
+     *  as files to fetch and process - css and/or js, mainly
      */
     public function AdminHeaderSetup()
     {
@@ -416,7 +395,7 @@ abstract class AdminTheme
 
     /**
      * Hook function to populate page content at runtime
-     * Normally subclassed
+     * Normally sub-classed
      *
      * @return array
      */
@@ -427,7 +406,7 @@ abstract class AdminTheme
 
     /**
      * Convert spaces into a non-breaking space HTML entity.
-     * It's used for making menus that work nicely
+     * To make menu-item labels look nicer
      *
      * @param str string to have its spaces converted
      * @ignore
@@ -455,7 +434,7 @@ abstract class AdminTheme
             return preg_replace($from,$to,$url);
         }
         elseif( startswith($url,CMS_ROOT_URL) || !startswith($url,'http') ) {
-            //TODO generally support the websocket protocol
+            //TODO generally support the websocket protocol 'wss' : 'ws'
             $prefix = ( strpos($url,'?') !== FALSE ) ? '&amp;' : '?';
             return $url.$prefix.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
         }
@@ -496,12 +475,8 @@ abstract class AdminTheme
                             if( !$one->valid() ) continue;
                             $key = $modname.$suffix++;
                             $one->name = $key;
-                            $url = (!empty($one->url)) ? $one->url :
-                                $modinst->create_url('m1_', $one->action);
-                            if( ($p = strpos($url, 'moduleinterface.php')) === false ) {
-                                $one->url = $url;
-                            } else {
-                                $one->url = substr($url, $p);
+                            if( empty($one->url) ) {
+                                $one->url = $modinst->create_url('m1_', $one->action);
                             }
                             $one->system = $sys;
                             $usermoduleinfo[$key] = $one;
@@ -665,7 +640,7 @@ abstract class AdminTheme
         // extensions
         $this->_perms['codeBlockPerms'] = check_permission($this->userid, 'Modify User-defined Tags');
         $this->_perms['modulePerms'] = check_permission($this->userid, 'Modify Modules');
-        $config = cms_config::get_instance();
+        $config = AppSingle::Config();
         $this->_perms['eventPerms'] = $config['develop_mode'] && check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
         $this->_perms['usertagPerms'] = $this->_perms['taghelpPerms'] |
@@ -703,15 +678,15 @@ abstract class AdminTheme
         }
         $parms += $ops->retrieve_general_params($id);
 
-        $config = cms_config::get_instance();
-        $url_ob = new cms_url($config['admin_url']);
+        $config = AppSingle::Config();
+        $url_ob = new Url($config['admin_url']);
         $urlroot = $url_ob->get_path();
 
-        $url_ob = new cms_url($_SERVER['REQUEST_URI']);
+        $url_ob = new Url($_SERVER['REQUEST_URI']);
         $urlpath = $url_ob->get_path();
         $text = substr($urlpath, strlen($urlroot) + 1);
         if( !$text ) {
-            $text = 'index.php';
+            $text = 'menu.php';
         }
         $text .= '?'.$ops->create_plain_params($parms);
         return [$text, $parms];
@@ -746,10 +721,8 @@ abstract class AdminTheme
     }
 
     /**
-     * HasPerm
-     *
+     * Check whether the user has one of the aggregate permissions
      * @ignore
-     * Check if the user has one of the aggregate permissions
      *
      * @param string $permission the permission to check.
      * @return bool
@@ -761,10 +734,8 @@ abstract class AdminTheme
     }
 
     /**
-     * populate_tree
-     *
+     * Generate complete admin menu array-tree from PHP definition
      * @ignore
-     * Generate admin menu (default) data
      * @since 2.9
      */
     protected function populate_tree()
@@ -774,7 +745,7 @@ abstract class AdminTheme
         require_once cms_join_path(CMS_ADMIN_PATH, 'configs', 'method.adminmenu.php');
 
         foreach( $menucontent as $item ) {
-            $val = ( !empty($item['url']) ) ? $item['url'] : (($item['parent']!= null) ? 'index.php' : '');
+            $val = ( !empty($item['url']) ) ? $item['url'] : (($item['parent']!= null) ? 'menu.php' : '');
             if( $val ) { //not the root node
                 if( !(strpos($val, '://') > 0 || strpos($val, '//') === 0) ) {
                     $val .= $urlext;
@@ -832,7 +803,7 @@ abstract class AdminTheme
         }
 
         $tree = ArrayTree::load_array($items);
-
+//        $col = new Collator(TODO);
         $iter = new RecursiveArrayTreeIterator(
                 new ArrayTreeIterator($tree),
                 RecursiveIteratorIterator::SELF_FIRST | RecursiveArrayTreeIterator::NONLEAVES_ONLY
@@ -840,14 +811,14 @@ abstract class AdminTheme
         foreach( $iter as $key => $value ) {
             if( !empty($value['children']) ) {
                 $node = ArrayTree::node_get_data($tree, $value['path'], '*');
-                uasort($node['children'], function($a,$b) use ($value) {
+                uasort($node['children'], function($a,$b) use ($value) { //use $col
                     $pa = $a['priority'] ?? 999;
                     $pb = $b['priority'] ?? 999;
                     $c = $pa <=> $pb;
                     if( $c != 0 ) {
                         return $c;
                     }
-                    return strnatcmp($a['title'],$b['title']); //TODO mb_cmp if available
+                    return strnatcmp($a['title'],$b['title']); //TODO return $col->compare($a['title'],$b['title']);
                 });
                 $ret = ArrayTree::node_set_data($tree, $value['path'], 'children', $node['children']);
 //            } else {
@@ -859,26 +830,27 @@ abstract class AdminTheme
     }
 
     /**
-     * Populate the admin navigation tree (if not done before), and return some or all of it
-     * (This might be called direct from a template.)
+     * Populate the admin navigation tree (if not done before), and
+     * return some or all of it.
+     * This might be called directly from a template.
      *
      * @since 1.11
-     * @param mixed $parent    Optional name of the wanted root node, or
-     *  null for actual root node. The formerly-used -1 is also recognised
-     *  as an indicator of the root node. Default null
-     * @param int   $maxdepth  Optional no. of sub-root levels to be displayed
-     *  for $parent. < 1 indicates no maximum depth. Default 3
-     * $param mixed $usepath   Since 2.3 Optional treepath for the selected item.
+     * @param mixed $parent    Optional name of the wanted root section/node,
+     *  or null for actual root node. The formerly-used -1 is also
+     *  recognized as an indicator of the root node. Default null
+     * @param int   $maxdepth  Optional no. of sub-root levels to be
+     *  displayed for $parent. < 1 indicates no maximum depth. Default 3
+     * $param mixed $usepath   Since 2.9 Optional treepath for the selected item.
      *  Array, or ':'-separated string, of node names (commencing with 'root'),
      *  or (boolean) true in which case a path is derived from the current request,
      *  or false to skip selection-processing. Default true
      * @param int   $alldepth  Optional no. of sub-root levels to be displayed
-     *  for tree-paths other than $parent. < 1 indicates no limit. Default 3
-     * @param bool  $striproot Since 2.3 Optional flag whether to omit the tree root-node
-     *  from the returned array Default (backward compatible) true
+     *  for tree-paths other than $parent. < 1 indicates no limit. Default 2
+     * @param bool  $striproot Since 2.9 Optional flag whether to omit the
+     *  tree root-node from the returned array. Default true (backward compatible)
      * @return array  Nested menu nodes.  Each node's 'children' member represents the nesting
      */
-    public function get_navigation_tree($parent = null, $maxdepth = 3, $usepath = true, $alldepth = 3, $striproot = true)
+    public function get_navigation_tree($parent = null, $maxdepth = 3, $usepath = true, $alldepth = 2, $striproot = true)
     {
         if( !$this->_menuTree ) {
             $this->populate_tree();
@@ -893,25 +865,48 @@ abstract class AdminTheme
             if( $path ) {
                 $tree = ArrayTree::node_get_data($tree, $path, '*');
             }
-        } else {
-            $alldepth = $maxdepth;
         }
+        $dmax = max($maxdepth, $alldepth + 1);
 
         $iter = new RecursiveArrayTreeIterator(
                 new ArrayTreeIterator($tree),
                 RecursiveIteratorIterator::CHILD_FIRST
                 );
         foreach( $iter as $value ) {
-//            if( empty($value['show_in_menu'])) {
-            if( empty($value['children']) && empty($value['final']) ) {
-                if( isset($value['path']) ) {
-                    ArrayTree::drop_node($tree, $value['path']);
+            $depth = $iter->getDepth();
+            if( $depth == 0 ) continue;
+            if( empty($value['children']) ) {
+                if( empty($value['final']) && isset($value['path']) ) {
+                    ArrayTree::drop_node($tree, $value['path']); // this doesn't affect the iterator, and so it may return to this node
+                    continue;
                 }
-            } elseif( $maxdepth > 0 || $alldepth > 0 ) {
-                $depth = $iter->getDepth();
-                if( $depth > $maxdepth ) { //TODO $alldepth processing
+            }
+            if( $maxdepth > 0 || $alldepth > 0 ) {
+                $limit = ($depth > 0) ? $dmax : 9999;
+                if( !empty($value['children']) ) {
+                    if( isset($value['path']) ) {
+                        $chks = max(0, $limit - $depth);
+                        $ret = ArrayTree::get_descend_data($value['children'], 'final', $chks);
+                        if( !$ret || !array_filter($ret) ) {
+                            if (1) { //TODO KEEP if ANY child at depth $limit
+                                ArrayTree::drop_node($tree, $value['path']);
+                                continue;
+                            }
+                        }
+                    }
+                }
+                if( $depth > $limit ) {
                     if( isset($value['path']) ) {
                         ArrayTree::drop_node($tree, $value['path']);
+                        continue;
+                    }
+                }
+            } elseif( !empty($value['children']) ) {
+                if( isset($value['path']) ) {
+                    $ret = ArrayTree::get_descend_data($value['children'], 'final');
+                    if( !$ret || !array_filter($ret) ) {
+                        ArrayTree::drop_node($tree, $value['path']);
+                        continue;
                     }
                 }
             }
@@ -981,7 +976,7 @@ abstract class AdminTheme
         if( !$module_name ) $module_name = $this->get_action_module();
         if( !$module_name ) return;
         //TODO some core method c.f. \CMSMS\AdminUtils::get_generic_url()
-        $modman = cms_utils::get_module('ModuleManager');
+        $modman = Utils::get_module('ModuleManager');
         if( is_object($modman) ) {
             return $modman->create_url('m1_','defaultadmin','',['modulehelp'=>$module_name]);
         }
@@ -1148,8 +1143,8 @@ abstract class AdminTheme
      *  included in the current theme.
      * @param string $image Image file identifier, a theme-images-dir (i.e. 'images')
      *  relative-filepath, or an absolute filepath. It may omit extension (type)
-     * @param string $alt Optional alternate identifier for the created.
-     *  image element, may also be used for its title
+     * @param string $alt Optional alternate identifier for the created
+     *  image element (not also used for its title)
      * @param int $width Optional image-width (ignored for svg)
      * @param int $height Optional image-height (ignored for svg)
      * @param string $class Optional class. For .i (iconimages), class "fontimage" is always prepended
@@ -1237,16 +1232,13 @@ abstract class AdminTheme
         }
 
         $extras = array_merge(['width'=>$width, 'height'=>$height, 'class'=>$class, 'alt'=>$alt, 'title'=>''], $attrs);
-        if( !$extras['title'] ) {
-            if( $extras['alt'] ) {
-                $extras['title'] = $extras['alt'];
-            } else {
-                $extras['title'] = pathinfo($path, PATHINFO_FILENAME);
-            }
-        }
         if( !$extras['alt'] ) {
-            $p = strrpos($path,'/');
-            $extras['alt'] = substr($path, $p+1);
+            if( $extras['title'] ) {
+                $extras['alt'] = $extras['title'];
+            } else {
+                $p = strrpos($path,'/');
+                $extras['alt'] = substr($path, $p+1);
+            }
         }
 
         switch ($type) {
@@ -1509,8 +1501,9 @@ abstract class AdminTheme
         if( isset($_REQUEST['module']) ) {
             $module = cleanValue($_REQUEST['module']);
         } else {
-            $params = (new GetParameters())->get_action_values('module');
-            $module = $params['module'] ?? '';
+            $params = (new GetParameters())->get_request_values('module');
+            if( !$params ) exit;
+            $module = $params['module']; //maybe null
         }
 
         if( $module ) {
@@ -1556,7 +1549,7 @@ abstract class AdminTheme
     {
         $tmp = self::GetAvailableThemes();
         if( $tmp ) {
-            $name = cms_siteprefs::get('logintheme');
+            $name = AppParams::get('logintheme');
             if( $name && in_array($name,$tmp) ) return $name;
             return reset($tmp);
         }
@@ -1735,7 +1728,7 @@ abstract class AdminTheme
         }
         // rely on base href to redirect back to the admin home page
         $urlext = get_secure_param();
-        return 'index.php'.$urlext;
+        return 'menu.php'.$urlext;
     }
 
     /**

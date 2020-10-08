@@ -414,7 +414,7 @@ function munge_string_to_url($alias, bool $tolower = false, bool $withslash = fa
  * @param string $key parameter name/key
  * @param mixed  $val Generally an array, but may be some other non-scalar or a scalar
  * @param string $sep Optional array-item-separator. Default '$amp;'
- * @param bool   $encode  Optional flag whether to rawurlenccode the output. Default true.
+ * @param bool   $encode  Optional flag whether to rawurlencode() the output. Default true.
  * @return string (No leading $sep for arrays)
  */
 function cms_build_query(string $key, $val, string $sep = '&amp;', $encode = true) : string
@@ -463,18 +463,53 @@ function cms_build_query(string $key, $val, string $sep = '&amp;', $encode = tru
 }
 
 /**
- * Get $str scrubbed of most non-alphanumeric chars CHECKME allow [_-.] etc ?
- * @param string $str String to clean
+ * Scrub inappropriate chars from the supplied string
+ * If $scope > 0, the supplied string is also trim()'d
+ * Unless $scope = 0, PHP7+ tag-starters <?php, <?=, <? are munged to
+ * corresponding html chars (&#nn;), if not removed
+ * @internal
+ * @since 2.9
+ *
+ * @param string $str String to be cleaned
+ * @param int $scope Optional enumerator
+ *  0 remove non-printable chars < 0x80 (e.g. for a password)
+ *  1 remove non-printable chars < 0x80 plus these: " ' : ; = ? ^ `
+ *    (e.g. for an html-element attribute value BUT stet some punctuation e.g. '& < > ( ) { }')
+ *  2 (default) remove non-'word' chars < 0x80, other than these: - .
+ *    (e.g. for a 'sensible' 1-word name)
+ *  3 remove invalid filesystem-path chars
  * @return string
  */
-function sanitize(string $str) : string
+function cleanString(string $str, int $scope = 2) : string
 {
-    return preg_replace('/[^[:alnum:]_\-\.]/u', '', $str);
+    switch ($scope) {
+        case 0:
+            $patn = '/[\x00-\x1f\x7f]/';
+            break;
+        case 1:
+            $str = preg_replace(['/<\?php/i','/<\?=/','/<\?\s/'], ['&#60;&#63;php','&#60;&#63;&#61;','&#60;&#63; '], $str);
+            $patn = '/[\x00-\x1f"\':;=?^`\x7f]/';
+            break;
+        case 3:
+            $patn = '/[\x00-\x1f*?\x7f]/';
+            break;
+        default:
+            $patn = '/[^\w\-.\x80-\xff]/';
+            break;
+    }
+    if ($scope > 0) { $str = trim($str); }
+    return preg_replace($patn, '', $str);
 }
 
 /**
- * Sanitize a variable value to prevent XSS and other nasty stuff
- * Used (almost entirely) on member(s) of $_POST[] or $_GET[]
+ * Sanitize a value (if it's a string or array of such) to support verbatim
+ * inclusion of the value inside [x]html tags, and importantly, also to
+ * prevent XSS and other nasty stuff. In effect, a custom version of
+ * htmlspecialchars().
+ * NOTE: in many contexts this should be applied to data to be
+ * displayed/output, but not necessarily (or at least not immediately)
+ * to received/input from an un-trusted source.
+ * This function does nothing for SQL-injection mitigation.
  *
  * @internal
  * @param mixed $val input value
@@ -540,8 +575,7 @@ function cleanValue($val)
                         $l -= 2;
                         break;
                 }
-            }
-             elseif ($p+1 < $l) {
+            } elseif ($p+1 < $l) {
                 switch ($val[$p+1]) {
                     case '`': // omit '\' followed by char to be encoded
                     case "'":
@@ -555,44 +589,35 @@ function cleanValue($val)
                         ++$p;
                         break;
                 }
-            }
-             elseif ($p+1 == $l) {
+            } elseif ($p+1 == $l) {
                 $val = substr($val, 0,  $p);
                 --$l;
                 break;
-            }
-             else {
+            } else {
                 ++$p;
             }
         }
+
+        // munge risky tags
+        $val = preg_replace(['/<\?php/i','/<\?=/','/<\?\s/'], ['&#60;&#63;php','&#60;&#63;&#61;','&#60;&#63; '], $val);
+        $val = '' . preg_replace_callback('/(javascript\s*):\s*(.+)?/i', function($matches) {
+            if ($matches[2]) {
+                return 'javascrip&#116;&#58;'.strtr($matches[2], ['('=>'&#40;', ')'=>'&#41;']);
+            }
+            return $matches[0];
+        }, $val);
+
+        // munge | remove 'special' chars < 0x80 (non-printable and <>`'")
         $val = '' . preg_replace_callback('/[\x00-\x1f`\'"<>\x7f]/', function($matches) {
             $n = ord($matches[0]);
-            switch ($n) {
-                case 9:
-                    return '\t';
-                case 10:
-                    return '\n';
-                case 13:
-                    return '\r';
-                case 27:
-                    return '\e';
-                default:
-                    return ($n > 9) ? "&#{$n};" : "&#0{$n};";
-            }
+            return ($n > 31 && $n <  127) ? "&#{$n};" : '';
         }, $val);
     }
-
-    $val = preg_replace_callback('/(javascript\s*):\s*(.+)?/i', function($matches) {
-        if ($matches[2]) {
-            return 'javascrip&#116;&#58;'.strtr($matches[2], ['('=>'&#40;', ')'=>'&#41;']);
-        }
-        return $matches[0];
-    }, $val);
     return $val;
 }
 
 /**
- * Sanitize an array of values to prevent XSS and other nasty stuff.
+ * Sanitize (in-place) an array of values to prevent XSS and other nasty stuff.
  * Used (almost entirely) on $_SERVER[] and/or $_GET[]
  *
  * @internal

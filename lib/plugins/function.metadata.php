@@ -16,18 +16,20 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\HookManager;
+use CMSMS\AppSingle;
+use CMSMS\Events;
+use CMSMS\HookOperations;
 
 function smarty_function_metadata($params, $template)
 {
-	$gCms = CmsApp::get_instance();
-	$config = cms_config::get_instance();
+	$gCms = AppSingle::App();
 	$content_obj = $gCms->get_content_object();
 	$cid = $content_obj->Id();
 
 	$result = '';
 	$showbase = true;
 
+	$config = AppSingle::Config();
 	// Show a base tag unless showbase is false in config.php
 	// It really can't hinder, only help
 	if( isset($config['showbase']))  $showbase = $config['showbase'];
@@ -37,7 +39,7 @@ function smarty_function_metadata($params, $template)
 		if ($params['showbase'] == 'false')	$showbase = false;
 	}
 
-	HookManager::do_hook('metadata_prerender',[ 'content_id'=>$cid,'showbase'=>&$showbase,'html'=>&$result ]); //deprecated since 2.3 TODO BAD no namespace, only valid for 1st handler ...
+	HookOperations::do_hook('metadata_prerender',[ 'content_id'=>$cid,'showbase'=>&$showbase,'html'=>&$result ]); //deprecated since 2.3 TODO BAD no namespace, only valid for 1st handler ...
 	Events::SendEvent('Core','MetadataPrerender',[ 'content_id'=>$cid,'showbase'=>&$showbase,'html'=>&$result ]);
 
 	if ($showbase)	{
@@ -54,7 +56,7 @@ function smarty_function_metadata($params, $template)
 		$result = $template->fetch('string:'.$result);
 	}
 
-	HookManager::do_hook('metadata_postrender',[ 'content_id'=>$cid,'html'=>&$result ]); //deprecated since 2.3 TODO BAD no namespace, only valid for 1st handler ...
+	HookOperations::do_hook('metadata_postrender',[ 'content_id'=>$cid,'html'=>&$result ]); //deprecated since 2.3 TODO BAD no namespace, only valid for 1st handler ...
 	Events::SendEvent('Core','MetadataPostrender',[ 'content_id'=>$cid,'html'=>&$result ]);
 	if( isset($params['assign']) )	{
 		$template->assign(trim($params['assign']),$result);

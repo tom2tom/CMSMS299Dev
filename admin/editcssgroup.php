@@ -15,10 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -36,7 +39,7 @@ if (!check_permission($userid,'Manage Stylesheets')) {
 }
 
 $urlext = get_secure_param();
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 if (isset($_REQUEST['cancel'])) {
 	$themeObject->ParkNotice('info',lang_by_realm('layout','msg_cancelled'));
 	redirect('liststyles.php'.$urlext.'&_activetab=groups');
@@ -74,22 +77,22 @@ catch (CmsException $e) {
 	$themeObject->RecordNotice('error',$e->GetMessage());
 }
 
-$lock_timeout = cms_siteprefs::get('lock_timeout', 60);
+$lock_timeout = AppParams::get('lock_timeout', 60);
 $do_locking = ($gid > 0 && $lock_timeout > 0) ? 1 : 0;
 if ($do_locking) {
-	CmsApp::get_instance()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
+	AppSingle::App()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
 }
-$lock_refresh = cms_siteprefs::get('lock_refresh', 120);
+$lock_refresh = AppParams::get('lock_refresh', 120);
 $s1 = json_encode(lang_by_realm('layout','error_lock'));
 $s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
 $cancel = lang('cancel');
 
-$sm = new ScriptOperations();
-$sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
+$jsm = new ScriptsMerger();
+$jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 if ($do_locking) {
-	$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
+	$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 }
-$js = $sm->render_inclusion('', false, false);
+$js = $jsm->page_content('', false, false);
 if ($js) {
 	add_page_foottext($js);
 }
@@ -194,7 +197,7 @@ if ($gid) {
 	$extras['css'] = $gid;
 }
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign('group',$group)
  ->assign('group_items',$group_members)
  ->assign('all_items',$all_items)
@@ -205,6 +208,7 @@ $smarty->assign('group',$group)
  ->assign('extraparms',$extras)
  ->assign('urlext',$urlext);
 
-include_once 'header.php';
-$smarty->display('editcssgroup.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('editcssgroup.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

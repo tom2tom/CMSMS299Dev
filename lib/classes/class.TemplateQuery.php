@@ -18,10 +18,10 @@
 
 namespace CMSMS;
 
-use CmsDbQueryBase;
 use CmsInvalidDataException;
 use CmsLogicException;
-use CMSMS\App;
+use CMSMS\AppSingle;
+use CMSMS\DbQueryBase;
 use CMSMS\TemplateOperations;
 use CmsSQLErrorException;
 use const CMS_DB_PREFIX;
@@ -54,11 +54,11 @@ use function cms_to_bool;
  * @license GPL
  * @since 2.0
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
- * @see CmsDbQueryBase
+ * @see DbQueryBase
  * @property string $sortby The sorting field for the returned results.  Possible values are: id,name,create_date,modified_date,type.  The default is to sort by template name.';
  * @property string $sortorder The sorting order for the returned results.  Possible values are: ASC,DESC.  The default is ASC.
  */
-class TemplateQuery extends CmsDbQueryBase
+class TemplateQuery extends DbQueryBase
 {
 	/**
 	 * @ignore
@@ -83,7 +83,7 @@ class TemplateQuery extends CmsDbQueryBase
 			return;
 		}
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$tbl1 = CMS_DB_PREFIX.TemplateOperations::TABLENAME;
 		$tbl2 = CMS_DB_PREFIX.TemplateType::TABLENAME;
 		$typejoin = false;

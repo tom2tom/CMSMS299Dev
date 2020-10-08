@@ -20,62 +20,72 @@ var themejs = {};
   var
     cookieHandler = 'themes/assets/js/js-cookie.min.js', // assistant script
     smallWidth = 600, // viewport-width threshold related to sidebar display
-    $container = null, // cache for outer container
-    $menucontainer = null, // nav menu container
-    $menu = null; // nav menu
+//    $container = null, // cache for outer container
+//    $menucontainer = null, // redundant nav menu container
+    $menu = null, // nav menu
+    $scroller = null, // scrolled content element(s)
+    oldwide,
+//  oldhigh,
+    threshold;
 
   this.init = function () {
-    $container = $('#ggp_container');
-    $menucontainer = $container.find('#ggp_navwrap');
-    $menu = $menucontainer.find('#ggp_nav');
-    // prevent scrolling of some page content
-    var $ob = $container.find('#page_tabs');
+//    $container = $('#ggp_container');
+//    $menucontainer = $container.find('#ggp_navwrap'); // redundant ATM
+    $menu = $('#ggp_menu');
+//    var $ob = $container.find('#page_content');
+    var $ob = $('#page_content');
     if ($ob.length > 0) {
-      this.stickIt($ob);
-      //TODO on tab-change, scroll to top
-    }
-    // handle the initial collapsed/expanded state of the nav sidebar
-    this.handleSidebar();
-    var self = this;
-    // handle navigation sidebar toggling etc
-    $menucontainer.find('#ggp_headlink').prop('href', 'javascript:' + classname + '.clickSidebar()');
-    $menucontainer.find('#ggp_headzone').on('click', function (e) {
-      e.preventDefault();
-      self.clickSidebar();
-    });
-    $(window).on('resize', function () {
-      self.updateDisplay();
-    });
-    // handle initial display of sub-menu
-    this.handleSubMenu($menu);
-    // handle sub-menu display toggling
-    $menu.find('.open-nav').on('click', function (e) {
-      //clicked span in a menu item title
-      e.preventDefault();
-      var $ob = $(this),
-        $ul = $ob.next(), //sub-menu container for this item
-        _p = [];
-      // jQuery :visible selector is unreliable
-      if ($ul.length === 0 || $ul.css('visibility') === 'hidden' || $ul.css('display') === 'none') {
-        // close any other open submenu
-        var $open = $menu.find('.open-sub');
-        if ($open.length) {
-          $open.removeClass('open-sub');
-          var $ulo = $open.next();
-          _p.push($ulo.slideUp(50), function () {
-            $ulo.find('li,ul').hide();
-          });
-        }
-        $ob.addClass('open-sub');
-      } else {
-        $ob.removeClass('open-sub');
+      $scroller = $ob.find('div');
+//      $ob = $container.find('.pagecontainer');
+      $ob = $('.pagecontainer');
+      if ($ob.length > 0) {
+        $ob.css('overflow', 'hidden'); // prevent the ancestor div from scrolling
       }
-      $ul.find('li,ul').show();
-      _p.push($ul.slideToggle(50));
-      $.when.apply($, _p).done(function () {
-        self.updateDisplay();
+    } else {
+//      $scroller = $container.find('.pagecontainer');
+      $scroller = $('.pagecontainer');
+      if ($scroller.length > 0) {
+        $scroller.css('overflow', 'auto'); // ensure the ancestor div scrolls
+      } else {
+        $scroller = null;
+      }
+    }
+/*  // handle the initial collapsed/expanded state of the nav sidebar
+    this.handleSidebar();
+*/
+    // initialize menu
+    this.suckerSetup($menu, {
+      minWidth: 6,  // em's
+      maxWidth: 25, // em's
+      extraWidth: 0.01,// em's might ensure lines don't sometimes turn over
+                    // due to slight differences in how browsers round values
+      speed: 150,   // sub-menu popup duration (mS) or
+                    // 'normal' etc recognized by jQuery for animation
+      delay: 400    // interval (mS) between menu exit and hide
+    });
+    // handle hamburger activation
+    $('#burger').on('click activate', function(ev) {
+      $menu.toggleClass('hidden').find('ul').hide().css({
+       'top': '-999rem',
+       'visibility': 'hidden'
       });
-      return false;
+    });
+
+    var fpx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    threshold = (fpx * 40) | 0; // 40-rem width-threshold for toggling menu-state
+    oldwide = threshold + 10; // anything > threshold
+    this.updateDisplay();
+
+    var self = this;
+    var wait = false;
+    $(window).on('resize', function () {
+      if (!wait) {
+        self.updateDisplay();
+        wait = true;
+        setTimeout(function () {
+          wait = false;
+        }, 100);
+      }
     });
     // handle notifications
     this.showNotifications();
@@ -97,6 +107,17 @@ var themejs = {};
     // async-load a cookie handler if localStorage is not supported
     if (!this.isLocalStorage()) {
       this.loadScript(cookieHandler);
+    }
+    // logout-during-sitedown confirmation
+    if (cms_data.sitedown) {
+      $menu.find('a[href^="logout.php"]')
+       .add($('#shortcuts').find('a[href^="logout.php"]'))
+       .on('click activate', function(ev) {
+         ev.preventDefault();
+         var prompt = cms_lang('maintenance_warning');
+         cms_confirm_linkclick(this, prompt);
+         return false;
+       });
     }
   };
   /**
@@ -277,78 +298,236 @@ var themejs = {};
     return false;
   };
   /**
-   * @description Fix the screen-position of the given element, a workaround for css overflow-scroll limitations
-   * @function stickIt($ob)
-   * @param {jquery selection} $ob the element to be processed
-   * @private
-   */
-  this.stickIt = function ($ob) {
-    var h = $ob.outerHeight(true),
-      //      w = $ob.outerWidth(true),
-      c = $ob.css('zIndex'),
-      z = (c === 'auto') ? 500 : c + 10;
-    // insert replacement for to-be-fixed $ob, so that layout is not blarked
-    $ob.after($('<div/>', {
-      style: 'height:' + h + 'px;'
-    }));
-    $ob.css({
-      position: 'fixed',
-      width: '100%', // w + 'px',
-      'z-index': z
-    });
-  };
-  /**
-   * @description Check for saved state of sidebar
-   * @function handleSidebar()
-   */
-  this.handleSidebar = function () {
-    var viewportWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    if (this.getStorageValue('sidebar-pref') === 'sidebar-off' || viewportWidth <= smallWidth) {
-      $menucontainer.addClass('sidebar-off').removeClass('sidebar-on');
-      $menu.addClass('sidebar-off').removeClass('sidebar-on');
-    } else {
-      $menucontainer.addClass('sidebar-on').removeClass('sidebar-off');
-      $menu.addClass('sidebar-on').removeClass('sidebar-off');
-    }
-  };
-  /*
-   * @description Toggles Sidebar open/closed state
-   * @function clickSidebar()
-   */
-  this.clickSidebar = function () {
-    if ($menucontainer.hasClass('sidebar-on')) {
-      this.closeSidebar();
-    } else {
-      this.openSidebar();
-    }
-  };
-  /**
-   * @description Handle setting for sidebar and sets open state
-   * @function openSidebar()
-   * @private
-   */
-  this.openSidebar = function () {
-    $menucontainer.addClass('sidebar-on').removeClass('sidebar-off');
-    $menu.find('li.current ul').show();
-    this.setStorageValue('sidebar-pref', 'sidebar-on', 60);
-  };
-  /**
-   * @description Handle setting for Sidebar and sets closed state
-   * @function closeSidebar()
-   * @private
-   */
-  this.closeSidebar = function () {
-    $menucontainer.removeClass('sidebar-on').addClass('sidebar-off');
-    $menu.find('li ul').hide();
-    this.setStorageValue('sidebar-pref', 'sidebar-off', 60);
-  };
-  /**
-   * @description Set intial state of main menu child items
-   * @function handleSubMenu($ob)
+   * @description Initialize 3-levels of suckerfish-style menu items
+   * @function suckerSetup($ob)
+   * Uses and manipulates nested li's classes: sub subsub subsubL hover width
    * @param {object} $ob - Menu container object
+   * @param {object} opts - menu parameters
    */
-  this.handleSubMenu = function ($ob) {
-    $ob.find('li.current span').addClass('open-sub');
+  this.suckerSetup = function ($ob, opts) {
+    var topTop = '';
+    var timerID = 0;
+    //li hover handler
+    var overLi = function (ev) {
+      //abort timer
+      if (timerID != 0) {
+        clearTimeout(timerID);
+        timerID = 0;
+      }
+      var $LI = $(ev.target).closest('li');
+      //hide unwanted menus
+      $LI.siblings().find('ul').hide().css({
+        'top': '-999rem',
+        'visibility': 'hidden'
+      });
+      if ($LI.hasClass('sub')) {
+        $LI.find('ul ul').hide().css({
+          'top': '-999rem',
+          'visibility': 'hidden'
+        });
+      }
+      //show this menu, if any
+      var menu = $LI.children('ul');
+      if (menu.length > 0 && menu.css('visibility') == 'hidden') {
+        //animate menu display
+        if ($LI.hasClass('sub')) {
+          menu.css({
+              'top': topTop,
+              'visibility': 'visible'
+            })
+            /*.stop()*/
+            .animate({
+              opacity: 'show',
+              height: 'show'
+            }, opts.speed);
+        } else {
+          //TODO cache this data
+          var LIright = $LI[0].getBoundingClientRect().right,
+            $child = $LI.find('li:first'),
+            childwidth = parseInt($child.css('width'), 10),
+            menuwidth = parseInt(menu.css('width'), 10),
+            $container = $LI.closest('div'),
+            cright = $container[0].getBoundingClientRect().right;
+          if (LIright + menuwidth + childwidth <= cright) {
+            if ($LI.hasClass('subsubL')) {
+              $LI.removeClass('subsubL').addClass('subsub');
+            }
+          } else if ($LI.hasClass('subsub')) {
+            $LI.removeClass('subsub').addClass('subsubL');
+          }
+          if ($LI.hasClass('subsub')) { // expand LTR
+            menu.css({
+                'top': '-1px',
+                'visibility': 'visible'
+              })
+              .animate({
+                opacity: 'show',
+                width: 'show'
+              }, opts.speed);
+          } else { // $LI.hasClass('subsubL')) expand RTL
+            var distance = menuwidth + 'px',
+              leftPos = '-' + (menuwidth + 3) + 'px';
+            menu.css({
+                'left': 0,
+                'width': 0,
+                'top': '-1px',
+                'visibility': 'visible'
+              })
+              .animate({
+                opacity: 'show',
+                left: leftPos,
+                width: distance
+              }, opts.speed);
+          }
+        }
+      }
+    };
+    //li exit handler
+    var outLi = function (ev) {
+      if (timerID != 0) {
+        clearTimeout(timerID);
+      }
+      //start timer which when finished hides all sub-menus
+      timerID = setTimeout(function () {
+        $menu.find('ul').hide().css({
+          'top': '-999rem',
+          'visibility': 'hidden'
+        });
+        timerID = 0;
+      }, opts.delay);
+    };
+    //li click/activate handler
+    var activateLi = function (ev) {
+      if (timerID != 0) {
+        clearTimeout(timerID);
+        timerID = 0;
+      }
+      var $tgt = $(ev.target);
+      if ($tgt.is('a')) {
+        return true;
+      }
+      var $li = $tgt.closest('li');
+      if ($li.hasClass('descend')) {
+        // toggle visibility of child menu
+        var $ul = $li.children('ul');
+        if ($ul.css('visibility') == 'hidden') {
+          overLi(ev);
+        } else {
+          $ul.add($ul.find('ul')).hide().css({
+            'top': '-999rem',
+            'visibility': 'hidden'
+          });
+        }
+        return false;
+      }
+    };
+    //decimal-value rounder
+    var roundNum = function (value, places) {
+      return Number(Math.round(value + 'e' + places) + 'e-' + places);
+    };
+
+    $ob.css({
+      'visibility': 'hidden',
+      'flex-direction': 'column'
+    });
+
+    // get menu font-size
+    var val = parseFloat($ob.css('font-size'));
+    var fontsize = roundNum(val, 1);
+    // TODO migrate non-em sizes in opts to em
+
+    var $LIs = $ob.find('> li'); // top level
+    $LIs.css({
+      'visibility': 'hidden',
+      'display': 'block',
+      'white-space': 'nowrap',
+      'width': ''
+    });
+    var menuWidth = $ob[0].clientWidth;
+    $ob.css('flex-direction', '').data('menuwidth', menuWidth + 'px');
+
+    $LIs.css('visibility', 'visible').addClass('sub')/*.on('mouseover', overLi).on('mouseout', outLi)*/.on('click activate', activateLi);
+    var $last = $LIs.eq(-1);
+    $LIs = $LIs.find('> ul > li'); // level 2
+    $LIs.addClass('sub subsub')/*.on('mouseover', overLi).on('mouseout', outLi)*/.on('click activate', activateLi);
+    $last.find('> ul > li').removeClass('subsub').addClass('subsubL');
+    $LIs = $LIs.find('li'); // level 3+
+    $LIs.addClass('sub')/*.on('mouseover', overLi).on('mouseout', outLi)*/.on('click activate', activateLi);
+
+    var $ULs = $ob.find('ul');
+    // make everything measurable without showing
+    $ULs.css({
+      'visibility': 'hidden'
+    });
+    // loop through nested ul's
+    $ULs.each(function () {
+      var $ul = $(this);
+      // top of level-1 menus, when displayed
+      if (topTop === '') {
+        val = (parseFloat($ul.css('top')) + 2) / fontsize; // TODO generalize fudge-factor :: func (ancestor-li height etc)
+        topTop = roundNum(val, 2) + 'em';
+      }
+      // get all (li) children of this ul
+      $LIs = $ul.children('li');
+      // get all non-ul grand-children
+      var $As = $LIs.children(':not(ul)');
+      // force li content to one line
+      $LIs.css({'visibility': 'hidden','white-space': 'nowrap'});
+      // remove width restrictions
+      var menuWidth = $ul.add($LIs).add($As).css({
+          'width': '',
+        })
+        // this $ul will now be shrink-wrapped to longest li due to position:absolute
+        // clientWidth is 2 times faster than .width() - thanks Dan Switzer
+        // NOTE clientWidth issue with IE < 8 : absolute pixel-size regardless of scale-factor
+        .end().end()[0].clientWidth;
+
+      val = 1.5 + menuWidth / fontsize; // + 5/fontsize; //0.3125; //extra for padding-right, sometimes?
+      if (fontsize < 10) {
+        val += 0.1;
+      }
+      // add more width to ensure lines don't turn over at certain sizes in various browsers
+      val += opts.extraWidth; //TODO handle non-em option-value
+      // restrict to at least minWidth and at most maxWidth
+      if (val > opts.maxWidth) {  //TODO handle non-em option-value
+        val = opts.maxWidth;
+      } else if (val < opts.minWidth) { //TODO handle non-em option-value
+        val = opts.minWidth;
+      }
+
+      var ems = roundNum(val, 2) + 'em';
+      // set li width to full width of this ul
+      // revert white-space to normal
+      $LIs.css({
+        'width': ems,
+        'white-space': '', //'normal' / default ? inherit ?
+        'visibility': 'visible'
+      });
+      $ul.css('width', ems);
+      
+      // update horizontal position
+      if ($ul.parent().is('li.subsub')) {
+        // re-position rightwards
+        val = parseFloat($ul.parent().parent().css('width')) / fontsize;
+        val += 0.6; //TODO generalize this fudge: padding? ::after ?
+        ems = roundNum(val, 2) + 'em';
+      } else if ($ul.parent().is('li.subsubL')) {
+        // re-position leftwards with gap
+//        val += 0.1875;
+        val -= 0.6; //TODO generalize this fudge: padding? ::after ?
+        ems = '-' + roundNum(val, 2) + 'em';
+      } else {
+        ems = '0';
+      }
+      $ul.css('left', ems).data('wideleft', ems);
+
+    });
+    // hide to support animation, off-screen until parent is hovered
+    $ULs.hide().css({
+      'top': '-999rem'
+    });
+    $ob.css('visibility', '');
+    $ob.removeClass('noflash');
   };
   /**
    * @description Handle 'dynamic' notifications
@@ -375,9 +554,9 @@ var themejs = {};
     if (this.getStorageValue(key) === 'hidden') {
       $('.pagewarning').addClass('hidden');
     }
-    $(document).on('cms_ajax_apply', function (e) {
-      var type = (e.response === 'Success') ? 'success' : 'error';
-      cms_notify(type, e.details);
+    $(document).on('cms_ajax_apply', function (ev) {
+      var type = (ev.response === 'Success') ? 'success' : 'error';
+      cms_notify(type, ev.details);
     });
   };
   /**
@@ -434,29 +613,42 @@ var themejs = {};
    * @function updateDisplay()
    */
   this.updateDisplay = function () {
-    this.handleSidebar();
-/*
-    var $menu = $('#pg_menu');
-    var $alert_box = $('#admin-alerts');
-    var $header = $('header.header');
-    var offset = $header.outerHeight() + $header.offset().top;
-    if($alert_box.length) offset = $alert_box.outerHeight() + $alert_box.offset().top;
-    console.debug('menu height = ' + $menu.outerHeight() + ' offset = ' + offset);
-    console.debug('window height = ' + $(window).height());
-    if($menu.outerHeight() + offset < $(window).height()) {
-        console.debug('fixed');
-        $menu.css({ 'position': 'fixed', 'top': offset });
-    } else {
-        $menu.css({ 'position': '', 'top': '' });
-        console.debug('floating');
-        if($menu.offset().top < $(window).scrollTop()) {
-            //if the top of the menu is not visible, scroll to it.
-            $('html, body').animate({
-                scrollTop: $("#pg_menu").offset().top
-            }, 1000);
-         }
+    var wide = $(window).width(),
+      hided = $menu.hasClass('hidden')
+    if (wide < threshold) {
+      if (!hided) {
+        if (oldwide >= threshold) {
+          $menu.addClass('hidden').find('#burger').show();
+          // update submenu positions
+          $menu.find('ul').each(function () {
+            var $ul = $(this),
+              $p = $ul.parent();
+            if ($p.is('li.subsub') || $p.is('li.subsubL')) { //TODO sometimes toggle these
+              $ul.data('wideleft', $ul.css('left'));
+              $ul.css('left', '0'); //TODO also top
+            }
+          });
+        }
+      }
+    } else if (hided) {
+      // update submenu positions
+      $menu.find('ul').each(function () {
+        var $ul = $(this),
+          $p = $ul.parent();
+        if ($p.is('li.subsub') || $p.is('li.subsubL')) { //TODO sometimes toggle these
+          $ul.css('left', $ul.data('wideleft')); //TODO also top
+          $ul.css('top', '3em'); //TODO also top
+        }
+      });
+      $menu.find('#burger').hide();
+      $menu.removeClass('hidden');
     }
-*/
+    if (wide > oldwide) {
+      //do stuff
+    } else if (wide < oldwide) {
+      //do stuff
+    }
+    oldwide = wide;
   };
   /**
    * @description
@@ -497,20 +689,20 @@ var themejs = {};
    * @deprecated since 2.3 use showNotifications() ?
    */
   this.setupAlerts = function () {
-    $('a#alerts').on('click', function (e) {
-      e.preventDefault();
+    $('a#alerts').on('click', function (ev) {
+      ev.preventDefault();
       cms_dialog($('#alert-dialog'));
       return false;
     });
     var self = this;
-    $('.alert-msg a').on('click', function (e) {
-      e.preventDefault();
-      self.handleAlert(e.target);
+    $('.alert-msg a').on('click', function (ev) {
+      ev.preventDefault();
+      self.handleAlert(ev.target);
       return false;
     });
-    $('.alert-remove').on('click', function (e) {
-      e.preventDefault();
-      self.handleAlert(e.target);
+    $('.alert-remove').on('click', function (ev) {
+      ev.preventDefault();
+      self.handleAlert(ev.target);
       return false;
     });
   };

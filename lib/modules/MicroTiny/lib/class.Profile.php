@@ -19,8 +19,9 @@
 namespace MicroTiny;
 
 use ArrayAccess;
-use cms_utils;
 use CmsInvalidDataException;
+use CMSMS\Utils;
+use LogicException;
 use MicroTiny;
 use function cms_to_bool;
 
@@ -180,7 +181,7 @@ class Profile implements ArrayAccess
 	private static function _get_module()
 	{
 		if( !is_object(self::$_module) ) {
-			self::$_module = cms_utils::get_module('MicroTiny');
+			self::$_module = Utils::get_module('MicroTiny');
 			if( !is_object(self::$_module) ) {
 				// module not yet installed - hack for installation
 				self::$_module = new MicroTiny();

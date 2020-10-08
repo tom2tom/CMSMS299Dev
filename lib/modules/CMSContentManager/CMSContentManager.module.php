@@ -16,7 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminMenuItem;
 use CMSMS\CoreCapabilities;
+use CMSMS\HookOperations;
 
 final class CMSContentManager extends CMSModule
 {
@@ -41,10 +43,33 @@ final class CMSContentManager extends CMSModule
     {
         switch ($capability) {
             case CoreCapabilities::CORE_MODULE:
+            case CoreCapabilities::SITE_SETTINGS:
                 return true;
             default:
                 return false;
         }
+    }
+
+    public function InitializeAdmin()
+    {
+        HookOperations::add_hook('ExtraSiteSettings',[$this,'ExtraSiteSettings']);
+    }
+
+    /**
+     * Hook function to populate 'centralised' site settings UI
+     * @internal
+     * @since 2.9
+     * @return array
+     */
+    public function ExtraSiteSettings()
+    {
+        //TODO check permission local or Site Prefs
+        return [
+         'title'=> $this->Lang('settings_title'),
+         //'desc'=> 'useful text goes here', // optional useful text
+         'url'=> $this->create_url('m1_','admin_settings'), // if permitted
+         //optional 'text' => custom link-text | explanation e.g need permission
+        ];
     }
 
     /**
@@ -82,13 +107,13 @@ final class CMSContentManager extends CMSModule
 
         if( $this->CheckPermission('Add Pages') || $this->CheckPermission('Remove Pages') || $this->CanEditContent() ) {
             // user is entitled to see the main page in the navigation
-            $obj = CmsAdminMenuItem::from_module($this);
+            $obj = AdminMenuItem::from_module($this);
             $obj->title = $this->Lang('title_contentmanager');
             $out[] = $obj;
         }
 
         if( $this->CheckPermission('Modify Site Preferences') ) {
-            $obj = new CmsAdminMenuItem();
+            $obj = new AdminMenuItem();
             $obj->module = $this->GetName();
             $obj->section = 'siteadmin';
             $obj->title = $this->Lang('title_contentmanager_settings');

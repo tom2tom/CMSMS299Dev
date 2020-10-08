@@ -121,7 +121,7 @@ function joinpath(string ...$args) : string
 	}
 	$path = implode(DIRECTORY_SEPARATOR, $args);
 	return str_replace(['\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR],
-		 [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $path);
+		[DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $path);
 }
 
 function lang(...$args)
@@ -160,17 +160,51 @@ function is_email(string $str) : bool
 }
 
 /**
+ * Scrub inappropriate chars from the supplied string
+ * This checks individual chars, not for HTML,XML,PHP tags
  *
  * @param mixed $val
+ * @param int $scope Optional enumerator, Default 2
+ *  0 liberal content e.g. for P/W
+ *  1 medium (word-chars + non-word chars: ' -.+,&|<>[](){}') e.g. for text
+ *  2 strict (word-chars + non-word chars: '-.') e.g. for a 1-word 'sensible' name
+ *  3 filesystem path string
  * @return mixed, normally a string stripped of HTML,XML,PHP tags, and bytes < ' ', backtick
  */
-function clean_string($val)
+function cleanString($val, $scope = 2)
 {
 	if( $val ) {
-		return filter_var($val.'', FILTER_SANITIZE_STRING, //strip HTML,XML,PHP tags, NULL bytes
-		 FILTER_FLAG_NO_ENCODE_QUOTES |
+/*		return filter_var($val.'', FILTER_SANITIZE_STRING, //strip HTML,XML,PHP tags, NULL bytes
 		 FILTER_FLAG_STRIP_LOW |
 		 FILTER_FLAG_STRIP_BACKTICK);
+*/
+/*		$val = filter_var($val.'', FILTER_SANITIZE_STRING); //strip HTML,XML,PHP tags, NUL bytes
+		$val = preg_replace_callback('/\W/', function($matches) {
+			// allow space, some punctuation, non-ASCII
+			$n = ord($matches[0]);
+			if( in_array($n, [32,33,35,36,37,38,44,46,124,125,126]) || $n > 127 ) {
+				return $matches[0];
+			}
+			return '';
+		}, $val);
+*/
+		switch ($scope) {
+			case 0:
+				$patn = '/[\x00-\x1f\x7f]/';
+				break;
+			case 1:
+				$str = preg_replace(['/<\?php/i','/<\?=/','/<\?\s/'], ['&#60;&#63;php','&#60;&#63;&#61;','&#60;&#63; '], $str);
+				$patn = '/[\x00-\x1f"\':;=?^`\x7f]/';
+				break;
+			case 3:
+				$patn = '/[\x00-\x1f*?\x7f]/';
+				break;
+			default:
+				$patn = '/[^\w\-.\x80-\xff]/';
+				break;
+		}
+		if ($scope > 0) { $str = trim($str); }
+		return preg_replace($patn, '', $str);
 	}
 	return $val;
 }

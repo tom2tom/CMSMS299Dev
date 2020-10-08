@@ -17,21 +17,24 @@
 
 namespace FilePicker;
 
-use cms_config;
-use cms_siteprefs;
-use cms_utils;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\FileTypeHelper;
+use CMSMS\FSControlValue;
 use CMSMS\NlsOperations;
-use CMSMS\FSControlsValue;
+use CMSMS\Utils as AppUtils;
 use Collator;
 use FilePicker; //the module-class
+use FilePicker\Profile;
 use const CMS_ROOT_PATH;
 use function cms_join_path;
 use function cms_path_to_url;
+use function get_userid;
 use function startswith;
 
 /**
- * A class of static utility-methods for the FilePicker module
+ * A class of static utility-methods for the FilePicker module.
+ * TODO much of this stuff is more for general file-management than for picking per se
  *
  * @package CMS
  * @license GPL
@@ -49,7 +52,7 @@ class Utils
         // static properties here >> StaticProperties class ?
         static $mod = null;
         if ($mod == null) {
-            $mod = cms_utils::get_module('FilePicker');
+            $mod = AppUtils::get_module('FilePicker');
         }
         $baseurl = $mod->GetModuleURLPath();
 
@@ -118,8 +121,8 @@ class Utils
         if (!$info || $info[0] === 0 || $info[1] === 0) {
             return;
         }
-        $width = (int) cms_siteprefs::get('thumbnail_width', 96);
-        $height = (int) cms_siteprefs::get('thumbnail_height', 96);
+        $width = (int) AppParams::get('thumbnail_width', 96);
+        $height = (int) AppParams::get('thumbnail_height', 96);
         if ($width < 2 || $height < 2) {
             return;
         }
@@ -236,19 +239,13 @@ class Utils
         return '';
     }
 */
-    /**
-     * Return data for relevant files/sub-folders in folder $dirpath
-     * @param Profile $profile Filesystem properties suite
-     * @param string $dirpath Optional absolute or root-relative filesystem-path
-     *  of folder to be reported. Default '' (hence use relevant root)
-     * @return array (maybe empty)
-     */
-    public static function get_file_list(Profile $profile, string $dirpath = '') : array
+
+    protected static function processpath($dirpath) : string
     {
-        $config = cms_config::get_instance();
-        $mod = cms_utils::get_module('FilePicker');
-        $devmode = $mod->CheckPermission('Manage Restricted Files') || $config['develop_mode'];
-        $rootpath = ($devmode) ? CMS_ROOT_PATH : $profile->top;
+        $config = AppSingle::Config();
+        $mod = AppUtils::get_module('FilePicker');
+        $devmode = $mod->CheckPermission('Modify Restricted Files') || $config['develop_mode'];
+        $rootpath = ($devmode) ? CMS_ROOT_PATH : $config['uploads'];
 
         if (!$dirpath) {
             $dirpath = $rootpath;
@@ -256,16 +253,33 @@ class Utils
             // $dirpath is relative
             $dirpath = cms_join_path($rootpath, $dirpath);
         } elseif (!startswith($dirpath, CMS_ROOT_PATH)) {
-            return [];
+            return '';
         }
-        if (!is_dir($dirpath)) {
-            return [];
+        if (is_dir($dirpath)) {
+            return $dirpath;
         }
+        return '';
+    }
 
+    /**
+     * Return data for relevant files/sub-folders in folder $dirpath
+     * @param mixed $profile Optional Profile object | name of one-such | falsy. Default null
+     * @param string $dirpath Optional absolute or appropriate-root-relative
+     *  filesystem-path of folder to be reported. Default '' (hence use relevant root)
+     * @return array (maybe empty)
+     */
+    public static function get_file_list($profile = null, string $dirpath = '') : array
+    {
+        $dirpath = self::processpath($dirpath);
+        if (!$dirpath) return [];
         // not a huge no. of items in website folders, no need for opendir/readdir/closedir
         $items = scandir($dirpath, SCANDIR_SORT_NONE);
         if (!$items) {
             return [];
+        }
+
+        if (!$profile || !($profile instanceof X)) {
+            $profile = self::get_profile($profile, $dirpath);
         }
 
         $showhidden = $profile->show_hidden || $devmode;
@@ -273,7 +287,7 @@ class Utils
         $pex = $profile->exclude_prefix ?? '';
         $pin = $profile->match_prefix ?? '';
 
-        $helper = new FileTypeHelper($config);
+        $helper = new FileTypeHelper();
         $posix = function_exists('posix_getpwuid');
         if (!$posix) {
             $ownerna = $mod->Lang('na');
@@ -333,7 +347,7 @@ class Utils
         }
 
         $sortby = $profile->sort;
-        if ($sortby !== FSControlsValue::NONE) {
+        if ($sortby !== FSControlValue::NONE) {
             if (class_exists('Collator')) {
                 $lang = NlsOperations::get_default_language();
                 $col = new Collator($lang); // e.g. new Collator('pl_PL') TODO if.UTF-8 ?? ini 'output_encoding' ??
@@ -401,6 +415,72 @@ class Utils
     }
 
     /**
+     * Get the default profile.
+     * @since 2.9
+     *
+     * @param mixed $dirpath Optional top-directory for the profile UNUSED TODO
+     * @param mixed $uid Optional current user id UNUSED TODO
+     * @return Profile
+     */
+    public static function get_default_profile()
+    {
+        $mod = AppUtils::get_module('FilePicker');
+        $profile = $mod->_dao->loadDefault();
+        if( !$profile ) {
+            $profile = new Profile();
+        }
+        return $profile;
+    }
+
+    /**
+     * Get the profile applicable to folder $dirpath and user $uid.
+     * If there is no applicable set, a default is provided.
+     * @since 2.9
+     *
+     * @param mixed $profile_name string | falsy value optional name of existing profile
+     * @param string $dir optional filesystem path of folder to be displayed
+     * @param int $uid optional user identifier
+     * @return Profile
+     */
+    public static function get_profile_for($dirpath = '', $uid = 0)
+    {
+        $dirpath = self::processpath($dirpath);
+        if( $uid < 1 ) {
+            $uid = get_userid(FALSE);
+        }
+        $profile = null; // GET_THEONE_IFANY_FOR($dirpath, $uid);
+        if( $profile ) {
+            return $profile;
+        }
+        return self::get_default_profile();
+    }
+
+    /**
+     * Get the named profile, or failing that, the profile for
+     * place $dirpath and user $uid.
+     * @since 2.9
+     * @param mixed $profile_name string | falsy value optional name of existing profile
+     * @param string $dirpath optional filesystem path of folder to be displayed
+     * @param int $uid Optional user identifier, Default current user
+     * @return Profile object
+     */
+    public static function get_profile($profile_name, $dirpath = '', $uid = 0)
+    {
+        $profile_name = trim($profile_name);
+        if( $profile_name ) {
+            $mod = AppUtils::get_module('FilePicker');
+            $profile = $mod->_dao->loadByName($profile_name);
+        }
+        else {
+            $profile = null;
+        }
+        if( !$profile ) {
+            $profile = self::get_profile_for($dirpath, $uid);
+        }
+        return $profile;
+    }
+
+    /**
      * Get the extension of the specified file
      * @param string $path Filesystem path, or at least the basename, of a file
      * @param bool $lower Optional flag, whether to lowercase the result. Default true.
@@ -460,7 +540,7 @@ class Utils
         }
         $fn = basename($path);
         if ($fn) {
-            $fn = filter_var($fn, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_LOW);
+            $fn = filter_var($fn, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_LOW);
             return $dirpath . DIRECTORY_SEPARATOR . $fn;
         }
         return '';

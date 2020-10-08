@@ -16,10 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\UserOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -30,7 +32,6 @@ check_login();
 $urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
     redirect('listgroups.php'.$urlext);
-    return;
 }
 
 $group = '';
@@ -43,12 +44,11 @@ if (isset($_GET['group_id'])) {
 }
 
 $userid = get_userid();
-$access = check_permission($userid, 'Manage Groups');
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
-if (!$access) {
-//TODO some immediate popup lang('needpermissionto', '"Manage Groups"')
+if (!check_permission($userid, 'Manage Groups')) {
+//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
     return;
 }
 
@@ -97,7 +97,7 @@ $extras = get_secure_param_array();
 $userops = UserOperations::get_instance();
 $useringroup = $userops->UserInGroup($userid, $group_id);
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign([
     'active' => $active,
     'description' => $description,
@@ -109,6 +109,7 @@ $smarty->assign([
     'useringroup' => $useringroup,
 ]);
 
-include_once 'header.php';
-$smarty->display('editgroup.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('editgroup.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

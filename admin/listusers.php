@@ -16,10 +16,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\internal\LoginOperations;
 use CMSMS\UserOperations;
+use CMSMS\UserParams;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -30,7 +34,7 @@ check_login();
 $urlext = get_secure_param();
 $userid = get_userid();
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (!check_permission($userid, 'Manage Users')) {
     //TODO some immediate popup
@@ -41,9 +45,9 @@ if (!check_permission($userid, 'Manage Users')) {
  * Variables
  ---------------------*/
 
-$gCms         = cmsms();
+$gCms         = AppSingle::App();
 $db           = $gCms->GetDb();
-$templateuser = cms_siteprefs::get('template_userid');
+$templateuser = AppParams::get('template_userid');
 $page         = 1;
 $limit        = 100;
 $message      = '';
@@ -71,7 +75,7 @@ if (isset($_GET['switchuser'])) {
         } else {
             LoginOperations::get_instance()->set_effective_user($to_user);
             $urlext = get_secure_param();
-            redirect('index.php'.$urlext);
+            redirect('menu.php'.$urlext);
         }
     }
 } elseif (isset($_GET['toggleactive'])) {
@@ -147,7 +151,7 @@ if (isset($_GET['switchuser'])) {
                 } // invalid user
 
                 Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$oneuser ]);
-                cms_userprefs::remove_for_user($uid);
+                UserParams::remove_for_user($uid);
                 Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$oneuser ]);
                 audit($uid, 'Admin Username: ' . $oneuser->username, 'Settings cleared');
                 $nusers++;
@@ -162,7 +166,7 @@ if (isset($_GET['switchuser'])) {
             if (isset($_POST['userlist'])) {
                 $fromuser = (int)$_POST['userlist'];
                 if ($fromuser > 0) {
-                    $prefs = cms_userprefs::get_all_for_user($fromuser);
+                    $prefs = UserParams::get_all_for_user($fromuser);
                     if ($prefs) {
                         foreach ($_POST['multiselect'] as $uid) {
                             $uid = (int)$uid;
@@ -179,9 +183,9 @@ if (isset($_GET['switchuser'])) {
                             }
 
                             Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$oneuser ]);
-                            cms_userprefs::remove_for_user($uid);
+                            UserParams::remove_for_user($uid);
                             foreach ($prefs as $k => $v) {
-                                cms_userprefs::set_for_user($uid, $k, $v);
+                                UserParams::set_for_user($uid, $k, $v);
                             }
                             Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$oneuser ]);
                             audit($uid, 'Admin Username: ' . $oneuser->username, 'Settings cleared');
@@ -363,7 +367,7 @@ $icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('yes'), '',
 $iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('no'), '', '', 'systemicon');
 $iconrun = $themeObject->DisplayImage('icons/system/run.gif', lang('TODO'), '', '', 'systemicon'); //used for switch-user
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign([
     'addurl' => 'adduser.php',
     'editurl' => 'edituser.php',
@@ -382,6 +386,7 @@ $smarty->assign([
     'userlist' => $userlist,
 ]);
 
-include_once 'header.php';
-$smarty->display('listusers.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('listusers.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

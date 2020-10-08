@@ -18,14 +18,14 @@
 
 namespace CMSMS;
 
-use CmsDbQueryBase;
 use CmsInvalidDataException;
 use CmsLogicException;
+use CMSMS\AppSingle;
+use CMSMS\DbQueryBase;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CmsSQLErrorException;
 use const CMS_DB_PREFIX;
-use function cmsms;
 
 /**
  * @package CMS
@@ -38,7 +38,7 @@ use function cmsms;
  * @property string $sortby Possible values are id,item_order,design,name  Default is to sort by name.
  * @property string $sortorder Possible values are ASC, DESC.  Default is ASC.
  */
-class StylesheetQuery extends CmsDbQueryBase
+class StylesheetQuery extends DbQueryBase
 {
 	/**
 	 * Execute the query in this object.
@@ -77,7 +77,7 @@ class StylesheetQuery extends CmsDbQueryBase
 		$sortby = 'S.name';
 		$this->_limit = 1000;
 		$this->_offset = 0;
-		$db = cmsms()->GetDb();
+		$db = AppSingle::Db();
 		$where = [];
 		foreach( $this->_args as $key => $val ) {
 			if( empty($val) ) continue;

@@ -1,5 +1,5 @@
 <?php
-#procedure to assign a user to another group
+#Change user-group-membership(s) of user(s)
 #Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,10 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\AppState;
 //use CMSMS\SysDataCache;
-use CMSMS\GroupOperations;
-use CMSMS\UserOperations;
+use CMSMS\AppSingle;
+use CMSMS\AppState;
+use CMSMS\Events;
+use CMSMS\UserParams;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -30,94 +32,113 @@ check_login();
 $urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
     redirect('listusers.php'.$urlext);
-//    return;
 }
 
 $userid = get_userid();
-$access = check_permission($userid, 'Manage Groups');
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
-if (!$access) {
-//TODO some immediate popup    lang('needpermissionto', '"Manage Groups"');
+if (!check_permission($userid, 'Manage Groups')) {
+//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
     return;
 }
 
-$group_id = (isset($_GET['group_id'])) ? (int)$_GET['group_id'] : -1;
+$groupops = AppSingle::GroupOperations();
+$superusr = $userid == 1; //group 1 addition|removal allowed
+if ($superusr) {
+    $supergrp = true; //group 1 removal allowed
+} else {
+    $admins = array_column($groupops->GetGroupMembers(1), 1);
+    $supergrp = in_array($userid, $admins);
+}
 
-$userops = UserOperations::get_instance();
-$adminuser = ($userops->UserInGroup($userid, 1) || $userid == 1);
-$message = '';
+$smarty = AppSingle::Smarty();
+$smarty->assign([
+    'user_id' => $userid, // current user
+    'usr1perm' => $superusr,
+    'grp1perm' => $supergrp,
+    'pmod' => !$supergrp, // current user may 'Manage Groups' but not in Group 1
+]);
 
-$gCms = CmsApp::get_instance();
-$db = $gCms->GetDb();
-$smarty = $gCms->GetSmarty();
+$group_list = $groupops->LoadGroups(); // Group or stdClass objects, used in filter/selector element
+$groups = []; // displayable Group-object(s)
 
 if (isset($_POST['filter'])) {
-    $disp_group = cleanValue($_POST['groupsel']);
-    cms_userprefs::set_for_user($userid, 'changegroupassign_group', $disp_group);
+    $disp_group = (int) $_POST['groupsel'];
+    UserParams::set_for_user($userid, 'changegroupassign_group', $disp_group);
+} else {
+    $disp_group = UserParams::get_for_user($userid, 'changegroupassign_group', -1);
 }
-$disp_group = cms_userprefs::get_for_user($userid, 'changegroupassign_group', -1);
 
-// always display the group pulldown
-$groupops = GroupOperations::get_instance();
-$tmp = new stdClass();
-$tmp->name = lang('all_groups');
-$tmp->id=-1;
-$allgroups = [$tmp];
-$groups = [$tmp];
-$groupidlist = [];
-$group_list = $groupops->LoadGroups();
 foreach ($group_list as $onegroup) {
-    $groupidlist[] = $onegroup->id;
-    if ($onegroup->id == 1 && !$adminuser) {
-        continue;
-    }
-    $allgroups[] = $onegroup;
     if ($disp_group == -1 || $disp_group == $onegroup->id) {
         $groups[] = $onegroup;
     }
 }
-$smarty->assign('group_list', $groups)
-  ->assign('allgroups', $allgroups)
-  ->assign('groupidlist', implode(',', $groupidlist));
+
+if (count($group_list) > 1) {
+    $tmp = new stdClass();
+    $tmp->id = -1;
+    $tmp->name = lang('all_groups');
+    array_unshift($group_list, $tmp);
+}
+
+$smarty->assign([
+    'group_list' => $group_list,
+    'displaygroups' => $groups,
+    'disp_group'=>$disp_group,
+]);
+
+$db = AppSingle::Db();
 
 if (isset($_POST['submit'])) {
-    foreach ($groups as $onegroup) {
-        if ($onegroup->id <= 0) {
-            continue;
-        }
-        // Send the ChangeGroupAssignPre event
-        Events::SendEvent('Core', 'ChangeGroupAssignPre',
-             ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
-        );
-        $query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id = ? AND user_id != ?';
-        $result = $db->Execute($query, [$onegroup->id,$userid]);
-        //setting create_date should be redundant with DT setting
-        $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'user_groups
+    cleanArray($_POST);
+    $userops = AppSingle::UserOperations();
+
+    $stmt1 = $db->Prepare('DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id=? AND user_id=?');
+    $stmt2 = $db->Prepare('SELECT 1 FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id=? AND user_id=?');
+    //setting create_date should be redundant with DT field properties
+    $stmt3 = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'user_groups
 (group_id, user_id, create_date)
 VALUES (?,?,NOW())');
 
-        cleanArray($_POST);
-        foreach ($_POST as $key=>$value) {
-            if (strncmp($key, 'ug', 2) == 0) {
+    foreach ($groups as $onegroup) {
+        if ($onegroup->id <= 0) {
+            continue; // invalid | 'all groups' ?
+        }
+
+        foreach ($_POST as $key => $value) {
+            if (strncmp($key, 'ug_', 3) == 0) {
                 $keyparts = explode('_', $key);
-                if ($keyparts[2] == $onegroup->id && $value == '1') {
-                    $result = $db->Execute($stmt, [$onegroup->id,$keyparts[1]]);
+                if ($keyparts[2] == $onegroup->id) {  //group id
+                    // Send the ChangeGroupAssignPre event
+                    Events::SendEvent('Core', 'ChangeGroupAssignPre',
+                         ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
+                    );
+                    if ($value == '0') {
+                        $db->Execute($stmt1, [$onegroup->id,$userid]);
+                    } else {
+                        $rst = $db->Execute($stmt2, [$onegroup->id,$keyparts[1]]); // permission id
+                        if (!$rst || $rst->EOF) {
+                            $db->Execute($stmt3, [$onegroup->id,$keyparts[1]]);
+                            Events::SendEvent('Core', 'ChangeGroupAssignPost',
+                                ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
+                            );
+                        }
+                        if ($rst) $rst->Close();
+                    }
+                    // put mention into the admin log
+                    $group_id = (isset($_GET['group_id'])) ? (int)$_GET['group_id'] : -1;
+                    audit($group_id, 'Assignment Group ID: '.$group_id, 'Changed');
                 }
             }
         }
-
-        $stmt->close();
-        Events::SendEvent('Core', 'ChangeGroupAssignPost',
-            ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
-        );
-        // put mention into the admin log
-        audit($group_id, 'Assignment Group ID: '.$group_id, 'Changed');
     }
 
-    // put mention into the admin log
-    audit($userid, 'Assignment User ID: '.$userid, 'Changed');
+    $stmt1->close();
+    $stmt2->close();
+    $stmt3->close();
+
     $message = lang('assignmentchanged');
 //    AdminUtils::clear_cached_files();
 //    SysDataCache::get_instance()->release('IF ANY');
@@ -126,13 +147,13 @@ VALUES (?,?,NOW())');
 $query = 'SELECT u.user_id, u.username, ug.group_id FROM '.
     CMS_DB_PREFIX.'users u LEFT JOIN '.CMS_DB_PREFIX.
     'user_groups ug ON u.user_id = ug.user_id ORDER BY u.username';
-$result = $db->Execute($query);
+$rst = $db->Execute($query);
 
 $user_struct = [];
-while ($result && $row = $result->FetchRow()) {
+while ($rst && ($row = $rst->FetchRow())) {
     if (isset($user_struct[$row['user_id']])) {
         $str = &$user_struct[$row['user_id']];
-        $str->group[$row['group_id']]=1;
+        $str->group[$row['group_id']] = 1;
     } else {
         $thisUser = new stdClass();
         $thisUser->group = [];
@@ -144,25 +165,25 @@ while ($result && $row = $result->FetchRow()) {
         $user_struct[$row['user_id']] = $thisUser;
     }
 }
-$smarty->assign('users', $user_struct)
-  ->assign('adminuser', ($adminuser?1:0));
+if ($rst) $rst->Close();
 
 if (!empty($message)) {
     $themeObject->RecordNotice('success', $message);
 }
 
+//$icontrue = $themeObject->DisplayImage('icons/system/true.gif', '', '', '', 'systemicon');
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
 $smarty->assign([
-	'selfurl'=>$selfurl,
-	'extraparms'=>$extras,
-	'urlext'=>$urlext,
-	'disp_group'=>$disp_group,
-	'user_id'=>$userid,
+    'selfurl'=>$selfurl,
+    'extraparms'=>$extras,
+    'urlext'=>$urlext,
+//    'icontrue' => $icontrue,
+    'users' => $user_struct,
 ]);
-$smarty->assign('pagesubtitle', lang('groupassignments', $user_struct[$userid]->name));
 
-include_once 'header.php';
-$smarty->display('changeusergroup.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('changegroupassign.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

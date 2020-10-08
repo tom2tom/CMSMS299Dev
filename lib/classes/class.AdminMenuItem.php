@@ -30,15 +30,24 @@ final class AdminMenuItem
 {
     /**
      * @ignore
-     * 'system' is for internal use only.
      */
-    const ITEMKEYS = ['module','section','name','title','description','action','url','icon','priority','system'];
+    private const ITEMKEYS = [
+     'action',
+     'description', //optional
+     'icon', //optional
+     'module',
+     'name', //optional
+     'priority', //optional
+     'section',
+     'system', //internal use only
+     'title',
+     'url',
+    ];
 
     /**
      * @ignore
      */
     private $_data = [];
-
 
     /**
      * @ignore
@@ -108,18 +117,15 @@ final class AdminMenuItem
      */
     public function valid()
     {
-        foreach (self::ITEMKEYS as $ok) {
-            switch ($ok) {
-                case 'name':
-                case 'description':
-                case 'icon':
-                case 'system':
-                case 'priority':
-                case 'url':
-                    break 2;  // we don't care whether these are set
-                default:
-                    if (!isset($this->_data[$ok])) return false;
-            }
+        $must = array_diff(self::ITEMKEYS, [
+            'description',
+            'icon',
+            'name',
+            'priority',
+            'system',
+        ]);
+        foreach ($must as $key) {
+            if (!isset($this->_data[$key])) return false;
         }
         return true;
     }
@@ -128,23 +134,22 @@ final class AdminMenuItem
      * A convenience method to build a standard admin menu item from module methods.
      *
      * @internal
-     * @param CMSModule $mod
+     * @param CMSModule | IResource $mod
      * @param since 2.3 Optional action name, default 'defaultadmin'
      * @return mixed AdminMenuItem-object or null
      */
-    public static function from_module(CMSModule $mod, $action = 'defaultadmin')
+    public static function from_module($mod, $action = 'defaultadmin')
     {
-        $obj = null;
         if( $mod->HasAdmin() ) {
-            $obj = new static();
+            $obj = new self();
+            $obj->action = $action;
+            $obj->description = $mod->GetAdminDescription();
             $obj->module = $mod->GetName();
+            $obj->priority = 50;
             $obj->section = $mod->GetAdminSection();
             $obj->title = $mod->GetFriendlyName();
-            $obj->description = $mod->GetAdminDescription();
-            $obj->priority = 50;
-            $obj->action = $action;
             $obj->url = $mod->create_url('m1_',$action);
+            return $obj;
         }
-        return $obj;
     }
 } // class

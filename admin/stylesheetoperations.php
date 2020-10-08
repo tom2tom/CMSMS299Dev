@@ -17,6 +17,7 @@
 
 use CMSMS\AppState;
 use CMSMS\StylesheetOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -30,7 +31,7 @@ check_login();
 $userid = get_userid();
 $pmod = check_permission($userid,'Manage Stylesheets');
 $urlext = get_secure_param();
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 cleanArray($_REQUEST);
 $css_id = isset($_REQUEST['css']) ? (int)$_REQUEST['css'] : null; //< 0 for a group

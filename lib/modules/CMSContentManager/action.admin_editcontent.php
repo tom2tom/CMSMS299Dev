@@ -19,12 +19,11 @@
 use CMSContentManager\ContentBase;
 use CMSContentManager\Utils;
 use CMSMS\AdminUtils;
-use CMSMS\CmsLockException;
 use CMSMS\ContentOperations;
 use CMSMS\FormUtils;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
 
 if( !isset($gCms) ) exit;
 
@@ -385,12 +384,12 @@ $options_tab_name = ContentBase::TAB_OPTIONS;
 $msg = json_encode($this->Lang('msg_lostlock'));
 $close = $this->Lang('close');
 
-$sm = new ScriptOperations();
-$sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
+$jsm = new ScriptsMerger();
+$jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 if ($do_locking) {
-    $sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
+    $jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 }
-$js = $sm->render_inclusion('', false, false);
+$js = $jsm->page_content('', false, false);
 if ($js) {
     add_page_foottext($js);
 }

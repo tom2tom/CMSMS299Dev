@@ -3,7 +3,7 @@ namespace Search\Command;
 
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
-use cms_utils;
+use CMSMS\Utils;
 
 class ReindexCommand extends Command
 {
@@ -15,7 +15,7 @@ class ReindexCommand extends Command
 
     public function handle()
     {
-        $mod = cms_utils::get_module('Search');
+        $mod = Utils::get_module('Search');
         $mod->Reindex();
     }
 } // class

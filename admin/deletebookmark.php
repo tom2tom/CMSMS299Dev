@@ -18,6 +18,7 @@
 
 use CMSMS\AppState;
 use CMSMS\BookmarkOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -37,15 +38,15 @@ $markobj = (new BookmarkOperations())->LoadBookmarkByID($bookmark_id);
 if ($markobj) {
 	$userid = get_userid();
 	if ($userid != $markobj->user_id && !check_permission($userid, 'Manage My Bookmarks')) { //TODO or 'Manage Bookmarks'
-		cms_utils::get_theme_object()->ParkNotice('error', lang('needpermissionto', '"Manage My Bookmarks"'));
+		Utils::get_theme_object()->ParkNotice('error', lang('needpermissionto', '"Manage My Bookmarks"'));
 		redirect('listbookmarks.php'.$urlext);
 	}
 
 	if (!$markobj->Delete()) {
-		cms_utils::get_theme_object()->ParkNotice('error', lang('failure'));
+		Utils::get_theme_object()->ParkNotice('error', lang('failure'));
 	}
 } else {
-	cms_utils::get_theme_object()->ParkNotice('error', lang('invalid'));
+	Utils::get_theme_object()->ParkNotice('error', lang('invalid'));
 }
 
 redirect('listbookmarks.php'.$urlext);

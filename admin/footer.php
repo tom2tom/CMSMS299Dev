@@ -16,8 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\Events;
-use CMSMS\HookManager;
+use CMSMS\HookOperations;
 
 // $USE_THEME inherited from parent scope
 if (!isset($USE_THEME) || $USE_THEME) {
@@ -29,7 +30,7 @@ if (!isset($USE_THEME) || $USE_THEME) {
 if ($config['debug']) {
 	// echo debug output to stdout
 	echo '<div id="DebugFooter">';
-	$arr = CmsApp::get_instance()->get_errors();
+	$arr = AppSingle::App()->get_errors();
 	foreach ($arr as $error) {
 		echo $error;
 	}
@@ -44,7 +45,7 @@ if (!isset($USE_OUTPUT_BUFFERING) || $USE_OUTPUT_BUFFERING) {
 	$pagecontent = '';
 }
 
-$aout = HookManager::do_hook_accumulate('AdminBottomSetup');
+$aout = HookOperations::do_hook_accumulate('AdminBottomSetup');
 if ($aout) {
 	foreach($aout as $bundle) {
 		foreach($bundle as $list) {
@@ -65,7 +66,7 @@ if (!isset($USE_THEME) || $USE_THEME) {
 	if ($pagecontent && strpos($pagecontent,'</body') === false ) echo '</body></html>';
 
 	if (isset($config['show_performance_info'])) {
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$endtime = microtime();
 		$memory = (function_exists('memory_get_usage')?memory_get_usage():0);
 		$memory_net = 'n/a';

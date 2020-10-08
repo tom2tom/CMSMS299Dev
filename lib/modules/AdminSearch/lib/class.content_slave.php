@@ -2,8 +2,8 @@
 
 namespace AdminSearch;
 
-use cms_utils;
 use CMSMS\ContentOperations;
+use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function check_permission;
 use function cms_htmlentities;
@@ -15,13 +15,13 @@ final class content_slave extends slave
 {
     public function get_name()
     {
-        $mod = cms_utils::get_module('AdminSearch');
+        $mod = Utils::get_module('AdminSearch');
         return $mod->Lang('lbl_content_search');
     }
 
     public function get_description()
     {
-        $mod = cms_utils::get_module('AdminSearch');
+        $mod = Utils::get_module('AdminSearch');
         return $mod->Lang('desc_content_search');
     }
 
@@ -34,7 +34,7 @@ final class content_slave extends slave
     {
         $userid = get_userid();
 
-        $content_manager = cms_utils::get_module('CMSContentManager');
+        $content_manager = Utils::get_module('CMSContentManager');
         $db = cmsms()->GetDb();
         $query = 'SELECT C.content_id, P.content FROM '.CMS_DB_PREFIX.'content C LEFT JOIN '.CMS_DB_PREFIX.'content_props P ON C.content_id = P.content_id WHERE P.content LIKE ? OR C.metadata LIKE ? GROUP BY C.content_id';
         //$query = 'SELECT DISTINCT C.content_id, P.content FROM '.CMS_DB_PREFIX.'content C LEFT JOIN '.CMS_DB_PREFIX.'content_props P ON C.content_id = P.content_id WHERE P.content LIKE ? OR C.metadata LIKE ?';

@@ -16,32 +16,39 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\FormUtils;
-use CMSMS\HookManager;
+use CMSMS\HookOperations;
 use CMSMS\StylesheetOperations;
+use CMSMS\UserParams;
+use CMSMS\Utils;
 
-// variables for general use
+// variables needed here and in-scope for hook-functions
 if (!AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
-	$userid = get_userid(); //also checks login status
+	if (!isset($userid)) {
+		$userid = get_userid(); //also checks login status
+	}
 }
 if (!isset($themeObject)) {
-	$themeObject = cms_utils::get_theme_object();
+	$themeObject = Utils::get_theme_object();
 }
-if (!isset($smarty)) {
-	$smarty = CmsApp::get_instance()->GetSmarty();
-}
-$config = cms_config::get_instance();
 
-$aout = HookManager::do_hook_accumulate('AdminHeaderSetup');
+if (!isset($smarty)) {
+	$smarty = AppSingle::Smarty();
+}
+if (!isset($config)) {
+	$config = AppSingle::Config();
+}
+
+$aout = HookOperations::do_hook_accumulate('AdminHeaderSetup');
 if ($aout) {
-	$out = '';
+	$vars = [];
 	foreach($aout as $bundle) {
 		if ($bundle[0]) {
-			//NOTE downstream must ensure var keys and values are formatted for js
-			foreach($bundle[0] as $key => $value) {
-				$out .= "cms_data.{$key} = {$value};\n";
-			}
+			// NOTE all variables' keys and values will be json-encoded before dispatch to browser
+			$vars = array_merge($vars, $bundle[0]);
 		}
 
 		if ($bundle[1]) {
@@ -49,22 +56,6 @@ if ($aout) {
 				add_page_headtext($list);
 			}
 		}
-	}
-
-	if ($out) {
-		add_page_headtext(<<<EOT
-<script type="text/javascript">
-//<![CDATA[
-
-EOT
-		);
-		add_page_headtext($out);
-		add_page_headtext(<<<EOT
-//]]>
-</script>
-
-EOT
-		);
 	}
 }
 
@@ -81,12 +72,18 @@ if (isset($modinst)) {
 	}
 }
 
-// setup for required rich-text-editors
-// (must be after action/content generation, which might create such textarea(s))
+// define js runtime variables, including $vars[] set here, if any
+require_once __DIR__.DIRECTORY_SEPARATOR.'jsruntime.php';
+add_page_headtext($js, false); // prepend (might be needed anywhere during page construction)
+
+// setup for required page-content (aka rich-text) editors
+// this must be performed after page-content generation which creates
+// such textarea(s) (i.e. also after template-fetching if the template
+// includes textarea-tag(s))
 $list = FormUtils::get_requested_wysiwyg_modules();
 if ($list) {
 	foreach ($list as $module_name => $info) {
-		$obj = cms_utils::get_module($module_name);
+		$obj = Utils::get_module($module_name);
 		if (!is_object($obj)) {
 			audit('','Core','rich-edit module '.$module_name.' requested, but could not be instantiated');
 			continue;
@@ -130,34 +127,35 @@ if ($list) {
 			try {
 				$out = $obj->WYSIWYGGenerateHeader($selector,$cssname); //deprecated API
 				if ($out) { add_page_headtext($out); }
-			} catch (Exception $e) {}
+			} catch (Throwable $e) {}
 		}
 		// do we need a generic textarea ?
 		if ($need_generic) {
 			try {
 				$out = $obj->WYSIWYGGenerateHeader(); //deprecated API
 				if ($out) { add_page_headtext($out); }
-			} catch (Exception $e) {}
+			} catch (Throwable $e) {}
 		}
 	}
 }
 
-// setup for required syntax hilighters
+// setup for required syntax-highlight editors
+// see comment above about when this must be performed
 $list = FormUtils::get_requested_syntax_modules();
 if ($list) {
 	foreach ($list as $one) {
-		$obj = cms_utils::get_module($one);
+		$obj = Utils::get_module($one);
 		if (is_object($obj)) {
 			try {
 				$out = $obj->SyntaxGenerateHeader(); //deprecated API
 				if ($out) { add_page_headtext($out); }
-			} catch (Exception $e) {}
+			} catch (Throwable $t) {}
 		}
 	}
 }
 
-if (CmsApp::get_instance()->JOBTYPE == 0) {
-	cms_admin_sendheaders(); //TODO only for $CMS_JOB_TYPE < 1 ?
+if (AppSingle::App()->JOBTYPE == 0) {
+	cms_admin_sendheaders();
 }
 
 if (isset($config['show_performance_info'])) {
@@ -171,11 +169,13 @@ if (!isset($USE_THEME) || $USE_THEME) {
 	if (!AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 
-		// Display notification stuff from modules
-		// should be controlled by preferences or something
-		$ignoredmodules = explode(',',cms_userprefs::get_for_user($userid,'ignoredmodules'));
-		if( cms_siteprefs::get('enablenotifications',1) && cms_userprefs::get_for_user($userid,'enablenotifications',1) ) {
-			// Display a warning sitedownwarning
+		$notify = UserParams::get_for_user($userid,'enablenotifications',1);
+		// display notification stuff from modules
+		// TODO this should be controlled by $notify
+		$ignoredmodules = explode(',',UserParams::get_for_user($userid,'ignoredmodules'));
+
+		if( $notify && AppParams::get('enablenotifications',1) ) {
+			// display a sitedown warning
 			$sitedown_file = TMP_CACHE_LOCATION . DIRECTORY_SEPARATOR. 'SITEDOWN';
 			if (is_file($sitedown_file)) {
 				$sitedown_message = lang('sitedownwarning', $sitedown_file);

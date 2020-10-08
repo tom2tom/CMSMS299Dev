@@ -17,6 +17,9 @@
 
 use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
+use CMSMS\Template;
+use CMSMS\TemplatesGroup;
+use CMSMS\TemplateType;
 
 if( !isset($gCms) ) exit;
 
@@ -85,7 +88,7 @@ $this->SetPreference('searchtext','Enter Search...');
 $me = $this->GetName();
 
 try {
-    $form_type = new CmsLayoutTemplateType();
+    $form_type = new TemplateType();
     $form_type->set_originator($me);
     $form_type->set_name('searchform');
     $form_type->set_dflt_flag(TRUE);
@@ -94,7 +97,7 @@ try {
     $form_type->reset_content_to_factory();
     $form_type->save();
 
-    $tpl = new CmsLayoutTemplate();
+    $tpl = new Template();
     $tpl->set_originator($me);
     $tpl->set_name('Search Form Sample');
     $tpl->set_owner($uid);
@@ -109,7 +112,7 @@ try {
             $fn = (__DIR__).DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Search_template.tpl';
             if( is_file( $fn ) ) {
                 $template = @file_get_contents($fn);
-                $tpl = new CmsLayoutTemplate();
+                $tpl = new Template();
                 $tpl->set_originator($me);
                 $tpl->set_name('Simplex Search');
                 $tpl->set_owner($uid);
@@ -119,7 +122,7 @@ try {
 
                 $id = $tpl->get_id();
                 try {
-                    $ob = CmsLayoutTemplateCategory::load('Simplex');
+                    $ob = TemplatesGroup::load('Simplex');
                     $ob->add_members([$id]);
                     $ob->save();
                 } catch( Throwable $t) {
@@ -135,7 +138,7 @@ try {
         }
     }
 
-    $results_type = new CmsLayoutTemplateType();
+    $results_type = new TemplateType();
     $results_type->set_originator($me);
     $results_type->set_name('searchresults');
     $results_type->set_dflt_flag(TRUE);
@@ -144,7 +147,7 @@ try {
     $results_type->reset_content_to_factory();
     $results_type->save();
 
-    $tpl = new CmsLayoutTemplate();
+    $tpl = new Template();
     $tpl->set_originator($me);
     $tpl->set_name('Search Results Sample');
     $tpl->set_owner($uid);

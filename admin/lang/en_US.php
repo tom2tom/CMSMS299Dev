@@ -31,8 +31,8 @@ $lang = [
 'admin_lock_refresh' => 'Locks Refresh Interval <em>(seconds)</em>',
 'admin_lock_timeout' => 'Locks Timeout <em>(minutes)</em>',
 'admin_login_module' => 'Login Processor',
-'admin' => 'Site Admininstration',
-'adminaccess' => 'Access to login to Admin',
+'admin' => 'Admininstration',
+//'adminaccess' => 'Enable Login',
 'admincallout' => 'Enable Bookmarks',
 'admindescription' => 'Administration functions for this site',
 'adminhelpurl' => 'Custom Site-Help URL',
@@ -214,10 +214,10 @@ $lang = [
 'curlversion' => 'Test curl version',
 'currentassociations' => 'Current Associations',
 'currentdirectory' => 'Current Directory',
-'currentgroups' => 'Current Groups',
+'currentgroups' => 'User-Groups',
 'currentpages' => 'Current Pages',
 'currenttemplates' => 'Current Templates',
-'currentusers' => 'Current Users',
+'currentusers' => 'All Users',
 'custom404' => 'Custom 404 Error Message',
 
 // D
@@ -478,11 +478,11 @@ $lang = [
 ",
 'event_help_addtemplatetypepost' => "<h4>Parameters</h4>
 <ul>
-  <li>'CmsLayoutTemplateType' - Reference to the affected template type object.</li>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
 </ul>",
 'event_help_addtemplatetypepre' => "<h4>Parameters</h4>
 <ul>
-  <li>'CmsLayoutTemplateType' - Reference to the affected template type object.</li>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
 </ul>",
 /*
 'event_help_addsimplepluginpost' => '<h4>Parameters</h4>
@@ -605,11 +605,11 @@ $lang = [
 ",
 'event_help_deletetemplatetypepost' => "<h4>Parameters</h4>
 <ul>
-  <li>'CmsLayoutTemplateType' - Reference to the affected template type object.</li>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
 </ul>",
 'event_help_deletetemplatetypepre' => "<h4>Parameters</h4>
 <ul>
-  <li>'CmsLayoutTemplateType' - Reference to the affected template type object.</li>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
 </ul>",
 /*
 'event_help_deletesimplepluginpost' => '<h4>Parameters</h4>
@@ -675,11 +675,11 @@ $lang = [
 ",
 'event_help_edittemplatetypepost' => "<h4>Parameters</h4>
 <ul>
-  <li>'CmsLayoutTemplateType' - Reference to the affected template type object.</li>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
 </ul>",
 'event_help_edittemplatetypepre' => "<h4>Parameters</h4>
 <ul>
-  <li>'CmsLayoutTemplateType' - Reference to the affected template type object.</li>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
 </ul>",
 /*
 'event_help_editsimplepluginpost' => '<h4>Parameters</h4>
@@ -858,6 +858,8 @@ $lang = [
 'exporttheme' => 'Export Theme',
 'extensions' => 'Extensions',
 'extensionsdescription' => 'Tailor the way CMSMS works, and other functions',
+'external_setdesc' => 'Site settings implemented and managed elsewhere (by modules etc)',
+'external_settings' => 'External',
 
 // F
 'failure' => 'Failure',
@@ -973,7 +975,7 @@ $lang = [
 'info_adduser' => 'Add a administrative new user account',
 'info_autoalias' => 'If this field is empty, an alias will be created automatically.',
 'info_changegroupperms' => 'Here you can specify the permission(s) of each admin user group.  Keep in mind: any admin user can belong to multiple admin groups.<br /><strong>Note:</strong> the &quot;Admin&quot; group is a special group and is automatically granted all permissions.',
-'info_changeusergroup' => 'Group membership determines which permissions the user has, hence her/his capabilities in the admin console.<br /><strong>Note:</strong> the &quot;Admin&quot; group is automatically granted all permissions.',
+'info_changeusergroup' => 'Group membership determines which permissions the user has, hence her/his capabilities in the admin console',
 'info_default_contenttype' => 'Applicable when adding new content objects, this control specifies the type that is selected by default.  Please ensure that the selected item is not one of the &quot;disallowed types&quot;.',
 'info_deletepages' => 'Note: due to permission restrictions, some of the pages you selected for deletion might not be listed below',
 'info_edeprecated_failed' => 'If E_DEPRECATED is enabled in your error reporting users will see a lot of warning messages that could affect the display and functionality',
@@ -983,7 +985,7 @@ $lang = [
 'info_handlers' => 'Here you can select from plugins and modules which are potentially able to respond to this event. It is not certain that they can, and will, actually do so. Typically, modules are already configured to process all events which are relevant to them, and if so, that is not reflected here.',
 'info_mail_notset' => 'Mail settings have not yet been saved. Please ensure the information in Site Admin >> System Settings >> Mail Settings tab is correct for your server.',
 'info_mailtest' => 'This form will send a pre formatted email to the address you specify.<br />If you do not receive the mail you might need to re-check your settings.<br /><strong>Note:</strong> you might also want to check your spam folder.',
-'info_membergroups' => 'A user may be a member of zero or more groups.  A user who is not a member of any groups will still be able to login to the admin console',
+'info_membergroups' => 'A user may be a member of zero or more groups.  A user who is not a member of any group will still be able to log in to the admin console (if not login-barred), and change her/his own account details.',
 'info_noalerts' => 'There is no alert at this time',
 'info_noedituser' => 'Although this user account exists, your permissions do not permit you to manage that account',
 'info_pagealias' => 'Specify a unique alias for this page.',
@@ -1091,6 +1093,7 @@ $lang = [
 'mediatype' => 'Media Type',
 'memory_limit' => 'PHP Effective Memory Limit',
 'menu_bookmarks' => '[+]',
+'menu' => 'Menu',
 'menulabel_styles' => 'Page Styling',
 'menulabel_templates' => 'Templates',
 'menutitle_styles' => 'Manage frontend-page stylesheets and groups of them',
@@ -1336,6 +1339,7 @@ $lang = [
 'settings_authpassword' => 'Password',
 'settings_authsecure' => 'Encryption method',
 'settings_authusername' => 'User name',
+'settings_linktext' => 'Go there',
 'settings_mailer' => 'Mailer',
 'settings_mailfrom' => 'From Address',
 'settings_mailfromuser' => 'From Name',
@@ -1345,6 +1349,7 @@ $lang = [
 'settings_smtpport' => 'SMTP Port',
 'settings_smtptimeout' => 'SMTP Time-out (seconds)',
 'settings_testaddress' => 'Email Address',
+'settings_title' => '%s Settings',
 'settings' => 'Settings',
 'settrue' => 'Set True',
 'setup' => 'Advanced',
@@ -1530,7 +1535,7 @@ $lang = [
 'usersassignedtogroup' => 'Users Assigned to Group %s',
 'usersdescription' => 'Manage admin users',
 'usersettings' => 'User Settings',
-'usersgroups' => 'Users &amp; Groups',
+'usersgroups' => 'People', //'Users &amp; Groups',
 'usersgroupsdescription' => 'User and user-group related functions',
 'usewysiwyg' => 'Use rich-text-editor for content', //see also 'use_wysiwyg'
 

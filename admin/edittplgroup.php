@@ -16,9 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplatesGroup;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -41,7 +45,7 @@ if (!$pmod) {
 }
 
 $urlext = get_secure_param();
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (isset($_REQUEST['cancel'])) {
 	$themeObject->ParkNotice('info',lang_by_realm('layout','msg_cancelled'));
@@ -52,12 +56,12 @@ cleanArray($_REQUEST);
 
 try {
 	if (!empty($_REQUEST['tpl'])) {
-		$group = CmsLayoutTemplateCategory::load(trim($_REQUEST['tpl']));
+		$group = TemplatesGroup::load(trim($_REQUEST['tpl']));
 		$gid = $group->get_id();
 		$group_members = $group->get_members(true); // as id=>name
 	}
 	else {
-		$group = new CmsLayoutTemplateCategory();
+		$group = new TemplatesGroup();
 		$gid = 0;
 		$group_members = [];
 	}
@@ -81,22 +85,22 @@ catch( CmsException $e ) {
 	$themeObject->RecordNotice('error',$e->GetMessage());
 }
 
-$lock_timeout = cms_siteprefs::get('lock_timeout', 60);
+$lock_timeout = AppParams::get('lock_timeout', 60);
 $do_locking = ($gid > 0 && $lock_timeout > 0) ? 1 : 0;
 if ($do_locking) {
-	CmsApp::get_instance()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
+	AppSingle::App()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
 }
-$lock_refresh = cms_siteprefs::get('lock_refresh', 120);
+$lock_refresh = AppParams::get('lock_refresh', 120);
 $s1 = json_encode(lang_by_realm('layout','error_lock'));
 $s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
 $cancel = lang('cancel');
 
-$sm = new ScriptOperations();
-$sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
+$jsm = new ScriptsMerger();
+$jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 if ($do_locking) {
-	$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
+	$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 }
-$js = $sm->render_inclusion('', false, false);
+$js = $jsm->page_content('', false, false);
 if ($js) {
 	add_page_foottext($js);
 }
@@ -199,7 +203,7 @@ if ($gid) {
 	$extras['tpl'] = $gid;
 }
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign([
 	'selfurl'=>$selfurl,
 	'extraparms'=>$extras,
@@ -212,6 +216,7 @@ $smarty->assign([
 	'placeholder'=>$placeholder,
 ]);
 
-include_once 'header.php';
-$smarty->display('edittplgroup.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('edittplgroup.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

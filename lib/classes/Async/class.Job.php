@@ -18,167 +18,154 @@
 
 namespace CMSMS\Async;
 
-use CmsApp;
-use cms_utils;
+use CMSMS\App;
 use LogicException;
 use UnexpectedValueException;
 
 /**
- * A class defining a job, and mechanisms for saving and retrieving that job.
+ * A base class defining a job, and mechanisms for saving and retrieving that job.
  *
  * @package CMS
  * @author Robert Campbell
  *
  * @abstract
  * @since 2.2
- * @property-read int $id A unique integer id for this job (generated on save).
- * @property string $name The name of this job.  If not specified a unique random name will be generated.
- * @property-read int $created The unix timestamp that this job was first created.
- * @property string $module The module that created this job.  Useful if the job ever needs to be deleted.
+ * @property-read int $id A unique id for this job (generated on save).
+ * @property string $name The name of this job.  If not specified, the class-name will be used.
+ * @property string $module The related-module name, if needed.
+ * @property-read int $created The *NIX timestamp that this job was first created.
  * @property int $start The minimum time that this job should start at.
- * @property-read int $errors The number of errors encountered while trying to pricess this job.
+ * @property-read int $errors The number of errors encountered while trying to process this job.
  */
 abstract class Job
 {
     /**
+     * Class properties
      * @ignore
      */
-    private $_id;
-
-    /**
-     * @ignore
-     */
-    private $_name;
-
-    /**
-     * @ignore
-     */
-    private $_created;
-
-    /**
-     * @ignore
-     */
-    private $_module;
-
-    /**
-     * @ignore
-     */
-    private $_start;
-
-    /**
-     * @ignore
-     */
-    private $_errors;
+    protected $_data = [
+     'id' => 0,
+     'created' => 0,
+     'start' => 1, //next start time, or 0
+     'errors' => 0,
+     'name' => '',
+     'module' => null,
+    ];
 
     /**
      * Constructor
+     * @param array $params Optional assoc array of valid class properties
+     *  each member like propname => propval
      */
-    public function __construct()
+    public function __construct($params = [])
     {
-        $this->_created = $this->_start = time();
-        $this->_name = cms_utils::hash_string(self::class,true); // a pretty random name for this job
+        $this->_data['created'] = time();
+        $this->_data['name'] = static::class;
+        if( $params ) {
+            foreach( $params as $key => $val ) {
+                $this->__set($key,$val);
+            }
+        }
     }
 
     /**
      * @ignore
-     * @throws UnexpectedValueException
      */
     public function __get($key)
     {
-        $tkey = '_'.$key;
         switch( $key ) {
         case 'id':
         case 'created':
         case 'start':
         case 'errors':
-            return (int) $this->$tkey;
+            return (int) $this->_data[$key];
 
         case 'name':
         case 'module':
-            return trim($this->$tkey);
+            return trim($this->_data[$key]);
+
+        case 'manager_module':
+            return App::get_instance()->GetJobManager();
 
         default:
-            throw new UnexpectedValueException("$key is not a gettable member of ".self::class);
+            return (isset($this->_data[$key])) ? $this->_data[$key] : null;
         }
     }
 
     /**
      * @ignore
-     * @throws UnexpectedValueException
      */
     public function __set($key,$val)
     {
-        $tkey = '_'.$key;
         switch( $key ) {
-        case 'name':
-        case 'module':
-            $this->$tkey = trim($val);
+        case 'id':
+            $this->set_id($val);
             break;
 
-        case 'force_start':
-            // internal use only.
-            $this->_start = (int) $val;
+        case 'name':
+        case 'module':
+            $this->_data[$key] = trim($val);
             break;
 
         case 'start':
         case 'errors':
-            $this->$tkey = (int) $val;
+            $this->_data[$key] = (int) $val;
             break;
 
         default:
-            throw new UnexpectedValueException("$key is not a settable member of ".get_class($this));
+            $this->_data[$key] = $val;
         }
     }
 
     /**
      * @final
-     * @param type $id
+     * @param int $id >= 1 (e.g. the id-field value from a database table
+     *  which records jobs-data)
      * @throws UnexpectedValueException
      * @throws LogicException
      */
     final public function set_id($id)
     {
         $id = (int) $id;
-        if( $id < 1 ) throw new UnexpectedValueException('Invalid id passed to '.__METHOD__);
-        if( $this->_id ) throw new LogicException('Cannot overwrite an id in a job that has one');
-        $this->_id = $id;
+        //TODO exceptions useless in async context
+        if( $id < 1 ) throw new UnexpectedValueException('Invalid id passed to '.static::class.'::'.__FUNCTION__);
+        if( $this->_data['id'] ) throw new LogicException('Cannot replace a job id');
+        $this->_data['id'] = $id;
     }
 
     /**
-     * Delete this job.
+     * Delete this job from the database.
      *
-     * @throws LogicException
-     * This method will throw exception if a job manager module is not available,
+     * @throws LogicException if a job manager module is not available,
      * or if for some reason the job could not be removed.
      */
     public function delete()
     {
         // get the asyncmanager module
-        $module = CmsApp::get_instance()->GetJobManager();
+        $module = App::get_instance()->GetJobManager();
         if( $module ) {
             $module->delete_job($this);
-            $this->_id = null;
+            $this->_data['id'] = 0;
             return;
         }
-        throw new LogicException('Cannot delete a job... no Job Manager module is available');
+        throw new LogicException('Cannot delete a job... no job-manager module is available');
     }
 
     /**
      * Save this job.
      *
-     * @throws LogicException
-     * This method will throw exception if a job manager module is not available,
+     * @throws LogicException if a job manager module is not available,
      * or if for some reason the job could not be saved.
      */
     public function save()
     {
         // get the asyncmanager module
-        $module = CmsApp::get_instance()->GetJobManager();
+        $module = App::get_instance()->GetJobManager();
         if( $module ) {
-            $this->_id = (int) $module->save_job($this);
+            $this->_data['id'] = (int)$module->save_job($this);
             return;
         }
-        throw new LogicException('Cannot save a job... no Job Manager module is available');
+        throw new LogicException('Cannot save a job... no job-manager module is available');
     }
 
     /**
@@ -186,9 +173,9 @@ abstract class Job
      *
      * @abstract
      * <strong>Note:</strong> all jobs should be able to execute properly within one HTTP request.
-     * Jobs cannot count on administrator or data stored in session variables.
-     * Any data that is needed for the job to process should either be stored with
-     * the job object, or stored in the database in a user-independent format.
+     * Jobs cannot count on any user, or data stored in session variables.
+     * Any data that is needed for the job should either be stored with
+     * the job object, or stored in the database in a context-independent format.
      */
     abstract public function execute();
 }

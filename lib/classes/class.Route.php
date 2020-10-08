@@ -19,9 +19,9 @@
 namespace CMSMS;
 
 use ArrayAccess;
+use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\RouteOperations;
-use CMSMS\Utils;
 use const CMS_DEPREC;
 
 /**
@@ -170,7 +170,7 @@ class Route implements ArrayAccess
 		 'term'=>1,
 		]);
 		$s = json_encode($tmp,JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-		return Utils::hash_string($s);
+		return Crypto::hash_string($s);
 	}
 
 	/**

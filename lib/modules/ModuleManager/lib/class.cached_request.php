@@ -18,11 +18,12 @@
 
 namespace ModuleManager;
 
-use cms_http_request;
-use cms_siteprefs;
-use cms_utils;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
+use CMSMS\Crypto;
+use CMSMS\HttpRequest;
+use CMSMS\Utils;
 use const TMP_CACHE_LOCATION;
-use function cmsms;
 
 final class cached_request //was modmgr_cached_request
 {
@@ -40,13 +41,13 @@ final class cached_request //was modmgr_cached_request
 
   public function execute($target = '',$data = [], $age = '')
   {
-    $mod = cms_utils::get_module('ModuleManager');
-    $config = cmsms()->GetConfig();
-    if( !$age ) $age = cms_siteprefs::get('browser_cache_expiry',60);
+    $mod = Utils::get_module('ModuleManager');
+    $config = AppSingle::Config();
+    if( !$age ) $age = AppParams::get('browser_cache_expiry',60);
     if( $age ) $age = max(1,(int)$age);
 
     // build a signature
-    $this->_signature = cms_utils::hash_string(serialize([$target,$data]));
+    $this->_signature = Crypto::hash_string(serialize([$target,$data]));
     $fn = $this->_getCacheFile();
     if( !$fn ) return;
 
@@ -55,7 +56,7 @@ final class cached_request //was modmgr_cached_request
     if( ($config['develop_mode'] && $mod->GetPreference('disable_caching',0)) ||
         !file_exists($fn) || filemtime($fn) <= $atime ) {
       // execute the request
-      $req = new cms_http_request();
+      $req = new HttpRequest();
       if( $this->_timeout ) $req->setTimeout($this->_timeout);
       $req->execute($target,'','POST',$data);
       $this->_status = $req->getStatus();

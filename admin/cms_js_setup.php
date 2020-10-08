@@ -17,10 +17,11 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /*
-Deprecated since 2.3
-Use corresponding immediate setup via  jsruntime.php
+Deprecated since 2.9
+Use corresponding immediate setup via hooklist and jsruntime.php
 */
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
@@ -30,7 +31,7 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 check_login();
 
 $urlext = get_secure_param();
-$config = cms_config::get_instance();
+$config = AppSingle::Config();
 
 // get some urls and language strings
 $data = [];

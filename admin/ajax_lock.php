@@ -16,10 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\CmsLockException;
-use CMSMS\CmsLockOwnerException;
-use CMSMS\CmsNoLockException;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
 
@@ -52,7 +50,7 @@ $uid = get_parameter_value($data,'uid');
 $lock_id = get_parameter_value($data,'lock_id');
 $lifetime = (int) get_parameter_value($data,'lifetime',0);
 if( $lifetime == 0 ) {
-    $lifetime = cms_siteprefs::get('lock_timeout',60);
+    $lifetime = AppParams::get('lock_timeout',60);
 }
 $out = [];
 $out['status'] = 'success';
@@ -128,7 +126,7 @@ catch( CmsLockException $e ) {
   $out['status'] = 'error';
   $out['error'] = ['type'=>strtolower(get_class($e)),'msg'=>$e->GetMessage()];
 }
-catch( Exception $e ) {
+catch( Throwable $e ) {
   $out['status'] = 'error';
   $out['error'] = ['type'=>'othererror','msg'=>$e->GetMessage()];
 }

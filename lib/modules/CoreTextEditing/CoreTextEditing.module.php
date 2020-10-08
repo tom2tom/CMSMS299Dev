@@ -17,8 +17,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
 use CMSMS\MultiEditor;
+use CMSMS\HookOperations;
+use CMSMS\UserParams;
+use CMSMS\Utils;
 
 class CoreTextEditing extends CMSModule implements MultiEditor
 {
@@ -72,7 +76,34 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 		}
 	}
 
-	//TODO hook functions to populate 'centralised' site and user settings update
+	public function InitializeAdmin()
+	{
+		HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
+		HookOperations::add_hook('ExtraUserSettings', [$this, 'ExtraUserSettings']);
+	}
+
+	/**
+	 * Hook function to populate 'centralised' site settings UI
+	 * @internal
+	 * @since 2.9
+	 * @return array
+	 */
+	public function ExtraSiteSettings()
+	{
+		//TODO check permission local or Site Prefs
+		return [
+		 'title'=> $this->Lang('settings_title', $this->GetName()),
+		 //'desc'=> 'some useful text', // optional
+		 'url'=> $this->create_url('m1_', 'defaultadmin'), // if permitted
+		 //optional 'text' => custom link-text | explanation e.g need permission
+		];
+	}
+
+	//TODO hook function to populate 'centralised' user settings update
+	public function ExtraUserSettings()
+	{
+		return []; //TODO
+	}
 
 	/**
 	 * Generate page-header content needed to run syntax-highlighter(s) in an admin page.
@@ -82,12 +113,12 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 	 */
 	public function SyntaxGenerateHeader() //: string
 	{
-		$fe = CmsApp::get_instance()->is_frontend_request();
+		$fe = AppSingle::App()->is_frontend_request();
 		if ($fe) {
 			return '';
 		}
-		$themeObj = cms_utils::get_theme_object();
-		if (!$themeObj) {
+		$themeObject = Utils::get_theme_object();
+		if (!$themeObject) {
 			return '';
 		}
 		/*
@@ -108,9 +139,9 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 //		}
 		$params['edit'] = true; //TODO
 
-		$val = cms_userprefs::get_for_user(get_userid(false), 'syntax_editor');
+		$val = UserParams::get_for_user(get_userid(false), 'syntax_editor');
 		if (!$val) {
-			$val = cms_userprefs::get('syntax_editor');
+			$val = UserParams::get('syntax_editor');
 			if (!$val) {
 				$all = $this->ListEditors();
 				$val = reset($all);
@@ -124,10 +155,10 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 		$parts = $this->GetEditorSetup($editor, $params); //maybe empty
 
 		if (!empty($parts['head'])) {
-			$themeObj->add_headtext($parts['head']);
+			$themeObject->add_headtext($parts['head']);
 		}
 		if (!empty($parts['foot'])) {
-			$themeObj->add_footertext($parts['foot']);
+			$themeObject->add_footertext($parts['foot']);
 		}
 		return '';
 	}

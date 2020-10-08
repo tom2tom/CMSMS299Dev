@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Utils;
+
 if( !isset($gCms) ) exit;
 
 if( isset($params['bulk_submit']) && isset($params['bulk_action']) && !empty($params['bulk_content']) ) {
@@ -31,7 +33,7 @@ else {
 }
 
 if( strcasecmp($module,'core') != 0 ) { // i.e. self
-    $modobj = cms_utils::get_module($module);
+    $modobj = Utils::get_module($module);
     if( is_object($modobj) ) {
         $s = implode(',',$params['bulk_content']);
         $modobj->Redirect($id,$bulkaction,$returnid,
@@ -47,32 +49,26 @@ switch( $bulkaction ) {
  case 'inactive':
    $parms['active'] = 0;
    $this->Redirect($id,'admin_bulk_active',$returnid,$parms);
-   break;
 
  case 'active':
    $parms['active'] = 1;
    $this->Redirect($id,'admin_bulk_active',$returnid,$parms);
-   break;
 
  case 'setcachable':
    $parms['cachable'] = 1;
    $this->Redirect($id,'admin_bulk_cachable',$returnid,$parms);
-   break;
 
  case 'setnoncachable':
    $parms['cachable'] = 0;
    $this->Redirect($id,'admin_bulk_cachable',$returnid,$parms);
-   break;
 
  case 'showinmenu':
    $parms['showinmenu'] = 1;
    $this->Redirect($id,'admin_bulk_showinmenu',$returnid,$parms);
-   break;
 
  case 'hidefrommenu':
    $parms['showinmenu'] = 0;
    $this->Redirect($id,'admin_bulk_showinmenu',$returnid,$parms);
-   break;
 
 // case 'setdesign':
  case 'settemplate':
@@ -81,7 +77,6 @@ switch( $bulkaction ) {
  case 'delete':
    $this->Redirect($id,'admin_bulk_'.$bulkaction,$returnid,$parms);
    redirect($url);
-   break;
 
 }
 

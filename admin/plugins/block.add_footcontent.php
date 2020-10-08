@@ -15,12 +15,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//use CMSMS\Utils;
+
 function smarty_block_add_footcontent($params, $content, $template, &$repeat)
 {
 	$repeat = false;
 	if( !($content) ) return;
 
-//	$obj = cms_utils::get_theme_object();
+//	$obj = Utils::get_theme_object();
 //	if( $obj ) $obj->add_footertext($content);
 	add_page_foottext($content);
 }

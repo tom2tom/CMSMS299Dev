@@ -15,6 +15,9 @@
  var url = window.location.origin + window.location.pathname + '?curlang='+v;
  window.location = url;
  return false;
+}
+$(function() {
+ $('#lang_selector').on('change', redirect_langchange);
 }{/literal}
 </script>
 {/block}
@@ -42,7 +45,7 @@
   <p>{'select_language'|tr}</p>
   <div class="row">
     <label>{'installer_language'|tr}:</label>
-    <select id="lang_selector" class="form-field" name="lang" onchange="redirect_langchange()">
+    <select id="lang_selector" class="form-field" name="lang">
       {html_options options=$languages selected=$curlang}
     </select>
   </div>

@@ -31,7 +31,7 @@ abstract class TemplateTypeAssistant
     /**
      * Get the type object for the current assistant.
      *
-     * @return CmsLayoutTemplateType
+     * @return TemplateType
      */
     abstract public function get_type();
 

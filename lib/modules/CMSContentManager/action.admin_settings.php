@@ -20,6 +20,7 @@ use CMSContentManager\ContentBase;
 use CMSContentManager\Utils;
 use CMSMS\ContentOperations;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) exit;
@@ -61,11 +62,11 @@ $tpl->assign('list_visiblecolumns',$tmp);
 // pagedefaults tab
 
 $prefs = Utils::get_pagedefaults();
-$templates = TemplateOperations::template_query(['originator'=>CmsLayoutTemplateType::CORE, 'as_list'=>1]);
-$eds = ContentBase::GetAdditionalEditorOptions(); //TODO use non-static variant GetPageEditorChoices()
-
+$templates = TemplateOperations::template_query(['originator'=>TemplateType::CORE, 'as_list'=>1]);
+$ops = ContentOperations::get_instance();
+$eds = $ops->ListAdditionalEditors();
 $realm = $this->GetName();
-$types = ContentOperations::get_instance()->ListContentTypes(false,false,false,$realm);
+$types = $ops->ListContentTypes(false,false,false,$realm);
 if( $types ) { //exclude types which are nonsense for default (maybe make this a preference?)
   foreach( [
     'errorpage',

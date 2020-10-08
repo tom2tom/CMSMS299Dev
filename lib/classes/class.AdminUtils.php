@@ -18,12 +18,11 @@
 
 namespace CMSMS;
 
-use cms_http_request;
-use cms_siteprefs;
-use cms_utils;
-use CmsApp;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\HookManager;
+use CMSMS\Events;
+use CMSMS\HookOperations;
+use CMSMS\HttpRequest;
 use ErrorException;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
@@ -144,10 +143,10 @@ final class AdminUtils
 	 */
 	public static function fetch_latest_cmsms_ver() : string
 	{
-		$last_fetch = (int) cms_siteprefs::get('last_remotever_check');
-		$remote_ver = cms_siteprefs::get('last_remotever');
+		$last_fetch = (int) AppParams::get('last_remotever_check');
+		$remote_ver = AppParams::get('last_remotever');
 		if( $last_fetch < (time() - 24 * 3600) ) {
-			$req = new cms_http_request();
+			$req = new HttpRequest();
 			$req->setTimeout(3);
 			$req->execute(CMS_DEFAULT_VERSIONCHECK_URL);
 			if( $req->getStatus() == 200 ) {
@@ -156,8 +155,8 @@ final class AdminUtils
 					list($tmp,$remote_ver) = explode(':',$remote_ver,2);
 					$remote_ver = trim($remote_ver);
 				}
-				cms_siteprefs::set('last_remotever',$remote_ver);
-				cms_siteprefs::set('last_remotever_check',time());
+				AppParams::set('last_remotever',$remote_ver);
+				AppParams::set('last_remotever_check',time());
 			}
 		}
 		return $remote_ver;
@@ -253,16 +252,16 @@ final class AdminUtils
 	 */
 	public static function get_icon(string $icon, array $attrs = []) : string
 	{
-		$smarty = CmsApp::get_instance()->GetSmarty();
+		$smarty = AppSingle::Smarty();
 		$module = $smarty->getTemplateVars('_module');
 
 		if ($module) {
 			return self::get_module_icon($module, attrs);
 		} else {
-			$theme = cms_utils::get_theme_object();
-			if( is_object($theme) ) {
+			$themeObject = Utils::get_theme_object();
+			if( is_object($themeObject) ) {
 				if( basename($icon) == $icon ) $icon = 'icons'.DIRECTORY_SEPARATOR.'system'.DIRECTORY_SEPARATOR.$icon;
-				return $theme->DisplayImage($icon,'','','',null,$attrs);
+				return $themeObject->DisplayImage($icon,'','','',null,$attrs);
 			}
 		}
 	}
@@ -283,8 +282,8 @@ final class AdminUtils
 	{
 		if( !AppState::test_state(AppState::STATE_ADMIN_PAGE) ) return;
 
-		$theme = cms_utils::get_theme_object();
-		if( !is_object($theme) ) return;
+		$themeObject = Utils::get_theme_object();
+		if( !is_object($themeObject) ) return;
 
 		$icon = self::get_icon('info', ['class'=>'cms_helpicon']);
 		if( !$icon ) return;
@@ -322,7 +321,7 @@ final class AdminUtils
 		}
 
 		if( !$key1 ) {
-			$smarty = CmsApp::get_instance()->GetSmarty();
+			$smarty = AppSingle::Smarty();
 			$module = $smarty->getTemplateVars('_module');
 			if( $module ) {
 				$key1 = $module;
@@ -359,7 +358,7 @@ final class AdminUtils
 		}
 
 		$age_days = max(0, $age_days);
-		HookManager::do_hook('clear_cached_files', ['older_than' => $age_days]); //TODO BAD no namespace, some miscreant handler can change the parameter ...  deprecate?
+		HookOperations::do_hook('clear_cached_files', ['older_than' => $age_days]); //TODO BAD no namespace, some miscreant handler can change the parameter ...  deprecate?
 		Events::SendEvent('Core','ClearCachedFiles', ['older_than' => $age_days]); //since 2.3
 		$ttl = $age_days * 24 * 3600;
 		$the_time = time() - $ttl;

@@ -5,9 +5,9 @@ namespace AdminLog;
 use AdminLog;
 use AdminLog\event;
 use AdminLog\storage;
-use cms_siteprefs;
-use cms_utils;
+use CMSMS\AppParams;
 use CMSMS\AuditManager;
+use CMSMS\Utils;
 use Exception;
 use function get_userid;
 use function get_username;
@@ -28,7 +28,7 @@ class auditor implements AuditManager
         $parms = [];
         $parms['uid']= get_userid(FALSE);
         $parms['username'] = get_username(FALSE);
-        if( $parms['uid'] ) $parms['ip_addr'] = cms_utils::get_real_ip();
+        if( $parms['uid'] ) $parms['ip_addr'] = Utils::get_real_ip();
         return $parms;
     }
 
@@ -57,7 +57,7 @@ class auditor implements AuditManager
             $sevmsg = 'NOTICE';
             break;
         }
-        $sitename = cms_siteprefs::get('sitename','CMSMS Site');
+        $sitename = AppParams::get('sitename','CMSMS Site');
         $msg = "$sitename $sevmsg: $msg";
         @error_log( $msg, 0 );
     }

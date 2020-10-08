@@ -16,11 +16,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Utils;
+
 function smarty_function_cms_filepicker($params, $template)
 {
 	$name = trim(get_parameter_value($params,'name'));
 	if( !$name ) return;
-	$filepicker = cms_utils::get_filepicker_module();
+	$filepicker = Utils::get_filepicker_module();
 	if( !$filepicker ) return;
 
 	$profile_name = trim(get_parameter_value($params,'profile'));

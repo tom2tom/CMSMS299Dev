@@ -20,11 +20,15 @@
 //use CMSMS\MultiEditor;
 use CMSMS\AdminTheme;
 use CMSMS\AdminUtils;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\CoreCapabilities;
+use CMSMS\HookOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\UserOperations;
+use CMSMS\UserParams;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -34,11 +38,11 @@ check_login();
 
 $urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
-    redirect('index.php'.$urlext);
+    redirect('menu.php'.$urlext);
 }
 
 $userid = get_userid();
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (!check_permission($userid,'Manage My Settings')) {
 //TODO a push-notification    lang('needpermissionto','"Manage My Settings"'));
@@ -68,52 +72,56 @@ if (isset($_POST['submit'])) {
     $old_default_cms_lang = $_POST['old_default_cms_lang'];
     $paging = (isset($_POST['paging'])) ? 1 : 0;
     $syntaxer = $_POST['syntaxtype'] ?? null; //syntax/advanced editor
+    //TODO in/UI by relevant module
     $syntaxtheme = isset($_POST['syntaxtheme']) ? trim($_POST['syntaxtheme']) : null;
     $wysiwyg = $_POST['wysiwygtype'] ?? null; //rich-text-editor
+    //TODO in/UI by relevant module
     $wysiwygtheme = isset($_POST['wysiwygtheme']) ? trim($_POST['wysiwygtheme']) : null;
 
     // Set prefs
-    $themenow = cms_userprefs::get_for_user($userid, 'admintheme');
+    $themenow = UserParams::get_for_user($userid, 'admintheme');
     if ($themenow != $admintheme) {
-        cms_userprefs::set_for_user($userid, 'admintheme', $admintheme);
+        UserParams::set_for_user($userid, 'admintheme', $admintheme);
     }
-    cms_userprefs::set_for_user($userid, 'bookmarks', $bookmarks);
-    cms_userprefs::set_for_user($userid, 'ce_navdisplay', $ce_navdisplay);
-    cms_userprefs::set_for_user($userid, 'date_format_string', $date_format_string);
-    cms_userprefs::set_for_user($userid, 'default_cms_language', $default_cms_language);
-    cms_userprefs::set_for_user($userid, 'default_parent', $default_parent);
-    cms_userprefs::set_for_user($userid, 'hide_help_links', $hide_help_links);
-    cms_userprefs::set_for_user($userid, 'homepage', $homepage);
-    cms_userprefs::set_for_user($userid, 'indent', $indent);
-    cms_userprefs::set_for_user($userid, 'paging', $paging);
+    UserParams::set_for_user($userid, 'bookmarks', $bookmarks);
+    UserParams::set_for_user($userid, 'ce_navdisplay', $ce_navdisplay);
+    UserParams::set_for_user($userid, 'date_format_string', $date_format_string);
+    UserParams::set_for_user($userid, 'default_cms_language', $default_cms_language);
+    UserParams::set_for_user($userid, 'default_parent', $default_parent);
+    UserParams::set_for_user($userid, 'hide_help_links', $hide_help_links);
+    UserParams::set_for_user($userid, 'homepage', $homepage);
+    UserParams::set_for_user($userid, 'indent', $indent);
+    UserParams::set_for_user($userid, 'paging', $paging);
     if ($syntaxer !== null) {
         if (strpos($syntaxer, '::') !== false) {
             $parts = explode('::', $syntaxer);
-            cms_userprefs::set_for_user($userid, 'syntax_editor', $parts[0]);    //module
-            if ($parts[0] != $parts[1]) { cms_userprefs::set_for_user($userid, 'syntax_type', $parts[1]); }//specific editor
+            UserParams::set_for_user($userid, 'syntax_editor', $parts[0]);    //module
+            if ($parts[0] != $parts[1]) { UserParams::set_for_user($userid, 'syntax_type', $parts[1]); }//specific editor
         } else {
-            cms_userprefs::set_for_user($userid, 'syntax_editor', $syntaxer);    //module only
-            cms_userprefs::set_for_user($userid, 'syntax_type', '');
+            UserParams::set_for_user($userid, 'syntax_editor', $syntaxer);    //module only
+            UserParams::set_for_user($userid, 'syntax_type', '');
         }
     } else {
-        cms_userprefs::set_for_user($userid, 'syntax_editor', '');
-        cms_userprefs::set_for_user($userid, 'syntax_type', '');
+        UserParams::set_for_user($userid, 'syntax_editor', '');
+        UserParams::set_for_user($userid, 'syntax_type', '');
     }
-    cms_userprefs::set_for_user($userid, 'syntax_theme', $syntaxtheme);
+    //TODO in/UI by relevant module
+    UserParams::set_for_user($userid, 'syntax_theme', $syntaxtheme);
     if ($wysiwyg !== null) {
         if (strpos($wysiwyg, '::') !== false) {
             $parts = explode('::', $wysiwyg);
-            cms_userprefs::set_for_user($userid, 'wysiwyg', $parts[0]);    //module
-            if ($parts[0] != $parts[1]) { cms_userprefs::set_for_user($userid, 'wysiwyg_type', $parts[1]); }//specific editor
+            UserParams::set_for_user($userid, 'wysiwyg', $parts[0]);    //module
+            if ($parts[0] != $parts[1]) { UserParams::set_for_user($userid, 'wysiwyg_type', $parts[1]); }//specific editor
         } else {
-            cms_userprefs::set_for_user($userid, 'wysiwyg', $wysiwyg);    //module only
-            cms_userprefs::set_for_user($userid, 'wysiwyg_type', '');
+            UserParams::set_for_user($userid, 'wysiwyg', $wysiwyg);    //module only
+            UserParams::set_for_user($userid, 'wysiwyg_type', '');
         }
     } else {
-        cms_userprefs::set_for_user($userid, 'wysiwyg', '');
-        cms_userprefs::set_for_user($userid, 'wysiwyg_type', '');
+        UserParams::set_for_user($userid, 'wysiwyg', '');
+        UserParams::set_for_user($userid, 'wysiwyg_type', '');
     }
-    cms_userprefs::set_for_user($userid, 'wysiwyg_theme', $wysiwygtheme);
+    //TODO in/UI by relevant module
+    UserParams::set_for_user($userid, 'wysiwyg_theme', $wysiwygtheme);
 
     // Audit, message, cleanup
     audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
@@ -129,44 +137,48 @@ if (isset($_POST['submit'])) {
 /*
  * Get current preferences
  */
-$admintheme = cms_userprefs::get_for_user($userid, 'admintheme', AdminTheme::GetDefaultTheme());
-$bookmarks = cms_userprefs::get_for_user($userid, 'bookmarks', 0);
-$ce_navdisplay = cms_userprefs::get_for_user($userid,'ce_navdisplay');
-$date_format_string = cms_userprefs::get_for_user($userid, 'date_format_string', '%x %X');
-$default_cms_language = cms_userprefs::get_for_user($userid, 'default_cms_language');
-$default_parent = (int)cms_userprefs::get_for_user($userid, 'default_parent', -1);
-$hide_help_links = cms_userprefs::get_for_user($userid, 'hide_help_links', 0);
-$homepage = cms_userprefs::get_for_user($userid, 'homepage');
-$indent = cms_userprefs::get_for_user($userid, 'indent', true);
+$admintheme = UserParams::get_for_user($userid, 'admintheme', AdminTheme::GetDefaultTheme());
+$bookmarks = UserParams::get_for_user($userid, 'bookmarks', 0);
+$ce_navdisplay = UserParams::get_for_user($userid,'ce_navdisplay');
+$date_format_string = UserParams::get_for_user($userid, 'date_format_string', '%x %X');
+$default_cms_language = UserParams::get_for_user($userid, 'default_cms_language');
+$default_parent = (int)UserParams::get_for_user($userid, 'default_parent', -1);
+$hide_help_links = UserParams::get_for_user($userid, 'hide_help_links', 0);
+$homepage = UserParams::get_for_user($userid, 'homepage');
+$indent = UserParams::get_for_user($userid, 'indent', true);
 $old_default_cms_lang = $default_cms_language;
-$paging = cms_userprefs::get_for_user($userid, 'paging', 0);
-$syntaxmodule = cms_userprefs::get_for_user($userid, 'syntax_editor');
-$syntaxtype = cms_userprefs::get_for_user($userid, 'syntax_type');
+$paging = UserParams::get_for_user($userid, 'paging', 0);
+$syntaxmodule = UserParams::get_for_user($userid, 'syntax_editor');
+$syntaxtype = UserParams::get_for_user($userid, 'syntax_type');
 $syntaxer = $syntaxmodule;
 if ($syntaxtype) { $syntaxer .= '::'.$syntaxtype; }
-$syntaxtheme = cms_userprefs::get_for_user($userid, 'syntax_theme');
-$wysiwygmodule = cms_userprefs::get_for_user($userid, 'wysiwyg');
-$wysiwygtype = cms_userprefs::get_for_user($userid, 'wysiwyg_type');
+//TODO in/UI by relevant module
+$syntaxtheme = UserParams::get_for_user($userid, 'syntax_theme');
+$wysiwygmodule = UserParams::get_for_user($userid, 'wysiwyg');
+$wysiwygtype = UserParams::get_for_user($userid, 'wysiwyg_type');
 $wysiwyg = $wysiwygmodule;
 if ($wysiwygtype) { $wysiwyg .= '::'.$wysiwygtype; }
-$wysiwygtheme = cms_userprefs::get_for_user($userid, 'wysiwyg_theme');
+//TODO in/UI by relevant module
+$wysiwygtheme = UserParams::get_for_user($userid, 'wysiwyg_theme');
 
-/*
-$modules = ModuleOperations::get_modules_with_capability(CMSMS\CoreCapabilities::USER_SETTINGS);
-Load such modules if not already done
-Run a hooklist to retrieve from those modules, a bunch of:
- * prefgroup name | default = ?
- * intra-prefgroup order | default as-reported
- * prefname
- * publictitle
- * public on-page guide &\| onclick popup help
- * input type
- * js
- * validation stuff
-for use in some micro-formbuilder thingy here
-(OR just produce all the content as a package for passing direct to smarty
-  akin to file-selector )
-*/
+$modules = ModuleOperations::get_modules_with_capability(CoreCapabilities::USER_SETTINGS);
+if ($modules) {
+    // load those modules if not already done
+    foreach ($modules as $i => $modname) {
+        $modules[$i] = Utils::get_module($modname);
+    }
+    $list = HookOperations::do_hook_accumulate('ExtraUserSettings');
+    foreach ($list as $bundle) {
+        // next level is detail for that contributor
+        foreach ($bundle as $propname => $parts) {
+            // $parts  = ['content'=>displayable stuff, 'tab'=>name,'head'=>page-header stuff if any, 'foot'=>page-footer js if sny, 'validate'=>post-submit validation PHP if any]
+            //remember $propname, $parts['validate'] (probably a callable) for post-submit processing
+            //$parts['head','foot'] if any append to corresponding page-construct accumulators
+            //$parts['content'] accumulate for sending to smarty
+            $here = 1;
+        }
+    }
+}
 
 /*
  * Build page
@@ -174,14 +186,14 @@ for use in some micro-formbuilder thingy here
 
 $contentops = ContentOperations::get_instance();
 $modops = ModuleOperations::get_instance();
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 
 // Rich-text (html) editors
 $tmp = $modops->GetCapableModules(CoreCapabilities::WYSIWYG_MODULE);
 $editors = [];
 if ($tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
-        $ob = cms_utils::get_module($tmp[$i]);
+        $ob = Utils::get_module($tmp[$i]);
         if (method_exists($ob, 'ListEditors')) { //aka ($ob instanceof MultiEditor)
             $all = $ob->ListEditors();
             foreach ($all as $editor=>$val) {
@@ -233,7 +245,7 @@ $editors = [];
 $tmp = $modops->GetCapableModules(CoreCapabilities::SYNTAX_MODULE);
 if ($tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
-        $ob = cms_utils::get_module($tmp[$i]);
+        $ob = Utils::get_module($tmp[$i]);
         if (method_exists($ob, 'ListEditors')) { //aka ($ob instanceof MultiEditor)
             $all = $ob->ListEditors();
             foreach ($all as $editor=>$val) {
@@ -280,8 +292,8 @@ if ($tmp) {
 }
 $smarty->assign('syntax_opts', $editors);
 
-$theme = cms_utils::get_theme_object();
-$smarty->assign('helpicon', $theme->DisplayImage('icons/system/info.png', 'help','','','cms_helpicon'));
+$themeObject = Utils::get_theme_object();
+$smarty->assign('helpicon', $themeObject->DisplayImage('icons/system/info.png', 'help','','','cms_helpicon'));
 
 // Admin themes
 $tmp = AdminTheme::GetAvailableThemes();
@@ -328,8 +340,10 @@ $smarty->assign([
     'urlext' => $urlext,
     'userobj'=>$userobj,
     'syntaxer'=>$syntaxer,
+    //TODO in/by relevant module
     'syntaxtheme'=>$syntaxtheme,
     'wysiwyg'=>$wysiwyg,
+    //TODO in/by relevant module
     'wysiwygtheme'=>$wysiwygtheme,
 ]);
 
@@ -359,6 +373,7 @@ $(function() {
 EOS;
 add_page_foottext($out);
 
-include_once 'header.php';
-$smarty->display('usersettings.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('usersettings.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

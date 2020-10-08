@@ -18,7 +18,7 @@
 
 namespace CMSMS;
 
-use CmsApp;
+use CMSMS\AppSingle;
 use CMSMS\Bookmark;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_URL;
@@ -110,13 +110,11 @@ final class BookmarkOperations
 	 */
 	public function LoadBookmarks(int $user_id) : array
 	{
-		$gCms = CmsApp::get_instance();
-		$db = $gCms->GetDb();
-
-		$result = [];
+		$db = AppSingle::Db();
 		$query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE user_id = ? ORDER BY title';
 		$rs = $db->Execute($query, [$user_id]);
 
+		$result = [];
 		while ($rs && ($row = $rs->FetchRow())) {
 			$onemark = new Bookmark();
 			$onemark->bookmark_id = $row['bookmark_id'];
@@ -140,7 +138,7 @@ final class BookmarkOperations
 	public function LoadBookmarkByID(int $id)
 	{
 		$result = null;
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		$query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
 		$rs = $db->Execute($query, [$id]);
@@ -166,8 +164,7 @@ final class BookmarkOperations
 	 */
 	public function InsertBookmark(Bookmark $bookmark) : int
 	{
-		$db = CmsApp::get_instance()->GetDb();
-
+		$db = AppSingle::Db();
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'admin_bookmarks (user_id, url, title) VALUES (?,?,?)';
 		$dbr = $db->Execute($query, [$bookmark->user_id, $bookmark->url, $bookmark->title]);
@@ -182,8 +179,7 @@ final class BookmarkOperations
 	 */
 	public function UpdateBookmark(Bookmark $bookmark) : bool
 	{
-		$db = CmsApp::get_instance()->GetDb();
-
+		$db = AppSingle::Db();
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
 		$query = 'UPDATE '.CMS_DB_PREFIX.'admin_bookmarks SET user_id = ?, title = ?, url = ? WHERE bookmark_id = ?';
 		$dbr = $db->Execute($query, [$bookmark->user_id, $bookmark->title, $bookmark->url, $bookmark->bookmark_id]);
@@ -198,8 +194,7 @@ final class BookmarkOperations
 	 */
 	public function DeleteBookmarkByID(int $id) : bool
 	{
-		$db = CmsApp::get_instance()->GetDb();
-
+		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'admin_bookmarks where bookmark_id = ?';
 		$dbr = $db->Execute($query, [$id]);
 		return ($dbr != false);

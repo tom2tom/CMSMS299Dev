@@ -13,11 +13,11 @@ if ($name) {
     throw new Exception('Unable to retrieve databsase name');
 }
 /*
-TODO if no drop/create authority ...
+TODO if no drop/create authority ... see also 'Modify Database' permission
 $db->Execute('DROP DATABASE IF EXISTS '.$name);
 $db->Execute('CREATE DATABASE IF NOT EXISTS '.$name); BAD doesn't preserve permissions
 */
-$db->Execute('ALTER DATABASE '.$name.' DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci');
+$db->Execute('ALTER DATABASE '.$name.' DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci');
 $db->Execute('USE DATABASE '.$name);
 
 $dbdict = GetDataDictionary($db);
@@ -26,8 +26,8 @@ status_msg(lang('install_createtablesindexes'));
 
 // NOTE site-content-related changes here must be replicated in the data 'skeleton' and DTD in file lib/iosite.functions.php
 
-$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
-//$innotaboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
+$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
+//$innotaboptarray = ['mysqli' => 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 
 $good = lang('done');
 $bad = lang('failed');
@@ -267,7 +267,7 @@ $tbl = CMS_DB_PREFIX.'module_smarty_plugins';
 // name field is case-sensitive, to support liberal indexing
 $flds = '
 id I(2) UNSIGNED AUTO KEY,
-name C(48) COLLATE "utf8_bin" NOT NULL,
+name C(48) COLLATE "utf8mb4_bin" NOT NULL,
 module C(32) NOT NULL,
 type C(32) DEFAULT "function" COLLATE "ascii_general_ci" NOT NULL,
 callback C(255) COLLATE "ascii_bin" NOT NULL,
@@ -390,17 +390,19 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_userprefs_by_user_id', $msg_ret));
 
+//admin_access I(1) DEFAULT 1,
 $flds = '
 user_id I(2) UNSIGNED AUTO KEY,
-username C(80),
+username C(80) NOT NULL,
 password C(128),
 first_name C(64),
 last_name C(64),
 email C(255),
-admin_access I(1) DEFAULT 1,
+oldpassword C(128),
 active I(1) DEFAULT 1,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
+passmodified_date DT
 ';
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'users', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);

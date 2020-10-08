@@ -17,11 +17,11 @@
 
 namespace CMSMS\internal;
 
-use cms_config;
-use cms_utils;
-use CmsApp;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
+use CMSMS\Crypto;
+use const CMS_JOB_KEY;
 use const CMS_ROOT_PATH;
-use function cleanArray;
 use function cms_build_query;
 
 /**
@@ -36,6 +36,14 @@ class GetParameters
      * Salt for keys related to obscured parameters
      */
     private const SECURESALT = '_SE_';
+
+    private const KEYPREF = '\\V^^V/'; //something extremely unlikely to be the prefix of any site-parameter key
+
+    private const JOBID = 'aj_'; //something distinctive for job-URL's
+
+    private const JOBKEY = '_jr_'; // parameter name for a secure repeatable job
+
+    private const JOBONCEKEY = '_jo_'; // parameter name for a secure one-time job
 
     /**
      * @var string rawurlencode()'d parameter key used for obscure params
@@ -57,13 +65,72 @@ class GetParameters
      * Check whether obscured get-parameters are present in $_REQUEST[]
      * @return bool
      */
-    public function obscured_params_exist() : bool
+    protected function obscured_params_exist() : bool
     {
         if (empty($this->_parmkey)) {
-            $key = cms_utils::hash_string(self::SECURESALT.CMS_ROOT_PATH);
+            $key = Crypto::hash_string(self::SECURESALT.CMS_ROOT_PATH);
             $this->_parmkey = rawurlencode($key);
         }
         return (!empty($_REQUEST[$this->_parmkey]) && !empty($_REQUEST['_'.$this->_parmkey]));
+    }
+
+    protected function create_jobtype(int $type, bool $first = false, int $format = 0) : string
+    {
+        switch ($format) {
+            case 2:
+                $sep = '&';
+                $enc = true;
+                break;
+            case 3:
+                $sep = '&';
+                $enc = false;
+                break;
+            default:
+                $sep = '&amp;';
+                $enc = true;
+                break;
+        }
+        $text = ($first) ? '' : $sep;
+        if ($enc) {
+            $text .= rawurlencode(CMS_JOB_KEY).'='.$type;
+        } else {
+            $text .= CMS_JOB_KEY.'='.$type;
+        }
+        return $text;
+    }
+
+    /**
+     * Generate get-parameters for use in a job-URL
+     * @param array $parms URL get-parameters. See GetParameters::create_action_params()
+     * @param bool $onetime Optional flag whether the URL is for one-time use. Default false.
+     * @param int $format Optional format enumerator. Default 0
+     *  See GetParameters::create_action_params()
+     * @return string
+     */
+    public function create_job_params(array $parms, bool $onetime = false, int $format = 0) : string
+    {
+        $parms['id'] = self::JOBID;
+        $str = $parms['action'] ?? 'job';
+        $str .= AppSingle::App()->GetUUID();
+        if ($onetime) {
+            $chars = Crypto::random_string(12, true);
+            while (1) {
+                $key = str_shuffle($chars);
+                $subkey = substr($key, 0, 6);
+                $val = md5($subkey.$str);
+                $savekey = self::KEYPREF.$subkey;
+                if (!AppParams::exists($savekey)) {
+                    AppParams::set($savekey, $val); // a bit racy!
+                    $parms[self::JOBONCEKEY] = $subkey;
+                    break;
+                }
+            }
+        } else {
+            $parms[self::JOBKEY] = hash('fnv132', $str);
+        }
+        $parms[CMS_JOB_KEY] = 2;
+
+        return $this->create_action_params($parms, $format);
     }
 
     /**
@@ -77,14 +144,35 @@ class GetParameters
     public function create_obscured_params(array $parms, int $format = 0) : string
     {
         $this->obscured_params_exist(); // create parameter key
-        $data = json_encode($parms, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        $raw = cms_utils::random_string(mt_rand(10, 20));
-        $privkey = hash_hmac('sha256', CmsApp::get_instance()->GetSiteUUID(), cms_config::get_instance()['db_password']);
 
-        $val = cms_utils::encrypt_string($data, $raw.$privkey, 'internal');
+        if (isset($parms['module']) && isset($parms['id']) && isset($parms['action'])) {
+            $module = trim($parms['module']);
+            $id = trim($parms['id']);
+            $action = trim($parms['action']);
+            $inline = !empty($parms['inline']) ? 1 : 0;
+            unset($parms['module'], $parms['id'], $parms['action'], $parms['inline']);
+            $parms = ['mact' => "$module,$id,$action,$inline"] + $parms;
+        }
+
+        if (isset($parms[CMS_JOB_KEY])) {
+            $type = $parms[CMS_JOB_KEY];
+            unset($parms[CMS_JOB_KEY]);
+        } else {
+            $type = -1;
+        }
+
+        $data = json_encode($parms, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $raw = Crypto::random_string(mt_rand(10, 20));
+        $privkey = hash_hmac('tiger128,3', AppSingle::App()->GetSiteUUID(), AppSingle::Config()['db_password']);
+
+        $val = Crypto::encrypt_string($data, $raw.$privkey, 'internal');
         $sep = ($format == 2) ? '&' : '&amp;';
-        $pubkey = cms_utils::encrypt_string($raw, $privkey);
-        return $this->_parmkey.'='.$this->base64url_encode($val).$sep.'_'.$this->_parmkey.'='.$this->base64url_encode($pubkey);
+        $pubkey = Crypto::encrypt_string($raw, $privkey);
+        $text = $this->_parmkey.'='.$this->base64url_encode($val).$sep.'_'.$this->_parmkey.'='.$this->base64url_encode($pubkey);
+        if ($type != -1) {
+            $text .= $this->create_jobtype($type, false, $format);
+        }
+        return $text;
     }
 
    /**
@@ -112,15 +200,23 @@ class GetParameters
                 break;
         }
 
-		if (isset($parms['module']) && isset($parms['id']) && isset($parms['action'])) {
-			$module = trim($parms['module']);
-			$id = trim($parms['id']);
-			$action = trim($parms['action']);
-			$inline = !empty($parms['inline']) ? 1 : 0;
-			unset($parms['module'], $parms['id'], $parms['action'], $parms['inline']);
-			$parms = ['mact' => "$module,$id,$action,$inline"] + $parms;
-		}
+        if (isset($parms['module']) && isset($parms['id']) && isset($parms['action'])) {
+            $module = trim($parms['module']);
+            $id = trim($parms['id']);
+            $action = trim($parms['action']);
+            $inline = !empty($parms['inline']) ? 1 : 0;
+            unset($parms['module'], $parms['id'], $parms['action'], $parms['inline']);
+            $parms = ['mact' => "$module,$id,$action,$inline"] + $parms;
+        }
 
+        if (isset($parms[CMS_JOB_KEY])) {
+            $type = $parms[CMS_JOB_KEY];
+            unset($parms[CMS_JOB_KEY]);
+        } else {
+            $type = -1;
+        }
+
+        ksort($parms); //security key(s) lead
         $text = '';
         $first = true;
         foreach ($parms as $key => $val) {
@@ -128,7 +224,7 @@ class GetParameters
                 if ($enc) {
                     $key = rawurlencode($key);
                 }
-                if ($format != 0 || $key != 'mact') {
+                if ($enc && ($format != 0 || $key != 'mact')) {
                     $val = rawurlencode($val);
                 }
                 if ($first) {
@@ -146,11 +242,15 @@ class GetParameters
                 $text .= cms_build_query($key, $val, $sep, $enc);
             }
         }
+
+        if ($type != -1) {
+            $text .= $this->create_jobtype($type, false, $format);
+        }
         return $text;
     }
 
     /**
-     * Generate get-parameters for use in an URL
+     * Generate get-parameters for use in an URL (not necessarily one which runs a module-action)
      * @param array $parms URL get-parameters. Should include mact-components
      *  and action-parameters (if any), and generic-parameters (if any)
      * @param int $format Optional format enumerator
@@ -159,19 +259,46 @@ class GetParameters
      *  1 = proper: as for 0, but also encode the 'mact' value
      *  2 = raw: as for 1, except '&' for parameter separators - e.g. for use in js
      *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
-     *   BUT the output must be entitized upstream, not done here
+     *   BUT the output must be entitized upstream, it's not done here
      * @return string
      */
     public function create_action_params(array $parms, int $format = 0) : string
     {
         if ($format < 3) {
 //            $secure = true; //DEBUG
-            $secure = cms_config::get_instance()['secure_action_url'];
+            $secure = AppSingle::Config()['obscure_urls'];
             if ($secure) {
                 return $this->create_obscured_params($parms, $format);
             }
         }
         return $this->create_plain_params($parms, $format);
+    }
+
+    /**
+     * Validate security get-parameters
+     * @param array $parms Some/all current-request parameters
+     * @return boolean indicating validity
+     */
+    protected function check_secure_params(array $parms)
+    {
+        if (isset($parms[self::JOBKEY])) {
+            $str = $parms['action'] ?? 'job';
+            $str .= AppSingle::App()->GetUUID();
+            return $parms[self::JOBKEY] == hash('fnv132', $str);
+        }
+        if (isset($parms[self::JOBONCEKEY])) {
+            $key = $parms[self::JOBONCEKEY];
+            $savekey = self::KEYPREF.$key;
+            if (AppParams::exists($savekey)) {
+                $val = AppParams::get($savekey);
+                AppParams::remove($savekey);
+                $str = $parms['action'] ?? 'job';
+                $hash = md5($key.$str.AppSingle::App()->GetUUID());
+                return $hash == $val;
+            }
+            return false;
+        }
+        return (!isset($parms[CMS_JOB_KEY]) || $parms[CMS_JOB_KEY] != 2);
     }
 
     /**
@@ -189,14 +316,14 @@ class GetParameters
 
         $val = filter_var($_REQUEST['_'.$this->_parmkey], FILTER_SANITIZE_STRING);
         $pubkey = $this->base64url_decode($val);
-        $privkey = hash_hmac('sha256', CmsApp::get_instance()->GetSiteUUID(), cms_config::get_instance()['db_password']);
-        $raw = cms_utils::decrypt_string($pubkey, $privkey);
+        $privkey = hash_hmac('tiger128,3', AppSingle::App()->GetSiteUUID(), AppSingle::Config()['db_password']);
+        $raw = Crypto::decrypt_string($pubkey, $privkey);
 
         $val = filter_var($_REQUEST[$this->_parmkey], FILTER_SANITIZE_STRING);
         $raw2 = $this->base64url_decode($val);
-        $data = cms_utils::decrypt_string($raw2, $raw.$privkey, 'internal');
+        $data = Crypto::decrypt_string($raw2, $raw.$privkey, 'internal');
 
-		if ($data) {
+        if ($data) {
             $parms = json_decode($data, true);
             if (is_array($parms)) {
                 $module = $action = false;
@@ -224,15 +351,20 @@ class GetParameters
                     unset($val);
                 }
                 if ($clear) unset($_REQUEST[$this->_parmkey], $_REQUEST['_'.$this->_parmkey]);
-                if ($module && $action && $id) {
-                    return $parms;
+                if (isset($_REQUEST[CMS_JOB_KEY])) {
+                    $parms[CMS_JOB_KEY] = filter_var($_REQUEST[CMS_JOB_KEY], FILTER_SANITIZE_INT);
+                    if ($parms[CMS_JOB_KEY] == 2) {
+                        //TODO maybe a job-URL, check/process that
+                    }
+                    if ($clear) unset($_REQUEST[CMS_JOB_KEY]);
                 }
+                return $parms;
             }
         }
     }
 
     /**
-     * Return action-parameters interpreted from plaintext parameters in the current request
+     * Return parameters interpreted from plaintext parameters in the current request
      * Non-action parameters are ignored.
      *
      * @param bool $clear Optional flag whether to clear processed $_REQUEST[]
@@ -241,16 +373,19 @@ class GetParameters
      */
     public function decode_plain_params(bool $clear = false)
     {
-        cleanArray($_REQUEST);
         $parms = [];
-        $parts = explode(',', $_REQUEST['mact'], 4);
-        if (isset($parts[0])) $parms['module'] = trim($parts[0]);
-        if (isset($parts[1])) $parms['id'] = trim($parts[1]);
-        if (isset($parts[2])) $parms['action'] = trim($parts[2]);
-        if (isset($parts[3])) $parms['inline'] = ($parts[3]) ? 1 : 0;
+        if (!empty($_REQUEST['mact'])) {
+            $parts = explode(',', $_REQUEST['mact'], 4);
+            $parms['module'] = trim($parts[0]);
+            $parms['id'] = (isset($parts[1])) ? trim($parts[1]) : '';
+            $parms['action'] = (isset($parts[2])) ? trim($parts[2]) : 'defaultadmin';
+            $parms['inline'] = (!empty($parts[3])) ? 1 : 0;
+        }
 
-        if ($clear) unset($_REQUEST['mact']);
-        if ($parms['id'] !== '') {
+        if (isset($parms['id']) && $parms['id'] !== '') {
+            if (!$clear) { $tmp = $_REQUEST['mact'] ?? null; }
+            unset($_REQUEST['mact']);
+
             $id = $parms['id'];
             $len = strlen($id);
             foreach ($_REQUEST as $key => $val) {
@@ -268,13 +403,22 @@ class GetParameters
                     if ($clear) unset($_REQUEST[$key]);
                 }
             }
+            if (!$clear && $tmp) $_REQUEST['mact'] = $tmp;
+        }
+
+        if (isset($_REQUEST[CMS_JOB_KEY])) {
+            $parms[CMS_JOB_KEY] = filter_var($_REQUEST[CMS_JOB_KEY], FILTER_SANITIZE_NUMBER_INT);
+            if ($parms[CMS_JOB_KEY] == 2) {
+                //TODO maybe a job-URL, check/process that
+            }
+            if ($clear) unset($_REQUEST[CMS_JOB_KEY]);
         }
 
         return $parms;
     }
 
     /**
-     * Return action-parameters interpreted from parameters in the current request.
+     * Return parameters interpreted from parameters in the current request.
      * Non-action parameters are ignored.
      *
      * @param bool $clear Optional flag whether to clear processed $_REQUEST[]
@@ -283,12 +427,10 @@ class GetParameters
      */
     public function decode_action_params(bool $clear = false)
     {
-        if (isset($_REQUEST['mact'])) {
-            return $this->decode_plain_params($clear);
-        }
         if ($this->obscured_params_exist()) {
             return $this->decode_obscured_params($clear);
         }
+        return $this->decode_plain_params($clear);
     }
 
     /**
@@ -328,35 +470,75 @@ class GetParameters
      * Return specified action-parameter value(s) (if they exist) in the current request
      * Null is returned for each parameter which doesn't exist.
      *
-     * @param array $keys Wanted parameter name(s)
-     * @return array
+     * @param array $keys Wanted parameter name(s), empty if all are wanted
+     * @return array, empty if some problem occurred
      */
     public function get_plain_values(array $keys) : array
     {
-        cleanArray($_REQUEST);
-        $parts = explode(',', $_REQUEST['mact'], 4);
-        $id = (isset($parts[1])) ? trim($parts[1]) : '';
-        $len = strlen($id);
-        $parms = array_fill_keys($keys, null);
+        if (!empty($_REQUEST['mact'])) {
+            $parts = explode(',', $_REQUEST['mact'], 4);
+            $_REQUEST['module'] = trim($parts[0]);
+            $_REQUEST['id'] = $id = trim($parts[1]);
+            $_REQUEST['action'] = trim($parts[2]);
+            $_REQUEST['inline'] = (!empty($parts[3])) ? 1 : 0;
+            $len = strlen($id);
+            $strip = $len > 0;
+        }
+        else {
+            $strip = false;
+        }
 
+        if (!$keys) {
+            $keys = array_keys($_REQUEST);
+            $key = array_search('mact', $keys);
+            if ($key !== false) {
+                unset($keys[$key]);
+            }
+        }
+
+        if (!$this->check_secure_params($_REQUEST)) {
+            foreach ($_REQUEST as $key=>$val) {
+                unset($_REQUEST[$key]);
+            }
+            return [];
+        }
+
+        $parms = array_fill_keys($keys, null);
         foreach ($keys as $key) {
             switch ($key) {
-            case 'module': if (isset($parts[0])) { $val = trim($parts[0]); break; } else { break 2; }
-            case 'id': if (isset($parts[1])) { $val = $id; break; } else { break 2; }
-            case 'action': if (isset($parts[2])) { $val = trim($parts[2]); break; } else { break 2; }
-            case 'inline': if (isset($parts[3])) { $val = ($parts[3]) ? 1 : 0; break; } else { break 2; }
+            case 'module':
+            case 'id':
+            case 'action':
+                if (isset($_REQUEST[$key])) {
+                    $val = trim($_REQUEST[$key]); break;
+                } else {
+                    continue 2;
+                }
+            case 'inline':
+                if (isset($_REQUEST[$key])) {
+                    $val = (int)$_REQUEST[$key]; break;
+                } else {
+                    continue 2;
+                }
             default:
-                if ($id && isset($_REQUEST[$id.$key])) {
+                if ($strip && isset($_REQUEST[$id.$key])) {
                     $val = $_REQUEST[$id.$key];
                     if (is_numeric($val)) {
                         $val += 0;
                     }
                     elseif (is_scalar($val)) {
-                        //TODO interpret flattened non-scalars
+                        //TODO if (flattened non-scalar) {interpet & store}
                     }
-                }
-                else {
-                    break 2;
+                } elseif (isset($_REQUEST[$key])) {
+                    $val = $_REQUEST[$key];
+                    if (is_numeric($val)) {
+                        $val += 0;
+                    }
+                    elseif (is_scalar($val)) {
+                        //TODO if (flattened non-scalar) {interpet & store}
+                    }
+                } else {
+                    continue 2;
                 }
             }
             $parms[$key] = $val;
@@ -365,61 +547,84 @@ class GetParameters
     }
 
     /**
-     * Return specified action-parameter value(s) (if they exist) in the current request
+     * Return specified parameter value(s) (if they exist) in the current request
      * Null is returned for each parameter which doesn't exist.
      *
-     * @param array $keys Wanted parameter name(s)
-     * @return array
+     * @param array $keys Wanted parameter name(s), empty if all are wanted
+     * @return array, empty if some problem occurred
      */
     public function get_obscured_values(array $keys) : array
     {
-        cleanArray($_REQUEST);
-        $parms = array_fill_keys($keys, null);
-
         $val = filter_var($_REQUEST['_'.$this->_parmkey], FILTER_SANITIZE_STRING);
         $pubkey = $this->base64url_decode($val);
-        $privkey = hash_hmac('sha256', CmsApp::get_instance()->GetSiteUUID(), cms_config::get_instance()['db_password']);
-        $raw = cms_utils::decrypt_string($pubkey, $privkey);
+        $privkey = hash_hmac('tiger128,3', AppSingle::App()->GetSiteUUID(), AppSingle::Config()['db_password']);
+        $raw = Crypto::decrypt_string($pubkey, $privkey);
 
-		$val = filter_var($_REQUEST[$this->_parmkey], FILTER_SANITIZE_STRING);
+        $val = filter_var($_REQUEST[$this->_parmkey], FILTER_SANITIZE_STRING);
         $raw2 = $this->base64url_decode($val);
-        $data = cms_utils::decrypt_string($raw2, $raw.$privkey, 'internal');
+        $data = Crypto::decrypt_string($raw2, $raw.$privkey, 'internal');
 
-		if ($data) {
+        if ($data) {
             $rparms = json_decode($data, true);
             if (is_array($rparms)) {
-                $parms = array_merge($parms, $rparms);
+
+                if (!$this->check_secure_params($_REQUEST + $rparms)) {
+                    foreach ($_REQUEST as $key=>$val) {
+                        unset($_REQUEST[$key]);
+                    }
+                    return [];
+                }
+
+                if (!$keys) {
+                    $keys = array_keys($rparms);
+                }
+                $parms = array_fill_keys($keys, null);
+
+                $wanted = array_intersect_key($parms, $rparms);
+                $parms = $wanted + $parms;
                 foreach ($parms as $key => &$val) {
                     if (is_numeric($val)) {
                         $val += 0;
                     }
                     elseif (is_scalar($val)) {
-                        //TODO interpret flattened non-scalars
+                        //TODO if (flattened non-scalar) {interpet}
                     }
                 }
                 unset($val);
+                return $parms;
             }
         }
-        return $parms;
+
+        foreach ($_REQUEST as $key=>$val) {
+            unset($_REQUEST[$key]);
+        }
+        return [];
     }
 
     /**
-     * Return specified action-parameter value(s) (if they exist) in the current request
+     * Return specified parameter value(s) (if they exist) in the current request
      * Null is returned for each parameter which doesn't exist.
      *
-     * @param mixed $keys string | string[]
-     * @return mixed array | null
+     * @param mixed $keys Optional parameter-name(s) string | string[]
+     *  String may be '*', or array may be []. Default null, hence all parameters
+     * @return array
      */
-    public function get_action_values($keys)
+    public function get_request_values($keys = null) : array
     {
         if ($keys) {
-            if (!is_array($keys)) $keys = [$keys];
-            if (isset($_REQUEST['mact'])) {
-                return $this->get_plain_values($keys);
+            if (!is_array($keys)) {
+                if ($keys != '*') {
+                    $keys = [$keys];
+                } else {
+                    $keys = [];
+                }
             }
-            if ($this->obscured_params_exist()) {
-                return $this->get_obscured_values($keys);
-            }
+        } else {
+            $keys = [];
         }
+        if ($this->obscured_params_exist()) {
+            return $this->get_obscured_values($keys);
+        }
+        return $this->get_plain_values($keys);
     }
 } // class

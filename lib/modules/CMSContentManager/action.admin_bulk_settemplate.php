@@ -17,6 +17,7 @@
 
 use CMSMS\SysDataCache;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
 
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_settemplate' ) exit;
@@ -104,7 +105,7 @@ $tpl->assign('showmore',cms_userprefs::get('cgcm_bulk_showmore'))
 
 $dflt_tpl_id = -1;
 try {
-    $dflt_tpl = TemplateOperations::get_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
+    $dflt_tpl = TemplateOperations::get_default_template_by_type(TemplateType::CORE.'::page');
     $dflt_tpl_id = $dflt_tpl->get_id();
 }
 catch( Throwable $t ) {
@@ -117,7 +118,7 @@ if( $showmore ) {
 }
 else {
     // gotta get the core page template type
-    $_type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
+    $_type = TemplateType::load(TemplateType::CORE.'::page');
     $_tpl = TemplateOperations::template_query(['t:'.$_type->get_id(),'as_list'=>1]);
     $tpl->assign('alltemplates',$_tpl);
 }

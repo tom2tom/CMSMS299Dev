@@ -1,5 +1,5 @@
 <?php
-#procedure to delete an admin group
+#Delete an admin users-group
 #Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,10 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\GroupOperations;
 use CMSMS\UserOperations;
+use CMSMS\Utils;
 
 if (!isset($_GET['group_id'])) {
     return;
@@ -31,45 +33,49 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 check_login();
 
-$urlext = get_secure_param();
 $userid = get_userid();
+
+$themeObject = Utils::get_theme_object();
+
 if (!check_permission($userid, 'Manage Groups')) {
-    cms_utils::get_theme_object()->ParkNotice('error', lang('needpermissionto', '"Manage Groups"'));
-    redirect('listgroups.php'.$urlext);
+//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
+    return;
 }
+
+$urlext = get_secure_param();
 
 $group_id = (int) $_GET['group_id'];
 if ($group_id == 1) {
     // can't delete this group
-    cms_utils::get_theme_object()->ParkNotice('error', lang('error_deletespecialgroup'));
+    Utils::get_theme_object()->ParkNotice('error', lang('error_deletespecialgroup'));
     redirect('listgroups.php'.$urlext);
 }
 
-$userops = UserOperations::get_instance();
+$userops = AppSingle::UserOperations();
 if ($userops->UserInGroup($userid,$group_id)) {
     // can't delete a group to which the current user belongs
-    cms_utils::get_theme_object()->ParkNotice('error', lang('cantremove')); //TODO
+    Utils::get_theme_object()->ParkNotice('error', lang('cantremove')); //TODO
     redirect('listgroups.php'.$urlext);
 }
 
-$groupops = GroupOperations::get_instance();
+$groupops = AppSingle::GroupOperations();
 $groupobj = $groupops->LoadGroupByID($group_id);
 
 if ($groupobj) {
-	$group_name = $groupobj->name;
+    $group_name = $groupobj->name;
 
-	// now do the work
-	Events::SendEvent('Core', 'DeleteGroupPre', [ 'group'=>&$groupobj ] );
+    // now do the work
+    Events::SendEvent('Core', 'DeleteGroupPre', [ 'group'=>&$groupobj ] );
 
-	if ($groupobj->Delete()) {
-		Events::SendEvent('Core', 'DeleteGroupPost', [ 'group'=>&$groupobj ] );
-		// put mention into the admin log
-		audit($group_id, 'Admin User Group: '.$group_name, 'Deleted');
-	} else {
-	    cms_utils::get_theme_object()->ParkNotice('error', lang('failure'));
-	}
+    if ($groupobj->Delete()) {
+        Events::SendEvent('Core', 'DeleteGroupPost', [ 'group'=>&$groupobj ] );
+        // put mention into the admin log
+        audit($group_id, 'Admin User Group: '.$group_name, 'Deleted');
+    } else {
+        $themeObject->ParkNotice('error', lang('failure'));
+    }
 } else {
-    cms_utils::get_theme_object()->ParkNotice('error', lang('invalid'));
+    $themeObject->ParkNotice('error', lang('invalid'));
 }
 
 redirect('listgroups.php'.$urlext);

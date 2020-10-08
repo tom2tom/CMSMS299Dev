@@ -1,5 +1,6 @@
 <?php
 
+use CMSMS\AppParams;
 use CMSMS\NlsOperations;
 
 //these are extra smarty-params for a 'full' login form
@@ -16,7 +17,7 @@ $tplvars['lang_dir'] = NlsOperations::get_language_direction();
 
 //optional, or theme-specific ?
 
-$sitelogo = cms_siteprefs::get('site_logo');
+$sitelogo = AppParams::get('site_logo');
 if ($sitelogo) {
     if (!preg_match('~^\w*:?//~',$sitelogo)) {
         $sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');

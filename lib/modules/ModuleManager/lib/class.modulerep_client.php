@@ -17,12 +17,15 @@
 
 namespace ModuleManager;
 
-use cms_http_request;
-use cms_utils;
 use CmsCommunicationException;
-use CmsException;
 use CmsInvalidDataException;
+use CMSMS\Crypto;
+use CMSMS\HttpRequest;
 use CMSMS\ModuleOperations;
+use CMSMS\Utils;
+use ModuleManager\cached_request;
+use ModuleManager\ModuleInfo;
+use ModuleNoDataException;
 use const CMS_VERSION;
 use const TMP_CACHE_LOCATION;
 
@@ -35,7 +38,7 @@ final class modulerep_client
 
     public static function get_repository_version()
     {
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = Utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
         if( !$url )	return [false,$mod->Lang('error_norepositoryurl')];
         $url .= '/version';
@@ -57,7 +60,7 @@ final class modulerep_client
      */
     public static function get_multiple_moduleinfo($input)
     {
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = Utils::get_module('ModuleManager');
         if( !is_array($input) || count($input) == 0 ) throw new CmsInvalidDataException($mod->Lang('error_missingparam'));
 
         $out = [];
@@ -95,7 +98,7 @@ final class modulerep_client
 
     public static function get_repository_modules($prefix = '',$newest = 1,$exact = FALSE)
     {
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = Utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
         if( !$url )	return [false,$mod->Lang('error_norepositoryurl')];
         $url .= '/moduledetailsgetall';
@@ -122,7 +125,7 @@ final class modulerep_client
 
     public static function get_module_dependencies($module_name,$module_version = '')
     {
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = Utils::get_module('ModuleManager');
         if( !$module_name ) throw new CmsInvalidDataException($mod->Lang('error_missingparams'));
         $url = $mod->GetPreference('module_repository');
         if( $url == '' ) throw new CmsInvalidDataException($mod->Lang('error_norepositoryurl'));
@@ -149,7 +152,7 @@ final class modulerep_client
     // old...
     public static function get_module_depends($xmlfile)
     {
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = Utils::get_module('ModuleManager');
         if( !$xmlfile ) throw new CmsInvalidDataException($mod->Lang('error_nofilename'));
         $url = $mod->GetPreference('module_repository');
         if( $url == '' ) throw new CmsInvalidDataException($mod->Lang('error_norepositoryurl'));
@@ -172,8 +175,8 @@ final class modulerep_client
         if( !$xmlfile ) return FALSE;
 
         // this is manually cached.
-        $tmpname = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'modmgr_'.cms_utils::hash_string(__DIR__.$xmlfile).'.dat';
-        $mod = cms_utils::get_module('ModuleManager');
+        $tmpname = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'modmgr_'.Crypto::hash_string(__DIR__.$xmlfile).'.dat';
+        $mod = Utils::get_module('ModuleManager');
         if( !file_exists($tmpname) || $mod->GetPreference('disable_caching',0) || (time() - filemtime($tmpname)) > 7200 ) {
             @unlink($tmpname);
 
@@ -186,7 +189,7 @@ final class modulerep_client
             if( $size <= $chunksize ) {
                 // downloading the whole file at one shot.
                 $url .= '/modulexml';
-                $req = new cms_http_request();
+                $req = new HttpRequest();
                 $req->execute($url,'','POST',['name'=>$xmlfile]);
                 $status = $req->GetStatus();
                 $result = $req->GetResult();
@@ -204,7 +207,7 @@ final class modulerep_client
             // download in chunks
             $url .= '/modulegetpart';
             $nchunks = (int)ceil($size / $chunksize);
-            $req = new cms_http_request();
+            $req = new HttpRequest();
             for( $i = 0; $i < $nchunks; $i++ ) {
                 $req->execute($url,'','POST', ['name'=>$xmlfile,'partnum'=>$i,'sizekb'=>$orig_chunksize]);
                 $status = $req->GetStatus();
@@ -228,7 +231,7 @@ final class modulerep_client
 
     public static function get_module_md5($xmlfile)
     {
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = Utils::get_module('ModuleManager');
         if( !$xmlfile ) throw new CmsInvalidDataException($mod->Lang('error_nofilename'));
         $url = $mod->GetPreference('module_repository');
         if( $url == '' ) throw new CmsInvalidDataException($mod->Lang('error_norepositoryurl'));
@@ -256,7 +259,7 @@ final class modulerep_client
         $qparms['filter'] = $filter;
         $qparms['clientcmsversion'] = CMS_VERSION;
 
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = Utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
         if( $url == '' ) return [FALSE,$mod->Lang('error_norepositoryurl')];
         $url .= '/modulesearch';
@@ -282,7 +285,7 @@ final class modulerep_client
      */
     public static function get_modulelatest($modules)
     {
-        $mod = cms_utils::get_module('ModuleManager');
+        $mod = Utils::get_module('ModuleManager');
         if( !is_array($modules) || count($modules) == 0 ) throw new CmsInvalidDataException($mod->Lang('error_missingparam'));
 
         $url = $mod->GetPreference('module_repository');
@@ -353,7 +356,3 @@ final class modulerep_client
         }
     }
 } // class
-
-class ModuleManagerException extends CmsException {}
-class ModuleNoDataException extends ModuleManagerException {}
-class ModuleNotFoundException extends ModuleManagerException {}

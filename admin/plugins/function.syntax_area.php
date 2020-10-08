@@ -17,6 +17,7 @@
 
 use CMSMS\AppState;
 use CMSMS\FormUtils;
+//use CMSMS\Utils;
 
 function smarty_function_syntax_area($params, $template)
 {
@@ -74,7 +75,7 @@ function smarty_function_syntax_area($params, $template)
 	$jscript = get_syntaxeditor_setup($parms);
 	if( $jscript ) {
 		if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
-//			$theme = cms_utils::get_theme_object();
+//			$themeObject = Utils::get_theme_object();
 			if( !empty($jscript['head']) ) {
 				add_page_headtext($jscript['head']); // css ?
 			}

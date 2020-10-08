@@ -10,11 +10,7 @@
     <strong>{lang('selectgroup')}:</strong>&nbsp;
     <select name="groupsel" id="groupsel">
     {foreach $allgroups as $thisgroup}
-      {if $thisgroup->id == $disp_group}
-        <option value="{$thisgroup->id}" selected="selected">{$thisgroup->name}</option>
-      {else}
-        <option value="{$thisgroup->id}">{$thisgroup->name}</option>
-      {/if}
+     <option value="{$thisgroup->id}"{if $thisgroup->id == $disp_group} selected="selected"{/if}>{$thisgroup->name}</option>
     {/foreach}
   </select>&nbsp;
   <button type="submit" name="filter" class="adminsubmit icon do">{lang('apply')}</button>
@@ -25,14 +21,12 @@
   <div class="hidden">
     {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
 {/foreach}
-    {$hidden2}
+    {$hidden}
   </div>
 
-  <div class="pageoverflow">
-    <p class="pageoptions">
-      <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
-      <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-    </p>
+  <div class="pageinput postgap">
+    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 
   <table class="pagetable scrollable" id="permtable">
@@ -62,9 +56,23 @@
           {/if}
         </td>
         {foreach $group_list as $thisgroup} {if $thisgroup->id != -1} {$gid=$thisgroup->id}
-        <td class="g{$thisgroup->id}">
-          <input type="hidden" name="pg_{$perm->id}_{$gid}" value="0" />
-          <input type="checkbox" name="pg_{$perm->id}_{$gid}" value="1"{if isset($perm->group[$gid]) || $gid == 1} checked="checked"{/if}{if $gid == 1} disabled="disabled"{/if} />
+        <td class="g{$gid}">
+        <input type="hidden" name="pg_{$perm->id}_{$gid}" value="0" />
+        <input type="checkbox" name="pg_{$perm->id}_{$gid}" value="1"{strip}
+          {if $gid == 1}
+            {if in_array($perm->id, $ultras)}
+              {if isset($perm->group[1])} checked="checked"{/if}
+              {if !$usr1perm} disabled{/if}
+            {else}
+              checked="checked" disabled
+            {/if}
+          {elseif isset($perm->group[$gid])}
+              checked="checked"
+              {if !( $usr1perm || (($grp1perm || $pmod) && !in_array($perm->id, $ultras)) )} disabled{/if}
+          {elseif !( $usr1perm || (($grp1perm || $pmod) && !in_array($perm->id, $ultras)) )}
+              disabled
+          {/if}
+        {/strip} />
         </td>
         {/if} {/foreach}
       </tr>

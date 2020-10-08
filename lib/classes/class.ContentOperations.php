@@ -19,7 +19,6 @@
 namespace CMSMS;
 
 use cms_content_tree;
-use CmsApp;
 use CMSMS\AdminUtils;
 use CMSMS\AppSingle;
 use CMSMS\ContentType;
@@ -91,7 +90,7 @@ final class ContentOperations
 	 */
 	public static function get_instance() : self
 	{
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::ContentOperations()'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::ContentOperations()'));
 		return AppSingle::ContentOperations();
 	}
 
@@ -144,6 +143,32 @@ final class ContentOperations
 	// =========== END OF CONTENT-TYPE METHODS ===========
 
 	/**
+	 * Return all recorded user id's and group id's in a format suitable
+	 * for use in a select field.
+	 *
+	 * @since 2.9 Migrated from ContentBase::GetAdditionalEditorOptions()
+	 * @return array each member like id => name
+	 * Note: group id's are expressed as negative integers in the keys.
+	 */
+	public function ListAdditionalEditors() : array
+	{
+		$opts = [];
+		$allusers = UserOperations::get_instance()->LoadUsers();
+		foreach( $allusers as &$one ) {
+			$opts[$one->id] = $one->username;
+		}
+		$allgroups = GroupOperations::get_instance()->LoadGroups();
+		foreach( $allgroups as &$one ) {
+			if( $one->id == 1 ) continue; // exclude super-admin group (they have all privileges anyways)
+			$val = - (int)$one->id;
+			$opts[$val] = lang('group').': '.$one->name;
+		}
+		unset($one);
+
+		return $opts;
+	}
+
+	/**
 	 * Return a content object for the currently requested page.
 	 *
 	 * @since 1.9
@@ -151,12 +176,13 @@ final class ContentOperations
 	 */
 	public function getContentObject()
 	{
-		return CmsApp::get_instance()->get_content_object();
+		return AppSingle::App()->get_content_object();
 	}
 
 	/**
-	 * Given an array of content_type and serialized_content, construct a
-	 * content object. Load the content type if that hasn't already been done.
+	 * Construct a content object representing the specified content type
+	 * and serialized content.
+	 * Loads the content type if that hasn't already been done.
 	 *
 	 * Expects an associative array with 1 or 2 members (at least):
 	 *   content_type: string Optional content type name, default 'content'
@@ -213,7 +239,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Given a content id, load and return the corresponding content object.
+	 * Load and return a content object representing the specified content id.
 	 * It is loaded from the content cache if possible, or else added to that
 	 * cache after loading.
 	 *
@@ -229,7 +255,7 @@ final class ContentOperations
 		$cache = SystemCache::get_instance();
 		$contentobj = $cache->get($id,'tree_pages');
 		if( !$contentobj ) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id=?';
 			$row = $db->GetRow($query, [$id]);
 			if( $row ) {
@@ -269,7 +295,7 @@ final class ContentOperations
 	{
 		$contentobj = SystemCache::get_instance()->get($alias,'tree_pages');
 		if( $contentobj === null ) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE (content_id=? OR content_alias=?)';
 			if( $only_active ) { $query .= ' AND active=1'; }
 			$id = $db->GetOne($query,[ $alias,$alias ]);
@@ -315,7 +341,7 @@ final class ContentOperations
 		if (strlen($idhier) > 0) $idhier = substr($idhier, 0, -1);
 		if (strlen($pathhier) > 0) $pathhier = substr($pathhier, 0, -1);
 
-        // static properties here >> StaticProperties class ?
+		// static properties here >> StaticProperties class ?
 		// if we actually did something, return the row.
 		static $_cnt;
 		$a = ($hier == $saved_row['hierarchy']);
@@ -339,7 +365,7 @@ final class ContentOperations
 	public function SetAllHierarchyPositions()
 	{
 		// load some data about all pages into memory... and convert into a hash.
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'SELECT content_id, parent_id, item_order, content_alias AS alias, hierarchy, id_hierarchy, hierarchy_path FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
 /*
 		$list = $db->GetArray($sql);
@@ -408,7 +434,7 @@ final class ContentOperations
 	 */
 	public function GetAllContentAsHierarchy(bool $loadcontent = false)
 	{
-		return CmsApp::get_instance()->GetHierarchyManager();
+		return AppSingle::App()->GetHierarchyManager();
 	}
 
 	/**
@@ -444,7 +470,7 @@ final class ContentOperations
 			$query .= ' WHERE '.implode(' AND ',$expr);
 		}
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$dbr = $db->Execute($query);
 
 		if( $loadprops ) {
@@ -521,7 +547,7 @@ final class ContentOperations
 	 */
 	public function LoadChildren(int $id = null, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$cache = SystemCache::get_instance();
 
 		if( $explicit_ids ) {
@@ -632,7 +658,7 @@ final class ContentOperations
 	 */
 	public function SetDefaultContent(int $id)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET default_content=0 WHERE default_content!=0';
 		$db->Execute($sql);
 
@@ -644,7 +670,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Returns the (cached) id of the content marked as default.
+	 * Return the (cached) id of the content marked as default.
 	 *
 	 * @return int The id of the default content page, or 0 if none is recorded
 	 */
@@ -665,7 +691,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Returns an array of all content objects in the system, active or not.
+	 * Return an array of all content objects in the system, active or not.
 	 *
 	 * Caution:  it is entirely possible that this method (and other similar methods of loading content) will result in a memory outage
 	 * if there are a lot of content objects AND/OR large amounts of content properties.  Use with caution.
@@ -676,7 +702,7 @@ final class ContentOperations
 	public function GetAllContent(bool $loadprops=true)
 	{
 		debug_buffer('get all content...');
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$hm = AppSingle::App()->GetHierarchyManager();
 		$list = $hm->getFlatList();
 
 		$this->LoadAllContent($loadprops);
@@ -714,27 +740,27 @@ final class ContentOperations
 	}
 
 	/**
-	 * Returns the content id given a valid content alias.
+	 * Return the content id corresponding to the specified content alias.
 	 *
 	 * @param string $alias The alias to query
 	 * @return int The resulting id.  null if not found.
 	 */
 	public function GetPageIDFromAlias( string $alias )
 	{
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$hm = AppSingle::App()->GetHierarchyManager();
 		$node = $hm->find_by_tag('alias',$alias);
 		if( $node ) return $node->get_tag('id');
 	}
 
 	/**
-	 * Returns the content id given a valid hierarchical position.
+	 * Return the content id corresponding to the specified pages-hierarchy position.
 	 *
 	 * @param string $position The position to query
 	 * @return int The resulting id.  false if not found.
 	 */
 	public function GetPageIDFromHierarchy( string $position )
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE hierarchy = ?';
 		$content_id = $db->GetOne($query, [$this->CreateUnfriendlyHierarchyPosition($position)]);
@@ -744,14 +770,14 @@ final class ContentOperations
 	}
 
 	/**
-	 * Returns the content alias given a valid content id.
+	 * Return the content alias corresponding to the specified content id.
 	 *
 	 * @param int $content_id The content id to query
 	 * @return mixed string The resulting content alias.  null if not found.
 	 */
 	public function GetPageAliasFromID( int $content_id )
 	{
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$hm = AppSingle::App()->GetHierarchyManager();
 		$node = $hm->quickfind_node_by_id($content_id);
 		if( $node ) return $node->get_tag('alias');
 	}
@@ -775,7 +801,7 @@ final class ContentOperations
 			$query .= ' AND content_id != ?';
 			$params[] = $content_id;
 		}
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$out = (int) $db->GetOne($query, $params);
 		return $out > 0;
 	}
@@ -809,15 +835,14 @@ final class ContentOperations
 	}
 
 	/**
-	 * Converts a friendly hierarchy (1.1.1) to an unfriendly hierarchy (00001.00001.00001) for
-	 * use in the database.
+	 * Convert a friendly hierarchy (1.1.1) to an unfriendly hierarchy
+	 * (00001.00001.00001) for use in the database.
 	 *
 	 * @param string $position The hierarchy position to convert
 	 * @return string The unfriendly version of the hierarchy string
 	 */
 	public function CreateFriendlyHierarchyPosition(string $position)
 	{
-		#Change padded numbers back into user-friendly values
 		$tmp = '';
 		$levels = explode('.',$position);
 
@@ -829,15 +854,14 @@ final class ContentOperations
 	}
 
 	/**
-	 * Converts an unfriendly hierarchy (00001.00001.00001) to a friendly hierarchy (1.1.1) for
-	 * use in the database.
+	 * Convert an unfriendly hierarchy (00001.00001.00001) to a 
+	 * friendly hierarchy (1.1.1) for use in the database.
 	 *
 	 * @param string $position The hierarchy position to convert
 	 * @return string The friendly version of the hierarchy string
 	 */
 	public function CreateUnfriendlyHierarchyPosition(string $position)
 	{
-		#Change user-friendly values into padded numbers
 		$tmp = '';
 		$levels = explode('.',$position);
 
@@ -849,7 +873,8 @@ final class ContentOperations
 	}
 
 	/**
-	 * Check if the supplied page id is a parent of the specified base page (or the current page)
+	 * Check whether the supplied page id is a parent of the specified
+	 * base page (or the current page)
 	 *
 	 * @since 2.0
 	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
@@ -859,7 +884,7 @@ final class ContentOperations
 	 */
 	public function CheckParentage(int $test_id,int $base_id = null)
 	{
-		$gCms = CmsApp::get_instance();
+		$gCms = AppSingle::App();
 		if( !$base_id ) $base_id = $gCms->get_content_id();
 		$base_id = (int)$base_id;
 		if( $base_id < 1 ) return FALSE;
@@ -874,7 +899,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Return a list of pages that the user is owner of.
+	 * Return a list of pages that the user owns.
 	 *
 	 * @since 2.0
 	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
@@ -886,7 +911,7 @@ final class ContentOperations
 		if( !is_array($this->_ownedpages) ) {
 			$this->_ownedpages = [];
 
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE owner_id = ? ORDER BY hierarchy';
 			$tmp = $db->GetCol($query,[$userid]);
 			$data = [];
@@ -900,7 +925,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Test if the user specified owns the specified page
+	 * Test whether the specified user owns the specified page
 	 *
 	 * @param int $userid
 	 * @param int $pageid
@@ -935,11 +960,11 @@ final class ContentOperations
 				}
 			}
 
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT A.content_id FROM '.CMS_DB_PREFIX.'additional_users A
-					  LEFT JOIN '.CMS_DB_PREFIX.'content B ON A.content_id = B.content_id
-					  WHERE A.user_id IN ('.implode(',',$list).')
-					  ORDER BY B.hierarchy';
+LEFT JOIN '.CMS_DB_PREFIX.'content B ON A.content_id = B.content_id
+WHERE A.user_id IN ('.implode(',',$list).')
+ORDER BY B.hierarchy';
 			$tmp = $db->GetCol($query);
 			for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 				if( $tmp[$i] > 0 && !in_array($tmp[$i],$data) ) $data[] = $tmp[$i];
@@ -965,7 +990,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Test whether the user has edit-authority for all peers of the specified page id
+	 * Test whether the user has edit-authority for all peers of the specified page
 	 *
 	 * @param int $userid
 	 * @param int $contentid
@@ -978,7 +1003,7 @@ final class ContentOperations
 		$access = $this->GetPageAccessForUser($userid);
 		if( !$access ) return FALSE;
 
-		$hm = CmsApp::get_instance()->GetHierarchyManager(); //TODO below siblings?
+		$hm = AppSingle::App()->GetHierarchyManager(); //TODO below siblings?
 		$node = $hm->quickfind_node_by_id($contentid);
 		if( !$node ) return FALSE;
 		$parent = $node->get_parent();

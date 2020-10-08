@@ -17,12 +17,16 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\GroupOperations;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
+use CMSMS\Template;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplatesGroup;
+use CMSMS\TemplateType;
 use CMSMS\UserOperations;
 use CMSMS\Utils;
 
@@ -77,14 +81,14 @@ try {
 //		$tpl_obj->get_designs();
 		$extraparms['tpl'] = $_REQUEST['tpl'];
 	} else {
-		$tpl_obj = new CmsLayoutTemplate();
+		$tpl_obj = new Template();
 	}
 
 	$defaultable = false;
 	$type_id = $tpl_obj->get_type_id();
 	if ($type_id) {
 		try {
-			$type_obj = CmsLayoutTemplateType::load($type_id);
+			$type_obj = TemplateType::load($type_id);
 			$defaultable = $type_obj->get_dflt_flag();
 		} catch (Throwable $t) {
 			//nothing here
@@ -230,7 +234,7 @@ try {
 		$themeObject->SetSubTitle(lang_by_realm('layout','create_template'));
 	}
 
-	$smarty = CmsApp::get_instance()->GetSmarty();
+	$smarty = AppSingle::Smarty();
 
 	$smarty->assign('extraparms', $extraparms)
 	 ->assign('template', $tpl_obj)
@@ -243,7 +247,7 @@ try {
 		$smarty->assign('relpath', $filepath);
 	}
 */
-	$grps = CmsLayoutTemplateCategory::get_all();
+	$grps = TemplatesGroup::get_all();
 	$out = ['' => lang_by_realm('layout','prompt_none')];
 	if ($grps) {
 		foreach ($grps as $one) {
@@ -252,7 +256,7 @@ try {
 	}
 	$smarty->assign('category_list', $out);
 
-	$types = CmsLayoutTemplateType::get_all();
+	$types = TemplateType::get_all();
 	if ($types) {
 		$out = [];
 		$out2 = [];
@@ -297,17 +301,17 @@ try {
 		}
 		if ($tmp) $smarty->assign('addt_editor_list', $tmp);
 	}
-	$config = cms_config::get_instance();
+	$config = AppSingle::Config();
 	if ($config['develop_mode']) {
 		$smarty->assign('devmode', 1);
 	}
 
 //TODO ensure flexbox css for .rowbox, .boxchild
 
-	$sm = new ScriptOperations();
-	$sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
-	$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
-	$js = $sm->render_inclusion('', false, false);
+	$jsm = new ScriptsMerger();
+	$jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
+	$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
+	$js = $jsm->page_content('', false, false);
 	if ($js) {
 		add_page_foottext($js);
 	}
@@ -319,7 +323,7 @@ try {
 
 	$do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 	if ($do_locking) {
-		CmsApp::get_instance()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
+		AppSingle::App()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
 	}
 	$s1 = json_encode(lang_by_realm('layout','error_lock'));
 	$s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
@@ -399,7 +403,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-	add_page_foottext($js); //not $sm->queue_script() (embedded variables)
+	add_page_foottext($js); //not $jsm->queue_script() (embedded variables)
 
 	$selfurl = basename(__FILE__);
 	$extras = get_secure_param_array() + [
@@ -410,9 +414,10 @@ EOS;
 	 ->assign('extraparms',$extras)
 	 ->assign('urlext',$urlext);
 
-	include_once 'header.php';
-	$smarty->display('edittemplate.tpl');
-	include_once 'footer.php';
+	$content = $smarty->fetch('edittemplate.tpl');
+	require './header.php';
+	echo $content;
+	require './footer.php';
 } catch (Throwable $t) {
 	$themeObject->ParkNotice('error',$t->getMessage());
 	redirect('listtemplates.php'.$urlext);

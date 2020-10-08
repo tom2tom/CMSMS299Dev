@@ -18,8 +18,9 @@
 
 use CMSContentManager\ContentListBuilder;
 use CMSContentManager\ContentListFilter;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
 use CMSMS\UserOperations;
 
 if( !isset($gCms) ) exit;
@@ -184,10 +185,10 @@ $s7 = $this->Lang('cancel');
 $secs = cms_siteprefs::get('lock_refresh', 120);
 $secs = max(30,min(600,$secs));
 
-$sm = new ScriptOperations();
-$sm->queue_matchedfile('jquery.cmsms_poll.js', 2);
-$sm->queue_matchedfile('jquery.ContextMenu.js', 2);
-$out = $sm->render_inclusion('', false, false);
+$jsm = new ScriptsMerger();
+$jsm->queue_matchedfile('jquery.cmsms_poll.js', 2);
+$jsm->queue_matchedfile('jquery.ContextMenu.js', 2);
+$out = $jsm->page_content('', false, false);
 if ($out) {
     add_page_foottext($out);
 }
@@ -474,7 +475,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-add_page_foottext($js); //NOT for ScriptOperations
+add_page_foottext($js); //NOT for ScriptsMerger
 
 if( !isset($pmanage) ) {
     // this should have been set in the included list-populator file
@@ -490,7 +491,7 @@ if( $pmanage ) {
     'EDITOR_UID' => $this->Lang('prompt_editor')];
     $tpl->assign('opts',$opts);
     // list of templates for filtering
-	$list = TemplateOperations::template_query(['originator'=>CmsLayoutTemplateType::CORE, 'as_list'=>1]);
+	$list = TemplateOperations::template_query(['originator'=>TemplateType::CORE, 'as_list'=>1]);
     $tpl->assign('template_list',$list)
     // list of admin users for filtering
      ->assign('user_list',UserOperations::get_instance()->GetList());

@@ -89,12 +89,12 @@ $tpl->assign('pmod',$pmod);
 //$url = $this->create_url($id,'ajax_get_stylesheets');
 //$ajax_stylesheets_url = str_replace('amp;','',$url);
 
-//$sm = new ScriptOperations();
-//$sm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
-//$sm->queue_matchedfile('jquery.ContextMenu.js', 2);
+//$jsm = new ScriptsMerger();
+//$jsm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
+//$jsm->queue_matchedfile('jquery.ContextMenu.js', 2);
 
-//$sm->queue_string($js, 3);
-//$out = $sm->render_inclusion('', false, false);
+//$jsm->queue_string($js, 3);
+//$out = $jsm->page_content('', false, false);
 //if ($out) {
 //    add_page_foottext($out);
 //}

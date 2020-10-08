@@ -2,9 +2,9 @@
 
 namespace AdminSearch; //OR DesignManager ?
 
-use cms_utils;
-use CmsLayoutTemplate;
+use CMSMS\Template;
 use CMSMS\TemplateOperations;
+use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
 use function check_permission;
@@ -16,13 +16,13 @@ final class template_slave extends slave
 {
     public function get_name()
     {
-        $mod = cms_utils::get_module('AdminSearch');
+        $mod = Utils::get_module('AdminSearch');
         return $mod->Lang('lbl_template_search');
     }
 
     public function get_description()
     {
-        $mod = cms_utils::get_module('AdminSearch');
+        $mod = Utils::get_module('AdminSearch');
         return $mod->Lang('desc_template_search');
     }
 
@@ -32,7 +32,7 @@ final class template_slave extends slave
         return check_permission($userid,'Modify Templates');
     }
 
-    private function check_tpl_match(CmsLayoutTemplate $tpl)
+    private function check_tpl_match(Template $tpl)
     {
         if( strpos($tpl->get_name(),$this->get_text()) !== FALSE ) return TRUE;
         if( strpos($tpl->get_content(),$this->get_text()) !== FALSE ) return TRUE;
@@ -44,11 +44,11 @@ final class template_slave extends slave
     {
         // static properties here >> StaticProperties class ?
         static $_mod;
-        if( !$_mod ) $_mod = cms_utils::get_module('DesignManager');
+        if( !$_mod ) $_mod = Utils::get_module('AdminSearch'); //TODO relevant module
         return $_mod;
     }
 
-    private function get_tpl_match_info(CmsLayoutTemplate $tpl)
+    private function get_tpl_match_info(Template $tpl)
     {
         $one = $tpl->get_id();
         $intext = $this->get_text();

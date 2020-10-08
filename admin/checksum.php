@@ -16,7 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Utils;
 
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
 
@@ -29,7 +31,7 @@ check_login();
 $userid = get_userid();
 $access = check_permission($userid, 'Modify Site Preferences');
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 $urlext = get_secure_param();
 if (!$access) {
@@ -66,7 +68,7 @@ function check_checksum_data(&$report)
     return false;
   }
 
-  $salt = md5_file(CMS_ROOT_PATH.'/lib/version.php').md5_file(CMS_ROOT_PATH.'/index.php');
+  $salt = AppSingle::App()->GetSiteUUID();
   $filenotfound = [];
   $notreadable = 0;
   $md5failed = 0;
@@ -165,15 +167,15 @@ function check_checksum_data(&$report)
 
 function generate_checksum_file(&$report)
 {
-  $output = '';
-  $salt = md5_file(CMS_ROOT_PATH.'/lib/version.php').md5_file(CMS_ROOT_PATH.'/index.php');
-
   $excludes = ['^\.svn' , '^CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^uploads$', '^tmp$', '^captchas$' ];
   $tmp = get_recursive_file_list( CMS_ROOT_PATH, $excludes, -1, 'FILES');
   if( count($tmp) <= 1 ) {
     $report = lang('error_retrieving_file_list');
     return false;
   }
+
+  $output = '';
+  $salt = AppSingle::App()->GetSiteUUID();
 
   foreach( $tmp as $file ) {
     $md5sum = md5($salt.md5_file($file));
@@ -196,7 +198,7 @@ function generate_checksum_file(&$report)
   exit;
 }
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 // Get ready
 $smarty->registerPlugin('function','lang','checksum_lang');
 $smarty->force_compile = true;
@@ -222,7 +224,8 @@ $extras = get_secure_param_array();
 
 $smarty->assign('urlext',$urlext)
  ->assign('extraparms',$extras);
-// Display the output
-include_once 'header.php';
-$smarty->display('checksum.tpl');
-include_once 'footer.php';
+
+$content = $smarty->fetch('checksum.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

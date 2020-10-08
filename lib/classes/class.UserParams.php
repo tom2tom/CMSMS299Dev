@@ -18,7 +18,7 @@
 
 namespace CMSMS {
 
-use CmsApp;
+use CMSMS\AppSingle;
 use const CMS_DB_PREFIX;
 use function get_userid;
 
@@ -65,7 +65,7 @@ final class UserParams
 	{
 		if( is_array(self::$_prefs) && isset(self::$_prefs[$userid]) && is_array(self::$_prefs[$userid]) ) return;
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'SELECT preference,value FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
 		$dbr = $db->GetAssoc($query,[$userid]);
 		if( $dbr ) {
@@ -187,7 +187,7 @@ final class UserParams
 			$value = self::SERIAL.serialize($value);
 		}
 		self::_read($userid);
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		if(  !isset(self::$_prefs[$userid][$key]) ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.'userprefs (user_id,preference,value) VALUES (?,?,?)';
 //			$dbr =
@@ -235,7 +235,7 @@ final class UserParams
 			$query .= $query2;
 			$parms[] = $key;
 		}
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$db->Execute($query,$parms);
 		self::_reset();
 	}

@@ -1,6 +1,6 @@
 <?php
 /*
-Class Connection: interaction with a MySQL database
+Class Connection: interaction with a MySQL or compatible database
 Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -19,8 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\Database;
 
-use cms_config;
-use CmsApp;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
 use CMSMS\Database\ResultSet;
@@ -38,9 +37,9 @@ use function debug_to_log;
 
 /**
  * A class defining a MySQL database connection, and mechanisms for working with the database.
- * @since 2.3
+ * @since 2.9
  */
-class Connection
+final class Connection
 {
     /**
      * Defines an error with connecting to the database.
@@ -196,7 +195,7 @@ class Connection
     public function __construct($config = null)
     {
         if (class_exists('mysqli')) {
-            if (!$config) $config = cms_config::get_instance(); //normal API
+            if (!$config) $config = AppSingle::Config(); //normal API
             $parms = [
                 $config['db_hostname'],
                 $config['db_username'],
@@ -208,7 +207,7 @@ class Connection
             }
             mysqli_report(MYSQLI_REPORT_STRICT);
             try {
-                $this->_mysql = new mysqli( ...$parms);
+                $this->_mysql = new mysqli(...$parms);
                 if (!$this->_mysql->connect_error) {
                     $this->_database = $config['db_name'];
                     $this->_type = 'mysqli';
@@ -221,7 +220,9 @@ class Connection
                         $this->_errorhandler = [$this, 'on_error'];
                     }
                     if (!empty($config['set_names'])) {
-                        $this->_mysql->set_charset('utf8');
+                        $this->_mysql->set_charset($config['set_names']);
+                    } else {
+                        $this->_mysql->set_charset('utf8mb4');
                     }
                     if (!empty($config['set_db_timezone'])) {
                         //see also strftzone_adjuster() in misc.functions.php
@@ -394,7 +395,9 @@ class Connection
 
     /**
      * Return a single-quoted and escaped version of $str e.g. for use in a database command.
-     * The characters processed are: NUL (ASCII 0), \n, \r, \, ', ", and \Z (ASCII 26).
+     * The characters processed are the MySQL standards: NUL (ASCII 0), \n, \r, \, ', ", \Z (ASCII 26),
+     * plus '%' and '_' which are are particularly relevant for commands having 'LIKE',
+     * plus '`' and ';', for injection mitigation.
      * Warning: This method may require two way traffic with the database depending upon the database.
      *
      * @param string $str
@@ -404,7 +407,7 @@ class Connection
     public function qStr($str)
     {
         if ($str !== '') {
-            return  "'".$this->_mysql->real_escape_string($str)."'";
+            return  "'".addcslashes($this->_mysql->real_escape_string($str), '%_`;')."'";
         }
         return '';
     }
@@ -426,6 +429,7 @@ class Connection
 
     /**
      * qStr without surrounding single-quotes.
+     * @see Connection::qStr()
      *
      * @param string $str
      *
@@ -434,7 +438,7 @@ class Connection
     public function addQ($str)
     {
         if ($str !== '') {
-            return $this->_mysql->escape_string($str);
+            return addcslashes($this->_mysql->real_escape_string($str), '%_`;');
         }
         return '';
     }
@@ -1053,13 +1057,9 @@ class Connection
     /**
      * For use with sequence tables, this method will generate a new ID value.
      *
-     * This function will not automatically create the sequence table if not specified.
-     *
      * @param string $seqname The name of the sequence table
      *
      * @return int
-     *
-     * @deprecated
      */
     public function genId($seqname)
     {
@@ -1351,7 +1351,7 @@ class Connection
             debug_to_log("Database error: $errtype($error_number) - $error_msg");
             debug_bt_to_log();
             if ($this->_debug) {
-                CmsApp::get_instance()->add_error(debug_display($error_msg, '', false, true));
+                AppSingle::App()->add_error(debug_display($error_msg, '', false, true));
             }
         }
     }

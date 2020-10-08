@@ -21,7 +21,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace FilePicker;
 
-use cms_utils;
+use CMSMS\Crypto;
 use CMSMS\SystemCache;
 use FilePicker\Profile;
 
@@ -59,7 +59,7 @@ class TemporaryProfileStorage
     {
         $grp = self::cachegroup();
         $s = serialize($profile);
-        $key = cms_utils::hash_string($grp . $s . microtime(true));
+        $key = Crypto::hash_string($grp . $s . microtime(true));
         SystemCache::get_instance()->set($key ,$s, $grp);
         return $key;
     }

@@ -17,10 +17,10 @@
 
 namespace CMSMS;
 
-use CmsApp;
 use CmsDataNotFoundException;
 use CmsInvalidDataException;
 use CMSMS\AdminUtils;
+use CMSMS\AppSingle;
 use CMSMS\Database\Connection;
 use CMSMS\StylesheetOperations;
 use CmsSQLErrorException;
@@ -179,7 +179,7 @@ class StylesheetsGroup
 	 * Return the members of this group, as objects or by name
 	 *
 	 * @param bool   $by_name Whether to return members' names. Default false.
-	 * @return assoc. array of CmsLayoutStylesheet objects or name strings. May be empty.
+	 * @return assoc. array of Stylesheet objects or name strings. May be empty.
 	 * Keys (if any) are respective numeric id's.
 	 */
 	public function get_members(bool $by_name = false) : array
@@ -188,7 +188,7 @@ class StylesheetsGroup
 
 		$out = [];
 		if( $by_name ) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->_members).')';
 			$dbr = $db->GetAssoc($query);
 			foreach( $this->_members as $id ) {
@@ -219,7 +219,7 @@ class StylesheetsGroup
 				}
 				else {
 					$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE name IN ('.str_repeat('?,',count($a)-1).'?)';
-					$db = CmsApp::get_instance()->GetDb();
+					$db = AppSingle::Db();
 					$dbr = $db->GetAssoc($query,[$a]);
 					if( $dbr ) {
 						$ids = [];
@@ -235,7 +235,7 @@ class StylesheetsGroup
 			}
 			else {
 				$query = 'SELECT id FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE name = ?';
-				$db = CmsApp::get_instance()->GetDb();
+				$db = AppSingle::Db();
 				$id = $db->GetOne($query,[$a]);
 				if( $id ) return [$id];
 			}
@@ -364,7 +364,7 @@ class StylesheetsGroup
 			throw new CmsInvalidDataException('Name may contain only letters, numbers and underscores.');
 		}
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$gid = $this->get_id();
 		if( !$gid ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
@@ -411,7 +411,7 @@ class StylesheetsGroup
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)';
 		$dbr = $db->Execute($query,[
 			$this->get_name(),
@@ -434,7 +434,7 @@ class StylesheetsGroup
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?';
 		$db->Execute($query,[
 			$this->get_name(),
@@ -472,7 +472,7 @@ class StylesheetsGroup
 		$gid = $this->get_id();
 		if( !$gid ) return;
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$dbr = $db->Execute($query,[$gid]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
@@ -493,7 +493,7 @@ class StylesheetsGroup
 	 */
 	public static function load($val) : self
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		if( is_numeric($val) && $val > 0 ) {
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 			$row = $db->GetRow($query,[(int)$val]);

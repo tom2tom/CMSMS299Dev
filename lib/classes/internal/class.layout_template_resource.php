@@ -18,8 +18,8 @@
 
 namespace CMSMS\internal;
 
-use cms_utils;
-use CmsApp;
+use CMSMS\AppSingle;
+use CMSMS\Utils;
 use Smarty_Resource_Custom;
 use Throwable;
 use const CMS_ASSETS_PATH;
@@ -56,12 +56,12 @@ class layout_template_resource extends Smarty_Resource_Custom
 		}
 		elseif( startswith($name,'appdata;') ) {
 			$name = substr($name,8);
-			$source = cms_utils::get_app_data($name);
+			$source = Utils::get_app_data($name);
 			$mtime = time();
 		}
 		else {
-			// here we replicate CmsLayoutTemplate::get_content() without the overhead of loading that class
-			$db = CmsApp::get_instance()->GetDb();
+			// here we replicate CMSMS\Template::get_content() without the overhead of loading that class
+			$db = AppSingle::Db();
 			$sql = 'SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR name=?';
 			$data = $db->GetRow($sql,[$name,$name]);
 			if( $data ) {

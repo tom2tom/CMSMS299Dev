@@ -17,10 +17,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+//use CMSMS\AppSingle;
+use CMSMS\AdminTheme;
+use CMSMS\AppParams;
 use CMSMS\AppState;
 use CMSMS\FileTypeHelper;
 use CMSMS\SysDataCache;
-use CMSMS\AdminTheme;
 
 const THEME_DTD_VERSION = '1.0';
 const THEME_DTD_MINVERSION = '1.0';
@@ -70,7 +72,7 @@ function import_theme(string $xmlfile) : bool
 			return false;
 		}
 */
-	} elseif ($themename != 'assets') {
+	} elseif ($themename != 'assets') { // this is a theme-folder, not the supports
 		$basepath = cms_join_path(CMS_ADMIN_PATH, 'themes', $themename);
 		if (!(is_dir($basepath) || @mkdir($basepath, 0771, true))) {
 			//cms_notify('error', 'Failed to create directory for theme data');
@@ -155,14 +157,12 @@ function import_theme(string $xmlfile) : bool
 
 function export_theme(string $themename) : bool
 {
-	global $config;
-
 	$all = AdminTheme::GetAvailableThemes(true);
 	if (!isset($all[$themename])) {
 		return false;
 	}
 
-	$helper = new FileTypeHelper($config);
+	$helper = new FileTypeHelper();
 	$xw = new XMLWriter();
 /*
 	$outfile = __DIR__.DIRECTORY_SEPARATOR.$xmlfile;
@@ -273,8 +273,8 @@ function export_theme(string $themename) : bool
 
 /*
 	TODO handle database stuff - design, styles, templates etc
-	$config = cms_config::get_instance();
-	$db = Cmsapp::get_instance()->GetDb();
+	$config = AppSingle::Config();
+	$db = AppSingle::Db();
 */
 
 	$xw->endElement(); // cmsmsadmintheme
@@ -300,10 +300,10 @@ function delete_theme(string $themename) : bool
 	if (isset($all[$themename]) && count($all) > 1) {
 		if (recursive_delete(dirname($all[$themename]))) {
 			//adjust default theme if needed
-			$deftheme = cms_siteprefs::get('logintheme');
+			$deftheme = AppParams::get('logintheme');
 			if ($deftheme && $deftheme == $themename) {
 				unset($all[$themename]);
-				cms_siteprefs::set('logintheme', key($all));
+				AppParams::set('logintheme', key($all));
 				SysDataCache::get_instance()->release('site_preferences');
 			}
 			return true;

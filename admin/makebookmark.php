@@ -16,6 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Bookmark;
 
@@ -35,13 +36,13 @@ $newmark->title = $_GET['title'];
 $result = $newmark->save();
 
 if ($result) {
-    $config = cms_config::get_instance();
-	header('HTTP_REFERER: '.$config['admin_url'].'/index.php');
+    $config = AppSingle::Config();
+	header('HTTP_REFERER: '.$config['admin_url'].'/menu.php');
 	redirect($link);
 }
 
 //TODO use an error-display template perhaps with popup notice
 
-include_once 'header.php';
+require './header.php';
 echo '<h3>'. lang('erroraddingbookmark') . '</h3>';
-include_once 'footer.php';
+require './footer.php';

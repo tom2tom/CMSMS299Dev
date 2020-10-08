@@ -27,15 +27,16 @@ use CMSMS\AutoCookieOperations;
 use CMSMS\BookmarkOperations;
 use CMSMS\ContentOperations;
 use CMSMS\contenttypes\ErrorPage;
+use CMSMS\Crypto;
 use CMSMS\Database\Connection;
 use CMSMS\DeprecationNotice;
 use CMSMS\GroupOperations;
+use CMSMS\internal\ContentTree;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
 use CMSMS\SimpleTagOperations;
 use CMSMS\UserOperations;
-use CMSMS\Utils;
 use RuntimeException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -105,13 +106,13 @@ final class App
     private $_showtemplate = true;
 
     /**
-     * @var Connection object - handle|connection to the site database
+     * @var singleton Connection object - handle|connection to the site database
      * @ignore
      */
     private $db;
 
     /**
-     * @var Smarty object
+     * @var singleton CMSMS\internal\Smarty object
      * @ignore
      */
     private $smarty;
@@ -144,7 +145,7 @@ final class App
     private $errors = [];
 
     /**
-     * @var array Callables methods to be called during shutdown
+     * @var array Callable methods to be called during shutdown
      * @ignore
      */
     private $shutfuncs = [];
@@ -292,9 +293,9 @@ final class App
      * This function controls whether the page template will be processed at all.
      * It must be called early enough in the content generation process.
      *
-     * Ideally this method can be called from within a module action that is called
-     * from within the default content block when content_processing is set to 2
-     * (the default) in the config.php file
+     * Ideally this method can be called from within a module action that is
+     * called from within the default content block when content_processing is
+     * set to 2 (the default) in the config.php file
      *
      * @return void
      * @since 2.3
@@ -302,6 +303,19 @@ final class App
     public function disable_template_processing()
     {
         $this->_showtemplate = false;
+    }
+
+    /**
+     * (Un]set the flag indicating whether to process the (optional) template
+     * currently pending.
+     * This method can be called from anywhere, to temporarily toggle smarty processing
+     *
+     * @since 2.9
+     * @param bool $state optional default true
+     */
+    public function do_template_processing(bool $state = true)
+    {
+        $this->_showtemplate = $state;
     }
 
     /**
@@ -426,7 +440,7 @@ final class App
     {
         if (isset($this->db)) return $this->db;
 
-        $config = AppSingle::AppConfig();
+        $config = AppSingle::Config();
         $this->db = new Connection($config);
         //deprecated since 2.3 (at most): make old stuff available
         require_once cms_join_path(__DIR__, 'Database', 'class.compatibility.php');
@@ -454,7 +468,7 @@ final class App
     */
     public function GetConfig() : AppConfig
     {
-        return AppSingle::AppConfig();
+        return AppSingle::Config();
     }
 
     /**
@@ -564,29 +578,29 @@ final class App
     }
 
     /**
-     * Get a scripts-combiner instance.
+     * Get a scripts-combiner object.
      * @since 2.3
      *
-     * @return ScriptOperations
+     * @return ScriptsMerger
      */
-    public function GetScriptsManager() : ScriptOperations
+    public function GetScriptsManager() : ScriptsMerger
     {
-        return new ScriptOperations();
+        return new ScriptsMerger();
     }
 
     /**
-     * Get a styles-combiner instance.
+     * Get a styles-combiner object.
      * @since 2.3
      *
-     * @return StylesOperations
+     * @return StylesMerger
      */
-    public function GetStylesManager() : StylesOperations
+    public function GetStylesManager() : StylesMerger
     {
-        return new StylesOperations();
+        return new StylesMerger();
     }
 
     /**
-     * Get the async-jobs manager module
+     * Get the async-jobs manager module.
      * @since 2.3
      *
      * @return mixed CMSModule object|null
@@ -597,7 +611,7 @@ final class App
     }
 
     /**
-     * Get a cookie-manager instance
+     * Get a cookie-manager instance.
      * @since 2.3
      *
      * @return AutoCookieOperations
@@ -611,13 +625,15 @@ final class App
      * Get this site's unique identifier
      * @since 2.3
      *
-     * @return string
+     * @return 32-byte english-alphanum string
      */
     public function GetSiteUUID()
     {
         $val = AppParams::get('site_uuid');
         if( !$val ) {
-            $val = Utils::random_string(24, false, true);
+            $r = Crypto::random_string(2, true);
+            $s = Crypto::random_string(32, false, true);
+            $val = strtr($s, '+/', $r);
             AppParams::set('site_uuid', $val);
             AppSingle::SysDataCache()->release('site_preferences');
         }
@@ -629,7 +645,7 @@ final class App
      * @ignore
      * @internal
      * @since 2.9
-     * @todo export this to elsewhere
+     * @todo export this to elsewhere e.g. populate via hooklist
      */
     public function run_shutters()
     {

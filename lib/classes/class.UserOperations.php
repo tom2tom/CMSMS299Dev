@@ -18,9 +18,9 @@
 
 namespace CMSMS;
 
-use cms_siteprefs;
-use CmsApp;
 use CmsException;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\DeprecationNotice;
 use CMSMS\GroupOperations;
 use CMSMS\User;
@@ -68,9 +68,9 @@ final class UserOperations
 //	private function __construct() {}
 
 	/**
-     * @ignore
-     */
-    private function __clone() {}
+	 * @ignore
+	 */
+	private function __clone() {}
 
 	/**
 	 * Get the singleton instance of this class.
@@ -79,7 +79,7 @@ final class UserOperations
 	 */
 	public static function get_instance() : self
 	{
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::UserOperations()'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::UserOperations()'));
 		return AppSingle::UserOperations();
 	}
 
@@ -95,15 +95,15 @@ final class UserOperations
 	public function LoadUsers(int $limit = 10000, int $offset = 0) : array
 	{
 		if (!is_array($this->_users)) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$result = [];
+//, admin_access
+			$query = 'SELECT user_id, username, password, first_name, last_name, email, active
+FROM '.CMS_DB_PREFIX.'users ORDER BY username';
+			$rst = $db->SelectLimit($query, $limit, $offset);
 
-			$query = 'SELECT user_id, username, password, first_name, last_name, email, active, admin_access
-					  FROM '.CMS_DB_PREFIX.'users ORDER BY username';
-			$dbresult = $db->SelectLimit($query, $limit, $offset);
-
-			while ($dbresult && !$dbresult->EOF) {
-				$row = $dbresult->fields;
+			while ($rst && !$rst->EOF) {
+				$row = $rst->fields;
 				$oneuser = new User();
 				$oneuser->id = $row['user_id'];
 				$oneuser->username = $row['username'];
@@ -112,11 +112,11 @@ final class UserOperations
 				$oneuser->email = $row['email'];
 				$oneuser->password = $row['password'];
 				$oneuser->active = $row['active'];
-				$oneuser->adminaccess = $row['admin_access'];
+//				$oneuser->adminaccess = $row['admin_access'];
 				$result[] = $oneuser;
-				$dbresult->MoveNext();
+				$rst->MoveNext();
 			}
-
+			if ($rst) $rst->Close();
 			$this->_users = $result;
 		}
 
@@ -124,21 +124,29 @@ final class UserOperations
 	}
 
 	/**
-	 * Gets a list of all users in a given group.
+	 * Gets all users in a given group.
 	 *
-	 * @param int $groupid Group for the loaded users
+	 * @param int $groupid Group enumerator for the loaded users
 	 *
-	 * @return array An array of User objects
+	 * @return array of User objects
 	 */
 	public function LoadUsersInGroup(int $groupid) : array
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
+		$pref = CMS_DB_PREFIX;
 		$result = [];
+//, u.admin_access
+		$query = <<<EOS
+SELECT U.user_id, U.username, U.password, U.first_name, U.last_name, U.email, U.active
+FROM {$pref}users U
+JOIN {$pref}user_groups UG ON U.user_id = UG.user_id
+JOIN {$pref}groups G ON UG.group_id = G.group_id
+WHERE G.group_id = ?
+ORDER BY username
+EOS;
+		$rst = $db->Execute($query, [$groupid]);
 
-		$query = 'SELECT u.user_id, u.username, u.password, u.first_name, u.last_name, u.email, u.active, u.admin_access FROM '.CMS_DB_PREFIX.'users u, '.CMS_DB_PREFIX.'groups g, '.CMS_DB_PREFIX.'user_groups cg WHERE cg.user_id = u.user_id AND cg.group_id = g.group_id AND g.group_id = ? ORDER BY username';
-		$dbresult = $db->Execute($query, [$groupid]);
-
-		while ($dbresult && $row = $dbresult->FetchRow()) {
+		while ($rst && $row = $rst->FetchRow()) {
 			$oneuser = new User();
 			$oneuser->id = $row['user_id'];
 			$oneuser->username = $row['username'];
@@ -147,10 +155,10 @@ final class UserOperations
 			$oneuser->email = $row['email'];
 			$oneuser->password = $row['password'];
 			$oneuser->active = $row['active'];
-			$oneuser->adminaccess = $row['admin_access'];
+//			$oneuser->adminaccess = $row['admin_access'];
 			$result[] = $oneuser;
 		}
-
+		if ($rst) $rst->Close();
 		return $result;
 	}
 
@@ -160,8 +168,8 @@ final class UserOperations
 	 *
 	 * @param string $username		 Username to load
 	 * @param string $password		 Optional (but not really) Password to check against
-	 * @param mixed $activeonly		 Optional flag whether to load the user if [s]he is active Default true
-	 * @param mixed $adminaccessonly Optional flag whether to load the user if [s]he has admin access Default false
+	 * @param bool $activeonly		 Optional flag whether to load the user if [s]he is active Default true
+	 * @param bool $adminaccessonly  Deprecated since 2.9 Optional flag whether to load the user if [s]he may log in Default false
 	 *
 	 * @return mixed a User-class object or null or false
 	 *
@@ -170,20 +178,20 @@ final class UserOperations
 	public function LoadUserByUsername(string $username, string $password = '', bool $activeonly = true, bool $adminaccessonly = false)
 	{
 		// note: does not use cache
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		$query = 'SELECT user_id,password FROM '.CMS_DB_PREFIX.'users';
 		$where = ['username = ?'];
 		$params = [$username];
 
-		if ($activeonly) {
+		if ($activeonly || $adminaccessonly) {
 			$where[] = 'active = 1';
 		}
-
+/*		Deprecated since 2.9
 		if ($adminaccessonly) {
 			$where[] = 'admin_access = 1';
 		}
-
+*/
 		$query .= ' WHERE '.implode(' AND ', $where);
 
 		$row = $db->GetRow($query,$params);
@@ -203,7 +211,7 @@ final class UserOperations
 					$db->Execute($query, [$oneuser->password, $row['user_id']]);
 				}
 			} else {
-				$tmp = md5(cms_siteprefs::get('sitemask', '').$password);
+				$tmp = md5(AppParams::get('sitemask', '').$password);
 				if (!hash_equals($tmp, $hash)) {
 					sleep(1);
 					return;
@@ -237,12 +245,12 @@ final class UserOperations
 		}
 
 		$result = false;
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
+		//, admin_access
+		$query = 'SELECT username, password, active, first_name, last_name, email FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?';
+		$rst = $db->Execute($query, [$id]);
 
-		$query = 'SELECT username, password, active, first_name, last_name, admin_access, email FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?';
-		$dbresult = $db->Execute($query, [$id]);
-
-		while ($dbresult && $row = $dbresult->FetchRow()) {
+		while ($rst && $row = $rst->FetchRow()) {
 			$oneuser = new User();
 			$oneuser->id = $id;
 			$oneuser->username = $row['username'];
@@ -250,10 +258,11 @@ final class UserOperations
 			$oneuser->firstname = $row['first_name'];
 			$oneuser->lastname = $row['last_name'];
 			$oneuser->email = $row['email'];
-			$oneuser->adminaccess = $row['admin_access'];
+//			$oneuser->adminaccess = $row['admin_access'];
 			$oneuser->active = $row['active'];
 			$result = $oneuser;
 		}
+		if ($rst) $rst->Close();
 
 		$this->_saved_users[$id] = $result;
 		return $result;
@@ -270,15 +279,17 @@ final class UserOperations
 	 */
 	public function InsertUser($user) : int
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$pref = CMS_DB_PREFIX;
 		//setting create_date should be redundant with DT setting
+//admin_access,
 		$query = <<<EOS
 INSERT INTO {$pref}users
-(username, password, active, first_name, last_name, email, admin_access, create_date)
-SELECT ?,?,?,?,?,?,?,NOW() FROM (SELECT 1 AS dmy) Z
+(username,password,active,first_name,last_name,email,create_date)
+SELECT ?,?,?,?,?,?,NOW() FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM {$pref}users T WHERE T.username=?)
 EOS;
+//1,
 		$dbr = $db->Execute($query, [
 			$user->username,
 			$user->password,
@@ -286,7 +297,6 @@ EOS;
 			$user->firstname,
 			$user->lastname,
 			$user->email,
-			1,
 			$user->username
 		]);
 
@@ -305,7 +315,7 @@ EOS;
 	public function UpdateUser($user)
 	{
 		$result = false;
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		// check for username conflict
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE username = ? and user_id != ?';
@@ -315,13 +325,13 @@ EOS;
 		}
 
 		$now = $db->DbTimeStamp(time());
-		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET username = ?, password = ?, active = ?, modified_date = '.$now.', first_name = ?, last_name = ?, email = ?, admin_access = ? WHERE user_id = ?';
-		//$dbresult = $db->Execute($query, array($user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, $user->adminaccess, $user->id));
-		$dbresult = $db->Execute($query, [$user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, 1, $user->id]);
-		if ($dbresult !== false) {
+//admin_access = ?
+		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET username = ?, password = ?, active = ?, modified_date = '.$now.', first_name = ?, last_name = ?, email = ? WHERE user_id = ?';
+//		$user->adminaccess,
+		$dbr = $db->Execute($query, [$user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, $user->id]);
+		if ($dbr !== false) {
 			$result = true;
 		}
-
 		return $result;
 	}
 
@@ -339,25 +349,25 @@ EOS;
 			return false;
 		}
 
-        if (!$this->CheckPermission(get_userid(false), 'Manage Users')) {
+		if (!$this->CheckPermission(get_userid(false), 'Manage Users')) {
 			return false;
 		}
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE user_id = ?';
-		$result = $db->Execute($query, [$id]);
+		$dbr = $db->Execute($query, [$id]);
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'additional_users WHERE user_id = ?';
-		$result = $result && $db->Execute($query, [$id]);
+		$dbr = $dbr && $db->Execute($query, [$id]);
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?';
-		$result = $result && $db->Execute($query, [$id]);
+		$dbr = $dbr && $db->Execute($query, [$id]);
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
-		$result = $result && $db->Execute($query, [$id]);
+		$dbr = $dbr && $db->Execute($query, [$id]);
 
-		return $result;
+		return $dbr;
 	}
 
 	/**
@@ -372,17 +382,18 @@ EOS;
 	public function CountPageOwnershipByID($id)
 	{
 		$result = 0;
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		$query = 'SELECT count(*) AS count FROM '.CMS_DB_PREFIX.'content WHERE owner_id = ?';
-		$dbresult = $db->Execute($query, [$id]);
+		$rst = $db->Execute($query, [$id]);
 
-		if ($dbresult && $dbresult->RecordCount() > 0) {
-			$row = $dbresult->FetchRow();
+		if ($rst && $rst->RecordCount() > 0) {
+			$row = $rst->FetchRow();
 			if (isset($row['count'])) {
 				$result = $row['count'];
 			}
 		}
+		if ($rst) $rst->Close();
 
 		return $result;
 	}
@@ -478,7 +489,7 @@ EOS;
 	public function GetMemberGroups($uid)
 	{
 		if (!is_array($this->_user_groups) || !isset($this->_user_groups[$uid])) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.'user_groups WHERE user_id = ?';
 			$col = $db->GetCol($query, [(int) $uid]);
 			if (!is_array($this->_user_groups)) {
@@ -503,11 +514,11 @@ EOS;
 			return;
 		}
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$now = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."user_groups
 (group_id,user_id,create_date) VALUES (?,?,$now)";
-//		$dbresult =
+//		$dbr =
 		$db->Execute($query, [$gid, $uid]);
 		if (isset($this->_user_groups[$uid])) {
 			unset($this->_user_groups[$uid]);
@@ -531,7 +542,7 @@ EOS;
 		if ($userid == 1) {
 			array_unshift($groups, 1);
 			$groups = array_unique($groups, SORT_NUMERIC);
-        }
+		}
 		if (!$groups) {
 			return false;
 		}
@@ -551,7 +562,7 @@ EOS;
 					return true;
 				}
 			}
-		} catch (CmsException $e) {
+		} catch (Throwable $t) {
 			// nothing here
 		}
 		return false;
@@ -560,8 +571,8 @@ EOS;
 	/**
 	 * Get recorded data about the specified user, without password check.
 	 * Does not use the cache, so use sparingly.
-     * At least one of $username or $userid must be provided.
- 	 *
+	 * At least one of $username or $userid must be provided.
+	 *
 	 * @since 2.3
 	 * @param string $username Optional login/account name, used if provided
 	 * @param int	 $userid Optional user id, used if $username not provided
@@ -581,7 +592,7 @@ EOS;
 			return null;
 		}
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$uid = $db->GetOne($query, $parms);
 		if ($uid) {
 			return $this->LoadUserByID((int)$uid);

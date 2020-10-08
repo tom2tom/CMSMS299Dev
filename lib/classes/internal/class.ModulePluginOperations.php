@@ -18,13 +18,12 @@
 
 namespace CMSMS\internal;
 
-use cms_siteprefs;
-use cms_utils;
-use CmsApp;
 use CMSModule;
+use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\CoreCapabilities;
+use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
@@ -116,9 +115,9 @@ final class ModulePluginOperations
 				$tmp = $modops->GetCapableModules(CoreCapabilities::PLUGIN_MODULE);
 				$tmp2 = $modops->GetMethodicModules('IsPluginModule',TRUE); //deprecated since 2.9
 				if( $tmp || $tmp2 ) {
-					$val = cms_siteprefs::get('smarty_cachemodules', 0);
+					$val = AppParams::get('smarty_cachemodules', 0);
 					if( $val ) {
-						$val = (int)cms_siteprefs::get('smarty_cachelife', -1);
+						$val = (int)AppParams::get('smarty_cachelife', -1);
 						//$val -1 for CACHING_LIFETIME_CURRENT (3600 secs)
 						//$val 0 for CACHING_OFF
 						//$val >0 for explicit cache ttl (secs)
@@ -126,9 +125,9 @@ final class ModulePluginOperations
 
 					foreach( array_unique( array_merge($tmp, $tmp2)) as $module_name ) {
 //						$callable = $module.'::function_plugin';
-//						$sig = cms_utils::hash_string($module.$module.$callable);
+//						$sig = Crypto::hash_string($module.$module.$callable);
 						$callable = self::class.'::'.$module_name; // hence handle via our __callStatic()
-						$sig = cms_utils::hash_string($module_name.$module_name.$callable);
+						$sig = Crypto::hash_string($module_name.$module_name.$callable);
 						$data[$sig] = [
 							'name'=>$module_name,
 							'module'=>$module_name,
@@ -140,11 +139,11 @@ final class ModulePluginOperations
 					}
 				}
 				// add, or replace by, module-plugins recorded in the database
-				$db = CmsApp::get_instance()->GetDb();
+				$db = AppSingle::Db();
 				$query = 'SELECT DISTINCT * FROM '.CMS_DB_PREFIX.'module_smarty_plugins';
 				$list = $db->GetArray($query);
 				foreach ($list as &$row) {
-					$sig = cms_utils::hash_string($row['name'].$row['module'].$row['callback']);
+					$sig = Crypto::hash_string($row['name'].$row['module'].$row['callback']);
 					$data[$sig] = [
 						'name'=>$row['name'],
 						'module'=>$row['module'],
@@ -248,15 +247,7 @@ final class ModulePluginOperations
 		$returnid = AppSingle::App()->get_content_id();
 		$params['returnid'] = $returnid;
 
-		// collect action output (echoed and/or returned, but ignoring literal 1,
-		// probably from inclusion of action code without explict return value
-		// too bad if the action actually returned 1!
-		ob_start();
-		$ret = $modinst->DoActionBase($action, $id, $params, $returnid, $template);
-		if( $ret !== 1 && ($ret || is_numeric($ret)) ) {
-			echo $ret;
-		}
-		$out = ob_get_clean();
+		$out = $modinst->DoActionBase($action, $id, $params, $returnid, $template);
 
 		if( isset($params['assign']) ) {
 			$template->assign(trim($params['assign']), $out);
@@ -423,7 +414,7 @@ final class ModulePluginOperations
 		$dirty = FALSE;
 		$cache = SysDataCache::get_instance();
 		$data = $cache->get('module_plugins');
-		$sig = cms_utils::hash_string($name.$module_name.$callable);
+		$sig = Crypto::hash_string($name.$module_name.$callable);
 		if( !isset($data[$sig]) ) {
 			if( $available == 0 ) {
 				$available = self::AVAIL_FRONTEND;
@@ -484,7 +475,7 @@ final class ModulePluginOperations
 		}
 		$cachable = ($cachable) ? 1 : 0;
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$pref = CMS_DB_PREFIX;
 		$query = <<<EOS
 UPDATE {$pref}module_smarty_plugins SET type=?,callback=?,available=?,cachable=? WHERE name=? AND module=?
@@ -521,7 +512,7 @@ EOS;
 	 */
 	public function _remove_by_module(string $module_name)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?';
 		$dbr = $db->Execute($query,[$module_name]);
 		if( $dbr ) {
@@ -537,7 +528,7 @@ EOS;
 	 */
 	public function _remove_by_name(string $name)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE name=?';
 		$dbr = $db->Execute($query,[$name]);
 		if( $dbr ) {

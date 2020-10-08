@@ -19,6 +19,8 @@
 use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\UserOperations;
+use CMSMS\UserParams;
+use CMSMS\Utils;
 
 if (!isset($_GET['user_id'])) {
     return;
@@ -33,7 +35,7 @@ check_login();
 $urlext = get_secure_param();
 $cur_userid = get_userid();
 if( !check_permission($cur_userid, 'Manage Users') ) {
-    cms_utils::get_theme_object()->ParkNotice('error', lang('needpermissionto', '"Manage Users"'));
+    Utils::get_theme_object()->ParkNotice('error', lang('needpermissionto', '"Manage Users"'));
     redirect('listusers.php'.$urlext);
 }
 
@@ -49,7 +51,7 @@ if ($user_id != $cur_userid) {
         Events::SendEvent( 'Core', 'DeleteUserPre', ['user'=>&$oneuser] );
 
 		if ($oneuser->Delete()) {
-	        cms_userprefs::remove_for_user($user_id);
+	        UserParams::remove_for_user($user_id);
 
 	        Events::SendEvent( 'Core', 'DeleteUserPost', ['user'=>&$oneuser] );
 
@@ -66,6 +68,6 @@ if ($user_id != $cur_userid) {
 }
 
 if ($key) {
-    cms_utils::get_theme_object()->ParkNotice('error', lang($key));
+    Utils::get_theme_object()->ParkNotice('error', lang($key));
 }
 redirect('listusers.php'.$urlext);

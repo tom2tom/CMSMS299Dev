@@ -18,8 +18,11 @@
 
 use CMSMS\CoreCapabilities;
 use CMSMS\Events;
+use CMSMS\HookOperations;
+use CMSMS\TemplateType;
+use CMSMS\Utils as AppUtils;
 use Search\Command\ReindexCommand;
-use Search\Utils;
+use Search\Utils as Utils;
 
 const NON_INDEXABLE_CONTENT = '<!-- pageAttribute: NotSearchable -->';
 
@@ -46,6 +49,8 @@ class Search extends CMSModule
 
     public function InitializeAdmin()
     {
+        HookOperations::add_hook('ExtraSiteSettings',[$this,'ExtraSiteSettings']);
+
         $this->CreateParameter('action','default',$this->Lang('param_action'));
         $this->CreateParameter('count','null',$this->Lang('param_count'));
         $this->CreateParameter('detailpage','null',$this->Lang('param_detailpage'));
@@ -153,6 +158,7 @@ class Search extends CMSModule
         case CoreCapabilities::CORE_MODULE:
         case CoreCapabilities::SEARCH_MODULE:
         case CoreCapabilities::PLUGIN_MODULE:
+        case CoreCapabilities::SITE_SETTINGS:
             return true;
         case 'clicommands':
             return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
@@ -160,17 +166,34 @@ class Search extends CMSModule
         return false;
     }
 
+    /**
+     * Hook function to populate centralised site-settings UI
+     * @internal
+     * @since 2.9
+     * @return array
+     */
+    public function ExtraSiteSettings()
+    {
+        //TODO check permission local or Site Prefs
+        return [
+         'title'=>$this->Lang('settings_title', $this->GetName()),
+         //'desc'=>'useful text goes here', // optional useful text
+         'url'=>$this->create_url('m1_','defaultadmin','',['activetab'=>'options']), // if permitted
+         //optional 'text' => custom link-text | explanation e.g need permission
+        ];
+    }
+
     public static function page_type_lang_callback($str)
     {
-        $mod = cms_utils::get_module('Search');
+        $mod = AppUtils::get_module('Search');
         if( is_object($mod) ) return $mod->Lang('type_'.$str);
     }
 
-    public static function reset_page_type_defaults(CmsLayoutTemplateType $type)
+    public static function reset_page_type_defaults(TemplateType $type)
     {
         if( $type->get_originator() != 'Search' ) throw new UnexpectedValueException('Cannot reset contents for this template type');
 
-        $mod = cms_utils::get_module('Search');
+        $mod = AppUtils::get_module('Search');
         if( !is_object($mod) ) return;
         switch( $type->get_name() ) {
         case 'searchform':

@@ -16,6 +16,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\CoreCapabilities;
+use CMSMS\HookOperations;
 use MicroTiny\Utils;
 
 class MicroTiny extends CMSModule
@@ -57,8 +58,34 @@ class MicroTiny extends CMSModule
     return FALSE;
   }
 
-  //TODO hook functions to populate 'centralised' site and user settings update
+  public function InitializeAdmin()
+  {
+    HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
+    HookOperations::add_hook('ExtraUserSettings', [$this, 'ExtraUserSettings']);
+  }
 
+  /**
+   * Hook function to populate 'centralised' site settings UI
+   * @internal
+   * @since 2.9
+   * @return array
+   */
+  public function ExtraSiteSettings()
+  {
+    //TODO check permission local or Site Prefs
+    return [
+     'title'=> $this->Lang('settings_title'),
+     //'desc'=> 'useful text goes here', // optional useful text
+     'url'=> $this->create_url('m1_', 'defaultadmin', '', ['activetab'=>'settings']), // if permitted
+     //optional 'text' => custom link-text | explanation e.g need permission
+    ];
+  }
+
+  //TODO hook function to populate 'centralised' user-settings UI
+  public function ExtraUserSettings()
+  {
+    return []; //TODO
+  }
 } // class
 
 /**

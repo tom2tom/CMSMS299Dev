@@ -1,4 +1,4 @@
 <?php
-assert(empty(CMS_DEPREC), new CMSMS\DeprecationNotice('class', 'CMSMS\\Hookoperations'));
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'class.Hookoperations.php';
-class_alias('CMSMS\Hookoperations', 'CMSMS\HookManager', false);
+assert(empty(CMS_DEPREC), new CMSMS\DeprecationNotice('class', 'CMSMS\\HookOperations'));
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'class.HookOperations.php';
+class_alias('CMSMS\HookOperations', 'CMSMS\HookManager', false);

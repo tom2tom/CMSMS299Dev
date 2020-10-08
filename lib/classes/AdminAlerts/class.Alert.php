@@ -18,8 +18,8 @@
 
 namespace CMSMS\AdminAlerts;
 
-use cms_siteprefs;
-use cms_utils;
+use CMSMS\AppParams;
+use CMSMS\Utils;
 use InvalidArgumentException;
 use LogicException;
 use function get_userid;
@@ -238,7 +238,7 @@ abstract class Alert
 
         $obj = null;
         if( !empty($tmp['module']) && strtolower($tmp['module']) != 'core' ) {
-            $mod = cms_utils::get_module($tmp['module']); // hopefully module is valid.
+            $mod = Utils::get_module($tmp['module']); // hopefully module is valid.
             if( $mod ) $obj = unserialize($tmp['data']);
         } else {
             $obj = unserialize($tmp['data']);
@@ -272,7 +272,7 @@ abstract class Alert
         $name = trim($name);
         if( !$name ) throw new InvalidArgumentException('Invalid alert name passed to '.__METHOD__);
         if( !startswith( $name, 'adminalert_') ) $name = self::get_fixed_prefname( $name );
-        $tmp = cms_siteprefs::get( $name );
+        $tmp = AppParams::get( $name );
         if( !$tmp && $throw ) throw new LogicException('Could not find an alert with the name '.$name);
         if( !$tmp ) return;
 
@@ -288,12 +288,12 @@ abstract class Alert
      */
     public static function load_all()
     {
-        $list = cms_siteprefs::list_by_prefix('adminalert_');
+        $list = AppParams::list_by_prefix('adminalert_');
         if( !$list ) return;
 
         $out = [];
         foreach( $list as $prefname ) {
-            $tmp = self::decode_object(cms_siteprefs::get($prefname));
+            $tmp = self::decode_object(AppParams::get($prefname));
             if( !is_object($tmp) ) continue;
             $tmp->_loaded = 1;
 
@@ -348,9 +348,9 @@ abstract class Alert
         if( !$this->name ) throw new LogicException('A '.self::class.' object must have a name');
 
         // can only save if preference does not already exist
-        //$tmp = cms_siteprefs::get($this->get_prefname());
+        //$tmp = CMSMS\AppParams::get($this->get_prefname());
         //if( $tmp ) throw new \LogicException('Cannot save a class that has already been saved '.$this->get_prefname());
-        cms_siteprefs::set($this->get_prefname(),self::encode_object($this));
+        AppParams::set($this->get_prefname(),self::encode_object($this));
     }
 
     /**
@@ -359,7 +359,7 @@ abstract class Alert
      */
     public function delete()
     {
-        cms_siteprefs::remove($this->get_prefname());
+        AppParams::remove($this->get_prefname());
         $this->_loaded = false;
     }
 }

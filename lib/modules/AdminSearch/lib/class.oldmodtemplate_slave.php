@@ -2,8 +2,8 @@
 
 namespace AdminSearch;
 
-use cms_utils;
 use CMSMS\TemplateOperations;
+use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function check_permission;
 use function cms_htmlentities;
@@ -14,13 +14,13 @@ final class oldmodtemplate_slave extends slave
 {
   public function get_name()
   {
-    $mod = cms_utils::get_module('AdminSearch');
+    $mod = Utils::get_module('AdminSearch');
     return $mod->Lang('lbl_oldmodtemplate_search');
   }
 
   public function get_description()
   {
-    $mod = cms_utils::get_module('AdminSearch');
+    $mod = Utils::get_module('AdminSearch');
     return $mod->Lang('desc_oldmodtemplate_search');
   }
 
@@ -64,7 +64,7 @@ final class oldmodtemplate_slave extends slave
 
   public function get_section_description()
   {
-    $mod = cms_utils::get_module('AdminSearch');
+    $mod = Utils::get_module('AdminSearch');
     return $mod->Lang('sectiondesc_oldmodtemplates');
   }
 } // class

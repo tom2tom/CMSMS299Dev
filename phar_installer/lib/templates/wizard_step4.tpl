@@ -15,44 +15,44 @@
   <p class="info">{'info_dbinfo'|tr}</p>
 
   <fieldset>
-    <div class="row form-row">
-      <div class="four-col">
+    <div class="flexrow form-row">
+      <div class="cell cols_4">
         <label for="host">{'prompt_dbhost'|tr}</label>
       </div>
-      <div class="eight-col">
+      <div class="cell cols_8">
         <input class="form-field required full-width" type="text" id="host" name="db_hostname" value="{$config.db_hostname}" required="required" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
       </div>
     </div>
-    <div class="row form-row">
-      <div class="four-col">
+    <div class="flexrow form-row">
+      <div class="cell cols_4">
         <label for="name">{'prompt_dbname'|tr}</label>
       </div>
-      <div class="eight-col">
+      <div class="cell cols_8">
         <input class="form-field required full-width" type="text" id="name" name="db_name" value="{$config.db_name}" required="required" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
       </div>
     </div>
-    <div class="row form-row">
-      <div class="four-col">
+    <div class="flexrow form-row">
+      <div class="cell cols_4">
         <label for="user">{'prompt_dbuser'|tr}</label>
       </div>
-      <div class="eight-col">
+      <div class="cell cols_8">
         <input class="form-field required full-width" type="text" id="user" name="db_username" value="{$config.db_username}" required="required" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
       </div>
     </div>
-    <div class="row form-row">
-      <div class="four-col">
+    <div class="flexrow form-row">
+      <div class="cell cols_4">
         <label for="pass">{'prompt_dbpass'|tr}</label>
       </div>
-      <div class="eight-col">
+      <div class="cell cols_8">
         <input class="form-field required full-width" type="password" id="pass" name="db_password" value="{$config.db_password}" required="required" autocomplete="off" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
@@ -60,19 +60,19 @@
       </div>
     </div>
 {*    {if $verbose} *}
-    <div class="row form-row">
-      <div class="four-col">
+    <div class="flexrow form-row">
+      <div class="cell cols_4">
         <label{if !$verbose} class="disabled"{/if} for="port">{'prompt_dbport'|tr}</label>
       </div>
-      <div class="eight-col">
+      <div class="cell cols_8">
         <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="port" name="db_port" value="{$config.db_port}"{if !$verbose} disabled="disabled"{/if} />
       </div>
     </div>
-    <div class="row form-row">
-      <div class="four-col">
+    <div class="flexrow form-row">
+      <div class="cell cols_4">
         <label{if !$verbose} class="disabled"{/if} for="prefix">{'prompt_dbprefix'|tr}</label>
       </div>
-      <div class="eight-col">
+      <div class="cell cols_8">
         <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="prefix" name="db_prefix" value="{$config.db_prefix}"{if !$verbose} disabled="disabled"{/if} />
       </div>
     </div>
@@ -85,43 +85,34 @@
 
   <h3>{'prompt_timezone'|tr}</h3>
   <p>{'info_timezone'|tr}</p>
-  <div class="row form-row">
-    <label for="zone" class="visuallyhidden">{'prompt_timezone'|tr}</label>
+  <div class="row">
     <select id="zone" class="form-field" name="timezone">
       {html_options options=$timezones selected=$config.timezone}
     </select>
   </div>
 
   <h3{if !$verbose} class="disabled"{/if}>{'prompt_queryvar'|tr}</h3>
-  <p{if !$verbose} class="disabled"{/if}>{'info_queryvar'|tr}</p>
-  <div class="row form-row">
-    <div class="four-col">
-      <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="qvar" name="query_var" value="{$config.query_var}"{if !$verbose} disabled="disabled"{/if} />
-    </div>
+  {if $verbose}<p>{'info_queryvar'|tr}</p>{/if}
+  <div class="row">
+    <input class="form-field quarter-width{if !$verbose} disabled{/if}" type="text" id="qvar" name="query_var" value="{$config.query_var}"{if !$verbose} disabled="disabled"{/if} />
   </div>
 
   <h3{if !$verbose} class="disabled"{/if}>{'prompt_adminpath'|tr}</h3>
-  <p{if !$verbose} class="disabled"{/if}>{'info_adminpath'|tr}</p>
-  <div class="row form-row">
-    <div class="six-col">
-      <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="adminp" name="admin_path" value="{$config.admin_path}"{if !$verbose} disabled="disabled"{/if} />
-    </div>
+  {if $verbose}<p>{'info_adminpath'|tr}</p>{/if}
+  <div class="row">
+    <input class="form-field half-width{if !$verbose} disabled{/if}" type="text" id="adminp" name="admin_path" value="{$config.admin_path}"{if !$verbose} disabled="disabled"{/if} />
   </div>
 
   <h3{if !$verbose} class="disabled"{/if}>{'prompt_assetspath'|tr}</h3>
-  <p{if !$verbose} class="disabled"{/if}>{'info_assetspath'|tr}</p>
-  <div class="row form-row">
-    <div class="six-col">
-      <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="assetp" name="assets_path" value="{$config.assets_path}"{if !$verbose} disabled="disabled"{/if} />
-    </div>
+  {if $verbose}<p>{'info_assetspath'|tr}</p>{/if}
+  <div class="row">
+    <input class="form-field half-width{if !$verbose} disabled{/if}" type="text" id="assetp" name="assets_path" value="{$config.assets_path}"{if !$verbose} disabled="disabled"{/if} />
   </div>
 
   <h3{if !$verbose} class="disabled"{/if}>{'prompt_plugspath'|tr}</h3>
-  <p{if !$verbose} class="disabled"{/if}>{'info_plugspath'|tr}</p>
-  <div class="row form-row">
-    <div class="six-col">
-      <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="simplep" name="simpleplugins_path" value="{$config.simple_plugins_path}"{if !$verbose} disabled="disabled"{/if} />
-    </div>
+  {if $verbose}<p>{'info_plugspath'|tr}</p>{/if}
+  <div class="row">
+    <input class="form-field half-width{if !$verbose} disabled{/if}" type="text" id="simplep" name="simpleplugins_path" value="{$config.simple_plugins_path}"{if !$verbose} disabled="disabled"{/if} />
   </div>
 
   <div id="bottom_nav">

@@ -16,12 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Crypto;
 use CMSMS\ModuleOperations;
 use ModuleManager\ModuleInfo;
 use ModuleManager\ModuleNoDataException;
 use ModuleManager\modulerep_client;
 use ModuleManager\operations;
-use ModuleManager\utils;
+use ModuleManager\Utils;
 
 if (!isset($gCms)) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
@@ -55,20 +56,20 @@ try {
                 if( $rec['action'] != 'i' && $rec['action'] != 'u' ) continue;
                 if( !isset($rec['filename']) ) throw new CmsInvalidDataException( $this->Lang('error_missingparams') );
                 if( !isset($rec['size']) ) throw new CmsInvalidDataException( $this->Lang('error_missingparams') );
-                $filename = utils::get_module_xml($rec['filename'],$rec['size']);
+                $filename = Utils::get_module_xml($rec['filename'],$rec['size']);
             }
 
             // expand all of the xml files.
             $ops = new operations($this);
             foreach( $modlist as $key => &$rec ) {
                 if( $rec['action'] != 'i' && $rec['action'] != 'u' ) continue;
-                $xml_filename = utils::get_module_xml($rec['filename'],$rec['size'],$rec['md5sum']??'');
+                $xml_filename = Utils::get_module_xml($rec['filename'],$rec['size'],$rec['md5sum']??'');
                 $rec['tmpfile'] = $xml_filename;
                 $ops->expand_xml_package( $xml_filename, true ); //may throw ...
             }
 
             // now put this data into the session and redirect for the install part
-            $key = '_'.cms_utils::hash_string(__FILE__,true);
+            $key = '_'.Crypto::hash_string(__FILE__,true);
             $_SESSION[$key] = $modlist;
             $this->Redirect($id,'installmodule',$returnid,['doinstall'=>$key]);
         }
@@ -104,7 +105,7 @@ try {
                 debug_buffer('ERROR: problem installing/upgrading/activating '.$name);
                 debug_buffer($rec,'action record');
                 debug_buffer($res,'error info');
-                throw new CmsException($res[1] ?? 'Error processing module '.$name);
+                throw new Exception($res[1] ?? 'Error processing module '.$name);
             }
         }
 
@@ -289,7 +290,7 @@ try {
         $this->RedirectToAdminTab();
     }
 
-    $tpl = $smarty->createTemplate($this->GetTemplateResource('installinfo.tpl'),null,null,$smarty);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('installinfo.tpl')); //,null,null,$smarty);
 
     $tpl->assign('return_url',$this->create_url($id,'defaultadmin',$returnid, ['__activetab'=>'modules']));
     $parms = ['name'=>$module_name,'version'=>$module_version,'filename'=>$module_filename,'size'=>$module_size];

@@ -16,50 +16,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-namespace CMSMS;
+namespace CMSMS {
 
 use ArrayAccess;
-use cms_siteprefs;
-use CmsApp;
 use CmsException;
 use CmsInvalidDataException;
+use CmsNoLockException;
 use CmsLogicException;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
+use CMSMS\Lock;
 use const CMS_DB_PREFIX;
 use function cms_notice;
+use function cms_to_stamp;
 use function cms_warning;
 use function get_userid;
-
-/**
- * An exception indicating an error creating a lock
- *
- * @package CMS
- * @since 2.0
- */
-class CmsLockException extends CmsException {}
-
-/**
- * An exception indicating a uid mismatch wrt a lock (person operating on the lock is not the owner)
- *
- * @package CMS
- * @since 2.0
- */
-class CmsLockOwnerException extends CmsLockException {}
-
-/**
- * An exception indicating an error removing a lock
- *
- * @package CMS
- * @since 2.0
- */
-class CmsUnLockException extends CmsLockException {}
-
-/**
- * An exception indicating an error loading or finding a lock
- *
- * @package CMS
- * @since 2.0
- */
-class CmsNoLockException extends CmsLockException {}
 
 /**
  * A simple class representing a lock on a logical object in CMSMS.
@@ -115,7 +86,7 @@ final class Lock implements ArrayAccess
         $this->_data['type'] = $type;
         $this->_data['oid'] = $oid;
         $this->_data['uid'] = get_userid(FALSE);
-        if( $lifetime == null ) $lifetime = cms_siteprefs::get('lock_timeout',60);
+        if( $lifetime == null ) $lifetime = AppParams::get('lock_timeout',60);
         $t = max(1,(int)$lifetime);
         $this->_data['lifetime'] = $t; // deprecated since 2.3
         $this->_data['expires'] = $t * 60 + time();
@@ -219,7 +190,7 @@ final class Lock implements ArrayAccess
     {
         if( !$this->_dirty ) return;
 
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::Db();
         $dbr = null;
         $this->_data['expires'] = time() + $this->_data['lifetime'] * 60;
         if( !isset($this->_data['id']) ) {
@@ -286,7 +257,7 @@ WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
                                          $this->_data['id'],$this->_data['type'],$this->_data['oid'],$this->_data['uid']));
         }
 
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::Db();
         $query = 'DELETE FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id = ?';
         $db->Execute($query,[$this->_data['id']]);
         unset($this->_data['id']);
@@ -306,7 +277,7 @@ WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
     public static function load_by_id($lock_id,$type,$oid,$uid = null)
     {
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id = ? AND type = ? AND oid = ?';
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::Db();
         $parms = [$lock_id,$type,$oid];
         if( $uid > 0 ) {
             $query .= ' AND uid = ?';
@@ -329,7 +300,7 @@ WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
     public static function load($type,$oid,$uid = null)
     {
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::Db();
         $parms = [$type,$oid];
         if( $uid > 0 ) {
             $query .= ' AND uid = ?';
@@ -340,3 +311,41 @@ WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
         throw new CmsNoLockException('CMSEX_L005','',[$type,$uid,$uid]);
     }
 } // class
+
+} //namespace
+
+namespace {
+
+/**
+ * An exception indicating an error creating a lock
+ *
+ * @package CMS
+ * @since 2.0
+ */
+class CmsLockException extends CmsException {}
+
+/**
+ * An exception indicating a uid mismatch wrt a lock (person operating on the lock is not the owner)
+ *
+ * @package CMS
+ * @since 2.0
+ */
+class CmsLockOwnerException extends CmsLockException {}
+
+/**
+ * An exception indicating an error removing a lock
+ *
+ * @package CMS
+ * @since 2.0
+ */
+class CmsUnLockException extends CmsLockException {}
+
+/**
+ * An exception indicating an error loading or finding a lock
+ *
+ * @package CMS
+ * @since 2.0
+ */
+class CmsNoLockException extends CmsLockException {}
+
+} // global namspace

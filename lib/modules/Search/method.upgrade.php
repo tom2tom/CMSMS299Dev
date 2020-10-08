@@ -17,6 +17,8 @@
 
 use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
+use CMSMS\Template;
+use CMSMS\TemplateType;
 
 if( !isset($gCms) ) exit;
 
@@ -33,7 +35,7 @@ if( version_compare($oldversion,'1.50') < 1 ) {
 
     try {
         try {
-            $type = new CmsLayoutTemplateType();
+            $type = new TemplateType();
             $type->set_originator($me);
             $type->set_name('searchform');
             $type->set_dflt_flag(TRUE);
@@ -48,7 +50,7 @@ if( version_compare($oldversion,'1.50') < 1 ) {
 
         $content = $this->GetTemplate('displaysearch');
         if( $content ) {
-            $tpl = new CmsLayoutTemplate();
+            $tpl = new Template();
             $tpl->set_originator($me);
             $tpl->set_name('Search Form Sample');
             $tpl->set_owner($user_id);
@@ -60,7 +62,7 @@ if( version_compare($oldversion,'1.50') < 1 ) {
         }
 
         try {
-            $type = new CmsLayoutTemplateType();
+            $type = new TemplateType();
             $type->set_originator($me);
             $type->set_name('searchresults');
             $type->set_dflt_flag(TRUE);
@@ -75,7 +77,7 @@ if( version_compare($oldversion,'1.50') < 1 ) {
 
         $content = $this->GetTemplate('displayresult');
         if( $content ) {
-            $tpl = new CmsLayoutTemplate();
+            $tpl = new Template();
             $tpl->set_originator($me);
             $tpl->set_name('Search Results Sample');
             $tpl->set_owner($user_id);

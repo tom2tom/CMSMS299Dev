@@ -9,8 +9,8 @@
 
 namespace CMSMS\AdminAlerts;
 
-use cms_utils;
 use CMSMS\UserOperations;
+use CMSMS\Utils;
 use CmsSecurityCheckTask;
 use InvalidArgumentException;
 use function lang;
@@ -172,7 +172,7 @@ class TranslatableAlert extends Alert
         if( !$modname || strtolower($modname) == 'core' ) {
             return lang($this->_titlekey);
         }
-        $mod = cms_utils::get_module($modname);
+        $mod = Utils::get_module($modname);
         if( $mod ) return $mod->Lang($this->_titlekey);
     }
 
@@ -189,7 +189,7 @@ class TranslatableAlert extends Alert
         if( !$modname || strtolower($modname) == 'core' ) {
             return lang(...$args);
         }
-        $mod = cms_utils::get_module($modname);
+        $mod = Utils::get_module($modname);
         if( $mod ) return $mod->Lang(...$args);
     }
 

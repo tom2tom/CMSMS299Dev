@@ -137,6 +137,7 @@ use const CMS_DEPREC;
 
 namespace {
 
+use CMSMS\App;
 use CMSMS\Database\Connection;
 use CMSMS\Database\DataDictionary;
 use CMSMS\DeprecationNotice;
@@ -155,7 +156,7 @@ use CMSMS\DeprecationNotice;
      *
      * @param mixed Connection|null $conn Optional existing database connection object
      *
-     * @return CMSMS\Database\DataDictionary
+     * @return DataDictionary
      *
      * @deprecated since 2.3
      */
@@ -179,7 +180,7 @@ use CMSMS\DeprecationNotice;
     {
         // now that our connection object is stateless... this is just a wrapper
         // for our global db instance.... but should not be called.
-        return CmsApp::get_instance()->GetDb();
+        return App::get_instance()->GetDb();
     }
 
     /**

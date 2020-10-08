@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\CoreCapabilities;
 use CMSMS\FilePicker as IFilePicker;
@@ -32,14 +33,14 @@ use FilePicker\Utils;
 
 final class FilePicker extends CMSModule implements IFilePicker
 {
-    protected $_dao;
-    protected $_typehelper;
+    public $_dao;
+    public $_typehelper;
 
     public function __construct()
     {
         parent::__construct();
         $this->_dao = new ProfileDAO( $this );
-        $this->_typehelper = new FileTypeHelper( cms_config::get_instance() );
+        $this->_typehelper = new FileTypeHelper();
         //TODO process these as end-of-session (not end-of-request) cleanups
         $callable = TemporaryProfileStorage::get_cleaner();
         $callable = TemporaryInstanceStorage::get_cleaner();
@@ -95,15 +96,27 @@ final class FilePicker extends CMSModule implements IFilePicker
      */
     protected function HeaderJsContent() : string
     {
-        $url = str_replace('&amp;','&',$this->get_browser_url()).'&'.CMS_JOB_KEY.'=1';
-        $prompt = $this->Lang('select_file');
+        $url1 = str_replace('&amp;','&',$this->get_browser_url()).'&'.CMS_JOB_KEY.'=1';
+        $config = AppSingle::Config();
+        $url2 = $config['uploads_url'];
+        $max = $config['max_upload_size'];
+        $choose = $this->Lang('choose');
+        $errm = $this->Lang('error_upload_maxTotalSize');
+        $choose2 = $this->Lang('select_file');
         $local = cms_join_path($this->GetModulePath(),'lib','js');
         $jsurl = cms_get_script('jquery.cmsms_filepicker.js',true,[$local]);
         return <<<EOS
 <script type="text/javascript">
 //<![CDATA[
- cms_data.filepicker_url = '$url';
- cms_data.lang_select_file = '$prompt';
+ if (!cms_data) { cms_data = {}; }
+ $.extend(cms_data, {
+  lang_choose = '$choose',
+  lang_largeupload = '$errm',
+  lang_select_file = '$choose2',
+  filepicker_url = '$url1',
+  uploads_url = '$url2',
+  max_upload_size = $max
+ };
 //]]>
 </script>
 <script type="text/javascript" src="$jsurl"></script>
@@ -146,58 +159,42 @@ EOS;
     }
 */
     /**
-     *
-     * @param string $path Optional
-     * @return array
+     * Get a list of files in the prescribed folder (or else in the
+     *  top-level accesible folder for the current user)
+     * @param string $dirpath Optional filesystem path, absolute or relative
+     * @return array, possibly empty
      */
-    public function GetFileList($path = '')
+    public function GetFileList( $dirpath = '' )
     {
-        if( $path !== '') {
-            $user_id = get_userid(false);
-            $profile = $this->get_default_profile($path, $user_id); //CHECKME
-        }
-        else {
-
-        }
-        return Utils::get_file_list($profile, $path);
+        return Utils::get_file_list(null, $dirpath);
     }
 
     /**
-     *
-     * @param string $profile_name or NULL?
-     * @param mixed $dir Optional
-     * @param mixed $uid Optional
+     * Get the named profile, or otherwise a profile for the specified
+     * folder and/or user.
+     * @param mixed $profile_name string or falsy value
+     * @param mixed $dirpath Optional filesystem path, absolute or relative
+     * @param mixed $uid Optional user-identifier
      * @return Profile
      */
-    public function get_profile_or_default( $profile_name, $dir = null, $uid = null )
+    public function get_profile_or_default( $profile_name, $dirpath = null, $uid = null )
     {
-        $profile_name = trim($profile_name);
-        if( $profile_name ) $profile = $this->_dao->loadByName( $profile_name );
-        else $profile = null;
-        if( !$profile ) {
-            $profile = $this->get_default_profile( $dir, $uid );
-        }
-        return $profile;
+        return Utils::get_profile($profile_name, $dirpath, (int)$uid);
     }
 
     /**
-     *
-     * @param mixed $dir Optional top-directory for the profile UNUSED TODO
-     * @param mixed $uid Optional current user id UNUSED TODO
+     * Get a profile for the specified folder and/or user.
+     * @param mixed $dir Optional top-directory for the profile. Default null hence top-leve
+     * @param mixed $uid Optional user id Default nutt hence current user
      * @return Profile
      */
-    public function get_default_profile( $dir = null, $uid = null )
+    public function get_default_profile( $dirpath = null, $uid = null )
     {
-        $profile = $this->_dao->loadDefault();
-        if( !$profile ) {
-            $profile = new Profile();
-        }
-        return $profile;
+        return Utils::get_profile_for($dirpath, (int)$uid);
     }
 
     /**
-     *
-     * Generate URL which initiates this module's filepicker action
+     * Generate the URL which initiates this module's filepicker action
      * @return string
      */
     public function get_browser_url()
@@ -332,7 +329,7 @@ EOS;
     }
 
     /**
-     * utility function
+     * Utility function
      * @param Profile $profile
      * @param string $filepath
      * @return boolean

@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
 
 $baseurl = $this->GetModuleURLPath();
 $css = <<<EOS
@@ -204,12 +204,12 @@ $js .= <<<EOS
 EOS;
 
 $p = cms_join_path($this->GetModulePath(),'lib','js').DIRECTORY_SEPARATOR;
-$sm = new ScriptOperations();
-$sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
-$sm->queue_file($p.'jquery.datePicker.min.js', 2);
-$sm->queue_file($p.'jquery.timepicker.min.js', 2);
-$sm->queue_string($js, 3);
-$out = $sm->render_inclusion('', false, false);
+$jsm = new ScriptsMerger();
+$jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
+$jsm->queue_file($p.'jquery.datePicker.min.js', 2);
+$jsm->queue_file($p.'jquery.timepicker.min.js', 2);
+$jsm->queue_string($js, 3);
+$out = $jsm->page_content('', false, false);
 if ($out) {
     add_page_foottext($out);
 }

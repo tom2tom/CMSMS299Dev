@@ -7,14 +7,14 @@ $lang = [
 <ul>
 <li>CMSMS Uses a system of named permissions. Access to these permissions determines a users ability to perform different functions in the CMSMS admin console.</li>
 <li>The CMSMS core creates several permissions on installation <em>(occasionally permissions are added or deleted during an upgrade process)</em>. Non-core modules might create additional permissions.</li>
-<li>Permissions are associated with user groups. An authorized user can adjust the permissions that are associated with certain member groups <em>(including the permission to change a group permissions)</em>. The <strong>Admin</strong> group is a special group. Members of this group will have all permissions.</li>
-<li>Admin user accounts can be members of zero or more groups. It might be possible for a user account that is not a member of any groups to still perform various functionality <em>(please read about ownership and additional-editors in the Content Manager help, and Design Manager help).</em>. The first user account <em>(uid == 1)</em>, which is typically named &quot;Admin&quot; is a special user account and will have all permissions.</li>
+<li>Permissions are associated with user groups. An authorized user can adjust the permissions that are associated with certain member groups <em>(including the permission to change a group permissions)</em>.</li><li>The <strong>Admin</strong> group is a special group. Members of this group will have all permissions. Membership of that group may be authorized only by the website's 'super' administrator, an account created during CMSMS installation.</li>
+<li>Admin user accounts can be members of zero or more groups. It might be possible for a user account that is not a member of any groups to still perform various functionality <em>(please read about ownership and additional-editors in the Content Manager help, and Design Manager help)</em>.</li>
 </ul>
 EOS
 ,
 
 // U
-'user_active' => 'If disabled, the user will be prevented from logging in to the admin console',
+'user_active' => 'If disabled, the user will be ignored, but the user\'s data will be preserved',
 'user_admincallout' => 'If enabled, administrative bookmarks <em>(bookmarks)</em> will be enabled allowing you to manage a list of frequently used actions in the admin console.',
 'user_admintheme' => 'Select an admin console theme to use. Themes may have different appearances and/or menu layouts, work differently on mobile devices, or have different features.',
 'user_ce_navdisplay' => 'Select which content field should be displayed in content lists. Options include the page title, or menu text. If &quot;None&quot; is selected, then the site preference will be used',
@@ -33,6 +33,7 @@ EOS
 'user_indent' => 'This option will indent the content list view to illustrate the parent and child page relationship',
 'user_language' => 'Select the language to display for the Admin interface. The list of available languages might vary on each CMSMS install',
 'user_lastname' => 'Optionally specify your surname. This might be used in the Admin theme, or to personally address emails to you',
+//'user_login' => 'If disabled, the user will be prevented from logging in to the admin console', //for adminaccess
 'user_name' => 'The username field must consist of alphanumeric characters, dot(.), underscore, or space',
 'user_password' => 'Please enter a unique, and secure password for this website. The password should be more more than six characters long, and should use a combination of upper case, lower case, non alphanumeric, and digits. Please leave this field blank if you do no wish to change your password.',
 'user_passwordagain' => 'To reduce errors, please enter your password again. Leave this field empty if you do not wish to change your password.',

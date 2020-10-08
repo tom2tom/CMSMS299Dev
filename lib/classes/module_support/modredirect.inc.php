@@ -16,90 +16,105 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+namespace CMSMS\module_support;
+
+use CMSMS\AppSingle;
+use const CMS_ROOT_URL;
+use const CMS_SECURE_PARAM_NAME;
+use const CMS_USER_KEY;
+use function cms_build_query;
+use function get_secure_param;
+use function redirect as doredirect;
+
 /**
- * Methods for modules to do redirection
+ * Methods for modules to do redirection.
  *
+ * @internal
  * @since   1.0
  * @package CMS
  * @license GPL
  */
+/**
+ *
+ * @param type $page PHP script to redirect to
+ * @param array $params URL parameters
+ */
+function RedirectToAdmin($modinst, $page, array $params = [])
+{
+	$url = $page.get_secure_param();
+	if ($params) {
+		foreach ($params as $key=>$value) {
+			if (is_scalar($value)) {
+				$url .= '&'.$key.'='.rawurlencode($value);
+			} else {
+				$url .= '&'.cms_build_query($key, $value, '&');
+			}
+		}
+	}
+	doredirect($url);
+};
 
 /**
- * @access private
+ *
+ * @param string $id
+ * @param type $action
+ * @param mixed $returnid
+ * @param array $params
+ * @param bool $inline
  */
-function cms_module_RedirectToAdmin(&$modinstance, $page, $params=[])
+function Redirect($modinst, $id, $action, $returnid = '', array $params = [], bool $inline = false)
 {
-    $url = $page.get_secure_param();
-    if ($params) {
-        foreach ($params as $key=>$value) {
-            if (is_scalar($value)) {
-                $url .= '&'.$key.'='.rawurlencode($value);
-            } else {
-                $url .= '&'.cms_build_query($key, $value, '&');
-            }
-        }
-    }
-    redirect($url);
-}
+	// Suggestion by Calguy to make sure 2 actions don't get sent
+	if (isset($params['action'])) {
+		unset($params['action']);
+	}
+	if (isset($params['id'])) {
+		unset($params['id']);
+	}
+	if (isset($params['module'])) {
+		unset($params['module']);
+	}
+	if (!$inline && $returnid != '') {
+		$id = 'cntnt01';
+	}
 
-/**
- * @access private
- */
-function cms_module_Redirect(&$modinstance, $id, $action, $returnid='', $params=[], $inline=false)
-{
-    $name = $modinstance->GetName();
+	if ($returnid != '') {
+		$contentops = AppSingle::ContentOperations();
+		$content = $contentops->LoadContentFromId($returnid); //both types of Content class support GetURL()
+		if (!is_object($content)) {
+			// no destination content object
+			return;
+		}
+		$text = $content->GetURL();
 
-    // Suggestion by Calguy to make sure 2 actions don't get sent
-    if (isset($params['action'])) {
-        unset($params['action']);
-    }
-    if (isset($params['id'])) {
-        unset($params['id']);
-    }
-    if (isset($params['module'])) {
-        unset($params['module']);
-    }
-    if (!$inline && $returnid != '') {
-        $id = 'cntnt01';
-    }
+		$parts = parse_url($text);
+		if (isset($parts['query']) && $parts['query'] != '?') {
+			$text .= '&';
+		} else {
+			$text .= '?';
+		}
+	}
+	else {
+		$text = CMS_ROOT_URL.'/lib/moduleinterface.php?';
+	}
 
-    $text = '';
-    if ($returnid != '') {
-        $contentops = ContentOperations::get_instance();
-        $content = $contentops->LoadContentFromId($returnid); //both types of Content class support GetURL()
-        if (!is_object($content)) {
-            // no destination content object
-            return;
-        }
-        $text .= $content->GetURL();
+	$name = $modinst->GetName();
+	$text .= 'mact='.$name.','.$id.','.$action.','.($inline ? 1 : 0);
+	if ($returnid != '') {
+		$text .= '&'.$id.'returnid='.$returnid;
+	}
+	else {
+		$text .= '&'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+	}
 
-        $parts = parse_url($text);
-        if (isset($parts['query']) && $parts['query'] != '?') {
-            $text .= '&';
-        } else {
-            $text .= '?';
-        }
-    }
-    else {
-        $text .= 'moduleinterface.php?';
-    }
-
-    $text .= 'mact='.$name.','.$id.','.$action.','.($inline ? 1 : 0);
-    if ($returnid != '') {
-        $text .= '&'.$id.'returnid='.$returnid;
-    }
-    else {
-        $text .= '&'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-    }
-
-    foreach ($params as $key=>$value) {
-        if ($key && $value !== '') {
-            if (is_scalar($value)) {
-                $text .= '&'.$id.$key.'='.rawurlencode($value);
-            } else {
-                $text .= '&'.cms_build_query($id.$key, $value, '&');
-            }
-        }
-    }
-    redirect($text);
-}
+	foreach ($params as $key=>$value) {
+		if ($key && $value !== '') {
+			if (is_scalar($value)) {
+				$text .= '&'.$id.$key.'='.rawurlencode($value);
+			} else {
+				$text .= '&'.cms_build_query($id.$key, $value, '&');
+			}
+		}
+	}
+	doredirect($text);
+};

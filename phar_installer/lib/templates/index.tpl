@@ -34,8 +34,8 @@
       </a>
       <span class="installer-title">{'apptitle'|tr}</span>
     </div>
-    <div class="row installer-section">
-      <div class="four-col installer-steps-section">
+    <div class="flexrow installer-section">
+      <div class="cell cols_4 installer-steps-section">
         <div class="inner">
         {block name='aside_content'}
           {if isset($wizard_steps)}
@@ -55,7 +55,7 @@
         {/block}
         </div>
       </div>
-      <main role="main" class="eight-col installer-content-section">
+      <main role="main" class="cell cols_8 installer-content-section">
         <div class="inner">
           <h1>{if isset($title)}{$title}{else}{'install_upgrade'|tr}{/if}</h1>
       {if isset($subtitle)}<h3>{$subtitle}</h3>{/if}

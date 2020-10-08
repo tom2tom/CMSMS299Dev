@@ -18,10 +18,9 @@
 
 namespace CMSMS;
 
-use cms_config;
-use cms_utils;
-use CmsApp;
-use CMSMS\HookManager;
+use CMSMS\AppSingle;
+use CMSMS\HookOperations;
+use CMSMS\Utils;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -51,14 +50,20 @@ class FormUtils
 
     // static properties here >> StaticProperties class ?
     /**
-     * Names of rich-text-editor modules specified for use during the current request
+     * Names of and related parameters for rich-text-editor modules specified
+     * for use during the current request
+     * In principle, might be > 1 use of any modname and/or > 1 modname
+     * Array members like modname=>[['id' => $id, 'stylesheet' => $stylesheet_name], ...]
      * @ignore
      * @deprecated since 2.9
      */
     protected static $_activated_wysiwyg = [];
 
     /**
-     * Names of syntax-highlight-editor modules specified for use during the current request
+     * Names of syntax-highlight-editor modules specified for use during
+     * the current request
+     * In principle, might be > 1 instance of any modname and/or > 1 modname
+     * Array members like modname=>[['id' => $id], ...]
      * @ignore
      * @deprecated since 2.9
      */
@@ -100,8 +105,8 @@ class FormUtils
 
     /**
      * Get xhtml for a form element.
-     * This is an interface between the deprecated CMSModule methods for form
-     * element creation, and their replacements in this class.
+     * This is an interface between the deprecated CMSModule methods for
+     * form-element creation, and their replacements in this class.
      *
      * @since 2.9
      * @deprecated since 2.9 needed only while the CMSModule content-creation methods are supported
@@ -112,7 +117,7 @@ class FormUtils
      *
      * @return string
      */
-    public static function create(&$mod, string $method, array $parms) : string
+    public static function create($mod, string $method, array $parms) : string
     {
         //interpret & translate $method
         if (strncasecmp($method, 'create', 6) == 0) {
@@ -361,7 +366,7 @@ class FormUtils
             //alias for $htmlid or $modid - assume the former
             $modid = '';
             $tmp = $id;
-        } elseif (CmsApp::get_instance()->is_frontend_request()) {
+        } elseif (AppSingle::App()->is_frontend_request()) {
             $modid = 'cntnt01';
             $tmp = $modid.$name;
         } else {
@@ -726,21 +731,25 @@ class FormUtils
     }
 
     /**
-     * Record a syntax-highlight-editor module specified during generation of a textarea.
+     * Record a syntax-highlight-editor module specified during generation
+     * of a textarea.
      * @internal
      * @ignore
+     * @param string module_name (required)
+     * @param string id (optional) the id attribute of the textarea element
      */
-    protected static function add_syntax(string $module_name)
+    protected static function add_syntax(string $module_name, string $id = self::NONE)
     {
         if ($module_name) {
-            if (!in_array($module_name, self::$_activated_syntax)) {
-                self::$_activated_syntax[] = $module_name;
+            if (!isset(self::$_activated_syntax[$module_name])) {
+                self::$_activated_syntax[$module_name] = [];
             }
+            self::$_activated_syntax[$module_name][] = ['id' => $id];
         }
     }
 
     /**
-     * Get the specified syntax-highlighter module(s)
+     * Get the recorded syntax-highlighter module(s)
      *
      * @return array
      */
@@ -750,15 +759,16 @@ class FormUtils
     }
 
     /**
-     * Record a richtext-editor (aka wysiwyg) module specified during generation
-     * of a textarea.
-     * For frontend editing, the {cms_init_editor} plugin must be included in the
-     * head part of the page/template, to process the info recorded by this method.
+     * Record a richtext-editor (aka wysiwyg) module specified during
+     * generation of a textarea.
+     * For frontend editing, the {cms_init_editor} plugin must be included
+     * in the head section of the page/template, to process the info
+     * recorded by this method.
      *
      * @internal
      * @ignore
      * @param string module_name (required)
-     * @param string id (optional) the id of the textarea element)
+     * @param string id (optional) the id attribute of the textarea element
      * @param string stylesheet_name (optional) the name of a stylesheet to include with this area (some WYSIWYG editors may not support this)
      */
     protected static function add_wysiwyg(string $module_name, string $id = self::NONE, string $stylesheet_name = self::NONE)
@@ -772,7 +782,7 @@ class FormUtils
     }
 
     /**
-     * Get the specified richtext editor module(s)
+     * Get the recorded richtext editor module(s)
      *
      * @return array
      */
@@ -885,7 +895,7 @@ class FormUtils
                 } else {
                     $parms['class'] .= ' '.$module_name;
                 }
-                self::add_syntax($module_name);
+                self::add_syntax($module_name, $id);
             }
         }
 
@@ -954,7 +964,7 @@ class FormUtils
      *
      * @return string
      */
-    public static function create_form_start(&$mod, array $parms) : string
+    public static function create_form_start($mod, array $parms) : string
     {
         static $_formcount = 1;
         //must have these $parms, each with a usable value
@@ -984,14 +994,14 @@ class FormUtils
 
         if (!empty($returnid) || $returnid === 0) {
             $returnid = (int)$returnid; //OR filter_var() ?
-            $content_obj = cms_utils::get_current_content(); //CHECKME ever relevant when CREATING a form?
+            $content_obj = Utils::get_current_content(); //CHECKME ever relevant when CREATING a form?
             $goto = ($content_obj) ? $content_obj->GetURL() : 'index.php';
-            if (strpos($goto, ':') !== false && CmsApp::get_instance()->is_https_request()) {
-                //TODO generally support the websocket protocol
+            if (strpos($goto, ':') !== false && AppSingle::App()->is_https_request()) {
+                //TODO generally support the websocket protocol 'wss' : 'ws'
                 $goto = str_replace('http:', 'https:', $goto);
             }
         } else {
-            $goto = 'moduleinterface.php';
+            $goto = CMS_ROOT_URL.'/lib/moduleinterface.php';
         }
 
         if (empty($enctype)) unset($parms['enctype']);
@@ -1014,7 +1024,7 @@ class FormUtils
        if ($returnid != '') { //NB not strict - it may be null
             $out .= '<input type="hidden" name="'.$id.'returnid" value="'.$returnid.'" />'."\n";
             if ($inline) {
-                $config = cms_config::get_instance();
+                $config = AppSingle::Config();
                 $out .= '<input type="hidden" name="'.$config['query_var'].'" value="'.$returnid.'" />'."\n";
             }
         } else {
@@ -1095,8 +1105,9 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for a link to run a module action, or just the URL for that
-     * action
+     * Get xhtml for an anchor element which when activated will run a
+     * module action.
+     * Or get only the URL for such link.
      *
      * @since 2.9
      *
@@ -1108,7 +1119,7 @@ class FormUtils
      *
      * @return string
      */
-    public static function create_action_link(&$mod, array $parms) : string
+    public static function create_action_link($mod, array $parms) : string
     {
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['action'=>'c']);
@@ -1160,7 +1171,9 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for a link to a site page, essentially a go-back facilitator. Or only the url
+     * Get xhtml for an anchor element referring to a site page,
+     * essentially a go-back facilitator after a module-action.
+     * Or get only the URL for such link.
      *
      * @param object $mod    The initiator module, a CMSModule derivative
      * @param array  $parms  Attribute(s)/property(ies) to be included in
@@ -1177,7 +1190,7 @@ class FormUtils
      *
      * @return string
      */
-    public static function create_return_link(&$mod, array $parms) : string
+    public static function create_return_link($mod, array $parms) : string
     {
         //TODO any must-have's here ?
         $err = self::clean_attrs($parms, false);
@@ -1217,7 +1230,7 @@ class FormUtils
     }
 
     /**
-     * Get xhtml for a link to show a site page
+     * Get xhtml for an anchor which when activated will show a site page
      *
      * @param array  $parms Attribute(s)/property(ies) to be included in
      *  the element, each member like 'name'=>'value', may include:
@@ -1244,7 +1257,7 @@ class FormUtils
         extract($parms);
 
         $out = '<a href="';
-        $config = cms_config::get_instance();
+        $config = AppSingle::Config();
         if ($config['url_rewriting'] == 'mod_rewrite') {
             // mod_rewrite
             $contentops = ContentOperations::get_instance();
@@ -1351,7 +1364,7 @@ class FormUtils
 
         if (empty($parms['class'])) {
             if (!$mainclass) {
-                $mainclass = HookManager::do_hook_first_result('ThemeMenuCssClass');
+                $mainclass = HookOperations::do_hook_first_result('ThemeMenuCssClass');
                 if (!$mainclass) {
                     $mainclass = 'ContextMenu';
                 }

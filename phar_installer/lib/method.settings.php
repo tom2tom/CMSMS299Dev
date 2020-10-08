@@ -1,6 +1,7 @@
 <?php
 
 use CMSMS\AdminTheme;
+use CMSMS\Crypto;
 use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\User;
@@ -75,8 +76,11 @@ $cores = implode(',', $corenames);
 $theme = reset(AdminTheme::GetAvailableThemes());
 $schema = $app->get_dest_schema();
 $helpurl =  ( !empty($siteinfo['supporturl']) ) ? $siteinfo['supporturl'] : '';
-$uuid = cms_utils::random_string(24, false, true);
-$ultras = json_encode(['Manage Restricted Files','Manage Database Content','Remote Administration']);
+$salt = Crypto::random_string(16, true);
+$r = substr($salt, 0, 2);
+$s = Crypto::random_string(32, false, true);
+$uuid = strtr($s, '+/', $r);
+$ultras = json_encode(['Modify Database','Modify Database Content','Modify Restricted Files','Remote Administration']);
 
 foreach ([
 	'allow_browser_cache' => 1, // allow browser to cache cachable pages
@@ -97,8 +101,11 @@ foreach ([
 	'lock_refresh' => 120,
 	'lock_timeout' => 60,
 	'loginmodule' => '', // login UI defined by current theme
+	'loginsalt' => $salt,
 	'logintheme' => $theme,
 	'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
+	'password_level' => 0, // min-strength enumerator
+	'password_life' => 0, // lifetime (days)
 	'schema_version' => $schema,
 	'site_help_url' => $helpurl,
 	'site_uuid' => $uuid, // almost-certainly-unique signature of this site
@@ -135,35 +142,41 @@ verbose_msg(lang('install_initsiteperms'));
 $all_perms = [];
 foreach( [
 //	'Add Pages', >CM
-	'Add Templates',
+//	'Add Templates', //TODO migrate to 'Modify Templates'
 //	'Manage All Content', >CM
 //	'Manage Designs', >DM
-	'Manage Groups',
+	['Manage Groups', 'Manage user-group existence, properties, membership'],
 	'Manage My Account',
 	'Manage My Bookmarks',
 	'Manage My Settings',
 	'Manage Stylesheets',
 	'Manage Users',
 //	'Modify Any Page', >CM
-	'Manage Database Content', //for remote management, sans admin console
+	['Modify Database', 'Change database tables existence, structure'],
+	['Modify Database Content', 'Modify recorded data via SSH'], // add/remove/update stored data - for remote management, sans admin console
 	'Modify Events',
 	'Manage Simple Plugins',
 	'Modify Files',
 	'Modify Modules',
 	'Modify Permissions',
-	'Manage Restricted Files',
+	['Modify Restricted Files', 'Modify site-operation files via SSH'],
 //	'Modify Site Assets', no deal !!
 	'Modify Site Preferences',
 	'Modify Templates',
-	'Remote Administration',  //for remote management, sans admin console kinda Manage Database Content + Manage Restricted Files
+	['Remote Administration', 'Site administration via SSH'],  //for remote management, sans admin console kinda Modify Database Content + Modify Restricted Files
 //	'Remove Pages', >CM
 //	'Reorder Content', >CM
 	'View Tag Help',
 	] as $one_perm ) {
   $permission = new CmsPermission();
   $permission->source = 'Core';
-  $permission->name = $one_perm;
-  $permission->text = $one_perm;
+  if (is_array($one_perm)) {
+      $permission->name = $one_perm[0];
+      $permission->text = $one_perm[1];
+  } else {
+      $permission->name = $one_perm;
+      $permission->text = ucfirst($one_perm);
+  }
   try {
 	$permission->save();
 	$all_perms[$one_perm] = $permission;
@@ -189,7 +202,7 @@ $group->name = 'CodeManager';
 $group->description = lang('grp_coder_desc');
 $group->active = 1;
 $group->Save();
-$group->GrantPermission('Manage Restricted Files');
+$group->GrantPermission('Modify Restricted Files');
 //$group->GrantPermission('Modify Site Assets');
 $group->GrantPermission('Manage Simple Plugins');
 /* too risky
@@ -232,16 +245,19 @@ $group->GrantPermission('Modify Templates');
 // initial user account
 //
 verbose_msg(lang('install_initsiteusers'));
+$ops = UserOperations::get_instance();
 $admin_user = new User();
 $admin_user->username = $adminaccount['username'];
+$admin_user->firstname = 'Site';
+$admin_user->lastname = 'Administrator';
 if( !empty($adminaccount['emailaddr']) ) $admin_user->email = $adminaccount['emailaddr'];
 else $admin_user->email = '';
 $admin_user->active = 1;
-$admin_user->adminaccess = 1;
-$admin_user->password = password_hash( $adminaccount['password'], PASSWORD_DEFAULT );
+//$admin_user->adminaccess = 1;
+$admin_user->password = $ops->PreparePassword($adminaccount['password']);
 $admin_user->Save();
 
-UserOperations::get_instance()->AddMemberGroup($admin_user->id,$gid1);
+$ops->AddMemberGroup($admin_user->id,$gid1);
 cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // TODO if MicroTiny present -the only user-preference we need now
 
 //

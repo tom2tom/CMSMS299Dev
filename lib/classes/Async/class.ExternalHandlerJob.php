@@ -1,5 +1,5 @@
 <?php
-# class: ExternalHandlerJob for jobs with external handlers (plugins or static functions)
+# class: ExternalHandlerJob for jobs having an 'external' handler (plugins etc)
 # Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,21 +18,24 @@
 
 namespace CMSMS\Async;
 
-use CmsApp;
 use CMSMS\SimpleTagOperations;
+use CMSMS\Utils;
 use RuntimeException;
 use function cms_to_bool;
 
 /**
- * A type of job that calls a function (user-plugin or static function) for processing.
+ * A type of job that calls a function (user-plugin or module-action or
+ *  static callable) for processing.
  *
- * If a module is specified for this object, then the module will be loaded before calling the handler.
+ * If a module is specified for this object, then that module will be
+ *  loaded before calling the handler.
  *
  * @package CMS
  * @author Robert Campbell
  *
  * @since 2.2
- * @property string $function The callable function name.
+ * @property mixed $function string | callable
+ *  The simple-plugin | action file | function name, or an actual callable.
  * @property bool $is_udt Whether $function is the name of a user-plugin.
  */
 class ExternalHandlerJob extends Job
@@ -40,15 +43,23 @@ class ExternalHandlerJob extends Job
     /**
      * @ignore
      */
-    const HANDLER_UDT   = '_UDT_'; //unused
+    const HANDLER_UDT = '_UDT_'; //unused here
 
     /**
-     * @ignore
+     * Constructor
+     * @param array $params Optional assoc array of valid class properties
+     *  each member like propname => propval
      */
-    protected $_data = [
-        'function'=>null,
-        'is_udt'=>FALSE,
-    ];
+    public function __construct($params = [])
+    {
+        parent::__construct();
+        $this->_data += ['function'=>'', 'is_udt'=>false];
+        if( $params ) {
+            foreach( $params as $key => $val ) {
+                $this->__set($key,$val);
+            }
+        }
+    }
 
     /**
      * @ignore
@@ -57,8 +68,10 @@ class ExternalHandlerJob extends Job
     {
         switch( $key ) {
         case 'function':
+            return trim($this->_data[$key]);
+
         case 'is_udt':
-            return $this->_data[$key];
+            return (bool) $this->_data[$key];
 
         default:
             return parent::__get($key);
@@ -72,11 +85,24 @@ class ExternalHandlerJob extends Job
     {
         switch( $key ) {
         case 'function':
-            $this->_data[$key] = trim($val);
+            if( is_string($val) ) {
+                $this->_data[$key] = trim($val);
+            }
+            else {
+                $this->_data[$key] = $val;
+                $this->_data['is_udt'] = false;
+            }
             break;
 
         case 'is_udt':
-            $this->_data[$key] = cms_to_bool($val);
+            $val = cms_to_bool($val);
+            $this->_data[$key] = $val;
+            if( $val ) {
+                $val = $this->_data['function'];
+                if( !is_string($val) || is_callable($val) ) {
+                    $this->_data['function'] = '';
+                }
+            }
             break;
 
         default:
@@ -91,17 +117,26 @@ class ExternalHandlerJob extends Job
     {
         if( $this->is_udt ) {
             SimpleTagOperations::get_instance()->CallSimpleTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO plugin parameters missing
-        }
-        else {
-            // call the function, pass in $this
-            $module_name = $this->module;
-            if( $module_name ) {
-                $mod_obj = CmsApp::get_instance()->GetModule($module_name);
-                if( !is_object($mod_obj) ) throw new RuntimeException('Job requires '.$module_name.' but the module could not be loaded');
-            }
-            call_user_func($this->function);
 //TODO also support regular plugins
-//TODO also support callables in general
+        }
+        elseif( $this->module && preg_match('/^action\.(.+)\.php$/',$this->function, $matches) ) {
+            $mod_obj = Utils::get_module($this->module);
+            //TODO exceptions useless in async context
+            if( !is_object($mod_obj) ) throw new RuntimeException('Job requires '.$this->module.' module but it could not be loaded');
+            $mod_obj->DoAction($matches[1], '', []);
+        }
+        elseif( is_callable($this->function) ) {
+            if( $this->module ) {
+                $mod_obj = Utils::get_module($this->module);
+                //TODO exceptions useless in async context
+                if( !is_object($mod_obj) ) throw new RuntimeException('Job requires '.$this->module.' module but it could not be loaded');
+                // call the function, pass in $this
+                $fn = $this->function->bindTo($mod_obj);
+                call_user_func($fn);
+            }
+            else {
+                call_user_func($this->function);
+            }
         }
     }
 }

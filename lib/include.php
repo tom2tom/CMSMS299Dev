@@ -24,6 +24,7 @@ use CMSMS\AuditOperations;
 use CMSMS\CoreCapabilities;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
+use CMSMS\internal\GetParameters;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\NlsOperations;
 use CMSMS\SysDataCacheDriver;
@@ -41,16 +42,14 @@ use CMSMS\SysDataCacheDriver;
  * @package CMS
  */
 
-define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php');
-
 $dirpath = __DIR__.DIRECTORY_SEPARATOR;
-
 if (isset($CMS_APP_STATE)) { //i.e. AppState class was included elsewhere
     AppState::add_state($CMS_APP_STATE);
 } else {
     require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 }
 $installing = AppState::test_state(AppState::STATE_INSTALL);
+define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php');
 if (!$installing && (!is_file(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
     die('FATAL ERROR: config.php file not found or invalid');
 }
@@ -65,38 +64,39 @@ require_once $dirpath.'autoloader.php';  //uses defines, modulefuncs and (for mo
 require_once $dirpath.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; // Composer's autoloader makes light work of 'foreign' classes
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppSingle.php'; // uses cms_autoloader()
 // begin to populate the singletons cache
-$_app = App::get_instance(); // for use in this file, not inclusions
-AppSingle::set('App', $_app); // cache this singleton like all others
-AppSingle::set('CmsApp', $_app); // an alias for the oldies
+$_app = App::get_instance(); // for use in this file | upstream, not downstream
+AppSingle::insert('App', $_app); // cache this singleton like all others
+AppSingle::insert('CmsApp', $_app); // an alias for the oldies
 $config = AppConfig::get_instance(); // this object was already used during defines-processing, above
-AppSingle::set('AppConfig', $config); // now we can cache it with other singletons
-AppSingle::set('Config', $config); // and an alias
-AppSingle::set('cms_config', $config); // and another
+//AppSingle::insert('AppConfig', $config); // now we can cache it with other singletons
+AppSingle::insert('Config', $config); // and an alias
+//AppSingle::insert('cms_config', $config); // and another
 require_once $dirpath.'page.functions.php'; // system-dependent methods
 $db = $_app->GetDb();
-AppSingle::set('db', $db); // easier retrieval
+AppSingle::insert('Db', $db); // easier retrieval
 require_once $dirpath.'compat.functions.php'; // old function and/or class aliases
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; // bundle of exception-classes in 1 file
 
-if (isset($_REQUEST[CMS_JOB_KEY])) {
-    // since 2.3 value 0|1|2 indicates the type of request, hence appropriate inclusions
-    $type = (int)$_REQUEST[CMS_JOB_KEY];
-    $CMS_JOB_TYPE = min(max((int)$type, 0), 2);
-} elseif (isset($CMS_JOB_TYPE)) {
-    $CMS_JOB_TYPE = min(max((int)$CMS_JOB_TYPE, 0), 2);
-} elseif (
+$params = (new GetParameters())->get_request_values(
+	[CMS_JOB_KEY,'showtemplate','suppressoutput']
+);
+if (!$params) exit;
+if ($params[CMS_JOB_KEY] !== null) {
+    $CMS_JOB_TYPE = min(max((int)$params[CMS_JOB_KEY], 0), 2);
+} elseif ($params['showtemplate'] == 'false' || $params['suppressoutput'] !== null) {
     // undocumented, deprecated, output-suppressors
-    (isset($_REQUEST['showtemplate']) && $_REQUEST['showtemplate'] == 'false')
-    || isset($_REQUEST['suppressoutput'])) {
     $CMS_JOB_TYPE = 1;
 } else {
-    //normal output
+    // normal output
     $CMS_JOB_TYPE = 0;
 }
+// since 2.9 value 0|1|2 indicates the type of request, hence appropriate inclusions
 $_app->JOBTYPE = $CMS_JOB_TYPE;
 
 if ($CMS_JOB_TYPE < 2) {
-    require_once $dirpath.'placement.functions.php';
+	if ($CMS_JOB_TYPE == 0) {
+	    require_once $dirpath.'placement.functions.php';
+	}
     require_once $dirpath.'translation.functions.php';
 }
 
@@ -117,10 +117,6 @@ if ($config['timezone']) @date_default_timezone_set(trim($config['timezone']));
 if ($config['debug']) {
     @ini_set('display_errors',1);
     @error_reporting(E_ALL);
-}
-
-if (cms_to_bool(ini_get('register_globals'))) {
-    die('FATAL ERROR: For security reasons register_globals must not be enabled for any CMSMS install.  Please adjust your PHP configuration settings to disable this feature.');
 }
 
 $administering = AppState::test_state(AppState::STATE_ADMIN_PAGE);
@@ -150,14 +146,14 @@ $obj = new SysDataCacheDriver('schema_version', function()
 $cache->add_cachable($obj);
 $obj = new SysDataCacheDriver('modules', function()
     {
-        $db = AppSingle::CmsApp()->GetDb();
+        $db = AppSingle::Db();
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules';
         return $db->GetAssoc($query); // Keyed by module_name
      });
 $cache->add_cachable($obj);
 $obj = new SysDataCacheDriver('module_deps', function()
     {
-        $db = AppSingle::CmsApp()->GetDb();
+        $db = AppSingle::Db();
         $query = 'SELECT parent_module,child_module,minimum_version FROM '.CMS_DB_PREFIX.'module_deps ORDER BY parent_module';
         $tmp = $db->GetArray($query);
         if (!is_array($tmp) || !$tmp) return '-';  // special value so that we actually return something to cache.
@@ -172,7 +168,7 @@ $cache->add_cachable($obj);
 if ($CMS_JOB_TYPE < 2) {
     $obj = new SysDataCacheDriver('latest_content_modification', function()
         {
-            $db = AppSingle::CmsApp()->GetDb();
+            $db = AppSingle::Db();
             $query = 'SELECT modified_date FROM '.CMS_DB_PREFIX.'content ORDER BY IF(modified_date, modified_date, create_date) DESC';
             $tmp = $db->GetOne($query);
             return $db->UnixTimeStamp($tmp);
@@ -180,7 +176,7 @@ if ($CMS_JOB_TYPE < 2) {
     $cache->add_cachable($obj);
     $obj = new SysDataCacheDriver('default_content', function()
         {
-            $db = AppSingle::CmsApp()->GetDb();
+            $db = AppSingle::Db();
             $query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
             return $db->GetOne($query);
         });
@@ -190,7 +186,7 @@ if ($CMS_JOB_TYPE < 2) {
     $obj = new SysDataCacheDriver('content_flatlist', function()
         {
             $query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
-            $db = AppSingle::CmsApp()->GetDb();
+            $db = AppSingle::Db();
             return $db->GetArray($query);
         });
     $cache->add_cachable($obj);
@@ -264,8 +260,8 @@ if ($CMS_JOB_TYPE < 2) {
 
     if (!$installing) {
         debug_buffer('Initialize Smarty');
-        $smarty = $_app->GetSmarty();
+        $smarty = AppSingle::Smarty();
         debug_buffer('Finished initializing Smarty');
-        $smarty->assignGlobal('sitename', cms_siteprefs::get('sitename', 'CMSMS Site'));
+//      $smarty->assignGlobal('sitename', cms_siteprefs::get('sitename', 'CMSMS Site'));
     }
 }

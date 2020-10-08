@@ -15,15 +15,17 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
 use CMSMS\AppState;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 $_SESSION['logout_user_now'] = '1';
-$name = cms_siteprefs::get('logintheme');
-$ob = cms_utils::get_theme_object($name);
+$name = AppParams::get('logintheme');
+$ob = Utils::get_theme_object($name);
 if ($ob) {
     $ob->do_login();
 } else {

@@ -17,6 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
 
 if( !isset($gCms) ) exit;
 if( !$this->CanEditContent() ) exit;
@@ -42,7 +43,7 @@ try {
             break;
 
         case 'designpage':
-            $type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
+            $type = CMSMS\TemplateType::load(CMSMS\TemplateType::CORE.'::page');
             $type_id = $type->get_id();
             $design = DesignManager\Design::load($design_id); DISABLED
             $template_list = $design->get_templates();
@@ -60,7 +61,7 @@ try {
 
         case 'allpage':
 */
-            $type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
+            $type = TemplateType::load(TemplateType::CORE.'::page');
             $template_list = TemplateOperations::get_all_templates_by_type($type);
             $out = [];
             foreach( $template_list as $one ) {

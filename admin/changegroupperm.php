@@ -1,5 +1,5 @@
 <?php
-#Procedure to change permissions of users in a group
+#Change permission(s) of a users-group
 #Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,12 +16,16 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\AppState;
 //use CMSMS\SysDataCache;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
+use CMSMS\AppState;
 use CMSMS\GroupOperations;
-use CMSMS\HookManager;
+use CMSMS\HookOperations;
 use CMSMS\LangOperations;
 use CMSMS\UserOperations;
+use CMSMS\UserParams;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -31,182 +35,75 @@ check_login();
 
 $urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
-    redirect('listgroups.php'.$urlext); //TODO go to relevant menu section
-    return;
+    redirect('menu.php'.$urlext); //'listgroups.php'.$urlext); //TODO go to relevant menu section
 }
 
 $userid = get_userid();
-$access = check_permission($userid, 'Manage Groups');
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
-if (!$access) {
-//TODO some immediate popup  lang('needpermissionto', '"Manage Groups"'));
+if (!check_permission($userid, 'Manage Groups')) {
+//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
     return;
 }
 
-$userops = UserOperations::get_instance();
-$adminuser = ($userops->UserInGroup($userid, 1) || $userid == 1);
-$group_name = '';
-$message = '';
+$superusr = $userid == 1;
+if ($superusr) {
+    $supergrp = true;
+} else {
+    $userops = AppSingle::UserOperations();
+    $supergrp = $userops->UserInGroup($userid, 1);
+}
 
-$gCms = CmsApp::get_instance();
-$db = $gCms->GetDb();
-$smarty = $gCms->GetSmarty();
-
-$load_perms = function () use ($db) {
-    $query = 'SELECT p.permission_id, p.permission_source, p.permission_text, up.group_id FROM '.
-    CMS_DB_PREFIX.'permissions p LEFT JOIN '.CMS_DB_PREFIX.
-    'group_perms up ON p.permission_id = up.permission_id ORDER BY p.permission_text';
-
-    $result = $db->Execute($query);
-
-    // setup to get default values for localized permission-strings from admin realm.
-    HookManager::add_hook('localizeperm', function ($perm_source, $perm_name) {
-        $key = 'perm_'.str_replace(' ', '_', $perm_name);
-        if (LangOperations::lang_key_exists('admin', $key)) {
-            return LangOperations::lang_from_realm('admin', $key);
-        }
-        return $perm_name;
-    }, HookManager::PRIORITY_LOW);
-
-    HookManager::add_hook('getperminfo', function ($perm_source, $perm_name) {
-        $key = 'permdesc_'.str_replace(' ', '_', $perm_name);
-        if (LangOperations::lang_key_exists('admin', $key)) {
-            return LangOperations::lang_from_realm('admin', $key);
-        }
-    }, HookManager::PRIORITY_LOW);
-
-    $perm_struct = [];
-    while ($result && $row = $result->FetchRow()) {
-        if (isset($perm_struct[$row['permission_id']])) {
-            $str = &$perm_struct[$row['permission_id']];
-            $str->group[$row['group_id']]=1;
-        } else {
-            $thisPerm = new stdClass();
-            $thisPerm->group = [];
-            if (!empty($row['group_id'])) {
-                $thisPerm->group[$row['group_id']] = 1;
-            }
-            $thisPerm->id = $row['permission_id'];
-            $thisPerm->name = $thisPerm->label = $row['permission_text'];
-            $thisPerm->source = $row['permission_source'];
-            $thisPerm->label = HookManager::do_hook_first_result('localizeperm', $thisPerm->source, $thisPerm->name);
-            $thisPerm->description = HookManager::do_hook_first_result('getperminfo', $thisPerm->source, $thisPerm->name);
-            $perm_struct[$row['permission_id']] = $thisPerm;
-        }
-    }
-    return $perm_struct;
-};
-
-$group_perms = function ($in_struct) {
-    usort($in_struct, function ($a, $b) {
-        // sort by name
-        return strcasecmp($a->name, $b->name);
-    });
-
-    $out = [];
-    foreach ($in_struct as $one) {
-        $source = $one->source;
-        if (!isset($out[$source])) {
-            $out[$source] = [];
-        }
-        $out[$source][] = $one;
-    }
-
-    uksort($out, function ($a, $b) {
-        $a = strtolower($a);
-        $b = strtolower($b);
-        if ($a == 'core') {
-            return -1;
-        }
-        if ($b == 'core') {
-            return 1;
-        }
-        if (empty($a)) {
-            return -1;
-        }
-        if (empty($b)) {
-            return 1;
-        }
-        return strcmp($a, $b);
-    });
-    return $out;
-};
-
+cleanArray($_POST);
 if (isset($_POST['filter'])) {
-    $disp_group = filter_var($_POST['groupsel'], FILTER_SANITIZE_NUMBER_INT);
-    cms_userprefs::set_for_user($userid, 'changegroupassign_group', $disp_group);
+    $disp_group = filter_input(INPUT_POST, 'groupsel', FILTER_SANITIZE_NUMBER_INT);
+    UserParams::set_for_user($userid, 'changegroupassign_group', $disp_group);
 }
-$disp_group = cms_userprefs::get_for_user($userid, 'changegroupassign_group', -1);
+$disp_group = UserParams::get_for_user($userid, 'changegroupassign_group', -1);
 
-// always display the group pull down
-$groupops = GroupOperations::get_instance();
-$tmp = new stdClass();
-$tmp->name = lang('all_groups');
-$tmp->id=-1;
-$allgroups = [$tmp];
-$sel_groups = [$tmp];
-$group_list = $groupops->LoadGroups();
-$sel_group_ids = [];
-foreach ($group_list as $onegroup) {
-    if ($onegroup->id == 1 && !$adminuser) {
-        continue;
-    }
-    $allgroups[] = $onegroup;
-    if ($disp_group == -1 || $disp_group == $onegroup->id) {
-        $sel_groups[] = $onegroup;
-        $sel_group_ids[] = $onegroup->id;
-    }
+$db = AppSingle::Db();
+
+$ultras = json_decode(AppParams::get('ultraroles'));
+if ($ultras) {
+    $query = 'SELECT permission_id FROM '.CMS_DB_PREFIX.'permissions WHERE permission_name IN ("'.implode('","', $ultras).'")';
+    $specials = $db->GetCol($query); //data for perm's not automatically in group 1
+} else {
+    $specials = [];
 }
-
-$smarty->assign('group_list', $sel_groups);
-$smarty->assign('allgroups', $allgroups);
 
 if (isset($_POST['submit'])) {
-    // we have group permissions
-    $parts = explode('::', $_POST['sel_groups']);
-    if (count($parts) == 2) {
-        if (cms_utils::hash_string(__FILE__.$parts[1]) == $parts[0]) {
-            $selected_groups = (array) unserialize(base64_decode($parts[1]), ['allowed_classes'=>false]);
-            if ($selected_groups) {
-                // clean this array
-                $tmp = [];
-                foreach ($selected_groups as &$one) {
-                    $one = (int)$one;
-                    if ($one > 0) {
-                        $tmp[] = $one;
-                    }
-                }
-                $query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id IN ('.implode(',', $tmp).')';
-                $db->Execute($query);
-            }
-            unset($selected_groups);
-        }
-    }
-    unset($parts);
-
+    $stmt1 = $db->Prepare('DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND permission_id = ?');
+    $stmt2 = $db->Prepare('SELECT 1 FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id=? AND permission_id=?');
     //setting create_date should be redundant with DT setting
-    $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'group_perms
+    $stmt3 = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'group_perms
 (group_id, permission_id, create_date)
 VALUES (?,?,NOW())');
 
-    cleanArray($_POST);
-    foreach ($_POST as $key=>$value) {
-        if (strncmp($key, 'pg', 2) == 0) {
+    foreach ($_POST as $key => $value) {
+        if (strncmp($key, 'pg_', 3) == 0) {
             $keyparts = explode('_', $key);
-            $keyparts[1] = (int)$keyparts[1];
-            if ($keyparts[1] > 0 && $keyparts[2] != '1' && $value == '1') {
-                $result = $db->Execute($stmt, [$keyparts[2],$keyparts[1]]);
-                if (!$result) {
-                    echo 'FATAL: '.$db->ErrorMsg().'<br />'.$db->sql;
-                    exit;
+            if ($keyparts[1] > 0) { //valid permission-id
+                $i1 = (int)$keyparts[1];
+                $i2 = (int)$keyparts[2]; //group id
+                if ($i2 != 1 || in_array($i1, $specials)) { // not group 1 || is ultrarole
+                    if ($value == '0') {
+                        $db->Execute($stmt1,[$i2,$i1]); //may fail if already absent
+                    } elseif ($value == '1') {
+                        $rst = $db->Execute($stmt2,[$i2,$i1]);
+                        if (!$rst || $rst->EOF) {
+                            $db->Execute($stmt3,[$i2,$i1]);
+                        }
+                        if ($rst) $rst->close();
+                    }
                 }
             }
         }
     }
 
-    $stmt->close();
+    $stmt1->close();
+    $stmt2->close();
+    $stmt3->close();
     // put mention into the admin log
     audit($userid, 'Permission Group ID: '.$userid, 'Changed');
     $message = lang('permissionschanged');
@@ -217,25 +114,124 @@ VALUES (?,?,NOW())');
 if (!empty($message)) {
     $themeObject->RecordNotice('success', $message);
 }
-$pagesubtitle = lang('groupperms', $group_name);
-$perm_struct = $load_perms();
-$perm_struct = $group_perms($perm_struct);
-$tmp = base64_encode(serialize($sel_group_ids));
-$sig = cms_utils::hash_string(__FILE__.$tmp);
-$hidden = '<input type="hidden" name="sel_groups" value="'.$sig.'::'.base64_encode(serialize($sel_group_ids)).'" />';
+
+// setup to get default values for localized permission-strings from admin realm
+HookOperations::add_hook('localizeperm', function ($perm_source, $perm_name) {
+    $key = 'perm_'.str_replace(' ', '_', $perm_name);
+    if (LangOperations::lang_key_exists('admin', $key)) {
+        return LangOperations::lang_from_realm('admin', $key);
+    }
+    return $perm_name;
+}, HookOperations::PRIORITY_LOW);
+
+HookOperations::add_hook('getperminfo', function ($perm_source, $perm_name) {
+    $key = 'permdesc_'.str_replace(' ', '_', $perm_name);
+    if (LangOperations::lang_key_exists('admin', $key)) {
+        return LangOperations::lang_from_realm('admin', $key);
+    }
+}, HookOperations::PRIORITY_LOW);
+
+//populate displayed-group(s) selector
+$groupops = AppSingle::GroupOperations();
+$group_list = $groupops->LoadGroups(); //stdClass objects
+$allgroups = []; //ditto
+$sel_groups = [];
+foreach ($group_list as $onegroup) {
+    if ($onegroup->id == 1 && !$supergrp) {
+        continue; //skip (i.e. prevent display/change of) grp 1 permissions
+    }
+    $allgroups[] = $onegroup;
+    if ($disp_group == -1 || $disp_group == $onegroup->id) {
+        $sel_groups[] = $onegroup;
+    }
+}
+
+$perm_struct = [];
+
+$pref = CMS_DB_PREFIX;
+$query = <<<EOS
+SELECT p.permission_id, p.permission_source, p.permission_text, up.group_id
+FROM {$pref}permissions p LEFT JOIN {$pref}group_perms up
+ON p.permission_id = up.permission_id
+ORDER BY p.permission_text
+EOS;
+
+$rst = $db->Execute($query);
+while ($rst && ($row = $rst->FetchRow())) {
+    if (isset($perm_struct[$row['permission_id']])) {
+        $str = &$perm_struct[$row['permission_id']];
+        $str->group[$row['group_id']] = 1;
+    } else {
+        $thisPerm = new stdClass();
+        $thisPerm->group = [];
+        if (!empty($row['group_id'])) {
+            $thisPerm->group[$row['group_id']] = 1;
+        }
+        $thisPerm->id = $row['permission_id'];
+        $thisPerm->name = $thisPerm->label = $row['permission_text'];
+        $thisPerm->source = $row['permission_source'];
+        $thisPerm->label = HookOperations::do_hook_first_result('localizeperm', $thisPerm->source, $thisPerm->name);
+        $thisPerm->description = HookOperations::do_hook_first_result('getperminfo', $thisPerm->source, $thisPerm->name);
+        $perm_struct[$row['permission_id']] = $thisPerm;
+    }
+}
+
+// sort by description TODO UTF8 sort
+usort($perm_struct, function ($a, $b) {
+    return strcasecmp($a->name, $b->name);
+});
+
+$out = [];
+foreach ($perm_struct as $one) {
+    $source = $one->source;
+    if (!isset($out[$source])) {
+        $out[$source] = [];
+    }
+    $out[$source][] = $one;
+}
+$perm_struct = $out;
+
+// sort by source (assumed ASCII)
+uksort($perm_struct, function ($a, $b) {
+    if (!$a || strcasecmp($a, 'core') == 0) {
+        return -1;
+    }
+    if (!$b || strcasecmp($b, 'core') == 0) {
+        return 1;
+    }
+    return strcasecmp($a, $b);
+/*  if (($n = strcasecmp($a, $b)) != 0) {
+        return $n;
+    }
+    return $n; //TODO strcasecmp($a->name, $b->name);
+*/
+});
+if (count($perm_struct) > 1) {
+    $tmp = new stdClass();
+    $tmp->id = -1;
+    $tmp->name = lang('all_groups');
+    array_unshift($allgroups, $tmp);
+}
+
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
+$smarty = AppSingle::Smarty();
 $smarty->assign([
+    'group_list' => $sel_groups,
+    'allgroups' => $allgroups,
     'disp_group' => $disp_group,
-    'hidden2' => $hidden,
-    'pagesubtitle' => $pagesubtitle,
     'perms' => $perm_struct,
+    'ultras' => $specials,
     'selfurl' => $selfurl,
     'extraparms' => $extras,
     'urlext' => $urlext,
+    'usr1perm' => $superusr,
+    'grp1perm' => $supergrp,
+    'pmod' => !$supergrp, //i.e. current user may 'Manage Groups' but not in Group 1
 ]);
 
-include_once 'header.php';
-$smarty->display('changegroupperm.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('changegroupperm.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

@@ -16,16 +16,20 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\CoreCapabilities;
+use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\FormUtils;
+use CMSMS\internal\GetParameters;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\MultiEditor;
 use CMSMS\NlsOperations;
 use CMSMS\RichEditor;
 use CMSMS\RouteOperations;
+use CMSMS\Utils;
 
 /**
  * Miscellaneous support functions which are dependent on this CMSMS
@@ -45,52 +49,52 @@ function setup_session(bool $cachable = false)
 {
     static $_setup_already = false;
 
-    if ($_setup_already) {
+    if( $_setup_already ) {
         //TODO maybe session_regenerate_id(), if so, rename cache-group accordingly
         return;
     }
 
     $_f = $_l = null;
-    if (headers_sent($_f, $_l)) throw new LogicException("Attempt to set headers, but headers were already sent at: $_f::$_l");
+    if( headers_sent($_f, $_l) ) throw new LogicException("Attempt to set headers, but headers were already sent at: $_f::$_l");
 
-    if ($cachable) {
-        if ($_SERVER['REQUEST_METHOD'] != 'GET' ||
-        AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_INSTALL)) {
+    if( $cachable ) {
+        if( $_SERVER['REQUEST_METHOD'] != 'GET' ||
+        AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_INSTALL) ) {
             $cachable = false;
         }
     }
-    if ($cachable) {
-        $cachable = (int) cms_siteprefs::get('allow_browser_cache',0);
+    if( $cachable ) {
+        $cachable = (int) AppParams::get('allow_browser_cache',0);
     }
-    if (!$cachable) {
+    if( !$cachable ) {
         // admin pages can't be cached... period, at all.. never.
         @session_cache_limiter('nocache');
     }
     else {
         // frontend request
-        $expiry = (int)max(0,cms_siteprefs::get('browser_cache_expiry',60));
+        $expiry = (int)max(0,AppParams::get('browser_cache_expiry',60));
         session_cache_expire($expiry);
         session_cache_limiter('public');
         @header_remove('Last-Modified');
     }
 
     // setup session with different (constant) id and start it
-    $session_name = 'CMSSESSID'.cms_utils::hash_string(CMS_ROOT_PATH.CMS_VERSION);
-    if (!AppState::test_state(AppState::STATE_INSTALL)) {
+    $session_name = 'CMSSESSID'.Crypto::hash_string(CMS_ROOT_PATH.CMS_VERSION);
+    if( !AppState::test_state(AppState::STATE_INSTALL) ) {
         @session_name($session_name);
         @ini_set('url_rewriter.tags', '');
         @ini_set('session.use_trans_sid', 0);
     }
 
-    if (isset($_COOKIE[$session_name])) {
+    if( isset($_COOKIE[$session_name]) ) {
         // validate the content of the cookie
-        if (!preg_match('/^[a-zA-Z0-9,\-]{22,40}$/', $_COOKIE[$session_name])) {
+        if( !preg_match('/^[a-zA-Z0-9,\-]{22,40}$/', $_COOKIE[$session_name]) ) {
             session_id(uniqid());
             session_start();
             session_regenerate_id(); //TODO rename cache-group accordingly
         }
     }
-    if (!@session_id()) session_start();
+    if( !@session_id() ) session_start();
 
 /* TODO session-shutdown function(s) processing, from handler(s) recorded in
     session_set_save_handler(
@@ -112,13 +116,13 @@ function is_sitedown() : bool
 {
     if( AppState::test_state(AppState::STATE_INSTALL) ) return true;
 
-    if( !cms_siteprefs::get('site_downnow') ) return false;
+    if( !AppParams::get('site_downnow') ) return false;
 
     $userid = get_userid(false);
-    if( $userid && cms_siteprefs::get('sitedownexcludeadmins') ) return false;
+    if( $userid && AppParams::get('sitedownexcludeadmins') ) return false;
 
     if( !isset($_SERVER['REMOTE_ADDR']) ) return true;
-    $excludes = cms_siteprefs::get('sitedownexcludes');
+    $excludes = AppParams::get('sitedownexcludes');
     if( !$excludes ) return true;
     return !cms_ipmatches($_SERVER['REMOTE_ADDR'],$excludes);
 }
@@ -150,10 +154,7 @@ function get_cliuser()
 }
 
 /**
- * Get the numeric id of the current user (logged-in or otherwise).
- *
- * If an effective userid has been recorded in the session, AND the primary user
- * is a member of the admin group, then allow emulating that effective userid.
+ * Gets the numeric id of the current user (primary/logged-in or 'effective').
  *
  * @since 0.1
  * @param  boolean $redirect Optional flag, default true. Whether to redirect to
@@ -174,7 +175,7 @@ function get_userid(bool $redirect = true)
             }
             return null;
         }
-        //  TODO alias etc during other 'remote admin'
+        // TODO alias etc during 'remote admin'
         $userid = AppSingle::LoginOperations()->get_effective_uid();
         if( !$userid && $redirect ) {
             redirect($config['admin_url'].'/login.php');
@@ -185,10 +186,7 @@ function get_userid(bool $redirect = true)
 }
 
 /**
- * Gets the username of the current user (logged-in or otherwise).
- *
- * If an effective username has been set in the session, AND the primary user is
- * a member of the admin group, then return the effective username.
+ * Gets the username of the current user (primary/logged-in or 'effective').
  *
  * @since 2.0
  * @param  boolean $redirect Optional flag, default true. Whether to redirect to
@@ -213,8 +211,8 @@ function get_username(bool $redirect = true)
 }
 
 /**
- * Checks to see if the user is logged in and the request has the proper key.
- * If not, normally redirects the browser to the admin login.
+ * Checks whether the user is logged in and the request has the proper key.
+ * If not, normally redirect the browser to the admin login.
  *
  * Note: this method should only be called from admin operations.
  *
@@ -247,21 +245,21 @@ function check_login(bool $no_redirect = false)
 }
 
 /**
- * Return the permissions (names) which always require explicit authorization
+ * Gets the permissions (names) which always require explicit authorization
  *  i.e. even for super-admins (user 1 | group 1)
  * @since 2.3
  * @return array
  */
 function restricted_cms_permissions() : array
 {
-    $val = cms_siteprefs::get('ultraroles');
-    if ($val) {
+    $val = AppParams::get('ultraroles');
+    if( $val ) {
         $out = json_decode($val);
-        if ($out) {
-            if (is_array($out)) {
+        if( $out ) {
+            if( is_array($out) ) {
                 return $out;
             }
-            if (is_scalar($out)) {
+            if( is_scalar($out) ) {
                 return [$out];
             }
             return (array)$out;
@@ -302,7 +300,7 @@ function check_permission(int $userid, ...$perms)
  */
 function check_authorship(int $userid, $contentid = null)
 {
-    return AppSingle::ContentOperations()->CheckPageAuthorship($userid,$contentid);
+    return AppSingle::ContentOperations()->CheckPageAuthorship($userid, $contentid);
 }
 
 /**
@@ -319,52 +317,52 @@ function author_pages(int $userid)
 }
 
 /**
- * Redirect to a relative URL on the current site.
+ * Redirects to a current-site URL
  *
- * If headers have not been sent this method will use header based redirection.
+ * If headers have not been sent this method will use header-based redirection.
  * Otherwise javascript redirection will be used.
  *
  * @author http://www.edoceo.com/
  * @since 0.1
  * @package CMS
- * @param string $to The url to redirect to
+ * @param string $to The URL to redirect to
  */
 function redirect(string $to)
 {
     $app = AppSingle::App();
-    if ($app->is_cli()) die("ERROR: no redirect on cli based scripts ---\n");
+    if( $app->is_cli() ) die("ERROR: no redirect on cli-based scripts ---\n");
 
     $_SERVER['PHP_SELF'] = null;
-    //TODO generally support the websocket protocol
+    //TODO generally support the websocket protocol 'wss' : 'ws'
     $schema = ($app->is_https_request()) ? 'https' : 'http';
 
     $host = $_SERVER['HTTP_HOST'];
     $components = parse_url($to);
-    if (count($components) > 0) {
+    if( count($components) > 0 ) {
         $to = (isset($components['scheme']) && startswith($components['scheme'], 'http') ? $components['scheme'] : $schema) . '://';
         $to .= $components['host'] ?? $host;
         $to .= isset($components['port']) ? ':' . $components['port'] : '';
-        if (isset($components['path'])) {
+        if( isset($components['path']) ) {
             //support admin sub-domains
             $l = strpos($components['path'], '.php', 1);
-            if ($l > 0 && substr_count($components['path'],'.', 1, $l-1) > 0) {
+            if( $l > 0 && substr_count($components['path'],'.', 1, $l-1) > 0 ) {
                 $components['path'] = strtr(substr($components['path'], 0, $l), '.', '/') . substr($components['path'], $l);
             }
-            if (in_array($components['path'][0],['\\','/'])) {
+            if( in_array($components['path'][0],['\\','/']) ) {
                 //path is absolute, just append
                 $to .= $components['path'];
             }
             //path is relative, append current directory first
-            elseif (isset($_SERVER['PHP_SELF']) && !is_null($_SERVER['PHP_SELF'])) { //Apache
+            elseif( isset($_SERVER['PHP_SELF']) && !is_null($_SERVER['PHP_SELF']) ) { //Apache
                 $to .= (strlen(dirname($_SERVER['PHP_SELF'])) > 1 ?  dirname($_SERVER['PHP_SELF']).'/' : '/') . $components['path'];
             }
-            elseif (isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI'])) { //Lighttpd
-                if (endswith($_SERVER['REQUEST_URI'], '/')) {
+            elseif( isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI']) ) { //Lighttpd
+                if( endswith($_SERVER['REQUEST_URI'], '/') ) {
                     $to .= (strlen($_SERVER['REQUEST_URI']) > 1 ? $_SERVER['REQUEST_URI'] : '/') . $components['path'];
                 }
                 else {
                     $dn = dirname($_SERVER['REQUEST_URI']);
-                    if (!endswith($dn,'/')) $dn .= '/';
+                    if( !endswith($dn,'/') ) $dn .= '/';
                     $to .= $dn . $components['path'];
                 }
             }
@@ -378,15 +376,14 @@ function redirect(string $to)
 
     session_write_close();
 
-
-    if (!AppState::test_state(AppState::STATE_INSTALL)) {
+    if( !AppState::test_state(AppState::STATE_INSTALL) ) {
         $debug = constant('CMS_DEBUG');
     }
     else {
         $debug = false;
     }
 
-    if (!$debug && headers_sent()) {
+    if( !$debug && headers_sent() ) {
         // use javascript instead
         echo '<script type="text/javascript">
 <!-- location.replace("'.$to.'"); // -->
@@ -395,11 +392,28 @@ function redirect(string $to)
 <meta http-equiv="Refresh" content="0;URL='.$to.'">
 </noscript>';
     }
-    elseif ($debug) {
-        echo 'Automatic redirection is disabled while debugging. Please click this link to continue.<br />
-<a accesskey="r" href="'.$to.'">'.$to.'</a><br />
+    elseif( $debug ) {
+        try {
+            throw new Exception('');
+        }
+        catch (Throwable $t) {
+            $arr = debug_backtrace();
+            $from = 'file: '.basename($arr[0]['file']) . ' (line '.$arr[0]['line'].')';
+        }
+        if( startswith($to, CMS_ROOT_URL) ) {
+            $to2 = 'url: '.substr($to, strlen(CMS_ROOT_URL)+1);
+        }
+        else {
+            $to2 = $to;
+        }
+        echo 'Please click <a accesskey="r" href="'.$to.'">this link</a> to complete redirection<br />from<br />'.
+$from.
+'<br />to<br />'.
+$to2.
+'<br />
+<br />
 <div id="DebugFooter">';
-        foreach ($app->get_errors() as $error) {
+        foreach( $app->get_errors() as $error ) {
             echo $error;
         }
         echo '</div> <!-- end DebugFooter -->';
@@ -420,24 +434,24 @@ function redirect_to_alias(string $alias)
 {
     $hm = AppSingle::App()->GetHierarchyManager();
     $node = $hm->find_by_tag('alias',$alias);
-    if (!$node) {
+    if( !$node ) {
         // put mention into the admin log
         cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
         return;
     }
     $contentobj = $node->getContent();
-    if (!is_object($contentobj)) {
+    if( !is_object($contentobj) ) {
         cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
         return;
     }
     $url = $contentobj->GetURL();
-    if ($url) {
+    if( $url ) {
         redirect($url);
     }
 }
 
 /**
- * Return a page id or alias, determined from current request data.
+ * Returns a page id or alias, determined from current request data.
  * This method also handles matching routes and specifying which module
  * should be called with what parameters.
  *
@@ -451,24 +465,24 @@ function redirect_to_alias(string $alias)
 function get_pageid_or_alias_from_url()
 {
     $config = AppSingle::Config();
-
     $query_var = $config['query_var'];
-    if( isset($_GET[$query_var]) ) {
-        // using non friendly urls... get the page alias/id from the query var.
-        $page = @trim((string) $_REQUEST[$query_var]);
+    $params = (new GetParameters())->get_request_values($query_var);
+    if( !$params ) exit;
+    if( $params[$query_var] !== null ) {
+        // using non-friendly urls... get the page alias/id from the query var.
+        $page = trim($params[$query_var]);
     }
     else {
         // either we're using internal pretty urls or this is the default page.
         $page = '';
-        if (isset($_SERVER['REQUEST_URI']) && !endswith($_SERVER['REQUEST_URI'], 'index.php')) {
+        if( isset($_SERVER['REQUEST_URI']) && !endswith($_SERVER['REQUEST_URI'], 'index.php') ) {
             $matches = [];
-            if (preg_match('/.*index\.php\/(.*?)$/', $_SERVER['REQUEST_URI'], $matches)) {
+            if( preg_match('/.*index\.php\/(.*?)$/', $_SERVER['REQUEST_URI'], $matches) ) {
                 // pretty urls... grab all the stuff after the index.php
                 $page = trim($matches[1]);
             }
         }
     }
-    unset($_GET['query_var']);
     if( !$page ) {
         // use the default page id
         return AppSingle::ContentOperations()->GetDefaultContent();
@@ -485,7 +499,7 @@ function get_pageid_or_alias_from_url()
     if( ($tmp = strpos($page,'?')) !== false ) $page = substr($page,0,$tmp);
 
     // strip page extension
-    if ($config['page_extension'] != '' && endswith($page, $config['page_extension'])) {
+    if( $config['page_extension'] != '' && endswith($page, $config['page_extension']) ) {
         $page = substr($page, 0, strlen($page) - strlen($config['page_extension']));
     }
 
@@ -553,7 +567,7 @@ function get_pageid_or_alias_from_url()
  * @since 0.6
  *
  * @deprecated since 1.10 NOPE
- * @see cms_siteprefs::get
+ * @see AppParams::get()
  *
  * @param string $prefname The preference name
  * @param mixed  $defaultvalue Optional return-value if the preference does not exist. Default null
@@ -561,7 +575,7 @@ function get_pageid_or_alias_from_url()
  */
 function get_site_preference(string $prefname, $defaultvalue = null)
 {
-    return cms_siteprefs::get($prefname,$defaultvalue);
+    return AppParams::get($prefname, $defaultvalue);
 }
 
 /**
@@ -569,14 +583,14 @@ function get_site_preference(string $prefname, $defaultvalue = null)
  * @since 0.6
  *
  * @deprecated since 1.10 NOPE
- * @see cms_siteprefs::remove
+ * @see AppParams::remove()
  *
  * @param string $prefname Preference name to remove
  * @param boolean $uselike  Optional flag, default false. Whether to remove all preferences that are LIKE the supplied name.
  */
 function remove_site_preference(string $prefname, bool $uselike = false)
 {
-    return cms_siteprefs::remove($prefname, $uselike);
+    AppParams::remove($prefname, $uselike);
 }
 
 /**
@@ -584,18 +598,52 @@ function remove_site_preference(string $prefname, bool $uselike = false)
  * @since 0.6
  *
  * @deprecated since 1.10 NOPE
- * @see cms_siteprefs::set
+ * @see AppParams::set()
  *
  * @param string $prefname The preference name
  * @param mixed  $value The preference value (will be stored as a string)
  */
 function set_site_preference(string $prefname, $value)
 {
-    return cms_siteprefs::set($prefname, $value);
+    AppParams::set($prefname, $value);
 }
 
 /**
- * Return the secure param query-string used in all admin links.
+ * Gets a specified module-parameter value, without the module being loaded.
+ * Intended mainly for classes which interact async with modules.
+ *
+ * @since 2.9
+ *
+ * @param string $modname The module name
+ * @param string $prefname The preference name
+ * @param mixed  $defaultvalue The default value if the parameter is not recorded
+ *
+ * @return mixed
+ */
+function get_module_param($modname, $prefname, $defaultvalue = '')
+{
+    $key = $modname.AppParams::NAMESPACER.$prefname;
+    return AppParams::get($key, $defaultvalue);
+}
+
+/**
+ * Sets a specified module-parameter value, without the module being loaded.
+ * Intended mainly for classes which interact async with modules.
+ *
+ * @since 2.9
+ *
+ * @param string $modname The module name
+ * @param string $prefname The preference name
+ * @param mixed  $value The datum to be recorded
+ */
+function set_module_param($modname, $prefname, $value)
+{
+    $key = $modname.AppParams::NAMESPACER.$prefname;
+    AppParams::set($key, $value);
+}
+
+/**
+ * Gets the secure param query-string used in all admin links.
  *
  * @internal
  * @access private
@@ -604,7 +652,7 @@ function set_site_preference(string $prefname, $value)
 function get_secure_param() : string
 {
     $out = '?';
-    if (!ini_get_boolean('session.use_cookies')) {
+    if( !ini_get_boolean('session.use_cookies') ) {
         //PHP constant SID is unreliable, we recreate it
         $out .= rawurlencode(session_name()).'='.rawurlencode(session_id()).'&amp;';
     }
@@ -613,7 +661,7 @@ function get_secure_param() : string
 }
 
 /**
- * Return the secure params in a form-friendly format.
+ * Gets the secure params in a form-friendly format.
  *
  * @internal
  * @access private
@@ -622,7 +670,7 @@ function get_secure_param() : string
 function get_secure_param_array() : array
 {
     $out = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
-    if (!ini_get_boolean('session.use_cookies')) {
+    if( !ini_get_boolean('session.use_cookies') ) {
         $out[session_name()] = session_id();
     }
     return $out;
@@ -644,7 +692,7 @@ function cms_module_plugin(array $params, $template) : string
 }
 
 /**
- * Return the url corresponding to a provided site-path
+ * Gets the url corresponding to a provided site-path
  *
  * @since 2.3
  * @param string $in The input path, absolute or relative
@@ -654,11 +702,11 @@ function cms_module_plugin(array $params, $template) : string
 function cms_path_to_url(string $in, string $relative_to = '') : string
 {
     $in = trim($in);
-    if ($relative_to) {
+    if( $relative_to ) {
         $in = realpath(cms_join_path($relative_to, $in));
         return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
     }
-    elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $in)) {
+    elseif( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $in) ) {
         // $in is absolute
         $in = realpath($in);
         return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
@@ -669,7 +717,7 @@ function cms_path_to_url(string $in, string $relative_to = '') : string
 }
 
 /**
- * Return the relative portion of a path
+ * Gets the relative portion of a path
  *
  * @since 2.2
  * @author Robert Campbell
@@ -680,17 +728,17 @@ function cms_path_to_url(string $in, string $relative_to = '') : string
 function cms_relative_path(string $in, string $relative_to = null) : string
 {
     $in = realpath(trim($in));
-    if (!$relative_to) $relative_to = CMS_ROOT_PATH;
+    if( !$relative_to ) $relative_to = CMS_ROOT_PATH;
     $to = realpath(trim($relative_to));
 
-    if ($in && $to && startswith($in, $to)) {
+    if( $in && $to && startswith($in, $to) ) {
         return substr($in, strlen($to));
     }
     return '';
 }
 
 /**
- * Get PHP flag corresponding to the configured 'content_language' i.e. the
+ * Gets PHP flag corresponding to the configured 'content_language' i.e. the
  * preferred language/syntax for page-content
  *
  * @since 2.3
@@ -715,84 +763,96 @@ static $deflang = 0;
 static $defenc = '';
 
 /**
- * Perform HTML entity conversion on a string.
+ * Performs HTML entity conversion on a supplied variable
  *
- * @see htmlentities
+ * @see htmlentities (which handles over 10000 values)
  *
- * @param mixed  $val     The input string, or maybe null
- * @param int    $flags   Optional bit-flag(s) indicating how htmlentities() should handle quotes etc. Default 0, hence ENT_QUOTES | cms_preferred_lang().
- * @param string $charset Optional character set of $val. Default 'UTF-8'. If empty the system setting will be used.
- * @param bool   $convert_single_quotes Optional flag indicating whether single quotes should be converted to entities. Default false.
+ * @param mixed  $val     The input variable string | null
+ * @param int    $flags   Optional bit-flag(s) indicating how htmlentities() should handle quotes etc.
+ *  Default 0, hence ENT_QUOTES | ENT_ENT_SUBSTITUTE | cms_preferred_lang().
+ * @param string $charset Optional character set of $val. Default 'UTF-8'.
+ *  If empty the system setting will be used.
+ * @param bool   $convert_single_quotes Optional flag indicating whether
+ *  single quotes should be converted to entities. Default false.
  *
- * @return string the converted string
+ * @return the converted string
  */
 function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
 {
-    if ($val === '' || $val === null) {
+    if( $val === '' || $val === null ) {
         return '';
     }
 
     global $deflang, $defenc;
 
-    if ($flags === 0) {
+    if( $flags === 0 ) {
         $flags = ($convert_single_quotes) ? ENT_QUOTES : ENT_COMPAT;
+        $flags |= ENT_SUBSTITUTE;
     }
-    if ($flags & (ENT_HTML5 | ENT_XHTML | ENT_HTML401) == 0) {
-        if ($deflang === 0) {
+    if( $flags & (ENT_HTML5 | ENT_XHTML | ENT_HTML401) == 0 ) {
+        if( $deflang === 0 ) {
             $deflang = cms_preferred_lang();
         }
         $flags |= $deflang;
     }
-    if ($convert_single_quotes) {
+    if( $convert_single_quotes ) {
         $flags &= ~(ENT_COMPAT | ENT_NOQUOTES);
     }
 
-    if (!$charset) {
-        if ($defenc === '') {
+    if( !$charset ) {
+        if( $defenc === '' ) {
             $defenc = NlsOperations::get_encoding();
         }
         $charset = $defenc;
     }
-    return htmlentities($val, $flags, $charset, false);
+    $val = htmlentities($val, $flags, $charset, false);
+    $val = preg_replace_callback('/(javascript\s*):\s*(.+)?/i', function($matches) {
+        if ($matches[2]) {
+            return 'javascrip&#116;&#58;'.strtr($matches[2], ['('=>'&#40;', ')'=>'&#41;']);
+        }
+        return $matches[0];
+    }, $val);
+    return $val;
 }
 
 /**
- * Perform HTML entity conversion on a string.
+ * Performs HTML entity de-conversion on a supplied variable
  *
  * @see html_entity_decode
  *
- * @param string $val     The input string
- * @param int    $param   Optional flag(s) indicating how html_entity_decode() should handle quotes etc. Default 0, hence ENT_QUOTES | cms_preferred_lang().
- * @param string $charset Optional character set of $val. Default 'UTF-8'. If empty the system setting will be used.
+ * @param mixed $val     The input variable string | null
+ * @param int   $flags   @since 2.9 Optional bit-flag(s) indicating how html_entity_decode() should handle quotes etc.
+ *  Default 0, hence ENT_QUOTES | cms_preferred_lang().
+ * @param string $charset @since 2.9 Optional character set of $val. Default 'UTF-8'.
+ *  If empty, the system setting will be used.
  *
- * @return string the converted string
+ * @return the converted string
  */
-function cms_html_entity_decode(string $val, int $param = 0, string $charset = 'UTF-8') : string
+function cms_html_entity_decode(string $val, int $flags = 0, string $charset = 'UTF-8') : string
 {
-    if ($val === '') {
+    if( $val === '' || $val === null ) {
         return '';
     }
 
     global $deflang, $defenc;
 
-    if ($param === 0) {
-        $param = ENT_QUOTES;
+    if( $flags === 0 ) {
+        $flags = ENT_QUOTES;
     }
-    if ($param & (ENT_HTML5 | ENT_XHTML | ENT_HTML401) == 0) {
-        if ($deflang === 0) {
+    if( $flags & (ENT_HTML5 | ENT_XHTML | ENT_HTML401) == 0 ) {
+        if( $deflang === 0 ) {
             $deflang = cms_preferred_lang();
         }
-        $param |= $deflang;
+        $flags |= $deflang;
     }
 
-    if (!$charset) {
-        if ($defenc === '') {
+    if( !$charset ) {
+        if( $defenc === '' ) {
             $defenc = NlsOperations::get_encoding();
         }
         $charset = $defenc;
     }
-
-    return html_entity_decode($val, $param, $charset);
+    return html_entity_decode($val, $flags, $charset);
 }
 
 /**
@@ -805,14 +865,14 @@ function cms_html_entity_decode(string $val, int $param = 0, string $charset = '
  */
 function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 {
-    if (@move_uploaded_file($tmpfile, $destination)) {
+    if( @move_uploaded_file($tmpfile, $destination) ) {
         return @chmod($destination, octdec(AppSingle::Config()['default_upload_permission']));
     }
     return false;
 }
 
 /**
- * Return a UNIX UTC timestamp corresponding to the supplied (typically
+ * Gets a UNIX UTC timestamp corresponding to the supplied (typically
  * database datetime formatted and timezoned) date/time string.
  * The supplied parameter is not validated, apart from ignoring a falsy value.
  * @since 2.3
@@ -826,24 +886,24 @@ function cms_to_stamp($datetime, bool $is_utc = false) : int
     static $dt = null;
     static $offs = null;
 
-    if ($datetime) {
-        if ($dt === null) {
+    if( $datetime ) {
+        if( $dt === null ) {
             $dt = new DateTime('@0', null);
         }
-        if (!$is_utc) {
-            if ($offs === null) {
+        if( !$is_utc ) {
+            if( $offs === null ) {
                 $dtz = new DateTimeZone(AppSingle::Config()['timezone']);
                 $offs = timezone_offset_get($dtz, $dt);
             }
         }
         try {
             $dt->modify($datetime);
-            if (!$is_utc) {
+            if( !$is_utc ) {
                 return $dt->getTimestamp() - $offs;
             }
             return $dt->getTimestamp();
         }
-        catch (Throwable $t) {
+        catch (Throwable $t ) {
             // nothing here
         }
     }
@@ -851,7 +911,7 @@ function cms_to_stamp($datetime, bool $is_utc = false) : int
 }
 
 /**
- * Identify the, or the highest-versioned, installed jquery scripts and/or css
+ * Gets the, or the highest-versioned, installed jquery scripts and/or css
  * @since 2.3
  * @return array of filepaths, keys per params: 'jqcore','jqmigrate','jqui','jquicss'
  */
@@ -860,7 +920,7 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
     $found = [];
     $allfiles = false;
 
-    if ($core) {
+    if( $core ) {
         $fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery';
         $allfiles = scandir($fp);
         //the 'core' jquery files are named like jquery-*min.js
@@ -868,9 +928,9 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
         //find highest version
         $best = '0';
         $use = reset($m);
-        foreach ($m as $file) {
+        foreach( $m as $file ) {
             preg_match('~(\d[\d\.]+\d)~', $file, $matches);
-            if (version_compare($best, $matches[1]) < 0) {
+            if( version_compare($best, $matches[1]) < 0 ) {
                 $best = $matches[1];
                 $use = $file;
             }
@@ -878,8 +938,8 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
         $found['jqcore'] = $fp.DIRECTORY_SEPARATOR.$use;
     }
 
-    if ($migrate) {
-        if (!$allfiles) {
+    if( $migrate ) {
+        if( !$allfiles ) {
             $fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery';
             $allfiles = scandir($fp);
         }
@@ -887,22 +947,22 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
         $m = preg_grep('~^jquery\-migrate\-\d[\d\.]+\d(\.min)?\.js$~', $allfiles);
         $best = '0';
         $use = reset($m);
-        foreach ($m as $file) {
+        foreach( $m as $file ) {
             preg_match('~(\d[\d\.]+\d)(\.min)?~', $file, $matches);
-            if ($debug) {
+            if( $debug ) {
                 //prefer a non-min version, so that problems are logged
-                if ($best === '0') {
+                if( $best === '0' ) {
                     $best = $matches[1];
                     $use = $file;
                     $min = !empty($matches[2]); //$use is .min
                 }
-                elseif (version_compare($best, $matches[1]) < 0 || ($min && empty($matches[2]))) {
+                elseif( version_compare($best, $matches[1]) < 0 || ($min && empty($matches[2])) ) {
                     $best = $matches[1];
                     $use = $file;
                     $min = !empty($matches[2]); //$use is .min
                 }
             }
-            elseif (version_compare($best, $matches[1]) < 0) {
+            elseif( version_compare($best, $matches[1]) < 0 ) {
                 $best = $matches[1];
                 $use = $file;
             }
@@ -912,15 +972,15 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
 
     $allfiles = false;
 
-    if ($ui) {
+    if( $ui ) {
         $fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui';
         $allfiles = scandir($fp);
         $m = preg_grep('~^jquery\-ui\-\d[\d\.]+\d([\.\-]custom)?(\.min)?\.js$~', $allfiles);
         $best = '0';
         $use = reset($m);
-        foreach ($m as $file) {
+        foreach( $m as $file ) {
             preg_match('~(\d[\d\.]+\d)~', $file, $matches);
-            if (version_compare($best, $matches[1]) < 0) {
+            if( version_compare($best, $matches[1]) < 0 ) {
                 $best = $matches[1];
                 $use = $file;
             }
@@ -928,17 +988,17 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
         $found['jqui'] = $fp.DIRECTORY_SEPARATOR.$use;
     }
 
-    if ($uicss) {
-        if (!$allfiles) {
+    if( $uicss ) {
+        if( !$allfiles ) {
             $fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui';
             $allfiles = scandir($fp);
         }
         $m = preg_grep('~^jquery\-ui\-\d[\d\.]+\d([\.\-]custom)?(\.min)?\.css$~', $allfiles);
         $best = '0';
         $use = reset($m);
-        foreach ($m as $file) {
+        foreach( $m as $file ) {
             preg_match('~(\d[\d\.]+\d)~', $file, $matches);
-            if (version_compare($best, $matches[1]) < 0) {
+            if( version_compare($best, $matches[1]) < 0 ) {
                 $best = $matches[1];
                 $use = $file;
             }
@@ -950,20 +1010,20 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
 }
 
 /**
- * Return content which will include wanted js (jQuery etc) and css in a
+ * Gets content which will include wanted js (jQuery etc) and css in a
  * displayed page.
  * @since 1.10
  * @deprecated since 2.3
  * Instead, relevant content can be gathered via functions added to hook
  * 'AdminHeaderSetup' and/or 'AdminBottomSetup', or a corresponding tag
  *  e.g. {gather_content list='AdminHeaderSetup'}.
- * See also the ScriptOperations class, for consolidating scripts into a single
+ * See also the ScriptsMerger class, for consolidating scripts into a single
  * download.
  */
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root = '',bool $include_css = true)
 {
     $incs = cms_installed_jquery(true, false, true, $include_css);
-    if ($include_css) {
+    if( $include_css ) {
         $url1 = cms_path_to_url($incs['jquicss']);
         $s1 = <<<EOS
 <link rel="stylesheet" type="text/css" href="{$url1}" />
@@ -990,28 +1050,28 @@ EOS;
  */
 function get_best_file($places, $target, $ext, $as_url)
 {
-    if (($p = stripos($target, 'min')) !== false) {
+    if( ($p = stripos($target, 'min')) !== false ) {
         $base = substr($target, 0, $p-1); //strip [.-]min & type-suffix
     }
-    elseif (($p = stripos($target, '.'.$ext)) !== false) {
+    elseif( ($p = stripos($target, '.'.$ext)) !== false ) {
         $base = substr($target, 0, $p); //strip type-suffix
     }
     $base = strtr($base, ['.'=>'\\.', '-'=>'\\-']);
 
     $patn = '~^'.$base.'([.-](\d[\d\.]*))?([.-]min)?\.'.$ext.'$~i';
-    foreach ($places as $base_path) {
+    foreach( $places as $base_path ) {
         $allfiles = scandir($base_path);
-        if ($allfiles) {
+        if( $allfiles ) {
             $files = preg_grep($patn, $allfiles);
-            if ($files) {
-                if (count($files) > 1) {
+            if( $files ) {
+                if( count($files) > 1 ) {
 //                    $best = ''
-                    foreach ($files as $target) {
+                    foreach( $files as $target ) {
                         preg_match($patn, $target, $matches);
-                        if (!empty($matches[2])) {
+                        if( !empty($matches[2]) ) {
                             break; //use the min TODO check versions too
                         }
-                        elseif (!empty($matches[1])) {
+                        elseif( !empty($matches[1]) ) {
                             //TODO a candidate, but try for later-version/min
                         }
                         else {
@@ -1024,7 +1084,7 @@ function get_best_file($places, $target, $ext, $as_url)
                     $target = reset($files);
                 }
                 $out = $base_path.DIRECTORY_SEPARATOR.$target;
-                if ($as_url) {
+                if( $as_url ) {
                     return cms_path_to_url($out);
                 }
                 return $out;
@@ -1035,7 +1095,7 @@ function get_best_file($places, $target, $ext, $as_url)
 }
 
 /**
- * Return the filepath or URL of a wanted script file, if found in any of the
+ * Gets the filepath or URL of a wanted script file, if found in any of the
  * standard locations for such files (or any other provided location).
  * Intended mainly for non-jQuery scripts, but it will try to find those those too.
  * @since 2.3
@@ -1051,7 +1111,7 @@ function get_best_file($places, $target, $ext, $as_url)
 function cms_get_script(string $filename, bool $as_url = true, $custompaths = '')
 {
     $target = basename($filename);
-    if ($target == $filename) {
+    if( $target == $filename ) {
         $places = [
          CMS_SCRIPTS_PATH,
          CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'js',
@@ -1060,7 +1120,7 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
          CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
         ];
     }
-    elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename)) {
+    elseif( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename) ) {
         // $filename is absolute
         $places = [dirname($filename)];
     }
@@ -1079,8 +1139,8 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
         ];
     }
 
-    if ($custompaths) {
-        if (is_array($custompaths)) {
+    if( $custompaths ) {
+        if( is_array($custompaths) ) {
             $places = array_merge($custompaths, $places);
         }
         else {
@@ -1093,7 +1153,7 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
 }
 
 /**
- * Return the filepath or URL of a wanted css file, if found in any of the
+ * Gets the filepath or URL of a wanted css file, if found in any of the
  * standard locations for such files (or any other provided location).
  * Intended mainly for non-jQuery styles, but it will try to find those those too.
  * @since 2.3
@@ -1109,15 +1169,16 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
 function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
 {
     $target = basename($filename);
-    if ($target == $filename) {
+    if( $target == $filename ) {
         $places = [
          CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'css',
+         CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets',
          CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'css',
          CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery',
          CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
         ];
     }
-    elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename)) {
+    elseif( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename) ) {
         // $filename is absolute
         $places = [dirname($filename)];
     }
@@ -1136,8 +1197,8 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
         ];
     }
 
-    if ($custompaths) {
-        if (is_array($custompaths)) {
+    if( $custompaths ) {
+        if( is_array($custompaths) ) {
             $places = array_merge($custompaths, $places);
         }
         else {
@@ -1150,7 +1211,7 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
 }
 
 /**
- * A method to create a text area control
+ * Creates a text area element
  *
  * @internal
  * @access private
@@ -1195,7 +1256,7 @@ function create_textarea(
 }
 
 /**
- * Create a dropdown/select html element containing a list of files that match certain conditions
+ * Creates a dropdown/select html element containing a list of files that match certain conditions
  *
  * @internal
  * @param string The name (and id) for the select element.
@@ -1245,7 +1306,7 @@ function create_file_dropdown(
 }
 
 /**
- * Get page content (js, css) for initialization of and use by the configured
+ * Gets page content (js, css) for initialization of and use by the configured
  * 'rich-text' (a.k.a. wysiwyg) text-editor.
  * @since 2.3
  * @param array $params  Configuration details. Recognized members are:
@@ -1262,27 +1323,27 @@ function create_file_dropdown(
 function get_richeditor_setup(array $params) : array
 {
     if( AppSingle::App()->is_frontend_request() ) {
-        $val = cms_siteprefs::get('frontendwysiwyg'); //module name
+        $val = AppParams::get('frontendwysiwyg'); //module name
     }
     else {
         $userid = get_userid();
         $val = cms_userprefs::get_for_user($userid, 'wysiwyg');
         if( !$val ) {
-            $val = cms_siteprefs::get('wysiwyg');
+            $val = AppParams::get('wysiwyg');
         }
     }
     if( $val ) {
         $vars = explode ('::', $val);
         $modname = $vars[0] ?? '';
         if( $modname ) {
-            $modinst = cms_utils::get_module($modname);
+            $modinst = Utils::get_module($modname);
             if( $modinst ) {
                 if( $modinst instanceof RichEditor ) {
                     $edname = $params['editor'] ?? $vars[1] ?? $modname;
-                    if (empty($params['theme'])) {
+                    if( empty($params['theme']) ) {
                         $val = cms_userprefs::get_for_user($userid, 'richeditor_theme');
                         if( !$val ) {
-                            $val = cms_siteprefs::get('richeditor_theme');
+                            $val = AppParams::get('richeditor_theme');
                         }
                         if( $val ) {
                             $params['theme'] = $val;
@@ -1304,7 +1365,7 @@ function get_richeditor_setup(array $params) : array
 }
 
 /**
- * Get page content (css, js) for initialization of and use by the configured
+ * Gets page content (css, js) for initialization of and use by the configured
  * 'advanced' (a.k.a. syntax-highlight) text-editor. Assumes that is for admin usage only.
  * @since 2.3
  * @param array $params  Configuration details. Recognized members are:
@@ -1332,20 +1393,20 @@ function get_syntaxeditor_setup(array $params) : array
     $userid = get_userid();
     $val = cms_userprefs::get_for_user($userid, 'syntax_editor');
     if( !$val ) {
-        $val = cms_siteprefs::get('syntax_editor');
+        $val = AppParams::get('syntax_editor');
     }
     if( $val ) {
         $vars = explode ('::', $val);
         $modname = $vars[0] ?? '';
         if( $modname ) {
-            $modinst = cms_utils::get_module($modname);
+            $modinst = Utils::get_module($modname);
             if( $modinst ) {
                 if( $modinst instanceof MultiEditor ) {
                     $edname = $params['editor'] ?? $vars[1] ?? $modname;
-                    if (empty($params['theme'])) {
+                    if( empty($params['theme']) ) {
                         $val = cms_userprefs::get_for_user($userid, 'syntax_theme');
                         if( !$val ) {
-                            $val = cms_siteprefs::get('syntax_theme');
+                            $val = AppParams::get('syntax_theme');
                         }
                         if( $val ) {
                             $params['theme'] = $val;
@@ -1367,15 +1428,15 @@ function get_syntaxeditor_setup(array $params) : array
 }
 
 /**
- * Output a backtrace into the generated log file.
+ * Outputs a backtrace into the generated log file.
  *
  * @see debug_to_log, debug_bt
  * Rolf: Looks like not used
  */
 function debug_bt_to_log()
 {
-    if (AppSingle::Config()['debug_to_log'] ||
-        (function_exists('get_userid') && get_userid(false))) {
+    if( AppSingle::Config()['debug_to_log'] ||
+        (function_exists('get_userid') && get_userid(false)) ) {
         $bt = debug_backtrace();
         $file = $bt[0]['file'];
         $line = $bt[0]['line'];
@@ -1383,42 +1444,42 @@ function debug_bt_to_log()
         $out = ["Backtrace in $file on line $line"];
 
         $bt = array_reverse($bt);
-        foreach($bt as $trace) {
-            if ($trace['function'] == 'debug_bt_to_log') continue;
+        foreach( $bt as $trace ) {
+            if( $trace['function'] == 'debug_bt_to_log') continue;
 
             $file = '';
             $line = '';
-            if (isset($trace['file'])) {
+            if( isset($trace['file']) ) {
                 $file = $trace['file'];
                 $line = $trace['line'];
             }
             $function = $trace['function'];
             $str = "$function";
-            if ($file) $str .= " at $file:$line";
+            if( $file) $str .= " at $file:$line";
             $out[] = $str;
         }
 
         $filename = TMP_CACHE_LOCATION . DIRECTORY_SEPARATOR. 'debug.log';
-        foreach ($out as $txt) {
+        foreach( $out as $txt ) {
             error_log($txt . "\n", 3, $filename);
         }
     }
 }
 
 /**
- * Display (echo) stack trace as human-readable lines
+ * Displays (echo) stack trace as human-readable lines
  *
  * This method uses echo.
  * @param string $title since 2.3 Optional title for (verbatim) display
  */
 function stack_trace(string $title = '')
 {
-    if ($title) echo $title . "\n";
+    if( $title) echo $title . "\n";
 
     $bt = debug_backtrace();
-    foreach ($bt as $elem) {
-        if ($elem['function'] == 'stack_trace') continue;
-        if (isset($elem['file'])) {
+    foreach( $bt as $elem ) {
+        if( $elem['function'] == 'stack_trace') continue;
+        if( isset($elem['file']) ) {
             echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br />';
         }
         else {
@@ -1428,7 +1489,7 @@ function stack_trace(string $title = '')
 }
 
 /**
- * Generate a backtrace in a readable format.
+ * Generates a backtrace in a readable format.
  *
  * This function does not return but echoes output.
  */
@@ -1442,7 +1503,7 @@ function debug_bt()
 
     $bt = array_reverse($bt);
     echo "<pre><dl>\n";
-    foreach($bt as $trace) {
+    foreach( $bt as $trace ) {
         $file = $trace['file'];
         $line = $trace['line'];
         $function = $trace['function'];
@@ -1468,13 +1529,13 @@ function debug_bt()
 function debug_display($var, string $title = '', bool $echo_to_screen = true, bool $use_html = true, bool $showtitle = true) : string
 {
     global $starttime, $orig_memory;
-    if (!$starttime) $starttime = microtime();
+    if( !$starttime) $starttime = microtime();
 
     ob_start();
 
-    if ($showtitle) {
+    if( $showtitle ) {
         $titleText = microtime_diff($starttime,microtime()) . ' S since request-start';
-        if (function_exists('memory_get_usage')) {
+        if( function_exists('memory_get_usage') ) {
             $net = memory_get_usage() - $orig_memory;
             $titleText .= ', memory usage: net '.$net;
         }
@@ -1483,8 +1544,8 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
         }
 
         $memory_peak = (function_exists('memory_get_peak_usage') ? memory_get_peak_usage() : '');
-        if ($memory_peak) {
-            if ($net === false) {
+        if( $memory_peak ) {
+            if( $net === false ) {
                 $titleText .= ', memory usage: peak '.$memory_peak;
             }
             else {
@@ -1492,7 +1553,7 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
             }
         }
 
-        if ($use_html) {
+        if( $use_html ) {
             echo "<div><b>$titleText</b>\n";
         }
         else {
@@ -1500,49 +1561,49 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
         }
     }
 
-    if ($title || $var || is_numeric($var)) {
-        if ($use_html) echo '<pre>';
-        if ($title) echo $title . "\n";
-        if (is_array($var)) {
+    if( $title || $var || is_numeric($var) ) {
+        if( $use_html) echo '<pre>';
+        if( $title) echo $title . "\n";
+        if( is_array($var) ) {
             echo 'Number of elements: ' . count($var) . "\n";
             print_r($var);
         }
-        elseif (is_object($var)) {
+        elseif( is_object($var) ) {
             print_r($var);
         }
-        elseif (is_string($var)) {
-            if ($use_html) {
+        elseif( is_string($var) ) {
+            if( $use_html ) {
                 print_r(htmlentities(str_replace("\t", '  ', $var)));
             }
             else {
                 print_r($var);
             }
         }
-        elseif (is_bool($var)) {
+        elseif( is_bool($var) ) {
             echo ($var) ? 'true' : 'false';
         }
-        elseif ($var || is_numeric($var)) {
+        elseif( $var || is_numeric($var) ) {
             print_r($var);
         }
-        if ($use_html) echo '</pre>';
+        if( $use_html) echo '</pre>';
     }
-    if ($use_html) echo "</div>\n";
+    if( $use_html) echo "</div>\n";
 
     $out = ob_get_clean();
 
-    if ($echo_to_screen) echo $out;
+    if( $echo_to_screen) echo $out;
     return $out;
 }
 
 /**
- * Display $var nicely only if $config["debug"] is set.
+ * Displays $var nicely only if $config["debug"] is set.
  *
  * @param mixed $var
  * @param string $title
  */
 function debug_output($var, string $title='')
 {
-    if (AppSingle::Config()['debug']) { debug_display($var, $title, true); }
+    if( AppSingle::Config()['debug'] ) { debug_display($var, $title, true); }
 }
 
 /**
@@ -1555,29 +1616,29 @@ function debug_output($var, string $title='')
  */
 function debug_to_log($var, string $title='',string $filename = '')
 {
-    if (AppSingle::Config()['debug_to_log'] ||
-        (function_exists('get_userid') && get_userid(false))) {
-        if ($filename == '') {
+    if( AppSingle::Config()['debug_to_log'] ||
+        (function_exists('get_userid') && get_userid(false)) ) {
+        if( $filename == '' ) {
             $filename = TMP_CACHE_LOCATION . '/debug.log';
             $x = (is_file($filename)) ? @filemtime($filename) : time();
-            if ($x !== false && $x < (time() - 24 * 3600)) unlink($filename);
+            if( $x !== false && $x < (time() - 24 * 3600)) unlink($filename);
         }
         $errlines = explode("\n",debug_display($var, $title, false, false, true));
-        foreach ($errlines as $txt) {
+        foreach( $errlines as $txt ) {
             error_log($txt . "\n", 3, $filename);
         }
     }
 }
 
 /**
- * Add $var to the global errors array if $config['debug'] is in effect.
+ * Adds $var to the global errors array if $config['debug'] is in effect.
  *
  * @param mixed $var
  * @param string $title
  */
 function debug_buffer($var, string $title='')
 {
-    if (constant('CMS_DEBUG')) {
+    if( constant('CMS_DEBUG') ) {
         AppSingle::App()->add_error(debug_display($var, $title, false, true));
     }
 }

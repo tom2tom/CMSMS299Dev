@@ -18,7 +18,6 @@
 
 namespace CMSMS;
 
-use cms_config;
 use function mime_content_type;
 use function startswith;
 
@@ -191,9 +190,10 @@ class FileTypeHelper
     /**
      * Constructor
      *
-     * @param cms_config $config Optional since 2.3
+     * @param array $config 0ptional since 2.9 custom definitions of some filetype extensions
+	 * The parameters used here are NOT related to the global config class
      */
-    public function __construct( cms_config $config = null )
+    public function __construct( $config = null )
     {
         if ($config) {
             $this->update_config_extensions('_image_extensions', $config['FileTypeHelper_image_extensions']);

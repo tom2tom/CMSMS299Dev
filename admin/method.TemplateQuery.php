@@ -16,12 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//see also: class CmsLayoutTemplateQuery which (for now at least) this replicates
+//see also: class CMSMS\TemplateQuery which (for now at least) this replicates
 
+use CMSMS\AppSingle;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplatesGroup;
+use CMSMS\TemplateType;
 
 $tbl1 = CMS_DB_PREFIX.TemplateOperations::TABLENAME;
-$tbl2 = CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME;
+$tbl2 = CMS_DB_PREFIX.TemplateType::TABLENAME;
 $typejoin = false;
 $catjoin = false;
 
@@ -38,7 +41,7 @@ $offset = 0;
 $sortby = 'name';
 $sortorder = 'ASC';
 
-$db = CmsApp::get_instance()->GetDb();
+$db = AppSingle::App()->GetDb();
 
 /*
  Acceptable filter-array keys (optional content in []):
@@ -211,7 +214,7 @@ if ($typejoin) {
 	$xprefixes($where);
 	if (strncmp($sortby,'CONCAT', 6) != 0) $sortby = 'TPL.'.$sortby;
 } elseif ($catjoin) {
-	$tbl3 = CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME;
+	$tbl3 = CMS_DB_PREFIX.TemplatesGroup::TABLENAME;
 	$query = "SELECT TPL.id FROM $tbl1 TPL LEFT JOIN $tbl3 TC ON TPL.type_id = TC.id";
 	$xprefixes($where);
 	$sortby = 'TPL.'.$sortby;

@@ -1,5 +1,5 @@
 <?php
-#HookManager class
+#HookOperations class
 #Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -40,10 +40,11 @@ ATM not so.
  *
  * @package CMS
  * @license GPL
- * @since 2.2
+ * @since 2.9
+ * @since 2.2 as HookManager
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
-class HookManager
+class HookOperations
 {
     /**
      * High priority handler

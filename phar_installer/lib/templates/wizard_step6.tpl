@@ -14,44 +14,44 @@
   <p>{'info_adminaccount'|tr}</p>
 
   <fieldset>
-    <div class="row form-row">
-      <div class="four-col">
+    <div class="flexrow form-row">
+      <div class="cell cols_4">
         <label for="name">{'username'|tr}</label>
       </div>
-      <div class="eight-col">
+      <div class="cell cols_8">
         <input class="form-field required full-width" type="text" id="name" name="username" value="{$account.username}" required="required" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
       </div>
     </div>
-    <div class="row form-row">
-      <div class="four-col">
+    <div class="flexrow form-row">
+      <div class="cell cols_4">
         <label for="pass">{'password'|tr}</label>
       </div>
-      <div class="eight-col">
+      <div class="cell cols_8">
         <input class="form-field required full-width" type="password" id="pass" name="password" value="{$account.password}" required="required" autocomplete="off" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
       </div>
     </div>
-    <div class="row form-row">
-      <div class="four-col">
+    <div class="flexrow form-row">
+      <div class="cell cols_4">
         <label for="again">{'repeatpw'|tr}</label>
       </div>
-      <div class="eight-col">
+      <div class="cell cols_8">
         <input class="form-field required full-width" type="password" id="again" name="repeatpw" value="{$account.password}" required="required" autocomplete="off" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
       </div>
     </div>
-    <div class="row form-row">
-      <div class="four-col">
+    <div class="flexrow form-row">
+      <div class="cell cols_4">
         <label for="email">{'emailaddr'|tr}</label>
       </div>
-      <div class="eight-col">
+      <div class="cell cols_8">
 {*      {if $verbose} *}
         <input class="form-field full-width" type="email" id="email" name="emailaddr" value="{$account.emailaddr}" />
 {*      {else}

@@ -18,10 +18,10 @@
 
 namespace ModuleManager\Command;
 
-use cms_utils;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\ModuleOperations;
+use CMSMS\Utils;
 use GetOpt\Operand;
 use ModuleManager\module_info;
 use RuntimeException;
@@ -38,7 +38,7 @@ class ModuleUninstallCommand extends Command
     public function handle()
     {
         $ops = ModuleOperations::get_instance();
-        $moma = cms_utils::get_module('ModuleManager');
+        $moma = Utils::get_module('ModuleManager');
         $module = $this->getOperand('module')->value();
         $info = new module_info( $module );
         if( !$info['dir'] ) throw new RuntimeException('Nothing is known about module '.$module);

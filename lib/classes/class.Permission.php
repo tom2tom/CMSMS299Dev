@@ -21,7 +21,7 @@ namespace CMSMS;
 use CmsException;
 use CmsInvalidDataException;
 use CMSMS\App;
-use CmsPermission;
+use CMSMS\Permission;
 use CmsSQLErrorException;
 use const CMS_DB_PREFIX;
 
@@ -177,7 +177,7 @@ VALUES (?,?,?,NOW())";
 	 * Load a permission with the specified name
 	 *
 	 * @param string $name
-	 * @return CmsPermission
+	 * @return Permission
 	 * @throws CmsInvalidDataException
 	 */
 	public static function load($name)

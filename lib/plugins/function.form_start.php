@@ -41,7 +41,7 @@ function smarty_function_form_start($params, $template)
 			$tmp = $template->getTemplateVars('_action');
 			if( $tmp ) $mactparms['action'] = $tmp;
 
-			$tagparms['action'] = 'lib/moduleinterface.php';
+			$tagparms['action'] = CMS_ROOT_URL.'/lib/moduleinterface.php';
 			if( empty($mactparms['action']) ) $mactparms['action'] = 'defaultadmin';
 			$mactparms['returnid'] = '';
 			if( empty($mactparms['mid']) ) $mactparms['mid'] = 'm1_';
@@ -52,7 +52,7 @@ function smarty_function_form_start($params, $template)
 			$tmp = $template->getTemplateVars('actionparams');
 			if( is_array($tmp) && isset($tmp['action']) ) $mactparms['action'] = $tmp['action'];
 
-			$tagparms['action'] = 'lib/moduleinterface.php';
+			$tagparms['action'] = CMS_ROOT_URL.'/lib/moduleinterface.php';
 			if( !$mactparms['returnid'] ) $mactparms['returnid'] = CmsApp::get_instance()->get_content_id();
 			$hm = $gCms->GetHierarchyManager();
 			$node = $hm->find_by_tag('id',$mactparms['returnid']);

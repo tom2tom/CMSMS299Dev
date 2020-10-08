@@ -43,7 +43,7 @@ try {
     }
     echo $out;
 }
-catch( Exception $e ) {
+catch( Throwable $e ) {
     // do 500 error.
     $handlers = ob_list_handlers();
     for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }

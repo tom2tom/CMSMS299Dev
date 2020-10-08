@@ -18,7 +18,7 @@
 
 namespace CMSMS\internal;
 
-use CmsApp;
+use CMSMS\AppSingle;
 use Smarty_Resource_Custom;
 use const CMS_DB_PREFIX;
 use function cms_error;
@@ -64,7 +64,7 @@ class module_db_template_resource extends Smarty_Resource_Custom
         }
         else {
             if( !self::$db ) {
-                self::$db = CmsApp::get_instance()->GetDb();
+                self::$db = AppSingle::Db();
                 self::$stmt = self::$db->Prepare('SELECT content,modified_date FROM '.CMS_DB_PREFIX.'layout_templates WHERE originator=? AND name=?');
             }
             $parts = explode(';',$name);

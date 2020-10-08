@@ -17,6 +17,7 @@
 
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
+use CMSMS\Utils;
 
 function smarty_function_cms_action_url($params, $template)
 {
@@ -72,7 +73,7 @@ function smarty_function_cms_action_url($params, $template)
 		if( $mid == '' ) $mid = 'cntnt01';
 		if( $action == '' ) $action = 'default';
 		if( $returnid == '' ) {
-			$returnid = cms_utils::get_current_pageid();
+			$returnid = Utils::get_current_pageid();
 			if( $returnid < 1 ) {
 				$returnid = ContentOperations::get_instance()->GetDefaultContent();
 			}
@@ -80,7 +81,7 @@ function smarty_function_cms_action_url($params, $template)
 	}
 	if( $action == '' ) return;
 
-	$obj = cms_utils::get_module($module);
+	$obj = Utils::get_module($module);
 	if( !$obj ) return;
 
 	$url = $obj->create_url($mid,$action,$returnid,$actionparms);

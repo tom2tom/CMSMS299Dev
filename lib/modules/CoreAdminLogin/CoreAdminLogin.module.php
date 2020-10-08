@@ -17,7 +17,11 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
+use CMSMS\CoreCapabilities;
+use CMSMS\Crypto;
 use CMSMS\IAuthModuleInterface;
+use CMSMS\ModuleOperations;
 
 /**
  * Module: admin login/out processor
@@ -48,22 +52,19 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-            case CMSMS\CoreCapabilities::CORE_MODULE:
-            case CMSMS\CoreCapabilities::LOGIN_MODULE:
-            case CMSMS\CoreCapabilities::SITE_SETTINGS:
+            case CoreCapabilities::CORE_MODULE:
+            case CoreCapabilities::LOGIN_MODULE:
                 return true;
             default:
                 return false;
         }
     }
 
-	//TODO hook function to populate 'centralised' site settings update
-
     // interface methods
 
     /**
-     * Process the current login 'phase', and generate appropriate page-content
-     * for use upstream
+     * Process the current login 'phase', and generate appropriate
+     * page-content for use by caller
      * No header / footer inclusions (js, css) are done (i.e. assumes upstream does that)
      * @return array including login-form content and related parameters
      */
@@ -71,12 +72,12 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
     {
         //parameters for included function
         $usecsrf = true;
-        $config = cms_config::get_instance();
+        $config = AppSingle::Config();
 
         $fp = cms_join_path(__DIR__, 'function.login.php');
         require_once $fp;
 
-        $csrf = cms_utils::random_string(16, true); //encryption-grade hash not needed
+        $csrf = Crypto::random_string(16, true); //encryption-grade hash not needed
 
         $smarty = CmsApp::get_instance()->GetSmarty();
         $smarty->assign('mod', $this)
@@ -110,7 +111,7 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
     public function RunLogin()
     {
         $id = '__';
-        $params = \ModuleOperations::get_instance()->GetModuleParameters($id);
+        $params = ModuleOperations::get_instance()->GetModuleParameters($id);
         $this->DoAction('admin_login', $id, $params, null);
     }
 } // class

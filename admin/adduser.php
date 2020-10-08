@@ -1,5 +1,5 @@
 <?php
-#procedure to add an admin user
+#Add a new admin user
 #Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,12 +16,15 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminTheme;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Events;
-use CMSMS\GroupOperations;
-use CMSMS\AdminTheme;
 use CMSMS\User;
-use CMSMS\UserOperations;
+use CMSMS\UserParams;
+use CMSMS\Utils;
+use Throwable;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -32,15 +35,14 @@ check_login();
 $urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
     redirect('listusers.php' . $urlext);
-//    return;
 }
 
 $userid = get_userid();
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (!check_permission($userid, 'Manage Users')) {
-//TODO some immediate popup   lang('needpermissionto', '"Manage Users"'));
+//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Users')), ...);
     return;
 }
 
@@ -48,52 +50,78 @@ if (!check_permission($userid, 'Manage Users')) {
  * Variables
  ---------------------*/
 
-$gCms              = cmsms();
-$assign_group_perm = check_permission($userid, 'Manage Groups');
-$groupops          = GroupOperations::get_instance();
-$errors            = [];
+$superusr      = ($userid == 1); //group 1 addition|removal allowed
+$groupops      = AppSingle::GroupOperations();
+$admins        = array_column($groupops->GetGroupMembers(1), 1);
+$supergrp      = $superusr || in_array($userid, $admins); //group 1 removal allowed
+$manage_groups = check_permission($userid, 'Manage Groups');
+$errors        = [];
 
 if (isset($_POST['submit'])) {
 
-    $user             = cleanValue($_POST['user']);
+    $cleaner = function($val) {
+        if ($val) {
+            $val = filter_var($val.'', FILTER_SANITIZE_STRING); //strip HTML,XML,PHP tags, NUL bytes
+            $val = preg_replace_callback('/\W/', function($matches) {
+                $n = ord($matches[0]);
+                if (in_array($n, [32,33,35,36,37,38,44,46,124,125,126]) || $n > 127) {
+                    return $matches[0];
+                }
+                return '';
+            }, $val);
+        }
+        return $val;
+    };
+
+    $active           = !empty($_POST['active']);
+//    $adminaccess      = !empty($_POST['adminaccess']); //whether the user may log in
+    $copyusersettings = (int)$_POST['copyusersettings'];
+    $email            = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    $firstname        = $cleaner(trim($_POST['firstname']));
+    $lastname         = $cleaner(trim($_POST['lastname']));
+    $user             = $cleaner(trim($_POST['user']));
     $password         = $_POST['password']; //no cleanup: any char is valid, & hashed before storage
     $passwordagain    = $_POST['passwordagain'];
-    $firstname        = cleanValue($_POST['firstname']);
-    $lastname         = cleanValue($_POST['lastname']);
-    $email            = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $copyusersettings = (int)$_POST['copyusersettings'];
     $sel_groups       = cleanArray($_POST['sel_groups']);
-    $active           = (isset($_POST['active'])) ? 1 : 0;
-    $adminaccess      = (isset($_POST['adminaccess'])) ? 1 : 0;
 
     if ($user == '') {
-        $error = true;
-        (lang('nofieldgiven', lang('username')));
-    } elseif (!preg_match('/^[a-zA-Z0-9\._ ]+$/', $user)) {
+        $errors[] = lang('nofieldgiven', lang('username'));
+    } elseif ($user != trim($_POST['user'])) {
         $errors[] = lang('illegalcharacters', lang('username'));
     }
 
-    if ($password == '') {
+    if ($password) {
+        //TODO some intra-core policy & test
+        try {
+            Events::SendEvent('Core', 'PasswordStrengthTest', $password);
+        }
+        catch( Throwable $t ) {
+            $errors[] = $t->GetMessage();
+        }
+    } else {
+        //TODO some intra-core policy & test
         $errors[] = lang('nofieldgiven', lang('password'));
-    } elseif ($password != $passwordagain) {
+    }
+
+    if ($password && $password != $passwordagain) {
         // We don't want to see this if no password was given
         $errors[] = lang('nopasswordmatch');
     }
 
-    if (!empty($email) && !is_email($email)) {
-        $errors[] = lang('invalidemail');
+    if ($email && !is_email($email)) {
+        $errors[] = lang('invalidemail') . ': ' . $email;
     }
 
     if (!$errors) {
         $newuser = new User();
 
-        $newuser->username    = $user;
         $newuser->active      = $active;
+//        $newuser->adminaccess = $adminaccess;
         $newuser->firstname   = $firstname;
         $newuser->lastname    = $lastname;
         $newuser->email       = $email;
-        $newuser->adminaccess = $adminaccess;
         $newuser->SetPassword($password);
+        $newuser->username    = $user;
 
         Events::SendEvent( 'Core', 'AddUserPre', [ 'user'=>&$newuser ] );
 
@@ -103,36 +131,35 @@ if (isset($_POST['submit'])) {
             Events::SendEvent( 'Core', 'AddUserPost', [ 'user'=>&$newuser ] );
 
             // set some default preferences, based on the user creating this user
-            $adminid = get_userid();
-            $userid = $newuser->id;
+            $user_id = $newuser->id;
             if ($copyusersettings > 0) {
-                $prefs = cms_userprefs::get_all_for_user($copyusersettings);
+                $prefs = UserParams::get_all_for_user($copyusersettings);
                 if ($prefs) {
                     foreach ($prefs as $k => $v) {
-                        cms_userprefs::set_for_user($userid, $k, $v);
+                        UserParams::set_for_user($user_id, $k, $v);
                     }
                 }
             } else {
-                cms_userprefs::set_for_user($userid, 'default_cms_language', cms_userprefs::get_for_user($adminid, 'default_cms_language'));
-//                cms_userprefs::set_for_user($userid, 'wysiwyg', cms_userprefs::get_for_user($adminid, 'wysiwyg')); //rich-text-editor type
-//                cms_userprefs::set_for_user($userid, 'syntax_editor', cms_userprefs::get_for_user($adminid, 'syntax_editor')); //syntax-editor type
-//                cms_userprefs::set_for_user($userid, 'syntax_theme', cms_userprefs::get_for_user($adminid, 'syntax_theme'));
-                $val = cms_siteprefs::get('logintheme');
+                UserParams::set_for_user($user_id, 'default_cms_language', UserParams::get_for_user($userid, 'default_cms_language'));
+//                UserParams::set_for_user($user_id, 'wysiwyg', UserParams::get_for_user($userid, 'wysiwyg')); //rich-text-editor type
+//                UserParams::set_for_user($user_id, 'syntax_editor', UserParams::get_for_user($userid, 'syntax_editor')); //syntax-editor type
+//                UserParams::set_for_user($user_id, 'syntax_theme', UserParams::get_for_user($userid, 'syntax_theme'));
+                $val = AppParams::get('logintheme');
                 if( !$val ) $val = AdminTheme::GetDefaultTheme();
-                cms_userprefs::set_for_user($userid, 'admintheme', $val);
-//                cms_userprefs::set_for_user($userid, 'bookmarks', cms_userprefs::get_for_user($adminid, 'bookmarks'));
-//                cms_userprefs::set_for_user($userid, 'recent', cms_userprefs::get_for_user($adminid, 'recent'));
-                $val = cms_siteprefs::get('wysiwyg');
-                if( $val ) cms_userprefs::set_for_user($uid, 'wysiwyg', $val);
+                UserParams::set_for_user($user_id, 'admintheme', $val);
+//                UserParams::set_for_user($user_id, 'bookmarks', UserParams::get_for_user($userid, 'bookmarks'));
+//                UserParams::set_for_user($user_id, 'recent', UserParams::get_for_user($userid, 'recent'));
+                $val = AppParams::get('wysiwyg');
+                if ($val) UserParams::set_for_user($uid, 'wysiwyg', $val);
             }
 
-            if ($assign_group_perm && $sel_groups) {
-                $db = $gCms->GetDb();
+            if ($manage_groups && $sel_groups) {
+                $db = AppSingle::Db();
                 $iquery = 'INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)';
                 foreach ($sel_groups as $gid) {
                     $gid = (int)$gid;
                     if ($gid > 0) {
-                        $db->Execute($iquery, [$userid, $gid]);
+                        $db->Execute($iquery, [$user_id, $gid]);
                     }
                 }
             }
@@ -145,38 +172,40 @@ if (isset($_POST['submit'])) {
         }
     }
 } else {
-    $user              = '';
-    $firstname         = '';
-    $lastname          = '';
-    $userid            = -1;
-    $password          = '';
-    $passwordagain     = '';
-    $email             = '';
-    $sel_groups        = [];
-    $adminaccess       = 1;
-    $active            = 1;
-    $copyusersettings  = null;
+    $active           = 1;
+//    $adminaccess      = 1;
+    $copyusersettings = null;
+    $email            = '';
+    $firstname        = '';
+    $lastname         = '';
+    $password         = '';
+    $passwordagain    = '';
+    $sel_groups       = [];
+    $user             = '';
 }
-
-$smarty = CmsApp::get_instance()->GetSmarty();
 
 /*--------------------
  * Display view
  ---------------------*/
+
 if ($errors) {
     $themeObject->RecordNotice('error', $errors);
 }
 
+$smarty = AppSingle::Smarty();
+
+if ($manage_groups) {
+    $groups = $groupops->LoadGroups();
+    $smarty->assign('groups', $groups);
+} else {
+    $smarty->assign('groups', null);
+}
+
 $out      = [-1 => lang('none')];
-$userlist = UserOperations::get_instance()->LoadUsers();
+$userlist = AppSingle::UserOperations()->LoadUsers();
 
 foreach ($userlist as $one) {
     $out[$one->id] = $one->username;
-}
-
-if ($assign_group_perm) {
-    $groups = $groupops->LoadGroups();
-    $smarty->assign('groups', $groups);
 }
 
 $selfurl = basename(__FILE__);
@@ -184,12 +213,11 @@ $extras = get_secure_param_array();
 
 $smarty->assign([
     'active' => $active,
-    'adminaccess' => $adminaccess,
+//    'adminaccess' => $adminaccess,
     'copyusersettings' => $copyusersettings,
     'email' => $email,
     'firstname' => $firstname,
     'lastname' => $lastname,
-    'my_userid' => $userid,
     'password' => $password,
     'passwordagain' => $passwordagain,
     'sel_groups' => $sel_groups,
@@ -197,9 +225,12 @@ $smarty->assign([
     'extraparms' => $extras,
     'urlext' => $urlext,
     'user' => $user,
-    'users' => $out,
+    'users' => $out, //for filter/selector
+    'perm1usr' => $superusr,  //group 1 addition|removal allowed
+    'perm1grp' => $supergrp, //group 1 removal allowed
 ]);
 
-include_once 'header.php';
-$smarty->display('adduser.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('adduser.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

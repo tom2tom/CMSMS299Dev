@@ -13,29 +13,25 @@
   {if $action == 'install'}
     <h3>{'prompt_sitename'|tr}</h3>
     <p>{'info_sitename'|tr}</p>
-    <div class="row form-row">
-      <div class="twelve-col">
-        <input class="form-field required full-width" type="text" name="sitename" value="{$sitename}" placeholder="{'ph_sitename'|tr}" required="required" />
-        <div class="corner red">
-          <i class="icon-asterisk"></i>
-        </div>
+    <div class="row">
+      <input class="form-field required half-width" type="text" name="sitename" value="{$sitename}" placeholder="{'ph_sitename'|tr}" required="required" />
+      <div class="corner red">
+        <i class="icon-asterisk"></i>
       </div>
     </div>
   {/if}
 
   {if isset($supporturl)}
     <h3{if !$verbose} class="disabled"{/if}>{'prompt_supporturl'|tr}</h3>
-    <p{if !$verbose} class="disabled"{/if}>{'info_supporturl'|tr}</p>
-    <div class="row form-row">
-      <div class="twelve-col">
-        <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" name="supporturl" value="{$supporturl}"{if $verbose} placeholder="{'ph_supporturl'|tr}"{else} disabled="disabled"{/if} />
-      </div>
+    {if $verbose}<p>{'info_supporturl'|tr}</p>{/if}
+    <div class="row">
+      <input class="form-field half-width{if !$verbose} disabled{/if}" type="text" name="supporturl" value="{$supporturl}"{if $verbose} placeholder="{'ph_supporturl'|tr}"{else} disabled="disabled"{/if} />
     </div>
   {/if}
 
   <h3>{'prompt_addlanguages'|tr}</h3>
   <p>{'info_addlanguages'|tr}</p>
-  <div class="row form-row">
+  <div class="row">
     <select class="form-field" name="languages[]" multiple="multiple" size="8">
       {html_options options=$language_list selected=$languages}
     </select>
@@ -44,7 +40,7 @@
   {if !empty($modules_list)}
   <h3>{'prompt_addmodules'|tr}</h3>
   <p>{'info_addmodules'|tr}</p>
-  <div class="row form-row">
+  <div class="row">
     <select class="form-field" name="wantedextras[]" multiple="multiple" size="3">
       {html_options options=$modules_list selected=$modules_sel}
     </select>
@@ -54,8 +50,7 @@
   {if $action == 'install'}
   <h3>{'prompt_installcontent'|tr}</h3>
   <p>{'info_installcontent'|tr}</p>
-  <div class="row form-row">
-    <label for="demo">{'prompt_installcontent'|tr}</label>
+  <div class="row">
     <select id="demo" class="form-field" name="samplecontent">
       {html_options options=$yesno selected=$config.samplecontent}
     </select>

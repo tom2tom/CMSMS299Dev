@@ -18,15 +18,15 @@
 
 namespace CMSMS\internal;
 
-use cms_config;
-use cms_siteprefs;
-use cms_utils;
-use CmsApp;
 use CmsError403Exception;
 use CmsError404Exception;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
 use CMSMS\internal\GetParameters;
+use CMSMS\internal\template_wrapper;
 use CMSMS\ModuleOperations;
+use CMSMS\Utils;
 use Smarty_Internal_SmartyTemplateCompiler;
 use const CMS_UPLOADS_URL;
 use function cms_join_path;
@@ -80,7 +80,7 @@ final class content_plugins
      */
     public static function fetch_contentblock(array $params, $smarty)
     {
-        $contentobj = CmsApp::get_instance()->get_content_object();
+        $contentobj = AppSingle::App()->get_content_object();
         $result = null;
         if (is_object($contentobj)) {
             if( !$contentobj->IsPermitted() ) throw new CmsError403Exception();
@@ -116,7 +116,7 @@ final class content_plugins
      */
     public static function fetch_pagedata(array $params, $template)
     {
-        $contentobj = CmsApp::get_instance()->get_content_object();
+        $contentobj = AppSingle::App()->get_content_object();
         if( !is_object($contentobj) || $contentobj->Id() <= 0 ) {
             self::echo_content('', $params, $template);
             return;
@@ -138,15 +138,15 @@ final class content_plugins
     public static function fetch_imageblock(array $params, $template)
     {
         $ignored = [ 'block','type','name','label','upload','dir','default','tab','priority','exclude','sort','profile','urlonly','assign' ];
-        $gCms = CmsApp::get_instance();
+        $gCms = AppSingle::App();
         $contentobj = $gCms->get_content_object();
         if( !is_object($contentobj) || $contentobj->Id() <= 0 ) {
             self::echo_content('', $params, $template);
             return;
         }
 
-        $config = cms_config::get_instance();
-        $adddir = cms_siteprefs::get('contentimage_path');
+        $config = AppSingle::Config();
+        $adddir = AppParams::get('contentimage_path');
         if( isset($params['dir']) && $params['dir'] != '' ) $adddir = $params['dir'];
         $dir = cms_join_path($config['uploads_path'],$adddir);
         $basename = basename($config['uploads_path']);
@@ -211,14 +211,14 @@ final class content_plugins
         $block = $params['block'];
         $result = '';
 
-        $gCms = CmsApp::get_instance();
+        $gCms = AppSingle::App();
         $content_obj = $gCms->get_content_object();
         if( is_object($content_obj) ) {
             $result = $content_obj->GetPropertyValue($block);
             if( $result == -1 ) $result = '';
             $module = isset($params['module']) ? trim($params['module']) : null;
             if( $module ) {
-                $mod = cms_utils::get_module($module);
+                $mod = Utils::get_module($module);
                 if( is_object($mod) ) $result = $mod->RenderContentBlockField($block,$result,$params,$content_obj);
             }
         }
@@ -277,12 +277,7 @@ final class content_plugins
 			$action = $params['action'];
             $params = $modops->GetModuleParameters($id);
 			$params['action'] = $action; //deprecated since 2.3
-            ob_start();
             $result = $module_obj->DoActionBase($action, $id, $params, $page_id, $smarty);
-            if( ($result && $result !== 1) || is_numeric($result) ) { //ignore PHP 'successful inclusion' report
-                echo $result;
-            }
-            $result = ob_get_clean();
         }
         else {
             $result = $smarty->fetch('content:content_en', '|content_en', $page_id.'content_en');

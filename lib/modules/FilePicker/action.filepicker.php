@@ -26,10 +26,11 @@
  * generated page and uploader
  */
 
+use CMSMS\Crypto;
 use CMSMS\FileType;
+use CMSMS\FSControlValue;
 use CMSMS\NlsOperations;
-use CMSMS\FSControlsValue;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
 use FilePicker\PathAssistant;
 use FilePicker\TemporaryProfileStorage;
 use FilePicker\Utils;
@@ -88,9 +89,9 @@ try {
     }
     if( !$this->CheckPermission('Modify Files') ) {
         $profile = $profile->overrideWith([
-            'can_upload' => FSControlsValue::NO,
-            'can_delete' => FSControlsValue::NO,
-            'can_mkdir' => FSControlsValue::NO
+            'can_upload' => FSControlValue::NO,
+            'can_delete' => FSControlValue::NO,
+            'can_mkdir' => FSControlValue::NO
         ]);
 		$save = true;
     }
@@ -112,7 +113,7 @@ try {
 	}
 
     $assistant = new PathAssistant($config, $topdir);
-    $sesskey = cms_utils::hash_string(__FILE__);
+    $sesskey = Crypto::hash_string(__FILE__);
 
 	$cwd = $params['seldir'] ?? '';
     if( $cwd ) {
@@ -220,7 +221,7 @@ try {
                     $imgsize = @getimagesize($fullname);
                     if( $imgsize && ($imgsize[0] || $imgsize[1]) ) {
                         $data['dimensions'] = $imgsize[0].' x '.$imgsize[1];
-                        if( $imgsize[0] <= 96 && $imgsize[1] <= 48 ) { //c.f. site_prefs ['thumbnail_width', 'thumbnail_height']
+                        if( $imgsize[0] <= 96 && $imgsize[1] <= 48 ) { //c.f. cms_siteprefs ['thumbnail_width', 'thumbnail_height']
                             $small = true;
                             $data['is_small'] = true;
                         }
@@ -334,16 +335,16 @@ EOS;
 EOS;
     }
 
-    $sm = new ScriptOperations();
-    $sm->queue_file($incs['jqcore'], 1);
+    $jsm = new ScriptsMerger();
+    $jsm->queue_file($incs['jqcore'], 1);
 //    if( CMS_DEBUG )
-        $sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ? or keep if (CMS_DEBUG)?
+        $jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ? or keep if (CMS_DEBUG)?
 //    }
-    $sm->queue_file($incs['jqui'], 1);
-//  $sm->queue_file($path.'jquery.dm-uploader.min.js', 2);
-//  $sm->queue_file($path.'fakeadmin.js', 2);
-//  $sm->queue_file($path.'filebrowser.min.js', 2);
-    $headinc .= $sm->render_inclusion('', false, false);
+    $jsm->queue_file($incs['jqui'], 1);
+//  $jsm->queue_file($path.'jquery.dm-uploader.min.js', 2);
+//  $jsm->queue_file($path.'fakeadmin.js', 2);
+//  $jsm->queue_file($path.'filebrowser.min.js', 2);
+    $headinc .= $jsm->page_content('', false, false);
 
     $url = $this->create_url($id,'ajax_cmd',$returnid,['forjs'=>1]);
     $url = str_replace('&amp;','&',$url).'&'.CMS_JOB_KEY.'=1';
@@ -392,7 +393,7 @@ $(function() {
 
 EOS;
     // this template generates a full html page
-    $tpl = $smarty->createTemplate($this->GetTemplateResource('filepicker.tpl'),null,null,$smarty);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('filepicker.tpl')); //,null,null,$smarty);
 
     $tpl->assign('module_url',$baseurl)
      ->assign('topurl',$topurl)

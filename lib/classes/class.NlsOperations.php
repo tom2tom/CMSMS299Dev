@@ -18,13 +18,12 @@
 
 namespace CMSMS;
 
-use cms_config;
-use cms_siteprefs;
-use cms_userprefs;
-use CmsApp;
-use CmsLanguageDetector;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\LanguageDetector;
 use CMSMS\Nls;
+use CMSMS\UserParams;
 use const CMS_ROOT_PATH;
 use function cms_join_path;
 use function get_userid;
@@ -85,7 +84,7 @@ final class NlsOperations
 	{
 		if( !is_array(self::$_nls) ) {
 			self::$_nls = [];
-			$config = cms_config::get_instance();
+			$config = AppSingle::Config();
 			$nlsdir = cms_join_path(CMS_ROOT_PATH,'lib','nls');
 			$langdir = cms_join_path(CMS_ROOT_PATH,$config['admin_dir'],'lang');
 			$files = glob($nlsdir.DIRECTORY_SEPARATOR.'*nls.php');
@@ -165,7 +164,7 @@ final class NlsOperations
 	{
 	  $curlang = '';
 	  if( self::$_cur_lang != '') $curlang = self::$_cur_lang;
-	  if( $lang == '' && CmsApp::get_instance()->is_frontend_request() && is_object(self::$_fe_language_detector) ) $lang = self::$_fe_language_detector->find_language();
+	  if( $lang == '' && AppSingle::App()->is_frontend_request() && is_object(self::$_fe_language_detector) ) $lang = self::$_fe_language_detector->find_language();
 	  if( $lang != '' ) $lang = self::find_nls_match($lang); // resolve input string
 	  if( $lang == '' ) $lang = self::get_default_language();
 	  if( $curlang == $lang ) return TRUE; // nothing to do.
@@ -192,7 +191,7 @@ final class NlsOperations
 	public static function get_current_language() : string
 	{
 		if( isset(self::$_cur_lang) ) return self::$_cur_lang;
-		if( is_object(self::$_fe_language_detector) && CmsApp::get_instance()->is_frontend_request() ) return self::$_fe_language_detector->find_language();
+		if( is_object(self::$_fe_language_detector) && AppSingle::App()->is_frontend_request() ) return self::$_fe_language_detector->find_language();
 		return self::get_default_language();
 	}
 
@@ -237,7 +236,7 @@ final class NlsOperations
 	 */
 	protected static function get_frontend_language() : string
 	{
-		$lang = trim(cms_siteprefs::get('frontendlang'));
+		$lang = trim(AppParams::get('frontendlang'));
 		if( !$lang ) $lang = 'en_US';
 		return $lang;
 	}
@@ -256,7 +255,7 @@ final class NlsOperations
 		if( !AppState::test_state(AppState::STATE_LOGIN_PAGE) ) {
 			$uid = get_userid(false);
 			if( $uid ) {
-				$lang = cms_userprefs::get_for_user($uid,'default_cms_language');
+				$lang = UserParams::get_for_user($uid,'default_cms_language');
 				if( $lang ) {
 					self::_load_nls();
 					if( !isset(self::$_nls[$lang]) ) $lang = null;
@@ -344,7 +343,7 @@ final class NlsOperations
 			return self::$_encoding;
 		}
 		// is it specified in the config.php?
-		$config = cms_config::get_instance();
+		$config = AppSingle::Config();
 		if( !empty($config['default_encoding']) ) {
 			return strtoupper($config['default_encoding']);
 		}
@@ -379,7 +378,7 @@ final class NlsOperations
 	 */
 	protected static function set_locale()
 	{
-		$config = cms_config::get_instance();
+		$config = AppSingle::Config();
 		static $_locale_set;
 
 		$locale = '';
@@ -405,16 +404,16 @@ final class NlsOperations
 	/**
 	 * Override the default language detection mechanism for frontend requests.
 	 * One (and only one!) module may specify a detection-object derived from
-	 * CmsLanguageDetector.
+	 * CMSMS\LanguageDetector.
 	 *
 	 * e.g. NlsOperations::set_language_detector(myLanguageDetector)
 	 *
 	 * Note: the detector must return a language for which there is an available NLS file.
 	 *
-	 * @param CmsLanguageDetector $obj Object containing methods to detect a
+	 * @param LanguageDetector $obj Object containing methods to detect a
 	 *  compatible, desired language
 	 */
-	public static function set_language_detector(CmsLanguageDetector $obj)
+	public static function set_language_detector(LanguageDetector $obj)
 	{
 		if( is_object(self::$_fe_language_detector) ) die('language detector already set');
 		self::$_fe_language_detector = $obj;

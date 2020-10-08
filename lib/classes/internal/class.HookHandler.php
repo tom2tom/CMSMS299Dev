@@ -18,7 +18,7 @@
 
 namespace CMSMS\internal;
 
-use CMSMS\HookManager;
+use CMSMS\HookOperations;
 use InvalidArgumentException;
 
 /**
@@ -36,24 +36,24 @@ class HookHandler
     public $handler;
 
     /**
-     * @var int HookManager::PRIORITY_*
+     * @var int HookOperations::PRIORITY_*
      */
     public $priority;
 
     /**
      * Constructor.
      * @param callable $handler
-     * @param int $priority Optional since 2.9, Default HookManager::PRIORITY_NORMAL
+     * @param int $priority Optional since 2.9, Default HookOperations::PRIORITY_NORMAL
      * @throws InvalidArgumentException if $handler is not callable
      */
-    public function __construct($handler, int $priority = HookManager::PRIORITY_NORMAL)
+    public function __construct($handler, int $priority = HookOperations::PRIORITY_NORMAL)
     {
         if (is_callable($handler, true)) {
             $this->callable = $handler;
             if ($priority <= 0) {
-                $this->priority = HookManager::PRIORITY_NORMAL;
+                $this->priority = HookOperations::PRIORITY_NORMAL;
             } else {
-                $this->priority = max(HookManager::PRIORITY_HIGH,min(HookManager::PRIORITY_LOW,(int)$priority));
+                $this->priority = max(HookOperations::PRIORITY_HIGH,min(HookOperations::PRIORITY_LOW,(int)$priority));
             }
         } else {
             throw new InvalidArgumentException('Invalid callable passed to '. self::class.'::'.__METHOD__);

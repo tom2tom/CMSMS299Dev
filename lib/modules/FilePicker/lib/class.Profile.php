@@ -18,20 +18,19 @@
 
 namespace FilePicker;
 
-use cms_config;
-use CmsException;
-use CMSMS\FilePickerProfile;
+use CMSMS\AppSingle;
+use CMSMS\FileSystemControls;
 use CMSMS\FileTypeHelper;
 use Exception;
-use LogicException;
-use OutOfBoundsException;
+use Throwable;
 use const CMS_DEBUG;
 use const PUBLIC_CACHE_LOCATION;
 use function cms_to_bool;
 use function debug_to_log;
+use function lang;
 use function startswith;
 
-class Profile extends FilePickerProfile
+class Profile extends FileSystemControls
 {
     /**
      * Constructor
@@ -106,7 +105,7 @@ class Profile extends FilePickerProfile
             $val = parent::__get('top');
             if( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $val) ) {
                // path is absolute
-                $config = cms_config::get_instance();
+                $config = AppSingle::Config();
                //TODO sometimes relative to site root
                 $uploads_path = $config['uploads_path'];
                 if( startswith( $val, $uploads_path ) ) { $val = substr($val,strlen($uploads_path)); }
@@ -120,7 +119,7 @@ class Profile extends FilePickerProfile
             $val = parent::__get('top');
             if( !preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $val) ) {
                 //TODO sometimes relative to site root
-                $config = cms_config::get_instance();
+                $config = AppSingle::Config();
                 $val = $config['uploads_path'].DIRECTORY_SEPARATOR.$val;
             }
             return $val;
@@ -190,12 +189,12 @@ class Profile extends FilePickerProfile
 
     /**
      * @return boolean
-     * @throws CmsException
+     * @throws Exception
      */
     public function validate()
     {
-        if( !$this->name ) { throw new CmsException('err_profile_name'); }
-        if( $this->reltop && !is_dir($this->top) ) { throw new CmsException('err_profile_topdir'); }
+        if( !$this->name ) { throw new Exception(lang('errorbadname')); }
+        if( $this->reltop && !is_dir($this->top) ) { throw new Exception(lang('TODOerr_profile_topdir')); }
         return true;
     }
 
@@ -203,13 +202,13 @@ class Profile extends FilePickerProfile
      * Get a clone of this profile with the specified id
      * @param mixed $new_id  Optional (number >= 1.0 | numeric string >= 1.0 | null) Default null
      * @return Profile
-     * @throws LogicException
+     * @throws Exception
      */
     public function withNewId( $new_id = null )
     {
         if( !is_null($new_id) ) {
             $new_id = (int) $new_id;
-            if( $new_id < 1 ) throw new OutOfBoundsException('Invalid id passed to '.__METHOD__);
+            if( $new_id < 1 ) throw new Exception('Invalid id passed to '.__METHOD__);
         }
         else {
             $new_id = 0;
@@ -236,12 +235,12 @@ class Profile extends FilePickerProfile
 
             case 'type':
                 if( !isset($params['file_extensions']) ) {
-                    $helper = new FileTypeHelper(cms_config::get_instance());
+                    $helper = new FileTypeHelper();
                     $exts = $helper->get_file_type_extensions((int)$val);
                     $obj->setValue('file_extensions',$exts);
                 }
                 if( !isset($params['file_mimes']) ) {
-                    if (!isset($helper) ) $helper = new FileTypeHelper(cms_config::get_instance());
+                    if (!isset($helper) ) $helper = new FileTypeHelper();
                     $mimes = $helper->get_file_type_mime((int)$val);
                     $obj->setValue('file_mimes',$mimes);
                 }
@@ -285,12 +284,12 @@ class Profile extends FilePickerProfile
         try {
             if( !$p ) {
                 // file has no extension, or just an initial '.'
-                throw new OutOfBoundsException($fn.': type is not acceptable');
+                throw new Exception($fn.': type is not acceptable');
             }
             $ext = substr($fn, $p+1);
             if( !$ext ) {
                 // file has empty extension
-                throw new OutOfBoundsException($fn.': type is not acceptable');
+                throw new Exception($fn.': type is not acceptable');
             }
             $s =& $this->_data['file_extensions'];
             // we always do a caseless (hence ASCII) check,
@@ -304,10 +303,10 @@ class Profile extends FilePickerProfile
                     }
                 }
             }
-            throw new OutOfBoundsException($fn.': type is not acceptable');
+            throw new Exception($fn.': type is not acceptable');
         }
-        catch (Exception $e) {
-            if( CMS_DEBUG ) { debug_to_log($e->GetMessage()); }
+        catch (Throwable $t) {
+            if( CMS_DEBUG ) { debug_to_log($t->GetMessage()); }
             return false;
         }
     }

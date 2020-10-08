@@ -1,5 +1,5 @@
 <?php
-#...
+#Modify an existing admin user
 #Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,12 +16,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\AppState;
 //use CMSMS\SysDataCache;
+use CMSMS\AppSingle;
+use CMSMS\AppState;
 use CMSMS\Events;
-use CMSMS\GroupOperations;
-use CMSMS\UserOperations;
-use Exception;
+use CMSMS\UserParams;
+use CMSMS\Utils;
+use Throwable;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -32,89 +33,44 @@ check_login();
 $urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
     redirect('listusers.php'.$urlext);
-    return;
 }
 
 $userid = get_userid();
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (!check_permission($userid, 'Manage Users')) {
-//TODO some immediate popup    $themeObject->RecordNotice('error', lang('TODO', 'Manage Users'));
+//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Users')), ...);
     return;
 }
-
-$confirm = json_encode(lang('confirm_edituser'));
-$out = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
-$(function() {
- $('#submit').on('click', function(ev) {
-  ev.preventDefault();
-  cms_confirm_btnclick(this, $confirm);
-  return false;
- });
- $('#copyusersettings').change(function() {
-  var v = $(this).val();
-  if(v === -1) {
-   $('#clearusersettings').removeAttr('disabled');
-  } else {
-   $('#clearusersettings').attr('disabled', 'disabled');
-  }
- });
- $('#clearusersettings').on('click', function() {
-  $('#copyusersettings').val(-1);
-  var v = $(this).attr('checked');
-  if(v === 'checked') {
-   $('#copyusersettings').attr('disabled', 'disabled');
-  } else {
-   $('#copyusersettings').removeAttr('disabled');
-  }
- });
-});
-//]]>
-</script>
-EOS;
-
-add_page_foottext($out);
 
 /*--------------------
  * Variables
  ---------------------*/
-$gCms              = cmsms();
-$db                = $gCms->GetDb();
-$error             = '';
-$dropdown          = '';
-$adminaccess       = 1;
-$active            = 1;
-$tplmaster         = 0;
-$copyfromtemplate  = 1;
-$message           = '';
-$user_id           = $userid;
-// Post data TODO WHERE
-//$user              = cleanValue($_POST['user']);
-//$password          = $_POST['password']; //no cleanup: any char is valid, & hashed before storage
-//$passwordagain     = $_POST['passwordagain'];
-//$firstname         = cleanValue($_POST['firstname']);
-//$lastname          = cleanValue($_POST['lastname']);
-//$email             = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+//$tplmaster        = 0; //CHECKME
+$copyfromtemplate = 1; //CHECKME
+$errors           = [];
 
-if (isset($_POST['user_id'])) {
-    $user_id = (int)$_POST['user_id'];
-} elseif (isset($_GET['user_id'])) {
+if (!empty($_POST['user_id'])) {
+    $user_id = (int)$_POST['user_id']; // OR filter_input(INPUT_POST, 'user_id', FILTER_SANITIZE_NUMBER_INT);
+} elseif (!empty($_GET['user_id'])) {
     $user_id = (int)$_GET['user_id'];
+} else {
+    $user_id = $userid;
 }
 
-// this is now always true... but we may want to change how things work, so I'll leave it
-$userops           = UserOperations::get_instance();
-$groupops          = GroupOperations::get_instance();
-$group_list        = $groupops->LoadGroups();
-$access_user       = ($userid == $user_id);
-$access_group      = $userops->UserInGroup($userid, 1) || (!$userops->UserInGroup($user_id, 1));
-$access            = $access_user && $access_group;
-$assign_group_perm = check_permission($userid, 'Manage Groups');
-$manage_users      = check_permission($userid, 'Manage Users');
-$thisuser          = $userops->LoadUserByID($user_id);
+$superusr      = ($userid == 1); //group 1 addition|removal allowed
+$groupops      = AppSingle::GroupOperations();
+$admins        = array_column($groupops->GetGroupMembers(1), 1);
+$supergrp      = $superusr || in_array($userid, $admins); //group 1 removal allowed
+$access_group  = in_array($userid, $admins) || !in_array($user_id, $admins); // ??
+$selfedit      = ($userid == $user_id);
+$access        = $selfedit && $access_group;
+$userops       = AppSingle::UserOperations();
+$thisuser      = $userops->LoadUserByID($user_id);
+$group_list    = $groupops->LoadGroups();
+$manage_groups = check_permission($userid, 'Manage Groups');
+$manage_users  = check_permission($userid, 'Manage Users');
 
 /*--------------------
  * Logic
@@ -122,80 +78,113 @@ $thisuser          = $userops->LoadUserByID($user_id);
 
 if (isset($_POST['submit'])) {
 
-    if( !$access_user ) $active = isset($_POST['active']);
+    $cleaner = function($val) {
+        if ($val) {
+            $val = filter_var($val.'', FILTER_SANITIZE_STRING); //strip HTML,XML,PHP tags, NUL bytes
+            $val = preg_replace_callback('/\W/', function($matches) {
+                $n = ord($matches[0]);
+                if (in_array($n, [32,33,35,36,37,38,44,46,124,125,126]) || $n > 127) {
+                    return $matches[0];
+                }
+                return '';
+            }, $val);
+        }
+        return $val;
+    };
 
-    $adminaccess = isset($_POST['adminaccess']) ? 1 : 0;
+    if (!$selfedit) {
+        $active      = !empty($_POST['active']);
+//        $adminaccess = !empty($_POST['adminaccess']); //whether the user may log in
+    } elseif ($user_id != -1) {
+        $active      = $thisuser->active;
+//        $adminaccess = $thisuser->adminaccess;
+    } else { //should never happen when editing
+        $active      = 1;
+//        $adminaccess = 1;
+    }
+    $email         = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    $firstname     = $cleaner(trim($_POST['firstname']));
+    $lastname      = $cleaner(trim($_POST['lastname']));
+    $user          = $cleaner(trim($_POST['user']));
+    $password      = $_POST['password']; //no cleanup: any char is valid, & hashed before storage
+    $passwordagain = $_POST['passwordagain'];
+
     $error = false;
-
-    // check for errors
+    // validate
     if ($user == '') {
-        $error = true;
-        $themeObject->RecordNotice('error', lang('nofieldgiven', lang('username')));
+        $errors[] = lang('nofieldgiven', lang('username'));
+    } elseif ($user != trim($_POST['user'])) {
+        $errors[] = lang('illegalcharacters', lang('username'));
     }
 
-    if (!preg_match("/^[a-zA-Z0-9\._ ]+$/", $user)) {
-        $error = true;
-        $themeObject->RecordNotice('error', lang('illegalcharacters', lang('username')));
-    }
-
-    if ($password != $passwordagain) {
-        $error = true;
-        $themeObject->RecordNotice('error', lang('nopasswordmatch'));
-    }
-
-    if (!empty($email) && !is_email($email)) {
-        $error = true;
-        $themeObject->RecordNotice('error', lang('invalidemail') . ': ' . $email);
-    }
-
-    if( !empty($password) ) {
+    if ($password) {
+        //TODO some intra-core policy & test
         try {
-            Events::SendEvent('Core', 'PasswordStrengthTest', $password );
+            Events::SendEvent('Core', 'PasswordStrengthTest', $password);
         }
-        catch( Exception $e ) {
-            $validinfo = false;
-            $error .= '<li>'.$e->GetMessage().'</li>';
+        catch( Throwable $t ) {
+            $errors[] = $t->GetMessage();
         }
+    } else {
+        // no password-change
+    }
+
+    if ($password && $password != $passwordagain) {
+        // We don't want to see this if no password was given
+        $errors[] = lang('nopasswordmatch');
+    }
+
+    if ($email && !is_email($email)) {
+        $errors[] = lang('invalidemail') . ': ' . $email;
     }
 
     if (isset($_POST['copyusersettings']) && $_POST['copyusersettings'] > 0) {
         if (isset($_POST['clearusersettings'])) {
             // error: both can't be set
-            $error = true;
-            $themeObject->RecordNotice('error', lang('error_multiusersettings'));
+            $errors[] = lang('error_multiusersettings');
         }
     }
 
-    // save data
-    if (!$error) {
+    if (!$errors) {
+        // save data
         $result = false;
         if ($thisuser) {
-            $thisuser->username    = $user;
+            $thisuser->active      = $active;
+//            $thisuser->adminaccess = $adminaccess;
+            $thisuser->email       = $email;
             $thisuser->firstname   = $firstname;
             $thisuser->lastname    = $lastname;
-            $thisuser->email       = $email;
-            $thisuser->adminaccess = $adminaccess;
-            $thisuser->active      = $active;
-            if ($password != '') {
+            if ($password) {
                 $thisuser->SetPassword($password);
             }
+            $thisuser->username    = $user;
 
-            Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$thisuser ] );
+            Events::SendEvent('Core', 'EditUserPre', [ 'user' => &$thisuser ]);
 
             $result = $thisuser->save();
-            if ($assign_group_perm && isset($_POST['groups'])) {
-                $dquery = 'DELETE FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=?';
-                $stmt = $db->Prepare('INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)');
-                $result = $db->Execute($dquery, [$thisuser->id]);
+            if ($manage_groups && isset($_POST['groups'])) {
+                $db = AppSingle::Db();
+                $stmt1 = $db->Prepare('DELETE FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
+                $stmt2 = $db->Prepare('SELECT 1 FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
+                $stmt3 = $db->Prepare('INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)');
                 foreach ($group_list as $thisGroup) {
-                    if (isset($_POST['g' . $thisGroup->id]) && $_POST['g' . $thisGroup->id] == 1) {
-                        $result = $db->Execute($stmt, [
-                            $thisuser->id,
-                            $thisGroup->id
-                        ]);
+                    $gid = $thisGroup->id;
+                    if (isset($_POST['g' . $gid])) {
+                        $uid = $thisuser->id;
+                        if ($_POST['g' . $gid] == 0) {
+                            $db->Execute($stmt1, [$uid, $gid]); // fails if already absent
+                        } elseif ($_POST['g' . $gid] == 1) {
+                            $rst = $db->Execute($stmt2, [$uid, $gid]);
+                            if (!$rst || $rst->EOF) {
+                                $db->Execute($stmt2, [$uid, $gid]);
+                            }
+                            if ($rst) $rst->Close();
+                        }
                     }
                 }
-                $stmt->close();
+                $stmt1->close();
+                $stmt2->close();
+                $stmt3->close();
             }
         }
 
@@ -206,19 +195,19 @@ if (isset($_POST['submit'])) {
         if ($result) {
             if (isset($_POST['copyusersettings']) && $_POST['copyusersettings'] > 0) {
                 // copy user preferences from the template user to this user.
-                $prefs = cms_userprefs::get_all_for_user((int)$_POST['copyusersettings']);
+                $prefs = UserParams::get_all_for_user((int)$_POST['copyusersettings']);
                 if ($prefs) {
-                    cms_userprefs::remove_for_user($user_id);
+                    UserParams::remove_for_user($user_id);
                     foreach ($prefs as $k => $v) {
-                        cms_userprefs::set_for_user($user_id, $k, $v);
+                        UserParams::set_for_user($user_id, $k, $v);
                     }
                     audit($user_id, 'Admin Username: ' . $thisuser->username, 'settings copied from template user');
                     $message = lang('msg_usersettingscopied');
                 }
-            } else if (isset($_POST['clearusersettings'])) {
+            } elseif (isset($_POST['clearusersettings'])) {
                 // clear all preferences for this user.
                 audit($user_id, 'Admin Username: ' . $thisuser->username, ' settings cleared');
-                cms_userprefs::remove_for_user($user_id);
+                UserParams::remove_for_user($user_id);
                 $message = lang('msg_usersettingscleared');
             }
 
@@ -235,36 +224,81 @@ if (isset($_POST['submit'])) {
             $themeObject->RecordNotice('error', lang('errorupdatinguser'));
         }
     }
-
-} elseif ($user_id != -1) {
-    $user        = $thisuser->username;
-    $firstname   = $thisuser->firstname;
-    $lastname    = $thisuser->lastname;
-    $email       = $thisuser->email;
-    $adminaccess = $thisuser->adminaccess;
-    $active      = $thisuser->active;
+}
+elseif ($user_id != -1) {
+    $active        = $thisuser->active;
+//    $adminaccess   = $thisuser->adminaccess;
+    $email         = $thisuser->email;
+    $firstname     = $thisuser->firstname;
+    $lastname      = $thisuser->lastname;
+    $password      = '';
+    $passwordagain = '';
+    $user          = $thisuser->username;
+}
+else { //should never happen when editing
+    $active        = 1;
+//    $adminaccess   = 1;
+    $email         = '';
+    $firstname     = '';
+    $lastname      = '';
+    $password      = '';
+    $passwordagain = '';
+    $user          = '';
 }
 
 /*--------------------
  * Display view
  ---------------------*/
 
-if (!empty($error)) {
-    $themeObject->RecordNotice('error', $error);
+if ($errors) {
+    $themeObject->RecordNotice('error', $errors);
 }
 
-$out      = [-1 => lang('none')];
+$confirm = json_encode(lang('confirm_edituser'));
+$out = <<<EOS
+<script type="text/javascript">
+ //<![CDATA[
+ $(function() {
+  $('#submit').on('click', function(ev) {
+   ev.preventDefault();
+   cms_confirm_btnclick(this, $confirm);
+   return false;
+  });
+  $('#copyusersettings').change(function() {
+   var v = $(this).val();
+   if(v === -1) {
+    $('#clearusersettings').removeAttr('disabled');
+   } else {
+    $('#clearusersettings').attr('disabled', 'disabled');
+   }
+  });
+  $('#clearusersettings').on('click', function() {
+   $('#copyusersettings').val(-1);
+   var v = $(this).attr('checked');
+   if(v === 'checked') {
+    $('#copyusersettings').attr('disabled', 'disabled');
+   } else {
+    $('#copyusersettings').removeAttr('disabled');
+   }
+  });
+ });
+ //]]>
+</script>
+EOS;
+add_page_foottext($out);
 
+$out = [-1 => lang('none')];
 $userlist = $userops->LoadUsers();
 foreach ($userlist as $one) {
-    if ($one->id == $user_id) continue;
-    $out[$one->id] = $one->username;
+    if ($one->id != $user_id) {
+        $out[$one->id] = $one->username;
+    }
 }
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 
-if ($assign_group_perm && !$access_user) {
-    $smarty->assign('groups', $groupops->LoadGroups())
+if ($manage_groups) {
+    $smarty->assign('groups', $group_list)
       ->assign('membergroups', $userops->GetMemberGroups($user_id));
 }
 
@@ -272,23 +306,27 @@ $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
 $smarty->assign([
-    'access_user' => $access_user,
     'active' => $active,
-    'adminaccess' => $adminaccess,
+//    'adminaccess' => $adminaccess,
     'copyfromtemplate' => $copyfromtemplate,
     'email' => $email,
     'firstname' => $firstname,
     'lastname' => $lastname,
     'manage_users' => $manage_users,
-    'tplmaster' => $tplmaster,
+    'my_userid' => $userid,
+//    'tplmaster' => $tplmaster, TODO
     'selfurl' => $selfurl,
-	'extraparms' => $extras,
+    'extraparms' => $extras,
     'urlext' => $urlext,
     'user_id' => $user_id,
-    'users' => $out,
+    'users' => $out, //for user-selector
     'user' => $user,
+    'access_user' => $selfedit,
+    'perm1usr' => $superusr,  //group 1 addition|removal allowed
+    'perm1grp' => $supergrp, //group 1 removal allowed
 ]);
 
-include_once 'header.php';
-$smarty->display('edituser.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('edituser.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

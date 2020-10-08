@@ -18,15 +18,14 @@
 
 namespace CMSMS;
 
-use cms_utils;
-use CmsApp;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
-use CMSMS\SysDataCacheDriver;
-use CMSMS\SysDataCache;
 use CMSMS\ModuleOperations;
-use CMSMS\RouteOperations;
-use CmsRoute;
+use CMSMS\Route;
+use CMSMS\SysDataCache;
+use CMSMS\SysDataCacheDriver;
 use Exception;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -65,7 +64,7 @@ final class RouteOperations
 	 * Populated from database routes table and page-URL's
 	 * Each row's key is a 'signature' derived from route properties.
 	 * Value is array with 'term' to match, 'exact' for (default) type of match,
-	 *  and 'data' to construct a CmsRoute when needed
+	 *  and 'data' to construct a Route when needed
 	 * Caseless sorted on 'term'
 	 * @ignore
 	 */
@@ -82,7 +81,7 @@ final class RouteOperations
 	 * Populated by modules which register intra-request routes
 	 * Each row's key is a 'signature' derived from route properties.
 	 * Value is array with 'term' to match, 'exact' for (default) type of match,
-	 *  and 'data' to construct a CmsRoute when needed
+	 *  and 'data' to construct a Route when needed
 	 * Caseless sorted on 'term'
 	 * @ignore
 	 */
@@ -250,7 +249,7 @@ final class RouteOperations
 	 * regular expression match is performed.
 	 * String comparison is caseless, and assumes single-byte case-conversion is ok.
 	 *
-	 * @param mixed $a CmsRoute object | array with member 'term' and optional 'exact'
+	 * @param mixed $a Route object | array with member 'term' and optional 'exact'
 	 * @param string $str The string to be checked
 	 * @param bool $exact Optional flag whether to try for an
 	 *  exact string-match regardless of recorded object|array properties.
@@ -259,7 +258,7 @@ final class RouteOperations
 	 */
 	public static function is_match(&$a,string $str,bool $exact = FALSE)
 	{
-		if( $a instanceof CmsRoute ) {
+		if( $a instanceof Route ) {
 			$pattern = $a->term;
 			if( !$exact ) $exact = $a->exact;
 		}
@@ -276,7 +275,7 @@ final class RouteOperations
 
 		$matches = null;
 		$res = preg_match($pattern,$str,$matches);
-		if( $a instanceof CmsRoute ) {
+		if( $a instanceof Route ) {
 			if( $matches ) {
 				$a->results = $matches;
 			}
@@ -290,11 +289,11 @@ final class RouteOperations
 	/**
 	 * Test whether the specified route exists.
 	 *
-	 * @param CmsRoute $route The route object
+	 * @param Route $route The route object
 	 * @param bool     $static_only Optional flag indicating that only static routes should be checked. Default FALSE.
 	 * @return bool
 	 */
-	public static function route_exists(CmsRoute $route,bool $static_only = FALSE) : bool
+	public static function route_exists(Route $route,bool $static_only = FALSE) : bool
 	{
 		self::load_static_routes();
 		$sig = $route->get_signature();
@@ -317,7 +316,7 @@ final class RouteOperations
 	 * @param string $str The string whose match is sought (usually an incoming request URL)
 	 * @param bool $exact Optional flag instructing an exact string match regardless of object properties. Default FALSE.
 	 * @param bool $static_only Optional flag indicating that only static (db-recorded) routes should be checked. Default FALSE.
-	 * @return mixed CmsRoute the matching route, or null.
+	 * @return mixed Route the matching route, or null.
 	 */
 	public static function find_match(string $str,bool $exact = FALSE,bool $static_only = FALSE)
 	{
@@ -335,7 +334,7 @@ final class RouteOperations
 				$props['key2'] ?? NULL,
 				$props['key3'] ?? NULL,
 				];
-				$obj = new CmsRoute(...$parms);
+				$obj = new Route(...$parms);
 				$obj->results = $row['results'];
 				return $obj;
 			}
@@ -356,7 +355,7 @@ final class RouteOperations
 				$props['key2'] ?? NULL,
 				$props['key3'] ?? NULL,
 				];
-				$obj = new CmsRoute(...$parms);
+				$obj = new Route(...$parms);
 				$obj->results = $row['results'];
 				return $obj;
 			}
@@ -373,10 +372,10 @@ final class RouteOperations
 	 *
 	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @since 1.11
-	 * @param CmsRoute $route The dynamic route object to add
+	 * @param Route $route The dynamic route object to add
 	 * @return TRUE always
 	 */
-	public static function add(CmsRoute $route) : bool
+	public static function add(Route $route) : bool
 	{
 		if( self::route_exists($route) ) return TRUE; //TODO v. slow check!
 		if( !is_array(self::$_dynamic_routes) ) self::$_dynamic_routes = [];
@@ -401,10 +400,10 @@ final class RouteOperations
 	 * This is an alias of the add() method.
 	 *
 	 * @see RouteOperations::add_dynamic()
-	 * @param CmsRoute $route The route to register
+	 * @param Route $route The route to register
 	 * @return bool
 	 */
-	public static function register(CmsRoute $route) : bool
+	public static function register(Route $route) : bool
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method','add_dynamic'));
 		return self::add_dynamic($route);
@@ -429,10 +428,10 @@ final class RouteOperations
 	 *
 	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @since 1.11
-	 * @param CmsRoute $route The route to add.
+	 * @param Route $route The route to add.
 	 * @return bool indicating success
 	 */
-	public static function add_static(CmsRoute $route)
+	public static function add_static(Route $route)
 	{
 		//as well as combined data, we separately record some individual properties to facilitate deletion
 		$arr = (array)$route;
@@ -442,7 +441,7 @@ final class RouteOperations
 		$key2 = ( isset($props['key2']) && ($props['key2'] || is_numeric($props['key2'])) ) ? $props['key2'] : NULL;
 		$key3 = ( isset($props['key3']) && ($props['key3'] || is_numeric($props['key3'])) ) ? $props['key3'] : NULL;
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$tbl = CMS_DB_PREFIX.'routes';
 		$query = "UPDATE $tbl SET term=?,data=? WHERE key1=? AND key2=? AND key3=?";
 		$db->Execute($query, [$props['term'],$data,$key1,$key2,$key3]);
@@ -497,7 +496,7 @@ EOS;
 
 		if( !$where ) return FALSE;
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'routes WHERE ';
 		$query .= implode(' AND ',$where);
 		$dbr = $db->Execute($query,$parms);
@@ -520,7 +519,7 @@ EOS;
 	{
 		// clear the route table and local cache
 		self::clear_static_routes();
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'TRUNCATE '.CMS_DB_PREFIX.'routes';
 		$db->Execute($query);
 
@@ -550,7 +549,7 @@ EOS;
 		$tmp = $db->GetArray($query);
 		if( $tmp ) {
 			for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
-				$route = new CmsRoute($tmp[$i]['page_url'],'__CONTENT__',null,TRUE,$tmp[$i]['content_id']);
+				$route = new Route($tmp[$i]['page_url'],'__CONTENT__',null,TRUE,$tmp[$i]['content_id']);
 				self::add_static($route);
 			}
 		}
@@ -566,7 +565,7 @@ EOS;
 		if( self::$_routes_loaded ) return;
 
 		self::$_routes = [];
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'SELECT data FROM '.CMS_DB_PREFIX.'routes WHERE data != "" AND data IS NOT NULL';
 		$rows = $db->GetCol($query);
 		if( $rows ) {
@@ -603,17 +602,17 @@ EOS;
 	 * Get the 'signature' of $a
 	 * @access private
 	 *
-	 * @param mixed $a A CmsRoute object, or parameters-array corresponding
+	 * @param mixed $a A Route object, or parameters-array corresponding
 	 * to the properties of such an object
 	 * @return string
 	 */
 	private static function get_signature($a) : string
 	{
-		if( $a instanceof CmsRoute ) {
+		if( $a instanceof Route ) {
 			return $a->get_signature();
 		}
 		$tmp = json_encode($a,JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-		return cms_utils::hash_string($tmp);
+		return Crypto::hash_string($tmp);
 	}
 
 	/**

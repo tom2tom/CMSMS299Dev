@@ -18,11 +18,15 @@
 
 use cms_installer\installer_base;
 use CMSMS\AdminUtils;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
+use CMSMS\FilePickerProfile;
 use CMSMS\RouteOperations;
 use CMSMS\SysDataCache;
 use CMSMS\SystemCache;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -34,7 +38,7 @@ $urlext = get_secure_param();
 $userid = get_userid();
 $access = true; //check_permission($userid, 'TODO some Site Perm');
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (!$access) {
 //TODO some immediate popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
@@ -43,7 +47,7 @@ if (!$access) {
 
 require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
 
-$gCms = CmsApp::get_instance();
+$gCms = AppSingle::App();
 
 $smarty = $gCms->GetSmarty();
 $smarty->force_compile = true;
@@ -288,7 +292,7 @@ if ($config['develop_mode']) {
                 // and also download it
                 $handlers = ob_list_handlers();
                 for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
-                $tmp = cms_siteprefs::get('sitename','CMSMS-Site');
+                $tmp = AppParams::get('sitename','CMSMS-Site');
                 $xmlname = strtr("Exported-{$tmp}.xml", ' ', '_');
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/force-download');
@@ -359,6 +363,7 @@ $smarty->assign('backurl', $themeObject->BackUrl())
   ->assign('extraparms', $extras)
   ->assign('urlext', $urlext);
 
-include_once 'header.php';
-$smarty->display('systemmaintenance.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('systemmaintenance.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

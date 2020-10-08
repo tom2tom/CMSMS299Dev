@@ -18,10 +18,10 @@
 
 namespace CMSContentManager;
 
-use cms_utils;
-use CmsDbQueryBase;
 use CmsInvalidDataException;
 use CmsLogicException;
+use CMSMS\AppSingle;
+use CMSMS\DbQueryBase;
 use CmsSQLErrorException;
 use const CMS_DB_PREFIX;
 
@@ -34,7 +34,7 @@ use const CMS_DB_PREFIX;
  * @author Robert Campbell
  *
  */
-final class ContentListQuery extends CmsDbQueryBase
+final class ContentListQuery extends DbQueryBase
 {
 	protected $_filter;
 
@@ -105,7 +105,7 @@ final class ContentListQuery extends CmsDbQueryBase
 		if( $where ) $sql .= ' WHERE '.implode(' AND ',$where);
 		$sql .= ' ORDER BY C.id_hierarchy';
 
-		$db = cms_utils::get_db();
+		$db = AppSingle::Db();
 		$this->_rs = $db->SelectLimit($sql,$this->_limit,$this->_offset,$parms);
 		if( !$this->_rs || $this->_rs->errno !== 0 ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()');

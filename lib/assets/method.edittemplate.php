@@ -41,9 +41,12 @@ $display      optional bool display (default) or == false to fetch & return temp
 */
 
 use CMSMS\GroupOperations;
-use CMSMS\ScriptOperations;
+use CMSMS\ScriptsMerger;
+use CMSMS\Template;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
 use CMSMS\UserOperations;
+use CMSMS\Utils;
 
 if( !isset($params['tpl']) ) return;
 
@@ -51,7 +54,7 @@ if( empty($module) ) {
     if( empty($modname) ) {
         throw new Exception(basename(__FILE__, '.php').': '.lang('missingparams'));
     }
-    $module = cms_utils::get_module($modname);
+    $module = Utils::get_module($modname);
     if( !$module ) {
         throw new Exception(basename(__FILE__, '.php').': '.lang('missingparams'));
     }
@@ -67,7 +70,7 @@ $originator = $module->GetName();
 
 if( isset($params['submit']) || isset($params['apply']) ) {
     //save stuff
-    function update_template(CmsLayoutTemplate $tpl, array $params, bool $adding)
+    function update_template(Template $tpl, array $params, bool $adding)
     {
         if( $adding ) {
             global $originator;
@@ -120,7 +123,7 @@ if( isset($params['submit']) || isset($params['apply']) ) {
         }
     }
     else {
-        $template = new CmsLayoutTemplate();
+        $template = new Template();
         try {
             update_template($template, $params, true);
             TemplateOperations::save_template($template);
@@ -160,7 +163,7 @@ if( $params['tpl'] > 0 ) {
     }
 }
 else {
-    $template = new CmsLayoutTemplate();
+    $template = new Template();
     $template->set_originator($originator);
     $template->set_owner($user_id);
     if( empty($title) ) {
@@ -174,7 +177,7 @@ $user_list = [];
 $eds_list = [];
 
 if( $can_manage ) {
-    $types = CmsLayoutTemplateType::load_all_by_originator($originator);
+    $types = TemplateType::load_all_by_originator($originator);
     if( $types ) {
         foreach( $types as &$one ) {
             $type_list[$one->get_id()] = $one->get_langified_display_value();
@@ -182,7 +185,7 @@ if( $can_manage ) {
         $type_id = $template->get_type_id();
         if( $type_id ) {
             try {
-                $type = CmsLayoutTemplateType::load($type_id);
+                $type = TemplateType::load($type_id);
                 $can_default = $type->get_dflt_flag();
                 if( empty($infomessage) ) {
                     $infomessage = $type->get_template_helptext();
@@ -213,10 +216,10 @@ if( $can_manage ) {
     unset($one);
 }
 
-$sm = new ScriptOperations();
-$sm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
-//$sm->queue_matchedfile('jquery.cmsms_lock.js', 2);
-$js = $sm->render_inclusion('', false, false);
+$jsm = new ScriptsMerger();
+$jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
+//$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
+$js = $jsm->page_content('', false, false);
 if( $js) {
     add_page_foottext($js);
 }
@@ -228,7 +231,7 @@ if( !empty($pageincs['head'])) {
 /*
 $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 if( $do_locking) {
-    CmsApp::get_instance()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $user_id);
+    CMSMS\App::get_instance()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $user_id);
 }
 $s1 = json_encode(lang_by_realm('layout', 'error_lock'));
 $s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
@@ -313,7 +316,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-add_page_foottext($js); //not $sm->queue_script() (embedded variables)
+add_page_foottext($js); //not $jsm->queue_script() (embedded variables)
 
 $parms = ['tpl'=>$params['tpl']]; //TODO more
 

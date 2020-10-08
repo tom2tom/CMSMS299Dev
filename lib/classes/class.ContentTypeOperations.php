@@ -17,8 +17,7 @@
 
 namespace CMSMS;
 
-use cms_siteprefs;
-use CmsApp;
+use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
@@ -94,7 +93,7 @@ class ContentTypeOperations
 	private function _get_static_content_types() : array
 	{
 		$result = [];
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content_types';
 		$data = $db->GetArray($query);
 		foreach( $data as $row ) {
@@ -211,7 +210,7 @@ class ContentTypeOperations
 	 */
 	public function ListContentTypes(bool $byclassname = FALSE, bool $allowed = FALSE, bool $system = FALSE, string $realm = 'admin')
 	{
-		$tmp = cms_siteprefs::get('disallowed_contenttypes');
+		$tmp = AppParams::get('disallowed_contenttypes');
 		if( $tmp ) { $disallowed_a = explode(',',$tmp); }
 		else { $disallowed_a = []; }
 
@@ -270,7 +269,7 @@ class ContentTypeOperations
 	public function AddStaticContentType()
 	{
 		$Y = $TODO;
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		//TODO UPSERT
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content_types (originator,name,publicname_key,displayclass,editclass) VALUES (?,?,?,?,?)';
 		$db->Execute($query,[$Y->module,$Y->type,$Y->friendlyname,$Y->class,$Y->editorclass]);
@@ -283,7 +282,7 @@ class ContentTypeOperations
 	 */
 	public function DelStaticContentType()
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'content_types WHERE ';
 		$query .= 'TODO';
 		$db->Execute($query);
@@ -296,7 +295,7 @@ class ContentTypeOperations
 	 */
 	public function RebuildStaticContentTypes()
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'TRUNCATE '.CMS_DB_PREFIX.'content_types';
 		$db->Execute($query);
 

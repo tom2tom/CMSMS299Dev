@@ -1,6 +1,6 @@
 <?php
 assert(empty(CMS_DEPREC), new CMSMS\DeprecationNotice('class', 'DesignManager\\Design'));
-$obj = cms_utils::get_module('DesignManager');
+$obj = CMSMS\Utils::get_module('DesignManager');
 if ($obj) {
     //try to autoload this one
     class_alias('DesignManager\Design', 'CmsLayoutCollection', true);

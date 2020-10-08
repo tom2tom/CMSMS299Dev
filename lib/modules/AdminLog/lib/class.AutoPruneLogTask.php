@@ -21,7 +21,7 @@ namespace AdminLog;
 
 use AdminLog\storage;
 use cms_siteprefs;
-use cms_utils;
+use CMSMS\Utils;
 use CmsRegularTask;
 
 class AutoPruneLogTask implements CmsRegularTask
@@ -33,7 +33,7 @@ class AutoPruneLogTask implements CmsRegularTask
     {
         // static properties here >> StaticProperties class ?
         static $_mod;
-        if( !$_mod ) $_mod = cms_utils::get_module('AdminLog');
+        if( !$_mod ) $_mod = Utils::get_module('AdminLog');
         return $_mod;
     }
 

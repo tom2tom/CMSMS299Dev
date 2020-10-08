@@ -259,7 +259,7 @@ final class SimpleTagOperations
 				$params['id'] = self::MAXFID;
 				$res = $this->SetFileTag($name, $params);
 				if ($res) {
-					$db = AppSingle::db();
+					$db = AppSingle::Db();
 					$query = 'DELETE FROM '.CMS_DB_PREFIX.'simpleplugins WHERE name=?';
 					$db->Execute($query, [$name]);
 				}
@@ -426,7 +426,7 @@ final class SimpleTagOperations
 				$multi = false;
 				$fields = 'id';
 			}
-			$db = AppSingle::db();
+			$db = AppSingle::Db();
 			$query = 'SELECT '.$fields.' FROM '.CMS_DB_PREFIX.'simpleplugins WHERE name=?';
 			//TODO caseless name-match: table|field definition is *_ci ?
 			$dbr = $db->GetRow($query, [$name]);
@@ -660,7 +660,7 @@ EOS;
 			return $this->SetFileTag($name, $params);
 		} elseif ($id == -1 || $id > 0) {
 			//upsert dB
-			$db = AppSingle::db();
+			$db = AppSingle::Db();
 			$tbl = CMS_DB_PREFIX.'simpleplugins';
 			if ($id == -1) {
 				$query = "INSERT INTO $tbl (name,code,description,parameters) VALUES (?,?,?,?)";
@@ -710,7 +710,7 @@ EOS;
 			if (!$this->IsFileID($this->_cache[$name][0])) {
 				//process dB-stored plugin
 				// TODO caseless name
-				$db = AppSingle::db();
+				$db = AppSingle::Db();
 				$query = 'DELETE FROM '.CMS_DB_PREFIX.'simpleplugins WHERE name=?';
 				$dbr = $db->Execute($query, [$name]);
 				$res = ($dbr != false);
@@ -743,7 +743,7 @@ EOS;
 	public function ListSimpleTags() : array
 	{
 		if (!$this->_loaded) {
-			$db = AppSingle::db();
+			$db = AppSingle::Db();
 			$query = 'SELECT name,id FROM '.CMS_DB_PREFIX.'simpleplugins ORDER BY name';
 			$out = $db->GetAssoc($query);
 
@@ -800,7 +800,7 @@ EOS;
 				}
 				$gCms = AppSingle::App();
 				$config = AppSingle::Config();
-				$db = AppSingle::db(); // TODO enforce read-only here
+				$db = AppSingle::Db(); // TODO enforce read-only here
 				$smarty = $gCms->GetSmarty(); // TODO restrict methods : assign[byref]* or define { } replacements
 //				TODO sandbox this :: protect caches, global vars, class properties etc
 //				any security-enhancements instigated here could be reversed by malicious eval'd code

@@ -18,10 +18,10 @@
 
 namespace ModuleManager\Command;
 
-use cms_utils;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\Events;
+use CMSMS\Utils;
 use GetOpt\Operand;
 use ModuleManager\operations;
 use RuntimeException;
@@ -41,7 +41,7 @@ class ModuleImportCommand extends Command
         $filename = $this->getOperand('filename')->value();
         if( !is_file( $filename) ) throw new RuntimeException("Could not find $filename to import");
 
-        $moma = cms_utils::get_module('ModuleManager');
+        $moma = Utils::get_module('ModuleManager');
         $ops = new operations($moma);
         Events::SendEvent( 'ModuleManager', 'BeforeModuleImport', [ 'file'=>$filename ] );
 		try {

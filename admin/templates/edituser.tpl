@@ -58,10 +58,10 @@
 
   {if $perm1usr}
   <input type="hidden" name="active" value="1" />
-  <input type="hidden" name="adminaccess" value="1" />
+{* <input type="hidden" name="adminaccess" value="1" /> *}
   {elseif $access_user}
   <input type="hidden" name="active" value="{$active}" />
-  <input type="hidden" name="adminaccess" value="{$adminaccess}" />
+{* <input type="hidden" name="adminaccess" value="{$adminaccess}" /> *}
   {else}
   <div class="pageoverflow">
    <p class="pagetext">{$t=lang('active')}
@@ -71,6 +71,7 @@
    <input type="hidden" name="active" value="0" />
    <input type="checkbox" name="active" id="active" class="pageinput pagecheckbox" value="1"{if $active} checked="checked"{/if} />
   </div>
+{*
   <div class="pageoverflow">
    <p class="pagetext">{$t=lang('adminaccess')}
     <label for="adminaccess">{$t}:</label>
@@ -79,6 +80,7 @@
    <input type="hidden" name="adminaccess" value="0" />
    <input type="checkbox" name="adminaccess" id="adminaccess" class="pageinput pagecheckbox" value="1"{if $adminaccess} checked="checked"{/if} />
   </div>
+*}
   {/if}{*!$access_user*}
 
   {if isset($groups)}

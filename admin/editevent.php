@@ -16,9 +16,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\SimpleTagOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -35,7 +37,7 @@ if (isset($_POST['cancel'])) {
 $userid = get_userid();
 $access = check_permission($userid, 'Modify Events');
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (!$access) {
 //TODO some immediate popup	lang('noaccessto', lang('modifyeventhandler'))
@@ -119,7 +121,7 @@ if ($access) {
 		$sendername = lang('core');
 		$description = Events::GetEventDescription($event);
 	} else {
-		$objinstance = cms_utils::get_module($sender);
+		$objinstance = Utils::get_module($sender);
 		$sendername  = $objinstance->GetFriendlyName();
 		$description = $objinstance->GetEventDescription($event);
 	}
@@ -156,7 +158,7 @@ if ($access) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign([
 	'access' => $access,
 	'allhandlers' => $allhandlers,
@@ -173,6 +175,7 @@ $smarty->assign([
 	'urlext' => $urlext,
 ]);
 
-include_once 'header.php';
-$smarty->display('editevent.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('editevent.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

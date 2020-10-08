@@ -16,9 +16,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\UserOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -28,12 +30,12 @@ check_login();
 
 $urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
-    redirect('index.php'.$urlext);
+    redirect('menu.php'.$urlext);
 }
 
 $userid = get_userid(); // Also checks login
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 
 if (!check_permission($userid,'Manage My Account')) {
     //TODO some immediate popup    lang('needpermissionto','"Manage My Account"')
@@ -94,7 +96,7 @@ $userobj->password = '';
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = CmsApp::get_instance()->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->assign([
     'selfurl' => $selfurl,
     'extraparms' => $extras,
@@ -102,6 +104,7 @@ $smarty->assign([
     'userobj'=>$userobj,
 ]);
 
-include_once 'header.php';
-$smarty->display('useraccount.tpl');
-include_once 'footer.php';
+$content = $smarty->fetch('useraccount.tpl');
+require './header.php';
+echo $content;
+require './footer.php';

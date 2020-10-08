@@ -18,15 +18,17 @@
 
 namespace ModuleManager\Command;
 
-use cms_utils;
-use CMSMS\LangOperations;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\Events;
+use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
+use CMSMS\Utils;
+use GetOpt\Operand;
 use RuntimeException;
 use function audit;
+use function file_put_contents;
 
 class ModuleExportCommand extends Command
 {
@@ -40,7 +42,7 @@ class ModuleExportCommand extends Command
     public function handle()
     {
         $ops = ModuleOperations::get_instance();
-        $moma = cms_utils::get_module('ModuleManager');
+        $moma = Utils::get_module('ModuleManager');
         $module = $this->getOperand('module')->value();
         $modinstance = $ops->get_module_instance($module,'',TRUE);
         if( !is_object($modinstance) ) throw new RuntimeException('Could not instantiate module '.$module);

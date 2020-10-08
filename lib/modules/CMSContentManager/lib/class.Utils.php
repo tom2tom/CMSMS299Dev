@@ -18,11 +18,11 @@
 
 namespace CMSContentManager;
 
-use cms_userprefs;
-use cms_utils;
-use CmsLayoutTemplateType;
 use CMSMS\StylesheetOperations;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
+use CMSMS\UserParams;
+use CMSMS\Utils as AppUtils;
 use stdClass;
 use Throwable;
 use function get_userid;
@@ -44,7 +44,7 @@ final class Utils
 
 	public static function get_pagedefaults() : array
 	{
-		$mod = cms_utils::get_module('CMSContentManager');
+		$mod = AppUtils::get_module('CMSContentManager');
 		$tmp = $mod->GetPreference('page_prefs');
 		if( $tmp ) {
 			try {
@@ -56,11 +56,11 @@ final class Utils
 		}
 		if( !$tmp ) {
 			try {
-				$tpl = TemplateOperations::get_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
+				$tpl = TemplateOperations::get_default_template_by_type(TemplateType::CORE.'::page');
 				$tpl_id = $tpl->get_id();
 			}
 			catch( Throwable $t ) {
-				$type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
+				$type = TemplateType::load(TemplateType::CORE.'::page');
 				$list = TemplateOperations::get_all_templates_by_type($type);
 				$tpl = $list[0];
 				$tpl_id = $tpl->get_id();
@@ -91,7 +91,7 @@ final class Utils
 
 	public static function locking_enabled() : bool
 	{
-		$mod = cms_utils::get_module('CMSContentManager');
+		$mod = AppUtils::get_module('CMSContentManager');
 		$timeout = (int)$mod->GetPreference('locktimeout');
 		return $timeout > 0;
 	}
@@ -99,9 +99,9 @@ final class Utils
 	public static function get_pagenav_display() : string
 	{
 		$userid = get_userid(false);
-		$pref = cms_userprefs::get($userid,'ce_navdisplay');
+		$pref = UserParams::get($userid,'ce_navdisplay');
 		if( !$pref ) {
-			$mod = cms_utils::get_module('CMSContentManager');
+			$mod = AppUtils::get_module('CMSContentManager');
 			$pref = $mod->GetPreference('list_namecolumn','title');
 		}
 		return $pref;
@@ -131,7 +131,7 @@ final class Utils
 					break;
 				}
 			}
-			$mod = cms_utils::get_module('CMSContentManager');
+			$mod = AppUtils::get_module('CMSContentManager');
 			$gname = $mod->Lang('group').' : ';
 
 			$selrows = [];

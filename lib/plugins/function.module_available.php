@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Utils;
+
 function smarty_function_module_available($params, $template)
 {
 	$name = '';
@@ -33,7 +35,7 @@ function smarty_function_module_available($params, $template)
 	}
 	$out = FALSE;
 	if( $name ) {
-		$out = cms_utils::module_available($name);
+		$out = Utils::module_available($name);
 	}
 	if( isset($params['assign']) )
 	{

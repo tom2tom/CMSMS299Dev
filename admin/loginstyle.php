@@ -20,6 +20,7 @@
 
 use CMSMS\AppState;
 use CMSMS\NlsOperations;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -27,7 +28,7 @@ AppState::add_state(AppState::STATE_LOGIN_PAGE);
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 //require_once("../lib/classes/class.user.inc.php");
 
-$themeObject = cms_utils::get_theme_object();
+$themeObject = Utils::get_theme_object();
 $theme = $themeObject->themeName;
 $defaulttheme = 'Marigold'; //TODO some sensible default
 
