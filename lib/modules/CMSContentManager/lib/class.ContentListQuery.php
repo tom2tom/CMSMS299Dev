@@ -82,7 +82,8 @@ final class ContentListQuery extends DbQueryBase
 			$parms[] = (int) $this->_filter->expr;
 			break;
 		case ContentListFilter::EXPR_EDITOR:
-			$sql .= ' INNER JOIN '.CMS_DB_PREFIX.'additional_users A ON C.content_id = A.content_id AND A.user_id = ?';
+			$sql .= ' INNER JOIN '.CMS_DB_PREFIX.'additional_users A ON C.content_id = A.content_id';
+			$where[] = 'A.user_id = ?';
 			$parms[] = (int) $this->_filter->expr;
 			break;
 		case ContentListFilter::EXPR_TEMPLATE:
@@ -91,9 +92,10 @@ final class ContentListQuery extends DbQueryBase
 			break;
 /*
 		case ContentListFilter::EXPR_DESIGN:
-			$sql .= ' INNER JOIN '.CMS_DB_PREFIX.'content_props P ON C.content_id = P.content_id AND P.prop_name = ?';
-			$parms[] = 'design_id';
+			$sql .= ' INNER JOIN '.CMS_DB_PREFIX.'content_props P ON C.content_id = P.content_id';
+			$where[] = 'P.prop_name = ?';
 			$where[] = 'P.content = ?';
+			$parms[] = 'design_id';
 			$parms[] = (int) $this->_filter->expr;
 			break;
 */
