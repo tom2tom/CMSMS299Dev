@@ -189,7 +189,7 @@ class ScriptsMerger
                 foreach($items as $rec) {
                     $content = @file_get_contents($rec['file']);
                     if ($content) {
-                        $output .= $content."\n";
+                        $output .= $content.PHP_EOL;
                     }
                 }
 

@@ -116,7 +116,7 @@ function remove_page_headtext($content)
 function get_page_headtext() : string
 {
     global $PAGE_HEAD_CONTENT;
-    if( $PAGE_HEAD_CONTENT ) return implode("\n", $PAGE_HEAD_CONTENT)."\n";
+    if( $PAGE_HEAD_CONTENT ) return implode(PHP_EOL, $PAGE_HEAD_CONTENT).PHP_EOL;
     return '';
 }
 
@@ -154,6 +154,6 @@ function remove_page_foottext($content)
 function get_page_foottext() : string
 {
     global $PAGE_BOTTOM_CONTENT;
-    if( $PAGE_BOTTOM_CONTENT ) return implode("\n", $PAGE_BOTTOM_CONTENT)."\n";
+    if( $PAGE_BOTTOM_CONTENT ) return implode(PHP_EOL, $PAGE_BOTTOM_CONTENT).PHP_EOL;
     return '';
 }

@@ -118,26 +118,26 @@ try {
         $u = $this->create_url($id,'defaultadmin',$returnid,['moveup'=>'XXX']);
         $t = $this->Lang('prompt_page_sortup');
         $icon = $themeObject->DisplayImage('icons/system/arrow-u',$t,'','','systemicon');
-        $linkup = '<a href="'.$u.'" class="page_sortup" accesskey="m">'.$icon.'</a>'."\n";
+        $linkup = '<a href="'.$u.'" class="page_sortup" accesskey="m">'.$icon.'</a>'.PHP_EOL;
 
         $u = $this->create_url($id,'defaultadmin',$returnid,['movedown'=>'XXX']);
         $t = $this->Lang('prompt_page_sortdown');
         $icon = $themeObject->DisplayImage('icons/system/arrow-d',$t,'','','systemicon');
-        $linkdown = '<a href="'.$u.'" class="page_sortdown" accesskey="m">'.$icon.'</a>'."\n";
+        $linkdown = '<a href="'.$u.'" class="page_sortdown" accesskey="m">'.$icon.'</a>'.PHP_EOL;
 
         $t = $this->Lang('prompt_page_view');
         $icon = $themeObject->DisplayImage('icons/system/view',$t,'','','systemicon');
-        $linkview = '<a target="_blank" href="XXX" class="page_view" accesskey="v">'.$icon.'</a>'."\n";
+        $linkview = '<a target="_blank" href="XXX" class="page_view" accesskey="v">'.$icon.'</a>'.PHP_EOL;
 
         $u = $this->create_url($id,'admin_copycontent',$returnid,['page'=>'XXX']);
         $t = $this->Lang('prompt_page_copy');
         $icon = $themeObject->DisplayImage('icons/system/copy',$t,'','','systemicon page_copy');
-        $linkcopy = '<a href="'.$u.'" accesskey="o">'.$icon.'</a>'."\n";
+        $linkcopy = '<a href="'.$u.'" accesskey="o">'.$icon.'</a>'.PHP_EOL;
 
         $u = $this->create_url($id,'admin_editcontent',$returnid,['content_id'=>'XXX']);
         $t = $this->Lang('prompt_page_edit');
         $icon = $themeObject->DisplayImage('icons/system/edit',$t,'','','systemicon page_edit');
-        $linkedit = '<a href="'.$u.'" class="page_edit" accesskey="e" data-cms-content="XXX">'.$icon.'</a>'."\n";
+        $linkedit = '<a href="'.$u.'" class="page_edit" accesskey="e" data-cms-content="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = str_replace('XXX','%s',$u).'&m1_steal=1'; //sprintf template
         $tpl->assign('stealurl',$u);
@@ -145,12 +145,12 @@ try {
         $u = $this->create_url($id,'admin_editcontent',$returnid,['parent_id'=>'XXX']);
         $t = $this->Lang('prompt_page_addchild');
         $icon = $themeObject->DisplayImage('icons/system/newobject',$t,'','','systemicon page_addchild');
-        $linkchild = '<a href="'.$u.'" class="page_edit" accesskey="a">'.$icon.'</a>'."\n";
+        $linkchild = '<a href="'.$u.'" class="page_edit" accesskey="a">'.$icon.'</a>'.PHP_EOL;
 
         $u = $this->create_url($id,'defaultadmin',$returnid,['delete'=>'XXX']);
         $t = $this->Lang('prompt_page_delete');
         $icon = $themeObject->DisplayImage('icons/system/delete',$t,'','','systemicon page_delete');
-        $linkdel = '<a href="'.$u.'" class="page_delete" accesskey="r">'.$icon.'</a>'."\n";
+        $linkdel = '<a href="'.$u.'" class="page_delete" accesskey="r">'.$icon.'</a>'.PHP_EOL;
 
 		$now = time();
 		$user_id = get_userid();

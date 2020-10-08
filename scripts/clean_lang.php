@@ -14,7 +14,7 @@
 function output($str)
 {
   global $quiet;
-  if( !$quiet ) echo $str."\n";
+  if( !$quiet ) echo $str.PHP_EOL;
 }
 
 $options = getopt('nm:s:o:q');

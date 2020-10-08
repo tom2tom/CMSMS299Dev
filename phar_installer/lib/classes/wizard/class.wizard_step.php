@@ -80,7 +80,7 @@ class wizard_step
 
     protected function finish()
     {
-        echo '<script type="text/javascript">finish();</script>'."\n";
+        echo '<script type="text/javascript">finish();</script>'.PHP_EOL;
         flush();
     }
 
@@ -116,21 +116,21 @@ class wizard_step
     public function set_block_html($id,$html)
     {
         $html = addslashes($html);
-        echo '<script type="text/javascript">set_block_html(\''.$id.'\',\''.$html.'\');</script>'."\n";
+        echo '<script type="text/javascript">set_block_html(\''.$id.'\',\''.$html.'\');</script>'.PHP_EOL;
         flush();
     }
 
     public function message($msg)
     {
         $msg = addslashes($msg);
-        echo '<script type="text/javascript">add_message(\''.$msg.'\');</script>'."\n";
+        echo '<script type="text/javascript">add_message(\''.$msg.'\');</script>'.PHP_EOL;
         flush();
     }
 
     public function error($msg)
     {
         $msg = addslashes($msg);
-        echo '<script type="text/javascript">add_error(\''.$msg.'\');</script>'."\n";
+        echo '<script type="text/javascript">add_error(\''.$msg.'\');</script>'.PHP_EOL;
         flush();
     }
 
@@ -140,7 +140,7 @@ class wizard_step
         $verbose = $config['verbose'] ?? false;
         if( $verbose ) {
             $msg = addslashes($msg);
-            echo '<script type="text/javascript">add_verbose(\''.$msg.'\');</script>'."\n";
+            echo '<script type="text/javascript">add_verbose(\''.$msg.'\');</script>'.PHP_EOL;
             flush();
         }
     }

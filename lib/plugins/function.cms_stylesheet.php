@@ -321,13 +321,13 @@ function toString($filename, $media_query = '', $media_type = '', $root_url, &$s
 		$stylesheet .= $root_url.$filename.',';
 	}
 	elseif( !empty($media_query) ) {
-		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_query.'" />'."\n";
+		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_query.'" />'.PHP_EOL;
 	}
 	elseif( !empty($media_type) ) {
-		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_type.'" />'."\n";
+		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_type.'" />'.PHP_EOL;
 	}
 	else {
-		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" />'."\n";
+		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" />'.PHP_EOL;
 	}
 }
 

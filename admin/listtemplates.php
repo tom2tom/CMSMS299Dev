@@ -75,35 +75,35 @@ try {
         $u = 'edittemplate.php'.$urlext.'&amp;tpl=XXX';
         $t = lang_by_realm('layout','title_edit_template');
         $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
-        $linkedit = '<a href="'.$u.'" class="edit_tpl" data-tpl-id="XXX">'.$icon.'</a>'."\n";
+        $linkedit = '<a href="'.$u.'" class="edit_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
 /* see template
 //      $u = ibid
         $t = lang_by_realm('layout','title_steal_lock');
         $icon = $themeObject->DisplayImage('icons/system/permissions', $t, '', '', 'systemicon edit_tpl steal_tpl_lock');
-        $linksteal = '<a href="'.$u.'" class="steal_tpl_lock" data-tpl-id="XXX" accesskey="e">'.$icon.'</a>'."\n";
+        $linksteal = '<a href="'.$u.'" class="steal_tpl_lock" data-tpl-id="XXX" accesskey="e">'.$icon.'</a>'.PHP_EOL;
 */
         if( $padd ) {
             $u = 'templateoperations.php'.$urlext.'&amp;op=copy&amp;tpl=XXX';
             $t = lang_by_realm('layout','title_copy_template');
             $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
-            $linkcopy = '<a href="'.$u.'" class="copy_tpl" data-tpl-id="XXX">'.$icon.'</a>'."\n";
+            $linkcopy = '<a href="'.$u.'" class="copy_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
         }
 
         $u = 'templateoperations.php'.$urlext.'&amp;op=applyall&amp;tpl=XXX';
         $t = lang_by_realm('layout','title_apply_template');
         $icon = $themeObject->DisplayImage('icons/extra/applyall', $t, '', '', 'systemicon');
-        $linkapply = '<a href="'.$u.'" class="apply_tpl" data-tpl-id="XXX">'.$icon.'</a>'."\n";
+        $linkapply = '<a href="'.$u.'" class="apply_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'templateoperations.php'.$urlext.'&amp;op=replace&amp;tpl=XXX';
         $t = lang_by_realm('layout','title_replace_template');
         $icon = $themeObject->DisplayImage('icons/extra/replace', $t, '', '', 'systemicon');
-        $linkreplace = '<a href="'.$u.'" class="replace_tpl" data-tpl-id="XXX">'.$icon.'</a>'."\n";
+        $linkreplace = '<a href="'.$u.'" class="replace_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'templateoperations.php'.$urlext.'&amp;op=delete&amp;tpl=XXX';
         $t = lang_by_realm('layout','title_delete_template');
         $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon');
-        $linkdel = '<a href="'.$u.'" class="del_tpl" data-tpl-id="XXX">'.$icon.'</a>'."\n";
+        $linkdel = '<a href="'.$u.'" class="del_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
 //TODO where relevant, an action to revert template content to type-default
 
@@ -527,22 +527,22 @@ if( $groups ) {
     $u = 'edittplgroup.php'.$urlext.'&amp;tpl=XXX';
     $t = lang_by_realm('layout','prompt_edit');
     $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
-    $linkedit = '<a href="'.$u.'" class="edit_tpl" data-tpl-id="XXX">'.$icon.'</a>'."\n";
+    $linkedit = '<a href="'.$u.'" class="edit_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
 /*    $u = 'templateoperations.php'.$urlext.'&amp;op=copy&amp;tpl=XXX';
     $t = lang_by_realm('layout','title_copy_group');
     $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
-    $linkcopy = '<a href="'.$u.'" class="copy_tpl">'.$icon.'</a>'."\n";
+    $linkcopy = '<a href="'.$u.'" class="copy_tpl">'.$icon.'</a>'.PHP_EOL;
 */
     $u = 'templateoperations.php'.$urlext.'&amp;op=delete&amp;tpl=XXX';
     $t = lang_by_realm('layout','title_delete_shallow');
     $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon del_grp');
-    $linkdel = '<a href="'.$u.'" class="del_grp">'.$icon.'</a>'."\n";
+    $linkdel = '<a href="'.$u.'" class="del_grp">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'templateoperations.php'.$urlext.'&amp;op=deleteall&amp;tpl=XXX';
     $t = lang_by_realm('layout','title_delete_deep');
     $icon = $themeObject->DisplayImage('icons/extra/deletedeep', $t, '', '', 'systemicon del_grp');
-    $linkdelall = '<a href="'.$u.'" class="del_grpall">'.$icon.'</a>'."\n";
+    $linkdelall = '<a href="'.$u.'" class="del_grpall">'.$icon.'</a>'.PHP_EOL;
 
     $menus = [];
     foreach( $groups as $gid => &$group ) {

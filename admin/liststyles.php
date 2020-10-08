@@ -58,42 +58,42 @@ try {
         $u = 'editstylesheet.php'.$urlext.'&amp;css=XXX';
         $t = lang_by_realm('layout','title_edit_stylesheet');
         $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
-        $linkedit = '<a href="'.$u.'" class="edit_css" data-css-id="XXX">'.$icon.'</a>'."\n";
+        $linkedit = '<a href="'.$u.'" class="edit_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
 //      $u = ibid
         $t = lang_by_realm('layout','title_steal_lock');
         $icon = $themeObject->DisplayImage('icons/system/permissions', $t, '', '', 'systemicon');
-        $linksteal = '<a href="'.$u.'" class="steal_css_lock" data-css-id="XXX" accesskey="e">'.$icon.'</a>'."\n";
+        $linksteal = '<a href="'.$u.'" class="steal_css_lock" data-css-id="XXX" accesskey="e">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&amp;op=copy&amp;css=XXX';
         $t = lang_by_realm('layout','title_copy_stylesheet');
         $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
-        $linkcopy = '<a href="'.$u.'" class="copy_css" data-css-id="XXX">'.$icon.'</a>'."\n";
+        $linkcopy = '<a href="'.$u.'" class="copy_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&amp;op=prepend&amp;css=XXX';
         $t = lang_by_realm('layout','title_prepend_stylesheet');
         $icon = $themeObject->DisplayImage('icons/extra/prepend', $t, '', '', 'systemicon');
-        $linkprepend = '<a href="'.$u.'" class="prepend_css" data-css-id="XXX">'.$icon.'</a>'."\n";
+        $linkprepend = '<a href="'.$u.'" class="prepend_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&amp;op=append&amp;css=XXX';
         $t = lang_by_realm('layout','title_append_stylesheet');
         $icon = $themeObject->DisplayImage('icons/extra/append', $t, '', '', 'systemicon');
-        $linkappend = '<a href="'.$u.'" class="append_css" data-css-id="XXX">'.$icon.'</a>'."\n";
+        $linkappend = '<a href="'.$u.'" class="append_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&amp;op=replace&amp;css=XXX';
         $t = lang_by_realm('layout','title_replace_stylesheet');
         $icon = $themeObject->DisplayImage('icons/extra/replace', $t, '', '', 'systemicon');
-        $linkreplace = '<a href="'.$u.'" class="replace_css" data-css-id="XXX">'.$icon.'</a>'."\n";
+        $linkreplace = '<a href="'.$u.'" class="replace_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&amp;op=remove&amp;css=XXX';
         $t = lang_by_realm('layout','title_remove_stylesheet');
         $icon = $themeObject->DisplayImage('icons/extra/removeall', $t, '', '', 'systemicon');
-        $linkremove = '<a href="'.$u.'" class="remove_css" data-css-id="XXX">'.$icon.'</a>'."\n";
+        $linkremove = '<a href="'.$u.'" class="remove_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $u = 'stylesheetoperations.php'.$urlext.'&amp;op=delete&amp;css=XXX';
         $t = lang_by_realm('layout','title_delete_stylesheet');
         $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon');
-        $linkdel = '<a href="'.$u.'" class="del_css" data-css-id="XXX">'.$icon.'</a>'."\n";
+        $linkdel = '<a href="'.$u.'" class="del_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
         $now = time();
         $menus = [];
@@ -389,42 +389,42 @@ if( $groups ) {
     $u = 'editcssgroup.php'.$urlext.'&amp;css=XXX';
     $t = lang_by_realm('layout','title_edit_group');
     $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
-    $linkedit = '<a href="'.$u.'" data-css-id="XXX" class="edit_css">'.$icon.'</a>'."\n";
+    $linkedit = '<a href="'.$u.'" data-css-id="XXX" class="edit_css">'.$icon.'</a>'.PHP_EOL;
 
 /*    $u = 'stylesheetoperations.php'.$urlext.'&amp;op=copy&amp;css=XXX';
     $t = lang_by_realm('layout','title_copy_group');
     $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
-    $linkcopy = '<a href="'.$u.'" class="copy_css">'.$icon.'</a>'."\n";
+    $linkcopy = '<a href="'.$u.'" class="copy_css">'.$icon.'</a>'.PHP_EOL;
 */
     $u = 'stylesheetoperations.php'.$urlext.'&amp;op=delete&amp;css=XXX';
     $t = lang_by_realm('layout','title_delete_shallow');
     $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon');
-    $linkdel = '<a href="'.$u.'" class="del_grp">'.$icon.'</a>'."\n";
+    $linkdel = '<a href="'.$u.'" class="del_grp">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'stylesheetoperations.php'.$urlext.'&amp;op=deleteall&amp;css=XXX';
     $t = lang_by_realm('layout','title_delete_deep');
     $icon = $themeObject->DisplayImage('icons/extra/deletedeep', $t, '', '', 'systemicon');
-    $linkdelall = '<a href="'.$u.'" class="del_grpall">'.$icon.'</a>'."\n";
+    $linkdelall = '<a href="'.$u.'" class="del_grpall">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'stylesheetoperations.php'.$urlext.'&amp;op=prepend&amp;css=XXX';
     $t = lang_by_realm('layout','title_prepend_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/prepend', $t, '', '', 'systemicon');
-    $linkprepend = '<a href="'.$u.'" class="prepend_css">'.$icon.'</a>'."\n";
+    $linkprepend = '<a href="'.$u.'" class="prepend_css">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'stylesheetoperations.php'.$urlext.'&amp;op=append&amp;css=XXX';
     $t = lang_by_realm('layout','title_append_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/append', $t, '', '', 'systemicon');
-    $linkappend = '<a href="'.$u.'" class="append_css">'.$icon.'</a>'."\n";
+    $linkappend = '<a href="'.$u.'" class="append_css">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'stylesheetoperations.php'.$urlext.'&amp;op=replace&amp;css=XXX';
     $t = lang_by_realm('layout','title_replace_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/replace', $t, '', '', 'systemicon');
-    $linkreplace = '<a href="'.$u.'" class="replace_css" data-css-id="XXX">'.$icon.'</a>'."\n";
+    $linkreplace = '<a href="'.$u.'" class="replace_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
     $u = 'stylesheetoperations.php'.$urlext.'&amp;op=remove&amp;css=XXX';
     $t = lang_by_realm('layout','title_remove_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/removeall', $t, '', '', 'systemicon');
-    $linkremove = '<a href="'.$u.'" class="remove_css">'.$icon.'</a>'."\n";
+    $linkremove = '<a href="'.$u.'" class="remove_css">'.$icon.'</a>'.PHP_EOL;
 
     $menus = [];
     foreach( $groups as $gid => &$group ) {

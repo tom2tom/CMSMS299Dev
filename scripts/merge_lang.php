@@ -198,7 +198,7 @@ function output_json_lang( $master_data )
         $val = stripslashes($val);
         $out[$key] = $val;
     }
-    return json_encode( $out, JSON_PRETTY_PRINT )."\n";
+    return json_encode( $out, JSON_PRETTY_PRINT ).PHP_EOL;
 }
 
 function output_csv_lang( $master_data )
@@ -214,7 +214,7 @@ function output_csv_lang( $master_data )
         $key = '"'.$key.'"';
         $val = '"'.$val.'"';
         $row = [ $key, $val ];
-        $out .= implode(',',$row)."\n";
+        $out .= implode(',',$row).PHP_EOL;
     }
     return $out;
 }

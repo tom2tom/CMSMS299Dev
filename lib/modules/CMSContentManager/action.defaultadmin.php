@@ -26,7 +26,7 @@ use CMSMS\UserOperations;
 if( !isset($gCms) ) exit;
 // no permissions checks here.
 
-echo '<noscript><h3 style="color:red;text-align:center;">'.$this->Lang('info_javascript_required').'</h3></noscript>'."\n";
+echo '<noscript><h3 style="color:red;text-align:center;">'.$this->Lang('info_javascript_required').'</h3></noscript>'.PHP_EOL;
 
 $builder = new ContentListBuilder($this);
 $pagelimit = cms_userprefs::get($this->GetName().'_pagelimit',500);

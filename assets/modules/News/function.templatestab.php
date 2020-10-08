@@ -31,21 +31,21 @@ if( $dbr ) {
 
 	$t = $this->Lang('tip_edit_template');
 	$icon = $themeObj->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
-	$linkedit = '<a href="'.$editurl.'">'.$icon.'</a>'."\n";
+	$linkedit = '<a href="'.$editurl.'">'.$icon.'</a>'.PHP_EOL;
 
 	$u = $this->create_url($id, 'copytemplate', $returnid, ['tpl'=>'XXX']);
 	$t = $this->Lang('tip_copy_template');
 	$icon = $themeObj->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
-	$linkcopy = '<a href="'.str_replace('&amp;','&',$u).'">'.$icon.'</a>'."\n";
+	$linkcopy = '<a href="'.str_replace('&amp;','&',$u).'">'.$icon.'</a>'.PHP_EOL;
 
 	$u = $this->create_url($id, 'deletetemplate', $returnid, ['tpl'=>'XXX']);
 	$t = $this->Lang('tip_delete_template');
 	$icon = $themeObj->DisplayImage('icons/system/delete', $t, '', '', 'systemicon delete_tpl');
-	$linkdel = '<a href="'.str_replace('&amp;','&',$u).'" class="delete_tpl">'.$icon.'</a>'."\n";
+	$linkdel = '<a href="'.str_replace('&amp;','&',$u).'" class="delete_tpl">'.$icon.'</a>'.PHP_EOL;
 
 	$u = $this->create_url($id, 'defaulttemplate', $returnid, ['tpl'=>'XXX']);
 	$icon = $themeObj->DisplayImage('icons/system/false.gif',$this->Lang('tip_typedefault'),'','','systemicon default_tpl');
-	$linkdefault = '<a href="'.str_replace('&amp;','&',$u).'" class="default_tpl">'.$icon.'</a>'."\n";
+	$linkdefault = '<a href="'.str_replace('&amp;','&',$u).'" class="default_tpl">'.$icon.'</a>'.PHP_EOL;
 
 	$icontrue = $themeObj->DisplayImage('icons/system/true.gif',lang('yes'),'','','systemicon');
 	$iconfalse = $themeObj->DisplayImage('icons/system/false.gif',lang('no'),'','','systemicon');

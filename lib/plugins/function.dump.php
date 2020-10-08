@@ -93,7 +93,7 @@ function smarty_function_dump($params, $template)
 
 	$parenttype = gettype($obj);
 	$str .= '/n'.'<pre><strong>Dump of: $'.$item;
-	$str .= '</strong> ('.ucwords($parenttype).')<br />'."\n";
+	$str .= '</strong> ('.ucwords($parenttype).')<br />'.PHP_EOL;
 
 	if( is_object($obj) ) {
 		$str .= dump_object($params,$obj,0,$ignore,$item);

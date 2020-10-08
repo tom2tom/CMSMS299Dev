@@ -21,7 +21,7 @@ function smarty_function_gather_content($params, $template)
 {
 	$listname = (!empty($params['list'])) ? $params['list'] : 'gatherlist';
 	$aout = HookOperations::do_hook_accumulate($listname);
-	$out = ($aout) ? implode("\n", $aout) : ''; //TODO if multi-dimension array
+	$out = ($aout) ? implode(PHP_EOL, $aout) : ''; //TODO if multi-dimension array
 
 	if (isset($params['assign'])) {
 		$template->assign(trim($params['assign']),$out);

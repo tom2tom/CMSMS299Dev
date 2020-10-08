@@ -5,7 +5,7 @@ function usage() {
 
 function error($str)
 {
-  echo $str."\n"; exit;
+  echo $str.PHP_EOL; exit;
 }
 
 if( $argc != 2 ) {

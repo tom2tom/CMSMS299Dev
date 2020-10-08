@@ -512,7 +512,7 @@ EOS;
 <link rel="stylesheet" href="themes/Altbier/css/style{$dir}.css" />
 
 EOS;
-    		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
+    		$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
 			$url = cms_path_to_url($incs['jqcore']);
 			$out .= sprintf($tpl,$url);
 			$url = cms_path_to_url($incs['jqui']);

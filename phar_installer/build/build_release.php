@@ -1026,7 +1026,7 @@ function verbose(int $lvl, string $msg)
 
     if ($verbose >= $lvl) {
         if ($cli) {
-            echo $msg."\n";
+            echo $msg.PHP_EOL;
         } else {
             echo $msg."<br/>";
         }

@@ -384,8 +384,8 @@ class design_reader extends reader_base
     {
       $description = $info['description'];
       if( $description ) $description .= "\n----------------------------------------\n";
-      $description .= 'Generated '.strftime('%x %X',$info['generated'])."\n";
-      $description .= 'By CMSMS version: '.$info['cmsversion']."\n";
+      $description .= 'Generated '.strftime('%x %X',$info['generated']).PHP_EOL;
+      $description .= 'By CMSMS version: '.$info['cmsversion'].PHP_EOL;
       $description .= 'Imported '.strftime('%x %X');
     }
 

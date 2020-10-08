@@ -284,7 +284,7 @@ EOS;
 			}
 		}
 
-		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
+		$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
 
 		// scripts: jquery, jquery-ui
 		$incs = cms_installed_jquery(true, false, true, false);

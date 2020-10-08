@@ -273,8 +273,8 @@ EOS;
         if( $first_time ) {
             $first_time = false;
             //DEBUG
-            $js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.js"></script>'."\n";
-//            $js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.min.js"></script>'."\n";
+            $js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.js"></script>'.PHP_EOL;
+//            $js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.min.js"></script>'.PHP_EOL;
             //otherwise mebbe merge the file in with all used for the current-request ?
             //$combiner = CmsApp::get_instance()->GetScriptsManager(); deprecated since 2.9 use CMSMS\AppSingle:: ...()
             //$combiner->queue_file($thejsfile, 2);

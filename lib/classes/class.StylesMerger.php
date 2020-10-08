@@ -218,7 +218,7 @@ class StylesMerger
                                 $content = $this->minimize($content);
                             }
                         }
-                        $output .= $content."\n";
+                        $output .= $content.PHP_EOL;
                     }
                 }
 
