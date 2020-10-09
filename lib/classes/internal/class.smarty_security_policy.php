@@ -26,8 +26,8 @@ use Smarty_Security;
  * Generic smarty security policy.
  * @final
  *
- * @since		1.11
- * @package		CMS
+ * @since       1.11
+ * @package     CMS
  * @internal
  * @ignore
  */
@@ -46,7 +46,7 @@ final class smarty_security_policy extends Smarty_Security
             $this->allow_constants = false;
             if( !$gCms->GetConfig()['permissive_smarty'] ) {
                 $this->static_classes = null;
-                // allow most methods that do data interpretation, modification or formatting
+                // allow most methods that do data interpretation, modification or formatting, ahead of display
                 // e.g. string searches, array searches, string comparison, sorting, etc.
                 $this->php_functions = [
                 'array_flip',
@@ -54,7 +54,9 @@ final class smarty_security_policy extends Smarty_Security
                 'array_reverse',
                 'array_search',
                 'asort',
-                'cms_html_entity_decode',
+                'cleanString', //since 2.9
+                'cms_html_entity_decode', //deprecated since 2.9
+                'cms_htmlentities', //since 2.9
                 'count',
                 'date',
                 'debug_display',
@@ -62,9 +64,9 @@ final class smarty_security_policy extends Smarty_Security
                 'endswith',
                 'explode',
                 'file_exists',
-                'html_entity_decode',
+                'html_entity_decode', //deprecated since 2.9
                 'htmlentities',
-                'htmlspecialchars_decode',
+                'htmlspecialchars_decode', //deprecated since 2.9
                 'htmlspecialchars',
                 'implode',
                 'in_array',
