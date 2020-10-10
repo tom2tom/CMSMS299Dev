@@ -21,14 +21,14 @@
     <label for="password">*{$t}:</label>
     {cms_help key2='user_edit_password' title=$t}
   </p>
-  <input type="password" class="pageinput" id="password" name="password" maxlength="100" value="{$password}" />
+  <input type="password" class="pageinput" id="password" name="password" maxlength="64" value="{$password}" />
 </div>
 <div class="pageoverflow">
   <p class="pagetext">{$t=lang('passwordagain')}
     <label for="passagain">*{$t}:</label>
     {cms_help key2='user_edit_passwordagain' title=$t}
   </p>
-  <input type="password" class="pageinput" id="passagain" name="passwordagain" maxlength="100" value="{$passwordagain}" />
+  <input type="password" class="pageinput" id="passagain" name="passwordagain" maxlength="64" value="{$passwordagain}" />
 </div>
 <div class="pageoverflow">
   <p class="pagetext">{$t=lang('firstname')}

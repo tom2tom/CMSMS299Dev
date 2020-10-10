@@ -27,11 +27,11 @@
      <input id="lbusername" class="focus" placeholder="{'username'|lang}" name="{$actionid}username" type="text" size="15" value="" autofocus="autofocus" />
      {if empty($smarty.get.forgotpw) }
       <label for="lbpassword">{'password'|lang}</label>
-      <input id="lbpassword" class="focus" placeholder="{'password'|lang}" name="{$actionid}password" type="password" size="15" maxlength="100"/>
+      <input id="lbpassword" class="focus" placeholder="{'password'|lang}" name="{$actionid}password" type="password" size="15" maxlength="64" />
      {/if}
      {if !empty($changepwhash)}
       <label for="lbpasswordagain">{'passwordagain'|lang}</label>
-      <input id="lbpasswordagain" name="{$actionid}passwordagain" type="password" size="15" placeholder="{'passwordagain'|lang}" maxlength="100" />
+      <input id="lbpasswordagain" name="{$actionid}passwordagain" type="password" size="15" placeholder="{'passwordagain'|lang}" maxlength="64" />
       <input type="hidden" name="{$actionid}forgotpwchangeform" value="1" />
       <input type="hidden" name="{$actionid}changepwhash" value="{$changepwhash}" />
      {elseif !empty($smarty.get.forgotpw)}

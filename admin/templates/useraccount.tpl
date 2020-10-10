@@ -17,7 +17,7 @@
       {cms_help key2='user_password' title=lang('password')}
     </p>
     <p class="pageinput">
-      <input type="password" name="password" id="password" maxlength="100" value="" class="standard" />
+      <input type="password" name="password" id="password" maxlength="64" value="" class="standard" />
     </p>
   </div>
 
@@ -27,7 +27,7 @@
       {cms_help key2='user_passwordagain' title=lang('passwordagain')}
     </p>
     <p class="pageinput">
-      <input type="password" name="passwordagain" id="passwordagain" maxlength="100" value="" class="standard" />
+      <input type="password" name="passwordagain" id="passwordagain" maxlength="64" value="" class="standard" />
     </p>
   </div>
 
