@@ -20,7 +20,7 @@
 </div>
 <div class="pageinput pregap">
  {$formstart1}
-  <button type="submit" name="{$actionid}clearwordcount" class="adminsubmit icon undo" onclick="cms_confirm_btnclick(this,'{$mod->Lang("confirm_clearstats")}');return false;">{$mod->Lang('clear')}</button>
+  <button type="submit" name="{$actionid}clearwordcount" class="adminsubmit icon undo">{$mod->Lang('clear')}</button>
   <button type="submit" name="{$actionid}exportcsv" class="adminsubmit icon do">{$mod->Lang('export_to_csv')}</button>
  </form>
 </div>

@@ -2,7 +2,6 @@
 <div class="pageoverflow postgap">
   <label class="pagetext" for="stops">{$prompt_stopwords}:</label>
   <p class="pageinput" id="stops">{$input_stopwords|html_entity_decode}</p>
-
   <label class="pagetext" for="resets">{$prompt_resetstopwords}:</label>
   <p class="pageinput" id="resets">{$input_resetstopwords}</p>
 </div>
@@ -28,6 +27,6 @@
 </div>
 <div class="pageinput">
   <button type="submit" name="{$actionid}submit" id="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-  <button type="submit" name="{$actionid}reindex" class="adminsubmit icon do" onclick="cms_confirm_btnclick(this, '{$mod->Lang("confirm_reindex")|escape:"javascript"}');return false;">{$mod->Lang('reindexallcontent')}</button>
+  <button type="submit" name="{$actionid}reindex" class="adminsubmit icon do">{$mod->Lang('reindexallcontent')}</button>
 </div>
 </form>

@@ -47,7 +47,7 @@ if( isset( $params['resultpage'] ) ) {
 $is_method = isset($params['search_method'])?'post':'get';
 
 //Variable named hogan in honor of moorezilla's Rhodesian Ridgeback :) https://forum.cmsmadesimple.org/index.php/topic,9580.0.html
-$hogan = "onfocus=\"if(this.value==this.defaultValue) this.value='';\""." onblur=\"if(this.value=='') this.value=this.defaultValue;\"";
+//$hogan = "onfocus=\"if(this.value==this.defaultValue) this.value='';\""." onblur=\"if(this.value=='') this.value=this.defaultValue;\"";
 
 $submittext = $params['submit'] ?? $this->Lang('searchsubmit');
 $searchtext = $params['searchtext'] ?? $this->GetPreference('searchtext','');
@@ -63,7 +63,7 @@ $tpl->assign('startform', $this->CreateFormStart($id, 'dosearch', $returnid, $is
  ->assign('searchprompt', $prompt)
  ->assign('label', '<label for="'.$id.'searchinput">'.$prompt.'</label>')
  ->assign('searchtext', $searchtext)
- ->assign('hogan', $hogan)
+//->assign('hogan', $hogan)
 //->assign('inputbox', $this->CreateInputText($id, 'searchinput', $searchtext, 20, 50, 'placeholder="'.$searchtext.'" '.$hogan))
  ->assign('submittext', $submittext);
 //->assign('submitbutton', '<input type="submit" name="'.$id.'submit" id="'.$id.'submit" class="search-button" value=" " />');

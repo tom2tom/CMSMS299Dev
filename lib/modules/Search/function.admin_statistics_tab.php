@@ -22,8 +22,9 @@ while ($dbr && $row = $dbr->FetchRow()) {
     $words[] = $row;
 }
 if ($words) {
-	$tpl->assign('formstart1',$this->CreateFormStart($id,'defaultadmin'));
+    $tpl->assign('formstart1',$this->CreateFormStart($id,'defaultadmin'));
+    //js onclick handler processed upstream
 } else {
-	$words = null;
+    $words = null;
 }
 $tpl->assign('topwords',$words);

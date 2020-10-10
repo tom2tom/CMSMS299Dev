@@ -25,31 +25,31 @@ if (isset($params['reindex'])) {
     $this->Reindex();
     $this->ShowMessage($this->Lang('reindexcomplete'));
 }
-else if (isset($params['clearwordcount'])) {
+elseif (isset($params['clearwordcount'])) {
     $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_search_words';
     $db->Execute($query);
 }
-else if (isset($params['exportcsv']) ) {
+elseif (isset($params['exportcsv']) ) {
     $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_search_words ORDER BY count DESC';
     $data = $db->GetArray($query);
-    if( is_array($data) ) {
+    if (is_array($data)) {
         header('Content-Description: File Transfer');
         header('Content-Type: application/force-download');
         header('Content-Disposition: attachment; filename=search.csv');
         while(@ob_end_clean());
 
         $output = '';
-        for( $i = 0, $n = count($data); $i < $n; $i++ ) {
+        for ($i = 0, $n = count($data); $i < $n; $i++) {
             $output .= "\"{$data[$i]['word']}\",{$data[$i]['count']}\n";
         }
         echo $output;
         exit;
     }
 }
-else if (isset($params['resettodefault'])) {
+elseif (isset($params['resettodefault'])) {
     $this->SetPreference('stopwords', $this->DefaultStopWords());
 }
-else if (isset($params['submit'])) {
+elseif (isset($params['submit'])) {
     $this->SetPreference('stopwords', $params['stopwords']);
     $this->SetPreference('searchtext', $params['searchtext']);
 
@@ -77,9 +77,11 @@ else if (isset($params['submit'])) {
 $tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl')); //,null,null,$smarty);
 
 //The tabs
-if (!empty($params['active_tab'])) $tab = $params['active_tab'];
-else $tab = '';
-
+if (!empty($params['active_tab'])) {
+    $tab = $params['active_tab'];
+} else {
+    $tab = '';
+}
 $tpl->assign('tab', $tab);
 
 include __DIR__.DIRECTORY_SEPARATOR.'function.admin_statistics_tab.php';
@@ -89,38 +91,55 @@ $tpl->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'p
  ->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>')
  ->assign('prompt_stopwords',$this->Lang('stopwords'))
  ->assign('input_stopwords', FormUtils::create_textarea([
-	'modid' => $id,
+    'modid' => $id,
     'name' =>'stopwords',
-	'rows' => 6,
-	'cols' => 50,
-	'value' => str_replace(["\n", "\r"], [' ', ' '], $this->GetPreference('stopwords', $this->DefaultStopWords())),
+    'rows' => 6,
+    'cols' => 50,
+    'value' => str_replace(["\n", "\r"], [' ', ' '], $this->GetPreference('stopwords', $this->DefaultStopWords())),
 ]))
  ->assign('prompt_resetstopwords',$this->Lang('prompt_resetstopwords'))
  ->assign('input_resetstopwords', '<button type="submit" name="'.$id.'resettodefault" id="'.$id.'resettodefault" class="adminsubmit icon undo">'.$this->Lang('input_resetstopwords').'</button>')
 
  ->assign('prompt_stemming',$this->Lang('usestemming'))
- ->assign('input_stemming',
-                $this->CreateInputCheckbox($id, 'usestemming', 'true',
-                                           $this->GetPreference('usestemming', 'false')))
+ ->assign('input_stemming',$this->CreateInputCheckbox($id, 'usestemming', 'true',
+            $this->GetPreference('usestemming', 'false')))
 
  ->assign('prompt_searchtext',$this->Lang('prompt_searchtext'))
- ->assign('input_searchtext',
-                $this->CreateInputText($id,'searchtext',
-                                       $this->GetPreference('searchtext','')))
+ ->assign('input_searchtext',$this->CreateInputText($id,'searchtext',
+            $this->GetPreference('searchtext','')))
 
  ->assign('prompt_savephrases',$this->Lang('prompt_savephrases'))
- ->assign('input_savephrases',
-                $this->CreateInputCheckbox($id,'savephrases','true',
-                                           $this->GetPreference('savephrases','false')))
+ ->assign('input_savephrases',$this->CreateInputCheckbox($id,'savephrases','true',
+            $this->GetPreference('savephrases','false')))
 
-->assign('prompt_alpharesults',$this->Lang('prompt_alpharesults'))
-->assign('input_alpharesults',
-                $this->CreateInputCheckbox($id,'alpharesults','true',
-                                           $this->GetPreference('alpharesults','false')));
+ ->assign('prompt_alpharesults',$this->Lang('prompt_alpharesults'))
+ ->assign('input_alpharesults',$this->CreateInputCheckbox($id,'alpharesults','true',
+            $this->GetPreference('alpharesults','false')))
 
-$tpl->assign('prompt_resultpage',$this->Lang('prompt_resultpage'));
-$tpl->assign('input_resultpage',
-				AdminUtils::CreateHierarchyDropdown(0,$this->GetPreference('resultpage',-1),$id.'resultpage',true));
+ ->assign('prompt_resultpage',$this->Lang('prompt_resultpage'))
+ ->assign('input_resultpage',
+            AdminUtils::CreateHierarchyDropdown(0,$this->GetPreference('resultpage',-1),$id.'resultpage',true));
+
+$s1 = $this->Lang('confirm_clearstats');
+$s2 = json_encode($this->Lang('confirm_reindex'));
+
+$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(function() {
+ $('button[name="{$id}clearwordcount"]').on('click', function() {
+  cms_confirm_btnclick(this, '$s1');
+  return false;
+ });
+ $('button[name="{$id}reindex"]').on('click', function() {
+  cms_confirm_btnclick(this, $s2);
+  return false;
+ });
+});
+//]]>
+</script>
+EOS;
+add_page_foottext($js);
 
 $tpl->display();
 return '';
