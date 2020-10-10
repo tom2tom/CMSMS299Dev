@@ -8,6 +8,7 @@ use Exception;
 use const CMS_SCHEMA_VERSION;
 use const CMS_VERSION;
 use const CMS_VERSION_NAME;
+use function cms_installer\entitize;
 use function cms_installer\get_app;
 use function cms_installer\get_upgrade_changelog;
 use function cms_installer\get_upgrade_readme;
@@ -159,7 +160,9 @@ class wizard_step2 extends wizard_step
                     if( version_compare($version,$info['version']) < 1 ) continue;
                     $readme = get_upgrade_readme($version);
                     $changelog = get_upgrade_changelog($version);
-                    if( $readme || $changelog ) $out[$version] = ['readme'=>$readme,'changelog'=>$changelog];
+                    if( $readme || $changelog ) {
+						$out[$version] = ['readme'=> entitize($readme),'changelog'=> entitize($changelog)];
+					}
                 }
                 $smarty->assign('upgrade_info',$out);
             }

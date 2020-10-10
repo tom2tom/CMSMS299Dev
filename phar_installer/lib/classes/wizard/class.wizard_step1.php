@@ -4,7 +4,7 @@ namespace cms_installer\wizard;
 
 use cms_installer\wizard\wizard_step;
 use Exception;
-use function cms_installer\clean_string;
+use function cms_installer\cleanString;
 use function cms_installer\get_app;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
@@ -18,18 +18,17 @@ class wizard_step1 extends wizard_step
     protected function process()
     {
         if( isset($_POST['lang']) ) {
-            $lang = trim(clean_string($_POST['lang']));
+            $lang = cleanString($_POST['lang'], 2);
             if( $lang ) translator()->set_selected_language($lang);
         }
 
         $app = get_app();
         if( isset($_POST['destdir']) ) {
-            $dir = trim(clean_string($_POST['destdir']));
+            $dir = cleanString($_POST['destdir'], 3);
             if( $dir) $app->set_destdir($dir);
         }
 
-        if( isset($_POST['verbose']) ) $verbose = (int)$_POST['verbose'];
-        else $verbose = 0;
+        $verbose = (int)(!empty($_POST['verbose']));
         $app->set_config_val('verbose',$verbose);
 //      $this->get_wizard()->set_data('verbose',$verbose);
 
@@ -211,7 +210,7 @@ class wizard_step1 extends wizard_step
             $dirlist = $this->get_valid_install_dirs();
             if( !$dirlist ) throw new Exception('No possible installation directories found.  This could be a permissions issue');
             if( count($dirlist) > 1 ) {
-                $smarty->assign('dirlist',$dirlist);
+                $smarty->assign('dirlist',$dirlist); // assume entitize() not needed
 
                 $custom_destdir = $app->has_custom_destdir();
                 $smarty->assign('custom_destdir',$custom_destdir);

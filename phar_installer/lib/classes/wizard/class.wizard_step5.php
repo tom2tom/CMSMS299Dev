@@ -4,7 +4,9 @@ namespace cms_installer\wizard;
 
 use Exception;
 use Throwable;
-use function cms_installer\clean_string;
+use function cms_installer\cleanString;
+use function cms_installer\de_entitize;
+use function cms_installer\entitize;
 use function cms_installer\get_app;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
@@ -29,7 +31,7 @@ class wizard_step5 extends wizard_step
         if( $action == 'install' ) {
             $this->_params += ['sitename'=>'','supporturl'=>''];
         }
-
+        // get saved data
         $tmp = $wiz->get_data('config');
         if( $tmp ) $this->_params = array_merge($this->_params,$tmp);
         $lang = translator()->get_selected_language();
@@ -54,16 +56,18 @@ class wizard_step5 extends wizard_step
         $config = $app->get_config();
 
         if( isset($_POST['samplecontent']) ) {
-            $this->_params['samplecontent'] = filter_var($_POST['samplecontent'], FILTER_VALIDATE_BOOLEAN);
+            $this->_params['samplecontent'] = filter_input(INPUT_POST, 'samplecontent', FILTER_VALIDATE_BOOLEAN);
         }
 
-        if( isset($_POST['sitename']) ) $this->_params['sitename'] = clean_string($_POST['sitename']);
+        if( isset($_POST['sitename']) ) {
+            $this->_params['sitename'] = cleanString(de_entitize($_POST['sitename']), 1); //TODO better-targeted cleanup
+        }
 
         if( isset($_POST['supporturl']) ) {
-            $url = filter_var($_POST['supporturl'], FILTER_SANITIZE_URL);
-            $pass = filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED, FILTER_FLAG_HOST_REQUIRED);
+            $url = de_entitize($_POST['supporturl']);
+            $pass = filter_var($url, FILTER_VALIDATE_URL);
             // the test above barfs for non-ASCII chars
-            if( !$pass && preg_match('/[\x80-\xFF]/', $url) &&
+            if( !$pass && preg_match('/[\x80-\xff]/', $url) &&
                 // fallback to a rough check (ignores dodgy chars in it)
                 parse_url($url, PHP_URL_SCHEME) && parse_url($url, PHP_URL_HOST) ) {
                 $pass = true;
@@ -78,7 +82,7 @@ class wizard_step5 extends wizard_step
         if( isset($_POST['languages']) ) {
             $tmp = [];
             foreach( $_POST['languages'] as $lang ) {
-                $tmp[] = clean_string($lang);
+                $tmp[] = cleanString($lang, 2);
             }
             $this->_params['languages'] = $tmp;
         }
@@ -87,7 +91,7 @@ class wizard_step5 extends wizard_step
             //record the selected members of $app_config['extramodules']
             $tmp = [];
             foreach ( $_POST['wantedextras'] as $name ) {
-                $tmp[] = clean_string($name);
+                $tmp[] = cleanString($name, 3); //module-identifier == foldername
             }
             $this->_params['wantedextras'] = $tmp;
         }
@@ -131,11 +135,11 @@ class wizard_step5 extends wizard_step
         if( $action == 'install' ) {
             $raw = $config['sitename'] ?? null;
             $v = ($raw === null) ? $this->_params['sitename'] : trim($raw);
-            $smarty->assign('sitename',$v);
+            $smarty->assign('sitename',entitize($v));
 
             $raw = $config['supporturl'] ?? null;
             $v = ($raw === null) ? '' : trim($raw);
-            $smarty->assign('supporturl',$v);
+            $smarty->assign('supporturl',entitize($v)); // should have no effect
 
             $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         }
@@ -147,7 +151,7 @@ class wizard_step5 extends wizard_step
                 if( version_compare($raw,'2.2.910') >= 0 ) { //should always be true, here
                     $raw = $config['supporturl'] ?? null;
                     $v = ($raw === null) ? '' : trim($raw);
-                    $smarty->assign('supporturl',$v);
+                    $smarty->assign('supporturl',entitize($v));
                 }
             }
         }

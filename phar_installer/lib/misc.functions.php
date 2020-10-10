@@ -161,39 +161,31 @@ function is_email(string $str) : bool
 
 /**
  * Scrub inappropriate chars from the supplied string
- * This checks individual chars, not for HTML,XML,PHP tags
+ * If $scope > 0, the supplied string is also trim()'d
+ * Unless $scope = 0, PHP7+ tag-starters <?php, <?=, <? are munged to
+ * corresponding html chars (&#nn;), if not removed
+ * @internal
+ * @since 2.9
  *
- * @param mixed $val
- * @param int $scope Optional enumerator, Default 2
- *  0 liberal content e.g. for P/W
- *  1 medium (word-chars + non-word chars: ' -.+,&|<>[](){}') e.g. for text
- *  2 strict (word-chars + non-word chars: '-.') e.g. for a 1-word 'sensible' name
- *  3 filesystem path string
- * @return mixed, normally a string stripped of HTML,XML,PHP tags, and bytes < ' ', backtick
+ * @param string $str String to be cleaned
+ * @param int $scope Optional enumerator
+ *  0 remove non-printable chars < 0x80 (e.g. for a password)
+ *  1 remove non-printable chars < 0x80 plus these: " ' : ; = ? ^ ` plus repeats of non-alphanum chars
+ *    (e.g. for an html-element attribute value BUT stet some punctuation e.g. '& < > ( ) { }')
+ *  2 (default) remove non-'word' chars < 0x80, other than these: - .
+ *    (e.g. for a 'sensible' 1-word name)
+ *  3 remove invalid filesystem-path chars
+ * @return string
  */
-function cleanString($val, $scope = 2)
+function cleanString($str, $scope = 2)
 {
-	if( $val ) {
-/*		return filter_var($val.'', FILTER_SANITIZE_STRING, //strip HTML,XML,PHP tags, NULL bytes
-		 FILTER_FLAG_STRIP_LOW |
-		 FILTER_FLAG_STRIP_BACKTICK);
-*/
-/*		$val = filter_var($val.'', FILTER_SANITIZE_STRING); //strip HTML,XML,PHP tags, NUL bytes
-		$val = preg_replace_callback('/\W/', function($matches) {
-			// allow space, some punctuation, non-ASCII
-			$n = ord($matches[0]);
-			if( in_array($n, [32,33,35,36,37,38,44,46,124,125,126]) || $n > 127 ) {
-				return $matches[0];
-			}
-			return '';
-		}, $val);
-*/
+	if( $str ) {
 		switch ($scope) {
 			case 0:
 				$patn = '/[\x00-\x1f\x7f]/';
 				break;
 			case 1:
-				$str = preg_replace(['/<\?php/i','/<\?=/','/<\?\s/'], ['&#60;&#63;php','&#60;&#63;&#61;','&#60;&#63; '], $str);
+				$str = preg_replace(['/([^a-zA-Z\d\x80-\xff])\1+/','$1'], ['/<\?php/i','/<\?=/','/<\?\s/'], ['&#60;&#63;php','&#60;&#63;&#61;','&#60;&#63; '], $str);
 				$patn = '/[\x00-\x1f"\':;=?^`\x7f]/';
 				break;
 			case 3:
@@ -206,7 +198,24 @@ function cleanString($val, $scope = 2)
 		if ($scope > 0) { $str = trim($str); }
 		return preg_replace($patn, '', $str);
 	}
-	return $val;
+	return $str;
+}
+
+function entitize(string $str) : string
+{
+	if( $str ) {
+		return htmlspecialchars($str,
+		  ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_XHTML, 'UTF-8', false);
+	}
+	return $str;
+}
+
+function de_entitize(string $str) : string
+{
+	if( $str ) {
+		return htmlspecialchars_decode($str, ENT_NOQUOTES | ENT_XHTML);
+	}
+	return $str;
 }
 
 /**

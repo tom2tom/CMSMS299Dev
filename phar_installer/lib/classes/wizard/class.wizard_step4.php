@@ -5,7 +5,9 @@ namespace cms_installer\wizard;
 use Exception;
 use mysqli;
 use Throwable;
-use function cms_installer\clean_string;
+use function cms_installer\cleanString;
+use function cms_installer\de_entitize;
+use function cms_installer\entitize;
 use function cms_installer\get_app;
 use function cms_installer\lang;
 use function cms_installer\redirect;
@@ -70,11 +72,11 @@ class wizard_step4 extends wizard_step
     {
         $action = $this->get_wizard()->get_data('action');
 //      if( empty($config['db_type']) ) throw new Exception(lang('error_nodbtype'));
-        if( empty($config['db_hostname']) ) { throw new Exception(lang('error_nodbhost')); } else { /* TODO sanitize*/ }
-        if( empty($config['db_name']) ) { throw new Exception(lang('error_nodbname')); } else { /* TODO sanitize*/ }
-        if( empty($config['db_username']) ) { throw new Exception(lang('error_nodbuser')); } else { /* TODO sanitize*/ }
-        if( empty($config['db_password']) ) { throw new Exception(lang('error_nodbpass')); } else { /* TODO sanitize*/ }
-        if( empty($config['db_prefix']) && $action == 'install' ) { throw new Exception(lang('error_nodbprefix'));  } else { /* TODO sanitize*/ }
+        if( empty($config['db_hostname']) ) { throw new Exception(lang('error_nodbhost')); }
+        if( empty($config['db_name']) ) { throw new Exception(lang('error_nodbname')); }
+        if( empty($config['db_username']) ) { throw new Exception(lang('error_nodbuser')); }
+        if( empty($config['db_password']) ) { throw new Exception(lang('error_nodbpass')); }
+        if( empty($config['db_prefix']) && $action == 'install' ) { throw new Exception(lang('error_nodbprefix')); }
         $s = ( !empty($config['query_var']) ) ? trim($config['query_var']) : '';
         if( $s && !preg_match('~^[A-Za-z0-9_\.]*$~',$s) ) { throw new Exception(lang('error_invalidqueryvar')); } elseif ($s) { $config['query_var'] = $s; }
         if( empty($config['timezone']) ) throw new Exception(lang('error_notimezone'));
@@ -130,21 +132,25 @@ class wizard_step4 extends wizard_step
     protected function process()
     {
         $this->_params['db_type'] = 'mysqli';
-//      if( isset($_POST['db_type']) ) $this->_params['db_type'] = clean_string($_POST['db_type']);
-        $this->_params['db_hostname'] = clean_string($_POST['db_hostname']);
-        $this->_params['db_name'] = clean_string($_POST['db_name']);
-        $this->_params['db_username'] = clean_string($_POST['db_username']);
-        $this->_params['db_password'] = trim(filter_var($_POST['db_password'], FILTER_SANITIZE_STRING,
-            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES));
-        if( isset($_POST['db_port']) ) $this->_params['db_port'] = filter_var($_POST['db_port'],FILTER_SANITIZE_NUMBER_INT);
-        if( isset($_POST['db_prefix']) ) $this->_params['db_prefix'] = clean_string($_POST['db_prefix']);
-        $this->_params['timezone'] = clean_string($_POST['timezone']);
-        if( isset($_POST['query_var']) ) $this->_params['query_var'] = clean_string($_POST['query_var']);
+//      if( isset($_POST['db_type']) ) $this->_params['db_type'] = cleanString($_POST['db_type'], 2);
+		// these db properties are set externally, so CMSMS data policies are irrelevant.
+		// stored in file and never displayed other than during this intaller, so risk-mitigation N/A
+		// minimal cleanup for externally-prescribed content
+		if( isset($_POST['db_hostname']) ) $this->_params['db_hostname'] = trim(de_entitize($_POST['db_hostname']));
+        if( isset($_POST['db_name']) ) $this->_params['db_name'] = trim(de_entitize($_POST['db_name']));
+        if( isset($_POST['db_username']) ) $this->_params['db_username'] = trim(de_entitize($_POST['db_username']));
+        if( isset($_POST['db_password']) ) $this->_params['db_password'] = trim(de_entitize($_POST['db_password']));
+        if( isset($_POST['db_port']) ) $this->_params['db_port'] = filter_input(INPUT_POST, 'db_port', FILTER_SANITIZE_NUMBER_INT);
+		// and the rest are self-managed data ...
+        if( isset($_POST['db_prefix']) ) $this->_params['db_prefix'] = cleanString(de_entitize($_POST['db_prefix']), 2);
+        $this->_params['timezone'] = cleanString($_POST['timezone'], 1);
+        if( isset($_POST['query_var']) ) $this->_params['query_var'] = cleanString(de_entitize($_POST['query_var']), 2);
 
         foreach( ['admin_path', 'assets_path', 'simpleplugins_path'] as $key ) {
             if( isset($_POST[$key]) ) {
                 $s = trim($_POST[$key], ' /\\"\'');
                 if( $s ) {
+                    //TODO c.f. cleanString( ,3) but with path-sep(s)
                     $s = strtr($s, '\\', '/');
                     $s = filter_var($s, FILTER_SANITIZE_URL);
                     $this->_params[$key] = strtr($s, '/\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
@@ -181,10 +187,16 @@ class wizard_step4 extends wizard_step
         $raw = $this->_params['verbose'] ?? 0;
 //        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
         $smarty->assign('verbose',(int)$raw);
-        $smarty->assign('config',$this->_params);
+		$tmp = $this->_params;
+		foreach ($tmp as &$val) {
+            if( $val ) {
+				$val = entitize($val);
+			}
+		}
+		unset($val);
+        $smarty->assign('config',$tmp);
         $smarty->display('wizard_step4.tpl');
 
         $this->finish();
     }
-
 } // class
