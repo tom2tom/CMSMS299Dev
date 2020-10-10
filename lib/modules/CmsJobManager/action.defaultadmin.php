@@ -1,6 +1,6 @@
 <?php
 
-use CmsJobManager\JobQueue;
+use CmsJobManager\JobsCache;
 use CmsJobManager\Utils;
 use CMSMS\Async\RecurType;
 
@@ -50,7 +50,7 @@ add_page_headtext($js);
 //DEBUG - END
 
 $jobs = [];
-$job_objs = JobQueue::get_all_jobs();
+$job_objs = JobsCache::get_all_jobs();
 if( $job_objs ) {
     $list = [
         RecurType::RECUR_15M => $this->Lang('recur_15m'),
