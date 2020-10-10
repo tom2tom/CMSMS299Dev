@@ -41,6 +41,7 @@
       {/if}
         {/if}
     <li class="logout">
+{*TODO replace onclick handler*}
       <a href="logout.php?{$secureparam}" title="{'logout'|lang}" {if isset($is_sitedown)}onclick="return confirm('{'maintenance_warning'|lang|escape:'javascript'}')"{/if}><i class="fa fa-sign-out"></i></a>
     </li>
   </ul>

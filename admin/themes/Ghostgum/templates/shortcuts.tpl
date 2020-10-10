@@ -37,6 +37,7 @@
   {/if}
 </span>
 <span class="icon">
+{*TODO replace onclick handler*}
   <a href="logout.php?{$secureparam}" title="{lang('logout')}" {if isset($is_sitedown)}onclick="cms_confirm_linkclick(this,'{lang('maintenance_warning')|escape:'javascript'}');return false;"{/if}><svg><use xlink:href="themes/Ghostgum/images/navsprite.svg#logout"/></svg></a>
 </span>
 {/strip}

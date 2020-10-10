@@ -16,6 +16,7 @@
       <ul class="subitems">
       {foreach $node.children as $one}
         <li><a href="{$one.url}"{if isset($one.target)} target="{$one.target}"{/if}
+{*TODO replace onclick handler*}
         {if strncmp($one.url,'logout',6)==0 && isset($is_sitedown)} onclick="cms_confirm_linkclick(this,'{lang('maintenance_warning')|escape:'javascript'}');return false;"{/if}
         >{$one.title}
         </a></li>

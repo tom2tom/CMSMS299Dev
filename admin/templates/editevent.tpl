@@ -46,6 +46,7 @@
       </td>
       <td>
       {if $one.removable}{if $one.tag_name}{$myname=$one.tag_name}{else}{$myname=$one.module_name}{/if}
+{*TODO replace link onclick handler*}
       <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;originator={$originator}&amp;action=delete&amp;handler={$one.handler_id}" onclick="cms_confirm_linkclick(this,'{lang('deleteconfirm', $myname)}');return false;">{$icondel}</a>
       {/if}
       </td>

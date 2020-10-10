@@ -38,6 +38,7 @@
 			<a href="{root_url}/index.php" rel="external" target="_blank" title="{'viewsite'|lang}">{'viewsite'|lang}</a>
 		</li>
 		<li class="logout">
+{*TODO replace onclick handler*}
 			<a href="logout.php?{$secureparam}" title="{'logout'|lang}" {if isset($is_sitedown)}onclick="return confirm('{'maintenance_warning'|lang|escape:'javascript'}')"{/if}>{'logout'|lang}</a>
 		</li>
 	</ul>

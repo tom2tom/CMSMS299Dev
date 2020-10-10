@@ -28,6 +28,7 @@
 			<h4>{'subitems'|lang}</h4>
 			<ul class="subitems cf">
 			{foreach $node.children as $one}
+{*TODO replace onclick handler*}
 			 	<li><a href="{$one.url}"{if isset($one.target)} target="{$one.target}"{/if} {if substr($one.url,0,6) == 'logout' and isset($is_sitedown)}onclick="return confirm('{'maintenance_warning'|lang|escape:'javascript'}')"{/if}>{$one.title}</a></li>
 			{/foreach}
 			</ul>

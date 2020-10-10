@@ -38,6 +38,7 @@
        </li>
     {/if}
     <li class="logout">
+{*TODO replace onclick handler*}
       <a href="logout.php?{$secureparam}" title="{'logout'|lang}" {if isset($is_sitedown)}onclick="return confirm('{'maintenance_warning'|lang|escape:'javascript'}')"{/if}><i aria-hidden="true" class="fas fa-sign-out-alt"></i></a>
     </li>
   </ul>
@@ -60,30 +61,20 @@
   </ul>
 </div>
 {/if}
-
 {if !empty($my_alerts)}
 <!-- alerts go here -->
-<div id="alert-dialog" class="alert-dialog" role="dialog" title="{lang('alerts')}" style="display: none;">
-  <ul>
-  {foreach $my_alerts as $one}
-  <li class="alert-box" data-alert-name="{$one->get_prefname()}">
-    <div class="alert-head ui-corner-all {if $one->priority == '_high'}ui-state-error red{elseif $one->priority == '_normal'}ui-state-highlight orange{else}ui-state-highlightblue{/if}">
-     {$icon=$one->get_icon()}
-     {if $icon}
-     <img class="alert-icon ui-icon" alt="" src="{$icon}" title="{lang('remove_alert')}"/>
-     {else}
-     <span class="alert-icon ui-icon {if $one->priority != '_low'}ui-icon-alert{else}ui-icon-info{/if}" title="{lang('remove_alert')}"></span>
-     {/if}
-     <span class="alert-title">{$one->get_title()|default:lang('alert')}</span>
-     <span class="alert-remove ui-icon ui-icon-close" title="{lang('remove_alert')}"></span>
-     <div class="alert-msg">{$one->get_message()}</div>
-  </div>
-  </li>
-  {/foreach}
-  </ul>
-  <div id="alert-noalerts" class="information" style="display: none;">{lang('info_noalerts')}</div>
+<div id="alert-dialog" class="alert-dialog" role="dialog" title="{lang('alerts')}" style="padding:0; display: none;">
+    {foreach $my_alerts as $one}
+    <div class="alert-box jqtoast {if $one->priority == '_high'}error{elseif $one->priority != '_low'}warn{else}info{/if}" data-alert-name="{$one->get_prefname()}">
+        <div class="jqt-heading">{$one->get_title()|default:lang('alert')}
+        <span class="jqt-close alert-remove" title="{lang('remove_alert')}"></span>
+        </div>
+        <span>{$one->get_message()}</span>
+    </div>
+    {/foreach}
 </div>
 {/if}
+{*<div id="alert-noalerts" class="jqtoast info" style="display:none;">{lang('info_noalerts')}</div>*}
 <!-- alerts-end -->
 {/strip}
 {/block}

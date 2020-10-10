@@ -38,10 +38,15 @@
       {/if}
     </span>
     <span class="icon">
+{*TODO replace onclick handler*}
       <a href="logout.php?{$secureparam}" title="{lang('logout')}" {if isset($is_sitedown)}onclick="cms_confirm_linkclick(this,'{lang('maintenance_warning')|escape:'javascript'}');return false;"{/if}><svg><use xlink:href="themes/Ebonne/images/navsprite.svg#logout"/></svg></a>
     </span>
-
 </div>{*shortcuts*}
+{/strip}
+{/block}{*shortcuts*}
+
+{block name=shortcutdialogs}
+{strip}
 {if isset($marks)}
 <div class="dialog invisible" role="dialog" title="{lang('bookmarks')}">
   {if is_array($marks) && count($marks)}
@@ -64,26 +69,18 @@
 {/if}
 {if !empty($my_alerts)}
 <!-- alerts go here -->
-<div id="alert-dialog" class="alert-dialog" role="dialog" title="{lang('alerts')}" style="display: none;">
-  <ul>
+<div id="alert-dialog" class="alert-dialog" role="dialog" title="{lang('alerts')}" style="padding:0; display: none;">
     {foreach $my_alerts as $one}
-    <li class="alert-box" data-alert-name="{$one->get_prefname()}">
-      <div class="alert-head {if $one->priority == '_high'}dialog-critical{elseif $one->priority != '_low'}dialog-warning{else}dialog-information{/if}">
-       {$icon=$one->get_icon()} {if $icon}
-        <img class="alert-icon" alt="" src="{$icon}" />
-       {else}
-        <span class="alert-icon {if $one->priority != '_low'}image-warning{else}image-info{/if}"></span>
-       {/if}
-        <span class="alert-title">{$one->get_title()|default:lang('alert')}</span>
-        <span class="alert-remove image-close" title="{lang('remove_alert')}"></span>
-        <div class="alert-msg">{$one->get_message()}</div>
+    <div class="alert-box jqtoast {if $one->priority == '_high'}error{elseif $one->priority != '_low'}warn{else}info{/if}" data-alert-name="{$one->get_prefname()}">
+        <div class="jqt-heading">{$one->get_title()|default:lang('alert')}
+        <span class="jqt-close alert-remove" title="{lang('remove_alert')}"></span>
       </div>
-    </li>
+        <span>{$one->get_message()}</span>
+    </div>
     {/foreach}
-  </ul>
-  <div id="alert-noalerts" class="pageinfo" style="display:none;">{lang('info_noalerts')}</div>
 </div>
 {/if}
+{*<div id="alert-noalerts" class="jqtoast info" style="display:none;">{lang('info_noalerts')}</div>*}
 <!-- alerts-end -->
 {/strip}
 {/block}
