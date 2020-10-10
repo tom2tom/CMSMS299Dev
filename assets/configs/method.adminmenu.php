@@ -1,0 +1,1 @@
+../../admin/configs/method.adminmenu.php
