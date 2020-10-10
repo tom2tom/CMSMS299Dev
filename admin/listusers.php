@@ -37,7 +37,7 @@ $userid = get_userid();
 $themeObject = Utils::get_theme_object();
 
 if (!check_permission($userid, 'Manage Users')) {
-    //TODO some immediate popup
+    //TODO some pushed popup
     return;
 }
 
@@ -45,8 +45,7 @@ if (!check_permission($userid, 'Manage Users')) {
  * Variables
  ---------------------*/
 
-$gCms         = AppSingle::App();
-$db           = $gCms->GetDb();
+$db           = AppSingle::Db();
 $templateuser = AppParams::get('template_userid');
 $page         = 1;
 $limit        = 100;
@@ -351,9 +350,10 @@ $users = $userops->LoadUsers($limit, $offset);
 $is_admin = $userops->UserInGroup($userid, 1);
 
 foreach ($users as &$one) {
-    $one->access_to_user = 1;
-    if ($userops->UserInGroup($one->id, 1) && !$userops->UserInGroup($userid, 1)) {
+    if (!$is_admin && $userops->UserInGroup($one->id, 1)) {
         $one->access_to_user = 0;
+    } else {
+        $one->access_to_user = 1;
     }
     $one->pagecount = $userops->CountPageOwnershipById($one->id);
     $userlist[$one->id] = $one;
@@ -381,7 +381,7 @@ $smarty->assign([
     'icontrue' => $icontrue,
     'my_userid' => $userid,
     'selfurl' => $selfurl,
-	'extraparms' => $extras,
+    'extraparms' => $extras,
     'urlext' => $urlext,
     'userlist' => $userlist,
 ]);
