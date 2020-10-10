@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AppParams;
 use CMSMS\Database\DataDictionary;
 
 if( !isset($gCms) ) exit;
@@ -26,12 +27,12 @@ $dict = new DataDictionary($db);
 //data field holds a serialized class, size 1024 is probably enough
 //TODO consider datetime fields instead of some of the current timestamps
 $flds = '
-id I KEY AUTO NOT NULL,
+id I UNSIGNED KEY AUTO NOT NULL,
 name C(255) NOT NULL,
 module C(128),
 created I NOT NULL,
-start I NOT NULL,
-until I,
+start I UNSIGNED NOT NULL,
+until I UNSUGNED,
 recurs I(4) UNSIGNED,
 errors I(4) UNSIGNED DEFAULT 0 NOT NULL,
 data X(16383)
@@ -39,9 +40,10 @@ data X(16383)
 $sqlarray = $dict->CreateTableSQL(CmsJobManager::TABLE_NAME, $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
+AppParams::set('jobinterval',180); //min-seconds between job-processing's 1 .. 10
+AppParams::set('jobtimeout',30); //seconds, max jobs execution-time 30 .. 1800
+
 $this->SetPreference('enabled',1); //whether async job-processing by this module is currently enabled
-$this->SetPreference('jobinterval',5); //minutes between updates 1 .. 10
-$this->SetPreference('jobtimeout',30); //seconds, max jobs execution-time 30 .. 1800
 $this->SetPreference('joburl',''); //custom url for job processing
 $this->SetPreference('last_check',0); //timestamp for internal use only
 $this->SetPreference('last_processing',0); //ditto
