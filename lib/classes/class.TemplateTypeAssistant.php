@@ -1,6 +1,7 @@
 <?php
-#Class for getting template help
-#Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#TemplateTypeAssistant abstract class
+#Copyright (C) 2013-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -15,36 +16,31 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-namespace CMSMS\internal;
-
-use CMSMS\TemplateTypeAssistant;
+namespace CMSMS;
 
 /**
- * @since 2.2
+ * An abstract class to define an assistant to the template-type objects in the database.
+ *
+ * @package CMS
+ * @license GPL
+ * @since 2.9
+ * @since 2.2 in namespace CMSMS\Layout
+ * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
-class __CORE__generic_Type_Assistant extends TemplateTypeAssistant
+abstract class TemplateTypeAssistant
 {
     /**
-     * Get the type object for the assistant.
+     * Get the type object for the current assistant.
      *
-     * @return null
+     * @return TemplateType
      */
-    public function get_type()
-    {
-    }
+    abstract public function get_type();
 
     /**
-     * Get a usage string for the assistant.
+     * Get a usage string for the current assistant.
      *
      * @param string $name The template name.
      * @return string
      */
-    public function get_usage_string($name)
-    {
-        $name = trim($name);
-        if( $name ) {
-            $pattern = '{include file=\'cms_template:%s\'}';
-            return sprintf($pattern,$name);
-        }
-    }
+    abstract public function get_usage_string($name);
 }
