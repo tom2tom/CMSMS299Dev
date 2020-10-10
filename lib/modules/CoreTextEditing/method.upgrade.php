@@ -49,12 +49,12 @@ foreach ($all as $editor => $val) {
         $fp = $base.$editor.'.php';
         require_once $fp;
         $P = (!empty($const_prefix)) ? $const_prefix : strtoupper($editor).'_';
-        $val = @constant($P.'CDN');
-        if ($val !== null) {
+        $val = defined($P.'CDN') ? constant($P.'CDN') : null;
+        if ($val) {
             $this->SetPreference($n.'_source_url', $val);
         }
-        $val = @constant($P.'THEME');
-        if ($val !== null) {
+        $val = defined($P.'THEME') ? constant($P.'THEME') : null;
+        if ($val) {
             $this->SetPreference($n.'_theme', $val);
         }
     }
