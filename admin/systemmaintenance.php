@@ -41,7 +41,7 @@ $access = true; //check_permission($userid, 'TODO some Site Perm');
 $themeObject = Utils::get_theme_object();
 
 if (!$access) {
-//TODO some immediate popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
+//TODO some pushed popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
     return;
 }
 

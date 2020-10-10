@@ -40,7 +40,7 @@ $access = check_permission($userid, 'Modify Events');
 $themeObject = Utils::get_theme_object();
 
 if (!$access) {
-//TODO some immediate popup	lang('noaccessto', lang('modifyeventhandler'))
+//TODO some pushed popup	lang('noaccessto', lang('modifyeventhandler'))
     return;
 }
 

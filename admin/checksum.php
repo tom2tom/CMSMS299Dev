@@ -35,7 +35,7 @@ $themeObject = Utils::get_theme_object();
 
 $urlext = get_secure_param();
 if (!$access) {
-//TODO some immediate popup  lang('needpermissionto', '"Modify Site Preferences"')
+//TODO some pushed popup  lang('needpermissionto', '"Modify Site Preferences"')
 	return;
 }
 
