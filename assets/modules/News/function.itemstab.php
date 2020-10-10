@@ -256,7 +256,7 @@ $(function() {
 
  $('#category_box').hide();
  var el = $('#bulk_action, #bulk_category');
- el.attr('disabled','disabled');
+ el.prop('disabled','disabled');
  var btn = $('#bulk_submit');
  cms_button_able(btn,false);
  var cb = $('#articlelist > tbody input:checkbox');
@@ -265,12 +265,12 @@ $(function() {
   if(l > 0) {
   el.removeAttr('disabled');
   } else {
-  el.attr('disabled','disabled');
+  el.prop('disabled','disabled');
   }
   cms_button_able(btn,(l > 0));
  });
  $('#selectall').on('change', function() {
-  cb.attr('checked',(this.checked || false)).eq(0).trigger('change');
+  cb.prop('checked',(this.checked || false)).eq(0).trigger('change');
  });
  $('#bulk_action').on('change', function() {
   var v = $(this).val();

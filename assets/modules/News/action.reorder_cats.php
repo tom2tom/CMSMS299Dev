@@ -79,9 +79,9 @@ function parseTree(ul) {
   ul.children('li').each(function() {
     var subtree = $(this).children('ul');
     if(subtree.size() > 0) {
-      tags.push([$(this).attr('id'), parseTree(subtree)]);
+      tags.push([this.id, parseTree(subtree)]);
     } else {
-      tags.push($(this).attr('id'));
+      tags.push(this.id);
     }
   });
   return tags;
