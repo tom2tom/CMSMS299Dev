@@ -30,7 +30,7 @@ interface AsyncJobManager
 
 	public function load_job_by_id(int $job_id);
 
-	public function load_job(Job $job) : int;
+	public function load_job(Job $job);
 
 	public function unload_jobs_by_module(string $module_name);
 
