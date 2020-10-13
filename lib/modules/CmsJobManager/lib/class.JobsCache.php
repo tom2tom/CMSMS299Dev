@@ -47,7 +47,7 @@ final class JobsCache
     public static function get_all_jobs() : array
     {
         $now = time();
-        $sql = 'SELECT * FROM '.CmsJobManager::TABLE_NAME." WHERE created < $now ORDER BY created ASC LIMIT ".self::MAXJOBS;
+        $sql = 'SELECT * FROM '.CmsJobManager::TABLE_NAME." WHERE created < $now ORDER BY created";
         $db = AppSingle::Db();
         $rs = $db->SelectLimit($sql, self::MAXJOBS);
         if (!$rs) {
