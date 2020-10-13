@@ -4,17 +4,17 @@ CMSMailer module defaultadmin action
 Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation; either version 3 of the License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+You should have received a copy of the GNU Affero General Public License
+along with CMS Made Simple. If not, see
+<http://www.gnu.org/licenses/licenses.html#AGPL>.
 */
 
 use CMSMS\Crypto;
@@ -23,17 +23,11 @@ use CMSMailer\Mailer;
 
 if(!isset($gCms)) exit;
 
-if( !$this->CheckPermission('Modify Mail Preferences') ||
-     $this->CheckPermission('Modify Site Preferences')) exit;
-
-/*
-if (isset($params['cancel'])) {
-    $this->Redirect($id, 'defaultadmin', $returnid);
-}
-*/
+if( !($this->CheckPermission('Modify Mail Preferences') ||
+     $this->CheckPermission('Modify Site Preferences'))) exit;
 
 if (isset($params['submit']) || isset($params['sendtest'])) {
-    // TODO validate
+    // TODO sanitize, validate
     $this->SetPreference('mailer', $params['mailer']);
     $this->SetPreference('charset', $params['charset']);
     $this->SetPreference('host', $params['host']);
@@ -45,7 +39,7 @@ if (isset($params['submit']) || isset($params['sendtest'])) {
     $this->SetPreference('smtpauth', (bool)$params['smtpauth']);
     $this->SetPreference('secure', $params['secure']);
     $this->SetPreference('username', $params['username']);
-    $this->SetPreference('password', base64_encode(Crypto::encrypt_string($params['password']));
+    $this->SetPreference('password', base64_encode(Crypto::encrypt_string($params['password'])));
 }
 
 if (isset($params['sendtest'])) {
@@ -150,16 +144,16 @@ $tpl->assign([
  'help_secure' => 'info_secure',
  'value_secure' => $this->GetPreference('secure', ''),
  'opts_secure' => [
-      $this->Lang('none') => '',
-      $this->Lang('ssl') => 'ssl',
-      $this->Lang('tls') => 'tls',
+     '' => $this->Lang('none'),
+     'ssl' => $this->Lang('ssl'),
+     'tls' => $this->Lang('tls')
   ],
  'title_username' => $this->Lang('username'),
  'help_username' => 'info_username',
  'value_username' => $this->GetPreference('username'),
  'title_password' => $this->Lang('password'),
  'help_password' => 'info_password',
- 'value_password' => Crypto::decrypt_string(base64_decode($this->GetPreference('password'))), 
+ 'value_password' => Crypto::decrypt_string(base64_decode($this->GetPreference('password'))),
  'title_testaddress' => $this->Lang('testaddress'),
  'help_testaddress' => 'info_testaddress',
 ]);
