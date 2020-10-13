@@ -53,7 +53,7 @@ class ExternalHandlerJob extends Job
     public function __construct($params = [])
     {
         parent::__construct();
-        $this->_data += ['function'=>'', 'is_udt'=>false];
+        $this->_data = ['function'=>'', 'is_udt'=>false] + $this->_data;
         if( $params ) {
             foreach( $params as $key => $val ) {
                 $this->__set($key,$val);

@@ -36,8 +36,9 @@ abstract class OnceJob extends Job
     public function __construct()
     {
         parent::__construct();
-        $this->start = 0; // disabled until something triggers a change
-        $this->frequency = RecurType::NONE;
+        $this->_data = ['frequency' => RecurType::NONE,
+        'start' => 0 // disabled until something triggers a change
+        ] + $this->_data;
     }
 
     /**

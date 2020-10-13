@@ -43,7 +43,7 @@ abstract class CronJob extends Job
     public function __construct($params = [])
     {
         parent::__construct();
-        $this->_data += [ 'frequency' => RecurType::RECUR_NONE, 'interval' => 60, 'until' => 0 ];
+        $this->_data = ['frequency' => RecurType::RECUR_NONE, 'interval' => 60, 'until' => 0] + $this->_data;
         if( $params ) {
             foreach( $params as $key => $val ) {
                 $this->__set($key,$val);
