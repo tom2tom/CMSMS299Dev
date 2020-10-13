@@ -1482,7 +1482,7 @@ abstract class CMSModule
     /**
      * Returns page-header content (probably js, css) for this editor.
      * @deprecated since 2.9. Instead generate and record such content when
-     * constructing the textarea element, using get_syntaxeditor_script() and
+     * constructing the textarea element, using get_syntaxeditor_setup() and
      * then cachers such as add_page_headtext(), add_page_footertext()
      *
      * @abstract
@@ -1504,7 +1504,7 @@ abstract class CMSModule
     /**
      * Returns page-header content (probably js, css) for this editor.
      * @deprecated since 2.9. Instead generate and record such content when
-     * constructing the textarea element, using get_richeditor_script() and then
+     * constructing the textarea element, using get_richeditor_setup() and then
      * cachers such as add_page_headtext(), add_page_footertext()
      *
      * @abstract

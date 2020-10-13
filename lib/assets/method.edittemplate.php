@@ -224,7 +224,7 @@ if( $js) {
     add_page_foottext($js);
 }
 
-$pageincs = get_editor_script(['edit'=>$can_manage, 'typer'=>'smarty']);
+$pageincs = get_syntaxeditor_setup(['edit'=>$can_manage, 'typer'=>'smarty']);
 if( !empty($pageincs['head'])) {
     add_page_headtext($pageincs['head']);
 }
