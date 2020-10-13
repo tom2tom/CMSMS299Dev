@@ -76,7 +76,7 @@
   </div>
   <div class="pageoverflow">{$t=$title_smtpauth}
     <label class="pagetext" for="">{$t}:</label>label>
-    {cms_help realm='CMSMailer' key2=$help_smtpauth' title=$t}
+    {cms_help realm='CMSMailer' key2=$help_smtpauth title=$t}
     <div class="pageinput">
       <input type="hidden" name="{$actionid}smtpauth" value="0" />
       <input type="checkbox" id="smtpauth" name="{$actionid}" value="1"{if $value_smtpauth} checked="checked"{/if} />
