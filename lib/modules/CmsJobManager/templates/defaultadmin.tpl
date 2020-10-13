@@ -3,9 +3,8 @@
 {tab_header name='settings' label=$mod->Lang('settings')}
 {tab_start name='jobs'}
 {/if}
-<div class="pageinfo">{$mod->Lang('info_background_jobs')}</div>
-
 {if count($jobs)}
+  <div class="pageinfo">{$mod->Lang('info_background_jobs')}</div>
   <table class="pagetable" style="width:auto;">
     <thead>
       <tr>
