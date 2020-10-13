@@ -43,7 +43,7 @@ final class Utils
     public static function job_recurs(Job $job) : bool
     {
         if ($job instanceof CronJob) {
-            return $job->frequency != RecurType::NONE;
+            return $job->frequency != RecurType::RECUR_NONE;
         }
         return false;
     }
