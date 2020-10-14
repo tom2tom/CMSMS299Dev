@@ -1,8 +1,8 @@
 <?php
-# Jobs-cache methods for CMS Made Simple module CmsJobManager
-# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# See license details at the top of file CmsJobManager.module.php
+#Recorded-jobs methods for CMS Made Simple module CmsJobManager
+#Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+#See license details at the top of file CmsJobManager.module.php
 
 namespace CmsJobManager;
 
@@ -18,7 +18,7 @@ use function debug_to_log;
  * @since 2.9
  * @since 2.2 as JobQueue
  */
-final class JobsCache
+final class JobStore
 {
     /**
      * Maximum no. of jobs per batch
@@ -40,9 +40,8 @@ final class JobsCache
     }
 
     /**
-     * @return mixed array | null
+     * @return array up to 50 members, mebbe empty
      * @throws RuntimeException
-     * @return array, mebbe empty
      */
     public static function get_all_jobs() : array
     {
@@ -66,9 +65,11 @@ final class JobsCache
                 }
             }
             $obj = unserialize($row['data']/*, ['allowed_classes' => TODO]*/);
-            $obj->set_id($row['id']);
-            $obj->force_start = $row['start']; // in case this job was modified
-            $out[] = $obj;
+            if ($obj) {
+                $obj->set_id($row['id']);
+                $obj->force_start = $row['start']; // in case this job was modified
+                $out[] = $obj;
+            }
             if (!$rs->MoveNext()) {
                 break;
             }
