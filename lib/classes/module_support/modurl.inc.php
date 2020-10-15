@@ -146,7 +146,7 @@ function CreateActionUrl(
 		}
 	}
 	return $text;
-};
+}
 
 /**
  * Get an URL which when accessed will run a (non-displayed) module-job
@@ -167,7 +167,7 @@ function CreateActionUrl(
  * @return string Ready-to-use or corresponding displayable URL.
  */
 function CreateJobUrl(
-	$modinst, 
+	$modinst,
 	string $action,
 	array $params = [],
 	bool $onetime = false,
@@ -187,7 +187,7 @@ function CreateJobUrl(
 		$text = cms_htmlentities($text);
 	}
 	return $text;
-};
+}
 
 /**
  * Get an URL which when accessed will display a site page
@@ -254,4 +254,4 @@ function CreatePageUrl(
 		}
 	}
 	return $text;
-};
+}
