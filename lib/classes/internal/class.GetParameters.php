@@ -145,6 +145,14 @@ class GetParameters
     {
         $this->obscured_params_exist(); // create parameter key
 
+        if (isset($parms[CMS_JOB_KEY])) {
+            $type = $parms[CMS_JOB_KEY];
+            unset($parms[CMS_JOB_KEY]);
+        } else {
+            $type = -1;
+        }
+        ksort($parms); //security key(s) lead
+
         if (isset($parms['module']) && isset($parms['id']) && isset($parms['action'])) {
             $module = trim($parms['module']);
             $id = trim($parms['id']);
@@ -152,13 +160,6 @@ class GetParameters
             $inline = !empty($parms['inline']) ? 1 : 0;
             unset($parms['module'], $parms['id'], $parms['action'], $parms['inline']);
             $parms = ['mact' => "$module,$id,$action,$inline"] + $parms;
-        }
-
-        if (isset($parms[CMS_JOB_KEY])) {
-            $type = $parms[CMS_JOB_KEY];
-            unset($parms[CMS_JOB_KEY]);
-        } else {
-            $type = -1;
         }
 
         $data = json_encode($parms, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -200,6 +201,14 @@ class GetParameters
                 break;
         }
 
+        if (isset($parms[CMS_JOB_KEY])) {
+            $type = $parms[CMS_JOB_KEY];
+            unset($parms[CMS_JOB_KEY]);
+        } else {
+            $type = -1;
+        }
+        ksort($parms); //security key(s) lead
+
         if (isset($parms['module']) && isset($parms['id']) && isset($parms['action'])) {
             $module = trim($parms['module']);
             $id = trim($parms['id']);
@@ -209,14 +218,6 @@ class GetParameters
             $parms = ['mact' => "$module,$id,$action,$inline"] + $parms;
         }
 
-        if (isset($parms[CMS_JOB_KEY])) {
-            $type = $parms[CMS_JOB_KEY];
-            unset($parms[CMS_JOB_KEY]);
-        } else {
-            $type = -1;
-        }
-
-        ksort($parms); //security key(s) lead
         $text = '';
         $first = true;
         foreach ($parms as $key => $val) {
