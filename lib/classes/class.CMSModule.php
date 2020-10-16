@@ -1194,7 +1194,7 @@ abstract class CMSModule
             $gCms = AppSingle::App();
             $db = AppSingle::Db();
             $config = AppSingle::Config();
-            $smarty = AppSingle::Smarty();
+            $smarty = AppSingle::Smarty(); //needed?
             $res = include $filename;
             if( $res == 1 || $res == '' ) return false;
             if( is_string($res) ) {
@@ -2932,7 +2932,7 @@ abstract class CMSModule
     final public function CheckPermission(...$perms) : bool
     {
         $userid = get_userid(false);
-        if ($userid != null) {
+        if ($userid) {
             return check_permission($userid, ...$perms);
         }
         //session expired
@@ -3061,7 +3061,7 @@ abstract class CMSModule
      */
 
     /**
-     * Add an event handler for an existing eg event.
+     * Add a handler for an existing event.
      *
      * @final
      * @param string $realm      The name of the module sending the event, or 'Core'
@@ -3072,11 +3072,11 @@ abstract class CMSModule
     final public function AddEventHandler(string $realm, string $eventname, bool $removable = true)
     {
 //       return Events::AddEventHandler( $realm, $eventname, false, $this->GetName(), $removable );
-        return Events::AddStaticHandler($realm, $eventname, [$this->GetName(),false], 'M', $removable);
+        return Events::AddStaticHandler($realm, $eventname, [$this->GetName(), ''], 'M', $removable);
     }
 
     /**
-     * Inform the system about a new event that can be generated
+     * Inform the system about a new event that can be generated.
      *
      * @final
      * @param string $eventname The name of the event
