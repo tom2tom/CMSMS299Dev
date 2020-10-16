@@ -1,8 +1,8 @@
 <?php
-# utility-methods for CmsJobManager, a CMS Made Simple module
-# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# See license details at the top of file CmsJobManager.module.php
+#utility-methods for CmsJobManager, a CMS Made Simple module
+#Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+#See license details at the top of file CmsJobManager.module.php
 
 namespace CmsJobManager;
 
@@ -13,9 +13,9 @@ use CMSMS\AppSingle;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\Job;
 use CMSMS\Async\RecurType;
+use CMSMS\Async\RegularJob;
 use CMSMS\IRegularTask;
 use CMSMS\ModuleOperations;
-use CMSMS\SysDataCache;
 use CMSMS\SysDataCacheDriver;
 use CMSMS\Utils as AppUtils;
 use CmsRegularTask;
@@ -23,9 +23,10 @@ use InvalidArgumentException;
 use LogicException;
 use Throwable;
 use const ASYNCLOG;
+use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
 use const TMP_CACHE_LOCATION;
-use function cms_db_prefix;
+use function cms_join_path;
 use function debug_to_log;
 
 final class Utils
@@ -192,52 +193,62 @@ final class Utils
     /**
      * Load a job for each CmsRegularTask object and Job object that is found
      * @return int count of job(s) loaded
-    */
+     */
     public static function refresh_jobs() : int
     {
         $res = 0;
 
+        $db = AppSingle::Db();
+		$db->Execute('DELETE FROM '.CmsJobManager::TABLE_NAME);
+		$db->Execute('ALTER TABLE '.CmsJobManager::TABLE_NAME.' AUTO_INCREMENT=1');
+
         // Get job objects from files
-        $patn = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'tasks'.DIRECTORY_SEPARATOR.'class.*.php';
+        $patn = cms_join_path(CMS_ROOT_PATH,'lib','classes','tasks','class.*.php');
         $files = glob($patn);
-        foreach( $files as $p) {
+        foreach ($files as $p) {
+            $classname = 'CMSMS\\tasks\\';
             $tmp = explode('.',basename($p));
             if (count($tmp) == 4 && $tmp[2] == 'task') {
-                $classname = $tmp[1].'Task';
+                $classname .= $tmp[1].'Task';
             }
             else {
-                $classname = $tmp[1];
+                $classname .= $tmp[1];
             }
             require_once $p;
-            $obj = new $classname;
-            if ($obj instanceof CmsRegularTask || $obj instanceof IRegularTask) {
-//              if (!$obj->test($now)) continue; ALWAYS RECORD TASK
-                try {
-                    $job = new RegularTask($obj);
-                } catch (Throwable $t) {
+            try {
+                $obj = new $classname();
+                if ($obj instanceof CmsRegularTask || $obj instanceof IRegularTask) {
+//                  if (!$obj->test($now)) continue; ALWAYS RECORD TASK
+                    try {
+                        $job = new RegularJob($obj);
+                    } catch (Throwable $t) {
+                        continue;
+                    }
+                }
+                elseif ($obj instanceof Job) {
+                    $job = $obj;
+                }
+                else {
                     continue;
                 }
-            }
-            elseif ($obj instanceof Job) {
-                $job = $obj;
-            }
-            else {
+                if (self::load_job($job)) {
+                    ++$res;
+                }
+            } catch (Throwable $t) {
                 continue;
-            }
-            if (self::load_job($job)) {
-                ++$res;
             }
         }
 
         // Get job objects from modules
-        if (!SysDataCache::get('modules')) {
+        $cache = AppSingle::SysDataCache();
+        if (!$cache->get('modules')) {
             $obj = new SysDataCacheDriver('modules',
                 function () {
                     $db = AppSingle::Db();
-                    $query = 'SELECT * FROM '.cms_db_prefix().'modules';
+                    $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules';
                     return $db->GetArray($query);
                 });
-            SysDataCache::add_cachable($obj);
+            $cache->add_cachable($obj);
         }
 
         $ops = ModuleOperations::get_instance();
@@ -250,7 +261,7 @@ final class Utils
             return $res;
         }
         foreach( $modules as $one) {
-            if (!is_object($one)) $one = Utils::get_module($one);
+            if (!is_object($one)) $one = AppUtils::get_module($one);
             if (!method_exists($one,'get_tasks')) continue;
 
             $tasks = $one->get_tasks();
@@ -262,7 +273,7 @@ final class Utils
                 if ($obj instanceof CmsRegularTask || $obj instanceof IRegularTask) {
 //                    if (! $obj->test()) continue;  ALWAYS RECORD TASK
                     try {
-                        $job = new RegularTask($obj);
+                        $job = new RegularJob($obj);
                     } catch (Throwable $t) {
                         continue;
                     }
@@ -293,22 +304,28 @@ final class Utils
                 $db->Execute($sql, [$job->start, $dbr]);
                 return $dbr;
             }
-
+            $now = time();
             if (self::job_recurs($job)) {
+                $start = min($job->start, $now);
                 $recurs = $job->frequency;
                 $until = $job->until;
             } else {
-                $recurs = $until = null;
+                $start = 0; //$job->start;
+                $recurs = RecurType::RECUR_NONE;
+                $until = 0;
             }
             $sql = 'INSERT INTO '.CmsJobManager::TABLE_NAME.' (name,created,module,errors,start,recurs,until,data) VALUES (?,?,?,?,?,?,?,?)';
-            $dbr = $db->Execute($sql, [$job->name, $job->created, $job->module, $job->errors, $job->start, $recurs, $until, serialize($job)]);
-            $new_id = $db->Insert_ID();
-            try {
-                $job->set_id($new_id);
-                return $new_id;
-            } catch (LogicException $e) {
-                return 0;
+            $dbr = $db->Execute($sql, [$job->name, $job->created, $job->module, $job->errors, $start, $recurs, $until, serialize($job)]);
+            if ($dbr) {
+                $new_id = $db->Insert_ID();
+                try {
+                    $job->set_id($new_id);
+                    return $new_id;
+                } catch (LogicException $e) {
+                    // nothing here
+                }
             }
+            return 0;
         } else {
             // note... we do not ever play with the module, the data, or recurs/until stuff for existing jobs.
             $sql = 'UPDATE '.CmsJobManager::TABLE_NAME.' SET start = ? WHERE id = ?';
