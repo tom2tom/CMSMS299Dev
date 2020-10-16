@@ -1,13 +1,14 @@
 <?php
-# installation-process for CMS Made Simple module: CmsJobManager
-# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# See license details at the top of file CmsJobManager.module.php
-
+/*
+Installation-process for CMS Made Simple module: CmsJobManager
+Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+See license details at the top of file CmsJobManager.module.php
+*/
 use CMSMS\AppParams;
 use CMSMS\Database\DataDictionary;
 
-if( !isset($gCms) ) exit;
+if (empty($gCms)) exit;
 
 //table is essentially a cache, written as much as read, use InnoDB table
 $taboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
@@ -18,12 +19,12 @@ $dict = new DataDictionary($db);
 $flds = '
 id I UNSIGNED KEY AUTO NOT NULL,
 name C(255) NOT NULL,
-module C(128),
-created I NOT NULL,
+module C(48),
+created I UNSIGNED NOT NULL,
 start I UNSIGNED NOT NULL,
-until I UNSIGNED,
-recurs I(4) UNSIGNED,
-errors I(4) UNSIGNED DEFAULT 0 NOT NULL,
+until I UNSIGNED DEFAULT 0,
+recurs I(2) UNSIGNED,
+errors I(2) UNSIGNED DEFAULT 0 NOT NULL,
 data X(16383)
 ';
 $sqlarray = $dict->CreateTableSQL(CmsJobManager::TABLE_NAME, $flds, $taboptarray);

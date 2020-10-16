@@ -36,7 +36,7 @@ $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_gener
 
 $flds = '
 id I KEY,
-module_name C(100),
+module_name C(48),
 content_id I,
 extra_attr C(100),
 expires DT

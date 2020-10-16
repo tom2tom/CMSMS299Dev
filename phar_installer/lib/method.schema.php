@@ -239,7 +239,7 @@ verbose_msg(lang('install_created_table', 'groups', $msg_ret));
 //allow_fe_lazyload I(1) DEFAULT 1,
 //allow_admin_lazyload I(1) DEFAULT 0
 $flds = '
-module_name C(32) KEY,
+module_name C(48) KEY,
 status C(255),
 version C(255),
 admin_only I(1) DEFAULT 0,
@@ -252,8 +252,8 @@ verbose_msg(lang('install_created_table', 'modules', $msg_ret));
 //deleted here: a duplicate index on the module_name field
 
 $flds = '
-parent_module C(32),
-child_module C(32),
+parent_module C(48),
+child_module C(48),
 minimum_version C(24),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
@@ -268,7 +268,7 @@ $tbl = CMS_DB_PREFIX.'module_smarty_plugins';
 $flds = '
 id I(2) UNSIGNED AUTO KEY,
 name C(48) COLLATE "utf8mb4_bin" NOT NULL,
-module C(32) NOT NULL,
+module C(48) NOT NULL,
 type C(32) DEFAULT "function" COLLATE "ascii_general_ci" NOT NULL,
 callback C(255) COLLATE "ascii_bin" NOT NULL,
 available I(1) DEFAULT 1,
@@ -302,7 +302,7 @@ verbose_msg(lang('install_created_table', 'simpleplugins', $msg_ret));
 
 /* merged with layout_templates
 $flds = '
-module_name C(32),
+module_name C(48),
 template_name C(160),
 content X(TODO),
 create_date DT,
