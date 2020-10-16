@@ -560,7 +560,7 @@ class FileTypeHelper
     }
 
     /**
-     * Check whether file extension $fileext matches extension(s) in $$haystack
+     * Check whether file extension $fileext matches extension(s) in $haystack
      * @since 2.3
      *
      * @param string $fileext maybe with leading '.'

@@ -102,7 +102,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
         $this->ShowErrors($this->Lang('notitlegiven'));
         $error = true;
     } elseif (empty($content)) {
-        $$this->ShowErrors($this->Lang('nocontentgiven'));
+        $this->ShowErrors($this->Lang('nocontentgiven'));
         $error = true;
     }
 
