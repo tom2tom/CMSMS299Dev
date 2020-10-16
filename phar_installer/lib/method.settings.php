@@ -75,7 +75,7 @@ $corenames = $config['coremodules'];
 $cores = implode(',', $corenames);
 $theme = reset(AdminTheme::GetAvailableThemes());
 $schema = $app->get_dest_schema();
-$helpurl =  ( !empty($siteinfo['supporturl']) ) ? $siteinfo['supporturl'] : '';
+$helpurl = (!empty($siteinfo['supporturl'])) ? $siteinfo['supporturl'] : '';
 $salt = Crypto::random_string(16, true);
 $r = substr($salt, 0, 2);
 $s = Crypto::random_string(32, false, true);
@@ -140,7 +140,7 @@ status_msg(lang('install_requireddata'));
 //
 verbose_msg(lang('install_initsiteperms'));
 $all_perms = [];
-foreach( [
+foreach ([
 //	'Add Pages', >CM
 //	'Add Templates', //TODO migrate to 'Modify Templates'
 //	'Manage All Content', >CM
@@ -167,7 +167,7 @@ foreach( [
 //	'Remove Pages', >CM
 //	'Reorder Content', >CM
 	'View Tag Help',
-	] as $one_perm ) {
+	] as $one_perm) {
   $permission = new CmsPermission();
   $permission->source = 'Core';
   if (is_array($one_perm)) {
