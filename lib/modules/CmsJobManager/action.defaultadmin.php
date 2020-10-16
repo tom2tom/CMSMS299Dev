@@ -1,22 +1,33 @@
 <?php
-
-use CmsJobManager\JobsCache;
+/*
+defaultadmin action for CMS Made Simple module: CmsJobManager
+Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+See license details at the top of file CmsJobManager.module.php
+*/
+use CmsJobManager\JobStore;
 use CmsJobManager\Utils;
 use CMSMS\Async\RecurType;
 
-if( !isset($gCms) ) exit;
-if( !$this->VisibleToAdminUser() ) exit;
+$this->refresh_jobs(); //DEBUG
 
-if( isset($params['apply']) && $this->CheckPermission('Modify Site Preferences') ) {
+if (!isset($gCms)) {
+	exit;
+}
+if (!$this->VisibleToAdminUser()) {
+	exit;
+}
+
+if (isset($params['apply']) && $this->CheckPermission('Modify Site Preferences')) {
     $this->SetPreference('enabled', !empty($params['enabled']));
     $t = max(30, min(1800, (int)$params['jobtimeout']));
     $this->SetPreference('jobtimeout', $t);
     $t = max(1, min(10, (int)$params['jobinterval']));
     $this->SetPreference('jobinterval', $t);
     $t = trim($params['joburl']);
-    if( $t ) {
+    if ($t) {
         $t2 = filter_var($t, FILTER_SANITIZE_URL);
-        if( filter_var($t2, FILTER_VALIDATE_URL) ) {
+        if (filter_var($t2, FILTER_VALIDATE_URL)) {
             $this->SetPreference('joburl', $t2);
         } else {
             $this->ShowErrors($this-Lang('err_url'));
@@ -27,6 +38,7 @@ if( isset($params['apply']) && $this->CheckPermission('Modify Site Preferences')
 }
 
 //DEBUG - DISABLE FOR PRODUCTION
+if (1) {
 $u1 = $this->create_url($id,'test1',$returnid,[],false,false,'',1);
 $u2 = $this->create_url($id,'test2',$returnid,[],false,false,'',1);
 $js = <<<EOS
@@ -36,7 +48,7 @@ $(function() {
  $('body').append(
 '<a id="simple1" href="$u1" class="link_button icon do">Simple Derived Class Test</a>' +
 '<a href="$u2" class="link_button icon do">Simple Derived Cron Test</a>'
- );
+);
  $('#simple1').on('click', function(ev) {
   ev.preventDefault();
   cms_confirm('woot it works'); //TODO linkclick ...
@@ -47,11 +59,11 @@ $(function() {
 </script>
 EOS;
 add_page_headtext($js);
-//DEBUG - END
+} //DEBUG - END
 
 $jobs = [];
-$job_objs = JobsCache::get_all_jobs();
-if( $job_objs ) {
+$job_objs = JobStore::get_all_jobs();
+if ($job_objs) {
     $list = [
         RecurType::RECUR_15M => $this->Lang('recur_15m'),
         RecurType::RECUR_30M => $this->Lang('recur_30m'),
@@ -65,10 +77,10 @@ if( $job_objs ) {
     ];
     $custom = $this->Lang('pollgap', '%s');
 
-    foreach( $job_objs as $job ) {
+    foreach( $job_objs as $job) {
         $obj = new stdClass();
         $name = $job->name;
-        if( ($t = strrpos($name, '\\')) !== false ) {
+        if (($t = strrpos($name, '\\')) !== false) {
             $name = substr($name, $t+1);
         }
         $obj->name = $name;
@@ -88,18 +100,22 @@ if( $job_objs ) {
             $obj->until = null;
         }
         $obj->created = $job->created;
-        $obj->start = $job->start;
+        $obj->start = ($obj->frequency || $obj->until) ? $job->start : null;
         $obj->errors = $job->errors;
         $jobs[] = $obj;
     }
 }
 
-$tpl = $this->create_new_template('defaultadmin.tpl');
+if (1) { //TODO normal module method_exists($this,'GetTemplateResource')
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'));
+} else {
+    $tpl = $this->GetTemplateObject('defaultadmin.tpl');
+}
 $tpl->assign('jobs',$jobs);
 $tpl->assign('jobinterval',(int)$this->GetPreference('jobinterval'));
 $tpl->assign('last_processing',(int)$this->GetPreference('last_processing'));
 
-if( $this->CheckPermission('Modify Site Preferences') ) {
+if ($this->CheckPermission('Modify Site Preferences')) {
     $tpl->assign('tabbed',1);
     $tpl->assign('enabled',(int)$this->GetPreference('enabled'));
     $tpl->assign('jobtimeout',(int)$this->GetPreference('jobtimeout'));
