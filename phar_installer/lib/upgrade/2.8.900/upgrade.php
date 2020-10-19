@@ -308,7 +308,7 @@ foreach ([
     ['permissions', 'permission_id'],
     ['users', 'user_id'],
 ] as $tbl) {
-    $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.$tbl[0], $$tbl[1].' I(2) UNSIGNED AUTO KEY');
+    $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.$tbl[0], $tbl[1].' I(2) UNSIGNED AUTO KEY');
     $dict->ExecuteSQLArray($sqlarray);
 }
 
