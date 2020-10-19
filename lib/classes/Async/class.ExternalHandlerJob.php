@@ -1,21 +1,23 @@
 <?php
-# class: ExternalHandlerJob for jobs having an 'external' handler (plugins etc)
-# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+class: ExternalHandlerJob for jobs having an 'external' handler (plugins etc)
+Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that License, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS\Async;
 
 use CMSMS\SimpleTagOperations;
@@ -53,10 +55,10 @@ class ExternalHandlerJob extends Job
     public function __construct($params = [])
     {
         parent::__construct();
-        $this->_data = ['function'=>'', 'is_udt'=>false] + $this->_data;
-        if( $params ) {
-            foreach( $params as $key => $val ) {
-                $this->__set($key,$val);
+        $this->_data = ['function' => '', 'is_udt' => false] + $this->_data;
+        if ($params) {
+            foreach ($params as $key => $val) {
+                $this->__set($key, $val);
             }
         }
     }
@@ -66,7 +68,7 @@ class ExternalHandlerJob extends Job
      */
     public function __get($key)
     {
-        switch( $key ) {
+        switch ($key) {
         case 'function':
             return trim($this->_data[$key]);
 
@@ -81,14 +83,13 @@ class ExternalHandlerJob extends Job
     /**
      * @ignore
      */
-    public function __set($key,$val)
+    public function __set($key, $val)
     {
-        switch( $key ) {
+        switch ($key) {
         case 'function':
-            if( is_string($val) ) {
+            if (is_string($val)) {
                 $this->_data[$key] = trim($val);
-            }
-            else {
+            } else {
                 $this->_data[$key] = $val;
                 $this->_data['is_udt'] = false;
             }
@@ -97,16 +98,16 @@ class ExternalHandlerJob extends Job
         case 'is_udt':
             $val = cms_to_bool($val);
             $this->_data[$key] = $val;
-            if( $val ) {
+            if ($val) {
                 $val = $this->_data['function'];
-                if( !is_string($val) || is_callable($val) ) {
+                if (!is_string($val) || is_callable($val)) {
                     $this->_data['function'] = '';
                 }
             }
             break;
 
         default:
-            return parent::__set($key,$val);
+            return parent::__set($key, $val);
         }
     }
 
@@ -115,26 +116,27 @@ class ExternalHandlerJob extends Job
      */
     public function execute()
     {
-        if( $this->is_udt ) {
+        if ($this->is_udt) {
             SimpleTagOperations::get_instance()->CallSimpleTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO plugin parameters missing
 //TODO also support regular plugins
-        }
-        elseif( $this->module && preg_match('/^action\.(.+)\.php$/',$this->function, $matches) ) {
+        } elseif ($this->module && preg_match('/^action\.(.+)\.php$/', $this->function, $matches)) {
             $mod_obj = Utils::get_module($this->module);
             //TODO exceptions useless in async context
-            if( !is_object($mod_obj) ) throw new RuntimeException('Job requires '.$this->module.' module but it could not be loaded');
+            if (!is_object($mod_obj)) {
+                throw new RuntimeException('Job requires '.$this->module.' module but it could not be loaded');
+            }
             $mod_obj->DoAction($matches[1], '', []);
-        }
-        elseif( is_callable($this->function) ) {
-            if( $this->module ) {
+        } elseif (is_callable($this->function)) {
+            if ($this->module) {
                 $mod_obj = Utils::get_module($this->module);
                 //TODO exceptions useless in async context
-                if( !is_object($mod_obj) ) throw new RuntimeException('Job requires '.$this->module.' module but it could not be loaded');
+                if (!is_object($mod_obj)) {
+                    throw new RuntimeException('Job requires '.$this->module.' module but it could not be loaded');
+                }
                 // call the function, pass in $this
                 $fn = $this->function->bindTo($mod_obj);
                 call_user_func($fn);
-            }
-            else {
+            } else {
                 call_user_func($this->function);
             }
         }

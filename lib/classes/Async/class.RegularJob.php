@@ -1,23 +1,26 @@
 <?php
-#Class RegularJob: for processing old style pseudocron tasks as asynchronous jobs.
-#Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class RegularJob: for processing old style pseudocron tasks as asynchronous jobs.
+Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that License, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS\Async;
 
+use CmsRegularTask;
 use CMSMS\Async\RecurType;
 use CMSMS\IRegularTask;
 use LogicException;
@@ -46,7 +49,7 @@ class RegularJob extends CronJob
         $this->_data = ['task' => $task, 'name' => $task->get_name(), 'frequency' => RecurType::RECUR_SELF] + $this->_data;
     }
 
-    /**
+    /* *
      * @ignore
      *
      * @param string $key
@@ -65,16 +68,17 @@ class RegularJob extends CronJob
      * @param mixed $val
      * @throws UnexpectedValueException
      */
-    public function __set($key,$val)
+    public function __set($key, $val)
     {
-        switch( $key ) {
+        switch ($key) {
         case 'task':
-            //TODO also accept CmsRegularTask
-            if( !$val instanceof IRegularTask ) throw new UnexpectedValueException("Invalid value for $key in ".static::class);
+            if (!($val instanceof IRegularTask || $val instanceof CmsRegularTask)) {
+                throw new UnexpectedValueException("Invalid value for $key in ".static::class);
+            }
             $this->_data['task'] = $val;
             break;
         default:
-            parent::__set($key,$val);
+            parent::__set($key, $val);
         }
     }
 
@@ -85,10 +89,12 @@ class RegularJob extends CronJob
     public function execute()
     {
         $task = $this->__data['task'];
-        if( !$task ) throw new LogicException(__CLASS__.' job is being executed, but has no task associated');
+        if (!$task) {
+            throw new LogicException(__CLASS__.' job is being executed, but has no task associated');
+        }
         $now = time();
-        if( $task->test($now) ) {
-            if( $task->execute($now) ) {
+        if ($task->test($now)) {
+            if ($task->execute($now)) {
                 $task->on_success($now);
             } else {
                 $task->on_failure($now);

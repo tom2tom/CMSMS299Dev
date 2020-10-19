@@ -1,21 +1,23 @@
 <?php
-# Abstract class defining a CMSMS job.
-# Copyright (C) 2017-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Abstract class defining a CMSMS asynchronous job.
+Copyright (C) 2017-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+ 
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that License, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS\Async;
 
 use CMSMS\App;
@@ -31,11 +33,11 @@ use UnexpectedValueException;
  * @abstract
  * @since 2.2
  * @property-read int $id A unique id for this job (generated on save).
+ * @property-read int $created The *NIX timestamp that this job was first created.
+ * @property int $start The *NIX timestamp that this job should next start.
+ * @property-read int $errors The number of errors encountered while trying to process this job.
  * @property string $name The name of this job.  If not specified, the class-name will be used.
  * @property string $module The related-module name, if needed.
- * @property-read int $created The *NIX timestamp that this job was first created.
- * @property int $start The minimum time that this job should start at.
- * @property-read int $errors The number of errors encountered while trying to process this job.
  */
 abstract class Job
 {
@@ -46,7 +48,7 @@ abstract class Job
     protected $_data = [
      'id' => 0,
      'created' => 0,
-     'start' => 1, //next start time, or 0
+     'start' => 0, //next-start timestamp, or 0 for never
      'errors' => 0,
      'name' => '',
      'module' => null,
@@ -59,11 +61,13 @@ abstract class Job
      */
     public function __construct($params = [])
     {
-        $this->_data['created'] = time();
+        $now = time();
+        $this->_data['created'] = $now;
+        $this->_data['start'] = $now;
         $this->_data['name'] = static::class;
-        if( $params ) {
-            foreach( $params as $key => $val ) {
-                $this->__set($key,$val);
+        if ($params) {
+            foreach ($params as $key => $val) {
+                $this->__set($key, $val);
             }
         }
     }
@@ -73,7 +77,7 @@ abstract class Job
      */
     public function __get($key)
     {
-        switch( $key ) {
+        switch ($key) {
         case 'id':
         case 'created':
         case 'start':
@@ -95,21 +99,29 @@ abstract class Job
     /**
      * @ignore
      */
-    public function __set($key,$val)
+    public function __set($key, $val)
     {
-        switch( $key ) {
+        switch ($key) {
         case 'id':
             $this->set_id($val);
+            break;
+
+        case 'created':
+            $this->_data[$key] = min(time(), (int)$val);
+            break;
+
+        case 'start':
+           if ($val != 0) {
+               $val = min(time(), $val);
+           }
+          // no break here
+        case 'errors':
+            $this->_data[$key] = (int) $val;
             break;
 
         case 'name':
         case 'module':
             $this->_data[$key] = trim($val);
-            break;
-
-        case 'start':
-        case 'errors':
-            $this->_data[$key] = (int) $val;
             break;
 
         default:
@@ -128,8 +140,12 @@ abstract class Job
     {
         $id = (int) $id;
         //TODO exceptions useless in async context
-        if( $id < 1 ) throw new UnexpectedValueException('Invalid id passed to '.static::class.'::'.__FUNCTION__);
-        if( $this->_data['id'] ) throw new LogicException('Cannot replace a job id');
+        if ($id < 1) {
+            throw new UnexpectedValueException('Invalid id passed to '.static::class.'::'.__FUNCTION__);
+        }
+        if ($this->_data['id']) {
+            throw new LogicException('Cannot replace a job id');
+        }
         $this->_data['id'] = $id;
     }
 
@@ -143,7 +159,7 @@ abstract class Job
     {
         // get the asyncmanager module
         $module = App::get_instance()->GetJobManager();
-        if( $module ) {
+        if ($module) {
             $module->delete_job($this);
             $this->_data['id'] = 0;
             return;
@@ -161,7 +177,7 @@ abstract class Job
     {
         // get the asyncmanager module
         $module = App::get_instance()->GetJobManager();
-        if( $module ) {
+        if ($module) {
             $this->_data['id'] = (int)$module->save_job($this);
             return;
         }
@@ -178,4 +194,17 @@ abstract class Job
      * the job object, or stored in the database in a context-independent format.
      */
     abstract public function execute();
+
+    /**
+     * Get the 'base' name of the class.
+     *
+     * @since 2.9
+     * @return string
+     */
+    protected function shortname() : string
+    {
+        $val = static::class;
+        $p = strrpos($val, '\\');
+        return ($p !== false) ? substr($val, $p + 1) : $val;
+    }
 }
