@@ -40,7 +40,7 @@ $this->SetPreference('last_processing',0); //ditto
 
 $this->CreatePermission(CmsJobManager::MANAGE_JOBS, $this->Lang('perm_Manage_Jobs'));
 
-$this->refresh_jobs(); //init jobs-data
+$this->refresh_jobs(true); //init jobs-data
 
 $this->CreateEvent(CmsJobManager::EVT_ONFAILEDJOB);
 $this->AddEventHandler('Core','ModuleInstalled',false);

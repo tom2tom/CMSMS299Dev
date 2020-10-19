@@ -27,5 +27,5 @@ elseif (version_compare($oldversion,'0.4') < 0) {
     AppParams::set('jobtimeout',$this->GetPreference('jobtimeout',30));
     $this->RemovePreference('jobtimeout');
 
-    $this->refresh_jobs();
+    $this->refresh_jobs(true); //re-init jobs-data
 }
