@@ -12,10 +12,10 @@ $lang['evthelp_OnJobFailed'] = '<h4>Parameters:</h4>
 </ul';
 $lang['frequency'] = 'Frequency';
 $lang['publicname'] = 'Background Jobs';
-$lang['info_background_jobs'] = 'This panel lists information about all currently known background jobs.<br />
+$lang['info_background_jobs'] = 'This page lists information about all currently known background jobs.<br />
 Such jobs normally appear in and disappear from this list frequently.<br />
 If a job has a high error count or its next-start is not sensible, some investigation is needed.<br />
-If no request has occurred since a job was due to start, its displayed next-start will be in the past, and the job will actually be started after the current request.';
+If no request has occurred since a job was due to start, its displayed next-start will be in the past. That job will have been been started after the end of this current request. Re-display this page to see the job\'s actual next-start';
 $lang['info_no_jobs'] = 'There are currently no jobs in the queue';
 $lang['jobs'] = 'Jobs';
 $lang['publictip'] = 'A module for managing asynchronous processing jobs.';
