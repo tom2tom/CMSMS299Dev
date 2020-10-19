@@ -412,7 +412,7 @@ class GetParameters
         }
 
         if (isset($_REQUEST[CMS_JOB_KEY])) {
-            $parms[CMS_JOB_KEY] = filter_var($_REQUEST[CMS_JOB_KEY], FILTER_SANITIZE_NUMBER_INT);
+            $parms[CMS_JOB_KEY] = filter_var($_REQUEST[CMS_JOB_KEY], FILTER_SANITIZE_NUMBER_INT); //OR (int)
             if ($parms[CMS_JOB_KEY] == 2) {
                 //TODO maybe a job-URL, check/process that
             }
