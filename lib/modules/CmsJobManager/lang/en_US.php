@@ -2,6 +2,7 @@
 
 $lang['apply'] = 'Apply';
 $lang['cancel'] = 'Cancel';
+$lang['core'] = 'Core';
 $lang['created'] = 'Created';
 $lang['errors'] = 'Errors';
 $lang['evtdesc_OnJobFailed'] = 'Sent after a job is removed from the job queue after failing too many times';
@@ -10,13 +11,17 @@ $lang['evthelp_OnJobFailed'] = '<h4>Parameters:</h4>
   <li>"job" - A reference to the \CMSMS\Async\Job job object that has failed</li>
 </ul';
 $lang['frequency'] = 'Frequency';
-$lang['friendlyname'] = 'Background Jobs';
-$lang['info_background_jobs'] = 'This shows all currently known background jobs. Such jobs normally appear and disappear frequently. If a job has a high error count or was never started, then some investigation is needed.';
-$lang['info_no_jobs'] = 'There is no job to be performed.';
+$lang['publicname'] = 'Background Jobs';
+$lang['info_background_jobs'] = 'This panel lists information about all currently known background jobs.<br />
+Such jobs normally appear in and disappear from this list frequently.<br />
+If a job has a high error count or its next-start is not sensible, some investigation is needed.<br />
+If no request has occurred since a job was due to start, its displayed next-start will be in the past, and the job will actually be started after the current request.';
+$lang['info_no_jobs'] = 'There are currently no jobs in the queue';
 $lang['jobs'] = 'Jobs';
-$lang['moddescription'] = 'A module for managing asynchronous processing jobs.';
-$lang['module'] = 'Module';
+$lang['publictip'] = 'A module for managing asynchronous processing jobs.';
+//$lang['module'] = 'Module'; see 'origin'
 $lang['name'] = 'Name';
+$lang['origin'] = 'Originator';
 $lang['perm_Manage_Jobs'] = 'Manage Asynchronous Jobs';
 $lang['pollgap'] = 'Polled every %s';
 $lang['processing_freq'] = 'Maximum processing frequency (seconds)';
@@ -30,7 +35,7 @@ $lang['recur_monthly'] = 'Monthly';
 $lang['recur_weekly'] = 'Weekly';
 $lang['settings'] = 'Settings';
 $lang['settings_title'] = 'Background Job Settings'; // for admin site-settings info
-$lang['start'] = 'Start';
+$lang['start'] = 'Next Start';
 $lang['until'] = 'Until';
 
 $lang['prompt_enabled'] = 'Enable job processing by this module';
@@ -41,7 +46,7 @@ $lang['prompt_timelimit'] = 'Jobs timeout (<em>seconds</em>)';
 $lang['help_timelimit'] = 'Enter a value from 30 to 1800. This is akin to PHP’s maximum execution time setting.';
 $lang['prompt_joburl'] = 'Custom URL for job processing';
 $lang['help_joburl'] = 'Enter a suitable URL to replace the default internal URL, if that cannot be used. Leave blank to use the default.';
-
+/*
 $lang['help'] = <<<EOT
 <h3>What does this do?</h3>
 <p>This is a CMSMS core module that provides functionality for processing jobs asynchronously (in the background) as the website is handling requests.</p>
@@ -54,3 +59,4 @@ $lang['help'] = <<<EOT
 <h3>What about problem jobs?</h3>
 <p>From time to time some applications might create jobs that fail, exiting with some sort of error.  CmsJobManager will remove the job after the job has failed a number of times.  At which time the originating code can re-create the job.  If you encounter a problematic job that continues to fail this is a bug that should be diagnosed, and reported in detail to the appropriate developers.</p>
 EOT;
+*/
