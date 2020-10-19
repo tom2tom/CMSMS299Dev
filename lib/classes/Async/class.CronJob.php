@@ -78,7 +78,7 @@ abstract class CronJob extends Job
     {
         switch( $key ) {
         case 'frequency':
-            if (!RecurType::isValidValue($val)) throw new UnexpectedValueException("$val is an invalid value for $key in ".static::class);
+			if (!RecurType::isValidValue($val)) { throw new UnexpectedValueException("$val is an invalid value for $key in ".static::class); }
             $this->_data[$key] = (int)$val;
             break;
 
@@ -95,7 +95,7 @@ abstract class CronJob extends Job
         case 'start':
             // this start overrides the one in the base class.
             $val = (int) $val;
-            if( $val < time() - 60 ) throw new UnexpectedValueException('Cannot set a start time before now');
+			if( $val > 0 && $val < time() - 60 ) { throw new UnexpectedValueException('Cannot set a start time before now'); }
             $this->_data[$key] = $val;
             break;
 
