@@ -2,13 +2,14 @@
 
 use cms_installer\utils;
 use cms_installer\wizard\wizard;
-use CMSMS\LogicException;
+use CMSMS\Crypto;
+use Exception;
 use function cms_installer\get_app;
 
 $app = get_app();
 $destdir = $app->get_destdir();
 if (!$destdir || !is_dir($destdir)) {
-    throw new LogicException('Destination directory does not exist');
+    throw new Exception('Destination directory does not exist');
 }
 $config = $app->get_config();
 $s = (!empty($config['admin_path'])) ? $config['admin_path'] : 'assets';
@@ -83,10 +84,21 @@ foreach ([
             break 2;
     }
     if (!is_dir($fp)) @mkdir($fp, 0771, true);
-    if (!is_dir($fp)) throw new LogicException("Could not create $fp directory");
+    if (!is_dir($fp)) throw new Exception("Could not create $fp directory");
     touch($fp . DIRECTORY_SEPARATOR . 'index.html');
 }
 touch($assetsdir . DIRECTORY_SEPARATOR . 'index.html');
+
+// 2A. siteuuid-file
+$s = Crypto::random_string(72); //max byte-length of BCRYPT passwords
+$p = -1;
+while (($p = strpos($s, '\0', $p+1)) !== false) {
+	$c = crc32(substr($s, 0, $p) . 'A') & 0xff;
+	$s[$p] = $c;
+}
+$fp = $assetsdir.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'siteuuid.dat';
+file_put_contents($fp, $s);
+chmod($fp, 0400); //TODO to suit current|server process c.f. config.php
 
 // 3. Revert force-moved (by 2.2.90x upgrade) 'independent' modules from assets/modules to deprecated /modules
 $wizard = wizard::get_instance();

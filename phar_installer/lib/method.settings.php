@@ -1,10 +1,13 @@
 <?php
 
 use CMSMS\AdminTheme;
+use CMSMS\AppParams;
 use CMSMS\Crypto;
 use CMSMS\Events;
 use CMSMS\Group;
+use CMSMS\Permission;
 use CMSMS\User;
+use CMSMS\UserParams;
 use CMSMS\UserOperations;
 use function cms_installer\lang;
 
@@ -15,25 +18,25 @@ use function cms_installer\lang;
 //
 verbose_msg(lang('install_createtmpdirs'));
 $fp = constant('TMP_CACHE_LOCATION');
-if( !$fp ) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/cache';
+if (!$fp) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/cache';
 @mkdir($fp,0771,true);
 touch($fp.DIRECTORY_SEPARATOR.'index.html');
 $fp = constant('PUBLIC_CACHE_LOCATION');
-if( !$fp ) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/cache/public';
+if (!$fp) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/cache/public';
 @mkdir($fp,0771,true);
 touch($fp.DIRECTORY_SEPARATOR.'index.html');
 $fp = constant('TMP_TEMPLATES_C_LOCATION');
-if( !$fp ) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/templates_c';
+if (!$fp) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/templates_c';
 @mkdir($fp,0771,true);
 touch($fp.DIRECTORY_SEPARATOR.'index.html');
 
 function create_private_dir(string $basedir, string $reldir)
 {
-    $fp = $basedir.DIRECTORY_SEPARATOR.$reldir;
-    if( !is_dir($fp) ) {
-        @mkdir($fp, 0771, true);
-    } // else clear it!
-    @touch($fp.DIRECTORY_SEPARATOR.'index.html');
+	$fp = $basedir.DIRECTORY_SEPARATOR.$reldir;
+	if (!is_dir($fp)) {
+		@mkdir($fp, 0771, true);
+	} // else clear it!
+	@touch($fp.DIRECTORY_SEPARATOR.'index.html');
 }
 
 $config = $app->get_config(); //more-or-less same as $siteinfo[]
@@ -56,10 +59,10 @@ create_private_dir($bp,$name); //UDTfiles
 create_private_dir($bp,'templates');
 
 foreach ([
-    $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules',
-    $bp.DIRECTORY_SEPARATOR.'modules',
+	$destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules',
+	$bp.DIRECTORY_SEPARATOR.'modules',
 ] as $fp) {
-    file_put_contents ($fp.DIRECTORY_SEPARATOR.'DO NOT DELETE', <<<EOS
+	file_put_contents ($fp.DIRECTORY_SEPARATOR.'DO NOT DELETE', <<<EOS
 This directory is used during system install | upgrade | refresh but otherwise should contain just this file, and a dummy index.html.
 
 EOS
@@ -108,7 +111,7 @@ foreach ([
 	'password_life' => 0, // lifetime (days)
 	'schema_version' => $schema,
 	'site_help_url' => $helpurl,
-	'site_uuid' => $uuid, // almost-certainly-unique signature of this site
+	'site_uuid' => $uuid, // almost-certainly-unique signature of this site (see also siteuuid-file)
 	'sitedownexcludeadmins' => 0,
 	'sitedownexcludes' => '',
 	'sitedownmessage' => '',
@@ -125,8 +128,19 @@ foreach ([
 	'ultraroles' => $ultras,
 	'use_smartycompilecheck' => 1, //deprecated since 2.9 use smarty_compilecheck
 ] as $name => $val) {
-	cms_siteprefs::set($name, $val);
+	AppParams::set($name, $val);
 }
+
+// siteuuid-file: content = 72 random-bytes without any NUL char
+$s = Crypto::random_string(72); //max byte-length of BCRYPT passwords
+$p = -1;
+while (($p = strpos($s, '\0', $p+1)) !== false) {
+	$c = crc32(substr($s, 0, $p) . 'A') & 0xff;
+	$s[$p] = $c;
+}
+$fp = $bp.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'siteuuid.dat';
+file_put_contents($fp, $s);
+chmod($fp, 0400); //TODO to suit current|server process c.f. config.php
 
 status_msg(lang('install_requireddata'));
 
@@ -168,14 +182,14 @@ foreach ([
 //	'Reorder Content', >CM
 	'View Tag Help',
 	] as $one_perm) {
-  $permission = new CmsPermission();
+  $permission = new Permission();
   $permission->source = 'Core';
   if (is_array($one_perm)) {
-      $permission->name = $one_perm[0];
-      $permission->text = $one_perm[1];
+	  $permission->name = $one_perm[0];
+	  $permission->text = $one_perm[1];
   } else {
-      $permission->name = $one_perm;
-      $permission->text = ucfirst($one_perm);
+	  $permission->name = $one_perm;
+	  $permission->text = ucfirst($one_perm);
   }
   try {
 	$permission->save();
@@ -250,15 +264,15 @@ $admin_user = new User();
 $admin_user->username = $adminaccount['username'];
 $admin_user->firstname = 'Site';
 $admin_user->lastname = 'Administrator';
-if( !empty($adminaccount['emailaddr']) ) $admin_user->email = $adminaccount['emailaddr'];
-else $admin_user->email = '';
+if (!empty($adminaccount['emailaddr'])) { $admin_user->email = $adminaccount['emailaddr']; }
+else { $admin_user->email = ''; }
 $admin_user->active = 1;
 //$admin_user->adminaccess = 1;
 $admin_user->password = $ops->PreparePassword($adminaccount['password']);
 $admin_user->Save();
 
 $ops->AddMemberGroup($admin_user->id,$gid1);
-cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // TODO if MicroTiny present -the only user-preference we need now
+UserParams::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // TODO if MicroTiny present -the only user-preference we need now
 
 //
 // standard events
