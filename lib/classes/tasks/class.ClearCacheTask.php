@@ -32,8 +32,8 @@ class ClearCacheTask extends CronJob
     public function __construct()
     {
         parent::__construct();
+        $this->name = 'Core\\ClearCache';
         $this->_age_days = (int)AppParams::get(self::LIFETIME_SITEPREF, 0);
-        $this->name = $this->shortname();
         if ($this->_age_days != 0) {
             $this->frequency = RecurType::RECUR_DAILY;
         } else {

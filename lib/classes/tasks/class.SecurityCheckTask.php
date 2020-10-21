@@ -31,7 +31,7 @@ class SecurityCheckTask extends CronJob
     public function __construct()
     {
         parent::__construct();
-        $this->name = $this->shortname();
+        $this->name = 'Core\\SecurityCheck';
         $this->frequency = RecurType::RECUR_DAILY;
     }
 
