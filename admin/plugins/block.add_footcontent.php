@@ -37,7 +37,7 @@ Put this in a template<br />
 <code>
 {add_footcontent}
 e.g.
-<script> defer .. </script>
+<script defer type="text/javascript"> .. </script>
 etc
 {/add_footcontent}
 </code>

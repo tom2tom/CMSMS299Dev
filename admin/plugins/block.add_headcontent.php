@@ -36,7 +36,7 @@ Put this in a template<br />
 <code>
 {add_headcontent}
 e.g.
-<script> .. </script>
+<script type="text/javascript"> .. </script>
 <link .. >
 etc
 {/add_headcontent}
