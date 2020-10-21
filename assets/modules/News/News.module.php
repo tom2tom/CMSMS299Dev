@@ -20,8 +20,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\CoreCapabilities;
 use CMSMS\HookOperations;
 use CMSMS\RouteOperations;
+use News\AdjustStatusJob;
 use News\AdjustStatusTask;
 use News\AdminOperations;
+use News\CreateDraftAlertJob;
 use News\CreateDraftAlertTask;
 
 /**
@@ -34,6 +36,14 @@ class News extends CMSModule
     const HOURBLOCK = 1;
     const HALFDAYBLOCK = 2;
     const DAYBLOCK = 3;
+
+    public function __construct()
+    {
+        parent::__construct();
+        if (!function_exists('cmsms_spacedloader')) {
+            require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'function.spacedloader.php';
+        }
+    }
 
     public function AllowSmartyCaching() { return true; }
     public function GetAdminDescription() { return $this->Lang('description'); }
@@ -396,9 +406,17 @@ EOS;
 
     public function get_tasks()
     {
-        $out = [new AdjustStatusTask()];
-        if( $this->GetPreference('alert_drafts',1) ) {
-            $out[] = new CreateDraftAlertTask();
+        global $CMS_VERSION;
+        if (version_compare($CMS_VERSION, '2.2') < 0) {
+            $out = [new AdjustStatusTask()];
+            if ($this->GetPreference('alert_drafts',1)) {
+                $out[] = new CreateDraftAlertTask();
+            }
+        } else {
+            $out = [new AdjustStatusJob()];
+            if ($this->GetPreference('alert_drafts',1)) {
+                $out[] = new CreateDraftAlertJob();
+            }
         }
         return $out;
     }
