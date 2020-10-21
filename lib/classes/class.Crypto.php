@@ -206,48 +206,37 @@ class Crypto
 	 * @since 2.9
 	 *
 	 * @param int $length No. of bytes in the returned string
-	 * @param bool $alnum Optional flag whether to limit the contents to ASCII alphanumeric chars. Default false.
-	 * @param bool $encode Optional flag whether to base-64-encode the result. Default false.
+	 * @param bool $ascii Optional flag whether to limit the contents to 'printable' ASCII chars. Default false.
+	 * @param bool $alpha Optional flag whether to limit the contents to alphanum ASCII chars. Default false.
 	 * @return string
 	 */
-	public static function random_string(int $length, bool $alnum = false, bool $encode = false) : string
+	public static function random_string(int $length, bool $ascii = false, bool $alpha = false) : string
 	{
 		$str = str_repeat(' ', $length);
 		for ($i = 0; $i < $length; ++$i) {
-			if ($alnum && !$encode) {
-				$n = mt_rand(48, 122);
-				if (($n >= 58 && $n <= 64) || ($n >= 91 && $n <= 96)) {
-					--$i;
-					continue;
-				}
+			if ($ascii && !$alpha) {
+				$n = mt_rand(33, 126);
 			} else {
-				$n = mt_rand(33, 254);
-				switch ($n) {
-					case 34:
-					case 38:
-					case 39:
-					case 44:
-					case 63:
-					case 96:
-					case 127:
-						--$i;
-						continue 2;
-				}
+				$n = mt_rand(1, 254);
+			}
+			switch ($n) {
+				case 34:
+				case 38:
+				case 39:
+				case 44:
+				case 63:
+				case 96:
+				case 127:
+					--$i;
+					continue 2;
 			}
 			$str[$i] = chr($n);
 		}
-		if ($encode) {
-			$val = base64_encode($str);
-			$val = substr($val, 0, $length);
-			$val = rtrim($val, '=');
-			if ($alnum) {
-				$val = preg_replace_callback(
-					'~[^A-Za-z0-9]~',
-					function() {
-						return mt_rand(65, 90);
-					},
-					$val);
-			}
+		if ($alpha) {
+			$val = substr(base64_encode($str), 0, $length);
+			$val = preg_replace_callback('~[=/+]~', function() {
+				return chr(mt_rand(65, 90));
+				}, $val);
 			return $val;
 		}
 		return $str;
