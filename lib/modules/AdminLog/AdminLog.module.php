@@ -1,26 +1,28 @@
 <?php
-# AdminLog - a CMSMS module providing functionality for working with the
-#   CMSMS audit log
-# Copyright (C) 2017-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+AdminLog - a CMSMS module providing functionality for working with the CMSMS audit log
+Copyright (C) 2017-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use AdminLog\auditor;
-use AdminLog\AutoPruneLogTask;
-use AdminLog\Command\ClearLogCommand;
-use AdminLog\ReduceLogTask;
+//use AdminLog\Command\ClearLogCommand;
+use AdminLog\PruneLogJob;
+use AdminLog\ReduceLogJob;
 use AdminLog\storage;
 use CMSMS\AuditOperations;
 use CMSMS\CoreCapabilities;
@@ -46,13 +48,12 @@ final class AdminLog extends CMSModule
     {
         parent::InitializeAdmin();
 
-        $this->storage = new storage( $this );
-        $this->auditor = new auditor( $this, $this->storage );
+        $this->storage = new storage($this);
+        $this->auditor = new auditor($this, $this->storage);
 
         try {
-            AuditOperations::set_auditor( $this->auditor );
-        }
-        catch( Exception $e ) {
+            AuditOperations::set_auditor($this->auditor);
+        } catch(Throwable $t) {
             // ignore any error.
         }
 
@@ -77,8 +78,8 @@ final class AdminLog extends CMSModule
             case CoreCapabilities::TASKS:
             case CoreCapabilities::SITE_SETTINGS:
                 return true;
-            case 'clicommands':
-                return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
+//            case 'clicommands':
+//                return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
             default:
                 return false;
         }
@@ -104,8 +105,8 @@ final class AdminLog extends CMSModule
     public function get_tasks()
     {
         return [
-            new AutoPruneLogTask(),
-            new ReduceLogTask(),
+            new PruneLogJob(),
+            new ReduceLogJob(),
         ];
     }
 
