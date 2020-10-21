@@ -1,9 +1,10 @@
 <?php
-#utility-methods for CmsJobManager, a CMS Made Simple module
-#Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#See license details at the top of file CmsJobManager.module.php
-
+/*
+Utility-methods for CMS Made Simple module: CmsJobManager
+Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+See license details at the top of file CmsJobManager.module.php
+*/
 namespace CmsJobManager;
 
 use BadMethodCallException;
@@ -33,10 +34,9 @@ final class Utils
 {
     public static function get_async_freq() : int
     {
-        $minutes = AppParams::get('jobinterval', 3);
-        $minutes = max(3, min(60, (int)$minutes));
-        return $minutes * 60; // seconds
+        return AppParams::get('jobinterval', 180); //seconds
     }
+
     /**
      * @param Job $job
      * @return bool
@@ -60,47 +60,53 @@ final class Utils
         if (!self::job_recurs($job)) {
             return 0;
         }
-        $now = time();
+        $now = $job->start;
+        if ($now == 0) {
+            return 0;
+        }
         switch ($job->frequency) {
-        case $job::RECUR_15M:
+        case RecurType::RECUR_15M:
             $out = $now + 900;
             break;
-        case $job::RECUR_30M:
+        case RecurType::RECUR_30M:
             $out = $now + 1800;
             break;
-        case $job::RECUR_HOURLY:
+        case RecurType::RECUR_HOURLY:
             $out = $now + 3600;
             break;
-        case $job::RECUR_120M:
+        case RecurType::RECUR_120M:
             $out = $now + 7200;
             break;
-        case $job::RECUR_180M:
+        case RecurType::RECUR_180M:
             $out = $now + 10800;
             break;
-        case $job::RECUR_12H:
+        case RecurType::RECUR_12H:
             $out = $now + 43200;
             break;
-        case $job::RECUR_DAILY:
+        case RecurType::RECUR_DAILY:
             $out = strtotime('+1 day', $now);
             break;
-        case $job::RECUR_WEEKLY:
+        case RecurType::RECUR_WEEKLY:
             $out = strtotime('+1 week', $now);
             break;
-        case $job::RECUR_MONTHLY:
+        case RecurType::RECUR_MONTHLY:
             $out = strtotime('+1 month', $now);
             break;
-        case $job::RECUR_ALWAYS:
+        case RecurType::RECUR_ALWAYS:
             $out = $now;
             break;
-//      case $job::RECUR_ONCE:
+//      case RecurType::RECUR_ONCE:
         default:
             $out = 0;
             break;
         }
         if ($out) {
-            debug_to_log("adjusted to {$out} -- {$now} // {$job->until}");
+            $out = max($out, time()+1); // next start cannot be < time()
             if (!$job->until || $out <= $job->until) {
-               return $out;
+                debug_to_log("adjusted to $out -- $now // {$job->until}");
+//                $d = $out - $now;
+//                error_log($job->name." next start @ last-start + $d)"."\n", 3, ASYNCLOG);
+                return $out;
             }
         }
         return 0;
@@ -191,27 +197,31 @@ final class Utils
     }
 
     /**
-     * Load a job for each CmsRegularTask object and Job object that is found
-     * @return int count of job(s) loaded
+     * Populate or refresh the database tasks-store for each discovered
+     * CmsRegularTask object and Job object
+     *
+     * @param bool $force optional flag whether to clear the store before polling. Default false
+     * @return int count of job(s) processed
      */
-    public static function refresh_jobs() : int
+    public static function refresh_jobs($force = false) : int
     {
         $res = 0;
 
-        $db = AppSingle::Db();
-		$db->Execute('DELETE FROM '.CmsJobManager::TABLE_NAME);
-		$db->Execute('ALTER TABLE '.CmsJobManager::TABLE_NAME.' AUTO_INCREMENT=1');
+        if ($force) {
+            $db = AppSingle::Db();
+            $db->Execute('DELETE FROM '.CmsJobManager::TABLE_NAME);
+            $db->Execute('ALTER TABLE '.CmsJobManager::TABLE_NAME.' AUTO_INCREMENT=1');
+        }
 
         // Get job objects from files
-        $patn = cms_join_path(CMS_ROOT_PATH,'lib','classes','tasks','class.*.php');
+        $patn = cms_join_path(CMS_ROOT_PATH, 'lib', 'classes', 'tasks', 'class.*.php');
         $files = glob($patn);
         foreach ($files as $p) {
             $classname = 'CMSMS\\tasks\\';
-            $tmp = explode('.',basename($p));
+            $tmp = explode('.', basename($p));
             if (count($tmp) == 4 && $tmp[2] == 'task') {
                 $classname .= $tmp[1].'Task';
-            }
-            else {
+            } else {
                 $classname .= $tmp[1];
             }
             require_once $p;
@@ -224,14 +234,12 @@ final class Utils
                     } catch (Throwable $t) {
                         continue;
                     }
-                }
-                elseif ($obj instanceof Job) {
+                } elseif ($obj instanceof Job) {
                     $job = $obj;
-                }
-                else {
+                } else {
                     continue;
                 }
-                if (self::load_job($job)) {
+                if (self::load_job($job) > 0) {
                     ++$res;
                 }
             } catch (Throwable $t) {
@@ -243,7 +251,7 @@ final class Utils
         $cache = AppSingle::SysDataCache();
         if (!$cache->get('modules')) {
             $obj = new SysDataCacheDriver('modules',
-                function () {
+                function() {
                     $db = AppSingle::Db();
                     $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules';
                     return $db->GetArray($query);
@@ -260,16 +268,26 @@ final class Utils
             }
             return $res;
         }
-        foreach( $modules as $one) {
-            if (!is_object($one)) $one = AppUtils::get_module($one);
-            if (!method_exists($one,'get_tasks')) continue;
+        foreach ($modules as $one) {
+            if (!is_object($one)) {
+                $one = AppUtils::get_module($one);
+            }
+            if (!method_exists($one, 'get_tasks')) {
+                continue;
+            }
 
             $tasks = $one->get_tasks();
-            if (!$tasks) continue;
-            if (!is_array($tasks)) $tasks = [$tasks];
+            if (!$tasks) {
+                continue;
+            }
+            if (!is_array($tasks)) {
+                $tasks = [$tasks];
+            }
 
-            foreach( $tasks as $obj) {
-                if (! is_object($obj)) continue;
+            foreach ($tasks as $obj) {
+                if (!is_object($obj)) {
+                    continue;
+                }
                 if ($obj instanceof CmsRegularTask || $obj instanceof IRegularTask) {
 //                    if (! $obj->test()) continue;  ALWAYS RECORD TASK
                     try {
@@ -277,15 +295,13 @@ final class Utils
                     } catch (Throwable $t) {
                         continue;
                     }
-                }
-                elseif ($obj instanceof Job) {
+                } elseif ($obj instanceof Job) {
                     $job = $obj;
-                }
-                else {
+                } else {
                     continue;
                 }
                 $job->module = $one->GetName();
-                if (self::load_job($job)) {
+                if (self::load_job($job) > 0) {
                     ++$res;
                 }
             }
@@ -293,16 +309,25 @@ final class Utils
         return $res;
     }
 
-    public static function load_job(Job $job)
+    /**
+     * Update or initialize the recorded data for the supplied Job, and if
+     * relevant, update the Job's id-property
+     * @param Job $job
+     * @return int id of updated|inserted Job | 0 upon error
+     */
+    public static function load_job(Job $job) : int
     {
         $db = AppSingle::Db();
         if ($job->id == 0) {
-            $sql = 'SELECT id FROM '.CmsJobManager::TABLE_NAME.' WHERE name = ? AND module = ?';
-            $dbr = $db->GetOne($sql, [$job->name, $job->module]);
+            $sql = 'SELECT id,start FROM '.CmsJobManager::TABLE_NAME.' WHERE name = ? AND module = ?';
+            $dbr = $db->GetRow($sql, [$job->name, $job->module]);
             if ($dbr) {
-                $sql = 'UPDATE '.CmsJobManager::TABLE_NAME.' SET start = ? WHERE id = ?';
-                $db->Execute($sql, [$job->start, $dbr]);
-                return $dbr;
+                if ($dbr['start'] > 0) {
+                    $job->set_id((int)$dbr['id']);
+                    $sql = 'UPDATE '.CmsJobManager::TABLE_NAME.' SET start = ? WHERE id = ?'; //update next-start
+                    $db->Execute($sql, [$job->start, $job->id]);
+                }
+                return $job->id; // maybe still 0
             }
             $now = time();
             if (self::job_recurs($job)) {
@@ -327,10 +352,10 @@ final class Utils
             }
             return 0;
         } else {
-            // note... we do not ever play with the module, the data, or recurs/until stuff for existing jobs.
+            // note... we don't play with the module, the data, or recurs/until stuff for existing jobs.
             $sql = 'UPDATE '.CmsJobManager::TABLE_NAME.' SET start = ? WHERE id = ?';
-            $db->Execute($sql, [$job->start, $job->id]);
-            return $job->id;
+            $dbr = $db->Execute($sql, [$job->start, $job->id]);
+            return ($db->affected_rows() > 0) ? $job->id : 0;
         }
     }
 
