@@ -1,19 +1,19 @@
 <?php
 /*
-Class to create get-parameters for use in an URL, and retreive request parameters
+Class to create get-parameters for use in an URL, and retrieve request parameters
 Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation, either version 2 of that License, or (at your option) any later version.
+Foundation, either version 2 of that license, or (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
-You should have received a copy of that along with CMS Made Simple. If not, see
-<https://www.gnu.org/licenses/>.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 namespace CMSMS\internal;
@@ -424,6 +424,7 @@ class GetParameters
 
     /**
      * Return parameters interpreted from parameters in the current request.
+     * Populates $_REQUEST from $_POST and/or $_GET if not already done.
      * Non-action parameters are ignored.
      *
      * @param bool $clear Optional flag whether to clear processed $_REQUEST[]
@@ -432,6 +433,7 @@ class GetParameters
      */
     public function decode_action_params(bool $clear = false)
     {
+        if (empty($_REQUEST)) { $_REQUEST = array_merge($_POST, $_GET); }
         if ($this->obscured_params_exist()) {
             return $this->decode_obscured_params($clear);
         }
@@ -440,13 +442,15 @@ class GetParameters
 
     /**
      * Return the non-action parameters in the current request.
-     * Assumes $_REQUEST is already sanitized e.g. via a previous method in this class
+     * Assumes $_REQUEST is populated and already sanitized e.g. via a previous
+     *  method in this class
      *
      * @param mixed $id string | null
      * @return array
      */
     public function retrieve_general_params($id) : array
     {
+        if (empty($_REQUEST)) { $_REQUEST = array_merge($_POST, $_GET); }
         $l = strlen(''.$id);
         if ($l > 0) {
             $parms = [];
