@@ -1,8 +1,8 @@
 <?php
 
-use \CMSMS\Async\Job;
+use CMSMS\Async\Job;
 
-class Test1Job extends Job
+class Test1Job extends CronJob
 {
     public function __construct()
     {
@@ -14,7 +14,7 @@ class Test1Job extends Job
     {
         // simple test, creates an audit string
         //some_unknown_function(); // intentionally generate an error.
-        audit('','CmsJobMgr','Job Test1 Complete');
+        audit('', 'CmsJobMgr', 'Job Test1 Complete');
         debug_to_log('Job Test1 Complete');
     }
 }

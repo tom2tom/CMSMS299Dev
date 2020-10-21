@@ -32,12 +32,19 @@ use function debug_to_log;
 
 final class Utils
 {
+	const LOGFILE = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'cmsjobman_errjobs.log';
+
+    /**
+     * Get the interval between job-runs
+     * @return int seconds
+     */
     public static function get_async_freq() : int
     {
         return AppParams::get('jobinterval', 180); //seconds
     }
 
     /**
+     * Check whether the specified Job recurs
      * @param Job $job
      * @return bool
      */
@@ -112,9 +119,12 @@ final class Utils
         return 0;
     }
 
+    /**
+     * Transfer the file-stored job-errors log data to the database
+     */
     public static function process_errors()
     {
-        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'cmsjobman_errjobs.log';
+        $fn = self::LOGFILE;
         if (!is_file($fn)) {
             return;
         }
@@ -141,7 +151,7 @@ final class Utils
             }
         }
 
-        // have jobs to increase error count on.
+        // we have job(s) whose error count needs to be increased
         $db = AppSingle::Db();
         $sql = 'UPDATE '.CmsJobManager::TABLE_NAME.' SET errors = errors + 1 WHERE id IN ('.implode(',', $job_ids).')';
         $db->Execute($sql);
@@ -149,13 +159,12 @@ final class Utils
     }
 
     /**
-     * Record id of job where error occurred, for later processing
+     * Record (in a file) the id of a job where an error occurred, for later processing
      * @param int $job_id
      */
     public static function put_error(int $job_id)
     {
-        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'cmsjobman_errjobs.log';
-        $fh = fopen($fn, 'a');
+        $fh = fopen(self::LOGFILE, 'a');
         fwrite($fh, $job_id."\n");
         fclose($fh);
     }
@@ -171,10 +180,9 @@ final class Utils
         debug_to_log('Fatal error occurred processing async jobs at: '.$errfile.':'.$errline);
         debug_to_log('Msg: '.$errmsg);
 
-        if (!is_object($job)) {
-            return;
+        if (is_object($job)) {
+            self::put_error($job->id);
         }
-        self::put_error($job->id);
     }
 
     /**
@@ -359,6 +367,10 @@ final class Utils
         }
     }
 
+    /**
+     * @throws InvalidArgumentException if $job_id is invalid
+     * @throws ? if Job-unserialize() fails
+     */
     public static function load_job_by_id($job_id)
     {
         $job_id = (int) $job_id;

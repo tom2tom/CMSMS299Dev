@@ -1,9 +1,10 @@
 <?php
-#Recorded-jobs methods for CMS Made Simple module CmsJobManager
-#Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#See license details at the top of file CmsJobManager.module.php
-
+/*
+Recorded-jobs methods for CMS Made Simple module CmsJobManager
+Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+See license details at the top of file CmsJobManager.module.php
+*/
 namespace CmsJobManager;
 
 use CmsJobManager;
@@ -11,10 +12,13 @@ use CMSMS\AppSingle;
 use CMSMS\Events;
 use CMSMS\Utils;
 //use RuntimeException;
+use Throwable;
 use function audit;
 use function debug_to_log;
 
 /**
+ * Recorded-jobs methods
+ *
  * @since 2.9
  * @since 2.2 as JobQueue
  */
@@ -22,7 +26,7 @@ final class JobStore
 {
     /**
      * Maximum no. of jobs per batch
-     * Should never be more than 100 pending jobs for a site
+     * Should never be > 100 pending jobs for a site
      */
     const MAXJOBS = 50;
     /**
@@ -41,7 +45,6 @@ final class JobStore
 
     /**
      * @return array up to 50 members, mebbe empty
-     * @throws RuntimeException
      */
     public static function get_all_jobs() : array
     {
@@ -64,11 +67,19 @@ final class JobStore
 //                    throw new RuntimeException('Job '.$row['name'].' requires module '.$row['module'].' That could not be loaded');
                 }
             }
-            $obj = unserialize($row['data']/*, ['allowed_classes' => TODO]*/);
-            if ($obj) {
+            try {
+                $obj = unserialize($row['data']/*, ['allowed_classes' => ['allowed_classes' => Job-descentants, interface*-implmentors]]*/);
+            } catch (Throwable $t) {
+                $obj = null;
+            }
+            if (is_object($obj)) {
                 $obj->set_id($row['id']);
                 $obj->force_start = $row['start']; // in case this job was modified
                 $out[] = $obj;
+            } else {
+                debug_to_log(__METHOD__);
+                debug_to_log('Problem deserializing row');
+                debug_to_log($row);
             }
             if (!$rs->MoveNext()) {
                 break;
@@ -84,7 +95,7 @@ final class JobStore
      *  of relevant job(s). Default false.
      * @return mixed array | bool
      */
-    public static function get_jobs($check_only = false)
+    public static function get_jobs(bool $check_only = false)
     {
         $db = AppSingle::Db();
         $now = time();
@@ -111,16 +122,26 @@ final class JobStore
         while (!$rs->EOF()) {
             $row = $rs->fields();
             if (!empty($row['module'])) {
-                $mod = cms_utils::get_module($row['module']);
+                $mod = Utils::get_module($row['module']);
                 if (!is_object($mod)) {
                     debug_to_log(sprintf('Could not load module %s required by job %s', $row['module'], $row['name']));
                     audit('', 'CmsJobManager', sprintf('Could not load module %s required by job %s', $row['module'], $row['name']));
                 }
             }
-            $obj = unserialize($row['data']/*, ['allowed_classes' => Job-descentants, interface*-implmentors]*/);
-            $obj->set_id($row['id']);
-            $obj->force_start = $row['start']; // in case this job was modified
-            $out[] = $obj;
+            try {
+                $obj = unserialize($row['data']/*, ['allowed_classes' => Job-descentants, interface*-implmentors]*/);
+            } catch (Throwable $t) {
+                $obj = null;
+            }
+            if (is_object($obj)) {
+                $obj->set_id($row['id']);
+                $obj->force_start = $row['start']; // in case this job was modified
+                $out[] = $obj;
+            } else {
+                debug_to_log(__METHOD__);
+                debug_to_log('Problem deserializing row');
+                debug_to_log($row);
+            }
             if (!$rs->MoveNext()) {
                 break;
             }
@@ -130,8 +151,8 @@ final class JobStore
     }
 
     /**
-     * Remove from the jobs table those which have recorded more errors than
-     * the defined threshold
+     * At defined intervals, remove from the jobs table those which have recorded
+     * more errors than the defined threshold
      */
     public static function clear_bad_jobs()
     {
@@ -147,18 +168,23 @@ final class JobStore
         $list = $db->GetArray($sql, [self::MINERRORS]);
         if ($list) {
             $idlist = [];
-            foreach ($list as $row) {
-                $obj = unserialize($row['data']/*, ['allowed_classes' => TODO]*/);
-                if (!is_object($obj)) {
+            foreach ($list as &$row) {
+                try {
+                    $obj = unserialize($row['data']/*, ['allowed_classes' => ['allowed_classes' => Job-descentants, interface*-implmentors]]*/);
+                } catch (Throwable $t) {
+                    $obj = null;
+                }
+                if (is_object($obj)) {
+                    $obj->set_id($row['id']);
+                    $idlist[] = (int) $row['id'];
+                    Events::SendEvent('CmsJobManager', CmsJobManager::EVT_ONFAILEDJOB, ['job' => $obj]); //since 2.3
+                } else {
                     debug_to_log(__METHOD__);
                     debug_to_log('Problem deserializing row');
                     debug_to_log($row);
-                    continue;
                 }
-                $obj->set_id($row['id']);
-                $idlist[] = (int) $row['id'];
-                Events::SendEvent('CmsJobManager',CmsJobManager::EVT_ONFAILEDJOB, ['job' => $obj]); //since 2.3
             }
+            unset($row);
             $sql = 'DELETE FROM '.CmsJobManager::TABLE_NAME.' WHERE id IN ('.implode(',', $idlist).')';
             $db->Execute($sql);
             audit('', $mod->GetName(), 'Cleared '.count($idlist).' bad jobs');

@@ -3,13 +3,13 @@
 {tab_header name='settings' label=$mod->Lang('settings')}
 {tab_start name='jobs'}
 {/if}
-{if count($jobs)}
+{if count($jobs)}{$core=$mod->Lang('core')}
   <div class="pageinfo">{$mod->Lang('info_background_jobs')}</div>
   <table class="pagetable" style="width:auto;">
     <thead>
       <tr>
         <th>{$mod->Lang('name')}</th>
-        <th>{$mod->Lang('module')}</th>
+        <th>{$mod->Lang('origin')}</th>
         <th>{$mod->Lang('created')}</th>
         <th>{$mod->Lang('start')}</th>
         <th>{$mod->Lang('frequency')}</th>
@@ -22,15 +22,15 @@
     {foreach $jobs as $job}
       <tr class="{cycle values='row1,row2'}">
         <td>{$job->name}</td>
-        <td>{$job->module|default:''}</td>
+        <td>{$job->module|default:$core}</td>
         <td>{$job->created|relative_time}</td>
-        <td>
+        <td>{strip}{if $job->start}
            {if $job->start < $smarty.now - $jobinterval*60}<span class="red">
            {elseif $job->start < $smarty.now + $jobinterval*60}<span class="green">
            {else}<span>
            {/if}
            {$job->start|relative_time}</span>
-        </td>
+        {/if}{/strip}</td>
         <td>{$job->frequency}</td>
         <td>{if $job->until}{$job->until|date_format:'%x %X'}{/if}</td>
         <td>{if $job->errors > 0}<span class="red">{$job->errors}</span>{/if}</td>
