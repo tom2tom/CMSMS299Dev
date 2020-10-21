@@ -63,11 +63,9 @@ abstract class CronJob extends Job
             return $this->_data[$key];
         case 'frequencyname':
             return RecurType::getName($this->_data[$key]);
-
         case 'interval':
         case 'until':
             return (int) $this->_data[$key];
-
         default:
             return parent::__get($key);
         }
@@ -100,7 +98,7 @@ abstract class CronJob extends Job
             // this start overrides the one in the base class.
             $val = (int) $val;
             if ($val > 0 && $val < time() - 60) {
-                throw new UnexpectedValueException('Cannot set a start time before now');
+                throw new UnexpectedValueException('Cannot set a start time before now in '.static::class);
             }
             $this->_data[$key] = $val;
             break;
