@@ -1035,7 +1035,7 @@ abstract class CMSModule
      * @since 2.0
      * @param string $blockName Content block name
      * @param mixed  $value     Content block value
-     * @param arrray $blockparams Content block parameters.
+     * @param array $blockparams Content block parameters.
      * @param contentBase $content_obj The content object that is currently being edited.
      * @return string An error message if the value is invalid, empty otherwise.
      */
@@ -2682,7 +2682,7 @@ abstract class CMSModule
      * @final
      * @deprecated since 2.9 Use CMSMS\AdminTabs::start_tab()
      * @param string $tabid the tab id
-     * @param arrray $params Parameters
+     * @param array $params Parameters
      * @param bool $auto Since 2.9 Whether to automatically generate
      *  continuity-related elements instead of explicit creation of those.
      *  Default true, or false for pre-2.0 behavior.
