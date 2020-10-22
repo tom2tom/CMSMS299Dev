@@ -211,7 +211,7 @@ final class Utils
      * @param bool $force optional flag whether to clear the store before polling. Default false
      * @return int count of job(s) processed
      */
-    public static function refresh_jobs($force = false) : int
+    public static function refresh_jobs(bool $force = false) : int
     {
         $res = 0;
 
