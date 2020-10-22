@@ -75,11 +75,11 @@ $lang['email_accountinfo_subject'] = 'CMS Made Simple Installation Successful';
 $lang['emailaccountinfo'] = 'Email the account information';
 */
 $lang['emailaddr'] = 'Email Address';
-$lang['error_adminacct_emailaddr'] = 'The email address you specified is invalid';
+$lang['error_adminacct_emailaddr'] = 'The email address is invalid';
 //$lang['error_adminacct_emailaddrrequired'] = 'You have selected to email the account information, but have not entered a valid email address';
-$lang['error_adminacct_password'] = 'The password you specified is invalid (must be at least six characters long)';
-$lang['error_adminacct_repeatpw'] = 'The passwords you entered did not match.';
-$lang['error_adminacct_username'] = 'The username you specified is invalid. Please try again';
+$lang['error_adminacct_password'] = 'The password is unsuitable. Please try again.'; //TODO supplementary details
+$lang['error_adminacct_repeatpw'] = 'The entered passwords do not match.';
+$lang['error_adminacct_username'] = 'The username is unsuitable. Please try again.';
 //$lang['error_admindirrenamed'] = 'It appears that the site\'s admin directory has been renamed. That change must be <a href="https://docs.cmsmadesimple.org/general-information/securing-cmsms#renaming-admin-folder" target="_blank" class="external">reversed</a> (on disk and in the config.php file) in order to proceed!<br/><br/>After that directory has been reverted to &quot;admin&quot;, please reload this page.';
 $lang['error_backupconfig'] = 'Unable to properly backup the config file';
 $lang['error_checksum'] = 'Extracted file checksum does not match original (%s)';
@@ -107,7 +107,7 @@ $lang['error_nocontent'] = 'Source for generating site content (%s) not found';
 $lang['error_nodatabases'] = 'The PHP mysqli extension is required, but not found';
 $lang['error_nodbhost'] = 'Please enter a valid hostname (or IP address) for the database connection';
 $lang['error_nodbname'] = 'Please enter the name of a valid database on the host specified above';
-$lang['error_nodbpass'] = 'Please enter a valid password for authenticating to the database';
+$lang['error_nodbpass'] = 'Please enter a valid password for working on the database';
 $lang['error_nodbprefix'] = 'Please enter a valid prefix for database tables';
 //$lang['error_nodbtype'] = 'Please select a database type';
 $lang['error_nodbuser'] = 'Please enter a valid username for authenticating to the database';
