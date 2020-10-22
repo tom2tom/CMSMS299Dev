@@ -1,21 +1,22 @@
 <?php
-#A class of convenience functions for admin console requests
-#Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+A class of convenience functions for admin console requests
+Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CMSMS\AppSingle;
@@ -23,8 +24,10 @@ use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\HookOperations;
 use CMSMS\HttpRequest;
+use CMSMS\Utils;
 use ErrorException;
 use FilesystemIterator;
+use LogicException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use const CMS_DEFAULT_VERSIONCHECK_URL;
@@ -46,9 +49,9 @@ use function lang;
 use function startswith;
 
 //this is also used during content installation i.e. STATE_INSTALL, or nothing
-/*if( !CMSMS\AppState::test_state(CMSMS\AppState::STATE_ADMIN_PAGE) ) {
-    $name = self::class;
-    throw new ErrorException("Attempt to use $name class from an invalid request");
+/*if (!CMSMS\AppState::test_state(CMSMS\AppState::STATE_ADMIN_PAGE)) {
+	$name = self::class;
+	throw new ErrorException("Attempt to use $name class from an invalid request");
 }
 */
 
@@ -66,8 +69,9 @@ final class AdminUtils
 {
 	/**
 	 * A regular expression to use when testing if an item has a valid name.
+	 * @see also cleanString()
 	 */
-	private const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x7f-\xff][a-zA-Z0-9_\ \/\+\-\,\.\x7f-\xff]*$>';
+	private const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x80-\xff][a-zA-Z0-9_\ \/\+\-\,\.\x80-\xff]*$>';
 
 	/**
 	 * @ignore
@@ -85,14 +89,14 @@ final class AdminUtils
 	 * note the name is not necessarily guaranteed to be usable in smarty without backticks.
 	 *
 	 * @param string $str The string to test
-	 * @return bool|string FALSE on error or the validated string.
+	 * @return bool|string false on error or the validated string.
 	 */
 	public static function is_valid_itemname(string $str)
 	{
-		if( !is_string($str) ) return FALSE;
+		if (!is_string($str)) return false;
 		$t_str = trim($str);
-		if( !$t_str ) return FALSE;
-		if( !preg_match(self::ITEMNAME_REGEX,$t_str) ) return FALSE;
+		if (!$t_str) return false;
+		if (!preg_match(self::ITEMNAME_REGEX,$t_str)) return false;
 		return $str;
 	}
 
@@ -105,16 +109,17 @@ final class AdminUtils
 	 */
 	public static function get_generic_url(string $in_url) : string
 	{
-		if( !defined('CMS_USER_KEY') ) throw new LogicException('This method can only be called for admin requests');
-		if( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new LogicException('This method can only be called for admin requests');
+		if (!defined('CMS_USER_KEY')) throw new LogicException('This method can only be called for admin requests');
+		if (!isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY]) throw new LogicException('This method can only be called for admin requests');
 
 		$len = strlen($_SESSION[CMS_USER_KEY]);
 		$in_p = '+'.CMS_SECURE_PARAM_NAME.'\=[A-Za-z0-9]{'.$len.'}&?(amp;)?+';
 //		$out_p = '_CMSKEY_='.str_repeat('X',$len); totally unused during login !!
 //		$out = preg_replace($in_p,$out_p,$in_url);
 		$out = preg_replace($in_p,'',$in_url);
-		if( endswith($out,'&amp;') ) $out = substr($out, 0, -5);
-		if( startswith($out,CMS_ROOT_URL) ) $out = str_replace(CMS_ROOT_URL,'',$out);
+		if (endswith($out,'&')) { $out = substr($out, 0, -1); }
+		elseif (endswith($out,'&amp;')) { $out = substr($out, 0, -5); }
+		if (startswith($out,CMS_ROOT_URL)) $out = str_replace(CMS_ROOT_URL,'',$out);
 		return $out;
 	}
 
@@ -126,8 +131,8 @@ final class AdminUtils
 	 */
 	public static function get_session_url(string $in_url) : string
 	{
-		if( !defined('CMS_USER_KEY') ) throw new LogicException('This method can only be called for admin requests');
-		IF( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new LogicException('This method can only be called for admin requests');
+		if (!defined('CMS_USER_KEY')) throw new LogicException('This method can only be called for admin requests');
+		if (!isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY]) throw new LogicException('This method can only be called for admin requests');
 
 		$len = strlen($_SESSION[CMS_USER_KEY]);
 		$in_p = '+_CMSKEY_=[X]{'.$len.'}+';
@@ -145,13 +150,13 @@ final class AdminUtils
 	{
 		$last_fetch = (int) AppParams::get('last_remotever_check');
 		$remote_ver = AppParams::get('last_remotever');
-		if( $last_fetch < (time() - 24 * 3600) ) {
+		if ($last_fetch < (time() - 24 * 3600)) {
 			$req = new HttpRequest();
 			$req->setTimeout(3);
 			$req->execute(CMS_DEFAULT_VERSIONCHECK_URL);
-			if( $req->getStatus() == 200 ) {
+			if ($req->getStatus() == 200) {
 				$remote_ver = trim($req->getResult());
-				if( strpos($remote_ver,':') !== FALSE ) {
+				if (strpos($remote_ver,':') !== false) {
 					list($tmp,$remote_ver) = explode(':',$remote_ver,2);
 					$remote_ver = trim($remote_ver);
 				}
@@ -208,7 +213,7 @@ final class AdminUtils
 							$props = parse_ini_file($path, false, INI_SCANNER_TYPED);
 							if ($props) {
 								foreach ($props as $key => $value) {
-									if (isset($attrs[$key]) ) {
+									if (isset($attrs[$key])) {
 										if (is_numeric($value) || is_bool($value)) {
 											continue; //supplied attrib prevails
 										} elseif (is_string($value)) {
@@ -224,7 +229,7 @@ final class AdminUtils
 							$out = '<img src="'.$path.'"';
 						}
 						$extras = array_merge(['alt'=>$module, 'title'=>$module], $attrs);
-						foreach( $extras as $key => $value ) {
+						foreach($extras as $key => $value) {
 							if ($value !== '' || $key == 'title') {
 								$out .= " $key=\"$value\"";
 							}
@@ -259,9 +264,9 @@ final class AdminUtils
 			return self::get_module_icon($module, attrs);
 		} else {
 			$themeObject = Utils::get_theme_object();
-			if( is_object($themeObject) ) {
-				if( basename($icon) == $icon ) $icon = 'icons'.DIRECTORY_SEPARATOR.'system'.DIRECTORY_SEPARATOR.$icon;
-				return $themeObject->DisplayImage($icon,'','','',null,$attrs);
+			if (is_object($themeObject)) {
+				if (basename($icon) == $icon) $icon = 'icons'.DIRECTORY_SEPARATOR.'system'.DIRECTORY_SEPARATOR.$icon;
+				return $themeObject->DisplayImage($icon, '', '', '', null, $attrs);
 			}
 		}
 	}
@@ -280,32 +285,30 @@ final class AdminUtils
 	 */
 	public static function get_help_tag(...$args)
 	{
-		if( !AppState::test_state(AppState::STATE_ADMIN_PAGE) ) return;
+		if (!AppState::test_state(AppState::STATE_ADMIN_PAGE)) return;
 
 		$themeObject = Utils::get_theme_object();
-		if( !is_object($themeObject) ) return;
+		if (!is_object($themeObject)) return;
 
 		$icon = self::get_icon('info', ['class'=>'cms_helpicon']);
-		if( !$icon ) return;
+		if (!$icon) return;
 
 		$params = [];
-		if( count($args) >= 2 && is_string($args[0]) && is_string($args[1]) ) {
+		if (count($args) >= 2 && is_string($args[0]) && is_string($args[1])) {
 			$params['key1'] = $args[0];
 			$params['key2'] = $args[1];
-			if( isset($args[2]) ) $params['title'] = $args[2];
-		}
-		else if( count($args) == 1 && is_string($args[0]) ) {
+			if (isset($args[2])) $params['title'] = $args[2];
+		} elseif (count($args) == 1 && is_string($args[0])) {
 			$params['key2'] = $args[0];
-		}
-		else {
+		} else {
 			$params = $args[0];
 		}
 
 		$key1 = '';
 		$key2 = '';
 		$title = '';
-		foreach( $params as $key => $value ) {
-			switch( $key ) {
+		foreach($params as $key => $value) {
+			switch($key) {
 			case 'key1':
 			case 'realm':
 				$key1 = trim($value);
@@ -320,21 +323,20 @@ final class AdminUtils
 			}
 		}
 
-		if( !$key1 ) {
+		if (!$key1) {
 			$smarty = AppSingle::Smarty();
 			$module = $smarty->getTemplateVars('_module');
-			if( $module ) {
+			if ($module) {
 				$key1 = $module;
-			}
-			else {
+			} else {
 				$key1 = 'help'; //default realm for lang
 			}
 		}
 
-		if( !$key1 ) return;
+		if (!$key1) return;
 
-		if( $key2 !== '' ) { $key1 .= '__'.$key2; }
-		if( $title === '' ) {
+		if ($key2 !== '') { $key1 .= '__'.$key2; }
+		if ($title === '') {
 			$title = ($key2) ? $key2 : 'for this'; //TODO lang
 		}
 
@@ -351,8 +353,8 @@ final class AdminUtils
 	 */
 	public static function clear_cached_files(int $age_days = 0)
 	{
-		if( !AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_INSTALL)
-		 || !defined('TMP_CACHE_LOCATION') ) { // relevant permission(s) check too ?
+		if (!AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_INSTALL)
+		 || !defined('TMP_CACHE_LOCATION')) { // relevant permission(s) check too ?
 			$name = __METHOD__;
 			throw new ErrorException("Method $name may not be used");
 		}
@@ -363,7 +365,7 @@ final class AdminUtils
 		$ttl = $age_days * 24 * 3600;
 		$the_time = time() - $ttl;
 		$dirs = array_unique([TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION]);
-		foreach( $dirs as $start_dir ) {
+		foreach($dirs as $start_dir) {
 			$iter = new RecursiveIteratorIterator(
 				new RecursiveDirectoryIterator($start_dir,
 					FilesystemIterator::KEY_AS_FILENAME |
@@ -371,12 +373,11 @@ final class AdminUtils
 				),
 				RecursiveIteratorIterator::LEAVES_ONLY |
 				RecursiveIteratorIterator::SELF_FIRST);
-			foreach( $iter as $fn => $inf ) {
-				if( $inf->isFile() && $inf->getMTime() <= $the_time ) {
-					if( !fnmatch('index.htm?', $fn) ) {
+			foreach($iter as $fn => $inf) {
+				if ($inf->isFile() && $inf->getMTime() <= $the_time) {
+					if (!fnmatch('index.htm?', $fn)) {
 						unlink($inf->getPathname());
-					}
-					else {
+					} else {
 						touch($inf->getPathname());
 					}
 				}
@@ -418,7 +419,7 @@ final class AdminUtils
 		bool $allow_all = false,
 		bool $for_child = false) : string
 	{
-        // static properties here >> StaticProperties class ?
+		// static properties here >> StaticProperties class ?
 		static $count = 1;
 
 		$first = ($count == 1) ? 'true' : 'false';
@@ -451,11 +452,11 @@ final class AdminUtils
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
- if($first) {
+ if ($first) {
   cms_data.ajax_hiersel_url = 'ajax_hier_content.php';
   cms_data.lang_hierselect_title = '$popuptitle';
  }
- $('#$elemid').hierselector($str);
+ $('#{$elemid}').hierselector($str);
 });
 //]]>
 </script>

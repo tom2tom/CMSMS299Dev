@@ -57,10 +57,10 @@ use function cms_htmlentities;
  *   output link targets the content area of the destination page Default false
  * @param string $prettyurl Optional url part(s), or ':NOPRETTY:' Default ''
  * @param int    $format since 2.9 Optional indicator for how to format the URL
- *  0 = (default, back-compatible) rawurlencoded parameter keys and values
+ *  0 = (pre-2.9 default, back-compatible) rawurlencoded parameter keys and values
  *      other than the value for key 'mact', '&amp;' for parameter separators
  *  1 = proper: as for 0, but also encode the 'mact' value
- *  2 = raw: as for 1, except '&' for parameter separators - e.g. for use in js
+ *  2 = default: as for 1, except '&' for parameter separators - e.g. for use in get-URL, js
  *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
  * @return string Ready-to-use or corresponding displayable URL.
  */
@@ -73,7 +73,7 @@ function CreateActionUrl(
 	bool $inline = false,
 	bool $targetcontentonly = false,
 	string $prettyurl = '',
-	int $format = 0
+	int $format = 2
 	) : string
 {
 	if ($id) {
@@ -142,7 +142,7 @@ function CreateActionUrl(
 		}
 		$text .= '?'.(new GetParameters())->create_action_params($parms, $format);
 		if ($format == 3) {
-			$text = cms_htmlentities($text, ENT_QUOTES|ENT_SUBSTITUTE, null, false);
+			$text = cms_htmlentities($text, ENT_QUOTES | ENT_SUBSTITUTE, null, false);
 		}
 	}
 	return $text;
@@ -202,9 +202,9 @@ function CreateJobUrl(
  *   Since 2.9, parameter value(s) may be non-scalar: 1-D arrays processed directly,
  *   other things json-encoded if possible.
  * @param int   $format since 2.9 Optional indicator for how to format the url
- *  0 = default: rawurlencoded parameter keys and values, '&amp;' for parameter separators
- *  1 irrelevant, effectively same as 0
- *  2 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
+ *  0 = (pre-2.9 default, back-compatible): rawurlencoded parameter keys and values, '&amp;' for parameter separators
+ *  1 = treated same as 0 (for format-enum consistency)
+ *  2 = default: as for 0, except '&' for parameter separators - e.g. for use in get-URL, js
  *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
  * @return string
  */
@@ -213,7 +213,7 @@ function CreatePageUrl(
  	$id,
 	$returnid,
 	array $params = [],
-	int $format = 0
+	int $format = 2
 	) : string
 {
 	$text = '';

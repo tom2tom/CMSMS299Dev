@@ -2123,15 +2123,15 @@ abstract class CMSModule
      * @param string $prettyurl Optional URL segment related to the root of the page,
      * for pretty url creation. Used verbatim. May be ':NOPRETTY:' to omit this part. Default ''.
      * @param int    $format since 2.9 URL-format indicator
-     *  0 = default: (back-compatible) rawurlencoded parameter keys and values
+     *  0 = (pre-2.9 default, back-compatible) rawurlencoded parameter keys and values
      *    other than the value for key 'mact', '&amp;' for parameter separators
      *  1 = proper: as for 0, but also encode the 'mact' value
-     *  2 = raw: as for 1, except '&' for parameter separators - e.g. for use in js
+     *  2 = default: as for 1, except '&' for parameter separators - e.g. for use in get-URL, js
      *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
      * @return string
      */
     public function create_url($id, $action, $returnid = null, $params = [],
-         $inline = false, $targetcontentonly = false, $prettyurl = '', $format = 0)
+         $inline = false, $targetcontentonly = false, $prettyurl = '', $format = 2)
     {
         $this->_loadUrlMethods();
         return call_user_func('CMSMS\\module_support\\CreateActionUrl',
@@ -2151,12 +2151,13 @@ abstract class CMSModule
      * @param array  $params Parameters for the action. Default []
      *  Since 2.9 array value(s) may be non-scalar.
      * @param int    $format URL-format indicator
-     *  0 = default: rawurlencoded parameter keys and values, '&amp;' for parameter separators
-     *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
-     *  2 = displayable: no encoding, all html_entitized, probably not usable as-is
+     *  0 = (pre-2.9 default, back-compatible) rawurlencoded parameter keys and values, '&amp;' for parameter separators
+     *  1 = treated same as 0 (for format-enum consistency)
+     *  2 = default: as for 0, except '&' for parameter separators - e.g. for use in get-URL, js
+     *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
      * @return string
      */
-    public function create_pageurl($id, $returnid = null, array $params = [], int $format = 0) : string
+    public function create_pageurl($id, $returnid = null, array $params = [], int $format = 2) : string
     {
         $this->_loadUrlMethods();
         return call_user_func('CMSMS\\module_support\\CreatePageUrl',

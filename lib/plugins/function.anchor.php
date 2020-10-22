@@ -33,9 +33,9 @@ function smarty_function_anchor($params, $template)
 	if (isset($params['accesskey'])) $accesskey = ' accesskey="'.$params['accesskey'].'"';
 
 	$url = $content->GetURL().'#'.trim($params['anchor']);
-	$url = str_replace('&amp;','***',$url);
-	$url = str_replace('&', '&amp;', $url);
-	$url = str_replace('***','&amp;',$url);
+//	$url = str_replace('&amp;','***',$url);
+//	$url = str_replace('&', '&amp;', $url);
+//	$url = str_replace('***','&amp;',$url);
 
 	if (isset($params['onlyhref']) && cms_to_bool($params['onlyhref'])) {
 		$tmp =  $url;

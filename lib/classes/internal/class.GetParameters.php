@@ -76,7 +76,16 @@ class GetParameters
         return (!empty($_REQUEST[$this->_parmkey]) && !empty($_REQUEST['_'.$this->_parmkey]));
     }
 
-    protected function create_jobtype(int $type, bool $first = false, int $format = 0) : string
+    /**
+     * Generate get-parameter for a job-type
+     *
+     * @param int $type job-type value (0..2)
+     * @param bool $first Optional flag whether this is the first get-parameter. Default false
+     * @param int $format Optional format enumerator. Default 2
+     *  See GetParameters::create_action_params()
+     * @return string
+     */
+    protected function create_jobtype(int $type, bool $first = false, int $format = 2) : string
     {
         switch ($format) {
             case 2:
@@ -103,13 +112,14 @@ class GetParameters
 
     /**
      * Generate get-parameters for use in a job-URL
+     *
      * @param array $parms URL get-parameters. See GetParameters::create_action_params()
      * @param bool $onetime Optional flag whether the URL is for one-time use. Default false.
-     * @param int $format Optional format enumerator. Default 0
+     * @param int $format Optional format enumerator. Default 2
      *  See GetParameters::create_action_params()
      * @return string
      */
-    public function create_job_params(array $parms, bool $onetime = false, int $format = 0) : string
+    public function create_job_params(array $parms, bool $onetime = false, int $format = 2) : string
     {
         $parms['id'] = self::JOBID;
         $str = $parms['action'] ?? 'job';
@@ -140,10 +150,11 @@ class GetParameters
      *
      * @param array $parms URL get-parameters. Should include mact-components
      *  and action-parameters (if any), and generic-parameters (if any)
-     * @param int $format Optional format enumerator. Default 0.
+     * @param int $format Optional format enumerator. Default 2.
+     *  See GetParameters::create_action_params()
      * @return string (no leading '?')
      */
-    public function create_obscured_params(array $parms, int $format = 0) : string
+    public function create_obscured_params(array $parms, int $format = 2) : string
     {
         $this->obscured_params_exist(); // create parameter key
 
@@ -183,10 +194,11 @@ class GetParameters
      *
      * @param array $parms URL get-parameters. Should include mact-components
      *  and action-parameters (if any), and generic-parameters (if any)
-     * @param int $format Optional format enumerator. Default 0.
+     * @param int $format Optional format enumerator. Default 2.
+     *  See GetParameters::create_action_params()
      * @return string (no leading '?')
      */
-    public function create_plain_params(array $parms, int $format = 0) : string
+    public function create_plain_params(array $parms, int $format = 2) : string
     {
         switch ($format) {
             case 2:
@@ -254,18 +266,19 @@ class GetParameters
 
     /**
      * Generate get-parameters for use in an URL (not necessarily one which runs a module-action)
+     *
      * @param array $parms URL get-parameters. Should include mact-components
      *  and action-parameters (if any), and generic-parameters (if any)
      * @param int $format Optional format enumerator
-     *  0 = (default, back-compatible) rawurlencoded parameter keys and values
+     *  0 = (pre-2.9 default, back-compatible) rawurlencoded parameter keys and values
      *      other than the value for key 'mact', '&amp;' for parameter separators
      *  1 = proper: as for 0, but also encode the 'mact' value
-     *  2 = raw: as for 1, except '&' for parameter separators - e.g. for use in js
+     *  2 = default: as for 1, except '&' for parameter separators - e.g. for use in get-URL, js
      *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
      *   BUT the output must be entitized upstream, it's not done here
      * @return string
      */
-    public function create_action_params(array $parms, int $format = 0) : string
+    public function create_action_params(array $parms, int $format = 2) : string
     {
         if ($format < 3) {
 //            $secure = true; //DEBUG
@@ -279,6 +292,7 @@ class GetParameters
 
     /**
      * Validate security get-parameters
+     *
      * @param array $parms Some/all current-request parameters
      * @return boolean indicating validity
      */
