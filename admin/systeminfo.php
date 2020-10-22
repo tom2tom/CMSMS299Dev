@@ -53,6 +53,7 @@ function installerHelpLanguage($lang, $default_null=null)
 */
 
 if (isset($_GET['cleanreport']) && $_GET['cleanreport'] == 1) {
+//    $nonce = get_csp_token();
     $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[

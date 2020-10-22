@@ -404,6 +404,7 @@ EOS;
 
 	protected function render_minimal($tplname, $bodyid = null)
 	{
+//		get_csp_token(); //setup CSP header (result not used)
 		$incs = cms_installed_jquery(true, false, true, false);
 		$jsm = new ScriptsMerger();
 		$jsm->queue_file($incs['jqcore'], 1);
@@ -512,7 +513,8 @@ EOS;
 <link rel="stylesheet" href="themes/Altbier/css/style{$dir}.css" />
 
 EOS;
-    		$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
+//			get_csp_token(); //setup CSP header (result not used)
+			$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
 			$url = cms_path_to_url($incs['jqcore']);
 			$out .= sprintf($tpl,$url);
 			$url = cms_path_to_url($incs['jqui']);
@@ -541,7 +543,7 @@ EOS;
 <script type="text/javascript" src="$jqui"></script>
 <script type="text/javascript" src="themes/Altbier/includes/login.js"></script>
 <!--[if lt IE 9]>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script> TODO conform CSP
 <![endif]-->
 
 EOS;
@@ -698,7 +700,7 @@ EOS;
 			// replicate AdminHeaderSetup(), with different js
 			$dir = ''; //TODO or '-rtl'
 			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
-			$smarty->assign('header_includes', <<< EOS
+			$smarty->assign('header_includes', <<<EOS
 <link rel="stylesheet" href="$jqcss" />
 <link rel="stylesheet" href="style.php?{$secureparam}" />
 <link rel="stylesheet" href="themes/Altbier/css/style{$dir}.css" />
@@ -707,7 +709,7 @@ EOS;
 //TODO jquery ancillaries
 <script type="text/javascript" src="themes/Altbier/includes/standard.js"></script>
 <!--[if lt IE 9]>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script> TODO conform CSP
 <![endif]-->
 
 EOS

@@ -229,6 +229,7 @@ try {
 		add_page_headtext($pageincs['head']);
 	}
 
+//	$nonce = get_csp_token();
 	$do_locking = ($css_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 	if ($do_locking) {
 		AppSingle::App()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);

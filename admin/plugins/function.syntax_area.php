@@ -91,6 +91,7 @@ $out
 EOS;
 			}
 			if( !empty($jscript['foot']) ) {
+//				$nonce = get_csp_token();
 				$out .= <<<EOS
 <script defer type="text/javascript">
 //<![CDATA[

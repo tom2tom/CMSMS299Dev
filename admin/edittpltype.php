@@ -71,6 +71,7 @@ try {
 		redirect('listtemplates.php'.$urlext.'&_activetab=types');
 	}
 
+//	$nonce = get_csp_token();
 	$type_id = $type->get_id();
 	$lock_timeout = AppParams::get('lock_timeout', 60);
 	$do_locking = ($type_id > 0 && $lock_timeout > 0) ? 1 : 0;

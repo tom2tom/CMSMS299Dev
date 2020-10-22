@@ -70,7 +70,7 @@ class MarigoldTheme extends AdminTheme
 	 * @since 2.9
 	 * @return 2-member array (not typed to support back-compatible themes)
 	 * [0] = array of data for js vars, members like varname=>varvalue
-     * [1] = array of string(s) for includables
+	 * [1] = array of string(s) for includables
 	 */
 	public function AdminHeaderSetup()
 	{
@@ -104,16 +104,16 @@ EOS;
 		$jsm->queue_file($incs['jqcore'], 1);
 		$jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
 		$jsm->queue_file($incs['jqui'], 1);
-        $p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
+		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
 		$jsm->queue_file($p.'jquery.cmsms_admin.min.js', 2);
-	    $out .= $jsm->page_content('', false, false);
+		$out .= $jsm->page_content('', false, false);
 
 		$jsm->reset();
 		$jsm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1);
 		$jsm->queue_matchedfile('jquery.toast.min.js', 1);
 		$p = __DIR__.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR;
 		$jsm->queue_file($p.'standard.js', 3); //OR .min for production
-	    $out .= $jsm->page_content();
+		$out .= $jsm->page_content();
 
 		$add_list[] = $out;
 //		$vars[] = anything needed ?;
@@ -175,6 +175,7 @@ EOS;
 
 	protected function render_minimal($tplname, $bodyid = null)
 	{
+//		get_csp_token(); //setup CSP header (result not used)
 		$incs = cms_installed_jquery(true, false, true, false);
 		$jsm = new ScriptsMerger();
 		$jsm->queue_file($incs['jqcore'], 1);
@@ -273,6 +274,7 @@ EOS;
 <link rel="stylesheet" href="themes/Marigold/css/style{$dir}.css" />
 
 EOS;
+//		get_csp_token(); //setup CSP header (result not used)
 		$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
 		$url = cms_path_to_url($incs['jqcore']);
 		$out .= sprintf($tpl, $url);
@@ -291,7 +293,7 @@ EOS;
 	public function postprocess($html)
 	{
 		$smarty = AppSingle::Smarty();
-        $uid = get_userid(false);
+		$uid = get_userid(false);
 
 		// setup titles etc
 //		$tree =
@@ -321,11 +323,11 @@ EOS;
 		$subtitle = '';
 		if ($title && !$module_help_type) {
 			// if not doing module help, maybe translate the string
-            if (LangOperations::lang_key_exists('admin', $title)) {
+			if (LangOperations::lang_key_exists('admin', $title)) {
 				$extra = $this->get_value('extra_lang_params');
-    			if (!$extra) {
+				if (!$extra) {
 					$extra = [];
-    			}
+				}
 				$title = lang($title, $extra);
 			}
 //			$subtitle = TODO
@@ -365,7 +367,7 @@ EOS;
 		}
 		$smarty->assign('pageicon', $tag);
 
-        $config = AppSingle::Config();
+		$config = AppSingle::Config();
 		// site logo
 		$sitelogo = AppParams::get('site_logo');
 		if ($sitelogo) {

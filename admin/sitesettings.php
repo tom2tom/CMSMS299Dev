@@ -9,8 +9,8 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#This program is distributed in the hope that it will be useful, but
+#WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
@@ -371,8 +371,6 @@ if (isset($_POST['submit'])) {
                 AppParams::set('allow_browser_cache', !empty($_POST['allow_browser_cache']));
                 AppParams::set('browser_cache_expiry', (int) $_POST['browser_cache_expiry']);
                 AppParams::set('auto_clear_cache_age', (int) $_POST['auto_clear_cache_age']);
-                AppParams::set('password_level', (int)$_POST['password_level']);
-                AppParams::set('password_life', (int)$_POST['password_life']);
                 //TODO this in relevant module
                 AppParams::set('adminlog_lifetime', (int) $_POST['adminlog_lifetime']);
                 break;
@@ -428,8 +426,6 @@ $login_module = AppParams::get('loginmodule', '');
 $logintheme = AppParams::get('logintheme', '');
 $mail_is_set = AppParams::get('mail_is_set', 0);
 $metadata = AppParams::get('metadata', '');
-$password_level = AppParams::get('password_level', 0);
-$password_life = AppParams::get('password_life', 0);
 $search_module = AppParams::get('searchmodule', 'Search');
 if ($devmode) {
     $help_url = AppParams::get('site_help_url', '');
@@ -530,6 +526,7 @@ if ($messages) {
     $themeObject->RecordNotice('success', $messages);
 }
 
+//$nonce = get_csp_token();
 $submit = lang('submit');
 $cancel = lang('cancel');
 $editortitle = lang('syntax_editor_deftheme');
@@ -644,12 +641,12 @@ $(function() {
    });
   }
  });
- $('#mailer').change(function() {
+ $('#mailer').on('change', function() {
   on_mailer();
  });
  on_mailer();
  $('[name="submit"]').on('click', function(e) {
-//  e.preventDefault();
+  e.preventDefault();
   cms_confirm_btnclick(this, $confirm);
   return false;
  });
@@ -692,27 +689,6 @@ if ($modules) {
 }
 $smarty->assign('login_module', $login_module)
   ->assign('login_modules', $tmp);
-
-$val = lang('days_counted', '%d');
-$tmp = [
-  0 => lang('unlimited'),
-  30 => sprintf($val, 30),
-  60 => sprintf($val, 60),
-  90 => sprintf($val, 90),
-  365 => lang('years_1'),
-];
-$smarty->assign('passwordlife', $password_life)
-  ->assign('pass_lives', $tmp);
-
-$tmp = [
-  0 => 'Anything', // TODO langify these
-  1 => 'Easily guessable',
-  2 => 'Somewhat guessable',
-  3 => 'Somewhat hard to guess',
-  4 => 'Very hard to guess',
-];
-$smarty->assign('passwordllevel', $password_level)
-  ->assign('pass_levels', $tmp);
 
 $maileritems = [];
 $maileritems['mail'] = 'mail';

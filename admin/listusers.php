@@ -266,6 +266,7 @@ if (isset($_GET['switchuser'])) {
  * Script for page footer
  ---------------------*/
 
+//$nonce = get_csp_token();
 $confirm1 = json_encode(lang('confirm_switchuser'));
 $confirm2 = json_encode(lang('confirm_toggleuseractive'));
 $confirm3 = json_encode(lang('confirm_delete_user'));

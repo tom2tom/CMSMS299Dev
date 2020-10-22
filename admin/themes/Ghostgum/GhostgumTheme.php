@@ -5,17 +5,17 @@ Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org
 Thanks to Tom Phane and all other contributors from the CMSMS Development Team
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 namespace CMSMS;
@@ -76,7 +76,7 @@ class GhostgumTheme extends AdminTheme
 		$admin_url = $config['admin_url'];
 		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
 		$rel_url = strtr($rel, DIRECTORY_SEPARATOR, '/');
-//      $base_url = $admin_url . strtr($rel, DIRECTORY_SEPARATOR, '/');
+//		$base_url = $admin_url . strtr($rel, DIRECTORY_SEPARATOR, '/');
 		$fn = 'style';
 		if (NlsOperations::get_language_direction() == 'rtl') {
 			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
@@ -146,7 +146,7 @@ EOS;
 
 EOS;
 		$add_list[] = $out;
-//      $vars[] = anything needed ?;
+//		$vars[] = anything needed ?;
 		return [[], $add_list];
 	}
 
@@ -198,6 +198,7 @@ EOS;
 
 	protected function render_minimal($tplname, $bodyid = null)
 	{
+//		get_csp_token(); //setup CSP header (result not used)
 		$incs = cms_installed_jquery(true, true, true, false);
 		$jsm = new ScriptsMerger();
 		$jsm->queue_file($incs['jqcore'], 1);
@@ -284,6 +285,7 @@ EOS;
 			}
 		}
 
+//		get_csp_token(); //setup CSP header (result not used)
 		$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
 
 		// scripts: jquery, jquery-ui
@@ -308,7 +310,7 @@ EOS;
 		$uid = get_userid(false);
 
 		// setup titles etc
-//      $tree =
+//		$tree =
 			$this->get_navigation_tree(); //TODO if section
 
 		// prefer cached parameters, if any
@@ -342,7 +344,7 @@ EOS;
 				}
 				$title = lang($title, $extra);
 			}
-//          $subtitle = TODO
+//			$subtitle = TODO
 		} else {
 			$title = $this->get_active_title(); // try for the active-menu-item title
 			if ($title) {
@@ -351,7 +353,7 @@ EOS;
 				$modinst = Utils::get_module($module_name);
 				$title = $modinst->GetFriendlyName();
 				$subtitle = $modinst->GetAdminDescription();
-/*          } else {
+/*			} else {
 				// no title, get one from the breadcrumbs.
 				$bc = $this->get_breadcrumbs();
 				if ($bc) {

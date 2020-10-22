@@ -4,17 +4,17 @@
 #Thanks to Goran Ilic, Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
-#This program is free software; you can redistribute it and/or modify
+#CMS Made Simple is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
+#the Free Software Foundation; either version 2 of that license, or
 #(at your option) any later version.
 #
-#This program is distributed in the hope that it will be useful, but
+#CMS Made Simple is distributed in the hope that it will be useful, but
 #WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+#You should have received a copy of that license along with CMS Made Simple.
+#If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
 
@@ -82,7 +82,7 @@ class OneElevenTheme extends AdminTheme
 	 * @since 2.9
 	 * @return 2-member array
 	 * [0] = array of data for js vars, members like varname=>varvalue
-     * [1] = array of string(s) for includables
+	 * [1] = array of string(s) for includables
 	 */
 	public function AdminHeaderSetup()
 	{
@@ -391,6 +391,7 @@ EOS;
 
 	protected function render_minimal($tplname, $bodyid = null)
 	{
+//		get_csp_token(); //setup CSP header (result not used)
 		$incs = cms_installed_jquery(true, false, true, false);
 		$jsm = new ScriptsMerger();
 		$jsm->queue_file($incs['jqcore'], 1);
@@ -490,6 +491,7 @@ EOS;
 <link rel="stylesheet" href="themes/OneEleven/css/style{$dir}.css" />
 
 EOS;
+//			get_csp_token(); //setup CSP header (result not used)
 			$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
 			$url = cms_path_to_url($incs['jqcore']);
 			$out .= sprintf($tpl,$url);
@@ -520,7 +522,7 @@ EOS;
 <script type="text/javascript" src="$jqui"></script>
 <script type="text/javascript" src="themes/OneEleven/includes/login.js"></script>
 <!--[if lt IE 9]>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script> TODO conform CSP
 <![endif]-->
 
 EOS;
@@ -552,7 +554,7 @@ EOS;
 		if (!$module_name) {
 			try {
 				$params = (new GetParameters())->get_request_values('module'); //2.3+
-			    if (!$params) exit;
+				if (!$params) exit;
 				$module_name = $params['module']; //maybe null
 			}
 			catch (Throwable $e) {
@@ -678,7 +680,7 @@ EOS;
 //TODO jquery ancillaries
 <script type="text/javascript" src="themes/OneEleven/includes/standard.js"></script>
 <!--[if lt IE 9]>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script> TODO conform CSP
 <![endif]-->
 
 EOS

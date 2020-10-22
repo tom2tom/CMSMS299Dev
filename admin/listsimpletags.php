@@ -69,6 +69,7 @@ $smarty->assign([
 ]);
 
 if ($access || $pmod) {
+//    $nonce = get_csp_token();
     $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[

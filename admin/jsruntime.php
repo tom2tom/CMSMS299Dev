@@ -52,6 +52,7 @@ if (AppParams::get('site_downnow')) {
     $vars['sitedown'] = false;
 }
 
+//$nonce = get_csp_token(); N/A here cuz all module-actions use this setup
 $enc = json_encode((object)$vars, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 //for privacy (not security) a simple munge (js is very crap for retrieval!)
 $enc2 = Crypto::scramble_string($enc);

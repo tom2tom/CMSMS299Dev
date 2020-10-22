@@ -106,6 +106,7 @@ if (!empty($pageincs['head'])) {
 $js = $pageincs['foot'] ?? '';
 
 if ($edit) {
+//    $nonce = get_csp_token();
     $s1 = json_encode(lang('error_splg_name'));
     $s2 = json_encode(lang('error_splg_nocode'));
     $js .= <<<EOS

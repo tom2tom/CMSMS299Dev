@@ -26,7 +26,6 @@ use CMSMS\ContentOperations;
 use CMSMS\CoreCapabilities;
 use CMSMS\HookOperations;
 use CMSMS\ModuleOperations;
-use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 
@@ -49,8 +48,8 @@ if (!check_permission($userid,'Manage My Settings')) {
     return;
 }
 
-$userobj = UserOperations::get_instance()->LoadUserByID($userid); // <- Safe to do, cause if $userid fails, it redirects automatically to login.
-$db = cmsms()->GetDb();
+$userobj = AppSingle::UserOperations()->LoadUserByID($userid); // <- Safe : if get_userid() fails, it redirects automatically to login.
+$db = AppSingle::Db();
 
 if (isset($_POST['submit'])) {
     /*
@@ -292,7 +291,6 @@ if ($tmp) {
 }
 $smarty->assign('syntax_opts', $editors);
 
-$themeObject = Utils::get_theme_object();
 $smarty->assign('helpicon', $themeObject->DisplayImage('icons/system/info.png', 'help','','','cms_helpicon'));
 
 // Admin themes
@@ -347,6 +345,7 @@ $smarty->assign([
     'wysiwygtheme'=>$wysiwygtheme,
 ]);
 
+//$nonce = get_csp_token();
 $editortitle = lang('syntax_editor_theme');
 $out = <<<EOS
 <script type="text/javascript">

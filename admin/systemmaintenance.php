@@ -342,6 +342,7 @@ if (is_readable($ch_filename)) {
 /*
  * Footer script
  */
+//$nonce = get_csp_token();
 $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
