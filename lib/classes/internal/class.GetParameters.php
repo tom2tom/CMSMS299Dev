@@ -1,6 +1,6 @@
 <?php
 /*
-Class to create get-parameters for use in an URL, and retrieve request parameters
+Class to create get-parameters for use in an URL, and retrieve $_GET members
 Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -26,8 +26,7 @@ use const CMS_ROOT_PATH;
 use function cms_build_query;
 
 /**
- * Class to create get-parameters for use in an URL, and retrieve request
- * parameters.
+ * Class to create get-parameters for use in an URL, and retrieve $_GET members.
  * Supports plaintext and obscured parameters. The latter, if used, provide
  * a jot of protection against injection, mainly for sites without https support.
  * @since 2.9
@@ -64,7 +63,7 @@ class GetParameters
     }
 
     /**
-     * Check whether obscured get-parameters are present in $_REQUEST[]
+     * Check whether obscured get-parameters are present in $_GET[]
      * @return bool
      */
     protected function obscured_params_exist() : bool
@@ -73,7 +72,7 @@ class GetParameters
             $key = Crypto::hash_string(self::SECURESALT.CMS_ROOT_PATH);
             $this->_parmkey = rawurlencode($key);
         }
-        return (!empty($_REQUEST[$this->_parmkey]) && !empty($_REQUEST['_'.$this->_parmkey]));
+        return (!empty($_GET[$this->_parmkey]) && !empty($_GET['_'.$this->_parmkey]));
     }
 
     /**
@@ -319,24 +318,24 @@ class GetParameters
     }
 
     /**
-     * Return action-parameters interpreted from obscured parameters in $_REQUEST[]
+     * Return action-parameters interpreted from obscured parameters in $_GET[]
      * Anything in the obscured data that is not a specific action-parameter is
-     * migrated as-is to $_REQUEST[]. Otherwise, request parameters are ignored.
+     * migrated as-is to $_GET[]. Otherwise, request parameters are ignored.
      *
      * @param bool $clear Optional flag whether to clear the cached password
-     *  and processed $_REQUEST[] members. Default false.
+     *  and processed $_GET[] members. Default false.
      * @return mixed array | null
      */
     public function decode_obscured_params(bool $clear = false)
     {
         if (!$this->obscured_params_exist()) return;
 
-        $val = filter_var($_REQUEST['_'.$this->_parmkey], FILTER_SANITIZE_STRING);
+        $val = filter_var($_GET['_'.$this->_parmkey], FILTER_SANITIZE_STRING);
         $pubkey = $this->base64url_decode($val);
         $privkey = hash_hmac('tiger128,3', AppSingle::App()->GetSiteUUID(), AppSingle::Config()['db_password']);
         $raw = Crypto::decrypt_string($pubkey, $privkey);
 
-        $val = filter_var($_REQUEST[$this->_parmkey], FILTER_SANITIZE_STRING);
+        $val = filter_var($_GET[$this->_parmkey], FILTER_SANITIZE_STRING);
         $raw2 = $this->base64url_decode($val);
         $data = Crypto::decrypt_string($raw2, $raw.$privkey, 'internal');
 
@@ -359,21 +358,21 @@ class GetParameters
                             case 'inline': // don't care
                                 break;
                             default:
-                                //also park in $_REQUEST if relevant
+                                //also park in $_GET if relevant
                                 if ($len > 0 && strncmp($key, $parms['id'], $len) != 0) {
-                                    $_REQUEST[$key] = $val;
+                                    $_GET[$key] = $val;
                                 }
                         }
                     }
                     unset($val);
                 }
-                if ($clear) unset($_REQUEST[$this->_parmkey], $_REQUEST['_'.$this->_parmkey]);
-                if (isset($_REQUEST[CMS_JOB_KEY])) {
-                    $parms[CMS_JOB_KEY] = filter_var($_REQUEST[CMS_JOB_KEY], FILTER_SANITIZE_INT);
+                if ($clear) unset($_GET[$this->_parmkey], $_GET['_'.$this->_parmkey]);
+                if (isset($_GET[CMS_JOB_KEY])) {
+                    $parms[CMS_JOB_KEY] = filter_var($_GET[CMS_JOB_KEY], FILTER_SANITIZE_INT);
                     if ($parms[CMS_JOB_KEY] == 2) {
                         //TODO maybe a job-URL, check/process that
                     }
-                    if ($clear) unset($_REQUEST[CMS_JOB_KEY]);
+                    if ($clear) unset($_GET[CMS_JOB_KEY]);
                 }
                 return $parms;
             }
@@ -381,18 +380,18 @@ class GetParameters
     }
 
     /**
-     * Return parameters interpreted from plaintext parameters in $_REQUEST[]
+     * Return parameters interpreted from plaintext parameters in $_GET[]
      * Non-action parameters are ignored.
      *
-     * @param bool $clear Optional flag whether to clear processed $_REQUEST[]
+     * @param bool $clear Optional flag whether to clear processed $_GET[]
      *  members. Default false.
      * @return mixed array | null
      */
     public function decode_plain_params(bool $clear = false)
     {
         $parms = [];
-        if (!empty($_REQUEST['mact'])) {
-            $parts = explode(',', $_REQUEST['mact'], 4);
+        if (!empty($_GET['mact'])) {
+            $parts = explode(',', $_GET['mact'], 4);
             $parms['module'] = trim($parts[0]);
             $parms['id'] = (isset($parts[1])) ? trim($parts[1]) : '';
             $parms['action'] = (isset($parts[2])) ? trim($parts[2]) : 'defaultadmin';
@@ -401,13 +400,13 @@ class GetParameters
 
         if (isset($parms['id']) && $parms['id'] !== '') {
             if (!$clear) {
-                $tmp = $_REQUEST['mact'] ?? null;
+                $tmp = $_GET['mact'] ?? null;
             }
-            unset($_REQUEST['mact']);
+            unset($_GET['mact']);
 
             $id = $parms['id'];
             $len = strlen($id);
-            foreach ($_REQUEST as $key => $val) {
+            foreach ($_GET as $key => $val) {
                 if (strncmp($key, $id, $len) == 0) {
                     $key2 = substr($key,$len);
                     if (is_numeric($val)) {
@@ -419,18 +418,18 @@ class GetParameters
                     else {
                         $parms[$key2] = $val;
                     }
-                    if ($clear) unset($_REQUEST[$key]);
+                    if ($clear) unset($_GET[$key]);
                 }
             }
-            if (!$clear && $tmp) $_REQUEST['mact'] = $tmp;
+            if (!$clear && $tmp) $_GET['mact'] = $tmp;
         }
 
-        if (isset($_REQUEST[CMS_JOB_KEY])) {
-            $parms[CMS_JOB_KEY] = filter_var($_REQUEST[CMS_JOB_KEY], FILTER_SANITIZE_NUMBER_INT); //OR (int)
+        if (isset($_GET[CMS_JOB_KEY])) {
+            $parms[CMS_JOB_KEY] = filter_var($_GET[CMS_JOB_KEY], FILTER_SANITIZE_NUMBER_INT); //OR (int)
             if ($parms[CMS_JOB_KEY] == 2) {
                 //TODO maybe a job-URL, check/process that
             }
-            if ($clear) unset($_REQUEST[CMS_JOB_KEY]);
+            if ($clear) unset($_GET[CMS_JOB_KEY]);
         }
 
         return $parms;
@@ -438,16 +437,15 @@ class GetParameters
 
     /**
      * Return parameters interpreted from parameters in the current request.
-     * Populates $_REQUEST from $_POST and/or $_GET if not already done.
+     * Populates $_GET from $_POST and/or $_GET if not already done.
      * Non-action parameters are ignored.
      *
-     * @param bool $clear Optional flag whether to clear processed $_REQUEST[]
+     * @param bool $clear Optional flag whether to clear processed $_GET[]
      *  members. Default false.
      * @return mixed array | null
      */
     public function decode_action_params(bool $clear = false)
     {
-        if (empty($_REQUEST)) { $_REQUEST = array_merge($_POST, $_GET); }
         if ($this->obscured_params_exist()) {
             return $this->decode_obscured_params($clear);
         }
@@ -456,7 +454,7 @@ class GetParameters
 
     /**
      * Return the non-action parameters in the current request.
-     * Assumes $_REQUEST is populated and already sanitized e.g. via a previous
+     * Assumes $_GET is populated and already sanitized e.g. via a previous
      *  method in this class
      *
      * @param mixed $id string | null
@@ -464,17 +462,16 @@ class GetParameters
      */
     public function retrieve_general_params($id) : array
     {
-        if (empty($_REQUEST)) { $_REQUEST = array_merge($_POST, $_GET); }
         $l = strlen(''.$id);
         if ($l > 0) {
             $parms = [];
-            foreach ($_REQUEST as $key => $val) {
+            foreach ($_GET as $key => $val) {
                 if (strncmp($key, $id, $l) != 0) {
                     $parms[$key] = $val;
                 }
             }
         } else {
-            $parms = $_REQUEST;
+            $parms = $_GET;
         }
 
         $this->obscured_params_exist(); // create parameter key
@@ -498,12 +495,12 @@ class GetParameters
      */
     public function get_plain_values(array $keys) : array
     {
-        if (!empty($_REQUEST['mact'])) {
-            $parts = explode(',', $_REQUEST['mact'], 4);
-            $_REQUEST['module'] = trim($parts[0]);
-            $_REQUEST['id'] = $id = trim($parts[1]);
-            $_REQUEST['action'] = trim($parts[2]);
-            $_REQUEST['inline'] = (!empty($parts[3])) ? 1 : 0;
+        if (!empty($_GET['mact'])) {
+            $parts = explode(',', $_GET['mact'], 4);
+            $_GET['module'] = trim($parts[0]);
+            $_GET['id'] = $id = trim($parts[1]);
+            $_GET['action'] = trim($parts[2]);
+            $_GET['inline'] = (!empty($parts[3])) ? 1 : 0;
             $len = strlen($id);
             $strip = $len > 0;
         }
@@ -512,16 +509,16 @@ class GetParameters
         }
 
         if (!$keys) {
-            $keys = array_keys($_REQUEST);
+            $keys = array_keys($_GET);
             $key = array_search('mact', $keys);
             if ($key !== false) {
                 unset($keys[$key]);
             }
         }
 
-        if (!$this->check_secure_params($_REQUEST)) {
-            foreach ($_REQUEST as $key=>$val) {
-                unset($_REQUEST[$key]);
+        if (!$this->check_secure_params($_GET)) {
+            foreach ($_GET as $key=>$val) {
+                unset($_GET[$key]);
             }
             return [];
         }
@@ -532,28 +529,28 @@ class GetParameters
             case 'module':
             case 'id':
             case 'action':
-                if (isset($_REQUEST[$key])) {
-                    $val = trim($_REQUEST[$key]); break;
+                if (isset($_GET[$key])) {
+                    $val = trim($_GET[$key]); break;
                 } else {
                     continue 2;
                 }
             case 'inline':
-                if (isset($_REQUEST[$key])) {
-                    $val = (int)$_REQUEST[$key]; break;
+                if (isset($_GET[$key])) {
+                    $val = (int)$_GET[$key]; break;
                 } else {
                     continue 2;
                 }
             default:
-                if ($strip && isset($_REQUEST[$id.$key])) {
-                    $val = $_REQUEST[$id.$key];
+                if ($strip && isset($_GET[$id.$key])) {
+                    $val = $_GET[$id.$key];
                     if (is_numeric($val)) {
                         $val += 0;
                     }
                     elseif (is_scalar($val)) {
                         //TODO if (flattened non-scalar) {interpet & store}
                     }
-                } elseif (isset($_REQUEST[$key])) {
-                    $val = $_REQUEST[$key];
+                } elseif (isset($_GET[$key])) {
+                    $val = $_GET[$key];
                     if (is_numeric($val)) {
                         $val += 0;
                     }
@@ -578,12 +575,12 @@ class GetParameters
      */
     public function get_obscured_values(array $keys) : array
     {
-        $val = filter_var($_REQUEST['_'.$this->_parmkey], FILTER_SANITIZE_STRING);
+        $val = filter_var($_GET['_'.$this->_parmkey], FILTER_SANITIZE_STRING);
         $pubkey = $this->base64url_decode($val);
         $privkey = hash_hmac('tiger128,3', AppSingle::App()->GetSiteUUID(), AppSingle::Config()['db_password']);
         $raw = Crypto::decrypt_string($pubkey, $privkey);
 
-        $val = filter_var($_REQUEST[$this->_parmkey], FILTER_SANITIZE_STRING);
+        $val = filter_var($_GET[$this->_parmkey], FILTER_SANITIZE_STRING);
         $raw2 = $this->base64url_decode($val);
         $data = Crypto::decrypt_string($raw2, $raw.$privkey, 'internal');
 
@@ -591,9 +588,9 @@ class GetParameters
             $rparms = json_decode($data, true);
             if (is_array($rparms)) {
 
-                if (!$this->check_secure_params($_REQUEST + $rparms)) {
-                    foreach ($_REQUEST as $key=>$val) {
-                        unset($_REQUEST[$key]);
+                if (!$this->check_secure_params($_GET + $rparms)) {
+                    foreach ($_GET as $key=>$val) {
+                        unset($_GET[$key]);
                     }
                     return [];
                 }
@@ -618,8 +615,8 @@ class GetParameters
             }
         }
 
-        foreach ($_REQUEST as $key=>$val) {
-            unset($_REQUEST[$key]);
+        foreach ($_GET as $key=>$val) {
+            unset($_GET[$key]);
         }
         return [];
     }
