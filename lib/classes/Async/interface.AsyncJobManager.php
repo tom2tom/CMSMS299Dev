@@ -28,6 +28,8 @@ namespace CMSMS\Async;
  */
 interface AsyncJobManager
 {
+    public function refresh_jobs(bool $force = false);
+
     public function load_jobs_by_module($module);
 
     public function load_job_by_id(int $job_id);
