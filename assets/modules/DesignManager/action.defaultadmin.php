@@ -85,9 +85,9 @@ $tpl->assign('pmod',$pmod);
 //$admin_url = $config['admin_url'];
 //$tpl->assign('lock_timeout', $this->GetPreference('lock_timeout', 60));
 //$url = $this->create_url($id,'ajax_get_templates');
-//$ajax_templates_url = str_replace('amp;','',$url);
+//$ajax_templates_url = str_replace('&amp;','&',$url);
 //$url = $this->create_url($id,'ajax_get_stylesheets');
-//$ajax_stylesheets_url = str_replace('amp;','',$url);
+//$ajax_stylesheets_url = str_replace('&amp;','&',$url);
 
 //$jsm = new ScriptsMerger();
 //$jsm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);

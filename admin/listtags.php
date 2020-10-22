@@ -181,15 +181,15 @@ if ($action == 'showpluginhelp') {
                   function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name'])*/)) continue;
 
             if (function_exists('smarty_cms_help_'.$rec['type'].'_'.$rec['name'])) {
-                $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+                $rec['help_url'] = $selfurl.$urlext.'&action=showpluginhelp&plugin='.$rec['name'].'&type='.$rec['type'];
             } elseif (LangOperations::key_exists('help_'.$rec['type'].'_'.$rec['name'],'tags')) {
-                $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+                $rec['help_url'] = $selfurl.$urlext.'&action=showpluginhelp&plugin='.$rec['name'].'&type='.$rec['type'];
             } elseif (LangOperations::key_exists('help_'.$rec['type'].'_'.$rec['name'])) {
-                $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+                $rec['help_url'] = $selfurl.$urlext.'&action=showpluginhelp&plugin='.$rec['name'].'&type='.$rec['type'];
             }
 
             if (function_exists('smarty_cms_about_'.$rec['type'].'_'.$rec['name'])) {
-                $rec['about_url'] = $selfurl.$urlext.'&amp;action=showpluginabout&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+                $rec['about_url'] = $selfurl.$urlext.'&action=showpluginabout&plugin='.$rec['name'].'&type='.$rec['type'];
             }
 
             $file_array[] = $rec;
@@ -198,19 +198,19 @@ if ($action == 'showpluginhelp') {
 
     // add in standard tags...
     $rec = ['type'=>'function','name'=>'content'];
-    $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+    $rec['help_url'] = $selfurl.$urlext.'&action=showpluginhelp&plugin='.$rec['name'].'&type='.$rec['type'];
     $file_array[] = $rec;
 
     $rec = ['type'=>'function','name'=>'content_image'];
-    $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+    $rec['help_url'] = $selfurl.$urlext.'&action=showpluginhelp&plugin='.$rec['name'].'&type='.$rec['type'];
     $file_array[] = $rec;
 
     $rec = ['type'=>'function','name'=>'content_module'];
-    $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+    $rec['help_url'] = $selfurl.$urlext.'&action=showpluginhelp&plugin='.$rec['name'].'&type='.$rec['type'];
     $file_array[] = $rec;
 
     $rec = ['type'=>'function','name'=>'process_pagedata'];
-    $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+    $rec['help_url'] = $selfurl.$urlext.'&action=showpluginhelp&plugin='.$rec['name'].'&type='.$rec['type'];
     $file_array[] = $rec;
 
     usort($file_array, function($a,$b)

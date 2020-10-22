@@ -72,7 +72,7 @@ require_once __DIR__.DIRECTORY_SEPARATOR.'method.TemplateQuery.php';
 try {
     if( $templates ) {
 
-        $u = 'edittemplate.php'.$urlext.'&amp;tpl=XXX';
+        $u = 'edittemplate.php'.$urlext.'&tpl=XXX';
         $t = lang_by_realm('layout','title_edit_template');
         $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
         $linkedit = '<a href="'.$u.'" class="edit_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
@@ -84,23 +84,23 @@ try {
         $linksteal = '<a href="'.$u.'" class="steal_tpl_lock" data-tpl-id="XXX" accesskey="e">'.$icon.'</a>'.PHP_EOL;
 */
         if( $padd ) {
-            $u = 'templateoperations.php'.$urlext.'&amp;op=copy&amp;tpl=XXX';
+            $u = 'templateoperations.php'.$urlext.'&op=copy&tpl=XXX';
             $t = lang_by_realm('layout','title_copy_template');
             $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
             $linkcopy = '<a href="'.$u.'" class="copy_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
         }
 
-        $u = 'templateoperations.php'.$urlext.'&amp;op=applyall&amp;tpl=XXX';
+        $u = 'templateoperations.php'.$urlext.'&op=applyall&tpl=XXX';
         $t = lang_by_realm('layout','title_apply_template');
         $icon = $themeObject->DisplayImage('icons/extra/applyall', $t, '', '', 'systemicon');
         $linkapply = '<a href="'.$u.'" class="apply_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
-        $u = 'templateoperations.php'.$urlext.'&amp;op=replace&amp;tpl=XXX';
+        $u = 'templateoperations.php'.$urlext.'&op=replace&tpl=XXX';
         $t = lang_by_realm('layout','title_replace_template');
         $icon = $themeObject->DisplayImage('icons/extra/replace', $t, '', '', 'systemicon');
         $linkreplace = '<a href="'.$u.'" class="replace_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
-        $u = 'templateoperations.php'.$urlext.'&amp;op=delete&amp;tpl=XXX';
+        $u = 'templateoperations.php'.$urlext.'&op=delete&tpl=XXX';
         $t = lang_by_realm('layout','title_delete_template');
         $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon');
         $linkdel = '<a href="'.$u.'" class="del_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
@@ -524,22 +524,22 @@ $jsm->queue_string($js, 3);
 
 $groups = TemplateOperations::get_bulk_groups(); //TODO ensure member id's are also displayed
 if( $groups ) {
-    $u = 'edittplgroup.php'.$urlext.'&amp;tpl=XXX';
+    $u = 'edittplgroup.php'.$urlext.'&tpl=XXX';
     $t = lang_by_realm('layout','prompt_edit');
     $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
     $linkedit = '<a href="'.$u.'" class="edit_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
-/*    $u = 'templateoperations.php'.$urlext.'&amp;op=copy&amp;tpl=XXX';
+/*    $u = 'templateoperations.php'.$urlext.'&op=copy&tpl=XXX';
     $t = lang_by_realm('layout','title_copy_group');
     $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
     $linkcopy = '<a href="'.$u.'" class="copy_tpl">'.$icon.'</a>'.PHP_EOL;
 */
-    $u = 'templateoperations.php'.$urlext.'&amp;op=delete&amp;tpl=XXX';
+    $u = 'templateoperations.php'.$urlext.'&op=delete&tpl=XXX';
     $t = lang_by_realm('layout','title_delete_shallow');
     $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon del_grp');
     $linkdel = '<a href="'.$u.'" class="del_grp">'.$icon.'</a>'.PHP_EOL;
 
-    $u = 'templateoperations.php'.$urlext.'&amp;op=deleteall&amp;tpl=XXX';
+    $u = 'templateoperations.php'.$urlext.'&op=deleteall&tpl=XXX';
     $t = lang_by_realm('layout','title_delete_deep');
     $icon = $themeObject->DisplayImage('icons/extra/deletedeep', $t, '', '', 'systemicon del_grp');
     $linkdelall = '<a href="'.$u.'" class="del_grpall">'.$icon.'</a>'.PHP_EOL;

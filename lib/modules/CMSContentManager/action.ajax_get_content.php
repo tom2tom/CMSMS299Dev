@@ -102,7 +102,7 @@ try {
      ->assign('columns',$builder->get_display_columns());
 /*
     $url = $this->create_url($id,'ajax_get_content',$returnid);
-    $tpl->assign('ajax_get_content_url',str_replace('amp;','',$url))
+    $tpl->assign('ajax_get_content_url',str_replace('&amp;','&',$url))
       ->assign('settingsicon',cms_join_path(__DIR__,'images','settings'));
 */
     if( ManagerUtils::get_pagenav_display() == 'title' ) {

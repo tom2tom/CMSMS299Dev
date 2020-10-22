@@ -435,7 +435,7 @@ abstract class AdminTheme
         }
         elseif( startswith($url,CMS_ROOT_URL) || !startswith($url,'http') ) {
             //TODO generally support the websocket protocol 'wss' : 'ws'
-            $prefix = ( strpos($url,'?') !== FALSE ) ? '&amp;' : '?';
+            $prefix = ( strpos($url,'?') !== FALSE ) ? '&' : '?';
             return $url.$prefix.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
         }
         return $url;
@@ -1013,7 +1013,7 @@ abstract class AdminTheme
             $urlext = get_secure_param();
             $mark= new Bookmark();
             $mark->title = lang('addbookmark');
-            $mark->url = 'makebookmark.php'.$urlext.'&amp;title='.urlencode($this->_title);
+            $mark->url = 'makebookmark.php'.$urlext.'&title='.urlencode($this->_title);
             $marks[] = $mark;
 
             $mark = new Bookmark();
