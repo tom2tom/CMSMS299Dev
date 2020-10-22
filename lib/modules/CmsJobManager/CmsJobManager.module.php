@@ -87,7 +87,7 @@ final class CmsJobManager extends CMSModule //DEBUG implements AsyncJobManager
                 // no break
                 case 'ModuleInstalled':
                 case 'ModuleUpgraded':
-                    $this->refresh_jobs();
+                    $this->refresh_jobs(true);
             }
         }
         parent::DoEvent($originator, $eventname, $params);
@@ -236,11 +236,12 @@ final class CmsJobManager extends CMSModule //DEBUG implements AsyncJobManager
 
     /**
      * Refresh the contents of the database tasks-store
+     * @param bool $force Optional flag, whether to wipe the jobs-store before checking  Default false.
      * @return int no. of jobs processed
      */
-    public function refresh_jobs() : int
+    public function refresh_jobs(bool $force = false) : int
     {
-        return ManagerUtils::refresh_jobs();
+        return ManagerUtils::refresh_jobs($force);
     }
 
     /**
