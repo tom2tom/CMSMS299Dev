@@ -1,17 +1,15 @@
 <?php
 /**
- * This file contains the definition for a simple alert class that provides for translatable messages and titles.
+ * A simple alert class that provides for translatable messages and titles.
  *
  * @package CMS
  * @license GPL
  * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
-
 namespace CMSMS\AdminAlerts;
 
 use CMSMS\UserOperations;
 use CMSMS\Utils;
-use CmsSecurityCheckTask;
 use InvalidArgumentException;
 use function lang;
 
@@ -30,7 +28,7 @@ use function lang;
  * @prop string $titlekey The language key (relative to the module) for the alert title.
  * @prop string $msgkey The language key (relative to the module) for the alert message.
  * @prop mixed  $msgargs Either an array of arguments to pass to the language function or a single string or value.
- * @see CmsSecurityCheckTask
+ * @see SecurityCheckTask
  */
 class TranslatableAlert extends Alert
 {
