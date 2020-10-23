@@ -1,6 +1,6 @@
 {if isset($tabbed)}
-{tab_header name='jobs' label=$mod->Lang('jobs')}
-{tab_header name='settings' label=$mod->Lang('settings')}
+{tab_header name='jobs' label=$mod->Lang('jobs') active=$tab}
+{tab_header name='settings' label=$mod->Lang('settings') active=$tab}
 {tab_start name='jobs'}
 {/if}
 {if count($jobs)}{$core=$mod->Lang('core')}

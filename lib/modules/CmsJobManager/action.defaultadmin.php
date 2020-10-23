@@ -33,11 +33,12 @@ if (isset($params['apply']) && $this->CheckPermission('Modify Site Preferences')
         if (filter_var($t2, FILTER_VALIDATE_URL)) {
             $this->SetPreference('joburl', $t2);
         } else {
-            $this->ShowErrors($this - Lang('err_url'));
+            $this->ShowErrors($this->Lang('err_url'));
         }
     } else {
         $this->SetPreference('joburl', '');
     }
+    $params['activetab'] = 'settings';
 }
 
 //DEBUG - DISABLE FOR PRODUCTION
@@ -118,6 +119,7 @@ $tpl->assign('jobs', $jobs);
 
 if ($this->CheckPermission('Modify Site Preferences')) {
     $tpl->assign('tabbed', 1);
+    $tpl->assign('tab', $params['activetab'] ?? null);
     $tpl->assign('enabled', (int)$this->GetPreference('enabled'));
     $tpl->assign('jobinterval', (int)(AppParams::get('jobinterval', 180) / 60)); // show as minutes
     $tpl->assign('jobtimeout', (int)AppParams::get('jobtimeout', 5));
