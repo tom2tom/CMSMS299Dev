@@ -21,7 +21,7 @@ use CMSMS\Events;
 use CMSMS\HookOperations;
 use CMSMS\TemplateType;
 use CMSMS\Utils as AppUtils;
-use Search\Command\ReindexCommand;
+//use Search\Command\ReindexCommand;
 use Search\Utils as Utils;
 
 const NON_INDEXABLE_CONTENT = '<!-- pageAttribute: NotSearchable -->';
@@ -110,17 +110,17 @@ class Search extends CMSModule
 
     public function StemPhrase($phrase)
     {
-        return Utils::StemPhrase($this,$phrase);
+        return Utils::StemPhrase($this, $phrase);
     }
 
     public function AddWords($module = 'Search', $id = -1, $attr = '', $content = '', $expires = NULL)
     {
-        return Utils::AddWords($this,$module,$id,$attr,$content,$expires);
+        return Utils::AddWords($this, $module,$id, $attr, $content, $expires);
     }
 
     public function DeleteWords($module = 'Search', $id = -1, $attr = '')
     {
-        return Utils::DeleteWords($this,$module,$id,$attr);
+        return Utils::DeleteWords($this, $module, $id, $attr);
     }
 
     public function DeleteAllWords($module = 'Search', $id = -1, $attr = '')
@@ -160,8 +160,8 @@ class Search extends CMSModule
         case CoreCapabilities::PLUGIN_MODULE:
         case CoreCapabilities::SITE_SETTINGS:
             return true;
-        case 'clicommands':
-            return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
+//        case 'clicommands':
+//            return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
         }
         return false;
     }
@@ -178,7 +178,7 @@ class Search extends CMSModule
         return [
          'title'=>$this->Lang('settings_title', $this->GetName()),
          //'desc'=>'useful text goes here', // optional useful text
-         'url'=>$this->create_url('m1_','defaultadmin','',['activetab'=>'options']), // if permitted
+         'url'=>$this->create_url('m1_', 'defaultadmin', '', ['activetab'=>'options']), // if permitted
          //optional 'text' => custom link-text | explanation e.g need permission
         ];
     }
