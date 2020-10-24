@@ -33,11 +33,11 @@
         */
         var $regex_vowel;
 
-	function __construct()
-	{
-		$this->regex_consonant = '(?:[bcdfghjklmnpqrstvwxz]|(?<=[aeiou])y|^y)';
-		$this->regex_vowel = '(?:[aeiou]|(?<![aeiou])y)';
-	}
+        function __construct()
+        {
+            $this->regex_consonant = '(?:[bcdfghjklmnpqrstvwxz]|(?<=[aeiou])y|^y)';
+            $this->regex_vowel = '(?:[aeiou]|(?<![aeiou])y)';
+        }
 
         /**
         * Stems a word. Simple huh?
