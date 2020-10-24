@@ -1,5 +1,7 @@
 <?php
 $lang = [
+'apply' => 'Apply',
+'cancel' => 'Cancel',
 'clearlog' => 'Clear',
 'date' => 'Date',
 'download' => 'Download',
@@ -9,6 +11,7 @@ $lang = [
 'f_sev' => 'Min severity',
 'f_subj' => 'Subject contains',
 'f_user' => 'Username is',
+'help_lifetime' => 'Remove log entries older than this many days',
 'ip_addr' => 'IP Address',
 'itemid' => 'Item ID',
 'msg_cleared' => 'Admin log cleared',
@@ -26,8 +29,9 @@ $lang = [
 'sev_notice' => 'Notice',
 'sev_warning' => 'Warning',
 'subject' => 'Subject',
-'tabhdr_log' => 'Log Entries',
+'tabhdr_log' => 'Entries',
 'tabhdr_prefs' => 'Settings',
+'title_lifetime' => 'Entries\' lifetime (days)',
 'username' => 'Username',
 'when' => 'When',
 
