@@ -2,7 +2,11 @@
 
 $lang = [
 
+// A
+'apply' => 'Apply',
+
 // C
+'cancel' => 'Cancel',
 'clear' => 'Clear',
 'confirm_clearstats' => 'Are you sure you want to permanently clear all statistics?',
 'confirm_reindex' => 'This operation could take an extended amount of time, and/or require an extensive amount of PHP memory.  Are you sure you want to re-index all content?',
@@ -10,7 +14,7 @@ $lang = [
 
 // D
 'default_stopwords' => 'i, me, my, myself, we, our, ours, ourselves, you, your, yours, yourself, yourselves, he, him, his, himself, she, her, hers, herself, it, its, itself, they, them, their, theirs, themselves, what, which, who, whom, this, that, these, those, am, is, are, was, were, be, been, being, have, has, had, having, do, does, did, doing, a, an, the, and, but, if, or, because, as, until, while, of, at, by, for, with, about, against, between, into, through, during, before, after, above, below, to, from, up, down, in, out, on, off, over, under, again, further, then, once, here, there, when, where, why, how, all, any, both, each, few, more, most, other, some, such, no, nor, not, only, own, same, so, than, too, very',
-'description' => 'Search across the website for specific words or phrases',
+'description' => 'Search across the website for specified words or phrases',
 
 // E
 'eventdesc-SearchAllItemsDeleted' => 'Sent when all items are deleted from the index.',
@@ -66,6 +70,14 @@ EOS
 'export_to_csv' => 'Export to CSV',
 
 // H
+
+//'help_alpharesults' => 'Sort the discovered words alphabetically (English only)',
+'help_resetstopwords' => 'Revert to the list of stopwords included in the strings-translation for the current language',
+'help_resultpage' => 'TODO',
+'help_savephrases' => 'Search for specified text as a whole, instead of its individual words',
+'help_searchtext' => 'Default text displayed in the search box',
+'help_stemming' => 'Ignore words which have the more common morphological and inflexional endings of other words',
+'help_stopwords' => 'Words to be ignored when conducting a search',
 'help' => '<h3>What does this do?</h3>
 <p>Search is a module for searching "core" content along with certain registered modules.  You put in a word or two and it gives you back matching, relevant results.</p>
 <h3>How is it used?</h3>
@@ -86,7 +98,7 @@ EOS
 'options' => 'Options',
 
 // P
-'param_action' => 'Specify the mode of operation for the module.  Acceptable values are \'default\', and \'keywords\'.  The keywords action can be used to generate a comma seperated list of words suitable for use in a keywords meta tag.',
+'param_action' => 'Specify the mode of operation for the module. Acceptable values are \'default\', and \'keywords\'.  The keywords action can be used to generate a comma seperated list of words suitable for use in a keywords meta tag.',
 'param_count' => 'Used with the keywords action, this parameter will limit the output to the specified number of words',
 'param_detailpage' => 'Used only for matching results from modules, this parameter allows specifying a different detail page for the results.  This is useful if, for example, you always display your detail views in a page with a different template.  <em>(<strong>Note:</strong> modules have the ability to override this parameter.)</em>',
 'param_formtemplate' => 'Used only for the default action, this parameter allows specyfing the name of a non default template.',
@@ -100,10 +112,10 @@ EOS
 'param_submit' => 'Text to place into the submit button',
 'param_useor' => 'Change the default relationship from an OR relationship to an AND relationship',
 'prompt_alpharesults' => 'Sort results alphabetically instead of by weight',
-'prompt_resetstopwords' => 'Load default Stop Words from language',
+'prompt_resetstopwords' => 'Load default Stop Words',
 'prompt_resultpage' => 'Page for individual module results <em>(Note modules might override this)</em>',
-'prompt_savephrases' => 'Track phrases, not individual words',
-'prompt_searchtext' => 'Default search text',
+'prompt_savephrases' => 'Track phrases instead of individual words',
+'prompt_searchtext' => 'Search entry placeholder text',
 
 // R
 'reindexallcontent' => 'Re-index All Content',
@@ -115,6 +127,7 @@ EOS
 // S
 
 'search' => 'Content Search',
+'searchplaceholder' => 'Enter search...',
 'searchresultsfor' => 'Search Results For',
 'searchsubmit' => 'Submit',
 'searchtemplate' => 'Search Template',
