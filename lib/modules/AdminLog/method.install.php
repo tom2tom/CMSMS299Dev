@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use AdminLog\storage;
+use CMSMS\AppParams;
 use CMSMS\Database\DataDictionary;
 
 if (!isset($gCms)) {
@@ -43,4 +44,4 @@ $dict->ExecuteSQLArray($sqlarr);
 $this->CreatePermission('View Admin Log', 'View Admin Log');
 $this->CreatePermission('Clear Admin Log', 'Clear Admin Log');
 
-cms_siteprefs::set(AdminLog::LIFETIME_SITEPREF, 3600*24*30); //log entries only live for 30 days
+AppParams::set(AdminLog::LIFETIME_SITEPREF, 3600*24*30); //log entries only live for 30 days
