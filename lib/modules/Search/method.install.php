@@ -21,10 +21,10 @@ use CMSMS\Template;
 use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
 
-if( !isset($gCms) ) exit;
+if (!isset($gCms)) exit;
 
 $newsite = AppState::test_state(AppState::STATE_INSTALL);
-if( $newsite ) {
+if ($newsite) {
     $uid = 1; // templates owned by initial admin
 } else {
     $uid = get_userid(false);
@@ -81,10 +81,6 @@ count I(4)
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_words', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
-$this->SetPreference('stopwords', $this->DefaultStopWords());
-$this->SetPreference('usestemming', 'false');
-$this->SetPreference('searchtext','Enter Search...');
-
 $me = $this->GetName();
 
 try {
@@ -106,11 +102,11 @@ try {
     $tpl->set_type_dflt(TRUE);
     $tpl->save();
 
-    if( $newsite ) { //TODO also test for demonstration content installation
+    if ($newsite) { //TODO also test for demonstration content installation
         // setup Simplex theme search form template
         try {
             $fn = (__DIR__).DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Search_template.tpl';
-            if( is_file( $fn ) ) {
+            if (is_file( $fn)) {
                 $template = @file_get_contents($fn);
                 $tpl = new Template();
                 $tpl->set_originator($me);
@@ -129,8 +125,8 @@ try {
                     //if modules are installed before demo content, that group won't yet exist
                 }
             }
-        } catch( Throwable $t ) {
-            if( $newsite ) {
+        } catch( Throwable $t) {
+            if ($newsite) {
                 return $t->GetMessage();
             } else {
                 audit('', $me, 'Installation error: '.$t->GetMessage());
@@ -155,13 +151,19 @@ try {
     $tpl->set_type($results_type);
     $tpl->set_type_dflt(TRUE);
     $tpl->save();
-} catch( Throwable $t ) {
-    if( $newsite ) {
+} catch( Throwable $t) {
+    if ($newsite) {
         return $t->GetMessage();
     } else {
         audit('', $me, 'Installation error: '.$t->GetMessage());
     }
 }
+
+$this->SetPreference('alpharesults', 0);
+$this->SetPreference('savephrases', 1);
+$this->SetPreference('stopwords', $this->DefaultStopWords());
+$this->SetPreference('searchtext', $this->Lang('searchplaceholder'));
+$this->SetPreference('usestemming', 0);
 
 $this->CreateEvent('SearchInitiated');
 $this->CreateEvent('SearchCompleted');
@@ -171,6 +173,6 @@ $this->CreateEvent('SearchAllItemsDeleted');
 
 $this->RegisterEvents();
 $this->RegisterModulePlugin(true);
-$this->RegisterSmartyPlugin('search','function','function_plugin');
+$this->RegisterSmartyPlugin('search', 'function', 'function_plugin');
 
 $this->Reindex();

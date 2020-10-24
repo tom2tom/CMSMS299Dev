@@ -20,14 +20,14 @@ use CMSMS\Database\DataDictionary;
 use CMSMS\Template;
 use CMSMS\TemplateType;
 
-if( !isset($gCms) ) exit;
+if (!isset($gCms)) exit;
 
-if( version_compare($oldversion,'1.50') < 1 ) {
+if (version_compare($oldversion,'1.50') < 1) {
     $this->RegisterModulePlugin(true);
     $this->RegisterSmartyPlugin('search','function','function_plugin');
 
     $me = $this->GetName();
-    if( AppState::test_state(AppState::STATE_INSTALL) ) {
+    if (AppState::test_state(AppState::STATE_INSTALL)) {
         $user_id = 1; // hardcode to first user
     } else {
         $user_id = get_userid();
@@ -43,13 +43,12 @@ if( version_compare($oldversion,'1.50') < 1 ) {
             $type->set_content_callback('Search::reset_page_type_defaults');
             $type->reset_content_to_factory();
             $type->save();
-        }
-        catch( Throwable $t ) {
+        } catch (Throwable $t) {
             // ignore this error
         }
 
         $content = $this->GetTemplate('displaysearch');
-        if( $content ) {
+        if ($content) {
             $tpl = new Template();
             $tpl->set_originator($me);
             $tpl->set_name('Search Form Sample');
@@ -70,13 +69,12 @@ if( version_compare($oldversion,'1.50') < 1 ) {
             $type->set_content_callback('Search::reset_page_type_defaults');
             $type->reset_content_to_factory();
             $type->save();
-        }
-        catch( Throwable $t ) {
+        } catch (Throwable $t) {
             // ignore this error
         }
 
         $content = $this->GetTemplate('displayresult');
-        if( $content ) {
+        if ($content) {
             $tpl = new Template();
             $tpl->set_originator($me);
             $tpl->set_name('Search Results Sample');
@@ -87,27 +85,34 @@ if( version_compare($oldversion,'1.50') < 1 ) {
             $tpl->save();
             $this->DeleteTemplate('displayresult');
         }
-    }
-    catch( Throwable $t ) {
+    } catch (Throwable $t) {
         audit('',$me,'Installation error: '.$t->GetMessage());
-		return $t->GetMessage();
+        return $t->GetMessage();
     }
 }
 
-if( version_compare($oldversion,'1.51') < 0 ) {
+if (version_compare($oldversion,'1.51') < 0) {
     $tables = [
         CMS_DB_PREFIX.'module_search_items',
         CMS_DB_PREFIX.'module_search_index',
         CMS_DB_PREFIX.'module_search_words'
     ];
     $sql = 'ALTER TABLE %s ENGINE=InnoDB';
-    foreach( $tables as $table ) {
+    foreach ($tables as $table) {
         $db->Execute(sprintf($sql,$table));
     }
 }
 
-if( version_compare($oldversion,'1.52') < 0 ) {
+if (version_compare($oldversion,'1.52') < 0) {
     $dict = new DataDictionary($db);
     $sqlarray = $dict->CreateIndexSQL('index_search_item', 'module_search_index', 'item_id');
     $dict->ExecuteSQLArray($sqlarray);
+}
+
+if (version_compare($oldversion,'1.53') < 0) {
+    foreach (['alpharesults', 'savephrases', 'usestemming'] as $key) {
+        $val = $this->GetPreference($key, 0);
+        $val = cms_to_bool($val);
+        $this->SetPreference($key, (($val) ? 1 : 0));
+    }
 }
