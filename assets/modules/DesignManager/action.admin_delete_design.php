@@ -85,7 +85,7 @@ try {
         $this->RedirectToAdminTab();
     }
 
-    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_delete_design.tpl'),null,null,$smarty);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_delete_design.tpl')); //,null,null,$smarty);
     $tpl->assign('tpl_permission',$can_delete_templates)
      ->assign('css_permission',$can_delete_stylesheets)
      ->assign('design',$design);

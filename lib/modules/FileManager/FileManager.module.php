@@ -85,7 +85,7 @@ final class FileManager extends CMSModule
     public function GetModeTable($id, $permissions)
     {
         $smarty=App::get_instance()->GetSmarty();
-        $tpl = $smarty->createTemplate($this->GetTemplateResource('modetable.tpl'), null, null, $smarty);
+        $tpl = $smarty->createTemplate($this->GetTemplateResource('modetable.tpl')); //, null, null, $smarty);
 
         $tpl->assign('ownertext', $this->Lang('owner'))
          ->assign('groupstext', $this->Lang('group'))

@@ -22,7 +22,7 @@ use FileManager\Utils;
 //if (!isset($gCms)) exit;
 //if (!$this->CheckPermission('Modify Files')) exit;
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('uploadview.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('uploadview.tpl')); // ,null,null,$smarty);
 $tpl->assign('formstart', $this->CreateFormStart($id, 'upload', $returnid, 'post',
  'multipart/form-data', false, '', [
   'disable_buffer'=>'1',

@@ -62,7 +62,7 @@ class ModuleManager extends CMSModule
     protected function _DisplayErrorPage($id, &$params, $returnid, $message='')
     {
         $smarty = CmsApp::get_instance()->GetSmarty();
-        $tpl = $smarty->createTemplate($this->GetTemplateResource('error.tpl'),null,null,$smarty);
+        $tpl = $smarty->createTemplate($this->GetTemplateResource('error.tpl')); //,null,null,$smarty);
 
         $tpl->assign('title_error', $this->Lang('error'))
          ->assign('message', $message)
@@ -98,8 +98,8 @@ class ModuleManager extends CMSModule
         switch ($capability) {
             case CoreCapabilities::CORE_MODULE:
                 return true;
-            case 'clicommands':
-                return class_exists('CMSMS\\CLI\\App'); // TODO better namespace
+//            case 'clicommands':
+//                return class_exists('CMSMS\\CLI\\App'); // TODO better namespace
             default:
                 return false;
         }

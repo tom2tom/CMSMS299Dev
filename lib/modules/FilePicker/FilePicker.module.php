@@ -308,7 +308,7 @@ EOS;
         add_page_foottext($js);
 
         $smarty = CmsApp::get_instance()->GetSmarty();
-        $tpl = $smarty->createTemplate($this->GetTemplateResource('contentblock.tpl'), null, null, $smarty);
+        $tpl = $smarty->createTemplate($this->GetTemplateResource('contentblock.tpl')); //, null, null, $smarty);
         $tpl->assign('blockName', $name)
          ->assign('value', $value)
          ->assign('required', $required)

@@ -73,7 +73,7 @@ try {
     $this->ShowErrors($e->GetMessage());
   }
 
-  $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_edit_design.tpl'),null,null,$smarty);
+  $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_edit_design.tpl')); //,null,null,$smarty);
 
   $templates = TemplateOperations::get_editable_templates(get_userid());
   if( $templates ) {

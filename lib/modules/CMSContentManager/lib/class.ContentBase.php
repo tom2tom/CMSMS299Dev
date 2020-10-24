@@ -701,7 +701,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 				}
 				$help = AdminUtils::get_help_tag($this->realm,'info_styles',$this->mod->Lang('help_title_styles'));
 				$smarty = AppSingle::Smarty();
-				$tpl = $smarty->createTemplate($this->mod->GetTemplateResource('page_stylesheets.tpl'),null,null,$smarty);
+				$tpl = $smarty->createTemplate($this->mod->GetTemplateResource('page_stylesheets.tpl')); //,null,null,$smarty);
 				$tpl->assign('mod',$this->mod)
 				 ->assign('actionid',$id)
 				 ->assign('grouped',$grouped)
@@ -2128,7 +2128,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 	/**
 	 * Return the hierarchy of the current page.
-	 * A string like #.##.## indicating the path to this page and its order
+	 * A string like N.N.N indicating the path to this page and its order
 	 * This value uses the item order when calculating the output e.g. 3.3.3
 	 * to indicate the third grandchild of the third child of the third root page.
 	 *
@@ -2137,11 +2137,11 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	public function Hierarchy()
 	{
 		$contentops = ContentOperations::get_instance();
-		return $contentops->CreateFriendlyHierarchyPosition($this->mHierarchy);
+		return $contentops->CreateFriendlyHierarchyPosition($this->mHierarchy); //should match this->mIdHierarchy
 	}
 
 	/**
-	 * Set the hierarchy
+	 * Set the (unfriendly i.e. 0-padded) hierarchy
 	 *
 	 * @internal
 	 * @param string $hierarchy
@@ -2152,8 +2152,8 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	}
 
 	/**
-	 * Return the id Hierarchy.
-	 * A string like #.##.## indicating the path to the page and its order
+	 * Return the id (aka friendly, not-0-padded) hierarchy.
+	 * A string like N.N.N indicating the path to the page and its order
 	 * This property uses the id's of pages when calculating the output i.e: 21.5.17
 	 * to indicate that page id 17 is the child of page with id 5 which is in turn the
 	 * child of the page with id 21

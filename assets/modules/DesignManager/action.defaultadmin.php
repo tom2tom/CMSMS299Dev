@@ -46,7 +46,7 @@ if( $pmod && isset($params['design_setdflt']) ) {
 }
 */
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('listdesigns.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('listdesigns.tpl')); //,null,null,$smarty);
 
 // build lists of designs and stuff which may be assigned to them.
 $opts = ['' => $this->Lang('prompt_none')];
