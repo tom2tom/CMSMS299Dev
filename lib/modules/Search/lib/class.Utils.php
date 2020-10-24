@@ -30,7 +30,7 @@ use const NON_INDEXABLE_CONTENT;
 use function cmsms;
 
 /**
- * @since 2.3
+ * @since 2.9
  */
 class Utils
 {
@@ -77,7 +77,7 @@ class Utils
         // stem words
         $stemmed_words = [];
         $stemmer = null;
-        if( $module->GetPreference('usestemming', 'false') != 'false' ) {
+        if ($module->GetPreference('usestemming', 0)) {
             require_once __DIR__ . DIRECTORY_SEPARATOR . 'PorterStemmer.class.php';
             $stemmer = new PorterStemmer();
         }
@@ -114,7 +114,7 @@ class Utils
         $module->DeleteWords($modname, $id, $attr);
 
         $non_indexable = strpos($content, NON_INDEXABLE_CONTENT);
-        if( $non_indexable !== false ) return;
+        if ($non_indexable !== false) return;
 
         Events::SendEvent('Search', 'SearchItemAdded', [ $modname, $id, $attr, &$content, $expires ]);
 
@@ -123,20 +123,20 @@ class Utils
             $content = html_entity_decode($content);
             $stemmed_words = $module->StemPhrase($content);
             $tmp = array_count_values($stemmed_words);
-            if( !is_array($tmp) || !count($tmp) ) return;
+            if (!is_array($tmp) || !count($tmp)) return;
             $words = [];
-            foreach( $tmp as $key => $val ) {
+            foreach( $tmp as $key => $val) {
                 $words[] = [$key, $val];
             }
 
             $q = 'SELECT id FROM '.CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
             $parms = [$modname];
 
-            if( $id != -1 ) {
+            if ($id != -1) {
                 $q .= ' AND content_id=?';
                 $parms[] = $id;
             }
-            if( $attr != '' ) {
+            if ($attr != '') {
                 $q .= ' AND extra_attr=?';
                 $parms[] = $attr;
             }
@@ -171,11 +171,11 @@ class Utils
     {
         $parms = [$modname];
         $q = 'DELETE FROM '.CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
-        if( $id != -1 ) {
+        if ($id != -1) {
             $q .= ' AND content_id=?';
             $parms[] = $id;
         }
-        if( $attr != '' ) {
+        if ($attr != '') {
             $q .= ' AND extra_attr=?';
             $parms[] = $attr;
         }
@@ -185,7 +185,7 @@ class Utils
         //Ruud suggestion: migrate this to async task and/or index item_id field
         $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id NOT IN (SELECT id FROM '.CMS_DB_PREFIX.'module_search_items)');
         $db->CommitTrans();
-        Events::SendEvent( 'Search', 'SearchItemDeleted', [ $modname, $id, $attr ] );
+        Events::SendEvent( 'Search', 'SearchItemDeleted', [ $modname, $id, $attr ]);
     }
 
     /**
@@ -205,10 +205,10 @@ class Utils
 //		$cache = SystemCache::get_instance();
         $offset = 0;
 
-        while( $offset < $n ) {
+        while( $offset < $n) {
             // figure out the content to load.
             $idlist = [];
-            for( $i = 0; $i < $nperloop && $offset+$i < $n; $i++ ) {
+            for( $i = 0; $i < $nperloop && $offset+$i < $n; $i++) {
                 $idlist[] = $full_list[$offset+$i];
             }
             $offset += $i;
@@ -218,7 +218,7 @@ class Utils
             $contentops->LoadChildren(-1,TRUE,FALSE,$idlist);
 
             // index each content page.
-            foreach( $idlist as $one ) {
+            foreach( $idlist as $one) {
                 $content_obj = $contentops->LoadContentFromId($one); //TODO ensure relevant content-object?
                 $parms = ['content'=>$content_obj];
 //                self::DoEvent($module,'Core','ContentEditPost',$parms); //WHAAT ? not changed
@@ -228,10 +228,10 @@ class Utils
 
         $modops = ModuleOperations::get_instance();
         $modules = $modops->GetInstalledModules();
-        foreach( $modules as $name ) {
-            if( !$name || $name == 'Search' ) continue;
+        foreach( $modules as $name) {
+            if (!$name || $name == 'Search') continue;
             $modinst = $modops->get_module_instance($name);
-            if( is_object($modinst) && method_exists($modinst, 'SearchReindex') ) {
+            if (is_object($modinst) && method_exists($modinst, 'SearchReindex')) {
                 $modinst->SearchReindex($module);
             }
         }
@@ -244,7 +244,7 @@ class Utils
      * @param string $eventname
      * @param array $params
      */
-    public static function DoEvent(Search &$module, string $originator, string $eventname, array &$params )
+    public static function DoEvent(Search &$module, string $originator, string $eventname, array &$params)
     {
         if ($originator != 'Core') return;
 
@@ -256,14 +256,14 @@ class Utils
             $db = $module->GetDb();
             //Ruud suggestion: defer deletion to next search_AddWords() call
             $module->DeleteWords($module->GetName(), $content->Id(), 'content');
-            if( $content->Active() && $content->IsSearchable() ) {
+            if ($content->Active() && $content->IsSearchable()) {
 
                 $text = str_repeat(' '.$content->Name(), 2) . ' ';
                 $text .= str_repeat(' '.$content->MenuText(), 2) . ' ';
 
                 $props = $content->Properties();
-                if( $props ) {
-                    foreach( $props as $k => $v ) {
+                if ($props) {
+                    foreach( $props as $k => $v) {
                         $text .= $v.' ';
                     }
                 }
@@ -272,7 +272,7 @@ class Utils
                 // if module content is indexable at all
                 $non_indexable = (strpos($text, NON_INDEXABLE_CONTENT) !== false)?1:false;
                 $text = trim(strip_tags($text));
-                if( $text && !$non_indexable ) $module->AddWords($module->GetName(), $content->Id(), 'content', $text);
+                if ($text && !$non_indexable) $module->AddWords($module->GetName(), $content->Id(), 'content', $text);
             }
             break;
 
