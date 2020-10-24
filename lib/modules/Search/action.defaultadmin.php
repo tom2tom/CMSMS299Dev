@@ -24,12 +24,10 @@ if (!$this->CheckPermission('Modify Site Preferences')) exit;
 if (isset($params['reindex'])) {
     $this->Reindex();
     $this->ShowMessage($this->Lang('reindexcomplete'));
-}
-elseif (isset($params['clearwordcount'])) {
+} elseif (isset($params['clearwordcount'])) {
     $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_search_words';
     $db->Execute($query);
-}
-elseif (isset($params['exportcsv']) ) {
+} elseif (isset($params['exportcsv'])) {
     $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_search_words ORDER BY count DESC';
     $data = $db->GetArray($query);
     if (is_array($data)) {
@@ -45,40 +43,34 @@ elseif (isset($params['exportcsv']) ) {
         echo $output;
         exit;
     }
-}
-elseif (isset($params['resettodefault'])) {
-    $this->SetPreference('stopwords', $this->DefaultStopWords());
-}
-elseif (isset($params['submit'])) {
-    $this->SetPreference('stopwords', $params['stopwords']);
-    $this->SetPreference('searchtext', $params['searchtext']);
+} elseif (isset($params['resettodefault'])) {
+    $this->SetPreference('stopwords',$this->DefaultStopWords());
+} elseif (isset($params['apply'])) {
+    $this->SetPreference('stopwords',$params['stopwords']);
+    $this->SetPreference('searchtext',$params['searchtext']);
 
-    $curval = $this->GetPreference('usestemming', 'false');
-    $newval = 'false';
-    if (isset($params['usestemming'])) $newval = 'true';
-
+    $curval = (bool)$this->GetPreference('usestemming',0);
+    $newval = !empty($params['usestemming']);
     if ($newval != $curval) {
-        $this->SetPreference('usestemming', $newval);
+        $this->SetPreference('usestemming',(($newval)?1:0));
         $this->Reindex();
         $this->ShowMessage($this->Lang('reindexcomplete'));
     }
 
-    $newval = 'false';
-    if (isset($params['savephrases'])) $newval = 'true';
-    $this->SetPreference('savephrases',$newval);
+    $newval = !empty($params['savephrases']);
+    $this->SetPreference('savephrases',(($newval)?1:0));
 
-    $newval = 'false';
-    if (isset($params['alpharesults'])) $newval = 'true';
-    $this->SetPreference('alpharesults', $newval);
+    $newval = !empty($params['alpharesults']);
+    $this->SetPreference('alpharesults',(($newval)?1:0));
 
-    $this->SetPreference('resultpage', (int)$params['resultpage']);
+    $this->SetPreference('resultpage',(int)$params['resultpage']);
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl')); //,null,null,$smarty);
 
 //The tabs
-if (!empty($params['active_tab'])) {
-    $tab = $params['active_tab'];
+if (!empty($params['activetab'])) {
+    $tab = $params['activetab'];
 } else {
     $tab = '';
 }
@@ -86,35 +78,42 @@ $tpl->assign('tab', $tab);
 
 include __DIR__.DIRECTORY_SEPARATOR.'function.admin_statistics_tab.php';
 
+$curval = $this->GetPreference('stopwords');
+if (!$curval) { $curval = $this->DefaultStopWords(); }
+
 $tpl->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'post','',false,'',
-                                                   ['active_tab'=>'options']))
- ->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>')
+                                                   ['activetab'=>'options']))
+// ->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>')
  ->assign('prompt_stopwords',$this->Lang('stopwords'))
  ->assign('input_stopwords', FormUtils::create_textarea([
     'modid' => $id,
     'name' =>'stopwords',
     'rows' => 6,
     'cols' => 50,
-    'value' => str_replace(["\n", "\r"], [' ', ' '], $this->GetPreference('stopwords', $this->DefaultStopWords())),
+    'value' => strtr($curval,"\r\n",'  '),
 ]))
  ->assign('prompt_resetstopwords',$this->Lang('prompt_resetstopwords'))
- ->assign('input_resetstopwords', '<button type="submit" name="'.$id.'resettodefault" id="'.$id.'resettodefault" class="adminsubmit icon undo">'.$this->Lang('input_resetstopwords').'</button>')
+// ->assign('input_resetstopwords', '<button type="submit" name="'.$id.'resettodefault" id="'.$id.'resettodefault" class="adminsubmit icon undo">'.$this->Lang('input_resetstopwords').'</button>')
 
  ->assign('prompt_stemming',$this->Lang('usestemming'))
- ->assign('input_stemming',$this->CreateInputCheckbox($id, 'usestemming', 'true',
-            $this->GetPreference('usestemming', 'false')))
+// ->assign('input_stemming',$this->CreateInputCheckbox($id, 'usestemming',1,
+//            $this->GetPreference('usestemming', 0)))
+ ->assign('stemming',$this->GetPreference('usestemming',0))
 
  ->assign('prompt_searchtext',$this->Lang('prompt_searchtext'))
- ->assign('input_searchtext',$this->CreateInputText($id,'searchtext',
-            $this->GetPreference('searchtext','')))
+// ->assign('input_searchtext',$this->CreateInputText($id,'searchtext',
+//            $this->GetPreference('searchtext','')))
+ ->assign('searchtext',$this->GetPreference('searchtext',''))
 
  ->assign('prompt_savephrases',$this->Lang('prompt_savephrases'))
- ->assign('input_savephrases',$this->CreateInputCheckbox($id,'savephrases','true',
-            $this->GetPreference('savephrases','false')))
+// ->assign('input_savephrases',$this->CreateInputCheckbox($id,'savephrases',1,
+//            $this->GetPreference('savephrases',1)))
+ ->assign('savephrases',$this->GetPreference('savephrases',1))
 
  ->assign('prompt_alpharesults',$this->Lang('prompt_alpharesults'))
- ->assign('input_alpharesults',$this->CreateInputCheckbox($id,'alpharesults','true',
-            $this->GetPreference('alpharesults','false')))
+// ->assign('input_alpharesults',$this->CreateInputCheckbox($id,'alpharesults','true',
+//            $this->GetPreference('alpharesults',0)))
+ ->assign('alpharesults',$this->GetPreference('alpharesults',0))
 
  ->assign('prompt_resultpage',$this->Lang('prompt_resultpage'))
  ->assign('input_resultpage',
