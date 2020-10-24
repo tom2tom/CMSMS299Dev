@@ -17,23 +17,21 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-
 namespace CMSMS;
 
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
-use CMSMS\internal\GetParameters;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
+use CMSMS\RequestParameters;
 use CMSMS\ScriptsMerger;
 use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
-use Exception;
-use const CMS_ADMIN_PATH;
+use Throwable;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_SCRIPTS_PATH;
@@ -92,7 +90,7 @@ class AltbierTheme extends AdminTheme
 	 * @since 2.9
 	 * @return 2-member array
 	 * [0] = array of data for js vars, members like varname=>varvalue
-     * [1] = array of string(s) for includables
+	 * [1] = array of string(s) for includables
 	 */
 	public function AdminHeaderSetup()
 	{
@@ -142,7 +140,7 @@ EOS;
 		$jsm->reset();
 		$jsm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1);
 		$jsm->queue_matchedfile('jquery.toast.min.js', 1);
-        $p = __DIR__.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR;
+		$p = __DIR__.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR;
 		$jsm->queue_file($p.'standard.js', 3); //OR .min for production
 		$out .= $jsm->page_content();
 
@@ -235,10 +233,8 @@ EOS;
 				$module = $_REQUEST['module'];
 			} else {
 				try {
-					$params = (new GetParameters())->get_request_values('module'); //2.3+
-				    if (!$params) exit;
-					$module = $params['module']; //maybe null
-				} catch (Throwable $e) {
+					$module = pre_2_3_TODO(); //c.f. RequestParameters::get_request_values('module'); //2.9+ maybe null
+				} catch (Throwable $t) {
 					if (isset($_REQUEST['mact'])) {
 						$tmp = explode(',', $_REQUEST['mact']);
 						$module = $tmp[0];
@@ -350,7 +346,7 @@ EOS;
 	 * Get URL's for installed jquery, jquery-ui & related css
 	 * Only for pre-2.3 operation
 	 * @return 3-member array
-     */
+	 */
 	protected function find_installed_jq()
 	{
 		$config = cmsms()->GetConfig();
@@ -457,7 +453,7 @@ EOS;
 	}
 
 	/**
-	 * @param  $params Array of variables for smarty (CMSMS pre-2.3 only)
+	 * @param $params Array of variables for smarty (CMSMS pre-2.3 only)
 	 */
 	public function do_login($params = null)
 	{
@@ -574,11 +570,10 @@ EOS;
 		$module_name = $this->get_value('module_name');
 		if (!$module_name) {
 			try {
-				$params = (new GetParameters())->get_request_values('module'); //2.3+
-			    if (!$params) exit;
-				$module_name = $params['module']; //maybe null
+				$module_name = RequestParameters::get_request_values('module'); //2.9+
+				if (!$module_name) exit;
 			}
-			catch (Throwable $e) {
+			catch (Throwable $t) {
 				if (isset($_REQUEST['mact'])) {
 					$module_name = explode(',', $_REQUEST['mact'])[0];
 				}

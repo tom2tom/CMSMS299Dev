@@ -15,22 +15,21 @@
 #GNU General Public License for more details.
 #You should have received a copy of that license along with CMS Made Simple.
 #If not, see <https://www.gnu.org/licenses/>.
-
 namespace CMSMS;
 
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
-use CMSMS\internal\GetParameters;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
+use CMSMS\RequestParameters;
 use CMSMS\ScriptsMerger;
 use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
-use Exception;
+use Throwable;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
@@ -222,10 +221,8 @@ EOS;
 				$module = $_REQUEST['module'];
 			} else {
 				try {
-					$params = (new GetParameters())->get_request_values('module'); //2.3+
-					if (!$params) exit;
-					$module = $params['module']; // maybe null
-				} catch (Throwable $e) {
+					$module = pre_2_3_TODO(); //c.f. RequestParameters::get_request_values('module'); //2.9+ maybe null
+				} catch (Throwable $t) {
 					if (isset($_REQUEST['mact'])) {
 						$tmp = explode(',', $_REQUEST['mact']);
 						$module = $tmp[0];
@@ -444,7 +441,7 @@ EOS;
 	}
 
 	/**
-	 * @param  $params Array of variables for smarty (CMSMS pre-2.3 only)
+	 * @param $params Array of variables for smarty (CMSMS pre-2.3 only)
 	 */
 	public function do_login($params = null)
 	{
@@ -553,11 +550,9 @@ EOS;
 		$module_name = $this->get_value('module_name');
 		if (!$module_name) {
 			try {
-				$params = (new GetParameters())->get_request_values('module'); //2.3+
-				if (!$params) exit;
-				$module_name = $params['module']; //maybe null
+				$module_name = RequestParameters::get_request_values('module'); //2.9+ maybe null
 			}
-			catch (Throwable $e) {
+			catch (Throwable $t) {
 				if (isset($_REQUEST['mact'])) {
 					$module_name = explode(',', $_REQUEST['mact'])[0];
 				}

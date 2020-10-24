@@ -17,16 +17,15 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace CMSMS;
 
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
-use CMSMS\internal\GetParameters;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
+use CMSMS\RequestParameters;
 use CMSMS\ScriptsMerger;
 use CMSMS\StylesMerger;
 use CMSMS\UserOperations;
@@ -317,9 +316,7 @@ EOS;
 		// module name
 		$module_name = $this->get_value('module_name');
 		if (!$module_name) {
-			$params = (new GetParameters())->get_request_values('module');
-			if (!$params) exit;
-			$module_name = $params['module']; // maybe null
+			$module_name = RequestParameters::get_request_values('module'); // maybe null
 		}
 		$smarty->assign('module_name', $module_name);
 

@@ -17,7 +17,7 @@
 
 use CMSMS\AppParams;
 use CMSMS\AppState;
-//use CMSMS\internal\GetParameters;
+//use CMSMS\RequestParameters;
 use CMSMS\ModuleOperations;
 use CMSMS\Utils;
 
@@ -28,7 +28,7 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 $modname = AppParams::get('loginmodule');
 if ($modname) {
-/*  $params = (new GetParameters())->get_request_values(['module','id','action']);
+/*  $params = RequestParameters::get_request_values(['module','id','action']);
     if (!$params) exit;
 	$module = $params['module'];
 	if ($module && $module != $modname) throw new RuntimeException('Invalid login-module parameter');

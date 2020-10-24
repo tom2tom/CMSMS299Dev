@@ -1,21 +1,23 @@
 <?php
-#Set up infrastructure for processing a request
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Set up infrastructure for processing a request
+Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
+CMS Made Simple is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of that license, or (at your option)
+any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 use CMSMS\App;
 use CMSMS\AppConfig;
 use CMSMS\AppSingle;
@@ -24,23 +26,25 @@ use CMSMS\AuditOperations;
 use CMSMS\CoreCapabilities;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
-use CMSMS\internal\GetParameters;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\NlsOperations;
+use CMSMS\RequestParameters;
 use CMSMS\SysDataCacheDriver;
 
 /**
- * This file is included in every page.  It does all setup functions including
+ * This file is intended for, and supported for use in, core CMSMS operations only.
+ * It is not intended for use by applications to set up access to CMSMS API's.
+ *
+ * This file is included in every page. It does all setup functions including
  * importing additional functions/classes, setting up sessions and nls, and
  * construction of various important variables like $gCms.
  * In many cases, variable $CMS_APP_STATE should be set locally, before this file
  * is included. In such cases, the AppState class would need to be loaded there.
  *
- * This file is not intended for use by third party applications to create access to CMSMS API's.
- * It is intended for and supported for use in core CMSMS operations only.
- *
  * @package CMS
  */
+
+//TODO check for valid inclusion: by admin *.php | moduleinterface.php | index.php | installer
 
 $dirpath = __DIR__.DIRECTORY_SEPARATOR;
 if (isset($CMS_APP_STATE)) { //i.e. AppState class was included elsewhere
@@ -77,10 +81,13 @@ AppSingle::insert('Db', $db); // easier retrieval
 require_once $dirpath.'compat.functions.php'; // old function and/or class aliases
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php'; // bundle of exception-classes in 1 file
 
-$params = (new GetParameters())->get_request_values(
-	[CMS_JOB_KEY,'showtemplate','suppressoutput']
+$params = RequestParameters::get_request_values(
+    [CMS_JOB_KEY,'showtemplate','suppressoutput']
 );
-if (!$params) exit;
+//if (!$params) {
+//    return; //CHECKME async job ok?
+//}
+
 if ($params[CMS_JOB_KEY] !== null) {
     $CMS_JOB_TYPE = min(max((int)$params[CMS_JOB_KEY], 0), 2);
 } elseif ($params['showtemplate'] == 'false' || $params['suppressoutput'] !== null) {
@@ -94,9 +101,9 @@ if ($params[CMS_JOB_KEY] !== null) {
 $_app->JOBTYPE = $CMS_JOB_TYPE;
 
 if ($CMS_JOB_TYPE < 2) {
-	if ($CMS_JOB_TYPE == 0) {
-	    require_once $dirpath.'placement.functions.php';
-	}
+    if ($CMS_JOB_TYPE == 0) {
+        require_once $dirpath.'placement.functions.php';
+    }
     require_once $dirpath.'translation.functions.php';
 }
 

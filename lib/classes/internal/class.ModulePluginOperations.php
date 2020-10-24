@@ -1,21 +1,23 @@
 <?php
-# Class of functions to manage modules' smarty plugins
-# Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Singleton class of functions to manage modules' smarty plugins
+Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
+CMS Made Simple is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of that license, or (at your option)
+any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS\internal;
 
 use CMSModule;
@@ -25,8 +27,8 @@ use CMSMS\AppState;
 use CMSMS\CoreCapabilities;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
-use CMSMS\internal\GetParameters;
 use CMSMS\ModuleOperations;
+use CMSMS\RequestParameters;
 use CMSMS\SysDataCache;
 use CMSMS\SysDataCacheDriver;
 use Throwable;
@@ -37,16 +39,16 @@ use function audit;
 use function startswith;
 
 /**
- * A class to manage smarty plugins registered by modules. Methods may be called
- * statically as ModulePluginOperations::function()
- * or (since 2.9) non-static (new ModulePluginOperations())->_function() NOTE the '_' prefix
+ * A singleton class to manage smarty plugins registered by modules.
+ * NOTE the method-names' '_' prefix.
+ * Methods may be called statically as ModulePluginOperations::function()
+ * or (since 2.9) as non-static (new ModulePluginOperations())->_function()
  *
  * @package CMS
  * @license GPL
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @internal
  * @final
- * @access private
  * @since  1.11
  */
 final class ModulePluginOperations
@@ -67,6 +69,9 @@ final class ModulePluginOperations
 	const AVAIL_ALL = 3;
 
 	private static $_instance = null;
+
+	private function __construct() {}
+	private function __clone() {}
 
 	/**
 	 * Call a class-method from a static context
@@ -205,7 +210,7 @@ final class ModulePluginOperations
 			$setid = false;
 		}
 
-		$rparams = (new GetParameters())->decode_action_params();
+		$rparams = RequestParameters::get_action_params();
 		if( $rparams ) {
 			$mactmodulename = $rparams['module'] ?? '';
 			if( strcasecmp($mactmodulename, $module) == 0 ) {
@@ -219,7 +224,7 @@ final class ModulePluginOperations
 				}
 			}
 		}
-	/*  if( isset($_REQUEST['mact']) ) {
+/*		if( isset($_REQUEST['mact']) ) {
 			// We're handling an action.  Check if it is for this call.
 			// We may be calling module plugins multiple times in the template,
 			// but a POST or GET mact can only be for one of them.
@@ -238,7 +243,7 @@ final class ModulePluginOperations
 				}
 			}
 		}
-	*/
+*/
 		$params['id'] = $id; // deprecated since 2.3
 		if( $setid ) {
 			$params['idprefix'] = $id; // might be needed per se, probably not
@@ -258,7 +263,7 @@ final class ModulePluginOperations
 
 	/**
 	 * Return the module (if any) to use for processing the specified tag.
-	 * @since 2.3
+	 * @since 2.9
 	 * @param string $name Name of the tag whose processor-module is wanted
 	 * @param string $type Optional tag type (commonly Smarty::PLUGIN_FUNCTION, maybe Smarty::PLUGIN_BLOCK,
 	 *  Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
@@ -326,7 +331,7 @@ final class ModulePluginOperations
 
 	/**
 	 * Try to find a match for a named & typed module-plugin
-	 * Since 2.3, the name-comparison is case-insensitive
+	 * Since 2.9, the name-comparison is case-insensitive
 	 *
 	 * @param string $name
 	 * @param string $type
@@ -343,7 +348,7 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * @since 2.3
+	 * @since 2.9
 	 * @ignore
 	 * @param string $module_name The module name
 	 * @param mixed $callable string|array
@@ -392,7 +397,7 @@ final class ModulePluginOperations
 
 	/**
 	 * Add information about a plugin to the 'module_plugins' system-data cache
-	 * @since 2.3
+	 * @since 2.9
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
 	 * @param string $type  The plugin type (normally 'function')
@@ -401,7 +406,7 @@ final class ModulePluginOperations
 	 *  [$module_name,'plugin_handler']
 	 *  'plugin_handler' (in which case the module name will be added)
 	 *  or a falsy value results in the default handler being used
-	 * @param bool $cachable Deprecated since 2.3 Whether the plugin is cachable. Default true
+	 * @param bool $cachable Deprecated since 2.9 Whether the plugin is cachable. Default true
 	 * @param int  $available Flag(s) indicating the intended use(s) of the plugin. Default AVAIL_FRONTEND.
 	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
 	 * @return bool indicating success
@@ -456,7 +461,7 @@ final class ModulePluginOperations
 	 *  [$module_name,'plugin_handler']
 	 *  'plugin_handler' (in which case the module name will be added)
 	 *  or a falsy value results in the default handler being used
-	 * @param bool $cachable Deprecated since 2.3 Whether the plugin is cachable. Default true
+	 * @param bool $cachable Deprecated since 2.9 Whether the plugin is cachable. Default true
 	 * @param int  $available Flag(s) indicating the intended use(s) of the plugin. Default AVAIL_FRONTEND.
 	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
 	 * @return mixed boolean | null

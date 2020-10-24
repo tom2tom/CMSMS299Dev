@@ -4,23 +4,23 @@ URL-creation methods for CMS Made Simple <http://cmsmadesimple.org>
 Copyright (C) 2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+CMS Made Simple is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of that license, or (at your option)
+any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
-*/
 
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS\module_support;
 
 use CMSMS\AppSingle;
-use CMSMS\internal\GetParameters;
+use CMSMS\RequestParameters;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -140,7 +140,7 @@ function CreateActionUrl(
 				$parms[$id.$config['query_var']] = $returnid;
 			}
 		}
-		$text .= '?'.(new GetParameters())->create_action_params($parms, $format);
+		$text .= '?'.RequestParameters::create_action_params($parms, $format);
 		if ($format == 3) {
 			$text = cms_htmlentities($text, ENT_QUOTES | ENT_SUBSTITUTE, null, false);
 		}
@@ -181,7 +181,7 @@ function CreateJobUrl(
 	}
 
 	$text = CMS_ROOT_URL . '/lib/moduleinterface.php?';
-	$text .= (new GetParameters())->create_job_params($params, $onetime, $format);
+	$text .= RequestParameters::create_job_params($params, $onetime, $format);
 
 	if ($format == 3) {
 		$text = cms_htmlentities($text);
@@ -246,7 +246,7 @@ function CreatePageUrl(
 						return $text;
 					}
 				}
-				$text .= '?'.(new GetParameters())->create_action_params($params, $format);
+				$text .= '?'.RequestParameters::create_action_params($params, $format);
 				if ($format == 3) {
 					$text = cms_htmlentities($text);
 				}

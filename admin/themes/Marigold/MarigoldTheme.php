@@ -11,20 +11,19 @@
 #
 #This program is distributed in the hope that it will be useful, but
 #WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-
 namespace CMSMS;
 
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
-use CMSMS\internal\GetParameters;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
+use CMSMS\RequestParameters;
 use CMSMS\ScriptsMerger;
 use CMSMS\UserOperations;
 use CMSMS\UserParams;
@@ -227,7 +226,7 @@ EOS;
 	}
 
 	/**
-	 * @param  mixed $params For parent-compatibility only, unused.
+	 * @param mixed $params For parent-compatibility only, unused.
 	 */
 	public function do_login($params = null)
 	{
@@ -303,9 +302,7 @@ EOS;
 		// module name
 		$module_name = $this->get_value('module_name');
 		if (!$module_name) {
-			$params = (new GetParameters())->get_request_values('module');
-			if (!$params) exit;
-			$module_name = $params['module']; // maybe null
+			$module_name = RequestParameters::get_request_values('module'); // maybe null
 		}
 		$smarty->assign('module_name', $module_name);
 
