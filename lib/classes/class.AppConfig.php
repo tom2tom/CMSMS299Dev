@@ -93,7 +93,7 @@ final class AppConfig implements ArrayAccess
         'image_uploads_url' => self::TYPE_STRING,
         'locale' => self::TYPE_STRING,
         'max_upload_size' => self::TYPE_INT,
-        'obscure_urls' => self::TYPE_BOOL, //since 2.9 formerly secure_action_url
+//        'obscure_urls' => self::TYPE_BOOL, //since 2.9 formerly secure_action_url
         'page_extension' => self::TYPE_STRING,
         'permissive_smarty' => self::TYPE_BOOL,
         'persist_db_conn' => self::TYPE_BOOL,
@@ -234,7 +234,7 @@ final class AppConfig implements ArrayAccess
 
         case 'permissive_smarty':
         case 'persist_db_conn':
-        case 'obscure_urls':
+//        case 'obscure_urls':
             return false;
 
         case 'smart_urls':
@@ -407,8 +407,8 @@ final class AppConfig implements ArrayAccess
         case 'content_language':
             return 'xhtml';
 
-        case 'secure_action_url':
-            return $this->offsetGet('obscure_urls');
+//        case 'secure_action_url':
+//            return $this->offsetGet('obscure_urls');
 
         case 'admin_path':
             //TODO $this->url2path();
