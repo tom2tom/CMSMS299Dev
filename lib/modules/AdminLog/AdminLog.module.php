@@ -6,15 +6,16 @@ Thanks to Robert Campbell and all other contributors from the CMSMS Development 
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-CMS Made Simple is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of that license, or
+CMS Made Simple is free software; you may redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
@@ -35,11 +36,11 @@ final class AdminLog extends CMSModule
     protected $storage;
     protected $auditor;
 
+    public function GetAdminSection() { return 'siteadmin'; }
     public function GetFriendlyName() { return $this->Lang('friendlyname');  }
     public function GetVersion() { return '1.1'; }
     public function GetHelp() { return $this->Lang('help'); }
     public function HasAdmin() { return true; }
-    public function GetAdminSection() { return 'siteadmin'; }
     public function IsAdminOnly() { return true; }
     public function MinimumCMSVersion() { return '2.8.900'; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }

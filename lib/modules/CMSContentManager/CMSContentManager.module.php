@@ -22,20 +22,20 @@ use CMSMS\HookOperations;
 
 final class CMSContentManager extends CMSModule
 {
-    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetVersion() { return '2.0'; }
-    public function GetHelp() { return $this->Lang('help_module'); }
+    public function GetAdminDescription() { return $this->Lang('moddescription'); }
+    public function GetAdminSection() { return 'content'; }
     public function GetAuthor() { return 'calguy1000'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'doc'.DIRECTORY_SEPARATOR.'changelog.htm'); }
+    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
+    public function GetHelp() { return $this->Lang('help_module'); }
+    public function GetVersion() { return '2.0'; }
     public function HasAdmin() { return true; }
+    public function InstallPostMessage() { return $this->Lang('postinstall'); }
+    public function IsAdminOnly() { return true; }
 //    public function LazyLoadAdmin() { return true; }
 //    public function LazyLoadFrontend() { return true; }
-    public function GetAdminSection() { return 'content'; }
-    public function GetAdminDescription() { return $this->Lang('moddescription'); }
-    public function IsAdminOnly() { return true; }
     public function MinimumCMSVersion() { return '2.2.911'; }
-    public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
     public function UninstallPreMessage() { return $this->Lang('preuninstall'); }
 
