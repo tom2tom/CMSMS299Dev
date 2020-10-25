@@ -1,27 +1,27 @@
 <?php
 /*
-Module: CoreAdminLogin - standalone and theme-support login/out
+Module: CoreAdminLogin - standalone and theme-managed login/out
 Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+CMS Made Simple is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of that license, or (at your option)
+any later version.
 
-This program is distributed in the hope that it will be useful,
-BUT WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
 use CMSMS\Crypto;
 use CMSMS\IAuthModuleInterface;
-use CMSMS\ModuleOperations;
 
 /**
  * Module: admin login/out processor
@@ -78,8 +78,9 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
         require_once $fp;
 
         $csrf = Crypto::random_string(16, true); //encryption-grade hash not needed
+        $_SESSION[$csrf_key] = $csrf;
 
-        $smarty = CmsApp::get_instance()->GetSmarty();
+        $smarty = AppSingle::App()->GetSmarty();
         $smarty->assign('mod', $this)
          ->assign('actionid', '')
          ->assign('loginurl', 'login.php')
@@ -87,15 +88,15 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
          ->assign('csrf', $csrf)
          ->assign('changepwhash', $changepwhash ?? '')
          ->assign('iserr', !empty($errmessage));
+        if (!empty($tplvars)) $smarty->assign($tplvars);
 
         $saved = $smarty->template_dir;
         $smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
         $data = ['form' => $smarty->fetch('core.tpl')];
         $smarty->template_dir = $saved;
 
-        $_SESSION[$csrf_key] = $csrf;
-
         //some results from included function also for upstream
+        if (!empty($tplvars)) $data += $tplvars;
         if (!empty($infomessage)) $data['infomessage'] = $infomessage;
         if (!empty($warnmessage)) $data['warnmessage'] = $warnmessage;
         if (!empty($errmessage)) $data['errmessage'] = $errmessage;
@@ -111,7 +112,7 @@ class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
     public function RunLogin()
     {
         $id = '__';
-        $params = ModuleOperations::get_instance()->GetModuleParameters($id);
+        $params = AppSingle::ModuleOperations()->GetModuleParameters($id);
         $this->DoAction('admin_login', $id, $params, null);
     }
 } // class
