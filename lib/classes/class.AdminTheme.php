@@ -1,8 +1,9 @@
 <?php
 /*
-Base class for CMS admin themes
+Base class for CMSMS admin themes
 Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
@@ -1139,20 +1140,20 @@ abstract class AdminTheme
      * DisplayImage
      * Generate xhtml tag to display the themed version of $image (if it exists),
      *  preferring image-file extension/type (in order):
-     *  .svg, .i(if used in this theme), .png, .gif, .jpg, .jpeg
+     *  .i(if used in this theme), .svg, .png, .gif, .jpg, .jpeg
      *  As a convenience, this can also process specific images that are not
      *  included in the current theme.
      * @param string $image Image file identifier, a theme-images-dir (i.e. 'images')
      *  relative-filepath, or an absolute filepath. It may omit extension (type)
      * @param string $alt Optional alternate identifier for the created
-     *  image element (not also used for its title)
+     *  image element (NOT also used for its default title)
      * @param int $width Optional image-width (ignored for svg)
      * @param int $height Optional image-height (ignored for svg)
      * @param string $class Optional class. For .i (iconimages), class "fontimage" is always prepended
      * @param array $attrs Since 2.9 Optional array with any or all attributes for the image/span tag
      * @return string
      */
-    public function DisplayImage($image, $alt = '', $width = '', $height = '', $class = null, $attrs = [])
+    public function DisplayImage($image, $alt = '', $width = 0, $height = 0, $class = '', $attrs = [])
     {
         if (!is_array($this->_imageLink)) {
             $this->_imageLink = [];
