@@ -315,11 +315,11 @@ function adjust_locks(tblid,lockdata) {
         row.find('.steal_lock').css('display','none');
         row.find('.locked').css('display','inline');
       }
-      row.find('.action').attr('disabled','disabled').css('pointer-events','none'); //IE 11+ ?
+      row.find('.action').prop('disabled',true).css('pointer-events','none'); //IE 11+ ?
       row.addClass('locked');
     } else if(row.hasClass('locked')) {
       row.find('.locked,.steal_lock').css('display','none');
-      row.find('.action').removeAttr('disabled').css('pointer-events','auto');
+      row.find('.action').prop('disabled', false).css('pointer-events','auto');
       row.removeClass('locked');
     }
   });
@@ -356,16 +356,16 @@ $(function() {
   } else {
     $(tpltable).SSsort(opts);
   }
-  $('#bulk_action').attr('disabled','disabled');
+  $('#bulk_action').prop('disabled',true);
   cms_button_able($('#bulk_submit'),false);
   $('#tpl_selall').cmsms_checkall();
   $('#tpl_selall,.tpl_select').on('click',function() {
     l = $('.tpl_select:checked').length;
     if(l === 0) {
-      $('#bulk_action').attr('disabled','disabled');
+      $('#bulk_action').prop('disabled',true);
       cms_button_able($('#bulk_submit'),false);
     } else {
-      $('#bulk_action').removeAttr('disabled');
+      $('#bulk_action').prop('disabled', false);
       cms_button_able($('#bulk_submit'),true);
     }
   });
@@ -455,8 +455,8 @@ $(function() {
      from = $(this).attr('data-tpl-id'),
      opt = sel.find('option[value='+from+']'),
      name = opt.text();
-    sel.find('option[disabled="disabled"]').removeAttr('disabled');
-    opt.attr('disabled','disabled');
+    sel.find('option[disabled="disabled"]').prop('disabled', false);
+    opt.prop('disabled',true);
     dlg.attr('title','$title').find('#from').html(name);
 
     cms_dialog($('#replacedialog'), {

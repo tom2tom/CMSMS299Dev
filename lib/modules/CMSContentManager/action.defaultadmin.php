@@ -257,11 +257,11 @@ function adjust_locks(json) {
         row.find('.steal_lock').css('display','none');
         row.find('.locked').css('display','inline');
       }
-      row.find('.action').attr('disabled','disabled').css('pointer-events','none'); //IE 11+ ?
+      row.find('.action').prop('disabled',true).css('pointer-events','none'); //IE 11+ ?
       row.addClass('locked');
     } else if(row.hasClass('locked')) {
       row.find('.locked,.steal_lock').css('display','none');
-      row.find('.action').removeAttr('disabled').css('pointer-events','auto');
+      row.find('.action').prop('disabled',false).css('pointer-events','auto');
       row.removeClass('locked');
     }
   });
@@ -269,21 +269,21 @@ function adjust_locks(json) {
 }
 function setuplist() {
  var el = $('#bulk_action');
- el.attr('disabled','disabled');
+ el.prop('disabled',true);
  var btn = $('#bulk_submit');
  cms_button_able(btn,false);
  var cb = $('#contenttable > tbody input:checkbox');
  cb.on('change', function() {
   var l = cb.filter(':checked').length;
   if(l > 0) {
-   el.removeAttr('disabled');
+   el.prop('disabled',false);
   } else {
-   el.attr('disabled','disabled');
+   el.prop('disabled',true);
   }
   cms_button_able(btn,(l > 0));
  });
  $('#selectall').on('change', function() {
-  cb.attr('checked',(this.checked || false)).eq(0).trigger('change');
+  cb.prop('checked',(this.checked || false)).eq(0).trigger('change');
  });
  $('[context-menu]').ContextMenu();
 

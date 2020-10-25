@@ -239,10 +239,10 @@ EOS;
 <script type="text/javascript">
 //<![CDATA[
 function enable_button(idlist) {
-  $(idlist).removeAttr('disabled').removeClass('ui-state-disabled ui-button-disabled');
+  $(idlist).prop('disabled', false).removeClass('ui-state-disabled ui-button-disabled');
 }
 function disable_button(idlist) {
-  $(idlist).attr('disabled', 'disabled').addClass('ui-state-disabled ui-button-disabled');
+  $(idlist).prop('disabled', true).addClass('ui-state-disabled ui-button-disabled');
 }
 function enable_action_buttons() {
   var files = $("#filesarea input[type='checkbox'].fileselect").filter(':checked').length,
@@ -290,7 +290,7 @@ $(function() {
   });
   $('#filesarea input[type="checkbox"].fileselect').on('change', function(e) {
     // find the parent row
-    var t = $(this).attr('checked');
+    var t = $(this).prop('checked');
     if(t) {
       $(this).closest('tr').addClass('selected');
     } else {
@@ -301,9 +301,9 @@ $(function() {
   });
   $('#tagall').on('change', function() {
     if($(this).is(':checked')) {
-      $('#filesarea input:checkbox.fileselect').attr('checked', true).trigger('change');
+      $('#filesarea input:checkbox.fileselect').prop('checked', true).trigger('change');
     } else {
-      $('#filesarea input:checkbox.fileselect').attr('checked', false).trigger('change');
+      $('#filesarea input:checkbox.fileselect').prop('checked', false).trigger('change');
     }
   });
   $('#btn_view').on('click', function() {
@@ -318,12 +318,8 @@ $(function() {
     return false;
   });
   $('td.clickable').on('click', function() {
-    var t = $(this).parent().find(':checkbox').attr('checked');
-    if(t !== 'checked') {
-      $(this).parent().find(':checkbox').attr('checked', true).trigger('change');
-    } else {
-      $(this).parent().find(':checkbox').attr('checked', false).trigger('change');
-    }
+    var t = $(this).parent().find(':checkbox').prop('checked');
+    $(this).parent().find(':checkbox').prop('checked', !t).trigger('change');
   });
 });
 //]]>

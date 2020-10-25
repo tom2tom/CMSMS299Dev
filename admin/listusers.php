@@ -291,13 +291,13 @@ $(function() {
   cms_confirm_linkclick(this, $confirm3);
   return false;
  });
- $('#withselected, #bulksubmit').attr('disabled', 'disabled');
+ $('#withselected, #bulksubmit').prop('disabled', true);
  $('#sel_all, .multiselect').on('click', function() {
   if(!$(this).is(':checked')) {
-   $('#withselected').attr('disabled', 'disabled');
+   $('#withselected').prop('disabled', true);
    cms_button_able($('#bulksubmit'), false);
   } else {
-   $('#withselected').removeAttr('disabled');
+   $('#withselected').prop('disabled', false);
    cms_button_able($('#bulksubmit'),true);
   }
  });

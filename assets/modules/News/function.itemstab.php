@@ -256,16 +256,16 @@ $(function() {
 
  $('#category_box').hide();
  var el = $('#bulk_action, #bulk_category');
- el.prop('disabled','disabled');
+ el.prop('disabled', true);
  var btn = $('#bulk_submit');
  cms_button_able(btn,false);
  var cb = $('#articlelist > tbody input:checkbox');
  cb.on('change', function() {
   var l = cb.filter(':checked').length;
   if(l > 0) {
-  el.removeAttr('disabled');
+   el.prop('disabled', false);
   } else {
-  el.prop('disabled','disabled');
+   el.prop('disabled', true);
   }
   cms_button_able(btn,(l > 0));
  });

@@ -322,7 +322,7 @@ $(function() {
         disabled: 'disabled'
       });
     } else {
-      $('.media-type:checkbox').removeAttr('disabled');
+      $('.media-type:checkbox').prop('disabled', false);
     }
   });
 });
