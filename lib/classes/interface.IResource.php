@@ -34,17 +34,17 @@ namespace CMSMS;
 interface IResource
 {
     public function __call($name, $args);
-    public function GetAbout(); // module-manager: display changelog 
+    public function GetAbout(); // module-manager: display changelog
     public function GetAdminDescription(); // admin menu-item tooltip etc
     public function GetAdminSection(); // admin menu-item section name, or ''
     public function GetDependencies(); // array
     public function GetFriendlyName(); // admin menu-item label etc
-    public function GetHelpPage(); // module-manager: display help 
+    public function GetHelpPage(); // module-manager: display help
     public function GetName(); // module (private) name
     public function GetVersion();
     public function HasAdmin(); // whether the module has an admin UI
     public function HasCapability($capability, $params);
-    public function InstallPostMessage(); // advice about things to follow up on 
+//OPTIONAL    public function InstallPostMessage(); // advice about things to follow up on
     public function MinimumCMSVersion();
     public function VisibleToAdminUser(); // whether the module has an admin UI for the current user
 }
