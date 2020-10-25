@@ -2,19 +2,20 @@
 /*
 CMSMailer module installation process
 Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+This file is a component of CMS Made Simple module CMSMailer.
+
+The CMSMailer module is free software; you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+The CMSMailer module is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the GNU Affero General Public License
+<http://www.gnu.org/licenses/licenses.html#AGPL> for more details.
 */
 
 use CMSMS\AppParams;
@@ -27,7 +28,7 @@ $this->CreatePermission('Modify Mail Preferences', 'Modify CMSMailer Module Sett
 
 // Preferences
 $host = $_SERVER['SERVER_NAME'] ?? gethostname() ?? php_uname('n') ?? 'localhost.localdomain';
-$path = ini_get('sendmail_path');
+$path = trim(ini_get('sendmail_path'));
 if (!$path || stripos($path, 'sendmail') === false) {
     $path = '/usr/sbin/sendmail';
 }
