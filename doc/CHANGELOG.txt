@@ -21,14 +21,13 @@ multi-mode caching, auto-selectable if suitable PHP capability is present (Predi
 to facilitate autoloading at least, all PHP classes across the CMSMS core (except CMSModule), have been migrated to the CMSMS namespace, and in some cases that merited a rename as well (CMSMS\cms_config BAH!). Until further notice (way in the future, but dev's should migrate soonish) the former classes will continue to work. In some contexts,  PHP can't deal with aliases (e.g. for method type-declarations) so a former class-space/name MUST continue to be used there until adjustments are made.
 support namespace 'CMSAsset' for non-core classes added into <siterootpath>/assets/classes and descendants
 
-remote administration API (calguy to describe, please!)
 optional per-page inclusions (e.g. css, js urls/verbatim) for admin-pages and module-actions, to supplement and/or replace template content and CMSModule::GetHeaderHTML(). So e.g. js can be removed from templates, and inserted at page-bottom.
 pre-configuration of site-installation parameters
 also support installation based on sources in a git repo
 
 INFRASTRUCTURE
 
-Coded for PHP 7.1+, compatible with 7.1.x to 7.3.0 (at least).
+Coded for PHP 7.1+, compatible with 7.1.x to 7.3.x (at least).
 jQuery 2.2.4 (effective upgrades from 1.x to the current 3.x need to be in two stages, with an intermediate 2.x)
 jQuery migrate 1.4.1
 jQuery-UI & jQuery-UI-css 1.12.1
@@ -48,7 +47,6 @@ deprecations - if this parameter, and also debug, are not empty, deprecation not
 develop_mode (formerly developer_mode) - 1 when somebody authorized is working on the site content/operation
 menu_cssclass css class to be applied to admin console context menus. Each admin theme should have such class(es)
 pr_root_url - protocol-relative root URI
-obscure_urls - whether to encrypt/obfuscate the get-parameters included in created URL's (mostly for non-https sites)
 simpletags_path - name of filesystem folder where 'simple-plugin' files are stored, default 'assets-path'/'simple_plugins'
 
 deprecated
@@ -156,7 +154,7 @@ DETAILS
          GetScriptsManager(),GetStylesManager(),GetJobManager(),GetCookieManager(),GetSiteUUID()
   - New method: AdminUtils::get_module_icon()
   - New methods: cms_utils::path_to_url(),encrypt_string(),decrypt_string(),hash_string(),random_string()
-  - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum
+  - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum, RequestParameters
   - New hook-replacement events: MetadataPostRender, MetadataPreRender, PageTopPostRender, PageTopPreRender,
       PageHeadPostRender, PageHeadPreRender, PageBodyPostRender, PageBodyPreRender, PostRequest
   - CHANGE: parameter-seprarators in generated URL strings default to '&' instead of '&amp;' (per RFC 3986)
