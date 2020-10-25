@@ -60,8 +60,8 @@ $enc2 = Crypto::scramble_string($enc);
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
- var cms_runtime = '$enc2',
-  cms_data = {};
+ var cms_data = {},
+  cms_runtime = '$enc2';
 //]]>
 </script>
 
