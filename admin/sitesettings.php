@@ -538,19 +538,24 @@ $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 function on_mailer() {
- var v = $('#mailer').val();
- if( v == 'mail' ) {
-  $('#set_smtp').find('input,select').attr('disabled','disabled');
-  $('#set_sendmail').find('input,select').attr('disabled','disabled');
- } else if(v == 'smtp') {
-  $('#set_smtp').find('input,select').removeAttr('disabled');
-  $('#set_sendmail').find('input,select').attr('disabled','disabled');
- } else if(v == 'sendmail') {
-  $('#set_smtp').find('input,select').attr('disabled','disabled');
-  $('#set_sendmail').find('input,select').removeAttr('disabled');
+ switch ($('#mailer').val()) {
+  case 'mail':
+   $('#set_smtp').find('input,select').prop('disabled',true);
+   $('#set_sendmail').find('input,select').prop('disabled',true);
+   break;
+  case 'smtp':
+   $('#set_sendmail').find('input,select').prop('disabled',true);
+   $('#set_smtp').find('input,select').prop('disabled',false);
+   break;
+  case 'sendmail':
+   $('#set_smtp').find('input,select').prop('disabled',true);
+   $('#set_sendmail').find('input,select').prop('disabled',false);
+   break;
+  }
  }
 }
 $(function() {
+ on_mailer();
  $('#mailertest').on('click', function(e) {
   cms_dialog($('#testpopup'),{
    modal: true,
@@ -641,10 +646,7 @@ $(function() {
    });
   }
  });
- $('#mailer').on('change', function() {
-  on_mailer();
- });
- on_mailer();
+ $('#mailer').on('change', on_mailer);
  $('[name="submit"]').on('click', function(e) {
   e.preventDefault();
   cms_confirm_btnclick(this, $confirm);
