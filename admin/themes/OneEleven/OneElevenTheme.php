@@ -1,20 +1,24 @@
 <?php
-#OneEleven- an Admin Console theme for CMS Made Simple
-#Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Goran Ilic, Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#CMS Made Simple is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of that license, or
-#(at your option) any later version.
-#
-#CMS Made Simple is distributed in the hope that it will be useful, but
-#WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#GNU General Public License for more details.
-#You should have received a copy of that license along with CMS Made Simple.
-#If not, see <https://www.gnu.org/licenses/>.
+/*
+OneEleven - an Admin Console theme for CMS Made Simple
+Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Goran Ilic, Robert Campbell and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CMSMS\AdminAlerts\Alert;
@@ -58,12 +62,12 @@ class OneElevenTheme extends AdminTheme
 	 */
 	private $_havetree = null;
 
-	// 2.3+ will access these via parent-class
+	// 2.9+ will access these via parent-class
 	protected $_errors = [];
 	protected $_messages = [];
 
 	/**
-	 * Determine whether this is running on CMSMS 2.3+
+	 * Determine whether this is running on CMSMS 2.9+
 	 */
 	protected function currentversion() : bool
 	{
@@ -174,7 +178,7 @@ EOS;
 		}
 		return '<!-- OneEleven::ShowErrors() called -->';
 
-		} //pre 2.3
+		} //pre 2.9
 	}
 
 	public function ShowMessage($message, $get_var = '')
@@ -200,14 +204,14 @@ EOS;
 			$this->_messages[] = $message;
 		}
 
-		} // pre 2.3
+		} // pre 2.9
 	}
 
 	public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = FALSE)
 	{
 		if ($this->currentversion()) {
 			parent::ShowHeader($title_name, $extra_lang_params, $link_text, $module_help_type);
-		} else { // pre 2.3
+		} else { // pre 2.9
 
 		if ($title_name) $this->set_value('pagetitle', $title_name);
 		if ($extra_lang_params) $this->set_value('extra_lang_params', $extra_lang_params);
@@ -219,15 +223,9 @@ EOS;
 			$module = '';
 			if (isset($_REQUEST['module'])) {
 				$module = $_REQUEST['module'];
-			} else {
-				try {
-					$module = pre_2_3_TODO(); //c.f. RequestParameters::get_request_values('module'); //2.9+ maybe null
-				} catch (Throwable $t) {
-					if (isset($_REQUEST['mact'])) {
-						$tmp = explode(',', $_REQUEST['mact']);
-						$module = $tmp[0];
-					}
-				}
+			} elseif (isset($_REQUEST['mact'])) {
+				$tmp = explode(',', $_REQUEST['mact']);
+				$module = $tmp[0];
 			}
 
 			// get the image url.
@@ -271,7 +269,7 @@ EOS;
 			} // for-loop
 		}
 
-		} // pre-2.3
+		} // pre-2.9
 	}
 
 	public function do_header()
@@ -332,7 +330,7 @@ EOS;
 
 	/**
 	 * Get URL's for installed jquery, jquery-ui & related css
-	 * Only for pre-2.3 operation
+	 * Only for pre-2.9 operation
 	 * @return 3-member array
 	 */
 	protected function find_installed_jq()
@@ -441,7 +439,7 @@ EOS;
 	}
 
 	/**
-	 * @param $params Array of variables for smarty (CMSMS pre-2.3 only)
+	 * @param $params Array of variables for smarty (CMSMS pre-2.9 only)
 	 */
 	public function do_login($params = null)
 	{
@@ -523,7 +521,7 @@ EOS;
 <![endif]-->
 
 EOS;
-		} // pre 2.3
+		} // pre 2.9
 
 		$smarty->assign('header_includes', $out); //NOT into bottom (to avoid UI-flash)
 		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
@@ -549,16 +547,11 @@ EOS;
 		// module name
 		$module_name = $this->get_value('module_name');
 		if (!$module_name) {
-			try {
-				$module_name = RequestParameters::get_request_values('module'); //2.9+ maybe null
-			}
-			catch (Throwable $t) {
-				if (isset($_REQUEST['mact'])) {
-					$module_name = explode(',', $_REQUEST['mact'])[0];
-				}
+			if (isset($_REQUEST['mact'])) {
+				$module_name = explode(',', $_REQUEST['mact'])[0];
 			}
 		}
-		$smarty->assign('module_name', $module_name);
+		$smarty->assign('module_name', $module_name); // maybe null
 
 		$module_help_type = $this->get_value('module_help_type');
 		// module_help_url
@@ -663,7 +656,7 @@ EOS;
 			$smarty->assign('header_includes', $this->get_headtext());
 			$smarty->assign('bottom_includes', $this->get_footertext());
 		} else {
-			//TODO replicate AdminHeaderSetup(), with different js
+			// replicate AdminHeaderSetup(), with different js
 			$dir = ''; //TODO or '-rtl'
 			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
 			$smarty->assign('header_includes', <<< EOS
@@ -698,10 +691,9 @@ EOS
 		return $_contents;
 	}
 
-	// for pre-2.3 compatibility
+	// for pre-2.9 compatibility
 	public function get_my_alerts()
 	{
-		//TODO check namespace ok for pre-2.3
 		return Alert::load_my_alerts();
 	}
 }

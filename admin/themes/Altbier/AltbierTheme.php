@@ -1,22 +1,25 @@
 <?php
-#Altbier- an Admin Console theme for CMS Made Simple
-#Derived in 2018 by John Beatrice <johnnyb [AT] cmsmadesimple [DOT] org>
-#from the work provided to the community by:
-# Goran Ilic (ja@ich-mach-das.at)
-# Robert Campbell (calguy1000@cmsmadesimple.org)
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful, but
-#WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Altbier - an Admin Console theme for CMS Made Simple
+Derived in 2018 by John Beatrice <johnnyb [AT] cmsmadesimple [DOT] org>
+from the work provided to the community by:
+ Goran Ilic (ja@ich-mach-das.at)
+ Robert Campbell (calguy1000@cmsmadesimple.org)
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of that license, or (at your
+option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CMSMS\AdminAlerts\Alert;
@@ -231,15 +234,9 @@ EOS;
 			$module = '';
 			if (isset($_REQUEST['module'])) {
 				$module = $_REQUEST['module'];
-			} else {
-				try {
-					$module = pre_2_3_TODO(); //c.f. RequestParameters::get_request_values('module'); //2.9+ maybe null
-				} catch (Throwable $t) {
-					if (isset($_REQUEST['mact'])) {
-						$tmp = explode(',', $_REQUEST['mact']);
-						$module = $tmp[0];
-					}
-				}
+			} elseif (isset($_REQUEST['mact'])) {
+				$tmp = explode(',', $_REQUEST['mact']);
+				$module = $tmp[0];
 			}
 
 			// get the image url.
@@ -569,17 +566,11 @@ EOS;
 		// module name
 		$module_name = $this->get_value('module_name');
 		if (!$module_name) {
-			try {
-				$module_name = RequestParameters::get_request_values('module'); //2.9+
-				if (!$module_name) exit;
-			}
-			catch (Throwable $t) {
-				if (isset($_REQUEST['mact'])) {
-					$module_name = explode(',', $_REQUEST['mact'])[0];
-				}
+			if (isset($_REQUEST['mact'])) {
+				$module_name = explode(',', $_REQUEST['mact'])[0];
 			}
 		}
-		$smarty->assign('module_name', $module_name);
+		$smarty->assign('module_name', $module_name); // maybe null
 
 		$module_help_type = $this->get_value('module_help_type');
 		// module_help_url
@@ -635,7 +626,7 @@ EOS;
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
 			$tag = '<img src="'.$icon_url.'" alt="'.basename($icon_url).'" class="TODO" />';
 		} else {
-//			$name = $this->get_active('name');
+			$name = $this->get_active('name');
 			$tag = ''; // TODO icon for admin operation func($name) ?
 		}
 		$smarty->assign('pageicon', $tag);
@@ -682,7 +673,7 @@ EOS;
 
 		$fp = cms_join_path(__DIR__, 'css', 'all.min.css');
 		if (is_file($fp)) {
-			$url = cms_path_to_url($fp);
+			$url = cms_path_to_url($fp); // TODO 2.9+
 		} else {
 			$url = self::AWESOME_CDN; // TODO variable CDN URL
 		}
@@ -730,7 +721,6 @@ EOS
 	// for pre-2.3 compatibility
 	public function get_my_alerts()
 	{
-		//TODO check namespace ok for pre-2.3
 		return Alert::load_my_alerts();
 	}
 }
