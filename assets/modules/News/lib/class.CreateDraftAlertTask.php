@@ -26,7 +26,7 @@ use const CMS_DB_PREFIX;
 
 class CreateDraftAlertTask implements CmsRegularTask
 {
-  const LASTRUN_SITEPREF = 'News\\\\lastdraftalert';
+  const LASTRUN_SITEPREF = 'lastdraftalert';
 
   public function get_name()
   {
