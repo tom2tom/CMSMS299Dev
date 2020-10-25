@@ -2,44 +2,101 @@
 /*
 CMSMailer module defaultadmin action
 Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-CMS Made Simple is free software; you can redistribute it and/or modify
+This file is a component of CMS Made Simple module CMSMailer.
+
+This CMSMailer module is free software; you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation; either version 3 of the License, or
+by the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
-CMS Made Simple is distributed in the hope that it will be useful,
+This CMSMailer module is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-You should have received a copy of the GNU Affero General Public License
-along with CMS Made Simple. If not, see
-<http://www.gnu.org/licenses/licenses.html#AGPL>.
+See the GNU Affero General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <http://www.gnu.org/licenses/licenses.html#AGPL>.
 */
 
+use CMSMailer\Mailer;
+use CMSMS\App;
+use CMSMS\AppParams;
 use CMSMS\Crypto;
 use CMSMS\Utils;
-use CMSMailer\Mailer;
 
-if(!isset($gCms)) exit;
+if (!isset($gCms) || !($gCms instanceof App)) exit;
+if (!($this->CheckPermission('Modify Mail Preferences') ||
+      $this->CheckPermission('Modify Site Preferences'))) exit;
+// names and types of CMSMailer preferences
+$mailprefs = [
+ 'mailer' => 1,
+ 'from' => 1,
+ 'fromuser'  => 1,
+ 'host' => 1,
+ 'charset' => 1,
+ 'password' => 4,
+ 'port' => 2,
+ 'secure' => 1,
+ 'sendmail' => 1,
+ 'smtpauth' => 3,
+ 'timeout' => 2,
+ 'username' => 1,
+];
 
-if( !($this->CheckPermission('Modify Mail Preferences') ||
-     $this->CheckPermission('Modify Site Preferences'))) exit;
-
-if (isset($params['submit']) || isset($params['sendtest'])) {
+if (isset($params['submit'])/* || isset($params['sendtest'])*/) {
     // TODO sanitize, validate
-    $this->SetPreference('mailer', $params['mailer']);
-    $this->SetPreference('charset', $params['charset']);
-    $this->SetPreference('host', $params['host']);
-    $this->SetPreference('port', (int)$params['port']);
-    $this->SetPreference('from', $params['from']);
-    $this->SetPreference('fromuser', $params['fromuser']);
-    $this->SetPreference('sendmail', $params['sendmail']);
-    $this->SetPreference('timeout', (int)$params['timeout']);
-    $this->SetPreference('smtpauth', (bool)$params['smtpauth']);
-    $this->SetPreference('secure', $params['secure']);
-    $this->SetPreference('username', $params['username']);
-    $this->SetPreference('password', base64_encode(Crypto::encrypt_string($params['password'])));
+    // first update core mail prefs, if any
+    $val = AppParams::get('mailprefs');
+    if ($val) {
+        $core = unserialize($val, ['allowed_classes' => false]);
+        foreach ($core as $key => &$val) {
+            if (isset($params[$key])) {
+                if (isset($mailprefs[$key])) {
+                    switch ($mailprefs[$key]) {
+                    case 2:
+                        $val = (int)$params[$key];
+                        break;
+                    case 3:
+                        $val = (bool)$params[$key];
+                        break;
+                    case 4:
+                        $val = base64_encode(Crypto::encrypt_string(trim($val)));
+                        break;
+                    default:
+                        $val = trim($params[$key]);
+                        break;
+                    }
+                } else {
+                    $val = $params[$key];
+                }
+                unset($params[$key]); //don't record locally
+            }
+        }
+        unset($val);
+        if ($core) { AppParams::set('mailprefs', serialize($core)); }
+    }
+
+    foreach ($mailprefs as $key => &$val) {
+        if (isset($params[$key])) {
+            switch ($val) {
+            case 2:
+                $val = (int)$params[$key];
+                break;
+            case 3:
+                $val = (bool)$params[$key];
+                break;
+            case 4:
+                $val = base64_encode(Crypto::encrypt_string(trim($val)));
+                break;
+            default:
+                $val = trim($params[$key]);
+                break;
+            }
+            $this->SetPreference($key, $val);
+        }
+    }
+    unset($val);
 }
 
 if (isset($params['sendtest'])) {
@@ -76,24 +133,53 @@ if (isset($params['sendtest'])) {
     foreach ($errors as $str) {
        $themeObject->RecordNotice('error', $str);
     }
+    $activetab = 'test';
 }
+
+$baseurl = $this->GetModuleURLPath();
+$js = <<<EOS
+ <script type="text/javascript" src="{$baseurl}/lib/js/jquery-inputCloak.min.js"></script>
+EOS;
+add_page_headtext($js);
 
 $s1 = json_encode($this->Lang('confirm_sendtestmail'));
 $s2 = json_encode($this->Lang('confirm_settings'));
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
+function on_mailer() {
+ switch ($('#mailer').val()) {
+  case 'mail':
+   $('.set_smtp').find('input,select').prop('disabled',true);
+   $('.set_sendmail').find('input,select').prop('disabled',true);
+   break;
+  case 'smtp':
+   $('.set_sendmail').find('input,select').prop('disabled',true);
+   $('.set_smtp').find('input,select').prop('disabled',false);
+   break;
+  case 'sendmail':
+   $('.set_smtp').find('input,select').prop('disabled',true);
+   $('.set_sendmail').find('input,select').prop('disabled',false);
+   break;
+ }
+}
 $(function() {
+ $('#password').inputCloak({
+   type:'see4',
+   symbol:'\u25CF'
+ });
+ on_mailer();
+ $('#mailer').on('change', on_mailer);
  $('[name="{$id}sendtest"]').on('click activate', function(ev) {
   ev.preventDefault();
   cms_confirm_btnclick(this, $s1);
   return false;
- }
+ });
  $('[name="{$id}submit"]').on('click activate', function(ev) {
   ev.preventDefault();
   cms_confirm_btnclick(this, $s2);
   return false;
- }
+ });
 });
 //]]>
 </script>
@@ -101,19 +187,36 @@ $(function() {
 EOS;
 add_page_foottext($js);
 
-//TODO $mailprefs = $this->GetPreference();
+foreach ($mailprefs as $key => &$val) {
+    $val = $this->GetPreference($key);
+}
+unset($val);
+//any core properties prevail
+$val = AppParams::get('mailprefs');
+if ($val) {
+    $mailprefs = array_merge($mailprefs, unserialize($val, ['allowed_classes' => false]));
+}
+$mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']));
+
+if (empty($activetab)) { $activetab = 'settings'; }
+
 $extras = get_secure_param_array(); //TODO all hidden items in form
-$tpl = $this->GetTemplateObject('defaultadmin.tpl');
+if (0) { //TODO if light-module
+    $tpl = $this->GetTemplateObject('defaultadmin.tpl');
+} else {
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
+}
 
 $tpl->assign([
  'startform' => $this->CreateFormStart($id, 'defaultadmin', $returnid), //TODO FormUtils::whatever
  'extraparms' => $extras,
+ 'tab' => $activetab,
  'title_charset' => $this->Lang('charset'),
  'help_charset' => 'info_charset',
- 'value_charset' => $this->GetPreference('charset','utf-8'),
+ 'value_charset' => $mailprefs['charset'],
  'title_mailer' => $this->Lang('mailer'),
  'help_mailer' => 'info_mailer',
- 'value_mailer' => $this->GetPreference('mailer', 'mail'),
+ 'value_mailer' => $mailprefs['mailer'],
  'opts_mailer' => [
       'mail' => 'mail',
       'sendmail' => 'sendmail',
@@ -121,28 +224,28 @@ $tpl->assign([
   ],
  'title_host' => $this->Lang('host'),
  'help_host' => 'info_host',
- 'value_host' => $this->GetPreference('host'),
+ 'value_host' => $mailprefs['host'],
  'title_port' => $this->Lang('port'),
  'help_port' => 'info_port',
- 'value_port' => $this->GetPreference('port'),
+ 'value_port' => $mailprefs['port'],
  'title_from' => $this->Lang('from'),
  'help_from' => 'info_from',
- 'value_from' => $this->GetPreference('from'),
+ 'value_from' => $mailprefs['from'],
  'title_fromuser' =>$this->Lang('fromuser'),
  'help_fromuser' => 'info_fromuser',
- 'value_fromuser' => $this->GetPreference('fromuser'),
+ 'value_fromuser' => $mailprefs['fromuser'],
  'title_sendmail' =>$this->Lang('sendmail'),
  'help_sendmail' => 'info_sendmail',
- 'value_sendmail' => $this->GetPreference('sendmail'),
+ 'value_sendmail' => $mailprefs['sendmail'],
  'title_timeout' => $this->Lang('timeout'),
  'help_timeout' => 'info_timeout',
- 'value_timeout' => $this->GetPreference('timeout'),
+ 'value_timeout' => $mailprefs['timeout'],
  'title_smtpauth' => $this->Lang('smtpauth'),
  'help_smtpauth' => 'info_smtpauth',
- 'value_smtpauth' => $this->GetPreference('smtpauth', 0),
+ 'value_smtpauth' => $mailprefs['smtpauth'],
  'title_secure' => $this->Lang('secure'),
  'help_secure' => 'info_secure',
- 'value_secure' => $this->GetPreference('secure', ''),
+ 'value_secure' => $mailprefs['secure'],
  'opts_secure' => [
      '' => $this->Lang('none'),
      'ssl' => $this->Lang('ssl'),
@@ -150,10 +253,10 @@ $tpl->assign([
   ],
  'title_username' => $this->Lang('username'),
  'help_username' => 'info_username',
- 'value_username' => $this->GetPreference('username'),
+ 'value_username' => $mailprefs['username'],
  'title_password' => $this->Lang('password'),
  'help_password' => 'info_password',
- 'value_password' => Crypto::decrypt_string(base64_decode($this->GetPreference('password'))),
+ 'value_password' => $mailprefs['password'],
  'title_testaddress' => $this->Lang('testaddress'),
  'help_testaddress' => 'info_testaddress',
 ]);
