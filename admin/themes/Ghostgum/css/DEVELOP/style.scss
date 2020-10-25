@@ -1521,6 +1521,21 @@ button.ui-button {
     cursor: help;
 }
 
+.pagetext {
+    width: auto;
+	margin: sidedValues(10px 0 5px 4px);
+	padding: 0;
+	color: $fore-color;
+	font-weight: bold;
+}
+
+.pageinput {
+    width: auto;
+	margin: sidedValues(5px 0 10px 4px);
+	padding: 0;
+	color: $fore-color;
+}
+
 .message {
     border-radius: 4px;
     display: inline-block;
@@ -2725,6 +2740,8 @@ img.systemicon {
 }
 #cms-logo {
     display: inline-block;
+    height: 2em;
+    width: 10em;
     background: transparent $logotext_png no-repeat $start-side;
     background: transparent $logotext_svg no-repeat $start-side;
     background-size: 10em 2em;
@@ -3543,6 +3560,7 @@ img.systemicon {
 
 @media screen and (max-width: 30rem) {
     #cms-logo {
+        width: 2em;
         background: transparent $logo_png no-repeat $start-side;
         background: transparent $logo_svg no-repeat $start-side;
         background-size: 2em 2em;

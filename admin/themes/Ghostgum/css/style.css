@@ -1298,6 +1298,23 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon:hover {
 	cursor: help;
 }
 
+/* CHANGE DONE */
+.pagetext {
+	margin: 10px 0 5px 4px;
+	padding: 0;
+	width: auto;
+	color: #244323;
+	font-weight: bold;
+}
+
+/* CHANGE DONE */
+.pageinput {
+	margin: 5px 0 10px 4px;
+	padding: 0;
+	width: auto;
+	color: #244323;
+}
+
 .message {
 	border-radius: 4px;
 	display: inline-block;
@@ -1824,7 +1841,7 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon:hover {
 	font-size: 0.8em;
 }
 
-.alertable-overlay {
+#alertable-overlay {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -1847,25 +1864,25 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon:hover {
 	z-index: 999;
 }
 
-.alertable-message {
+#alertable-message {
 	margin-bottom: 1.5em;
 	font-weight: bold;
 	text-align: center;
 }
 
-.alertable-prompt {
+#alertable-prompt {
 	margin-bottom: 1.5em;
 }
 
-.alertable-input {
+#alertable-input {
 	width: 18em;
 }
 
-.alertable-buttons {
+#alertable-buttons {
 	float: right;
 }
 
-.alertable-buttons button {
+#alertable-buttons button {
 	margin-right: 1em;
 }
 
@@ -2628,6 +2645,7 @@ img.systemicon {
 	text-align: right;
 }
 
+/* CHANGED
 #pagecontainer .pagetext {
 	margin: 10px 0 5px 4px;
 	padding: 0;
@@ -2635,7 +2653,7 @@ img.systemicon {
 	color: #244323;
 	font-weight: bold;
 }
-
+*/
 #pagecontainer .pageshowrows {
 	color: #244323;
 	font-size: 0.9em;
@@ -2793,6 +2811,8 @@ img.systemicon {
 
 #cms-logo {
 	display: inline-block;
+        height: 2em;
+	width: 10em;
 	background: transparent url("../../assets/images/CMSMS-logotext-dark.png") no-repeat left;
 	background: transparent url("../../assets/images/CMSMS-logotext-dark.svg") no-repeat left;
 	background-size: 10em 2em;
@@ -2945,13 +2965,15 @@ img.systemicon {
 	text-align: right;
 }
 
-#ggp_content .pagetext {
+/*#ggp_content CHANGED
+.pagetext {
 	margin: 10px 0 5px 4px;
 	padding: 0;
 	width: auto;
 	color: #244323;
 	font-weight: bold;
 }
+*/
 
 #ggp_content .pageshowrows {
 	color: #244323;
@@ -3590,5 +3612,21 @@ img.systemicon {
 @media screen and (max-width: 20rem) {
 	#cms-logo {
 		display: none;
+	}
+}
+
+@media screen {
+	.tooltip {
+		background: #cbd4cb;
+		border: 1px solid #58814c;
+		border-radius: 4px;
+		font-size: 0.9em;
+		color: #244323;
+	}
+	.tooltip > .arrow {
+		border-top-color: #58814c;
+	}
+	.tooltip.top > .arrow {
+		border-bottom-color: #58814c;
 	}
 }
