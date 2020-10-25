@@ -637,7 +637,6 @@ abstract class CMSModule
     /**
      * Returns a list of parameters and their help strings in a hash.
      * This is generally used internally.
-     * Not to be confused with the GetParameters() class
      *
      * @final
      * @internal
@@ -1483,7 +1482,7 @@ abstract class CMSModule
      * Returns page-header content (probably js, css) for this editor.
      * @deprecated since 2.9. Instead generate and record such content when
      * constructing the textarea element, using get_syntaxeditor_setup() and
-     * then cachers such as add_page_headtext(), add_page_footertext()
+     * then cachers such as add_page_headtext(), add_page_foottext()
      *
      * @abstract
      * @return string
@@ -1505,7 +1504,7 @@ abstract class CMSModule
      * Returns page-header content (probably js, css) for this editor.
      * @deprecated since 2.9. Instead generate and record such content when
      * constructing the textarea element, using get_richeditor_setup() and then
-     * cachers such as add_page_headtext(), add_page_footertext()
+     * cachers such as add_page_headtext(), add_page_foottext()
      *
      * @abstract
      * @param string $selector Optional id of the element whose content is to be edited.
