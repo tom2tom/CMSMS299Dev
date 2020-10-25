@@ -1,20 +1,24 @@
 <?php
-#Shared stage of admin-page-top display (used after action is run)
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Shared stage of admin-page-top display (used e.g. after an action is run)
+Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you may redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of that license, or (at your option)
+any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
@@ -53,7 +57,7 @@ if ($aout) {
 
 		if ($bundle[1]) {
 			foreach($bundle[1] as $list) {
-				add_page_headtext($list);
+				add_page_headtext($list, false);
 			}
 		}
 	}
@@ -75,17 +79,22 @@ if (isset($modinst)) {
 // define js runtime variables, including $vars[] set here, if any
 require_once __DIR__.DIRECTORY_SEPARATOR.'jsruntime.php';
 add_page_headtext($js, false); // prepend (might be needed anywhere during page construction)
+// TODO prepend any CSP header here, before 1st on-page javascript
+//$txt = 'TODO';
+//add_page_headtext($txt, false);
 
-// setup for required page-content (aka rich-text) editors
-// this must be performed after page-content generation which creates
-// such textarea(s) (i.e. also after template-fetching if the template
-// includes textarea-tag(s))
+/*
+Setup for required page-content (aka rich-text) editors
+This must be performed after page-content generation which creates such
+textarea(s) (i.e. also after template-fetching if the template includes
+textarea-tag(s))
+*/
 $list = FormUtils::get_requested_wysiwyg_modules();
 if ($list) {
 	foreach ($list as $module_name => $info) {
 		$obj = Utils::get_module($module_name);
 		if (!is_object($obj)) {
-			audit('','Core','rich-edit module '.$module_name.' requested, but could not be instantiated');
+			audit('', 'Core', 'rich-edit module '.$module_name.' requested, but could not be instantiated');
 			continue;
 		}
 
@@ -103,7 +112,7 @@ if ($list) {
 				$tmpnames = [];
 				foreach ($cssobs as $stylesheet) {
 					$name = $stylesheet->get_name();
-					if (!in_array($name,$tmpnames)) $tmpnames[] = $name;
+					if (!in_array($name,$tmpnames)) { $tmpnames[] = $name; }
 				}
 				$cssnames = $tmpnames;
 			} else {
@@ -117,15 +126,15 @@ if ($list) {
 			$selector = $rec['id'];
 			$cssname = $rec['stylesheet'];
 
-			if ($cssname == FormUtils::NONE) $cssname = null;
-			if (!$cssname || !is_array($cssnames) || !in_array($cssname,$cssnames) || $selector == FormUtils::NONE) {
+			if ($cssname == FormUtils::NONE) { $cssname = null; }
+			if (!$cssname || !is_array($cssnames) || !in_array($cssname, $cssnames) || $selector == FormUtils::NONE) {
 				$need_generic = true;
 				continue;
 			}
 
 			$selector = 'textarea#'.$selector;
 			try {
-				$out = $obj->WYSIWYGGenerateHeader($selector,$cssname); //deprecated API
+				$out = $obj->WYSIWYGGenerateHeader($selector, $cssname); //deprecated API
 				if ($out) { add_page_headtext($out); }
 			} catch (Throwable $e) {}
 		}
@@ -139,8 +148,10 @@ if ($list) {
 	}
 }
 
-// setup for required syntax-highlight editors
-// see comment above about when this must be performed
+/*
+Setup for required syntax-highlight editors
+See comment above about when this must be performed
+*/
 $list = FormUtils::get_requested_syntax_modules();
 if ($list) {
 	foreach ($list as $one) {
@@ -169,12 +180,12 @@ if (!isset($USE_THEME) || $USE_THEME) {
 	if (!AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 
-		$notify = UserParams::get_for_user($userid,'enablenotifications',1);
+		$notify = UserParams::get_for_user($userid,'enablenotifications', 1);
 		// display notification stuff from modules
 		// TODO this should be controlled by $notify
 		$ignoredmodules = explode(',',UserParams::get_for_user($userid,'ignoredmodules'));
 
-		if( $notify && AppParams::get('enablenotifications',1) ) {
+		if( $notify && AppParams::get('enablenotifications', 1) ) {
 			// display a sitedown warning
 			$sitedown_file = TMP_CACHE_LOCATION . DIRECTORY_SEPARATOR. 'SITEDOWN';
 			if (is_file($sitedown_file)) {
