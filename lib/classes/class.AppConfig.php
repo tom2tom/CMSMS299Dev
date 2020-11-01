@@ -76,8 +76,9 @@ final class AppConfig implements ArrayAccess
         'assets_path' => self::TYPE_STRING,
         'assets_url' => self::TYPE_STRING,
         'auto_alias_content' => self::TYPE_BOOL,
-        'content_language' => self::TYPE_STRING,
-        'content_processing_mode' => self::TYPE_INT,
+        'content_encoding' => self::TYPE_STRING, //since 2.9 alias of 'default_encoding'
+        'content_language' => self::TYPE_STRING, //since 2.9
+//        'content_processing_mode' => self::TYPE_INT,
         'db_hostname' => self::TYPE_STRING,
         'db_name' => self::TYPE_STRING,
         'db_password' => self::TYPE_STRING,
@@ -242,8 +243,8 @@ final class AppConfig implements ArrayAccess
         case 'set_names':
             return true;
 
-        case 'content_processing_mode':
-            return 2;
+//        case 'content_processing_mode':
+//            return 2;
 
         case 'root_path':
             $str = dirname(__DIR__, 2);
@@ -400,6 +401,7 @@ final class AppConfig implements ArrayAccess
         case 'locale':
             return '';
 
+        case 'content_encoding':
         case 'default_encoding':
         case 'admin_encoding':
             return 'utf-8';
