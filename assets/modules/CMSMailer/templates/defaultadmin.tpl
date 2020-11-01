@@ -7,7 +7,7 @@
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}" />
 {/foreach}
   <div class="pageinput postgap">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
     <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </div>
   <fieldset><legend>{$mod->Lang('core')}</legend>
@@ -74,10 +74,10 @@
   </div>
   <input type="hidden" name="{$actionid}smtpauth" value="0" />
   <div class="pageoverflow">{$t=$title_smtpauth}
-    <label class="pagetext" for="">{$t}:</label>
+    <label class="pagetext" for="smtpauth">{$t}:</label>
     {cms_help realm=$_module key2=$help_smtpauth title=$t}
     <div class="pageinput">
-      <input type="checkbox" id="smtpauth" name="{$actionid}" value="1"{if $value_smtpauth} checked="checked"{/if} />
+      <input type="checkbox" id="smtpauth" name="{$actionid}smtpauth" value="1"{if $value_smtpauth} checked="checked"{/if} />
     </div>
   </div>
   <div class="pageoverflow">{$t=$title_username}
@@ -106,15 +106,41 @@
   </fieldset>
   </fieldset>
   <fieldset><legend>{$mod->Lang('module')}</legend>
+  <input type="hidden" name="{$actionid}single" value="0" />
+  <div class="pageoverflow">{$t=$title_single}
+    <label class="pagetext" for="single">{$t}:</label>
+    {cms_help realm=$_module key2=$help_single title=$t}
+    <div class="pageinput">
+      <input type="checkbox" id="single" name="{$actionid}single" value="1"{if $value_single} checked="checked"{/if} />
+    </div>
+  </div>
+  <div class="pageoverflow">{$t=$title_batchsize}
+    <label class="pagetext" for="batchsize">{$t}:</label>
+    {cms_help realm=$_module key2=$help_batchsize title=$t}
+    <div class="pageinput">
+      <input type="text" id="batchsize" name="{$actionid}batchsize" value="{$value_batchsize}" size="5" maxlength="8" />
+    </div>
+  </div>
+  <div class="pageoverflow">{$t=$title_batchgap}
+    <label class="pagetext" for="batchgap">{$t}:</label>
+    {cms_help realm=$_module key2=$help_batchgap title=$t}
+    <div class="pageinput">
+      <select id="batchgap" name="{$actionid}batchgap">
+      {html_options options=$opts_batchgap selected=$value_batchgap}
+      </select>
+    </div>
+  </div>
+{*
   <fieldset class="set_smtp"><legend >{$mod->Lang('smtp_legend')}</legend>
     MODULE-SPECIFIC PROPS HERE
   </fieldset>
   <fieldset class="set_sendmail"><legend>{$mod->Lang('sendmail_legend')}</legend>
     MODULE-SPECIFIC PROPS HERE
   </fieldset>
+*}
   </fieldset>
   <div class="pageinput pregap">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
     <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </div>
 </form>
