@@ -253,12 +253,15 @@ class Crypto
 	{
 		$str = $raw;
 		$length = strlen($raw);
-		$offset = ($length % 2 === 0) ? 2 : 1;
+		$offset = ($length & 1) ? 1 : 2;
 		$k = $length - $offset;
 		$mid = $length / 2;
-		for ($i = 0; $i < $length; ++$i) {
-			$j = ($i < $mid) ? $k - $i - $i : $i + $i - $k - 1;
-			$str[$i] = $raw[$j];
+		for ($i = 0; $i < $mid; $i++) {
+			$str[$i] = $raw[$k - $i - $i];
+		}
+		$k = $offset - 1 - $length;
+		for (; $i < $length; $i++) {
+			$str[$i] = $raw[$k + $i + $i];
 		}
 		return $str;
 	}
@@ -275,10 +278,10 @@ class Crypto
 	{
 		$str = $raw;
 		$length = strlen($raw);
-		$offset = ($length % 2 === 0) ? 1 : 0;
+		$offset = ($length & 1) ? 0 : 1;
 		$k = $length - $offset;
 		for ($i = 0; $i < $length; ++$i) {
-			$j = ($i % 2 === 0) ? ($k - $i - 1) / 2 : ($k + $i) / 2;
+			$j = ($i & 1) ? ($k + $i) / 2 : ($k - $i - 1) / 2;
 			$str[$i] = $raw[$j];
 		}
 		return $str;
