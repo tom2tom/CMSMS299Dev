@@ -146,7 +146,7 @@ EOS;
 EOS;
 		$add_list[] = $out;
 //		$vars[] = anything needed ?;
-		return [[], $add_list];
+		return [$vars, $add_list];
 	}
 
 	/**
