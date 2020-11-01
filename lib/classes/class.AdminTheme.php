@@ -360,16 +360,12 @@ abstract class AdminTheme
     {
         if ($strings) {
             if (count($strings) > 1) {
-                foreach( $strings as &$one) {
-                    if ($one) {
-                        $one = json_encode($one);
-                    }
+                $strings = array_filter($strings);
+                if (count($strings) > 1) {
+                    return $strings;
                 }
-                unset($one);
-                return '['.implode(',',array_filter($strings)).']';
-            } else {
-                return json_encode(reset($strings));
             }
+            return reset($strings);
         }
         return false;
     }
