@@ -20,7 +20,9 @@ use CMSMS\Crypto;
 
 $urlext = get_secure_param();
 
-if (!isset($vars)) { $vars = []; }
+if (!isset($vars)) {
+    $vars = [];
+}
 
 //NOTE nothing of any security-risk should ever be in these data
 $vars['root_url'] = CMS_ROOT_URL;
@@ -53,9 +55,17 @@ if (AppParams::get('site_downnow')) {
 }
 
 //$nonce = get_csp_token(); N/A here cuz all module-actions use this setup
-$enc = json_encode((object)$vars, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-//for privacy (not security) a simple munge (js is very crap for retrieval!)
-$enc2 = Crypto::scramble_string($enc);
+
+// convert any " to ' suitable for json() then in js
+foreach ($vars as &$val) {
+    if (is_string($val)) {
+        $val = strtr($val, '"', "'");
+    }
+}
+unset($val);
+$enc = json_encode($vars);
+//for privacy (not security) a simple munge
+$enc2 = rawurlencode(Crypto::scramble_string($enc));
 //we also define cms_data, in case something wants to use that object prematurely
 $js = <<<EOS
 <script type="text/javascript">
