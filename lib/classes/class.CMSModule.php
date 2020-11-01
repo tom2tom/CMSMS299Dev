@@ -1526,7 +1526,7 @@ abstract class CMSModule
      * ------------------------------------------------------------------
      */
 
-    /**
+    /* *
      * Return an action's 'controller', which if it exists, is a function to be
      * called to 'do' the action (instead of including the action file). The
      * callable is expected to be returned by the constructor of a class named
@@ -1539,6 +1539,7 @@ abstract class CMSModule
      * @param mixed int|''|null $returnid Identifier of the page being displayed, ''|null for admin
      * @return mixed callable|null
      */
+/* action-spoofing : NOT YET, IF EVER
     protected function get_controller(string $name, $id, array $params, $returnid = null)
     {
         if( isset( $params['controller']) ) {
@@ -1554,7 +1555,7 @@ abstract class CMSModule
         }
         if( is_callable( $ctrl ) ) return $ctrl;
     }
-
+*/
     /**
      * Used for navigation between "pages" of a module.  Forms and links should
      * pass an action with them so that the module will know what to do next.
@@ -1591,9 +1592,10 @@ abstract class CMSModule
      * @param array  $params The parameters specified for the action
      * @param mixed  $returnid Optional id of the page being displayed,
      *  numeric(int) for frontend, ''|null for admin. Default null.
-     * @return mixed output from included file or from 'controller' if relevant
+     * @return mixed output from included file
      * @throws CmsError404Exception if action not named or not found
      */
+// or from 'controller' if relevant IGNORED     
     public function DoAction($action, $id, $params, $returnid = null)
     {
         if( !is_numeric($returnid) ) {
@@ -1614,7 +1616,7 @@ abstract class CMSModule
             //In case this method was called directly and is not overridden.
             //See: http://0x6a616d6573.blogspot.com/2010/02/cms-made-simple-166-file-inclusion.html
             $action = preg_replace('/[^A-Za-z0-9\-_+]/', '', $action);
-
+/* action-spoofing : NOT YET, IF EVER 
             if( ($controller = $this->get_controller($action, $id, $params, $returnid)) ) {
                 if( is_callable($controller ) ) {
                     return $controller($params);
@@ -1623,6 +1625,7 @@ abstract class CMSModule
                 throw new CmsError404Exception('Invalid module action-controller');
             }
             else {
+*/
                 $filename = $this->GetModulePath() . DIRECTORY_SEPARATOR . 'action.'.$action.'.php';
                 if( is_file($filename) ) {
                     $name = $action; // former name of the action, might be expected by an action
@@ -1644,7 +1647,7 @@ abstract class CMSModule
                 }
                 @trigger_error($action.' is not a recognized action of module '.$this->GetName());
                 throw new CmsError404Exception('Module action not found');
-            }
+//            }
         }
 
         @trigger_error('No name provided for '.$this->GetName()).' module action';
@@ -1661,8 +1664,9 @@ abstract class CMSModule
      * @param array  $params The action parameters
      * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin|login requests.
      * @param mixed  $smartob  A CMSMS\internal\template_wrapper object, or CMSMS\internal\Smarty object, or null
-     * @return mixed output from action 'controller' if relevant, or null, or '' if output is assigned to a smarty variable
+     * @return mixed '' if output is assigned to a smarty variable
      */
+//output from action 'controller' if relevant, or null, or N/A     
     public function DoActionBase($action, $id, $params, $returnid, $smartob)
     {
         $action = preg_replace('/[^A-Za-z0-9\-_+]/', '', $action); //simple sanitize
