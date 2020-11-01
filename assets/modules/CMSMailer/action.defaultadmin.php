@@ -5,12 +5,12 @@ Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org
 
 This file is a component of CMS Made Simple module CMSMailer.
 
-This CMSMailer module is free software; you can redistribute it and/or modify
+The CMSMailer module is free software; you may redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
 by the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
-This CMSMailer module is distributed in the hope that it will be useful,
+The CMSMailer module is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU Affero General Public License for more details.
@@ -42,9 +42,13 @@ $mailprefs = [
  'smtpauth' => 3,
  'timeout' => 2,
  'username' => 1,
+ //extras for this mailer
+ 'batchgap' => 2,
+ 'batchsize' => 2,
+ 'single' => 3,
 ];
 
-if (isset($params['submit'])/* || isset($params['sendtest'])*/) {
+if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
     // TODO sanitize, validate
     // first update core mail prefs, if any
     $val = AppParams::get('mailprefs');
@@ -61,7 +65,7 @@ if (isset($params['submit'])/* || isset($params['sendtest'])*/) {
                         $val = (bool)$params[$key];
                         break;
                     case 4:
-                        $val = base64_encode(Crypto::encrypt_string(trim($val)));
+                        $val = base64_encode(Crypto::encrypt_string(trim($params[$key])));
                         break;
                     default:
                         $val = trim($params[$key]);
@@ -74,26 +78,28 @@ if (isset($params['submit'])/* || isset($params['sendtest'])*/) {
             }
         }
         unset($val);
-        if ($core) { AppParams::set('mailprefs', serialize($core)); }
+        if ($core) {
+            AppParams::set('mailprefs', serialize($core));
+        }
     }
 
     foreach ($mailprefs as $key => &$val) {
         if (isset($params[$key])) {
             switch ($val) {
             case 2:
-                $val = (int)$params[$key];
+                $tmp = (int)$params[$key];
                 break;
             case 3:
-                $val = (bool)$params[$key];
+                $tmp = (bool)$params[$key];
                 break;
             case 4:
-                $val = base64_encode(Crypto::encrypt_string(trim($val)));
+                $tmp = base64_encode(Crypto::encrypt_string(trim($val)));
                 break;
             default:
-                $val = trim($params[$key]);
+                $tmp = trim($params[$key]);
                 break;
             }
-            $this->SetPreference($key, $val);
+            $this->SetPreference($key, $tmp);
         }
     }
     unset($val);
@@ -218,9 +224,12 @@ $tpl->assign([
  'help_mailer' => 'info_mailer',
  'value_mailer' => $mailprefs['mailer'],
  'opts_mailer' => [
-      'mail' => 'mail',
-      'sendmail' => 'sendmail',
-      'smtp' => 'smtp',
+      'mail' => 'PHP',
+      'sendmail' => 'Sendmail',
+      'smtp' => 'SMTP',
+      'spool' => $this->Lang('transport_spool'),
+      'file' => $this->Lang('transport_file'),
+      'test' => $this->Lang('transport_test'),
   ],
  'title_host' => $this->Lang('host'),
  'help_host' => 'info_host',
@@ -257,6 +266,22 @@ $tpl->assign([
  'title_password' => $this->Lang('password'),
  'help_password' => 'info_password',
  'value_password' => $mailprefs['password'],
+ 'title_batchgap' => $this->Lang('batchgap'),
+ 'help_batchgap' => 'info_batchgap',
+ 'opts_batchgap' => [
+     0 => $this->Lang('none'),
+     3600 => $this->Lang('hours_1'),
+     14400 => $this->Lang('hours_counted', '4'),
+     43200 => $this->Lang('hours_counted', '12'),
+     86400 + 3600 => $this->Lang('days_1'), // +1hr in case there's DST in place
+ ],
+ 'value_batchgap' => $mailprefs['batchgap'],
+ 'title_batchsize' => $this->Lang('batchsize'),
+ 'help_batchsize' => 'info_batchsize',
+ 'value_batchsize' => $mailprefs['batchsize'],
+ 'title_single' => $this->Lang('single'),
+ 'help_single' => 'info_single',
+ 'value_single' => $mailprefs['single'],
  'title_testaddress' => $this->Lang('testaddress'),
  'help_testaddress' => 'info_testaddress',
 ]);
