@@ -26,7 +26,7 @@ use CmsInvalidDataException;
  * @package CMS
  * @license GPL
  * @since 2.9
- * @since  1.11 as AdminThemeNotification
+ * @since  1.11 as CmsAdminThemeNotification
  * @deprecated since 2.9
  * @author  Robert Campbell
  * @property string $module Module name
@@ -63,7 +63,7 @@ class AdminNotification
             return $this->$key;
         }
 
-        throw new CmsInvalidDataException('Attempt to retrieve invalid property from CmsAdminThemeNotification');
+        throw new CmsInvalidDataException('Attempt to retrieve invalid property of AdminNotification');
     }
 
 
@@ -80,6 +80,6 @@ class AdminNotification
             return;
         }
 
-        throw new CmsInvalidDataException('Attempt to set invalid property from CmsAdminThemeNotification');
+        throw new CmsInvalidDataException('Attempt to set invalid property for AdminNotification');
     }
 } // class
