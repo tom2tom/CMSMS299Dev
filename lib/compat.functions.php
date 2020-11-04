@@ -25,8 +25,8 @@
 if( !function_exists('gzopen') ) {
     /**
      * Wrapper for gzopen in case it does not exist.
-     * Some installs of PHP (after PHP 5.3 use a different zlib library, and therefore gzopen is not defined.
-     * This method works past that.
+     * Some installs of PHP (after PHP 5.3) use a different zlib library, and therefore gzopen is not defined.
+     * This method works around that.
      *
      * @since 2.0
      * @ignore
@@ -53,7 +53,3 @@ function cms_db_prefix() : string
 {
     return CMS_DB_PREFIX;
 }
-
-/*
- * Every-request class-aliasing (if any) follows ...
- */
