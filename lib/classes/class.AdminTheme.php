@@ -1142,7 +1142,7 @@ abstract class AdminTheme
      * @param string $image Image file identifier, a theme-images-dir (i.e. 'images')
      *  relative-filepath, or an absolute filepath. It may omit extension (type)
      * @param string $alt Optional alternate identifier for the created
-     *  image element (NOT also used for its default title)
+     *  image element (deprecated since 2.9 also used for its default title)
      * @param int $width Optional image-width (ignored for svg)
      * @param int $height Optional image-height (ignored for svg)
      * @param string $class Optional class. For .i (iconimages), class "fontimage" is always prepended
@@ -1230,6 +1230,11 @@ abstract class AdminTheme
         }
 
         $extras = array_merge(['width'=>$width, 'height'=>$height, 'class'=>$class, 'alt'=>$alt, 'title'=>''], $attrs);
+        if (!$extras['title']) {
+            if ($extras['alt']) {
+               $extras['title'] = $extras['alt']; // back-compatible, but a bit unwise, 
+            }
+        }
         if (!$extras['alt']) {
             if ($extras['title']) {
                 $extras['alt'] = $extras['title'];
