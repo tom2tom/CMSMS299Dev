@@ -496,7 +496,7 @@
           {cms_help key2='settings_mailprefs_smtpusername' title=$t}
         </div>
         <div class="pageinput">
-          <input type="text" id="username" name="mailprefs_username" value="{$mailprefs.username}" size="50" maxlength="255" />
+          <input type="text" id="username" name="mailprefs_username" value="{$mailprefs.username}" size="40" maxlength="80" />
         </div>
       </div>
 
@@ -506,7 +506,7 @@
           {cms_help key2='settings_mailprefs_smtppassword' title=$t}
         </div>
         <div class="pageinput">
-          <input type="password" id="password" name="mailprefs_password" value="{$mailprefs.password}" size="50" maxlength="50" />
+          <input type="text" id="password" name="mailprefs_password" value="{$mailprefs.password}" size="40" maxlength="80" />
         </div>
       </div>
     </fieldset>
@@ -612,32 +612,6 @@
       <input type="hidden" name="smarty_compilecheck" value="0" />
       <div class="pageinput">
         <input type="checkbox" name="smarty_compilecheck" id="compilecheck" value="1"{if $smarty_compilecheck} checked="checked"{/if} />
-      </div>
-    </div>
-  </fieldset>
-
-  <fieldset>
-    <legend>{lang('password_settings')}</legend>
-    <div class="pageoverflow">
-      <div class="pagetext">{$t=lang('password_timeout')}
-        <label for="passlife">{$t}:</label>
-        {cms_help key2='settings_password_life' title=$t}
-      </div>
-      <div class="pageinput">
-        <select id="passlife" name="password_life">
-          {html_options options=$pass_lives selected=$passwordlife}
-        </select>
-      </div>
-    </div>
-    <div class="pageoverflow">
-      <div class="pagetext">{$t=lang('password_level')}
-        <label for="passlevel">{$t}:</label>
-        {cms_help key2='settings_password_level' title=$t}
-      </div>
-      <div class="pageinput">
-        <select id="passlevel" name="password_level">
-          {html_options options=$pass_levels selected=$passwordlevel}
-        </select>
       </div>
     </div>
   </fieldset>
