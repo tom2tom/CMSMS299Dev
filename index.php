@@ -136,8 +136,8 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		  ->assignGlobal('page_alias', $contentobj->Alias());
 
 		NlsOperations::set_language(); // <- NLS detection for frontend
-		$smarty->assignGlobal('lang',NlsOperations::get_current_language())
-		  ->assignGlobal('encoding',NlsOperations::get_encoding());
+		$smarty->assignGlobal('lang', NlsOperations::get_current_language())
+		  ->assignGlobal('encoding', NlsOperations::get_encoding());
 
 		Events::SendEvent('Core', 'ContentPreRender', [ 'content' => &$contentobj ]);
 
