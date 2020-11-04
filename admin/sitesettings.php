@@ -26,6 +26,7 @@ use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\CoreCapabilities;
+use CMSMS\Crypto;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\HookOperations;
@@ -306,6 +307,8 @@ if (isset($_POST['submit'])) {
                         }
                         if ($mailprefs['password'] == '') {
                             $errors[] = lang('error_passwordrequired');
+                        } else {
+                            $mailprefs['password'] == base64_encode(Crypto::encrypt_string(trim($mailprefs['password'])));
                         }
                     }
                 }
@@ -324,8 +327,10 @@ if (isset($_POST['submit'])) {
                 if ($val != 0) $val = max(30,min(3600,$val));
                 AppParams::set('lock_refresh', $val);
                 $val = (int)$_POST['smarty_cachelife'];
-                if ($val < 1) {
-                    $val = -1;
+                if ($val == 0) {
+                    if (trim($_POST['smarty_cachelife']) === '') {
+                        $val = -1;
+                    }
                 }
                 AppParams::set('smarty_cachelife', $val);
                 AppParams::set('smarty_cachemodules', (int)$_POST['smarty_cachemodules']);
@@ -473,6 +478,7 @@ $tmp = AppParams::get('mailprefs');
 if ($tmp) {
     $mailprefs = array_merge($mailprefs, unserialize($tmp, ['allowed_classes' => false]));
 }
+$mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']));
 
 $modules = ModuleOperations::get_modules_with_capability(CoreCapabilities::SITE_SETTINGS);
 if ($modules) {
