@@ -293,7 +293,7 @@ License GPL2+
          */
         toggleSubMenu: function(obj, duration) {
             var _this = this;
-            obj.find('> li > span').click(function(e) {
+            obj.find('> li > span').on('click', function(e) {
                 e.preventDefault();
                 var $t = $(this),
                     cur = $t.hasClass('open-sub'),
@@ -338,7 +338,7 @@ License GPL2+
 
             // pagewarning status hidden?
             var key = $('body').attr('id') + '_notification';
-            $('.pagewarning .close-warning').click(function() {
+            $('.pagewarning .close-warning').on('click', function() {
                 OE.helper.setStorageValue(key, 'hidden', 60);
             });
 
@@ -346,7 +346,7 @@ License GPL2+
                 $('.pagewarning').addClass('hidden');
             }
 
-            $('.message:not(.no-slide)').click(function() {
+            $('.message:not(.no-slide)').on('click', function() {
                 $('.message').slideUp();
             });
 
@@ -533,18 +533,18 @@ License GPL2+
          */
         setupAlerts: function() {
             var _this = this;
-            $('a#alerts').click(function(ev) {
+            $('a#alerts').on('click', function(ev) {
                 ev.preventDefault();
                 $('#alert-dialog').dialog();
             });
-            $('.alert-msg a').click(function(ev) {
+            $('.alert-msg a').on('click', function(ev) {
                 ev.preventDefault();
                 OE.view.handleAlert(ev.target);
             });
-            $('.alert-icon,.alert-remove').click(function(ev) {
+            $('.alert-icon,.alert-remove').on('click', function(ev) {
                 ev.preventDefault();
                 _this._handleAlert(ev.target);
             });
-        },
+        }
     };
 })(this, jQuery);

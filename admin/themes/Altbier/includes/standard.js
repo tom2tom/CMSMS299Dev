@@ -342,7 +342,7 @@ License GPL2+
             if(AC.helper.getStorageValue(key) === 'hidden') {
                 $('.pagewarning').addClass('hidden');
             }
-            $('.message:not(.no-slide)').click(function() {
+            $('.message:not(.no-slide)').on('click', function() {
                 $('.message').slideUp();
             });
             $('.message:not(.no-slide), .pageerrorcontainer:not(.no-slide), .pagemcontainer:not(.no-slide)').each(function() {
@@ -504,15 +504,15 @@ License GPL2+
          */
         setupAlerts: function() {
             var _this = this;
-            $('a#alerts').click(function(ev) {
+            $('a#alerts').on('click', function(ev) {
                 ev.preventDefault();
                 $('#alert-dialog').dialog();
             });
-            $('.alert-msg a').click(function(ev) {
+            $('.alert-msg a').on('click', function(ev) {
                 ev.preventDefault();
                 AC.view.handleAlert(ev.target);
             });
-            $('.alert-icon,.alert-remove').click(function(ev) {
+            $('.alert-icon,.alert-remove').on('click', function(ev) {
                 ev.preventDefault();
                 _this._handleAlert(ev.target);
             });
