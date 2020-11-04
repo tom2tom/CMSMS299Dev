@@ -127,7 +127,7 @@ EOS;
 		//DEBUG
 		$u = $config['root_url'];
 		$out .= <<<EOS
-<script type="text/javascript" src="{$u}/lib/js/jquery.cmsms_admin.js"></script>
+<script type="text/javascript" src="{$u}/lib/js/jquery.cmsms_admin.min.js"></script>
 
 EOS;
 		$jsm->reset();
