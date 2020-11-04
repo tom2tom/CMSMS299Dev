@@ -42,7 +42,7 @@ $mailprefs = [
  'smtpauth' => 3,
  'timeout' => 2,
  'username' => 1,
- //extras for this mailer
+ //spool-related extras for this mailer
  'batchgap' => 2,
  'batchsize' => 2,
  'single' => 3,
@@ -224,12 +224,9 @@ $tpl->assign([
  'help_mailer' => 'info_mailer',
  'value_mailer' => $mailprefs['mailer'],
  'opts_mailer' => [
-      'mail' => 'PHP',
-      'sendmail' => 'Sendmail',
-      'smtp' => 'SMTP',
-      'spool' => $this->Lang('transport_spool'),
-      'file' => $this->Lang('transport_file'),
-      'test' => $this->Lang('transport_test'),
+     'mail' => 'PHP',
+     'sendmail' => 'Sendmail',
+     'smtp' => 'SMTP',
   ],
  'title_host' => $this->Lang('host'),
  'help_host' => 'info_host',
