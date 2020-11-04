@@ -79,14 +79,10 @@ $lang = [
  'smtp_legend' => 'SMTP Settings',
  'smtpauth' => 'Authentication is Required',
  'ssl' => 'SSL',
-// 'submit' => 'Submit',
  'test' => 'Test',
  'testaddress' => 'Email Address',
  'timeout' => 'Time-out (seconds)',
  'tls' => 'TLS',
- 'transport_file' => 'Store messages in files',
- 'transport_spool' => 'Spool TODO',
- 'transport_test' => 'Test setup',
  'username' => 'Username / Account',
 ] + $lang;
 /*
