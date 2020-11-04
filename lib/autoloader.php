@@ -1,20 +1,24 @@
 <?php
-#autoloader for CMS Made Simple <http://www.cmsmadesimple.org>
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Autoloader
+Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you may redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 use CMSMS\App;
 
 /**
@@ -36,16 +40,14 @@ function cms_autoloader(string $classname)
 		return;
 	}
 */
-	$o = ($classname[0] != '\\') ? 0 : 1;
-	$p = strpos($classname, '\\', $o + 1);
+	$p = strpos($classname, '\\', 1);
 	if ($p !== false) {
 		// ignore any leading \
-		if ($o > 0) {
-			$classname = substr($classname, $o);
-			$p -= $o;
-			$o = 0;
+		if ($classname[0] === '\\') {
+			$classname = substr($classname, 1);
+			$p--;
 		}
-		$space = substr($classname, $o, $p - $o);
+		$space = substr($classname, 0, $p);
 		if ($space == 'CMSMS') {
 			$sroot = $root;
 		} elseif ($space == 'CMSAsset') {
@@ -119,7 +121,7 @@ function cms_autoloader(string $classname)
 			}
 		}
 		return; //failed
-	} elseif ($o) {
+	} elseif ($classname[0] === '\\') {
 		return; //a 'foreign' namespace to be handled elsewhere TODO handle aliased module-class
 	} else {
 		$base = $classname;
@@ -139,7 +141,7 @@ function cms_autoloader(string $classname)
 			require_once $fp;
 			if (class_exists($classname, false)) return;
 		}
-    }
+	}
 
 	// standard classes
 	$fp = $root.'class.'.$base.'.php';
@@ -168,8 +170,13 @@ function cms_autoloader(string $classname)
 
 	// standard tasks
 	if (endswith($base, 'Task')) {
+		$fp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'tasks'.DIRECTORY_SEPARATOR.'class.'.$base.'.php';
+		if (is_file($fp)) {
+			require_once $fp;
+			if (class_exists($classname, false)) return;
+		}
 		$class = substr($base, 0, -4);
-		$fp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'tasks'.DIRECTORY_SEPARATOR.'class.'.$class.'.task.php';
+		$fp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'tasks'.DIRECTORY_SEPARATOR.'class.'.$class.'.task.php';
 		if (is_file($fp)) {
 			require_once $fp;
 			if (class_exists($classname, false)) return;
@@ -193,6 +200,15 @@ function cms_autoloader(string $classname)
 		if ($files) {
 			require_once $files[0];
 			if (class_exists($classname, false)) return;
+		}
+		if (endswith($base, 'Task')) {
+			$class = substr($base, 0, -4);
+			$fp = $root.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'{class.,}'.$class.'.task.php';
+			$files = glob($fp, GLOB_NOSORT | GLOB_NOESCAPE | GLOB_BRACE);
+			if ($files) {
+				require_once $files[0];
+				if (class_exists($classname, false)) return;
+			}
 		}
 	}
 }
