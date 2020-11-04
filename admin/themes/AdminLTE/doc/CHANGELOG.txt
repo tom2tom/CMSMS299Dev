@@ -1,0 +1,4 @@
++++++ 2020 +++++
+- Theme templates adapted from Colorlib's AdminLTE https://adminlte.io
+- Theme PHP adapted from Marigold Admin theme for CMS Made Simple 2.3
++++++++++++++++++++

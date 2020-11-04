@@ -1,0 +1,16 @@
+--------------------------------------
+AUTHORS - CONTRIBUTORS
+--------------------------------------
+- Rolf Tjassens
+- Fernando Morgado
+--------------------------------------
+CREDITS
+--------------------------------------
+
++++++ AdminLTE +++++
+Author: Colorlib
+Source: https://adminlte.io
+Purpose: Open source admin dashboard & control panel theme.
+License: Licensed under MIT (https://github.com/ColorlibHQ/AdminLTE/blob/master/LICENSE)
+
+--------------------------------------

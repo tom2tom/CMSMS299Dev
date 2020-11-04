@@ -1,0 +1,7 @@
+a.nav-link:focus { outline: none }
+
+/*
+@todo Rolf: This does not work, but it should. Don't know why yet...
+Much better for accessibility.
+a.nav-link:focus:not(:focus-visible) { outline: none }
+*/
