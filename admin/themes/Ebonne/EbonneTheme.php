@@ -125,11 +125,11 @@ EOS;
 		//DEBUG
 		$u = $config['root_url'];
 		$out .= <<<EOS
-<script type="text/javascript" src="{$u}/lib/js/jquery.cmsms_admin.js"></script>
+<script type="text/javascript" src="{$u}/lib/js/jquery.cmsms_admin.min.js"></script>
 
 EOS;
 		$jsm->reset();
-		$jsm->queue_matchedfile('jquery.ui.touch-punch.js', 1); //OR .min for production
+		$jsm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1); //OR .min for production
 		$jsm->queue_matchedfile('jquery.toast.min.js', 1);
 		$jsm->queue_matchedfile('jquery.basictable.min.js', 1); //TESTER
 
