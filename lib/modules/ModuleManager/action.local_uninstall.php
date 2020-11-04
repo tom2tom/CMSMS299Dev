@@ -6,6 +6,10 @@ if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 
+if( isset($params['cancel']) ) {
+    $this->RedirectToAdminTab();
+}
+
 try {
     $mod = get_parameter_value($params,'mod');
     if( !$mod ) {
@@ -18,10 +22,6 @@ try {
     if( !is_object($modinstance) ) {
         // uh-oh
         $this->SetError($this->Lang('error_getmodule',$mod));
-        $this->RedirectToAdminTab();
-    }
-
-    if( isset($params['cancel']) ) {
         $this->RedirectToAdminTab();
     }
 
