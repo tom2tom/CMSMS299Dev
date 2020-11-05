@@ -361,7 +361,7 @@ final class AdminUtils
 
 		$age_days = max(0, $age_days);
 		HookOperations::do_hook('clear_cached_files', ['older_than' => $age_days]); //TODO BAD no namespace, some miscreant handler can change the parameter ...  deprecate?
-		Events::SendEvent('Core','ClearCachedFiles', ['older_than' => $age_days]); //since 2.3
+		Events::SendEvent('Core','ClearCachedFiles', ['older_than' => $age_days]); //since 2.9
 		$ttl = $age_days * 24 * 3600;
 		$the_time = time() - $ttl;
 		$dirs = array_unique([TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION]);
@@ -394,7 +394,7 @@ final class AdminUtils
 	 * for changing a page's parent.
 	 *
 	 * This method uses the CMSMS jQuery hierselector widget.
-	 * @since 2.3 This method was migrated from the ContentOperations class
+	 * @since 2.9 This method was migrated from the ContentOperations class
 	 *
 	 * @param int The id of the content object we are working with. Default 0.
 	 *   Used with $allow_current to ignore this object and its descendants.

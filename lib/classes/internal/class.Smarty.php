@@ -28,6 +28,7 @@ use CMSMS\internal\layout_stylesheet_resource;
 use CMSMS\internal\layout_template_resource;
 use CMSMS\internal\module_db_template_resource;
 use CMSMS\internal\module_file_template_resource;
+//use CMSMS\internal\cmstheme_resource;
 use CMSMS\SimpleTagOperations;
 use Exception;
 use LogicException;
@@ -56,7 +57,7 @@ require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'vendor', 'smarty', 'smarty', '
 
 /**
  * Class to tailor Smarty for CMSMS use.
- * This retains support for the Smarty2 API, but that's deprecated since 2.3
+ * This retains support for the Smarty2 API, but that's deprecated since 2.9
  *
  * @package CMS
  * @since 0.1
@@ -114,7 +115,8 @@ smarty cache lifetime != global cache ttl, probably
 //merged processing ->registerResource('cms_file',new file_template_resource())
              ->registerResource('cms_template',new layout_template_resource())
              ->registerResource('cms_stylesheet',new layout_stylesheet_resource()) //maybe some plugin would like to use this ??
-//           ->setDefaultResourceType('cms_file'); MEH... edge-case, only when explicit
+//           ->registerResource('cms_theme', new cmstheme_resource())
+//           ->setDefaultResourceType('cms_file') MEH... edge-case, only when explicit
 
              ->addPluginsDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins') //plugin-assets prevail
              ->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'plugins')
@@ -179,11 +181,25 @@ smarty cache lifetime != global cache ttl, probably
             }
         }
         elseif( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
+/*/DEBUG admin caching
+            $v = (int)AppParams::get('smarty_cachelife',-1);
+            switch( $v ) {
+                case -1:
+                    $v = SmartyParent::CACHING_LIFETIME_CURRENT;
+                    break;
+                case 0:
+                    $v = SmartyParent::CACHING_OFF;
+                    break;
+                default:
+                    $this->setCacheLifetime($v);
+                    $v = SmartyParent::CACHING_LIFETIME_SAVED;
+            }
+*/
             // our configs folder could be added (i.e. to smarty's own config dir - but that doesn't exist in 3.1.33 at least)
             $this->setConfigDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'configs')
                  ->addPluginsDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'plugins')
                  ->addTemplateDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'templates')
-                 ->setCaching(SmartyParent::CACHING_OFF); //TODO make admin caching work
+                 ->setCaching(SmartyParent::CACHING_OFF); //($v) TODO make admin caching work
             // Force re-compile after template change
             //Events::AddDynamicHandler('Core','EditTemplatePost',$TODOcallback);
             //Events::AddDynamicHandler('Core','AddTemplatePost',$TODOcallback);
@@ -323,7 +339,7 @@ smarty cache lifetime != global cache ttl, probably
     /**
      * Report whether a smarty plugin (actual, not module- or simple-plugin)
      * having the specified name exists.
-     * @since 2.3
+     * @since 2.9
      *
      * @param string the plugin identifier
      * @param string Optional plugin-type, default 'function'
