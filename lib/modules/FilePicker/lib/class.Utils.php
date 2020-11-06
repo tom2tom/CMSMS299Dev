@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-namespace FilePicker;
+namespace FilePicker; //the module-class
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
@@ -24,9 +24,10 @@ use CMSMS\FSControlValue;
 use CMSMS\NlsOperations;
 use CMSMS\Utils as AppUtils;
 use Collator;
-use FilePicker; //the module-class
+use FilePicker;
 use FilePicker\Profile;
 use const CMS_ROOT_PATH;
+use function cleanString;
 use function cms_join_path;
 use function cms_path_to_url;
 use function get_userid;
@@ -282,6 +283,9 @@ class Utils
             $profile = self::get_profile($profile, $dirpath);
         }
 
+        $config = AppSingle::Config();
+        $mod = AppUtils::get_module('FilePicker');
+        $devmode = $mod->CheckPermission('Modify Restricted Files') || $config['develop_mode'];
         $showhidden = $profile->show_hidden || $devmode;
         $showthumb = $profile->show_thumbs;
         $pex = $profile->exclude_prefix ?? '';
@@ -292,6 +296,7 @@ class Utils
         if (!$posix) {
             $ownerna = $mod->Lang('na');
         }
+        $rootpath = ($devmode) ? CMS_ROOT_PATH : $config['uploads'];
         $showup = ($dirpath != $rootpath);
 
         $result = [];
@@ -539,6 +544,7 @@ class Utils
             return '';
         }
         $fn = basename($path);
+//        $fn = cleanString($fn, 3);
         if ($fn) {
             $fn = filter_var($fn, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_LOW);
             return $dirpath . DIRECTORY_SEPARATOR . $fn;
