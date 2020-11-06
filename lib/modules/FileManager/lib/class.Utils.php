@@ -80,12 +80,12 @@ final class Utils
     {
         $advancedmode = self::check_advanced_mode();
         if( $advancedmode ) {
-			$dir = CMS_ROOT_PATH;
-		}
+            $dir = CMS_ROOT_PATH;
+        }
         else {
-			$dir = AppSingle::Config()['uploads_path'];
-			if( !startswith($dir,CMS_ROOT_PATH) ) $dir = cms_join_path(CMS_ROOT_PATH, 'uploads');
-		}
+            $dir = AppSingle::Config()['uploads_path'];
+            if( !startswith($dir,CMS_ROOT_PATH) ) $dir = cms_join_path(CMS_ROOT_PATH, 'uploads');
+        }
 
         $dir = cms_relative_path( $dir, CMS_ROOT_PATH );
         return $dir;
@@ -146,12 +146,12 @@ final class Utils
         UserParams::set('filemanager_cwd',$newpath);
     }
 
-	/**
-	 * @deprecated since 1.7 use cms_join_path();
-	 */
+    /**
+     * @deprecated since 1.7 use cms_join_path();
+     */
     public static function join_path(...$args)
     {
-		return cms_join_path($args);
+        return cms_join_path($args);
     }
 
     public static function get_full_cwd()
