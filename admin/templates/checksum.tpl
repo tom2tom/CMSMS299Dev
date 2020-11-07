@@ -1,6 +1,7 @@
 <form action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
 <div class="hidden">
-  <input type="hidden" name="{$cms_secure_param_name}" value="{$cms_user_key}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
   <input type="hidden" name="action" value="upload" />
 </div>
 <fieldset>
@@ -20,7 +21,8 @@
 <br />
 <form action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
 <div class="hidden">
-  <input type="hidden" name="{$cms_secure_param_name}" value="{$cms_user_key}" />
+  {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
+{/foreach}
   <input type="hidden" name="action" value="download" />
 </div>
 <fieldset>
