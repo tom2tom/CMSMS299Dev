@@ -1,20 +1,22 @@
 <?php
-#Non-system-dependent utility-methods available during every request
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Non-system-dependent utility-methods available during every request
+Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 /**
  * Miscellaneous support functions which are independent of CMSMS
@@ -229,20 +231,24 @@ function get_matching_files(string $dir,string $extensions = '',bool $excludedot
  * Get sorted list of paths of files and/or directories in, and descendant from, the
  * specified directory
  *
- * @since 2.3, reported directories do not have a trailing separator
+ * @since 2.9, reported directories do not have a trailing separator
  * @param  string  $path     start path
- * @param  array   $excludes Optional array of regular expressions indicating files to exclude. Default []
+ * @param  array   $excludes Optional array of regular-expressions indicating (path)names
+ *  of files to exclude. Default []
  *  '.' and '..' are automatically excluded.
  * @param  int     $maxdepth Optional max. depth to browse (-1=unlimited). Default -1
  * @param  string  $mode     Optional "FULL"|"DIRS"|"FILES". Default "FULL"
  * @return array
-**/
+ * @throws UnexpectedValueException upon filesystem access error
+ */
 function get_recursive_file_list(string $path, array $excludes = [], int $maxdepth = -1, string $mode = 'FULL') : array
 {
     $fn = function (string $name, array $excludes) : bool
     {
         foreach ($excludes as $excl) {
-            if (@preg_match('/'.$excl.'/i', $name)) return true;
+            if (@preg_match('/'.$excl.'/i', $name)) {
+                return true;
+            }
         }
         return false;
     };
@@ -259,9 +265,9 @@ function get_recursive_file_list(string $path, array $excludes = [], int $maxdep
             $iter->setMaxDepth($maxdepth);
         }
         foreach ($iter as $name=>$p) {
-            if (!($excludes && $fn($name, $excludes))) {
+            if (!($excludes && $fn($p, $excludes))) {
                 if ($iter->getInnerIterator()->isDir()) {
-                    if ($mode != 'FILES') $results[] = $p;
+                    if ($mode != 'FILES') { $results[] = $p; }
                 } elseif ($mode != 'DIRS') {
                     $results[] = $p;
                 }
@@ -387,79 +393,25 @@ function munge_string_to_url($alias, bool $tolower = false, bool $withslash = fa
     if (!$alias) {
         return '';
     }
-    if ($tolower) $alias = mb_strtolower($alias); //TODO if mb_string N/A?
+    if ($tolower) {
+        if (function_exists('mb_strtolower')) {
+            $alias = mb_strtolower($alias);
+        } else {
+            $alias = strtolower($alias); //TODO if mb_string N/A
+        }
+    }
 
     // remove invalid chars
-    $expr = '/[^\p{L}_\-\.\ \d]/u';
-    if ($withslash) $expr = '/[^\p{L}_\.\-\ \d\/]/u';
-    $tmp = trim(preg_replace($expr,'',$alias));
+    if ($withslash) { $patn = '/[^\p{L}_\.\-\ \d\/]/u'; }
+    else { $patn = '/[^\p{L}_\-\.\ \d]/u'; }
+    $tmp = trim(preg_replace($patn, '', $alias));
 
-    // remove extra dashes and spaces.
-    $tmp = str_replace(' ','-',$tmp);
-    $tmp = str_replace('---','-',$tmp);
-    $tmp = str_replace('--','-',$tmp);
-
+    // remove spaces and extra dashes
+    $tmp = strtr($tmp, [
+      ' ' => '-',
+      '---' => '-',
+      '--' => '-']);
     return trim($tmp);
-}
-
-/**
- * Get an URL query-string corresponding to the supplied value, which is
- * probably non-scalar.
- * This allows (among other things) generation of URL content that
- * replicates parameter arrays like $_POST'd parameter values, for
- * passing around and re-use without [de]serialization.
- * It behaves better than PHP http_build_query(), but only interprets 1-D arrays.
- * @since 2.3
- *
- * @param string $key parameter name/key
- * @param mixed  $val Generally an array, but may be some other non-scalar or a scalar
- * @param string $sep Optional array-item-separator. Default '$amp;'
- * @param bool   $encode  Optional flag whether to rawurlencode() the output. Default true.
- * @return string (No leading $sep for arrays)
- */
-function cms_build_query(string $key, $val, string $sep = '&amp;', $encode = true) : string
-{
-    $multi = false;
-    $eq = ($encode) ? '~~~' : '=';
-    $sp = ($encode) ? '___' : $sep;
-    if (is_array($val)) {
-        $out = '';
-        $first = true;
-        foreach ($val as $k => $v) {
-            if ($first) {
-                $out .= $key.'['.$k.']'.$eq;
-                $first = false;
-            } else {
-                $out .= $sp.$key.'['.$k.']'.$eq;
-                $multi = true;
-            }
-            if (!is_scalar($v)) {
-                try {
-                    $v = json_encode($v);
-                } catch (Throwable $t) {
-                    $v = 'UNKNOWNOBJECT';
-                }
-            }
-            $out .= $v;
-        }
-    } elseif (!is_scalar($val)) {
-        try {
-            $val = json_encode($val);
-        } catch (Throwable $t) {
-            $val = 'UNKNOWNOBJECT';
-        }
-        $out = $key.$eq.$val;
-    } else { //just in case, also handle scalars
-        $out = $key.$eq.$val;
-    }
-
-    if ($encode) {
-        $out = str_replace($eq, '=', rawurlencode($out));
-        if ($multi) {
-            $out = str_replace($sp, $sep, $out);
-        }
-    }
-    return $out;
 }
 
 /**
@@ -473,7 +425,7 @@ function cms_build_query(string $key, $val, string $sep = '&amp;', $encode = tru
  * @param string $str String to be cleaned
  * @param int $scope Optional enumerator
  *  0 remove non-printable chars < 0x80 (e.g. for a password)
- *  1 remove non-printable chars < 0x80 plus these: " ' : ; = ? ^ `
+ *  1 remove non-printable chars < 0x80 plus these: " ' : ; = ? ^ ` plus repeats of non-alphanum chars
  *    (e.g. for an html-element attribute value BUT stet some punctuation e.g. '& < > ( ) { }')
  *  2 (default) remove non-'word' chars < 0x80, other than these: - .
  *    (e.g. for a 'sensible' 1-word name)
@@ -487,7 +439,10 @@ function cleanString(string $str, int $scope = 2) : string
             $patn = '/[\x00-\x1f\x7f]/';
             break;
         case 1:
-            $str = preg_replace(['/<\?php/i','/<\?=/','/<\?\s/'], ['&#60;&#63;php','&#60;&#63;&#61;','&#60;&#63; '], $str);
+            $str = preg_replace(
+              ['/([^a-zA-Z\d\x80-\xff])\1+/','/<\?php/i','/<\?=/','/<\?\s/'],
+              ['$1','&#60;&#63;php','&#60;&#63;&#61;','&#60;&#63; '],
+              $str);
             $patn = '/[\x00-\x1f"\':;=?^`\x7f]/';
             break;
         case 3:
@@ -768,7 +723,7 @@ function is_base64(string $s) : bool
 /**
  * Create an almost-certainly-unique identifier.
  *
- * @since 2.3
+ * @since 2.9
  * @return string 32 random hexits
  */
 function cms_create_guid() : string
