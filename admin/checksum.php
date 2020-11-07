@@ -36,7 +36,7 @@ $themeObject = Utils::get_theme_object();
 $urlext = get_secure_param();
 if (!$access) {
 //TODO some pushed popup  lang('needpermissionto', '"Modify Site Preferences"')
-	return;
+    return;
 }
 
 define('CMS_BASE', dirname(__DIR__));
@@ -167,20 +167,45 @@ function check_checksum_data(&$report)
 
 function generate_checksum_file(&$report)
 {
-  $excludes = ['^\.svn' , '^CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^uploads$', '^tmp$', '^captchas$' ];
-  $tmp = get_recursive_file_list( CMS_ROOT_PATH, $excludes, -1, 'FILES');
+  $excludes = ['.*\.svn.*', '.*\.git.*', 'CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^uploads$', '^tmp$', '^captchas$', '.*UNUSED.*', '.*phar_installer.*'];
+  try {
+    $tmp = get_recursive_file_list(CMS_ROOT_PATH, $excludes, -1, 'FILES');
+  } catch (Throwable $t) {
+    $report = $t->getMessage();
+    if (($p = stripos($report, CMS_ROOT_PATH)) !== false) {
+      $report = substr($report, $p + strlen(CMS_ROOT_PATH) + 1);
+    }
+    return false;
+  }
   if( count($tmp) <= 1 ) {
     $report = lang('error_retrieving_file_list');
     return false;
   }
+  // lang files last (per FR)
+  $m = DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR;
+  usort($tmp, function($pa, $pb) use($m) {
+    if( strpos($pa, $m) === false ) {
+        return -1;
+    }
+    if( strpos($pb, $m) === false ) {
+        return 1;
+    }
+    $i = strcasecmp(dirname($pa), dirname($pb));
+    if( $i === 0 ) {
+        $i = strcasecmp(basename($pa), basename($pb));
+    }
+    return $i;
+  });
 
   $output = '';
   $salt = AppSingle::App()->GetSiteUUID();
 
   foreach( $tmp as $file ) {
-    $md5sum = md5($salt.md5_file($file));
-    $file = str_replace(CMS_ROOT_PATH,'',$file);
-    $output .= "{$md5sum}--::--{$file}\n";
+    if (!is_link($file)) {
+      $md5sum = md5($salt.md5_file($file));
+      $file = str_replace(CMS_ROOT_PATH,'',$file);
+      $output .= "{$md5sum}--::--{$file}\n";
+    }
   }
 
   $handlers = ob_list_handlers();
