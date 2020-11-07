@@ -20,10 +20,8 @@
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\GroupOperations;
 use CMSMS\HookOperations;
 use CMSMS\LangOperations;
-use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 
