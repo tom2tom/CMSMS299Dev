@@ -200,9 +200,6 @@ a.external {
     background: url(../images/icons/system/external-small.png) no-repeat left;
     padding-left: 20px
 }
-.alert-dialog a {
-    text-decoration: underline
-}
 .file::after {
     padding-right: 25px;
     font-family: "Font Awesome 5 Free";
@@ -793,6 +790,36 @@ aside .no-slide,
 .jqt-icon-info::after {
     content: '\f05a';
     color: #426ef0;
+}
+
+.alert-dialog {
+    margin: 0;
+    padding: 0;
+}
+.alert-dialog .jqtoast {
+    position: relative;
+    margin: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 0.9em;
+}
+.alert-dialog .jqtoast.error {
+    background: #f4d7d7;
+}
+.alert-dialog .jqtoast.warn {
+    background: #f9f0d2;
+}
+.alert-dialog .jqtoast.info {
+    background: #d7def4;
+}
+.alert-dialog .jqtoast.success {
+    background: #d7f4d7;
+}
+.alert-dialog .jqtoast > .jqt-heading {
+    margin-left: 32px;
+}
+.alert-dialog .jqtoast > span {
+    font-size: 0.8em;
 }
 
 #cms_busy,
@@ -1435,24 +1462,6 @@ svg.systemicon {
 
 
 /*** dialogs ***/
-
-div.alert-dialog ul li {
-    margin: 10px 0
-}
-
-div.alert-dialog .alert-icon {
-    float: right;
-    cursor: pointer;
-    margin-left: 4px;
-}
-
-div.alert-dialog .alert-remove {
-    float: left;
-    cursor: pointer;
-    margin-right: 4px;
-}
-
-div.alert-dialog span.ui-icon {}
 
 div.dialog h3 {
     margin: 5px 0;

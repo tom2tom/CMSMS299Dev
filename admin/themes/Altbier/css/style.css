@@ -200,9 +200,6 @@ a.external {
     background: url(../images/icons/system/external-small.png) no-repeat right;
     padding-right: 20px
 }
-.alert-dialog a {
-    text-decoration: underline
-}
 .file::before {
     padding-left: 25px;
     font-family: "Font Awesome 5 Free";
@@ -809,6 +806,36 @@ aside .no-slide,
     color: #426ef0;
 }
 
+.alert-dialog {
+    margin: 0;
+    padding: 0;
+}
+.alert-dialog .jqtoast {
+    position: relative;
+    margin: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 0.9em;
+}
+.alert-dialog .jqtoast.error {
+    background: #f4d7d7;
+}
+.alert-dialog .jqtoast.warn {
+    background: #f9f0d2;
+}
+.alert-dialog .jqtoast.info {
+    background: #d7def4;
+}
+.alert-dialog .jqtoast.success {
+    background: #d7f4d7;
+}
+.alert-dialog .jqtoast > .jqt-heading {
+    margin-right: 32px;
+}
+.alert-dialog .jqtoast > span {
+    font-size: 0.8em;
+}
+
 #cms_busy,
 .busy {
     position: fixed;
@@ -847,51 +874,51 @@ aside .no-slide,
 /* --- LAYOUT --- */
 
 .colbox {
-	display: flex;
-	flex-direction: column
+    display: flex;
+    flex-direction: column
 }
 .rowbox {
-	display: flex;
-	flex-direction: row
+    display: flex;
+    flex-direction: row
 }
 .colbox.expand, .rowbox.expand {
-	justify-content: space-between
+    justify-content: space-between
 }
 .colbox.flow, .rowbox.flow {
-	flex-wrap: wrap
+    flex-wrap: wrap
 }
 .boxchild {
-	flex: 0 1 auto
+    flex: 0 1 auto
 }
 .boxchild.fill {
-	flex: 1
+    flex: 1
 }
 .rowbox .boxchild {
-	margin-right: 10px
+    margin-right: 10px
 }
 .colbox .boxchild {
-	margin-bottom: 10px
+    margin-bottom: 10px
 }
 
 .resize-horizontal {
-	resize: horizontal
+    resize: horizontal
 }
 .resize-vertical {
-	resize: vertical
+    resize: vertical
 }
 .oneliner > * {
-	float: left;
-	margin-right: 20px
+    float: left;
+    margin-right: 20px
 }
 .pagecontainer .pageinput.postgap, .postgap {
-	margin-top: 5px;
-	margin-bottom: 16px;
-	overflow: auto
+    margin-top: 5px;
+    margin-bottom: 16px;
+    overflow: auto
 }
 .pagecontainer .pageinput.pregap, .pregap {
-	margin-top: 16px;
-	margin-bottom: 5px;
-	overflow: auto
+    margin-top: 16px;
+    margin-bottom: 5px;
+    overflow: auto
 }
 
 /* full height */
@@ -1448,24 +1475,6 @@ svg.systemicon {
 
 
 /*** dialogs ***/
-
-div.alert-dialog ul li {
-    margin: 10px 0
-}
-
-div.alert-dialog .alert-icon {
-    float: left;
-    cursor: pointer;
-    margin-right: 4px;
-}
-
-div.alert-dialog .alert-remove {
-    float: right;
-    cursor: pointer;
-    margin-left: 4px;
-}
-
-div.alert-dialog span.ui-icon {}
 
 div.dialog h3 {
     margin: 5px 0;
