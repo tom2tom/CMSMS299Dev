@@ -26,8 +26,6 @@ include_once __DIR__.DIRECTORY_SEPARATOR.'fileinfo.php';
 
 final class FileManager extends CMSModule
 {
-    public function AccessAllowed() { return $this->CheckPermission('Modify Files'); }
-    public function AdvancedAccessAllowed() { return $this->CheckPermission('Use FileManager Advanced',0); }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'files'; }
     public function GetAuthor() { return 'Morten Poulsen (Silmarillion)'; }
@@ -49,6 +47,9 @@ final class FileManager extends CMSModule
     public function UninstallPostMessage() { return $this->Lang('uninstalled'); }
     public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
     public function VisibleToAdminUser() { return $this->AccessAllowed(); }
+
+    public function AccessAllowed() { return $this->CheckPermission('Modify Files'); }
+    public function AdvancedAccessAllowed() { return $this->CheckPermission('Use FileManager Advanced',0); }
 
     /**
      * @deprecated since 1.7 use FilePicker\Utils::get_file_icon()
@@ -266,15 +267,15 @@ final class FileManager extends CMSModule
         }
 
         if ($this->CheckPermission('Modify Site Preferences')) {
-            $obj=new AdminMenuItem();
-            $obj->module=$this->GetName();
-            $obj->section='files';
-            $obj->title=$this->Lang('title_filemanager_settings');
-            $obj->description=$this->Lang('desc_filemanager_settings');
-            $obj->action='admin_settings';
+            $obj = new AdminMenuItem();
+            $obj->module = $this->GetName();
+            $obj->section = 'files';
+            $obj->title = $this->Lang('title_filemanager_settings');
+            $obj->description = $this->Lang('desc_filemanager_settings');
+            $obj->action = 'admin_settings';
             $obj->icon = false;
-            $obj->url=$this->create_url('m1_', $obj->action);
-            $out[]=$obj;
+            $obj->url = $this->create_url('m1_', $obj->action);
+            $out[] = $obj;
         }
 
         return $out;
