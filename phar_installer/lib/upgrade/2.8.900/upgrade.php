@@ -1,11 +1,12 @@
 <?php
 
+use CMSMS\Crypto;
 use CMSMS\Events;
 use CMSMS\Group;
-use CMSMS\SimpleTagOperations;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
 use CMSMS\TemplateOperations;
+use CMSMS\UserTagOperations;
 use function cms_installer\endswith;
 use function cms_installer\GetDataDictionary;
 use function cms_installer\joinpath;
@@ -43,7 +44,7 @@ $db->Execute($query);
 $now = time();
 $longnow = trim($db->DbTimeStamp($now),"'");
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_name=?,permission_text=?,modified_date=? WHERE permission_name=?';
-$db->Execute($query, ['Manage Simple Plugins','Modify User-Defined Tags',$longnow,'Modify User-defined Tags']);
+$db->Execute($query, ['Manage User Plugins','Modify User-Defined Tags',$longnow,'Modify User-defined Tags']);
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
 $db->Execute($query);
 
@@ -78,7 +79,7 @@ try {
 }
 $group->GrantPermission($ultras[2]);
 //$group->GrantPermission('Modify Site Assets');
-$group->GrantPermission('Manage Simple Plugins');
+$group->GrantPermission('Manage User Plugins');
 /*
 $group = new Group();
 $group->name = 'AssetManager';
@@ -153,6 +154,7 @@ $check = cms_siteprefs::get('use_smartycompilecheck', 1); //ditto
 $arr = [
     'cdn_url' => 'https://cdnjs.cloudflare.com',
     'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
+    'current_theme' => '', // frontend theme name
     'lock_refresh' => 120,
     'lock_timeout' => 60,
     'loginmodule' => '',
@@ -164,7 +166,7 @@ $arr = [
     'site_downnow' => $down, // renamed
     'smarty_cachelife' => -1, // smarty default
     'smarty_cachemodules' => 0, // nope
-    'smarty_cachesimples' => 0,
+    'smarty_cacheusertags' => 0,
     'smarty_compilecheck' => $check, // renamed
     'syntax_theme'  => '',
     'ultraroles' => json_encode($ultras),
@@ -204,14 +206,14 @@ if ($udt_list) {
             }
         }
 
-        if ($ops->SetSimpleTag($row['userplugin_name'], $params)) {
+        if ($ops->SetUserTag($row['userplugin_name'], $params)) {
             verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
         } else {
             verbose_msg('Error saving UDT named '.$row['userplugin_name']);
         }
     }
 
-    $ops = SimpleTagOperations::get_instance();
+    $ops = UserTagOperations::get_instance();
     //$smarty defined upstream, used downstream
     foreach ($udt_list as $udt) {
         create_user_plugin($udt, $ops, $smarty);
@@ -224,8 +226,8 @@ if ($udt_list) {
 ELSE | AND
 // 4. Re-format the content of pre-existing 2.3BETA UDTfiles in their folder ?
 */
-// ensure the simple_plugins folder includes a .htaccess file
-$ops = SimpleTagOperations::get_instance();
+// ensure the user_plugins folder includes a .htaccess file
+$ops = UserTagOperations::get_instance();
 $fp = $ops->FilePath('.htaccess');
 if (!is_file($fp)) {
     $ext = strtr($ops::PLUGEXT, '.', '');
@@ -235,7 +237,7 @@ EOS
     );
 }
 
-$tbl = CMS_DB_PREFIX.'simpleplugins';
+$tbl = CMS_DB_PREFIX.'userplugins';
 $sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'userplugins',$tbl);
 $dict->ExecuteSQLArray($sqlarr);
 $sqlarray = $dict->AlterColumnSQL($tbl,'userplugin_id','id I(2) AUTO KEY');
@@ -332,7 +334,11 @@ $sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'users','admin_access');
 $dict->ExecuteSQLArray($sqlarray);
 
 // extra fields
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'content','styles C(48)');
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'content','template_type C(64) AFTER template_id');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'content','styles C(48) AFTER accesskey');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'layout_templates','hierarchy C(64) COLLATE "ascii_general_ci" AFTER description');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'layout_tpl_categories', 'created I'); //for datetime migration, below
 $dict->ExecuteSQLArray($sqlarray);

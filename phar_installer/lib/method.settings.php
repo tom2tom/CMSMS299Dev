@@ -9,6 +9,7 @@ use CMSMS\Permission;
 use CMSMS\User;
 use CMSMS\UserParams;
 use CMSMS\UserOperations;
+use function cms_installer\joinpath;
 use function cms_installer\lang;
 
 // vars set in includer: $admin_user, $siteinfo[], $wiz, $app, $destdir etc
@@ -18,15 +19,15 @@ use function cms_installer\lang;
 //
 verbose_msg(lang('install_createtmpdirs'));
 $fp = constant('TMP_CACHE_LOCATION');
-if (!$fp) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/cache';
+if (!$fp) $fp = joinpath($destdir,'tmp','cache');
 @mkdir($fp,0771,true);
 touch($fp.DIRECTORY_SEPARATOR.'index.html');
 $fp = constant('PUBLIC_CACHE_LOCATION');
-if (!$fp) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/cache/public';
+if (!$fp) $fp = joinpath($destdir,'tmp','cache','public');
 @mkdir($fp,0771,true);
 touch($fp.DIRECTORY_SEPARATOR.'index.html');
 $fp = constant('TMP_TEMPLATES_C_LOCATION');
-if (!$fp) $fp = $destdir.DIRECTORY_SEPARATOR.'tmp/templates_c';
+if (!$fp) $fp = joinpath ($destdir,'tmp','templates_c');
 @mkdir($fp,0771,true);
 touch($fp.DIRECTORY_SEPARATOR.'index.html');
 
@@ -46,17 +47,18 @@ $config = $app->get_config(); //more-or-less same as $siteinfo[]
 verbose_msg(lang('install_createassets'));
 $name = $config['assetsdir'] ?? 'assets';
 $bp = $destdir.DIRECTORY_SEPARATOR.$name;
-$name = $config['pluginsdir'] ?? 'simple_plugins';
 create_private_dir($bp,'admin_custom');
 create_private_dir($bp,'configs');
-create_private_dir($bp,'css');
 create_private_dir($bp,'images');
 create_private_dir($bp,'module_custom');
 create_private_dir($bp,'modules'); // for non-core modules during installation at least
 create_private_dir($bp,'plugins');
-create_private_dir($bp,'resources');
+//create_private_dir($bp,'resources');
+$name = $config['pluginsdir'] ?? 'user_plugins';
 create_private_dir($bp,$name); //UDTfiles
+create_private_dir($bp,'styles');
 create_private_dir($bp,'templates');
+create_private_dir($bp,'themes');
 
 foreach ([
 	$destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules',
@@ -97,6 +99,8 @@ foreach ([
 	'cdn_url' => 'https://cdnjs.cloudflare.com', // or e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
 	'checkversion' => 1,
 	'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
+	'current_theme' => '', // frontend theme name
+	'lock_refresh' => 120
 	'defaultdateformat' => '%e %B %Y',
 	'enablesitedownmessage' => 0, //deprecated since 2.9 use site_downnow
 	'frontendlang' => 'en_US',
@@ -120,8 +124,8 @@ foreach ([
 //	'sitemask' => '', for old (md5-hashed) admin-user passwords - useless in new installs
 	'sitename' => $siteinfo['sitename'],
 	'smarty_cachelife' => -1, // smarty default
-	'smarty_cachemodules' => 0,
-	'smarty_cachesimples' => 0,
+	'smarty_cachemodules' => 0, // CSMS2-compatible
+	'smarty_cacheusertags' => 0, // CSMS2-compatible
 	'smarty_compilecheck' => 1, //see also deprecated use_smartycompilecheck
 	'thumbnail_height' => 96,
 	'thumbnail_width' => 96,
@@ -165,11 +169,11 @@ foreach ([
 	'Manage My Settings',
 	'Manage Stylesheets',
 	'Manage Users',
+	'Manage User Plugins',
 //	'Modify Any Page', >CM
 	['Modify Database', 'Change database tables existence, structure'],
 	['Modify Database Content', 'Modify recorded data via SSH'], // add/remove/update stored data - for remote management, sans admin console
 	'Modify Events',
-	'Manage Simple Plugins',
 	'Modify Files',
 	'Modify Modules',
 	'Modify Permissions',
@@ -177,6 +181,7 @@ foreach ([
 //	'Modify Site Assets', no deal !!
 	'Modify Site Preferences',
 	'Modify Templates',
+	'Modify Themes', //>TM ?
 	['Remote Administration', 'Site administration via SSH'],  //for remote management, sans admin console kinda Modify Database Content + Modify Restricted Files
 //	'Remove Pages', >CM
 //	'Reorder Content', >CM
@@ -218,7 +223,7 @@ $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Restricted Files');
 //$group->GrantPermission('Modify Site Assets');
-$group->GrantPermission('Manage Simple Plugins');
+$group->GrantPermission('Manage User Plugins');
 /* too risky
 $group = new Group();
 $group->name = 'AssetManager';

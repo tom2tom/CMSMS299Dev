@@ -62,7 +62,8 @@ verbose_msg(lang('install_creating_index', 'admin_bookmarks', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'content';
 //parent_id may be < 0 hence signed int
-//prop_names X, unused since 2.0, removed 2.3
+//prop_names X, unused since 2.0, removed 2.9
+//styles numeric id('s) or theme-specific name 
 $flds = '
 content_id I(2) UNSIGNED KEY,
 content_name C(255),
@@ -75,6 +76,7 @@ secure I(1) DEFAULT 0,
 owner_id I(2) UNSIGNED,
 parent_id I(4),
 template_id I(2) UNSIGNED,
+template_type C(64),
 item_order I(1) UNSIGNED DEFAULT 0,
 hierarchy C(255),
 menu_text C(255),
@@ -295,10 +297,10 @@ parameters X(1023),
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'simpleplugins', $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'userplugins', $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', 'simpleplugins', $msg_ret));
+verbose_msg(lang('install_created_table', 'userplugins', $msg_ret));
 
 /* merged with layout_templates
 $flds = '
@@ -444,6 +446,7 @@ originator C(32),
 name C(64) NOT NULL,
 content X,
 description X(1024),
+hierarchy C(64) COLLATE "ascii_general_ci",
 type_id I(2) UNSIGNED NOT NULL,
 owner_id I(2) UNSIGNED NOT NULL DEFAULT 1,
 type_dflt I(1) DEFAULT 0,
