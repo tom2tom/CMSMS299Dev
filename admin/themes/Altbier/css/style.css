@@ -2717,7 +2717,7 @@ ul.social-icons li {
         -webkit-overflow-scrolling: touch;
         -ms-overflow-style: -ms-autohiding-scrollbar;
         display: block;
-        padding-bottom: 2rem;
+/*        padding-bottom: 2rem; */
     }
 
     /* fieldset, */
