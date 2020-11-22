@@ -1,20 +1,25 @@
 <?php
-#Module: DesignManager - A CMSMS addon module to provide designs management.
+#Module: DesignManager - A CMSMS module to provide design management.
 #Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+#
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
-#This program is free software; you can redistribute it and/or modify
+#CMS Made Simple is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
+#the Free Software Foundation; either version 2 of that license, or
 #(at your option) any later version.
 #
-#This program is distributed in the hope that it will be useful, but
+#CMS Made Simple is distributed in the hope that it will be useful, but
 #WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License along
-#with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+#You should have received a copy of that license along with CMS Made Simple.
+#If not, see <https://www.gnu.org/licenses/>.
+
+use CMSMS\AdminMenuItem;
+//use CMSMS\AppSingle;
 
 final class DesignManager extends CMSModule
 {
@@ -56,12 +61,12 @@ final class DesignManager extends CMSModule
     public function GetAdminMenuItems()
     {
         $out = [];
-        if( $this->VisibleToAdminUser() ) $out[] = CmsAdminMenuItem::from_module($this);
+        if( $this->VisibleToAdminUser() ) $out[] = AdminMenuItem::from_module($this);
 /*
         $state = $this->VisibleToAdminUser();
 
         if ($state) {
-            $obj = new CmsAdminMenuItem();
+            $obj = new CMSMS\AdminMenuItem();
             $obj->module = $this->GetName();
             $obj->section = 'layout';  //aka presentation
             $obj->title = $this->Lang('prompt_action_styles');
@@ -70,7 +75,7 @@ final class DesignManager extends CMSModule
             $obj->icon = false;
             $out[] = $obj;
 
-            $obj = new CmsAdminMenuItem();
+            $obj = new CMSMS\AdminMenuItem();
             $obj->module = $this->GetName();
             $obj->section = 'layout';
             $obj->title = $this->Lang('prompt_action_templates');
@@ -79,9 +84,9 @@ final class DesignManager extends CMSModule
             $obj->icon = false;
             $out[] = $obj;
 
-            $config = cms_config::get_instance();
+            $config = CMSMS\AppSingle::Config();
             if (1) { //DEBUG $config['develop_mode']) {
-                $obj = new CmsAdminMenuItem();
+                $obj = new CMSMS\AdminMenuItem();
                 $obj->module = $this->GetName();
                 $obj->section = 'layout';
                 $obj->title = $this->Lang('prompt_action_designs');
@@ -93,7 +98,7 @@ final class DesignManager extends CMSModule
         }
 
         if ($this->CheckPermission('Modify Site Preferences')) {
-            $obj = new CmsAdminMenuItem();
+            $obj = new CMSMS\AdminMenuItem();
             $obj->module = $this->GetName();
             $obj->section = 'layout';
             $obj->title = $this->Lang('prompt_action_settings');
