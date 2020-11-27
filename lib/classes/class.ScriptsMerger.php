@@ -71,7 +71,7 @@ class ScriptsMerger
     }
 
     /**
-     * Record a string to be merged
+     * Record a string to be merged, after converting to an IIFE if not already such
      *
      * @param string $output   js string
      * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
@@ -79,6 +79,10 @@ class ScriptsMerger
      */
     public function queue_string(string $output, int $priority = 0, bool $force = false)
     {
+        // check for existing IIFE
+        if (!preg_match('/\} *(\) *\(|\( *\)) *\)( *\n? *)*$/', $output)) {
+            $output = '(function() {' . "\n". trim($output) . "\n". '})()' . "\n"; // OR '(() => {' ...
+        }
         $sig = Crypto::hash_string(__FILE__.$output);
         $output_file = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR."cms_$sig.js";
         if ($force || !is_file($output_file)) {
