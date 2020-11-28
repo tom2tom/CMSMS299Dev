@@ -405,25 +405,25 @@ $(function() {
 
   $('a.edit_filter').on('click', function() {
     cms_dialog($('#filterdialog'), {
-    open: function(ev, ui) {
-      cms_equalWidth($('#filterdialog label.boxchild'));
-    },
-    width: 'auto',
-    buttons: {
-      '$submit': function() {
-        $(this).dialog('close');
-        $('#filterdialog_form').trigger('submit');
+      open: function(ev, ui) {
+        cms_equalWidth($('#filterdialog label.boxchild'));
       },
-      '$reset': function() {
-        $(this).dialog('close');
-        var el = $('#filterdialog_form');
-        el.find('#filter_tpl').val([]);
-        el.trigger('submit');
-      },
-      '$cancel': function() {
-        $(this).dialog('close');
+      width: 'auto',
+      buttons: {
+       '$submit': function() {
+          $(this).dialog('close');
+          $('#filterdialog_form').trigger('submit');
+        },
+        '$reset': function() {
+          $(this).dialog('close');
+          var el = $('#filterdialog_form');
+          el.find('#filter_tpl').val([]);
+          el.trigger('submit');
+        },
+        '$cancel': function() {
+          $(this).dialog('close');
+        }
       }
-    }
     });
   });
   $('a.edit_tpl').on('click', function(e) {
