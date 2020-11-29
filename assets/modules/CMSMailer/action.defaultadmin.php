@@ -23,6 +23,7 @@ use CMSMailer\Mailer;
 use CMSMS\App;
 use CMSMS\AppParams;
 use CMSMS\Crypto;
+use CMSMS\FormUtils;
 use CMSMS\Utils;
 
 if (!isset($gCms) || !($gCms instanceof App)) exit;
@@ -143,6 +144,7 @@ if (isset($params['sendtest'])) {
 }
 
 $baseurl = $this->GetModuleURLPath();
+//TODO deploy a ScriptsMerger, for easier CSP compliance
 $js = <<<EOS
  <script type="text/javascript" src="{$baseurl}/lib/js/jquery-inputCloak.min.js"></script>
 EOS;
@@ -206,16 +208,17 @@ $mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['passwo
 
 if (empty($activetab)) { $activetab = 'settings'; }
 
-$extras = get_secure_param_array(); //TODO all hidden items in form
+//$extras = []; //TODO all hidden items in form
 if (0) { //TODO if light-module
     $tpl = $this->GetTemplateObject('defaultadmin.tpl');
 } else {
     $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
 }
 
+// CMSMS 2.2 'startform' => $this->CreateFormStart($id, 'defaultadmin', $returnid),
+// 'extraparms' => $extras,
 $tpl->assign([
- 'startform' => $this->CreateFormStart($id, 'defaultadmin', $returnid), //TODO FormUtils::whatever
- 'extraparms' => $extras,
+ 'startform' => FormUtils::create_form_start($this, ['id' => $id, 'action' => 'defaultadmin']),
  'tab' => $activetab,
  'title_charset' => $this->Lang('charset'),
  'help_charset' => 'info_charset',
