@@ -235,6 +235,8 @@ class ResourceMethods
 
 	public function InstallPostMessage() {}
 
+	public function IsAdminOnly() { return true; }
+
 	public function Lang(...$args) //: string|null
 	{
 		return LangOperations::lang_from_realm($this->GetName(), ...$args);
