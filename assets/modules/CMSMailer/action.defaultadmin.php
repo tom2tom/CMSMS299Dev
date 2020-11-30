@@ -23,6 +23,7 @@ use CMSMailer\Mailer;
 use CMSMS\App;
 use CMSMS\AppParams;
 use CMSMS\Crypto;
+use CMSMS\IResource;
 use CMSMS\FormUtils;
 use CMSMS\Utils;
 
@@ -209,7 +210,7 @@ $mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['passwo
 if (empty($activetab)) { $activetab = 'settings'; }
 
 //$extras = []; //TODO all hidden items in form
-if (0) { //TODO if light-module
+if ($this instanceof IResource) { // light-module
     $tpl = $this->GetTemplateObject('defaultadmin.tpl');
 } else {
     $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
