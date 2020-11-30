@@ -465,9 +465,8 @@ final class Utils
         if ($module_name) {
             $db = AppSingle::Db();
             $sql = 'DELETE FROM '.CmsJobManager::TABLE_NAME.' WHERE module = ?';
-            if ($db->Execute($sql, [$module_name])) {
-                return;
-            }
+            $db->Execute($sql, [$module_name]); // don't care if this fails i.e. no jobs
+            return;
         }
         throw new InvalidArgumentException('Invalid module name passed to '.__METHOD__);
     }
