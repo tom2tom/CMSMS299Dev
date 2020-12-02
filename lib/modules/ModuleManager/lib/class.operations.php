@@ -278,15 +278,15 @@ class operations
         if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
 /*
         // generate a moduleinfo.ini file, if N/A now
-		$fn = $dir.'/moduleinfo.ini';
-		if( !is_file($fn) ) {
-	        ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
-//			$cache = SysDataCache::get_instance();
-//			$cache->release('modules');
-//			$cache->release('module_deps');
-//			$cache->release('module_plugins');
-//			$cache->clear_cache();
-		}
+        $fn = $dir.'/moduleinfo.ini';
+        if( !is_file($fn) ) {
+            ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
+//          $cache = SysDataCache::get_instance();
+//          $cache->release('modules');
+//          $cache->release('module_deps');
+//          $cache->release('module_plugins');
+//          $cache->clear_cache();
+        }
 */
         $xw = new XMLWriter();
         $outfile = cms_join_path(TMP_CACHE_LOCATION,'module'.Crypto::hash_string($dir).'.xml');
