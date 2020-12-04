@@ -22,6 +22,7 @@ use CMSMS\HookOperations;
 use CMSMS\TemplateType;
 use CMSMS\Utils as AppUtils;
 //use Search\Command\ReindexCommand;
+//use Search\PruneJob;
 use Search\Utils as Utils;
 
 const NON_INDEXABLE_CONTENT = '<!-- pageAttribute: NotSearchable -->';
@@ -69,7 +70,7 @@ class Search extends CMSModule
 
     public function InitializeFrontend()
     {
-//2.3 does nothing        $this->RestrictUnknownParams();
+//2.9 does nothing        $this->RestrictUnknownParams();
         $this->SetParameterType('count',CLEAN_INT);
         $this->SetParameterType('detailpage',CLEAN_STRING);
         $this->SetParameterType('formtemplate',CLEAN_STRING);
@@ -120,14 +121,20 @@ class Search extends CMSModule
 
     public function DeleteWords($module = 'Search', $id = -1, $attr = '')
     {
-        return Utils::DeleteWords($this, $module, $id, $attr);
+        return Utils::DeleteWords($module, $id, $attr);
     }
 
+    /**
+     * @param $module UNUSED
+     * @param $id UNUSED
+     * @param $attr UNUSED
+     */
     public function DeleteAllWords($module = 'Search', $id = -1, $attr = '')
     {
-        $db = $this->GetDb();
+        $db = cmsms()->GetDb();
         $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_index');
         $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_items');
+        $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_words');
 
         Events::SendEvent( 'Search', 'SearchAllItemsDeleted' );
     }
@@ -156,6 +163,7 @@ class Search extends CMSModule
     {
         switch( $capability ) {
         case CoreCapabilities::CORE_MODULE:
+//        case CoreCapabilities::TASKS:
         case CoreCapabilities::SEARCH_MODULE:
         case CoreCapabilities::PLUGIN_MODULE:
         case CoreCapabilities::SITE_SETTINGS:
@@ -166,6 +174,11 @@ class Search extends CMSModule
         return false;
     }
 
+/*    public function get_tasks()
+    {
+        return [new PruneJob()];
+    }
+*/
     /**
      * Hook function to populate centralised site-settings UI
      * @internal
@@ -193,7 +206,7 @@ class Search extends CMSModule
     {
         if( $type->get_originator() != 'Search' ) throw new UnexpectedValueException('Cannot reset contents for this template type');
 
-        $mod = AppUtils::get_module('Search');
+        $mod = AppUtils::get_module('Search'); //might be some other module
         if( !is_object($mod) ) return;
         switch( $type->get_name() ) {
         case 'searchform':
