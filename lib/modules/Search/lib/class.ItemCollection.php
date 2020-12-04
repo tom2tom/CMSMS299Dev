@@ -16,13 +16,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace Search;
 
 use Search\Utils;
 
 /**
- * @since 2.3
+ * @since 2.9
  */
 
 class ItemCollection
@@ -32,7 +31,7 @@ class ItemCollection
 
     public function AddItem($title, $url, $txt, $weight = 1, $module = '', $modulerecord = 0)
     {
-        if( $txt == '' ) $txt = $url;
+        if ($txt == '') $txt = $url;
         $exists = false;
 
         foreach ($this->_ary as $oneitem) {
@@ -42,7 +41,7 @@ class ItemCollection
             }
         }
 
-        if (!$exists) {
+        if (!$exists ) {
             $newitem = new StdClass();
             $newitem->url = $url;
             $newitem->urltxt = Utils::CleanupText($txt);
@@ -51,7 +50,7 @@ class ItemCollection
             if ((int)$weight > $this->maxweight) $this->maxweight = (int)$weight;
             if (!empty($module) ) {
                 $newitem->module = $module;
-                if((int)$modulerecord > 0 )	$newitem->modulerecord = $modulerecord;
+                if((int)$modulerecord > 0 ) $newitem->modulerecord = $modulerecord;
             }
             $this->_ary[] = $newitem;
         }
@@ -59,16 +58,15 @@ class ItemCollection
 
     public function CalculateWeights()
     {
-		foreach ($this->_ary as &$oneitem) {
+        foreach ($this->_ary as &$oneitem) {
             $oneitem->weight = (int)($oneitem->intweight / $this->maxweight) * 100;
         }
-		unset($oneitem);
+        unset($oneitem);
     }
 
     public function Sort()
     {
-        usort($this->_ary, function($a,$b)
-        {
+        usort($this->_ary, function($a,$b) {
             return ($a->urltxt <=> $b->urltxt);
         });
     }
