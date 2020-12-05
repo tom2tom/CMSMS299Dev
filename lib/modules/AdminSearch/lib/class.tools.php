@@ -12,7 +12,7 @@ final class tools
 
   public static function get_slave_classes()
   {
-    $key = 'slaves'.get_userid(FALSE);
+    $key = 'slaves'.get_userid(false);
     $cache = SystemCache::get_instance();
     $results = $cache->get($key,self::class);
     if( !$results ) {
@@ -36,7 +36,7 @@ final class tools
           if( $classlist ) {
             foreach( $classlist as $class_name ) {
 /* don't assume all slave-classes can be namespaced (if not supplied as such)
-              if( strpos($class_name,'\\') === FALSE ) {
+              if( strpos($class_name,'\\') === false ) {
                   $class_name = $module_name.'\\'.$class_name;
               }
 */

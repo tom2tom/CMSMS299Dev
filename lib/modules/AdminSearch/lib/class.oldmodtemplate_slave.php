@@ -51,9 +51,9 @@ final class oldmodtemplate_slave extends slave
 
           //unlike other slaves, no 'description' or 'edit_url' reported
           $output[] = [
-		   'title'=>$row['originator'].' + '.$row['name'],
-		   'text'=>$text
-		  ];
+           'title'=>$row['originator'].' + '.$row['name'],
+           'text'=>$text
+          ];
         }
       }
 

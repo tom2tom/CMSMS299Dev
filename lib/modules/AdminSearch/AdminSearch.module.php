@@ -57,7 +57,7 @@ final class AdminSearch extends CMSModule
     public function DoAction($name, $id, $params, $returnid = '')
     {
         $smarty = CmsApp::get_instance()->GetSmarty();
-        $smarty->assign('mod', $this);
+        $smarty->assign('mod', $this); // probably redundant
         return parent::DoAction($name, $id, $params, $returnid);
     }
 
