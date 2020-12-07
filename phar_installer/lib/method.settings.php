@@ -100,7 +100,6 @@ foreach ([
 	'checkversion' => 1,
 	'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
 	'current_theme' => '', // frontend theme name
-	'lock_refresh' => 120
 	'defaultdateformat' => '%e %B %Y',
 	'enablesitedownmessage' => 0, //deprecated since 2.9 use site_downnow
 	'frontendlang' => 'en_US',
