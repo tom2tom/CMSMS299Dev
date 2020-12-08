@@ -76,7 +76,7 @@
  <div class="pageoverflow">
   {$t=lang_by_realm('layout','prompt_template_content')}<label class="pagetext" for="edit_area">{$t}:</label>
   {cms_help realm='layout' key2=help_template_contents title=$t}<br />
-  <textarea class="pageinput" id="edit_area" name="content" data-cms-lang="smarty" rows="10" cols="40" style="width:40em;min-height:2em;"{if !$can_manage} readonly="readonly"{/if}>{$template->get_content()}</textarea>
+  <textarea class="pageinput" id="edit_area" name="content" data-cms-lang="smarty" rows="10" cols="40" style="width:40em;min-height:2em;max-height:12em;"{if !$can_manage} readonly="readonly"{/if}>{$template->get_content()}</textarea>
  </div>
  <div class="pageinput pregap">
    <button type="submit" name="dosubmit" id="submitbtn" class="adminsubmit icon check" {$disable|strip}>{lang('submit')}</button>
