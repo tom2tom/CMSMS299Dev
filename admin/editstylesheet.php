@@ -72,7 +72,7 @@ try {
 			if (isset($_REQUEST['media_type'])) $typ = $_REQUEST['media_type'];
 			$css_ob->set_media_types($typ);
 			if (isset($_REQUEST['media_query'])) $css_ob->set_media_query($_REQUEST['media_query']);
-/*            if (check_permission($userid,'Manage Designs')) {
+/*			if (check_permission($userid,'Manage Designs')) {
 				$design_list = [];
 				if (isset($_REQUEST['design_list'])) $design_list = $_REQUEST['design_list'];
 				$css_ob->set_designs($design_list);
@@ -339,10 +339,11 @@ EOS;
 	 ->assign('urlext',$urlext);
 
 	$content = $smarty->fetch('editstylesheet.tpl');
-	require './header.php';
+	$sep = DIRECTORY_SEPARATOR;
+	require ".{$sep}header.php";
 	echo $content;
-	require './footer.php';
-} catch (CmsException $e) {
-	$themeObject->ParkNotice('error',$e->GetMessage());
+	require ".{$sep}footer.php";
+} catch (Throwable $t) {
+	$themeObject->ParkNotice('error',$t->GetMessage());
 	redirect('liststyles.php'.$urlext);
 }
