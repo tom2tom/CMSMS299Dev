@@ -78,13 +78,9 @@
 *}
 {tab_start name='sheet'}
 <div class="pageoverflow">
-  <p class="pagetext">
-    <label for="stylesheet">{lang_by_realm('layout','prompt_stylesheet')}:</label>
-    {cms_help realm='layout' key2=help_stylesheet_content title=lang_by_realm('layout','prompt_stylesheet')}
-  </p>
-  <p class="pageinput">
-    {cms_textarea id=content name=content value=$css->get_content() type=css rows=20 cols=80}
-  </p>
+ {$t=lang_by_realm('layout','prompt_stylesheet')}<label class="pagetext" for="edit_area">{$t}:</label>
+ {cms_help realm='layout' key2=help_stylesheet_content title=$t}<br />
+ <textarea class="pageinput" id="edit_area" name="content" data-cms-lang="css" rows="10" cols="40" style="width:40em;min-height:2em;max-height:20em;"{if !$can_manage} readonly="readonly"{/if}>{$css->get_content()}</textarea>
 </div>
 {tab_start name='description'}
 <div class="pageoverflow">
