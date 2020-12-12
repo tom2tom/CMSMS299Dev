@@ -61,7 +61,7 @@ $lang['export_design'] = 'Export Design to XML';
 $lang['export'] = 'Export';
 
 //F
-$lang['friendlyname'] = 'Design Manager';
+$lang['friendlyname'] = 'Designs'; //'Design Manager';
 
 //H
 $lang['group_desc'] = 'Members of this group can manage designs';
