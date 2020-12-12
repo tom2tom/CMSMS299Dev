@@ -1,21 +1,24 @@
 <?php
-#Class of methods for dealing with language/encoding/locale
-#Copyright (C) 2015-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class of methods for dealing with language/encoding/locale
+Copyright (C) 2015-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CMSMS\AppParams;
@@ -25,6 +28,7 @@ use CMSMS\LanguageDetector;
 use CMSMS\Nls;
 use CMSMS\UserParams;
 use const CMS_ROOT_PATH;
+use function cleanString;
 use function cms_join_path;
 use function get_userid;
 
@@ -40,7 +44,7 @@ use function get_userid;
  */
 final class NlsOperations
 {
-    // static properties here >> StaticProperties class ?
+	// static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 */
@@ -116,7 +120,9 @@ final class NlsOperations
 	public static function get_installed_languages()
 	{
 		self::_load_nls();
-		if( is_array(self::$_nls) ) return array_keys(self::$_nls);
+		if( is_array(self::$_nls) ) {
+			return array_keys(self::$_nls);
+		}
 	}
 
 	/**
@@ -128,19 +134,21 @@ final class NlsOperations
 	public static function get_language_info(string $lang)
 	{
 		self::_load_nls();
-		if( isset(self::$_nls[$lang]) ) return self::$_nls[$lang];
+		if( isset(self::$_nls[$lang]) ) {
+			return self::$_nls[$lang];
+		}
 	}
 
 	/**
 	 * Get indicator whether current lang is ltr or rtl
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 * @return string 'ltr' or 'rtl'
 	 */
 	public static function get_language_direction() : string
 	{
 		$lang = self::get_language_info(self::get_current_language());
-		if( is_object($lang) && $lang->direction() == 'rtl' ) return 'rtl';
+		if( is_object($lang) && $lang->direction() == 'rtl' ) { return 'rtl'; }
 		return 'ltr';
 	}
 
@@ -162,16 +170,22 @@ final class NlsOperations
 	 */
 	public static function set_language(string $lang = '') : bool
 	{
-	  $curlang = '';
-	  if( self::$_cur_lang != '') $curlang = self::$_cur_lang;
-	  if( $lang == '' && AppSingle::App()->is_frontend_request() && is_object(self::$_fe_language_detector) ) $lang = self::$_fe_language_detector->find_language();
-	  if( $lang != '' ) $lang = self::find_nls_match($lang); // resolve input string
-	  if( $lang == '' ) $lang = self::get_default_language();
-	  if( $curlang == $lang ) return TRUE; // nothing to do.
+		$curlang = ( self::$_cur_lang != '' ) ? self::$_cur_lang : '';
+
+		if( $lang == '' && AppSingle::App()->is_frontend_request() && is_object(self::$_fe_language_detector) ) {
+			$lang = self::$_fe_language_detector->find_language();
+		}
+		if( $lang != '' ) {
+			$lang = self::find_nls_match($lang); // resolve input string
+		}
+		if( $lang == '' ) {
+			$lang = self::get_default_language();
+		}
+		if( $curlang == $lang ) return TRUE; // nothing to do.
 
 		self::_load_nls();
 		if( isset(self::$_nls[$lang]) ) {
-			// lang is okay... now we can set it.
+			// lang is ok... now we can set it.
 			self::$_cur_lang = $lang;
 			// and set the locale along with this language.
 			self::set_locale();
@@ -190,8 +204,12 @@ final class NlsOperations
 	 */
 	public static function get_current_language() : string
 	{
-		if( isset(self::$_cur_lang) ) return self::$_cur_lang;
-		if( is_object(self::$_fe_language_detector) && AppSingle::App()->is_frontend_request() ) return self::$_fe_language_detector->find_language();
+		if( isset(self::$_cur_lang) ) {
+			return self::$_cur_lang;
+		}
+		if( is_object(self::$_fe_language_detector) && AppSingle::App()->is_frontend_request() ) {
+			return self::$_fe_language_detector->find_language();
+		}
 		return self::get_default_language();
 	}
 
@@ -212,8 +230,9 @@ final class NlsOperations
 	 */
 	public static function get_default_language() : string
 	{
-		if( self::$_stored_dflt_language ) return self::$_stored_dflt_language;
-
+		if( self::$_stored_dflt_language ) {
+			return self::$_stored_dflt_language;
+		}
 		self::_load_nls();
 
 		if( AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_STYLESHEET | AppState::STATE_INSTALL) ) {
@@ -222,7 +241,9 @@ final class NlsOperations
 		else {
 			$lang = self::get_frontend_language();
 		}
-		if( !$lang ) $lang = 'en_US';
+		if( !$lang ) {
+			$lang = 'en_US';
+		}
 		self::$_stored_dflt_language = $lang;
 		return $lang;
 	}
@@ -251,51 +272,72 @@ final class NlsOperations
 	 */
 	protected static function get_admin_language() : string
 	{
-				$uid = $lang = null;
+		$uid = $lang = null;
 		if( !AppState::test_state(AppState::STATE_LOGIN_PAGE) ) {
 			$uid = get_userid(false);
 			if( $uid ) {
 				$lang = UserParams::get_for_user($uid,'default_cms_language');
 				if( $lang ) {
 					self::_load_nls();
-					if( !isset(self::$_nls[$lang]) ) $lang = null;
+					if( !isset(self::$_nls[$lang]) ) {
+						$lang = null;
+					}
 				}
 			}
 		}
-
-		if( !$lang ) $lang = self::detect_browser_language();
 
 		if( $uid && isset($_POST['default_cms_language']) ) {
 			// a hack to handle the editpref case of the user changing his language
 			// this is needed because the lang stuff is included before the preference may
 			// actually be set.
 			self::_load_nls();
-			$a2 = basename(trim($_POST['default_cms_language']));
-			if( $a2 && isset(self::$_nls[$a2]) ) $lang = $a2;
+//TODO crap sanitization	$a2 = basename(trim($_POST['default_cms_language']));
+			$a2 = cleanString($_POST['default_cms_language']);
+			if( $a2 && isset(self::$_nls[$a2]) ) {
+				$lang = $a2;
+			}
 		}
 
-		if( $lang == '' ) $lang = 'en_US';
+		if( !$lang ) {
+			$lang = self::detect_browser_language();
+		}
+
+		if( !$lang ) {
+			$lang = 'en_US';
+		}
 		return $lang;
 	}
 
 	/**
-	 * Cross reference the browser preferred language with those
-	 * that are available (via NLS Files).  To find the first
+	 * Cross-reference the browser preferred language with those
+	 * that are available (via NLS Files). To find the first
 	 * suitable language.
 	 *
-	 * @return string First suitable lang string, or null
+	 * @return string First suitable lang identifier, or null
 	 */
 	public static function detect_browser_language()
 	{
 		$langs = self::get_browser_languages();
-		if( !is_array($langs) || !count($langs) ) return;
-
+		if( !$langs || !is_array($langs) ) {
+			return;
+		}
 		self::_load_nls();
+		// check for exact match
 		foreach( $langs as $onelang => $weight ) {
-			if( isset(self::$_nls[$onelang]) ) return $onelang;
-
-			foreach( self::$_nls as $key => $obj ) {
-				if( $obj->matches($onelang) ) return $obj->name();
+			if( isset(self::$_nls[$onelang]) ) {
+				return $onelang;
+			}
+			$t = strtr($onelang, '-', '_');
+			if( isset(self::$_nls[$t]) ) {
+				return $t;
+			}
+		}
+		// check for approximate match (in self::$_nls - order) TODO per weight etc
+		foreach( $langs as $onelang => $weight ) {
+			foreach( self::$_nls as $obj ) {
+				if( $obj->matches($onelang) ) {
+					return $obj->name();
+				}
 			}
 		}
 	}
@@ -320,12 +362,10 @@ final class NlsOperations
 			foreach ($langs as $lang => $val) {
 				if ($val === '') $langs[$lang] = 1;
 			}
-
-			// sort list based on value
+			// sort list based on weight
 			arsort($langs, SORT_NUMERIC);
+			return $langs;
 		}
-
-		return $langs;
 	}
 
 	/**
