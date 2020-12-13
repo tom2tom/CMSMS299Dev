@@ -88,7 +88,10 @@ function get_language_list(bool $allow_none = true) : array
         foreach( $langs as $key ) {
             $obj = NlsOperations::get_language_info($key);
             $value = $obj->display();
-            if( $obj->fullname() ) $value .= ' ('.$obj->fullname().')';
+            $value2 = $obj->fullname();
+            if( $value2 && $value2 != $value ) {
+                $value .= ' ('.$value2.')';
+            }
             $tmp[$key] = $value;
         }
     }
