@@ -291,7 +291,6 @@ final class NlsOperations
 			// this is needed because the lang stuff is included before the preference may
 			// actually be set.
 			self::_load_nls();
-//TODO crap sanitization	$a2 = basename(trim($_POST['default_cms_language']));
 			$a2 = cleanString($_POST['default_cms_language']);
 			if( $a2 && isset(self::$_nls[$a2]) ) {
 				$lang = $a2;
@@ -322,16 +321,17 @@ final class NlsOperations
 			return;
 		}
 		self::_load_nls();
-		// check for exact match
-		foreach( $langs as $onelang => $weight ) {
-			if( isset(self::$_nls[$onelang]) ) {
-				return $onelang;
+/*		// check for exact match
+		foreach( $langs as $lang => $weight ) {
+			if( isset(self::$_nls[$lang]) ) {
+				return $lang;
 			}
 		}
-		// check for approximate match (in self::$_nls - order)
-		foreach( $langs as $onelang => $weight ) {
+*/
+		// check for approximate match (in self::$_nls[] order)
+		foreach( $langs as $lang => $weight ) {
 			foreach( self::$_nls as $obj ) {
-				if( $obj->matches($onelang) ) {
+				if( $obj->matches($lang) ) {
 					return $obj->name();
 				}
 			}
@@ -356,19 +356,19 @@ final class NlsOperations
 
 			// convert '-' separator to '_' to match local format
 			// set default to 1 for any lang without q factor
-			foreach ($langs as $lang => $val) {
+			foreach( $langs as $lang => $weight ) {
 				$t = strtr($lang, '-', '_');
 				if( $t != $lang ) {
 					unset($langs[$lang]);
-					if( $val === '' ) { $langs[$t] = 1; }
-					else { $langs[$t] = $val; }
+					if( $weight === '' ) { $langs[$t] = 1; }
+					else { $langs[$t] = $weight; }
 				}
-				elseif( $val === '' ) {
+				elseif( $weight === '' ) {
 					$langs[$lang] = 1;
 				}
 			}
-			// sort list by q factors
-			arsort($langs, SORT_NUMERIC);
+			// sort langs by q factors, least-specific last
+			asort($langs, SORT_NUMERIC); //since 2.99 (was arsort)
 			return $langs;
 		}
 	}
