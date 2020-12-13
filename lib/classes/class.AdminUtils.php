@@ -229,7 +229,7 @@ final class AdminUtils
 							$out = '<img src="'.$path.'"';
 						}
 						$extras = array_merge(['alt'=>$module, 'title'=>$module], $attrs);
-						foreach($extras as $key => $value) {
+						foreach ($extras as $key => $value) {
 							if ($value !== '' || $key == 'title') {
 								$out .= " $key=\"$value\"";
 							}
@@ -307,7 +307,7 @@ final class AdminUtils
 		$key1 = '';
 		$key2 = '';
 		$title = '';
-		foreach($params as $key => $value) {
+		foreach ($params as $key => $value) {
 			switch($key) {
 			case 'key1':
 			case 'realm':
@@ -365,7 +365,7 @@ final class AdminUtils
 		$ttl = $age_days * 24 * 3600;
 		$the_time = time() - $ttl;
 		$dirs = array_unique([TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION]);
-		foreach($dirs as $start_dir) {
+		foreach ($dirs as $start_dir) {
 			$iter = new RecursiveIteratorIterator(
 				new RecursiveDirectoryIterator($start_dir,
 					FilesystemIterator::KEY_AS_FILENAME |
@@ -373,7 +373,7 @@ final class AdminUtils
 				),
 				RecursiveIteratorIterator::LEAVES_ONLY |
 				RecursiveIteratorIterator::SELF_FIRST);
-			foreach($iter as $fn => $inf) {
+			foreach ($iter as $fn => $inf) {
 				if ($inf->isFile() && $inf->getMTime() <= $the_time) {
 					if (!fnmatch('index.htm?', $fn)) {
 						unlink($inf->getPathname());
@@ -442,27 +442,48 @@ final class AdminUtils
 		$opts['for_child'] = ($for_child) ? 'true' : 'false';
 
 		$str = '{';
-		foreach($opts as $key => $val) {
+		foreach ($opts as $key => $val) {
 			$str .= "\n  ".$key.':'.$val.',';
 		}
-		$str = substr($str,0,-1)."\n }";
+		$str = rtrim($str, ' ,')."\n }";
 
-		$out = <<<EOS
+		// scrappy layout here to make the page-sourceview prettier
+		if ($first) {
+			$out = <<<EOS
+
 <script type="text/javascript" src="$script_url"></script>
+EOS;
+		} else {
+			$out = <<<EOS
+
+EOS;
+		}
+		$out .= <<<EOS
+
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
- if ($first) {
-  cms_data.ajax_hiersel_url = 'ajax_hier_content.php';
-  cms_data.lang_hierselect_title = '$popuptitle';
- }
+EOS;
+		if ($first) {
+			$out .= <<<EOS
+
+ cms_data.ajax_hiersel_url = 'ajax_hier_content.php';
+ cms_data.lang_hierselect_title = '$popuptitle';
+EOS;
+		}
+		$out .= <<<EOS
+
  $('#{$elemid}').hierselector($str);
 });
 //]]>
 </script>
+EOS;
+add_page_foottext($out);
+
+		return <<<EOS
+
 <input type="text" id="$elemid" class="cms_hierdropdown" name="$name" title="$elemtitle" value="$selected" size="8" maxlength="8" />
 
 EOS;
-		return $out;
 	}
 } // class
