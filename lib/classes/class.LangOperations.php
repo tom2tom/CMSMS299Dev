@@ -46,7 +46,7 @@ final class LangOperations
 	 */
 	const CMSMS_ADMIN_REALM = 'admin';
 
-    // static properties here >> StaticProperties class ?
+	// static properties here >> StaticProperties class ?
 	/**
 	 * In-memory cache of loaded translations, a 2-D array keyed by [locale][realm]
 	 * 'locale' is a recorded or inferred frontend|backend locale-identifier e.g. 'fr_FR'.
@@ -89,7 +89,6 @@ final class LangOperations
 	private static function _load_realm($realm, $locale)
 	{
 		if( !$realm ) $realm = self::$_curent_realm;
-
 		if( isset(self::$_langdata[$locale][$realm]) ) return;
 //		debug_output($realm, 'LangOperations::_load_realm START');
 		if( !is_array(self::$_langdata) ) self::$_langdata = [];
@@ -99,16 +98,16 @@ final class LangOperations
 		// akin to class autoloading, we figure out what to load from where
 		// we load relevant english translations (default, often more-populated) before another specifed lang
 		$files = [];
-		$is_admin = FALSE;
 		$is_module = FALSE;
 		$space_dir = '';
 		if( $realm == self::CMSMS_ADMIN_REALM ) {
 			$is_admin = TRUE;
-   			$files[] = CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
+			$files[] = CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
 			// any custom replacements
-   			$files[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'admin_custom'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
+			$files[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'admin_custom'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
 		}
 		else {
+			$is_admin = FALSE;
 			$dir = cms_module_path($realm, TRUE);
 			if( $dir ) {
 				$is_module = TRUE;
@@ -346,7 +345,7 @@ final class LangOperations
 	 *
 	 * @param mixed $key string|null The wanted key
 	 * @param string $realm Optional lang realm. Default null, hence the currently-recorded default realm.
- 	 * @since 2.9 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @since 2.9 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return bool
 	 */
 	public static function key_exists($key, $realm = NULL) //: bool
