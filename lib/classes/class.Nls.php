@@ -1,27 +1,30 @@
 <?php
-#Class to provide data and methods for encapsulating a language
-#Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class to provide data and methods for encapsulating a language
+Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use function debug_display;
 
 /**
- * A class to provide data and methods for encapsulating a single language
+ * A class to provide data and methods for encapsulating a language
  *
  * @author Robert Campbell
  * @since 1.11
@@ -85,19 +88,19 @@ class Nls
 	 */
 	public function matches($str)
 	{
-		if( $str == $this->name() ) return TRUE;
-		if( $str == $this->isocode() ) return TRUE;
-		if( $str == $this->fullname() ) return TRUE;
+		if( $str == $this->name() ) return true;
+		if( $str == $this->isocode() ) return true;
+		if( $str == $this->fullname() ) return true;
 		$aliases = $this->aliases();
-		if( !is_array($aliases) ) $aliases = explode(',',$aliases);
+		if( is_string($aliases) ) { $aliases = explode(',', $aliases); }
 		if( $aliases ) {
 			foreach( $aliases as $alias ) {
-				if( !strcasecmp($alias, $str) ) {
-					return TRUE;
+				if( strcasecmp($alias, $str) === 0 ) {
+					return true;
 				}
 			}
 		}
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -253,7 +256,8 @@ class Nls
 
 		if( $obj->_key == '' ) {
 			debug_display($data);
-			debug_display($obj); die();
+			debug_display($obj);
+			exit;
 		}
 		return $obj;
 	}
