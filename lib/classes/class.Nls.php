@@ -79,9 +79,9 @@ class Nls
 	protected $_htmlarea;
 
 	/**
-	 * Check whether this NLS object matches the passed-in string
+	 * Check whether this object matches the passed-in string
 	 *
-	 * Matches are achieved by checking name, isocode, fullname, and then aliases
+	 * Matches are achieved by checking name, fullname, and each alias
 	 *
 	 * @param string $str The test string
 	 * @return bool indicating match
@@ -89,7 +89,7 @@ class Nls
 	public function matches($str)
 	{
 		if( $str == $this->name() ) return true;
-		if( $str == $this->isocode() ) return true;
+//		if( $str == $this->isocode() ) return true; UNHELPFUL
 		if( $str == $this->fullname() ) return true;
 		$aliases = $this->aliases();
 		if( is_string($aliases) ) { $aliases = explode(',', $aliases); }
@@ -104,7 +104,7 @@ class Nls
 	}
 
 	/**
-	 * Return the name of this Nls object
+	 * Return the name of this object
 	 * @return string
 	 */
 	public function name()
@@ -114,7 +114,7 @@ class Nls
 	}
 
 	/**
-	 * Return this isocode of this Nls object
+	 * Return this isocode of this object
 	 * @return string
 	 */
 	public function isocode()
@@ -124,7 +124,7 @@ class Nls
 	}
 
 	/**
-	 * Return the display string for this Nls object
+	 * Return the display string for this object
 	 * @return string
 	 */
 	public function display()
@@ -134,7 +134,7 @@ class Nls
 	}
 
 	/**
-	 * Return the locale string for this Nls object
+	 * Return the locale string for this object
 	 * @return string
 	 */
 	public function locale()
@@ -144,7 +144,7 @@ class Nls
 	}
 
 	/**
-	 * Return the encoding for this Nls object (or UTF-8)
+	 * Return the encoding for this object (or UTF-8)
 	 * @return string
 	 */
 	public function encoding()
@@ -154,7 +154,7 @@ class Nls
 	}
 
 	/**
-	 * Return the full name of this Nls object
+	 * Return the full name of this object
 	 * @return string
 	 */
 	public function fullname()
@@ -164,7 +164,7 @@ class Nls
 	}
 
 	/**
-	 * Return the aliases associated with this Nls object
+	 * Return the aliases associated with this object
 	 * @return mixed array of aliases (maybe empty) or comma-separated string (maybe empty)
 	 */
 	public function aliases()
@@ -177,7 +177,7 @@ class Nls
 	}
 
 	/**
-	 * Return the key associated with this Nls object
+	 * Return the key associated with this object
 	 * @return string
 	 */
 	public function key()
@@ -187,7 +187,7 @@ class Nls
 	}
 
 	/**
-	 * Return the direction of this Nls object (ltr or rtl)
+	 * Return the direction of this object (ltr or rtl)
 	 * @return string
 	 */
 	public function direction()
@@ -197,7 +197,7 @@ class Nls
 	}
 
 	/**
-	 * Return the first two characters of the isocode for this Nls Object
+	 * Return the first two characters of the isocode for this object
 	 * This is used typically for WYSIWYG text editors.
 	 *
 	 * @return string
