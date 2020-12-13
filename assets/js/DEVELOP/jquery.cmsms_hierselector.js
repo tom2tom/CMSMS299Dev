@@ -5,8 +5,8 @@
  * $('#myinput').cmsms_hierselector();
  */
 /*!
-jQuery hierselector widget v.1.1
-(C) 2014-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+jQuery hierselector widget v.1.2
+(C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 License GPL2+
 */
 (function($) {
@@ -44,6 +44,7 @@ License GPL2+
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.debug('selector creation failed: ' + errorThrown);
             }).done(function(result) {
+                if (!result) return;
                 if (result.status === 'success') {
                     var data = result.data;
                     self.data.orig_val = data.content_id;
@@ -53,7 +54,7 @@ License GPL2+
                     } catch (e) {
                         self.data.orig_pages = [data.id_hierarchy];
                     }
-                    self.element.hide().val('').removeAttr('name').attr('readonly', 'readonly');
+                    self.element.hide().val('').removeAttr('name').prop('readonly', true);
                     self.data.hidden_e = $('<input type="hidden" name="' + self.data.name + '" value="' + self.data.orig_val + '" />').insertAfter(self.element);
                     self._setup_dropdowns();
                 } else {
@@ -186,6 +187,7 @@ License GPL2+
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.debug('smart dropdown population failed: ' + errorThrown);
             }).done(function(result) {
+                if (!result) return;
                 if (result.status !== 'success') {
                     console.debug('smart dropdown population failed: ' + result.message);
                     return;
@@ -265,6 +267,7 @@ License GPL2+
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.debug('simple dropdown population failed: ' + errorThrown);
             }).done(function(result) {
+                if (!result) return;
                 if (result.status === 'success') {
                     var data = result.data,
                         v = self.data.hidden_e.val(),
