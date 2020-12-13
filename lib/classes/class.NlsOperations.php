@@ -321,15 +321,14 @@ final class NlsOperations
 			return;
 		}
 		self::_load_nls();
-/*		// check for exact match
-		foreach( $langs as $lang => $weight ) {
+		// check for exact match
+		foreach( $langs as $lang => $qf ) {
 			if( isset(self::$_nls[$lang]) ) {
 				return $lang;
 			}
 		}
-*/
 		// check for approximate match (in self::$_nls[] order)
-		foreach( $langs as $lang => $weight ) {
+		foreach( $langs as $lang => $qf ) {
 			foreach( self::$_nls as $obj ) {
 				if( $obj->matches($lang) ) {
 					return $obj->name();
@@ -339,36 +338,38 @@ final class NlsOperations
 	}
 
 	/**
-	 * Return the list of languages understood by the current browser (if any).
+	 * Return a priority-sorted list of languages (if any) understood by the browser.
 	 *
-	 * @return array of Strings representing the languages the browser supports, or null
+	 * @return mixed array of strings representing the languages the browser supports, or null
 	 */
 	public static function get_browser_languages()
 	{
 		if( !isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ) return;
 
 		$in = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-		preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $in, $lang_parse);
+		preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})*)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $in, $matches);
 
-		if ($lang_parse[1]) {
-			// create a list like "en" => 0.8
-			$langs = array_combine($lang_parse[1], $lang_parse[4]);
-
+		if ($matches[1]) {
+			// create a list, each member like "en" => 0.8
+			$langs = array_combine($matches[1], $matches[4]);
 			// convert '-' separator to '_' to match local format
-			// set default to 1 for any lang without q factor
-			foreach( $langs as $lang => $weight ) {
+			// set q-factor to 1 for any lang without one
+			foreach( $langs as $lang => $qf ) {
 				$t = strtr($lang, '-', '_');
 				if( $t != $lang ) {
 					unset($langs[$lang]);
-					if( $weight === '' ) { $langs[$t] = 1; }
-					else { $langs[$t] = $weight; }
+					if( $qf === '' ) { $langs[$t] = 1.0; }
+					else { $langs[$t] = 0 + $qf; }
 				}
-				elseif( $weight === '' ) {
-					$langs[$lang] = 1;
+				elseif( $qf === '' ) {
+					$langs[$lang] = 1.0;
+				}
+				else {
+					$langs[$lang] = 0 + $qf;
 				}
 			}
-			// sort langs by q factors, least-specific last
-			asort($langs, SORT_NUMERIC); //since 2.99 (was arsort)
+			// sort langs by q-factor, descending
+			arsort($langs, SORT_NUMERIC);
 			return $langs;
 		}
 	}
