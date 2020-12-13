@@ -39,9 +39,8 @@
         {cms_help key2='user_ce_navdisplay' title=$t}
       </p>
       <p class="pageinput">
-        {$opts['']=lang('none')} {$opts['menutext']=lang('menutext')} {$opts['title']=lang('title')}
         <select id="ce_navdisplay" name="ce_navdisplay">
-          {html_options options=$opts selected=$ce_navdisplay}
+          {html_options options=$ce_navopts selected=$ce_navdisplay}
         </select>
       </p>
       <p class="pagetext">
