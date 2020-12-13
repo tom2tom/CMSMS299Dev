@@ -4,7 +4,7 @@ require_once('_init.php');
 // this initializes cmsms.
 require_once(CMSMS.'/include.php');
 
-class BasicTests extends TestSuite 
+class BasicTests extends TestSuite
 {
   public function __construct()
   {
@@ -16,4 +16,3 @@ class BasicTests extends TestSuite
     }
   }
 }
-
