@@ -313,7 +313,7 @@ final class NlsOperations
 	 * that are available (via NLS Files). To find the first
 	 * suitable language.
 	 *
-	 * @return string First suitable lang identifier, or null
+	 * @return mixed string (first suitable lang identifier) | null
 	 */
 	public static function detect_browser_language()
 	{
@@ -327,12 +327,8 @@ final class NlsOperations
 			if( isset(self::$_nls[$onelang]) ) {
 				return $onelang;
 			}
-			$t = strtr($onelang, '-', '_');
-			if( isset(self::$_nls[$t]) ) {
-				return $t;
-			}
 		}
-		// check for approximate match (in self::$_nls - order) TODO per weight etc
+		// check for approximate match (in self::$_nls - order)
 		foreach( $langs as $onelang => $weight ) {
 			foreach( self::$_nls as $obj ) {
 				if( $obj->matches($onelang) ) {
@@ -358,11 +354,20 @@ final class NlsOperations
 			// create a list like "en" => 0.8
 			$langs = array_combine($lang_parse[1], $lang_parse[4]);
 
-			// set default to 1 for any without q factor
+			// convert '-' separator to '_' to match local format
+			// set default to 1 for any lang without q factor
 			foreach ($langs as $lang => $val) {
-				if ($val === '') $langs[$lang] = 1;
+				$t = strtr($lang, '-', '_');
+				if( $t != $lang ) {
+					unset($langs[$lang]);
+					if( $val === '' ) { $langs[$t] = 1; }
+					else { $langs[$t] = $val; }
+				}
+				elseif( $val === '' ) {
+					$langs[$lang] = 1;
+				}
 			}
-			// sort list based on weight
+			// sort list by q factors
 			arsort($langs, SORT_NUMERIC);
 			return $langs;
 		}
@@ -389,9 +394,9 @@ final class NlsOperations
 		}
 
 		$lang = self::get_current_language();
-		if( !$lang ) return 'UTF-8'; // no language.. weird.
+		if( !$lang ) { return 'UTF-8'; } // no language.. weird.
 
-		// get it from the nls stuff.
+		// get it from the nls cache
 		return self::$_nls[$lang]->encoding();
 	}
 
@@ -418,8 +423,8 @@ final class NlsOperations
 	 */
 	protected static function set_locale()
 	{
+		static $_locale_set = FALSE;
 		$config = AppSingle::Config();
-		static $_locale_set;
 
 		$locale = '';
 		if( isset($config['locale']) && $config['locale'] != '' ) {
@@ -437,7 +442,7 @@ final class NlsOperations
 		if( $locale ) {
 			if( !is_array($locale) ) $locale = explode(',',$locale);
 			$res = setlocale(LC_ALL,$locale);
-			$_locale_set = 1;
+			$_locale_set = TRUE;
 		}
 	}
 
