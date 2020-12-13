@@ -76,12 +76,12 @@ class Nls
 	protected $_htmlarea;
 
 	/**
-	 * Test if this NLS object matches the passed in string
+	 * Check whether this NLS object matches the passed-in string
 	 *
 	 * Matches are achieved by checking name, isocode, fullname, and then aliases
 	 *
 	 * @param string $str The test string
-	 * @return bool
+	 * @return bool indicating match
 	 */
 	public function matches($str)
 	{
@@ -92,7 +92,9 @@ class Nls
 		if( !is_array($aliases) ) $aliases = explode(',',$aliases);
 		if( $aliases ) {
 			foreach( $aliases as $alias ) {
-				if( !strcasecmp($alias,$str) ) return TRUE;
+				if( !strcasecmp($alias, $str) ) {
+					return TRUE;
+				}
 			}
 		}
 		return FALSE;
@@ -104,7 +106,8 @@ class Nls
 	 */
 	public function name()
 	{
-		return $this->_key;
+		if( !empty($this->_key) ) return $this->_key;
+		return '';
 	}
 
 	/**
@@ -113,8 +116,8 @@ class Nls
 	 */
 	public function isocode()
 	{
-		if( !$this->_isocode ) return substr($this->_fullname,0,2);
-		return $this->_isocode;
+		if( !empty($this->_isocode) ) return $this->_isocode;
+		return substr($this->_fullname, 0, 2);
 	}
 
 	/**
@@ -123,7 +126,8 @@ class Nls
 	 */
 	public function display()
 	{
-	if( $this->_display ) return $this->_display;
+		if( !empty($this->_display) ) return $this->_display;
+		return '';
 	}
 
 	/**
@@ -132,7 +136,8 @@ class Nls
 	 */
 	public function locale()
 	{
-		return $this->_locale;
+		if( !empty($this->_locale) ) return $this->_locale;
+		return '';
 	}
 
 	/**
@@ -141,8 +146,8 @@ class Nls
 	 */
 	public function encoding()
 	{
-		if( !$this->_encoding ) return 'UTF-8';
-		return $this->_encoding;
+		if( !empty($this->_encoding) ) return $this->_encoding;
+		return 'UTF-8';
 	}
 
 	/**
@@ -151,19 +156,21 @@ class Nls
 	 */
 	public function fullname()
 	{
-		if( $this->_fullname ) return $this->_fullname;
+		if( !empty($this->_fullname) ) return $this->_fullname;
+		return '';
 	}
 
 	/**
 	 * Return the aliases associated with this Nls object
-	 * @return mixed array of aliases, or null
+	 * @return mixed array of aliases (maybe empty) or comma-separated string (maybe empty)
 	 */
 	public function aliases()
 	{
-		if( $this->_aliases ) {
+		if( !empty($this->_aliases) ) {
 			if( is_array($this->_aliases) ) return $this->_aliases;
 			return explode(',',$this->_aliases);
 		}
+		return [];
 	}
 
 	/**
@@ -172,7 +179,8 @@ class Nls
 	 */
 	public function key()
 	{
-		return $this->_key;
+		if( !empty($this->_key) ) return $this->_key;
+		return '';
 	}
 
 	/**
@@ -181,7 +189,7 @@ class Nls
 	 */
 	public function direction()
 	{
-		if( $this->_direction ) return $this->_direction;
+		if( !empty($this->_direction) ) return $this->_direction;
 		return 'ltr';
 	}
 
@@ -193,8 +201,8 @@ class Nls
 	 */
 	public function htmlarea()
 	{
-		if( $this->_htmlarea ) return $this->_htmlarea;
-		return substr($this->_fullname,0,2);
+		if( !empty($this->_htmlarea) ) return $this->_htmlarea;
+		return substr($this->_fullname, 0, 2);
 	}
 
 	/**
