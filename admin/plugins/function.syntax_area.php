@@ -21,7 +21,7 @@ use CMSMS\FormUtils;
 
 function smarty_function_syntax_area($params, $template)
 {
-	$parms = array_intersect_key($params,[
+	$parms = array_intersect_key($params, [
 		'name'=>1,
 		'modid'=>1,
 		'prefix'=>1,
@@ -60,7 +60,7 @@ function smarty_function_syntax_area($params, $template)
 
 	$out = FormUtils::create_textarea($parms);
 
-	$parms = array_intersect_key($params,[
+	$parms = array_intersect_key($params, [
 		'edit'=>1,
 		'handle'=>1,
 		'theme'=>1,
@@ -103,9 +103,9 @@ EOS;
 		}
 	}
 
-	if( isset($params['assign']) ) {
-		$template->assign(trim($params['assign']),$out);
-		return;
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
+		return '';
 	}
 	return $out;
 }
@@ -145,18 +145,15 @@ As for <code>get_syntaxeditor_setup()</code><br />
 <li>workid: div-tag id (optional, internal use)</li>
 </ul>
 <br />
-As always<br />
-assign
+and/or any of Smarty's generic parameters (nocache, assign etc)
 EOS;
 }
 
 function smarty_cms_about_function_syntax_area()
 {
-	echo <<<'EOS'
-<p>Initial release May 2019</p>
-<p>Change History:<br />
-<ul>
-</ul>
-</p>
-EOS;
+	$n = lang('none');
+	echo lang_by_realm('tags', 'about_generic',
+	'Initial release May 2019',
+	"<li>$n</li>"
+	);
 }

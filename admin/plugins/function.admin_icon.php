@@ -21,48 +21,82 @@ use CMSMS\AppState;
 
 function smarty_function_admin_icon($params, $template)
 {
-	if( !AppState::test_state(AppState::STATE_ADMIN_PAGE) ) return;
-
 	$icon = null;
-	$tagparms = ['class'=>'systemicon'];
-	foreach( $params as $key => $value ) {
-		switch( $key ) {
-		case 'icon':
-		case 'module':
-			$icon = trim($value);
-			break;
-		case 'width':
-		case 'height':
-		case 'alt':
-		case 'rel':
-		case 'class':
-		case 'id':
-		case 'name':
-		case 'title':
-		case 'accesskey':
-			$tagparms[$key] = trim($value);
-			break;
-		case 'assign':
-			break;
+
+	if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
+		$tagparms = ['class'=>'systemicon'];
+		foreach( $params as $key => $value ) {
+			switch( $key ) {
+			case 'icon':
+			case 'module':
+				$icon = trim($value);
+				break;
+			case 'width':
+			case 'height':
+			case 'alt':
+			case 'rel':
+			case 'class':
+			case 'id':
+			case 'name':
+			case 'title':
+			case 'accesskey':
+				$tagparms[$key] = trim($value);
+				// no break here
+			default:
+				break;
+			}
 		}
 	}
 
-	if( !$icon ) return;
+	if( $icon ) {
+		if( !isset($tagparms['alt']) ) $tagparms['alt'] = pathinfo($icon, PATHINFO_FILENAME);
 
-	if( !isset($tagparms['alt']) ) $tagparms['alt'] = pathinfo($icon, PATHINFO_FILENAME);
-
-	if( isset($params['module']) ) {
-		$out = AdminUtils::get_module_icon($icon,$tagparms);
+		if( isset($params['module']) ) {
+			$out = AdminUtils::get_module_icon($icon, $tagparms);
+		}
+		else {
+			$out = AdminUtils::get_icon($icon, $tagparms);
+		}
 	}
 	else {
-		$out = AdminUtils::get_icon($icon,$tagparms);
+		$out = ''; // no error-feedback
 	}
 
-	if( !$out ) return;
-
-	if( isset($params['assign']) ) {
-		$template->assign(trim($params['assign']),$out);
-		return;
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
+		return '';
 	}
 	return $out;
+}
+/*
+function smarty_cms_about_function_admin_icon()
+{
+	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
+<li>detail</li>
+EOS
+	);
+}
+*/
+function smarty_cms_help_function_admin_icon()
+{
+	echo lang_by_realm('tags', 'help_generic',
+	'This plugin generates page-content representing an icon for display in an admin page',
+	'admin_icon icon= ...',
+	<<<'EOS'
+<li>icon: admin-theme relative filesystem path of &quot;standard&quot; admin icon file (extension absent or ignored)</li>
+<li>module: (instead of icon) name of the module whose representative icon is wanted</li>
+<li>optional element properties:
+<ul>
+<li>accesskey: </li>
+<li>alt: </li>
+<li>class: </li>
+<li>height: </li>
+<li>id: </li>
+<li>name: </li>
+<li>rel: </li>
+<li>title: </li>
+<li>width: </li>
+</ul></li>
+EOS
+	);
 }

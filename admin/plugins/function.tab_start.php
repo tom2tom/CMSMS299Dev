@@ -18,12 +18,34 @@
 
 function smarty_function_tab_start($params, $template)
 {
-	if( empty($params['name']) ) return '';
-
-	$out = CMSMS\AdminTabs::start_tab(trim($params['name']));
-	if( isset($params['assign']) ) {
-		$template->assign(trim($params['assign']),$out);
-		return;
+	if( !empty($params['name']) ) {
+		$out = CMSMS\AdminTabs::start_tab(trim($params['name']));
+	}
+	else {
+		$out = ''; // no error feedback
+	}
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
+		return '';
 	}
 	return $out;
 }
+/*
+function smarty_cms_about_function_tab_start()
+{
+	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
+<li>detail</li>
+EOS
+	);
+}
+*/
+/*
+D function smarty_cms_help_function_tab_start()
+{
+	echo lang_by_realm('tags', 'help_generic', 'does', 'tab_start name=...',
+	<<<'EOS'
+<li>name: the internal name of the tab (consistent with a tab header name)</li>
+EOS
+	);
+}
+*/

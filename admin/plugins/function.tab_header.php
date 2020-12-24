@@ -18,27 +18,54 @@
 
 function smarty_function_tab_header($params, $template)
 {
-	if( empty($params['name']) ) return '';
-	$name = trim($params['name']);
+	$name = trim($params['name'] ?? '');
+	if( $name !== '' ) {
+		$label = trim($params['label'] ?? '');
+		if( $label === '' ) $label = $name;
 
-	if( isset($params['label']) ) $label = trim($params['label']);
-	else $label = $name;
+		$active = FALSE;
+		if( isset($params['active']) ) {
+			$tmp = trim($params['active']);
+			if( $tmp == $name ) {
+				$active = TRUE;
+			}
+			else {
+				$active = cms_to_bool($tmp);
+				//TODO NOT some other tab-name looking like a bool
+				//if( !$active && $tmp ) {}
+			}
+		}
 
-	$active = FALSE;
-	if( isset($params['active']) ) {
-		$tmp = trim($params['active']);
-		if( $tmp == $name ) {
-			$active = TRUE;
-		}
-		elseif( 1 ) { //TODO NOT some other tab-name looking like a bool
-			$active = cms_to_bool($tmp);
-		}
+		$out = CMSMS\AdminTabs::set_tab_header($name, $label, $active);
+	}
+	else {
+		$out = ''; // no error-feedback
 	}
 
-	$out = CMSMS\AdminTabs::set_tab_header($name,$label,$active);
-	if( isset($params['assign']) ) {
-		$template->assign(trim($params['assign']),$out);
-		return;
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
+		return '';
 	}
 	return $out;
 }
+/*
+function smarty_cms_about_function_tab_header()
+{
+	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
+<li>detail</li>
+EOS
+	);
+}
+*/
+/*
+D function smarty_cms_help_function_tab_header()
+{
+	echo lang_by_realm('tags', 'help_generic', 'does', 'tab_header name=... label=... active=true',
+	<<<'EOS'
+<li>name: internal identifier of the tab</li>
+<li>label: public identifier of the tab</li>
+<li>active: whether the tab is to be initially displayed</li>
+EOS
+	);
+}
+*/

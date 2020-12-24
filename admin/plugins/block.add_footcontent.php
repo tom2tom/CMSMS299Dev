@@ -1,5 +1,5 @@
 <?php
-#Plugin to accumulate supplied content for injection into the bottom of the page
+#Plugin to accumulate supplied content for later insertion into the bottom of the page
 #Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,16 +15,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//use CMSMS\Utils;
-
 function smarty_block_add_footcontent($params, $content, $template, &$repeat)
 {
 	$repeat = false;
-	if( !($content) ) return;
-
-//	$obj = Utils::get_theme_object();
-//	if( $obj ) $obj->add_footertext($content);
-	add_page_foottext($content);
+	if( $content ) add_page_foottext($content); // no sanitization
 }
 
 function smarty_cms_help_block_add_footcontent()
@@ -46,11 +40,9 @@ EOS;
 
 function smarty_cms_about_block_add_footcontent()
 {
-	echo <<<'EOS'
-<p>Initial release May 2019</p>
-<p>Change History:<br />
-<ul>
-</ul>
-</p>
-EOS;
+	$n = lang('none');
+	echo lang_by_realm('tags', 'about_generic',
+	'Initial release May 2019',
+	"<li>$n</li>"
+	);
 }

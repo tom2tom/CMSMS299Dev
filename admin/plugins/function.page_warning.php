@@ -1,5 +1,5 @@
 <?php
-#function to generate page-content for a styled warning
+#function to generate admin-page-content for a styled warning message
 #Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -20,14 +20,38 @@ use CMSMS\AppState;
 
 function smarty_function_page_warning($params, $template)
 {
-	if( !AppState::test_state(AppState::STATE_ADMIN_PAGE) ) return;
-	if( !isset($params['msg']) ) return;
+	$out = '';
 
-	$out = '<div class="pagewarn">'.trim($params['msg']).'</div>';
-	if( isset($params['assign']) )
-	{
-		$template->assign(trim($params['assign']),$out);
-		return;
+	if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
+		if( isset($params['msg']) ) {
+			$msg = trim($params['msg']);
+			if( $msg !== '' ) {
+				$msg = cms_specialchars($msg); // ensure merged content is ok
+				$out = '<div class="pagewarn">'.$msg.'</div>';
+			}
+		}
+	}
+
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
+		return '';
 	}
 	return $out;
+}
+/*
+function smarty_cms_about_function_page_warning()
+{
+	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
+<li>detail</li>
+EOS
+	);
+}
+*/
+function smarty_cms_help_function_page_warning()
+{
+	echo lang_by_realm('tags', 'help_generic',
+	'This plugin generates page-content for a styled warning-message on an admin page',
+	'page_error msg=...',
+    '<li>msg: the content to be displayed</li>'
+	);
 }

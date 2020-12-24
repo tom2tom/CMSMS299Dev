@@ -16,14 +16,39 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminUtils;
+
 function smarty_function_cms_help($params, $template)
 {
-	$out = CMSMS\AdminUtils::get_help_tag($params);
+	$out = AdminUtils::get_help_tag($params);
 
-	if( isset($params['assign']) ) {
-		$template->assign(trim($params['assign']),$out);
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
+		return '';
 	}
-	else {
-		return $out;
-	}
+	return $out;
+}
+/*
+function smarty_cms_about_function_cms_help()
+{
+	echo lang_by_realm('tags', 'about_generic', 'rel', <<<'EOS'
+<li>detail</li>
+EOS
+	);
+}
+*/
+function smarty_cms_help_function_cms_help()
+{
+	echo lang_by_realm('tags', 'help_generic',
+	'This plugin generates page elements and script which enable popup help',
+	'cms_help params...',
+	<<<'EOS'
+<li>key1: lang/translation realm for the strings used</li>
+<li>realm: alias for key1</li>
+<li>key2: lang key for help body-content</li>
+<li>key:  alias for key2</li>
+<li>title: lang key for help title</li>
+<li>titlekey: alias for title</li>
+EOS
+	);
 }

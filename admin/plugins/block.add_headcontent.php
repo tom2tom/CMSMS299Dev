@@ -1,5 +1,5 @@
 <?php
-#Plugin to accumulate supplied content for inclusion into the page header
+#Plugin to accumulate supplied content for later insertion into the page header
 #Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,15 +15,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//use CMSMS\Utils;
 function smarty_block_add_headcontent($params, $content, $template, &$repeat)
 {
-    $repeat = false;
-	if( !($content) ) return;
-
-//	$obj = Utils::get_theme_object();
-//	if( $obj ) $obj->add_headtext( $content );
-	add_page_headtext($content);
+	$repeat = false;
+	if( $content ) add_page_headtext($content); // no sanitization
 }
 
 function smarty_cms_help_block_add_headcontent()
@@ -46,11 +41,9 @@ EOS;
 
 function smarty_cms_about_block_add_headcontent()
 {
-	echo <<<'EOS'
-<p>Initial release May 2019</p>
-<p>Change History:<br />
-<ul>
-</ul>
-</p>
-EOS;
+	$n = lang('none');
+	echo lang_by_realm('tags', 'about_generic',
+	'Initial release May 2019',
+	"<li>$n</li>"
+	);
 }

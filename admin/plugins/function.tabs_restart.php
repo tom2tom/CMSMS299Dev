@@ -1,6 +1,6 @@
 <?php
 #function to revert tabs-class data back to vanilla
-#Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -15,10 +15,27 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// since 2.3
+// since 2.99
 
 function smarty_function_tabs_restart($params, $template)
 {
 	CMSMS\AdminTabs::reset();
 	return '';
+}
+/*
+function smarty_cms_about_function_tabs_restart()
+{
+	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
+<li>detail</li>
+EOS
+	);
+}
+*/
+function smarty_cms_help_function_tabs_restart()
+{
+	$n = lang('none');
+	echo lang_by_realm('tags', 'help_generic2',
+	'This plugin resets background data for tabs-layout back to vanilla',
+	'tabs_restart',
+	"<li>$n</li>");
 }

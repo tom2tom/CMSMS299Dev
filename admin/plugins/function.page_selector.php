@@ -20,17 +20,42 @@ use CMSMS\AdminUtils;
 
 function smarty_function_page_selector($params, $template)
 {
-	$selected = ( isset($params['value']) ) ? (int)$params['value'] : 0;
-	if( isset($params['selected']) ) $selected = (int)$params['selected'];
-	$name = ( isset($params['name']) ) ? trim($params['name']) : 'parent_id';
-	$allow_current = ( isset($params['allowcurrent']) ) ? cms_to_bool($params['allowcurrent']) : false;
-	$allow_all = ( isset($params['allowall']) ) ? cms_to_bool($params['allowall']) : false;
-	$for_child = ( isset($params['for_child']) ) ? cms_to_bool($params['for_child']) : false;
+	$selected = (int)($params['selected'] ?? $params['value'] ?? 0);
+	$name = trim($params['name'] ?? 'parent_id');
+	$allow_current = cms_to_bool($params['allowcurrent'] ?? false);
+	$allow_all = cms_to_bool($params['allowall'] ?? false);
+	$for_child = cms_to_bool($params['for_child'] ?? false);
 
-	$out = AdminUtils::CreateHierarchyDropdown(0,$selected,$name,$allow_current,false,$allow_all,$for_child);
-	if( isset($params['assign']) ) {
-		$template->assign(trim($params['assign']),$out);
-		return;
+	$out = AdminUtils::CreateHierarchyDropdown(0, $selected, $name, $allow_current, false, $allow_all, $for_child);
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
+		return '';
 	}
 	return $out;
 }
+/*
+function smarty_cms_about_function_page_selector()
+{
+	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
+<li>detail</li>
+EOS
+	);
+}
+*/
+/*
+D function smarty_cms_help_function_page_selector()
+{
+	echo lang_by_realm('tags', 'help_generic',
+	'This plugin generates html & js for a website-page-selector',
+	'page_selector params',
+	<<<'EOS'
+<li>allowall: </li>
+<li>allowcurrent: </li>
+<li>for_child: </li>
+<li>name: </li>
+<li>selected: </li>
+<li>value: </li>
+EOS
+	);
+}
+*/

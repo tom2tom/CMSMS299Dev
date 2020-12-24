@@ -17,9 +17,10 @@
 
 use CMSMS\TemplateOperations;
 
+// since 2.99
 function smarty_function_edit_template($params, $template)
 {
-	if (empty($params['template']) || (int)$params['template'] < 0) {
+	if (!isset($params['template']) || (int)$params['template'] < 0) {
 		$params['value'] = '';
 	} else {
 		try {
@@ -58,11 +59,9 @@ EOS;
 
 function smarty_cms_about_function_edit_template()
 {
-	echo <<<'EOS'
-<p>Initial release May 2019</p>
-<p>Change History:<br />
-<ul>
-</ul>
-</p>
-EOS;
+	$n = lang('none');
+	echo lang_by_realm('tags', 'about_generic',
+	'Initial release May 2019',
+	"<li>$n</li>"
+	);
 }

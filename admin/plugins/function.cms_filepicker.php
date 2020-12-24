@@ -20,30 +20,59 @@ use CMSMS\Utils;
 
 function smarty_function_cms_filepicker($params, $template)
 {
-	$name = trim(get_parameter_value($params,'name'));
-	if( !$name ) return;
-	$filepicker = Utils::get_filepicker_module();
-	if( !$filepicker ) return;
+	$out = '';
+	$name = trim($params['name'] ?? '');
+	$profile_name = trim($params['profile'] ?? '');
+	if( $name && $profile_name ) {
+		$filepicker = Utils::get_filepicker_module();
+		if( $filepicker ) {
 
-	$profile_name = trim(get_parameter_value($params,'profile'));
-	$prefix = trim(get_parameter_value($params,'prefix'));
-	$value = trim(get_parameter_value($params,'value'));
-	$top = trim(get_parameter_value($params,'top'));
-	$type = trim(get_parameter_value($params,'type')); // enum (numeric), not name
-	$required = cms_to_bool(get_parameter_value($params,'required'));
+			$profile = $filepicker->get_profile_or_default($profile_name);
 
-	$name = $prefix.$name;
+			$prefix = trim($params['prefix'] ?? '');
+			$name = $prefix.$name;
+			$value = trim($params['value'] ?? '');
+			$top = trim($params['top'] ?? '');
+			$type = trim($params['type'] ?? '.'); // per FileType enum (e.g. 0 == FileType::NONE)
+			$required = cms_to_bool($params['required'] ?? false);
 
-	$profile = $filepicker->get_profile_or_default($profile_name);
-	$parms = [];
-	if( $top ) $parms['top'] = $top;
-	if( $type !== '') $parms['type'] = $type;
-	if( $parms ) $profile = $profile->overrideWith( $parms );
+			$parms = [];
+			if( $top ) $parms['top'] = $top;
+			if( $type !== '.' ) $parms['type'] = $type;
+			if( $parms ) $profile = $profile->overrideWith($parms);
 
-	$out = $filepicker->get_html( $name, $value, $profile, $required );
-	if( isset($params['assign']) ) {
-		$template->assign( $params['assign'], $out );
-	} else {
-		return $out;
+			$out = $filepicker->get_html($name, $value, $profile, $required);
+		}
 	}
+
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
+		return '';
+	}
+	return $out;
+}
+/*
+function smarty_cms_about_function_cms_filepicker()
+{
+	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
+<li>detail</li>
+EOS
+	);
+}
+*/
+function smarty_cms_help_function_cms_filepicker()
+{
+	echo lang_by_realm('tags', 'help_generic',
+	'This plugin generates a file-selector element for an uploaded-file',
+	'cms_filepicker params',
+	<<<'EOS'
+<li>name: the name-attribute of the element</li>
+<li>prefix: optional string to prepend to the element-name</li>
+<li>profile: name of a file-system profile specifying permissions etc</li>
+<li>required: optional flag, whether a file must be selected</li>
+<li>top: topmost/base website folder from which the file may be selected</li>
+<li>type: optional FileType identifier (e.g. 0 == FileType::NONE)</li>
+<li>value: optional initial value of the element</li>
+EOS
+	);
 }

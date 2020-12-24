@@ -1,5 +1,5 @@
 <?php
-#Plugin to...
+#Plugin to retrieve the root URL of the current admin theme.
 #Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,17 +16,32 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\Utils;
-
 function smarty_function_theme_root($params, $template)
 {
-	$themeObject = Utils::get_theme_object();
+	$themeObject = CMSMS\Utils::get_theme_object();
 	$url = $themeObject->root_url;
 
-	$assign = get_parameter_value( $params, 'assign' );
-	if( $assign ) {
-		$template->assign( $assign, $url );
-		return;
+	if( !empty($params['assign']) ) {
+		$template->assign($params['assign'], $url);
+		return '';
 	}
 	return $url;
+}
+/*
+function smarty_cms_about_function_theme_root()
+{
+	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
+<li>detail</li>
+EOS
+	);
+}
+*/
+function smarty_cms_help_function_theme_root()
+{
+	$n = lang('none');
+	echo lang_by_realm('tags', 'help_generic',
+	'This plugin retrieves the topmost/base URL of the current admin theme',
+	'theme_root',
+	"<li>$n</li>"
+	);
 }
