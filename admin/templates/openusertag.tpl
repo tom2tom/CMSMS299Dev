@@ -1,4 +1,4 @@
-<h3 class="pagesubtitle">{if $name!='-1'} {lang('edit_splg')}{else}{lang('add_splg')}{/if}</h3>
+<h3 class="pagesubtitle">{if $name!='-1'} {lang('edit_usrplg')}{else}{lang('add_usrplg')}{/if}</h3>
 <form id="userplugin" action="{$selfurl}" enctype="multipart/form-data" method="post">
 <div class="hidden">
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
@@ -55,6 +55,6 @@
   <div class="pageinput pregap">
     <button type="submit" name="submit" id="submitme" class="adminsubmit icon check">{lang('submit')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-    <button type="submit" name="apply" id="applybtn" title="{lang('title_apply_splg')}" class="adminsubmit icon apply">{lang('apply')}</button>
+    <button type="submit" name="apply" id="applybtn" title="{lang('title_apply_usrplg')}" class="adminsubmit icon apply">{lang('apply')}</button>
   </div>
 </form>
