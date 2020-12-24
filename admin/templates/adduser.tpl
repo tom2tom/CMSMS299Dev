@@ -77,7 +77,7 @@
 <!-- groups -->
 {tab_start name='groups'}
 <input type="hidden" name="groups" value="1" />
-{foreach $groups as $onegroup}<input type="hidden" name="g{$onegroup->id}" value="0" />{/foreach}
+{* {foreach $groups as $onegroup}<input type="hidden" name="sel_groups[]" value="{$onegroup->id}" />{/foreach} *}
 <div class="pageverflow">
   <p class="pagetext">{$t=lang('groups')}
     {$t}:
@@ -98,8 +98,8 @@
           <tr>
             {strip}{$gid=$onegroup->id}
             <td>
-            <input type="checkbox" id="g{$gid}" name="g{$gid}" value="1"
-{if in_array($gid,$sel_groups)} checked="checked"
+            <input type="checkbox" id="g{$gid}" name="sel_groups[]" value="{$gid}"
+{if $sel_groups && in_array($gid,$sel_groups)} checked="checked"
 {elseif ($gid == 1 && $my_userid != 1)} disabled
 {/if} /></td>
             <td>
