@@ -1,6 +1,5 @@
 <?php
 #------------------------------------------------------------------------
-# Plugin: AdminLTE
 # Purpose: An Admin theme for CMS Made Simple
 # Author: CMS Made Simple Development Team
 # Plugins page: https://cmsmadesimple.org
@@ -36,7 +35,7 @@ use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
 use const THEME_NAME;
 use function check_permission;
-use function cleanValue;
+use function sanitizeVal; //2.99+
 use function cms_join_path;
 use function cmsms;
 use function get_site_preference;
@@ -46,7 +45,7 @@ use function munge_string_to_url;
 
 define ( 'THEME_NAME', 'AdminLTE' );
 
-class AdminLTETheme extends AdminTheme
+class LTETheme extends AdminTheme
 {
     protected $_errors = array();
 
@@ -58,10 +57,10 @@ class AdminLTETheme extends AdminTheme
         if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
             if (is_array($_GET[$get_var])) {
                 foreach ($_GET[$get_var] as $one) {
-                    $this->_errors[] = lang(cleanValue($one));
+                    $this->_errors[] = lang(sanitizeVal($one));
                 }
             } else {
-                $this->_errors[] = lang(cleanValue($_GET[$get_var]));
+                $this->_errors[] = lang(sanitizeVal($_GET[$get_var]));
             }
         } else if (is_array($errors)) {
             foreach ($errors as $one) {
@@ -79,10 +78,10 @@ class AdminLTETheme extends AdminTheme
         if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
             if (is_array($_GET[$get_var])) {
                 foreach ($_GET[$get_var] as $one) {
-                    $this->_messages[] = lang(cleanValue($one));
+                    $this->_messages[] = lang(sanitizeVal($one));
                 }
             } else {
-                $this->_messages[] = lang(cleanValue($_GET[$get_var]));
+                $this->_messages[] = lang(sanitizeVal($_GET[$get_var]));
             }
         } else if (is_array($message)) {
             foreach ($message as $one) {
@@ -219,7 +218,7 @@ class AdminLTETheme extends AdminTheme
         return $_contents;
     }
 
-    public function postprocess($html) {
+    public function do_page($html) {
         $smarty = CmsApp::get_instance()->GetSmarty();
         $otd = $smarty->template_dir;
       $smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
