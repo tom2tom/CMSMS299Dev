@@ -14,14 +14,14 @@ $lang = [
 'actioncontains' => 'Action Contains',
 'actionstatus' => 'Action/Status',
 'active' => 'Active',
-'add_splg' => 'Add Simple Plugin', //title
+'add_usrplg' => 'Add User Defined Tag', //title
 'add' => 'Add',
 'addbookmark' => 'Add bookmark',
 'addcontent' => 'Add New Content',
 'added_content' => 'Added Content',
 'added_group' => 'Added Group',
 'added_template' => 'Added template',
-'added_splg' => 'Added simple plugin', //status message
+'added_usrplg' => 'Added user plugin', //status message
 'added_user' => 'Added User',
 'addgroup' => 'Add New Group',
 'addhandler' => 'Add selected event handler',
@@ -145,7 +145,7 @@ $lang = [
 'config_issue' => 'Configuration Issue',
 'config_writable' => 'config.php is writeable. The system is safer when that file is read-only',
 'confirm_bulkuserop' => "Be cautious about performing operations on multiple users simultaneously.\n\nAre you sure you want to continue?",
-'confirm_delete_splg' => 'Are you sure you want to delete this plugin?',
+'confirm_delete_usrplg' => 'Are you sure you want to delete this plugin?',
 'confirm_delete_user' => 'Are you sure you want to delete this user account',
 'confirm_edituser' => 'Are you sure you want to apply changes to this user account',
 'confirm_leave' => 'Are you sure you want to leave this page? Any unsaved change(s) will be lost.',
@@ -194,7 +194,7 @@ $lang = [
 'create' => 'Create',
 'created_at' => 'Created at',
 'created_directory' => 'Created Directory',
-'createnewfolder' => 'Create New Folder',
+'createnewfolder' => 'Create New Directory',
 'cron_120m' => '2 Hours',
 'cron_12h' => '12 Hours',
 'cron_15m' => '15 Minutes',
@@ -244,7 +244,7 @@ $lang = [
 'deleted_file' => 'Deleted file',
 'deleted_group' => 'Deleted group',
 'deleted_module' => 'Permanently removed %s',
-'deleted_splg' => 'Deleted plugin',
+'deleted_usrplg' => 'Deleted user plugin',
 'deleted_template' => 'Deleted template', //USED?
 'deleted_user' => 'Deleted user',
 'deletepages' => 'Delete these pages?',
@@ -275,12 +275,12 @@ $lang = [
 'E_STRICT' => 'Is E_STRICT disabled in error_reporting ?',
 'ecommerce_desc' => 'E-commerce services',
 'ecommerce' => 'E-Commerce',
-'edit_splg' => 'Edit Simple Plugin', //title
+'edit_usrplg' => 'Edit User Plugin', //title
 'edit' => 'Edit',
 'editconfiguration' => 'Edit Configuration',
 'editcontent_settings' => 'Content Editing',
 'edited_group' => 'Edited Group',
-'edited_splg' => 'Edited plugin', //status message
+'edited_usrplg' => 'Edited user plugin', //status message
 'edited_user_preferences' => 'Edited user preferences',
 'edited_user' => 'Edited user',
 'editgroup' => 'Edit Group',
@@ -325,12 +325,12 @@ $lang = [
 'error_portinvalid' => 'Port number is invalid',
 'error_retrieving_file_list' => 'Error retrieving file list',
 'error_sitedownmessage' => 'It appears that the site-down message is empty.  Please at least display some text to inform visitors that this website is down for maintenance',
-'error_splg_del' => 'Error deleting plugin. Permissions problem?',
-'error_splg_exists' => 'A simple-plugin with this name already exists. Please choose another.',
-'error_splg_name' => 'A simple-plugin\'s name must start with a letter or underscore, with any number of letters, numbers or underscores to follow.',
-'error_splg_nocode' => 'No code is specified for the plugin',
-'error_splg_save' => 'Error saving plugin',
-'error_splg_update' => 'Error updating plugin',
+'error_usrplg_del' => 'Error deleting plugin. Permissions problem?',
+'error_usrplg_exists' => 'A user-defined tag with this name already exists. Please choose another.',
+'error_usrplg_name' => 'The name of a user-defined tag must start with a letter or underscore, with any number of letters, numbers or underscores to follow.',
+'error_usrplg_nocode' => 'No code is specified for the plugin',
+'error_usrplg_save' => 'Error saving plugin',
+'error_usrplg_update' => 'Error updating plugin',
 'error_timedifference2' => 'A discrepancy in time with the PHP environment was detected. This might cause problems when publishing i.e. news articles.',
 'error_timeoutinvalid' => 'The time-out specified is invalid (must be between 1 and 3600 seconds)',
 'error_type' => 'Error Type',
@@ -365,489 +365,7 @@ $lang = [
 'errorupdatinguser' => 'Error updating user',
 'erroruserinuse' => 'This user still owns content pages. Please change ownership to another user before deleting.',
 'errorwrongfile' => 'Invalid file',
-'event_desc_addglobalcontentpost' => 'Sent after a new global content block is created',
-'event_desc_addglobalcontentpre' => 'Sent before a new global content block is created',
-'event_desc_addgrouppost' => 'Sent after a new group is created',
-'event_desc_addgrouppre' => 'Sent before a new group is created',
-'event_desc_addstylesheetpost' => 'Sent after a new stylesheet is created',
-'event_desc_addstylesheetpre' => 'Sent before a new stylesheet is created',
-'event_desc_addtemplatepost' => 'Sent after a new template is created',
-'event_desc_addtemplatepre' => 'Sent before a new template is created',
-'event_desc_addtemplatetypepost' => 'Sent after a template type definition is saved to the database',
-'event_desc_addtemplatetypepre' => 'Sent prior to a template type definition being saved to the database',
-'event_desc_adduserpost' => 'Sent after a new user is created',
-'event_desc_adduserpre' => 'Sent before a new user is created',
-'event_desc_changegroupassignpost' => 'Sent after group assignments are saved',
-'event_desc_changegroupassignpre' => 'Sent before group assignments are saved',
-'event_desc_contentdeletepost' => 'Sent after content is deleted from the system',
-'event_desc_contentdeletepre' => 'Sent before content is deleted from the system',
-'event_desc_contenteditpost' => 'Sent after edits to content are saved',
-'event_desc_contenteditpre' => 'Sent before edits to content are saved',
-'event_desc_contentpostcompile' => 'Sent after content has been processed by Smarty',
-'event_desc_contentpostrender' => 'Sent before the combined HTML is sent to the browser',
-'event_desc_contentprecompile' => 'Sent before content is sent to Smarty for processing',
-'event_desc_contentprerender' => 'Sent before any Smarty processing is performed.',
-'event_desc_contentstylesheet' => 'Sent before the stylesheet is sent to the browser',
-'event_desc_deleteglobalcontentpost' => 'Sent after a global content block is deleted from the system',
-'event_desc_deleteglobalcontentpre' => 'Sent before a global content block is deleted from the system',
-'event_desc_deletegrouppost' => 'Sent after a group is deleted from the system',
-'event_desc_deletegrouppre' => 'Sent before a group is deleted from the system',
-'event_desc_deletestylesheetpost' => 'Sent after a stylesheet is deleted from the system',
-'event_desc_deletestylesheetpre' => 'Sent before a stylesheet is deleted from the system',
-'event_desc_deletetemplatepost' => 'Sent after a template is deleted from the system',
-'event_desc_deletetemplatepre' => 'Sent before a template is deleted from the system',
-'event_desc_deletetemplatetypepost' => 'Sent after a template type definition is deleted',
-'event_desc_deletetemplatetypepre' => 'Sent prior to a template type definition being deleted',
-'event_desc_deleteuserpost' => 'Sent after a user is deleted from the system',
-'event_desc_deleteuserpre' => 'Sent before a user is deleted from the system',
-'event_desc_editglobalcontentpost' => 'Sent after edits to a global content block are saved',
-'event_desc_editglobalcontentpre' => 'Sent before edits to a global content block are saved',
-'event_desc_editgrouppost' => 'Sent after edits to a group are saved',
-'event_desc_editgrouppre' => 'Sent before edits to a group are saved',
-'event_desc_editstylesheetpost' => 'Sent after edits to a stylesheet are saved',
-'event_desc_editstylesheetpre' => 'Sent before edits to a stylesheet are saved',
-'event_desc_edittemplatepost' => 'Sent after edits to a template are saved',
-'event_desc_edittemplatepre' => 'Sent before edits to a template are saved',
-'event_desc_edittemplatetypepost' => 'Sent after a template type definition is saved',
-'event_desc_edittemplatetypepre' => 'Sent before a template type definition is saved',
-'event_desc_edituserpost' => 'Sent after edits to a user are saved',
-'event_desc_edituserpre' => 'Sent before edits to a user are saved',
-'event_desc_globalcontentpostcompile' => 'Sent after a global content block has been processed by Smarty',
-'event_desc_globalcontentprecompile' => 'Sent before a global content block is sent to Smarty for processing',
-'event_desc_loginfailed' => 'Sent after a user failed to login into the Admin panel',
-'event_desc_loginpost' => 'Sent after a user logs into the Admin panel',
-'event_desc_logoutpost' => 'Sent after a user logs out of the Admin panel',
-'event_desc_lostpassword' => 'Sent when the lost password form is submitted',
-'event_desc_lostpasswordreset' => 'Sent when the lost password form is submitted',
-'event_desc_metadatapostrender' => 'Sent from the metadata plugin after page metadata has been processed via Smarty',
-'event_desc_metadataprerender' => 'Sent from the metadata plugin before any processing has occurred',
-'event_desc_moduleinstalled' => 'Sent after a module is installed',
-'event_desc_moduleuninstalled' => 'Sent after a module is uninstalled',
-'event_desc_moduleupgraded' => 'Sent after a module is upgraded',
-'event_desc_pagebodyprerender' => 'Sent before the page content after the head section (if any) is populated by Smarty',
-'event_desc_pagebodypostrender' => 'Sent after the page content after the head section (if any) is populated by Smarty',
-'event_desc_pageheadprerender' => 'Sent before the page head section is populated by Smarty',
-'event_desc_pageheadpostrender' => 'Sent after the page head section is populated by Smarty',
-'event_desc_pagetopprerender' => 'Sent before the page-top (from page start to &lt;head&gt;) is populated by Smarty',
-'event_desc_pagetoppostrender' => 'Sent after the page-top (from page start to &lt;head&gt;) is populated by Smarty',
-'event_desc_postrequest' => 'Sent at the end of processing each admin or frontend request',
-'event_desc_smartypostcompile' => 'Sent after any content destined for Smarty has been processed',
-'event_desc_smartyprecompile' => 'Sent before any content destined for Smarty is sent for processing',
-'event_desc_stylesheetpostcompile' => 'Sent after a stylesheet is compiled through Smarty',
-'event_desc_stylesheetpostrender' => 'Sent after a stylesheet is passed through Smarty, but before cached to disk',
-'event_desc_stylesheetprecompile' => 'Sent before a stylesheet is compiled through Smarty',
-'event_desc_templatepostcompile' => 'Sent after a template has been processed by Smarty',
-'event_desc_templateprecompile' => 'Sent before a template is sent to Smarty for processing',
-'event_desc_templateprefetch' => 'Sent before a template is fetched from Smarty',
 'event_description' => 'Event Description',
-'event_help_addglobalcontentpost' => "<h4>Parameters</h4>
-<ul>
-<li>'global_content' - Reference to the affected global content block object.</li>
-</ul>
-",
-'event_help_addglobalcontentpre' => "<h4>Parameters</h4>
-<ul>
-<li>'global_content' - Reference to the affected global content block object.</li>
-</ul>
-",
-'event_help_addgrouppost' => "<h4>Parameters</h4>
-<ul>
-<li>'group' - Reference to the affected group object.</li>
-</ul>
-",
-'event_help_addgrouppre' => "<h4>Parameters</h4>
-<ul>
-<li>'group' - Reference to the affected group object.</li>
-</ul>
-",
-'event_help_addstylesheetpost' => "<h4>Parameters</h4>
-<ul>
-<li>'stylesheet' - Reference to the affected stylesheet object.</li>
-</ul>
-",
-'event_help_addstylesheetpre' => "<h4>Parameters</h4>
-<ul>
-<li>'stylesheet' - Reference to the affected stylesheet object.</li>
-</ul>
-",
-'event_help_addtemplatepost' => "<h4>Parameters</h4>
-<ul>
-<li>'template' - Reference to the affected template object.</li>
-</ul>
-",
-'event_help_addtemplatepre' => "<h4>Parameters</h4>
-<ul>
-<li>'template' - Reference to the affected template object.</li>
-</ul>
-",
-'event_help_addtemplatetypepost' => "<h4>Parameters</h4>
-<ul>
-  <li>'TemplateType' - Reference to the affected template type object.</li>
-</ul>",
-'event_help_addtemplatetypepre' => "<h4>Parameters</h4>
-<ul>
-  <li>'TemplateType' - Reference to the affected template type object.</li>
-</ul>",
-/*
-'event_help_addsimplepluginpost' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>
-',
-'event_help_addsimplepluginpre' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>
-',
-*/
-'event_help_adduserpost' => "<h4>Parameters</h4>
-<ul>
-<li>'user' - Reference to the affected user object.</li>
-</ul>
-",
-'event_help_adduserpre' => "<h4>Parameters</h4>
-<ul>
-<li>'user' - Reference to the affected user object.</li>
-</ul>
-",
-'event_help_changegroupassignpost' => "<h4>Parameters></h4>
-<ul>
-<li>'group' - Reference to the affected group object.</li>
-<li>'users' - Array of references to user objects now belonging to the affected group.</li>
-</ul>
-",
-'event_help_changegroupassignpre' => "<h4>Parameters></h4>
-<ul>
-<li>'group' - Reference to the group object.</li>
-<li>'users' - Array of references to user objects belonging to the group.</li>
-</ul>
-",
-'event_help_contentdeletepost' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - Reference to the affected content object.</li>
-</ul>
-",
-'event_help_contentdeletepre' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - Reference to the affected content object.</li>
-</ul>
-",
-'event_help_contenteditpost' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - Reference to the affected content object.</li>
-</ul>
-",
-'event_help_contenteditpre' => "<h4>Parameters</h4>
-<ul>
-<li>'global_content' - Reference to the affected content object.</li>
-</ul>
-",
-'event_help_contentpostcompile' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - Reference to the affected content text.</li>
-</ul>
-",
-'event_help_contentpostrender' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - Reference to the html text.</li>
-</ul>
-",
-'event_help_contentprecompile' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - Reference to the affected content text.</li>
-</ul>
-",
-'event_help_contentprerender' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - Reference to the affected content object..</li>
-</ul>
-",
-'event_help_contentstylesheet' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - Reference to the affected stylesheet text.</li>
-</ul>
-",
-'event_help_deleteglobalcontentpost' => "<h4>Parameters</h4>
-<ul>
-<li>'global_content' - Reference to the affected global content block object.</li>
-</ul>
-",
-'event_help_deleteglobalcontentpre' => "<h4>Parameters</h4>
-<ul>
-<li>'global_content' - Reference to the affected global content block object.</li>
-</ul>
-",
-'event_help_deletegrouppost' => "<h4>Parameters</h4>
-<ul>
-<li>'group' - Reference to the affected group object.</li>
-</ul>
-",
-'event_help_deletegrouppre' => "<h4>Parameters</h4>
-<ul>
-<li>'group' - Reference to the affected group object.</li>
-</ul>
-",
-'event_help_deletestylesheetpost' => "<h4>Parameters</h4>
-<ul>
-<li>'stylesheet' - Reference to the affected stylesheet object.</li>
-</ul>
-",
-'event_help_deletestylesheetpre' => "<h4>Parameters</h4>
-<ul>
-<li>'stylesheet' - Reference to the affected stylesheet object.</li>
-</ul>
-",
-'event_help_deletetemplatepost' => "<h4>Parameters</h4>
-<ul>
-<li>'template' - Reference to the affected template object.</li>
-</ul>
-",
-'event_help_deletetemplatepre' => "<h4>Parameters</h4>
-<ul>
-<li>'template' - Reference to the affected template object.</li>
-</ul>
-",
-'event_help_deletetemplatetypepost' => "<h4>Parameters</h4>
-<ul>
-  <li>'TemplateType' - Reference to the affected template type object.</li>
-</ul>",
-'event_help_deletetemplatetypepre' => "<h4>Parameters</h4>
-<ul>
-  <li>'TemplateType' - Reference to the affected template type object.</li>
-</ul>",
-/*
-'event_help_deletesimplepluginpost' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>
-',
-'event_help_deletesimplepluginpre' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>
-',
-*/
-'event_help_deleteuserpost' => "<h4>Parameters</h4>
-<ul>
-<li>'user' - Reference to the affected user object.</li>
-</ul>
-",
-'event_help_deleteuserpre' => "<h4>Parameters</h4>
-<ul>
-<li>'user' - Reference to the affected user object.</li>
-</ul>
-",
-'event_help_editglobalcontentpost' => "<h4>Parameters</h4>
-<ul>
-<li>'global_content' - Reference to the affected global content block object.</li>
-</ul>
-",
-'event_help_editglobalcontentpre' => "<h4>Parameters</h4>
-<ul>
-<li>'global_content' - Reference to the affected global content block object.</li>
-</ul>
-",
-'event_help_editgrouppost' => "<h4>Parameters</h4>
-<ul>
-<li>'group' - Reference to the affected group object.</li>
-</ul>
-",
-'event_help_editgrouppre' => "<h4>Parameters</h4>
-<ul>
-<li>'group' - Reference to the affected group object.</li>
-</ul>
-",
-'event_help_editstylesheetpost' => "<h4>Parameters</h4>
-<ul>
-<li>'stylesheet' - Reference to the affected stylesheet object.</li>
-</ul>
-",
-'event_help_editstylesheetpre' => "<h4>Parameters</h4>
-<ul>
-<li>'stylesheet' - Reference to the affected stylesheet object.</li>
-</ul>
-",
-'event_help_edittemplatepost' => "<h4>Parameters</h4>
-<ul>
-<li>'template' - Reference to the affected template object.</li>
-</ul>
-",
-'event_help_edittemplatepre' => "<h4>Parameters</h4>
-<ul>
-<li>'template' - Reference to the affected template object.</li>
-</ul>
-",
-'event_help_edittemplatetypepost' => "<h4>Parameters</h4>
-<ul>
-  <li>'TemplateType' - Reference to the affected template type object.</li>
-</ul>",
-'event_help_edittemplatetypepre' => "<h4>Parameters</h4>
-<ul>
-  <li>'TemplateType' - Reference to the affected template type object.</li>
-</ul>",
-/*
-'event_help_editsimplepluginpost' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>
-',
-'event_help_editsimplepluginpre' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>
-',
-*/
-'event_help_edituserpost' => "<h4>Parameters</h4>
-<ul>
-<li>'user' - Reference to the affected user object.</li>
-</ul>
-",
-'event_help_edituserpre' => "<h4>Parameters</h4>
-<ul>
-<li>'user' - Reference to the affected user object.</li>
-</ul>
-",
-'event_help_globalcontentpostcompile' => "<h4>Parameters</h4>
-<ul>
-<li>'global_content' - Reference to the affected global content block text.</li>
-</ul>
-",
-'event_help_globalcontentprecompile' => "<h4>Parameters</h4>
-<ul>
-<li>'global_content' - Reference to the affected global content block text.</li>
-</ul>
-",
-'event_help_loginfailed' => "<h4>Parameters</h4>
-<ul>
-  <li>'user' - (string) The username of the failed login attempt.</li>
-</ul>",
-'event_help_loginpost' => "<h4>Parameters</h4>
-<ul>
-<li>'user' - Reference to the affected user object.</li>
-</ul>
-",
-'event_help_logoutpost' => "<h4>Parameters</h4>
-<ul>
-<li>'user' - Reference to the affected user object.</li>
-</ul>
-",
-'event_help_lostpassword' => "<h4>Parameters</h4>
-<ul>
-<li>'username' - The username entered in the lostpassword form.</li>
-</ul>
-",
-'event_help_lostpasswordreset' => "<h4>Parameters</h4>
-<ul>
-<li>'uid' - The integer userid for the account.</li>
-<li>'username' - The username for the reset account.</li>
-<li>'ip' - The IP address of the client that performed the reset.</li>
-</ul>
-",
-'event_help_moduleinstalled' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>
-',
-'event_help_moduleuninstalled' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>
-',
-'event_help_moduleupgraded' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>
-',
-'event_help_smartypostcompile' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - Reference to the affected text.</li>
-</ul>
-",
-'event_help_smartyprecompile' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - Reference to the affected text.</li>
-</ul>
-",
-'event_help_stylesheetpostcompile' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>
-',
-'event_help_stylesheetpostrender' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - Reference to the stylesheet text.</li>
-</ul>
-",
-'event_help_stylesheetprecompile' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>
-',
-'event_help_templatepostcompile' => "<h4>Parameters</h4>
-<ul>
-<li>'template' - Reference to the affected template text.</li>
-<li>'type' - The type of template call.  i.e: template for a whole template, tpl_head, tpl_body, or tpl_top for a partial template.</li>
-</ul>
-",
-'event_help_templateprecompile' => "<h4>Parameters</h4>
-<ul>
-<li>'template' - Reference to the affected template text.</li>
-<li>'type' - The type of template call.  i.e: template for a whole template, tpl_head, tpl_body, or tpl_top for a partial template.</li>
-</ul>
-",
-'event_help_metadatapostrender' => "<h4>Parameters</h4>
-<ul>
-<li>'content_id' - Page numeric identifier.</li>
-<li>'html' - Reference to processed metadata (string) which may be amended as appropriate.</li>
-</ul>
-",
-'event_help_metadataprerender' => "<h4>Parameters</h4>
-<ul>
-<li>'content_id' - Page numeric identifier.</li>
-<li>'showbase' - Reference to boolean variable: whether to show a base tag.</li>
-<li>'html' - Reference to string which may be populated/amended with metadata as appropriate.</li>
-</ul>
-",
-'event_help_pagebodyprerender' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - The page content-object.</li>
-<li>'html' - Reference to the (string) content (if any) of the page-section.</li>
-</ul>
-",
-'event_help_pagebodypostrender' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - The page content-object.</li>
-<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
-",
-'event_help_pageheadprerender' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - The page content-object.</li>
-<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
-",
-'event_help_pageheadpostrender' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - The page content-object.</li>
-<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
-",
-'event_help_pagetopprerender' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - The page content-object.</li>
-<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
-",
-'event_help_pagetoppostrender' => "<h4>Parameters</h4>
-<ul>
-<li>'content' - The page content-object.</li>
-<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
-",
-'event_help_postrequest' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>',
-'event_help_templateprefetch' => '<h4>Parameters</h4>
-<ul>
-<li>None</li>
-</ul>',
-
 'event_name' => 'Event Name',
 'event' => 'Event',
 'eventhandlerdescription' => 'Events and associated event-handlers',
@@ -908,7 +426,7 @@ $lang = [
 'general_operation_settings' => 'Miscellaneous',
 'general_settings' => 'General',
 'generic' => 'Generic',
-'global_umask' => 'File Creation Mask (umask)',
+'global_umask' => 'File/Directory Creation Mask (umask)',
 'globalconfig' => 'System Settings',
 'globalmetadata' => 'Global Metadata',
 'go' => 'Go',
@@ -929,26 +447,6 @@ $lang = [
 'handlers' => 'Handlers',
 'hasdependents' => 'Has Dependants',
 'headtags' => 'Head Tags',
-/* exported to CmsContentManager-module lang
-'help_content_accesskey' => 'Specify an access key character (single character) that can be used to access this content page.  This is useful for accessibility purposes',
-'help_content_active' => 'Inactive pages cannot be displayed, or appear in the navigation',
-'help_content_addteditor' => 'This field allows you to specify other admin users who will be able to edit this content page.  This field is useful when editors have limited access privileges, and need the ability to edit different pages.',
-'help_content_cachable' => 'Check this box if the content of this page is to be cached on the server and on the browser.  If a page is not cachable, then it must be regenerated on each and every request.  Setting a page to be cachable can be a significant performance boost for most websites.',
-'help_content_content_en' => 'This is the default content block.  Here you enter the content that will be most prominently displayed on the content page',
-'help_content_default' => 'Check this box if this is the website\'s default page',
-'help_content_disablewysiwyg' => 'This checkbox is used to indicate that regardless of settings in the page template and user settings, no rich-text-editor should be used on any text area on this page.  This is useful when the page uses a standard site page template, but contains either hard-coded HTML, smarty logic, or only displays the output of an independently-developed module',
-'help_content_extra1' => 'This field is used for advanced navigation or template logic. Consult your site developer to see if you need to edit this value when managing content',
-'help_content_extra2' => 'This field is used for advanced navigation or template logic. Consult your site developer to see if you need to edit this value when managing content',
-'help_content_extra3' => 'This field is used for advanced navigation or template logic. Consult your site developer to see if you need to edit this value when managing content',
-'help_content_image' => 'This field allows you to associate an image with the content page.  The images must have already been uploaded to the website in a directory specified by the website designer.  The image may optionally be displayed on the page, or used when building a navigation',
-'help_content_menutext' => 'This is the text that represents this page in the navigation.  The menu text is also used to create a page alias if none is specified.',
-'help_content_owner' => 'This field allows you to adjust the owner of this content item.  It is useful when giving access to this page to an editor with less access privileges',
-'help_content_pagedata' => 'This field is used for Smarty tags or logic that are specific to this content page, will probably not generate any direct output, and must be processed before anything else on the page',
-'help_content_pagemeta' => 'This field is used for HTML meta tags. They will be merged with the default meta tags and inserted in the head section of the generated HTML page.',
-'help_content_parent' => 'Select an existing page in the content hierarchy which will be the parent page for this content page.  This relationship is used when building a navigation',
-'help_content_secure' => 'Check this box to indicate that this page may only be accessed via a secure (encrypted) connection i.e. via HTTPS, regardless of the arrangements for the site as a whole. This option is deprecated, and will be removed.',
-'help_content_showinmenu' => 'Select whether this page will be visible (by default) in the navigation.',
-*/
 'help_page_alias' => 'A unique identifier used in the \'pretty-URL\' for the page',
 'help_page_disablewysiwyg' => 'Check this box to prevent rich-text-editing of page content-blocks. (Is there a sensible reason for doing that ??)',
 'help_page_searchable' => 'Check this box to permit searching of this page during site-wide content searches',
@@ -1002,7 +500,7 @@ $lang = [
 2. xxx.xxx.xxx.[yyy-zzz] -- (IP address range)<br />
 3. xxx.xxx.xxx.xxx/nn -- (nnn = number of bits, cisco style.  i.e:  192.168.0.100/24 = entire 192.168.0 class C subnet)',
 'info_smarty_options' => 'The following options have effect only when the above caching options are enabled',
-'info_target' => 'This option might used by the Menu Manager to indicate when and how new frames or windows should be opened.  Some menu manager templates might ignore this option.',
+'info_target' => 'This option might used by the menu manager to indicate when and how new frames or windows should be opened.  Some menu manager templates might ignore this option.', //TODO relevant to Navigator module?
 'info_templateuser' => 'This account is the template user account.  New users will be created using this account\'s settings',
 'info_this_templateuser' => 'This account is set as the template user.  New accounts will inherit this users settings, and you can copy this users settings to any user account',
 'info_user_active2' => 'Toggle this flag to preserve the user information, but prevent the user from logging in to the admin console',
@@ -1368,8 +866,8 @@ $lang = [
 'showsite' => 'Show Site',
 'sibling_duplicate_order' => 'Two sibling pages cannot have the same order. Pages were not reordered.',
 'signed_in' => 'Signed in as: %s',
-'simpletags' => 'Simple Plugins',
-'simpletags_description' => 'Limited-capability plugins added by authorised users',
+'usertags' => 'User Plugins',
+'usertags_description' => 'Limited-capability plugins added by authorised users',
 'site_support' => 'Seek Help',
 'siteadmin' => 'Site Admin',
 'sitedown_settings' => 'Maintenance Mode',
@@ -1384,7 +882,7 @@ $lang = [
 'siteprefsupdated' => 'Global settings updated',
 'smarty_cachelife' => 'Cache Item Lifetime <em>(seconds)</em>',
 'smarty_cachemodules' => 'Cache Module-Action Plugins',
-'smarty_cachesimples' => 'Cache Simple Plugins',
+'smarty_cacheusertags' => 'Cache User Plugins',
 'smarty_compilecheck' => 'Do a Compilation Check',
 'smarty_settings' => 'Smarty',
 'smtp_settings' => 'SMTP Settings',
@@ -1491,7 +989,7 @@ $lang = [
 'thumbnail_height' => 'Thumbnail Height',
 'thumbnail_width' => 'Thumbnail Width',
 'thumbnail' => 'Thumbnail',
-'title_apply_splg' => 'Save this plugin, and continue editing',
+'title_apply_usrplg' => 'Save this plugin, and continue editing',
 'title_event_description' => 'This column contains brief descriptions for each event',
 'title_event_handlers' => 'This column indicates the number of handlers for each event (if any)',
 'title_event_name' => 'This column contains a unique name for each event',
@@ -1515,7 +1013,7 @@ $lang = [
 'unlimited' => 'Unlimited',
 'untested' => 'Not Tested',
 'up' => 'Up',
-'updated_splg' => 'The plugin was successfully updated.',
+'updated_usrplg' => 'The plugin was successfully updated.',
 'updateperm' => 'Update Permissions',
 'upload_cksum_file' => 'Upload Checksum File',
 'upload_filetobig' => 'This file is too large to upload',
@@ -1601,3 +1099,509 @@ $lang = [
 */
 
 ] + $lang;
+
+/* exported to CmsContentManager-module lang/realm
+'help_content_accesskey' => 'Specify an access key character (single character) that can be used to access this content page.  This is useful for accessibility purposes',
+'help_content_active' => 'Inactive pages cannot be displayed, or appear in the navigation',
+'help_content_addteditor' => 'This field allows you to specify other admin users who will be able to edit this content page.  This field is useful when editors have limited access privileges, and need the ability to edit different pages.',
+'help_content_cachable' => 'Check this box if the content of this page is to be cached on the server and on the browser.  If a page is not cachable, then it must be regenerated on each and every request.  Setting a page to be cachable can be a significant performance boost for most websites.',
+'help_content_content_en' => 'This is the default content block.  Here you enter the content that will be most prominently displayed on the content page',
+'help_content_default' => 'Check this box if this is the website\'s default page',
+'help_content_disablewysiwyg' => 'This checkbox is used to indicate that regardless of settings in the page template and user settings, no rich-text-editor should be used on any text area on this page.  This is useful when the page uses a standard site page template, but contains either hard-coded HTML, smarty logic, or only displays the output of an independently-developed module',
+'help_content_extra1' => 'This field is used for advanced navigation or template logic. Consult your site developer to see if you need to edit this value when managing content',
+'help_content_extra2' => 'This field is used for advanced navigation or template logic. Consult your site developer to see if you need to edit this value when managing content',
+'help_content_extra3' => 'This field is used for advanced navigation or template logic. Consult your site developer to see if you need to edit this value when managing content',
+'help_content_image' => 'This field allows you to associate an image with the content page.  The images must have already been uploaded to the website in a directory specified by the website designer.  The image may optionally be displayed on the page, or used when building a navigation',
+'help_content_menutext' => 'This is the text that represents this page in the navigation.  The menu text is also used to create a page alias if none is specified.',
+'help_content_owner' => 'This field allows you to adjust the owner of this content item.  It is useful when giving access to this page to an editor with less access privileges',
+'help_content_pagedata' => 'This field is used for Smarty tags or logic that are specific to this content page, will probably not generate any direct output, and must be processed before anything else on the page',
+'help_content_pagemeta' => 'This field is used for HTML meta tags. They will be merged with the default meta tags and inserted in the head section of the generated HTML page.',
+'help_content_parent' => 'Select an existing page in the content hierarchy which will be the parent page for this content page.  This relationship is used when building a navigation',
+'help_content_secure' => 'Check this box to indicate that this page may only be accessed via a secure (encrypted) connection i.e. via HTTPS, regardless of the arrangements for the site as a whole. This option is deprecated, and will be removed.',
+'help_content_showinmenu' => 'Select whether this page will be visible (by default) in the navigation.',
+*/
+
+/* exported to 'events' realm
+'event_desc_addglobalcontentpost' => 'Sent after a new global content block is created',
+'event_desc_addglobalcontentpre' => 'Sent before a new global content block is created',
+'event_desc_addgrouppost' => 'Sent after a new group is created',
+'event_desc_addgrouppre' => 'Sent before a new group is created',
+'event_desc_addstylesheetpost' => 'Sent after a new stylesheet is created',
+'event_desc_addstylesheetpre' => 'Sent before a new stylesheet is created',
+'event_desc_addtemplatepost' => 'Sent after a new template is created',
+'event_desc_addtemplatepre' => 'Sent before a new template is created',
+'event_desc_addtemplatetypepost' => 'Sent after a template type definition is saved to the database',
+'event_desc_addtemplatetypepre' => 'Sent prior to a template type definition being saved to the database',
+'event_desc_adduserpost' => 'Sent after a new user is created',
+'event_desc_adduserpre' => 'Sent before a new user is created',
+'event_desc_changegroupassignpost' => 'Sent after group assignments are saved',
+'event_desc_changegroupassignpre' => 'Sent before group assignments are saved',
+'event_desc_contentdeletepost' => 'Sent after content is deleted from the system',
+'event_desc_contentdeletepre' => 'Sent before content is deleted from the system',
+'event_desc_contenteditpost' => 'Sent after edits to content are saved',
+'event_desc_contenteditpre' => 'Sent before edits to content are saved',
+'event_desc_contentpostcompile' => 'Sent after content has been processed by Smarty',
+'event_desc_contentpostrender' => 'Sent before the combined HTML is sent to the browser',
+'event_desc_contentprecompile' => 'Sent before content is sent to Smarty for processing',
+'event_desc_contentprerender' => 'Sent before any Smarty processing is performed.',
+'event_desc_contentstylesheet' => 'Sent before the stylesheet is sent to the browser',
+'event_desc_deleteglobalcontentpost' => 'Sent after a global content block is deleted from the system',
+'event_desc_deleteglobalcontentpre' => 'Sent before a global content block is deleted from the system',
+'event_desc_deletegrouppost' => 'Sent after a group is deleted from the system',
+'event_desc_deletegrouppre' => 'Sent before a group is deleted from the system',
+'event_desc_deletestylesheetpost' => 'Sent after a stylesheet is deleted from the system',
+'event_desc_deletestylesheetpre' => 'Sent before a stylesheet is deleted from the system',
+'event_desc_deletetemplatepost' => 'Sent after a template is deleted from the system',
+'event_desc_deletetemplatepre' => 'Sent before a template is deleted from the system',
+'event_desc_deletetemplatetypepost' => 'Sent after a template type definition is deleted',
+'event_desc_deletetemplatetypepre' => 'Sent prior to a template type definition being deleted',
+'event_desc_deleteuserpost' => 'Sent after a user is deleted from the system',
+'event_desc_deleteuserpre' => 'Sent before a user is deleted from the system',
+'event_desc_editglobalcontentpost' => 'Sent after edits to a global content block are saved',
+'event_desc_editglobalcontentpre' => 'Sent before edits to a global content block are saved',
+'event_desc_editgrouppost' => 'Sent after edits to a group are saved',
+'event_desc_editgrouppre' => 'Sent before edits to a group are saved',
+'event_desc_editstylesheetpost' => 'Sent after edits to a stylesheet are saved',
+'event_desc_editstylesheetpre' => 'Sent before edits to a stylesheet are saved',
+'event_desc_edittemplatepost' => 'Sent after edits to a template are saved',
+'event_desc_edittemplatepre' => 'Sent before edits to a template are saved',
+'event_desc_edittemplatetypepost' => 'Sent after a template type definition is saved',
+'event_desc_edittemplatetypepre' => 'Sent before a template type definition is saved',
+'event_desc_edituserpost' => 'Sent after edits to a user are saved',
+'event_desc_edituserpre' => 'Sent before edits to a user are saved',
+'event_desc_globalcontentpostcompile' => 'Sent after a global content block has been processed by Smarty',
+'event_desc_globalcontentprecompile' => 'Sent before a global content block is sent to Smarty for processing',
+'event_desc_loginfailed' => 'Sent after a user failed to login into the Admin panel',
+'event_desc_loginpost' => 'Sent after a user logs into the Admin panel',
+'event_desc_logoutpost' => 'Sent after a user logs out of the Admin panel',
+'event_desc_lostpassword' => 'Sent when the lost password form is submitted',
+'event_desc_lostpasswordreset' => 'Sent when the lost password form is submitted',
+'event_desc_metadatapostrender' => 'Sent from the metadata plugin after page metadata has been processed via Smarty',
+'event_desc_metadataprerender' => 'Sent from the metadata plugin before any processing has occurred',
+'event_desc_moduleinstalled' => 'Sent after a module is installed',
+'event_desc_moduleuninstalled' => 'Sent after a module is uninstalled',
+'event_desc_moduleupgraded' => 'Sent after a module is upgraded',
+'event_desc_pagebodyprerender' => 'Sent before the page content after the head section (if any) is populated by Smarty',
+'event_desc_pagebodypostrender' => 'Sent after the page content after the head section (if any) is populated by Smarty',
+'event_desc_pageheadprerender' => 'Sent before the page head section is populated by Smarty',
+'event_desc_pageheadpostrender' => 'Sent after the page head section is populated by Smarty',
+'event_desc_pagetopprerender' => 'Sent before the page-top (from page start to &lt;head&gt;) is populated by Smarty',
+'event_desc_pagetoppostrender' => 'Sent after the page-top (from page start to &lt;head&gt;) is populated by Smarty',
+'event_desc_postrequest' => 'Sent at the end of processing each admin or frontend request',
+'event_desc_smartypostcompile' => 'Sent after any content destined for Smarty has been processed',
+'event_desc_smartyprecompile' => 'Sent before any content destined for Smarty is sent for processing',
+'event_desc_stylesheetpostcompile' => 'Sent after a stylesheet is compiled through Smarty',
+'event_desc_stylesheetpostrender' => 'Sent after a stylesheet is passed through Smarty, but before cached to disk',
+'event_desc_stylesheetprecompile' => 'Sent before a stylesheet is compiled through Smarty',
+'event_desc_templatepostcompile' => 'Sent after a template has been processed by Smarty',
+'event_desc_templateprecompile' => 'Sent before a template is sent to Smarty for processing',
+'event_desc_templateprefetch' => 'Sent before a template is fetched from Smarty',
+
+'event_help_addglobalcontentpost' => "<h4>Parameters</h4>
+<ul>
+<li>'global_content' - Reference to the affected global content block object.</li>
+</ul>
+",
+'event_help_addglobalcontentpre' => "<h4>Parameters</h4>
+<ul>
+<li>'global_content' - Reference to the affected global content block object.</li>
+</ul>
+",
+'event_help_addgrouppost' => "<h4>Parameters</h4>
+<ul>
+<li>'group' - Reference to the affected group object.</li>
+</ul>
+",
+'event_help_addgrouppre' => "<h4>Parameters</h4>
+<ul>
+<li>'group' - Reference to the affected group object.</li>
+</ul>
+",
+'event_help_addstylesheetpost' => "<h4>Parameters</h4>
+<ul>
+<li>'stylesheet' - Reference to the affected stylesheet object.</li>
+</ul>
+",
+'event_help_addstylesheetpre' => "<h4>Parameters</h4>
+<ul>
+<li>'stylesheet' - Reference to the affected stylesheet object.</li>
+</ul>
+",
+'event_help_addtemplatepost' => "<h4>Parameters</h4>
+<ul>
+<li>'template' - Reference to the affected template object.</li>
+</ul>
+",
+'event_help_addtemplatepre' => "<h4>Parameters</h4>
+<ul>
+<li>'template' - Reference to the affected template object.</li>
+</ul>
+",
+'event_help_addtemplatetypepost' => "<h4>Parameters</h4>
+<ul>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
+</ul>",
+'event_help_addtemplatetypepre' => "<h4>Parameters</h4>
+<ul>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
+</ul>",
+/*
+'event_help_adduserpluginpost' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>
+',
+'event_help_adduserpluginpre' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>
+',
+* /
+'event_help_adduserpost' => "<h4>Parameters</h4>
+<ul>
+<li>'user' - Reference to the affected user object.</li>
+</ul>
+",
+'event_help_adduserpre' => "<h4>Parameters</h4>
+<ul>
+<li>'user' - Reference to the affected user object.</li>
+</ul>
+",
+'event_help_changegroupassignpost' => "<h4>Parameters></h4>
+<ul>
+<li>'group' - Reference to the affected group object.</li>
+<li>'users' - Array of references to user objects now belonging to the affected group.</li>
+</ul>
+",
+'event_help_changegroupassignpre' => "<h4>Parameters></h4>
+<ul>
+<li>'group' - Reference to the group object.</li>
+<li>'users' - Array of references to user objects belonging to the group.</li>
+</ul>
+",
+'event_help_contentdeletepost' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - Reference to the affected content object.</li>
+</ul>
+",
+'event_help_contentdeletepre' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - Reference to the affected content object.</li>
+</ul>
+",
+'event_help_contenteditpost' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - Reference to the affected content object.</li>
+</ul>
+",
+'event_help_contenteditpre' => "<h4>Parameters</h4>
+<ul>
+<li>'global_content' - Reference to the affected content object.</li>
+</ul>
+",
+'event_help_contentpostcompile' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - Reference to the affected content text.</li>
+</ul>
+",
+'event_help_contentpostrender' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - Reference to the html text.</li>
+</ul>
+",
+'event_help_contentprecompile' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - Reference to the affected content text.</li>
+</ul>
+",
+'event_help_contentprerender' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - Reference to the affected content object..</li>
+</ul>
+",
+'event_help_contentstylesheet' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - Reference to the affected stylesheet text.</li>
+</ul>
+",
+'event_help_deleteglobalcontentpost' => "<h4>Parameters</h4>
+<ul>
+<li>'global_content' - Reference to the affected global content block object.</li>
+</ul>
+",
+'event_help_deleteglobalcontentpre' => "<h4>Parameters</h4>
+<ul>
+<li>'global_content' - Reference to the affected global content block object.</li>
+</ul>
+",
+'event_help_deletegrouppost' => "<h4>Parameters</h4>
+<ul>
+<li>'group' - Reference to the affected group object.</li>
+</ul>
+",
+'event_help_deletegrouppre' => "<h4>Parameters</h4>
+<ul>
+<li>'group' - Reference to the affected group object.</li>
+</ul>
+",
+'event_help_deletestylesheetpost' => "<h4>Parameters</h4>
+<ul>
+<li>'stylesheet' - Reference to the affected stylesheet object.</li>
+</ul>
+",
+'event_help_deletestylesheetpre' => "<h4>Parameters</h4>
+<ul>
+<li>'stylesheet' - Reference to the affected stylesheet object.</li>
+</ul>
+",
+'event_help_deletetemplatepost' => "<h4>Parameters</h4>
+<ul>
+<li>'template' - Reference to the affected template object.</li>
+</ul>
+",
+'event_help_deletetemplatepre' => "<h4>Parameters</h4>
+<ul>
+<li>'template' - Reference to the affected template object.</li>
+</ul>
+",
+'event_help_deletetemplatetypepost' => "<h4>Parameters</h4>
+<ul>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
+</ul>",
+'event_help_deletetemplatetypepre' => "<h4>Parameters</h4>
+<ul>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
+</ul>",
+/*
+'event_help_deleteuserpluginpost' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>
+',
+'event_help_deleteuserpluginpre' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>
+',
+* /
+'event_help_deleteuserpost' => "<h4>Parameters</h4>
+<ul>
+<li>'user' - Reference to the affected user object.</li>
+</ul>
+",
+'event_help_deleteuserpre' => "<h4>Parameters</h4>
+<ul>
+<li>'user' - Reference to the affected user object.</li>
+</ul>
+",
+'event_help_editglobalcontentpost' => "<h4>Parameters</h4>
+<ul>
+<li>'global_content' - Reference to the affected global content block object.</li>
+</ul>
+",
+'event_help_editglobalcontentpre' => "<h4>Parameters</h4>
+<ul>
+<li>'global_content' - Reference to the affected global content block object.</li>
+</ul>
+",
+'event_help_editgrouppost' => "<h4>Parameters</h4>
+<ul>
+<li>'group' - Reference to the affected group object.</li>
+</ul>
+",
+'event_help_editgrouppre' => "<h4>Parameters</h4>
+<ul>
+<li>'group' - Reference to the affected group object.</li>
+</ul>
+",
+'event_help_editstylesheetpost' => "<h4>Parameters</h4>
+<ul>
+<li>'stylesheet' - Reference to the affected stylesheet object.</li>
+</ul>
+",
+'event_help_editstylesheetpre' => "<h4>Parameters</h4>
+<ul>
+<li>'stylesheet' - Reference to the affected stylesheet object.</li>
+</ul>
+",
+'event_help_edittemplatepost' => "<h4>Parameters</h4>
+<ul>
+<li>'template' - Reference to the affected template object.</li>
+</ul>
+",
+'event_help_edittemplatepre' => "<h4>Parameters</h4>
+<ul>
+<li>'template' - Reference to the affected template object.</li>
+</ul>
+",
+'event_help_edittemplatetypepost' => "<h4>Parameters</h4>
+<ul>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
+</ul>",
+'event_help_edittemplatetypepre' => "<h4>Parameters</h4>
+<ul>
+  <li>'TemplateType' - Reference to the affected template type object.</li>
+</ul>",
+/*
+'event_help_edituserpluginpost' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>
+',
+'event_help_edituserpluginpre' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>
+',
+* /
+'event_help_edituserpost' => "<h4>Parameters</h4>
+<ul>
+<li>'user' - Reference to the affected user object.</li>
+</ul>
+",
+'event_help_edituserpre' => "<h4>Parameters</h4>
+<ul>
+<li>'user' - Reference to the affected user object.</li>
+</ul>
+",
+'event_help_globalcontentpostcompile' => "<h4>Parameters</h4>
+<ul>
+<li>'global_content' - Reference to the affected global content block text.</li>
+</ul>
+",
+'event_help_globalcontentprecompile' => "<h4>Parameters</h4>
+<ul>
+<li>'global_content' - Reference to the affected global content block text.</li>
+</ul>
+",
+'event_help_loginfailed' => "<h4>Parameters</h4>
+<ul>
+  <li>'user' - (string) The username of the failed login attempt.</li>
+</ul>",
+'event_help_loginpost' => "<h4>Parameters</h4>
+<ul>
+<li>'user' - Reference to the affected user object.</li>
+</ul>
+",
+'event_help_logoutpost' => "<h4>Parameters</h4>
+<ul>
+<li>'user' - Reference to the affected user object.</li>
+</ul>
+",
+'event_help_lostpassword' => "<h4>Parameters</h4>
+<ul>
+<li>'username' - The username entered in the lostpassword form.</li>
+</ul>
+",
+'event_help_lostpasswordreset' => "<h4>Parameters</h4>
+<ul>
+<li>'uid' - The integer userid for the account.</li>
+<li>'username' - The username for the reset account.</li>
+<li>'ip' - The IP address of the client that performed the reset.</li>
+</ul>
+",
+'event_help_moduleinstalled' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>
+',
+'event_help_moduleuninstalled' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>
+',
+'event_help_moduleupgraded' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>
+',
+'event_help_smartypostcompile' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - Reference to the affected text.</li>
+</ul>
+",
+'event_help_smartyprecompile' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - Reference to the affected text.</li>
+</ul>
+",
+'event_help_stylesheetpostcompile' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>
+',
+'event_help_stylesheetpostrender' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - Reference to the stylesheet text.</li>
+</ul>
+",
+'event_help_stylesheetprecompile' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>
+',
+'event_help_templatepostcompile' => "<h4>Parameters</h4>
+<ul>
+<li>'template' - Reference to the affected template text.</li>
+<li>'type' - The type of template call.  i.e: template for a whole template, tpl_head, tpl_body, or tpl_top for a partial template.</li>
+</ul>
+",
+'event_help_templateprecompile' => "<h4>Parameters</h4>
+<ul>
+<li>'template' - Reference to the affected template text.</li>
+<li>'type' - The type of template call.  i.e: template for a whole template, tpl_head, tpl_body, or tpl_top for a partial template.</li>
+</ul>
+",
+'event_help_metadatapostrender' => "<h4>Parameters</h4>
+<ul>
+<li>'content_id' - Page numeric identifier.</li>
+<li>'html' - Reference to processed metadata (string) which may be amended as appropriate.</li>
+</ul>
+",
+'event_help_metadataprerender' => "<h4>Parameters</h4>
+<ul>
+<li>'content_id' - Page numeric identifier.</li>
+<li>'showbase' - Reference to boolean variable: whether to show a base tag.</li>
+<li>'html' - Reference to string which may be populated/amended with metadata as appropriate.</li>
+</ul>
+",
+'event_help_pagebodyprerender' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li>
+</ul>
+",
+'event_help_pagebodypostrender' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
+",
+'event_help_pageheadprerender' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
+",
+'event_help_pageheadpostrender' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
+",
+'event_help_pagetopprerender' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
+",
+'event_help_pagetoppostrender' => "<h4>Parameters</h4>
+<ul>
+<li>'content' - The page content-object.</li>
+<li>'html' - Reference to the (string) content (if any) of the page-section.</li></ul>
+",
+'event_help_postrequest' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>',
+'event_help_templateprefetch' => '<h4>Parameters</h4>
+<ul>
+<li>None</li>
+</ul>',
+*/
