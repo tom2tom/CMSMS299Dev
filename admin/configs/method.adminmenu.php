@@ -13,8 +13,8 @@ This program is distributed in the hope that it will be useful,
 BUT WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 /*
@@ -27,7 +27,7 @@ Some of the values e.g. lang keys are 'internal', and anybody changing
 stuff will need to delve ...
 
 RULES
-Members 'name', 'parent' must be present & valid. 'parent' = null for the tree-root node
+Members 'name', 'parent' must be present & valid. No whitespace. 'parent' = null for the tree-root node
 'url' must be present & valid. It will be supplemented by security parameters
   unless the url is absolute (assumed external) then by 'urlparm' (if any)
 'labelkey' is the relevant lang key for the item label
@@ -248,11 +248,11 @@ $menucontent = [
 	'show'=>'taghelpPerms',
 	],
 	[
-	'name'=>'simpletags',
+	'name'=>'usertags',
 	'parent'=>'extensions',
-	'url'=>'listsimpletags.php',
-	'labelkey'=>'simpletags',
-	'descriptionkey'=>'simpletags_description',
+	'url'=>'listusertags.php',
+	'labelkey'=>'usertags',
+	'descriptionkey'=>'usertags_description',
 	'final'=>true,
 	'show'=>'usertagPerms',
 	],
