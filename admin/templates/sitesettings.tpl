@@ -129,7 +129,7 @@
         {cms_help key2='settings_wysiwygtheme' title=$t}
       </div>
       <div class="pageinput">
-        <input id="wysiwygtheme" type="text" name="wysiwygtheme" size="30" value="{$wysiwygtheme}" maxlength="40" />
+        <input id="wysiwygtheme" type="text" name="wysiwygtheme" size="30" maxlength="40" value="{$wysiwygtheme}" />
       </div>
     </div>
   {/if}
@@ -559,7 +559,7 @@
         {cms_help key2='settings_browsercache_expiry' title=$t}
       </div>
       <div class="pageinput">
-        <input type="text" id="browser_expiry" name="browser_cache_expiry" value="{$browser_cache_expiry}" size="6" maxlength="10" />
+        <input type="text" id="browser_expiry" name="browser_cache_expiry" size="6" maxlength="10" value="{$browser_cache_expiry}" />
       </div>
     </div>
   </fieldset>
@@ -572,7 +572,7 @@
         {cms_help key2='settings_autoclearcache' title=$t}
       </div>
       <div class="pageinput">
-        <input id="autoclearcache2" type="text" name="auto_clear_cache_age" size="4" value="{$auto_clear_cache_age}" maxlength="4" />
+        <input id="autoclearcache2" type="text" name="auto_clear_cache_age" size="4" maxlength="4" value="{$auto_clear_cache_age}" />
       </div>
     </div>
   </fieldset>
@@ -597,13 +597,13 @@
         <label for="smc{$i}">{$one->label}</label><br />
       {/foreach}
       </div>
-      <div class="pagetext">{$t=lang('smarty_cachesimples')}
-        <label for="cachesimples">{$t}:</label>
-        {cms_help key2='settings_smarty_cachesimples' title=$t}
+      <div class="pagetext">{$t=lang('smarty_cacheusertags')}
+        <label for="cacheusertags">{$t}:</label>
+        {cms_help key2='settings_smarty_cacheusertags' title=$t}
       </div>
-      <input type="hidden" name="smarty_cachesimples" value="0" />
+      <input type="hidden" name="smarty_cacheusertags" value="0" />
       <div class="pageinput">
-        <input type="checkbox" name="smarty_cachesimples" id="cachesimples" value="1"{if $smarty_cachesimples} checked="checked"{/if} />
+        <input type="checkbox" name="smarty_cacheusertags" id="cacheusertags" value="1"{if $smarty_cacheusertags} checked="checked"{/if} />
       </div>
       <div class="pagetext">{$t=lang('smarty_compilecheck')}
         <label for="compilecheck">{$t}:</label>
@@ -670,7 +670,7 @@
         {cms_help key2='settings_syntaxtheme' title=$t}
       </div>
       <div class="pageinput">
-        <input id="syntaxtheme" type="text" name="syntaxtheme" size="30" value="{$syntaxtheme}" maxlength="40" />
+        <input id="syntaxtheme" type="text" name="syntaxtheme" size="30" maxlength="40" value="{$syntaxtheme}" />
       </div>
     </div>
   </fieldset>
@@ -694,7 +694,7 @@
         {cms_help key2='settings_umask' title=$t}
       </div>
       <div class="pageinput">
-        <input id="umask" type="text" class="pagesmalltextarea" name="global_umask" size="4" value="{$global_umask}" />
+        <input id="umask" type="text" class="pagesmalltextarea" name="global_umask" size="4" maxlength="5" value="{$global_umask}" />
       </div>
     </div>
     {if isset($testresults)}
@@ -726,7 +726,7 @@
         {cms_help key2='settings_help_url' title=$t}
       </div>
       <div class="pageinput">
-        <input id="help_url" type="text" name="help_url" size="50" value="{$help_url}" maxlength="80" />
+        <input id="help_url" type="text" name="help_url" size="50" maxlength="80" value="{$help_url}" />
       </div>
     </div>
 {/if}
