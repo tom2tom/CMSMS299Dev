@@ -1,22 +1,25 @@
 <?php
-#make relevant css available for a login page
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Make relevant css available for a login page
+Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
-//Deprecated since 2.3 - just include the relevant .css file(s) in the page header during its construction
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+//Deprecated since 2.99 - just include the relevant .css file(s) in the page header during its construction
 
 use CMSMS\AppState;
 use CMSMS\NlsOperations;
@@ -33,15 +36,15 @@ $theme = $themeObject->themeName;
 $defaulttheme = 'Marigold'; //TODO some sensible default
 
 $cms_readfile = function($filename) {
-  ob_start();
-  echo file_get_contents($filename);
-  $result = ob_get_contents();
-  ob_end_clean();
-  if( !empty($result) ) {
-    echo $result;
-    return TRUE;
-  }
-  return FALSE;
+    ob_start();
+    echo file_get_contents($filename);
+    $result = ob_get_contents();
+    ob_end_clean();
+    if( !empty($result) ) {
+        echo $result;
+        return TRUE;
+    }
+    return FALSE;
 };
 
 header('Content-type: text/css; charset=' . NlsOperations::get_encoding());
