@@ -29,7 +29,7 @@ use LogicException;
  * it has been enabled (which may happen as often as appropriate).
  *
  * @package CMS
- * @since 2.9
+ * @since 2.99
  */
 abstract class OnceJob extends Job
 {

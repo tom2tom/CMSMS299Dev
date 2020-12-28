@@ -25,9 +25,9 @@ use CmsInvalidDataException;
  *
  * @package CMS
  * @license GPL
- * @since 2.9
+ * @since 2.99
  * @since  1.11 as CmsAdminThemeNotification
- * @deprecated since 2.9
+ * @deprecated since 2.99
  * @author  Robert Campbell
  * @property string $module Module name
  * @property int $priority Priority between 1 and 3

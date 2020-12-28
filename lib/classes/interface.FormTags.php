@@ -24,7 +24,7 @@ namespace CMSMS;
  * in the|each element's name, and that the|each element is syntax-compliant.
  * Typically a default class is applied or added.
  *
- * @since 2.3
+ * @since 2.99
  */
 interface FormTags
 {
@@ -36,7 +36,7 @@ interface FormTags
 	* @param string $forcewidth Forces another width of the popup box than the one set in admin css
 	* @param string $classname	An alternative classname for the a-link of the tooltip
 	* @param string $href		The URL or URL-portion to use in the href portion of the generated link
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -52,7 +52,7 @@ interface FormTags
 	* @param string $contents	The text that will have to be clicked to follow the link
 	* @param string $tooltiptext The helptext to be shown as tooltip-popup
 	* @param string $params		An array of params to be included in the URL of the link.	 These should be in a $key=>$value format
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -64,9 +64,9 @@ interface FormTags
 	* @param mixed  $id			    string|null The id given to the module on execution, or falsy for admin hence 'm1_' (not really used yet, but might be later)
 	* @param string $name			The html name of the element
 	* @param string $legend_text	The legend_text for this fieldset, if applicaple
-	* @param string $addtext		Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
+	* @param string $addtext		Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
 	* @param string $addtext_legend	Any additional text to be added into the legend tag when rendered
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -92,7 +92,7 @@ interface FormTags
 	* @param bool	$inline		A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
 	* @param string $idsuffix	Text to append to the end of the id and name of the form
 	* @param array  $params		Extra parameters to pass along when the form is submitted
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -119,8 +119,8 @@ interface FormTags
 	* @param bool	$inline		A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
 	* @param string $idsuffix	Text to append to the end of the id and name of the form
 	* @param array  $params		Extra parameters to pass along when the form is submitted
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -153,8 +153,8 @@ interface FormTags
 	* @param string $value		The initial value of the textbox, if any
 	* @param string $size		The number of columns wide the textbox should be displayed
 	* @param string $maxlength	The maximum number of characters to be allowed to be entered
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -166,8 +166,8 @@ interface FormTags
 	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the input element this label is associated with
 	* @param string $labeltext	The text in the label
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -181,10 +181,10 @@ interface FormTags
 	* @param string $value		The initial value of the textbox, if any
 	* @param string $size		The number of columns wide the textbox should be displayed
 	* @param string $maxlength	The maximum number of characters to be allowed to be entered
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
 	* @param string $label		The text for label
 	* @param string $labeladdtext Any additional text to be added into the tag
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -206,8 +206,8 @@ interface FormTags
 	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
-	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -219,8 +219,8 @@ interface FormTags
 	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
-	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -232,8 +232,8 @@ interface FormTags
 	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
-	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -245,8 +245,8 @@ interface FormTags
 	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
-	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -258,8 +258,8 @@ interface FormTags
 	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
-	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -271,8 +271,8 @@ interface FormTags
 	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
-	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -284,8 +284,8 @@ interface FormTags
 	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
-	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -297,8 +297,8 @@ interface FormTags
 	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
-	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -310,8 +310,8 @@ interface FormTags
 	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
-	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -325,8 +325,8 @@ interface FormTags
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $size	The number of columns wide the textbox should be displayed
 	* @param string $maxlength The maximum number of characters to be allowed to be entered
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -340,8 +340,8 @@ interface FormTags
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $size	The number of columns wide the textbox should be displayed
 	* @param string $maxlength The maximum number of characters to be allowed to be entered
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -355,8 +355,8 @@ interface FormTags
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $size	The number of columns wide the textbox should be displayed
 	* @param string $maxlength The maximum number of characters to be allowed to be entered
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -370,8 +370,8 @@ interface FormTags
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $size	The number of columns wide the textbox should be displayed
 	* @param string $maxlength The maximum number of characters to be allowed to be entered
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -383,7 +383,7 @@ interface FormTags
 	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $accept The MIME-type to be accepted, default is all
-	* @param string $size	The number of columns wide the textbox should be displayed. Deprecated since 2.3 - use $attrs[] instead
+	* @param string $size	The number of columns wide the textbox should be displayed. Deprecated since 2.99 - use $attrs[] instead
 	* @param string $addtext Any additional text to be added into the tag
 	*
 	* @return string
@@ -396,10 +396,10 @@ interface FormTags
 	*
 	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
 	* @param int	$size		The size of the text field associated with the file upload field.  Some browsers may not respect this value
 	* @param int	$maxlength	The maximim length of the content of the text field associated with the file upload field.  Some browsers may not respect this value
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -413,8 +413,8 @@ interface FormTags
 	* @param string $value		The initial value of the textbox, if any
 	* @param string $size		The number of columns wide the textbox should be displayed
 	* @param string $maxlength	The maximum number of characters to be allowed to be entered
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -426,8 +426,8 @@ interface FormTags
 	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $value		The initial value of the field, if any
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -440,8 +440,8 @@ interface FormTags
 	* @param string $name		The html name of the element
 	* @param string $value		The value returned from the input if selected
 	* @param string $selectedvalue The current value. If equal to $value the checkbox is selected
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -453,10 +453,10 @@ interface FormTags
 	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $value		The button label
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
 	* @param string $image		Use an image instead of a regular button
 	* @param string $confirmtext Optional text to display in a confirmation message
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -468,8 +468,8 @@ interface FormTags
 	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The button label
-	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -483,8 +483,8 @@ interface FormTags
 	* @param string $items		An array of items to put into the dropdown list... they should be $key=>$value pairs
 	* @param string $selectedindex The default selected index of the dropdown list.  Setting to -1 will result in the first choice being selected
 	* @param string $selectedvalue The default selected value of the dropdown list.  Setting to '' will result in the first choice being selected
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -499,8 +499,8 @@ interface FormTags
 	* @param string $items		An array of items to put into the list... they should be $key=>$value pairs
 	* @param string $size		The number of columns wide the textbox should be displayed
 	* @param string $maxlength	The maximum number of characters to be allowed to be entered
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -514,9 +514,9 @@ interface FormTags
 	* @param string $items		An array of items to put into the list... they should be $key=>$value pairs
 	* @param string $selecteditems An array of items in the list that should default to selected
 	* @param string $size		The number of rows to be visible in the list (before scrolling)
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
 	* @param bool	 $multiple	Flag indicating whether multiple selections are allowed (defaults to true)
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -529,9 +529,9 @@ interface FormTags
 	* @param string $name		The html name of the element
 	* @param string $items		An array of items to create as radio buttons... they should be $key=>$value pairs
 	* @param string $selectedvalue The default selected index of the radio group.	 Setting to -1 will result in the first choice being selected
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
 	* @param string $delimiter	A delimiter to throw between each radio button, e.g., a <br /> tag or something for formatting
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -553,8 +553,8 @@ interface FormTags
 	* @param string $rows		The number of characters high (rows) the resulting textarea should be
 	* @param string $forcewysiwyg	The wysiwyg-system to be forced even if the user has chosen another one
 	* @param string $wantedsyntax	The language the content should be syntaxhightlighted as
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -589,8 +589,8 @@ interface FormTags
 	* @param string $stylesheet The text of the stylesheet associated to this content.	 Only used for certain WYSIWYGs
 	* @param string $cols		The number of characters wide (columns) the resulting textarea should be
 	* @param string $rows		The number of characters high (rows) the resulting textarea should be
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -619,10 +619,10 @@ interface FormTags
 	* @param string $warn_message	Text to display in a javascript warning box.  If the user click no, the link is not followed by the browser
 	* @param bool	$onlyhref		Flag to determine if only the URL should be returned
 	* @param bool	$inline			Flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
-	* @param string $addtext		Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
+	* @param string $addtext		Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
 	* @param bool	$targetcontentonly Flag indicating that the output of this link should target the content area of the destination page
 	* @param string $prettyurl		An optional pretty URL segment (relative to the root of the site) to use when generating the link
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @deprecated use CreateLink() with swapped parameters $action, $returnid
 	*
@@ -654,10 +654,10 @@ interface FormTags
 	* @param string $warn_message	Text to display in a javascript warning box.  If they click no, the link is not followed by the browser
 	* @param bool	$onlyhref	A flag to determine if only the href section should be returned
 	* @param bool	$inline	A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
-	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
+	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
 	* @param bool	$targetcontentonly A flag to determine if the link should target the default content are of the destination page
 	* @param string $prettyurl	An optional pretty URL segment (related to the root of the website) for a pretty URL
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters except $addtext, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -681,7 +681,7 @@ interface FormTags
 	*
 	* @param int	$pageid	The page id of the page we want to direct to
 	* @param string $contents	The optional text or XHTML contents of the generated link
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/
@@ -695,7 +695,7 @@ interface FormTags
 	* @param string $contents	The displayed clickable text for the link
 	* @param string $params		An array of parameters to be included in the URL of the link. These should be in a $key=>$value format
 	* @param bool	$onlyhref	A flag to determine if only the href section should be returned
-	* @param array  $attrs since 2.3 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
+	* @param array  $attrs since 2.99 Element attributes. Each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned parameters, and/or anything else relevant to the created tag.
 	*
 	* @return string
 	*/

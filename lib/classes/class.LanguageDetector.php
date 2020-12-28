@@ -30,7 +30,7 @@ use CMSMS\NlsOperations;
  * @author Robert Campbell
  * @package CMS
  * @license GPL
- * @since 2.9
+ * @since 2.99
  * @since 1.11 as global-namespace CmsLanguageDetector
  */
 abstract class LanguageDetector

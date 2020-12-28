@@ -35,7 +35,7 @@ use function cms_to_stamp;
  *
  * @package CMS
  * @license GPL
- * @since 2.3
+ * @since 2.99
  */
 class StylesheetsGroup
 {

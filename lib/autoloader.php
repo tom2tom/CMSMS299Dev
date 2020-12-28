@@ -82,7 +82,7 @@ function cms_autoloader(string $classname)
 			$fp = $sroot.$test.$base.'.php';
 			if (is_file($fp)) {
 				if (!($sysp || class_exists($space, false))) {
-					//deprecated since 2.3 - some modules require existence of this, or assume, and actually use it
+					//deprecated since 2.99 - some modules require existence of this, or assume, and actually use it
 					$gCms = App::get_instance();
 					require_once $mpath;
 				}
@@ -186,7 +186,7 @@ function cms_autoloader(string $classname)
 	// module classes
 	$fp = cms_module_path($base);
 	if ($fp) {
-		//deprecated since 2.3 - some modules require existence of this, or assume, and actually use it
+		//deprecated since 2.99 - some modules require existence of this, or assume, and actually use it
 		$gCms = App::get_instance();
 		require_once $fp;
 		if (class_exists($classname, false)) return;

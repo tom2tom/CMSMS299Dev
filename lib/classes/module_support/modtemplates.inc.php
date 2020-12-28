@@ -73,7 +73,7 @@ function GetTemplate($modinst, $tpl_name, $mod_name = '')
  *
  * @param $modinst The current module-object
  * @param string $tpl_name Template name
- * @param since 2.3 string $mod_name Optional name of module to use instead of $modinst
+ * @param since 2.99 string $mod_name Optional name of module to use instead of $modinst
  * @return mixed string | null
  */
 function GetTemplateFromFile($modinst, $tpl_name, $mod_name = '')

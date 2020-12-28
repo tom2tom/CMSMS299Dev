@@ -25,7 +25,7 @@ use const CMS_DEPREC;
  * Singleton class for managing intra-request variables used instead of standard
  * PHP static variables/properties, which can be a problem in some contexts
  * e.g. where 'binary safe' operation is needed
- * @since 2.9
+ * @since 2.99
  * @final
  * @package CMS
  * @license GPL
@@ -64,7 +64,7 @@ final class StaticProperties
 	}
 	/**
 	 * Retrieve the single instance of this class
-	 * @deprecated since 2.9 instead use CMSMS\AppSingle::StaticProperties()
+	 * @deprecated since 2.99 instead use CMSMS\AppSingle::StaticProperties()
 	 */
 	public static function get_instance() : self
 	{

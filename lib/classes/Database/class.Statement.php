@@ -29,7 +29,7 @@ use function debug_to_log;
  * A class defining a prepared database statement, and methods for
  * interacting with such statements.
  *
- * @since 2.9
+ * @since 2.99
  *
  * @property-read Connection $db The database connection
  * @property-read string $sql The SQL query
@@ -238,7 +238,7 @@ final class Statement
                 if (count($bindvars) == 1) {
                     $bindvars = $bindvars[0];
                 } else {
-                    //2-D array of vars deprecated since 2.9
+                    //2-D array of vars deprecated since 2.99
                     $this->all_bound = $bindvars;
                     $bindvars = $this->now_bind = reset($this->all_bound);
                 }
@@ -345,7 +345,7 @@ final class Statement
         }
 
         $pc = $this->_stmt->param_count;
-        //check whether we're working with 2-D bind-values deprecated  since 2.9
+        //check whether we're working with 2-D bind-values deprecated  since 2.99
         if (!$bindvars) {
             $bindvars = $this->now_bind;
         }

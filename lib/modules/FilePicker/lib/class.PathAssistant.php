@@ -105,7 +105,7 @@ class PathAssistant
 
     /**
      * Get the extension of the specified file
-     * @since 2.3
+     * @since 2.99
      * @param string $path Filesystem path, or at least the basename, of a file
      * @param bool $lower Optional flag, whether to lowercase the result. Default TRUE.
      * @return string, lowercase if $lower is true or not set
@@ -126,7 +126,7 @@ class PathAssistant
 
     /**
      * Get a variant of the supplied $path with definitely-lowercase filename extension
-     * @since 2.3
+     * @since 2.99
      * @param string $path Filesystem path, or at least the basename, of a file
      * @return string
      */

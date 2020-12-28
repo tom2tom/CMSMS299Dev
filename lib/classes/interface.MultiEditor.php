@@ -25,7 +25,7 @@ use CMSMS\MultiEditor;
 
 /**
  * An interface to define methods in syntax-highlight text-editor modules.
- * @since 2.3
+ * @since 2.99
  * @package CMS
  * @license GPL
  */

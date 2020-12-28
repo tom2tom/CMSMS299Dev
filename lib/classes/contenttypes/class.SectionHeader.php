@@ -42,7 +42,7 @@ class SectionHeader extends ContentBase
 		foreach ([
 			'accesskey' => '',
 			'cachable' => true,
-			'secure' => false, //deprecated property since 2.3
+			'secure' => false, //deprecated property since 2.99
 			'page_url' => '',
 			'target' => '',
 		] as $key => $value) {

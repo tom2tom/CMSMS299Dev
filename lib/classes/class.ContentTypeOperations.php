@@ -73,7 +73,7 @@ class ContentTypeOperations
 	 * Get the singleton instance of this class.
 	 * This method is called over a hundred times during a typical request,
 	 * so definitely the class warrants being a singleton.
-	 * @deprecated since 2.3 instead use CMSMS\AppSingle::ContentTypeOperations()
+	 * @deprecated since 2.99 instead use CMSMS\AppSingle::ContentTypeOperations()
 	 * @return ContentOperations
 	 */
 	public static function get_instance() : self
@@ -168,7 +168,7 @@ class ContentTypeOperations
 	 *
 	 * @since 1.9
 	 * @param mixed $type string type name or an instance of ContentType
-	 * @param bool since 2.3 optional flag whether to create a ContentEditor-class
+	 * @param bool since 2.99 optional flag whether to create a ContentEditor-class
 	 * object. Default false (hence a shortform object)
 	 * @return mixed ContentType object or null
 	 */
@@ -263,7 +263,7 @@ class ContentTypeOperations
 	/**
 	 * Record a content type in the database
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 * @todo
 	 */
 	public function AddStaticContentType()
@@ -278,7 +278,7 @@ class ContentTypeOperations
 	/**
 	 * Remove a content type from the database
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 */
 	public function DelStaticContentType()
 	{
@@ -291,7 +291,7 @@ class ContentTypeOperations
 	/**
 	 * Reset the database-recorded content types
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 */
 	public function RebuildStaticContentTypes()
 	{

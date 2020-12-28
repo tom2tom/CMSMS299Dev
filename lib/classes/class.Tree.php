@@ -24,7 +24,7 @@ namespace CMSMS;
  * @package CMS
  * @author  Robert Campbell
  *
- * @since 2.9
+ * @since 2.99
  * @since 1.9 as global-namespace cms_tree
  */
 class Tree

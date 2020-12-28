@@ -45,7 +45,7 @@ class Separator extends ContentBase
 			'alias' => '',
 			'cachable' => true,
 			'menutext' => '',
-			'secure' => false, //deprecated property since 2.3
+			'secure' => false, //deprecated property since 2.99
 			'target' => '',
 			'templateid' => '-1',
 			'title' => '',

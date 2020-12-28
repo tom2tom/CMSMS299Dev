@@ -67,7 +67,7 @@ use const CMS_DEPREC;
          * @param mixed  $bindvars array of command-parameter value[s], or a single scalar value
          * @return mixed replacment command or null
          *
-         * @since 2.3
+         * @since 2.99
          */
         public static function interpret(Connection &$conn, $sql, $bindvars)
         {
@@ -115,7 +115,7 @@ use const CMS_DEPREC;
     // ex-DataDictionary methods
 
     /**
-     * @deprecated since 2.3 does nothing
+     * @deprecated since 2.99 does nothing
      * @ignore
      * @return array
      */
@@ -125,7 +125,7 @@ use const CMS_DEPREC;
     }
 
     /**
-     * @deprecated since 2.3 does nothing
+     * @deprecated since 2.99 does nothing
      * @ignore
      * @return array
      */
@@ -158,7 +158,7 @@ use CMSMS\DeprecationNotice;
      *
      * @return DataDictionary
      *
-     * @deprecated since 2.3
+     * @deprecated since 2.99
      */
     function NewDataDictionary(Connection $conn)
     {

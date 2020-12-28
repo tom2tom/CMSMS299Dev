@@ -37,7 +37,7 @@ use function debug_to_log;
 
 /**
  * A class defining a MySQL database connection, and mechanisms for working with the database.
- * @since 2.9
+ * @since 2.99
  */
 final class Connection
 {
@@ -415,7 +415,7 @@ final class Connection
     /**
      * An alias for the qStr method.
      *
-     * @deprecated since 2.3
+     * @deprecated since 2.99
      *
      * @param string $str
      *
@@ -760,7 +760,7 @@ final class Connection
 
     /**
      * An alias for the getArray method.
-     * @deprecated since 2.9 instead use getArray()
+     * @deprecated since 2.99 instead use getArray()
      *
      * @param string $sql     The SQL statement to execute
      * @param mixed  $bindvars array | falsy Optional value-parameters to fill placeholders (if any) in @sql
@@ -1361,7 +1361,7 @@ final class Connection
     /**
      * Create a new data dictionary object.
      * Data Dictionary objects are used for manipulating tables, i.e: creating, altering and editing them.
-     * @deprecated since 2.3 use new DataDictionary()
+     * @deprecated since 2.99 use new DataDictionary()
      *
      * @return <namespace>DataDictionary
      */

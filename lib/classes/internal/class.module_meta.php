@@ -66,7 +66,7 @@ final class module_meta
 
     /**
      * Get the singleton instance of this class
-     * @deprecated since 2.9 instead use CMSMS\AppSingle::module_meta()
+     * @deprecated since 2.99 instead use CMSMS\AppSingle::module_meta()
      * @return object
      */
     public static function get_instance() : self
@@ -112,7 +112,7 @@ final class module_meta
 
     /**
      * Check whether the named module has ANY recorded capability
-     * @since 2.9
+     * @since 2.99
      * @param string $modname The module name
      * @return bool
      */

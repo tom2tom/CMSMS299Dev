@@ -25,7 +25,7 @@ use CMSMS\IAuthModuleInterface;
 
 /**
  * Module: admin login/out processor
- * @since 2.3
+ * @since 2.99
  * @package CMS
  * @license GPL
  */

@@ -32,7 +32,7 @@ $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4
 $good = lang('done');
 $bad = lang('failed');
 
-//page_id I, removed 2.3 never used
+//page_id I, removed 2.99 never used
 $flds = '
 additional_users_id I(2) UNSIGNED AUTO KEY,
 user_id I(2) UNSIGNED,
@@ -62,7 +62,7 @@ verbose_msg(lang('install_creating_index', 'admin_bookmarks', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'content';
 //parent_id may be < 0 hence signed int
-//prop_names X, unused since 2.0, removed 2.9
+//prop_names X, unused since 2.0, removed 2.99
 //styles numeric id('s) or theme-specific name 
 $flds = '
 content_id I(2) UNSIGNED KEY,
@@ -170,7 +170,7 @@ $dbdict->ExecuteSQLArray($sqlarray);
 
 // type = C (callable,default) M (module) P (plugin) or U (UDT)
 //ex module_name >> (handler)[namespaced]class, tag_name >> (func)method or plugin/UDT name
-//deprecated since 2.3 non AUTO handler_id
+//deprecated since 2.99 non AUTO handler_id
 $flds = '
 handler_id I(2) UNSIGNED AUTO KEY,
 event_id I(2) UNSIGNED,
@@ -186,7 +186,7 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_table', 'event_handlers', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'events';
-//deprecated since 2.3 non AUTO event_id
+//deprecated since 2.99 non AUTO event_id
 $flds = '
 event_id I(2) UNSIGNED AUTO KEY,
 originator C(32) NOT NULL,
@@ -424,7 +424,7 @@ verbose_msg(lang('install_created_table', 'version', $msg_ret));
 */
 
 //CHECKME combined index on term,key1 fields ?
-//created DT renamed 2.3
+//created DT renamed 2.99
 $flds = '
 id I(2) UNSIGNED AUTO KEY,
 term C(255) NOT NULL,
@@ -488,7 +488,7 @@ verbose_msg(lang('install_created_table', 'layout_tpl_addusers', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'layout_tpl_type'; // aka CmsLayoutTemplateType::TABLENAME
 // these are used mainly by DesignManager module (but some other modules too, must be present before modules installation)
-//created I, <<< DT replaced 2.3
+//created I, <<< DT replaced 2.99
 //modified I <<< DT ditto
 $flds = '
 id I(2) UNSIGNED AUTO KEY,
@@ -517,7 +517,7 @@ $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_layout_tpl_type_1', $msg_ret));
 
 $tbl = CMS_DB_PREFIX.'layout_tpl_groups'; // aka CmsLayoutTemplateCategory::TABLENAME
-// item_order I(1) DEFAULT 0, removed 2.3
+// item_order I(1) DEFAULT 0, removed 2.99
 $flds = '
 id I(2) UNSIGNED AUTO KEY,
 name C(48) NOT NULL,
@@ -602,9 +602,9 @@ verbose_msg(lang('install_created_table', 'layout_cssgroup_members', $msg_ret));
 /*
 //TODO consider migrating design-related tables to DesignManager module namespace
 $tbl = CMS_DB_PREFIX.'layout_designs'; // aka DesignManager\Design::TABLENAME
-//created I, <<< DT replaced 2.3
+//created I, <<< DT replaced 2.99
 //modified I <<< DT ditto
-//dflt I(1) DEFAULT 0, 2.3 removed, irrelevant
+//dflt I(1) DEFAULT 0, 2.99 removed, irrelevant
 $flds = '
 id I(1) UNSIGNED AUTO KEY,
 name C(64) NOT NULL,

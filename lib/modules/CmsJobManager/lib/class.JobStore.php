@@ -19,7 +19,7 @@ use function debug_to_log;
 /**
  * Recorded-jobs methods
  *
- * @since 2.9
+ * @since 2.99
  * @since 2.2 as JobQueue
  */
 final class JobStore

@@ -214,7 +214,7 @@ final class LangOperations
 	 *  1st = realm name (required non-falsy string) or array comprising all args
 	 *  2nd = translated-string key (required non-falsy string unless 1st is merged array)
 	 *  further argument(s) if any are unused here
-	 * @since 2.9 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @since 2.99 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return bool
 	 */
 	public static function lang_key_exists(...$args)
@@ -251,7 +251,7 @@ final class LangOperations
 	 *  1st = realm name (required non-falsy string) or array comprising all args
 	 *  2nd = translated-string key (required non-falsy string unless 1st is merged array)
 	 *  further argument(s) (optional string|number, generally, or array of same)
-	 * @since 2.9 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @since 2.99 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return string, possibly empty (formerly could be null)
 	 */
 	public static function lang_from_realm(...$args)
@@ -345,7 +345,7 @@ final class LangOperations
 	 *
 	 * @param mixed $key string|null The wanted key
 	 * @param string $realm Optional lang realm. Default null, hence the currently-recorded default realm.
-	 * @since 2.9 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @since 2.99 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return bool
 	 */
 	public static function key_exists($key, $realm = NULL) //: bool
@@ -362,7 +362,7 @@ final class LangOperations
 	 * @since 2.0
 	 * @author Robert Campbell
 	 * @param string $realm Optional realm name.  Default self::CMSMS_ADMIN_REALM.
-	 * @since 2.9 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
+	 * @since 2.99 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return string the previous/replaced realm-name
 	 */
 	public static function set_realm($realm = self::CMSMS_ADMIN_REALM) //: string

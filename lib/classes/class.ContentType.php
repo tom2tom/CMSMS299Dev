@@ -19,7 +19,7 @@ namespace CMSMS;
 
 /**
  * Convenience class to hold and interact with page-content type parameters
- * @since 2.3 this replaces the former ContentTypePlaceHolder class
+ * @since 2.99 this replaces the former ContentTypePlaceHolder class
  *
  * @package CMS
  */
@@ -48,13 +48,13 @@ class ContentType implements \ArrayAccess
 
 	/**
 	 * @var string The type's (ContentEditor-conformant) editable class (if any)
-	 * @since 2.3
+	 * @since 2.99
 	 */
 	public $editorclass;
 
 	/**
 	 * @var string Path of file containing the type editable class
-	 * @since 2.3
+	 * @since 2.99
 	 * Relevant only if $editorclass cannot be autoloaded
 	 */
 	public $editorfilename;

@@ -26,9 +26,9 @@ use CMSMS\Utils;
  * Class providing a framework for displaying non-core page-content-types.
  * Module-defined content types may extend this class.
  *
- * @since 2.9
+ * @since 2.99
  * @since 0.9 as global-namespace CMSModuleContentType
- * @deprecated since 2.3 This does not provide anything useful.
+ * @deprecated since 2.99 This does not provide anything useful.
  * Instead, the content-type class (implementing ContentEditor), and if appropriate
  * a separate display-only variant, should just be registered permanently or during
  * each request via the CMSModule API.

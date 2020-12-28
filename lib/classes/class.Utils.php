@@ -32,7 +32,7 @@ use CMSMS\internal\Smarty;
  * @author  Robert Campbell
  *
  * @final
- * @since 2.9
+ * @since 2.99
  * @since 1.9 as global-namespace cms_utils
  */
 final class Utils
@@ -269,7 +269,7 @@ final class Utils
 	 *
 	 * @author calguy1000
 	 * @since 1.11
-	 * @param mixed $name Since 2.3 Optional theme name. Default ''
+	 * @param mixed $name Since 2.99 Optional theme name. Default ''
 	 * @return mixed AdminTheme derived object, or null
 	 */
 	public static function get_theme_object($name = '')

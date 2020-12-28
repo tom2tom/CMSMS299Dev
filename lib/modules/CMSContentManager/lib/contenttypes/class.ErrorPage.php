@@ -69,7 +69,7 @@ class ErrorPage extends Content
 			['page_url',''],
 			['parent',-1],
 //			['searchable',false],
-			['secure',false], //deprecated property since 2.3
+			['secure',false], //deprecated property since 2.99
 			['showinmenu',false],
 			['target',''],
 			['thumbnail',''],

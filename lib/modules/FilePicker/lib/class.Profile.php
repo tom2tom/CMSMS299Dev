@@ -43,7 +43,7 @@ class Profile extends FileSystemControls
           'id'=>0, // if the profile data are db-stored, this is for the row-index
           'name'=>'',
           'file_extensions'=>'',
-          'file_mimes'=>'', //since 2.3
+          'file_mimes'=>'', //since 2.99
         ] + $params;
 
         if( empty($props['create_date']) ) {
@@ -266,7 +266,7 @@ class Profile extends FileSystemControls
 
     /**
      * Check whether $filename accords with relevant conditions among the profile properties
-     * @since 2.3
+     * @since 2.99
      * @param string $filename Absolute|relative filesystem path, or just basename, of a file
      * @return boolean
      */

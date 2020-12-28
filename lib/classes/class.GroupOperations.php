@@ -63,7 +63,7 @@ final class GroupOperations
 
 	/**
 	 * Get the singleton instance of this class.
-	 * @deprecated since 2.3 instead use CMSMS\AppSingle::GroupOperations()
+	 * @deprecated since 2.99 instead use CMSMS\AppSingle::GroupOperations()
 	 * @return GroupOperations
 	 */
 	public static function get_instance() : self
@@ -74,7 +74,7 @@ final class GroupOperations
 
 	/**
 	 * Get all the user-id's in the specified group(s)
-	 * @since 2.9
+	 * @since 2.99
 	 * @param mixed $from optional group(s) identifier, [ints] | comma-sep-ints string | scalar int Default null (hence all groups)
 	 * @return array
 	 */
@@ -153,7 +153,7 @@ final class GroupOperations
 	}
 
 	/**
-	 * @since 2.9
+	 * @since 2.99
 	 * @return mixed int | bool
 	 */
 	public function Upsert(Group $group)
@@ -180,7 +180,7 @@ VALUES (?,?,?,NOW())';
 	/**
 	 * Given a group object, inserts it into the database.
 	 *
-	 * @deprecated since 2.9 use GroupOperations::Upsert()
+	 * @deprecated since 2.99 use GroupOperations::Upsert()
 	 * @param Group $group The group object to save to the database
 	 * @return int The id of the newly created group. If none is created, -1
 	 */
@@ -196,7 +196,7 @@ VALUES (?,?,?,NOW())';
 	/**
 	 * Given a group object, update its attributes in the database.
 	 *
-	 * @deprecated since 2.9 use GroupOperations::Upsert()
+	 * @deprecated since 2.99 use GroupOperations::Upsert()
 	 * @param mixed $group The group to update
 	 * @return bool indication whether the update was successful
 	 */
@@ -237,7 +237,7 @@ VALUES (?,?,?,NOW())';
 	 * Check whether a group has specified permission(s)
 	 *
 	 * @param int $groupid The group id
-	 * @param mixed $perm The permission name string, or (since 2.3) an array of them.
+	 * @param mixed $perm The permission name string, or (since 2.99) an array of them.
 	 * If the latter, and an optional true-valued argument follows, then
 	 * the named permission(s) in the array will be AND'd instead of OR'd
 	 * @return bool

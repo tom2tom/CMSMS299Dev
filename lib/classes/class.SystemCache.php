@@ -74,7 +74,7 @@ final class SystemCache
 
 	/**
 	 * Get the singleton general-purpose cache object.
-	 * @deprecated since 2.9 instead use CMSMS\AppSingle::SystemCache()
+	 * @deprecated since 2.99 instead use CMSMS\AppSingle::SystemCache()
 	 * @return self | not at all
 	 * @throws Exception if driver-connection fails
 	 */
@@ -87,7 +87,7 @@ final class SystemCache
 	/**
 	 * Connect to and record a driver class
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 * @param $opts Optional connection-parameters. Default []
 	 * @return CacheDriver object | not at all
 	 * @throws Exception
@@ -250,7 +250,7 @@ final class SystemCache
 	/**
 	 * Get all cached values in the specified group
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 * @param string $group An optional cache group name.
 	 * @return array
 	 */
@@ -267,7 +267,7 @@ final class SystemCache
 	/**
 	 * Get all cached keys in the specified group
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 * @param string $group An optional cache group name.
 	 * @return array
 	 */
@@ -300,7 +300,7 @@ final class SystemCache
 	}
 
 	/**
-	* @deprecated since 2.9 instead use interface-compatible has()
+	* @deprecated since 2.99 instead use interface-compatible has()
 	* @param string $key The primary key for the cached value
 	* @param string $group An optional cache group name.
 	 */
@@ -329,7 +329,7 @@ final class SystemCache
 	}
 
 	/**
-	* @deprecated since 2.9 instead use interface-compatible delete()
+	* @deprecated since 2.99 instead use interface-compatible delete()
 	* @param string $key The primary key for the cached value
 	* @param string $group An optional cache group name.
 	 */
@@ -364,7 +364,7 @@ final class SystemCache
 
 	/* *
 	 * Set/replace the contents of an entire cache-group
-	 * @since 2.3
+	 * @since 2.99
 	 *
 	 * @param array $values assoc. array each member like Kkey=>$val
 	 * @param string $group An optional cache group name.

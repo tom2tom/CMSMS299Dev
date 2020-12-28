@@ -89,7 +89,7 @@ final class AdminLog extends CMSModule
     /**
      * Hook function to populate 'centralised' site settings UI
      * @internal
-     * @since 2.9
+     * @since 2.99
      * @return array
      */
     public function ExtraSiteSettings()

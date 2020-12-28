@@ -198,7 +198,7 @@ abstract class Job
     /**
      * Get the 'base' name of the class.
      *
-     * @since 2.9
+     * @since 2.99
      * @return string
      */
     protected function shortname() : string

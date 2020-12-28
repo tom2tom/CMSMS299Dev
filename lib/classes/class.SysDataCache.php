@@ -36,7 +36,7 @@ use const CMS_DEPREC;
  * @see also SysDataCacheDriver class, which defines how data are retrieved on-damand
  * @see also SystemCache class, which defines the main system cache
  * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
- * @since       2.9
+ * @since       2.99
  * @since       2.0 as CMSMS\internal\global_cache class
  * @package     CMS
  */
@@ -90,8 +90,8 @@ class SysDataCache
 
     /**
      * Get the singleton instance of this class
-     * @since 2.9
-     * @deprecated since 2.9 use CMSMS\AppSingle::SysDataCache()
+     * @since 2.99
+     * @deprecated since 2.99 use CMSMS\AppSingle::SysDataCache()
      * @return self
      */
     public static function get_instance() : self
@@ -167,7 +167,7 @@ class SysDataCache
 
     /**
      * Remove the specified type from the in-memory and system caches
-     * @since 2.9
+     * @since 2.99
      * @param string $type
      */
     public function delete(string $type)
@@ -178,7 +178,7 @@ class SysDataCache
 
     /**
      * Remove everything from the in-memory and system caches
-     * @deprecated since 2.9 instead use interface-compatible delete(type)
+     * @deprecated since 2.99 instead use interface-compatible delete(type)
      * to remove only that type
      */
     public function clear()
@@ -195,7 +195,7 @@ class SysDataCache
     }
 
     /**
-     * @deprecated since 2.9 instead use interface-compatible clear()
+     * @deprecated since 2.99 instead use interface-compatible clear()
      */
     public function clear_all()
     {
@@ -205,7 +205,7 @@ class SysDataCache
     /**
      * Set|replace the data of the specified type in the two caches
      *
-     * @since 2.9
+     * @since 2.99
      * @param string $type
      * @param mixed $data the data to be stored
      */
@@ -219,8 +219,8 @@ class SysDataCache
     }
 
     /**
-     * @since 2.9
-     * @deprecated since 2.9 instead use interface-compatibile set()
+     * @since 2.99
+     * @deprecated since 2.99 instead use interface-compatibile set()
      * @param string $type
      * @param mixed $data the data to be stored
      */

@@ -26,7 +26,7 @@ use mysqli_stmt;
 /**
  * A class for interacting with the results from a prepared-selection from the database.
  *
- * @since 2.9
+ * @since 2.99
  */
 class PrepResultSet extends ResultSet
 {

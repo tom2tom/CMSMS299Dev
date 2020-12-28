@@ -28,7 +28,7 @@ use const CMS_DB_PREFIX;
 /**
  * Simple class for dealing with a permission.
  *
- * @since 2.9
+ * @since 2.99
  * @since 2.0 as global-namespace CmsPermission
  * @package CMS
  * @license GPL
@@ -235,7 +235,7 @@ VALUES (?,?,?,NOW())";
 
 	/**
 	 * Get the name of a numbered permission, if possible
-	 * @since 2.3
+	 * @since 2.99
 	 * @param muixed $permid int | numeric string
 	 * @return mixed string|null
 	 */

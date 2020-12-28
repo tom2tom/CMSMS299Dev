@@ -22,7 +22,7 @@ use Session as PHPSession;
 /**
  * Class which extends PHP's session handling, specifically to support
  * processing of registered end-of-session callables
- * @since 2.9
+ * @since 2.99
  */
 class Session extends PHPSession
 {

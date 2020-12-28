@@ -48,7 +48,7 @@ class Content extends ContentBase
 	public function IsDefaultPossible() : bool { return true; }
 
 	/**
-	 * @since 2.3
+	 * @since 2.99
 	 * #return string
 	 */
 	public function TemplateResource() : string

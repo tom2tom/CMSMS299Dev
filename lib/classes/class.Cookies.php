@@ -27,9 +27,9 @@ use const CMS_ROOT_URL;
  * @license GPL
  * @author Robert Campbell
  *
- * @since 2.9
+ * @since 2.99
  * @since 1.10 as global-namespace cms_cookies
- * @deprecated since 2.9 instead use SignedCookieOperations
+ * @deprecated since 2.99 instead use SignedCookieOperations
  */
 final class Cookies implements CookieManager
 {

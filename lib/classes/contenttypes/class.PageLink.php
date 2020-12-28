@@ -43,7 +43,7 @@ class PageLink extends ContentBase
 		parent::__construct($params);
 		foreach ([
 			'cachable' => false,
-			'secure' => false, //deprecated property since 2.3
+			'secure' => false, //deprecated property since 2.99
 		] as $key => $value) {
 			$this->$key = $value;
 		}

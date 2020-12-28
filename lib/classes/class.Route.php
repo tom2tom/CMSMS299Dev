@@ -30,7 +30,7 @@ use const CMS_DEPREC;
  * @package CMS
  * @license GPL
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
- * @since 2.9
+ * @since 2.99
  * @since 1.9 as global-namespace CmsRoute
  */
 class Route implements ArrayAccess
@@ -175,7 +175,7 @@ class Route implements ArrayAccess
 
 	/**
 	 * Return the signature of this object
-	 * @deprecated since 2.3 Instead use get_signature()
+	 * @deprecated since 2.99 Instead use get_signature()
 	 */
 	public function signature()
 	{
@@ -245,7 +245,7 @@ class Route implements ArrayAccess
 
 	/**
 	 * Test if this object matches the specified string.
-	 * @deprecated since 2.3 instead use RouteOperations::is_match()
+	 * @deprecated since 2.99 instead use RouteOperations::is_match()
 	 *
 	 * @param string $str The input string
 	 * @param bool $exact Optional flag whether to try for exact string-match

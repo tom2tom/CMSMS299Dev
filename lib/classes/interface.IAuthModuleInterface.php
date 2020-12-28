@@ -21,7 +21,7 @@ namespace CMSMS;
 
 /**
  * An interface to define methods in admin-console authentication modules.
- * @since 2.3
+ * @since 2.99
  * @package CMS
  * @license GPL
  */

@@ -39,7 +39,7 @@ use function cms_to_stamp;
  * @package CMS
  * @license GPL
  * @since 2.0 as CmsLayoutCollection
- * @since 2.3
+ * @since 2.99
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 class Design
@@ -127,7 +127,7 @@ class Design
 
 	/**
 	 * Get the default flag
-	 * @deprecated since 2.3 there is no such thing as a default design
+	 * @deprecated since 2.99 there is no such thing as a default design
 	 *
 	 * @return bool
 	 */
@@ -138,7 +138,7 @@ class Design
 
 	/**
 	 * [Un]set this design as the default.
-	 * @deprecated since 2.3 there is no such thing as a default design
+	 * @deprecated since 2.99 there is no such thing as a default design
 	 *
 	 * @param bool $flag
 	 */
@@ -511,12 +511,12 @@ class Design
 	 * Save this design
 	 * This method sends the AddDesignPre and AddDesignPost events before and after saving a new design
 	 * or the EditDesignPre and EditDesignPost events before and after saving an existing design.
-	 * @deprecated since 2.3 the event originator is 'Core', change to 'DesignManager'
+	 * @deprecated since 2.99 the event originator is 'Core', change to 'DesignManager'
 	 */
 	public function save()
 	{
 		if( $this->get_id() ) {
-			Events::SendEvent( 'Core', 'EditDesignPre', [ 'CmsLayoutCollection' => &$this ] ); //deprecated since 2.3 key
+			Events::SendEvent( 'Core', 'EditDesignPre', [ 'CmsLayoutCollection' => &$this ] ); //deprecated since 2.99 key
 			$this->_update();
 			Events::SendEvent( 'Core', 'EditDesignPost', [ 'CmsLayoutCollection' => &$this ] );
 			return;
@@ -529,7 +529,7 @@ class Design
 	/**
 	 * Delete the current design
 	 * This method normally does nothing if this design has associated templates.
-	 * @deprecated since 2.3 the event originator is 'Core', change to 'DesignManager'
+	 * @deprecated since 2.99 the event originator is 'Core', change to 'DesignManager'
 	 *
 	 * @throws CmsLogicException
 	 * @param bool $force Force deleting the design even if there are templates assigned
@@ -543,7 +543,7 @@ class Design
 			throw new CmsLogicException('Cannot delete a design that has templates assigned');
 		}
 */
-		Events::SendEvent( 'Core', 'DeleteDesignPre', [ 'CmsLayoutCollection' => &$this ] ); //TODO deprecated since 2.3 key
+		Events::SendEvent( 'Core', 'DeleteDesignPre', [ 'CmsLayoutCollection' => &$this ] ); //TODO deprecated since 2.99 key
 		$db = CmsApp::get_instance()->GetDb();
 /*
 		if( $this->_css_members ) {
@@ -710,7 +710,7 @@ class Design
 
 	/**
 	 * Load the default design
-	 * @deprecated since 2.3 there is no such thing as a default design
+	 * @deprecated since 2.99 there is no such thing as a default design
 	 *
 	 * @throws CmsInvalidDataException
 	 * @return Design

@@ -23,7 +23,7 @@ namespace CMSMS;
  *
  * @package CMS
  * @license GPL
- * @since 2.9
+ * @since 2.99
  * @since 2.2 in namespace CMSMS\Layout
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */

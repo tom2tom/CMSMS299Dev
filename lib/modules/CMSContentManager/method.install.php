@@ -61,6 +61,6 @@ foreach([
  'ContentPreCompile',
  'ContentPreRender', // 2.2
 ] as $name) {
-    Events::CreateEvent($me,$name); //since 2.3
-    Events::CreateEvent('Core',$name); //deprecated since 2.3, migrated from the main installer
+    Events::CreateEvent($me,$name); //since 2.99
+    Events::CreateEvent('Core',$name); //deprecated since 2.99, migrated from the main installer
 }

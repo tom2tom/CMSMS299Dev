@@ -39,7 +39,7 @@ use CMSMS\internal\Smarty;
  * The generated content can be returned directly or after processing
  * in a nominated smarty template.
  *
- * @since 2.9
+ * @since 2.99
  */
 class ContentBuilder
 {

@@ -25,7 +25,7 @@ use function startswith;
  *
  * @package CMS
  * @author Robert Campbell
- * @since 2.9
+ * @since 2.99
  * @since 1.7 as global-namespace core class
  * @license GPL
  **/

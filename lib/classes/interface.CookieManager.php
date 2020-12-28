@@ -20,7 +20,7 @@ namespace CMSMS;
 /**
  * An interface for CMSMS cookie operations classes.
  * @package CMSMS
- * @since 2.3
+ * @since 2.99
  * @license GPL
  */
 interface CookieManager

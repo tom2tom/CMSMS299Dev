@@ -38,7 +38,7 @@ if( strcasecmp($module,'core') != 0 ) { // i.e. self
         $s = implode(',',$params['bulk_content']);
         $modobj->Redirect($id,$bulkaction,$returnid,
 		['bulk_content' => $params['bulk_content'],
-		 'contentlist' => $s]); //deprecated since 2.3
+		 'contentlist' => $s]); //deprecated since 2.99
 	}
     $this->SetError($this->Lang('error_invalidbulkaction'));
     $this->Redirect($id,'defaultadmin',$returnid);

@@ -21,7 +21,7 @@ namespace Search;
 use Search\Utils;
 
 /**
- * @since 2.9
+ * @since 2.99
  */
 
 class ItemCollection

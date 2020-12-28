@@ -41,12 +41,12 @@ function cmsms_spacedloader($classname)
             }
 
             if (defined('CMS_ASSETS_PATH')) {
-                // CMSMS 2.3+ core-modules place
+                // CMSMS 2.99+ core-modules place
                 $path = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.$p;
                 if (is_file($path)) {
                     return $path;
                 }
-                // CMSMS 2.3+ other-modules place
+                // CMSMS 2.99+ other-modules place
                 $path = CMS_ASSETS_PATH.$p;
                 if (is_file($path)) {
                     return $path;
@@ -71,7 +71,7 @@ function cmsms_spacedloader($classname)
             $fp = $root.$test.$base.'.php';
             if (is_file($fp)) {
                 if (!class_exists($space, false)) {
-                    //deprecated since 2.3 - some modules require existence of this, or assume, and actually use it
+                    //deprecated since 2.99 - some modules require existence of this, or assume, and actually use it
                     $gCms = cmsms();
                     require_once $mpath;
                 }

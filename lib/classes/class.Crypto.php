@@ -30,7 +30,7 @@ use const CMS_ROOT_URL;
  * @license GPL
  *
  * @final
- * @since 2.9
+ * @since 2.99
  */
 class Crypto
 {
@@ -83,7 +83,7 @@ class Crypto
 
 	/**
 	 * Encrypt the the provided string
-	 * @since 2.9
+	 * @since 2.99
 	 * @see also Crypto::decrypt_string()
 	 *
 	 * @param string $raw the string to be processed
@@ -125,7 +125,7 @@ class Crypto
 
 	/**
 	 * Decrypt the the provided string
-	 * @since 2.9
+	 * @since 2.99
 	 * @see also Crypto::encrypt_string()
 	 *
 	 * @param string $raw the string to be processed
@@ -180,7 +180,7 @@ class Crypto
 
 	/**
 	 * Hash the the provided string. Not encryption-grade.
-	 * @since 2.9
+	 * @since 2.99
 	 *
 	 * @param string $raw the string to be processed, may be empty
 	 * @param bool $seeded optional flag whether to seed the hash. Default false (unless $raw is empty)
@@ -203,7 +203,7 @@ class Crypto
 	/**
 	 * Generate a random string.
 	 * This is intended for seeds, ID's etc. Not encryption-grade.
-	 * @since 2.9
+	 * @since 2.99
 	 *
 	 * @param int $length No. of bytes in the returned string
 	 * @param bool $ascii Optional flag whether to limit the contents to 'printable' ASCII chars. Default false.

@@ -40,7 +40,7 @@ ATM not so.
  *
  * @package CMS
  * @license GPL
- * @since 2.9
+ * @since 2.99
  * @since 2.2 as HookManager
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
@@ -132,7 +132,7 @@ OR
      * @param string $name The hook name.  If the hook does not already exist, it is added.
      * @param callable $callable A PHP callable: function name | array | closure
      * @param int $priority The priority of the handler.
-     * @return bool indicating success since 2.3
+     * @return bool indicating success since 2.99
      */
     public static function add_hook($name,$callable,$priority = self::PRIORITY_NORMAL)
     {

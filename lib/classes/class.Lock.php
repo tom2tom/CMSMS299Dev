@@ -88,7 +88,7 @@ final class Lock implements ArrayAccess
         $this->_data['uid'] = get_userid(FALSE);
         if( $lifetime == null ) $lifetime = AppParams::get('lock_timeout',60);
         $t = max(1,(int)$lifetime);
-        $this->_data['lifetime'] = $t; // deprecated since 2.3
+        $this->_data['lifetime'] = $t; // deprecated since 2.99
         $this->_data['expires'] = $t * 60 + time();
         $this->_dirty = TRUE;
     }
@@ -103,12 +103,12 @@ final class Lock implements ArrayAccess
         case 'oid':
         case 'uid':
             return $this->_data[$key];
-        case 'created':  // deprecated since 2.3
+        case 'created':  // deprecated since 2.99
             return cms_to_stamp($this->_data['create_date']);
         case 'id':
-        case 'create_date': // deprecated since 2.3
-        case 'modified_date': // deprecated since 2.3
-        case 'lifetime': // deprecated since 2.3
+        case 'create_date': // deprecated since 2.99
+        case 'modified_date': // deprecated since 2.99
+        case 'lifetime': // deprecated since 2.99
         case 'expires':
             if( isset($this->_data[$key]) ) return $this->_data[$key];
             throw new CmsLogicException('CMSEX_L004');
@@ -121,11 +121,11 @@ final class Lock implements ArrayAccess
     public function OffsetSet($key,$value)
     {
         switch( $key ) {
-        case 'modified_date': // deprecated since 2.3
+        case 'modified_date': // deprecated since 2.99
             $this->_data[$key] = trim($value);
             $this->_dirty = TRUE;
             break;
-        case 'lifetime': // deprecated since 2.3
+        case 'lifetime': // deprecated since 2.99
             $this->_data[$key] = max(1,(int)$value);
             $this->_dirty = TRUE;
             break;
@@ -142,7 +142,7 @@ final class Lock implements ArrayAccess
             break;
         case 'type':
         case 'oid':
-        case 'create_date': // deprecated since 2.3
+        case 'create_date': // deprecated since 2.99
             // or this one
             if( isset($this->_data['id']) ) throw new CmsInvalidDataException('CMSEX_G001');
             $this->_data[$key] = trim($value);

@@ -50,7 +50,7 @@ use function startswith;
  * @package CMS
  * @license GPL
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
- * @since 2.9
+ * @since 2.99
  * @since 2.2 as FilePickerProfile
  * @property-read string $top The top directory for the filepicker (relative to the CMSMS uploads directory, or ... TODO)
  * @property-read FileType $type A FileType enumerator representing files which may be used.
@@ -68,7 +68,7 @@ class FileSystemControls
 {
     /**
      * @ignore
-     * Constants deprecated since 2.9. Instead use corresponding FSControlValue
+     * Constants deprecated since 2.99. Instead use corresponding FSControlValue
      */
     const FLAG_NONE = 0;
     const FLAG_NO = 0;
@@ -236,7 +236,7 @@ class FileSystemControls
    /**
     * Helper function: check for a match between $pattern and $name
     * Tries wildcard, regex and literal name-matching, case-insensitive
-    * @since 2.9
+    * @since 2.99
     * @param string pattern
     * @param string name
     * @return bool indicating whether they match
@@ -272,7 +272,7 @@ class FileSystemControls
 
     /**
      * Check whether $filename accords with relevant conditions among the profile properties
-     * @since 2.9 (migrated from sub-class)
+     * @since 2.99 (migrated from sub-class)
      * @param string $filename Absolute|relative filesystem path, or just basename, of a file
      * @return boolean
      */

@@ -23,7 +23,7 @@ namespace CMSMS;
  *
  * @package CMS
  * @license GPL
- * @since 2.9
+ * @since 2.99
  * @since 1.8 as CmsRegularTask
  * @deprecated since 2.2 See CMSMS\Async\RegularTask and CMSMS\Async\Job
  */

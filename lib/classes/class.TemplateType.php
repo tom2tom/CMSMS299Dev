@@ -39,7 +39,7 @@ use function lang;
  *
  * @package CMS
  * @license GPL
- * @since 2.9
+ * @since 2.99
  * @since 2.0 as global-namespace CmsLayoutTemplateType
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
@@ -242,7 +242,7 @@ class TemplateType
 
 	/**
 	 * Get the timestamp for when this template-type was first saved
-	 * @since 2.3
+	 * @since 2.99
 	 *
 	 * @return mixed Unix timestamp, or null if this object has not been saved.
 	 */
@@ -253,7 +253,7 @@ class TemplateType
 	}
 
 	/**
-	 * @deprecated since 2.3 use get_created()
+	 * @deprecated since 2.99 use get_created()
 	 */
 	public function get_create_date()
 	{
@@ -262,7 +262,7 @@ class TemplateType
 
 	/**
 	 * Get the timestamp for when this template-type was last saved.
-	 * @since 2.3
+	 * @since 2.99
 	 *
 	 * @return mixed Unix timestamp, or null if this object has not been saved.
 	 */
@@ -273,7 +273,7 @@ class TemplateType
 	}
 
 	/**
-	 * @deprecated since 2.3 use get_modified()
+	 * @deprecated since 2.99 use get_modified()
 	 */
 	public function get_modified_date()
 	{
@@ -414,7 +414,7 @@ class TemplateType
 
 	/**
  	* Get any applicable lock for this template-type object
-	* @since 2.3
+	* @since 2.99
  	*
  	* @return mixed Lock | null
  	* @see Lock
@@ -427,7 +427,7 @@ class TemplateType
 
     /**
  	* Test whether this template-type object currently has a lock
-	* @since 2.3
+	* @since 2.99
  	*
  	* @return bool
  	*/
@@ -439,7 +439,7 @@ class TemplateType
 
     /**
  	* Test whether any lock associated with this object has expired
-	* @since 2.3
+	* @since 2.99
  	*
  	* @return bool
  	*/

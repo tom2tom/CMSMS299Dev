@@ -79,7 +79,7 @@ final class Utils
 				'metadata'=>'',
 				'parent_id'=>-2, // int
 				'searchable'=>true,
-				'secure'=>false, // deprecated from 2.3
+				'secure'=>false, // deprecated from 2.99
 				'showinmenu'=>true,
 				'styles'=>'', // OR some sensible default ?
 				'template_id'=>$tpl_id,
@@ -108,7 +108,7 @@ final class Utils
 	}
 
 	/**
-	 * @since 2.3
+	 * @since 2.99
 	 * @param mixed $selected int[] | int | comma-separated string
 	 * @return array
 	 */

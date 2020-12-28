@@ -36,7 +36,7 @@ if( version_compare($oldversion,'2.0') < 0 ) {
      'ContentPreCompile',
      'ContentPreRender', // 2.2
     ] as $name) {
-        Events::CreateEvent($me,$name); //since 2.3
+        Events::CreateEvent($me,$name); //since 2.99
     }
 }
 

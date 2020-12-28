@@ -190,7 +190,7 @@ class FileTypeHelper
     /**
      * Constructor
      *
-     * @param array $config 0ptional since 2.9 custom definitions of some filetype extensions
+     * @param array $config 0ptional since 2.99 custom definitions of some filetype extensions
 	 * The parameters used here are NOT related to the global config class
      */
     public function __construct( $config = null )
@@ -437,7 +437,7 @@ class FileTypeHelper
     /**
      * Using media type if possible, or extension, test whether the specified fule is (potentially-editable) text.
      *
-     * @since 2.3
+     * @since 2.99
      * @param string $filename Fileystem absolute path or include-path-resolvable path
      * @return bool
      */
@@ -483,7 +483,7 @@ class FileTypeHelper
 
     /**
      * Get recognized file-extensions for the specified Filettype
-     * @since 2.3
+     * @since 2.99
      *
      * @param mixed int|FileType|string identifier
      * @return strings array, maybe empty
@@ -511,7 +511,7 @@ class FileTypeHelper
 
     /**
      * Get mediatype identifier for the specified Filettype
-     * @since 2.3
+     * @since 2.99
      *
      * @param mixed int|FileType|string identifier
      * @return string, maybe ''
@@ -539,7 +539,7 @@ class FileTypeHelper
 
     /**
      * Check whether mediatype $filemime matches mediatype pattern(s) $haystack
-     * @since 2.3
+     * @since 2.99
      *
      * @param string $filemime mediatype of a file
      * @param string $haystack mediatype maybe multiple, maybe wildcarded
@@ -561,7 +561,7 @@ class FileTypeHelper
 
     /**
      * Check whether file extension $fileext matches extension(s) in $haystack
-     * @since 2.3
+     * @since 2.99
      *
      * @param string $fileext maybe with leading '.'
      * @param mixed $haystack string (maybe comma-separated) | array Any of them may have leading '.'

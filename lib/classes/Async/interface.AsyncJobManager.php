@@ -24,7 +24,7 @@ namespace CMSMS\Async;
  *
  * @package CMS
  *
- * @since 2.3
+ * @since 2.99
  */
 interface AsyncJobManager
 {

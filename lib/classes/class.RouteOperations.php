@@ -120,7 +120,7 @@ final class RouteOperations
 			}
 			$modops = ModuleOperations::get_instance();
 			$extras = $modops->GetLoadableModuleNames(); // hence incremental changes
-			$skips = $modops->GetMethodicModules('IsRoutableModule',FALSE); //deprecated since 2.3
+			$skips = $modops->GetMethodicModules('IsRoutableModule',FALSE); //deprecated since 2.99
 			$polls = array_diff($extras, $skips);
 //eventually we could just... $polls = $modops->GetCapableModules(CMSMS\CoreCapabilities::ROUTE_MODULE);
 
