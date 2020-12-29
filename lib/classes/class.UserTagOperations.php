@@ -1,21 +1,24 @@
 <?php
-#Class to process simple-plugins (a.k.a. user-defined-tags)
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Culp and all other contributors from the CMSMS Development Team.
-#This file is part of CMS Made Simple <http://cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class to process user-plugins (a.k.a. user-defined-tags)
+Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Culp and all other contributors from the CMSMS Development Team.
 
+This file is part of CMS Made Simple <http://cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CMSMS\AppSingle;
@@ -24,31 +27,29 @@ use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use const CMS_FILETAGS_PATH;
-//use function file_put_contents;
 //use CMSMS\SysDataCache;
 
 /**
- * Simple-plugin related functions
- * @since 2.9
- * @since 1.5 (or before) as UserTagOperations
+ * User-plugin related functions
+ * @since 1.5 (or before)
  *
- * This class supports file-stored as well as dB-stored 'simple' plugins.
- * Such plugins are simple in the sense that their content is limited to
- * 'safe' functionality, because the content has probably been added by a
- * not-necessarily-trustworthy admin user (or even some malefactor).
+ * This class supports file-stored as well as database-stored 'user' plugins.
+ * Such plugins are intended to be limited to 'safe' functionality, because the
+ * content has probably been added by a not-necessarily-trustworthy admin user
+ * (or even some malefactor). Though such limit is not enforced here.
  *
  * @package CMS
  * @license GPL
  */
-final class SimpleTagOperations
+final class UserTagOperations
 {
 	/**
-	 * Filename extension of simple-plugin files, something that the web server won't execute
+	 * Filename extension of user-plugin files, something that the web server won't execute
 	 */
-	const PLUGEXT = '.phphp'; //c.f. vanilla 2.3BETA uses .cmsplugin, but those probably have different content
+	const PLUGEXT = '.phphp'; //c.f. vanilla 2.3BETA used .cmsplugin, but those probably have different content
 
 	/**
-	 * Maximum fake-id used for identifying simple-plugin files
+	 * Maximum fake-id used for identifying user-plugin files
 	 * Any integer < -1 will do
 	 */
 	const MAXFID = -10;
@@ -69,7 +70,7 @@ final class SimpleTagOperations
 	//TODO consider making this a session-cache (for admin) but for frontend ?
 	private $_cache = [];
 	/**
-	 * @var bool whether $_cache[] has been fully-populated (by ListSimpleTags())
+	 * @var bool whether $_cache[] has been fully-populated (by ListUserTags())
 	 * which is unlikely since checks for individual tags will mostly be from a
 	 * frontend request, but sometimes involve a selection from the list.
 	 * @ignore
@@ -95,9 +96,9 @@ final class SimpleTagOperations
 	private function __clone() {}
 
 	/**
-	 * Support for pre-2.3 method-names, and simplified explicit tag-running
+	 * Support for pre-2.99 method-names, and simplified explicit tag-running
 	 * @ignore
-	 * @param string $name simple-plugin name
+	 * @param string $name user-plugin name
 	 * @param array $args plugin-API variable(s) in some form.
 	 *  $args OR $args[0] should include: [0]=$params[], [1]=$template/smarty object
 	 */
@@ -115,15 +116,15 @@ final class SimpleTagOperations
 			//fall into running a tag whose name includes 'User'
 		}
 		try {
-			return $this->CallSimpleTag($name, ...$args);
+			return $this->CallUserTag($name, ...$args);
 		} catch (Throwable $t) {
 			return '<span style="font-weight:bold;color:red;">Plugin error!</span>'; //lang() normally N/A for frontend requests
 		}
 	}
 
 	/**
-	 * Process a smarty-call to get the output from a simple-plugin named $name
-	 * @since 2.9
+	 * Process a smarty-call to get the output from a user-plugin named $name
+	 * @since 2.99
 	 *
 	 * @param string $name plugin identifier (as used in tags)
 	 * @param array $args plugin-API variable(s)
@@ -132,7 +133,7 @@ final class SimpleTagOperations
 	 */
 	public static function __callStatic($name, $args)
 	{
-		$handler = AppSingle::SimpleTagOperations()->GetHandler($name);
+		$handler = AppSingle::UserTagOperations()->GetHandler($name);
 		try {
 			return $handler(...$args);
 		} catch (Throwable $t) {
@@ -142,19 +143,19 @@ final class SimpleTagOperations
 
 	/**
 	 * Get the singleton instance of this class
-	 * @deprecated since 2.9 instead use CMSMS\AppSingle::SimpleTagOperations()
-	 * @return self i.e. SimpleTagOperations
+	 * @deprecated since 2.99 instead use CMSMS\AppSingle::UserTagOperations()
+	 * @return self i.e. UserTagOperations
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::SimpleTagOperations()'));
-		return AppSingle::SimpleTagOperations();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::UserTagOperations()'));
+		return AppSingle::UserTagOperations();
 	}
 
 	/**
-	 * Return filesystem path which would apply to a simple-plugin named $name
-	 * @since 2.9
-	 * @param string $name plugin name or name(s)-pattern
+	 * Return filesystem path which would apply to a user-plugin named $name
+	 * @since 2.99
+	 * @param string $name plugin name or name(s)-pattern, suitable for file-system usage verbatim
 	 * @return string absolute path
 	 */
 	public function FilePath(string $name) : string
@@ -164,7 +165,7 @@ final class SimpleTagOperations
 
 	/**
 	 * Determine whether $id represents a file-stored plugin
-	 * @since 2.9
+	 * @since 2.99
 	 * @param mixed $id int|string identifier
 	 * @return bool
 	 */
@@ -174,11 +175,11 @@ final class SimpleTagOperations
 	}
 
 	/**
-	 * Check whether $name is acceptable for a simple-plugin.
+	 * Check whether $name is acceptable for a user-plugin.
 	 * Specifically, it matches PHP naming rules i.e. starts with a letter
 	 * (ASCII|UTF8) or _, followed by any number of such letters or digits or _'s.
 	 * No actual-file name-duplication check here.
-	 * @since 2.9
+	 * @since 2.99
 	 *
 	 * @param string $name plugin identifier (as used in tags). A reference, so it can be trim()'d
 	 * @return bool indicating success
@@ -220,10 +221,10 @@ final class SimpleTagOperations
 	}
 
 	/**
-	 * Establish local data cache for all simple-plugins
+	 * Establish local data cache for all user-plugins
 	 *
 	 * @ignore
-	 * @deprecated since 2.9 does nothing. There is no SysDataCache for simple-plugins
+	 * @deprecated since 2.99 does nothing. There is no SysDataCache for user-plugins
 	 * @internal
 	 */
 	public static function setup()
@@ -231,18 +232,18 @@ final class SimpleTagOperations
 	}
 
 	/**
-	 * Cache all information about all simple plugins (onetime only)
-	 * @deprecated since 2.9 does nothing. Local cache is populated on demand
-	 * and to the extent needed, by class methods e.g. ListSimpleTags()
+	 * Cache all information about all user-plugins (onetime only)
+	 * @deprecated since 2.99 does nothing. Local cache is populated on demand
+	 * and to the extent needed, by class methods e.g. ListUserTags()
 	 */
-	public function LoadSimpleTags()
+	public function LoadUserTags()
 	{
 	}
 
 	/* *
-	 * Migrate plugin from dB-storage to file-storage.
+	 * Migrate plugin from database-storage to file-storage.
 	 * Note: there is no operational advantage from such change.
-	 * @since 2.9
+	 * @since 2.99
 	 *
 	 * @param string $name Plugin name
 	 * @return bool indicating success
@@ -251,16 +252,16 @@ final class SimpleTagOperations
 	{
 		if ($this->CacheHas($name, $this->_misses)) return false;
 		if (!$this->CacheHas($name, $this->_cache)) {
-			$this->SimpleTagExists($name); //populate the relevant cache
+			$this->UserTagExists($name); //populate the relevant cache
 		}
 		if ($this->CacheHas($name, $this->_cache)) {
 			if (!$this->IsFileID($this->_cache[$name][0])) {
-				$params = $this->GetSimpleTag($name, '*');
+				$params = $this->GetUserTag($name, '*');
 				$params['id'] = self::MAXFID;
 				$res = $this->SetFileTag($name, $params);
 				if ($res) {
 					$db = AppSingle::Db();
-					$query = 'DELETE FROM '.CMS_DB_PREFIX.'simpleplugins WHERE name=?';
+					$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 					$db->Execute($query, [$name]);
 				}
 				return $res;
@@ -272,7 +273,7 @@ final class SimpleTagOperations
 	/* *
 	 * Migrate plugin from file-storage to dB-storage
 	 * Note: there is no operational advantage from such change.
-	 * @since 2.9
+	 * @since 2.99
 	 *
 	 * @param string $name Plugin name
 	 * @return bool indicating success
@@ -281,13 +282,13 @@ final class SimpleTagOperations
 	{
 		if ($this->CacheHas($name, $this->_misses)) return false;
 		if (!$this->CacheHas($name, $this->_cache)) {
-			$this->SimpleTagExists($name); //populate the relevant cache
+			$this->UserTagExists($name); //populate the relevant cache
 		}
 		if ($this->CacheHas($name, $this->_cache)) {
 			if ($this->IsFileID($this->_cache[$name][0])) {
 				$params = $this->GetFileTag($name, '*');
 				$params['id'] = -1;
-				$res = $this->SetSimpleTag($name, $params);
+				$res = $this->SetUserTag($name, $params);
 				if ($res) {
 					$fp = $this->FilePath($name);
 					@unlink($fp);
@@ -336,16 +337,15 @@ final class SimpleTagOperations
 				if ($xml !== false) {
 					if (in_array('description', $props)) {
 						$val = (string)$xml->description;
-						$res['description'] = ($val) ? htmlspecialchars_decode($val, ENT_XML1) : '';
+						$res['description'] = ($val) ? cms_specialchars_decode($val, ENT_XML1 | ENT_NOQUOTES) : '';  // AND sanitizeVal(, 0) ? nl2br() ? striptags() ?
 					}
 					if (in_array('parameters', $props)) {
 						$val = (string)$xml->parameters;
-						$res['parameters'] = ($val) ? htmlspecialchars_decode($val, ENT_XML1) : '';
+						$res['parameters'] = ($val) ? cms_specialchars_decode($val, ENT_XML1 | ENT_NOQUOTES) : ''; // AND sanitizeVal(, 0) ? nl2br() ? striptags() ?
 					}
 					if (in_array('license', $props)) {
 						$val = (string)$xml->license;
-						$res['license'] = ($val) ? htmlspecialchars_decode($val, ENT_XML1) : '';
-					}
+						$res['license'] = ($val) ? cms_specialchars_decode($val, ENT_XML1 | ENT_NOQUOTES) : ''; // AND sanitizeVal(, 0) ? nl2br() ? striptags() ?
 				}
 				if (in_array('code', $props)) {
 					$ps = strpos($cont, '*/', $pe);
@@ -384,16 +384,16 @@ final class SimpleTagOperations
 	}
 
 	/**
-	 * Retrieve property|ies of the named simple-plugin.
+	 * Retrieve property|ies of the named user-plugin.
 	 *
 	 * @param string $name Plugin name
-	 * @param mixed $props @since 2.9 string|strings[] Optional database
-	 *  simpleplugins-table field name(s) (comma-separated ok), or '*',
+	 * @param mixed $props @since 2.99 string|strings[] Optional database
+	 *  userplugins-table field name(s) (comma-separated ok), or '*',
 	 *  or falsy for an existence-check. Default 'code'.
 	 *
 	 * @return mixed array | field-value | true (exists) | null upon error
 	 */
-	public function GetSimpleTag(string $name, $props = 'code')
+	public function GetUserTag(string $name, $props = 'code')
 	{
 		if ($this->CacheHas($name, $this->_cache)) {
 			$filetag = $this->IsFileID($this->_cache[$name][0]);
@@ -427,7 +427,7 @@ final class SimpleTagOperations
 				$fields = 'id';
 			}
 			$db = AppSingle::Db();
-			$query = 'SELECT '.$fields.' FROM '.CMS_DB_PREFIX.'simpleplugins WHERE name=?';
+			$query = 'SELECT '.$fields.' FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 			//TODO caseless name-match: table|field definition is *_ci ?
 			$dbr = $db->GetRow($query, [$name]);
 			if ($dbr) {
@@ -452,14 +452,14 @@ final class SimpleTagOperations
 	}
 
 	/**
-	 * Check whether $name is acceptable for a simple-plugin, and if so,
+	 * Check whether $name is acceptable for a user-plugin, and if so,
 	 * whether the corresponding dB-stored or file-stored plugin exists.
 	 * @since 1.10
 	 *
 	 * @param $name plugin identifier
-	 * @return bool since 2.9, formerly $name|false
+	 * @return bool since 2.99, formerly $name|false
 	*/
-	public function SimpleTagExists(string $name) : bool
+	public function UserTagExists(string $name) : bool
 	{
 		if (!$this->IsValidName($name)) {
 			$this->_misses[$name] = 0;
@@ -468,13 +468,13 @@ final class SimpleTagOperations
 		//TODO support caseless matches
 		if ($this->CacheHas($name, $this->_cache)) { return true; }
 		if ($this->CacheHas($name, $this->_misses)) { return false; }
-		return ($this->GetSimpleTag($name, '') != false);
+		return ($this->GetUserTag($name, '') != false);
 	}
 
 	/**
-	 * Test whether a simple-plugin with the specified name exists, after (if
+	 * Test whether a user-plugin with the specified name exists, after (if
 	 * check_functions is true) testing whether ANY plugin with that name has been registered.
-	 * @since 2.9 this does not also check for a matching system-plugin - all
+	 * @since 2.99 this does not also check for a matching system-plugin - all
 	 *  system-plugins are automatically handled by smarty
 	 *
 	 * @param string $name			The name to test
@@ -491,11 +491,11 @@ final class SimpleTagOperations
 			}
 		}
 
-		return $this->SimpleTagExists($name);
+		return $this->UserTagExists($name);
 	}
 
 	/**
-	 * Save file for simple-plugin named $name. The file will be created or
+	 * Save file for user-plugin named $name. The file will be created or
 	 * overwitten as appropriate, except that renaming a file-stored plugin
 	 * fails if the new name already exists.
 	 * The file's content will be like <?php/*XML*\/CODE.
@@ -514,7 +514,7 @@ final class SimpleTagOperations
 		$bare = empty($params['detail']);
 		if (!$this->IsValidName($name)) {
 			$this->_misses[$name] = 0;
-			return ($bare) ? false : [false, 'error_splg_name'];
+			return ($bare) ? false : [false, 'error_usrplg_name'];
 		}
 
 		$code = trim($params['code'], " \t\n\r");
@@ -532,17 +532,17 @@ final class SimpleTagOperations
 			// out-of-context ($params etc etc).
 			// We'll trust the provided code as-is. But run it in a sandbox, if we can ...
 		} else {
-			return ($bare) ? false : [false, 'error_splg_nocode'];
+			return ($bare) ? false : [false, 'error_usrplg_nocode'];
 		}
 
 		$d = (!empty($params['description'])) ?
-			'<description>'."\n".htmlspecialchars(trim($params['description']), ENT_XML1)."\n".'</description>':
+			'<description>'."\n".htmlspecialchars(trim($params['description']), ENT_XML1 | ENT_NOQUOTES)."\n".'</description>':
 			'<description></description>';
 		$p = (!empty($params['parameters'])) ?
-			'<parameters>'."\n".htmlspecialchars(trim($params['parameters']), ENT_XML1)."\n".'</parameters>':
+			'<parameters>'."\n".htmlspecialchars(trim($params['parameters']), ENT_XML1 | ENT_NOQUOTES)."\n".'</parameters>':
 			'<parameters></parameters>';
 		$l = (!empty($params['license'])) ?
-			'<license>'."\n".htmlspecialchars(trim($params['license']), ENT_XML1)."\n".'</license>':
+			'<license>'."\n".htmlspecialchars(trim($params['license']), ENT_XML1 | ENT_NOQUOTES)."\n".'</license>':
 			'<license></license>';
 		//no additional security-related code inserted, that's in the code which include's the file for use
 		$out = <<<EOS
@@ -572,14 +572,14 @@ EOS;
 	}
 
 	/**
-	 * Insert/store or update a simple-plugin in the database or in file.
+	 * Insert/store or update a user-plugin in the database or in file.
 	 *
 	 * @param string $name   plugin name now, perhaps different from $params[oldname]
-	 * @param varargs $args  since 2.9 normally just a single assoc array of
+	 * @param varargs $args  since 2.99 normally just a single assoc array of
 	 *  additional properties, some/all of
 	 *  'id' -1 for new plugin, > 0 for an existing dB-stored plugin,
 	 *    <= self::MAXFID for an existing file-stored plugin
-	 *  'oldname' string simple-plugin recorded name, or '' for new plugin
+	 *  'oldname' string user-plugin recorded name, or '' for new plugin
 	 *  'code'
 	 *  'description'
 	 *  'parameters'
@@ -589,18 +589,18 @@ EOS;
 	 *  [0] = bool indicating success
 	 *  [1] = string lang-key (no spaces) or actual message, normally '' on success
 	 */
-	public function SetSimpleTag(string $name, ...$args)
+	public function SetUserTag(string $name, ...$args)
 	{
 		if (count($args) == 1 && is_array($args[0])) {
 			$params = $args[0];
-		} else { // pre-2.3 API
+		} else { // pre-2.99 API
 			$params = ['id'=>-1, 'code'=>$args[0], 'description'=>$args[1] ?? ''];
 		}
 		$bare = empty($params['detail']);
 
 		if (!$this->IsValidName($name)) {
 			$this->_misses[$name] = 0;
-			return ($bare) ? false : [false, 'error_splg_name'];
+			return ($bare) ? false : [false, 'error_usrplg_name'];
 		}
 
 		$val = $params['code'] ?? '';
@@ -661,7 +661,7 @@ EOS;
 		} elseif ($id == -1 || $id > 0) {
 			//upsert dB
 			$db = AppSingle::Db();
-			$tbl = CMS_DB_PREFIX.'simpleplugins';
+			$tbl = CMS_DB_PREFIX.'userplugins';
 			if ($id == -1) {
 				$query = "INSERT INTO $tbl (name,code,description,parameters) VALUES (?,?,?,?)";
 				$dbr = $db->Execute($query,[$name,$code,$description,$parameters]);
@@ -694,16 +694,16 @@ EOS;
 	}
 
 	/**
-	 * Delete simple-plugin named $name.
+	 * Delete user-plugin named $name.
 	 *
 	 * @param string $name plugin name
 	 * @return bool indicating success
 	 */
-	public function RemoveSimpleTag(string $name) : bool
+	public function RemoveUserTag(string $name) : bool
 	{
 		if ($this->CacheHas($name, $this->_misses)) return false;
 		if (!$this->CacheHas($name, $this->_cache)) {
-			$this->SimpleTagExists($name); //populate the relevant cache
+			$this->UserTagExists($name); //populate the relevant cache
 		}
 		if ($this->CacheHas($name, $this->_cache)) {
 			//$this->_cache[$name] => dB|fake id, callable|null
@@ -711,7 +711,7 @@ EOS;
 				//process dB-stored plugin
 				// TODO caseless name
 				$db = AppSingle::Db();
-				$query = 'DELETE FROM '.CMS_DB_PREFIX.'simpleplugins WHERE name=?';
+				$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 				$dbr = $db->Execute($query, [$name]);
 				$res = ($dbr != false);
 				if ($res) {
@@ -735,16 +735,16 @@ EOS;
 	}
 
 	/**
-	 * List all dB-stored or file-stored simple-plugins
+	 * List all dB-stored or file-stored user-plugins
 	 *
 	 * @return array each member like id => tagname, where id <= self::MAXFID
 	 *  to indicate a file-stored plugin
 	 */
-	public function ListSimpleTags() : array
+	public function ListUserTags() : array
 	{
 		if (!$this->_loaded) {
 			$db = AppSingle::Db();
-			$query = 'SELECT name,id FROM '.CMS_DB_PREFIX.'simpleplugins ORDER BY name';
+			$query = 'SELECT name,id FROM '.CMS_DB_PREFIX.'userplugins ORDER BY name';
 			$out = $db->GetAssoc($query);
 
 			$patn = $this->FilePath('*');
@@ -789,7 +789,7 @@ EOS;
 				$strfunc = $this->GetFileTag($name);
 				// TODO sanitize $strfunc, in case was externally-changed since last check
 			} else {
-				$strfunc = $this->GetSimpleTag($name);
+				$strfunc = $this->GetUserTag($name);
 			}
 			// subject to TODO above, we (naively?) assume no code-change between latest save and now
 			$handler = function (&$params = [], $template = null) use ($strfunc)
@@ -843,7 +843,7 @@ EOS;
 	}
 
 	/**
-	 * If a dB-stored simple-plugin corresponding to $name exists, run it
+	 * If a dB-stored user-plugin corresponding to $name exists, run it
 	 * This supports explicit tag-running. In most instances, the relevant
 	 * callable would instead be called directly by smarty.
 	 *
@@ -856,7 +856,7 @@ EOS;
 	 *
 	 * @return mixed value returned by tag|false
 	 */
-	public function CallSimpleTag(string $name, array &$params = [], $smarty_ob = null)
+	public function CallUserTag(string $name, array &$params = [], $smarty_ob = null)
 	{
 		if (!empty($this->_cache[$name][1])) {
 			$func = $this->_cache[$name][1];
@@ -870,9 +870,9 @@ EOS;
 	}
 
 	/**
-	 * If a simple-plugin corresponding to $name exists, arrange for it
+	 * If a user-plugin corresponding to $name exists, arrange for it
 	 * to process an event identified by its originator and name.
-	 * @since 2.9
+	 * @since 2.99
 	 *
 	 * @param string $name plugin identifier (as used in tags)
 	 * @param string $originator The name of the event originator, a module-name or 'Core'
@@ -892,7 +892,7 @@ EOS;
 			}
 			$params['sender'] = $originator;
 			$params['event'] = $eventname;
-			$res = (bool)$this-> CallSimpleTag($name, $params);
+			$res = (bool)$this-> CallUserTag($name, $params);
 			unset($params['sender'], $params['event']);
 			return $res;
 		}
@@ -911,7 +911,7 @@ EOS;
 		if (!$this->CacheHas($name, $this->_cache)) {
 			if ($this->CacheHas($name, $this->_misses)) { return null; }
 			try {
-				$this->SimpleTagExists($name); //populate relevant cache
+				$this->UserTagExists($name); //populate relevant cache
 			} catch (Throwable $t) {
 				return null;
 			}

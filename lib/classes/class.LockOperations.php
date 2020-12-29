@@ -1,21 +1,24 @@
 <?php
-# Class of utilities for interacting with locks
-# Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class of utilities for interacting with locks
+Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CmsApp;
@@ -87,7 +90,7 @@ final class LockOperations
 	{
 		try {
 			$lock = Lock::load($type,$oid);
-			sleep(1); // wait for potential asynhronous requests to complete.
+			sleep(1); // wait for potential asynchronous requests to complete.
 			$lock = Lock::load($type,$oid);
 			return $lock['id'];
 		}
@@ -120,7 +123,7 @@ final class LockOperations
 	 * Get all locks, or all of a specific type
 	 *
 	 * @param string $type Optional lock type. Default '' (hence any type)
-	 * @param bool   $by_state Since 2.3 Optional flag indicating result
+	 * @param bool   $by_state Since 2.99 Optional flag indicating result
 	 *  format. Default false. If true, return array of data including
 	 *  [type],object_id,user_id,status = 1(stealable) or -1(not stealable)
 	 *  If false, return lock objects.
@@ -177,7 +180,7 @@ final class LockOperations
 
 	/**
 	 * Delete locks held by the specified user
-	 * @since 2.3
+	 * @since 2.99
 	 *
 	 * @param int $uid  User id
 	 * @param string $type An optional type name.

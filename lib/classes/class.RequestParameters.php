@@ -2,6 +2,7 @@
 /*
 Class of methods to populate and retrieve request parameters
 Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify it
@@ -27,9 +28,9 @@ use const CMS_JOB_KEY;
 /**
  * Class of static methods to populate get-parameters for use in an URL,
  * and retrieve parameter-values from $_REQUEST | $_GET | $_POST.
- * @see also get_parameter_value(() which can reverts to a $_SESSION value,
- * for any requested parameter is not found.
- * @since 2.9
+ * @see also get_parameter_value() which can revert to a $_SESSION value,
+ * for any requested parameter that is not found.
+ * @since 2.99
  */
 class RequestParameters
 {
@@ -178,7 +179,7 @@ class RequestParameters
      * @param array $parms URL get-parameters. Should include mact-components
      *  and action-parameters (if any), and generic-parameters (if any)
      * @param int $format Optional format enumerator
-     *  0 = (pre-2.9 default, back-compatible) rawurlencoded parameter keys and values
+     *  0 = (pre-2.99 default, back-compatible) rawurlencoded parameter keys and values
      *      other than the value for key 'mact', '&amp;' for parameter separators
      *  1 = proper: as for 0, but also encode the 'mact' value
      *  2 = default: as for 1, except '&' for parameter separators - e.g. for use in get-URL, js
@@ -461,7 +462,7 @@ class RequestParameters
     }
 
     /**
-     * Return json-decode()'d version of $val, if possible 
+     * Return json-decode()'d version of $val, if possible
      * @param mixed $val normally string
      * @return mixed decoded parameter | false
      */

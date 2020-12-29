@@ -4,7 +4,6 @@
  * @package CMS
  * @license GPL
  */
-
 namespace CMSMS;
 
 use CMSMS\AppConfig;

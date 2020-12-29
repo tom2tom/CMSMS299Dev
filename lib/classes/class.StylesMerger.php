@@ -1,20 +1,23 @@
 <?php
-#Class for consolidating stylesheets into a single file
-#Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class for consolidating stylesheets into a single file
+Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CMSMS\Crypto;
@@ -32,8 +35,7 @@ use function file_put_contents;
  * REMEMBER: relative urls/paths in css are almost never relocatable, so
  * this cannot be used for such.
  *
- * @since 2.9
- * @since 2.3 as StylesheetManager
+ * @since 2.99
  * @package CMS
  */
 class StylesMerger
@@ -73,11 +75,11 @@ class StylesMerger
     /**
      * Record a string to be merged
      *
-     * @since 2.9
+     * @since 2.99
      * @param string $output   css string
      * @param int    $priority Optional priority 1..3 for the style. Default 0
      *  hence use current default
-     * @param bool   $min since 2.9 Optional flag whether to force minimize
+     * @param bool   $min since 2.99 Optional flag whether to force minimize
      *  this script in the merged file. Default false
      * @param bool   $force    Optional flag whether to force recreation of the merged file. Default false
      */
@@ -97,7 +99,7 @@ class StylesMerger
      * @param string $filename Filesystem path of styles file
      * @param int    $priority Optional priority 1... for the file. Default 0
      *  hence use current default
-     * @param bool   $min since 2.9 Optional flag whether to force minimize
+     * @param bool   $min since 2.99 Optional flag whether to force minimize
      *  this script in the merged file. Default false
      * @return bool indicating success
      */
@@ -127,7 +129,7 @@ class StylesMerger
     /**
      * Find and record a style-file to be merged if necessary
      *
-     * @since 2.9
+     * @since 2.99
      * @param string $filename absolute or relative filepath of the wanted styles file,
      *  optionally including [.-]min before its .css extension
      *  If searching is needed, a discovered mMin-format version will be preferred over non-min.
@@ -236,7 +238,7 @@ class StylesMerger
      * page-content.
      * @see also StylesMerger::render_styles()
      *
-     * @since 2.9
+     * @since 2.99
      * @param string $output_path Optional file system absolute path of folder
      *  to hold the styles file. Default '' hence use TMP_CACHE_LOCATION
      * @param bool   $force       Optional flag whether to force re-creation

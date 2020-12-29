@@ -1,21 +1,24 @@
 <?php
-#Singleton class of utility-methods for operating on and with modules
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Singleton class of utility-methods for operating on and with modules
+Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 //use FilePicker; //module class
@@ -59,13 +62,13 @@ final class ModuleOperations
 {
 	//TODO namespaced global variables here
 	/**
-     * Preference name for recorded module-aliases
+	 * Preference name for recorded module-aliases
 	 * @ignore
 	 */
 	private const CLASSMAP_PREF = 'module_classmap';
 
 	/**
-     * Preference name for recorded core module names
+	 * Preference name for recorded core module names
 	 * @ignore
 	 */
 	private const CORENAMES_PREF = 'coremodules';
@@ -74,7 +77,7 @@ final class ModuleOperations
 //'AdminLog,AdminSearch,CMSContentManager,CmsJobManager,CoreAdminLogin,FileManager,FilePicker,MicroTiny,ModuleManager,Navigator,Search';
 
 	/**
-     * Name of default login-processor module
+	 * Name of default login-processor module
 	 * @ignore
 	 */
 	const STD_LOGIN_MODULE = 'CoreAdminLogin';
@@ -136,12 +139,12 @@ final class ModuleOperations
 
 	/**
 	 * Get the singleton instance of this class.
-	 * @deprecated since 2.3 use CMSMS\AppSingle::ModuleOperations()
+	 * @deprecated since 2.99 use CMSMS\AppSingle::ModuleOperations()
 	 * @return ModuleOperations
 	 */
 	public static function get_instance() : self
 	{
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppSingle::ModuleOperations()'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppSingle::ModuleOperations()'));
 		return AppSingle::ModuleOperations();
 	}
 
@@ -217,7 +220,7 @@ final class ModuleOperations
 	/* *
 	 * Generate a moduleinfo.ini file for a module.
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 * @param CMSModule $obj a loaded-module object
 	 */
 /*	public function generate_moduleinfo(CMSModule $obj)
@@ -419,7 +422,7 @@ VALUES (?,?,?,NOW())');
 			$dependents = FALSE;
 		}
 
-		$gCms = AppSingle::App(); // compatibility for some crappy old modules, deprecated since 2.9
+		$gCms = AppSingle::App(); // compatibility for some crappy old modules, deprecated since 2.99
 
 		// okay, lessee if we can load the dependants
 		if( $dependents ) {
@@ -813,7 +816,7 @@ VALUES (?,?,?,$now)");
 
 	/**
 	 * Initialize named modules, after loading if necessary.
-	 * @since 2.3
+	 * @since 2.99
 	 * @param array $poll_modules module names
 	 * @param mixed $callback Optional callable | null
 	 * Processing is terminated if $callback returns false.
@@ -906,7 +909,7 @@ VALUES (?,?,?,$now)");
 
 	/**
 	 * Return an array of the names of all available but not-loaded modules.
-	 * @since 2.3
+	 * @since 2.99
 	 *
 	 * @return array maybe empty
 	 */
@@ -933,7 +936,7 @@ VALUES (?,?,?,$now)");
 	 * This retrieves data from cache if possible, so it does not necessarily
 	 * check actual capabilities. Absent cached data, this method temporarily
 	 * loads modules which are not currently loaded.
-	 * @since 2.3 this is a non-static equivalent to get_modules_with_capability()
+	 * @since 2.99 this is a non-static equivalent to get_modules_with_capability()
 	 *
 	 * @param string $capability The capability name
 	 * @param mixed $args Optional CMSModule::HasCapability() arguments other than the name. Default null.
@@ -958,7 +961,7 @@ VALUES (?,?,?,$now)");
 	 * This retrieves data from cache if possible, so it does not necessarily
 	 * load modules and call their method. Absent cached data, this method
 	 * temporarily loads modules which are not currently loaded.
-	 * @since 2.3
+	 * @since 2.99
 	 *
 	 * @param string $method The method name
 	 * @param mixed $returnvalue Optional method return-value to be (non-strictly) matched.
@@ -1006,7 +1009,7 @@ VALUES (?,?,?,$now)");
 	 * @param string $version Optional version identifier.
 	 * @param bool $force Optional flag whether to reload the module if already loaded. Default false.
 	 * @return mixed CMSModule subclass | IResource | null
-	 *  Since 2.9 (and PHP 5.0) : object, not an object-reference ("returning object-references is totally wasted")
+	 *  Since 2.99 (and PHP 5.0) : object, not an object-reference ("returning object-references is totally wasted")
 	 */
 	public function get_module_instance(
 		$module_name,
@@ -1069,7 +1072,7 @@ VALUES (?,?,?,$now)");
 			//TODO absolutely definite module-names could be hardcoded
 			// e.g.	$val = explode(',', self::CORENAMES_DEFAULT);
 			//OR do expensive, slow, probably-incomplete during installation, poll
-			$gCms = AppSingle::App(); // compatibility for some crappy old modules, deprecated since 2.9
+			$gCms = AppSingle::App(); // compatibility for some crappy old modules, deprecated since 2.99
 			$val = [];
 			$names = $this->FindAllModules();
 			foreach( $names as $module_name ) {
@@ -1113,7 +1116,7 @@ VALUES (?,?,?,$now)");
 
 	/**
 	 * Record the (non-default) login module to be used from now
-	 * @since 2.3
+	 * @since 2.99
 	 * @param CMSModule | IResource $mod
 	 * @throws LogicException
 	 */
@@ -1127,7 +1130,7 @@ VALUES (?,?,?,$now)");
 	}
 
 	/**
-	 * @since 2.3
+	 * @since 2.99
 	 * @return mixed CMSModule | IResource | null
 	 */
 	public function GetAdminLoginModule()
@@ -1139,12 +1142,12 @@ VALUES (?,?,?,$now)");
 	/**
 	 * Return a syntax highlighter module object, if possible.
 	 * This method retrieves the specified syntax highlighter module,
-     * or the current user's preference for such module.
+	 * or the current user's preference for such module.
 	 * @since 1.10
-	 * @deprecated since 2.3. Instead, generate and place content (js etc) directly
+	 * @deprecated since 2.99. Instead, generate and place content (js etc) directly
 	 *
 	 * @param mixed string|null|-1 $module_name allows specifying a
-     * module to be used instead of the user's recorded preference.
+	 * module to be used instead of the user's recorded preference.
 	 * @return mixed CMSModule | IResource | null
 	 */
 	public function GetSyntaxHighlighter($module_name = NULL)
@@ -1166,7 +1169,7 @@ VALUES (?,?,?,$now)");
 	 * Alias for GetSyntaxHiglighter().
 	 *
 	 * @see ModuleOperations::GetSyntaxHighlighter()
-	 * @deprecated since 2.3
+	 * @deprecated since 2.99
 	 * @since 1.10
 	 * @param mixed $module_name string | null
 	 * @return CMSModule | IResource
@@ -1182,7 +1185,7 @@ VALUES (?,?,?,$now)");
 	 * appropriate WYSIWYG module for the current request context
 	 * and THE current user's preference for such module.
 	 * @since 1.10
-	 * @deprecated since 2.3. Instead, generate and place content (js etc) directly
+	 * @deprecated since 2.99. Instead, generate and place content (js etc) directly
 	 *
 	 * @param mixed string|null $module_name allows bypassing the automatic detection process
 	 *  and specifying a wysiwyg module.
@@ -1255,7 +1258,7 @@ VALUES (?,?,?,$now)");
 				if( strncmp($key,$id,$len) == 0 ) {
 					$key = substr($key,$len);
 					if( $key == 'id' || $key == 'returnid' ) $value = (int)$value;
-//					if( $key == 'id' || $key == 'returnid' || $key == 'action' ) continue; 2.3 deprecation, breaks lot of stuff
+//					if( $key == 'id' || $key == 'returnid' || $key == 'action' ) continue; 2.99 deprecation, breaks lot of stuff
 					$params[$key] = $value;
 				}
 			}

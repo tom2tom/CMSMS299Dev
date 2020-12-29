@@ -1,21 +1,24 @@
 <?php
-#Class for consolidating specified javascript's into a single file
-#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class for consolidating specified javascript's into a single file
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CMSMS\Crypto;
@@ -32,8 +35,7 @@ use function file_put_contents;
  * A class for consolidating specified javascript files and/or strings
  * into a single file.
  *
- * @since 2.9
- * @since 2.3 as ScriptManager
+ * @since 2.99
  * @package CMS
  */
 class ScriptsMerger
@@ -128,7 +130,7 @@ class ScriptsMerger
      *  If the name includes a version, that will be taken into account.
      *  Otherwise, any found version will be used. Min-format preferred over non-min.
      * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
-     * @param mixed  $custompaths since 2.9 Optional string | string[] custom places to search before defaults
+     * @param mixed  $custompaths since 2.99 Optional string | string[] custom places to search before defaults
      * @return bool indicating success
      */
     public function queue_matchedfile(string $filename, int $priority = 0, $custompaths = '') : bool
@@ -211,7 +213,7 @@ class ScriptsMerger
      * page-content.
      * @see also ScriptsMerger::render_scripts()
      *
-     * @since 2.9
+     * @since 2.99
      * @param string $output_path Optional Filesystem absolute path of folder
      *  to hold the styles file. Default '' hence use TMP_CACHE_LOCATION
      * @param bool   $force       Optional flag whether to force re-creation
