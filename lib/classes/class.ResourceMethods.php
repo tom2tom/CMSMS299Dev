@@ -2,6 +2,7 @@
 /*
 Class of not-often-used methods included on-demand by 'light' modules.
 Copyright (C) 2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you may redistribute it and/or modify it
@@ -215,6 +216,11 @@ class ResourceMethods
 		return $tpl;
 	}
 
+	public function HandlesEvents()
+	{
+		return false;
+	}
+
 	public function InitializeAdmin() {}
 	public function InitializeFontend() {}
 
@@ -262,7 +268,7 @@ class ResourceMethods
 			$db = AppSingle::Db();
 			$config = AppSingle::Config();
 			$smarty = AppSingle::Smarty();
-			$uuid = $gCms->GetSiteUUID(); //since 2.9
+			$uuid = $gCms->GetSiteUUID(); //since 2.99
 			try {
 				ob_start();
 				$result = include $this->modpath.DIRECTORY_SEPARATOR.'action.'.$name.'.php';
