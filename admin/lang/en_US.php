@@ -93,6 +93,7 @@ $lang = [
 // C
 'cachecleared' => 'Cache(s) cleared',
 'cachenotwritable' => 'Cache folder is not writeable. Clearing cache will not work. Please make the tmp/cache folder has full read/write/execute permissions (chmod 777).  You might also have to disable safe mode.',
+'callable' => 'Function',
 'cancel' => 'Cancel',
 'cantchmodfiles' => "Couldn't change permissions on some files",
 'cantremove' => 'Cannot remove',
