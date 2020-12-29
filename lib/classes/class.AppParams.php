@@ -1,21 +1,24 @@
 <?php
-#Class for working with (optionally-namespaced) recorded parameters.
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class for working with (optionally-namespaced) recorded parameters.
+Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CMSMS\AppSingle;
@@ -28,7 +31,7 @@ use const CMS_DB_PREFIX;
  *
  * @package CMS
  * @license GPL
- * @since 2.9
+ * @since 2.99
  * @since 1.10 as global-namespace cms_siteprefs
  * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
@@ -96,7 +99,7 @@ final class AppParams
 	 * for getting module-preferences, and for use in async tasks, where the cache
 	 * is N/A.
 	 *
-	 * @since 2.9
+	 * @since 2.99
 	 * @param mixed string (may be empty) | array $key Preference name(s)
 	 * @param mixed scalar | array $dflt Optional default value(s)
 	 * @param bool   $like Optional flag whether to interpret $key as
@@ -152,7 +155,7 @@ final class AppParams
 	 *
 	 * @param string $key The preference name (may be empty)
 	 * @param mixed scalar | array $dflt Optional default value(s)
-	 * @param bool  Since 2.9 $like Optional flag whether to interpret $key as
+	 * @param bool  Since 2.99 $like Optional flag whether to interpret $key as
 	 *  wildcarded. Default false.
 	 * @return string
 	 */

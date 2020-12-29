@@ -2,21 +2,22 @@
 /*
 Singleton class for accessing system state
 Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
-*/
 
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CmsInvalidDataException;
@@ -29,7 +30,7 @@ use RuntimeException;
  * @final
  * @package CMS
  * @license GPL
- * @since 2.3
+ * @since 2.99
  */
 final class AppState
 {
@@ -77,9 +78,9 @@ final class AppState
     ];
 
     /**
-     * Interpretations of pre-2.9 identifiers of various states
+     * Interpretations of pre-2.99 identifiers of various states
      * @ignore
-     * @deprecated since 2.9
+     * @deprecated since 2.99
      */
     private const STATESTRINGS = [
         'admin_request' => self::STATE_ADMIN_PAGE,
@@ -129,7 +130,7 @@ final class AppState
     /**
      * [Un]set a global variable reflecting $flag and $value.
      * Effectively the inverse of _capture_states()
-     * @deprecated since 2.9
+     * @deprecated since 2.99
      * @ignore
      */
     private static function _set_state_var(int $flag, bool $value = true)
@@ -227,7 +228,7 @@ final class AppState
     public static function test_state($state) : bool
     {
         if( is_string($state) ) {
-            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.3
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.99
         }
         if( self::_validate_state_var($state, null) ) {
             self::_capture_states();
@@ -271,7 +272,7 @@ final class AppState
     public static function add_state($state)
     {
         if( is_string($state) ) {
-            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.9
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.99
         }
         if( self::_validate_state_var($state, TRUE) ) {
             self::$_states[$state] = $state;
@@ -290,7 +291,7 @@ final class AppState
     public static function remove_state($state) : bool
     {
         if( is_string($state) ) {
-            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.9
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.99
         }
         if( self::_validate_state_var($state, FALSE) ) {
             self::_capture_states();

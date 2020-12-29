@@ -1,21 +1,24 @@
 <?php
-#Class of methods for processing the pages-tree, and content objects generally
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class of methods for processing the pages-tree, and content objects generally
+Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use cms_content_tree;
@@ -85,7 +88,7 @@ final class ContentOperations
 	 * Get the singleton instance of this class.
 	 * This method is called over a hundred times during a typical request,
 	 * so warrants being a singleton.
-	 * @deprecated since 2.3 instead use CMSMS\AppSingle::ContentOperations()
+	 * @deprecated since 2.99 instead use CMSMS\AppSingle::ContentOperations()
 	 * @return ContentOperations
 	 */
 	public static function get_instance() : self
@@ -98,7 +101,7 @@ final class ContentOperations
 	 * Register a new content type
 	 *
 	 * @since 1.9
-	 * @deprecated since 2.3 instead use ContentTypeOperations::AddContentType()
+	 * @deprecated since 2.99 instead use ContentTypeOperations::AddContentType()
 	 * @param ContentTypePlaceHolder Reference to placeholder object
 	 * @return bool
 	 */
@@ -112,7 +115,7 @@ final class ContentOperations
 	 * Load a specific content type
 	 *
 	 * @since 1.9
-	 * @deprecated since 2.3 instead use ContentTypeOperations::LoadContentType()
+	 * @deprecated since 2.99 instead use ContentTypeOperations::LoadContentType()
 	 * @param mixed $type string type name or ContentType object
 	 * @return mixed ContentType object or null
 	 */
@@ -126,7 +129,7 @@ final class ContentOperations
 	 * Return a hash of known content types.
 	 * Values are respective 'public' names (from the class FriendlyName() method)
 	 * if any, otherwise the raw type-name.
-	 * @deprecated since 2.3 instead use ContentTypeOperations::ListContentTypes()
+	 * @deprecated since 2.99 instead use ContentTypeOperations::ListContentTypes()
 	 *
 	 * @param bool $byclassname optionally return keys as class names instead of type names. Default false.
 	 * @param bool $allowed optionally filter the list of content types by the
@@ -146,7 +149,7 @@ final class ContentOperations
 	 * Return all recorded user id's and group id's in a format suitable
 	 * for use in a select field.
 	 *
-	 * @since 2.9 Migrated from ContentBase::GetAdditionalEditorOptions()
+	 * @since 2.99 Migrated from ContentBase::GetAdditionalEditorOptions()
 	 * @return array each member like id => name
 	 * Note: group id's are expressed as negative integers in the keys.
 	 */
@@ -211,8 +214,8 @@ final class ContentOperations
 	 * a new object of the designated type will be instantiated.
 	 *
 	 * @param mixed $type string type name or an instance of ContentType
-	 * @param array since 2.3 initial object properties (replaces subsequent LoadFromData())
-	 * @param bool since 2.3 optional flag whether to create a ContentEditor-class
+	 * @param array since 2.99 initial object properties (replaces subsequent LoadFromData())
+	 * @param bool since 2.99 optional flag whether to create a ContentEditor-class
 	 * object. Default false (hence a shortform object)
 	 * @return mixed  object derived from ContentBase | null
 	 */
@@ -264,7 +267,7 @@ final class ContentOperations
 //					unset($row['metadata']);
 					$classname = $ctype->class;
 					$contentobj = new $classname($row);
-					 // legacy support deprecated since 2.3
+					 // legacy support deprecated since 2.99
 					if( method_exists( $contentobj,'LoadFromData') ) { $contentobj->LoadFromData($row); }
 					$cache->set($id,$contentobj,'tree_pages');
 				}
@@ -320,7 +323,7 @@ final class ContentOperations
 	 * @param array $hash A hash of some properties of all content objects
 	 * @return mixed array|null
 	 */
-	private function _set_hierarchy_position(int $content_id,array $hash)
+	private function _set_hierarchy_position(int $content_id, array $hash)
 	{
 		$row = $hash[$content_id];
 		$saved_row = $row;
@@ -328,8 +331,8 @@ final class ContentOperations
 		$current_parent_id = $content_id;
 
 		while( $current_parent_id > 0 ) {
-			$item_order = max($row['item_order'],1);
-			$hier = str_pad($item_order, 5, '0', STR_PAD_LEFT) . '.' . $hier;
+			$item_order = max($row['item_order'], 1);
+			$hier = str_pad($item_order, 3, '0', STR_PAD_LEFT) . '.' . $hier; //max 999 since 2.99, was 99999
 			$idhier = $current_parent_id . '.' . $idhier;
 			$pathhier = $row['alias'] . '/' . $pathhier;
 			$current_parent_id = $row['parent_id'];
@@ -721,7 +724,7 @@ final class ContentOperations
 	/**
 	 * Create a hierarchical ordered ajax-populated dropdown of some or all the pages in the system.
 	 *
-	 * @deprecated since 2.3 instead use CMSMS\AdminUtils::CreateHierarchyDropdown()
+	 * @deprecated since 2.99 instead use CMSMS\AdminUtils::CreateHierarchyDropdown()
 	 * @return string
 	 */
 	public function CreateHierarchyDropdown(
@@ -817,7 +820,7 @@ final class ContentOperations
 	{
 		if( ((int)$alias > 0 || (float)$alias > 0.00001) && is_numeric($alias) ) return FALSE;
 		$tmp = munge_string_to_url($alias,TRUE);
-		return $tmp == mb_strtolower($alias);
+		return $tmp == mb_strtolower($alias); // TODO if mb_string N/A
 	}
 
 	/**
@@ -835,8 +838,8 @@ final class ContentOperations
 	}
 
 	/**
-	 * Convert an unfriendly hierarchy (00001.00001.00001) to a
-	 * friendly hierarchy (1.1.1) for use in the database.
+	 * Convert an unfriendly hierarchy (like 001.002.003) to a pageid-based
+	 * (friendly) hierarchy (like 1.2.99).
 	 *
 	 * @param string $position The hierarchy position to convert
 	 * @return string The unfriendly version of the hierarchy string
@@ -854,8 +857,8 @@ final class ContentOperations
 	}
 
 	/**
-	 * Convert a friendly hierarchy (1.1.1) to an unfriendly hierarchy
-	 * (00001.00001.00001) for use in the database.
+	 * Convert a pageid-based (friendly) hierarchy (like 1.2.99) to an unfriendly
+	 * hierarchy (like 001.002.003).
 	 *
 	 * @param string $position The hierarchy position to convert
 	 * @return string The friendly version of the hierarchy string
@@ -866,7 +869,7 @@ final class ContentOperations
 		$levels = explode('.',$position);
 
 		foreach ($levels as $onelevel) {
-			$tmp .= str_pad($onelevel, 5, '0', STR_PAD_LEFT) . '.';
+			$tmp .= str_pad($onelevel, 3, '0', STR_PAD_LEFT) . '.'; //max 999 since 2.99, was 99999
 		}
 		$tmp = rtrim($tmp, '.');
 		return $tmp;
