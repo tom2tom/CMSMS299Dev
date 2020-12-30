@@ -346,6 +346,7 @@ final class UserTagOperations
 					if (in_array('license', $props)) {
 						$val = (string)$xml->license;
 						$res['license'] = ($val) ? cms_specialchars_decode($val, ENT_XML1 | ENT_NOQUOTES) : ''; // AND sanitizeVal(, 0) ? nl2br() ? striptags() ?
+					}
 				}
 				if (in_array('code', $props)) {
 					$ps = strpos($cont, '*/', $pe);
