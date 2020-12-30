@@ -1,19 +1,23 @@
 <?php
-#Define session constants
-#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Define system constants
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppConfig;
 
@@ -46,7 +50,7 @@ define('CMS_DEBUG',$config['debug']);
 
 /**
  * Whether to throw upon use of deprecated stuff.
- * @since 2.9
+ * @since 2.99
  */
 define('CMS_DEPREC',CMS_DEBUG && $config['deprecations']);
 
@@ -66,16 +70,22 @@ define('CMS_ADMIN_PATH',$config['root_path'].DIRECTORY_SEPARATOR.$config['admin_
 define('CMS_ASSETS_PATH',$config['assets_path']);
 
 /**
- * Where simple-plugin files are stored.
- * @since 2.9
+ * Where user-plugin files are stored.
+ * @since 2.99
  */
-define('CMS_FILETAGS_PATH',$config['simpletags_path']);
+define('CMS_FILETAGS_PATH',$config['usertags_path']);
 
 /**
- * The 'top' directory where javascript files are stored
- * @since 2.9
+ * The 'top' directory where javascript files are stored.
+ * @since 2.99
  */
 define('CMS_SCRIPTS_PATH',$config['root_path'].DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'js');
+
+/**
+ * Where theme data files are stored.
+ * @since 2.99
+ */
+define('CMS_THEMES_PATH',$config['assets_path'].DIRECTORY_SEPARATOR.'themes');
 
 /**
  * The site root URL.
@@ -84,15 +94,21 @@ define('CMS_ROOT_URL',$config['root_url']);
 
 /**
  * The site assets URL.
- * @since 2.9
+ * @since 2.99
  */
 define('CMS_ASSETS_URL',$config['assets_url']);
 
 /**
- * The 'top' URL where javascript files are stored
- * @since 2.9
+ * The 'top' URL where javascript files are stored.
+ * @since 2.99
  */
 define('CMS_SCRIPTS_URL',$config['root_url'].'/lib/js');
+
+/**
+ * The 'top' URL where theme data files are stored.
+ * @since 2.99
+ */
+define('CMS_THEMES_URL',$config['assets_url'].'/themes');
 
 /**
  * The site uploads URL.
@@ -105,7 +121,7 @@ define('CMS_UPLOADS_URL',$config['uploads_url']);
 define('CMS_DB_PREFIX',$config['db_prefix']);
 
 if( CMS_DEBUG ) {
-    //for async DEBUG since 2.9
+    //for async DEBUG since 2.99
     define('ASYNCLOG', TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'debug.log');
 }
 
@@ -120,4 +136,4 @@ const CMS_USER_KEY = '_userkey_';
 const CMS_PREVIEW = '__cms_preview__';
 const CMS_PREVIEW_TYPE = '__cms_preview_type__';
 const CMS_PREVIEW_PAGEID = -100;
-const __CMS_PREVIEW_PAGE__ = -100; //deprecated since 2.3
+const __CMS_PREVIEW_PAGE__ = -100; //deprecated since 2.99
