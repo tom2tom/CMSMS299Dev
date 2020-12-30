@@ -91,7 +91,7 @@ class wizard_step8 extends wizard_step
             $admin = ( !empty($app_config['admin_path']) && $app_config['admin_path'] != 'admin' ) ? $app_config['admin_path'] : '';
             //TODO ensure absolute paths e.g. prepend destdir if needed
             $assets = ( !empty($app_config['assets_path']) && $app_config['assets_path'] != 'assets' ) ? $app_config['assets_path'] : '';
-            $tags = ( !empty($app_config['simpletags_path']) && $app_config['simpletags_path'] != 'assets/simple_plugins' ) ? $app_config['simpletags_path'] : '';  //TODO any separator and/or just 'simple_plugins'
+            $tags = ( !empty($app_config['usertags_path']) && $app_config['usertags_path'] != 'assets/user_plugins' ) ? $app_config['usertags_path'] : '';  //TODO any separator and/or just 'user_plugins'
             $host = trim($destconfig['db_hostname']);
             $name = trim($destconfig['db_name']);
             if( empty($destconfig['db_port']) ) {
@@ -124,7 +124,7 @@ class wizard_step8 extends wizard_step
 'db_username' => "$user",
 'db_password' => "$pass",
 'db_prefix' => "$pref",
-'simpletags_path' => "$tags",
+'usertags_path' => "$tags",
 'timezone' => "$zone",
 'set_db_timezone' => $set,
 'set_names' => true,
@@ -269,7 +269,7 @@ EOS
             $admin = ( !empty($app_config['admin_path']) && $app_config['admin_path'] != 'admin' ) ? $app_config['admin_path'] : '';
             //TODO ensure site-root-relative path (no leading separator) for these
             $assets = ( !empty($app_config['assets_path']) && $app_config['assets_path'] != 'assets' ) ? $app_config['assets_path'] : '';
-            $tags = ( !empty($app_config['simpletags_path']) && $app_config['simpletags_path'] != 'assets/simple_plugins' ) ? $app_config['simpletags_path'] : ''; //TODO any separator and/or just 'simple_plugins'
+            $tags = ( !empty($app_config['usertags_path']) && $app_config['usertags_path'] != 'assets/user_plugins' ) ? $app_config['usertags_path'] : ''; //TODO any separator and/or just 'user_plugins'
         }
         else {
             $admin = null; // filter it out
@@ -309,7 +309,7 @@ EOS
             'db_password' => "$pass",
             'db_prefix' => "$pref",
             'query_var' => "$qvar",
-            'simpletags_path' => "$tags",
+            'usertags_path' => "$tags",
             'timezone' => "$zone",
             'set_db_timezone' => $set,
             'set_names' => true,

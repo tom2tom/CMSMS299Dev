@@ -112,7 +112,7 @@
   <h3{if !$verbose} class="disabled"{/if}>{'prompt_plugspath'|tr}</h3>
   {if $verbose}<p>{'info_plugspath'|tr}</p>{/if}
   <div class="row">
-    <input class="form-field half-width{if !$verbose} disabled{/if}" type="text" id="simplep" name="simpleplugins_path" value="{$config.simple_plugins_path}"{if !$verbose} disabled="disabled"{/if} />
+    <input class="form-field half-width{if !$verbose} disabled{/if}" type="text" id="udtp" name="userplugins_path" value="{$config.user_plugins_path}"{if !$verbose} disabled="disabled"{/if} />
   </div>
 
   <div id="bottom_nav">

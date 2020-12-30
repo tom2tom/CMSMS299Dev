@@ -48,10 +48,10 @@ class wizard_step2 extends wizard_step
             $str = trim($config['assets_path'], ' \\/');
             $app->set_config_val('assets_path', strtr($str, '\\', '/'));
         }
-        if( !empty($config['simpletags_path']) ) {
-            $str = strtr(trim($config['simpletags_path'], ' \\/'), '\\', '/');
-            if( !($str == 'simple_plugins' || $str == 'assets/simple_plugins') ) {
-                $app->set_config_val('simpletags_path', $str);
+        if( !empty($config['usertags_path']) ) {
+            $str = strtr(trim($config['usertags_path'], ' \\/'), '\\', '/');
+            if( !($str == 'user_plugins' || $str == 'assets/user_plugins') ) {
+                $app->set_config_val('usertags_path', $str);
             }
         }
 

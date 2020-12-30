@@ -3642,17 +3642,17 @@ Usage: {custom_copyright [start=&#39;YYYY&#39;]}]]></description>
 		<file>
 			<name>web.config</name>
 			<relto></relto>
-			<relfrom>simple_plugins</relfrom>
+			<relfrom>user_plugins</relfrom>
 		</file>
 		<file>
 			<name>file_custom_copyright.phphp</name>
 			<relto></relto>
-			<relfrom>simple_plugins</relfrom>
+			<relfrom>user_plugins</relfrom>
 		</file>
 		<file>
 			<name>file_user_agent.phphp</name>
 			<relto></relto>
-			<relfrom>simple_plugins</relfrom>
+			<relfrom>user_plugins</relfrom>
 		</file>
 	</simpletagfiles>
 	<templatefiles>

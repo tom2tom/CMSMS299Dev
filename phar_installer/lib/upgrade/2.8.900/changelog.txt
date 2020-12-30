@@ -1,12 +1,12 @@
 Move core modules to /lib/modules
 Move ex-core modules to /assets/modules
 Create new folders, if necessary
-Convert UDT's to simple plugins, widen users-table columns
+Convert UDT's to user-plugin files, widen users-table columns
 Update callbacks for page and generic layout template types
 Drop redundant sequence-tables 'content_props', 'userplugins'
 Add table for associating templates with multiple categories
 Migrate module-templates table content to layout-templates table
-Add extra permissions 'Modify Simple Plugins', 'Modify Site Code', 'Remote Administration'
+Add extra permissions 'Modify User Plugins', 'Modify Site Code', 'Remote Administration'
 Add user-group CodeManager
 Remove reference from plugins-argument where necessary
 Update preferences
