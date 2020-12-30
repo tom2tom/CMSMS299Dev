@@ -3,6 +3,7 @@
 Redirection-related functions for modules
 Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify it

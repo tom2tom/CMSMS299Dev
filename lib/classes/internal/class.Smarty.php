@@ -1,21 +1,24 @@
 <?php
-#Class to tailor Smarty for CMSMS.
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class to tailor Smarty for CMSMS.
+Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple. 
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS\internal;
 
 //use CMSMS\internal\cache_resource;
@@ -28,12 +31,13 @@ use CMSMS\internal\layout_stylesheet_resource;
 use CMSMS\internal\layout_template_resource;
 use CMSMS\internal\module_db_template_resource;
 use CMSMS\internal\module_file_template_resource;
-//use CMSMS\internal\cmstheme_resource;
-use CMSMS\SimpleTagOperations;
+//use CMSMS\internal\theme_resource;
+use CMSMS\UserTagOperations;
 use Exception;
 use LogicException;
 use Smarty_Internal_Template;
-use SmartyBC as SmartyParent; //or Smarty in future
+use SmartyBC as SmartyParent; //deprecated since 2.99
+//use Smarty as SmartyParent; //in future
 use const CMS_ADMIN_PATH;
 use const CMS_ASSETS_PATH;
 use const CMS_DEBUG;
@@ -57,7 +61,7 @@ require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'vendor', 'smarty', 'smarty', '
 
 /**
  * Class to tailor Smarty for CMSMS use.
- * This retains support for the Smarty2 API, but that's deprecated since 2.9
+ * This retains support for the Smarty2 API, but that's deprecated since 2.99
  *
  * @package CMS
  * @since 0.1
@@ -109,24 +113,27 @@ smarty cache lifetime != global cache ttl, probably
              ->setCacheDir(TMP_CACHE_LOCATION)
              ->addConfigDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'configs');
 
-        // common resources
-        $this->registerResource('module_db_tpl',new module_db_template_resource())
-             ->registerResource('module_file_tpl',new module_file_template_resource())
+        // common resources are now in resource.* files in the main plugins folder
+//        $this->registerResource('module_db_tpl',new module_db_template_resource())
+//             ->registerResource('module_file_tpl',new module_file_template_resource())
 //merged processing ->registerResource('cms_file',new file_template_resource())
-             ->registerResource('cms_template',new layout_template_resource())
-             ->registerResource('cms_stylesheet',new layout_stylesheet_resource()) //maybe some plugin would like to use this ??
-//           ->registerResource('cms_theme', new cmstheme_resource())
-//           ->setDefaultResourceType('cms_file') MEH... edge-case, only when explicit
+//             ->registerResource('cms_template',new layout_template_resource())
+//             ->registerResource('cms_stylesheet',new layout_stylesheet_resource()) //maybe some plugin would like to use this ??
+//             ->registerResource('theme', new theme_resource())
+//             ->setDefaultResourceType('cms_file') MEH... edge-case, only when explicit
 
-             ->addPluginsDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins') //plugin-assets prevail
+        $this->addPluginsDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins') //plugin-assets prevail
              ->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'plugins')
              ->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'plugins') // deprecated
 
              ->setTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates') //template-assets prevail
-             ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates'); // internal, never renamed
+             ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates') // internal, never renamed
+             ->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles');
+//TODO when/where appropriate
+//             ->addTemplateDir(CMS_THEMES_PATH.DIRECTORY_SEPARATOR.TODOcurrenttheme.DIRECTORY_SEPARATOR.'templates')
+//             ->addTemplateDir(CMS_THEMES_PATH.DIRECTORY_SEPARATOR.TODOcurrenttheme.DIRECTORY_SEPARATOR.'styles');
 
-        $_gCms = AppSingle::App();
-        if( $_gCms->is_frontend_request() ) {
+        if( AppSingle::App()->is_frontend_request() ) {
             // just for frontend actions
             // Check if we are at install page, don't register anything if so, as nothing below is needed.
             if( AppState::test_state(AppState::STATE_INSTALL) ) return;
@@ -163,8 +170,8 @@ smarty cache lifetime != global cache ttl, probably
             }
 
             // Load resources
-            $this->registerResource('content',new content_resource())
-                 ->setDefaultResourceType('content');
+//            $this->registerResource('content',new content_resource())
+            $this->setDefaultResourceType('content');
             $this->registerPlugin('compiler','content','CMSMS\\internal\\content_plugins::compile_fecontentblock',false) //CHECKME any point in Smarty caching for this
                  ->registerPlugin('function','content_image','CMSMS\\internal\\content_plugins::fetch_imageblock',true)
                  ->registerPlugin('function','content_module','CMSMS\\internal\\content_plugins::fetch_moduleblock',true)
@@ -199,7 +206,10 @@ smarty cache lifetime != global cache ttl, probably
             $this->setConfigDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'configs')
                  ->addPluginsDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'plugins')
                  ->addTemplateDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'templates')
-                 ->setCaching(SmartyParent::CACHING_OFF); //($v) TODO make admin caching work
+//               ->setDefaultResourceType('TODO')
+                 ->setCaching(SmartyParent::CACHING_OFF); //($v) TODO enable admin caching with in-context disabling
+//c.f. frontend   ->enableSecurity('CMSMS\\internal\\smarty_security_policy');
+
             // Force re-compile after template change
             //Events::AddDynamicHandler('Core','EditTemplatePost',$TODOcallback);
             //Events::AddDynamicHandler('Core','AddTemplatePost',$TODOcallback);
@@ -303,7 +313,7 @@ smarty cache lifetime != global cache ttl, probably
             return false;
         }
 
-        //Deprecated pre-2.9 approach - non-system plugins were never cachable
+        //Deprecated pre-2.99 approach - non-system plugins were never cachable
         //In future, allow caching and expect users to override that in templates where needed
         //Otherwise, module-plugin cachability is opaque to page-builders
         if( AppSingle::App()->is_frontend_request() ) {
@@ -322,11 +332,11 @@ smarty cache lifetime != global cache ttl, probably
                 return true;
             }
 
-            // check if it's a simple-plugin
-            $callback = SimpleTagOperations::get_instance()->CreateTagFunction($name);
+            // check if it's a user-plugin
+            $callback = UserTagOperations::get_instance()->CreateTagFunction($name);
             if( $callback ) {
 //                if (0) {
-                    $val = AppParams::get('smarty_cachesimples', false);
+                    $val = AppParams::get('smarty_cacheusertags', false);
                     $cachable = (bool)$val;
 //                }
                 return true;
@@ -337,12 +347,12 @@ smarty cache lifetime != global cache ttl, probably
     }
 
     /**
-     * Report whether a smarty plugin (actual, not module- or simple-plugin)
+     * Report whether a smarty plugin (regular, not module- or user-)
      * having the specified name exists.
-     * @since 2.9
+     * @since 2.99
      *
      * @param string the plugin identifier
-     * @param string Optional plugin-type, default 'function'
+     * @param string Optional plugin-type, default 'function' TODO support '*'/'any'
      * @return bool
      */
     public function is_plugin(string $name, string $type = 'function') : bool
@@ -398,7 +408,7 @@ smarty cache lifetime != global cache ttl, probably
     public function createTemplate($template, $cache_id = null, $compile_id = null, $parent = null, $do_clone = true)
     {
         foreach( ['eval:','string:','cms_file:','extends:'] as $type ) {
-            if( startswith($template,$type) ) {
+            if( startswith($template, $type) ) {
                 return parent::createTemplate($template, $cache_id, $compile_id, $parent, $do_clone);
             }
         }
