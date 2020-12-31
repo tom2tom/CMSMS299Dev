@@ -20,14 +20,13 @@
 #The basic idea and values was taken from then Horde Framework (http://horde.org)
 #The original filename was horde/config/nls.php.
 #The modifications to fit it for Gallery were made by Jens Tkotz
-#(http://gallery.meanalto.com) 
+#(http://gallery.meanalto.com)
 
 #Ideas from Gallery's implementation made to CMS by Ted Kulp
 
 #Afrikaans
 #Created by: Theuns Cloete < theunis [at] kompas [dot] co [dot] za >
 #Maintained by: Theuns Cloete < theunis [at] kompas [dot] co [dot] za >
-
 
 #Native language name
 $nls['language']['af_ZA'] = 'Afrikaans';
@@ -52,7 +51,5 @@ $nls['file']['af_ZA'] = array(__DIR__.'/af_ZA/admin.inc.php');
 # Only change this when translations exist in HTMLarea and plugin dirs
 # (please send language files to HTMLarea development)
 $nls['htmlarea']['af_ZA'] = 'en';
-
-
 
 ?>
