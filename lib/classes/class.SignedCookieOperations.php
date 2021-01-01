@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -57,7 +57,7 @@ final class SignedCookieOperations implements CookieManager
     {
         $this->_parts = parse_url(CMS_ROOT_URL);
         if (!isset($this->_parts['host']) || $this->_parts['host'] == '') {
-            self::$parts['host'] = CMS_ROOT_URL;
+            $this->_parts['host'] = CMS_ROOT_URL;
         }
         if (!isset($this->_parts['path']) || $this->_parts['path'] == '') {
             $this->_parts['path'] = '/';
