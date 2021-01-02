@@ -1,4 +1,21 @@
 <?php
+/*
+Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
@@ -7,8 +24,9 @@ use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\Permission;
 use CMSMS\User;
-use CMSMS\UserParams;
 use CMSMS\UserOperations;
+use CMSMS\UserParams;
+use function cms_installer\get_server_permissions;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
 
@@ -18,24 +36,26 @@ use function cms_installer\lang;
 // create tmp directories
 //
 verbose_msg(lang('install_createtmpdirs'));
+$modes = get_server_permissions();
+$dirmode = $modes[3]; // folder read + write + access
 $fp = constant('TMP_CACHE_LOCATION');
 if (!$fp) $fp = joinpath($destdir,'tmp','cache');
-@mkdir($fp,0771,true);
+@mkdir($fp,$dirmode,true);
 touch($fp.DIRECTORY_SEPARATOR.'index.html');
 $fp = constant('PUBLIC_CACHE_LOCATION');
 if (!$fp) $fp = joinpath($destdir,'tmp','cache','public');
-@mkdir($fp,0771,true);
+@mkdir($fp,$dirmode,true);
 touch($fp.DIRECTORY_SEPARATOR.'index.html');
 $fp = constant('TMP_TEMPLATES_C_LOCATION');
 if (!$fp) $fp = joinpath ($destdir,'tmp','templates_c');
-@mkdir($fp,0771,true);
+@mkdir($fp,$dirmode,true);
 touch($fp.DIRECTORY_SEPARATOR.'index.html');
 
-function create_private_dir(string $basedir, string $reldir)
+function create_private_dir(string $basedir, string $reldir, int $mode)
 {
 	$fp = $basedir.DIRECTORY_SEPARATOR.$reldir;
 	if (!is_dir($fp)) {
-		@mkdir($fp, 0771, true);
+		@mkdir($fp, $mode, true);
 	} // else clear it!
 	@touch($fp.DIRECTORY_SEPARATOR.'index.html');
 }
@@ -47,18 +67,19 @@ $config = $app->get_config(); //more-or-less same as $siteinfo[]
 verbose_msg(lang('install_createassets'));
 $name = $config['assetsdir'] ?? 'assets';
 $bp = $destdir.DIRECTORY_SEPARATOR.$name;
-create_private_dir($bp,'admin_custom');
-create_private_dir($bp,'configs');
-create_private_dir($bp,'images');
-create_private_dir($bp,'module_custom');
-create_private_dir($bp,'modules'); // for non-core modules during installation at least
-create_private_dir($bp,'plugins');
+//TODO suitable mode e.g. read-only for these dirs
+create_private_dir($bp,'admin_custom',$dirmode);
+create_private_dir($bp,'configs',$dirmode);
+create_private_dir($bp,'images',$dirmode);
+create_private_dir($bp,'module_custom',$dirmode);
+create_private_dir($bp,'modules',$dirmode); // for non-core modules during installation at least
+create_private_dir($bp,'plugins',$dirmode);
 //create_private_dir($bp,'resources');
 $name = $config['pluginsdir'] ?? 'user_plugins';
-create_private_dir($bp,$name); //UDTfiles
-create_private_dir($bp,'styles');
-create_private_dir($bp,'templates');
-create_private_dir($bp,'themes');
+create_private_dir($bp,$name,$dirmode); //UDTfiles
+create_private_dir($bp,'styles',$dirmode);
+create_private_dir($bp,'templates',$dirmode);
+create_private_dir($bp,'themes',$dirmode);
 
 foreach ([
 	$destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules',
@@ -78,6 +99,10 @@ verbose_msg(lang('install_initsiteprefs'));
 $cachtype = $wiz->get_data('cachemode');
 $corenames = $config['coremodules'];
 $cores = implode(',', $corenames);
+$global_umask = substr(decoct(~$dirmode), 0, 3);  // read + write + access/exec for files or dirs
+if ($global_umask[0] !== '0') {
+	$global_umask = '0'.$global_umask;
+}
 $theme = reset(AdminTheme::GetAvailableThemes());
 $schema = $app->get_dest_schema();
 $helpurl = (!empty($siteinfo['supporturl'])) ? $siteinfo['supporturl'] : '';
@@ -101,9 +126,9 @@ foreach ([
 	'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
 	'current_theme' => '', // frontend theme name
 	'defaultdateformat' => '%e %B %Y',
-	'enablesitedownmessage' => 0, //deprecated since 2.9 use site_downnow
+	'enablesitedownmessage' => 0, //deprecated since 2.99 use site_downnow
 	'frontendlang' => 'en_US',
-	'global_umask' => '022',
+	'global_umask' => $global_umask,
 	'lock_refresh' => 120,
 	'lock_timeout' => 60,
 	'loginmodule' => '', // login UI defined by current theme
@@ -129,7 +154,7 @@ foreach ([
 	'thumbnail_height' => 96,
 	'thumbnail_width' => 96,
 	'ultraroles' => $ultras,
-	'use_smartycompilecheck' => 1, //deprecated since 2.9 use smarty_compilecheck
+	'use_smartycompilecheck' => 1, //deprecated since 2.99 use smarty_compilecheck
 ] as $name => $val) {
 	AppParams::set($name, $val);
 }
@@ -143,7 +168,7 @@ while (($p = strpos($s, '\0', $p+1)) !== false) {
 }
 $fp = $bp.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'siteuuid.dat';
 file_put_contents($fp, $s);
-chmod($fp, 0400); //TODO to suit current|server process c.f. config.php
+chmod($fp, $modes[0]); // read-only
 
 status_msg(lang('install_requireddata'));
 
