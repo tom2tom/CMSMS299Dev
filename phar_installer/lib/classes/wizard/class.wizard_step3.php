@@ -92,7 +92,7 @@ class wizard_step3 extends wizard_step
         $obj->required = 1;
         $tests[] = $obj;
 
-        // required test ... mysqli extension
+        // required test ... mysqli extension (mysqli version-check in step 4, after connection)
         $obj = new boolean_test('database_support',extension_loaded('mysqli'));
         $obj->required = 1;
         $obj->fail_key = 'fail_database_support';
