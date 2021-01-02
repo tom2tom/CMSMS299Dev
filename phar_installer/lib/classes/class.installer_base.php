@@ -3,22 +3,25 @@
 namespace cms_installer;
 
 //use splitbrain\PHPArchive\Tar;
+//use PharData;
 use cms_installer\request;
 use Exception;
 use FilesystemIterator;
 use FilterIterator;
 use Iterator;
 use Phar;
-//use PharData;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use Smarty_Autoloader;
 use function cms_installer\endswith;
+use function cms_installer\get_server_permissions;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\rrmdir;
 use function file_put_contents;
+use function random_bytes;
+use function random_int;
 
 class FilePatternFilter extends FilterIterator
 {
@@ -42,7 +45,7 @@ abstract class installer_base
     const CONFIG_ROOT_URL = 'root_url';
     const CONTENTXML = ['lib','assets','democontent.xml']; //path segments rel to top phardir
     const UPLOADFILESDIR = ['uploadfiles']; //ditto (interim, contents will be migrated by installer from there to .../data/uploads
-    const CUSTOMFILESDIR = ['workfiles']; //ditto, for non-db-stored templates, stylesheets, simple-plugins etc (interim, contents will be migrated by installer from there to relevant place in sources tree
+    const CUSTOMFILESDIR = ['workfiles']; //ditto, for non-db-stored templates, stylesheets, user-plugins etc (interim, contents will be migrated by installer from there to relevant place in sources tree
 
     /**
      * @var string property which can be checked externally (notably in
@@ -293,7 +296,8 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         }
         else {
             $fp = get_sys_tmpdir().DIRECTORY_SEPARATOR.chr(random_int(97,122)).bin2hex(random_bytes(10));
-            if (mkdir($fp, 0770, true)) {
+            $dirmode = get_server_permissions()[3]; // read+write
+            if (mkdir($fp, $dirmode, true)) {
                 $this->_custom_tmpdir = $fp;
                 $config['tmpdir'] = $fp;
             }
@@ -427,7 +431,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
                 $config[$key] = $val;
                 break;
             default:
-//            cases 'admin_path': 'assets_path': 'simpletags_path':
+//            cases 'admin_path': 'assets_path': 'usertags_path':
 //            case 'extramodules':
 //            case 'debug':
 //            case 'nofiles':
