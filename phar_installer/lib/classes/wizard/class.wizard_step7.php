@@ -33,9 +33,15 @@ class wizard_step7 extends wizard_step
     {
         $this->message(lang('install_detectlanguages'));
         $destdir = get_app()->get_destdir();
+        /*
+         To constrain the languages to language-codes per ISO 639-1, 639-2, 639-3
+         and country codes per ISO ISO 3166-1, 3166-2, 3166-3
+         (tho' the latter 2 are unlikely to be found here),
+         regex pattern = '/^[a-z]{2,}_[0-9A-Z]{2,4}\.nls\.php$/'
+        */
         $pattern = joinpath($destdir, 'lib', 'nls', '*nls.php');
 
-        $files = glob($pattern);
+        $files = glob($pattern); //CHECKME glob OK inside running phar ??
         if( !$files ) throw new Exception(lang('error_internal',700));
 
         foreach( $files as &$one ) {
@@ -153,11 +159,11 @@ class wizard_step7 extends wizard_step
             $to[] = '/'.$aname;
             $lens[] = strlen($s);
         }
-        if( !empty($app_config['simpletags_path']) ) {
-            $aname = $app_config['simpletags_path'];
+        if( !empty($app_config['usertags_path']) ) {
+            $aname = $app_config['usertags_path'];
             $aname = strtr(trim($aname, ' \\/'), '\\', '/');
-            if( !($aname == 'simple_plugins' || $aname == 'assets/simple_plugins') ) {
-                $s = '/assets/simple_plugins';
+            if( !($aname == 'user_plugins' || $aname == 'assets/user_plugins') ) {
+                $s = '/assets/user_plugins';
                 $from[] = $s;
                 $to[] = '/'.$aname;
                 $lens[] = strlen($s);
