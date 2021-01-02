@@ -1,25 +1,26 @@
 <?php
-#admin functions: site-content export/import
-#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Admin functions: site-content export/import
+Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace cms_installer;
 
 use CmsDataNotFoundException;
 use CmsInvalidDataException;
-use CMSMS\AppConfig;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
@@ -44,6 +45,7 @@ use const CMS_DB_PREFIX;
 use const CMS_FILETAGS_PATH;
 use const CMS_ROOT_PATH;
 use function check_permission;
+use function cms_installer\get_server_permissions;
 use function cms_installer\lang;
 use function file_put_contents;
 use function get_userid;
@@ -174,8 +176,9 @@ function fill_filessection(XMLWriter $xw, string $section, string $frombase, str
 			if ($copyfiles) {
 				$tp = $tobase.DIRECTORY_SEPARATOR.$tail;
 				$dir = dirname($tp);
-				@mkdir($dir, 0770, true);
+				@mkdir($dir, 0777, true); // generic perms: relevant server-permissions applied during install
 				if (@copy($p, $tp)) {
+					chmod($tp, 0666); // ditto
 					++$copied;
 				}
 			} else {
@@ -278,7 +281,7 @@ function file_relpath(string $toroot, string $tobase) : string
 
 /**
  * Export site content (pages, templates, designs, styles etc) to XML file.
- * Support files (in the uploads folder) and simple-plugin files, template files
+ * Support files (in the uploads folder) and user-plugin files, template files
  * and stylesheet files (in their respective assets (however named) sub-folders)
  * are recorded as such, and will be copied into the specified $uploadspath if
  * it exists. Otherwise, that remains a manual task.
@@ -296,9 +299,9 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 	mostly, table- and field-names must be manually reconciled with database schema
 	optional sub-key parameters:
 	 isdata >> process field value via htmlspecialchars($val,
-      ENT_XML1 | ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') to prevent parser confusion
+	  ENT_XML1 | ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') to prevent parser confusion
 	 optional >> ignore/omit a field whose value is falsy i.e. optional item in the dtd
-     keeps >> array of field-value(s) which will be included (subject to optional)
+	 keeps >> array of field-value(s) which will be included (subject to optional)
 */
 	$corename = TemplateType::CORE;
 
@@ -455,8 +458,8 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
        ]
       ]
      ],
-     'simpletags' => [
-      'table' => 'simpleplugins',
+     'usertags' => [
+      'table' => 'userplugins',
       'subtypes' => [
         'tag' => [
         'name' => [],
@@ -549,11 +552,11 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
- <!ELEMENT simpletags (tag*)>
+ <!ELEMENT usertags (tag*)>
  <!ELEMENT tag (name,description?,parameters?,code)>
  <!ELEMENT parameters (#PCDATA)>
  <!ELEMENT code (#PCDATA)>
- <!ELEMENT simpletagfiles (file*)>
+ <!ELEMENT usertagfiles (file*)>
  <!ELEMENT file (name,relto,(relfrom|embedded),content?)>
  <!ELEMENT relto (#PCDATA)>
  <!ELEMENT relfrom (#PCDATA)>
@@ -582,10 +585,10 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 			$tobase = $uploadspath;
 			$install_relative = file_relpath($uploadspath, $tobase); //stored in intaller-top-sub-folder
 		} else {
-			$copyfiles = @mkdir($uploadspath, 0770, true);
+			$copyfiles = @mkdir($uploadspath, 0777, true); // generic perms pending actual server value
 			$tobase = ($copyfiles) ? $uploadspath : '';
 			$install_relative = ($tobase) ? file_relpath($uploadspath, $tobase) : '';
-	 	}
+		}
 		$copycount = fill_filessection($xw, 'uploadfiles', $frombase, $tobase, $install_relative);
 		if ($copyfiles && $copycount == 0) {
 			//nothing here, maybe subfolders needed later
@@ -596,17 +599,17 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 	if ($copyfiles) {
 		recursive_delete($workerspath, false); //clear it
 	} else {
-		$copyfiles = @mkdir($workerspath, 0770, true);
- 	}
-	$frombase =	CMS_FILETAGS_PATH;
+		$copyfiles = @mkdir($workerspath, 0777, true);
+	}
+	$frombase = CMS_FILETAGS_PATH;
 	if (is_dir($frombase)) {
 		//TODO ensure any such files are omitted from the sources-only archive
 		if ($copyfiles) {
-			$tobase = $workerspath.DIRECTORY_SEPARATOR.'simple_plugins'; // 'definite' basename for importing
+			$tobase = $workerspath.DIRECTORY_SEPARATOR.'user_plugins'; // 'definite' basename for importing
 			if (is_dir($tobase)) {
 //done before recursive_delete($tobase, false);
 				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
-			} elseif (@mkdir($tobase, 0770, true)) {
+			} elseif (@mkdir($tobase, 0777, true)) {
 				$install_relative = file_relpath($workerspath, $tobase);
 			} else {
 				$install_relative = '';
@@ -615,7 +618,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 			$tobase = '';
 			$install_relative = '';
 		}
-		$copycount = fill_filessection($xw, 'simpletagfiles', $frombase, $tobase, $install_relative);
+		$copycount = fill_filessection($xw, 'usertagfiles', $frombase, $tobase, $install_relative);
 		if ($copyfiles && $copycount == 0) {
 			@rmdir($tobase);
 		}
@@ -629,7 +632,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 			if (is_dir($tobase)) {
 //done before recursive_delete($tobase, false);
 				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
-			} elseif (@mkdir($tobase, 0770, true)) {
+			} elseif (@mkdir($tobase, 0777, true)) {
 				$install_relative = file_relpath($workerspath, $tobase);
 			} else {
 				$install_relative = '';
@@ -644,15 +647,15 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 		}
 	}
 
-	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'css';
+	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles';
 	if (is_dir($frombase)) {
 		//TODO ensure any such files are omitted from the sources tarball
 		if ($copyfiles) {
-			$tobase = $workerspath.DIRECTORY_SEPARATOR.'css';
+			$tobase = $workerspath.DIRECTORY_SEPARATOR.'styles';
 			if (is_dir($tobase)) {
 //done before recursive_delete($tobase, false);
 				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
-			} elseif (@mkdir($tobase, 0770, true)) {
+			} elseif (@mkdir($tobase, 0777, true)) {
 				$install_relative = file_relpath($workerspath, $tobase);
 			} else {
 				$install_relative = '';
@@ -678,7 +681,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
  * @param string $uploadspath Optional 'non-default' filesystem path of
  *  folder containing 'uploaded' files e.g. images, iconfonts.
  * @param string $workerspath Optional 'non-default' filesystem path of
- *  folder containing non-db-stored operation files e.g. templates, css, simple-plugins
+ *  folder containing non-db-stored operation files e.g. templates, css, user-plugins
  * @return string status/error message or ''
  */
 function import_content(string $xmlfile, string $uploadspath = '', string $workerspath = '') : string
@@ -701,6 +704,10 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 	if (!$valid) {
 		return ''; //silent exit
 	}
+
+	$modes = get_server_permissions();
+	$filemode = $modes[1]; // read + write
+	$dirmode = $modes[3]; // read + write + access
 
 	libxml_use_internal_errors(true);
 	$xml = simplexml_load_file($xmlfile, 'SimpleXMLElement', LIBXML_NOCDATA);
@@ -1104,7 +1111,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						} else {
 							$from = (string)$node->relfrom;
 							if ($from) {
- 								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
+								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
 									if ($frombase) {
 										$from = $frombase.$from;
 									} else {
@@ -1121,11 +1128,13 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							}
 							$dir = dirname($to.$name); //$to sans trailing separator
 							if (!is_dir($dir)) {
-								@mkdir($dir, 0770, true);
+								@mkdir($dir, $dirmode, true);
 								@touch($to.DIRECTORY_SEPARATOR.'index.html');
+								@chmod($to.DIRECTORY_SEPARATOR.'index.html', $filemode);
 							}
 							// intentional fail if path(s) bad
 							@copy($from.$name, $to.$name);
+							@chmod($to.$name, $filemode);
 						}
 					}
 					$iter = new RecursiveIteratorIterator(
@@ -1136,15 +1145,16 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 					foreach ($iter as $to) {
 						if (is_dir($to)) {
 							@touch($to.DIRECTORY_SEPARATOR.'index.html');
+							@chmod($to.DIRECTORY_SEPARATOR.'index.html', $filemode);
 						}
 					}
 					break;
-				case 'simpletags':
+				case 'usertags':
 					if ($runtime) {
-						verbose_msg(lang('install_simpletags'));
+						verbose_msg(lang('install_usertags'));
 					}
 					$db = AppSingle::Db();
-					$query = 'INSERT INTO '.CMS_DB_PREFIX.'simpleplugins (
+					$query = 'INSERT INTO '.CMS_DB_PREFIX.'userplugins (
 name,
 code,
 description,
@@ -1163,7 +1173,7 @@ parameters) VALUES (?,?,?,?)';
 						}
 					}
 					break;
-				case 'simpletagfiles': //UDTfiles
+				case 'usertagfiles': //UDTfiles
 					$tobase = CMS_FILETAGS_PATH.DIRECTORY_SEPARATOR;
 /*					if (isset($typenode['installrel'])) {
 						$rel = (string)$typenode->installrel;
@@ -1176,7 +1186,7 @@ parameters) VALUES (?,?,?,?)';
 */
 					if ($workerspath) {
 						//TODO validity check e.g. somewhere absolute in installer tree
-						$frombase = $workerspath.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR;
+						$frombase = $workerspath.DIRECTORY_SEPARATOR.'user_plugins'.DIRECTORY_SEPARATOR;
 					} else {
 						$frombase = '';
 					}
@@ -1191,10 +1201,11 @@ parameters) VALUES (?,?,?,?)';
 						$name = (string)$node->name;
 						if ((bool)$node->embedded) {
 							@file_put_contents($to.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
+							@chmod($to.$name, $filemode);
 						} else {
 							$from = (string)$node->relfrom;
 							if ($from) {
- 								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
+								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
 									if ($frombase) {
 										$from = $frombase.$from;
 									} else {
@@ -1210,6 +1221,7 @@ parameters) VALUES (?,?,?,?)';
 								continue;
 							}
 							@copy($from.$name, $to.$name);
+							@chmod($to.$name, $filemode);
 							@touch($to.'index.html');
 						}
 					}
@@ -1233,10 +1245,11 @@ parameters) VALUES (?,?,?,?)';
 						$name = (string)$node->name;
 						if ((bool)$node->embedded) {
 							@file_put_contents($to.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
+							@chmod($to.$name, $filemode);
 						} else {
 							$from = (string)$node->relfrom;
 							if ($from) {
- 								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
+								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
 									if ($frombase) {
 										$from = $frombase.$from;
 									} else {
@@ -1252,15 +1265,16 @@ parameters) VALUES (?,?,?,?)';
 								continue;
 							}
 							@copy($from.$name, $to.$name);
+							@chmod($to.$name, $filemode);
 							@touch($to.'index.html');
 						}
 					}
 					break;
 				case 'stylefiles':
-					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR;
+					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles'.DIRECTORY_SEPARATOR;
 					if ($workerspath) {
 						//TODO validity check e.g. somewhere absolute in installer tree
-						$frombase = $workerspath.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR;
+						$frombase = $workerspath.DIRECTORY_SEPARATOR.'styles'.DIRECTORY_SEPARATOR;
 					} else {
 						$frombase = '';
 					}
@@ -1275,10 +1289,11 @@ parameters) VALUES (?,?,?,?)';
 						$name = (string)$node->name;
 						if ((bool)$node->embedded) {
 							@file_put_contents($to.$name, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
+							@chmod($to.$name, $filemode);
 						} else {
 							$from = (string)$node->relfrom;
 							if ($from) {
- 								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
+								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
 									if ($frombase) {
 										$from = $frombase.$from;
 									} else {
@@ -1294,6 +1309,7 @@ parameters) VALUES (?,?,?,?)';
 								continue;
 							}
 							@copy($from.$name, $to.$name);
+							@chmod($to.$name, $filemode);
 							@touch($to.'index.html');
 						}
 					}
