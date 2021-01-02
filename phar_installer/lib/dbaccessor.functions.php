@@ -56,7 +56,7 @@ function GetDb(array $config)
 
 /**
  * Old-database-class dictionary getter
- * Deprecated since 2.9 instead use $db->NewDataDictionary()
+ * Deprecated since 2.99 instead use $db->NewDataDictionary()
  *
  * @param $db Connection object
  * @return DataDictionary object
