@@ -4,6 +4,7 @@ namespace cms_installer;
 
 use cms_installer\filehandler;
 use Exception;
+use function cms_installer\get_server_permissions;
 use function cms_installer\lang;
 
 class install_filehandler extends filehandler
@@ -19,7 +20,8 @@ class install_filehandler extends filehandler
         if( $this->is_excluded($filespec) ) return;
         if( is_dir($srcspec) ) {
             $destpath = $this->get_destdir().$filespec;
-            @mkdir($destpath, 0771, true);
+			$dirmode = get_server_permissions()[3]; // read+write
+            @mkdir($destpath,$dirmode,true);
             return;
         }
 

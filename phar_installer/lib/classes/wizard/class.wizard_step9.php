@@ -22,6 +22,7 @@ use const TMP_TEMPLATES_C_LOCATION;
 use function audit;
 use function cms_installer\endswith;
 use function cms_installer\get_app;
+use function cms_installer\get_server_permissions;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\rrmdir;
@@ -39,31 +40,36 @@ class wizard_step9 extends wizard_step
     //Try to create local cache directories if they're gone, otherwise try to clear
     private function clear_filecaches()
     {
+        $dirmode = get_server_permissions()[3]; // read+write
+
         if( is_dir(TMP_CACHE_LOCATION) ) {
             if( is_writable(TMP_CACHE_LOCATION) ) {
                 rrmdir(TMP_CACHE_LOCATION, FALSE);
+				chmod(TMP_CACHE_LOCATION, $dirmode);
             }
         }
         else {
-            @mkdir(TMP_CACHE_LOCATION, 0771, TRUE);
+            @mkdir(TMP_CACHE_LOCATION, $dirmode, TRUE);
         }
         if( TMP_CACHE_LOCATION != PUBLIC_CACHE_LOCATION ) {
             if( is_dir(PUBLIC_CACHE_LOCATION) ) {
                 if( is_writable(PUBLIC_CACHE_LOCATION) ) {
                     rrmdir(PUBLIC_CACHE_LOCATION, FALSE);
+					chmod(PUBLIC_CACHE_LOCATION, $dirmode);
                 }
             }
             else {
-                @mkdir(PUBLIC_CACHE_LOCATION, 0771, TRUE);
+                @mkdir(PUBLIC_CACHE_LOCATION, $dirmode, TRUE);
             }
         }
         if( is_dir(TMP_TEMPLATES_C_LOCATION) ) {
             if( is_writable(TMP_TEMPLATES_C_LOCATION) ) {
                 rrmdir(TMP_TEMPLATES_C_LOCATION, FALSE);
+				chmod(TMP_TEMPLATES_C_LOCATION, $dirmode);
             }
         }
         else {
-            @mkdir(TMP_TEMPLATES_C_LOCATION, 0771, TRUE);
+            @mkdir(TMP_TEMPLATES_C_LOCATION, $dirmode, TRUE);
         }
     }
 
@@ -133,7 +139,8 @@ class wizard_step9 extends wizard_step
         audit('', 'System Upgraded', 'New version '.CMS_VERSION);
 
         // security for the config file
-        @chmod(CONFIG_FILE_LOCATION,0440); //0400 would be better, if valid
+        $filemode = get_server_permissions()[0]; // read-only
+        @chmod(CONFIG_FILE_LOCATION,$filemode);
 
         // clear the caches
         $this->message(lang('msg_clearcache'));
@@ -293,7 +300,8 @@ VALUES (?,?,?,NOW())');
         audit('', 'System Installed', 'Version '.CMS_VERSION);
 
         // write-protect config.php
-        @chmod($destdir.DIRECTORY_SEPARATOR.'config.php',0440);
+        $filemode = get_server_permissions()[0]; // read-only
+        @chmod($destdir.DIRECTORY_SEPARATOR.'config.php',$filemode);
 
 //        $adminacct = $this->get_wizard()->get_data('adminaccount');
         $root_url = $app->get_root_url();
@@ -332,7 +340,8 @@ VALUES (?,?,?,NOW())');
         audit('', 'System Freshened', 'All core files renewed');
 
         // security for the config file
-        @chmod(CONFIG_FILE_LOCATION,0440); //0400 would be better, if valid
+        $filemode = get_server_permissions()[0]; // read-only
+        @chmod(CONFIG_FILE_LOCATION,$filemode);
 
         // clear the caches
         $this->message(lang('msg_clearcache'));

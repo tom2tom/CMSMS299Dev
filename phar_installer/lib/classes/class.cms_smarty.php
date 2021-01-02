@@ -6,6 +6,7 @@ use cms_installer\langtools;
 use Exception;
 use Smarty;
 use function cms_installer\get_app;
+use function cms_installer\get_server_permissions;
 
 final class cms_smarty extends Smarty
 {
@@ -27,8 +28,10 @@ final class cms_smarty extends Smarty
 
         $this->registerPlugin('modifier','tr',[$this,'modifier_tr']);
         $dirs = [$this->compile_dir,$this->cache_dir];
+		$dirmode = get_server_permissions()[3]; // read+write
+
         for( $i = 0, $n = count($dirs); $i < $n; $i++ ) {
-            @mkdir($dirs[$i],0771,TRUE);
+            @mkdir($dirs[$i],$dirmode,true);
             if( !is_dir($dirs[$i]) ) throw new Exception('Required directory '.$dirs[$i].' does not exist');
         }
     }
