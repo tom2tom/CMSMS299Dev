@@ -63,7 +63,8 @@ verbose_msg(lang('install_creating_index', 'admin_bookmarks', $msg_ret));
 $tbl = CMS_DB_PREFIX.'content';
 //parent_id may be < 0 hence signed int
 //prop_names X, unused since 2.0, removed 2.99
-//styles numeric id('s) or theme-specific name 
+//template_type theme-independant name 2.99+
+//styles numeric id('s) or design|theme-specific name 2.99+
 $flds = '
 content_id I(2) UNSIGNED KEY,
 content_name C(255),
