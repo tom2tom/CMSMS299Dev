@@ -34,9 +34,15 @@ final class nlstools
     private function load_nls()
     {
         if( is_array(self::$_nls) ) return;
+        /*
+         Find all nls classes in their directory (intra-phar globbing N/A)
+         They are named like class.en_US.nls.php
 
-        // find all nls classes in their directory (intra-phar globbing N/A)
-        // they are named like class.en_US.nls.php
+         To constrain the classes to language-codes per ISO 639-1, 639-2, 639-3
+         and country codes per ISO ISO 3166-1, 3166-2, 3166-3
+         (tho' the latter 2 are unlikely to be found here),
+         regex pattern = '/^class\.[a-z]{2,}_[0-9A-Z]{2,4}(\.nls)?\.php$/'
+        */
         $iter = new RegexIterator(
             new DirectoryIterator(__DIR__.DIRECTORY_SEPARATOR.'nls'),
             '/^class\..+\.nls\.php$/'
@@ -46,7 +52,7 @@ final class nlstools
         $type = __NAMESPACE__.'\\nls';
         foreach( $iter as $inf ) {
             $filename = $inf->getFilename();
-            $locale = substr($filename,6,-8);
+            $locale = substr($filename, 6, -8);
             $classpath = $type.'\\'.$locale.'_nls'; // like en_US_nls
 
             $file = $inf->getPathname();
