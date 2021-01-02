@@ -177,7 +177,7 @@ foreach ($arr as $name=>$val) {
 
 $dict = GetDataDictionary($db);
 
-/* IF UDTfiles are used exclusively instead of database storage ...
+/* IF UDT-files are used exclusively instead of database storage ...
 // 4. Convert UDT's to user-plugin files
 $udt_list = $db->GetArray('SELECT name,description,code FROM '.CMS_DB_PREFIX.'userplugins');
 if ($udt_list) {
@@ -255,10 +255,10 @@ $dict->ExecuteSQLArray($sqlarray);
 
 // 5. Cleanup plugins - remove reference from function-argument where appropriate
 foreach ([
- ['lib', 'plugins'],
- ['admin', 'plugins'],
- ['assets', 'plugins'],
- ['plugins'], //deprecated
+    ['lib', 'plugins'],
+    ['admin', 'plugins'],
+    ['assets', 'plugins'],
+    ['plugins'], //deprecated
 ] as $segs) {
     $path = joinpath($destdir, ...$segs);
     if (is_dir($path)) {
@@ -288,16 +288,20 @@ foreach ([
 }
 
 // 6. Drop redundant sequence-tables
-$db->DropSequence(CMS_DB_PREFIX.'additional_users_seq');
-$db->DropSequence(CMS_DB_PREFIX.'admin_bookmarks_seq');
-$db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
-$db->DropSequence(CMS_DB_PREFIX.'event_handler_seq');
-$db->DropSequence(CMS_DB_PREFIX.'events_seq');
-$db->DropSequence(CMS_DB_PREFIX.'groups_seq');
-$db->DropSequence(CMS_DB_PREFIX.'group_perms_seq');
-$db->DropSequence(CMS_DB_PREFIX.'permissions_seq');
-$db->DropSequence(CMS_DB_PREFIX.'userplugins_seq');
-$db->DropSequence(CMS_DB_PREFIX.'users_seq');
+foreach ([
+    'additional_users_seq',
+    'admin_bookmarks_seq',
+    'content_props_seq',
+    'event_handler_seq',
+    'events_seq',
+    'groups_seq',
+    'group_perms_seq',
+    'permissions_seq',
+    'userplugins_seq',
+    'users_seq',
+] as $tbl) {
+    $db->DropSequence(CMS_DB_PREFIX.$tbl);
+}
 
 // 6A Migrate some formerly genID-populated index-fields to autoincrement
 foreach ([
@@ -724,15 +728,119 @@ $dict->ExecuteSQLArray($sqlarray);
 
 // extra static events
 
-Events::CreateEvent('Core','MetadataPostRender');
-Events::CreateEvent('Core','MetadataPreRender');
-Events::CreateEvent('Core','PageTopPostRender');
-Events::CreateEvent('Core','PageTopPreRender');
-Events::CreateEvent('Core','PageHeadPostRender');
-Events::CreateEvent('Core','PageHeadPreRender');
-Events::CreateEvent('Core','PageBodyPostRender');
-Events::CreateEvent('Core','PageBodyPreRender');
-Events::CreateEvent('Core','PostRequest');
+foreach ([
+    'MetadataPostRender',
+    'MetadataPreRender',
+    'PageTopPostRender',
+    'PageTopPreRender',
+    'PageHeadPostRender',
+    'PageHeadPreRender',
+    'PageBodyPostRender',
+    'PageBodyPreRender',
+    'PostRequest',
+] as $s) {
+    Events::CreateEvent('Core', $s);
+}
+
+//8. de-entitize some recorded values
+
+$from = explode('|',
+ '&amp;|&quot;|&apos;|&lt;|&gt;'
+);
+$to = explode('|',
+ '&|"|\'|<|>'
+);
+$from1 = array_map(function($s) { return "/$s/"; }, explode('|',
+ '&#0*38;|&#0*34;|&#0*39;|&#0*60;|&#0*62;'
+));
+$from2 = array_map(function($s) { return "/$s/i"; }, explode('|',
+ '&#x0*26;|&#x0*22;|&#x0*27;|&#x0*3c;|&#x03e*;' //caseless
+));
+//old cleanValue() extras
+$from3 = explode('|',
+ '&#37;|&#40;|&#41;|&#43;|&#45;'
+);
+$to3 = explode('|',
+ '%|(|)|+|-'
+);
+$dentit = function($s) use($from, $to, $from1, $from2, $from3, $to3)
+{
+    $s = str_replace($from, $to, $s);
+    $s = str_replace($from3, $to3, $s);
+    $s = preg_replace($from1, $to, $s);
+    $s = preg_replace($from2, $to, $s);
+    return $s;
+};
+/*
+cleanValue() in
+admin/addbookmark.php
+admin/addgroup.php
+admin/adduser.php
+admin/adminlog.php
+admin/ajax_alerts.php
+admin/editbookmark.php
+admin/editevent.php
+admin/editgroup.php
+admin/edituser.php
+admin/editusertag.php
+admin/listtags.php
+admin/login.php
+admin/myaccount.php
+admin/siteprefs.php
+admin/themes/OneEleven/OneElevenTheme.php
+modules/FilePicker/action.ajax_cmd.php
+modules/FilePicker/action.filepicker.php
+modules/News/action.default.php
+
+hence in tables CMS_DB_PREFIX.*
+ admin_bookmarks :: STET title url
+ groups :: STET group_name group_desc
+ users :: username STET first_name last_name
+ siteprefs :: sitepref_name? sitepref_value
+ userprefs :: value
+ userplugins :: name STET description
+*/
+$pref = CMS_DB_PREFIX;
+foreach ([
+    ['admin_bookmarks', 'bookmark_id', 'title', 'url'], // url should be urlencode() etc ?
+    ['groups', 'group_id', 'group_name', 'group_desc'],
+    ['users', 'user_id', 'username', 'first_name', 'last_name'],
+    ['siteprefs', 'sitepref_name', 'sitepref_name', 'sitepref_value'],
+    ['userprefs', 'user_id', 'value'],
+    ['userplugins', 'id', 'name', 'description'], // name should be sanitizeVal( ,3)
+] as $tbl) {
+    $flds = array_slice($tbl, 1);
+    $sels = implode(',', $flds);
+    array_shift($flds);
+    $checks = implode(' LIKE \'%&%\' OR ', $flds);
+    $query = "SELECT $sels FROM {$pref}{$tbl[0]} WHERE $checks LIKE '%&%'";
+    $rows = $db->GetArray($query);
+    if ($rows) {
+        $updates = implode('=?,', $flds);
+        $stmt = $db->Prepare("UPDATE $pref{$tbl[0]} SET {$updates}=? WHERE {$tbl[1]}=?");
+        foreach ($rows as $row) {
+            $upd = false;
+            $id = array_shift($row);
+            foreach ($row as &$val) {
+                $tmp = $dentit($val);
+                if ($tmp != $val) {
+                    $val = $tmp;
+                    $upd = true;
+                }
+/*              if (NEEDED) {
+                    $val = DO MORE TO($val)
+                    $upd = true;
+                }
+*/
+            }
+            unset($val);
+            if ($upd) { // any change
+                $db->Execute($stmt, $row + [999=>$id]);
+            }
+        }
+        $stmt->close();
+    }
+}
 
 //if ($return == 2) {
     $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 206';
