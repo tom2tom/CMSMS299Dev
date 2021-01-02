@@ -3,6 +3,7 @@
 namespace cms_installer;
 
 use Exception;
+use function cms_installer\get_server_permissions;
 use function cms_installer\lang;
 
 abstract class filehandler
@@ -73,11 +74,11 @@ abstract class filehandler
         if( $this->_excludes ) {
             foreach( $this->_excludes as $excl ) {
                 if( preg_match($excl,$filespec) ) {
-                    return TRUE;
+                    return true;
                 }
             }
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -107,7 +108,8 @@ abstract class filehandler
 
         $dn = dirname($filespec);
         $tmp = $this->get_destdir().$dn;
-        return @mkdir($tmp,0771,TRUE);
+        $dirmode = get_server_permissions()[3]; // read+write+acess
+        return @mkdir($tmp,$dirmode,true);
     }
 
     /**
@@ -132,14 +134,15 @@ abstract class filehandler
         $filespec = trim($filespec);
         if( !$filespec ) throw new Exception(lang('error_invalidparam','filespec'));
 
-//        if( $this->is_imagefile($filespec) ) return FALSE;
+//        if( $this->is_imagefile($filespec) ) return false;
         $bn = basename($filespec);
-        $fnmatch = preg_match('/^[a-zA-Z]{2}_[a-zA-Z]{2}\.php$/',$bn);
-        $fnmatch = $fnmatch || preg_match('/^[a-zA-Z]{2}_[a-zA-Z]{2}\.nls\.php$/',$bn);
-        if( $fnmatch ) return TRUE;
+        // support language-codes per ISO 639-1, 639-2, 639-3
+        // and country codes per ISO ISO 3166-1, 3166-2, 3166-3 (the latter 2 unlikely to be found here)
+        $fnmatch = preg_match('/^[a-z]{2,}_[0-9A-Z]{2,4}(\.nls)?\.php$/', $bn);
+        if( $fnmatch ) return true;
 
         $nls = get_app()->get_nls();
-        if( !is_array($nls) ) return FALSE; // problem
+        if( !is_array($nls) ) return false; // problem
 
         $bn = substr($bn,0,strpos($bn,'.'));
         foreach( $nls['alias'] as $alias => $code ) {
@@ -149,7 +152,7 @@ abstract class filehandler
             if( $bn == $short ) return (bool)$code;
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
@@ -160,10 +163,10 @@ abstract class filehandler
     protected function is_accepted_lang($filespec) : bool
     {
         $res = $this->is_langfile($filespec);
-        if( !$res ) return FALSE;
+        if( !$res ) return false;
 
         $langs = $this->get_languages();
-        if( !is_array($langs) || count($langs) == 0 ) return TRUE;
+        if( !is_array($langs) || count($langs) == 0 ) return true;
 
         return in_array($res,$langs);
     }
