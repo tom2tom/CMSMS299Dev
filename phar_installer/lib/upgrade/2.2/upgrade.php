@@ -1,6 +1,7 @@
 <?php
 
 use function cms_installer\get_app;
+use function cms_installer\get_server_permissions;
 
 status_msg('Performing structure changes for CMSMS 2.2');
 
@@ -13,7 +14,8 @@ $create_private_dir = function($relative_dir) use ($destdir) {
 
     $dir = $destdir.DIRECTORY_SEPARATOR.$relative_dir;
     if( !is_dir($dir) ) {
-        @mkdir($dir,0771,true);
+        $dirmode = get_server_permissions()[3]; // read+write+access
+        @mkdir($dir,$dirmode,true);
     }
     @touch($dir.DIRECTORY_SEPARATOR.'index.html');
 };

@@ -1,10 +1,11 @@
 <?php
 
-use cms_installer\utils;
 use cms_installer\wizard\wizard;
 use CMSMS\Crypto;
 use Exception;
 use function cms_installer\get_app;
+use function cms_installer\get_server_permissions;
+use function cms_installer\rrmdir;
 
 $app = get_app();
 $destdir = $app->get_destdir();
@@ -16,54 +17,64 @@ $s = (!empty($config['admin_path'])) ? $config['admin_path'] : 'assets';
 $admindir = $destdir . DIRECTORY_SEPARATOR . $s;
 $s = (!empty($config['assets_path'])) ? $config['assets_path'] : 'assets';
 $assetsdir = $destdir . DIRECTORY_SEPARATOR . $s;
-$s = (!empty($config['simpletags_path'])) ? $config['simpletags_path'] : '';
-$plugsdir = ($s) ? $destdir . DIRECTORY_SEPARATOR . $s : $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
+$s = (!empty($config['usertags_path'])) ? $config['usertags_path'] : '';
+$plugsdir = ($s) ? $destdir . DIRECTORY_SEPARATOR . $s : $assetsdir . DIRECTORY_SEPARATOR . 'user_plugins';
 
 // 0. Remove/replace redundant files
 unlink($admindir . DIRECTORY_SEPARATOR . 'moduleinteface.php');
 
-/*
+$modes = get_server_permissions();
+
 // 1. Rename folder if necessary
-$fp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
-if ($fp != $plugsdir && is_dir($fp)) {
-    @rename($fp, $plugsdir);
+$s = $assetsdir . DIRECTORY_SEPARATOR . 'css';
+if (is_dir($s)) {
+    $to = $assetsdir . DIRECTORY_SEPARATOR . 'styles';
+    rename($s, $to);
+    touch($to . DIRECTORY_SEPARATOR . 'index.html');
+}
+/*
+$s = $assetsdir . DIRECTORY_SEPARATOR . 'user_plugins';
+if ($s != $plugsdir && is_dir($s)) {
+    @rename($s, $plugsdir);
     touch($plugsdir . DIRECTORY_SEPARATOR . 'index.html');
 } else {
-    $fp = $assetsdir . DIRECTORY_SEPARATOR . 'file_plugins';
-    if ($fp != $plugsdir && is_dir($fp)) {
-        @rename($fp, $plugsdir);
+    $s = $assetsdir . DIRECTORY_SEPARATOR . 'file_plugins';
+    if ($s != $plugsdir && is_dir($s)) {
+        @rename($s, $plugsdir);
         touch($plugsdir . DIRECTORY_SEPARATOR . 'index.html');
     } elseif (!is_dir($plugsdir)) {
-        @mkdir($plugsdir, 0771, true);
+        @mkdir($plugsdir, $modes[3], true);
         touch($plugsdir . DIRECTORY_SEPARATOR . 'index.html');
     }
 }
 */
 // 1. rename any existing 2.3BETA plugins UDTfiles plus any format change?
-$tp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
-if ($tp != $plugsdir && is_dir($tp)) {
-    @rename($tp, $plugsdir);
+$s = $assetsdir . DIRECTORY_SEPARATOR . 'user_plugins';
+if ($s != $plugsdir && is_dir($s)) {
+    rename($s, $plugsdir);
     touch($plugsdir . DIRECTORY_SEPARATOR . 'index.html');
 }
 $files = glob($plugsdir.DIRECTORY_SEPARATOR.'*.cmsplugin', GLOB_NOESCAPE | GLOB_NOSORT);
 foreach ($files as $fp) {
-    $to = $plugsdir.DIRECTORY_SEPARATOR.basename($fp, 'cmsplugin').'phphp'; //c.f. SimpleTagOperations::PLUGEXT
-    @rename($fp, $to);
+    $to = $plugsdir.DIRECTORY_SEPARATOR.basename($fp, 'cmsplugin').'phphp'; //c.f. UserTagOperations::PLUGEXT
+    rename($fp, $to);
 }
 
 // 2. Create new folders if necessary
+$dirmode = $modes[3];
 foreach ([
  ['admin','configs'],
  ['assets','admin_custom'],
  ['assets','classes'],
  ['assets','configs'],
- ['assets','css'],
+ ['assets','styles'],
  ['assets','images'],
  ['assets','module_custom'],
  ['assets','modules'], //CHECKME iff using distinct non-core-modules place
  ['assets','plugins'],
- ['assets','resources'],
+// ['assets','resources'],
  ['assets','templates'],
+ ['assets','themes'],
  ['tags',$plugsdir], //UDTfiles
  ['lib','modules'], //CHECKME iff using distinct core-modules place
 ] as $segs) {
@@ -83,7 +94,7 @@ foreach ([
         default:
             break 2;
     }
-    if (!is_dir($fp)) @mkdir($fp, 0771, true);
+    if (!is_dir($fp)) @mkdir($fp, $dirmode, true);
     if (!is_dir($fp)) throw new Exception("Could not create $fp directory");
     touch($fp . DIRECTORY_SEPARATOR . 'index.html');
 }
@@ -93,12 +104,12 @@ touch($assetsdir . DIRECTORY_SEPARATOR . 'index.html');
 $s = Crypto::random_string(72); //max byte-length of BCRYPT passwords
 $p = -1;
 while (($p = strpos($s, '\0', $p+1)) !== false) {
-	$c = crc32(substr($s, 0, $p) . 'A') & 0xff;
-	$s[$p] = $c;
+    $c = crc32(substr($s, 0, $p) . 'A') & 0xff;
+    $s[$p] = $c;
 }
 $fp = $assetsdir.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'siteuuid.dat';
 file_put_contents($fp, $s);
-chmod($fp, 0400); //TODO to suit current|server process c.f. config.php
+chmod($fp, $modes[0]);
 
 // 3. Revert force-moved (by 2.2.90x upgrade) 'independent' modules from assets/modules to deprecated /modules
 $wizard = wizard::get_instance();
@@ -113,7 +124,7 @@ if (version_compare($fromvers, '2.2.900') >= 0 && version_compare($fromvers, '2.
         if (!in_array($modname, ['MenuManager', 'CMSMailer', 'News'])) { //TODO exclude all non-core modules in files-tarball
             if (!$d) {
                 $d = $destdir . DIRECTORY_SEPARATOR . 'modules';
-                @mkdir($d, 0771, true);
+                @mkdir($d, $dirmode, true);
             }
             $fp = realpath($fp);
             $to = $d . DIRECTORY_SEPARATOR . $modname;

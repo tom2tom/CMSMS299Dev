@@ -3,7 +3,7 @@
 use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\ModuleOperations;
-use CMSMS\SimpleTagOperations;
+use CMSMS\UserTagOperations;
 //use DesignManager\Design; //TODO N/A
 
 set_time_limit(3600);
@@ -500,7 +500,7 @@ EOT
 ,
 'description' => 'Stub function to replace the print plugin'
 ];
-SimpleTagOperations::get_instance()->SetSimpleTag('print',$params);
+UserTagOperations::get_instance()->SetUserTag('print',$params);
 
 $sql = 'SELECT username FROM '.CMS_DB_PREFIX.'users WHERE user_id = 1';
 $un = $db->GetOne($sql);
@@ -517,14 +517,17 @@ if( $un ) {
 }
 
 verbose_msg(ilang('reset_user_settings'));
+$theme = 'OneEleven';
+$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value = ? WHERE preference = ?';
+$db->Execute($query,array($theme,'admintheme'));
+$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value = ? WHERE preference = ? AND value = ?';
+$db->Execute($query,array('MicroTiny','wysiwyg','TinyMCE'));
 $query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs WHERE preference = ?';
-$db->Execute($query,array('admintheme'));
 $db->Execute($query,array('collapse'));
-$db->Execute($query,array('wysiwyg'));
 
 verbose_msg(ilang('reset_site_preferences'));
-$query = 'DELETE FROM '.CMS_DB_PREFIX.'WHERE sitepref_name = ?';
-$db->Execute($query,array('logintheme'));
+$query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value = ?, modified_date = NOW() WHERE sitepref_name = ?';
+$db->Execute($query,array($theme,'logintheme'));
 
 verbose_msg(ilang('queue_for_upgrade','CMSMailer'));
 \ModuleOperations::get_instance()->QueueForInstall('CMSMailer');
