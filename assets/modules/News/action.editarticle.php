@@ -184,7 +184,7 @@ WHERE news_id=?';
                         $text = '';
                     } else {
                         $text = ''; //CHECKME TODO
-					}
+                    }
                     $text .= $content . ' ' . $summary . ' ' . $title . ' ' . $title;
                     $module->AddWords($me, $articleid, 'article', $text, ($useexp == 1 && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL);
                 }
@@ -376,11 +376,13 @@ if ($enddate > 0) {
 
 $categorylist = [];
 $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hierarchy';
-$dbr = $db->Execute($query);
-while ($dbr && $row = $dbr->FetchRow()) {
-    $categorylist[$row['long_name']] = $row['news_category_id'];
+$rst = $db->Execute($query);
+if ($rst) {
+    while (($row = $rst->FetchRow())) {
+        $categorylist[$row['long_name']] = $row['news_category_id'];
+    }
+    $rst->Close();
 }
-
 $parms = array_merge($params, ['articleid'=>$articleid, 'author_id'=>$author_id]);
 unset($parms['action']);
 
@@ -425,33 +427,35 @@ $tpl->assign('inputcontent', FormUtils::create_textarea([
     'value' => $content,
 ]));
 
-$tpl->assign('title', $title)
- ->assign('articleid',$articleid)
-// ->assign('useexp', $useexp)
-// ->assign('inputexp', $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'))
- ->assign('createat', $created)
- ->assign('modat', $modified)
- ->assign('pubat', $published)
- ->assign('archat', $archived)
- ->assign('fromdate', $fromdate)
- ->assign('todate', $todate)
- ->assign('fromtime', $fromtime)
- ->assign('totime', $totime)
- ->assign('withtime', $withtime)
- ->assign('status', $status)
- ->assign('categorylist', array_flip($categorylist))
- ->assign('category', $usedcategory)
- ->assign('searchable', $searchable)
- ->assign('extra', $extra)
- ->assign('news_url', $news_url);
+$tpl->assign([
+ 'archat' => $archived,
+ 'articleid' => $articleid,
+ 'category' => $usedcategory,
+ 'categorylist' => array_flip($categorylist),
+ 'createat' => $created,
+ 'extra' => $extra,
+ 'fromdate' => $fromdate,
+ 'fromtime' => $fromtime,
+ 'modat' => $modified,
+ 'news_url' => $news_url,
+ 'pubat' => $published,
+ 'searchable' => $searchable,
+ 'status' => $status,
+ 'title' => $title,
+ 'todate' => $todate,
+ 'totime' => $totime,
+ 'withtime' => $withtime,
+// 'inputexp' => $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'),
+// 'useexp' => $useexp,
+]);
 
 if ($this->CheckPermission('Approve News')) {
-	$choices = [
-		$this->Lang('draft')=>'draft',
-		$this->Lang('final')=>'final',
-		$this->Lang('archived')=>'archived',
-	];
-	$statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
+    $choices = [
+        $this->Lang('draft')=>'draft',
+        $this->Lang('final')=>'final',
+        $this->Lang('archived')=>'archived',
+    ];
+    $statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
     $tpl->assign('statuses',$statusradio);
     //->assign('statustext', lang('status'));
 }
@@ -467,11 +471,11 @@ try {
         }
     }
     if ($list) {
-		$str = AdminUtils::CreateHierarchyDropdown(0, (int)$this->GetPreference('detail_returnid',-1), 'preview_returnid');
+        $str = AdminUtils::CreateHierarchyDropdown(0, (int)$this->GetPreference('detail_returnid',-1), 'preview_returnid');
         $tpl->assign('detail_templates', $list)
          ->assign('cur_detail_template', $this->GetPreference('current_detail_template'))
          ->assign('preview', true)
-		 ->assign('preview_returnid', $str);
+         ->assign('preview_returnid', $str);
     }
 } catch( Exception $e ) {
     audit('', $me, 'No detail template available for preview');

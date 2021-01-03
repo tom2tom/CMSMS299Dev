@@ -56,9 +56,9 @@ if( $curcategory ) {
 }
 $query1 .= ' ORDER by N.news_title';
 
-$dbr = $db->Execute($query1,$parms);
+$rst = $db->Execute($query1,$parms);
 
-if( $dbr ) {
+if( $rst ) {
     if( $papp ) {
         $iconcancel = $themeObj->DisplayImage('icons/system/true',$this->Lang('revert'),null,'','systemicon');
         $iconapprove = $themeObj->DisplayImage('icons/system/false',$this->Lang('approve'),null,'','systemicon');
@@ -84,7 +84,7 @@ if( $dbr ) {
     $fmt = $this->GetDateFormat();
     $entryarray = [];
 
-    while( $dbr && $row = $dbr->FetchRow() ) {
+    while( ($row = $rst->FetchRow()) ) {
         $onerow = new stdClass();
 
         $onerow->id = $row['news_id'];
@@ -130,78 +130,75 @@ if( $dbr ) {
 
         $entryarray[] = $onerow;
     }
+    $rst->Close();
 
     $numrows = count($entryarray);
     $tpl->assign('items', $entryarray)
      ->assign('itemcount', $numrows);
 
-	$pagerows = (int)$this->GetPreference('article_pagelimit',10); //OR user-specific?
+    $pagerows = (int)$this->GetPreference('article_pagelimit',10); //OR user-specific?
 
-	if ($numrows > $pagerows) {
-		//setup for SSsort paging
-		$navpages = ceil($numrows/$pagerows);
-		$tpl->assign('totpg',$navpages);
+    if ($numrows > $pagerows) {
+        //setup for SSsort paging
+        $navpages = ceil($numrows/$pagerows);
+        $tpl->assign('totpg',$navpages);
 
-		$choices = [strval($pagerows) => $pagerows];
-		$f = ($pagerows < 4) ? 5 : 2;
-		$n = $pagerows * $f;
-		if ($n < $numrows) {
-		    $choices[strval($n)] = $n;
-		}
-		$n += $n;
-		if ($n < $numrows) {
-		    $choices[strval($n)] = $n;
-		}
-		$choices[$this->Lang('all')] = 0;
-		$tpl->assign('rowchanger',
-		    $this->CreateInputDropdown($id, 'pagerows', $choices, -1, $pagerows));
-	}
-	else {
-		$navpages = 0;
-	}
+        $choices = [strval($pagerows) => $pagerows];
+        $f = ($pagerows < 4) ? 5 : 2;
+        $n = $pagerows * $f;
+        if ($n < $numrows) {
+            $choices[strval($n)] = $n;
+        }
+        $n += $n;
+        if ($n < $numrows) {
+            $choices[strval($n)] = $n;
+        }
+        $choices[$this->Lang('all')] = 0;
+        $tpl->assign('rowchanger',
+            $this->CreateInputDropdown($id, 'pagerows', $choices, -1, $pagerows));
+    }
+    else {
+        $navpages = 0;
+    }
 
-	if( $pdel ) {
-	    $tpl->assign('submit_massdelete',1);
-	}
+    if( $pdel ) {
+        $tpl->assign('submit_massdelete',1);
+    }
 
-	$query = 'SELECT news_category_id,long_name FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
-	$dbr = $db->GetAssoc($query);
-	$categorylist = [''=>$this->Lang('all')] + $dbr;
-	$bulkcategories = array_flip(Utils::get_category_list()); //different order
+    $query = 'SELECT news_category_id,long_name FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
+    $dbr = $db->GetAssoc($query);
+    $categorylist = [''=>$this->Lang('all')] + $dbr;
+    $bulkcategories = array_flip(Utils::get_category_list()); //different order
 
-	$tpl
-	 ->assign('filter_descendants',$withchildren)
-	 ->assign('bulkcategories',$bulkcategories)
-	 ->assign('categorylist',$categorylist)
-	 ->assign('curcategory',$curcategory);
+    $tpl->assign([
+     'bulkcategories' => $bulkcategories,
+     'categorylist' => $categorylist,
+     'categorytext' => $this->Lang('category'),
+     'curcategory' => $curcategory,
+     'enddatetext' => $this->Lang('enddate'),
+     'filter_descendants' => $withchildren,
+     'filterimage' => cms_join_path(__DIR__,'images','filter'), //TODO use new admin icon
+     'filtertext' => $this->Lang('filter'),
+     'formstart_items' => $this->CreateFormStart($id,'defaultadmin'),
+     'formstart_itemsfilter' => $this->CreateFormStart($id,'defaultadmin',$returnid,'post','',false,'',['filteraction'=>'apply']),
+     'label_filtercategory' => $this->Lang('prompt_category'),
+     'label_filterinclude' => $this->Lang('showchildcategories'),
+     'startdatetext' => $this->Lang('startdate'),
+     'statustext' => $this->Lang('status'),
+     'titletext' => $this->Lang('title'),
+     'typetext' => $this->Lang('type'),
+//     'prompt_pagelimit' => $this->Lang('prompt_pagelimit'),
+//     'prompt_sorting' => $this->Lang('prompt_sorting'),
+//     'reassigntext' => $this->Lang('reassign_category'),
+//     'selecttext' => $this->Lang('select'),
+    ]);
 
-	$tpl
-	 ->assign('formstart_itemsfilter',$this->CreateFormStart($id,'defaultadmin',$returnid,'post','',false,'',['filteraction'=>'apply']))
-	 ->assign('formstart_items',$this->CreateFormStart($id,'defaultadmin'))
-	 ->assign('filterimage',cms_join_path(__DIR__,'images','filter')); //TODO use new admin icon
+    $s1 = json_encode($this->Lang('confirm_delete'));
+    $s2 = json_encode($this->Lang('confirm_bulk'));
+    $submit = lang('submit');
+    $cancel = lang('cancel');
 
-	$tpl
-	 ->assign('categorytext',$this->Lang('category'))
-	 ->assign('enddatetext',$this->Lang('enddate'))
-	 ->assign('filtertext',$this->Lang('filter'))
-	 ->assign('label_filtercategory',$this->Lang('prompt_category'))
-	 ->assign('label_filterinclude',$this->Lang('showchildcategories'))
-	 ->assign('startdatetext',$this->Lang('startdate'))
-	 ->assign('statustext',$this->Lang('status'))
-	 ->assign('titletext',$this->Lang('title'))
-	 ->assign('typetext',$this->Lang('type'))
-	;
-// ->assign('prompt_pagelimit', $this->Lang('prompt_pagelimit'))
-// ->assign('prompt_sorting',$this->Lang('prompt_sorting'))
-// ->assign('selecttext',$this->Lang('select'))
-// ->assign('reassigntext',$this->Lang('reassign_category'))
-
-	$s1 = json_encode($this->Lang('confirm_delete'));
-	$s2 = json_encode($this->Lang('confirm_bulk'));
-	$submit = lang('submit');
-	$cancel = lang('cancel');
-
-	$js = <<<EOS
+    $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 var itemstbl;
@@ -315,7 +312,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-	add_page_foottext($js);
+    add_page_foottext($js);
 }
 else { //no rows
      $tpl->assign('items',[])

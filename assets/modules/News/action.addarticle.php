@@ -321,9 +321,12 @@ $withtime = ($block == News::DAYBLOCK) ? 0:1;
 
 $categorylist = [];
 $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hierarchy';
-$dbr = $db->Execute($query);
-while ($dbr && $row = $dbr->FetchRow()) {
-    $categorylist[$row['long_name']] = $row['news_category_id'];
+$rst = $db->Execute($query);
+if ($rst) {
+    while (($row = $rst->FetchRow())) {
+        $categorylist[$row['long_name']] = $row['news_category_id'];
+    }
+    $rst->Close();
 }
 
 /*--------------------
@@ -370,28 +373,30 @@ $tpl->assign('inputcontent', FormUtils::create_textarea([
     'value' => $content,
 ]));
 
-$tpl->assign('title', $title)
- ->assign('articleid',$articleid)
-// ->assign('useexp', $useexp)
-// ->assign('inputexp', $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'))
- ->assign('fromdate', $fromdate)
- ->assign('todate', $todate)
- ->assign('fromtime', $fromtime)
- ->assign('totime', $totime)
- ->assign('withtime', $withtime)
- ->assign('status', $status)
- ->assign('categorylist', array_flip($categorylist))
- ->assign('category', $usedcategory)
- ->assign('searchable', $searchable)
- ->assign('extra', $extra)
- ->assign('news_url', $news_url);
+$tpl->assign([
+ 'articleid' => $articleid,
+ 'category' => $usedcategory,
+ 'categorylist' => array_flip($categorylist),
+ 'extra' => $extra,
+ 'fromdate' => $fromdate,
+ 'fromtime' => $fromtime,
+ 'news_url' => $news_url,
+ 'searchable' => $searchable,
+ 'status' => $status,
+ 'title' => $title,
+ 'todate' => $todate,
+ 'totime' => $totime,
+ 'withtime' => $withtime,
+// 'inputexp' => $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'),
+// 'useexp' => $useexp,
+]);
 
 if ($this->CheckPermission('Approve News')) {
-	$choices = [
-		$this->Lang('draft')=>'draft',
-		$this->Lang('final')=>'final',
-	];
-	$statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
+    $choices = [
+        $this->Lang('draft')=>'draft',
+        $this->Lang('final')=>'final',
+    ];
+    $statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
     $tpl->assign('statuses',$statusradio);
     //->assign('statustext', lang('status'));
 }
