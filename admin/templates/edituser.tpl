@@ -23,14 +23,14 @@
     <label for="password">{$t}:</label>
     {cms_help key2='user_edit_password' title=$t}
   </p>
-  <input type="password" class="pageinput" name="password" id="password" autocomplete="off" maxlength="64" />
+  <input type="text" class="pageinput" name="password" id="password" autocomplete="off" maxlength="64" />
   </div>
   <div class="pageoverflow">
   <p class="pagetext">{$t=lang('passwordagain')}
-    <label for="passwordagain">{$t}:</label>
+    <label for="passagain">{$t}:</label>
     {cms_help key2='user_edit_passwordagain' title=$t}
   </p>
-  <input type="password" class="pageinput" name="passwordagain" id="passwordagain" autocomplete="off" maxlength="64" />
+  <input type="text" class="pageinput" name="passwordagain" id="passagain" autocomplete="off" maxlength="64" />
   </div>
   <div class="pageoverflow">
   <p class="pagetext">{$t=lang('firstname')}

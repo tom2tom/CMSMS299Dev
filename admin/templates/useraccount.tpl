@@ -7,7 +7,7 @@
       {cms_help key2='user_username' title=lang('name')}
     </p>
     <p class="pageinput">
-      <input type="text" name="user" id="username" maxlength="25" value="{$userobj->username}" class="standard" />
+      <input type="text" name="user" id="username" maxlength="25" value="{$userobj->username}" />
     </p>
   </div>
 
@@ -17,17 +17,17 @@
       {cms_help key2='user_password' title=lang('password')}
     </p>
     <p class="pageinput">
-      <input type="password" name="password" id="password" maxlength="64" value="" class="standard" />
+      <input type="text" name="password" id="password" maxlength="64" value="" />
     </p>
   </div>
 
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="passwordagain">{lang('passwordagain')}:</label>
+      <label for="passagain">{lang('passwordagain')}:</label>
       {cms_help key2='user_passwordagain' title=lang('passwordagain')}
     </p>
     <p class="pageinput">
-      <input type="password" name="passwordagain" id="passwordagain" maxlength="64" value="" class="standard" />
+      <input type="text" name="passwordagain" id="passagain" maxlength="64" value="" />
     </p>
   </div>
 
@@ -37,7 +37,7 @@
       {cms_help key2='user_firstname' title=lang('firstname')}
     </p>
     <p class="pageinput">
-      <input type="text" name="firstname" id="firstname" maxlength="50" value="{$userobj->firstname}" class="standard" />
+      <input type="text" name="firstname" id="firstname" maxlength="50" value="{$userobj->firstname}" />
     </p>
   </div>
 
@@ -47,7 +47,7 @@
       {cms_help key2='user_lastname' title=lang('lastname')}
     </p>
     <p class="pageinput">
-      <input type="text" name="lastname" id="lastname" maxlength="50" value="{$userobj->lastname}" class="standard" />
+      <input type="text" name="lastname" id="lastname" maxlength="50" value="{$userobj->lastname}" />
     </p>
   </div>
 
@@ -57,7 +57,7 @@
       {cms_help key2='user_email' title=lang('email')}
     </p>
     <p class="pageinput">
-      <input type="text" name="email" id="email" size="40" maxlength="255" value="{$userobj->email}" class="standard" />
+      <input type="text" name="email" id="email" size="40" maxlength="255" value="{$userobj->email}" />
     </p>
   </div>
   <div class="pageinput pregap">
