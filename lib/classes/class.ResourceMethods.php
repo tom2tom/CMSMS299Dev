@@ -146,6 +146,7 @@ class ResourceMethods
 	{
 		$params['id'] = $id;
 		$params['action'] = $action;
+		// generic specialchars decode N/A - any value may validly include entities
 		return $this->Run($params);
 	}
 
