@@ -1,32 +1,35 @@
 <?php
-# DesignManager module class: handles design exports.
-# Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+DesignManager module class: handles design exports.
+Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace DesignManager;
 
-use cms_url;
-use cms_utils;
-use DesignManager\Design;
-use CmsLayoutStylesheet;
-use CmsLayoutTemplate;
-use CmsLayoutTemplateType;
-use CMSMS\CmsException;
+use CmsException;
+use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
+use CMSMS\Template;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
+use CMSMS\Url;
+use CMSMS\Utils;
+use DesignManager\Design;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;
@@ -80,8 +83,8 @@ EOT;
     {
         $this->_design = $design;
         if( !is_array(self::$_mm_types ) ) {
-            self::$_mm_types = CmsLayoutTemplateType::load_all_by_originator('MenuManager');
-            self::$_nav_types = CmsLayoutTemplateType::load_all_by_originator('Navigator');
+            self::$_mm_types = TemplateType::load_all_by_originator('MenuManager');
+            self::$_nav_types = TemplateType::load_all_by_originator('Navigator');
             if( (!is_array(self::$_mm_types) || count(self::$_mm_types) == 0) && (!is_array(self::$_nav_types) || count(self::$_nav_types) == 0) ) {
                 throw new Exception('Cannot find any Navigation template types (is MenuManager or Navigator installed and enabled?');
             }
@@ -166,7 +169,7 @@ EOT;
         // compars root url to another url
         // handle relative paths
         // and no schema
-        $is_same_host = function(cms_url $url1,cms_url $url2) {
+        $is_same_host = function(Url $url1,Url $url2) {
             if( $url1->get_host() != $url2->get_host() && $url2->get_host() != '') return false;
             if( $url1->get_port() != $url2->get_port() ) return false;
             if( $url1->get_scheme() != $url2->get_scheme() && $url2->get_scheme() != '') return false;
@@ -177,16 +180,15 @@ EOT;
         };
 
         $ob = &$this;
-        $config = cmsms()->GetConfig();
         $types = ['href', 'src', 'url'];
+        $root_url = new Url(CMS_ROOT_URL);
         foreach( $types as $type ) {
             $innerT = '[a-z0-9:?=&@/._-]+?';
             $content = preg_replace_callback("|$type\=([\"'`])(".$innerT.')\\1|i',
-                function($matches) use ($ob,$type,&$is_same_host,$config)
+                function($matches) use ($ob,$type,&$is_same_host,$root_url)
                 {
                     $url = $matches[2];
-                    $root_url = new cms_url(CMS_ROOT_URL);
-                    $the_url = new cms_url($url);
+                    $the_url = new Url($url);
                     if( !startswith($url,'ignore::') && $is_same_host($root_url,$the_url) ) {
                         $sig = $ob->_get_signature($url);
                         //return $sig;
@@ -266,24 +268,24 @@ EOT;
 
         case 'MM':
             // MenuManager file template
-            $mod = cms_utils::get_module('MenuManager');
+            $mod = Utils::get_module('MenuManager');
             if( !$mod ) throw new Exception('MenuManager file template specified, but MenuManager could not be loaded.');
 
             $content = $mod->GetTemplateFromFile($name);
             if( !$content ) throw new Exception('Could not find MenuMaager template '.$name);
             $content = $this->_parse_tpl_urls($content);
 
-            // create a new CmsLayoutTemplate object for this template
+            // create a new Template object for this template
             // and add it to the list.
             // notice we don't recurse.
-            $new_tpl_ob = new CmsLayoutTemplate;
+            $new_tpl_ob = new Template;
 	        $new_tpl_ob->set_originator($mod->GetName());
             $new_tpl_ob->set_content($content);
             $name = substr($name,0,-4);
             $type = 'TPL';
             $sig = $this->_get_signature($name,$type);
             $new_tpl_ob->set_name($sig);
-            // it's a menu manager template
+            // it's a menu manager template TODO relevance for Navigator module?
             // we need to get a 'type' for this.
             $new_tpl_ob->set_type(self::$_mm_types[0]);
             $this->_tpl_list[$sig] = ['name'=>$name,'obj'=>$new_tpl_ob];
@@ -297,7 +299,7 @@ EOT;
 
         $replace_mm = function($matches) use ($ob) {
             // Menu Manager (optional template param)
-            $mod = cms_utils::get_module('MenuManager');
+            $mod = Utils::get_module('MenuManager'); //TODO deprecated use Navigator
             if( !$mod ) throw new Exception('MenuManager tag specified, but MenuManager could not be loaded.');
 
             $have_template = false;
@@ -325,7 +327,7 @@ EOT;
 
         $replace_navigator = function($matches) use ($ob) {
             // Navigator (optional template param)
-            $mod = cms_utils::get_module('Navigator');
+            $mod = Utils::get_module('Navigator');
             if( !$mod ) throw new Exception('Navigator tag specified, but Navigator could not be loaded.');
 
             $have_template = false;
@@ -445,7 +447,7 @@ EOT;
         return $this->_output($elem,$data,$lvl);
     }
 
-    private function _xml_output_template(CmsLayoutTemplate $tpl,$name,$lvl = 0)
+    private function _xml_output_template(Template $tpl,$name,$lvl = 0)
     {
         if( $tpl->get_content() == '' ) throw new Exception('Cannot export empty template');
         $output = $this->_open_tag('template',$lvl);
@@ -455,14 +457,14 @@ EOT;
         $output .= $this->_output_data('tdata',$tpl->get_content(),$lvl+1);
         if( !$tpl->get_type_id() ) throw new Exception('Cannot get template type for '.$tpl->get_name());
 
-        $type = CmsLayoutTemplateType::load($tpl->get_type_id());
+        $type = TemplateType::load($tpl->get_type_id());
         $output .= $this->_output_data('ttype_originator',$type->get_originator(),$lvl+1);
         $output .= $this->_output_data('ttype_name',$type->get_name(),$lvl+1);
         $output .= $this->_close_tag('template',$lvl);
         return $output;
     }
 
-    private function _xml_output_stylesheet(CmsLayoutStylesheet $css,$name,$lvl = 0)
+    private function _xml_output_stylesheet(Stylesheet $css,$name,$lvl = 0)
     {
         if( $css->get_content() == '' ) throw new Exception('Cannot export empty stylesheet');
         $output = $this->_open_tag('stylesheet',$lvl);
@@ -483,7 +485,7 @@ EOT;
         $nkey = substr($key,0,$p);
         $nkey = substr($nkey,2);
 
-        $mod = cms_utils::get_module('DesignManager');
+        $mod = Utils::get_module('DesignManager');
         $smarty = cmsms()->GetSmarty();
         $output = $this->_open_tag('file',$lvl);
         $output .= $this->_output('fkey',$key,$lvl+1);

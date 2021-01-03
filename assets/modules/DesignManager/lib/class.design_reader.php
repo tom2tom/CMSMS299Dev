@@ -1,24 +1,26 @@
 <?php
-#Module: DesignManager - A CMSMS addon module to provide template management.
-#Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+DesignManager module class for processing CMSMS2 designs.
+Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace DesignManager;
 
-use DesignManager\Design;
 use CmsLayoutStylesheet;
 use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
@@ -31,6 +33,7 @@ use XMLReader;
 use function cms_join_path;
 use function cmsms;
 use function file_put_contents;
+use function get_server_permissions;
 use function munge_string_to_url;
 use function startswith;
 
@@ -296,201 +299,202 @@ class design_reader extends reader_base
         return $out;
     }
 
-  protected function validate_template_names()
-  {
-    $this->_scan();
-
-    $templates = TemplateOperations::template_query(['as_list'=>1]);
-    $tpl_names = array_values($templates);
-
-    foreach( $this->_file_map as $key => &$rec ) {
-      if( !startswith($key,'__TPL,,') ) continue;
-
-      if( in_array($rec['value'],$tpl_names) ) {
-        // gotta come up with a new name
-        $orig_name = $rec['value'];
-        $n = 1;
-        while( $n < 10 ) {
-                    $n++;
-          $new_name = $orig_name.' '.$n;
-          if( !in_array($new_name,$tpl_names) ) {
-            $rec['old_value'] = $rec['value'];
-            $rec['value'] = $new_name;
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  protected function validate_stylesheet_names()
-  {
-    $this->_scan();
-
-    $stylesheets = StylesheetOperations::get_all_stylesheets(TRUE);
-    $css_names = array_values($stylesheets);
-
-    foreach( $this->_file_map as $key => &$rec ) {
-      if( !startswith($key,'__CSS,,') ) continue;
-
-      if( in_array($rec['value'],$css_names) ) {
-        // gotta come up with a new name
-        $orig_name = $rec['value'];
-        $n = 1;
-        while( $n < 10 ) {
-                    $n++;
-          $new_name = $orig_name.' '.$n;
-          if( !in_array($new_name,$css_names) ) {
-            $rec['old_value'] = $rec['value'];
-            $rec['value'] = $new_name;
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  public function get_destination_dir()
-  {
-    $name = $this->get_new_name();
-    $config = cmsms()->GetConfig();
-    $dirname = munge_string_to_url($name);
-    $dir = cms_join_path($config['uploads_path'],'designs',$dirname);
-    @mkdir($dir,0771,TRUE);
-    if( !is_dir($dir) || !is_writable($dir) ) {
-      throw new Exception('Could not create directory, or could not write in directory '.$dir);
-    }
-
-    return $dirname;
-  }
-
-  public function import()
-  {
-    $this->validate_template_names();
-    $this->validate_stylesheet_names();
-
-    $config = cmsms()->GetConfig();
-    $newname = $this->get_new_name();
-    $destdir = $this->get_destination_dir();
-    $info    = $this->get_design_info();
-
-    // create new design... fill it with info
-    $design = new DesignManager\Design();
-    // $design->set_owner(get_userid(FALSE));
-    $design->set_name($newname);
-    $description = $this->get_suggested_description();
-
-    if(empty($description))
+    protected function validate_template_names()
     {
-      $description = $info['description'];
-      if( $description ) $description .= "\n----------------------------------------\n";
-      $description .= 'Generated '.strftime('%x %X',$info['generated']).PHP_EOL;
-      $description .= 'By CMSMS version: '.$info['cmsversion'].PHP_EOL;
-      $description .= 'Imported '.strftime('%x %X');
-    }
+        $this->_scan();
 
-    $design->set_description($description);
+        $templates = TemplateOperations::template_query(['as_list'=>1]);
+        $tpl_names = array_values($templates);
 
-    // expand URL FILES to become real files
-    // don't have to worry about duplicated filenames (hopefully)
-    // because the destinaton directory is unique.
-    foreach( $this->_file_map as $key => &$rec ) {
-      if( !startswith($key,'__URL,,') ) continue;
-      if( !isset($rec['data']) || $rec['data'] == '' ) continue;
+        foreach( $this->_file_map as $key => &$rec ) {
+            if( !startswith($key,'__TPL,,') ) continue;
 
-      $destfile = cms_join_path($config['uploads_path'],'designs',$destdir,$rec['value']);
-      file_put_contents($destfile,base64_decode($rec['data']));
-      $rec['tpl_url'] = "{uploads_url}/designs/$destdir/{$rec['value']}";
-      $rec['css_url'] = "[[uploads_url]]/designs/$destdir/{$rec['value']}";
-    }
-
-    // expand stylesheets
-    foreach( $this->get_stylesheet_list() as $css ) {
-      $stylesheet = new CmsLayoutStylesheet();
-      $stylesheet->set_name($css['newname']);
-      if( isset($css['desc']) && $css['desc'] != '' ) $stylesheet->set_description($css['desc']);
-
-      $content = $css['data'];
-      foreach( $this->_file_map as $key => &$rec ) {
-        if( !startswith($key,'__URL,,') ) continue;
-        if( !isset($rec['css_url']) ) continue;
-        $content = str_replace($key,$rec['css_url'],$content);
-      }
-
-      if( $css['mediatype'] ) {
-          $tmp = explode(',',$css['mediatype']);
-          for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
-              $str = trim($tmp[$i]);
-              if( $str ) $stylesheet->add_media_type($str);
-          }
-      }
-
-      if( $css['mediaquery'] ) $stylesheet->set_media_query(trim($css['mediaquery']));
-
-      // save the stylesheet and add it to the design.
-      $stylesheet->set_content($content);
-      $stylesheet->save();
-      $design->add_stylesheet($stylesheet);
-    }
-
-    // expand templates
-	$me = null; //TODO
-    $tpl_recs = $this->get_template_list();
-    foreach( $tpl_recs as $tpl ) {
-      $template = new CmsLayoutTemplate();
-      $template->set_originator($me);
-      $template->set_name($tpl['newname']);
-      if( isset($tpl['desc']) && $tpl['desc'] != '' ) $template->set_description($tpl['desc']);
-      $content = $tpl['data'];
-
-      // substitute URL keys for the values.
-      foreach( $this->_file_map as $key => &$rec ) {
-          if( startswith($key,'__URL,,') ) {
-              // handle URL keys... handles image links etc.
-              if( !isset($rec['tpl_url']) ) continue;
-              $content = str_replace($key,$rec['tpl_url'],$content);
+            if( in_array($rec['value'],$tpl_names) ) {
+                // gotta come up with a new name
+                $orig_name = $rec['value'];
+                $n = 1;
+                while( $n < 10 ) {
+                    $n++;
+                    $new_name = $orig_name.' '.$n;
+                    if( !in_array($new_name,$tpl_names) ) {
+                        $rec['old_value'] = $rec['value'];
+                        $rec['value'] = $new_name;
+                        break;
+                    }
+                }
+            }
         }
-        else if( startswith($key,'__CSS,,') ) {
-          // handle CSS keys... for things like {cms_stylesheet name='xxxx'}
-          if( !isset($rec['value']) ) continue;
-          $content = str_replace($key,$rec['value'],$content);
-        }
-        else if( startswith($key,'__TPL,,') ) {
-          // handle TPL keys... for things like {include file='xxxx'}
-          // or calling a module with a specific template.
-            if( !isset($rec['value']) ) continue;
-            $content = str_replace($key,$rec['value'],$content);
-        }
-      }
-
-      // substitute other tpl keys in this content
-      foreach( $tpl_recs as $tpl2 ) {
-          if( $tpl['key'] == $tpl2['key'] ) continue;
-          $content = str_replace($tpl2['key'],$tpl2['newname'],$content);
-      }
-
-      // substitute CSS keys for their values.  This should handle
-      $template->set_content($content);
-
-      // template type:
-      // - try to find the template type
-            // - if not, set the type to 'generic'.
-      try {
-        $typename = $tpl['type_originator'].'::'.$tpl['type_name'];
-        $type_obj = CmsLayoutTemplateType::load($typename);
-        $template->set_type($type_obj);
-      }
-      catch( CmsException $e ) {
-        // should log something here.
-        $type_obj = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::generic');
-        $template->set_type($type_obj);
-      }
-
-      $template->save();
-      $tpl_recs['newname'] = $template->get_name();
-      $design->add_template($template);
     }
 
-    $design->save();
-  } // import
+    protected function validate_stylesheet_names()
+    {
+        $this->_scan();
+
+        $stylesheets = StylesheetOperations::get_all_stylesheets(TRUE);
+        $css_names = array_values($stylesheets);
+
+        foreach( $this->_file_map as $key => &$rec ) {
+            if( !startswith($key,'__CSS,,') ) continue;
+
+            if( in_array($rec['value'],$css_names) ) {
+                // gotta come up with a new name
+                $orig_name = $rec['value'];
+                $n = 1;
+                while( $n < 10 ) {
+                    $n++;
+                    $new_name = $orig_name.' '.$n;
+                    if( !in_array($new_name,$css_names) ) {
+                        $rec['old_value'] = $rec['value'];
+                        $rec['value'] = $new_name;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public function get_destination_dir()
+    {
+        $name = $this->get_new_name();
+        $dirname = munge_string_to_url($name);
+        $config = cmsms()->GetConfig();
+        $dir = cms_join_path($config['uploads_path'],'designs',$dirname);
+        $perms = get_server_permissions()[3];
+        @mkdir($dir,$perms,TRUE);
+        if( !is_dir($dir) || !is_writable($dir) ) {
+            throw new Exception('Could not create directory, or could not write in directory '.$dir);
+        }
+
+        return $dirname;
+    }
+
+    public function import()
+    {
+        $this->validate_template_names();
+        $this->validate_stylesheet_names();
+
+        $config  = cmsms()->GetConfig();
+        $newname = $this->get_new_name();
+        $destdir = $this->get_destination_dir();
+        $info    = $this->get_design_info();
+
+        // create new design... fill it with info
+        $design = new Design();
+        // $design->set_owner(get_userid(FALSE));
+        $design->set_name($newname);
+        $description = $this->get_suggested_description();
+
+        if(empty($description))
+        {
+            $description = $info['description'];
+            if( $description ) $description .= "\n----------------------------------------\n";
+            $description .= 'Generated '.strftime('%x %X',$info['generated']).PHP_EOL;
+            $description .= 'By CMSMS version: '.$info['cmsversion'].PHP_EOL;
+            $description .= 'Imported '.strftime('%x %X');
+        }
+
+        $design->set_description($description);
+
+        // expand URL FILES to become real files
+        // don't have to worry about duplicated filenames (hopefully)
+        // because the destinaton directory is unique.
+        foreach( $this->_file_map as $key => &$rec ) {
+            if( !startswith($key,'__URL,,') ) continue;
+            if( !isset($rec['data']) || $rec['data'] == '' ) continue;
+
+            $destfile = cms_join_path($config['uploads_path'],'designs',$destdir,$rec['value']);
+            file_put_contents($destfile,base64_decode($rec['data']));
+            $rec['tpl_url'] = "{uploads_url}/designs/$destdir/{$rec['value']}";
+            $rec['css_url'] = "[[uploads_url]]/designs/$destdir/{$rec['value']}";
+        }
+
+        // expand stylesheets
+        foreach( $this->get_stylesheet_list() as $css ) {
+            $stylesheet = new CmsLayoutStylesheet();
+            $stylesheet->set_name($css['newname']);
+            if( isset($css['desc']) && $css['desc'] != '' ) $stylesheet->set_description($css['desc']);
+
+            $content = $css['data'];
+            foreach( $this->_file_map as $key => &$rec ) {
+                if( !startswith($key,'__URL,,') ) continue;
+                if( !isset($rec['css_url']) ) continue;
+                $content = str_replace($key,$rec['css_url'],$content);
+            }
+
+            if( $css['mediatype'] ) {
+               $tmp = explode(',',$css['mediatype']);
+               for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
+                  $str = trim($tmp[$i]);
+                  if( $str ) $stylesheet->add_media_type($str);
+               }
+            }
+
+            if( $css['mediaquery'] ) $stylesheet->set_media_query(trim($css['mediaquery']));
+
+            // save the stylesheet and add it to the design.
+            $stylesheet->set_content($content);
+            $stylesheet->save();
+            $design->add_stylesheet($stylesheet);
+        }
+
+        // expand templates
+        $me = null; //TODO
+        $tpl_recs = $this->get_template_list();
+        foreach( $tpl_recs as $tpl ) {
+            $template = new CmsLayoutTemplate();
+            $template->set_originator($me);
+            $template->set_name($tpl['newname']);
+            if( isset($tpl['desc']) && $tpl['desc'] != '' ) $template->set_description($tpl['desc']);
+            $content = $tpl['data'];
+
+            // substitute URL keys for the values.
+            foreach( $this->_file_map as $key => &$rec ) {
+                if( startswith($key,'__URL,,') ) {
+                    // handle URL keys... handles image links etc.
+                    if( !isset($rec['tpl_url']) ) continue;
+                    $content = str_replace($key,$rec['tpl_url'],$content);
+                }
+                else if( startswith($key,'__CSS,,') ) {
+                    // handle CSS keys... for things like {cms_stylesheet name='xxxx'}
+                    if( !isset($rec['value']) ) continue;
+                    $content = str_replace($key,$rec['value'],$content);
+                }
+                else if( startswith($key,'__TPL,,') ) {
+                    // handle TPL keys... for things like {include file='xxxx'}
+                    // or calling a module with a specific template.
+                    if( !isset($rec['value']) ) continue;
+                    $content = str_replace($key,$rec['value'],$content);
+                }
+            }
+
+            // substitute other tpl keys in this content
+            foreach( $tpl_recs as $tpl2 ) {
+               if( $tpl['key'] == $tpl2['key'] ) continue;
+               $content = str_replace($tpl2['key'],$tpl2['newname'],$content);
+            }
+
+            // substitute CSS keys for their values.    This should handle
+            $template->set_content($content);
+
+            // template type:
+            // - try to find the template type
+                        // - if not, set the type to 'generic'.
+            try {
+                $typename = $tpl['type_originator'].'::'.$tpl['type_name'];
+                $type_obj = CmsLayoutTemplateType::load($typename);
+                $template->set_type($type_obj);
+            }
+            catch( CmsException $e ) {
+                // should log something here.
+                $type_obj = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::generic');
+                $template->set_type($type_obj);
+            }
+
+            $template->save();
+            $tpl_recs['newname'] = $template->get_name();
+            $design->add_template($template);
+        }
+
+        $design->save();
+    } // import
 } // class
