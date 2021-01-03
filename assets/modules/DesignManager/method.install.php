@@ -1,36 +1,40 @@
 <?php
-# DesignManager module installation process
-# Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+DesignManager module installation process
+Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\Database\DataDictionary;
 use CMSMS\Events;
 use CMSMS\Group;
 
 if (!isset($gCms)) {
-    exit;
+	exit;
 }
 
 $dict = new DataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
 $tbl = CMS_DB_PREFIX.'module_designs'; // aka Design::TABLENAME
-//created I, <<< DT replaced 2.3
+//created I, <<< DT replaced 2.99
 //modified I <<< DT ditto
-//dflt I(1) DEFAULT 0, 2.3 removed, irrelevant
+//dflt I(1) DEFAULT 0, 2.99 removed, irrelevant
 $flds = '
 id I(1) UNSIGNED AUTO KEY,
 name C(64) NOT NULL,
@@ -100,50 +104,18 @@ try {
 	$group->GrantPermission('Modify Templates');
 	$group->GrantPermission('View Tag Help');
 } catch (Throwable $t) {
-    //TODO delete group & try again
+	//TODO delete group & try again
 }
 // register events for which other parts of the system may listen
 // these have been migrated from the main installer
+// pre 2.99 these events' originator was 'Core'
 foreach([
  'AddDesignPost',
  'AddDesignPre',
-/*
- 'AddStylesheetPost',
- 'AddStylesheetPre',
- 'AddTemplatePost',
- 'AddTemplatePre',
- 'AddTemplateTypePost',
- 'AddTemplateTypePre',
-*/
  'DeleteDesignPost',
  'DeleteDesignPre',
-/*
- 'DeleteStylesheetPost',
- 'DeleteStylesheetPre',
- 'DeleteTemplatePost',
- 'DeleteTemplatePre',
- 'DeleteTemplateTypePost',
- 'DeleteTemplateTypePre',
-*/
  'EditDesignPost',
  'EditDesignPre',
-/*
- 'EditStylesheetPost',
- 'EditStylesheetPre',
- 'EditTemplatePost',
- 'EditTemplatePre',
- 'EditTemplateTypePost',
- 'EditTemplateTypePre',
-
- 'StylesheetPostCompile',
- 'StylesheetPostRender',
- 'StylesheetPreCompile',
-
- 'TemplatePostCompile',
- 'TemplatePreCompile',
- 'TemplatePreFetch',
-*/
 ] as $name) {
-	// deprecated since 2.3 event originator is 'Core', change to 'DesignManager'
-    Events::CreateEvent('Core',$name);
+	Events::CreateEvent('DesignManager',$name);
 }
