@@ -6,24 +6,24 @@
  * Released under the MIT license.
  * https://github.com/danielm/uploader/blob/master/LICENSE.txt
  */
-/* global define, module, require, window, document, FormData */
+/* global define, module, require, window, FormData, jQuery */
 /*!
 jQuery Ajax File Uploader Widget V.1.1 <https://github.com/danielm/uploader>
 (C) 2013-2020 Daniel Morales <daniel85mg@gmail.com>
 License MIT
 */
-(function (factory) {
+(function(factory) {
   "use strict";
   if (typeof define === "function" && define.amd) {
     // AMD. Register as an anonymous module.
-    define(["jquery"], factory);
+    define(["jquery", "document"], factory);
   } else if (typeof exports !== "undefined") {
-    module.exports = factory(require("jquery"));
+    module.exports = factory(require("jquery"), document);
   } else {
     // Browser globals
-    factory(window.jQuery);
+    factory(window.jQuery, document);
   }
-}(function($) {
+}(function($, document) { // TODO support document param
   "use strict";
 
   var pluginName = "dmUploader";
@@ -54,12 +54,10 @@ License MIT
 
   DmUploaderFile.prototype.upload = function()
   {
-    var file = this;
+    if (!this.canUpload()) {
 
-    if (!file.canUpload()) {
-
-      if (file.widget.queueRunning && file.status !== FileStatus.UPLOADING) {
-        file.widget.processQueue();
+      if (this.widget.queueRunning && this.status !== FileStatus.UPLOADING) {
+        this.widget.processQueue();
       }
 
       return false;
@@ -67,32 +65,33 @@ License MIT
 
     // Form Data
     var fd = new FormData();
-    fd.append(file.widget.settings.fieldName, file.data);
+    fd.append(this.widget.settings.fieldName, this.data);
 
     // Append extra Form Data
-    var customData = file.widget.settings.extraData;
+    var customData = this.widget.settings.extraData;
     if (typeof customData === "function") {
-      customData = customData.call(file.widget.element[0], file.id);
+      customData = customData.call(this.widget.element[0], this.id);
     }
 
     $.each(customData, function (exKey, exVal) {
       fd.append(exKey, exVal);
     });
 
-    file.status = FileStatus.UPLOADING;
-    file.widget.activeFiles++;
+    this.status = FileStatus.UPLOADING;
+    this.widget.activeFiles++;
 
-    if (typeof file.widget.settings.onBeforeUpload === "function") {
-      file.widget.settings.onBeforeUpload.call(file.widget.element[0], file.id);
+    if (typeof this.widget.settings.onBeforeUpload === "function") {
+      this.widget.settings.onBeforeUpload.call(this.widget.element[0], this.id);
     }
-    file.widget.element.trigger("before" + eventSpace, file.id);
+    this.widget.element.trigger("before" + eventSpace, this.id);
+    var file = this;
     // Ajax submit
-    file.jqXHR = $.ajax({
-      url: file.widget.settings.url,
-      type: file.widget.settings.method,
-      dataType: file.widget.settings.dataType,
+    this.jqXHR = $.ajax({
+      url: this.widget.settings.url,
+      type: this.widget.settings.method,
+      dataType: this.widget.settings.dataType,
       data: fd,
-      headers: file.widget.settings.headers,
+      headers: this.widget.settings.headers,
       cache: false,
       timeout: 0,
       contentType: false,
@@ -159,10 +158,10 @@ License MIT
 
   DmUploaderFile.prototype.getXhr = function()
   {
-    var file = this;
     var xhrobj = $.ajaxSettings.xhr();
 
     if (xhrobj.upload) {
+      var file = this;
       xhrobj.upload.addEventListener("progress", function (event) {
         var percent = 0;
         var position = event.loaded || event.position;
@@ -280,7 +279,7 @@ License MIT
     }
 
     return input;
-  }
+  };
 
   DmUploader.prototype.init = function()
   {
@@ -350,6 +349,12 @@ License MIT
       // Trigger an error because the plugin won't do anything.
       $.error("Markup error found by the dmUploader plugin");
       return null;
+    }
+
+    if (this.settings.hookDocument) {
+      if (this.element[0] == document) {
+        this.settings.hookDocument = false;
+      }
     }
 
     // We good to go, tell them!
