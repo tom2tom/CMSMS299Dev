@@ -58,7 +58,7 @@ $lang = [
  'info_timeout' => ' When using the SMTP mailer, this option specifies the number of seconds before an attempted connection to the SMTP server will fail. A typical value for this setting is 60.<br /><br /><strong>Note:</strongstrong> If a longer value is necessary here, it probably indicates an underlying DNS, routing or firewall problem, and you might need to contact the site host.',
  'info_username' => 'This is the username for connecting to the SMTP server if SMTP authentication is enabled.',
  'mailer' => 'Mail Sender',
- 'mailtest_body' => '<h2 style=&quot;color:green;&quot;>Greetings</h2><p>This message was sent from a website using <strong>CMS Made Simple</strong>, to confirm the validity of that site&apos;s email-settings.</p><p>Everything appears to be working as intended.</p><p>However, if you did not expect this email, please contact the website administrator.</p>',
+ 'mailtest_body' => '<h2 style=&quot;color:green;&quot;>Greetings</h2><p>This message was sent to confirm the validity of a website&quot;s email-settings.</p><p>Everything appears to be working as intended.</p><p>However, if you did not expect this email, please contact the site administrator via  %s.</p>',
  'mailtest_subject' => 'CMSMS Mail test message',
  'mailtest_success' => 'Test email was sent. Check whether it has been received.',
  'module' => 'This Module',
