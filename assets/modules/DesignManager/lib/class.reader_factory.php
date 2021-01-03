@@ -20,7 +20,8 @@ namespace DesignManager;
 
 use cms_utils;
 use CmsFileSystemException;
-use CMSMS\CmsException;
+use DesignManager\design_reader;
+use DesignManager\theme_reader;
 
 final class reader_factory
 {
@@ -45,16 +46,13 @@ final class reader_factory
     if( $p === FALSE ) throw new Exception($this->Lang('error_readxml'));  // highly unlikely.
     $word = substr($str,0,$p);
 
-        $ob = null;
     switch( $word ) {
     case 'theme':
-      $ob = new theme_reader($xmlfile);
-      break;
-
+      return new theme_reader($xmlfile);
     case 'design':
-      $ob = new design_reader($xmlfile);
-      break;
+      return new design_reader($xmlfile);
+    default:
+      return null;
     }
-        return $ob;
   }
 } // class

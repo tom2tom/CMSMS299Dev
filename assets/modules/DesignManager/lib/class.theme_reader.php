@@ -1,32 +1,34 @@
 <?php
-#DesignManager module class: theme_reader.
-#Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+DesignManager module class: theme_reader, for processing CMSMS1 themes.
+Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace DesignManager;
 
 use cms_utils;
-use DesignManager\Design;
 use CmsLayoutStylesheet;
 use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
-use CMSMS\CmsException;
 use CMSMS\ModuleOperations;
 use CMSMS\StylesheetOperations;
 use CMSMS\TemplateOperations;
+use Exception;
 use const CMS_ROOT_URL;
 use function cms_join_path;
 use function cmsms;
@@ -287,10 +289,10 @@ class theme_reader extends reader_base
   protected function get_destination_dir()
   {
     $name = $this->get_new_name();
-    $config = cmsms()->GetConfig();
     $dirname = munge_string_to_url($name);
+    $config = cmsms()->GetConfig();
     $dir = cms_join_path($config['uploads_path'],'themes',$dirname);
-    @mkdir($dir,0771,TRUE);
+    @mkdir($dir,0770,TRUE); // $perms = get_server_permissions()[3];
     if( !is_dir($dir) || !is_writable($dir) ) {
       throw new Exception('Could not create directory, or could not write in directory '.$dir);
     }
@@ -360,7 +362,7 @@ class theme_reader extends reader_base
     $ref_map =& $this->_ref_map;
 
     // part1 .. start creating design..
-    $design = new DesignManager\Design();
+    $design = new Design();
     $design->set_name($newname);
     $description = $this->get_suggested_description();
 
