@@ -2,6 +2,7 @@
 /*
 URL-creation methods for CMS Made Simple <http://cmsmadesimple.org>
 Copyright (C) 2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify it
@@ -30,7 +31,7 @@ use function cms_htmlentities;
  * Methods for modules to construct URL's.
  *
  * @internal
- * @since 2.9
+ * @since 2.99
  * @package CMS
  * @license GPL
  */
@@ -47,7 +48,7 @@ use function cms_htmlentities;
  *   is done, numeric(int) or ''|null for admin. Default null.
  * @param array $params	Optional parameters to include in the URL. Default []
  *   These will be ignored if the prettyurl parameter is present.
- *   Since 2.9, parameter value(s) may be non-scalar: 1-D arrays processed directly,
+ *   Since 2.99, parameter value(s) may be non-scalar: 1-D arrays processed directly,
  *   other things json-encoded if possible.
  * @param string $prettyurl URL segment(s) relative to the root-URL of the
  *   action, to generate a pretty-formatted URL
@@ -56,11 +57,12 @@ use function cms_htmlentities;
  * @param bool	$targetcontentonly Optional flag whether the target of the
  *   output link targets the content area of the destination page Default false
  * @param string $prettyurl Optional url part(s), or ':NOPRETTY:' Default ''
- * @param int    $format since 2.9 Optional indicator for how to format the URL
- *  0 = (pre-2.9 default, back-compatible) rawurlencoded parameter keys and values
- *      other than the value for key 'mact', '&amp;' for parameter separators
+ * @param int    $format since 2.99 Optional indicator for how to format the URL
+ *  0 = (default) rawurlencoded parameter keys and values
+ *      other than the value for key 'mact', '&amp;' for parameter separators, which
+ *      is appropriate if the query does or might include verbatim 'entitized' content
  *  1 = proper: as for 0, but also encode the 'mact' value
- *  2 = default: as for 1, except '&' for parameter separators - e.g. for use in get-URL, js
+ *  2 = as for 1, except '&' for parameter separators - e.g. for use in get-URL, js
  *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
  * @return string Ready-to-use or corresponding displayable URL.
  */
@@ -73,7 +75,7 @@ function CreateActionUrl(
 	bool $inline = false,
 	bool $targetcontentonly = false,
 	string $prettyurl = '',
-	int $format = 2
+	int $format = 0
 	) : string
 {
 	if ($id) {
@@ -142,7 +144,7 @@ function CreateActionUrl(
 		}
 		$text .= '?'.RequestParameters::create_action_params($parms, $format);
 		if ($format == 3) {
-			$text = cms_htmlentities($text, ENT_QUOTES | ENT_SUBSTITUTE, null, false);
+			$text = cms_htmlentities($text);
 		}
 	}
 	return $text;
@@ -155,12 +157,13 @@ function CreateActionUrl(
  * @param string $action The module action name
  * Optional parameters
  * @param array $params Parameters to include in the URL. Default [].
- *   Since 2.9, parameter value(s) may be non-scalar: 1-D arrays processed directly,
+ *   Since 2.99, parameter value(s) may be non-scalar: 1-D arrays processed directly,
  *   other things json-encoded if possible.
  * @param bool $onetime Whether the URL (specifically, its security-parameters) is for one-time use. Default false.
  * @param int  $format Indicator for how to format the URL
- *  0 = (default, back-compatible) rawurlencoded parameter keys and values
+ *  0 = (default) rawurlencoded parameter keys and values
  *    other than the value for key 'mact', '&amp;' for parameter separators
+ *    which is appropriate if the query does or might include verbatim 'entitized' content
  *  1 = proper: as for 0, but also encode the 'mact' value
  *  2 = raw: as for 1, except '&' for parameter separators - e.g. for use in js
  *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
@@ -199,12 +202,13 @@ function CreateJobUrl(
  * @param mixed $returnid The integer page-id to return to after the action
  *   is done, or ''|null for admin
  * @param array $params	  Optional array of parameters to include in the URL.
- *   Since 2.9, parameter value(s) may be non-scalar: 1-D arrays processed directly,
+ *   Since 2.99, parameter value(s) may be non-scalar: 1-D arrays processed directly,
  *   other things json-encoded if possible.
- * @param int   $format since 2.9 Optional indicator for how to format the url
- *  0 = (pre-2.9 default, back-compatible): rawurlencoded parameter keys and values, '&amp;' for parameter separators
+ * @param int   $format since 2.99 Optional indicator for how to format the url
+ *  0 = (default): rawurlencoded parameter keys and values, '&amp;' for parameter separators
+ *     which is appropriate if the query does or might include verbatim 'entitized' content
  *  1 = treated same as 0 (for format-enum consistency)
- *  2 = default: as for 0, except '&' for parameter separators - e.g. for use in get-URL, js
+ *  2 = as for 0, except '&' for parameter separators - e.g. for use in get-URL, js
  *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
  * @return string
  */
@@ -213,7 +217,7 @@ function CreatePageUrl(
  	$id,
 	$returnid,
 	array $params = [],
-	int $format = 2
+	int $format = 0
 	) : string
 {
 	$text = '';
