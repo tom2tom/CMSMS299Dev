@@ -52,8 +52,8 @@ function cms_autoloader(string $classname)
 			$sroot = $root;
 		} elseif ($space == 'CMSAsset') {
 			$sroot = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR;
-		} elseif ($space == 'CMSResource') {
-			$sroot = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'resources'.DIRECTORY_SEPARATOR;
+//		} elseif ($space == 'CMSResource') { maybe in future ...
+//			$sroot = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'resources'.DIRECTORY_SEPARATOR;
 		} else {
 			$mpath = cms_module_path($space);
 			if ($mpath) {
