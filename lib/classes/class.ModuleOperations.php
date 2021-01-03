@@ -1241,8 +1241,6 @@ VALUES (?,?,?,$now)");
 	/**
 	 * Return the members of $_REQUEST[] whose key begins with $id (any case)
 	 * $id is stripped from the start of returned keys.
-	 * Values of parameters 'id', 'returnid' are cast to int i.e. adminish
-	 * values '',null become 0
 	 *
 	 * @internal
 	 * @param string $id
@@ -1257,8 +1255,8 @@ VALUES (?,?,?,$now)");
 			foreach ($_REQUEST as $key=>$value) {
 				if( strncmp($key,$id,$len) == 0 ) {
 					$key = substr($key,$len);
-					if( $key == 'id' || $key == 'returnid' ) $value = (int)$value;
 //					if( $key == 'id' || $key == 'returnid' || $key == 'action' ) continue; 2.99 deprecation, breaks lot of stuff
+					// generic specialchars decode N/A - some values validly include such chars
 					$params[$key] = $value;
 				}
 			}
