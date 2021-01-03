@@ -1,21 +1,23 @@
 <?php
-#Class: article utilities
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class: admin console utilities
+Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace News;
 //use function cms_move_uploaded_file;
 
@@ -36,7 +38,7 @@ final class AdminOperations
 
     /**
      *
-	 * @since 2.90
+     * @since 2.90
      * @param int $articleid Or numeric string
      * @return boolean
      */
@@ -184,8 +186,9 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     {
         $db = cmsms()->GetDb();
         $query = 'SELECT news_category_id, item_order, news_category_name FROM '.CMS_DB_PREFIX.'module_news_categories';
-        $dbresult = $db->Execute($query);
-        while ($dbresult && $row = $dbresult->FetchRow()) {
+        $rst = $db->Execute($query);
+        if ($rst) {
+          while ($row = $rst->FetchRow()) {
             $current_hierarchy_position = '';
             $current_long_name = '';
             $content_id = $row['news_category_id'];
@@ -196,7 +199,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
                 $query = 'SELECT news_category_id, item_order, news_category_name, parent_id FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?';
                 $row2 = $db->GetRow($query, [$current_parent_id]);
                 if ($row2) {
-                    $current_hierarchy_position = str_pad($row2['item_order'], 5, '0', STR_PAD_LEFT) . '.' . $current_hierarchy_position;
+                    $current_hierarchy_position = str_pad($row2['item_order'], 4, '0', STR_PAD_LEFT) . '.' . $current_hierarchy_position;
                     $current_long_name = $row2['news_category_name'] . ' | ' . $current_long_name;
                     $current_parent_id = $row2['parent_id'];
                     $count++;
@@ -216,6 +219,8 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
             $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET hierarchy = ?, long_name = ? WHERE news_category_id = ?';
             $db->Execute($query, [$current_hierarchy_position, $current_long_name, $content_id]);
+          }
+          $rst->Close();
         }
     }
 
