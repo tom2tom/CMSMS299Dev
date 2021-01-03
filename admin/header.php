@@ -172,9 +172,9 @@ if (AppSingle::App()->JOBTYPE == 0) {
 if (isset($config['show_performance_info'])) {
 	$starttime = microtime();
 }
-if (!isset($USE_OUTPUT_BUFFERING) || $USE_OUTPUT_BUFFERING) {
+//if (!isset($USE_OUTPUT_BUFFERING) || $USE_OUTPUT_BUFFERING) { undocumented, unused
 	@ob_start();
-}
+//}
 
 if (!isset($USE_THEME) || $USE_THEME) {
 	if (!AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
