@@ -1,20 +1,23 @@
 <?php
-# DesignManager module strings-translation data.
-# Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+DesignManager module strings-translation data.
+Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 //A
 $lang['apply'] = 'Apply'; //OR use lang(same)
@@ -53,8 +56,8 @@ $lang['error_uploading'] = 'Problem uploading file (perhaps it is too large)';
 $lang['error_xmlstructure'] = 'Error in the structure of the XML File';
 $lang['event_desc_adddesignpost'] = 'Sent after a design is saved';
 $lang['event_desc_adddesignpre'] = 'Sent before a design is saved to the database';
-//$lang['event_desc_editdesignpost'] = 'Sent after a design is modified (before saved)';
-//$lang['event_desc_editdesignpre'] = 'Sent before a design is modified';
+$lang['event_desc_editdesignpost'] = 'Sent after a design is modified (before saved)';
+$lang['event_desc_editdesignpre'] = 'Sent before a design is modified';
 $lang['event_desc_deletedesignpost'] = 'Sent after a design is removed';
 $lang['event_desc_deletedesignpre'] = 'Sent prior to a design being removed';
 $lang['export_design'] = 'Export Design to XML';
@@ -174,7 +177,6 @@ $lang['event_help_adddesignpost'] = "<h4>Parameters</h4>
   <li>'Design' - Reference to the affected design object.</li>
 </ul>
 ";
-/*
 $lang['event_help_editdesignpost'] = '<h4>Parameters</h4>
 <ul>
   <li>\'Design\' - A reference to the affected design object.</li>
@@ -185,7 +187,6 @@ $lang['event_help_editdesignpre'] = '<h4>Parameters</h4>
   <li>\'Design\' - A reference to the affected design object.</li>
 </ul>
 ';
-*/
 $lang['event_help_deletedesignpost'] = '<h4>Parameters</h4>
 <ul>
   <li>\'Design\' - A reference to the affected design object.</li>
