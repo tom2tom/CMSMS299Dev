@@ -4,6 +4,7 @@ namespace Ddrv\Mailer\Spool;
 
 use Ddrv\Mailer\Contract\Message;
 use Ddrv\Mailer\Contract\Spool;
+use function file_put_contents;
 
 final class FileSpool implements Spool
 {
@@ -16,7 +17,7 @@ final class FileSpool implements Spool
     public function __construct($dir)
     {
         if (!is_dir($dir)) {
-            mkdir($dir, 0644, true);
+            mkdir($dir, 0644, true); // TODO better permissions
         }
         $this->dir = $dir;
     }
