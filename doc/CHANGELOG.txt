@@ -1,4 +1,4 @@
-Version 2.3 - NO NAME SET
+Version 2.99 - NO NAME SET
 ----------------------------------
 ADMIN USER-FACING CHANGES
 
@@ -47,7 +47,7 @@ deprecations - if this parameter, and also debug, are not empty, deprecation not
 develop_mode (formerly developer_mode) - 1 when somebody authorized is working on the site content/operation
 menu_cssclass css class to be applied to admin console context menus. Each admin theme should have such class(es)
 pr_root_url - protocol-relative root URI
-simpletags_path - name of filesystem folder where 'simple-plugin' files are stored, default 'assets-path'/'simple_plugins'
+usertags_path - name of filesystem folder where 'user-defined tag' files are stored, default 'assets-path'/'user_plugins'
 
 deprecated
 
@@ -68,9 +68,13 @@ DEFINES
 new
 
 CMS_ASSETS_URL - URL corresponding to CMS_ASSETS_PATH
-CMS_FILETAGS_PATH - filesystem path of folder containing simple-plugin files
+CMS_DEPREC - whether to throw upon use of something deprecated
+CMS_FILETAGS_PATH - filesystem path of folder containing UDT/user-plugin files
 CMS_SCRIPTS_PATH - filesystem path of top folder containing js resource files
 CMS_SCRIPTS_URL - URL corresponding to CMS_SCRIPTS_PATH
+CMS_THEMES_PATH - filesystem path of top folder containing theme-related files
+CMS_THEMES_URL - URL corresponding to CMS_THEMES_PATH
+EXT_EXEC - flag for tailoring cms_htmlenties() and cms_specialchars()
 
 PLUGINS
 
@@ -130,13 +134,13 @@ symlinks in the source-files are handled properly
 user-inputs required during an installer session can be pre-defined in a .ini fle. With all of them in place, an installer session takes only about 90 seconds.
 non-core modules can also be included by the release-builder among installer source-files, in which case those modules become optional selections during installation
 a custom 'support-url' can be specified, in which case it will be displayed in the admin console instead of a link to CMSMS website
-installs and upgrades support renamed admin and/or assets and/or simple_plugins folders
+installs and upgrades support renamed admin and/or assets and/or user_plugins folders
 installer can operate on a host without PHP's phar extension
 installer cleans up after itself
 
 deprecated
 
-Smarty2 API - e.g. method assign_by_ref() migrates to assignByRef() see https://github.com/smarty-php/smarty/blob/master/libs/SmartyBC.class.php
+Smarty2 API - e.g. method assign_by_ref() wraps assignByRef(). {php}{/php} tags remain valid, though disabled by CMSMS in many contexts. See https://github.com/smarty-php/smarty/blob/master/libs/SmartyBC.class.php
 adodb-lite database-interface API
 page-element creation via the module-class API (CreateInput...() and the like) - use CMSMS\FormUtils-class (aka CmsFormUtils-class) API
 page-tab functions via the Admintheme classes - use CMSMS\AdminTabs-class (aka cms_admin_tabs-class) API
@@ -146,15 +150,26 @@ module-related classes & interfaces without suitable namespace
 css styling using the '960 Grid System' - migrate to cssgrid with fallback to flexbox
 
 DETAILS
-  - New admin-page-content direct-placement methods: CMSModule::AdminPageContent(), add_page_content(), add_page_headtext(), add_page_foottext()
+  - New admin-page-content direct-placement methods: CMSModule::AdminPageContent(), add|remove|get_page_headtext(), add|remove|get_page_foottext()
   - New notification methods: CMSModule::ShowInfo(),ShowWarning(),SetInfo(),SetWarning()
-  - New method: CMSModule::get_cli_commands()
   - New method: CMSModule::create_pageurl()
   - New methods: CmsApp::disable_template_processing(),template_processing_allowed(),add_shutdown(),
          GetScriptsManager(),GetStylesManager(),GetJobManager(),GetCookieManager(),GetSiteUUID()
+  - New methods: cms_admin_sendheaders(),cms_create_guid(),cms_get_css(),
+         cms_get_script(),cms_installed_jquery(),cms_path_to_url(),
+         cms_preferred_lang(),cms_to_stamp(),cms_utf8_sort(),
+         get_module_param(),set_module_param(),
+         get_richeditor_setup(),get_syntaxeditor_setup(),
+         get_server_permissions(),
+         munge_string_to_file(),
+         register_endsession_function(),
+         restricted_cms_permissions()
+  - New content-security methods: cms_specialchars(),cms_specialchars_decode(),
+         execSpecialchars(),urlSpecialchars(),sanitizeVal(),
   - New method: AdminUtils::get_module_icon()
-  - New methods: cms_utils::path_to_url(),encrypt_string(),decrypt_string(),hash_string(),random_string()
-  - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum, RequestParameters
+  - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum, RequestParameters, Crypto, AppSingle
+  - Renamed classes: App, AppConfig, AppParams, UserParams (their old names are still usable)
+  - New content-security methods: Crypto::encrypt_string(),decrypt_string(),hash_string(),random_string(),scramble_string()
   - New hook-replacement events: MetadataPostRender, MetadataPreRender, PageTopPostRender, PageTopPreRender,
       PageHeadPostRender, PageHeadPreRender, PageBodyPostRender, PageBodyPreRender, PostRequest
   - CHANGE: parameter-seprarators in generated URL strings default to '&' instead of '&amp;' (per RFC 3986)
@@ -168,8 +183,8 @@ DETAILS
   - CHANGE: URL-string constructor methods support non-scalar paramter values
   - CHANGE: Page style(s) are applied directly, insead of via a Design. Each design is now just a tool to facilitate site development
   - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
-  - BREAKING: Renamed permission 'Modify User-defined Tags' to 'Manage Simple Plugins'
-  - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
+  - BREAKING: Renamed permission 'Modify User-defined Tags' to 'Manage User Plugins'
+  - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.99 at least, the module is still operational.)
   - CHANGE: News module is non-core, and in future will be distributed independently of the core files (and probably replaced)
   - BREAKING: Long-deprecated frontend creation of news items has been removed
   - ADD: Extra permission: 'Remote Administration'
@@ -181,6 +196,9 @@ DETAILS
   - FEATURE: added jQuery Poller object, a more-flexible alternative to the autoRefresh widget
   - FEATURE: added module CoreTextEditing allowing (for now) Ace|CodeMirror, to edit templates, stylesheets, UDT's,
       and related (but independent) get_editor_script(), {editorarea}, {edit_template}, and includable method.edittemplate.php
+  - DEPRECATED: cleanValue() method. Instead use sanitizeVal() for inputs, cms_specialchars() and/or execSpecialchars() for outputs
+  - DEPRECATED: cms_get_jquery() method. Instead use
+  - DEPRECATED: create_textarea() method. Instead use
   - DEPRECATED: String values for application-states. Such states are now bit-flags, which can be OR'd, AND'd, compared ordinally
   - DEPRECATED: Module lazy-loading and related methods. Modules are now always loaded on-demand, effectively lazy.
   - DEPRECATED: Content pages' secure option
@@ -195,10 +213,10 @@ DETAILS
   - FEATURE: added new define in cms_config class: CMS_ADMIN_PATH
   - FEATURE: added the CMS_ASSETS_URL define and assets_url config entry.
   - DEPRECATED: UserTagOperations class is now merely an alias for SimpleTagOperations
-  - DEPRECATED: simple-plugin cachability is always false (as was the case for UDT's). Should always be true, and overridden by nocache parameter in template where relevant
-  - DEPRECATED: module-plugin cachability is set permanently when module is installed. Should always be true, and overridden by nocache parameter in template where relevant
+  - DEPRECATED: user-plugin cachability is always false (as was the case for UDT's). Should always be true, and overridden by a nocache parameter in template where relevant
+  - DEPRECATED: module-plugin cachability is set permanently when module is installed. Should always be true, and overridden by a nocache parameter in template where relevant
   - FEATURE: Sitedown mode now throws a 503 exception and outputs a 503 error code
-  - FEATURE: The 503 error handler (maintenance mode) is now an Error Page.
+  - FEATURE: The 503 error handler (maintenance mode) can be an Error Page.
   - DEPRECATED: Some seldom-used methods in the module API
   - DEPRECATED: Method CmsApp::clear_cached_files - replaced by more-secure alternative
   - DEPRECATED: Method cms_db_prefix(). Constant CMS_DB_PREFIX replaces that
@@ -212,7 +230,6 @@ DETAILS
       addNode, getChildrenCount, getId, getLevel, getNodeByAlias, getNodeById
       getParentNode, getSiblingCount, getTag, hasChildren, setTag
   - CHANGE: Pages-content is cached in the global cache. The redundant ContentCache class is gone
-  - CHANGE: Adds convenience methods get_cliuser()
   - CHANGE: Adds the new pr_root_url config entry.  Returns the protocol relative root URI. root_url will always include the protocol.
   - CHANGE: Remove long deprecated passthru parameters to effect $_REQUEST because of potential security vulnerabilities.
   - Improved error message if there was an error parsing the template (or a duplicate content block).
@@ -370,7 +387,6 @@ AdminLog
   - New core module to replace the adminlog.php file
 
 Search  - v1.52
-  - FEATURE: Now exports a command for cmscli
   - The search results now contain _content_ and the page id for content pages.
 
 AdminSearch v1.0.5
@@ -452,13 +468,13 @@ DesignManager v1.1.4
   - Fixes problems with the cancel button not marking the form as 'clean' (not dirty).
 
 
-Version 2.2.3.1 - Happy Adventure
+Version 2.2.99.1 - Happy Adventure
 ----------------------------------
 Core - General
   - Fix an issue when parsing multiple content blocks.
 
 
-Version 2.2.3 - Happy Adventure
+Version 2.2.99 - Happy Adventure
 ----------------------------------
 Core - General
   - Fixed a redirect loop problem on mixed HTTP/HTTPS sites when the secure flag was set on some pages.
@@ -471,7 +487,7 @@ Core - General
   - Now generate the moduleinfo.ini file automatically on install or upgrade of a module.
   - Increase the maxlength attribute for password input boxes in myaccount.
   - Adds a StartsWith JavaScript shiv for IE11.
-  - Revert the protocol-less URI for root_url (more changes coming for 2.3).
+  - Revert the protocol-less URI for root_url (more changes coming for 2.99).
   - Get rid of the smart_url config option.
   - Fix a problem when testing for duplicate aliases of the form string-###  where the suffix integer was greater than 100.
   - More fixes to mact preprocessing if {content} was in the top of the template.
@@ -486,7 +502,6 @@ CmsJobManager v0.1.1
   - Optimization of audit logging.
   - Change connection timeout to 1 second.
   - Change processing to be a little more friendly to some environments wrt. content-size header.
-  - Prevent processing from the CLI when root_url is calculated.
 
 MicroTiny v2.2.1
   - Minor fix for filepicker plugin.
