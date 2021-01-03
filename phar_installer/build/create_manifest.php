@@ -288,19 +288,19 @@ if (startswith($uri_to, 'file://')) {
 //
 
 // create empty temp directories to hold the filesets
-if (!(is_writable($_tmpdir) || mkdir($_tmpdir, 0771))) {
+if (!(is_writable($_tmpdir) || mkdir($_tmpdir, 0777))) {// generic perms, pending actuals for istallation
     fatal('Temp folder is not writable');
 }
 $_fromdir = $_tmpdir.DIRECTORY_SEPARATOR.'_from';
 if (is_dir($_fromdir)) {
     rrmdir($_fromdir);
 }
-mkdir($_fromdir, 0771);
+mkdir($_fromdir, 0777);
 $_todir = $_tmpdir.DIRECTORY_SEPARATOR.'_to';
 if (is_dir($_todir)) {
     rrmdir($_todir);
 }
-mkdir($_todir, 0771);
+mkdir($_todir, 0777);
 
 // retrieve sources
 try {
@@ -392,6 +392,7 @@ if ($_compress) {
     gzwrite($_fh, file_get_contents($_tmpfile));
     gzclose($_fh);
     copy($_gzfile, $_tmpfile);
+    chmod($_tmpfile, 0666); // generic perms here
     @unlink($_gzfile);
 }
 
@@ -411,7 +412,7 @@ if (defined('STDOUT') && $_outfile == STDOUT) {
                     touch($file.DIRECTORY_SEPARATOR.'changelog.txt');
                 }
                 $file .= DIRECTORY_SEPARATOR.$_outfile;
-            } elseif (mkdir($file, 0771, true)) {
+            } elseif (mkdir($file, 0777, true)) { // generic perms, pending actuals for istallation
                 touch($file.DIRECTORY_SEPARATOR.'changelog.txt');
                 $file .= DIRECTORY_SEPARATOR.$_outfile;
             }
@@ -422,7 +423,7 @@ if (defined('STDOUT') && $_outfile == STDOUT) {
     }
     info('Copy manifest to '.$file);
     copy($_tmpfile, $file);
-    chmod($file, 0640);
+    chmod($file, 0666); // generic perms
 }
 
 if ($_writecfg) {
@@ -657,7 +658,7 @@ function write_config_file(array $config_data, string $filename)
     }
     fwrite($fh, "\n");
     fclose($fh);
-    chmod($filename, 0640);
+    chmod($filename, 0666); // generic perms pending installation
 }
 
 function get_config_file() : string
@@ -711,11 +712,12 @@ function rcopy(string $srcdir, string $tmpdir)
         $relpath = substr($fp, $len);
         if ($fn == '.') {
             $tp = joinpath($tmpdir, $relpath);
-            @mkdir(dirname($tp), 0771, true);
+            @mkdir(dirname($tp), 0777, true); // generic perms
         } elseif ($fn !== '..') {
             $tp = joinpath($tmpdir, $relpath);
-            @mkdir(dirname($tp), 0771, true);
+            @mkdir(dirname($tp), 0777, true);
             @copy($fp, $tp);
+			@chmod($tp, 0666);
         }
     }
 }

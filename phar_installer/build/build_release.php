@@ -178,14 +178,14 @@ function rchmod(string $topdir) : bool
         );
         $res = true;
         foreach ($iter as $fp) {
-            $mode = (is_dir($fp)) ? 0770 : 0660;
+            $mode = (is_dir($fp)) ? 0777 : 0666; // generic perms - actuals will be used during installation
             if (!@chmod($fp, $mode)) {
                 $res = false;
             }
         }
         return $res;
     }
-    return @chmod($topdir, 0660);
+    return @chmod($topdir, 0666);
 }
 
 function valid_link($fp)
@@ -367,7 +367,7 @@ function copy_local_files()
 
         if (@is_dir($fp)) {
             if (!@is_link($fp)) {
-                mkdir($tp, 0770, true);
+                mkdir($tp, 0777, true); // generic perms, replaced during istallation
             } else {
                 $target = readlink($fp);
                 symlink($target, $tp);
@@ -383,6 +383,7 @@ function copy_local_files()
             }
         } elseif (@is_file($fp)) {
             copy($fp, $tp);
+			chmod($tp, 0666); // generic perms here
             verbose(2, "COPIED $fn to $tp");
         }
     }
@@ -440,12 +441,12 @@ function copy_local_files()
 //        @rename($fp.TODOfunc($config['assets_url']), $fp.'assets');
     }
 
-    if (!empty($config['simpletags_path'])) {
-        @rename($fp.$config['simpletags_path'], $fp.'assets'.DIRECTORY_SEPARATOR.'simple_plugins');
+    if (!empty($config['usertags_path'])) {
+        @rename($fp.$config['usertags_path'], $fp.'assets'.DIRECTORY_SEPARATOR.'user_plugins');
     }
     $fp2 = joinpath($sourcedir,'assets','');
-    // no change to {...[assets]/templates/*, ...[assets]/css/*}, those files will be recorded in the relevant table
-    foreach ([/*'templates','css',*/'simple_plugins'] as $name) {
+    // no change to {...[assets]/templates/*, ...[assets]/styles/*}, those files will be recorded in the relevant table
+    foreach ([/*'templates','styles',*/'user_plugins'] as $name) {
         @rrmdir($fp2.$name, false, true);
     }
 
@@ -507,7 +508,7 @@ function copy_installer_files()
 
         if (@is_dir($fp)) {
             if (!@is_link($fp)) {
-                mkdir($tp, 0770, true);
+                mkdir($tp, 0777, true); // generic perms, replaced during istallation
             } else {
                 $target = readlink($fp);
                 symlink($target, $tp);
@@ -523,6 +524,7 @@ function copy_installer_files()
             }
         } elseif (@is_file($fp)) {
             copy($fp, $tp);
+			chmod($tp, 0666); // generic perms here
             verbose(2, "COPIED $fn to $tp");
         }
     }
@@ -603,7 +605,7 @@ function create_source_archive()
 {
     global $outdir, $pack, $packext;
 
-    @mkdir($outdir, 0770, true);
+    @mkdir($outdir, 0777, true); // generic perms, replaced during istallation
     $archpath = joinpath($outdir, 'sources.phar');
     @unlink($archpath);
     if ($packext) @unlink($archpath.$packext);
@@ -1156,7 +1158,7 @@ try {
     }
 
     if (!is_dir($outdir)) {
-        @mkdir($outdir, 0770, true);
+        @mkdir($outdir, 0777, true); // generic perms, pending actuals for istallation
     }
     elseif ($clean) {
         verbose(1, 'INFO: Removing old output file(s)');
@@ -1164,7 +1166,7 @@ try {
     }
     // used for accumulating sources
     if (!is_dir($sourcedir)) {
-        mkdir($sourcedir, 0770, true);
+        mkdir($sourcedir, 0777, true);
     }
     else {
         rrmdir($sourcedir, false, true);
@@ -1226,7 +1228,7 @@ try {
     verbose(1, "INFO: found version: $version_num");
 
     $fp = joinpath($installerdir, 'lib', 'upgrade', $version_num);
-    @mkdir($fp, 0770, true);
+    @mkdir($fp, 0777, true); // generic perms, pending actuals for istallation
     if (!(is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT.gz') || is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT'))) {
         verbose(0, "ERROR: no $version_num-upgrade files-manifest is present");
         // MAYBE create MANIFEST.DAT.gz using create_manifest.php, but what 'reference' fileset?
