@@ -32,7 +32,8 @@ $PAGE_HEAD_CONTENT = [];
 $PAGE_BOTTOM_CONTENT = [];
 
 /**
- *
+ * @internal
+ * @ignore
  * @param mixed $content string | string[] The content to add
  * @param array $holder content-array to be updated
  * @param bool  $after Optional flag whether to append (instead of prepend). Default true
@@ -65,7 +66,8 @@ function add_page_content($content, &$holder, $after = true)
 }
 
 /**
- *
+ * @internal
+ * @ignore
  * @param mixed $content string | string[] The content to add
  * @param array $holder content-array to be updated
  */
@@ -85,7 +87,7 @@ function remove_page_content($content, &$holder)
 
 /**
  * Add to the accumulated content to be inserted in the head section of the output page
- * @since 2.9
+ * @since 2.99
  *
  * @param mixed $content string | string[] The content to add
  * @param bool  $after Optional flag whether to append (instead of prepend). Default true
@@ -98,7 +100,7 @@ function add_page_headtext($content, $after = true)
 
 /**
  * Remove from the accumulated content to be inserted in the head section of the output page
- * @since 2.9
+ * @since 2.99
  *
  * @param mixed $content string | string[] The content to add
  */
@@ -110,7 +112,7 @@ function remove_page_headtext($content)
 
 /**
  * Return the accumulated content to be inserted into the head section of the output page
- * @since 2.9
+ * @since 2.99
  *
  * @return string
  */
@@ -125,7 +127,7 @@ function get_page_headtext() : string
 
 /**
  * Add to the accumulated content to be inserted at the bottom of the output page
- * @since 2.9
+ * @since 2.99
  *
  * @param mixed $content string | string[] The content to add
  * @param bool  $after Optional flag whether to append (instead of prepend). Default true
@@ -138,7 +140,7 @@ function add_page_foottext($content, $after = true)
 
 /**
  * Remove from the accumulated content to be inserted at the bottom of the output page
- * @since 2.9
+ * @since 2.99
  *
  * @param mixed $content string | string[] The content to remove
  */
@@ -150,7 +152,7 @@ function remove_page_foottext($content)
 
 /**
  * Return the accumulated content to be inserted at the bottom of the output page
- * @since 2.9
+ * @since 2.99
  *
  * @return string
  */
