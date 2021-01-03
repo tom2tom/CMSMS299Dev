@@ -9,11 +9,16 @@ if( !isset($params['mod']) ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
-$state = 0;
-if( isset($params['state']) ) $state = (int)$params['state'];
-$module = trim(get_parameter_value($params,'mod'));
+if( isset($params['state']) ) $state = (bool)$params['state'];
+else $state = false;
+$module = trim($params['mod'] ?? '');
 
-$res = ModuleOperations::get_instance()->ActivateModule( $module, $state );
+if( $module) {
+  $res = ModuleOperations::get_instance()->ActivateModule($module, $state);
+}
+else {
+  $res = false;
+}
 if( !$res ) {
     $this->SetError($this->Lang('error_active_failed'));
     $this->RedirectToAdminTab();

@@ -53,10 +53,10 @@ if (isset($params['filter'])) {
     $filter_applied = false;
 }
 if (isset($params['filter'])) {
-    $filter->severity = (int) get_parameter_value($params,'f_sev');
-    $filter->username = trim(get_parameter_value($params,'f_user'));
-    $filter->subject = trim(get_parameter_value($params,'f_subj'));
-    $filter->msg = trim(get_parameter_value($params,'f_msg'));
+    $filter->severity = (int)($params['f_sev'] ?? 0);
+    $filter->username = trim($params['f_user'] ?? '');
+    $filter->subject = trim($params['f_subj'] ?? '');
+    $filter->msg = trim($params['f_msg'] ?? '');
     $_SESSION['adminlog_filter'] = $filter;
     $filter_applied = true;
 }

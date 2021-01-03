@@ -3,7 +3,7 @@ if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 
-$mod = get_parameter_value($params,'mod');
+$mod = $params['mod'] ?? '';
 if( !$mod ) {
   $this->SetError($this->Lang('error_missingparams'));
   $this->RedirectToAdminTab();
@@ -11,17 +11,17 @@ if( !$mod ) {
 
 $ops = ModuleOperations::get_instance();
 $result = $ops->InstallModule($mod);
-if( !is_array($result) || !isset($result[0]) ) $result = [FALSE,$this->Lang('error_moduleinstallfailed')];
+if( !is_array($result) || !isset($result[0]) ) $result = [FALSE, $this->Lang('error_moduleinstallfailed')];
 
 if( $result[0] == FALSE ) {
   $this->SetError($result[1]);
   $this->RedirectToAdminTab();
 }
 
-$modinstance = $ops->get_module_instance($mod,'',TRUE);
+$modinstance = $ops->get_module_instance($mod, '', TRUE);
 if( !is_object($modinstance) ) {
   // uh-oh...
-  $this->SetError($this->Lang('error_getmodule',$mod));
+  $this->SetError($this->Lang('error_getmodule', $mod));
   $this->RedirectToAdminTab();
 }
 

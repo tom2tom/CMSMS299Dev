@@ -11,12 +11,18 @@ if( !isset($params['mod']) ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
-$module = get_parameter_value($params,'mod');
+$module = $params['mod'] ?? '';
 
 try {
-    $modinstance = ModuleOperations::get_instance()->get_module_instance($module,'',TRUE);
+    if( $module ) {
+        $modinstance = ModuleOperations::get_instance()->get_module_instance($module, '', TRUE);
+    }
+    else {
+        $module = 'Not Specified'; // OR lang()
+        $modinstance = null;
+    }
     if( !is_object($modinstance) ) {
-        $this->SetError($this->Lang('error_getmodule',$module));
+        $this->SetError($this->Lang('error_getmodule', $module));
         $this->RedirectToAdminTab();
     }
 
@@ -47,7 +53,7 @@ try {
         header('Content-Type: application/force-download');
         header('Content-Disposition: attachment; filename='.$xmlname);
         echo file_get_contents($xmlfile);
-		unlink($xmlfile);
+        unlink($xmlfile);
         exit;
     }
 }

@@ -22,13 +22,13 @@ if (!isset($gCms)) exit;
 
 $this->SetCurrentTab('modules');
 
-$name = get_parameter_value($params,'name');
+$name = $params['name'] ?? '';
 if( !$name ) {
   $this->SetError($this->Lang('error_insufficientparams'));
   $this->RedirectToAdminTab();
 }
 
-$version = get_parameter_value($params,'version');
+$version = $params['version'] ?? '';
 if( !$version ) {
   $this->SetError($this->Lang('error_insufficientparams'));
   $this->RedirectToAdminTab();
@@ -41,7 +41,7 @@ if( !$url ) {
 }
 $url .= '/modulehelp';
 
-$xmlfile = get_parameter_value($params,'filename');
+$xmlfile = $params['filename'] ?? '';
 if( !$xmlfile ) {
   $this->SetError($this->Lang('error_nofilename'));
   $this->RedirectToAdminTab();
@@ -63,7 +63,7 @@ $tpl->assign('title',$this->Lang('dependstxt'))
  ->assign('moduleversion',$version)
  ->assign('xmlfile',$xmlfile)
  ->assign('back_url',$this->create_url($id,'defaultadmin',$returnid))
- ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module_manager')));
+ ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module')));
 
 $depends = $depends[1];
 $txt = '';

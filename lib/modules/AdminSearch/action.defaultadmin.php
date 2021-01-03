@@ -118,7 +118,7 @@ $(function() {
 EOS;
 add_page_foottext($out);
 
-$template = get_parameter_value($params,'template','defaultadmin.tpl');
+$template = $params['template'] ?? 'defaultadmin.tpl';
 $tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 
 $userid = get_userid(false);

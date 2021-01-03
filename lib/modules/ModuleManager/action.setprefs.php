@@ -26,19 +26,18 @@ if( $config['develop_mode'] && !empty($params['reseturl']) ) {
     $this->SetMessage($this->Lang('msg_urlreset'));
     $this->RedirectToAdminTab();
 }
-if( isset($params['dl_chunksize']) ) $this->SetPreference('dl_chunksize',(int)trim($params['dl_chunksize']));
-$latestdepends = (int)get_parameter_value($params,'latestdepends');
-$this->SetPreference('latestdepends',$latestdepends);
-
+if( isset($params['dl_chunksize']) ) $this->SetPreference('dl_chunksize', (int)trim($params['dl_chunksize']));
+$latestdepends = (int)($params['latestdepends'] ?? 0);
+$this->SetPreference('latestdepends', $latestdepends);
 
 if( $config['develop_mode'] ) {
-    if( isset($params['url']) ) $this->SetPreference('module_repository',trim($params['url']));
-    $disable_caching = (int)get_parameter_value($params,'disable_caching');
-    $this->SetPreference('disable_caching',$disable_caching);
-    $this->SetPreference('allowuninstall',(int)get_parameter_value($params,'allowuninstall'));
+    if( isset($params['url']) ) $this->SetPreference('module_repository', trim($params['url']));
+    $disable_caching = (int)($params['disable_caching'] ?? 0);
+    $this->SetPreference('disable_caching', $disable_caching);
+    $this->SetPreference('allowuninstall', (int)($params['allowuninstall'] ?? 0));
 }
 else {
-    $this->SetPreference('allowuninstall',0);
+    $this->SetPreference('allowuninstall', 0);
 }
 
 $this->SetMessage($this->Lang('msg_prefssaved'));

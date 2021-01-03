@@ -34,11 +34,11 @@ switch( $params['tab'] ) {
 		if( $val != 0 ) $val = max(30,min(3600,(int)$params['lockrefresh']));
 		$this->SetPreference('lockrefresh',$val);
 
-		$str = get_parameter_value($params,'template_list_mode','allpage');
+		$str = $params['template_list_mode'] ?? 'allpage';
 		$this->SetPreference('template_list_mode',$str);
 		break;
 	case 'listsettings':
-		$str = get_parameter_value($params,'list_namecolumn','title');
+		$str = $params['list_namecolumn'] ?? 'title';
 		$this->SetPreference('list_namecolumn',$str);
 
 		$this->SetPreference('list_visiblecolumns',implode(',',$params['list_visiblecolumns']));

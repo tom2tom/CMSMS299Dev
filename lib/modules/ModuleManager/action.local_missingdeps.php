@@ -9,9 +9,13 @@ if( !isset($params['mod']) ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
-$module = get_parameter_value($params,'mod');
-
-$info = ModuleInfo::get_module_info($module);
+$module = $params['mod'];
+if( $module ) {
+  $info = ModuleInfo::get_module_info($module);
+}
+else {
+  $info = null;
+}
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('local_missingdeps.tpl')); //,null,null,$smarty);
 

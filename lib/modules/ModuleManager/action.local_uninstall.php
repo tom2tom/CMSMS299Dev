@@ -11,7 +11,7 @@ if( isset($params['cancel']) ) {
 }
 
 try {
-    $mod = get_parameter_value($params,'mod');
+    $mod = $params['mod'] ?? '';
     if( !$mod ) {
         $this->SetError($this->Lang('error_missingparam'));
         $this->RedirectToAdminTab();

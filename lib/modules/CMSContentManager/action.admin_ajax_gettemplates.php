@@ -25,7 +25,7 @@ if( !$this->CanEditContent() ) exit;
 $out = null;
 try {
 /*
-    $design_id = (int) get_parameter_value($params,'design_id',-1);
+    $design_id = (int)($params['design_id'] ?? -1);
     if( $design_id > 0 ) {
         $mode = $this->GetPreference('template_list_mode','allpage');
         switch( $mode ) {

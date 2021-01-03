@@ -21,9 +21,9 @@ if( !isset($gCms) ) exit;
 if( CmsApp::get_instance()->is_frontend_request() ) exit;
 
 try {
-    $name = get_parameter_value($params,'name'); //html element name
-    $value = get_parameter_value($params,'value'); //html element initial value
-    $type = get_parameter_value($params,'type'); //type of file to select
+    $name = $params['name'] ?? ''; //html element name
+    $value = $params['value'] ?? ''; //html element initial value
+    $type = $params['type'] ?? ''; //type of file to select
     if( !$type ) $type = FileType::IMAGE; //default mode: image selection
 
     $profile = $this->get_default_profile();

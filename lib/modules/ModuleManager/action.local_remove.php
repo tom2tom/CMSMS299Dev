@@ -6,21 +6,26 @@ if( !isset($params['mod']) ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
-$module = get_parameter_value($params,'mod');
-
-$dir = cms_module_path($module);
+$module = $params['mod'];
+if( $module ) {
+  $dir = cms_module_path($module);
+}
+else {
+  $dir = '';
+}
 if( $dir ) {
-  $result = recursive_delete( $dir );
-} else {
+  $result = recursive_delete($dir);
+}
+else {
   $result = FALSE;
 }
 
-if( !$result ) {
-  $this->SetError($this->Lang('error_moduleremovefailed'));
-}
-else {
+if( $result ) {
   audit('',$this->GetName(),'Module '.$module.' removed');
   $this->SetMessage($this->Lang('msg_module_removed'));
+}
+else {
+  $this->SetError($this->Lang('error_moduleremovefailed'));
 }
 
 $this->RedirectToAdminTab();
