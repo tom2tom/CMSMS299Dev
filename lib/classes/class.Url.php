@@ -1,7 +1,7 @@
 <?php
 /*
 Url class
-Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -58,15 +58,10 @@ class Url
     {
         $url = trim((string) $url);
         if( $url ) {
-            $this->_orig = filter_var($url,FILTER_SANITIZE_URL);
-            $this->_parts = parse_url($this->_orig);
-            if( isset($this->_parts['query']) ) {
+            $this->_orig = $url;
+            $this->_parts = parse_url($url);
+            if( !empty($this->_parts['query']) ) {
                 parse_str($this->_parts['query'],$this->_query);
-                if( $this->_query ) {
-                    foreach( $this->_query as $key => $value ) {
-                        //TODO sanitize array members e.g. remove / encode # < > * % & : \ ?
-                    }
-                }
             }
         }
     }
@@ -74,7 +69,7 @@ class Url
     /**
      * @ignore
      */
-    private function _get_part($key)
+    protected function _get_part($key)
     {
         $key = trim((string)$key);
         if( isset($this->_parts[$key]) ) return $this->_parts[$key];
@@ -83,7 +78,7 @@ class Url
     /**
      * @ignore
      */
-    private function _set_part($key,$value)
+    protected function _set_part($key,$value)
     {
         $key = trim((string)$key);
         if( !strlen($value) && isset($this->_parts[$key]) ) {
@@ -92,6 +87,91 @@ class Url
         else {
             $this->_parts[$key] = $value;
         }
+    }
+
+    /**
+     * @ignore
+     * @see also cms_urlencode() 2.99+
+     */
+    protected function _clean1($str,$patn)
+    {
+        return preg_replace_callback_array([
+            '/\pL/u' => function($matches) {
+                return rawurlencode(htmlentities($matches[0], ENT_COMPAT|ENT_SUBSTITUTE, null, false));
+            },
+            '/\x00-\x1f\x7f-\xff/' => function() {
+                return '';
+            },
+            $patn => function($matches) {
+                return rawurlencode($matches[0]);
+            }
+        ], $str);
+    }
+
+    /**
+     * @ignore
+     */
+    protected function _clean_parts()
+    {
+        if( !empty($this->_parts['scheme']) ) {
+            // see https://en.wikipedia.org/wiki/List_of_URI_schemes
+            $av = strtolower($this->_parts['scheme']);
+            $this->_parts['scheme'] = preg_replace('/[^a-z0-9\-+.]/', '', $av);
+        }
+
+        if( !empty($parts['user']) ) {
+            //userinfo = unreserved | pct-encoded | sub-delims | ":"
+            //unreserved = ALPHA | DIGIT | "-" | "." | "_" | "~"
+            //sub-delims = "!" | "$" | "&" | "'" | "(" | ")" | "*" | "+" | "," | ";" | "="
+            $parts['user'] = $this->_clean1($parts['user'], '/[^\w.~!$&\'()*\-+,:;=%]/');
+        }
+/*      if( !empty($parts['pass']) ) {
+            $parts['pass'] = ; //passinfo = enctypted anything or empty
+        }
+*/
+        if( !empty($parts['host']) ) {
+            //host = IP-literal | IPv4address | reg-name
+            //IP-literal = "[" ( IPv6address | IPvFuture  ) "]"
+            //IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved | sub-delims | ":" )
+            //reg-name    = *( unreserved / pct-encoded / sub-delims )
+            $parts['host'] = $this->clean1($parts['host'], '/[^\w.~!$&\'()*\-+,:;=\[\]%]/');
+        }
+        if( !empty($this->_parts['path']) ) {
+            //pathchar = unreserved | pct-encoded | sub-delims | ":" | "@"
+            $parts['path'] = $this->clean1($parts['path'], '/[^\w.~!@$&\'()*\-+,:;=%]/');
+        }
+        if( isset($parts['port']) ) {
+            $parts['port'] = (int) filter_var($parts['port'], FILTER_SANITIZE_NUMBER_INT);
+        }
+        if( $this->_query ) {
+            //pchar = unreserved | pct-encoded | sub-delims | ":" | "@" PLUS "/" | "?"
+            $arr = [];
+            foreach( $this->_query as $key => $value ) {
+                $ak = $this->clean1($key, '/[^\w.~!@$&\'()*\-+,?\/:;=%]/');
+                $av = $this->clean1($value, '/[^\w.~!@$&\'()*\-+,?\/:;=%]/');
+                $arr[$ak] = $av;
+            }
+            $this->_query = $arr;
+        }
+        if( !empty($parts['fragment']) ) {
+            //pchar = unreserved | pct-encoded | sub-delims | ":" | "@" PLUS "/" | "?"
+            $parts['fragment'] = $this->clean1($parts['fragment'], '/[^\w.~!@$&\'()*\-+,?\/:;=%]/');
+        }
+    }
+
+    /**
+     * A convenience function equivalent to (string) new Url(trim($url))
+     * @since 2.99
+     * @param mixed $url string | null
+     * @return string
+     */
+    public function sanitize($url)
+    {
+        $this->_orig = '';
+        $this->_parts = [];
+        $this->_query = [];
+        $this->__construct(trim($url));
+        return $this->__toString();
     }
 
     /**
@@ -107,13 +187,12 @@ class Url
     /**
      * Return the URL scheme.  i.e: HTTP, HTTPS, ftp etc.
      *
-     * @return string (may be empty)
+     * @return string (might be empty)
      */
     public function get_scheme()
     {
         return $this->_get_part('scheme');
     }
-
 
     /**
      * Set the URL scheme
@@ -128,20 +207,19 @@ class Url
 
     /**
      * Return the host part of the URL
-     * may return an empty string if the input url does not have a host part.
+     * Might return an empty string if the input URL does not have a host part.
      *
-     * @return string (may be empty)
+     * @return string (might be empty)
      */
     public function get_host()
     {
         return $this->_get_part('host');
     }
 
-
     /**
      * Set the URL host
      *
-     * @param string $val The url hostname.
+     * @param string $val The URL hostname.
      */
     public function set_host($val)
     {
@@ -149,12 +227,11 @@ class Url
         $this->_set_part('host',$val);
     }
 
-
     /**
      * Return the port part of the URL
-     * may return an empty string if the input url does not have a port portion.
+     * Might return an empty string if the input URL does not have a port portion.
      *
-     * @return int (may be empty)
+     * @return int (might be empty)
      */
     public function get_port()
     {
@@ -174,9 +251,8 @@ class Url
 
     /**
      * Return the user part of the URL, if any.
-     * may return an empty string if the input url does not have a username portion.
      *
-     * @return string (may be empty)
+     * @return string (might be empty)
      */
     public function get_user()
     {
@@ -184,10 +260,10 @@ class Url
     }
 
     /**
-     * Set the user portion of the URL. An empty string is accepted
-     * Note: usually one must set the password if setting the username.
+     * Set the user portion of the URL.
+     * Note: usually a password must also be set if setting the username.
      *
-     * @param string $val The username
+     * @param string $val The username (may be empty)
      */
     public function set_user($val)
     {
@@ -195,11 +271,10 @@ class Url
         return $this->_set_part('user',$val);
     }
 
-
     /**
      * Retrieve the password portion of the URL, if any.
      *
-     * @return string (may be empty)
+     * @return string (might be empty)
      */
     public function get_pass()
     {
@@ -207,10 +282,10 @@ class Url
     }
 
     /**
-     * Set the password portion of the URL.  Empty string is accepted
-     * Usually when setting the password, the username portion is also required on a URL.
+     * Set the password portion of the URL.
+     * Usually when setting the password, the username portion is also required in an URL.
      *
-     * @param string $val The password
+     * @param string $val The password (may be empty)
      */
     public function set_pass($val)
     {
@@ -219,9 +294,9 @@ class Url
     }
 
     /**
-     * Return the path portion of the URL.  This may be empty
+     * Return the path portion of the URL.
      *
-     * @return string
+     * @return string (might be empty)
      */
     public function get_path()
     {
@@ -229,7 +304,7 @@ class Url
     }
 
     /**
-     * Set the path portion of the URL.  An empty string is accepted.
+     * Set the path portion of the URL.
      *
      * @param string $val (may be empty)
      */
@@ -241,8 +316,7 @@ class Url
     /**
      * Return the the query portion of the URL, if any is set.
      *
-     *
-     * @return string (may be empty)
+     * @return string (might be empty)
      */
     public function get_query()
     {
@@ -250,7 +324,7 @@ class Url
     }
 
     /**
-     * Set the query portion of the URL.  An empty string is accepted
+     * Set the query portion of the URL.
      *
      * @param string $val (may be empty)
      */
@@ -271,7 +345,6 @@ class Url
         return $this->_get_part('fragment');
     }
 
-
     /**
      * Set the fragment portion of the URL.
      *
@@ -283,9 +356,8 @@ class Url
         return $this->_set_part('fragment',$val);
     }
 
-
     /**
-     * Test if the named query variable exists in the URL
+     * Test whether the named query variable exists in the URL
      *
      * @param string $key
      */
@@ -310,7 +382,7 @@ class Url
     }
 
     /**
-     * Retrieve a query var from the url.
+     * Retrieve a query var from the URL.
      *
      * @param string $key
      */
@@ -341,25 +413,31 @@ class Url
      */
     public function __toString()
     {
+        $this->_clean_parts();
         // build the query array back into a string.
         if( $this->_query ) $this->_parts['query'] = http_build_query($this->_query);
 
         $parts = $this->_parts;
 
-        $path = $parts['path'] ?? '';
-        if( $path && $path[0] != '/' ) $path = '/'.$path;
-
-        $parts = $this->_parts;
-        $url = ((!empty($parts['scheme'])) ? $parts['scheme'] . '://' : '');
+        $url = (!empty($parts['scheme'])) ? $parts['scheme'] . ':' : '';
         if( !empty($parts['user']) ) {
-            $url .= $parts['user'];
+            $url .= '//'.$parts['user'];
             if( !empty($parts['pass']) ) $url .= ':'.$parts['pass'];
-            $url .= '@';
         }
-        if( !empty($parts['host']) ) $url .= $parts['host'];
-        if( !empty($params['port']) && $parts['port'] > 0 ) $url .= ':'.$parts['post'];
+        if( !empty($parts['host']) ) {
+            if( empty($parts['user']) ) {
+                $url .= '//';
+            }
+            else {
+                $url .= '@';
+            }
+            $url .= $parts['host'];
+            if( !empty($params['port']) && $parts['port'] > 0 ) $url .= ':'.$parts['port'];
+        }
         if( !empty($parts['path']) ) {
-            if( !startswith($parts['path'],'/') ) $url .= '/';
+            //$path = $parts['path'] ?? '';
+            //if( $path && $path[0] != '/' ) $path = '/'.$path; // TODO
+            if( (!empty($parts['user']) || !empty($parts['host'])) && !startswith($parts['path'],'/') ) $url .= '/';
             $url .= $parts['path'];
         }
         if( !empty($parts['query']) ) $url .= '?'.$parts['query'];
