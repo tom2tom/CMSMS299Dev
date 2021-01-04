@@ -1,7 +1,7 @@
 <?php
 /*
 Process-jobs action for for CMS Made Simple module: CmsJobManager
-Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 See license details at the top of file CmsJobManager.module.php
 */

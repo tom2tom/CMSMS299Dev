@@ -79,7 +79,7 @@ The module implements a CMSMS-standard interface by which other modules and admi
 </ul></p>
 <p>For the latest version of the module, or to report a bug, visit the module's <a href="http://dev.cmsmadesimple.org/projects/corefilemanager">forge-page</a>.</p>
 <h3>Copyright and License</h3>
-<p>Copyright &copy; 2018 CMS Made Simple Foundation &lt;foundation@cmsmadesimple.org&gt;. All rights reserved.</p>
+<p>Copyright &copy; 2018-2021 CMS Made Simple Foundation &lt;foundation@cmsmadesimple.org&gt;. All rights reserved.</p>
 <p>This module has been released under version 3 of the <a href="http://www.gnu.org/licenses/agpl.html">GNU Affero General Public License</a>, and must not be used except in accordance with the terms of that license, or any later version of that license which is granted by the module's distributor.</p>
 EOS
 ,
