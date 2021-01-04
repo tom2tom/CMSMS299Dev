@@ -1036,8 +1036,7 @@ final class Message implements MessageContract
     private function getContact($email, $name = '')
     {
         $email = (string)$email;
-        $name = preg_replace('/[^\pL\s,.\d]/ui', '', (string)$name);
-        $name = trim($name);
+        $name = preg_replace('/[^\w\pL\s,.]/u', '', trim($name));
         if ((strpos($name, ' ') !== false || strpos($name, "\t") !== false) && $name) {
             $name = '"' . $name . '"';
         }
