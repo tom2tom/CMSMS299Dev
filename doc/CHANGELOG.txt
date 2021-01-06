@@ -83,16 +83,18 @@ new
 add_footcontent
 add_headcontent
 assets_url
+cms_cookie
+cms_init_editor
 cms_queue_css
-cms_render_css
 cms_queue_script
+cms_render_css
 cms_render_scripts
 disable_template
 edit_template
 gather_content
 get_jquery
-send_content_notice
 scripts_url
+send_content_notice
 syntax_area
 tabs_restart
 theme_root
@@ -108,11 +110,13 @@ The main function name MUST NOT include a qualifier before the plugin type, like
 
 deprecated
 
-cms_jquery  see  get_jquery
-cms_stylesheet  media parameter is deprecated
+cms_jquery  see get_jquery
+cms_stylesheet  media, designid parameters are deprecated, styles parameter added
+global_content  global content blocks are just templates since CMSMS 2
 
 changed
 
+cms_textarea  adapted to work with updated FormUtils::create_textarea()
 current_date  if no format is given, site-preference 'defaultdateformat' is used
 
 LOCATIONS
