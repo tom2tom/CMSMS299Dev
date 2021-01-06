@@ -844,9 +844,9 @@ class HttpRequest
                 }
 
                 if (isset($tmp[0])) {
-	                // Parse the headers
-	                $this->_parseHeaders($tmp[0]);
-				}
+                    // Parse the headers
+                    $this->_parseHeaders($tmp[0]);
+                }
             }
 
             // Get the request info

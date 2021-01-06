@@ -146,11 +146,11 @@ final class SignedCookieOperations implements CookieManager
      */
     private function get_key(string $key) : string
     {
-		//any algo >= 36 bytes will do, this one is fastest
+        //any algo >= 36 bytes will do, this one is fastest
         $s = hash('sha1', CMS_VERSION.$this->_uuid.$key);
         $s = substr($s, 0, 18) ^ substr($s, -18, 18);
         $s = strtr(base64_encode($s), '+/', 'qd'); //24 alphanums
-		$s[0] = 'c';
+        $s[0] = 'c';
         return $s;
     }
 
