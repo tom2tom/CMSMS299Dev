@@ -1,48 +1,49 @@
 <?php
-#Plugin to...
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Plugin to generate the contents for a page-selector element
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 function smarty_function_cms_pageoptions($params, $template)
 {
-	if( !isset($params['numpages']) ) return;
-	$numpages = (int)$params['numpages'];
-	if( $numpages < 1 ) return;
-	$curpage = get_parameter_value($params,'curpage',1);
-	$curpage = (int)$curpage;
-	$curpage = max(1,min($numpages,$curpage));
-	$surround = 3;
-	if( isset($params['surround']) ) $surround = (int)$params['surround'];
-	$surrund = max(1,min(20,$surround));
-	$elipsis = get_parameter_value($params,'elipsis','');
-	$bare = cms_to_bool(get_parameter_value($params,'bare',0));
-
+	$numpages = (int)($params['numpages'] ?? 0);
+	if( $numpages < 1 ) return '';
+	$i = (int)($params['curpage'] ?? 1);
+	$curpage = max(1, min($numpages, $i));
+	$i = (int)($params['surround'] ?? 3);
+	$surround = max(1, min(20, $i));
+	$elipsis = $params['elipsis'] ?? '&#8230;'; // OR &hellip; OR ...
+	$bare = cms_to_bool($params['bare'] ?? false);
 	$list = [];
-	for( $i = 1; $i <= min($surround,$numpages); $i++ ) {
-		$list[] = (int)$i;
+
+	for( $i = 1, $m = min($surround, $numpages); $i <= $m; $i++ ) {
+		$list[] = $i;
 	}
 
-	$x1 = max(1,(int)($curpage - $surround/2));
-	$x2 = min($numpages,(int)($curpage + $surround/2));
+	$x1 = max(1, (int)($curpage - $surround/2));
+	$x2 = min($numpages, (int)($curpage + $surround/2));
 	for( $i = $x1; $i <= $x2; $i++ ) {
 		$list[] = (int)$i;
 	}
 
 	for( $i = max(1,$numpages - $surround); $i <= $numpages; $i++ ) {
-		$list[] = (int)$i;
+		$list[] = $i;
 	}
 
 	$list = array_unique($list);
@@ -64,17 +65,38 @@ function smarty_function_cms_pageoptions($params, $template)
 		$fmt2 = '<option value="%d" selected="selected">%s</option>';
 		foreach( $list as $pagenum ) {
 			if( $pagenum == $curpage ) {
-				$out .= sprintf($fmt2,$pagenum,$pagenum);
+				$out .= sprintf($fmt2, $pagenum, $pagenum);
 			}
 			else {
-				$out .= sprintf($fmt,$pagenum,$pagenum);
+				$out .= sprintf($fmt, $pagenum, $pagenum);
 			}
 		}
 	}
-
-	if( isset($params['assign']) ) {
-		$template->assign(trim($params['assign']),$out);
-		return;
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
+		return '';
 	}
 	return $out;
 }
+/*
+function smarty_cms_about_function_cms_pageoptions()
+{
+	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR lang('none')
+EOS
+	);
+}
+*/
+/*
+function smarty_cms_help_function_cms_pageoptions()
+{
+	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'cms_pageoptions ...', <<<'EOS'
+<li>numpages:</li>
+<li>curpage:</li>
+<li>surround:</li>
+<li>elipsis:</li>
+<li>bare:</li>
+EOS
+	);
+}
+*/

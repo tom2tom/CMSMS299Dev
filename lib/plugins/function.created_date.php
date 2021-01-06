@@ -1,40 +1,60 @@
 <?php
-#Plugin to get the creation date/time of a site page
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Plugin to get the creation date/time of a site page
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 
 function smarty_function_created_date($params, $template)
 {
-	$content_obj = CmsApp::get_instance()->get_content_object();
-
-	if (is_object($content_obj) && $content_obj->GetCreationDate() > -1) {
-		if(!empty($params['format'])) { $format = trim($params['format']); }
-		else { $format = cms_siteprefs::get('defaultdateformat','%x %X'); }
-
+	$out = lang('unknown');
+	$content_obj = AppSingle::App()->get_content_object();
+	if( is_object($content_obj) ) {
 		$time = $content_obj->GetCreationDate();
-		$str = cms_htmlentities(strftime($format, $time));
-
-		if( isset($params['assign']) ) {
-			$template->assign(trim($params['assign']),$str);
-			return;
+		if( $time > -1 ) {
+			if( !empty($params['format']) ) {
+				$format = trim($params['format']);
+			}
+			else {
+				$format = AppParams::get('defaultdateformat', '%x %X');
+			}
+			$out = strftime($format, $time);
 		}
-		return $str;
 	}
-}
 
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
+		return '';
+	}
+	return $out;
+}
+/*
+function smarty_cms_help_function_created_date()
+{
+	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'created_date ...', <<<'EOS'
+<li>format</li>
+EOS
+	);
+}
+*/
 function smarty_cms_about_function_created_date()
 {
 	echo <<<'EOS'

@@ -1,7 +1,7 @@
 <?php
 /*
-function to generate admin-page-content for a styled warning message
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Plugin to generate admin-page-content for a styled warning message
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -13,8 +13,9 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple. 
 If not, see <https://www.gnu.org/licenses/>.
 */
@@ -44,8 +45,8 @@ function smarty_function_page_warning($params, $template)
 /*
 function smarty_cms_about_function_page_warning()
 {
-	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
-<li>detail</li>
+	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR lang('none')
 EOS
 	);
 }

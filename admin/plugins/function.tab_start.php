@@ -1,7 +1,7 @@
 <?php
 /*
-function to generate page content for start-of-tab
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Plugin to generate page content for start-of-tab
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -13,9 +13,10 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
-You should have received a copy of that license along with CMS Made Simple. 
+
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
@@ -36,8 +37,8 @@ function smarty_function_tab_start($params, $template)
 /*
 function smarty_cms_about_function_tab_start()
 {
-	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
-<li>detail</li>
+	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR lang('none')
 EOS
 	);
 }
@@ -45,7 +46,9 @@ EOS
 /*
 D function smarty_cms_help_function_tab_start()
 {
-	echo lang_by_realm('tags', 'help_generic', 'does', 'tab_start name=...',
+	echo lang_by_realm('tags', 'help_generic',
+	'This plugin generates page content for the start of a tab',
+	'tab_start name=...',
 	<<<'EOS'
 <li>name: the internal name of the tab (consistent with a tab header name)</li>
 EOS

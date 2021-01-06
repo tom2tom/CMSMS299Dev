@@ -1,11 +1,5 @@
 <?php
 /**
- * Smarty plugin
- * @package Smarty
- * @subpackage plugins
- */
-
-/**
  * Smarty relative date / time plugin
  *
  * Type:     modifier<br>
@@ -27,18 +21,18 @@ function smarty_modifier_relative_time($timestamp)
 {
     if(!$timestamp) return '';
 
-	if(!is_int($timestamp)) {
+    if(!is_int($timestamp)) {
         $timestamp = (int)strtotime($timestamp);
-		if($timestamp === false) return '';
+        if($timestamp === false) return '';
     }
 
     $difference = time() - $timestamp;
 
     if($difference > 2678400 || $difference < -2678400) { //1-month threshold for relative report
-    	$fn = __DIR__.DIRECTORY_SEPARATOR.'modifier.cms_date_format.php';
-    	if(is_file($fn)) {
-        	require_once $fn;
-        	return smarty_modifier_cms_date_format($timestamp);
+        $fn = __DIR__.DIRECTORY_SEPARATOR.'modifier.cms_date_format.php';
+        if(is_file($fn)) {
+            require_once $fn;
+            return smarty_modifier_cms_date_format($timestamp);
         }
     }
 
@@ -67,4 +61,22 @@ function smarty_modifier_relative_time($timestamp)
     $text = lang('period_fmt',$difference,$period,$ending);
 
     return $text;
+}
+/*
+function smarty_cms_about_modifier_relative_time()
+{
+	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR lang('none')
+EOS
+	);
+}
+*/
+function smarty_cms_help_modifier_relative_time()
+{
+	$n = lang('none');
+	echo lang_by_realm('tags', 'help_generic2',
+	'This plugin converts a date-time value to a corresponding low-resolution description relative to the current time',
+	'$datevar|relative_time',
+	"<li>$n</li>"
+	);
 }

@@ -2,13 +2,31 @@
 /**
  * Smarty date_format modifier plugin
  *
- * Type:     modifier<br>
- * Name:     cms_timestamp<br>
- * Purpose:  convert a date/time string (typically from a database datetime field) to a UNIX UTC timestamp<br>
- * Input:<br>
+ * Type:     modifier
+ * Name:     timestamp
+ * Purpose:  convert a date/time string (typically from a database datetime field) to a UNIX UTC timestamp
+ * Input:
  *          - string: input date string
  */
 function smarty_modifier_timestamp($string)
 {
 	return cms_to_stamp($string);
+}
+/*
+function smarty_cms_about_modifier_timestamp()
+{
+	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR lang('none')
+EOS
+	);
+}
+*/
+function smarty_cms_help_modifier_timestamp()
+{
+	$n = lang('none');
+	echo lang_by_realm('tags', 'help_generic2',
+	'This plugin converts a date-time value (string) to a corresponding *NIX UTC timestamp',
+	'$datevalue|timestamp',
+	"<li>$n</li>"
+	);
 }

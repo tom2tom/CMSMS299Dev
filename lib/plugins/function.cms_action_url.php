@@ -1,19 +1,24 @@
 <?php
-#Plugin to...
-#Copyright (C)2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Plugin to...
+Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
@@ -44,7 +49,7 @@ function smarty_function_cms_action_url($params, $template)
 			$mid = trim($value);
 			break;
 		case 'jobtype':
-			$urlparms[CMS_JOB_KEY] = max(0,min(2,(int)$value));
+			$urlparms[CMS_JOB_KEY] = max(0, min(2, (int)$value));
 			break;
 		case 'assign':
 			$assign = trim($value);
@@ -88,15 +93,15 @@ function smarty_function_cms_action_url($params, $template)
 	if( !$url ) return;
 
 	if( !empty($urlparms) ) {
-		$url_ob = new cms_url( $url );
+		$url_ob = new CMSMS\Url( $url );
 		foreach( $urlparms as $k => $v ) {
 			$url_ob->set_queryvar( $key, $value );
 		}
-		$url = (string) $url_ob;
+		$url = (string)$url_ob;
 	}
 
 	if( $forjs ) {
-		$url = str_replace('&amp;','&',$url);
+		$url = str_replace('&amp;', '&', $url);
 	}
 
 	if( $assign ) {
@@ -105,3 +110,28 @@ function smarty_function_cms_action_url($params, $template)
 	}
 	return $url;
 }
+/*
+function smarty_cms_about_function_cms_action_url()
+{
+	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR lang('none')
+EOS
+	);
+}
+*/
+/*
+function smarty_cms_help_function_cms_action_url()
+{
+	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'action_url ...',  <<<'EOS'
+<li>param</li>
+<li>module</li>
+<li>action</li>
+<li>returnid</li>
+<li>mid</li>
+<li>jobtype</li>
+<li>forjs</li>
+<li>_*</li>
+EOS
+	);
+}
+*/

@@ -1,57 +1,83 @@
 <?php
-#Plugin to ...
-#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Plugin to retrieve the URL of an uploaded thumbnail file specified among the supplied params
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppSingle;
 
 function smarty_function_thumbnail_url($params, $template)
 {
-	$config = AppSingle::Config();
-	$dir = $config['uploads_path'];
-	$file = trim(get_parameter_value($params,'file'));
-	$add_dir = trim(get_parameter_value($params,'dir'));
-	$assign = trim(get_parameter_value($params,'assign'));
-
+	$file = trim($params['file'] ?? '');
 	if( !$file ) {
 		trigger_error('thumbnail_url plugin: invalid file parameter');
-		return;
+		return '';
 	}
 
+	$dir = AppSingle::Config()['uploads_path'];
+	$add_dir = trim(($params['dir'] ?? ''), ' \\/');
+
 	if( $add_dir ) {
-		if( startswith( $add_dir, '/') ) $add_dir = substr($add_dir,1);
-		$test = $dir.'/'.$add_dir;
+		$test = $dir.DIRECTORY_SEPARATOR.$add_dir;
 		if( !is_dir($test) || !is_readable($test) ) {
 			trigger_error("thumbnail_url plugin: dir=$add_dir invalid directory name specified");
-			return;
+			return '';
 		}
 	}
 
-	$out = null;
+	$out = '';
 	$file = 'thumb_'.$file;
-	$fullpath = $dir.'/'.$file;
+	$fullpath = $dir.DIRECTORY_SEPARATOR.$file;
 	if( is_file($fullpath) && is_readable($fullpath) ) {
-		// convert it to a url
+		// convert to URL
 		$out = CMS_UPLOADS_URL.'/';
-		if( $add_dir ) $out .= $add_dir.'/';
+		if( $add_dir ) $out .= strtr($add_dir, '\\', '/') . '/';
 		$out .= $file;
 	}
+	else {
+		trigger_error("thumbnail_url plugin: invalid file $fullpath specified");
+	}
 
-	if( $assign ) {
-		$template->assign($assign,$out);
-		return;
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
+		return '';
 	}
 	return $out;
 }
+/*
+function smarty_cms_about_function_thumbnail_url()
+{
+	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR lang('none')
+EOS
+	);
+}
+*/
+/*
+D function smarty_cms_help_function_thumbnail_url()
+{
+	echo lang_by_realm('tags', 'help_generic',
+	'This plugin retrieves the URL of an uploaded thumbnail file',
+	'thumbnail_url file=whatever',
+	<<<'EOS'
+<li>file: name of wanted file</li>
+<li>dir: optional uploads-folder-relative filepath where the file is stored</li>
+EOS
+	);
+}
+*/

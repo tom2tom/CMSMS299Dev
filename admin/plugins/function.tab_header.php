@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to generate page content for a tab-header
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,7 +15,8 @@ CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 GNU General Public License for more details.
-You should have received a copy of that license along with CMS Made Simple. 
+
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
@@ -54,8 +55,8 @@ function smarty_function_tab_header($params, $template)
 /*
 function smarty_cms_about_function_tab_header()
 {
-	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
-<li>detail</li>
+	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR lang('none')
 EOS
 	);
 }
@@ -63,11 +64,13 @@ EOS
 /*
 D function smarty_cms_help_function_tab_header()
 {
-	echo lang_by_realm('tags', 'help_generic', 'does', 'tab_header name=... label=... active=true',
+	echo lang_by_realm('tags', 'help_generic',
+	'This plugin generates page content for a tab-header',
+	'tab_header name=... label=... active=true',
 	<<<'EOS'
 <li>name: internal identifier of the tab</li>
 <li>label: public identifier of the tab</li>
-<li>active: whether the tab is to be initially displayed</li>
+<li>active: optional whether the tab is to be initially displayed</li>
 EOS
 	);
 }

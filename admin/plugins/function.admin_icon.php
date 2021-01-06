@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to get page-content representing an admin icon
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -13,14 +13,15 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
-You should have received a copy of that license along with CMS Made Simple. 
+
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AdminUtils;
 use CMSMS\AppState;
+use CMSMS\Utils;
 
 function smarty_function_admin_icon($params, $template)
 {
@@ -52,13 +53,14 @@ function smarty_function_admin_icon($params, $template)
 	}
 
 	if( $icon ) {
+		$themeObject = Utils::get_theme_object();
 		if( !isset($tagparms['alt']) ) $tagparms['alt'] = pathinfo($icon, PATHINFO_FILENAME);
 
 		if( isset($params['module']) ) {
-			$out = AdminUtils::get_module_icon($icon, $tagparms);
+			$out = $themeObject->get_module_icon($icon, $tagparms);
 		}
 		else {
-			$out = AdminUtils::get_icon($icon, $tagparms);
+			$out = $themeObject->get_icon($icon, $tagparms);
 		}
 	}
 	else {
@@ -74,8 +76,8 @@ function smarty_function_admin_icon($params, $template)
 /*
 function smarty_cms_about_function_admin_icon()
 {
-	echo lang_by_realm('tags', 'about_generic', 'intro', <<<'EOS'
-<li>detail</li>
+	echo lang_by_realm('tags', 'about_generic'[2], 'htmlintro', <<<'EOS'
+<li>detail</li> ... OR lang('none') ... OR lang('none')
 EOS
 	);
 }

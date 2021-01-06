@@ -1,52 +1,60 @@
 <?php
-#Plugin to...
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Plugin to retrieve the value of a specified property of the current page.
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
-//use CMSMS\App;
-use CMSMS\ContentOperations;
-use CMSMS\Utils;
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+use CMSMS\AppSingle;
 
 function smarty_function_page_attr($params, $template)
 {
-	$key = trim(get_parameter_value($params,'key'));
-	$page = trim(get_parameter_value($params,'page'));
-	$assign = trim(get_parameter_value($params,'assign'));
-	$inactive = cms_to_bool(get_parameter_value($params,'inactive'));
-	$contentobj = null;
-
-	if( $page ) {
-		// gotta find it by id or alias
-		if( is_numeric($page) && (int) $page > 0 ) {
-			// it's an id
-			$hm = CmsApp::get_instance()->GetHierarchyManager();
-			$node = $hm->find_by_tag('id',$page);
-			if( $node ) $contentobj = $node->getContent(true,true,$inactive);
-		}
-		else {
-			// this is quicker if using an alias
-			$content_ops = ContentOperations::get_instance();
-			$contentobj = $content_ops->LoadContentFromAlias($page,!$inactive);
+	if( isset($params['page']) ) {
+		$page = trim($params['page']);
+		if( is_numeric($page) ) {
+			$page += 0; // it's an id
 		}
 	}
 	else {
-		$contentobj = Utils::get_current_content();
+		$page = false;
+	}
+	$key = trim($params['key'] ?? '');
+	$inactive = cms_to_bool($params['inactive'] ?? false);
+	$contentobj = null;
+
+	if( $page || $page === 0 ) {
+		// gotta find it by id or alias
+		if( is_numeric($page) && $page > 0 ) {
+			// it's an id
+			$hm = AppSingle::App()->GetHierarchyManager();
+			$node = $hm->find_by_tag('id', $page);
+			if( $node ) $contentobj = $node->getContent(true, true, $inactive);
+		}
+		else { //if( !is_numeric($page) ) {
+			// this is quicker if using an alias
+			$contentobj = AppSingle::ContentOperations()->LoadContentFromAlias($page, !$inactive);
+		}
+	}
+	else {
+		$contentobj = AppSingle::App()->get_content_object();
 	}
 
-	$result = null;
+	$result = '';
 	if( $contentobj && $key ) {
 		switch( $key ) {
 		case '_dflt_':
@@ -94,9 +102,10 @@ function smarty_function_page_attr($params, $template)
 			break;
 		}
 	}
-	if( $assign ) {
-		$template->assign($assign,$result);
-		return;
+
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $result);
+		return '';
 	}
 	return $result;
 }
@@ -111,4 +120,14 @@ function smarty_cms_about_function_page_attr()
 </ul>
 EOS;
 }
-
+/*
+function smarty_cms_help_function_page_attr()
+{
+	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'page_attr ...', <<<'EOS'
+<li>page</li>
+<li>key</li>
+<li>inactive</li>
+EOS
+	);
+}
+*/

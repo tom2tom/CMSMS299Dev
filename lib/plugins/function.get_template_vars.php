@@ -1,20 +1,24 @@
 <?php
-#Plugin to display all template variables in a pretty format
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Plugin to display all template variables in a pretty format
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 namespace get_template_vars {
 
@@ -22,12 +26,12 @@ use LogicException;
 
 	/**
 	 * @param mixed $ptype the parent type
-	 * @param mixed $key sting|number the current key we are trying to output
+	 * @param mixed $key string|number the current key we are trying to output
 	 * @param int $depth recursion depth, internal use only
 	 * @return string
 	 * @throws LogicException
 	 */
-	function _cms_output_accessor($ptype,$key,$depth)
+	function _cms_output_accessor($ptype, $key, int $depth) : string
 	{
 		if( $depth == 0 ) return "\${$key}";
 		switch( strtolower($ptype) ) {
@@ -53,7 +57,7 @@ use LogicException;
 	 * @param int $depth
 	 * @return string
 	 */
-	function _cms_output_var($key,$val,$ptype = null,$depth = 0)
+	function _cms_output_var(string $key, $val, $ptype = null, int $depth = 0) : string
 	{
 		$type = gettype($val);
 		$out = '';
@@ -104,12 +108,12 @@ function smarty_function_get_template_vars($params, $template)
 	$tpl_vars = $template->getTemplateVars();
 	$str = '<pre>';
 	foreach( $tpl_vars as $key => $value ) {
-		$str .= _cms_output_var($key,$value);
+		$str .= _cms_output_var($key, $value);
 	}
 	$str .= '</pre>';
-	if( isset($params['assign']) ){
-		$template->assign(trim($params['assign']),$str);
-		return;
+	if( !empty($params['assign']) ){
+		$template->assign(trim($params['assign']), $str);
+		return '';
 	}
 	return $str;
 }
@@ -125,5 +129,11 @@ None
 </p>
 EOS;
 }
+/*
+function smarty_cms_help_function_get_template_vars()
+{
+	echo lang_by_realm('tags', 'generic_help', 'This plugin does ...', 'get_template_vars', none);
+}
+*/
 
 } //namespace

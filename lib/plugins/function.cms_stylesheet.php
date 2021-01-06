@@ -1,20 +1,97 @@
 <?php
-#Plugin to minimize and merge contents of stylesheets for frontend pages
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#BUT withOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Plugin to minimize and merge contents of stylesheets for frontend pages
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+namespace cms_stylesheet {
+
+use CMSMS\Events;
+use SmartyException;
+use function endswith;
+
+function writeCache($filename, $list, $trimbackground, &$template)
+{
+	$_contents = '';
+	if( is_string($list) && !is_array($list) ) $list = [$list];
+
+	// Smarty processing
+	$template->smarty->left_delimiter = '[[';
+	$template->smarty->right_delimiter = ']]';
+
+	try {
+		foreach( $list as $name ) {
+			// force the stylesheet to compile because of smarty bug:  https://github.com/smarty-php/smarty/issues/72 FIXED upstream in 2015
+//			$tmp = $template->smarty->force_compile;
+//			$template->smarty->force_compile = 1;
+			$_contents .= $template->fetch('cms_stylesheet:'.$name);
+//			$template->smarty->force_compile = $tmp;
+		}
+	}
+	catch (SmartyException $e) {
+		$template->smarty->left_delimiter = '{';
+		$template->smarty->right_delimiter = '}';
+		// why not just re-throw the exception as it may have a smarty error in it ?
+//		trigger_error('cms_stylesheet: '.$e->getMessage());
+		cms_error('cms_stylesheet: Smarty compilation failed, is there an error in the template?');
+		return '';
+	}
+
+	$template->smarty->left_delimiter = '{';
+	$template->smarty->right_delimiter = '}';
+
+	// Fix background
+	if( $trimbackground ) {
+		$_contents = preg_replace('/(\w*?background\-image.*?\:\w*?).*?(;.*?)/', '', $_contents);
+		$_contents = preg_replace('/\w*?(background[\-image]*[\s\w]*\:[\#\s\w]*)url\(.*\)/','$1;',$_contents);
+		$_contents = preg_replace('/\w*?(background[\-image]*[\s\w]*\:[\s]*\;)/','',$_contents);
+		$_contents = preg_replace('/(\w*?background\-color.*?\:\w*?).*?(;.*?)/', '\\1transparent\\2', $_contents);
+		$_contents = preg_replace('/(\w*?background\-image.*?\:\w*?).*?(;.*?)/', '', $_contents);
+		$_contents = preg_replace('/(\w*?background.*?\:\w*?).*?(;.*?)/', '', $_contents);
+	}
+
+	Events::SendEvent( 'Core', 'StylesheetPostRender', [ 'content' => &$_contents ] );
+
+	// Write file
+	$fh = fopen($filename,'w');
+	fwrite($fh, $_contents);
+	fclose($fh);
+}
+
+function toString($filename, $media_query = '', $media_type = '', $root_url, &$stylesheet, &$params)
+{
+	if( !endswith($root_url,'/') ) $root_url .= '/';
+	if( isset($params['nolinks']) )	{
+		$stylesheet .= $root_url.$filename.',';
+	}
+	elseif( !empty($media_query) ) {
+		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_query.'" />'.PHP_EOL;
+	}
+	elseif( !empty($media_type) ) {
+		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_type.'" />'.PHP_EOL;
+	}
+	else {
+		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" />'.PHP_EOL;
+	}
+}
+
+} //namespace
 
 namespace {
 
@@ -58,13 +135,14 @@ function smarty_function_cms_stylesheet($params, $template)
 		if( !empty($params['name']) ) {
 			$name = trim($params['name']); //sheet-name prefix
 		}
-		elseif( !empty($params['styles']) ) { //since 2.3
+		elseif( !empty($params['styles']) ) { //since 2.99
 			$styles = trim($params['styles']);
 		}
-		elseif( !empty($params['designid']) ) { //deprecated since 2.3
+		elseif( !empty($params['designid']) ) { //deprecated since 2.99
 			$design_id = (int)$params['designid'];
 		}
 		else {
+			//TODO support $params['templatetype'] related to a theme
 			$content_obj = $gCms->get_content_object();
 			if( !is_object($content_obj) ) return;
 			$styles = $content_obj->Styles();
@@ -212,35 +290,29 @@ function smarty_function_cms_stylesheet($params, $template)
 		// Cleanup & output
 		//---------------------------------------------
 
-		if( strlen($stylesheet) ) {
-			$stylesheet = preg_replace("/\{\/?php\}/", '', $stylesheet);
-
+		if( $stylesheet ) {
 			// Remove last comma at the end when $params['nolinks'] is set
-			if( isset($params['nolinks']) && cms_to_bool($params['nolinks']) && endswith($stylesheet,',') ) {
-				$stylesheet = substr($stylesheet,0,-1);
+			if( isset($params['nolinks']) && cms_to_bool($params['nolinks']) && endswith($stylesheet, ',') ) {
+				$stylesheet = substr($stylesheet, 0, -1);
 			}
 		}
 	}
-	catch( Exception $e ) {
-		cms_error('cms_stylesheet',$e->GetMessage());
-		$stylesheet = '<!-- cms_stylesheet error: '.$e->GetMessage().' -->';
+	catch( Throwable $t ) {
+//		trigger_error('cms_stylesheet: '.$t->getMessage());
+		cms_error('cms_stylesheet',$t->GetMessage());
+		$stylesheet = '<!-- cms_stylesheet error: '.$t->GetMessage().' -->';
 	}
 
 	// Notify core that we are no longer at stylesheet
 	AppState::remove_state(AppState::STATE_STYLESHEET);
 
-	if( isset($params['assign']) ) {
+	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']), $stylesheet);
-		return;
+		return '';
 	}
-
 	return $stylesheet;
 
 } // main function
-
-/**********************************************************
-	Help functions
-**********************************************************/
 
 function smarty_cms_about_function_cms_stylesheet()
 {
@@ -253,82 +325,20 @@ function smarty_cms_about_function_cms_stylesheet()
 </ul>
 EOS;
 }
+/*
+D function smarty_cms_help_function_cms_stylesheet()
+{
+	echo lang_by_realm('tags', 'help_generic', 'This plugin does ...', 'cms_stylesheet ...', <<<'EOS'
+<li>name</li>
+<li>styles</li>
+<li>designid</li>
+<li>media</li>
+<li>nocombine</li>
+<li>nolinks</li>
+<li>stripbackground</li>
+EOS
+	);
+}
+*/
 
 } // global namespace
-
-namespace cms_stylesheet {
-
-use CMSMS\Events;
-use SmartyException;
-use function endswith;
-
-/**********************************************************
-	Misc functions
-**********************************************************/
-
-function writeCache($filename, $list, $trimbackground, &$template)
-{
-	$_contents = '';
-	if( is_string($list) && !is_array($list) ) $list = [$list];
-
-	// Smarty processing
-	$template->smarty->left_delimiter = '[[';
-	$template->smarty->right_delimiter = ']]';
-
-	try {
-		foreach( $list as $name ) {
-			// force the stylesheet to compile because of smarty bug:  https://github.com/smarty-php/smarty/issues/72 FIXED upstream in 2015
-//			$tmp = $template->smarty->force_compile;
-//			$template->smarty->force_compile = 1;
-			$_contents .= $template->fetch('cms_stylesheet:'.$name);
-//			$template->smarty->force_compile = $tmp;
-		}
-	}
-	catch (SmartyException $e) {
-		$template->smarty->left_delimiter = '{';
-		$template->smarty->right_delimiter = '}';
-		// why not just re-throw the exception as it may have a smarty error in it ?
-		cms_error('cms_stylesheet: Smarty compilation failed, is there an error in the template?');
-		return;
-	}
-
-	$template->smarty->left_delimiter = '{';
-	$template->smarty->right_delimiter = '}';
-
-	// Fix background
-	if( $trimbackground ) {
-
-		$_contents = preg_replace('/(\w*?background\-image.*?\:\w*?).*?(;.*?)/', '', $_contents);
-		$_contents = preg_replace('/\w*?(background[\-image]*[\s\w]*\:[\#\s\w]*)url\(.*\)/','$1;',$_contents);
-		$_contents = preg_replace('/\w*?(background[\-image]*[\s\w]*\:[\s]*\;)/','',$_contents);
-		$_contents = preg_replace('/(\w*?background\-color.*?\:\w*?).*?(;.*?)/', '\\1transparent\\2', $_contents);
-		$_contents = preg_replace('/(\w*?background\-image.*?\:\w*?).*?(;.*?)/', '', $_contents);
-		$_contents = preg_replace('/(\w*?background.*?\:\w*?).*?(;.*?)/', '', $_contents);
-	}
-
-	Events::SendEvent( 'Core', 'StylesheetPostRender', [ 'content' => &$_contents ] );
-
-	// Write file
-	$fh = fopen($filename,'w');
-	fwrite($fh, $_contents);
-	fclose($fh);
-}
-
-function toString($filename, $media_query = '', $media_type = '', $root_url, &$stylesheet, &$params)
-{
-	if( !endswith($root_url,'/') ) $root_url .= '/';
-	if( isset($params['nolinks']) )	{
-		$stylesheet .= $root_url.$filename.',';
-	}
-	elseif( !empty($media_query) ) {
-		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_query.'" />'.PHP_EOL;
-	}
-	elseif( !empty($media_type) ) {
-		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" media="'.$media_type.'" />'.PHP_EOL;
-	}
-	else {
-		$stylesheet .= '<link rel="stylesheet" type="text/css" href="'.$root_url.$filename.'" />'.PHP_EOL;
-	}
-}
-
-} //namespace
