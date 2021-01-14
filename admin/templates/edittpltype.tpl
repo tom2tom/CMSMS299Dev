@@ -85,11 +85,11 @@
 {tab_start name='template'}
 <div class="pageoverflow">
   <p class="pagetext">
-    <label for="type_dflt_contents">{lang_by_realm('layout','prompt_proto_template')}:</label>
+    <label for="type_dfltcont">{lang_by_realm('layout','prompt_proto_template')}:</label>
     {cms_help realm='layout' key2='help_proto_template' title=lang_by_realm('layout','prompt_proto_template')}
   </p>
   <p class="pageinput">
-    {cms_textarea id=content name=content value=$type->get_dflt_contents() type='smarty' rows=20 cols=80}
+    <textarea id="type_dfltcont" name="content" data-cms-lang="smarty" rows="20" cols="80" style="width:40em;min-height:2em;">{$type->get_dflt_contents()}</textarea>
   </p>
   <div class="pageinput pregap">
     <button type="button" name="reset" class="adminsubmit icon undo">{lang_by_realm('layout','reset_factory')}</button>

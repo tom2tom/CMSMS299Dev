@@ -24,7 +24,7 @@
       {cms_help key2='settings_sitename' title=$t}
     </div>
     <div class="pageinput">
-      <input type="text" id="sitename" class="pagesmalltextarea" name="sitename" size="30" value="{$sitename}" />
+      <input type="text" id="sitename" name="sitename" size="30" value="{$sitename}" />
     </div>
   </div>
   <div class="pageoverflow">
@@ -52,9 +52,11 @@
       <label for="globalmetadata">{$t}:</label>
       {cms_help key2='settings_globalmetadata' title=$t}
     </div>
-    <div class="pageinput">
-      <textarea id="globalmetadata" class="pagesmalltextarea" name="metadata" cols="80" rows="20">{$metadata}</textarea>
+{*  <div class="pageinput">
+      <textarea id="globalmetadata" class="pagesmalltextarea" name="metadata" rows="20" cols="80">{$metadata}</textarea>
     </div>
+*}
+    <div class="pageinput">{$textarea_metadata}</div>
   </div>
   {if isset($themes)}
   <div class="pageoverflow">
@@ -694,7 +696,7 @@
         {cms_help key2='settings_umask' title=$t}
       </div>
       <div class="pageinput">
-        <input id="umask" type="text" class="pagesmalltextarea" name="global_umask" size="4" maxlength="5" value="{$global_umask}" />
+        <input id="umask" type="text" name="global_umask" size="4" maxlength="5" value="{$global_umask}" />
       </div>
     </div>
     {if isset($testresults)}
