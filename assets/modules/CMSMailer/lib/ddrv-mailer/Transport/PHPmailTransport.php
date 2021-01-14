@@ -63,8 +63,10 @@ final class PHPmailTransport implements Transport
         if (!$to) {
             throw new RecipientsListEmptyException();
         }
+        $to = str_replace('To:', '', $to);
         $subject = $message->getSubject();
         $body = $message->getBodyRaw(); //TODO confirm $body not starts with multiple "\r\n"'s and each line separated by "\r\n"
+        if ($body) { $body = trim($body)."\r\n"; }
         $headers = $message->getHeadersRaw(array('to','subject'));
         $parms = ($this->options) ? (is_array($this->options) ? implode(' ', $this->options) : $this->options) : '';
         if (is_callable($this->requestLogger)) {
