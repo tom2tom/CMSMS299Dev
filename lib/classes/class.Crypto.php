@@ -133,6 +133,7 @@ class Crypto
 	 */
 	public static function decrypt_string(string $raw, string $passwd = '', string $crypter = 'best')
 	{
+		if ($raw === '') return $raw;
 		if ($passwd === '') {
 			$str = str_replace(['/','\\'],['',''],__DIR__);
 			$passwd = substr($str,strlen(CMS_ROOT_PATH)); //not site- or filesystem-specific
