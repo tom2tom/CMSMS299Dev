@@ -653,8 +653,8 @@ interface FormTags
 	* @param string $action		The action that this form should do when the link is clicked
 	* @param string $returnid	The page-id to eventually return to when the module is finished it's task
 	* @param string $contents	The displayed clickable text for the link
-	* @param string $params		An array of params to be included in the URL of the link.	 These should be in a $key=>$value format
-	* @param string $warn_message	Text to display in a javascript warning box.  If they click no, the link is not followed by the browser
+	* @param string $params		An array of params to be included in the URL of the link. These should be in a $key=>$value format
+	* @param string $warn_message	Text to display in a javascript warning box. If the user clicks no, the link is not followed by the browser
 	* @param bool	$onlyhref	A flag to determine if only the href section should be returned
 	* @param bool	$inline	A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
 	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.99 - use $attrs[] instead
