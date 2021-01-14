@@ -586,7 +586,7 @@ final class Message implements MessageContract
     /**
      * @since 5.1
      * @param mixed $type string | null Recipient type. May be 'to', 'cc', 'bcc' or null. Default null.
-     * @param bool $raw optiona flag whether to return ... Default false.
+     * @param bool $raw optional flag whether to return ... Default false.
      * @return mixed array (possibly empty) | string if $raw is true
      */
     public function getRecipientHeaders($type = null, $raw = false)
