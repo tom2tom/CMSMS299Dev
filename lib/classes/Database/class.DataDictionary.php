@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Database;
@@ -758,7 +758,7 @@ class DataDictionary
         // clean up input tableoptions
         if (!$tableoptions) {
             $tableoptions = [$dbtype =>
-            'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci']; //default table options
+            'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci']; //default table options
         } elseif (is_string($tableoptions)) {
             $tableoptions = [$dbtype => $tableoptions];
         } elseif (is_array($tableoptions) && !isset($tableoptions[$dbtype]) && isset($tableoptions['mysql'])) {
@@ -775,7 +775,7 @@ class DataDictionary
         if (isset($tableoptions[$dbtype]) && strpos($tableoptions[$dbtype], 'CHARACTER') === false &&
             strpos($tableoptions[$dbtype], 'COLLATE') === false) {
             // if no character set and collate options specified, force UTF8
-            $tableoptions[$dbtype] .= ' CHARACTER SET utf8 COLLATE utf8_general_ci';
+            $tableoptions[$dbtype] .= ' CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci';
         }
 
         list($lines, $pkey) = $this->GenFields($defn, true);
