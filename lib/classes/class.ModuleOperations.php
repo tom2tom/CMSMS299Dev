@@ -38,6 +38,7 @@ use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use CMSMS\UserParams;
 use CMSMS\Utils;
+use LogicException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use const CMS_SCHEMA_VERSION;
@@ -46,6 +47,7 @@ use function cms_error;
 use function cms_module_path;
 use function cms_module_places;
 use function cms_notice;
+use function cms_specialchars_decode;
 use function cms_warning;
 use function debug_buffer;
 use function get_userid;
@@ -106,7 +108,7 @@ final class ModuleOperations
 	/* *
 	 * @ignore
 	 */
-//    private static $_module_class_map;
+//	private static $_module_class_map;
 
 	/**
 	 * @var array Cached modules, each member like modname => modobject
@@ -1239,29 +1241,50 @@ VALUES (?,?,?,$now)");
 	}
 
 	/**
-	 * Return the members of $_REQUEST[] whose key begins with $id (any case)
+	 * Return the members of $_REQUEST[] whose key begins with $id
 	 * $id is stripped from the start of returned keys.
-	 *
 	 * @internal
-	 * @param string $id
+	 * @see also RequestParameters class, cms_specialchars_decode()
+	 *
+	 * @param string $id module-action identifier
+	 * @param bool   $clean since 2.99 optional flag whether to pass
+	 *  non-numeric string-values via cms_specialchars_decode() Default false.
+	 * @param mixed $names since 2.99 optional strings array, or single,
+	 *  or comma-separated series of, wanted parameter key(s)
 	 * @return array, maybe empty
 	 */
-	public function GetModuleParameters(string $id) : array
+	public function GetModuleParameters(string $id, bool $clean = false, $names = '') : array
 	{
 		$params = [];
 
-		if( $id ) {
-			$len = strlen($id);
-			foreach ($_REQUEST as $key=>$value) {
+		$len = strlen($id);
+		if( $len ) {
+//			$raw = RequestParameters::TODO();
+			if( $names ) {
+				if( is_array($names) ) {
+					$matches = $names;
+				}
+				else {
+					$matches = explode(',',$names);
+				}
+				$matches = array_map(function($val) { return trim($val); }, $matches);
+			}
+			else {
+				$matches = false;
+			}
+//			foreach( $raw as $key=>$value ) {
+			foreach( $_REQUEST as $key=>$value ) {
 				if( strncmp($key,$id,$len) == 0 ) {
 					$key = substr($key,$len);
-//					if( $key == 'id' || $key == 'returnid' || $key == 'action' ) continue; 2.99 deprecation, breaks lot of stuff
-					// generic specialchars decode N/A - some values validly include such chars
-					$params[$key] = $value;
+					if( !$matches || in_array($key, $matches) ) {
+						if( $clean && is_string($value) && !is_numeric($value) ) {
+							$value = cms_specialchars_decode($value);
+						}
+						$params[$key] = $value;
+					}
 				}
 			}
 		}
-
 		return $params;
 	}
 } // class
