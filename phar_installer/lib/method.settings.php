@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -211,21 +211,21 @@ foreach ([
 //	'Reorder Content', >CM
 	'View Tag Help',
 	] as $one_perm) {
-  $permission = new Permission();
-  $permission->source = 'Core';
-  if (is_array($one_perm)) {
-	  $permission->name = $one_perm[0];
-	  $permission->text = $one_perm[1];
-  } else {
-	  $permission->name = $one_perm;
-	  $permission->text = ucfirst($one_perm);
-  }
-  try {
-	$permission->save();
-	$all_perms[$one_perm] = $permission;
-  } catch (Throwable $t) {
+	$permission = new Permission();
+	$permission->source = 'Core';
+	if (is_array($one_perm)) {
+		$permission->name = $one_perm[0];
+		$permission->text = $one_perm[1];
+	} else {
+		$permission->name = $one_perm;
+		$permission->text = ucfirst($one_perm);
+	}
+	try {
+		$permission->save();
+		$all_perms[$one_perm] = $permission;
+	} catch (Throwable $t) {
 	// nothing here
-  }
+	}
 }
 
 //
@@ -301,7 +301,7 @@ $admin_user->password = $ops->PreparePassword($adminaccount['password']);
 $admin_user->Save();
 
 $ops->AddMemberGroup($admin_user->id,$gid1);
-UserParams::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // TODO if MicroTiny present -the only user-preference we need now
+UserParams::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // TODO if MicroTiny present - the only user-preference we need now
 
 //
 // standard events
