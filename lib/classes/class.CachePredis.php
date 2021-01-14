@@ -2,7 +2,7 @@
 /*
 A class to work with data cached using the PHP Predis (aka phpredis) extension
 https://github.com/phpredis/phpredis
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -239,8 +239,12 @@ class CachePredis extends CacheDriver
      */
     private function _clean(string $group) : int
     {
-        $prefix = $this->get_cacheprefix(static::class, $group);
-        if ($prefix === '') { return 0; }//no global interrogation in shared key-space
+        if ($group) {
+            $prefix = $this->get_cacheprefix(static::class, $group);
+        } else {
+            $prefix = $this->_globlspace;
+        }
+        if ($prefix === '') { return 0; } //no global interrogation in shared key-space
 
         $nremoved = 0;
         $keys = $this->instance->keys($prefix.'*');

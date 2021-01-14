@@ -1,7 +1,7 @@
 <?php
 /*
 Base class for data-cache drivers.
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -139,7 +139,7 @@ abstract class CacheDriver
 
     /**
      * Delete all cached values in a group
-     * If the $group parameter is not specified the current group will be used
+     * If the $group parameter is empty, all groups will be cleared
      * @see CacheDriver::set_group()
      *
      * @param string $group Optional keys-space name, default ''
