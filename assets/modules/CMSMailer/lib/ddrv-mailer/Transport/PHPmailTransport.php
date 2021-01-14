@@ -10,7 +10,7 @@ use Exception;
 final class PHPmailTransport implements Transport
 {
     /**
-     * @var mixed string | strings[] | ...strings
+     * @var mixed strings[]
      */
     private $options;
 
@@ -22,7 +22,7 @@ final class PHPmailTransport implements Transport
     /**
      * @param mixed Callable | null
      */
-    private $ResponseLogger = null;
+    private $responseLogger = null;
 
     public function __construct()
     {
@@ -34,6 +34,7 @@ final class PHPmailTransport implements Transport
             //TODO default options
             );
             //$keys = array_keys($options);
+            //string | strings[] | ...strings
             foreach ($args as /*$i => */$val) {
                 //$options[$keys[$i]] = $val;
                 $options[] = $val;
@@ -41,7 +42,18 @@ final class PHPmailTransport implements Transport
         }
         $this->options = $options;
     }
+/*
+    public function __set($key, $value)
+    {
+        $this->options[$key] = $value;
+    }
 
+    public function __get($key)
+    {
+        if (isset($this->options[$key])) return $this->options[$key];
+        return null;
+    }
+*/
     /**
      * @inheritDoc
      */
@@ -55,14 +67,14 @@ final class PHPmailTransport implements Transport
         $body = $message->getBodyRaw(); //TODO confirm $body not starts with multiple "\r\n"'s and each line separated by "\r\n"
         $headers = $message->getHeadersRaw(array('to','subject'));
         $parms = ($this->options) ? (is_array($this->options) ? implode(' ', $this->options) : $this->options) : '';
-        if (is_callbable($this->requestLogger)) {
+        if (is_callable($this->requestLogger)) {
             call_user_func($this->requestLogger, 'TODO');
         }
         if (mail($to, $subject, $body, $headers, trim($parms))) {
             return true;
         }
         $arr = error_get_last();
-        if (is_callbable($this->responseLogger)) {
+        if (is_callable($this->responseLogger)) {
             call_user_func($this->responseLogger, 'TODO ' . $arr['message']);
         }
         throw new Exception($arr['message']);
