@@ -142,7 +142,18 @@ final class SmtpTransport implements Transport
         // reportedly, some hosts disable stream_socket_client()
         $this->streamer = function_exists('stream_socket_client');
     }
+/*
+    public function __set($key, $value)
+    {
+        $this->$key = $value;
+    }
 
+    public function __get($key)
+    {
+        if (isset($this->$key)) return $this->$key;
+        return null;
+    }
+*/
     private function connect()
     {
         if (is_resource($this->socket)) {
