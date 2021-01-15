@@ -15,7 +15,7 @@ if (!isset($gCms) || !($gCms instanceof App)) {
 }
 
 //table is essentially a cache, written as much as read, use InnoDB table
-$taboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
+$taboptarray = ['mysqli' => 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 $dict = new DataDictionary($db);
 
 //data field holds a serialized class, size 1024 is probably enough

@@ -29,7 +29,7 @@ if (!isset($gCms)) {
 }
 
 $dict = new DataDictionary($db);
-$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
+$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 
 $tbl = CMS_DB_PREFIX.'module_designs'; // aka Design::TABLENAME
 //created I, <<< DT replaced 2.99

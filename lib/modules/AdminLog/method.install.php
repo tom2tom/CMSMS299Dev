@@ -28,7 +28,7 @@ if (!isset($gCms)) {
 }
 
 $dict = new DataDictionary($db);
-$taboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
+$taboptarray = ['mysqli' => 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 
 $flds = '
 timestamp I NOTNULL,
