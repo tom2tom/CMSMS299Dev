@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -86,9 +86,15 @@ final class CoreCapabilities extends BasicEnum
 	const SEARCH_MODULE = 'handles_search';
 
 	/**
+	 * A constant indicating that the module sends email
+	 * @since 2.99
+	 */
+	const EMAIL_MODULE = 'sends_email';
+
+	/**
 	 * A constant indicating that the module can contribute to site
 	 * operations in accord with recorded preferences/settings. In effect,
-	 * a generalisation of WYSIWYG_MODULE, SYNTAX_MODULE etc but geared
+	 * a generalization of WYSIWYG_MODULE, SYNTAX_MODULE etc but geared
      * toward value-management via admin UI
 	 * @since 2.99
 	 */
@@ -110,7 +116,7 @@ final class CoreCapabilities extends BasicEnum
 	 * A constant indicating that the module contributes to site
 	 * operations as they apply to individual admin users, in accord
 	 * with recorded user preferences/settings. In effect, a
-	 * generalisation of WYSIWYG_MODULE, SYNTAX_MODULE etc but
+	 * generalization of WYSIWYG_MODULE, SYNTAX_MODULE etc but
 	 * geared toward value-management via admin UI
 	 * @since 2.99
 	 */
