@@ -189,11 +189,9 @@ class CacheYac extends CacheDriver
      */
     private function _clean(string $group) : int
     {
-        if ($group) {
-            $prefix = $this->get_cacheprefix(static::class, $group);
-        } else {
-            $prefix = $this->_globlspace;
-        }
+        $prefix = ($group) ?
+            $this->get_cacheprefix(static::class, $group):
+            $this->_globlspace;
         if ($prefix === '') { return 0; } //no global interrogation in shared key-space
 
         $nremoved = 0;

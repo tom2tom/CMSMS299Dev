@@ -1,7 +1,7 @@
 <?php
 /*
 A class to work with cache data in filesystem files.
-Copyright (C) 2013-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -185,7 +185,6 @@ class CacheFile extends CacheDriver
 
     public function clear($group = '')
     {
-        if (!$group) { $group = $this->_group; }
         return $this->_clean_dir($this->_cache_dir, $group, false);
     }
 
@@ -317,8 +316,13 @@ class CacheFile extends CacheDriver
      */
     private function _clean_dir(string $dir, string $group, bool $aged = true) : int
     {
-        $fn = $dir.DIRECTORY_SEPARATOR.$this->get_cacheprefix(static::class, $group);
-        $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache';
+        $prefix = ($group) ?
+            $this->get_cacheprefix(static::class, $group):
+            $this->_globlspace;
+        if (!$prefix) { return 0; }
+
+        $fn = $dir.DIRECTORY_SEPARATOR.$prefix;
+        $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache'; // TODO
         $files = glob($mask, GLOB_NOSORT);
         if (!$files) { return 0; }
 

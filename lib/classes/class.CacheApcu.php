@@ -164,11 +164,9 @@ class CacheApcu extends CacheDriver
      */
     private function _clean(string $group, bool $aged = true) : int
     {
-        if ($group) {
-            $prefix = $this->get_cacheprefix(static::class, $group);
-        } else {
-            $prefix = $this->_globlspace;
-        }
+        $prefix = ($group) ?
+            $this->get_cacheprefix(static::class, $group):
+            $this->_globlspace;
         if ($prefix === '') { return 0; } //no global interrogation in shared key-space
 
         if ($aged) {
