@@ -308,89 +308,95 @@ UserParams::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // TODO if Micr
 // some of these have been exported to CMSContentManager or DesignManager install routines.
 //
 verbose_msg(lang('install_initevents'));
+foreach ([
 /* >DM
-Events::CreateEvent('Core','AddDesignPost');
-Events::CreateEvent('Core','AddDesignPre');
+	'AddDesignPost',
+	'AddDesignPre',
 */
-Events::CreateEvent('Core','AddGroupPost');
-Events::CreateEvent('Core','AddGroupPre');
-Events::CreateEvent('Core','AddStylesheetPost');
-Events::CreateEvent('Core','AddStylesheetPre');
-Events::CreateEvent('Core','AddTemplatePost');
-Events::CreateEvent('Core','AddTemplatePre');
-Events::CreateEvent('Core','AddTemplateTypePost');
-Events::CreateEvent('Core','AddTemplateTypePre');
-Events::CreateEvent('Core','AddUserPost');
-Events::CreateEvent('Core','AddUserPre');
-Events::CreateEvent('Core','ChangeGroupAssignPost');
-Events::CreateEvent('Core','ChangeGroupAssignPre');
+	'AddGroupPost',
+	'AddGroupPre',
+	'AddStylesheetPost',
+	'AddStylesheetPre',
+	'AddTemplatePost',
+	'AddTemplatePre',
+	'AddTemplateTypePost',
+	'AddTemplateTypePre',
+	'AddUserPost',
+	'AddUserPre',
+	'ChangeGroupAssignPost',
+	'ChangeGroupAssignPre',
 /* >CM
-Events::CreateEvent('Core','ContentDeletePost');
-Events::CreateEvent('Core','ContentDeletePre');
-Events::CreateEvent('Core','ContentEditPost');
-Events::CreateEvent('Core','ContentEditPre');
+	'ContentDeletePost',
+	'ContentDeletePre',
+	'ContentEditPost',
+	'ContentEditPre',
 
-Events::CreateEvent('Core','ContentPostCompile');
-Events::CreateEvent('Core','ContentPostRender');
-Events::CreateEvent('Core','ContentPreCompile');
-Events::CreateEvent('Core','ContentPreRender'); // 2.2
+	'ContentPostCompile',
+	'ContentPostRender',
+	'ContentPreCompile',
+	'ContentPreRender', // 2.2
 */
 /* >DM
-Events::CreateEvent('Core','DeleteDesignPost');
-Events::CreateEvent('Core','DeleteDesignPre');
+	'DeleteDesignPost',
+	'DeleteDesignPre',
 */
-Events::CreateEvent('Core','DeleteGroupPost');
-Events::CreateEvent('Core','DeleteGroupPre');
-Events::CreateEvent('Core','DeleteStylesheetPost');
-Events::CreateEvent('Core','DeleteStylesheetPre');
-Events::CreateEvent('Core','DeleteTemplatePost');
-Events::CreateEvent('Core','DeleteTemplatePre');
-Events::CreateEvent('Core','DeleteTemplateTypePost');
-Events::CreateEvent('Core','DeleteTemplateTypePre');
-Events::CreateEvent('Core','DeleteUserPost');
-Events::CreateEvent('Core','DeleteUserPre');
+	'DeleteGroupPost',
+	'DeleteGroupPre',
+	'DeleteStylesheetPost',
+	'DeleteStylesheetPre',
+	'DeleteTemplatePost',
+	'DeleteTemplatePre',
+	'DeleteTemplateTypePost',
+	'DeleteTemplateTypePre',
+	'DeleteUserPost',
+	'DeleteUserPre',
 /* >DM
-Events::CreateEvent('Core','EditDesignPost');
-Events::CreateEvent('Core','EditDesignPre');
+	'EditDesignPost',
+	'EditDesignPre',
 */
-Events::CreateEvent('Core','EditGroupPost');
-Events::CreateEvent('Core','EditGroupPre');
-Events::CreateEvent('Core','EditStylesheetPost');
-Events::CreateEvent('Core','EditStylesheetPre');
-Events::CreateEvent('Core','EditTemplatePost');
-Events::CreateEvent('Core','EditTemplatePre');
-Events::CreateEvent('Core','EditTemplateTypePost');
-Events::CreateEvent('Core','EditTemplateTypePre');
+	'EditGroupPost',
+	'EditGroupPre',
+	'EditStylesheetPost',
+	'EditStylesheetPre',
+	'EditTemplatePost',
+	'EditTemplatePre',
+	'EditTemplateTypePost',
+	'EditTemplateTypePre',
 
-Events::CreateEvent('Core','EditUserPost');
-Events::CreateEvent('Core','EditUserPre');
-Events::CreateEvent('Core','LoginFailed');
+	'EditUserPost',
+	'EditUserPre',
 
-Events::CreateEvent('Core','LoginPost');
-Events::CreateEvent('Core','LogoutPost');
-Events::CreateEvent('Core','LostPassword');
-Events::CreateEvent('Core','LostPasswordReset');
+//	'JobFailed',
 
-Events::CreateEvent('Core','ModuleInstalled');
-Events::CreateEvent('Core','ModuleUninstalled');
-Events::CreateEvent('Core','ModuleUpgraded');
-Events::CreateEvent('Core','MetadataPostRender');
-Events::CreateEvent('Core','MetadataPreRender');
+	'LoginFailed',
+	'LoginPost',
+	'LogoutPost',
+	'LostPassword',
+	'LostPasswordReset',
 
-Events::CreateEvent('Core','PageTopPostRender');
-Events::CreateEvent('Core','PageTopPreRender');
-Events::CreateEvent('Core','PageHeadPostRender');
-Events::CreateEvent('Core','PageHeadPreRender');
-Events::CreateEvent('Core','PageBodyPostRender');
-Events::CreateEvent('Core','PageBodyPreRender');
-Events::CreateEvent('Core','PostRequest');
+	'ModuleInstalled',
+	'ModuleUninstalled',
+	'ModuleUpgraded',
+	'MetadataPostRender',
+	'MetadataPreRender',
 
-Events::CreateEvent('Core','SmartyPostCompile');
-Events::CreateEvent('Core','SmartyPreCompile');
+	'PageTopPostRender',
+	'PageTopPreRender',
+	'PageHeadPostRender',
+	'PageHeadPreRender',
+	'PageBodyPostRender',
+	'PageBodyPreRender',
+	'PostRequest',
 
-Events::CreateEvent('Core','StylesheetPostCompile');
-Events::CreateEvent('Core','StylesheetPostRender');
-Events::CreateEvent('Core','StylesheetPreCompile');
-Events::CreateEvent('Core','TemplatePostCompile');
-Events::CreateEvent('Core','TemplatePreCompile');
-Events::CreateEvent('Core','TemplatePreFetch');
+	'SmartyPostCompile',
+	'SmartyPreCompile',
+
+	'StylesheetPostCompile',
+	'StylesheetPostRender',
+	'StylesheetPreCompile',
+	'TemplatePostCompile',
+	'TemplatePreCompile',
+	'TemplatePreFetch',
+] as $s) {
+	Events::CreateEvent('Core',$s);
+}
