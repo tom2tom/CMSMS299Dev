@@ -19,7 +19,6 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace DesignManager;
 
 use CmsApp;
@@ -520,20 +519,24 @@ class Design
 	public function save()
 	{
 		if( $this->get_id() ) {
-			Events::SendEvent( 'Core', 'EditDesignPre', [ 'CmsLayoutCollection' => &$this ] ); //deprecated since 2.99 key
+			Events::SendEvent( 'Core', 'EditDesignPre', ['CmsLayoutCollection' => &$this] ); // deprecated since 2.99
+			Events::SendEvent( 'DesignManager', 'EditDesignPre', ['Design' => &$this] );
 			$this->_update();
-			Events::SendEvent( 'Core', 'EditDesignPost', [ 'CmsLayoutCollection' => &$this ] );
+			Events::SendEvent( 'Core', 'EditDesignPost', ['CmsLayoutCollection' => &$this] ); // deprecated since 2.99
+			Events::SendEvent( 'DesignManager', 'EditDesignPost', ['Design' => &$this] );
 			return;
 		}
-		Events::SendEvent( 'Core', 'AddDesignPre', [ 'CmsLayoutCollection' => &$this ] );
+		Events::SendEvent( 'Core', 'AddDesignPre', ['CmsLayoutCollection' => &$this] ); // deprecated since 2.99
+		Events::SendEvent( 'DesignManager', 'AddDesignPre', ['Design' => &$this] );
 		$this->_insert();
-		Events::SendEvent( 'Core', 'AddDesignPost', [ 'CmsLayoutCollection' => &$this ] );
+		Events::SendEvent( 'Core', 'AddDesignPost', ['CmsLayoutCollection' => &$this] ); // deprecated since 2.99
+		Events::SendEvent( 'DesignManager', 'AddDesignPost', ['Design' => &$this] );
 	}
 
 	/**
 	 * Delete the current design
 	 * This method normally does nothing if this design has associated templates.
-	 * @deprecated since 2.99 the event originator is 'Core', change to 'DesignManager'
+	 * @deprecated since 2.99 event originator 'Core', 2.99+ also from 'DesignManager'
 	 *
 	 * @throws CmsLogicException
 	 * @param bool $force Force deleting the design even if there are templates assigned
@@ -547,8 +550,8 @@ class Design
 			throw new CmsLogicException('Cannot delete a design that has templates assigned');
 		}
 */
-		Events::SendEvent( 'Core', 'DeleteDesignPre', [ 'CmsLayoutCollection' => &$this ] ); //TODO deprecated since 2.99 key
-		$db = CmsApp::get_instance()->GetDb();
+		Events::SendEvent( 'Core', 'DeleteDesignPre', ['CmsLayoutCollection' => &$this] ); // deprecated since 2.99
+		Events::SendEvent( 'DesignManager', 'DeleteDesignPre', ['Design' => &$this] );
 /*
 		if( $this->_css_members ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ?';
@@ -568,7 +571,8 @@ class Design
 		$dbr = $db->Execute($query,[$did]);
 
 		cms_notice('Design '.$this->get_name().' deleted');
-		Events::SendEvent( 'Core', 'DeleteDesignPost', [ 'CmsLayoutCollection' => &$this ] );
+		Events::SendEvent( 'Core', 'DeleteDesignPost', ['CmsLayoutCollection' => &$this] ); // deprecated since 2.99
+		Events::SendEvent( 'DesignManager', 'DeleteDesignPost', ['Design' => &$this] );
 		unset($this->_data['id']);
 		$this->_dirty = TRUE;
 	}
