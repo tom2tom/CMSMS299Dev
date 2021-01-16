@@ -177,7 +177,7 @@ final class JobStore
                 if (is_object($obj)) {
                     $obj->set_id($row['id']);
                     $idlist[] = (int) $row['id'];
-                    Events::SendEvent('CmsJobManager', CmsJobManager::EVT_ONFAILEDJOB, ['job' => $obj]); //since 2.3
+                    Events::SendEvent('CmsJobManager', CmsJobManager::EVT_ONFAILEDJOB, ['job' => $obj]);
                 } else {
                     debug_to_log(__METHOD__);
                     debug_to_log('Problem deserializing row');
