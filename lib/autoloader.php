@@ -72,7 +72,7 @@ function cms_autoloader(string $classname)
 		switch ($space) {
 			case 'CMSMS':
 			case 'CMSAsset':
-			case 'CMSResource':
+//			case 'CMSResource':
 				$sysp = true;
 				break;
 			default:
