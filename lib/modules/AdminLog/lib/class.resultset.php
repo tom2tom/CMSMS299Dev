@@ -4,11 +4,11 @@ namespace AdminLog;
 
 use AdminLog\filter;
 use AdminLog\storage;
-use CmsDbQueryBase;
 use CMSMS\Database\Connection;
+use CMSMS\DbQueryBase;
 use LogicException;
 
-class resultset extends CmsDbQueryBase
+class resultset extends DbQueryBase
 {
     private $_db;
 
