@@ -46,25 +46,25 @@ class DefaultAuditLogger implements IAuditManager
         $username = get_username(FALSE);
 
         $out = "CMSMS MSG: ADMINUSER=$username{$userid}, ITEMID=$itemid, SUBJECT=$subject, MSG=$msg";
-        error_log($out, 0, $this->LOGFILE);
+        error_log($out, 0, self::LOGFILE);
     }
 
     public function notice(string $msg, string $subject = '')
     {
         $out = "CMSMS NOTICE: SUBJECT=$subject, $msg";
-        error_log($out, 0, $this->LOGFILE);
+        error_log($out, 0, self::LOGFILE);
     }
 
     public function warning(string $msg, string $subject = '')
     {
         $out = "CMSMS WARNING: SUBJECT=$subject, $msg";
-        error_log($out, 0, $this->LOGFILE);
+        error_log($out, 0, self::LOGFILE);
     }
 
     public function error(string $msg, string $subject = '')
     {
         $out = "CMSMS ERROR: SUBJECT=$subject, $msg";
-        error_log($out, 0, $this->LOGFILE);
+        error_log($out, 0, self::LOGFILE);
     }
 } // class
 
@@ -98,7 +98,7 @@ final class AuditOperations implements IAuditManager
     /**
      * @ignore
      */
-    protected function __construct() {}
+//    protected function __construct() {}
     protected function __clone() {}
 
 //    public static function init() {} // just ensures other stuff in this file is loaded
