@@ -21,11 +21,11 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use AdminLog\auditor;
+use AdminLog\AuditOperations;
 //use AdminLog\Command\ClearLogCommand;
 use AdminLog\PruneLogJob;
 use AdminLog\ReduceLogJob;
 use AdminLog\storage;
-use CMSMS\AuditOperations;
 use CMSMS\CoreCapabilities;
 use CMSMS\HookOperations;
 
