@@ -1,7 +1,7 @@
 <?php
 /*
-Class VersionCheckTask: for periodic checks for and warnings about a newer version of CMSMS
-Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Class VersionCheckJob: for periodic checks for and warnings about a newer version of CMSMS
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -16,7 +16,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along
-with CMS Made Simple. 
+with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\tasks;
@@ -30,9 +30,9 @@ use const CMS_DEFAULT_VERSIONCHECK_URL;
 use const CMS_VERSION;
 use function cms_notice;
 
-class VersionCheckTask extends CronJob
+class VersionCheckJob extends CronJob
 {
-    const ENABLED_SITEPREF = 'VersionCheckTask'.AppParams::NAMESPACER.'checkversion';
+    const ENABLED_SITEPREF = 'VersionCheckJob'.AppParams::NAMESPACER.'checkversion';
 
     public function __construct()
     {
@@ -76,4 +76,4 @@ class VersionCheckTask extends CronJob
     }
 }
 
-\class_alias('CMSMS\tasks\VersionCheckTask','CmsVersionCheckTask',false);
+\class_alias('CMSMS\tasks\VersionCheckJob','CmsVersionCheckTask',false);

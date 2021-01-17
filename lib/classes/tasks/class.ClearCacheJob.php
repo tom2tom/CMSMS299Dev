@@ -1,7 +1,7 @@
 <?php
 /*
-Class ClearCacheTask: for periodic cleanup of all file-caches
-Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Class ClearCacheJob: for periodic cleanup of all file-caches
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -25,9 +25,9 @@ use CMSMS\AppParams;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
 
-class ClearCacheTask extends CronJob
+class ClearCacheJob extends CronJob
 {
-    const LIFETIME_SITEPREF = 'auto_clear_cache_age'; // recorded via siteprefs UI, not this-job-specific
+    const LIFETIME_SITEPREF = 'auto_clear_cache_age'; // value recorded via siteprefs UI, not this-job-specific
 
     private $_age_days;
 
@@ -51,4 +51,4 @@ class ClearCacheTask extends CronJob
     }
 }
 
-\class_alias('CMSMS\tasks\ClearCacheTask', 'ClearCacheTask', false);
+\class_alias('CMSMS\tasks\ClearCacheJob', 'ClearCacheTask', false);

@@ -1,7 +1,7 @@
 <?php
 /*
-Class SecurityCheckTask: for periodic checks for and warnings about several system-settings.
-Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Class SecurityCheckJob: for periodic checks for and warnings about several system-settings.
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -16,20 +16,20 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along
-with CMS Made Simple. 
+with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\tasks;
 
 use CMSMS\AdminAlerts\TranslatableAlert;
-use CMSMS\AppParams;
+//use CMSMS\AppParams;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
 use const CMS_ROOT_PATH;
 use const CONFIG_FILE_LOCATION;
 use function cms_join_path;
 
-class SecurityCheckTask extends CronJob
+class SecurityCheckJob extends CronJob
 {
     public function __construct()
     {
@@ -66,7 +66,7 @@ class SecurityCheckTask extends CronJob
 
         // check if mail is configured
         // not really a security issue... but meh, it saves another class.
-        if( !AppParams::get('mail_is_set',false) ) {
+/*        if( !AppParams::get('mail_is_set',false) ) {
             $alert = new TranslatableAlert('Modify Site Preferences');
             $alert->name = self::class.'mail';
             $alert->msgkey = 'info_mail_notset';
@@ -74,7 +74,9 @@ class SecurityCheckTask extends CronJob
             $alert->titlekey = 'config_issue';
             $alert->save();
         }
+*/
+        //TODO presence of a module having CoreCapabilities::EMAIL_MODULE
     }
 }
 
-\class_alias('CMSMS\tasks\SecurityCheckTask', 'CmsSecurityCheckTask', false);
+\class_alias('CMSMS\tasks\SecurityCheckJob', 'CmsSecurityCheckTask', false);

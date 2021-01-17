@@ -1,7 +1,7 @@
 <?php
 /*
-Class WatchTasksTask: for periodic checks for new async tasks to be processed.
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Class WatchTasksJob: for periodic checks for new async jobs to be processed.
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -26,10 +26,10 @@ use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
 use CMSMS\Crypto;
 
-class WatchTasksTask extends CronJob
+class WatchTasksJob extends CronJob
 {
-    const ENABLED_SITEPREF = 'WatchTasksTask'.AppParams::NAMESPACER.'taskschanged';
-    const STATUS_SITEPREF = 'WatchTasksTask'.AppParams::NAMESPACER.'signature';
+    const ENABLED_SITEPREF = 'WatchTasksJob'.AppParams::NAMESPACER.'taskschanged';
+    const STATUS_SITEPREF = 'WatchTasksJob'.AppParams::NAMESPACER.'signature';
 
     public function __construct()
     {
@@ -46,14 +46,14 @@ class WatchTasksTask extends CronJob
     {
         $mod = AppSingle::App()->GetJobManager();
         if ($mod) {
-			//check for changes in this same folder
+            //check for changes in this same folder
             $sig = '';
             $files = scandir(__DIR__);
             foreach( $files as $file ) {
                 $fp = __DIR__.DIRECTORY_SEPARATOR.$file;
                 $sig .= filesize($fp).filemtime($fp);
             }
-			//TODO check for changed module-jobs, if event-processing is bad ...
+            //TODO check for changed module-jobs, if event-processing is bad ...
             $sig = Crypto::hash_string($sig);
             $saved = AppParams::get(self::STATUS_SITEPREF,'');
             if ($saved != $sig) {
@@ -64,4 +64,4 @@ class WatchTasksTask extends CronJob
     }
 }
 
-\class_alias('CMSMS\tasks\WatchTasksTask','WatchTasksTask', false);
+\class_alias('CMSMS\tasks\WatchTasksJob','WatchTasksTask', false);
