@@ -1,5 +1,10 @@
 <?php
-
+/*
+This file is part of CMS Made Simple module: AdminLog
+Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Refer to licence and other details at the top of file AdminLog.module.php
+More info at http://dev.cmsmadesimple.org/projects/adminlog
+*/
 namespace AdminLog;
 
 use AdminLog;
@@ -12,7 +17,7 @@ class storage
 
     private $_mod;
 
-    public function __construct( AdminLog $mod )
+    public function __construct(AdminLog $mod)
     {
         $this->_mod = $mod;
     }

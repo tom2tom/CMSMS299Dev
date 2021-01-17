@@ -1,5 +1,10 @@
 <?php
-
+/*
+This file is part of CMS Made Simple module: AdminLog
+Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Refer to licence and other details at the top of file AdminLog.module.php
+More info at http://dev.cmsmadesimple.org/projects/adminlog
+*/
 namespace AdminLog;
 
 use InvalidArgumentException;
@@ -13,14 +18,14 @@ class event
     const TYPE_ERROR = 3;
 
     private $_data = [
-     'ip_addr' => null,
-     'item_id' => null,
-     'msg' => null,
-     'severity' => null,
-     'subject' => null,
-     'timestamp' => null,
-     'uid' => null,
-     'username' => null
+       'ip_addr' => null,
+       'item_id' => null,
+       'msg' => null,
+       'severity' => null,
+       'subject' => null,
+       'timestamp' => null,
+       'uid' => null,
+       'username' => null
     ];
 
     public function __construct( array $params )
@@ -79,4 +84,4 @@ class event
             throw new LogicException("$key is not a gettable member of ".self::class);
         }
     }
-} // class
+}
