@@ -20,12 +20,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use AdminLog\auditor;
-use AdminLog\AuditOperations;
 //use AdminLog\Command\ClearLogCommand;
+use AdminLog\auditor;
 use AdminLog\PruneLogJob;
 use AdminLog\ReduceLogJob;
 use AdminLog\storage;
+use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
 use CMSMS\HookOperations;
 
@@ -53,9 +53,9 @@ final class AdminLog extends CMSModule
         $this->auditor = new auditor($this, $this->storage);
 
         try {
-            AuditOperations::set_auditor($this->auditor);
+            AppSingle::AuditOperations()->set_auditor($this->auditor);
         } catch(Throwable $t) {
-            // ignore any error.
+            // ignore any error e.g. already have an audit-processor
         }
 
         HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);

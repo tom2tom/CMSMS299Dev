@@ -1,7 +1,7 @@
 <?php
 /*
-Audit management classes and interface
-Copyright (C) 2017-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Audit management classes
+Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -13,131 +13,144 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
+namespace CMSMS;
 
-namespace CMSMS {
+use CMSMS\AppSingle;
+use CMSMS\IAuditManager;
+use LogicException;
+use const CMS_DEPREC;
+use const TMP_CACHE_LOCATION;
+use function get_userid;
+use function get_username;
 
-    use LogicException;
+/**
+ * Default message-recorder class.
+ * Per config.ini setting, records into PHP's system-logger or a site-specific log-file.
+ * @since 2.99
+ */
+class DefaultAuditLogger implements IAuditManager
+{
+    private const LOGFILE = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'audit_log';
 
-    interface AuditManager
+    public function audit(string $msg, string $subject = '', $itemid = null)
     {
-        public function audit( string $msg, string $subject = '', $item_id = null );
-        public function notice( string $msg, string $subject = '' );
-        public function warning( string $msg, string $subject = '' );
-        public function error( string $msg, string $subject = '' );
+        $userid = get_userid(FALSE);
+        if ($userid < 1) $userid = '';
+        else $userid = " ($userid)";
+        $username = get_username(FALSE);
+
+        $out = "CMSMS MSG: ADMINUSER=$username{$userid}, ITEMID=$itemid, SUBJECT=$subject, MSG=$msg";
+        error_log($out, 0, $this->LOGFILE);
     }
 
-    class HttpErrorLogAuditor implements AuditManager
+    public function notice(string $msg, string $subject = '')
     {
-        public function audit( string $msg, string $subject = '', $itemid = null )
-        {
-            $userid = get_userid(FALSE);
-            if( $userid < 1 ) $userid = '';
-            else $userid = " ($userid)";
-            $username = get_username(FALSE);
-
-            $out = "CMSMS MSG: ADMINUSER=$username{$userid}, ITEMID=$itemid: SUBJECT=$subject, MSG=$msg";
-            $this->notice( $out );
-        }
-
-        public function notice( string $msg, string $subject = '' )
-        {
-            $msg = "CMSMS NOTICE: SUBJECT=$subject, $msg";
-            @error_log( $msg, 0, TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'audit_log' );
-        }
-
-        public function warning( string $msg, string $subject = '' )
-        {
-            $msg = "CMSMS WARNING: SUBJECT=$subject, $msg";
-            @error_log( $msg, 0, TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'audit_log' );
-        }
-
-        public function error( string $msg, string $subject = '' )
-        {
-            $msg = "CMSMS ERROR: SUBJECT=$subject, $msg";
-            @error_log( $msg, 0, TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'audit_log' );
-        }
+        $out = "CMSMS NOTICE: SUBJECT=$subject, $msg";
+        error_log($out, 0, $this->LOGFILE);
     }
 
-    final class AuditOperations
+    public function warning(string $msg, string $subject = '')
     {
-        // static properties here >> StaticProperties class ?
-        private static $_std_mgr = null;
-        private static $_opt_mgr = null;
-
-        protected function __construct() {}
-        protected function __clone() {}
-
-        public static function init() {} // just ensures other stuff in this file is loaded
-
-        /**
-         * @param AuditManager $mgr
-         * @throws LogicException
-         */
-        public static function set_auditor( AuditManager $mgr )
-        {
-            if( self::$_opt_mgr  ) throw new LogicException('Sorry only one audit manager can be set');
-            self::$_opt_mgr = $mgr;
-        }
-
-        protected static function get_auditor()
-        {
-            if( self::$_opt_mgr ) return self::$_opt_mgr;
-            if( !self::$_std_mgr ) self::$_std_mgr = new HttpErrorLogAuditor();
-            return self::$_std_mgr;
-        }
-
-        public static function audit( string $msg, string $subject, $itemid )
-        {
-            if( !$itemid ) $itemid = '0';
-            self::get_auditor()->audit( $msg, $subject, $itemid );
-        }
-
-        public static function notice( string $msg, string $subject = '' )
-        {
-            self::get_auditor()->notice( $msg, $subject );
-        }
-
-        public static function warning( string $msg, string $subject = '' )
-        {
-            self::get_auditor()->warning( $msg, $subject );
-        }
-
-        public static function error( string $msg, string $subject = '' )
-        {
-            self::get_auditor()->error( $msg, $subject );
-        }
-
-    } // class
-
-} // namespace
-
-namespace {
-
-    use CMSMS\AuditOperations;
-
-    function audit( $itemid, string $subject, string $msg = '' )
-    {
-        AuditOperations::audit( $msg, $subject, $itemid );
+        $out = "CMSMS WARNING: SUBJECT=$subject, $msg";
+        error_log($out, 0, $this->LOGFILE);
     }
 
-    function cms_notice( string $msg, string $subject = '' )
+    public function error(string $msg, string $subject = '')
     {
-        AuditOperations::notice( $msg, $subject );
+        $out = "CMSMS ERROR: SUBJECT=$subject, $msg";
+        error_log($out, 0, $this->LOGFILE);
+    }
+} // class
+
+/**
+ * A singleton class for logging data using a plugged-in data recorder.
+ *
+ * @final
+ * @since 2.99
+ * @package CMS
+ * @license GPL
+ */
+final class AuditOperations implements IAuditManager
+{
+    /* *
+     * @ignore
+     */
+//  private static $_instance = null;
+
+    /**
+     * The message-recorder object to use if $_opt_mgr hasn't been set (yet).
+     * @ignore
+     */
+    private $_std_mgr = null;
+
+    /**
+     * The message-recorder object specified by a caller.
+     * @ignore
+     */
+    private $_opt_mgr = null;
+
+    /**
+     * @ignore
+     */
+    protected function __construct() {}
+    protected function __clone() {}
+
+//    public static function init() {} // just ensures other stuff in this file is loaded
+
+    /**
+     * Get the singleton instance of this class.
+     * @deprecated since 2.99 instead use CMSMS\AppSingle::AuditOperations()
+     * @return AuditOperations
+     */
+    public static function get_instance() : self
+    {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::AuditOperations()'));
+        return AppSingle::AuditOperations();
     }
 
-    function cms_warning( string $msg, string $subject = '' )
+    /**
+     * @param IAuditManager-compatible $mgr
+     * @throws LogicException
+     */
+    public function set_auditor(IAuditManager $mgr)
     {
-        AuditOperations::warning( $msg, $subject );
+        if ($this->_opt_mgr) throw new LogicException('Only one audit-data processor can be set');
+        $this->_opt_mgr = $mgr;
     }
 
-    function cms_error( string $msg, string $subject = '' )
+    protected function get_auditor()
     {
-        AuditOperations::error( $msg, $subject );
+        if ($this->_opt_mgr) return $this->_opt_mgr;
+        if (!$this->_std_mgr) {
+            $this->_std_mgr = new DefaultAuditLogger(); // plug in the default
+        }
+        return $this->_std_mgr;
     }
-} // global namespace
+
+    public function audit(string $msg, string $subject = '', $itemid = null)
+    {
+        if (!$itemid) $itemid = '0';
+        $this->get_auditor()->audit($msg, $subject, $itemid);
+    }
+
+    public function notice(string $msg, string $subject = '')
+    {
+        $this->get_auditor()->notice($msg, $subject);
+    }
+
+    public function warning(string $msg, string $subject = '')
+    {
+        $this->get_auditor()->warning($msg, $subject);
+    }
+
+    public function error(string $msg, string $subject = '')
+    {
+        $this->get_auditor()->error($msg, $subject);
+    }
+} // class
