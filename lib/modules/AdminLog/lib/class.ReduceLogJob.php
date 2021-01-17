@@ -70,7 +70,7 @@ class ReduceLogJob extends CronJob
                 break;
             }
         }
-		if ($rst) { $rst->Close(); }
+        if ($rst) { $rst->Close(); }
         if ($this->have_queued()) {
             $this->adjust_last();
             $this->clear_queued();
@@ -84,7 +84,7 @@ class ReduceLogJob extends CronJob
         foreach ($a as $key => $val) {
             switch ($key) {
             case 'timestamp':
-		        // ignore similar timestamps
+                // ignore similar timestamps
                 if (abs($b['timestamp'] - $val) > 3600) return false;
                 break;
             default:
