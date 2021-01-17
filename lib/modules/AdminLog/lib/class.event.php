@@ -12,7 +12,16 @@ class event
     const TYPE_WARNING = 2;
     const TYPE_ERROR = 3;
 
-    private $_data = [ 'timestamp'=>null, 'severity'=>null, 'uid'=>null, 'item_id'=>null, 'ip_addr'=>null, 'username'=>null, 'subject'=>null, 'msg'=>null ];
+    private $_data = [
+     'ip_addr' => null,
+     'item_id' => null,
+     'msg' => null,
+     'severity' => null,
+     'subject' => null,
+     'timestamp' => null,
+     'uid' => null,
+     'username' => null
+    ];
 
     public function __construct( array $params )
     {

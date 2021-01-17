@@ -8,13 +8,13 @@ use LogicException;
 class filter
 {
     private $_data = [
-		'limit'=>100,
-		'msg'=>null,
-		'offset'=>0,
-		'severity'=>-1,
-		'subject'=>null,
-		'username'=>null,
-	];
+        'limit' => 100,
+        'msg' => null,
+        'offset' => 0,
+        'severity' => -1,
+        'subject' => null,
+        'username' => null,
+    ];
 
     public function __get( $key ) {
         switch( $key ) {
