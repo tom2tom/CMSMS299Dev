@@ -1,16 +1,28 @@
 <?php
 /*
-This file is part of CMS Made Simple module: AdminLog
-Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Refer to licence and other details at the top of file AdminLog.module.php
-More info at http://dev.cmsmadesimple.org/projects/adminlog
+Class for ...
+Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
-namespace AdminLog;
+namespace CMSMS\Log;
 
 use LogicException;
 
-// filter value object.
-class filter
+class logfilter
 {
     private $_data = [
         'limit' => 100,
@@ -21,8 +33,9 @@ class filter
         'username' => null,
     ];
 
-    public function __get( $key ) {
-        switch( $key ) {
+    public function __get( $key)
+    {
+        switch( $key) {
         case 'subject':
         case 'username':
         case 'msg':
@@ -38,9 +51,9 @@ class filter
         }
     }
 
-    public function __set( $key, $val )
+    public function __set( $key, $val)
     {
-        switch( $key ) {
+        switch( $key) {
         case 'subject':
         case 'username':
         case 'msg':
@@ -48,7 +61,7 @@ class filter
             break;
         case 'severity':
             // allow null or negative value to indicate any severity
-            if( is_null($val) || (int) $val < 0 ) {
+            if (is_null($val) || (int) $val < 0) {
                 $this->_data[$key] = null;
             }
             else {
