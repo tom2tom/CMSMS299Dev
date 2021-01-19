@@ -1,6 +1,6 @@
 <?php
 /*
-Module: CoreAdminLogin - standalone and theme-managed login/out
+Module: AdminLogin - standalone and theme-managed login/out
 Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -30,12 +30,12 @@ use CMSMS\IAuthModuleInterface;
  * @package CMS
  * @license GPL
  */
-class CoreAdminLogin extends CMSModule implements IAuthModuleInterface
+class AdminLogin extends CMSModule implements IAuthModuleInterface
 {
     // minimum methods used by metafile processor
     public function GetAuthor() { return 'Robert Campbell'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
-    public function GetName() { return 'CoreAdminLogin'; }
+    public function GetName() { return 'AdminLogin'; }
     public function GetVersion() { return '0.2'; }
     public function IsAdminOnly() { return true; }
     public function MinimumCMSVersion() { return '2.8.900'; }

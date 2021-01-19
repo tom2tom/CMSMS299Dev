@@ -1,6 +1,6 @@
 <?php
 /*
-CoreAdminLogin module uninstallation process
+AdminLogin module installation process
 Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,5 +18,9 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
-return 'This module cannot be removed';
+/* NOPE DEFAULT TO THEME-DRIVEN LOGIN
+$modname = cms_siteprefs::get('loginmodule');
+if( !$modname ) {
+    cms_siteprefs::set('loginmodule', $this->GetName());
+}
+*/

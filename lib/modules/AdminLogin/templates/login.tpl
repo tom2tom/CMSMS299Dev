@@ -28,12 +28,16 @@
       {/if}
       <h1>{if isset($smarty.get.forgotpw)}
        {$mod->Lang('title_recover',{sitename})}
+      {elseif isset($renewpw)}
+       {$mod->Lang('title_replace',{sitename})}
       {elseif !empty($sitelogo)}
        {$mod->Lang('title_login')}
       {else}{$mod->Lang('title_login_named',{sitename})}{/if}</h1>
       {$form}
       {if !empty($smarty.get.forgotpw)}
-       <div class="pageinfo">{$mod->Lang('title_forgotpw')}</div>
+       <div class="pageinfo">{$mod->Lang('info_recover')}</div>
+      {elseif isset($renewpw)}
+       <div class="pageinfo">{$mod->Lang('info_replace')}</div>
       {/if}
       {if !empty($error)}<div class="pageerror">{$error}</div>{/if}
       {if !empty($warning)}<div class="pagewarn">{$warning}</div>{/if}

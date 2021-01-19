@@ -1,6 +1,23 @@
 <?php
+/*
+AdminLogin module action - admin_login
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
-namespace CoreAdminLogin;
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AdminUtils;
 use CMSMS\AppSingle;
@@ -9,7 +26,7 @@ use CMSMS\HookOperations;
 use CMSMS\internal\LoginOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
-use CoreAdminLogin\LoginUserError;
+use AdminLogin\LoginUserError;
 use Exception;
 use RuntimeException;
 use function audit;
@@ -20,24 +37,21 @@ use function redirect;
 
 if( !isset($gCms) ) exit;
 
-class LoginUserError extends RuntimeException
-{
-}
+class LoginUserError extends RuntimeException {}
 
-$username = $password = null;
 $theme_object = Utils::get_theme_object();
 $csrf_key = hash('tiger192,3', AppSingle::App()->GetSiteUUID());
 $login_ops = LoginOperations::get_instance();
 $username = $password = $error = $warning = $pwhash = $message = null;
 
-if( isset( $_GET['recoverme'] ) ) {
-    $code = filter_input( INPUT_GET, 'recoverme', FILTER_SANITIZE_STRING ); //TODO or clean_string() ?
-    $user = $this->getLoginUtils()->find_recovery_user( $code );
-    if( !$user ) {
-        $error = $this->Lang('err_usernotfound');
+if( isset( $_GET['recoverme'] ) ) { //should be hexits hash
+    $token = sanitizeVal($_GET['recoverme']);
+    $user = $this->getLoginUtils()->find_recovery_user($token);
+    if( $user ) {
+        $pwhash = $token;
     }
     else {
-        $pwhash = $code;
+        $error = $this->Lang('err_usernotfound');
     }
 }
 else if( isset( $params['forgotpwchangeform']) ) {
@@ -48,20 +62,20 @@ else if( isset( $params['forgotpwchangeform']) ) {
             throw new RuntimeException( $this->Lang('err_csrfinvalid') );
         }
 
-        $usercode = filter_var( $params['changepwhash'], FILTER_SANITIZE_STRING );
-        $username = html_entity_decode( filter_var( $params['username'], FILTER_SANITIZE_STRING, //TODO prohibit many non-LOW chars?
-		    FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK ) );
-        $password1 = trim( filter_var( $params['password'], FILTER_UNSAFE_RAW, //TODO allow anything in P/W ?
-            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK ) );
-        $password2 = trim( filter_var( $params['passwordagain'], FILTER_UNSAFE_RAW, //TODO allow anything in P/W ?
-            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK ) );
-        if( !$usercode || !$username || !$password1 || !$password2 ) throw new LoginUserError( $this->Lang('err_missingdata') );
+        $token = $params['changepwhash']; // no pre-process cleanup in this context
+        $username = $params['username'];
+        $password1 = $params['password'];
+        $password2 = $params['passwordagain'];
+        if( !$token || !$username || !$password1 || !$password2 ) throw new LoginUserError( $this->Lang('err_missingdata') );
         if( $password1 != $password2 ) throw new LoginUserError( $this->Lang('err_passwordmismatch') );
-        HookOperations::do_hook('Core::PasswordStrengthTest', $password1 );
 
-        $user = $this->getLoginUtils()->find_recovery_user( $usercode );
+        $user = $this->getLoginUtils()->find_recovery_user( $token );
         if( !$user || $user->username != $username ) throw new LoginUserError( $this->Lang('err_usernotfound') );
 
+//        Events::SendEvent('Core', 'PasswordStrengthTest', $password1);
+        $TODO = HookOperations::do_hook('Core::PasswordStrengthTest', ['user' => $user, 'password' => $password1]);
+
+        //TODO P/W policy / blacklist check
         $user->SetPassword( $password1 );
         $user->Save();
         $this->getLoginUtils()->remove_reset_code( $user );
@@ -75,11 +89,11 @@ else if( isset( $params['forgotpwchangeform']) ) {
         $error = $e->GetMessage();
         HookOperations::do_hook('Core::LoginFailed', [ 'user'=>$username ] );
         $ip_login_failed = Utils::get_real_ip();
-        $pwhash = $usercode;
+        $pwhash = $token;
         cms_warning('', '(IP: ' . $ip_login_failed . ') ' . "Admin Username: " . $username, 'Password Reset Failed');
     }
-    catch( Exception $e ) {
-        $error = $e->GetMessage();
+    catch( Throwable $t ) {
+        $error = $t->GetMessage();
     }
 }
 else if( isset( $params['forgotpwform']) ) {
@@ -91,17 +105,15 @@ else if( isset( $params['forgotpwform']) ) {
             throw new RuntimeException( $this->Lang('err_csrfinvalid') );
         }
 
-		$username = $params['username'] ?? null;
-        if( $username ) $username = html_entity_decode( filter_var($username, FILTER_SANITIZE_STRING, //TODO prohibit many non-LOW chars?
-		    FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK ) );
-        if( !$username ) throw new LoginUserError( $this->Lang('err_usernotfound') );
+        $username = $params['username'] ?? null;
         unset( $params['username'] );
-
-        HookOperations::do_hook('Core::LostPassword', [ 'username'=>$username ]);
+        if( !$username ) throw new LoginUserError($this->Lang('err_usernotfound'));
+        $username = sanitizeVal($username, 4);
+        HookOperations::do_hook('Core::LostPassword', [ 'username'=>$username]);
         $userops = $gCms->GetUserOperations();
         $oneuser = $userops->LoadUserByUsername($username, null, true, true);
         if( !$oneuser ) {
-            HookOperations::do_hook('Core::LoginFailed', [ 'user'=>$username ] );
+            HookOperations::do_hook('Core::LoginFailed', [ 'user'=>$username] );
             throw new LoginUserError( $this->Lang('err_usernotfound') );
         }
 
@@ -110,12 +122,12 @@ else if( isset( $params['forgotpwform']) ) {
     }
     catch( LoginUserError $e ) {
         $error = $e->GetMessage();
-        HookOperations::do_hook('Core::LoginFailed', [ 'user'=>$username ]);
+        HookOperations::do_hook('Core::LoginFailed', [ 'user'=>$username]);
         $ip_login_failed = Utils::get_real_ip();
         cms_warnng('(IP: ' . $ip_login_failed . ') ' . "Admin Username: " . $username, 'Password Recovery Failed');
     }
-    catch( Exception $e ) {
-        $error = $e->GetMessage();
+    catch( Throwable $t ) {
+        $error = $t->GetMessage();
     }
 }
 else if( isset( $params['submit'] ) ) {
@@ -127,18 +139,22 @@ else if( isset( $params['submit'] ) ) {
             throw new RuntimeException( lang('csrfinvalid') );
         }
 
-		$username = $params['username'] ?? null;
-		if( $username ) $username = html_entity_decode( filter_var( $username, FILTER_SANITIZE_STRING, //TODO prohibit many non-LOW chars?
-			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK ) );
-		$password = $params['password'] ?? null;
-        if( $password ) $password = trim( filter_var( $password, FILTER_UNSAFE_RAW, //TODO allow anything in P/W ?
-			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK ) );
-        if( !$username || !$password ) throw new LoginUserError( $this->Lang('err_invalidusernamepassword') );
+        $username = $params['username'] ?? null;
+        if( $username ) {
+            $username = sanitizeVal($username, 4);
+        }
+        if( !$username ) {
+            $username = lang('nofieldgiven', lang('username')); // maybe illegal chars
+        }
+        $password = $params['password'] ?? null;
+        //per https://pages.nist.gov/800-63-3/sp800-63b.html : P/W chars = printable ASCII | space | Unicode
+        if( $password ) $password = sanitizeVal($password, 0);
+        if( !$username || !$password ) throw new LoginUserError($this->Lang('err_invalidusernamepassword'));
 
         $userops = $gCms->GetUserOperations();
         $oneuser = $userops->LoadUserByUsername( $username, null, true, true );
-        if( !$oneuser ) throw new LoginUserError( $this->Lang('err_invalidusernamepassword') );
-        if( !$oneuser->Authenticate( $password ) )  throw new LoginUserError( $this->Lang('err_invalidusernamepassword') );
+        if( !$oneuser ) throw new LoginUserError($this->Lang('err_invalidusernamepassword'));
+        if( !$oneuser->Authenticate($password) )  throw new LoginUserError( $this->Lang('err_invalidusernamepassword') );
 
         // now we could redirect somewhere for a second stage of authenticateion.
         // but for core... we don't need to.
@@ -168,7 +184,7 @@ else if( isset( $params['submit'] ) ) {
 else if( isset( $params['cancel'] ) ) {
     debug_buffer("Login cancelled.  Returning to login.");
     $login_ops->deauthenticate(); // just in case
-    redirect( $config['root_url'].'/menu.php', true );
+    redirect( $config['admin_url'].'/menu.php', true );
 }
 
 // display the login form

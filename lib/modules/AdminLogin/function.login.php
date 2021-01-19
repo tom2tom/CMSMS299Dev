@@ -1,7 +1,8 @@
 <?php
 /*
 admin-login module inclusion - does $_POST processing and provides related methods
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
@@ -11,16 +12,17 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMailer\Mailer; //TODO if no CMSMailer present, revert to mail()
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\Events;
-use CMSMS\Mailer;
 use CMSMS\User;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -47,10 +49,10 @@ function send_recovery_email(User $user, $mod)
 {
     global $config, $login_ops;
 
-    $obj = new Mailer();
+    $obj = new Mailer(); // TODO
     $obj->IsHTML(true);
-    $obj->AddAddress($user->email, cms_html_entity_decode($user->firstname . ' ' . $user->lastname));
-    $name = html_entity_decode(AppParams::get('sitename', 'CMSMS Site')); // OR cms_ variant ?
+    $obj->AddAddress($user->email, $user->firstname . ' ' . $user->lastname);
+    $name = AppParams::get('sitename', 'CMSMS Site');
     $obj->SetSubject($mod->Lang('lostpwemailsubject', $name));
 
     $salt = $login_ops->get_salt();
@@ -123,7 +125,7 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
     $forgot_username = $_REQUEST['forgottenusername']; //might be empty
     unset($_REQUEST['forgottenusername'], $_POST['forgottenusername']);
     if ($forgot_username) {
-        $tmp = cleanString($forgot_username, 2); // sanitize for internal use
+        $tmp = sanitizeVal($forgot_username, 21); // OR ,2 if no spaces allowed (2.99 breaking change)
         Events::SendEvent('Core', 'LostPassword', ['username' => $tmp]);
         $user = $userops->GetRecoveryData($forgot_username);
         unset($_REQUEST['loginsubmit'], $_POST['loginsubmit']);
@@ -145,10 +147,10 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
     }
     return;
 } elseif (!empty($_REQUEST['recoverme'])) { //should be a hexits hash
-    $user = find_recovery_user($_REQUEST['recoverme']);
+    $user = find_recovery_user(sanitizeVal($_REQUEST['recoverme']));
     if ($user != null) {
         $changepwtoken = true;
-        $changepwhash = cleanString($_REQUEST['recoverme'], 2);
+        $changepwhash = sanitizeVal($_REQUEST['recoverme']);
     } else {
         $errmessage = $this->Lang('error_nouser');
     }
@@ -162,24 +164,25 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
             die('Invalid recovery request - 003');
         }
     }
-    $user = find_recovery_user($_REQUEST['changepwhash']); //should be a hexits hash
+    $changepwhash = sanitizeVal($_REQUEST['changepwhash']); //should be a hexits hash
+    $user = find_recovery_user($changepwhash);
     if ($user == null) {
         $errmessage = $this->Lang('error_nouser');
     } elseif (isset($_REQUEST['password'])) {
         //TODO migrate to check_passwords()
-        $tmp = cms_html_entity_decode($_REQUEST['password']);
-        $password = cleanString($tmp, 0);
+//        $tmp = cms_specialchars_decode($_REQUEST['password']);
+        $tmp = $_REQUEST['password'];
+        $password = sanitizeVal($tmp, 0);
         if ($password != $tmp) {
             $errmsg = $this->Lang('illegalcharacters', $this->Lang('password')); // OR lang('badfield', lang('password'));
-            $changepwhash = cleanString($_REQUEST['changepwhash'], 2);
             return;
         } elseif (!$password) {
             $errmessage = $this->Lang('error_badfield', $this->Lang('password'));
-            $changepwhash = cleanString($_REQUEST['changepwhash'], 2);
             return;
         }
-        $tmp = cms_html_entity_decode($_REQUEST['passwordagain']);
-        $again = cleanString($tmp, 0);
+//        $tmp = cms_specialchars_decode($_REQUEST['passwordagain']);
+        $tmp = $_REQUEST['passwordagain'];
+        $again = sanitizeVal($tmp, 0);
         if ($password == $again) {
             if ($userops->PasswordCheck($user->id, $password)) {
                 $user->Save();
@@ -192,12 +195,10 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
             } else {
                //TODO some feedback from checker
                 $errmessage = $this->Lang('error_passwordinvalid');
-                $changepwhash = cleanString($_REQUEST['changepwhash'], 2);
                 return;
             }
         } else {
             $errmessage = $this->Lang('error_nomatch');
-            $changepwhash = cleanString($_REQUEST['changepwhash'], 2);
             return;
         }
     }
@@ -307,7 +308,6 @@ if (isset($_POST['cancel'])) {
                 $homepage = $tmp[0].'?'.implode('&', $tmp3);
 
                 // and redirect
-                $homepage = cms_html_entity_decode($homepage);
                 //TODO generally support the websocket protocol 'wss' : 'ws'
                 if (!startswith($homepage, 'http') && !startswith($homepage, '//') && startswith($homepage, '/')) {
                     $homepage = CMS_ROOT_URL.$homepage;
@@ -327,9 +327,10 @@ if (isset($_POST['cancel'])) {
         unset($_POST['password'],$_REQUEST['password']);
         $username = $_REQUEST['username'] ?? $_REQUEST['forgottenusername'] ?? '';
         if ($username) {
-            $username = cleanString($username, 2); // sanitize for internal use
-        } else {
-            $username = '<Missing username>';
+            $username = sanitizeVal($username, 4);
+        }
+		if (!$username) {
+            $username = lang('nofieldgiven', lang('username')); // maybe illegal chars
         }
         Events::SendEvent('Core', 'LoginFailed', ['user'=>$username]);
         // put mention into the admin log
