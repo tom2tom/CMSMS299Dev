@@ -1,20 +1,22 @@
 <?php
 /*
 CoreTextEditing: a CMS Made Simple module enabling feature-rich editing of website text files.
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppSingle;
@@ -85,7 +87,7 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 	/**
 	 * Hook function to populate 'centralised' site settings UI
 	 * @internal
-	 * @since 2.9
+	 * @since 2.99
 	 * @return array
 	 */
 	public function ExtraSiteSettings()
@@ -106,11 +108,23 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 	}
 
 	/**
-	 * Generate page-header content needed to run syntax-highlighter(s) in an admin page.
-	 * Does nothing for frontend pages.
-	 * This is a CMSModule method for SYNTAX_MODULE modules
-	 * @return string always empty
-	 */
+     * Generate page-header content needed to run syntax-highlighter(s) in an admin page.
+     * Does nothing for frontend pages.
+     * A CMSModule method for SYNTAX_MODULE modules
+     * This might be called with argument(s), in which case they will be anonymous,
+     * and if not a single assoc. array then processed in order (to the extent that
+     * they are present), as follows:
+        string 'editor'    name of editor to use e.g. 'Ace'. Default '' (hence the user-preferred or first-listed editor)
+        string 'htmlclass' class of the page-element(s) whose content is to be edited. Default ''.
+        string 'htmlid' id of the page-element whose content is to be edited. Default 'edit_area.
+        string 'workid' id of a div to be created to work on the content of htmlid-element. Default 'edit_work'
+        bool   'edit'   whether the content is editable. Default false (i.e. just for display)
+        string 'handle' js variable (name) for the created editor. Default 'viewer|editor' per 'edit'
+        string 'typer'  syntax identifier, file path|name or a recognized pseudo like 'smarty'. Default ''
+        string 'theme'  the theme/style to use for the editor. Particularly needed
+          if the chosen editor is not the recorded-default.  Default ''
+     * @return string always empty (i.e. no success indication)
+     */
 	public function SyntaxGenerateHeader() //: string
 	{
 		$fe = AppSingle::App()->is_frontend_request();
@@ -121,27 +135,40 @@ class CoreTextEditing extends CMSModule implements MultiEditor
 		if (!$themeObject) {
 			return '';
 		}
-		/*
-		 *  array $params  Configuration details. Recognized members are:
-		 *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
-		 *  string 'handle' js variable (name) for the created editor. Default 'editor'
-		 *  string 'htmlclass' class of the page-element(s) whose content is to be edited. Default ''.
-		 *  string 'htmlid' id of the page-element whose content is to be edited. Default 'richeditor'.
-		 *  string 'theme'  override for the normal editor theme/style.  Default ''
-		 *  //string 'workid' id of a div to be created to work on the content of htmlid-element. Default 'edit_work'
-		 */
-   		$params = [];
-/*		if ($selector) {
-			$params['htmlid'] = $selector;
-		} else {
-*/
-			$params['htmlclass'] = 'textarea.'.$this->GetName();
-//		}
-		$params['edit'] = true; //TODO
+        // we can't change this method's API away from module-standard, so ...
+        $arg_list = func_get_args(); // maybe empty
+        if ($arg_list) {
+             $defs = [
+                'editor' => '',
+                'htmlclass' => '',
+                'htmlid' => 'edit_area',
+                'workid' => 'edit_work',
+                'edit' => false,
+                'handle' => 'viewer',
+                'typer' => '',
+                'theme' => '',
+            ];
+            if (is_array($arg_list[0])) {
+                $params = $arg_list[0] + $defs;
+            } else {
+                $params = [];
+                $keys = array_keys($defs);
+                $vals = $arg_list + array_values($defs);
+                foreach ($keys as $i => $k) {
+                   $params[$k] = $vals[$i];
+                }
+            }
+            if ($params['edit'] && $params['handle'] == 'viewer') {
+                $params['handle'] == 'editor';
+            }
+        } else {
+            $params = ['edit' => true]; //when called without params (the old API) it is always to edit the content
+            $params['htmlclass'] = $this->GetName(); // not necessarily a textarea
+        }
 
-		$val = UserParams::get_for_user(get_userid(false), 'syntax_editor');
+		$val = UserParams::get_for_user(get_userid(false), 'syntaxhighlighter');
 		if (!$val) {
-			$val = UserParams::get('syntax_editor');
+			$val = UserParams::get('syntaxhighlighter');
 			if (!$val) {
 				$all = $this->ListEditors();
 				$val = reset($all);
