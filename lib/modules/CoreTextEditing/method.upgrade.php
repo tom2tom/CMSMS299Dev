@@ -1,20 +1,22 @@
 <?php
 /*
 CoreTextEditing module method: upgrade
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 if (!isset($gCms)) exit;
@@ -22,10 +24,10 @@ if (!isset($gCms)) exit;
 $me = $this->GetName().'::';
 $all = $this->ListEditors();
 
-$val = cms_siteprefs::get('syntax_editor');
+$val = cms_siteprefs::get('syntaxhighlighter');
 if ($val && startswith($val, $me)) { //only if was in this module
     $def = reset($all);
-    cms_siteprefs::set('syntax_editor', $def);
+    cms_siteprefs::set('syntaxhighlighter', $def);
 }
 // TODO user-preferences too?
 
