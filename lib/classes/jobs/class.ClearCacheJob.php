@@ -18,7 +18,7 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace CMSMS\tasks;
+namespace CMSMS\jobs;
 
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
@@ -51,4 +51,4 @@ class ClearCacheJob extends CronJob
     }
 }
 
-\class_alias('CMSMS\tasks\ClearCacheJob', 'ClearCacheTask', false);
+\class_alias('CMSMS\jobs\ClearCacheJob', 'ClearCacheTask', false);

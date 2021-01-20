@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along
 with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace CMSMS\tasks;
+namespace CMSMS\jobs;
 
 use CMSMS\AdminAlerts\TranslatableAlert;
 //use CMSMS\AppParams;
@@ -79,4 +79,4 @@ class SecurityCheckJob extends CronJob
     }
 }
 
-\class_alias('CMSMS\tasks\SecurityCheckJob', 'CmsSecurityCheckTask', false);
+\class_alias('CMSMS\jobs\SecurityCheckJob', 'CmsSecurityCheckTask', false);

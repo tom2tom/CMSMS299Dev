@@ -1,6 +1,6 @@
 <?php
 /*
-Class WatchTasksJob: for periodic checks for new async jobs to be processed.
+Class WatchJobsJob: for periodic checks for new async jobs to be processed.
 Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,23 +18,24 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace CMSMS\tasks;
+namespace CMSMS\jobs;
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
 use CMSMS\Crypto;
+use CMSMS\internal\JobOperations;
 
-class WatchTasksJob extends CronJob
+class WatchJobsJob extends CronJob
 {
-    const ENABLED_SITEPREF = 'WatchTasksJob'.AppParams::NAMESPACER.'taskschanged';
-    const STATUS_SITEPREF = 'WatchTasksJob'.AppParams::NAMESPACER.'signature';
+    const ENABLED_SITEPREF = 'WatchJobsJob'.AppParams::NAMESPACER.'jobschanged';
+    const STATUS_SITEPREF = 'WatchJobsJob'.AppParams::NAMESPACER.'signature';
 
     public function __construct()
     {
         parent::__construct();
-        $this->name = 'Core\\WatchTasks';
+        $this->name = 'Core\\WatchJobs';
         if (AppParams::get(self::ENABLED_SITEPREF,1)) {
             $this->frequency = RecurType::RECUR_HALFDAILY;
         } else {
@@ -44,24 +45,21 @@ class WatchTasksJob extends CronJob
 
     public function execute()
     {
-        $mod = AppSingle::App()->GetJobManager();
-        if ($mod) {
-            //check for changes in this same folder
-            $sig = '';
-            $files = scandir(__DIR__);
-            foreach( $files as $file ) {
-                $fp = __DIR__.DIRECTORY_SEPARATOR.$file;
-                $sig .= filesize($fp).filemtime($fp);
-            }
-            //TODO check for changed module-jobs, if event-processing is bad ...
-            $sig = Crypto::hash_string($sig);
-            $saved = AppParams::get(self::STATUS_SITEPREF,'');
-            if ($saved != $sig) {
-                AppParams::set(self::STATUS_SITEPREF,$sig);
-                $mod->refresh_jobs(true);
-            }
+        //check for changes in this same folder
+        $sig = '';
+        $files = scandir(__DIR__);
+        foreach( $files as $file ) {
+            $fp = __DIR__.DIRECTORY_SEPARATOR.$file;
+            $sig .= filesize($fp).filemtime($fp);
+        }
+        //TODO check for changed module-jobs, if event-processing is bad ...
+        $sig = Crypto::hash_string($sig);
+        $saved = AppParams::get(self::STATUS_SITEPREF,'');
+        if ($saved != $sig) {
+            AppParams::set(self::STATUS_SITEPREF,$sig);
+            (new JobOperations())->refresh_jobs(true);
         }
     }
 }
 
-\class_alias('CMSMS\tasks\WatchTasksJob','WatchTasksTask', false);
+//\class_alias('CMSMS\jobs\WatchJobsJob','WatchTasksTask', false); N/A
