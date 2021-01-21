@@ -26,7 +26,7 @@ class logfilter
 {
     private $_data = [
         'limit' => 100,
-        'msg' => null,
+        'message' => null,
         'offset' => 0,
         'severity' => -1,
         'subject' => null,
@@ -38,7 +38,7 @@ class logfilter
         switch( $key) {
         case 'subject':
         case 'username':
-        case 'msg':
+        case 'message':
             return trim($this->_data[$key]);
 
         case 'severity':
@@ -56,7 +56,7 @@ class logfilter
         switch( $key) {
         case 'subject':
         case 'username':
-        case 'msg':
+        case 'message':
             $this->_data[$key] = trim($val);
             break;
         case 'severity':

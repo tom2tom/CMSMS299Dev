@@ -33,8 +33,8 @@ class dbstorage
     public function save(logrecord $rec)
     {
         $db = AppSingle::Db();
-        $sql = 'INSERT INTO '.self::TABLENAME.' (timestamp, severity, uid, ip_addr, username, subject, msg, item_id) VALUES (?,?,?,?,?,?,?,?)';
-        $db->Execute($sql, [$rec->timestamp, $rec->severity, $rec->uid, $rec->ip_addr, $rec->username, $rec->subject, $rec->msg, $rec->item_id]);
+        $sql = 'INSERT INTO '.self::TABLENAME.' (timestamp, severity, user_id, username, item_id, subject, message, ip_addr) VALUES (?,?,?,?,?,?,?,?)';
+        $db->Execute($sql, [$rec->timestamp, $rec->severity, $rec->user_id, $rec->username, $rec->item_id, $rec->subject, $rec->message, $rec->ip_addr]);
     }
 
     public function query(logfilter $filter)

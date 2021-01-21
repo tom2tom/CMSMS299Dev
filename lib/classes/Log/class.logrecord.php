@@ -33,12 +33,12 @@ class logrecord
     private $_data = [
        'ip_addr' => null,
        'item_id' => null,
-       'msg' => null,
+       'message' => null,
        'severity' => null,
        'subject' => null,
        'timestamp' => null,
-       'uid' => null,
-       'username' => null
+       'user_id' => null,
+       'username' => null,
     ];
 
     public function __construct(array $params)
@@ -52,27 +52,27 @@ class logrecord
                 $this->_data[$key] = (int)$val;
                 break;
 
-            case 'uid':
+            case 'user_id':
             case 'item_id':
                 if (is_int($val) && $val > 0) $this->_data[$key] = $val;
                 break;
 
             case 'ip_addr':
             case 'username':
-                if (is_string($val)) $this->_data[$key] = $val;
+                if (is_string($val)) $this->_data[$key] = trim($val);
                 break;
 
             case 'subject':
-            case 'msg':
+            case 'message':
                 $this->_data[$key] = trim($val);
                 break;
             }
         }
 
         // check for valid timestamp and severity, and a message.
-        if ($this->timestamp < 1) throw new InvalidArgumentException('value for timestamp in an '.self::class.' is invalid');
-        if ($this->severity < self::TYPE_MSG || $this->severity > self::TYPE_ERROR) throw new InvalidArgumentException('value for severity in an '.self::class.' is invalid');
-        if (!$this->msg) throw new InvalidArgumentException('value for msg in an '.self::class.' cannot be empty');
+        if ($this->timestamp < 1) throw new InvalidArgumentException('invalid timestamp in '.self::class);
+        if ($this->severity < self::TYPE_MSG || $this->severity > self::TYPE_ERROR) throw new InvalidArgumentException('invalid severity value in '.self::class);
+        if (!$this->message) throw new InvalidArgumentException('the message in an '.self::class.' cannot be empty');
     }
 
     public function __get( $key)
@@ -80,7 +80,7 @@ class logrecord
         switch( $key) {
         case 'timestamp':
         case 'severity':
-        case 'uid':
+        case 'user_id':
             return (int) $this->_data[$key];
 
         case 'item_id':
@@ -90,7 +90,7 @@ class logrecord
         case 'ip_addr':
         case 'username':
         case 'subject':
-        case 'msg':
+        case 'message':
             return trim($this->_data[$key]);
 
         default:

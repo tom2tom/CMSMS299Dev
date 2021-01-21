@@ -20,10 +20,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Log;
 
-use CMSMS\AppParams;
 use CMSMS\IAuditManager;
 use CMSMS\Log\logrecord;
 use CMSMS\Utils;
+use Throwable;
 use function get_userid;
 use function get_username;
 
@@ -42,16 +42,16 @@ class logger implements IAuditManager
     protected function get_common_parms()
     {
         $parms = [];
-        $parms['uid'] = get_userid(false);
+        $parms['user_id'] = get_userid(false);
         $parms['username'] = get_username(false);
-        if ($parms['uid']) { $parms['ip_addr'] = Utils::get_real_ip(); }
+        if ($parms['user_id']) { $parms['ip_addr'] = Utils::get_real_ip(); }
         return $parms;
     }
 
     public function audit(string $msg, string $subject = '', $item_id = null)
     {
         $parms = $this->get_common_parms() +
-            ['severity'=>logrecord::TYPE_MSG, 'subject'=>$subject, 'msg'=>$msg, 'item_id'=>$item_id];
+            ['severity'=>logrecord::TYPE_MSG, 'subject'=>$subject, 'message'=>$msg, 'item_id'=>$item_id];
         try {
             $rec = new logrecord($parms);
             $this->_storage->save($rec);
@@ -63,7 +63,7 @@ class logger implements IAuditManager
     public function notice(string $msg, string $subject = '')
     {
         $parms = $this->get_common_parms() +
-            ['severity'=>logrecord::TYPE_NOTICE, 'msg'=>$msg, 'subject'=>$subject];
+            ['severity'=>logrecord::TYPE_NOTICE, 'message'=>$msg, 'subject'=>$subject];
         try {
             $rec = new logrecord($parms);
             $this->_storage->save($rec);
@@ -75,7 +75,7 @@ class logger implements IAuditManager
     public function warning(string $msg, string $subject = '')
     {
         $parms = $this->get_common_parms() +
-            ['severity'=>logrecord::TYPE_WARNING, 'msg'=>$msg, 'subject'=>$subject];
+            ['severity'=>logrecord::TYPE_WARNING, 'message'=>$msg, 'subject'=>$subject];
         try {
             $rec = new logrecord($parms);
             $this->_storage->save($rec);
@@ -87,7 +87,7 @@ class logger implements IAuditManager
     public function error(string $msg, string $subject = '')
     {
         $parms = $this->get_common_parms() +
-            ['severity'=>logrecord::TYPE_ERROR, 'msg'=>$msg, 'subject'=>$subject];
+            ['severity'=>logrecord::TYPE_ERROR, 'message'=>$msg, 'subject'=>$subject];
         try {
             $rec = new logrecord($parms);
             $this->_storage->save($rec);

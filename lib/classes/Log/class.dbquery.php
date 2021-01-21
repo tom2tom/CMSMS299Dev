@@ -51,13 +51,13 @@ class dbquery extends DbQueryBase
             $where[] = 'username = ?';
             $parms[] = $val;
         }
-        if (($val = $filter->msg)) {
-            $where[] = 'msg LIKE ?';
-            $parms[] = '%'.$val.'%';
+        if (($val = $filter->message)) {
+            $where[] = 'message LIKE ?';
+            $parms[] = '%'.addcslashes($val, '_%').'%';
         }
         if (($val = $filter->subject)) {
             $where[] = 'subject LIKE ?';
-            $parms[] = '%'.$val.'%';
+            $parms[] = '%'.addcslashes($val, '_%').'%';
         }
         if ($where) {
             $sql .= ' WHERE '.implode(' AND ', $where);
@@ -66,10 +66,10 @@ class dbquery extends DbQueryBase
 
         $db = AppSingle::Db();
         $this->_rs = $db->SelectLimit($sql, $this->_limit, $this->_offset, $parms);
-        if (!$this->_rs || $this->_rs->errno !== 0) {
-            $this->_totalmatchingrows = 0;
+        if ($this->_rs && $this->_rs->errno == 0) {
+            $this->_totalmatchingrows = $this->_rs->recordCount();
         } else {
-            $this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()');
+            $this->_totalmatchingrows = 0;
         }
     }
 
@@ -81,7 +81,9 @@ class dbquery extends DbQueryBase
     public function GetMatches()
     {
         $this->execute();
-        if (!$this->_rs) throw new LogicException('Invalid query generated');
+        if (!$this->_rs) {
+            throw new LogicException('Invalid query generated');
+        }
 
         $out = [];
         while (!$this->EOF()) {
