@@ -5,7 +5,7 @@ Copyright (C) 2017-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
- 
+
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of that License, or
@@ -193,6 +193,8 @@ abstract class Job
      * Jobs cannot count on any user, or data stored in session variables.
      * Any data that is needed for the job should either be stored with
      * the job object, or stored in the database in a context-independent format.
+     * @return mixed void | since 2.99 int indicating execution-status
+     *   0 = failed, 1 = no need to do anything, 2 = success
      */
     abstract public function execute();
 

@@ -85,6 +85,7 @@ class RegularJob extends CronJob
 
     /**
      * Perform the task, if its test() affirms
+     * @return int 0|1|2 indicating execution status
      * @throws LogicException
      */
     public function execute()
@@ -97,9 +98,12 @@ class RegularJob extends CronJob
         if ($task->test($now)) {
             if ($task->execute($now)) {
                 $task->on_success($now);
+                return 2;
             } else {
                 $task->on_failure($now);
+                return 0;
             }
         }
+        return 1;
     }
 }

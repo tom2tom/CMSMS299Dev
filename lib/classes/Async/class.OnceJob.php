@@ -47,6 +47,7 @@ abstract class OnceJob extends Job
 
     /**
      * Executor called by parent
+     * @return int 0|1|2 indicating execution status
      */
     public function execute()
     {
@@ -56,6 +57,7 @@ abstract class OnceJob extends Job
             throw new LogicException('Cannot save a job... the job-manger module is not available');
         }
         $module->suspend_job($this->name, $this->module);
+        return 2; // TODO
     }
 
     /**

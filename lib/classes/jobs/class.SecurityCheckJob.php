@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\jobs;
 
-use CMSMS\AdminAlerts\TranslatableAlert;
 //use CMSMS\AppParams;
+use CMSMS\AdminAlerts\TranslatableAlert;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
 use const CMS_ROOT_PATH;
@@ -38,6 +38,10 @@ class SecurityCheckJob extends CronJob
         $this->frequency = RecurType::RECUR_DAILY;
     }
 
+    /**
+     * @ignore
+     * @return int 0|1|2 indicating execution status
+     */
     public function execute()
     {
         // check if config is writable
@@ -76,6 +80,7 @@ class SecurityCheckJob extends CronJob
         }
 */
         //TODO presence of a module having CoreCapabilities::EMAIL_MODULE
+        return 2; // TODO
     }
 }
 

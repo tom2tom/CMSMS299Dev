@@ -21,7 +21,6 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS\jobs;
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
 use CMSMS\Crypto;
@@ -43,6 +42,10 @@ class WatchJobsJob extends CronJob
         }
     }
 
+    /**
+     * @ignore
+     * @return int 0|1|2 indicating execution status
+     */
     public function execute()
     {
         //check for changes in this same folder
@@ -57,8 +60,10 @@ class WatchJobsJob extends CronJob
         $saved = AppParams::get(self::STATUS_SITEPREF,'');
         if ($saved != $sig) {
             AppParams::set(self::STATUS_SITEPREF,$sig);
-            (new JobOperations())->refresh_jobs(true);
+            $num = (new JobOperations())->refresh_jobs(true);
+            if ($num > 0) { return 2; } // TODO
         }
+        return 1;
     }
 }
 

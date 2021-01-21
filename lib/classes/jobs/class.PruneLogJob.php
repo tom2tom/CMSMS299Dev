@@ -38,6 +38,7 @@ class PruneLogJob extends CronJob
 
     /**
      * Perform the job
+     * @return int 0|1|2 indicating execution status
      */
     public function execute()
     {
@@ -53,5 +54,6 @@ class PruneLogJob extends CronJob
         // TODO televant-logger->clear_older_than($limit);
         $storage = new dbstorage();
         $storage->clear_older_than($limit);
+        return 2; // TODO
     }
 }

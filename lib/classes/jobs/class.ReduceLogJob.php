@@ -42,6 +42,7 @@ class ReduceLogJob extends CronJob
 
     /**
      * Perform the job
+     * @return int 0|1|2 indicating execution status
      */
     public function execute()
     {
@@ -72,6 +73,7 @@ class ReduceLogJob extends CronJob
             $this->adjust_last();
             $this->clear_queued();
         }
+        return 2; // TODO
     }
 
     protected function is_same(array $a, array $b) : bool

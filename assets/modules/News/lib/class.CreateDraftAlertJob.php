@@ -24,6 +24,10 @@ class CreateDraftAlertJob extends CronJob
         $this->frequency = RecurType::RECUR_15M;
     }
 
+    /**
+     * @ignore
+     * @return int 0|1|2 indicating execution status
+     */
     public function execute()
     {
         $time = time();
@@ -33,6 +37,8 @@ class CreateDraftAlertJob extends CronJob
         if ($count) {
             $alert = new DraftMessageAlert($count);
             $alert->save();
+            return 2;
         }
+        return 1;
     }
 }

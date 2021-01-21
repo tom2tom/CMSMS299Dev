@@ -1,6 +1,6 @@
 <?php
 /*
-class: ExternalHandlerJob for jobs having an 'external' handler (plugins etc)
+Class: ExternalHandlerJob for jobs having an 'external' handler (plugins etc)
 Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -15,12 +15,13 @@ CMS Made Simple is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Async;
 
-use CMSMS\SimpleTagOperations;
+use CMSMS\UserTagOperations;
 use CMSMS\Utils;
 use RuntimeException;
 use function cms_to_bool;
@@ -37,7 +38,7 @@ use function cms_to_bool;
  *
  * @since 2.2
  * @property mixed $function string | callable
- *  The simple-plugin | action file | function name, or an actual callable.
+ *  The user-plugin | action file | function name, or an actual callable.
  * @property bool $is_udt Whether $function is the name of a user-plugin.
  */
 class ExternalHandlerJob extends Job
@@ -113,11 +114,12 @@ class ExternalHandlerJob extends Job
 
     /**
      * @ignore
+     * @return int 0|1|2 indicating execution status
      */
     public function execute()
     {
         if ($this->is_udt) {
-            SimpleTagOperations::get_instance()->CallSimpleTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO plugin parameters missing
+            UserTagOperations::get_instance()->CallUserTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO plugin parameters missing
 //TODO also support regular plugins
         } elseif ($this->module && preg_match('/^action\.(.+)\.php$/', $this->function, $matches)) {
             $mod_obj = Utils::get_module($this->module);
@@ -140,5 +142,6 @@ class ExternalHandlerJob extends Job
                 call_user_func($this->function);
             }
         }
+        return 2; // TODO
     }
 }

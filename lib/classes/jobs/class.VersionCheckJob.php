@@ -45,6 +45,10 @@ class VersionCheckJob extends CronJob
         }
     }
 
+    /**
+     * @ignore
+     * @return int 0|1|2 indicating execution status
+     */
     public function execute()
     {
         $remote_ver = $this->fetch_latest_cmsms_ver();
@@ -56,7 +60,9 @@ class VersionCheckJob extends CronJob
             $alert->msgargs = [ CMS_VERSION, $remote_ver ];
             $alert->save();
             cms_notice('CMSMS version '.$remote_ver.' is available');
+            return 2;
         }
+        return 1;
     }
 
     private function fetch_latest_cmsms_ver()

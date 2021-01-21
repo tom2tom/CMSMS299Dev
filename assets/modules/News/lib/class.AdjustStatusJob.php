@@ -23,6 +23,10 @@ class AdjustStatusJob extends CronJob
         $this->frequency = RecurType::RECUR_HOURLY;
     }
 
+    /**
+     * @ignore
+     * @return int 0|1|2 indicating execution status
+     */
     public function execute()
     {
         $time = time();
@@ -31,5 +35,6 @@ class AdjustStatusJob extends CronJob
         $db->Execute($query,[$time]);
         $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'published\' WHERE status=\'final\' AND start_time IS NOT NULL AND start_time BETWEEN 1 AND ?';
         $db->Execute($query,[$time]);
+        return 2; // TODO
     }
 }

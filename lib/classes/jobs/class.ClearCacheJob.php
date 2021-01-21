@@ -43,11 +43,21 @@ class ClearCacheJob extends CronJob
         }
     }
 
+    /**
+     * @ignore
+     * @return int 0|1|2 indicating execution status
+      */
     public function execute()
     {
         if ($this->_age_days != 0) {
-            AdminUtils::clear_cached_files($this->_age_days);
+            try {
+                AdminUtils::clear_cached_files($this->_age_days);
+                return 2;
+            } catch (Throwable $t) {
+                return 0;
+            }
         }
+        return 1;
     }
 }
 
