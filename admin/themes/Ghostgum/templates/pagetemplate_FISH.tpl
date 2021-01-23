@@ -7,6 +7,7 @@
   {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
   {if $thetitle}{$thetitle}{/if}{sitename}
   {/strip}</title>
+  <base href="{$admin_url}/" />
   <meta charset="utf-8" />
   <meta name="generator" content="CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
@@ -14,13 +15,12 @@
   <meta name="referrer" content="origin" />
   <meta name="HandheldFriendly" content="true" />
   <meta name="msapplication-TileColor" content="#f79838" />
-  <meta name="msapplication-TileImage" content="{$assets_url}/images/ms-application-icon.png" />
-  <base href="{$admin_url}/" />
-  <link rel="shortcut icon" href="{$assets_url}/images/cmsms-favicon.ico" />
-  <link rel="apple-touch-icon" href="{$assets_url}/images/apple-touch-icon-iphone.png" />
-  <link rel="apple-touch-icon" sizes="72x72" href="{$assets_url}/images/apple-touch-icon-ipad.png" />
-  <link rel="apple-touch-icon" sizes="114x114" href="{$assets_url}/images/apple-touch-icon-iphone4.png" />
-  <link rel="apple-touch-icon" sizes="144x144" href="{$assets_url}/images/apple-touch-icon-ipad3.png" />
+  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
+  <link rel="apple-touch-icon" href="themes/assets/images/apple-touch-icon-iphone.png" />
+  <link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png" />
+  <link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png" />
+  <link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png" />
   {$header_includes|default:''}
  </head>
  <body>

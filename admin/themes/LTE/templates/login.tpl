@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	{*<base href="{$admin_url}/" />*}
+	<base href="{$admin_url}/" />
 
 	<title>CMS Made Simple | Log in</title>
 
@@ -11,7 +11,7 @@
 	<meta name="robots" content="noindex, nofollow" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<link rel="shortcut icon" href="{$theme_url}/images/favicon/favicon.ico" />
+	<link rel="shortcut icon" href="themes/assets/images/favicon/favicon.ico" />
 	{*<link rel="stylesheet" href="loginstyle.php" />*}
 
 	<link rel="stylesheet" href="{$theme_url}/plugins/fontawesome-free/css/all.min.css"> {* Font Awesome *}
@@ -27,7 +27,7 @@
     		<a href="https://cmsmadesimple.org"><img src="{$theme_url}/images/logoCMS.png" class="img-fluid" style="max-width: 268px;" alt="CMS Made Simple logo" title="CMS Made Simple"  /></a>
   		</div>
   		<!-- /.login-logo -->
-  		
+
   		<div class="card">
     		<div class="card-body login-card-body">
 	      		<p class="login-box-msg">{'logintitle'|lang}</p>

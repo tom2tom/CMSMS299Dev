@@ -7,13 +7,13 @@
 		<meta name="generator" content="CMS Made Simple - Copyright (C) 2019-{$smarty.now|date_format:'%Y'}. All rights reserved." />
 		<meta name="robots" content="noindex, nofollow" />
 
-		<link rel="shortcut icon" href="{$theme_url}/images/favicon/favicon.ico"/>
-		<link rel="apple-touch-icon" href="{$theme_url}/images/favicon/apple-touch-icon-iphone.png" />
-		<link rel="apple-touch-icon" sizes="72x72" href="{$theme_url}/images/favicon/apple-touch-icon-ipad.png" />
-		<link rel="apple-touch-icon" sizes="114x114" href="{$theme_url}/images/favicon/apple-touch-icon-iphone4.png" />
-		<link rel="apple-touch-icon" sizes="144x144" href="{$theme_url}/images/favicon/apple-touch-icon-ipad3.png" />
+		<link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico"/>
+		<link rel="apple-touch-icon" href="themes/assets/images/apple-touch-icon-iphone.png" />
+		<link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png" />
+		<link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png" />
+		<link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png" />
 
-		<meta name="msapplication-TileImage" content="{$theme_url}/images/favicon/ms-application-icon.png" />
+		<meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
 		<meta name="msapplication-TileColor" content="#f89938" />
 
 		{*<link rel="stylesheet" href="style.php?{$secureparam}" />*}
@@ -136,9 +136,9 @@
 						</div>
 					</div>
 				</div>
-						
+
 				{if $page_title && $page_subtitle}<header><h3>{$page_subtitle}</h3></header>{/if}
-						
+
 				<section class="content">
 					<div class="container-fluid">{$content}</div>
 				</section>
@@ -203,9 +203,9 @@
 							{/if}
 							{if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{'module_help'|lang}</a></span>{/if}
 						</header>
-						
+
 						{if $page_title && $page_subtitle}<header class="subheader"><h3 class="subtitle">{$page_subtitle}</h3></header>{/if}
-						
+
 						<section class="cf">{$content}</section>
 					</article>
 				</div>

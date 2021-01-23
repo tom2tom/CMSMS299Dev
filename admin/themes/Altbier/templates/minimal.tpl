@@ -8,7 +8,7 @@
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
   <meta name="HandheldFriendly" content="true" />
   <base href="{$admin_root}/" />
-  <link rel="shortcut icon" href="{$theme_root}/images/favicon/cmsms-favicon.ico" />
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
   {block name='header'}{$header_includes|default:''}{/block}
  </head>
  <body{if !empty($bodyid) id="{$bodyid}"{/if}>

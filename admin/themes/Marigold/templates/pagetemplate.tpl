@@ -5,6 +5,7 @@
 {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
 {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
   <title>{$thetitle}{sitename}</title>
+  <base href="{$admin_url}/" />
   <meta charset="utf-8" />
   <meta name="generator" content="CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
@@ -12,13 +13,12 @@
   <meta name="referrer" content="origin" />
   <meta name="HandheldFriendly" content="true" />
   <meta name="msapplication-TileColor" content="#f89938" />
-  <meta name="msapplication-TileImage" content="{$assets_url}/images/ms-application-icon.png" />
-  <base href="{$admin_url}/" />
-  <link rel="shortcut icon" href="{$assets_url}/images/cmsms-favicon.ico" />
+  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
   <link rel="apple-touch-icon" href="{$assets_url}/images/apple-touch-icon-iphone.png" />
-  <link rel="apple-touch-icon" sizes="72x72" href="{$assets_url}/images/apple-touch-icon-ipad.png" />
-  <link rel="apple-touch-icon" sizes="114x114" href="{$assets_url}/images/apple-touch-icon-iphone4.png" />
-  <link rel="apple-touch-icon" sizes="144x144" href="{$assets_url}/images/apple-touch-icon-ipad3.png" />
+  <link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png" />
+  <link rel="apple-touch-icon" sizes="114x114" href="themes/assets/images/apple-touch-icon-iphone4.png" />
+  <link rel="apple-touch-icon" sizes="144x144" href="themes/assets/images/apple-touch-icon-ipad3.png" />
   <link rel="stylesheet" href="themes/Marigold/css/fonticons.css" />
   {$font_includes}
   {$header_includes|default:''}
@@ -33,7 +33,7 @@
      <!-- logo -->
      <div class="cms-logo">
       <a href="http://www.cmsmadesimple.org" rel="external">
-       <img src="{$admin_url}/themes/assets/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$admin_url}/themes/assets/images/CMSMS-logotext-dark.png';" height="45" alt="CMS Made Simple" title="CMS Made Simple" />
+       <img src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" height="45" alt="CMS Made Simple" title="CMS Made Simple" />
       </a>
      </div>
      <!-- title -->

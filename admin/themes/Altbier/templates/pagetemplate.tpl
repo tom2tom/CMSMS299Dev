@@ -5,6 +5,7 @@
  {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
  {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
   <title>{$thetitle}{sitename}</title>
+  <base href="{$admin_url}/" />
   <meta charset="utf-8" />
   <meta name="generator" content="CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
@@ -12,8 +13,7 @@
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
   <meta name="HandheldFriendly" content="true" />
   <meta name="msapplication-TileColor" content="#f89938" />
-  <meta name="msapplication-TileImage" content="{$admin_url}/themes/assets/images/ms-application-icon.png" />
-  <base href="{$admin_url}/" />
+  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
   <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
   <link rel="apple-touch-icon" href="themes/assets/images/apple-touch-icon-iphone.png" />
   <link rel="apple-touch-icon" sizes="72x72" href="themes/assets/images/apple-touch-icon-ipad.png" />
@@ -32,7 +32,7 @@
       <div class="header-top row pt-1">
        <div class="cms-logo">
         <a href="http://www.cmsmadesimple.org" rel="external">
-         <img class="img-fluid" src="themes/Altbier/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/Altbier/images/CMSMS-logotext-dark.png';" alt="CMS Made Simple" title="CMS Made Simple" />
+         <img class="img-fluid" src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" alt="CMS Made Simple" title="CMS Made Simple" />
         </a>
        </div>
        <div class="col admin-title">{sitename} - {'adminpaneltitle'|lang}</div> {*col-12 col-sm-6*}
