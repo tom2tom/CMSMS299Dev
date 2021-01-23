@@ -20,17 +20,13 @@
     CMS Made Simple&trade; {'apptitle'|tr}}
     {/if}
     </title>
-    <!--[if lt IE 9]>
-      <script src="lib/js/html5.js"></script>
-      <script src="lib/js/css3-mediaqueries.js"></script>
-    <![endif]-->
     <link rel="stylesheet" type="text/css" href="lib/css/install.css" />
     <link rel="icon" type="image/ico" href="lib/images/favicon.ico" />
   </head>
   <body class="cmsms-ui">
     <div class="row header-section">
       <a href="http://www.cmsmadesimple.org" rel="external" target="_blank" class="cmsms-logo" title="CMS Made Simple&trade;">
-       <img class="cmslogo" src="lib/images/cmsms-logo.svg" onerror="this.onerror=null;this.src='lib/images/cmsms-logo.png';" alt="CMS Made Simple" title="CMS Made Simple" />
+       <img class="cmslogo" src="themes/assets/images/cmsms-logo.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logo.png';" alt="CMS Made Simple" title="CMS Made Simple" />
       </a>
       <span class="installer-title">{'apptitle'|tr}</span>
     </div>

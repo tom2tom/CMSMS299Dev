@@ -2,6 +2,7 @@
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
   <title>{'logintitle'|lang} - {sitename}</title>
+  <base href="{$admin_url}/" />
   <meta charset="{$encoding}" />
   <meta name="generator" content="CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
@@ -9,9 +10,8 @@
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
   <meta name="HandheldFriendly" content="true" />
   <meta name="msapplication-TileColor" content="#f89938" />
-  <meta name="msapplication-TileImage" content="{$admin_url}/themes/Altbier/images/favicon/ms-application-icon.png" />
-  <base href="{$admin_url}/" />
-  <link rel="shortcut icon" href="themes/Altbier/images/favicon/cmsms-favicon.ico" />
+  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
   {$font_includes}
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,600,600i" />
   <link rel="stylesheet" href="themes/Altbier/css/bootstrap_reboot-grid.min.css" />
@@ -36,6 +36,10 @@
        </aside>
       </div>
       <a href="#" title="{'open'|lang}/{'close'|lang}" class="toggle-info"><span tabindex="0" role="note" aria-label="{'login_info_title'|lang}" class="fas fa-info-circle"></span><span class="sr-only">{'open'|lang}/{'close'|lang}</span></a>
+      {elseif isset($renewpw)}
+      <div class="message information">
+       {lang('renewpwprompt')}
+      </div>
       {/if}
       <header class="col-12 text-center">
        <h1>{lang('login_sitetitle',{sitename})}</h1>
@@ -75,11 +79,11 @@
         <a href="login.php?forgotpw=1" title="{'recover_start'|lang}" class="col-12 text-left text-sm-right col-sm-7"><span class="fas fa-question-circle" aria-hidden="true"></span> {'lostpw'|lang}</a>
        </div>
       </div>
-                        {/if}
+     {/if}
      </div>
      <div class="col-12 mx-auto text-center">
       <a rel="external" href="http://www.cmsmadesimple.org">
-       <img class="img-fluid" src="themes/Altbier/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/Altbier/images/CMSMS-logotext-dark.png';" style="height:30px;margin-top:5px" alt="CMS Made Simple" />
+       <img class="img-fluid" src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" style="height:30px;margin-top:5px" alt="CMS Made Simple" />
       </a>
      </div>
     </div>

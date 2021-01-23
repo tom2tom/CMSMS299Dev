@@ -2,18 +2,18 @@
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
 <head>
  <title>{lang('login_sitetitle', {sitename})}</title>
+ <base href="{$admin_url}/" />
  <meta charset="{$encoding}" />
  <meta name="generator" content="CMS Made Simple" />
  <meta name="robots" content="noindex, nofollow" />
  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
  <meta name="HandheldFriendly" content="true" />
  <meta name="msapplication-TileColor" content="#f89938" />
- <meta name="msapplication-TileImage" content="{$admin_url}/themes/assets/images/favicon/ms-application-icon.png" />
- <base href="{$admin_url}/" />
+ <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
  <link rel="stylesheet" href="themes/Ghostgum/css/style{if $lang_dir=='rtl'}-rtl{/if}.css" />
 {$header_includes|default:''}
- <script type="text/javascript" src="themes/Ghostgum/js/login.js"></script>
+ <script type="text/javascript" src="themes/Ghostgum/js/login.min.js"></script>
 </head>
 <body>
  <div id="login">
@@ -28,13 +28,17 @@
        </a>
       {/if}
       <h1>{if isset($smarty.get.forgotpw)}
-       {lang('recoversitetitle',{sitename})}
+       {lang('forgotpwtitle',{sitename})}
+      {elseif isset($renewpw)}
+       {lang('renewpwtitle',{sitename})}
       {elseif !empty($sitelogo)}
        {lang('login_admin')}
       {else}{lang('login_sitetitle',{sitename})}{/if}</h1>
       {$form}
       {if !empty($smarty.get.forgotpw)}
        <div class="login-info">{lang('forgotpwprompt')}</div>
+      {elseif isset($renewpw)}
+       <div class="login-info">{lang('renewpwprompt')}</div>
       {/if}
       {if !empty($errmessage)}<div class="pageerror">{$errmessage}</div>{/if}
       {if !empty($warnmessage)}<div class="pagewarn">{$warnmessage}</div>{/if}

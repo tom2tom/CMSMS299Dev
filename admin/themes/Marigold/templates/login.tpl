@@ -2,26 +2,26 @@
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
   <title>{'logintitle'|lang} - {sitename}</title>
+  <base href="{$admin_url}/" />
   <meta charset="{$encoding}" />
   <meta name="generator" content="CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
   <meta name="HandheldFriendly" content="true"/>
   <meta name="msapplication-TileColor" content="#f89938" />
-  <meta name="msapplication-TileImage" content="{$assets_url}/images/ms-application-icon.png" />
-  <base href="{$admin_url}/" />
-  <link rel="shortcut icon" href="{$assets_url}/images/cmsms-favicon.ico" />
+  <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
   <link rel="stylesheet" href="themes/Marigold/css/fonticons.css" />
   {$font_includes}
   {$header_includes|default:''}
-  <script type="text/javascript" src="themes/Marigold/includes/login.js"></script>
+  <script type="text/javascript" src="themes/Marigold/includes/login.min.js"></script>
  </head>
  <body id="login">
   <div id="wrapper">
    <div class="login-container">
     <div class="login-box cf"{if !empty($error)} id="error"{/if}>
      <div class="logo">
-      <img src="{$assets_url}/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$assets_url}/images/CMSMS-logotext-dark.png';" style="height:36px" alt="CMS Made Simple" />
+      <img src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" style="height:36px" alt="CMS Made Simple" />
      </div>
      <div class="info-wrapper open">
      <aside class="info">
@@ -39,29 +39,21 @@
      </header>
      {$form}
      {if !empty($smarty.get.forgotpw)}
-      <div class="message warning">
-       {'forgotpwprompt'|lang}
-      </div>
+      <div class="message warning">{'forgotpwprompt'|lang}</div>
+     {elseif isset($renewpw)}
+      <div class="message information">{'renewpwprompt'|lang}</div>
      {/if}
      {if !empty($errmessage)}
-      <div class="message error">
-       {$errmessage}
-      </div>
+      <div class="message error">{$errmessage}</div>
      {/if}
      {if !empty($warnmessage)}
-      <div class="message warning">
-       {$warnmessage}
-      </div>
+      <div class="message warning">{$warnmessage}</div>
      {/if}
      {if !empty($infomessage)}
-      <div class="message success">
-       {$infomessage}
-      </div>
+      <div class="message success">{$infomessage}</div>
      {/if}
      {if !empty($changepwhash)}
-      <div class="message warning">
-       {'passwordchange'|lang}
-      </div>
+      <div class="message warning">{'passwordchange'|lang}</div>
      {/if}
     </div>
     <footer>

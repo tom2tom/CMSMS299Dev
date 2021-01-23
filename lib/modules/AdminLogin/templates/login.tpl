@@ -1,17 +1,17 @@
 <!doctype html>
 <html lang="{$lang_code}" dir="{$lang_dir}">
 <head>
-  <meta charset="{$encoding}" />
   <title>{$mod->Lang('title_login_named',{sitename})}</title>
   <base href="{$admin_url}/" />
+  <meta charset="{$encoding}" />
   <meta name="generator" content="CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0" />
   <meta name="HandheldFriendly" content="true" />
-  <link rel="shortcut icon" href="{$admin_url}/themes/assets/images/cmsms-favicon.ico" />
+  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
   <!-- TODO default theme fonts and/or css -->
   {$font_includes|default:''}
-  <link rel="stylesheet" type="text/css" href="{$admin_url}/themes/Ghostgum/css/style{if $lang_dir == 'rtl'}-rtl{/if}.css" />
+  <link rel="stylesheet" type="text/css" href="themes/Ghostgum/css/style{if $lang_dir == 'rtl'}-rtl{/if}.css" />
   {$header_includes|default:''}
 </head>
 <body>
@@ -52,7 +52,7 @@
     </div>
     <div id="cmslogo">
       <span id="logotext">{$mod->Lang('power_by')}</span>
-      <img src="{$admin_url}/themes/assets/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$admin_url}/themes/assets/images/CMSMS-logotext-dark.png';" alt="CMS Made Simple" height="30" />
+      <img src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" alt="CMS Made Simple" height="30" />
     </div>
   </div>
  </div>

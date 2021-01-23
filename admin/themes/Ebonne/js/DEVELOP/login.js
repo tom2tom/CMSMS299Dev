@@ -1,4 +1,4 @@
-$(function () {
+jQuery(function($) {
   // shake upon error
   $('.pageerror').effect('shake', {
     distance: 6,
@@ -22,5 +22,5 @@ $(function () {
     return false;
   });
   // focus input with class focus
-  $('input:first.focus').focus();
+  $('input:first.focus').trigger('focus');
 });
