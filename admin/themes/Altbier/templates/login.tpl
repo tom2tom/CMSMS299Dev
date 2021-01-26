@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
-  <title>{'logintitle'|lang} - {sitename}</title>
+  <title>{['loginto',{sitename}]|lang}</title>
   <base href="{$admin_url}/" />
   <meta charset="{$encoding}" />
   <meta name="generator" content="CMS Made Simple" />
@@ -21,7 +21,7 @@
   <div class="container pt-5" style="height:100%;">
    <div class="row" style="align-items:center;height:100%;">
     <div class="mx-auto">
-     <div class="login-box p-2 p-sm-4"{if isset($error)} id="error"{/if}>
+     <div class="login-box p-2 p-sm-3"{if isset($error)} id="error"{/if}>
       {if empty($smarty.get.forgotpw)}
       <div class="col-12 info-wrapper open">
        <aside class="p-4">
@@ -35,14 +35,14 @@
         </div>
        </aside>
       </div>
-      <a href="#" title="{'open'|lang}/{'close'|lang}" class="toggle-info"><span tabindex="0" role="note" aria-label="{'login_info_title'|lang}" class="fas fa-info-circle"></span><span class="sr-only">{'open'|lang}/{'close'|lang}</span></a>
+      <a href="javascript:void()" title="{'open'|lang}/{'close'|lang}" class="toggle-info"><span tabindex="0" role="note" aria-label="{'login_info_title'|lang}" class="fas fa-info-circle"></span><span class="sr-only">{'open'|lang}/{'close'|lang}</span></a>
       {elseif isset($renewpw)}
       <div class="message information">
        {lang('renewpwprompt')}
       </div>
       {/if}
       <header class="col-12 text-center">
-       <h1>{lang('login_sitetitle',{sitename})}</h1>
+       <h1>{['login_sitetitle',{sitename}]|lang}</h1>
       </header>
       <div class="col-12 mx-auto text-center">
       {if isset($form)}{$form}{else}{include file='form.tpl'}{block name=form}{/block}{/if}
@@ -75,7 +75,7 @@
       {if empty($smarty.get.forgotpw)}
       <div class="col-12 mt-3 px-0">
        <div class="row alt-actions">
-        <a class="col-12 col-sm-5" href="{root_url}" title="{'goto'|lang} {sitename}"><span aria-hidden="true" class="fas fa-chevron-circle-left"></span> {'viewsite'|lang}</a>
+        <a class="col-12 col-sm-5" href="{root_url}" title="{['goto',{sitename}]|lang}"><span aria-hidden="true" class="fas fa-chevron-circle-left"></span> {'viewsite'|lang}</a>
         <a href="login.php?forgotpw=1" title="{'recover_start'|lang}" class="col-12 text-left text-sm-right col-sm-7"><span class="fas fa-question-circle" aria-hidden="true"></span> {'lostpw'|lang}</a>
        </div>
       </div>
