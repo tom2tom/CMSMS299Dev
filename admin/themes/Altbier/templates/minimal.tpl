@@ -11,7 +11,7 @@
   <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
   {block name='header'}{$header_includes|default:''}{/block}
  </head>
- <body{if !empty($bodyid) id="{$bodyid}"{/if}>
+ <body{if !empty($bodyid)} id="{$bodyid}"{/if}>
   <section id="wrapper">
    {block name='content'}{$content|default:''}{/block}
   </section>
