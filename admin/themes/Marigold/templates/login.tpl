@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
-  <title>{'logintitle'|lang} - {sitename}</title>
+  <title>{['loginto',{sitename}]|lang}</title>
   <base href="{$admin_url}/" />
   <meta charset="{$encoding}" />
   <meta name="generator" content="CMS Made Simple" />
@@ -11,10 +11,8 @@
   <meta name="msapplication-TileColor" content="#f89938" />
   <meta name="msapplication-TileImage" content="themes/assets/images/ms-application-icon.png" />
   <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
-  <link rel="stylesheet" href="themes/Marigold/css/fonticons.css" />
-  {$font_includes}
-  {$header_includes|default:''}
-  <script type="text/javascript" src="themes/Marigold/includes/login.min.js"></script>
+ {$font_includes}
+ {$header_includes|default:''}
  </head>
  <body id="login">
   <div id="wrapper">
@@ -31,11 +29,11 @@
        <p><strong>({$smarty.server.HTTP_HOST})</strong></p>
       <p class="warning">{'warn_admin_ipandcookies'|lang}</p>
      </aside>
-     <a href="#" title="{'open'|lang}/{'close'|lang}" class="toggle-info">{'open'|lang}/{'close'|lang}</a>
+     <a href="javascript:void()" title="{'open'|lang}/{'close'|lang}" class="toggle-info">{'open'|lang}/{'close'|lang}</a>
      </div>
      <header>
-      <a style="float:right;" href="{root_url}" title="{'goto'|lang} {sitename}"> <img class="goback" width="16" height="16" src="themes/Marigold/images/layout/goback.png" alt="{'goto'|lang} {sitename}" /> </a>
-      <h1>{'logintitle'|lang}</h1>
+      <a style="float:right;" href="{root_url}" title="{['goto',{sitename}]|lang}"><img class="goback" width="16" height="16" src="themes/Marigold/images/layout/goback.png" alt="{['goto',{sitename}]|lang}" /></a>
+      <h1>{['login_sitetitle',{sitename}]|lang}</h1>
      </header>
      {$form}
      {if !empty($smarty.get.forgotpw)}
@@ -56,9 +54,6 @@
       <div class="message warning">{'passwordchange'|lang}</div>
      {/if}
     </div>
-    <footer>
-     <small class="copyright">Copyright &copy; <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple&trade;</a></small>
-    </footer>
    </div>
   </div>
   {$bottom_includes|default:''}
