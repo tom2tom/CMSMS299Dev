@@ -17,17 +17,17 @@
 	{if !empty($changepwhash)}
 	<div class="form-group">
 		<label class="sr-only" for="lbpasswordagain">{'passwordagain'|lang}</label>
-		<input id="lbpasswordagain"  name="passwordagain" type="password" placeholder="{'passwordagain'|lang}" maxlength="64" />
+		<input id="lbpasswordagain" name="passwordagain" type="password" placeholder="{'passwordagain'|lang}" maxlength="64" />
 		<input type="hidden" name="forgotpwchangeform" value="1" />
 		<input type="hidden" name="changepwhash" value="{$changepwhash}" />
 	</div>
 	{/if}
 	<div class="row">
 		<div class="mt-3 col-12 col-sm-6 p-0 text-left">
-		<input class="loginsubmit" name="cancel" type="submit" value="{'cancel'|lang}" />
+		<button type="submit" class="loginsubmit" name="cancel">{'cancel'|lang}</button>
 		</div>
 		<div class="mt-3 col-12 col-sm-6 p-0 text-left text-sm-right">
-		<input class="loginsubmit" name="submit" type="submit" value="{'submit'|lang}" />
+		<button type="submit" class="loginsubmit" name="submit">{'submit'|lang}</button>
 		</div>
 	</div>
 	</fieldset>
