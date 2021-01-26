@@ -7,11 +7,11 @@
 	<p>{$error}</p>
 	{/if}
 {/foreach}
-</aside>	
+</aside>
 {/if}
 {if isset($messages) && $messages[0] != ''}
 <aside class="message pagemcontainer" role="status">
-{foreach from=$messages item='message'}
+{foreach $messages as $message}
 	{if $message}
 	<p>{$message}</p>
 	{/if}
