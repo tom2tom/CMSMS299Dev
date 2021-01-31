@@ -18,9 +18,10 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-/* NOPE DEFAULT TO THEME-DRIVEN LOGIN
-$modname = cms_siteprefs::get('loginmodule');
-if( !$modname ) {
-    cms_siteprefs::set('loginmodule', $this->GetName());
+
+use CMSMS\AppParams;
+
+$modname = AppParams::get('loginmodule');
+if (!$modname) {
+    AppParams::set('loginmodule', $this->GetName());
 }
-*/
