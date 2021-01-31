@@ -23,6 +23,7 @@ use CMSMS\Crypto;
 use CMSMS\FormUtils;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
+use CMSMS\StylesMerger;
 
 if (!isset($gCms)) exit;
 
@@ -41,17 +42,39 @@ if (($p = strpos($lang,'_')) !== false) {
 	$lang = substr($lang,0,$p);
 }
 $enc = NlsOperations::get_encoding();
+
+$fp = __DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR;
 $fn = 'module';
+
 if (NlsOperations::get_language_direction() == 'rtl') {
 	$langdir = 'rtl';
-	if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+	if (is_file($fp.$fn.'-rtl.min.css')) {
+		$fn .= '-rtl.min';
+	} elseif (is_file($fp.$fn.'-rtl.css')) {
 		$fn .= '-rtl';
 	}
 } else {
 	$langdir = 'ltr';
+	if (is_file($fp.$fn.'.min.css')) {
+		$fn .= '.min';
+	}
 }
+$fn .= '.css';
 
 $incs = cms_installed_jquery(true, true, true, true);
+
+$csm = new StylesMerger();
+$csm->queue_matchedfile('normalize.css', 1);
+$csm->queue_file($incs['jquicss'], 2);
+//$csm->queue_file($fp.$fn, 3); NOPE contains relative-URLS
+$out = $csm->page_content();
+
+$baseurl = $this->GetModuleURLPath();
+$out .= <<<EOS
+  <link rel="stylesheet" href="{$baseurl}/css/{$fn}" />
+
+EOS;
+
 $jsm = new ScriptsMerger();
 $jsm->queue_file($incs['jqcore'], 1);
 //if (CMS_DEBUG) {
@@ -59,21 +82,6 @@ $jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this or keep if (
 //}
 $jsm->queue_file($incs['jqui'], 1);
 $jsm->queue_matchedfile('login.js', 3, __DIR__.DIRECTORY_SEPARATOR.'lib');
-
-//$csm = new StylesMerger();
-//$csm->queue_matchedfile('normalize.css', 1);
-//$csm->queue_file($incs['jquicss'], 2);
-//$out = $csm->page_content();
-
-$baseurl = $this->GetModuleURLPath();
-$u1 = cms_get_css('normalize.css', true);
-$u2 = cms_path_to_url($incs['jquicss']);
-$out = <<<EOS
-<link rel="stylesheet" href="$u1" />
-<link rel="stylesheet" href="$u2" />
-<link rel="stylesheet" href="{$baseurl}/css/{$fn}.css" />
-
-EOS;
 $out .= $jsm->page_content('', false, false);
 
 // generate this here, not via {form_start}, to work around forced incorrect formaction-value
