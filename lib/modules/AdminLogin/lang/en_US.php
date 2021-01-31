@@ -21,13 +21,13 @@ $lang['login_info'] = 'For the admin console to work properly';
 $lang['login_info_ipandcookies'] = '<strong>Warning:</strong> some admin operations use cookies and/or track your IP address';
 $lang['login_info_params'] = <<<EOS
 <ol>
- <li>Cookies must be enabled in your browser</li>
  <li>Javascript must be enabled in your browser</li>
- <li>Popup windows must be allowed for:</li>
+ <li>Cookies must be enabled in your browser</li>
 </ol>
 EOS;
+// <li>Popup windows must be allowed for:</li>
 $lang['login_info_title'] = 'Information';
-$lang['login_sitetitle'] = 'Log in to<br />%s Admin&nbsp;Console';
+$lang['login_sitetitle'] = 'Log in to<br />%s<br />Admin&nbsp;Console';
 //$lang['logintitle'] = 'Log in to CMS Made Simple&trade;';
 $lang['loginto'] = 'Log in to %s';
 $lang['lostpw'] = 'Forgot your password?';
