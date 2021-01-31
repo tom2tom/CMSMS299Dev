@@ -1,5 +1,6 @@
 //colors
 $concrete: #f2f2f2;
+$color_black: #000;
 $color_dorado_approx: #585858;
 $color_midnight_approx: #031a30;
 $color_spindle_approx: #bcd8f1;
@@ -234,21 +235,23 @@ button.loginsubmit {
 	padding: 0 0.9em;
 	margin-top: 6px;
 	margin-bottom: 10px;
-	background: $color_dorado_approx $url_1;
-	background-size: 100% 100%;
-	border: 1px solid $color_dorado_approx;
+	border: 0;
+	background: $color_dorado_approx $url_1 repeat-x;
+	background-size: 1px 100%;
 	color: $concrete;
 	text-indent: 0;
 	line-height: 1.75em;
 	&:hover {
-		border: 1px solid $color_mango_tango_approx;
-		background: $color_mango_tango_approx $url_2;
-		background-size: 100% 100%;
+		background: $color_mango_tango_approx $url_2 repeat-x;
+		background-size: 1px 100%;
+		color: $color_black;
+		cursor: pointer;
 	}
 	&:focus {
-		border: 1px solid $color_mango_tango_approx;
-		background: $color_mango_tango_approx $url_2;
-		background-size: 100% 100%;
+		background: $color_mango_tango_approx $url_2 repeat-x;
+		background-size: 1px 100%;
+		color: $color_black;
+		cursor: pointer;
 	}
 	&:disabled {
 		background: $concrete;

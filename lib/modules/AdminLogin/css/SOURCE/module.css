@@ -99,19 +99,22 @@ button.loginsubmit {
     padding: 0 0.9em;
     margin-top: 6px;
     margin-bottom: 10px;
-    background: #585858 url(../images/input-bg.png);
-    background-size: 100% 100%;
-    border: 1px solid #585858;
+/*  border: 1px solid #585858; */
+    border: 0;
+    background: #585858 url(../images/input-bg.png) repeat-x;
+    background-size: 1px 100%;
     color: #f2f2f2;
     text-indent: 0;
-    line-height: 1.75em
+    line-height: 1.75em;
 }
 
 button.loginsubmit:hover,
 button.loginsubmit:focus {
-    border: 1px solid #e87602;
-    background: #e87602 url(../images/input-hover-bg.png);
-    background-size: 100% 100%;
+/*  border: 1px solid #e87602; */
+    background: #e87602 url(../images/input-hover-bg.png) repeat-x;
+    background-size: 1px 100%;
+    color: #000;
+    cursor: pointer;
 }
 
 button.loginsubmit:disabled {
