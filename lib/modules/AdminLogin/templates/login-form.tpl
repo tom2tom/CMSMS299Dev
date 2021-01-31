@@ -25,9 +25,9 @@
    {/if}
   {/if}
   <div class="pageinput pregap">
-    <button type="submit" name="{$actionid}submit" class="loginsubmit">{$mod->Lang('submit')}</button>
+    <button type="submit" class="loginsubmit" name="{$actionid}submit">{$mod->Lang('submit')}</button>
     {if isset($smarty.get.forgotpw) || isset($renewpw) || !empty($changepwhash)}
-    <button type="submit" name="{$actionid}cancel" class="loginsubmit">{$mod->Lang('cancel')}</button>
+    <button type="submit" class="loginsubmit" name="{$actionid}cancel">{$mod->Lang('cancel')}</button>
     {elseif !isset($renewpw)}<span id="forgotpw">
      <a href="{$forgoturl}" title="{$mod->Lang('recover_start')}">{$mod->Lang('lostpw')}</a>
     </span>
