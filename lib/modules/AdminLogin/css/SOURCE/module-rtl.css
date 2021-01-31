@@ -165,8 +165,8 @@ button.loginsubmit:disabled {
 
 #goback {
     float: right;
-    background: transparent url(../images/goback.png) no-repeat center;
-    background: transparent url(../images/goback.svg) no-repeat center;
+    background: transparent url(../images/goback-rtl.png) no-repeat center;
+    background: transparent url(../images/goback-rtl.svg) no-repeat center;
     background-size: 2em 2em;
     padding-top: 2px;
     height: 2em;
