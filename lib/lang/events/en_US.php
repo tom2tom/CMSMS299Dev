@@ -52,6 +52,7 @@ $lang = [
 'desc_generic' => 'Sent %s',
 'desc_globalcontentpostcompile' => 'Sent after a global content block has been processed by Smarty',
 'desc_globalcontentprecompile' => 'Sent before a global content block is sent to Smarty for processing',
+//'desc_jobfailed' => 'Sent after a job is removed from the job queue after failing too many times',
 'desc_loginfailed' => 'Sent after a user failed to login into the Admin panel',
 'desc_loginpost' => 'Sent after a user logs into the Admin panel',
 'desc_logoutpost' => 'Sent after a user logs out of the Admin panel',
@@ -360,6 +361,12 @@ $lang = [
 <li>'global_content' - Reference to the affected global content block text.</li>
 </ul>
 ",
+/*'help_jobfailed' => "<h4>Parameters</h4>
+<ul>
+  <li>'job' - Reference to the \CMSMS\Async\Job object that has failed</li>
+</ul>
+",
+*/
 'help_loginfailed' => "<h4>Parameters</h4>
 <ul>
   <li>'user' - (string) The username of the failed login attempt.</li>
