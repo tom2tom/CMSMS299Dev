@@ -79,8 +79,8 @@ class wizard_step3 extends wizard_step
         // required test ... php version
         $v = PHP_VERSION;
         $obj = new version_range_test('php_version',$v);
-        $obj->minimum = '7.1';
-        $obj->recommended = '7.2';
+        $obj->minimum = '7.1';  // PHP 7.1 EOL late 2019, 7.3 EOL late 2021
+        $obj->recommended = '7.3';
         $obj->fail_msg = lang('fail_php_version',$v,$obj->minimum);
         if (version_compare($obj->minimum, $obj->recommended) < 0) {
             $obj->warn_msg = lang('fail_php_version2',$v,$obj->recommended);
@@ -243,9 +243,15 @@ class wizard_step3 extends wizard_step
         $tests[] = $obj;
 
         // recommended test ... E_DEPRECATED disabled
-        $obj = new boolean_test('errorlevel_edeprecated',!($orig_error_level & E_DEPRECATED));
-        $obj->warn_key = 'edeprecated_enabled';
-        $tests[] = $obj;
+        if (PHP_VERSION_ID < 80000) {
+            $obj = new boolean_test('errorlevel_edeprecated',!($orig_error_level & E_DEPRECATED));
+            $obj->warn_key = 'edeprecated_enabled';
+            $tests[] = $obj;
+        }
+        else {
+            //TODO
+            //default error_reporting level is now E_ALL. Previously it excluded E_NOTICE and E_DEPRECATED
+        }
 
         // required test ... safe mode
         $obj = new boolean_test('safe_mode',test_is_false(ini_get('safe_mode')));
