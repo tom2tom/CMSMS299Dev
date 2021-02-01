@@ -1,33 +1,36 @@
 <?php
-#Singleton class of user-related functions
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Singleton class of user-related functions
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
-use CmsException;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\DeprecationNotice;
-use CMSMS\GroupOperations;
+use CMSMS\HookOperations;
 use CMSMS\User;
-use CMSMS\UserOperations;
+use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use function get_userid;
+use function sanitizeVal;
 
 /**
  * Singleton class for doing user-related functions.
@@ -74,7 +77,7 @@ final class UserOperations
 
 	/**
 	 * Get the singleton instance of this class.
-	 * @deprecated since 2.9 use CMSMS\AppSingle::UserOperations()
+	 * @deprecated since 2.99 use CMSMS\AppSingle::UserOperations()
 	 * @return UserOperations
 	 */
 	public static function get_instance() : self
@@ -84,15 +87,16 @@ final class UserOperations
 	}
 
 	/**
-	 * Gets a list of all users.
+	 * Get a list of all users.
+	 *
+	 * @since 0.6.1
 	 *
 	 * @param int $limit  The maximum number of users to return
 	 * @param int $offset Optional offset. Default 0
-	 * @returns array An array of User objects
 	 *
-	 * @since 0.6.1
+	 * @return array An array of User objects
 	 */
-	public function LoadUsers(int $limit = 10000, int $offset = 0) : array
+	public function LoadUsers(int $limit = 10000, int $offset = 0) //: array
 	{
 		if (!is_array($this->_users)) {
 			$db = AppSingle::Db();
@@ -102,21 +106,21 @@ final class UserOperations
 FROM '.CMS_DB_PREFIX.'users ORDER BY username';
 			$rst = $db->SelectLimit($query, $limit, $offset);
 
-			while ($rst && !$rst->EOF) {
+			while ($rst && !$rst->EOF()) {
 				$row = $rst->fields;
-				$oneuser = new User();
-				$oneuser->id = $row['user_id'];
-				$oneuser->username = $row['username'];
-				$oneuser->firstname = $row['first_name'];
-				$oneuser->lastname = $row['last_name'];
-				$oneuser->email = $row['email'];
-				$oneuser->password = $row['password'];
-				$oneuser->active = $row['active'];
-//				$oneuser->adminaccess = $row['admin_access'];
-				$result[] = $oneuser;
+				$userobj = new User();
+				$userobj->id = $row['user_id'];
+				$userobj->username = $row['username'];
+				$userobj->firstname = $row['first_name'];
+				$userobj->lastname = $row['last_name'];
+				$userobj->email = $row['email'];
+				$userobj->password = $row['password'];
+				$userobj->active = $row['active'];
+//				$userobj->adminaccess = $row['admin_access'];
+				$result[] = $userobj;
 				$rst->MoveNext();
 			}
-			if ($rst) $rst->Close();
+			if ($rst) { $rst->Close(); }
 			$this->_users = $result;
 		}
 
@@ -124,13 +128,13 @@ FROM '.CMS_DB_PREFIX.'users ORDER BY username';
 	}
 
 	/**
-	 * Gets all users in a given group.
+	 * Get all users in a given group.
 	 *
-	 * @param int $groupid Group enumerator for the loaded users
+	 * @param int $gid Group enumerator for the loaded users
 	 *
 	 * @return array of User objects
 	 */
-	public function LoadUsersInGroup(int $groupid) : array
+	public function LoadUsersInGroup(int $gid) //: array
 	{
 		$db = AppSingle::Db();
 		$pref = CMS_DB_PREFIX;
@@ -144,149 +148,155 @@ JOIN {$pref}groups G ON UG.group_id = G.group_id
 WHERE G.group_id = ?
 ORDER BY username
 EOS;
-		$rst = $db->Execute($query, [$groupid]);
+		$rst = $db->Execute($query, [$gid]);
 
 		while ($rst && $row = $rst->FetchRow()) {
-			$oneuser = new User();
-			$oneuser->id = $row['user_id'];
-			$oneuser->username = $row['username'];
-			$oneuser->firstname = $row['first_name'];
-			$oneuser->lastname = $row['last_name'];
-			$oneuser->email = $row['email'];
-			$oneuser->password = $row['password'];
-			$oneuser->active = $row['active'];
-//			$oneuser->adminaccess = $row['admin_access'];
-			$result[] = $oneuser;
+			$userobj = new User();
+			$userobj->id = $row['user_id'];
+			$userobj->username = $row['username'];
+			$userobj->firstname = $row['first_name'];
+			$userobj->lastname = $row['last_name'];
+			$userobj->email = $row['email'];
+			$userobj->password = $row['password'];
+			$userobj->active = $row['active'];
+//			$userobj->adminaccess = $row['admin_access'];
+			$result[] = $userobj;
 		}
 		if ($rst) $rst->Close();
 		return $result;
 	}
 
 	/**
-	 * Loads a user by login/account/name.
+	 * Load a user by login/account/name.
 	 * Does not use the cache, so use sparingly.
+	 *
+	 * @since 0.6.1
 	 *
 	 * @param string $username		 Username to load
 	 * @param string $password		 Optional (but not really) Password to check against
-	 * @param bool $activeonly		 Optional flag whether to load the user if [s]he is active Default true
-	 * @param bool $adminaccessonly  Deprecated since 2.9 Optional flag whether to load the user if [s]he may log in Default false
+	 * @param bool $activeonly		 Optional flag whether to load the user only if [s]he is active Default true
+	 * @param bool $adminaccessonly  Deprecated since 2.99 Optional flag whether to load the user only if [s]he may log in Default false
 	 *
 	 * @return mixed a User-class object or null or false
-	 *
-	 * @since 0.6.1
 	 */
 	public function LoadUserByUsername(string $username, string $password = '', bool $activeonly = true, bool $adminaccessonly = false)
 	{
 		// note: does not use cache
 		$db = AppSingle::Db();
 
-		$query = 'SELECT user_id,password FROM '.CMS_DB_PREFIX.'users';
+		$query = 'SELECT user_id,password FROM '.CMS_DB_PREFIX.'users WHERE ';
 		$where = ['username = ?'];
 		$params = [$username];
 
 		if ($activeonly || $adminaccessonly) {
 			$where[] = 'active = 1';
 		}
-/*		Deprecated since 2.9
+/*		Deprecated since 2.99
 		if ($adminaccessonly) {
 			$where[] = 'admin_access = 1';
 		}
 */
-		$query .= ' WHERE '.implode(' AND ', $where);
+		$query .= implode(' AND ', $where);
 
 		$row = $db->GetRow($query,$params);
 		if ($row) {
+			// ignore supplied invalid P/W chars
+			$password = sanitizeVal($password, 0);
 			$hash = $row['password'];
 			$len = strlen(bin2hex($hash))/2; //ignore mb_ override
 			if ($len > 32) { //bcrypt or argon2
 				if (!password_verify($password, $hash)) {
-					sleep(1);
+					sleep(3);
 					return;
 				}
 				if ((defined('PASSWORD_ARGON2I') && strncmp($hash, '$2y$', 4) == 0) //still uses bcrypt
-					 || password_needs_rehash($hash, PASSWORD_DEFAULT)) {
-					$oneuser = new User();
-					$oneuser->SetPassword($password);
-					$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';
-					$db->Execute($query, [$oneuser->password, $row['user_id']]);
+				 || password_needs_rehash($hash, PASSWORD_DEFAULT)) {
+					$this->trigger($db, $row['user_id'], $password);
 				}
-			} else {
+			} else { // old md5 methodology
 				$tmp = md5(AppParams::get('sitemask', '').$password);
 				if (!hash_equals($tmp, $hash)) {
-					sleep(1);
+					sleep(3);
 					return;
 				}
-				$oneuser = new User();
-				$oneuser->SetPassword($password);
-				$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';
-				$db->Execute($query, [$oneuser->password, $row['user_id']]);
+				$this->trigger($db, $row['user_id'], $password);
 			}
 			return $this->LoadUserByID($row['user_id']);
 		}
 	}
 
+	protected function trigger($db, $uid, $password)
+	{
+		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ?';
+		$args = [$this->PreparePassword($password)];
+		if (!$this->PasswordCheck($uid, $password)) {
+			$query .= ', set oldpassword = ?, passmodified_date = '. $db->DbTimeStamp(100);
+			$args[] = $args[0]; // prevent repitition
+		}
+		$query .= ' WHERE user_id = ?';
+		$args[] = $uid;
+		$db->Execute($query, $args);
+	}
+
 	/**
-	 * Loads a user by user id.
-	 *
-	 * @param mixed $id User id to load
-	 *
-	 * @return mixed If successful, the filled User object | false
+	 * Load a user by user id.
 	 *
 	 * @since 0.6.1
+	 *
+	 * @param mixed $uid User id to load
+	 *
+	 * @return mixed If successful, the populated User object | false
 	 */
-	public function LoadUserByID(int $id)
+	public function LoadUserByID(int $uid)
 	{
-		$id = (int) $id;
-		if ($id < 1) {
+		if ($uid < 1) {
 			return false;
 		}
-		if (isset($this->_saved_users[$id])) {
-			return $this->_saved_users[$id];
+		if (isset($this->_saved_users[$uid])) {
+			return $this->_saved_users[$uid];
 		}
 
 		$result = false;
 		$db = AppSingle::Db();
 		//, admin_access
 		$query = 'SELECT username, password, active, first_name, last_name, email FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?';
-		$rst = $db->Execute($query, [$id]);
-
-		while ($rst && $row = $rst->FetchRow()) {
-			$oneuser = new User();
-			$oneuser->id = $id;
-			$oneuser->username = $row['username'];
-			$oneuser->password = $row['password'];
-			$oneuser->firstname = $row['first_name'];
-			$oneuser->lastname = $row['last_name'];
-			$oneuser->email = $row['email'];
-//			$oneuser->adminaccess = $row['admin_access'];
-			$oneuser->active = $row['active'];
-			$result = $oneuser;
+		$row = $db->GetRow($query, [$uid]);
+		if ($row) {
+			$userobj = new User();
+			$userobj->id = $uid;
+			$userobj->username = $row['username'];
+			$userobj->password = $row['password'];
+			$userobj->firstname = $row['first_name'];
+			$userobj->lastname = $row['last_name'];
+			$userobj->email = $row['email'];
+//			$userobj->adminaccess = $row['admin_access'];
+			$userobj->active = $row['active'];
+			$result = $userobj;
 		}
-		if ($rst) $rst->Close();
 
-		$this->_saved_users[$id] = $result;
+		$this->_saved_users[$uid] = $result;
 		return $result;
 	}
 
 	/**
-	 * Saves a new user to the database.
+	 * Save a new user to the database.
+	 * @since 0.6.1
 	 *
 	 * @param mixed $user User object to save
 	 *
-	 * @return mixed The new user id.  If it fails, it returns -1
-	 *
-	 * @since 0.6.1
+	 * @return int The new user id upon success or -1 on failure
 	 */
-	public function InsertUser($user) : int
+	public function InsertUser(User $user) //: int
 	{
 		$db = AppSingle::Db();
 		$pref = CMS_DB_PREFIX;
 		//setting create_date should be redundant with DT setting
+		$now = $db->DbTimeStamp(time());
 //admin_access,
 		$query = <<<EOS
 INSERT INTO {$pref}users
-(username,password,active,first_name,last_name,email,create_date)
-SELECT ?,?,?,?,?,?,NOW() FROM (SELECT 1 AS dmy) Z
+(username,password,active,first_name,last_name,email,create_date,passmodified_date)
+SELECT ?,?,?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM {$pref}users T WHERE T.username=?)
 EOS;
 //1,
@@ -297,6 +307,8 @@ EOS;
 			$user->firstname,
 			$user->lastname,
 			$user->email,
+			$now,
+			$now,
 			$user->username
 		]);
 
@@ -304,48 +316,47 @@ EOS;
 	}
 
 	/**
-	 * Updates an existing user in the database.
+	 * Update an existing user in the database.
 	 *
 	 * @since 0.6.1
 	 *
-	 * @param mixed $user User object to save
+	 * @param mixed $user User object including the data to save
 	 *
-	 * @return mixed If successful, true.  If it fails, false
+	 * @return bool indicating success
 	 */
-	public function UpdateUser($user)
+	public function UpdateUser($user) //: bool
 	{
-		$result = false;
 		$db = AppSingle::Db();
-
 		// check for username conflict
-		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE username = ? and user_id != ?';
+		$query = 'SELECT 1 FROM '.CMS_DB_PREFIX.'users WHERE username = ? AND user_id != ?';
 		$tmp = $db->GetOne($query, [$user->username, $user->id]);
 		if ($tmp) {
-			return $result;
+			return false;
 		}
 
 		$now = $db->DbTimeStamp(time());
 //admin_access = ?
-		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET username = ?, password = ?, active = ?, modified_date = '.$now.', first_name = ?, last_name = ?, email = ? WHERE user_id = ?';
+		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET username = ?, first_name = ?, last_name = ?, email = ?, active = ?, modified_date = '.$now.' WHERE user_id = ?';
 //		$user->adminaccess,
-		$dbr = $db->Execute($query, [$user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, $user->id]);
-		if ($dbr !== false) {
-			$result = true;
+		$dbr = $db->Execute($query, [$user->username, $user->firstname, $user->lastname, $user->email, $user->active, $user->id]);
+		if ($dbr && !empty($user->repass)) {
+			$query = 'UPDATE '.CMS_DB_PREFIX.'users SET oldpassword = password, password = ?, passmodified_date = '.$now.' WHERE user_id = ?';
+			$dbr = $db->Execute($query, [$user->password, $user->id]);
 		}
-		return $result;
+		return ($dbr != false);
 	}
 
 	/**
-	 * Deletes an existing user from the database.
+	 * Delete an existing user from the database.
 	 *
 	 * @since 0.6.1
 	 *
-	 * @param mixed $id Id of the user to delete
+	 * @param int $uid Id of the user to delete
 	 * @return bool indicating success
 	 */
-	public function DeleteUserByID($id)
+	public function DeleteUserByID(int $uid) //: bool
 	{
-		if ($id <= 1) {
+		if ($uid <= 1) {
 			return false;
 		}
 
@@ -356,64 +367,50 @@ EOS;
 		$db = AppSingle::Db();
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE user_id = ?';
-		$dbr = $db->Execute($query, [$id]);
+		$dbr = $db->Execute($query, [$uid]);
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'additional_users WHERE user_id = ?';
-		$dbr = $dbr && $db->Execute($query, [$id]);
+		$dbr = $dbr && $db->Execute($query, [$uid]);
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?';
-		$dbr = $dbr && $db->Execute($query, [$id]);
+		$dbr = $dbr && $db->Execute($query, [$uid]);
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
-		$dbr = $dbr && $db->Execute($query, [$id]);
+		$dbr = $dbr && $db->Execute($query, [$uid]);
 
 		return $dbr;
 	}
 
 	/**
-	 * Show the number of pages the given user's id owns.
+	 * Show the number of pages the given user owns.
 	 *
 	 * @since 0.6.1
 	 *
-	 * @param mixed $id Id of the user to count
+	 * @param int $uid Id of the user to count
 	 *
-	 * @return mixed Number of pages they own.	0 if any problems
+	 * @return int Number of owned pages, or 0 upon a problem
 	 */
-	public function CountPageOwnershipByID($id)
+	public function CountPageOwnershipByID(int $uid) //: int
 	{
-		$result = 0;
 		$db = AppSingle::Db();
-
 		$query = 'SELECT count(*) AS count FROM '.CMS_DB_PREFIX.'content WHERE owner_id = ?';
-		$rst = $db->Execute($query, [$id]);
-
-		if ($rst && $rst->RecordCount() > 0) {
-			$row = $rst->FetchRow();
-			if (isset($row['count'])) {
-				$result = $row['count'];
-			}
-		}
-		if ($rst) $rst->Close();
-
-		return $result;
+		$result = $db->GetOne($query, [$uid]);
+		return (int)$result;
 	}
 
 	/**
-	 * Generate an array of admin userids to usernames, suitable for use in a dropdown.
-	 *
-	 * @return array
+	 * Generates assoc. array of users, suitable for use in a dropdown.
 	 *
 	 * @since 2.2
+	 *
+	 * @return array, each member like userid=>username
 	 */
-	public function GetList()
+	public function GetList() //: array
 	{
+		$out = [];
 		$allusers = $this->LoadUsers();
-		if (!count($allusers)) {
-			return;
-		}
-
-		foreach ($allusers as $oneuser) {
-			$out[$oneuser->id] = $oneuser->username;
+		foreach ($allusers as $userobj) {
+			$out[$userobj->id] = $userobj->username;
 		}
 		return $out;
 	}
@@ -421,14 +418,16 @@ EOS;
 	/**
 	 * Generate an HTML select element containing a user list.
 	 *
-	 * @deprecated
+	 * @deprecated since ?
 	 *
 	 * @param int	 $currentuserid
-	 * @param string $name			The HTML element name
+	 * @param string $name The HTML element name
+	 *
+	 * @return string maybe empty
 	 */
-	public function GenerateDropdown($currentuserid = null, $name = 'ownerid')
+	public function GenerateDropdown($currentuserid = null, $name = 'ownerid') //: string
 	{
-		$result = null;
+		$result = '';
 		$list = $this->GetList();
 		if ($list) {
 			$result .= '<select name="'.$name.'">';
@@ -445,27 +444,27 @@ EOS;
 	}
 
 	/**
-	 * Tests $uid is a member of the group identified by $gid.
+	 * Test whether $uid is a member of the group identified by $gid.
 	 *
 	 * @param int $uid User ID to test
 	 * @param int $gid Group ID to test
 	 *
 	 * @return true if test passes, false otherwise
 	 */
-	public function UserInGroup($uid, $gid)
+	public function UserInGroup(int $uid, int $gid) //: bool
 	{
 		$groups = $this->GetMemberGroups($uid);
 		return in_array($gid, $groups);
 	}
 
 	/**
-	 * Test if the specified user is a member of the admin group, or is the first user account.
+	 * Test whether $uid is a member of the admin group, or is the first user account.
 	 *
 	 * @param int $uid
 	 *
 	 * @return bool
 	 */
-	public function IsSuperuser($uid)
+	public function IsSuperuser(int $uid) //: bool
 	{
 		if ($uid == 1) {
 			return true;
@@ -486,7 +485,7 @@ EOS;
 	 *
 	 * @return array
 	 */
-	public function GetMemberGroups($uid)
+	public function GetMemberGroups(int $uid) //: array
 	{
 		if (!is_array($this->_user_groups) || !isset($this->_user_groups[$uid])) {
 			$db = AppSingle::Db();
@@ -501,15 +500,13 @@ EOS;
 	}
 
 	/**
-	 * Add the user to the specified group.
+	 * Adds the user to the specified group.
 	 *
 	 * @param int $uid
 	 * @param int $gid
 	 */
-	public function AddMemberGroup($uid, $gid)
+	public function AddMemberGroup(int $uid, int $gid)
 	{
-		$uid = (int) $uid;
-		$gid = (int) $gid;
 		if ($uid < 1 || $gid < 1) {
 			return;
 		}
@@ -526,20 +523,20 @@ EOS;
 	}
 
 	/**
-	 * Test if any users-group of which the specified user is a member has the specified permission(s).
+	 * Tests if any users-group which includes the specified user has the specified permission(s).
 	 *
-	 * @param int	$userid
-	 * @param mixed $permname single string or (since 2.3) an array of them, optionally with following bool
+	 * @param int	$uid
+	 * @param mixed $permname single string or (since 2.99) an array of them, optionally with following bool
 	 *
 	 * @return bool
 	 */
-	public function CheckPermission($userid, $permname)
+	public function CheckPermission(int $uid, $permname) //: bool
 	{
-		if ($userid <= 0) {
+		if ($uid <= 0) {
 			return false;
 		}
-		$groups = $this->GetMemberGroups($userid);
-		if ($userid == 1) {
+		$groups = $this->GetMemberGroups($uid);
+		if ($uid == 1) {
 			array_unshift($groups, 1);
 			$groups = array_unique($groups, SORT_NUMERIC);
 		}
@@ -555,7 +552,7 @@ EOS;
 		} else {
 			return false;
 		}
-		$ops = GroupOperations::get_instance();
+		$ops = AppSingle::GroupOperations();
 		try {
 			foreach ($groups as $gid) {
 				if ($ops->CheckPermission($gid, ...$perms)) {
@@ -569,37 +566,178 @@ EOS;
 	}
 
 	/**
+	 * Check whether the current user's password-lifetime has expired
+	 * @since 2.99
+	 *
+	 * @param mixed $user User object | null to process current user
+	 *
+	 * @return bool
+	 */
+	public function PasswordExpired($user = null) : bool
+	{
+		$val = AppParams::get('password_life', 0);
+		if ($val > 0) {
+			if ($user) {
+				$uid = $user->id;
+			} else {
+				$uid = (AppSingle::LoginOperations())->get_loggedin_uid();
+			}
+			if ($uid < 1) {
+				return true;
+			}
+			$db = AppSingle::Db();
+			$stamp = $db->GetOne('SELECT UNIX_TIMESTAMP(passmodified_date) FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?', [$uid]);
+			if ((int)$stamp + $val * 86400 < time()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Check validity of a posited password for the specified user
+	 *
+	 * @since 2.99
+	 * @param mixed $user  int user enumerator | string username | populated User object (e.g. if not yet saved)
+	 * @param string $candidate plaintext intended-password
+	 * @param bool $force optional flag
+	 * @return bool indicating validity (incl. true if no p/w-change and not $force)
+	 */
+	public function PasswordCheck($user, string $candidate, bool $force = false) : bool
+	{
+		$db = AppSingle::Db();
+		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'users WHERE ';
+		if (is_int($user)) {
+			$query .= 'user_id = ?';
+			$args = [$user];
+			$user = $this->LoadUserByID($user);
+		} elseif (is_string($user)) {
+			$query .= 'username = ?';
+			$args = [$user];
+			$user = $this->LoadUserByUsername($user);
+		} elseif ($user instanceof User) {
+			$query .= 'user_id = ?';
+			$args = [$user->id];
+		} else {
+			return false;
+		}
+		$row = $db->GetRow($query, $args);
+		if ($row) {
+			$hash = $user && $this->PreparePassword($candidate);
+			if ($hash == $row['password'] && !$force) { return true; }// no change
+			if ($hash == $row['oldpassword']) { return false; }// repitition not allowed
+			//policy-checks
+			if (function_exists('mb_strlen')) {
+				$l = mb_strlen($candidate);
+			} else {
+				$l = strlen($candidate);
+				//TODO kinda-adjust for multi-byte chars
+			}
+		    //per https://pages.nist.gov/800-63-3/sp800-63b.html : P/W 8-64 chars,
+			if ($l < 8) { return false; } // and BCRYPT algo limit is 72 bytes
+	        // TODO policy / blacklist check e.g not among values known to be commonly-used, expected or compromised
+			$aout = HookOperations::do_hook_accumulate('Core::PasswordStrengthTest', $user, $candidate);
+			// todo interpret result, display feedback mesage(s)
+			if (1) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Generate the content (hash) [to be] recorded for a password
+	 * @since 2.99
+	 * @param string $password
+	 * @return string
+	 */
+	public function PreparePassword(string $password) : string
+	{
+/*		// for 'new' passwords, factor in a not-in-db string, per NIST recommendation
+		$config = AppSingle::Config();
+		$fp = cms_join_path($config['assets_path'], 'configs', 'siteuuid.dat');
+		$str = @file_get_contents($fp);
+		if ($str) {
+			$password ^= $str;
+//OR		$password = hash_hmac('sha3-256', $password, $str); //slow, <= 72 bytes (BCRYPT limit)
+		}
+*/
+		return password_hash($password, PASSWORD_DEFAULT);
+	}
+
+	/**
+	 * Check validity of a posited username for the specified user
+	 *
+	 * @since 2.99
+	 * @param mixed $user  int user enumerator | string username | populated User object (e.g. if not yet saved)
+	 * @param string $candidate intended-username
+	 * @param bool $force optional flag
+	 * @return bool indicating validity (incl. true if no change and not $force)
+	 */
+	public function UsernameCheck($user, string $candidate, bool $force = false) : bool
+	{
+/* TODO username policy
+>= 8 chars ? OR 6 ?
+NOT
+< > [ ] | { }
+/ @ :
+
+multiple ! or ?
+.*[!?]{3,}.*
+
+URI like
+.*[?&]+[^=]+=[^&]+.*
+
+domain names
+.*[\. ](?:com|org|uk|net|info|gov|kz|ru|ir|biz|info|кз|pt|br)\b.*
+
+[in]valid IPv4
+^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$
+
+ valid IPv6 sans zero-only words
+^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$
+
+not various control characters, unusual whitespace
+
+No UTF-8 private use characters: U+0080–U+009F, U+00A0, U+2000–U+200F, U+2028–U+202F, U+3000, or U+E000–U+F8FF
+
+no gibberish?
+
+no spoofing
+*/
+		return true;
+	}
+
+	/**
 	 * Get recorded data about the specified user, without password check.
 	 * Does not use the cache, so use sparingly.
-	 * At least one of $username or $userid must be provided.
+	 * At least one of $username or $uid must be provided.
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 * @param string $username Optional login/account name, used if provided
-	 * @param int	 $userid Optional user id, used if $username not provided
+	 * @param int	 $uid Optional user id, used if $username not provided
 	 *
-	 * @return mixed User-class object | null if the user is not recognised.
+	 * @return mixed User-class object | null if the user is not recognized.
 	 */
-	public function GetRecoveryData(string $username='', int $userid=-1)
+	public function GetRecoveryData(string $username = '', int $uid = -1)
 	{
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE ';
 		if ($username) {
 			$query .= 'username=?';
-			$parms = [$username];
-		} elseif ($userid > 0) {
+			$args = [$username];
+		} elseif ($uid > 0) {
 			$query .= 'user_id=?';
-			$parms = [$userid];
+			$args = [$uid];
 		} else {
 			return null;
 		}
 
 		$db = AppSingle::Db();
-		$uid = $db->GetOne($query, $parms);
+		$uid = $db->GetOne($query, $args);
 		if ($uid) {
-			return $this->LoadUserByID((int)$uid);
+			return $this->LoadUserByID($uid);
 		}
-		return null;
 	}
-
 } //class
 
 //backward-compatibility shiv
