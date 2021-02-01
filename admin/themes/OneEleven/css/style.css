@@ -454,7 +454,8 @@ input[type="password"] {
 }
 input[type="button"],
 input[type="submit"],
-.adminsubmit, .loginsubmit,
+button[type="submit"],
+.adminsubmit,
 .ui-button
 {
 	border: 1px solid #d3d3d3;
@@ -465,7 +466,7 @@ input[type="submit"],
 	height: 28px;
 	font-size: 14px
 }
-.adminsubmit, .loginsubmit, .ui-button {
+.adminsubmit, .ui-button {
 	outline: none;
 	margin: 4px 0
 }
@@ -473,7 +474,7 @@ input[type="submit"],
 	font-size: 12px;
 	margin-left: 2px
 }
-.adminsubmit:hover, .loginsubmit:hover, .adminsubmit:active, .loginsubmit:active,
+.adminsubmit:hover, .adminsubmit:active,
 button.ui-button.ui-state-active {
 	border: 1px solid #d3d3d3;
 	background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
@@ -481,7 +482,7 @@ button.ui-button.ui-state-active {
 	color: #147fdb
 }
 
-.adminsubmit:disabled, .loginsubmit:disabled, .ui-button:disabled { 
+.adminsubmit:disabled, .ui-button:disabled {
     background: #f2f2f2
 }
 
@@ -843,37 +844,78 @@ aside .no-slide, .no-slide  {
 /* --- LAYOUT --- */
 
 .colbox {
-	display: flex;
-	flex-direction: column
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-box-direction: normal;
+    -ms-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-direction: normal;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
 }
-.rowbox {
-	display: flex;
-	flex-direction: row
+.colbox.expand {
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
 }
-.colbox.expand, .rowbox.expand {
-	justify-content: space-between
-}
-.colbox.flow, .rowbox.flow {
-	flex-wrap: wrap
-}
-.boxchild {
-	flex: 0 1 auto
-}
-.boxchild.fill {
-	flex: 1
-}
-.rowbox .boxchild {
-	margin-right: 10px
+.colbox.flow {
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
 }
 .colbox .boxchild {
-	margin-bottom: 10px
+    margin-bottom: 10px;
+}
+.rowbox {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+.rowbox.expand {
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+}
+.rowbox.flow {
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+.rowbox .boxchild {
+    margin-right: 10px;
+}
+.boxchild {
+    -webkit-box: 0;
+    -moz-box: 0;
+    -webkit-flex: 0 1 auto;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
+}
+.boxchild.fill {
+    -webkit-box: 1;
+    -moz-box: 1;
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
 }
 
 .resize-horizontal {
-	resize: horizontal
+    resize: horizontal;
 }
 .resize-vertical {
-	resize: vertical
+    resize: vertical;
 }
 .oneliner > * {
 	float: left;
@@ -2303,10 +2345,9 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
 }
 #login .logo {
 	width: 180px;
-	height: 36px;
 	position: absolute;
-	right: 10px;
-	top: -29px
+	right: 6px;
+	top: -36px
 }
 #login div.login-box {
 	background: #d5d5d5 url(../images/layout/sprite_repeatx.png) 214px -339px repeat-x;
@@ -2355,7 +2396,7 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
 	-moz-transition: all 200ms ease-in-out;
 	-o-transition: all 200ms ease-in-out
 }
-#login input.loginsubmit {
+#login button.loginsubmit {
 	border: 1px solid #838282;
 	color: #fff;
 	text-indent: 0;
@@ -2366,10 +2407,13 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
 	margin-top: 15px;
 	background: #838282 url(../images/layout/input-bg.gif) repeat-x top
 }
-#login input.loginsubmit:hover,
-#login input.loginsubmit:focus {
+#login button.loginsubmit:hover,
+#login button.loginsubmit:focus {
 	border: 1px solid #e87602;
 	background: #fa8106 url(../images/layout/input-hover-bg.gif) repeat-x top
+}
+#login button.loginsubmit:disabled {
+    background: #f2f2f2;
 }
 #login div.info-wrapper {
 	position: absolute;

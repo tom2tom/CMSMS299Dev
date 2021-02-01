@@ -1,44 +1,115 @@
+.colbox {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-box-direction: normal;
+    -ms-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-direction: normal;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+.colbox.expand {
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+}
+.colbox.flow {
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+.rowbox {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+.rowbox.expand {
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+}
+.rowbox.flow {
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+.boxchild {
+    -webkit-box: 0;
+    -moz-box: 0;
+    -webkit-flex: 0 1 auto;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto
+}
+.boxchild.fill {
+    -webkit-box: 1;
+    -moz-box: 1;
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto
+}
+
 #login-container {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 20em;
     transform: translate(-50%, -50%);
     font-size: 1.1em;
     background: #f2f2f2 url(../images/main-bg.png) repeat-x;
-    background-size: 1px 100%;
+    background-size: 1px 100%
 }
 
-#login-container h1 {
-    margin-top: -1em;
+#login-box {
+    width: 18em;
+    padding: 1em;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    box-shadow: #aaa 0 0 6px;
+    -webkit-box-shadow: #aaa 0 0 6px
+}
+
+#login-box h1 {
     margin-bottom: 1em;
     font-size: 0.95em;
     color: #585858;
     text-shadow: 0 1px 0 #f2f2f2;
 }
 
-#login-container fieldset {
+#login-box fieldset {
     margin: 0 0 10px 0;
     padding: 0;
     border: none
 }
 
-#login-container label {
+#login-box label {
     color: #585858;
     font-size: 0.9em
 }
 
-#login-container input[type="text"],
-#login-container input[type="password"] {
+#login-box input[type="text"],
+#login-box input[type="password"] {
     margin: 5px 0;
+    width: 19.5em; /* fill available width */
     border-bottom: 1px solid #f2f2f2;
     border-right: 1px solid #f2f2f2;
-    width: 19.5em;
-    font-size: 0.9em;
+    font-size: 0.9em
 }
 
-#login-container input[type="text"]:focus,
-#login-container input[type="password"]:focus {
+#login-box input[type="text"]:focus,
+#login-box input[type="password"]:focus {
     margin: 5px 0;
     border: 1px solid #585858;
     box-shadow: 0 0 5px #585858;
@@ -49,28 +120,59 @@
     -o-transition: all 200ms ease-in-out
 }
 
+button.loginsubmit {
+    height: 1.75em;
+    width: auto;
+    padding: 0 0.9em;
+    margin-top: 6px;
+    margin-bottom: 10px;
+    border: 0;
+    background: #585858 url(../images/input-bg.png) repeat-x;
+    background-size: 1px 100%;
+    line-height: 1.75em;
+    color: #f2f2f2;
+    text-indent: 0
+}
+
+button.loginsubmit:hover,
+button.loginsubmit:focus {
+    background: #e87602 url(../images/input-hover-bg.png) repeat-x;
+    background-size: 1px 100%;
+    color: #000;
+    cursor: pointer
+}
+
+button.loginsubmit:disabled {
+    background: #f2f2f2;
+    color: #585858;
+    cursor: default
+}
+
+input:disabled, a.disabled {
+    cursor: default
+}
+
 #maininfo {
-    display: none;
     position: absolute;
-    width: 19.5em;
-    left: 0.5em; /* centre it */
-    top: 0.5em; /* match L/R margin */
-    padding: 0 10px;
+    top: 0;
+    left: 0;
+    width: 20.2em; /* 0.2em fudge to match mainbox width! */
+    padding: 1em;
     border: #031a30 1px solid; /* c.f. .info */
     border-radius: 4px;
     background: #bcd8f1; /* c.f. .info */
     font-size: 0.9em;
     color: #031a30; /* c.f. .info */
-    z-index: 100
+    z-index: 100;
 }
 
 #maininfo h2 {
     font-size: 1em;
-    margin: 5px 0 10px 0
+    margin: -2em 0 10px 0
 }
 
 #maininfo .warning {
-    margin-top: 5px;
+    margin: 5px 0 0 0;
     padding: 5px
 }
 
@@ -80,60 +182,17 @@
     list-style: decimal
 }
 
-#login-container small {
-    text-align: center;
-    font-size: 0.9em;
-    color: #585858;
-    display: block
-}
-
-#login-container small a {
-    color: #e87602;
-    text-decoration: none;
-    font-weight: bold
-}
-
-button.loginsubmit {
-    height: 1.75em;
-    width: auto;
-    padding: 0 0.9em;
-    margin-top: 6px;
-    margin-bottom: 10px;
-/*  border: 1px solid #585858; */
-    border: 0;
-    background: #585858 url(../images/input-bg.png) repeat-x;
-    background-size: 1px 100%;
-    color: #f2f2f2;
-    text-indent: 0;
-    line-height: 1.75em;
-}
-
-button.loginsubmit:hover,
-button.loginsubmit:focus {
-/*  border: 1px solid #e87602; */
-    background: #e87602 url(../images/input-hover-bg.png) repeat-x;
-    background-size: 1px 100%;
-    color: #000;
-    cursor: pointer;
-}
-
-button.loginsubmit:disabled {
-    background: #f2f2f2;
-}
-
 #show-info {
     display: inline-block;
     position: relative;
     width: 2em;
     height: 2em;
-    top: -1.5em;
-    left: 16em;
+    top: 0;
     outline: none;
     border: 0;
     background: transparent url(../images/information.png) no-repeat center;
     background: transparent url(../images/information.svg) no-repeat center;
     background-size: 2em 2em;
-    z-index: 10;
 }
 
 #hide-info {
@@ -141,25 +200,18 @@ button.loginsubmit:disabled {
     position: relative;
     width: 2.2em; /* mimic visual appearance of show-icon */
     height: 2.2em;
-    top: 0.6em; /* align with displayed position of show-button */
-    left: 17.6em;
+    top: 0.1em; /* fudge align with displayed position of show-button */
+    left: 17.9em;
     outline: none;
     border: 0;
     background: transparent url(../images/close.png) no-repeat center;
     background: transparent url(../images/close.svg) no-repeat center;
     background-size: 2.2em 2.2em; /* mimic visual appearance of show-icon */
-    z-index: 110;
 }
 
 #forgotpw {
     display: inline-block;
-    width: auto;
-    float: right;
-    margin-top: 6px; /* vertical align center with goback icon */
-    margin-bottom: 0
-}
-
-#forgotpw > a {
+    margin: 0.55em 0 0 0; /* vertical align center with goback icon */
     color: #585858;
     text-shadow: 0 1px 0 #f2f2f2;
     font-size: 0.9em;
@@ -167,7 +219,7 @@ button.loginsubmit:disabled {
 }
 
 #goback {
-    float: left;
+    display: inline-block;
     background: transparent url(../images/goback.png) no-repeat center;
     background: transparent url(../images/goback.svg) no-repeat center;
     background-size: 2em 2em;
@@ -177,21 +229,11 @@ button.loginsubmit:disabled {
     text-decoration: none;
 }
 
-#login-box {
-    position: relative;
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    box-shadow: #aaa 0 0 6px;
-    -webkit-box-shadow: #aaa 0 0 6px;
-    width: 18em;
-    margin: 0 auto;
-    padding: 0 1em 2.5em 1em;
-}
-
 #logo {
-    position: relative;
-    top: -1.9em;
-    left: 7em
+    position: absolute;
+    top: -1.8em;
+    left: 8em;
+    z-index: 200;
 }
 
 #logo img {

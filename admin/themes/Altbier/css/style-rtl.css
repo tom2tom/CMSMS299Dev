@@ -34,12 +34,6 @@ html[dir='ltr'] body  {
     unicode-bidi: embed;
 }
 
-/* DEPRECATED GRID SYSTEM
- * Fluid Grid based on Based on 960 Grid System - http://www.960.gs
- * Helper Styles for Module Developer, make aligning modules easier.
- * For Demo see /admin/themes/Altbier/doc/grid.html
- */
-.c_full { width: 100% } .grid_1, .grid_2, .grid_3, .grid_4, .grid_5, .grid_6, .grid_7, .grid_8, .grid_9, .grid_10, .grid_11, .grid_12 { display: inline; float: left; position: relative; margin-left: 1%; margin-right: 1% } .alpha { margin-left: 0 } .omega { margin-right: 0 } /* Grids up to 12 columns */ .c_full .grid_1 { width: 6.333% } .c_full .grid_2 { width: 14.667% } .c_full .grid_3 { width: 23.0% } .c_full .grid_4 { width: 31.333% } .c_full .grid_5 { width: 39.667% } .c_full .grid_6 { width: 48.0% } .c_full .grid_7 { width: 56.333% } .c_full .grid_8 { width: 64.667% } .c_full .grid_9 { width: 73.0% } .c_full .grid_10 { width: 81.333% } .c_full .grid_11 { width: 89.667% } .c_full .grid_12 { width: 98.0% } .c_full .prefix_1 { padding-left: 8.333% } .c_full .prefix_2 { padding-left: 16.667% } .c_full .prefix_3 { padding-left: 25.0% } .c_full .prefix_4 { padding-left: 33.333% } .c_full .prefix_5 { padding-left: 41.667% } .c_full .prefix_6 { padding-left: 50.0% } .c_full .prefix_7 { padding-left: 58.333% } .c_full .prefix_8 { padding-left: 66.667% } .c_full .prefix_9 { padding-left: 75.0% } .c_full .prefix_10 { padding-left: 83.333% } .c_full .prefix_11 { padding-left: 91.667% } .c_full .suffix_1 { padding-right: 8.333% } .c_full .suffix_2 { padding-right: 16.667% } .c_full .suffix_3 { padding-right: 25.0% } .c_full .suffix_4 { padding-right: 33.333% } .c_full .suffix_5 { padding-right: 41.667% } .c_full .suffix_6 { padding-right: 50.0% } .c_full .suffix_7 { padding-right: 58.333% } .c_full .suffix_8 { padding-right: 66.667% } .c_full .suffix_9 { padding-right: 75.0% } .c_full .suffix_10 { padding-right: 83.333% } .c_full .suffix_11 { padding-right: 91.667% } .c_full .push_1 { left: 8.333% } .c_full .push_2 { left: 16.667% } .c_full .push_3 { left: 25.0% } .c_full .push_4 { left: 33.333% } .c_full .push_5 { left: 41.667% } .c_full .push_6 { left: 50.0% } .c_full .push_7 { left: 58.333% } .c_full .push_8 { left: 66.667% } .c_full .push_9 { left: 75.0% } .c_full .push_10 { left: 83.333% } .c_full .push_11 { left: 91.667% } .c_full .pull_1 { left: -8.333% } .c_full .pull_2 { left: -16.667% } .c_full .pull_3 { left: -25.0% } .c_full .pull_4 { left: -33.333% } .c_full .pull_5 { left: -41.667% } .c_full .pull_6 { left: -50.0% } .c_full .pull_7 { left: -58.333% } .c_full .pull_8 { left: -66.667% } .c_full .pull_9 { left: -75.0% } .c_full .pull_10 { left: -83.333% } .c_full .pull_11 { left: -91.667% }
 .row {
     position: relative;
 }
@@ -860,37 +854,77 @@ aside .no-slide,
 /* --- LAYOUT --- */
 
 .colbox {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
-    flex-direction: column
+    -ms-box-direction: normal;
+    -ms-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-direction: normal;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
 }
-.rowbox {
-    display: flex;
-    flex-direction: row
+.colbox.expand {
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
 }
-.colbox.expand, .rowbox.expand {
-    justify-content: space-between
-}
-.colbox.flow, .rowbox.flow {
-    flex-wrap: wrap
-}
-.boxchild {
-    flex: 0 1 auto
-}
-.boxchild.fill {
-    flex: 1
-}
-.rowbox .boxchild {
-    margin-left: 10px
+.colbox.flow {
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
 }
 .colbox .boxchild {
-    margin-bottom: 10px
+    margin-bottom: 10px;
 }
-
+.rowbox {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+.rowbox.expand {
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+}
+.rowbox.flow {
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+.rowbox .boxchild {
+    margin-left: 10px;
+}
+.boxchild {
+    -webkit-box: 0;
+    -moz-box: 0;
+    -webkit-flex: 0 1 auto;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
+}
+.boxchild.fill {
+    -webkit-box: 1;
+    -moz-box: 1;
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+}
 .resize-horizontal {
-    resize: horizontal
+    resize: horizontal;
 }
 .resize-vertical {
-    resize: vertical
+    resize: vertical;
 }
 .oneliner > * {
     float: right;
@@ -2631,13 +2665,6 @@ ul.social-icons li {
         margin-left: 0
     }
 
-    #content_area .pageoptions.grid_8,
-    #content_area .pageoptions.grid_4.options-form {
-        width: 100%;
-        float: right !important;
-        clear: both;
-        text-align: right;
-    }
 /*
     header .cms-logo {
 /*        background: none;
@@ -2797,17 +2824,13 @@ ul.social-icons li {
         height: auto;
         width: 100% !important;
     }
-    #ac_mainarea .pageoptions.options-menu.half a,
-    #content_area .pageoptions.grid_8 a {
+    #ac_mainarea .pageoptions.options-menu.half a {
         width: 100%;
         display: block;
     }
 
     #ac_mainarea header.pageheader span.helptext {
         display: none;
-    }
-    #content_area .pageoptions.grid_8 a {
-        padding: 4px 0
     }
 
     #ac_pagemenu {

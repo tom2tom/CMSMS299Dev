@@ -480,7 +480,7 @@ button.ui-button.ui-state-active {
 	color: #147fdb
 }
 
-.adminsubmit:disabled, .loginsubmit:disabled, .ui-button:disabled { 
+.adminsubmit:disabled, .loginsubmit:disabled, .ui-button:disabled {
     background: #f2f2f2
 }
 
@@ -843,37 +843,78 @@ aside .no-slide, .no-slide  {
 /* --- LAYOUT --- */
 
 .colbox {
-	display: flex;
-	flex-direction: column
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-box-direction: normal;
+    -ms-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-direction: normal;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
 }
-.rowbox {
-	display: flex;
-	flex-direction: row
+.colbox.expand {
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
 }
-.colbox.expand, .rowbox.expand {
-	justify-content: space-between
-}
-.colbox.flow, .rowbox.flow {
-	flex-wrap: wrap
-}
-.boxchild {
-	flex: 0 1 auto
-}
-.boxchild.fill {
-	flex: 1
-}
-.rowbox .boxchild {
-	margin-left: 10px;
+.colbox.flow {
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
 }
 .colbox .boxchild {
-	margin-bottom: 10px;
+    margin-bottom: 10px;
+}
+.rowbox {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+.rowbox.expand {
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+}
+.rowbox.flow {
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+.rowbox .boxchild {
+    margin-left: 10px;
+}
+.boxchild {
+    -webkit-box: 0;
+    -moz-box: 0;
+    -webkit-flex: 0 1 auto;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
+}
+.boxchild.fill {
+    -webkit-box: 1;
+    -moz-box: 1;
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
 }
 
 .resize-horizontal {
-	resize: horizontal;
+    resize: horizontal;
 }
 .resize-vertical {
-	resize: vertical;
+    resize: vertical;
 }
 .oneliner > * {
 	float: right;

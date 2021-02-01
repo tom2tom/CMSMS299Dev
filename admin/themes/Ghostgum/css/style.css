@@ -1960,88 +1960,88 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon:hover {
 }
 
 .colbox {
-	display: -webkit-box;
-	display: -moz-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
-	display: flex;
-	-ms-box-direction: normal;
-	-ms-box-orient: vertical;
-	-webkit-box-direction: normal;
-	-webkit-box-orient: vertical;
-	-moz-box-direction: normal;
-	-moz-box-orient: vertical;
-	-webkit-flex-direction: column;
-	-ms-flex-direction: column;
-	flex-direction: column;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-box-direction: normal;
+    -ms-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-direction: normal;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
 }
 
 .colbox.expand {
-	-webkit-box-pack: justify;
-	-moz-box-pack: justify;
-	-ms-flex-pack: justify;
-	-webkit-justify-content: space-between;
-	justify-content: space-between;
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
 }
 
 .colbox.flow {
-	-webkit-flex-wrap: wrap;
-	-ms-flex-wrap: wrap;
-	flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
 }
 
 .colbox .boxchild {
-	margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .rowbox {
-	display: -webkit-box;
-	display: -moz-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
-	display: flex;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
 }
 
 .rowbox.expand {
-	-webkit-box-pack: justify;
-	-moz-box-pack: justify;
-	-ms-flex-pack: justify;
-	-webkit-justify-content: space-between;
-	justify-content: space-between;
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
 }
 
 .rowbox.flow {
-	-webkit-flex-wrap: wrap;
-	-ms-flex-wrap: wrap;
-	flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
 }
 
 .rowbox .boxchild {
-	margin-right: 10px;
+    margin-right: 10px;
 }
 
 .boxchild {
-	-webkit-box: 0;
-	-moz-box: 0;
-	-webkit-flex: 0 1 auto;
-	-ms-flex: 0 1 auto;
-	flex: 0 1 auto;
+    -webkit-box: 0;
+    -moz-box: 0;
+    -webkit-flex: 0 1 auto;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
 }
 
 .boxchild.fill {
-	-webkit-box: 1;
-	-moz-box: 1;
-	-webkit-flex: 1 1 auto;
-	-ms-flex: 1 1 auto;
-	flex: 1 1 auto;
+    -webkit-box: 1;
+    -moz-box: 1;
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
 }
 
 .resize-horizontal {
-	resize: horizontal;
+    resize: horizontal;
 }
 
 .resize-vertical {
-	resize: vertical;
+    resize: vertical;
 }
 
 .postgap {
@@ -2733,7 +2733,7 @@ img.systemicon {
 }
 
 /*** header ***/
-/* this works better as a flexbox, even when cssgrid is available */
+/* this works better as a flexbox, even when css-grid is available */
 #ggp_header {
 	-webkit-box: 0;
 	-moz-box: 0;
@@ -2811,10 +2811,10 @@ img.systemicon {
 
 #cms-logo {
 	display: inline-block;
-        height: 2em;
+	height: 2em;
 	width: 10em;
-	background: transparent url("../../assets/images/CMSMS-logotext-dark.png") no-repeat left;
-	background: transparent url("../../assets/images/CMSMS-logotext-dark.svg") no-repeat left;
+	background: transparent url("../../assets/images/cmsms-logotext-dark.png") no-repeat left;
+	background: transparent url("../../assets/images/cmsms-logotext-dark.svg") no-repeat left;
 	background-size: 10em 2em;
 }
 
@@ -3531,8 +3531,8 @@ img.systemicon {
 
 @media screen and (max-width: 30rem) {
 	#cms-logo {
-		background: transparent url("../../assets/images/CMSMS-logo.png") no-repeat left;
-		background: transparent url("../../assets/images/CMSMS-logo.svg") no-repeat left;
+		background: transparent url("../../assets/images/cmsms-logo.png") no-repeat left;
+		background: transparent url("../../assets/images/cmsms-logo.svg") no-repeat left;
 		background-size: 2em 2em;
 	}
 
