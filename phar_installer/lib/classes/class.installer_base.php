@@ -155,9 +155,9 @@ abstract class installer_base
 //            $verfile = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.$p;
             $verfile = joinpath(dirname(__DIR__, 2), 'sources', 'lib', 'version.php');
             if (!is_file($verfile)) {
-                throw new Exception('Could not find version file');
+                throw new Exception('Could not find intallation version file');
             }
-// don't pollute global $CMS_VERSION, $CMS_VERSION_NAME, $CMS_SCHEMA_VERSION;
+// TODO preserve current global $CMS_VERSION, $CMS_VERSION_NAME, $CMS_SCHEMA_VERSION if any c.f. create.manifest.php::get_version()
             include_once $verfile;
             $ver = ['version' => $CMS_VERSION, 'version_name' => $CMS_VERSION_NAME, 'schema_version' => $CMS_SCHEMA_VERSION];
             $sess['CMSMS:version'] = $ver;
