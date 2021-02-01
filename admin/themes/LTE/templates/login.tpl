@@ -23,41 +23,41 @@
 
 <body class="hold-transition login-page">
 	<div class="login-box">
-  		<div class="login-logo">
-    		<a href="https://cmsmadesimple.org"><img src="{$theme_url}/images/logoCMS.png" class="img-fluid" style="max-width: 268px;" alt="CMS Made Simple logo" title="CMS Made Simple"  /></a>
-  		</div>
-  		<!-- /.login-logo -->
+		<div class="login-logo">
+			<a href="https://cmsmadesimple.org"><img src="{$theme_url}/images/logoCMS.png" class="img-fluid" style="max-width: 268px;" alt="CMS Made Simple logo" title="CMS Made Simple"/></a>
+		</div>
+		<!-- /.login-logo -->
 
-  		<div class="card">
-    		<div class="card-body login-card-body">
-	      		<p class="login-box-msg">{'logintitle'|lang}</p>
+		<div class="card">
+			<div class="card-body login-card-body">
+				<p class="login-box-msg">{['login_sitetitle',{sitename}]|lang}</p>
 
-	      		<form method="post" action="login.php">
-	        		<div class="input-group mb-3">
-	        			{$usernamefld = 'username'}
+				<form method="post" action="login.php">
+					<div class="input-group mb-3">
+						{$usernamefld = 'username'}
 						{if isset($smarty.get.forgotpw)}{$usernamefld = 'forgottenusername'}{/if}
 						<input id="lbusername"{if !isset($smarty.post.lbusername)} class="form-control"{/if} placeholder="{'username'|lang}" name="{$usernamefld}" type="text" size="15" value="" autofocus="autofocus" />
-	        			<div class="input-group-append">
-	            			<div class="input-group-text">
-	              				<span class="fas fa-user"></span>
-	            			</div>
-	          			</div>
-	        		</div>
-	        		{if isset($smarty.get.forgotpw) && !empty($smarty.get.forgotpw)}
+						<div class="input-group-append">
+							<div class="input-group-text">
+								<span class="fas fa-user"></span>
+							</div>
+						</div>
+					</div>
+					{if isset($smarty.get.forgotpw) && !empty($smarty.get.forgotpw)}
 						<input type="hidden" name="forgotpwform" value="1" />
 					{/if}
 					{if isset($smarty.get.forgotpw) && !empty($smarty.get.forgotpw)}
 						<input type="hidden" name="forgotpwform" value="1" />
 					{/if}
 					{if !isset($smarty.get.forgotpw) && empty($smarty.get.forgotpw)}
-	        			<div class="input-group mb-3">
-	          				<input id="lbpassword" class="form-control{if !isset($smarty.post.lbpassword) or isset($error)} focus{/if}" placeholder="{'password'|lang}" name="password" type="password" size="15" maxlength="100"/>
-	          				<div class="input-group-append">
-	            				<div class="input-group-text">
-	              					<span class="fas fa-lock"></span>
-	            				</div>
-	          				</div>
-	        			</div>
+						<div class="input-group mb-3">
+							<input id="lbpassword" class="form-control{if !isset($smarty.post.lbpassword) or isset($error)} focus{/if}" placeholder="{'password'|lang}" name="password" type="password" size="15" maxlength="100"/>
+							<div class="input-group-append">
+								<div class="input-group-text">
+									<span class="fas fa-lock"></span>
+								</div>
+							</div>
+						</div>
 					{/if}
 					{if isset($changepwhash) && !empty($changepwhash)}
 						<div class="input-group mb-3">
@@ -66,21 +66,21 @@
 							<input type="hidden" name="changepwhash" value="{$changepwhash}" />
 						</div>
 					{/if}
-	        		<div class="row mb-3">
-	          			<div class="col-4">
-	            			<input class="btn btn-default bg-orange btn-block" name="loginsubmit" type="submit" value="{'submit'|lang}" />
-	          			</div>
-	          			<!-- /.col -->
-	          			<div class="col-4">
-							<input class="btn btn-default bg-orange btn-block" name="logincancel" type="submit" value="{'cancel'|lang}" />
-	          			</div>
-	          			<!-- /.col -->
-	          			<div class="col-4">
+					<div class="row mb-3">
+						<div class="col-4">
+							 <button class="btn btn-default bg-orange btn-block" name="loginsubmit" type="submit">{'submit'|lang}</button>
+						</div>
+						<!-- /.col -->
+						<div class="col-4">
+							<button class="btn btn-default bg-orange btn-block" name="logincancel" type="submit">{'cancel'|lang}</button>
+						</div>
+						<!-- /.col -->
+						<div class="col-4">
 
-	          			</div>
-	          			<!-- /.col -->
-	        		</div>
-	      		</form>
+						</div>
+						<!-- /.col -->
+					</div>
+				</form>
 
 				{if isset($smarty.get.forgotpw) && !empty($smarty.get.forgotpw)}
 					<div class="alert alert-warning">{'forgotpwprompt'|lang}</div>
@@ -102,18 +102,18 @@
 					<div class="alert alert-info">{'passwordchange'|lang}</div>
 				{/if}
 
-	      		<div class="mb-3">
-	        		<a href="login.php?forgotpw=1" class="text-orange"><span class="fas fa-user-lock fa-fw"></span>&nbsp;&nbsp;{'lostpw'|lang}</a>
-	      		</div>
+				<div class="mb-3">
+					<a href="login.php?forgotpw=1" class="text-orange"><span class="fas fa-user-lock fa-fw"></span>&nbsp;&nbsp;{'lostpw'|lang}</a>
+				</div>
 
-	      		<div>
-	        		<a href="{root_url}" class="text-orange" title="{'goto'|lang} {sitename}"><span class="fas fa-arrow-circle-left fa-fw"></span>&nbsp;&nbsp;{'goto'|lang} {sitename}</a>
-	      		</div>
+				<div>
+					<a href="{root_url}" class="text-orange" title="{['goto',{sitename}]|lang}"><span class="fas fa-arrow-circle-left fa-fw"></span>&nbsp;&nbsp;{['goto',{sitename}]|lang}</a>
+				</div>
 
-    		</div>
-    		<!-- /.login-card-body -->
+			</div>
+			<!-- /.login-card-body -->
 
-  		</div>
+		</div>
 
 		<footer>
 			<p class="text-center"><small>
@@ -142,7 +142,7 @@
 		<p><strong>({$smarty.server.HTTP_HOST})</strong></p>
 		<p class="warning">{'warn_admin_ipandcookies'|lang}</p>
 	</aside>
-	<a href="#" title="{'open'|lang}/{'close'|lang}" class="toggle-info">{'open'|lang}/{'close'|lang}</a>
+	<a href="javascript:void()" title="{'open'|lang}/{'close'|lang}" class="toggle-info">{'open'|lang}/{'close'|lang}</a>
 </div>
 
 +++++++++++++++++++++++++++++++++++++++++++++++++ *}
