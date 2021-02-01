@@ -1,25 +1,26 @@
 <?php
 /*
 Ebonne - an admin theme for CMS Made Simple
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Thanks to Tom Phane and all other contributors from the CMSMS Development Team
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Tom Phane and all other contributors from the CMSMS Development Team.
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of that license, or
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\LangOperations;
@@ -32,15 +33,12 @@ use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 use const CMS_ADMIN_PATH;
-use const CMS_SCRIPTS_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
-use const TMP_CACHE_LOCATION;
 use function check_permission;
 use function cms_installed_jquery;
 use function cms_join_path;
 use function cms_path_to_url;
-use function cmsms;
 use function get_userid;
 use function lang;
 use function munge_string_to_url;
@@ -62,7 +60,6 @@ class EbonneTheme extends AdminTheme
 	 * Hook accumulator-function to nominate runtime 'resources' to be
 	 * included in the header of each displayed admin page
 	 *
-	 * @since 2.9
 	 * @return 2-member array (not typed to support back-compatible themes)
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
@@ -71,11 +68,8 @@ class EbonneTheme extends AdminTheme
 	{
 		list($vars, $add_list) = parent::AdminHeaderSetup();
 
-		$config = AppSingle::Config();
-		$admin_url = $config['admin_url'];
 		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
 		$rel_url = strtr($rel, DIRECTORY_SEPARATOR, '/');
-//		$base_url = $admin_url . strtr($rel, DIRECTORY_SEPARATOR, '/');
 		$fn = 'style';
 		if (NlsOperations::get_language_direction() == 'rtl') {
 			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
@@ -83,18 +77,13 @@ class EbonneTheme extends AdminTheme
 			}
 		}
 		$incs = cms_installed_jquery(true, true, true, true);
-		$url = cms_path_to_url($incs['jquicss']);
-		// css files which include relative paths/urls cannot be relocated
 		$csm = new StylesMerger();
 		$csm->queue_matchedfile('normalize.css', 1);
-		$csm->queue_matchedfile('flex-grid-lite.css', 2);
-//		$csm->queue_matchedfile('grid-960.css', 2);
+		$csm->queue_file($incs['jquicss'], 2);
+//		$csm->queue_matchedfile('flex-grid-lite.css', 2);
+		$csm->queue_matchedfile('grid-960.css', 2); // deprecated since 2.99
 
-		$out = <<<EOS
-<link rel="stylesheet" type="text/css" href="{$url}" />
-
-EOS;
-		$out .= $csm->page_content();
+		$out = $csm->page_content();
 		$out .= <<<EOS
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
 
@@ -117,55 +106,84 @@ EOS;
 		$jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this or keep if (CMS_DEBUG)
 //		}
 		$jsm->queue_file($incs['jqui'], 1);
-		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
-//		$jsm->queue_matchedfile('jquery.cmsms_admin.js', 2); N/A
-//		$jsm->queue_file($p.'jquery.cmsms_admin.js', 2);
-//		$jsm->queue_file($p.'jquery.cmsms_admin.min.js', 2);
+		$jsm->queue_matchedfile('jquery.cmsms_admin.js', 2);
 		$out .= $jsm->page_content('', false, false);
-		//DEBUG
-		$u = $config['root_url'];
-		$out .= <<<EOS
-<script type="text/javascript" src="{$u}/lib/js/jquery.cmsms_admin.min.js"></script>
-
-EOS;
-		$jsm->reset();
-		$jsm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1); //OR .min for production
-		$jsm->queue_matchedfile('jquery.toast.min.js', 1);
-		$jsm->queue_matchedfile('jquery.basictable.min.js', 1); //TESTER
-
-		$p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
-//		$jsm->queue_file($p.'jquery.alertable.js', 2);
-		$jsm->queue_file($p.'jquery.alertable.min.js', 2); // for production
-//		$jsm->queue_file($p.'standard.js', 3);
-//		$jsm->queue_matchedfile('standard.js', 3, $p); // for production
+		$jsm->reset(); // start another merger-file
+		$jsm->queue_matchedfile('jquery.ui.touch-punch.js', 1);
+		$jsm->queue_matchedfile('jquery.toast.js', 1);
+		$jsm->queue_matchedfile('jquery.basictable.js', 1); //TESTER
+		$p = __DIR__.DIRECTORY_SEPARATOR.'js';
+		$jsm->queue_matchedfile('jquery.alertable.js', 2, $p);
+		$jsm->queue_matchedfile('standard.js', 3, $p);
 		$out .= $jsm->page_content();
-		//DEBUG
-		$out .= <<<EOS
-<script type="text/javascript" src="{$rel_url}/js/standard.js"></script>
 
-EOS;
 		$add_list[] = $out;
 //		$vars[] = anything needed ?;
 		return [$vars, $add_list];
 	}
 
-	/**
-	 * Hook first-result-function to report the default 'main' css class
-	 * to be applied to generated context menus when this theme is in operation.
-	 *
-	 * @since 2.9
-	 * @return string
-	 */
-	public function MenuCssClassname()
+	public function display_login_page()
 	{
-		return 'ContextMenu';
+		$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
+		$modinst = AppSingle::ModuleOperations()->get_module_instance($auth_module, '', true);
+		if ($modinst) {
+			$data = $modinst->fetch_login_panel();
+		} else {
+			die('System error');
+		}
+
+		$smarty = AppSingle::Smarty();
+		$smarty->assign($data);
+
+		//extra shared parameters for the form TODO get from the current login-module
+		$config = AppSingle::Config(); // for the inclusion
+		$fp = cms_join_path(dirname(__DIR__), 'assets', 'function.extraparms.php');
+		require_once $fp;
+		$smarty->assign($tplvars);
+
+//TODO  ensure $smarty->assign('lang_code', AppParams::get('frontendlang'));
+/* N/A
+		//extra theme-specific parameters for the form
+		$fp = __DIR__ . DIRECTORY_SEPARATOR . 'function.extraparms.php';
+		if (is_file($fp)) {
+			require_once $fp;
+			if (!empty($tplvars)) {
+				$smarty->assign($tplvars);
+			}
+		}
+*/
+		$fn = 'style';
+		if (NlsOperations::get_language_direction() == 'rtl') {
+			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+				$fn .= '-rtl';
+			}
+		}
+		$out = <<<EOS
+<link rel="stylesheet" type="text/css" href="themes/Ebonne/css/{$fn}.css" />
+
+EOS;
+//		get_csp_token(); //setup CSP header (result not used)
+		$tpl = ' <script type="text/javascript" src="%s"></script>'.PHP_EOL;
+		// scripts: jquery, jquery-ui
+		$incs = cms_installed_jquery(true, false, true, false);
+		$url = cms_path_to_url($incs['jqcore']);
+		$out .= sprintf($tpl, $url);
+		$url = cms_path_to_url($incs['jqui']);
+		$out .= sprintf($tpl, $url);
+		$url = 'themes/Ebonne/js/login.min.js'; // TODO cms_get_...()
+		$out .= sprintf($tpl, $url);
+
+		$smarty->assign('header_includes', $out) //NOT into bottom (to avoid UI-flash)
+		  ->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
+		  ->display('login.tpl');
 	}
 
 	/**
 	 * @param mixed $section_name nav-menu-section name (string), but
 	 *  usually null to use the whole menu
+	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function do_toppage($section_name)
+	public function fetch_menu_page($section_name)
 	{
 		$smarty = AppSingle::Smarty();
 		if ($section_name) {
@@ -189,129 +207,30 @@ EOS;
 			$smarty->assign('site_help_url', $url);
 		}
 
-		$otd = $smarty->template_dir;
-		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR. 'templates';
-		$smarty->display('topcontent.tpl');
-		$smarty->template_dir = $otd;
-	}
-
-	protected function render_minimal($tplname, $bodyid = null)
-	{
-//		get_csp_token(); //setup CSP header (result not used)
-		$incs = cms_installed_jquery(true, true, true, false);
-		$jsm = new ScriptsMerger();
-		$jsm->queue_file($incs['jqcore'], 1);
-//		if (CMS_DEBUG) {
-		$jsm->queue_file($incs['jqmigrate'], 1); // for developmant phase, at least
-//		}
-		$jsm->queue_file($incs['jqui'], 1);
-		$fn = $jsm->render_scripts('', false, false);
-		$url = cms_path_to_url(TMP_CACHE_LOCATION);
-		$header_includes = <<<EOS
-<script type="text/javascript" src="{$url}/{$fn}"></script>
-
-EOS;
-		$url = AppSingle::Config()['admin_url'];
-		$lang = NlsOperations::get_current_language();
-		$info = NlsOperations::get_language_info($lang);
-		$smarty = cmsms()->GetSmarty();
-		$otd = $smarty->GetTemplateDir();
-		$smarty->SetTemplateDir(__DIR__.DIRECTORY_SEPARATOR.'templates');
-
-		$smarty->assign('admin_root', $url)
-		 ->assign('theme_root', $url.'/themes/Ebonne')
-		 ->assign('title', $this->title)
-		 ->assign('lang_dir', $info->direction())
-		 ->assign('header_includes', $header_includes)
-//		 ->assign('bottom_includes', '') // TODO
-		 ->assign('bodyid', $bodyid)
-		 ->assign('content', $this->get_content());
-
-		$out = $smarty->fetch($tplname);
-		$smarty->SetTemplateDir($otd);
-		return $out;
-	}
-
-	/**
-	 * @todo this has been migrated more-or-less verbatim from old marigold
-	 * @return string (or maybe null if $smarty->fetch() fails?)
-	 */
-	public function do_minimal($bodyid = null) : string
-	{
-		return $this->render_minimal('minimal.tpl', $bodyid);
-	}
-
-	/**
-	 * @todo this has been migrated more-or-less verbatim from old marigold
-	 * @param mixed $bodyid Optional id for page 'body' element. Default null
-	 * @return string (or maybe null if $smarty->fetch() fails?)
-	 */
-	public function do_loginpage($bodyid = null)
-	{
-		return $this->render_minimal('login-minimal.tpl', $bodyid);
-	}
-
-	/**
-	 * @param  mixed $params For parent-compatibility only, unused.
-	 */
-	public function do_login($params = null)
-	{
-		$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
-		$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
-		if ($modinst) {
-			$data = $modinst->StageLogin();
-		} else {
-			die('System error');
-		}
-
-		$smarty = AppSingle::Smarty();
-		$smarty->assign($data);
-
-		//extra shared parameters for the form
-		$config = AppSingle::Config(); //also need by the inclusion
-		$fp = cms_join_path($config['admin_path'], 'themes', 'assets', 'function.extraparms.php');
-		require_once $fp;
-		$smarty->assign($tplvars);
-
-//TODO  ensure $smarty->assign('lang_code', AppParams::get('frontendlang'));
-
-		//extra theme-specific parameters for the form
-		$fp = cms_join_path(__DIR__, 'function.extraparms.php');
-		if (is_file($fp)) {
-			require_once $fp;
-			if (!empty($tplvars)) {
-				$smarty->assign($tplvars);
-			}
-		}
-
-//		get_csp_token(); //setup CSP header (result not used)
-		$tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
-
-		// scripts: jquery, jquery-ui
-		$incs = cms_installed_jquery(true, false, true, false);
-		$url = cms_path_to_url($incs['jqcore']);
-		$out = sprintf($tpl, $url);
-		$url = cms_path_to_url($incs['jqui']);
-		$out .= sprintf($tpl, $url);
-
-		$smarty->assign('header_includes', $out); //NOT into bottom (to avoid UI-flash)
-		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
-		$smarty->display('login.tpl');
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+		return $smarty->fetch('topcontent.tpl');
 	}
 
 	/**
 	 * @param string $html page content to be processed
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function postprocess($html)
+	public function fetch_page($html)
 	{
 		$smarty = AppSingle::Smarty();
 		$uid = get_userid(false);
-
 		// setup titles etc
 //		$tree =
 			$this->get_navigation_tree(); //TODO if section
 
+		/* possibly-cached value-names
+		'pagetitle'
+		'extra_lang_params'
+		'module_help_type'
+		'module_help_url'
+		'pageicon'
+		'page_crumbs'
+		*/
 		// prefer cached parameters, if any
 		// module name
 		$module_name = $this->get_value('module_name');
@@ -362,15 +281,13 @@ EOS;
 		if (!$title) $title = '';
 		$smarty->assign('pagetitle', $title)
 		  ->assign('subtitle', $subtitle)
-
-		// page alias
-		  ->assign('pagealias', munge_string_to_url($alias));
+		  ->assign('pagealias', munge_string_to_url($alias)); // page alias
 
 		// icon
 		if ($module_name && ($icon_url = $this->get_value('module_icon_url'))) {
 			$tag = '<img src="'.$icon_url.'" alt="'.$module_name.'" class="module-icon" />';
 		} elseif ($module_name && $title) {
-			$tag = AdminUtils::get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
+			$tag = $this->get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
 			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO" />';
 		} else {
@@ -405,9 +322,9 @@ EOS;
 
 		// other variables
 		//strip inappropriate closers cuz we're putting it in the middle somewhere
-		  ->assign('content', str_replace('</body></html>', '', $html));
+		  ->assign('content', str_replace('</body></html>', '', $html))
 
-		$smarty->assign('admin_url', $config['admin_url'])
+		  ->assign('admin_url', $config['admin_url'])
 		  ->assign('assets_url', $config['admin_url'] . '/themes/assets')
 
 		  ->assign('theme', $this);
@@ -424,19 +341,16 @@ EOS;
 		$lang = UserParams::get_for_user($uid, 'default_cms_language');
 		if (!$lang) $lang = AppParams::get('frontendlang');
 		$smarty->assign('lang_code', $lang)
-		// language direction
-		  ->assign('lang_dir', NlsOperations::get_language_direction());
+		  ->assign('lang_dir', NlsOperations::get_language_direction()); // language direction
+
 		// custom support-URL?
 		$url = AppParams::get('site_help_url');
 		if ($url) {
 			$smarty->assign('site_help_url', $url);
 		}
 
-		$otd = $smarty->template_dir;
-		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
-		$_contents = $smarty->fetch('pagetemplate.tpl');
-		$smarty->template_dir = $otd;
-		return $_contents;
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+		return $smarty->fetch('pagetemplate.tpl');
 	}
 
 	public function DisplayImage($image, $alt = '', $width = '', $height = '', $class = null, $attrs = [])
@@ -478,8 +392,8 @@ EOS;
 				$res .= " $key=\"$value\"";
 			}
 		}
-		$res .= '>'.PHP_EOL;
-		if ($extras['title']) $res .= "<title>{$extras['title']}</title>".PHP_EOL;
+		$res .= ">\n";
+		if ($extras['title']) $res .= "<title>{$extras['title']}</title>\n";
 		$res .= "<use xlink:href=\"themes/Ebonne/images/icons/system/sprite.svg#{$type}\"/>\n</svg>";
 		return $res;
 	}

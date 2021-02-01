@@ -1,6 +1,6 @@
 <?php
 /*
-Altbier - an Admin Console theme for CMS Made Simple
+Altbier - an admin-console theme for CMS Made Simple
 Derived in 2018 by John Beatrice <johnnyb [AT] cmsmadesimple [DOT] org>
 from the work provided to the community by:
  Goran Ilic (ja@ich-mach-das.at)
@@ -17,30 +17,31 @@ CMS Made Simple is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace CMSMS;
+namespace CMSMS; // TODO OK if pre-2.99?
 
+//use CMSMS\RequestParameters; //2.99+
+//use Throwable; 2.99+
+ // pre-2.99
+//use function sanitizeVal; // 2.99+
 use CMSMS\AdminAlerts\Alert;
-use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
-use CMSMS\RequestParameters;
 use CMSMS\ScriptsMerger;
+use CMSMS\StylesMerger;
 use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
-use Throwable;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
-use const CMS_SCRIPTS_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
-use const TMP_CACHE_LOCATION;
 use function check_permission;
 use function cleanValue;
 use function cms_installed_jquery;
@@ -70,12 +71,12 @@ class AltbierTheme extends AdminTheme
 	 */
 	private $_havetree = null;
 
-	// 2.3+ will access these via parent-class
+	// 2.99+ will access these via parent-class
 	protected $_errors = [];
 	protected $_messages = [];
 
 	/**
-	 * Determine whether this is running on CMSMS 2.3+
+	 * Determine whether this is running on CMSMS 2.99+
 	 */
 	protected function currentversion() : bool
 	{
@@ -90,7 +91,6 @@ class AltbierTheme extends AdminTheme
 	 * Hook accumulator-function to nominate runtime resources, which will be
 	 * included in the header of each displayed admin page
 	 *
-	 * @since 2.9
 	 * @return 2-member array
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
@@ -101,23 +101,24 @@ class AltbierTheme extends AdminTheme
 
 		$config = cmsms()->GetConfig();
 		$admin_path = $config['admin_path'];
-		$admin_url = $config['admin_url'];
+
 		$rel = substr(__DIR__, strlen($admin_path) + 1);
 		$rel_url = strtr($rel,DIRECTORY_SEPARATOR,'/');
-//		$base_url = $admin_url . strtr($rel,DIRECTORY_SEPARATOR,'/');
 
-		$lang = NlsOperations::get_current_language();
-		$info = NlsOperations::get_language_info($lang);
 		$fn = 'style';
-		if ($info->direction() == 'rtl') {
+		if (NlsOperations::get_language_direction() == 'rtl') {
 			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
 				$fn .= '-rtl';
 			}
 		}
 		$incs = cms_installed_jquery(true, true, true, true);
-		$url = cms_path_to_url($incs['jquicss']);
-		$out = <<<EOS
-<link rel="stylesheet" type="text/css" href="{$url}" />
+
+		$csm = new StylesMerger();
+		$csm->queue_matchedfile('normalize.css', 1);
+		$csm->queue_file($incs['jquicss'], 2);
+		$csm->queue_matchedfile('grid-960.css', 2); // deprecated since 2.99
+		$out = $csm->page_content();
+		$out .= <<<EOS
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
 
 EOS;
@@ -134,95 +135,24 @@ EOS;
 		$jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this or keep if (CMS_DEBUG)
 //		}
 		$jsm->queue_file($incs['jqui'], 1);
-		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
-//		$jsm->queue_matchedfile('jquery.cmsms_admin.js', 2); N/A
-//		$jsm->queue_file($p.'jquery.cmsms_admin.js', 2);
-		$jsm->queue_file($p.'jquery.cmsms_admin.min.js', 2);
+		$jsm->queue_matchedfile('jquery.cmsms_admin.js', 2);
 		$out .= $jsm->page_content('', false, false);
-
-		$jsm->reset();
-		$jsm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1);
-		$jsm->queue_matchedfile('jquery.toast.min.js', 1);
-		$p = __DIR__.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR;
-		$jsm->queue_file($p.'standard.js', 3); //OR .min for production
+		$jsm->reset(); //start another merger-file
+		$jsm->queue_matchedfile('jquery.ui.touch-punch.js', 1);
+		$jsm->queue_matchedfile('jquery.toast.js', 1);
+		$jsm->queue_matchedfile('standard.js', 3, __DIR__.DIRECTORY_SEPARATOR.'includes');
 		$out .= $jsm->page_content();
 
 		$add_list[] = $out;
 //		$vars[] = anything needed ?;
-
 		return [$vars, $add_list];
-	}
-
-	/**
-	 * Hook first-result-function to report the default 'main' css class
-	 * to be applied to generated context menus when this theme is in operation.
-	 *
-	 * @since 2.9
-	 * @return string
-	 */
-	public function MenuCssClassname()
-	{
-		return 'ContextMenu';
-	}
-
-	public function ShowErrors($errors, $get_var = '')
-	{
-		if ($this->currentversion()) {
-			$this->RecordNotice('error', $errors, '', false, $get_var);
-		} else {
-
-		// cache errors for use in the template.
-		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
-			if (is_array($_GET[$get_var])) {
-				foreach ($_GET[$get_var] as $one) {
-					$this->_errors[] = lang(cleanValue($one));
-				}
-			} else {
-				$this->_errors[] = lang(cleanValue($_GET[$get_var]));
-			}
-		} elseif (is_array($errors)) {
-			foreach ($errors as $one) {
-				$this->_errors[] = $one;
-			}
-		} elseif (is_string($errors)) {
-			$this->_errors[] = $errors;
-		}
-		return '<!-- Altbier::ShowErrors() called -->';
-
-		} //pre 2.3
-	}
-
-	public function ShowMessage($message, $get_var = '')
-	{
-		if ($this->currentversion()) {
-			$this->RecordNotice('success', $message, '', false, $get_var);
-		} else {
-
-		// cache message for use in the template.
-		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
-			if (is_array($_GET[$get_var])) {
-				foreach ($_GET[$get_var] as $one) {
-					$this->_messages[] = lang(cleanValue($one));
-				}
-			} else {
-				$this->_messages[] = lang(cleanValue($_GET[$get_var]));
-			}
-		} elseif (is_array($message)) {
-			foreach ($message as $one) {
-				$this->_messages[] = $one;
-			}
-		} elseif (is_string($message)) {
-			$this->_messages[] = $message;
-		}
-
-		} // pre 2.3
 	}
 
 	public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = FALSE)
 	{
 		if ($this->currentversion()) {
 			parent::ShowHeader($title_name, $extra_lang_params, $link_text, $module_help_type);
-		} else { // pre 2.3
+		} else { // pre 2.99
 
 		if ($title_name) $this->set_value('pagetitle', $title_name);
 		if ($extra_lang_params) $this->set_value('extra_lang_params', $extra_lang_params);
@@ -280,68 +210,12 @@ EOS;
 			} // for-loop
 		}
 
-		} // pre-2.3
-	}
-
-	public function do_header()
-	{
-	}
-
-	public function do_footer()
-	{
-	}
-
-	/**
-	 * @param mixed $section_name nav-menu-section name (string),
-	 *  but usually null to use the whole menu
-	 */
-	public function do_toppage($section_name)
-	{
-		$flag = $this->currentversion();
-
-		$smarty = cmsms()->GetSmarty();
-		if ($section_name) {
-			$smarty->assign('section_name', $section_name);
-			if ($flag) {
-				$nodes = $this->get_navigation_tree($section_name, 0);
-				$smarty->assign('pagetitle', $this->title);
-			} else {
-				$nodes = $this->get_navigation_tree($section_name, -1, FALSE);
-				$smarty->assign('pagetitle', lang($section_name)); //CHECKME
-			}
-		} else {
-			if ($flag) {
-				$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
-			} else {
-				$nodes = $this->get_navigation_tree(-1, 2, FALSE);
-			}
-		}
-//		$this->_havetree = $nodes; //block further tree-data changes
-		$smarty->assign('nodes', $nodes);
-
-		$config = cmsms()->GetConfig();
-		$smarty->assign('admin_url', $config['admin_url']);
-		$smarty->assign('theme', $this);
-
-		//custom support-URL?
-		$url = AppParams::get('site_help_url');
-		if ($url) {
-			$smarty->assign('site_help_url', $url);
-		}
-		// is the website set down for maintenance?
-		if (AppParams::get('site_downnow')) {
-			$smarty->assign('is_sitedown', 1);
-		}
-
-		$otd = $smarty->template_dir;
-		$smarty->template_dir = __DIR__.DIRECTORY_SEPARATOR.'templates';
-		$smarty->display('topcontent.tpl');
-		$smarty->template_dir = $otd;
+		} // pre-2.99
 	}
 
 	/**
 	 * Get URL's for installed jquery, jquery-ui & related css
-	 * Only for pre-2.3 operation
+	 * Only for pre-2.99 operation
 	 * @return 3-member array
 	 */
 	protected function find_installed_jq()
@@ -395,67 +269,9 @@ EOS;
 		return [$jqcss, $jqui, $jqcore];
 	}
 
-	protected function render_minimal($tplname, $bodyid = null)
-	{
-//		get_csp_token(); //setup CSP header (result not used)
-		$incs = cms_installed_jquery(true, false, true, false);
-		$jsm = new ScriptsMerger();
-		$jsm->queue_file($incs['jqcore'], 1);
-		$jsm->queue_file($incs['jqui'], 1);
-		$fn = $jsm->render_scripts('', false, false);
-		$url = cms_path_to_url(TMP_CACHE_LOCATION);
-		$header_includes = <<<EOS
-<script type="text/javascript" src="{$url}/{$fn}"></script>
-
-EOS;
-		$url = AppSingle::Config()['admin_url'];
-		$lang = NlsOperations::get_current_language();
-		$info = NlsOperations::get_language_info($lang);
-		$smarty = cmsms()->GetSmarty();
-		$otd = $smarty->GetTemplateDir();
-		$smarty->SetTemplateDir(__DIR__.DIRECTORY_SEPARATOR.'templates');
-
-		$smarty->assign('admin_root', $url)
-		 ->assign('theme_root', $url.'/themes/Altbier')
-		 ->assign('title', $this->title)
-		 ->assign('lang_dir', $info->direction())
-		 ->assign('header_includes', $header_includes)
-//		 ->assign('bottom_includes', '') // TODO
-		 ->assign('bodyid', $bodyid)
-		 ->assign('content', $this->get_content());
-
-		$out = $smarty->fetch($tplname);
-		$smarty->SetTemplateDir($otd);
-		return $out;
-	}
-
-	/**
-	 * @todo this has been migrated more-or-less verbatim from old marigold
-	 * @param mixed $bodyid Optional id for page 'body' element. Default null
-	 * @return string (or maybe null if $smarty->fetch() fails?)
-	 */
-	public function do_minimal($bodyid = null) : string
-	{
-		return $this->render_minimal('minimal.tpl', $bodyid);
-	}
-
-	/**
-	 * @todo this has been migrated more-or-less verbatim from old marigold
-	 * @param mixed $bodyid Optional id for page 'body' element. Default null
-	 * @return string (or maybe null if $smarty->fetch() fails?)
-	 */
-	public function do_loginpage($bodyid = null)
-	{
-		return $this->render_minimal('login-minimal.tpl', $bodyid);
-	}
-
-	/**
-	 * @param $params Array of variables for smarty (CMSMS pre-2.3 only)
-	 */
-	public function do_login($params = null)
+	public function display_login_page()
 	{
 		$gCms = cmsms();
-
 		$smarty = $gCms->GetSmarty();
 
 		$fp = cms_join_path(__DIR__, 'css', 'all.min.css');
@@ -468,9 +284,9 @@ EOS;
 
 		if ($this->currentversion()) {
 			$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
-			$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
+			$modinst = AppSingle::ModuleOperations()->get_module_instance($auth_module, '', true);
 			if ($modinst) {
-				$data = $modinst->StageLogin();
+				$data = $modinst->fetch_login_panel();
 				if (isset($data['infomessage'])) $data['message'] = $data['infomessage'];
 				if (isset($data['warnmessage'])) $data['warning'] = $data['warnmessage'];
 				if (isset($data['errmessage'])) $data['error'] = $data['errmessage'];
@@ -480,14 +296,14 @@ EOS;
 
 			$smarty->assign($data);
 
-			//extra shared parameters for the form
-			$config = $gCms->GetConfig(); //also need by the inclusion
-			$fp = cms_join_path($config['admin_path'], 'themes', 'assets', 'function.extraparms.php');
+			//extra shared parameters for the form TODO get from the current login-module
+			$config = AppSingle::Config(); // for the inclusion
+			$fp = cms_join_path(dirname(__DIR__), 'assets', 'function.extraparms.php');
 			require_once $fp;
 			$smarty->assign($tplvars);
 
 			//extra theme-specific setup
-			$fp = cms_join_path(__DIR__, 'function.extraparms.php');
+			$fp = __DIR__ . DIRECTORY_SEPARATOR . 'function.extraparms.php';
 			if (is_file($fp)) {
 				require_once $fp;
 				if (!empty($tplvars)) {
@@ -496,14 +312,18 @@ EOS;
 			}
 
 //TODO	ensure $smarty->assign('lang_code', AppParams::get('frontendlang'));
-
-			$dir = ''; //TODO or '-rtl'
+			$fn = 'style';
+			if (NlsOperations::get_language_direction() == 'rtl') {
+				if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+					$fn .= '-rtl';
+				}
+			}
 			// scripts: jquery, jquery-ui
 			$incs = cms_installed_jquery();
 			$url = cms_path_to_url($incs['jquicss']);
 			$out = <<<EOS
-<link rel="stylesheet" href="$url" />
-<link rel="stylesheet" href="themes/Altbier/css/style{$dir}.css" />
+<link rel="stylesheet" type="text/css" href="$url" />
+<link rel="stylesheet" type="text/css" href="themes/Altbier/css/{$fn}.css" />
 
 EOS;
 //			get_csp_token(); //setup CSP header (result not used)
@@ -512,15 +332,16 @@ EOS;
 			$out .= sprintf($tpl,$url);
 			$url = cms_path_to_url($incs['jqui']);
 			$out .= sprintf($tpl,$url);
-			$out .= sprintf($tpl,'themes/Altbier/includes/login.js');
+			$out .= sprintf($tpl,'themes/Altbier/includes/login.min.js');
 		} else {
+			$params = func_get_args();
 			if (!empty($params)) {
-				$smarty->assign($params);
+				$smarty->assign($params[0]);
 			}
 
 			$config = $gCms->GetConfig();
 			//extra setup/parameters for the form
-			$fp = cms_join_path(__DIR__, 'function.login.php');
+			$fp = __DIR__ . DIRECTORY_SEPARATOR . 'function.login.php';
 			require $fp;
 			if (!empty($tplvars)) {
 				$smarty->assign($tplvars);
@@ -534,24 +355,71 @@ EOS;
 <link rel="stylesheet" href="loginstyle.php" />
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
-<script type="text/javascript" src="themes/Altbier/includes/login.js"></script>
+<script type="text/javascript" src="themes/Altbier/includes/login.min.js"></script>
 <!--[if lt IE 9]>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script> TODO conform CSP
 <![endif]-->
 
 EOS;
-		} // pre 2.3
+		} // pre 2.99
 
-		$smarty->assign('header_includes', $out); //NOT into bottom (to avoid UI-flash)
-		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
-		$smarty->display('login.tpl');
+		$smarty->assign('header_includes', $out)
+		  ->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
+		  ->display('login.tpl');
+	}
+
+	/**
+	 * @param mixed $section_name nav-menu-section name (string),
+	 *  but usually null to use the whole menu
+	 * @return string (or maybe null if $smarty->fetch() fails?)
+	 */
+	public function fetch_menu_page($section_name)
+	{
+		$flag = $this->currentversion();
+
+		$smarty = cmsms()->GetSmarty();
+		if ($section_name) {
+			$smarty->assign('section_name', $section_name);
+			if ($flag) {
+				$nodes = $this->get_navigation_tree($section_name, 0);
+				$smarty->assign('pagetitle', $this->title);
+			} else {
+				$nodes = $this->get_navigation_tree($section_name, -1, FALSE);
+				$smarty->assign('pagetitle', lang($section_name)); //CHECKME
+			}
+		} else {
+			if ($flag) {
+				$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
+			} else {
+				$nodes = $this->get_navigation_tree(-1, 2, FALSE);
+			}
+		}
+//		$this->_havetree = $nodes; //block further tree-data changes
+		$smarty->assign('nodes', $nodes);
+
+		$config = cmsms()->GetConfig();
+		$smarty->assign('admin_url', $config['admin_url'])
+		  ->assign('theme', $this);
+
+		//custom support-URL?
+		$url = AppParams::get('site_help_url');
+		if ($url) {
+			$smarty->assign('site_help_url', $url);
+		}
+		// is the website down for maintenance?
+		if (AppParams::get('site_downnow')) {
+			$smarty->assign('is_sitedown', 1);
+		}
+
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+		return $smarty->fetch('topcontent.tpl');
 	}
 
 	/**
 	 * @param string $html page content to be processed
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function postprocess($html)
+	public function fetch_page($html)
 	{
 		$flag = $this->currentversion();
 
@@ -562,6 +430,14 @@ EOS;
 //		$tree =
 			$this->get_navigation_tree(); //TODO if section
 
+		/* possibly-cached value-names
+		'pagetitle'
+		'extra_lang_params'
+		'module_help_type'
+		'module_help_url'
+		'pageicon'
+		'page_crumbs'
+		*/
 		// prefer cached parameters, if any
 		// module name
 		$module_name = $this->get_value('module_name');
@@ -612,17 +488,15 @@ EOS;
 			}
 		}
 		if (!$title) $title = '';
-		$smarty->assign('pagetitle', $title);
-		$smarty->assign('subtitle', $subtitle);
-
-		// page alias
-		$smarty->assign('pagealias', munge_string_to_url($alias));
+		$smarty->assign('pagetitle', $title)
+		  ->assign('subtitle', $subtitle)
+		  ->assign('pagealias', munge_string_to_url($alias)); // page alias
 
 		// icon
 		if ($module_name && ($icon_url = $this->get_value('module_icon_url'))) {
 			$tag = '<img src="'.$icon_url.'" alt="'.$module_name.'" class="module-icon" />';
 		} elseif ($module_name && $title) {
-			$tag = AdminUtils::get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
+			$tag = $this->get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
 			$tag = '<img src="'.$icon_url.'" alt="'.basename($icon_url).'" class="TODO" />';
 		} else {
@@ -643,8 +517,8 @@ EOS;
 
 		// preferences UI
 		if (check_permission($uid,'Manage My Settings')) {
-			$smarty->assign('mysettings', 1);
-			$smarty->assign('myaccount', 1); //TODO maybe a separate check
+			$smarty->assign('mysettings', 1)
+			->assign('myaccount', 1); //TODO maybe a separate check
 		}
 
 		// bookmarks UI
@@ -655,12 +529,11 @@ EOS;
 
 		$secureparam = CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
 		// other variables
-		$smarty->assign('admin_url', $config['admin_url']);
-		$smarty->assign('content', str_replace('</body></html>', '', $html));
-		$smarty->assign('theme', $this);
-		$smarty->assign('secureparam', $secureparam);
-		$userops = UserOperations::get_instance();
-		$user = $userops->LoadUserByID($uid);
+		$smarty->assign('admin_url', $config['admin_url'])
+		  ->assign('content', str_replace('</body></html>', '', $html))
+		  ->assign('theme', $this)
+		  ->assign('secureparam', $secureparam);
+		$user = UserOperations::get_instance()->LoadUserByID($uid);
 		$smarty->assign('username', $user->username);
 		// user-selected language
 		$lang = UserParams::get_for_user($uid, 'default_cms_language');
@@ -673,15 +546,15 @@ EOS;
 
 		$fp = cms_join_path(__DIR__, 'css', 'all.min.css');
 		if (is_file($fp)) {
-			$url = cms_path_to_url($fp); // TODO 2.9+
+			$url = cms_path_to_url($fp); // TODO 2.99+
 		} else {
 			$url = self::AWESOME_CDN; // TODO variable CDN URL
 		}
 		$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
 
 		if ($flag) {
-			$smarty->assign('header_includes', $this->get_headtext());
-			$smarty->assign('bottom_includes', $this->get_footertext());
+			$smarty->assign('header_includes', $this->get_headtext())
+			->assign('bottom_includes', $this->get_footertext());
 		} else {
 			// replicate AdminHeaderSetup(), with different js
 			$dir = ''; //TODO or '-rtl'
@@ -693,7 +566,7 @@ EOS;
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
 //TODO jquery ancillaries
-<script type="text/javascript" src="themes/Altbier/includes/standard.js"></script>
+<script type="text/javascript" src="themes/Altbier/includes/standard.min.js"></script>
 <!--[if lt IE 9]>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script> TODO conform CSP
 <![endif]-->
@@ -711,14 +584,80 @@ EOS
 			$smarty->assign('is_sitedown', 1);
 		}
 
-		$otd = $smarty->template_dir;
-		$smarty->template_dir = __DIR__ . '/templates';
-		$_contents = $smarty->fetch('pagetemplate.tpl');
-		$smarty->template_dir = $otd;
-		return $_contents;
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR .'templates');
+		return $smarty->fetch('pagetemplate.tpl');
 	}
 
-	// for pre-2.3 compatibility
+	// for pre-2.99 compatibility
+
+	public function ShowErrors($errors, $get_var = '')
+	{
+/*		if ($this->currentversion()) {
+			$this->RecordNotice('error', $errors, '', false, $get_var);
+		} else {
+*/
+		// cache errors for use in the template.
+		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
+			if (is_array($_GET[$get_var])) {
+				foreach ($_GET[$get_var] as $one) {
+					$this->_errors[] = lang(cleanValue($one)); // pre-2.99
+				}
+			} else {
+				$this->_errors[] = lang(cleanValue($_GET[$get_var]));
+			}
+		} elseif (is_array($errors)) {
+			foreach ($errors as $one) {
+				$this->_errors[] = $one;
+			}
+		} elseif (is_string($errors)) {
+			$this->_errors[] = $errors;
+		}
+		return '<!-- Altbier::ShowErrors() called -->';
+
+//		} //pre 2.99
+	}
+
+	public function ShowMessage($message, $get_var = '')
+	{
+/*		if ($this->currentversion()) {
+			$this->RecordNotice('success', $message, '', false, $get_var);
+		} else {
+*/
+		// cache message for use in the template.
+		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
+			if (is_array($_GET[$get_var])) {
+				foreach ($_GET[$get_var] as $one) {
+					$this->_messages[] = lang(cleanValue($one));
+				}
+			} else {
+				$this->_messages[] = lang(cleanValue($_GET[$get_var]));
+			}
+		} elseif (is_array($message)) {
+			foreach ($message as $one) {
+				$this->_messages[] = $one;
+			}
+		} elseif (is_string($message)) {
+			$this->_messages[] = $message;
+		}
+
+//		} // pre 2.99
+	}
+
+	public function do_toppage($section_name)
+	{
+		echo $this->fetch_menu_page($section_name);
+	}
+
+	public function do_login($params)
+	{
+		$this->display_login_page($params);
+	}
+
+	public function postprocess($html)
+	{
+		return $this->fetch_page($html);
+	}
+
 	public function get_my_alerts()
 	{
 		return Alert::load_my_alerts();

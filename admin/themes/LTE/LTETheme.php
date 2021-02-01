@@ -1,439 +1,293 @@
 <?php
-#------------------------------------------------------------------------
-# Purpose: An Admin theme for CMS Made Simple
-# Author: CMS Made Simple Development Team
-# Plugins page: https://cmsmadesimple.org
-#------------------------------------------------------------------------
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-# Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
-#------------------------------------------------------------------------
-# Based on the OneEleven/Marigold theme for CMS Made Simple tm
-# Equally released under GNU General Public License version 2+
-# Original author: Goran Ilic
-#------------------------------------------------------------------------
-namespace CMSMS;
+/*
+An admin theme for CMS Made Simple
+Based on the OneEleven/Marigold themes for CMS Made Simple
+Original author: Goran Ilic
 
-use CmsApp;
-use CMSMS\AdminAlerts\Alert;
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+namespace CMSMS; //2.99+
+
 use CMSMS\AdminTheme;
-use CMSMS\Config;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\NlsOperations;
-use CMSMS\UserOperations;
+use CMSMS\ScriptsMerger;
+use CMSMS\StylesMerger;
 use CMSMS\UserParams;
+use const CMS_ADMIN_PATH;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
-use const THEME_NAME;
 use function check_permission;
-use function sanitizeVal; //2.99+
+use function cms_installed_jquery;
 use function cms_join_path;
-use function cmsms;
-use function get_site_preference;
+use function cms_path_to_url;
 use function get_userid;
 use function lang;
 use function munge_string_to_url;
 
-define ( 'THEME_NAME', 'AdminLTE' );
-
 class LTETheme extends AdminTheme
 {
-    protected $_errors = array();
+    const THEME_NAME = 'LTE';
+    const THEME_VERSION = '0.3';
 
-    protected $_messages = array();
-
-    public function ShowErrors($errors, $get_var = '') {
-
-        // cache errors for use in the template.
-        if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
-            if (is_array($_GET[$get_var])) {
-                foreach ($_GET[$get_var] as $one) {
-                    $this->_errors[] = lang(sanitizeVal($one));
-                }
-            } else {
-                $this->_errors[] = lang(sanitizeVal($_GET[$get_var]));
-            }
-        } else if (is_array($errors)) {
-            foreach ($errors as $one) {
-                $this->_errors[] = $one;
-            }
-        } else if (is_string($errors)) {
-            $this->_errors[] = $errors;
-        }
-        return '<!-- ShowErrors() called -->';
-    }
-
-    public function ShowMessage($message, $get_var = '') {
-
-        // cache message for use in the template.
-        if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
-            if (is_array($_GET[$get_var])) {
-                foreach ($_GET[$get_var] as $one) {
-                    $this->_messages[] = lang(sanitizeVal($one));
-                }
-            } else {
-                $this->_messages[] = lang(sanitizeVal($_GET[$get_var]));
-            }
-        } else if (is_array($message)) {
-            foreach ($message as $one) {
-                $this->_messages[] = $one;
-            }
-        } else if (is_string($message)) {
-            $this->_messages[] = $message;
-        }
-    }
-
-    public function ShowHeader($title_name, $extra_lang_params = array(), $link_text = '', $module_help_type = FALSE) {
-
-        if ($title_name) $this->set_value('pagetitle', $title_name);
-
-        if (is_array($extra_lang_params) && count($extra_lang_params)) $this->set_value('extra_lang_params', $extra_lang_params);
-        $this->set_value('module_help_type', $module_help_type);
-
-        $config = Config::get_instance();
-
-        $module = '';
-        if (isset($_REQUEST['module'])) {
-            $module = $_REQUEST['module'];
-        } else if (isset($_REQUEST['mact'])) {
-            $tmp = explode(',', $_REQUEST['mact']);
-            $module = $tmp[0];
-        }
-
-        // get the image url.
-        $icon = "modules/{$module}/images/icon.gif";
-        $path = cms_join_path($config['root_path'], $icon);
-        if (file_exists($path)) {
-            $url = $config->smart_root_url() . '/' . $icon;
-            $this->set_value('module_icon_url', $url);
-        }
-
-        if ($module_help_type) {
-            // set the module help url (this should be supplied TO the theme)
-            $module_help_url = $this->get_module_help_url();
-            $this->set_value('module_help_url', $module_help_url);
-        }
-
-        $bc = $this->get_breadcrumbs();
-        if ($bc) {
-            for ($i = 0; $i < count($bc); $i++) {
-                $rec = $bc[$i];
-                $title = $rec['title'];
-                if ($module_help_type && $i + 1 == count($bc)) {
-                    $module_name = '';
-                    if (!empty($_GET['module'])) {
-                        $module_name = trim($_GET['module']);
-                    } else {
-                        $tmp = explode(',', $_REQUEST['mact']);
-                        $module_name = $tmp[0];
-                    }
-                    $orig_module_name = $module_name;
-                    $module_name = preg_replace('/([A-Z])/', "_$1", $module_name);
-                    $module_name = preg_replace('/_([A-Z])_/', "$1", $module_name);
-                    if ($module_name[0] == '_')
-                        $module_name = substr($module_name, 1);
-                } else {
-                    if (($p = strrchr($title, ':')) !== FALSE) {
-                        $title = substr($title, 0, $p);
-                    }
-                    // find the key of the item with this title.
-                    $title_key = $this->find_menuitem_by_title($title);
-                }
-            }// for loop.
-        }
-    }
-
-  public function do_header(){}
-
-  public function do_footer(){}
-
-  public function do_toppage($section_name)
-  {
-    $smarty = CmsApp::get_instance()->GetSmarty();
-    $otd = $smarty->template_dir;
-    $smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
-
-    if($section_name)
+    public function AdminHeaderSetup()
     {
-      $page_title = lang($section_name);
-      $nodes = $this->get_navigation_tree($section_name, -1, FALSE);
+        list($vars, $add_list) = parent::AdminHeaderSetup();
+
+		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
+		$rel_url = strtr($rel,DIRECTORY_SEPARATOR,'/');
+		$fn = 'style';
+		if (NlsOperations::get_language_direction() == 'rtl') {
+			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+				$fn .= '-rtl';
+			}
+		}
+		$incs = cms_installed_jquery(true, true, true, true);
+
+		$csm = new StylesMerger();
+		$csm->queue_matchedfile('normalize.css', 1);
+		$csm->queue_file($incs['jquicss'], 2);
+		$csm->queue_matchedfile('grid-960.css', 2); // deprecated since 2.99
+		$out = $csm->page_content();
+		$out .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
+
+EOS;
+		if (is_file(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
+			$out .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$rel_url}/extcss/{$fn}.css" />
+
+EOS;
+		}
+
+		$jsm = new ScriptsMerger();
+		$jsm->queue_file($incs['jqcore'], 1);
+//		if (CMS_DEBUG) {
+		$jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
+//		}
+		$jsm->queue_file($incs['jqui'], 1);
+		$jsm->queue_matchedfile('jquery.cmsms_admin.js', 2);
+		$out .= $jsm->page_content('', false, false);
+		$jsm->reset(); // start another merger-file
+		$jsm->queue_matchedfile('jquery.ui.touch-punch.js', 1);
+		$jsm->queue_matchedfile('jquery.toast.js', 1);
+		$jsm->queue_matchedfile('standard.js', 3, __DIR__.DIRECTORY_SEPARATOR.'includes');
+		$out .= $jsm->page_content();
+
+		$add_list[] = $out;
+//		$vars[] = anything needed ?;
+        return [$vars, $add_list];
     }
-    else
+
+    public function display_login_page()
     {
-      $page_title = '';
-      $section_name = '';
-      $nodes = $this->get_navigation_tree(-1, 2, FALSE);
+        $auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
+        $modinst = AppSingle::ModuleOperations()->get_module_instance($auth_module, '', true);
+        if ($modinst) {
+            $data = $modinst->fetch_login_panel();
+        } else {
+            die('System error');
+        }
+
+        $smarty = AppSingle::Smarty();
+        $smarty->assign($data);
+
+		//extra shared parameters for the form TODO get from the current login-module
+        $config = AppSingle::Config(); // for the inclusion
+        $fp = cms_join_path(dirname(__DIR__), 'assets', 'function.extraparms.php');
+        require_once $fp;
+        $smarty->assign($tplvars);
+
+        //extra theme-specific setup
+		$fp = __DIR__ . DIRECTORY_SEPARATOR . 'function.extraparms.php';
+        if (is_file($fp)) {
+            require_once $fp;
+            if (!empty($tplvars)) {
+                $smarty->assign($tplvars);
+            }
+        }
+		$fn = 'style';
+		if (NlsOperations::get_language_direction() == 'rtl') {
+			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+				$fn .= '-rtl';
+			}
+		}
+        // css: jquery-ui and scripts: jquery, jquery-ui
+        $incs = cms_installed_jquery();
+        $url = cms_path_to_url($incs['jquicss']);
+        $dir = ''; //TODO or '-rtl'
+        $out = <<<EOS
+<link rel="stylesheet" href="$url" />
+<link rel="stylesheet" href="themes/LTE/css/{$fn}.css" />
+
+EOS;
+//        get_csp_token(); //setup CSP header (result not used)
+        $tpl = '<script type="text/javascript" src="%s"></script>'.PHP_EOL;
+        $url = cms_path_to_url($incs['jqcore']);
+        $out .= sprintf($tpl, $url);
+        $url = cms_path_to_url($incs['jqui']);
+        $out .= sprintf($tpl, $url);
+
+        $smarty->assign('header_includes', $out)
+          ->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
+          ->display('login.tpl');
     }
 
-    $config = cmsms()->GetConfig();
-    $smarty->assign('section_name', $section_name);
-    $smarty->assign('page_title', $page_title);
-    $smarty->assign('nodes', $nodes);
-    $smarty->assign('config', $config );
-    $smarty->assign('admin_url', $config['admin_url']);
-    $smarty->assign('theme', $this);
-    $smarty->assign('theme_path', __DIR__);
-    $smarty->assign('theme_url', $config['admin_url'] . '/themes/' . THEME_NAME);
-
-    // is the website set down for maintenance?
-    if( get_site_preference('enablesitedownmessage') == '1' )
-        $smarty->assign('is_sitedown', 'true');
-
-    $_contents = $smarty->display('topcontent.tpl');
-    $smarty->template_dir = $otd;
-
-    echo $_contents;
-  }
-
-
-    public function do_login($params = null)
+    public function fetch_menu_page($section_name)
     {
-        // by default we're gonna grab the theme name
-        $config = Config::get_instance();
-		$smarty = CmsApp::get_instance()->GetSmarty();
-        $smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
+        if ($section_name) {
+            $page_title = lang($section_name);
+            $nodes = $this->get_navigation_tree($section_name, -1, FALSE);
+        } else {
+            $page_title = '';
+            $section_name = '';
+            $nodes = $this->get_navigation_tree(-1, 2, FALSE);
+        }
 
-        global $error, $warningLogin, $acceptLogin, $changepwhash; # todo: check if needed (JM)
+        $config = AppSingle::Config();
+        $smarty = AppSingle::Smarty();
 
-        $fn = $config['admin_path']."/themes/".$this->themeName."/login.php";
-        include($fn);
+        $smarty->assign([
+            'admin_url' => $config['admin_url'],
+            'config' => $config,
+            'nodes' => $nodes,
+            'page_title' => $page_title,
+            'section_name' => $section_name,
+            'theme' => $this,
+            'theme_path' => __DIR__,
+            'theme_url' => $config['admin_url'] . '/themes/' . self::THEME_NAME,
+        ]);
 
-        $smarty->assign('config', $config );
-        $smarty->assign('admin_url', $config['admin_url']);
-        $smarty->assign('theme', $this);
-        $smarty->assign('theme_path', __DIR__);
-        $smarty->assign('theme_url', $config['admin_url'] . '/themes/' . THEME_NAME);
+        // is the website set down for maintenance?
+        if (AppParams::get('enablesitedownmessage') == '1') {
+            $smarty->assign('is_sitedown', 'true');
+        }
 
-        $smarty->assign('lang', get_site_preference('frontendlang'));
-        $_contents = $smarty->display('login.tpl');
-        return $_contents;
+        $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+        return $smarty->fetch('topcontent.tpl');
     }
 
-    public function do_page($html) {
-        $smarty = CmsApp::get_instance()->GetSmarty();
-        $otd = $smarty->template_dir;
-      $smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
+    public function fetch_page($html)
+    {
+		/* possibly-cached value-names
+		'pagetitle'
+		'extra_lang_params'
+		'module_help_type'
+		'module_help_url'
+		'pageicon'
+		'page_crumbs'
+		*/
         $module_help_type = $this->get_value('module_help_type');
 
         // get a page title
-        $title = $this->get_value('pagetitle');
-        $alias = $this->get_value('pagetitle');
+        $alias = $title = $this->get_value('pagetitle');
         if ($title) {
             if (!$module_help_type) {
                 // if not doing module help, translate the string.
                 $extra = $this->get_value('extra_lang_params');
-                if (!$extra)
-                    $extra = array();
+                if (!$extra) {
+                    $extra = [];
+                }
                 $title = lang($title, $extra);
             }
-        } else {
-          if( $this->title ) {
+        } elseif ($this->title) {
             $title = $this->title;
-          }
-          else {
+        } else {
             // no title, get one from the breadcrumbs.
             $bc = $this->get_breadcrumbs();
             if (is_array($bc) && count($bc)) {
-              $title = $bc[count($bc) - 1]['title'];
+                $title = $bc[count($bc) - 1]['title'];
             }
-          }
         }
+
+        $smarty = AppSingle::Smarty();
         // page title and alias
-        $smarty->assign('page_title', $title);
-        $smarty->assign('page_subtitle',$this->subtitle);
-        $smarty->assign('pagealias', munge_string_to_url($alias));
+        $smarty->assign('page_title', $title)
+         ->assign('page_subtitle',$this->subtitle)
+         ->assign('pagealias', (($alias) ? munge_string_to_url($alias) : ''));
 
         // module name?
-        if (($module_name = $this->get_value('module_name')))
-            $smarty->assign('module_name', $module_name);
+        if (($module_name = $this->get_value('module_name'))) {
+            $smarty->assign('module_name', $module_name); }
 
         // module icon?
-        if (($module_icon_url = $this->get_value('module_icon_url')))
-            $smarty->assign('module_icon_url', $module_icon_url);
+        if (($module_icon_url = $this->get_value('module_icon_url'))) {
+            $smarty->assign('module_icon_url', $module_icon_url); }
 
+        $uid = get_userid();
         // module_help_url
-        if( !UserParams::get_for_user(get_userid(),'hide_help_links',0) ) {
-            if (($module_help_url = $this->get_value('module_help_url')))
-                $smarty->assign('module_help_url', $module_help_url);
+        if( !UserParams::get_for_user($uid,'hide_help_links',0) ) {
+            if (($module_help_url = $this->get_value('module_help_url'))) {
+                $smarty->assign('module_help_url', $module_help_url); }
         }
 
         // my preferences
-        if (check_permission(get_userid(),'Manage My Settings'))
-          $smarty->assign('myaccount', 1);
+        if (check_permission($uid,'Manage My Settings')) {
+            $smarty->assign('myaccount', 1); }
 
         // if bookmarks
-        if (UserParams::get_for_user(get_userid(), 'bookmarks') && check_permission(get_userid(),'Manage My Bookmarks'))
-        {
-          $all_marks = $this->get_bookmarks();
-          $marks = [];
-          $marks_cntrls = [];
+        if (UserParams::get_for_user($uid, 'bookmarks') && check_permission($uid, 'Manage My Bookmarks')) {
+            $all_marks = $this->get_bookmarks();
+            $marks = [];
+            $marks_cntrls = [];
 
-          foreach($all_marks as $one)
-          {
-            if($one->bookmark_id > -1)
-            {
-              $marks[] = $one;
+            foreach ($all_marks as $one) {
+                if ($one->bookmark_id > -1) {
+                    $marks[] = $one;
+                } else {
+                    $marks_cntrls[] = $one;
+                }
             }
-            else
-            {
-              $marks_cntrls[] = $one;
-            }
-          }
 
-            $smarty->assign('marks', $marks);
-            $smarty->assign('marks_cntrls', $marks_cntrls);
+            $smarty->assign([
+                'marks' => $marks,
+                'marks_cntrls' => $marks_cntrls,
+            ]);
         }
 
-        $smarty->assign('headertext', $this->get_headtext());
-        $smarty->assign('footertext', $this->get_footertext());
+        $smarty->assign('content', str_replace('</body></html>', '', $html))
+         ->assign('headertext', $this->get_headtext())
+         ->assign('footertext', $this->get_footertext());
 
         // and some other common variables
-        $config = cmsms()->GetConfig();
-        $smarty->assign('content', str_replace('</body></html>', '', $html));
-        $smarty->assign('config', $config);
-        $smarty->assign('admin_url', $config['admin_url']);
-        $smarty->assign('theme', $this);
-        $smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
-        $userops = UserOperations::get_instance();
-        $smarty->assign('user', $userops->LoadUserByID(get_userid()));
+        $config = AppSingle::Config();
+        $smarty->assign([
+            'config' => $config,
+            'admin_url' => $config['admin_url'],
+            'theme' => $this,
+            'theme_path' => __DIR__,
+            'theme_url' => $config['admin_url'] . '/themes/' . self::THEME_NAME,
+            'secureparam' => CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY],
+        ]);
+
+        $userops = AppSingle::UserOperations();
+        $smarty->assign('user', $userops->LoadUserByID($uid));
         // get user selected language
-        $smarty->assign('lang',UserParams::get_for_user(get_userid(), 'default_cms_language'));
+        $smarty->assign('lang', UserParams::get_for_user($uid, 'default_cms_language'));
         // get language direction
         $lang = NlsOperations::get_current_language();
         $info = NlsOperations::get_language_info($lang);
-        $smarty->assign('theme_path', __DIR__);
-        $smarty->assign('theme_url', $config['admin_url'] . '/themes/' . THEME_NAME);
         $smarty->assign('lang_dir', $info->direction());
 
-        if (is_array($this->_errors) && count($this->_errors))
-            $smarty->assign('errors', $this->_errors);
-
-        if (is_array($this->_messages) && count($this->_messages))
-            $smarty->assign('messages', $this->_messages);
-
         // is the website set down for maintenance?
-        if( get_site_preference('enablesitedownmessage') == '1' )
-            $smarty->assign('is_sitedown', 'true');
+        if (AppParams::get('enablesitedownmessage') == '1') {
+            $smarty->assign('is_sitedown', 'true'); }
 
-        $_contents = $smarty->fetch('pagetemplate.tpl');
-        $smarty->template_dir = $otd;
-        return $_contents;
+        $smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+        return $smarty->fetch('pagetemplate.tpl');
     }
-
-    public function get_my_alerts()
-    {
-        return Alert::load_my_alerts();
-    }
-
-  /**
-   * Module Help and misc
-   */
-  public function GetModuleAbout($modinstance)
-  {
-    $smarty               = CmsApp::get_instance()->GetSmarty();
-    $otd                  = $smarty->template_dir;
-    $smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
-
-    $author               = $modinstance->GetAuthor();
-    $author_email         = $modinstance->GetAuthorEmail();
-    $version              = $modinstance->GetVersion();
-    $changelog            = $modinstance->GetChangeLog();
-
-    $smarty->assign('author', $author);
-    $smarty->assign('author_email', $author_email);
-    $smarty->assign('version', $version);
-    $smarty->assign('changelog', $changelog);
-
-    $ret                  = $smarty->fetch('module_about.tpl');
-    $smarty->template_dir = $otd;
-
-    return $ret;
-  }
-
-  public function GetModuleHelp($modinstance)
-  {
-    $smarty               = CmsApp::get_instance()->GetSmarty();
-    $otd                  = $smarty->template_dir;
-    $smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
-
-    @ob_start();
-    echo $modinstance->GetHelp();
-    $help_str = @ob_get_contents();
-    @ob_end_clean();
-
-
-    $dependencies = $modinstance->GetDependencies();
-    $paramarray   = $modinstance->GetParameters();
-
-    $smarty->assign('help', $help_str);
-    $smarty->assign('dependencies', $dependencies);
-    $smarty->assign('parammeters', $paramarray);
-
-    $ret                  = $smarty->fetch('module_help.tpl');
-    $smarty->template_dir = $otd;
-
-    return $ret;
-  }
-
-  /**
-   * ------------------------------------------------------------------
-   * Tab Functions
-   * ------------------------------------------------------------------
-   */
-/*
-  public final function StartTabHeaders()
-  {
-    return '<div class="card"><div class="card-header"><ul class="nav nav-tabs" id="page_tabs" role="tablist">';
-  }
-
-  public final function SetTabHeader($tabid, $title, $active = FALSE)
-  {
-    $a    = $active ? 'active' : '';
-    $as   = $active ? 'true' : 'false';
-    $html = '<li class="nav-item">';
-    $html .= '<a class="nav-link ' . $a . '" ';
-    $html .= 'id="' . $tabid . '-tab" data-toggle="tab" ';
-    $html .= 'href="#' . $tabid . '" role="tab" ';
-    $html .= 'aria-controls="' . $tabid . '" ';
-    $html .= '>' . $title . '</a></li>';
-    //$html .= 'aria-selected="' . $as . '">' . $title . '</a></li>';
-
-    return $html;
-  }
-
-  public final function EndTabHeaders()
-  {
-    return "</ul><!-- EndTabHeaders -->";
-  }
-
-  public final function StartTabContent()
-  {
-    return '<!-- Tab panes --><div class="tab-content">';
-  }
-
-  public final function EndTabContent()
-  {
-    return '</div></div></div> <!-- EndTabContent -->';
-  }
-
-  public final function StartTab($tabid, $params = array(), $active = FALSE)
-  {
-    $a    = $active ? 'active' : '';
-    return '<div class="tab-pane ' . $a . '" id="' . $tabid . '" role="tabpanel" aria-labelledby="' . $tabid . '-tab">';
-  }
-
-  public final function EndTab()
-  {
-    return '</div> <!-- EndTab -->';
-  }
-  */
 } // end of class
