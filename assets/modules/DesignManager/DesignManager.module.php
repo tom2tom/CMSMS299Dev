@@ -74,6 +74,7 @@ final class DesignManager extends CMSModule
             $obj->title = $this->Lang('prompt_action_styles');
             $obj->description = $this->Lang('title_action_styles');
             $obj->action = 'liststyles';
+            $obj->name = 'styles';
             $obj->icon = false;
             $out[] = $obj;
 
@@ -83,6 +84,7 @@ final class DesignManager extends CMSModule
             $obj->title = $this->Lang('prompt_action_templates');
             $obj->description = $this->Lang('title_action_templates');
             $obj->action = 'listtemplates';
+            $obj->name = 'tpls';
             $obj->icon = false;
             $out[] = $obj;
 
@@ -94,6 +96,7 @@ final class DesignManager extends CMSModule
                 $obj->title = $this->Lang('prompt_action_designs');
                 $obj->description = $this->Lang('title_action_designs');
                 $obj->action = 'defaultadmin';
+                $obj->name = 'default';
                 $obj->icon = false;
                 $out[] = $obj;
             }
@@ -106,6 +109,7 @@ final class DesignManager extends CMSModule
             $obj->title = $this->Lang('prompt_action_settings');
             $obj->description = $this->Lang('title_action_settings');
             $obj->action = 'admin_settings';
+            $obj->name = 'set';
             $obj->icon = false;
             $out[] = $obj;
         }

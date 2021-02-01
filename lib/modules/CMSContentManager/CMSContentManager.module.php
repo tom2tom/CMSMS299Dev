@@ -123,6 +123,7 @@ final class CMSContentManager extends CMSModule
             $obj->description = $this->Lang('desc_contentmanager_settings');
             $obj->icon = false;
             $obj->action = 'admin_settings';
+            $obj->name = 'set';
             $out[] = $obj;
         }
         return $out;

@@ -267,7 +267,7 @@ final class FileManager extends CMSModule
         $out=[];
 
         if ($this->CheckPermission('Modify Files')) {
-            $out[]=AdminMenuItem::from_module($this);
+            $out[] = AdminMenuItem::from_module($this);
         }
 
         if ($this->CheckPermission('Modify Site Preferences')) {
@@ -277,6 +277,7 @@ final class FileManager extends CMSModule
             $obj->title = $this->Lang('title_filemanager_settings');
             $obj->description = $this->Lang('desc_filemanager_settings');
             $obj->action = 'admin_settings';
+            $obj->name = 'set';
             $obj->icon = false;
             $obj->url = $this->create_url('m1_', $obj->action);
             $out[] = $obj;
