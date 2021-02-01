@@ -1,20 +1,24 @@
 <?php
-# Edit template
-# Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure to edit a template
+Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
@@ -34,10 +38,10 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'cla
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-	exit;
+/*if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
+    throw new CMSMS\Error403Exception(lang('informationmissing'));
 }
-
+*/
 check_login();
 
 $urlext = get_secure_param();
@@ -51,11 +55,15 @@ if (isset($_REQUEST['cancel'])) {
 $userid = get_userid();
 $pmod = check_permission($userid,'Modify Templates');
 
+$content = $_REQUEST['content'] ?? ''; // preserve this verbatim
+unset($_REQUEST['content']);
+cms_specialchars_decode_array($_REQUEST);
+
 if (!$pmod) {
 	// no manage templates permission
 	if (!check_permission($userid,'Add Templates')) {
 		// no add templates permission
-		if (!isset($_REQUEST['tpl']) || !TemplateOperations::user_can_edit_template($_REQUEST['tpl'])) {
+		if (!isset($_REQUEST['tpl']) || !TemplateOperations::user_can_edit_template($_REQUEST['tpl'])) { // sanitizeVal() ?
 			// no parameter, or no ownership/addt_editors.
 			return;
 		}
@@ -96,15 +104,14 @@ try {
 	}
 
 	try {
-// TODO sanitize relevant $_REQUEST[] - NOT content
 		if ($apply || isset($_REQUEST['dosubmit'])) {
 			// do the magic.
 			if (isset($_REQUEST['description'])) $tpl_obj->set_description($_REQUEST['description']);
-			if (isset($_REQUEST['type'])) $tpl_obj->set_type($_REQUEST['type']);
+			if (isset($_REQUEST['type'])) $tpl_obj->set_type($_REQUEST['type']);// sanitizeVal() ?
 			$tpl_obj->set_type_dflt($_REQUEST['default'] ?? 0);
-			if (isset($_REQUEST['owner_id'])) $tpl_obj->set_owner($_REQUEST['owner_id']);
+			if (isset($_REQUEST['owner_id'])) $tpl_obj->set_owner($_REQUEST['owner_id']);// sanitizeVal() ?
 			if (isset($_REQUEST['addt_editors']) && $_REQUEST['addt_editors']) {
-				$tpl_obj->set_additional_editors($_REQUEST['addt_editors']); //TODO support clearance
+				$tpl_obj->set_additional_editors($_REQUEST['addt_editors']); //TODO support clearance sanitizeVal() ?
 			}
 /*			if (!empty($_REQUEST['category_id'])) $tpl_obj->set_category($_REQUEST['category_id']); //TODO support multiple categories
 			$tpl_obj->set_listable($_REQUEST['listable'] ?? 0);
@@ -127,7 +134,7 @@ try {
 //USELESS FOR SUCH TEST Utils::set_app_data('tmp_template', $_REQUEST['contents']);
 
 			// if we got here, we're golden.
-			$tpl_obj->set_content($_REQUEST['content']);
+			$tpl_obj->set_content($content);
 			TemplateOperations::save_template($tpl_obj);
 
 			$message = lang_by_realm('layout','msg_template_saved');
@@ -306,8 +313,6 @@ try {
 		$smarty->assign('devmode', 1);
 	}
 
-//TODO ensure flexbox css for .rowbox, .boxchild
-
 	$jsm = new ScriptsMerger();
 	$jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 	$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
@@ -416,9 +421,10 @@ EOS;
 	 ->assign('urlext',$urlext);
 
 	$content = $smarty->fetch('edittemplate.tpl');
-	require './header.php';
+	$sep = DIRECTORY_SEPARATOR;
+	require ".{$sep}header.php";
 	echo $content;
-	require './footer.php';
+	require ".{$sep}footer.php";
 } catch (Throwable $t) {
 	$themeObject->ParkNotice('error',$t->getMessage());
 	redirect('listtemplates.php'.$urlext);

@@ -1,20 +1,24 @@
 <?php
-# Edit stylesheet
-# Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure to edit a stylesheet
+Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
@@ -30,10 +34,10 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'cla
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-	exit;
+/*if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
+    throw new CMSMS\Error403Exception(lang('informationmissing'));
 }
-
+*/
 check_login();
 
 $urlext = get_secure_param();
@@ -52,26 +56,29 @@ if (!check_permission($userid,'Manage Stylesheets')) {
 $response = 'success';
 $apply = isset($_REQUEST['apply']);
 
+$content = $_REQUEST['content'] ?? ''; // preserve this verbatim
+unset($_REQUEST['content']);
+cms_specialchars_decode_array($_REQUEST);
+
 try {
 	$extraparms = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
 
 	$message = lang_by_realm('layout','msg_stylesheet_saved');
 	if( isset($_REQUEST['css']) ) {
-		$css_ob = StylesheetOperations::get_stylesheet($_REQUEST['css']);
+		$css_ob = StylesheetOperations::get_stylesheet($_REQUEST['css']); // sanitizeVal() ?
 		$extraparms['css'] = $_REQUEST['css'];
 	} else {
 		$css_ob = new Stylesheet();
 	}
 
 	try {
-// TODO sanitize relevant $_REQUEST[] - NOT content
 		if (($apply || isset($_REQUEST['dosubmit'])) && $response !== 'error') {
-			if (isset($_REQUEST['description'])) $css_ob->set_description($_REQUEST['description']);
-			if (isset($_REQUEST['content'])) $css_ob->set_content($_REQUEST['content']);
+			if (isset($_REQUEST['description'])) $css_ob->set_description($_REQUEST['description']);// sanitizeVal() ?
+			$css_ob->set_content($content);
 			$typ = [];
-			if (isset($_REQUEST['media_type'])) $typ = $_REQUEST['media_type'];
+			if (isset($_REQUEST['media_type'])) $typ = $_REQUEST['media_type']; // sanitizeVal() ?
 			$css_ob->set_media_types($typ);
-			if (isset($_REQUEST['media_query'])) $css_ob->set_media_query($_REQUEST['media_query']);
+			if (isset($_REQUEST['media_query'])) $css_ob->set_media_query($_REQUEST['media_query']); // sanitizeVal() ?
 /*			if (check_permission($userid,'Manage Designs')) {
 				$design_list = [];
 				if (isset($_REQUEST['design_list'])) $design_list = $_REQUEST['design_list'];
@@ -213,8 +220,6 @@ try {
 	if ($config['develop_mode']) {
 		$smarty->assign('devmode', 1);
 	}
-
-	//TODO ensure flexbox css for .rowbox, .boxchild
 
 	$jsm = new ScriptsMerger();
 	$jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
