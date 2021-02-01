@@ -717,32 +717,30 @@ function rcopy(string $srcdir, string $tmpdir)
             $tp = joinpath($tmpdir, $relpath);
             @mkdir(dirname($tp), 0777, true);
             @copy($fp, $tp);
-			@chmod($tp, 0666);
+            @chmod($tp, 0666);
         }
     }
 }
 
 function get_version(string $basedir) : array
 {
+    global  $CMS_VERSION, $CMS_VERSION_NAME, $CMS_SCHEMA_VERSION;
+
     $file = joinpath($basedir, 'lib', 'version.php');
     if (is_file($file)) {
-        // cannot just include the file, constants in there cannot be re-defined ...
-        $txt = file_get_contents($file);
-        if ($txt) {
-            $txt = str_replace(['<?php','>?'], ['',''], $txt);
-            while (($p = strpos($txt, 'define')) !== false) {
-                $txt[$p] = '/';
-                $txt[$p+1] = '/';
-            }
-            while (($p = strpos($txt, 'const')) !== false) {
-                $txt[$p] = '/';
-                $txt[$p+1] = '/';
-            }
-            eval($txt);
-            return [$CMS_VERSION, $CMS_VERSION_NAME];
+        $A = $CMS_VERSION ?? '';
+        $B = $CMS_VERSION_NAME ?? '';
+        $C = $CMS_SCHEMA_VERSION ?? '';
+        include $file;
+        $ret = [$CMS_VERSION, $CMS_VERSION_NAME];
+        if ($A) {
+            $CMS_VERSION = $A;
+            $CMS_VERSION_NAME = $B;
+            $CMS_SCHEMA_VERSION = $C;
         }
+        return $ret;
     }
-    return ['',''];
+    return ['', ''];
 }
 
 function get_sources(string $sourceuri, string $tmpdir) : bool

@@ -1,7 +1,7 @@
 <?php
 /*
 News module for CMSMS
-Copyright (C) 2005-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This module is free software; you can redistribute it and/or modify
@@ -63,7 +63,7 @@ class News extends CMSModule
     public function IsPluginModule() { return true; } //deprecated in favour of capability
 //    public function LazyLoadAdmin() { return true; }
 //    public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.8.900'; }
+    public function MinimumCMSVersion() { return '2.99.0'; }
 
     public function InitializeFrontend()
     {
@@ -407,8 +407,7 @@ EOS;
 
     public function get_tasks()
     {
-        global $CMS_VERSION;
-        if (version_compare($CMS_VERSION, '2.2') < 0) {
+        if (version_compare(CMS_VERSION, '2.2') < 0) {
             $out = [new AdjustStatusTask()];
             if ($this->GetPreference('alert_drafts',1)) {
                 $out[] = new CreateDraftAlertTask();

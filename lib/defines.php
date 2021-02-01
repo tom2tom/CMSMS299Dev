@@ -1,7 +1,7 @@
 <?php
 /*
 Define system constants
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -20,6 +20,13 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppConfig;
+
+/**
+ * System identifiers (from vars in version.php)
+ */
+define('CMS_VERSION', $CMS_VERSION);
+define('CMS_VERSION_NAME', $CMS_VERSION_NAME);
+define('CMS_SCHEMA_VERSION', $CMS_SCHEMA_VERSION);
 
 $config = AppConfig::get_instance();
 
@@ -126,8 +133,15 @@ if( CMS_DEBUG ) {
 }
 
 const CMS_DEFAULT_VERSIONCHECK_URL = 'https://www.cmsmadesimple.org/latest_version.php';
+
+/*
+ * Something short, URL-compatible and never used as a 'real' URL-parameter
+ * From CMSMS 1.5 (or before) to 2.3DEV, this const has been '_s_','sp_','_sx_','_sk_','__c','_k_'
+ * but changing its value is minimally useful
+*/
 const CMS_SECURE_PARAM_NAME = '_sk_';
-const CMS_JOB_KEY = '_sk_jobtype'; //derivative of CMS_SECURE_PARAM_NAME, need not be const
+const CMS_JOB_KEY = '_sk_jobtype'; // i.e. CMS_SECURE_PARAM_NAME.'jobtype'
+
 const CMS_USER_KEY = '_userkey_';
 
 /**
