@@ -1,7 +1,7 @@
 <?php
 /*
 An interface to define the minimum API for admin-console authentication modules.
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -26,19 +26,18 @@ namespace CMSMS;
  * @package CMS
  * @license GPL
  */
-
-interface IAuthModuleInterface
+interface IAuthModule
 {
    /**
-     * Process the current login 'phase', and generate appropriate page-content
-     * for use upstream
-     * No header / footer inclusions (js, css) are done (i.e. assumes upstream does that)
-     * @return array including login-form content and related parameters
+     * Process the current login 'phase', and generate appropriate
+     * page-content and ancillary parameters
+     *
+     * @return array with members representing login-form content and related parameters
      */
-    public function StageLogin() : array;
+    public function fetch_login_panel() : array;
 
     /**
      * Perform the entire login process without theme involvement
      */
-    public function RunLogin();
+    public function display_login_page();
 } // interface

@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class for accessing system state
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -50,6 +50,11 @@ final class AppState
     const STATE_LOGIN_PAGE = 4;
 
     /**
+     * A bitflag constant indicating that the request is for an async job
+     */
+	const STATE_ASYNC_JOB = 8;
+
+    /**
      * A bitflag constant indicating that the request is taking place during the installation process
      */
     const STATE_INSTALL = 0x80;
@@ -70,6 +75,7 @@ final class AppState
      */
     private const STATELIST = [
         self::STATE_ADMIN_PAGE,
+	    self::STATE_ASYNC_JOB,
         self::STATE_FRONT_PAGE,
         self::STATE_STYLESHEET,
         self::STATE_INSTALL,
@@ -84,6 +90,7 @@ final class AppState
      */
     private const STATESTRINGS = [
         'admin_request' => self::STATE_ADMIN_PAGE,
+        'async_request' => self::STATE_ASYNC_JOB,
         'install_request' => self::STATE_INSTALL,
         'login_request' => self::STATE_LOGIN_PAGE,
         'parse_page_template' => self::STATE_PARSE_TEMPLATE,
@@ -159,7 +166,7 @@ final class AppState
         }
 
         if( $value ) {
-            $$name = 1;
+            $$name = $flag;
         }
         else {
             unset($$name);

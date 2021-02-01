@@ -25,12 +25,13 @@ use CMSMS\AppState;
 
 function smarty_function_form_start($params, $template)
 {
+	//populate some default params
 	//cuz this form will be POST'd, we don't use secure mact parameters
 	$mactparms = [];
-	$mactparms['module'] = $template->getTemplateVars('_module');
-	$mactparms['mid'] = $template->getTemplateVars('actionid');
-	$mactparms['returnid'] = $template->getTemplateVars('returnid');
-	$mactparms['inline'] = 0;
+	$mactparms['module'] = $params['module'] ?? $template->getTemplateVars('_module');
+	$mactparms['mid'] = $params['mid'] ?? $template->getTemplateVars('actionid');
+	$mactparms['returnid'] = $params['returnid'] ?? $template->getTemplateVars('returnid');
+	$mactparms['inline'] = (!empty($params['inline'])) ? 1 : 0;
 
 	$tagparms = [
 	'method' => 'post',
@@ -38,9 +39,9 @@ function smarty_function_form_start($params, $template)
 	];
 	$gCms = AppSingle::App();
 	if( AppState::test_state(AppState::STATE_LOGIN_PAGE) ) {
-		$tagparms['action'] = 'login.php';
+		$tagparms['action'] = 'login.php'; // TODO might be using a login-module action
 	}
-	else if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
+	elseif( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
 		// check if it's a module action
 		if( $mactparms['module'] ) {
 			$tmp = $template->getTemplateVars('_action');
@@ -52,7 +53,7 @@ function smarty_function_form_start($params, $template)
 			if( empty($mactparms['mid']) ) $mactparms['mid'] = 'm1_';
 		}
 	}
-	else if( $gCms->is_frontend_request() ) {
+	elseif( $gCms->is_frontend_request() ) {
 		if( $mactparms['module'] ) {
 			$tmp = $template->getTemplateVars('actionparams');
 			if( is_array($tmp) && isset($tmp['action']) ) $mactparms['action'] = $tmp['action'];
@@ -71,17 +72,16 @@ function smarty_function_form_start($params, $template)
 	$parms = [];
 	foreach( $params as $key => $value ) {
 		switch( $key ) {
-		case 'module':
+//		case 'module': above
 		case 'action':
-		case 'mid':
-		case 'returnid':
-		case 'inline':
+//		case 'mid': above
+//		case 'returnid': above
 			$mactparms[$key] = trim($value);
 			break;
 
-		case 'inline':
-			$mactparms[$key] = (bool) $value;
-			break;
+//		case 'inline': above
+//			$mactparms[$key] = ($value) ? 1 : 0;
+//			break;
 
 		case 'prefix':
 			$mactparms['mid'] = trim($value);
@@ -136,7 +136,7 @@ function smarty_function_form_start($params, $template)
 			$out .= " $key";
 		}
 	}
-	$out .= '><div class="hidden">';
+	$out .= '>'."\n".'<div class="hidden">';
 	if( $mactparms['module'] && $mactparms['action'] ) {
 		$mact = $mactparms['module'].','.$mactparms['mid'].','.$mactparms['action'].','.(int)$mactparms['inline'];
 		$out .= '<input type="hidden" name="mact" value="'.$mact.'" />';
@@ -152,9 +152,11 @@ function smarty_function_form_start($params, $template)
 		}
 	}
 	foreach( $parms as $key => $value ) {
-		$out .= '<input type="hidden" name="'.$mactparms['mid'].$key.'" value="'.$value.'" />';
+		if( !in_array($key, ['module','mid','returnid','inline',]) ) {
+			$out .= '<input type="hidden" name="'.$mactparms['mid'].$key.'" value="'.$value.'" />'."\n";
+		}
 	}
-	$out .= '</div>';
+	$out .= '</div>'."\n";
 	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']), $out);
 		return '';

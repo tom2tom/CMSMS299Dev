@@ -1,0 +1,16 @@
+#theme_dropzone {
+ margin: 0;
+ width: 20em;
+ height: 4em;
+ border: 2px dashed #ccc;
+ border-radius: 4px;
+ display: table-cell;
+ vertical-align: middle;
+}
+#theme_dropzone:hover {
+ cursor: move;
+}
+#theme_dropzone > p {
+ text-align: center;
+ font-weight: bold;
+}

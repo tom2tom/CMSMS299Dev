@@ -1,10 +1,10 @@
 <?php
 /*
 Light-weight content-generator for CMSMS admin pages.
-Copyright (C) 2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 Derived from FormOne class v.1.8 2020-jan-13 <https://github.com/EFTEC/FormOne>
-Copyright (C) 2018-2020 Jorge Castro Castillo <contacto@eftec.cl>
+Copyright (C) 2018-2021 Jorge Castro Castillo <contacto@eftec.cl>
 Licensed under the terms of the GNU Lesser General Public License
 version 2.1 or later.
 

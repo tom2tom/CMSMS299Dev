@@ -1,7 +1,7 @@
 <?php
 /*
 Mechanism for automatic in-memory and in-global-cache caching of 'slow' system-data.
-Copyright (C) 2013-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>

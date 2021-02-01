@@ -1,7 +1,7 @@
 <?php
 /*
 URL-creation methods for CMS Made Simple <http://cmsmadesimple.org>
-Copyright (C) 2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -12,7 +12,7 @@ any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -58,7 +58,7 @@ use function cms_htmlentities;
  *   output link targets the content area of the destination page Default false
  * @param string $prettyurl Optional url part(s), or ':NOPRETTY:' Default ''
  * @param int    $format since 2.99 Optional indicator for how to format the URL
- *  0 = (default) rawurlencoded parameter keys and values
+ *  0 = (default) rawurlencoded-where-necessary parameter keys and values
  *      other than the value for key 'mact', '&amp;' for parameter separators, which
  *      is appropriate if the query does or might include verbatim 'entitized' content
  *  1 = proper: as for 0, but also encode the 'mact' value
@@ -161,7 +161,7 @@ function CreateActionUrl(
  *   other things json-encoded if possible.
  * @param bool $onetime Whether the URL (specifically, its security-parameters) is for one-time use. Default false.
  * @param int  $format Indicator for how to format the URL
- *  0 = (default) rawurlencoded parameter keys and values
+ *  0 = (default) rawurlencoded-where-necessary parameter keys and values
  *    other than the value for key 'mact', '&amp;' for parameter separators
  *    which is appropriate if the query does or might include verbatim 'entitized' content
  *  1 = proper: as for 0, but also encode the 'mact' value

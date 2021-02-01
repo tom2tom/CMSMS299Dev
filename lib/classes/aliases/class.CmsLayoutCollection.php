@@ -5,5 +5,5 @@ if ($obj) {
     //try to autoload this one
     class_alias('DesignManager\Design', 'CmsLayoutCollection', true);
 } else {
-    throw new Exception('The DesignManager module is needed when using a CmsLayoutCollection object');
+    throw new Exception('The DesignManager module is needed to substitute for a CmsLayoutCollection object');
 }

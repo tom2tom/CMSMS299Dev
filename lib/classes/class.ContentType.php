@@ -1,7 +1,7 @@
 <?php
 /*
 Class to interact with a page-content type.
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -50,7 +50,7 @@ class ContentType implements \ArrayAccess
 	public $filename;
 
 	/**
-	 * @var string The type's (ContentEditor-conformant) editable class (if any)
+	 * @var string The type's (IContentEditor-compatible) editable class (if any)
 	 * @since 2.99
 	 */
 	public $editorclass;

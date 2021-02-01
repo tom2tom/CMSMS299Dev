@@ -1,7 +1,7 @@
 <?php
 /*
 Class of methods for processing page-content types.
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -171,7 +171,7 @@ class ContentTypeOperations
 	 *
 	 * @since 1.9
 	 * @param mixed $type string type name or an instance of ContentType
-	 * @param bool since 2.99 optional flag whether to create a ContentEditor-class
+	 * @param bool since 2.99 optional flag whether to create a IContentEditor-compatible class
 	 * object. Default false (hence a shortform object)
 	 * @return mixed ContentType object or null
 	 */

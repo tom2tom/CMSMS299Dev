@@ -1,7 +1,7 @@
 <?php
 /*
 Class of methods to populate and retrieve request parameters
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -23,6 +23,7 @@ namespace CMSMS;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\Crypto;
+use Throwable;
 use const CMS_JOB_KEY;
 
 /**
@@ -42,6 +43,9 @@ class RequestParameters
 
     private const JOBONCEKEY = '_jo_'; // parameter name for a secure one-time job
 
+    // rfc3986 allowed = unreserved | pct-encoded | sub-delims | ":" | "@" PLUS "/" | "?" PLUS "%" for already-encoded
+    private const ENC_PATTERN = '/[^\w.~!@$&\'()*\-+,?\/:;=%]/'; // regex pattern for selecting unaccepable URL-chars to be encoded
+
     /**
      * $return 2-member array: [0] = separator char(s), [1] = encoding wanted
      */
@@ -58,6 +62,22 @@ class RequestParameters
     }
 
     /**
+     * Cleanup part of an URL
+     *
+     * @param string $str
+     * @param string $patn Optional regex for selecting chars in $str to be rawurlencoded
+     * @return string
+     */
+    protected static function clean1(string $str, string $patn = self::ENC_PATTERN) : string
+    {
+        if (!$patn) $patn = self::ENC_PATTERN;
+        return preg_replace_callback_array([
+            '/\x00-\x1f\x7f/' => function() { return ''; },
+            $patn => function($matches) { return rawurlencode($matches[0]); }
+        ], $str);
+    }
+
+    /**
      * Generate get-parameter for a job-type
      *
      * @param int $type job-type value (0..2)
@@ -71,7 +91,7 @@ class RequestParameters
         [$sep, $enc] = self::modes($format);
         $text = ($first) ? '' : $sep;
         if ($enc) {
-            $text .= rawurlencode(CMS_JOB_KEY).'='.$type;
+            $text .= rawurlencode(CMS_JOB_KEY).'='.$type; // nothing clean1-worthy in here
         } else {
             $text .= CMS_JOB_KEY.'='.$type;
         }
@@ -89,16 +109,22 @@ class RequestParameters
      */
     public static function create_job_params(array $parms, bool $onetime = false, int $format = 2) : string
     {
-        $parms['id'] = self::JOBID;
-        $str = $parms['action'] ?? 'job';
-        $str .= AppSingle::App()->GetUUID();
+        if (isset($parms['action'])) {
+            $str = $parms['action'];
+            $parms['id'] = self::JOBID;
+        } else {
+            $str = 'job';
+        }
+        $str .= AppSingle::App()->GetSiteUUID();
         if ($onetime) {
-            $chars = Crypto::random_string(12, true);
+            $chars = Crypto::random_string(20, true);
+//          $chars = preg_replace('/[^\w.~!@$()*#\-+]/', '', $chars); // pre-empt behaviour of create_action_params()
             while (1) {
                 $key = str_shuffle($chars);
-                $subkey = substr($key, 0, 6);
+                $subkey = substr($key, 0, 10);
+                $subkey = strtr($subkey, '%', 'P');  // exclude '%' to prevent url-decoding havoc
                 $val = hash('tiger128,3', $subkey.$str); // 32-hexits
-                $savekey = self::KEYPREF.$subkey;
+                $savekey = self::KEYPREF.$subkey; // NOTE $subkey might be encoded in create_action_params() >> clean1()
                 if (!AppParams::exists($savekey)) {
                     AppParams::set($savekey, $val); // a bit racy!
                     $parms[self::JOBONCEKEY] = $subkey;
@@ -114,11 +140,11 @@ class RequestParameters
     }
 
     /**
-     * Get an URL query-string corresponding to the supplied value, which is
-     * probably non-scalar.
-     * This allows (among other things) generation of URL content that replicates
-     * parameter arrays like $_POST'd parameter values, for passing around and
-     * re-use without [de]serialization.
+     * Get an URL query-string corresponding to the supplied value,
+     * which is probably non-scalar.
+     * This allows (among other things) generation of URL content that
+     * replicates parameter arrays like $_POST'd parameter values,
+     * for passing around and re-use without [de]serialization.
      * It behaves better than PHP http_build_query(), but only interprets 1-D arrays.
      *
      * @param string $key parameter name/key
@@ -138,34 +164,44 @@ class RequestParameters
             $first = true;
             foreach ($val as $k => $v) {
                 if ($first) {
-                    $out .= $key.'['.$k.']'.$eq;
+                    $out .= $key.'['.$k.']';
                     $first = false;
                 } else {
-                    $out .= $sp.$key.'['.$k.']'.$eq;
+                    $out .= $sp.$key.'['.$k.']';
                     $multi = true;
                 }
                 if (!is_scalar($v)) {
                     try {
-                        $v = json_encode($v);
+                        $v = json_encode($v, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        if (json_last_error() != JSON_ERROR_NONE) {
+                            $v = rawurlencode(json_last_error_msg());
+                        }
                     } catch (Throwable $t) {
-                        $v = 'UNKNOWNOBJECT';
+                        $v = rawurlencode($t->GetMessage());
                     }
+                    $out .= $eq.$v;
+                } elseif ($v !== '') {
+                    $out .= $eq.$v;
                 }
-                $out .= $v;
             }
         } elseif (!is_scalar($val)) {
             try {
-                $val = json_encode($val);
+                $val = json_encode($val, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                if (json_last_error() != JSON_ERROR_NONE) {
+                    $val = rawurlencode(json_last_error_msg());
+                }
             } catch (Throwable $t) {
-                $val = 'UNKNOWNOBJECT';
+                $val = rawurlencode($t->GetMessage());
             }
             $out = $key.$eq.$val;
-        } else { //just in case, also handle scalars
+        } elseif ($val !== '') { //just in case, also handle scalars
             $out = $key.$eq.$val;
+        } else {
+            $out = $key;
         }
 
         if ($enc) {
-            $out = str_replace($eq, '=', rawurlencode($out));
+            $out = str_replace($eq, '=', self::clean1($out));
             if ($multi) {
                 $out = str_replace($sp, $sep, $out);
             }
@@ -179,15 +215,15 @@ class RequestParameters
      * @param array $parms URL get-parameters. Should include mact-components
      *  and action-parameters (if any), and generic-parameters (if any)
      * @param int $format Optional format enumerator
-     *  0 = (pre-2.99 default, back-compatible) rawurlencoded parameter keys and values
+     *  0 = default, back-compatible rawurlencoded-where-necessary parameter keys and values
      *      other than the value for key 'mact', '&amp;' for parameter separators
      *  1 = proper: as for 0, but also encode the 'mact' value
-     *  2 = default: as for 1, except '&' for parameter separators - e.g. for use in get-URL, js
+     *  2 = as for 1, except '&' for parameter separators - e.g. for use in get-URL, js
      *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
      *   BUT the output must be entitized upstream, it's not done here
      * @return string
      */
-    public static function create_action_params(array $parms, int $format = 2) : string
+    public static function create_action_params(array $parms, int $format = 0) : string
     {
         [$sep, $enc] = self::modes($format);
 
@@ -213,16 +249,23 @@ class RequestParameters
         foreach ($parms as $key => $val) {
             if (is_scalar($val)) {
                 if ($enc) {
-                    $key = rawurlencode($key);
-                }
-                if ($enc && ($format != 0 || $key != 'mact')) {
-                    $val = rawurlencode($val);
+                    $key = self::clean1($key);
+                } else {
+                    $key = self::clean1($key, '/\x00/'); // only sanitize it
                 }
                 if ($first) {
-                    $text .= $key.'='.$val;
+                    $text .= $key;
                     $first = false;
                 } else {
-                    $text .= $sep.$key.'='.$val;
+                    $text .= $sep.$key;
+                }
+                if ($val !== '') {
+                    if ($enc && ($format != 0 || $key != 'mact')) {
+                        $val = self::clean1($val);
+                    } else {
+                        $val = self::clean1($val, '/\x00/');
+                    }
+                    $text .= '='.$val;
                 }
             } else {
                 if ($first) {
@@ -250,20 +293,26 @@ class RequestParameters
     {
         if (isset($parms[self::JOBKEY])) {
             $str = $parms['action'] ?? 'job';
-            $str .= AppSingle::App()->GetUUID();
+            $str .= AppSingle::App()->GetSiteUUID();
             return $parms[self::JOBKEY] == hash('tiger128,3', $str);
         }
         if (isset($parms[self::JOBONCEKEY])) {
             $key = $parms[self::JOBONCEKEY];
             $savekey = self::KEYPREF.$key;
-            if (AppParams::exists($savekey)) {
-                $val = AppParams::get($savekey);
-                AppParams::remove($savekey);
-                $str = $parms['action'] ?? 'job';
-                $hash = hash('tiger128,3', $key.$str.AppSingle::App()->GetUUID());
-                return $hash == $val;
+            if (!AppParams::exists($savekey)) {
+                $key2 = rawurldecode($key);
+                if ($key2 == $key) { return false; }
+                $savekey = self::KEYPREF.$key2;
+                if (!AppParams::exists($savekey)) {
+                    return false;
+                }
+                $key = $key2;
             }
-            return false;
+            $val = AppParams::get($savekey);
+            AppParams::remove($savekey);
+            $str = $parms['action'] ?? 'job';
+            $hash = hash('tiger128,3', $key.$str.AppSingle::App()->GetSiteUUID());
+            return $hash == $val;
         }
         return (!isset($parms[CMS_JOB_KEY]) || $parms[CMS_JOB_KEY] != 2);
     }
@@ -308,22 +357,23 @@ class RequestParameters
             foreach ($source as $key => $val) {
                 if (strncmp($key, $id, $len) == 0) {
                     $key2 = substr($key,$len);
-                    if (is_numeric($val)) {
-                        $parms[$key2] = $val + 0;
-                    } elseif (is_scalar($val)) {
-                        $parms[$key2] = $val; //TODO interpret json_encode()'d non-scalars
+                    if (is_scalar($val)) {
+                        if (($dec = self::get_json($val))) {
+                            $parms[$key2] = $dec;
+                        } else {
+                            $parms[$key2] = $val;
+                        }
                     } else {
                         $parms[$key2] = $val;
                     }
-
                 }
             }
             if ($tmp) $source['mact'] = $tmp;
         }
 
         if (isset($source[CMS_JOB_KEY])) {
-            $parms[CMS_JOB_KEY] = filter_var($source[CMS_JOB_KEY], FILTER_SANITIZE_NUMBER_INT); //OR (int)
-            if ($parms[CMS_JOB_KEY] == 2) {
+            $val = filter_var($source[CMS_JOB_KEY], FILTER_SANITIZE_NUMBER_INT); //OR (int)
+            if ($val == 2) {
                 //TODO maybe a job-URL, check/process that
             }
         }
@@ -440,16 +490,12 @@ class RequestParameters
             default:
                 if ($strip && isset($source[$id.$key])) {
                     $val = $source[$id.$key];
-                    if (is_numeric($val)) {
-                        $val += 0;
-                    } elseif (($dec = self::get_json($val))) {
+                    if (($dec = self::get_json($val))) {
                         $val = $dec;
                     }
                 } elseif (isset($source[$key])) {
                     $val = $source[$key];
-                    if (is_numeric($val)) {
-                        $val += 0;
-                    } elseif (($dec = self::get_json($val))) {
+                    if (($dec = self::get_json($val))) {
                         $val = $dec;
                     }
                 } else {

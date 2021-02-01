@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin to retrieve an url representing the site's top/base assets folder.
-Copyright (C) 2020-2021 CMS Made Simnple Foundation <foundatio@cmsmadesimple.org>
+Copyright (C) 2021 CMS Made Simnple Foundation <foundatio@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

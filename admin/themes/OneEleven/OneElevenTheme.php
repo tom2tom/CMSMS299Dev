@@ -1,7 +1,7 @@
 <?php
 /*
 OneEleven - an Admin Console theme for CMS Made Simple
-Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Goran Ilic, Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,28 +19,28 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace CMSMS;
+namespace CMSMS; // TODO OK if pre-2.99?
 
 use CMSMS\AdminAlerts\Alert;
-use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
-use CMSMS\RequestParameters;
+//use CMSMS\RequestParameters; //2.99+
 use CMSMS\ScriptsMerger;
 use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
-use Throwable;
+//use Throwable; //2.99+
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
 use const TMP_CACHE_LOCATION;
 use function check_permission;
-use function cleanValue;
+use function cleanValue; // pre-2.99
+//use function sanitizeVal; // 2.99+
 use function cms_installed_jquery;
 use function cms_join_path;
 use function cms_path_to_url;
@@ -62,12 +62,12 @@ class OneElevenTheme extends AdminTheme
 	 */
 	private $_havetree = null;
 
-	// 2.9+ will access these via parent-class
+	// 2.99+ will access these via parent-class
 	protected $_errors = [];
 	protected $_messages = [];
 
 	/**
-	 * Determine whether this is running on CMSMS 2.9+
+	 * Determine whether this is running on CMSMS 2.99+
 	 */
 	protected function currentversion() : bool
 	{
@@ -82,7 +82,7 @@ class OneElevenTheme extends AdminTheme
 	 * Hook accumulator-function to nominate runtime 'resources' to be
 	 * included in the header of each displayed admin page
 	 *
-	 * @since 2.9
+	 * @since 2.99
 	 * @return 2-member array
 	 * [0] = array of data for js vars, members like varname=>varvalue
 	 * [1] = array of string(s) for includables
@@ -93,7 +93,7 @@ class OneElevenTheme extends AdminTheme
 
 		$config = cmsms()->GetConfig();
 		$admin_path = $config['admin_path'];
-		$admin_url = $config['admin_url'];
+//		$admin_url = $config['admin_url'];
 		$rel = substr(__DIR__, strlen($admin_path) + 1);
 		$rel_url = strtr($rel,DIRECTORY_SEPARATOR,'/');
 
@@ -133,7 +133,8 @@ EOS;
 		$jsm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1);
 		$jsm->queue_matchedfile('jquery.toast.min.js', 1);
 		$p = __DIR__.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR;
-		$jsm->queue_file($p.'standard.js', 3); //OR .min for production
+//		$jsm->queue_file($p.'standard.js', 3); //OR .min for production
+		$jsm->queue_file($p.'standard.min.js', 3);
 		$out .= $jsm->page_content();
 
 		$add_list[] = $out;
@@ -142,76 +143,11 @@ EOS;
 		return [$vars, $add_list];
 	}
 
-	/**
-	 * Hook first-result-function to report the default 'main' css class
-	 * to be applied to generated context menus when this theme is in operation.
-	 *
-	 * @since 2.9
-	 * @return string
-	 */
-	public function MenuCssClassname()
-	{
-		return 'ContextMenu';
-	}
-
-	public function ShowErrors($errors, $get_var = '')
-	{
-		if ($this->currentversion()) {
-			$this->RecordNotice('error', $errors, '', false, $get_var);
-		} else {
-
-		// cache errors for use in the template.
-		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
-			if (is_array($_GET[$get_var])) {
-				foreach ($_GET[$get_var] as $one) {
-					$this->_errors[] = lang(cleanValue($one));
-				}
-			} else {
-				$this->_errors[] = lang(cleanValue($_GET[$get_var]));
-			}
-		} elseif (is_array($errors)) {
-			foreach ($errors as $one) {
-				$this->_errors[] = $one;
-			}
-		} elseif (is_string($errors)) {
-			$this->_errors[] = $errors;
-		}
-		return '<!-- OneEleven::ShowErrors() called -->';
-
-		} //pre 2.9
-	}
-
-	public function ShowMessage($message, $get_var = '')
-	{
-		if ($this->currentversion()) {
-			$this->RecordNotice('success', $message, '', false, $get_var);
-		} else {
-
-		// cache message for use in the template.
-		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
-			if (is_array($_GET[$get_var])) {
-				foreach ($_GET[$get_var] as $one) {
-					$this->_messages[] = lang(cleanValue($one));
-				}
-			} else {
-				$this->_messages[] = lang(cleanValue($_GET[$get_var]));
-			}
-		} elseif (is_array($message)) {
-			foreach ($message as $one) {
-				$this->_messages[] = $one;
-			}
-		} elseif (is_string($message)) {
-			$this->_messages[] = $message;
-		}
-
-		} // pre 2.9
-	}
-
 	public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = FALSE)
 	{
 		if ($this->currentversion()) {
 			parent::ShowHeader($title_name, $extra_lang_params, $link_text, $module_help_type);
-		} else { // pre 2.9
+		} else { // pre 2.99
 
 		if ($title_name) $this->set_value('pagetitle', $title_name);
 		if ($extra_lang_params) $this->set_value('extra_lang_params', $extra_lang_params);
@@ -269,68 +205,12 @@ EOS;
 			} // for-loop
 		}
 
-		} // pre-2.9
-	}
-
-	public function do_header()
-	{
-	}
-
-	public function do_footer()
-	{
-	}
-
-	/**
-	 * @param mixed $section_name nav-menu-section name (string), but
-	 *  usually null to use the whole menu
-	 */
-	public function do_toppage($section_name)
-	{
-		$flag = $this->currentversion();
-
-		$smarty = cmsms()->GetSmarty();
-		if ($section_name) {
-			$smarty->assign('section_name', $section_name);
-			if ($flag) {
-				$nodes = $this->get_navigation_tree($section_name, 0);
-				$smarty->assign('pagetitle', $this->title);
-			} else {
-				$nodes = $this->get_navigation_tree($section_name, -1, FALSE);
-				$smarty->assign('pagetitle', lang($section_name)); //CHECKME
-			}
-		} else {
-			if ($flag) {
-				$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
-			} else {
-				$nodes = $this->get_navigation_tree(-1, 2, FALSE);
-			}
-		}
-//		$this->_havetree = $nodes; //block further tree-data changes
-		$smarty->assign('nodes', $nodes);
-
-		$config = cmsms()->GetConfig();
-		$smarty->assign('admin_url', $config['admin_url']);
-		$smarty->assign('theme', $this);
-
-		//custom support-URL?
-		$url = AppParams::get('site_help_url');
-		if ($url) {
-			$smarty->assign('site_help_url', $url);
-		}
-		// is the website set down for maintenance?
-		if (AppParams::get('site_downnow')) {
-			$smarty->assign('is_sitedown', 1);
-		}
-
-		$otd = $smarty->template_dir;
-		$smarty->template_dir = __DIR__.DIRECTORY_SEPARATOR.'templates';
-		$smarty->display('topcontent.tpl');
-		$smarty->template_dir = $otd;
+		} // pre-2.99
 	}
 
 	/**
 	 * Get URL's for installed jquery, jquery-ui & related css
-	 * Only for pre-2.9 operation
+	 * Only for pre-2.99 operation
 	 * @return 3-member array
 	 */
 	protected function find_installed_jq()
@@ -383,7 +263,7 @@ EOS;
 
 		return [$jqcss, $jqui, $jqcore];
 	}
-
+/*
 	protected function render_minimal($tplname, $bodyid = null)
 	{
 //		get_csp_token(); //setup CSP header (result not used)
@@ -417,31 +297,30 @@ EOS;
 		$smarty->SetTemplateDir($otd);
 		return $out;
 	}
-
-	/**
+*/
+	/* *
 	 * @todo this has been migrated more-or-less verbatim from old marigold
 	 * @param mixed $bodyid Optional id for page 'body' element. Default null
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function do_minimal($bodyid = null) : string
+/*	public function fetch_minimal_page($bodyid = null) : string
 	{
 		return $this->render_minimal('minimal.tpl', $bodyid);
 	}
-
-	/**
+*/
+	/* *
 	 * @todo this has been migrated more-or-less verbatim from old marigold
 	 * @param mixed $bodyid Optional id for page 'body' element. Default null
-	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function do_loginpage($bodyid = null)
+/*	public function display_login_page($bodyid = null)
 	{
-		return $this->render_minimal('login-minimal.tpl', $bodyid);
+		echo $this->render_minimal('login-minimal.tpl', $bodyid);
 	}
-
+*/
 	/**
-	 * @param $params Array of variables for smarty (CMSMS pre-2.9 only)
+	 * @param $params Array of variables for smarty (CMSMS pre-2.99 only)
 	 */
-	public function do_login($params = null)
+	public function display_customlogin_page($params = null)
 	{
 		$gCms = cmsms();
 
@@ -492,7 +371,7 @@ EOS;
 			$out .= sprintf($tpl,$url);
 			$url = cms_path_to_url($incs['jqui']);
 			$out .= sprintf($tpl,$url);
-			$out .= sprintf($tpl,'themes/OneEleven/includes/login.js');
+			$out .= sprintf($tpl,'themes/OneEleven/includes/login.min.js');
 		} else {
 			$smarty = $gCms->GetSmarty();
 			if (!empty($params)) {
@@ -515,13 +394,10 @@ EOS;
 <link rel="stylesheet" href="loginstyle.php" />
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
-<script type="text/javascript" src="themes/OneEleven/includes/login.js"></script>
-<!--[if lt IE 9]>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script> TODO conform CSP
-<![endif]-->
+<script type="text/javascript" src="themes/OneEleven/includes/login.min.js"></script>
 
 EOS;
-		} // pre 2.9
+		} // pre 2.99
 
 		$smarty->assign('header_includes', $out); //NOT into bottom (to avoid UI-flash)
 		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
@@ -529,10 +405,60 @@ EOS;
 	}
 
 	/**
+	 * @param mixed $section_name nav-menu-section name (string), but
+	 *  usually null to use the whole menu
+	 * @return string (or maybe null if $smarty->fetch() fails?)
+	 */
+	public function fetch_menu_page($section_name)
+	{
+		$flag = $this->currentversion();
+
+		$smarty = cmsms()->GetSmarty();
+		if ($section_name) {
+			$smarty->assign('section_name', $section_name);
+			if ($flag) {
+				$nodes = $this->get_navigation_tree($section_name, 0);
+				$smarty->assign('pagetitle', $this->title);
+			} else {
+				$nodes = $this->get_navigation_tree($section_name, -1, FALSE);
+				$smarty->assign('pagetitle', lang($section_name)); //CHECKME
+			}
+		} else {
+			if ($flag) {
+				$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
+			} else {
+				$nodes = $this->get_navigation_tree(-1, 2, FALSE);
+			}
+		}
+//		$this->_havetree = $nodes; //block further tree-data changes
+		$smarty->assign('nodes', $nodes);
+
+		$config = cmsms()->GetConfig();
+		$smarty->assign('admin_url', $config['admin_url']);
+		$smarty->assign('theme', $this);
+
+		//custom support-URL?
+		$url = AppParams::get('site_help_url');
+		if ($url) {
+			$smarty->assign('site_help_url', $url);
+		}
+		// is the website set down for maintenance?
+		if (AppParams::get('site_downnow')) {
+			$smarty->assign('is_sitedown', 1);
+		}
+
+		$otd = $smarty->template_dir;
+		$smarty->template_dir = __DIR__.DIRECTORY_SEPARATOR.'templates';
+		$_contents = $smarty->fetch('topcontent.tpl');
+		$smarty->template_dir = $otd;
+		return $_contents;
+	}
+
+	/**
 	 * @param string $html page content to be processed
 	 * @return string (or maybe null if $smarty->fetch() fails?)
 	 */
-	public function postprocess($html)
+	public function fetch_page($html)
 	{
 		$flag = $this->currentversion();
 
@@ -603,7 +529,7 @@ EOS;
 		if ($module_name && ($icon_url = $this->get_value('module_icon_url'))) {
 			$tag = '<img src="'.$icon_url.'" alt="'.$module_name.'" class="module-icon" />';
 		} elseif ($module_name && $title) {
-			$tag = AdminUtils::get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
+			$tag = $this->get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
 			$tag = '<img src="'.$icon_url.'" alt="'.basename($icon_url).'" class="TODO" />';
 		} else {
@@ -666,7 +592,7 @@ EOS;
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
 //TODO jquery ancillaries
-<script type="text/javascript" src="themes/OneEleven/includes/standard.js"></script>
+<script type="text/javascript" src="themes/OneEleven/includes/standard.min.js"></script>
 <!--[if lt IE 9]>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script> TODO conform CSP
 <![endif]-->
@@ -691,7 +617,76 @@ EOS
 		return $_contents;
 	}
 
-	// for pre-2.9 compatibility
+	// for pre-2.99 compatibility
+
+	public function ShowErrors($errors, $get_var = '')
+	{
+/*		if ($this->currentversion()) {
+			$this->RecordNotice('error', $errors, '', false, $get_var);
+		} else {
+*/
+		// cache errors for use in the template.
+		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
+			if (is_array($_GET[$get_var])) {
+				foreach ($_GET[$get_var] as $one) {
+					$this->_errors[] = lang(cleanValue($one)); // pre-2.99
+				}
+			} else {
+				$this->_errors[] = lang(cleanValue($_GET[$get_var]));
+			}
+		} elseif (is_array($errors)) {
+			foreach ($errors as $one) {
+				$this->_errors[] = $one;
+			}
+		} elseif (is_string($errors)) {
+			$this->_errors[] = $errors;
+		}
+		return '<!-- OneEleven::ShowErrors() called -->';
+
+//		} //pre 2.99
+	}
+
+	public function ShowMessage($message, $get_var = '')
+	{
+/*		if ($this->currentversion()) {
+			$this->RecordNotice('success', $message, '', false, $get_var);
+		} else {
+*/
+		// cache message for use in the template.
+		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
+			if (is_array($_GET[$get_var])) {
+				foreach ($_GET[$get_var] as $one) {
+					$this->_messages[] = lang(cleanValue($one));
+				}
+			} else {
+				$this->_messages[] = lang(cleanValue($_GET[$get_var]));
+			}
+		} elseif (is_array($message)) {
+			foreach ($message as $one) {
+				$this->_messages[] = $one;
+			}
+		} elseif (is_string($message)) {
+			$this->_messages[] = $message;
+		}
+
+//		} // pre 2.99
+	}
+
+	public function do_toppage($section_name)
+	{
+		echo $this->fetch_menu_page($section_name);
+	}
+
+	public function do_login($params)
+	{
+		$this->display_customlogin_page($params);
+	}
+
+	public function postprocess($html)
+	{
+		return $this->fetch_page($html);
+	}
+
 	public function get_my_alerts()
 	{
 		return Alert::load_my_alerts();

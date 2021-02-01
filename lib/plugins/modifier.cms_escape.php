@@ -1,112 +1,207 @@
 <?php
-#Plugin to...
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Plugin to tailor some or all of the content of a string-value.
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 /**
- * Smarty plugin
- * @package Smarty
- * @subpackage plugins
- */
-
-/**
- * Smarty escape modifier plugin
+ * Supercharged Smarty escape modifier plugin
  *
- * Type:     modifier<br>
- * Name:     escape<br>
+ * Type:     modifier
+ * Name:     escape
  * Purpose:  Escape the string according to escapement type
  * @link http://smarty.php.net/manual/en/language.modifier.escape.php
  *          escape (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
  * @param string
- * @param html|htmlall|url|quotes|hex|hexentity|javascript
+ * @param html|htmlall|htmltiny|url|urlpathinfo|quotes|hex|hexentity|decentity|javascript|nonstd|smartyphp
  * @return string
  *
- * calguy1000: change default char-set to utf-8
+ * calguy1000: change default charset to UTF-8
  */
- 
-function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = 'utf-8')
+
+/*
+namespace cms_escape {
+
+function escape_one($string, $_type)
+{
+	switch ($type) {
+	}
+}
+
+} // namespace
+
+namespace {
+*/
+
+function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 {
 	$esc_type = strtolower($esc_type);
+/*
+	if (strpos($esc_type, ',') !== false) {
+		$all = array_map(function($_type) { return trim($_type); }, explode(',', $esc_type));
+	}
+	else {
+		$all = [trim($esc_type)];
+	}
+	foreach ($all as $_type) {
+		$string = cms_escape\\escape_one($string, $_type);
+	}
+	return $string;
+*/
 	switch ($esc_type) {
 		case 'html':
-			return htmlspecialchars($string, ENT_QUOTES, $char_set);
+			if ($char_set) {
+				return cms_specialchars($string, 0, $char_set);
+			}
+			return cms_specialchars($string);
 
 		case 'htmlall':
-			return htmlentities($string, ENT_QUOTES, $char_set);
+			if ($char_set) {
+				return cms_htmlentities($string, 0, $char_set);
+			}
+			return cms_htmlentities($string);
 
 		case 'url':
+//			return cms_urlencode($string);  // TODO verbatim chars for rfc 3986 {query, fragment}, plus '%', less '?' '&'
 			return rawurlencode($string);
 
 		case 'urlpathinfo':
-			return str_replace('%2F','/',rawurlencode($string));
-			
+//			return str_replace('%2F', '/', cms_urlencode($string));
+			return str_replace('%2F', '/', rawurlencode($string));
+
 		case 'quotes':
 			// escape unescaped single quotes
 			return preg_replace("%(?<!\\\\)'%", "\\'", $string);
 
 		case 'hex':
-			// escape every character into hex
-			$return = '';
-			for ($x=0; $x < strlen($string); $x++) {
-				$return .= '%' . bin2hex($string[$x]);
+			// escape every character to hex
+			$_res = '';
+			for ($_i = 0, $_len = strlen($string); $_i < $_len; $_i++) {
+				$_res .= '%' . bin2hex($string[$_i]);
 			}
-			return $return;
-			
+			return $_res;
+
 		case 'hexentity':
-			$return = '';
-			for ($x=0; $x < strlen($string); $x++) {
-				$return .= '&#x' . bin2hex($string[$x]) . ';';
+			$_res = '';
+			for ($_i = 0, $_len = strlen($string); $_i < $_len; $_i++) {
+				$_res .= '&#x' . bin2hex($string[$_i]) . ';';
 			}
-			return $return;
+			return $_res;
 
 		case 'decentity':
-			$return = '';
-			for ($x=0; $x < strlen($string); $x++) {
-				$return .= '&#' . ord($string[$x]) . ';';
+			$_res = '';
+			for ($_i = 0, $_len = strlen($string); $_i < $_len; $_i++) {
+				$_res .= '&#' . ord($string[$_i]) . ';';
 			}
-			return $return;
+			return $_res;
 
 		case 'javascript':
-			// escape quotes and backslashes, newlines, etc.
+			// escape quotes, backslashes, newlines, etc
 			return strtr($string, ['\\'=>'\\\\',"'"=>"\\'",'"'=>'\\"',"\r"=>'\\r',"\n"=>'\\n','</'=>'<\/']);
-			
+
 		case 'mail':
-			// safe way to display e-mail address on a web page
-			return str_replace(['@', '.'],[' [AT] ', ' [DOT] '], $string);
-			
+			// safer way to display e-mail address on a web page
+			return str_replace(['@', '.'], [' [AT] ', ' [DOT] '], $string);
+
 		case 'nonstd':
-		   // escape non-standard chars, such as ms document quotes
-		   $_res = '';
-		   for($_i = 0, $_len = strlen($string); $_i < $_len; $_i++) {
-			   $_ord = ord(substr($string, $_i, 1));
-			   // non-standard char, escape it
-			   if($_ord >= 126){
-				   $_res .= '&#' . $_ord . ';';
-			   }
-			   else {
-				   $_res .= substr($string, $_i, 1);
-			   }
-		   }
-		   return $_res;
+			// decimal-escape chars >= 126
+			$_res = '';
+			for ($_i = 0, $_len = strlen($string); $_i < $_len; $_i++) {
+				$_c = substr($string, $_i, 1);
+				$_ord = ord($_c);
+				if ($_ord >= 126) {
+					$_res .= '&#' . $_ord . ';';
+				}
+				else {
+					$_res .= $_c;
+				}
+			}
+			return $_res;
 
 		case 'htmltiny':
 			return str_replace('<', '&lt;', $string);
-					
+
+		case 'smartyphp':
+			$smarty = CMSMS\AppSingle::Smarty();
+			$ldl = $smarty->left_delimiter;
+			$rdl = $smarty->right_delimiter;
+			$lsep = '';
+			$plims = '~@!%_&;`';
+			for ($i = 0, $l = strlen($plims); $i < $l; $i++) {
+				$c = $plims[$i];
+				if (strpos($ldl, $c) === false && strpos($rdl, $c) === false) {
+					$lsep = $rsep = $c;
+					break;
+				}
+			}
+			if (!$lsep) return $string; // can't proceed
+			$eldl = preg_quote($ldl);
+			$erdl = preg_quote($rdl);
+			$patn = "{$lsep}{$eldl}\s*/?php\s*{$erdl}{$rsep}i";
+			return preg_replace($patn, '', $string);
+
 		default:
 			return $string;
 	}
 }
+
+function smarty_cms_about_modifier_cms_escape()
+{
+	echo lang_by_realm('tags', 'about_generic',
+	'Smarty escape-modifier by Monte Ohrt <monte at ohrt dot com><br />supplemented by CMSMS-extensions. 2004',
+	<<<'EOS'
+<li>change default charset to UTF-8</li>
+<li>change html processor to cms_specialchars</li>
+<li>change htmlall processor to cms_htmlentities</li>
+<li>support Smarty2 php tags removal</lili>
+EOS
+	);
+}
+
+function smarty_cms_help_modifier_cms_escape()
+{
+	echo lang_by_realm('tags', 'help_generic2',
+	'This plugin converts some or all of the content of a string variable, to tailor it for its context e.g. URL-capable or more secure',
+	'$somevar|cms_escape:\'type\'}<br />{$somevar|cms_escape:\'type\':\'charset\'',
+	<<<'EOS'
+<li>type: one of
+<ul>
+<li>decentity: substitute &#N;</li>
+<li>hex: substitute %H</li>
+<li>hexentity: substitute &#xH;</li>
+<li>html (<em>default</em>): apply cms_specialchars</li>
+<li>htmlall: apply cms_htmlentities</li>
+<li>htmltiny: substitute &amplt; for &lt;</li>
+<li>javascript: escape quotes, backslashes, newlines etc</li>
+<li>mail: substitute [AT], [DOT]</li>
+<li>nonstd: substitute &#N; for chars &gt;= 126</li>
+<li>quotes: escape unescaped single-quotes</li>
+<li>smartyphp: remove Smarty-2-compatible {php},{/php} tags (however de-limited)</li>
+<li>url: apply rawurlencode to appropriate chars (see rfc3986)</li>
+<li>urlpathinfo: apply rawurlencode to appropriate chars except for '/'</li>
+</ul>
+</li>
+<li>charset: the variable's encoding (optional, <em>default UTF-8</em>)</li>
+EOS
+	);
+	echo 'See also: <a href="https://www.smarty.net/docs/en/language.modifier.escape.tpl">Smarty native escaping</a>';
+}
+
+//} //global namespace

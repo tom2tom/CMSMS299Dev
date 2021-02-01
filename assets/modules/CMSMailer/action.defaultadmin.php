@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMailer module defaultadmin action
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple module CMSMailer.
 
@@ -20,16 +20,30 @@ If not, see <http://www.gnu.org/licenses/licenses.html#AGPL>.
 */
 
 use CMSMailer\Mailer;
+use CMSMailer\PrefCrypter;
+use CMSMailer\Utils;
 use CMSMS\App;
 use CMSMS\AppParams;
 use CMSMS\Crypto;
-use CMSMS\IResource;
 use CMSMS\FormUtils;
-use CMSMS\Utils;
+use CMSMS\Utils as AppUtils;
 
 if (!isset($gCms) || !($gCms instanceof App)) exit;
-if (!($this->CheckPermission('Modify Mail Preferences') ||
-      $this->CheckPermission('Modify Site Preferences'))) exit;
+
+$pmod = $this->CheckPermission('Modify Site Preferences') ||
+    $this->CheckPermission('Modify Mail Preferences');
+$padmin = $pmod || $this->CheckPermission('AdministerEmailGateways');
+$pgates = $pmod || $this->CheckPermission('ModifyEmailGateways');
+//$ptpl = $this->CheckPermission('ModifyEmailTemplates');
+//$puse = $this->CheckPermission('UseEmailGateways'); // i.e. see
+if (!($pmod || $padmin || $pgates)) exit; // || $ptpl || $puse
+
+if (!empty($params['activetab'])) {
+    $activetab = $params['activetab'];
+} else {
+    $activetab = 'internal';
+}
+
 // names and types of CMSMailer preferences
 $mailprefs = [
  'mailer' => 1,
@@ -45,9 +59,11 @@ $mailprefs = [
  'timeout' => 2,
  'username' => 1,
  //spool-related extras for this mailer
+/*
  'batchgap' => 2,
  'batchsize' => 2,
- 'single' => 3,
+*/
+ 'single' => 2,
 ];
 
 if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
@@ -67,7 +83,7 @@ if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
                         $val = (bool)$params[$key];
                         break;
                     case 4:
-                        $val = base64_encode(Crypto::encrypt_string(trim($params[$key])));
+                        $val = base64_encode(Crypto::encrypt_string(trim($params[$key]))); // no custom P/W
                         break;
                     default:
                         $val = trim($params[$key]);
@@ -76,7 +92,7 @@ if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
                 } else {
                     $val = $params[$key];
                 }
-                unset($params[$key]); //don't record locally
+//                unset($params[$key]); //don't record locally
             }
         }
         unset($val);
@@ -85,6 +101,7 @@ if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
         }
     }
 
+    $pw = null;
     foreach ($mailprefs as $key => &$val) {
         if (isset($params[$key])) {
             switch ($val) {
@@ -95,7 +112,8 @@ if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
                 $tmp = (bool)$params[$key];
                 break;
             case 4:
-                $tmp = base64_encode(Crypto::encrypt_string(trim($val)));
+                if ($pw === null) { $pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY); }
+                $tmp = base64_encode(Crypto::encrypt_string(trim($val), $pw));
                 break;
             default:
                 $tmp = trim($params[$key]);
@@ -104,7 +122,8 @@ if (isset($params['apply'])/* || isset($params['sendtest'])*/) {
             $this->SetPreference($key, $tmp);
         }
     }
-    unset($val);
+    unset($val, $pw);
+    $pw = null;
 }
 
 if (isset($params['sendtest'])) {
@@ -112,15 +131,18 @@ if (isset($params['sendtest'])) {
     if ($params['testaddress'] == '') {
         $errors[] = $this->Lang('error_notestaddress');
     } else {
-        $addr = filter_var($params['testaddress'], FILTER_SANITIZE_EMAIL);
-        if (!is_email($addr)) {
+        //ignore invalid chars in the email
+        //BUT PHP's FILTER_VALIDATE_EMAIL mechanism is not entirely reliable - see notes at https://www.php.net/manual/en/function.filter-var.php
+//      $addr = filter_var($params['testaddress'], FILTER_SANITIZE_EMAIL);
+        $addr = cms_specialchars_decode(trim($params['testaddress']));
+        if ($addr && !is_email($addr)) {
             $errors[] = $this->Lang('error_badtestaddress');
-        } else {
+        } elseif ($addr) {
             try {
                 $mailer = new Mailer();
                 $mailer->AddAddress($addr);
                 $mailer->IsHTML(true);
-                $mailer->SetBody($this->Lang('mailtest_body'));
+                $mailer->SetBody($this->Lang('mailtest_body', CMS_ROOT_URL));
                 $mailer->SetSubject($this->Lang('mailtest_subject'));
                 $mailer->Send();
                 if ($mailer->IsError()) {
@@ -134,7 +156,7 @@ if (isset($params['sendtest'])) {
         }
     }
 
-    $themeObject = Utils::get_theme_object();
+    $themeObject = AppUtils::get_theme_object();
     foreach ($messages as $str) {
         $themeObject->RecordNotice('info', $str);
     }
@@ -144,15 +166,57 @@ if (isset($params['sendtest'])) {
     $activetab = 'test';
 }
 
-$baseurl = $this->GetModuleURLPath();
+if ($pmod) {
+    if (isset($params['masterpass'])) {
+        require_once __DIR__.DIRECTORY_SEPARATOR.'method.savesettings.php';
+        $activetab = 'settings';
+    }
+}
+
+if ($pgates) {
+    if (isset($params['currentgate'])) {
+        require_once __DIR__.DIRECTORY_SEPARATOR.'method.savegates.php';
+        $activetab = 'gates';
+    }
+
+    Utils::refresh_gateways($this);
+    $gatesdata = Utils::get_gateways_full($this);
+    if ($gatesdata) {
+        $gatesnames = [];
+        foreach ($gatesdata as $key => &$one) {
+            $gatesnames[$key] = $one['obj']->get_name();
+            $one = $one['obj']->get_setup_form();
+        }
+        unset($one);
+        asort($gatesnames, SORT_STRING); // no unicode in names?
+        $gatecurrent = $params['currentgate'] ?? reset($gatesnames); //TODO
+    } else {
+        $gatesnames = null;
+        $gatecurrent = null;
+    }
+//    $addurl1 = $this->CreateLink($id, 'opengate', '', '', ['gate_id' => -1], '', true);
+    $addurl = FormUtils::create_action_link($this, [
+     'modid' => $id,
+     'action' => 'opengate',
+     'params' => ['gate_id' => -1],
+     'onlyhref' => true,
+    ]);
+    $urlext = get_secure_param();
+}
+
 //TODO deploy a ScriptsMerger, for easier CSP compliance
+//$jsm = new CMSMS\ScriptsMerger();
+$baseurl = CMS_ASSETS_URL.'/js';
+$baseurl2 = $this->GetModuleURLPath();
 $js = <<<EOS
- <script type="text/javascript" src="{$baseurl}/lib/js/jquery-inputCloak.min.js"></script>
+ <script type="text/javascript" src="{$baseurl}/jquery-inputCloak.min.js"></script>
 EOS;
 add_page_headtext($js);
 
 $s1 = json_encode($this->Lang('confirm_sendtestmail'));
 $s2 = json_encode($this->Lang('confirm_settings'));
+$s3 = json_encode($this->Lang('confirm_property'));
+//TODO some js is permission-specific
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -173,11 +237,21 @@ function on_mailer() {
  }
 }
 $(function() {
- $('#password').inputCloak({
-   type:'see4',
+ on_mailer();
+ var dbg = $('.cloaked');
+ $('.cloaked').inputCloak({
+   type:'see1',
    symbol:'\u25CF'
  });
- on_mailer();
+ $('.gateway_panel').hide();
+ var sel = $('#currentgate'),
+   cg = sel.val();
+ $('#'+cg).show();
+ sel.on('change', function() {
+   $('.gateway_panel').hide();
+   cg = $(this).val();
+   $('#'+cg).show();
+ });
  $('#mailer').on('change', on_mailer);
  $('[name="{$id}sendtest"]').on('click activate', function(ev) {
   ev.preventDefault();
@@ -188,6 +262,25 @@ $(function() {
   ev.preventDefault();
   cms_confirm_btnclick(this, $s2);
   return false;
+ });
+ $('[name$="~delete"]').on('click activate', function(ev) {
+  ev.preventDefault();
+  var cb = $(this).closest('fieldset').find('input[name$="~sel"]:checked');
+  if (cb.length > 0) {
+   cms_confirm_btnclick(this, $s3);
+  }
+  return false;
+ });
+ $('.gatedata').find('tbody').sortable().disableSelection()
+  .find('tr').removeAttr('onmouseover').removeAttr('onmouseout')
+  .on('mouseover', function() {
+    var now = $(this).attr('class');
+    $(this).attr('class', now+'hover');
+  })
+  .on('mouseout', function() {
+    var now = $(this).attr('class');
+    var to = now.indexOf('hover');
+    $(this).attr('class', now.substring(0,to));
  });
 });
 //]]>
@@ -200,61 +293,66 @@ foreach ($mailprefs as $key => &$val) {
     $val = $this->GetPreference($key);
 }
 unset($val);
-//any core properties prevail
-$val = AppParams::get('mailprefs');
-if ($val) {
-    $mailprefs = array_merge($mailprefs, unserialize($val, ['allowed_classes' => false]));
-}
-$mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']));
+$pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
+$mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']), $pw);
 
-if (empty($activetab)) { $activetab = 'settings'; }
+if (empty($activetab)) { $activetab = 'internal'; }
 
-//$extras = []; //TODO all hidden items in form
-if ($this instanceof IResource) { // light-module
-    $tpl = $this->GetTemplateObject('defaultadmin.tpl');
-} else {
+//if ($this instanceof CMSMS\ResourceMethods) { // light-module
+//    $tpl = $this->GetTemplateObject('defaultadmin.tpl');
+//} else {
     $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
+//}
+
+$mailers = [
+ 'mail' => 'PHP',
+ 'sendmail' => 'Sendmail',
+ 'smtp' => 'SMTP',
+];
+if ($config['develop_mode']) {
+    $mailers += [
+     'file' => $this->Lang('file'),
+     'dummy' => $this->Lang('testonly'),
+    ];
 }
 
-// CMSMS 2.2 'startform' => $this->CreateFormStart($id, 'defaultadmin', $returnid),
-// 'extraparms' => $extras,
+$singl_opts = [
+ ['value'=>0,'label'=>$this->Lang('never')],
+ ['value'=>1,'label'=>$this->Lang('always')],
+ ['value'=>2,'label'=>$this->Lang('nocopies')],
+];
+$val = (int)$mailprefs['single'];
+$singl_opts[$val] += ['checked'=> true];
+
+//$extras = []; //TODO all 'other' hidden items in each form
+// 'puse' => $puse,
 $tpl->assign([
  'startform' => FormUtils::create_form_start($this, ['id' => $id, 'action' => 'defaultadmin']),
+ 'extraparms' => null, //$extras,
  'tab' => $activetab,
+ 'padmin' => $padmin,
+ 'pmod' => $pmod,
+ 'pgates' => $pgates,
  'title_charset' => $this->Lang('charset'),
- 'help_charset' => 'info_charset',
  'value_charset' => $mailprefs['charset'],
  'title_mailer' => $this->Lang('mailer'),
- 'help_mailer' => 'info_mailer',
  'value_mailer' => $mailprefs['mailer'],
- 'opts_mailer' => [
-     'mail' => 'PHP',
-     'sendmail' => 'Sendmail',
-     'smtp' => 'SMTP',
-  ],
+ 'opts_mailer' => $mailers,
  'title_host' => $this->Lang('host'),
- 'help_host' => 'info_host',
  'value_host' => $mailprefs['host'],
  'title_port' => $this->Lang('port'),
- 'help_port' => 'info_port',
  'value_port' => $mailprefs['port'],
  'title_from' => $this->Lang('from'),
- 'help_from' => 'info_from',
  'value_from' => $mailprefs['from'],
  'title_fromuser' =>$this->Lang('fromuser'),
- 'help_fromuser' => 'info_fromuser',
  'value_fromuser' => $mailprefs['fromuser'],
  'title_sendmail' =>$this->Lang('sendmail'),
- 'help_sendmail' => 'info_sendmail',
  'value_sendmail' => $mailprefs['sendmail'],
  'title_timeout' => $this->Lang('timeout'),
- 'help_timeout' => 'info_timeout',
  'value_timeout' => $mailprefs['timeout'],
  'title_smtpauth' => $this->Lang('smtpauth'),
- 'help_smtpauth' => 'info_smtpauth',
  'value_smtpauth' => $mailprefs['smtpauth'],
  'title_secure' => $this->Lang('secure'),
- 'help_secure' => 'info_secure',
  'value_secure' => $mailprefs['secure'],
  'opts_secure' => [
      '' => $this->Lang('none'),
@@ -262,13 +360,11 @@ $tpl->assign([
      'tls' => $this->Lang('tls')
   ],
  'title_username' => $this->Lang('username'),
- 'help_username' => 'info_username',
  'value_username' => $mailprefs['username'],
  'title_password' => $this->Lang('password'),
- 'help_password' => 'info_password',
  'value_password' => $mailprefs['password'],
+/*
  'title_batchgap' => $this->Lang('batchgap'),
- 'help_batchgap' => 'info_batchgap',
  'opts_batchgap' => [
      0 => $this->Lang('none'),
      3600 => $this->Lang('hours_1'),
@@ -278,14 +374,28 @@ $tpl->assign([
  ],
  'value_batchgap' => $mailprefs['batchgap'],
  'title_batchsize' => $this->Lang('batchsize'),
- 'help_batchsize' => 'info_batchsize',
  'value_batchsize' => $mailprefs['batchsize'],
+*/
  'title_single' => $this->Lang('single'),
- 'help_single' => 'info_single',
- 'value_single' => $mailprefs['single'],
+ 'opts_single' => $singl_opts,
  'title_testaddress' => $this->Lang('testaddress'),
- 'help_testaddress' => 'info_testaddress',
 ]);
+
+if ($pgates) {
+    $tpl->assign([
+ 'gatesnames' => $gatesnames,
+ 'gatecurrent' => $gatecurrent,
+ 'gatesdata' => $gatesdata,
+ 'addurl' => $addurl,
+    ]);
+}
+
+if ($pmod) {
+    $tpl->assign([
+ 'title_modpassword' => $this->Lang('modpassword'),
+ 'value_modpassword' => $pw, // >> textarea, no need for cms_specialchars()
+    ]);
+}
 
 $tpl->display();
 return '';

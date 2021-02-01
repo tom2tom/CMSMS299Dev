@@ -1,27 +1,32 @@
 <?php
-# Plugin to generate an url or link to a page of the current website.
-# Copyright (C) 2013-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+ Plugin to generate an url or link to a page of the current website.
+Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+use CMSMS\AppSingle;
 use CMSMS\ContentOperations;
 use CMSMS\LangOperations;
 
 function smarty_function_cms_selflink($params, $template)
 {
-	$gCms = CmsApp::get_instance();
+	$gCms = AppSingle::App();
 	$hm = $gCms->GetHierarchyManager();
 	$url = '';
 	$urlparam = '';
@@ -50,14 +55,13 @@ function smarty_function_cms_selflink($params, $template)
 				$pageid = (int)$page;
 			}
 			else {
-				$page = cms_html_entity_decode($page); // decode entities (alias may be encoded if entered in WYSIWYG)
+				$page = cms_specialchars_decode($page); // decode entities (alias may be encoded if entered in WYSIWYG)
 				$node = $hm->find_by_tag('alias',$page);
 				if( $node ) $pageid = $node->get_tag('id');
 			}
 		}
 	}
-
-	else if( isset($params['dir']) ) {
+	elseif( isset($params['dir']) ) {
 		$startpage = null;
 		if( $pageid ) $startpage = $pageid;
 		if( !$startpage ) $startpage = $gCms->get_content_id();
@@ -170,11 +174,11 @@ function smarty_function_cms_selflink($params, $template)
 		}
 	}
 
-	if( $pageid == '' ) return;
+	if( $pageid == '' ) return '';
 
 	// a final check to see if this page exists.
 	$node = $hm->find_by_tag('id',$pageid);
-	if( !$node ) return;
+	if( !$node ) return '';
 
 	// get the content object.
 	$content = $node->getContent();
@@ -185,22 +189,22 @@ function smarty_function_cms_selflink($params, $template)
 	if( $url && !empty($params['anchorlink']) ) { $url .= '#' . ltrim($params['anchorlink'], ' #'); }
 	elseif( $url && !empty($params['fragment']) ) { $url .= '#' . ltrim($params['fragment'], ' #'); }
 
-	if( !$url ) return; // no url to link to, therefore nothing to do.
+	if( !$url ) return ''; // no url to link to, therefore nothing to do.
 
 	if( isset($params['urlonly']) ) $urlonly = cms_to_bool($params['urlonly']);
 
 	if( $urlonly ) {
-		if( isset($params['assign']) ) {
-			$template->assign(trim($params['assign']),$url);
-			return;
+		if( !empty($params['assign']) ) {
+			$template->assign(trim($params['assign']), $url);
+			return '';
 		}
 		return $url;
 	}
 
-	// Now we build the output.
+	// Now we build the output
 	$result = '';
 	if (!empty($params['label'])) {
-		$label = cms_htmlentities($params['label']);
+		$label = cms_specialchars($params['label']);
 	}
 
 	$name = $content->Name();
@@ -212,7 +216,7 @@ function smarty_function_cms_selflink($params, $template)
 	elseif( $titleattr ) {
 		$title = $titleattr;
 	}
-	$title = cms_htmlentities(strip_tags($title));
+	$title = cms_specialchars(strip_tags($title));
 
 	if ($rellink && $dir != '' ) {
 		// output a relative link.
@@ -248,9 +252,11 @@ function smarty_function_cms_selflink($params, $template)
 
 		if( isset($params['text']) ) {
 			$linktext = $params['text'];
-		} elseif( !empty($params['menu']) ) {
+		}
+		elseif( !empty($params['menu']) ) {
 			$linktext = $content->MenuText();
-		} else {
+		}
+		else {
 			$linktext = $name;
 		}
 
@@ -265,7 +271,8 @@ function smarty_function_cms_selflink($params, $template)
 			if( $height ) $result .= " height=\"$height\"";
 			$result .= ' />';
 			if( empty($params['imageonly']) ) $result .= " $linktext";
-		} else {
+		}
+		else {
 			$result .= $linktext;
 		}
 
@@ -274,14 +281,9 @@ function smarty_function_cms_selflink($params, $template)
 	}
 
 	$result = trim($result);
-	if( isset($params['assign']) ){
+	if( !empty($params['assign']) ){
 		$template->assign(trim($params['assign']),$result);
-		return;
+		return '';
 	}
 	return $result;
-}
-
-function smarty_cms_help_function_cms_selflink()
-{
-	echo lang_by_realm('tags','help_function_cms_selflink');
 }

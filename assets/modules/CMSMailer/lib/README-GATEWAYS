@@ -1,0 +1,19 @@
+Each working gateway needs a class file, named like 'class.somename_email_gateway.php',
+located in module directory '.../lib/gateways', and containing at least a 
+corresponding class named like 'somename_email_gateway'.
+
+For efficiency purposes, it would be best to leave as few classes as possible in
+the gateways directory. Park the unused ones somewhere else.
+
+NEW GATEWAYS
+
+The file 'class.skeleton_email_gateway.php' constitutes a template of sorts.
+
+Gateway class developers should become familiar with the API of the parent-class
+(email_gateway_base), and may get some inspiration from existing gateways, of course.
+
+Existing 'infrastructure' from gateway providers can be used, provided there's a
+suitable interface to it.
+
+Add any translateable strings to Lang file(s), including one string to be used as
+a one-line reference in module help (and insert it there).

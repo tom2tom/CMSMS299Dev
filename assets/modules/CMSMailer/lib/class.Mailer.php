@@ -1,44 +1,51 @@
 <?php
-# class Mailer - a simple wrapper around an external mailer system
-# Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+class Mailer - a simple wrapper around an external backend mailer system
+Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
+This file is a component of CMS Made Simple module CMSMailer.
+
+This CMSMailer module is free software; you may redistribute it and/or
+modify it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation; either version 3 of that license,
+or (at your option) any later version.
+
+This CMSMailer module is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the GNU Affero General Public License
+<http://www.gnu.org/licenses/licenses.html#AGPL> for more details.
+*/
 namespace CMSMailer;
 
+use CMSMailer;
+use CMSMailer\PrefCrypter;
 use CMSMS\AppParams;
 use CMSMS\Crypto;
-use CMSMS\Utils;
+use CMSMS\DeprecationNotice;
+use CMSMS\Utils as AppUtils;
+use Ddrv\Mailer\Mailer as DoMailer;
+use Ddrv\Mailer\Message;
+use Ddrv\Mailer\Transport\FakeTransport;
+use Ddrv\Mailer\Transport\FileTransport;
 use Ddrv\Mailer\Transport\PHPmailTransport;
 use Ddrv\Mailer\Transport\SendmailTransport;
 use Ddrv\Mailer\Transport\SmtpTransport;
-//use Ddrv\Mailer\Transport\FakeTransport;
-use Ddrv\Mailer\Spool\MemorySpool;
-use Ddrv\Mailer\Spool\FileSpool;
-use Ddrv\Mailer\Mailer As DoMailer;
-use Ddrv\Mailer\Message;
+use Ddrv\Mailer\Transport\SpoolTransport;
+use Exception;
+use const CMS_DEPREC;
+use const TMP_CACHE_LOCATION;
+use function cms_html_entity_decode;
+use function cms_join_path;
 
 /**
- * A class for sending email.
+ * A class for interfacing with Ddrv Mailer to send email.
  *
  * @package CMS
  * @license GPL
- * @since 2.0
  * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
-
 class Mailer
 {
 	/**
@@ -46,17 +53,19 @@ class Mailer
 	 */
 	private $message;
 	private $transport;
-	private $headers;
+//	private $headers;
+	private $from; //local cache in lieu of message API
+	private $ishtml;
+	private $errmsg;
 
 	/**
 	 * Constructor
 	 *
-	 * @param bool $exceptions Optionally disable autoloader exceptions,
-	 *  and rely on error strings.
+	 * @param bool $throw Optionally enable exception when autoloader registration fails.
 	 */
-	public function __construct($exceptions = true)
+	public function __construct($throw = false)
 	{
-		if (spl_autoload_register([$this, 'MailerAutoload'], $exceptions)) {
+		if (spl_autoload_register([$this, 'MailerAutoload'], $throw)) {
 			$this->reset();
 		} else {
 			$this->message = null;
@@ -84,8 +93,7 @@ class Mailer
 				unset($parts[0]);
 			}
 			unset($parts[$p], $parts[$p+1]);
-			$class = array_pop($parts);
-			$fp = cms_join_path(__DIR__, 'php-mailer', implode(DIRECTORY_SEPARATOR, $parts), $class . '.php');
+			$fp = cms_join_path(__DIR__, 'ddrv-mailer', ...$parts) . '.php';
 			if (is_readable($fp)) {
 				include_once $fp;
 			}
@@ -97,48 +105,125 @@ class Mailer
 	 */
 	public function reset()
 	{
-		$mod = Utils::get_module('CMSMailer');
-		$mailprefs = $mod->GetPreference();
-
 		$this->message = new Message();
 		$this->transport = [];
-		$this->headers = [];
+//		$this->headers = [];
+		$this->from = [];
+		$this->ishtml = false;
+		$this->errmsg = '';
+		$mailprefs = [
+			'mailer' => 1,
+			'from' => 1,
+			'fromuser'  => 1,
+			'charset' => 1,
+			'host' => 1,
+			'port' => 1,
+			'sendmail' => 1,
+			'smtpauth' => 1,
+			'username' => 1,
+			'password' => 1,
+			'secure' => 1,
+			'timeout' => 1,
+			//extras for this mailer
+			'batchgap' => 1,
+			'batchsize' => 1,
+			'single' => 1,
+		];
+		foreach ($mailprefs as $key => &$val) {
+			$val = $this->GetPreference($key);
+		}
+		unset($val);
+		$val = AppParams::get('mailprefs');
+		if ($val) {
+			$mailprefs = array_merge($mailprefs, unserialize($val, ['allowed_classes' => false]));
+		}
+		$pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
+		$mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']), $pw);
 
-		$val = $mailprefs['timeout'] ?? 60;
-		$this->transport['timeout'] = (int)$val;
-		$this->transport['host'] = $mailprefs['host'] ?? '';
-		$val = $mailprefs['port'] ?? 25;
-		$this->transport['port'] = (int)$val;
-		$this->transport['login'] = $mailprefs['username'] ?? ''; // Only used when using the SMTP mailer with SMTP authentication ?
-		$val = $mailprefs['password'] ?? '';
-		$this->transport['password'] = ($val) ? Crypto::decrypt_string(base64_decode($val)) : '';
-		$this->transport['encrytion'] = $mailprefs['secure'] ?? ''; // 'tls' 'ssl' or ''
-		$this->transport['smtpauth'] = $mailprefs['smtpauth'] ?? true; // whether smtp must use credentials
-		$this->message->setFrom($mailprefs['from'] ?? '', $mailprefs['fromuser'] ?? '');
-		$this->headers['charset'] = $mailprefs['charset'] ?? '';
+		$value = $mailprefs['from'] ?? $mailprefs['fromuser'] ?? '';
+		$this->message->setSender(trim($value)); //TODO ($email, $name)
+		$this->message->setCharset(trim($mailprefs['charset']));
 
 		switch (strtolower($mailprefs['mailer'])) {
 			case 'smtp':
 				$this->transport['object'] = new SmtpTransport(
-				//options
+					$mailprefs['host'],
+					$mailprefs['port'],
+					$mailprefs['username'],
+					$mailprefs['password'],
+					$mailprefs['from'],
+					$mailprefs['secure'],
+					$mailprefs['host']
 				);
 				break;
 			case 'sendmail':
-				$this->transport['object'] = new SendmailTransport(
-				//options
-				);
-				//TODO other sendmail options
-				//$this->transport['sendmailapp'] = $mailprefs['sendmail'];
+				$this->transport['object'] = new SendmailTransport([
+					'sendmailapp' => $mailprefs['sendmail'],
+					'sender' => $mailprefs['from'],
+					'delay-silent' => 1, // no warning re deferred send
+					//TODO other sendmail options
+				]);
+				break;
+			case 'file':
+				$this->transport['object'] = new FileTransport(TMP_CACHE_LOCATION);
+				break;
+			case 'spool':
+				//TODO
+				$this->transport['object'] = new SpoolTransport();
+				break;
+			case 'test':
+				$this->transport['object'] = new FakeTransport();
 				break;
 			default:
-				$this->transport['object'] = new PHPmailTransport(
-				//options
-				);
+				$options = array(); //TODO
+				$this->transport['object'] = new PHPmailTransport($options);
 				break;
 		}
+
+		//TODO some of these relevant only for a specific transport (smtp etc)
+		$this->transport['host'] = trim($mailprefs['host']);
+		$this->transport['port'] = (int)$mailprefs['port'];
+		$this->transport['login'] = trim($mailprefs['username']); // only used when using the SMTP mailer with SMTP authentication ?
+		$value = $mailprefs['password'] ?? '';
+		$this->transport['password'] = ($value) ? Crypto::decrypt_string(base64_decode($value), $pw) : '';
+		$this->transport['encrytion'] = trim($mailprefs['secure']); // 'tls' 'ssl' or ''
+		$this->transport['smtpauth'] = (bool)$mailprefs['smtpauth'];
+		$this->transport['timeout'] = (int)$mailprefs['timeout'];
+		$this->transport['priority'] = 1; // highest
 	}
 
-	public function getInnerMailer()
+	/**
+	 * Utility-method, replicates the private cleaner in the Message class
+	 * @param string $name
+	 * @return string maybe empty
+	 */
+	public function CleanName(string $name) : string
+	{
+		if ($name || is_numeric($name)) {
+			return preg_replace('/[^\w\pL ,.]/i', '', trim($name));
+		}
+		return '';
+	}
+
+	/**
+	 * Utility-method, scrubs HTML tags from the supplied string, after
+	 * replacing relevant newlines
+	 * @param string $content
+	 * @return string
+	 */
+	public function CleanHtmlBody(string $content) : string
+	{
+		if ($content) {
+			$value = preg_replace(
+			['~\<br\s*/?\>~i','~\</p\>~i','~\</h\d\>~i'],
+			["\r\n","\r\n\r\n","\r\n\r\n"],
+			$content);
+			$content = cms_html_entity_decode(strip_tags($value), ENT_QUOTES);
+		}
+		return $content;
+	}
+
+	public function GetInnerMailer()
 	{
 		return $this->message;
 	}
@@ -147,14 +232,16 @@ class Mailer
 	 * Set the subject of the message
 	 * @param string $subject
 	 */
-	public function setSubject(string $subject)
+	public function SetSubject(string $subject)
 	{
 		$this->message->setSubject($subject);
 	}
 
 	/**
+	 *
+	 * @return string
 	 */
-	public function getSubject() : string
+	public function GetSubject() : string
 	{
 		return $this->message->getSubject();
 	}
@@ -164,118 +251,167 @@ class Mailer
 	 * Optionally set a name for the sender
 	 *
 	 * @param string $email email address that the email will be from.
-	 * @param string $name
+	 * @param string $name optional sender's name
 	 */
-	public function setFrom(string $email, string $name = '')
+	public function SetFrom(string $email, string $name = '')
 	{
-		$this->message->setFrom($email, $name);
+		$this->message->setSender($email, $name);
+		$this->from[$email] = $name; //local cache enables retrieval
 	}
 
 	/**
+	 * Get the email sender.
+	 * @param string $email
+	 * @return string
 	 */
-	public function getFrom() : array
+	public function GetFrom(string $email = '') : string
 	{
-		return $this->message->TODO();
+		if ($email) {
+			return $this->from[$email] ?? '';
+		}
+		return ($this->from) ? reset($this->from) : '';
 	}
 
 	/**
 	 * Add a "To" address.
-	 * @param string $address The email address
-	 * @param string $name		The real name
+	 * @param string $email The email address
+	 * @param string $name  The sender's name
 	 * @return bool true on success, false if address already used
 	 */
-	public function addAddress(string $email, string $name = '') : bool
+	public function AddAddress(string $email, string $name = '') : bool
 	{
-		return $this->message->addTo($email, $name);
+		$this->message->addRecipient($email, $name);
+		return true;
 	}
 
 	/**
+	 * Remove a "To" address.
+	 * @param string $email
 	 */
-	public function removeAddress(string $email)
+	public function RemoveAddress(string $email)
 	{
-		$this->message->removeTo($email);
+		$this->message->removeRecient($email);
 	}
 
 	/**
+	 * Get all "To" addresses.
+	 * @return array
 	 */
-	public function getAddresses() : array
+	public function GetAddresses() : array
 	{
-		return $this->message->getTo();
+		return $this->message->getRecipients();
 	}
 
 	/**
 	 * Add a "CC" address.
-	 * @param string $address The email address
-	 * @param string $name		The real name
+	 * @param string $email The email address
+	 * @param string $name  The recipient's name
 	 * @return bool true on success, false if address already used
 	 */
-	public function addCC(string $email, string $name = '') : bool
+	public function AddCC(string $email, string $name = '') : bool
 	{
-		return $this->message->addCc();
+		$this->message->addCc($email, $name);
+		return true;
 	}
 
 	/**
+	 * Remove a "CC" address.
+	 * @param string $email
 	 */
-	public function removeCC(string $email)
+	public function RemoveCC(string $email)
 	{
-		$this->message->removeCc();
+		$this->message->removeCc($email);
 	}
 
 	/**
+	 * Get all "CC" addresses.
+	 * @return array
 	 */
-	public function getCC() : array
+	public function GetCC() : array
 	{
 		return $this->message->getCc();
 	}
 
 	/**
 	 * Add a "BCC" address.
-	 * @param string $address The email address
-	 * @param string $name		The real name
+	 * @param string $email The email address
+	 * @param string $name  The real name
 	 * @return bool true on success, false if address already used
 	 */
-	public function addBCC(string $email, string $name = '') : bool
+	public function AddBCC(string $email, string $name = '') : bool
 	{
-		return $this->message->addBcc();
+		$this->message->addBcc($email, $name);
+		return true;
 	}
 
 	/**
+	 * Remove a "BCC" address.
+	 * @param string $email
 	 */
-	public function removeBCC(string $email)
+	public function RemoveBCC(string $email)
 	{
-		$this->message->removeBcc();
+		$this->message->removeBcc($email);
 	}
 
 	/**
+	 * Get all "BCC" addresses.
+	 * @return array
 	 */
-	public function getBCC() : array
+	public function GetBCC() : array
 	{
 		return $this->message->getBcc();
 	}
 
 	/**
-	 * Set the "Reply-to" address.
-	 * @param string $addr
-	 * @param string $name
-	 * @return bool
+	 * Set the (initial) "Reply-to" address.
+	 * @param string $email
 	 */
-	public function setReplyTo(string $email, string $name = '') : bool
+	public function SetReplyTo(string $email)
 	{
-		return $this->message->TODO($email, $name);
+		$this->message->setHeader('Reply-To', $value);
 	}
 
 	/**
+	 *
 	 */
-	public function removeReplyTo(string $email)
+	public function RemoveReplyTo()
 	{
-		$this->message->TODO($email);
+		$this->message->removeHeader('Reply-To');
 	}
 
 	/**
+	 *
+	 * @return string
 	 */
-	public function getReplyTo() : string
+	public function GetReplyTo() : string
 	{
-		return $this->message->TODO();
+		return $this->message->getHeaderTODO('Reply-To');
+	}
+
+	/**
+	 *
+	 * @param string $email
+	 */
+	public function SetConfirmTo(string $email)
+	{
+		$this->message->setHeader('Disposition-Notification-To', $email);
+	}
+
+	/**
+	 *
+	 */
+	public function RemoveConfirmTo()
+	{
+		$this->message->removeHeader('Disposition-Notification-To');
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	public function GetConfirmto() : string
+	{
+		return $this->message->getHeaderTODO('Disposition-Notification-To');
 	}
 
 	/**
@@ -283,27 +419,29 @@ class Mailer
 	 *
 	 * e.g. $mailerobj->addCustomHeader('X-MYHEADER', 'some-value');
 	 * @param string $headername
-	 * @param string $body
+	 * @param string $value
 	 */
-	public function addCustomHeader(string $headername, string $body)
+	public function AddCustomHeader(string $headername, string $value)
 	{
-		$this->message->setHeader($headername, $body);
+		$this->message->setHeader($headername, $value);
 	}
 
 	/**
+	 *
+	 * @param string $headername
 	 */
-	public function removeCustomHeader(string $headername)
+	public function RemoveCustomHeader(string $headername)
 	{
-		$this->message->removeHeader($header);
+		$this->message->removeHeader($headername);
 	}
 
 	/**
 	 * [Un]set the message content type to HTML.
-	 * @param bool $tsate Default true
+	 * @param bool $state Default true
 	 */
-	public function isHTML(bool $state = true)
+	public function IsHTML(bool $state = true)
 	{
-		return $this->someflag = $state;
+		$this->ishtml = $state;
 	}
 
 	/**
@@ -313,12 +451,14 @@ class Mailer
 	 * Otherwise it should contain only text.
 	 * @param string $content
 	 */
-	public function setBody(string $content)
+	public function SetBody(string $content)
 	{
-		if ($this->someflag)
-		$this->message->setPlainBody($content);
-		else
-		$this->message->setHtmlBody($content);
+		if ($this->ishtml) {
+			$this->message->setHtml($content);
+		} else {
+			$content = $this->CleanHtmlBody($content);
+			$this->message->setText($content);
+		}
 	}
 
 	/**
@@ -328,61 +468,75 @@ class Mailer
 	 * for email clients without HTML support.
 	 * @param string $content
 	 */
-	public function setAltBody(string $content)
+	public function SetAltBody(string $content)
 	{
-		if ($this->someflag)
-		$this->message->setHtmlBody($content);
-		else
-		$this->message->setPlainBody($content);
+		if ($this->ishtml) {
+			$content = $this->CleanHtmlBody($content);
+			$this->message->setText($content);
+		} else {
+			$this->message->setHtml($content);
+		}
 	}
 
 	/**
+	 *
+	 * @param string $name
+	 * @param string $content
+	 * @param string $path
 	 */
-	public function addAttach()
+	public function AddAttach(string $name, string $content = '', string $path = '')
 	{
-		//attachFromString
-		//attachFromFile
-		$this->message->TODO();
+		if ($content) {
+			$this->message->attachFromString($name, $content);
+		} elseif ($path && is_file($path)) {
+			if (!$name) {
+				$name = basename($path);
+			}
+			$this->message->attachFromFile($name, $path);
+		}
 	}
 
 	/**
+	 *
+	 * @param string $name
 	 */
-	public function removeAttach()
+	public function RemoveAttach(string $name)
 	{
-		$this->message->TODO();
+		$this->message->detach($name);
 	}
 
 	/**
 	 * Check whether there was an error on the last message send
 	 * @return bool
 	 */
-	public function isError() : bool
+	public function IsError() : bool
 	{
-		return $this->message->TODO();
+		return $this->errmsg != false;
 	}
 
 	/**
 	 * Return the error information from the last error.
 	 * @return string
 	 */
-	public function getErrorInfo() : string
+	public function GetErrorInfo() : string
 	{
-		return $this->message->TODO();
+		return $this->errmsg;
 	}
 
 	/**
 	 * Send the message
+	 * @param int $batchsize optional No. of messages to send in a single batch Default 0 hence no limit
 	 */
-	public function Send()
+	public function Send(int $batchsize = 0)
 	{
 /*
 		$spool = new FileSpool($this->transport['object'], sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'mail');
 		//OR
 		$spool = new MemorySpool($this->transport['object']);
 
-		$mailer = new Mailer($spool);
+		$mailer = new DoMailer($spool);
 		//OR
-		$mailer = new Mailer($spool, /*from options* /);
+		$mailer = new DoMailer($spool, /*from options* /);
 
 		$message = new Message(
 			'Test message',           // subject of message
@@ -391,27 +545,27 @@ class Mailer
 		);
 		//OR
 		$html = <<<HTML
-	<h1>Welcome to Fight Club</h1>
-	<p>Please, read our rules in attachments</p>
-	HTML;
+<h1>Welcome to Fight Club</h1>
+<p>Please, read our rules in attachments</p>
+HTML;
 		$text = <<<TEXT
-	Welcome to Fight Club
-	Please, read our rules in attachments
-	TEXT;
+Welcome to Fight Club
+Please, read our rules in attachments
+TEXT;
 		$message = new Message();
 		$message
 			->setSubject('Fight Club')
-			->setHtmlBody($html)
-			->setPlainBody($text);
+			->setHtml($html)
+			->setText($text);
 
 		$message->addTo('tyler@fight.club', 'Tyler Durden');
 		$message->addCc('bob@fight.club', 'Robert Paulson');
 		$message->addBcc('angel@fight.club', 'Angel Face');
 
 		$rules = <<<TEXT
-	1. You don't talk about fight club.
-	2. You don't talk about fight club.
-	TEXT;
+1. You don't talk about fight club.
+2. You don't talk about fight club.
+TEXT;
 		$message->attachFromString(
 			'fight-club.txt', // attachment name
 			$rules,           // content
@@ -423,146 +577,390 @@ class Mailer
 			'project-mayhem.txt',  // attachment name
 			 $path                 // path to attached file
 		);
-
-		$mailer->send($message);
-		//OR
-		$mailer->send($message, NUM);
-		$mailer->flush();
-		//OR
-		$mailer->flush(LIMIT);
-		//OR
-		$mailer->personal($message); // without spool
-		// or
-		$mailer->personal($message, NUM); // with spool
-		$mailer->flush();
 */
+		$mailer = new DoMailer($this->transport['object']);
+		try {
+			$mailer->send($this->message /*, int priority*/);
+/*			//OR
+			$mailer->send($this->message, $batchsize);
+			$mailer->flush();
+			//OR
+			$mailer->flush($batchsize);
+			//OR
+			$mailer->personal($this->message); // without spool
+			// OR
+			$mailer->personal($this->message, $batchsize); // with spool
+			$mailer->flush();
+*/
+		} catch (Exception $e) {
+			$this->errmsg = $e->GetMessage();
+		}
+	}
+
+	// ============= OLD-CLASS METHODS =============
+
+	//deprecated alias
+	public function AddAttachment($path, $name = '')
+	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'addAttach'));
+		$this->AddAttach($name, '', $path);
+	}
+
+	/**
+	 * Add an embedded attachment.	This can include images, sounds, and
+	 * just about any other document.	Make sure to set the $type to an
+	 * image type.	For JPEG images use "image/jpeg" and for GIF images
+	 * use "image/gif".
+	 * @param string $path Path to the attachment.
+	 * @param string $cid Content ID of the attachment. Use this to
+	 *  identify the Id for accessing the image in an HTML form.
+	 * @param string $name Overrides the attachment name.
+	 * @param string $encoding File encoding (see $Encoding).
+	 * @param string $type File extension (MIME) type.
+	 * @return bool
+	 */
+	function AddEmbeddedImage($path, $cid, $name = '')
+	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'addAttach'));
+		$this->AddAttach($name, '', $path);
+	}
+
+	//deprecated alias
+	public function AddStringAttachment($string, $name)
+	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'addAttach'));
+		$this->AddAttach($name, $string, '');
+	}
+
+	public function AddReplyTo($email)
+	{
+		//TODO add comma-separated $email
+	}
+
+	public function ClearAddresses()
+	{
+	}
+
+	public function ClearAllRecipients()
+	{
+		$this->message->removeRecipients('');
+	}
+
+	public function ClearAttachments()
+	{
+		foreach ($TODO as $name) {
+			$this->message->detach($name);
+		}
+	}
+
+	public function ClearBCCs()
+	{
+		$this->message->removeRecipients(Message::RECIPIENT_BCC);
+	}
+
+	public function ClearCCs()
+	{
+		$this->message->removeRecipients(Message::RECIPIENT_CC);
+	}
+
+	public function ClearCustomHeaders()
+	{
+	}
+
+	//deprecated alias
+	public function ClearReplyTos()
+	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'RemoveReplyTo'));
+		$this->RemoveReplyTo();
+	}
+
+	public function GetAltBody()
+	{
+		return '';
+	}
+
+	public function GetBody()
+	{
+		return '';
+	}
+
+	public function GetCharSet()
+	{
+		return '';
+	}
+
+	public function GetConfirmReadingTo()
+	{
+		return '';
+	}
+
+	public function GetEncoding()
+	{
+		return '';
+	}
+
+	public function GetFromName()
+	{
+		return '';
+	}
+
+	public function GetHelo()
+	{
+		return '';
+	}
+
+	public function GetHostname()
+	{
+		return $this->transport[''];
+	}
+
+	public function GetMailer()
+	{
+		return '';
+	}
+
+	public function GetPriority()
+	{
+		return $this->transport[''];
+	}
+
+	public function GetSender()
+	{
+		return $this->transport[''];
+	}
+
+	public function GetSendmail()
+	{
+		//return $mailprefs['sendmail']
+	}
+
+	public function GetSMTPAuth()
+	{
+		return (bool)$this->transport['smtpauth'];
+	}
+
+	public function GetSMTPDebug()
+	{
+		return $this->transport[''];
+	}
+
+	public function GetSMTPHost()
+	{
+		return $this->transport['host'];
+	}
+
+	public function GetSMTPKeepAlive()
+	{
+		return $this->transport[''];
+	}
+
+	public function GetSMTPPassword()
+	{
+		return $this->transport['password'];
+	}
+
+	public function GetSMTPPort()
+	{
+		return $this->transport['port'];
+	}
+
+	public function GetSMTPSecure()
+	{
+		return $this->transport['encrytion'];
+	}
+
+	public function GetSMTPTimeout()
+	{
+		return $this->transport['timeout'];
+	}
+
+	public function GetSMTPUsername()
+	{
+		return $this->transport['login'];
+	}
+
+	public function GetWordWrap()
+	{
+		return 0; //$this->message[''];
+	}
+
+	public function IsMail()
+	{
+		return $this->transport['object'] instanceof PHPmailTransport;
+	}
+
+	public function IsSendmail()
+	{
+		return $this->transport['object'] instanceof SendmailTransport;
+	}
+
+	public function IsSMTP()
+	{
+		return $this->transport['object'] instanceof SmtpTransport;
+	}
+
+	/**
+	 * Set the character set for the message.
+	 * Normally, the reset routine sets this to a system-wide default value.
+	 *
+	 * @param string $charset
+	 */
+	public function SetCharSet($charset)
+	{
+		$this->message[''] = $charset;
+	}
+
+	//deprecated alias
+	public function SetConfirmReadingTo($email)
+	{
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'setConfirmTo'));
+		$this->SetConfirmTo($email);
+	}
+
+	/**
+	 * Sets the encoding of the message (apart from its header).
+	 * Supported values are: '7bit', '8bit', 'binary', 'base64', 'quoted-printable'
+	 *
+	 * @param string $encoding
+	 */
+	public function SetEncoding($encoding)
+	{
+		$encoding = strtolower($encoding);
+		switch($encoding) {
+		case '7bit':
+		case '8bit':
+		case 'binary':
+		case 'base64':
+		case 'quoted-printable':
+			$this->message->setEncoding = $encoding;
+			break;
+		default:
+			throw new Exception('Invalid message encoding value: '.$encoding);
+		}
+	}
+
+	public function SetFromName($name)
+	{
+		$this->message[''] = $name;
+	}
+
+	public function SetHelo($helo)
+	{
+		$this->transport[''] = $helo;
+	}
+
+	public function SetHostname($hostname)
+	{
+		$this->transport['host'] = $hostname;
+	}
+
+	public function SetLanguage($lang_type)
+	{
+		$this->transport[''] = $lang_type;
+	}
+
+	public function SetMailer($mailer)
+	{
+		switch (strtolower($mailer)) {
+//			$this->transport[''] = $mailer;
+		}
+	}
+
+	/**
+	 * Set the priority of the message
+	 * @param int $priority 1(highest), 2 ....
+	 */
+	public function SetPriority($priority)
+	{
+		if (!is_numeric($priority) || $priority < 1) { $priority = 1; }
+		$this->transport['priority'] = (int)$priority;
+	}
+
+	public function SetSender($sender)
+	{
+		$this->message[''] = $sender;
+	}
+
+	public function SetSendmail($path)
+	{
+		$this->transport[''] = $path;
+	}
+
+	/**
+	 * Set a flag indicating whether or not SMTP authentication is to be used
+	 * when sending mails via the SMTP mailer.
+	 *
+	 * @param bool $state
+	 * @see Mailer::SetMailer
+	 */
+	function SetSMTPAuth($state = true)
+	{
+		$this->transport['smtpauth'] = (bool)$state;
+	}
+
+	public function SetSMTPDebug($state = true)
+	{
+	// does nothing $this->transport[''] = (bool)$state;
+	}
+
+	public function SetSMTPHost($host)
+	{
+		$this->transport['host'] = $host;
+	}
+
+	/**
+	 * Prevent the SMTP connection from being closed after sending each message.
+	 * If this is set to true then SmtpClose() must be called to close
+	 * the connection when the session is finished
+	 *
+	 * This method is only relevant when using the SMTP mailer.
+	 *
+	 * @param bool $state
+	 * @see Mailer::SetMailer
+	 * @see Mailer::SmtpClose
+	 */
+	function SetSMTPKeepAlive($state = true)
+	{
+// does nothing	$this->transport[''] = $state;
+	}
+
+	public function SetSMTPPassword($password)
+	{
+		$this->transport['password'] = $password;
+	}
+
+	public function SetSMTPPort($port)
+	{
+		$this->transport['port'] = (int)$port;
+	}
+
+	public function SetSMTPSecure($type)
+	{
+		$this->transport['encryption'] = $type;
+	}
+
+	public function SetSMTPTimeout($timeout)
+	{
+		$this->transport['timeout'] = (int)$timeout;
+	}
+
+	public function SetSMTPUsername($username)
+	{
+		$this->transport['login'] = $this->CleanName($username);
+	}
+
+	public function SetWordWrap($chars)
+	{
+//		$this->message[''] = (int)$chars;
+	}
+
+	/**
+	 * Close the SMTP connection
+	 * Only necessary when using the SMTP mailer with keepalive enabled.
+	 * @see Mailer::SetSMTPKeepAlive
+	 */
+	function SmtpClose()
+	{
+	//does nothing  $this->transport->SmtpClose();
 	}
 } // class
-
-
-/**
- * Set the character set for the message.
- * Normally, the reset routine sets this to a system wide default value.
- *
- * @param string $charset
- */
-function SetCharSet($charset)
-{
-//	$this->message->CharSet = $charset;
-}
-
-/**
- * Set the email address that confirmations of email reading will be sent to.
- *
- * @param string $email
- */
-function SetConfirmReadingTo($email)
-{
-//	$this->message->ConfirmReadingTo = $email;
-}
-
-/**
- * Sets the encoding of the message.
- *
- * Possible values are: 8bit, 7bit, binary, base64, and quoted-printable
- * @param string $encoding
- */
-function SetEncoding($encoding)
-{
-//	$this->message->setEncoding($encoding);
-/*	switch(strtolower($encoding)) {
-	case '8bit':
-	case '7bit':
-	case 'binary':
-	case 'base64':
-	case 'quoted-printable':
-		$this->message->Encoding = $encoding;
-		break;
-	default:
-		// throw exception
-	}
-*/
-}
-
-/**
- * Set a flag indicating whether or not SMTP authentication is to be used when sending
- * mails via the SMTP mailer.
- *
- * @param bool $flag
- * @see Mailer::SetMailer
- */
-function SetSMTPAuth($flag = true)
-{
-	$this->message->SMTPAuth = $flag;
-}
-
-/**
- * Add an attachment from a path on the filesystem
- * @param string $path Complete file specification to the attachment
- * @param string $name Set the attachment name
- * @param string $encoding File encoding (see $encoding)
- * @param string $type (mime type for the attachment)
- * @return bool true on success, false on failure.
- */
-function AddAttachment($path, $name = '', $encoding = 'base64', $type = 'application/octet-stream')
-{
-	return $this->message->AddAttachment($path, $name, $encoding, $type);
-}
-
-/**
- * Add an embedded attachment.	This can include images, sounds, and
- * just about any other document.	Make sure to set the $type to an
- * image type.	For JPEG images use "image/jpeg" and for GIF images
- * use "image/gif".
- * @param string $path Path to the attachment.
- * @param string $cid Content ID of the attachment. Use this to
- *  identify the Id for accessing the image in an HTML form.
- * @param string $name Overrides the attachment name.
- * @param string $encoding File encoding (see $Encoding).
- * @param string $type File extension (MIME) type.
- * @return bool
- */
-function AddEmbeddedImage($path, $cid, $name = '', $encoding = 'base64', $type = 'application/octet-stream')
-{
-	return $this->message->AddEmbeddedImage($path, $cid, $name, $encoding, $type);
-}
-
-/**
- * Add a string or binary attachment (non-filesystem) to the list.
- * This method can be used to attach ASCII or binary data,
- * such as a BLOB record from a database.
- * @param string $string String attachment data.
- * @param string $filename Name of the attachment.
- * @param string $encoding File encoding (see $Encoding).
- * @param string $type File extension (MIME) type.
- */
-function AddStringAttachment($string, $filename, $encoding = 'base64', $type = 'application/octet-stream')
-{
-	$this->message->AddStringAttachment($string, $filename, $encoding, $type);
-}
-
-/**
- * Prevent the SMTP connection from being closed after sending each message.
- * If this is set to true then SmtpClose() must be called to close
- * the connection when the session is finished
- *
- * This method is only useful when using the SMTP mailer.
- *
- * @param bool $flag
- * @see Mailer::SetMailer
- * @see Mailer::SmtpClose
- */
-function SetSMTPKeepAlive($flag = true)
-{
-	$this->message->SMTPKeepAlive = $flag;
-}
-
-/**
- * Close the SMTP connection
- * Only necessary when using the SMTP mailer with keepalive enabled.
- * @see Mailer::SetSMTPKeepAlive
- */
-function SmtpClose()
-{
-	return $this->message->SmtpClose();
-}

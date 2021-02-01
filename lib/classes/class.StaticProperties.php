@@ -1,7 +1,7 @@
 <?php
 /*
 Class for managing variables used instead of conventional static variables.
-Copyright (C) 2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

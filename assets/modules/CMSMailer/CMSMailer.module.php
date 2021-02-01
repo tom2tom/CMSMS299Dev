@@ -1,62 +1,62 @@
 <?php
-# CMSMailer light-module: a wrapper around an external email manager
-# Copyright (C) 2015-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+CMSMailer module: a wrapper around an external email manager class
+Copyright (C) 2005-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
-use CMSMailer\Mailer;
+This module is a component of CMS Made Simple.
+
+This module is free software; you may redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+This module is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+if (!extension_loaded("mbstring"))
+{
+    echo '<h1 style="color:red;">ERROR: PHP&quot;s "Multibyte String" extension is required by the mailer class in the CMSMailer module</h1>';
+    return;
+}
+
 use CMSMS\AdminMenuItem;
 use CMSMS\CoreCapabilities;
 use CMSMS\HookOperations;
-use CMSMS\IResource;
-use CMSMS\ResourceMethods;
 
-class CMSMailer implements IResource
+class CMSMailer extends CMSModule
 {
-    protected $mailer;
-    protected $methods;
-
-    public function __call($name, $args)
+/* for CMSMS < 2.99 sans module-namespaced autoloading
+    public function __construct()
     {
-        if (!isset($this->mailer)) {
-            $this->mailer = new Mailer();
-        }
-        if (method_exists($this->mailer, $name)) {
-            return call_user_func([$this->mailer, $name], ...$args);
-        }
-
-        if (!isset($this->methods)) {
-            $this->methods = new ResourceMethods($this, __DIR__);
-        }
-        if (method_exists($this->methods, $name)) {
-            return call_user_func([$this->methods, $name], ...$args);
+        parent::__construct();
+        if (!function_exists('cmsms_spacedloader')) {
+            require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'function.spacedloader.php';
         }
     }
-
-    public function GetAdminDescription() { return $this->Lang('moddescription'); }
+*/
+    public function GetAdminDescription() { return $this->Lang('publictip'); }
     public function GetAdminSection() { return 'extensions'; }
-    public function GetChangeLog() { return file_get_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'changelog.inc'); }
+    public function GetAuthor() { return ''; }
+    public function GetAuthorEmail() { return ''; }
+    public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); } // MM api
     public function GetDependencies() { return []; }
-    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetHelp() { return $this->Lang('help_module'); }
-    public function GetVersion() { return '6.3.0'; }
+    public function GetFriendlyName() { return $this->Lang('publicname'); }
+    public function GetHelp() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'modhelp.htm'); }
+    public function GetName() { return 'CMSMailer'; }
+    public function GetVersion() { return '6.0'; }
     public function HasAdmin() { return true; }
-    public function InstallPostMessage() { return $this->Lang('postinstall'); }
-    public function MinimumCMSVersion() { return '2.8.900'; }
-    public function UninstallPreMessage() { return $this->Lang('confirm_uninstall'); }
-    public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
+    public function InitializeFrontend() {}
+//    public function InstallPostMessage() { return $this->Lang('postinstall'); }
+    public function IsAdminOnly() { return true; }
+    public function MinimumCMSVersion() { return '2.8.9'; }
+//    public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
+//    public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
 
     public function VisibleToAdminUser()
     {
@@ -66,19 +66,27 @@ class CMSMailer implements IResource
 
     public function GetAdminMenuItems()
     {
-        if( $this->VisibleToAdminUser() ) return [AdminMenuItem::from_module($this)];
-        return [];
+        $out = [];
+
+        if ($this->VisibleToAdminUser()) {
+            // user is entitled to see the main page in the navigation
+            $obj = AdminMenuItem::from_module($this);
+            $obj->title = $this->Lang('settings_title');
+            $out[] = $obj;
+        }
+
+        return $out;
     }
 
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
-//          case CoreCapabilities::TASKS: CHECKME ANY NEEDED?
+            case CoreCapabilities::EMAIL_MODULE:
             case CoreCapabilities::SITE_SETTINGS:
-            case 'handles_email': //TODO CoreCapabilities enum value for this
                 return true;
+            default:
+                return false;
         }
-        return false;
     }
 
     public function InitializeAdmin()
@@ -93,12 +101,12 @@ class CMSMailer implements IResource
      */
     public function ExtraSiteSettings()
     {
-        //TODO check permission $this->VisibleToAdminUser()
+        //TODO check permission local or Site Prefs
         return [
          'title' => $this->Lang('settings_title'),
          //'desc' => 'useful text goes here', // optional useful text
-         'url' => $this->create_url('m1_','defaultadmin'), // if permitted
+         'url' => $this->create_url('m1_', 'defaultadmin', '', ['activetab'=>'internal']), // if permitted
          //optional 'text' => custom link-text | explanation e.g need permission
         ];
     }
-} // class
+}

@@ -1,7 +1,7 @@
 <?php
 /*
 Class to tailor Smarty for CMSMS.
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\internal;
@@ -129,9 +129,6 @@ smarty cache lifetime != global cache ttl, probably
              ->setTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates') //template-assets prevail
              ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates') // internal, never renamed
              ->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles');
-//TODO when/where appropriate
-//             ->addTemplateDir(CMS_THEMES_PATH.DIRECTORY_SEPARATOR.TODOcurrenttheme.DIRECTORY_SEPARATOR.'templates')
-//             ->addTemplateDir(CMS_THEMES_PATH.DIRECTORY_SEPARATOR.TODOcurrenttheme.DIRECTORY_SEPARATOR.'styles');
 
         if( AppSingle::App()->is_frontend_request() ) {
             // just for frontend actions
@@ -206,6 +203,8 @@ smarty cache lifetime != global cache ttl, probably
             $this->setConfigDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'configs')
                  ->addPluginsDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'plugins')
                  ->addTemplateDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'templates')
+//TODO where appropriate (currently in each theme-method which generates content)
+//               ->addTemplateDir(CMS_THEMES_PATH.DIRECTORY_SEPARATOR.TODOcurrenttheme.DIRECTORY_SEPARATOR.'templates')
 //               ->setDefaultResourceType('TODO')
                  ->setCaching(SmartyParent::CACHING_OFF); //($v) TODO enable admin caching with in-context disabling
 //c.f. frontend   ->enableSecurity('CMSMS\\internal\\smarty_security_policy');

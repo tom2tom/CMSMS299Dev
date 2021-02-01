@@ -1,7 +1,7 @@
 <?php
 /*
 An abstract class for building database queries and managing their results.
-Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -59,18 +59,18 @@ abstract class DbQueryBase
 	protected $_offset = 0;
 
 	/**
-	 * The (integer) page limit.
+	 * The (integer) page limit
 	 */
 	protected $_limit = 1000;
 
 	/**
-	 * This member stores the raw database resultset object.
+	 * The database recordset object created by running the query
 	 */
 	protected $_rs = null;
 
 	/**
-	 * This member stores the original arguments passed to the constructor and
-	 * used when generating the query.
+	 * The arguments originally passed to the class constructor and used
+	 * when generating the query
 	 */
 	protected $_args = [];
 

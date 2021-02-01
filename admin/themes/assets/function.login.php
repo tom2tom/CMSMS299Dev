@@ -1,7 +1,8 @@
 <?php
 /*
 admin login processing for inclusion by themes
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
@@ -13,16 +14,17 @@ CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
-use CMSMS\Crypto;
 use CMSMS\Events;
-use CMSMS\Mailer;
+use CMSMailer\Mailer; //TODO if no CMSMailer present, revert to mail()
 use CMSMS\NlsOperations;
+use CMSMS\Url;
 use CMSMS\User;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -45,10 +47,10 @@ function send_recovery_email(User $user)
 {
     global $config, $login_ops;
 
-    $obj = new Mailer();
+    $obj = new Mailer(); // TODO use generic method in case mailer N/A
     $obj->IsHTML(true);
-    $obj->AddAddress($user->email, cms_html_entity_decode($user->firstname . ' ' . $user->lastname));
-    $name = html_entity_decode(AppParams::get('sitename', 'CMSMS Site')); // OR cms_ variant ?
+    $obj->AddAddress($user->email, $user->firstname . ' ' . $user->lastname);
+    $name = AppParams::get('sitename', 'CMSMS Site');
     $obj->SetSubject(lang('lostpwemailsubject', $name));
 
     $salt = $login_ops->get_salt();
@@ -117,7 +119,7 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
     $forgot_username = $_REQUEST['forgottenusername']; //might be empty
     unset($_REQUEST['forgottenusername'], $_POST['forgottenusername']);
     if ($forgot_username) {
-        $tmp = cleanString($forgot_username, 2); // sanitize for internal use
+        $tmp = sanitizeVal($forgot_username, 4);
         Events::SendEvent('Core', 'LostPassword', ['username' => $tmp]);
         $user = $userops->GetRecoveryData($forgot_username);
         unset($_REQUEST['loginsubmit'], $_POST['loginsubmit']);
@@ -139,10 +141,10 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
     }
     return;
 } elseif (!empty($_REQUEST['recoverme'])) { //should be a hexits hash
-    $user = find_recovery_user($_REQUEST['recoverme']);
+    $changepwhash = sanitizeVal($_REQUEST['recoverme']);
+    $user = find_recovery_user($changepwhash);
     if ($user != null) {
         $changepwtoken = true;
-        $changepwhash = cleanString($_REQUEST['recoverme'], 2);
     } else {
         $errmessage = lang('usernotfound');
     }
@@ -156,24 +158,24 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
             die('Invalid recovery request - 003');
         }
     }
-    $user = find_recovery_user($_REQUEST['changepwhash']); //should be a hexits hash
+    $changepwhash = sanitizeVal($_REQUEST['changepwhash']); //should be a hexits hash
+    $user = find_recovery_user($changepwhash);
     if ($user == null) {
         $errmessage = lang('usernotfound');
     } elseif (isset($_REQUEST['password'])) {
-        //TODO migrate to check_passwords()
-        $tmp = cms_html_entity_decode($_REQUEST['password']);
-        $password = cleanString($tmp, 0);
+//        $tmp = cms_specialchars_decode($_REQUEST['password']);
+        $tmp = $_REQUEST['password'];
+        $password = sanitizeVal($tmp, 0);
         if ($password != $tmp) {
             $errmessage = lang('illegalcharacters', lang('password'));
-            $changepwhash = cleanString($_REQUEST['changepwhash'], 2);
             return;
         } elseif (!$password) {
             $errmessage = lang('nofieldgiven', lang('password'));
-            $changepwhash = cleanString($_REQUEST['changepwhash'], 2);
             return;
         }
-        $tmp = cms_html_entity_decode($_REQUEST['passwordagain']);
-        $again = cleanString($tmp, 0);
+//        $tmp = cms_specialchars_decode($_REQUEST['passwordagain']);
+        $tmp = $_REQUEST['passwordagain'];
+        $again = sanitizeVal($tmp, 0);
         if ($password == $again) {
             if ($userops->PasswordCheck($user->id, $password)) {
                 $user->Save();
@@ -186,12 +188,10 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
             } else {
                //TODO some feedback from checker
                 $errmessage = lang('error_passwordinvalid');
-                $changepwhash = cleanString($_REQUEST['changepwhash'], 2);
                 return;
             }
         } else {
             $errmessage = lang('nopasswordmatch');
-            $changepwhash = cleanString($_REQUEST['changepwhash'], 2);
             return;
         }
     }
@@ -269,43 +269,20 @@ if (isset($_POST['cancel'])) {
             // redirect outa here somewhere
             if (!empty($_SESSION['login_redirect_to'])) {
                 // we previously attempted a URL but didn't have the user key in the request.
-                $url_ob = new cms_url($_SESSION['login_redirect_to']);
+                $url = $_SESSION['login_redirect_to'];
                 unset($_SESSION['login_redirect_to']);
-                $url_ob->erase_queryvar('_s_');
-                $url_ob->erase_queryvar('sp_');
-                $url_ob->set_queryvar(CMS_SECURE_PARAM_NAME, $_SESSION[CMS_USER_KEY]);
-                $url = (string) $url_ob;
+                $url .= get_secure_param();
                 redirect($url);
             } else {
                 // find the user's homepage, if any, and redirect there.
                 $homepage = UserParams::get_for_user($user->id, 'homepage');
                 if (!$homepage) {
                     $homepage = $config['admin_url'].'/menu.php';
-                }
-                // quick hacks to remove old secure param name from homepage url
-                // and replace with the correct one.
-                $homepage = str_replace('&amp;', '&', $homepage);
-                $tmp = explode('?', $homepage);
-                $tmp2 = [];
-                @parse_str($tmp[1], $tmp2);
-                if (isset($tmp2['_s_'])) {
-                    unset($tmp2['_s_']);
-                }
-                if (isset($tmp2['sp_'])) {
-                    unset($tmp2['sp_']);
-                }
-                $tmp2[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
-                foreach ($tmp2 as $k => $v) {
-                    $tmp3[] = $k.'='.$v;
-                }
-                $homepage = $tmp[0].'?'.implode('&', $tmp3);
-
-                // and redirect
-                $homepage = cms_html_entity_decode($homepage);
-                //TODO generally support the websocket protocol 'wss' : 'ws'
-                if (!startswith($homepage, 'http') && !startswith($homepage, '//') && startswith($homepage, '/')) {
+                } elseif (!startswith($homepage, 'http') && !startswith($homepage, '//') && startswith($homepage, '/')) {
+                   //TODO generally support the websocket protocol 'wss' : 'ws'
                     $homepage = CMS_ROOT_URL.$homepage;
                 }
+                $homepage .= get_secure_param();
                 redirect($homepage);
             }
         } else { // expired P/W
@@ -321,9 +298,9 @@ if (isset($_POST['cancel'])) {
         unset($_POST['password'],$_REQUEST['password']);
         $username = $_REQUEST['username'] ?? $_REQUEST['forgottenusername'] ?? '';
         if ($username) {
-            $username = cleanString($username, 2); // sanitize for internal use
+            $username = sanitizeVal($username,4);
         } else {
-            $username = '<Missing username>';
+            $username = lang('nofieldgiven',lang('username')); // invalid chars?
         }
         Events::SendEvent('Core', 'LoginFailed', ['user' => $username]);
         // put mention into the admin log

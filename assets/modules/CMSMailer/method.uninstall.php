@@ -19,7 +19,22 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMailer\PrefCrypter;
+
 if (!function_exists('cmsms')) exit;
 
+$dict = $db->NewDataDictionary(); // old NewDataDictionary($db);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_cmsmailer_gates');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_cmsmailer_props');
+$dict->ExecuteSQLArray($sqlarray);
+
+PrefCrypter::remove_preference($this, PrefCrypter::MKEY);
 $this->RemovePreference();
+
 $this->RemovePermission('Modify Mail Preferences');
+$this->RemovePermission('AdministerEmailGateways');
+$this->RemovePermission('ModifyEmailateways');
+$this->RemovePermission('UseEmailGateways');
+
+$this->RemoveEvent($this->GetName(), 'EmailDeliveryReported');
