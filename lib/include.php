@@ -1,8 +1,9 @@
 <?php
 /*
 Set up infrastructure for processing a request
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify it
@@ -12,18 +13,19 @@ any later version.
 
 CMS Made Simple is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
+
+//use CMSMS\AuditOperations;
 use CMSMS\App;
 use CMSMS\AppConfig;
+use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\AuditOperations;
-use CMSMS\CoreCapabilities;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
 use CMSMS\internal\ModulePluginOperations;
@@ -44,8 +46,6 @@ use CMSMS\SysDataCacheDriver;
  * @package CMS
  */
 
-//TODO check for valid inclusion: by admin *.php | moduleinterface.php | index.php | installer
-
 $dirpath = __DIR__.DIRECTORY_SEPARATOR;
 if (isset($CMS_APP_STATE)) { //i.e. AppState class was included elsewhere
     AppState::add_state($CMS_APP_STATE);
@@ -59,9 +59,10 @@ if (!$installing && (!is_file(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCA
 }
 
 require_once $dirpath.'misc.functions.php'; // system-independent methods
-require_once $dirpath.'version.php'; // some defines
+// DEBUG require_once $dirpath.'version.php'; // some defines
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppConfig.php'; // used in defines setup
-require_once $dirpath.'defines.php'; // populate relevant defines (uses cms_config instance)
+require_once $dirpath.'version.php'; // some defines
+require_once $dirpath.'defines.php'; // populate relevant defines (uses AppConfig instance)
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.App.php'; // used in autoloader
 require_once $dirpath.'module.functions.php'; // used in autoloader
 require_once $dirpath.'autoloader.php';  //uses defines, modulefuncs and (for module-class loads) CmsApp::get_instance()
@@ -75,6 +76,24 @@ $config = AppConfig::get_instance(); // this object was already used during defi
 //AppSingle::insert('AppConfig', $config); // now we can cache it with other singletons
 AppSingle::insert('Config', $config); // and an alias
 //AppSingle::insert('cms_config', $config); // and another
+//AppSingle::insert('AuditOperations', AuditOperations::get_instance()); //audit() needs direct access to this class
+
+// check for valid inclusion
+$includer = $_SERVER['SCRIPT_FILENAME'] ?? '';
+if (!$includer) {
+    $includer = reset(get_included_files());
+}
+switch (basename($includer, '.php')) {
+    case 'index':
+    case 'moduleinterface':
+        break;
+    default: // handle admin(however named)/*, installer/*, tests/*
+        if (dirname($includer) == CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$config['admin_dir']) { break; }
+        if ($installing || strpos($includer, 'phar_installer'.DIRECTORY_SEPARATOR !== false)) { break; }
+//        if (0) { break; } //TODO valid others == tests etc
+        exit;
+}
+
 require_once $dirpath.'page.functions.php'; // system-dependent methods
 $db = $_app->GetDb();
 AppSingle::insert('Db', $db); // easier retrieval
@@ -97,7 +116,7 @@ if ($params[CMS_JOB_KEY] !== null) {
     // normal output
     $CMS_JOB_TYPE = 0;
 }
-// since 2.9 value 0|1|2 indicates the type of request, hence appropriate inclusions
+// since 2.99 value 0|1|2 indicates the type of request, hence appropriate inclusions
 $_app->JOBTYPE = $CMS_JOB_TYPE;
 
 if ($CMS_JOB_TYPE < 2) {
@@ -112,11 +131,8 @@ debug_buffer('Finished loading basic files');
 if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
     $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
 }
-// sanitize $_SERVER and $_GET
-cleanArray($_SERVER);
-cleanArray($_GET);
 
-AuditOperations::init(); // load some audit-methods & audit-classes which won't autoload
+//AuditOperations::get_instance()->init();
 
 // Set the timezone
 if ($config['timezone']) @date_default_timezone_set(trim($config['timezone']));
@@ -129,26 +145,16 @@ if ($config['debug']) {
 $administering = AppState::test_state(AppState::STATE_ADMIN_PAGE);
 if ($administering) {
     setup_session();
-
-// TODO is this $CMS_JOB_TYPE-dependant ?
-    function cms_admin_sendheaders($content_type = 'text/html',$charset = '')
-    {
-        // Language shizzle
-        if (!$charset) $charset = NlsOperations::get_encoding();
-        header("Content-Type: $content_type; charset=$charset");
-    }
 }
 
 cms_siteprefs::setup();
 
 $cache = AppSingle::SysDataCache();
-// deprecated since 2.3 useless, saves no time | effort
+// deprecated since 2.99 useless, saves no time | effort
 $obj = new SysDataCacheDriver('schema_version', function()
     {
-        if (!empty($CMS_SCHEMA_VERSION)) { //null during installation!
-            return $CMS_SCHEMA_VERSION;
-        }
-        return (int)cms_siteprefs::get('schema_version');
+        $out = @constant('CMS_SCHEMA_VERSION'); //null during installation - E_WARNING error if not defined
+        return ($out) ? $out : (int) AppParams::get('schema_version');
     });
 $cache->add_cachable($obj);
 $obj = new SysDataCacheDriver('modules', function()
@@ -165,7 +171,7 @@ $obj = new SysDataCacheDriver('module_deps', function()
         $tmp = $db->GetArray($query);
         if (!is_array($tmp) || !$tmp) return '-';  // special value so that we actually return something to cache.
         $out = [];
-        foreach( $tmp as $row) {
+        foreach ($tmp as $row) {
             $out[$row['child_module']][$row['parent_module']] = $row['minimum_version'];
         }
         return $out;
@@ -230,7 +236,7 @@ if (!$installing) {
         $_app->GetDb();
         debug_buffer('Finished initializing database');
     }
-    catch( DatabaseConnectionException $e) {
+    catch (DatabaseConnectionException $e) {
         die('Sorry, something has gone wrong.  Please contact a site administrator. <em>('.get_class($e).')</em>');
     }
 }
@@ -242,14 +248,17 @@ if (!isset($_SERVER['REQUEST_URI'])) {
 }
 
 if (!$installing) {
-    // Set a umask
-    $global_umask = cms_siteprefs::get('global_umask','');
-    if ($global_umask != '') umask( octdec($global_umask));
+    $str_mask = AppParams::get('global_umask');
+    if ($str_mask) {
+        // Set a umask
+        if ($str_mask[0] == '0') { umask(octdec($str_mask)); }
+        else { umask((int)$str_mask); }
+    }
 
-    $modops = AppSingle::ModuleOperations();
+/*  $modops = AppSingle::ModuleOperations();
     // After autoloader & modules
     $tmp = $modops->GetCapableModules(CoreCapabilities::JOBS_MODULE);
-    if( $tmp ) {
+    if ($tmp) {
         $mod_obj = $modops->get_module_instance($tmp[0]); //NOTE not $modinst !
         $_app->jobmgrinstance = $mod_obj; //cache it
         if ($CMS_JOB_TYPE == 0) {
@@ -257,11 +266,13 @@ if (!$installing) {
             Events::AddDynamicHandler('Core', 'PostRequest', $callback);
         }
     }
+*/
+//    Events::AddDynamicHandler('Core', 'PostRequest', '\\CMSMS\\internal\\JobOperations::begin_async_work'); // TODO >> static event
 }
 
 if ($CMS_JOB_TYPE < 2) {
-    // Setup language stuff.... will auto-detect languages (launch only to admin at this point)
     if ($administering) {
+        // Setup language stuff.... will auto-detect languages (launch only to admin at this point)
         NlsOperations::set_language();
     }
 
