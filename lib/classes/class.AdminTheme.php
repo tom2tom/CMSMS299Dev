@@ -1,7 +1,7 @@
 <?php
 /*
 Base class for CMSMS admin themes
-Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -51,8 +51,7 @@ use function add_page_foottext;
 use function add_page_headtext;
 use function audit;
 use function check_permission;
-use function cleanArray;
-use function cleanValue;
+use function sanitizeVal;
 use function cms_join_path;
 use function cms_module_places;
 use function cms_path_to_url;
@@ -70,7 +69,7 @@ use function startswith;
  *
  * @package CMS
  * @license GPL
- * @since 2.9
+ * @since 2.99
  * @since 1.11 as global-namespace CmsAdminAdminTheme
  * @author  Robert Campbell
  * @property-read string $themeName Return the theme name
@@ -197,7 +196,7 @@ abstract class AdminTheme
     /**
      * Cache for the entire content of a page
      * @ignore
-     * @since 2.3
+     * @since 2.99
      */
     private $_primary_content;
 
@@ -302,8 +301,8 @@ abstract class AdminTheme
         }
 
         if (!$name) {
-            $userid = get_userid(FALSE);
-            if ($userid !== NULL) {
+            $userid = get_userid(false);
+            if ($userid !== null) {
                 $name = UserParams::get_for_user($userid,'admintheme');
             }
             if (!$name) $name = self::GetDefaultTheme();
@@ -339,7 +338,7 @@ abstract class AdminTheme
 
     /**
      * This is an alias for get_instance().
-     * @deprecated since 2.9 instead use AdminTheme::get_instance($name)
+     * @deprecated since 2.99 instead use AdminTheme::get_instance($name)
      *
      * @param mixed string|null $name Optional theme name.
      * @return mixed AdminTheme sub-class object | null
@@ -352,7 +351,7 @@ abstract class AdminTheme
     /**
      * Helper for constructing js data
      * @ignore
-     * @since 2.9
+     * @since 2.99
      * @param array $strings
      * @return mixed string or false
      */
@@ -374,7 +373,7 @@ abstract class AdminTheme
      * Hook function to populate page content at runtime
      * This will normally be sub-classed by specific themes, and such methods
      * should call here (their parent) as well as their own specific setup
-     * @since 2.9
+     * @since 2.99
      * @return 2-member array (not typed to support back-compatible themes)
      * [0] = array of data for js vars, members like varname=>varvalue
      * [1] = array of [x]html string(s) which the browser will interpret
@@ -395,12 +394,25 @@ abstract class AdminTheme
     /**
      * Hook function to populate page content at runtime
      * Normally sub-classed
+     * @since 2.99
      *
      * @return array
      */
     public function AdminBottomSetup() : array
     {
         return [];
+    }
+
+    /**
+     * Hook first-result-function to report the CSS-class identifier for
+     * in-page context-menus, at runtime. To be sub-classed as appropriate.
+     * @since 2.99
+     *
+     * @return string, default value 'ContextMenu'
+     */
+    public function MenuCssClassname() : string
+    {
+        return 'ContextMenu';
     }
 
     /**
@@ -427,14 +439,14 @@ abstract class AdminTheme
      */
     private function _fix_url_userkey($url)
     {
-        if (strpos($url,CMS_SECURE_PARAM_NAME) !== FALSE) {
+        if (strpos($url,CMS_SECURE_PARAM_NAME) !== false) {
             $from = '/'.CMS_SECURE_PARAM_NAME.'=[a-zA-Z0-9]{16,19}/i';
             $to = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
             return preg_replace($from,$to,$url);
         }
         elseif (startswith($url,CMS_ROOT_URL) || !startswith($url,'http')) {
             //TODO generally support the websocket protocol 'wss' : 'ws'
-            $prefix = ( strpos($url,'?') !== FALSE) ? '&' : '?';
+            $prefix = ( strpos($url,'?') !== false) ? '&' : '?';
             return $url.$prefix.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
         }
         return $url;
@@ -469,11 +481,17 @@ abstract class AdminTheme
                     $recs = $modinst->GetAdminMenuItems();
                     if ($recs) {
                         $sys = $modops->IsSystemModule($modname);
-                        $suffix = 1;
                         foreach( $recs as &$one) {
                             if (!$one->valid()) continue;
-                            $key = $modname.$suffix++;
-                            $one->name = $key;
+                            $nm = $one->name ?? '';
+                            if (!$nm) {
+                                $nm = substr($one->action, 0, 6);
+                            }
+                            // identifier which doesn't mess up in CSS
+                            $one->name = $key = preg_replace(
+                                ['/( )\1+/', '/(\-)\1+/', '/([^\w\-])/'],
+                                ['_', '-', '\\$1'],
+                                $modname.'-'.$nm);
                             if (empty($one->url)) {
                                 $one->url = $modinst->create_url('m1_', $one->action);
                             }
@@ -614,8 +632,8 @@ abstract class AdminTheme
         // file
         $this->_perms['filePerms'] = check_permission($this->userid, 'Modify Files');
 
-        // UDT/user-plugin files (2.9+)
-        $this->_perms['plugPerms'] = check_permission($this->userid, 'Manage Simple Plugins');
+        // UDT/user-plugin files (2.99+)
+        $this->_perms['plugPerms'] = check_permission($this->userid, 'Manage User Plugins');
 
         // myprefs
         $this->_perms['myaccount'] = check_permission($this->userid,'Manage My Account');
@@ -637,13 +655,13 @@ abstract class AdminTheme
             $this->_perms['adminPerms'];
 
         // extensions
-        $this->_perms['codeBlockPerms'] = check_permission($this->userid, 'Modify User-defined Tags');
+        $this->_perms['codeBlockPerms'] = check_permission($this->userid, 'Manage User Plugins'); //see $this->_perms['plugPerms']
         $this->_perms['modulePerms'] = check_permission($this->userid, 'Modify Modules');
         $config = AppSingle::Config();
         $this->_perms['eventPerms'] = $config['develop_mode'] && check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
         $this->_perms['usertagPerms'] = $this->_perms['taghelpPerms'] |
-            check_permission($this->userid, 'Manage Simple Plugins');
+            check_permission($this->userid, 'Manage User Plugins'); //see $this->_perms['plugPerms']
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
             $this->_perms['modulePerms'] | $this->_perms['eventPerms'] |
             $this->_perms['taghelpPerms'];
@@ -660,7 +678,7 @@ abstract class AdminTheme
     {
         $parms = RequestParameters::get_action_params();
         if ($parms) {
-            // construct a mact-parameter in case something wants to use that
+            // [re-]construct a mact-parameter in case something wants to use that
             $module = $parms['module'] ?? '';
             $action = $parms['action'] ?? '';
             if ($module && $action) {
@@ -734,7 +752,7 @@ abstract class AdminTheme
     /**
      * Generate complete admin menu array-tree from PHP definition
      * @ignore
-     * @since 2.9
+     * @since 2.99
      */
     protected function populate_tree()
     {
@@ -838,13 +856,13 @@ abstract class AdminTheme
      *  recognized as an indicator of the root node. Default null
      * @param int   $maxdepth  Optional no. of sub-root levels to be
      *  displayed for $parent. < 1 indicates no maximum depth. Default 3
-     * $param mixed $usepath   Since 2.9 Optional treepath for the selected item.
+     * $param mixed $usepath   Since 2.99 Optional treepath for the selected item.
      *  Array, or ':'-separated string, of node names (commencing with 'root'),
      *  or (boolean) true in which case a path is derived from the current request,
      *  or false to skip selection-processing. Default true
      * @param int   $alldepth  Optional no. of sub-root levels to be displayed
      *  for tree-paths other than $parent. < 1 indicates no limit. Default 2
-     * @param bool  $striproot Since 2.9 Optional flag whether to omit the
+     * @param bool  $striproot Since 2.99 Optional flag whether to omit the
      *  tree root-node from the returned array. Default true (backward compatible)
      * @return array  Nested menu nodes.  Each node's 'children' member represents the nesting
      */
@@ -1002,7 +1020,7 @@ abstract class AdminTheme
      * @param bool $pure if False the shortcuts for adding and managing bookmarks are added to the list.
      * @return array Array of Bookmark objects
      */
-    public function get_bookmarks($pure = FALSE)
+    public function get_bookmarks($pure = false)
     {
         $bookops = new BookmarkOperations();
         $marks = array_reverse($bookops->LoadBookmarks($this->userid));
@@ -1078,13 +1096,13 @@ abstract class AdminTheme
     }
 */
     /**
-     * Cache some data
+     * [Un]cache a value
      *
-     * @param string $key
-     * @param mixed $value
+     * @param string $key value identifier
+     * @param mixed $value value to be stored | null to remove
      * @returns void
      */
-    public function set_value($key,$value)
+    public function set_value($key, $value)
     {
         if (is_null($value) && is_array($this->_data) && isset($this->_data[$key])) {
             unset($this->_data[$key]);
@@ -1100,7 +1118,7 @@ abstract class AdminTheme
      * Return cached data
      *
      * @param string $key
-     * @returns void
+     * @returns mixed recorded value | void
      */
     public function get_value($key)
     {
@@ -1113,7 +1131,7 @@ abstract class AdminTheme
      * has displayable children.
      *
      * @deprecated
-     * @param string $section section to test
+     * @param string $section menu-section to test
      * @return bool
      */
     public function HasDisplayableChildren($section)
@@ -1133,6 +1151,97 @@ abstract class AdminTheme
     }
 
     /**
+     * Get a tag representing a themed icon or module icon
+     * @since 2.99 Formerly a method in admin utils class
+     *
+     * @param string $icon the basename of the desired icon file, may include theme-dir-relative path,
+     *  may omit file type/suffix, ignored if smarty variable $actionmodule is currently set
+     * @param array $attrs Optional assoc array of attributes for the created img tag
+     * @return string
+     */
+    public function get_icon(string $icon, array $attrs = []) : string
+    {
+        $smarty = AppSingle::Smarty();
+        $module = $smarty->getTemplateVars('_module');
+
+        if ($module) {
+            return $this->get_module_icon($module, attrs);
+        } else {
+            if (basename($icon) == $icon) { $icon = 'icons'.DIRECTORY_SEPARATOR.'system'.DIRECTORY_SEPARATOR.$icon; }
+            return $this->DisplayImage($icon, '', 0, 0, '', $attrs);
+        }
+    }
+
+    /**
+     * Get a tag representing a module icon
+     * @since 2.99
+     *
+     * @param string $module Name of the module
+     * @param array $attrs Optional assoc array of attributes for the created img tag
+     * @return string
+     */
+    public function get_module_icon(string $module, array $attrs = []) : string
+    {
+        $dirs = cms_module_places($module);
+        if ($dirs) {
+            $appends = [
+                ['images','icon.svg'],
+                ['icons','icon.svg'],
+                ['images','icon.png'],
+                ['icons','icon.png'],
+                ['images','icon.gif'],
+                ['icons','icon.gif'],
+                ['images','icon.i'],
+                ['icons','icon.i'],
+            ];
+            foreach ($dirs as $base) {
+                foreach ($appends as $one) {
+                    $path = cms_join_path($base, ...$one);
+                    if (is_file($path)) {
+                        $path = cms_path_to_url($path);
+                        if (endswith($path, '.svg')) {
+                            // see https://css-tricks.com/using-svg
+                            $alt = str_replace('svg','png',$path);
+                            $out = '<img src="'.$path.'" onerror="this.onerror=null;this.src=\''.$alt.'\';"';
+                        } elseif (endswith($path, '.i')) {
+                            $props = parse_ini_file($path, false, INI_SCANNER_TYPED);
+                            if ($props) {
+                                foreach ($props as $key => $value) {
+                                    if (isset($attrs[$key])) {
+                                        if (is_numeric($value) || is_bool($value)) {
+                                            continue; //supplied attrib prevails
+                                        } elseif (is_string($value)) {
+                                            $attrs[$key] = $value.' '.$attrs[$key];
+                                        }
+                                    } else {
+                                        $attrs[$key] = $value;
+                                    }
+                                }
+                            }
+                            $out = '<i';
+                        } else {
+                            $out = '<img src="'.$path.'"';
+                        }
+                        $extras = array_merge(['alt'=>$module, 'title'=>$module], $attrs);
+                        foreach ($extras as $key => $value) {
+                            if ($value !== '' || $key == 'title') {
+                                $out .= " $key=\"$value\"";
+                            }
+                        }
+                        if (!endswith($path, '.i')) {
+                            $out .= ' />';
+                        } else {
+                            $out .= '></i>';
+                        }
+                        return $out;
+                    }
+                }
+            }
+        }
+        return '';
+    }
+
+    /**
      * DisplayImage
      * Generate xhtml tag to display the themed version of $image (if it exists),
      *  preferring image-file extension/type (in order):
@@ -1142,11 +1251,11 @@ abstract class AdminTheme
      * @param string $image Image file identifier, a theme-images-dir (i.e. 'images')
      *  relative-filepath, or an absolute filepath. It may omit extension (type)
      * @param string $alt Optional alternate identifier for the created
-     *  image element (deprecated since 2.9 also used for its default title)
+     *  image element (deprecated since 2.99 also used for its default title)
      * @param int $width Optional image-width (ignored for svg)
      * @param int $height Optional image-height (ignored for svg)
      * @param string $class Optional class. For .i (iconimages), class "fontimage" is always prepended
-     * @param array $attrs Since 2.9 Optional array with any or all attributes for the image/span tag
+     * @param array $attrs Since 2.99 Optional array with any or all attributes for the image/span tag
      * @return string
      */
     public function DisplayImage($image, $alt = '', $width = 0, $height = 0, $class = '', $attrs = [])
@@ -1232,7 +1341,7 @@ abstract class AdminTheme
         $extras = array_merge(['width'=>$width, 'height'=>$height, 'class'=>$class, 'alt'=>$alt, 'title'=>''], $attrs);
         if (!$extras['title']) {
             if ($extras['alt']) {
-               $extras['title'] = $extras['alt']; // back-compatible, but a bit unwise, 
+               $extras['title'] = $extras['alt']; // back-compatible, but a bit unwise,
             }
         }
         if (!$extras['alt']) {
@@ -1274,7 +1383,7 @@ abstract class AdminTheme
 
     /**
      * Cache error-message(s) to be shown in a dialog during the current request.
-     * @deprecated since 2.9 Use RecordNotice() instead
+     * @deprecated since 2.99 Use RecordNotice() instead
      *
      * @param mixed $errors The error message(s), string|strings array
      * @param string $get_var An optional $_GET variable name. Such variable
@@ -1290,7 +1399,7 @@ abstract class AdminTheme
 
     /**
      * Cache success-message(s) to be shown in a dialog during the current request.
-     * @deprecated since 2.9 Use RecordNotice() instead
+     * @deprecated since 2.99 Use RecordNotice() instead
      *
      * @param mixed $message The message(s), string|strings array
      * @param string $get_var An optional $_GET variable name. Such variable
@@ -1306,7 +1415,7 @@ abstract class AdminTheme
 
     /**
      * Cache message string(s) to be shown in a dialog during the current request.
-     * @since 2.9
+     * @since 2.99
      * @internal
      *
      * @param array store The relevant string-accumulator
@@ -1320,14 +1429,13 @@ abstract class AdminTheme
     {
         if ($get_var && !empty($_GET[$get_var])) {
             if (is_array($_GET[$get_var])) {
-                cleanArray($_GET[$get_var]);
                 foreach( $_GET[$get_var] as $one) {
                     if ($one) {
-                        $store[] = lang($one);
+                        $store[] = lang(sanitizeVal($one));
                     }
                 }
             } else {
-                $store[] = lang(cleanValue($_GET[$get_var]));
+                $store[] = lang(sanitizeVal($_GET[$get_var]));
             }
         } elseif ($title) {
             if (isset($store[$title])) {
@@ -1346,7 +1454,7 @@ abstract class AdminTheme
 
     /**
      * Cache message(s) to be shown in a notification-dialog DURING THE NEXT REQUEST
-     * @since 2.9
+     * @since 2.99
      *
      * @param string $type Message-type indicator 'error','warn','success' or 'info'
      * @param mixed $message The error message(s), string|strings array
@@ -1360,7 +1468,7 @@ abstract class AdminTheme
     {
         $from = 'cmsmsg_'.$type;
         if (isset($_SESSION[$from])) {
-            $val = cleanValue($_SESSION[$from]);
+            $val = preg_replace('~[^a-zA-Z0-9+/=]~', '', $_SESSION[$from]); // base64
             if ($val) {
                 $store = json_decode(base64_decode($val), true);
             } else {
@@ -1376,13 +1484,13 @@ abstract class AdminTheme
     /**
      * Helper to retrieve message(s) from $_SESSION and set them up for display
      * @ignore
-     * @since 2.9
+     * @since 2.99
      */
     protected function retrieve_message($type, &$into)
     {
         $from = 'cmsmsg_'.$type;
         if (isset($_SESSION[$from])) {
-            $val = cleanValue($_SESSION[$from]);
+            $val = preg_replace('~[^a-zA-Z0-9+/=]~', '', $_SESSION[$from]); // base64
             if ($val) {
                 $message = json_decode(base64_decode($val), true);
                 $this->PrepareStrings($into, $message, '');
@@ -1394,7 +1502,7 @@ abstract class AdminTheme
     /**
      * Retrieve message(s) that were logged during a prior request, to be shown in a notification-dialog
      *
-     * @since 2.9
+     * @since 2.99
      */
     protected function UnParkNotices($type = null)
     {
@@ -1429,7 +1537,7 @@ abstract class AdminTheme
     /**
      * Cache message(s) to be shown in a notification-dialog
      *
-     * @since 2.9
+     * @since 2.99
      * @param string $type Message-type indicator 'error','warn','success' or 'info'
      * @param mixed $message The error message(s), string|strings array
      * @param string $title Optional title for the message(s)
@@ -1474,15 +1582,15 @@ abstract class AdminTheme
 
     /**
      * Cache page-related data for later use. This might be called by modules,
-     * but (from 2.9) is not used by any admin operation.
+     * but (from 2.99) is not used by any admin operation.
      *
      * @param string $title_name        Displayable content, or a lang key, for the page-title to be displayed
-     *     Assumed to be a key, and passed through lang(), if $module_help_type is FALSE.
+     *     Assumed to be a key, and passed through lang(), if $module_help_type is false.
      * @param array  $extra_lang_params Optional extra string(s) to be supplied (with $title_name) to lang()
-     *     Ignored if $module_help_type is not FALSE
+     *     Ignored if $module_help_type is not false
      * @param string $link_text         Optional text to show in a module-help link (if $module_help_type is 'both')
      * @param mixed  $module_help_type  Optional flag for type(s) of module help link display.
-     *  Recognized values are FALSE for no link, TRUE to display an icon-link, and 'both' for icon- and text-links
+     *  Recognized values are false for no link, TRUE to display an icon-link, and 'both' for icon- and text-links
      */
     public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = false)
     {
@@ -1502,19 +1610,19 @@ abstract class AdminTheme
         // are we processing a module action?
         // TODO maybe cache this in $this->_modname ??
         if (isset($_REQUEST['module'])) {
-            $module = cleanValue($_REQUEST['module']); //TODO cleanString()
+            $module = sanitizeVal($_REQUEST['module'], 3); //module-identifier == foldername and in file-name
         } else {
             $module = RequestParameters::get_request_values('module'); //maybe null
         }
 
         if ($module) {
-            $tag = AdminUtils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
+            $tag = $this->get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
         } else {
             $tag = ''; //TODO get icon for admin operation
             //$tag = $this->get_active_icon());
         }
         $this->set_value('pageicon', $tag);
-/* TODO figure this out ... are breadcrumbs ever relevant in this context?
+/* TODO figure this out ... are breadcrumbs ever relevant in this context? maybe for a module ?
         $bc = $this->get_breadcrumbs();
         if ($bc) {
             $n = count($bc);
@@ -1560,7 +1668,7 @@ abstract class AdminTheme
     /**
      * Retrieve a list of the available admin themes.
      *
-     * @param bool $fullpath since 2.9 Optional flag. Default false.
+     * @param bool $fullpath since 2.99 Optional flag. Default false.
      *  If true, array values are theme-class filepaths. Otherwise theme names.
      * @return array A theme-name-sorted hash of theme names or theme filepath strings
      */
@@ -1581,7 +1689,7 @@ abstract class AdminTheme
 
     /**
      * Record a notification for display in the theme.
-     * @deprecated since 2.9 instead use RecordNotice()
+     * @deprecated since 2.99 instead use RecordNotice()
      *
      * @param AdminNotification $notification A reference to the new notification
      */
@@ -1595,13 +1703,13 @@ abstract class AdminTheme
     /**
      * Record a notification for display in the theme.
      * This is a wrapper around the add_notification method.
-     * @deprecated since 2.9 instead use RecordNotice()
+     * @deprecated since 2.99 instead use RecordNotice()
      *
      * @param int $priority priority level between 1 and 3
      * @param string $module The module name.
      * @param string $html The contents of the notification
      */
-    public function AddNotification($priority,$module,$html)
+    public function AddNotification($priority, $module, $html)
     {
 /*    $notification = new AdminNotification();
       $notification->priority = max(1,min(3,$priority));
@@ -1613,7 +1721,7 @@ abstract class AdminTheme
 
     /**
      * Retrieve the current list of notifications.
-     * @deprecated since 2.9 instead use PrepareStrings()
+     * @deprecated since 2.99 instead use PrepareStrings()
      *
      * @return array of AdminNotification objects
      */
@@ -1624,7 +1732,7 @@ abstract class AdminTheme
 
     /**
      * Retrieve current alerts (e.g. for display in page shortcuts toolbar)
-     * @since 2.9 (pre-2.9, themes handled this individually)
+     * @since 2.99 (pre-2.99, themes handled this individually)
      *
      * @return mixed array | null
      */
@@ -1700,7 +1808,7 @@ abstract class AdminTheme
      * @param mixed  $id -  Optional html id of the select box. Default null
      * @return string The select list of pages
      */
-    public function GetAdminPageDropdown($name,$selected,$id = null)
+    public function GetAdminPageDropdown($name, $selected, $id = null)
     {
         $opts = $this->GetAdminPages();
         if ($opts) {
@@ -1738,9 +1846,9 @@ abstract class AdminTheme
      * The CMSMS core code calls this method to add text and javascript to output in the head section required for various functionality.
      *
      * @param string $txt The text to add to the head section.
-     * @param bool   $after Since 2.9 Optional flag whether to append (instead of prepend) default true
+     * @param bool   $after Since 2.99 Optional flag whether to append (instead of prepend) default true
      * @since 2.2
-     * @deprecated since 2.9 use add_page_headtext()
+     * @deprecated since 2.99 use add_page_headtext()
      * @author Robert Campbell
      */
     public function add_headtext($txt, $after = true)
@@ -1761,7 +1869,7 @@ abstract class AdminTheme
      *
      * @return mixed string | null
      * @since 2.2
-     * @deprecated since 2.9 use get_page_headtext()
+     * @deprecated since 2.99 use get_page_headtext()
      * @author Robert Campbell
      */
     public function get_headtext()
@@ -1774,9 +1882,9 @@ abstract class AdminTheme
      * Accumulate content to be inserted at the bottom of the output, immediately before the </body> tag.
      *
      * @param string $txt The text to add to the end of the output.
-     * @param bool   $after Since 2.9 Optional flag whether to append (instead of prepend) default true
+     * @param bool   $after Since 2.99 Optional flag whether to append (instead of prepend) default true
      * @since 2.2
-     * @deprecated since 2.9 use add_page_foottext()
+     * @deprecated since 2.99 use add_page_foottext()
      * @author Robert Campbell
      */
     public function add_footertext($txt, $after = true)
@@ -1797,7 +1905,7 @@ abstract class AdminTheme
      *
      * @return string | null
      * @since 2.2
-     * @deprecated since 2.9 use get_page_foottext()
+     * @deprecated since 2.99 use get_page_foottext()
      * @author Robert Campbell
      */
     public function get_footertext()
@@ -1809,7 +1917,7 @@ abstract class AdminTheme
     /**
      * Output generic content which precedes the specific output of a module-action
      *  or admin operation. Themes may ignore this, and instead deal with such
-     *  content during postprocess(). Might be useful for backward-compatibility.
+     *  content during fetch_page(). Might be useful for backward-compatibility.
      * @abstract
      */
     public function do_header() {}
@@ -1817,28 +1925,19 @@ abstract class AdminTheme
     /**
      * Output generic content which follows the specific output of a module-action
      *  or admin operation. Themes may ignore this, and instead deal with such
-     *  content during postprocess(). Might be useful for backward-compatibility.
+     *  content during fetch_page(). Might be useful for backward-compatibility.
      * @abstract
      */
     public function do_footer() {}
 
     /**
-     * Output the content of the menu-root (home) page or a menu-section. e.g. a dashboard
-     *
-     * @abstract
-     * @param string $section_name A menu-section name, typically empty to work
-     * with the whole menu.
-     */
-    abstract public function do_toppage($section_name);
-
-    /**
-     * Cache the entire content of a 'minimal' page.
+     * Cache the content of a 'minimal' page.
      * CHECKME can the subsequent processing of such content be a security risk?
      * Hence maybe some sanitize here?
      *
-     * @since 2.9
+     * @since 2.99
      * @param string $content the entire displayable content
-     * @see AdminTheme::get_content(), AdminTheme::do_minimal()
+     * @see AdminTheme::get_content(), AdminTheme::fetch_minimal_page()
      */
     public function set_content(string $content)
     {
@@ -1848,8 +1947,8 @@ abstract class AdminTheme
     /**
      * Retrieve the cached content of a 'minimal' page
      *
-     * @since 2.9
-     * @see AdminTheme::set_content(), AdminTheme::do_minimal()
+     * @since 2.99
+     * @see AdminTheme::set_content(), AdminTheme::fetch_minimal_page()
      */
     public function get_content() : string
     {
@@ -1857,63 +1956,72 @@ abstract class AdminTheme
     }
 
     /**
-     * Return the content of a self-managed admin page i.e. without the usual processing
-     * of header, footer, page-title, menu.
+     * Optional method to display a customized theme-specific login page.
+     *   public function display_login_page() {}
+     *
+     * To be implemented by themes which support such operation,
+     * including all themes which support CMSMS 2.2 and below (often
+     * via a method-alias)
+     * @since 2.99. Formerly the mandatory method do_login, which took
+     *   parameters and displayed content directly.
+     */
+
+    /**
+     * Return the content of the menu-root (home) page or a menu-section e.g. a dashboard.
      * @abstract
-     * @since 2.9
+     * @since 2.99 formerly do_toppage which displayed content directly
      *
-     * @param mixed $bodyid string|null  Optional id for page body-element. Default null.
-     *
+     * @param string $section_name A menu-section name, typically empty to work
+     * with the whole menu.
      * @return html string | null if smarty->fetch() fails
      */
-    public function do_minimal($bodyid = null) {}
+    abstract public function fetch_menu_page($section_name);
 
     /**
-     * Return the content of an authenticated page
+     * Return the content of an 'ordinary' admin page.
+     * Called only via footer.php.
      * @abstract
-     * @since 2.9
+     * @since 2.99 formerly postprocess
      *
-     * @return html string
-     */
-    public function do_authenticated_page() : string {}
-
-    /**
-     * Return the content of a login page.
-     * @abstract
-     * @since 2.9
-     * @see AdminTheme::do_minimal()
-     *
-     * @param mixed $bodyid string | null  Optional id for page body-element. Default null.
+     * @param string $content The specific page content generated by a module action or admin operation
      * @return html string | null if smarty->fetch() fails
      */
-    public function do_loginpage($bodyid = null) {}
+    abstract public function fetch_page($content);
+
+    /* *
+     * @deprecated since 2.99 use fetch_page() instead
+     */
+/* no breakage if no external themes!
+    public function postprocess($content)
+    {
+        return $this->fetch_page($content);
+    }
+*/
+    /**
+     * Perform one-time setup for using the named, or this, admin theme,
+     *  if such is needed
+     * This is akin to the install|upgrade procedure for modules
+     * @optional
+     * @since 2.99
+     *
+     * @param mixed string|null $name Optional theme name.
+     */
+    //public function setup_theme($name = '') {}
 
     /**
-     * Display and process a login form
-     * @abstract
+     * Perform one-time cleanup consistent with ending use of the named,
+     *  or this, admin theme, if such is needed
+     * This is akin to the uninstall procedure for modules
+     * @optional
+     * @since 2.99
      *
-     * @param  mixed $params Optional array. Default null.
-     * @since 2.9, relevant parameters are supplied by a login module.
-     * However some themes aspire to backward-compatibility, so $params
-     *  remains as an option.
-     * @see AdminTheme::do_loginpage()
+     * @param mixed string|null $name Optional theme name.
      */
-    public function do_login($params = null) {}
-
-    /**
-     * Post-process the generated content of the current page.
-     * Called only via footer.php. Admin themes might do some of their work
-     * in this method (e.g. passing the content through a smarty template)
-     * @abstract
-     *
-     * @param string $html The page content generated by a module action or admin operation
-     * @return string  Modified content (or maybe null upon error?)
-     */
-    abstract public function postprocess($html);
+    //public function cleanup_theme($name = '') {}
 
     /**
      * ------------------------------------------------------------------
-     * Tab Functions
+     * Deprecated page-tabs management functions
      * ------------------------------------------------------------------
      */
 
@@ -1923,7 +2031,7 @@ abstract class AdminTheme
      * This infills related page-elements which are not explicitly created.
      *
      * @final
-     * @deprecated since 2.9. Instead use CMSMS\AdminTabs::start_tab_headers()
+     * @deprecated since 2.99. Instead use CMSMS\AdminTabs::start_tab_headers()
      * @return string
      */
     final public function StartTabHeaders() : string
@@ -1940,7 +2048,7 @@ abstract class AdminTheme
      * @param string $tabid The tab id
      * @param string $title The tab title
      * @param bool $active Optional flag indicating whether this tab is active, default false
-     * @deprecated since 2.9 Use CMSMS\AdminTabs::set_tab_header()
+     * @deprecated since 2.99 Use CMSMS\AdminTabs::set_tab_header()
      * @return string
      */
     final public function SetTabHeader(string $tabid, string $title, bool $active = false) : string
@@ -1953,7 +2061,7 @@ abstract class AdminTheme
      * This infills related page-elements which are not explicitly created.
      *
      * @final
-     * @deprecated since 2.9 Use CMSMS\AdminTabs::end_tab_headers()
+     * @deprecated since 2.99 Use CMSMS\AdminTabs::end_tab_headers()
      * @return string
      */
     final public function EndTabHeaders() : string
@@ -1966,7 +2074,7 @@ abstract class AdminTheme
      * This infills related page-elements which are not explicitly created.
      *
      * @final
-     * @deprecated since 2.9 Use CMSMS\AdminTabs::start_tab_content()
+     * @deprecated since 2.99 Use CMSMS\AdminTabs::start_tab_content()
      * @return string
      */
     final public function StartTabContent() : string
@@ -1979,7 +2087,7 @@ abstract class AdminTheme
      * This infills related page-elements which are not explicitly created.
      *
      * @final
-     * @deprecated since 2.9 Use CMSMS\AdminTabs::end_tab_content()
+     * @deprecated since 2.99 Use CMSMS\AdminTabs::end_tab_content()
      * @return string
      */
     final public function EndTabContent() : string
@@ -1993,7 +2101,7 @@ abstract class AdminTheme
      *
      * @final
      * @param string $tabid The tabid (see SetTabHeader)
-     * @deprecated since 2.9 Use CMSMS\AdminTabs::start_tab()
+     * @deprecated since 2.99 Use CMSMS\AdminTabs::start_tab()
      * @return string
      */
     final public function StartTab(string $tabid) : string
@@ -2006,7 +2114,7 @@ abstract class AdminTheme
      * This infills related page-elements which are not explicitly created.
      *
      * @final
-     * @deprecated since 2.9 Use CMSMS\AdminTabs::end_tab()
+     * @deprecated since 2.99 Use CMSMS\AdminTabs::end_tab()
      * @return string
      */
     final public function EndTab() : string
