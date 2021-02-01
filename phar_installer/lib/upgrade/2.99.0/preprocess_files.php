@@ -100,7 +100,34 @@ foreach ([
 }
 touch($assetsdir . DIRECTORY_SEPARATOR . 'index.html');
 
-// 2A. siteuuid-file
+$s = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR;
+foreach ([
+ 'aliases',
+ 'jobs',
+ 'Log',
+ 'module_support',
+] as $d) {
+    $fp = $s . $d;
+    if (!is_dir($fp)) @mkdir($fp, $dirmode, true);
+    if (!is_dir($fp)) throw new Exception("Could not create $fp directory");
+    touch($fp . DIRECTORY_SEPARATOR . 'index.html');
+}
+
+//3. remove redundant folders and contents if necessary
+foreach ([
+ ['lib', 'phpmailer'],
+ ['lib', 'smarty'],
+ ['lib', 'tasks'],
+] as $segs) {
+    $fp = $destdir . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $segs);
+    if (is_dir($fp)) {
+        if (!recursive_delete($fp)) {
+            throw new Exception("Could not remove $fp directory");
+        }
+    }
+}
+
+// 5. siteuuid-file
 $s = Crypto::random_string(72); //max byte-length of BCRYPT passwords
 $p = -1;
 while (($p = strpos($s, '\0', $p+1)) !== false) {
@@ -111,7 +138,8 @@ $fp = $assetsdir.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'siteuuid.dat
 file_put_contents($fp, $s);
 chmod($fp, $modes[0]);
 
-// 3. Revert force-moved (by 2.2.90x upgrade) 'independent' modules from assets/modules to deprecated /modules
+/*
+// 6. Revert force-moved (by 2.2.90x upgrade) 'independent' modules from assets/modules to deprecated /modules
 $wizard = wizard::get_instance();
 $data = $wizard->get_data('version_info'); //version-datum from session
 $fromvers = $data['version'];
@@ -121,7 +149,7 @@ if (version_compare($fromvers, '2.2.900') >= 0 && version_compare($fromvers, '2.
     $d = '';
     foreach ($dirs as $fp) {
         $modname = basename($fp);
-        if (!in_array($modname, ['MenuManager', 'CMSMailer', 'News'])) { //TODO exclude all non-core modules in files-tarball
+        if (!in_array($modname, ['MenuManager', / *'CMSMailer',* / 'News'])) { //TODO exclude all non-core modules in files-tarball
             if (!$d) {
                 $d = $destdir . DIRECTORY_SEPARATOR . 'modules';
                 @mkdir($d, $dirmode, true);
@@ -133,20 +161,20 @@ if (version_compare($fromvers, '2.2.900') >= 0 && version_compare($fromvers, '2.
     }
 }
 
-// 4. Move core modules to /lib/modules CHECKME
+// 7. Move core modules to /lib/modules CHECKME
 foreach ([
- 'AdminLog',
- 'AdminSearch',
+// 'AdminLog', internal
+ 'AdminLogin', // a.k.a. ModuleOperations::STD_LOGIN_MODULE
+ 'AdminSearch', // non-core?
  'CMSContentManager',
- 'CmsJobManager',
- 'CoreAdminLogin', // a.k.a. ModuleOperations::STD_LOGIN_MODULE
+// 'CmsJobManager', reverted to core classes
  'CoreTextEditing',
  'FileManager',
  'FilePicker',
  'MicroTiny',
  'ModuleManager',
  'Navigator',
- 'Search',
+ 'Search', // non-core?
 ] as $modname) {
     $fp = $destdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
     if (is_dir($fp)) {
@@ -161,7 +189,7 @@ foreach ([
     }
 }
 
-// 5. Move our ex-core modules to /assets/modules  CHECKME TODO get all in archive
+// 8. Move our ex-core modules to /assets/modules  CHECKME TODO get all in archive
 foreach (['DesignManager', 'MenuManager', 'CMSMailer', 'News'] as $modname) {
     $fp = $destdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
     if (is_dir($fp)) {
@@ -175,3 +203,4 @@ foreach (['DesignManager', 'MenuManager', 'CMSMailer', 'News'] as $modname) {
         }
     }
 }
+*/
