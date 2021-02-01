@@ -83,7 +83,7 @@
      </div>
      <div class="col-12 mx-auto text-center">
       <a rel="external" href="http://www.cmsmadesimple.org">
-       <img class="img-fluid" src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" style="height:30px;margin-top:5px" alt="CMS Made Simple" />
+       <img class="img-fluid" src="themes/assets/images/cmsms-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/assets/images/cmsms-logotext-dark.png';" style="width:11em;margin-top:3px" alt="CMS Made Simple" />
       </a>
      </div>
     </div>
