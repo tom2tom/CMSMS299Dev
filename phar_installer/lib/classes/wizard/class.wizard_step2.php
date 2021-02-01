@@ -37,6 +37,11 @@ class wizard_step2 extends wizard_step
         $t = filemtime($fv);
         if( !defined('CMS_VERSION') ) {
             include $fv; // see also installer_base::init()
+            if( !defined('CMS_VERSION') ) {
+                define('CMS_VERSION', $CMS_VERSION);
+                define('CMS_VERSION_NAME', $CMS_VERSION_NAME);
+                define('CMS_SCHEMA_VERSION', $CMS_SCHEMA_VERSION);
+            }
         }
 
         $app = get_app();
@@ -62,7 +67,7 @@ class wizard_step2 extends wizard_step
         $dt->setTimestamp($t);
         $info['mdate'] = $dt->format('j F Y');
         $info['mtime'] = $t;
-        $info['version'] = CMS_VERSION;
+        $info['version'] = CMS_VERSION; // OR $CMS_VERSION ??
         $info['version_name'] = CMS_VERSION_NAME;
         $info['schema_version'] = CMS_SCHEMA_VERSION;
 
@@ -161,8 +166,8 @@ class wizard_step2 extends wizard_step
                     $readme = get_upgrade_readme($version);
                     $changelog = get_upgrade_changelog($version);
                     if( $readme || $changelog ) {
-						$out[$version] = ['readme'=> entitize($readme),'changelog'=> entitize($changelog)];
-					}
+                        $out[$version] = ['readme'=> entitize($readme),'changelog'=> entitize($changelog)];
+                    }
                 }
                 $smarty->assign('upgrade_info',$out);
             }

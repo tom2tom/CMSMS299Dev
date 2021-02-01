@@ -32,7 +32,7 @@ class step_2 extends cli_step
 //see installer_base::init()            @include_once $dir.'/version.php';
             $info['mtime'] = filemtime($dir.'/version.php');
         }
-        $info['version'] = CMS_VERSION;
+        $info['version'] = CMS_VERSION; // TODO or global $CMS_VERSION ?
         $info['version_name'] = CMS_VERSION_NAME;
         $info['schema_version'] = CMS_SCHEMA_VERSION;
         $info['config_file'] = $dir.'/config.php';
