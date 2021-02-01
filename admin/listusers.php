@@ -1,27 +1,31 @@
 <?php
-#procedure to list all backend users
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure to list all admin console users
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\internal\LoginOperations;
-use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 
@@ -37,8 +41,8 @@ $userid = get_userid();
 $themeObject = Utils::get_theme_object();
 
 if (!check_permission($userid, 'Manage Users')) {
-    //TODO some pushed popup
-    return;
+//TODO some pushed popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
 /*--------------------
@@ -51,7 +55,7 @@ $page         = 1;
 $limit        = 100;
 $message      = '';
 $error        = '';
-$userops      = UserOperations::get_instance();
+$userops      = AppSingle::UserOperations();
 $selfurl      = basename(__FILE__);
 $extras       = get_secure_param_array();
 
@@ -60,22 +64,21 @@ $extras       = get_secure_param_array();
  ---------------------*/
 
 if (isset($_GET['switchuser'])) {
-    // switch user functionality is only allowed to members of the admin group
-    if (!$userops->UserInGroup($userid, 1)) {
-        $themeObject->RecordNotice('error', lang('permissiondenied'));
-    } else {
+    // switch user functionality is only allowed for members of the admin group
+    if ($userops->UserInGroup($userid, 1)) {
         $to_uid = (int) $_GET['switchuser'];
         $to_user = $userops->LoadUserByID($to_uid);
         if (!$to_user) {
             $themeObject->RecordNotice('error', lang('usernotfound'));
-        }
-        if (! $to_user->active) {
+        } elseif (!$to_user->active) {
             $themeObject->RecordNotice('error', lang('userdisabled'));
         } else {
             LoginOperations::get_instance()->set_effective_user($to_user);
             $urlext = get_secure_param();
             redirect('menu.php'.$urlext);
         }
+    } else {
+        $themeObject->RecordNotice('error', lang('permissiondenied'));
     }
 } elseif (isset($_GET['toggleactive'])) {
     if ($_GET['toggleactive'] == 1) {
@@ -100,7 +103,8 @@ if (isset($_GET['switchuser'])) {
             }
         }
     }
-} elseif (isset($_POST['bulk']) && isset($_POST['multiselect']) && $_POST['multiselect']) {
+} elseif (isset($_POST['bulk']) && !empty($_POST['multiselect'])) {
+//   cms_specialchars_decode_array($_POST);
     switch ($_POST['bulkaction']) {
         case 'delete':
             $ndeleted = 0;
@@ -339,7 +343,7 @@ if (!empty($error)) {
     $themeObject->RecordNotice('error', $error );
 }
 if (isset($_GET['message'])) {
-    $message = preg_replace('/\</', '', $_GET['message']);
+    $message = cms_specialchars_decode($_GET['message']);
 }
 if (!empty($message)) {
     $themeObject->RecordNotice('success', $message);
@@ -388,6 +392,7 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('listusers.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";
