@@ -25,21 +25,21 @@
   font-style: normal;
   font-weight: normal;
   speak: none;
- 
+
   display: inline-block;
   text-decoration: inherit;
   width: 1em;
   margin-right: .2em;
   margin-left: .2em;
   text-align: center;
- 
+
   /* For safety - reset parent styles that can break glyph codes*/
   font-variant: normal;
   text-transform: none;
- 
+
   /* fix buttons height, for twitter bootstrap */
   line-height: 1em;
- 
+
   /* Font smoothing taken from TWBS */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -64,5 +64,3 @@ table.table_sort td.row2s {
   font-weight: bold;
   color: #0f0;
 }
-
-/* TODO ensure flexbox css for .rowbox.expand, .boxchild */

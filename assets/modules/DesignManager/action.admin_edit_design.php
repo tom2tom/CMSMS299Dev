@@ -124,8 +124,6 @@ try {
    ->assign('design',$design)
    ->assign('placeholder',$advice);
 
-//TODO ensure flexbox css for .rowbox.expand, .boxchild
-
   $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
