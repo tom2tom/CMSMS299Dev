@@ -97,6 +97,11 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
                         return;
                     }
                 }
+                //sanitize, in case some malicious content was stored
+                // munge PHP tags TODO ok if these tags are already obfuscated ?
+                //TODO maybe disable SmartyBC-supported {php}{/php} in $text BUT actual current smarty delim's
+                $text = preg_replace(['/<\?php/i','/<\?=/','/<\?(\s|\n)/','~\{/?php\}~'], ['&#60;&#63;php','&#60;&#63;=','&#60;&#63; ',''], $data['content']);
+                $data['content'] = str_replace('`', '&#96;', $text);
             }
             else {
                 cms_error('Missing template: '.$name);

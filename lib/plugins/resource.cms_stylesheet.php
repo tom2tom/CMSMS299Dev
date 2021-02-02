@@ -111,6 +111,10 @@ class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
                         return;
                     }
                 }
+                //sanitize sheet content, in case some malicious stuff was stored
+                // PHP tags and/or SmartyBC-supported {php}{/php} and/or '`'
+                $text = preg_replace(['/<\?php/i','/<\?=/','/<\?(\s|\n)/','~\[\[/?php\]\]~i'], ['','','',''], $data['content']);
+                $data['content'] = str_replace('`', '', $text);
 
                 self::$loaded[$data['id']] = $data;
                 self::$loaded[$data['name']] = &$data;
