@@ -32,9 +32,9 @@ function smarty_modifier_cms_date_format($string, $format = '', $default_date = 
 	if ($format == '') {
 		$format = AppParams::get('defaultdateformat');
 		if (!AppSingle::App()->is_frontend_request()) {
-			$uid = get_userid(false);
-			if ($uid) {
-				$tmp = UserParams::get_for_user($uid, 'date_format_string');
+			$userid = get_userid(false);
+			if ($userid) {
+				$tmp = UserParams::get_for_user($userid, 'date_format_string');
 				if ($tmp) $format = $tmp;
 			}
 		}

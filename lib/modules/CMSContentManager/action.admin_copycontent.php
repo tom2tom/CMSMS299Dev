@@ -54,13 +54,14 @@ if( !$from_obj ) {
 $from_obj->GetAdditionalEditors();
 $from_obj->HasProperty('anything'); // forces properties to be loaded.
 
+$userid = get_userid();
 $to_obj = clone $from_obj;
 $to_obj->SetURL('');
 $to_obj->SetName('Copy of '.$from_obj->Name());
 $to_obj->SetMenuText('Copy of '.$from_obj->MenuText());
 $to_obj->SetAlias();
 $to_obj->SetDefaultContent(0);
-$to_obj->SetOwner(get_userid());
-$to_obj->SetLastModifiedBy(get_userid());
+$to_obj->SetOwner($userid);
+$to_obj->SetLastModifiedBy($userid);
 $_SESSION['__cms_copy_obj__'] = serialize($to_obj);
 $this->Redirect($id,'admin_editcontent','',['content_id'=>'copy']);

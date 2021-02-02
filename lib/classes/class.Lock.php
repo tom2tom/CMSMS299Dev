@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
@@ -44,7 +44,7 @@ use function get_userid;
  * @param-read int $id
  * @param string $type
  * @param int $oid
- * @param int $uid
+ * @param int $userid
  * @param-read int $create_date  (db datetime)
  * @param-read int $modified_date (db datetime)
  * @param-read int created (unix timestamp corresponding to create_date)
@@ -89,7 +89,7 @@ final class Lock implements ArrayAccess
 
         $this->_data['type'] = $type;
         $this->_data['oid'] = $oid;
-        $this->_data['uid'] = get_userid(FALSE);
+        $this->_data['uid'] = get_userid(false);
         if( $lifetime == null ) $lifetime = AppParams::get('lock_timeout',60);
         $t = max(1,(int)$lifetime);
         $this->_data['lifetime'] = $t; // deprecated since 2.99
@@ -250,13 +250,13 @@ WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
     {
         if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) throw new CmsLogicException('CMSEX_L002');
 
-        $uid = get_userid(FALSE);
-        if( !$this->expired() && $uid != $this->_data['uid'] ) {
-            cms_warning('Attempt to delete a non expired lock owned by user '.$uid);
+        $userid = get_userid(false);
+        if( !$this->expired() && $userid != $this->_data['uid'] ) {
+            cms_warning('Attempt to delete a non expired lock owned by user '.$userid);
             throw new CmsLockOwnerException('CMSEX_L001');
         }
 
-        if( $uid != $this->_data['uid'] ) {
+        if( $userid != $this->_data['uid'] ) {
             cms_notice(sprintf('Lock %s (%s/%d) owned by uid %s deleted by non owner',
                                          $this->_data['id'],$this->_data['type'],$this->_data['oid'],$this->_data['uid']));
         }
@@ -274,22 +274,22 @@ WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
      * @param int $lock_id
      * @param string $type  The lock type (type of object being locked)
      * @param int $oid  The numeric id of the locked object
-     * @param int $uid  Optional lock-holder identifier
+     * @param int $userid  Optional lock-holder identifier
      * @return Lock
      * @throws CmsNoLockException
      */
-    public static function load_by_id($lock_id,$type,$oid,$uid = null)
+    public static function load_by_id($lock_id,$type,$oid,$userid = null)
     {
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id = ? AND type = ? AND oid = ?';
         $db = AppSingle::Db();
         $parms = [$lock_id,$type,$oid];
-        if( $uid > 0 ) {
+        if( $userid > 0 ) {
             $query .= ' AND uid = ?';
-            $parms[] = $uid;
+            $parms[] = $userid;
         }
         $row = $db->GetRow($query,$parms);
         if( $row ) return self::from_row($row);
-        throw new CmsNoLockException('CMSEX_L005','',[$lock_id,$type,$oid,$uid]);
+        throw new CmsNoLockException('CMSEX_L005','',[$lock_id,$type,$oid,$userid]);
     }
 
     /**
@@ -297,22 +297,22 @@ WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
      *
      * @param string $type  The lock type (type of object being locked)
      * @param int $oid  The numeric id of the locked object
-     * @param int $uid  Optional lock-holder identifier
+     * @param int $userid  Optional lock-holder identifier
      * @return Lock
      * @throws CmsNoLockException
      */
-    public static function load($type,$oid,$uid = null)
+    public static function load($type,$oid,$userid = null)
     {
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
         $db = AppSingle::Db();
         $parms = [$type,$oid];
-        if( $uid > 0 ) {
+        if( $userid > 0 ) {
             $query .= ' AND uid = ?';
-            $parms[] = $uid;
+            $parms[] = $userid;
         }
         $row = $db->GetRow($query,$parms);
         if( $row ) return self::from_row($row);
-        throw new CmsNoLockException('CMSEX_L005','',[$type,$uid,$uid]);
+        throw new CmsNoLockException('CMSEX_L005','',[$type,$userid,$userid]);
     }
 } // class
 

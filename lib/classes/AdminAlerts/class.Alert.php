@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\AdminAlerts;
@@ -310,21 +310,21 @@ abstract class Alert
      * Load all alerts that are suitable for the specified user id.
 	 * If no uid is specified, the currently logged in admin user id is used.
      *
-     * @param mixed int|null $uid The admin userid to test for.
+     * @param mixed int|null $userid The admin userid to test for.
      * @return mixed Alert[] | null
      */
-    public static function load_my_alerts($uid = null)
+    public static function load_my_alerts($userid = 0)
     {
-        $uid = (int) $uid;
-        if( $uid < 1 ) $uid = get_userid(FALSE);
-        if( !$uid ) return;
+        $userid = (int) $userid;
+        if( $userid < 1 ) $userid = get_userid(false);
+        if( !$userid ) return;
 
         $alerts = self::load_all();
         if( !$alerts ) return;
 
         $out = [];
         foreach( $alerts as $alert ) {
-            if( $alert->is_for($uid) ) {
+            if( $alert->is_for($userid) ) {
                 $out[] = $alert;
             }
         }

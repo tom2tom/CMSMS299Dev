@@ -228,19 +228,19 @@ EOS;
         if (($module_icon_url = $this->get_value('module_icon_url'))) {
             $smarty->assign('module_icon_url', $module_icon_url); }
 
-        $uid = get_userid();
+        $userid = get_userid();
         // module_help_url
-        if( !UserParams::get_for_user($uid,'hide_help_links',0) ) {
+        if( !UserParams::get_for_user($userid,'hide_help_links',0) ) {
             if (($module_help_url = $this->get_value('module_help_url'))) {
                 $smarty->assign('module_help_url', $module_help_url); }
         }
 
         // my preferences
-        if (check_permission($uid,'Manage My Settings')) {
+        if (check_permission($userid,'Manage My Settings')) {
             $smarty->assign('myaccount', 1); }
 
         // if bookmarks
-        if (UserParams::get_for_user($uid, 'bookmarks') && check_permission($uid, 'Manage My Bookmarks')) {
+        if (UserParams::get_for_user($userid, 'bookmarks') && check_permission($userid, 'Manage My Bookmarks')) {
             $all_marks = $this->get_bookmarks();
             $marks = [];
             $marks_cntrls = [];
@@ -275,9 +275,9 @@ EOS;
         ]);
 
         $userops = AppSingle::UserOperations();
-        $smarty->assign('user', $userops->LoadUserByID($uid));
+        $smarty->assign('user', $userops->LoadUserByID($userid));
         // get user selected language
-        $smarty->assign('lang', UserParams::get_for_user($uid, 'default_cms_language'));
+        $smarty->assign('lang', UserParams::get_for_user($userid, 'default_cms_language'));
         // get language direction
         $lang = NlsOperations::get_current_language();
         $info = NlsOperations::get_language_info($lang);

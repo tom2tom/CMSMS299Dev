@@ -128,8 +128,8 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			throw new Error403Exception('Permission denied');
 		}
 
-		$uid = get_userid(false);
-		if ($page == CMS_PREVIEW_PAGEID || $uid || $_SERVER['REQUEST_METHOD'] != 'GET') {
+		$userid = get_userid(false);
+		if ($page == CMS_PREVIEW_PAGEID || $userid || $_SERVER['REQUEST_METHOD'] != 'GET') {
 			$cachable = false;
 		} else {
 			$cachable = $contentobj->Cachable();

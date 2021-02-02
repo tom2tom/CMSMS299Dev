@@ -21,8 +21,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 if( !function_exists('cmsms') ) exit;
 $fp = cms_join_path(CMS_ROOT_PATH, 'lib', 'assets', 'method.edittemplate.php');
 if( is_file($fp) ) {
-    $user_id = get_userid();
-    $can_manage = check_permission($user_id, 'Modify News Preferences');  // || Modify Templates etc ??
+    $userid = get_userid();
+    $can_manage = check_permission($userid, 'Modify News Preferences');  // || Modify Templates etc ??
     if( !$can_manage ) exit;
     $content_only = false; //TODO per actual permmissions
 

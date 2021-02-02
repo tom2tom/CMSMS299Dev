@@ -45,8 +45,8 @@ final class LockOperations
 	 */
 	public static function touch($lock_id,$type,$oid)
 	{
-		$uid = get_userid(FALSE);
-		$lock = Lock::load_by_id($lock_id,$type,$oid,$uid);
+		$userid = get_userid(false);
+		$lock = Lock::load_by_id($lock_id,$type,$oid,$userid);
 		$lock->save();
 		return $lock['expires'];
 	}
@@ -73,7 +73,7 @@ final class LockOperations
 	public static function unlock($lock_id,$type,$oid)
 	{
 		if( $lock_id ) {
-			$uid = get_userid(FALSE);
+//			$userid = get_userid(false);
 			$lock = Lock::load_by_id($lock_id,$type,$oid);
 			$lock->delete();
 		}
@@ -167,9 +167,9 @@ final class LockOperations
 	 */
 	public static function delete_for_user($type = '')
 	{
-		$uid = get_userid(FALSE);
+		$userid = get_userid(false);
 		$db = CmsApp::get_instance()->GetDb();
-		$parms = [$uid];
+		$parms = [$userid];
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE.' WHERE uid = ?';
 		if( $type ) {
 			$query .= ' AND type = ?';
@@ -182,15 +182,15 @@ final class LockOperations
 	 * Delete locks held by the specified user
 	 * @since 2.99
 	 *
-	 * @param int $uid  User id
+	 * @param int $userid  User id
 	 * @param string $type An optional type name.
 	 * @param int $oid  An optional object-id, ignored unless $type is provided
 	 */
-	public static function delete_for_nameduser (int $uid,string $type = '',int $oid = 0)
+	public static function delete_for_nameduser (int $userid,string $type = '',int $oid = 0)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		if( !$db ) return; //during shutdown, connection gone ?
-		$parms = [$uid];
+		$parms = [$userid];
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE.' WHERE uid = ?';
 		if( $type ) {
 			$query .= ' AND type = ?';

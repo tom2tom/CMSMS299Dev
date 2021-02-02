@@ -694,9 +694,9 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 		$valid = class_exists('cms_installer\wizard\wizard'); //TODO some other check too
 	} else {
 		$runtime = true;
-		$uid = get_userid(false);
-		if ($uid) {
-			$valid = check_permission($uid,'Manage All Content');
+		$userid = get_userid(false);
+		if ($userid) {
+			$valid = check_permission($userid,'Manage All Content');
 		} else {
 			// TODO etc e.g. when force-feeding, maybe async
 			$valid = false;

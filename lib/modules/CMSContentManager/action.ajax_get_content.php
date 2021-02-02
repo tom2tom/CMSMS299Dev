@@ -157,7 +157,7 @@ try {
         $linkdel = '<a href="'.$u.'" class="page_delete" accesskey="r">'.$icon.'</a>'.PHP_EOL;
 
 		$now = time();
-		$user_id = get_userid();
+		$userid = get_userid();
         $menus = [];
         foreach( $editinfo as &$row ) {
             $acts = [];
@@ -166,7 +166,7 @@ try {
 			if( isset($row['lock']) ) {
 				$obj = $row['lock'];
 				$locker = $obj['uid'];
-				if( $locker == $user_id ) {
+				if( $locker == $userid ) {
 					unset($row['lock'], $row['lockuser']);
 				}
 				else {

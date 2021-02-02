@@ -413,7 +413,7 @@ EOS;
 		$flag = $this->currentversion();
 
 		$smarty = cmsms()->GetSmarty();
-		$uid = get_userid(false);
+		$userid = get_userid(false);
 
 		// setup titles etc
 //		$tree =
@@ -440,7 +440,7 @@ EOS;
 		$module_help_type = $this->get_value('module_help_type');
 		// module_help_url
 		if ($module_name && ($module_help_type || $module_help_type === null) &&
-			!UserParams::get_for_user($uid,'hide_help_links', 0)) {
+			!UserParams::get_for_user($userid,'hide_help_links', 0)) {
 			if (($module_help_url = $this->get_value('module_help_url'))) {
 				$smarty->assign('module_help_url', $module_help_url);
 			}
@@ -511,13 +511,13 @@ EOS;
 		}
 
 		// preferences UI
-		if (check_permission($uid,'Manage My Settings')) {
+		if (check_permission($userid,'Manage My Settings')) {
 			$smarty->assign('mysettings', 1)
 			->assign('myaccount', 1); //TODO maybe a separate check
 		}
 
 		// bookmarks UI
-		if (UserParams::get_for_user($uid, 'bookmarks') && check_permission($uid, 'Manage My Bookmarks')) {
+		if (UserParams::get_for_user($userid, 'bookmarks') && check_permission($userid, 'Manage My Bookmarks')) {
 			$marks = $this->get_bookmarks();
 			$smarty->assign('marks', $marks);
 		}
@@ -528,10 +528,10 @@ EOS;
 		  ->assign('content', str_replace('</body></html>', '', $html))
 		  ->assign('theme', $this)
 		  ->assign('secureparam', $secureparam);
-		$user = UserOperations::get_instance()->LoadUserByID($uid);
+		$user = UserOperations::get_instance()->LoadUserByID($userid);
 		$smarty->assign('username', $user->username);
 		// user-selected language
-		$lang = UserParams::get_for_user($uid, 'default_cms_language');
+		$lang = UserParams::get_for_user($userid, 'default_cms_language');
 		if (!$lang) $lang = AppParams::get('frontendlang');
 		$smarty->assign('lang_code', $lang);
 		// language direction

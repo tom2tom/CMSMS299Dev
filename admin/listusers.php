@@ -87,8 +87,6 @@ if (isset($_GET['switchuser'])) {
         $thisuser = $userops->LoadUserByID((int)$_GET['toggleactive']);
         if ($thisuser) {
             // modify users, is this enough?
-            $userid = get_userid();
-
             $result = false;
             $thisuser->active == 1 ? $thisuser->active = 0 : $thisuser->active = 1;
             Events::SendEvent('Core', 'EditUserPre', [ 'user' => &$thisuser ]);
@@ -114,7 +112,7 @@ if (isset($_GET['switchuser'])) {
                     continue; // can't delete the magic user...
                 }
 
-                if ($uid == get_userid()) {
+                if ($uid == $userid) {
                     continue; // can't delete self.
                 }
 
@@ -210,7 +208,7 @@ if (isset($_GET['switchuser'])) {
                     continue; // can't disable the magic user...
                 }
 
-                if ($uid == get_userid()) {
+                if ($uid == $userid) {
                     continue; // can't disable self.
                 }
 
@@ -241,7 +239,7 @@ if (isset($_GET['switchuser'])) {
                     continue; // can't disable the magic user...
                 }
 
-                if ($uid == get_userid()) {
+                if ($uid == $userid) {
                     continue; // can't disable self.
                 }
 

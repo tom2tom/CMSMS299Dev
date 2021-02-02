@@ -466,9 +466,9 @@ abstract class AdminTheme
      */
     private function _get_user_module_info() : array
     {
-        $uid = get_userid(false);
+        $userid = get_userid(false);
 // TODO also clear cache group 'module_menus' after change of group membership or permission
-        $data = SystemCache::get_instance()->get('themeinfo'.$uid, 'module_menus');
+        $data = SystemCache::get_instance()->get('themeinfo'.$userid, 'module_menus');
         $data = false;  //DEBUG
         if (!$data) {
             // data doesn't exist, gotta build it
@@ -503,7 +503,7 @@ abstract class AdminTheme
                 }
             }
             // cache the array, even if empty
-            SystemCache::get_instance()->set('themeinfo'.$uid, $usermoduleinfo, 'module_menus');
+            SystemCache::get_instance()->set('themeinfo'.$userid, $usermoduleinfo, 'module_menus');
             $data = $usermoduleinfo;
         }
 

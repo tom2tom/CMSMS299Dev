@@ -77,7 +77,7 @@ try {
 	$extraparms = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
 	if (isset($_REQUEST['import_type'])) {
 		$tpl_obj = TemplateOperations::get_template_by_type($_REQUEST['import_type']);
-		$tpl_obj->set_owner(get_userid());
+		$tpl_obj->set_owner($userid);
 /*		$design = DesignManager\Design::load_default(); DISABLED
 		if ($design) {
 			$tpl_obj->add_design($design);
