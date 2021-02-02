@@ -21,11 +21,10 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace CMSMS; // TODO OK if pre-2.99?
+namespace CMSMS; // TODO PHP5.4+ OK if pre-2.99?
 
 //use CMSMS\RequestParameters; //2.99+
 //use Throwable; 2.99+
- // pre-2.99
 //use function sanitizeVal; // 2.99+
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AppParams;
@@ -356,9 +355,6 @@ EOS;
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
 <script type="text/javascript" src="themes/Altbier/includes/login.min.js"></script>
-<!--[if lt IE 9]>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script> TODO conform CSP
-<![endif]-->
 
 EOS;
 		} // pre 2.99
@@ -387,12 +383,10 @@ EOS;
 				$nodes = $this->get_navigation_tree($section_name, -1, FALSE);
 				$smarty->assign('pagetitle', lang($section_name)); //CHECKME
 			}
+		} elseif ($flag) {
+			$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
 		} else {
-			if ($flag) {
-				$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
-			} else {
-				$nodes = $this->get_navigation_tree(-1, 2, FALSE);
-			}
+			$nodes = $this->get_navigation_tree(-1, 2, FALSE);
 		}
 //		$this->_havetree = $nodes; //block further tree-data changes
 		$smarty->assign('nodes', $nodes);
@@ -401,11 +395,6 @@ EOS;
 		$smarty->assign('admin_url', $config['admin_url'])
 		  ->assign('theme', $this);
 
-		//custom support-URL?
-		$url = AppParams::get('site_help_url');
-		if ($url) {
-			$smarty->assign('site_help_url', $url);
-		}
 		// is the website down for maintenance?
 		if (AppParams::get('site_downnow')) {
 			$smarty->assign('is_sitedown', 1);
@@ -513,6 +502,12 @@ EOS;
 				$sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
 			}
 			$smarty->assign('sitelogo', $sitelogo);
+		}
+
+		//custom support-URL
+		$url = AppParams::get('site_help_url');
+		if ($url) {
+			$smarty->assign('site_help_url', $url);
 		}
 
 		// preferences UI

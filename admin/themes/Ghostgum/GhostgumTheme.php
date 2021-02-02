@@ -201,12 +201,6 @@ EOS;
 		$smarty->assign('admin_url', $config['admin_url'])
 		  ->assign('theme', $this);
 
-		//custom support-URL?
-		$url = AppParams::get('site_help_url');
-		if ($url) {
-			$smarty->assign('site_help_url', $url);
-		}
-
 		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
 		return $smarty->fetch('topcontent.tpl');
 	}
@@ -306,6 +300,12 @@ EOS;
 			$smarty->assign('sitelogo', $sitelogo);
 		}
 
+		// custom support-URL?
+		$url = AppParams::get('site_help_url');
+		if ($url) {
+			$smarty->assign('site_help_url', $url);
+		}
+
 		// preferences UI
 		if (check_permission($uid,'Manage My Settings')) {
 			$smarty->assign('mysettings', 1)
@@ -343,12 +343,6 @@ EOS;
 		if (!$lang) $lang = AppParams::get('frontendlang');
 		$smarty->assign('lang_code', $lang)
 		  ->assign('lang_dir', NlsOperations::get_language_direction()); // language direction
-
-		// custom support-URL?
-		$url = AppParams::get('site_help_url');
-		if ($url) {
-			$smarty->assign('site_help_url', $url);
-		}
 
 		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
 		return $smarty->fetch('pagetemplate.tpl');

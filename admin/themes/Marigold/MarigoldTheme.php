@@ -211,11 +211,6 @@ EOS;
 		  ->assign('theme_path',__DIR__)
 		  ->assign('theme_root', $config['admin_url'].'/themes/Marigold');
 
-		//custom support-URL?
-		$url = AppParams::get('site_help_url');
-		if ($url) {
-			$smarty->assign('site_help_url', $url);
-		}
 		// is the website set down for maintenance?
 		if (AppParams::get('site_downnow')) {
 			$smarty->assign('is_sitedown', 1);
@@ -320,6 +315,12 @@ EOS;
 			$smarty->assign('sitelogo', $sitelogo);
 		}
 
+		// custom support-URL?
+		$url = AppParams::get('site_help_url');
+		if ($url) {
+			$smarty->assign('site_help_url', $url);
+		}
+
 		// preferences UI
 		if (check_permission($uid,'Manage My Settings')) {
 			$smarty->assign('mysettings', 1)
@@ -363,12 +364,6 @@ EOS;
 		if (!$lang) $lang = AppParams::get('frontendlang');
 		$smarty->assign('lang_code', $lang)
 		  ->assign('lang_dir', NlsOperations::get_language_direction()); // language direction
-
-		// custom support-URL?
-		$url = AppParams::get('site_help_url');
-		if ($url) {
-			$smarty->assign('site_help_url', $url);
-		}
 
 		// is the website down for maintenance?
 		if (AppParams::get('site_downnow')) {
