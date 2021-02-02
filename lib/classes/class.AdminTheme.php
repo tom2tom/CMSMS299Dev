@@ -51,7 +51,6 @@ use function add_page_foottext;
 use function add_page_headtext;
 use function audit;
 use function check_permission;
-use function sanitizeVal;
 use function cms_join_path;
 use function cms_module_places;
 use function cms_path_to_url;
@@ -61,6 +60,7 @@ use function get_page_headtext;
 use function get_secure_param;
 use function get_userid;
 use function lang;
+use function sanitizeVal;
 use function startswith;
 
 /**
@@ -1967,15 +1967,43 @@ abstract class AdminTheme
      */
 
     /**
-     * Return the content of the menu-root (home) page or a menu-section e.g. a dashboard.
-     * @abstract
+     * Return the content of the menu-root (home) page or a menu-section.
+     * Normally, themes would sub-class this method to customize the
+     * display e.g. as a dashboard.
      * @since 2.99 formerly do_toppage which displayed content directly
      *
-     * @param string $section_name A menu-section name, typically empty to work
-     * with the whole menu.
+     * @param string $section_name A menu-section name, typically empty to
+     * work with the whole menu
      * @return html string | null if smarty->fetch() fails
      */
-    abstract public function fetch_menu_page($section_name);
+    public function fetch_menu_page($section_name)
+    {
+        $smarty = AppSingle::Smarty();
+        $nodes = ($section_name) ?
+            $this->get_navigation_tree($section_name, 0) :
+            $this->get_navigation_tree(null, 3, 'root:view:dashboard');
+        $smarty->assign('nodes', $nodes);
+
+        if (AppParams::get('site_downnow')) {
+            $smarty->assign('sitedown', 1);
+            $str = json_encode(lang('maintenance_warning'));
+            add_page_foottext(<<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(function() {
+ $('#logoutitem').on('click', function(e) {
+  e.preventDefault();
+  cms_confirm_linkclick(this, $str);
+  return false;
+ });
+});
+//]]>
+</script>
+EOS
+            );
+        }
+        return $smarty->fetch('defaultmenupage.tpl');
+    }
 
     /**
      * Return the content of an 'ordinary' admin page.
