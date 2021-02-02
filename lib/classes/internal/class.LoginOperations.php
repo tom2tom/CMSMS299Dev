@@ -84,7 +84,7 @@ final class LoginOperations
 	 * Save session/cookie data
 	 *
 	 * @param User $user Primary user for the session
-	 * @param mixed $effective_user Optional User | null
+	 * @param mixed $effective_user Optional Substitute-user object | null
 	 * @return boolean TRUE always
 	 * @throws LogicException
 	 */
@@ -100,7 +100,7 @@ final class LoginOperations
 		'eff_username' => null,
 		'hash' => $user->password,
 		];
-		//From 2.99 - changing to super-admin-user (1) is not supported
+		//From 2.99 - changing to super-user (1) is not supported
 		if ($effective_user && $effective_user->id != $user->id && $effective_user->id > 1) {
 			$private_data['eff_uid'] = $effective_user->id;
 			$private_data['eff_username'] = $effective_user->username;
