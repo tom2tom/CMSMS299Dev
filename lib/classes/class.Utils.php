@@ -1,7 +1,7 @@
 <?php
 /*
-Utilities class.
-Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+System utilities class.
+Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -11,12 +11,12 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-CMS Made Simple is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -24,8 +24,11 @@ namespace CMSMS;
 use CMSMS\AdminTheme;
 use CMSMS\AppConfig;
 use CMSMS\AppSingle;
+use CMSMS\CoreCapabilities;
 use CMSMS\Database\Connection;
+//use CMSMS\DeprecationNotice;
 use CMSMS\internal\Smarty;
+//use const CMS_DEPREC;
 
 /**
  * A class of static utility/convenience methods.
@@ -50,6 +53,7 @@ final class Utils
 	 * @ignore
 	 */
 	private function __construct() {}
+
 	/**
 	 * @ignore
 	 */
@@ -57,8 +61,8 @@ final class Utils
 
 	/**
 	 * Get intra-request stored data.
-	 *
 	 * @since 1.9
+	 *
 	 * @param string $key The key to get.
 	 * @return mixed The stored data, or null
 	 */
@@ -68,12 +72,12 @@ final class Utils
 	}
 
 	/**
-	 * Set data for later use.
-	 *
-	 * This method is typically used to store data for later use by another part of the application.
-	 * This data is not stored in the session, so it only exists during the current request.
-	 *
+	 * Cache intra-request data.
+	 * The data only exists during the current request.
+	 * This method is typically used to store data for later use by
+	 * another part of the system.
 	 * @since 1.9
+	 *
 	 * @param string $key The name of this data.
 	 * @param mixed  $value The data to store.
 	 */
@@ -86,44 +90,48 @@ final class Utils
 
 	/**
 	 * Return the database connection singleton.
-	 *
+	 * @see AppSingle::Db()
 	 * @since 1.9
-	 * @return mixed CMSMS\Database\Connection object or null
+	 *
+	 * @return mixed CMSMS\Database\Connection object | null
 	 */
 	public static function get_db() : Connection
 	{
+//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\AppSingle::Db()'));
 		return AppSingle::Db();
 	}
 
 	/**
 	 * Return the application config singleton.
-	 *
+	 * @see AppSingle::Config();
 	 * @since 1.9
+	 *
 	 * @return AppConfig The global configuration object.
 	 */
 	public static function get_config() : AppConfig
 	{
+//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\AppSingle::Config()'));
 		return AppSingle::Config();
 	}
 
 	/**
 	 * Return the application Smarty singleton.
-	 *
-	 * @see App::GetSmarty()
+	 * @see AppSingle::Smarty()
 	 * @since 1.9
+	 *
 	 * @return Smarty handle to the Smarty object
 	 */
 	public static function get_smarty() : Smarty
 	{
+//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\AppSingle::Smarty()'));
 		return AppSingle::Smarty();
 	}
 
 	/**
 	 * Return the current content object.
-	 *
 	 * This function will return NULL if called from an admin action
-	 *
 	 * @since 1.9
+	 *
 	 * @return mixed Content The current content object | null
 	 */
 	public static function get_current_content()
@@ -133,10 +141,9 @@ final class Utils
 
 	/**
 	 * Return the alias of the current page.
-	 *
 	 * This function will return NULL if called from an admin action
-	 *
 	 * @since 1.9
+	 *
 	 * @return mixed string|null
 	 */
 	public static function get_current_alias()
@@ -147,10 +154,9 @@ final class Utils
 
 	/**
 	 * Return the id of the current page
-	 *
 	 * This function will return NULL if called from an admin action
-	 *
 	 * @since 1.9
+	 *
 	 * @return mixed int|null
 	 */
 	public static function get_current_pageid()
@@ -160,10 +166,9 @@ final class Utils
 
 	/**
 	 * Report whether a module is available.
-	 *
 	 * @see get_module(), SysDataCache::get_instance()->get('modules')
-	 * @author calguy1000
 	 * @since 1.11
+	 *
 	 * @param string $name The module name
 	 * @return bool
 	 */
@@ -174,13 +179,12 @@ final class Utils
 
 	/**
 	 * Return an installed module object.
-	 *
-	 * If a version string is passed, a matching object will only be returned IF
-	 * the installed version is greater than or equal to the supplied version.
-	 *
+	 * If a version string is passed, a matching object will only be returned
+	 * if the installed version is greater than or equal to the specified version.
 	 * @see version_compare()
 	 * @see ModuleOperations::get_module_instance()
 	 * @since 1.9
+	 *
 	 * @param string $name The module name
 	 * @param string $version An optional version string
 	 * @return mixed CMSModule The matching module object or null
@@ -197,8 +201,8 @@ final class Utils
 	 * frontend WYSIWYG or null if none is selected.
 	 * For admin requests this method will return the user's selected
 	 * WYSIWYG module, or null.
-	 *
 	 * @since 1.10
+	 *
 	 * @param mixed $module_name Optional module name | null Default null
 	 * @return mixed CMSModule | null
 	 */
@@ -209,9 +213,8 @@ final class Utils
 
 	/**
 	 * Return the currently-selected syntax highlight module.
-	 *
 	 * @since 1.10
-	 * @author calguy1000
+	 *
 	 * @return mixed CMSModule | null
 	 */
 	public static function get_syntax_highlighter_module()
@@ -221,9 +224,8 @@ final class Utils
 
 	/**
 	 * Return the currently selected search module.
-	 *
 	 * @since 1.10
-	 * @author calguy1000
+	 *
 	 * @return mixed CMSModule | null
 	 */
 	public static function get_search_module()
@@ -233,9 +235,9 @@ final class Utils
 
 	/**
 	 * Return the currently-selected filepicker module.
-	 *
 	 * @since 2.2
 	 * @author calguy1000
+	 *
 	 * @return mixed CMSModule | null
 	 */
 	public static function get_filepicker_module()
@@ -244,11 +246,59 @@ final class Utils
 	}
 
 	/**
+	 * Return the first-detected email-sender module (if any).
+	 * @since 2.99
+	 *
+	 * @return mixed CMSModule | null
+	 */
+	public static function get_email_module()
+	{
+		$modops = AppSingle::ModuleOperations();
+		$mods = $modops->GetCapableModules(CoreCapabilities::EMAIL_MODULE);
+		if ($mods) {
+			return $modops->get_module_instance(reset($mods), '');
+		}
+		return null;
+	}
+
+	/**
+	 * Send email message(s) using the selected system email-sender,
+	 *  if any, or else by PHP mail()
+	 * @see https://www.php.net/manual/en/function.mail
+	 * @since 2.99
+	 *
+	 * @param string $to one or more (in which case comma-separated)
+	 *  destination(s), each like emailaddress or Name <emailaddress>
+	 * @param string $subject plaintext subject
+	 * @param string $message plaintext or html message body-content
+	 * @param mixed array|string $additional_headers optional header(s)
+	 *  for the message
+	 * @param string $additional_params optional extra params for sendmail
+	 *  if that's the currently-selected backend processor
+	 * @return bool indicating message was accepted for delivery
+	 */
+	public static function send_email(string $to, string $subject, string $message,
+	   $additional_headers = [], string $additional_params = '') : bool
+	{
+		$mod = self::get_email_module();
+		if ($mod) {
+			$classname = $mod->GetName().'\\Mailer';
+			try {
+				$mailer = new $classname();
+				return $mailer->send_simple($to, $subject, $message, $additional_headers, $additional_params);
+			} catch (Throwable $t) {
+				return false;
+			}
+		} else {
+			return mail($to, $subject, $message, $additional_headers, $additional_params);
+		}
+	}
+
+	/**
 	 * Attempt to retrieve the IP address of the connected user.
 	 * This function attempts to compensate for proxy servers.
-	 *
-	 * @author calguy1000
 	 * @since 1.10
+	 *
 	 * @return mixed IP address in dotted notation | null
 	 */
 	public static function get_real_ip()
@@ -267,16 +317,16 @@ final class Utils
 	}
 
 	/**
-	 * Return the current theme object or a named theme object.
+	 * Return the current admin theme object or a named theme object.
 	 * Only valid during an admin request.
-	 *
-	 * @author calguy1000
 	 * @since 1.11
+	 *
 	 * @param mixed $name Since 2.99 Optional theme name. Default ''
 	 * @return mixed AdminTheme derived object, or null
 	 */
 	public static function get_theme_object($name = '')
 	{
+//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\AdminTheme::get_instance($name)'));
 		return AdminTheme::get_instance($name);
 	}
 } // class
