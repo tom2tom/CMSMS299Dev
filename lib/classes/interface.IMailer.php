@@ -21,13 +21,18 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 /**
- * Derived from the API of PHPMailer-class
+ * Derived substantially from the API of the PHPMailer class
  * @since 2.99
  */
 interface IMailer
 {
 	public function reset();
-	// backend mailer-class interface methods
+	// this method replicates PHP's mail() function
+	public function send_simple(string $to, string $subject, string $message, $additional_headers = [], string $additional_params = '') : bool;
+	public function IsSingleAddressor() : bool; // 2.99+
+	public function SetSingleSend(bool $state = true); // 2.99+
+
+	// PHPMailer class methods (some to be deprecated?)
 	public function GetAltBody();
 	public function SetAltBody($txt);
 	public function GetBody();
@@ -65,11 +70,11 @@ interface IMailer
 	public function GetSMTPPort();
 	public function SetSMTPPort($port);
 	public function GetSMTPAuth();
-	public function SetSMTPAuth($flag = true);
+	public function SetSMTPAuth($state = true);
 	public function GetSMTPDebug();
-	public function SetSMTPDebug($flag = true);
+	public function SetSMTPDebug($state = true);
 	public function GetSMTPKeepAlive();
-	public function SetSMTPKeepAlive($flag = true);
+	public function SetSMTPKeepAlive($state = true);
 	public function GetSMTPTimeout();
 	public function SetSMTPTimeout($timeout);
 	public function GetSMTPUsername();
@@ -96,7 +101,7 @@ interface IMailer
 	public function ClearReplyTos();
 
 	public function IsError();
-	public function IsHTML($flag = true);
+	public function IsHTML($state = true);
 	public function IsMail();
 	public function IsSendmail();
 	public function IsSMTP();

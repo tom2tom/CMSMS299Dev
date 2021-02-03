@@ -1,6 +1,6 @@
 <?php
 /*
-class Mailer - a simple wrapper around an external backend mailer system
+Class Mailer - a wrapper around an external backend mailer system
 Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple module CMSMailer.
@@ -19,12 +19,11 @@ See the GNU Affero General Public License
 */
 namespace CMSMailer;
 
-use CMSMailer;
 use CMSMailer\PrefCrypter;
 use CMSMS\AppParams;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
-use CMSMS\Utils as AppUtils;
+use CMSMS\IMailer;
 use Ddrv\Mailer\Mailer as DoMailer;
 use Ddrv\Mailer\Message;
 use Ddrv\Mailer\Transport\FakeTransport;
@@ -46,7 +45,7 @@ use function cms_join_path;
  * @license GPL
  * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
-class Mailer
+class Mailer implements IMailer
 {
 	/**
 	 * @ignore
@@ -56,6 +55,7 @@ class Mailer
 //	private $headers;
 	private $from; //local cache in lieu of message API
 	private $ishtml;
+	private $single;
 	private $errmsg;
 
 	/**
@@ -110,6 +110,7 @@ class Mailer
 //		$this->headers = [];
 		$this->from = [];
 		$this->ishtml = false;
+		$this->single = false;
 		$this->errmsg = '';
 		$mailprefs = [
 			'mailer' => 1,
@@ -175,7 +176,7 @@ class Mailer
 				$this->transport['object'] = new FakeTransport();
 				break;
 			default:
-				$options = array(); //TODO
+				$options = []; //TODO
 				$this->transport['object'] = new PHPmailTransport($options);
 				break;
 		}
@@ -190,6 +191,70 @@ class Mailer
 		$this->transport['smtpauth'] = (bool)$mailprefs['smtpauth'];
 		$this->transport['timeout'] = (int)$mailprefs['timeout'];
 		$this->transport['priority'] = 1; // highest
+	}
+
+	/**
+	 * Send message(s), using the API of PHP's mail()
+	 * See https://www.php.net/manual/en/function.mail
+	 * @since 2.99
+	 *
+	 * @param string $to one or more destination(s) (comma-separated if multiple)
+	 * @param string $subject plaintext
+	 * @param string $message plaintext or html
+	 * @param mixed $additional_headers optional array | string (CRLF-separated if multiple)
+	 * @param string $additional_params optional sendmail-command params
+	 * @return bool indicating message was accepted for delivery
+	 */
+	public function send_simple(string $to, string $subject, string $message,
+	    $additional_headers = [], string $additional_params = '') : bool
+	{
+		$this->reset();
+		if (strpos($to, ',') !== false) {
+			$arr = explode(',', $to);
+			foreach ($arr as $addr) {
+				$this->AddAddress(trim($addr));
+			}
+		} else {
+			$this->AddAddress($to);
+		}
+		$this->SetSubject($subject);
+		if (strpos($message, '<') === false) {
+			$flag = false;
+		} else {
+			$flag = ($message != strip_tags($message));
+		}
+		$this->IsHTML($flag);
+		//TODO somewhere enforce CRLF linebreaks in the body, and line-length <= 70 chars, if using sendmail at least
+		if ($additional_headers) {
+			if (is_array($additional_headers)) {
+				foreach ($additional_headers as $headername => $value) {
+					//TODO validate
+					$this->AddCustomHeader($headername, $value);
+				}
+			} else {
+				$arr = explode("\r\n", $additional_headers);
+				foreach ($arr as $val) {
+					$parts = explode(':', $val);
+					if (isset($parts[0]) && isset($parts[1])) {
+						$headername = trim($parts[0]);
+						$value = trim($parts[1]);
+						//TODO validate
+						if ($headername && $value) {
+							$this->AddCustomHeader($headername, $value);
+						}
+					}
+				}
+			}
+		}
+		if ($additional_params) {
+			if ($this->transport['object'] instanceof SendmailTransport) {
+				$this->transport['object']['sendmailapp'] .= ' ' . $additional_params;
+			}
+		}
+		$this->Send();
+		$ret = $this->errmsg === '';
+		$this->reset();
+		return $ret;
 	}
 
 	/**
@@ -493,6 +558,27 @@ class Mailer
 				$name = basename($path);
 			}
 			$this->message->attachFromFile($name, $path);
+		}
+	}
+
+	/**
+	 * Report whether the backend mailer supports sending individual
+	 * messages as an alternative to one message to multiple destinations
+	 * @return bool
+	 */
+	public function IsSingleAddressor() : bool
+	{
+		return true;
+	}
+
+	/**
+	 * [Un]set the instruction to send individual messages to each destination
+	 * @param bool $state Default true
+	 */
+	public function SetSingleSend(bool $state = true)
+	{
+		if ($this->IsSingleAddressor()) {
+			$this->single = $state; // TODO mailprefs['single']
 		}
 	}
 
