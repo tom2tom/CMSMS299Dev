@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMailer module default (en_US) strings translation
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple module CMSMailer.
 
@@ -29,6 +29,23 @@ $lang = [
  'apply' => 'Apply',
  'batchgap' => 'Inter-Batch Delay',
  'batchsize' => 'Emails-Batch Size',
+// TODO maybe UI-modifyable templates substitutable for these notices
+ 'bodybccnotice' => <<<'EOS'
+
+This has been sent as a blind-courtesy-copy (BCC) to you.
+
+Original message:
+
+EOS
+,
+ 'bodyccnotice' => <<<'EOS'
+
+This has been sent as a courtesy-copy (CC) to you.
+
+Original message:
+
+EOS
+,
  'cancel' => 'Cancel',
  'charset' => 'Character Set',
  'confirm_property' => 'Are you sure about removing those property(ies)?',
@@ -38,7 +55,7 @@ $lang = [
  'core' => 'Core',
  'days_1' => '1 Day',
  'days_counted' => '%s Days',
- 'default_gateway' => 'Default Email Processor',
+ 'default_platform' => 'Default Email Processor',
  'delete_tip' => 'Delete selected parameter(s)',
  'delete' => 'Delete',
  'description' => 'Description',
@@ -55,18 +72,17 @@ $lang = [
  'host' => 'Hostname',
  'hours_1' => '1 Hour',
  'hours_counted' => '%s Hours',
- 'info_active' => 'TODO',
- 'info_alias' => 'TODO',
- 'info_desc' => 'TODO',
- 'info_enabled' => 'TODO',
- 'info_title' => 'TODO',
+ 'info_active' => 'Check this to make this platform the default',
  'info_addgate' => 'TODO',
- 'info_batchgap' => 'Select the length of time to "pause" between sending batches of messages',
- 'info_batchsize' => 'Enter the default maximum number of messages to be sent in a single batch, when batch-sending is used. A value of 0 will mean that no maximum applies.',
+ 'info_alias' => 'A unique identifier for this platform, used for all internal processing. If left blank, an alias will be derived from the title.',
+ // 'info_batchgap' => 'Select the length of time to "pause" between sending batches of messages',
+ // 'info_batchsize' => 'Enter the default maximum number of messages to be sent in a single batch, when batch-sending is used. A value of 0 will mean that no maximum applies.',
  'info_charset' => 'Also known as encoding, this will be used to indicate to the email reader-application how to interpret the non-ASCII characters in the message. Common values are "UTF-8" and "ISO-8859".',
  'info_cmsmailer1' => 'Use information provided by the website host organisation to tailor these settings.',
  'info_cmsmailer2' => 'If the test message is not received, you should check/update the email settings, and if appropriate, contact the site host organisation, for further assistance.',
+ 'info_desc' => 'TODO',
  'info_dnd' => 'You can change parameters\' order by dragging row(s).',
+ 'info_enabled' => 'Check this to enable this platform (whether or not it&apos;s the default)',
  'info_from' => 'The address that this module will use to send email messages. This cannot just be any email address. It must match the domain that CMSMS is providing. Specifying a personal email address from a different domain is known as "relaying" and will most probably result in emails not being sent, or not being accepted by the recipient email server. A good typical example for this field is noreply@mydomain.com',
  'info_fromuser' => 'A name to be associated with sent messages. This name may be anything but should reasonably correspond to the email address. Often, "Do Not Reply" is used.',
  'info_host' => 'When using the SMTP mailer, this option specifies the hostname (or IP address) of the SMTP server to use when sending email. You might need to contact your host for the proper value.',
@@ -82,6 +98,7 @@ $lang = [
  'info_sure' => 'Be very sure about what you\'re doing, before modifying anything except title(s) and/or value(s)!',
  'info_testaddress' => 'Enter a valid address to receive the test message',
  'info_timeout' => ' When using the SMTP mailer, this option specifies the number of seconds before an attempted connection to the SMTP server will fail. A typical value for this setting is 60.<br /><br /><strong>Note:</strongstrong> If a longer value is necessary here, it probably indicates an underlying DNS, routing or firewall problem, and you might need to contact the site host.',
+ 'info_title' => 'The platform-identifier to be used for public display',
  'info_urlcheck' => 'Refer to the <a href="%s" target="_blank">%s API</a> for details',
  'info_username' => 'This is the username for connecting to the SMTP server if SMTP authentication is enabled.',
  'internal' => 'Internal',
@@ -93,7 +110,7 @@ $lang = [
  'module' => 'Module', // tab title
  'never' => 'Never',
  'nocopies' => 'No CC or BCC',
- 'no_gates' => 'No email processor is available',
+ 'no_platforms' => 'No email processor is available',
  'none' => 'None',
  'password' => 'Password',
  'port' => 'Port',
