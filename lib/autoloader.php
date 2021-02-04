@@ -1,7 +1,7 @@
 <?php
 /*
 Autoloader
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -11,8 +11,8 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-CMS Made Simple is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
@@ -81,11 +81,13 @@ function cms_autoloader(string $classname)
 		foreach (['class.', 'trait.', 'interface.', ''] as $test) {
 			$fp = $sroot.$test.$base.'.php';
 			if (is_file($fp)) {
+/* since 2.99 don't also autoload a module-object
 				if (!($sysp || class_exists($space, false))) {
 					//deprecated since 2.99 - some modules require existence of this, or assume, and actually use it
 					$gCms = App::get_instance();
 					require_once $mpath;
 				}
+*/
 				require_once $fp;
 				if (class_exists($classname, false)) return;
 			}
