@@ -25,6 +25,7 @@ use CMSMS\AppSingle;
 use CMSMS\Crypto;
 use Throwable;
 use const CMS_JOB_KEY;
+use function endswith;
 
 /**
  * Class of static methods to populate get-parameters for use in an URL,
@@ -214,6 +215,8 @@ class RequestParameters
      *
      * @param array $parms URL get-parameters. Should include mact-components
      *  and action-parameters (if any), and generic-parameters (if any)
+	 *  Any non-trailing value which is empty (like &key=) will be cleaned (to &key)
+	 *  Trailing empties are retained, to support 'URL-prefix' creation
      * @param int $format Optional format enumerator
      *  0 = default, back-compatible rawurlencoded-where-necessary parameter keys and values
      *      other than the value for key 'mact', '&amp;' for parameter separators
@@ -259,14 +262,12 @@ class RequestParameters
                 } else {
                     $text .= $sep.$key;
                 }
-                if ($val !== '') {
-                    if ($enc && ($format != 0 || $key != 'mact')) {
-                        $val = self::clean1($val);
-                    } else {
-                        $val = self::clean1($val, '/\x00/');
-                    }
-                    $text .= '='.$val;
-                }
+				if ($enc && ($format != 0 || $key != 'mact')) {
+					$val = self::clean1($val);
+				} else {
+					$val = self::clean1($val, '/\x00/');
+				}
+				$text .= '='.$val; // embedded empty $vals later removed
             } else {
                 if ($first) {
                     $first = false;
@@ -280,6 +281,7 @@ class RequestParameters
         if ($type != -1) {
             $text .= self::create_jobtype($type, false, $format);
         }
+		$text = str_replace('='.$sep, $sep, $text);
         return $text;
     }
 
