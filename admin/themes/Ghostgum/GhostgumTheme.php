@@ -83,7 +83,7 @@ class GhostgumTheme extends AdminTheme
 		$csm->queue_file($incs['jquicss'], 2);
 //		$csm->queue_matchedfile('flex-grid-lite.css', 2);
 		$csm->queue_matchedfile('grid-960.css', 2); // deprecated since 2.99
-		$out = $csm->page_content();
+		$out = $csm->page_content('', false, true);
 		$out .= <<<EOS
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
 
@@ -107,7 +107,7 @@ EOS;
 //		}
 		$jsm->queue_file($incs['jqui'], 1);
 		$jsm->queue_matchedfile('jquery.cmsms_admin.js', 2);
-		$out .= $jsm->page_content('', false, false);
+		$out .= $jsm->page_content();
 		$jsm->reset(); // start another merger-file
 		$jsm->queue_matchedfile('jquery.ui.touch-punch.js', 1);
 		$jsm->queue_matchedfile('jquery.toast.js', 1);
@@ -115,7 +115,7 @@ EOS;
 		$p = __DIR__.DIRECTORY_SEPARATOR.'js';
 		$jsm->queue_matchedfile('jquery.alertable.js', 2, $p);
 		$jsm->queue_matchedfile('standard.js', 3, $p);
-		$out .= $jsm->page_content();
+		$out .= $jsm->page_content('', false, true);
 
 		$add_list[] = $out;
 //		$vars[] = anything needed ?;

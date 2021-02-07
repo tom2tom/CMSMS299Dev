@@ -1,21 +1,31 @@
 <?php
 /*
 Edit/add template method for CMSMS modules.
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
+
+use CMSMS\GroupOperations;
+use CMSMS\ScriptsMerger;
+use CMSMS\Template;
+use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
+use CMSMS\UserOperations;
+use CMSMS\Utils;
 
 /*
 Variables which must or may be defined by including code:
@@ -39,14 +49,6 @@ $show_buttons optional bool display buttons to submit, apply and maybe to cancel
 $show_cancel  optional bool display cancel button(s) default true
 $display      optional bool display (default) or == false to fetch & return template output
 */
-
-use CMSMS\GroupOperations;
-use CMSMS\ScriptsMerger;
-use CMSMS\Template;
-use CMSMS\TemplateOperations;
-use CMSMS\TemplateType;
-use CMSMS\UserOperations;
-use CMSMS\Utils;
 
 if( !isset($params['tpl']) ) return;
 
@@ -219,7 +221,7 @@ if( $can_manage ) {
 $jsm = new ScriptsMerger();
 $jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 //$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
-$js = $jsm->page_content('', false, false);
+$js = $jsm->page_content();
 if( $js) {
     add_page_foottext($js);
 }

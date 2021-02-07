@@ -45,7 +45,7 @@ EOS;
 	if ($core) $jsm->queue_file($incs['jqcore'], 1);
 	if ($migrate) $jsm->queue_file($incs['jqmigrate'], 1);
 	if ($ui) $jsm->queue_file($incs['jqui'], 1);
-	$out .= $jsm->page_content('', false, false);
+	$out .= $jsm->page_content();
 	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']), $out);
 		return '';

@@ -53,7 +53,7 @@ if (!check_permission($userid, 'Manage Users')) {
  * Variables
  ---------------------*/
 //$tplmaster        = 0; //CHECKME
-$copyfromtemplate = 1; // default superuser for properties-migration !!
+$copyfromtemplate = 1; // BAD!!! default superuser for properties-migration TODO
 
 if (!empty($_POST['user_id'])) {
     $user_id = (int)$_POST['user_id']; // OR filter_input(INPUT_POST, 'user_id', FILTER_SANITIZE_NUMBER_INT);
@@ -305,7 +305,7 @@ $(function() {
 });
 EOS;
 $jsm->queue_string($js, 3);
-$out = $jsm->page_content('', false, false);
+$out = $jsm->page_content();
 if ($out) {
     add_page_foottext($out);
 }

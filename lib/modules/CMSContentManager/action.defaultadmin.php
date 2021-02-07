@@ -192,7 +192,7 @@ $secs = max(30,min(600,$secs));
 $jsm = new ScriptsMerger();
 $jsm->queue_matchedfile('jquery.cmsms_poll.js', 2);
 $jsm->queue_matchedfile('jquery.ContextMenu.js', 2);
-$out = $jsm->page_content('', false, false);
+$out = $jsm->page_content();
 if ($out) {
     add_page_foottext($out);
 }

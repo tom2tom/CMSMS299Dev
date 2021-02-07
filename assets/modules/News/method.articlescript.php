@@ -1,7 +1,7 @@
 <?php
 /*
 Page-resources generator for article add/edit actions
-Copyright (C) 2018-2020 CMS Made Simple Foundation News module installation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation News module installation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -13,6 +13,7 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
@@ -203,13 +204,13 @@ $js .= <<<EOS
 
 EOS;
 
-$p = cms_join_path($this->GetModulePath(),'lib','js').DIRECTORY_SEPARATOR;
+$p = cms_join_path($this->GetModulePath(),'lib','js');
 $jsm = new ScriptsMerger();
 $jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
-$jsm->queue_file($p.'jquery.datePicker.min.js', 2);
-$jsm->queue_file($p.'jquery.timepicker.min.js', 2);
+$jsm->queue_matchedfile('jquery.datePicker.js', 2, $p);
+$jsm->queue_matchedfile('jquery.timepicker.js', 2, $p);
 $jsm->queue_string($js, 3);
-$out = $jsm->page_content('', false, false);
+$out = $jsm->page_content();
 if ($out) {
     add_page_foottext($out);
 }

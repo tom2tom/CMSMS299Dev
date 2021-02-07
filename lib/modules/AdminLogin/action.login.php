@@ -67,7 +67,7 @@ $csm = new StylesMerger();
 $csm->queue_matchedfile('normalize.css', 1);
 $csm->queue_file($incs['jquicss'], 2);
 //$csm->queue_file($fp.$fn, 3); NOPE contains relative-URLS
-$out = $csm->page_content();
+$out = $csm->page_content('', false, true);
 
 $baseurl = $this->GetModuleURLPath();
 $out .= <<<EOS
@@ -82,7 +82,7 @@ $jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this or keep if (
 //}
 $jsm->queue_file($incs['jqui'], 1);
 $jsm->queue_matchedfile('login.js', 3, __DIR__.DIRECTORY_SEPARATOR.'lib');
-$out .= $jsm->page_content('', false, false);
+$out .= $jsm->page_content();
 
 // generate this here, not via {form_start}, to work around forced incorrect formaction-value
 $extras = [
@@ -117,7 +117,7 @@ $tpl->assign([
  'warning' => $warnmessage ?? null,
  'error' => $errmessage ?? null,
 ]);
-// 'forgot_url' => $login_url.'&'.$id.'forgotpw=1', 
+// 'forgot_url' => $login_url.'&'.$id.'forgotpw=1',
 //'theme' => $theme_object,
 //'theme_root' => $theme_object->root_url,
 

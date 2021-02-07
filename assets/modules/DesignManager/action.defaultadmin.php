@@ -98,7 +98,7 @@ $tpl->assign('pmod',$pmod);
 //$jsm->queue_matchedfile('jquery.ContextMenu.js', 2);
 
 //$jsm->queue_string($js, 3);
-//$out = $jsm->page_content('', false, false);
+//$out = $jsm->page_content();
 //if ($out) {
 //    add_page_foottext($out);
 //}

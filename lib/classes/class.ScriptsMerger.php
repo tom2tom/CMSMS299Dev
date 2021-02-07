@@ -1,7 +1,7 @@
 <?php
 /*
 Class for consolidating specified javascript's into a single file
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -81,9 +81,12 @@ class ScriptsMerger
      */
     public function queue_string(string $output, int $priority = 0, bool $force = false)
     {
-        // check for existing IIFE
-        if (!preg_match('/\} *(\) *\(|\( *\)) *\)( *\n? *)*$/', $output)) {
-            $output = '(function() {' . "\n". trim($output) . "\n". '})()' . "\n"; // OR '(() => {' ...
+        // check for existing jQuery encapsulation
+        if (($p = strpos($output,'$(function()')) === false || $p > 4) { // accept some leading whitespace
+            // check for existing IIFE
+            if (!preg_match('/\} *(\) *\(|\( *\)) *\)( *\n? *)*$/', $output)) {
+                $output = '(function() {' . "\n". trim($output) . "\n". '})()' . "\n"; // OR '(() => {' ...
+            }
         }
         $sig = Crypto::hash_string(__FILE__.$output);
         $output_file = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR."cms_$sig.js";
@@ -219,10 +222,10 @@ class ScriptsMerger
      * @param bool   $force       Optional flag whether to force re-creation
      *  of the merged file. Default false
      * @param bool   $defer Optional flag whether to automatically include
-     *  script jquery.cmsms_defer.js. Default true
+     *  script jquery.cmsms_defer.js. Default false
      * @return string html string <script ... </script> | ''
      */
-    public function page_content(string $output_path = '', bool $force = false, bool $defer = true) : string
+    public function page_content(string $output_path = '', bool $force = false, bool $defer = false) : string
     {
         $base_path = ($output_path) ? rtrim($output_path, ' /\\') : TMP_CACHE_LOCATION;
         $cache_filename = $this->render_scripts($base_path, $force, $defer);

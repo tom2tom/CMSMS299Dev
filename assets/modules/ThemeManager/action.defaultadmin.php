@@ -5,13 +5,11 @@ Copyright (C) 2005-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org
 Refer to licence and other details at the top of file ThemeManager.module.php
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
+use CMSMS\App;
 use CMSMS\FormUtils;
 use CMSMS\ScriptsMerger;
 use CMSMS\Utils as AppUtils;
 use ThemeManager\Utils;
-use CMSMS\App;
 
 /*
 $utils->create_manifest('blutak');
@@ -253,7 +251,7 @@ $(function() {
 });
 EOS;
 	$jsm->queue_string($out, 3);
-	$out = $jsm->page_content('', false, false);
+	$out = $jsm->page_content();
 	if ($out) {
 		add_page_foottext($out);
 	} else {
