@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use AdminSearch\tools;
+use AdminSearch\Tools;
 
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
@@ -95,8 +95,9 @@ $(function() {
      cb.each(function() {
        s.push(this.value);
      });
-     var d = $('#filter_box #search_desc:checked').length;
-     var u = '$ajax_url' + '&{$id}search_text=' + encodeURIComponent(t) + '&{$id}slaves=' + s.join() + '&{$id}search_descriptions=' + d;
+     var sd = $('#filter_box #search_desc:checked').length;
+     var cs = $('#filter_box #case_sensitive:checked').length;
+	 var u = '{$ajax_url}&{$id}search_text=' + encodeURIComponent(t) + '&{$id}slaves=' + s.join() + '&{$id}search_descriptions=' + sd + '&{$id}case_sensitive=' + cs;
      $.ajax({
       url: u,
       method: 'POST',
@@ -130,16 +131,17 @@ $tmp = cms_userprefs::get_for_user($userid,$this->GetName().'saved_search');
 if( $tmp ) {
     $init = unserialize($tmp,[]);
 }
-else {
+if( empty($init) ) {
     $init = [
      'search_text' => '',
      'slaves' => [],
-     'search_descriptions' => FALSE,
+     'search_descriptions' => false,
+     'search_casesensitive' => false,
     ];
 }
 $tpl->assign('saved_search',$init);
 
-$slaves = tools::get_slave_classes();
+$slaves = Tools::get_slave_classes();
 $tpl->assign('slaves',$slaves);
 
 $tpl->display();

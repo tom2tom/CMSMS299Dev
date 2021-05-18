@@ -39,6 +39,7 @@ EOS
 ,
 
 // L
+'lbl_cased_search' => 'Search is case-sensitive',
 'lbl_content_search' => 'Content Pages',
 'lbl_css_search' => 'Stylesheets',
 'lbl_gcb_search' => 'Global Content Blocks', //deprecated - UDT's?
