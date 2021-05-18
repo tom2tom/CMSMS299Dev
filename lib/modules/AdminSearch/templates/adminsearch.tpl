@@ -8,8 +8,9 @@
    {if !empty($hit.url)}
     <a href="{$hit.url}" target="_blank" title="{$hit.description}">{$hit.title}</a>
    {else}
-    {$hit.title}<br />{$hit.text}
+    {$hit.title}
    {/if}
+   <br />{$hit.text}
    </li>
    {/foreach}
   </ul>
