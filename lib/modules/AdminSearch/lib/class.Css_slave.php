@@ -10,9 +10,10 @@ use const CMS_ROOT_PATH;
 use function check_permission;
 use function cms_relative_path;
 use function cmsms;
+use function get_secure_param;
 use function get_userid;
 
-final class css_slave extends slave
+final class Css_slave extends Slave
 {
   public function get_name()
   {
@@ -34,37 +35,35 @@ final class css_slave extends slave
 
   private function check_css_matches(Stylesheet $css)
   {
-    if( strpos($css->get_name(),$this->get_text()) !== FALSE ) return TRUE;
-    if( strpos($css->get_content(),$this->get_text()) !== FALSE ) return TRUE;
-    if( $this->search_descriptions() && strpos($css->get_description(),$this->get_text()) !== FALSE ) return TRUE;
-    return FALSE;
+    $fname = ( $this->search_casesensitive() ) ? 'stripos' : 'strpos'; // TODO handle mb_* matches
+    $needle = $this->get_text();
+    if( $fname($css->get_name(),$needle) !== false ) return true;
+    if( $fname($css->get_content(),$needle) !== false ) return true;
+    if( $this->search_descriptions() && $fname($css->get_description(),$needle) !== false ) return true;
+    return false;
   }
 
   private function get_mod()
   {
     // static properties here >> StaticProperties class ?
     static $_mod;
-    if( !$_mod ) $_mod = Utils::get_module('AdminSearch'); //TODO relevant module
+    if( !$_mod ) $_mod = Utils::get_module('AdminSearch');
     return $_mod;
   }
 
   private function get_css_match_info(Stylesheet $css)
   {
-    $one = $css->get_id();
-    $intext = $this->get_text();
-    $text = '';
+    $fname = ( $this->search_casesensitive() ) ? 'stripos' : 'strpos'; // TODO handle mb_* matches
+    $needle = $this->get_text();
     $content = $css->get_content();
-    $pos = strpos($content,$intext);
-    if( $pos !== FALSE ) {
-      $start = max(0,$pos - 50);
-      $end = min(strlen($content),$pos+50);
-      $text = substr($content,$start,$end-$start);
-      $text = htmlentities($text);
-      $text = str_replace($intext,'<span class="search_oneresult">'.$intext.'</span>',$text);
-      $text = str_replace(["\r\n","\r","\n"],[' ',' ',' '],$text);
+    $html = '';
+    $pos = $fname($content,$needle);
+    if( $pos !== false ) { //TODO loop while
+      $html = Tools::contextize($needle, $content, $pos);
     }
-    $url = $this->get_mod()->create_url( 'm1_','admin_edit_css','', [ 'css'=>$one ] );
-    $url = str_replace('&amp;','&',$url);
+    $urlext = get_secure_param();
+    $one = $css->get_id();
+    $url = 'editstylesheet.php'.$urlext.'&css='.$one; // OR view?
     $title = $css->get_name();
     if( $css->get_content_file() ) {
       $file = $css->get_content_filename();
@@ -72,9 +71,9 @@ final class css_slave extends slave
     }
     $tmp = [
      'title'=>$title,
-     'description'=>tools::summarize($css->get_description()),
+     'description'=>Tools::summarize($css->get_description()),
      'edit_url'=>$url,
-     'text'=>$text
+     'text'=>$html
     ];
     return $tmp;
   }
@@ -83,7 +82,7 @@ final class css_slave extends slave
   {
     $db = cmsms()->GetDb();
 //    $mod = $this->get_mod();
-    // get all of the stylesheet ids
+    // get all stylesheets' ids
     $sql = 'SELECT id FROM '.CMS_DB_PREFIX. StylesheetOperations::TABLENAME.' ORDER BY name';
     $all_ids = $db->GetCol($sql);
     $output = [];
@@ -92,7 +91,9 @@ final class css_slave extends slave
       foreach( $chunks as $chunk ) {
         $css_list = StylesheetOperations::get_bulk_stylesheets($chunk);
         foreach( $css_list as $css ) {
-          if( $this->check_css_matches($css) ) $output[] = $this->get_css_match_info($css);
+          if( $this->check_css_matches($css) ) {
+            $output[] = $this->get_css_match_info($css);
+		  }
         }
       }
     }

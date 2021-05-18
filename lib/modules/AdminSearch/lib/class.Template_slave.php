@@ -1,6 +1,6 @@
 <?php
 
-namespace AdminSearch; //OR DesignManager ?
+namespace AdminSearch;
 
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
@@ -10,9 +10,10 @@ use const CMS_ROOT_PATH;
 use function check_permission;
 use function cms_relative_path;
 use function cmsms;
+use function get_secure_param;
 use function get_userid;
 
-final class template_slave extends slave
+final class Template_slave extends Slave
 {
   public function get_name()
   {
@@ -34,9 +35,11 @@ final class template_slave extends slave
 
   private function check_tpl_match(Template $tpl)
   {
-    if( strpos($tpl->get_name(),$this->get_text()) !== false ) return true;
-    if( strpos($tpl->get_content(),$this->get_text()) !== false ) return true;
-    if( $this->search_descriptions() && strpos($tpl->get_description(),$this->get_text()) !== false ) return true;
+    $fname = ( $this->search_casesensitive() ) ? 'stripos' : 'strpos'; // TODO handle mb_* matches
+    $needle = $this->get_text();
+    if( $fname($tpl->get_name(),$needle) !== false ) return true;
+    if( $fname($tpl->get_content(),$needle) !== false ) return true;
+    if( $this->search_descriptions() && $fname($tpl->get_description(),$needle) !== false ) return true;
     return false;
   }
 
@@ -44,37 +47,38 @@ final class template_slave extends slave
   {
     // static properties here >> StaticProperties class ?
     static $_mod;
-    if( !$_mod ) $_mod = Utils::get_module('AdminSearch'); //TODO relevant module
+    if( !$_mod ) $_mod = Utils::get_module('AdminSearch');
     return $_mod;
   }
 
   private function get_tpl_match_info(Template $tpl)
   {
+    $fname = ( $this->search_casesensitive() ) ? 'stripos' : 'strpos'; // TODO handle mb_* matches
     $one = $tpl->get_id();
-    $intext = $this->get_text();
-    $text = '';
+    $needle = $this->get_text();
+    $html = '';
     $content = $tpl->get_content();
-    $pos = strpos($content,$intext);
-    if( $pos !== false ) {
-      $start = max(0,$pos - 50);
-      $end = min(strlen($content),$pos+50);
-      $text = substr($content,$start,$end-$start);
-      $text = htmlentities($text);
-      $text = str_replace($intext,'<span class="search_oneresult">'.$intext.'</span>',$text);
-      $text = str_replace(["\r\n","\r","\n"],[' ',' ',' '],$text);
+    $pos = $fname($content,$needle);
+    if( $pos !== false ) { // TODO loop while any match
+      $html = Tools::contextize($needle, $content, $pos);
     }
-    $url = $this->get_mod()->create_url( 'm1_','admin_edit_template','', [ 'tpl'=>$one ] );
-    $url = str_replace('&amp;','&',$url);
-    $title = $tpl->get_name();
+//    $url = $this->get_mod()->create_url( 'm1_','admin_edit_template','', [ 'tpl'=>$one ] ); //TODO edittemplate.php.$urlext.'&tpl='.$one - not a DM action-URL
+//    $url = str_replace('&amp;','&',$url);
+    $urlext = get_secure_param();
+    $url = 'edittemplate.php'.$urlext.'&tpl='.$one; // OR view?
+
     if( $tpl->get_content_file() ) {
       $file = $tpl->get_content_filename();
       $title = $tpl->get_name().' ('.cms_relative_path($file,CMS_ROOT_PATH).')';
     }
+    else {
+      $title = $tpl->get_name();
+    }
     $tmp = [
      'title'=>$title,
-     'description'=>tools::summarize($tpl->get_description()),
+     'description'=>Tools::summarize($tpl->get_description()),
      'edit_url'=>$url,
-     'text'=>$text
+     'text'=>$html
     ];
     return $tmp;
   }
@@ -83,7 +87,7 @@ final class template_slave extends slave
   {
     $db = cmsms()->GetDb();
     $mod = $this->get_mod();
-    // get all of the template ids
+    // get all template ids
     $sql = 'SELECT id FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' ORDER BY name ASC';
     $all_ids = $db->GetCol($sql);
     $output = [];

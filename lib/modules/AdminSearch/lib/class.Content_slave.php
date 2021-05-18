@@ -6,12 +6,10 @@ use CMSMS\ContentOperations;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function check_permission;
-use function cms_htmlentities;
 use function cmsms;
-use function get_secure_param;
 use function get_userid;
 
-final class content_slave extends slave
+final class Content_slave extends Slave
 {
   public function get_name()
   {
@@ -32,18 +30,30 @@ final class content_slave extends slave
 
   public function get_matches()
   {
-    $userid = get_userid();
-
     $content_manager = Utils::get_module('CMSContentManager');
     $db = cmsms()->GetDb();
     $query = 'SELECT C.content_id, P.content FROM '.CMS_DB_PREFIX.'content C LEFT JOIN '.CMS_DB_PREFIX.'content_props P ON C.content_id = P.content_id WHERE P.content LIKE ? OR C.metadata LIKE ? GROUP BY C.content_id';
+//TODO handle parent::_params which includes 'cased' for a case-sensitive search
+    if( $this->search_casesensitive() ) {
+      //$query .= ` WHERE `column` LIKE CONVERT('value' USING utf8mb4) COLLATE utf8mb4_bin;
+	  //$parms = [$txt, $txt];
+      $fname = 'stripos'; // TODO handle mb_* matches
+    }
+    else {
+      //$query .= ' WHERE P.content LIKE "%?%" OR C.metadata LIKE "%?%" GROUP BY C.content_id'
+	  //$wm = Utils::escape_wildsql($needle);
+	  //$parms = [$wm, $wm];
+      $fname = 'strpos'; // TODO handle mb_* matches
+	}
     //$query = 'SELECT DISTINCT C.content_id, P.content FROM '.CMS_DB_PREFIX.'content C LEFT JOIN '.CMS_DB_PREFIX.'content_props P ON C.content_id = P.content_id WHERE P.content LIKE ? OR C.metadata LIKE ?';
     //$query = 'SELECT DISTINCT content_id,prop_name,content FROM '.CMS_DB_PREFIX.'content_props WHERE content LIKE ?';
-    $txt = '%'.$this->get_text().'%';
+  	$needle = $this->get_text();
+    $txt = '%'.$needle.'%';
     $dbr = $db->GetArray($query, [ $txt, $txt ] );
     if( $dbr ) {
+      $userid = get_userid();
+//      $urlext = get_secure_param();
       $output = [];
-      $urlext = get_secure_param();
 
       foreach( $dbr as $row ) {
         $content_id = $row['content_id'];
@@ -58,22 +68,17 @@ final class content_slave extends slave
         if( !$content_obj->HasSearchableContent() ) continue;
 
         // here we could actually have a smarty template to build the description.
-        $pos = strpos($row['content'],$this->get_text());
-        $text = null;
-        if( $pos !== false ) {
-          $start = max(0,$pos - 50);
-          $end = min(strlen($row['content']),$pos+50);
-          $text = substr($row['content'],$start,$end-$start);
-          $text = cms_htmlentities($text);
-          $text = str_replace($this->get_text(),'<span class="search_oneresult">'.$this->get_text().'</span>',$text);
-          $text = str_replace(["\r\n","\r","\n"],[' ',' ',' '],$text);
+        $pos = $fname($row['content'],$needle); //TODO caseless|cased multi-byte match
+        $html = '';
+        if( $pos !== false ) { //TODO loop while
+          $html = Tools::contextize($needle, $row['content'], $pos);
         }
 
         $tmp = [
          'title'=>$content_obj->Name(),
          'description'=>$content_obj->Name(),
          'edit_url'=>$content_manager->create_url('m1_','admin_editcontent','',['content_id'=>$content_id]),
-         'text'=>$text
+         'text'=>$html,
         ];
         $output[] = $tmp;
       }
