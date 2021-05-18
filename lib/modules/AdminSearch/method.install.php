@@ -19,15 +19,16 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 use CMSMS\GroupOperations;
+
+if (!function_exists('cmsms')) exit;
 
 $this->CreatePermission('Use Admin Search',$this->Lang('perm_Use_Admin_Search'));
 
 $groups = GroupOperations::get_instance()->LoadGroups();
 
 if( $groups ) {
-  foreach( $groups as $one_group ) {
-    $one_group->GrantPermission('Use Admin Search');
-  }
+    foreach( $groups as $one_group ) {
+        $one_group->GrantPermission('Use Admin Search');
+    }
 }
