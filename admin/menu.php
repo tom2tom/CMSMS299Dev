@@ -1,22 +1,27 @@
 <?php
-#code for CMSMS
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Admin menu top/section processor
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppState;
+use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -24,13 +29,21 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 check_login();
 
-// if this page was accessed directly, and the secure param name is not
-// in the URL but it is in the session, assume it is correct.
+// if this page was accessed directly, and the secure param value is not
+// in the URL but it is in the session, assume the latter is correct.
 if( !isset($_GET[CMS_SECURE_PARAM_NAME]) && isset($_SESSION[CMS_USER_KEY]) ) {
-    $_REQUEST[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
+    $_REQUEST[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY]; // OR sanitizeVal() ?
 }
 
-$section = (isset($_GET['section'])) ? trim(cleanValue($_GET['section'])) : '';
-require './header.php';
-$themeObject->do_toppage($section); //$themeObject set in header.php
-require './footer.php';
+$themeObject = Utils::get_theme_object();
+$section = (isset($_GET['section'])) ? sanitizeVal($_GET['section']) : ''; // TODO also need de-specialize?
+//try {
+$content = $themeObject->fetch_menu_page($section);
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
+echo $content;
+require ".{$sep}footer.php";
+//} catch (Throwable $t) {
+//    $err = 1; TODO display error to user
+//}
+
