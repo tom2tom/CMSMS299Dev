@@ -41,4 +41,3 @@ foreach (['AdminSearch_tools','AdminSearch_slave'] as $nm) {
     $tp = sprintf($tp2, $nm);
     copy($fp, $tp);
 }
-
