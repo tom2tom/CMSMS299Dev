@@ -27,6 +27,13 @@ if (!function_exists('cmsms')) exit;
 
 $this->RemovePermission('Use Admin Search');
 
+//remove/disable deprecated class-aliases
+$tp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'aliases'.DIRECTORY_SEPARATOR.'class.%s.php'; // in autoloader search-path
+foreach (['AdminSearch_tools','AdminSearch_slave'] as $nm) {
+    $fp = sprintf($tp, $nm);
+    @unlink($fp);
+}
+
 // delete for current (so that local props cache is cleared)
 $userid = get_userid();
 $me = $this->GetName();

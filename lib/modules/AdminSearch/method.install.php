@@ -32,3 +32,13 @@ if( $groups ) {
         $one_group->GrantPermission('Use Admin Search');
     }
 }
+
+//enable deprecated class-aliases
+$tp1 = __DIR__.DIRECTORY_SEPARATOR.lib.DIRECTORY_SEPARATOR.'class.%s.php';
+$tp2 = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'aliases'.DIRECTORY_SEPARATOR.'class.%s.php';
+foreach (['AdminSearch_tools','AdminSearch_slave'] as $nm) {
+    $fp = sprintf($tp1, $nm);
+    $tp = sprintf($tp2, $nm);
+    copy($fp, $tp);
+}
+

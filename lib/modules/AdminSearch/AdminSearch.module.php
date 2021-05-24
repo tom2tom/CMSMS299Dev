@@ -37,6 +37,8 @@ final class AdminSearch extends CMSModule
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
     public function MinimumCMSVersion() { return '2.2.900'; }
+    public function InstallPostMessage() { return $this->Lang('postinstall'); }
+    public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
 
     public function VisibleToAdminUser()
     {
@@ -48,23 +50,15 @@ final class AdminSearch extends CMSModule
         return $this->CheckPermission('Use Admin Search');
     }
 
-    public function InstallPostMessage()
-    {
-        return $this->Lang('postinstall');
-    }
 
-    public function UninstallPostMessage()
-    {
-        return $this->Lang('postuninstall');
-    }
-
+/* redundant, $mod always assigned
     public function DoAction($name, $id, $params, $returnid = '')
     {
         $smarty = CmsApp::get_instance()->GetSmarty();
         $smarty->assign('mod', $this); // probably redundant
         return parent::DoAction($name, $id, $params, $returnid);
     }
-
+*/
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
@@ -80,13 +74,14 @@ final class AdminSearch extends CMSModule
     {
         $patn = cms_join_path(__DIR__, 'lib', 'class.*slave.php');
         $files = glob($patn);
-        if( $files ) {
+        if ($files) {
             $output = [];
-            foreach( $files as $onefile ) {
+            foreach ($files as $onefile) {
                 $parts = explode('.', basename($onefile));
                 $classname = implode('.', array_slice($parts, 1, count($parts) - 2));
-                if( $classname == 'slave' ) continue;
-                $output[] = self::class.'\\'.$classname;
+                if ($classname !== 'Slave') {
+                    $output[] = self::class.'\\'.$classname;
+                }
             }
             return $output;
         }

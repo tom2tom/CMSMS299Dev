@@ -26,6 +26,15 @@ use CMSMS\UserParams;
 if (!function_exists('cmsms')) exit;
 
 if (version_compare($oldversion,'1.1') < 1) {
+    //enable deprecated class-aliases
+    $tp1 = __DIR__.DIRECTORY_SEPARATOR.lib.DIRECTORY_SEPARATOR.'class.%s.php';
+    $tp2 = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'aliases'.DIRECTORY_SEPARATOR.'class.%s.php'; // into autoloader search-path
+    foreach (['AdminSearch_tools','AdminSearch_slave'] as $nm) {
+        $fp = sprintf($tp1, $nm);
+        $tp = sprintf($tp2, $nm);
+        copy($fp, $tp);
+    }
+
     $me = $this->GetName();
     $userlist = AppSingle::UserOperations()->LoadUsers();
     foreach ($userlist as $user) {
