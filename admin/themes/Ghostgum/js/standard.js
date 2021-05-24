@@ -1,1 +1,1 @@
-DEVELOP/standard.js
+SOURCE/standard.js
