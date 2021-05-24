@@ -148,7 +148,7 @@ $lang['info_sysdefault2'] = '<strong>Note:</strong> This tab contains text areas
 
 $lang['last'] = 'Last';
 $lang['lastpage'] = '&gt;&gt;';
-$lang['lbl_adminsearch'] = 'news items'; //no preceeding 'Search'
+$lang['lbl_adminsearch'] = 'News Items'; //no preceeding 'Search'
 $lang['linkedfile'] = 'Linked File';
 
 $lang['maxlength'] = 'Maximum Length';
