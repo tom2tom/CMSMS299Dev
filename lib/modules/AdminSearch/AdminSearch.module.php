@@ -79,7 +79,7 @@ final class AdminSearch extends CMSModule
             foreach ($files as $onefile) {
                 $parts = explode('.', basename($onefile));
                 $classname = implode('.', array_slice($parts, 1, count($parts) - 2));
-                if ($classname !== 'Slave') {
+                if ($classname !== 'Base_slave' && $classname !== 'AdminSearch_slave') {
                     $output[] = self::class.'\\'.$classname;
                 }
             }
