@@ -79,8 +79,8 @@
     },
     {
         "name": "smarty/smarty",
-        "version": "v3.1.36",
-        "version_normalized": "3.1.36.0",
+        "version": "v3.1.39",
+        "version_normalized": "3.1.39.0",
         "source": {
             "type": "git",
             "url": "https://github.com/smarty-php/smarty.git",
