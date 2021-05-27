@@ -1,0 +1,13 @@
+input[type="checkbox"],label.check {
+	cursor:pointer
+}
+#status_area,#searchresults_cont,#workarea {
+	display:none
+}
+#searchresults {
+	max-height:25em;
+	overflow:auto;
+}
+.search_oneresult {
+	color:red
+}
