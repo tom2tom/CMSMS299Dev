@@ -6,11 +6,13 @@
    <ul id="{$entry->id}">
    {foreach $entry->matches as $hit}<li>
    {if !empty($hit.url)}
-    <a href="{$hit.url}" target="_blank" title="{$hit.description}">{$hit.title}</a>
+    <a href="{$hit.url}" target="_blank"{if !empty($hit.description)} title="{$hit.description}"{/if}>{$hit.title}</a>
+   {elseif !empty($hit.description)}
+    <span title="{$hit.description}">{$hit.title}<span>
    {else}
     {$hit.title}
    {/if}
-   <br />{$hit.text}
+   <br />{$hit.text}{* might be newline-spararated multi-matches *}
    </li>
    {/foreach}
   </ul>
