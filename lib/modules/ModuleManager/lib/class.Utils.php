@@ -19,7 +19,6 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace ModuleManager;
 
 use CmsCommunicationException;
@@ -115,7 +114,6 @@ final class Utils
 
         $mod = AppUtils::get_module('ModuleManager');
 
-        //
         // Process the xmldetails, and only keep the latest version
         // of each (according to a preference)
         //
@@ -225,25 +223,19 @@ final class Utils
         if( $url ) {
             $url .= '/version';
             $req = new cached_request($url);
-            $req->setTimeout(10);
+//          $req->setTimeout(10); use default
             $req->execute($url);
             if( $req->getStatus() == 200 ) {
-                $tmp = $req->getResult();
-                if( empty($tmp) ) {
-                    $req->clearCache();
-                    $ok = FALSE;
-                    return FALSE;
-                }
-
-                $data = json_decode($req->getResult(),true);
-                if( version_compare($data,MINIMUM_REPOSITORY_VERSION) >= 0 ) {
-                    $ok = TRUE;
-                    return TRUE;
+                $result = $req->getResult();
+                if( $result ) {
+                    $data = json_decode($result,true);
+                    if( $data && version_compare($data,MINIMUM_REPOSITORY_VERSION) >= 0 ) {
+                        $ok = TRUE;
+                        return TRUE;
+                    }
                 }
             }
-            else {
-                $req->clearCache();
-            }
+            $req->clearCache();
         }
         $ok = FALSE;
         return FALSE;
