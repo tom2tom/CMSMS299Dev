@@ -17,10 +17,10 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace ModuleManager;
 
 use CmsCommunicationException;
+use CmsException;
 use CmsInvalidDataException;
 use CMSMS\Crypto;
 use CMSMS\HttpRequest;
@@ -28,9 +28,12 @@ use CMSMS\ModuleOperations;
 use CMSMS\Utils;
 use ModuleManager\cached_request;
 use ModuleManager\ModuleInfo;
-use ModuleNoDataException;
 use const CMS_VERSION;
 use const TMP_CACHE_LOCATION;
+
+class ModuleManagerException extends CmsException {}
+class ModuleNoDataException extends ModuleManagerException {}
+class ModuleNotFoundException extends ModuleManagerException {}
 
 final class modulerep_client
 {
@@ -39,11 +42,17 @@ final class modulerep_client
 
     protected function __construct() {}
 
+    /**
+     *
+     * @return array 2 members
+     * [0] = bool indicating success
+     * [1] = mixed result | error message string
+     */
     public static function get_repository_version()
     {
         $mod = Utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
-        if( !$url )	return [false,$mod->Lang('error_norepositoryurl')];
+        if( !$url ) return [FALSE,$mod->Lang('error_norepositoryurl')];
         $url .= '/version';
 
         $req = new cached_request();
@@ -52,10 +61,9 @@ final class modulerep_client
         $result = $req->getResult();
         if( $status != 200 || $result == '' ) return [FALSE,$mod->Lang('error_request_problem')];
 
-        $data = json_decode($result,true);
-        return [true,$data];
+        $data = json_decode($result,TRUE);
+        return [TRUE,$data];
     }
-
 
     /**
      * Given an array of hashes with name/version members return module info for all matches.
@@ -81,7 +89,7 @@ final class modulerep_client
         if( count($out) == 0 ) new CmsInvalidDataException($mod->Lang('error_missingparam'));
 
         $url = $mod->GetPreference('module_repository');
-        if( !$url )	return [false,$mod->Lang('error_norepositoryurl')];
+        if( !$url ) return [FALSE,$mod->Lang('error_norepositoryurl')];
         $url .= '/multimoduleinfo';
         $data = ['data'=>json_encode($out)];
 
@@ -96,14 +104,23 @@ final class modulerep_client
             throw new CmsCommunicationException($mod->Lang('error_request_problem'));
         }
 
-        return json_decode($result,true);
+        return json_decode($result,TRUE);
     }
 
+    /**
+     *
+     * @param string $prefix
+     * @param int $newest optional bool-equivalent? default 1
+     * @param bool $exact optional flag default false
+     * @return array 2 members
+     * [0] = bool indicating success
+     * [1] = mixed retrieved data | error message string
+     */
     public static function get_repository_modules($prefix = '',$newest = 1,$exact = FALSE)
     {
         $mod = Utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
-        if( !$url )	return [false,$mod->Lang('error_norepositoryurl')];
+        if( !$url ) return [FALSE,$mod->Lang('error_norepositoryurl')];
         $url .= '/moduledetailsgetall';
 
         $data = ['newest'=>$newest];
@@ -116,16 +133,24 @@ final class modulerep_client
         $status = $req->getStatus();
         $result = $req->getResult();
         if( $status == 400 ) {
-            return [true,[]];
+            return [TRUE,[]];
         }
         else if( $status != 200 || $result == '' ) {
             return [FALSE,$mod->Lang('error_request_problem')];
         }
 
-        $data = json_decode($result,true);
-        return [true,$data];
+        $data = json_decode($result,TRUE);
+        return [TRUE,$data];
     }
 
+    /**
+     *
+     * @param string $module_name
+     * @param string $module_version
+     * @return mixed array | null
+     * @throws CmsInvalidDataException
+     * @throws CmsCommunicationException
+     */
     public static function get_module_dependencies($module_name,$module_version = '')
     {
         $mod = Utils::get_module('ModuleManager');
@@ -148,11 +173,16 @@ final class modulerep_client
             throw new CmsCommunicationException($mod->Lang('error_request_problem'));
         }
 
-        $data = json_decode($result,true);
-        return $data;
+        return json_decode($result,TRUE);
     }
 
-    // old...
+    /**
+     *
+     * @param string $xmlfile name of TBA
+     * @return mixed array | null
+     * @throws CmsInvalidDataException
+     * @throws CmsCommunicationException
+     */
     public static function get_module_depends($xmlfile)
     {
         $mod = Utils::get_module('ModuleManager');
@@ -166,13 +196,18 @@ final class modulerep_client
         $status = $req->getStatus();
         $result = $req->getResult();
         if( $status == 400 ) return;
-        if( $status != 200 || $result == '' ) throw new CmsCommunicationException($mod->Lang('error_request_problem'));
-
-        $data = json_decode($result,true);
-        return $data;
+        if( $status != 200 || $result == '' ) {
+            throw new CmsCommunicationException($mod->Lang('error_request_problem'));
+        }
+        return json_decode($result,TRUE);
     }
 
-
+    /**
+     *
+     * @param string $xmlfile name of TBA
+     * @param int $size size of download-chunks
+     * @return false | string
+     */
     public static function get_repository_xml($xmlfile, $size = -1)
     {
         if( !$xmlfile ) return FALSE;
@@ -203,8 +238,8 @@ final class modulerep_client
                 $fh = fopen($tmpname,'w');
                 fwrite($fh,$result);
                 fclose($fh);
-                return $tmpname;
                 $req->clear();
+                return $tmpname;
             }
 
             // download in chunks
@@ -231,55 +266,74 @@ final class modulerep_client
         return $tmpname;
     }
 
-
+    /**
+     *
+     * @param string $xmlfile name of TBA
+     * @return type
+     * @throws CmsInvalidDataException
+     * @throws CmsCommunicationException
+     */
     public static function get_module_md5($xmlfile)
     {
         $mod = Utils::get_module('ModuleManager');
-        if( !$xmlfile ) throw new CmsInvalidDataException($mod->Lang('error_nofilename'));
+        if( !$xmlfile ) {
+            throw new CmsInvalidDataException($mod->Lang('error_nofilename'));
+        }
         $url = $mod->GetPreference('module_repository');
-        if( $url == '' ) throw new CmsInvalidDataException($mod->Lang('error_norepositoryurl'));
+        if( $url == '' ) {
+            throw new CmsInvalidDataException($mod->Lang('error_norepositoryurl'));
+        }
         $url .= '/modulemd5sum';
 
         $req = new cached_request();
         $req->execute($url,['name'=>$xmlfile]);
         $status = $req->getStatus();
         $result = $req->getResult();
-        if( $status != 200 || $result == '' ) throw new CmsCommunicationException($mod->Lang('error_request_problem'));
-
-        $data = json_decode($result,true);
-        return $data;
+        if( $status != 200 || $result == '' ) {
+            throw new CmsCommunicationException($mod->Lang('error_request_problem'));
+        }
+        return json_decode($result,TRUE);
     }
 
-
+    /**
+     *
+     * @param type $term
+     * @param int $advanced
+     * @return array 2 members
+     * [0] = bool indicating success
+     * [1] = mixed data | null | error message string
+     */
     public static function search($term,$advanced)
     {
-        $qparms = [];
-        $filter = [];
-        $filter['term'] = $term;
-        $filter['advanced'] = (int)$advanced;
-        $filter['newest'] = 1;
-        $filter['sortby'] = 'score';
-        $qparms['filter'] = $filter;
-        $qparms['clientcmsversion'] = CMS_VERSION;
-
         $mod = Utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
         if( $url == '' ) return [FALSE,$mod->Lang('error_norepositoryurl')];
         $url .= '/modulesearch';
 
+        $filter = [
+         'term' => $term,
+         'advanced' => (int)$advanced,
+         'newest' => 1,
+         'sortby' => 'score',
+        ];
+        $qparms = [
+         'filter' => $filter,
+         'clientcmsversion' => CMS_VERSION,
+        ];
+
         $req = new cached_request();
         $req->execute($url,['json'=>json_encode($qparms)]);
         $status = $req->getStatus();
         $result = $req->getResult();
-        if( $status == 200 && $result == ''  ) return [TRUE,null]; // no results.
+        if( $status == 200 && $result == ''  ) return [TRUE,NULL]; // no results.
         if( $status != 200 || $result == '' ) return [FALSE,$mod->Lang('error_request_problem')];
 
-        $data = json_decode($result,true);
+        $data = json_decode($result,TRUE);
         return [TRUE,$data];
     }
 
     /**
-     * returns the latest info about all specified modules
+     * Return the latest info about all specified modules
      * on success returns associative array of info about modules
      * on error throws an exception.
      *
@@ -289,47 +343,56 @@ final class modulerep_client
     public static function get_modulelatest($modules)
     {
         $mod = Utils::get_module('ModuleManager');
-        if( !is_array($modules) || count($modules) == 0 ) throw new CmsInvalidDataException($mod->Lang('error_missingparam'));
-
+        if( !is_array($modules) || count($modules) == 0 ) {
+            throw new CmsInvalidDataException($mod->Lang('error_missingparam'));
+        }
         $url = $mod->GetPreference('module_repository');
-        if( $url == '' ) throw new CmsInvalidDataException($mod->Lang('error_norepositoryurl'));
+        if( $url == '' ) {
+            throw new CmsInvalidDataException($mod->Lang('error_norepositoryurl'));
+        }
         $qparms = [];
         $qparms['names'] =  implode(',',$modules);
         $qparms['newest'] = '1';
         $qparms['clientcmsversion'] = CMS_VERSION;
         $url .= '/upgradelistgetall';
-
         $req = new cached_request();
         $req->execute($url,$qparms);
         $status = $req->getStatus();
+        if( $status != 200 ) {
+            throw new CmsCommunicationException($mod->Lang('error_request_problem'));
+        }
         $result = $req->getResult();
-        if( $status != 200 ) throw new CmsCommunicationException($mod->Lang('error_request_problem'));
-        if( $status == 400 || !$result ) throw new ModuleNoDataException();
+        if( $status == 400 || !$result ) {
+            throw new ModuleNoDataException();
+        }
 
-        $data = json_decode($result,true);
-        if( !$data || !is_array($data) ) throw new CmsInvalidDataException($mod->Lang('error_nomatchingmodules'));
-
+        $data = json_decode($result,TRUE);
+        if( !$data || !is_array($data) ) {
+            throw new CmsInvalidDataException($mod->Lang('error_nomatchingmodules'));
+        }
         return $data;
     }
 
     /**
-     * returns the latest info about installed modules.
+     * Return the latest info about installed modules.
      * on success returns associative array of info about modules
      * on error throw exception.
+     *
      * @return array
      */
     public static function get_allmoduleversions()
     {
-        if( is_array(self::$_latest_installed_modules) ) return self::$_latest_installed_modules;
-
-        $modules = ModuleOperations::get_instance()->GetInstalledModules();
-        self::$_latest_installed_modules = self::get_modulelatest($modules);
+        if( self::$_latest_installed_modules  === NULL ) {
+            $modules = ModuleOperations::get_instance()->GetInstalledModules();
+            self::$_latest_installed_modules = self::get_modulelatest($modules);
+        }
         return self::$_latest_installed_modules;
     }
 
     /**
-     * Return info about installed modules that have newer versions available.
-     * return mixed (FALSE on error, NULL or associative array on success
+     * Return info about installed modules that have newer versions available
+     *
+     * @return mixed (false on error, null or associative array on success
      */
     public static function get_newmoduleversions()
     {
@@ -348,6 +411,12 @@ final class modulerep_client
         if( $out ) return $out;
     }
 
+    /**
+     * Return info about named module versions.
+     *
+     * @param string $module_name
+     * @return mixed false | null | array
+     */
     public static function get_upgrade_module_info($module_name)
     {
         $versions = self::get_allmoduleversions();
