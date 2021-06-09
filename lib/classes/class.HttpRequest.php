@@ -1,19 +1,19 @@
 <?php
 /**
- * Classes for making HTTP requests to external servers
+ * Class for making HTTP requests to external servers
  * @package CMS
  * @license GPL
  */
 namespace CMSMS;
 
-use CMSMS\AppConfig;
+//use CMSMS\AppConfig;
 use CMSMS\Crypto;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;
 use const TMP_CACHE_LOCATION;
 
 /**
- * HTTP Class
+ * HTTP class
  *
  * This is a wrapper HTTP class that uses either cURL or fsockopen to
  * harvest resources from web. This can be used with scripts that need
@@ -41,10 +41,10 @@ class HttpRequest
     private $target;
 
     /**
-     * socket
+     * stream descriptor
      *
      */
-    private $_socket;
+    private $_remote;
 
     /**
      * Contains the target host
@@ -108,6 +108,13 @@ class HttpRequest
      * @var array
      */
     private $_cookies;
+
+    /**
+     * Number of seconds to initial-connection timeout
+     *
+     * @var integer
+     */
+    private $connecttime;
 
     /**
      * Number of seconds to timeout
@@ -278,10 +285,10 @@ class HttpRequest
      * $httpConfig['target']     = 'http://www.somedomain.com/index.html';
      * $httpConfig['referrer']   = 'http://www.somedomain.com';
      * $httpConfig['user_agent'] = 'My Crawler';
-     * $httpConfig['timeout']    = '30';
+     * $httpConfig['connecttime'] = 10;
      * $httpConfig['params']     = array('var1' => 'testvalue', 'var2' => 'somevalue');
      *
-     * $http = new Http();
+     * $http = new CMSMS\HttpRequest();
      * $http->initialize($httpConfig);
      * </pre>
      *
@@ -312,7 +319,7 @@ class HttpRequest
      */
     public function clear()
     {
-        $config = AppConfig::get_instance();
+//        $config = AppConfig::get_instance();
 
         // Set the request defaults
         $this->host         = '';
@@ -332,7 +339,8 @@ class HttpRequest
         $this->debug        = false;
         $this->error        = '';
         $this->status       = 0;
-        $this->timeout      = '25';
+        $this->connecttime  = 20;
+        $this->timeout      = max(25, ini_get('max_max_execution_time') - 5);
         $this->useCurl      = true;
         $this->referrer     = CMS_ROOT_URL.'::'.CMS_VERSION;
         $this->username     = '';
@@ -346,7 +354,7 @@ class HttpRequest
         $this->saveCookie   = true;
         $this->maxRedirect  = 3;
         $this->cookiePath   = TMP_CACHE_LOCATION.'/c'.Crypto::hash_string(get_class().session_id()).'.dat'; // by default, use a cookie file that is unique only to this session.
-        $this->userAgent    = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.9 CMSMS:'.CMS_VERSION;
+        $this->userAgent    = ($_SERVER['HTTP_USER_AGENT'] ?? 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20100101 Firefox/70.0') . ' CMSMS:'.CMS_VERSION;
     }
 
     /**
@@ -411,6 +419,19 @@ class HttpRequest
     }
 
     /**
+     * Set timeout of initial connection
+     * @since 2.99
+     *
+     * @param int $seconds Timeout delay in seconds
+     */
+    public function setConnectTimeout($seconds)
+    {
+        if ($seconds > 0) {
+            $this->connecttime = (int)$seconds;
+        }
+    }
+
+    /**
      * Set timeout of execution
      *
      * @param int $seconds Timeout delay in seconds
@@ -418,7 +439,7 @@ class HttpRequest
     public function setTimeout($seconds)
     {
         if ($seconds > 0) {
-            $this->timeout = $seconds;
+            $this->timeout = (int)$seconds;
         }
     }
 
@@ -689,23 +710,21 @@ class HttpRequest
 
     /**
      * Execute a HTTP request
-     *
-     * Executes the http fetch using all the set properties. Intellegently
-     * switch to fsockopen if cURL is not present. And be smart to follow
-     * redirects (if asked so).
+     * Performs the http fetch using all the set properties. Uses CURL or
+     * a stream-socket if cURL is not present. Follows redirects (if so asked).
      *
      * @param string $target URL of the target page (optional)
      * @param string $referrer URL of the referrer page (optional)
      * @param string $method The http method (GET or POST) (optional)
-     * @param array $data Parameter array for GET or POST (optional)
+     * @param array $data Parameters array for GET or POST (optional)
      * @return string Response body of the target page
      */
     public function execute($target = '', $referrer = '', $method = '', $data = [])
     {
         // Populate the properties
-        $this->target = ($target) ?: $this->target;
-        $this->method = ($method) ?: $this->method;
-        $this->referrer = ($referrer) ?: $this->referrer;
+        if ($target) $this->target = $target;
+        if ($referrer) $this->referrer = $referrer;
+        if ($method) $this->method = $method;
 
         // Add the new params
         if ($data) {
@@ -733,15 +752,30 @@ class HttpRequest
             $this->port = $urlParsed['port'];
         }
 
+        $this->host = $urlParsed['host'];
         // Handle SSL connection request
         if ($urlParsed['scheme'] == 'https') {
-            $this->host = $urlParsed['host'];
             $this->port = ($this->port != 0) ? $this->port : 443;
-            $this->_socket = 'ssl://'.$urlParsed['host'].':'.$this->port;
+            $this->_remote = 'ssl://'.$this->host.':'.$this->port; // OR tls://... ??
+/*            if internal-use only, skip verification
+            $opts = [
+            'ssl' => [
+//              'allow_self_signed' => true,
+                'verify_host' => false,
+                'verify_peer' => false,
+             ],
+            'tls' => [
+//              'allow_self_signed' => true,
+                'verify_host' => false,
+                'verify_peer' => false,
+             ]
+            ];
+            $ctx = stream_context_create($opts); //, $params);
+*/
         } else {
-            $this->host = $urlParsed['host'];
             $this->port = ($this->port != 0) ? $this->port : 80;
-            $this->_socket = 'tcp://'.$urlParsed['host'].':'.$this->port;
+            $this->_remote = 'tcp://'.$this->host.':'.$this->port;
+//            $ctx = stream_context_create();
         }
 
         // Finalize the target path
@@ -767,20 +801,19 @@ class HttpRequest
             $cookieString = implode('&', $tempString);
         }
 
-        // Do we want to use cURL ? If not, we'll use fsockopen
+        // Do we want to use cURL ? If not, revert to a stream-socket
         if ($this->useCurl && self::is_curl_suitable()) {
             // Initialize PHP cURL handle
             $ch = curl_init();
 
-            // GET method configuration
             if ($this->method == 'GET') {
+                // GET method configuration
                 curl_setopt($ch, CURLOPT_HTTPGET, true);
-                curl_setopt($ch, CURLOPT_POST, false);
-            }
-            // POST method configuration
-            else {
+// redundant    curl_setopt($ch, CURLOPT_POST, false);
+            } else {
+                // POST method configuration
                 curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_HTTPGET, false);
+// no effect    curl_setopt($ch, CURLOPT_HTTPGET, false);
 
                 if (isset($queryString)) {
                     curl_setopt($ch, CURLOPT_POSTFIELDS, $queryString);
@@ -810,30 +843,31 @@ class HttpRequest
             }
 
             curl_setopt($ch, CURLOPT_HEADER, true);                // No need of headers
-            if (is_array($this->headerArray)) {
+            if ($this->headerArray) {
                 curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headerArray);
 /* duplicate} else {
                 curl_setopt($ch, CURLOPT_HEADER, true);           // No need of headers
 */
             }
-            curl_setopt($ch, CURLOPT_NOBODY, false);              // Return body
-            curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);    // Timeout
-            curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);// Webbot name
-            curl_setopt($ch, CURLOPT_URL, $this->target);         // Target site
-            curl_setopt($ch, CURLOPT_REFERER, $this->referrer);   // Referer value
-
-            curl_setopt($ch, CURLOPT_VERBOSE, false);             // Minimize logs
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);      // No certificate
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->redirect);// Follow redirects
-            curl_setopt($ch, CURLOPT_MAXREDIRS, $this->maxRedirect);  // Limit redirections to four
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);           // Return in string
-
+            curl_setopt_array($ch, [
+             CURLOPT_NOBODY => false,              // Return body
+             CURLOPT_CONNECTTIMEOUT => $this->connecttime, // Establishment delay limit
+             CURLOPT_TIMEOUT => $this->timeout,    // Total-duration limit
+             CURLOPT_USERAGENT => $this->userAgent,// Webbot name
+             CURLOPT_URL => $this->target,         // Target site
+             CURLOPT_REFERER => $this->referrer,   // Referer value
+             CURLOPT_VERBOSE => false,             // Minimize logs
+             CURLOPT_SSL_VERIFYPEER => false,      // No certificate check
+             CURLOPT_FOLLOWLOCATION => $this->redirect,// Follow redirects
+             CURLOPT_MAXREDIRS => $this->maxRedirect,  // Limit redirections to four
+             CURLOPT_RETURNTRANSFER => true,       // Return in string
+            ]);
             // Get the target contents
             $content = curl_exec($ch);
-            if (!empty($content)) {
+            if ($content) {
                 $tmp = explode("\r\n\r\n", $content, 2);
                 for ($i = 0, $n = count($tmp); $i < $n; $i++) {
-                    if (empty($tmp[$i])) {
+                    if (!$tmp[$i]) {
                         unset($tmp[$i]);
                     }
                 }
@@ -850,30 +884,34 @@ class HttpRequest
             }
 
             // Get the request info
-            $status  = curl_getinfo($ch);
+            $status  = curl_getinfo($ch); //DEBUG ?
 
-            // Store the error (is any)
+            // Store the error (if any)
             $this->_setError(curl_error($ch));
 
             // Close PHP cURL handle
             curl_close($ch);
         } else {
-            // Get a file pointer
-            $filePointer = @stream_socket_client($this->_socket, $errorNumber, $errorString, $this->timeout);
+            // Get a stream-handle
+            $streamResource = @stream_socket_client($this->_remote, $errorNumber, $errorString, $this->connecttime); //,  STREAM_CLIENT_CONNECT, $ctx);
 
-            // We have an error if pointer is not there
-            if (!$filePointer) {
+            // error if handle N/A
+            if (!$streamResource) {
                 $this->_setError('Failed opening http socket connection: ' . $errorString . ' (' . $errorNumber . ')');
                 return false;
             }
 
             // Set http headers with host, user-agent and content type
-            $this->addRequestHeader($this->method .' '. $this->path. '  HTTP/1.1', true);
+            $this->addRequestHeader($this->method .' '. $this->path. ' HTTP/1.1', true);
             $this->addRequestHeader('Host: ' . $this->host);
             $this->addRequestHeader('Accept: */*');
             $this->addRequestHeader('User-Agent: ' . $this->userAgent);
             if (!$this->requestHeaderExists('Content-Type')) {
-                $this->addRequestHeader('Content-Type: application/x-www-form-urlencoded');
+                if (!$this->requestHeaderExists('Transfer-Encoding')) {
+                    $this->addRequestHeader('Content-Type: application/x-www-form-urlencoded; charset=UTF-8'); // TODO for POST only ?
+                } else {
+                    $this->addRequestHeader('Content-Type: application/x-www-form-urlencoded');
+                }
             }
 
             // Specify the custom cookies
@@ -900,26 +938,38 @@ class HttpRequest
 
             // POST method configuration
             $requestHeader = implode("\r\n", $this->headerArray)."\r\n\r\n";
-            if ($this->method == 'POST') {
+            if ($this->method == 'POST' && $queryString) {
                 $requestHeader .= $queryString;
             }
 
-            // We're ready to launch
-            fwrite($filePointer, $requestHeader);
-
-
-            // Clean the slate
-            $responseHeader = '';
             $responseContent = '';
-
-            // 3...2...1...Launch !
-            $n = 0;
-            do {
-                $responseHeader .= fread($filePointer, 1);
-            } while (!preg_match('/\\r\\n\\r\\n$/', $responseHeader) && !feof($filePointer));
-
-            // Parse the headers
-            $this->_parseHeaders($responseHeader);
+            // We're ready to launch
+            fwrite($streamResource, $requestHeader);
+            $content = stream_get_contents($streamResource);
+            if ($content) {
+                $tmp = explode("\r\n\r\n", $content);
+                for ($i = 0, $n = count($tmp); $i < $n; $i++) {
+                    if (empty($tmp[$i])) {
+                        unset($tmp[$i]);
+                    }
+                }
+                if (isset($tmp[0])) {
+                    // Parse the headers
+                    $this->_parseHeaders($tmp[0]);
+                } else {
+                    return '';
+                }
+                if (isset($tmp[1])) {
+                    // Store the contents
+					// TODO fix this hack: works around additional info returned via socket
+					// like NNN\nREALCONTENTS\n0
+					$val = rtrim($tmp[1], "\r\n 0"); // kill trailing line
+					$p = strpos($val, "\n");
+                    $responseContent = ltrim(substr($val, $p)); // kill leading line
+                }
+            } else {
+                 return '';
+            }
 
             // Do we have a 301/302 redirect ?
             if (($this->status == '301' || $this->status == '302') && $this->redirect == true) {
@@ -943,39 +993,17 @@ class HttpRequest
                     // Increase the redirect counter
                     $this->curRedirect++;
 
-                    // Let's go, go, go !
-                    $this->result = $this->execute($newTarget);
+                    // Let's go !
+                    $this->result = $this->execute($newTarget); // recurse
                 } else {
                     $this->_setError('Too many redirects.');
                     return false;
                 }
             } else {
-                // Nope...so lets get the rest of the contents (non-chunked)
-                if (!isset($this->headers['transfer-encoding']) || $this->headers['transfer-encoding'] != 'chunked') {
-                    while (!feof($filePointer)) {
-                        $responseContent .= fgets($filePointer, 128);
-                    }
-                } else {
-                    // Get the contents (chunked)
-                    while (!feof($filePointer) && $chunkLength = hexdec(fgets($filePointer))) {
-                        $responseContentChunk = '';
-                        $readLength = 0;
-
-                        while ($readLength < $chunkLength) {
-                            $responseContentChunk .= fread($filePointer, $chunkLength - $readLength);
-                            $readLength = strlen($responseContentChunk);
-                        }
-
-                        $responseContent .= $responseContentChunk;
-                        fgets($filePointer);
-                    }
-                }
-
                 // Store the target contents
-                $this->result = chop($responseContent);
+                $this->result = rtrim($responseContent);
             }
         }
-
         // There it is! We have it!! Return to base !!!
         return $this->result;
     }
@@ -983,7 +1011,7 @@ class HttpRequest
     /**
      * Parse Headers (internal)
      *
-     * Parse the response headers and store them for finding the resposne
+     * Parse the response headers and store them for finding the response
      * status, redirection location, cookies, etc.
      *
      * @param string $responseHeader Raw header response
