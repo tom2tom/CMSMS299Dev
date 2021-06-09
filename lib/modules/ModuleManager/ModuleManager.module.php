@@ -1,26 +1,29 @@
 <?php
-# ModuleManager: an addon module for CMS Made Simple to allow browsing
-#  remotely stored modules, viewing information about them, and downloading
-#  or upgrading
-# Copyright (C) 2013-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+ModuleManager: a CMS Made Simple module for managing installed modules,
+including browsing remotely-stored modules, viewing information about them,
+and downloading or upgrading
+Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
-use CMSMS\LogicException;
-use ModuleManager\Command;
 use ModuleManager\operations;
 
 const MINIMUM_REPOSITORY_VERSION = '1.5';
@@ -61,15 +64,13 @@ class ModuleManager extends CMSModule
 
     protected function _DisplayErrorPage($id, &$params, $returnid, $message='')
     {
-        $smarty = CmsApp::get_instance()->GetSmarty();
+        $smarty = AppSingle::Smarty();
         $tpl = $smarty->createTemplate($this->GetTemplateResource('error.tpl')); //,null,null,$smarty);
 
         $tpl->assign('title_error', $this->Lang('error'))
          ->assign('message', $message)
-         ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module_manager')));
-
-        // Display the populated template
-        $tpl->display();
+         ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module')))
+         ->display();
     }
 
     public function Install()
