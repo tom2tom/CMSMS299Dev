@@ -1,6 +1,7 @@
 <?php
 /*
-ModuleManager class: ..
+ModuleManager class: engage with already-cached modules-data (if any, and
+not too old) or else refresh the cache
 Copyright (C) 2011-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -19,7 +20,6 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace ModuleManager;
 
 use CMSMS\AppParams;
@@ -43,6 +43,12 @@ final class cached_request //was modmgr_cached_request
     }
   }
 
+  /**
+   * Retrieve request-result from cache or else from a new request
+   * @param string $target optional URL of the target page
+   * @param array $data optional POST-parameters array
+   * @param mixed $age optional int or numeric string allowed cache-item age (secs)
+   */
   public function execute($target = '',$data = [], $age = '')
   {
     $mod = Utils::get_module('ModuleManager');
@@ -61,10 +67,11 @@ final class cached_request //was modmgr_cached_request
         !file_exists($fn) || filemtime($fn) <= $atime ) {
       // execute the request
       $req = new HttpRequest();
-      if( $this->_timeout ) $req->setTimeout($this->_timeout);
-      $req->execute($target,'','POST',$data);
+      if( $this->_timeout ) {
+          $req->setTimeout($this->_timeout);
+      }
+      $this->_result = $req->execute($target,'','POST',$data);
       $this->_status = $req->getStatus();
-      $this->_result = $req->getResult();
 
       @unlink($fn);
       if( $this->_status == 200 ) {
