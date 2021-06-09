@@ -51,7 +51,6 @@ if( !$xmlfile ) {
   $this->RedirectToAdminTab();
 }
 
-
 $req = new cached_request();
 $req->execute($url,['name'=>$xmlfile]);
 $status = $req->getStatus();
