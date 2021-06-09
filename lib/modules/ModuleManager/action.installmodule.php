@@ -23,10 +23,10 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Crypto;
 use CMSMS\ModuleOperations;
 use ModuleManager\ModuleInfo;
-use ModuleManager\ModuleNoDataException;
 use ModuleManager\modulerep_client;
 use ModuleManager\operations;
 use ModuleManager\Utils;
+use ModuleNoDataException;
 
 if (!isset($gCms)) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
