@@ -1,21 +1,24 @@
 <?php
-# ModuleManager class: module import/export operations
-# Copyright (C) 2011-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+ModuleManager class: module import/export operations
+Copyright (C) 2011-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace ModuleManager;
 
 //use CMSMS\internal\module_meta;
@@ -39,6 +42,7 @@ use function cms_join_path;
 use function cms_module_places;
 use function file_put_contents;
 use function get_recursive_file_list;
+use function get_server_permissions;
 use function lang;
 use function recursive_delete;
 use function startswith;
@@ -122,6 +126,9 @@ class operations
         $modops = ModuleOperations::get_instance();
         $moduledetails = [];
         $filedone = false;
+        $modes = get_server_permissions(); // might fail!
+        $filemode = $modes[1]; // read + write
+        $dirmode = $modes[3]; // read + write
 
         foreach( $xml->children() as $node ) {
             $key = $node->getName();
@@ -169,7 +176,8 @@ class operations
                 case 'about':
                 case 'description':
                     $moduledetails[$lkey] = ( $current ) ?
-                      htmlspecialchars_decode((string)$node) : base64_decode((string)$node);
+                      htmlspecialchars_decode((string)$node, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE) :
+                      base64_decode((string)$node);
                     break;
                 case 'file':
                     if( !$filedone ) {
@@ -194,7 +202,7 @@ class operations
                                 throw new CmsFileSystemException(lang('errordirectorynotwritable'));
                             }
                             $basepath = $dir . DIRECTORY_SEPARATOR . $moduledetails['name'];
-                            if( !( is_dir( $basepath ) || @mkdir( $basepath, 0771, true ) ) ) {
+                            if( !(is_dir($basepath) || @mkdir($basepath, $dirmode, true)) ) {
                                 throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
                             }
                         }
@@ -240,18 +248,28 @@ class operations
                     $name = str_replace($from, $to, $val);
                     $path = $basepath . DIRECTORY_SEPARATOR . $name;
                     if( (string)$node->isdir ) {
-                        if( !( is_dir( $path ) || @mkdir( $path, 0771, true ) ) ) {
+                        if( (is_dir($path) || @mkdir($path, $dirmode, true)) ) {
+                            chmod($path, $dirmode); // in case refresh is needed
+                        }
+                        else {
                             throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
                         }
                     }
                     elseif( (string)$node->istext ) {
-                        if( @file_put_contents($path, htmlspecialchars_decode((string)$node->data), LOCK_EX) === false ) {
+                        $text = htmlspecialchars_decode((string)$node->data, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false);
+                        if( @file_put_contents($path, $text, LOCK_EX) !== false ) {
+                            chmod($path, $filemode);
+                        }
+                        else {
                             throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
                         }
                     }
-                    elseif( @file_put_contents($path, base64_decode((string)$node->data), LOCK_EX) === false) {
+                    elseif( @file_put_contents($path, base64_decode((string)$node->data), LOCK_EX) !== false) {
+                        chmod($path, $filemode);
+                    }
+                    else {
                         throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
-                  }
+                    }
                   break;
             }
         }
@@ -307,19 +325,19 @@ class operations
         $text = $modinstance->GetHelpPage();
         if( $text != '' ) {
             $xw->startElement('help');
-            $xw-> writeCdata(htmlspecialchars($text, ENT_XML1, '', false));
+            $xw-> writeCdata(htmlspecialchars($text, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false));
             $xw->endElement();
         }
         $text = $modinstance->GetAbout();
         if( $text != '' ) {
             $xw->startElement('about');
-            $xw-> writeCdata(htmlspecialchars($text, ENT_XML1, '', false));
+            $xw-> writeCdata(htmlspecialchars($text, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false));
             $xw->endElement();
         }
         $text = $modinstance->GetAdminDescription();
         if( $text != '' ) {
             $xw->startElement('description');
-            $xw-> writeCdata(htmlspecialchars($text, ENT_XML1, '', false));
+            $xw-> writeCdata(htmlspecialchars($text, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false));
             $xw->endElement();
         }
         $arr = cms_module_places();
@@ -368,7 +386,7 @@ class operations
                 }
                 $xw->startElement('data');
                 if( $text ) {
-                    $xw->writeCdata(htmlspecialchars(file_get_contents($file), ENT_XML1));
+                    $xw->writeCdata(htmlspecialchars(file_get_contents($file), ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false));
                 }
                 else {
                     $xw->writeCdata(base64_encode(file_get_contents($file)));
