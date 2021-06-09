@@ -22,7 +22,7 @@ $lang = [
 
 // B
 'back' => 'Back',
-'back_to_module_manager' => 'Return to Module Manager',
+'back_to_module' => 'Return to Module Manager',
 
 // C
 'cancel' => 'Cancel',
@@ -301,6 +301,6 @@ $lang['help'] = <<<'EOS'
 <h3>Support</h3>
 <p>As per the license, this software is provided as-is. Please read the text of the license for the full disclaimer.</p>
 <h3>Copyright and License</h3>
-<p>Copyright &copy; 2006-2020 CMS Made Simple Foundation <a href="mailto:foundation@cmsmadesimple.org">&lt;foundation@cmsmadesimple.org&gt;</a>. All rights reserved.</p>
+<p>Copyright &copy; 2006-2021 CMS Made Simple Foundation <a href="mailto:foundation@cmsmadesimple.org">&lt;foundation@cmsmadesimple.org&gt;</a>. All rights reserved.</p>
 <p>This module has been released under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU General Public License</a>. The module may not be distriubted or used except in accord with that license.</p>
 EOS;
