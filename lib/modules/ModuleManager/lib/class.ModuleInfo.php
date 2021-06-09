@@ -1,6 +1,6 @@
 <?php
 /*
-ModuleInfo class: 
+ModuleInfo class:
 Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -40,7 +40,7 @@ class ModuleInfo extends extended_module_info // and thence module_info
      'needs_upgrade',
     ];
 
-    private const DEPRECATED = ['CMSMailer','MenuManager'];
+    private const DEPRECATED = [/*'CMSMailer',*/'MenuManager'];
 
     // static properties here >> StaticProperties class ?
     private static $_minfo;
