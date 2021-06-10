@@ -9,7 +9,7 @@ use const CMS_SCHEMA_VERSION;
 use const CMS_VERSION;
 use const CMS_VERSION_NAME;
 use function cms_installer\lang;
-use function cms_installer\translator;
+//use function cms_installer\translator;
 use function cms_installer\get_app;
 
 class step_2 extends cli_step
@@ -17,35 +17,40 @@ class step_2 extends cli_step
     protected function get_cmsms_info()
     {
         $dir = $this->app()->get_destdir();
-
-        //if( !is_dir($dir.'/lib/modules') ) return;
-        if( !is_file($dir.'/version.php') && !is_file("$dir/lib/version.php") ) return;
-        if( !is_file($dir.'/include.php') && !is_file("$dir/lib/include.php") ) return;
-        if( !is_file($dir.'/config.php') ) return;
-        if( !is_file($dir.'/lib/misc.functions.php') ) return;
+        $s = DIRECTORY_SEPARATOR;
+        $p = $dir.$s;
+//      if( !is_dir("{$p}lib{$s}modules") ) return; OR {$p}modules
+        if( !(is_file("{$p}lib{$s}version.php") || is_file("{$p}version.php")) ) return;
+        if( !(is_file("{$p}lib{$s}include.php") || is_file("{$p}include.php")) ) return;
+        if( !(is_file("{$p}lib{$s}config.php") || is_file("{$p}config.php")) ) return;
+        if( !is_file("{$p}lib{$s}misc.functions.php") ) return;
 
         $info = [];
-        if( is_file("$dir/lib/version.php") ) {
-//see installer_base::init()            @include_once "$dir/lib/version.php";
-            $info['mtime'] = filemtime($dir.'/lib/version.php');
+        if( is_file("{$p}lib{$s}config.php") ) {
+            $info['config_file'] = "{$p}lib{$s}config.php";
         } else {
-//see installer_base::init()            @include_once $dir.'/version.php';
-            $info['mtime'] = filemtime($dir.'/version.php');
+            $info['config_file'] = "{$p}config.php";
+        }
+        if( is_file("{$p}lib{$s}version.php") ) {
+//see installer_base::init() @include_once "$dir{$s}lib{$s}version.php";
+            $info['mtime'] = filemtime("{$p}lib{$s}version.php");
+        } else {
+//see installer_base::init() @include_once "$dir{$s}version.php";
+            $info['mtime'] = filemtime("{$p}version.php");
         }
         $info['version'] = CMS_VERSION; // TODO or global $CMS_VERSION ?
         $info['version_name'] = CMS_VERSION_NAME;
         $info['schema_version'] = CMS_SCHEMA_VERSION;
-        $info['config_file'] = $dir.'/config.php';
 
         $app = get_app();
+        $v = $app->get_dest_version();
         $app_config = $app->get_config();
         if( !isset($app_config['min_upgrade_version']) ) throw new Exception(lang('error_missingconfigvar','min_upgrade_version'));
         if( version_compare($info['version'],$app_config['min_upgrade_version']) < 0 ) $info['error_status'] = 'too_old';
-        if( version_compare($info['version'],$app->get_dest_version()) == 0 ) $info['error_status'] = 'same_ver';
-        if( version_compare($info['version'],$app->get_dest_version()) > 0 ) $info['error_status'] = 'too_new';
+        if( version_compare($info['version'],$v) == 0 ) $info['error_status'] = 'same_ver';
+        if( version_compare($info['version'],$v) > 0 ) $info['error_status'] = 'too_new';
 
-        $fn = $dir.'/config.php';
-        include_once $fn;
+        require_once $info['config_file'];
         $info['config'] = $config;
 
         return $info;
@@ -71,7 +76,7 @@ class step_2 extends cli_step
 
             // show info about cmsms installed
             // ask to continue, if interactive
-            $mylang = translator()->get_current_language();
+//unused    $mylang = translator()->get_current_language();
             $console = new console();
             $console->clear();
             $console->show_centered(lang('cli_welcome'), 'bold+underline' )->lf();
