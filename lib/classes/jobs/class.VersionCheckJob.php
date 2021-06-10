@@ -68,7 +68,7 @@ class VersionCheckJob extends CronJob
     private function fetch_latest_cmsms_ver()
     {
         $req = new HttpRequest();
-        $req->setTimeout(10);
+// use default        $req->setTimeout(10);
         $req->execute(CMS_DEFAULT_VERSIONCHECK_URL);
         if( $req->getStatus() == 200 ) {
             $remote_ver = trim($req->getResult());
