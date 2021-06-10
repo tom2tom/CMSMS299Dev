@@ -54,13 +54,13 @@ use function check_permission;
 use function cms_join_path;
 use function cms_module_places;
 use function cms_path_to_url;
+use function CMSMS\sanitizeVal;
 use function endswith;
 use function get_page_foottext;
 use function get_page_headtext;
 use function get_secure_param;
 use function get_userid;
 use function lang;
-use function sanitizeVal;
 use function startswith;
 
 /**
@@ -1193,6 +1193,8 @@ abstract class AdminTheme
                 ['icons','icon.gif'],
                 ['images','icon.i'],
                 ['icons','icon.i'],
+                ['images','icon.avif'],
+                ['icons','icon.avif'],
             ];
             foreach ($dirs as $base) {
                 foreach ($appends as $one) {
@@ -1219,6 +1221,13 @@ abstract class AdminTheme
                                 }
                             }
                             $out = '<i';
+                        } elseif (endswith($path, '.avif')) {
+                            $alt = str_replace('avif','png',$path);
+                            $out = <<<EOS
+<picture>
+ <source srcset="$path" type="image/avif" />
+ <img src="$alt"
+EOS;
                         } else {
                             $out = '<img src="'.$path.'"';
                         }
@@ -1228,7 +1237,9 @@ abstract class AdminTheme
                                 $out .= " $key=\"$value\"";
                             }
                         }
-                        if (!endswith($path, '.i')) {
+                        if (endswith($path, '.avif')) {
+                            $out .= " />\n</picture>";
+                        } elseif (!endswith($path, '.i')) {
                             $out .= ' />';
                         } else {
                             $out .= '></i>';
@@ -1286,7 +1297,7 @@ abstract class AdminTheme
                 $fn .= '.';
             }
 
-            $exts = ['i','svg','png','gif','jpg','jpeg'];
+            $exts = ['i','svg','avif','png','gif','jpg','jpeg']; // TODO recently: .avif .jpx
             if (!$this->_fontimages) {
                 unset($exts[0]);
             }
@@ -1363,6 +1374,15 @@ abstract class AdminTheme
           case 'i':
             $res = '<i';
             break;
+          case 'avif':
+            $alt = str_replace('avif','png',$path);
+            $res = <<<EOS
+<picture>
+ <source srcset="$path" type="image/avif" />
+ <img src="$alt"
+EOS;
+            break;
+//          case 'jpx':
           default:
             $res = '<img src="'.$path.'"';
             break;
@@ -1373,7 +1393,10 @@ abstract class AdminTheme
                 $res .= " $key=\"$value\"";
             }
         }
-        if ($type != 'i') {
+
+        if ($type == 'avif') {
+            $res .= " />\n</picture>";
+        } elseif ($type != 'i') {
             $res .= ' />';
         } else {
             $res .= '></i>';
