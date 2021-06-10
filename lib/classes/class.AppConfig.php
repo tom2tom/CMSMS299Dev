@@ -1,7 +1,7 @@
 <?php
 /*
 Class for handling system-configuration data
-Copyright (C) 2008-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -24,6 +24,7 @@ namespace CMSMS;
 use ArrayAccess;
 use CMSMS\AppParams;
 use CMSMS\AppState;
+use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use RuntimeException;
 use const CMS_DB_PREFIX;
@@ -32,6 +33,7 @@ use const CONFIG_FILE_LOCATION;
 use const TMP_CACHE_LOCATION;
 use function cms_join_path;
 use function cms_to_bool;
+use function CMSMS\sanitizeVal;
 use function get_server_permissions;
 use function stack_trace;
 use function startswith;
@@ -83,6 +85,7 @@ final class AppConfig implements ArrayAccess
         'content_encoding' => self::TYPE_STRING, //since 2.99 alias of 'default_encoding'
         'content_language' => self::TYPE_STRING, //since 2.99
 //        'content_processing_mode' => self::TYPE_INT,
+        'db_credentials' => self::TYPE_STRING, //since 2.99
         'db_hostname' => self::TYPE_STRING,
         'db_name' => self::TYPE_STRING,
         'db_password' => self::TYPE_STRING,
@@ -233,6 +236,22 @@ final class AppConfig implements ArrayAccess
             }
             die('FATAL ERROR: Could not find database connection key "'.$key.'" in the config file');
             break;
+
+        case 'db_credentials':
+            $parts = [
+                'db_hostname' => $this->_data['db_hostname'],
+                'db_username' => $this->_data['db_username'],
+                'db_password' => $this->_data['db_password'],
+                'db_name' => $this->_data['db_name'],
+            ];
+            if (!empty($this->_data['db_port']) || is_numeric($this->_data['db_port'])) {
+                $parts['db_port'] = (int)$this->_data['db_port'];
+            }
+            $enc = json_encode($parts, JSON_NUMERIC_CHECK|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+            $raw = Crypto::encrypt_string($enc, '', 'internal');
+            $str = base64_encode($raw);
+            $this->_cache[$key] = $str;
+            return $str;
 
         case 'dbms':
             return 'mysqli';
@@ -445,16 +464,16 @@ final class AppConfig implements ArrayAccess
 
         case 'public_cache_location':
             //TODO $this->url2path();
-            $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','cache','public');
+            $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','public');
             return $this->_cache[$key];
 
         case 'public_cache_url':
             //TODO $this->path2url();
-            $this->_cache[$key] = $this->offsetGet('root_url').'/tmp/cache/public';
+            $this->_cache[$key] = $this->offsetGet('root_url').'/tmp/public';
             return $this->_cache[$key];
 
         case 'tmp_cache_location':
-            $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','cache');
+            $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),'tmp','cache'); // OR 'tmp','public','cache' ?
             return $this->_cache[$key];
 
         case 'tmp_templates_c_location':
@@ -639,34 +658,33 @@ final class AppConfig implements ArrayAccess
                 case self::TYPE_STRING:
                     switch( $key ) {
                     case 'root_path':
-                        $value = strtr(rtrim($value,' /\\'), '/\\ ', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR.'_');
+                        $value = sanitizeVal(rtrim($value, ' /\\'), 31);
                         break 2;
-                    case 'usertags_path':
                     case 'tmp_cache_location':
                     case 'tmp_templates_c_location':
-                        // root-relative, no leading separator
-                        $value = strtr(trim($value,' /\\'), '/\\ ', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR.'_');
-                        break 2;
-                    case 'assets_path':
-                    case 'image_uploads_path':
                     case 'public_cache_location':
+                    case 'assets_path':
                     case 'uploads_path':
+                    case 'image_uploads_path':
+                    case 'usertags_path':
                         // root-relative, no leading separator
-                        $tmp = strtr(trim($value, ' /\\'), '\\ ', '/_');
-                        $tmp = filter_var($tmp, FILTER_SANITIZE_URL);
-                        $value = strtr($tmp, '/', DIRECTORY_SEPARATOR);
+                        $value = sanitizeVal(trim($value, ' /\\'), 31);
                         break 2;
+                    case 'root_url':
                     case 'admin_url':
                     case 'assets_url':
+                    case 'uploads_url':
                     case 'image_uploads_url':
                     case 'public_cache_url':
-                    case 'root_url':
-                    case 'uploads_url':
+// duplicate // needed
+// NOPE                   $tmp = CMSMS\sanitizeVal(rtrim($value, ' /'), 31);
+//                        $value = strtr($tmp, DIRECTORY_SEPARATOR, '/');
+//or if class is available, $value = (string) new CMSMS\Url(rtrim($value,' /'));
                         $value = filter_var(rtrim($value,' /'), FILTER_SANITIZE_URL);
                         break 2;
                     case 'admin_dir':
                     case 'assets_dir': // deprecated since 2.99 use assets_path
-                        $value = strtr(trim($value, ' /\\'), ['\\' => '', '/' => '', ' ' => '_']);
+                        $value = sanitizeVal(trim($value, ' /\\'), 3);
                         break 2;
                     default:
                         $value = trim($value);
