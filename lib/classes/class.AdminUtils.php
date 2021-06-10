@@ -1,8 +1,9 @@
 <?php
 /*
 A class of convenience functions for admin console requests
-Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify
@@ -14,6 +15,7 @@ CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
@@ -31,6 +33,7 @@ use LogicException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use const CMS_DEFAULT_VERSIONCHECK_URL;
+use const CMS_DEPREC;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -38,11 +41,9 @@ use const CMS_VERSION;
 use const PUBLIC_CACHE_LOCATION;
 use const TMP_CACHE_LOCATION;
 use const TMP_TEMPLATES_C_LOCATION;
+use function add_page_foottext;
 use function check_permission;
 use function cms_get_script;
-use function cms_join_path;
-use function cms_module_places;
-use function cms_path_to_url;
 use function endswith;
 use function get_userid;
 use function lang;
@@ -69,7 +70,7 @@ final class AdminUtils
 {
 	/**
 	 * A regular expression to use when testing if an item has a valid name.
-	 * @see also cleanString()
+	 * @see also CMSMS\sanitizeVal()
 	 */
 	private const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x80-\xff][a-zA-Z0-9_\ \/\+\-\,\.\x80-\xff]*$>';
 
@@ -152,7 +153,7 @@ final class AdminUtils
 		$remote_ver = AppParams::get('last_remotever');
 		if ($last_fetch < (time() - 24 * 3600)) {
 			$req = new HttpRequest();
-			$req->setTimeout(3);
+// use default			$req->setTimeout(10);
 			$req->execute(CMS_DEFAULT_VERSIONCHECK_URL);
 			if ($req->getStatus() == 200) {
 				$remote_ver = trim($req->getResult());
@@ -179,96 +180,19 @@ final class AdminUtils
 	}
 
 	/**
-	 * Get a tag representing a module icon
-	 *
-	 * @since 2.3
-	 * @param string $module Name of the module
-	 * @param array $attrs Optional assoc array of attributes for the created img tag
-	 * @return string
-	 */
-	public static function get_module_icon(string $module, array $attrs = []) : string
-	{
-		$dirs = cms_module_places($module);
-		if ($dirs) {
-			$appends = [
-				['images','icon.svg'],
-				['icons','icon.svg'],
-				['images','icon.png'],
-				['icons','icon.png'],
-				['images','icon.gif'],
-				['icons','icon.gif'],
-				['images','icon.i'],
-				['icons','icon.i'],
-			];
-			foreach ($dirs as $base) {
-				foreach ($appends as $one) {
-					$path = cms_join_path($base, ...$one);
-					if (is_file($path)) {
-						$path = cms_path_to_url($path);
-						if (endswith($path, '.svg')) {
-							// see https://css-tricks.com/using-svg
-							$alt = str_replace('svg','png',$path);
-							$out = '<img src="'.$path.'" onerror="this.onerror=null;this.src=\''.$alt.'\';"';
-						} elseif (endswith($path, '.i')) {
-							$props = parse_ini_file($path, false, INI_SCANNER_TYPED);
-							if ($props) {
-								foreach ($props as $key => $value) {
-									if (isset($attrs[$key])) {
-										if (is_numeric($value) || is_bool($value)) {
-											continue; //supplied attrib prevails
-										} elseif (is_string($value)) {
-											$attrs[$key] = $value.' '.$attrs[$key];
-										}
-									} else {
-										$attrs[$key] = $value;
-									}
-								}
-							}
-							$out = '<i';
-						} else {
-							$out = '<img src="'.$path.'"';
-						}
-						$extras = array_merge(['alt'=>$module, 'title'=>$module], $attrs);
-						foreach ($extras as $key => $value) {
-							if ($value !== '' || $key == 'title') {
-								$out .= " $key=\"$value\"";
-							}
-						}
-						if (!endswith($path, '.i')) {
-							$out .= ' />';
-						} else {
-							$out .= '></i>';
-						}
-						return $out;
-					}
-				}
-			}
-		}
-		return '';
-	}
-
-	/**
 	 * Get a tag representing a themed icon or module icon
+	 * @deprecated since 2.99 instead use CMSMS\AdminTheme::get_icon()
 	 *
 	 * @param string $icon the basename of the desired icon file, may include theme-dir-relative path,
 	 *  may omit file type/suffix, ignored if smarty variable $actionmodule is currently set
-	 * @param array $attrs Since 2.3 Optional assoc array of attributes for the created img tag
+	 * @param array $attrs Since 2.99 Optional assoc array of attributes for the created img tag
 	 * @return string
 	 */
 	public static function get_icon(string $icon, array $attrs = []) : string
 	{
-		$smarty = AppSingle::Smarty();
-		$module = $smarty->getTemplateVars('_module');
-
-		if ($module) {
-			return self::get_module_icon($module, attrs);
-		} else {
-			$themeObject = Utils::get_theme_object();
-			if (is_object($themeObject)) {
-				if (basename($icon) == $icon) $icon = 'icons'.DIRECTORY_SEPARATOR.'system'.DIRECTORY_SEPARATOR.$icon;
-				return $themeObject->DisplayImage($icon, '', '', '', null, $attrs);
-			}
-		}
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AdminTheme::get_icon'));
+		$themeObject = Utils::get_theme_object();
+		return $themeObject->get_icon($icon, $attrs);
 	}
 
 	/**
@@ -290,7 +214,7 @@ final class AdminUtils
 		$themeObject = Utils::get_theme_object();
 		if (!is_object($themeObject)) return;
 
-		$icon = self::get_icon('info', ['class'=>'cms_helpicon']);
+		$icon = $themeObject->get_icon('info', ['class'=>'cms_helpicon']);
 		if (!$icon) return;
 
 		$params = [];
@@ -346,14 +270,14 @@ final class AdminUtils
 	/**
 	 * Remove files from the website directories defined as
 	 * TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION
-	 * @since 2.3
+	 * @since 2.99
 	 *
 	 * @param $age_days Optional cache-item-modification threshold (days), 0 to whatever.
 	 *  Default 0 hence 'now'.
 	 */
 	public static function clear_cached_files(int $age_days = 0)
 	{
-		if (!AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_INSTALL)
+		if (!AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_ASYNC_JOB | AppState::STATE_INSTALL)
 		 || !defined('TMP_CACHE_LOCATION')) { // relevant permission(s) check too ?
 			$name = __METHOD__;
 			throw new ErrorException("Method $name may not be used");
@@ -361,7 +285,7 @@ final class AdminUtils
 
 		$age_days = max(0, $age_days);
 		HookOperations::do_hook('clear_cached_files', ['older_than' => $age_days]); //TODO BAD no namespace, some miscreant handler can change the parameter ...  deprecate?
-		Events::SendEvent('Core','ClearCachedFiles', ['older_than' => $age_days]); //since 2.9
+		Events::SendEvent('Core','ClearCachedFiles', ['older_than' => $age_days]); //since 2.99
 		$ttl = $age_days * 24 * 3600;
 		$the_time = time() - $ttl;
 		$dirs = array_unique([TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION]);
@@ -394,7 +318,7 @@ final class AdminUtils
 	 * for changing a page's parent.
 	 *
 	 * This method uses the CMSMS jQuery hierselector widget.
-	 * @since 2.9 This method was migrated from the ContentOperations class
+	 * @since 2.99 This method was migrated from the ContentOperations class
 	 *
 	 * @param int The id of the content object we are working with. Default 0.
 	 *   Used with $allow_current to ignore this object and its descendants.
@@ -427,8 +351,8 @@ final class AdminUtils
 		$elemtitle = lang('title_hierselect');
 		$popuptitle = lang('title_hierselect_select');
 		$selected = (int)$selected;
-		$user_id = get_userid(false);
-		$modify_all = check_permission($user_id,'Manage All Content') || check_permission($user_id,'Modify Any Page');
+		$userid = get_userid(false);
+		$modify_all = check_permission($userid,'Manage All Content') || check_permission($userid,'Modify Any Page');
 		$script_url = cms_get_script('jquery.cmsms_hierselector.js');
 
 		$opts = [];
