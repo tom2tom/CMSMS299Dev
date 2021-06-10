@@ -31,7 +31,7 @@ define('CMS_SCHEMA_VERSION', $CMS_SCHEMA_VERSION);
 $config = AppConfig::get_instance();
 
 /**
- * Where private cachable files can be written.
+ * Where cachable system files can be written.
  */
 define('TMP_CACHE_LOCATION',$config['tmp_cache_location']);
 
@@ -41,7 +41,9 @@ define('TMP_CACHE_LOCATION',$config['tmp_cache_location']);
 define('TMP_TEMPLATES_C_LOCATION',$config['tmp_templates_c_location']);
 
 /**
- * Where public (browsable) cachable files can be written.
+ * Where cachable non-system files can be written.
+ * Distinct from TMP_CACHE_LOCATION to support distinct
+ * ACL/permissions e.g. module-specific or user-specific
  */
 define('PUBLIC_CACHE_LOCATION',$config['public_cache_location']);
 
