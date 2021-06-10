@@ -1,24 +1,29 @@
 <?php
-#procedure for displaying details about the website and its operating environment
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure for displaying details about the website and its operating environment
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Error403Exception;
 use CMSMS\NlsOperations;
 use CMSMS\SystemCache;
 use CMSMS\Utils;
@@ -37,11 +42,11 @@ $themeObject = Utils::get_theme_object();
 
 if (!$access) {
 //TODO some pushed popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
-    return;
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 $selfurl = basename(__FILE__);
 
-require_once cms_join_path(dirname(__DIR__), 'lib', 'test.functions.php');
+require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
 /*
 function installerHelpLanguage($lang, $default_null=null)
 {
@@ -81,7 +86,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-	add_page_foottext($out);
+    add_page_foottext($out);
 }
 
 // smarty
@@ -89,23 +94,23 @@ $smarty = AppSingle::Smarty();
 $smarty->registerPlugin('function', 'si_lang', function($params, $smarty)
 {
     if ($params) {
-		$str = array_shift($params);
-		if ($str) {
-	        return lang($str, $params);
-		}
+        $str = array_shift($params);
+        if ($str) {
+            return lang($str, $params);
+        }
     }
 });
 $smarty->force_compile = true;
 
-$smarty->assign('themename', $themeObject->themeName)
- ->assign('backurl', $themeObject->BackUrl())
- ->assign('sysinfurl', $selfurl)
-
-// Default help url TODO a const somewhere, to support revision
- ->assign('cms_install_help_url', 'https://docs.cmsmadesimple.org/installation/installing/permissions-and-php-settings')
-
-// CMSMS install information
- ->assign('cms_version', $GLOBALS['CMS_VERSION']);
+$smarty->assign([
+  'themename' => $themeObject->themeName,
+  'backurl' => $themeObject->BackUrl(),
+  'sysinfurl' => $selfurl,
+  // Default help url TODO a const somewhere, to support revision
+  'cms_install_help_url' => 'https://docs.cmsmadesimple.org/installation/installing/permissions-and-php-settings',
+  // CMSMS install information
+  'cms_version' => CMS_VERSION,
+]);
 
 $db = AppSingle::Db();
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules WHERE active=1';
@@ -254,7 +259,7 @@ $tmp[0]['session_use_cookies'] = testBoolean(0, 'session.use_cookies', 'session.
 $tmp[0]['xml_function'] = testBoolean(1, 'xml_function', extension_loaded_or('xml'), '', false, false, 'Function_xml_disabled');
 $tmp[0]['xmlreader_class'] = testBoolean(1, 'xmlreader_class', class_exists('XMLReader', false), '', false, false, 'class_xmlreader_unavailable');
 
-#$tmp[1]['file_get_contents'] = testBoolean(0, 'file_get_contents', function_exists('file_get_contents'), '', false, false, 'Function_file_get_content_disabled');
+//$tmp[1]['file_get_contents'] = testBoolean(0, 'file_get_contents', function_exists('file_get_contents'), '', false, false, 'Function_file_get_content_disabled');
 
 $_log_errors_max_len = (ini_get('log_errors_max_len')) ? ini_get('log_errors_max_len').'0' : '99';
 ini_set('log_errors_max_len', $_log_errors_max_len);
@@ -311,8 +316,14 @@ $tmp[0]['server_os'] = testDummy('', PHP_OS . ' ' . php_uname('r') .' '. lang('o
 //switch ($config['dbms']) {
 // case 'mysqli':
    $v = $db->GetOne('SELECT version()');
-   $tmp[0]['server_db_type'] = testDummy('', 'MySQL ('./*$config['dbms']*/'mysqli)', '');
-   $_server_db = (false === strpos($v, '-')) ? $v : substr($v, 0, strpos($v, '-'));
+   if (($p = strpos($v, '-')) === false) {
+       $_server_db = $v;
+       $_server_type = 'MySQL (assumed)';
+   } else {
+       $_server_db = substr($v, 0, $p);
+       $_server_type = substr($v, $p+1);
+   }
+   $tmp[0]['server_db_type'] = testDummy('', $_server_type.' ('./*$config['dbms']*/'mysqli)', '');
    list($minimum, $recommended) = getTestValues('mysql_version');
    $tmp[0]['server_db_version'] = testVersionRange(0, 'server_db_version', $_server_db, '', $minimum, $recommended, false);
 
@@ -355,20 +366,30 @@ $tmp[0]['modules'] = testMultiDirWrite(0, 'Module directories', cms_module_place
 $dir = $config['uploads_path'];
 $tmp[0]['uploads'] = testDirWrite(0, $dir, $dir);
 
-$global_umask = AppParams::get('global_umask', '022');
+$global_umask = AppParams::get('global_umask');
+if ($global_umask === '') {
+    $allmode = get_server_permissions()[3]; // read + write + access/exec for files or dirs
+    $global_umask = substr(decoct(~$allmode), 0, 3);
+} elseif ($global_umask[0] !== '0') {
+    $global_umask = substr(decoct((int)$global_umask), 0, 3); // OR ,4?
+}
+if ($global_umask[0] !== '0') {
+    $global_umask = '0'.$global_umask;
+}
 $tmp[0][lang('global_umask')] = testUmask(0, lang('global_umask'), $global_umask);
 
 $result = is_writable(CONFIG_FILE_LOCATION);
-#$tmp[1]['config_file'] = testFileWritable(0, lang('config_writable'), CONFIG_FILE_LOCATION, '');
+//$tmp[1]['config_file'] = testFileWritable(0, lang('config_writable'), CONFIG_FILE_LOCATION, '');
 $tmp[0]['config_file'] = testDummy('', substr(sprintf('%o', fileperms(CONFIG_FILE_LOCATION)), -4), (($result) ? 'red' : 'green'), (($result) ? lang('config_writable') : ''));
 
-$smarty->assign('count_permission_info', count($tmp[0]))
- ->assign('permission_info', $tmp)
+$smarty->assign([
+    'count_permission_info' =>  count($tmp[0]),
+    'permission_info' =>  $tmp,
+    'selfurl' =>  $selfurl,
+    'urlext' =>  $urlext,
+ ]);
 
- ->assign('selfurl', $selfurl)
- ->assign('urlext', $urlext);
-
-if (!empty($_GET['cleanreport'])) {
+if (isset($_GET['cleanreport']) && $_GET['cleanreport'] == 1) {
     $orig_lang = NlsOperations::get_current_language();
     NlsOperations::set_language('en_US');
     $content = $smarty->fetch('systeminfo.txt.tpl');
@@ -377,6 +398,7 @@ if (!empty($_GET['cleanreport'])) {
     $content = $smarty->fetch('systeminfo.tpl');
 }
 
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";
