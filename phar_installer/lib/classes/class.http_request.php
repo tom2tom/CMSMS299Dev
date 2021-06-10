@@ -807,17 +807,18 @@ class http_request
                 curl_setopt($ch, CURLOPT_HEADER, true);            // No need of headers
 */
             }
-            curl_setopt($ch, CURLOPT_NOBODY, false);               // Return body
-            curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);     // Timeout
-            curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent); // Webbot name
-            curl_setopt($ch, CURLOPT_URL, $this->target);          // Target site
-            curl_setopt($ch, CURLOPT_REFERER, $this->referrer);    // Referer value
-
-            curl_setopt($ch, CURLOPT_VERBOSE, false);              // Minimize logs
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);       // No certificate
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->redirect);// Follow redirects
-            curl_setopt($ch, CURLOPT_MAXREDIRS, $this->maxRedirect);  // Limit redirections to four
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);           // Return in string
+            curl_setopt_array($ch, [
+             CURLOPT_NOBODY => false,               // Return body
+             CURLOPT_TIMEOUT => $this->timeout,     // Timeout
+             CURLOPT_USERAGENT => $this->userAgent, // Webbot name
+             CURLOPT_URL => $this->target,          // Target site
+             CURLOPT_REFERER => $this->referrer,    // Referer value
+             CURLOPT_VERBOSE => false,              // Minimize logs
+             CURLOPT_SSL_VERIFYPEER => false,       // No certificate
+             CURLOPT_FOLLOWLOCATION => $this->redirect,// Follow redirects
+             CURLOPT_MAXREDIRS => $this->maxRedirect,  // Limit redirections to four
+             CURLOPT_RETURNTRANSFER => true,           // Return in string
+            ]);
 
             // Get the target contents
             $content = curl_exec($ch);
@@ -838,7 +839,7 @@ class http_request
                 $this->_parseHeaders($tmp[0]);
             }
 
-            // Get the request info
+            // Get the request info (unused)
             $status  = curl_getinfo($ch);
 
             // Store the error (is any)
@@ -847,22 +848,22 @@ class http_request
             // Close PHP cURL handle
             curl_close($ch);
         } else {
-            // Get a file pointer
-            $filePointer = @stream_socket_client($this->_socket, $errorNumber, $errorString, $this->timeout);
+            // Get a handle
+            $streamResource = @stream_socket_client($this->_socket, $errorNumber, $errorString, $this->timeout);
 
             // We have an error if pointer is not there
-            if (!$filePointer) {
+            if (!$streamResource) {
                 $this->_setError('Failed opening http socket connection: ' . $errorString . ' (' . $errorNumber . ')');
                 return false;
             }
 
             // Set http headers with host, user-agent and content type
-            $this->addRequestHeader($this->method .' '. $this->path. '  HTTP/1.1', true);
+            $this->addRequestHeader($this->method .' '. $this->path. ' HTTP/1.1', true);
             $this->addRequestHeader('Host: ' . $this->host);
             $this->addRequestHeader('Accept: */*');
             $this->addRequestHeader('User-Agent: ' . $this->userAgent);
             if (!$this->requestHeaderExists('Content-Type')) {
-                $this->addRequestHeader('Content-Type: application/x-www-form-urlencoded');
+                $this->addRequestHeader('Content-Type: text/html; charset=UTF-8');
             }
 
             // Specify the custom cookies
@@ -895,8 +896,7 @@ class http_request
             }
 
             // We're ready to launch
-            fwrite($filePointer, $requestHeader);
-
+            fwrite($streamResource, $requestHeader);
 
             // Clean the slate
             $responseHeader = '';
@@ -905,14 +905,15 @@ class http_request
             // 3...2...1...Launch !
             $n = 0;
             do {
-                $responseHeader .= fread($filePointer, 1);
-            } while (!preg_match('/\\r\\n\\r\\n$/', $responseHeader) && !feof($filePointer));
+                $responseHeader .= fread($streamResource, 1);
+            } while (!preg_match('/\\r\\n\\r\\n$/', $responseHeader) && !feof($streamResource));
 
             // Parse the headers
             $this->_parseHeaders($responseHeader);
 
             // Do we have a 301/302 redirect ?
             if (($this->status == '301' || $this->status == '302') && $this->redirect == true) {
+                stream_socket_shutdown($streamResource, STREAM_SHUT_RDWR);
                 if ($this->curRedirect < $this->maxRedirect) {
                     // Let's find out the new redirect URL
                     $newUrlParsed = parse_url($this->headers['location']);
@@ -942,27 +943,27 @@ class http_request
             } else {
                 // Nope...so lets get the rest of the contents (non-chunked)
                 if (!isset($this->headers['transfer-encoding']) || $this->headers['transfer-encoding'] != 'chunked') {
-                    while (!feof($filePointer)) {
-                        $responseContent .= fgets($filePointer, 128);
+                    while (!feof($streamResource)) {
+                        $responseContent .= fgets($streamResource, 128);
                     }
                 } else {
                     // Get the contents (chunked)
-                    while (!feof($filePointer) && $chunkLength = hexdec(fgets($filePointer))) {
+                    while (!feof($streamResource) && $chunkLength = hexdec(fgets($streamResource))) {
                         $responseContentChunk = '';
                         $readLength = 0;
 
                         while ($readLength < $chunkLength) {
-                            $responseContentChunk .= fread($filePointer, $chunkLength - $readLength);
+                            $responseContentChunk .= fread($streamResource, $chunkLength - $readLength);
                             $readLength = strlen($responseContentChunk);
                         }
 
                         $responseContent .= $responseContentChunk;
-                        fgets($filePointer);
+                        fgets($streamResource);
                     }
                 }
-
+                stream_socket_shutdown($streamResource, STREAM_SHUT_RDWR);
                 // Store the target contents
-                $this->result = chop($responseContent);
+                $this->result = rtrim($responseContent);
             }
         }
 
