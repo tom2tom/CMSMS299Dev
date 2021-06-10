@@ -16,16 +16,15 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CmsException;
 use CMSMS\AppState;
 use CMSMS\DeprecationNotice;
 use CMSMS\SysDataCacheDriver;
-use UnexpectedValueException;
+use RuntimeException;
 use const CMS_DEPREC;
 
 /**
@@ -120,13 +119,13 @@ class SysDataCache
      *
      * @param string $type
      * @return mixed
-     * @throws UnexpectedValueException if $type is not a recorded/cachable type
+     * @throws RuntimeException if $type is not a recorded/cachable type
      */
     public function get(string $type)
     {
         //if( !isset($this->_types[$type]) ) return; //DEBUG
         if( !isset($this->_types[$type]) ) {
-           throw new UnexpectedValueException('Unknown cache-data type: '.$type);
+            throw new RuntimeException('Unknown cache-data type: '.$type); // not a Throwable?
         }
         if( !is_array($this->_data) ) {
             $this->_load();
