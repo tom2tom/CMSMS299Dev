@@ -1,21 +1,24 @@
 <?php
-#Class for handling and dispatching events
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class for handling and dispatching events
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CMSModule;
@@ -27,7 +30,7 @@ use CMSMS\SysDataCacheDriver;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function debug_buffer;
-use function lang;
+use function lang_by_realm;
 
 /**
  * Class for handling and dispatching system and other defined events.
@@ -176,7 +179,7 @@ EOS;
 				  case 'U': //UDT
 					if (!empty($handler)) {
 						if ($mgr === null) {
-							$mgr = SimpleTagOperations::get_instance();
+							$mgr = UserTagOperations::get_instance();
 						}
 						debug_buffer($eventname.' event notice to user-plugin ' . $row['func']);
 						$mgr->DoEvent($handler, $originator, $eventname, $params); //CHECKME $handler for UDTfiles
@@ -199,9 +202,9 @@ EOS;
 					break;
 //				  case 'C': //callable
 				  default:
-					if (!empty($row['class']) && !empty($row['func'])) {
+					if ($handler && $row['class']) {
 						//TODO validate
-						$func = $row['class'].'::'.$row['func'];
+						$func = $row['class'].'::'.$handler;
 						call_user_func_array($func, [$originator, $eventname, $params]);
 					}
 					break;
@@ -216,19 +219,19 @@ EOS;
 
 	/**
 	 * Get a list of all sendable 'static' events
-	 * Unlike the cached events-data, here we also report the numbers of event-handlers
+	 * Unlike the cached events-data, here we also report the respective numbers
+	 * of event-handlers
 	 *
 	 * @return mixed array or false
 	 */
 	public static function ListEvents()
 	{
 		$db = AppSingle::Db();
-
 		$pref = CMS_DB_PREFIX;
 		$sql = <<<EOS
-SELECT e.*, COUNT(eh.event_id) AS usage_count FROM {$pref}events e
-LEFT OUTER JOIN {$pref}event_handlers eh ON e.event_id=eh.event_id
-GROUP BY e.event_id
+SELECT e.*, COALESCE(times,0) AS usage_count FROM {$pref}events e
+LEFT OUTER JOIN (SELECT event_id, COUNT(event_id) AS times FROM {$pref}event_handlers GROUP BY event_id) es
+ON e.event_id=es.event_id
 ORDER BY originator,event_name
 EOS;
 		$dbr = $db->Execute($sql);
@@ -254,7 +257,7 @@ EOS;
 	 */
 	public static function GetEventHelp(string $eventname) : string
 	{
-		return lang('event_help_'.strtolower($eventname));
+		return lang_by_realm('events', 'help_'.strtolower($eventname));
 	}
 
 	/**
@@ -265,7 +268,7 @@ EOS;
 	 */
 	public static function GetEventDescription(string $eventname) : string
 	{
-		return lang('event_desc_'.strtolower($eventname));
+		return lang_by_realm('events', 'desc_'.strtolower($eventname));
 	}
 
 	/**
@@ -275,13 +278,23 @@ EOS;
 	 * @param string $eventname The name of the event
 	 * @return mixed If successful, an array of arrays, each sub-array contains
 	 *  at least 'originator' 'event_name' 'class' 'func' 'type', plus others for static events
-	 *  If nothing is found, false is returned.
+	 *  If nothing is found, an empty array is returned.
 	 */
-	public static function ListEventHandlers(string $originator, string $eventname)
+	public static function ListEventHandlers(string $originator, string $eventname) : array
 	{
 		$handlers = [];
 		if (self::$_handlercache === null) {
-			self::$_handlercache = SysDataCache::get_instance()->get(self::class);
+			if (preg_match('/clear.*cache/i', $eventname)) {
+				//eventhandlers cache has probably been cleared, and an event reporting that has been immediatley initiated
+				self::setup();
+			}
+			$cache = SysDataCache::get_instance();
+			try {
+				self::$_handlercache = $cache->get(self::class);
+			} catch (Throwable $t) { // might fail without pre-check for setup!
+				self::setup();
+				self::$_handlercache = $cache->get(self::class);
+			}
 		}
 		if (self::$_handlercache) {
 			foreach (self::$_handlercache as $row) {
@@ -299,10 +312,7 @@ EOS;
 			}
 		}
 
-		if ($handlers) {
-			return $handlers;
-		}
-		return false;
+		return $handlers;
 	}
 
 	/**
@@ -326,7 +336,7 @@ EOS;
 	 * Record a handler of the specified event.
 	 * User Defined Tags may be event handlers, so that relevant admin users
 	 * can customize event handling on-the-fly.
-	 * @since 2.3
+	 * @since 2.99
 	 *
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
@@ -398,7 +408,7 @@ EOS;
 	 * Record a handler of the specified event.
 	 * User Defined Tags may be event handlers, so that relevant admin users
 	 * can customize event handling on-the-fly.
-	 * @deprecated since 2.3 Instead use AddStaticHandler()
+	 * @deprecated since 2.99 Instead use AddStaticHandler()
 	 *
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
@@ -426,7 +436,7 @@ EOS;
 	}
 
 	/**
-	 * @since 2.3
+	 * @since 2.99
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @param mixed $callback an actual or pseudo callable or an equivalent string
@@ -525,7 +535,7 @@ EOS;
 
 	/**
 	 * Remove a handler of the given event.
-	 * @deprecated since 2.3 Instead use RemoveStaticHandler()
+	 * @deprecated since 2.99 Instead use RemoveStaticHandler()
 	 *
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
