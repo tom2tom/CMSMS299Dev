@@ -775,7 +775,7 @@ final class JobOperations
         }
 
 /* DEBUG sync operation
-        $_GET['_jo_'] = 'ERFGerftg4'; //any rubbish 
+        $_GET['_jo_'] = 'ERFGerftg4'; //any rubbish
         $_GET[CMS_SECURE_PARAM_NAME.'job'] = '';
         $_GET[CMS_JOB_KEY] = 2;
         include_once CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'processjobs.php';
@@ -814,7 +814,7 @@ final class JobOperations
             $context = stream_context_create($opts); //, $params);
         }
 
-        $res = stream_socket_client($remote, $errno, $errstr, 1, STREAM_CLIENT_ASYNC_CONNECT, $context);
+        $res = stream_socket_client($remote, $errno, $errstr, 2, STREAM_CLIENT_ASYNC_CONNECT, $context);
         if ($res) {
 //            error_log('JobOperations: open stream '.$remote."\n", 3, $this->ASYNCLOG);
             $req = "GET $path HTTP/1.1\r\nHost: {$host}\r\nContent-type: text/plain\r\nContent-length: 0\r\nConnection: Close\r\n\r\n";
