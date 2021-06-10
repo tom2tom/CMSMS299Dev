@@ -411,6 +411,7 @@ $lang = [
 'filemanagerdescription' => 'Upload and manage files.',
 'filename' => 'Filename',
 'filenotuploaded' => 'File could not be uploaded. This could be a Permission or Safe Mode problem?',
+'file_uploads' => 'File uploads',
 'files_checksum_failed' => 'Files could not be checksummed',
 'files_failed' => 'Files failed md5sum check',
 'files_not_found' => 'Files not found',
