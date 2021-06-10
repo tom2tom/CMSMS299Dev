@@ -22,73 +22,70 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace ModuleManager;
 
-use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\Crypto;
 use CMSMS\HttpRequest;
 use CMSMS\Utils;
-use const TMP_CACHE_LOCATION;
 
 final class cached_request //was modmgr_cached_request
 {
   private $_status;
   private $_result;
-  private $_timeout;
-  private $_signature;
-
-  private function _getCacheFile()
-  {
-    if( $this->_signature ) {
-      return TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'modmgr_'.$this->_signature.'.dat';
-    }
-  }
+  private $_ttl = 5; // default cache lifetime (minutes)
+  private $_timeout = 0; // maximum request duration (secs)
 
   /**
    * Retrieve request-result from cache or else from a new request
    * @param string $target optional URL of the target page
    * @param array $data optional POST-parameters array
-   * @param mixed $age optional int or numeric string allowed cache-item age (secs)
+   * @param mixed $age optional int or numeric string allowed cache-item age (minutes)
    */
-  public function execute($target = '',$data = [], $age = '')
+  public function execute(string $target = '',array $data = [], $age = '')
   {
+    // build a cache key
+    $signature = Crypto::hash_string(serialize([$target,$data]));
+
     $mod = Utils::get_module('ModuleManager');
-    $config = AppSingle::Config();
-    if( !$age ) $age = AppParams::get('browser_cache_expiry',60);
-    if( $age ) $age = max(1,(int)$age);
-
-    // build a signature
-    $this->_signature = Crypto::hash_string(serialize([$target,$data]));
-    $fn = $this->_getCacheFile();
-    if( !$fn ) return;
-
-    // check for the cached file
-    $atime = time() - ($age * 60);
-    if( ($config['develop_mode'] && $mod->GetPreference('disable_caching',0)) ||
-        !file_exists($fn) || filemtime($fn) <= $atime ) {
-      // execute the request
-      $req = new HttpRequest();
-      if( $this->_timeout ) {
-          $req->setTimeout($this->_timeout);
-      }
-      $this->_result = $req->execute($target,'','POST',$data);
-      $this->_status = $req->getStatus();
-
-      @unlink($fn);
-      if( $this->_status == 200 ) {
-        // create a cache file
-        $fh = fopen($fn,'w');
-        fwrite($fh,serialize([$this->_status,$this->_result]));
-        fclose($fh);
+    $force = $mod->GetPreference('disable_caching',0);
+    if( !$force ) {
+      $val = AppSingle::SystemCache()->get($signature.'_set',self::class);
+      if( $val ) {
+        $limit = $age ? min(1,$age) : $this->_ttl;
+        $force = $limit > 0 && (time() > $val + $limit * 60);
       }
     }
-    else {
-      // get data from the cache.
-      $data = unserialize(file_get_contents($fn), ['allowed_classes'=>false]);
-      $this->_status = $data[0];
-      $this->_result = $data[1];
+    if( !$force ) {
+      $val = AppSingle::SystemCache()->get($signature,self::class);
+      if( $val ) {
+        $data = unserialize($val,['allowed_classes'=>false]);
+        $this->_status = $data[0];
+        $this->_result = $data[1];
+        return;
+      }
+    }
+    // execute the request
+    $req = new HttpRequest();
+    if( $this->_timeout ) {
+      $req->setTimeout($this->_timeout);
+    }
+    $this->_result = $req->execute($target,'','POST',$data);
+    $this->_status = $req->getStatus();
+
+    if( $this->_status == 200 ) {
+      $val = serialize([$this->_status,$this->_result]);
+      AppSingle::SystemCache()->set($signature,$val,self::class);
+      AppSingle::SystemCache()->set($signature.'_set',time(),self::class);
     }
   }
 
+  // @since 2.99 ?
+  // @param int $val minutes 0 .. 1440
+  public function setCacheLife($val)
+  {
+    $this->_timeout = max(0,min(1440,(int)$val)); // up to 24 hours
+  }
+
+  // @param int $val seconds 1 .. 1000
   public function setTimeout($val)
   {
     $this->_timeout = max(1,min(1000,(int)$val));
@@ -106,7 +103,6 @@ final class cached_request //was modmgr_cached_request
 
   public function clearCache()
   {
-    $fn = $this->_getCacheFile();
-    if( $fn ) @unlink($fn);
+    AppSingle::SystemCache()->clear(self::class);
   }
 } // class
