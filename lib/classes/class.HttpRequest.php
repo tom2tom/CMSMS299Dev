@@ -346,7 +346,7 @@ class HttpRequest
         $this->username     = '';
         $this->password     = '';
         $this->redirect     = false;
-        $this->result       = null;
+        $this->result       = '';
 
         // Set the cookie and agent defaults
         $this->nextToken    = '';
@@ -721,12 +721,12 @@ class HttpRequest
      */
     public function execute($target = '', $referrer = '', $method = '', $data = [])
     {
-        // Populate the properties
+        // Populate properties
         if ($target) $this->target = $target;
         if ($referrer) $this->referrer = $referrer;
         if ($method) $this->method = $method;
 
-        // Add the new params
+        // Add new params
         if ($data) {
             $this->params = array_merge($this->params, $data);
         }
@@ -757,7 +757,7 @@ class HttpRequest
         if ($urlParsed['scheme'] == 'https') {
             $this->port = ($this->port != 0) ? $this->port : 443;
             $this->_remote = 'ssl://'.$this->host.':'.$this->port; // OR tls://... ??
-/*            if internal-use only, skip verification
+/*          if internal-use only, skip verification
             $opts = [
             'ssl' => [
 //              'allow_self_signed' => true,
@@ -775,7 +775,7 @@ class HttpRequest
         } else {
             $this->port = ($this->port != 0) ? $this->port : 80;
             $this->_remote = 'tcp://'.$this->host.':'.$this->port;
-//            $ctx = stream_context_create();
+//          $ctx = stream_context_create();
         }
 
         // Finalize the target path
@@ -893,10 +893,10 @@ class HttpRequest
             curl_close($ch);
         } else {
             // Get a stream-handle
-            $streamResource = @stream_socket_client($this->_remote, $errorNumber, $errorString, $this->connecttime); //,  STREAM_CLIENT_CONNECT, $ctx);
+            $res = @stream_socket_client($this->_remote, $errorNumber, $errorString, $this->connecttime); //,  STREAM_CLIENT_CONNECT, $ctx);
 
             // error if handle N/A
-            if (!$streamResource) {
+            if (!$res) {
                 $this->_setError('Failed opening http socket connection: ' . $errorString . ' (' . $errorNumber . ')');
                 return false;
             }
@@ -937,15 +937,16 @@ class HttpRequest
             $this->addRequestHeader('Connection: close');
 
             // POST method configuration
-            $requestHeader = implode("\r\n", $this->headerArray)."\r\n\r\n";
-            if ($this->method == 'POST' && $queryString) {
-                $requestHeader .= $queryString;
+            $reqData = implode("\r\n", $this->headerArray)."\r\n\r\n";
+            if ($this->method == 'POST' && $queryString) { // TODO checkme parms for GET
+                $reqData .= $queryString;
             }
 
-            $responseContent = '';
             // We're ready to launch
-            fwrite($streamResource, $requestHeader);
-            $content = stream_get_contents($streamResource);
+            fwrite($res, $reqData);
+            $content = stream_get_contents($res);
+            stream_socket_shutdown($res, STREAM_SHUT_RDWR);
+
             if ($content) {
                 $tmp = explode("\r\n\r\n", $content);
                 for ($i = 0, $n = count($tmp); $i < $n; $i++) {
@@ -959,49 +960,44 @@ class HttpRequest
                 } else {
                     return '';
                 }
-                if (isset($tmp[1])) {
-                    // Store the contents
-					// TODO fix this hack: works around additional info returned via socket
-					// like NNN\nREALCONTENTS\n0
-					$val = rtrim($tmp[1], "\r\n 0"); // kill trailing line
-					$p = strpos($val, "\n");
-                    $responseContent = ltrim(substr($val, $p)); // kill leading line
-                }
-            } else {
-                 return '';
-            }
 
-            // Do we have a 301/302 redirect ?
-            if (($this->status == '301' || $this->status == '302') && $this->redirect == true) {
-                if ($this->curRedirect < $this->maxRedirect) {
-                    // Let's find out the new redirect URL
-                    $newUrlParsed = parse_url($this->headers['location']);
+                // Do we have a 301/302 redirect ?
+                if (($this->status == '301' || $this->status == '302') && $this->redirect) {
+                    if ($this->curRedirect < $this->maxRedirect) {
+                        // Let's find out the new redirect URL
+                        $newUrlParsed = parse_url($this->headers['location']);
 
-                    if ($newUrlParsed['host']) {
-                        $newTarget = $this->headers['location'];
+                        if ($newUrlParsed['host']) {
+                            $newTarget = $this->headers['location'];
+                        } else {
+                            $newTarget = $this->schema . '://' . $this->host . '/' . $this->headers['location'];
+                        }
+
+                        // Reset some of the properties
+                        $this->port   = 0;
+                        $this->status = 0;
+                        $this->params = [];
+                        $this->method = 'POST';
+                        $this->referrer = $this->target;
+
+                        // Increase the redirect counter
+                        $this->curRedirect++;
+
+                        // Let's go !
+                        $this->result = $this->execute($newTarget); // recurse
                     } else {
-                        $newTarget = $this->schema . '://' . $this->host . '/' . $this->headers['location'];
+                        $this->_setError('Too many redirects.');
+                        return '';
                     }
-
-                    // Reset some of the properties
-                    $this->port   = 0;
-                    $this->status = 0;
-                    $this->params = [];
-                    $this->method = 'POST';
-                    $this->referrer = $this->target;
-
-                    // Increase the redirect counter
-                    $this->curRedirect++;
-
-                    // Let's go !
-                    $this->result = $this->execute($newTarget); // recurse
-                } else {
-                    $this->_setError('Too many redirects.');
-                    return false;
+                } elseif (isset($tmp[1])) {
+                    // Store the contents
+                    // TODO fix this hack
+                    // work around format of content provided via socket, like
+                    // N[N...]<newline>REALCONTENTS<newline>0 where the leading number is prob. a hex btyelength of the content
+                    $val = rtrim($tmp[1], "\r\n 0"); // kill trailing line
+                    $p = strpos($val, "\n");
+                    $this->result = ltrim(substr($val, $p)); // kill leading line
                 }
-            } else {
-                // Store the target contents
-                $this->result = rtrim($responseContent);
             }
         }
         // There it is! We have it!! Return to base !!!
