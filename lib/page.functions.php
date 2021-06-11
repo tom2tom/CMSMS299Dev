@@ -19,23 +19,32 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
+namespace {
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\AuditOperations;
 use CMSMS\CoreCapabilities;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\FileTypeHelper;
 use CMSMS\FormUtils;
+use CMSMS\IMultiEditor;
 use CMSMS\internal\ModulePluginOperations;
-use CMSMS\MultiEditor;
 use CMSMS\NlsOperations;
 use CMSMS\RequestParameters;
 use CMSMS\RichEditor;
 use CMSMS\RouteOperations;
 use CMSMS\Url;
 use CMSMS\Utils;
+use function CMSMS\execSpecialchars;
+use function CMSMS\get_entparms;
+use function CMSMS\htmlentities_decode;
+use function CMSMS\htmlentities;
+use function CMSMS\specialchars_decode;
+use function CMSMS\specialchars;
+use function CMSMS\urlencode;
 
 /**
  * Miscellaneous support functions which are dependent on this CMSMS
@@ -183,22 +192,22 @@ function get_userid(bool $redirect = true)
     $config = AppSingle::Config();
 //    if (!$config['app_mode']) { MAYBE IN FUTURE
 /* MAYBE IN FUTURE        if (cmsms()->is_cli()) {
-            $uname = get_cliuser();
-            if ($uname) {
-                $user = AppSingle::UserOperations()->LoadUserByUsername($uname);
-                if ($user) {
-                    return $user->id;
-                }
+        $uname = get_cliuser();
+        if ($uname) {
+            $user = AppSingle::UserOperations()->LoadUserByUsername($uname);
+            if ($user) {
+                return $user->id;
             }
-            return null;
         }
+        return null;
+    }
 */
-        // TODO alias etc during 'remote admin'
-        $userid = AppSingle::LoginOperations()->get_effective_uid();
-        if (!$userid && $redirect) {
-            redirect($config['admin_url'].'/login.php');
-        }
-        return $userid;
+    // TODO alias etc during 'remote admin'
+    $userid = AppSingle::LoginOperations()->get_effective_uid();
+    if (!$userid && $redirect) {
+        redirect($config['admin_url'].'/login.php');
+    }
+    return $userid;
 //    }
 //    return 1; //CHECKME is the super-admin the only possible user in app mode ? if doing remote admin?
 }
@@ -219,12 +228,12 @@ function get_username(bool $redirect = true)
             return get_cliuser();
         }
 */
-        //TODO alias etc during 'remote admin'
-        $uname = AppSingle::LoginOperations()->get_effective_username();
-        if (!$uname && $redirect) {
-            redirect($config['admin_url'].'/login.php');
-        }
-        return $uname;
+    //TODO alias etc during 'remote admin'
+    $uname = AppSingle::LoginOperations()->get_effective_username();
+    if (!$uname && $redirect) {
+        redirect($config['admin_url'].'/login.php');
+    }
+    return $uname;
 //    }
 //    return ''; //no username in app mode
 }
@@ -294,7 +303,7 @@ function restricted_cms_permissions() : array
  *
  * @since 0.1
  * @param int $userid The user id
- * @param varargs $perms Since 2.8 This may be a single permission-name string,
+ * @param varargs $perms Since 2.99 This may be a single permission-name string,
  *  or an array of such string(s), all members of which are to be 'OR'd,
  *  unless there's a following true-valued parameter, in which case those
  *  members are to be 'AND'd
@@ -349,10 +358,10 @@ function author_pages(int $userid)
 function redirect(string $to)
 {
     $app = AppSingle::App();
-/* MAYBE IN FUTURE  if ($app->is_cli()) {
-        die("ERROR: no redirect on cli-based scripts ---\n");
-    }
-*/
+    /* MAYBE IN FUTURE  if ($app->is_cli()) {
+            die("ERROR: no redirect on cli-based scripts ---\n");
+        }
+    */
     $_SERVER['PHP_SELF'] = null;
     //TODO generally support the websocket protocol 'wss' : 'ws'
     $schema = ($app->is_https_request()) ? 'https' : 'http';
@@ -665,9 +674,9 @@ function get_secure_param() : string
         $out = '?';
         if (!ini_get_boolean('session.use_cookies')) {
             //PHP constant SID is unreliable, we recreate it
-            $out .= cms_urlencode(session_name().'='.session_id()).'&';
+            $out .= urlencode(session_name().'='.session_id()).'&';
         }
-        $out .= cms_urlencode(CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
+        $out .= urlencode(CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
         return $out;
     }
     return '';
@@ -772,83 +781,17 @@ function cms_relative_path(string $in, string $relative_to = null) : string
 }
 
 /**
- * Gets PHP flag corresponding to the configured 'content_language' i.e. the
- * preferred language/syntax for page-content
- *
- * @since 2.99
- * @return PHP flag
- */
-function cms_preferred_lang() : int
-{
-    $val = str_toupper(AppSingle::Config()['content_language']);
-    switch ($val) {
-        case 'HTML5':
-            return ENT_HTML5;
-        case 'HTML':
-            return ENT_HTML401; //a.k.a. 0
-        case 'NONE':
-            return 0;
-        default:
-            return ENT_XHTML;
-    }
-}
-
-static $deflang = 0;
-static $defenc = '';
-// custom bitflag to trigger execSpecialchars() during cms_htmlentities() and cms_specialchars()
-define('ENT_EXEC', 2<<15); //something compatible with PHP's ENT_* enum values
-
-/**
- * Tailors parameters for entity conversion
- * @internal
- * @since 2.99
- *
- * @param int    $flags   Bit-flag(s) indicating how htmlentities() etc should handle quotes etc.
- *  0 is treated as ENT_QUOTES | ENT_ENT_SUBSTITUTE | ENT_EXEC (custom) | cms_preferred_lang().
- * @param string $charset Character set of processed string
- * @param bool   $convert_single_quotes Flag indicating whether single quotes
- *  should also be converted to/from entities
- *
- * @return 2-member array [0] = ENT* bitflags, [1] = characters' encoding
- */
-function get_entparms(int $flags, string $charset, bool $convert_single_quotes) : array
-{
-    global $deflang, $defenc;
-
-    if ($flags === 0) {
-        $flags = ($convert_single_quotes) ? ENT_QUOTES : ENT_COMPAT;
-        $flags |= ENT_SUBSTITUTE;
-    }
-    if ($flags & (ENT_HTML5 | ENT_XHTML | ENT_HTML401) == 0) {
-        if ($deflang === 0) {
-            $deflang = cms_preferred_lang();
-        }
-        $flags |= $deflang;
-    }
-    if ($convert_single_quotes) {
-        $flags &= ~(ENT_COMPAT | ENT_NOQUOTES);
-    }
-
-    if (!$charset) {
-        if ($defenc === '') {
-            $defenc = NlsOperations::get_encoding();
-        }
-        $charset = $defenc;
-    }
-    return [$flags, $charset];
-}
-
-/**
  * Performs HTML entity conversion on the supplied value
  * Normally this is for mitigating risk (XSS) from a string to be displayed
  * in the browser
+ * @deprecated since 2.99 Instead use CMSMS\htmlentities()
  *
- * @see htmlentities (which handles over 10000 values)
- * @see execSpecialchars() (which handles execution risks)
+ * @see CMSMS\htmlentities (which handles over 10000 values)
+ * @see CMSMS\execSpecialchars(), CSMS\escape_sql() (which handle execution risks)
  *
  * @param mixed  $val     The input variable string | null
  * @param int    $flags   Optional bit-flag(s) indicating how htmlentities() should handle quotes etc.
- *  Default 0, hence ENT_QUOTES | ENT_ENT_SUBSTITUTE | ENT_EXEC (custom) | cms_preferred_lang().
+ *  Default 0, hence ENT_QUOTES | ENT_ENT_SUBSTITUTE | ENT_EXEC (custom) | preferred_lang().
  * @param string $charset Optional character set of $val. Default 'UTF-8'.
  *  If empty the system setting will be used.
  * @param bool   $convert_single_quotes Optional flag indicating whether
@@ -858,31 +801,22 @@ function get_entparms(int $flags, string $charset, bool $convert_single_quotes) 
  */
 function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
 {
-    if ($val === '' || $val === null) {
-        return '';
-    }
-
-    if ($flags === 0 || $flags & ENT_EXEC) {
-        // munge risky-bits
-        $val = execSpecialchars($val);
-        $flags &= ~ENT_EXEC;
-    }
-
-    list($flags, $charset) = get_entparms($flags, $charset, $convert_single_quotes);
-    return htmlentities($val, $flags, $charset, false);
+    assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\htmlentities'));
+    return CMSMS\htmlentities($val, $flags, $charset, $convert_single_quotes);
 }
 
 /**
  * Performs HTML entity reversion on the supplied value
- * Normally this is for reversing changes applied by [cms_]htmlentities(),
+ * Normally this is for reversing changes applied by [CMSMS\]htmlentities(),
  * prior to displaying the value. Reversion to its 'real' content is then
  * needed before processing (for validation, interpretation, storage etc)
+ * @deprecated since 2.99 Instead use CMSMS\htmlentities_decode()
  *
- * @see html_entity_decode
+ * @see CMSMS\htmlentities_decode
  *
  * @param mixed $val     The input variable string | null
  * @param int   $flags   @since 2.99 Optional bit-flag(s) indicating how html_entity_decode() should handle quotes etc.
- *  Default 0, hence ENT_QUOTES | cms_preferred_lang().
+ *  Default 0, hence ENT_QUOTES | preferred_lang().
  * @param string $charset @since 2.99 Optional character set of $val. Default 'UTF-8'.
  *  If empty, the system setting will be used.
  *
@@ -890,140 +824,8 @@ function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool 
  */
 function cms_html_entity_decode($val, int $flags = 0, string $charset = 'UTF-8') : string
 {
-    if ($val === '' || $val === null) {
-        return '';
-    }
-
-    list($flags, $charset) = get_entparms($flags, $charset, true);
-    return html_entity_decode($val, $flags, $charset);
-}
-
-/**
- * Convert some chars (& " ' < >), if they exist in the supplied value, to HTML entities.
- * This preserves those characters' meaning without disturbing page
- * elements|layout displayed in the browser. It is also for mitigating XSS risk.
- *
- * @since 2.99
- * @see htmlspecialchars
- * @see execSpecialchars() (which handles execution risks)
- *
- * @param mixed  $val     The input variable string | null
- * @param int    $flags   Optional bit-flag(s) indicating how htmlspecialchars() should handle quotes etc.
- *  Default 0, hence ENT_QUOTES | ENT_ENT_SUBSTITUTE | ENT_EXEC (custom) | cms_preferred_lang().
- * @param string $charset Optional character set of $val. Default 'UTF-8'.
- *  If empty the system setting will be used.
- * @param bool   $convert_single_quotes Optional flag indicating whether
- *  single quotes should be converted to entities. Default false.
- *
- * @return the converted string
- */
-function cms_specialchars($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
-{
-    if ($val === '' || $val === null) {
-        return '';
-    }
-
-    if ($flags === 0 || $flags & ENT_EXEC) {
-        // munge risky-bits
-        $val = execSpecialchars($val);
-        $flags &= ~ENT_EXEC;
-    }
-
-    list($flags, $charset) = get_entparms($flags, $charset, $convert_single_quotes);
-    return htmlspecialchars($val, $flags, $charset, false);
-}
-
-/**
- * Performs HTML special chars reversion on the supplied value
- * Normally this is for reversing changes applied by (cms_|html)specialchars(),
- * prior to displaying the value. Reversion to its 'real' content is then
- * needed before processing (for validation, interpretation, storage etc)
- *
- * @since 2.99
- * @see htmlspecialchars_decode
- *
- * @param mixed $val   The input variable string | null
- * @param int   $flags Optional bit-flag(s) indicating how html_entity_decode() should handle quotes etc.
- *  Default 0, hence ENT_QUOTES | cms_preferred_lang().
- *
- * @return the converted string
- */
-function cms_specialchars_decode($val, int $flags = 0) : string
-{
-    if ($val === '' || $val === null) {
-        return '';
-    }
-
-    global $defenc;
-
-    list($flags, ) = get_entparms($flags, $defenc, true);
-    return htmlspecialchars_decode($val, $flags);
-}
-
-/**
- * Performs HTML special chars reversion on string-values in the specified array
- * @since 2.99
- * @see cms_specialchars_decode
- *
- * @param array $arr   The inputs array, often $_POST etc
- * @param int   $flags Optional bit-flag(s) indicating how html_entity_decode() should handle quotes etc.
- *  Default 0, hence ENT_QUOTES | cms_preferred_lang().
- */
-function cms_specialchars_decode_array(array &$arr, int $flags = 0)
-{
-    foreach ($arr as &$val) {
-        if (is_string($val && !is_numeric($val))) {
-            $val = cms_specialchars_decode($val, $flags);
-        }
-    }
-    unset($val);
-}
-
-/**
- * Cleanup, and if it's risky, munge, the 'path' component of the supplied URL.
- * Note: this will disable trusted as well as untrusted 'scriptish' URL's,
- * so apply with discretion!
- * @since 2.99
- *
- * @param string $url
- * @return string
- */
-function urlSpecialchars(string $url) : string
-{
-    $url_ob = new Url(cms_html_entity_decode($url));
-    $p = $url_ob->get_path();
-    if (strpos($p, 'base64') !== false) {
-        $parts = explode(',', $p);
-        foreach ($parts as &$s) {
-            if (strpos($s, 'base64') === false) {
-                $t = base64_decode($s);
-                if ($t) {
-                    $q = execSpecialchars($t);
-                    if ($q != $t) {
-                        $s = $t;
-                    }
-                }
-            }
-        }
-        unset($s);
-        $q = implode(',', $parts);
-        if ($p != $q) {
-            // TODO maybe these should handle embedded whitespace
-            $url_ob->set_path(str_replace(['/html','image/',';base64','base64'], ['/plain','text/plain;','',''], $q));
-        }
-    } elseif (strpos($p, '%') !== false) {
-        $t = urldecode($p);
-        $s = execSpecialchars($t);
-        if ($s != $t) {
-            $url_ob->set_path(str_replace(['/html','image/'], ['/plain','text/plain;'], $t));
-        }
-    } else {
-        $s = execSpecialchars($p);
-        if ($s != $p) {
-            $url_ob->set_path(str_replace(['/html','image/'], ['/plain','text/plain;'], $p));
-        }
-    }
-    return (string)$url_ob;
+    assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\htmlentities_decode'));
+    return CMSMS\htmlentities_decode($val, $flags, $charset);
 }
 
 /**
@@ -1229,14 +1031,22 @@ EOS;
  */
 function get_best_file($places, $target, $ext, $as_url)
 {
-    if (($p = stripos($target, 'min')) !== false) {
-        $base = substr($target, 0, $p - 1); //strip [.-]min & type-suffix
-    } elseif (($p = stripos($target, '.'.$ext)) !== false) {
+    $i = $p = 0;
+    while (($p = stripos($target, 'min', $p)) !== false) {
+        $i = $p;
+        ++$p;
+    }
+    if ($i > 0) {
+        if (stripos($target, '.'.$ext, $i) && $target[$i + 3] == '.' && (($c = $target[$i - 1]) == '.' || $c == '-' || $c == '_')) {
+            $base = substr($target, 0, $i - 1); //strip .min.type-suffix
+        } else {
+            $i = 0;
+        }
+    }
+    if ($i == 0 && ($p = stripos($target, '.'.$ext)) !== false) {
         $base = substr($target, 0, $p); //strip type-suffix
     }
-    $base = strtr($base, ['.' => '\\.', '-' => '\\-']);
-
-    $patn = '~^'.$base.'([.-](\d[\d\.]*))?([.-]min)?\.'.$ext.'$~i';
+    $patn = '~^'.addcslashes($base, '.-').'([.-](\d[\d\.]*))?([.-]min)?\.'.$ext.'$~i';
     foreach ($places as $base_path) {
         $allfiles = scandir($base_path);
         if ($allfiles) {
@@ -1336,7 +1146,9 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
  */
 function cms_admin_sendheaders($media_type = 'text/html', $charset = '')
 {
-    if (!$charset) { $charset = NlsOperations::get_encoding(); }
+    if (!$charset) {
+        $charset = NlsOperations::get_encoding();
+    }
     header("Content-Type: $media_type; charset=$charset");
 }
 
@@ -1598,7 +1410,7 @@ function get_syntaxeditor_setup(array $params) : array
         if ($modname) {
             $modinst = Utils::get_module($modname);
             if ($modinst) {
-                if ($modinst instanceof MultiEditor) {
+                if ($modinst instanceof IMultiEditor) {
                     $edname = $params['editor'] ?? $vars[1] ?? $modname;
                     if (empty($params['theme'])) {
                         $val = cms_userprefs::get_for_user($userid, 'syntax_theme');
@@ -1898,3 +1710,295 @@ function cms_error(string $msg, string $subject = '')
 {
     AppSingle::AuditOperations()->error($msg, $subject);
 }
+
+/**
+ * Chmod $path, and if it's a directory, all files and folders in it and descendants.
+ * @deprecated since 2.99 instead use recursive_chmod()
+ * @see recursive_chmod()
+ */
+function chmod_r(string $path, int $mode) : bool
+{
+    assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'recursive_chmod'));
+    return recursive_chmod($path, $mode, 0);
+}
+
+/**
+ * Munge a value to support verbatim inclusion of that value inside [x]html
+ * elements, and also to minimally hinder XSS and other nasty stuff when displayed.
+ * This has been applied in CMSMS to some received data prior to its storage
+ * and subsequent display without escaping. NOT a hugely attractive practice.
+ * This function does nothing for SQL-injection mitigation.
+ *
+ * @internal
+ * @deprecated since 2.99 Instead use CMSMS\sanitizeVal() for inputs,
+ *  CMSMS\specialchars() or CMSMS\htmlentities() for outputs,
+ *   maybe CMSMS\escape_sql()
+ * @param mixed $val input value
+ * @return string
+ */
+function cleanValue($val)
+{
+    assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\specialchars'));
+    return specialchars((string)$val, 0, '', true);
+}
+
+} // global namespace
+
+namespace CMSMS {
+
+static $deflang = 0;
+static $defenc = '';
+// custom bitflag to trigger CMSMS\execSpecialchars() during CMSMS\htmlentities() and CMSMS\specialchars()
+define('ENT_EXEC', 2 << 15); //something compatible with PHP's ENT_* enum values
+
+/**
+ * Tailors parameters for entity conversion
+ * @internal
+ * @since 2.99
+ *
+ * @param int    $flags   Bit-flag(s) indicating how htmlentities() etc should handle quotes etc.
+ *  0 is treated as ENT_QUOTES | ENT_ENT_SUBSTITUTE | ENT_EXEC (custom) | preferred_lang().
+ * @param string $charset Character set of processed string
+ * @param bool   $convert_single_quotes Flag indicating whether single quotes
+ *  should also be converted to/from entities
+ *
+ * @return 2-member array [0] = ENT* bitflags, [1] = characters' encoding
+ */
+function get_entparms(int $flags, string $charset, bool $convert_single_quotes) : array
+{
+    global $deflang, $defenc;
+
+    if ($flags === 0) {
+        $flags = ($convert_single_quotes) ? ENT_QUOTES : ENT_COMPAT;
+        $flags |= ENT_SUBSTITUTE;
+    }
+    if ($flags & (ENT_HTML5 | ENT_XHTML | ENT_HTML401) == 0) {
+        if ($deflang === 0) {
+            $deflang = preferred_lang();
+        }
+        $flags |= $deflang;
+    }
+    if ($convert_single_quotes) {
+        $flags &= ~(ENT_COMPAT | ENT_NOQUOTES);
+    }
+
+    if (!$charset) {
+        if ($defenc === '') {
+            $defenc = NlsOperations::get_encoding();
+        }
+        $charset = $defenc;
+    }
+    return [$flags, $charset];
+}
+
+/**
+ * Gets PHP enum corresponding to the configured 'content_language' i.e. the
+ * preferred language/syntax for page-content
+ *
+ * @since 2.99
+ * @return PHP enum value
+ */
+function preferred_lang() : int
+{
+    $val = str_toupper(AppSingle::Config()['content_language']);
+    switch ($val) {
+        case 'HTML5':
+            return ENT_HTML5;
+        case 'HTML':
+            return ENT_HTML401; //a.k.a. 0
+        case 'NONE':
+            return 0;
+        default:
+            return ENT_XHTML;
+    }
+}
+
+/**
+ * Performs HTML entity conversion on the supplied value
+ * Normally this is for mitigating risk (XSS) from a string to be displayed
+ * in the browser
+ *
+ * @see htmlentities (which handles over 10000 values)
+ * @see CMSMS\execSpecialchars() (which handles execution risks)
+ *
+ * @param mixed  $val     The input variable string | null
+ * @param int    $flags   Optional bit-flag(s) indicating how htmlentities() should handle quotes etc.
+ *  Default 0, hence ENT_QUOTES | ENT_ENT_SUBSTITUTE | ENT_EXEC (custom) | preferred_lang().
+ * @param string $charset Optional character set of $val. Default 'UTF-8'.
+ *  If empty the system setting will be used.
+ * @param bool   $convert_single_quotes Optional flag indicating whether
+ *  single quotes should be converted to entities. Default false.
+ *
+ * @return the converted string
+ */
+function htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
+{
+    if ($val === '' || $val === null) {
+        return '';
+    }
+
+    if ($flags === 0 || $flags & ENT_EXEC) {
+        // munge risky-bits
+        $val = execSpecialchars($val);
+        $flags &= ~ENT_EXEC;
+    }
+
+    list($flags, $charset) = get_entparms($flags, $charset, $convert_single_quotes);
+    return \htmlentities($val, $flags, $charset, false);
+}
+
+/**
+ * Performs HTML entity reversion on the supplied value
+ * Normally this is for reversing changes applied by [CMSMS\]htmlentities(),
+ * prior to displaying the value. Reversion to its 'real' content is then
+ * needed before processing (for validation, interpretation, storage etc)
+ *
+ * @see html_entity_decode
+ *
+ * @param mixed $val     The input variable string | null
+ * @param int   $flags   @since 2.99 Optional bit-flag(s) indicating how html_entity_decode() should handle quotes etc.
+ *  Default 0, hence ENT_QUOTES | preferred_lang().
+ * @param string $charset @since 2.99 Optional character set of $val. Default 'UTF-8'.
+ *  If empty, the system setting will be used.
+ *
+ * @return the converted string
+ */
+function htmlentities_decode($val, int $flags = 0, string $charset = 'UTF-8') : string
+{
+    if ($val === '' || $val === null) {
+        return '';
+    }
+
+    list($flags, $charset) = get_entparms($flags, $charset, true);
+    return \html_entity_decode($val, $flags, $charset);
+}
+
+/**
+ * Convert some chars (& " ' < >), if they exist in the supplied value, to HTML entities.
+ * This preserves those characters' meaning without disturbing page
+ * elements|layout displayed in the browser. It is also for mitigating XSS risk.
+ *
+ * @since 2.99
+ * @see htmlspecialchars
+ * @see CMSMS\execSpecialchars() (which handles execution risks)
+ *
+ * @param mixed  $val     The input variable string | null
+ * @param int    $flags   Optional bit-flag(s) indicating how htmlspecialchars() should handle quotes etc.
+ *  Default 0, hence ENT_QUOTES | ENT_ENT_SUBSTITUTE | ENT_EXEC (custom) | preferred_lang().
+ * @param string $charset Optional character set of $val. Default 'UTF-8'.
+ *  If empty the system setting will be used.
+ * @param bool   $convert_single_quotes Optional flag indicating whether
+ *  single quotes should be converted to entities. Default false.
+ *
+ * @return the converted string
+ */
+function specialchars($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
+{
+    if ($val === '' || $val === null) {
+        return '';
+    }
+
+    if ($flags === 0 || $flags & ENT_EXEC) {
+        // munge risky-bits
+        $val = execSpecialchars($val);
+        $flags &= ~ENT_EXEC;
+    }
+
+    list($flags, $charset) = get_entparms($flags, $charset, $convert_single_quotes);
+    return \htmlspecialchars($val, $flags, $charset, false);
+}
+
+/**
+ * Performs HTML special chars reversion on the supplied value
+ * Normally this is for reversing changes applied by (cms_|html)specialchars(),
+ * prior to displaying the value. Reversion to its 'real' content is then
+ * needed before processing (for validation, interpretation, storage etc)
+ *
+ * @since 2.99
+ * @see htmlspecialchars_decode
+ *
+ * @param mixed $val   The input variable string | null
+ * @param int   $flags Optional bit-flag(s) indicating how html_entity_decode() should handle quotes etc.
+ *  Default 0, hence ENT_QUOTES | preferred_lang().
+ *
+ * @return the converted string
+ */
+function specialchars_decode($val, int $flags = 0) : string
+{
+    if ($val === '' || $val === null) {
+        return '';
+    }
+
+    global $defenc;
+
+    list($flags,) = get_entparms($flags, $defenc, true);
+    return \htmlspecialchars_decode($val, $flags);
+}
+
+/**
+ * Performs HTML special chars reversion on string-values in the specified array
+ * @since 2.99
+ * @see specialchars_decode
+ *
+ * @param array $arr   The inputs array, often $_POST etc
+ * @param int   $flags Optional bit-flag(s) indicating how html_entity_decode() should handle quotes etc.
+ *  Default 0, hence ENT_QUOTES | preferred_lang().
+ */
+function specialchars_decode_array(array &$arr, int $flags = 0)
+{
+    foreach ($arr as &$val) {
+        if (is_string($val && !is_numeric($val))) {
+            $val = specialchars_decode($val, $flags);
+        }
+    }
+    unset($val);
+}
+
+/**
+ * Cleanup, and if it's risky, munge, the 'path' component of the supplied URL.
+ * Note: this will disable trusted as well as untrusted 'scriptish' URL's,
+ * so apply with discretion!
+ * @since 2.99
+ *
+ * @param string $url
+ * @return string
+ */
+function urlSpecialchars(string $url) : string
+{
+    $url_ob = new Url(htmlentities_decode($url)); // not the native function
+    $p = $url_ob->get_path();
+    if (strpos($p, 'base64') !== false) {
+        $parts = explode(',', $p);
+        foreach ($parts as &$s) {
+            if (strpos($s, 'base64') === false) {
+                $t = base64_decode($s);
+                if ($t) {
+                    $q = execSpecialchars($t);
+                    if ($q != $t) {
+                        $s = $t;
+                    }
+                }
+            }
+        }
+        unset($s);
+        $q = implode(',', $parts);
+        if ($p != $q) {
+            // TODO maybe these should handle embedded whitespace
+            $url_ob->set_path(str_replace(['/html', 'image/', ';base64', 'base64'], ['/plain', 'text/plain;', '', ''], $q));
+        }
+    } elseif (strpos($p, '%') !== false) {
+        $t = urldecode($p);
+        $s = execSpecialchars($t);
+        if ($s != $t) {
+            $url_ob->set_path(str_replace(['/html', 'image/'], ['/plain', 'text/plain;'], $t));
+        }
+    } else {
+        $s = execSpecialchars($p);
+        if ($s != $p) {
+            $url_ob->set_path(str_replace(['/html', 'image/'], ['/plain', 'text/plain;'], $p));
+        }
+    }
+    return (string)$url_ob;
+}
+
+} // CMSMS namespace
