@@ -1,6 +1,6 @@
 <?php
 /*
-AdminSearch module action: ajax-processor to search database tables
+AdminSearch module action: ajax-processor to search database tables and display matches
 Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -20,52 +20,64 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use AdminSearch\tools;
+use AdminSearch\Tools;
+use CMSMS\UserParams;
 use CMSMS\Utils;
+use function CMSMS\htmlentities_decode;
 
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
 
-function utf8_urldecode($str)
-{
-    $str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode($str));
-    return html_entity_decode($str,null,'UTF-8');
-}
-
-// end/disable buffering
 $handlers = ob_list_handlers();
 for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 if( !isset($params['search_text']) || $params['search_text'] === '' ) {
-    echo '<p class="red">'.$this->Lang('error_nosearchtext').'</p>';
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('errorsearch.tpl')); //,null,null,$smarty);
+    $tpl->assign('message',$this->Lang('error_nosearchtext'));
+    $tpl->display();
     exit;
 }
 if( empty($params['slaves']) ) {
-    echo '<p class="red">'.$this->Lang('error_noscopes').'</p>';
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('errorsearch.tpl')); //,null,null,$smarty);
+    $tpl->assign('message',$this->Lang('error_noscopes'));
+    $tpl->display();
     exit;
 }
 
-// find search-slave classes
-$slaves = tools::get_slave_classes();
+// find relevant search-slave classes
+$slaves = Tools::get_slave_classes();
 if( $slaves ) {
-     // cache this search
+    // search-target was processed downstream by js encodeURIComponent()
+    $str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode($params['search_text']));
+    $text = htmlentities_decode($str); // TODO sanitize string e.g. CMSMS\cleanExec(), CMSMS\escape_sql()
+
+    // cache this search
     $searchparams = [
-     'search_text' => utf8_urldecode($params['search_text']),
+     'search_text' => $text,
      'slaves' => explode(',',$params['slaves']),
      'search_descriptions' => !empty($params['search_descriptions']),
-	];
+     'search_casesensitive' => !empty($params['case_sensitive']),
+     'verbatim_search' => !empty($params['verbatim_search']),
+     'save_search' => !empty($params['save_search']),
+    ];
     $userid = get_userid(false);
-    cms_userprefs::set_for_user($userid,$this->GetName().'saved_search',serialize($searchparams));
+    if( $searchparams['save_search'] ) {
+        UserParams::set_for_user($userid,$this->GetName().'saved_search',serialize($searchparams));
+    }
+    else {
+        UserParams::remove_for_user($userid,$this->GetName().'saved_search');
+    }
 
-	$types = $searchparams['slaves'];
-	unset($searchparams['slaves']);
+    $types = $searchparams['slaves'];
+    unset($searchparams['slaves']);
 
+    $casewarn = false;
     $sections = [];
     foreach( $slaves as $one_slave ) {
         if( !in_array($one_slave['class'],$types) ) {
             continue;
         }
-        //assume a module must be present for its associated classes to function ...
+
         $module = Utils::get_module($one_slave['module']);
         if( !is_object($module) ) {
             continue;
@@ -74,15 +86,21 @@ if( $slaves ) {
         if( !is_object($obj) ) {
             continue;
         }
-        if( !is_subclass_of($obj,'AdminSearch\\slave') ) {
+        if( !is_subclass_of($obj,'AdminSearch\\Base_slave') ) {
             continue;
         }
-        if( !$obj->check_permission() ) {
-            continue;
-        }
+//        if( !$obj->check_permission() ) { done downsteam
+//            continue;
+//        }
 
         $obj->set_params($searchparams);
+
         $results = $obj->get_matches();
+        if( !($searchparams['search_casesensitive'] || $searchparams['verbatim_search']) ) {
+            if( $obj->has_badchars() ) {
+                $casewarn = true;
+            }
+        }
         if( $results ) {
             $oneset = new stdClass();
             $oneset->id = $one_slave['class'];
@@ -91,14 +109,13 @@ if( $slaves ) {
             $oneset->count = count($results);
             $tmp = [];
             foreach( $results as $one ) {
-                $text = $one['text'] ?? '';
-                if( $text ) $text = addslashes($text);
+                $text = $one['text'] ?? ''; //aleady sanitized downstream
                 $url = $one['edit_url'] ?? '';
-                if( $url ) $url = str_replace('&amp;','&',$url);
+                if( $url ) { $url = str_replace('&amp;','&',$url); }
                 $tmp[] = [
-                 'description'=>$one['description'] ?? '',
+                 'description'=>$one['description'] ?? '', //TODO proper sanitize for display
                  'text'=>$text,
-                 'title'=>addslashes(str_replace(["\r\n","\r","\n"],[' ',' ',' '],$one['title'])),
+                 'title'=>addslashes(str_replace(["\r\n","\r","\n"],[' ',' ',' '],$one['title'])), //TODO proper sanitize for display
                  'url'=>$url,
                 ];
             }
@@ -108,15 +125,20 @@ if( $slaves ) {
     }
     if( $sections ) {
         $tpl = $smarty->createTemplate($this->GetTemplateResource('adminsearch.tpl')); //,null,null,$smarty);
+        if( $casewarn ) {
+            $tpl->assign('casewarn',$this->Lang('warn_casedchars'));
+        }
         $tpl->assign('sections',$sections);
-        $tpl->display();
     }
-	else {
-		echo '<p class="pageinput">'.$this->Lang('nomatch').'</p>';
-	}
+    else {
+        $tpl = $smarty->createTemplate($this->GetTemplateResource('infosearch.tpl')); //,null,null,$smarty);
+        $tpl->assign('message',$this->Lang('nomatch'));
+    }
 }
 else {
-	echo '<p class="red">'.$this->Lang('error_noslaves').'</p>';
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('infosearch.tpl')); //,null,null,$smarty);
+    $tpl->assign('message',$this->Lang('error_noslaves'));
 }
 
+$tpl->display();
 exit;

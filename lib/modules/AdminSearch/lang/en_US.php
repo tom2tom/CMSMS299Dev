@@ -8,7 +8,7 @@ $lang = [
 'desc_content_search' => 'Search for matching text in content pages',
 'desc_filter_all' => 'Toggle all filters',
 'desc_modtemplate_search' => 'Search for matching text in module templates',
-'desc_save_search' => 'Record current selections for use next time',
+'desc_save_search' => 'Record current selections for use in the next session',
 'desc_template_search' => 'Search for matching text in templates',
 'desc_udt_search' => 'Search for matching text in User Defined Tags',
 'desc_verbatim_search' => 'Do not try to convert UTF8-incompatible characters (if any), before searching',
@@ -57,7 +57,7 @@ EOS
 'moddescription' => 'Search the website database for specified text',
 
 // N
-'nomatch' => 'No matches were found',
+'nomatch' => 'No match was found',
 
 // P
 'perm_Use_Admin_Search' => 'Perform Database Searches',
@@ -70,11 +70,12 @@ EOS
 'search_text' => 'Search Text',
 'search_typed' => 'Search %s',
 'search_results' => 'Search Results',
-'sectiondesc_modtemplates' => 'Results in this section are not clickable, as each module provides its own Admin panel interface for editing templates',
+'sectiondesc_modtemplates' => 'Results in this section are not clickable, as each module provides its own Admin panel interface for editing templates.',
 'settings' => 'Settings',
 'starting' => 'Starting',
 
 // W
+'warn_casedchars' => 'Case insensitive searching is unreliable when the Search Text and/or the Search Scope include character(s) whose encoding is unknown. Aim to stay with UFT-8.',
 'warn_clickthru' => 'This will open another window. Canceling from that window might not return you to this page. Your search results might be lost.',
 
 ] + $lang;

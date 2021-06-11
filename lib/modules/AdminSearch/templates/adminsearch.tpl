@@ -1,3 +1,4 @@
+{if !empty($casewarn)}<p class="warning">{$casewarn}</p>{/if}
 <ul>
 {foreach $sections as $entry}
   <li class="section" id="sec_{$entry->id}">{$entry->lbl}&nbsp;(<span class="section_count">{$entry->count}</span>)
