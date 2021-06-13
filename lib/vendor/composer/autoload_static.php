@@ -7,27 +7,9 @@ namespace Composer\Autoload;
 class ComposerStaticInitd76362d29057916a9ff0c1a3806a68b5
 {
     public static $prefixLengthsPsr4 = array (
-        'P' => 
-        array (
-            'PhpParser\\' => 10,
-            'PSX\\Sandbox\\' => 12,
-            'PHPMailer\\PHPMailer\\' => 20,
-        ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'PhpParser\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/nikic/php-parser/lib/PhpParser',
-        ),
-        'PSX\\Sandbox\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psx/sandbox/src',
-        ),
-        'PHPMailer\\PHPMailer\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
-        ),
     );
 
     public static $classMap = array (
