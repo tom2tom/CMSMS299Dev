@@ -475,13 +475,13 @@ abstract class AdminTheme
             $usermoduleinfo = [];
             $modops = ModuleOperations::get_instance();
             $allmodules = $modops->GetInstalledModules();
-            foreach( $allmodules as $modname) {
+            foreach ($allmodules as $modname) {
                 $modinst = $modops->get_module_instance($modname);
                 if (is_object($modinst) && $modinst->HasAdmin()) {
                     $recs = $modinst->GetAdminMenuItems();
                     if ($recs) {
                         $sys = $modops->IsSystemModule($modname);
-                        foreach( $recs as &$one) {
+                        foreach ($recs as &$one) {
                             if (!$one->valid()) continue;
                             $nm = $one->name ?? '';
                             if (!$nm) {
@@ -548,7 +548,7 @@ abstract class AdminTheme
                 ['icons','icon-small.gif'],
             ];
 
-            foreach( $usermoduleinfo as $obj) {
+            foreach ($usermoduleinfo as $obj) {
                 if (empty($obj->section)) {
                      $obj->section = 'extensions';
 /* PRESERVE ORIGINAL APPROACH
@@ -565,9 +565,9 @@ abstract class AdminTheme
                     // find the 'best' icon
                     $modname = $obj->module;
                     $dirs = cms_module_places($modname);
-                    foreach( $dirs as $base) {
+                    foreach ($dirs as $base) {
                         if ($this->_smallicons) {
-                            foreach( $smallappends as $one) {
+                            foreach ($smallappends as $one) {
                                 $path = cms_join_path($base, ...$one);
                                 if (is_file($path)) {
                                     $obj->icon = cms_path_to_url($path);
@@ -575,7 +575,7 @@ abstract class AdminTheme
                                 }
                             }
                         }
-                        foreach( $appends as $one) {
+                        foreach ($appends as $one) {
                             $path = cms_join_path($base, ...$one);
                             if (is_file($path)) {
                                 $obj->icon = cms_path_to_url($path);
@@ -760,7 +760,7 @@ abstract class AdminTheme
         $items = [];
         require_once cms_join_path(CMS_ADMIN_PATH, 'configs', 'method.adminmenu.php');
 
-        foreach( $menucontent as $item) {
+        foreach ($menucontent as $item) {
             $val = ( !empty($item['url'])) ? $item['url'] : (($item['parent']!= null) ? 'menu.php' : '');
             if ($val) { //not the root node
                 if (!(strpos($val, '://') > 0 || strpos($val, '//') === 0)) {
@@ -808,23 +808,24 @@ abstract class AdminTheme
 
         // merge module-related items, if any
         $this->_SetModuleAdminInterfaces();
-        foreach( $this->_modules as $key => $obj) {
-            $item = ['parent' => null] + $obj->get_all(); //may include 'icon' (a file url or false)
-            $item['parent'] = (!empty($item['section'])) ? $item['section'] : 'extensions';
-            unset($item['section']);
-            $item['title'] = $this->_FixSpaces($item['title']);
-            $item['final'] = true;
-            $item['show_in_menu'] = true;
-            $items[] = $item;
+        if ($this->_modules) {
+            foreach ($this->_modules as $key => $obj) {
+                $item = ['parent' => null] + $obj->get_all(); //may include 'icon' (a file url or false)
+                $item['parent'] = (!empty($item['section'])) ? $item['section'] : 'extensions';
+                unset($item['section']);
+                $item['title'] = $this->_FixSpaces($item['title']);
+                $item['final'] = true;
+                $item['show_in_menu'] = true;
+                $items[] = $item;
+            }
         }
-
         $tree = ArrayTree::load_array($items);
 //        $col = new Collator(TODO);
         $iter = new RecursiveArrayTreeIterator(
                 new ArrayTreeIterator($tree),
                 RecursiveIteratorIterator::SELF_FIRST | RecursiveArrayTreeIterator::NONLEAVES_ONLY
                );
-        foreach( $iter as $key => $value) {
+        foreach ($iter as $key => $value) {
             if (!empty($value['children'])) {
                 $node = ArrayTree::node_get_data($tree, $value['path'], '*');
                 uasort($node['children'], function($a,$b) use ($value) { //use $col
@@ -888,7 +889,7 @@ abstract class AdminTheme
                 new ArrayTreeIterator($tree),
                 RecursiveIteratorIterator::CHILD_FIRST
                );
-        foreach( $iter as $value) {
+        foreach ($iter as $value) {
             $depth = $iter->getDepth();
             if ($depth == 0) continue;
             if (empty($value['children'])) {
@@ -1051,7 +1052,7 @@ abstract class AdminTheme
             $this->_breadcrumbs = [];
             $urls = ArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'url');
             $titles = ArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'title');
-            foreach( $urls as $key => $value) {
+            foreach ($urls as $key => $value) {
                 $this->_breadcrumbs[] = [
                     'url' => $value,
                     'title' => $titles[$key],
@@ -1138,7 +1139,7 @@ abstract class AdminTheme
     {
 /* TODO array-tree interrogation
         $displayableChildren=false;
-        foreach( $this->_menuItems[$section]['children'] as $one) {
+        foreach ($this->_menuItems[$section]['children'] as $one) {
             $thisItem = $this->_menuItems[$one];
             if ($thisItem['show_in_menu']) {
                 $displayableChildren = true;
@@ -1301,7 +1302,7 @@ EOS;
             if (!$this->_fontimages) {
                 unset($exts[0]);
             }
-            foreach( $exts as $type) {
+            foreach ($exts as $type) {
                 $path = $base.$fn.$type;
                 if (is_file($path)) {
                     if ($type != 'i') {
@@ -1330,7 +1331,7 @@ EOS;
         if ($type == 'i') {
             $props = parse_ini_file($path, false, INI_SCANNER_TYPED);
             if ($props) {
-                foreach( $props as $key => $value) {
+                foreach ($props as $key => $value) {
                     if (isset($attrs[$key])) {
                         if (is_numeric($value) || is_bool($value)) {
                             continue; //supplied attrib prevails
@@ -1388,7 +1389,7 @@ EOS;
             break;
         }
 
-        foreach( $extras as $key => $value) {
+        foreach ($extras as $key => $value) {
             if ($value !== '' || $key == 'title') {
                 $res .= " $key=\"$value\"";
             }
@@ -1452,7 +1453,7 @@ EOS;
     {
         if ($get_var && !empty($_GET[$get_var])) {
             if (is_array($_GET[$get_var])) {
-                foreach( $_GET[$get_var] as $one) {
+                foreach ($_GET[$get_var] as $one) {
                     if ($one) {
                         $store[] = lang(sanitizeVal($one));
                     }
@@ -1700,7 +1701,7 @@ EOS;
         $res = [];
         $files = glob(cms_join_path(CMS_ADMIN_PATH,'themes','*','*Theme.php'),GLOB_NOESCAPE);
         if ($files) {
-            foreach( $files as $one) {
+            foreach ($files as $one) {
                 if (is_readable($one)) {
                     $name = basename($one,'Theme.php');
                     $res[$name] = ($fullpath) ? $one : $name;
@@ -1785,10 +1786,10 @@ EOS;
                 new ArrayTreeIterator($nodes),
                 RecursiveIteratorIterator::SELF_FIRST | RecursiveArrayTreeIterator::NONLEAVES_ONLY
                );
-        foreach( $iter as $key => $value) {
+        foreach ($iter as $key => $value) {
         }
 */
-        foreach( $nodes as $name=>$node) {
+        foreach ($nodes as $name=>$node) {
             if (!$node['show_in_menu'] || empty($node['url'])) {
                 continue; // only visible stuff
             }
@@ -1802,7 +1803,7 @@ EOS;
             }
 
             if ($node['children']) {
-                foreach( $node['children'] as $childname=>$one) {
+                foreach ($node['children'] as $childname=>$one) {
                     if ($name == 'home' || $name == 'logout' || $name == 'viewsite') {
                         continue;
                     }
