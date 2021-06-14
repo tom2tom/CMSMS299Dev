@@ -697,6 +697,111 @@ function get_secure_param_array() : array
     return $out;
 }
 
+/**
+ * Return $value if it's set and the same basic type as $default.
+ * Otherwise return $default. Note: this trim()'s $value if it's not numeric.
+ * @deprecated since 2.99
+ * @internal
+ * @ignore
+ *
+ * @param mixed $value
+ * @param mixed $default Optional default value to return. Default ''.
+ * @param string $session_key Optional key for retrieving the default value from $_SESSION[]. Default ''
+ * @return mixed
+ */
+function _get_value_with_default($value, $default = '', $session_key = '')
+{
+    if ($session_key != '') {
+        if (isset($_SESSION['default_values'][$session_key])) {
+            $default = $_SESSION['default_values'][$session_key];
+        }
+    }
+
+    // set our return value to the default initially and overwrite with $value if we like it.
+    $return_value = $default;
+
+    if (isset($value)) {
+        if (is_array($value)) {
+            // $value is an array - validate each element.
+            $return_value = [];
+            foreach ($value as $element) {
+                $return_value[] = _get_value_with_default($element, $default); // recurse
+            }
+        } else {
+            if (is_numeric($default)) {
+                if (is_numeric($value)) {
+                    $return_value = $value;
+                }
+            } else {
+                $return_value = trim($value);
+            }
+        }
+    }
+
+    if ($session_key != '') {
+        $_SESSION['default_values'][$session_key] = $return_value;
+    }
+    return $return_value;
+}
+
+/**
+ * Retrieve a (scalar or array) value from the supplied $parameters array.
+ * Returns $_SESSION['parameter_values'][$session_key] if $key is not in
+ *  $parameters and $_SESSION['parameter_values'][$session_key] exists.
+ * Returns $default if $key is not in $parameters and $session_key is not
+ *  specified or $_SESSION['parameter_values'][$session_key] does not exist.
+ * There is little point in using this func without a $session_key
+ * Note: This function trim()'s string values.
+ * @deprecated since 2.99 Do not rely on fallback to $_SESSION values.
+ *
+ * @param array $parameters
+ * @param string $key The wanted member of $parameters
+ * @param mixed $default Optional default value to return. Default ''.
+ * @param string $session_key Optional key for retrieving the default value from $_SESSION[]. Default ''
+ * @return mixed string | strings[]
+ */
+function get_parameter_value(array $parameters, string $key, $default = '', string $session_key = '')
+{
+    assert(empty(CMS_DEPREC), new DeprecationNotice('php', 'like $parameters[$key] ?? $default'));
+
+    if ($session_key) {
+        if (isset($_SESSION['parameter_values'][$session_key])) {
+            $default = $_SESSION['parameter_values'][$session_key];
+        }
+    }
+
+    // set our return value to the default initially and overwrite with $parameters value if we like it.
+    $return_value = $default;
+    if (isset($parameters[$key])) {
+        if (is_bool($default)) {
+            // want a bool return_value
+            if (isset($parameters[$key])) {
+                $return_value = cms_to_bool((string)$parameters[$key]);
+            }
+        } elseif (is_numeric($default)) {
+            // default value is a number, we only like $parameters[$key] if it's a number too.
+            if (is_numeric($parameters[$key])) {
+                $return_value = $parameters[$key] + 0;
+            }
+        } elseif (is_string($default)) {
+            $return_value = trim($parameters[$key]);
+        } elseif (is_array($parameters[$key])) {
+            // $parameters[$key] is an array - validate each element.
+            $return_value = [];
+            foreach ($parameters[$key] as $element) {
+                $return_value[] = _get_value_with_default($element, $default);
+            }
+        } else {
+            $return_value = $parameters[$key];
+        }
+    }
+
+    if ($session_key) {
+        $_SESSION['parameter_values'][$session_key] = $return_value;
+    }
+    return $return_value;
+}
+
 /* * NOT YET
  * Adds a content-security-policy header for the current page, and returns a
  * security-policy nonce for use in on-page javascripts.
@@ -801,7 +906,7 @@ function cms_relative_path(string $in, string $relative_to = null) : string
  */
 function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
 {
-    assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\htmlentities'));
+    assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\\htmlentities'));
     return CMSMS\htmlentities($val, $flags, $charset, $convert_single_quotes);
 }
 
@@ -824,7 +929,7 @@ function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool 
  */
 function cms_html_entity_decode($val, int $flags = 0, string $charset = 'UTF-8') : string
 {
-    assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\htmlentities_decode'));
+    assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\\htmlentities_decode'));
     return CMSMS\htmlentities_decode($val, $flags, $charset);
 }
 
@@ -1003,6 +1108,8 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
  */
 function cms_get_jquery(string $exclude = '', bool $ssl = false, bool $cdn = false, string $append = '', string $custom_root = '', bool $include_css = true)
 {
+    assert(empty(CMS_DEPREC), new DeprecationNotice('Gather page content via hook function or smarty tag', ''));
+
     $incs = cms_installed_jquery(true, false, true, $include_css);
     if ($include_css) {
         $url1 = cms_path_to_url($incs['jquicss']);
@@ -1594,7 +1701,7 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
             print_r($var);
         } elseif (is_string($var)) {
             if ($use_html) {
-                print_r(htmlentities(str_replace("\t", '  ', $var)));
+                print_r(\htmlentities(str_replace("\t", '  ', $var)));
             } else {
                 print_r($var);
             }
@@ -1718,7 +1825,7 @@ function cms_error(string $msg, string $subject = '')
  */
 function chmod_r(string $path, int $mode) : bool
 {
-    assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'recursive_chmod'));
+    assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'recursive_chmod'));
     return recursive_chmod($path, $mode, 0);
 }
 
@@ -1738,7 +1845,7 @@ function chmod_r(string $path, int $mode) : bool
  */
 function cleanValue($val)
 {
-    assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\specialchars'));
+    assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\\specialchars'));
     return specialchars((string)$val, 0, '', true);
 }
 
@@ -1927,6 +2034,14 @@ function specialchars_decode($val, int $flags = 0) : string
 {
     if ($val === '' || $val === null) {
         return '';
+    }
+
+    if ($flags === 0 || $flags & ENT_EXEC) {
+        // reverse execSpecialchars() i.e. de-munge risky-bits
+        $val = preg_replace_callback('/&#(\d+);/g', function($matches) {
+            return chr($matches[1]);
+        }, $val);
+        $flags &= ~ENT_EXEC;
     }
 
     global $defenc;
