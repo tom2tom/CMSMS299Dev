@@ -270,6 +270,7 @@ abstract class Base_slave
     {
 //TODO ensure that it does not split multi-byte chars
 //TODO case-sensitivity, UTF8 conversion (if wanted & possible)
+//TODO use wordwrap() if sensible
         $p = max(0, $haypos - 25);
         $pre = substr($haystack, $p, $haypos - $p); //TODO whole-chars if mb
         if ($pre) {
