@@ -280,8 +280,8 @@ $lang['no'] = 'No';
 $lang['none'] = 'None';
 
 // O
-$lang['open_basedir'] = 'open_basedir is disabled ?';
 $lang['open_basedir_session_save_path'] = 'open_basedir is in enabled. Cannot test session save path.';
+$lang['open_basedir'] = 'open_basedir is disabled ?';
 $lang['output_buffering'] = 'Output buffering is enabled ?';
 
 // P
@@ -313,11 +313,11 @@ $lang['prompt_dbport'] = 'Database Port Number';
 $lang['prompt_dbprefix'] = 'Database Table Name Prefix';
 $lang['prompt_dbuser'] = 'Database User';
 $lang['prompt_dir'] = 'Installation Directory';
-$lang['prompt_plugspath'] = 'Site Plugins-Folder';
-$lang['prompt_supporturl'] = 'Custom Support-URL';
 $lang['prompt_installcontent'] = 'Sample Content';
+$lang['prompt_plugspath'] = 'Site Plugins-Folder';
 $lang['prompt_queryvar'] = 'Page-Query Variable';
 $lang['prompt_sitename'] = 'Web Site Name';
+$lang['prompt_supporturl'] = 'Custom Support-URL';
 $lang['prompt_timezone'] = 'Web-Server Timezone';
 $lang['pwd_writable'] = 'Directory Writeable';
 
@@ -382,7 +382,11 @@ $lang['test_warning'] = 'A setting is above the required value, but below the re
 $lang['th_status'] = 'Status';
 $lang['th_testname'] = 'Test';
 $lang['th_value'] = 'Value';
+$lang['title_api_docs'] = 'Official API Documentation';
+$lang['title_docs'] = 'Official Documentation';
 $lang['title_error'] = 'Houston, we have a problem!';
+$lang['title_forum'] = 'Support Forum';
+$lang['title_share'] = 'Share your experience with your friends.';
 $lang['title_step2'] = 'Step 2 - Detect pre-existing contents';
 $lang['title_step3'] = 'Step 3 - Tests';
 $lang['title_step4'] = 'Step 4 - Configuration Information';
@@ -391,20 +395,17 @@ $lang['title_step6'] = 'Step 6 - Site Administrator Information';
 $lang['title_step7'] = 'Step 7 - Install Files';
 $lang['title_step8'] = 'Step 8 - CMSMS Infrastructure';
 $lang['title_step9'] = 'Step 9 - Finish';
+$lang['title_warning'] = 'The omens are not entirely good!';
 $lang['title_welcome'] = 'Welcome';
-$lang['title_forum'] = 'Support Forum';
-$lang['title_docs'] = 'Official Documentation';
-$lang['title_api_docs'] = 'Official API Documentation';
-$lang['to'] = 'to';
-$lang['title_share'] = 'Share your experience with your friends.';
-$lang['tmpfile'] = 'tmpfile() method is available ?';
 $lang['tmp_dirs_empty'] = 'Temporary directories are empty or absent ?';
+$lang['tmpfile'] = 'tmpfile() method is available ?';
+$lang['to'] = 'to';
 
 // U
-$lang['upgrade'] = 'Upgrade';
 $lang['upgrade_deleteoldevents'] = 'Delete old events';
 $lang['upgrade_deletetable'] = 'Deleted old table %s';
 $lang['upgrade_modifytable'] = 'Modified table %s';
+$lang['upgrade'] = 'Upgrade';
 $lang['upgrading_schema'] = 'Update database schema';
 $lang['upload_max_filesize'] = 'Maximum size of uploaded files is sufficient ?';
 $lang['username'] = 'Login/Account';
