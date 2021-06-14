@@ -324,6 +324,9 @@ class DeprecationNotice extends AssertionError
             case 'parameter':
             case 'property':
             $msg = 'Instead use '.$type.' '.$replace;
+			break;
+			case 'php':
+            $msg = 'Instead use code '.$replace;
             default:
             $msg = $type;
         }
