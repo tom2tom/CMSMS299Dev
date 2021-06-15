@@ -9,12 +9,17 @@ class ComposerStaticInit761e0cd0b509946f5f906763270c2fa4
     public static $prefixLengthsPsr4 = array (
         's' => 
         array (
+            'StupidPass\\' => 11,
             'splitbrain\\PHPArchive\\' => 22,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'splitbrain\\PHPArchive\\' => 
+        'StupidPass\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/northox/stupid-password/src',
+        ),
+        'splitbrain\\PHPArchive\\' =>
         array (
             0 => __DIR__ . '/..' . '/splitbrain/php-archive/src',
         ),
