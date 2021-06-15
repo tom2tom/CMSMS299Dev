@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -87,17 +87,21 @@ class Crypto
 	 *
 	 * @param string $raw the string to be processed
 	 * @param string $passwd Optional password
-	 * @param string $crypter optional crypt-mode 'sodium' | 'openssl' | 'best' | anything else
+	 * @param string $crypter optional crypt-mode 'sodium' | 'openssl' | 'best' | anything else e.g. 'internal'
 	 * @return string
 	 */
 	public static function encrypt_string(string $raw, string $passwd = '', string $crypter = 'best')
 	{
 		if ($passwd === '') {
-			$str = str_replace(['/','\\'],['',''],__DIR__);
-			$passwd = substr($str,strlen(CMS_ROOT_PATH)); //not site- or filesystem-specific
+			$str = substr(__DIR__,strlen(CMS_ROOT_PATH));
+			$passwd = strtr($str,['/'=>'','\\'=>'']); //not site- or filesystem-specific
 		}
 
-		$crypter = self::check_crypter($crypter);
+		try {
+			$crypter = self::check_crypter($crypter);
+		} catch (Throwable $t) {
+			return ''; //TODO
+		}
 		switch ($crypter) {
 		case 'sodium':
 			$localpw = CMS_ROOT_URL.self::class;
@@ -135,11 +139,15 @@ class Crypto
 	{
 		if ($raw === '') return $raw;
 		if ($passwd === '') {
-			$str = str_replace(['/','\\'],['',''],__DIR__);
-			$passwd = substr($str,strlen(CMS_ROOT_PATH)); //not site- or filesystem-specific
+			$str = substr(__DIR__,strlen(CMS_ROOT_PATH));
+			$passwd = strtr($str,['/'=>'','\\'=>'']); //not site- or filesystem-specific
 		}
 
-		$crypter = self::check_crypter($crypter);
+		try {
+			$crypter = self::check_crypter($crypter);
+		} catch (Throwable $t) {
+			return ''; //TODO
+		}
 		switch ($crypter) {
 		case 'sodium':
 			$localpw = CMS_ROOT_URL.self::class;
