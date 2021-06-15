@@ -42,7 +42,8 @@ class StupidPass
     private $dict = null; // Path to the dictionary
     private $environ = array(); // Array of 'environmental' info such as the name of the company.
     private $lang = array(
-        'length' => 'Password must be between %s and %s characters inclusively',
+        'length' => 'Password length must be between %s and %s characters inclusively',
+        'minlength' => 'Password length must be at least %s characters',
         'upper' => 'Password must contain at least one uppercase character',
         'lower' => 'Password must contain at least one lowercase character',
         'numeric' => 'Password must contain at least one numeric character',
@@ -152,8 +153,13 @@ class StupidPass
     private function length()
     {
         $passLen = strlen($this->original);
-        if ($passLen < $this->minlen || ($this->maxlen > 0 && $passLen > $this->maxlen)) {
-            $err = sprintf($this->lang['length'], $this->minlen, ($this->maxlen ? $this->maxlen : 'anything bigger than '.$this->maxlen));
+        if ($this->maxlen > 0) {
+            if ($passLen < $this->minlen || $passLen > $this->maxlen) {
+                $err = sprintf($this->lang['length'], $this->minlen, $this->maxlen);
+                $this->errors[] = $err;
+            }
+        } elseif ($passLen < $this->minlen) {
+            $err = sprintf($this->lang['minlength'], $this->minlen);
             $this->errors[] = $err;
         }
     }
@@ -199,7 +205,6 @@ class StupidPass
             foreach ($this->pass as $pass) {
                 if (preg_match("/$env/i", $pass) == 1) {
                     $this->errors[] = $this->lang['environ'];
-
                     return;
                 }
             }
@@ -210,11 +215,11 @@ class StupidPass
     {
         /*
         Password strength validation rules, adapted from Plesk Onyx and Obsidian:
-         Length between 8 and 15 gains 24 points.
+         Length at least 8 gains 14 points.
          Length at least 16 gains 6 points.
          At least one lower-case letter 'a'..'z' gains 1 point.
          At least one upper-case letter 'A'..'Z' gains 5 points.
-         At least one byte > 0x80 gains 10 points, if such bytes are not disabled.
+         At least one byte > 0x80 gains 5 points, if such bytes are not disabled.
          At least one number gains 5 points.
          At least three numbers gains 5 points.
          At least one non-word char e.g. " ! @ # $ % ^ & * ? _ ~ gains 5 points.
@@ -223,9 +228,10 @@ class StupidPass
          Letter(s) plus number(s) gains 2 points.
          Letter(s) plus number(s) plus non-word char(s) gains 2 points.
         */
-        $passLen = strlen($this->original); // ok to treat multi-byte chars as bytes, here
-        if ($passLen >= $this->minlen + 8) { $strength = 30; }
-        elseif ($passLen >= $this->minlen) { $strength = 24; }
+        $pass = $this->original;
+        $passLen = strlen($pass); // ok to treat multi-byte chars as bytes, here
+        if ($passLen >= $this->minlen + 8) { $strength = 20; }
+        elseif ($passLen >= $this->minlen) { $strength = 14; }
         else { $strength = 0; }
 
         $cs = preg_match_all('/[\W_]/', $pass);
@@ -244,7 +250,7 @@ class StupidPass
         if ($cu) { $strength += 5; }
         if (!in_array('non-ascii', $this->options['disable'])) {
             $cb = preg_match_all('/[0x80-0xff]/', $pass);
-            if ($cb) { $strength += 10; }
+            if ($cb) { $strength += 5; }
         } else {
             $cb = 0;
         }
@@ -268,25 +274,25 @@ class StupidPass
         $s = $this->options['strength'];
         /*
         If the sum of points is:
-         less than 15, the password is Very Weak.
-         between 15 and 24, it is Weak.
-         between 25 and 34, it is Medium.
-         between 35 and 44, it is Strong.
-         more than 45, it is Very Strong.
+         less than 5, the password is Very Weak.
+         between 5 and 14, it is Weak.
+         between 15 and 24, it is Medium.
+         between 25 and 34, it is Strong.
+         more than 34, it is Very Strong.
         */
         switch ($s) {
             case 'Weak':
-                if ($strength < 15) {
+                if ($strength < 5) {
                     $this->errors[] = sprintf($this->lang['strength'], $s);
                 }
                 break;
             case 'Medium':
-                if ($strength < 25) {
+                if ($strength < 15) {
                     $this->errors[] = sprintf($this->lang['strength'], $s);
                 }
                 break;
             case 'Strong':
-                if ($strength < 35) {
+                if ($strength < 25) {
                     $this->errors[] = sprintf($this->lang['strength'], $s);
                 }
                 break;
@@ -294,7 +300,7 @@ class StupidPass
                 $s = 'Very Strong';
                 // no break here
             case 'Very Strong':
-                if ($strength < 45) {
+                if ($strength < 35) {
                     $this->errors[] = sprintf($this->lang['strength'], $s);
                 }
                 break;
