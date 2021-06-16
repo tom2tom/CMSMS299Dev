@@ -352,10 +352,10 @@ class StupidPass
         );
         $map = array();
         $pass_array = str_split(strtolower($this->original));
-        foreach ($pass_array as $i => $char) {
-            $map[$i][] = $char;
+        foreach ($pass_array as $i => $ch) {
+            $map[$i][] = $ch;
             foreach ($leet as $pattern => $replace) {
-                if ($char === (string)$pattern) {
+                if ($ch === (string)$pattern) {
                     for ($j = 0, $c = count($replace); $j < $c; $j++) {
                         $map[$i][] = $replace[$j];
                     }
@@ -365,23 +365,23 @@ class StupidPass
         $this->pass = $this->expand($map);
     }
 
-    // expand all possible password recursively
+    // expand all possible passwords recursively
 
     private function expand(&$map, $old = array(), $index = 0)
     {
-        $new = array();
-        foreach ($map[$index] as $char) {
+        $xtras = array();
+        foreach ($map[$index] as $ch) {
             $c = count($old);
             if ($c == 0) {
-                $new[] = $char;
+                $xtras[] = $ch;
             } else {
                 for ($i = 0; $i < $c; $i++) {
-                    $new[] = @$old[$i] . $char;
+                    $xtras[] = @$old[$i] . $ch;
                 }
             }
         }
         unset($old);
-        $r = ($index == count($map) - 1) ? $new : $this->expand($map, $new, $index + 1);
+        $r = ($index == count($map) - 1) ? $xtras : $this->expand($map, $xtras, $index + 1);
 
         return $r;
     }
