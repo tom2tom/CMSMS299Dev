@@ -1,0 +1,27 @@
+{
+    "name": "northox/stupid-password",
+    "description": "Provides a simple way of preventing user from using easy to guess/bruteforce password.",
+    "keywords": [
+        "password",
+        "security"
+    ],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Danny Fullerton"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "StupidPass\\": ["src/"]
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "StupidPass\\Tests\\": ["tests/"]
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    }
+}

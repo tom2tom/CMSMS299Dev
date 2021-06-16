@@ -57,5 +57,49 @@
         "keywords": [
             "templating"
         ]
+    },
+    {
+        "name": "northox/stupid-password",
+        "version": "v2.0",
+        "version_normalized": "2.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/northox/stupid-password.git",
+            "reference": "e9f018e74d704ab2f20c8e62142220c5fdc60ef4"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/northox/stupid-password/zipball/e9f018e74d704ab2f20c8e62142220c5fdc60ef4",
+            "reference": "e9f018e74d704ab2f20c8e62142220c5fdc60ef4",
+            "shasum": ""
+        },
+        "require-dev": {
+            "phpunit/phpunit": "3.7.*"
+        },
+        "time": "2018-11-24T16:52:46+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "StupidPass\\": [
+                    "src/"
+                ]
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Danny Fullerton"
+            }
+        ],
+        "description": "Provides a simple way of checking for easy-to-guess/bruteforce password.",
+        "keywords": [
+            "password",
+            "security"
+        ],
+        "abandoned": true
     }
 ]
