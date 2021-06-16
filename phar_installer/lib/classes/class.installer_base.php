@@ -131,7 +131,7 @@ abstract class installer_base
         $p = joinpath(dirname(__DIR__), 'BackupSmartyAutoloader.php');
         require_once $p;
         Smarty_Autoloader::register();
-        $p = joinpath(__DIR__, 'vendor', 'autoload.php');
+        $p = joinpath(dirname(__DIR__), 'vendor', 'autoload.php');
         require_once $p;
 
         // get the session
