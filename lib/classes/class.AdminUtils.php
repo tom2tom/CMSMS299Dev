@@ -86,8 +86,9 @@ final class AdminUtils
 	/**
 	 * Test if a string is suitable for use as a name of an item in CMSMS.
 	 * For use by various modules and the core.
-	 * The name must begin with an alphanumeric character (but some extended characters are allowed).  And must be followed by the same alphanumeric characters
-	 * note the name is not necessarily guaranteed to be usable in smarty without backticks.
+	 * The name must begin with an alphanumeric character (but some extended
+	 * characters are allowed) and that must be followed by more alphanumeric characters
+	 * Note the name is not necessarily guaranteed to be usable in smarty without backticks.
 	 *
 	 * @param string $str The string to test
 	 * @return bool|string false on error or the validated string.
