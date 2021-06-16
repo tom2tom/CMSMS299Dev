@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -391,8 +391,7 @@ final class RouteOperations
 		'exact' => !empty($props['exact']),
 		'data' => $data,
 		];
-		uasort(self::$_dynamic_routes, function ($a,$b)
-		{
+		uasort(self::$_dynamic_routes, function($a,$b) {
 			return strcasecmp($a['term'], $b['term']);
 		});
 		return TRUE;
@@ -569,7 +568,7 @@ EOS;
 
 		self::$_routes = [];
 		$db = AppSingle::Db();
-		$query = 'SELECT data FROM '.CMS_DB_PREFIX.'routes WHERE data != "" AND data IS NOT NULL';
+		$query = 'SELECT data FROM '.CMS_DB_PREFIX."routes WHERE data != '' AND data IS NOT NULL";
 		$rows = $db->GetCol($query);
 		if( $rows ) {
 			for( $i = 0, $n = count($rows); $i < $n; ++$i ) {
@@ -582,8 +581,7 @@ EOS;
 				'data' => $data,
 				];
 			}
-			uasort(self::$_routes, function($a, $b)
-			{
+			uasort(self::$_routes, function($a, $b) {
 				return strcasecmp($a['term'], $b['term']);
 			});
 		}
