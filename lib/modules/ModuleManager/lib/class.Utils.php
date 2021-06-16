@@ -69,7 +69,7 @@ final class Utils
         return [true,$results];
     }
 
-    private static function uasort_cmp_details( $e1, $e2 )
+    private static function uasort_cmp_details($e1, $e2)
     {
         if( is_object($e1) ) {
             $n1 = $e1->name;
@@ -89,13 +89,10 @@ final class Utils
         }
 
         $r = strcasecmp($n1,$n2);
-        if( $r < 0 ) {
-            return -1;
-        }
-        elseif( $r > 0 ) {
-            return 1;
-        }
-        return version_compare( $v2, $v1 );
+		if( $r !== 0 ) {
+			return $r <=> 0;
+		}
+        return version_compare($v2, $v1);
     }
 
     /**
@@ -105,12 +102,12 @@ final class Utils
      * @param type $newest
      * @return mixed array|null
      */
-    public static function build_module_data( &$xmldetails, &$installdetails, $newest = true )
+    public static function build_module_data(&$xmldetails, &$installdetails, $newest = true)
     {
         if( !is_array($xmldetails) ) return;
 
         // sort
-        uasort( $xmldetails, 'ModuleManager\\Utils::uasort_cmp_details' );
+        uasort($xmldetails, 'ModuleManager\\Utils::uasort_cmp_details');
 
         $mod = AppUtils::get_module('ModuleManager');
 
@@ -139,7 +136,7 @@ final class Utils
                     $found = 1;
                     // if the version of the xml file is greater than that of the
                     // installed module, we have an upgrade
-                    $res = version_compare( $det1['version'], $det2['version'] );
+                    $res = version_compare($det1['version'], $det2['version']);
                     if( $res == 1 ) {
                         $det1['status'] = 'upgrade';
                     }
@@ -177,7 +174,7 @@ final class Utils
 
         // now we have everything
         // let's try sorting it
-        uasort( $results, 'ModuleManager\\Utils::uasort_cmp_details' );
+        uasort($results, 'ModuleManager\\Utils::uasort_cmp_details');
         return $results;
     }
 
