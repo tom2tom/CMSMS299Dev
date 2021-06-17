@@ -16,11 +16,12 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppState;
+use function CMSMS\specialize;
 
 function smarty_function_page_error($params, $template)
 {
@@ -29,7 +30,7 @@ function smarty_function_page_error($params, $template)
 		if( isset($params['msg']) ) {
 			$msg = trim($params['msg']);
 			if( $msg !== '' ) {
-				$msg = cms_specialchars($msg); // ensure merged content is ok
+				$msg = specialize($msg); // ensure merged content is ok
 				$out = '<div class="pageerror">'.$msg.'</div>';
 			}
 		}
