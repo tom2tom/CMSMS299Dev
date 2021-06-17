@@ -45,7 +45,7 @@ function smarty_function_cms_init_editor($params, $template)
 	if( !is_object($mod) ) return '';
 
 	// get the output
-	$output = $mod->WYSIWYGGenerateHeader($selector);
+	$output = $mod->WYSIWYGGenerateHeader($selector); // old API
 	if( !$output ) return '';
 
 	if( !empty($params['assign']) ) {
