@@ -1,7 +1,7 @@
 <?php
 /*
 Default admin-console-menu definition
-Copyright (C) 2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -13,6 +13,7 @@ This program is distributed in the hope that it will be useful,
 BUT WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
@@ -37,7 +38,7 @@ displayed items will be sorted by current-level-priority then current-level-item
 (using PHP strnatcmp(), probably not great when non-ASCII chars are in there)
 'final' (i.e. include in menu in spite of no sub-items) false unless explicitly set true here
 'show' boolean | argument for AdminTheme::HasPerm() optional, defaults to true (except for root node)
-Other members (which might be needed by the menu-builder) e.g. link-attributes, will pass through verbatim 
+Other members (which might be needed by the menu-builder) e.g. link-attributes, will pass through verbatim
 */
 
 $sp = 1; // section-priority enumerator
@@ -325,5 +326,25 @@ $menucontent = [
 	'descriptionkey'=>'filesdescription',
 	'priority'=>5,
 	'show'=>'filePerms',
+	],
+	[
+	'name'=>'jobs',
+	'parent'=>'siteadmin',
+	'url'=>'listjobs.php',
+	'labelkey'=>'jobslabel',
+	'descriptionkey'=>'jobsdescription',
+	'priority'=>6,
+	'final'=>true,
+	'show'=>'adminPerms', // TODO
+	],
+	[
+	'name'=>'log',
+	'parent'=>'siteadmin',
+	'url'=>'adminlog.php',
+	'labelkey'=>'loglabel',
+	'descriptionkey'=>'logdescription',
+	'priority'=>6,
+	'final'=>true,
+	'show'=>'adminPerms', // TODO
 	],
 ];  //$menucontent
