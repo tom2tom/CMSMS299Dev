@@ -436,7 +436,7 @@ smarty cache lifetime != global cache ttl, probably
              ->assign('e_message', $e->getMessage())
              ->assign('loggedin', get_userid(false));
         if( $show_trace ) {
-            $this->assign('e_trace', htmlentities($e->getTraceAsString()));
+            $this->assign('e_trace', \htmlentities($e->getTraceAsString()));
         }
         else {
             $this->assign('e_trace', null);
