@@ -8,9 +8,10 @@ More info at http://dev.cmsmadesimple.org/projects/cmsmailer
 */
 
 use CMSMailer\PrefCrypter;
+use function CMSMS\de_specialize;
 
 if (isset($params['masterpass'])) {
-    $newpw = trim($params['masterpass']); // AND cms_specialchars_decode() ?
+    $newpw = de_specialize($params['masterpass']); // AND CMSMS\sanitizeVal() ?
     $pw = PrefCrypter::decrypt_preference($this, PrefCrypter::MKEY);
     if ($newpw != $pw) {
         if (!$TODOvalidnewpw) {
@@ -61,7 +62,7 @@ if (isset($params['masterpass'])) {
             unset($onerow);
         }
 
-        PrefCrypter::encrypt_preference($this, PrefCrypter::MKEY, $newpw);
+        PrefCrypter::encrypt_preference(PrefCrypter::MKEY, $newpw);
     }
     unset($newpw, $pw); // faster garbage cleanup
     $newpw = $pw = null;
