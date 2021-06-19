@@ -71,16 +71,16 @@ $lang['eventdesc_OnFileDeleted'] = 'Sent after a file is deleted';
 $lang['eventhelp_OnFileDeleted'] = <<<EOT
 <h4>Parameters:</h4>
 <ul>
-<li>"file" - The complete file specification to the deleted file</li>
-<li>"thumb" - If it previously existed, the complete file specification to the deleted thumbnail</li>
+<li>"file" - The full filepath of the deleted file</li>
+<li>"thumb" - If it previously existed, the full filepath of the deleted thumbnail</li>
 </ul>
 EOT;
 $lang['eventdesc_OnFileUploaded'] = 'Sent when a file is uploaded';
 $lang['eventhelp_OnFileUploaded'] = <<<EOT
 <h4>Parameters:</h4>
 <ul>
-<li>"file" - The complete file specification to the uploaded file</li>
-<li>"thumb" - If generated, the complete file specification to the generated thumbnail</li>
+<li>"file" - The full filepath of the uploaded file</li>
+<li>"thumb" - The full filepath of the generated thumbnail (if any)</li>
 </ul>
 EOT;
 
