@@ -42,7 +42,7 @@ final class SendmailTransport implements Transport
 */
     /**
      * Note that escapeshellarg and escapeshellcmd alone are inadequate for
-	 * our purposes, especially on Windows.
+     * our purposes, especially on Windows.
      * This method is from PHPMailer.
      *
      * @param string $str command to be executed
@@ -53,7 +53,7 @@ final class SendmailTransport implements Transport
     {
         // Future-proof
         if (escapeshellcmd($str) !== $str ||
-		    !in_array(escapeshellarg($str), ["'$str'", "\"$str\""])) {
+            !in_array(escapeshellarg($str), ["'$str'", "\"$str\""])) {
             return false;
         }
 
@@ -168,6 +168,45 @@ path-to-sendmail [/= /A file1 [/A file2 ...]
  [ text | @msgfile ]
 EOS;
 */
+/*
+The sendmail command reads standard input for message text. 
+
+echo formatted message | sendmail [flags] [address ...]
+e.g. 
+echo -e "Subject:Hello \n\n I would like to buy a hamburger\n" | sendmail email@example.com
+
+sendmail [address] < file-containing-formatted-message
+
+Subject: Hello
+To: $TO
+
+I would like to buy a hamburger
+
+(
+echo "From: ${from}";
+echo "To: ${to}";
+echo "Subject: ${subject}";
+echo "Content-Type: text/html";
+echo "MIME-Version: 1.0";
+echo "";
+echo "${message}";
+) | sendmail -t
+
+-F fullname Set the full name of the sender.
+
+-t Sends the message to the recipients specified in the To:, Cc:, and Bcc: fields of the message header, as well as to any users specified on the command line.
+The Bcc: line(s) are deleted before transmission
+
+
+-O option=value Set option option to the specified value. This form uses long names. See below for more details.
+-o option [value]   Set option option to the specified value. This form uses single character names only
+
+Use the sendmail command only to deliver pre-formatted messages.
+
+
+The sendmail command returns exit status values. These exit values (EX_*) are defined in the /usr/include/sysexits.h file.
+EX_OK ....
+*/
     /**
      * @inheritDoc
      */
@@ -178,7 +217,7 @@ EOS;
             throw new RunTimeException("No subject was provided");
         }
         $to = $message->getRecipients();
-		if (!$to) {
+        if (!$to) {
             throw new RecipientsListEmptyException();
         }
         $header = $message->getHeadersRaw();
@@ -191,20 +230,20 @@ EOS;
         if ($from && $this->isShellSafe($from)) {
             if (strpos($mailer, 'qmail') !== false) {
                 $template = '%s -f%s';
-				$mailer = str_replace(array('-t','-f'), array('',''), $mailer);
+                $mailer = str_replace(array('-t','-f'), array('',''), $mailer);
             } else {
                 $template = '%s -oi -f%s -t';
-				$mailer = str_replace(array('-t','-oi'), array('',''), $mailer);
+                $mailer = str_replace(array('-t','-oi'), array('',''), $mailer);
             }
             $command = sprintf($template, escapeshellcmd($mailer), $from);
         } else {
 */
             if (strpos($mailer, 'qmail') !== false) {
                 $template = '%s';
-				$mailer = str_replace(array('-t','-f'), array('',''), $mailer);
+                $mailer = str_replace(array('-t','-f'), array('',''), $mailer);
             } else {
                 $template = '%s -oi -t';
-				$mailer = str_replace(array('-t','-f','-oi'), array('','',''), $mailer);
+                $mailer = str_replace(array('-t','-f','-oi'), array('','',''), $mailer);
             }
             $command = sprintf($template, escapeshellcmd($mailer));
 //        }
@@ -251,13 +290,13 @@ EX_SYNTAX    ? Syntax error in address
         if (is_callable($this->responseLogger)) {
             call_user_func($this->responseLogger, 'TODO');
         }
-		if ($response != 75) {
-	        $tmp = 'Email not sent successfully to '.implode(',',$to);
-		} elseif (empty($this->options['delay-silent'])) {
-	        $tmp = 'Email not sent immediately to '.implode(',',$to);
-		} else {
-			return;
-		}
+        if ($response != 75) {
+            $tmp = 'Email not sent successfully to '.implode(',',$to);
+        } elseif (empty($this->options['delay-silent'])) {
+            $tmp = 'Email not sent immediately to '.implode(',',$to);
+        } else {
+            return;
+        }
         throw new RuntimeException($tmp);
     }
 

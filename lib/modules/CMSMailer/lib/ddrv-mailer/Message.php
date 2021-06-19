@@ -89,8 +89,8 @@ final class Message implements MessageContract
         'to' => array('addRecipient($email, $name, \'to\')', 'removeRecipients(\'to\')'),
         'cc' => array('addRecipient($email, $name, \'cc\')', 'removeRecipients(\'cc\')'),
         'bcc' => array('addRecipient($email, $name, \'bcc\')', 'removeRecipients(\'bcc\')'),
-        'content-type' => null,
         'content-transfer-encoding' => null,
+        'content-type' => null,
         'mime-version' => null,
         'message-id' => null,
     );
@@ -189,11 +189,11 @@ final class Message implements MessageContract
         $this->eol = "\r\n"; // TODO Except for smtp Transport, $this->eol = PHP_EOL;
 
         $this->headers = array(
+            'mime-version' => '1.0',
+            'message-id' => '<' . $this->id . '@>', //TODO format <uuid@domain>
             'content-type' => 'text/plain; charset=UTF-8',
             'content-transfer-encoding' => 'quoted-printable',
             'x-mailer' => 'ddrv/mailer-' . Mailer::MAILER_VERSION . ' (https://github.com/ddrv/php-mailer)',
-            'mime-version' => '1.0',
-            'message-id' => '<' . $this->id . '@>', //TODO format <uuid@domain>
         );
         $this->setSubject('' . $subject);
         $this->setHtml('' . $html);
@@ -326,7 +326,7 @@ final class Message implements MessageContract
      */
     public function addRecipient($email, $name = null, $type = self::RECIPIENT_TO)
     {
-        $type = strtolower((string)$type);
+        $type = strtolower((string)$type); // TODO maybe mb_strtolower
         if (!in_array($type, array(self::RECIPIENT_CC, self::RECIPIENT_BCC))) {
             $type = self::RECIPIENT_TO;
         }
@@ -1106,12 +1106,11 @@ final class Message implements MessageContract
             if ($char === 32 && $num + 1 === $all) {
                 $ascii = false;
             }
-            if ($num < $offset) {
-                $ascii = true;
-                $coding = false;
-            }
             if (!$coding && $char === 61 && preg_match('/;(\s+)?([a-z0-9\-]+)(\s+)?(=(\s+)?\"[^\"]+)?/ui', $result)) {
                 $ascii = true;
+            }
+            if ($coding && $symbol === ' ') {
+                $ascii = false;
             }
             if ($ascii) {
                 if ($coding) {
@@ -1132,8 +1131,13 @@ final class Message implements MessageContract
                 $add += 3;
             }
             if ($position + $add >= $max) {
-                $line = "={$this->eol} $line"; //TODO eol = func(Transport type)
-                $position = $add + 1;
+                if ($coding) {
+                    $line = "?={$this->eol} =?utf-8?Q?$line";
+                    $position = $add + 11;
+                } else {
+                    $line = "={$this->eol} $line"; //TODO eol = func(Transport type)
+                    $position = $add + 1;
+                }
             }
             $result .= $line;
             $position += $add;

@@ -4,11 +4,9 @@ namespace Ddrv\Mailer\Spool;
 
 use Ddrv\Mailer\Contract\Message;
 use Ddrv\Mailer\Contract\Spool;
-use function file_put_contents;
 
 final class FileSpool implements Spool
 {
-
     /**
      * @var string
      */
