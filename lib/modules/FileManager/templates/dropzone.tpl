@@ -26,6 +26,6 @@
       </div>
     </div>
   </div>
-  {$s={$mod->Lang('open')}/{$mod->Lang('close')}}<a href="#" title="{$s}" class="toggle-dropzone">{$s}</a>
+  {$s={$mod->Lang('open')}/{$mod->Lang('close')}}<a href="javascript:void()" title="{$s}" class="toggle-dropzone">{$s}</a>
 </div>
 {/if}{*!isset($is_ie)*}
