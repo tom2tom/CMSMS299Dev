@@ -35,7 +35,7 @@ use Ddrv\Mailer\Transport\SpoolTransport;
 use Exception;
 use const CMS_DEPREC;
 use const TMP_CACHE_LOCATION;
-use function cms_html_entity_decode;
+use function CMSMS\de_entitize;
 use function cms_join_path;
 
 /**
@@ -110,7 +110,6 @@ class Mailer implements IMailer
 //		$this->headers = [];
 		$this->from = [];
 		$this->ishtml = false;
-		$this->single = false;
 		$this->errmsg = '';
 		$mailprefs = [
 			'mailer' => 1,
@@ -125,9 +124,9 @@ class Mailer implements IMailer
 			'password' => 1,
 			'secure' => 1,
 			'timeout' => 1,
-			//extras for this mailer
-			'batchgap' => 1,
-			'batchsize' => 1,
+			//extras for this mailer-backend
+//			'batchgap' => 1, // unused ?
+//			'batchsize' => 1, // unused ?
 			'single' => 1,
 		];
 		foreach ($mailprefs as $key => &$val) {
@@ -191,6 +190,8 @@ class Mailer implements IMailer
 		$this->transport['smtpauth'] = (bool)$mailprefs['smtpauth'];
 		$this->transport['timeout'] = (int)$mailprefs['timeout'];
 		$this->transport['priority'] = 1; // highest
+
+		$this->single = !empty($mailprefs['single']);
 	}
 
 	/**
@@ -252,7 +253,7 @@ class Mailer implements IMailer
 			}
 		}
 		$this->Send();
-		$ret = $this->errmsg === '';
+		$ret = $this->IsError();
 		$this->reset();
 		return $ret;
 	}
@@ -283,7 +284,7 @@ class Mailer implements IMailer
 			['~\<br\s*/?\>~i','~\</p\>~i','~\</h\d\>~i'],
 			["\r\n","\r\n\r\n","\r\n\r\n"],
 			$content);
-			$content = cms_html_entity_decode(strip_tags($value), ENT_QUOTES);
+			$content = de_entitize(strip_tags($value), ENT_QUOTES);
 		}
 		return $content;
 	}
@@ -572,14 +573,14 @@ class Mailer implements IMailer
 	}
 
 	/**
-	 * [Un]set the instruction to send individual messages to each destination
+	 * [Un]set the flag indicating intent to send an individual message to each destination
 	 * @param bool $state Default true
 	 */
 	public function SetSingleSend(bool $state = true)
 	{
-		if ($this->IsSingleAddressor()) {
-			$this->single = $state; // TODO mailprefs['single']
-		}
+//		if ($this->IsSingleAddressor()) {
+			$this->single = $state;
+//		}
 	}
 
 	/**
@@ -615,6 +616,10 @@ class Mailer implements IMailer
 	 */
 	public function Send(int $batchsize = 0)
 	{
+		if ($this->single) {
+			$this->SendSingles($batchsize);
+			return;
+		}
 /*
 		$spool = new FileSpool($this->transport['object'], sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'mail');
 		//OR
@@ -683,6 +688,43 @@ TEXT;
 		}
 	}
 
+	protected function AdjustBody($mode)
+	{
+		// TODO $mod = ;
+		// TODO prepend $mod->Lang('bodyccnotice' | 'bodybccnotice') (with appropriate line-breaks) to body content
+	}
+
+	/**
+	 * Send the message individually to each specified destination
+	 * @param int $batchsize optional No. of messages to send in a single batch Default 0 hence no limit
+	 */
+	protected function SendSingles(int $batchsize = 0)
+	{
+		$allto = $this->GetAddresses();
+		$allcc = $this->GetCC();
+		$allbcc = $this->GetBCC();
+/* TODO
+		$this->ClearAllRecipients();
+
+		process each $allto member as single destination
+
+		if ($allcc) {
+			$body = $this->GetBody();
+			$this->AdjustBody('cc');
+			process each $allcc member as single destination
+			$this->SetBody($body); && Alt
+		}
+
+		if ($allbcc) {
+			$body = $this->GetBody();
+			$this->AdjustBody('bcc');
+			process each $allbcc member as single destination
+ 			$this->SetBody($body); && Alt
+		}
+*/
+		$this->errmsg = 'Not yet supported';
+	}
+
 	// ============= OLD-CLASS METHODS =============
 
 	//deprecated alias
@@ -725,6 +767,7 @@ TEXT;
 
 	public function ClearAddresses()
 	{
+		//TODO alias for ClearAllRecipients() ??
 	}
 
 	public function ClearAllRecipients()
@@ -762,11 +805,13 @@ TEXT;
 
 	public function GetAltBody()
 	{
+		//TODO return $this->message->X();
 		return '';
 	}
 
 	public function GetBody()
 	{
+		//TODO return $this->message->X();
 		return '';
 	}
 
