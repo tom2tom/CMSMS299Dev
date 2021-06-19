@@ -1,28 +1,33 @@
 <?php
-#FileManager module action: display list of files
-#Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
-#Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <https://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+FileManager module action: display list of files
+Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use FileManager\Utils;
+use function CMSMS\specialize;
 
 if (!isset($gCms)) {
-  exit;
+    exit;
 }
 if (!$this->CheckPermission('Modify Files')) {
-  exit;
+    exit;
 }
 
 $sortby = $this->GetPreference('sortby', 'nameasc'); //TODO per FilePickerProfile
@@ -38,125 +43,124 @@ $countfilesize = 0;
 $files = [];
 
 for ($i = 0; $i < $times; $i++) {
-  $onerow = new stdClass();
-  if (isset($filelist[$i]['url'])) {
-    $onerow->url = $filelist[$i]['url'];
-  }
-  $onerow->name = $filelist[$i]['name'];
-  $onerow->urlname = $this->encodefilename($filelist[$i]['name']);
-  $onerow->type = ['file'];
-  $onerow->mime = $filelist[$i]['mime'] ?? null;
-  if (isset($params[$onerow->urlname])) {
-    $onerow->checked = true;
-  }
-
-  if (strpos($onerow->mime, 'text') !== false) {
-    $onerow->type[] = 'text';
-  }
-
-  if ($filelist[$i]['dir']) {
-    $urlname = 'dir_' . $this->encodefilename($filelist[$i]['name']);
-    if (isset($params[$urlname])) {
-      $value = 'true';
-    } else {
-      $value = '';
-	}
-  } else {
-    $urlname = 'file_' . $this->encodefilename($filelist[$i]['name']);
-    if (isset($params[$urlname])) {
-      $value = 'true';
-    } else {
-      $value = '';
-	}
-  }
-  $onerow->checkbox = $this->CreateInputCheckBox($id, $urlname, 'true', $value);
-
-  $onerow->thumbnail = '';
-  $onerow->editor = '';
-  if (!empty($filelist[$i]['image'])) {
-    $onerow->type[] = 'image';
-    $params['imagesrc'] = $path.DIRECTORY_SEPARATOR.$filelist[$i]['name'];
-    if ($this->GetPreference('showthumbnails', 0) == 1) { //TODO per FilePickerProfile
-      $onerow->thumbnail = $this->GetThumbnailLink($id, $filelist[$i], $path);
+    $onerow = new stdClass();
+    if (isset($filelist[$i]['url'])) {
+        $onerow->url = $filelist[$i]['url'];
     }
-  }
-
-  $link = $filelist[$i]['name'];
-  if ($filelist[$i]['dir']) {
-    $parms = [ 'newdir'=>$filelist[$i]['name'], 'path'=>$path, 'sortby'=>$sortby ];
-    $url = $this->create_url($id, 'changedir', '', $parms);
-    if ($filelist[$i]['name'] != '..') {
-      $countdirs++;
-      $onerow->type = ['dir'];
-      $onerow->iconlink = $this->CreateLink($id, 'changedir', '', $this->GetFileIcon('', true), $parms);
-      $onerow->txtlink = "<a class=\"dirlink\" href=\"{$url}\" title=\"{$this->Lang('title_changedir')}\">{$link}</a>";
-    } else {
-      // for the parent directory
-      $value = basename($config['uploads_path']);
-      if ($value === $path) continue;
-      $onerow->noCheckbox = 1;
-      $onerow->iconlink = $this->CreateLink($id, 'changedir', '', $this->GetFileIcon('up', true), $parms);
-      $onerow->txtlink = "<a class=\"dirlink\" href=\"{$url}\" title=\"{$this->Lang('title_changeupdir')}\">{$link}</a>";
+    $onerow->name = $filelist[$i]['name'];
+    $onerow->urlname = $this->encodefilename($filelist[$i]['name']);
+    $onerow->type = ['file'];
+    $onerow->mime = $filelist[$i]['mime'] ?? null;
+    if (isset($params[$onerow->urlname])) {
+        $onerow->checked = true;
     }
-  } else {
-    $onerow->iconlink = "<a href='" . $filelist[$i]['url'] . "' target='_blank'>" . $this->GetFileIcon($filelist[$i]['ext'], false) . '</a>';
-    $countfiles++;
-    $countfilesize+=$filelist[$i]['size'];
-    //$url = $this->create_url($id,'view','',array('file'=>$this->encodefilename($filelist[$i]['name'])));
-    $url = $onerow->url;
-    //$onerow->txtlink = "<a href='" . $filelist[$i]["url"] . "' target='_blank' title=\"".$this->Lang('title_view_newwindow')."\">" . $link . "</a>";
-    $onerow->txtlink = "<a class=\"filelink\" href='" . $url . "' target='_blank' title=\"".$this->Lang('title_view_newwindow').'">' . $link . '</a>';
-  }
-  if (!empty($filelist[$i]['archive'])) {
-    $onerow->type[] = 'archive';
-  }
 
-  $onerow->fileinfo = Utils::get_file_details($filelist[$i]);
-  if ($filelist[$i]['name'] == '..') {
-    $onerow->fileaction = '&nbsp;';
-    $onerow->filepermissions = '&nbsp;';
-  } else {
-    $onerow->fileowner = $filelist[$i]['fileowner'];
-    $onerow->filepermissions = Utils::format_permissions($filelist[$i]['mode'],$permissionstyle);
-  }
-  if ($filelist[$i]['dir']) {
-    $onerow->filesize = '&nbsp;';
-  } else {
-    $filesize = Utils::format_filesize($filelist[$i]['size']);
-    $onerow->filesize = $filesize['size'];
-    $onerow->filesizeunit = $filesize['unit'];
-  }
+    if (strpos($onerow->mime, 'text') !== false) {
+        $onerow->type[] = 'text';
+    }
 
-  if (!$filelist[$i]['dir']) {
-    $onerow->filedate = $filelist[$i]['date'];
-  } else {
-    $onerow->filedate = '';
-  }
+    if ($filelist[$i]['dir']) {
+        $urlname = 'dir_' . $this->encodefilename($filelist[$i]['name']);
+        if (isset($params[$urlname])) {
+            $value = 'true';
+        } else {
+            $value = '';
+        }
+    } else {
+        $urlname = 'file_' . $this->encodefilename($filelist[$i]['name']);
+        if (isset($params[$urlname])) {
+            $value = 'true';
+        } else {
+            $value = '';
+        }
+    }
+    $onerow->checkbox = $this->CreateInputCheckBox($id, $urlname, 'true', $value);
 
-  $files[] = $onerow;
+    $onerow->thumbnail = '';
+    $onerow->editor = '';
+    if (!empty($filelist[$i]['image'])) {
+        $onerow->type[] = 'image';
+        $params['imagesrc'] = $path.DIRECTORY_SEPARATOR.$filelist[$i]['name'];
+        if ($this->GetPreference('showthumbnails', 0) == 1) { //TODO per FilePickerProfile
+            $onerow->thumbnail = $this->GetThumbnailLink($id, $filelist[$i], $path);
+        }
+    }
+
+    $link = $filelist[$i]['name'];
+    if ($filelist[$i]['dir']) {
+        $parms = [ 'newdir'=>$filelist[$i]['name'], 'path'=>$path, 'sortby'=>$sortby ];
+        $url = $this->create_url($id, 'changedir', '', $parms);
+        if ($filelist[$i]['name'] != '..') {
+            $countdirs++;
+            $onerow->type = ['dir'];
+            $onerow->iconlink = $this->CreateLink($id, 'changedir', '', $this->GetFileIcon('', true), $parms);
+            $onerow->txtlink = "<a class=\"dirlink\" href=\"{$url}\" title=\"{$this->Lang('title_changedir')}\">{$link}</a>";
+        } else {
+            // for the parent directory
+            $value = basename($config['uploads_path']);
+            if ($value === $path) continue;
+            $onerow->noCheckbox = 1;
+            $onerow->iconlink = $this->CreateLink($id, 'changedir', '', $this->GetFileIcon('up', true), $parms);
+            $onerow->txtlink = "<a class=\"dirlink\" href=\"{$url}\" title=\"{$this->Lang('title_changeupdir')}\">{$link}</a>";
+        }
+    } else {
+        $onerow->iconlink = "<a href='" . $filelist[$i]['url'] . "' target='_blank'>" . $this->GetFileIcon($filelist[$i]['ext'], false) . '</a>';
+        $countfiles++;
+        $countfilesize+=$filelist[$i]['size'];
+        //$url = $this->create_url($id,'view','',array('file'=>$this->encodefilename($filelist[$i]['name'])));
+        $url = $onerow->url;
+        //$onerow->txtlink = "<a href='" . $filelist[$i]["url"] . "' target='_blank' title=\"".$this->Lang('title_view_newwindow')."\">" . $link . "</a>";
+        $onerow->txtlink = "<a class=\"filelink\" href='" . $url . "' target='_blank' title=\"".$this->Lang('title_view_newwindow').'">' . $link . '</a>';
+    }
+    if (!empty($filelist[$i]['archive'])) {
+        $onerow->type[] = 'archive';
+    }
+
+    $onerow->fileinfo = Utils::get_file_details($filelist[$i]);
+    if ($filelist[$i]['name'] == '..') {
+        $onerow->fileaction = '&nbsp;';
+        $onerow->filepermissions = '&nbsp;';
+    } else {
+        $onerow->fileowner = $filelist[$i]['fileowner'];
+        $onerow->filepermissions = Utils::format_permissions($filelist[$i]['mode'],$permissionstyle);
+    }
+    if ($filelist[$i]['dir']) {
+        $onerow->filesize = '&nbsp;';
+    } else {
+        $filesize = Utils::format_filesize($filelist[$i]['size']);
+        $onerow->filesize = $filesize['size'];
+        $onerow->filesizeunit = $filesize['unit'];
+    }
+
+    if (!$filelist[$i]['dir']) {
+        $onerow->filedate = $filelist[$i]['date'];
+    } else {
+        $onerow->filedate = '';
+    }
+
+    $files[] = $onerow;
 }
 
 if (!empty($params['viewfile'])) {
-  foreach ($files as $file) {
-    if ($file->urlname == $params['viewfile']) {
-      if (in_array('text', $file->type)) {
-        $fn = cms_join_path(Utils::get_full_cwd(), $file->name);
-        if (file_exists($fn)) {
-          $data = @file_get_contents($fn);
+    foreach ($files as $file) {
+        if ($file->urlname == $params['viewfile']) {
+            if (in_array('text', $file->type)) {
+                $fn = cms_join_path(Utils::get_full_cwd(), $file->name);
+                if (file_exists($fn)) {
+                    $data = @file_get_contents($fn);
+                }
+                if ($data) {
+                    $data = nl2br(specialize($data));
+                }
+                echo $data;
+            } elseif (in_array('image', $file->type)) {
+                $data = '<img src="'.$file->url.'" alt="'.$file->name.'" />';
+                echo $data;
+            }
+            break;
         }
-        if ($data) {
-          $data = cms_htmlentities($data);
-          $data = nl2br($data);
-        }
-        echo $data;
-      } elseif (in_array('image', $file->type)) {
-        $data = '<img src="'.$file->url.'" alt="'.$file->name.'" />';
-        echo $data;
-      }
-      break;
     }
-  }
-  exit;
+    exit;
 }
 
 // build display
@@ -169,13 +173,13 @@ $tpl->assign('path', $path)
 
 $titlelink = $this->Lang('filename');
 if ($sortby == 'nameasc') {
-  $newsort = 'namedesc';
-  $titlelink .= '+';
+    $newsort = 'namedesc';
+    $titlelink .= '+';
 } else {
-  $newsort = 'nameasc';
-  if ($sortby == 'namedesc') {
-    $titlelink.='-';
-  }
+    $newsort = 'nameasc';
+    if ($sortby == 'namedesc') {
+        $titlelink.='-';
+    }
 }
 $params['newsort'] = $newsort;
 $titlelink = $this->CreateLink($id, 'defaultadmin', $returnid, $titlelink, $params);
@@ -183,13 +187,13 @@ $tpl->assign('filenametext', $titlelink);
 
 $titlelink = $this->Lang('filesize');
 if ($sortby == 'sizeasc') {
-  $newsort = 'sizedesc';
-  $titlelink .= '+';
+    $newsort = 'sizedesc';
+    $titlelink .= '+';
 } else {
-  $newsort = 'sizeasc';
-  if ($sortby == 'sizedesc') {
-    $titlelink .= '-';
-  }
+    $newsort = 'sizeasc';
+    if ($sortby == 'sizedesc') {
+        $titlelink .= '-';
+    }
 }
 $params['newsort'] = $newsort;
 $titlelink = $this->CreateLink($id, 'defaultadmin', $returnid, $titlelink, $params);
@@ -206,15 +210,15 @@ $tpl->assign('filesizetext', $titlelink)
 $totalsize = Utils::format_filesize($countfilesize);
 $counts = $totalsize['size'] . ' ' . $totalsize['unit'] . ' ' . $this->Lang('in') . ' ' . $countfiles . ' ';
 if ($countfiles == 1) {
-  $counts .= $this->Lang('file');
+    $counts .= $this->Lang('file');
 } else {
-  $counts .= $this->Lang('files');
+    $counts .= $this->Lang('files');
 }
 $counts .= ' ' . $this->Lang('and') . ' ' . $countdirs . ' ';
 if ($countdirs == 1) {
-  $counts .= $this->Lang('subdir');
+    $counts .= $this->Lang('subdir');
 } else {
-  $counts .= $this->Lang('subdirs');
+    $counts .= $this->Lang('subdirs');
 }
 $tpl->assign('countstext', $counts)
  ->assign('formend', $this->CreateFormEnd())
@@ -222,20 +226,20 @@ $tpl->assign('countstext', $counts)
  ->assign('confirm_unpack', $this->Lang('confirm_unpack'));
 
 if (isset($params['ajax'])) {
-  $tpl->assign('ajax', 1);
+    $tpl->assign('ajax', 1);
 } else {
-  $out = <<<EOS
+    $out = <<<EOS
 <style type="text/css">
 a.filelink:visited {
  color:#000;
 }
 </style>
 EOS;
-  add_page_headtext($out, false);
+    add_page_headtext($out, false);
 
-  $refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>$path])).'&'.CMS_JOB_KEY.'=1' ;
-  $viewfile_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1])).'&'.CMS_JOB_KEY.'=1';
-  $out = <<<EOS
+    $refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>$path])).'&'.CMS_JOB_KEY.'=1' ;
+    $viewfile_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1])).'&'.CMS_JOB_KEY.'=1';
+    $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 function enable_button(idlist) {
@@ -325,7 +329,7 @@ $(function() {
 //]]>
 </script>
 EOS;
-  add_page_foottext($out);
+    add_page_foottext($out);
 }
 
 $tpl->display();
