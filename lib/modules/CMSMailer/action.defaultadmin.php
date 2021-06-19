@@ -21,22 +21,25 @@ If not, see <http://www.gnu.org/licenses/licenses.html#AGPL>.
 
 use CMSMailer\Mailer;
 use CMSMailer\PrefCrypter;
-use CMSMailer\Utils;
+//use CMSMailer\Utils;
 use CMSMS\App;
 use CMSMS\AppParams;
 use CMSMS\Crypto;
 use CMSMS\FormUtils;
+use CMSMS\ResourceMethods;
 use CMSMS\Utils as AppUtils;
+use function CMSMS\de_specialize;
+use function CMSMS\specialize;
 
 if (!isset($gCms) || !($gCms instanceof App)) exit;
 
 $pmod = $this->CheckPermission('Modify Site Preferences') ||
     $this->CheckPermission('Modify Mail Preferences');
 $padmin = $pmod || $this->CheckPermission('AdministerEmailGateways');
-$pgates = $pmod || $this->CheckPermission('ModifyEmailGateways');
+//$pgates = $pmod || $this->CheckPermission('ModifyEmailGateways');
 //$ptpl = $this->CheckPermission('ModifyEmailTemplates');
 //$puse = $this->CheckPermission('UseEmailGateways'); // i.e. see
-if (!($pmod || $padmin || $pgates)) exit; // || $ptpl || $puse
+if (!($pmod || $padmin/* || $pgates*/)) exit; // || $ptpl || $puse
 
 if (!empty($params['activetab'])) {
     $activetab = $params['activetab'];
@@ -134,7 +137,7 @@ if (isset($params['sendtest'])) {
         //ignore invalid chars in the email
         //BUT PHP's FILTER_VALIDATE_EMAIL mechanism is not entirely reliable - see notes at https://www.php.net/manual/en/function.filter-var.php
 //      $addr = filter_var($params['testaddress'], FILTER_SANITIZE_EMAIL);
-        $addr = cms_specialchars_decode(trim($params['testaddress']));
+        $addr = de_specialize(trim($params['testaddress']));
         if ($addr && !is_email($addr)) {
             $errors[] = $this->Lang('error_badtestaddress');
         } elseif ($addr) {
@@ -172,15 +175,15 @@ if ($pmod) {
         $activetab = 'settings';
     }
 }
-
+/* only if supporting mail platforms
 if ($pgates) {
-    if (isset($params['currentgate'])) {
+    if (isset($params['platform'])) {
         require_once __DIR__.DIRECTORY_SEPARATOR.'method.savegates.php';
         $activetab = 'gates';
     }
 
-    Utils::refresh_gateways($this);
-    $gatesdata = Utils::get_gateways_full($this);
+    Utils::refresh_platforms($this);
+    $gatesdata = Utils::get_platforms_full($this);
     if ($gatesdata) {
         $gatesnames = [];
         foreach ($gatesdata as $key => &$one) {
@@ -189,10 +192,13 @@ if ($pgates) {
         }
         unset($one);
         asort($gatesnames, SORT_STRING); // no unicode in names?
-        $gatecurrent = $params['currentgate'] ?? reset($gatesnames); //TODO
+        $current = $this->GetPreference('platform');
+        if (!$current) {
+            $current = $params['platform'] ?? reset($gatesnames); //TODO
+        }
     } else {
         $gatesnames = null;
-        $gatecurrent = null;
+        $current = null;
     }
 //    $addurl1 = $this->CreateLink($id, 'opengate', '', '', ['gate_id' => -1], '', true);
     $addurl = FormUtils::create_action_link($this, [
@@ -203,6 +209,7 @@ if ($pgates) {
     ]);
     $urlext = get_secure_param();
 }
+*/
 
 //TODO deploy a ScriptsMerger, for easier CSP compliance
 //$jsm = new CMSMS\ScriptsMerger();
@@ -243,12 +250,12 @@ $(function() {
    type:'see1',
    symbol:'\u25CF'
  });
- $('.gateway_panel').hide();
- var sel = $('#currentgate'),
+ $('.platform_panel').hide();
+ var sel = $('#platform'),
    cg = sel.val();
  $('#'+cg).show();
  sel.on('change', function() {
-   $('.gateway_panel').hide();
+   $('.platform_panel').hide();
    cg = $(this).val();
    $('#'+cg).show();
  });
@@ -293,15 +300,17 @@ foreach ($mailprefs as $key => &$val) {
     $val = $this->GetPreference($key);
 }
 unset($val);
+
 $pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
-$mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']), $pw);
+$s2 = Crypto::decrypt_string(base64_decode($mailprefs['password']), $pw);
+$mailprefs['password'] = specialize($s2);
 
 if (empty($activetab)) { $activetab = 'internal'; }
 
-//if ($this instanceof CMSMS\ResourceMethods) { // light-module
-//    $tpl = $this->GetTemplateObject('defaultadmin.tpl');
+//if ($this instanceof ResourceMethods) { // light-module
+    $tpl = $this->GetTemplateObject('defaultadmin.tpl');
 //} else {
-    $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
+//    $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
 //}
 
 $mailers = [
@@ -332,7 +341,7 @@ $tpl->assign([
  'tab' => $activetab,
  'padmin' => $padmin,
  'pmod' => $pmod,
- 'pgates' => $pgates,
+// 'pgates' => $pgates,
  'title_charset' => $this->Lang('charset'),
  'value_charset' => $mailprefs['charset'],
  'title_mailer' => $this->Lang('mailer'),
@@ -381,19 +390,21 @@ $tpl->assign([
  'title_testaddress' => $this->Lang('testaddress'),
 ]);
 
+/* only if supporting mail platforms
 if ($pgates) {
     $tpl->assign([
- 'gatesnames' => $gatesnames,
- 'gatecurrent' => $gatecurrent,
- 'gatesdata' => $gatesdata,
- 'addurl' => $addurl,
+     'gatesnames' => $gatesnames,
+     'platform' => $current,
+     'gatesdata' => $gatesdata,
+     'addurl' => $addurl,
     ]);
 }
+*/
 
 if ($pmod) {
     $tpl->assign([
- 'title_modpassword' => $this->Lang('modpassword'),
- 'value_modpassword' => $pw, // >> textarea, no need for cms_specialchars()
+     'title_modpassword' => $this->Lang('modpassword'),
+     'value_modpassword' => $pw, // >> textarea, no need for specialize()
     ]);
 }
 

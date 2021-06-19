@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMailer module un-installation process
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This CMSMailer module is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -24,8 +24,10 @@ use CMSMailer\PrefCrypter;
 if (!function_exists('cmsms')) exit;
 
 $dict = $db->NewDataDictionary(); // old NewDataDictionary($db);
-$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_cmsmailer_gates');
-$dict->ExecuteSQLArray($sqlarray);
+if ($this->mod->platformed) {
+    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_cmsmailer_platforms');
+    $dict->ExecuteSQLArray($sqlarray);
+}
 $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_cmsmailer_props');
 $dict->ExecuteSQLArray($sqlarray);
 
@@ -33,8 +35,9 @@ PrefCrypter::remove_preference($this, PrefCrypter::MKEY);
 $this->RemovePreference();
 
 $this->RemovePermission('Modify Mail Preferences');
-$this->RemovePermission('AdministerEmailGateways');
-$this->RemovePermission('ModifyEmailateways');
-$this->RemovePermission('UseEmailGateways');
-
+if ($this->mod->platformed) {
+    $this->RemovePermission('ModifyEmailateways');
+    $this->RemovePermission('ViewEmailGateways');
+//  $this->RemovePermission('ModifyEmailTemplates');
+}
 $this->RemoveEvent($this->GetName(), 'EmailDeliveryReported');

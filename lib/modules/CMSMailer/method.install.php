@@ -1,7 +1,7 @@
 <?php
 /*
 CMSMailer module installation process
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple module CMSMailer.
 
@@ -28,19 +28,20 @@ $dict = $db->NewDataDictionary(); //old NewDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 
 $flds = '
-gate_id I(2) UNSIGNED AUTO KEY,
+id I(2) UNSIGNED AUTO KEY,
 alias C(48),
 title C(128) NOTNULL,
 description C(255),
 enabled I(1) NOTNULL DEFAULT 1,
 active I(1) NOTNULL DEFAULT 0
 ';
-$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_cmsmailer_gates', $flds, $taboptarray);
-$res = $dict->ExecuteSQLArray($sqlarray);
+if ($this->mod->platformed) {
+    $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_cmsmailer_platforms', $flds, $taboptarray);
+    $res = $dict->ExecuteSQLArray($sqlarray);
 
-$flds = '
+    $flds = '
 id I(4) UNSIGNED AUTO KEY,
-gate_id I(2) UNSIGNED NOTNULL,
+platform_id I(2) UNSIGNED NOTNULL,
 title C(96),
 value C(255),
 encvalue B(1023),
@@ -50,19 +51,19 @@ encrypt I(1) NOTNULL DEFAULT 0,
 enabled I(1) NOTNULL DEFAULT 1,
 apiorder I(1) NOTNULL DEFAULT -1
 ';
-$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_cmsmailer_props', $flds, $taboptarray);
-$res = $dict->ExecuteSQLArray($sqlarray);
-
+    $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_cmsmailer_props', $flds, $taboptarray);
+    $res = $dict->ExecuteSQLArray($sqlarray);
+}
 // Permissions
 $this->CreatePermission('Modify Mail Preferences', 'Modify CMSMailer Module Settings');
-$this->CreatePermission('AdministerEmailGateways', 'Administer Email Gateways');
-$this->CreatePermission('ModifyEmailGateways', 'Modify Email Gateway Settings');
-//$this->CreatePermission('ModifyEmailTemplates', 'Modify Email Gateway Templates');
-$this->CreatePermission('UseEmailGateways', 'Use Email Gateways');
-
+if ($this->mod->platformed) {
+    $this->CreatePermission('ModifyEmailGateways', 'Modify Email Gateway Settings');
+    $this->CreatePermission('ViewEmailGateways', 'View Email Gateways');
+    //$this->CreatePermission('ModifyEmailTemplates', 'Modify Email Gateway Templates');
+}
 // Preferences
 $pw = base64_decode('U29tZSB3b29ob28gdGhpbmd5IGdvZXMgaGVyZSE=').Crypto::random_string(8, true, true);
-PrefCrypter::encrypt_preference($this, PrefCrypter::MKEY, $pw);
+PrefCrypter::encrypt_preference(PrefCrypter::MKEY, $pw);
 
 $host = $_SERVER['SERVER_NAME'] ?? gethostname() ?? php_uname('n') ?? 'localhost.localdomain';
 $path = trim(ini_get('sendmail_path'));
@@ -97,7 +98,9 @@ unset($pw); $pw = null;
 foreach ($mailprefs as $key => $val) {
     $this->SetPreference($key, $val);
 }
-
+if ($this->mod->platformed) {
+    $this->SetPreference('platform', null); //TODO alias
+}
 //$this->SetPreference('hourlimit', 100);
 //$this->SetPreference('daylimit', 1000);
 //$this->SetPreference('logsends', true);

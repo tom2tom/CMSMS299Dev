@@ -1,7 +1,7 @@
 <?php
 /*
-CMSMailer module: a wrapper around an external email manager class
-Copyright (C) 2005-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+CMSMailer module: send email via intra-site mechanism or external platform.
+Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This module is a component of CMS Made Simple.
 
@@ -19,18 +19,23 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-if (!extension_loaded("mbstring"))
+use CMSMS\AdminMenuItem;
+use CMSMS\CoreCapabilities;
+use CMSMS\HookOperations;
+use CMSMS\IResource;
+use CMSMS\ResourceMethods;
+
+if (!extension_loaded('mbstring'))
 {
     echo '<h1 style="color:red;">ERROR: PHP&quot;s "Multibyte String" extension is required by the mailer class in the CMSMailer module</h1>';
     return;
 }
 
-use CMSMS\AdminMenuItem;
-use CMSMS\CoreCapabilities;
-use CMSMS\HookOperations;
-
-class CMSMailer extends CMSModule
+class CMSMailer implements IResource
 {
+    public $platformed = false; // whether to support some mass-mailers like MailChimp
+    private $methods;
+
 /* for CMSMS < 2.99 sans module-namespaced autoloading
     public function __construct()
     {
@@ -40,28 +45,42 @@ class CMSMailer extends CMSModule
         }
     }
 */
+    public function __call($name, $args)
+    {
+        if (!isset($this->methods)) {
+            $this->methods = new ResourceMethods($this, __DIR__);
+        }
+        if (method_exists($this->methods, $name)) {
+            return call_user_func([$this->methods, $name], ...$args);
+        }
+        throw new RuntimeException('CMSMailer resource-module invalid method: '.$name);
+    }
+
     public function GetAdminDescription() { return $this->Lang('publictip'); }
     public function GetAdminSection() { return 'extensions'; }
-    public function GetAuthor() { return ''; }
-    public function GetAuthorEmail() { return ''; }
-    public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); } // MM api
-    public function GetDependencies() { return []; }
+    public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('publicname'); }
     public function GetHelp() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'modhelp.htm'); }
-    public function GetName() { return 'CMSMailer'; }
-    public function GetVersion() { return '6.0'; }
+    public function GetVersion() { return '6.3'; }
     public function HasAdmin() { return true; }
     public function InitializeFrontend() {}
-//    public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return true; }
-    public function MinimumCMSVersion() { return '2.8.9'; }
-//    public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
-//    public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
+    public function MinimumCMSVersion() { return '2.99.0'; }
 
     public function VisibleToAdminUser()
     {
-        return $this->CheckPermission('Modify Mail Preferences') ||
-               $this->CheckPermission('Modify Site Preferences');
+        $names = [
+            'Modify Site Preferences',
+            'Modify Mail Preferences',
+        ];
+        if ($this->platformed) {
+            $names += [
+                'ModifyEmailGateways',
+                'ViewEmailGateways',
+//N/A           'ModifyEmailTemplates', maybe for changing 'this is a CC' message ?
+            ];
+        }
+        return $this->CheckPermission($names);
     }
 
     public function GetAdminMenuItems()
@@ -81,6 +100,7 @@ class CMSMailer extends CMSModule
     public function HasCapability($capability, $params = [])
     {
         switch ($capability) {
+            case CoreCapabilities::CORE_MODULE:
             case CoreCapabilities::EMAIL_MODULE:
             case CoreCapabilities::SITE_SETTINGS:
                 return true;
@@ -91,7 +111,9 @@ class CMSMailer extends CMSModule
 
     public function InitializeAdmin()
     {
-        HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
+        if ($this->VisibleToAdminUser()) { // TODO during async processing this is called when there is no user!
+            HookOperations::add_hook('ExtraSiteSettings', [$this, 'ExtraSiteSettings']);
+        }
     }
 
     /**
@@ -101,12 +123,11 @@ class CMSMailer extends CMSModule
      */
     public function ExtraSiteSettings()
     {
-        //TODO check permission local or Site Prefs
         return [
-         'title' => $this->Lang('settings_title'),
-         //'desc' => 'useful text goes here', // optional useful text
-         'url' => $this->create_url('m1_', 'defaultadmin', '', ['activetab'=>'internal']), // if permitted
-         //optional 'text' => custom link-text | explanation e.g need permission
+          'title' => $this->Lang('settings_title'),
+        //'desc' => 'useful text goes here', // optional useful text
+          'url' => $this->create_url('m1_', 'defaultadmin', '', ['activetab'=>'internal']), // if permitted
+        //optional 'text' => custom link-text | explanation e.g need permission
         ];
     }
 }
