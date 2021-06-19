@@ -113,6 +113,7 @@ EOS
  'no_platforms' => 'No email processor is available',
  'none' => 'None',
  'password' => 'Password',
+ 'operation' => 'Operation', // tab title
  'port' => 'Port',
  'postinstall' => 'CMSMailer module was successfully installed. Remember: appropriate settings must be recorded, before sending mail.',
  'postuninstall' => 'CMSMailer module was un-installed',
@@ -123,7 +124,7 @@ EOS
  'sendmail_legend' => 'Sendmail Settings',
  'sendmail' => 'Command',
  'sendtest' => 'Send',
- 'settings_title' => 'Email Settings',
+ 'settings_title' => 'Email Settings', // admin label
  'single' => 'Send Individual Emails',
  'smtp_legend' => 'SMTP Settings',
  'smtpauth' => 'Authentication is Required',

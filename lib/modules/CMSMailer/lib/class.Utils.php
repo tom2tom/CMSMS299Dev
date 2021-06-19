@@ -17,26 +17,27 @@ use function cmsms;
 
 class Utils
 {
+/* only if supporting mail platforms
     /**
      *
      * @param mixed $mod optional CMSMailer module instance
      * @return array maybe empty
-     */
-    public static function get_gateways_full($mod = null) : array
+     * /
+    public static function get_platforms_full($mod = null) : array
     {
         $db = cmsms()->GetDb();
-        $aliases = $db->GetCol('SELECT alias FROM '.CMS_DB_PREFIX.'module_cmsmailer_gates WHERE enabled>0');
+        $aliases = $db->GetCol('SELECT alias FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE enabled>0');
         if (!$aliases) {
             return [];
         }
-        $bp = cms_join_path(__DIR__, 'gateways', '');
+        $bp = cms_join_path(__DIR__, 'platforms', '');
         if ($mod === null) {
             $mod = AppUtils::get_module('CMSMailer');
         }
         $objs = [];
         foreach ($aliases as $one) {
-            $classname = $one.'_email_gateway';
-            $spaced = 'CMSMailer\\gateways\\'.$classname;
+            $classname = $one.'_platform';
+            $spaced = 'CMSMailer\\platforms\\'.$classname;
             if (!class_exists($spaced)) {
                 include $bp.'class.'.$classname.'.php';
             }
@@ -46,24 +47,25 @@ class Utils
         }
         return $objs;
     }
-
+*/
+/* only if supporting mail platforms
     /**
      *
      * @param bool $title optional flag default false
      * @param mixed $mod optional CMSMailer module instance
-     * @return mixed gateway class | null
-     */
-    public static function get_gateway(bool $title = false, $mod = null)
+     * @return mixed platform class | null
+     * /
+    public static function get_platform(bool $title = false, $mod = null)
     {
         $db = cmsms()->GetDb();
         $alias = ($title) ?
-            $db->GetOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_cmsmailer_gates WHERE title=? AND enabled>0', [$title]) :
-            $db->GetOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_cmsmailer_gates WHERE active>0 AND enabled>0');
+            $db->GetOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE title=? AND enabled>0', [$title]) :
+            $db->GetOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE active>0 AND enabled>0');
         if ($alias) {
-            $classname = $alias.'_email_gateway';
-            $spaced = 'CMSMailer\\gateways\\'.$classname;
+            $classname = $alias.'_platform';
+            $spaced = 'CMSMailer\\platforms\\'.$classname;
             if (!class_exists($spaced)) {
-                $fn = cms_join_path(__DIR__, 'gateways', 'class.'.$classname.'.php');
+                $fn = cms_join_path(__DIR__, 'platforms', 'class.'.$classname.'.php');
                 require $fn;
             }
             if ($mod === null) {
@@ -76,18 +78,19 @@ class Utils
         }
         return null;
     }
-
+*/
+/* only if supporting mail platforms
     /**
      *
      * @param $mod CMSMailer module instance
      * @param string $classname
      * @return bool
-     */
+     * /
     public static function setgate_full($mod, string $classname) : bool
     {
-        $spaced = 'CMSMailer\\gateways\\'.$classname;
+        $spaced = 'CMSMailer\\platforms\\'.$classname;
         if (!class_exists($spaced)) {
-            $fn = cms_join_path(__DIR__, 'gateways', 'class.'.$classname.'.php');
+            $fn = cms_join_path(__DIR__, 'platforms', 'class.'.$classname.'.php');
             if (is_file($fn)) {
                 include $fn;
             } else {
@@ -100,12 +103,13 @@ class Utils
         }
         return false;
     }
-
+*/
+/* only if supporting mail platforms
     /**
      *
-     * @param mixed $obj gateway class object
+     * @param mixed $obj platform class object
      * @return mixed int gate id | false
-     */
+     * /
     public static function setgate($obj)
     {
         $alias = $obj->get_alias();
@@ -123,38 +127,39 @@ class Utils
 
         $db = cmsms()->GetDb();
         //upsert, sort-of
-        $sql = 'SELECT gate_id FROM '.CMS_DB_PREFIX.'module_cmsmailer_gates WHERE alias=?';
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE alias=?';
         $gid = $db->GetOne($sql, [$alias]);
         if (!$gid) {
-            $sql = 'INSERT INTO '.CMS_DB_PREFIX.'module_cmsmailer_gates (alias,title,description) VALUES (?,?,?)';
+            $sql = 'INSERT INTO '.CMS_DB_PREFIX.'module_cmsmailer_platforms (alias,title,description) VALUES (?,?,?)';
             $db->Execute($sql, [$alias, $title, $desc]);
             $gid = $db->Insert_ID();
         } else {
             $gid = (int)$gid;
-            $sql = 'UPDATE '.CMS_DB_PREFIX.'module_cmsmailer_gates set title=?,description=? WHERE gate_id=?';
+            $sql = 'UPDATE '.CMS_DB_PREFIX.'module_cmsmailer_platforms SET title=?,description=? WHERE id=?';
             $db->Execute($sql, [$title, $desc, $gid]);
         }
         return $gid;
     }
-
+*/
+/* only if supporting mail platforms
     /**
      *
      * @param $mod CMSMailer module instance
-     */
-    public static function refresh_gateways($mod)
+     * /
+    public static function refresh_platforms($mod)
     {
-        $bp = cms_join_path(__DIR__, 'gateways', '');
-        $files = glob($bp.'class.*email_gateway.php');
+        $bp = cms_join_path(__DIR__, 'platforms', '');
+        $files = glob($bp.'class.*email_platform.php');
         if (!$files) {
             return;
         }
         $db = cmsms()->GetDb();
-        $sql = 'SELECT gate_id FROM '.CMS_DB_PREFIX.'module_cmsmailer_gates WHERE alias=?';
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE alias=?';
         $found = [];
         foreach ($files as &$one) {
             include_once $one;
             $classname = str_replace([$bp, 'class.', '.php'], ['', '', ''], $one);
-            $space = 'CMSMailer\\gateways\\'.$classname;
+            $space = 'CMSMailer\\platforms\\'.$classname;
             $obj = new $space($mod);
             $alias = $obj->get_alias();
             $res = $db->GetOne($sql, [$alias]);
@@ -166,12 +171,12 @@ class Utils
         unset($one);
 
         $fillers = implode(',', $found);
-        $sql = 'DELETE FROM '.CMS_DB_PREFIX.'module_cmsmailer_gates WHERE gate_id NOT IN ('.$fillers.')';
+        $sql = 'DELETE FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE id NOT IN ('.$fillers.')';
         $db->Execute($sql);
         $sql = 'DELETE FROM '.CMS_DB_PREFIX.'module_cmsmailer_props WHERE gate_id NOT IN ('.$fillers.')';
         $db->Execute($sql);
     }
-
+*/
     /**
      *
      * @param int $gid
@@ -189,22 +194,27 @@ UPDATE {$pref}module_cmsmailer_props SET title=?,value=?,encvalue=?,
 signature = CASE WHEN signature IS NULL THEN ? ELSE signature END,
 encrypt=?,apiorder=? WHERE gate_id=? AND apiname=?
 EOS;
+/* only if supporting mail platforms
         $sql2 = <<<EOS
 INSERT INTO {$pref}module_cmsmailer_props (gate_id,title,value,encvalue,apiname,signature,encrypt,apiorder)
 SELECT ?,?,?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z WHERE NOT EXISTS
 (SELECT 1 FROM {$pref}module_cmsmailer_props T1 WHERE T1.gate_id=? AND T1.apiname=?)
 EOS;
+*/
         $o = 1;
         foreach ($props as &$data) {
             if ($data[3]) {
                 $a1 = [$data[0], null, $data[2], $data[1], 1, $o, $gid, $data[1]];
-                $a2 = [$gid, $data[0], null, $data[2], $data[1], $data[1], 1, $o, $gid, $data[1]];
+/* only if supporting mail platforms
+                $a2 = [$gid, $data[0], null, $data[2], $data[1], $data[1], 1, $o, $gid, $data[1]];*/
             } else {
                 $a1 = [$data[0], $data[2], null, $data[1], 0, $o, $gid, $data[1]];
-                $a2 = [$gid, $data[0], $data[2], null, $data[1], $data[1], 0, $o, $gid, $data[1]];
+/* only if supporting mail platforms
+                $a2 = [$gid, $data[0], $data[2], null, $data[1], $data[1], 0, $o, $gid, $data[1]];*/
             }
             $db->Execute($sql1, $a1);
-            $db->Execute($sql2, $a2);
+/* only if supporting mail platforms
+            $db->Execute($sql2, $a2);*/
             ++$o;
         }
         unset($data);
@@ -213,7 +223,7 @@ EOS;
     /**
      *
      * @param $mod CMSMailer module instance UNUSED
-     * @param int $gid gateway enumerator/id
+     * @param int $gid platform enumerator/id
      * @return array each key = signature-field value, each value = array with keys
      *   'apiname' and 'value' (for which the actual value is decrypted if relevant)
      */
@@ -258,7 +268,7 @@ EOS;
     /**
      * @param type $mod
      * @param $parms (if it exists) is either a Lang key or one of the
-     *  CMSMailer\base_email_gateway::STAT_* constants
+     *  CMSMailer\base_email_platform::STAT_* constants
      * @return string
      */
     public static function get_msg($mod, ...$parms) : string
@@ -272,7 +282,7 @@ EOS;
                 }
             } else {
                 $txt = implode(',', $parms);
-                if ($ip && $parms[0] != base_email_gateway::STAT_NOTSENT) {
+                if ($ip && $parms[0] != base_email_platform::STAT_NOTSENT) {
                     $txt .= ','.$ip;
                 }
             }

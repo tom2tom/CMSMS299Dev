@@ -1,8 +1,11 @@
 {if isset($message)}<p>{$message}</p>{/if}
+{tab_header name='internal' label=$mod->Lang('operation') active=$tab}
+{* only if supporting external platforms
 {tab_header name='internal' label=$mod->Lang('internal') active=$tab}
 {if $pgates}
 {tab_header name='gates' label=$mod->Lang('external') active=$tab}
 {/if}
+*}
 {tab_header name='test' label=$mod->Lang('test') active=$tab}
 {if $pmod}
 {tab_header name='settings' label=$mod->Lang('module') active=$tab}
@@ -153,32 +156,33 @@
     <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </div>
 </form>
+{* only if supporting external platforms
 {if $pgates}
 {tab_start name='gates'}
 {$startform}
  {if $gatesdata}
  {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}" />
 {/foreach}
-{* js hides all except current
+{ * js hides all except current
   {if count($gatesdata) > 2}
    <div class="pageinput postgap">
    <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
    </div>
   {/if}
-*}
-  {$t=$mod->Lang('default_gateway')}
-  <label class="pagetext" for="currentgate">{$t}:</label>
-  {cms_help realm=$_module key2='info_currentgate' title=$t}
+* }
+  {$t=$mod->Lang('default_platform')}
+  <label class="pagetext" for="platform">{$t}:</label>
+  {cms_help realm=$_module key2='info_platform' title=$t}
   <div class="pageinput">
-    <select id="currentgate" name="{$actionid}currentgate">
-    {html_options options=$gatesnames selected=$gatecurrent}
+    <select id="platform" name="{$actionid}platform">
+    {html_options options=$gatesnames selected=$current}
     </select>
   </div>
   <p class="pagewarn pregap">{$mod->Lang('info_sure')}</p>
   <p class="pageinfo">{$mod->Lang('info_dnd')}</p>
   {foreach $gatesdata as $alias => $one}
-   <div id="{$alias}" class="gateway_panel" style="margin:0.5em 0;">
+   <div id="{$alias}" class="platform_panel" style="margin:0.5em 0;">
    {$one}
    </div>
   {/foreach}
@@ -190,13 +194,14 @@
     <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </div>
  {else}
-  <p class="pageinfo">{$mod->Lang('no_gates')}</p>
+  <p class="pageinfo">{$mod->Lang('no_platforms')}</p>
   <div class="pageoptions">{$t=$mod->Lang('add_gate')}
   <a href="{$addurl}" title="{$mod->Lang('info_addgate')}">{admin_icon icon='newobject.gif' class='systemicon alt=$t'}&nbsp;&nbsp;{$t}</a>
   </div>
  {/if}
 </form>
-{/if}{* $pgates *}
+{/if}{ * $pgates * }
+*}
 {tab_start name='test'}
 {$startform}
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}" />
