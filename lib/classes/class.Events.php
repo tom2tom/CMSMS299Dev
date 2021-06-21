@@ -197,7 +197,7 @@ EOS;
 						} else {
 							continue 2; //unlikely
 						}
-						call_user_function_array($func, [$originator, $eventname, $params]);
+						$func($originator, $eventname, $params);
 					}
 					break;
 //				  case 'C': //callable
@@ -205,7 +205,7 @@ EOS;
 					if ($handler && $row['class']) {
 						//TODO validate
 						$func = $row['class'].'::'.$handler;
-						call_user_func_array($func, [$originator, $eventname, $params]);
+						$func($originator, $eventname, $params);
 					}
 					break;
 				}
@@ -351,7 +351,7 @@ EOS;
 	public static function AddStaticHandler(string $originator, string $eventname, $callback, string $type = 'C', bool $removable = true) : bool
 	{
 		$params = self::InterpretCallback($callback, $type);
-		if (!$params || (empty($params[0] && empty($params[1])))) {
+		if (!$params || (empty($params[0]) && empty($params[1]))) {
 			return false;
 		}
 		$db = AppSingle::Db();
@@ -496,7 +496,7 @@ EOS;
 	public static function RemoveStaticHandler(string $originator, string $eventname, $callback, string $type = 'C')
 	{
 		$params = self::InterpretCallback($callback, $type);
-		if (!$params || (empty($params[0] && empty($params[1])))) {
+		if (!$params || (empty($params[0]) && empty($params[1]))) {
 			return false;
 		}
 
