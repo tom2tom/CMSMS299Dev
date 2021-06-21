@@ -67,7 +67,7 @@
   <form action="{$importurl}" enctype="multipart/form-data" method="post">
     {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
   {/foreach}
-    <input type="file" name="{$actionid}import_file" id="theme_select" title="{$mod->Lang('help_themeimport')|escape:"javascript"}" size="30" maxlength="50" accept="text/xml" multiple="" />
+    <input type="file" name="{$actionid}import_file" id="theme_select" title="{$mod->Lang('help_themeimport')|escape:'javascript'}" size="30" maxlength="50" accept="text/xml" multiple="" />
   </form>
   <br />
   <div id="theme_dropzone" title="{$mod->Lang('help_drop')}">
@@ -92,6 +92,6 @@
  <div class="dlg-options">
   <label for="fld_name">{$mod->Lang('name')}:</label> <input type="text" id="fld_name" name="{$actionid}name" />
  </div>
- </form> 
+ </form>
 </div>
 {/if}
