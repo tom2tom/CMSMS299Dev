@@ -1,6 +1,5 @@
 <?php
 $lang['add'] = 'Add';
-$lang['admindescription'] = 'Manage theme packages';
 $lang['apply'] = 'Apply';
 $lang['back_to_module'] = 'Return to Themes Manager';
 $lang['cancel'] = 'Cancel';
@@ -27,7 +26,6 @@ $lang['err_xmlcontent'] = 'Failed to load xml from file';
 $lang['err_xmlversion'] = 'Invalid file format';
 $lang['error'] = 'Failed!';
 $lang['export'] = 'Export';
-$lang['friendlyname'] = 'Frontend Themes';
 $lang['help_current_theme'] = 'TODO10';
 $lang['help_drop'] = 'Drop an XML theme file dragged from your file manager, to automatically begin uploading'; //tooltip
 $lang['help_menu'] = 'Actions menu';
@@ -55,6 +53,8 @@ $lang['parent'] = 'Parent Template(s)';
 $lang['postinstall'] = 'Be sure to set themes-managment permissions for users of this module!';
 $lang['postuninstall'] = 'Themes Manager has been uninstalled.';
 $lang['preuninstall'] = 'Are you sure you want to uninstall the Themes Manager module?';
+$lang['publicname'] = 'Frontend Themes';
+$lang['publictip'] = 'Manage theme packages';
 $lang['revert'] = 'Revert';
 $lang['submit'] = 'Submit';
 $lang['tab_code'] = 'Code';

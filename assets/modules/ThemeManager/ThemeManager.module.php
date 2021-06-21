@@ -29,13 +29,13 @@ class ThemeManager extends CMSModule
     const DTD_MINVERSION = 1.2;
 
     public function AllowSmartyCaching() { return true; }
-    public function GetAdminDescription() { return $this->Lang('admindescription'); }
+    public function GetAdminDescription() { return $this->Lang('publictip'); }
     public function GetAdminSection() { return 'layout'; }
     public function GetAuthor() { return 'Daniel Noor'; }
     public function GetAuthorEmail() { return 'danielnoor@cottagenetworks.com'; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetDependencies() { return ['FileManager' => '1.0.3']; }
-    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
+    public function GetFriendlyName() { return $this->Lang('publicname'); }
     public function GetHelp() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'modhelp.htm'); }
     public function GetName() { return 'ThemeManager'; }
     public function GetVersion() { return '0.9'; }
@@ -44,7 +44,7 @@ class ThemeManager extends CMSModule
     public function IsPluginModule() { return false; }
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.8.900'; }
+    public function MinimumCMSVersion() { return '2.99.0'; }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
     public function UninstallPreMessage() { return $this->Lang('preuninstall'); }
 
