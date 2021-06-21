@@ -20,4 +20,4 @@ $dict->ExecuteSQLArray($sqlarray);
 $this->RemovePermission();
 
 // put mention into the admin log
-audit($this->Lang('friendlyname'), $this->Lang('uninstalled'));
+audit($this->Lang('publicname'), $this->Lang('uninstalled'));

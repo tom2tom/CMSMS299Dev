@@ -40,4 +40,4 @@ $this->CreatePermission('Manage Themes', 'Manage Themes');
 $this->CreatePermission('Manage Theme Contents', 'Manage Theme Contents');
 
 // put mention into the admin log
-audit($this->Lang('friendlyname'), $this->Lang('installed', $this->GetVersion()));
+audit($this->Lang('publicname'), $this->Lang('installed', $this->GetVersion()));

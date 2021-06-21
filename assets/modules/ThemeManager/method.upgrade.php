@@ -26,4 +26,4 @@ switch ($current_version) {
 }
 
 // put mention into the admin log
-audit($this->Lang('friendlyname'), $this->Lang('upgraded', $this->GetVersion()));
+audit($this->Lang('publicname'), $this->Lang('upgraded', $this->GetVersion()));
