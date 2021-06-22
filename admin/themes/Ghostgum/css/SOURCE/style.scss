@@ -2257,6 +2257,23 @@ button.ui-button {
     }
 }
 
+/* TODO defaults for all themes without a custom fetch_menu_page() */
+.topmenu_section {
+    margin: 0 0 0.5em 0
+}
+.topmenu_section > h3 {
+    margin: 0.5em 0
+}
+.topmenu_description {
+    margin-top: -0.5em;
+    font-style: italic
+}
+.topmenu_item {
+    margin: 0 0 0.5em 1em
+}
+.topmenu_item a {
+}
+
 #topcontent_wrap {
     @include flexbox;
     @include flex-wrap(wrap);
@@ -2687,7 +2704,7 @@ img.systemicon {
 
 /*** header ***/
 
-/* this works better as a flexbox, even when cssgrid is available */
+/* this works better as a flexbox, even when css-grid is available */
 #ggp_header {
     @include flex(0, 0, auto); // body vbox child
     @include flexbox; // and h container
@@ -3002,6 +3019,18 @@ img.systemicon {
 
 /*** content ***/
 
+.headericon {
+    display: inline-block;
+    vertical-align: middle;
+    margin: sidedValues(0, 1em, 0, 0);
+    height: 2em;
+    width: 2em;
+    img {
+        max-height: 2em;
+        max-width: 2em;
+    }
+}
+
 #ggp_contentwrap {
     @include flexbox;
     @include flex-direction(column);
@@ -3020,17 +3049,6 @@ img.systemicon {
         line-height: 2;
         font-size: 1.1em;
         font-weight: normal;
-    }
-    .headericon {
-        display: inline-block;
-        vertical-align: middle;
-        margin: sidedValues(0, 1em, 0, 0);
-        height: 2em;
-        width: 2em;
-        img {
-            max-height: 2em;
-            max-width: 2em;
-        }
     }
     span.helptext {
         display: inline-block;
@@ -3633,4 +3651,8 @@ img.systemicon {
     #cms-logo {
         display: none;
     }
+}
+
+@supports (display: grid) {
+// stuff to use when css-grid is supported by the browser
 }
