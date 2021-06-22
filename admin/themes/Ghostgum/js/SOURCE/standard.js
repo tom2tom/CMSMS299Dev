@@ -276,7 +276,7 @@ var themejs = {};
    * @function _isMobileDevice()
    * @return boolean
    */
-  this._isMobileDevice = function () {
+  this.isMobileDevice = function () {
     // references:
     // https://peterscene.com/blog/detecting-touch-devices-2018-update
     // https://medium.com/@ferie/detect-a-touch-device-with-only-css-9f8e30fa1134
