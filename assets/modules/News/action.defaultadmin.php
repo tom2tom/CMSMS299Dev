@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminUtils;
+use CMSMS\Utils;
 use News\AdminOperations;
 
 if( !isset($gCms) ) exit;
@@ -133,7 +134,7 @@ add_page_foottext($js);
 
 //variables in scope for inclusions
 $userid = get_userid();
-$themeObj = cms_utils::get_theme_object();
+$themeObj = Utils::get_theme_object();
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'function.itemstab.php';
 if( $pmod ) {

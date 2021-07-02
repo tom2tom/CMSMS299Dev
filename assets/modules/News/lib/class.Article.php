@@ -22,9 +22,10 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace News;
 
 use cms_config;
-use cms_utils;
+use CMSMS\AppSingle;
 use CMSMS\ContentOperations;
 use CMSMS\UserOperations;
+use CMSMS\Utils;
 use News\Utils;
 use function munge_string_to_url;
 
@@ -68,7 +69,7 @@ class Article
     private function _getauthorinfo(int $author_id, bool $authorname = FALSE)
     {
         if( !isset($this->_meta['author']) ) {
-            $mod = cms_utils::get_module('News');
+            $mod = Utils::get_module('News');
             $this->_meta['author'] = $mod->Lang('anonymous');
             $this->_meta['authorname'] = $mod->Lang('unknown');
             if( $author_id > 0 ) {
@@ -91,7 +92,7 @@ class Article
     private function _get_returnid()
     {
         if( !isset($this->_meta['returnid']) ) {
-            $mod = cms_utils::get_module('News');
+            $mod = Utils::get_module('News');
             $tmp = $mod->GetPreference('detail_returnid',-1);
             if( $tmp <= 0 ) $tmp = ContentOperations::get_instance()->GetDefaultContent();
             $this->_meta['returnid'] = $tmp;
@@ -108,7 +109,7 @@ class Article
                 $aliased_title = munge_string_to_url($this->title);
                 $tmp = 'news/'.$this->id.'/'.$this->returnid."/{$aliased_title}";
             }
-            $mod = cms_utils::get_module('News');
+            $mod = Utils::get_module('News');
             $canonical = $mod->create_url($this->_inid,'detail',$this->returnid,$this->params,false,false,$tmp);
             $this->_meta['canonical'] = $canonical;
         }
@@ -171,7 +172,7 @@ class Article
             return date('Y-m-d H:i',$this->_getdata($key));
 
         case 'file_location':
-            $config = cms_config::get_instance();
+            $config = AppSingle::Config();
             $url = $config['uploads_url'].'/news/id'.$this->id;
             return $url;
 

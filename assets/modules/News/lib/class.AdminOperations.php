@@ -20,16 +20,16 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace News;
-//use function cms_move_uploaded_file;
 
-use cms_utils;
+//use function cms_move_uploaded_file;
+use CMSMS\AppSingle;
 use CMSMS\ContentOperations;
 use CMSMS\Events;
+use CMSMS\Route;
 use CMSMS\RouteOperations;
-use CmsRoute;
+use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function audit;
-use function cmsms;
 use function get_userid;
 
 final class AdminOperations
@@ -47,7 +47,7 @@ final class AdminOperations
     {
         if (!$articleid) return false;
 
-        $db = cmsms()->GetDb();
+        $db = AppSingle::Db();
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
         $row = $db->GetRow($query, [$articleid]);
         if ($row) {
@@ -106,7 +106,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     {
         if (!$articleid) return false;
 
-        $db = cmsms()->GetDb();
+        $db = AppSingle::Db();
         // remove the article
         $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
         $db->Execute($query, [$articleid]);
@@ -114,8 +114,8 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         self::delete_static_route($articleid);
 
         //Update search index
-        $mod = cms_utils::get_module('News');
-        $module = cms_utils::get_search_module();
+        $mod = Utils::get_module('News');
+        $module = Utils::get_search_module();
         if ($module != false) $module->DeleteWords($mod->GetName(), $articleid, 'article');
 
         Events::SendEvent( 'News', 'NewsArticleDeleted', ['news_id'=>$articleid ] );
@@ -135,9 +135,9 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 /*
     public static function handle_upload($itemid,$fieldname,&$error)
     {
-        $config = cmsms()->GetConfig();
+        $config = CMSMS\AppSingle::Config();
 
-        $mod = cms_utils::get_module('News');
+        $mod = CMSMS\Utils::get_module('News');
         $p = cms_join_path($config['uploads_path'],'news');
         if (!is_dir($p)) {
             if( @mkdir($p) === false ) {
@@ -185,7 +185,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     */
     public static function UpdateHierarchyPositions()
     {
-        $db = cmsms()->GetDb();
+        $db = AppSingle::Db();
         $query = 'SELECT news_category_id, item_order, news_category_name FROM '.CMS_DB_PREFIX.'module_news_categories';
         $rst = $db->Execute($query);
         if ($rst) {
@@ -245,14 +245,14 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     public static function register_static_route($news_url,$news_article_id,$detailpage = '')
     {
         if( $detailpage <= 0 ) {
-            $module = cms_utils::get_module('News');
+            $module = Utils::get_module('News');
             $detailpage = $module->GetPreference('detail_returnid',-1);
             if( $detailpage == -1 ) {
                 $detailpage = ContentOperations::get_instance()->GetDefaultContent();
             }
         }
         $dflts = ['action'=>'detail','returnid'=>$detailpage,'articleid'=>$news_article_id];
-        $route = new CmsRoute($news_url,'News',$dflts,TRUE,$news_article_id);
+        $route = new Route($news_url,'News',$dflts,TRUE,$news_article_id);
         return RouteOperations::add_static($route);
     }
 

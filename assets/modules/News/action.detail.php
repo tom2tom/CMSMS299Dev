@@ -19,6 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\Error404Exception;
 use CMSMS\TemplateOperations;
 use News\Article;
 use News\Utils;
@@ -76,7 +77,7 @@ elseif( isset($params['articleid']) && (int)$params['articleid'] > 0 ) {
     $article = Utils::get_article_by_id((int)$params['articleid'],true,$show_expired);
 }
 if( !$article ) {
-    throw new CmsError404Exception('Article '.(int)$params['articleid'].' not found, or otherwise unavailable');
+    throw new Error404Exception('Article '.(int)$params['articleid'].' not found, or otherwise unavailable');
 }
 $article->set_linkdata($id,$params);
 

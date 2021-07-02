@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace News;
 
-use cms_utils;
-use CmsApp;
+use CMSMS\AppSingle;
+use CMSMS\Utils;
 use CmsRegularTask;
 use News\DraftMessageAlert;
 use const CMS_DB_PREFIX;
@@ -45,7 +45,7 @@ class CreateDraftAlertTask implements CmsRegularTask
   public function test($time = 0)
   {
     if( !$time ) $time = time();
-    $mod = cms_utils::get_module('News');
+    $mod = Utils::get_module('News');
     $lastrun = (int) $mod->GetPreference(self::LASTRUN_SITEPREF);
     return $lastrun <= ($time - 900); // hardcoded to quarter-hourly
   }
@@ -53,7 +53,7 @@ class CreateDraftAlertTask implements CmsRegularTask
   public function on_success($time = 0)
   {
     if( !$time ) $time = time();
-    $mod = cms_utils::get_module('News');
+    $mod = Utils::get_module('News');
     $mod->SetPreference(self::LASTRUN_SITEPREF,$time);
   }
 
@@ -62,7 +62,7 @@ class CreateDraftAlertTask implements CmsRegularTask
   public function execute($time = 0)
   {
     if( !$time ) $time = time();
-    $db = CmsApp::get_instance()->GetDb();
+    $db = AppSingle::Db();
     $query = 'SELECT COUNT(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status = \'draft\' AND (end_time IS NULL OR end_time=0 OR end_time > '.$time.')';
     $count = $db->GetOne($query);
     if( $count ) {

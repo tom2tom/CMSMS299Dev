@@ -22,10 +22,11 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace News;
 
 use cms_config;
-use cms_utils;
-use CmsApp;
+use CMSMS\AppSingle;
+use CMSMS\Utils as AppUtils;
 use DateTime;
 use DateTimeZone;
+use News\Article;
 use const CMS_DB_PREFIX;
 
 final class Utils
@@ -84,7 +85,7 @@ final class Utils
 
 		// get counts.
 		$depth = 1;
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$counts = [];
 		$now = time();
 
@@ -124,7 +125,7 @@ final class Utils
 			$parms['category_id'] = $row['news_category_id'];
 
 			$pageid = (isset($params['detailpage']) && $params['detailpage']!='')?$params['detailpage']:$returnid;
-			$mod = cms_utils::get_module('News');
+			$mod = AppUtils::get_module('News');
 			$row['url'] = $mod->CreateLink($id,'default',$pageid,$row['news_category_name'],$parms,'',true);
 			$items[] = $row;
 		}
@@ -138,7 +139,7 @@ final class Utils
 	public static function get_all_categories() : array
 	{
 		if( !self::$_categories_loaded ) {
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
 			$dbresult = $db->GetArray($query);
 			if( $dbresult ) self::$_cached_categories = $dbresult;
@@ -193,15 +194,15 @@ final class Utils
 
 	/**
 	 *
-	 * @param News\Article $news
+	 * @param Article $news
 	 * @param array $params
 	 * @param bool $handle_uploads Default false UNUSED
 	 * @param bool $handle_deletes Default false UNUSED
-	 * @return News\Article
+	 * @return Article
 	 */
 	public static function fill_article_from_formparams(Article &$news,array $params,bool $handle_uploads = FALSE,$handle_deletes = FALSE) : Article
 	{
-		$cz = cms_config::get_instance()['timezone'];
+		$cz = AppSingle::Config()['timezone'];
 		$tz = new DateTimeZone($cz);
 		$dt = new DateTime(null, $tz);
 		$toffs = $tz->getOffset($dt);
@@ -335,7 +336,7 @@ final class Utils
 	 */
 	public static function get_latest_article(bool $for_display = TRUE)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$now = time();
 		$query = 'SELECT N.*, G.news_category_name FROM '.CMS_DB_PREFIX.'module_news N LEFT OUTER JOIN '.CMS_DB_PREFIX."module_news_categories G ON G.news_category_id = N.news_category_id WHERE status = 'published' AND ";
 		$query .= '('.$db->IfNull('start_time',1)." < $now) AND end_time IS NULL OR OR end_time=0 OR end_time > $now) ";
@@ -355,7 +356,7 @@ final class Utils
 	 */
 	public static function get_article_by_id($article_id,$for_display = TRUE,$allow_expired = FALSE)
 	{
-		$db = CmsApp::Get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$now = time();
 		$query = 'SELECT N.*, G.news_category_name FROM '.CMS_DB_PREFIX.'module_news N
 LEFT OUTER JOIN '.CMS_DB_PREFIX.'module_news_categories G ON G.news_category_id = N.news_category_id

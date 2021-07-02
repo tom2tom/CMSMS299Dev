@@ -20,8 +20,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Events;
+use CMSMS\Utils;
 
-if( !isset($gCms) ) exit();
+if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Approve News') ) exit;
 
 if( !isset($params['approve']) || !isset($params['articleid']) ) {
@@ -29,7 +30,7 @@ if( !isset($params['approve']) || !isset($params['articleid']) ) {
 }
 
 $articleid = (int)$params['articleid'];
-$search = cms_utils::get_search_module();
+$search = Utils::get_search_module();
 $status = '';
 $now = time();
 $uquery = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?,modified_date = ? WHERE news_id = ?';

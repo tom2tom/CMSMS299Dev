@@ -18,9 +18,14 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AdminMenuItem;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
 use CMSMS\HookOperations;
+use CMSMS\Route;
 use CMSMS\RouteOperations;
+use CMSMS\Utils;
 use News\AdjustStatusJob;
 use News\AdjustStatusTask;
 use News\AdminOperations;
@@ -190,7 +195,7 @@ EOS;
             $row = $db->GetRow( $q, [ $articleid ] );
 
             if ($row) {
-                $gCms = CmsApp::get_instance();
+                $gCms = AppSingle::App();
                 //0 position is the prefix displayed in the list results.
                 $result[0] = $this->GetFriendlyName();
 
@@ -268,7 +273,7 @@ EOS;
     {
         $fmt = $this->GetPreference('date_format');
         if (!$fmt) {
-            $fmt = cms_siteprefs::get('defaultdateformat','%Y-%m-%e %H:%M');
+            $fmt = AppParams::get('defaultdateformat','%Y-%m-%e %H:%M');
         }
         return $fmt;
     }
@@ -304,19 +309,19 @@ EOS;
         $str = $this->GetName();
         RouteOperations::del_static('',$str);
 
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::Db();
         $c = strtoupper($str[0]);
         $x = substr($str,1);
         $x1 = '['.$c.strtolower($c).']'.$x;
 
-        $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)\/(?P<junk>.*?)\/d,(?P<detailtemplate>.*?)$/',
+        $route = new Route('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)\/(?P<junk>.*?)\/d,(?P<detailtemplate>.*?)$/',
                               $str);
         RouteOperations::add_static($route);
-        $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)\/(?P<junk>.*?)$/',$str);
+        $route = new Route('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)\/(?P<junk>.*?)$/',$str);
         RouteOperations::add_static($route);
-        $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)$/',$str);
+        $route = new Route('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)$/',$str);
         RouteOperations::add_static($route);
-        $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)$/',$str,
+        $route = new Route('/'.$x1.'\/(?P<articleid>[0-9]+)$/',$str,
                               ['returnid'=>$this->GetPreference('detail_returnid',-1)]);
         RouteOperations::add_static($route);
 
@@ -335,14 +340,14 @@ EOS;
 
     public static function page_type_lang_callback($str)
     {
-        $mod = cms_utils::get_module('News');
+        $mod = Utils::get_module('News');
         if( is_object($mod) ) return $mod->Lang('type_'.$str);
     }
 
     public static function template_help_callback($str)
     {
         $str = trim($str);
-        $mod = cms_utils::get_module('News');
+        $mod = Utils::get_module('News');
         if( is_object($mod) ) {
             $file = $mod->GetModulePath().'/doc/tpltype_'.$str.'.inc';
             if( is_file($file) ) return file_get_contents($file);
@@ -351,7 +356,7 @@ EOS;
 
     public static function reset_page_type_defaults(CmsLayoutTemplateType $type)
     {
-        if( $type->get_originator() != 'News' ) throw new CmsLogicException('Cannot reset contents for this template type');
+        if( $type->get_originator() != 'News' ) throw new LogicException('Cannot reset contents for this template type');
 
         $fn = null;
         switch( $type->get_name() ) {
@@ -429,7 +434,7 @@ EOS;
     public function GetAdminMenuItems()
     {
         $out = [];
-        if( $this->VisibleToAdminUser() ) $out[] = CmsAdminMenuItem::from_module($this);
+        if( $this->VisibleToAdminUser() ) $out[] = AdminMenuItem::from_module($this);
         return $out;
     }
 } // class

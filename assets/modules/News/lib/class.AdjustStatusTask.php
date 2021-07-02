@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace News;
 
-use cms_utils;
-use CmsApp;
+use CMSMS\AppSingle;
+use CMSMS\Utils;
 use CmsRegularTask;
 use const CMS_DB_PREFIX;
 
@@ -43,7 +43,7 @@ final class AdjustStatusTask implements CmsRegularTask
     public function test($time = 0)
     {
         if( !$time ) $time = time();
-        $mod = cms_utils::get_module('News');
+        $mod = Utils::get_module('News');
         $lastrun = (int) $mod->GetPreference(self::PREFNAME);
         return $lastrun <= ($time - 3600); // hardcoded to hourly
     }
@@ -51,7 +51,7 @@ final class AdjustStatusTask implements CmsRegularTask
     public function on_success($time = 0)
     {
         if( !$time ) $time = time();
-        $mod = cms_utils::get_module('News');
+        $mod = Utils::get_module('News');
         $mod->SetPreference(self::PREFNAME,$time);
     }
 
@@ -59,7 +59,7 @@ final class AdjustStatusTask implements CmsRegularTask
 
     public function execute($time = 0)
     {
-        $db = CmsApp::get_instance()->GetDb();
+        $db = AppSingle::Db();
         if( !$time ) $time = time();
         $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'archived\' WHERE (status=\'published\' OR status=\'final\') AND end_time IS NOT NULL AND end_time BETWEEN 1 AND ?';
         $db ->Execute($query,[$time]);

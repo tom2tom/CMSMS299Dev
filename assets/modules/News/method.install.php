@@ -21,6 +21,9 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
+use CMSMS\Template;
+use CMSMS\TemplatesGroup;
+use CMSMS\TemplateType;
 use News\AdminOperations;
 
 if( !isset($gCms) ) exit;
@@ -147,7 +150,7 @@ if ((int)$count == 0) {
 $me = $this->GetName();
 // Setup summary templates type
 try {
-    $type = new CmsLayoutTemplateType();
+    $type = new TemplateType();
     $type->set_originator($me);
     $type->set_name('summary');
     $type->set_dflt_flag(TRUE);
@@ -173,7 +176,7 @@ try {
     $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_summary_template.tpl';
     if( is_file( $fn ) ) {
         $content = @file_get_contents($fn);
-        $tpl = new CmsLayoutTemplate();
+        $tpl = new Template();
         $tpl->set_originator($me);
         $tpl->set_name('News Summary Sample');
         $tpl->set_owner($uid);
@@ -200,7 +203,7 @@ if( $newsite ) {
         $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Summary_Simplex_template.tpl';
         if( is_file( $fn ) ) {
             $content = @file_get_contents($fn);
-            $tpl = new CmsLayoutTemplate();
+            $tpl = new Template();
             $tpl->set_originator($me);
             $tpl->set_name('Simplex News Summary');
             $tpl->set_owner($uid);
@@ -217,7 +220,7 @@ if( $newsite ) {
 
 try {
     // Setup detail templates type
-    $type = new CmsLayoutTemplateType();
+    $type = new TemplateType();
     $type->set_originator($me);
     $type->set_name('detail');
     $type->set_dflt_flag(TRUE);
@@ -242,7 +245,7 @@ try {
     $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_detail_template.tpl';
     if( is_file( $fn ) ) {
         $content = @file_get_contents($fn);
-        $tpl = new CmsLayoutTemplate();
+        $tpl = new Template();
         $tpl->set_originator($me);
         $tpl->set_name('News Detail Sample');
         $tpl->set_owner($uid);
@@ -268,7 +271,7 @@ if( $newsite ) {
         $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Detail_template.tpl';
         if( is_file( $fn ) ) {
             $content = @file_get_contents($fn);
-            $tpl = new CmsLayoutTemplate();
+            $tpl = new Template();
             $tpl->set_originator($me);
             $tpl->set_name('Simplex News Detail');
             $tpl->set_owner($uid);
@@ -284,7 +287,7 @@ if( $newsite ) {
 
     if( $extras ) {
         try {
-            $ob = CmsLayoutTemplateCategory::load('Simplex');
+            $ob = TemplatesGroup::load('Simplex');
             $ob->add_members($extras);
             $ob->save();
         }
@@ -296,7 +299,7 @@ if( $newsite ) {
 /*
 try {
     // Setup form template type
-    $type = new CmsLayoutTemplateType();
+    $type = new TemplateType();
     $type->set_originator($me);
     $type->set_name('form');
     $type->set_dflt_flag(TRUE);
@@ -321,7 +324,7 @@ try {
     $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_form_template.tpl';
     if( is_file( $fn ) ) {
         $content = @file_get_contents($fn);
-        $tpl = new CmsLayoutTemplate();
+        $tpl = new Template();
         $tpl->set_originator($me);
         $tpl->set_name('News FEsubmit Form Sample');
         $tpl->set_owner($uid);
@@ -343,7 +346,7 @@ catch( Throwable $t ) {
 */
 try {
     // Setup browsecat template type
-    $type = new CmsLayoutTemplateType();
+    $type = new TemplateType();
     $type->set_originator($me);
     $type->set_name('browsecat');
     $type->set_dflt_flag(TRUE);
@@ -368,7 +371,7 @@ try {
     $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'browsecat.tpl';
     if( is_file( $fn ) ) {
         $content = @file_get_contents($fn);
-        $tpl = new CmsLayoutTemplate();
+        $tpl = new Template();
         $tpl->set_originator($me);
         $tpl->set_name('News Browse Category Sample');
         $tpl->set_owner($uid);

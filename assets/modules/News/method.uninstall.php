@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Database\DataDictionary;
 use CMSMS\RouteOperations;
+use CMSMS\TemplateType;
 
 if( !isset($gCms) ) exit;
 
@@ -79,7 +80,7 @@ $this->DeleteTemplate();
 //$this->DeleteTemplate('displaydetail');
 
 try {
-  $types = CmsLayoutTemplateType::load_all_by_originator($me);
+  $types = TemplateType::load_all_by_originator($me);
   if( $types ) {
     foreach( $types as $type ) {
       $templates = $type->get_template_list();

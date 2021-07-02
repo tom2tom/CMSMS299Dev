@@ -2,28 +2,30 @@
 /*
 Defaultadmin action templates tab populator.
 Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
 
 $query = 'SELECT T.id,T.name,T.description,T.type_dflt,TY.name AS type
 FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' T JOIN '.
-CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME. ' TY ON T.type_id=TY.id
-WHERE T.originator="'.$this->GetName().'" ORDER BY TY.name,T.name';
+CMS_DB_PREFIX.TemplateType::TABLENAME. ' TY ON T.type_id=TY.id
+WHERE T.originator=\''.$this->GetName().'\' ORDER BY TY.name,T.name';
 
 $dbr = $db->GetArray($query);
 if( $dbr ) {
@@ -62,7 +64,7 @@ if( $dbr ) {
 		if( strcasecmp($obj->type,'Moduleaction') != 0 ) {
             $obj->dflt = ($row['type_dflt']) ? $icontrue : (($pset) ? str_replace('XXX', $tid, $linkdefault) : $iconfalse);
 		}
-		else { 
+		else {
     		$obj->dflt = lang('n_a');
     	}
 		$obj->url  = ($pmod) ? str_replace('XXX', $tid, $editurl) : null;

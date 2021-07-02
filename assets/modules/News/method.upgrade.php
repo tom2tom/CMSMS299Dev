@@ -2,30 +2,34 @@
 /*
 News module upgrade process
 Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminUtils;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\CmsException;
 use CMSMS\Database\DataDictionary;
+use CMSMS\Template;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
+use Exception;
 
 if (!isset($gCms)) exit;
-$db = $gCms->GetDb();
+$db = AppSingle::Db();
 $dict = new DataDictionary($db);
 $me = $this->GetName();
 
@@ -64,7 +68,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         $prototype = $_fix_name($prototype);
 
         try {
-            $tpl = new CmsLayoutTemplate();
+            $tpl = new Template();
             $tpl->set_originator($mod->GetName());
             $tpl->set_name(TemplateOperations::get_unique_name($prototype,$prefix2));
             $tpl->set_owner($uid);
@@ -107,7 +111,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         $alltemplates = $this->ListTemplates();
 
         try {
-            $summary_template_type = new CmsLayoutTemplateType();
+            $summary_template_type = new TemplateType();
             $summary_template_type->set_originator($me);
             $summary_template_type->set_name('summary');
             $summary_template_type->set_dflt_flag(TRUE);
@@ -124,7 +128,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         }
 
         try {
-            $detail_template_type = new CmsLayoutTemplateType();
+            $detail_template_type = new TemplateType();
             $detail_template_type->set_originator($me);
             $detail_template_type->set_name('detail');
             $detail_template_type->set_dflt_flag(TRUE);
@@ -141,7 +145,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         }
 
         try {
-            $form_template_type = new CmsLayoutTemplateType();
+            $form_template_type = new TemplateType();
             $form_template_type->set_originator($me);
             $form_template_type->set_name('form');
             $form_template_type->set_dflt_flag(TRUE);
@@ -158,7 +162,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         }
 
         try {
-            $browsecat_template_type = new CmsLayoutTemplateType();
+            $browsecat_template_type = new TemplateType();
             $browsecat_template_type->set_originator($me);
             $browsecat_template_type->set_name('browsecat');
             $browsecat_template_type->set_dflt_flag(TRUE);
@@ -186,7 +190,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
 if( version_compare($oldversion,'2.50.8') < 0 ) {
     try {
-        $types = CmsLayoutTemplateType::load_all_by_originator($me);
+        $types = TemplateType::load_all_by_originator($me);
         if( $types ) {
             foreach( $types as $type_obj ) {
                 $type_obj->set_help_callback('News::template_help_callback');
@@ -275,9 +279,9 @@ WHERE news_id=?';
     $query = 'UPDATE '.$tbl.' SET modified_date=0 WHERE modified_date<=create_date';
     $db->Execute($query);
 
-    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_templates WHERE type_id=(SELECT id FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator="News" AND name="form")';
+    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_templates WHERE type_id=(SELECT id FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator=\'News\' AND name=\'form\')';
     $db->Execute($query);
-    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator="News" AND name="form"';
+    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator=\'News\' AND name=\'form\'';
     $db->Execute($query);
 
     $db->DropSequence(CMS_DB_PREFIX.'module_news_categories_seq');
