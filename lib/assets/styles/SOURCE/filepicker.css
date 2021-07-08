@@ -1,0 +1,453 @@
+@font-face {
+	font-family: "cmsms-filepicker";
+	src: url("../font/cmsms-filepicker.eot?44234");
+	src: url("../font/cmsms-filepicker.eot?44234#iefix") format("embedded-opentype"), url("../font/cmsms-filepicker.woff2?44234") format("woff2"), url("../font/cmsms-filepicker.woff?44234") format("woff"), url("../font/cmsms-filepicker.ttf?44234") format("truetype"), url("../font/cmsms-filepicker.svg?44234#cmsms-filepicker") format("svg");
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="fifp-"]:before {
+	font-family: "cmsms-filepicker";
+	font-style: normal;
+	font-weight: normal;
+	speak: none;
+	display: inline-block;
+	text-decoration: inherit;
+	width: 1em;
+	text-align: center;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1em;
+}
+
+[class*=" fifp-"]:before {
+	font-family: "cmsms-filepicker";
+	font-style: normal;
+	font-weight: normal;
+	speak: none;
+	display: inline-block;
+	text-decoration: inherit;
+	width: 1em;
+	text-align: center;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1em;
+}
+
+.fifp-folder-close:before {
+	content: '\e600';
+}
+
+.fifp-folder-add:before {
+	content: '\e601';
+}
+
+.fifp-folder-open:before {
+	content: '\e602';
+}
+
+.fifp-upload:before {
+	content: '\e603';
+}
+
+.fifp-level-up:before {
+	content: '\e604';
+}
+
+.fifp-all:before {
+	content: '\e607';
+}
+
+.fifp-file:before {
+	content: '\e608';
+}
+
+.fifp-image:before {
+	content: '\e609';
+}
+
+.fifp-audio:before {
+	content: '\e60a';
+}
+
+.fifp-video:before {
+	content: '\e60b';
+}
+
+.fifp-zip:before {
+	content: '\e60c';
+}
+
+.fifp-delete:before {
+	content: '\e60f';
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-size: 0.9em;
+}
+
+a {
+	color: #17174f;
+	text-decoration: none;
+}
+
+img {
+	border: none;
+}
+
+.visuallyhidden {
+	clip: rect(0 0 0 0);
+	overflow: hidden;
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	border: 0;
+	padding: 0;
+	z-index: -1;
+}
+
+#fp-progress,
+#fp-progress-inner {
+	overflow: hidden;
+	height: 0.3em;
+	margin: 0;
+	border: 0;
+	border-radius: 0;
+}
+
+#fp-progress {
+	display: none;
+	width: 100%;
+	margin-top: calc(0.45em + 3px);
+}
+
+#fp-progress-inner {
+	width: 0;
+	background-color: #12a112;
+	z-index: 92;
+}
+
+#fp-progress-text {
+	overflow: visible;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	-ms-transform: translateX(-50%);
+	-o-transform: translateX(-50%);
+	-moz-transform: translateX(-50%);
+	-webkit-transform: translateX(-50%);
+	transform: translateX(-50%);
+	margin: 0;
+	border: 0;
+	padding: 3px 6px;
+	text-align: center;
+	vertical-align: middle;
+	background-color: #12a112;
+	color: white;
+	font-size: 1em;
+	font-weight: bold;
+	z-index: 95;
+}
+
+#fp-dropzone {
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 3em;
+	width: 9em;
+	z-index: 90;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 2px dashed red;
+	background-color: #badeba;
+	color: #452145;
+}
+
+#fp-dropzone.dragging {
+	background-color: #babade;
+}
+
+#fp-navbar {
+	width: 100%;
+	padding: 10px 0;
+	background-color: #fefefe;
+}
+
+#fp-navbar-inner {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+}
+
+#fp-navbar-inner > div {
+	flex-grow: 0;
+}
+
+#fp-type-filter {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	font-size: 1.2em;
+}
+
+#fp-filter-title {
+	margin: 0 0.5em;
+	text-align: right;
+}
+
+.ui-dialog-buttonset button.ui-button {
+	background: none;
+}
+
+.ui-dialog-buttonset button.ui-button,
+.fp-button {
+	margin: 2px;
+	padding: 3px 6px;
+	font-size: 1.1em;
+	font-weight: normal;
+	color: #444;
+	cursor: pointer;
+	background-color: #f5f5f5;
+	border: 1px solid #e6e6e6;
+	border-radius: 2px;
+}
+
+.ui-dialog-buttonset button.ui-button.active,
+  .fp-button.active {
+	background-color: #d6d6d6;
+	border: 1px solid #b3b3b3;
+}
+
+.ui-dialog-buttonset button.ui-button:hover,
+  .fp-button:hover {
+	background-color: #d6d6d6;
+}
+
+.ui-dialog-buttonset button.ui-button.disabled,
+  .fp-button.disabled {
+	color: #7e6767;
+	background-color: #c6b9b9;
+	cursor: default;
+}
+
+.ui-dialog-buttonset button.ui-button.disabled:hover,
+    .fp-button.disabled:hover {
+	background-color: #c6b9b9;
+}
+
+#fp-file-upload:focus + .fp-button {
+	background-color: #d6d6d6;
+	border: 1px solid #b3b3b3;
+}
+
+#view-list, #view-grid {
+	display: none;
+}
+
+#fp-file-upload:hover + .fp-button {
+	background-color: #d6d6d6;
+}
+
+#fp-breadcrumb {
+	border: 0;
+	padding: 0 0 5px 0;
+}
+
+#fp-breadcrumb .fifp-folder-open:before {
+	font-size: 1.8em;
+	vertical-align: middle;
+}
+
+.fp-delete {
+	cursor: pointer;
+}
+
+.fp-delete:hover {
+	color: red;
+}
+
+#fp-list.list-view {
+	display: table;
+}
+
+#fp-list.list-view > .fpitem {
+	display: table-row;
+}
+
+#fp-list.list-view > .fpitem.header {
+	display: table-header-group;
+	background-color: #c0c0c0;
+	color: #17174f;
+}
+
+#fp-list.list-view > .fpitem > div {
+	display: table-cell;
+	border-bottom: 1px solid #d6d6d6;
+	padding: 2px 5px;
+}
+
+#fp-list.list-view > .fpitem .fp-thumb {
+	max-width: 50px;
+	overflow: hidden;
+}
+
+#fp-list.list-view > .fpitem .fp-thumb img.svgimg {
+	max-height: 3em;
+}
+
+#fp-list.list-view > .fpitem .filename a {
+	position: relative;
+	font-size: inherit;
+	color: #147fdb;
+	text-decoration: none;
+}
+
+#fp-list.list-view .icon-no-thumb {
+	font-size: 2em;
+}
+
+#fp-list.list-view .fifp-delete::before {
+	font-size: 1.5em;
+}
+
+#fp-list.list-view .ingrid {
+	display: none;
+}
+
+#fp-list.grid-view {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	align-content: flex-start;
+	height: 100%;
+}
+
+#fp-list.grid-view > .fpitem {
+	flex-shrink: 0;
+	margin: 3px;
+	border: 1px solid #d6d6d6;
+	padding: 1px;
+}
+
+#fp-list.grid-view > .fpitem .fp-thumb {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	width: 140px;
+	height: 90px;
+	overflow: hidden;
+}
+
+#fp-list.grid-view > .fpitem .fp-thumb a {
+	flex-grow: 0.5;
+}
+
+#fp-list.grid-view > .fpitem .fp-thumb img {
+	margin-right: -1.2em;
+}
+
+#fp-list.grid-view > .fpitem .fp-thumb img.svgimg {
+	max-height: 70px;
+	width: 3em;
+}
+
+#fp-list.grid-view > .fpitem .fp-thumb > span.fp-delete {
+	align-self: flex-start;
+	order: 1;
+}
+
+#fp-list.grid-view > .fpitem .icon-no-thumb {
+	margin-right: -0.4em;
+	font-size: 3em;
+}
+
+#fp-list.grid-view > .fpitem .icon-no-thumb i {
+	vertical-align: middle;
+	text-align: center;
+}
+
+#fp-list.grid-view > .fpitem .filename {
+	background-color: white;
+	text-align: center;
+}
+
+#fp-list.grid-view > .fpitem .filename a {
+	white-space: nowrap;
+	font-weight: normal;
+	font-size: 1.1em;
+	text-align: center;
+	text-decoration: none;
+	color: #147fdb;
+}
+
+#fp-list.grid-view > .fpitem .delete {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 3px;
+}
+
+#fp-list.grid-view > .fpitem .fifp-delete:before {
+	font-size: 1.5em;
+	opacity: 0.7;
+}
+
+#fp-list.grid-view > .fpitem .fifp-delete:before:hover {
+	opacity: 1;
+}
+
+#fp-list.grid-view .inlist {
+	display: none;
+}
+
+/* popup dialogs */
+/* not replaceable inside jQui */
+.ui-widget-overlay {
+	background: rgba(0, 0, 0, 0.8);
+}
+
+.anon-header {
+	border: 0;
+	background: #fefefe;
+}
+
+.popup-header {
+	border: 1px solid #c5c5c5;
+	background: #c0c0c0;
+}
+
+.popup-title {
+	text-align: center;
+	vertical-align: middle;
+	color: #17174f;
+}
+
+.popup-body {
+	background-color: #fefefe;
+}
+
+/* in mkdir popup dialog */
+.dlg-options {
+	padding-top: 0.5em;
+}
+
+.listicon {
+	border: 0;
+	width: 2em;
+	height: 2em;
+	vertical-align: middle;
+}
+
+@media screen and (max-width: 430px) {
+	#fp-list.list-view .filename {
+		display: none;
+	}
+
+	#fp-dropzone {
+		width: 3em;
+	}
+}

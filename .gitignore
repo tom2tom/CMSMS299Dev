@@ -21,8 +21,9 @@ phar_installer/assets/install/uploadfiles/
 ext/
 #non-core modules, with nested git
 AccessControls/
+ContentMultiEditor/
+FileOperations/
 QUtils/
-RichEditing/
-SyntaxEditing*/
+SyntaxMultiEditor/
+ThemeManager/
 TreeFiler/
-
