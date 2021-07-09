@@ -1,7 +1,7 @@
 <?php
 /*
 Class of not-often-used methods included on-demand by 'light' modules.
-Copyright (C) 2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -24,16 +24,18 @@ use CMSMS\AdminMenuItem;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\Crypto;
+use CMSMS\FormUtils;
 use CMSMS\LangOperations;
 use CMSMS\RequestParameters;
-use LogicException;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
 use const CMS_ROOT_URL;
+use const CMS_SECURE_PARAM_NAME;
+use const CMS_USER_KEY;
 use function check_permission;
-use function cms_htmlentities;
 use function cms_path_to_url;
+use function CMSMS\entitize;
 use function endswith;
 use function get_userid;
 use function startswith;
@@ -60,7 +62,7 @@ class ResourceMethods
 			static $flect = null;
 
 			if ($flect === null) {
-				$flect = new ReflectionClass('CMSMS\\FormTags');
+				$flect = new ReflectionClass('CMSMS\\IFormTags');
 			}
 			try {
 				$md = $flect->getMethod($name);
@@ -82,29 +84,12 @@ class ResourceMethods
 	public function AllowUninstallCleanup() {}
 	public function GetAuthor() {}
 	public function GetAuthorEmail() {}
-	public function GetChangeLog() {}
 	public function GetDescription() {}
 	public function GetHeaderHTML() {}
-	public function GetHelp() {}
 	public function SuppressAdminOutput() {}
 	public function UninstallPostMessage() {}
 
 	// default versions of methods required/accessed by the module-manager module
-
-	public function get_tasks()
-	{
-		return false;
-	}
-
-	public function GetModulePath() : string
-	{
-		return $this->modpath;
-	}
-
-	public function GetModuleURLPath() : string
-	{
-		return cms_path_to_url($this->modpath);
-	}
 
 	public function CheckPermission(...$perms) : bool
 	{
@@ -114,15 +99,19 @@ class ResourceMethods
 
 	// TODO arguments $targetcontentonly, $prettyurl are ignored ATM
 	public function create_url($id, $action, $returnid = null, $params = [],
-		$inline = false, $targetcontentonly = false, $prettyurl = '', $format = 0) : string
+		$inline = false, $targetcontentonly = false, $prettyurl = '', $format = 2) : string
 	{
-		$id = chr(mt_rand(97, 122)) . Crypto::random_string(3, true);
+		if (!$id) { $id = chr(mt_rand(97, 122)) . Crypto::random_string(3, true); }
 		$parms = [
-		'module' => $this->GetName(),
-		'id' => $id,
-		'action' => $action,
-		'inline' => ($inline) ? 1 : 0,
+			'module' => $this->GetName(),
+			'id' => $id,
+			'action' => $action,
+			'inline' => ($inline) ? 1 : 0,
 		];
+		if (isset($_SESSION[CMS_USER_KEY])) {
+			$parms[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
+		}
+
 		$ignores = ['assign', 'returnid', 'module', 'id', 'action', 'inline', ];
 		foreach ($params as $key => $val) {
 			if (!in_array($key, $ignores)) {
@@ -135,9 +124,9 @@ class ResourceMethods
 		} else {
 			$text = CMS_ROOT_URL . '/lib/moduleinterface.php?';
 		}
-		$text .= RequestParameters::create_action_params($parms, $format);
+		$text .= RequestParameters::create_action_params($parms, $format); //TODO for resource
 		if ($format == 3) {
-			$text = cms_htmlentities($text, ENT_QUOTES | ENT_SUBSTITUTE, '');
+			$text = entitize($text, ENT_QUOTES | ENT_SUBSTITUTE, '');
 		}
 		return $text;
 	}
@@ -146,7 +135,7 @@ class ResourceMethods
 	{
 		$params['id'] = $id;
 		$params['action'] = $action;
-		// generic specialchars decode N/A - any value may validly include entities
+		// generic de-specialize N/A - any value may validly include entities
 		return $this->Run($params);
 	}
 
@@ -158,11 +147,58 @@ class ResourceMethods
 		return $this->Run($params);
 	}
 
+	public function GetAbout()
+	{
+		if (method_exists($this->mod, 'GetChangeLog')) {
+			return $this->mod->GetChangeLog();
+		}
+		return '';
+	}
+
 	public function GetAdminMenuItems()
 	{
 		if ($this->mod->VisibleToAdminUser()) {
-			return [AdminMenuItem::from_module($this)];
+			return [AdminMenuItem::from_module($this->mod)];
 		}
+	}
+
+	public function GetHelpPage()
+	{
+		if (method_exists($this->mod, 'GetHelp')) {
+			return $this->mod->GetHelp();
+		}
+		return '';
+	}
+
+    public function GetDependencies()
+    {
+		return [];
+	}
+
+	public function GetModulePath() : string
+	{
+		return $this->modpath;
+	}
+
+	public function GetModuleURLPath() : string
+	{
+		return cms_path_to_url($this->modpath);
+	}
+
+	public function GetModulesWithCapability(string $capability, array $params = []) : array
+	{
+		$result = [];
+		$tmp = AppSingle::ModuleOperations()->GetCapableModules($capability,$params);
+		if ($tmp) {
+			for ($i = 0, $n = count($tmp); $i < $n; $i++) {
+				if (is_object($tmp[$i])) {
+					$result[] = get_class($tmp[$i]);
+				} else {
+					$result[] = $tmp[$i];
+				}
+			}
+		}
+		return $result;
 	}
 
 	public function GetName() : string
@@ -217,13 +253,22 @@ class ResourceMethods
 		return $tpl;
 	}
 
+	public function get_tasks()
+	{
+		return false;
+	}
+
 	public function HandlesEvents()
 	{
 		return false;
 	}
 
+	public function HasCapability($capability, $params = []) {
+		return false;
+	}
+
 	public function InitializeAdmin() {}
-	public function InitializeFontend() {}
+	public function InitializeFrontend() {}
 
 	public function Install()
 	{
@@ -287,7 +332,7 @@ class ResourceMethods
 		if ($name) {
 			try {
 				unset($params['call']);
-				return call_user_func_array($name, $params);
+				return $name($params);
 			} catch (Throwable $t) {
 				//TODO handle error better
 				return '<p style="color:red">Error: '.$t->getMessage().'</p>';

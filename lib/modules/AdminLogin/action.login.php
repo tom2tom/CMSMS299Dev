@@ -97,7 +97,7 @@ if (isset($csrf)) {
 
 $start_form = FormUtils::create_form_start($this, $extras);
 
-$tpl = $smarty->CreateTemplate($this->GetTemplateResource('login.tpl')); //, null, null, $smarty);
+$tpl = $this->GetTemplateObject('login.tpl');
 $tpl->assign([
  'mod' => $this,
  'actionid' => $id,

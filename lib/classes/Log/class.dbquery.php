@@ -22,8 +22,8 @@ namespace CMSMS\Log;
 
 use CMSMS\AppSingle;
 use CMSMS\DbQueryBase;
-use CMSMS\Log\logfilter;
 use CMSMS\Log\dbstorage;
+use CMSMS\Log\logfilter;
 use LogicException;
 
 class dbquery extends DbQueryBase
@@ -39,10 +39,11 @@ class dbquery extends DbQueryBase
     {
         if ($this->_rs) return;
         $filter = $this->_args;
-
+        $db = AppSingle::Db();
         $sql = 'SELECT * FROM '.dbstorage::TABLENAME;
         $where = $parms = [];
         $severity = $filter->severity;
+
         if (!is_null($severity) && $severity > -1) {
             $where[] = 'severity >= ?';
             $parms[] = $severity;
@@ -53,18 +54,16 @@ class dbquery extends DbQueryBase
         }
         if (($val = $filter->message)) {
             $where[] = 'message LIKE ?';
-            $parms[] = '%'.addcslashes($val, '_%').'%';
+            $parms[] = '%' . $db->escStr($val) . '%';
         }
         if (($val = $filter->subject)) {
             $where[] = 'subject LIKE ?';
-            $parms[] = '%'.addcslashes($val, '_%').'%';
+            $parms[] = '%' . $db->escStr($val) . '%';
         }
         if ($where) {
             $sql .= ' WHERE '.implode(' AND ', $where);
         }
         $sql .= ' ORDER BY timestamp DESC';
-
-        $db = AppSingle::Db();
         $this->_rs = $db->SelectLimit($sql, $this->_limit, $this->_offset, $parms);
         if ($this->_rs && $this->_rs->errno == 0) {
             $this->_totalmatchingrows = $this->_rs->recordCount();

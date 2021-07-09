@@ -73,7 +73,7 @@
 		<script src="{$admin_url}/cms_js_setup.php?{$secureparam}"></script>
 
 		{* backwards and CMSMS compatibility *}
-		<script src="{$theme_url}/includes/standard.js"></script>
+		<script src="{$theme_url}/includes/standard.min.js"></script>
 
 	    {* TODO - Move to external file... *}
 	    <script>
@@ -124,7 +124,7 @@
 			<nav class="main-header navbar navbar-expand navbar-dark">
 				<ul class="navbar-nav">
       				<li class="nav-item">
-        				<a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+        				<a class="nav-link" data-widget="pushmenu" href="javascript:void()"><i class="fas fa-bars"></i></a>
       				</li>
       				<li class="nav-item d-none d-sm-inline-block">
         				<a href="{$admin_url}/index.php?{$secureparam}" title="{'home'|lang}" class="nav-link"><i class="fas fa-home"></i></a>

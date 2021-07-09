@@ -1,8 +1,7 @@
 <?php
 /*
-Audit management classes
-Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+Audit management class
+Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -21,56 +20,16 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
+use CMSMS\DeprecationNotice;
 use CMSMS\IAuditManager;
-use CMSMS\Log\auditor;
-use CMSMS\Log\storage;
-use LogicException;
-//use const TMP_CACHE_LOCATION;
-//use function get_userid;
-//use function get_username;
+use CMSMS\Log\dbstorage;
+use CMSMS\Log\logfilter;
+use CMSMS\Log\logger;
+use const CMS_DEPREC;
 
-/* *
- * Default message-recorder class.
- * Per config.ini setting, records into PHP's system-logger or a site-specific log-file.
- * @since 2.99
- */
-/*
-class DefaultAuditLogger implements IAuditManager
-{
-    private const LOGFILE = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'audit_log';
-
-    public function audit(string $msg, string $subject = '', $itemid = null)
-    {
-        $userid = get_userid(FALSE);
-        if ($userid < 1) $userid = '';
-        else $userid = " ($userid)";
-        $username = get_username(FALSE);
-
-        $out = "CMSMS MSG: ADMINUSER=$username{$userid}, ITEMID=$itemid, SUBJECT=$subject, MSG=$msg";
-        error_log($out, 0, self::LOGFILE);
-    }
-
-    public function notice(string $msg, string $subject = '')
-    {
-        $out = "CMSMS NOTICE: SUBJECT=$subject, $msg";
-        error_log($out, 0, self::LOGFILE);
-    }
-
-    public function warning(string $msg, string $subject = '')
-    {
-        $out = "CMSMS WARNING: SUBJECT=$subject, $msg";
-        error_log($out, 0, self::LOGFILE);
-    }
-
-    public function error(string $msg, string $subject = '')
-    {
-        $out = "CMSMS ERROR: SUBJECT=$subject, $msg";
-        error_log($out, 0, self::LOGFILE);
-    }
-} // class
-*/
 /**
  * A singleton class for logging data using a plugged-in data recorder.
+ * Supports using a custom recorder in place of the default.
  *
  * @final
  * @since 2.99
@@ -80,26 +39,22 @@ class DefaultAuditLogger implements IAuditManager
 final class AuditOperations implements IAuditManager
 {
     /**
+     * The message-recorder object in use.
      * @ignore
      */
-    private static $_instance = null;
-
-    /**
-     * The message-recorder object to use if $_opt_mgr hasn't been set (yet).
-     * @ignore
-     */
-    private $_std_mgr = null;
-
-    /**
-     * The message-recorder object specified by a caller.
-     * @ignore
-     */
-    private $_opt_mgr = null;
+    private $_data_mgr = null;
 
     /**
      * @ignore
      */
-//    protected function __construct() {}
+    public function __construct()
+    {
+        $this->init();
+    }
+
+    /**
+     * @ignore
+     */
     protected function __clone() {}
 
     /**
@@ -108,43 +63,37 @@ final class AuditOperations implements IAuditManager
      */
     public static function get_instance() : self
     {
-        // NOT (initially) CMSMS\AppSingle::AuditOperations() - we need this at request-start
-        if (!self::$_instance) {
-            self::$_instance = new self();
-            self::$_instance->init();
-        }
-        return self::$_instance;
-    }
-
-	/**
-	 * Setup backend classes
-	 */
-    public function init()
-    {
-//       $this->_opt_mgr = new DefaultAuditLogger();
-         $store = new storage();
-         $this->_opt_mgr = new auditor($store);
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppSingle::AuditOperations()'));
+        return AppSingle::AuditOperations();
     }
 
     /**
-     * @param IAuditManager-compatible $mgr | null
-     * @throws LogicException
+     * Setup the default data-recorder backend
+     */
+    public function init()
+    {
+        $store = new dbstorage();
+        $this->_data_mgr = new logger($store);
+    }
+
+    /**
+     * Replace the backend data-recorder
+     * @param IAuditManager-compatible $mgr
      */
     public function set_auditor(IAuditManager $mgr)
     {
-        if ($this->_opt_mgr && $mgr) {
-            throw new LogicException('Only one audit-data processor can be set');
-        }
-        $this->_opt_mgr = $mgr;
+        $this->_data_mgr = $mgr;
     }
 
     protected function get_auditor()
     {
-        if (!$this->_opt_mgr) {
+        if (!$this->_data_mgr) {
             $this->init();
         }
-        return $this->_opt_mgr;
+        return $this->_data_mgr;
     }
+
+    // interface methods
 
     public function audit(string $msg, string $subject = '', $itemid = null)
     {
@@ -166,4 +115,21 @@ final class AuditOperations implements IAuditManager
     {
         $this->get_auditor()->error($msg, $subject);
     }
-} // class
+
+    public function clear()
+    {
+        if ($this->_data_mgr) { $this->_data_mgr->clear(); }
+    }
+
+    public function clear_older_than(int $time)
+    {
+        if ($this->_data_mgr) { $this->_data_mgr->clear_older_than($time); }
+    }
+
+    public function query(logfilter $filter)
+    {
+        if ($this->_data_mgr) {
+            return $this->_data_mgr->query($filter);
+        }
+    }
+}

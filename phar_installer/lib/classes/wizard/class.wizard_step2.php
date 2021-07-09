@@ -8,7 +8,7 @@ use Exception;
 use const CMS_SCHEMA_VERSION;
 use const CMS_VERSION;
 use const CMS_VERSION_NAME;
-use function cms_installer\entitize;
+use function cms_installer\specialize;
 use function cms_installer\get_app;
 use function cms_installer\get_upgrade_changelog;
 use function cms_installer\get_upgrade_readme;
@@ -23,8 +23,13 @@ class wizard_step2 extends wizard_step
     {
         if( !$dir ) return;
 
-        $fn = $dir.DIRECTORY_SEPARATOR.'config.php';
-        if( !is_file($fn) ) return;
+        $fn = $dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'config.php';
+        if( !is_file($fn) ) {
+            $fn = $dir.DIRECTORY_SEPARATOR.'config.php';
+            if( !is_file($fn) ) return;
+        }
+        $app = get_app();
+        $app->set_config_val('config_file', $fn);
 
         include_once $fn;
 
@@ -44,7 +49,6 @@ class wizard_step2 extends wizard_step
             }
         }
 
-        $app = get_app();
         if( $aname != 'admin' ) {
             $str = trim($aname, ' \\/');
             $app->set_config_val('admin_path', strtr($str, '\\', '/'));
@@ -166,7 +170,7 @@ class wizard_step2 extends wizard_step
                     $readme = get_upgrade_readme($version);
                     $changelog = get_upgrade_changelog($version);
                     if( $readme || $changelog ) {
-                        $out[$version] = ['readme'=> entitize($readme),'changelog'=> entitize($changelog)];
+                        $out[$version] = ['readme'=> specialize($readme),'changelog'=> specialize($changelog)];
                     }
                 }
                 $smarty->assign('upgrade_info',$out);

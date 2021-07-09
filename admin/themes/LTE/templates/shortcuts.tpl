@@ -31,7 +31,7 @@
 
 	{if isset($marks)}
 		<li>
-			<a class="nav-link" title="{'bookmarks'|lang}" data-scrollbar-theme="os-theme-light" data-widget="control-sidebar" data-controlsidebar-slide="true" href="#"><i class="fa fa-bars"></i></a>
+			<a class="nav-link" title="{'bookmarks'|lang}" data-scrollbar-theme="os-theme-light" data-widget="control-sidebar" data-controlsidebar-slide="true" href="javascript:void()"><i class="fa fa-bars"></i></a>
 		</li>
 	{/if}
 
@@ -94,9 +94,9 @@
 			</ul>
 			<hr />
 	    {/if}
-	    
+
 	    <h3>{'help'|lang}</h3>
-	    
+
 	    <ul>
 			<li><a rel="external" class="external" href="https://docs.cmsmadesimple.org" title="{'documentation'|lang}">{'documentation'|lang}</a></li>
 			<li><a rel="external" class="external" href="https://forum.cmsmadesimple.org" title="{'forums'|lang}">{'forums'|lang}</a></li>

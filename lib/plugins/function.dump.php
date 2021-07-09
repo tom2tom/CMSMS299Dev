@@ -140,7 +140,7 @@ function smarty_cms_help_function_dump()
 
 namespace dump_plugin {
 
-use function cms_specialchars;
+use function CMSMS\specialize;
 
 function build_accessor($parent_str, $parent_type, $childname)
 {
@@ -199,7 +199,7 @@ function dump_object($params, &$obj, $level = 1, $ignore = [], $accessor)
 					$str .= str_repeat('  ',$level).'- '.$name.': NULL <em>{$'.$acc.'}</em><br />';
 				}
 				else {
-					$str .= str_repeat('  ',$level).'- '.$name.' = '. cms_specialchars($value).' <em>{$'.$acc.'}</em><br />';
+					$str .= str_repeat('  ',$level).'- '.$name.' = '. specialize($value).' <em>{$'.$acc.'}</em><br />';
 				}
 			}
 		}
@@ -232,7 +232,7 @@ function dump_array($params, &$data, $level = 1, $ignore = [], $accessor)
 			$str .= str_repeat('  ',$level).'- '.$name.': NULL <em>{$'.$acc.'\}</em><br />';
 		}
 		else {
-			$str .= str_repeat('  ',$level)."- $key = ". cms_specialchars($value).' {$'.$acc.'}<br />';
+			$str .= str_repeat('  ',$level)."- $key = ". specialize($value).' {$'.$acc.'}<br />';
 		}
 	}
 	return $str;

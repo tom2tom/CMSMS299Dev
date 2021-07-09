@@ -1,7 +1,7 @@
 <?php
 /*
 Class for working with (optionally-namespaced) recorded parameters.
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -22,7 +22,6 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AppSingle;
-use CMSMS\SysDataCache;
 use CMSMS\SysDataCacheDriver;
 use const CMS_DB_PREFIX;
 
@@ -70,7 +69,7 @@ final class AppParams
 		{
 			return self::_read();
 		});
-		SysDataCache::get_instance()->add_cachable($obj);
+		AppSingle::SysDataCache()->add_cachable($obj);
 	}
 
 	/**
@@ -85,7 +84,8 @@ final class AppParams
 		if( !$db ) {
 			return;
 		}
-		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name NOT LIKE "%'.self::NAMESPACER.'%" ORDER BY sitepref_name';
+		// Note: extra '\' follows spacer, to prevent escaping what's next
+		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name NOT LIKE \'%'.self::NAMESPACER.'\%\' ORDER BY sitepref_name';
 		$dbr = $db->GetAssoc($query);
 		if( $dbr ) {
 			return $dbr;
@@ -161,7 +161,7 @@ final class AppParams
 	 */
 	public static function get(string $key = '',$dflt = '',bool $like = FALSE)
 	{
-		$prefs = SysDataCache::get_instance()->get(self::class);
+		$prefs = AppSingle::SysDataCache()->get(self::class);
 		if ($like) {
 			//TODO
 			return $dflt;
@@ -185,7 +185,7 @@ final class AppParams
 	 */
 	public static function exists($key)
 	{
-		$prefs = SysDataCache::get_instance()->get(self::class);
+		$prefs = AppSingle::SysDataCache()->get(self::class);
 		return ( is_array($prefs) && isset($prefs[$key]) && $prefs[$key] !== '' );
 	}
 
@@ -217,7 +217,7 @@ EOS;
 		$db->Execute($query,[$key,$value,$key]);
 
 		if( strpos($key,self::NAMESPACER) === FALSE ) {
-			SysDataCache::get_instance()->release(self::class);
+			AppSingle::SysDataCache()->release(self::class);
 		}
 	}
 
@@ -228,7 +228,8 @@ EOS;
 	 *
 	 * @param string $key The preference name (may be empty)
 	 * @param bool   $like Optional flag whether to interpret $key as
-	 *  wildcarded. Default false.
+	 *  wildcarded. Default false. If true, $key may include '%' '_' wildcard(s)
+	 *  which will not be escaped, or absent any '%', '%' will be appended.
 	 */
 	public static function remove(string $key = '',bool $like = FALSE)
 	{
@@ -244,7 +245,7 @@ EOS;
 		$db = AppSingle::Db();
 		$db->Execute($query,[$key]);
 		if( strpos($key,self::NAMESPACER) === FALSE) {
-			SysDataCache::get_instance()->release(self::class);
+			AppSingle::SysDataCache()->release(self::class);
 		}
 	}
 
@@ -252,7 +253,7 @@ EOS;
 	 * List preference-names having the specified prefix
 	 * @since 2.0
 	 *
-	 * @param string $prefix Preference-name prefix
+	 * @param string $prefix Preference-name (not-falsy) prefix
 	 * @return mixed array of preference names that match the prefix, or null
 	 */
 	public static function list_by_prefix(string $prefix)
@@ -260,7 +261,8 @@ EOS;
 		if( !$prefix ) return;
 		$query = 'SELECT sitepref_name FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
 		$db = AppSingle::Db();
-		$dbr = $db->GetCol($query,[$prefix.'%']);
+		$wm = $db->escStr($prefix).'%';
+		$dbr = $db->GetCol($query,[$wm]);
 		if( $dbr ) return $dbr;
 	}
 } // class

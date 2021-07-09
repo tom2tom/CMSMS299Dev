@@ -23,6 +23,7 @@ use CMSContentManager\BulkOperations;
 use CMSContentManager\ContentListBuilder;
 use CMSContentManager\Utils as ManagerUtils;
 use CMSMS\FormUtils;
+use CMSMS\UserParams;
 use CMSMS\Utils;
 
 if( !empty($firstlist) ) {
@@ -57,7 +58,7 @@ try {
     if( isset($params['curpage']) ) {
         $curpage = (int)$params['curpage'];
     }
-    $filter = cms_userprefs::get($modname.'_userfilter');
+    $filter = UserParams::get($modname.'_userfilter');
     if( $filter ) {
         $filter = unserialize($filter);
         $builder->set_filter($filter);
@@ -72,9 +73,9 @@ try {
     $tpl->assign('prettyurls_ok',$builder->pretty_urls_configured());
 
     if( isset($params['setoptions']) ) {
-        cms_userprefs::set($modname.'_pagelimit',(int)$params['pagelimit']);
+        UserParams::set($modname.'_pagelimit',(int)$params['pagelimit']);
     }
-    $pagelimit = cms_userprefs::get($modname.'_pagelimit',100);
+    $pagelimit = UserParams::get($modname.'_pagelimit',100);
 
     $builder->set_pagelimit($pagelimit);
     if( isset($params['seek']) && $params['seek'] != '' ) {
@@ -91,7 +92,7 @@ try {
         $pagelist[$i+1] = $i+1;
     }
 
-    $tpl->assign('indent',!$filter && cms_userprefs::get('indent',1));
+    $tpl->assign('indent',!$filter && UserParams::get('indent',1));
     $locks = $builder->get_locks();
     $have_locks = ($locks) ? 1 : 0;
 

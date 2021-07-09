@@ -6,6 +6,7 @@ Refer to licence and other details at the top of file ThemeManager.module.php
 */
 
 use CMSMS\App;
+use function CMSMS\sanitizeVal;
 
 if (!isset($gCms) || !($gCms instanceof App)) {
     exit;
@@ -17,7 +18,7 @@ if (!$pmod) {
     $this->RedirectToAdminTab('themes');
 }
 
-$path = cms_join_path(CMS_THEMES_PATH, sanitizeVal($params['theme'], 3));
+$path = cms_join_path(CMS_THEMES_PATH, sanitizeVal($params['theme'], CMSSAN_FILE)); // OR , CMSSAN_PATH for a sub-theme?
 if (is_dir($path)) {
     $current_theme = $this->GetPreference('current_theme');
     if ($current_theme) {

@@ -29,7 +29,6 @@ use CMSMS\NlsOperations;
 use CMSMS\RequestParameters;
 use CMSMS\ScriptsMerger;
 use CMSMS\StylesMerger;
-use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 use const CMS_ADMIN_PATH;
@@ -125,7 +124,7 @@ EOS;
 	public function display_login_page()
 	{
 		$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
-		$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
+		$modinst = AppSingle::ModuleOperations()->get_module_instance($auth_module, '', true);
 		if ($modinst) {
 			$data = $modinst->fetch_login_panel();
 		} else {
@@ -357,7 +356,7 @@ EOS;
 			$smarty->assign('nav', $this->_havetree);
 		}
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
-		$user = UserOperations::get_instance()->LoadUserByID($uid);
+		$user = AppSingle::UserOperations()->LoadUserByID($uid);
 		$smarty->assign('username', $user->username);
 		// selected language
 		$lang = UserParams::get_for_user($uid, 'default_cms_language');

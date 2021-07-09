@@ -20,12 +20,11 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace cms_installer;
 
-use CmsDataNotFoundException;
-use CmsInvalidDataException;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\Database\Connection;
+use CMSMS\DataException;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
 use CMSMS\Stylesheet;
@@ -128,7 +127,7 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 							$xwm->text($pref."\t\t");
 							if ($val && isset($A['isdata']) && is_string($val) && !is_numeric($val)) {
 								$xwm->startElement($key);
-								$xwm->writeCdata(htmlspecialchars($val, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false));
+								$xwm->writeCdata(htmlspecialchars($val, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false));// NOT worth CMSMS\specialize
 								$xwm->endElement();
 							} else {
 								$xwm->writeElement($key, (string)$val);
@@ -343,7 +342,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
       ]
      ],
      'templatetypes' => [
-      'sql' => 'SELECT * FROM %slayout_tpl_type WHERE originator="'.$corename.'" ORDER BY name',
+      'sql' => 'SELECT * FROM %slayout_tpl_type WHERE originator=\''.$corename.'\' ORDER BY name',
       'subtypes' => [
        'tpltype' => [
         'id' => [],
@@ -362,7 +361,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
       ]
      ],
      'templates' => [
-      'sql' => 'SELECT * FROM %slayout_templates WHERE originator="'.$corename.'" ORDER BY name',
+      'sql' => 'SELECT * FROM %slayout_templates WHERE originator=\''.$corename.'\' ORDER BY name',
       'subtypes' => [
        'template' => [
         'id' => [],
@@ -755,7 +754,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						try {
 							$ob->set_name((string)$node->name);
 							$ob->set_description((string)$node->description);
-							$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));
+							$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));// NOT worth CMSMS\de_specialize
 							if ((string)$node->media_type) {
 								$ob->set_media_types((string)$node->media_type); //assume a single type
 							}
@@ -763,7 +762,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 								$ob->set_media_query((string)$node->media_query);
 							}
 							$ob->save();
-						} catch (CmsInvalidDataException $e) {
+						} catch (DataException $e) {
 							//TODO report error
 							continue;
 						} catch (Throwable $t) {
@@ -780,7 +779,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$ob->set_name((string)$node->name);
 							$ob->set_description((string)$node->description);
 							$ob->save();
-						} catch (CmsInvalidDataException $e) {
+						} catch (DataException $e) {
 							//TODO report error
 							continue;
 						} catch (Throwable $t) {
@@ -869,10 +868,10 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 								}
 							}
 							$ob->save();
-						} catch (CmsInvalidDataException $e) {
+						} catch (DataException $e) {
 							//TODO report error
 							continue;
-						} catch (CmsDataNotFoundException $e) {
+						} catch (DataException $e) {
 							//TODO report error
 							continue;
 						} catch (Throwable $t) {
@@ -1391,7 +1390,7 @@ styles,
 tabindex,
 last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
-	$content_id = $db->GenID(CMS_DB_PREFIX.'content_seq'); //as late as possible (less racy)
+	$content_id = $db->genID(CMS_DB_PREFIX.'content_seq'); //as late as possible (less racy)
 	$args = [
 		$content_id,
 		$content_name ?? '',

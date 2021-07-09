@@ -22,11 +22,11 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\IContentEditor;
 use CMSMS\Error403Exception;
 use CMSMS\Error404Exception;
 use CMSMS\Error503Exception;
 use CMSMS\Events;
+use CMSMS\IContentEditor;
 use CMSMS\internal\content_plugins;
 use CMSMS\NlsOperations;
 use CMSMS\PageLoader;
@@ -74,7 +74,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 	try {
 		if ($trycount == 0) {
 			if (is_file(TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'SITEDOWN') ||
-				is_sitedown()) throw new CmsError503Exception('.'); // indicate system-default message
+				is_sitedown()) throw new Error503Exception('.'); // indicate system-default message
 		}
 
 		if ($page == CMS_PREVIEW_PAGEID) {
@@ -96,7 +96,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			// $page could be an integer ID or a string alias (or false if some error occurred)
 			$contentobj = PageLoader::LoadContent($page);
 			if (!is_object($contentobj)) {
-				throw new CmsError404Exception('Page '.$page.' not found');
+				throw new Error404Exception('Page '.$page.' not found');
 			}
 		}
 
@@ -108,7 +108,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 				redirect($url);
 			}
 			// not viewable, throw a 404.
-			throw new CmsError404Exception('Cannot view an unviewable page');
+			throw new Error404Exception('Cannot view an unviewable page');
 		}
 
 		// deprecated (since 2.99) secure-page processing

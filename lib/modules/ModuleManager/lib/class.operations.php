@@ -19,19 +19,17 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace ModuleManager;
+namespace ModuleManager; // the module-class
 
-//use CMSMS\internal\module_meta;
-//use CMSMS\SysDataCache;
-use CmsFileSystemException;
-use CmsInvalidDataException;
 use CMSModule;
 use CMSMS\AppSingle;
 use CMSMS\Crypto;
+use CMSMS\DataException;
+use CMSMS\FileSystemException;
 use CMSMS\FileTypeHelper;
-use CMSMS\ModuleOperations;
+use CMSMS\XMLErrorException;
 use LogicException;
-use ModuleManager; // the module-class
+use ModuleManager;
 use RuntimeException;
 use UnexpectedValueException;
 use XMLWriter;
@@ -99,8 +97,8 @@ class operations
      * @param bool $brief If set to true, less checking is done and no errors are returned
      *
      * @return array A hash of details about the installed module (if it returns at all)
-     * @throws CmsInvalidDataException
-     * @throws CmsFileSystemException
+     * @throws DataException
+     * @throws FileSystemException
      * @throws RuntimeException
      */
     public function expand_xml_package( $xmlfile, $overwrite = false, $brief = false )
@@ -113,17 +111,17 @@ class operations
                 $val .= "\n".'Line '.$error->line.': '.$error->message;
             }
             libxml_clear_errors();
-            throw new CmsInvalidDataException($val);
+            throw new XMLErrorException($val);
         }
 
         $val = trim((string)$xml->dtdversion);
         if( !$val || version_compare($val,self::MODULE_DTD_MINVERSION) < 0 ) {
-            throw new CmsInvalidDataException($this->_mod->Lang('err_xml_dtdmismatch'));
+            throw new UnexpectedValueException($this->_mod->Lang('err_xml_dtdmismatch'));
         }
         $dtdversion = $val;
         $current = (version_compare($val,self::MODULE_DTD_VERSION) == 0);
         $coremodule = (string)$xml->core; //'1', '0' or ''
-        $modops = ModuleOperations::get_instance();
+        $modops = AppSingle::ModuleOperations();
         $moduledetails = [];
         $filedone = false;
         $modes = get_server_permissions(); // might fail!
@@ -176,7 +174,7 @@ class operations
                 case 'about':
                 case 'description':
                     $moduledetails[$lkey] = ( $current ) ?
-                      htmlspecialchars_decode((string)$node, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE) :
+                      htmlspecialchars_decode((string)$node, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE) : // NOT worth CMSMS\de_specialize
                       base64_decode((string)$node);
                     break;
                 case 'file':
@@ -199,11 +197,11 @@ class operations
                                 $dir = $arr[2]; //deprecated place
                             }
                             if( !is_writable( $dir ) ) {
-                                throw new CmsFileSystemException(lang('errordirectorynotwritable'));
+                                throw new FileSystemException(lang('errordirectorynotwritable'));
                             }
                             $basepath = $dir . DIRECTORY_SEPARATOR . $moduledetails['name'];
                             if( !(is_dir($basepath) || @mkdir($basepath, $dirmode, true)) ) {
-                                throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
+                                throw new FileSystemException(lang('errorcantcreatefile').': '.$basepath);
                             }
                         }
                         else {
@@ -223,7 +221,7 @@ class operations
                                 }
                             }
                             if( !is_writable( $basepath ) ) {
-                                throw new CmsFileSystemException(lang('errordirectorynotwritable'));
+                                throw new FileSystemException(lang('errordirectorynotwritable'));
                             }
                         }
                         $from = ['\\','/'];
@@ -252,7 +250,7 @@ class operations
                             chmod($path, $dirmode); // in case refresh is needed
                         }
                         else {
-                            throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
+                            throw new FileSystemException(lang('errorcantcreatefile').': '.$path);
                         }
                     }
                     elseif( (string)$node->istext ) {
@@ -261,14 +259,14 @@ class operations
                             chmod($path, $filemode);
                         }
                         else {
-                            throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
+                            throw new FileSystemException(lang('errorcantcreatefile').': '.$path);
                         }
                     }
                     elseif( @file_put_contents($path, base64_decode((string)$node->data), LOCK_EX) !== false) {
                         chmod($path, $filemode);
                     }
                     else {
-                        throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
+                        throw new FileSystemException(lang('errorcantcreatefile').': '.$path);
                     }
                   break;
             }
@@ -284,22 +282,22 @@ class operations
     /**
      * generate xml representing all the content of the specified module
      * @internal
-     * @param CMSModule $modinstance
+     * @param CMSModule  | IResource $modinst
      * @param string $message for returning
      * @param int $filecount for returning
      * @return string output filepath
-     * @throws CmsFileSystemException
+     * @throws FileSystemException
      */
-    public function create_xml_package( CMSModule $modinstance, &$message, &$filecount )
+    public function create_xml_package($modinst, &$message, &$filecount )
     {
-        $dir = $modinstance->GetModulePath();
-        if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
+        $dir = $modinst->GetModulePath();
+        if( !is_writable( $dir ) ) throw new FileSystemException(lang('errordirectorynotwritable'));
 /*
         // generate a moduleinfo.ini file, if N/A now
         $fn = $dir.'/moduleinfo.ini';
         if( !is_file($fn) ) {
-            ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
-//          $cache = SysDataCache::get_instance();
+            AppSingle::ModuleOperations()->generate_moduleinfo($modinst);
+//          $cache = AppSingle::SysDataCache();
 //          $cache->release('modules');
 //          $cache->release('module_deps');
 //          $cache->release('module_plugins');
@@ -319,22 +317,22 @@ class operations
         $xw->startElement('module');
 
         $xw->writeElement('dtdversion', self::MODULE_DTD_VERSION);
-        $xw->writeElement('name', $modinstance->GetName());
-        $xw->writeElement('version', $modinstance->GetVersion());
-        $xw->writeElement('mincmsversion', $modinstance->MinimumCMSVersion());
-        $text = $modinstance->GetHelpPage();
+        $xw->writeElement('name', $modinst->GetName());
+        $xw->writeElement('version', $modinst->GetVersion());
+        $xw->writeElement('mincmsversion', $modinst->MinimumCMSVersion());
+        $text = $modinst->GetHelpPage();
         if( $text != '' ) {
             $xw->startElement('help');
-            $xw-> writeCdata(htmlspecialchars($text, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false));
+            $xw-> writeCdata(htmlspecialchars($text, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false)); // NOT worth CMSMS\specialize
             $xw->endElement();
         }
-        $text = $modinstance->GetAbout();
+        $text = $modinst->GetAbout();
         if( $text != '' ) {
             $xw->startElement('about');
             $xw-> writeCdata(htmlspecialchars($text, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false));
             $xw->endElement();
         }
-        $text = $modinstance->GetAdminDescription();
+        $text = $modinst->GetAdminDescription();
         if( $text != '' ) {
             $xw->startElement('description');
             $xw-> writeCdata(htmlspecialchars($text, ENT_XML1/* | ENT_NOQUOTES*/ | ENT_SUBSTITUTE, null, false));
@@ -348,7 +346,7 @@ class operations
             $xw->writeElement('core', 0);
         }
 
-        $depends = $modinstance->GetDependencies();
+        $depends = $modinst->GetDependencies();
         foreach( $depends as $key=>$val ) {
             $xw->startElement('requires');
             $xw->writeElement('requiredname', $key);
@@ -401,7 +399,7 @@ class operations
         $xw->endDocument();
         $xw->flush();
 
-        $message = $this->_mod->Lang('xmlstatus', $modinstance->GetName(), $filecount);
+        $message = $this->_mod->Lang('xmlstatus', $modinst->GetName(), $filecount);
         return $outfile;
     }
 } // class

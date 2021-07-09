@@ -1,26 +1,34 @@
 <?php
-#procedure to add a users-group
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure to add a users-group
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+use CMSMS\AdminUtils;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\Group;
-use CMSMS\Utils;
+use function CMSMS\de_specialize;
+use function CMSMS\sanitizeVal;
+use function CMSMS\specialize;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -35,43 +43,59 @@ if (isset($_POST['cancel'])) {
 
 $userid = get_userid();
 
-$themeObject = Utils::get_theme_object();
-
 if (!check_permission($userid, 'Manage Groups')) {
 //TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-    return;
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-$group = '';
-$description = '';
-$active = 1;
+//CMSMS\de_specialize_array($_POST);
 
 if (isset($_POST['addgroup'])) {
-    $group = cleanValue($_POST['group']);
-    $description = cleanValue($_POST['description']);
-    $active = isset($_POST['active']);
-    try {
-        if ($group == '') {
-             throw new CmsInvalidDataException(lang('nofieldgiven', lang('groupname')));
-        }
-
-        $groupobj = new Group();
-        $groupobj->name = $group;
-        $groupobj->description = $description;
-        $groupobj->active = $active;
-        Events::SendEvent( 'Core', 'AddGroupPre', [ 'group'=>&$groupobj ] );
-
-        if($groupobj->save()) {
-            Events::SendEvent( 'Core', 'AddGroupPost', [ 'group'=>&$groupobj ] );
-            // put mention into the admin log
-            audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Added');
-            redirect('listgroups.php'.$urlext);
-        } else {
-            throw new RuntimeException(lang('errorinsertinggroup'));
-        }
-    } catch( Throwable $e ) {
-        $themeObject->RecordNotice('error', $e->GetMessage());
+    $errors = [];
+    $tmp = de_specialize(trim($_POST['group']));
+    $group = sanitizeVal($tmp, CMSSAN_NAME);
+    if ($group !== $tmp) {
+        $errors[] = lang('illegalcharacters', lang('groupname'));
+    } elseif (!$group) {
+        $errors[] = lang('nofieldgiven', lang('groupname'));
+    } elseif (!AdminUtils::is_valid_itemname($group)) {
+        $errors[] = lang('errorbadname');
     }
+    // not compulsory
+//    $tmp =
+    $tmp = de_specialize(trim($_POST['description']));
+	$description = sanitizeVal($tmp, CMSSAN_NONPRINT); // AND nl2br() ? striptags() ?
+    $active = !empty($_POST['active']);
+
+    if (!$errors) {
+        try {
+            $groupobj = new Group();
+            $groupobj->name = $group;
+            $groupobj->description = $description;
+            $groupobj->active = $active;
+            Events::SendEvent('Core', 'AddGroupPre', [ 'group'=>&$groupobj ]);
+
+            if ($groupobj->save()) {
+                Events::SendEvent('Core', 'AddGroupPost', [ 'group'=>&$groupobj ]);
+                // put mention into the admin log
+                audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Added');
+                redirect('listgroups.php'.$urlext);
+            } else {
+                $errors[] = lang('errorinsertinggroup');
+            }
+        } catch (Throwable $t) {
+            $errors[] = $t->GetMessage();
+        }
+    }
+
+    AppSingle::Theme()->RecordNotice('error', $errors);
+
+    $group = specialize($group);
+    $description = specialize($description);
+} else {
+    $group = '';
+    $description = '';
+    $active = 1;
 }
 
 $selfurl = basename(__FILE__);
@@ -89,6 +113,7 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('addgroup.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";

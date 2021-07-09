@@ -20,8 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SysDataCache;
-use CMSMS\UserOperations;
+use CMSMS\AppSingle;
 
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_changeowner' ) exit;
@@ -75,7 +74,7 @@ if( isset($params['submit']) ) {
       cms_warning('Changing ownership on multiple pages failed: '.$t->getMessage());
       $this->SetError($t->getMessage());
   }
-  $cache = SysDataCache::get_instance();
+  $cache = AppSingle::SysDataCache();
   $cache->release('content_quicklist');
   $cache->release('content_tree');
   $cache->release('content_flatlist');
@@ -103,7 +102,7 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_changeowne
 
 $tpl->assign('pagelist',$params['bulk_content'])
  ->assign('displaydata',$displaydata);
-$userlist = UserOperations::get_instance()->LoadUsers();
+$userlist = AppSingle::UserOperations()->LoadUsers();
 $tmp = [];
 foreach( $userlist as $user ) {
   $tmp[$user->id] = $user->username;

@@ -20,13 +20,15 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppParams;
+
 function smarty_function_current_date($params, $template)
 {
 	if( !empty($params['format']) ) {
 		$format = trim($params['format']);
 	}
 	else {
-		$format = cms_siteprefs::get('defaultdateformat', '%x');
+		$format = AppParams::get('defaultdateformat', '%x');
 	}
 
 	$str = strftime($format, time());

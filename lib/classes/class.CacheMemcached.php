@@ -1,7 +1,7 @@
 <?php
 /*
 A class to work with data cached using the PHP Memcached extension.
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 

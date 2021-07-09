@@ -1,12 +1,12 @@
 {tab_header name='general' label=lang('general_settings') active=$tab}
 {tab_header name='editcontent' label=lang('editcontent_settings') active=$tab}
 {tab_header name='sitedown' label=lang('sitedown_settings') active=$tab}
-{tab_header name='mail' label=lang('mail_settings') active=$tab}
+{* tab_header name='mail' label=lang('mail_settings') active=$tab *}
 {tab_header name='advanced' label=lang('advanced') active=$tab}
 {if !empty($externals)}
 {tab_header name='external' label=lang('external_settings') active=$tab}
 {/if}
-{* +++++++++++++++++++++++++++++++++++++++++++ *}
+{* +++++ *}
 {tab_start name='general'}
 <form id="siteprefform_general" action="{$selfurl}" enctype="multipart/form-data" method="post">
   <div class="hidden">
@@ -124,7 +124,7 @@
        <label for="edt{$i}">{$one->label}</label>
        {if !empty($one->mainkey)}
        <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$helpicon}</span>
-       {/if}<br />
+       {/if}{if !$one@last}<br />{/if}
       {/foreach}
       <div class="pagetext">{$t=lang('wysiwyg_deftheme')}
         <label for="wysiwygtheme">{$t}:</label>
@@ -157,6 +157,55 @@
     </select>
   </div>
   {/if}
+  <fieldset>
+    <legend>{lang('credential_settings')}</legend>
+  {if $login_modules}
+  <div class="pageoverflow">
+    <div class="pagetext">{$t=lang('admin_login_module')}
+      <label for="login_module">{$t}:</label>
+      {cms_help key2='settings_login_module' title=$t}
+    </div>
+    <div class="pageinput">
+      <select id="login_module" name="login_module">
+        {html_options options=$login_modules selected=$login_module}
+      </select>
+    </div>
+  </div>{/if}
+  <div class="pageoverflow">
+    <div class="pagetext">{$t=lang('admin_login_processor')}
+      <label>{$t}:</label>
+      {cms_help key2='settings_login_processor' title=$t}
+    </div>
+    {foreach $login_handlers as $i=>$one}
+     <input type="radio" name="login_processor" id="lp{$i}" value="{$i}"{if ($i==$login_handler)} checked{/if}>
+     <label for="lp{$i}">{$one}</label>{if !$one@last}<br />{/if}
+    {/foreach}
+  </div>
+  {if isset($pass_levels)}
+  <div class="pageoverflow">
+    <div class="pagetext">{$t=lang('password_level')}
+      <label for="passlevel">{$t}:</label>
+      {cms_help key2='settings_password_level' title=$t}
+    </div>
+    <div class="pageinput">
+      <select id="passlevel" name="password_level">
+        {html_options options=$pass_levels selected=$passwordlevel}
+      </select>
+    </div>
+  </div>
+  <div class="pageoverflow">
+    <div class="pagetext">{$t=lang('username_settings')}
+      <label for="unamelevel">{$t}:</label>
+      {cms_help key2='settings_username_settings' title=$t}
+    </div>
+    <div class="pageinput">
+      <select id="unamelevel" name="username_settings">
+        {html_options options=$uname_levels selected=$usernamelevel}
+      </select>
+    </div>
+  </div>
+  {/if}{* pass_;evels *}
+  </fieldset>
   <div class="pageinput pregap">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
@@ -166,7 +215,7 @@
 <div id="importdlg" title="{lang('importtheme')}" style="display:none;">
  <form id="importform" action="themeoperation.php{$urlext}" enctype="multipart/form-data" method="post">
   <div class="pageinput">
-   <input type="file" id="xml_upload" title="{lang('help_themeimport')|escape:"javascript"}" name="import" accept="text/xml" />
+   <input type="file" id="xml_upload" title="{lang('help_themeimport')|escape:'javascript'}" name="import" accept="text/xml" />
   </div>
  </form>
 </div>
@@ -193,7 +242,7 @@
  </form>
 </div>
 {/if}
-{* +++++++++++++++++++++++++++++++++++++++++++ *}
+{* +++++ *}
 {tab_start name='editcontent'}
 <form id="siteprefform_editcontent" action="{$selfurl}" enctype="multipart/form-data" method="post">
   <div class="hidden">
@@ -309,7 +358,7 @@
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
-{* +++++++++++++++++++++++++++++++++++++++++++ *}
+{* +++++ *}
 {tab_start name='sitedown'}
 <form id="siteprefform_sitedown" action="{$selfurl}" enctype="multipart/form-data" method="post">
   <div class="hidden">
@@ -365,173 +414,7 @@
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
-{* +++++++++++++++++++++++++++++++++++++++++++ *}
-{tab_start name='mail'}
-<div id="testpopup" title="{lang('title_mailtest')}" style="display:none;">
-  <form id="siteprefform_mailtest" action="{$selfurl}" enctype="multipart/form-data" method="post">
-    <div class="hidden">
-      {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
-{/foreach}
-      <input type="hidden" name="active_tab" value="mail" />
-    </div>
-    <p class="pageinfo">{lang('info_mailtest')}</p>
-    <div class="pageoverflow">
-      <div class="pagetext">{$t=lang('settings_testaddress')}
-        <label for="testaddress">{$t}:</label>
-        {cms_help key2='settings_mailtest_testaddress' title=$t}
-      </div>
-      <div class="pageinput">
-        <input type="text" id="testaddress" name="mailtest_testaddress" size="50" maxlength="255" />
-      </div>
-    </div>
-    <div class="pageinput pregap">
-      <button type="submit" name="testmail" id="testsend" class="adminsubmit icon do">{lang('sendtest')}</button>
-    </div>
-  </form>
-</div>
-
-<form id="siteprefform_mail" action="{$selfurl}" enctype="multipart/form-data" method="post">
-  <div class="hidden">
-    {foreach $extraparms as $key => $val}<input type="hidden" name="{$key}" value="{$val}" />
-{/foreach}
-    <input type="hidden" name="active_tab" value="mail" />
-  </div>
-  <div class="pageinput postgap">
-    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
-    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-    <button type="submit" name="testemail" id="mailertest" class="adminsubmit icon do">{lang('test')}</button>
-  </div>
-
-  <fieldset id="set_general">
-    <legend>{lang('general_settings')}</legend>
-    <div class="pageoverflow">
-      <div class="pagetext">{$t=lang('settings_mailer')}
-        <label for="mailer">{$t}:</label>
-        {cms_help key2='settings_mailprefs_mailer' title=$t}
-      </div>
-        <div class="pageinput">
-          <select id="mailer" name="mailprefs_mailer">
-            {html_options options=$maileritems selected=$mailprefs.mailer}
-          </select>
-        </div>
-      </div>
-      <div class="pageoverflow">
-        <div class="pagetext">{$t=lang('settings_mailfrom')}
-          <label for="from">{$t}:</label>
-          {cms_help key2='settings_mailprefs_from' title=$t}
-        </div>
-      <div class="pageinput">
-        <input type="text" id="from" name="mailprefs_from" value="{$mailprefs.from}" size="50" maxlength="255" />
-      </div>
-    </div>
-    <div class="pageoverflow">
-      <div class="pagetext">{$t=lang('settings_mailfromuser')}
-        <label for="fromuser">{$t}:</label>
-        {cms_help key2='settings_mailprefs_fromuser' title=$t}
-      </div>
-      <div class="pageinput">
-        <input type="text" id="fromuser" name="mailprefs_fromuser" value="{$mailprefs.fromuser}" size="50" maxlength="255" />
-      </div>
-    </div>
-  </fieldset>
-
-  <fieldset id="set_smtp">
-    <legend>{lang('smtp_settings')}</legend>
-    <div class="pageoverflow">
-      <div class="pagetext">{$t=lang('settings_smtphost')}
-         <label for="host">{$t}:</label>
-         {cms_help key2='settings_mailprefs_smtphost' title=$t}
-      </div>
-      <div class="pageinput">
-        <input type="text" id="host" name="mailprefs_host" value="{$mailprefs.host}" size="50" maxlength="255" />
-      </div>
-    </div>
-
-    <div class="pageoverflow">
-      <div class="pagetext">{$t=lang('settings_smtpport')}
-        <label for="port">{$t}:</label>
-        {cms_help key2='settings_mailprefs_smtpport' title=$t}
-    </div>
-      <div class="pageinput">
-        <input type="text" id="port" name="mailprefs_port" value="{$mailprefs.port}" size="6" maxlength="8" />
-      </div>
-    </div>
-
-    <div class="pageoverflow">
-      <div class="pagetext">{$t=lang('settings_smtptimeout')}
-        <label for="timeout">{$t}:</label>
-        {cms_help key2='settings_mailprefs_smtptimeout' title=$t}
-      </div>
-      <div class="pageinput">
-        <input type="text" id="timeout" name="mailprefs_timeout" value="{$mailprefs.timeout}" size="6" maxlength="8" />
-      </div>
-    </div>
-
-    <fieldset>
-      <legend>{lang('settings_authentication')}</legend>
-      <div class="pageoverflow">
-        <div class="pagetext">{$t=lang('settings_smtpauth')}
-          <label for="smtpauth">{$t}:</label>
-          {cms_help key2='settings_mailprefs_smtpauth' title=$t}
-        </div>
-        <input type="hidden" name="mailprefs_smtpauth" value="0" />
-        <div class="pageinput">
-          <input type="checkbox" name="mailprefs_smtpauth" id="smtpauth" value="1"{if $mailprefs.smtpauth} checked="checked"{/if} />
-        </div>
-      </div>
-
-      <div class="pageoverflow">
-        <div class="pagetext">{$t=lang('settings_authsecure')}
-          <label for="secure">{$t}:</label>
-          {cms_help key2='settings_mailprefs_smtpsecure' title=$t}
-        </div>
-        <div class="pageinput">
-          <select id="secure" name="mailprefs_secure">
-            {html_options options=$secure_opts selected=$mailprefs.secure}
-          </select>
-        </div>
-      </div>
-
-      <div class="pageoverflow">
-        <div class="pagetext">{$t=lang('settings_authusername')}
-          <label for="username">{$t}:</label>
-          {cms_help key2='settings_mailprefs_smtpusername' title=$t}
-        </div>
-        <div class="pageinput">
-          <input type="text" id="username" name="mailprefs_username" value="{$mailprefs.username}" size="40" maxlength="80" />
-        </div>
-      </div>
-
-      <div class="pageoverflow">
-        <div class="pagetext">{$t=lang('settings_authpassword')}
-          <label for="password">{$t}:</label>
-          {cms_help key2='settings_mailprefs_smtppassword' title=$t}
-        </div>
-        <div class="pageinput">
-          <input type="text" id="password" name="mailprefs_password" value="{$mailprefs.password}" size="40" maxlength="80" />
-        </div>
-      </div>
-    </fieldset>
-  </fieldset>
-
-  <fieldset id="set_sendmail">
-    <legend>{lang('sendmail_settings')}</legend>
-    <div class="pageoverflow">
-      <div class="pagetext">{$t=lang('settings_sendmailpath')}
-        <label for="sendmail">{$t}:</label>
-        {cms_help key2='settings_mailprefs_sendmail' title=$t}
-      </div>
-      <div class="pageinput">
-        <input type="text" id="sendmail" name="mailprefs_sendmail" value="{$mailprefs.sendmail}" size="50" maxlength="255" />
-      </div>
-    </div>
-  </fieldset>
-  <div class="pageinput pregap">
-    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
-    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-  </div>
-</form>
-{* +++++++++++++++++++++++++++++++++++++++++++ *}
+{* +++++ *}
 {tab_start name='advanced'}
 <form id="siteprefform_advanced" action="{$selfurl}" enctype="multipart/form-data" method="post">
   <div class="hidden">
@@ -596,7 +479,7 @@
       <div class="pageinput">
       {foreach $smarty_cachemodules as $i=>$one}
         <input type="radio" name="smarty_cachemodules" id="smc{$i}" value="{$one->value}"{if !empty($one->checked)} checked="checked"{/if}>
-        <label for="smc{$i}">{$one->label}</label><br />
+        <label for="smc{$i}">{$one->label}</label>{if !$one@last}<br />{/if}
       {/foreach}
       </div>
       <div class="pagetext">{$t=lang('smarty_cacheusertags')}
@@ -661,11 +544,11 @@
       </div>
       {$t=lang('about')}
       {foreach $syntax_opts as $i=>$one}
-       <input type="radio" name="syntaxtype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked{/if}>
+       <input type="radio" name="syntaxtype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked="checked"{/if}>
        <label for="edt{$i}">{$one->label}</label>
        {if !empty($one->mainkey)}
        <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$helpicon}</span>
-       {/if}<br />
+       {/if}{if !$one@last}<br />{/if}
       {/foreach}
       <div class="pagetext">{$t=lang('syntax_editor_deftheme')}
         <label for="syntaxtheme">{$t}:</label>
@@ -678,18 +561,39 @@
   </fieldset>
  {/if}
   <fieldset>
+  <legend>{lang('jobs_settings')}</legend>
+   <div class="pageoverflow">
+     <div class="pagetext">{$t=lang('prompt_frequency')}
+       <label for="interval">{$t}:</label>
+       {cms_help key2='settings_job_frequency' title=$t}
+     </div>
+     <div class="pageinput">
+         <input type="text" id="interval" name="jobinterval" value="{$jobinterval}" size="4" maxlength="2" />
+     </div>
+   </div>
+   <div class="pageoverflow">
+     <div class="pagetext">{$t=lang('prompt_timelimit')}
+       <label for="timeout">{$t}:</label>
+       {cms_help key2='settings_job_timelimit' title=$t}
+     </div>
+     <div class="pageinput">
+       <input type="text" id="timeout" name="jobtimeout" value="{$jobtimeout}" size="4" maxlength="4" />
+     </div>
+   </div>
+{*
+   <div class="pageoverflow">
+     <div class="pagetext">{$t=lang('prompt_joburl')}
+       <label for="url">{$t}:</label>
+       {cms_help key2='settings_job_url' title=$t}
+     </div>
+     <div class="pageinput">
+       <input type="text" id="url" name="joburl" size="50" maxlength="80" value="{$joburl}" />
+     </div>
+   </div>
+*}
+  </fieldset>
+  <fieldset>
     <legend>{lang('general_operation_settings')}</legend>
-    <div class="pageoverflow">
-      <div class="pagetext">{$t=lang('admin_login_module')}
-        <label for="login_module">{$t}:</label>
-        {cms_help key2='settings_login_module' title=$t}
-      </div>
-      <div class="pageinput">
-        <select id="login_module" name="login_module">
-          {html_options options=$login_modules selected=$login_module}
-        </select>
-      </div>
-    </div>
     <div class="pageoverflow">
       <div class="pagetext">{$t=lang('global_umask')}
         <label for="umask">{$t}:</label>
@@ -738,6 +642,7 @@
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
+{* +++++ *}
 {if !empty($externals)}
 {tab_start name='external'}
 <p class="pageinfo">{lang('external_setdesc')}</p>

@@ -1,26 +1,33 @@
 <?php
-#procedure to modify an event
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure to modify an event
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Error403Exception;
 use CMSMS\Events;
-use CMSMS\SimpleTagOperations;
 use CMSMS\Utils;
+use function CMSMS\de_specialize_array;
+use function CMSMS\sanitizeVal;
+use function CMSMS\specialize;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -37,13 +44,12 @@ if (isset($_POST['cancel'])) {
 $userid = get_userid();
 $access = check_permission($userid, 'Modify Events');
 
-$themeObject = Utils::get_theme_object();
-
 if (!$access) {
 //TODO some pushed popup	lang('noaccessto', lang('modifyeventhandler'))
-    return;
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
+$themeObject = AppSingle::Theme();
 $action = '';
 $description = '';
 $event = '';
@@ -51,16 +57,17 @@ $handler = '';
 $sender = '';
 $sendername = '';
 
-if ($access) {
+if (1) { //$access) {
 	$icondown = $themeObject->DisplayImage('icons/system/arrow-d.gif', lang('down'),'','','systemicon');
 	$iconup = $themeObject->DisplayImage('icons/system/arrow-u.gif', lang('up'),'','','systemicon');
 	$icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),'','','systemicon');
 
 	if (isset($_POST['add'])) {
-		// we're adding some funky event handler
-		$sender = trim(cleanValue($_POST['originator']));
-		$event = trim(cleanValue($_POST['event']));
-		$handler = trim(cleanValue($_POST['handler']));
+		de_specialize_array($_POST);
+		// we're adding some funky event-handler
+		$sender = sanitizeVal($_POST['originator'], CMSSAN_FILE); // module-name | 'Core'
+		$event = sanitizeVal($_POST['event'], CMSSAN_PURE); // letters only
+		$handler = sanitizeVal($_POST['handler'], CMSSAN_PUNCT); // allow ':\'
 		if ($sender && $event && $handler) {
 			if (strncmp($handler, 'm:', 2) == 0) {
 				$handler = substr($handler, 2);
@@ -72,17 +79,23 @@ if ($access) {
 	} else {
 		// perhaps we're processing a link-click up/down/delete
 		//TODO clear events cache(s) when relevant
-
-		if (!empty($_GET['action'])) $action = trim(cleanValue($_GET['action']));
-		if (!empty($_GET['originator'])) $sender = trim(cleanValue($_GET['originator']));
-		if (!empty($_GET['event'])) $event = trim(cleanValue($_GET['event']));
-		if (!empty($_GET['handler'])) $handler = (int)$_GET['handler'];
+		de_specialize_array($_GET);
+		if (!empty($_GET['originator'])) {
+			$sender = sanitizeVal($_GET['originator'], CMSSAN_FILE); // module-name | 'Core'
+		}
+		if (!empty($_GET['event'])) {
+			$event = sanitizeVal($_GET['event'], CMSSAN_PURE); // letters only
+		}
+		if (!empty($_GET['handler'])) {
+			$handler = sanitizeVal($_GET['handler'], CMSSAN_PUNCT); // allow ':\'
+		}
 		if (!empty($_GET['order'])) {
 			$cur_order = (int)$_GET['order'];
 		} else {
 			$cur_order = -1;
 		}
 
+		$action = $_GET['action'] ?? ''; // no sanitizeVal() etc only explicit vals accepted
 		switch ($action) {
 		case 'up':
 			// move an item up (decrease its order)
@@ -132,17 +145,18 @@ if ($access) {
 	// get all available event handlers
 	$allhandlers = [];
 	// user-defined tags (lowest priority, may be replaced by same-name below)
-	$ops = SimpleTagOperations::get_instance();
-	$plugins = $ops->ListSimpleTags(); //UDTfiles included
+	$ops = AppSingle::UserTagOperations();
+	$plugins = $ops->ListUserTags(); //UDTfiles included
 	foreach ($plugins as $name) {
 		$allhandlers[$name] = $name;
 	}
 	// module-tags
+	$ops = AppSingle::ModuleOperations();
 	$allmodules = $ops->GetInstalledModules(); //TODO use module_meta data
 	foreach ($allmodules as $name) {
 		if ($name == $sendername) continue;
-		$modinstance = $ops->get_module_instance($name);
-		if ($modinstance && $modinstance->HandlesEvents()) {
+		$modinst = $ops->get_module_instance($name);
+		if ($modinst && $modinst->HandlesEvents()) {
 			$allhandlers[$name] = 'm:'.$name;
 		}
 	}
@@ -162,20 +176,21 @@ $smarty = AppSingle::Smarty();
 $smarty->assign([
 	'access' => $access,
 	'allhandlers' => $allhandlers,
-	'description' => $description,
-	'event' => $event, //name
+	'description' => specialize($description),
+	'event' => $event, // internal name
 	'handlers' => $handlers,
 	'icondel' => $icondel,
 	'icondown' => $icondown,
 	'iconup' => $iconup,
-	'originator' => $sender, //internal name
-	'originname' => $sendername, //public/friendly name
+	'originator' => $sender, // 'Core' or module name
+	'originname' => specialize($sendername), //public/friendly name
 	'selfurl' => $selfurl,
     'extraparms' => $extras,
 	'urlext' => $urlext,
 ]);
 
 $content = $smarty->fetch('editevent.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";

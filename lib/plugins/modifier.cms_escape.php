@@ -49,6 +49,9 @@ function escape_one($string, $_type)
 
 namespace {
 */
+use CMSMS\AppSingle;
+use function CMSMS\entitize;
+use function CMSMS\specialize;
 
 function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 {
@@ -68,22 +71,22 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 	switch ($esc_type) {
 		case 'html':
 			if ($char_set) {
-				return cms_specialchars($string, 0, $char_set);
+				return specialize($string, 0, $char_set);
 			}
-			return cms_specialchars($string);
+			return specialize($string);
 
 		case 'htmlall':
 			if ($char_set) {
-				return cms_htmlentities($string, 0, $char_set);
+				return entitize($string, 0, $char_set);
 			}
-			return cms_htmlentities($string);
+			return entitize($string);
 
 		case 'url':
-//			return cms_urlencode($string);  // TODO verbatim chars for rfc 3986 {query, fragment}, plus '%', less '?' '&'
+//			return CMSMS\urlencode($string);  // TODO verbatim chars for rfc 3986 {query, fragment}, plus '%', less '?' '&'
 			return rawurlencode($string);
 
 		case 'urlpathinfo':
-//			return str_replace('%2F', '/', cms_urlencode($string));
+//			return str_replace('%2F', '/', CMSMS\urlencode($string));
 			return str_replace('%2F', '/', rawurlencode($string));
 
 		case 'quotes':
@@ -139,7 +142,7 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 			return str_replace('<', '&lt;', $string);
 
 		case 'smartyphp':
-			$smarty = CMSMS\AppSingle::Smarty();
+			$smarty = AppSingle::Smarty();
 			$ldl = $smarty->left_delimiter;
 			$rdl = $smarty->right_delimiter;
 			$lsep = '';
@@ -157,6 +160,13 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 			$patn = "{$lsep}{$eldl}\s*/?php\s*{$erdl}{$rsep}i";
 			return preg_replace($patn, '', $string);
 
+		case 'textarea':
+			$matches = [];
+			return preg_replace_callback('~<\s*(/?)\s*(textarea)~i', function($matches) {
+				$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+				return '&lt;'.$pre.$matches[2];
+			}, $string);
+
 		default:
 			return $string;
 	}
@@ -168,9 +178,10 @@ function smarty_cms_about_modifier_cms_escape()
 	'Smarty escape-modifier by Monte Ohrt <monte at ohrt dot com><br />supplemented by CMSMS-extensions. 2004',
 	<<<'EOS'
 <li>change default charset to UTF-8</li>
-<li>change html processor to cms_specialchars</li>
-<li>change htmlall processor to cms_htmlentities</li>
-<li>support Smarty2 php tags removal</lili>
+<li>change html processor to CMSMS\specialize</li>
+<li>change htmlall processor to CMSMS\entitize</li>
+<li>support Smarty2 php tags removal</li>
+<li>support textarea-tag escaping, for e.g. a template to be edited using a textarea</li>
 EOS
 	);
 }
@@ -186,8 +197,8 @@ function smarty_cms_help_modifier_cms_escape()
 <li>decentity: substitute &#N;</li>
 <li>hex: substitute %H</li>
 <li>hexentity: substitute &#xH;</li>
-<li>html (<em>default</em>): apply cms_specialchars</li>
-<li>htmlall: apply cms_htmlentities</li>
+<li>html (<em>default</em>): apply CMSMS\specialize</li>
+<li>htmlall: apply CMSMS\entitize</li>
 <li>htmltiny: substitute &amplt; for &lt;</li>
 <li>javascript: escape quotes, backslashes, newlines etc</li>
 <li>mail: substitute [AT], [DOT]</li>

@@ -1,10 +1,16 @@
 <?php
 
-use CMSMS\ContentOperations;
+use CMSMS\AdminUtils;
+use CMSMS\AppSingle;
+use CMSMS\DataException;
 use CMSMS\Events;
-use CMSMS\ModuleOperations;
-use CMSMS\UserTagOperations;
-//use DesignManager\Design; //TODO N/A
+use CMSMS\internal\std_layout_template_callbacks;
+use CMSMS\LockOperations;
+use CMSMS\Stylesheet;
+use CMSMS\Template;
+use CMSMS\TemplatesGroup;
+use CMSMS\TemplateType;
+use LogicException;
 
 set_time_limit(3600);
 status_msg('Fixing errors with deprecated plugins in versions prior to CMSMS 2.0');
@@ -63,7 +69,7 @@ Events::CreateEvent('Core','DeleteDesignPre');
 Events::CreateEvent('Core','DeleteDesignPost');
 */
 // create new tables
-verbose_msg('create table '.CmsLayoutTemplateType::TABLENAME);
+verbose_msg('create table '.TemplateType::TABLENAME);
 $flds = "
          id I KEY AUTO,
          originator C(50) NOTNULL,
@@ -77,26 +83,26 @@ $flds = "
          owner   I,
          created I,
          modified I";
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME, $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.TemplateType::TABLENAME, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
-$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_type_1', CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME, 'originator,name', array('UNIQUE'));
+$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_type_1', CMS_DB_PREFIX.TemplateType::TABLENAME, 'originator,name', array('UNIQUE'));
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
-verbose_msg('create table '.CmsLayoutTemplateCategory::TABLENAME);
+verbose_msg('create table '.TemplatesGroup::TABLENAME);
 $flds = "
          id I KEY AUTO,
          name C(100) NOTNULL,
          description X,
          item_order X,
          modified I";
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME, $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.TemplatesGroup::TABLENAME, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_cat_1', CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME,
+$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_cat_1', CMS_DB_PREFIX.TemplatesGroup::TABLENAME,
                                     'name',array('UNIQUE'));
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
-verbose_msg('create table '.CmsLayoutTemplate::TABLENAME);
+verbose_msg('create table '.Template::TABLENAME);
 $flds = "
          id I KEY AUTO,
          name C(100) NOTNULL,
@@ -108,16 +114,16 @@ $flds = "
          owner_id I NOTNULL,
          created I,
          modified I";
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.Template::TABLENAME, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
-$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_1', CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'name',array('UNIQUE'));
+$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_1', CMS_DB_PREFIX.Template::TABLENAME, 'name',array('UNIQUE'));
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
-$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_2', CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'type_id,type_dflt');
+$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_2', CMS_DB_PREFIX.Template::TABLENAME, 'type_id,type_dflt');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
-verbose_msg('create table '.CmsLayoutStylesheet::TABLENAME);
+verbose_msg('create table '.Stylesheet::TABLENAME);
 $flds = "
          id I KEY AUTO,
          name C(100) NOTNULL,
@@ -127,17 +133,17 @@ $flds = "
 	     media_query X,
          created I,
          modified I";
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME, $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.Stylesheet::TABLENAME, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_css_1',CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME, 'name', array('UNIQUE'));
+$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'idx_layout_css_1',CMS_DB_PREFIX.Stylesheet::TABLENAME, 'name', array('UNIQUE'));
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
-verbose_msg('create table '.CmsLayoutTemplate::ADDUSERSTABLE);
+verbose_msg('create table '.Template::ADDUSERSTABLE);
 $flds = "
          tpl_id I KEY,
          user_id I KEY
         ";
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::ADDUSERSTABLE, $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.Template::ADDUSERSTABLE, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
 /* these tables are now part of DesignManager module
@@ -174,7 +180,7 @@ $flds = "
 $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.Design::CSSTABLE, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 */
-verbose_msg('create table '.CmsLock::LOCK_TABLE);
+verbose_msg('create table '.LockOperations::LOCK_TABLE);
 $flds = "
          id I AUTO KEY NOTNULL,
          type C(20) NOTNULL,
@@ -185,7 +191,7 @@ $flds = "
          lifetime I NOTNULL,
          expires  I NOTNULL
         ";
-$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLock::LOCK_TABLE, $flds, $taboptarray);
+$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX. LockOperations::LOCK_TABLE, $flds, $taboptarray);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 
 $sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'index_locks1', CMS_DB_PREFIX."locks", 'type,oid', array('UNIQUE'));
@@ -201,43 +207,44 @@ $return = $dbdict->ExecuteSQLArray($sqlarray);
 $page_template_type = $gcb_template_type = null;
 for( $tries = 0; $tries < 2; $tries++ ) {
     try {
-        $page_template_type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
-        $gcb_template_type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::generic');
+        $page_template_type = TemplateType::load(TemplateType::CORE.'::page');
+        $gcb_template_type = TemplateType::load(TemplateType::CORE.'::generic');
         break;
     }
-    catch( CmsDataNotFoundException $e ) {
+    catch( DataException $e ) {
         // we insert the records manually... because later versions of the template type
         // add different columns... and the save() method won't work.
         verbose_msg('create initial template types');
 
-        $contents = \CmsTemplateResource::reset_page_type_defaults();
-        $sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' (originator,name,has_dflt,dflt_contents,description,
+        $contents = std_layout_template_callbacks::reset_page_type_defaults();
+        $sql = 'INSERT INTO '.CMS_DB_PREFIX.TemplateType::TABLENAME.' (originator,name,has_dflt,dflt_contents,description,
                     lang_cb, dflt_content_cb, requires_contentblocks, owner, created, modified)
                 VALUES (?,?,?,?,?,?,?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
-        $dbr = $db->Execute( $sql, [ CmsLayoutTemplateType::CORE, 'page', TRUE, $contents, null,
-                                     serialize('CmsTemplateResource::page_type_lang_callback'),serialize('CmsTemplateResource::reset_page_type_default'), TRUE, null ] );
+        $dbr = $db->Execute( $sql, [ TemplateType::CORE, 'page', TRUE, $contents, null,
+               serialize('CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback'),
+               serialize('CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_default'), TRUE, null ] );
         $contents = null;
-        $dbr = $db->Execute( $sql, [ CmsLayoutTemplateType::CORE, 'generic', FALSE, null, null,
-                                     serialize('CmsTemplateResource::generic_type_lang_callback'), null, FALSE, null ] );
+        $dbr = $db->Execute( $sql, [ TemplateType::CORE, 'generic', FALSE, null, null,
+               serialize('CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback'), null, FALSE, null ] );
     }
 } // tries
 
     /*
     // if we got here.... the type does not exist.
-    $page_template_type = new CmsLayoutTemplateType();
-    $page_template_type->set_originator(CmsLayoutTemplateType::CORE);
+    $page_template_type = new TemplateType();
+    $page_template_type->set_originator(TemplateType::CORE);
     $page_template_type->set_name('page');
     $page_template_type->set_dflt_flag(TRUE);
-    $page_template_type->set_lang_callback('CmsTemplateResource::page_type_lang_callback');
-    $page_template_type->set_content_callback('CmsTemplateResource::reset_page_type_defaults');
+    $page_template_type->set_lang_callback('CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
+    $page_template_type->set_content_callback('CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults');
     $page_template_type->reset_content_to_factory();
     $page_template_type->set_content_block_flag(TRUE);
     $page_template_type->save();
 
-    $gcb_template_type = new CmsLayoutTemplateType();
-    $gcb_template_type->set_originator(CmsLayoutTemplateType::CORE);
+    $gcb_template_type = new TemplateType();
+    $gcb_template_type->set_originator(TemplateType::CORE);
     $gcb_template_type->set_name('generic');
-    $gcb_template_type->set_lang_callback('CmsTemplateResource::generic_type_lang_callback');
+    $gcb_template_type->set_lang_callback('CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback');
     $gcb_template_type->save();
     */
 if( !is_object($page_template_type) || !is_object($gcb_template_type) ) {
@@ -246,12 +253,12 @@ if( !is_object($page_template_type) || !is_object($gcb_template_type) ) {
 }
 
 $_fix_name = function($str) {
-    if( CmsAdminUtils::is_valid_itemname($str) ) return $str;
+    if( AdminUtils::is_valid_itemname($str) ) return $str;
     $orig = $str;
     $str = trim($str);
-    if( !CmsAdminUtils::is_valid_itemname($str[0]) ) $str[0] = '_';
+    if( !AdminUtils::is_valid_itemname($str[0]) ) $str[0] = '_';
     for( $i = 1; $i < strlen($str); $i++ ) {
-        if( !CmsAdminUtils::is_valid_itemname($str[$i]) ) $str[$i] = '_';
+        if( !AdminUtils::is_valid_itemname($str[$i]) ) $str[$i] = '_';
     }
     for( $i = 0; $i < 5; $i++ ) {
         $in = $str;
@@ -264,12 +271,12 @@ $_fix_name = function($str) {
 
 $_fix_css_name = function($str) {
     // stylesheet names cannot end with .css and must be unique
-    if( !endswith($str,'.css') && CmsAdminUtils::is_valid_itemname($str) ) return $str;
+    if( !endswith($str,'.css') && AdminUtils::is_valid_itemname($str) ) return $str;
     $orig = $str;
     $str = trim($str);
-    if( !CmsAdminUtils::is_valid_itemname($str[0]) ) $str[0] = '_';
+    if( !AdminUtils::is_valid_itemname($str[0]) ) $str[0] = '_';
     for( $i = 1; $i < strlen($str); $i++ ) {
-        if( !CmsAdminUtils::is_valid_itemname($str[$i]) ) $str[$i] = '_';
+        if( !AdminUtils::is_valid_itemname($str[$i]) ) $str[$i] = '_';
     }
     for( $i = 0; $i < 5; $i++ ) {
         $in = $str;
@@ -284,7 +291,7 @@ $fix_template_name = function($in) use (&$db,&$_fix_name) {
     // template names have to be unique and cannot end with .tpl
     if( endswith($in,'.tpl') ) $in = substr($in,0,-4);
     $in = $_fix_name($in);
-    $name = CmsLayoutTemplate::generate_unique_name($in);
+    $name = Template::generate_unique_name($in);
     if( $name != $in ) {
         error_msg('Template named '.$in.' conflicted with an existing template, new name is '.$name);
     }
@@ -292,12 +299,12 @@ $fix_template_name = function($in) use (&$db,&$_fix_name) {
 };
 
 // read gcb's and convert them to templates.
-// note: we directly write the the CmsLayoutTemplate table instead of using the CmsLayoutTemplate API because
-// the database structure changed between 2.0 and 2.1 (listable column) and the CmsLayoutTemplate class relies on a listable colum which may
+// note: we directly write the the Template table instead of using the Template API because
+// the database structure changed between 2.0 and 2.1 (listable column) and the Template class relies on a listable colum which may
 // not yet exist.
 verbose_msg('convert global content blocks to generic templates');
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'htmlblobs';
-$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' (name,content,description,type_id,type_dflt,owner_id,created,modified) VALUES (?,?,?,?,0,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
+$sql2 = 'INSERT INTO '.CMS_DB_PREFIX.Template::TABLENAME.' (name,content,description,type_id,type_dflt,owner_id,created,modified) VALUES (?,?,?,?,0,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
 $gcblist = null;
 $tmp = $db->GetArray($query);
 if( is_array($tmp) && count($tmp) ) {
@@ -305,10 +312,10 @@ if( is_array($tmp) && count($tmp) ) {
     foreach( $tmp as $gcb ) {
         $new_name = $fix_template_name($gcb['htmlblob_name']);
         try {
-            $template = CmsLayoutTemplate::load($new_name);
+            $template = Template::load($new_name);
             // nothing here, template with this name exists.
         }
-        catch( CmsDataNotFoundException $e ) {
+        catch( DataException $e ) {
             $db->Execute($sql2,array($new_name,$gcb['html'],$gcb['description'],$gcb_template_type->get_id(),$gcb['owner']));
             $gcb['template_id'] = $db->Insert_ID();
             $gcblist[$gcb['htmlblob_id']] = $gcb;
@@ -333,7 +340,7 @@ if( is_array($tmp) && count($tmp) ) {
         }
 
         // now insert the additional editors directly into the database
-        $sql3 = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplate::ADDUSERSTABLE.' (tpl_id, user_id) VALUES (?,?)';
+        $sql3 = 'INSERT INTO '.CMS_DB_PREFIX.Template::ADDUSERSTABLE.' (tpl_id, user_id) VALUES (?,?)';
         foreach( $gcblist as $htmlblob_id => $gcb ) {
             if( !isset($users[$htmlblob_id]) ) continue;
             foreach( $users[$htmlblob_id] as $add_uid ) {
@@ -363,7 +370,7 @@ if( is_array($tmp) && count($tmp) ) {
       $new_name = $_fix_css_name($row['css_name']);
       if( $new_name != $row['css_name']) verbose_msg("Rename stylesheet ".$row['css_name']." to $new_name");
       try {
-          $tmp = CmsLayoutStylesheet::load($new_name);
+          $tmp = Stylesheet::load($new_name);
       }
       catch( CmsLogicException $e ) {
           $css_id = $row['css_id'];
@@ -389,7 +396,7 @@ verbose_msg('converting page templates');
 
 /* this is now DesignManager module stuff
 $tpl_query = 'SELECT * FROM '.CMS_DB_PREFIX.'templates';
-$tpl_insert_query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' (name,content,description,type_id,type_dflt,owner_id,created,modified) VALUES (?,?,?,?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
+$tpl_insert_query = 'INSERT INTO '.CMS_DB_PREFIX.Template::TABLENAME.' (name,content,description,type_id,type_dflt,owner_id,created,modified) VALUES (?,?,?,?,?,?,UNIX_TIMESTAMP(),UNIX_TIMESTAMP())';
 $css_assoc_query = 'SELECT * FROM '.CMS_DB_PREFIX.'css_assoc WHERE assoc_to_id = ? ORDER BY assoc_order ASC';
 $tmp = $db->GetArray($tpl_query);
 $template_list = array();
@@ -440,7 +447,7 @@ $query = 'SELECT content_id,template_id,content_alias FROM '.CMS_DB_PREFIX.'cont
 $uquery = 'UPDATE '.CMS_DB_PREFIX.'content SET template_id = ? WHERE content_id = ?';
 $iquery = 'INSERT INTO '.CMS_DB_PREFIX.'content_props (content_id,type,prop_name,content,create_date) VALUES (?,?,?,?,NOW())';
 $content_rows = $db->GetArray($query);
-$contentops = ContentOperations::get_instance();
+$contentops = AppSingle::ContentOperations();
 if( is_array($content_rows) && count($content_rows) ) {
     foreach( $content_rows as $row ) {
         if( $row['template_id'] < 1 ) continue;
@@ -481,8 +488,7 @@ $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'css_seq');
 $dbdict->ExecuteSQLArray($sqlarray);
 
 verbose_msg('uninstalling theme manager');
-$modops = ModuleOperations::get_instance();
-$modops->UninstallModule('ThemeManager');
+AppSingle::ModuleOperations()->UninstallModule('ThemeManager');
 
 verbose_msg('upgrading cms_groups table');
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.'groups','group_desc C(255)');
@@ -500,7 +506,7 @@ EOT
 ,
 'description' => 'Stub function to replace the print plugin'
 ];
-UserTagOperations::get_instance()->SetUserTag('print',$params);
+AppSingle::UserTagOperations()->SetUserTag('print',$params);
 
 $sql = 'SELECT username FROM '.CMS_DB_PREFIX.'users WHERE user_id = 1';
 $un = $db->GetOne($sql);
@@ -530,11 +536,10 @@ $query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value = ?, modified_dat
 $db->Execute($query,array($theme,'logintheme'));
 
 verbose_msg(ilang('queue_for_upgrade','CMSMailer'));
-\ModuleOperations::get_instance()->QueueForInstall('CMSMailer');
+AppSingle::ModuleOperations()->QueueForInstall('CMSMailer'); // TODO N/A in CMSMS 2.99+
 
 verbose_msg(ilang('upgrading_schema',200));
 $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 200';
 $db->Execute($query);
 
 status_msg('done upgrades for 2.0');
-?>

@@ -19,6 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppParams;
 use CMSMS\LockOperations;
 
 if( !isset($gCms) ) exit;
@@ -28,7 +29,7 @@ $handlers = ob_list_handlers();
 for( $cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt ) { ob_end_clean(); }
 
 $userid = get_userid();
-$lock_timeout = cms_siteprefs::get('lock_timeout', 60);
+$lock_timeout = AppParams::get('lock_timeout', 60);
 $now = time();
 
 $list = LockOperations::get_locks('content');

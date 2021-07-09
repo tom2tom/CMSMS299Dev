@@ -1,27 +1,29 @@
 <?php
-#class to process module information
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class to process module information
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS\internal;
 
 use ArrayAccess;
 use CmsLogicException;
-use CMSMS\ModuleOperations;
-use CMSMS\SysDataCache;
+use CMSMS\AppSingle;
 use const CMS_ASSETS_PATH;
 use const CMS_VERSION;
 use function cms_join_path;
@@ -70,7 +72,7 @@ class module_info implements ArrayAccess
 
     public function OffsetGet($key)
     {
-        if( !in_array($key,self::PROPNAMES) ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
+        if( !in_array($key,self::PROPNAMES) ) { throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key); }
         switch( $key ) {
         case 'about':
             break;
@@ -79,7 +81,7 @@ class module_info implements ArrayAccess
             return version_compare($this['mincmsversion'],CMS_VERSION,'<=');
 
         case 'dir':
-            return ModuleOperations::get_instance()->get_module_path( $this->_data['name'] );
+            return AppSingle::ModuleOperations()->get_module_path( $this->_data['name'] );
 
         case 'writable':
             $dir = $this['dir'];
@@ -91,7 +93,7 @@ class module_info implements ArrayAccess
             return is_writable($this['dir']);
 
         case 'is_system_module':
-            return ModuleOperations::get_instance()->IsSystemModule( $this->_data['name'] );
+            return AppSingle::ModuleOperations()->IsSystemModule( $this->_data['name'] );
 
         default:
             return $this->_data[$key] ?? null;
@@ -176,7 +178,7 @@ class module_info implements ArrayAccess
     /* return mixed array or null */
 /*    private function _read_from_module_meta(string $module_name)
     {
-        $dir = ModuleOperations::get_instance()->get_module_path( $module_name );
+        $dir = AppSingle::ModuleOperations()->get_module_path( $module_name );
         $fn = $this->_get_module_meta_file( $module_name );
         if( !is_file($fn) ) return;
         $inidata = @parse_ini_file($fn,TRUE);
@@ -185,14 +187,14 @@ class module_info implements ArrayAccess
 
         $data = $inidata['module'];
         $arr = [];
-        $arr['name'] = isset($data['name']) ? trim($data['name']) : $module_name;
-        $arr['version'] = isset($data['version']) ? trim($data['version']) : '0.0.1';
-        $arr['description'] = isset($data['description']) ? trim($data['description']) : '';
-        $arr['author'] = trim(get_parameter_value($data,'author',lang('notspecified')));
-        $arr['authoremail'] = trim(get_parameter_value($data,'authoremail',lang('notspecified')));
-        $arr['mincmsversion'] = isset($data['mincmsversion']) ? trim($data['mincmsversion']) : CMS_VERSION;
-        $arr['lazyloadadmin'] = cms_to_bool(get_parameter_value($data,'lazyloadadmin',FALSE));
-        $arr['lazyloadfrontend'] = cms_to_bool(get_parameter_value($data,'lazyloadfrontend',FALSE));
+        $arr['name'] = trim($data['name'] ?? $module_name);
+        $arr['version'] = trim($data['version'] ?? '0.0.1');
+        $arr['description'] = trim($data['description'] ?? '');
+        $arr['author'] = trim($data['author'] ?? lang('notspecified'));
+        $arr['authoremail'] = trim($data['authoremail'] ?? lang('notspecified'));
+        $arr['mincmsversion'] = trim($data['mincmsversion'] ?? CMS_VERSION);
+        $arr['lazyloadadmin'] = cms_to_bool($data['lazyloadadmin'] ?? false);
+        $arr['lazyloadfrontend'] = cms_to_bool($data['lazyloadfrontend'] ?? false);
 
         if( isset($inidata['depends']) ) {
             $arr['depends'] = $inidata['depends'];
@@ -239,7 +241,7 @@ class module_info implements ArrayAccess
 /*
     private function _read_from_module(string $module_name)
     {
-        $mod = ModuleOperations::get_instance()->get_module_instance($module_name,'',TRUE);
+        $mod = AppSingle::ModuleOperations()->get_module_instance($module_name,'',TRUE);
         if( !is_object($mod) ) {
             // if the module is not installed, try to interrogate it anyway
             $path = cms_module_path($module_name);
@@ -270,16 +272,16 @@ class module_info implements ArrayAccess
     /* return mixed array or null */
     private function _read_from_module_cache(string $module_name)
     {
-        $tmp = SysDataCache::get_instance()->get('modules');
+        $tmp = AppSingle::SysDataCache()->get('modules');
         if( is_array($tmp) ) {
             if( isset($tmp[$module_name]) ) {
-                if( $tmp[$module_name]['status'] != 'installed' || !$tmp[$module_name]['active'] ) {
+                if( /*$tmp[$module_name]['status'] != 'installed' ||*/ !$tmp[$module_name]['active'] ) {
                     return null;
                 }
                 if( isset($tmp[$module_name][self::PROPNAMES[1]]) ) { // anything not in raw table data
                     return $tmp[$module_name];
                 }
-                $mod = ModuleOperations::get_instance()->get_module_instance($module_name,'',TRUE);
+                $mod = AppSingle::ModuleOperations()->get_module_instance($module_name,'',TRUE);
                 if( is_object($mod) ) {
                     unset($tmp[$module_name]['version']); // we will use the version reported by the module
                     $tmp[$module_name] += ['name' => $module_name];
@@ -298,7 +300,7 @@ class module_info implements ArrayAccess
                     $arr['changelog'] = $mod->GetChangelog();
 
                     $tmp[$module_name] += $arr;
-                    SysDataCache::get_instance()->set('modules', $tmp);
+                    AppSingle::SysDataCache()->set('modules', $tmp);
                     return $tmp[$module_name];
                 }
             }

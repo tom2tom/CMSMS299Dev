@@ -42,15 +42,15 @@ $markobj = (new BookmarkOperations())->LoadBookmarkByID($bookmark_id);
 if ($markobj) {
 	$userid = get_userid();
 	if ($userid != $markobj->user_id && !check_permission($userid, 'Manage My Bookmarks')) { //TODO or 'Manage Bookmarks'
-		Utils::get_theme_object()->ParkNotice('error', lang('needpermissionto', '"Manage My Bookmarks"'));
+		AppSingle::Theme()->ParkNotice('error', lang('needpermissionto', '"Manage My Bookmarks"'));
 		redirect('listbookmarks.php'.$urlext);
 	}
 
 	if (!$markobj->Delete()) {
-		Utils::get_theme_object()->ParkNotice('error', lang('failure'));
+		AppSingle::Theme()->ParkNotice('error', lang('failure'));
 	}
 } else {
-	Utils::get_theme_object()->ParkNotice('error', lang('invalid'));
+	AppSingle::Theme()->ParkNotice('error', lang('invalid'));
 }
 
 redirect('listbookmarks.php'.$urlext);

@@ -82,6 +82,7 @@ $lang = [
 'coltitle_icon1' => 'Page status indicators',
 'coltitle_id' => 'The unique numeric id for the page',
 'coltitle_menutext' => 'The string used to identify this page in navigations',
+'coltitle_modified' => 'Date and time when the page was last modified',
 'coltitle_move' => 'This column provides a simple ability to reorganize pages amongst their peers.', // column optionally displayed if actions menu N/A
 'coltitle_name' => 'The title of the page as appears when it is browsed to',
 'coltitle_owner' => 'The owner of the page',

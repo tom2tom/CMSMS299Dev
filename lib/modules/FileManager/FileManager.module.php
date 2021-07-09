@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminMenuItem;
-use CMSMS\App;
+use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
 use FileManager\Utils;
 use FilePicker\Utils as PickerUtils;
@@ -89,7 +89,7 @@ final class FileManager extends CMSModule
 
     public function GetModeTable($id, $permissions)
     {
-        $smarty=App::get_instance()->GetSmarty();
+        $smarty=AppSingle::Smarty();
         $tpl = $smarty->createTemplate($this->GetTemplateResource('modetable.tpl')); //, null, null, $smarty);
 
         $tpl->assign('ownertext', $this->Lang('owner'))

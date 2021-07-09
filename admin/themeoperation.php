@@ -1,7 +1,8 @@
 <?php
 /*
-admin operation: admin theme export/import/delete
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Admin operation: admin theme export/import/delete
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -11,18 +12,21 @@ the Free Software Foundation; either version 2 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+You should have received a copy of the GNU General Public License along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 //use CMSMS\AppSingle;
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\FileTypeHelper;
-use CMSMS\SysDataCache;
+use function CMSMS\de_specialize;
+use function CMSMS\sanitizeVal;
 
 const THEME_DTD_VERSION = '1.0';
 const THEME_DTD_MINVERSION = '1.0';
@@ -99,7 +103,7 @@ function import_theme(string $xmlfile) : bool
 							if (@file_put_contents($fp, base64_decode((string)$node->content)) === false) {
 								//TODO handle error cms_notify('error', ...)
 							}
-						} elseif (@file_put_contents($fp, htmlspecialchars_decode((string)$node->content)) === false) {
+						} elseif (@file_put_contents($fp, htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES)) === false) {
 							//TODO handle error
 						}
 					}
@@ -262,7 +266,7 @@ function export_theme(string $themename) : bool
 				if ($val) { //not a text file
 					$xw->writeCdata(base64_encode($data));
 				} else {
-					$xw->writeCdata(htmlspecialchars($data, ENT_XML1));
+					$xw->writeCdata(htmlspecialchars($data, ENT_XML1 | ENT_QUOTES));
 				}
 				$xw->endElement(); //content
 			}
@@ -304,7 +308,7 @@ function delete_theme(string $themename) : bool
 			if ($deftheme && $deftheme == $themename) {
 				unset($all[$themename]);
 				AppParams::set('logintheme', key($all));
-				SysDataCache::get_instance()->release('site_preferences');
+				AppSingle::SysDataCache()->release('site_preferences');
 			}
 			return true;
 		}
@@ -315,9 +319,13 @@ function delete_theme(string $themename) : bool
 if (isset($_FILES['import'])) {
 	$userid = get_userid();
 	if (check_permission($userid, 'Modify Site Preferences')) {
-		if (import_theme($_FILES['import']['tmp_name'])) {
+		$val = sanitizeVal($_FILES['import']['tmp_name'], CMSSAN_FILE);
+		if (import_theme($val)) {
 			$urlext = get_secure_param();
 			redirect('sitesettings.php'.$urlext);
+		} else {
+			//cms_notify('error', lang('invalid theme name'));
+			exit;
 		}
 	} else {
 		//cms_notify('error', lang('needpermissionto', '"Modify Site Preferences"'));
@@ -326,11 +334,15 @@ if (isset($_FILES['import'])) {
 }
 
 if (isset($_POST['export'])) {
-	export_theme(cleanValue($_POST['export']));
+	$tmp = de_specialize($_POST['export']);
+	$val = sanitizeVal($tmp, CMSSAN_FILE); // name replicates filesystem folder
+	export_theme($val);
 }
 
 if (isset($_POST['delete'])) {
-	if (delete_theme(cleanValue($_POST['delete']))) {
+	$tmp = de_specialize($_POST['delete']);
+	$val = sanitizeVal($tmp, CMSSAN_FILE);
+	if (delete_theme($val)) {
 		$urlext = get_secure_param();
 		redirect('sitesettings.php'.$urlext);
 	}

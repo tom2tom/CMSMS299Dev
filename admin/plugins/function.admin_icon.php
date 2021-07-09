@@ -20,8 +20,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\Utils;
 
 function smarty_function_admin_icon($params, $template)
 {
@@ -53,7 +53,7 @@ function smarty_function_admin_icon($params, $template)
 	}
 
 	if( $icon ) {
-		$themeObject = Utils::get_theme_object();
+		$themeObject = AppSingle::Theme();
 		if( !isset($tagparms['alt']) ) $tagparms['alt'] = pathinfo($icon, PATHINFO_FILENAME);
 
 		if( isset($params['module']) ) {

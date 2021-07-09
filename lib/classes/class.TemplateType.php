@@ -1,7 +1,7 @@
 <?php
 /*
 A class to manage template-types.
-Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,22 +16,21 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CmsDataNotFoundException;
-use CmsInvalidDataException;
 use CMSMS\AppSingle;
+use CMSMS\DataException;
 use CMSMS\Events;
 use CMSMS\LockOperations;
+use CMSMS\SQLErrorException;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateTypeAssistant;
 use CMSMS\Utils;
-use CmsSQLErrorException;
-use Exception;
+use LogicException;
 use const CMS_DB_PREFIX;
 use function audit;
 use function cms_to_stamp;
@@ -120,12 +119,12 @@ class TemplateType
 	 * Record the template-type originator.
 	 *
 	 * @param string $str The originator name, normally '__CORE__' or a module name, not falsy.
-	 * @throws CmsInvalidDataException
+	 * @throws LogicException
 	 */
 	public function set_originator($str)
 	{
 		$str = trim($str);
-		if( !$str ) throw new CmsInvalidDataException('Originator cannot be empty');
+		if( !$str ) throw new LogicException('Originator cannot be empty');
 		if( $str == 'Core' ) $str = self::CORE;
 		$this->_data['originator'] = $str;
 		$this->_dirty = TRUE;
@@ -145,12 +144,12 @@ class TemplateType
 	 * Record the template-type name
 	 *
 	 * @param sting $str The template-type name, not falsy.
-	 * @throws CmsInvalidDataException
+	 * @throws LogicException
 	 */
 	public function set_name($str)
 	{
 		$str = trim($str);
-		if( !$str ) throw new CmsInvalidDataException('Name cannot be empty');
+		if( !$str ) throw new LogicException('Name cannot be empty');
 		$this->_data['name'] = $str;
 		$this->_dirty = TRUE;
 	}
@@ -169,11 +168,11 @@ class TemplateType
 	 * Record whether this template-type has a 'default' template.
 	 *
 	 * @param bool $flag Optional value, default true
-	 * @throws CmsInvalidDataException
+	 * @throws DataException
 	 */
 	public function set_dflt_flag($flag = TRUE)
 	{
-		if( !is_bool($flag) ) throw new CmsInvalidDataException('value is invalid for set_dflt_flag');
+		if( !is_bool($flag) ) throw new DataException('value is invalid for set_dflt_flag');
 		$this->_data['has_dflt'] = $flag;
 		$this->_dirty = TRUE;
 	}
@@ -234,11 +233,11 @@ class TemplateType
 	 * Record the owner of this template-type
 	 *
 	 * @param mixed $owner a number other than 0
-	 * @throws CmsInvalidDataException
+	 * @throws DataException
 	 */
 	public function set_owner($owner)
 	{
-		if( !is_numeric($owner) || (int)$owner == 0 ) throw new CmsInvalidDataException('value is invalid for owner in '.__METHOD__);
+		if( !is_numeric($owner) || (int)$owner == 0 ) throw new DataException('value is invalid for owner in '.__METHOD__);
 		$this->_data['owner'] = (int)$owner;
 		$this->_dirty = TRUE;
 	}
@@ -356,11 +355,11 @@ class TemplateType
 	 * Record whether at most one template of this type is permitted.
 	 *
 	 * @param bool $flag Optional, default true
-	 * @throws CmsInvalidDataException
+	 * @throws DataException
 	 */
 	public function set_oneonly_flag($flag = TRUE)
 	{
-		if( !is_bool($flag) ) throw new CmsInvalidDataException('value is invalid for set_oneonly_flag');
+		if( !is_bool($flag) ) throw new DataException('value is invalid for set_oneonly_flag');
 		$this->_data['one_only'] = $flag;
 		$this->_dirty = TRUE;
 	}
@@ -462,25 +461,25 @@ class TemplateType
 	 * This method throws an exception if an error is found in the integrity of the object.
 	 *
 	 * @param bool $is_insert Optional flag whether this is a for new (as opposed to updated) template-type. Default true
-	 * @throws CmsInvalidDataException
+	 * @throws LogicException or DataException
 	 */
 	protected function validate($is_insert = TRUE)
 	{
-		if( !$this->get_originator() ) throw new CmsInvalidDataException('Invalid Type Originator');
-		if( !$this->get_name() ) throw new CmsInvalidDataException('Invalid Type Name');
+		if( !$this->get_originator() ) throw new LogicException('Missing Type Originator');
+		if( !$this->get_name() ) throw new LogicException('Missing Type Name');
 		if( !preg_match('/[A-Za-z0-9_\,\.\ ]/',$this->get_name()) ) {
-			throw new CmsInvalidDataException('Template type name cannot be \''.$this->get_name().'\'. Name must contain only letters, numbers and/or underscores.');
+			throw new DataException('Template type name cannot be \''.$this->get_name().'\'. Name must contain only letters, numbers and/or underscores.');
 		}
 
 		if( !$is_insert ) {
-			if( !isset($this->_data['id']) || (int)$this->_data['id'] < 1 ) throw new CmsInvalidDataException('id is not set');
+			if( !isset($this->_data['id']) || (int)$this->_data['id'] < 1 ) throw new LogicException('Type id is not set');
 
 			// check for item with the same name
 			$db = AppSingle::Db();
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
 			' WHERE originator = ? AND name = ? AND id != ?';
 			$dbr = $db->GetOne($query,[$this->get_originator(),$this->get_name(),$this->get_id()]);
-			if( $dbr ) throw new CmsInvalidDataException('A template-type named \''.$this->get_name().'\' already exists.');
+			if( $dbr ) throw new LogicException('A template-type named \''.$this->get_name().'\' already exists.');
 		}
 		else {
 			// check for item with the same name
@@ -488,7 +487,7 @@ class TemplateType
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
 			' WHERE originator = ? AND name = ?';
 			$dbr = $db->GetOne($query,[$this->get_originator(),$this->get_name()]);
-			if( $dbr ) throw new CmsInvalidDataException('A template-type named \''.$this->get_name().'\' already exists.');
+			if( $dbr ) throw new LogicException('A template-type named \''.$this->get_name().'\' already exists.');
 		}
 	}
 
@@ -498,7 +497,7 @@ class TemplateType
 	 * This method will ensure that the current object is valid, generate an id, and
 	 * insert the record into the database.  An exception will be thrown if errors occur.
 	 *
-	 * @throws CmsSQLErrorException
+	 * @throws SQLErrorException
 	 */
 	protected function _insert()
 	{
@@ -551,7 +550,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 			$this->get_content_block_flag() ? 1 : 0,
 			$this->get_owner(),
 ]);
-		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$this->_data['id'] = $db->Insert_ID();
 
@@ -566,7 +565,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 	 * This method will ensure that the current object is valid, generate an id, and
 	 * update the record in the database.  An exception will be thrown if errors occur.
 	 *
-	 * @throws CmsSQLErrorException
+	 * @throws SQLErrorException
 	 */
 	protected function _update()
 	{
@@ -629,7 +628,7 @@ WHERE id = ?';
 			$this->get_owner(),
 			$this->get_id()
 		]);
-		if( !$dbr ) throw new CmsSQLErrorException($db->ErrorMsg());
+		if( !$dbr ) throw new SQLErrorException($db->ErrorMsg());
 
 		$this->_dirty = null;
 		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Updated');
@@ -664,8 +663,7 @@ WHERE id = ?';
 	/**
 	 * Delete the current object from the database (if it has been saved).
 	 *
-	 * @throws CmsInvalidDataException
-	 * @throws CmsSQLErrorException
+	 * @throws LogicException or SQLErrorException
 	 */
 	public function delete()
 	{
@@ -673,11 +671,11 @@ WHERE id = ?';
 
 		Events::SendEvent('Core', 'DeleteTemplateTypePre', [ get_class($this) => &$this ]);
 		$tmp = TemplateOperations::template_query(['t:'.$this->get_id()]);
-		if( $tmp ) throw new CmsInvalidDataException('Cannot delete a template-type with existing templates');
+		if( $tmp ) throw new LogicException('Cannot delete a template-type with existing templates');
 		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$dbr = $db->Execute($query,[$this->_data['id']]);
-		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$this->_dirty = TRUE;
 		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Deleted');
@@ -766,17 +764,16 @@ WHERE id = ?';
 	 /**
 	 * Reset the default contents of this template-type back to factory default
 	 *
-	 * @throws Exception
-	 * @throws CmsDataNotFoundException
+	 * @throws LogicException
 	 */
 	public function reset_content_to_factory()
 	{
 		if( !$this->get_dflt_flag() ) {
-			throw new Exception('This template-type does not have default contents');
+			throw new LogicException('This template-type does not have default contents');
 		}
 		$cb = $this->get_content_callback();
 		if( !$cb || !is_callable($cb) ) {
-			throw new CmsDataNotFoundException('No callback information to reset content');
+			throw new LogicException('No callback information to reset content');
 		}
 		$content = $cb($this);
 		$this->set_dflt_contents($content);
@@ -851,7 +848,7 @@ WHERE id = ?';
 	 *
 	 * This method throws an exception when the requested object cannot be found.
 	 *
-	 * @throws CmsDataNotFoundException
+	 * @throws DataException
 	 * @param mixed $val An integer template-type id, or a string in the form of Originator::Name
 	 * @return TemplateType
 	 */
@@ -880,7 +877,7 @@ WHERE id = ?';
 			}
 		}
 		if( $row ) return self::_load_from_data($row);
-		throw new CmsDataNotFoundException('Could not find template-type identified by '.$val);
+		throw new DataException('Could not find template-type identified by '.$val);
 	}
 
 	/**
@@ -888,11 +885,11 @@ WHERE id = ?';
 	 *
 	 * @param string $originator The originator name
 	 * @return mixed array of TemplateType objects | null if no match is found.
-	 * @throws CmsInvalidDataException
+	 * @throws LogicException
 	 */
 	public static function load_all_by_originator($originator)
 	{
-		if( !$originator ) throw new CmsInvalidDataException('Orignator is empty');
+		if( !$originator ) throw new LogicException('Orignator is empty');
 
 		$db = AppSingle::Db();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ?';

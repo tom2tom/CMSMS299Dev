@@ -1,22 +1,26 @@
 <?php
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\Crypto;
 use CMSMS\Events;
 use CMSMS\Group;
+use CMSMS\Permission;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
 use CMSMS\TemplateOperations;
-use CMSMS\UserTagOperations;
+use CMSMS\TemplatesGroup;
+use CMSMS\TemplateType;
 use function cms_installer\endswith;
 use function cms_installer\GetDataDictionary;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\startswith;
 
-$corename = CmsLayoutTemplateType::CORE;
+$corename = TemplateType::CORE;
 
 // 1. Tweak callbacks for page and generic layout template types
-$page_type = CmsLayoutTemplateType::load($corename.'::page');
+$page_type = TemplateType::load($corename.'::page');
 if ($page_type) {
     //TODO sometimes double-backslashes in a callable are not accepted by PHP
     $page_type->set_lang_callback('CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
@@ -27,7 +31,7 @@ if ($page_type) {
     error_msg($corename.'::page template update '.lang('failed'));
 }
 
-$generic_type = CmsLayoutTemplateType::load($corename.'::generic');
+$generic_type = TemplateType::load($corename.'::generic');
 if ($generic_type) {
     $generic_type->set_lang_callback('CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback');
     $generic_type->set_help_callback('CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
@@ -50,6 +54,19 @@ $db->Execute($query);
 //$query = 'INSERT INTO '.CMS_DB_PREFIX.'permissions SET permission_name=?,permission_text=?';
 //$db->Execute($query, ['Manage Jobs','Manage asynchronous jobs']);
 
+$arr = ['View Admin Log']; // extras but not ultra
+foreach ($arr as $one_perm) {
+    $permission = new Permission();
+    $permission->source = 'Core';
+    $permission->name = $one_perm;
+    $permission->text = ucfirst($one_perm); //TODO c.f. fresh installation text
+    try {
+        $permission->save();
+    } catch (Throwable $t) {
+        // nothing here
+    }
+}
+
 //  'Modify Site Assets',
 $ultras = [
     'Modify Database', //for db structure i.e. +/- tables, change table-propertiies
@@ -59,7 +76,7 @@ $ultras = [
 ];
 
 foreach ($ultras as $one_perm) {
-    $permission = new CmsPermission();
+    $permission = new Permission();
     $permission->source = 'Core';
     $permission->name = $one_perm;
     $permission->text = ucfirst($one_perm); //TODO c.f. fresh installation text
@@ -102,20 +119,20 @@ foreach ($files as $one) {
 /*        $query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value=?,modified_date=? WHERE sitepref_name=\'logintheme\'';
         $db->Execute($query,[$name,$longnow]);
 */
-        cms_siteprefs::set('logintheme', $name);
+        AppParams::set('logintheme', $name);
         break;
     }
 }
 
 // migrate user-homepages like 'index.php*' to 'menu.php*'
-$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value = REPLACE(value,"index.php","menu.php") WHERE preference=\'homepage\' AND value LIKE \'index.php%\'';
+$query = 'UPDATE '.CMS_DB_PREFIX."userprefs SET value = REPLACE(value,'index.php','menu.php') WHERE preference='homepage' AND value LIKE 'index.php%'";
 $db->Execute($query);
 
 // re-spaced task-related properties
-$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE "Core::%"';
+$query = 'DELETE FROM '.CMS_DB_PREFIX."siteprefs WHERE sitepref_name LIKE 'Core::%'";
 $db->Execute($query);
-// revised 'namespace' indicator in recorded names
-$query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_name = REPLACE(sitepref_name,"_mapi_pref_","\\\\"), modified_date = ? WHERE sitepref_name LIKE "%_mapi_pref_%"';
+// revised 'namespace' indicator in recorded names c.f. AppParams::NAMESPACER
+$query = 'UPDATE '.CMS_DB_PREFIX."siteprefs SET sitepref_name = REPLACE(sitepref_name,'_mapi_pref_','\\\\'), modified_date = ? WHERE sitepref_name LIKE '%\\_mapi\\_pref\\_%'";
 $db->Execute($query,[$longnow]);
 
 //$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modified_date) VALUES (\'loginmodule\',?,?);';
@@ -150,8 +167,8 @@ $salt = Crypto::random_string(16, true);
 $r = substr($salt, 0, 2);
 $s = Crypto::random_string(32, false, true);
 $uuid = strtr($s, '+/', $r);
-$down = cms_siteprefs::get('enablesitedownmessage', 0); //for rename
-$check = cms_siteprefs::get('use_smartycompilecheck', 1); //ditto
+$down = AppParams::get('enablesitedownmessage', 0); //for rename
+$check = AppParams::get('use_smartycompilecheck', 1); //ditto
 
 $arr = [
     'cdn_url' => 'https://cdnjs.cloudflare.com',
@@ -159,10 +176,10 @@ $arr = [
     'current_theme' => '', // frontend theme name
     'lock_refresh' => 120,
     'lock_timeout' => 60,
-    'loginmodule' => '',
+    'loginmodule' => '', // TODO CMSMS\ModuleOperations::STD_LOGIN_MODULE
+    'loginprocessor' => '', // login UI defined by current theme
     'loginsalt' => $salt,
-    'password_level' => 0, // min-strength enumerator
-    'password_life' => 0, // lifetime (days)
+    'password_level' => 0, // p/w policy-type enumerator
     'site_help_url' => $url,
     'site_uuid' => $uuid, // almost-certainly-unique signature of this site
     'site_downnow' => $down, // renamed
@@ -172,9 +189,10 @@ $arr = [
     'smarty_compilecheck' => $check, // renamed
     'syntax_theme'  => '',
     'ultraroles' => json_encode($ultras),
+    'username_level' => 0, // username policy-type enumerator
 ];
 foreach ($arr as $name=>$val) {
-    cms_siteprefs::set($name, $val);
+    AppParams::set($name, $val);
 }
 
 $dict = GetDataDictionary($db);
@@ -208,14 +226,15 @@ if ($udt_list) {
             }
         }
 
-        if ($ops->SetUserTag($row['userplugin_name'], $params)) {
+        $res = $ops->SetUserTag($row['userplugin_name'], $params);
+        if ((is_array($res) && $res[0]) || ($res && !is_array($res))) {
             verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
         } else {
             verbose_msg('Error saving UDT named '.$row['userplugin_name']);
         }
     }
 
-    $ops = UserTagOperations::get_instance();
+    $ops = AppSingle::UserTagOperations();
     //$smarty defined upstream, used downstream
     foreach ($udt_list as $udt) {
         create_user_plugin($udt, $ops, $smarty);
@@ -229,7 +248,7 @@ ELSE | AND
 // 4. Re-format the content of pre-existing 2.3BETA UDTfiles in their folder ?
 */
 // ensure the user_plugins folder includes a .htaccess file
-$ops = UserTagOperations::get_instance();
+$ops = AppSingle::UserTagOperations();
 $fp = $ops->FilePath('.htaccess');
 if (!is_file($fp)) {
     $ext = strtr($ops::PLUGEXT, '.', '');
@@ -240,9 +259,7 @@ EOS
 }
 
 $tbl = CMS_DB_PREFIX.'userplugins';
-$sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'userplugins',$tbl);
-$dict->ExecuteSQLArray($sqlarr);
-$sqlarray = $dict->AlterColumnSQL($tbl,'userplugin_id','id I(2) AUTO KEY');
+$sqlarray = $dict->AlterColumnSQL($tbl,'userplugin_id','id I(2) UNSIGNED AUTO KEY');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AlterColumnSQL($tbl,'userplugin_name','name C(255)');
 $dict->ExecuteSQLArray($sqlarray);
@@ -300,7 +317,6 @@ foreach ([
     'group_perms_seq',
     'permissions_seq',
     'userplugins_seq',
-    'users_seq',
 ] as $tbl) {
     $db->DropSequence(CMS_DB_PREFIX.$tbl);
 }
@@ -314,7 +330,7 @@ foreach ([
     ['groups','group_id'],
     ['group_perms','group_perm_id'],
     ['permissions', 'permission_id'],
-    ['users', 'user_id'],
+//    ['userplugins', 'id'], see above
 ] as $tbl) {
     $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.$tbl[0], $tbl[1].' I(2) UNSIGNED AUTO KEY');
     $dict->ExecuteSQLArray($sqlarray);
@@ -322,13 +338,15 @@ foreach ([
 
 // 7. Other table revisions
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci']; //i.e. case-insensitive matching unless overridden
-
+$asciitaboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET ascii COLLATE ascii_bin'];
 // 7.1 Misc
 
 // redundant fields
 $sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'content','collapsed');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'content','prop_names');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'modules','status');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'modules','allow_fe_lazyload');
 $dict->ExecuteSQLArray($sqlarray);
@@ -340,11 +358,13 @@ $sqlarray = $dict->DropColumnSQL(CMS_DB_PREFIX.'users','admin_access');
 $dict->ExecuteSQLArray($sqlarray);
 
 // extra fields
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'adminlog','severity I(1) UNSIGNED NOTNULL DEFAULT 0 AFTER timestamp');
+$dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'content','template_type C(64) AFTER template_id');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'content','styles C(48) AFTER accesskey');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'layout_templates','hierarchy C(64) COLLATE "ascii_general_ci" AFTER description');
+$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'layout_templates','hierarchy C(64) COLLATE ascii_general_ci AFTER description');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'layout_tpl_categories', 'created I'); //for datetime migration, below
 $dict->ExecuteSQLArray($sqlarray);
@@ -354,6 +374,18 @@ $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'users','passmodified_date DT'); /
 $dict->ExecuteSQLArray($sqlarray);
 
 // modified fields
+$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'adminlog','user_id I(2) UNSIGNED');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'adminlog','username C(80)');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'adminlog','item_name','subject','C(255)');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'adminlog','action','message','X(511)');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'modules','version C(16)');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'module_deps','minimum_version C(16)');
+$dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.'routes','created','create_date','DT DEFAULT CURRENT_TIMESTAMP');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->AlterColumnSQL(CMS_DB_PREFIX.'users','username C(80)');
@@ -411,20 +443,20 @@ foreach ([
 
 // 7.3 Re-organize layout-related tables
 // template-groups table tweaks
-$tbl = CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME; //layout_tpl_groups
+$tbl = CMS_DB_PREFIX.TemplatesGroup::TABLENAME; //layout_tpl_groups
 $sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'layout_tpl_categories', $tbl);
 $return = $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->DropColumnSQL($tbl, 'item_order');
 $dict->ExecuteSQLArray($sqlarray);
 
-$tbl2 = CMS_DB_PREFIX.CmsLayoutTemplateCategory::MEMBERSTABLE; //layout_tplgroup_members
+$tbl2 = CMS_DB_PREFIX.TemplatesGroup::MEMBERSTABLE; //layout_tplgroup_members
 $flds = '
 id I(2) UNSIGNED AUTO KEY,
 group_id I(2) UNSIGNED NOT NULL,
 tpl_id I(2) UNSIGNED NOT NULL,
 item_order I(2) UNSIGNED DEFAULT 0
 ';
-$sqlarray = $dict->CreateTableSQL($tbl2, $flds, $taboptarray);
+$sqlarray = $dict->CreateTableSQL($tbl2, $flds, $asciitaboptarray);
 $return = $dict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? lang('done') : lang('failed');
 verbose_msg(lang('install_created_table', 'layout_tplgroup_members', $msg_ret));
@@ -490,7 +522,7 @@ group_id I(2) UNSIGNED NOT NULL,
 css_id I(2) UNSIGNED NOT NULL,
 item_order I(2) UNSIGNED DEFAULT 0
 ';
-$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
+$sqlarray = $dict->CreateTableSQL($tbl, $flds, $asciitaboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
 // migrate design stylesheets to layout tables and pages as respective groups
@@ -525,7 +557,7 @@ if ($designs) {
             $bank[$id][] = (int)$row['tpl_id'];
         }
         foreach ($bank as $id => &$row) {
-            $ob = new CmsLayoutTemplateCategory();
+            $ob = new TemplatesGroup();
             $ob->set_properties([
                 'name'=>$designs[$id]['name'],
                 'description'=>'Templates mirrored from design',
@@ -591,7 +623,7 @@ VALUES (?,?,?,?,?)';
     foreach ($data as $row) {
         $name = $row['module_name'];
         if (!isset($types[$name])) {
-            // CmsLayoutTemplateType::TABLENAME.
+            // TemplateType::TABLENAME.
             $db->Execute('INSERT INTO '.CMS_DB_PREFIX.'layout_tpl_type
 (originator,name,description,owner)
 VALUES (?,?,?,-1)',
@@ -626,19 +658,38 @@ id I(2) UNSIGNED AUTO KEY,
 originator C(32) NOTNULL,
 name C(24) NOTNULL,
 publicname_key C(64),
-displayclass C(255) NOTNULL COLLATE ascii_bin,
-editclass C(255) COLLATE ascii_bin
+displayclass C(255) NOTNULL,
+editclass C(255)
 ';
-$sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
+$sqlarray = $dict->CreateTableSQL($tbl, $flds, $asciitaboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
 $sqlarray = $dict->CreateIndexSQL('idx_typename', $tbl, 'name', ['UNIQUE']);
 $dict->ExecuteSQLArray($sqlarray);
 
+//data field holds a serialized class, size 1024 is probably enough
+$flds = '
+id I UNSIGNED AUTO KEY,
+name C(255) NOTNULL,
+module C(48),
+created I UNSIGNED NOTNULL,
+start I UNSIGNED NOTNULL,
+until I UNSIGNED DEFAULT 0,
+recurs I(2) UNSIGNED,
+errors I(2) UNSIGNED DEFAULT 0 NOTNULL,
+data X(16383)
+';
+$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'asyncjobs', $flds, $asciitaboptarray);
+$dict->ExecuteSQLArray($sqlarray);
+verbose_msg(lang('TODO table', 'asyncjobs'));
+
 // 7.4 Events
 //redundant duplicate index
 $sqlarray = $dict->DropIndexSQL(CMS_DB_PREFIX.'event_id', CMS_DB_PREFIX.'events');
 $dict->ExecuteSQLArray($sqlarray);
+// migrate event-initiator CmsJobManager::OnJobFailed to Core::JobFailed
+//$query = 'UPDATE '.CMS_DB_PREFIX."events SET originator='Core',event_name='JobFailed' WHERE originator='CmsJobManager' AND event_name='OnJobFailed'";
+//$db->Execute($query);
 // callable event handlers
 $tbl = CMS_DB_PREFIX.'event_handlers';
 $sqlarray = $dict->AddColumnSQL($tbl, 'type C(1) NOT NULL DEFAULT "C"');
@@ -731,6 +782,8 @@ $dict->ExecuteSQLArray($sqlarray);
 // extra static events
 
 foreach ([
+//    'JobFailed',
+    'CheckUserData',
     'MetadataPostRender',
     'MetadataPreRender',
     'PageTopPostRender',
@@ -743,6 +796,11 @@ foreach ([
 ] as $s) {
     Events::CreateEvent('Core', $s);
 }
+
+Events::AddStaticHandler('Core', 'PostRequest', '\\CMSMS\\internal\\JobOperations::begin_async_work', 'C', false);
+Events::AddStaticHandler('Core', 'ModuleInstalled', '\\CMSMS\\internal\\JobOperations::event_handler', 'C', false);
+Events::AddStaticHandler('Core', 'ModuleUninstalled', '\\CMSMS\\internal\\JobOperations::event_handler', 'C', false);
+Events::AddStaticHandler('Core', 'ModuleUpgraded', '\\CMSMS\\internal\\JobOperations::event_handler', 'C', false);
 
 //8. de-entitize some recorded values
 
@@ -804,12 +862,12 @@ hence in tables CMS_DB_PREFIX.*
 */
 $pref = CMS_DB_PREFIX;
 foreach ([
-    ['admin_bookmarks', 'bookmark_id', 'title', 'url'], // url should be urlencode() etc ?
+    ['admin_bookmarks', 'bookmark_id', 'title', 'url'], // url should be [raw]urlencode() etc ?
     ['groups', 'group_id', 'group_name', 'group_desc'],
     ['users', 'user_id', 'username', 'first_name', 'last_name'],
     ['siteprefs', 'sitepref_name', 'sitepref_name', 'sitepref_value'],
     ['userprefs', 'user_id', 'value'],
-    ['userplugins', 'id', 'name', 'description'], // name should be sanitizeVal( ,3)
+    ['userplugins', 'id', 'name', 'description'], // name should be cms_installer\sanitizeVal( ,CMSSAN_FILE) description >> , CMSSAN_PURE
 /* these probably never cleanValue()'d
     ['layout_css_groups', 'id', 'name', 'description'],
     ['layout_stylesheets', 'id', 'name', 'description'],
@@ -822,7 +880,7 @@ foreach ([
     $flds = array_slice($tbl, 1);
     $sels = implode(',', $flds);
     array_shift($flds);
-    $checks = implode(' LIKE \'%&%\' OR ', $flds);
+    $checks = implode(' LIKE \'%&%\' OR ', $flds); // NOT wildcarded
     $query = "SELECT $sels FROM {$pref}{$tbl[0]} WHERE $checks LIKE '%&%'";
     $rows = $db->GetArray($query);
     if ($rows) {
@@ -851,6 +909,26 @@ foreach ([
         $stmt->close();
     }
 }
+
+/* TODO improve 2.2.15 users' homepage URL upgrade
+// remove old secure param name from homepage url
+$url = str_replace('&amp;','&',$url);
+$tmp = explode('?',$url);
+@parse_str($tmp[1],$tmp2);
+$arr = array_keys($tmp2);
+// param names have been: '_s_','sp_','_sx_','_sk_','__c','_k_'
+foreach (['_s_','sp_','_sx_','_sk_','__c','_k_'] as $sk) {
+    if( in_array($sk,$arr) ) unset($tmp2[$sk]);
+}
+
+foreach( $tmp2 as $k => $v ) {
+    $tmp3[] = $k.'='.$v;
+}
+$url = $tmp[0].'?'.implode('&',$tmp3);
+//remove admin folder from the url (if applicable)
+//(url should be relative to admin dir)
+$url = preg_replace('@^/[^/]+/@','',$url);
+*/
 
 //if ($return == 2) {
     $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 206';

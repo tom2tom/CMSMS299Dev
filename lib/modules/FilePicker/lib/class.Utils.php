@@ -1,20 +1,23 @@
 <?php
-# Filepicker module: utility-methods class
-# Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Filepicker module: utility-methods class
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace FilePicker; //the module-class
 
 use CMSMS\AppParams;
@@ -27,9 +30,10 @@ use Collator;
 use FilePicker;
 use FilePicker\Profile;
 use const CMS_ROOT_PATH;
-use function cleanString;
+use const CMSSAN_FILE;
 use function cms_join_path;
 use function cms_path_to_url;
+use function CMSMS\sanitizeVal;
 use function get_userid;
 use function startswith;
 
@@ -39,7 +43,7 @@ use function startswith;
  *
  * @package CMS
  * @license GPL
- * @since  2.3
+ * @since  2.99
  */
 class Utils
 {
@@ -421,10 +425,10 @@ class Utils
 
     /**
      * Get the default profile.
-     * @since 2.9
+     * @since 2.99
      *
      * @param mixed $dirpath Optional top-directory for the profile UNUSED TODO
-     * @param mixed $uid Optional current user id UNUSED TODO
+     * @param mixed $userid Optional current user id UNUSED TODO
      * @return Profile
      */
     public static function get_default_profile()
@@ -438,22 +442,22 @@ class Utils
     }
 
     /**
-     * Get the profile applicable to folder $dirpath and user $uid.
+     * Get the profile applicable to folder $dirpath and user $userid.
      * If there is no applicable set, a default is provided.
-     * @since 2.9
+     * @since 2.99
      *
      * @param mixed $profile_name string | falsy value optional name of existing profile
      * @param string $dir optional filesystem path of folder to be displayed
-     * @param int $uid optional user identifier
+     * @param int $userid optional user identifier
      * @return Profile
      */
-    public static function get_profile_for($dirpath = '', $uid = 0)
+    public static function get_profile_for($dirpath = '', $userid = 0)
     {
         $dirpath = self::processpath($dirpath);
-        if( $uid < 1 ) {
-            $uid = get_userid(FALSE);
+        if( $userid < 1 ) {
+            $userid = get_userid(false);
         }
-        $profile = null; // GET_THEONE_IFANY_FOR($dirpath, $uid);
+        $profile = null; // GET_THEONE_IFANY_FOR($dirpath, $userid);
         if( $profile ) {
             return $profile;
         }
@@ -462,14 +466,14 @@ class Utils
 
     /**
      * Get the named profile, or failing that, the profile for
-     * place $dirpath and user $uid.
-     * @since 2.9
+     * place $dirpath and user $userid.
+     * @since 2.99
      * @param mixed $profile_name string | falsy value optional name of existing profile
      * @param string $dirpath optional filesystem path of folder to be displayed
-     * @param int $uid Optional user identifier, Default current user
+     * @param int $userid Optional user identifier, Default current user
      * @return Profile object
      */
-    public static function get_profile($profile_name, $dirpath = '', $uid = 0)
+    public static function get_profile($profile_name, $dirpath = '', $userid = 0)
     {
         $profile_name = trim($profile_name);
         if( $profile_name ) {
@@ -480,7 +484,7 @@ class Utils
             $profile = null;
         }
         if( !$profile ) {
-            $profile = self::get_profile_for($dirpath, $uid);
+            $profile = self::get_profile_for($dirpath, $userid);
         }
         return $profile;
     }
@@ -544,9 +548,8 @@ class Utils
             return '';
         }
         $fn = basename($path);
-//        $fn = cleanString($fn, 3);
+        $fn = sanitizeVal($fn, CMSSAN_FILE);
         if ($fn) {
-            $fn = filter_var($fn, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_LOW);
             return $dirpath . DIRECTORY_SEPARATOR . $fn;
         }
         return '';

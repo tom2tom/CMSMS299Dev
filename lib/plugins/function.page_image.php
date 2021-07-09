@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppSingle;
+use function CMSMS\sanitizeVal;
 
 function smarty_function_page_image($params, $template)
 {
@@ -53,7 +54,7 @@ function smarty_function_page_image($params, $template)
 			foreach( $params as $key => $val ) {
 				$key = trim($key);
 				if( !$key ) continue;
-				$val = sanitizeVal($val, 1);
+				$val = sanitizeVal($val, CMSSAN_PUNCT);
 				$out .= " $key=\"$val\"";
 			}
 			$out .= ' />';

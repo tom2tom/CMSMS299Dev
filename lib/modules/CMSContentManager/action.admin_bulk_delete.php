@@ -20,8 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\ContentOperations;
-//use CMSMS\Utils;
+use CMSMS\AppSingle;
 
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_delete' ) exit;
@@ -48,9 +47,9 @@ function cmscm_admin_bulk_delete_can_delete($node)
 
   $id = (int)$node->get_tag('id');
   if( $id < 1 ) return FALSE;
-  if( $id == ContentOperations::get_instance()->GetDefaultContent() ) return FALSE;
-
-  return ContentOperations::get_instance()->CheckPageAuthorship(get_userid(),$id);
+  $contentops = AppSingle::ContentOperations();
+  if( $id == $contentops->GetDefaultContent() ) return FALSE;
+  return $contentops->CheckPageAuthorship(get_userid(),$id);
 }
 
 function cmscm_get_deletable_pages($node)
@@ -73,7 +72,7 @@ function cmscm_get_deletable_pages($node)
 
 $pagelist = $params['bulk_content'];
 $hm = cmsms()->GetHierarchyManager();
-$contentops = ContentOperations::get_instance();
+$contentops = AppSingle::ContentOperations();
 
 if( isset($params['submit']) ) {
 

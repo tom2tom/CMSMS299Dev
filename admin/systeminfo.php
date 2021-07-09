@@ -25,8 +25,6 @@ use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\NlsOperations;
-use CMSMS\SystemCache;
-use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -34,16 +32,14 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 check_login();
 
-$urlext = get_secure_param();
 $userid = get_userid();
-$access = check_permission($userid, 'Modify Site Preferences');
-
-$themeObject = Utils::get_theme_object();
-
-if (!$access) {
+if (0) { //!check_permission($userid, TODO relevant permission)) {
 //TODO some pushed popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
+
+$themeObject = AppSingle::Theme();
+$urlext = get_secure_param();
 $selfurl = basename(__FILE__);
 
 require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
@@ -57,7 +53,7 @@ function installerHelpLanguage($lang, $default_null=null)
 }
 */
 
-if (isset($_GET['cleanreport']) && $_GET['cleanreport'] == 1) {
+if (!empty($_GET['cleanreport'])) {
 //    $nonce = get_csp_token();
     $out = <<<EOS
 <script type="text/javascript">
@@ -164,7 +160,7 @@ $res = AppParams::get('smarty_compilecheck', 1);
 $tmp[0]['smarty_compilecheck'] = testBoolean(0, lang('smarty_compilecheck'), $res, lang('test_smarty_compilecheck'), false, true);
 $res = AppParams::get('auto_clear_cache_age', 0);
 $tmp[0]['auto_clear_cache_age'] = testRange(0, lang('autoclearcache2'), $res, lang('test_auto_clear_cache_age'), 0, 30, false);
-$cache = SystemCache::get_instance();
+$cache = AppSingle::SystemCache();
 $type = get_class($cache->get_driver());
 $c = stripos($type, 'Cache');
 $res = ucfirst(substr($type, $c+5));

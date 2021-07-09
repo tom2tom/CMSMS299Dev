@@ -1,4 +1,4 @@
-input[type="checkbox"],label.check {
+input[type="checkbox"],label.check,#searchresults > ul > li {
 	cursor:pointer
 }
 #status_area,#searchresults_cont,#workarea {

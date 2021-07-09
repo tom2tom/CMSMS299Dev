@@ -1,28 +1,52 @@
 <?php
+/*
+Module Manager action: export module
+Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of ModuleManager, an addon module for
+CMS Made Simple to allow browsing remotely stored modules, viewing
+information about them, and downloading or upgrading
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+use CMSMS\AppSingle;
 use CMSMS\Events;
-use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
+use function CMSMS\sanitizeVal;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
+
 $this->SetCurrentTab('installed');
 if( !isset($params['mod']) ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
-$module = $params['mod'] ?? '';
 
+$modname = sanitizeVal($params['mod'], CMSSAN_FILE);
 try {
-    if( $module ) {
-        $modinstance = ModuleOperations::get_instance()->get_module_instance($module, '', TRUE);
+    if( $modname ) {
+        $modinst = AppSingle::ModuleOperations()->get_module_instance($modname, '', TRUE);
     }
     else {
-        $module = 'Not Specified'; // OR lang()
-        $modinstance = null;
+        $modname = 'Not Specified'; // not translated - export could go to anywhere
+        $modinst = null;
     }
-    if( !is_object($modinstance) ) {
-        $this->SetError($this->Lang('error_getmodule', $module));
+    if( !is_object($modinst) ) {
+        $this->SetError($this->Lang('error_getmodule', $modname));
         $this->RedirectToAdminTab();
     }
 
@@ -32,9 +56,9 @@ try {
     $files = 0;
     $message = '';
 
-    Events::SendEvent( 'ModuleManager', 'BeforeModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
-    $xmlfile = $this->get_operations()->create_xml_package($modinstance,$message,$files);
-    Events::SendEvent( 'ModuleManager', 'AfterModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
+    Events::SendEvent( 'ModuleManager', 'BeforeModuleExport', [ 'module_name' => $modname, 'version' => $modinst->GetVersion() ] );
+    $xmlfile = $this->get_operations()->create_xml_package($modinst,$message,$files);
+    Events::SendEvent( 'ModuleManager', 'AfterModuleExport', [ 'module_name' => $modname, 'version' => $modinst->GetVersion() ] );
     NlsOperations::set_language($orig_lang);
     if( $old_display_errors !== FALSE ) ini_set('display_errors',$old_display_errors);
 
@@ -43,8 +67,8 @@ try {
         $this->RedirectToAdminTab();
     }
     else {
-        $xmlname = $modinstance->GetName().'-'.$modinstance->GetVersion().'.xml';
-        audit('',$this->GetName(),'Exported '.$modinstance->GetName().' to '.$xmlname);
+        $xmlname = $modinst->GetName().'-'.$modinst->GetVersion().'.xml';
+        audit('',$this->GetName(),'Exported '.$modinst->GetName().' to '.$xmlname);
 
         // send the file.
         $handlers = ob_list_handlers();
@@ -57,7 +81,7 @@ try {
         exit;
     }
 }
-catch( Exception $e ) {
-    $this->SetError($e->GetMessage());
+catch( Throwable $t ) {
+    $this->SetError($t->GetMessage());
     $this->RedirectToAdminTab();
 }

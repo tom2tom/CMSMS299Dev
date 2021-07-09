@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -31,21 +31,27 @@ namespace CMSMS;
  * @since 2.99
  * @package CMS
  * @license GPL
+ *
+ * NOTE some significant API differences -
+1. In module-actions for IResource 'light' modules:
+  $this is a CMSMS\ResourceMethods object and the related module-instance is $this->mod
+  c.f. for normal-module actions:
+  the related module is $this
+2. Getting a smarty-template object in module-actions for light modules:
+  $tpl = $this->GetTemplateObject('some.tpl');
+  c.f. for normal-module actions:
+  $tpl = $smarty->createTemplate($this->GetTemplateResource('some.tpl'));
  */
 interface IResource
 {
     public function __call($name, $args);
-    public function GetAbout(); // module-manager: display changelog
-    public function GetAdminDescription(); // admin menu-item tooltip etc
-    public function GetAdminSection(); // admin menu-item section name, or ''
-    public function GetDependencies(); // array
+    public function GetAdminDescription(); // subject to HasAdmin(), admin menu-item tooltip etc
+    public function GetAdminSection(); // subject to HasAdmin(), admin menu-item section name, or '' if no menu-items
+    public function GetChangeLog(); // module-manager: display changelog NOTE GetAbout() in long-module
     public function GetFriendlyName(); // admin menu-item label etc
-    public function GetHelpPage(); // module-manager: display help
-    public function GetName(); // module (private) name
+    public function GetHelp(); // module-manager: display help NOTE GetHelpPage() in long-module
     public function GetVersion();
     public function HasAdmin(); // whether the module has an admin UI
-    public function HasCapability($capability, $params);
-//OPTIONAL    public function InstallPostMessage(); // advice about things to follow up on
     public function MinimumCMSVersion();
-    public function VisibleToAdminUser(); // whether the module has an admin UI for the current user
+    public function VisibleToAdminUser(); // subject to HasAdmin(), whether the module supports an admin UI for the current user
 }

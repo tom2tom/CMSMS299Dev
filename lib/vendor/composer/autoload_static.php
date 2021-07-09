@@ -7,9 +7,25 @@ namespace Composer\Autoload;
 class ComposerStaticInitd76362d29057916a9ff0c1a3806a68b5
 {
     public static $prefixLengthsPsr4 = array (
+        'p' =>
+        array (
+            'passchk\\' => 8,
+        ),
+        'S' =>
+        array (
+            'StupidPass\\' => 11,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'passchk\\' =>
+        array (
+            0 => __DIR__ . '/../rumkin/passchk', // crappy workaround for static data init
+        ),
+        'StupidPass\\' =>
+        array (
+            0 => __DIR__ . '/../northox/stupid-password',
+        )
     );
 
     public static $classMap = array (

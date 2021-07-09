@@ -19,19 +19,19 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace ModuleManager;
 
-use CmsCommunicationException;
-use CmsException;
 use CmsInvalidDataException;
+use CMSMS\AppSingle;
+use CMSMS\CommunicationException;
 use CMSMS\Crypto;
 use CMSMS\HttpRequest;
-use CMSMS\ModuleOperations;
 use CMSMS\Utils;
+use Exception;
 use ModuleManager\cached_request;
 use ModuleManager\ModuleInfo;
 use const CMS_VERSION;
 use const TMP_CACHE_LOCATION;
 
-class ModuleManagerException extends CmsException {}
+class ModuleManagerException extends Exception {}
 class ModuleNoDataException extends ModuleManagerException {}
 class ModuleNotFoundException extends ModuleManagerException {}
 
@@ -72,7 +72,7 @@ final class modulerep_client
     public static function get_multiple_moduleinfo($input)
     {
         $mod = Utils::get_module('ModuleManager');
-        if( !is_array($input) || count($input) == 0 ) throw new CmsInvalidDataException($mod->Lang('error_missingparam'));
+        if( !is_array($input) || count($input) == 0 ) throw new RuntimeException($mod->Lang('error_missingparam'));
 
         $out = [];
         foreach( $input as $key => $data ) {
@@ -101,7 +101,7 @@ final class modulerep_client
             return;
         }
         else if( $status != 200 || $result == '' ) {
-            throw new CmsCommunicationException($mod->Lang('error_request_problem'));
+            throw new CommunicationException($mod->Lang('error_request_problem'));
         }
 
         return json_decode($result,TRUE);
@@ -149,7 +149,7 @@ final class modulerep_client
      * @param string $module_version
      * @return mixed array | null
      * @throws CmsInvalidDataException
-     * @throws CmsCommunicationException
+     * @throws CommunicationException
      */
     public static function get_module_dependencies($module_name,$module_version = '')
     {
@@ -170,7 +170,7 @@ final class modulerep_client
             return;
         }
         else if( $status != 200 || $result == '' ) {
-            throw new CmsCommunicationException($mod->Lang('error_request_problem'));
+            throw new CommunicationException($mod->Lang('error_request_problem'));
         }
 
         return json_decode($result,TRUE);
@@ -181,7 +181,7 @@ final class modulerep_client
      * @param string $xmlfile name of TBA
      * @return mixed array | null
      * @throws CmsInvalidDataException
-     * @throws CmsCommunicationException
+     * @throws CommunicationException
      */
     public static function get_module_depends($xmlfile)
     {
@@ -197,7 +197,7 @@ final class modulerep_client
         $result = $req->getResult();
         if( $status == 400 ) return;
         if( $status != 200 || $result == '' ) {
-            throw new CmsCommunicationException($mod->Lang('error_request_problem'));
+            throw new CommunicationException($mod->Lang('error_request_problem'));
         }
         return json_decode($result,TRUE);
     }
@@ -271,7 +271,7 @@ final class modulerep_client
      * @param string $xmlfile name of TBA
      * @return type
      * @throws CmsInvalidDataException
-     * @throws CmsCommunicationException
+     * @throws CommunicationException
      */
     public static function get_module_md5($xmlfile)
     {
@@ -290,7 +290,7 @@ final class modulerep_client
         $status = $req->getStatus();
         $result = $req->getResult();
         if( $status != 200 || $result == '' ) {
-            throw new CmsCommunicationException($mod->Lang('error_request_problem'));
+            throw new CommunicationException($mod->Lang('error_request_problem'));
         }
         return json_decode($result,TRUE);
     }
@@ -359,7 +359,7 @@ final class modulerep_client
         $req->execute($url,$qparms);
         $status = $req->getStatus();
         if( $status != 200 ) {
-            throw new CmsCommunicationException($mod->Lang('error_request_problem'));
+            throw new CommunicationException($mod->Lang('error_request_problem'));
         }
         $result = $req->getResult();
         if( $status == 400 || !$result ) {
@@ -383,7 +383,7 @@ final class modulerep_client
     public static function get_allmoduleversions()
     {
         if( self::$_latest_installed_modules  === NULL ) {
-            $modules = ModuleOperations::get_instance()->GetInstalledModules();
+            $modules = AppSingle::ModuleOperations()->GetInstalledModules();
             self::$_latest_installed_modules = self::get_modulelatest($modules);
         }
         return self::$_latest_installed_modules;

@@ -1,26 +1,28 @@
 <?php
-#Admin-group class for CMSMS
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Admin-group class for CMSMS
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
 use CMSMS\AppSingle;
-use CMSMS\Group;
-use CmsInvalidDataException;
+use CMSMS\GroupOperations;
 use LogicException;
 use const CMS_DB_PREFIX;
 use function cms_to_bool;
@@ -35,10 +37,11 @@ use function lang;
  * @property string $description The group description
  * @property bool $active Indicates active status of this group.
  * @since 0.9
+ * @since 2.99 non-final status is deprecated
  * @package CMS
  * @license GPL
  */
-class Group
+/*final*/ class Group
 {
 	/**
 	 * @ignore
@@ -104,7 +107,7 @@ class Group
 	private static function get_operations()
 	{
 		if( empty(self::$_operations) ) {
-			self::$_operations = GroupOperations::get_instance();
+			self::$_operations = AppSingle::GroupOperations();
 		}
 		return self::$_operations;
 	}
@@ -113,7 +116,7 @@ class Group
 	 * Validate the group.
 	 *
 	 * @throws LogicException
-	 * @throws CmsInvalidDataException
+	 * @throws DataException
 	 */
 	public function validate()
 	{
@@ -121,7 +124,7 @@ class Group
 		$db = AppSingle::Db();
 		$sql = 'SELECT group_id FROM '.CMS_DB_PREFIX.'groups WHERE group_name = ? AND group_id != ?';
 		$dbresult = $db->GetOne($sql,[$this->name,$this->id]);
-		if( $dbresult ) throw new CmsInvalidDataException(lang('errorgroupexists',$this->name));
+		if( $dbresult ) throw new LogicException(lang('errorgroupexists',$this->name));
 	}
 
 	/**
@@ -130,12 +133,15 @@ class Group
 	 *
 	 * @return bool indicating successful completion.
 	 * @throws LogicException
-	 * @throws CmsInvalidDataException
+	 * @throws DataException
 	 */
 	public function Save()
 	{
 		$this->validate();
-		self::get_operations()->Upsert($this);
+		$res = self::get_operations()->Upsert($this);
+		if( $this->id < 0 ) {
+			$this->id = $res;
+		}
 	}
 
 	/**
@@ -156,7 +162,7 @@ class Group
 	 *
 	 * @param int $id
 	 * @return Group-object
-	 * @throws CmsInvalidDataException
+	 * @throws DataException
 	 */
 	public static function load($id)
 	{
@@ -183,7 +189,7 @@ class Group
 	 * @internal
 	 * @access private
 	 * @ignore
-	 * @param mixed $perm Permission name string, or (since 2.3) array of those, to test.
+	 * @param mixed $perm Permission name string, or (since 2.99) array of those, to test.
 	 * (Previous documentation referring to a numeric permission-id was incorrect)
 	 * @return bool whether the group has the specified permission.
 	 */

@@ -1,7 +1,7 @@
 <?php
 /*
 Abstract class defining a CMSMS asynchronous job.
-Copyright (C) 2017-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Async;
 
-use CMSMS\App;
+use CMSMS\internal\JobOperations;
 use LogicException;
 use UnexpectedValueException;
 
@@ -90,7 +90,7 @@ abstract class Job
             return trim($this->_data[$key]);
 
         case 'manager_module':
-            return App::get_instance()->GetJobManager();
+            return ''; // not used now AppSingle::App()->GetJobManager();
 
         default:
             return (isset($this->_data[$key])) ? $this->_data[$key] : null;
@@ -158,14 +158,17 @@ abstract class Job
      */
     public function delete()
     {
-        // get the asyncmanager module
-        $module = App::get_instance()->GetJobManager();
+/*        // get the asyncmanager module
+        $module = AppSingle::App()->GetJobManager();
         if ($module) {
             $module->delete_job($this);
             $this->_data['id'] = 0;
             return;
         }
         throw new LogicException('Cannot delete a job... no job-manager module is available');
+*/
+        (new JobOperations())->unload_job($this);
+        $this->_data['id'] = 0;
     }
 
     /**
@@ -176,13 +179,15 @@ abstract class Job
      */
     public function save()
     {
-        // get the asyncmanager module
-        $module = App::get_instance()->GetJobManager();
+/*        // get the asyncmanager module
+        $module = AppSingle::App()->GetJobManager();
         if ($module) {
             $this->_data['id'] = (int)$module->save_job($this);
             return;
         }
         throw new LogicException('Cannot save a job... no job-manager module is available');
+*/
+        $this->_data['id'] = (new JobOperations())->load_job($this);
     }
 
     /**

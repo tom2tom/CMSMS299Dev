@@ -10,6 +10,7 @@ use CMSMS\FormUtils;
 use CMSMS\ScriptsMerger;
 use CMSMS\Utils as AppUtils;
 use ThemeManager\Utils;
+use function CMSMS\specialize;
 
 /*
 $utils->create_manifest('blutak');
@@ -95,8 +96,8 @@ if ($themes) {
 			$props['modified'] = (int)filemtime($fp);
 		}
 		$val = (!empty($props['description'])) ? trim($props['description']) : '';
-		$props['description'] = ($val) ? cms_specialchars($utils->shorten_string($val)) : '';
-		$props['fulldesc'] = ($val) ? cms_specialchars($val) : '';
+		$props['description'] = ($val) ? specialize($utils->shorten_string($val)) : '';
+		$props['fulldesc'] = ($val) ? specialize($val) : '';
 		$items[$props['name']] = $props;
 		$nm = basename(dirname($fp));
 		$sel[$nm] = $props['name'];

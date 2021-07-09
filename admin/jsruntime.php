@@ -71,12 +71,16 @@ $enc = json_encode($vars);
 //for privacy (not security) a simple munge
 $enc2 = rawurlencode(Crypto::scramble_string($enc));
 //we also define cms_data, in case something wants to use that object prematurely
-$js = <<<EOS
-<script type="text/javascript">
+$core = <<<EOS
 //<![CDATA[
  var cms_data = {},
   cms_runtime = '$enc2';
 //]]>
+EOS;
+$hash = hash('sha256', $core); // perhaps for CSP use ?
+$js = <<<EOS
+<script type="text/javascript">
+$core
 </script>
 
 EOS;

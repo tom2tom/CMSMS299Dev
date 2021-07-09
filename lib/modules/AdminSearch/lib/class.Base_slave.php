@@ -10,7 +10,7 @@ namespace AdminSearch;
 use BadMethodCallException;
 use OutOfBoundsException;
 use function cms_to_bool;
-use function CMSMS\htmlentities;
+use function CMSMS\specialize;
 
 abstract class Base_slave
 {
@@ -324,8 +324,8 @@ abstract class Base_slave
             }
         }
         //sanitize and format for display
-        $match = '<span class="search_oneresult">'.htmlentities($match).'</span>';
-        $text = htmlentities($pre).$match.htmlentities($post);
+        $match = '<span class="search_oneresult">'.specialize($match).'</span>';
+        $text = specialize($pre).$match.specialize($post);
         return $text;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /*
 Class and utilities for working with permissions.
-Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,16 +16,16 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CmsException;
-use CmsInvalidDataException;
-use CMSMS\App;
-use CMSMS\Permission;
-use CmsSQLErrorException;
+use CMSMS\AppSingle;
+use CMSMS\SQLErrorException;
+use LogicException;
+use Throwable;
+use UnexpectedValueException;
 use const CMS_DB_PREFIX;
 
 /**
@@ -72,23 +72,23 @@ final class Permission
 
 	/**
 	 * @ignore
-	 * @throws CmsInvalidDataException
+	 * @throws UnexpectedValueException
 	 * @return mixed recorded value | null
 	 */
 	public function __get($key)
 	{
-		if( !in_array($key,self::PROPS) ) throw new CmsInvalidDataException($key.' is not a valid key for a '.__CLASS__.' object');
+		if( !in_array($key,self::PROPS) ) throw new UnexpectedValueException($key.' is not a valid key for a '.__CLASS__.' object');
 		return $this->_data[$key] ?? null;
 	}
 
 	/**
 	 * @ignore
-	 * @throws CmsInvalidDataException
+	 * @throws LogicException or UnexpectedValueException
 	 */
 	public function __set($key,$value)
 	{
-		if( $key == 'id' ) throw new CmsInvalidDataException($key.' cannot be set this way in a '.__CLASS__.' object');
-		if( !in_array($key,self::PROPS) ) throw new CmsInvalidDataException($key.' is not a valid key for a '.__CLASS__.' object');
+		if( $key == 'id' ) throw new LogicException($key.' cannot be set this way in a '.__CLASS__.' object');
+		if( !in_array($key,self::PROPS) ) throw new UnexpectedValueException($key.' is not a valid key for a '.__CLASS__.' object');
 
 		$this->_data[$key] = $value;
 	}
@@ -96,13 +96,13 @@ final class Permission
 	/**
 	 * Insert a new permission
 	 *
-	 * @throws CmsSQLErrorException if saving fails
+	 * @throws SQLErrorException if saving fails
 	 */
 	protected function _insert()
 	{
 		$this->validate();
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 
 		//setting create_date should be redundant with DT setting
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."permissions
@@ -114,31 +114,31 @@ VALUES (?,?,?,NOW())";
 			$this->_data['id'] = $db->Insert_ID();
 		}
 		else {
-			throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+			throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 	}
 
 	/**
 	 * Validate the permission properties: source, name, text
 	 *
-	 * @throws CmsInvalidDataException
+	 * @throws LogicException
 	 */
 	public function validate()
 	{
 		if( $this->_data['source'] == '' )
-			throw new CmsInvalidDataException('Source cannot be empty in a '.__CLASS__.' object');
+			throw new LogicException('Source cannot be empty in a '.__CLASS__.' object');
 		if( $this->_data['name'] == '' )
-			throw new CmsInvalidDataException('Name cannot be empty in a '.__CLASS__.' object');
+			throw new LogicException('Name cannot be empty in a '.__CLASS__.' object');
 		if( $this->_data['text'] == '' )
-			throw new CmsInvalidDataException('Text cannot be empty in a '.__CLASS__.' object');
+			throw new LogicException('Text cannot be empty in a '.__CLASS__.' object');
 
 		if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) {
 			// Name must be unique
-			$db = App::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$query = 'SElECT permission_id FROM '.CMS_DB_PREFIX.'permissions
  WHERE permission_name = ?';
 			$dbr = $db->GetOne($query,[$this->_data['name']]);
-			if( $dbr > 0 ) throw new CmsInvalidDataException('Permission with name '.$this->_data['name'].' already exists');
+			if( $dbr > 0 ) throw new LogicException('A permission with name '.$this->_data['name'].' already exists');
 		}
 	}
 
@@ -157,7 +157,7 @@ VALUES (?,?,?,NOW())";
 	 * Delete this permission
 	 *
 	 * @throws LogicException
-	 * @throws CmsSQLErrorException
+	 * @throws SQLErrorException
 	 */
 	public function delete()
 	{
@@ -165,14 +165,14 @@ VALUES (?,?,?,NOW())";
 			throw new LogicException('Cannnot delete a '.__CLASS__.' object that has not been saved');
 		}
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE permission_id = ?';
 		$dbr = $db->Execute($query,[$this->_data['id']]);
-		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'permissions WHERE permission_id = ?';
 		$dbr = $db->Execute($query,[$this->_data['id']]);
-		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		unset($this->_data['id']);
 	}
 
@@ -181,7 +181,7 @@ VALUES (?,?,?,NOW())";
 	 *
 	 * @param string $name
 	 * @return Permission
-	 * @throws CmsInvalidDataException
+	 * @throws UnexpectedValueException
 	 */
 	public static function load($name)
 	{
@@ -193,7 +193,7 @@ VALUES (?,?,?,NOW())";
 			}
 		}
 
-		$db = App::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$row = null;
 		if( (int)$name > 0 ) {
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE permission_id = ?';
@@ -204,7 +204,7 @@ VALUES (?,?,?,NOW())";
 			$row = $db->GetRow($query,[$name]);
 		}
 		if( !$row ) {
-			throw new CmsInvalidDataException('Could not find permission named '.$name);
+			throw new UnexpectedValueException('Could not find permission named '.$name);
 		}
 
 		$obj = new self();
@@ -231,7 +231,7 @@ VALUES (?,?,?,NOW())";
 			$perm = self::load($permname);
 			return $perm->id;
 		}
-		catch( CmsException $e ) {
+		catch( Throwable $t ) {
 			//nothing here
 		}
 	}
@@ -248,7 +248,7 @@ VALUES (?,?,?,NOW())";
 			$perm = TODOfunc((int)$permid);
 			return $perm->name;
 		}
-		catch( CmsException $e ) {
+		catch( Throwable $t ) {
 			//nothing here
 		}
 	}

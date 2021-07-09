@@ -20,8 +20,9 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\ContentOperations;
+use CMSMS\Url;
 use CMSMS\Utils;
 
 function smarty_function_cms_action_url($params, $template)
@@ -68,7 +69,7 @@ function smarty_function_cms_action_url($params, $template)
 	}
 
 	// validate params
-	$gCms = CmsApp::get_instance();
+	$gCms = AppSingle::App();
 	if( $module == '' ) return;
 	if( AppState::test_state(AppState::STATE_ADMIN_PAGE) && $returnid == '' ) {
 		if( $mid == '' ) $mid = 'm1_';
@@ -80,7 +81,7 @@ function smarty_function_cms_action_url($params, $template)
 		if( $returnid == '' ) {
 			$returnid = Utils::get_current_pageid();
 			if( $returnid < 1 ) {
-				$returnid = ContentOperations::get_instance()->GetDefaultContent();
+				$returnid = AppSingle::ContentOperations()->GetDefaultContent();
 			}
 		}
 	}
@@ -93,7 +94,7 @@ function smarty_function_cms_action_url($params, $template)
 	if( !$url ) return;
 
 	if( !empty($urlparms) ) {
-		$url_ob = new CMSMS\Url( $url );
+		$url_ob = new Url( $url );
 		foreach( $urlparms as $k => $v ) {
 			$url_ob->set_queryvar( $key, $value );
 		}

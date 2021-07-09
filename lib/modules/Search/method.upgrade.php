@@ -1,19 +1,23 @@
 <?php
-# Search module upgrade procedure
-# Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Search module upgrade procedure
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
@@ -28,9 +32,9 @@ if (version_compare($oldversion,'1.50') < 1) {
 
     $me = $this->GetName();
     if (AppState::test_state(AppState::STATE_INSTALL)) {
-        $user_id = 1; // hardcode to first user
+        $userid = 1; // hardcode to first user
     } else {
-        $user_id = get_userid();
+        $userid = get_userid();
     }
 
     try {
@@ -52,7 +56,7 @@ if (version_compare($oldversion,'1.50') < 1) {
             $tpl = new Template();
             $tpl->set_originator($me);
             $tpl->set_name('Search Form Sample');
-            $tpl->set_owner($user_id);
+            $tpl->set_owner($userid);
             $tpl->set_content($content);
             $tpl->set_type($type);
             $tpl->set_type_dflt(TRUE);
@@ -78,7 +82,7 @@ if (version_compare($oldversion,'1.50') < 1) {
             $tpl = new Template();
             $tpl->set_originator($me);
             $tpl->set_name('Search Results Sample');
-            $tpl->set_owner($user_id);
+            $tpl->set_owner($userid);
             $tpl->set_content($content);
             $tpl->set_type($type);
             $tpl->set_type_dflt(TRUE);
@@ -93,19 +97,19 @@ if (version_compare($oldversion,'1.50') < 1) {
 
 if (version_compare($oldversion,'1.51') < 0) {
     $tables = [
-        CMS_DB_PREFIX.'module_search_items',
-        CMS_DB_PREFIX.'module_search_index',
-        CMS_DB_PREFIX.'module_search_words'
+        CMS_DB_PREFIX.'module_search_items', //stet??
+        CMS_DB_PREFIX.'module_search_index', //stet??
+//        CMS_DB_PREFIX.'module_search_words', stet??
     ];
-    $sql = 'ALTER TABLE %s ENGINE=InnoDB';
+    $sql = 'ALTER TABLE %s ENGINE=InnoDB'; //KEY_BLOCK_SIZE=8 ROW_FORMAT=COMPRESSED support transactions
     foreach ($tables as $table) {
-        $db->Execute(sprintf($sql,$table));
+        $db->Execute(sprintf($sql, $table));
     }
 }
 
 if (version_compare($oldversion,'1.52') < 0) {
     $dict = new DataDictionary($db);
-    $sqlarray = $dict->CreateIndexSQL('index_search_item', 'module_search_index', 'item_id');
+    $sqlarray = $dict->CreateIndexSQL('index_search_item', CMS_DB_PREFIX.'module_search_index', 'item_id');
     $dict->ExecuteSQLArray($sqlarray);
 }
 

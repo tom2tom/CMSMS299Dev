@@ -1,63 +1,82 @@
 <?php
-# Template(s) operations performer
-# Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Template(s) operations performer
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
-use CMSMS\Utils;
+use function CMSMS\sanitizeVal;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-	exit;
-}
-
 check_login();
 $userid = get_userid();
 $pmod = check_permission($userid,'Manage Templates');
-$urlext = get_secure_param();
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
-cleanArray($_REQUEST);
-$template_id = isset($_REQUEST['tpl']) ? (int)$_REQUEST['tpl'] : null; //< 0 for a group
-$template_multi = $_REQUEST['tpl_select'] ?? null;  //id(s) array for a bulk operation
+if (isset($_REQUEST['tpl'])) {
+	$tpl_id = (int)$_REQUEST['tpl']; //< 0 for a group
+} elseif (isset($_REQUEST['grp'])) {
+	$tpl_id = -(int)$_REQUEST['grp'];
+} else {
+	$tpl_id = null;
+}
 
-switch ($_REQUEST['op']) {
+if (isset($_REQUEST['tpl_select'])) {  //id(s) array for a bulk operation
+	//sanitize
+	$template_multi = array_map($_REQUEST['tpl_select'], function ($v) {
+		return (int)$v;
+	});
+} else {
+	$template_multi = null;
+}
+
+$op = $_REQUEST['op'] ?? ''; // no sanitizeVal() etc due to specific acceptable values
+switch (trim($op)) {
 	case 'copy':
 		$padd = $pmod || check_permission($userid,'Add Templates');
-		if( !$padd ) exit;
-		if( $template_id ) {
+		if (!$padd) exit;
+		if ($tpl_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_copy($tpl_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_copied'));
+				$type = ($n > 0) ? 'success' : 'info';
+				// TODO message if group(s) copied $tpl_id includes val(s) < 0
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_template_copied'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
 		}
 		break;
 	case 'delete':
-		if( !$pmod ) exit;
-		if( $template_multi ) { $template_id = $template_multi; }
-		if( $template_id ) {
+		if (!$pmod) exit;
+		if ($template_multi) { $tpl_id = $template_multi; }
+		if ($tpl_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_delete($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
+				// TODO message if group(s) deleted
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_template_deleted',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -65,10 +84,11 @@ switch ($_REQUEST['op']) {
 		}
 		break;
 	case 'deleteall':
-		if( !$pmod ) exit;
-		if( $template_multi ) { $template_id = $template_multi; }
-		if( $template_id ) {
+		if (!$pmod) exit;
+		if ($template_multi) { $tpl_id = $template_multi; }
+		if ($tpl_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_deleteall($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
@@ -78,8 +98,9 @@ switch ($_REQUEST['op']) {
 		}
 		break;
 	case 'replace':
-		if( $template_id ) {
+		if ($tpl_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_replace($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
@@ -89,8 +110,9 @@ switch ($_REQUEST['op']) {
 		}
 		break;
 	case 'applyall':
-		if( $template_id ) {
+		if ($tpl_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_applyall($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
@@ -100,10 +122,16 @@ switch ($_REQUEST['op']) {
 		}
 		break;
 	case 'reset':
-		if( !$pmod ) exit;
-		if( !empty($_REQUEST['type']) ) {
+		if (!$pmod) exit;
+		if (!empty($_REQUEST['type'])) {
+			//value might be integer template-type id, or a string like Originator::Name
+			if (is_numeric($_REQUEST['type'])) {
+				$id = (int)$_REQUEST['type'];
+			} else {
+				$id = sanitizeVal($_REQUEST['type'],CMSSAN_PUNCT); // OR CMSSAN_PURESPC? OR CMSSAN_PURE?
+			}
 			try {
-				$type = TemplateType::load($_REQUEST['type']);
+				$type = TemplateType::load($id);
 				$type->reset_content_to_factory();
 				$type->save();
 				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_template_reset',$type->get_langified_display_value()));
@@ -113,12 +141,12 @@ switch ($_REQUEST['op']) {
 		} else {
 			$themeObject->ParkNotice('error',lang_by_realm('layout','error_missingparam'));
 		}
-		redirect('listtemplates.php'.$urlext.'&_activetab=types');
+		// TODO appropriate '_activetab' value
 		break;
 	case 'import':
-		if( !$pmod ) exit;
-		if( $template_multi ) { $template_id = $template_multi; }
-		if( $template_id ) {
+		if (!$pmod) exit;
+		if ($template_multi) { $tpl_id = $template_multi; }
+		if ($tpl_id) {
 			try {
 				$n = TemplateOperations::operation_import($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
@@ -129,10 +157,11 @@ switch ($_REQUEST['op']) {
 		}
 		break;
 	case 'export':
-		if( !$pmod ) exit;
-		if( $template_multi ) { $template_id = $template_multi; }
-		if( $template_id ) {
+		if (!$pmod) exit;
+		if ($template_multi) { $tpl_id = $template_multi; }
+		if ($tpl_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = TemplateOperations::operation_export($tpl_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_template_exported',$n));
@@ -143,4 +172,6 @@ switch ($_REQUEST['op']) {
 		break;
 }
 
-redirect('listtemplates.php'.$urlext);
+$root = AppSingle::Config()['admin_url']; // relative URL's don't work here
+$urlext = get_secure_param();
+redirect($root.'/listtemplates.php'.$urlext); // TODO .'&_activetab=' relevant tab name 'templates'|'types'|'groups'

@@ -22,10 +22,12 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSContentManager\ContentListBuilder;
 use CMSContentManager\ContentListFilter;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\ScriptsMerger;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
-use CMSMS\UserOperations;
+use CMSMS\UserParams;
 
 if( !isset($gCms) ) exit;
 // no permissions checks here.
@@ -33,8 +35,8 @@ if( !isset($gCms) ) exit;
 echo '<noscript><h3 style="color:red;text-align:center;">'.$this->Lang('info_javascript_required').'</h3></noscript>'.PHP_EOL;
 
 $builder = new ContentListBuilder($this);
-$pagelimit = cms_userprefs::get($this->GetName().'_pagelimit',500);
-$filter = cms_userprefs::get($this->GetName().'_userfilter');
+$pagelimit = UserParams::get($this->GetName().'_pagelimit',500);
+$filter = UserParams::get($this->GetName().'_userfilter');
 if( $filter ) $filter = unserialize($filter);
 
 if( isset($params['curpage']) ) {
@@ -53,7 +55,7 @@ else if( isset($params['collapseall']) || isset($_GET['collapseall']) ) {
 $filter = null;
 if( isset($params['setoptions']) ) {
     $pagelimit = max(1,min(500,(int)$params['pagelimit']));
-    cms_userprefs::set($this->GetName().'_pagelimit',$pagelimit);
+    UserParams::set($this->GetName().'_pagelimit',$pagelimit);
 
     $filter_type = $params['filter_type'] ?? null;
     switch( $filter_type ) {
@@ -78,11 +80,11 @@ if( isset($params['setoptions']) ) {
         $filter->expr = $params['filter_editor'];
         break;
     default:
-        cms_userprefs::remove($this->GetName().'_userfilter');
+        UserParams::remove($this->GetName().'_userfilter');
     }
     if( $filter ) {
         //record for use by ajax processor
-        cms_userprefs::set($this->GetName().'_userfilter',serialize($filter));
+        UserParams::set($this->GetName().'_userfilter',serialize($filter));
     }
     $curpage = 1;
 }
@@ -168,9 +170,6 @@ list($page_url, $page_data) = urlsplit($url);
 $url = $this->create_url($id,'ajax_check_locks') . '&'.CMS_JOB_KEY.'=1';
 list($watch_url, $watch_data) = urlsplit($url);
 
-$locks_url = $config['admin_url'].'/ajax_lock.php';
-//$locks_data = "{\n".CMS_SECURE_PARAM_NAME.': '.$_SESSION[CMS_USER_KEY]."\n}";
-
 $securekey = CMS_SECURE_PARAM_NAME;
 $jobkey = CMS_JOB_KEY;
 
@@ -186,7 +185,7 @@ $s5 = json_encode($this->Lang('error_contentlocked'));
 $s9 = json_encode($this->Lang('error_action_contentlocked'));
 $s6 = $this->Lang('submit');
 $s7 = $this->Lang('cancel');
-$secs = cms_siteprefs::get('lock_refresh', 120);
+$secs = AppParams::get('lock_refresh', 120);
 $secs = max(30,min(600,$secs));
 
 $jsm = new ScriptsMerger();
@@ -202,11 +201,11 @@ $js = <<<EOS
 //<![CDATA[
 var pageurl = '$page_url',
  pagedata = $page_data,
- lockurl = '$locks_url',
  refresher,watcher;
 function cms_CMloadUrl(link, lang) {
  $(link).on('click', function(e) {
-  var url = $(this).attr('href'),
+  e.preventDefault();
+  var url = this.href,
    params = $.extend({}, pagedata, {
     {$id}ajax: 1,
    });
@@ -218,7 +217,6 @@ function cms_CMloadUrl(link, lang) {
    });
   };
   $('#ajax_find').val('');
-  e.preventDefault();
   if(typeof lang === 'string' && lang.length > 0) {
     cms_confirm(lang).done(_do_ajax);
   } else {
@@ -355,7 +353,7 @@ function setuplist() {
  $('a.steal_lock').on('click', function(e) {
   // we're gonna confirm stealing this lock
   e.preventDefault();
-  var url = $(this).attr('href');
+  var url = this.href;
   cms_confirm($s4).done(function() {
    window.location.href = url + '&{$id}steal=1';
   });
@@ -368,28 +366,44 @@ function setuplist() {
   if(typeof(v) !== 'undefined' && v !== null && !v) return false;
   if(typeof(v) === 'undefined' || v !== null) return true;
   e.preventDefault();
-  url = $(this).attr('href');
-  // double-check whether this page is locked
-  var content_id = $(this).attr('data-cms-content');
-  $.ajax(lockurl, {
-   async: false,
-   data: {
+  var url = this.href,
+   content_id = this.getAttribute('data-cms-content'),
+   lockurl = 'ajax_lock.php',
+   parms = {
     $securekey: cms_data.user_key,
-    opt: 'check',
+    $jobkey: 1,
+    dataType: 'json',
+    op: 'check',
     type: 'content',
     oid: content_id
-   }
+   };
+  // double-check whether this page is locked
+  $.ajax(lockurl, {
+   method: 'POST',
+   data: parms
   }).done(function(data) {
    if(data.status == 'success') {
-    if(data.locked) {
-     // gotta display a message.
-     cms_alert($s5);
-    } else {
-     window.location.href = url;
-    }
+     if(data.stealable) {
+       cms_confirm($s4).done(function() {
+         parms.op = 'unlock';
+         parms.lock_id = data.lock_id;
+// TODO security : parms.X = Y suitable for ScriptsMerger
+         $.ajax(lockurl, {
+           method: 'POST',
+           data: parms
+         });
+         window.location.href = url;
+       });
+     } else if(data.locked) {
+       cms_alert($s5);
+     } else {
+       window.location.href = url;
+     }
    } else {
-     cms_alert('AJAX ERROR');
+     cms_alert(data.error.msg);
    }
+  }).fail(function() {
+    cms_alert('AJAX ERROR');
   });
   return false;
  });
@@ -451,26 +465,43 @@ $(function() {
   var have_locks = $have_locks;
   if(!have_locks) {
    e.preventDefault();
-   var url = $(this).attr('href');
-   // double-check whether any? page is locked
-   $.ajax(lockurl, {
-    async: false,
-    data: {
+   var url = this.href,
+    lockurl = 'ajax_lock.php',
+    parms = {
      $securekey: cms_data.user_key,
-     opt: 'check',
-     type: 'content' //TODO some other lock without object-id
-    }
+     $jobkey: 1,
+     dataType: 'json',
+     op: 'check',
+     type: 'content'
+    };
+   // double check whether any page is locked
+   $.ajax(lockurl, {
+    method: 'POST',
+    data: parms
    }).done(function(data) {
     if(data.status == 'success') {
-     if(data.locked) {
-       have_locks = true;
-       cms_alert($s9);
-     } else {
+     if(data.stealable) {
+      cms_confirm($s4).done(function() {
+       parms.op = 'unlock';
+ // TODO remove single anonymous lock
+       parms.lock_id = data.lock_id;
+// TODO security : parms.X = Y suitable for ScriptsMerger
+       $.ajax(lockurl, {
+        method: 'POST',
+        data: parms
+       });
        window.location.href = url;
+      });
+     } else if(data.locked) {
+      cms_alert($s9);
+     } else {
+      window.location.href = url;
      }
     } else {
-       cms_alert('AJAX ERROR');
+     cms_alert(data.error.msg);
     }
+   }).fail(function() {
+    cms_alert('AJAX ERROR');
    });
    return false;
   }
@@ -495,10 +526,10 @@ if( $pmanage ) {
     'EDITOR_UID' => $this->Lang('prompt_editor')];
     $tpl->assign('opts',$opts);
     // list of templates for filtering
-	$list = TemplateOperations::template_query(['originator'=>TemplateType::CORE, 'as_list'=>1]);
+    $list = TemplateOperations::template_query(['originator'=>TemplateType::CORE, 'as_list'=>1]);
     $tpl->assign('template_list',$list)
     // list of admin users for filtering
-     ->assign('user_list',UserOperations::get_instance()->GetList());
+     ->assign('user_list',AppSingle::UserOperations()->GetList());
     // list of designs for filtering
 // ->assign('design_list',DesignManager\Design::get_list()) TODO replacement :: stylesheets and/or groups
 }

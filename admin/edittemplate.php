@@ -20,32 +20,30 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\GroupOperations;
-use CMSMS\Lock;
+use CMSMS\Exception;
+use CMSMS\LockException;
 use CMSMS\LockOperations;
 use CMSMS\ScriptsMerger;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
-use CMSMS\UserOperations;
-use CMSMS\Utils;
+use function CMSMS\de_specialize_array;
+use function CMSMS\sanitizeVal;
+use function CMSMS\specialize;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-/*if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-    throw new CMSMS\Error403Exception(lang('informationmissing'));
-}
-*/
 check_login();
 
 $urlext = get_secure_param();
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
 if (isset($_REQUEST['cancel'])) {
 	$themeObject->ParkNotice('info',lang_by_realm('layout','msg_cancelled'));
@@ -55,15 +53,19 @@ if (isset($_REQUEST['cancel'])) {
 $userid = get_userid();
 $pmod = check_permission($userid,'Modify Templates');
 
-$content = $_REQUEST['content'] ?? ''; // preserve this verbatim
+$content = $_REQUEST['content'] ?? ''; // preserve this verbatim, for now
 unset($_REQUEST['content']);
-cms_specialchars_decode_array($_REQUEST);
+de_specialize_array($_REQUEST);
 
 if (!$pmod) {
 	// no manage templates permission
+//TODO also support read-only display of template
 	if (!check_permission($userid,'Add Templates')) {
 		// no add templates permission
-		if (!isset($_REQUEST['tpl']) || !TemplateOperations::user_can_edit_template($_REQUEST['tpl'])) { // sanitizeVal() ?
+		if (isset($_REQUEST['tpl'])) {
+			$val = (is_numeric($_REQUEST['tpl'])) ? (int)$_REQUEST['tpl'] : sanitizeVal($_REQUEST['tpl'], CMSSAN_FILE);
+		}
+		if (!isset($_REQUEST['tpl']) || !TemplateOperations::user_can_edit_template($val)) {
 			// no parameter, or no ownership/addt_editors.
 			return;
 		}
@@ -74,20 +76,22 @@ $response = 'success';
 $apply = isset($_REQUEST['apply']);
 
 try {
-	$extraparms = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
+	$extraparms = get_secure_param_array();
 	if (isset($_REQUEST['import_type'])) {
-		$tpl_obj = TemplateOperations::get_template_by_type($_REQUEST['import_type']);
+		$val = (is_numeric($_REQUEST['import_type'])) ? (int)$_REQUEST['import_type'] : sanitizeVal($_REQUEST['import_type'], CMSSAN_NAME);
+		$tpl_obj = TemplateOperations::get_template_by_type($val);
 		$tpl_obj->set_owner($userid);
 /*		$design = DesignManager\Design::load_default(); DISABLED
 		if ($design) {
 			$tpl_obj->add_design($design);
 		}
 */
-		$extraparms['import_type'] = $_REQUEST['import_type'];
+		$extraparms['import_type'] = $val;
 	} else if (isset($_REQUEST['tpl'])) {
-		$tpl_obj = TemplateOperations::get_template($_REQUEST['tpl']);
+		$val = (is_numeric($_REQUEST['tpl'])) ? (int)$_REQUEST['tpl'] : sanitizeVal($_REQUEST['tpl'], CMSSAN_FILE);
+		$tpl_obj = TemplateOperations::get_template($val);
 //		$tpl_obj->get_designs();
-		$extraparms['tpl'] = $_REQUEST['tpl'];
+		$extraparms['tpl'] = $val;
 	} else {
 		$tpl_obj = new Template();
 	}
@@ -106,16 +110,48 @@ try {
 	try {
 		if ($apply || isset($_REQUEST['dosubmit'])) {
 			// do the magic.
-			if (isset($_REQUEST['description'])) $tpl_obj->set_description($_REQUEST['description']);
-			if (isset($_REQUEST['type'])) $tpl_obj->set_type($_REQUEST['type']);// sanitizeVal() ?
-			$tpl_obj->set_type_dflt($_REQUEST['default'] ?? 0);
-			if (isset($_REQUEST['owner_id'])) $tpl_obj->set_owner($_REQUEST['owner_id']);// sanitizeVal() ?
-			if (isset($_REQUEST['addt_editors']) && $_REQUEST['addt_editors']) {
-				$tpl_obj->set_additional_editors($_REQUEST['addt_editors']); //TODO support clearance sanitizeVal() ?
+			if (isset($_REQUEST['description'])) {
+				$val = sanitizeVal(trim($_REQUEST['description']), CMSSAN_NONPRINT); // AND nl2br() ? striptags() other than links ?
+				// revert any munged textarea tag
+				$matches = [];
+				$val = preg_replace_callback('~&lt;(&sol;|&#47;)?(textarea)&gt;~i', function($matches) {
+					$pre = ($matches[1]) ? '/' : '';
+					return '<'.$pre.$matches[2].'>';
+				}, $val);
+				$tpl_obj->set_description($val);
+			}
+			if (isset($_REQUEST['type'])) {
+				$val = (is_numeric($_REQUEST['type'])) ? (int)$_REQUEST['type'] : sanitizeVal($_REQUEST['type'], CMSSAN_NAME);
+				if (!(is_numeric($val) || AdminUtils::is_valid_itemname($val))) {
+					throw new Exception(lang('errorbadname'));
+				}
+				$tpl_obj->set_type($val);
+			}
+			$tpl_obj->set_type_dflt((bool)($_REQUEST['default'] ?? false));
+			if (isset($_REQUEST['owner_id'])) {
+				$val = (is_numeric($_REQUEST['owner_id'])) ? (int)$_REQUEST['owner_id'] : sanitizeVal($_REQUEST['owner_id'], CMSSAN_ACCOUNT);
+				$tpl_obj->set_owner($val);
+			}
+			if (!empty($_REQUEST['addt_editors'])) {
+				$val = $_REQUEST['addt_editors'];
+				if (!is_array($val)) {
+					$val = [$val];
+				}
+				if (is_numeric($val[0])) {
+					foreach ($val as &$one) {
+						$one = (int)$one;
+					}
+				} else {
+					foreach ($val as &$one) {
+						$one = sanitizeVal($one, CMSSAN_ACCOUNT);
+					}
+				}
+				unset($one);
+				$tpl_obj->set_additional_editors($val); //TODO support clearance
 			}
 /*			if (!empty($_REQUEST['category_id'])) $tpl_obj->set_category($_REQUEST['category_id']); //TODO support multiple categories
 			$tpl_obj->set_listable($_REQUEST['listable'] ?? 0);
-//TODO      $tpl_obj->set_content_file($_REQUEST['contentfile'] ?? 0);
+//TODO		$tpl_obj->set_content_file($_REQUEST['contentfile'] ?? 0);
 			$old_export_name = $tpl_obj->get_content_filename();
 			$tpl_obj->set_name($_REQUEST['name']);
 			$new_export_name = $tpl_obj->get_content_filename();
@@ -134,6 +170,14 @@ try {
 //USELESS FOR SUCH TEST Utils::set_app_data('tmp_template', $_REQUEST['contents']);
 
 			// if we got here, we're golden.
+			// template content can be anything, really.
+			// tho' arguably tags {php}{/php} (whatever delimiters) should be removed here
+			// revert any munged textarea tag
+			$matches = [];
+			$content = preg_replace_callback('~&lt;(&sol;|&#47;)?(textarea)&gt;~i', function($matches) {
+				$pre = ($matches[1]) ? '/' : '';
+				return '<'.$pre.$matches[2].'>';
+			}, $content);
 			$tpl_obj->set_content($content);
 			TemplateOperations::save_template($tpl_obj);
 
@@ -146,7 +190,7 @@ try {
 				redirect('listtemplates.php'.$urlext);
 			}
 		}
-/*        elseif (isset($_REQUEST['export'])) {
+/*		elseif (isset($_REQUEST['export'])) {
 			$outfile = $tpl_obj->get_content_filename();
 			$dn = dirname($outfile);
 			if (!is_dir($dn) || !is_writable($dn)) throw new RuntimeException(lang_by_realm('layout','error_assets_writeperm'));
@@ -181,11 +225,11 @@ try {
 				$lock = null;
 				if ($lock_id > 0) {
 					// it's locked... by somebody, make sure it's expired before we allow stealing it.
-					$lock = Lock::load('template',$tpl_obj->get_id());
-					if (!$lock->expired()) throw new CmsLockException('CMSEX_L010');
+					$lock = LockOperations::load('template',$tpl_obj->get_id());
+					if (!$lock->expired()) throw new LockException('CMSEX_L010');
 					LockOperations::unlock($lock_id,'template',$tpl_obj->get_id());
 				}
-			} catch( CmsException $e) {
+			} catch( Exception $e) {
 				$message = $e->GetMessage();
 				$themeObject->ParkNotice('error',$message);
 				redirect('listtemplates.php'.$urlext);
@@ -205,7 +249,7 @@ try {
 		 * @param  string $status The status of returned response : error, success, warning, info
 		 * @param  string $message The message of returned response
 		 * @param  mixed $data A string or array of response data
-		 * @return string Returns a string containing the JSON representation of provided response data
+		 * @return string containing the JSON representation of provided response data
 		 */
 		function GetJSONResponse($status, $message, $data = null)
 		{
@@ -235,16 +279,62 @@ try {
 	}
 
 	if (($tpl_id = $tpl_obj->get_id()) > 0) {
-		$themeObject->SetSubTitle(lang_by_realm('layout','prompt_edit_template').': '.$tpl_obj->get_name()." ($tpl_id)");
+		$name = $tpl_obj->get_name();
+		$themeObject->SetSubTitle(lang_by_realm('layout','prompt_edit_template').": $name ($tpl_id)");
+		$desc = specialize($tpl_obj->get_description());
+		$tmp = preg_replace('~<\?(php|=|\s|\n)~i','&lt;&quest;$1',$tpl_obj->get_content());
+//TODO alse entitize embedded smarty tags {php}...{/php} whatever left/right boundaries
+		$matches = [];
+		$content = preg_replace_callback('~<\s*(/?)\s*(textarea)\s*>~i', function($matches) {
+			$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+			return '&lt;'.$pre.$matches[2].'&gt;';
+		}, $tmp);
 	} else {
 		$tpl_id = 0;
+		$name = '';
 		$themeObject->SetSubTitle(lang_by_realm('layout','create_template'));
+		$desc = '';
+		$content = '';
+	}
+
+	$props = [
+		'additional_editors' => $tpl_obj->get_additional_editors(),
+		'category_id' => $tpl_obj->get_category_id(),
+		'content_file' => $tpl_obj->get_content_file(),
+		'content' => $content, // into textarea
+		'created' => $tpl_obj->get_created(),
+		'description' => $desc, // into textarea
+//		'designs' => $tpl_obj->get_designs(),
+		'id' => $tpl_id,
+		'listable' => $tpl_obj->get_listable(),
+		'lock' => $tpl_obj->get_lock(), // array
+		'modified' => $tpl_obj->get_modified(),
+		'name' => $name,
+		'owner_id' => $tpl_obj->get_owner_id(),
+		'type_id' => $tpl_obj->get_type_id(),
+		'usage_string' => $tpl_obj->get_usage_string(), //immutable string
+	];
+
+	foreach (['content', 'description'] as $key) {
+		// specialize e.g. munge possibly-malicious <[/]textarea> tags
+		switch ($key) {
+//			case 'content':
+//			case 'description':
+			default:
+				$matches = [];
+				$props[$key] = preg_replace_callback('~<\s*(/?)\s*(textarea)\s*>~i', function($matches) {
+					$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+					return '&lt;'.$pre.$matches[2].'&gt;';
+				}, $props[$key]);
+		}
 	}
 
 	$smarty = AppSingle::Smarty();
-
-	$smarty->assign('extraparms', $extraparms)
-	 ->assign('template', $tpl_obj)
+	$smarty->assign('userid', $userid)
+	 ->assign('can_manage', $pmod)
+//	 ->assign('has_themes_right', check_permission($userid,'Manage Designs'));
+	 ->assign('extraparms', $extraparms) // TODO $extraparms != $extras, both assigned to 'extraparms'
+	 ->assign('tpl', $props)
 	 ->assign('tpl_candefault', $defaultable);
 
 /* for 'related file' message UNUSED
@@ -283,11 +373,8 @@ try {
 		$smarty->assign('design_list', $out);
 	}
 */
-	$smarty->assign('can_manage', $pmod);
-//	 ->assign('has_themes_right', check_permission($userid,'Manage Designs'));
-
 	if ($pmod || $tpl_obj->get_owner_id() == $userid) {
-		$userops = UserOperations::get_instance();
+		$userops = AppSingle::UserOperations();
 		$allusers = $userops->LoadUsers();
 		$tmp = [];
 		foreach ($allusers as $one) {
@@ -296,9 +383,9 @@ try {
 			//    continue;
 			$tmp[$one->id] = $one->username;
 		}
-		if ($tmp) $smarty->assign('user_list', $tmp);
+		if ($tmp) { $smarty->assign('user_list', $tmp); }
 
-		$groupops = GroupOperations::get_instance();
+		$groupops = AppSingle::GroupOperations();
 		$allgroups = $groupops->LoadGroups();
 		foreach ($allgroups as $one) {
 			if ($one->id == 1) continue;
@@ -306,10 +393,10 @@ try {
 			$tmp[$one->id * -1] = lang_by_realm('layout','prompt_group') . ': ' . $one->name;
 			// appends to the tmp array.
 		}
-		if ($tmp) $smarty->assign('addt_editor_list', $tmp);
+		if ($tmp) { $smarty->assign('addt_editor_list', $tmp); }
 	}
-	$config = AppSingle::Config();
-	if ($config['develop_mode']) {
+
+	if (AppSingle::Config()['develop_mode']) {
 		$smarty->assign('devmode', 1);
 	}
 
@@ -387,12 +474,11 @@ $(function() {
     var v = geteditorcontent();
     setpagecontent(v);
     var fm = $('#form_edittemplate'),
-	   url = fm.attr('action') + '?apply=1',
+      url = fm.attr('action') + '?apply=1',
     params = fm.serializeArray();
     $.ajax(url, {
-      type: 'POST',
-      data: params,
-      cache: false
+      method: 'POST',
+      data: params
     }).fail(function(jqXHR, textStatus, errorThrown) {
       cms_notify('error', errorThrown);
     }).done(function(data) {
@@ -409,16 +495,17 @@ $(function() {
 //]]>
 </script>
 EOS;
-	add_page_foottext($js); //not $jsm->queue_script() (embedded variables)
+	add_page_foottext($js); //not $jsm->queue_script() (fluctuating embedded variables)
 
 	$selfurl = basename(__FILE__);
+	// TODO see also $extraparms, set above
 	$extras = get_secure_param_array() + [
 		'tpl' => $tpl_id
 	];
 
-	$smarty->assign('selfurl',$selfurl)
-	 ->assign('extraparms',$extras)
-	 ->assign('urlext',$urlext);
+	$smarty->assign('selfurl', $selfurl)
+	 ->assign('extraparms', $extras)
+	 ->assign('urlext', $urlext);
 
 	$content = $smarty->fetch('edittemplate.tpl');
 	$sep = DIRECTORY_SEPARATOR;

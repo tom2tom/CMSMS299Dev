@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use AdminSearch\Tools;
 use CMSMS\UserParams;
 use CMSMS\Utils;
-use function CMSMS\htmlentities_decode;
+use function CMSMS\de_entitize;
 
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
@@ -49,7 +49,7 @@ $slaves = Tools::get_slave_classes();
 if( $slaves ) {
     // search-target was processed downstream by js encodeURIComponent()
     $str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode($params['search_text']));
-    $text = htmlentities_decode($str); // TODO sanitize string e.g. CMSMS\cleanExec(), CMSMS\escape_sql()
+    $text = de_entitize($str); // TODO also sanitize string e.g. CMSMS\cleanExec(), $db->escStr()
 
     // cache this search
     $searchparams = [

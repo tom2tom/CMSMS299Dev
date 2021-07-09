@@ -13,18 +13,19 @@ CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\Crypto;
 use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\Permission;
 use CMSMS\User;
-use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use function cms_installer\get_server_permissions;
 use function cms_installer\joinpath;
@@ -126,17 +127,22 @@ foreach ([
 	'coremodules' => $cores, // aka ModuleOperations::CORENAMES_PREF
 	'current_theme' => '', // frontend theme name
 	'defaultdateformat' => '%e %B %Y',
-	'enablesitedownmessage' => 0, //deprecated since 2.99 use site_downnow
+	'enablesitedownmessage' => 0, // deprecated since 2.99 use site_downnow
 	'frontendlang' => 'en_US',
 	'global_umask' => $global_umask,
+	'jobinterval' => 180, // min-gap between job-processing's 1 .. 600 seconds
+	'joblastrun' => 0,
+	'jobtimeout' => 5, // max jobs execution-time 2 .. 120 seconds
+	'joburl' => '', // custom url for job processing
 	'lock_refresh' => 120,
 	'lock_timeout' => 60,
-	'loginmodule' => '', // login UI defined by current theme
+	'loginmodule' => '', // TODO CMSMS\ModuleOperation::STD_LOGIN_MODULE
+	'loginprocessor' => '', // login UI defined by current theme
 	'loginsalt' => $salt,
 	'logintheme' => $theme,
 	'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
-	'password_level' => 0, // min-strength enumerator
-	'password_life' => 0, // lifetime (days)
+	'password_level' => 0, // p/w policy-type enumerator
+	'password_life' => 0, // p/w lifetime (days)
 	'schema_version' => $schema,
 	'site_help_url' => $helpurl,
 	'site_uuid' => $uuid, // almost-certainly-unique signature of this site (see also siteuuid-file)
@@ -155,6 +161,7 @@ foreach ([
 	'thumbnail_width' => 96,
 	'ultraroles' => $ultras,
 	'use_smartycompilecheck' => 1, //deprecated since 2.99 use smarty_compilecheck
+	'username_level' => 0, // policy-type enumerator
 ] as $name => $val) {
 	AppParams::set($name, $val);
 }
@@ -183,11 +190,13 @@ status_msg(lang('install_requireddata'));
 verbose_msg(lang('install_initsiteperms'));
 $all_perms = [];
 foreach ([
+	'Clear Admin Log',
 //	'Add Pages', >CM
 //	'Add Templates', //TODO migrate to 'Modify Templates'
 //	'Manage All Content', >CM
 //	'Manage Designs', >DM
 	['Manage Groups', 'Manage user-group existence, properties, membership'],
+//	['Manage Jobs', 'Manage asynchronous jobs'],
 	'Manage My Account',
 	'Manage My Bookmarks',
 	'Manage My Settings',
@@ -209,6 +218,7 @@ foreach ([
 	['Remote Administration', 'Site administration via SSH'],  //for remote management, sans admin console kinda Modify Database Content + Modify Restricted Files
 //	'Remove Pages', >CM
 //	'Reorder Content', >CM
+	'View Admin Log',
 	'View Tag Help',
 	] as $one_perm) {
 	$permission = new Permission();
@@ -288,7 +298,7 @@ $group->GrantPermission('Modify Templates');
 // initial user account
 //
 verbose_msg(lang('install_initsiteusers'));
-$ops = UserOperations::get_instance();
+$ops = AppSingle::UserOperations();
 $admin_user = new User();
 $admin_user->username = $adminaccount['username'];
 $admin_user->firstname = 'Site';
@@ -325,6 +335,7 @@ foreach ([
 	'AddUserPre',
 	'ChangeGroupAssignPost',
 	'ChangeGroupAssignPre',
+	'CheckUserData',
 /* >CM
 	'ContentDeletePost',
 	'ContentDeletePre',
@@ -366,7 +377,7 @@ foreach ([
 	'EditUserPost',
 	'EditUserPre',
 
-//	'JobFailed',
+	'JobFailed', // aka JobOperations::EVT_ONFAILEDJOB
 
 	'LoginFailed',
 	'LoginPost',
@@ -400,3 +411,8 @@ foreach ([
 ] as $s) {
 	Events::CreateEvent('Core',$s);
 }
+
+Events::AddStaticHandler('Core', 'PostRequest', '\\CMSMS\\internal\\JobOperations::begin_async_work', 'C', false);
+Events::AddStaticHandler('Core', 'ModuleInstalled', '\\CMSMS\\internal\\JobOperations::event_handler', 'C', false);
+Events::AddStaticHandler('Core', 'ModuleUninstalled', '\\CMSMS\\internal\\JobOperations::event_handler', 'C', false);
+Events::AddStaticHandler('Core', 'ModuleUpgraded', '\\CMSMS\\internal\\JobOperations::event_handler', 'C', false);

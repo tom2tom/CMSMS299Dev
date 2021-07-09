@@ -19,13 +19,14 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-use CMSMS\GroupOperations;
+
+use CMSMS\AppSingle;
 
 if (!function_exists('cmsms')) exit;
 
 $this->CreatePermission('Use Admin Search',$this->Lang('perm_Use_Admin_Search'));
 
-$groups = GroupOperations::get_instance()->LoadGroups();
+$groups = AppSingle::GroupOperations()->LoadGroups();
 
 if( $groups ) {
     foreach( $groups as $one_group ) {
@@ -33,11 +34,16 @@ if( $groups ) {
     }
 }
 
-//enable deprecated class-aliases
-$tp1 = __DIR__.DIRECTORY_SEPARATOR.lib.DIRECTORY_SEPARATOR.'class.%s.php';
-$tp2 = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'aliases'.DIRECTORY_SEPARATOR.'class.%s.php';
-foreach (['AdminSearch_tools','AdminSearch_slave'] as $nm) {
-    $fp = sprintf($tp1, $nm);
-    $tp = sprintf($tp2, $nm);
-    copy($fp, $tp);
+//try to re-locate deprecated class-aliases into autoloader search-path
+$bp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'aliases';
+if (is_writable($bp)) {
+    $tpl1 = __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'class.%s.php';
+    $tpl2 = $bp.DIRECTORY_SEPARATOR.'class.%s.php';
+    foreach (['AdminSearch_tools','AdminSearch_slave'] as $nm) {
+        $fp = sprintf($tpl1, $nm);
+        $tp = sprintf($tpl2, $nm);
+        try {
+            copy($fp, $tp);
+        } catch (Throwable $t) {} //ignore error
+    }
 }

@@ -1,30 +1,32 @@
 <?php
-#Class definition and methods for Page Link content type
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class definition and methods for Page Link content type
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSContentManager\contenttypes;
 
-use CMSContentManager\ContentBase;
 use CMSMS\AdminUtils;
-use CMSMS\ContentOperations;
+use CMSMS\AppSingle;
+use CMSMS\contenttypes\ContentBase;
 use function check_permission;
-use function cms_htmlentities;
+use function CMSMS\specialize;
 use function get_userid;
-use function lang;
 
 /**
  * Implements the PageLink content type.
@@ -51,9 +53,9 @@ class PageLink extends ContentBase
 	{
 		parent::SetProperties([
 			['cachable',true],
-			['secure',false], //deprecated property since 2.3
+			['secure',false], //deprecated property since 2.99
 		]);
-		$this->AddProperty('page',3, parent::TAB_MAIN,true,true); //target page id
+		$this->AddProperty('page',3, parent::TAB_MAIN,true,true); //target-page id
 		$this->AddProperty('params',4, parent::TAB_OPTIONS,true,true);
 
 		//Turn off caching
@@ -90,7 +92,7 @@ class PageLink extends ContentBase
 
 		// get the content type of page.
 		else {
-			$contentops = ContentOperations::get_instance();
+			$contentops = AppSingle::ContentOperations();
 			$destobj = $contentops->LoadContentFromID($page); //TODO ensure relevant content-object?
 			if( !is_object($destobj) ) {
 				$errors[] = $this->mod->Lang('destinationnotfound');
@@ -120,12 +122,12 @@ class PageLink extends ContentBase
 		$id = 'm1_';
 		switch($propname) {
 		case 'page':
-			$tmp = AdminUtils::CreateHierarchyDropdown($this->mId, $this->GetPropertyValue('page'), 'page', true);
+			$tmp = AdminUtils::CreateHierarchyDropdown($this->mId, (int)$this->GetPropertyValue('page'), 'page', true);
 			if( $tmp ) return [$this->mod->Lang('destination_page').':',$tmp];
 			break;
 
 		case 'params':
-			$val = cms_htmlentities($this->GetPropertyValue('params'));
+			$val = specialize($this->GetPropertyValue('params'));
 			return [$this->mod->Lang('additional_params').':','<input type="text" name="'.$id.'params" value="'.$val.'" />'];
 
 		default:
@@ -148,7 +150,7 @@ class PageLink extends ContentBase
 		$page = $this->GetPropertyValue('page');
 		$params = $this->GetPropertyValue('params');
 
-		$contentops = ContentOperations::get_instance();
+		$contentops = AppSingle::ContentOperations();
 		$destcontent = $contentops->LoadContentFromId($page); //TODO ensure relevant content-object?
 		if( is_object( $destcontent ) ) {
 			$url = $destcontent->GetURL();

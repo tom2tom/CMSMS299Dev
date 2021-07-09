@@ -23,6 +23,8 @@ If not, see <https://www.gnu.org/licenses/>.
 //see also: class CMSMS\TemplateQuery which (for now at least) this replicates
 
 use CMSMS\AppSingle;
+use CMSMS\DataException;
+use CMSMS\SQLErrorException;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
@@ -45,7 +47,7 @@ $offset = 0;
 $sortby = 'name';
 $sortorder = 'ASC';
 
-$db = AppSingle::App()->GetDb();
+$db = AppSingle::Db();
 
 /*
  Acceptable filter-array keys (optional content in []):
@@ -66,8 +68,8 @@ $db = AppSingle::App()->GetDb();
 
 Example: ['u:'=>get_userid(false),'limit'=>50]
 
-throws CmsInvalidDataException if anything else is present
-	   CmsSQLErrorException if no matching data found
+throws DataException if anything else is present
+	   SQLErrorException if no matching data found
 */
 
 foreach ($filter as $key => $val) {
@@ -185,7 +187,7 @@ SELECT id AS tpl_id FROM '.$tbl1.' WHERE owner_id = ?)
 			$typejoin = true;
 			break;
 		  default:
-			throw new CmsInvalidDataException($val.' is an invalid sortby');
+			throw new DataException($val.' is an invalid sortby');
 		}
 		break;
 
@@ -197,7 +199,7 @@ SELECT id AS tpl_id FROM '.$tbl1.' WHERE owner_id = ?)
 			$sortorder = $val;
 			break;
 		  default:
-			throw new CmsInvalidDataException($val.' is an invalid sortorder');
+			throw new DataException($val.' is an invalid sortorder');
 		}
 		break;
 	}
@@ -240,18 +242,18 @@ if ($tmp) {
 $query .= ' ORDER BY '.$sortby.' '.$sortorder;
 
 // execute the query
-$rs = $db->SelectLimit($query, $limit, $offset);
-if (!$rs) {
-	throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+$rst = $db->SelectLimit($query, $limit, $offset);
+if (!$rst) {
+	throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 }
 
 $totalrows = $db->GetOne('SELECT FOUND_ROWS()');
 $numpages = ceil($totalrows / $limit);
 
 $ids = [];
-while (!$rs->EOF()) {
-	$ids[] = $rs->fields['id'];
-	$rs->MoveNext();
+while (!$rst->EOF()) {
+	$ids[] = $rst->fields['id'];
+	$rst->MoveNext();
 }
 
 $templates = TemplateOperations::get_bulk_templates($ids);

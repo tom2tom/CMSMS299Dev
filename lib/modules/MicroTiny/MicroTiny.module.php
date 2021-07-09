@@ -41,7 +41,7 @@ class MicroTiny extends CMSModule
   public function IsPluginModule() { return true; } //deprecated
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
-  public function MinimumCMSVersion() { return '2.8.900'; }
+  public function MinimumCMSVersion() { return '2.99.0'; }
   public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
   public function WYSIWYGGenerateHeader($selector = '',$cssname = '')

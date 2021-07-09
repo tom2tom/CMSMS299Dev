@@ -1,33 +1,40 @@
 <?php
-#Procedure to display and modify the user's admin settings/preferences
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure to display and modify the user's admin settings/preferences
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 //use CMSMS\SysDataCache;
-//use CMSMS\MultiEditor;
+//use CMSMS\IMultiEditor;
 use CMSMS\AdminTheme;
 use CMSMS\AdminUtils;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\ContentOperations;
 use CMSMS\CoreCapabilities;
+use CMSMS\Error403Exception;
 use CMSMS\HookOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
+use function CMSMS\de_specialize_array;
+use function CMSMS\sanitizeVal;
+use function CMSMS\specialize_array;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -41,11 +48,11 @@ if (isset($_POST['cancel'])) {
 }
 
 $userid = get_userid();
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
-if (!check_permission($userid,'Manage My Settings')) {
-//TODO a push-notification    lang('needpermissionto','"Manage My Settings"'));
-    return;
+if (!check_permission($userid, 'Manage My Settings')) {
+//TODO some pushed popup $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
 $userobj = AppSingle::UserOperations()->LoadUserByID($userid); // <- Safe : if get_userid() fails, it redirects automatically to login.
@@ -53,29 +60,35 @@ $db = AppSingle::Db();
 
 if (isset($_POST['submit'])) {
     /*
-     * Submit account
-     *
-     * NOTE: Assumes that we successfully acquired user object.
+     * NOTE: Assumes that we successfully acquired user object
      */
-    cleanArray($_POST);
     // Get values from request and drive em to variables
-    $admintheme = $_POST['admintheme'];
+    de_specialize_array($_POST);
+
+    $admintheme = sanitizeVal($_POST['admintheme'], CMSSAN_FILE);
     $bookmarks = (isset($_POST['bookmarks'])) ? 1 : 0;
-    $ce_navdisplay = $_POST['ce_navdisplay'];
-    $date_format_string = $_POST['date_format_string'];
-    $default_cms_language = $_POST['default_cms_language'];
+    $ce_navdisplay = sanitizeVal($_POST['ce_navdisplay']); //'title' | 'menutext' | ''
+    $val = $_POST['date_format_string'];
+    // strftime()-only formats 2.99 breaker?
+    $date_format_string = ($val) ? preg_replace('~[^a-zA-Z%, .\-:/ ]~', '', trim($val)) : '';
+    // see http://www.unicode.org/reports/tr35/#Identifiers
+    $default_cms_language = sanitizeVal($_POST['default_cms_language'], CMSSAN_NONPRINT);
+    $old_default_cms_lang = sanitizeVal($_POST['old_default_cms_lang'], CMSSAN_NONPRINT);
     $default_parent = (int)$_POST['parent_id'];
     $hide_help_links = (isset($_POST['hide_help_links'])) ? 1 : 0;
-    $homepage = $_POST['homepage'];
+    // empty or relative-URL of an admin-page
+    $homepage = (!empty($_POST['homepage']) ?
+        filter_var(rtrim($_POST['homepage'], ' /'), FILTER_SANITIZE_URL) : // allows letters, digits, $-_.+!*'(),{}|\\^~[]`<>#%";/?:@&=
+//        sanitizeVal($_POST['homepage'], CMSSAN_NONPRINT) : // no entirely relevant CMSSAN_*
+        '');
     $indent = (isset($_POST['indent'])) ? 1 : 0;
-    $old_default_cms_lang = $_POST['old_default_cms_lang'];
     $paging = (isset($_POST['paging'])) ? 1 : 0;
-    $syntaxer = $_POST['syntaxtype'] ?? null; //syntax/advanced editor
+    $syntaxer = isset($_POST['syntaxtype']) ? sanitizeVal($_POST['syntaxtype'], CMSSAN_PUNCTX, ':') : null; // allow '::'
     //TODO in/UI by relevant module
-    $syntaxtheme = isset($_POST['syntaxtheme']) ? trim($_POST['syntaxtheme']) : null;
-    $wysiwyg = $_POST['wysiwygtype'] ?? null; //rich-text-editor
+    $syntaxtheme = isset($_POST['syntaxtheme']) ? sanitizeVal($_POST['syntaxtheme'], CMSSAN_PUNCT) : null; // OR , CMSSAN_PURESPC?
+    $wysiwyg = isset($_POST['wysiwygtype']) ? sanitizeVal($_POST['wysiwygtype'], CMSSAN_PUNCTX, ':') : null; // allow '::'
     //TODO in/UI by relevant module
-    $wysiwygtheme = isset($_POST['wysiwygtheme']) ? trim($_POST['wysiwygtheme']) : null;
+    $wysiwygtheme = isset($_POST['wysiwygtheme']) ? sanitizeVal($_POST['wysiwygtheme'], CMSSAN_PUNCT) : null; // OR , CMSSAN_PURESPC?
 
     // Set prefs
     $themenow = UserParams::get_for_user($userid, 'admintheme');
@@ -94,14 +107,14 @@ if (isset($_POST['submit'])) {
     if ($syntaxer !== null) {
         if (strpos($syntaxer, '::') !== false) {
             $parts = explode('::', $syntaxer);
-            UserParams::set_for_user($userid, 'syntax_editor', $parts[0]);    //module
-            if ($parts[0] != $parts[1]) { UserParams::set_for_user($userid, 'syntax_type', $parts[1]); }//specific editor
+            UserParams::set_for_user($userid, 'syntaxhighlighter', $parts[0]); //module
+            if ($parts[0] != $parts[1]) { UserParams::set_for_user($userid, 'syntax_type', $parts[1]); } //specific editor
         } else {
-            UserParams::set_for_user($userid, 'syntax_editor', $syntaxer);    //module only
+            UserParams::set_for_user($userid, 'syntaxhighlighter', $syntaxer); //module only
             UserParams::set_for_user($userid, 'syntax_type', '');
         }
     } else {
-        UserParams::set_for_user($userid, 'syntax_editor', '');
+        UserParams::set_for_user($userid, 'syntaxhighlighter', '');
         UserParams::set_for_user($userid, 'syntax_type', '');
     }
     //TODO in/UI by relevant module
@@ -126,10 +139,10 @@ if (isset($_POST['submit'])) {
     audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
     $themeObject->RecordNotice('success', lang('prefsupdated'));
 //    AdminUtils::clear_cached_files();
-//    SysDataCache::get_instance()->release('IF ANY');
+//    AppSingle::SysDataCache()->release('IF ANY');
 
     if ($themenow != $admintheme) {
-        redirect(basename(__FILE__).$urlext);
+        redirect(basename(__FILE__).$urlext); //go refresh stuff
     }
 } // end of prefs submit
 
@@ -138,7 +151,7 @@ if (isset($_POST['submit'])) {
  */
 $admintheme = UserParams::get_for_user($userid, 'admintheme', AdminTheme::GetDefaultTheme());
 $bookmarks = UserParams::get_for_user($userid, 'bookmarks', 0);
-$ce_navdisplay = UserParams::get_for_user($userid,'ce_navdisplay');
+$ce_navdisplay = UserParams::get_for_user($userid, 'ce_navdisplay');
 $date_format_string = UserParams::get_for_user($userid, 'date_format_string', '%x %X');
 $default_cms_language = UserParams::get_for_user($userid, 'default_cms_language');
 $default_parent = (int)UserParams::get_for_user($userid, 'default_parent', -1);
@@ -147,7 +160,7 @@ $homepage = UserParams::get_for_user($userid, 'homepage');
 $indent = UserParams::get_for_user($userid, 'indent', true);
 $old_default_cms_lang = $default_cms_language;
 $paging = UserParams::get_for_user($userid, 'paging', 0);
-$syntaxmodule = UserParams::get_for_user($userid, 'syntax_editor');
+$syntaxmodule = UserParams::get_for_user($userid, 'syntaxhighlighter');
 $syntaxtype = UserParams::get_for_user($userid, 'syntax_type');
 $syntaxer = $syntaxmodule;
 if ($syntaxtype) { $syntaxer .= '::'.$syntaxtype; }
@@ -170,9 +183,9 @@ if ($modules) {
     foreach ($list as $bundle) {
         // next level is detail for that contributor
         foreach ($bundle as $propname => $parts) {
-            // $parts  = ['content'=>displayable stuff, 'tab'=>name,'head'=>page-header stuff if any, 'foot'=>page-footer js if sny, 'validate'=>post-submit validation PHP if any]
+            // $parts = ['content' => displayable stuff, 'tab' => name, 'head' => page-header stuff if any, 'foot' => page-footer js if sny, 'validate' => post-submit validation PHP if any]
             //remember $propname, $parts['validate'] (probably a callable) for post-submit processing
-            //$parts['head','foot'] if any append to corresponding page-construct accumulators
+            //$parts['head', 'foot'] if any append to corresponding page-construct accumulators
             //$parts['content'] accumulate for sending to smarty
             $here = 1;
         }
@@ -183,8 +196,8 @@ if ($modules) {
  * Build page
  */
 
-$contentops = ContentOperations::get_instance();
-$modops = ModuleOperations::get_instance();
+$contentops = AppSingle::ContentOperations();
+$modops = AppSingle::ModuleOperations();
 $smarty = AppSingle::Smarty();
 
 // Rich-text (html) editors
@@ -193,11 +206,11 @@ $editors = [];
 if ($tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
         $ob = Utils::get_module($tmp[$i]);
-        if (method_exists($ob, 'ListEditors')) { //aka ($ob instanceof MultiEditor)
+        if (method_exists($ob, 'ListEditors')) { //OR ($ob instanceof IMultiEditor)
             $all = $ob->ListEditors();
-            foreach ($all as $editor=>$val) {
+            foreach ($all as $editor => $val) {
                 $one = new stdClass();
-                $one->label = $ob->Lang(strtolower($editor).'_friendlyname');
+                $one->label = $ob->Lang(strtolower($editor).'_publicname');
                 $one->value = $val; // as module::editor
                 list($modname, $edname) = explode('::', $val);
                 list($realm, $key) = $ob->GetMainHelpKey($edname);
@@ -219,7 +232,7 @@ if ($tmp) {
             }
         } else {
             $one = new stdClass();
-            $one->label = $ob->GetFriendlyName(); //TODO ->Lang(..._friendlyname if present
+            $one->label = $ob->GetFriendlyName(); //TODO ->Lang(..._publicname if present
             $one->value = $tmp[$i];
             $one->mainkey = null; //TODO ibid if any
             $one->themekey = null; //TODO ditto
@@ -227,7 +240,7 @@ if ($tmp) {
             $editors[] = $one;
         }
     }
-    usort($editors, function ($a,$b) { return strcmp($a->label, $b->label); });
+    usort($editors, function ($a, $b) { return strcmp($a->label, $b->label); });
 
     $one = new stdClass();
     $one->value = '';
@@ -245,11 +258,11 @@ $tmp = $modops->GetCapableModules(CoreCapabilities::SYNTAX_MODULE);
 if ($tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
         $ob = Utils::get_module($tmp[$i]);
-        if (method_exists($ob, 'ListEditors')) { //aka ($ob instanceof MultiEditor)
+        if (method_exists($ob, 'ListEditors')) { //OR ($ob instanceof IMultiEditor)
             $all = $ob->ListEditors();
-            foreach ($all as $editor=>$val) {
+            foreach ($all as $editor => $val) {
                 $one = new stdClass();
-                $one->label = $ob->Lang(strtolower($editor).'_friendlyname');
+                $one->label = $ob->Lang(strtolower($editor).'_publicname');
                 $one->value = $val; // as module::editor
                 list($modname, $edname) = explode('::', $val);
                 list($realm, $key) = $ob->GetMainHelpKey($edname);
@@ -279,7 +292,7 @@ if ($tmp) {
             $editors[] = $one;
         }
     }
-    usort($editors, function ($a,$b) { return strcmp($a->label, $b->label); });
+    usort($editors, function ($a, $b) { return strcmp($a->label, $b->label); });
 
     $one = new stdClass();
     $one->value = '';
@@ -291,14 +304,14 @@ if ($tmp) {
 }
 $smarty->assign('syntax_opts', $editors);
 
-$smarty->assign('helpicon', $themeObject->DisplayImage('icons/system/info.png', 'help','','','cms_helpicon'));
+$smarty->assign('helpicon', $themeObject->DisplayImage('icons/system/info.png', 'help', '', '', 'cms_helpicon'));
 
 // Admin themes
 $tmp = AdminTheme::GetAvailableThemes();
 if (count($tmp) < 2) {
     $tmp = null;
 }
-$smarty->assign('themes_opts',$tmp);
+$smarty->assign('themes_opts', $tmp);
 
 // Modules
 $allmodules = $modops->GetInstalledModules();
@@ -307,42 +320,56 @@ foreach ((array)$allmodules as $onemodule) {
     $modules[$onemodule] = $onemodule;
 }
 
-// Pages
+// Content Pages
 $sel = AdminUtils::CreateHierarchyDropdown(0, $default_parent, 'parent_id', false, true);
 
 // Prefs
 $tmp = [10 => 10, 20 => 20, 50 => 50, 100 => 100];
 
+$ce_navopts = [
+    '' => lang('default'),
+    'menutext' => lang('menutext'),
+    'title' => lang('title'),
+];
+
+// Home Pages
+// array with members like
+// lib/moduleinterface.php?mact=ContentMultiEditor,m1_,defaultadmin,0 => &nbsp;&nbsp;Rich&nbsp;Text&nbsp;Editing
+$adminpages = $themeObject->GetAdminPages(); //GetAdminPageDropdown(name 'homepage', sel $homepage, id 'homepage');
+specialize_array($adminpages);
+
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
-
+// TODO CMSMS\specialize() other relevant displayed values
 $smarty->assign([
-    'admintheme'=>$admintheme,
-    'backurl'=>$themeObject->backUrl(),
-    'bookmarks'=>$bookmarks,
-    'ce_navdisplay'=>$ce_navdisplay,
-    'date_format_string'=>$date_format_string,
-    'default_cms_language'=>$default_cms_language,
-    'default_parent'=>$sel,
-    'hide_help_links'=>$hide_help_links,
-    'homepage'=>$themeObject->GetAdminPageDropdown('homepage', $homepage, 'homepage'),
-    'indent'=>$indent,
-    'language_opts'=>get_language_list(),
-    'manageaccount'=>true,
-    'module_opts'=>$modules,
-    'old_default_cms_lang'=>$old_default_cms_lang,
-    'pagelimit_opts'=>$tmp,
-    'paging'=>$paging,
+    'admintheme' => $admintheme,
+    'backurl' => $themeObject->backUrl(),
+    'bookmarks' => $bookmarks,
+    'ce_navdisplay' => $ce_navdisplay,
+    'ce_navopts' => $ce_navopts,
+    'date_format_string' => $date_format_string,
+    'default_cms_language' => $default_cms_language,
+    'default_parent' => $sel,
+    'hide_help_links' => $hide_help_links,
+    'home_opts' => array_flip($adminpages),
+    'homepage' => $homepage,
+    'indent' => $indent,
+    'language_opts' => get_language_list(),
+    'manageaccount' => true,
+    'module_opts' => $modules,
+    'old_default_cms_lang' => $old_default_cms_lang,
+    'pagelimit_opts' => $tmp,
+    'paging' => $paging,
     'selfurl' => $selfurl,
     'extraparms' => $extras,
     'urlext' => $urlext,
-    'userobj'=>$userobj,
-    'syntaxer'=>$syntaxer,
+    'userobj' => $userobj,
+    'syntaxer' => $syntaxer,
     //TODO in/by relevant module
-    'syntaxtheme'=>$syntaxtheme,
-    'wysiwyg'=>$wysiwyg,
+    'syntaxtheme' => $syntaxtheme,
+    'wysiwyg' => $wysiwyg,
     //TODO in/by relevant module
-    'wysiwygtheme'=>$wysiwygtheme,
+    'wysiwygtheme' => $wysiwygtheme,
 ]);
 
 //$nonce = get_csp_token();
@@ -361,7 +388,7 @@ $(function() {
         var data = {
          cmshelpTitle: '$editortitle'
         };
-        cms_help(self, data, text);
+        cms_help(self,data,text);
      });
     }
  });
@@ -373,6 +400,7 @@ EOS;
 add_page_foottext($out);
 
 $content = $smarty->fetch('usersettings.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";

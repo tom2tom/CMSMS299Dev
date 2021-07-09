@@ -20,18 +20,19 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 //use AdminLogin; global namespace module
-//TODO if no CMSMailer present, revert to mail()
-use CMSMailer\Mailer;
+//TODO if no CMSMailer-module is present, revert to mail()
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\Events;
-//use CMSMS\Url;
 use CMSMS\User;
 use CMSMS\UserParams;
 use CMSMS\Utils;
+use function CMSMS\sanitizeVal;
 
 /*
- * This expects some variables to be populated before inclusion:
+ * This method may be included in the related light-module action file,
+ * or indirectly by a theme-related mechanism, via method.fetchpanel.php.
+ * It expects some variables to be populated before inclusion:
  * $config
  * $id (possibly '')
  * $login_url e.g. $config['admin_url'].'/login.php' OR module-action url
@@ -49,22 +50,20 @@ $infomessage = $warnmessage = $errmsg = $changepwhash = null;
  *
  * @param object $user user data
  * @param object $mod current module-object
- * @return results from the attempt to send a message
+ * @return bool result from the attempt to send the message
  */
-$send_recovery_email = function(User $user, AdminLogin $mod) use ($config, $login_ops)
+$send_recovery_email = function(User $user, AdminLogin $mod) use ($config, $login_ops): bool
 {
-    $obj = new Mailer(); // TODO fallback if mailer module N/A
-    $obj->IsHTML(true);
-    $obj->AddAddress($user->email, $user->firstname . ' ' . $user->lastname);
+    $to = trim($user->firstname . ' ' . $user->lastname . ' <' . $user->email . '>');
+    if ($to[0] == '<') {
+        $to = $user->email;
+    }
     $name = AppParams::get('sitename', 'CMSMS Site');
-    $obj->SetSubject($mod->Lang('lostpwemailsubject', $name));
-
+    $subject = $mod->Lang('lostpwemailsubject', $name);
     $salt = $login_ops->get_salt();
     $url = $config['admin_url'] . '/login.php?recoverme=' . hash('sha3-224', $user->username . $salt . $user->password);
-    $body = $mod->Lang('lostpwemail', $name, $user->username, $url);
-
-    $obj->SetBody($body);
-    return $obj->Send();
+    $message = $mod->Lang('lostpwemail', $name, $user->username, $url);
+    return Utils::send_email($to, $subject, $message);
 };
 
 /**
@@ -101,7 +100,7 @@ $check_secure_param = function(string $clue, AdminLogin $mod) use ($id, $csrf_ke
 };
 
 /**
- * Evaluate passwords' validity, quality, ....
+ * Evaluate passwords' probity (validity, quality, ....)
  *
  * @param object $user user object
  * @param object $mod current module-object
@@ -110,7 +109,7 @@ $check_secure_param = function(string $clue, AdminLogin $mod) use ($id, $csrf_ke
 $check_passwords = function(User $user, AdminLogin $mod) use ($infomessage, $errmsg, $changepwhash, $userops) : bool
 {
     $tmp = $_REQUEST[$id.'password'];
-    $password = sanitizeVal($tmp, 0);
+    $password = sanitizeVal($tmp, CMSSAN_NONPRINT);
     if ($password != $tmp) {
         $errmsg = $mod->Lang('error_badchars', $mod->Lang('password')); // OR Lang('error_badfield'), Lang('password'));
         return false;
@@ -119,7 +118,7 @@ $check_passwords = function(User $user, AdminLogin $mod) use ($infomessage, $err
         return false;
     }
     $tmp = $_REQUEST[$id.'passwordagain'];
-    $again = sanitizeVal($tmp, 0);
+    $again = sanitizeVal($tmp, CMSSAN_NONPRINT);
     if ($password == $again) {
         if ($userops->PasswordCheck($user->id, $password)) {
             $user->Save();
@@ -143,28 +142,29 @@ $check_passwords = function(User $user, AdminLogin $mod) use ($infomessage, $err
 
 // redirect to the normal login form if the user cancels on the forgot p/w form
 if ((isset($_REQUEST[$id.'forgotpwform']) || isset($_REQUEST[$id.'forgotpwchangeform'])) && isset($_REQUEST[$id.'logincancel'])) {
-    redirect($login_url.get_secure_param());
+    redirect($login_url.get_secure_param($login_url));
 }
 
 // other parameters for use in the template
 $tplvars = [];
 
 if (isset($_SESSION[$id.'logout_user_now'])) {
-    // this does the actual logout stuff.
     unset($_SESSION[$id.'logout_user_now']);
+    // do generic logout stuff
     debug_buffer('Logging out.  Cleaning cookies and session variables.');
     $userid = $login_ops->get_loggedin_uid();
     $username = $login_ops->get_loggedin_username();
     Events::SendEvent('Core', 'LogoutPre', ['uid'=>$userid, 'username'=>$username]);
-    $login_ops->deauthenticate(); // unset all the cruft needed to make sure we're logged in.
+    $login_ops->deauthenticate(); // unset all the cruft needed to make sure we're logged in
     Events::SendEvent('Core', 'LogoutPost', ['uid'=>$userid, 'username'=>$username]);
     audit($userid, 'Admin Username: '.$username, 'Logged Out');
-    //slide through to 'submit' processing
+    // do any module-specific logout stuff here
+    // slide through to 'submit' processing
 } elseif (isset($_REQUEST[$id.'forgotpwform']) && isset($_REQUEST[$id.'forgottenusername'])) { // check for a forgot-pw job
     $forgot_username = $_REQUEST[$id.'forgottenusername']; //might be empty
     unset($_REQUEST[$id.'forgottenusername'], $_POST[$id.'forgottenusername']);
     if ($forgot_username) {
-        $tmp = sanitizeVal($forgot_username, 21); // OR ,2 if no spaces allowed (2.99 breaking change)
+        $tmp = sanitizeVal($forgot_username, CMSSAN_PURESPC); // OR ,CMSSAN_ACCOUNT OR ,CMSSAN_PURE if no spaces allowed (2.99 breaking change)
         Events::SendEvent('Core', 'LostPassword', ['username' => $tmp]);
         $user = $userops->GetRecoveryData($forgot_username);
         unset($_REQUEST[$id.'loginsubmit'], $_POST[$id.'loginsubmit']);
@@ -172,7 +172,7 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
         if ($user != null) {
             if (!$user->email) {
                 $errmessage = $this->Lang('norecoveryaddress');
-            } elseif ($send_recovery_email($user, $this)) {
+            } elseif ($send_recovery_email($user, $this)) { // careful about $this
                 audit('', 'Core', 'Sent lost-password email for '.$user->username);
                 $infomessage = $this->Lang('recoveryemailsent');
             } else {
@@ -197,7 +197,7 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
 } elseif (!empty($_REQUEST[$id.'forgotpwchangeform'])) {
     if ($usecsrf) {
         try {
-            $check_secure_param('003', $this);
+            $check_secure_param('003', $this); // careful about $this
             $usecsrf = false; //another check not necessary or possible
         } catch (Throwable $t) {
             die('Invalid recovery request - 003');
@@ -214,7 +214,7 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
     }
 } elseif (!empty($_REQUEST[$id.'renewpwform'])) {
     if (!isset($_POST[$id.'cancel'])) {
-        $username = sanitizeVal($_POST[$id.'username'], 4);
+        $username = sanitizeVal($_POST[$id.'username'], CMSSAN_ACCOUNT);
         $user = $userops->GetRecoveryData($username);
         if ($user) {
             if ($check_passwords($user, $this)) {
@@ -227,18 +227,18 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
                     //TODO generally support the websocket protocol 'wss' : 'ws'
                     $url = CMS_ROOT_URL.$url;
                 }
-                $url .= get_secure_param();
+                $url .= get_secure_param($url);
                 redirect($url);
             }
         } else {
             $errmessage = $this->Lang('error_nouser');
         }
-        redirect($login_url.get_secure_param());
+        redirect($login_url.get_secure_param($login_url));
     }
 }
 
 if (isset($_POST[$id.'cancel'])) {
-    redirect($login_url.get_secure_param());
+    redirect($login_url.get_secure_param($login_url));
 } elseif (isset($_POST[$id.'submit'])) {
     // 'initial' login form submitted
     $login_ops->deauthenticate();
@@ -259,7 +259,7 @@ if (isset($_POST[$id.'cancel'])) {
         if (!$user->Authenticate($password)) {
             throw new Exception($this->Lang('error_invalid'));
         }
-        if (!$userops->PasswordExpired($user)) {
+//        if (!$userops->PasswordExpired($user)) { expiry not supported
             $login_ops->save_authentication($user);
             $_SESSION[CMS_USER_KEY] = $login_ops->create_csrf_token();
 
@@ -285,27 +285,29 @@ if (isset($_POST[$id.'cancel'])) {
                 $url = UserParams::get_for_user($user->id, 'homepage');
                 if (!$url) {
                     $url = $config['admin_url'].'/menu.php';
-                } elseif (!startswith($url, 'http') && !startswith($url, '//') && startswith($url, '/')) {
-                    //TODO generally support the websocket protocol 'wss' : 'ws'
+                } elseif (startswith($url, 'lib/moduleinterface.php')) {
+                    $url = CMS_ROOT_URL.'/'.$url;
+                } elseif (startswith($url, '/') && !startswith($url, '//')) {
                     $url = CMS_ROOT_URL.$url;
                 }
             }
-            $url .= get_secure_param();
+            $url .= get_secure_param($url);
             redirect($url);
-        } else { // expired P/W
+/*        } else { // expired P/W
             // initiate renewal
             $tplvars += [
             'renewpw' => true,
             'username' => $username,
             ];
         }
+*/
     } catch (Throwable $t) {
         $errmessage = $t->GetMessage();
         debug_buffer('Login failed.  Error is: ' . $errmessage);
         unset($_POST[$id.'password'],$_REQUEST[$id.'password']);
         $username = $_REQUEST[$id.'username'] ?? $_REQUEST[$id.'forgottenusername'] ?? '';
         if ($username) {
-            $username = sanitizeVal($username, 4);
+            $username = sanitizeVal($username, CMSSAN_ACCOUNT);
         }
         if (!$username) {
             $username = $this->Lang('error_nofield', $this->Lang('username')); // unlikely all illegal chars

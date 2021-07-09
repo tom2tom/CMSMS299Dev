@@ -88,7 +88,7 @@ final class DesignManager extends CMSModule
             $obj->icon = false;
             $out[] = $obj;
 
-            $config = CMSMS\AppSingle::Config();
+            $config = AppSingle::Config();
             if (1) { //DEBUG $config['develop_mode']) {
                 $obj = new CMSMS\AdminMenuItem();
                 $obj->module = $this->GetName();

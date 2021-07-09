@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\ContentTypeOperations;
+use CMSMS\AppSingle;
 use CMSMS\Events;
 use CMSMS\Group;
 
@@ -28,7 +28,7 @@ if (!isset($gCms)) {
     exit;
 }
 
-ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
+AppSingle::ContentTypeOperations()->RebuildStaticContentTypes();
 
 $this->SetPreference('locktimeout', 60);
 $this->SetPreference('lockrefresh', 120);

@@ -20,14 +20,15 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//use CMSMS\SysDataCache;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\ScriptsMerger;
 use CMSMS\UserParams;
-use CMSMS\Utils;
+use function CMSMS\de_specialize_array;
+use function CMSMS\sanitizeVal;
+use function CMSMS\specialize;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -40,21 +41,9 @@ if (isset($_POST['cancel'])) {
     redirect('listusers.php'.$urlext);
 }
 
+//--------- Variables ---------
+
 $userid = get_userid();
-
-$themeObject = Utils::get_theme_object();
-
-if (!check_permission($userid, 'Manage Users')) {
-//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Users')), ...);
-    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
-}
-
-/*--------------------
- * Variables
- ---------------------*/
-//$tplmaster        = 0; //CHECKME
-$copyfromtemplate = 1; // BAD!!! default superuser for properties-migration TODO
-
 if (!empty($_POST['user_id'])) {
     $user_id = (int)$_POST['user_id']; // OR filter_input(INPUT_POST, 'user_id', FILTER_SANITIZE_NUMBER_INT);
 } elseif (!empty($_GET['user_id'])) {
@@ -62,59 +51,66 @@ if (!empty($_POST['user_id'])) {
 } else {
     $user_id = $userid;
 }
+$selfedit = ($userid == $user_id);
 
-$superusr      = ($userid == 1); //group 1 addition|removal allowed
-$groupops      = AppSingle::GroupOperations();
-$admins        = array_column($groupops->GetGroupMembers(1), 1);
-$supergrp      = $superusr || in_array($userid, $admins); //group 1 removal allowed
-$access_group  = in_array($userid, $admins) || !in_array($user_id, $admins); // ??
-$selfedit      = ($userid == $user_id);
-$access        = $selfedit && $access_group;
-$userops       = AppSingle::UserOperations();
-$userobj       = $userops->LoadUserByID($user_id);
-$group_list    = $groupops->LoadGroups();
+if (!($selfedit || check_permission($userid, 'Manage Users'))) {
+    //TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Users')), ...);
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+}
+
+$themeObject = AppSingle::Theme();
+//$tplmaster = 0; //CHECKME
+$copyusersettings = 0; // NOT 1! default superuser for properties-migration
+
+$superusr = ($userid == 1); //group 1 addition|removal allowed
+$groupops = AppSingle::GroupOperations();
+$admins = array_column($groupops->GetGroupMembers(1), 1);
+$supergrp = $superusr || in_array($userid, $admins); //group 1 removal allowed
+$access_group = in_array($userid, $admins) || !in_array($user_id, $admins); // ??
+$access = $selfedit && $access_group;
+$userops = AppSingle::UserOperations();
+$userobj = $userops->LoadUserByID($user_id);
+$group_list = $groupops->LoadGroups();
 $manage_groups = check_permission($userid, 'Manage Groups');
-$manage_users  = true; //checked above
-$errors        = [];
+$manage_users = true; //checked above
+$errors = [];
 
-/*--------------------
- * Logic
- ---------------------*/
+//-------- Logic --------
 
 if (isset($_POST['submit'])) {
     if (!$selfedit) {
-        $active   = !empty($_POST['active']);
+        $active = !empty($_POST['active']);
 //        $adminaccess = !empty($_POST['adminaccess']); //whether the user may log in
     } elseif ($user_id != -1) {
-        $active   = $userobj->active;
+        $active = $userobj->active;
 //        $adminaccess = $userobj->adminaccess;
     } else { //should never happen when editing
-        $active   = 1;
+        $active = 1;
 //        $adminaccess = 1;
     }
 
-    $tpw = $_POST['password'] ?? ''; // preserve these verbatim
-    $tpw2 = $_POST['passwordagain'] ?? '';
-    unset($_POST['password'], $_POST['passwordagain']);
+    de_specialize_array($_POST);
 
-    cms_specialchars_decode_array($_POST);
-
-    // cleanup inputs, which might now include content that was entitized after an error
     $tmp = trim($_POST['user']);
-    $username = sanitizeVal($tmp, 4);
+    $username = sanitizeVal($tmp, CMSSAN_ACCOUNT);
     if ($username != $tmp) {
         $errors[] = lang('illegalcharacters', lang('username'));
-    } elseif (!($username || is_numeric($username))) { // allow username '0' ???
+    } elseif (!($username || is_numeric($username))) { // allow username '0' ??
         $errors[] = lang('nofieldgiven', lang('username'));
     }
 
+    $firstname = sanitizeVal(trim($_POST['firstname']), CMSSAN_NONPRINT); // OR no-gibberish 2.99 breaking change
+    $lastname = sanitizeVal(trim($_POST['lastname']), CMSSAN_NONPRINT); // OR no-gibberish 2.99 breaking change
+
+    $tpw = $_POST['password'] ?? '';
+    $tpw2 = $_POST['passwordagain'] ?? '';
     if ($tpw) {
         //per https://pages.nist.gov/800-63-3/sp800-63b.html : valid = printable ASCII | space | Unicode
-        $password = sanitizeVal($tpw, 0);
+        $password = sanitizeVal($tpw, CMSSAN_NONPRINT);
         if (!$password || $password != $tpw) {
             $errors[] = lang('illegalcharacters', lang('password'));
         } else {
-            $again = sanitizeVal($tpw2, 0);
+            $again = sanitizeVal($tpw2, CMSSAN_NONPRINT);
             if ($password != $again) {
                 $errors[] = lang('nopasswordmatch');
             }
@@ -124,17 +120,24 @@ if (isset($_POST['submit'])) {
         $passwordagain = null;
     }
 
-    //$tmp = trim($_POST['email']);
-    //ignore invalid chars in the email
-    //BUT PHP's FILTER_VALIDATE_EMAIL mechanism is not entirely reliable - see notes at https://www.php.net/manual/en/function.filter-var.php
+    //PHP's FILTER_VALIDATE_EMAIL mechanism is not entirely reliable - see notes at https://www.php.net/manual/en/function.filter-var.php
     //$email = filter_var($tmp, FILTER_SANITIZE_EMAIL);
-    $email = trim($_POST['email']);
-    //if ($tmp && $tmp != $email) {
-    //    $errors[] = lang('illegalcharacters', lang('email'));
-    //} else
-    if ($email && !is_email($email)) {
-        $errors[] = lang('invalidemail');
+    $tmp = trim($_POST['email']);
+    $email = sanitizeVal($tmp, CMSSAN_NONPRINT);
+    if (($email != $tmp) || ($email && !is_email($email))) {
+        $errors[] = lang('invalidemail') . ': ' . $email;
+        $mailcheck = null;
+    } else {
+        $mailcheck = $email;
     }
+
+    //record properties involved in creds check
+    $userobj->username = $username;
+    if ($firstname) { $userobj->firstname = $firstname; }
+    if ($lastname) { $userobj->lastname = $lastname; }
+    $userobj->email = $mailcheck; // relevant iff valid
+    $tmp = $userops->CredentialsCheck($userobj, $username, $password, true);
+    if ($tmp) { $errors[] = $tmp; }
 
     if (isset($_POST['copyusersettings']) && $_POST['copyusersettings'] > 0) {
         if (isset($_POST['clearusersettings'])) {
@@ -147,14 +150,8 @@ if (isset($_POST['submit'])) {
         // save data
         $result = false;
         if ($userobj) {
-            $userobj->active = $active;
-//            $userobj->adminaccess = $adminaccess;
-            //record properties involved in P/W check
-            $userobj->firstname = sanitizeVal(trim($_POST['firstname']), 0); // OR ,1 OR ,21 OR no-gibberish 2.99 breaking change
-            $userobj->lastname = sanitizeVal(trim($_POST['lastname']), 0); // OR ,1 OR ,21 OR no-gibberish 2.99 breaking change
-            $userobj->email = $email;
-            $userobj->username = $username;
-            if (!$password || $userobj->SetPassword($password)) {
+            if ($password && $userobj->SetPassword($password)) {
+                $userobj->active = $active;
                 Events::SendEvent('Core', 'EditUserPre', ['user' => &$userobj]);
 
                 $result = $userobj->Save();
@@ -175,7 +172,9 @@ if (isset($_POST['submit'])) {
                                     if (!$rst || $rst->EOF) {
                                         $db->Execute($stmt2, [$uid, $gid]);
                                     }
-                                    if ($rst) $rst->Close();
+                                    if ($rst) {
+                                        $rst->Close();
+                                    }
                                 }
                             }
                         }
@@ -185,7 +184,7 @@ if (isset($_POST['submit'])) {
                     }
                     // put mention into the admin log
                     audit($userid, 'Admin Username: ' . $userobj->username, ' Edited');
-                    Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$userobj ]);
+                    Events::SendEvent('Core', 'EditUserPost', ['user' => &$userobj]);
                     $themeObject->RecordNotice('success', lang('accountupdated'));
                 } else {
                     $errors[] = lang('error_internal');
@@ -224,9 +223,9 @@ if (isset($_POST['submit'])) {
                 }
             }
 
-            Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$userobj ] );
+            Events::SendEvent('Core', 'EditUserPost', ['user' => &$userobj]);
 //            AdminUtils::clear_cached_files();
-//            SysDataCache::get_instance()->release('IF ANY');
+//            AppSingle::SysDataCache()->release('IF ANY');
             if ($message) {
                 $themeObject->ParkNotice('success', $message);
             }
@@ -235,35 +234,33 @@ if (isset($_POST['submit'])) {
             $errors[] = lang('errorupdatinguser');
         }
     }
-    $email = cms_specialchars($userobj->email);
-    $firstname = cms_specialchars($userobj->firstname);
-    $lastname = cms_specialchars($userobj->lastname);
-//    $password = $password ? cms_specialchars($password) : '';
-//    $passwordagain = $passwordagain ? cms_specialchars($passwordagain) : '';
-    $username = cms_specialchars($username);
+    $email = specialize($userobj->email);
+    $firstname = specialize($userobj->firstname);
+    $lastname = specialize($userobj->lastname);
+//    $password = $password ? specialize($password) : '';
+//    $passagain = $passagain ? specialize($passagain) : '';
+    $username = specialize($username);
 } elseif ($user_id != -1) {
-    $active        = $userobj->active;
+    $active = $userobj->active;
 //    $adminaccess   = $userobj->adminaccess;
-    $email         = cms_specialchars($userobj->email);
-    $firstname     = cms_specialchars($userobj->firstname);
-    $lastname      = cms_specialchars($userobj->lastname);
+    $email = specialize($userobj->email);
+    $firstname = specialize($userobj->firstname);
+    $lastname = specialize($userobj->lastname);
 //    $password      = '';
-//    $passwordagain = '';
-    $username     = cms_specialchars($userobj->username);
+//    $passagain = '';
+    $username = specialize($userobj->username);
 } else { //should never happen when editing
-    $active        = 1;
+    $active = 1;
 //    $adminaccess   = 1;
-    $email         = '';
-    $firstname     = '';
-    $lastname      = '';
+    $email = '';
+    $firstname = '';
+    $lastname = '';
 //    $password      = '';
-//    $passwordagain = '';
-    $username          = '';
+//    $passagain = '';
+    $username = '';
 }
 
-/*--------------------
- * Display view
- ---------------------*/
+//------- Display view -------
 
 if ($errors) {
     $themeObject->RecordNotice('error', $errors);
@@ -315,7 +312,7 @@ $sel = [-1 => lang('none')];
 $userlist = $userops->LoadUsers();
 foreach ($userlist as $one) {
     if ($one->id != $user_id) {
-        $sel[$one->id] = cms_specialchars($one->username);
+        $sel[$one->id] = specialize($one->username);
     }
 }
 
@@ -323,7 +320,7 @@ $smarty = AppSingle::Smarty();
 
 if ($manage_groups) {
     $smarty->assign('groups', $group_list)
-      ->assign('membergroups', $userops->GetMemberGroups($user_id));
+        ->assign('membergroups', $userops->GetMemberGroups($user_id));
 }
 
 $selfurl = basename(__FILE__);
@@ -331,8 +328,7 @@ $extras = get_secure_param_array();
 
 $smarty->assign([
     'active' => $active,
-//    'adminaccess' => $adminaccess,
-    'copyfromtemplate' => $copyfromtemplate,
+    'copyusersettings' => $copyusersettings,
     'email' => $email,
     'firstname' => $firstname,
     'lastname' => $lastname,
@@ -351,6 +347,7 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('edituser.tpl');
-require '.'.DIRECTORY_SEPARATOR.'header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require '.'.DIRECTORY_SEPARATOR.'footer.php';
+require ".{$sep}footer.php";

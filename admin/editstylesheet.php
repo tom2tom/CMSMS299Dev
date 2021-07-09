@@ -23,63 +23,90 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\Lock;
+use CMSMS\Error403Exception;
 use CMSMS\LockOperations;
 use CMSMS\ScriptsMerger;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
-use CMSMS\Utils;
+use function CMSMS\de_specialize_array;
+use function CMSMS\sanitizeVal;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-/*if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-    throw new CMSMS\Error403Exception(lang('informationmissing'));
-}
-*/
 check_login();
 
 $urlext = get_secure_param();
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
 if (isset($_REQUEST['cancel'])) {
-	$themeObject->ParkNotice('info',lang_by_realm('layout','msg_cancelled'));
+	$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_cancelled'));
 	redirect('liststyles.php'.$urlext);
 }
 
+//TODO also support read-only display of sheet
 $userid = get_userid();
-if (!check_permission($userid,'Manage Stylesheets')) {
-	return;
+if (!check_permission($userid, 'Manage Stylesheets')) {
+//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
+	throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
 $response = 'success';
 $apply = isset($_REQUEST['apply']);
 
-$content = $_REQUEST['content'] ?? ''; // preserve this verbatim
+$content = $_REQUEST['content'] ?? ''; // preserve this verbatim for now
 unset($_REQUEST['content']);
-cms_specialchars_decode_array($_REQUEST);
+de_specialize_array($_REQUEST);
+
+$extras = get_secure_param_array();
 
 try {
-	$extraparms = [CMS_SECURE_PARAM_NAME => $_SESSION[CMS_USER_KEY]];
 
-	$message = lang_by_realm('layout','msg_stylesheet_saved');
-	if( isset($_REQUEST['css']) ) {
-		$css_ob = StylesheetOperations::get_stylesheet($_REQUEST['css']); // sanitizeVal() ?
-		$extraparms['css'] = $_REQUEST['css'];
+	$message = lang_by_realm('layout', 'msg_stylesheet_saved');
+	if( !empty($_REQUEST['css']) ) {
+		$val = sanitizeVal($_REQUEST['css'], CMSSAN_FILE);
+		$extras['css'] = $val;
+		$css_ob = StylesheetOperations::get_stylesheet($val);
 	} else {
 		$css_ob = new Stylesheet();
 	}
 
 	try {
 		if (($apply || isset($_REQUEST['dosubmit'])) && $response !== 'error') {
-			if (isset($_REQUEST['description'])) $css_ob->set_description($_REQUEST['description']);// sanitizeVal() ?
+			// per https://www.w3.org/TR/CSS22/syndata.html#characters
+			// stylesheet content may include anything other than NUL chars,
+			// but in many cases, 'uncommon' chars must be escaped.
+			// Here, we will be just a bit restrictive ...
+			$content = preg_replace(['/\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f/', '    '], ['', "\t"], $content);
+			// revert any munged (stupid|malicious) textarea tag
+			$matches = [];
+			$content = preg_replace_callback('~&lt;(&sol;|&#47;)?(textarea)&gt;~i', function($matches) {
+				$pre = ($matches[1]) ? '/' : '';
+				return '<'.$pre.$matches[2].'>';
+			}, $content);
 			$css_ob->set_content($content);
+
+			if (!empty($_REQUEST['description'])) {
+				$val = sanitizeVal(trim($_REQUEST['description']), CMSSAN_NONPRINT); // AND nl2br() ? striptags() other than links ?
+				$val = preg_replace_callback('~&lt;(&sol;|&#47;)?(textarea)&gt;~i', function($matches) {
+					$pre = ($matches[1]) ? '/' : '';
+					return '<'.$pre.$matches[2].'>';
+				}, $val);
+				$css_ob->set_description($val);
+			}
+
 			$typ = [];
-			if (isset($_REQUEST['media_type'])) $typ = $_REQUEST['media_type']; // sanitizeVal() ?
+			if (isset($_REQUEST['media_type'])) {
+				$typ = sanitizeVal($_REQUEST['media_type'], CMSSAN_NAME); // TODO preg replace for [^letters|,|space]
+			}
 			$css_ob->set_media_types($typ);
-			if (isset($_REQUEST['media_query'])) $css_ob->set_media_query($_REQUEST['media_query']); // sanitizeVal() ?
-/*			if (check_permission($userid,'Manage Designs')) {
+
+			if (isset($_REQUEST['media_query'])) {
+				$val = sanitizeVal($_REQUEST['media_query'], CMSSAN_PUNCT); // letters, numbers, spaces, nons like ()-:
+				$css_ob->set_media_query($val);
+			}
+/*			if (check_permission($userid, 'Manage Designs')) {
 				$design_list = [];
 				if (isset($_REQUEST['design_list'])) $design_list = $_REQUEST['design_list'];
 				$css_ob->set_designs($design_list);
@@ -90,14 +117,14 @@ try {
 			$new_export_name = $css_ob->get_content_filename();
 			if ($old_export_name && $old_export_name != $new_export_name && is_file( $old_export_name)) {
 				if (is_file( $new_export_name)) throw new Exception('Cannot rename exported stylesheet (destination name exists)');
-				$res = rename($old_export_name,$new_export_name);
+				$res = rename($old_export_name, $new_export_name);
 				if (!$res) throw new Exception( 'Problem renaming exported stylesheet');
 			}
 */
 			$css_ob->save();
 
 			if (!$apply) {
-				$themeObject->ParkNotice('info',$message);
+				$themeObject->ParkNotice('info', $message);
 				redirect('liststyles.php'.$urlext);
 			}
 		}
@@ -105,17 +132,17 @@ try {
 			$outfile = $css_ob->get_content_filename();
 			$dn = dirname($outfile);
 			if (!is_dir($dn) || !is_writable($dn)) {
-				throw new RuntimeException(lang_by_realm('layout','error_assets_writeperm'));
+				throw new RuntimeException(lang_by_realm('layout', 'error_assets_writeperm'));
 			}
 			if (is_file($outfile) && !is_writable($outfile)) {
-				throw new RuntimeException(lang_by_realm('layout','error_assets_writeperm'));
+				throw new RuntimeException(lang_by_realm('layout', 'error_assets_writeperm'));
 			}
-			file_put_contents($outfile,$css_ob->get_content());
+			file_put_contents($outfile, $css_ob->get_content());
 		}
 		elseif (isset($_REQUEST['import'])) {
 			$infile = $css_ob->get_content_filename();
 			if (!is_file($infile) || !is_readable($infile) || !is_writable($infile)) {
-				throw new RuntimeException(lang_by_realm('layout','error_assets_readwriteperm'));
+				throw new RuntimeException(lang_by_realm('layout', 'error_assets_readwriteperm'));
 			}
 			$data = file_get_contents($infile);
 			unlink($infile);
@@ -131,22 +158,66 @@ try {
 	//
 	// prepare to display
 	//
-	if (!$apply && $css_ob && $css_ob->get_id()) {
+	$props = [
+//		'content_file' => $css_ob->get_content_file(), DISABLED
+		'content' => $css_ob->get_content(),
+		'created' => $css_ob->get_created(), // i.e. create_date
+		'description' => $css_ob->get_description(),
+//		'designs' => $css_ob->get_designs(), DISABLED
+		'id' => $css_ob->get_id(),
+		'lock' => null, // populated later if relevant
+		'media_query' => $css_ob->get_media_query(),
+		'modified' => $css_ob->get_modified(), // i.e. modified_date
+		'name' => $css_ob->get_name(),
+		'types' => [],
+	];
+
+	foreach (['content', 'description', 'media_query'] as $key) {
+		if ($props[$key]) {
+			// specialize e.g. munge malicious <[/]textarea> tags
+			$matches = [];
+			$props[$key] = preg_replace_callback('~<\s*(/?)\s*(textarea)\s*>~i', function($matches) use($key) {
+				switch ($key) {
+					case 'media_query':
+						return '';
+					case 'content':
+						$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+						return '/* &lt;'.$pre.$matches[2].'&gt; */';
+					default:
+						$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+						return '&lt;'.$pre.$matches[2].'&gt;';
+				}
+			}, $props[$key]);
+		}
+	}
+
+	$all_types = ['all','aural','speech','braille','embossed','handheld','print','projection','screen','tty','tv'];
+	foreach ($all_types as $key) {
+		if ($css_ob->has_media_type($key)) {
+			$props['types'][$key] = 1;
+		}
+	}
+
+	if (!$apply && $props['id'] > 0) {
 		$lock_timeout = AppParams::get('lock_timeout', 0);
 		if ($lock_timeout > 0) {
 			$lock_refresh = AppParams::get('lock_refresh', 0);
 			try {
-				$lock_id = LockOperations::is_locked('stylesheet', $css_ob->get_id());
 				$lock = null;
+				$lock_id = LockOperations::is_locked('stylesheet', $props['id']);
 				if ($lock_id > 0) {
-					// it's locked... by somebody, make sure it's expired before we allow stealing it.
-					$lock = Lock::load('stylesheet',$css_ob->get_id());
-					if (!$lock->expired()) throw new CmsLockException('CMSEX_L010');
-					LockOperations::unlock($lock_id,'stylesheet',$css_ob->get_id());
+					// it's locked... by somebody. Steal if expired TODO if stealable
+					$lock = LockOperations::load('stylesheet', $props['id']);
+					if (!$lock->expired()) { throw new CmsLockException('CMSEX_L010'); }
+					LockOperations::unlock($lock_id, 'stylesheet', $props['id']);
+					$props['lock'] = [
+						'uid' => $lock['uid'], // TODO etc
+//						'stealable' => TODO,
+					];
 				}
 			} catch (CmsException $e) {
 				$message = $e->GetMessage();
-				$themeObject->ParkNotice('error',$message);
+				$themeObject->ParkNotice('error', $message);
 				redirect('liststyles.php'.$urlext);
 			}
 		} else {
@@ -164,7 +235,7 @@ try {
 		 * @param  string $status The status of returned response : error, success, warning, info
 		 * @param  string $message The message of returned response
 		 * @param  mixed $data A string or array of response data
-		 * @return string Returns a string containing the JSON representation of provided response data
+		 * @return string containing the JSON representation of provided response data
 		 */
 		function GetJSONResponse($status, $message, $data = null)
 		{
@@ -190,7 +261,7 @@ try {
 
 		GetJSONResponse($response, $message);
 	} elseif (!$apply && $response == 'error') {
-		$themeObject->RecordNotice('error',$message);
+		$themeObject->RecordNotice('error', $message);
 	}
 
 	$smarty = AppSingle::Smarty();
@@ -204,20 +275,17 @@ try {
 		$smarty->assign('design_list', $out);
 	}
 */
-	if (($css_id = $css_ob->get_id()) > 0) {
-		$themeObject->SetSubTitle(lang_by_realm('layout','prompt_edit_stylesheet').' '.$css_ob->get_name()." ({$css_ob->get_id()})");
+	if (($css_id = $props['id']) > 0) {
+		$themeObject->SetSubTitle(lang_by_realm('layout', 'prompt_edit_stylesheet')." {$props['name']} ($css_id)");
+		$smarty->assign('css_id', $css_id);
 	} else {
-		$themeObject->SetSubTitle(lang_by_realm('layout','create_stylesheet'));
+		$themeObject->SetSubTitle(lang_by_realm('layout', 'create_stylesheet'));
 	}
 
-	$smarty->assign('has_designs_right', check_permission($userid,'Manage Designs'))
-	 ->assign('extraparms', $extraparms)
-	 ->assign('css', $css_ob);
-	if ($css_ob && $css_ob->get_id()) {
-		$smarty->assign('css_id', $css_ob->get_id());
-	}
-	$config = AppSingle::Config();
-	if ($config['develop_mode']) {
+	$smarty->assign('has_designs_right', check_permission($userid, 'Manage Designs'))
+	 ->assign('css', $props)
+	 ->assign('all_types', $all_types);
+	if (AppSingle::Config()['develop_mode']) {
 		$smarty->assign('devmode', 1);
 	}
 
@@ -237,10 +305,10 @@ try {
 //	$nonce = get_csp_token();
 	$do_locking = ($css_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 	if ($do_locking) {
-		AppSingle::App()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
+		AppSingle::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
-	$s1 = json_encode(lang_by_realm('layout','error_lock'));
-	$s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
+	$s1 = json_encode(lang_by_realm('layout', 'error_lock'));
+	$s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
 	$cancel = lang('cancel');
 
 	$js = $pageincs['foot'] ?? '';
@@ -250,98 +318,98 @@ try {
 $(function() {
   var do_locking = $do_locking;
   if(do_locking) {
-    // initialize lock manager
-    $('#form_editcss').lockManager({
-      type: 'stylesheet',
-      oid: $css_id,
-      uid: $userid,
-      lock_timeout: $lock_timeout,
-      lock_refresh: $lock_refresh,
-      error_handler: function(err) {
-        cms_alert($s1 + ' ' + err.type + ' // ' + err.msg);
-      },
-      lostlock_handler: function(err) {
-        // we lost the lock on this stylesheet... make sure we can't save anything.
-        // and display a nice message.
-        $('[name$="cancel"]').fadeOut().attr('value', '$cancel').fadeIn();
-        $('#form_editcss').dirtyForm('option', 'dirty', false);
-        cms_button_able($('#submitbtn, #applybtn'), false);
-        $('.lock-warning').removeClass('hidden-item');
-        cms_alert($s2);
-      }
-    });
+	// initialize lock manager
+	$('#form_editcss').lockManager({
+	  type: 'stylesheet',
+	  oid: $css_id,
+	  uid: $userid,
+	  lock_timeout: $lock_timeout,
+	  lock_refresh: $lock_refresh,
+	  error_handler: function(err) {
+		cms_alert($s1 + ' ' + err.type + ' // ' + err.msg);
+	  },
+	  lostlock_handler: function(err) {
+		// we lost the lock on this stylesheet... make sure we can't save anything.
+		// and display a nice message.
+		$('[name$="cancel"]').fadeOut().attr('value', '$cancel').fadeIn();
+		$('#form_editcss').dirtyForm('option', 'dirty', false);
+		cms_button_able($('#submitbtn, #applybtn'), false);
+		$('.lock-warning').removeClass('hidden-item');
+		cms_alert($s2);
+	  }
+	});
   }
   $('#form_editcss').dirtyForm({
-    beforeUnload: function() {
-      if(do_locking) $('#form_editcss').lockManager('unlock');
-    },
-    unloadCancel: function() {
-      if(do_locking) $('#form_editcss').lockManager('relock');
-    }
+	beforeUnload: function() {
+	  if(do_locking) $('#form_editcss').lockManager('unlock');
+	},
+	unloadCancel: function() {
+	  if(do_locking) $('#form_editcss').lockManager('relock');
+	}
   });
   $(document).on('cmsms_textchange', function() {
-    // editor textchange, set the form dirty TODO something from the actual editor
-    $('#form_editcss').dirtyForm('option', 'dirty', true);
+	// editor textchange, set the form dirty TODO something from the actual editor
+	$('#form_editcss').dirtyForm('option', 'dirty', true);
   });
   $('#submitbtn,#cancelbtn,#importbtn,#exportbtn').on('click', function(ev) {
-    if (this.id !== 'cancelbtn') {
-      var v = geteditorcontent();
-      setpagecontent(v);
-      $('#form_editcss').dirtyForm('option', 'dirty', false);
-    }
+	if (this.id !== 'cancelbtn') {
+	  var v = geteditorcontent();
+	  setpagecontent(v);
+	  $('#form_editcss').dirtyForm('option', 'dirty', false);
+	}
   });
   $('#applybtn').on('click', function(ev) {
-    ev.preventDefault();
-    var v = geteditorcontent();
-    setpagecontent(v);
-    var fm = $('#form_editcss'),
-       url = fm.attr('action') + '?apply=1',
-    params = fm.serializeArray();
-    $.ajax(url, {
-      type: 'POST',
-      data: params,
-      cache: false
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-      cms_notify('error', errorThrown);
-    }).done(function(data) {
-      if(data.status === 'success') {
-        $('#form_editcss').dirtyForm('option', 'dirty', false);
-        cms_notify('success', data.message);
-      } else if(data.status === 'error') {
-        cms_notify('error', data.message);
-      }
-    });
-    return false;
+	ev.preventDefault();
+	var v = geteditorcontent();
+	setpagecontent(v);
+	var fm = $('#form_editcss'),
+	   url = fm.attr('action') + '?apply=1',
+	params = fm.serializeArray();
+	$.ajax(url, {
+	  method: 'POST',
+	  data: params
+	}).done(function(data) {
+	  if(data.status === 'success') {
+		$('#form_editcss').dirtyForm('option', 'dirty', false);
+		cms_notify('success', data.message);
+	  } else if(data.status === 'error') {
+		cms_notify('error', data.message);
+	  }
+	}).fail(function(jqXHR, textStatus, errorThrown) {
+	  cms_notify('error', errorThrown);
+	});
+	return false;
   });
   // disable media-type checkboxes if media query is in use
   if($('#mediaquery').val() !== '') {
-    $('.media-type :checkbox').attr({
-      checked: false,
-      disabled: 'disabled'
-    });
+	$('.media-type :checkbox').attr({
+	  checked: false,
+	  disabled: 'disabled'
+	});
   }
   $('#mediaquery').on('keyup', function(e) {
-    if($('#mediaquery').val() !== '') {
-      $('.media-type :checkbox').attr({
-        checked: false,
-        disabled: 'disabled'
-      });
-    } else {
-      $('.media-type:checkbox').prop('disabled', false);
-    }
+	if($('#mediaquery').val() !== '') {
+	  $('.media-type :checkbox').attr({
+		checked: false,
+		disabled: 'disabled'
+	  });
+	} else {
+	  $('.media-type:checkbox').prop('disabled', false);
+	}
   });
 });
 //]]>
 </script>
 EOS;
-	add_page_foottext($js); //not $jsm->queue_script() embedded variables
+	add_page_foottext($js); //not $jsm->queue_script() : fluid embedded variables
 
 	$selfurl = basename(__FILE__);
-	$extras = get_secure_param_array();
+	$extras += get_secure_param_array();
 
-	$smarty->assign('selfurl',$selfurl)
-	 ->assign('extraparms',$extras)
-	 ->assign('urlext',$urlext);
+	$smarty->assign('userid', $userid)
+	 ->assign('selfurl', $selfurl)
+	 ->assign('extraparms', $extras)
+	 ->assign('urlext', $urlext);
 
 	$content = $smarty->fetch('editstylesheet.tpl');
 	$sep = DIRECTORY_SEPARATOR;
@@ -349,6 +417,6 @@ EOS;
 	echo $content;
 	require ".{$sep}footer.php";
 } catch (Throwable $t) {
-	$themeObject->ParkNotice('error',$t->GetMessage());
+	$themeObject->ParkNotice('error', $t->GetMessage());
 	redirect('liststyles.php'.$urlext);
 }

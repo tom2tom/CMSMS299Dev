@@ -1,7 +1,7 @@
 <?php
 /*
 Class to provide data and methods for encapsulating a language
-Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -144,7 +144,7 @@ class Nls
 	}
 
 	/**
-	 * Return the encoding for this object (or UTF-8)
+	 * Return the encoding for this object (default UTF-8)
 	 * @return string
 	 */
 	public function encoding()

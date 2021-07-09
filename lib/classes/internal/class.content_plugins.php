@@ -1,8 +1,9 @@
 <?php
 /*
 Methods for fetching content blocks
-Copyright (C) 2013-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp, Robert Campbell and all other contributors from the CMSMS Development Team.
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 CMS Made Simple is free software; you can redistribute it and/or modify it
@@ -20,30 +21,27 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\internal;
 
-use CmsError403Exception;
-use CmsError404Exception;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
+use CMSMS\Error403Exception;
+use CMSMS\Error404Exception;
 use CMSMS\internal\template_wrapper;
-use CMSMS\ModuleOperations;
 use CMSMS\RequestParameters;
 use CMSMS\Utils;
-use Smarty_Internal_SmartyTemplateCompiler;
 use const CMS_UPLOADS_URL;
 use function cms_join_path;
 use function cms_to_bool;
-use function get_parameter_value;
 use function startswith;
 
 /**
  * Helper class to deal with fetching content blocks.
  *
- * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
- * @since       1.11
+ * @author   Robert Campbell <calguy1000@cmsmadesimple.org>
+ * @since    1.11
  * @ignore
  * @internal
- * @package     CMS
+ * @package  CMS
  */
 final class content_plugins
 {
@@ -78,14 +76,14 @@ final class content_plugins
      * @author calguy1000
      * @param array $params
      * @param Smarty_Internal_SmartyTemplateCompiler $smarty
-     * @throws CmsError403Exception
+     * @throws Error403Exception
      */
     public static function fetch_contentblock(array $params, $smarty)
     {
         $contentobj = AppSingle::App()->get_content_object();
         $result = null;
         if (is_object($contentobj)) {
-            if( !$contentobj->IsPermitted() ) throw new CmsError403Exception();
+            if( !$contentobj->IsPermitted() ) throw new Error403Exception();
             $block = $params['block'] ?? 'content_en';
             // if content_en
             //    get primary content
@@ -97,14 +95,14 @@ final class content_plugins
             if( !$result ) {
 /*
                 if( isset($_SESSION[CMS_PREVIEW]) && $contentobj->Id() == CMS_PREVIEW_PAGEID ) {
-                    // note: content precompile/postcompile events will not be triggererd in preview.
+                    // note: content precompile/postcompile events will not be triggered in preview.
 //                  $val = $contentobj->Show($block);
 //                  $result = $smarty->fetch('eval:'.$val);
-                    $result = $smarty->fetch('content:'.strtr($block,' ','_'), '|'.$block, $contentobj->Id().$block);
+                    $result = $smarty->fetch('content:'.strtr($block, ' ', '_'), '|'.$block, $contentobj->Id().$block);
                 }
                 else {
 */
-                    $result = $smarty->fetch('content:'.strtr($block,' ','_'), '|'.$block, $contentobj->Id().$block);
+                    $result = $smarty->fetch('content:'.strtr($block, ' ', '_'), '|'.$block, $contentobj->Id().$block);
 //                }
             }
         }
@@ -121,13 +119,13 @@ final class content_plugins
         $contentobj = AppSingle::App()->get_content_object();
         if( !is_object($contentobj) || $contentobj->Id() <= 0 ) {
             self::echo_content('', $params, $template);
-            return;
+            return '';
         }
 
-        $result = $template->fetch('content:pagedata','',$contentobj->Id());
-        if( isset($params['assign']) ){
-            $template->assign(trim($params['assign']),$result);
-            return;
+        $result = $template->fetch('content:pagedata', '', $contentobj->Id());
+        if( !empty($params['assign']) ) {
+            $template->assign(trim($params['assign']), $result);
+            return '';
         }
         return $result;
     }
@@ -139,28 +137,28 @@ final class content_plugins
      */
     public static function fetch_imageblock(array $params, $template)
     {
-        $ignored = [ 'block','type','name','label','upload','dir','default','tab','priority','exclude','sort','profile','urlonly','assign' ];
+        $ignored = ['block', 'type', 'name', 'label', 'upload', 'dir', 'default', 'tab', 'priority', 'exclude', 'sort', 'profile', 'urlonly', 'assign'];
         $gCms = AppSingle::App();
         $contentobj = $gCms->get_content_object();
         if( !is_object($contentobj) || $contentobj->Id() <= 0 ) {
             self::echo_content('', $params, $template);
-            return;
+            return '';
         }
 
         $config = AppSingle::Config();
         $adddir = AppParams::get('contentimage_path');
         if( isset($params['dir']) && $params['dir'] != '' ) $adddir = $params['dir'];
-        $dir = cms_join_path($config['uploads_path'],$adddir);
+        $dir = cms_join_path($config['uploads_path'], $adddir);
         $basename = basename($config['uploads_path']);
 
         $result = '';
         if( isset($params['block']) ) {
-            $result = $template->fetch('content:'.strtr($params['block'],' ', '_'), '|'.$params['block'], $contentobj->Id().$params['block']);
+            $result = $template->fetch('content:'.strtr($params['block'], ' ', '_'), '|'.$params['block'], $contentobj->Id().$params['block']);
         }
         $img = $result;
 
         $out = null;
-        if( startswith(realpath($dir),realpath($basename)) ) {
+        if( startswith(realpath($dir), realpath($basename)) ) {
             if( ($img == -1 || empty($img)) && isset($params['default']) && $params['default'] ) $img = $params['default'];
 
             if( $img != -1 && !empty($img) ) {
@@ -170,7 +168,7 @@ final class content_plugins
                 if( $adddir ) $img .= $adddir.'/';
                 $img .= $orig_val;
 
-                $urlonly = cms_to_bool(get_parameter_value($params,'urlonly'));
+                $urlonly = cms_to_bool($params['urlonly'] ?? false);
                 if( $urlonly ) {
                     $out = $img;
                 }
@@ -181,7 +179,7 @@ final class content_plugins
                         if( !$key ) continue;
                         $val = trim($val);
                         if( !$val ) continue;
-                        if( in_array($key,$ignored) ) continue;
+                        if( in_array($key, $ignored) ) continue;
                         $tagparms[$key] = $val;
                     }
 
@@ -193,9 +191,9 @@ final class content_plugins
                 }
             }
         }
-        if( isset($params['assign']) ){
-            $template->assign(trim($params['assign']),$out);
-            return;
+        if( !empty($params['assign']) ){
+            $template->assign(trim($params['assign']), $out);
+            return '';
         }
         return $out;
     }
@@ -208,7 +206,7 @@ final class content_plugins
      */
     public static function fetch_moduleblock(array $params, $template)
     {
-        if( !isset($params['block']) ) return;
+        if( !isset($params['block']) ) return '';
 
         $block = $params['block'];
         $result = '';
@@ -221,13 +219,13 @@ final class content_plugins
             $module = isset($params['module']) ? trim($params['module']) : null;
             if( $module ) {
                 $mod = Utils::get_module($module);
-                if( is_object($mod) ) $result = $mod->RenderContentBlockField($block,$result,$params,$content_obj);
+                if( is_object($mod) ) $result = $mod->RenderContentBlockField($block, $result, $params, $content_obj);
             }
         }
 
-        if( isset($params['assign']) ) {
-            $template->assign($params['assign'],$result);
-            return;
+        if( !empty($params['assign']) ) {
+            $template->assign(trim($params['assign']), $result);
+            return '';
         }
         return $result;
     }
@@ -249,7 +247,7 @@ final class content_plugins
      * @param mixed $page_id int or ''|null
      * @param mixed $smarty CMSMS\internal\Smarty or CMSMS\internal\template_wrapper
      * @return mixed string or null
-     * @throws CmsError404Exception
+     * @throws Error404Exception
      */
     public static function get_default_content_block_content($page_id, &$smarty)
     {
@@ -264,21 +262,21 @@ final class content_plugins
         }
 
         if( $do_mact ) {
-            $modops = ModuleOperations::get_instance();
+            $modops = AppSingle::ModuleOperations();
             $module_obj = $modops->get_module_instance($module);
             if( !$module_obj ) {
                 // module not found... couldn't even autoload it.
                 @trigger_error('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
-                throw new CmsError404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
+                throw new Error404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
             }
             if( !($module_obj->HasCapability(CoreCapabilities::PLUGIN_MODULE) || $module_obj->IsPluginModule()) ) {
                 @trigger_error('Attempt to access module '.$module.' on a frontend request, which is not a plugin module');
-                throw new CmsError404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
+                throw new Error404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
             }
 
-			$action = $params['action'];
+            $action = $params['action'];
             $params = $modops->GetModuleParameters($id);
-			$params['action'] = $action; //deprecated since 2.3
+            $params['action'] = $action; //deprecated since 2.99
             $result = $module_obj->DoActionBase($action, $id, $params, $page_id, $smarty);
         }
         else {
@@ -308,7 +306,7 @@ final class content_plugins
             }
             $tmp[] = "'$k'=>".$v;
         }
-        $ptext = ($tmp) ? implode(',', $tmp) : '';
-        return '<?php '.self::class.'::fetch_contentblock(['.$ptext.'],$_smarty_tpl); ?>';
+        $ptext = ($tmp) ? implode(', ', $tmp) : '';
+        return '<?php '.self::class.'::fetch_contentblock(['.$ptext.'], $_smarty_tpl); ?>';
     }
 } // class

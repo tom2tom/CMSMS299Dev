@@ -22,13 +22,13 @@ const IMAGE_MIME = 'mime';
  * If only the first argument is supplied an array containing all the information is returned,
  * which will look like the following:
  *
- *    [width] => int (width),
- *    [height] => int (height),
- *    [type] => string (type),
- *    [attr] => string (attributes formatted for IMG tags),
- *    [bits] => int (bits),
- *    [channels] => int (channels),
- *    [mime] => string (mime-type)
+ *    [width] => (int)width,
+ *    [height] => (int)height,
+ *    [type] => (string)type,
+ *    [attr] => (string)attributes formatted for IMG tags,
+ *    [bits] => (int)bits,
+ *    [channels] => (int)channels,
+ *    [mime] => (string)mime-type
  *
  * Returns false if $file is not a file, no arguments are supplied, $file is not an image, or otherwise fails.
  *

@@ -1,7 +1,7 @@
 <?php
 /*
 Class for managing a templates group/category.
-Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,20 +16,20 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CmsDataNotFoundException;
-use CmsInvalidDataException;
 use CMSMS\AdminUtils;
 use CMSMS\AppSingle;
 use CMSMS\Database\Connection;
+use CMSMS\DataException;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
+use CMSMS\SQLErrorException;
 use CMSMS\TemplateOperations;
-use CmsSQLErrorException;
+use LogicException;
 use const CMS_DB_PREFIX;
 use function audit;
 use function cms_to_stamp;
@@ -75,12 +75,12 @@ class TemplatesGroup
 	 */
 	protected $_members = [];
 
-    // static properties here >> StaticProperties class ?
+	// static properties here >> StaticProperties class ?
 	/**
 	 * @ignore
 	 */
 	private static $_lock_cache;
-	private static $_lock_cache_loaded = false;
+	private static $_lock_cache_loaded = FALSE;
 
 	/**
 	 * Set all core properties of the group.
@@ -91,6 +91,7 @@ class TemplatesGroup
 	public function set_properties(array $props)
 	{
 		$this->_data = $props;
+		$this->_dirty = TRUE;
 	}
 
 	/**
@@ -118,15 +119,15 @@ class TemplatesGroup
 	 *
 	 * The group name must be unique, and can only contain certain characters.
 	 *
-	 * @throws CmsInvalidDataException
+	 * @throws LogicException
 	 * @param sting $str The templates-group name. Valid per AdminUtils::is_valid_itemname()
 	 */
 	public function set_name($str)
 	{
 		$str = trim($str);
-		if( !$str ) throw new CmsInvalidDataException('Name cannot be empty');
+		if( !$str ) throw new LogicException('Name cannot be empty');
 		if( !AdminUtils::is_valid_itemname($str) ) {
-			throw new CmsInvalidDataException('Invalid characters in name');
+			throw new DataException('Invalid characters in name');
 		}
 		$this->_data['name'] = $str;
 		$this->_dirty = TRUE;
@@ -195,7 +196,7 @@ class TemplatesGroup
 	 * @return assoc. array of Template objects or name strings. May be empty.
 	 * Keys (if any) are respective numeric id's.
 	 */
-	public function get_members(bool $by_name = false)
+	public function get_members(bool $by_name = FALSE)
 	{
 		if( !$this->_members ) return [];
 
@@ -326,7 +327,7 @@ class TemplatesGroup
 					self::$_lock_cache[$one['oid']] = $one;
 				}
 			}
-			self::$_lock_cache_loaded = true;
+			self::$_lock_cache_loaded = TRUE;
 		}
 		return self::$_lock_cache;
 	}
@@ -366,35 +367,36 @@ class TemplatesGroup
 	{
 		$lock = $this->get_lock();
 		if( is_object($lock) ) return $lock->expired();
-		return false;
+		return FALSE;
 	}
 
 	/**
 	 * Validate the properties of this object
 	 * Unique valid name only
-	 * @throws CmsInvalidDataException
+	 * @throws DataException or LogicException
 	 */
 	protected function validate()
 	{
-		if( !$this->get_name() ) {
-			throw new CmsInvalidDataException('A templates group must have a name');
+		$name = $this->get_name();
+		if( !$name ) {
+			throw new LogicException('A templates group must have a name');
 		}
-		if( !AdminUtils::is_valid_itemname($this->get_name()) ) {
-			throw new CmsInvalidDataException('Name may contain only letters, numbers and underscores.');
+		if( !AdminUtils::is_valid_itemname($name) ) {
+			throw new DataException('Name may contain only letters, numbers and/or these \'_ /+-,.\'.');
 		}
 
 		$db = AppSingle::Db();
 		$gid = $this->get_id();
-		if( !$gid ) {
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
-			$dbr = $db->GetOne($query,[$this->get_name()]);
+		if( $gid > 0 ) {
+			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
+			$dbr = $db->GetOne($query,[$name,$gid]);
 		}
 		else {
-			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
-			$dbr = $db->GetOne($query,[$this->get_name(),$gid]);
+			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+			$dbr = $db->GetOne($query,[$name]);
 		}
 		if( $dbr ) {
-			throw new CmsInvalidDataException('A templates group with the same name already exists');
+			throw new LogicException('A templates group with the same name already exists');
 		}
 	}
 
@@ -438,7 +440,7 @@ class TemplatesGroup
 			$this->get_description(),
 		]);
 		if( !$dbr ) {
-			throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+			throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 		$gid = $this->_data['id'] = $db->Insert_ID();
 		$this->save_members($db,TRUE);
@@ -468,8 +470,7 @@ class TemplatesGroup
 
 	/**
 	 * Save this object to the database
-	 * @throws CmsSQLErrorException
-	 * @throws CmsInvalidDataException
+	 * @throws SQLErrorException or DataException
 	 */
 	public function save()
 	{
@@ -485,7 +486,7 @@ class TemplatesGroup
 	 * This method will delete the object from the database, and erase the id value
 	 * from this object, suitable for re-saving
 	 *
-	 * @throw CmsSQLErrorException
+	 * @throws SQLErrorException
 	 */
 	public function delete()
 	{
@@ -495,7 +496,7 @@ class TemplatesGroup
 		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$dbr = $db->Execute($query,[$gid]);
-		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id = ?';
 		$db->Execute($query,[$gid]);
 
@@ -509,7 +510,7 @@ class TemplatesGroup
 	 *
 	 * @param int|string $val Either the integer group id, or the group name
 	 * @return self
-	 * @throws CmsDataNotFoundException
+	 * @throws DataException
 	 */
 	public static function load($val)
 	{
@@ -530,7 +531,7 @@ class TemplatesGroup
 			$ob->set_members($dbr);
 			return $ob;
 		}
-		throw new CmsDataNotFoundException('Could not find templates group identified by '.$val);
+		throw new DataException('Could not find templates group identified by '.$val);
 	}
 
 	/**

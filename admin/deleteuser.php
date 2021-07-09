@@ -20,6 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\UserOperations;
@@ -39,14 +40,14 @@ check_login();
 $urlext = get_secure_param();
 $cur_userid = get_userid();
 if( !check_permission($cur_userid, 'Manage Users') ) {
-    Utils::get_theme_object()->ParkNotice('error', lang('needpermissionto', '"Manage Users"'));
+    AppSingle::Theme()->ParkNotice('error', lang('needpermissionto', '"Manage Users"'));
     redirect('listusers.php'.$urlext);
 }
 
 $key = '';
 $user_id = (int)$_GET['user_id'];
 if ($user_id != $cur_userid) {
-    $userops = UserOperations::get_instance();
+    $userops = AppSingle::UserOperations();
     $ownercount = $userops->CountPageOwnershipByID($user_id);
     if ($ownercount <= 0) {
         $oneuser = $userops->LoadUserByID($user_id);
@@ -72,6 +73,6 @@ if ($user_id != $cur_userid) {
 }
 
 if ($key) {
-    Utils::get_theme_object()->ParkNotice('error', lang($key));
+    AppSingle::Theme()->ParkNotice('error', lang($key));
 }
 redirect('listusers.php'.$urlext);

@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -91,20 +91,13 @@ class Url
 
     /**
      * @ignore
-     * @see also cms_urlencode() 2.99+
+     * @see also CMSMS\urlencode()
      */
     protected function _clean1($str,$patn)
     {
         return preg_replace_callback_array([
-            '/\pL/u' => function($matches) {
-                return rawurlencode(htmlentities($matches[0], ENT_COMPAT|ENT_SUBSTITUTE, null, false));
-            },
-            '/\x00-\x1f\x7f-\xff/' => function() {
-                return '';
-            },
-            $patn => function($matches) {
-                return rawurlencode($matches[0]);
-            }
+            '/\x00-\x1f\x7f/' => function() { return ''; },
+            $patn => function($matches) { return rawurlencode($matches[0]); }
         ], $str);
     }
 
@@ -119,43 +112,43 @@ class Url
             $this->_parts['scheme'] = preg_replace('/[^a-z0-9\-+.]/', '', $av);
         }
 
-        if( !empty($parts['user']) ) {
+        if( !empty($this->_parts['user']) ) {
             //userinfo = unreserved | pct-encoded | sub-delims | ":"
             //unreserved = ALPHA | DIGIT | "-" | "." | "_" | "~"
             //sub-delims = "!" | "$" | "&" | "'" | "(" | ")" | "*" | "+" | "," | ";" | "="
-            $parts['user'] = $this->_clean1($parts['user'], '/[^\w.~!$&\'()*\-+,:;=%]/');
+            $this->_parts['user'] = $this->_clean1($this->_parts['user'], '/[^\w.~!$&\'()*\-+,:;=%]/');
         }
-/*      if( !empty($parts['pass']) ) {
-            $parts['pass'] = ; //passinfo = enctypted anything or empty
+/*      if( !empty($this->_parts['pass']) ) {
+            $this->_parts['pass'] = ; //passinfo = enctypted anything or empty
         }
 */
-        if( !empty($parts['host']) ) {
+        if( !empty($this->_parts['host']) ) {
             //host = IP-literal | IPv4address | reg-name
             //IP-literal = "[" ( IPv6address | IPvFuture  ) "]"
             //IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved | sub-delims | ":" )
             //reg-name    = *( unreserved / pct-encoded / sub-delims )
-            $parts['host'] = $this->clean1($parts['host'], '/[^\w.~!$&\'()*\-+,:;=\[\]%]/');
+            $this->_parts['host'] = $this->_clean1($this->_parts['host'], '/[^\w.~!$&\'()*\-+,:;=\[\]%]/');
         }
         if( !empty($this->_parts['path']) ) {
-            //pathchar = unreserved | pct-encoded | sub-delims | ":" | "@"
-            $parts['path'] = $this->clean1($parts['path'], '/[^\w.~!@$&\'()*\-+,:;=%]/');
+            //pathchar = unreserved | pct-encoded | sub-delims | ":" | "@" PLUS "/"
+            $this->_parts['path'] = $this->_clean1($this->_parts['path'], '/[^\w.~!@$&\'()*\-+,\/:;=%]/');
         }
-        if( isset($parts['port']) ) {
-            $parts['port'] = (int) filter_var($parts['port'], FILTER_SANITIZE_NUMBER_INT);
+        if( isset($this->_parts['port']) ) {
+            $this->_parts['port'] = (int) filter_var($this->_parts['port'], FILTER_SANITIZE_NUMBER_INT);
         }
         if( $this->_query ) {
             //pchar = unreserved | pct-encoded | sub-delims | ":" | "@" PLUS "/" | "?"
             $arr = [];
             foreach( $this->_query as $key => $value ) {
-                $ak = $this->clean1($key, '/[^\w.~!@$&\'()*\-+,?\/:;=%]/');
-                $av = $this->clean1($value, '/[^\w.~!@$&\'()*\-+,?\/:;=%]/');
+                $ak = $this->_clean1($key, '/[^\w.~!@$&\'()*\-+,?\/:;=%]/');
+                $av = $this->_clean1($value, '/[^\w.~!@$&\'()*\-+,?\/:;=%]/');
                 $arr[$ak] = $av;
             }
             $this->_query = $arr;
         }
-        if( !empty($parts['fragment']) ) {
+        if( !empty($this->_parts['fragment']) ) {
             //pchar = unreserved | pct-encoded | sub-delims | ":" | "@" PLUS "/" | "?"
-            $parts['fragment'] = $this->clean1($parts['fragment'], '/[^\w.~!@$&\'()*\-+,?\/:;=%]/');
+            $this->_parts['fragment'] = $this->_clean1($this->_parts['fragment'], '/[^\w.~!@$&\'()*\-+,?\/:;=%]/');
         }
     }
 

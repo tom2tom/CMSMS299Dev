@@ -32,7 +32,8 @@ $csrf = Crypto::random_string(16, true); //encryption-grade hash not needed
 $_SESSION[$csrf_key] = $csrf;
 
 $smarty = AppSingle::Smarty();
-$tpl = $smarty->CreateTemplate($this->GetTemplateResource( 'login-form.tpl' )); //, null, null, $smarty );
+
+$tpl = $this->GetTemplateObject('login-form.tpl');
 $tpl->assign([
 	'mod' => $this,
 	'actionid' => '',

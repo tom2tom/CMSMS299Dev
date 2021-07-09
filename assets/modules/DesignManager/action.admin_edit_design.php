@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\StylesheetOperations;
 use CMSMS\TemplateOperations;
+use CMSMS\Utils;
 use DesignManager\Design;
 
 if( !isset($gCms) ) exit;
@@ -108,7 +109,7 @@ try {
     $tpl->assign('all_stylesheets',null);
   }
 
-  $themeObject = cms_utils::get_theme_object();
+  $themeObject = Utils::get_theme_object();
   if( $design->get_id() > 0 ) {
     $themeObject->SetSubTitle($this->Lang('edit_design').': '.$design->get_name()." ({$design->get_id()})");
   }

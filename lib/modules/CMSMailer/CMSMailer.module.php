@@ -1,7 +1,7 @@
 <?php
 /*
-CMSMailer module: send email via intra-site mechanism or external platform.
-Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+CMSMailer light module: send email via intra-site mechanism or external platform.
+Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This module is a component of CMS Made Simple.
 
@@ -33,18 +33,9 @@ if (!extension_loaded('mbstring'))
 
 class CMSMailer implements IResource
 {
-    public $platformed = false; // whether to support some mass-mailers like MailChimp
+    public $platformed = false; // const: whether to support some mass-mailers like MailChimp
     private $methods;
 
-/* for CMSMS < 2.99 sans module-namespaced autoloading
-    public function __construct()
-    {
-        parent::__construct();
-        if (!function_exists('cmsms_spacedloader')) {
-            require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'function.spacedloader.php';
-        }
-    }
-*/
     public function __call($name, $args)
     {
         if (!isset($this->methods)) {
@@ -63,7 +54,6 @@ class CMSMailer implements IResource
     public function GetHelp() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'modhelp.htm'); }
     public function GetVersion() { return '6.3'; }
     public function HasAdmin() { return true; }
-    public function InitializeFrontend() {}
     public function IsAdminOnly() { return true; }
     public function MinimumCMSVersion() { return '2.99.0'; }
 

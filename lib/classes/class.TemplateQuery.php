@@ -1,7 +1,7 @@
 <?php
 /*
 Class to represent a template database query and its results.
-Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,17 +16,16 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CmsInvalidDataException;
-use CmsLogicException;
 use CMSMS\AppSingle;
 use CMSMS\DbQueryBase;
+use CMSMS\SQLErrorException;
 use CMSMS\TemplateOperations;
-use CmsSQLErrorException;
+use LogicException;
 use const CMS_DB_PREFIX;
 use function cms_to_bool;
 
@@ -76,8 +75,8 @@ class TemplateQuery extends DbQueryBase
 	/**
 	 * Execute the query given the parameters saved in the query
 	 *
-	 * @throws CmsInvalidDataException if anything else is present
-	 * @throws CmsSQLErrorException if no matching data found
+	 * @throws LogicException if anything unrecognised is present
+	 * @throws SQLErrorException if no matching data found
 	 * Though this method can be called directly, it is also called by other members automatically.
 	 */
 	public function execute()
@@ -211,7 +210,7 @@ AS tmp1';
 					$typejoin = true;
 					break;
 				  default:
-					throw new CmsInvalidDataException($val.' is an invalid sortfield');
+					throw new LogicException($val.' is an invalid sortfield');
 				}
 				break;
 
@@ -223,7 +222,7 @@ AS tmp1';
 					$this->_sortorder = $val;
 					break;
 				  default:
-					throw new CmsInvalidDataException($val.' is an invalid sortorder');
+					throw new LogicException($val.' is an invalid sortorder');
 				}
 				break;
 			}
@@ -270,7 +269,7 @@ AS tmp1';
 		// execute the query
 		$this->_rs = $db->SelectLimit($query, $this->_limit, $this->_offset);
 		if (!$this->_rs || $this->_rs->errno !== 0) {
-			throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+			throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()'); //$this->_rs->RecordCount(); N/A until all processed
 	}
@@ -280,7 +279,7 @@ AS tmp1';
 	 *
 	 * This method calls the execute method.
 	 *
-	 * @throws CmsLogicException
+	 * @throws LogicException
 	 * @return mixed Template | null
 	 */
 	public function GetTemplate()
@@ -296,13 +295,13 @@ AS tmp1';
 	 * This method calls the execute method.
 	 *
 	 * @return Template
-	 * @throws CmsLogicException
+	 * @throws LogicException
 	 */
 	public function GetObject()
 	{
 		$this->execute();
 		if (!$this->_rs) {
-			throw new CmsInvalidDataException('Cannot get template from invalid template query object');
+			throw new LocicException('Cannot get template from invalid template query object');
 		}
 		$id = $this->_rs->fields('id');
 		return TemplateOperations::get_template((int)$id);
@@ -312,14 +311,14 @@ AS tmp1';
 	 *
 	 * This method calls the execute method.
 	 *
-	 * @throws CmsLogicException
+	 * @throws LogicException
 	 * @return array Array of integers, maybe empty
 	 */
 	public function GetMatchedTemplateIds()
 	{
 		$this->execute();
 		if (!$this->_rs) {
-			throw new CmsInvalidDataException('Cannot get template from invalid template query object');
+			throw new LogicException('Cannot get template from invalid template query object');
 		}
 
 		$out = [];

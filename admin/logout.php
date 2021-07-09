@@ -19,31 +19,5 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
-use CMSMS\Utils;
-
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-
-$_SESSION['logout_user_now'] = '1';
-$modname = AppParams::get('loginmodule'); // = 'AdminLogin'; // DEBUG
-if ($modname) {
-	$ops = AppSingle::ModuleOperations();
-	$modinst = $ops->get_module_instance($modname, '', true);
-	if ($modinst) {
-		$modinst->RunLogin();
-	} else {
-		exit('Invalid login module');
-	}
-} else {
-	$name = AppParams::get('logintheme');
-	$themeObject = Utils::get_theme_object($name);
-	if ($themeObject) {
-		$themeObject->display_customlogin_page();
-	} else {
-		exit('Invalid login theme');
-	}
-}
+$_SESSION['logout_user_now'] = '1'; // signal to login-processor
+require_once __DIR__.DIRECTORY_SEPARATOR.'login.php';

@@ -1,7 +1,7 @@
 <?php
 /*
 Class Connection: interaction with a MySQL or compatible database
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -15,20 +15,20 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Database;
 
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Crypto;
 use CMSMS\Database\DataDictionary;
 use CMSMS\Database\ResultSet;
 use CMSMS\Database\Statement;
 use CMSMS\DeprecationNotice;
 use DateTime;
 use DateTimeZone;
-use Exception;
 use mysqli;
 use const CMS_DEBUG;
 use const CMS_DEPREC;
@@ -194,24 +194,40 @@ final class Connection
      *  'set_db_timezone' (opt)
      *  'timezone' used only if 'set_db_timezone' is true (normally the case)
      */
-    public function __construct($config = null)
+    public function __construct($config) // = null)
     {
         if (class_exists('mysqli')) {
-            if (!$config) $config = AppSingle::Config(); //normal API
-            $parms = [
-                $config['db_hostname'],
-                $config['db_username'],
-                $config['db_password'],
-                $config['db_name'],
-            ];
-            if (!empty($config['db_port']) || is_numeric($config['db_port'])) {
-                $parms[] = (int)$config['db_port'];
+//          if (!$config) $config = AppSingle::Config(); //normal API
+            if (!empty($config['db_credentials'])) {
+                $creds = base64_decode($config['db_credentials']);
+                $raw = Crypto::decrypt_string($creds, '', 'internal');
+                $arr = json_decode($raw, true);
+                $parms = [
+                    $arr['db_hostname'],
+                    $arr['db_username'],
+                    $arr['db_password'],
+                    $arr['db_name'],
+                ];
+                if (!empty($arr['db_port']) || is_numeric($arr['db_port'])) {
+                    $parms[] = (int)$arr['db_port'];
+                }
+            } else {
+                $parms = [
+                    $config['db_hostname'],
+                    $config['db_username'],
+                    $config['db_password'],
+                    $config['db_name'],
+                ];
+                if (!empty($config['db_port']) || is_numeric($config['db_port'])) {
+                    $parms[] = (int)$config['db_port'];
+                }
             }
+
             mysqli_report(MYSQLI_REPORT_STRICT);
             try {
                 $this->_mysql = new mysqli(...$parms);
                 if (!$this->_mysql->connect_error) {
-                    $this->_database = $config['db_name'];
+                    $this->_database = $parms[3]; //db_name
                     $this->_type = 'mysqli';
                     $this->_debug = CMS_DEBUG;
                     if ($this->_debug) {
@@ -230,9 +246,9 @@ final class Connection
                         //see also strftzone_adjuster() in misc.functions.php
                         try {
                             $dt = new DateTime('', new DateTimeZone($config['timezone']));
-                        } catch (Exception $e) {
+                        } catch (Throwable $t) {
                             $this->_mysql = null;
-                            $this->on_error(self::ERROR_PARAM, $e->getCode(), $e->getMessage());
+                            $this->on_error(self::ERROR_PARAM, $t->getCode(), $t->getMessage());
                         }
                         $offset = $dt->getOffset();
                         $this->_time_offset = $offset;
@@ -258,7 +274,7 @@ final class Connection
                     $this->_mysql = null;
                     $this->OnError(self::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
                 }
-            } catch (Exception $e) {
+            } catch (Throwable $t) {
                 $this->_database = null;
                 $this->_mysql = null;
                 $this->OnError(self::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
@@ -279,6 +295,8 @@ final class Connection
         switch ($key) {
          case 'database':
             return $this->_database;
+         case 'sql':
+            return $this->_sql;
          case 'query_time_total':
             return $this->_query_time_total;
          case 'query_count':
@@ -373,6 +391,7 @@ final class Connection
 
     /**
      * Return whether the database interface-type is the 'native driver' variant
+     *
      * @return bool
      */
     public function isNative()
@@ -396,31 +415,29 @@ final class Connection
     //// utilities
 
     /**
-     * Return a single-quoted and escaped version of $str e.g. for use in a database command.
-     * The characters processed are the MySQL standards: NUL (ASCII 0), \n, \r, \, ', ", \Z (ASCII 26),
-     * plus '%' and '_' which are are particularly relevant for commands having 'LIKE',
-     * plus '`' and ';', for injection mitigation.
-     * Warning: This method may require two way traffic with the database depending upon the database.
+     * Return a single-quoted and somewhat escaped variant of $str
+     * e.g. for use in a database command.
+     * A wrapper around mysqli::real_escape_string(), this processes all
+     * NUL(ASCII 0), \n, \r, \, ', ", ctrl-Z(ASCII 26) chars in $str.
+     * Any of these extras are assumed to be un-escaped on arrival.
+     * Warning: This method may require two-way traffic with the server.
      *
      * @param string $str
-     *
      * @return string
      */
     public function qStr($str)
     {
         if ($str !== '') {
-            return  "'".addcslashes($this->_mysql->real_escape_string($str), '%_`;')."'";
+            return  "'".$this->_mysql->real_escape_string($str)."'";
         }
         return '';
     }
 
     /**
      * An alias for the qStr method.
-     *
-     * @deprecated since 2.99
+     * @deprecated since 2.99 instead use Connection::qStr()
      *
      * @param string $str
-     *
      * @return string
      */
     public function QMagic($str)
@@ -434,15 +451,67 @@ final class Connection
      * @see Connection::qStr()
      *
      * @param string $str
-     *
      * @return string
      */
     public function addQ($str)
     {
         if ($str !== '') {
-            return addcslashes($this->_mysql->real_escape_string($str), '%_`;');
+            return $this->_mysql->real_escape_string($str);
         }
         return '';
+    }
+
+    /**
+     * Return an escaped variant of $str suitable for safe use in a SQL command.
+     * Like mysqli::real_escape_string(), this processes all
+     * NUL(ASCII 0), \n, \r, \, ', ", ctrl-Z(ASCII 26) chars in $str,
+     * but also single un-escaped '%', un-escaped '_',';','`', plus any
+     * whole-word 'OR' of any case(s). No double-escaping.
+     * It is stricter and more intelligent than Connection::addQ().
+     * Also, it is processed locally i.e. does not need to contact the server.
+     *
+     * @param string $str the string to process
+     * @return string
+     */
+    function escStr(string $str) : string
+    {
+        if ($str == '') {
+            return $str;
+        }
+        $esc = [
+         '\\%' => '%',
+         '\\_' => '_',
+         '\\;' => ';',
+         "\\'" => "'",
+         '\\"' => '"',
+         '\\`' => '`',
+         "\\\n" => "\n",
+         "\\\r" => "\r",
+         '\\\0' => '\0',
+         '\\\x1A' => '\x1A',
+        ];
+        // 1st: clean via targeted-unescape
+        $p = strtr($str, $esc + ['\\\\' => '\\']); // backslashes last TODO maybe multiple backslashes?
+        // 2nd: targeted-[re]escape
+        $q = strtr($p, ['%%' => '%%'] // stet double-'%' CHECKME
+            + array_flip($esc));
+        // 3rd: escape other-backslashes etc
+        $matches = [];
+        $r = preg_replace_callback_array([
+            //NOTE PCRE2, but not PCRE, supports NULL ('\0') bytes in regex pattern
+            "/\\\(?![%_;'\"\\\n\r\x1A])/" => function($matches) {
+                return '\\\\';
+            },
+            // [re]escaped '\0' will have been be doubled-escaped, so
+            // this is needed until the previous pattern can safely be adapted for PCRE2
+            '/\\\\0/' => function($matches) {
+                return '\\0';
+            },
+            '/\bOR\b/i' => function($matches) {
+                return '\\'.$matches[0][0].'\\'.$matches[0][1];
+            },
+        ], $q);
+        return $r;
     }
 
     /**
@@ -451,7 +520,6 @@ final class Connection
      *
      * @param $str   First string to concatenate
      * @param $str,. Any number of strings to concatenate
-     *
      * @return string
      */
     public function concat()
@@ -469,7 +537,6 @@ final class Connection
      *
      * @param string $field  The field to test
      * @param string $ifNull The value to use if $field is null
-     *
      * @return string
      */
     public function ifNull($field, $ifNull)
@@ -593,7 +660,6 @@ final class Connection
      * Prepare (compile) @sql for parameterized and/or repeated execution.
      *
      * @param string $sql The SQL query
-     *
      * @return a Statement object if @sql is valid, or false
      */
     public function prepare($sql)
@@ -612,7 +678,6 @@ final class Connection
      * @param mixed $sql string | Statement object
      * @param varargs $bindvars array | series of command-parameter-value(s)
      *  to fill placeholders in $sql | nothing
-     *
      * @return mixed <namespace>ResultSet or a subclass of that | num > 0 | bool | null
      */
     public function execute($sql, ...$bindvars)
@@ -712,7 +777,6 @@ final class Connection
      * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
      * @param varargs $bindvars array | series of parameter-value(s) to
      *  fill placeholders in $sql | nothing
-     *
      * @return mixed <namespace>ResultSet or a subclass
      *  when a SELECT retrieves nothing or other command fails, default false
      */
@@ -742,7 +806,6 @@ final class Connection
      * @param mixed $bindvars array | falsy Optional value-parameters to fill placeholders (if any) in @sql
      * @param int   $nrows   Optional number of rows to return, default all (0)
      * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
-     *
      * @return array Numeric-keyed matched results, or empty
      */
     public function getArray($sql, $bindvars = false, $nrows = 0, $offset = 0)
@@ -762,11 +825,10 @@ final class Connection
 
     /**
      * An alias for the getArray method.
-     * @deprecated since 2.99 instead use getArray()
+     * @deprecated since 2.99 instead use Connection::getArray()
      *
      * @param string $sql     The SQL statement to execute
      * @param mixed  $bindvars array | falsy Optional value-parameters to fill placeholders (if any) in @sql
-     *
      * @return array Numeric-keyed matched results, or empty
      */
     public function getAll($sql, $bindvars = false, $nrows = 0, $offset = 0)
@@ -785,7 +847,6 @@ final class Connection
      * @param bool   $first2cols  Optionally Return only the first 2 columns in an associative array.  Does not work with force_array
      * @param int    $nrows   Optional number of rows to return, default all (0)
      * @param int    $offset  Optional 0-based starting-offset of rows to return, default 0
-     *
      * @return associative array of matched results, or empty
      */
     public function getAssoc($sql, $bindvars = false, $force_array = false, $first2cols = false, $nrows = 0, $offset = 0)
@@ -812,7 +873,6 @@ final class Connection
      * @param bool   $trim    Optionally trim the returned values
      * @param int    $nrows   Optional number of rows to return, default all (0)
      * @param int    $offset  Optional 0-based starting-offset of rows to return, default 0
-     *
      * @return array of results, one member per row matched, or empty
      */
     public function getCol($sql, $bindvars = false, $trim = false, $nrows = 0, $offset = 0)
@@ -837,7 +897,6 @@ final class Connection
      * @param mixed $sql string | Statement object
      * @param mixed $bindvars array | falsy Optional value-parameters to fill placeholders (if any) in @sql
      * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
-     *
      * @return associative array representing a single ResultSet row, or empty
      */
     public function getRow($sql, $bindvars = false, $offset = 0)
@@ -864,7 +923,6 @@ final class Connection
      * @param mixed $sql string | Statement object
      * @param mixed $bindvars array | falsy Optional values to fill placeholders (if any) in @sql
      * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
-     *
      * @return mixed value | null
      */
     public function getOne($sql, $bindvars = false, $offset = 0)
@@ -891,8 +949,7 @@ final class Connection
      * @param string          $table  The name of the table
      * @param string          $column The name of the column in @table
      * @param optional string $where  SQL condition, must include the
-     *                                requested column e.g. “WHERE name > 'A'”
-     *
+     *  requested column e.g. “WHERE name > 'A'”
      * @return mixed value | null
      */
 /*    public function getMedian($table, $column, $where = '')
@@ -951,8 +1008,8 @@ final class Connection
 
     /**
      * Complete a smart transaction.
-     * This method will either do a rollback or a commit depending upon if errors
-     * have been detected.
+     * This method will either do a rollback or a commit depending upon whether
+	 * errors have been detected.
      */
     public function completeTrans($autoComplete = true)
     {
@@ -1060,7 +1117,6 @@ final class Connection
      * For use with sequence tables, this method will generate a new ID value.
      *
      * @param string $seqname The name of the sequence table
-     *
      * @return int
      */
     public function genId($seqname)
@@ -1080,18 +1136,16 @@ final class Connection
 
     /**
      * Create a new sequence table.
+     * @deprecated since 2.99
      *
      * @param string $seqname the name of the sequence table
      * @param int    $startID
-     *
      * @return bool
-     *
-     * @deprecated
      */
     public function createSequence($seqname, $startID = 0)
     {
         //TODO ensure this is really an upsert, cuz' can be repeated during failed installation
-        $rs = $this->do_sql("CREATE TABLE $seqname (id INT(4) UNSIGNED) ENGINE=MYISAM COLLATE ascii_general_ci");
+        $rs = $this->do_sql("CREATE TABLE $seqname (id INT(4) UNSIGNED) ENGINE=MYISAM CHARACTER SET=ascii COLLATE=ascii_bin");
         if ($rs) {
             $v = (int) $startID;
             $rs = $this->do_sql("INSERT INTO $seqname VALUES ($v)");
@@ -1103,7 +1157,6 @@ final class Connection
      * Drop a sequence table.
      *
      * @param string $seqname The name of the sequence table
-     *
      * @return bool
      */
     public function dropSequence($seqname)
@@ -1130,7 +1183,6 @@ final class Connection
      *
      * @param mixed $time int timestamp | string (e.g. from PHP Date()), or DateTime object
      * @param bool $quoted optional flag whether to quote the returned string
-     *
      * @return mixed optionally quoted string representing server/local date & time, or NULL
      */
     public function dbTimeStamp($time, $quoted = true)
@@ -1160,11 +1212,11 @@ final class Connection
     }
 
     /**
-     * A convenience method for converting a database specific string representing a date and time
-     * into a *NIX timestamp. Merely executes PHP strtotime(). No error processing.
+     * A convenience method for converting a database specific string
+     * representing a date and time into a *NIX timestamp.
+     * Merely executes PHP strtotime(). No error processing.
      *
      * @param string $str
-     *
      * @return int
      */
     public function unixTimeStamp($str)
@@ -1174,6 +1226,7 @@ final class Connection
 
     /**
      * An alias for the unixTimestamp method.
+     * @deprecated since 2.99 instead use Connection::unixTimeStamp()
      *
      * @return int
      */
@@ -1187,7 +1240,6 @@ final class Connection
      * Convert a date into something that is suitable for writing to a database.
      *
      * @param mixed $date string date | integer timestamp | DateTime object
-     *
      * @return quoted, locale-formatted string representing server/local date, or 'NULL'
      */
     public function dbDate($date)
@@ -1216,8 +1268,6 @@ final class Connection
     /**
      * Generate a *NIX timestamp representing the start of the current day.
      *
-     * @deprecated
-     *
      * @return int
      */
     public function unixDate()
@@ -1227,6 +1277,7 @@ final class Connection
 
     /**
      * An alias for the unixDate method.
+     * @deprecated since 2.99 Instead use Connection::unixDate()
      *
      * @return int
      */
@@ -1281,7 +1332,7 @@ final class Connection
     /**
      * Toggle debug mode.
      *
-     * @param bool     $flag          Enable or Disable debug mode
+     * @param bool     $flag Enable or Disable debug mode
      * @param callable $debug_handler
      */
     public function SetDebugMode($flag = true, $debug_handler = null)
@@ -1306,7 +1357,6 @@ final class Connection
 
     /**
      * Add a query to the debug log.
-     *
      * @internal
      *
      * @param string $sql the SQL statement
@@ -1340,7 +1390,6 @@ final class Connection
 
     /**
      * Default error handler (except during site-installation)
-     *
      * @internal
      *
      * @param string $errtype       The type of error

@@ -64,9 +64,7 @@ class ReduceLogJob extends CronJob
                 $this->clear_queued();
             }
             $prev = $row;
-            if (!$rst->MoveNext()) {
-                break;
-            }
+            $rst->MoveNext();
         }
         if ($rst) { $rst->Close(); }
         if ($this->have_queued()) {

@@ -2,20 +2,21 @@
 /*
 Page-resources generator for article add/edit actions
 Copyright (C) 2018-2021 CMS Made Simple Foundation News module installation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\ScriptsMerger;
@@ -92,11 +93,9 @@ function news_dopreview() {
   {name: cms_data.job_key, 'value': 1} //curtail display
   ].concat(fm.find('input:not([type=submit]), select, textarea').serializeArray());
   $.ajax(url, {
-    type: 'POST',
+    method: 'POST',
     data: params,
     dataType: 'xml'
-  }).fail(function(jqXHR, textStatus, errorThrown) {
-    cms_notify('error', errorThrown);
   }).done(function(data) {
     var resp = $(data).find('Response').text(),
      details = $(data).find('Details').text();
@@ -111,6 +110,8 @@ function news_dopreview() {
       // preview save did not work
       cms_notify('error', details);
     }
+  }).fail(function(jqXHR, textStatus, errorThrown) {
+    cms_notify('error', errorThrown);
   });
 }
 
@@ -155,9 +156,8 @@ if ($list) {
     {name: cms_data.job_key, 'value': 1} // curtail display
 	].concat(fm.find('input:not([type=submit]), select, textarea').serializeArray());
     $.ajax(url, {
-      type: 'POST',
+      method: 'POST',
       data: params,
-      cache: false,
       dataType: 'xml'
     }).fail(function(jqXHR, textStatus, errorThrown) {
       cms_notify('error', errorThrown);

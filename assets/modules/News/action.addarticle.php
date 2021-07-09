@@ -2,33 +2,40 @@
 /*
 Add item action for CMSMS News module.
 Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminUtils;
-use CMSMS\ContentOperations;
+use CMSMS\AppSingle;
 use CMSMS\Events;
 use CMSMS\FormUtils;
 use CMSMS\RouteOperations;
-use CMSMS\UserOperations;
+use CMSMS\TemplateType;
+use CMSMS\Url;
+use CMSMS\Utils;
 use News\AdminOperations;
+use function CMSMS\de_specialize_array;
+use function CMSMS\specialize;
+//use function CMSMS\de_specialize;
+//use function CMSMS\sanitizeVal;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify News')) exit;
-if (isset($params['cancel'])) $this->Redirect($id, 'defaultadmin', $returnid);
+if (isset($params['cancel'])) { $this->Redirect($id, 'defaultadmin', $returnid); }
 
 $cz = $config['timezone'];
 $tz = new DateTimeZone($cz);
@@ -38,17 +45,17 @@ $toffs = $tz->getOffset($dt);
 $useexp = $params['inputexp'] ?? 1;
 
 if (isset($params['submit']) || isset($params['apply'])) {
-
+    de_specialize_array($params); // TODO sanitizeVal() some of these
     $articleid    = $params['articleid']; //-1 before save, >0 after 'apply'
-    $title        = $params['title'];
-    $summary      = $params['summary'];
-    $content      = $params['content'];
-    $status       = $params['status'];
-    $searchable   = $params['searchable'] ?? 0;
-    $news_url     = $params['news_url'];
-    $usedcategory = $params['category'];
     $author_id    = $params['author_id'] ?? 0;
+    $content      = $params['content'];
     $extra        = trim($params['extra']);
+    $news_url     = $params['news_url'];
+    $searchable   = $params['searchable'] ?? 0;
+    $status       = $params['status'];
+    $summary      = $params['summary'];
+    $title        = $params['title'];
+    $usedcategory = $params['category'];
 
     $error = false;
 
@@ -109,21 +116,21 @@ if (isset($params['submit']) || isset($params['apply'])) {
 
     if ($news_url) {
         // check for starting or ending slashes
-        if (startswith($news_url, '/') || endswith($news_url, '/')) {
+        if (($news_url[0] == '/') || substr_compare($news_url, '/', -1, 1) === 0) {
             $this->ShowErrors($this->Lang('error_invalidurl'));
             $error = true;
         }
 
-        // check for invalid chars.
-        $translated = munge_string_to_url($news_url, false, true);
-        if (strtolower($translated) != strtolower($news_url)) {
+        // check for invalid chars
+        $tmp = (new Url())->sanitize($news_url);
+        if ($tmp != $news_url) {
             $this->ShowErrors($this->Lang('error_invalidurl'));
             $error = true;
         }
 
         // check this url isn't a duplicate.
-        // we're adding an article, not editing... any matching route is bad.
-        RouteOperations::load_routes();
+        // we're adding an article, not editing... any matching route is bad
+        RouteOperations::load_routes(); // populate module's intra-request routes
         $route = RouteOperations::find_match($news_url);
         if ($route) {
             $this->ShowErrors($this->Lang('error_invalidurl'));
@@ -150,7 +157,7 @@ create_date,
 author_id,
 news_extra,
 news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
-            $articleid = $db->GenID(CMS_DB_PREFIX . 'module_news_seq');
+            $articleid = $db->genID(CMS_DB_PREFIX . 'module_news_seq');
             $now = time();
             $stsave = ($status == 'final' && $startdate > 0 && $startdate < $now && ($enddate == 0 || $enddate > $now)) ? 'published' : $status;
             $args = [
@@ -184,7 +191,7 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
                 if (($status == 'published' || $status == 'final') && $searchable) {
                     //Update search index
-                    $module = cms_utils::get_search_module();
+                    $module = Utils::get_search_module();
                     if (is_object($module)) {
                         $text = $content . ' ' . $summary . ' ' . $title . ' ' . $title;
                         $module->AddWords($this->GetName(), $articleid, 'article', $text, ($useexp == 1 && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL);
@@ -283,7 +290,7 @@ WHERE news_id=?';
     $detail_returnid = $this->GetPreference('detail_returnid', -1);
     if ($detail_returnid <= 0) {
         // now get the default content id.
-        $detail_returnid = ContentOperations::get_instance()->GetDefaultContent();
+        $detail_returnid = AppSingle::ContentOperations()->GetDefaultContent();
     }
     if (isset($params['previewpage']) && (int)$params['previewpage'] > 0)
         $detail_returnid = (int)$params['previewpage'];
@@ -325,7 +332,7 @@ $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hie
 $rst = $db->Execute($query);
 if ($rst) {
     while (($row = $rst->FetchRow())) {
-        $categorylist[$row['long_name']] = $row['news_category_id'];
+        $categorylist[$row['news_category_id']] = specialize($row['long_name']);
     }
     $rst->Close();
 }
@@ -343,8 +350,7 @@ $tpl->assign('formaction','addarticle')
     ->assign('formparms', $parms);
 
 if ($author_id > 0) {
-    $userops = UserOperations::get_instance();
-    $theuser = $userops->LoadUserById($author_id);
+    $theuser = AppSingle::UserOperations()->LoadUserById($author_id);
     if ($theuser) {
         $tpl->assign('inputauthor', $theuser->username);
     } else {
@@ -377,7 +383,7 @@ $tpl->assign('inputcontent', FormUtils::create_textarea([
 $tpl->assign([
  'articleid' => $articleid,
  'category' => $usedcategory,
- 'categorylist' => array_flip($categorylist),
+ 'categorylist' => $categorylist,
  'extra' => $extra,
  'fromdate' => $fromdate,
  'fromtime' => $fromtime,
@@ -397,14 +403,23 @@ if ($this->CheckPermission('Approve News')) {
         $this->Lang('draft')=>'draft',
         $this->Lang('final')=>'final',
     ];
-    $statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
+//    $statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
+    $statusradio = FormUtils::create_select([ // DEBUG
+        'type' => 'radio',
+        'name' => 'status',
+        'htmlid' => 'status',
+        'modid' => $id,
+        'options' => $choices,
+        'selectedvalue' => $status,
+        'delimiter' => '  ',
+    ]);
     $tpl->assign('statuses',$statusradio);
-    //->assign('statustext', lang('status'));
+//   ->assign('statustext', lang('status'));
 }
 
 // get the detail templates, if any
 try {
-    $type = CmsLayoutTemplateType::load($this->GetName() . '::detail');
+    $type = TemplateType::load($this->GetName() . '::detail');
     $templates = $type->get_template_list();
     $list = [];
     if ($templates) {

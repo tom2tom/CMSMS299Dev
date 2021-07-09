@@ -112,6 +112,9 @@ EOS
 'settings_wysiwyg' => 'Select one of these, to use for editing HTML.<br /><br />Some such editors may require a substantial download at runtime, and if that is a problem, select another option.',
 'settings_wysiwygtheme' => 'If the default WYSIWYG editor supports theming, enter here the name of the default theme. Admin users will be able to select a different theme as one of their own preferences.',
 
+'settings_password_level' => 'This sets the minimum acceptable standard of admin users\' password \'complexity\'. That can be increased by greater length, more variability, fewer recognizable words/character-sequences. The choice is applied to new and renewed passwords. Remember, complex passwords may actually be <strong>less</strong> secure, if people resort to storing them carelessly.',
+'settings_username_settings' => 'This sets the minimum acceptable standard of admin users\' login (a.k.a. account name) \'complexity\'.',
+
 ] + $lang;
 
 //'settings_smartycaching' => 'When enabled, the output from various plugins will be cached to increase performance. Additionally, most portions of compiled templates will be cached. This only applies to output on content pages marked as cachable, and only for non-admin users. Note, this functionality might interfere with the behavior of some modules or plugins, or plugins that use non-inline forms.<br/><br/><strong>Note:</strong> When smarty caching is enabled, global content blocks <em>(GCBs)</em> are always cached by smarty, and User Defined Tags <em>(UDTs)</em> are never cached. Additionally, content blocks are never cached.',

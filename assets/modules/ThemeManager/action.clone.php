@@ -7,6 +7,7 @@ Refer to licence and other details at the top of file ThemeManager.module.php
 
 use CMSMS\App;
 use ThemeManager\Utils;
+use function CMSMS\sanitizeVal;
 
 if (!isset($gCms) || !($gCms instanceof App)) {
 	exit;
@@ -21,9 +22,9 @@ if (!$pmod) {
 if (empty($params['name'])) { $params['name'] = 'Clone Tester'; } //DEBUG
 
 $raw = $params['theme'];
-$path = cms_join_path(CMS_THEMES_PATH, sanitizeVal($raw, 3));
+$path = cms_join_path(CMS_THEMES_PATH, sanitizeVal($raw, CMSSAN_FILE)); // OR , CMSSAN_PATH for a sub-theme?
 if (is_dir($path)) {
-	$topath = cms_join_path(CMS_THEMES_PATH, sanitizeVal($params['name'], 3));
+	$topath = cms_join_path(CMS_THEMES_PATH, sanitizeVal($params['name'], CMSSAN_FILE)); // ditto
 	if (is_dir($topath)) {
 		//TODO handle duplication
 	}

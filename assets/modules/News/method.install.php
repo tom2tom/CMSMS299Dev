@@ -43,8 +43,8 @@ else {
 }
 
 $dict = new DataDictionary($db);
-$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 
+$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 $tbl = CMS_DB_PREFIX.'module_news';
 // icon C(255), no longer used
 // news_date I, ditto
@@ -80,13 +80,14 @@ $dict->ExecuteSQLArray($sqlarray);
 
 $db->CreateSequence(CMS_DB_PREFIX.'module_news_seq'); //race-preventer
 
+$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii COLLATE ascii_general_ci'];
 $flds = '
 news_category_id I(2) UNSIGNED AUTO KEY,
-news_category_name C(255) NOT NULL,
+news_category_name C(255) NOT NULL CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
 parent_id I(4),
 hierarchy C(255),
 item_order I(2) UNSIGNED,
-long_name X(1024),
+long_name X(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
 create_date I,
 modified_date I DEFAULT 0
 ';
@@ -109,7 +110,7 @@ $db->Execute($query, [
 AdminOperations::UpdateHierarchyPositions();
 
 // Initial news article
-$articleid = $db->GenID(CMS_DB_PREFIX.'module_news_seq'); //OR use $db->Insert_ID();
+$articleid = $db->genID(CMS_DB_PREFIX.'module_news_seq'); //OR use $db->Insert_ID();
 $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news (news_id,news_category_id,author_id,news_title,news_data,status,start_time,create_date) VALUES (?,?,?,?,?,?,?,?)';
 $db->Execute($query, [
 $articleid,

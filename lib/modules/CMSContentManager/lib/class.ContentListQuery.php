@@ -19,14 +19,12 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace CMSContentManager;
 
-use CmsInvalidDataException;
-use CmsLogicException;
 use CMSMS\AppSingle;
 use CMSMS\DbQueryBase;
-use CmsSQLErrorException;
+use CMSMS\SQLErrorException;
+use RuntimeException;
 use const CMS_DB_PREFIX;
 
 /**
@@ -35,8 +33,6 @@ use const CMS_DB_PREFIX;
  * @internal
  * @ignore
  * @final
- * @author Robert Campbell
- *
  */
 final class ContentListQuery extends DbQueryBase
 {
@@ -72,7 +68,7 @@ final class ContentListQuery extends DbQueryBase
 
 	/**
 	 *
-	 * @throws CmsSQLErrorException
+	 * @throws SQLErrorException
 	 */
 	public function execute()
 	{
@@ -113,19 +109,19 @@ final class ContentListQuery extends DbQueryBase
 
 		$db = AppSingle::Db();
 		$this->_rs = $db->SelectLimit($sql,$this->_limit,$this->_offset,$parms);
-		if( !$this->_rs || $this->_rs->errno !== 0 ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		if( !$this->_rs || $this->_rs->errno !== 0 ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()');
 	}
 
 	/**
 	 *
 	 * @return int
-	 * @throws CmsLogicException
+	 * @throws RuntimeException
 	 */
 	public function GetObject()
 	{
 		$this->execute();
-		if( !$this->_rs ) throw new CmsInvalidDataException('Cannot get stylesheet from invalid stylesheet query object');
+		if( !$this->_rs ) throw new RuntimeException('Cannot get stylesheet from invalid stylesheet query object');
 
 		$out = (int) $this->_rs->fields['content_id'];
 		return $out;

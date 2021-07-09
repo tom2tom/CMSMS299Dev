@@ -1,7 +1,7 @@
 <?php
 /*
 Cookie operations class
-Copyright (C) 2015-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2015-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,12 +16,13 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
 use CMSMS\AppSingle;
+use CMSMS\ICookieManager;
 use const CMS_ROOT_URL;
 
 /**
@@ -35,7 +36,7 @@ use const CMS_ROOT_URL;
  * @since 1.10 as global-namespace cms_cookies
  * @deprecated since 2.99 instead use SignedCookieOperations
  */
-final class Cookies implements CookieManager
+final class Cookies implements ICookieManager
 {
     // static properties here >> StaticProperties class ?
     /**

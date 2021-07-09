@@ -21,10 +21,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace ModuleManager;
 
-use CmsCommunicationException;
-use CmsInvalidDataException;
-use CMSMS\ModuleOperations;
+use CMSMS\AppSingle;
+use CMSMS\CommunicationException;
+use CMSMS\DataException;
 use CMSMS\Utils as AppUtils;
+use ModuleManager\cached_request;
+use ModuleManager\modulerep_client;
 use const CMS_VERSION;
 use const MINIMUM_REPOSITORY_VERSION;
 use function cms_join_path;
@@ -45,22 +47,22 @@ final class Utils
      */
     public static function get_installed_modules($include_inactive = FALSE, $as_hash = FALSE)
     {
-        $modops = ModuleOperations::get_instance();
+        $modops = AppSingle::ModuleOperations();
         $module_list = $modops->GetInstalledModules($include_inactive);
 
         $results = [];
-        foreach( $module_list as $module_name ) {
-            $inst = $modops->get_module_instance($module_name);
-            if( !$inst ) continue;
+        foreach( $module_list as $modname ) {
+            $modinst = $modops->get_module_instance($modname);
+            if( !$modinst ) continue;
 
             $details = [];
-            $details['name'] = $inst->GetName();
-            $details['description'] = $inst->GetDescription();
-            $details['version'] = $inst->GetVersion();
-            $details['active'] = $modops->IsModuleActive($module_name);
+            $details['name'] = $modinst->GetName();
+            $details['description'] = $modinst->GetDescription();
+            $details['version'] = $modinst->GetVersion();
+            $details['active'] = $modops->IsModuleActive($modname);
 
             if( $as_hash ) {
-                $results[$module_name] = $details;
+                $results[$modname] = $details;
             }
             else {
                 $results[] = $details;
@@ -89,9 +91,9 @@ final class Utils
         }
 
         $r = strcasecmp($n1,$n2);
-		if( $r !== 0 ) {
-			return $r <=> 0;
-		}
+        if( $r !== 0 ) {
+            return $r <=> 0;
+        }
         return version_compare($v2, $v1);
     }
 
@@ -184,21 +186,21 @@ final class Utils
      * @param type $size
      * @param type $md5sum
      * @return string
-     * @throws CmsCommunicationException
-     * @throws CmsInvalidDataException
+     * @throws CommunicationException
+     * @throws DataException
      */
     public static function get_module_xml($filename,$size,$md5sum = null)
     {
         $mod = AppUtils::get_module('ModuleManager');
         $xml_filename = modulerep_client::get_repository_xml($filename,$size);
-        if( !$xml_filename ) throw new CmsCommunicationException($mod->Lang('error_downloadxml',$filename));
+        if( !$xml_filename ) throw new CommunicationException($mod->Lang('error_downloadxml',$filename));
 
         if( !$md5sum ) $md5sum = modulerep_client::get_module_md5($filename);
         $dl_md5 = md5_file($xml_filename);
 
         if( $md5sum != $dl_md5 ) {
             @unlink($xml_filename);
-            throw new CmsInvalidDataException($mod->Lang('error_checksum',[$server_md5,$dl_md5]));
+            throw new DataException($mod->Lang('error_checksum',[$server_md5,$dl_md5]));
         }
 
         return $xml_filename;

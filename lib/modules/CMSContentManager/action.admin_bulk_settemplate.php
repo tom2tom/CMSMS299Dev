@@ -19,9 +19,10 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SysDataCache;
+use CMSMS\AppSingle;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
+use CMSMS\UserParams;
 
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_settemplate' ) exit;
@@ -41,7 +42,7 @@ $hm = $gCms->GetHierarchyManager();
 $showmore = 0;
 if( isset($params['showmore']) ) {
     $showmore = (int) $params['showmore'];
-    cms_userprefs::set('cgcm_bulk_showmore',$showmore);
+    UserParams::set('cgcm_bulk_showmore',$showmore);
 }
 if( isset($params['submit']) ) {
     if( !isset($params['confirm1']) || !isset($params['confirm2']) ) {
@@ -77,7 +78,7 @@ if( isset($params['submit']) ) {
         cms_warning('Changing template on multiple pages failed: '.$t->getMessage());
         $this->SetError($t->getMessage());
     }
-    $cache = SysDataCache::get_instance();
+    $cache = AppSingle::SysDataCache();
     $cache->release('content_quicklist');
     $cache->release('content_tree');
     $cache->release('content_flatlist');
@@ -103,7 +104,7 @@ foreach( $pagelist as $pid ) {
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_settemplate.tpl')); //,null,null,$smarty);
 
-$tpl->assign('showmore',cms_userprefs::get('cgcm_bulk_showmore'))
+$tpl->assign('showmore',UserParams::get('cgcm_bulk_showmore'))
  ->assign('pagelist',$params['bulk_content'])
  ->assign('displaydata',$displaydata);
 

@@ -20,11 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\ModuleOperations;
-//use Smarty_Resource_Custom;
-//use const CMS_ASSETS_PATH;
-//use function cms_error;
-//use function cms_join_path;
+use CMSMS\AppSingle;
 
 /**
  * A class to handle a module file template.
@@ -59,14 +55,14 @@ class Smarty_Resource_module_file_tpl extends Smarty_Resource_Custom //Smarty_In
             return;
         }
 
-        $module_name = trim($parts[0]);
-        $module = ModuleOperations::get_instance()->get_module_instance($module_name); //loaded modules only
-        if( $module ) {
-            $module_path = $module->GetModulePath();
+        $modname = trim($parts[0]);
+        $modinst = AppSingle::ModuleOperations()->get_module_instance($modname); //loaded modules only
+        if( $modinst ) {
+            $module_path = $modinst->GetModulePath();
             $filename = trim($parts[1]);
             $files = [];
 //            $files[] = cms_join_path($module_path,'custom','templates',$filename);
-            $files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$module_name,'templates',$filename);
+            $files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$modname,'templates',$filename);
             $files[] = cms_join_path($module_path,'templates',$filename);
 
             foreach( $files as $one ) {

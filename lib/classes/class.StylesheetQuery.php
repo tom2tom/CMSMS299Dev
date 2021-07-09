@@ -1,7 +1,7 @@
 <?php
 /*
 Class to perform advanced queries on layout stylesheets
-Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,25 +16,24 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CmsInvalidDataException;
-use CmsLogicException;
 use CMSMS\AppSingle;
 use CMSMS\DbQueryBase;
+use CMSMS\SQLErrorException;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
-use CmsSQLErrorException;
+use RuntimeException;
 use const CMS_DB_PREFIX;
 
 /**
  * @package CMS
  * @since 2.0
  * Class to perform advanced database queries on layout stylesheets
- * @see CmsDbQueryBase
+ * @see CMSMS\DbQueryBase
  * @property int $id The stylesheet id.  This will result in at most 1 result being returned.
  * @property string $name A stylesheet name to filter upon.  If a partial name is provided, it is assumed to be a prefix.
  * @property int $design A design id to filter upon.
@@ -47,8 +46,8 @@ class StylesheetQuery extends DbQueryBase
 	 * Execute the query in this object.
 	 *
 	 * @return void
-	 * @throws CmsInvalidDataException
-	 * @throws CmsSQLErrorException
+	 * @throws LogicException
+	 * @throws SQLErrorException
 	 */
 	public function execute()
 	{
@@ -153,7 +152,7 @@ class StylesheetQuery extends DbQueryBase
 					break;
 				case 'design':
 					if( !$have_design ) {
-						throw new CmsInvalidDataException('Cannot sort by design if design_id is not known');
+						throw new LogicException('Cannot sort by design if design_id is not known');
 					}
 					$sortby = 'D.name';
 					break;
@@ -187,7 +186,7 @@ class StylesheetQuery extends DbQueryBase
 
 		$this->_rs = $db->SelectLimit($query,$this->_limit,$this->_offset);
 		if( !$this->_rs || $this->_rs->errno !== 0 ) {
-			throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+			throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()');
 	}
@@ -198,12 +197,12 @@ class StylesheetQuery extends DbQueryBase
 	 * This method is not as efficient as the GetMatches() method when the resultset has multiple items.
 	 *
 	 * @return Stylesheet
-	 * @throws CmsLogicException
+	 * @throws RuntimeException
 	 */
 	public function GetObject()
 	{
 		$this->execute();
-		if( !$this->_rs ) throw new CmsInvalidDataException('Cannot get stylesheet from invalid stylesheet query object');
+		if( !$this->_rs ) throw new RuntimeException('Cannot get stylesheet from invalid stylesheet query object');
 		$id = $this->_rs->fields('id');
 		return StylesheetOperations::get_stylesheet((int)$id);
 	}
@@ -212,12 +211,12 @@ class StylesheetQuery extends DbQueryBase
 	 * Return all the matches for this query
 	 *
 	 * @return mixed array Stylesheet objects | null
-	 * @throws CmsLogicException
+	 * @throws RuntimeException
 	 */
 	public function GetMatches()
 	{
 		$this->execute();
-		if( !$this->_rs ) throw new CmsInvalidDataException('Cannot get template from invalid template query object');
+		if( !$this->_rs ) throw new RuntimeException('Cannot get template from invalid template query object');
 
 		$tmp = [];
 		while( !$this->EOF() ) {

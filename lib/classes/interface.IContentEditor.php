@@ -228,7 +228,7 @@ interface IContentEditor
 	 * We do not check the Id because there might not be one yet (new content)
 	 * The Save() method needs to validate Id.
 	 *
-	 * @returns	mixed array of error-message string(s), or false indicates success
+	 * @return	mixed array of error-message string(s), or false indicates success
 	 */
 	public function ValidateData();
 
@@ -546,7 +546,7 @@ interface IContentEditor
 	/**
 	 * Return whether this page may be the default page for the website.
 	 *
-	 * @returns bool Default true
+	 * @return bool Default true
 	 */
 	public function IsDefaultPossible();
 

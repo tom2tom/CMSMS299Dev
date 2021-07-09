@@ -21,13 +21,14 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
+//use CMSMS\DeprecationNotice;
 use CMSMS\AdminTheme;
 use CMSMS\AppConfig;
 use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
 use CMSMS\Database\Connection;
-//use CMSMS\DeprecationNotice;
 use CMSMS\internal\Smarty;
+use Throwable;
 //use const CMS_DEPREC;
 
 /**
@@ -166,7 +167,7 @@ final class Utils
 
 	/**
 	 * Report whether a module is available.
-	 * @see get_module(), SysDataCache::get_instance()->get('modules')
+	 * @see get_module(), AppSingle::SysDataCache()->get('modules')
 	 * @since 1.11
 	 *
 	 * @param string $name The module name
@@ -311,7 +312,7 @@ final class Utils
 			$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
 		}
 
-		if( filter_var($ip,FILTER_VALIDATE_IP) ) return $ip;
+		if( filter_var($ip, FILTER_VALIDATE_IP) ) return $ip;
 
 		return null;
 	}

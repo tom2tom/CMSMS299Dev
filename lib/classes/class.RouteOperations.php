@@ -1,7 +1,7 @@
 <?php
 /*
 Functions for managing CMSMS routes
-Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -25,9 +25,7 @@ use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
-use CMSMS\ModuleOperations;
 use CMSMS\Route;
-use CMSMS\SysDataCache;
 use CMSMS\SysDataCacheDriver;
 use Exception;
 use const CMS_DB_PREFIX;
@@ -121,7 +119,7 @@ final class RouteOperations
 				AppState::remove_state(AppState::STATE_ADMIN_PAGE);
 				$flag = true;
 			}
-			$modops = ModuleOperations::get_instance();
+			$modops = AppSingle::ModuleOperations();
 			$extras = $modops->GetLoadableModuleNames(); // hence incremental changes
 			$skips = $modops->GetMethodicModules('IsRoutableModule',FALSE); //deprecated since 2.99
 			$polls = array_diff($extras, $skips);
@@ -133,11 +131,11 @@ final class RouteOperations
 
 			if( $tmp ) {
 				//TODO merge $tmp and self::$_dynamic_routes, if count bigger after that ...
-				SysDataCache::get_instance()->set('routes', self::$_dynamic_routes);
+				AppSingle::SysDataCache()->set('routes', self::$_dynamic_routes);
 			}
 			return self::$_dynamic_routes; // old and new
 		});
-		SysDataCache::get_instance()->add_cachable($obj);
+		AppSingle::SysDataCache()->add_cachable($obj);
 	}
 
 	// ========== FINDING|MATCHING ==========
@@ -418,7 +416,7 @@ final class RouteOperations
 	{
 		if( self::$_dynamic_routes_loaded ) return;
 		self::setup();
-		self::$_dynamic_routes = SysDataCache::get_instance()->get('routes');
+		self::$_dynamic_routes = AppSingle::SysDataCache()->get('routes');
 		self::$_dynamic_routes_loaded = TRUE;
 	}
 
@@ -526,7 +524,7 @@ EOS;
 		$db->Execute($query);
 
 		// get module routes
-		$modops = ModuleOperations::get_instance();
+		$modops = AppSingle::ModuleOperations();
 		$modules = $modops->GetMethodicModules('CreateStaticRoutes');
 		if( $modules ) {
 			foreach( $modules as $modname ) {

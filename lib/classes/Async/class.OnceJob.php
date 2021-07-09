@@ -20,9 +20,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Async;
 
+use CMSMS\AppSingle;
 use CMSMS\Async\Job;
 use CMSMS\Async\RecurType;
-use ModuleOperations;
 use LogicException;
 
 /**
@@ -52,7 +52,7 @@ abstract class OnceJob extends Job
     public function execute()
     {
         $this->run();
-        $module = ModuleOperations::get_instance()->get_module_instance($this->manager_module);
+        $module = AppSingle::ModuleOperations()->get_module_instance($this->manager_module);
         if (!$module) {
             throw new LogicException('Cannot save a job... the job-manger module is not available');
         }

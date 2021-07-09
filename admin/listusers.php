@@ -20,14 +20,15 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+//use CMSMS\internal\LoginOperations;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
-use CMSMS\internal\LoginOperations;
 use CMSMS\UserParams;
-use CMSMS\Utils;
+use function CMSMS\de_specialize;
+use function CMSMS\sanitizeVal;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -35,75 +36,69 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 check_login();
 
-$urlext = get_secure_param();
 $userid = get_userid();
-
-$themeObject = Utils::get_theme_object();
-
 if (!check_permission($userid, 'Manage Users')) {
 //TODO some pushed popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-/*--------------------
- * Variables
- ---------------------*/
-
-$db           = AppSingle::Db();
+//--------- Variables ---------
+$themeObject = AppSingle::Theme();
+$db = AppSingle::Db();
 $templateuser = AppParams::get('template_userid');
-$page         = 1;
-$limit        = 100;
-$message      = '';
-$error        = '';
-$userops      = AppSingle::UserOperations();
-$selfurl      = basename(__FILE__);
-$extras       = get_secure_param_array();
+$page = 1;
+$limit = 100;
+$message = '';
+$error = '';
+$userops = AppSingle::UserOperations();
+$selfurl = basename(__FILE__);
+$extras = get_secure_param_array();
+$urlext = get_secure_param();
 
-/*--------------------
- * Logic
- ---------------------*/
+//---------- Logic ----------
 
 if (isset($_GET['switchuser'])) {
     // switch user functionality is only allowed for members of the admin group
     if ($userops->UserInGroup($userid, 1)) {
-        $to_uid = (int) $_GET['switchuser'];
+        $to_uid = (int)$_GET['switchuser'];
         $to_user = $userops->LoadUserByID($to_uid);
         if (!$to_user) {
             $themeObject->RecordNotice('error', lang('usernotfound'));
         } elseif (!$to_user->active) {
             $themeObject->RecordNotice('error', lang('userdisabled'));
         } else {
-            LoginOperations::get_instance()->set_effective_user($to_user);
-            $urlext = get_secure_param();
-            redirect('menu.php'.$urlext);
+            AppSingle::LoginOperations()->set_effective_user($to_user);
+            redirect('menu.php'.$urlext.'&section=usersgroups'); // TODO bad section hardcode
         }
     } else {
         $themeObject->RecordNotice('error', lang('permissiondenied'));
     }
 } elseif (isset($_GET['toggleactive'])) {
-    if ($_GET['toggleactive'] == 1) {
+	$to_uid = (int)$_GET['toggleactive'];
+    if ($to_uid == 1) {
         $themeObject->RecordNotice('error', lang('errorupdatinguser'));
     } else {
-        $thisuser = $userops->LoadUserByID((int)$_GET['toggleactive']);
+        $thisuser = $userops->LoadUserByID($to_uid);
         if ($thisuser) {
             // modify users, is this enough?
-            $result = false;
+//            $result = false;
             $thisuser->active == 1 ? $thisuser->active = 0 : $thisuser->active = 1;
-            Events::SendEvent('Core', 'EditUserPre', [ 'user' => &$thisuser ]);
+            Events::SendEvent('Core', 'EditUserPre', ['user' => &$thisuser]);
             $result = $thisuser->save();
 
             if ($result) {
                 // put mention into the admin log
                 audit($userid, 'Admin Username: ' . $thisuser->username, 'Edited');
-                Events::SendEvent('Core', 'EditUserPost', [ 'user' => &$thisuser ]);
+                Events::SendEvent('Core', 'EditUserPost', ['user' => &$thisuser]);
             } else {
                 $themeObject->RecordNotice('error', lang('errorupdatinguser'));
             }
         }
     }
 } elseif (isset($_POST['bulk']) && !empty($_POST['multiselect'])) {
-//   cms_specialchars_decode_array($_POST);
-    switch ($_POST['bulkaction']) {
+//   CMSMS\de_specialize_array($_POST);
+	$action = sanitizeVal($_POST['bulkaction'], CMSSAN_PURE); //letters only, specific values
+    switch ($action) {
         case 'delete':
             $ndeleted = 0;
             foreach ($_POST['multiselect'] as $uid) {
@@ -113,7 +108,7 @@ if (isset($_GET['switchuser'])) {
                 }
 
                 if ($uid == $userid) {
-                    continue; // can't delete self.
+                    continue; // can't delete self
                 }
 
                 $oneuser = $userops->LoadUserById($uid);
@@ -127,9 +122,9 @@ if (isset($_GET['switchuser'])) {
                 }
 
                 // ready to delete.
-                Events::SendEvent('Core', 'DeleteUserPre', [ 'user'=>&$oneuser ]);
+                Events::SendEvent('Core', 'DeleteUserPre', ['user'=>&$oneuser]);
                 $oneuser->Delete();
-                Events::SendEvent('Core', 'DeleteUserPost', [ 'user'=>&$oneuser ]);
+                Events::SendEvent('Core', 'DeleteUserPost', ['user'=>&$oneuser]);
                 audit($uid, 'Admin Username: ' . $oneuser->username, 'Deleted');
                 $ndeleted++;
             }
@@ -151,9 +146,9 @@ if (isset($_GET['switchuser'])) {
                     continue;
                 } // invalid user
 
-                Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$oneuser ]);
+                Events::SendEvent('Core', 'EditUserPre', ['user'=>&$oneuser]);
                 UserParams::remove_for_user($uid);
-                Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$oneuser ]);
+                Events::SendEvent('Core', 'EditUserPost', ['user'=>&$oneuser]);
                 audit($uid, 'Admin Username: ' . $oneuser->username, 'Settings cleared');
                 $nusers++;
             }
@@ -218,10 +213,10 @@ if (isset($_GET['switchuser'])) {
                 }
 
                 if ($oneuser->active) {
-                    Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$oneuser ]);
+                    Events::SendEvent('Core', 'EditUserPre', ['user'=>&$oneuser]);
                     $oneuser->active = 0;
                     $oneuser->save();
-                    Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$oneuser ]);
+                    Events::SendEvent('Core', 'EditUserPost', ['user'=>&$oneuser]);
                     audit($uid, 'Admin Username: ' . $oneuser->username, 'Disabled');
                     $nusers++;
                 }
@@ -240,7 +235,7 @@ if (isset($_GET['switchuser'])) {
                 }
 
                 if ($uid == $userid) {
-                    continue; // can't disable self.
+                    continue; // can't disable self
                 }
 
                 $oneuser = $userops->LoadUserById($uid);
@@ -249,10 +244,10 @@ if (isset($_GET['switchuser'])) {
                 }
 
                 if (!$oneuser->active) {
-                    Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$oneuser ]);
+                    Events::SendEvent('Core', 'EditUserPre', ['user'=>&$oneuser]);
                     $oneuser->active = 1;
                     $oneuser->save();
-                    Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$oneuser ]);
+                    Events::SendEvent('Core', 'EditUserPost', ['user'=>&$oneuser]);
                     audit($uid, 'Admin Username: ' . $oneuser->username, 'Enabled');
                     $nusers++;
                 }
@@ -264,9 +259,7 @@ if (isset($_GET['switchuser'])) {
     }
 }
 
-/*--------------------
- * Script for page footer
- ---------------------*/
+//------- Script for page footer -------
 
 //$nonce = get_csp_token();
 $confirm1 = json_encode(lang('confirm_switchuser'));
@@ -305,7 +298,7 @@ $(function() {
  });
  $('#listusers').submit(function(ev) {
   ev.preventDefault();
-  val el = this,
+  var el = this,
     v = $('#withselected').val();
   if(v === 'delete') {
    cms_confirm($confirm3).done(function() {
@@ -333,18 +326,16 @@ EOS;
 
 add_page_foottext($out);
 
-/*--------------------
- * Display view
- ---------------------*/
+//--------- Display view ---------
 
 if (!empty($error)) {
     $themeObject->RecordNotice('error', $error );
 }
 if (isset($_GET['message'])) {
-    $message = cms_specialchars_decode($_GET['message']);
+    $message = de_specialize($_GET['message']);
 }
 if (!empty($message)) {
-    $themeObject->RecordNotice('success', $message);
+    $themeObject->RecordNotice('success', specialize($message));
 }
 
 $userlist = [];
@@ -368,7 +359,7 @@ $iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'), ''
 $icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'), '', '', 'systemicon');
 $icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('yes'), '', '', 'systemicon');
 $iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('no'), '', '', 'systemicon');
-$iconrun = $themeObject->DisplayImage('icons/system/run.gif', lang('TODO'), '', '', 'systemicon'); //used for switch-user
+$iconrun = $themeObject->DisplayImage('icons/system/run.gif', lang('switchuser'), '', '', 'systemicon');
 
 $smarty = AppSingle::Smarty();
 $smarty->assign([

@@ -21,7 +21,6 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace News;
 
-use cms_config;
 use CMSMS\AppSingle;
 use CMSMS\Utils as AppUtils;
 use DateTime;

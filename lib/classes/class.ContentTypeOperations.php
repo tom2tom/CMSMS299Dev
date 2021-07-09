@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -23,11 +23,9 @@ namespace CMSMS;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\ContentOperations;
 use CMSMS\ContentType;
 use CMSMS\CoreCapabilities;
 use CMSMS\DeprecationNotice;
-use CMSMS\ModuleOperations;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use function cms_join_path;
@@ -36,6 +34,7 @@ use function lang_by_realm;
 use function startswith;
 
 /**
+ * TODO details
  */
 class ContentTypeOperations
 {
@@ -77,11 +76,11 @@ class ContentTypeOperations
 	 * This method is called over a hundred times during a typical request,
 	 * so definitely the class warrants being a singleton.
 	 * @deprecated since 2.99 instead use CMSMS\AppSingle::ContentTypeOperations()
-	 * @return ContentOperations
+	 * @return ContentTypeOperations
 	 */
 	public static function get_instance() : self
 	{
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::ContentTypeOperations()'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::ContentTypeOperations()'));
 		return AppSingle::ContentTypeOperations();
 	}
 
@@ -136,12 +135,12 @@ class ContentTypeOperations
 			// get any additional types from relevant modules.
 			// such types are registered in the modules' respective constructors,
 			// which process eventually shoves them into $this->_content_types.
-			$modops = ModuleOperations::get_instance();
+			$modops = AppSingle::ModuleOperations();
 			$module_list = $modops->GetCapableModules(CoreCapabilities::CONTENT_TYPES);
 			if( $module_list ) {
-				foreach( $module_list as $module_name ) {
-					$obj = $modops->get_module_instance($module_name);
-					$obj = null;
+				foreach( $module_list as $modname ) {
+					$modinst = $modops->get_module_instance($modname);
+					$modinst = null; // help the garbage-collector
 				}
 			}
 		}
@@ -333,16 +332,16 @@ class ContentTypeOperations
 			}
 		}
 
-		$modops = ModuleOperations::get_instance();
+		$modops = AppSingle::ModuleOperations();
 		$module_list = $modops->GetMethodicModules('CreateStaticContentTypes');
 		if( $module_list ) {
-			foreach( $module_list as $module_name ) {
-				$obj = $modops->get_module_instance($module_name);
-				if( $obj ) {
-					$obj->CreateStaticContentTypes();
-					$obj = null; // help the garbage-collector
- 				}
+			foreach( $module_list as $modname ) {
+				$modinst = $modops->get_module_instance($modname);
+				if( $modinst ) {
+					$modinst->CreateStaticContentTypes();
+					$modinst = null; // help the garbage-collector
+				}
 			}
 		}
- 	}
+	}
 }

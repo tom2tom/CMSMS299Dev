@@ -19,9 +19,9 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace ModuleManager;
 
+use CMSMS\AppSingle;
 use CMSMS\internal\extended_module_info;
 use CMSMS\ModuleOperations;
 use Exception;
@@ -117,7 +117,7 @@ class ModuleInfo extends extended_module_info // and thence module_info
     {
         if( is_array(self::$_minfo) ) return self::$_minfo;
 
-        $allknownmodules = ModuleOperations::get_instance()->FindAllModules();
+        $allknownmodules = AppSingle::ModuleOperations()->FindAllModules();
 
         // first pass...
         $out = [];

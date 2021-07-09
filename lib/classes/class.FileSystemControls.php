@@ -1,7 +1,7 @@
 <?php
 /*
 Class defining folder-specific properties and permissions
-Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,17 +16,17 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CmsInvalidDataException;
 use CMSMS\AppSingle;
 use CMSMS\FileType;
 use CMSMS\FSControlValue;
-use Exception;
+use LogicException;
 use Throwable;
+use UnexpectedValueException;
 use const CMS_DEBUG;
 use const CMS_ROOT_PATH;
 use function cms_to_bool;
@@ -158,7 +158,7 @@ class FileSystemControls
                $this->_data[$key] = $s;
                break;
            }
-           throw new CmsInvalidDataException("$s is not a valid value for $key in ".self::class);
+           throw new UnexpectedValueException("$s is not a valid value for $key in ".self::class);
         case 'match_prefix':
         case 'exclude_prefix':
             $this->_data[$key] = trim($val);
@@ -171,7 +171,7 @@ class FileSystemControls
                     $this->_data[$key] = $n;
                     break;
                 }
-                throw new CmsInvalidDataException("$val is not a valid value for $key in ".self::class);
+                throw new UnexpectedValueException("$val is not a valid value for $key in ".self::class);
             }
             // no break here
         case 'typename':
@@ -180,7 +180,7 @@ class FileSystemControls
                 $this->_data['type'] = $n;
                 break;
             }
-            throw new CmsInvalidDataException("$val is not a valid value for $key in ".self::class);
+            throw new UnexpectedValueException("$val is not a valid value for $key in ".self::class);
 
         case 'can_mkdir':
         case 'can_delete':
@@ -197,7 +197,7 @@ class FileSystemControls
                 $this->_data[$key] = $val;
                 break;
             default:
-                throw new CmsInvalidDataException("$val is not a valid value for $key in ".self::class);
+                throw new UnexpectedValueException("$val is not a valid value for $key in ".self::class);
             }
             break;
 
@@ -284,16 +284,16 @@ class FileSystemControls
         $fn = basename($filename);
         try {
             if( !$this->_data['show_hidden'] && ($fn[0] === '.' || $fn[0] === '_') ) {
-                throw new Exception($fn.': name is not acceptable');
+                throw new LogicException($fn.': name is not acceptable');
             }
 
             if( !$this->getMatch($this->_data['match_prefix'], $fn) ) {
-                throw new Exception($fn.': name is not acceptable');
+                throw new LogicException($fn.': name is not acceptable');
             }
 
             if( $this->_data['exclude_prefix'] ) {
                 if( $this->getMatch($this->_data['exclude_prefix'], $fn) ) {
-                    throw new Exception($fn.': name is not acceptable');
+                    throw new LogicException($fn.': name is not acceptable');
                 }
             }
             return true;

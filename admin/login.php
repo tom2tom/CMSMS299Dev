@@ -36,6 +36,7 @@ if (!$name) {
 	if ($themeObject) {
 		if (method_exists($themeObject, 'display_login_page')) {
 			$themeObject->display_login_page();
+			exit;
 		} else {
 			$name = 'module'; // fall back to using the default
 		}
@@ -46,9 +47,10 @@ if (!$name) {
 
 $ops = AppSingle::ModuleOperations();
 if ($name == 'module') {
-	$name = AppParams::get('loginmodule', $ops::STD_LOGIN_MODULE);
+	$modinst = $ops->GetAdminLoginModule();
+} else {
+	$modinst = $ops->get_module_instance($name, '', true);
 }
-$modinst = $ops->get_module_instance($name, '', true);
 if ($modinst) {
 	try {
 		$modinst->display_login_page();

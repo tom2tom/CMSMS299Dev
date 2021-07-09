@@ -29,7 +29,6 @@ use CMSMS\NlsOperations;
 use CMSMS\RequestParameters;
 use CMSMS\ScriptsMerger;
 use CMSMS\StylesMerger;
-use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 use const CMS_ADMIN_PATH;
@@ -335,7 +334,7 @@ EOS;
 			$smarty->assign('nav', $this->_havetree);
 		}
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
-		$user = UserOperations::get_instance()->LoadUserByID($userid);
+		$user = AppSingle::UserOperations()->LoadUserByID($userid);
 		$smarty->assign('username', $user->username);
 		// selected language
 		$lang = UserParams::get_for_user($userid, 'default_cms_language');

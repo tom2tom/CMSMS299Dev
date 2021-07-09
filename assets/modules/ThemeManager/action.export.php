@@ -7,6 +7,7 @@ Refer to licence and other details at the top of file ThemeManager.module.php
 
 use CMSMS\App;
 use CMSMS\FileTypeHelper;
+use function CMSMS\sanitizeVal;
 
 if (!isset($gCms) || !($gCms instanceof App)) {
 	exit;
@@ -35,7 +36,7 @@ if (!$this->CheckPermission('Modify Themes')) { //OR WHATEVER
 }
 */
 
-$themename = sanitizeVal($params['theme'], 3);
+$themename = sanitizeVal($params['theme'], CMSSAN_FILE); // OR CMSSAN_PUNCT OR ,CMSSAN_PURESPC OR ,CMSSAN_NAME ?
 $xmlfile = 'CMSMS-Theme-' . $themename;
 $outfile = PUBLIC_CACHE_LOCATION . DIRECTORY_SEPARATOR . $xmlfile . '.xmltmp';
 @unlink($outfile);

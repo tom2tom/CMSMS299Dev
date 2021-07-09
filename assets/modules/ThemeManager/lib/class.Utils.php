@@ -20,13 +20,15 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace ThemeManager;
 
-//use CMSMS\FilePickerProfile;
+use CMSMS\AppSingle;
 use CMSMS\Utils as AppUtils;
-use ThemeManager;
 use Exception;
+use ThemeManager;
 use const CMS_DB_PREFIX;
+use const CMS_THEMES_PATH;
+use const CMSSAN_FILE;
 use function cmsms;
-use function sanitizeVal;
+use function CMSMS\sanitizeVal;
 use function get_recursive_file_list;
 
 final class Utils
@@ -189,7 +191,7 @@ final class Utils
      */
     function getTemplateIdByName($name)
     {
-        $db = cmsms()->GetDb();
+        $db = AppSingle::Db();
         $query = 'SELECT template_id FROM ' . CMS_DB_PREFIX . 'templates WHERE template_type = ?'; //TODO support named/themed templates
         $result = $db->getOne($query, [$name]);
         return $result;
@@ -206,7 +208,7 @@ final class Utils
      */
     public function insertImport($theme_id, $type, $name, $system_id = '', $module = '', $location = '')
     {
-        $db = cmsms()->GetDb();
+        $db = AppSingle::Db();
         $insert = false;
         switch ($type) {
             case 'template':
@@ -317,7 +319,7 @@ final class Utils
             $parents[] = $page['hierarchy_path'];
         }
         $paths = [];
-        $db = cmsms()->GetDb();
+        $db = AppSingle::Db();
         $query = 'SELECT hierarchy_path FROM ' . CMS_DB_PREFIX . 'content';
         $rst = $db->Execute($query);
         while ($rst && $row = $rst->FetchRow()) {
@@ -363,7 +365,7 @@ final class Utils
      */
     public function create_manifest(string $theme)
     {
-        $themename = sanitizeVal($theme, 3);
+        $themename = sanitizeVal($theme, CMSSAN_FILE); // OR CMSSAN_PATH for a sub-theme ?
         $dir = CMS_THEMES_PATH . DIRECTORY_SEPARATOR . $themename;
         $items = get_recursive_file_list($dir, ['Theme\.cfg', 'Theme\.manifest'], -1, 'FILES');
         if ($items) {
@@ -442,7 +444,7 @@ final class Utils
     public function unique_name(string $theme) : string
     {
         $base = CMS_THEMES_PATH . DIRECTORY_SEPARATOR;
-        $name = sanitizeVal($theme, 3);
+        $name = sanitizeVal($theme, CMSSAN_FILE);
         $i = 1;
         while (is_dir($base.$name)) {
             $name .= "($i)";

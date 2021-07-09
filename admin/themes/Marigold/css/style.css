@@ -853,6 +853,19 @@ aside .no-slide, .no-slide {
 
 /*** header ***/
 
+.headericon {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 1em 0 0;
+    height: 2em;
+    width: 2em;
+}
+
+.headericon img {
+    max-height: 2em;
+    max-width: 2em;
+}
+
 header.header {
 /*    height: 100px; */
     background: #cecece

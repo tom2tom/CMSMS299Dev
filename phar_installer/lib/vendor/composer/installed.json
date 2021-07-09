@@ -23,7 +23,7 @@
         "autoload": {
             "psr-4": {
                 "StupidPass\\": [
-                    "src/"
+                    ""
                 ]
             }
         },
@@ -33,14 +33,54 @@
         ],
         "authors": [
             {
-                "name": "Danny Fullerton"
+                "name": "Danny Fullerton",
+                "email": "https://danny.mantor.org/about"
             }
         ],
+        "homepage": "",
         "description": "Provides a simple way of checking for easy-to-guess/bruteforce password.",
         "keywords": [
             "password",
             "security"
         ],
         "abandoned": true
+    },
+    {
+        "name": "rumkin/passchk",
+        "version": "v2.0",
+        "version_normalized": "2.0.0.0",
+        "source": {
+        },
+        "dist": {
+        },
+        "require-dev": {
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "passchk\\": [
+                    ""
+                ]
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPL3"
+        ],
+        "authors": [
+            {
+                "name": "Tyler Akins",
+                "email": "fidian@rumkin.com"
+            }
+        ],
+        "description": "Provides a simple way of checking the complexity of passwords.",
+        "homepage": "http://rumkin.com/tools/password/passchk.php",
+        "keywords": [
+            "password",
+            "security",
+            "complexity",
+            "entropy"
+        ]
     }
 ]

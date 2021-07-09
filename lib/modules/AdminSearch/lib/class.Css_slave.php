@@ -1,5 +1,10 @@
 <?php
-
+/*
+Class which supports searching in stylesheets.
+Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+See license details at the top of file AdminSearch.module.php
+*/
 namespace AdminSearch;
 
 use CMSMS\Stylesheet;
@@ -13,90 +18,107 @@ use function cmsms;
 use function get_secure_param;
 use function get_userid;
 
-final class Css_slave extends Slave
+final class Css_slave extends Base_slave
 {
-  public function get_name()
-  {
-    $mod = Utils::get_module('AdminSearch');
-    return $mod->Lang('lbl_css_search');
-  }
-
-  public function get_description()
-  {
-    $mod = Utils::get_module('AdminSearch');
-    return $mod->Lang('desc_css_search');
-  }
-
-  public function check_permission()
-  {
-    $userid = get_userid();
-    return check_permission($userid,'Manage Stylesheets');
-  }
-
-  private function check_css_matches(Stylesheet $css)
-  {
-    $fname = ( $this->search_casesensitive() ) ? 'stripos' : 'strpos'; // TODO handle mb_* matches
-    $needle = $this->get_text();
-    if( $fname($css->get_name(),$needle) !== false ) return true;
-    if( $fname($css->get_content(),$needle) !== false ) return true;
-    if( $this->search_descriptions() && $fname($css->get_description(),$needle) !== false ) return true;
-    return false;
-  }
-
-  private function get_mod()
-  {
-    // static properties here >> StaticProperties class ?
-    static $_mod;
-    if( !$_mod ) $_mod = Utils::get_module('AdminSearch');
-    return $_mod;
-  }
-
-  private function get_css_match_info(Stylesheet $css)
-  {
-    $fname = ( $this->search_casesensitive() ) ? 'stripos' : 'strpos'; // TODO handle mb_* matches
-    $needle = $this->get_text();
-    $content = $css->get_content();
-    $html = '';
-    $pos = $fname($content,$needle);
-    if( $pos !== false ) { //TODO loop while
-      $html = Tools::contextize($needle, $content, $pos);
+    public function get_name()
+    {
+        $mod = $this->get_mod();
+        return $mod->Lang('lbl_css_search');
     }
-    $urlext = get_secure_param();
-    $one = $css->get_id();
-    $url = 'editstylesheet.php'.$urlext.'&css='.$one; // OR view?
-    $title = $css->get_name();
-    if( $css->get_content_file() ) {
-      $file = $css->get_content_filename();
-      $title = $css->get_name().' ('.cms_relative_path($file,CMS_ROOT_PATH).')';
-    }
-    $tmp = [
-     'title'=>$title,
-     'description'=>Tools::summarize($css->get_description()),
-     'edit_url'=>$url,
-     'text'=>$html
-    ];
-    return $tmp;
-  }
 
-  public function get_matches()
-  {
-    $db = cmsms()->GetDb();
-//    $mod = $this->get_mod();
-    // get all stylesheets' ids
-    $sql = 'SELECT id FROM '.CMS_DB_PREFIX. StylesheetOperations::TABLENAME.' ORDER BY name';
-    $all_ids = $db->GetCol($sql);
-    $output = [];
-    if( $all_ids ) {
-      $chunks = array_chunk($all_ids,15);
-      foreach( $chunks as $chunk ) {
-        $css_list = StylesheetOperations::get_bulk_stylesheets($chunk);
-        foreach( $css_list as $css ) {
-          if( $this->check_css_matches($css) ) {
-            $output[] = $this->get_css_match_info($css);
-		  }
+    public function get_description()
+    {
+        $mod = $this->get_mod();
+        return $mod->Lang('desc_css_search');
+    }
+
+    private function get_mod()
+    {
+        // static properties here >> StaticProperties class ?
+        static $_mod;
+        if (!$_mod) {
+            $_mod = Utils::get_module('AdminSearch');
         }
-      }
+        return $_mod;
     }
-    return $output;
-  }
+
+    public function check_permission()
+    {
+        $userid = get_userid();
+        return check_permission($userid, 'Manage Stylesheets');
+    }
+
+    /**
+     * @return array of arrays
+     */
+    public function get_matches()
+    {
+        // get all stylesheets' ids
+        $db = AppSingle::Db();
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX. StylesheetOperations::TABLENAME.' ORDER BY name';
+        $all_ids = $db->GetCol($sql);
+        $output = [];
+
+        if ($all_ids) {
+            // get all stylesheets' props chunkwise
+            $chunks = array_chunk($all_ids, 15);
+            foreach ($chunks as $chunk) {
+                $css_list = StylesheetOperations::get_bulk_stylesheets($chunk);
+                foreach ($css_list as $css) {
+                    $res = $this->get_css_match_info($css);
+                    if ($res) {
+                        $output[] = $res;
+                    }
+                }
+            }
+        }
+        return $output;
+    }
+
+    private function get_css_match_info(Stylesheet $css)
+    {
+        $html = '';
+        $name = $css->get_name();
+        $html2 = $this->get_matches_info($name);
+        if ($html2) {
+            $html .= '<br />'.$html2;
+        }
+        $desc = $css->get_description();
+        if ($desc && $this->search_descriptions()) {
+            $html2 = $this->get_matches_info($desc);
+            if ($html2) {
+                $html .= '<br />'.$html2;
+            }
+        }
+        $content = $css->get_content();
+        $html2 = $this->get_matches_info($content);
+        if ($html2) {
+            $html .= '<br />'.$html2;
+        }
+        if (!$html) {
+            return [];
+        }
+        $html = substr($html, 6); //strip leading newline
+
+        if ($css->get_content_file()) {
+            $file = $css->get_content_filename();
+            $title = $name.' ('.cms_relative_path($file, CMS_ROOT_PATH).')';
+        } else {
+            $title = $name;
+        }
+        if ($this->check_permission()) {
+            $urlext = get_secure_param();
+            $one = $css->get_id();
+            $url = 'editstylesheet.php'.$urlext.'&css='.$one;
+        } else {
+            $url = ''; // OR view-content URL?
+        }
+        $tmp = [
+         'title' => $title, //TODO sanitize for presentation
+         'description' => ($desc) ? $this->summarize($desc) : '', //TODO sanitize for presentation
+         'edit_url' => $url,
+         'text' => $html
+        ];
+        return $tmp;
+    }
 } // class

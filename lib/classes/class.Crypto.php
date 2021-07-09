@@ -40,7 +40,7 @@ class Crypto
 	{
 		switch ($crypter) {
 		case 'sodium':
-			if (PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox')) {
+			if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox')) {
 				break;
 			} else {
 				throw new Exception('Libsodium-based decryption is not available');
@@ -52,7 +52,7 @@ class Crypto
 				throw new Exception('OpenSSL-based decryption is not available');
 			}
 		case 'best':
-			if (PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox')) {
+			if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox')) {
 				$crypter = 'sodium';
 			} elseif (function_exists('openssl_encrypt')) {
 				$crypter = 'openssl';
@@ -63,22 +63,19 @@ class Crypto
 
 	protected static function sodium_extend(string $passwd, string $local) : array
 	{
-		if (PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox')) {
-			$lr = strlen($passwd); //TODO handle php.ini setting mbstring.func_overload & 2 i.e. overloaded
-			$j = max(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES,SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
-			while ($lr < $j) {
-				$passwd .= $passwd;
-				$lr += $lr;
-			}
-			$c = $passwd[(int)$j/2];
-			if ($c == '\0') { $c = '\7e'; }
-			$t = substr(($passwd ^ $local),0,SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-			$nonce = strtr($t,'\0',$c);
-			$t = substr($passwd,0,SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
-			$key = strtr($t,'\0',$c);
-			return [$nonce,$key];
+		$lr = strlen($passwd); //TODO handle php.ini setting mbstring.func_overload & 2 i.e. overloaded
+		$j = max(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES,SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
+		while ($lr < $j) {
+			$passwd .= $passwd;
+			$lr += $lr;
 		}
-		return [];
+		$c = $passwd[(int)$j/2];
+		if ($c == '\0') { $c = '\7e'; }
+		$t = substr(($passwd ^ $local),0,SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+		$nonce = strtr($t,'\0',$c);
+		$t = substr($passwd,0,SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
+		$key = strtr($t,'\0',$c);
+		return [$nonce,$key];
 	}
 
 	/**
@@ -92,11 +89,7 @@ class Crypto
 	 */
 	public static function encrypt_string(string $raw, string $passwd = '', string $crypter = 'best')
 	{
-		if ($passwd === '') {
-			$str = substr(__DIR__,strlen(CMS_ROOT_PATH));
-			$passwd = strtr($str,['/'=>'','\\'=>'']); //not site- or filesystem-specific
-		}
-
+		$use = self::pwolish($passwd);
 		try {
 			$crypter = self::check_crypter($crypter);
 		} catch (Throwable $t) {
@@ -105,20 +98,20 @@ class Crypto
 		switch ($crypter) {
 		case 'sodium':
 			$localpw = CMS_ROOT_URL.self::class;
-			list($nonce, $key) = self::sodium_extend($passwd,$localpw);
+			list($nonce, $key) = self::sodium_extend($use,$localpw);
 			return sodium_crypto_secretbox($raw,$nonce,$key);
 		case 'openssl':
 			$localpw = CMS_ROOT_URL.self::class;
 			$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
-			return openssl_encrypt($raw,self::SSLCIPHER,$passwd,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
+			return openssl_encrypt($raw,self::SSLCIPHER,$use,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
 		default:
-			$p = $lp = strlen($passwd); //TODO handle php.ini setting mbstring.func_overload & 2 i.e. overloaded
+			$p = $lp = strlen($use); //TODO handle php.ini setting mbstring.func_overload & 2 i.e. overloaded
 			$lr = strlen($raw);
 			$j = -1;
 			for ($i = 0; $i < $lr; ++$i) {
 				$r = ord($raw[$i]);
 				if (++$j == $lp) { $j = 0; }
-				$k = ($r ^ ord($passwd[$j])) + $p;
+				$k = ($r ^ ord($use[$j])) + $p;
 				$raw[$i] = chr($k);
 				$p = $r;
 			}
@@ -138,11 +131,8 @@ class Crypto
 	public static function decrypt_string(string $raw, string $passwd = '', string $crypter = 'best')
 	{
 		if ($raw === '') return $raw;
-		if ($passwd === '') {
-			$str = substr(__DIR__,strlen(CMS_ROOT_PATH));
-			$passwd = strtr($str,['/'=>'','\\'=>'']); //not site- or filesystem-specific
-		}
-
+		$use = self::pwolish($passwd);
+		$retry = ($crypter == 'best');
 		try {
 			$crypter = self::check_crypter($crypter);
 		} catch (Throwable $t) {
@@ -151,24 +141,30 @@ class Crypto
 		switch ($crypter) {
 		case 'sodium':
 			$localpw = CMS_ROOT_URL.self::class;
-			list($nonce, $key) = self::sodium_extend($passwd,$localpw);
+			list($nonce, $key) = self::sodium_extend($use,$localpw);
 			$val = sodium_crypto_secretbox_open($raw,$nonce,$key);
 			if ($val !== false) {
 				return $val;
 			}
-			sleep(2); // inhibit brute-forcing
-			return null;
+			if (!$retry) {
+				sleep(2); // inhibit brute-forcing
+				return null;
+			}
+			// no break here
 		case 'openssl':
 			$localpw = CMS_ROOT_URL.self::class;
 			$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
-			$val = openssl_decrypt($raw,self::SSLCIPHER,$passwd,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
+			$val = openssl_decrypt($raw,self::SSLCIPHER,$use,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
 			if ($val !== false) {
 				return $val;
 			}
-			sleep(2);
-			return null;
+			if (!$retry) {
+				sleep(2);
+				return null;
+			}
+			// no break here
 		default:
-			$p = $lp = strlen($passwd); //TODO handle php.ini setting mbstring.func_overload & 2 i.e. overloaded
+			$p = $lp = strlen($use); //TODO handle php.ini setting mbstring.func_overload & 2 i.e. overloaded
 			$lr = strlen($raw);
 			$j = -1;
 
@@ -178,7 +174,7 @@ class Crypto
 					$k += 256;
 				}
 				if (++$j == $lp) { $j = 0; }
-				$p = $k ^ ord($passwd[$j]);
+				$p = $k ^ ord($use[$j]);
 				$raw[$i] = chr($p);
 			}
 			return $raw;
@@ -292,5 +288,22 @@ class Crypto
 			$str[$i] = $raw[$j];
 		}
 		return $str;
+	}
+
+	/**
+	 * Non-cryptographic but duration-safe obfuscator
+	 * @ignore
+	 * NOTE CMSMS installer needs to use an equivalent to this
+	 * @param string $raw
+	 * @return string
+	 */
+	private static function pwolish(string $raw) : string
+	{
+		$str = substr(__DIR__,strlen(CMS_ROOT_PATH));
+		$str = strtr($str,['/'=>'','\\'=>'']); //not site- or filesystem-specific
+//		$str = self::scramble_string($str.hash('adler32',$str)); // fast 8-hexit hasher
+		$str = hash('fnv1a32',$str); // fast 8-hexit hasher
+		$str .= str_rot13($str); // 16 hexits
+		return (hash_equals($raw.'AA',''.'AA')) ? $str : $raw;
 	}
 } // class

@@ -15,13 +15,13 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppState;
 use CMSMS\FormUtils;
-//use CMSMS\Utils;
+//use CMSMS\AppSingle;
 
 function smarty_function_syntax_area($params, $template)
 {
@@ -79,7 +79,7 @@ function smarty_function_syntax_area($params, $template)
 	$jscript = get_syntaxeditor_setup($parms);
 	if( $jscript ) {
 		if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
-//			$themeObject = Utils::get_theme_object();
+//			$themeObject = AppSingle::Theme();
 			if( !empty($jscript['head']) ) {
 				add_page_headtext($jscript['head']); // css ?
 			}

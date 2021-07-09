@@ -19,12 +19,14 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 // since 2.99
+
+use CMSMS\AppSingle;
+
 function smarty_function_cms_queue_script($params, $template)
 {
 	if( !isset($params['file']) ) return '';
-	$combiner = CmsApp::get_instance()->GetScriptsManager();
+	$combiner = AppSingle::App()->GetScriptsManager();
 
 	$file = trim($params['file']);
 	$priority = (int)($params['priority'] ?? 0);

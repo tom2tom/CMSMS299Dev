@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 //use CMSMS\AuditOperations;
+use CMSMS\AdminTheme;
 use CMSMS\App;
 use CMSMS\AppConfig;
 use CMSMS\AppParams;
@@ -32,6 +33,7 @@ use CMSMS\internal\ModulePluginOperations;
 use CMSMS\NlsOperations;
 use CMSMS\RequestParameters;
 use CMSMS\SysDataCacheDriver;
+use CMSMS\TreeOperations;
 
 /**
  * This file is intended for, and supported for use in, core CMSMS operations only.
@@ -53,7 +55,7 @@ if (isset($CMS_APP_STATE)) { //i.e. AppState class was included elsewhere
     require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 }
 $installing = AppState::test_state(AppState::STATE_INSTALL);
-define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php');
+define('CONFIG_FILE_LOCATION', __DIR__.DIRECTORY_SEPARATOR.'config.php');
 if (!$installing && (!is_file(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
     die('FATAL ERROR: config.php file not found or invalid');
 }
@@ -65,7 +67,7 @@ require_once $dirpath.'version.php'; // some defines
 require_once $dirpath.'defines.php'; // populate relevant defines (uses AppConfig instance)
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.App.php'; // used in autoloader
 require_once $dirpath.'module.functions.php'; // used in autoloader
-require_once $dirpath.'autoloader.php';  //uses defines, modulefuncs and (for module-class loads) CmsApp::get_instance()
+require_once $dirpath.'autoloader.php';  //uses defines, modulefuncs and (for module-class loads) AppSingle::App()
 require_once $dirpath.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; // Composer's autoloader makes light work of 'foreign' classes
 require_once $dirpath.'classes'.DIRECTORY_SEPARATOR.'class.AppSingle.php'; // uses cms_autoloader()
 // begin to populate the singletons cache
@@ -73,8 +75,8 @@ $_app = App::get_instance(); // for use in this file | upstream, not downstream
 AppSingle::insert('App', $_app); // cache this singleton like all others
 AppSingle::insert('CmsApp', $_app); // an alias for the oldies
 $config = AppConfig::get_instance(); // this object was already used during defines-processing, above
-//AppSingle::insert('AppConfig', $config); // now we can cache it with other singletons
-AppSingle::insert('Config', $config); // and an alias
+AppSingle::insert('Config', $config); // now we can cache it with other singletons
+//AppSingle::insert('AppConfig', $config); // and an alias
 //AppSingle::insert('cms_config', $config); // and another
 //AppSingle::insert('AuditOperations', AuditOperations::get_instance()); //audit() needs direct access to this class
 
@@ -147,7 +149,7 @@ if ($administering) {
     setup_session();
 }
 
-cms_siteprefs::setup();
+AppParams::setup();
 
 $cache = AppSingle::SysDataCache();
 // deprecated since 2.99 useless, saves no time | effort
@@ -208,7 +210,7 @@ if ($CMS_JOB_TYPE < 2) {
     $obj = new SysDataCacheDriver('content_tree', function()
         {
             $flatlist = AppSingle::SysDataCache()->get('content_flatlist');
-            $tree = cms_tree_operations::load_from_list($flatlist);
+            $tree = TreeOperations::load_from_list($flatlist);
             return $tree;
         });
     $cache->add_cachable($obj);
@@ -274,12 +276,13 @@ if ($CMS_JOB_TYPE < 2) {
     if ($administering) {
         // Setup language stuff.... will auto-detect languages (launch only to admin at this point)
         NlsOperations::set_language();
+	    AppSingle::insert('Theme', AdminTheme::get_instance());
     }
 
     if (!$installing) {
         debug_buffer('Initialize Smarty');
         $smarty = AppSingle::Smarty();
         debug_buffer('Finished initializing Smarty');
-//      $smarty->assignGlobal('sitename', cms_siteprefs::get('sitename', 'CMSMS Site'));
+//      $smarty->assignGlobal('sitename', AppParams::get('sitename', 'CMSMS Site'));
     }
 }

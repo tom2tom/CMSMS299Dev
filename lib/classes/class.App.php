@@ -1,24 +1,26 @@
 <?php
-#Singleton class for accessing intra-request system properties
-#Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Singleton class for accessing intra-request system properties
+Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS {
 
-use CmsInvalidDataException;
 use CMSMS\AppConfig;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
@@ -35,8 +37,8 @@ use CMSMS\internal\ContentTree;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 use CMSMS\ScriptsMerger;
-use CMSMS\SimpleTagOperations;
 use CMSMS\UserOperations;
+use CMSMS\UserTagOperations;
 use RuntimeException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -49,38 +51,40 @@ use function cms_join_path;
  * @final
  * @package CMS
  * @license GPL
- * @since 2.9
+ * @since 2.99
  * @since 0.5 as global-namespace CmsApp etc
  */
 final class App
 {
     /**
      * A bitflag constant indicating that the request is for a page in the CMSMS admin console
-     * @deprecated since 2.9 use AppState::STATE_ADMIN_PAGE
+     * @deprecated since 2.99 use AppState::STATE_ADMIN_PAGE
      */
     const STATE_ADMIN_PAGE = 2;
 
     /**
      * A bitflag constant indicating that the request is for an admin login
-     * @deprecated since 2.9 use AppState::STATE_LOGIN_PAGE
+     * @deprecated since 2.99 use AppState::STATE_LOGIN_PAGE
      */
     const STATE_LOGIN_PAGE = 4;
 
+//    const STATE_ASYNC_JOB = 8; from 2.99
+
     /**
      * A bitflag constant indicating that the request is taking place during the installation process
-     * @deprecated since 2.9 use AppState::STATE_INSTALL
+     * @deprecated since 2.99 use AppState::STATE_INSTALL
      */
     const STATE_INSTALL = 0x80;
 
     /**
      * A bitflag constant indicating that the request is for a stylesheet
-     * @deprecated since 2.9 use AppState::STATE_STYLESHEET
+     * @deprecated since 2.99 use AppState::STATE_STYLESHEET
      */
     const STATE_STYLESHEET = 0x100;
 
     /**
      * A bitflag constant indicating that we are currently parsing page templates
-     * @deprecated since 2.9 use AppState::STATE_PARSE_TEMPLATE
+     * @deprecated since 2.99 use AppState::STATE_PARSE_TEMPLATE
      */
     const STATE_PARSE_TEMPLATE = 0x200;
 
@@ -124,15 +128,29 @@ final class App
     private $hrinstance;
 
     /**
+     * @var ScriptsMerger object
+     * @ignore
+     * @since 2.99
+     */
+    private $scriptsmgr;
+
+    /**
+     * @var StylesMerger object
+     * @ignore
+     * @since 2.99
+     */
+    private $stylesmgr;
+
+    /* *
      * @var singleton module-object
      * @ignore
      * This cache must be set externally, after autoloading is available
      */
-    public $jobmgrinstance = null;
+//    public $jobmgrinstance = null;
 
     /**
      * Cache for other properties
-     * @since 2.3
+     * @since 2.99
      * @ignore
      */
     private $data = [];
@@ -173,7 +191,7 @@ final class App
     {
         switch($key) {
         case 'config':
-            return AppConfig::get_instance();
+            return AppSingle::Config();
         case 'get':
         case 'instance':
             return self::get_instance();
@@ -298,7 +316,7 @@ final class App
      * set to 2 (the default) in the config.php file
      *
      * @return void
-     * @since 2.3
+     * @since 2.99
      */
     public function disable_template_processing()
     {
@@ -306,11 +324,11 @@ final class App
     }
 
     /**
-     * (Un]set the flag indicating whether to process the (optional) template
+     * [Un]set the flag indicating whether to process the (optional) template
      * currently pending.
      * This method can be called from anywhere, to temporarily toggle smarty processing
      *
-     * @since 2.9
+     * @since 2.99
      * @param bool $state optional default true
      */
     public function do_template_processing(bool $state = true)
@@ -322,7 +340,7 @@ final class App
      * Get the flag indicating whether or not template processing is allowed.
      *
      * @return bool
-     * @since 2.3
+     * @since 2.99
      */
     public function template_processing_allowed() : bool
     {
@@ -369,7 +387,7 @@ final class App
     /**
     * Get a handle to the module operations instance.
     * @see ModuleOperations
-    * @since 2.9 CMSMS\AppSingle::ModuleOperations() may be used instead
+    * @since 2.99 CMSMS\AppSingle::ModuleOperations() may be used instead
     *
     * @return ModuleOperations handle to the ModuleOperations object
     */
@@ -442,14 +460,14 @@ final class App
 
         $config = AppSingle::Config();
         $this->db = new Connection($config);
-        //deprecated since 2.3 (at most): make old stuff available
+        //deprecated since 2.99 (at most): make old stuff available
         require_once cms_join_path(__DIR__, 'Database', 'class.compatibility.php');
         return $this->db;
     }
 
     /**
      * Get the database prefix.
-     * @deprecated since 2.3 Instead, use constant CMS_DB_PREFIX
+     * @deprecated since 2.99 Instead, use constant CMS_DB_PREFIX
      *
      * @return string
      */
@@ -474,7 +492,7 @@ final class App
     /**
     * Get a handle to the user operations instance.
     * @see UserOperations
-    * @since 2.9 CMSMS\AppSingle::UserOperations() may be used instead
+    * @since 2.99 CMSMS\AppSingle::UserOperations() may be used instead
     *
     * @return UserOperations handle to the UserOperations object
     */
@@ -486,7 +504,7 @@ final class App
     /**
     * Get a handle to the content operations instance.
     * @see ContentOperations
-    * @since 2.9 CMSMS\AppSingle::ContentOperations() may be used instead
+    * @since 2.99 CMSMS\AppSingle::ContentOperations() may be used instead
     *
     * @return ContentOperations handle to the ContentOperations object
     */
@@ -509,7 +527,7 @@ final class App
     /**
     * Get a handle to the group operations instance.
     * @see GroupOperations
-    * @since 2.9 CMSMS\AppSingle::GroupOperations() may be used instead
+    * @since 2.99 CMSMS\AppSingle::GroupOperations() may be used instead
     *
     * @return GroupOperations handle to the GroupOperations instance
     */
@@ -519,30 +537,15 @@ final class App
     }
 
     /**
-     * Get a handle to the simple-plugin operations instance, for interacting with UDT-files.
-     * @since 2.3
-     * @deprecated since 2.9 The SimpleTagOperations class extends the former
-     *  UserTagOperations class to also support file-stored UDT's
-     * @see SimpleTagOperations
-     *
-    * @return the SimpleTagOperations singleton
-     */
-    public function GetSimplePluginOperations() //: SimpleTagOperations
-    {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','GetSimpleTagOperations'));
-        return AppSingle::SimpleTagOperations(); //UDTfiles
-    }
-
-    /**
-    * Get a handle to the simple-plugin operations instance
-    * @see SimpleTagOperations
-    * @since 2.9 CMSMS\AppSingle::SimpleTagOperations() may be used instead
+    * Get a handle to the user-plugin operations instance, for interacting with UDT's
+    * @see UserTagOperations
+    * @since 2.99 CMSMS\AppSingle::UserTagOperations() may be used instead
     *
-    * @return the SimpleTagOperations singleton
+    * @return the UserTagOperations singleton
     */
-    public function GetSimpleTagOperations() : SimpleTagOperations
+    public function GetUserTagOperations() : UserTagOperations
     {
-        return AppSingle::SimpleTagOperations();
+        return AppSingle::UserTagOperations();
     }
 
     /**
@@ -578,41 +581,36 @@ final class App
     }
 
     /**
-     * Get a scripts-combiner object.
-     * @since 2.3
+     * Get the intra-request shared scripts-combiner object.
+     * @since 2.99
      *
      * @return ScriptsMerger
      */
     public function GetScriptsManager() : ScriptsMerger
     {
-        return new ScriptsMerger();
+        if( empty($this->scriptsmgr) ) {
+            $this->scriptsmgr = new ScriptsMerger();
+        }
+        return $this->scriptsmgr;
     }
 
     /**
-     * Get a styles-combiner object.
-     * @since 2.3
+     * Get the intra-request shared styles-combiner object.
+     * @since 2.99
      *
      * @return StylesMerger
      */
     public function GetStylesManager() : StylesMerger
     {
-        return new StylesMerger();
-    }
-
-    /**
-     * Get the async-jobs manager module.
-     * @since 2.3
-     *
-     * @return mixed CMSModule object|null
-     */
-    public function GetJobManager()
-    {
-        return $this->jobmgrinstance;// not a system-class singleton
+        if( empty($this->stylesmgr) ) {
+            $this->stylesmgr = new StylesMerger();
+        }
+        return $this->stylesmgr;
     }
 
     /**
      * Get a cookie-manager instance.
-     * @since 2.3
+     * @since 2.99
      *
      * @return AutoCookieOperations
      */
@@ -623,7 +621,7 @@ final class App
 
     /**
      * Get this site's unique identifier
-     * @since 2.3
+     * @since 2.99
      *
      * @return 32-byte english-alphanum string
      */
@@ -644,7 +642,7 @@ final class App
      * Shutdown-function: process all recorded methods
      * @ignore
      * @internal
-     * @since 2.9
+     * @since 2.99
      * @todo export this to elsewhere e.g. populate via hooklist
      */
     public function run_shutters()
@@ -662,7 +660,7 @@ final class App
 
     /**
      * Queue a shutdown-function
-     * @since 2.9
+     * @since 2.99
      * @param int $priority 1(high)..big int(low). Default 1.
      * @param callable $func
      * @param(s) variable no. of arguments to supply to $func
@@ -691,12 +689,12 @@ final class App
      * Maybe elsewhere
      * @ignore
      * @internal
-     * @since 2.9
+     * @since 2.99
      */
 
     /**
      * Remove files from the website file-cache directories.
-     * @deprecated since 2.9 Now does nothing.
+     * @deprecated since 2.99 Now does nothing.
      * This functionality has been relocated, and surrounded with
      * appropriate security.
      *
@@ -713,7 +711,7 @@ final class App
      * Get a list of all current states.
      *
      * @since 1.11.2
-     * @deprecated since 2.9 instead use CMSMS\AppState::get_states()
+     * @deprecated since 2.99 instead use CMSMS\AppState::get_states()
      * @author Robert Campbell
      * @return array  State constants (int's)
      */
@@ -726,12 +724,12 @@ final class App
     /**
      * Report whether the specified state matches the current application state.
      * @since 1.11.2
-     * @deprecated since 2.9 instead use CMSMS\AppState::test_state()
+     * @deprecated since 2.99 instead use CMSMS\AppState::test_state()
      * @author Robert Campbell
      *
      * @param mixed $state int | deprecated string State identifier, a class constant
      * @return bool
-     * @throws CmsInvalidDataException if invalid identifier is provided
+     * @throws DataException if invalid identifier is provided
      */
     public function test_state($state) : bool
     {
@@ -745,10 +743,10 @@ final class App
      * @ignore
      * @internal
      * @since 1.11.2
-     * @deprecated since 2.9 instead use CMSMS\AppState::add_state()
+     * @deprecated since 2.99 instead use CMSMS\AppState::add_state()
      * @author Robert Campbell
      * @param mixed $state int | deprecated string The state, a class constant
-     * @throws CmsInvalidDataException if an invalid state is provided.
+     * @throws DataException if an invalid state is provided.
      */
     public function add_state($state)
     {
@@ -762,12 +760,12 @@ final class App
      * @ignore
      * @internal
      * @since 1.11.2
-     * @deprecated since 2.9 instead use CMSMS\AppState::remove_state()
+     * @deprecated since 2.99 instead use CMSMS\AppState::remove_state()
      * @author Robert Campbell
      *
      * @param mixed $state int | deprecated string The state, a class constant
      * @return bool indicating success
-     * @throws CmsInvalidDataException if an invalid state is provided.
+     * @throws DataException if an invalid state is provided.
      */
     public function remove_state($state) : bool
     {
@@ -775,18 +773,18 @@ final class App
         AppState::remove_state($state);
     }
 
-    /**
+    /* * MAYBE IN FUTURE
      * Report whether the current request was executed via the CLI.
      *
-     * @since 2.2.9
+     * @since 2.99
      * @author Robert Campbell
      * @return bool
      */
-    public function is_cli() : bool
+/*    public function is_cli() : bool
     {
         return PHP_SAPI == 'cli';
     }
-
+*/
     /**
      * Report whether the current request is a frontend request.
      *
@@ -833,7 +831,7 @@ function cmsms() : App
 /**
  * Check whether the supplied identifier matches the site UUID
  * This is a security function e.g. in module actions: <pre>if (!checkuuid($uuid)) exit;</pre>
- * @since 2.9
+ * @since 2.99
  * @param mixed $uuid identifier to be checked
  * @return bool indicating success
  */

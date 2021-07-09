@@ -104,8 +104,8 @@ EOT
 <pre><code>{$some_var_with_text|cms_escape[:&lt;escape type&gt;|[&lt;character set&gt;]]}</code></pre>
 <h4>Valid escape types:</h4>
 <ul>
- <li>html <em>(default)</em> - use htmlspecialchars</li>
- <li>htmlall - use htmlentities</li>
+ <li>html <em>(default)</em> - use CMSMS\\specialize</li>
+ <li>htmlall - use CMSMS\\entitize</li>
  <li>url - raw url encode all entities</li>
  <li>urlpathinfo - Similar to the url escape type, but also encode /</li>
  <li>quotes - Escape unescaped single quotes</li>

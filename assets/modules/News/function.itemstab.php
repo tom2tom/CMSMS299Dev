@@ -2,43 +2,57 @@
 /*
 CMSMS News module defaultadmin action items-tab populator
 Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\UserParams;
 use News\Utils;
+use function CMSMS\specialize_array;
 
 if( isset($params['filteraction']) ) {
     switch ($params['filteraction']) {
         case 'apply':
             if( isset( $params['filter_category']) ) {
-                cms_userprefs::set_for_user($userid,'article_category',trim($params['filter_category'])); //'' for all-categories
+                UserParams::set_for_user($userid, 'article_category', trim($params['filter_category'])); //'' for all-categories
             }
             $withchildren = !empty($params['filter_descendants']);
-            cms_userprefs::set_for_user($userid,'childcategories',$withchildren);
+            UserParams::set_for_user($userid, 'childcategories', $withchildren);
             break;
 /*      case 'reset':
-            cms_userprefs::set_for_user($userid,article_category','');
-            cms_userprefs::set_for_user($userid,'childcategories',0);
+            UserParams::set_for_user($userid, article_category', '');
+            UserParams::set_for_user($userid, 'childcategories', 0);
             break;
 */
     }
 }
 
-$curcategory = cms_userprefs::get_for_user($userid,'article_category'); //default '' >> all
-$withchildren = cms_userprefs::get_for_user($userid,'childcategories',0);
+$curcategory = UserParams::get_for_user($userid, 'article_category'); //default '' >> all
+$withchildren = UserParams::get_for_user($userid, 'childcategories', 0);
+
+if( $curcategory && $withchildren ) {
+    $query1 = 'SELECT news_category_name FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id=?';
+    $str = $db->GetOne($query1, [$curcategory]);
+    if( $str ) {
+        $wm  = $db->escStr($str) . '%';
+    }
+    else {
+        $withchildren = false;
+    }
+}
 
 //Load the (filtered) items
 $query1 = 'SELECT N.news_id,N.news_title,N.start_time,N.end_time,N.status,NC.long_name
@@ -48,21 +62,23 @@ ON N.news_category_id = NC.news_category_id';
 $parms = [];
 if( $curcategory ) {
     if( $withchildren ) {
-        $query1 .=  ' WHERE NC.long_name LIKE CONCAT((SELECT news_category_name FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id=?),"%")';
+        //TODO support case sensitive mmatching
+        $query1 .=  ' WHERE NC.long_name LIKE ?';
+        $parms[] = $wm;
     }
     else {
         $query1 .= ' WHERE NC.news_category_id=?';
+        $parms[] = $curcategory;
     }
-    $parms[] = $curcategory;
 }
 $query1 .= ' ORDER by N.news_title';
 
-$rst = $db->Execute($query1,$parms);
+$rst = $db->Execute($query1, $parms);
 
 if( $rst ) {
     if( $papp ) {
-        $iconcancel = $themeObj->DisplayImage('icons/system/true',$this->Lang('revert'),null,'','systemicon');
-        $iconapprove = $themeObj->DisplayImage('icons/system/false',$this->Lang('approve'),null,'','systemicon');
+        $iconcancel = $themeObj->DisplayImage('icons/system/true', $this->Lang('revert'), null, '', 'systemicon');
+        $iconapprove = $themeObj->DisplayImage('icons/system/false', $this->Lang('approve'), null, '', 'systemicon');
     }
     else {
         $stati = [
@@ -74,11 +90,11 @@ if( $rst ) {
     }
     if( $pmod ) {
         $titl = $this->Lang('editthis');
-        $iconedit = $themeObj->DisplayImage('icons/system/edit',$this->Lang('edit'),'','','systemicon');
-        $iconcopy = $themeObj->DisplayImage('icons/system/copy',$this->Lang('copy'),'','','systemicon');
+        $iconedit = $themeObj->DisplayImage('icons/system/edit', $this->Lang('edit'), '', '', 'systemicon');
+        $iconcopy = $themeObj->DisplayImage('icons/system/copy', $this->Lang('copy'), '', '', 'systemicon');
     }
     if( $pdel ) {
-        $icondel = $themeObj->DisplayImage('icons/system/delete',$this->Lang('delete'),'','','systemicon');
+        $icondel = $themeObj->DisplayImage('icons/system/delete', $this->Lang('delete'), '', '', 'systemicon');
     }
 
     $now = time();
@@ -105,11 +121,11 @@ if( $rst ) {
         if( $papp ) {
             if( $row['status'] == 'published' ) {
                 $onerow->approve_link = $this->CreateLink(
-                    $id,'approvearticle',$returnid,$iconcancel,['approve'=>0,'articleid'=>$row['news_id']]);
+                    $id, 'approvearticle', $returnid, $iconcancel, ['approve'=>0, 'articleid'=>$row['news_id']]);
             }
             else {
                 $onerow->approve_link = $this->CreateLink(
-                    $id,'approvearticle',$returnid,$iconapprove,['approve'=>1,'articleid'=>$row['news_id']]);
+                    $id, 'approvearticle', $returnid, $iconapprove, ['approve'=>1, 'articleid'=>$row['news_id']]);
             }
         }
         else {
@@ -118,15 +134,15 @@ if( $rst ) {
 
         if( $pmod ) {
             $onerow->edit_url = $this->create_url(
-                $id,'editarticle',$returnid,['articleid'=>$row['news_id']]);
+                $id, 'editarticle', $returnid, ['articleid'=>$row['news_id']]);
             $onerow->editlink = $this->CreateLink(
-                $id,'editarticle',$returnid,$iconedit,['articleid'=>$row['news_id']]);
+                $id, 'editarticle', $returnid, $iconedit, ['articleid'=>$row['news_id']]);
             $onerow->copylink = $this->CreateLink(
-                $id,'copyarticle',$returnid,$iconcopy,['articleid'=>$row['news_id']]);
+                $id, 'copyarticle', $returnid, $iconcopy, ['articleid'=>$row['news_id']]);
         }
         if( $pdel ) {
             $onerow->deletelink = $this->CreateLink(
-                $id,'deletearticle',$returnid,$icondel,['articleid'=>$row['news_id']],'',false,false,'class="delete_article"');
+                $id, 'deletearticle', $returnid, $icondel, ['articleid'=>$row['news_id']], '', false, false, 'class="delete_article"');
         }
 
         $entryarray[] = $onerow;
@@ -137,12 +153,12 @@ if( $rst ) {
     $tpl->assign('items', $entryarray)
      ->assign('itemcount', $numrows);
 
-    $pagerows = (int)$this->GetPreference('article_pagelimit',10); //OR user-specific?
+    $pagerows = (int)$this->GetPreference('article_pagelimit', 10); //OR user-specific?
 
     if ($numrows > $pagerows) {
         //setup for SSsort paging
         $navpages = ceil($numrows/$pagerows);
-        $tpl->assign('totpg',$navpages);
+        $tpl->assign('totpg', $navpages);
 
         $choices = [strval($pagerows) => $pagerows];
         $f = ($pagerows < 4) ? 5 : 2;
@@ -163,25 +179,27 @@ if( $rst ) {
     }
 
     if( $pdel ) {
-        $tpl->assign('submit_massdelete',1);
+        $tpl->assign('submit_massdelete', 1);
     }
 
-    $query = 'SELECT news_category_id,long_name FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
+    $query = 'SELECT news_category_id, long_name FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
     $dbr = $db->GetAssoc($query);
+    specialize_array($dbr);
     $categorylist = [''=>$this->Lang('all')] + $dbr;
-    $bulkcategories = array_flip(Utils::get_category_list()); //different order
+    $bulkcategories = Utils::get_category_list(); //different order
+    specialize_array($bulkcategories);
 
     $tpl->assign([
-     'bulkcategories' => $bulkcategories,
+     'bulkcategories' => array_flip($bulkcategories),
      'categorylist' => $categorylist,
      'categorytext' => $this->Lang('category'),
      'curcategory' => $curcategory,
      'enddatetext' => $this->Lang('enddate'),
      'filter_descendants' => $withchildren,
-     'filterimage' => cms_join_path(__DIR__,'images','filter'), //TODO use new admin icon
+     'filterimage' => cms_join_path(__DIR__, 'images', 'filter'), //TODO use new admin icon
      'filtertext' => $this->Lang('filter'),
-     'formstart_items' => $this->CreateFormStart($id,'defaultadmin'),
-     'formstart_itemsfilter' => $this->CreateFormStart($id,'defaultadmin',$returnid,'post','',false,'',['filteraction'=>'apply']),
+     'formstart_items' => $this->CreateFormStart($id, 'defaultadmin'),
+     'formstart_itemsfilter' => $this->CreateFormStart($id, 'defaultadmin', $returnid, 'post', '', false, '', ['filteraction'=>'apply']),
      'label_filtercategory' => $this->Lang('prompt_category'),
      'label_filterinclude' => $this->Lang('showchildcategories'),
      'startdatetext' => $this->Lang('startdate'),
@@ -316,9 +334,11 @@ EOS;
     add_page_foottext($js);
 }
 else { //no rows
-     $tpl->assign('items',[])
-      ->assign('itemcount',0);
+     $tpl->assign('items', [])
+      ->assign('itemcount', 0);
 }
+
 if( $pmod ) {
-    $tpl->assign('addlink', $this->CreateLink($id, 'addarticle', $returnid, $themeObj->DisplayImage('icons/system/newobject.gif', $this->Lang('addarticle'),'','','systemicon'), [], '', false, false, '') .' '. $this->CreateLink($id, 'addarticle', $returnid, $this->Lang('addarticle'), [], '', false, false, 'class="pageoptions"'));
+    $icon = $themeObj->DisplayImage('icons/system/newobject.gif', $this->Lang('addarticle'), '', '', 'systemicon');
+    $tpl->assign('addlink', $this->CreateLink($id, 'addarticle', $returnid, $icon, [], '', false, false, '') .' '. $this->CreateLink($id, 'addarticle', $returnid, $this->Lang('addarticle'), [], '', false, false, 'class="pageoptions"'));
 }

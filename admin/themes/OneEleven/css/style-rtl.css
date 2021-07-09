@@ -1432,6 +1432,20 @@ header .shortcuts li.favorites a {
 	padding-right: 30px
 }
 /*** page content ***/
+
+.headericon {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 0 0 1em;
+	height: 2em;
+	width: 2em;
+}
+
+.headericon img {
+	max-height: 2em;
+	max-width: 2em;
+}
+
 #oe_mainarea {
 	margin: 0 249px 0 0
 }

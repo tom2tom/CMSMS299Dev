@@ -122,7 +122,17 @@ class wizard_step3 extends wizard_step
         $obj->fail_key = 'fail_curl_extension';
         $tests[] = $obj;
 
-        if( !defined('PHP_VERSION_ID') || PHP_VERSION_ID < 70200 ) {
+        if( defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 70200 ) {
+            $obj = new matchany_test('cryption_functions');
+            // recommended test ... sodium en/decryption built-in or via extension 
+            $t1 = new boolean_test('Sodium',defined('SODIUM_LIBRARY_VERSION'),'crypter_sodium');
+            $obj->add_child($t1);
+            $t1 = new boolean_test('OpenSSL',extension_loaded('openssl'),'crypter_ssl');
+            $obj->add_child($t1);
+            $obj->fail_key = 'fail_cryption_functions';
+            $obj->pass_key = 'pass_cryption_functions';
+            $tests[] = $obj;
+        } else {
             // recommended test ... ssl extension for en/de-cryption
             $obj = new boolean_test('ssl_extension',extension_loaded('openssl'));
             $obj->fail_key = 'fail_ssl_extension';
@@ -243,14 +253,15 @@ class wizard_step3 extends wizard_step
         $tests[] = $obj;
 
         // recommended test ... E_DEPRECATED disabled
-        if (PHP_VERSION_ID < 80000) {
-            $obj = new boolean_test('errorlevel_edeprecated',!($orig_error_level & E_DEPRECATED));
-            $obj->warn_key = 'edeprecated_enabled';
+        $obj = new boolean_test('errorlevel_edeprecated',!($orig_error_level & E_DEPRECATED));
+        $obj->warn_key = 'edeprecated_enabled';
+        $tests[] = $obj;
+        if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 80000) {
+            // default error_reporting level is now E_ALL. Previously it excluded E_DEPRECATED and E_NOTICE
+            // recommended test ... E_NOTICE disabled
+            $obj = new boolean_test('errorlevel_enotice',!($orig_error_level & E_NOTICE));
+            $obj->warn_key = 'enotice_enabled';
             $tests[] = $obj;
-        }
-        else {
-            //TODO
-            //default error_reporting level is now E_ALL. Previously it excluded E_NOTICE and E_DEPRECATED
         }
 
         // required test ... safe mode
@@ -396,7 +407,7 @@ class wizard_step3 extends wizard_step
         else {
             $dest = $app->get_destdir();
             // an existing config file will be backed up and replaced, but that still needs write-permission
-            $config_file = $dest.DIRECTORY_SEPARATOR.'config.php';
+            $config_file = $app->get_config()['config_file']; // OR $wiz->get_data('version_info')[''config_file']
             $obj = new boolean_test('config_writable',!is_file($config_file) || is_writable($config_file));
             $obj->required = 1;
             $obj->fail_key = 'fail_config_writable'; //TODO something more-informative
@@ -492,7 +503,7 @@ class wizard_step3 extends wizard_step
          ->assign('can_continue',$can_continue)
          ->assign('verbose',$verbose)
          ->assign('retry_url',$_SERVER['REQUEST_URI']);
-        if( $verbose ) $smarty->assign('information',$informational); //assume entitize() not needed
+        if( $verbose ) $smarty->assign('information',$informational); //assume specialize() not needed
         // TODO button(s) and processing for enable verbose mode etc.
 
         $smarty->display('wizard_step3.tpl');

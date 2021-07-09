@@ -21,11 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace News;
 
-use cms_config;
 use CMSMS\AppSingle;
-use CMSMS\ContentOperations;
-use CMSMS\UserOperations;
-use CMSMS\Utils;
+use CMSMS\Utils as AppUtils;
 use News\Utils;
 use function munge_string_to_url;
 
@@ -69,11 +66,11 @@ class Article
     private function _getauthorinfo(int $author_id, bool $authorname = FALSE)
     {
         if( !isset($this->_meta['author']) ) {
-            $mod = Utils::get_module('News');
+            $mod = AppUtils::get_module('News');
             $this->_meta['author'] = $mod->Lang('anonymous');
             $this->_meta['authorname'] = $mod->Lang('unknown');
             if( $author_id > 0 ) {
-                $userops = UserOperations::get_instance();
+                $userops = AppSingle::UserOperations();
                 $theuser = $userops->LoadUserById($author_id);
                 if( is_object($theuser) ) {
                     $this->_meta['author'] = $theuser->username;
@@ -92,9 +89,9 @@ class Article
     private function _get_returnid()
     {
         if( !isset($this->_meta['returnid']) ) {
-            $mod = Utils::get_module('News');
+            $mod = AppUtils::get_module('News');
             $tmp = $mod->GetPreference('detail_returnid',-1);
-            if( $tmp <= 0 ) $tmp = ContentOperations::get_instance()->GetDefaultContent();
+            if( $tmp <= 0 ) $tmp = AppSingle::ContentOperations()->GetDefaultContent();
             $this->_meta['returnid'] = $tmp;
         }
         return $this->_meta['returnid'];
@@ -109,7 +106,7 @@ class Article
                 $aliased_title = munge_string_to_url($this->title);
                 $tmp = 'news/'.$this->id.'/'.$this->returnid."/{$aliased_title}";
             }
-            $mod = Utils::get_module('News');
+            $mod = AppUtils::get_module('News');
             $canonical = $mod->create_url($this->_inid,'detail',$this->returnid,$this->params,false,false,$tmp);
             $this->_meta['canonical'] = $canonical;
         }

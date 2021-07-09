@@ -31,12 +31,11 @@ use CMSMS\AppSingle;
 use CMSMS\ArrayTree;
 use CMSMS\Bookmark;
 use CMSMS\BookmarkOperations;
+use CMSMS\DeprecationNotice;
 use CMSMS\FormUtils;
 use CMSMS\HookOperations;
 use CMSMS\internal\AdminNotification;
-use CMSMS\ModuleOperations;
 use CMSMS\RequestParameters;
-use CMSMS\SystemCache;
 use CMSMS\Url;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -44,9 +43,11 @@ use RecursiveArrayTreeIterator;
 use RecursiveIteratorIterator;
 use Throwable;
 use const CMS_ADMIN_PATH;
+use const CMS_DEPREC;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
+use const CMSSAN_FILE;
 use function add_page_foottext;
 use function add_page_headtext;
 use function audit;
@@ -345,6 +346,7 @@ abstract class AdminTheme
      */
     public static function GetThemeObject($name = '')
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTheme::get_instance'));
         return self::get_instance($name);
     }
 
@@ -440,8 +442,9 @@ abstract class AdminTheme
     private function _fix_url_userkey($url)
     {
         if (strpos($url,CMS_SECURE_PARAM_NAME) !== false) {
-            $from = '/'.CMS_SECURE_PARAM_NAME.'=[a-zA-Z0-9]{16,19}/i';
-            $to = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+            // conform to LoginOperations::create_csrf_token() e.g. 8+ non-[raw]urlencode()'d
+            $from = '/'.CMS_SECURE_PARAM_NAME.'=([a-zA-Z_\d\-]{8,})(&|$)/';
+            $to = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY].'$2';
             return preg_replace($from,$to,$url);
         }
         elseif (startswith($url,CMS_ROOT_URL) || !startswith($url,'http')) {
@@ -468,12 +471,12 @@ abstract class AdminTheme
     {
         $userid = get_userid(false);
 // TODO also clear cache group 'module_menus' after change of group membership or permission
-        $data = SystemCache::get_instance()->get('themeinfo'.$userid, 'module_menus');
+        $data = AppSingle::SystemCache()->get('themeinfo'.$userid, 'module_menus');
         $data = false;  //DEBUG
         if (!$data) {
             // data doesn't exist, gotta build it
             $usermoduleinfo = [];
-            $modops = ModuleOperations::get_instance();
+            $modops = AppSingle::ModuleOperations();
             $allmodules = $modops->GetInstalledModules();
             foreach ($allmodules as $modname) {
                 $modinst = $modops->get_module_instance($modname);
@@ -503,7 +506,7 @@ abstract class AdminTheme
                 }
             }
             // cache the array, even if empty
-            SystemCache::get_instance()->set('themeinfo'.$userid, $usermoduleinfo, 'module_menus');
+            AppSingle::SystemCache()->set('themeinfo'.$userid, $usermoduleinfo, 'module_menus');
             $data = $usermoduleinfo;
         }
 
@@ -947,7 +950,7 @@ abstract class AdminTheme
 
         if ($striproot) {
             if ($parent) {
-                return $tree['children']; //TODO bad logic want whole tree
+                return $tree['root']['children'] ?? $tree['children']; //TODO bad logic want whole tree
             } else {
                 return reset($tree)['children'];
             }
@@ -977,7 +980,7 @@ abstract class AdminTheme
     protected function get_action_module()
     {
         if ($this->_action_module) return $this->_action_module;
-        // todo: if this is empty, get it from the mact in the request.
+        // TODO if this is empty, get it from the mact in the request
     }
 
     /**
@@ -1101,7 +1104,7 @@ abstract class AdminTheme
      *
      * @param string $key value identifier
      * @param mixed $value value to be stored | null to remove
-     * @returns void
+     * @return void
      */
     public function set_value($key, $value)
     {
@@ -1119,7 +1122,7 @@ abstract class AdminTheme
      * Return cached data
      *
      * @param string $key
-     * @returns mixed recorded value | void
+     * @return mixed recorded value | void
      */
     public function get_value($key)
     {
@@ -1148,6 +1151,7 @@ abstract class AdminTheme
         }
         return $displayableChildren;
 */
+        assert(empty(CMS_DEPREC), new DeprecationNotice('Does nothing',''));
         return false;
     }
 
@@ -1417,6 +1421,7 @@ EOS;
      */
     public function ShowErrors($errors, $get_var = null)
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTheme::PrepareStrings'));
         $this->PrepareStrings($this->_errors, $errors, '', $get_var);
         return '';
     }
@@ -1433,6 +1438,7 @@ EOS;
      */
     public function ShowMessage($message, $get_var = null)
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTheme::PrepareStrings'));
         $this->PrepareStrings($this->_successes, $message, '', $get_var);
         return '';
     }
@@ -1634,7 +1640,7 @@ EOS;
         // are we processing a module action?
         // TODO maybe cache this in $this->_modname ??
         if (isset($_REQUEST['module'])) {
-            $module = sanitizeVal($_REQUEST['module'], 3); //module-identifier == foldername and in file-name
+            $module = sanitizeVal($_REQUEST['module'], CMSSAN_FILE); //module-identifier == foldername and in file-name
         } else {
             $module = RequestParameters::get_request_values('module'); //maybe null
         }
@@ -1722,6 +1728,7 @@ EOS;
 /*      if (!is_array($this->_notifications)) $this->_notifications = [];
         $this->_notifications[] = $notification;
 */
+        assert(empty(CMS_DEPREC), new DeprecationNotice('Does nothing',''));
     }
 
     /**
@@ -1741,6 +1748,7 @@ EOS;
       $notification->html = $html;
       $this->add_notification($notification);
 */
+        assert(empty(CMS_DEPREC), new DeprecationNotice('Does nothing',''));
     }
 
     /**
@@ -1752,6 +1760,7 @@ EOS;
     public function get_notifications()
     {
 //        return $this->_notifications;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('Does nothing',''));
     }
 
     /**
@@ -1766,11 +1775,12 @@ EOS;
     }
 
     /**
-     * Return an array of admin pages, suitable for use in a dropdown.
+     * Return an array of admin pages.
      *
      * @internal
      * @since 1.12
-     * @param bool $none Optional flag indicating whether 'none' should be the first option. Default true
+     * @param bool $none Optional flag indicating whether 'none' should
+     *  be the first option. Default true
      * @return array Keys are langified page-titles, values are respective URLs.
      */
     public function GetAdminPages($none = true)
@@ -1823,23 +1833,31 @@ EOS;
     }
 
     /**
-     * Return a select list of the pages in the system, for use in various admin pages.
+     * Return a select list of admin pages.
+     * @deprecated since 2.99 instead use GetAdminPages() and process the
+     * result locally and/or in template
      *
-     * @internal
      * @param string $name - The html name of the select box
-     * @param string $selected - If a matching page identifier is found in the list,
-     *     that option will be marked as selected.
+     * @param string $selected - If a matching page identifier is found
+     *  in the list, that page will be marked as selected.
      * @param mixed  $id -  Optional html id of the select box. Default null
      * @return string The select list of pages
      */
     public function GetAdminPageDropdown($name, $selected, $id = null)
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTheme::GetAdminPages'));
         $opts = $this->GetAdminPages();
         if ($opts) {
-            $parms = ['type'=>'drop','name'=>trim((string)$name),
-                'options'=>$opts,'selectedvalue'=>$selected];
+            $parms = [
+                'type'=>'drop',
+                'name' => trim((string)$name),
+                'htmlid' => '',
+                'modid' => '',
+                'options' => $opts,
+                'selectedvalue' => $selected
+            ];
             if ($id) {
-                $parms['id'] = trim((string)$id);
+                $parms['htmlid'] = trim((string)$id);
             }
             return FormUtils::create_select($parms);
         }
@@ -1883,6 +1901,7 @@ EOS;
             else { $this->_headtext = $txt."\n".$this->_headtext; }
         }
 */
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function','add_page_headtext'));
         add_page_headtext($txt, $after);
     }
 
@@ -1898,6 +1917,7 @@ EOS;
      */
     public function get_headtext()
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function','get_page_headtext'));
 //        return $this->_headtext;
         return get_page_headtext();
     }
@@ -1919,6 +1939,7 @@ EOS;
             else { $this->_foottext = $txt."\n".$this->_foottext; }
         }
 */
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function','add_page_foottext'));
         add_page_foottext($txt, $after);
     }
 
@@ -1935,6 +1956,7 @@ EOS;
     public function get_footertext()
     {
 //        return $this->_foottext;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function','get_page_foottext'));
         return get_page_foottext();
     }
 
@@ -2088,6 +2110,7 @@ EOS
      */
     final public function StartTabHeaders() : string
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::start_tab_headers'));
         return AdminTabs::start_tab_headers();
     }
 
@@ -2099,12 +2122,13 @@ EOS
      * @final
      * @param string $tabid The tab id
      * @param string $title The tab title
-     * @param bool $active Optional flag indicating whether this tab is active, default false
+     * @param bool $active Optional flag indicating whether this tab is active. Default false
      * @deprecated since 2.99 Use CMSMS\AdminTabs::set_tab_header()
      * @return string
      */
     final public function SetTabHeader(string $tabid, string $title, bool $active = false) : string
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::set_tab_header'));
         return AdminTabs::set_tab_header($tabid,$title,$active);
     }
 
@@ -2118,6 +2142,7 @@ EOS
      */
     final public function EndTabHeaders() : string
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::end_tab_headers'));
         return AdminTabs::end_tab_headers();
     }
 
@@ -2131,6 +2156,7 @@ EOS
      */
     final public function StartTabContent() : string
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::start_tab_content'));
         return AdminTabs::start_tab_content();
     }
 
@@ -2144,6 +2170,7 @@ EOS
      */
     final public function EndTabContent() : string
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::end_tab_content'));
         return AdminTabs::end_tab_content();
     }
 
@@ -2158,6 +2185,7 @@ EOS
      */
     final public function StartTab(string $tabid) : string
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::start_tab'));
         return AdminTabs::start_tab($tabid);
     }
 
@@ -2171,6 +2199,7 @@ EOS
      */
     final public function EndTab() : string
     {
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTabs::end_tab'));
         return AdminTabs::end_tab();
     }
 } // class

@@ -7,6 +7,7 @@ Refer to licence and other details at the top of file ThemeManager.module.php
 
 use CMSMS\App;
 use ThemeManager\Utils;
+use function CMSMS\sanitizeVal;
 
 if (!isset($gCms) || !($gCms instanceof App)) {
 	exit;
@@ -74,7 +75,7 @@ $props = parse_ini_string($meta);
 
 $themename = (string)$xml->name;
 $themename = 'ImportTester'; //DEBUG
-$dirname = sanitizeVal($themename, 3);
+$dirname = sanitizeVal($themename, CMSSAN_FILE); // OR CMSSAN_PATH for a sub-theme?
 $basepath = CMS_THEMES_PATH . DIRECTORY_SEPARATOR . $dirname;
 if (is_dir($basepath)) {
 	//TODO abort if not updating

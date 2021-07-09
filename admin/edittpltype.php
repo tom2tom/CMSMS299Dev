@@ -1,45 +1,48 @@
 <?php
-# Edit template type
-# Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Edit template type
+Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Error403Exception;
 use CMSMS\ScriptsMerger;
 use CMSMS\TemplateType;
-use CMSMS\Utils;
+use function CMSMS\de_specialize_array;
+use function CMSMS\sanitizeVal;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-    exit;
-}
-
 check_login();
 
 $userid = get_userid();
 if( !check_permission($userid, 'Modify Templates') ) {
-	return;
+//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
 $urlext = get_secure_param();
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
 if( isset($_REQUEST['cancel']) ) {
 	$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_cancelled'));
@@ -51,23 +54,31 @@ if( !isset($_REQUEST['type']) ) {
 	redirect('listtemplates.php'.$urlext.'&_activetab=types');
 }
 
-cleanArray($_REQUEST);
-
+de_specialize_array($_REQUEST);
+if( is_numeric($_REQUEST['type']) ) {
+	$id = (int)$_REQUEST['type'];
+}
+else {
+	// string identifier should be like originator::name
+	$id = sanitizeVal($_REQUEST['type'], CMSSAN_PUNCTX, ':'); // allow '::'
+}
 try {
-	$type = TemplateType::load($_REQUEST['type']);
+	$type = TemplateType::load($id);
 
 	if( isset($_REQUEST['reset']) ) {
 		$type->reset_content_to_factory();
 		$type->save();
 	}
-	else if( isset($_REQUEST['dosubmit']) ) {
+	elseif( isset($_REQUEST['dosubmit']) ) {
 		if( isset($_REQUEST['dflt_contents']) ) {
+			//TODO how to sanitize template content?
 			$type->set_dflt_contents($_REQUEST['dflt_contents']);
 		}
-		$type->set_description($_REQUEST['description']);
+		$desc = trim($_REQUEST['description']); // AND sanitizeVal(, CMSSAN_NONPRINT) ? nl2br() ? striptags() ?
+		$type->set_description($desc);
 		$type->save();
 
-		$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_type_saved'));
+		$themeObject->ParkNotice('success', lang_by_realm('layout', 'msg_type_saved'));
 		redirect('listtemplates.php'.$urlext.'&_activetab=types');
 	}
 
@@ -89,7 +100,7 @@ try {
 	if( $do_locking ) {
 		$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 	}
-	$js = $jsm->page_content('', false, false);
+	$js = $jsm->page_content();
 	if( $js ) {
 		add_page_foottext($js);
 	}
@@ -157,17 +168,20 @@ EOS;
 	$extras = get_secure_param_array();
 
 	$smarty = AppSingle::Smarty();
-	$smarty->assign('type', $type)
-	 ->assign('selfurl', $selfurl)
-	 ->assign('urlext', $urlext)
-	 ->assign('extraparms', $extras);
+	$smarty->assign([
+	 'selfurl' => $selfurl,
+	 'urlext' => $urlext,
+	 'extraparms' => $extras,
+	 'type' => $type,
+	 ]);
 
 	$content = $smarty->fetch('edittpltype.tpl');
-	require './header.php';
+	$sep = DIRECTORY_SEPARATOR;
+	require ".{$sep}header.php";
 	echo $content;
-	require './footer.php';
+	require ".{$sep}footer.php";
 }
-catch( CmsException $e ) {
-	$themeObject->ParkNotice('error', $e->GetMessage());
+catch( Throwable $t ) {
+	$themeObject->ParkNotice('error', $t->GetMessage());
 	redirect('listtemplates.php'.$urlext.'&_activetab=types');
 }

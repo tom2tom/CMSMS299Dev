@@ -16,12 +16,12 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\UserOperations;
 
 function smarty_function_cms_admin_user($params, $template)
 {
@@ -30,7 +30,7 @@ function smarty_function_cms_admin_user($params, $template)
 	if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
 		$uid = (int)($params['uid'] ?? 0);
 		if( $uid > 0 ) {
-			$user = UserOperations::get_instance()->LoadUserByID((int)$params['uid']);
+			$user = AppSingle::UserOperations()->LoadUserByID((int)$params['uid']);
 			if( is_object($user) ) {
 				$mode = trim($params['mode'] ?? 'username');
 				switch( $mode ) {

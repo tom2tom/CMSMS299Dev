@@ -20,19 +20,18 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\Lock;
+use CMSMS\AppSingle;
 use CMSMS\LockOperations;
-use CMSMS\UserOperations;
 
 if( !isset($gCms) ) exit;
 
 $uid = get_userid();
-$is_admin = UserOperations::get_instance()->UserInGroup($uid,1);
+$is_admin = AppSingle::UserOperations()->UserInGroup($uid,1);
 
 if( $is_admin ) {
     // clear all locks of type content
     $db = cmsms()->GetDb();
-    $sql = 'DELETE FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE.' WHERE type = ?';
+    $sql = 'DELETE FROM '.CMS_DB_PREFIX. LockOperations::LOCK_TABLE.' WHERE type = ?';
     $db->Execute($sql,['content']);
     cms_notice('Cleared all content locks');
 } else {

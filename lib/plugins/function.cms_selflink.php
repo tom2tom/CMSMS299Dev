@@ -21,8 +21,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppSingle;
-use CMSMS\ContentOperations;
 use CMSMS\LangOperations;
+use function CMSMS\de_specialize;
+use function CMSMS\specialize;
 
 function smarty_function_cms_selflink($params, $template)
 {
@@ -55,7 +56,7 @@ function smarty_function_cms_selflink($params, $template)
 				$pageid = (int)$page;
 			}
 			else {
-				$page = cms_specialchars_decode($page); // decode entities (alias may be encoded if entered in WYSIWYG)
+				$page = de_specialize($page); // decode entities (alias may be encoded if entered in WYSIWYG)
 				$node = $hm->find_by_tag('alias',$page);
 				if( $node ) $pageid = $node->get_tag('id');
 			}
@@ -153,8 +154,7 @@ function smarty_function_cms_selflink($params, $template)
 
 		case 'start':
 			// default home page
-			$contentops = ContentOperations::get_instance();
-			$pageid = $contentops->GetDefaultPageId();
+			$pageid = AppSingle::ContentOperations()->GetDefaultPageId();
 			break;
 
 		case 'up':
@@ -204,7 +204,7 @@ function smarty_function_cms_selflink($params, $template)
 	// Now we build the output
 	$result = '';
 	if (!empty($params['label'])) {
-		$label = cms_specialchars($params['label']);
+		$label = specialize($params['label']);
 	}
 
 	$name = $content->Name();
@@ -216,7 +216,7 @@ function smarty_function_cms_selflink($params, $template)
 	elseif( $titleattr ) {
 		$title = $titleattr;
 	}
-	$title = cms_specialchars(strip_tags($title));
+	$title = specialize(strip_tags($title));
 
 	if ($rellink && $dir != '' ) {
 		// output a relative link.

@@ -4,9 +4,10 @@ namespace cms_installer\wizard;
 
 use cms_installer\request;
 use Exception;
+use function cms_installer\get_app;
 use function cms_installer\lang;
 use function cms_installer\smarty;
-use function cms_installer\get_app;
+use function cms_installer\specialize;
 
 class wizard_step
 {
@@ -38,6 +39,9 @@ class wizard_step
         return get_class($this);
     }
 
+    /**
+     * @abstract
+     */
     public function get_description()
     {
         return null;

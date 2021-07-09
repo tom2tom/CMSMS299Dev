@@ -16,6 +16,7 @@ $lang = [
 'desc_adduserpre' => 'Sent before a new user is created',
 'desc_changegroupassignpost' => 'Sent after group assignments are saved',
 'desc_changegroupassignpre' => 'Sent before group assignments are saved',
+'desc_checkuserdata' => 'Sent during user addition and change',
 'desc_contentdeletepost' => 'Sent after content is deleted from the system',
 'desc_contentdeletepre' => 'Sent before content is deleted from the system',
 'desc_contenteditpost' => 'Sent after edits to content are saved',
@@ -159,6 +160,15 @@ $lang = [
 <ul>
 <li>'group' - Reference to the group object.</li>
 <li>'users' - Array of references to user objects belonging to the group.</li>
+</ul>
+",
+'help_checkuserdata' => "<h4>Parameters</h4>
+<ul>
+<li>'user' - A User object representing the affected user.</li>
+<li>'username' - Current or revised or intended account name used by the user, or null to skip this test.</li>
+<li>'password' - Revised or intended account name used by the user, or null to skip this test.</li>
+<li>'update' - Whether the event was sent during a user-update as opposed to addition.</li>
+<li>'report' - Reference to a string to be set or appended with an error message, if so needed.</li>
 </ul>
 ",
 'help_contentdeletepost' => "<h4>Parameters</h4>

@@ -19,11 +19,10 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace DesignManager;
 
-use cms_utils;
 use CMSMS\LockOperations;
+use CMSMS\Utils as AppUtils;
 
 final class utils
 {
@@ -31,7 +30,7 @@ final class utils
 
     public static function locking_enabled()
     {
-        $mod = cms_utils::get_module('DesignManager');
+        $mod = AppUtils::get_module('DesignManager');
         $timeout = $mod->GetPreference('lock_timeout', 60);
         return $timeout > 0;
     }

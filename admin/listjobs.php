@@ -27,7 +27,6 @@ use CMSMS\AppState;
 use CMSMS\Async\RecurType;
 use CMSMS\Error403Exception;
 use CMSMS\internal\JobOperations;
-use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -38,7 +37,7 @@ check_login();
 $urlext = get_secure_param();
 $userid = get_userid();
 
-$themeObject = Utils::get_theme_object();
+//$themeObject = AppSingle::Theme();
 
 $pmod = check_permission($userid, 'Manage Jobs'); //?? View Jobs?
 if (!$pmod) {

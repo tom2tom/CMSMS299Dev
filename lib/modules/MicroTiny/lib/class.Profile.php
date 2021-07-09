@@ -19,11 +19,10 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace MicroTiny;
 
 use ArrayAccess;
-use CmsInvalidDataException;
+use CMSMS\DataException;
 use CMSMS\Utils;
 use LogicException;
 use MicroTiny;
@@ -44,7 +43,7 @@ class Profile implements ArrayAccess
 		'showstatusbar',
 		'system',
 	];
-    // static properties here >> StaticProperties class ?
+	// static properties here >> StaticProperties class ?
 	private static $_module = null;
 	private $_data = [];
 
@@ -84,7 +83,7 @@ class Profile implements ArrayAccess
 			return $this['name'];
 
 		default:
-			throw new CmsInvalidDataException('invalid key '.$key.' for '.self::class.' object');
+			throw new LogicException('invalid key '.$key.' for '.self::class.' object');
 		}
 	}
 
@@ -113,7 +112,7 @@ class Profile implements ArrayAccess
 			break;
 
 		default:
-			throw new CmsInvalidDataException('invalid key '.$key.' for '.self::class.' object');
+			throw new LogicException('invalid key '.$key.' for '.self::class.' object');
 		}
 	}
 
@@ -121,7 +120,7 @@ class Profile implements ArrayAccess
 	{
 		if( in_array($key, self::KEYS) ) return isset($this->_data[$key]);
 
-		throw new CmsInvalidDataException('invalid key '.$key.' for '.self::class.' object');
+		throw new LogicException('invalid key '.$key.' for '.self::class.' object');
 	}
 
 	public function OffsetUnset($key)
@@ -144,14 +143,14 @@ class Profile implements ArrayAccess
 			throw new LogicException('Cannot unset '.$key.' for '.self::class);
 
 		default:
-			throw new CmsInvalidDataException('invalid key '.$key.' for '.self::class.' object');
+			throw new LogicException('invalid key '.$key.' for '.self::class.' object');
 		}
 	}
 
 	public function save()
 	{
 		if( !isset($this->_data['name']) || $this->_data['name'] == '' ) {
-			throw new CmsInvalidDataException('Invalid microtiny profile name');
+			throw new DataException('Invalid microtiny profile name');
 		}
 
 		$data = serialize($this->_data);
@@ -167,11 +166,11 @@ class Profile implements ArrayAccess
 
 	private static function _load_from_data($data)
 	{
-		if( !is_array($data) || !count($data) ) throw new CmsInvalidDataException('Invalid data passed to '.self::class.'::'.__METHOD__);
+		if( !is_array($data) || !count($data) ) throw new DataException('Invalid data passed to '.self::class.'::'.__METHOD__);
 
 		$obj = new self();
 		foreach( $data as $key => $value ) {
-			if( !in_array($key,self::KEYS) ) throw new CmsInvalidDataException('Invalid key '.$key.' for data in .'.self::class);
+			if( !in_array($key,self::KEYS) ) throw new DataException('Invalid key '.$key.' for data in .'.self::class);
 			$obj->_data[$key] = trim($value);
 		}
 		return $obj;
@@ -198,13 +197,13 @@ class Profile implements ArrayAccess
 	 *
 	 * @param string $name
 	 * @return mixed self|null
-	 * @throws CmsInvalidDataException
+	 * @throws DataException
 	 */
 	public static function load($name)
 	{
 		if( $name == '' ) return;
 		$data = self::_get_module()->GetPreference('profile_'.$name);
-		if( !$data ) throw new CmsInvalidDataException('Unknown microtiny profile '.$name);
+		if( !$data ) throw new DataException('Unknown microtiny profile '.$name);
 
 		$obj = new self();
 		$obj->_data = unserialize($data);

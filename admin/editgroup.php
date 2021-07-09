@@ -20,13 +20,15 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AdminUtils;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\Group;
-use CMSMS\UserOperations;
-use CMSMS\Utils;
+use function CMSMS\de_specialize_array;
+use function CMSMS\sanitizeVal;
+use function CMSMS\specialize;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -39,48 +41,49 @@ if (isset($_POST['cancel'])) {
     redirect('listgroups.php'.$urlext);
 }
 
-$group = '';
-$description = '';
-$active = 1;
-if (isset($_GET['group_id'])) {
-    $group_id = (int) $_GET['group_id'];
-} else {
-    $group_id = -1;
-}
-
 $userid = get_userid();
-
-$themeObject = Utils::get_theme_object();
-
 if (!check_permission($userid, 'Manage Groups')) {
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-$groupobj = new Group();
-if( $group_id > 0 ) {
+$group = '';
+$description = '';
+$active = 1;
+if (isset($_GET['group_id'])) {
+    $group_id = (int)$_GET['group_id'];
+} else {
+    $group_id = -1;
+}
+if ($group_id > 0) {
     $groupobj = Group::load($group_id);
+} else {
+    $groupobj = new Group();
 }
 
 if (isset($_POST['editgroup'])) {
     $errors = [];
-    cms_specialchars_decode_array($_POST);
+    de_specialize_array($_POST);
+
     $group_id = (int)$_POST['group_id'];
-
-    $tmp = trim($_POST['group']);
-    $group = sanitizeVal($tmp, 1); // OR 21 ?
-    if ($group !== $tmp) {
-        $errors[] = lang('illegalcharacters', lang('groupname'));
-    } elseif (!$group) {
-        $errors[] = lang('nofieldgiven', lang('groupname'));
-    }
-    // not compulsory
-    $description = trim($_POST['description']); // AND sanitizeVal(, 0) ? nl2br() ? striptags() ?
-
     if ($group_id != 1) {
         $active = (!empty($_POST['active'])) ? 1 : 0;
     } else {
         $active = 1;
     }
+
+    $tmp = trim($_POST['group']);
+    $group = sanitizeVal($tmp, CMSSAN_NAME);
+    if ($group !== $tmp) {
+        $errors[] = lang('illegalcharacters', lang('groupname'));
+    } elseif (!$group) {
+        $errors[] = lang('nofieldgiven', lang('groupname'));
+    } elseif (!AdminUtils::is_valid_itemname($group)) {
+        $errors[] = lang('errorbadname');
+    }
+
+    // not compulsory
+    $tmp = trim($_POST['description']);
+    $description = sanitizeVal($tmp, CMSSAN_NONPRINT); // AND nl2br() ? striptags() ?
 
     if (!$errors) {
         $groupobj->name = $group;
@@ -96,13 +99,13 @@ if (isset($_POST['editgroup'])) {
             $errors[] = lang('errorupdatinggroup');
         }
     }
-    $themeObject->RecordNotice('error', $errors);
+    AppSingle::Theme()->RecordNotice('error', $errors);
 
-    $group = cms_specialchars($group);
-    if ($description) $description = cms_specialchars($description);
+    $group = specialize($group);
+    if ($description) { $description = specialize($description); }
 } elseif ($group_id != -1) {
-    $group = cms_specialchars($groupobj->name);
-    $description = cms_specialchars($groupobj->description);
+    $group = specialize($groupobj->name);
+    $description = specialize($groupobj->description);
     $active = $groupobj->active;
 } else { // id == -1 should never happen when editing ?
     $group = '';
@@ -112,7 +115,7 @@ if (isset($_POST['editgroup'])) {
 
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
-$userops = UserOperations::get_instance();
+$userops = AppSingle::UserOperations();
 $useringroup = $userops->UserInGroup($userid, $group_id);
 
 $smarty = AppSingle::Smarty();

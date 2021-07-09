@@ -21,8 +21,6 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\UserTagOperations;
-use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -35,7 +33,7 @@ $userid = get_userid();
 $pmod = check_permission($userid, 'Manage User Plugins');
 $access = $pmod || check_permission($userid, 'View Tag Help');
 
-$ops = UserTagOperations::get_instance();
+$ops = AppSingle::UserTagOperations();
 $items = $ops->ListUserTags();
 foreach ($items as $id=>$name) {
     $data = $ops->GetUserTag($name, 'description');
@@ -46,7 +44,7 @@ foreach ($items as $id=>$name) {
     ];
 }
 
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
 $iconadd = $themeObject->DisplayImage('icons/system/newobject.png', lang('add'),'','','systemicon');
 $iconedit = $themeObject->DisplayImage('icons/system/edit.png', lang('edit'),'','','systemicon');

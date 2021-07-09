@@ -28,7 +28,7 @@ Some of the values e.g. lang keys are 'internal', and anybody changing
 stuff will need to delve ...
 
 RULES
-Members 'name', 'parent' must be present & valid. No whitespace. 'parent' = null for the tree-root node
+Members 'name', 'parent' must be present & valid. No non-word chars other than '-','.'. 'parent' = null for the tree-root node
 'url' must be present & valid. It will be supplemented by security parameters
   unless the url is absolute (assumed external) then by 'urlparm' (if any)
 'labelkey' is the relevant lang key for the item label

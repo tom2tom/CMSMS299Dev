@@ -1,7 +1,7 @@
 <?php
 /*
 Alert class that uses pre-defined values
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp, Rovert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,12 +16,12 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\AdminAlerts;
 
-use CMSMS\UserOperations;
+use CMSMS\AppSingle;
 use InvalidArgumentException;
 
 /**
@@ -141,7 +141,7 @@ class SimpleAlert extends Alert
     {
         if( !$this->_perms ) return FALSE;
         $admin_uid = (int) $admin_uid;
-        $userops = UserOperations::get_instance();
+        $userops = AppSingle::UserOperations();
         $perms = $this->_perms;
         if( !is_array($this->_perms) ) $perms = [$this->_perms];
         foreach( $perms as $permname ) {

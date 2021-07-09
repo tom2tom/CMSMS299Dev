@@ -24,17 +24,14 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppState;
 use CMSMS\NlsOperations;
-use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 AppState::add_state(AppState::STATE_LOGIN_PAGE); // TODO if processing an AdminLogin module action
 $X = $CRASH;
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-//require_once("../lib/classes/class.user.inc.php");
 
-$themeObject = Utils::get_theme_object();
-$theme = $themeObject->themeName;
+$theme = AppSingle::Theme()->themeName;
 $defaulttheme = 'Marigold'; //TODO some sensible default
 
 $cms_readfile = function($filename) {

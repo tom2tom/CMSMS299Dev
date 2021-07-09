@@ -1,6 +1,6 @@
 <?php
 
-use cms_installer\cli_install;
+//use cms_installer\cli_install;
 use cms_installer\gui_install;
 
 function _detect_bad_ioncube()
@@ -26,14 +26,16 @@ try {
     @ini_set('apc.enabled',0); // disable apc opcode caching (for later versions of APC)
     @ini_set('xcache.cacher',0); // disable xcache opcode caching
 
+/* disabled
     if( php_sapi_name() == 'cli' ) {
         require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.cli_install.php';
         $app = new cli_install();
     }
     else {
+*/
         require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.gui_install.php';
         $app = new gui_install();
-    }
+//    }
     $app->run();
 }
 catch( Throwable $t ) {

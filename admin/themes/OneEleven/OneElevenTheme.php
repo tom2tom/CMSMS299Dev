@@ -40,7 +40,7 @@ use const CMS_USER_KEY;
 use const TMP_CACHE_LOCATION;
 use function check_permission;
 use function cleanValue; // pre-2.99
-//use function sanitizeVal; // 2.99+
+//use function CMSMS\sanitizeVal; // 2.99+
 use function cms_installed_jquery;
 use function cms_join_path;
 use function cms_path_to_url;
@@ -93,7 +93,6 @@ class OneElevenTheme extends AdminTheme
 
 		$config = cmsms()->GetConfig();
 		$admin_path = $config['admin_path'];
-//		$admin_url = $config['admin_url'];
 		$rel = substr(__DIR__, strlen($admin_path) + 1);
 		$rel_url = strtr($rel,DIRECTORY_SEPARATOR,'/');
 
@@ -125,17 +124,13 @@ EOS;
 		$jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this or keep if (CMS_DEBUG)
 //		}
 		$jsm->queue_file($incs['jqui'], 1);
-		$p = cms_join_path($config['root_path'],'lib','js','');
-		$jsm->queue_file($p.'jquery.cmsms_admin.min.js', 2);
-		$out .= $jsm->page_content('', false, false);
-
-		$jsm->reset();
-		$jsm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1);
-		$jsm->queue_matchedfile('jquery.toast.min.js', 1);
-		$p = __DIR__.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR;
-//		$jsm->queue_file($p.'standard.js', 3); //OR .min for production
-		$jsm->queue_file($p.'standard.min.js', 3);
+		$jsm->queue_matchedfile('jquery.cmsms_admin.js', 2);
 		$out .= $jsm->page_content();
+		$jsm->reset(); // start another merger-file
+		$jsm->queue_matchedfile('jquery.ui.touch-punch.js', 1);
+		$jsm->queue_matchedfile('jquery.toast.js', 1);
+		$jsm->queue_matchedfile('standard.js', 3, __DIR__.DIRECTORY_SEPARATOR.'includes');
+		$out .= $jsm->page_content('', false, true);
 
 		$add_list[] = $out;
 //		$vars[] = anything needed ?;
@@ -263,72 +258,16 @@ EOS;
 
 		return [$jqcss, $jqui, $jqcore];
 	}
-/*
-	protected function render_minimal($tplname, $bodyid = null)
-	{
-//		get_csp_token(); //setup CSP header (result not used)
-		$incs = cms_installed_jquery(true, false, true, false);
-		$jsm = new ScriptsMerger();
-		$jsm->queue_file($incs['jqcore'], 1);
-		$jsm->queue_file($incs['jqui'], 1);
-		$fn = $jsm->render_scripts('', false, false);
-		$url = cms_path_to_url(TMP_CACHE_LOCATION);
-		$header_includes = <<<EOS
-<script type="text/javascript" src="{$url}/{$fn}"></script>
 
-EOS;
-		$url = AppSingle::Config()['admin_url'];
-		$lang = NlsOperations::get_current_language();
-		$info = NlsOperations::get_language_info($lang);
-		$smarty = cmsms()->GetSmarty();
-		$otd = $smarty->GetTemplateDir();
-		$smarty->SetTemplateDir(__DIR__.DIRECTORY_SEPARATOR.'templates');
-
-		$smarty->assign('admin_root', $url)
-		 ->assign('theme_root', $url.'/themes/OneEleven')
-		 ->assign('title', $this->title)
-		 ->assign('lang_dir', $info->direction())
-		 ->assign('header_includes', $header_includes)
-//		 ->assign('bottom_includes', '') // TODO
-		 ->assign('bodyid', $bodyid)
-		 ->assign('content', $this->get_content());
-
-		$out = $smarty->fetch($tplname);
-		$smarty->SetTemplateDir($otd);
-		return $out;
-	}
-*/
-	/* *
-	 * @todo this has been migrated more-or-less verbatim from old marigold
-	 * @param mixed $bodyid Optional id for page 'body' element. Default null
-	 * @return string (or maybe null if $smarty->fetch() fails?)
-	 */
-/*	public function fetch_minimal_page($bodyid = null) : string
-	{
-		return $this->render_minimal('minimal.tpl', $bodyid);
-	}
-*/
-	/* *
-	 * @todo this has been migrated more-or-less verbatim from old marigold
-	 * @param mixed $bodyid Optional id for page 'body' element. Default null
-	 */
-/*	public function display_login_page($bodyid = null)
-	{
-		echo $this->render_minimal('login-minimal.tpl', $bodyid);
-	}
-*/
-	/**
-	 * @param $params Array of variables for smarty (CMSMS pre-2.99 only)
-	 */
-	public function display_customlogin_page($params = null)
+	public function display_login_page()
 	{
 		$gCms = cmsms();
 
 		if ($this->currentversion()) {
 			$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
-			$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
+			$modinst = CMSMS\AppSingle::ModuleOperations()->get_module_instance($auth_module, '', true);
 			if ($modinst) {
-				$data = $modinst->StageLogin();
+				$data = $modinst->fetch_login_panel();
 				if (isset($data['infomessage'])) $data['message'] = $data['infomessage'];
 				if (isset($data['warnmessage'])) $data['warning'] = $data['warnmessage'];
 				if (isset($data['errmessage'])) $data['error'] = $data['errmessage'];
@@ -339,14 +278,14 @@ EOS;
 			$smarty = $gCms->GetSmarty();
 			$smarty->assign($data);
 
-			//extra shared parameters for the form
-			$config = $gCms->GetConfig(); //also need by the inclusion
-			$fp = cms_join_path($config['admin_path'], 'themes', 'assets', 'function.extraparms.php');
+			//extra shared parameters for the form TODO get from the current login-module
+			$config = AppSingle::Config(); // for the inclusion
+			$fp = cms_join_path(dirname(__DIR__), 'assets', 'function.extraparms.php');
 			require_once $fp;
 			$smarty->assign($tplvars);
 
 			//extra theme-specific setup
-			$fp = cms_join_path(__DIR__, 'function.extraparms.php');
+			$fp = __DIR__ . DIRECTORY_SEPARATOR . 'function.extraparms.php';
 			if (is_file($fp)) {
 				require_once $fp;
 				if (!empty($tplvars)) {
@@ -356,13 +295,18 @@ EOS;
 
 //TODO	ensure $smarty->assign('lang_code', AppParams::get('frontendlang'));
 
-			$dir = ''; //TODO or '-rtl'
+			$fn = 'style';
+			if (NlsOperations::get_language_direction() == 'rtl') {
+				if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+					$fn .= '-rtl';
+				}
+			}
 			// scripts: jquery, jquery-ui
 			$incs = cms_installed_jquery();
 			$url = cms_path_to_url($incs['jquicss']);
 			$out = <<<EOS
 <link rel="stylesheet" href="$url" />
-<link rel="stylesheet" href="themes/OneEleven/css/style{$dir}.css" />
+<link rel="stylesheet" href="themes/OneEleven/css/{$fn}.css" />
 
 EOS;
 //			get_csp_token(); //setup CSP header (result not used)
@@ -374,13 +318,14 @@ EOS;
 			$out .= sprintf($tpl,'themes/OneEleven/includes/login.min.js');
 		} else {
 			$smarty = $gCms->GetSmarty();
+			$params = func_get_args();
 			if (!empty($params)) {
-				$smarty->assign($params);
+				$smarty->assign($params[0]);
 			}
 
 			$config = $gCms->GetConfig();
 			//extra setup/parameters for the form
-			$fp = cms_join_path(__DIR__, 'function.login.php');
+			$fp = __DIR__ . DIRECTORY_SEPARATOR . 'function.login.php';
 			require $fp;
 			if (!empty($tplvars)) {
 				$smarty->assign($tplvars);
@@ -399,9 +344,9 @@ EOS;
 EOS;
 		} // pre 2.99
 
-		$smarty->assign('header_includes', $out); //NOT into bottom (to avoid UI-flash)
-		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
-		$smarty->display('login.tpl');
+		$smarty->assign('header_includes', $out) //NOT into bottom (to avoid UI-flash)
+		  ->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
+		  ->display('login.tpl');
 	}
 
 	/**
@@ -447,11 +392,8 @@ EOS;
 			$smarty->assign('is_sitedown', 1);
 		}
 
-		$otd = $smarty->template_dir;
-		$smarty->template_dir = __DIR__.DIRECTORY_SEPARATOR.'templates';
-		$_contents = $smarty->fetch('topcontent.tpl');
-		$smarty->template_dir = $otd;
-		return $_contents;
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+		return $smarty->fetch('topcontent.tpl');
 	}
 
 	/**
@@ -463,12 +405,20 @@ EOS;
 		$flag = $this->currentversion();
 
 		$smarty = cmsms()->GetSmarty();
-		$uid = get_userid(false);
+		$userid = get_userid(false);
 
 		// setup titles etc
 //		$tree =
 			$this->get_navigation_tree(); //TODO if section
 
+		/* possibly-cached value-names
+		'pagetitle'
+		'extra_lang_params'
+		'module_help_type'
+		'module_help_url'
+		'pageicon'
+		'page_crumbs'
+		*/
 		// prefer cached parameters, if any
 		// module name
 		$module_name = $this->get_value('module_name');
@@ -482,7 +432,7 @@ EOS;
 		$module_help_type = $this->get_value('module_help_type');
 		// module_help_url
 		if ($module_name && ($module_help_type || $module_help_type === null) &&
-			!UserParams::get_for_user($uid,'hide_help_links', 0)) {
+			!UserParams::get_for_user($userid,'hide_help_links', 0)) {
 			if (($module_help_url = $this->get_value('module_help_url'))) {
 				$smarty->assign('module_help_url', $module_help_url);
 			}
@@ -549,13 +499,13 @@ EOS;
 		}
 
 		// preferences UI
-		if (check_permission($uid,'Manage My Settings')) {
+		if (check_permission($userid,'Manage My Settings')) {
 			$smarty->assign('mysettings', 1);
 			$smarty->assign('myaccount', 1); //TODO maybe a separate check
 		}
 
 		// bookmarks UI
-		if (UserParams::get_for_user($uid, 'bookmarks') && check_permission($uid, 'Manage My Bookmarks')) {
+		if (UserParams::get_for_user($userid, 'bookmarks') && check_permission($userid, 'Manage My Bookmarks')) {
 			$marks = $this->get_bookmarks();
 			$smarty->assign('marks', $marks);
 		}
@@ -566,11 +516,11 @@ EOS;
 		$smarty->assign('content', str_replace('</body></html>', '', $html));
 		$smarty->assign('theme', $this);
 		$smarty->assign('secureparam', $secureparam);
-		$userops = UserOperations::get_instance();
-		$user = $userops->LoadUserByID($uid);
+		$userops = CMSMS\AppSingle::UserOperations();
+		$user = $userops->LoadUserByID($userid);
 		$smarty->assign('username', $user->username);
 		// user-selected language
-		$lang = UserParams::get_for_user($uid, 'default_cms_language');
+		$lang = UserParams::get_for_user($userid, 'default_cms_language');
 		if (!$lang) $lang = AppParams::get('frontendlang');
 		$smarty->assign('lang_code', $lang);
 		// language direction
@@ -610,11 +560,8 @@ EOS
 			$smarty->assign('is_sitedown', 1);
 		}
 
-		$otd = $smarty->template_dir;
-		$smarty->template_dir = __DIR__ . '/templates';
-		$_contents = $smarty->fetch('pagetemplate.tpl');
-		$smarty->template_dir = $otd;
-		return $_contents;
+		$smarty->addTemplateDir(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
+		return $smarty->fetch('pagetemplate.tpl');
 	}
 
 	// for pre-2.99 compatibility
@@ -679,7 +626,7 @@ EOS
 
 	public function do_login($params)
 	{
-		$this->display_customlogin_page($params);
+		$this->display_login_page($params);
 	}
 
 	public function postprocess($html)

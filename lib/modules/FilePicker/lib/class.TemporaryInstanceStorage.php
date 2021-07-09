@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace FilePicker;
 
-use CMSMS\SystemCache;
+use CMSMS\AppSingle;
 
 /**
  * Class to manage session-caching of 'flat' data
@@ -45,25 +45,25 @@ class TemporaryInstanceStorage
     {
         $grp = self::cachegroup();
         $val = trim($val); // make sure it's a string
-        SystemCache::get_instance()->set($key ,$val, $grp);
+        AppSingle::SystemCache()->set($key ,$val, $grp);
         return $key;
     }
 
     public static function get($key)
     {
         $grp = self::cachegroup();
-        return SystemCache::get_instance()->get($key, $grp);
+        return AppSingle::SystemCache()->get($key, $grp);
     }
 
     public static function clear($key)
     {
         $grp = self::cachegroup();
-        SystemCache::get_instance()->delete($key, $grp);
+        AppSingle::SystemCache()->delete($key, $grp);
      }
 
     public static function reset()
     {
         $grp = self::cachegroup();
-        SystemCache::get_instance()->clear($grp);
+        AppSingle::SystemCache()->clear($grp);
     }
 }

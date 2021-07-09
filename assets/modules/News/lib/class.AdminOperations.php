@@ -23,7 +23,6 @@ namespace News;
 
 //use function cms_move_uploaded_file;
 use CMSMS\AppSingle;
-use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
@@ -66,7 +65,7 @@ author_id,
 news_extra,
 news_url,
 searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-            $row['news_id'] = $db->GenID(CMS_DB_PREFIX.'module_news_seq'); //OR use $db->Insert_ID(); for autoincrement news_id
+            $row['news_id'] = $db->genID(CMS_DB_PREFIX.'module_news_seq'); //OR use $db->Insert_ID(); for autoincrement news_id
             $row['news_title'] .= ' : Copy';
             $row['start_time'] = 0;
             $row['end_time'] = 0;
@@ -135,9 +134,9 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 /*
     public static function handle_upload($itemid,$fieldname,&$error)
     {
-        $config = CMSMS\AppSingle::Config();
+        $config = AppSingle::Config();
 
-        $mod = CMSMS\Utils::get_module('News');
+        $mod = Utils::get_module('News');
         $p = cms_join_path($config['uploads_path'],'news');
         if (!is_dir($p)) {
             if( @mkdir($p) === false ) {
@@ -248,7 +247,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             $module = Utils::get_module('News');
             $detailpage = $module->GetPreference('detail_returnid',-1);
             if( $detailpage == -1 ) {
-                $detailpage = ContentOperations::get_instance()->GetDefaultContent();
+                $detailpage = AppSingle::ContentOperations()->GetDefaultContent();
             }
         }
         $dflts = ['action'=>'detail','returnid'=>$detailpage,'articleid'=>$news_article_id];

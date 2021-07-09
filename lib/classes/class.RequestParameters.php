@@ -25,12 +25,13 @@ use CMSMS\AppSingle;
 use CMSMS\Crypto;
 use Throwable;
 use const CMS_JOB_KEY;
-use function endswith;
+use const CMS_SECURE_PARAM_NAME;
+use function startswith;
 
 /**
  * Class of static methods to populate get-parameters for use in an URL,
  * and retrieve parameter-values from $_REQUEST | $_GET | $_POST.
- * @see also get_parameter_value() which can revert to a $_SESSION value,
+ * @see also deprecated get_parameter_value() which can revert to a $_SESSION value,
  * for any requested parameter that is not found.
  * @since 2.99
  */
@@ -215,8 +216,8 @@ class RequestParameters
      *
      * @param array $parms URL get-parameters. Should include mact-components
      *  and action-parameters (if any), and generic-parameters (if any)
-	 *  Any non-trailing value which is empty (like &key=) will be cleaned (to &key)
-	 *  Trailing empties are retained, to support 'URL-prefix' creation
+     *  Any non-trailing value which is empty (like &key=) will be cleaned (to &key)
+     *  Trailing empties are retained, to support 'URL-prefix' creation
      * @param int $format Optional format enumerator
      *  0 = default, back-compatible rawurlencoded-where-necessary parameter keys and values
      *      other than the value for key 'mact', '&amp;' for parameter separators
@@ -230,14 +231,14 @@ class RequestParameters
     {
         [$sep, $enc] = self::modes($format);
 
-        if (isset($parms[CMS_JOB_KEY])) {
+/*        if (isset($parms[CMS_JOB_KEY])) {
             $type = $parms[CMS_JOB_KEY];
             unset($parms[CMS_JOB_KEY]);
         } else {
             $type = -1;
         }
         ksort($parms); //security key(s) lead
-
+*/
         if (isset($parms['module']) && isset($parms['id']) && isset($parms['action'])) {
             $module = trim($parms['module']);
             $id = trim($parms['id']);
@@ -245,6 +246,17 @@ class RequestParameters
             $inline = !empty($parms['inline']) ? 1 : 0;
             unset($parms['module'], $parms['id'], $parms['action'], $parms['inline']);
             $parms = ['mact' => "$module,$id,$action,$inline"] + $parms;
+        }
+        //security key(s) lead
+        $pre = [];
+        foreach ($parms as $key => $val) {
+            if (startswith($key, CMS_SECURE_PARAM_NAME)) {
+                $pre[$key] = $val;
+                unset($parms[$key]);
+            }
+        }
+        if ($pre) {
+            $parms = $pre + $parms;
         }
 
         $text = '';
@@ -262,12 +274,12 @@ class RequestParameters
                 } else {
                     $text .= $sep.$key;
                 }
-				if ($enc && ($format != 0 || $key != 'mact')) {
-					$val = self::clean1($val);
-				} else {
-					$val = self::clean1($val, '/\x00/');
-				}
-				$text .= '='.$val; // embedded empty $vals later removed
+                if ($enc && ($format != 0 || $key != 'mact')) {
+                    $val = self::clean1($val);
+                } else {
+                    $val = self::clean1($val, '/\x00/');
+                }
+                $text .= '='.$val; // embedded empty $vals later removed
             } else {
                 if ($first) {
                     $first = false;
@@ -277,11 +289,12 @@ class RequestParameters
                 $text .= self::build_query($key, $val, $format);
             }
         }
-
-        if ($type != -1) {
+/*     if ($type != -1) {
             $text .= self::create_jobtype($type, false, $format);
         }
-		$text = str_replace('='.$sep, $sep, $text);
+*/
+        // strip embedded (not trailing) empty values
+        $text = str_replace('='.$sep, $sep, $text);
         return $text;
     }
 

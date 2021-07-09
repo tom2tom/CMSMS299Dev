@@ -254,10 +254,12 @@ final class JobOperations
         }
 
         // Get job objects from files
-        $patn = cms_join_path(CMS_ROOT_PATH, 'lib', 'classes', 'jobs', 'class.*.php');
+        $patn = cms_join_path(CMS_ASSETS_PATH, 'jobs', 'class.*.php');
         $files = glob($patn);
-        foreach ($files as $p) {
-            $classname = 'CMSMS\\jobs\\';
+        $patn = cms_join_path(CMS_ROOT_PATH, 'lib', 'classes', 'jobs', 'class.*.php');
+        $files = array_merge($files, glob($patn));
+        foreach ($files as $p) { // OR basename-unique'd?
+            $classname = 'CMSMS\\jobs\\'; // NOT CMSMS\\[assets]\\jobs\\ == non-constant path
             $tmp = explode('.', basename($p));
             if (count($tmp) == 4 && $tmp[2] == 'task') {
                 $classname .= $tmp[1].'Task';
@@ -564,14 +566,14 @@ final class JobOperations
         $now = time();
         $sql = 'SELECT * FROM '.self::TABLE_NAME." WHERE created < $now ORDER BY created";
         $db = AppSingle::Db();
-        $rs = $db->SelectLimit($sql, self::MAXJOBS);
-        if (!$rs) {
+        $rst = $db->SelectLimit($sql, self::MAXJOBS);
+        if (!$rst) {
             return [];
         }
 
         $out = [];
-        while (!$rs->EOF()) {
-            $row = $rs->fields();
+        while (!$rst->EOF()) {
+            $row = $rst->fields();
             if (!empty($row['module'])) {
                 $mod = Utils::get_module($row['module']);
                 if (!is_object($mod)) {
@@ -594,11 +596,9 @@ final class JobOperations
                 debug_to_log('Problem deserializing row');
                 debug_to_log($row);
             }
-            if (!$rs->MoveNext()) {
-                break;
-            }
+            $rst->MoveNext();
         }
-        $rs->Close();
+        $rst->Close();
         return $out;
     }
 
@@ -616,25 +616,25 @@ final class JobOperations
 
         if ($check_only) {
             $sql = 'SELECT id FROM '.self::TABLE_NAME." WHERE start > 0 AND start <= $now AND (until = 0 OR until >= $now)";
-            $rs = $db->SelectLimit($sql, 1);
-            if ($rs) {
-                $res = !$rs->EOF();
-                $rs->Close();
+            $rst = $db->SelectLimit($sql, 1);
+            if ($rst) {
+                $res = !$rst->EOF();
+                $rst->Close();
                 return $res;
             }
             return false;
         }
 
         $sql = 'SELECT * FROM '.self::TABLE_NAME." WHERE start > 0 AND start <= $now AND (until = 0 OR until >= $now) ORDER BY errors,created";
-        $rs = $db->SelectLimit($sql, self::MAXJOBS);
+        $rst = $db->SelectLimit($sql, self::MAXJOBS);
 
-        if (!$rs) {
+        if (!$rst) {
             return false;
         }
 
         $out = [];
-        while (!$rs->EOF()) {
-            $row = $rs->fields();
+        while (!$rst->EOF()) {
+            $row = $rst->fields();
             if (!empty($row['module'])) {
                 $mod = Utils::get_module($row['module']);
                 if (!is_object($mod)) {
@@ -656,11 +656,9 @@ final class JobOperations
                 debug_to_log('Problem deserializing row');
                 debug_to_log($row);
             }
-            if (!$rs->MoveNext()) {
-                break;
-            }
+            $rst->MoveNext();
         }
-        $rs->Close();
+        $rst->Close();
         return $out;
     }
 

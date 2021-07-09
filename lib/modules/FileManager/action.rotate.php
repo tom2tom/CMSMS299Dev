@@ -20,6 +20,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
+use CMSMS\UserParams;
 use FileManager\Utils;
 
 if (!isset($gCms)) exit;
@@ -42,7 +44,7 @@ if (count($sel)>1) {
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
-$config = cmsms()->GetConfig();
+$config = AppSingle::Config();
 $basedir = CMS_ROOT_PATH;
 $filename = $this->decodefilename($sel[0]);
 $src = cms_join_path($basedir,Utils::get_cwd(),$filename);
@@ -71,15 +73,16 @@ switch( $imageinfo['mime'] ) {
 }
 $width = $imageinfo[0];
 $height = $imageinfo[1];
-$postrotate = cms_userprefs::get($this->GetName().'rotate_postrotate',1);
-$createthumb = cms_userprefs::get($this->GetName().'rotate_createthumb',0);
+$me = $this->GetName();
+$postrotate = UserParams::get($me.'rotate_postrotate',1);
+$createthumb = UserParams::get($me.'rotate_createthumb',0);
 
 if( isset($params['save']) ) {
   // save prefs.
   $createthumb = (int)$params['createthumb'];
   $postrotate = trim($params['postrotate']);
-  cms_userprefs::set($this->GetName().'rotate_postrotate',$postrotate);
-  cms_userprefs::set($this->GetName().'rotate_createthumb',$createthumb);
+  UserParams::set($me.'rotate_postrotate',$postrotate);
+  UserParams::set($me.'rotate_createthumb',$createthumb);
 
   // do the work
   $angle = (int)$params['angle'];

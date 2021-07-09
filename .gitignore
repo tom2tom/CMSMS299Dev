@@ -20,10 +20,10 @@ phar_installer/assets/install/uploadfiles/
 #non-en translations
 ext/
 #non-core modules, with nested git
-AccessControls/
-ContentMultiEditor/
-FileOperations/
-QUtils/
-SyntaxMultiEditor/
-ThemeManager/
-TreeFiler/
+#AccessControls/
+#ContentMultiEditor/
+#FileOperations/
+#QUtils/
+#SyntaxMultiEditor/
+#ThemeManager/
+#TreeFiler/

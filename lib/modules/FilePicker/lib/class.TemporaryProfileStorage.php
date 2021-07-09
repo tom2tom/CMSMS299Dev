@@ -20,11 +20,10 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace FilePicker;
 
+use CMSMS\AppSingle;
 use CMSMS\Crypto;
-use CMSMS\SystemCache;
 use FilePicker\Profile;
 
 /**
@@ -62,7 +61,7 @@ class TemporaryProfileStorage
         $grp = self::cachegroup();
         $s = serialize($profile);
         $key = Crypto::hash_string($grp . $s . microtime(true));
-        SystemCache::get_instance()->set($key ,$s, $grp);
+        AppSingle::SystemCache()->set($key ,$s, $grp);
         return $key;
     }
 
@@ -74,7 +73,7 @@ class TemporaryProfileStorage
     public static function get($key)
     {
         $grp = self::cachegroup();
-        $s = SystemCache::get_instance()->get($key, $grp);
+        $s = AppSingle::SystemCache()->get($key, $grp);
         if ($s) {
             return unserialize($s, ['allowed_classes'=>['FilePicker\\Profile']]);
         }
@@ -87,7 +86,7 @@ class TemporaryProfileStorage
     public static function clear($key)
     {
         $grp = self::cachegroup();
-        SystemCache::get_instance()->delete($key, $grp);
+        AppSingle::SystemCache()->delete($key, $grp);
     }
 
     /**
@@ -96,6 +95,6 @@ class TemporaryProfileStorage
     public static function reset()
     {
         $grp = self::cachegroup();
-        SystemCache::get_instance()->clear($grp);
+        AppSingle::SystemCache()->clear($grp);
     }
 }

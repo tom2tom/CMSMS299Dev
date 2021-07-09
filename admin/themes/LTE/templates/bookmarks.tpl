@@ -6,7 +6,7 @@
         <div class="btn-toolbar mb-3" role="toolbar">
           <a class="btn btn-default btn-sm" role="button" href="{$marks_cntrls[0]->url}" title="{$marks_cntrls[0]->title}"><i class="fa fa-plus"></i></a>
           <a class="btn btn-default btn-sm" role="button" href="{$marks_cntrls[1]->url}" title="{$marks_cntrls[1]->title}"><i class="fa fa-star"></i></a>
-          <a class="btn btn-default btn-sm text-red" role="button" href="#" data-widget="control-sidebar" title="{'close'|lang}"><i class="fa fa-times"></i></a>
+          <a class="btn btn-default btn-sm text-red" role="button" href="javascript:void()" data-widget="control-sidebar" title="{'close'|lang}"><i class="fa fa-times"></i></a>
         </div>
       {/if}
       <h3>{'user_created'|lang}</h3>

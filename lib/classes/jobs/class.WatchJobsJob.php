@@ -25,6 +25,7 @@ use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
 use CMSMS\Crypto;
 use CMSMS\internal\JobOperations;
+use const CMS_ASSETS_PATH;
 
 class WatchJobsJob extends CronJob
 {
@@ -51,11 +52,20 @@ class WatchJobsJob extends CronJob
         //check for changes in this same folder
         $sig = '';
         $files = scandir(__DIR__);
-        foreach( $files as $file ) {
+        foreach ($files as $file) {
             $fp = __DIR__.DIRECTORY_SEPARATOR.$file;
             $sig .= filesize($fp).filemtime($fp);
         }
+        $bp = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'jobs';
+        $files = scandir($bp);
+        foreach ($files as $file) {
+            if (fnmatch('class.*.php', $file)) {
+                $fp = $bp.DIRECTORY_SEPARATOR.$file;
+                $sig .= filesize($fp).filemtime($fp);
+            }
+        }
         //TODO check for changed module-jobs, if event-processing is bad ...
+
         $sig = Crypto::hash_string($sig);
         $saved = AppParams::get(self::STATUS_SITEPREF,'');
         if ($saved != $sig) {

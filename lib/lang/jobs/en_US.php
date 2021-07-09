@@ -5,7 +5,6 @@ $lang['core'] = 'Core';
 $lang['created'] = 'Created';
 $lang['errors'] = 'Errors';
 $lang['frequency'] = 'Frequency';
-$lang['publicname'] = 'Background Jobs';
 $lang['info_background_jobs'] = 'This page lists information about all currently known background jobs.<br />
 Such jobs normally appear in and disappear from this list frequently.<br />
 If a job has a high error count or its next-start is not sensible, some investigation is needed.';
@@ -17,6 +16,8 @@ $lang['name'] = 'Name';
 $lang['origin'] = 'Originator';
 $lang['pollgap'] = 'Polled every %s';
 $lang['processing_freq'] = 'Maximum processing frequency (seconds)';
+$lang['publicname'] = 'Background Jobs';
+//$lang['publictip'] = 'Manage asynchronous job-processing';
 $lang['recur_120m'] = 'Every 2 hours';
 $lang['recur_15m'] = 'Every 15 minutes';
 $lang['recur_180m'] = 'Every 3 hours';

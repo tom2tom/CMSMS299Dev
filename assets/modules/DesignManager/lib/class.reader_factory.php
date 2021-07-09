@@ -19,13 +19,13 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace DesignManager;
 
-use cms_utils;
-use CmsFileSystemException;
+use CMSMS\FileSystemException;
+use CMSMS\Utils;
 use DesignManager\design_reader;
 use DesignManager\theme_reader;
+use Exception;
 
 final class reader_factory
 {
@@ -33,8 +33,8 @@ final class reader_factory
 
   public static function get_reader($xmlfile)
   {
-    $mod = cms_utils::get_module('DesignManager');
-    if( !is_readable($xmlfile) ) throw new CmsFileSystemException($mod->Lang('error_filenotfound',$xmlfile));
+    $mod = Utils::get_module('DesignManager');
+    if( !is_readable($xmlfile) ) throw new FileSystemException($mod->Lang('error_filenotfound',$xmlfile));
     $fh = fopen($xmlfile,'r');
     if( !$fh ) throw new Exception($this->Lang('error_fileopen',$xmlfile));
     $str = fread($fh,200);

@@ -1,29 +1,30 @@
 <?php
-# FilePicker module action: filepicker
-# Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
-# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Fernando Morgado and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+FilePicker module action: filepicker
+Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Fernando Morgado and all other contributors from the CMSMS Development Team.
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 /*
  * This generates content (html, js, css) for a whole page, intended for
  * an iframe which can support directory-change and -display.
- * That page uses a non-CMSMS file-upload js plugin,
- * (see https://github.com/LPology/Simple-Ajax-Uploader)
- * and a CMSFileBrowser js object with methods to interact with the
- * generated page and uploader
+ * That page uses a CMSFileBrowser js object with methods to interact
+ * with the generated page and with a non-CMSMS file-upload js plugin,
+ * currently dm-uplader (see https://github.com/danielm/uploader)
  */
 
 use CMSMS\Crypto;
@@ -35,7 +36,7 @@ use FilePicker\PathAssistant;
 use FilePicker\TemporaryProfileStorage;
 use FilePicker\Utils;
 
-if (!function_exists('cmsms')) exit;
+if( !function_exists('cmsms') ) exit;
 //BAD in iframe if( !check_login(true) ) exit; // admin only.... but any admin
 
 $handlers = ob_list_handlers();
@@ -45,30 +46,29 @@ for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 // initialization
 //
 if( !empty($params['_enc']) ) {
-    $eparms = json_decode(base64_decode($params['_enc']), true); //'seldir'|'subdir','inst'
-    if( $eparms ) {
-		cleanArray($eparms);
+    $eparms = json_decode(base64_decode($params['_enc']), true); //'seldir'|'subdir','inst' no sanitize, rely on obfuscation to protect
+    if( $eparms ) { // TODO maybe CMSMS\sanitizeVal(each member) ?
         $params = array_merge($params, $eparms);
     }
 }
 
 try {
 /*
-	//$mime & $extensions replicate profile properties, if a suitable profile exists now
+    //$mime & $extensions replicate profile properties, if a suitable profile exists now
     $mime = $params['mime'] ?? '';
-    if ($mime) {
-		// defines filetypes to be displayed for potential upload c.f. $profile->file_extensions
+    if( $mime ) {
+        // defines filetypes to be displayed for potential upload c.f. $profile->file_extensions
         $mime = rawurldecode(trim($mime));
     }
     $extensions = $params['extensions'] ?? '';
-    if ($extensions) {
+    if( $extensions ) {
         // defines extensions of files' names to be displayed for potential upload c.f. $profile->file_mimes
         $extensions = rawurldecode(trim($extensions));
     }
 */
-	$save = false;
+    $save = false;
     $inst = $params['inst'] ?? '';
-	if( $inst ) {
+    if( $inst ) {
         $profile = TemporaryProfileStorage::get($inst);
     }
     else {
@@ -76,16 +76,16 @@ try {
     }
     if( !$profile ) {
         $profile = $this->get_default_profile();
-		$save = true;
+        $save = true;
     }
 
     $stype = $params['type'] ?? ''; //TODO form needs to send this if no inst
     if( $profile && !$inst && $stype ) {
         $itype = FileType::getValue($stype);
         $profile = $profile->overrideWith([
-			'type'=>$itype,
-		]);
-		$save = true;
+            'type'=>$itype,
+        ]);
+        $save = true;
     }
     if( !$this->CheckPermission('Modify Files') ) {
         $profile = $profile->overrideWith([
@@ -93,9 +93,9 @@ try {
             'can_delete' => FSControlValue::NO,
             'can_mkdir' => FSControlValue::NO
         ]);
-		$save = true;
+        $save = true;
     }
-//TODO MAYBE 'id'=>0, //? an identifier corresponding to db table key? $db->GenId() ?
+//TODO MAYBE 'id'=>0, //? an identifier corresponding to db table key? $db->genId() ?
 //           'name'=>'', //something useful?
 
     // get our absolute top directory
@@ -105,17 +105,17 @@ try {
         $profile = $profile->overrideWith([
             'top' => $topdir
         ]);
-		$save = true;
+        $save = true;
     }
 
-	if( $save ) {
+    if( $save ) {
         $inst = TemporaryProfileStorage::set($profile);
-	}
+    }
 
     $assistant = new PathAssistant($config, $topdir);
     $sesskey = Crypto::hash_string(__FILE__);
 
-	$cwd = $params['seldir'] ?? '';
+    $cwd = $params['seldir'] ?? '';
     if( $cwd ) {
         $cwd = trim($cwd);
     }
@@ -221,7 +221,7 @@ try {
                     $imgsize = @getimagesize($fullname);
                     if( $imgsize && ($imgsize[0] || $imgsize[1]) ) {
                         $data['dimensions'] = $imgsize[0].' x '.$imgsize[1];
-                        if( $imgsize[0] <= 96 && $imgsize[1] <= 48 ) { //c.f. cms_siteprefs ['thumbnail_width', 'thumbnail_height']
+                        if( $imgsize[0] <= 96 && $imgsize[1] <= 48 ) { //c.f. CMSMS\AppParams ['thumbnail_width', 'thumbnail_height']
                             $small = true;
                             $data['is_small'] = true;
                         }
@@ -272,7 +272,7 @@ try {
     if( $cwd ) {
         //changing to the parent dir is valid
         $p = strrpos($cwd, DIRECTORY_SEPARATOR, 1);
-        if ($p !== false) {
+        if( $p !== false ) {
             $parent = substr($cwd, 0, $p);
         }
         else {
@@ -289,12 +289,12 @@ try {
     }
 
     $typename = $profile->typename;
-	// input[file] parameters
-	$mime = $profile->file_mimes;
-	$extensions = $profile->file_extensions;
-	if ($extensions) {
+    // input[file] parameters
+    $mime = $profile->file_mimes;
+    $extensions = $profile->file_extensions;
+    if( $extensions ) {
         $extjs = '["'.str_replace(',', '","', $extensions).'"]';
-	}
+    }
     else {
         $extjs = '[]';
     }
@@ -307,49 +307,29 @@ try {
     // i.e. also needs at least: admin + theme js & admin + theme css
 
     $incs = cms_installed_jquery(true, true, true, true);
+    // don't bother with a StylessMerger
     $url = cms_path_to_url($incs['jquicss']);
+	$url2 = cms_get_css('filepicker.css');
     $headinc = <<<EOS
-<link rel="stylesheet" type="text/css" href="{$url}" />
+<link rel="stylesheet" type="text/css" href="$url" />
+<link rel="stylesheet" type="text/css" href="$url2" />
 
 EOS;
-
-    // get the latest relevant css
-    $css_files = ['filepicker.css', 'filepicker.min.css'];
-    $mtime = -1;
-    $sel_file = null;
-    $path = cms_join_path($this->GetModulePath(),'lib','css').DIRECTORY_SEPARATOR;
-    foreach( $css_files as $name ) {
-        $fp = $path.$name;
-        if( is_file($fp) ) {
-            $fmt = filemtime($fp);
-            if( $fmt > $mtime ) {
-                $mtime = $fmt;
-                $sel_file = $name;
-            }
-        }
-    }
-    if( $sel_file ) {
-        $headinc .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$baseurl}/lib/css/{$sel_file}" />
-
-EOS;
-    }
 
     $jsm = new ScriptsMerger();
     $jsm->queue_file($incs['jqcore'], 1);
 //    if( CMS_DEBUG )
-        $jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ? or keep if (CMS_DEBUG)?
+        $jsm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ? or keep if( CMS_DEBUG )?
 //    }
     $jsm->queue_file($incs['jqui'], 1);
-//  $jsm->queue_file($path.'jquery.dm-uploader.min.js', 2);
-//  $jsm->queue_file($path.'fakeadmin.js', 2);
-//  $jsm->queue_file($path.'filebrowser.min.js', 2);
-    $headinc .= $jsm->page_content('', false, false);
+    $jsm->queue_matchedfile('jquery.dm-uploader.js', 2);
+    $jsm->queue_matchedfile('fakeadmin.js', 2);
+    $jsm->queue_matchedfile('filebrowser.js', 2);
+    $headinc .= $jsm->page_content();
 
     $url = $this->create_url($id,'ajax_cmd',$returnid,['forjs'=>1]);
     $url = str_replace('&amp;','&',$url).'&'.CMS_JOB_KEY.'=1';
 
-    //CHECKME lang() usage ok if not an admin request ?
     $lang = (object) [
         'cancel' => $this->Lang('cancel'),
         'choose' => $this->Lang('choose'),
@@ -367,13 +347,9 @@ EOS;
         'select_file' => $this->Lang('select_a_file'),
         'yes' => $this->Lang('yes'),
     ];
-    $lang_js = json_encode($lang);
+    $lang_js = json_encode($lang); // CHECKME need for prior (object) cast?
 
-//BAD OLD <script type="text/javascript" src="{$baseurl}/lib/js/jquery.fileupload.js"></script>
     $footinc = <<<EOS
-<script type="text/javascript" src="{$baseurl}/lib/js/jquery.dm-uploader.js"></script>
-<script type="text/javascript" src="{$baseurl}/lib/js/fakeadmin.js"></script>
-<script type="text/javascript" src="{$baseurl}/lib/js/filebrowser.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 $(function() {
@@ -394,21 +370,21 @@ $(function() {
 EOS;
     // this template generates a full html page
     $tpl = $smarty->createTemplate($this->GetTemplateResource('filepicker.tpl')); //,null,null,$smarty);
-
-    $tpl->assign('module_url',$baseurl)
-     ->assign('topurl',$topurl)
-     ->assign('cwd_for_display',$cwd_for_display)
-     ->assign('cwd_up',$cwd != false)
-     ->assign('files',$files)
-     ->assign('inst',$inst)
-     ->assign('profile',$profile)
-     ->assign('headercontent',$headinc)
-     ->assign('bottomcontent',$footinc);
-
+    $tpl->assign([
+     'bottomcontent' => $footinc,
+     'cwd_for_display' => $cwd_for_display,
+     'cwd_up' => ($cwd != false),
+     'files' => $files,
+     'headercontent' => $headinc,
+     'inst' => $inst,
+     'module_url' => $baseurl,
+     'profile' => $profile,
+     'topurl' => $topurl,
+    ]);
     $tpl->display();
 }
-catch( Exception $e ) {
-    audit('','FilePicker',$e->GetMessage());
-    echo $smarty->errorConsole( $e, false );
+catch( Throwable $t ) {
+    audit('','FilePicker',$t->GetMessage());
+    echo $smarty->errorConsole($t, false);
 }
 return '';

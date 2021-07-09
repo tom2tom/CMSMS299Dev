@@ -25,7 +25,7 @@ namespace CMSMS; // TODO PHP5.4+ OK if pre-2.99?
 
 //use CMSMS\RequestParameters; //2.99+
 //use Throwable; 2.99+
-//use function sanitizeVal; // 2.99+
+//use function CMSMS\sanitizeVal; // 2.99+
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
@@ -34,7 +34,6 @@ use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
 use CMSMS\StylesMerger;
-use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 use const CMS_ROOT_PATH;
@@ -528,7 +527,7 @@ EOS;
 		  ->assign('content', str_replace('</body></html>', '', $html))
 		  ->assign('theme', $this)
 		  ->assign('secureparam', $secureparam);
-		$user = UserOperations::get_instance()->LoadUserByID($userid);
+		$user = AppSingle::UserOperations()->LoadUserByID($userid);
 		$smarty->assign('username', $user->username);
 		// user-selected language
 		$lang = UserParams::get_for_user($userid, 'default_cms_language');

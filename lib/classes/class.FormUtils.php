@@ -1,33 +1,39 @@
 <?php
-# A class providing functionality for generating page-elements.
-# Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with the program. If not, see <https://www.gnu.org/licenses/licenses.html>.
+/*
+A class providing functionality for generating page-elements.
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/licenses.html>.
+*/
 namespace CMSMS;
 
 use CMSMS\AppSingle;
+use CMSMS\CoreCapabilities;
+use CMSMS\Crypto;
 use CMSMS\HookOperations;
-use CMSMS\Utils;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
-use function cms_htmlentities;
+use const CMSSAN_PUNCT;
 use function cms_to_bool;
+use function CMSMS\sanitizeVal;
+use function CMSMS\specialize;
 use function endswith;
-use function sanitize;
+use function startswith;
 
 /**
  * A class of static methods which generate various page-elements.
@@ -35,7 +41,7 @@ use function sanitize;
  * @package CMS
  * @license GPL
  * @author  Robert Campbell
- * @since   2.9
+ * @since   2.99
  * @since   2.0 as global-space CmsFormUtils
  */
 class FormUtils
@@ -52,10 +58,10 @@ class FormUtils
     /**
      * Names of and related parameters for rich-text-editor modules specified
      * for use during the current request
-     * In principle, might be > 1 use of any modname and/or > 1 modname
+     * In principle, might be > 1 modname and/or > 1 use of any modname
      * Array members like modname=>[['id' => $id, 'stylesheet' => $stylesheet_name], ...]
      * @ignore
-     * @deprecated since 2.9
+     * @deprecated since 2.99
      */
     protected static $_activated_wysiwyg = [];
 
@@ -65,7 +71,7 @@ class FormUtils
      * In principle, might be > 1 instance of any modname and/or > 1 modname
      * Array members like modname=>[['id' => $id], ...]
      * @ignore
-     * @deprecated since 2.9
+     * @deprecated since 2.99
      */
     protected static $_activated_syntax = [];
 
@@ -77,7 +83,7 @@ class FormUtils
     /**
      * Migrate content of string $addtext to members of $converted
      * @ignore
-     * @since 2.9
+     * @since 2.99
      * @param string $addtext element attributes, may be empty
      * @param array  $converted where results are stored
      */
@@ -108,8 +114,8 @@ class FormUtils
      * This is an interface between the deprecated CMSModule methods for
      * form-element creation, and their replacements in this class.
      *
-     * @since 2.9
-     * @deprecated since 2.9 needed only while the CMSModule content-creation methods are supported
+     * @since 2.99
+     * @deprecated since 2.99 needed only while the CMSModule content-creation methods are supported
      *
      * @param object $mod    The initiator module, a CMSModule derivative
      * @param string $method Name of deprecated-method that was called in $mod. Like 'Create*'
@@ -221,7 +227,7 @@ class FormUtils
                     case 'tooltiplink':
                         extract($parms);
                         //default format/mode parameter
-                        $parms['href'] = $mod->create_url($id, $action, ($returnid ?? ''), ($params ?? []), !empty($inline), !empty($targetcontentonly), ($prettyurl ?? ''));
+                        $parms['href'] = $mod->create_url($modid, $action, ($returnid ?? ''), ($params ?? []), !empty($inline), !empty($targetcontentonly), ($prettyurl ?? ''));
                         //no break here
                     case 'tooltip':
                         $myfunc = 'create_tooltip';
@@ -252,7 +258,7 @@ class FormUtils
     /**
      * Check existence of compulsory members of $parms, and they each have an acceptable value
      * @ignore
-     * @since 2.9
+     * @since 2.99
      * @param array $parms element parameters/attributes
      * @param array $must key(s) which must be set in $parms, each with a value-check code.
      * @return mixed Error-message string (template) or false if no error
@@ -271,7 +277,7 @@ class FormUtils
                 case 'e': //false/null/empty is also acceptable
                     if ($tmp || (int)($tmp + 0) === 0) {
                         if (is_string($tmp)) {
-                            $parms[$key] = $tmp = sanitize($tmp);
+                            $parms[$key] = $tmp = sanitizeVal($tmp, CMSSAN_PUNCT);
                             if ($tmp) {
                                 break;
                             }
@@ -318,17 +324,22 @@ class FormUtils
     /**
      * Check and update element-properties.
      * @ignore
-     * @since 2.9
-     * @param array  $parms element parameters/attributes. Must include 'name', unless $withname = false
-     * @param bool   $withname optional flag whether a 'name' parameter is required. Default true
+     * @since 2.99
+     * @param array  $parms element parameters/attributes
      * @param array  $alts optional extra renames for keys in $parms, each member like 'oldname'=>'newname'
      *
-     * @return mixed Error-message string, or false if no error
+     * @return mixed Error-message string, or false if no error. $parms[] will probably be different.
      */
-    protected static function clean_attrs(array &$parms, bool $withname = true, array $alts = [])
+    protected static function clean_attrs(array &$parms, array $alts = [])
     {
+        /* $parms[] members of particular interest here (all optional):
+         name         = name attribute for the text area element.
+         modid/prefix = module-action-parameter prefix.
+         id/htmlid    = id attribute for the element.  If not specified, and name is present, then modid.name is used.
+         class/classname = class attribute (or space-separated attrubutes) for the element.
+        */
         //aliases
-        $alts += ['classname'=>'class'];
+        $alts += ['classname'=>'class', 'id'=>'htmlid', 'prefix'=>'modid'];
         foreach ($alts as $key => $val) {
             if (isset($parms[$key])) {
                 $parms[$val] = $parms[$key];
@@ -338,55 +349,31 @@ class FormUtils
 
         extract($parms, EXTR_SKIP);
 
-        if ($withname) {
-            if (empty($name)) {
-                return sprintf(self::ERRTPL, 'name', '%s');
-            }
-        } else {
+        //identifiers
+        if (!isset($name)) {
             $name = '';
         }
-        //identifiers
-        if (!empty($htmlid)) {
-            $tmp = $htmlid;
-            if (empty($modid) && empty($prefix)) {
-                if (!empty($id)) {
-                    $modid = $id;
-                } else {
-                    $modid = '';
+        if (!isset($htmlid)) {
+            if ($name) {
+                if (empty($modid)) {
+                    if (AppSingle::App()->is_frontend_request()) {
+                        $modid = 'cntnt01';
+                    } else {
+                        $modid = 'm1_';
+                    }
                 }
-            } elseif (!empty($prefix)) {
-                $modid = $prefix;
+                $htmlid = $modid.$name;
+            } else {
+                $htmlid = '';
             }
-        } elseif (!empty($modid)) {
-            $tmp = $modid.$name;
-        } elseif (!empty($prefix)) {
-            $modid = $prefix;
-            $tmp = $prefix.$name;
-        } elseif (!empty($id)) {
-            //alias for $htmlid or $modid - assume the former
-            $modid = '';
-            $tmp = $id;
-        } elseif (AppSingle::App()->is_frontend_request()) {
-            $modid = 'cntnt01';
-            $tmp = $modid.$name;
-        } else {
-            $modid = 'm1_';
-            $tmp = $modid.$name;
         }
-        unset($parms['htmlid']);
-        unset($parms['modid']);
-        unset($parms['prefix']);
 
-        if ($withname) {
-            $parms['name'] = sanitize($modid.$name);
-        }
-        $tmp = sanitize($tmp);
-        if ($tmp && $tmp !== 'm1_') {
-            $parms['id'] = $tmp;
-        } elseif ($withname) {
-            $parms['id'] = $parms['name'];
-        } elseif ($modid && $modid !== 'm1_') {
-            $parms['id'] = $modid;
+        unset($parms['htmlid'], $parms['prefix'], $parms['modid']);
+        $patn = '/[\x00-\x1f "\';=?^`&@<>(){}\\/\x7f-\xff]/'; // name may be like 'X[]' or X[y]
+        if ($htmlid) { $parms['id'] = preg_replace($patn, '', $htmlid); }
+        if ($name) {
+            if (!empty($modid)) { $name = $modid.$name; }
+            $parms['name'] = preg_replace($patn, '', $name);
         }
 
         //expectable bools
@@ -430,7 +417,7 @@ class FormUtils
      * $parms with array-value are automatically ignored.
      * There is no 'sanitization' of URL keys or values.
      * @ignore
-     * @since 2.9
+     * @since 2.99
      * @param array $parms element parameters/attributes
      * @param array $excludes $parms key(s) to be skipped
      * @return string
@@ -564,7 +551,7 @@ class FormUtils
     /**
      * Get xhtml for a selector (checkbox, radiogroup, list, dropdown)
      *
-     * @since 2.9
+     * @since 2.99
      *
      * @param array  $parms   Attribute(s)/definition(s) to be included in
      *  the element, each member like name=>value. Any name may be numeric,
@@ -581,7 +568,7 @@ class FormUtils
         $err = self::must_attrs($parms, ['type'=>'c', 'name'=>'c']);
         if (!$err) {
             //common checks
-            $err = self::clean_attrs($parms, true, ['items'=>'options']);
+            $err = self::clean_attrs($parms, ['items'=>'options']);
         }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
@@ -603,7 +590,7 @@ class FormUtils
 
                 $out = '<input type="checkbox"';
                 $out .= self::join_attrs($parms, ['type', 'selectedvalue']);
-                $out .= ' />'."\n";
+                $out .= ' />'.PHP_EOL;
                 break;
             case 'radio':
                 $err = self::must_attrs($parms, ['options'=>'a', 'selectedvalue'=>'v']);
@@ -620,11 +607,11 @@ class FormUtils
                 $count = count($options);
                 $out = '';
                 foreach ($options as $key=>$val) {
-                    $out .= $each . ' id="'.$id.$name.$i.'" value="'.$val.'"';
+                    $out .= $each . ' id="'.$modid.$name.$i.'" value="'.$val.'"';
                     if ($val == $selectedvalue) {
                         $out .= ' checked="checked"';
                     }
-                    $out .= ' /><label for="'.$id.$name.$i.'">'.$key .'</label>';
+                    $out .= ' /><label for="'.$modid.$name.$i.'">'.$key .'</label>';
                     if ($i < $count && $delimiter) {
                         $out .= $delimiter;
                     }
@@ -674,7 +661,7 @@ class FormUtils
                  'selectedvalue',
                 ]);
                 $contents = self::create_options($options, $selected);
-                $out .= '>'.$contents.'</select>'."\n";
+                $out .= '>'.$contents.'</select>'.PHP_EOL;
                 break;
             default:
                 $err = sprintf(self::ERRTPL2, 'type', '%s');
@@ -691,7 +678,7 @@ class FormUtils
     /**
      * Get xhtml for a single-element input (text, textarea, button, submit etc)
      *
-     * @since 2.9
+     * @since 2.99
      *
      * @param array  $parms   Attribute(s)/definition(s) to be included in
      *  the element, each member like name=>value. Any name may be numeric,
@@ -708,7 +695,7 @@ class FormUtils
             $err = self::must_attrs($parms, ['type'=>'c', 'name'=>'c']);
             if (!$err) {
                 //common checks
-                $err = self::clean_attrs($parms, true, ['text'=>'value', 'contents'=>'value']);
+                $err = self::clean_attrs($parms, ['text'=>'value', 'contents'=>'value']);
             }
             if ($err) {
                 $tmp = sprintf($err, __METHOD__);
@@ -720,11 +707,11 @@ class FormUtils
             //custom checks
             $value = $parms['value'] ?? '';
             //TODO tailoring for lots of html5 types
-            $parms['value'] = ($value && $type == 'text') ? cms_htmlentities($value) : $value;
+            $parms['value'] = ($value && $type == 'text') ? specialize($value) : $value;
 
             $out = '<input';
             $out .= self::join_attrs($parms, ['modid']);
-            return $out.' />'."\n";
+            return $out.' />'.PHP_EOL;
         }
         unset($parms['type']); //don't confuse with 'wantedsyntax'
         return self::create_textarea($parms);
@@ -738,13 +725,13 @@ class FormUtils
      * @param string module_name (required)
      * @param string id (optional) the id attribute of the textarea element
      */
-    protected static function add_syntax(string $module_name, string $id = self::NONE)
+    protected static function add_syntax(string $modname, string $id = self::NONE)
     {
-        if ($module_name) {
-            if (!isset(self::$_activated_syntax[$module_name])) {
-                self::$_activated_syntax[$module_name] = [];
+        if ($modname) {
+            if (!isset(self::$_activated_syntax[$modname])) {
+                self::$_activated_syntax[$modname] = [];
             }
-            self::$_activated_syntax[$module_name][] = ['id' => $id];
+            self::$_activated_syntax[$modname][] = ['id' => $id];
         }
     }
 
@@ -771,13 +758,13 @@ class FormUtils
      * @param string id (optional) the id attribute of the textarea element
      * @param string stylesheet_name (optional) the name of a stylesheet to include with this area (some WYSIWYG editors may not support this)
      */
-    protected static function add_wysiwyg(string $module_name, string $id = self::NONE, string $stylesheet_name = self::NONE)
+    protected static function add_wysiwyg(string $modname, string $id = self::NONE, string $stylesheet_name = self::NONE)
     {
-        if ($module_name) {
-            if (!isset(self::$_activated_wysiwyg[$module_name])) {
-                self::$_activated_wysiwyg[$module_name] = [];
+        if ($modname) {
+            if (!isset(self::$_activated_wysiwyg[$modname])) {
+                self::$_activated_wysiwyg[$modname] = [];
             }
-            self::$_activated_wysiwyg[$module_name][] = ['id' => $id, 'stylesheet' => $stylesheet_name];
+            self::$_activated_wysiwyg[$modname][] = ['id' => $id, 'stylesheet' => $stylesheet_name];
         }
     }
 
@@ -808,9 +795,9 @@ class FormUtils
      *   forcemodule/forcewysiwyg = (optional string) used to specify the editor-module to enable.  If specified, the module name will be added to the
      *                   class attribute.
      *   enablewysiwyg = (optional boolean) used to specify whether a richtext-editor is required for the textarea.  Sets the language to html.
-     *         Deprecated since 2.9. Instead, generate and record content (js, css etc) directly
+     *         Deprecated since 2.99. Instead, generate and record content (js, css etc) directly
      *   wantedsyntax  = (optional string) used to specify the language (html,css,php,smarty) to use.  If non empty indicates that a
-     *                   syntax-highlight editor is required for the textarea. Deprecated since 2.9. Instead, generate and record content (js etc) directly
+     *                   syntax-highlight editor is required for the textarea. Deprecated since 2.99. Instead, generate and record content (js etc) directly
      *   cols/width    = (optional integer) columns of the text area (css or the syntax/wysiwyg module may override this)
      *   rows/height   = (optional integer) rows of the text area (css or the syntax/wysiwyg module may override this)
      *   maxlength     = (optional integer) maxlength attribute of the text area (syntax/wysiwyg module may ignore this)
@@ -830,7 +817,7 @@ class FormUtils
         $err = self::must_attrs($parms, ['name'=>'c']);
         if (!$err) {
             //common checks
-            $err = self::clean_attrs($parms, true, [
+            $err = self::clean_attrs($parms, [
              'height'=>'rows',
              'width'=>'cols',
              'text'=>'value',
@@ -862,40 +849,44 @@ class FormUtils
 
         if (!isset($value)) { $value = ''; }
         if (!isset($forcemodule)) { $forcemodule = ''; }
-        $module = null;
+        $modinst = null;
 
-        if ($enablewysiwyg) { //deprecated since 2.9
+        if ($enablewysiwyg) { //deprecated since 2.99
             // we want a wysiwyg
             if (empty($parms['class'])) {
                 $parms['class'] = 'cmsms_wysiwyg'; //not for CSS ?!
             } else {
                 $parms['class'] .= ' cmsms_wysiwyg';
             }
-            $module = ModuleOperations::get_instance()->GetWYSIWYGModule($forcemodule);
-            if ($module && $module->HasCapability(CoreCapabilities::WYSIWYG_MODULE)) {
+            $modinst = AppSingle::ModuleOperations()->GetWYSIWYGModule($forcemodule);
+            if ($modinst && $modinst->HasCapability(CoreCapabilities::WYSIWYG_MODULE)) {
                 // TODO use $config['content_language']
                 $parms['data-cms-lang'] = 'html'; //park badly-named variable
-                $module_name = $module->GetName();
-                $parms['class'] .= ' '.$module_name;  //not for CSS ?!
+                $modname = $modinst->GetName();
+                $parms['class'] .= ' '.$modname;  //not for CSS ?!
                 if (empty($cssname)) {
                     $cssname = self::NONE;
                 }
-                self::add_wysiwyg($module_name, $id, $cssname);
+                self::add_wysiwyg($modname, $id, $cssname);
+                $x = array_pop(self::$_activated_wysiwyg[$modname]);
+                self::$_activated_wysiwyg[$modname][] = $x + $parms;
             }
         }
 
         if (!isset($wantedsyntax)) { $wantedsyntax = ''; }
-        if (!$module && $wantedsyntax) {
+        if (!$modinst && $wantedsyntax) {
             $parms['data-cms-lang'] = $wantedsyntax; //park
-            $module = ModuleOperations::get_instance()->GetSyntaxHighlighter($forcemodule);
-            if ($module && $module->HasCapability(CoreCapabilities::SYNTAX_MODULE)) {
-                $module_name = $module->GetName();
+            $modinst = AppSingle::ModuleOperations()->GetSyntaxHighlighter($forcemodule);
+            if ($modinst && $modinst->HasCapability(CoreCapabilities::SYNTAX_MODULE)) {
+                $modname = $modinst->GetName();
                 if (empty($parms['class'])) {
-                    $parms['class'] = $module_name; //not for CSS ?!
+                    $parms['class'] = $modname; //not for CSS ?!
                 } else {
-                    $parms['class'] .= ' '.$module_name;
+                    $parms['class'] .= ' '.$modname;
                 }
-                self::add_syntax($module_name, $id);
+                self::add_syntax($modname, $id);
+                $x = array_pop(self::$_activated_syntax[$modname]);
+                self::$_activated_syntax[$modname][] = $x + $parms;
             }
         }
 
@@ -903,7 +894,7 @@ class FormUtils
             if (!isset($encoding)) {
                 $encoding = ''; //use the system-default
             }
-            $value = cms_htmlentities($value, ENT_NOQUOTES, $encoding);
+            $value = specialize($value, ENT_NOQUOTES, $encoding);
         }
 
         $out = '<textarea';
@@ -917,14 +908,14 @@ class FormUtils
          'encoding',
          'cssname',
         ]);
-        $out .= '>'.$value.'</textarea>'."\n";
+        $out .= '>'.$value.'</textarea>'.PHP_EOL;
         return $out;
     }
 
     /**
      * Get xhtml for a label for another element
      *
-     * @since 2.9
+     * @since 2.99
      *
      * @param array  $parms   Attribute(s)/property(ies) to be included in the
      *  element, each member like name=>value. Any name may be numeric, in which
@@ -947,15 +938,15 @@ class FormUtils
 
         $out = '<label for="'.$parms['name'].'"';
         $out .= self::join_attrs($parms, ['name', 'labeltext']);
-        $contents = cms_htmlentities($parms['labeltext']);
-        $out .= '>'.$contents.'</label>'."\n";
+        $contents = specialize($parms['labeltext']);
+        $out .= '>'.$contents.'</label>'.PHP_EOL;
         return $out;
     }
 
     /**
      * Get xhtml for the start of a module form
      *
-     * @since 2.9
+     * @since 2.99
      *
      * @param object $mod    The initiator module, a CMSModule derivative
      * @param array  $parms  Attribute(s)/property(ies) to be included in
@@ -970,7 +961,7 @@ class FormUtils
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['action'=>'c']);
         if (!$err) {
-            $err = self::clean_attrs($parms, false);
+            $err = self::clean_attrs($parms);
         }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
@@ -980,7 +971,12 @@ class FormUtils
 
         extract($parms);
 
-        $idsuffix = (!empty($idsuffix)) ? sanitize($idsuffix) : '';
+        $modid = (!empty($modid)) ? sanitizeVal($modid) : '';
+        if ($modid === '') {
+            $modid = 'm1_';
+        }
+
+        $idsuffix = (!empty($idsuffix)) ? sanitizeVal($idsuffix) : '';
         if ($idsuffix === '') {
             $idsuffix = $_formcount++;
         }
@@ -990,11 +986,13 @@ class FormUtils
             unset($parms['classname']);
         }
 
-        $method = (!empty($method)) ? sanitize($method) : 'post';
+        $inline = (!empty($inline)) ? 1 : 0;
 
-        if (!empty($returnid) || $returnid === 0) {
+        $method = (!empty($method)) ? sanitizeVal($method) : 'post';
+
+        if (!empty($returnid) || (isset($returnid) && $returnid === 0)) {
             $returnid = (int)$returnid; //OR filter_var() ?
-            $content_obj = Utils::get_current_content(); //CHECKME ever relevant when CREATING a form?
+            $content_obj = AppSingle::App()->get_content_object();
             $goto = ($content_obj) ? $content_obj->GetURL() : 'index.php';
             if (strpos($goto, ':') !== false && AppSingle::App()->is_https_request()) {
                 //TODO generally support the websocket protocol 'wss' : 'ws'
@@ -1006,49 +1004,82 @@ class FormUtils
 
         if (empty($enctype)) unset($parms['enctype']);
 
-        $out = '<form id="'.$id.'moduleform_'.$idsuffix.'" method="'.$method.'" action="'.$goto.'"';
-        $out .= self::join_attrs($parms, [
-         'name',
-         'id',
-         'modid',
-         'idsuffix',
-         'returnid',
-         'action',
-         'method',
-         'inline',
-        ]);
+        // identify secure/special params, to become hidden inputs
+        $plain = [];
+        foreach ($parms as $key=>$val) {
+            if (startswith($key, CMS_SECURE_PARAM_NAME)) {
+                $plain[] = $key;
+            } elseif ($key == 'extraparms') {
+                foreach ($parms['extraparms'] as $key=>$val) {
+                    if (startswith($key, CMS_SECURE_PARAM_NAME)) {
+                        $plain[] = $key;
+                    }
+                }
+            }
+        }
+
+        $excludes = array_merge([
+            'name',
+            'id',
+            'modid',
+            'idsuffix',
+            'returnid',
+            'action',
+            'method',
+            'inline',
+            'extraparms',
+        ], $plain);
+
+        $out = '<form id="'./*2.99 breaker ? $id.*/'moduleform_'.$idsuffix.'" method="'.$method.'" action="'.$goto.'"';
+        $out .= self::join_attrs($parms, $excludes);
         $out .= '>'."\n".
         '<div class="hidden">'."\n".
-         // TODO if $method == 'get', also support secure action-parameters via GetParameters class
-        '<input type="hidden" name="mact" value="'.$mod->GetName().','.$id.','.$action.','.($inline?1:0).'" />'."\n";
-       if ($returnid != '') { //NB not strict - it may be null
-            $out .= '<input type="hidden" name="'.$id.'returnid" value="'.$returnid.'" />'."\n";
+        '<input type="hidden" name="mact" value="'.$mod->GetName().','.$modid.','.$action.','.($inline?1:0).'" />'."\n";
+        if (isset($returnid) && $returnid != '') { //NB not strict - it may be null
+            $out .= '<input type="hidden" name="'.$modid.'returnid" value="'.$returnid.'" />'."\n";
             if ($inline) {
                 $config = AppSingle::Config();
                 $out .= '<input type="hidden" name="'.$config['query_var'].'" value="'.$returnid.'" />'."\n";
             }
-        } else {
+        } elseif (isset($_SESSION[CMS_USER_KEY])) { //there is a logged-in user TODO or this is a login-related form
             $out .= '<input type="hidden" name="'.CMS_SECURE_PARAM_NAME.'" value="'.$_SESSION[CMS_USER_KEY].'" />'."\n";
         }
-        $excludes = ['module','action','id'];
-        foreach ($params as $key=>$val) {
+        if (!empty($parms['extraparms'])) {
+            $arr = $parms['extraparms'];
+            unset($parms['extraparms']);
+            $parms = array_merge($parms, $arr);
+        }
+        foreach ($plain as $key) {
+            $out .= '<input type="hidden" name="'.$key.'" value="'.$parms[$key].'" />'."\n";
+        }
+        $excludes = array_merge([
+            'module',
+            'id',
+            'idsuffix',
+            'returnid',
+            'action',
+            'method',
+            'inline',
+            'extraparms'
+            ], $plain);
+        foreach ($parms as $key=>$val) {
 //          $val = TODOfunc($val); urlencode ? serialize?
             if (!in_array($key, $excludes)) {
                 if (is_array($val)) {
-//TODO e.g. serialize $out .= '<input type="hidden" name="'.$id.$key.'" value="'.TODO.'" />'."\n";
+//TODO e.g. serialize $out .= '<input type="hidden" name="'.$modid.$key.'" value="'.TODO.'" />'."\n";
                 } else {
-                    $out .= '<input type="hidden" name="'.$id.$key.'" value="'.$val.'" />'."\n";
+                    $out .= '<input type="hidden" name="'.$modid.$key.'" value="'.$val.'" />'."\n";
                 }
             }
         }
-        $out .= '</div>'."\n";
+        $out .= '</div>'.PHP_EOL;
         return $out;
     }
 
     /**
      * Get xhtml for the end of a module form
      *
-     * @since 2.9
+     * @since 2.99
      *
      * This is basically just a wrapper around </form>, but might be
      * extended in the future. It's here mainly for consistency.
@@ -1057,13 +1088,13 @@ class FormUtils
      */
     public static function create_form_end() : string
     {
-        return '</form>'."\n";
+        return '</form>'.PHP_EOL;
     }
 
     /**
      * Get xhtml for the start of a fieldset, with optional legend
      *
-     * @since 2.9
+     * @since 2.99
      *
      * @return string
      */
@@ -1079,12 +1110,12 @@ class FormUtils
 
         $out = '<fieldset';
         $out .= self::join_attrs($parms, ['modid',]);
-        $out .= '>'."\n";
+        $out .= '>'.PHP_EOL;
         if (!empty($legend) || (isset($legend) && is_numeric($legend))) {
             $out .= '<legend';
             //$out .= self::join_attrs($TODO);
-            $contents = cms_htmlentities($legend);
-            $out .= '>'.$contents.'</legend>'."\n";
+            $contents = specialize($legend);
+            $out .= '>'.$contents.'</legend>'.PHP_EOL;
         }
         return $out;
     }
@@ -1092,7 +1123,7 @@ class FormUtils
     /**
      * Get xhtml for the end of a fieldset
      *
-     * @since 2.9
+     * @since 2.99
      *
      * This is basically just a wrapper around </fieldset>, but might be
      * extended in the future. It's here mainly for consistency.
@@ -1101,7 +1132,7 @@ class FormUtils
      */
     public static function create_fieldset_end() : string
     {
-        return '</fieldset>'."\n";
+        return '</fieldset>'.PHP_EOL;
     }
 
     /**
@@ -1109,7 +1140,7 @@ class FormUtils
      * module action.
      * Or get only the URL for such link.
      *
-     * @since 2.9
+     * @since 2.99
      *
      * @param object $mod    The initiator module, a CMSModule derivative
      * @param array  $parms  Attribute(s)/property(ies) to be included in
@@ -1122,9 +1153,9 @@ class FormUtils
     public static function create_action_link($mod, array $parms) : string
     {
         //must have these $parms, each with a usable value
-        $err = self::must_attrs($parms, ['action'=>'c']);
+        $err = self::must_attrs($parms, ['action' => 'c','modid' => 'c']);
         if (!$err) {
-            $err = self::clean_attrs($parms, false);
+            $err = self::clean_attrs($parms);
         }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
@@ -1135,8 +1166,10 @@ class FormUtils
         extract($parms);
 
         //optional
-        if (!empty($returnid) || $returnid === 0) {
+        if (!empty($returnid)) {
             $returnid = (int)$returnid;
+        } elseif (isset($returnid) && $returnid == 0) {
+            $returnid = 0;
         } else {
             $returnid = '';
         }
@@ -1147,11 +1180,17 @@ class FormUtils
 
         $prettyurl = (!(empty($prettyurl) || $prettyurl == ':NOPRETTY:')) ? preg_replace('~[^\w/]~', '', $prettyurl) : '';
 
-        $out = $mod->create_url($id, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl, $format ?? 0);
+        $out = $mod->create_url($modid, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl, $format ?? 0);
 
-        if (!$onlyhref) {
+        if (empty($onlyhref)) {
             $out = '<a href="' . $out . '"';
+            if (!empty($warn_message)) {
+                if (empty($modid)) {
+                    $parms['id'] = $id = 'alink'.Crypto::random_string(5, true);
+                }
+            }
             $out .= self::join_attrs($parms, [
+            'id',
             'modid',
             'action',
             'returnid',
@@ -1162,10 +1201,22 @@ class FormUtils
             'contents',
             'onlyhref',
             ]);
-            if ($warn_message) {
-                $out .= ' onclick="cms_confirm_linkclick(this,\''.$warn_message.'\');return false;"';
+            $out .= '>' . $contents . '</a>';
+            if (!empty($warn_message)) {
+                $msg = json_encode($warn_message);
+                $out .= <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(function() {
+ $('#{$id}').on('click', function() {
+  cms_confirm_linkclick(this, $msg);
+  return false;
+ });
+});
+//]]>
+</script>
+EOS;
             }
-            $out .= '>'.$contents.'</a>';
         }
         return $out;
     }
@@ -1193,7 +1244,7 @@ class FormUtils
     public static function create_return_link($mod, array $parms) : string
     {
         //TODO any must-have's here ?
-        $err = self::clean_attrs($parms, false);
+        $err = self::clean_attrs($parms);
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
             assert(!$err, $tmp);
@@ -1212,7 +1263,7 @@ class FormUtils
             $params = [];
         }
         // create the url
-        $out = $mod->create_pageurl($id, $returnid, $params, false); //i.e. not $for_display
+        $out = $mod->create_pageurl($modid, $returnid, $params, false); //i.e. not $for_display
 
         if ($out) {
             if (!$onlyhref) {
@@ -1246,7 +1297,7 @@ class FormUtils
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['pageid'=>'i']);
         if (!$err) {
-            $err = self::clean_attrs($parms, false);
+            $err = self::clean_attrs($parms);
         }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
@@ -1260,7 +1311,7 @@ class FormUtils
         $config = AppSingle::Config();
         if ($config['url_rewriting'] == 'mod_rewrite') {
             // mod_rewrite
-            $contentops = ContentOperations::get_instance();
+            $contentops = AppSingle::ContentOperations();
             $alias = $contentops->GetPageAliasFromID($pageid);
             if ($alias) {
                 $out .= CMS_ROOT_URL.'/'.$alias.($config['page_extension'] ?? '.shtml');
@@ -1328,7 +1379,7 @@ class FormUtils
 
         $out .= self::join_attrs($parms, ['href', 'forcewidth', 'contents', 'helptext',]);
 
-        $helptext = cms_htmlentities($helptext);
+        $helptext = specialize($helptext);
         $out .= ' title="'.$helptext.'"';
 
         if (!empty($forcewidth) && is_numeric($forcewidth)) {
@@ -1336,13 +1387,13 @@ class FormUtils
         }
 
         if (empty($href)) {
-            $contents = cms_htmlentities($contents);
+            $contents = specialize($contents);
         }
         $out .= '>'.$contents;
         if (empty($href)) {
             $out .= '</span>';
         } else {
-            $out .= '</a>'."\n";
+            $out .= '</a>'.PHP_EOL;
         }
         return $out;
     }
@@ -1350,7 +1401,7 @@ class FormUtils
     /**
      * Get xhtml for a nest of ul(s) and li's suitable for a popup/context menu
      *
-     * @since 2.9
+     * @since 2.99
      * @param array $items Each member is an assoc. array, with member 'content' and optional 'children' sub-array
      * @param array  $parms Attribute(s)/property(ies) to be included in
      *  the element, each member like 'name'=>'value'. Of special note:
@@ -1374,7 +1425,7 @@ class FormUtils
         if ($level == 0) {
             $out = '<div';
             if ($parms) {
-                self::clean_attrs($parms, false);
+                $err = self::clean_attrs($parms);
                 $out .= self::join_attrs($parms, ['submenuclass, itemclass']);
             }
             $out .= '>';

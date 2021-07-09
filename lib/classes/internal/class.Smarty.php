@@ -21,18 +21,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\internal;
 
-//use CMSMS\internal\cache_resource;
-//use CMSMS\internal\file_template_resource;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\internal\content_resource;
-use CMSMS\internal\layout_stylesheet_resource;
-use CMSMS\internal\layout_template_resource;
-use CMSMS\internal\module_db_template_resource;
-use CMSMS\internal\module_file_template_resource;
-//use CMSMS\internal\theme_resource;
-use CMSMS\UserTagOperations;
+use CMSMS\internal\ModulePluginOperations;
 use Exception;
 use LogicException;
 use Smarty_Internal_Template;
@@ -332,7 +324,7 @@ smarty cache lifetime != global cache ttl, probably
             }
 
             // check if it's a user-plugin
-            $callback = UserTagOperations::get_instance()->CreateTagFunction($name);
+            $callback = AppSingle::UserTagOperations()->CreateTagFunction($name);
             if( $callback ) {
 //                if (0) {
                     $val = AppParams::get('smarty_cacheusertags', false);

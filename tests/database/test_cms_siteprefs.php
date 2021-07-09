@@ -1,7 +1,10 @@
 <?php
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
+
 require_once('class.CmsApp.pseudo.php');
-require_once(CMSMS.'/lib/classes/class.cms_siteprefs.php');
+require_once(CMSMS.'/lib/classes/class.AppParams.php');
 
 class Test_cms_siteprefs extends UnitTestCase
 {
@@ -26,8 +29,8 @@ class Test_cms_siteprefs extends UnitTestCase
 
   public function tearDown()
   {
-    $config = cmsms()->GetConfig();
-	$db = cmsms()->GetDb();
+    $config = AppSingle::Config();
+	$db = AppSingle::Db();
     $dbdict = $db->NewDataDictionary();
     $sqlarray = $dbdict->DropTableSQL($config['db_prefix'].'siteprefs');
     $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -35,29 +38,28 @@ class Test_cms_siteprefs extends UnitTestCase
 
   public function TestSetGet1()
   {
-    cms_siteprefs::set('test1','val1');
-    cms_siteprefs::set('test2','val2');
-    $this->assertEqual(cms_siteprefs::get('test1'),'val1');
+    AppParams::set('test1','val1');
+    AppParams::set('test2','val2');
+    $this->assertEqual(AppParams::get('test1'),'val1');
   }
 
   public function TestExists()
   {
-    $this->assertTrue(cms_siteprefs::exists('test1'));
+    $this->assertTrue(AppParams::exists('test1'));
   }
 
   public function TestRemove()
   {
-    cms_siteprefs::remove('test2');
-    $this->assertFalse(cms_siteprefs::exists('test2'));
+    AppParams::remove('test2');
+    $this->assertFalse(AppParams::exists('test2'));
   }
 
   public function TestExists2()
   {
-    cms_siteprefs::set('test1','');
-    $this->assertTrue(cms_siteprefs::exists('test1'));
+    AppParams::set('test1','');
+    $this->assertTrue(AppParams::exists('test1'));
 
-    cms_siteprefs::set('test1',null);
-    $this->assertTrue(cms_siteprefs::exists('test1'));
+    AppParams::set('test1',null);
+    $this->assertTrue(AppParams::exists('test1'));
   }
-} // end of class
-?>
+} // class

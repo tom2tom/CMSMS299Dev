@@ -1,24 +1,27 @@
 <?php
-#Class for administering a layout template.
-#Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class for administering a layout template.
+Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
-use CmsDataNotFoundException;
+//use DesignManager\Design;
 use CmsInvalidDataException;
 use CmsLogicException;
 use CMSMS\AdminUtils;
@@ -32,15 +35,14 @@ use CMSMS\TemplateQuery;
 use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
 use CMSMS\User;
-use CMSMS\UserOperations;
-//use DesignManager\Design;
 use UnexpectedValueException;
 use const CMS_ASSETS_PATH;
 use const CMS_DEPREC;
+use const CMSSAN_FILE;
 use function cms_join_path;
 use function cms_to_bool;
 use function cms_to_stamp;
-use function munge_string_to_url;
+use function CMSMS\sanitizeVal;
 
 /**
  * A class to administer a layout template.
@@ -50,27 +52,27 @@ use function munge_string_to_url;
  *
  * @package CMS
  * @license GPL
- * @since 2.9
+ * @since 2.99
  * @since 2.0 as global-namespace CmsLayoutTemplate
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 class Template
 {
    /**
-	* @deprecated since 2.9 instead use TemplateOperations::TABLENAME
+	* @deprecated since 2.99 instead use TemplateOperations::TABLENAME
 	* @ignore
 	*/
 	const TABLENAME = 'layout_templates';
 
    /**
-	* @deprecated since 2.9 instead use TemplateOperations::ADDUSERSTABLE
+	* @deprecated since 2.99 instead use TemplateOperations::ADDUSERSTABLE
 	* @ignore
 	*/
 	const ADDUSERSTABLE = 'layout_tpl_addusers';
 
 	/**
 	 * Originator for core templates
-	 * @since 2.9
+	 * @since 2.99
 	 * @see also TemplateType::CORE
 	 */
 	const CORE = '__CORE__';
@@ -146,12 +148,14 @@ class Template
 				return $this->_data[$key] ?? 0;
 			case 'owner_id':
 				return $this->_data[$key] ?? -1;
-			case 'category_id': // deprecated since 2.3
+			case 'category_id': // deprecated since 2.99
 				return (!empty($this->_groups)) ? reset($this->_groups) : 0;
 			case 'name':
 			case 'originator':
 			case 'content': // raw, maybe a filename
 			case 'description':
+			case 'hierarchy':
+			case 'id_hierarchy':
 			case 'create_date':
 			case 'modified_date':
 				return $this->_data[$key] ?? '';
@@ -160,11 +164,11 @@ class Template
 				return $this->_data[$key] ?? false;
 			case 'listable':
 				return $this->_data[$key] ?? true;
-			case 'categories': //deprecated since 2.3
+			case 'categories': //deprecated since 2.99
 			case 'groups':
 				return $this->_groups ?? [];
 			case 'designs':
-				return null; //unused since 2.3
+				return null; //unused since 2.99
 			default:
 				throw new UnexpectedValueException("Attempt to retrieve invalid template property: $key");
 		}
@@ -181,7 +185,7 @@ class Template
 			case 'owner_id':
 				$this->_data[$key] = (int)$value;
 				break;
-			case 'category_id': // derecated since 2.3
+			case 'category_id': // derecated since 2.99
 				if (!isset($this->_groups)) {
 					$this->_groups = [];
 				}
@@ -203,6 +207,8 @@ class Template
 				$this->_data[$key] = ( $str !== '') ? $str : self::CORE;
 				break;
 			case 'description':
+			case 'hierarchy':
+			case 'id_hierarchy':
 				$str = trim($value);
 				$this->_data[$key] = ( $str !== '') ? $str : null;
 				break;
@@ -219,12 +225,12 @@ class Template
 			case 'contentfile':
 				$this->_data[$key] = cms_to_bool($value);
 				break;
-			case 'categories': //deprecated since 2.3
+			case 'categories': //deprecated since 2.99
 			case 'groups':
 				$this->_groups = $value;
 				break;
 			case 'designs':
-				return; //unused since 2.3
+				return; //unused since 2.99
 			default:
 				throw new UnexpectedValueException("Attempt to set invalid template property: $key");
 		}
@@ -233,7 +239,7 @@ class Template
 
    /**
 	* Get all the current properties of this template
-	* @since 2.3
+	* @since 2.99
 	*/
 	public function get_properties() : array
 	{
@@ -251,7 +257,7 @@ class Template
 
    /**
 	* Set all the current properties of this template
-	* @since 2.3
+	* @since 2.99
 	* @throws CmsInvalidDataException, CmsLogicException
 	*/
 	public function set_properties(array $params)
@@ -306,7 +312,7 @@ class Template
 
 	/**
 	* Get the owner/originator of this template (default '')
-	* @since 2.3
+	* @since 2.99
 	*
 	* @return string
 	*/
@@ -317,7 +323,7 @@ class Template
 
    /**
 	* Set the owner/originator of this template
-	* @since 2.3
+	* @since 2.99
 	*
 	* @param string $str
 	*/
@@ -455,7 +461,7 @@ class Template
 	* Get 'the' (actually, the first-recorded) group id for this template (default 0)
 	* A template is not required to be in any group
 	*
-	* @deprecated since 2.3 templates may belong to multiple groups
+	* @deprecated since 2.99 templates may belong to multiple groups
 	* @return int, 0 if no group exists
 	*/
 	public function get_category_id()
@@ -470,7 +476,7 @@ class Template
 	* Get 'the' group-(aka category-)object for this template (if any)
 	* A template is not required to be in any group
 	*
-	* @deprecated since 2.3 templates may be in multiple groups
+	* @deprecated since 2.99 templates may be in multiple groups
 	* @return mixed TemplatesGroup object | null
 	* @see TemplatesGroup
 	*/
@@ -482,7 +488,7 @@ class Template
 
    /**
 	* Get the numeric id corresponding to $a
-	* @since 2.3
+	* @since 2.99
 	* @param mixed $a A TemplatesGroup object, an integer group id, or a string group name.
 	* @return int
 	* @throws CmsLogicException if nothing matches
@@ -507,7 +513,7 @@ class Template
    /**
 	* Get a list of the groups (id's) that this template belongs to
 	*
-	* @since 2.3
+	* @since 2.99
 	* @return array of integers, maybe empty
 	*/
 	public function get_groups() : array
@@ -518,7 +524,7 @@ class Template
    /**
 	* Set 'the' group of this template
 	*
-	* @deprecated since 2.3 templates may be in multiple groups
+	* @deprecated since 2.99 templates may be in multiple groups
 	* @throws CmsLogicException
 	* @param mixed $a Either a TemplatesGroup object,
 	*  a group name (string) or group id (int)
@@ -541,7 +547,7 @@ class Template
    /**
 	* Set the list of groups that this template belongs to
 	*
-	* @since 2.3
+	* @since 2.99
 	* @param array $all integers[], may be empty
 	* @throws CmsInvalidDataException
 	*/
@@ -557,7 +563,7 @@ class Template
    /**
 	* Add this template to a group
 	*
-	* @since 2.3
+	* @since 2.99
 	* @param mixed $a A DesignManager\Design object, an integer group id, or a string group name.
 	* @see TemplatesGroup
 	* @throws CmsLogicException
@@ -579,7 +585,7 @@ class Template
    /**
 	* Remove this template from a group
 	*
-	* @since 2.3
+	* @since 2.99
 	* @param mixed $a A DesignManager\Design object, an integer group id, or a string group name.
 	* @see TemplatesGroup
 	* @throws CmsLogicException
@@ -648,7 +654,7 @@ class Template
 */
    /**
 	* Associate another design with this template
-	* @deprecated since 2.3 does nothing
+	* @deprecated since 2.99 does nothing
 	*
 	* @param mixed $a A DesignManager\Design object, an integer design id, or a string design name.
 	* @see Design
@@ -672,7 +678,7 @@ class Template
 
    /**
 	* Remove a design from the ones associated with this template
-	* @deprecated since 2.3 does nothing
+	* @deprecated since 2.99 does nothing
 	*
 	* @param mixed $a A DesignManager\Design object, an integer design id, or a string design name.
 	* @see Design
@@ -693,7 +699,7 @@ class Template
 	}
 
 	/**
-	 * @deprecated since 2.3 use get_owner()
+	 * @deprecated since 2.99 use get_owner()
 	 * @return int
 	 */
 	public function get_owner_id()
@@ -727,7 +733,7 @@ class Template
 		}
 		elseif( is_string($a) && $a !== '' ) {
 			// load the user by name.
-			$ob = UserOperations::get_instance()->LoadUserByUsername($a);
+			$ob = AppSingle::UserOperations()->LoadUserByUsername($a);
 			if( $ob instanceof User ) $id = $a->id;
 		}
 		elseif( $a instanceof User ) {
@@ -781,7 +787,7 @@ class Template
 	{
 		if( is_numeric($a) && $a > 0 ) return $a;
 		if( is_string($a) && strlen($a) ) {
-			$ob = UserOperations::get_instance()->LoadUserByUsername($a);
+			$ob = AppSingle::UserOperations()->LoadUserByUsername($a);
 			if( $ob instanceof User ) return $a->id;
 		}
 		if( $a instanceof User ) return $a->id;
@@ -850,7 +856,7 @@ class Template
 	* An alias for get_listable()
 	*
 	* @since 2.1
-	* @deprcated since 2.3
+	* @deprcated since 2.99
 	* @return bool
 	*/
 	public function is_listable()
@@ -884,7 +890,7 @@ class Template
 
    /**
 	* @ignore
-	* @deprecated since 2.3 unused here, now returns null always
+	* @deprecated since 2.99 unused here, now returns null always
 	*/
 	protected function _get_anyowner()
 	{
@@ -987,7 +993,7 @@ class Template
    /**
 	* Get whether this template's content resides in a file (as distinct from the database)
 	*
-	* @since 2.3
+	* @since 2.99
 	* @return bool
 	*/
 	public function get_content_file()
@@ -999,7 +1005,7 @@ class Template
 	* Get whether this template's content resides in a file
 	*
 	* @since 2.2
-	* @deprecated since 2.3 this is an alias for get_content_file()
+	* @deprecated since 2.99 this is an alias for get_content_file()
 	* @return bool
 	*/
 	public function has_content_file()
@@ -1011,14 +1017,14 @@ class Template
    /**
 	* Set the value of the flag indicating the content of this template resides in a filesystem file
 	*
-	* @since 2.3
+	* @since 2.99
 	* @param mixed $flag recognized by cms_to_bool(). Default true.
 	*/
 	public function set_content_file($flag = true)
 	{
 		$state = cms_to_bool($flag);
 		if( $state ) {
-			$this->content = munge_string_to_url($this->name).'.'.$this->id.'.tpl';
+			$this->content = sanitizeVal($this->name, CMSSAN_FILE).'.'.$this->id.'.tpl';
 		}
 		elseif( $this->contentfile ) {
 			$this->content = '';
@@ -1043,7 +1049,7 @@ class Template
 
    /**
 	* Save this template to the database
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*/
 	public function save()
 	{
@@ -1055,7 +1061,7 @@ class Template
 
    /**
 	* Delete this template from the database
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*/
 	public function delete()
 	{
@@ -1064,7 +1070,7 @@ class Template
 
    /**
 	* Load a bulk list of templates
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*
 	* @param int[] $list Array of integer template id's
 	* @param bool $deep Optionally load attached data. Default true.
@@ -1080,7 +1086,7 @@ class Template
 	*
 	* @param mixed $a Either an integer template id, or a template name (string)
 	* @return mixed Template | null
-	* @throws CmsDataNotFoundException
+	* @throws DataException
 	*/
 	public static function load($a)
 	{
@@ -1091,7 +1097,7 @@ class Template
 
    /**
 	* Get a list of the templates owned by a specific user
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*
 	* @param mixed $a An integer user id, or a string user name
 	* @return array Array of integer template ids
@@ -1104,7 +1110,7 @@ class Template
 
    /**
 	* Perform an advanced query on templates
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*
 	* @see TemplateQuery
 	* @param array $params
@@ -1116,7 +1122,7 @@ class Template
 
    /**
 	* Get a list of the templates that a specific user can edit
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*
 	* @param mixed $a An integer user id or a string user name or null
 	* @return type
@@ -1131,7 +1137,7 @@ class Template
 	* Test if the user specified can edit the specified template
 	* This is a convenience method that loads the template, and tests
 	* whether the specified user has authority to  edit it.
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*
 	* @param mixed $tpl An integer template id, or a string template name
 	* @param mixed $userid An integer user id, or a string user name, or null.
@@ -1145,7 +1151,7 @@ class Template
 
    /**
 	* Create a new template of the specific type
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*
 	* @param mixed $t A TemplateType object, an integer template type id,
 	*  or a string template type identifier like originator::name
@@ -1159,12 +1165,12 @@ class Template
 
    /**
 	* Load the default template of a specified type
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*
 	* @param mixed $t A TemplateType object, An integer template type id, or a string template type identifier
 	* @return Template
 	* @throws CmsInvalidDataException
-	* @throws CmsDataNotFoundException
+	* @throws DataException
 	*/
 	public static function load_dflt_by_type($t)
 	{
@@ -1173,11 +1179,11 @@ class Template
 
    /**
 	* Load all templates of a specific type
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*
 	* @param TemplateType $type
 	* @return mixed array Template objects or null
-	* @throws CmsDataNotFoundException
+	* @throws DataException
 	*/
 	public static function load_all_by_type(TemplateType $type)
 	{
@@ -1186,7 +1192,7 @@ class Template
 
    /**
 	* Process a named template through smarty
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*
 	* @param string $name
 	* @return string
@@ -1198,7 +1204,7 @@ class Template
 
    /**
 	* Process the default template of a specified type
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*
 	* @param mixed $t A TemplateType object, an integer template type id, or a string template type identifier
 	* @return string
@@ -1210,7 +1216,7 @@ class Template
 
    /**
 	* Get the id's of all loaded templates
-	* @deprecated since 2.3 no local caching is done
+	* @deprecated since 2.99 no local caching is done
 	*
 	* @return null
 	*/
@@ -1221,7 +1227,7 @@ class Template
 
    /**
 	* Generate a unique name for a template
-	* @deprecated since 2.3 use corresponding TemplateOperations method
+	* @deprecated since 2.99 use corresponding TemplateOperations method
 	*
 	* @param string $prototype A prototype template name
 	* @param string $prefix An optional name prefix.

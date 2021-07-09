@@ -25,16 +25,24 @@ if (isset($params['newmode'])) {
 	}
 } else {
 	$currentmode = $this->GetModeWin($params['path'],$params['filename']);
+//	$out = $this->CreateInputRadioGroup($id,'newmode',[$this->Lang('writable')=>'777',$this->Lang('writeprotected')=>'444'],$currentmode);
+	$out = FormUtils::create_select([ // DEBUG
+		'type' => 'radio',
+		'name' => 'newmode',
+		'htmlid' => 'newmode',
+		'modid' => $id,
+		'options' => [$this->Lang('writable')=>'777',$this->Lang('writeprotected')=>'444'], //OR server_mode()[whatever]
+		'selectedvalue' => $currentmode,
+//		'delimiter' => '',
+	]);
+
 	$tpl = $smarty->createTemplate($this->GetTemplateResource('chmodfilewin.tpl')); //,null,null,$smarty);
 	$tpl->assign('formstart', $this->CreateFormStart($id, 'chmodfilewin', $returnid))
-
 	 ->assign('filename', $this->CreateInputHidden($id,'filename',$params['filename']))
 	 ->assign('path', $this->CreateInputHidden($id,'path',$params['path']))
 	 ->assign('formend', $this->CreateFormEnd())
 	 ->assign('newmodetext', $this->Lang('newpermissions'))
-
-	 ->assign('modeswitch',
-		  $this->CreateInputRadioGroup($id,'newmode',[$this->Lang('writable')=>'777',$this->Lang('writeprotected')=>'444'],$currentmode))
+	 ->assign('modeswitch', $out)
 	 ->assign('modeswitchof', $this->GetModeTable($id,$this->GetPermissions($params['path'],$params['filename'])));
 
 //see template	->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')))

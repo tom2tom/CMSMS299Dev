@@ -1,28 +1,28 @@
 <?php
+/*
+A caching tree for CMSMS content objects
+Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
-# A caching tree for CMSMS content objects
-# Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
-use CMSMS\ContentOperations;
+use CMSMS\AppSingle;
 use CMSMS\DeprecationNotice;
-use CMSMS\SysDataCache;
-use CMSMS\SystemCache;
 use CMSMS\Tree;
 use const CMS_DEPREC;
 
@@ -31,7 +31,7 @@ use const CMS_DEPREC;
  * where possible. It also supports a tiny subset of the old Tree class used
  * in CMSMS versions prior to 1.9, for backward compatibility.
  *
- * @since 2.9
+ * @since 2.99
  * @since 1.9 as global-namespace cms_content_tree
  * @package CMS
  * @license GPL
@@ -72,7 +72,7 @@ class ContentTree extends Tree
 	 */
 	public function quickfind_node_by_id($id)
 	{
-		$list = SysDataCache::get_instance()->get('content_quicklist');
+		$list = AppSingle::SysDataCache()->get('content_quicklist');
 		if( isset($list[$id]) ) return $list[$id];
 	}
 
@@ -80,7 +80,7 @@ class ContentTree extends Tree
 	 * Return the node (if any) or numeric id of such node, corresponding to the
 	 * supplied identifier, which is assumed to be a numeric id or alias string.
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 * @param mixed  $a     The identifier to search for
 	 * $param bool   $typer Optional return-type indicator. Default true.
 	 *  False to return the numeric identifier.
@@ -139,7 +139,7 @@ class ContentTree extends Tree
 	 */
 	public function sureGetNodeByAlias($alias)
 	{
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','find_by_identifier'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','find_by_identifier'));
 		return $this->find_by_identifier($alias);
 	}
 
@@ -165,7 +165,7 @@ class ContentTree extends Tree
 	 */
 	public function getNodeByHierarchy($position)
 	{
-		$id = ContentOperations::get_instance()->GetPageIDFromHierarchy($position);
+		$id = AppSingle::ContentOperations()->GetPageIDFromHierarchy($position);
 		if( $id ) $result = $this->quickfind_node_by_id($id);
 		else $result = null;
 		return $result;
@@ -211,7 +211,7 @@ class ContentTree extends Tree
 	 */
 	public function getId()
 	{
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_tag(id'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','get_tag(id'));
 		return $this->get_tag('id');
 	}
 
@@ -270,13 +270,13 @@ class ContentTree extends Tree
 	public function getContent($deep = false,$loadsiblings = true,$loadall = false)
 	{
 		$id = $this->get_tag('id');
-		if( !$this->cache ) $this->cache = SystemCache::get_instance();
+		if( !$this->cache ) { $this->cache = AppSingle::SystemCache(); }
 		if( !$this->cache->has($id,'tree_pages') ) {
 			// not in cache
 			$parent = $this->getParent();
 			if( !$loadsiblings || !$parent ) {
 				// only load this content object
-				return ContentOperations::get_instance()->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
+				return AppSingle::ContentOperations()->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
 			}
 			else {
 				$parent->getChildren($deep,$loadall);
@@ -285,7 +285,7 @@ class ContentTree extends Tree
 				}
 			}
 		}
-		return ContentOperations::get_instance()->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
+		return AppSingle::ContentOperations()->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
 	}
 
 	/* *
@@ -355,7 +355,7 @@ class ContentTree extends Tree
 
 			if( $ids ) {
 				// load the children that aren't loaded yet.
-				ContentOperations::get_instance()->LoadChildren($this->get_tag('id'),$deep,$all,$ids);
+				AppSingle::ContentOperations()->LoadChildren($this->get_tag('id'),$deep,$all,$ids);
 			}
 		}
 
@@ -394,7 +394,7 @@ class ContentTree extends Tree
 	 */
 	public function &getFlatList()
 	{
-        // static properties here >> StaticProperties class ?
+		// static properties here >> StaticProperties class ?
 		static $result = null;
 		if( is_null($result) ) {
 			$result = $this->_buildFlatList();
@@ -409,7 +409,7 @@ class ContentTree extends Tree
 	 */
 	public function isContentCached()
 	{
-		if( !$this->cache ) $this->cache = SystemCache::get_instance();
+		if( !$this->cache ) $this->cache = AppSingle::SystemCache();
 		return $this->cache->has($this->get_tag('id'),'tree_pages');
 	}
 
@@ -456,7 +456,7 @@ class ContentTree extends Tree
 
 		$list = $this->_getHierarchyArray();
 		foreach( $list as &$one ) {
-			$one = sprintf('%05d',$one);
+			$one = sprintf('%03d',$one); //max 999 since 2.99, was 99999
 		}
 		unset($one);
 		$out = implode('.',array_reverse(array_splice($list,0,-1)));

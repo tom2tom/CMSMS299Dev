@@ -19,7 +19,6 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace MicroTiny;
 
 use CMSMS\AppSingle;
@@ -176,7 +175,7 @@ EOS;
 
 		$mod = AppUtils::get_module('MicroTiny');
 		$gCms = AppSingle::App();
-		$smarty = $gCms->GetSmarty();
+		$smarty = AppSingle::Smarty();
 		$page_id = ($gCms->is_frontend_request()) ? $smarty->getTemplateVars('content_id') : '';
 		$url = $mod->create_url('m1_','linker',$page_id);
 		$linker_url = $ajax_url($url);

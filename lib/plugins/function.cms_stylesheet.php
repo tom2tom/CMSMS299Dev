@@ -95,6 +95,7 @@ function toString($filename, $media_query = '', $media_type = '', $root_url, &$s
 
 namespace {
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Crypto;
 use CMSMS\StylesheetQuery;
@@ -114,8 +115,8 @@ function smarty_function_cms_stylesheet($params, $template)
 	//---------------------------------------------
 
 	AppState::add_state(AppState::STATE_STYLESHEET);
-	$gCms = CmsApp::get_instance();
-	$config = $gCms->GetConfig();
+	$gCms = AppSingle::App();
+	$config = AppSingle::Config();
 
 	$cache_dir = $config['css_path'];
 	$root_url = $config['css_url'];

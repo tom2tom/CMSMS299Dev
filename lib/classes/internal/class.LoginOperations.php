@@ -27,7 +27,6 @@ use CMSMS\AppState;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\SignedCookieOperations;
-use CMSMS\SysDataCache;
 use CMSMS\User;
 use LogicException;
 use RuntimeException;
@@ -106,18 +105,42 @@ final class LoginOperations
 			$private_data['eff_username'] = $effective_user->username;
 		}
 
-		$pw = hash_hmac('tiger128,3', $this->get_salt(), AppSingle::Config()['db_password']);
+		$config = AppSingle::Config();
+		$k = $config['db_credentials'];
+		if ($k) {
+			$k = substr($k, 0, 12);
+		} else {
+			$k = $config['db_password'];
+		}
+		$pw = hash_hmac('tiger128,3', $this->get_salt(), $k);
 		$enc = Crypto::encrypt_string(json_encode($private_data, JSON_PARTIAL_OUTPUT_ON_ERROR), $pw);
 		$hash = Crypto::hash_string($this->get_salt() . $enc);
 		$_SESSION[$this->_loginkey] = $hash . '::' . $enc;
-		(new SignedCookieOperations())->set($this->_loginkey, base64_encode($enc), time()+84600); // handle all $enc chars
+		(new SignedCookieOperations())->set($this->_loginkey, base64_encode($enc), time() + 84600); // handle all $enc chars
 		$this->_data = null;
 		return true;
 	}
 
+	/**
+	 * Get a randomish string
+	 * 8-12 bytes, all from the 64-char subset of ASCII immune to [raw]urlencoding
+	 * @return string
+	 */
 	public function create_csrf_token() : string
 	{
-		return Crypto::random_string(16, true);
+		$l = mt_rand(8, 12);
+		$str = str_repeat(' ', $l);
+		//accept alphanum and -_ (none of which would be affected by [raw]urlencode())
+		$ex = [46,47,58,59,60,61,62,63,64,91,92,93,94,96];
+		for ($i = 0; $i < $l; ++$i) {
+			$n = mt_rand(45, 122); // good enough for here
+			if (!in_array($n, $ex)) {
+				$str[$i] = chr($n);
+			} else {
+				--$i;
+			}
+		}
+		return $str;
 	}
 
 	/**
@@ -132,7 +155,7 @@ final class LoginOperations
 			if (!$salt) {
 				$salt = $this->create_csrf_token();
 				AppParams::set('loginsalt', $salt);
-				SysDataCache::get_instance()->release('site_preferences');
+				AppSingle::SysDataCache()->release('site_preferences');
 			}
 			return $salt;
 		} else {  //must avoid siteprefs circularity
@@ -279,7 +302,15 @@ final class LoginOperations
 		if (!$private_data) {
 			return;
 		}
-		$pw = hash_hmac('tiger128,3', $this->get_salt(), AppSingle::Config()['db_password']);
+
+		$config = AppSingle::Config();
+		$k = $config['db_credentials'];
+		if ($k) {
+			$k = substr($k, 0, 12);
+		} else {
+			$k = $config['db_password'];
+		}
+		$pw = hash_hmac('tiger128,3', $this->get_salt(), $k);
 		if ($split) {
 			$parts = explode('::', $private_data, 2);
 			if (count($parts) != 2) {

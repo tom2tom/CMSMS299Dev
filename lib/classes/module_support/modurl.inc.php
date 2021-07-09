@@ -25,7 +25,8 @@ use CMSMS\RequestParameters;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
-use function cms_htmlentities;
+use function CMSMS\entitize;
+use function startswith;
 
 /**
  * Methods for modules to construct URL's.
@@ -105,8 +106,7 @@ function CreateActionUrl(
 		$text = $base_url.'/'.$prettyurl.$config['page_extension'];
 	} elseif ($prettyurl && $prettyurl != ':NOPRETTY:' && $config['url_rewriting'] == 'internal') {
 		$text = $base_url.'/index.php/'.$prettyurl.$config['page_extension'];
-	}
-	else {
+	} else {
 		$frontend = is_numeric($returnid);
 
 		if ($targetcontentonly || ($frontend && !$inline)) {
@@ -132,7 +132,9 @@ function CreateActionUrl(
 
 		$ignores = ['assign', 'id', 'returnid', 'action', 'module']; //CHECKME assign?
 		foreach ($params as $key => $value) {
-			if (!in_array($key, $ignores)) {
+			if (startswith($key, CMS_SECURE_PARAM_NAME)) {
+				$parms[$key] = $value;
+			} elseif (!in_array($key, $ignores)) {
 				$parms[$id.$key] = $value;
 			}
 		}
@@ -144,7 +146,7 @@ function CreateActionUrl(
 		}
 		$text .= '?'.RequestParameters::create_action_params($parms, $format);
 		if ($format == 3) {
-			$text = cms_htmlentities($text);
+			$text = entitize($text);
 		}
 	}
 	return $text;
@@ -187,7 +189,7 @@ function CreateJobUrl(
 	$text .= RequestParameters::create_job_params($params, $onetime, $format);
 
 	if ($format == 3) {
-		$text = cms_htmlentities($text);
+		$text = entitize($text);
 	}
 	return $text;
 }
@@ -252,7 +254,7 @@ function CreatePageUrl(
 				}
 				$text .= '?'.RequestParameters::create_action_params($params, $format);
 				if ($format == 3) {
-					$text = cms_htmlentities($text);
+					$text = entitize($text);
 				}
 			}
 		}

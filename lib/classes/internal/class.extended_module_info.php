@@ -3,7 +3,8 @@
 namespace CMSMS\internal;
 
 use CmsLogicException;
-use CMSMS\ModuleOperations;
+use CMSMS\AppSingle;
+use CMSMS\internal\module_info;
 
 class extended_module_info extends module_info
 {
@@ -18,7 +19,7 @@ class extended_module_info extends module_info
      'installed',
      'installed_version',
      'missingdeps',
-     'status',
+     'status', //deprecated ?? always 'installed' ?
      'system_module', //c.f. parent::is_system_module
     ];
 
@@ -27,14 +28,14 @@ class extended_module_info extends module_info
     public function __construct($module_name,$can_load = false)
     {
         parent::__construct($module_name,$can_load);
-        $ops = ModuleOperations::get_instance();
+        $ops = AppSingle::ModuleOperations();
 
         $minfo = $ops->GetInstalledModuleInfo();
         $this['installed'] = false;
         $this['system_module'] = $ops->IsSystemModule($module_name);
         if( isset($minfo[$module_name]) ) {
             $this['installed'] = true;
-            $this['status'] = $minfo[$module_name]['status'];
+//            $this['status'] = $minfo[$module_name]['status'];
             $this['installed_version'] = $minfo[$module_name]['version'];
             $this['admin_only'] = $minfo[$module_name]['admin_only'] ?? 0;
             $this['active'] = $minfo[$module_name]['active'];
@@ -51,8 +52,8 @@ class extended_module_info extends module_info
 
     public function OffsetGet($key)
     {
-        if( !in_array($key,self::EPROPS) ) return parent::OffsetGet($key);
-        if( isset($this->_edata[$key]) ) return $this->_edata[$key];
+        if( !in_array($key,self::EPROPS) ) { return parent::OffsetGet($key); }
+        if( isset($this->_edata[$key]) ) { return $this->_edata[$key]; }
         if( $key == 'missingdeps' ) {
             $out = null;
             $deps = $this['depends'];

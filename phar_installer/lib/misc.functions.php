@@ -11,6 +11,16 @@ use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Throwable;
+use const CMSSAN_ACCOUNT;
+use const CMSSAN_FILE;
+use const CMSSAN_HIGH;
+use const CMSSAN_NAME;
+use const CMSSAN_NONPRINT;
+use const CMSSAN_PATH;
+use const CMSSAN_PUNCT;
+use const CMSSAN_PUNCTX;
+use const CMSSAN_PURE;
+use const CMSSAN_PURESPC;
 
 static $_writable_error = [];
 
@@ -26,23 +36,24 @@ function redirect(string $to)
     $host = strlen($_SERVER['HTTP_HOST'])?$_SERVER['HTTP_HOST']:$_SERVER['SERVER_NAME'];
 
     $components = parse_url($to);
-    if (count($components) > 0) {
+    if( count($components) > 0 ) {
         $to =  (isset($components['scheme']) && startswith($components['scheme'], 'http') ? $components['scheme'] : $schema) . '://';
         $to .= isset($components['host']) ? $components['host'] : $host;
         $to .= isset($components['port']) ? ':' . $components['port'] : '';
-        if(isset($components['path'])) {
-            if(in_array(substr($components['path'],0,1),['\\','/'])) { //Path is absolute, just append.
+        if( isset($components['path']) ) {
+            if( in_array(substr($components['path'],0,1),['\\','/']) ) { //Path is absolute, just append.
                 $to .= $components['path'];
             }
             //Path is relative, append current directory first.
-            else if (isset($_SERVER['PHP_SELF']) && !is_null($_SERVER['PHP_SELF'])) { //Apache
+            else if( isset($_SERVER['PHP_SELF']) && !is_null($_SERVER['PHP_SELF'])) { //Apache
                 $to .= (strlen(dirname($_SERVER['PHP_SELF'])) > 1 ?  dirname($_SERVER['PHP_SELF']).'/' : '/') . $components['path'];
             }
-            else if (isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI'])) { //Lighttpd
-                if (endswith($_SERVER['REQUEST_URI'], '/'))
+            else if( isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI'])) { //Lighttpd
+                if( endswith($_SERVER['REQUEST_URI'], '/') ) {
                     $to .= (strlen($_SERVER['REQUEST_URI']) > 1 ? $_SERVER['REQUEST_URI'] : '/') . $components['path'];
-                else
+                } else {
                     $to .= (strlen(dirname($_SERVER['REQUEST_URI'])) > 1 ? dirname($_SERVER['REQUEST_URI']).'/' : '/') . $components['path'];
+                }
             }
         }
         else {
@@ -116,7 +127,7 @@ function endswith(string $haystack, string $needle) : bool
 
 function joinpath(string ...$args) : string
 {
-    if (is_array($args[0])) {
+    if( is_array($args[0])) {
         $args = $args[0];
     }
     $path = implode(DIRECTORY_SEPARATOR, $args);
@@ -163,36 +174,55 @@ function is_email(string $str) : bool
 /**
  * Scrub inappropriate chars from the supplied string.
  * This is a cousin of PHP's filter_var(FILTER_SANITIZE...).
- * @see also execSpecialchars()
+ * @see also CMSMS\execSpecialize()
  * @internal
  * @since 2.99
  *
  * @param string $str String to be cleaned
  * @param int $scope Optional enumerator
- *  0 remove non-printable chars < 0x80 (e.g. for a password, anything else minimally-restricted)
- *  1 remove non-printable chars < 0x80 plus these: " ' ; = ? ^ ` < >
+ * CMSSAN_NONPRINT
+ *  remove non-printable chars < 0x80 (e.g. for a password, description, anything else minimally-restricted)
+ * CMSSAN_HIGH
+ *  as for CMSSAN_NONPRINT, but also remove chars >= 0x80
+ * CMSSAN_PUNCT
+ *  remove non-printable chars < 0x80 plus these: " ' ; = ? ^ ` < >
  *    plus repeats of non-alphanum chars
- *    (e.g. for an html-element attribute value)
- *    Allowed are single instances of space and some punctuation e.g. & @ : [ ] ( ) { } \ /
- *    but removed include the 2nd from valid pairs e.g. \\ :: __
- *  11 as for 1, but allow multiples of non-alphanum char(s) specified in $ex
- *  2 (default) remove non-'word' chars < 0x80, other than these: - .
- *    (e.g. for a 'sensible' 1-word name)
- *  21 as for 2, but allow space(s) (e.g. for a clean multi-word value)
- *  3 remove non-printable chars plus these: * ? \ / and substitute '_' for each space
+ *    (e.g. for a 'normal' html-element attribute value)
+ *    Hence allowed are non-repeats of non-word-chars other than the above e.g. ~ & @ % : [ ] ( ) { } \ / space
+ *    but removals include the 2nd from valid pairs e.g. \\ :: __
+ *    NOTE html allows element props/attributes (e.g. name, id) to
+ *    include meta-characters !"#$%&'()*+,./:;<=>?@[\]^`{|}~ but any
+ *    such must sometimes be escaped e.g. in a jQuery selector
+ * CMSSAN_NAME
+ *  as for CMSSAN_PUNCT, but allow non-repeats of these: _ / + - , . space
+ *    which are allowed by AdminUtils::is_valid_itemname()
+ *    NOTE '/' >> not for possibly-file-stored items
+ * CMSSAN_PUNCTX
+ *  as for CMSSAN_PUNCT, but allow multiples of non-alphanum char(s) specified in $ex
+ * CMSSAN_PURE (default)
+ *  remove non-'word' chars < 0x80, other than these: - .
+ *    (e.g. for a 'pure' 1-word name).
+ * CMSSAN_PURESPC
+ *  as for CMSSAN_PURE, but allow space(s) (e.g. for a clean multi-word value)
+ * CMSSAN_FILE
+ *  remove non-printable chars plus these: * ? \ / and substitute '_' for each space
  *    (e.g. for file names, modules, plugins, UDTs, templates, stylesheets, admin themes, frontend themes)
- *  31 as for 3, but allow \ / (e.g. for file paths)
- *  4 email address accepted verbatim, otherwise treated as scope 0 (in future, maybe 2 or 21)
- *     for username/accountname 
- *  If scope > 0, the supplied string is also trim()'d
- *  Only scope 0 is liberal enough to suit processing a generic 'description'
- *  or 'title' value. At least apply cms_specialchars_decode() to those. Maybe execSpecialchars(), nl2br(), striptags()
- * @param string $ex Optional extra non-alphanum char(s) for $scope 11
+ * CMSSAN_PATH
+ *  as for CMSSAN_FILE, but allow \ / (e.g. for file paths)
+ * CMSSAN_ACCOUNT
+ *  email address accepted verbatim, otherwise treated as scope 0 (in future, maybe 2 or 21 per username policy)
+ *    for user/account name
+ *
+ *  If scope > CMSSAN_NONPRINT, the supplied string is also trim()'d
+ *  Only scope CMSSAN_NONPRINT is liberal enough to suit processing a generic
+ *  'description' or 'title' value. At least apply cms_installer\de_specialize() to those.
+ *  Maybe cms_installer\execSpecialize() (N/A), nl2br(), striptags().
+ * @param string $ex Optional extra non-alphanum char(s) for $scope CMSSAN_PUNCTX
  * @return string
  */
-function sanitizeVal(string $str, int $scope = 2, string $ex = '') : string
+function sanitizeVal(string $str, int $scope = CMSSAN_PURE, string $ex = '') : string
 {
-    if ($scope > 0) {
+    if ($scope & ~CMSSAN_NONPRINT) {
         $str = trim($str);
     }
     if ($str !== '') {
@@ -200,8 +230,8 @@ function sanitizeVal(string $str, int $scope = 2, string $ex = '') : string
         $l = strlen($str);
         $p = 0;
         while (($p = strpos($str, '\\', $p)) !== false) {
-            if ($p+3 < $l && $str[$p+1] == '\\' && $str[$p+2] == '\\') {
-                switch ($str[$p+3]) {
+            if ($p + 3 < $l && $str[$p + 1] == '\\' && $str[$p + 2] == '\\') {
+                switch ($str[$p + 3]) {
                     case '\\': // skip past '\\\\'
                         $p += 4;
                         break;
@@ -210,29 +240,29 @@ function sanitizeVal(string $str, int $scope = 2, string $ex = '') : string
                     case '<':
                     case '>':
                     case '&':
-                         $str = substr($str, 0, $p) . substr($str, $p+3);
+                         $str = substr($str, 0, $p) . substr($str, $p + 3);
                         $l -= 3;
                     break;
                     default: // omit '\\' followed by '\'
-                        $str = substr($str, 0, $p) . substr($str, $p+2);
+                        $str = substr($str, 0, $p) . substr($str, $p + 2);
                         $l -= 2;
                         break;
                 }
-            } elseif ($p+1 < $l) {
-                switch ($str[$p+1]) {
+            } elseif ($p + 1 < $l) {
+                switch ($str[$p + 1]) {
                     case "'": // omit '\' followed by char normally special-char'd
                     case '"':
                     case '<':
                     case '>':
                     case '&':
-                        $str = substr($str, 0, $p) . substr($str, $p+1);
+                        $str = substr($str, 0, $p) . substr($str, $p + 1);
                         --$l;
                         break;
                     default:
                         ++$p;
                         break;
                 }
-            } elseif ($p+1 == $l) {
+            } elseif ($p + 1 == $l) {
                 $str = substr($str, 0, $p);
                 --$l;
                 break;
@@ -242,60 +272,98 @@ function sanitizeVal(string $str, int $scope = 2, string $ex = '') : string
         }
     }
     switch ($scope) {
-        case 4:
+        case CMSSAN_ACCOUNT:
             if (is_email($str)) {
                 return $str;
             }
-            // in future, default to scope 21, or scope 2, according to allowed chars
-        // no break here
-        case 0:
+        // in future, default e.g. to scope CMSSAN_PURE or CMSSAN_PURESPC, according to username policy
+        //no break here
+        case CMSSAN_NONPRINT:
             $patn = '/[\x00-\x1f\x7f]/';
             break;
-        case 1:
+        case CMSSAN_HIGH:
+            $patn = '/[\x00-\x1f\x7f-\xff]/';
+            break;
+        case CMSSAN_NAME:
+            $str = preg_replace('/([^a-zA-Z\d\x80-\xff])\1+/', '$1', $str);
+            $patn = '/[\x00-\x1f\x7f]|[^\w \/+\-,.]/';
+            break;
+        case CMSSAN_PUNCT:
             $str = preg_replace('/([^a-zA-Z\d\x80-\xff])\1+/', '$1', $str);
             $patn = '/[\x00-\x1f"\';=?^`<>\x7f]/';
             break;
-        case 11:
+        case CMSSAN_PUNCTX:
             $patn = '~([^a-zA-Z\d\x80-\xff'.addcslashes($ex, '~').'])\1+~';
             $str = preg_replace($patn, '$1', $str);
             $patn = '/[\x00-\x1f"\';=?^`<>\x7f]/';
             break;
-        case 3:
+        case CMSSAN_FILE:
             $str = preg_replace('~\s+~', '_', $str);
             $patn = '~[\x00-\x1f*?\\/\x7f]~';
             break;
-        case 31:
-            $str = preg_replace(['~[\\/]+~','~\s+~'], [DIRECTORY_SEPARATOR,'_'], $str);
+        case CMSSAN_PATH:
+            $str = preg_replace(['~[\\/]+~', '~\s+~'], [DIRECTORY_SEPARATOR, '_'], $str);
             $patn = '/[\x00-\x1f*?\x7f]/';
             break;
-        case 21:
+        case CMSSAN_PURESPC:
             $patn = '/[^\w \-.\x80-\xff]/';
             break;
-        default:
+        default: // incl. CMSSAN_PURE
             $patn = '/[^\w\-.\x80-\xff]/';
             break;
     }
     return preg_replace($patn, '', $str);
 }
 
-//c.f. core::misc functions cms_htmlentities(), cms_specialchars()
-function entitize(string $str) : string
+//c.f. core::page functions CMSMS\specialize(), CMSMS\Database\Connection::escStr()
+function specialize($val)
 {
-    if( $str ) {
-        return htmlspecialchars($str,
-          ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_XHTML, 'UTF-8', false);
+    if( $val === '' || $val === null ) {
+        return '';
     }
-    return $str;
+    if( !is_array($val) ) {
+        //lite XSS management, prob. irrelevant for content being displayed in installer
+        $val = strtr($val,[';'=>'&#59;',':'=>'&#58;','+'=>'&#43;','-'=>'&#45;']);
+        $val = preg_replace_callback_array([
+         '/script/i' => function($matches) { return substr($matches[0],0,5).'&#'.ord($matches[0][5]).';'; },
+         '/on/i' => function($matches) { return $matches[0][0].'&#'.ord($matches[0][1]).';'; },
+         '/embed/i' => function($matches) { return substr($matches[0],0,4).'&#'.ord($matches[0][4]).';'; },
+        ], $val);
+        return \htmlspecialchars($val, ENT_QUOTES | ENT_SUBSTITUTE | ENT_XHTML, 'UTF-8', false);
+    }
+    specialize_array($val);
+    return $val;
 }
 
-//c.f. core::misc functions cms_html_entity_decode(), cms_specialchars_decode()
-function de_entitize(string $str) : string
+//c.f. core::page function CMSMS\specialize_array()
+function specialize_array(array &$arr)
 {
-    if( $str ) {
-        return htmlspecialchars_decode($str, ENT_NOQUOTES | ENT_XHTML);
+    foreach( $arr as &$val ) {
+        if( is_string($val && !is_numeric($val)) ) {
+            $val = specialize($val);
+        } elseif( is_array($val) ) {
+            specialize_array($val); // recurse
+        }
     }
-    return $str;
+    unset($val);
 }
+
+//c.f. core::page function CMSMS\de_specialize()
+function de_specialize($val)
+{
+    if( $val ) {
+        if( !is_array($val) ) {
+            $val = preg_replace_callback('/&#(\d+);/', function($matches) {
+                return chr($matches[1]);
+            }, $val);
+            return \htmlspecialchars_decode($val, ENT_QUOTES | ENT_XHTML);
+        }
+//N/A	de_specialize_array($val);
+    }
+    return $val;
+}
+
+//N/A function de_specialize_array(&$arr) {}
 
 /**
  *
@@ -355,7 +423,7 @@ function get_server_permissions() : array
         for( $i = 0; $i < 3; $i++ ) {
             @chmod($fp, $chk[$i]);
             if( is_readable($fp) ) {
-                switch ($i) {
+                switch( $i ) {
                     case 0:
                         $modes = [0400, 0600, 0500, 0700];
                         break 2;
@@ -391,8 +459,8 @@ function is_directory_writable( string $path, bool $ignore_specialfiles = true )
     global $_writable_error;
 
     if( $handle = @opendir( $path ) ) {
-        if( !endswith( $path,DIRECTORY_SEPARATOR ) ) $path .= DIRECTORY_SEPARATOR;
-        while( false !== ( $file = readdir( $handle ) ) ) {
+        if( !endswith($path,DIRECTORY_SEPARATOR) ) $path .= DIRECTORY_SEPARATOR;
+        while( false !== ($file = readdir($handle)) ) {
             if( $file == '.' || $file == '..' ) continue;
 
             // ignore dotfiles, except .htaccess.
@@ -433,7 +501,7 @@ function rrmdir($path, $withtop = true)
 {
     if( is_dir($path) ) {
         $items = scandir($path);
-        foreach ($items as $name) {
+        foreach( $items as $name ) {
             if( !($name == '.' || $name == '..') ) {
                 if( filetype($path.DIRECTORY_SEPARATOR.$name) == 'dir' ) {
                     rrmdir($path.DIRECTORY_SEPARATOR.$name); //recurse
@@ -468,9 +536,9 @@ function rrmdir($path, $withtop = true)
 function rcopy(string $frompath, string $topath, bool $dummy = false)
 {
     $frompath = rtrim($frompath, '/\\');
-    if (!is_dir($frompath) || !is_readable($frompath)) return;
+    if( !is_dir($frompath) || !is_readable($frompath) ) return;
     $topath = rtrim($topath, '/\\');
-    if (!is_dir($topath) || !is_writable($topath)) return;
+    if( !is_dir($topath) || !is_writable($topath) ) return;
 
     $len = strlen($frompath);
     $iter = new RecursiveIteratorIterator(
@@ -485,24 +553,24 @@ function rcopy(string $frompath, string $topath, bool $dummy = false)
     );
 
     $modes = get_server_permissions();
-    $filemode = $modes[1]; // read + write
+    $filemode = $modes[1]; // read + write OR just read in some cases?
     $dirmode = $modes[3]; // ditto + access
 
-    foreach ($iter as $fp) {
+    foreach( $iter as $fp ) {
         $relpath = substr($fp, $len);
         $tp = $topath . DIRECTORY_SEPARATOR . $relpath;
-        if (!is_link($fp)) {
-            if (!is_dir($fp)) {
+        if( !is_link($fp) ) {
+            if( !is_dir($fp)) {
                 copy($fp, $tp);
                 chmod($tp, $filemode);
             } else {
                 mkdir($tp, $dirmode, true);
-                if ($dummy) { touch($tp . DIRECTORY_SEPARATOR . 'index.html'); }
+                if( $dummy ) { touch($tp . DIRECTORY_SEPARATOR . 'index.html'); }
             }
         } else {
             copy($fp, $tp);
             //TODO re-target the link
-            if (!is_dir($fp)) {
+            if( !is_dir($fp) ) {
                 chmod($tp, $filemode);
             } else {
                 chmod($tp, $dirmode);
@@ -530,8 +598,7 @@ function get_writable_error() : array
  */
 function get_upgrade_versions() : array
 {
-    $app = get_app();
-    $app_config = $app->get_config();
+    $app_config = get_app()->get_config();
     $min_upgrade_version = $app_config['min_upgrade_version'];
     if( !$min_upgrade_version ) throw new Exception(lang('error_invalidconfig'));
 
@@ -571,7 +638,7 @@ function get_upgrade_changelog(string $version) : string
         if( is_file("$dir/$fn") ) {
             // convert text into some sort of html
             $tmp = @file_get_contents("$dir/$fn");
-            $tmp = nl2br(wordwrap(htmlspecialchars($tmp),80));
+            $tmp = nl2br(wordwrap(htmlspecialchars($tmp),80));// NOT worth cms_installer\specialize
             return $tmp;
         }
     }
@@ -595,15 +662,70 @@ function get_upgrade_readme(string $version) : string
     if( is_file("$dir/readme.txt") ) {
         // convert text into some sort of html.
         $tmp = @file_get_contents("$dir/readme.txt");
-        $tmp = nl2br(wordwrap(htmlspecialchars($tmp),80));
+        $tmp = nl2br(wordwrap(htmlspecialchars($tmp),80));// NOT worth cms_installer\specialize
         return $tmp;
     }
     return '';
 }
 
+/**
+ * Unpack database connection parameters
+ * @param string $creds encrypted db-credentials
+ * @param string $pw optional P/W
+ * @return array
+ */
+function decrypt_creds(string $creds, string $pw = '')
+{
+    $raw = base64_decode($creds);
+
+    if( $pw === '' ) {
+        $dir = dirname(__DIR__,2);
+        $str = substr(__DIR__,strlen($dir));
+        $pw = strtr($str, ['/'=>'','\\'=>'']); //TODO not site- or filesystem-specific
+    }
+
+//  replicates CMSMS\Crypto::decrypt_string($raw,$pw,'internal');
+    $p = $lp = strlen($pw); //TODO handle php.ini setting mbstring.func_overload & 2 i.e. overloaded
+    $lr = strlen($raw);
+    $j = -1;
+
+    for( $i = 0; $i < $lr; ++$i ) {
+        $k = ord($raw[$i]) - $p;
+        if( $k < 0) {
+            $k += 256;
+        }
+        if( ++$j == $lp) { $j = 0; }
+        $p = $k ^ ord($passwd[$j]);
+        $raw[$i] = chr($p);
+    }
+
+    $arr = json_decode($raw,true);
+    return $arr;
+}
+
 } //cms_installer namespace
 
 namespace {
+
+use cms_installer\wizard\wizard;
+
+/**
+ * Sanitization-type enumerator for sanitizeVal()
+ */
+if( !defined('CMSSAN_NONPRINT') ) {
+    define('CMSSAN_NONPRINT',1);
+    define('CMSSAN_HIGH',    2);
+    define('CMSSAN_PUNCT',   4);
+    define('CMSSAN_NAME',    8);
+    define('CMSSAN_PUNCTX', 16);
+    define('CMSSAN_PURE',   32);
+    define('CMSSAN_PURESPC',64);
+//  define('CMSSAN_', =  128); reserved
+    define('CMSSAN_FILE',  512);
+    define('CMSSAN_PATH', 1024);
+    define('CMSSAN_ACCOUNT',2048);
+//  define('CMSSAN_', 4096); reserved
+}
 
 // functions to generate GUI-installer messages
 

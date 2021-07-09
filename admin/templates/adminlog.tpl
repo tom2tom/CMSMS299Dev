@@ -24,7 +24,7 @@
       <th>{lang('severity')}</th>
       <th>{lang('when')}</th>
       <th>{lang('subject')}</th>
-      <th>{lang('msg')}</th>
+      <th>{lang('detail')}</th>
       <th>{lang('itemid')}</th>
       <th>{lang('ip_addr')}</th>
       <th>{lang('username')}</th>
@@ -45,7 +45,7 @@
       <td>{$severity_list[$one.severity]}</td>
       <td>{$one.when}</td>
       <td>{$one.subject}</td>
-      <td>{$one.msg}</td>
+      <td>{$one.message}</td>
       <td>{if $one.item_id != -1}{$one.item_id}{/if}</td>
       <td>{$one.ip_addr|default:''}</td>
       <td>{$one.username}</td>
@@ -66,7 +66,7 @@
     </div>
     <div class="rowbox flow">
     <label class="boxchild" for="f_act">{lang('f_msg')}:</label>
-    <input class="boxchild" id="f_act" name="{$actionid}f_msg" value="{$filter->msg}" />
+    <input class="boxchild" id="f_act" name="{$actionid}f_msg" value="{$filter->message}" />
   </div>
   <div class="rowbox flow">
     <label class="boxchild" for="f_item">{lang('f_subj')}:</label>
@@ -83,4 +83,6 @@
   </div>
   </form>
 </div>
+{elseif !$filter_applied}
+<p class="information">{lang('adminlogempty')}</p>
 {/if}

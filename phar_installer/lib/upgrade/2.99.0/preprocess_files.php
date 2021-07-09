@@ -1,11 +1,11 @@
 <?php
 
-use cms_installer\wizard\wizard;
+//use cms_installer\wizard\wizard;
 use CMSMS\Crypto;
 use Exception;
 use function cms_installer\get_app;
 use function cms_installer\get_server_permissions;
-use function cms_installer\rrmdir;
+//use function cms_installer\rrmdir;
 
 $app = get_app();
 $destdir = $app->get_destdir();
@@ -21,6 +21,14 @@ $s = (!empty($config['usertags_path'])) ? $config['usertags_path'] : '';
 $plugsdir = ($s) ? $destdir . DIRECTORY_SEPARATOR . $s : $assetsdir . DIRECTORY_SEPARATOR . 'user_plugins';
 
 // 0. Remove/replace redundant files
+//unlink($destdir . DIRECTORY_SEPARATOR . 'config.php'); //TODO ensure was replaced by ../lib/config.php
+$s = $destdir . DIRECTORY_SEPARATOR . 'config.php';
+$to = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'config.php';
+if (is_file($to)) {
+    @unlink($s);
+} else {
+    @rename($s, $to);
+}
 unlink($admindir . DIRECTORY_SEPARATOR . 'moduleinteface.php');
 
 $modes = get_server_permissions();
@@ -69,12 +77,13 @@ foreach ([
  ['assets','configs'],
  ['assets','styles'],
  ['assets','images'],
+ ['assets','jobs'],
  ['assets','module_custom'],
  ['assets','modules'], //CHECKME iff using distinct non-core-modules place
  ['assets','plugins'],
 // ['assets','resources'],
  ['assets','templates'],
- ['assets','themes'],
+ ['assets','themes'], // for future use
  ['tags',$plugsdir], //UDTfiles
  ['lib','modules'], //CHECKME iff using distinct core-modules place
 ] as $segs) {
@@ -161,12 +170,13 @@ if (version_compare($fromvers, '2.2.900') >= 0 && version_compare($fromvers, '2.
     }
 }
 
-// 7. Move core modules to /lib/modules CHECKME
+// 7. Move core modules to /lib/modules NAH!
 foreach ([
-// 'AdminLog', internal
+// 'AdminLog', reverted to core classes
  'AdminLogin', // a.k.a. ModuleOperations::STD_LOGIN_MODULE
  'AdminSearch', // non-core?
  'CMSContentManager',
+ 'CMSMailer',
 // 'CmsJobManager', reverted to core classes
  'CoreTextEditing',
  'FileManager',
@@ -201,6 +211,16 @@ foreach (['DesignManager', 'MenuManager', 'CMSMailer', 'News'] as $modname) {
         } else {
             rrmdir($fp);
         }
+    }
+}
+
+//9. Move non-system plugins from /lib/plugins to /assets/plugins
+
+$fp = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'plugins';
+$to = $assetsdir . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR;
+foreach in $fp as $d {
+    if it's not core {
+        rename($fp.DIRECTORY_SEPARATOR.$d, $to.$d);
     }
 }
 */

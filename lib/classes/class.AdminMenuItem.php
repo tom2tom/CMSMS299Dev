@@ -1,7 +1,7 @@
 <?php
 /*
 Class to provide menu items in the CMSMS admin navigation
-Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,7 +21,6 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CmsException;
 use CMSModule;
 use CMSMS\Utils;
 
@@ -39,7 +38,7 @@ final class AdminMenuItem
      'description', //optional
      'icon', //optional
      'module',
-     'name', //optional
+     'name', //shortish module-unique identifier/alias for e.g. CSS classes
      'priority', //optional
      'section',
      'system', //internal use only
@@ -111,7 +110,30 @@ final class AdminMenuItem
      */
     public function get_all() : array
     {
+        // back-compatibility workaround
+        if (empty($this->_data['name']) && !empty($this->_data['action'])) {
+            $this->_data['name'] = $this->get_name($this->_data['action']);
+        }
         return $this->_data;
+    }
+
+    /**
+     * Return an object-name derived from $from
+     * @since 2.99
+     *
+     * @param string $from
+     * @return string
+     */
+    public function get_name(string $from) : string
+    {
+        if ($from == 'defaultadmin') { return 'default'; }
+        $s = strtr($from, ['-' => '']);
+        if (($p = strpos($s, '_')) !== false) {
+            $p++;
+        } else {
+            $p = 0;
+        }
+        return substr($s, $p, 6);
     }
 
     /**
@@ -120,10 +142,13 @@ final class AdminMenuItem
      */
     public function valid()
     {
+        // back-compatibility workaround
+        if (empty($this->_data['name']) && !empty($this->_data['action'])) {
+            $this->_data['name'] = $this->get_name($this->_data['action']);
+        }
         $must = array_diff(self::ITEMKEYS, [
             'description',
             'icon',
-            'name',
             'priority',
             'system',
         ]);
@@ -148,6 +173,7 @@ final class AdminMenuItem
             $obj->action = $action;
             $obj->description = $mod->GetAdminDescription();
             $obj->module = $mod->GetName();
+            $obj->name = $obj->get_name($action);
             $obj->priority = 50;
             $obj->section = $mod->GetAdminSection();
             $obj->title = $mod->GetFriendlyName();

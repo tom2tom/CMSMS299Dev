@@ -1,7 +1,7 @@
 <?php
 /*
 DesignManager module class for processing CMSMS2 designs.
-Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -21,20 +21,21 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace DesignManager;
 
-use CmsLayoutStylesheet;
-use CmsLayoutTemplate;
-use CmsLayoutTemplateType;
-use CMSMS\CmsException;
+use CMSMS\Exception;
+use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
+use CMSMS\Template;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
 use DesignManager\reader_base;
 use DesignManager\xml_reader;
 use XMLReader;
+use const CMSSAN_FILE;
 use function cms_join_path;
 use function cmsms;
+use function CMSMS\sanitizeVal;
 use function file_put_contents;
 use function get_server_permissions;
-use function munge_string_to_url;
 use function startswith;
 
 class design_reader extends reader_base
@@ -356,7 +357,7 @@ class design_reader extends reader_base
     public function get_destination_dir()
     {
         $name = $this->get_new_name();
-        $dirname = munge_string_to_url($name);
+        $dirname = sanitizeVal($name,CMSSAN_FILE);
         $config = cmsms()->GetConfig();
         $dir = cms_join_path($config['uploads_path'],'designs',$dirname);
         $perms = get_server_permissions()[3];
@@ -410,7 +411,7 @@ class design_reader extends reader_base
 
         // expand stylesheets
         foreach( $this->get_stylesheet_list() as $css ) {
-            $stylesheet = new CmsLayoutStylesheet();
+            $stylesheet = new Stylesheet();
             $stylesheet->set_name($css['newname']);
             if( isset($css['desc']) && $css['desc'] != '' ) $stylesheet->set_description($css['desc']);
 
@@ -441,7 +442,7 @@ class design_reader extends reader_base
         $me = null; //TODO
         $tpl_recs = $this->get_template_list();
         foreach( $tpl_recs as $tpl ) {
-            $template = new CmsLayoutTemplate();
+            $template = new Template();
             $template->set_originator($me);
             $template->set_name($tpl['newname']);
             if( isset($tpl['desc']) && $tpl['desc'] != '' ) $template->set_description($tpl['desc']);
@@ -481,12 +482,12 @@ class design_reader extends reader_base
                         // - if not, set the type to 'generic'.
             try {
                 $typename = $tpl['type_originator'].'::'.$tpl['type_name'];
-                $type_obj = CmsLayoutTemplateType::load($typename);
+                $type_obj = TemplateType::load($typename);
                 $template->set_type($type_obj);
             }
-            catch( CmsException $e ) {
+            catch( Exception $e ) {
                 // should log something here.
-                $type_obj = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::generic');
+                $type_obj = TemplateType::load(TemplateType::CORE.'::generic');
                 $template->set_type($type_obj);
             }
 

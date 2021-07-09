@@ -5,13 +5,13 @@ namespace cms_installer\wizard;
 use cms_installer\installer_base;
 use cms_installer\wizard\wizard_step;
 use CMSMS\AdminUtils;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\ContentOperations;
-use CMSMS\ContentTypeOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\SysDataCache;
 use CMSMS\SystemCache;
 use Exception;
+use mysqli;
 use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_VERSION;
@@ -45,7 +45,7 @@ class wizard_step9 extends wizard_step
         if( is_dir(TMP_CACHE_LOCATION) ) {
             if( is_writable(TMP_CACHE_LOCATION) ) {
                 rrmdir(TMP_CACHE_LOCATION, FALSE);
-				chmod(TMP_CACHE_LOCATION, $dirmode);
+                chmod(TMP_CACHE_LOCATION, $dirmode);
             }
         }
         else {
@@ -55,7 +55,7 @@ class wizard_step9 extends wizard_step
             if( is_dir(PUBLIC_CACHE_LOCATION) ) {
                 if( is_writable(PUBLIC_CACHE_LOCATION) ) {
                     rrmdir(PUBLIC_CACHE_LOCATION, FALSE);
-					chmod(PUBLIC_CACHE_LOCATION, $dirmode);
+                    chmod(PUBLIC_CACHE_LOCATION, $dirmode);
                 }
             }
             else {
@@ -65,7 +65,7 @@ class wizard_step9 extends wizard_step
         if( is_dir(TMP_TEMPLATES_C_LOCATION) ) {
             if( is_writable(TMP_TEMPLATES_C_LOCATION) ) {
                 rrmdir(TMP_TEMPLATES_C_LOCATION, FALSE);
-				chmod(TMP_TEMPLATES_C_LOCATION, $dirmode);
+                chmod(TMP_TEMPLATES_C_LOCATION, $dirmode);
             }
         }
         else {
@@ -84,33 +84,33 @@ class wizard_step9 extends wizard_step
         // upgrade modules
         $this->message(lang('msg_upgrademodules'));
 
-        $modops = ModuleOperations::get_instance();
+        $modops = AppSingle::ModuleOperations();
         $coremodules = $app->get_config()['coremodules'];
         $modops->RegisterSystemModules($coremodules);
         $choices = $this->get_wizard()->get_data('sessionchoices');
         $allmodules = $choices['havemodules'] ?? $coremodules;
 
-        foreach( $allmodules as $name ) {
-            if( in_array($name, $coremodules) ) {
+        foreach( $allmodules as $modname ) {
+            if( in_array($modname, $coremodules) ) {
                 // TODO merge upgraded modules|files back into main module-place (we don't use location to define status)
-                $this->verbose(lang('msg_upgrade_module',$name));
+                $this->verbose(lang('msg_upgrade_module',$modname));
                 // force all system modules to be loaded
                 // any such module which needs upgrade should automagically do so
-                $module = $modops->get_module_instance($name,'',TRUE);
-                if( !is_object($module) ) {
-                    $this->error("FATAL ERROR: could not load module {$name} for upgrade");
+                $modinst = $modops->get_module_instance($modname,'',TRUE);
+                if( !is_object($modinst) ) {
+                    $this->error("FATAL ERROR: could not load module {$modname} for upgrade");
                 }
             }
             else {
-                $module = $modops->get_module_instance($name,'',FALSE);
-                if( is_object($module) ) {
+                $modinst = $modops->get_module_instance($modname,'',FALSE);
+                if( is_object($modinst) ) {
                     // TODO merge upgraded modules|files back into main module-place (we don't use location to define status)
-                    $res = $modops->UpgradeModule($name);
+                    $res = $modops->UpgradeModule($modname);
                     if( $res[0] ) {
-                        $this->verbose(lang('msg_upgrade_module',$name));
+                        $this->verbose(lang('msg_upgrade_module',$modname));
                     }
                     else {
-                        $msg = lang('error_modulebad',$name);
+                        $msg = lang('error_modulebad',$modname);
                         $msg .= ': '.$res[1];
                         $this->error($msg);
                     }
@@ -118,12 +118,12 @@ class wizard_step9 extends wizard_step
 /* no extra installs during an upgrade
                 else {
                     // not-yet-installed non-system module
-                    $res = $modops->InstallModule($name);
+                    $res = $modops->InstallModule($modname);
                     if( $res[0] ) {
-                        $this->verbose(lang('install_module',$name));
+                        $this->verbose(lang('install_module',$modname));
                     }
                     else {
-                        $msg = lang('error_modulebad',$name);
+                        $msg = lang('error_modulebad',$modname);
                         $msg .= ': '.$res[1];
                         $this->error($msg);
                     }
@@ -133,7 +133,7 @@ class wizard_step9 extends wizard_step
         }
 
         // content types
-        ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
+        AppSingle::ContentTypeOperations()->RebuildStaticContentTypes();
 
         // write history
         audit('', 'System Upgraded', 'New version '.CMS_VERSION);
@@ -152,7 +152,7 @@ class wizard_step9 extends wizard_step
         // set the finished message
         $url = $app->get_root_url();
         $admin_url = $url;
-        if( !endswith($url,'/') ) $admin_url .= '/';
+        if( !endswith($url,'/') ) { $admin_url .= '/'; }
         include_once CONFIG_FILE_LOCATION;
         $aname = (!empty($config['admin_path'])) ? $config['admin_path'] : 'admin';
         $admin_url .= $aname;
@@ -179,14 +179,14 @@ class wizard_step9 extends wizard_step
         // install modules
         $this->message(lang('install_modules'));
         $coremodules = $app->get_config()['coremodules'];
-        $modops = cmsms()->GetModuleOperations();
+        $modops = AppSingle::ModuleOperations();
         $modops->RegisterSystemModules($coremodules);
 
         $db = cmsms()->GetDb();
 //(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
         $stmt1 = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'modules
-(module_name,version,status,admin_only,active)
-VALUES (?,?,\'installed\',?,1)');
+(module_name,version,admin_only,active)
+VALUES (?,?,?,1)');
         $stmt2 = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'module_deps
 (parent_module,child_module,minimum_version,create_date)
 VALUES (?,?,?,NOW())');
@@ -238,7 +238,7 @@ VALUES (?,?,?,NOW())');
         $stmt2->close();
 
         // content types
-        ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
+        AppSingle::ContentTypeOperations()->RebuildStaticContentTypes();
 
         // site content
         if( !empty($choices['samplecontent']) ) {
@@ -280,7 +280,7 @@ VALUES (?,?,?,NOW())');
                 else {
                     // update pages hierarchy
                     $this->verbose(lang('install_updatehierarchy'));
-                    ContentOperations::get_instance()->SetAllHierarchyPositions();
+                    AppSingle::ContentOperations()->SetAllHierarchyPositions();
                 }
             } catch( Throwable $t ) {
                 if( $fn != 'initial.xml' ) {
@@ -300,8 +300,9 @@ VALUES (?,?,?,NOW())');
         audit('', 'System Installed', 'Version '.CMS_VERSION);
 
         // write-protect config.php
+        $cfgfile = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'config.php'; // OR $app->get_config()['config_file'] OR $wiz->get_data('version_info')[''config_file'] OR CONFIG_FILE_LOCATION
         $filemode = get_server_permissions()[0]; // read-only
-        @chmod($destdir.DIRECTORY_SEPARATOR.'config.php',$filemode);
+        @chmod($cfgfile,$filemode);
 
 //        $adminacct = $this->get_wizard()->get_data('adminaccount');
         $root_url = $app->get_root_url();
@@ -334,7 +335,7 @@ VALUES (?,?,?,NOW())');
         $this->connect_to_cmsms($destdir);
 
         // freshen content types
-        ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
+        AppSingle::ContentTypeOperations()->RebuildStaticContentTypes();
 
         // write history
         audit('', 'System Freshened', 'All core files renewed');
@@ -431,20 +432,21 @@ VALUES (?,?,?,NOW())');
      */
     protected function display()
     {
-        $app = get_app();
-        $smarty = smarty();
-
-        // display the template right off the bat.
+        $wiz = $this->get_wizard();
+        // display the template right off the bat
         parent::display();
-        $smarty->assign('back_url',$this->get_wizard()->prev_url());
+        $smarty = smarty();
+        $smarty->assign('back_url',$wiz->prev_url());
         $smarty->display('wizard_step9.tpl');
+
+        $app = get_app();
         $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',905));
 
         // here, we do either the upgrade, or the install stuff.
         try {
-            $action = $this->get_wizard()->get_data('action');
-            $tmp = $this->get_wizard()->get_data('version_info');
+            $action = $wiz->get_data('action');
+            $tmp = $wiz->get_data('version_info');
             if( $action == 'upgrade' && $tmp ) {
                 $this->do_upgrade($tmp);
             }

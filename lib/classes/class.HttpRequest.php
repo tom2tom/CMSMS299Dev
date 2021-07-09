@@ -319,7 +319,7 @@ class HttpRequest
      */
     public function clear()
     {
-//        $config = AppConfig::get_instance();
+//        $config = AppSingle::Config();
 
         // Set the request defaults
         $this->host         = '';

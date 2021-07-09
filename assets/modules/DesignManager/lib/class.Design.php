@@ -21,17 +21,15 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace DesignManager;
 
-use CmsApp;
-use CmsDataNotFoundException;
-use CmsInvalidDataException;
-use CmsLayoutStylesheet;
-use CmsLayoutTemplate;
-use CmsLogicException;
 use CMSMS\AdminUtils;
+use CMSMS\AppSingle;
+use CMSMS\DataException;
 use CMSMS\Events;
-use CmsSQLErrorException;
+use CMSMS\SQLErrorException;
+use CMSMS\Stylesheet;
+use CMSMS\Template;
 use InvalidArgumentException;
-use UnexpectedValueException;
+use LogicException;
 use const CMS_DB_PREFIX;
 use function cms_notice;
 use function cms_to_stamp;
@@ -116,13 +114,13 @@ class Design
 	 * Set the design name
 	 * This marks the design as dirty
 	 *
-	 * @throws CmsInvalidDataException
+	 * @throws DataException
 	 * @param string $str
 	 */
 	public function set_name($str)
 	{
 		if( !AdminUtils::is_valid_itemname($str) ) {
-			throw new CmsInvalidDataException("Invalid characters in name: $str");
+			throw new DataException("Invalid characters in name: $str");
 		}
 		$this->_data['name'] = $str;
 		$this->_dirty = TRUE;
@@ -237,19 +235,19 @@ class Design
 	/**
 	 * Add a stylesheet to the design
 	 *
-	 * @param mixed $css Either an integer stylesheet id, or a CmsLayoutStylesheet object
-	 * @throws UnexpectedValueException
+	 * @param mixed $css Either an integer stylesheet id, or a Stylesheet object
+	 * @throws DataException
 	 */
 	public function add_stylesheet($css)
 	{
 		$css_t = null;
-		if( $css instanceof CmsLayoutStylesheet ) {
+		if( $css instanceof Stylesheet ) {
 			$css_t = $css->get_id();
 		}
 		else if( is_numeric($css) && $css > 0 ) {
 			$css_t = (int) $css;
 		}
-		if( $css_t < 1 ) throw new UnexpectedValueException('Invalid css id specified to '.__METHOD__);
+		if( $css_t < 1 ) throw new DataException('Invalid css id specified to '.__METHOD__);
 
 		if( !in_array($css_t,$this->_css_members) ) {
 			$this->_css_members[] = (int) $css_t;
@@ -260,19 +258,19 @@ class Design
 	/**
 	 * Delete a stylesheet from the list of stylesheets assigned to this design
 	 *
-	 * @param mixed $css Either an integer stylesheet id, or a CmsLayoutStylesheet object
-	 * @throws UnexpectedValueException
+	 * @param mixed $css Either an integer stylesheet id, or a Stylesheet object
+	 * @throws DataException
 	 */
 	public function delete_stylesheet($css)
 	{
 		$css_t = null;
-		if( $css instanceof CmsLayoutStylesheet ) {
+		if( $css instanceof Stylesheet ) {
 			$css_t = $css->id;
 		}
 		else if( is_numeric($css) ) {
 			$css_t = (int) $css;
 		}
-		if( $css_t < 1 ) throw new UnexpectedValueException('Invalid css id specified to '.__METHOD__);
+		if( $css_t < 1 ) throw new DataException('Invalid css id specified to '.__METHOD__);
 
 		if( !in_array($css_t,$this->_css_members) ) return;
 		$t = [];
@@ -315,7 +313,7 @@ class Design
 	/**
 	 * Set the list of templates (maybe none) assigned to this design
 	 *
-	 * @throws CmsLogicException
+	 * @throws InvalidArgumentException
 	 * @param array $id_array Array of integer template id's, or maybe empty
 	 */
 	public function set_templates($id_array)
@@ -323,7 +321,7 @@ class Design
 		if( !($id_array) ) return;
 
 		foreach( $id_array as $one ) {
-			if( !is_numeric($one) && $one < 1 ) throw new CmsLogicException(__METHOD__.' expects an array of integers');
+			if( !is_numeric($one) && $one < 1 ) throw new InvalidArgumentException(__METHOD__.' expects an array of integers');
 		}
 
 		$this->_tpl_members = $id_array;
@@ -333,19 +331,19 @@ class Design
 	/**
 	 * Add a template to the list of templates assigned to this design.
 	 *
-	 * @throws CmsLogicException
-	 * @param mixed $tpl Accepts either an integer template id, or an instance of a CmsLayoutTemplate object
+	 * @throws LogicException
+	 * @param mixed $tpl Accepts either an integer template id, or an instance of a Template object
 	 */
 	public function add_template($tpl)
 	{
 		$tpl_id = null;
-		if( $tpl instanceof CmsLayoutTemplate ) {
+		if( $tpl instanceof Template ) {
 			$tpl_id = $tpl->get_id();
 		}
 		else if( is_numeric($tpl) ) {
 			$tpl_id = (int) $tpl;
 		}
-		if( $tpl_id < 1 ) throw new CmsLogicException('Invalid template id specified to '.__METHOD__);
+		if( $tpl_id < 1 ) throw new LogicException('Invalid template id specified to '.__METHOD__);
 
 		if( !is_array($this->_tpl_members) ) $this->_tpl_members = [];
 		if( !in_array($tpl_id,$this->_tpl_members) ) $this->_tpl_members[] = (int) $tpl_id;
@@ -355,19 +353,19 @@ class Design
 	/**
 	 * Remove a template from the list of the ones assigned to this design
 	 *
-	 * @throws CmsInvalidDataException
-	 * @param mixed $tpl Either an integer template id, or a CmsLayoutTemplate object
+	 * @throws LogicException
+	 * @param mixed $tpl Either an integer template id, or a Template object
 	 */
 	public function delete_template($tpl)
 	{
 		$tpl_id = null;
-		if( $tpl instanceof CmsLayoutTemplate ) {
+		if( $tpl instanceof Template ) {
 			$tpl_id = $tpl->get_id();
 		}
 		else if( is_numeric($tpl) ) {
 			$tpl_id = (int) $tpl;
 		}
-		if( $tpl_id <= 0 ) throw new CmsLogicException('Invalid template id specified to '.__METHOD__);
+		if( $tpl_id <= 0 ) throw new LogicException('Invalid template id specified to '.__METHOD__);
 
 		if( !in_array($tpl_id,$this->_tpl_members) ) return;
 		$t = [];
@@ -386,21 +384,21 @@ class Design
 	/**
 	 * Validate this object before saving.
 	 *
-	 * @throws CmsInvalidDataException
+	 * @throws LogicException
 	 */
 	protected function validate()
 	{
-		if( $this->get_name() == '' ) throw new CmsInvalidDataException('A design must have a name.');
+		if( $this->get_name() == '' ) throw new LogicException('A design must have a name.');
 		if( !AdminUtils::is_valid_itemname($this->get_name()) ) {
-			throw new CmsInvalidDataException('There are invalid character(s) in the design name.');
+			throw new DataException('There are invalid character(s) in the design name.');
 		}
 
 		if( $this->_css_members ) {
 			$t1 = array_unique($this->_css_members);
-			if( count($t1) != count($this->_css_members) ) throw new CmsInvalidDataException('Duplicate CSS ids exist in design.');
+			if( count($t1) != count($this->_css_members) ) throw new LogicException('Duplicate CSS ids exist in the design.');
 		}
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$tmp = null;
 		if( $this->get_id() ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
@@ -411,27 +409,27 @@ class Design
 			$tmp = $db->GetOne($query,[$this->get_name()]);
 		}
 		if( $tmp ) {
-			throw new CmsInvalidDataException('A design with the same name already exists.');
+			throw new LogicException('A design with the same name already exists.');
 		}
 	}
 
 	/**
 	 * @ignore
-	 * @throws CmsSQLErrorException
+	 * @throws SQLErrorException
 	 */
 	private function _insert()
 	{
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		//TODO DT fields for created, modified
 		// ,dflt,created,modified
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)'; //,?,?,?
 //		$now = time();
 		$dbr = $db->Execute($query,[$this->get_name(), $this->get_description()]); // , ($this->get_default())?1:0, $now, $now
 		if( !$dbr ) {
-			throw new CmsSQLErrorException($db->sql.' --1 '.$db->ErrorMsg());
+			throw new SQLErrorException($db->sql.' --1 '.$db->ErrorMsg());
 		}
 
 		$did = $this->_data['id'] = $db->Insert_ID();
@@ -440,7 +438,7 @@ class Design
 			$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET dflt = 0 WHERE id != ?';
 //			$dbr =
 			$db->Execute($query,[$did]);
-//USELESS			if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+//USELESS			if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 */
 		if( $this->_css_members ) {
@@ -464,7 +462,7 @@ class Design
 
 	/**
 	 * @ignore
-	 * @throws CmsSQLErrorException
+	 * @throws SQLErrorException
 	 */
 	private function _update()
 	{
@@ -472,16 +470,16 @@ class Design
 		$this->validate();
 
 		$did = $this->get_id();
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?'; //, dflt = ?, modified = ?
 		$dbr = $db->Execute($query,[$this->get_name(), $this->get_description(), $did]); //, ($this->get_default())?1:0, time(),
-		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' --2 '.$db->ErrorMsg());
+		if( !$dbr ) throw new SQLErrorException($db->sql.' --2 '.$db->ErrorMsg());
 /*
 		if( $this->get_default() ) {
 			$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET dflt = 0 WHERE id != ?';
 //			$dbr =
 			$db->Execute($query,[$did]);
-//USELESS			if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+//USELESS			if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 */
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ?';
@@ -538,7 +536,7 @@ class Design
 	 * This method normally does nothing if this design has associated templates.
 	 * @deprecated since 2.99 event originator 'Core', 2.99+ also from 'DesignManager'
 	 *
-	 * @throws CmsLogicException
+	 * @throws LogicException
 	 * @param bool $force Force deleting the design even if there are templates assigned
 	 */
 	public function delete($force = FALSE)
@@ -547,7 +545,7 @@ class Design
 		if( !$did ) return;
 /*
 		if( !$force && $this->has_templates() ) {
-			throw new CmsLogicException('Cannot delete a design that has templates assigned');
+			throw new LogicException('Cannot delete a design that has templates assigned');
 		}
 */
 		Events::SendEvent( 'Core', 'DeleteDesignPre', ['CmsLayoutCollection' => &$this] ); // deprecated since 2.99
@@ -603,13 +601,13 @@ class Design
 	/**
 	 * Load a design object
 	 *
-	 * @throws CmsDataNotFoundException
+	 * @throws LogicException
 	 * @param mixed $x - Accepts either an integer design id, or a design name,
 	 * @return Design
 	 */
 	public static function load($x)
 	{
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$row = null;
 		if( is_numeric($x) && $x > 0 ) {
 			if( self::$_raw_cache ) {
@@ -629,7 +627,7 @@ class Design
 			$row = $db->GetRow($query,[trim($x)]);
 		}
 
-		if( !$row ) throw new CmsDataNotFoundException('Could not find design row identified by '.$x);
+		if( !$row ) throw new LogicException('Could not find design row identified by '.$x);
 
 		// get assigned stylesheets
 		$query = 'SELECT css_id FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ? ORDER BY css_order';
@@ -655,7 +653,7 @@ class Design
 	{
 		$out = null;
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY name ASC';
-		$db = CmsApp::get_instance()->GetDb();
+		$db = AppSingle::Db();
 		$dbr = $db->GetArray($query);
 		if( $dbr ) {
 			$ids = [];
@@ -720,7 +718,7 @@ class Design
 	 * Load the default design
 	 * @deprecated since 2.99 there is no such thing as a default design
 	 *
-	 * @throws CmsInvalidDataException
+	 * @throws LogicException
 	 * @return Design
 	 */
 	public static function load_default()
@@ -728,13 +726,13 @@ class Design
 /*		$tmp = null;
 		if( self::$_dflt_id == '' ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE dflt = 1';
-			$db = CmsApp::get_instance()->GetDb();
+			$db = AppSingle::Db();
 			$tmp = (int) $db->GetOne($query);
 			if( $tmp > 0 ) self::$_dflt_id = $tmp;
 		}
 
 		if( self::$_dflt_id > 0 ) return self::load(self::$_dflt_id);
-		throw new CmsInvalidDataException('There is no default design');
+		throw new LogicException('There is no default design');
 */
 	}
 

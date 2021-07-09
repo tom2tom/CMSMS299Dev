@@ -1,41 +1,43 @@
 <?php
-# base content-editing class
-# Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# BUT withOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Base content-editing class
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSContentManager;
 
-use CmsContentException;
 use CMSContentManager\Utils;
 use CmsInvalidDataException;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
-use CMSMS\ContentEditor;
+use CMSMS\ContentException;
 use CMSMS\ContentOperations;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\Events;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
+use CMSMS\IContentEditor;
 use CMSMS\internal\content_assistant;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
-use CMSMS\SysDataCache;
-use CMSMS\UserOperations;
+use CMSMS\Url;
 use CMSMS\Utils as AppUtils;
 use Exception;
 use Serializable;
@@ -44,9 +46,9 @@ use const CMS_DEPREC;
 use const CMS_ROOT_URL;
 use function add_page_foottext;
 use function check_permission;
-use function cms_htmlentities;
 use function cms_join_path;
 use function cms_to_stamp;
+use function CMSMS\specialize;
 use function create_file_dropdown;
 use function debug_buffer;
 use function endswith;
@@ -59,7 +61,7 @@ use function munge_string_to_url;
  * @since	0.8
  * @package	CMS
  */
-abstract class ContentBase implements ContentEditor, Serializable
+abstract class ContentBase implements IContentEditor, Serializable
 {
 	/**
 	 * Lang key for tab name
@@ -84,7 +86,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 * @ignore
 	 */
 	const TAB_LONGOPTS = 'zz_2logic_tab__';
-	const TAB_LOGIC = 'zz_2logic_tab__'; //deprecated since 2.3
+	const TAB_LOGIC = 'zz_2logic_tab__'; //deprecated since 2.99
 
 	/**
 	 * Lang key for tab name
@@ -153,6 +155,14 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 * @internal
 	 */
 	protected $mTemplateId = -1;
+
+	/**
+	 * The type-name of the page-display template if that's part of a theme. '' if none.
+	 * String
+	 *
+	 * @internal
+	 */
+	protected $mTemplateType = '';
 
 	/**
 	 * The item order of this content in its level
@@ -377,40 +387,42 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 * This can be considered a simple DTO (Data Transfer Object)
 	 *
 	 * @since 2.0
-	 * @author Robert Campbell
 	 * @return array
 	 */
 	public function ToData()
 	{
-		$ret = [];
-		$ret['accesskey'] = $this->mAccessKey;
-		$ret['active'] = ($this->mActive)?1:0;
-		$ret['cachable'] = ($this->mCachable)?1:0;
-		$ret['content_alias'] = $this->mAlias;
-		$ret['content_id'] = $this->mId;
-		$ret['content_name'] = $this->mName;
-		$ret['create_date'] = $this->mCreationDate;
-		$ret['default_content'] = ($this->mDefaultContent)?1:0;
-		$ret['has_usable_link'] = $this->HasUsableLink(); // method, not property
-		$ret['hierarchy'] = $this->mHierarchy;
-		$ret['hierarchy_path'] = $this->mHierarchyPath;
-		$ret['id_hierarchy'] = $this->mIdHierarchy;
-		$ret['item_order'] = $this->mItemOrder;
-		$ret['last_modified_by'] = $this->mLastModifiedBy;
-		$ret['menu_text'] = $this->mMenuText;
-		$ret['metadata'] = $this->mMetadata;
-		$ret['modified_date'] = $this->mModifiedDate;
-		$ret['owner_id'] = $this->mOwner;
-		$ret['page_url'] = ($this->mURL)?1:0;
-		$ret['parent_id'] = $this->mParentId;
-		$ret['secure'] = $this->mSecure; //deprecated since 2.3
-		$ret['show_in_menu'] = ($this->mShowInMenu)?1:0;
-		$ret['styles'] = $this->mStyles;
-		$ret['tabindex'] = $this->mTabIndex;
-		$ret['template_id'] = $this->mTemplateId;
-		$ret['titleattribute'] = $this->mTitleAttribute;
-		$ret['wants_children'] = $this->WantsChildren(); // method, not property
-		return $ret;
+		$l = $this->HasUsableLink();
+		$w = $this->WantsChildren();
+		return [
+			'accesskey' => $this->mAccessKey,
+			'active' => (($this->mActive)?1:0),
+			'cachable' => (($this->mCachable)?1:0),
+			'content_alias' => $this->mAlias,
+			'content_id' => $this->mId,
+			'content_name' => $this->mName,
+			'create_date' => $this->mCreationDate,
+			'default_content' => (($this->mDefaultContent)?1:0),
+			'has_usable_link' => $l, // method, not property
+			'hierarchy' => $this->mHierarchy,
+			'hierarchy_path' => $this->mHierarchyPath,
+			'id_hierarchy' => $this->mIdHierarchy,
+			'item_order' => $this->mItemOrder,
+			'last_modified_by' => $this->mLastModifiedBy,
+			'menu_text' => $this->mMenuText,
+			'metadata' => $this->mMetadata,
+			'modified_date' => $this->mModifiedDate,
+			'owner_id' => $this->mOwner,
+			'page_url' => (($this->mURL)?1:0),
+			'parent_id' => $this->mParentId,
+			'secure' => $this->mSecure, //deprecated since 2.99
+			'show_in_menu' => (($this->mShowInMenu)?1:0),
+			'styles' => $this->mStyles,
+			'tabindex' => $this->mTabIndex,
+			'template_id' => $this->mTemplateId,
+			'template_type' => $this->mTemplateType, //TODO support type-named templates for theme switching
+			'titleattribute' => $this->mTitleAttribute,
+			'wants_children' => $w, // method, not property
+		];
 	}
 
 	/**
@@ -443,11 +455,12 @@ abstract class ContentBase implements ContentEditor, Serializable
 		$this->mOwner		 = $data['owner_id'] ?? 0;
 		$this->mURL			 = $data['page_url'] ?? null;
 		$this->mParentId	 = $data['parent_id'] ?? -1;
-		$this->mSecure		 = $data['secure'] ?? false; //deprecated since 2.3
+		$this->mSecure		 = $data['secure'] ?? false; //deprecated since 2.99
 		$this->mShowInMenu	 = !empty($data['show_in_menu']);
-		$this->mStyles		 = $data['styles'] ?? null; //since 2.3, replaces design_id
+		$this->mStyles		 = $data['styles'] ?? null; //since 2.99, replaces design_id
 		$this->mTabIndex	 = $data['tabindex'] ?? 1;
 		$this->mTemplateId	 = $data['template_id'] ?? 0;
+		$this->mTemplateType = $data['template_type'] ?? null; //since 2.99
 		$this->mTitleAttribute = $data['titleattribute'] ?? null;
 
 		$result = true;
@@ -475,8 +488,8 @@ abstract class ContentBase implements ContentEditor, Serializable
 
 	/**
 	 * Function for the subclass to parse out data for its parameters.
-	 * This method is typically called from an editor form to allow modifying
-	 * this content object from form input fields (usually $_POST)
+	 * This method is typically called from an editor form to allow
+	 * modifying this content object from form input fields (usually $_POST)
 	 *
 	 * @param array $params The input array (usually from $_POST)
 	 * @param bool  $editing Indicates whether this is an edit or add operation.
@@ -554,7 +567,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 			$this->_handleRemovedBaseProperty('cachable','mCachable');
 		}
 
-		// secure
+		// secure (deprecated since 2.99)
 		if (isset($params['secure'])) {
 			$this->mSecure = (int) $params['secure'];
 		}
@@ -579,8 +592,8 @@ abstract class ContentBase implements ContentEditor, Serializable
 		// url
 		if( isset($params['page_url']) ) {
 			$tmp = trim($params['page_url']);
-			if( $tmp && ($tmp == filter_var(trim($params['page_url']),FILTER_SANITIZE_URL)) ) {
-				$this->mURL = $tmp;
+			if( $tmp ) {
+				$this->mURL = (new Url())->sanitize($tmp);
 			}
 			else {
 				$this->mURL = '';
@@ -623,12 +636,12 @@ abstract class ContentBase implements ContentEditor, Serializable
 		case 'title':
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_title',$this->mod->Lang('help_title_content_title'));
 			return ['<label for="in_title">*'.$this->mod->Lang('title').':</label>&nbsp;' .$help,
-					'<input type="text" id="in_title" name="'.$id.'title" required="required" value="'.cms_htmlentities($this->mName).'" />'];
+					'<input type="text" id="in_title" name="'.$id.'title" required="required" value="'. specialize($this->mName).'" />'];
 
 		case 'menutext':
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_menutext',$this->mod->Lang('help_title_content_menutext'));
 			return ['<label for="in_menutext">'.$this->mod->Lang('menutext').':</label>&nbsp;'.$help,
-					'<input type="text" id="in_menutext" name="'.$id.'menutext" value="'.cms_htmlentities($this->mMenuText).'" />'];
+					'<input type="text" id="in_menutext" name="'.$id.'menutext" value="'. specialize($this->mMenuText).'" />'];
 
 		case 'parent':
 			$out = AdminUtils::CreateHierarchyDropdown($this->mId, $this->mParentId, 'parent_id', ($this->mId <= 0), true, true, true);
@@ -656,13 +669,26 @@ abstract class ContentBase implements ContentEditor, Serializable
 
 		case 'target':
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_target',$this->mod->Lang('help_title_content_target'));
-			$out = '<option value="---">'.$this->mod->Lang('none').'</option>'
-				.'<option value="_blank"'.($this->GetPropertyValue('target')=='_blank'?' selected="selected"':'').'>_blank</option>'
-				.'<option value="_parent"'.($this->GetPropertyValue('target')=='_parent'?' selected="selected"':'').'>_parent</option>'
-				.'<option value="_self"'.($this->GetPropertyValue('target')=='_self'?' selected="selected"':'').'>_self</option>'
-				.'<option value="_top"'.($this->GetPropertyValue('target')=='_top'?' selected="selected"':'').'>_top</option>';
+			$arr = [
+				$this->mod->Lang('none') => '---',
+				'blank' => '_blank',
+				'parent' => '_parent',
+				'self' => '_self',
+				'top' => '_top',
+			];
+			$sel = $this->GetPropertyValue('target');
+ 			if (!$sel) $sel = '---';
+			$out = FormUtils::create_select([ // DEBUG
+				'type' => 'drop',
+				'name' => 'target',
+				'htmlid' => 'target',
+				'modid' => $id,
+				'multiple' => false,
+				'options' => $arr,
+				'selectedvalue' => $sel,
+			]);
 			return ['<label for="target">'.$this->mod->Lang('target').':</label>&nbsp;'.$help,
-					'<select id="target" name="'.$id.'target">'.$out.'</select>'];
+					$out];
 
 		case 'alias':
 			$help = AdminUtils::get_help_tag($this->realm,'help_page_alias',$this->mod->Lang('help_title_page_alias'));
@@ -748,53 +774,66 @@ abstract class ContentBase implements ContentEditor, Serializable
 		case 'titleattribute':
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_titleattribute',$this->mod->Lang('help_title_content_titleattribute'));
 			return ['<label for="titleattribute">'.$this->mod->Lang('titleattribute').':</label>&nbsp;'.$help,
-					'<input type="text" id="titleattribute" name="'.$id.'titleattribute" size="80" maxlength="255" value="'.cms_htmlentities($this->mTitleAttribute).'" />'];
+					'<input type="text" id="titleattribute" name="'.$id.'titleattribute" size="80" maxlength="255" value="'.specialize($this->mTitleAttribute).'" />'];
 
 		case 'accesskey':
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_accesskey',$this->mod->Lang('help_title_content_accesskey'));
 			return ['<label for="accesskey">'.$this->mod->Lang('accesskey').':</label>&nbsp;'.$help,
-					'<input type="text" id="accesskey" name="'.$id.'accesskey" maxlength="5" size="3" value="'.cms_htmlentities($this->mAccessKey).'" />'];
+					'<input type="text" id="accesskey" name="'.$id.'accesskey" maxlength="5" size="3" value="'. specialize($this->mAccessKey).'" />'];
 
 		case 'tabindex':
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_tabindex',$this->mod->Lang('help_title_content_tabindex'));
 			return ['<label for="tabindex">'.$this->mod->Lang('tabindex').':</label>&nbsp;'.$help,
-					'<input type="text" id="tabindex" name="'.$id.'tabindex" maxlength="3" size="3" value="'.cms_htmlentities($this->mTabIndex).'" />'];
+					'<input type="text" id="tabindex" name="'.$id.'tabindex" maxlength="3" size="3" value="'.specialize($this->mTabIndex).'" />']; // prob. redundant cleaner
 
 		case 'extra1':
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_extra1',$this->mod->Lang('help_title_content_extra1'));
 			return ['<label for="extra1">'.$this->mod->Lang('extra1').':</label>&nbsp;'.$help,
-					'<input type="text" id="extra1" name="'.$id.'extra1" size="80" maxlength="255" value="'.cms_htmlentities($this->GetPropertyValue('extra1')).'" />'];
+					'<input type="text" id="extra1" name="'.$id.'extra1" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra1')).'" />'];
 
 		case 'extra2':
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_extra2',$this->mod->Lang('help_title_content_extra2'));
 			return ['<label for="extra2">'.$this->mod->Lang('extra2').':</label>&nbsp;'.$help,
-					'<input type="text" id="extra2" name="'.$id.'extra2" size="80" maxlength="255" value="'.cms_htmlentities($this->GetPropertyValue('extra2')).'" />'];
+					'<input type="text" id="extra2" name="'.$id.'extra2" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra2')).'" />'];
 
 		case 'extra3':
 			$help = AdminUtils::get_help_tag($this->realm,'help_content_extra3',$this->mod->Lang('help_title_content_extra3'));
 			return ['<label for="extra3">'.$this->mod->Lang('extra3').':</label>&nbsp;'.$help,
-					'<input type="text" id="extra3" name="'.$id.'extra3" size="80" maxlength="255" value="'.cms_htmlentities($this->GetPropertyValue('extra3')).'" />'];
+					'<input type="text" id="extra3" name="'.$id.'extra3" size="80" maxlength="255" value="'. specialize($this->GetPropertyValue('extra3')).'" />'];
 
 		case 'owner':
-			$showadmin = ContentOperations::get_instance()->CheckPageOwnership(get_userid(), $this->Id());
-			if( !$adding && (check_permission(get_userid(),'Manage All Content') || $showadmin) ) {
+			$userid = get_userid();
+			$showadmin = AppSingle::ContentOperations()->CheckPageOwnership($userid, $this->Id());
+			if( !$adding && (check_permission($userid,'Manage All Content') || $showadmin) ) {
 				$help = AdminUtils::get_help_tag($this->realm,'help_content_owner',$this->mod->Lang('help_title_content_owner'));
+				$users = AppSingle::UserOperations()->GetList(); // TODO get public names in preference to account-names
+				$out = FormUtils::create_select([
+					'type' => 'drop',
+					'name' => 'owner_id',
+					'modid' => $id,
+					'htmlid' => 'owner',
+					'multiple' => false,
+					'options' => array_flip($users),
+					'selectedvalue' => $this->Owner(),
+				]);
 				return ['<label for="owner">'.$this->mod->Lang('owner').':</label>&nbsp;'.$help,
-				UserOperations::get_instance()->GenerateDropdown($this->Owner(),$id.'owner_id')];
+						$out];
 			}
 			break;
 
 		case 'additionaleditors':
 			// do owner/additional-editor stuff
-			if( $adding || check_permission(get_userid(),'Manage All Content') ||
-				ContentOperations::get_instance()->CheckPageOwnership(get_userid(),$this->Id()) ) {
+			$userid = get_userid();
+			$contentops = AppSingle::ContentOperations();
+			if( $adding || check_permission($userid,'Manage All Content') ||
+				$contentops->CheckPageOwnership($userid,$this->Id()) ) {
 				$addteditors = $this->GetAdditionalEditors();
 				$owner_id = $this->Owner();
 
 				$help = AdminUtils::get_help_tag($this->realm,'help_content_addteditor',$this->mod->Lang('help_title_content_addteditor'));
 
 				$out = '<input type="hidden" name="'.$id.'additional_editors" value="" /><select id="addteditors" name="'.$id.'additional_editors[]" multiple="multiple" size="5">';
-				$topts = ContentOperations::get_instance()->ListAdditionalEditors();
+				$topts = $contentops->ListAdditionalEditors();
 				foreach( $topts as $k => $v ) {
 					if( $k == $owner_id ) continue;
 					$out .= FormUtils::create_option(['label'=>$v,'value'=>$k],$addteditors);
@@ -812,7 +851,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 
 	/**
 	 * An alias for ShowElement()
-	 * @deprecated since 2.3
+	 * @deprecated since 2.99
 	 * @param string $propname
 	 * @param bool $adding
 	 * @return mixed
@@ -826,7 +865,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 	/**
 	 * Return all recorded user id's and group id's in a format suitable
 	 * for use in a select field.
-	 * @deprecated since 2.9 instead use ContentOperations->ListAdditionalEditors();
+	 * @deprecated since 2.99 instead use ContentOperations->ListAdditionalEditors();
 	 *
 	 * @return array each member like id => name
 	 * Note: group id's are expressed as negative integers in the keys.
@@ -834,7 +873,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 	public static function GetAdditionalEditorOptions() : array
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ContentOperations->ListAdditionalEditors()'));
-		return ContentOperations::get_instance()->ListAdditionalEditors();
+		return AppSingle::ContentOperations()->ListAdditionalEditors();
 	}
 
 	/**
@@ -903,7 +942,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 
 	/**
 	 * Get this contents for a specific tab.
-	 * @deprecated since 2.3 does nothing - instead process results from GetSortedEditableProperties()
+	 * @deprecated since 2.99 Instead process results from GetSortedEditableProperties()
 	 *
 	 * @param string $key tab key
 	 * @param bool   $adding  Optional flag whether this is an add operation. Default false (i.e. edit).
@@ -931,7 +970,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 * If no property name is specified 'content_en' is assumed
 	 *
 	 * @abstract
-	 * @param string $propname An optional property name to display.  If none specified, the system should assume content_en.
+	 * @param string $propname An optional property name to display. If none specified, the system should assume content_en.
 	 * @return string
 	 */
 	public function Show($propname = 'content_en')
@@ -960,39 +999,39 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 *
 	 * @abstract
 	 * @internal
-	 * @param array undeclared since 2.3 optional array of properties to be
+	 * @param array undeclared since 2.99 optional array of properties to be
 	 * excluded from the initial properties. If present, each member an array
 	 * [0] = name, [1] = value to return if the property is sought
 	 */
 	public function SetProperties()
 	{
 		$defaults = [
-			'title'=>[1,self::TAB_MAIN,1],
-			'alias'=>[2,self::TAB_MAIN],
+			'title' => [1,self::TAB_MAIN,1],
+			'alias' => [2,self::TAB_MAIN],
 
-			'styles'=>[2,self::TAB_DISPLAY],
-			'image'=>[5,self::TAB_DISPLAY],
-			'thumbnail'=>[6,self::TAB_DISPLAY],
+			'styles' => [2,self::TAB_DISPLAY],
+			'image' => [5,self::TAB_DISPLAY],
+			'thumbnail' => [6,self::TAB_DISPLAY],
 
 			// priority 3 is also used by some subclasses
-			'active'=>[3,self::TAB_OPTIONS],
-			'secure'=>[3,self::TAB_OPTIONS], //deprecated property since 2.3
-			'cachable'=>[4,self::TAB_OPTIONS],
-			'extra1'=>[12,self::TAB_OPTIONS],
-			'extra2'=>[13,self::TAB_OPTIONS],
-			'extra3'=>[14,self::TAB_OPTIONS],
+			'active' => [3,self::TAB_OPTIONS],
+			'secure' => [3,self::TAB_OPTIONS], //deprecated property since 2.99
+			'cachable' => [4,self::TAB_OPTIONS],
+			'extra1' => [12,self::TAB_OPTIONS],
+			'extra2' => [13,self::TAB_OPTIONS],
+			'extra3' => [14,self::TAB_OPTIONS],
 
-			'parent'=>[1,self::TAB_NAV,1],
-			'showinmenu'=>[2,self::TAB_NAV],
-			'menutext'=>[3,self::TAB_NAV,1],
-			'titleattribute'=>[4,self::TAB_NAV],
-			'accesskey'=>[5,self::TAB_NAV],
-			'tabindex'=>[6,self::TAB_NAV],
-			'page_url'=>[7,self::TAB_NAV],
-			'target'=>[8,self::TAB_NAV],
+			'parent' => [1,self::TAB_NAV,1],
+			'showinmenu' => [2,self::TAB_NAV],
+			'menutext' => [3,self::TAB_NAV,1],
+			'titleattribute' => [4,self::TAB_NAV],
+			'accesskey' => [5,self::TAB_NAV],
+			'tabindex' => [6,self::TAB_NAV],
+			'page_url' => [7,self::TAB_NAV],
+			'target' => [8,self::TAB_NAV],
 
-			'owner'=>[1,self::TAB_PERMS],
-			'additionaleditors'=>[2,self::TAB_PERMS],
+			'owner' => [1,self::TAB_PERMS],
+			'additionaleditors' => [2,self::TAB_PERMS],
 		];
 
 		$except = func_get_args(); //prevent subclass API incompatibility
@@ -1026,7 +1065,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 	/**
 	 * Get all the properties of this content object (whether or not the user is entitled to view them)
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 * @return array of assoc. arrays
 	 */
 	public function GetPropertiesArray()
@@ -1038,7 +1077,7 @@ abstract class ContentBase implements ContentEditor, Serializable
 	 * Get all of the properties of this content object (whether or not the user is entitled to view them)
 	 *
 	 * @since 2.0
-	 * @deprecated since 2.3 Instead use ContentBase::GetPropertiesArray()
+	 * @deprecated since 2.99 Instead use ContentBase::GetPropertiesArray()
 	 * @return array of stdClass objects
 	 */
 /*	public function GetProperties()
@@ -1094,13 +1133,13 @@ abstract class ContentBase implements ContentEditor, Serializable
 	private function _SortProperties(array $props) : array
 	{
 		if( count($props) > 1 ) {
-		  usort($props,function($a,$b)
-		  {
-			$res = strcmp($a['tab'],$b['tab']);
-			if( $res == 0 ) $res = $a['priority'] <=> $b['priority'];
-			if( $res == 0 ) $res = strcmp($a['name'],$b['name']);
-			return $res;
-		  });
+			usort($props,function($a,$b)
+			{
+				$res = strcmp($a['tab'],$b['tab']);
+				if( $res == 0 ) $res = $a['priority'] <=> $b['priority'];
+				if( $res == 0 ) $res = strcmp($a['name'],$b['name']);
+				return $res;
+			});
 		}
 
 		return $props;
@@ -1278,7 +1317,7 @@ VALUES (?,?,?,?,$now,$now)";
 	/* *
 	 * Add a property that is directly associated with a field in this content table
 	 * @alias for AddProperty
-	 * @deprecated since 2.3 (at most?)
+	 * @deprecated since 2.99 (at most?)
 	 *
 	 * @param string $name The property name
 	 * @param int	$priority The priority
@@ -1291,7 +1330,7 @@ VALUES (?,?,?,?,$now,$now)";
 */
 	/* *
 	 * Alias for AddProperty
-	 * @deprecated  since 2.3 (at most?)
+	 * @deprecated  since 2.99 (at most?)
 	 *
 	 * @param string $name
 	 * @param int	$priority
@@ -1373,6 +1412,7 @@ content_name = ?,
 owner_id = ?,
 type = ?,
 template_id = ?,
+template_type = ?,
 parent_id = ?,
 active = ?,
 default_content = ?,
@@ -1397,11 +1437,12 @@ WHERE content_id = ?';
 			$this->mOwner,
 			$this->Type(),
 			$this->mTemplateId,
+			$this->mTemplateType,
 			$this->mParentId,
 			($this->mActive		 ? 1 : 0),
 			($this->mDefaultContent ? 1 : 0),
 			($this->mShowInMenu	 ? 1 : 0),
-			($this->mCachable	   ? 1 : 0),
+			($this->mCachable	 ? 1 : 0),
 			($this->mSecure		 ? 1 : 0),
 			$this->mURL,
 			$this->mMenuText,
@@ -1473,7 +1514,7 @@ WHERE content_id = ?';
 			}
 		}
 
-		$newid = $db->GenID(CMS_DB_PREFIX.'content_seq');
+		$newid = $db->genID(CMS_DB_PREFIX.'content_seq');
 		$this->mId = $newid;
 
 		$this->mModifiedDate = null;
@@ -1488,6 +1529,7 @@ type,
 owner_id,
 parent_id,
 template_id,
+template_type,
 item_order,
 hierarchy,
 id_hierarchy,
@@ -1504,7 +1546,7 @@ accesskey,
 styles,
 tabindex,
 last_modified_by,
-create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		$dbr = $db->Execute($query, [
 			$newid,
 			$this->mName,
@@ -1513,6 +1555,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			$this->mOwner,
 			$this->mParentId,
 			$this->mTemplateId,
+			$this->mTemplateType,
 			$this->mItemOrder,
 			$this->mHierarchy,
 			$this->mIdHierarchy,
@@ -1576,7 +1619,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			$this->Insert();
 		}
 
-		$contentops = ContentOperations::get_instance();
+		$contentops = AppSingle::ContentOperations();
 		$contentops->SetContentModified();
 		$contentops->SetAllHierarchyPositions();
 		Events::SendEvent( 'Core', 'ContentEditPost', [ 'content' => &$this ] ); //TODO deprecate? module for originator?
@@ -1631,7 +1674,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * That's up to Save to check this.
 	 *
 	 * @abstract
-	 * @returns	mixed On error returns an array of strings, otherwise false
+	 * @return mixed On error returns an array of strings, otherwise false
 	 */
 	public function ValidateData()
 	{
@@ -1661,8 +1704,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 		if( !$this->HandlesAlias()) {
 			if( $this->mAlias != $this->mOldAlias || ($this->mAlias === '' && $this->RequiresAlias()) ) {
-				$contentops = ContentOperations::get_instance();
-				$error = $contentops->CheckAliasError($this->mAlias, $this->mId);
+				$error = AppSingle::ContentOperations()->CheckAliasError($this->mAlias, $this->mId);
 				if( $error !== false ) {
 					$errors[] = $error;
 				}
@@ -1714,8 +1756,8 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		}
 		else if( $this->mURL ) {
 			// page url is not empty, silently delete bad chars
-			$this->mURL = filter_var(trim($this->mURL,FILTER_SANITIZE_URL));
-			// and validate it
+			$this->mURL = (new Url())->sanitize($this->mURL);
+			// and confirm (via munging) its suitability for pretty-url etc
 			if( $this->mURL && !content_assistant::is_valid_url($this->mURL,$this->mId) ) {
 				$errors[] = $this->mod->Lang('invalid_url2');
 			}
@@ -1724,9 +1766,9 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		return ($errors) ? $errors : false;
 	}
 
-	/************************************************************************/
-	/* Functions giving access to needed elements of this content			*/
-	/************************************************************************/
+	/**************************************************************/
+	/* Functions giving access to needed elements of this content */
+	/**************************************************************/
 
 	/**
 	 * Return the page ID
@@ -1799,7 +1841,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 */
 	public function SetAlias($alias = '', $doAutoAliasIfEnabled = true)
 	{
-		$contentops = ContentOperations::get_instance();
+		$contentops = AppSingle::ContentOperations();
 		$config = AppSingle::Config();
 		if( $alias === '' && $doAutoAliasIfEnabled && $config['auto_alias_content'] ) {
 			$alias = trim($this->mMenuText);
@@ -1812,7 +1854,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			if( !$res ) {
 				$alias = 'p'.$alias;
 				$res = $contentops->CheckAliasValid($alias);
-				if( !$res ) throw new CmsContentException($this->mod->Lang('invalidalias2'));
+				if( !$res ) throw new ContentException($this->mod->Lang('invalidalias2'));
 			}
 		}
 
@@ -1821,7 +1863,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 			// make sure we start with a valid alias.
 			$res = $contentops->CheckAliasValid($alias);
-			if( !$res ) throw new CmsContentException($this->mod->Lang('invalidalias2'));
+			if( !$res ) throw new ContentException($this->mod->Lang('invalidalias2'));
 
 			// now auto-increment the alias.
 			$prefix = $alias;
@@ -1839,11 +1881,11 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 				$num++;
 				$test = $prefix.'-'.$num;
 			} while( $num < 100 );
-			if( $num >= 100 ) throw new CmsContentException($this->mod->Lang('aliasalreadyused'));
+			if( $num >= 100 ) throw new ContentException($this->mod->Lang('aliasalreadyused'));
 		}
 
 		$this->mAlias = $alias;
-		$cache = SysDataCache::get_instance();
+		$cache = AppSingle::SysDataCache();
 		$cache->release('content_quicklist');
 		$cache->release('content_tree');
 		$cache->release('content_flatlist');
@@ -2010,7 +2052,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	/**
 	 * Set the parent of this page
 	 *
-	 * @param int $parentid The numeric page parent id.  Use -1 for no parent.
+	 * @param int $parentid The numeric page parent id. Use -1 for no parent.
 	 */
 	public function SetParentId($parentid)
 	{
@@ -2040,6 +2082,17 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		if( $templateid > 0 ) $this->mTemplateId = $templateid;
 	}
 
+	//TODO support themed/named template
+	public function TemplateName()
+	{
+		return $this->mTemplateType;
+	}
+
+	public function SetTemplateName($templatename)
+	{
+		$this->mTemplateType = trim($templatename);
+	}
+
 	/**
 	 * Return whether this page uses a template.
 	 * Some content types like sectionheader and separator do not.
@@ -2054,7 +2107,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	/**
 	 * Return a smarty resource string for the template assigned to this page.
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 * @abstract
 	 * @return string
 	 */
@@ -2121,7 +2174,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
  WHERE content_id = ?';
 			$db->Execute($query,[$this->Id()]);
 		}
-		$cache = SysDataCache::get_instance();
+		$cache = AppSingle::SysDataCache();
 		$cache->release('content_tree');
 		$cache->release('content_flatlist');
 	}
@@ -2136,8 +2189,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 */
 	public function Hierarchy()
 	{
-		$contentops = ContentOperations::get_instance();
-		return $contentops->CreateFriendlyHierarchyPosition($this->mHierarchy); //should match this->mIdHierarchy
+		return AppSingle::ContentOperations()->CreateFriendlyHierarchyPosition($this->mHierarchy); //should match this->mIdHierarchy
 	}
 
 	/**
@@ -2251,7 +2303,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 * setting pages that return false for this method as the default page.
 	 *
 	 * @abstract
-	 * @returns bool Default is false
+	 * @return bool Default is false
 	 */
 	public function IsDefaultPossible()
 	{
@@ -2283,7 +2335,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	/**
 	 * Return whether this page should be accessed via a secure protocol.
 	 * The secure flag affects whether the ssl protocol and appropriate config entries are used when generating urls to this page.
-	 * @deprecated since 2.3
+	 * @deprecated since 2.99
 	 *
 	 * @return bool
 	 */
@@ -2295,7 +2347,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	/**
 	 * Set whether this page should be accessed via a secure protocol.
 	 * The secure flag affects whether the ssl protocol and appropriate config entries are used when generating urls to this page.
-	 * @deprecated since 2.3
+	 * @deprecated since 2.99
 	 *
 	 * @param bool $secure
 	 */
@@ -2346,7 +2398,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 		/* use root_url for default content */
 		if($this->DefaultContent()) {
-			$url =  $base_url . '/';
+			$url = $base_url . '/';
 			return $url;
 		}
 
@@ -2424,25 +2476,25 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 	 */
 	public function IsEditable($main = true, $extra = true)
 	{
-		$uid = get_userid();
-		$ops = UserOperations::get_instance();
+		$userops = AppSingle::UserOperations();
+		$userid = get_userid();
 		if( $main ) {
-			if( $ops->CheckPermission($uid,'Manage All Content')
-			 || $ops->CheckPermission($uid,'Modify Any Page')
-			 || $ops->CheckPermission($uid,'Add Pages') ) {
+			if( $userops->CheckPermission($userid,'Manage All Content')
+			 || $userops->CheckPermission($userid,'Modify Any Page')
+			 || $userops->CheckPermission($userid,'Add Pages') ) {
 				return true;
 			}
 		}
 		if( $extra ) {
 			$eds = $this->GetAdditionalEditors();
 			if( $eds ) {
-				if( in_array($uid,$eds) ) {
-	   				return true;
+				if( in_array($userid, $eds) ) {
+					return true;
 				}
 				else {
 					foreach( $eds as $one ) {
 						if( $one < 0 ) {
-							if( $ops->UserInGroup($uid,- (int)$one) ) {
+							if( $userops->UserInGroup($userid, -(int)$one) ) {
 								return true;
 							}
 						}
@@ -2553,7 +2605,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 	/**
 	 * Return the styles-sequence for this content page
-	 * @since 2.3
+	 * @since 2.99
 	 *
 	 * @return string, comma-separated stylesheet, stylesheetgroup id(s)
 	 */
@@ -2564,7 +2616,7 @@ create_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 	/**
 	 * Set the styles-sequence for this content page
-	 * @since 2.3
+	 * @since 2.99
 	 *
 	 * @param string $stylestext comma-separated stylesheet, stylesheetgroup id(s)
 	 */

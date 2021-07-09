@@ -7,6 +7,7 @@ status_msg(lang('install_setsequence'));
 // retained sequence tables for maybe-higher-traffic data with a higher race-risk
 $table_ids = [
 	'content' => ['id' => 'content_id'],
+	'users' => ['id' => 'user_id'],
 ];
 
 foreach ($table_ids as $tablename => $tableinfo) {

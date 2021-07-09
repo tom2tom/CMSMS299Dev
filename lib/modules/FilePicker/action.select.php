@@ -19,8 +19,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMA\AppSingle;
+use CMSMS\FileType;
+
 if( !isset($gCms) ) exit;
-if( CmsApp::get_instance()->is_frontend_request() ) exit;
+if( AppSingle::App()->is_frontend_request() ) exit;
 
 try {
     $name = $params['name'] ?? ''; //html element name

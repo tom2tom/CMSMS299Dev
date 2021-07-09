@@ -1,35 +1,36 @@
 <?php
 /*
 Search module utilities class
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 namespace Search;
 
-use CMSMS\ContentOperations;
+// TODO support non-english lang
+use CMSMS\AppSingle;
 use CMSMS\Events;
-use CMSMS\ModuleOperations;
-//use CMSMS\SystemCache;
-use PorterStemmer; // TODO support non-english lang
+use PorterStemmer;
 use Search; // search-module class in global space
 use const CMS_DB_PREFIX;
-use const NON_INDEXABLE_CONTENT;
 use function cmsms;
+use function CMSMS\de_entitize;
 
 /**
- * @since 2.9
+ * @since 2.99
  */
 class Utils
 {
@@ -67,7 +68,7 @@ class Utils
         });
 
         // ignore stop words
-        $words = $module->RemoveStopWordsFromArray($words);
+        $words = self::RemoveStopWordsFromArray($module, $words);
 
         // stem words
         $stemmed_words = [];
@@ -97,18 +98,17 @@ class Utils
     /**
      *
      * @param Search-module object $module
-     * @param string $modname
-     * @param type $id
-     * @param string $attr
-     * @param string $content
-     * @param type $expires
+     * @param string $modname optional
+     * @param int $id optional
+     * @param string $attr optional
+     * @param string $content optional
+     * @param mixed $expires  optional timestamp | null
      */
-    public static function AddWords(Search $module, string $modname = 'Search', $id = -1, string $attr = '', string $content = '', $expires = null)
+    public static function AddWords(Search $module, string $modname = 'Search', int $id = -1, string $attr = '', string $content = '', $expires = null)
     {
         self::DeleteWords($modname, $id, $attr);
 
-        $non_indexable = strpos($content, NON_INDEXABLE_CONTENT);
-        if ($non_indexable !== false) {
+        if (strpos($content, Search::NON_INDEXABLE_CONTENT) !== false) {
             return;
         }
 
@@ -116,7 +116,7 @@ class Utils
 
         if ($content != '') {
             //Clean up the content
-            $content = html_entity_decode($content);
+            $content = de_entitize($content);
             $stemmed_words = self::StemPhrase($module, $content);
             $tmp = array_count_values($stemmed_words);
             if (!is_array($tmp) || !$tmp) {
@@ -145,7 +145,7 @@ class Utils
             if ($rst && $rst->RecordCount() > 0 && $row = $rst->FetchRow()) {
                 $itemid = (int) $row['id'];
             } else {
-                $itemid = (int) $db->GenID(CMS_DB_PREFIX.'module_search_items_seq'); //OR use $db->Insert_ID();
+                $itemid = (int) $db->genID(CMS_DB_PREFIX.'module_search_items_seq'); //OR use $db->Insert_ID() with autoinc field
                 $db->Execute('INSERT INTO '.CMS_DB_PREFIX.'module_search_items (id, module_name, content_id, extra_attr, expires) VALUES (?,?,?,?,?)', [$itemid, $modname, $id, $attr, ($expires != null ? trim($db->DbTimeStamp($expires), "'") : null)]);
             }
             if ($rst) {
@@ -156,8 +156,8 @@ class Utils
             foreach ($words as $row) {
                 $stmt->Execute($row);
             }
-            $stmt->close();
             $db->CommitTrans();
+            $stmt->close();
         }
     }
 
@@ -167,10 +167,10 @@ class Utils
      * @param int $id optional content-id value to match
      * @param string $attr optional extra-attr value to match
      */
-    public static function DeleteWords(string $modname = 'Search', $id = -1, string $attr = '')
+    public static function DeleteWords(string $modname = 'Search', int $id = -1, string $attr = '')
     {
         $parms = [$modname];
-        $q = 'DELETE FROM '.CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
+        $q = 'SELECT id FROM '.CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
         if ($id != -1) {
             $q .= ' AND content_id=?';
             $parms[] = $id;
@@ -180,12 +180,36 @@ class Utils
             $parms[] = $attr;
         }
         $db = cmsms()->GetDb();
-        $db->BeginTrans();
-        $db->Execute($q, $parms);
-        //Ruud suggestion: migrate this to async task and/or index item_id field
-        $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id NOT IN (SELECT id FROM '.CMS_DB_PREFIX.'module_search_items)');
+        $db->BeginTrans(); // if InnoDB tables
+        $scrubs = $db->GetCol($q, $parms);
+        if ($scrubs) {
+            $in = '('.implode(',', $scrubs).')';
+            $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_items WHERE id IN '.$in);
+            //Ruud suggestion: migrate this to async task
+//          $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id NOT IN (SELECT id FROM '.CMS_DB_PREFIX.'module_search_items)');
+            $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id IN '.$in);
+        }
         $db->CommitTrans();
+
         Events::SendEvent('Search', 'SearchItemDeleted', [$modname, $id, $attr]);
+    }
+
+    public static function DeleteAllWords()
+    {
+        $db = cmsms()->GetDb();
+        $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_index');
+        $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_items');
+        $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_words');
+
+        Events::SendEvent('Search', 'SearchAllItemsDeleted');
+    }
+
+    public static function RemoveStopWordsFromArray(Search $module, $words)
+    {
+        $curval = $module->GetPreference('stopwords');
+        if (!$curval) { $curval = $module->DefaultStopWords(); }
+        $stop_words = preg_split("/[\s,]+/", $curval);
+        return array_diff($words, $stop_words);
     }
 
     /**
@@ -195,14 +219,14 @@ class Utils
     public static function Reindex(Search $module)
     {
         set_time_limit(999);
-        $module->DeleteAllWords();
+        self::DeleteAllWords();
 
         // have to load all the content, and properties, (in chunks)
         $full_list = array_keys(cmsms()->GetHierarchyManager()->getFlatList());
         $n = count($full_list);
         $nperloop = min(200, $n);
-        $contentops = ContentOperations::get_instance();
-//      $cache = SystemCache::get_instance();
+        $contentops = AppSingle::ContentOperations();
+//      $cache = AppSingle::SystemCache();
         $offset = 0;
 
         while ($offset < $n) {
@@ -226,7 +250,7 @@ class Utils
             }
         }
 
-        $modops = ModuleOperations::get_instance();
+        $modops = AppSingle::ModuleOperations();
         $modules = $modops->GetInstalledModules();
         foreach ($modules as $name) {
             if (!$name || $name == 'Search') {
@@ -240,74 +264,12 @@ class Utils
     }
 
     /**
-     *
-     * @param Search-module object $module
-     * @param string $originator
-     * @param string $eventname
-     * @param array $params
-     */
-    public static function DoEvent(Search $module, string $originator, string $eventname, array &$params)
-    {
-        if ($originator != 'Core') {
-            return;
-        }
-
-        switch ($eventname) {
-        case 'ContentEditPost':
-            if (empty($params['content'])) {
-                return;
-            }
-            $content = $params['content'];
-            if (!is_object($content)) {
-                return;
-            }
-
-            //Ruud suggestion: defer deletion to next AddWords() call
-            self::DeleteWords($module->GetName(), $content->Id(), 'content');
-            if ($content->Active() && $content->IsSearchable()) {
-                $text = str_repeat(' '.$content->Name(), 2) . ' ';
-                $text .= str_repeat(' '.$content->MenuText(), 2) . ' ';
-
-                $props = $content->Properties();
-                if ($props) {
-                    foreach ($props as $k => $v) {
-                        $text .= $v.' ';
-                    }
-                }
-
-                // here check for a string to see
-                // if module content is indexable at all
-                $non_indexable = (strpos($text, NON_INDEXABLE_CONTENT) !== false);
-                $text = trim(strip_tags($text));
-                if ($text && !$non_indexable) {
-                    self::AddWords($module, $module->GetName(), $content->Id(), 'content', $text);
-                }
-            }
-            break;
-
-        case 'ContentDeletePost':
-            if (empty($params['content'])) {
-                return;
-            }
-            $content = $params['content'];
-            self::DeleteWords($module->GetName(), $content->Id(), 'content');
-            break;
-
-        case 'ModuleUninstalled':
-            $module_name = $params['name'];
-            self::DeleteWords($module_name);
-            break;
-        }
-    }
-
-    /**
-     *
+     * Remove html tags from supplied string
      * @param string $text
      * @return string
      */
     public static function CleanupText(string $text) : string
     {
-        $text = strip_tags($text);
-        return $text;
+        return strip_tags($text);
     }
 } //class

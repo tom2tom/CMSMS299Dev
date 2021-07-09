@@ -1,49 +1,65 @@
 <?php
-# Stylesheeet(s) operations performer
-# Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Stylesheeet(s) operations performer
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\StylesheetOperations;
-use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-	exit;
-}
-
 check_login();
 $userid = get_userid();
 $pmod = check_permission($userid,'Manage Stylesheets');
-$urlext = get_secure_param();
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
-cleanArray($_REQUEST);
-$css_id = isset($_REQUEST['css']) ? (int)$_REQUEST['css'] : null; //< 0 for a group
-$css_multi = $_REQUEST['css_select'] ?? null; //id(s) array for a bulk operation
+if (isset($_REQUEST['css'])) {
+	$css_id = (int)$_REQUEST['css']; //< 0 for a group
+} elseif (isset($_REQUEST['grp'])) {
+	$css_id = -(int)$_REQUEST['grp'];
+} else {
+	$css_id = null;
+}
 
-switch ($_REQUEST['op']) {
+if (isset($_REQUEST['css_select'])) {  //id(s) array for a bulk operation
+	//sanitize
+	$css_multi = array_map($_REQUEST['css_select'], function ($v) {
+		return (int)$v;
+	});
+} else {
+	$css_multi = null;
+}
+
+$op = $_REQUEST['op'] ?? ''; // no sanitizeVal() etc, only exact matches accepted
+switch (trim($op)) {
 	case 'copy':
 		if (!$pmod) exit;
 		if ($css_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_copy($css_id);
-				$themeObject->ParkNotice('success',lang_by_realm('layout','msg_stylesheet_copied'));
+				$type = ($n > 0) ? 'success' : 'info';
+				// TODO message if group(s) copied i.e. $css_id includes val(s) < 0
+				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_stylesheet_copied'));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
 			}
@@ -54,8 +70,10 @@ switch ($_REQUEST['op']) {
 		if ($css_multi) { $css_id = $css_multi; }
 		if ($css_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_delete($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
+				// TODO message if group(s) deleted
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_stylesheet_deleted',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -67,6 +85,7 @@ switch ($_REQUEST['op']) {
 		if ($css_multi) { $css_id = $css_multi; }
 		if ($css_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_deleteall($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
@@ -78,6 +97,7 @@ switch ($_REQUEST['op']) {
 	case 'replace':
 		if ($css_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_replace($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
@@ -90,6 +110,7 @@ switch ($_REQUEST['op']) {
 	case 'append':
 		if ($css_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_append($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
@@ -101,6 +122,7 @@ switch ($_REQUEST['op']) {
 	case 'prepend':
 		if ($css_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_prepend($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
@@ -113,6 +135,7 @@ switch ($_REQUEST['op']) {
 		//multi for this one ?
 		if ($css_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_remove($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_pages_updated',$n));
@@ -126,8 +149,10 @@ switch ($_REQUEST['op']) {
 		if ($css_multi) { $css_id = $css_multi; }
 		if ($css_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_import($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
+				// TODO message if group(s) imported
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_stylesheet_imported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -139,8 +164,10 @@ switch ($_REQUEST['op']) {
 		if ($css_multi) { $css_id = $css_multi; }
 		if ($css_id) {
 			try {
+				// TODO appropriate '_activetab' value
 				$n = StylesheetOperations::operation_export($css_id);
 				$type = ($n > 0) ? 'success' : 'info';
+				// TODO message if group(s) exported
 				$themeObject->ParkNotice($type,lang_by_realm('layout','msg_stylesheet_exported',$n));
 			} catch (Throwable $t) {
 				$themeObject->ParkNotice('error',$t->getMessage());
@@ -149,4 +176,6 @@ switch ($_REQUEST['op']) {
 		break;
 }
 
-redirect('liststyles.php'.$urlext);
+$root = AppSingle::Config()['admin_url']; // relative URL's don't work here
+$urlext = get_secure_param();
+redirect($root.'/liststyles.php'.$urlext);  // TODO .'&_activetab=' relevant tab name : 'sheets'|'groups'

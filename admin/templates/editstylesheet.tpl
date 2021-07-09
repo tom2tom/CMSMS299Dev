@@ -1,15 +1,14 @@
-{$get_lock = $css->get_lock()}
 {capture assign='disable'}
-  {if isset($get_lock) && ({get_userid(false)} != $get_lock.uid)}disabled="disabled"{/if}
+  {if $css.lock && ($css.lock.uid != $userid)}disabled="disabled"{/if}
 {/capture}
 {*
-{if !$css->get_id()}
-  <h3>{lang_by_realm('layout','prompt_create_stylesheet')}</h3>
+{if $css.id > 0}
+  <h3>{lang_by_realm('layout','prompt_edit_stylesheet')} {$css.name} ({$css.id})</h3>
 {else}
-  <h3>{lang_by_realm('layout','prompt_edit_stylesheet')} {$css->get_name()} ({$css->get_id()})</h3>
+  <h3>{lang_by_realm('layout','prompt_create_stylesheet')}</h3>
 {/if}
 *}
-{if isset($get_lock)}
+{if $css.lock}
   <div class="warning lock-warning">{lang_by_realm('layout','lock_warning')}</div>
 {/if}
 
@@ -21,7 +20,7 @@
   <div class="pageinput postgap">
     <button type="submit" name="dosubmit" id="submitbtn" class="adminsubmit icon check"  {$disable|strip}>{lang('submit')}</button>
     <button type="submit" name="cancel" id="cancelbtn" class="adminsubmit icon cancel">{lang('cancel')}</button>
-    {if $css->get_id()}
+    {if $css.id > 0}
      <button type="submit" name="apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{lang('apply')}</button>
     {/if}
   </div>
@@ -31,11 +30,11 @@
       {cms_help realm='layout' key2=help_stylesheet_name title=lang_by_realm('layout','prompt_name')}
     </p>
     <p class="pageinput">
-      <input id="css_name" type="text" name="name" size="40" maxlength="64" value="{$css->get_name()}" placeholder="{lang_by_realm('layout','enter_name')}" />
+      <input id="css_name" type="text" name="name" size="40" maxlength="64" value="{$css.name}" placeholder="{lang_by_realm('layout','enter_name')}" />
     </p>
   </div>
  </div>{* boxchild *}
-{if $css->get_id()}
+{if $css.id > 0}
  <div class="boxchild">
   <div class="pageoverflow">
     <p class="pagetext">
@@ -43,7 +42,7 @@
       {cms_help realm='layout' key2=help_stylesheet_created title=lang_by_realm('layout','prompt_created')}
     </p>
     <p class="pageinput">
-      {$css->get_created()|date_format:'%x %X'}
+      {$css.created|cms_date_format}
     </p>
   </div>
   <div class="pageoverflow">
@@ -52,7 +51,7 @@
       {cms_help realm='layout' key2=help_stylesheet_modified title=lang_by_realm('layout','prompt_modified')}
     </p>
     <p class="pageinput">
-      {$css->get_modified()|cms_date_format}
+      {$css.modified|cms_date_format}
     </p>
   </div>
  </div>{* boxchild *}
@@ -71,7 +70,7 @@
 *}
 {*
 {if !empty($devmode)}
- {if $css->get_id() > 0}
+ {if $css.id > 0}
  {tab_header name='advanced' label=lang_by_realm('layout','prompt_advanced')}
  {/if}
 {/if}
@@ -80,16 +79,16 @@
 <div class="pageoverflow">
  {$t=lang_by_realm('layout','prompt_stylesheet')}<label class="pagetext" for="edit_area">{$t}:</label>
  {cms_help realm='layout' key2=help_stylesheet_content title=$t}<br />
- <textarea class="pageinput" id="edit_area" name="content" data-cms-lang="css" rows="10" cols="40" style="width:40em;min-height:2em;max-height:20em;"{if !$can_manage} readonly="readonly"{/if}>{$css->get_content()}</textarea>
+ <textarea class="pageinput" id="edit_area" name="content" data-cms-lang="css" rows="10" cols="40" style="width:40em;min-height:2em;max-height:20em;"{if !$can_manage} readonly="readonly"{/if}>{$css.content}</textarea>
 </div>
 {tab_start name='description'}
 <div class="pageoverflow">
   <p class="pagetext">
-    <label for="txt_description">{lang_by_realm('layout','prompt_description')}:</label>
-    {cms_help realm='layout' key2=help_css_description title=lang_by_realm('layout','prompt_description')}
+    {$t=lang_by_realm('layout','prompt_description')}<label for="txt_description">{$t}:</label>
+    {cms_help realm='layout' key2=help_css_description title=$t}
   </p>
   <p class="pageinput">
-    <textarea id="txt_description" name="description" rows="3" cols="40" style="width:40em;min-height:2em;">{$css->get_description()}</textarea>
+    <textarea id="txt_description" name="description" rows="3" cols="40" style="width:40em;min-height:2em;">{$css.description}</textarea>
   </p>
 </div>
 {tab_start name='media_query'}
@@ -100,21 +99,18 @@
     {cms_help realm='layout' key2=help_css_mediaquery title=lang_by_realm('layout','prompt_media_query')}
   </p>
   <p class="pageinput">
-    <textarea id="mediaquery" name="media_query" rows="10" cols="80">{$css->get_media_query()}</textarea>
+    <textarea id="mediaquery" name="media_query" rows="10" cols="80">{$css.media_query}</textarea>
   </p>
 </div>
 {tab_start name='media_type'}
 <!-- media -->
 <div class="pagewarn">{lang_by_realm('layout','info_editcss_mediatype_tab')}</div>
 <div class="pageoverflow">
-  <p class="patetext">{lang_by_realm('layout','prompt_media_type')}:</p>
-  {$tmp='all,aural,speech,braille,embossed,handheld,print,projection,screen,tty,tv'}
-  {$all_types=explode(',',$tmp)}
-
+{*  <p class="pagetext">{lang_by_realm('layout','prompt_media_type')}:</p> *}
   <p class="pageinput media-type">
   {foreach $all_types as $type}{strip}
     <input id="media_type_{$type}" type="checkbox" name="media_type[]" value="{$type}"
-     {if $css->has_media_type($type)} checked="checked"{/if} />
+     {if !empty($css.types[$type])} checked="checked"{/if} />
     &nbsp;
     {$tmp='media_type_'|cat:$type}
       <label for="media_type_{$type}">{lang_by_realm('layout',$tmp)}</label>
@@ -132,7 +128,7 @@
     </p>
     <p class="pageinput">
       <select id="designlist" name="design_list[]" multiple="multiple" size="5">
-      {html_options options=$design_list selected=$css->get_designs()} DISABLED
+      {html_options options=$design_list selected=$css.designs} DISABLED
       </select>
     </p>
   </div>
@@ -140,12 +136,12 @@
 *}
 {*
 {if !empty($devmode)}
- {if $css->get_id() > 0}
+ {if $css.id > 0}
  {tab_start name='advanced'}
   <div class="pageoverflow">
   <p class="pagetext">{lang_by_realm('layout','prompt_cssfile')}:</p>
   <p class="pageinput">
-    {if $css->get_content_file()}
+    {if $css.content_file} DISABLED
       <button type="submit" name="import" id="importbtn" class="adminsubmit icon do">{lang_by_realm('layout','import')}</button>
     {else}
       <button type="submit" name="export" id="exportbtn" class="adminsubmit icon do">{lang_by_realm('layout','export')}</button>

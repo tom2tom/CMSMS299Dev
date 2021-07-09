@@ -20,25 +20,25 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//use CMSMS\MultiEditor;
-//use CMSMS\internal\module_meta;
+//use CMSMS\IMultiEditor;
+//use CMSMS\Mailer; CMSMailer\Mailer; //TODO if no CMSMailer present, revert to mail()
 use CMSContentManager\ContentBase;
 use CMSContentManager\contenttypes\Content;
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\ContentOperations;
 use CMSMS\CoreCapabilities;
-use CMSMS\Crypto;
+use CMSMS\Events;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\HookOperations;
-use CMSMS\Mailer;
 use CMSMS\ModuleOperations;
-use CMSMS\SysDataCache;
 use CMSMS\Url;
 use CMSMS\Utils;
+use function CMSMS\de_specialize_array;
+use function CMSMS\sanitizeVal;
+use function CMSMS\specialize;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -46,15 +46,16 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 $urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
-    redirect('menu.php'.$urlext);
+    redirect('menu.php'.$urlext.'&section=siteadmin'); // TODO bad section-hardcode
 }
 
-$userid = get_userid(); // <- Also checks login
+$userid = get_userid();
 $access = check_permission($userid, 'Modify Site Preferences');
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
 if (!$access) {
     //TODO a push-notification $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
+    // OR throw a 403
     return;
 }
 
@@ -131,13 +132,14 @@ $config = AppSingle::Config();
 $pretty_urls = $config['url_rewriting'] == 'none' ? 0 : 1;
 $devmode = $config['develop_mode'];
 
-$tpw = $_POST['mailprefs_password'] ?? ''; // preserve these verbatim
+//$tpw = $_POST['mailprefs_password'] ?? ''; // preserve these verbatim
 $tmsg = $_POST['sitedownmessage'] ?? '';
-unset($_POST['mailprefs_password'], $_POST['sitedownmessage']); // if any
-cms_specialchars_decode_array($_POST);
+//unset($_POST['mailprefs_password'], $_POST['sitedownmessage']); // if any
+unset($_POST['sitedownmessage']); // if any
+de_specialize_array($_POST);
 
-$seetab = (isset($_POST['active_tab'])) ? sanitizeVal($_POST['active_tab']) : '';
-
+$seetab = (isset($_POST['active_tab'])) ? sanitizeVal($_POST['active_tab'], CMSSAN_NAME) : '';
+/*
 if (isset($_POST['testmail'])) {
     if (!AppParams::get('mail_is_set', 0)) {
         $errors[] = lang('error_mailnotset_notest');
@@ -152,7 +154,7 @@ if (isset($_POST['testmail'])) {
         } elseif ($addr) {
             // we got an email, and we have settings.
             try {
-                $mailer = new Mailer();
+                $mailer = new Mailer(); // TODO
                 $mailer->AddAddress($addr);
                 $mailer->IsHTML(true);
                 $mailer->SetBody(lang('mail_testbody', 'siteprefs'));
@@ -169,7 +171,7 @@ if (isset($_POST['testmail'])) {
         }
     }
 }
-
+*/
 if (isset($_POST['testumask'])) {
     $testdir = TMP_CACHE_LOCATION;
     $testfile = $testdir.DIRECTORY_SEPARATOR.'dummy.tst';
@@ -206,7 +208,7 @@ if (isset($_POST['submit'])) {
     if ($access) {
         switch ($seetab) {
             case 'general':
-                $val = sanitizeVal(trim($_POST['sitename']), 0); // AND nl2br() ? striptags() ?
+                $val = sanitizeVal(trim($_POST['sitename']), CMSSAN_NONPRINT); // AND nl2br() ? striptags() ?
                 AppParams::set('sitename', $val);
                 $val = trim($_POST['site_logo']);
                 if ($val) {
@@ -219,14 +221,14 @@ if (isset($_POST['submit'])) {
                 AppParams::set('frontendlang', $val);
                 // TODO sanitize metadata
                 AppParams::set('metadata', $_POST['metadata']);
-                $val = (!empty($_POST['logintheme'])) ? sanitizeVal($_POST['logintheme'], 3) : ''; // consistent with theme folder-name
+                $val = (!empty($_POST['logintheme'])) ? sanitizeVal($_POST['logintheme'], CMSSAN_FILE) : ''; // consistent with theme folder-name
                 AppParams::set('logintheme', $val);
                 $val = $_POST['defaultdateformat'];
                 if ($val) { $val = preg_replace('~[^a-zA-Z%,.\-:/ ]~', '', trim($val)); } // strftime()-only formats 2.99 breaker?
                 AppParams::set('defaultdateformat', $val);
                 AppParams::set('thumbnail_width', filter_input(INPUT_POST, 'thumbnail_width', FILTER_SANITIZE_NUMBER_INT));
                 AppParams::set('thumbnail_height', filter_input(INPUT_POST, 'thumbnail_height', FILTER_SANITIZE_NUMBER_INT));
-                $val = (!empty($_POST['backendwysiwyg'])) ? sanitizeVal($_POST['backendwysiwyg'], 11, ':') : ''; // allow '::'
+                $val = (!empty($_POST['backendwysiwyg'])) ? sanitizeVal($_POST['backendwysiwyg'], CMSSAN_PUNCTX, ':') : ''; // allow '::'
                 if ($val) {
                     if (strpos($val, '::') !== false) {
                         $parts = explode('::', $val);
@@ -241,12 +243,12 @@ if (isset($_POST['submit'])) {
                     AppParams::set('wysiwyg', '');
                     AppParams::set('wysiwyg_type', '');
                 }
-                $val = sanitizeVal($_POST['wysiwygtheme'], 1); // OR 21 ?
+                $val = sanitizeVal($_POST['wysiwygtheme'], CMSSAN_PUNCT); // OR CMSSAN_PURESPC ?
                 if ($val) {
                     $val = strtolower(strtr($val, ' ', '_')); // CHECKME
                 }
                 AppParams::set('wysiwyg_theme', $val);
-                $val = (!empty($_POST['frontendwysiwyg'])) ? sanitizeVal($_POST['frontendwysiwyg'], 11, ':') : '';
+                $val = (!empty($_POST['frontendwysiwyg'])) ? sanitizeVal($_POST['frontendwysiwyg'], CMSSAN_PUNCTX, ':') : '';
                 if ($val) {
                     if (strpos($val, '::') !== false) {
                         $parts = explode('::', $val);
@@ -261,8 +263,17 @@ if (isset($_POST['submit'])) {
                     AppParams::set('frontendwysiwyg', '');
                     AppParams::set('frontendwysiwyg_type', '');
                 }
-                $val = (!empty($_POST['search_module'])) ? sanitizeVal($_POST['search_module'], 3) : '';
+                $val = (!empty($_POST['search_module'])) ? sanitizeVal($_POST['search_module'], CMSSAN_FILE) : '';
                 AppParams::set('searchmodule', $val);
+
+                if (isset($_POST['login_module'])) {
+                    AppParams::set('loginmodule', sanitizeVal($_POST['login_module'], CMSSAN_FILE));
+                }
+                AppParams::set('loginprocessor', sanitizeVal($_POST['login_processor'])); // , CMSSAN_TODO
+                if (isset($_POST['password_level'])) {
+                    AppParams::set('password_level', (int)$_POST['password_level']);
+                    AppParams::set('username_level', (int)$_POST['username_settings']);
+                }
                 break;
             case 'editcontent':
                 if ($pretty_urls) {
@@ -270,9 +281,9 @@ if (isset($_POST['submit'])) {
                     AppParams::set('content_autocreate_flaturls', filter_input(INPUT_POST, 'content_autocreate_flaturls', FILTER_SANITIZE_NUMBER_INT));
                     AppParams::set('content_mandatory_urls', filter_input(INPUT_POST, 'content_mandatory_urls', FILTER_SANITIZE_NUMBER_INT));
                 }
-                AppParams::set('content_imagefield_path', sanitizeVal($_POST['content_imagefield_path'], 31));
-                AppParams::set('content_thumbnailfield_path', sanitizeVal($_POST['content_thumbnailfield_path'], 31));
-                AppParams::set('contentimage_path', sanitizeVal($_POST['contentimage_path'], 31));
+                AppParams::set('content_imagefield_path', sanitizeVal($_POST['content_imagefield_path'], CMSSAN_PATH));
+                AppParams::set('content_thumbnailfield_path', sanitizeVal($_POST['content_thumbnailfield_path'], CMSSAN_PATH));
+                AppParams::set('contentimage_path', sanitizeVal($_POST['contentimage_path'], CMSSAN_PATH));
                 AppParams::set('content_cssnameisblockname', filter_input(INPUT_POST, 'content_cssnameisblockname', FILTER_SANITIZE_NUMBER_INT));
                 $val = (!empty($_POST['basic_attributes'])) ?
                     implode(',', ($_POST['basic_attributes'])) : '';
@@ -294,7 +305,7 @@ if (isset($_POST['submit'])) {
 
                 $sitedown = !empty($_POST['site_downnow']);
                 if ($tmsg || !$sitedown) {
-                    // TODO sanitizeVal($tmsg, 22) for html incl. tags
+                    // TODO CMSMS\sanitizeVal($tmsg, CMSSAN_NONPRINT) CMS_SAN_TODO etc for html incl. tags
                     $prevsitedown = AppParams::get('site_downnow', 0);
                     if (!$prevsitedown && $sitedown) {
                         audit('', 'Global Settings', 'Sitedown enabled');
@@ -307,6 +318,14 @@ if (isset($_POST['submit'])) {
                     $errors[] = lang('error_sitedownmessage');
                 }
                 break;
+/*            case 'credentials':
+                if (isset($_POST['login_module'])) {
+                    AppParams::set('loginmodule', sanitizeVal($_POST['login_module'], CMSSAN_FILE));
+                }
+                AppParams::set('loginprocessor', sanitizeVal($_POST['login_processor'])); // , CMSSAN_TODO
+                AppParams::set('password_level', (int)$_POST['password_level']);
+                AppParams::set('username_level', (int)$_POST['username_settings']);
+                break;
             case 'mail':
                 // gather mailprefs (except password - excised pre-$_POST-cleanup)
                 $prefix = 'mailprefs_';
@@ -315,7 +334,7 @@ if (isset($_POST['submit'])) {
                         continue;
                     }
                     $key = substr($key, strlen($prefix));
-                    $mailprefs[$key] = sanitizeVal($val, 22);
+                    $mailprefs[$key] = CMSMS\sanitizeVal($val, CMSSAN_TODO); // OR CMSSAN_NONPRINT ? OR CMSSAN_NAME?
                 }
                 // validate
                 if ($mailprefs['from'] == '') {
@@ -346,7 +365,7 @@ if (isset($_POST['submit'])) {
                         if ($tpw == '') {
                             $errors[] = lang('error_passwordrequired');
                         } else {
-                            $val = sanitizeVal($tpw, 0);
+                            $val = CMSMS\sanitizeVal($tpw, CMSSAN_NONPRINT);
                             if ($val == $tpw) {
                                 $mailprefs['password'] = base64_encode(Crypto::encrypt_string(trim($tpw)));
                             } else {
@@ -361,8 +380,8 @@ if (isset($_POST['submit'])) {
                     AppParams::set('mailprefs', serialize($mailprefs));
                 }
                 break;
+*/
             case 'advanced':
-                AppParams::set('loginmodule', sanitizeVal($_POST['login_module'], 3));
                 $val = filter_input(INPUT_POST, 'lock_timeout', FILTER_SANITIZE_NUMBER_INT);
                 if ($val != 0) $val = max(5, min(480, $val));
                 AppParams::set('lock_timeout', $val);
@@ -381,7 +400,7 @@ if (isset($_POST['submit'])) {
                 AppParams::set('smarty_compilecheck', !empty($_POST['smarty_compilecheck']));
 //               AdminUtils::clear_cached_files();
 
-                $val = sanitizeVal($_POST['syntaxtype'], 11, ':'); // allow '::'
+                $val = sanitizeVal($_POST['syntaxtype'], CMSSAN_PUNCTX, ':'); // allow '::'
                 if ($val) {
                     if (strpos($val, '::') !== false) {
                         $parts = explode('::', $val);
@@ -395,7 +414,7 @@ if (isset($_POST['submit'])) {
                     AppParams::set('syntaxhighlighter', '');
                     AppParams::set('syntax_type', '');
                 }
-                $val = sanitizeVal($_POST['syntaxtheme'], 1); // OR 21?
+                $val = sanitizeVal($_POST['syntaxtheme'], CMSSAN_PUNCT); // OR CMSSAN_PURESPC?
                 if ($val) {
                     $val = strtolower(strtr($val, ' ', '_')); // CHECKME
                 }
@@ -416,12 +435,28 @@ if (isset($_POST['submit'])) {
                 AppParams::set('allow_browser_cache', !empty($_POST['allow_browser_cache']));
                 AppParams::set('browser_cache_expiry', filter_input(INPUT_POST, 'browser_cache_expiry', FILTER_SANITIZE_NUMBER_INT));
                 AppParams::set('auto_clear_cache_age', filter_input(INPUT_POST, 'auto_clear_cache_age', FILTER_SANITIZE_NUMBER_INT));
-                //TODO this in relevant module
                 AppParams::set('adminlog_lifetime', filter_input(INPUT_POST, 'adminlog_lifetime', FILTER_SANITIZE_NUMBER_INT));
+                $val = max(1, min(10, (int)$_POST['jobinterval']));
+                AppParams::set('jobinterval', $val * 60); // recorded as seconds
+                $val = max(2, min(120, (int)$_POST['jobtimeout']));
+                AppParams::set('jobtimeout', $val);
+/*
+                $val = CMSMS\de_specialize($_POST['joburl']);
+                if ($val) {
+                    $tmp = (new Url())->sanitize($val);
+                    if ($tmp) {
+                        AppParams::set('joburl', $tmp);
+                    } else {
+                        $themeObject->RecordNotice('error', lang_by_realm('jobs', 'err_url'));
+                    }
+                } else {
+                    AppParams::set('joburl', '');
+                }
+*/
                 break;
         } //switch tab
 
-        SysDataCache::get_instance()->release('site_preferences');
+        AppSingle::SysDataCache()->release('site_preferences');
 
         if (!$errors) {
             // put mention into the admin log
@@ -452,17 +487,25 @@ $checkversion = AppParams::get('checkversion', 1);
 $content_autocreate_flaturls = AppParams::get('content_autocreate_flaturls', 0);
 $content_autocreate_urls = AppParams::get('content_autocreate_urls', 0);
 $content_cssnameisblockname = AppParams::get('content_cssnameisblockname', 1);
-$content_imagefield_path = AppParams::get('content_imagefield_path', '');
+$content_imagefield_path = AppParams::get('content_imagefield_path');
 $content_mandatory_urls = AppParams::get('content_mandatory_urls', 0);
-$content_thumbnailfield_path = AppParams::get('content_thumbnailfield_path', '');
-$contentimage_path = AppParams::get('contentimage_path', '');
-$defaultdateformat = AppParams::get('defaultdateformat', '');
-$disallowed_contenttypes = AppParams::get('disallowed_contenttypes', '');
+$content_thumbnailfield_path = AppParams::get('content_thumbnailfield_path');
+$contentimage_path = AppParams::get('contentimage_path');
+$defaultdateformat = AppParams::get('defaultdateformat');
+$disallowed_contenttypes = AppParams::get('disallowed_contenttypes');
+if (Events::ListEventHandlers('Core', 'CheckUserData')) {
+    // handler(s) exist for validation
+    $password_level = AppParams::get('password_level', 0);
+    $username_level = AppParams::get('username_level', 0);
+} else {
+    $password_level = null;
+    $username_level = null;
+}
 
-$frontendlang = AppParams::get('frontendlang', '');
+$frontendlang = AppParams::get('frontendlang');
 
-$wysiwygmodule = AppParams::get('frontendwysiwyg', '');
-$wysiwygtype = AppParams::get('frontendwysiwyg_type', '');
+$wysiwygmodule = AppParams::get('frontendwysiwyg');
+$wysiwygtype = AppParams::get('frontendwysiwyg_type');
 $frontendwysiwyg = ($wysiwygtype) ? $wysiwygmodule .'::'.$wysiwygtype : $wysiwygmodule;
 
 $global_umask = AppParams::get('global_umask');
@@ -475,22 +518,27 @@ if ($global_umask === '') {
 if ($global_umask[0] !== '0') {
     $global_umask = '0'.$global_umask;
 }
+$jobinterval = (int)AppParams::get('jobinterval') / 60; // show as minutes
+$jobtimeout = (int)AppParams::get('jobtimeout');
+//$joburl = AppParams::get('joburl');
+//if ($joburl) { $joburl = specialize($joburl); }
 $lock_refresh = (int)AppParams::get('lock_refresh', 120);
 $lock_timeout = (int)AppParams::get('lock_timeout', 60);
-$login_module = AppParams::get('loginmodule', '');
-$logintheme = AppParams::get('logintheme', '');
-$mail_is_set = AppParams::get('mail_is_set', 0);
-$metadata = AppParams::get('metadata', '');
+$login_processor = AppParams::get('loginprocessor');
+$login_module = AppParams::get('loginmodule'); //, CMSMS\ModuleOperations::STD_LOGIN_MODULE);
+$logintheme = AppParams::get('logintheme');
+//$mail_is_set = AppParams::get('mail_is_set', 0);
+$metadata = AppParams::get('metadata');
 $search_module = AppParams::get('searchmodule', 'Search');
 if ($devmode) {
-    $help_url = AppParams::get('site_help_url', '');
+    $help_url = AppParams::get('site_help_url');
 }
 $sitedown = AppParams::get('site_downnow', 0);
 $sitedownexcludeadmins = AppParams::get('sitedownexcludeadmins', 0);
-$sitedownexcludes = AppParams::get('sitedownexcludes', '');
+$sitedownexcludes = AppParams::get('sitedownexcludes');
 $sitedownmessage = AppParams::get('sitedownmessage', '<p>The website is currently off line. Check back later.</p>'); // no specialchar(), used in textarea ?
-$sitelogo = AppParams::get('site_logo', '');
-$sitename = AppParams::get('sitename', 'CMSMS Website'); //cms_specialchar() ?
+$sitelogo = AppParams::get('site_logo');
+$sitename = AppParams::get('sitename', 'CMSMS Website');
 $smarty_cachelife = AppParams::get('smarty_cachelife', -1);
 if ($smarty_cachelife < 0) {
     $smarty_cachelife = '';
@@ -501,24 +549,24 @@ $smarty_compilecheck = AppParams::get('smarty_compilecheck', 1);
 $syntaxmodule = AppParams::get('syntaxhighlighter');
 $syntaxtype = AppParams::get('syntax_type');
 $syntaxer = ($syntaxtype) ? $syntaxmodule .'::'.$syntaxtype : $syntaxmodule;
-$syntaxtheme = AppParams::get('syntax_theme', '');
+$syntaxtheme = AppParams::get('syntax_theme');
 $thumbnail_height = AppParams::get('thumbnail_height', 96);
 $thumbnail_width = AppParams::get('thumbnail_width', 96);
 //$xmlmodulerepository = AppParams::get('xmlmodulerepository', '');
-$wysiwygmodule = AppParams::get('wysiwyg', ''); //aka rich-text editor module
-$wysiwygtype = AppParams::get('wysiwyg_type', '');
+$wysiwygmodule = AppParams::get('wysiwyg'); //aka rich-text editor module
+$wysiwygtype = AppParams::get('wysiwyg_type');
 $wysiwyg = ($wysiwygtype) ? $wysiwygmodule .'::'.$wysiwygtype : $wysiwygmodule;
-$wysiwygtheme = AppParams::get('wysiwyg_theme', '');
+$wysiwygtheme = AppParams::get('wysiwyg_theme');
 
-$mailprefs = [
+/*$mailprefs = [
   'mailer'=>'mail',
   'host'=>'localhost', //actual >> (new Url())->santitize()
   'port'=>25,
   'from'=>'root@localhost.localdomain', //actual >> FILTER_SANITIZE_EMAIL ? too strict ?
-  'fromuser'=>'CMS Administrator', //actual >> cms_specialchars() ? sanitizeVal() ?
+  'fromuser'=>'CMS Administrator', //actual >> specialize() ? sanitizeVal() ?
   'sendmail'=>'/usr/sbin/sendmail', //actual >> sanitizeVal() ?
   'smtpauth'=>0,
-  'username'=>'', //actual >> cms_specialchars() ? sanitizeVal() ?
+  'username'=>'', //actual >> specialize() ? sanitizeVal() ?
   'password'=>'', //actual >> sanitizeVal() ?
   'secure'=>'',
   'timeout'=>60,
@@ -534,10 +582,10 @@ foreach ([
   'fromuser',
   'username',
 ] as $param) {
-    $mailprefs[$param] = cms_specialchars($mailprefs[$param]);
+    $mailprefs[$param] = specialize($mailprefs[$param]);
 }
 $mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']));
-
+*/
 $modules = ModuleOperations::get_modules_with_capability(CoreCapabilities::SITE_SETTINGS);
 if ($modules) {
     // load them, if not already done
@@ -593,11 +641,13 @@ if ($messages) {
 }
 
 // no ScripsMerger due to multi-$vars, hence lots of change?
+/*
 $baseurl = CMS_ASSETS_URL.'/js';
 $js = <<<EOS
  <script type="text/javascript" src="{$baseurl}/jquery-inputCloak.min.js"></script>
 EOS;
 add_page_headtext($js);
+*/
 //$nonce = get_csp_token();
 $submit = lang('submit');
 $cancel = lang('cancel');
@@ -609,6 +659,7 @@ $confirm = json_encode(lang('siteprefs_confirm'));
 $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
+/*
 function on_mailer() {
  switch ($('#mailer').val()) {
   case 'mail':
@@ -625,12 +676,15 @@ function on_mailer() {
    break;
  }
 }
+*/
 $(function() {
+/*
  on_mailer();
  $('#password').inputCloak({
   type:'see1',
   symbol:'\u25CF'
  });
+ $('#mailer').on('change', on_mailer);
  $('#mailertest').on('click', function(e) {
   cms_dialog($('#testpopup'),{
    modal: true,
@@ -646,6 +700,7 @@ $(function() {
   cms_dialog($('#testpopup'),'close');
   $(this).closest('form').submit();
  });
+*/
  var b = $('#importbtn');
  if(b.length > 0) {
   b.on('click', function() {
@@ -721,7 +776,6 @@ $(function() {
    });
   }
  });
- $('#mailer').on('change', on_mailer);
  $('[name="submit"]').on('click', function(e) {
   e.preventDefault();
   cms_confirm_btnclick(this, $confirm);
@@ -734,7 +788,7 @@ $(function() {
 EOS;
 add_page_foottext($out);
 
-$modops = ModuleOperations::get_instance();
+$modops = AppSingle::ModuleOperations();
 $smarty = AppSingle::Smarty();
 
 $tmp = [-1 => lang('none')];
@@ -753,9 +807,8 @@ if ($devmode) {
     $smarty->assign('help_url', $help_url);
 }
 
-$tmp = ['' => lang('theme')];
 $modules = $modops->GetCapableModules(CoreCapabilities::LOGIN_MODULE);
-if ($modules) {
+if ($modules && count($modules) > 1) {
     for ($i = 0, $n = count($modules); $i < $n; $i++) {
         if ($modules[$i] == $modops::STD_LOGIN_MODULE) {
             $tmp[$modules[$i]] = lang('default');
@@ -763,25 +816,32 @@ if ($modules) {
             $tmp[$modules[$i]] = $modules[$i];
         }
     }
+    $smarty->assign('login_module', $login_module)
+      ->assign('login_modules', $tmp);
 }
-$smarty->assign('login_module', $login_module)
-  ->assign('login_modules', $tmp);
 
+$tmp = ['' => lang('theme'), 'module' => lang('default')];
+$smarty->assign('login_handler', $login_processor)
+  ->assign('login_handlers', $tmp);
+
+
+/*
 $maileropts = [
-  'mail' => 'mail',
-  'sendmail' => 'sendmail',
-  'smtp' => 'smtp',
+  'mail' => 'PHP',
+  'sendmail' => 'Sendmail',
+  'smtp' => 'SMTP',
 ];
 $secopts = [
   '' => lang('none'),
   'ssl' => 'SSL',
   'tls' => 'TLS',
 ];
+*/
 $smarty->assign([
-  'maileritems' => $maileropts,
-  'secure_opts' => $secopts,
-  'mail_is_set' => $mail_is_set,
-  'mailprefs' => $mailprefs,
+//  'maileritems' => $maileropts,
+//  'secure_opts' => $secopts,
+//  'mail_is_set' => $mail_is_set,
+//  'mailprefs' => $mailprefs,
   'languages' => get_language_list(),
   'tab' => $seetab,
   'pretty_urls' => $pretty_urls,
@@ -804,11 +864,11 @@ if ($tmp) {
   $fronts = [];
   for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
     $ob = Utils::get_module($tmp[$i]);
-    if (method_exists($ob, 'ListEditors')) { //aka ($ob instanceof MultiEditor)
+    if (method_exists($ob, 'ListEditors')) { //OR ($ob instanceof IMultiEditor)
       $all = $ob->ListEditors();
       foreach ($all as $editor=>$val) {
         $one = new stdClass();
-        $one->label = $ob->Lang(strtolower($editor).'_friendlyname');
+        $one->label = $ob->Lang(strtolower($editor).'_publicname');
         $one->value = $val; // as module::editor
         list($modname, $edname) = explode('::', $val);
         list($realm, $key) = $ob->GetMainHelpKey($edname);
@@ -859,11 +919,11 @@ if ($tmp) {
   $editors = [];
   for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
     $ob = Utils::get_module($tmp[$i]);
-    if (method_exists($ob, 'ListEditors')) { //aka ($ob instanceof MultiEditor)
+    if (method_exists($ob, 'ListEditors')) { //OR ($ob instanceof IMultiEditor)
       $all = $ob->ListEditors();
       foreach ($all as $editor=>$val) {
         $one = new stdClass();
-        $one->label = $ob->Lang(strtolower($editor).'_friendlyname');
+        $one->label = $ob->Lang(strtolower($editor).'_publicname');
         $one->value = $val; // as module::editor
         list($modname, $edname) = explode('::', $val);
         list($realm, $key) = $ob->GetMainHelpKey($edname);
@@ -923,30 +983,35 @@ $smarty->assign([
   'content_mandatory_urls' => $content_mandatory_urls,
   'content_thumbnailfield_path' => $content_thumbnailfield_path,
   'contentimage_path' => $contentimage_path,
-  'defaultdateformat' => cms_specialchars($defaultdateformat),
+  'defaultdateformat' => specialize($defaultdateformat),
   'disallowed_contenttypes' => explode(',', $disallowed_contenttypes),
   'frontendlang' => $frontendlang,
   'global_umask' => $global_umask,
   'helpicon' => $themeObject->DisplayImage('icons/system/info.png', 'help','','', 'cms_helpicon'),
+  'jobinterval' => $jobinterval,
+  'jobtimeout' => $jobtimeout,
+//  'joburl' => $joburl,
   'lock_refresh' => $lock_refresh,
   'lock_timeout' => $lock_timeout,
   'login_module' => $login_module,
   'logoselect' => $logoselector,
 //  'metadata' => $metadata, // TODO considersyntax editor for html
+  'passwordlevel' => $password_level,
   'search_module' => $search_module,
   'sitedown' => $sitedown,
   'sitedownexcludeadmins' => $sitedownexcludeadmins,
   'sitedownexcludes' => $sitedownexcludes,
   'sitelogo' => $sitelogo,
-  'sitename' => cms_specialchars($sitename),
+  'sitename' => specialize($sitename),
   'smarty_cachelife' => $smarty_cachelife,
   'smarty_cacheusertags' => $smarty_cacheusertags,
   'smarty_compilecheck' => $smarty_compilecheck,
-  'syntax_theme' => cms_specialchars($syntaxtheme),
+  'syntax_theme' => specialize($syntaxtheme),
   'testresults' => lang('untested'),
   'thumbnail_height' => $thumbnail_height,
   'thumbnail_width' => $thumbnail_width,
-  'wysiwyg_theme' => cms_specialchars($wysiwygtheme),
+  'usernamelevel' => $username_level,
+  'wysiwyg_theme' => specialize($wysiwygtheme),
   ])
   ->assign('textarea_metadata', FormUtils::create_textarea([
     'wantedsyntax' => 'html',
@@ -962,6 +1027,26 @@ $smarty->assign([
     'class' => 'pagesmalltextarea',
     'value' => $sitedownmessage, // verbatim value
   ]));
+
+if ($password_level !== null) {
+    $pass_levels = [
+        0 => lang('unrestricted'),
+        1 => lang('guess_medium'),
+        2 => lang('guess_hard'),
+        3 => lang('guess_vhard'),
+    ];
+    // TODO lang
+    $uname_levels = [
+        0 => lang('unrestricted'),
+        1 => 'Type 1',
+        2 => 'Type 2',
+        3 => 'Type 3',
+    ];
+    $smarty->assign([
+      'pass_levels' => $pass_levels,
+      'uname_levels' => $uname_levels,
+    ]);
+}
 
 $tmp = [];
 $keys = ['yes','no','module_setting'];
@@ -1008,7 +1093,7 @@ if ($list) {
 //$txt = FormUtils::create_option($all_attributes);
 
 $realm = 'CMSContentManager'; //TODO generalize
-$contentops = ContentOperations::get_instance();
+$contentops = AppSingle::ContentOperations();
 $all_contenttypes = $contentops->ListContentTypes(false, false, false, $realm);
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();

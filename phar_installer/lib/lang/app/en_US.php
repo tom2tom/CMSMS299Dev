@@ -23,6 +23,9 @@ $lang['confirm_freshen'] = 'Are you sure you want to freshen/repair the existing
 $lang['confirm_upgrade'] = 'Are you sure you want to begin the upgrade process ?';
 $lang['curl_extension'] = 'PHP cURL extension is available ?';
 $lang['create_assets_structure'] = 'Create a location for file resources';
+$lang['crypter_sodium'] = 'Sodium functionality will normally be used';
+$lang['crypter_ssl'] = 'OpenSSL extension functionality will normally be used';
+$lang['cryption_functions'] = 'Suitable en/decryption capabilities are available ?';
 
 // CLI
 $lang['cli_welcome'] = 'Welcome to the CMSMS installation assistant';
@@ -74,7 +77,9 @@ EOT;
 $lang['email_accountinfo_subject'] = 'CMS Made Simple Installation Successful';
 $lang['emailaccountinfo'] = 'Email the account information';
 */
+$lang['edeprecated_enabled'] = 'E_DEPRECATED is enabled in PHP\'s error_reporting. Although this will not prevent CMSMS from operating, it might result in warnings being displayed in the output screen, particularly from older non-core modules';
 $lang['emailaddr'] = 'Email Address';
+$lang['enotice_enabled'] = 'E_NOTICE is enabled in PHP\'s error_reporting. Although this will not prevent CMSMS from operating, it might result in warnings being displayed in the output screen, particularly from older non-core modules';
 $lang['error_adminacct_emailaddr'] = 'The email address is invalid';
 //$lang['error_adminacct_emailaddrrequired'] = 'You have selected to email the account information, but have not entered a valid email address';
 $lang['error_adminacct_password'] = 'The password is unsuitable. Please try again.'; //TODO supplementary details
@@ -121,8 +126,8 @@ $lang['error_test_name'] = 'A test is missing both a name and a lang key for suc
 $lang['error_tzlist'] = 'A problem occurred retrieving the timezone identifiers list';
 $lang['errorlevel_estrict'] = 'E_STRICT is disabled ?';
 $lang['errorlevel_edeprecated'] = 'E_DEPRECATED is disabled ?';
-$lang['edeprecated_enabled'] = 'E_DEPRECATED is enabled in the PHPs error_reporting.  Although this will not prevent CMSMS from operating, it might result in warnings being displayed in the output screen, particularly from older non-core modules';
-$lang['estrict_enabled'] = 'E_STRICT is enabled in the PHPs error_reporting. Although this will not prevent CMSMS from operating, it might result in warnings being displayed in the HTML output, particularly from older non-core modules';
+$lang['errorlevel_enotice'] = 'E_NOTICE is disabled ?';
+$lang['estrict_enabled'] = 'E_STRICT is enabled in PHP\'s error_reporting. Although this will not prevent CMSMS from operating, it might result in warnings being displayed in the HTML output, particularly from older non-core modules';
 
 // F
 $lang['fail_assets_dir'] = 'An assets directory already exists.  This application might write to this directory to rationalize the location of files.  Please ensure that you have a backup';
@@ -137,6 +142,12 @@ $lang['fail_cache_extension'] = 'No such cache extension was found. If possible,
 on the website';
 $lang['fail_config_writable'] = 'The HTTP process cannot write to the config.php file. Please try to change the permissions on this file to 777 until the installation assistant is complete';
 $lang['fail_curl_extension'] = 'The curl extension was not found. Though not a critical issue, this might cause problems with some non-core modules';
+$lang['fail_cryption_functions'] = 'No such support was found. If possible, enable the operation of either of
+<ul>
+<li>Sodium</li>
+<li>OpenSSL</li>
+</ul>
+on the website';
 $lang['fail_database_support'] = 'No compatible database driver found';
 $lang['fail_file_get_contents'] = 'The file_get_contents function does not exist, or is disabled. CMSMS Cannot continue (even the installer will probably fail)';
 $lang['fail_file_uploads'] = 'File upload capabilities are disabled in this environment. Several functions of CMSMS will not function in this environment';
@@ -199,7 +210,7 @@ $lang['info_adminaccount'] = 'Please provide credentials for the initial adminis
 $lang['info_adminpath'] = "Optional substitute for the website system-folder 'admin'. If so desired, enter a file-system relative path (which will be relative to the website's root folder) e.g. 'adminBLAH' or 'over/there'. Without the surrounding quotes shown in these examples. No leading or trailing path separator. Any internal separator(s) to be '/' or '\\' in accord with the underlying file system.";
 $lang['info_advanced'] = 'Advanced mode enables several more options (database tables prefix, database-server port, key used for page-alias in requests, custom locations) during site installation, and provides extra feedback.';
 $lang['info_assetspath'] = "Optional substitute for the website system-folder 'assets'. If so desired, enter a website-root-path-relative path e.g. 'hiddenassets' or 'not/here' (without surrounding quotes or leading or trailing separator, and internal separator(s) according with the file system.)";
-$lang['info_dbinfo'] = 'CMS Made Simple stores most of its data in a database. A MySQL 5.6+ or compatible database-server is mandatory. The user specified here must have ALL PRIVILEGES on the specified database to allow creating, dropping and modifying tables, indexes and views.';
+$lang['info_dbinfo'] = 'CMS Made Simple stores most of its data in a database. A MySQL 5.5+ or compatible database-server is mandatory (and 5.6.5+ is preferable). The user specified here must have sufficient privileges on the specified database to allow adding, removing and modifying tables, indexes, views and possibly procedures.';
 $lang['info_errorlevel_edeprecated'] = 'E_DEPRECATED is a flag for PHP&quot;s error reporting that indicates that warnings should be displayed about code that is using deprecated techniques.  Although the CMSMS core attempts to ensure that we no longer use deprecated techniques, some modules might not.  This setting should be disabled in the PHP configuration';
 $lang['info_errorlevel_estrict'] = 'E_STRICT is a flag for PHP&#39;s error reporting which indicates that strict coding standards should be respected. Although the CMSMS core attempts to conform to E_STRICT standards, some modules might not. It is recommended that this setting be disabled in the PHP configuration';
 $lang['info_supporturl'] = 'An optional URL (e.g. email or website) to open when a site-help link is activated. If none is specified, the CMSMS website support-page will be used.';
@@ -288,6 +299,7 @@ $lang['output_buffering'] = 'Output buffering is enabled ?';
 // P
 $lang['pass_cache_extension'] = 'Extension %s was found';
 $lang['pass_config_writable'] = 'The HTTP process has write permission to the config.php file';
+$lang['pass_cryption_functions'] = '%s was found';
 $lang['pass_database_support'] = 'At least one compatible database driver found';
 $lang['pass_func_json'] = 'json functionality detected';
 $lang['pass_func_md5'] = 'md5 functionality was detected';
@@ -346,7 +358,6 @@ $lang['session_capabilities'] = 'Testing for proper session capabilities (sessio
 $lang['session_save_path_exists'] = 'Session_save_path exists ?';
 $lang['session_save_path_writable'] = 'Session_save_path is writeable ?';
 $lang['session_use_cookies'] = 'PHP sessions use cookies ?';
-$lang['sodium_functions'] = 'Sodium en/de-cryption is available ?';
 $lang['sometests_failed'] = 'The installer has performed numerous tests of the site\'s current web environment. Although no critical issues were found, it is recommended that the following items be corrected before continuing.';
 $lang['step1_advanced'] = 'Advanced Mode';
 $lang['step1_destdir'] = 'Top-Level Directory';

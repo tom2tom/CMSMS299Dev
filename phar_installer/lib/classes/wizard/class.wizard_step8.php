@@ -3,9 +3,11 @@
 namespace cms_installer\wizard;
 
 use cms_installer\wizard\wizard_step;
-use CMSMS\App;
 use CMSMS\AppConfig;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Crypto;
 use Exception;
 use Throwable;
 use function cms_installer\get_app;
@@ -40,7 +42,7 @@ class wizard_step8 extends wizard_step
             return $t->getMessage();
         }
         AppState::add_state(AppState::STATE_INSTALL);
-        App::get_instance()->_setDb($db);
+        AppSingle::App()->_setDb($db);
         return $db;
     }
 
@@ -85,7 +87,7 @@ class wizard_step8 extends wizard_step
 /*
             // create temporary dummy config file, to enable database connection
             // during CMSMS init
-            $dmycfg = $destdir.DIRECTORY_SEPARATOR.'config.php';
+            $dmycfg = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'config.php'; OR $app->get_config()['config_file'] OR $wiz->get_data('version_info')[''config_file']
 
             $app_config = $app->get_config();
             $admin = ( !empty($app_config['admin_path']) && $app_config['admin_path'] != 'admin' ) ? $app_config['admin_path'] : '';
@@ -140,6 +142,9 @@ EOS
             $fp = str_replace('config.php','bak.config.php', $dmycfg);
             @unlink($fp);
 */
+            // workaround circularity: autoloading N/A until after connection after config saved
+            require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.Crypto.php';
+
             $this->write_config($destconfig, true);
 
             $this->connect_to_cmsms($destdir);
@@ -203,6 +208,8 @@ EOS
         $choices = $this->get_wizard()->get_data('sessionchoices');
         if( !$choices ) throw new Exception(lang('error_internal', 821));
 
+        // workaround circularity: autoloading N/A until after connection after config saved
+        require_once $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.Crypto.php';
         $this->write_config($destconfig, false);
 
         // setup and initialize the CMSMS API's
@@ -247,7 +254,7 @@ EOS
             $arr['site_help_url'] = $choices['supporturl'];
         }
         foreach ($arr as $name=>$val) {
-            cms_siteprefs::set($name, $val);
+            AppParams::set($name, $val);
         }
     }
 
@@ -288,6 +295,22 @@ EOS
         }
         $user = trim($destconfig['db_username']);
         $pass = trim($destconfig['db_password']);
+        $props = [
+            'db_hostname' => $host,
+            'db_username' => $user,
+            'db_password' => $pass,
+            'db_name' => $name,
+        ];
+        if( $port || is_numeric($port) ) {
+            $props['db_port'] = (int)$port;
+        }
+        $enc = json_encode($props, JSON_NUMERIC_CHECK|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+        if( !defined('CMS_ROOT_PATH') ) {
+            define('CMS_ROOT_PATH', $destdir); // for the crypter
+        }
+        $raw = Crypto::encrypt_string($enc, '', 'internal');
+        $creds = base64_encode($raw);
+
         if( empty($destconfig['db_prefix']) ) {
             $pref = 'cms_';
         }
@@ -302,11 +325,12 @@ EOS
         $params = array_filter([
             'admin_path' => "$admin",
             'assets_path' => "$assets",
-            'db_hostname' => "$host",
-            'db_name' => "$name",
-            'db_port' => $port,
-            'db_username' => "$user",
-            'db_password' => "$pass",
+            'db_credentials' => "$creds",
+//            'db_hostname' => "$host", //maybe omit
+//            'db_name' => "$name", //maybe
+//            'db_port' => $port, //maybe
+//            'db_username' => "$user", //maybe
+//            'db_password' => "$pass", //maybe
             'db_prefix' => "$pref",
             'query_var' => "$qvar",
             'usertags_path' => "$tags",

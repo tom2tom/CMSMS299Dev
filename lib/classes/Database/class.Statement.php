@@ -1,7 +1,7 @@
 <?php
 /*
 Class Statement: represents a prepared SQL statement
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -15,7 +15,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Database;
@@ -189,13 +189,17 @@ final class Statement
     /**
      * @deprecated
      *
-     * Go to the next member of an array of query-parameters that are
-     *  being successively executed, and run the query
+     * Go to the next member (if any) of an array of query-parameters
+     * that are being successively executed, and run the query
      */
-    public function movenext()
+    public function moveNext()
     {
-        $this->now_bind = next($this->all_bound);
-        $this->bind($this->now_bind);
+        $this->now_bind = next($this->all_tobind);
+        if ($this->now_bind) {
+            $this->bind($this->now_bind);
+			return true;
+        }
+		return false;
     }
 
     /**
@@ -240,8 +244,8 @@ final class Statement
                     $bindvars = $bindvars[0];
                 } else {
                     //2-D array of vars deprecated since 2.99
-                    $this->all_bound = $bindvars;
-                    $bindvars = $this->now_bind = reset($this->all_bound);
+                    $this->all_tobind = $bindvars;
+                    $bindvars = $this->now_bind = reset($this->all_tobind);
                 }
             }
         } else {

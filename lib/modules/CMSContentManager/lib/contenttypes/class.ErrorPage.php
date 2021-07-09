@@ -19,11 +19,12 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace CMSContentManager\contenttypes;
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\ContentOperations;
+use CMSMS\contenttypes\Content;
+use CMSMS\FormUtils;
 
 /**
  * Implements the ErrorPage content type
@@ -34,19 +35,21 @@ use CMSMS\ContentOperations;
  */
 class ErrorPage extends Content
 {
-	public $doAliasCheck;
-	public $error_types;
+	public $doAliasCheck = false;
+	public $error_types = [];
 
 	public function __construct()
 	{
 		parent::__construct();
 
 		if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
-			$this->error_types = ['404' => $this->mod->Lang('404description'),
-								  '403' => $this->mod->Lang('403description'),
-								  '503' => $this->mod->Lang('503description') ];
+			$this->error_types = [
+				'403' => $this->mod->Lang('403description'),
+				'404' => $this->mod->Lang('404description'),
+				'503' => $this->mod->Lang('503description'),
+			];
 		}
-		$this->doAliasCheck = false;
+//		$this->doAliasCheck = false;
 		$this->doAutoAliasIfEnabled = false;
 		$this->mType = strtolower(get_class($this)); //TODO BAD namespace
 	}
@@ -100,7 +103,7 @@ class ErrorPage extends Content
 
 		switch($propname) {
 		case 'alias':
-//			$dropdownopts = '<option value="">'.$this->mod->Lang('none').'</option>';
+/*//			$dropdownopts = '<option value="">'.$this->mod->Lang('none').'</option>';
 			$dropdownopts = '';
 			foreach ($this->error_types as $code=>$name) {
 				$dropdownopts .= '<option value="error' . $code . '"';
@@ -109,8 +112,25 @@ class ErrorPage extends Content
 				}
 				$dropdownopts .= ">{$name} ({$code})</option>";
 			}
-			return [$this->mod->Lang('error_type').':', '<select name="'.$id.'alias">'.$dropdownopts.'</select>'];
-			break;
+			$outold = '<select name="'.$id.'alias">'.$dropdownopts.'</select>';
+*/
+//			$opts = [$this->mod->Lang('none') => ''];
+			$opts = [];
+			foreach ($this->error_types as $code => $name) {
+				$opts["$name ($code)"] = 'error'.$code;
+			}
+
+			$sel = $this->mAlias;
+			$out = FormUtils::create_select([ // DEBUG
+				'type' => 'drop',
+				'name' => 'alias',
+				'htmlid' => 'alias',
+				'modid' => $id,
+				'multiple' => false,
+				'options' => $opts,
+				'selectedvalue' => $sel,
+			]);
+			return [$this->mod->Lang('error_type').':', $out];
 
 		default:
 			return parent::ShowElement($propname,$adding);
@@ -135,18 +155,15 @@ class ErrorPage extends Content
 		//Do our own alias check
 		if ($this->mAlias == '') {
 			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('error_type'));
-		}
-		else if (in_array($this->mAlias, $this->error_types)) {
+		} elseif (in_array($this->mAlias, $this->error_types)) {
 			$errors[] = $this->mod->Lang('nofieldgiven', $this->mod->Lang('error_type'));
-		}
-		else if ($this->mAlias != $this->mOldAlias) {
-			$contentops = ContentOperations::get_instance();
+		} elseif ($this->mAlias != $this->mOldAlias) {
+			$contentops = AppSingle::ContentOperations();
 			$error = $contentops->CheckAliasError($this->mAlias, $this->mId);
 			if ($error !== false) {
 				if ($error == $this->mod->Lang('aliasalreadyused')) {
 					$errors[] = $this->mod->Lang('errorpagealreadyinuse');
-				}
-				else {
+				} else {
 					$errors[] = $error;
 				}
 			}

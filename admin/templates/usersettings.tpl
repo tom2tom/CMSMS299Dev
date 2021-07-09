@@ -120,7 +120,9 @@
         {cms_help key2='user_homepage' title=$t}
       </p>
       <p class="pageinput">
-        {$homepage}
+        <select id="homepage" name="homepage">
+         {html_options options=$home_opts selected=$homepage}
+        </select>
       </p>
       <p class="pagetext">
         {$t=lang('admincallout')}<label for="admincallout">{$t}:</label>

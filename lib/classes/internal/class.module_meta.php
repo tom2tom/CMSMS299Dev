@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class of methods for managing module metadata
-Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -26,7 +26,6 @@ use CMSMS\AppState;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use CMSMS\ModuleOperations;
-use CMSMS\SystemCache;
 use ReflectionMethod;
 use const CMS_DEPREC;
 use function debug_buffer;
@@ -86,7 +85,7 @@ final class module_meta
 
         if( $this->_data === null ) {
             //TODO consider > 1 key for this group: 'capability', 'methods'
-            $data = SystemCache::get_instance()->get(self::class,'module_meta');
+            $data = AppSingle::SystemCache()->get(self::class,'module_meta');
             if( $data ) {
                 $this->_data = $data;
             }
@@ -100,7 +99,7 @@ final class module_meta
     {
         if( AppState::test_state(AppState::STATE_INSTALL) ) return;
         //TODO consider > 1 key for this group: 'capability', 'methods'
-        SystemCache::get_instance()->set(self::class,$this->_data,'module_meta');
+        AppSingle::SystemCache()->set(self::class,$this->_data,'module_meta');
     }
 
     /**
@@ -110,7 +109,7 @@ final class module_meta
     {
         $this->_data = null;
         //TODO consider > 1 key for this group: 'capability', 'methods'
-        SystemCache::get_instance()->delete(self::class,'module_meta');
+        AppSingle::SystemCache()->delete(self::class,'module_meta');
     }
 
     /**
@@ -149,7 +148,7 @@ final class module_meta
             debug_buffer('start building module capability list');
             if( !isset($this->_data['capability']) ) $this->_data['capability'] = [];
 
-            $modops = ModuleOperations::get_instance();
+            $modops = AppSingle::ModuleOperations();
             $installed_modules = $modops->GetInstalledModules();
             $loaded_modules = $modops->GetLoadedModules();
             $this->_data['capability'][$sig] = [];
@@ -201,7 +200,7 @@ final class module_meta
             debug_buffer('Start building module method cache');
             if( !isset($this->_data['methods']) ) $this->_data['methods'] = [];
 
-            $modops = ModuleOperations::get_instance();
+            $modops = AppSingle::ModuleOperations();
             $installed_modules = $modops->GetInstalledModules();
             $loaded_modules = $modops->GetLoadedModules();
             $this->_data['methods'][$method] = [];

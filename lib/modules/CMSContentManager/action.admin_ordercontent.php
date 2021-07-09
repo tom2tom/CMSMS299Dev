@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\ContentOperations;
+use CMSMS\AppSingle;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage All Content') ) exit;
@@ -93,7 +93,7 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
             $db->Execute($stmt,[$rec['order'],$rec['parent_id'],$rec['id']]);
         }
         $stmt->close();
-        ContentOperations::get_instance()->SetAllHierarchyPositions();
+        AppSingle::ContentOperations()->SetAllHierarchyPositions();
         audit('','Content','Content pages dynamically reordered');
         $this->RedirectToAdminTab('pages');
     }

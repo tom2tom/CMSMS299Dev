@@ -1,7 +1,7 @@
 <?php
 /*
 DesignManager module class: theme_reader, for processing CMSMS1 themes.
-Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -21,20 +21,24 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace DesignManager;
 
-use cms_utils;
-use CmsLayoutStylesheet;
-use CmsLayoutTemplate;
-use CmsLayoutTemplateType;
-use CMSMS\ModuleOperations;
+use CMSMS\AppSingle;
+use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
+use CMSMS\Template;
 use CMSMS\TemplateOperations;
+use CMSMS\TemplateType;
+use CMSMS\Utils;
+use DesignManager\Design;
+use DesignManager\reader_base;
+use DesignManager\xml_reader;
 use Exception;
 use const CMS_ROOT_URL;
+use const CMSSAN_FILE;
 use function cms_join_path;
 use function cmsms;
+use function CMSMS\sanitizeVal;
 use function file_put_contents;
 use function get_userid;
-use function munge_string_to_url;
 use function startswith;
 
 class theme_reader extends reader_base
@@ -239,7 +243,7 @@ class theme_reader extends reader_base
   {
     $this->_scan();
 
-    $mod = cms_utils::get_module('DesignManager');
+    $mod = Utils::get_module('DesignManager');
     $out = $this->_design_info;
     $out['description'] = 'TODO - set theme description';
     $out['generated'] = 0; // not known.
@@ -261,7 +265,7 @@ class theme_reader extends reader_base
         $rec['type_name'] = 'navigation';
       }
       else {
-        $rec['type_originator'] = CmsLayoutTemplateType::CORE;
+        $rec['type_originator'] = TemplateType::CORE;
         $rec['type_name'] = 'page';
       }
       $out[$key] = $rec;
@@ -289,7 +293,7 @@ class theme_reader extends reader_base
   protected function get_destination_dir()
   {
     $name = $this->get_new_name();
-    $dirname = munge_string_to_url($name);
+    $dirname = sanitizeVal($name,CMSSAN_FILE);
     $config = cmsms()->GetConfig();
     $dir = cms_join_path($config['uploads_path'],'themes',$dirname);
     @mkdir($dir,0770,TRUE); // $perms = get_server_permissions()[3];
@@ -391,7 +395,7 @@ class theme_reader extends reader_base
     // part3 .. process stylesheets
     $css_info = $this->get_stylesheet_list();
     foreach( $css_info as $name => &$css_rec ) {
-      $stylesheet = new CmsLayoutStylesheet();
+      $stylesheet = new Stylesheet();
       $stylesheet->set_name($css_rec['name']);
 
       $ob = &$this;
@@ -453,7 +457,7 @@ class theme_reader extends reader_base
     foreach( $tpl_info as $name => &$tpl_rec ) {
       if( $tpl_rec['type_originator'] == 'MenuManager' ) $have_mm_template = TRUE;
 
-      $template = new CmsLayoutTemplate();
+      $template = new Template();
       $template->set_originator($me);
       $template->set_owner(get_userid(FALSE));
       $template->set_name($tpl_rec['name']);
@@ -486,7 +490,7 @@ class theme_reader extends reader_base
 
     // part6 ... Make sure MenuManager is activated.
     if( $have_mm_template ) {
-      ModuleOperations::get_instance()->ActivateModule('MenuManager',1);
+      AppSingle::ModuleOperations()->ActivateModule('MenuManager',1);
     }
   }
 } // class

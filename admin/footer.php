@@ -1,20 +1,24 @@
 <?php
-#Final shared stage of admin-page display
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Final shared stage of admin-page display
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you may redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of that license, or (at your option)
+any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppSingle;
 use CMSMS\Events;
@@ -37,34 +41,26 @@ if ($config['debug']) {
 	echo '</div> <!-- end DebugFooter -->';
 }
 
-if (!isset($USE_OUTPUT_BUFFERING) || $USE_OUTPUT_BUFFERING) {
-	// pull everything out of the buffer...
-	$pagecontent = @ob_get_contents();
-	@ob_end_clean();
-} else {
-	$pagecontent = '';
-}
-
 $aout = HookOperations::do_hook_accumulate('AdminBottomSetup');
 if ($aout) {
 	foreach($aout as $bundle) {
 		foreach($bundle as $list) {
-//			$out = is_array($list) ? implode("\n",$list) : $list;
-//			add_page_foottext($out);
-			add_page_foottext($list);
+			add_page_foottext($list); //record for separate smarty assignment
 		}
 	}
 }
 
-if ($pagecontent) {
-	$pagecontent = $themeObject->postprocess($pagecontent);
-	// now we have the final form to display
-}
-echo $pagecontent;
+// pull everything out of the buffer...
+$pagecontent = @ob_get_clean();
 
 if (!isset($USE_THEME) || $USE_THEME) {
-	if ($pagecontent && strpos($pagecontent,'</body') === false ) echo '</body></html>';
-
+	if ($pagecontent) {
+		$pagecontent = $themeObject->fetch_page($pagecontent);
+	}
+	echo $pagecontent; // mebbe empty!
+	if ($pagecontent && strpos($pagecontent,'</body') === false ) {
+		echo '</body></html>';
+	}
 	if (isset($config['show_performance_info'])) {
 		$db = AppSingle::Db();
 		$endtime = microtime();
@@ -74,6 +70,8 @@ if (!isset($USE_THEME) || $USE_THEME) {
 		$memory_peak = (function_exists('memory_get_peak_usage')?memory_get_peak_usage():0);
 		echo '<div style="clear: both;">'.microtime_diff($starttime,$endtime).' / '.($db->query_count??'')." queries / Net Memory: {$memory_net} / End: {$memory} / Peak: {$memory_peak}</div>\n";
 	}
+} else {
+	echo $pagecontent; // mebbe empty!
 }
 
 Events::SendEvent('Core', 'PostRequest');

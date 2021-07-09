@@ -2,29 +2,31 @@
 /*
 FilePicker - a CMSMS module which provides file-related services for the website
 Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
-Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppSingle;
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\CoreCapabilities;
-use CMSMS\FilePicker as IFilePicker;
 use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
+use CMSMS\IFilePicker;
 use FilePicker\Profile;
 use FilePicker\ProfileDAO;
 use FilePicker\TemporaryInstanceStorage;
@@ -43,7 +45,9 @@ final class FilePicker extends CMSModule implements IFilePicker
         $this->_typehelper = new FileTypeHelper();
         //TODO process these as end-of-session (not end-of-request) cleanups
         $callable = TemporaryProfileStorage::get_cleaner();
+        register_shutdown_function($callable);
         $callable = TemporaryInstanceStorage::get_cleaner();
+        register_shutdown_function($callable);
     }
 
     private function _encodefilename($filename)
@@ -60,7 +64,7 @@ final class FilePicker extends CMSModule implements IFilePicker
     {
         $ret = $this->GetActionTemplateObject();
         if( is_object($ret) ) return $ret;
-        return CmsApp::get_instance()->GetSmarty();
+        return AppSingle::Smarty();
     }
     /*
      * end of private methods
@@ -91,7 +95,7 @@ final class FilePicker extends CMSModule implements IFilePicker
     /**
      * Generate page-header js. For use by relevant module actions.
      * Include after jQuery and core js.
-     * @since 2.3
+     * @since 2.99
      * @return string
      */
     protected function HeaderJsContent() : string
@@ -103,8 +107,7 @@ final class FilePicker extends CMSModule implements IFilePicker
         $choose = $this->Lang('choose');
         $errm = $this->Lang('error_upload_maxTotalSize');
         $choose2 = $this->Lang('select_file');
-        $local = cms_join_path($this->GetModulePath(),'lib','js');
-        $jsurl = cms_get_script('jquery.cmsms_filepicker.js',true,[$local]);
+        $jsurl = cms_get_script('jquery.cmsms_filepicker.js');
         return <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -139,7 +142,7 @@ EOS;
 //        $uid = get_userid(false);
 //        $adding = (bool)( $adding || ($content_obj->Id() < 1) ); // hack for the core. Have to ask why though (JM)
 
-        $profile_name = get_parameter_value($params,'profile');
+        $profile_name = $params['profile'] ?? '';
         $profile = $this->get_profile_or_default($profile_name);
 
         // TODO optionally allow further overriding the profile
@@ -160,7 +163,7 @@ EOS;
 */
     /**
      * Get a list of files in the prescribed folder (or else in the
-     *  top-level accesible folder for the current user)
+     *  top-level accessible folder for the current user)
      * @param string $dirpath Optional filesystem path, absolute or relative
      * @return array, possibly empty
      */
@@ -184,8 +187,8 @@ EOS;
 
     /**
      * Get a profile for the specified folder and/or user.
-     * @param mixed $dir Optional top-directory for the profile. Default null hence top-leve
-     * @param mixed $uid Optional user id Default nutt hence current user
+     * @param mixed $dirpath Optional top-directory for the profile. Default null hence top-level
+     * @param mixed $uid Optional user id Default null hence current user
      * @return Profile
      */
     public function get_default_profile( $dirpath = null, $uid = null )
@@ -203,7 +206,7 @@ EOS;
     }
 
     /**
-     * Generate page content for an input-text element which with ancillaries
+     * Generate page content for an input-text element with ancillaries
      * which support file picking. Associated js is pushed into the page footer.
      * @staticvar boolean $first_time
      * @param string $name the name-attribute of the element
@@ -259,35 +262,32 @@ EOS;
         $s1 = $this->Lang('clear');
 /*
         if ($mime) {
-            $mime = rawurlencode($mime);
+            $mime = rawurlencode($mime); OR CMSMS\urlencode()
         }
         if ($exts) {
-            $extparm = rawurlencode(implode(',', $exts));
+            $extparm = rawurlencode(implode(',', $exts)); OR CMSMS\urlencode()
         } else {
             $extparm = '';
         }
 */
-        // where to go to generate the browse/select page content
-        $url = str_replace('&amp;', '&', $this->get_browser_url()).'&'.CMS_JOB_KEY.'=1';
-
         if( $first_time ) {
             $first_time = false;
-            //DEBUG
-            $js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.js"></script>'.PHP_EOL;
-//            $js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.min.js"></script>'.PHP_EOL;
-            //otherwise mebbe merge the file in with all used for the current-request ?
-            //$combiner = CmsApp::get_instance()->GetScriptsManager(); deprecated since 2.9 use CMSMS\AppSingle:: ...()
-            //$combiner->queue_file($thejsfile, 2);
+            //mebbe merge the file in with all used for the current-request ?
+            //$combiner = CMSMS\AppSingle::App()->GetScriptsManager();
+            //$combiner->queue_matchedfile('jquery.cmsms_filepicker', 2);
+            $jsurl = cms_get_script('jquery.cmsms_filepicker.js');
+            $js = '<script type="text/javascript" src="'.$jsurl.'"></script>'.PHP_EOL;
         }
         else {
             $js = '';
         }
 
+        // where to go to generate the browse/select page content
+        $url = str_replace('&amp;', '&', $this->get_browser_url()).'&'.CMS_JOB_KEY.'=1';
 // parameters now in profile identified by param_inst:
 //  param_mime: '$mime',
 //  param_extensions: '$extparm',
 // CHECKME param_inst: '$inst',
-
         $js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -307,29 +307,31 @@ $(function() {
 EOS;
         add_page_foottext($js);
 
-        $smarty = CmsApp::get_instance()->GetSmarty();
+        $smarty = AppSingle::Smarty();
         $tpl = $smarty->createTemplate($this->GetTemplateResource('contentblock.tpl')); //, null, null, $smarty);
-        $tpl->assign('blockName', $name)
-         ->assign('value', $value)
-         ->assign('required', $required)
-         ->assign('instance', $inst);
+        $tpl->assign([
+         'blockName' => $name,
+         'value' => $value,
+         'required' => $required,
+         'instance' => $inst,
+         ]);
         return $tpl->fetch();
     }
 
     /**
-     * utility function
-     * @param type $filespec
+     * Report whether the specified filename represents an image
+     * @param string $filename
      * @return bool
      */
-    public function is_image( $filespec )
+    public function is_image( $filename )
     {
-        $filespec = trim($filespec);
-        if( $filespec ) return $this->_typehelper->is_image( $filespec );
+        $filename = trim($filename);
+        if( $filename ) return $this->_typehelper->is_image( $filename );
         return false;
     }
 
     /**
-     * Utility function
+     * Report whether the specified filepath accords with the specified profile
      * @param Profile $profile
      * @param string $filepath
      * @return boolean

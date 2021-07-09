@@ -1,7 +1,7 @@
 <?php
 /*
 Shared stage of admin-page-top display (used e.g. after an action is run)
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -32,11 +32,11 @@ use CMSMS\Utils;
 // variables needed here and in-scope for hook-functions
 if (!AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
 	if (!isset($userid)) {
-		$userid = get_userid(); //also checks login status
+		$userid = get_userid();
 	}
 }
 if (!isset($themeObject)) {
-	$themeObject = Utils::get_theme_object();
+	$themeObject = AppSingle::Theme();
 }
 
 if (!isset($smarty)) {
@@ -80,6 +80,10 @@ if (isset($modinst)) {
 require_once __DIR__.DIRECTORY_SEPARATOR.'jsruntime.php';
 add_page_headtext($js, false); // prepend (might be needed anywhere during page construction)
 // TODO prepend any CSP header here, before 1st on-page javascript
+//e.g. add_page_headtext(<<<EOS
+//<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'sha256-{$hash}' 'unsafe-inline' ">
+//EOS
+//, false); // prepend (might be needed anywhere during page construction)
 //$txt = 'TODO';
 //add_page_headtext($txt, false);
 
@@ -91,6 +95,7 @@ textarea-tag(s))
 */
 $list = FormUtils::get_requested_wysiwyg_modules();
 if ($list) {
+	$n = 10;
 	foreach ($list as $module_name => $info) {
 		$obj = Utils::get_module($module_name);
 		if (!is_object($obj)) {
@@ -136,15 +141,30 @@ if ($list) {
 			try {
 				$out = $obj->WYSIWYGGenerateHeader($selector, $cssname); //deprecated API
 				if ($out) { add_page_headtext($out); }
-			} catch (Throwable $e) {}
+			} catch (Throwable $t) {
+				audit('', 'Core', 'richtext editor module '.$module_name.' error: '.$t->getMessage());
+			}
+			$n++;
 		}
 		// do we need a generic textarea ?
 		if ($need_generic) {
+/* TODO		$params = [
+				'htmlclass' => $rec['class'] ?? '',
+				'htmlid' => $rec['id'] ?? '',
+				'workid' => 'edit_work'.$n,
+				'edit' => true,
+				'handle' => 'editor'.$n,
+				'stylesheet' => $rec['stylesheet'] ?? ''
+			];
+*/
 			try {
-				$out = $obj->WYSIWYGGenerateHeader(); //deprecated API
+				$out = $obj->WYSIWYGGenerateHeader(/*$params*/); //deprecated API
 				if ($out) { add_page_headtext($out); }
-			} catch (Throwable $e) {}
+			} catch (Throwable $t) {
+				audit('', 'Core', 'richtext editor module '.$module_name.' error: '.$t->getMessage());
+			}
 		}
+		$n++;
 	}
 }
 
@@ -154,13 +174,30 @@ See comment above about when this must be performed
 */
 $list = FormUtils::get_requested_syntax_modules();
 if ($list) {
-	foreach ($list as $one) {
-		$obj = Utils::get_module($one);
+	$n = 100;
+	foreach ($list as $module_name => $info) {
+		$obj = Utils::get_module($module_name);
 		if (is_object($obj)) {
+			$rec = reset($info);
+			$params = [
+				'htmlclass' => $rec['class'] ?? '',
+				'htmlid' => $rec['id'] ?? '',
+				'workid' => 'edit_work'.$n,
+				'edit' => true,
+				'handle' => 'editor'.$n,
+				'typer' => $rec['wantedsyntax'] ?? '',
+//				'theme' => '',
+			];
 			try {
-				$out = $obj->SyntaxGenerateHeader(); //deprecated API
+				$out = $obj->SyntaxGenerateHeader($params); //deprecated API
+				// module may do direct-header/footer injection, in which case nothing returned here
 				if ($out) { add_page_headtext($out); }
-			} catch (Throwable $t) {}
+				$n++;
+			} catch (Throwable $t) {
+				audit('', 'Core', 'syntax hilight module '.$module_name.' error: '.$t->getMessage());
+			}
+		} else {
+			audit('', 'Core', 'syntax hilight module '.$module_name.' requested, but could not be instantiated');
 		}
 	}
 }

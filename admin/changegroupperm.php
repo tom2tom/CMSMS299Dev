@@ -1,25 +1,30 @@
 <?php
-#Change permission(s) of a users-group
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Change permission(s) of a users-group
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 //use CMSMS\SysDataCache;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Error403Exception;
 use CMSMS\HookOperations;
 use CMSMS\LangOperations;
 use CMSMS\UserParams;
@@ -33,16 +38,14 @@ check_login();
 
 $urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
-    redirect('menu.php'.$urlext); //'listgroups.php'.$urlext); //TODO go to relevant menu section
+    redirect('menu.php'.$urlext.'&section=usersgroups'); //OR 'listgroups.php'.$urlext); ?
 }
 
 $userid = get_userid();
 
-$themeObject = Utils::get_theme_object();
-
 if (!check_permission($userid, 'Manage Groups')) {
 //TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-    return;
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
 $superusr = $userid == 1;
@@ -53,9 +56,9 @@ if ($superusr) {
     $supergrp = $userops->UserInGroup($userid, 1);
 }
 
-cleanArray($_POST);
+//CMSMS\de_specialize_array($_POST); individually sanitized where needed
 if (isset($_POST['filter'])) {
-    $disp_group = filter_input(INPUT_POST, 'groupsel', FILTER_SANITIZE_NUMBER_INT);
+    $disp_group = filter_input(INPUT_POST, 'groupsel', FILTER_SANITIZE_NUMBER_INT); // OR just (int)
     UserParams::set_for_user($userid, 'changegroupassign_group', $disp_group);
 }
 $disp_group = UserParams::get_for_user($userid, 'changegroupassign_group', -1);
@@ -64,7 +67,7 @@ $db = AppSingle::Db();
 
 $ultras = json_decode(AppParams::get('ultraroles'));
 if ($ultras) {
-    $query = 'SELECT permission_id FROM '.CMS_DB_PREFIX.'permissions WHERE permission_name IN ("'.implode('","', $ultras).'")';
+    $query = 'SELECT permission_id FROM '.CMS_DB_PREFIX.'permissions WHERE permission_name IN (\''.implode("','", $ultras).'\')';
     $specials = $db->GetCol($query); //data for perm's not automatically in group 1
 } else {
     $specials = [];
@@ -85,9 +88,10 @@ VALUES (?,?,NOW())');
                 $i1 = (int)$keyparts[1];
                 $i2 = (int)$keyparts[2]; //group id
                 if ($i2 != 1 || in_array($i1, $specials)) { // not group 1 || is ultrarole
-                    if ($value == '0') {
+                    $value = (int)$value; //sanitize
+                    if ($value === 0) {
                         $db->Execute($stmt1,[$i2,$i1]); //may fail if already absent
-                    } elseif ($value == '1') {
+                    } elseif ($value === 1) {
                         $rst = $db->Execute($stmt2,[$i2,$i1]);
                         if (!$rst || $rst->EOF) {
                             $db->Execute($stmt3,[$i2,$i1]);
@@ -106,11 +110,11 @@ VALUES (?,?,NOW())');
     audit($userid, 'Permission Group ID: '.$userid, 'Changed');
     $message = lang('permissionschanged');
 //    AdminUtils::clear_cached_files();
-//    SysDataCache::get_instance()->release('IF ANY');
+//    AppSingle::SysDataCache()->release('IF ANY');
 }
 
 if (!empty($message)) {
-    $themeObject->RecordNotice('success', $message);
+    AppSingle::Theme()->RecordNotice('success', $message);
 }
 
 // setup to get default values for localized permission-strings from admin realm
@@ -155,29 +159,32 @@ ORDER BY p.permission_text
 EOS;
 
 $rst = $db->Execute($query);
-while ($rst && ($row = $rst->FetchRow())) {
-    if (isset($perm_struct[$row['permission_id']])) {
-        $str = &$perm_struct[$row['permission_id']];
-        $str->group[$row['group_id']] = 1;
-    } else {
-        $thisPerm = new stdClass();
-        $thisPerm->group = [];
-        if (!empty($row['group_id'])) {
-            $thisPerm->group[$row['group_id']] = 1;
+if ($rst) {
+    while (($row = $rst->FetchRow())) {
+        if (isset($perm_struct[$row['permission_id']])) {
+            $str = &$perm_struct[$row['permission_id']];
+            $str->group[$row['group_id']] = 1;
+        } else {
+            $thisPerm = new stdClass();
+            $thisPerm->group = [];
+            if (!empty($row['group_id'])) {
+                $thisPerm->group[$row['group_id']] = 1;
+            }
+            $thisPerm->id = $row['permission_id'];
+            $thisPerm->name = $thisPerm->label = $row['permission_text'];
+            $thisPerm->source = $row['permission_source'];
+            $thisPerm->label = HookOperations::do_hook_first_result('localizeperm', $thisPerm->source, $thisPerm->name);
+            $thisPerm->description = HookOperations::do_hook_first_result('getperminfo', $thisPerm->source, $thisPerm->name);
+            $perm_struct[$row['permission_id']] = $thisPerm;
         }
-        $thisPerm->id = $row['permission_id'];
-        $thisPerm->name = $thisPerm->label = $row['permission_text'];
-        $thisPerm->source = $row['permission_source'];
-        $thisPerm->label = HookOperations::do_hook_first_result('localizeperm', $thisPerm->source, $thisPerm->name);
-        $thisPerm->description = HookOperations::do_hook_first_result('getperminfo', $thisPerm->source, $thisPerm->name);
-        $perm_struct[$row['permission_id']] = $thisPerm;
     }
-}
+    $rst->Close();
 
-// sort by description TODO UTF8 sort
-usort($perm_struct, function ($a, $b) {
-    return strcasecmp($a->name, $b->name);
-});
+    // sort by description TODO UTF8 sort
+    usort($perm_struct, function ($a, $b) {
+        return strcasecmp($a->name, $b->name);
+    });
+}
 
 $out = [];
 foreach ($perm_struct as $one) {
@@ -230,6 +237,7 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('changegroupperm.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";

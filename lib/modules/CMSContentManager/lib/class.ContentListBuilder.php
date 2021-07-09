@@ -19,7 +19,6 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace CMSContentManager;
 
 use CMSContentManager; // the module-class
@@ -28,12 +27,9 @@ use CMSContentManager\ContentListFilter;
 use CMSContentManager\ContentListQuery;
 use CMSContentManager\Utils;
 use CMSMS\AppSingle;
-use CMSMS\ContentOperations;
 use CMSMS\LockOperations;
-use CMSMS\SysDataCache;
 use CMSMS\TemplateOperations;
 use CMSMS\Tree;
-use CMSMS\UserOperations;
 use CMSMS\UserParams;
 use Throwable;
 use function audit;
@@ -289,7 +285,7 @@ final class ContentListBuilder
 
 		if( !$this->_module->CheckPermission('Manage All Content') ) return;
 
-		$contentops = ContentOperations::get_instance();
+		$contentops = AppSingle::ContentOperations();
 		$content1 = $contentops->LoadContentFromId($page_id);
 		if( !$content1 ) return FALSE;
 		if( !$content1->IsDefaultPossible() ) return FALSE;
@@ -317,7 +313,7 @@ final class ContentListBuilder
 		if( $page_id < 1 ) return FALSE;
 		$direction = (int)$direction;
 		if( $direction == 0 ) return FALSE;
-		$contentops = ContentOperations::get_instance();
+		$contentops = AppSingle::ContentOperations();
 
 		$test = FALSE;
 		if( $this->_module->CheckPermission('Manage All Content') ) {
@@ -377,8 +373,7 @@ final class ContentListBuilder
 		if( $childcount == 1 && $parent_id > -1 ) $this->collapse_section($parent_id);
 		$this->collapse_section($page_id);
 
-		$contentops = ContentOperations::get_instance();
-		$contentops->SetAllHierarchyPositions();
+		AppSingle::ContentOperations()->SetAllHierarchyPositions();
 	}
 
 	public function pretty_urls_configured()
@@ -528,8 +523,7 @@ final class ContentListBuilder
 				if in opened array or has no parent add item
 				if all parents are opened add item
 */
-			$contentops = ContentOperations::get_instance();
-			$tmplist = $contentops->GetPageAccessForUser($this->_userid);
+			$tmplist = AppSingle::ContentOperations()->GetPageAccessForUser($this->_userid);
 			$display = [];
 			foreach( $tmplist as $item ) {
 				// get all the parents
@@ -580,7 +574,7 @@ final class ContentListBuilder
 		$offset = min(count($this->_pagelist),$this->_offset);
 		$display = array_slice($display,$offset,$this->_pagelimit);
 
-		ContentOperations::get_instance()->LoadChildren(-1,FALSE,TRUE,$display);
+		AppSingle::ContentOperations()->LoadChildren(-1,FALSE,TRUE,$display);
 		return $display;
 	}
 
@@ -591,8 +585,7 @@ final class ContentListBuilder
 	{
 		if( $content_id < 1 ) return FALSE;
 		if( $userid <= 0 ) $userid = $this->_userid;
-		$contentops = ContentOperations::get_instance();
-		return $contentops->CheckPeerAuthorship($userid,$content_id);
+		return AppSingle::ContentOperations()->CheckPeerAuthorship($userid,$content_id);
 	}
 
 	/**
@@ -601,7 +594,7 @@ final class ContentListBuilder
 	private function _check_authorship($content_id,$userid = 0)
 	{
 		if( $userid <= 0 ) $userid = $this->_userid;
-		return ContentOperations::get_instance()->CheckPageAuthorship($userid,$content_id);
+		return AppSingle::ContentOperations()->CheckPageAuthorship($userid,$content_id);
 	}
 
 	/**
@@ -648,7 +641,7 @@ final class ContentListBuilder
 	{
 		$locks = $this->get_locks();
 		if( !$locks ) return FALSE;
-		$dflt_content_id = ContentOperations::get_instance()->GetDefaultContent();
+		$dflt_content_id = AppSingle::ContentOperations()->GetDefaultContent();
 		return isset($locks[$dflt_content_id]);
 	}
 
@@ -668,10 +661,10 @@ final class ContentListBuilder
 	 */
 	private function _get_users()
 	{
-        // static properties here >> StaticProperties class ?
+		// static properties here >> StaticProperties class ?
 		static $_users = null;
 		if( !$_users ) {
-			$tmp = UserOperations::get_instance()->LoadUsers();
+			$tmp = AppSingle::UserOperations()->LoadUsers();
 			if( is_array($tmp) && ($n = count($tmp)) ) {
 				$_users = [];
 				for( $i = 0; $i < $n; $i++ ) {
@@ -695,7 +688,7 @@ final class ContentListBuilder
 		$mod = $this->_module;
 		$users = $this->_get_users();
 		$columns = $this->get_display_columns();
-		$cache = SysDataCache::get_instance()->get('content_quicklist');
+		$cache = AppSingle::SysDataCache()->get('content_quicklist');
 
 		$out = [];
 		foreach( $page_list as $page_id ) {
@@ -703,7 +696,7 @@ final class ContentListBuilder
 			if( !$node ) {
 				continue;
 			}
-			$content = $node->getContent(FALSE,TRUE,TRUE); // not a ContentEditor object
+			$content = $node->getContent(FALSE,TRUE,TRUE); // not a IContentEditor-compatible object
 			if( !$content ) {
 				continue;
 			}
@@ -900,7 +893,7 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Return display-data for viewable/editable content
+	 * Return display-data for viewable/editable content | null
 	 */
 	public function get_content_list()
 	{

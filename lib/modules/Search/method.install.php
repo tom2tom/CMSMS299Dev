@@ -1,19 +1,23 @@
 <?php
-# Search module installation proceedure
-# Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Search module installation proceedure
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppState;
 use CMSMS\Database\DataDictionary;
@@ -25,14 +29,14 @@ if (!isset($gCms)) exit;
 
 $newsite = AppState::test_state(AppState::STATE_INSTALL);
 if ($newsite) {
-    $uid = 1; // templates owned by initial admin
+    $userid = 1; // templates owned by initial admin
 } else {
-    $uid = get_userid(false);
+    $userid = get_userid(false);
 }
 
 $dict = new DataDictionary($db);
-//$taboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];  InnoDB engine
-$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
+//$taboptarray = ['mysqli' => 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci']; //InnoDB engine (supports transactions)
+$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 
 $flds = '
 id I KEY,
@@ -57,26 +61,28 @@ $sqlarray = $dict->CreateIndexSQL('items_search_attr',
 $dict->ExecuteSQLArray($sqlarray);
 
 $flds = '
-item_id I,
-word C(255),
-count I(4)
+item_id I NOTNULL,
+word C(128) NOTNULL CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+count I(4) NOTNULL DEFAULT 0
 ';
-$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_index', $flds, $taboptarray);
+$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_index', $flds,
+['mysqli' => 'CHARACTER SET ascii COLLATE ascii_bin']);
 $dict->ExecuteSQLArray($sqlarray);
 
 $sqlarray = $dict->CreateIndexSQL('index_search_item',
-            CMS_DB_PREFIX.'module_search_index', 'item_id'); //non-unique field used in join
+            CMS_DB_PREFIX.'module_search_index', 'item_id', ['KEY_BLOCK_SIZE'=>1]); //non-unique field used in sub-query/join
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('index_search_word',
-            CMS_DB_PREFIX.'module_search_index', 'word');
+            CMS_DB_PREFIX.'module_search_index', 'word', ['KEY_BLOCK_SIZE'=>2]);
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('index_search_count',
-            CMS_DB_PREFIX.'module_search_index', 'count');
+            CMS_DB_PREFIX.'module_search_index', 'count', ['KEY_BLOCK_SIZE'=>1]);
 $dict->ExecuteSQLArray($sqlarray);
 
+//$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 $flds = '
-word C(255) KEY,
-count I(4)
+word C(128) NOTNULL KEY,
+count I(4) NOTNULL DEFAULT 0
 ';
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_words', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
@@ -96,7 +102,7 @@ try {
     $tpl = new Template();
     $tpl->set_originator($me);
     $tpl->set_name('Search Form Sample');
-    $tpl->set_owner($uid);
+    $tpl->set_owner($userid);
     $tpl->set_content($this->GetSearchHtmlTemplate());
     $tpl->set_type($form_type);
     $tpl->set_type_dflt(TRUE);
@@ -111,7 +117,7 @@ try {
                 $tpl = new Template();
                 $tpl->set_originator($me);
                 $tpl->set_name('Simplex Search');
-                $tpl->set_owner($uid);
+                $tpl->set_owner($userid);
                 $tpl->set_content($template);
                 $tpl->set_type($form_type);
                 $tpl->save();
@@ -146,7 +152,7 @@ try {
     $tpl = new Template();
     $tpl->set_originator($me);
     $tpl->set_name('Search Results Sample');
-    $tpl->set_owner($uid);
+    $tpl->set_owner($userid);
     $tpl->set_content($this->GetResultsHtmlTemplate());
     $tpl->set_type($results_type);
     $tpl->set_type_dflt(TRUE);

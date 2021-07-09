@@ -20,10 +20,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
+
 function smarty_function_theme_root($params, $template)
 {
-	$themeObject = CMSMS\Utils::get_theme_object();
-	$url = $themeObject->root_url;
+	$url = AppSingle::Theme()->root_url;
 
 	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']), $url);

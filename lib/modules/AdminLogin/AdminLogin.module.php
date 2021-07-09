@@ -1,11 +1,11 @@
 <?php
 /*
-CMSMS module: AdminLogin - supports module-managed and theme-managed login/out
+CMSMS light-module: AdminLogin - supports module-managed and theme-managed login/out
 Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-CMS Made Simple is free software; you can redistribute it and/or modify it
+CMS Made Simple is free software; you may redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
 Free Software Foundation; either version 2 of that license, or (at your option)
 any later version.
@@ -21,30 +21,40 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
-//use CMSMS\Crypto;
 use CMSMS\IAuthModule;
+use CMSMS\IResource;
+use CMSMS\ResourceMethods;
 
 /**
- * Module: admin login/out processor
+ * Module: admin-console login/out processor
  * @since 2.99
  * @package CMS
  * @license GPL
  */
-class AdminLogin extends CMSModule implements IAuthModule
+class AdminLogin implements IResource, IAuthModule
 {
-//    public function GetAdminDescription() { return $this->Lang('publictip'); }
-//    public function GetAdminSection() { return 'extensions'; }
-    public function GetAuthor() { return ''; }
-    public function GetAuthorEmail() { return ''; }
+    private $methods;
+
+    public function __call($name, $args)
+    {
+        if (!isset($this->methods)) {
+            $this->methods = new ResourceMethods($this, __DIR__);
+        }
+        if (method_exists($this->methods, $name)) {
+            return call_user_func([$this->methods, $name], ...$args);
+        }
+        throw new RuntimeException('AdminLogin resource-module invalid method: '.$name);
+    }
+
+    public function GetAdminDescription() { return ''; } // no admin display
+    public function GetAdminSection() { return ''; }
     public function GetChangeLog() { return ''.@file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('publicname'); }
     public function GetHelp() { return ''.@file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'modhelp.htm'); }
-    public function GetName() { return 'AdminLogin'; }
     public function GetVersion() { return '0.2'; }
-    public function IsAdminOnly() { return true; }
+    public function HasAdmin() { return false; }
     public function MinimumCMSVersion() { return '2.99.0'; }
-//    public function HasAdmin() { return false; }
-//    public function VisibleToAdminUser() { return false; }
+    public function VisibleToAdminUser() { return false; }
 
     public function HasCapability($capability, $params = [])
     {

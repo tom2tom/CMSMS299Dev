@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
  <head>
-  <title>{'logintitle'|lang} - {sitename}</title>
+  <title>{['loginto',{sitename}]|lang}</title>
   <meta charset="{$encoding}" />
   <meta name="generator" content="CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
@@ -19,7 +19,7 @@
     <div class="login-box cf"{if !empty($error)} id="error"{/if}>
      <div class="logo">
       <a rel="external" href="http://www.cmsmadesimple.org">
-      <img src="themes/OneEleven/images/layout/cmsms_login_logo.png" width="180" height="36" alt="CMS Made Simple" />
+      <img src="themes/OneEleven/images/layout/cmsms_login_logo.png" width="180" alt="CMS Made Simple" />
       </a>
      </div>
      <div class="info-wrapper open">
@@ -30,10 +30,10 @@
        <p><strong>({$smarty.server.HTTP_HOST})</strong></p>
       <p class="warning">{'warn_admin_ipandcookies'|lang}</p>
      </aside>
-     <a href="#" title="{'open'|lang}/{'close'|lang}" class="toggle-info">{'open'|lang}/{'close'|lang}</a>
+     <a href="javascript:void()" title="{'open'|lang}/{'close'|lang}" class="toggle-info">{'open'|lang}/{'close'|lang}</a>
      </div>
      <header>
-      <h1>{'logintitle'|lang}</h1>
+      <h1>{['login_sitetitle',{sitename}]|lang}</h1>
      </header>
      {if isset($form)}{$form}{else}{include file='form.tpl'}{block name=form}{/block}{/if}
      {if !empty($smarty.get.forgotpw)}
@@ -60,7 +60,7 @@
       <div class="warning message">
        {'passwordchange'|lang}
       </div>
-     {/if} <a href="{root_url}" title="{'goto'|lang} {sitename}"> <img class="goback" width="16" height="16" src="themes/OneEleven/images/layout/goback.png" alt="{'goto'|lang} {sitename}" /> </a>
+     {/if} <a href="{root_url}" title="{['goto',{sitename}]|lang}"><img class="goback" width="16" height="16" src="themes/OneEleven/images/layout/goback.png" alt="{['goto',{sitename}]|lang}" /></a>
      <p class="forgotpw">
       <a href="login.php?forgotpw=1" title="{'recover_start'|lang}">{'lostpw'|lang}</a>
      </p>

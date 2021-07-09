@@ -7,22 +7,25 @@ namespace Composer\Autoload;
 class ComposerStaticInit761e0cd0b509946f5f906763270c2fa4
 {
     public static $prefixLengthsPsr4 = array (
-        's' => 
+        'p' =>
+        array (
+            'passchk\\' => 8,
+        ),
+        'S' =>
         array (
             'StupidPass\\' => 11,
-            'splitbrain\\PHPArchive\\' => 22,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'StupidPass\\' => 
+        'passchk\\' =>
         array (
-            0 => __DIR__ . '/..' . '/northox/stupid-password/src',
+            0 => __DIR__ . '/../rumkin/passchk', // crappy workaround for data init
         ),
-        'splitbrain\\PHPArchive\\' =>
+        'StupidPass\\' =>
         array (
-            0 => __DIR__ . '/..' . '/splitbrain/php-archive/src',
-        ),
+            0 => __DIR__ . '/../northox/stupid-password',
+        )
     );
 
     public static function getInitializer(ClassLoader $loader)

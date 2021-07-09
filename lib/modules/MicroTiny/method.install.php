@@ -20,11 +20,16 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
+use CMSMS\UserParams;
+use MicroTiny\Profile;
+
 //best to avoid module-specific class autoloading during installation
 $fp = cms_join_path(__DIR__,'lib','class.Profile.php');
 require_once $fp;
 
-$obj = new MicroTiny\Profile([
+$obj = new Profile([
 	'name'=>MicroTiny::PROFILE_FRONTEND,
 	'label'=>$this->Lang('profile_frontend'),
 	'menubar'=>false,
@@ -34,7 +39,7 @@ $obj = new MicroTiny\Profile([
 	'system'=>true]);
 $obj->save();
 
-$obj = new MicroTiny\Profile([
+$obj = new Profile([
 	'name'=>MicroTiny::PROFILE_ADMIN,
 	'label'=>$this->Lang('profile_admin'),
 	'menubar'=>true,
@@ -45,19 +50,19 @@ $obj = new MicroTiny\Profile([
 $obj->save();
 
 $me = $this->GetName();
-$val = cms_siteprefs::get('wysiwyg');
+$val = AppParams::get('wysiwyg');
 if (!$val) {
-	cms_siteprefs::set('wysiwyg', $me);
+	AppParams::set('wysiwyg', $me);
 }
-$val = cms_siteprefs::get('frontendwysiwyg');
+$val = AppParams::get('frontendwysiwyg');
 if (!$val) {
-	cms_siteprefs::set('frontendwysiwyg', $me);
+	AppParams::set('frontendwysiwyg', $me);
 }
 
-$users = UserOperations::get_instance()->GetList();
+$users = AppSingle::UserOperations()->GetList();
 foreach ($users as $uid => $uname) {
-	$val = cms_userprefs::get_for_user($uid, 'wysiwyg');
+	$val = UserParams::get_for_user($uid, 'wysiwyg');
 	if (!$val) {
-		cms_userprefs::set_for_user($uid, 'wysiwyg', $me);
+		UserParams::set_for_user($uid, 'wysiwyg', $me);
 	}
 }

@@ -20,22 +20,26 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
+use CMSMS\UserParams;
+
 $this->RemovePermission('MicroTiny View HTML Source');
 
 $me = $this->GetName();
-$val = cms_siteprefs::get('wysiwyg');
+$val = AppParams::get('wysiwyg');
 if ($val == $me) {
-	cms_siteprefs::set('wysiwyg', '');
+	AppParams::set('wysiwyg', '');
 }
-$val = cms_siteprefs::get('frontendwysiwyg');
+$val = AppParams::get('frontendwysiwyg');
 if ($val == $me) {
-	cms_siteprefs::set('frontendwysiwyg', '');
+	AppParams::set('frontendwysiwyg', '');
 }
 
-$users = UserOperations::get_instance()->GetList();
+$users = AppSingle::UserOperations()->GetList();
 foreach ($users as $uid => $uname) {
-	$val = cms_userprefs::get_for_user($uid, 'wysiwyg');
+	$val = UserParams::get_for_user($uid, 'wysiwyg');
 	if ($val == $me) {
-		cms_userprefs::set_for_user($uid, 'wysiwyg', '');
+		UserParams::set_for_user($uid, 'wysiwyg', '');
 	}
 }

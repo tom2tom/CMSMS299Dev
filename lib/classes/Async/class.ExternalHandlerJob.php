@@ -1,7 +1,7 @@
 <?php
 /*
 Class: ExternalHandlerJob for jobs having an 'external' handler (plugins etc)
-Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Async;
 
-use CMSMS\UserTagOperations;
+use CMSMS\AppSingle;
 use CMSMS\Utils;
 use RuntimeException;
 use function cms_to_bool;
@@ -119,7 +119,7 @@ class ExternalHandlerJob extends Job
     public function execute()
     {
         if ($this->is_udt) {
-            UserTagOperations::get_instance()->CallUserTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO plugin parameters missing
+            AppSingle::UserTagOperations()->CallUserTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO plugin parameters missing
 //TODO also support regular plugins
         } elseif ($this->module && preg_match('/^action\.(.+)\.php$/', $this->function, $matches)) {
             $mod_obj = Utils::get_module($this->module);

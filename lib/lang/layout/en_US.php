@@ -36,7 +36,7 @@ $lang = [
 //'error_assets_writeperm' => 'The file to be exported cannot be modified. Permission problem.', //for tpl/css db->file
 //'error_bulkexport_noneprocessed' => 'Sorry, all of these templates were already exported.', //for multi tpl/css file->db
 //'error_bulkimport_noneprocessed' => 'Sorry, none of those templates had files to import.', //for multi tpl/css db->file
-'error_contentlocked' => 'Sorry, This content is already locked by another user.  Please refresh the page.', //TODO relevance
+'error_contentlocked' => 'Sorry, this content is locked by another user. Please refresh the page.', //TODO relevance
 'error_filenotfound' => 'Could not find a file we were expecting: %s',
 'error_fileopen' => 'Could not open %s for reading. Permissions problem?', //relevance?
 'error_lock' => 'Lock Error',
@@ -107,8 +107,8 @@ EOS
 'info_copy_css' => '<strong>Note:</strong><br />Copying a stylesheet will copy its contents, description, media query and media types. The new stylesheet will not be assigned to any group.',
 'info_css_groupdragdrop' => 'To add stylesheets to the group, drag them from the \'Non Members\' box and drop them into the \'Members\' box. To remove stylesheets, drag-and-drop in the reverse direction. Re-order stylesheets by drag-and-drop within a box. Remember that the order of group members is the order those stylesheets will be applied to pages.',
 'info_css_groups' => 'Stylesheet group(s) may be applied to content pages along with, or instead of, individual stylesheet(s). For such applied groups, the order of their members determines the order in which the stylesheets are applied. Each stylesheet may be assigned to zero or more groups.',
-'info_editcss_mediaquery_tab' => '<strong>Note:</strong> if both media-query and media-type are specified, the media-query will be used when rendering the page',
-'info_editcss_mediatype_tab' => '<strong>Warning:</strong> This functionality is deprecated and will be removed.  If both the media type and media query are specified, then the media query will take precedence when rendering stylesheets',
+'info_editcss_mediaquery_tab' => '<strong>Note:</strong> if both media-query and media-type are specified, the media-query will be used for rendering pages.',
+'info_editcss_mediatype_tab' => '<strong>Warning:</strong> This functionality is deprecated and will be removed.  If both the media query and media type are specified, then the media query will take precedence when rendering pages.',
 'info_no_groups' => 'No group is recorded',
 'info_no_stylesheets' => 'No stylesheet is recorded',
 'info_no_templates' => 'No template is recorded',
@@ -139,7 +139,7 @@ EOS
 'msg_lockscleared' => 'Locks cleared',
 'msg_lostlock' => 'You have lost the lock on this item, and somebody else has changed it.  You can save your changes to a text file for future use, but you can no longer commit any changes',
 'msg_pages_updated' => '%d page(s) updated',
-'msg_steal_lock' => 'You can steal this lock',
+'msg_steal_lock' => 'You may steal this lock',
 'msg_stylesheet_copied_edit' => 'Stylesheet has been copied, you are now editing the new version',
 'msg_stylesheet_copied' => 'Stylesheet copied',
 'msg_stylesheet_deleted' => '%d stylesheet(s) deleted',
@@ -193,6 +193,7 @@ EOS
 'prompt_filename' => 'Filename',
 'prompt_filetemplate' => 'Template File',
 'prompt_filter' => 'Filter',
+'prompt_steal_lock' => 'Steal this lock', // see also 'title_steal_lock'
 
 'pager_first' => 'First',
 'pager_previous' => 'Previous',

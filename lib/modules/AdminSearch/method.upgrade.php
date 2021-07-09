@@ -25,14 +25,20 @@ use CMSMS\UserParams;
 
 if (!function_exists('cmsms')) exit;
 
-if (version_compare($oldversion,'1.1') < 1) {
-    //enable deprecated class-aliases
-    $tp1 = __DIR__.DIRECTORY_SEPARATOR.lib.DIRECTORY_SEPARATOR.'class.%s.php';
-    $tp2 = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'aliases'.DIRECTORY_SEPARATOR.'class.%s.php'; // into autoloader search-path
-    foreach (['AdminSearch_tools','AdminSearch_slave'] as $nm) {
-        $fp = sprintf($tp1, $nm);
-        $tp = sprintf($tp2, $nm);
-        copy($fp, $tp);
+if (version_compare($oldversion,'1.2') < 0) {
+    //try to re-locate deprecated class-aliases into autoloader search-path
+    $bp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'aliases';
+    if (is_writable($bp)) {
+        $tpl1 = __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'class.%s.php';
+        $tpl2 = $bp.DIRECTORY_SEPARATOR.'class.%s.php';
+        foreach (['AdminSearch_tools','AdminSearch_slave'] as $nm) {
+            $fp = sprintf($tpl1, $nm);
+            $tp = sprintf($tpl2, $nm);
+            try {
+                @unlink($tp); // mebbe an old version
+                copy($fp, $tp);
+            } catch (Throwable $t) {} //ignore error
+        }
     }
 
     $me = $this->GetName();
@@ -40,15 +46,12 @@ if (version_compare($oldversion,'1.1') < 1) {
     foreach ($userlist as $user) {
         $userid = $user->id;
         $tmp = UserParams::get_for_user($userid,$me.'saved_search');
-        if( $tmp ) {
+        if ($tmp) {
             try {
                 $init = unserialize($tmp,[]);
                 $init += ['search_casesensitive' => false,];
                 UserParams::set_for_user($userid,$me.'saved_search',serialize($init));
-            }
-            catch (Throwable $t) {
-                //nothing here
-            }
+            } catch (Throwable $t) {} //ignore error
         }
     }
 }

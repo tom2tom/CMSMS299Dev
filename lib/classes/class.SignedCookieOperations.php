@@ -1,7 +1,7 @@
 <?php
 /*
 Secure cookie operations class
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AppSingle;
+use CMSMS\ICookieManager;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;
 
@@ -31,7 +32,7 @@ use const CMS_VERSION;
  * @package CMS
  * @license GPL
  */
-final class SignedCookieOperations implements CookieManager
+final class SignedCookieOperations implements ICookieManager
 {
     /**
      * @ignore

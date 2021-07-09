@@ -1,7 +1,7 @@
 <?php
 /*
 Class and utilities for working with user preferences.
-Copyright (C) 2016-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,15 +16,13 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
 namespace CMSMS {
 
 use CMSMS\AppSingle;
-use const CMS_DB_PREFIX;
-use function get_userid;
 
 /**
  * A class for working with preferences associated with admin users
@@ -227,19 +225,20 @@ final class UserParams
 	{
 		$userid = (int)$userid;
 		self::_read($userid);
-		$parms = [];
+		$db = AppSingle::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
-		$parms[] = $userid;
+		$parms = [$userid];
 		if( $key ) {
-			$query2 = ' AND preference = ?';
 			if( $like ) {
 				$query2 = ' AND preference LIKE ?';
-				$key .= '%';
+				$key = $db->escStr($key).'%';
+			}
+			else {
+				$query2 = ' AND preference = ?';
 			}
 			$query .= $query2;
 			$parms[] = $key;
 		}
-		$db = AppSingle::Db();
 		$db->Execute($query,$parms);
 		self::_reset();
 	}

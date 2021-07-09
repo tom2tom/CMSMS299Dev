@@ -19,7 +19,8 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-use CMSMS\App;
+
+use CMSMS\AppSingle;
 
 /**
  * A function for auto-loading core- and module-related- CMSMS classes.
@@ -84,7 +85,7 @@ function cms_autoloader(string $classname)
 /* since 2.99 don't also autoload a module-object
 				if (!($sysp || class_exists($space, false))) {
 					//deprecated since 2.99 - some modules require existence of this, or assume, and actually use it
-					$gCms = App::get_instance();
+					$gCms = AppSingle::App();
 					require_once $mpath;
 				}
 */
@@ -95,7 +96,7 @@ function cms_autoloader(string $classname)
 
 		if (endswith($base, 'Task')) {
 			if ($space == 'CMSMS') {
-				$sroot = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'tasks'.DIRECTORY_SEPARATOR;
+				$sroot = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'tasks'.DIRECTORY_SEPARATOR; // TODO redundant >> jobs
 			}
 			$t2 = substr($base, 0, -4).'.task';
 			foreach (['class.', 'trait.', 'interface.', ''] as $test) {
@@ -170,7 +171,7 @@ function cms_autoloader(string $classname)
 		if (class_exists($classname, false)) return;
 	}
 
-	// standard tasks
+/*	// pre-2.99 standard tasks
 	if (endswith($base, 'Task')) {
 		$fp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'tasks'.DIRECTORY_SEPARATOR.'class.'.$base.'.php';
 		if (is_file($fp)) {
@@ -184,12 +185,12 @@ function cms_autoloader(string $classname)
 			if (class_exists($classname, false)) return;
 		}
 	}
-
+*/
 	// module classes
 	$fp = cms_module_path($base);
 	if ($fp) {
 		//deprecated since 2.99 - some modules require existence of this, or assume, and actually use it
-		$gCms = App::get_instance();
+		$gCms = AppSingle::App();
 		require_once $fp;
 		if (class_exists($classname, false)) return;
 	}
@@ -203,7 +204,7 @@ function cms_autoloader(string $classname)
 			require_once $files[0];
 			if (class_exists($classname, false)) return;
 		}
-		if (endswith($base, 'Task')) {
+		if (endswith($base, 'Task')) { // deprecated since 2.99 instead use Jobs
 			$class = substr($base, 0, -4);
 			$fp = $root.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'{class.,}'.$class.'.task.php';
 			$files = glob($fp, GLOB_NOSORT | GLOB_NOESCAPE | GLOB_BRACE);

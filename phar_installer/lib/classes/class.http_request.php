@@ -748,10 +748,10 @@ class http_request
             // Get a blank slate
             $tempString   = [];
 
-            // Convert cookiesa array into a query string (ie animal=dog&sport=baseball)
+            // Convert cookies array into a query string (eg animal=dog&sport=baseball)
             foreach ($this->cookies as $key => $value) {
                 if (strlen(trim($value)) > 0) {
-                    $tempString[] = $key . '=' . urlencode($value);
+                    $tempString[] = rawurlencode($key) . '=' . rawurlencode($value);
                 }
             }
 

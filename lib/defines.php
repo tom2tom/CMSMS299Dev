@@ -28,7 +28,7 @@ define('CMS_VERSION', $CMS_VERSION);
 define('CMS_VERSION_NAME', $CMS_VERSION_NAME);
 define('CMS_SCHEMA_VERSION', $CMS_SCHEMA_VERSION);
 
-$config = AppConfig::get_instance();
+$config = AppConfig::get_instance(); // AppSingle etc not yet set up
 
 /**
  * Where cachable system files can be written.
@@ -138,7 +138,7 @@ const CMS_DEFAULT_VERSIONCHECK_URL = 'https://www.cmsmadesimple.org/latest_versi
 
 /*
  * Something short, URL-compatible and never used as a 'real' URL-parameter
- * From CMSMS 1.5 (or before) to 2.3DEV, this const has been '_s_','sp_','_sx_','_sk_','__c','_k_'
+ * From CMSMS 1.5 (or before) to 2.99, this const has been '_s_','sp_','_sx_','_sk_','__c','_k_'
  * but changing its value is minimally useful
 */
 const CMS_SECURE_PARAM_NAME = '_sk_';

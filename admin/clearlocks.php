@@ -1,68 +1,70 @@
 <?php
-# Clear locks
-# Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure to clear locks
+Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+//NOTE since 2.99, something like this is performed by an async Job
+
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\Lock;
 use CMSMS\LockOperations;
-use CMSMS\UserOperations;
-use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-    exit;
-}
-
 check_login();
 
-$userid = get_userid();
-$urlext = get_secure_param();
-$themeObject = Utils::get_theme_object();
-
-cleanArray($_REQUEST);
-
-$type = (isset($_REQUEST['type']) ) ? trim($_REQUEST['type']) : 'template';
-//TODO support groups
+$type = trim($_REQUEST['type'] ?? 'template'); // no sanitizeVal() cuz only specific values recognized
 $type = strtolower($type);
-switch( $type ) {
+switch ($type) {
 case 'tpl':
 case 'templates':
-case 'template':
 	$type = 'template';
+	// no break here
+case 'template':
 	$op = 'listtemplates';
 	break;
 case 'css':
 case 'stylesheets':
-case 'stylesheet':
 	$type = 'stylesheet';
+	// no break here
+case 'stylesheet':
 	$op = 'liststyles';
 	break;
+//TODO support groups, themes etc
+//case 'themes':
+//$type = 'theme';
+//case 'theme':
+//	$op = TM module action TODO
+//	break;
 default:
 	return;
 }
 
-$is_admin = UserOperations::get_instance()->UserInGroup($userid,1);
-if( $is_admin ) {
+$userid = get_userid();
+$is_admin = AppSingle::UserOperations()->UserInGroup($userid,1);
+if ($is_admin) {
 	// clear all locks of type content
 	$db = cmsms()->GetDb();
-	$sql = 'DELETE FROM '.CMS_DB_PREFIX.Lock::LOCK_TABLE.' WHERE type = ?';
+	$sql = 'DELETE FROM '.CMS_DB_PREFIX.LockOperations::LOCK_TABLE.' WHERE type = ?';
 	$db->Execute($sql,[$type]);
 	cms_notice("Cleared all $type locks");
 } else {
@@ -71,5 +73,6 @@ if( $is_admin ) {
 	cms_notice("Cleared his own $type locks");
 }
 
-$themeObject->ParkNotice('info',lang_by_realm('layout','msg_lockscleared'));
+AppSingle::Theme()->ParkNotice('info',lang_by_realm('layout','msg_lockscleared'));
+$urlext = get_secure_param();
 redirect($op.'.php'.$urlext);

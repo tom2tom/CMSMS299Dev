@@ -135,8 +135,7 @@ $(function() {
           if(index < _files.length && typeof data.url !== 'undefined') {
             // now delete the file
             var turl = '{$action_url}&' + $.param({ file: _files[index] });
-            $.ajax({
-              url: turl,
+            $.ajax(turl, {
               type: 'DELETE'
             });
           }

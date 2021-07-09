@@ -119,12 +119,12 @@
 {tab_start name='settings'}
 <div class="pageoverflow">
   <p class="pagetext">{$t=lang('copyusersettings')}
-    <label for="copyusr">{$t}:</label>
+    <label for="copyusrsettings">{$t}:</label>
     {cms_help key2='user_copysettings' title=$t}
   </p>
   <p class="pageinput">
-    <select name="copyusersettings" id="copyusr">
-      {html_options options=$users}
+    <select name="copyusersettings" id="copyusrsettings">
+      {html_options options=$users selected=$copyusersettings}
     </select>
   </p>
 </div>

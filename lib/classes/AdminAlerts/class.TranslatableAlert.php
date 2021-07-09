@@ -8,7 +8,7 @@
  */
 namespace CMSMS\AdminAlerts;
 
-use CMSMS\UserOperations;
+use CMSMS\AppSingle;
 use CMSMS\Utils;
 use InvalidArgumentException;
 use function lang;
@@ -150,7 +150,7 @@ class TranslatableAlert extends Alert
     {
         if( !$this->_perms ) return FALSE;
         $admin_uid = (int) $admin_uid;
-        $userops = UserOperations::get_instance();
+        $userops = AppSingle::UserOperations();
         $perms = $this->_perms;
         if( !is_array($this->_perms) ) $perms = [$this->_perms];
         foreach( $perms as $permname ) {

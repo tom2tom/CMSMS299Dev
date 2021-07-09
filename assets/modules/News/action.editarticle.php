@@ -2,29 +2,34 @@
 /*
 Edit item action for CMSMS News module.
 Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-This program is free software; you can redistribute it and/or modify
+CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 2 of that license, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
+CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminUtils;
-use CMSMS\ContentOperations;
+use CMSMS\AppSingle;
 use CMSMS\Events;
 use CMSMS\FormUtils;
 use CMSMS\RouteOperations;
-use CMSMS\UserOperations;
+use CMSMS\TemplateType;
+use CMSMS\Utils;
 use News\AdminOperations;
+use function CMSMS\de_specialize_array;
+use function CMSMS\specialize;
+use function CMSMS\specialize_array;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify News')) exit;
@@ -40,6 +45,7 @@ $useexp = $params['inputexp'] ?? 1;
 
 if (isset($params['submit']) || isset($params['apply'])) {
 
+    de_specialize_array($params);
     $articleid    = $params['articleid'];
     $title        = $params['title'];
     $summary      = $params['summary'];
@@ -100,7 +106,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
         $error = true;
     }
 
-    if (empty($title)) {
+    if (!$title) {
         $this->ShowErrors($this->Lang('notitlegiven'));
         $error = true;
     } elseif (empty($content)) {
@@ -176,7 +182,7 @@ WHERE news_id=?';
             }
 
             //Update search index
-            $module = cms_utils::get_search_module();
+            $module = Utils::get_search_module();
             if (is_object($module)) {
                 if ($status == 'draft' || $status == 'archived' || !$searchable) {
                     $module->DeleteWords($me, $articleid, 'article');
@@ -228,42 +234,42 @@ WHERE news_id=?';
             $this->SetMessage($this->Lang('articlesubmitted'));
             $this->Redirect($id, 'defaultadmin', $returnid);
         }
-
     }
 
-    $query = 'SELECT create_date,modified_date,start_time,end_time FROM '. CMS_DB_PREFIX . 'module_news WHERE news_id=?';
+    $query = 'SELECT create_date,modified_date,start_time,end_time FROM ' . CMS_DB_PREFIX . 'module_news WHERE news_id=?';
     $row = $db->GetRow($query, [$articleid]);
 } elseif (!isset($params['preview'])) {
     //
     // Load data from database
     //
-    $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news WHERE news_id = ?';
+    $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news WHERE news_id=?';
     $row = $db->GetRow($query, [$params['articleid']]);
 
     if ($row) {
         $articleid    = $row['news_id'];
-        $title        = $row['news_title'];
-        $content      = $row['news_data'];
-        $summary      = $row['summary'];
-        $status       = $row['status'];
-        if ($status == 'published') $status = 'final';
-        $searchable   = $row['searchable'];
-        $startdate    = $row['start_time'];
-        $enddate      = $row['end_time'];
-        $usedcategory = $row['news_category_id'];
         $author_id    = $row['author_id'];
+        $content      = $row['news_data'];
+        $enddate      = $row['end_time'];
         $extra        = $row['news_extra'];
         $news_url     = $row['news_url'];
+        $searchable   = $row['searchable'];
+        $startdate    = $row['start_time'];
+        $status       = $row['status'];
+        if ($status == 'published') $status = 'final';
+        $summary      = $row['summary'];
+        $title        = $row['news_title'];
+        $usedcategory = $row['news_category_id'];
     } else {
         //TODO handle error
+        $error = true;
     }
 } else {
     // save data for preview
-    unset($params['apply']);
-    unset($params['preview']);
-    unset($params['submit']);
-    unset($params['cancel']);
-    unset($params['ajax']);
+    unset($params['apply'],
+        $params['preview'],
+        $params['submit'],
+        $params['cancel'],
+        $params['ajax']);
 
     $tmpfname = tempnam(TMP_CACHE_LOCATION, $me . '_preview');
     file_put_contents($tmpfname, serialize($params));
@@ -271,7 +277,7 @@ WHERE news_id=?';
     $detail_returnid = $this->GetPreference('detail_returnid', -1);
     if ($detail_returnid <= 0) {
         // now get the default content id.
-        $detail_returnid = ContentOperations::get_instance()->GetDefaultContent();
+        $detail_returnid = AppSingle::ContentOperations()->GetDefaultContent();
     }
     if (isset($params['previewpage']) && (int)$params['previewpage'] > 0)
         $detail_returnid = (int)$params['previewpage'];
@@ -380,24 +386,26 @@ $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hie
 $rst = $db->Execute($query);
 if ($rst) {
     while (($row = $rst->FetchRow())) {
-        $categorylist[$row['long_name']] = $row['news_category_id'];
+        $categorylist[$row['news_category_id']] = specialize($row['long_name']);
     }
     $rst->Close();
+    specialize_array($categorylist);
 }
-$parms = array_merge($params, ['articleid'=>$articleid, 'author_id'=>$author_id]);
-unset($parms['action']);
+$parms = $params + ['articleid'=>$articleid, 'author_id'=>$author_id];
+unset($parms['action']); // ??
+specialize_array($parms);
 
-/*--------------------
+/*----------------------
  Pass everything to smarty
----------------------*/
+-----------------------*/
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('editarticle.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('editarticle.tpl')); //, null, null, $smarty);
 
-$tpl->assign('formaction','editarticle')
+$tpl->assign('formaction', 'editarticle')
     ->assign('formparms', $parms);
 
 if ($author_id > 0) {
-    $userops = UserOperations::get_instance();
+    $userops = AppSingle::UserOperations();
     $theuser = $userops->LoadUserById($author_id);
     if ($theuser) {
         $tpl->assign('inputauthor', $theuser->username);
@@ -432,7 +440,7 @@ $tpl->assign([
  'archat' => $archived,
  'articleid' => $articleid,
  'category' => $usedcategory,
- 'categorylist' => array_flip($categorylist),
+ 'categorylist' => $categorylist,
  'createat' => $created,
  'extra' => $extra,
  'fromdate' => $fromdate,
@@ -456,14 +464,23 @@ if ($this->CheckPermission('Approve News')) {
         $this->Lang('final')=>'final',
         $this->Lang('archived')=>'archived',
     ];
-    $statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
-    $tpl->assign('statuses',$statusradio);
-    //->assign('statustext', lang('status'));
+//    $statusradio = $this->CreateInputRadioGroup($id, 'status', $choices, $status, '', '  ');
+    $statusradio = FormUtils::create_select([ // DEBUG
+        'type' => 'radio',
+        'name'  => 'status',
+        'htmlid' => 'status',
+        'modid' => $id,
+        'options'=> $choices,
+        'selectedvalue' => $status,
+        'delimiter' => '  ',
+    ]);
+    $tpl->assign('statuses', $statusradio);
+//   ->assign('statustext', lang('status'));
 }
 
 // get the detail templates, if any
 try {
-    $type = CmsLayoutTemplateType::load($me . '::detail');
+    $type = TemplateType::load($me . '::detail');
     $templates = $type->get_template_list();
     $list = [];
     if ($templates) {
@@ -472,7 +489,7 @@ try {
         }
     }
     if ($list) {
-        $str = AdminUtils::CreateHierarchyDropdown(0, (int)$this->GetPreference('detail_returnid',-1), 'preview_returnid');
+        $str = AdminUtils::CreateHierarchyDropdown(0, (int)$this->GetPreference('detail_returnid', -1), 'preview_returnid');
         $tpl->assign('detail_templates', $list)
          ->assign('cur_detail_template', $this->GetPreference('current_detail_template'))
          ->assign('preview', true)

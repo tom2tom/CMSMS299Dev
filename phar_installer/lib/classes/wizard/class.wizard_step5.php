@@ -2,16 +2,19 @@
 
 namespace cms_installer\wizard;
 
+use cms_installer\wizard\wizard_step;
 use Exception;
 use Throwable;
-use function cms_installer\cleanString;
-use function cms_installer\de_entitize;
-use function cms_installer\entitize;
+use const CMSSAN_FILE;
+use const CMSSAN_NONPRINT;
+use function cms_installer\de_specialize;
 use function cms_installer\get_app;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\redirect;
+use function cms_installer\sanitizeVal;
 use function cms_installer\smarty;
+use function cms_installer\specialize;
 use function cms_installer\translator;
 
 class wizard_step5 extends wizard_step
@@ -60,15 +63,15 @@ class wizard_step5 extends wizard_step
         }
 
         if( isset($_POST['sitename']) ) {
-            $this->_params['sitename'] = cleanString(de_entitize($_POST['sitename']), 1); //TODO better-targeted cleanup
+            $this->_params['sitename'] = de_specialize($_POST['sitename']); //no other content-strip
         }
 
         if( isset($_POST['supporturl']) ) {
-            $url = de_entitize($_POST['supporturl']);
-            $pass = filter_var($url, FILTER_VALIDATE_URL);
+            $url = de_specialize($_POST['supporturl']);
+            $pass = filter_var($url, FILTER_VALIDATE_URL); //TODO allow rawurlencode()'d invalid chars c.f. CMSMS\urlencode(), CMSMS\Url::sanitize()
             // the test above barfs for non-ASCII chars
             if( !$pass && preg_match('/[\x80-\xff]/', $url) &&
-                // fallback to a rough check (ignores dodgy chars in it)
+                // fallback to a rough check (ignores dodgy chars)
                 parse_url($url, PHP_URL_SCHEME) && parse_url($url, PHP_URL_HOST) ) {
                 $pass = true;
             }
@@ -82,7 +85,8 @@ class wizard_step5 extends wizard_step
         if( isset($_POST['languages']) ) {
             $tmp = [];
             foreach( $_POST['languages'] as $lang ) {
-                $tmp[] = cleanString($lang, 2);
+                // see http://www.unicode.org/reports/tr35/#Identifiers
+                $tmp[] = sanitizeVal($lang, CMSSAN_NONPRINT);
             }
             $this->_params['languages'] = $tmp;
         }
@@ -91,7 +95,7 @@ class wizard_step5 extends wizard_step
             //record the selected members of $app_config['extramodules']
             $tmp = [];
             foreach ( $_POST['wantedextras'] as $name ) {
-                $tmp[] = cleanString($name, 3); //module-identifier == foldername
+                $tmp[] = sanitizeVal($name, CMSSAN_FILE); //module-identifier corresponds to a foldername
             }
             $this->_params['wantedextras'] = $tmp;
         }
@@ -135,23 +139,23 @@ class wizard_step5 extends wizard_step
         if( $action == 'install' ) {
             $raw = $config['sitename'] ?? null;
             $v = ($raw === null) ? $this->_params['sitename'] : trim($raw);
-            $smarty->assign('sitename',entitize($v));
+            $smarty->assign('sitename',specialize($v));
 
             $raw = $config['supporturl'] ?? null;
             $v = ($raw === null) ? '' : trim($raw);
-            $smarty->assign('supporturl',entitize($v)); // should have no effect
+            $smarty->assign('supporturl',specialize($v)); // should have no effect
 
             $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         }
         elseif( $action == 'upgrade' ) {
             // if pertinent upgrade
             $version_info = $this->get_wizard()->get_data('version_info');
-            if( version_compare($version_info['version'],'2.2.910') < 0 ) {
+            if( version_compare($version_info['version'],'2.99') < 0 ) {
                 $raw = $app->get_dest_version();
-                if( version_compare($raw,'2.2.910') >= 0 ) { //should always be true, here
+                if( version_compare($raw,'2.99') >= 0 ) { //should always be true, here
                     $raw = $config['supporturl'] ?? null;
                     $v = ($raw === null) ? '' : trim($raw);
-                    $smarty->assign('supporturl',entitize($v));
+                    $smarty->assign('supporturl',specialize($v));
                 }
             }
         }

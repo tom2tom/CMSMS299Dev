@@ -1,25 +1,30 @@
 <?php
-#procedure to display recorded events and their details
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure to display recorded events and their details
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Events;
 use CMSMS\Utils;
+use function CMSMS\sanitizeVal;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -27,19 +32,25 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 check_login();
 
-$urlext = get_secure_param();
 $userid = get_userid();
-$access = check_permission($userid, "Modify Events");
-$senderfilter = (isset($_POST['senderfilter'])) ? $_POST['senderfilter'] : '';
-if ($senderfilter == lang('all')) $senderfilter = '';
+$pmod = check_permission($userid, 'Modify Events');
+
+$tmp = $_POST['senderfilter'] ?? '';
+if (!$tmp || $tmp == lang('all')) {
+    $senderfilter = '';
+} else {
+    $senderfilter = sanitizeVal($tmp, CMSSAN_FILE); // for event-originator 'Core' | modulename
+}
 
 $senders = [];
 $events = Events::ListEvents();
 if (is_array($events)) {
-    foreach($events as &$one) {
+    foreach ($events as &$one) {
+		if ($senderfilter && $senderfilter != $one['originator']) continue;
         if (!in_array($one['originator'], $senders)) {
             $senders[] = $one['originator'];
         }
+        //TODO also need CMSMS\urlencode(one->originator, one->event_name)
         if ($one['originator'] == 'Core') {
             $one['description'] = Events::GetEventDescription($one['event_name']);
         } else {
@@ -49,12 +60,12 @@ if (is_array($events)) {
     }
     unset($one);
     sort($senders, SORT_NATURAL);
-    $senders = [-1=>lang('all')] + $senders;
+    $senders = [-1 => lang('all')] + $senders;
 }
 
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
-if ($access) {
+if ($pmod) {
     $iconedit = $themeObject->DisplayImage('icons/system/edit.gif',lang('modifyeventhandlers'),'','','systemicon');
 } else {
     $iconedit = null;
@@ -63,23 +74,25 @@ $iconinfo = $themeObject->DisplayImage('icons/system/info.png', lang('help'),'',
 
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
+$urlext = get_secure_param();
 
 $smarty = AppSingle::Smarty();
 $smarty->assign([
-    'access' => $access,
+    'access' => $pmod,
     'editurl' => 'editevent.php',
     'events' => $events,
     'helpurl' => 'eventhelp.php',
     'iconedit' => $iconedit,
     'iconinfo' => $iconinfo,
     'senders' => $senders,
-    'senderfilter' => $senderfilter,
+    'senderfilter' => $senderfilter, // '' or one of $senders
     'selfurl' => $selfurl,
-	'extraparms' => $extras,
+    'extraparms' => $extras,
     'urlext' => $urlext,
 ]);
 
 $content = $smarty->fetch('listevents.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";

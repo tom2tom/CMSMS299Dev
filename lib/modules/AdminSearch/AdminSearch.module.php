@@ -26,12 +26,13 @@ final class AdminSearch extends CMSModule
 {
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'siteadmin'; }
-    public function GetAuthor() { return 'Robert Campbell'; }
-    public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
+    public function GetAuthor() { return ''; }
+    public function GetAuthorEmail() { return ''; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp() { return $this->Lang('help'); }
-    public function GetVersion() { return '1.1'; }
+    public function GetName() { return 'AdminSearch'; }
+    public function GetVersion() { return '1.2'; }
     public function HasAdmin() { return true; }
     public function IsAdminOnly() { return true; }
 //  public function LazyLoadAdmin() { return true; }
@@ -50,11 +51,10 @@ final class AdminSearch extends CMSModule
         return $this->CheckPermission('Use Admin Search');
     }
 
-
-/* redundant, $mod always assigned
+/* redundant, 'mod' always assigned elsewhere during action-processing
     public function DoAction($name, $id, $params, $returnid = '')
     {
-        $smarty = CmsApp::get_instance()->GetSmarty();
+        $smarty = AppSingle::Smarty();
         $smarty->assign('mod', $this); // probably redundant
         return parent::DoAction($name, $id, $params, $returnid);
     }
@@ -79,7 +79,7 @@ final class AdminSearch extends CMSModule
             foreach ($files as $onefile) {
                 $parts = explode('.', basename($onefile));
                 $classname = implode('.', array_slice($parts, 1, count($parts) - 2));
-                if ($classname !== 'Base_slave' && $classname !== 'AdminSearch_slave') {
+                if (!($classname == 'Base_slave' || $classname == 'AdminSearch_slave')) {
                     $output[] = self::class.'\\'.$classname;
                 }
             }

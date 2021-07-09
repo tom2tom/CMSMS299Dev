@@ -1,7 +1,7 @@
 <?php
 /*
 Singleton class of utility-methods for operating on and with modules
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -30,25 +30,25 @@ use CMSMS\AppState;
 use CMSMS\CoreCapabilities;
 use CMSMS\DeprecationNotice;
 use CMSMS\Events;
-use CMSMS\IAuthModuleInterface;
-use CMSMS\internal\module_meta;
+use CMSMS\IAuthModule;
+use CMSMS\internal\JobOperations;
 use CMSMS\IResource;
-use CMSMS\SysDataCache;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use CMSMS\UserParams;
-use CMSMS\Utils;
-use LogicException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use const CMS_SCHEMA_VERSION;
 use const CMS_VERSION;
+use const CMSSAN_FILE;
 use function cms_error;
 use function cms_module_path;
 use function cms_module_places;
 use function cms_notice;
-use function cms_specialchars_decode;
 use function cms_warning;
+use function CMSMS\de_entitize;
+use function CMSMS\de_specialize;
+use function CMSMS\sanitizeVal;
 use function debug_buffer;
 use function get_userid;
 use function lang;
@@ -76,13 +76,13 @@ final class ModuleOperations
 	private const CORENAMES_PREF = 'coremodules';
 
 //	const CORENAMES_DEFAULT = TODO
-//'AdminLog,AdminSearch,CMSContentManager,CmsJobManager,CoreAdminLogin,FileManager,FilePicker,MicroTiny,ModuleManager,Navigator,Search';
+//'AdminLog,AdminSearch,CMSContentManager,CMSMailer,CmsJobManager,AdminLogin,FileManager,FilePicker,MicroTiny,ModuleManager,Navigator,Search';
 
 	/**
 	 * Name of default login-processor module
 	 * @ignore
 	 */
-	const STD_LOGIN_MODULE = 'CoreAdminLogin';
+	const STD_LOGIN_MODULE = 'AdminLogin';
 
 	/**
 	 * @ignore
@@ -165,16 +165,16 @@ final class ModuleOperations
 
 	/**
 	 * @ignore
-	 * @param string $module_name
+	 * @param string $modname
 	 * @return mixed string | null
 	 */
-	private function get_module_classname(string $module_name)
+	private function get_module_classname(string $modname)
 	{
-		$module_name = trim($module_name);
-		if( !$module_name ) return;
+		$modname = trim($modname);
+		if( !$modname ) return;
 		$map = $this->get_module_classmap();
-		if( isset($map[$module_name]) ) return $map[$module_name];
-		return $module_name;
+		if( isset($map[$modname]) ) return $map[$modname];
+		return $modname;
 	}
 
 	/**
@@ -182,40 +182,40 @@ final class ModuleOperations
 	 * Useful when the module class is in a namespace.
 	 * This caches the alias permanently, as distinct from class_alias()
 	 *
-	 * @param string $module_name The module name
+	 * @param string $modname The module name
 	 * @param string $classname The class name
 	 */
-	public function set_module_classname(string $module_name, string $classname)
+	public function set_module_classname(string $modname, string $classname)
 	{
-		$module_name = trim($module_name);
+		$modname = trim($modname);
 		$classname = trim($classname);
-		if( !$module_name || !$classname ) return;
+		if( !$modname || !$classname ) return;
 
 		$this->get_module_classmap();
-		$this->_classmap[$module_name] = $classname;
+		$this->_classmap[$modname] = $classname;
 		AppParams::set(self::CLASSMAP_PREF, serialize($this->_classmap));
 	}
 
 	/**
-	 * @param string $module_name
+	 * @param string $modname
 	 * @return mixed string | null
 	 */
-	public function get_module_filename(string $module_name)
+	public function get_module_filename(string $modname)
 	{
-		$module_name = trim($module_name);
-		if( $module_name ) {
-			$fn = cms_module_path($module_name);
+		$modname = trim($modname);
+		if( $modname ) {
+			$fn = cms_module_path($modname);
 			if( is_file($fn) ) return $fn;
 		}
 	}
 
 	/**
-	 * @param string $module_name
+	 * @param string $modname
 	 * @return mixed string | null
 	 */
-	public function get_module_path(string $module_name)
+	public function get_module_path(string $modname)
 	{
-		$fn = $this->get_module_filename($module_name);
+		$fn = $this->get_module_filename($modname);
 		if( $fn ) return dirname( $fn );
 	}
 
@@ -261,8 +261,8 @@ final class ModuleOperations
 	 */
 	private function _install_module($module_obj)
 	{
-		$module_name = $module_obj->GetName();
-		debug_buffer('install_module '.$module_name);
+		$modname = $module_obj->GetName();
+		debug_buffer('install_module '.$modname);
 
 		$gCms = AppSingle::App(); // vars in scope for Install()
 		$db = $gCms->GetDb();
@@ -275,21 +275,21 @@ final class ModuleOperations
 		// a successful installation
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'modules WHERE module_name = ?';
 //		$dbr = if result-check done
-		$db->Execute($query,[$module_name]);
+		$db->Execute($query,[$modname]);
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_deps WHERE child_module = ?';
 //			$dbr =
-		$db->Execute($query,[$module_name]);
+		$db->Execute($query,[$modname]);
 
 //		$lazyload_fe    = (method_exists($module_obj,'LazyLoadFrontend') && $module_obj->LazyLoadFrontend())?1:0;
 //		$lazyload_admin = (method_exists($module_obj,'LazyLoadAdmin') && $module_obj->LazyLoadAdmin())?1:0;
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'modules
-(module_name,version,status,admin_only,active)
-VALUES (?,?,?,?,?)';
+(module_name,version,admin_only,active)
+VALUES (?,?,?,1)';
 //(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
 //		$dbr =
 		$db->Execute($query,[
-		$module_name,$module_obj->GetVersion(),'installed',
-			($module_obj->IsAdminOnly()) ? 1 : 0,1//,$lazyload_fe,$lazyload_admin
+		$modname,$module_obj->GetVersion(),
+			($module_obj->IsAdminOnly()) ? 1 : 0 //,$lazyload_fe,$lazyload_admin
 		]);
 
 		$deps = $module_obj->GetDependencies();
@@ -301,68 +301,110 @@ VALUES (?,?,?,NOW())');
 			foreach( $deps as $depname => $depversion ) {
 				if( !$depname || !$depversion ) continue;
 //				$dbr =
-				$db->Execute($stmt,[$depname,$module_name,$depversion]);
+				$db->Execute($stmt,[$depname,$modname,$depversion]);
 			}
 			$stmt->close();
 		}
 //		$this->generate_moduleinfo( $module_obj );
 		$this->_moduleinfo = [];
-		$cache = SysDataCache::get_instance();
+		$cache = AppSingle::SysDataCache();
 		$cache->release('modules');
 		$cache->release('module_deps');
 		$cache->release('module_plugins');
 		$cache->release('module_menus');
-		module_meta::get_instance()->clear_cache();
+		AppSingle::module_meta()->clear_cache();
 
-		cms_notice('Installed module '.$module_name.' version '.$module_obj->GetVersion());
-		Events::SendEvent( 'Core', 'ModuleInstalled', [ 'name' => $module_name, 'version' => $module_obj->GetVersion() ] );
+		cms_notice('Installed module '.$modname.' version '.$module_obj->GetVersion());
+		Events::SendEvent( 'Core', 'ModuleInstalled', [ 'name' => $modname, 'version' => $module_obj->GetVersion() ] );
 		return [TRUE,$module_obj->InstallPostMessage()];
 	}
 
 	/**
 	 * Install a module into the database
 	 *
-	 * @param string $module_name The name of the module to install
+	 * @param string $modname The name of the module to install
 	 * @return array, 1 or 2 members:
 	 *  [0] = bool indicating whether the install was successful
 	 *  [1] = string error message if [0] == false
 	 */
-	public function InstallModule(string $module_name) : array
+	public function InstallModule(string $modname) : array
 	{
-		// get an instance of the class (force it).
-		$obj = $this->get_module_instance($module_name,'',TRUE);
-		if( !$obj ) {
-			if (1) { cms_error('Module '.$module_name.' installation failed'); } //TODO not if installer running
-			return [FALSE,lang('errormodulenotloaded')];
-		}
-
-		if( $this->IsSystemModule($module_name) ) {
-			if( !$obj->HasCapability(CoreCapabilities::CORE_MODULE) ) {
-				if (1) { cms_error('Module '.$module_name.' installation failed: re-use core-module name'); } //TODO not if installer running
-				return [FALSE,lang('errorbadname')];
-			}
-		}
-
-		// check for dependencies
-		$deps = $obj->GetDependencies();
-		if( $deps ) {
-			foreach( $deps as $mname => $mversion ) {
-				if( $mname == '' || $mversion == '' ) continue; // invalid entry.
-				$newmod = $this->get_module_instance($mname);
-				if( !is_object($newmod) || version_compare($newmod->GetVersion(),$mversion) < 0 ) {
-					if (1) { cms_error('Module '.$module_name.' installation failed: depends on '.$mname); } //TODO not if installer running
-					return [FALSE,lang('missingdependency').': '.$mname];
+		$installing = AppState::test_state(AppState::STATE_INSTALL);
+		// get an instance of the class (force it)
+		$modinst = $this->get_module_instance($modname,'',TRUE);
+		if( $modinst ) {
+			$core = $this->IsSystemModule($modname);
+			if( $core ) {
+				if( !$modinst->HasCapability(CoreCapabilities::CORE_MODULE) ) {
+					if( !$installing ) {
+						if( !isset($this->_moduleinfo[$modname]) ) {
+							// undo unwanted new install
+							$this->UninstallModule($modname);
+						}
+						cms_error('Module '.$modname.' installation failed: re-use core-module name');
+						return [FALSE,'Module '.$modname.' installation failed: re-use core-module name'];
+					}
+					return [FALSE,lang('errorbadname')];
 				}
 			}
-		}
 
-		// do the actual installation stuff.
-		$res = $this->_install_module($obj);
-		if( $res[0] == FALSE) {
-			if( !is_string($res[1]) || $res[1] == '' ) { $res[1] = lang('failure'); } //TODO better default message
-			if (1) { cms_error('Module '.$module_name.' installation failed: '.$res[1]); } //TODO not if installer running
+			// process any dependencies
+			$deps = $modinst->GetDependencies();
+			if( $deps ) {
+				foreach( $deps as $mname => $mversion ) {
+					if( $mname == '' || $mversion == '' ) continue; // invalid entry
+					if( $core ) {
+						$newmod = $this->get_module_instance($mname,'',TRUE);
+						if( !is_object($newmod) || version_compare($newmod->GetVersion(),$mversion) < 0 ) {
+							if( !$installing ) {
+								cms_error('Module '.$modname.' installation failed: depends on '.$mname);
+							}
+							return [FALSE,lang('missingdependency').': '.$mname];
+						}
+					}
+					else {
+						$data = $this->_moduleinfo[$mname] ?? NULL;
+						if( $data ) {
+							if( version_compare($data['version'],$mversion) < 0 ) {
+								if( !$installing ) {
+									cms_error('Module '.$modname.' installation failed: depends on '.$mname);
+								}
+								return [FALSE,lang('missingdependency').': '.$mname];
+							}
+							$newmod = $this->get_module_instance($mname,'',TRUE); // read without installation
+						}
+						else {
+							if( !$installing ) {
+								cms_error('Module '.$modname.' installation failed: depends on '.$mname);
+							}
+							return [FALSE,lang('missingdependency').': '.$mname];
+						}
+					}
+				}
+			}
+
+			// do the actual installation stuff
+			if( !$core ) { // if not already done during the recent get_module_instance()
+				$res = $this->_install_module($modinst);
+				if( $res[0] == FALSE) {
+					if( !is_string($res[1]) || $res[1] == '' ) {
+						$res[1] = lang('failure'); //TODO better default message
+					}
+					if( !$installing ) {
+						cms_error('Module '.$modname.' installation failed: '.$res[1]);
+					}
+				}
+				return $res;
+			}
+			return [TRUE, ''];
 		}
-		return $res;
+		else {
+			if( !$installing ) {
+				cms_error('Module '.$modname.' installation failed');
+//				return [FALSE,lang('errormodulenotloaded')];
+			}
+			return [FALSE,'Module '.$modname.' installation failed'];
+		}
 	}
 
 	/**
@@ -371,15 +413,15 @@ VALUES (?,?,?,NOW())');
 	private function _get_module_info() : array
 	{
 		if( !$this->_moduleinfo ) {
-			$tmp = SysDataCache::get_instance()->get('modules');
+			$tmp = AppSingle::SysDataCache()->get('modules');
 			if( is_array($tmp) ) {
 				$this->_moduleinfo = [];
-				foreach( $tmp as $module_name => $props ) {
+				foreach( $tmp as $modname => $props ) {
 					//double-check that cache data are current
-					$filename = $this->get_module_filename($module_name);
+					$filename = $this->get_module_filename($modname);
 					if( is_file($filename) ) {
-						if( !isset($this->_moduleinfo[$module_name]) ) {
-							$this->_moduleinfo[$module_name] = ['module_name'=>$module_name] + $props;
+						if( !isset($this->_moduleinfo[$modname]) ) {
+							$this->_moduleinfo[$modname] = ['module_name'=>$modname] + $props; //,'status'=>'installed' = hack for removed table-field
 						}
 					}
 				}
@@ -401,7 +443,7 @@ VALUES (?,?,?,NOW())');
 
 	/**
 	 * @internal
-	 * @param string $module_name
+	 * @param string $modname
 	 * @param bool $force Optional flag, whether to reload the module
 	 *  if already loaded. Default false.
 	 * @param bool $dependents Optional flag, whether to also load
@@ -409,13 +451,13 @@ VALUES (?,?,?,NOW())');
 	 * @return boolean indicating success
 	 */
 	private function _load_module(
-		string $module_name,
+		string $modname,
 		bool $force = FALSE,
 		bool $dependents = TRUE) : bool
 	{
 		$info = $this->_get_module_info();
-		if( !isset($info[$module_name]) && !$force ) {
-			cms_warning("Nothing is known about $module_name... can't load it");
+		if( !isset($info[$modname]) && !$force ) {
+			cms_warning("Nothing is known about $modname... can't load it");
 			return FALSE;
 		}
 
@@ -426,16 +468,16 @@ VALUES (?,?,?,NOW())');
 
 		$gCms = AppSingle::App(); // compatibility for some crappy old modules, deprecated since 2.99
 
-		// okay, lessee if we can load the dependants
+		// okay, lessee if we can load dependents
 		if( $dependents ) {
-			$deps = $this->get_module_dependencies($module_name);
+			$deps = $this->get_module_dependencies($modname);
 			if( $deps ) {
 				foreach( $deps as $name => $ver ) {
-					if( $name == $module_name ) continue; // a module cannot depend on itself.
+					if( $name == $modname ) continue; // a module cannot depend on itself.
 					// this is the start of a recursive process: get_module_instance() may call _load_module().
-					$obj2 = $this->get_module_instance($name,$ver); // including not $forced
-					if( !is_object($obj2) ) {
-						cms_warning("Cannot load module $module_name ... Problem loading dependent module $name version $ver");
+					$modinst2 = $this->get_module_instance($name,$ver); // TODO not forced ok ?
+					if( !is_object($modinst2) ) {
+						cms_warning("Cannot load module $modname ... Problem loading dependent module $name version $ver");
 						return FALSE;
 					}
 				}
@@ -443,85 +485,85 @@ VALUES (?,?,?,NOW())');
 		}
 
 		// now load the module itself... recurses into the autoloader if possible.
-		$class_name = $this->get_module_classname($module_name);
+		$class_name = $this->get_module_classname($modname);
 		if( !class_exists($class_name,true) ) {
-			$fname = $this->get_module_filename($module_name);
+			$fname = $this->get_module_filename($modname);
 			if( !is_file($fname) ) {
-				cms_warning("Cannot load $module_name because the module file does not exist");
+				cms_warning("Cannot load $modname because the module file does not exist");
 				return FALSE;
 			}
 
-			debug_buffer('including source for module '.$module_name);
+			debug_buffer('including source for module '.$modname);
 			require_once($fname);
 		}
 
-		$obj = new $class_name();
-		if( !is_object($obj) || ! ($obj instanceof CMSModule || $obj instanceof IResource) ) {
+		$modinst = new $class_name();
+		if( !is_object($modinst) || ! ($modinst instanceof CMSModule || $modinst instanceof IResource) ) {
 			// oops, some problem loading.
-			cms_error("Cannot load module $module_name ... some problem instantiating the class");
+			cms_error("Cannot load module $modname ... some problem instantiating the class");
 			return FALSE;
 		}
 
-		if( version_compare($obj->MinimumCMSVersion(),CMS_VERSION) == 1 ) {
+		if( version_compare($modinst->MinimumCMSVersion(),CMS_VERSION) == 1 ) {
 			// oops, not compatible.... can't load.
-			cms_error('Cannot load module '.$module_name.' it is not compatible wth this version of CMSMS');
-			unset($obj);
+			cms_error('Cannot load module '.$modname.' it is not compatible wth this version of CMSMS');
+			unset($modinst);
 			return FALSE;
 		}
 
-		$this->_modules[$module_name] = $obj;
+		$this->_modules[$modname] = $modinst;
 
 		// when the installer is running, or the module is 'core', try to install/upgrade it
-		if( $installing || $this->IsSystemModule($module_name) ) {
+		if( $installing || $this->IsSystemModule($modname) ) {
 			// auto-upgrade modules only if schema-version is up-to-date
 			$tmp = $gCms->get_installed_schema_version(); // int from CMSMS\AppParams table, if any
 			if( $tmp == CMS_SCHEMA_VERSION ) {
-				if( !isset($info[$module_name]) || $info[$module_name]['status'] != 'installed' ) {
-					$res = $this->_install_module($obj);
+				if( !isset($info[$modname]) ) { //|| $info[$modname]['status'] != 'installed' ) {
+					$res = $this->_install_module($modinst);
 					if( !$res[0] ) {
 						// nope, can't auto install...
-						debug_buffer("Automatic installation of $module_name failed");
-						unset($obj,$this->_modules[$module_name]);
+						debug_buffer("Automatic installation of $modname failed");
+						unset($modinst,$this->_modules[$modname]);
 						return FALSE;
 					}
 				}
 			}
 			// otherwise, check whether an auto-upgrade is appropriate
-			if( isset($info[$module_name]) && $info[$module_name]['status'] == 'installed' ) {
-				$dbversion = $info[$module_name]['version'];
-				if( version_compare($dbversion, $obj->GetVersion()) == -1 ) {
+			if( isset($info[$modname]) ) { //&& $info[$modname]['status'] == 'installed' ) {
+				$dbversion = $info[$modname]['version'];
+				if( version_compare($dbversion, $modinst->GetVersion()) == -1 ) {
 					// looks like upgrade is needed
-					$res = $this->_upgrade_module($obj);
+					$res = $this->_upgrade_module($modinst);
 					if( !$res ) {
 						// upgrade failed
-						debug_buffer("Automatic upgrade of $module_name failed");
-						unset($obj,$this->_modules[$module_name]);
+						debug_buffer("Automatic upgrade of $modname failed");
+						unset($modinst,$this->_modules[$modname]);
 						return FALSE;
 					}
 				}
 			}
 		}
 
-		if( !$force && (!isset($info[$module_name]['status']) || $info[$module_name]['status'] != 'installed') ) {
+/*		if( !$force && false ) { //(!isset($info[$modname]['status']) || $info[$modname]['status'] != 'installed') ) {
 			debug_buffer('Cannot load an uninstalled module');
-			unset($obj,$this->_modules[$module_name]);
+			unset($modinst,$this->_modules[$modname]);
 			return FALSE;
 		}
-
+*/
 //		if( !($installing || AppState::test_state(CMSMS\AppState::STATE_STYLESHEET)) ) {
-		if( !$installing && in_array($module_name, $this->GetInstalledModules()) ) {
+		if( !$installing && in_array($modname, $this->GetInstalledModules()) ) {
 			if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
-				$obj->InitializeAdmin();
+				$modinst->InitializeAdmin();
 			}
 			elseif( !$force ) { // CHECKME IsFontentonly() usage
 				if( $gCms->is_frontend_request() ) {
-					$obj->InitializeFrontend();
+					$modinst->InitializeFrontend();
 				}
 			}
 		}
 
 		// we're all done.
-		Events::SendEvent( 'Core', 'ModuleLoaded', [ 'name' => $module_name ] );
+		Events::SendEvent( 'Core', 'ModuleLoaded', [ 'name' => $modname ] );
 		return TRUE;
 	}
 
@@ -530,13 +572,13 @@ VALUES (?,?,?,NOW())');
 	 *
 	 * @internal
 	 * @since 1.10
-	 * @param string $module_name
+	 * @param string $modname
 	 */
-	public function unload_module(string $module_name)
+	public function unload_module(string $modname)
 	{
-		if( isset($this->_modules[$module_name]) &&
-			is_object($this->_modules[$module_name]) )
-			unset($this->_modules[$module_name]);
+		if( isset($this->_modules[$modname]) &&
+			is_object($this->_modules[$modname]) )
+			unset($this->_modules[$modname]);
 	}
 
 	/**
@@ -590,10 +632,10 @@ VALUES (?,?,?,NOW())');
 		}
 
 		$info = $this->_get_module_info();
-		$module_name = $module_obj->GetName();
-		$dbversion = $info[$module_name]['version'];
+		$modname = $module_obj->GetName();
+		$dbversion = $info[$modname]['version'];
 		if( $to_version == '' ) $to_version = $module_obj->GetVersion();
-		$dbversion = $info[$module_name]['version'];
+		$dbversion = $info[$modname]['version'];
 		if( version_compare($dbversion, $to_version) != -1 ) {
 			return [TRUE,'']; // nothing to do.
 		}
@@ -604,7 +646,8 @@ VALUES (?,?,?,NOW())');
 			if( is_numeric($result) ) {
 				$result = lang('failure');
 			}
-			if (1) { cms_error('Module '.$module_name.' upgrade failed: '.$result); } //TODO not if installer running
+			$installing = AppState::test_state(AppState::STATE_INSTALL);
+			if( !$installing ) { cms_error('Module '.$modname.' upgrade failed: '.$result); }
 			return [FALSE,$result];
 		}
 
@@ -613,16 +656,16 @@ VALUES (?,?,?,NOW())');
 //		$lazyload_admin = (method_exists($module_obj,'LazyLoadAdmin') && $module_obj->LazyLoadAdmin())?1:0;
 		$admin_only = ($module_obj->IsAdminOnly())?1:0;
 
-//		$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET version = ?, active = 1, allow_fe_lazyload = ?, allow_admin_lazyload = ?, admin_only = ? WHERE module_name = ?';
-		$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET version = ?, active = 1, admin_only = ? WHERE module_name = ?';
+//		$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET version = ?, allow_fe_lazyload = ?, allow_admin_lazyload = ?, admin_only = ?, active = 1 WHERE module_name = ?';
+		$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET version = ?, admin_only = ?, active = 1 WHERE module_name = ?';
 //		$dbr =
-//		$db->Execute($query,[$to_version,$lazyload_fe,$lazyload_admin,$admin_only,$module_name]);
-		$db->Execute($query,[$to_version,$admin_only,$module_name]);
+//		$db->Execute($query,[$to_version,$lazyload_fe,$lazyload_admin,$admin_only,$modname]);
+		$db->Execute($query,[$to_version,$admin_only,$modname]);
 
 		// upgrade dependencies
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_deps WHERE child_module = ?';
 //		$dbr =
-		$db->Execute($query,[$module_name]);
+		$db->Execute($query,[$modname]);
 
 		$deps = $module_obj->GetDependencies();
 		if( $deps ) {
@@ -630,26 +673,29 @@ VALUES (?,?,?,NOW())');
 			$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX."module_deps
 (parent_module,child_module,minimum_version,create_date)
 VALUES (?,?,?,$now)");
+			$stmt2 = $db->Prepare('UPDATE '.CMS_DB_PREFIX.'modules SET active=1 WHERE module_name=?');
 			foreach( $deps as $depname => $depversion ) {
 				if( !$depname || !$depversion ) continue;
 //				$dbr =
-				$db->Execute($stmt,[$depname,$module_name,$depversion]);
+				$db->Execute($stmt,[$depname,$modname,$depversion]);
+				$db->Execute($stmt2,[$depname]);
 			}
 			$stmt->close();
+			$stmt2->close();
 		}
 //		$this->generate_moduleinfo( $module_obj );
 		$this->_moduleinfo = [];
-		$cache = SysDataCache::get_instance();
+		$cache = AppSingle::SysDataCache();
 		$cache->release('modules');
 		$cache->release('module_deps');
 		$cache->release('module_plugins');
 		$cache->release('module_menus');
-		module_meta::get_instance()->clear_cache();
+		AppSingle::module_meta()->clear_cache();
 
-		cms_notice('Upgraded module '.$module_name.' to version '.$module_obj->GetVersion());
-		Events::SendEvent( 'Core', 'ModuleUpgraded', [ 'name' => $module_name, 'oldversion' => $dbversion, 'newversion' => $module_obj->GetVersion() ] );
+		cms_notice('Upgraded module '.$modname.' to version '.$module_obj->GetVersion());
+		Events::SendEvent( 'Core', 'ModuleUpgraded', [ 'name' => $modname, 'oldversion' => $dbversion, 'newversion' => $module_obj->GetVersion() ] );
 
-		SysDataCache::get_instance()->release('Events');
+		AppSingle::SysDataCache()->release('Events');
 		return [TRUE,''];
 	}
 
@@ -662,57 +708,61 @@ VALUES (?,?,?,$now)");
 	 * Use at your own risk and do not report bugs or issues related to your use of this module.
 	 *
 	 * @internal
-	 * @param string $module_name The name of the module to upgrade
+	 * @param string $modname The name of the module to upgrade
 	 * @param string $to_version The destination version
 	 * @return array, 1 or 2 members
 	 *  [0] : bool whether or not the upgrade was successful
 	 *  [1] : string error message if [0] == false
 	 */
-	public function UpgradeModule( string $module_name, string $to_version = '') : array
+	public function UpgradeModule( string $modname, string $to_version = '') : array
 	{
-		$module_obj = $this->get_module_instance($module_name,'',TRUE);
-		if( !is_object($module_obj) ) return [FALSE,lang('errormodulenotloaded')];
-		return $this->_upgrade_module($module_obj,$to_version);
+		$modinst = $this->get_module_instance($modname,'',TRUE);
+		if( is_object($modinst) ) {
+			return $this->_upgrade_module($modinst,$to_version);
+		}
+		return [FALSE,lang('errormodulenotloaded')];
+
 	}
 
 	/**
 	 * Uninstall a module
 	 *
 	 * @internal
-	 * @param string $module_name The name of the module to remove
+	 * @param string $modname The name of the module to remove
 	 * @return array, 1 or 2 members
 	 *  [0] : bool whether or not the uninstall was successful
 	 *  [1] : string error message if [0] == false
 	 */
-	public function UninstallModule(string $module_name) : array
+	public function UninstallModule(string $modname) : array
 	{
-		$obj = Utils::get_module($module_name);
-		if( !$obj ) return [FALSE,lang('errormodulenotloaded')];
+		$modinst = $this->get_module_instance($modname);
+		if( !$modinst ) return [FALSE,lang('errormodulenotloaded')];
 
-		$cleanup = $obj->AllowUninstallCleanup();
-		$result = $obj->Uninstall();
+		$cleanup = $modinst->AllowUninstallCleanup();
+		$result = $modinst->Uninstall();
 		if( $result && $result !== 1 ) {
 			if( is_numeric($result) ) {
 				$result = lang('failure');
 			}
-			if (1) { cms_error('Module '.$module_name.' uninstall failed: '.$result); } //TODO not if installer running
+			$installing = AppState::test_state(AppState::STATE_INSTALL);
+			if( !$installing ) { cms_error('Module '.$modname.' uninstall failed: '.$result); }
 			return [FALSE,$result];
 		}
 
 		$db = AppSingle::Db();
 		// now delete the record
-		$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'modules WHERE module_name=?',[$module_name]);
+		$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'modules WHERE module_name=?',[$modname]);
 
 		// delete any dependencies
-		$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_deps WHERE child_module=?',[$module_name]);
+		$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_deps WHERE child_module=?',[$modname]);
 
 		// clean up, if permitted
 		if( $cleanup ) {
-			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE originator=?',[$module_name]);
-			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE class=? AND type="M"',[$module_name]);
-			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'events WHERE originator=?',[$module_name]);
+			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE originator=?',[$modname]);
+			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE class=? AND type=\'M\'',[$modname]);
+			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'events WHERE originator=?',[$modname]);
 
-			$types = TemplateType::load_all_by_originator($module_name);
+			$types = TemplateType::load_all_by_originator($modname);
 			if( $types ) {
 				foreach( $types as $type ) {
 					$tpls = TemplateOperations::template_query(['t:'.$type->get_id()]);
@@ -728,31 +778,33 @@ VALUES (?,?,?,$now)");
 			$alerts = Alert::load_all();
 			if( $alerts ) {
 				foreach( $alerts as $alert ) {
-					if( $alert->module == $module_name ) $alert->delete();
+					if( $alert->module == $modname ) $alert->delete();
 				}
 			}
 
-			$jobmgr = AppSingle::App()->GetJobManager();
-			if( $jobmgr ) $jobmgr->delete_jobs_by_module($module_name);
+//			$jobmgr = AppSingle::App()->GetJobManager();
+//			if( $jobmgr ) $jobmgr->delete_jobs_by_module($modname);
+			(new JobOperations())->unload_jobs_by_module($modname);
 
-			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?',[$module_name]);
-			$db->Execute('DELETE FROM '.CMS_DB_PREFIX."siteprefs WHERE sitepref_name LIKE '". str_replace("'",'',$db->qStr($module_name))."_mapi_pref%'");
-			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'routes WHERE key1=?',[$module_name]);
+			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?',[$modname]);
+//			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE '\'. str_replace("'",'',$db->qStr($modname))."_mapi_pref%'"); TODO AppParams::NAMESPACER
+			AppParams::remove($modname.AppParams::NAMESPACER, true);
+			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'routes WHERE key1=?',[$modname]);
 		}
 
 		// clear related caches
-		$cache = SysDataCache::get_instance();
+		$cache = AppSingle::SysDataCache();
 		$cache->release('modules');
 		$cache->release('module_deps');
 		$cache->release('module_plugins');
 		$cache->release('module_menus');
-		module_meta::get_instance()->clear_cache();
+		AppSingle::module_meta()->clear_cache();
 
 		// Removing module from info
 		$this->_moduleinfo = [];
 
-		cms_notice('Uninstalled module '.$module_name);
-		Events::SendEvent( 'Core', 'ModuleUninstalled', [ 'name' => $module_name ] );
+		cms_notice('Uninstalled module '.$modname);
+		Events::SendEvent( 'Core', 'ModuleUninstalled', [ 'name' => $modname ] );
 
 		$cache->release('Events');
 		return [TRUE,''];
@@ -761,56 +813,56 @@ VALUES (?,?,?,$now)");
 	/**
 	 * Test if a module is active
 	 *
-	 * @param string $module_name
+	 * @param string $modname
 	 * @return bool
 	 */
-	public function IsModuleActive(string $module_name) : bool
+	public function IsModuleActive(string $modname) : bool
 	{
-		if( !$module_name ) return FALSE;
+		if( !$modname ) return FALSE;
 		$info = $this->_get_module_info();
-		if( !isset($info[$module_name]) ) return FALSE;
+		if( !isset($info[$modname]) ) return FALSE;
 
-		return (bool)$info[$module_name]['active'];
+		return (bool)$info[$modname]['active'];
 	}
 
 	/**
 	 * Activate a module
 	 *
-	 * @param string $module_name
+	 * @param string $modname
 	 * @param bool $activate flag indicating whether to activate or deactivate the module
 	 * @return bool
 	 */
-	public function ActivateModule(string $module_name,bool $activate = TRUE) : bool
+	public function ActivateModule(string $modname,bool $activate = TRUE) : bool
 	{
-		if( !$module_name ) return FALSE;
+		if( !$modname ) return FALSE;
 		$info = $this->_get_module_info();
-		if( !isset($info[$module_name]) ) return FALSE;
+		if( !isset($info[$modname]) ) return FALSE;
 
-		$o_state = $info[$module_name]['active'];
+		$o_state = $info[$modname]['active'];
 		if( $activate ) {
-			$info[$module_name]['active'] = 1;
+			$info[$modname]['active'] = 1;
 		}
 		else {
-			$info[$module_name]['active'] = 0;
+			$info[$modname]['active'] = 0;
 		}
-		if( $info[$module_name]['active'] != $o_state ) {
-			Events::SendEvent( 'Core', 'BeforeModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
+		if( $info[$modname]['active'] != $o_state ) {
+			Events::SendEvent( 'Core', 'BeforeModuleActivated', [ 'name'=>$modname, 'activated'=>$activate ] );
 			$db = AppSingle::Db();
 			$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET active = ? WHERE module_name = ?';
 //			$dbr =
-			$db->Execute($query,[$info[$module_name]['active'],$module_name]);
+			$db->Execute($query,[$info[$modname]['active'],$modname]);
 			$this->_moduleinfo = [];
-			$cache = SysDataCache::get_instance();
+			$cache = AppSingle::SysDataCache();
 			$cache->release('modules'); //force refresh of the cached active property
 			$cache->release('module_plugins');
 			$cache->release('module_menus');
-			module_meta::get_instance()->clear_cache();
-			Events::SendEvent( 'Core', 'AfterModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
+			AppSingle::module_meta()->clear_cache();
+			Events::SendEvent( 'Core', 'AfterModuleActivated', [ 'name'=>$modname, 'activated'=>$activate ] );
 			if( $activate ) {
-				cms_notice("Module $module_name activated"); //TODO lang
+				cms_notice("Module $modname activated"); //TODO lang
 			}
 			else {
-				cms_notice("Module $module_name deactivated");
+				cms_notice("Module $modname deactivated");
 			}
 		}
 		return TRUE;
@@ -827,23 +879,23 @@ VALUES (?,?,?,$now)");
 	{
 		$flag = AppState::test_state(AppState::STATE_ADMIN_PAGE);
 
-		foreach( $poll_modules as $module_name ) {
-			if( !$this->is_module_loaded($module_name) ) {
-				$module_obj = $this->get_module_instance($module_name);
+		foreach( $poll_modules as $modname ) {
+			if( $this->is_module_loaded($modname) ) {
+				$modinst = $this->_modules[$modname];
 			}
 			else {
-				$module_obj = $this->_modules[$module_name];
+				$modinst = $this->get_module_instance($modname);
 			}
-			if( !$module_obj ) continue;
+			if( !$modinst ) continue;
 
 			if( $flag ) {
-				$module_obj->InitializeAdmin();
+				$modinst->InitializeAdmin();
 			}
 			else {
-				$module_obj->InitializeFrontend();
+				$modinst->InitializeFrontend();
 			}
 			if( $callback ) {
-				if( !$callbak() ) {
+				if( !$callback() ) {
 					return;
 				}
 			}
@@ -863,10 +915,10 @@ VALUES (?,?,?,$now)");
 	/**
 	 * @internal
 	 */
-	public function is_module_loaded(string $module_name) : bool
+	public function is_module_loaded(string $modname) : bool
 	{
-		$module_name = trim( $module_name );
-		return isset( $this->_modules[$module_name] );
+		$modname = trim( $modname );
+		return isset( $this->_modules[$modname] );
 	}
 
 	/**
@@ -901,7 +953,7 @@ VALUES (?,?,?,$now)");
 		$info = $this->_get_module_info();
 		if( is_array($info) ) {
 			foreach( $info as $name => $rec ) {
-				if( $rec['status'] != 'installed' ) continue;
+//				if( $rec['status'] != 'installed' ) continue;
 				if( !$rec['active'] && !$include_all ) continue;
 				$result[] = $name;
 			}
@@ -928,7 +980,7 @@ VALUES (?,?,?,$now)");
 	 * @param mixed $args Optional CMSModule::HasCapability() arguments other than the name
 	 * @return array Names of all modules which match the given parameters
 	 */
-	public static function get_modules_with_capability(string $capability, $args = NULL )
+	public static function get_modules_with_capability(string $capability, $args = NULL)
 	{
 		return (new self())->GetCapableModules($capability, $args);
 	}
@@ -947,19 +999,19 @@ VALUES (?,?,?,$now)");
 	public function GetCapableModules(string $capability, $args = NULL)
 	{
 		if( !is_array($args) ) {
-			if( !empty($args) ) {
+			if( $args ) {
 				$args = [ $args ];
 			}
 			else {
 				$args = [];
 			}
 		}
-		return module_meta::get_instance()->module_list_by_capability($capability,$args);
+		return AppSingle::module_meta()->module_list_by_capability($capability,$args);
 	}
 
 	/**
 	 * Return the installed modules that have the specified method, and
-	 * when called, that method returns the specified returnvalue.
+	 * when called, that method returns the specified $returnvalue.
 	 * This retrieves data from cache if possible, so it does not necessarily
 	 * load modules and call their method. Absent cached data, this method
 	 * temporarily loads modules which are not currently loaded.
@@ -972,7 +1024,7 @@ VALUES (?,?,?,$now)");
 	 */
 	public function GetMethodicModules(string $method, $returnvalue = self::ANY_RESULT)
 	{
-		return module_meta::get_instance()->module_list_by_method($method,$returnvalue);
+		return AppSingle::module_meta()->module_list_by_method($method,$returnvalue);
 	}
 
 	/**
@@ -980,7 +1032,7 @@ VALUES (?,?,?,$now)");
 	 */
 	private function _get_all_module_dependencies()
 	{
-		$out = SysDataCache::get_instance()->get('module_deps');
+		$out = AppSingle::SysDataCache()->get('module_deps');
 		if( $out !== '-' ) return $out;
 	}
 
@@ -990,69 +1042,70 @@ VALUES (?,?,?,$now)");
 	 *
 	 * @since 1.11.8
 	 * @author Robert Campbell
-	 * @param string $module_name The module name
+	 * @param string $modname The module name
 	 * @return mixed array of module names and dependencies | null
 	 */
-	public function get_module_dependencies(string $module_name)
+	public function get_module_dependencies(string $modname)
 	{
-		if( !$module_name ) return;
+		if( !$modname ) return;
 
 		$deps = $this->_get_all_module_dependencies();
-		if( isset($deps[$module_name]) ) return $deps[$module_name];
+		if( isset($deps[$modname]) ) return $deps[$modname];
 	}
 
 	/**
 	 * Return a module object, if possible
-	 * If the module is not already loaded, and $force is true, the module will be [re]loaded.
-	 * Version checks are done with the module to allow only loading versions of
-	 * modules that are greater than the specified value.
+	 * If the module is not already loaded, and $force is true, the module will
+	 * be loaded.
+	 * If a (min) version is specified, a module version check is done,
+	 * to prevent loading a version that is unwanted.
 	 *
-	 * @param mixed string | empty $module_name The module name
+	 * @param mixed string | empty $modname The module name
 	 * @param string $version Optional version identifier.
 	 * @param bool $force Optional flag whether to reload the module if already loaded. Default false.
 	 * @return mixed CMSModule subclass | IResource | null
 	 *  Since 2.99 (and PHP 5.0) : object, not an object-reference ("returning object-references is totally wasted")
 	 */
 	public function get_module_instance(
-		$module_name,
+		$modname,
 		string $version = '',
 		bool $force = FALSE)
 	{
-		if( empty($module_name) ) {
+		if( !$modname ) {
 			if( !empty($this->variables['module']) ) {
-				$module_name = $this->variables['module'];
+				$modname = $this->variables['module'];
 			}
 			else {
 				return NULL;
 			}
 		}
 
-		$obj = NULL;
-		if( isset($this->_modules[$module_name]) ) {
+		$modinst = NULL;
+		if( isset($this->_modules[$modname]) ) {
 			if( $force ) {
-				unset($this->_modules[$module_name]);
+				unset($this->_modules[$modname]);
 			}
 			else {
-				$obj = $this->_modules[$module_name];
+				$modinst = $this->_modules[$modname];
 			}
 		}
-		if( !is_object($obj) ) {
-			// gotta load it.
-			$res = $this->_load_module($module_name, $force);
-			if( $res ) { $obj = $this->_modules[$module_name]; }
+		if( !is_object($modinst) ) {
+			// gotta load it, if possible (includes install for a core module).
+			$res = $this->_load_module($modname,$force);
+			if( $res ) { $modinst = $this->_modules[$modname]; }
 		}
 
-		if( is_object($obj) && !empty($version) ) {
-			$res = version_compare($obj->GetVersion(),$version);
-			if( $res < 0 || $res === FALSE ) { $obj = NULL; }
+		if( is_object($modinst) && ($version || is_numeric($version)) ) {
+			$res = version_compare($modinst->GetVersion(),$version);
+			if( $res < 0 ) { $modinst = NULL; }
 		}
 
-		return $obj;
+		return $modinst;
 	}
 
 	/**
 	 * Record the names of core/system modules known to the system
-	 * (wherever they are stored, and whatever status they currently have)
+	 * (wherever they are stored)  NAH >> , and whatever status they currently have)
 	 * We don't need to assume those modules are in any specific folder(s),
 	 * and need to be polled in there
 	 * @param mixed $val Optional comma-separated string | strings[] | falsy
@@ -1065,8 +1118,8 @@ VALUES (?,?,?,$now)");
 		if( $val ) {
 			if( !is_array($val) ) {
 				$tmp = explode(',', $val);
-				$val = array_map(function($module_name) {
-					return trim($module_name);
+				$val = array_map(function($modname) {
+					return trim($modname);
 				}, $tmp);
 			}
 		}
@@ -1077,17 +1130,17 @@ VALUES (?,?,?,$now)");
 			$gCms = AppSingle::App(); // compatibility for some crappy old modules, deprecated since 2.99
 			$val = [];
 			$names = $this->FindAllModules();
-			foreach( $names as $module_name ) {
+			foreach( $names as $modname ) {
 				// we assume namespace for modules is still global
-				if( !class_exists($module_name) ) {
+				if( !class_exists($modname) ) {
 					require_once cms_module_path($onename);
 				}
-				$obj = new $module_name();
-				if( $obj->HasCapability(CoreCapabilities::CORE_MODULE) ) {
-					$val[] = $module_name;
+				$modinst = new $modname();
+				if( $modinst->HasCapability(CoreCapabilities::CORE_MODULE) ) {
+					$val[] = $modname;
 				}
-				unset($obj);
-				$obj = NULL;
+				unset($modinst);
+				$modinst = NULL;
 			}
 		}
 		sort($val, SORT_STRING);
@@ -1097,16 +1150,16 @@ VALUES (?,?,?,$now)");
 	/**
 	 * Determine whether the specified name corresponds to a system/core module.
 	 *
-	 * @param string $module_name The module name
+	 * @param string $modname The module name
 	 * @return bool
 	 */
-	public function IsSystemModule(string $module_name) : bool
+	public function IsSystemModule(string $modname) : bool
 	{
 		if( $this->_coremodules === NULL ) {
 			$this->RegisterSystemModules();
 		}
 		if( $this->_coremodules ) {
-			$res = in_array($module_name, $this->_coremodules);
+			$res = in_array($modname, $this->_coremodules);
 			if( AppState::test_state(AppState::STATE_INSTALL) ) {
 				//revert the modules-list, in case they change during install
 				$this->_coremodules = NULL;
@@ -1125,7 +1178,7 @@ VALUES (?,?,?,$now)");
 	public function RegisterAdminLoginModule($mod)
 	{
 		if( $this->_auth_module ) throw new LogicException('An authentication module has already been recorded for current use');
-		if( ! $mod instanceof IAuthModuleInterface ) {
+		if( ! $mod instanceof IAuthModule ) {
 			throw new LogicException($mod->GetName().' is not a valid authentication module');
 		}
 		$this->_auth_module = $mod;
@@ -1138,7 +1191,7 @@ VALUES (?,?,?,$now)");
 	public function GetAdminLoginModule()
 	{
 		if( $this->_auth_module ) return $this->_auth_module;
-		return $this->get_module_instance( self::STD_LOGIN_MODULE, '', TRUE );
+		return $this->get_module_instance(self::STD_LOGIN_MODULE, '', TRUE);
 	}
 
 	/**
@@ -1148,21 +1201,22 @@ VALUES (?,?,?,$now)");
 	 * @since 1.10
 	 * @deprecated since 2.99. Instead, generate and place content (js etc) directly
 	 *
-	 * @param mixed string|null|-1 $module_name allows specifying a
+	 * @param mixed string|null|-1 $modname allows specifying a
 	 * module to be used instead of the user's recorded preference.
 	 * @return mixed CMSModule | IResource | null
 	 */
-	public function GetSyntaxHighlighter($module_name = NULL)
+	public function GetSyntaxHighlighter($modname = NULL)
 	{
-		if( !$module_name ) {
-			if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) $module_name = UserParams::get_for_user(get_userid(FALSE),'syntaxhighlighter');
-			if( $module_name ) $module_name = html_entity_decode( $module_name ); // for some reason entities may have gotten in there?
+		if( !$modname ) {
+			if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) { $modname = UserParams::get_for_user(get_userid(FALSE),'syntaxhighlighter'); }
+			if( $modname ) { $modname = de_entitize($modname); } // for some reason entities may have gotten in there?
 		}
 
-		if( $module_name && $module_name != -1 ) {
-			$obj = $this->get_module_instance($module_name);
-			if( $obj && $obj->HasCapability(CoreCapabilities::SYNTAX_MODULE) ) {
-				return $obj;
+		if( $modname && $modname != -1 ) {
+			$modname = sanitizeVal($modname, CMSSAN_FILE);
+			$modinst = $this->get_module_instance($modname);
+			if( $modinst && $modinst->HasCapability(CoreCapabilities::SYNTAX_MODULE) ) {
+				return $modinst;
 			}
 		}
 	}
@@ -1173,12 +1227,12 @@ VALUES (?,?,?,$now)");
 	 * @see ModuleOperations::GetSyntaxHighlighter()
 	 * @deprecated since 2.99
 	 * @since 1.10
-	 * @param mixed $module_name string | null
+	 * @param mixed $modname string | null
 	 * @return CMSModule | IResource
 	 */
-	public function GetSyntaxModule($module_name = NULL)
+	public function GetSyntaxModule($modname = NULL)
 	{
-		return $this->GetSyntaxHighlighter($module_name);
+		return $this->GetSyntaxHighlighter($modname);
 	}
 
 	/**
@@ -1189,25 +1243,27 @@ VALUES (?,?,?,$now)");
 	 * @since 1.10
 	 * @deprecated since 2.99. Instead, generate and place content (js etc) directly
 	 *
-	 * @param mixed string|null $module_name allows bypassing the automatic detection process
+	 * @param mixed string|null $modname allows bypassing the automatic detection process
 	 *  and specifying a wysiwyg module.
 	 * @return mixed CMSModule | IResource | null
 	 */
-	public function GetWYSIWYGModule($module_name = NULL)
+	public function GetWYSIWYGModule($modname = NULL)
 	{
-		if( !$module_name ) {
+		if( !$modname ) {
 			if( AppSingle::App()->is_frontend_request() ) {
-				$module_name = AppParams::get('frontendwysiwyg');
+				$modname = AppParams::get('frontendwysiwyg');
 			}
 			else {
-				$module_name = UserParams::get_for_user(get_userid(FALSE),'wysiwyg');
+				$modname = UserParams::get_for_user(get_userid(FALSE),'wysiwyg');
 			}
-			if( $module_name ) $module_name = html_entity_decode($module_name);
+			if( $modname ) $modname = \html_entity_decode($modname);
 		}
 
-		if( !$module_name || $module_name == -1 ) return;
-		$obj = $this->get_module_instance($module_name);
-		if( $obj && $obj->HasCapability(CoreCapabilities::WYSIWYG_MODULE) ) return $obj;
+		if( !$modname || $modname == -1 ) return;
+		$modinst = $this->get_module_instance($modname);
+		if( $modinst && $modinst->HasCapability(CoreCapabilities::WYSIWYG_MODULE) ) {
+			return $modinst;
+		}
 	}
 
 	/**
@@ -1218,10 +1274,12 @@ VALUES (?,?,?,$now)");
 	 */
 	public function GetSearchModule()
 	{
-		$module_name = AppParams::get('searchmodule','Search');
-		if( $module_name && $module_name != 'none' && $module_name != '-1' ) {
-			$obj = $this->get_module_instance($module_name);
-			if( $obj && $obj->HasCapability(CoreCapabilities::SEARCH_MODULE) ) return $obj;
+		$modname = AppParams::get('searchmodule','Search');
+		if( $modname && $modname != 'none' && $modname != '-1' ) {
+			$modinst = $this->get_module_instance($modname);
+			if( $modinst && $modinst->HasCapability(CoreCapabilities::SEARCH_MODULE) ) {
+				return $modinst;
+			}
 		}
 	}
 
@@ -1229,14 +1287,14 @@ VALUES (?,?,?,$now)");
 	 * Return the currently-selected filepicker module object, if any.
 	 * @since 2.2
 	 *
-	 * @return mixed FilePicker | null
+	 * @return mixed IFilePicker | null
 	 */
 	public function GetFilePickerModule()
 	{
-		$module_name = AppParams::get('filepickermodule','FilePicker');
-		if( $module_name && $module_name != 'none' && $module_name != '-1' ) {
-			$obj = $this->get_module_instance($module_name);
-			if( $obj ) return $obj;
+		$modname = AppParams::get('filepickermodule','FilePicker');
+		if( $modname && $modname != 'none' && $modname != '-1' ) {
+			$modinst = $this->get_module_instance($modname);
+			if( $modinst ) return $modinst;
 		}
 	}
 
@@ -1244,11 +1302,11 @@ VALUES (?,?,?,$now)");
 	 * Return the members of $_REQUEST[] whose key begins with $id
 	 * $id is stripped from the start of returned keys.
 	 * @internal
-	 * @see also RequestParameters class, cms_specialchars_decode()
+	 * @see also RequestParameters class, CMSMS\de_specialize()
 	 *
 	 * @param string $id module-action identifier
 	 * @param bool   $clean since 2.99 optional flag whether to pass
-	 *  non-numeric string-values via cms_specialchars_decode() Default false.
+	 *  non-numeric string-values via CMSMS\de_specialize() Default false.
 	 * @param mixed $names since 2.99 optional strings array, or single,
 	 *  or comma-separated series of, wanted parameter key(s)
 	 * @return array, maybe empty
@@ -1278,7 +1336,7 @@ VALUES (?,?,?,$now)");
 					$key = substr($key,$len);
 					if( !$matches || in_array($key, $matches) ) {
 						if( $clean && is_string($value) && !is_numeric($value) ) {
-							$value = cms_specialchars_decode($value);
+							$value = de_specialize($value);
 						}
 						$params[$key] = $value;
 					}

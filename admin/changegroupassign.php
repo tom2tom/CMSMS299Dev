@@ -1,27 +1,30 @@
 <?php
-#Change user-group-membership(s) of user(s)
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Change user-group-membership(s) of user(s)
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
-//use CMSMS\SysDataCache;
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\UserParams;
-use CMSMS\Utils;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -36,11 +39,11 @@ if (isset($_POST['cancel'])) {
 
 $userid = get_userid();
 
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
 if (!check_permission($userid, 'Manage Groups')) {
 //TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-    return;
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
 $groupops = AppSingle::GroupOperations();
@@ -64,7 +67,7 @@ $group_list = $groupops->LoadGroups(); // Group or stdClass objects, used in fil
 $groups = []; // displayable Group-object(s)
 
 if (isset($_POST['filter'])) {
-    $disp_group = (int) $_POST['groupsel'];
+    $disp_group = (int)$_POST['groupsel'];
     UserParams::set_for_user($userid, 'changegroupassign_group', $disp_group);
 } else {
     $disp_group = UserParams::get_for_user($userid, 'changegroupassign_group', -1);
@@ -92,7 +95,6 @@ $smarty->assign([
 $db = AppSingle::Db();
 
 if (isset($_POST['submit'])) {
-    cleanArray($_POST);
     $userops = AppSingle::UserOperations();
 
     $stmt1 = $db->Prepare('DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id=? AND user_id=?');
@@ -102,6 +104,7 @@ if (isset($_POST['submit'])) {
 (group_id, user_id, create_date)
 VALUES (?,?,NOW())');
 
+	//CMSMS\de_specialize_array($_POST); individually sanitized where needed
     foreach ($groups as $onegroup) {
         if ($onegroup->id <= 0) {
             continue; // invalid | 'all groups' ?
@@ -115,9 +118,10 @@ VALUES (?,?,NOW())');
                     Events::SendEvent('Core', 'ChangeGroupAssignPre',
                          ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
                     );
-                    if ($value == '0') {
+                    $value = (int)$value; //sanitize
+                    if ($value === 0) {
                         $db->Execute($stmt1, [$onegroup->id,$userid]);
-                    } else {
+                    } elseif ($value === 1) {
                         $rst = $db->Execute($stmt2, [$onegroup->id,$keyparts[1]]); // permission id
                         if (!$rst || $rst->EOF) {
                             $db->Execute($stmt3, [$onegroup->id,$keyparts[1]]);
@@ -141,7 +145,7 @@ VALUES (?,?,NOW())');
 
     $message = lang('assignmentchanged');
 //    AdminUtils::clear_cached_files();
-//    SysDataCache::get_instance()->release('IF ANY');
+//    AppSingle::SysDataCache()->release('IF ANY');
 }
 
 $query = 'SELECT u.user_id, u.username, ug.group_id FROM '.
@@ -184,6 +188,7 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('changegroupassign.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";

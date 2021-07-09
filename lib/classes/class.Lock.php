@@ -1,7 +1,7 @@
 <?php
 /*
 Class for lock functionality plus related exceptions
-Copyright (C) 2014-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2014-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,22 +19,18 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
-namespace CMSMS {
+namespace CMSMS;
 
 use ArrayAccess;
-use CmsException;
-use CmsInvalidDataException;
-use CmsNoLockException;
-use CmsLogicException;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\Lock;
-use const CMS_DB_PREFIX;
-use function cms_notice;
+use CMSMS\DataException;
+use CMSMS\DeprecationNotice;
+use CMSMS\LockOperations;
+use CMSMS\NoLockException;
+use const CMS_DEPREC;
 use function cms_to_stamp;
-use function cms_warning;
 use function get_userid;
+use function lang;
 
 /**
  * A simple class representing a lock on a logical object in CMSMS.
@@ -53,14 +49,7 @@ use function get_userid;
  */
 final class Lock implements ArrayAccess
 {
-    /**
-     * @ignore
-     */
-    const LOCK_TABLE = 'locks';
-
-    /* *
-     * @ignore
-     */
+// @ignore
 //    const KEYS = ['id','type','oid','uid','create_date','modified_date','lifetime','expires'];
 
     /**
@@ -71,38 +60,54 @@ final class Lock implements ArrayAccess
     /**
      * @ignore
      */
-    private $_dirty = FALSE;
+    private $_dirty = false;
 
     /**
      * Constructor
      *
-     * @param string $type Locked-object type
-     * @param int    $oid Locked-object numeric identifier
-     * @param int    $lifetime Optional interval (in minutes) during which the
-     *  lock may not be stolen. If not specified, the system default value will be used.
+     * Varargs for this method are:
+     * absent,
+     * or an assoc. array of some/all instance properties,
+     * or (pre-2.99 API) 2 or 3 individual un-named properties:
+     * string Locked-object type
+     * int    Locked-object numeric identifier
+     * int    Optional interval (in minutes) during which the lock may not
+     *  be stolen. If not specified, the system default value will be used.
+     * @throws LogicException or DataException
      */
-    public function __construct($type,$oid,$lifetime = null)
+    public function __construct(...$params)
     {
-        $type = trim($type);
-        if( $type == '' ) throw new CmsInvalidDataException('CMSEX_L003');
-        $oid = trim($oid);
-
-        $this->_data['type'] = $type;
-        $this->_data['oid'] = $oid;
-        $this->_data['uid'] = get_userid(false);
-        if( $lifetime == null ) $lifetime = AppParams::get('lock_timeout',60);
-        $t = max(1,(int)$lifetime);
-        $this->_data['lifetime'] = $t; // deprecated since 2.99
-        $this->_data['expires'] = $t * 60 + time();
-        $this->_dirty = TRUE;
+        switch (count($params)) {
+            case 2:
+                $params = array_combine(['type', 'oid'], $params);
+                $this->set_properties($params);
+                return;
+            case 3:
+                $params = array_combine(['type', 'oid', 'lifetime'], $params);
+                $this->set_properties($params);
+            // no break here
+            case 0:
+                return;
+            case 1:
+                if (is_array($params[0])) {
+                    $this->set_properties($params[0]);
+                    return;
+                }
+            // no break here
+            default:
+                throw new LogicException('Invalid lock parameters');
+        }
     }
 
     /**
      * @ignore
+     * @param string $key
+     * @return mixed
+     * @throws LogicException
      */
     public function OffsetGet($key)
     {
-        switch( $key ) {
+        switch ($key) {
         case 'type':
         case 'oid':
         case 'uid':
@@ -114,53 +119,62 @@ final class Lock implements ArrayAccess
         case 'modified_date': // deprecated since 2.99
         case 'lifetime': // deprecated since 2.99
         case 'expires':
-            if( isset($this->_data[$key]) ) return $this->_data[$key];
-            throw new CmsLogicException('CMSEX_L004');
+            if (isset($this->_data[$key])) {
+                return $this->_data[$key];
+            }
+            throw new LogicException(lang('missingparams'));
         }
     }
 
     /**
      * @ignore
+     * @param string $key
+     * @param mixed $value
+     * @throws LogicException
      */
-    public function OffsetSet($key,$value)
+    public function OffsetSet($key, $value)
     {
-        switch( $key ) {
+        switch ($key) {
         case 'modified_date': // deprecated since 2.99
             $this->_data[$key] = trim($value);
-            $this->_dirty = TRUE;
             break;
         case 'lifetime': // deprecated since 2.99
-            $this->_data[$key] = max(1,(int)$value);
-            $this->_dirty = TRUE;
+            $this->_data[$key] = max(1, (int)$value);
             break;
         case 'expires':
-            $this->_data[$key] = max(0,(int)$value);
-            $this->_dirty = TRUE;
+            $this->_data[$key] = max(0, (int)$value);
             break;
-        case 'uid':
         case 'id':
-            // can't reset this one
-            if( isset($this->_data['id']) ) throw new CmsInvalidDataException('CMSEX_G001');
+        case 'uid':
+        case 'oid':
+            // can't reset these
+            if (isset($this->_data['id']) && $this->_data['id'] != 0) {
+                throw new LogicException('CMSEX_INVALIDMEMBER', null, $key); // TODO something better re repeitition
+            }
             $this->_data[$key] = (int)$value;
-            $this->_dirty = TRUE;
             break;
         case 'type':
-        case 'oid':
         case 'create_date': // deprecated since 2.99
-            // or this one
-            if( isset($this->_data['id']) ) throw new CmsInvalidDataException('CMSEX_G001');
+            // can't reset these
+            if (isset($this->_data['id']) && $this->_data['id'] != 0) {
+                throw new LogicException('CMSEX_INVALIDMEMBER', null, $key);
+            }
             $this->_data[$key] = trim($value);
-            $this->_dirty = TRUE;
             break;
+        default:
+            throw new LogicException('CMSEX_INVALIDMEMBER', null, $key);
         }
+        $this->_dirty = true;
     }
 
     /**
      * @ignore
+     * @param string $key
+     * @return mixed
      */
     public function OffsetExists($key)
     {
-        if( $key != 'created' ) {
+        if ($key != 'created') {
             return isset($this->_data[$key]);
         }
         return isset($this->_data['create_date']);
@@ -168,188 +182,149 @@ final class Lock implements ArrayAccess
 
     /**
      * @ignore
+     * @param string $key
      */
     public function OffsetUnset($key)
     {
-        // do nothing.
+        // do nothing
     }
 
     /**
-     * Test if the current lock object has expired
+     * Set some or all properties of this lock
+     * @since 2.99
+     * @throws LogicException or DataException
+     */
+    public function set_properties(array $params)
+    {
+        $val = $params['type'] ?? null;
+        if ($val !== null) {
+            $val = trim($val);
+            if ($val !== '') {
+                $params['type'] = $val;
+            } else {
+                throw new DataException('CMSEX_L003');
+            }
+        } else {
+            unset($params['type']);
+        }
+
+        $val = $params['oid'] ?? 0;
+        $params['oid'] = max(0, (int)$val);
+        $val = isset($params['uid']) ? (int)$params['uid'] : 0;
+        $params['uid'] = ($val > 0) ? $val : get_userid(false);
+
+        $val = $params['lifetime'] ?? 0;
+        if ($val <= 0) {
+            $val = AppParams::get('lock_timeout', 60);
+        }
+        $t = max(1, (int)$val);
+        $params['lifetime'] = $t; // deprecated since 2.99
+
+        $val = $params['expires'] ?? 0;
+        if ($val == 0) { // null ok
+            $val = $t * 60 + time();
+        }
+        $params['expires'] = $val;
+
+        // id must be set last
+        $val = $params['id'] ?? 0;
+        unset($params['id']);
+
+        foreach ($params as $key => $value) {
+            $this->OffsetSet($key, $value);
+        }
+
+        $this->OffsetSet('id', max(0, (int)$val));
+    }
+
+    /**
+     * Report whether this lock object has expired
      *
      * @return bool
      */
     public function expired()
     {
-        if( !isset($this->_data['expires']) ) return FALSE;
-        return $this->_data['expires'] < time();
+        if (empty($this->_data['expires'])) {
+            return false;
+        }
+        return $this->_data['expires'] <= time();
     }
 
     /**
-     * Save the current lock object
+     * Save this lock object, if needed
      *
-     * @throws CmsSqlErrorException
+     * @throws SqlErrorException
      */
     public function save()
     {
-        if( !$this->_dirty ) return;
-
-        $db = AppSingle::Db();
-        $dbr = null;
-        $this->_data['expires'] = time() + $this->_data['lifetime'] * 60;
-        if( !isset($this->_data['id']) ) {
-            // insert
-            //TODO DT fields for created, modified
-            //,created,modified
-            $query = 'INSERT INTO '.CMS_DB_PREFIX.self::LOCK_TABLE.'
-(type,oid,uid,lifetime,expires)
-VALUES (?,?,?,?,?)'; //,?,?
-            $dbr = $db->Execute($query,[$this->_data['type'], $this->_data['oid'], $this->_data['uid'],
-                                        $this->_data['lifetime'], $this->_data['expires']]); //time(), time(),
-            $this->_data['id'] = $db->Insert_ID();
+        if ($this->_dirty) {
+            $id = LockOperations::save($this->_data);
+            if (empty($this->_data['id'])) {
+                $this->_data['id'] = $id;
+            }
+            $this->_dirty = false;
         }
-        else {
-            // update
-            //TODO DT field for modified
-            //, modified = ?
-            $query = 'UPDATE '.CMS_DB_PREFIX.self::LOCK_TABLE.'
-SET lifetime = ?, expires = ?
-WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
-            $dbr = $db->Execute($query,[$this->_data['lifetime'],$this->_data['expires'],//time(),
-                                        $this->_data['type'],$this->_data['oid'],$this->_data['uid'],$this->_data['id']]);
-        }
-        if( !$dbr ) throw new CmsSqlErrorException('CMSEX_SQL001',null,$db->ErrorMsg());
-        $this->_dirty = FALSE;
     }
 
     /**
-     * Create a lock object from a database row
+     * Remove this lock from the database
      *
+     * @throws LogicException or LockOwnerException
+     */
+    public function delete()
+    {
+        if (LockOperations::delete_real($this->_data)) {
+            $this->_data['id'] = 0;
+            $this->_dirty = true;
+        }
+    }
+
+    //~~~~~~~~~~ METHODS EXPORTED TO THE OPERATIONS CLASS ~~~~~~~~~
+
+    /**
+     * Create a lock object from a database row
+     * @deprecated since 2.99 Instead use LockOperations::from_row()
      * @internal
+     *
      * @param array $row An array representing a database lock
      * @return Lock
      */
     public static function from_row($row)
     {
-        $obj = new Lock($row['type'],$row['oid'],$row['lifetime']);
-        foreach( $row as $key => $val ) {
-            $obj->_data[$key] = $val;
-        }
-        $obj->_dirty = TRUE;
-        return $obj;
-    }
-
-
-    /**
-     * Delete the current lock from the database.
-     *
-     * @throws CmsLogicException
-     * @throws CmsLockOwnerException
-     */
-    public function delete()
-    {
-        if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) throw new CmsLogicException('CMSEX_L002');
-
-        $userid = get_userid(false);
-        if( !$this->expired() && $userid != $this->_data['uid'] ) {
-            cms_warning('Attempt to delete a non expired lock owned by user '.$userid);
-            throw new CmsLockOwnerException('CMSEX_L001');
-        }
-
-        if( $userid != $this->_data['uid'] ) {
-            cms_notice(sprintf('Lock %s (%s/%d) owned by uid %s deleted by non owner',
-                                         $this->_data['id'],$this->_data['type'],$this->_data['oid'],$this->_data['uid']));
-        }
-
-        $db = AppSingle::Db();
-        $query = 'DELETE FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id = ?';
-        $db->Execute($query,[$this->_data['id']]);
-        unset($this->_data['id']);
-        $this->_dirty = TRUE;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('class', 'new Lock($row)'));
+        return new self($row);
     }
 
     /**
-     * Load a lock object matching the supplied parameters.
+     * Load a lock object matching the supplied parameters
+     * @deprecated since 2.99 Instead use LockOperations::load_by_id()
      *
      * @param int $lock_id
      * @param string $type  The lock type (type of object being locked)
      * @param int $oid  The numeric id of the locked object
      * @param int $userid  Optional lock-holder identifier
      * @return Lock
-     * @throws CmsNoLockException
+     * @throws NoLockException
      */
-    public static function load_by_id($lock_id,$type,$oid,$userid = null)
+    public static function load_by_id($lock_id, $type, $oid, $userid = null)
     {
-        $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id = ? AND type = ? AND oid = ?';
-        $db = AppSingle::Db();
-        $parms = [$lock_id,$type,$oid];
-        if( $userid > 0 ) {
-            $query .= ' AND uid = ?';
-            $parms[] = $userid;
-        }
-        $row = $db->GetRow($query,$parms);
-        if( $row ) return self::from_row($row);
-        throw new CmsNoLockException('CMSEX_L005','',[$lock_id,$type,$oid,$userid]);
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'LockOperations::load_by_id'));
+        return LockOperations::load_by_id($lock_id, $type, $oid, $userid);
     }
 
     /**
-     * Load a lock object matching the supplied parameters.
+     * Load a lock object matching the supplied parameters
+     * @deprecated since 2.99 Instead use LockOperations::load()
      *
      * @param string $type  The lock type (type of object being locked)
      * @param int $oid  The numeric id of the locked object
      * @param int $userid  Optional lock-holder identifier
      * @return Lock
-     * @throws CmsNoLockException
+     * @throws NoLockException
      */
-    public static function load($type,$oid,$userid = null)
+    public static function load($type, $oid, $userid = null)
     {
-        $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
-        $db = AppSingle::Db();
-        $parms = [$type,$oid];
-        if( $userid > 0 ) {
-            $query .= ' AND uid = ?';
-            $parms[] = $userid;
-        }
-        $row = $db->GetRow($query,$parms);
-        if( $row ) return self::from_row($row);
-        throw new CmsNoLockException('CMSEX_L005','',[$type,$userid,$userid]);
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'LockOperations::load'));
+        return LockOperations::load($type, $oid, $userid);
     }
 } // class
-
-} //namespace
-
-namespace {
-
-/**
- * An exception indicating an error creating a lock
- *
- * @package CMS
- * @since 2.0
- */
-class CmsLockException extends CmsException {}
-
-/**
- * An exception indicating a uid mismatch wrt a lock (person operating on the lock is not the owner)
- *
- * @package CMS
- * @since 2.0
- */
-class CmsLockOwnerException extends CmsLockException {}
-
-/**
- * An exception indicating an error removing a lock
- *
- * @package CMS
- * @since 2.0
- */
-class CmsUnLockException extends CmsLockException {}
-
-/**
- * An exception indicating an error loading or finding a lock
- *
- * @package CMS
- * @since 2.0
- */
-class CmsNoLockException extends CmsLockException {}
-
-} // global namspace

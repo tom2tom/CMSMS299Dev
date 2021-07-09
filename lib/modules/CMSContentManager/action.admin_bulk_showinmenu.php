@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SysDataCache;
+use CMSMS\AppSingle;
 
 if( !isset($gCms) ) exit;
 if( !isset($action) || $action != 'admin_bulk_showinmenu' ) exit;
@@ -56,7 +56,7 @@ catch( Throwable $t ) {
     $this->SetError($t->getMessage());
 }
 
-$cache = SysDataCache::get_instance();
+$cache = AppSingle::SysDataCache();
 $cache->release('content_quicklist');
 $cache->release('content_tree');
 $cache->release('content_flatlist');

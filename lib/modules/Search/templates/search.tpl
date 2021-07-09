@@ -5,5 +5,5 @@
 {*<br />
  <input type="checkbox" name="{$search_actionid}use_or" value="1" />
 *}
- <input type="submit" name="{$search_actionid}submit" class="search-button" value="{$submittext}" />
+ <button type="submit" name="{$search_actionid}submit" class="search-button">{$submittext}</button>
 </form>

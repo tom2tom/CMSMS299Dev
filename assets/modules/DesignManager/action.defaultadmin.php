@@ -20,6 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use DesignManager\Design;
 
 if( !isset($gCms) ) exit;
@@ -70,8 +71,7 @@ if( $designs && ($n = count($designs)) ) {
 }
 
 if( $pmod ) {
-    $userops = UserOperations::get_instance();
-    $allusers = $userops->LoadUsers();
+    $allusers = AppSingle::UserOperations()->LoadUsers();
     $users = [-1=>$this->Lang('prompt_unknown')];
     $tmp = [];
     for( $i = 0, $n = count($allusers); $i < $n; $i++ ) {
@@ -86,7 +86,6 @@ if( $pmod ) {
 
 $tpl->assign('pmod',$pmod);
 
-//$admin_url = $config['admin_url'];
 //$tpl->assign('lock_timeout', $this->GetPreference('lock_timeout', 60));
 //$url = $this->create_url($id,'ajax_get_templates');
 //$ajax_templates_url = str_replace('&amp;','&',$url);

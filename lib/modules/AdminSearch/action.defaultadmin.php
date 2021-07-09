@@ -21,23 +21,16 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use AdminSearch\Tools;
+use CMSMS\UserParams;
 
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
 
+//TODO inline css might be bad for content security policy: use external ref instead?
+$styles = file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.'defaultadmin.css');
 $out = <<<EOS
 <style type="text/css">
-#status_area,#searchresults_cont,#workarea {
- display:none
-}
-#searchresults {
- max-height:25em;
- overflow:auto;
- cursor:pointer
-}
-.search_oneresult {
- color:red
-}
+$styles
 </style>
 
 EOS;
@@ -69,9 +62,19 @@ function process_results(c) {
    });
   }
  });
- c.find('li.section').on('click',function() {
-  $('.section_children').hide();
-  $(this).children('.section_children').show();
+ var mi = c.find('li.section'),
+   l = mi.length;
+ mi.on('click',function() {
+  var s = $(this).children('.section_children'),
+    v = s.is(':visible');
+  if (l > 1) {
+    $('.section_children').hide();
+  } else {
+    s.hide();
+  }
+  if (!v) {
+    s.show();
+  }
  });
 }
 
@@ -80,8 +83,8 @@ $(function() {
   $('#filter_box .filter_toggle').prop('checked',this.checked);
  });
  $('#searchbtn').on('click', function() {
-   var t = $('#searchtext').val();
-   if(t.length < 2) {
+   var ndl = $('#searchtext').val();
+   if(ndl.length < 2) {
      cms_alert($s2);
      return false;
    }
@@ -90,29 +93,32 @@ $(function() {
      cms_alert($s3);
      return false;
    } else {
-     $('#searchresults').html('');
+     var parms = {};
+     parms['{$id}search_text'] = encodeURIComponent(ndl);
      var s = [];
      cb.each(function() {
        s.push(this.value);
      });
-     var sd = $('#filter_box #search_desc:checked').length;
-     var cs = $('#filter_box #case_sensitive:checked').length;
-	 var u = '{$ajax_url}&{$id}search_text=' + encodeURIComponent(t) + '&{$id}slaves=' + s.join() + '&{$id}search_descriptions=' + sd + '&{$id}case_sensitive=' + cs;
-     $.ajax({
-      url: u,
-      method: 'POST',
-      dataType: 'html',
-      success: function (data, textStatus, jqXHR) {
-       var \$el = $('#searchresults_cont');
-       \$el.hide();
-       var \$c = \$el.find('#searchresults');
-       \$c.html(data);
-       process_results(\$c);
-       \$el.show();
-      },
-      error: function(jqXHR, textStatus) {
-       cms_alert(jqXHR.responseText);
-      }
+     parms['{$id}slaves'] = s.join();
+     cb = $('#opts_box').find(':checkbox');
+     cb.each(function() {
+       var key = '$id' + this.id;
+       parms[key] = (this.checked) ? 1 : 0;
+     });
+     $('#searchresults').html('');
+     $.ajax('$ajax_url', {
+       method: 'POST',
+       data: parms,
+       dataType: 'html'
+     }).done(function(data) {
+         var \$el = $('#searchresults_cont');
+         \$el.hide();
+         var \$c = \$el.find('#searchresults');
+         \$c.html(data);
+         process_results(\$c);
+         \$el.show();
+     }).fail(function(jqXHR, textStatus, errorThrown) {
+       cms_notify('error', errorThrown);
      });
    }
  });
@@ -127,7 +133,7 @@ $template = $params['template'] ?? 'defaultadmin.tpl';
 $tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
 
 $userid = get_userid(false);
-$tmp = cms_userprefs::get_for_user($userid,$this->GetName().'saved_search');
+$tmp = UserParams::get_for_user($userid,$this->GetName().'saved_search');
 if( $tmp ) {
     $init = unserialize($tmp,[]);
 }
@@ -137,6 +143,8 @@ if( empty($init) ) {
      'slaves' => [],
      'search_descriptions' => false,
      'search_casesensitive' => false,
+     'verbatim_search' => false,
+     'save_search' => false,
     ];
 }
 $tpl->assign('saved_search',$init);

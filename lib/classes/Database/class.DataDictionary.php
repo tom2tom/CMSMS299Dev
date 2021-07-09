@@ -1,7 +1,7 @@
 <?php
 /*
 Methods for creating, modifying a database or its components
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -758,7 +758,7 @@ class DataDictionary
         // clean up input tableoptions
         if (!$tableoptions) {
             $tableoptions = [$dbtype =>
-            'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci']; //default table options
+            'ENGINE=MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci']; //default table options
         } elseif (is_string($tableoptions)) {
             $tableoptions = [$dbtype => $tableoptions];
         } elseif (is_array($tableoptions) && !isset($tableoptions[$dbtype]) && isset($tableoptions['mysql'])) {
@@ -1002,23 +1002,25 @@ class DataDictionary
 
         foreach ($flds as $fld) {
             $fld = $this->UpperKeys($fld);
-            $fname = false;
-            $fdefault = false;
+            $fafter = false;
             $fautoinc = false;
-            $ftype = false;
-            $fsize = false;
-            $fprec = false;
-            $fprimary = false;
-            $fnoquote = false;
-            $fdefts = false;
-            $fdefdate = false;
+            $fchars = false;
+            $fcoll = false;
             $fconstraint = false;
+            $fdefault = false;
+            $fdefdate = false;
+            $fdefts = false;
+            $fforeign = false;
+            $findex = false;
+            $fname = false;
+            $fnoquote = false;
             $fnot = false;
             $fnotnull = false;
+            $fprec = false;
+            $fprimary = false;
+            $fsize = false;
+            $ftype = false;
             $funsigned = false;
-            $findex = false;
-            $fforeign = false;
-            $fafter = false;
 
             //-----------------
             // PARSE ATTRIBUTES
@@ -1101,6 +1103,28 @@ class DataDictionary
                     case 'FULLTEXT':
                         $findex = $attr;  //last-used prevails
                         break;
+                    case 'CHARACTER':
+                        $z = true;
+                        break;
+                    case 'SET':
+                        if (empty($z)) {
+                            break;
+                        }
+                        $z = false;
+                        // no break here
+                    case 'CHARSET':
+                        $fchars = $fld[$i+1] ?? false;
+                        if ($fchars !== false) {
+                            $fld[$i+1] = '';
+                        }
+                        break;
+                    case 'COLLATE':
+                    case 'COLLATION':
+                        $fcoll = $fld[$i+1] ?? false;
+                        if ($fcoll !== false) {
+                            $fld[$i+1] = '';
+                        }
+                        break;
                     case 'AFTER':
                         $fafter = $fld[$i+1] ?? false;
                         if ($fafter !== false) {
@@ -1129,18 +1153,21 @@ class DataDictionary
             $ftype = $this->GetSize(strtoupper($ftype), $ty, $fsize, $fprec);
 
             switch ($ty) {
-                case 'X':
-                case 'X2':
                 case 'B':
-                case 'LX':
-                case 'XL':
-                case 'MX':
-                case 'XM':
                 case 'LB':
                 case 'BL':
                 case 'MB':
                 case 'BM':
-                    $fdefault = false; //TEXT and BLOB fields cannot have a DEFAULT value
+                    $fchars = false; //BLOBs have no charset or collation
+                    $fcoll = false;
+                // no break here
+                case 'X':
+                case 'X2':
+                case 'LX':
+                case 'XL':
+                case 'MX':
+                case 'XM':
+                    $fdefault = false; //TEXT and BLOB fields have no DEFAULT value
                     $fnotnull = false;
             }
 
@@ -1187,7 +1214,7 @@ class DataDictionary
                 }
             }
 
-            $suffix = $this->CreateSuffix($fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned);
+            $suffix = $this->CreateSuffix($fnotnull, $fdefault, $fautoinc, $fchars, $fcoll, $fconstraint, $funsigned);
 
             $s = implode(' ', array_filter($fld));
             if ($s) {
@@ -1266,25 +1293,30 @@ class DataDictionary
      *
      * @internal
      */
-    protected function CreateSuffix($fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned)
+    protected function CreateSuffix($fnotnull, $fdefault, $fautoinc, $fchars, $fcoll, $fconstraint, $funsigned)
     {
         $suffix = '';
+        if ($fchars) {
+            $suffix .= " CHARACTER SET $fchars";
+        }
+        if ($fcoll) {
+            $suffix .= " COLLATE $fcoll";
+        }
         if ($funsigned) {
             $suffix .= ' UNSIGNED';
-        }
-        if ($fnotnull) {
-            $suffix .= ' NOT NULL';
-        }
-        if (strlen($fdefault)) {
-            $suffix .= " DEFAULT $fdefault";
         }
         if ($fautoinc) {
             $suffix .= ' AUTO_INCREMENT';
         }
-        if ($fconstraint) {
-            $suffix .= ' '.$fconstraint;
+        if ($fnotnull) {
+            $suffix .= ' NOT NULL';
         }
-
+        if ($fdefault) {
+            $suffix .= " DEFAULT $fdefault";
+        }
+        if ($fconstraint) {
+            $suffix .= " $fconstraint";
+        }
         return $suffix;
     }
 

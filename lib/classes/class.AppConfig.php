@@ -24,11 +24,12 @@ namespace CMSMS;
 use ArrayAccess;
 use CMSMS\AppParams;
 use CMSMS\AppState;
-use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
 use RuntimeException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
+use const CMSSAN_FILE;
+use const CMSSAN_PATH;
 use const CONFIG_FILE_LOCATION;
 use const TMP_CACHE_LOCATION;
 use function cms_join_path;
@@ -150,9 +151,9 @@ final class AppConfig implements ArrayAccess
     /**
      * Retrieve the singleton instance of this class.
      * This method is used during request-setup, when caching via the
-     * AppSingle class might not yet be possible. Later, use
-     * CMSMS\AppSingle::Config() instead of this method, to get the
-     * (same) singleton.
+     * AppSingle class might not yet be possible.
+	 * Later, use CMSMS\AppSingle::Config() instead of this method,
+	 * to get the (same) singleton.
      *
      * @return self
      */
@@ -172,7 +173,7 @@ final class AppConfig implements ArrayAccess
      */
     public function offsetExists($key)
     {
-        return isset(self::PROPS[$key]) || isset($this->_data[$key]); //TODO de we want to allow 'foreign' parameters in there?
+        return isset(self::PROPS[$key]) || isset($this->_data[$key]); //TODO do we want to allow 'foreign' parameters in there?
     }
 
     /**
@@ -226,32 +227,24 @@ final class AppConfig implements ArrayAccess
 
         // not explicitly specified in the config file.
         switch( $key ) {
+        case 'db_credentials':
+            $str = '';
+            $this->_cache[$key] = $str;
+            return $str;
+
         case 'db_hostname':
         case 'db_username':
         case 'db_password':
         case 'db_name':
-            // these guys have to be set
+            if (!empty($this->_data['db_credentials'])) {
+                return null; // ignore absence
+            }
+            // otherwise these guys must be set
             if( !AppState::test_state(AppState::STATE_INSTALL) ) {
                 stack_trace();
             }
             die('FATAL ERROR: Could not find database connection key "'.$key.'" in the config file');
             break;
-
-        case 'db_credentials':
-            $parts = [
-                'db_hostname' => $this->_data['db_hostname'],
-                'db_username' => $this->_data['db_username'],
-                'db_password' => $this->_data['db_password'],
-                'db_name' => $this->_data['db_name'],
-            ];
-            if (!empty($this->_data['db_port']) || is_numeric($this->_data['db_port'])) {
-                $parts['db_port'] = (int)$this->_data['db_port'];
-            }
-            $enc = json_encode($parts, JSON_NUMERIC_CHECK|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
-            $raw = Crypto::encrypt_string($enc, '', 'internal');
-            $str = base64_encode($raw);
-            $this->_cache[$key] = $str;
-            return $str;
 
         case 'dbms':
             return 'mysqli';
@@ -317,7 +310,7 @@ final class AppConfig implements ArrayAccess
                 $path = '';
             }
             //TODO generally support the websocket protocol 'wss' : 'ws'
-            if(!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') { //c.f. CmsApp::get_instance()->is_https_request() but CmsApp N/A at this stage
+            if(!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') { //c.f. AppSingle::App()->is_https_request() but AppSingle N/A at this stage
                 $prefix = 'https://';
             }
             else {
@@ -658,7 +651,7 @@ final class AppConfig implements ArrayAccess
                 case self::TYPE_STRING:
                     switch( $key ) {
                     case 'root_path':
-                        $value = sanitizeVal(rtrim($value, ' /\\'), 31);
+                        $value = sanitizeVal(rtrim($value, ' /\\'), CMSSAN_PATH);
                         break 2;
                     case 'tmp_cache_location':
                     case 'tmp_templates_c_location':
@@ -668,7 +661,7 @@ final class AppConfig implements ArrayAccess
                     case 'image_uploads_path':
                     case 'usertags_path':
                         // root-relative, no leading separator
-                        $value = sanitizeVal(trim($value, ' /\\'), 31);
+                        $value = sanitizeVal(trim($value, ' /\\'), CMSSAN_PATH);
                         break 2;
                     case 'root_url':
                     case 'admin_url':
@@ -677,14 +670,13 @@ final class AppConfig implements ArrayAccess
                     case 'image_uploads_url':
                     case 'public_cache_url':
 // duplicate // needed
-// NOPE                   $tmp = CMSMS\sanitizeVal(rtrim($value, ' /'), 31);
 //                        $value = strtr($tmp, DIRECTORY_SEPARATOR, '/');
-//or if class is available, $value = (string) new CMSMS\Url(rtrim($value,' /'));
-                        $value = filter_var(rtrim($value,' /'), FILTER_SANITIZE_URL);
+//OR                      $value = (new CMSMS\Url())->sanitize($value);
+                        $value = filter_var(rtrim($value, ' /'), FILTER_SANITIZE_URL);
                         break 2;
                     case 'admin_dir':
                     case 'assets_dir': // deprecated since 2.99 use assets_path
-                        $value = sanitizeVal(trim($value, ' /\\'), 3);
+                        $value = sanitizeVal(trim($value, ' /\\'), CMSSAN_FILE);
                         break 2;
                     default:
                         $value = trim($value);
@@ -753,7 +745,7 @@ final class AppConfig implements ArrayAccess
         if( !$filename ) {
             $filename = constant('CONFIG_FILE_LOCATION');
             if( !$filename ) {
-                $filename = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'config.php';
+                $filename = dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php';
             }
         }
 //      elseif( !preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename) ) { //not absolute

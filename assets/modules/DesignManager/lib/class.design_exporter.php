@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace DesignManager;
 
-use CmsException;
+use CMSMS\AppSingle;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CMSMS\Template;
@@ -486,7 +486,7 @@ EOT;
         $nkey = substr($nkey,2);
 
         $mod = Utils::get_module('DesignManager');
-        $smarty = cmsms()->GetSmarty();
+        $smarty = AppSingle::Smarty();
         $output = $this->_open_tag('file',$lvl);
         $output .= $this->_output('fkey',$key,$lvl+1);
         switch($nkey) {

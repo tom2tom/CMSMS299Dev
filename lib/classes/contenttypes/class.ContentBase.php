@@ -1,26 +1,27 @@
 <?php
-# Base class for working with page content at runtime
-# Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# BUT withOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Base class for working with page content at runtime
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS\contenttypes;
 
-//use CMSMS\ContentDisplayer;
-//use CMSMS\SysDataCache;
+use CMSMS\AppParams;
 use CMSMS\AppSingle;
-use CMSMS\ContentOperations;
 use CMSMS\Crypto;
 use Exception;
 use Serializable;
@@ -31,11 +32,11 @@ use function cms_to_stamp;
 
 /**
  * Page content-display base class.
- * This is for preparation of displayed pages at runtime. Object properties
- * are modifiable only by [re]retrieval from the database. Content
- * properties which are only for 'management' are not used here.
+ * This is for preparation of displayed pages at runtime. Object
+ * properties are modifiable only by [re]retrieval from the database.
+ * Content properties which are only for 'management' are not used here.
  *
- * @since	2.3
+ * @since 2.99
  * @package  CMS
  */
 class ContentBase implements Serializable
@@ -45,26 +46,27 @@ class ContentBase implements Serializable
 	 * @ignore
 	 */
 	private const PROPALIAS = [
-	'alias' => 'content_alias',
-	'content' => 'content_en',
-	'creationdate' => 'create_date',
-	'defaultcontent' => 'default_content',
-	'fields' => '_fields',
-	'hierarchypath' => 'hierarchy_path',
-	'id' => 'content_id',
-	'idhierarchy' => 'id_hierarchy',
-	'itemorder' => 'item_order',
-	'lastmodifiedby' => 'last_modified_by',
-	'menutext' => 'menu_text',
-	'modifieddate' => 'modified_date',
-	'name' => 'content_name',
-	'owner' => 'owner_id',
-	'parentid' => 'parent_id',
-	'properties' => '_props',
-	'showinmenu' => 'show_in_menu',
-	'templateid' => 'template_id',
-	'url' => 'page_url',
-	'values' => '_fields',
+		'alias' => 'content_alias',
+		'content' => 'content_en',
+		'creationdate' => 'create_date',
+		'defaultcontent' => 'default_content',
+		'fields' => '_fields',
+		'hierarchypath' => 'hierarchy_path',
+		'id' => 'content_id',
+		'idhierarchy' => 'id_hierarchy',
+		'itemorder' => 'item_order',
+		'lastmodifiedby' => 'last_modified_by',
+		'menutext' => 'menu_text',
+		'modifieddate' => 'modified_date',
+		'name' => 'content_name',
+		'owner' => 'owner_id',
+		'parentid' => 'parent_id',
+		'properties' => '_props',
+		'showinmenu' => 'show_in_menu',
+		'templateid' => 'template_id',
+		'templatetype' => 'template_type', //TODO support typenamed templates for theming
+		'url' => 'page_url',
+		'values' => '_fields',
 	];
 
 	// NOTE any private or static property will not be serialized
@@ -171,7 +173,7 @@ class ContentBase implements Serializable
 	}
 
 	/**
-	 * Enable relevant property-accessors prescribed in the ContentEditor interface
+	 * Enable relevant property-accessors prescribed in the IContentEditor interface
 	 * NOTE URL() is distinct from GetURL()
 	 * @ignore
 	 */
@@ -201,7 +203,7 @@ class ContentBase implements Serializable
 
 	/**
 	 * Legacy method to initialize this object
-	 * @deprecated since 2.3 instead supply object property-values as arguments
+	 * @deprecated since 2.99 instead supply object property-values as arguments
 	 *  to the subclass constructor
 	 *
 	 * @abstract
@@ -213,7 +215,7 @@ class ContentBase implements Serializable
 
 	/**
 	 * A convenience function to replicate a bit of the functionality of a
-	 * ContentEditor object. The retrieved parameters are cached in this object,
+	 * IContentEditor object. The retrieved parameters are cached in this object,
 	 * but not pushed back to the global cache.
 	 *
 	 * @param bool $deep optional flag whether to also process the page's non-core properties. Default false.
@@ -336,12 +338,21 @@ class ContentBase implements Serializable
 	/**
 	 * Return a smarty resource string for the template assigned to this page.
 	 *
-	 * @since 2.3
+	 * @since 2.99
 	 * @abstact
 	 * @return string
 	 */
 	public function TemplateResource() : string
 	{
+		if (!empty($this->_fields['template_type'])) {
+			//TODO support typenamed template for theming
+			if (1) {
+				$theme = AppParams::get('frontend_theme', 'default').';'.$this->_fields['template_type'];
+			} else {
+				$theme = $this->_fields['template_type']; //TODO adjust to suit smarty
+			}
+			return 'cms_theme:'.$theme;
+		}
 		if (isset($this->_fields['template_id']) && $this->_fields['template_id'] > 0) {
 			return 'cms_template:'.$this->_fields['template_id'];
 		}
@@ -360,8 +371,7 @@ class ContentBase implements Serializable
 	public function Hierarchy() : string
 	{
 		if (isset($this->_fields['hierarchy'])) {
-			$contentops = ContentOperations::get_instance();
-			return $contentops->CreateFriendlyHierarchyPosition($this->_fields['hierarchy']);
+			return AppSingle::ContentOperations()->CreateFriendlyHierarchyPosition($this->_fields['hierarchy']);
 		}
 		return '';
 	}
@@ -520,7 +530,6 @@ class ContentBase implements Serializable
 	 */
 	public function HasSearchableContent() : bool
 	{
-$X = $CRASH;
 		return true;
 	}
 
@@ -537,7 +546,6 @@ $X = $CRASH;
 	 */
 	public function IsSearchable() : bool
 	{
-$X = $CRASH;
 		if (!$this->IsPermitted() || !$this->IsViewable() || !$this->HasTemplate() || $this->IsSystemPage()) {
 			return false;
 		}
@@ -555,9 +563,9 @@ $X = $CRASH;
 	 */
 /*	public function SetAlias(string $alias = '', bool $doAutoAliasIfEnabled = true)
 	{
-		$contentops = ContentOperations::get_instance();
+		$contentops = AppSingle::ContentOperations();
 		$config = AppSingle::Config();
-		if ($alias === '' && $doAutoAliasIfEnabled && $config['auto_alias_content']) {
+		if ($alias === '' && $this->doAutoAliasIfEnabled && $config['auto_alias_content']) {
 			$alias = trim($this->_fields['menu_text']);
 			if ($alias === '') {
 				$alias = trim($this->_fields['content_name']);
@@ -607,8 +615,8 @@ $X = $CRASH;
 
 		$this->_fields['content_alias'] = $alias;
 		//CHECME are these caches worth retaining?
-        $cache = SysDataCache::get_instance()
-        $cache->release('content_quicklist');
+		$cache = AppSingle::SysDataCache()
+		$cache->release('content_quicklist');
 		$cache->release('content_tree');
 		$cache->release('content_flatlist');
 	}

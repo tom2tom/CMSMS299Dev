@@ -1,7 +1,7 @@
 <?php
 /*
 Definitions of various CMSMS-specific exception classes.
-Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -301,6 +301,42 @@ class XMLErrorException extends Exception {}
  */
 class FileSystemException extends Exception {}
 \class_alias('CMSMS\FileSystemException', 'CmsFileSystemException', false);
+
+/**
+ * An exception indicating an error creating a lock
+ *
+ * @package CMS
+ * @since 2.0
+ */
+class LockException extends Exception {}
+\class_alias('CMSMS\LockException', 'CmsLockException', false);
+
+/**
+ * An exception indicating an error loading or finding a lock
+ *
+ * @package CMS
+ * @since 2.0
+ */
+class NoLockException extends LockException {}
+\class_alias('CMSMS\NoLockException', 'CmsNoLockException', false);
+
+/**
+ * An exception indicating an error removing a lock
+ *
+ * @package CMS
+ * @since 2.0
+ */
+class UnLockException extends LockException {}
+\class_alias('CMSMS\UnLockException', 'CmsUnLockException', false);
+
+/**
+ * An exception indicating a user operating on a lock is not its owner
+ *
+ * @package CMS
+ * @since 2.0
+ */
+class LockOwnerException extends LockException {}
+\class_alias('CMSMS\LockOwnerException', 'CmsLockOwnerException', false);
 
 /**
  * An error-throwable to signal a need to replace something deprecated.

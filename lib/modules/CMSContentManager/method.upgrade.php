@@ -20,8 +20,8 @@ along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\ContentTypeOperations;
 //use CMSMS\Database\DataDictionary;
+use CMSMS\AppSingle;
 use CMSMS\Events;
 
 if (!function_exists('cmsms')) exit;
@@ -45,4 +45,4 @@ if( version_compare($oldversion,'2.0') < 0 ) {
     }
 }
 
-ContentTypeOperations::get_instance()->RebuildStaticContentTypes();
+AppSingle::ContentTypeOperations()->RebuildStaticContentTypes();

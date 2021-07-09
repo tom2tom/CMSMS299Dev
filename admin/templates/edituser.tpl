@@ -133,12 +133,12 @@
   <input type="hidden" name="settings" value="1" />
   <div class="pageoverflow">
   <p class="pagetext">{$t=lang('copyusersettings')}
-    <label for="copyuser">{$t}:</label>
+    <label for="copyusersettings">{$t}:</label>
     {cms_help key2='user_copysettings' title=$t}
   </p>
   <p class="pageinput">
-    <select id="copyuser" name="copyusersettings">
-     {html_options options=$users}
+    <select id="copyusersettings" name="copyusersettings">
+     {html_options options=$users selected=$copyusersettings}
     </select>
   </p>
   </div>

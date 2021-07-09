@@ -97,7 +97,7 @@ use CMSMS\AppSingle;
 	 */
 	public function SetInitialValues()
 	{
-		$this->id = -1;
+		$this->id = 0;
 		$this->username = '';
 		$this->password = '';
 		unset($this->repass);
@@ -163,23 +163,22 @@ use CMSMS\AppSingle;
 	 * values in the User object.
 	 * @since 0.6.1
 	 *
-	 * @returns bool indicating success
+	 * @return bool indicating success
 	 */
 	public function Save()
 	{
-		$result = false;
-
 		$userops = AppSingle::UserOperations();
-		if ($this->id > -1) {
+		if ($this->id > 0) {
 			$result = $userops->UpdateUser($this);
 		} else {
 			$newid = $userops->InsertUser($this);
-			if ($newid > -1) {
+			if ($newid > 0) {
 				$this->id = $newid;
 				$result = true;
+			} else {
+				$result = false;
 			}
 		}
-
 		return $result;
 	}
 
@@ -188,12 +187,12 @@ use CMSMS\AppSingle;
 	 * all properties to their initial values.
 	 * @since 0.6.1
 	 *
-	 * @returns bool indicating success
+	 * @return bool indicating success
 	 */
 	public function Delete()
 	{
 		$result = false;
-		if ($this->id > -1) {
+		if ($this->id > 0) {
 			$userops = AppSingle::UserOperations();
 			$result = $userops->DeleteUserByID($this->id);
 			if ($result) { $this->SetInitialValues(); }

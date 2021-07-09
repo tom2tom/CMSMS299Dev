@@ -1,25 +1,31 @@
 <?php
-#procedure to list all plugins (aka tags)
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure to list all plugins (a.k.a. tags)
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Error403Exception;
 use CMSMS\LangOperations;
-use CMSMS\Utils;
+use function CMSMS\de_specialize_array;
+use function CMSMS\sanitizeVal;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -27,22 +33,14 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 check_login();
 
-$urlext = get_secure_param();
 $userid = get_userid(false);
-$access = true; //check_permission($userid, 'View Tags'); //TODO relevant permission
+$access = check_permission($userid, 'View Tag Help'); //TODO relevant new permission e.g. 'View Tags'
 $pdev = $config['develop_mode'] || check_permission($userid, 'Modify Restricted Files');
 
-$themeObject = Utils::get_theme_object();
-
-if (!$access) {
-//TODO some popup or error page here or after redirect
-    return;
+if (!($access || $pdev)) {
+//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
-
-cleanArray($_GET);
-$plugin = (isset($_GET['plugin'])) ? basename($_GET['plugin']) : '';
-$type = (isset($_GET['type'])) ? basename($_GET['type']) : '';
-$action = $_GET['action'] ?? '';
 
 $dirs = [];
 $dirs[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins';
@@ -55,25 +53,32 @@ $find_file = function($filename) use ($dirs) {
     $filename = basename($filename); // no sneaky paths
     foreach ($dirs as $dir) {
         $fn = $dir.DIRECTORY_SEPARATOR.$filename;
-        if (is_file($fn)) return $fn;
+		if (is_file($fn)) { return $fn; }
     }
 };
 
+de_specialize_array($_GET);
+
+$plugin = (isset($_GET['plugin'])) ? sanitizeVal($_GET['plugin'], CMSSAN_FILE) : ''; // name consistent with filesystem file
+$type = (!empty($_GET['type'])) ? preg_replace('/[^a-zA-Z]/','',$_GET['type']) : ''; //'function', 'modifier' etc letters-only
+$action = (!empty($_GET['action'])) ? preg_replace('/[^a-z]/','',$_GET['action']) : ''; //'showpluginhelp' etc specific, letters-only
+
 $smarty = AppSingle::Smarty();
 $selfurl = basename(__FILE__);
+$urlext = get_secure_param();
+$themeObject = AppSingle::Theme();
 
 if ($action == 'showpluginhelp') {
     $content = '';
     $file = $find_file("$type.$plugin.php");
     if (is_file($file)) require_once $file;
 
+    // Get the plugin's help, if any
     if (function_exists('smarty_cms_help_'.$type.'_'.$plugin)) {
-        // Get and display the plugin's help
         $func_name = 'smarty_cms_help_'.$type.'_'.$plugin;
         ob_start();
-        $func_name([]);
-        $content = ob_get_contents();
-        ob_end_clean();
+        $func_name();
+        $content = ob_get_clean();
     } elseif (LangOperations::key_exists("help_{$type}_{$plugin}",'tags')) {
         $content = LangOperations::lang_from_realm('tags',"help_{$type}_{$plugin}");
     } elseif (LangOperations::key_exists("help_{$type}_{$plugin}")) {
@@ -103,12 +108,13 @@ if ($action == 'showpluginhelp') {
     }
 } else {
 
-    if (isset($_POST['upload'])) {
-        if (isset($_FILES['pluginfile']) && $pdev) {
+    if ($pdev && isset($_POST['upload'])) {
+        if (isset($_FILES['pluginfile'])) {
             $error = false;
             if (!empty($_FILES['pluginfile']['name'])) {
                 $checked = false;
                 $file = basename($_FILES['pluginfile']['name']);
+                $file = sanitizeVal($file, CMSSAN_FILE);
                 foreach ([
 //                'block.*.php',
                 'function.*.php',
@@ -126,8 +132,7 @@ if ($action == 'showpluginhelp') {
                             $pattern = '/function\w+smarty_'.str_replace(['.php','.'], ['','_'], $file).'/';
                             if (preg_match($pattern, $content)) {
                                 $fn = cms_join_path($dirs[0], $file); // upload goes into assets
-                                if (move_uploaded_file($_FILES['pluginfile']['tmp_name'], $fn)) {
-                                    chmod($fn, 0640);
+                                if (cms_move_uploaded_file($_FILES['pluginfile']['tmp_name'], $fn)) {
                                     // CHECKME register plugin with smarty?
                                 } else {
                                     $error = lang('errorcantcreatefile');
@@ -217,14 +222,16 @@ if ($action == 'showpluginhelp') {
      {
         return strcmp($a['name'],$b['name']);
      });
-    $smarty->assign('plugins',$file_array)
-      ->assign('iconyes',$themeObject->DisplayImage('icons/system/true.png',lang_by_realm('tags','title_admin'),'','','systemicon'))
-      ->assign('iconno',$themeObject->DisplayImage('icons/system/false.png',lang_by_realm('tags','title_notadmin'),'','','systemicon'))
-      ->assign('iconcyes',$themeObject->DisplayImage('icons/system/true.png',lang_by_realm('tags','title_cachable'),'','','systemicon'))
-      ->assign('iconcno',$themeObject->DisplayImage('icons/system/false.png',lang_by_realm('tags','title_notcachable'),'','','systemicon'))
-      ->assign('iconhelp',$themeObject->DisplayImage('icons/system/info.png',lang_by_realm('tags','viewhelp'),'','','systemicon'))
-      ->assign('iconabout',$themeObject->DisplayImage('icons/extra/info.png',lang_by_realm('tags','viewabout'),'','','systemicon'))
-      ->assign('pdev',$pdev);
+    $smarty->assign([
+      'pdev' => $pdev,
+	  'plugins' => $file_array,
+      'iconyes' => $themeObject->DisplayImage('icons/system/true.png',lang_by_realm('tags','title_admin'),'','','systemicon'),
+      'iconno' => $themeObject->DisplayImage('icons/system/false.png',lang_by_realm('tags','title_notadmin'),'','','systemicon'),
+      'iconcyes' => $themeObject->DisplayImage('icons/system/true.png',lang_by_realm('tags','title_cachable'),'','','systemicon'),
+      'iconcno' => $themeObject->DisplayImage('icons/system/false.png',lang_by_realm('tags','title_notcachable'),'','','systemicon'),
+      'iconhelp' => $themeObject->DisplayImage('icons/system/info.png',lang_by_realm('tags','viewhelp'),'','','systemicon'),
+      'iconabout' => $themeObject->DisplayImage('icons/extra/info.png',lang_by_realm('tags','viewabout'),'','','systemicon'),
+	]);
 }
 
 $smarty->assign([
@@ -233,6 +240,7 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('listtags.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";

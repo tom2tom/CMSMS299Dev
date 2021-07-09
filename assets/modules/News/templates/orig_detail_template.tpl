@@ -10,7 +10,7 @@
   </div>
 {/if}
 *}
-<h3 id="NewsPostDetailTitle">{$entry->title|cms_escape:htmlall}</h3>
+<h3 id="NewsPostDetailTitle">{$entry->title|cms_escape:'htmlall'}</h3>
 
 <hr id="NewsPostDetailHorizRule" />
 

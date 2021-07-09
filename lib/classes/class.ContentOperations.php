@@ -1,7 +1,7 @@
 <?php
 /*
 Class of methods for processing the pages-tree, and content objects generally
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -25,11 +25,8 @@ use cms_content_tree;
 use CMSMS\AdminUtils;
 use CMSMS\AppSingle;
 use CMSMS\ContentType;
-use CMSMS\ContentTypeOperations;
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\DeprecationNotice;
-use CMSMS\SysDataCache;
-use CMSMS\UserOperations;
 use Exception;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -108,7 +105,7 @@ final class ContentOperations
 	public function register_content_type($obj) : bool
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ContentTypeOperations::AddContentType'));
-		return ContentTypeOperations::get_instance()->AddContentType($obj);
+		return AppSingle::ContentTypeOperations()->AddContentType($obj);
 	}
 
 	/**
@@ -122,7 +119,7 @@ final class ContentOperations
 	public function LoadContentType($type)
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ContentTypeOperations::LoadContentType'));
-		return ContentTypeOperations::get_instance()->LoadContentType($type);
+		return AppSingle::ContentTypeOperations()->LoadContentType($type);
 	}
 
 	/**
@@ -140,7 +137,7 @@ final class ContentOperations
 	public function ListContentTypes(bool $byclassname = FALSE, bool $allowed = FALSE, bool $system = FALSE)
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ContentTypeOperations::ListContentTypes'));
-		return ContentTypeOperations::get_instance()->ListContentTypes($byclassname,$allowed,$system);
+		return AppSingle::ContentTypeOperations()->ListContentTypes($byclassname,$allowed,$system);
 	}
 
 	// =========== END OF CONTENT-TYPE METHODS ===========
@@ -156,11 +153,11 @@ final class ContentOperations
 	public function ListAdditionalEditors() : array
 	{
 		$opts = [];
-		$allusers = UserOperations::get_instance()->LoadUsers();
+		$allusers = AppSingle::UserOperations()->LoadUsers();
 		foreach( $allusers as &$one ) {
 			$opts[$one->id] = $one->username;
 		}
-		$allgroups = GroupOperations::get_instance()->LoadGroups();
+		$allgroups = AppSingle::GroupOperations()->LoadGroups();
 		foreach( $allgroups as &$one ) {
 			if( $one->id == 1 ) continue; // exclude super-admin group (they have all privileges anyways)
 			$val = - (int)$one->id;
@@ -215,7 +212,7 @@ final class ContentOperations
 	 *
 	 * @param mixed $type string type name or an instance of ContentType
 	 * @param array since 2.99 initial object properties (replaces subsequent LoadFromData())
-	 * @param bool since 2.99 optional flag whether to create a ContentEditor-class
+	 * @param bool since 2.99 optional flag whether to create a IContentEditor-compatible class
 	 * object. Default false (hence a shortform object)
 	 * @return mixed  object derived from ContentBase | null
 	 */
@@ -224,7 +221,7 @@ final class ContentOperations
 		if( $type instanceof ContentType ) {
 			$type = $type->type;
 		}
-		$ctype = ContentTypeOperations::get_instance()->LoadContentType($type, $editable);
+		$ctype = AppSingle::ContentTypeOperations()->LoadContentType($type, $editable);
 		if( is_object($ctype) ) {
 			if( $editable && empty($ctype->editorclass) ) {
 				$editable = false; //revert to using displayable form, hopefully also editable
@@ -255,14 +252,14 @@ final class ContentOperations
 		$id = (int)$id;
 		if( $id < 1 ) { $id = $this->GetDefaultContent(); }
 
-		$cache = SystemCache::get_instance();
+		$cache = AppSingle::SystemCache();
 		$contentobj = $cache->get($id,'tree_pages');
 		if( !$contentobj ) {
 			$db = AppSingle::Db();
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id=?';
 			$row = $db->GetRow($query, [$id]);
 			if( $row ) {
-				$ctype = ContentTypeOperations::get_instance()->get_content_type($row['type']);
+				$ctype = AppSingle::ContentTypeOperations()->get_content_type($row['type']);
 				if( $ctype ) {
 //					unset($row['metadata']);
 					$classname = $ctype->class;
@@ -296,7 +293,7 @@ final class ContentOperations
 	 */
 	public function LoadContentFromAlias($alias, bool $only_active = false)  //TODO ensure relevant content-object
 	{
-		$contentobj = SystemCache::get_instance()->get($alias,'tree_pages');
+		$contentobj = AppSingle::SystemCache()->get($alias,'tree_pages');
 		if( $contentobj === null ) {
 			$db = AppSingle::Db();
 			$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE (content_id=? OR content_alias=?)';
@@ -407,7 +404,7 @@ final class ContentOperations
 	 */
 	public function GetLastContentModification()
 	{
-		return SysDataCache::get_instance()->get('latest_content_modification');
+		return AppSingle::SysDataCache()->get('latest_content_modification');
 	}
 
 	/**
@@ -418,13 +415,13 @@ final class ContentOperations
 	 */
 	public function SetContentModified()
 	{
-		$cache = SysDataCache::get_instance();
+		$cache = AppSingle::SysDataCache();
 		$cache->release('latest_content_modification');
 		$cache->release('default_content');
 		$cache->release('content_flatlist');
 		$cache->release('content_tree');
 		$cache->release('content_quicklist');
-		SystemCache::get_instance()->clear('tree_pages');
+		AppSingle::SystemCache()->clear('tree_pages');
 		//etc for CM list
 	}
 
@@ -455,7 +452,7 @@ final class ContentOperations
 			return;
 		}
 		$_loaded = 1;
-		$cache = SystemCache::get_instance();
+		$cache = AppSingle::SystemCache();
 
 		$expr = [];
 		$loaded_ids = $cache->getindex('tree_pages');
@@ -474,15 +471,15 @@ final class ContentOperations
 		}
 
 		$db = AppSingle::Db();
-		$dbr = $db->Execute($query);
+		$rst = $db->Execute($query);
 
 		if( $loadprops ) {
 			$child_ids = [];
-			while( !$dbr->EOF() ) {
-				$child_ids[] = $dbr->fields['content_id'];
-				$dbr->MoveNext();
+			while( !$rst->EOF() ) {
+				$child_ids[] = $rst->fields['content_id'];
+				$rst->MoveNext();
 			}
-			$dbr->MoveFirst();
+			$rst->MoveFirst();
 
 			$tmp = null;
 			if( $child_ids ) {
@@ -505,11 +502,11 @@ final class ContentOperations
 			}
 		}
 
-		$valids = array_keys(ContentTypeOperations::get_instance()->get_content_types());
+		$valids = array_keys(AppSingle::ContentTypeOperations()->get_content_types());
 
 		// build the content objects
-		while( !$dbr->EOF() ) {
-			$row = $dbr->fields;
+		while( !$rst->EOF() ) {
+			$row = $rst->fields;
 
 			if (!in_array($row['type'], $valids)) continue;
 
@@ -533,10 +530,10 @@ final class ContentOperations
 				}
 			}
 			unset($contentobj);
-			$dbr->MoveNext();
+			$rst->MoveNext();
 		}
 		$contentobj = null; //force-garbage
-		$dbr->Close();
+		$rst->Close();
 	}
 
 	/**
@@ -551,7 +548,7 @@ final class ContentOperations
 	public function LoadChildren(int $id = null, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
 	{
 		$db = AppSingle::Db();
-		$cache = SystemCache::get_instance();
+		$cache = AppSingle::SystemCache();
 
 		if( $explicit_ids ) {
 			$loaded_ids = $cache->getindex('tree_pages');
@@ -615,7 +612,7 @@ final class ContentOperations
 			}
 		}
 
-		$valids = array_keys(ContentTypeOperations::get_instance()->get_content_types());
+		$valids = array_keys(AppSingle::ContentTypeOperations()->get_content_types());
 
 		// build the content objects
 		for( $i = 0, $n = count($contentrows); $i < $n; $i++ ) {
@@ -669,7 +666,7 @@ final class ContentOperations
 		$contentobj->SetDefaultContent(true);
 		$contentobj->Save();
 
-		SysDataCache::get_instance()->release('default_content');
+		AppSingle::SysDataCache()->release('default_content');
 	}
 
 	/**
@@ -679,7 +676,7 @@ final class ContentOperations
 	 */
 	public function GetDefaultContent() : int
 	{
-		return (int)SysDataCache::get_instance()->get('default_content');
+		return (int)AppSingle::SysDataCache()->get('default_content');
 	}
 
 	/**
@@ -819,7 +816,7 @@ final class ContentOperations
 	public function CheckAliasValid(string $alias)
 	{
 		if( ((int)$alias > 0 || (float)$alias > 0.00001) && is_numeric($alias) ) return FALSE;
-		$tmp = munge_string_to_url($alias,TRUE);
+		$tmp = munge_string_to_url($alias, TRUE);
 		return $tmp == mb_strtolower($alias); // TODO if mb_string N/A
 	}
 
@@ -956,7 +953,7 @@ final class ContentOperations
 
 			// Get all of the pages this user has access to.
 			$list = [$userid];
-			$groups = UserOperations::get_instance()->GetMemberGroups($userid);
+			$groups = AppSingle::UserOperations()->GetMemberGroups($userid);
 			if( $groups ) {
 				foreach( $groups as $group ) {
 					$list[] = $group * -1;
@@ -1030,7 +1027,7 @@ ORDER BY B.hierarchy';
 	 */
 	public function quickfind_node_by_id(int $contentid)
 	{
-		$list = SysDataCache::get_instance()->get('content_quicklist');
+		$list = AppSingle::SysDataCache()->get('content_quicklist');
 		if( isset($list[$contentid]) ) return $list[$contentid];
 	}
 } // class

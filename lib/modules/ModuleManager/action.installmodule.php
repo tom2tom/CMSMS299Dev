@@ -1,10 +1,12 @@
 <?php
 /*
-ModuleManager module action: install module
+Module Manager action: install module
 Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
-This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+This file is a component of ModuleManager, an addon module for
+CMS Made Simple to allow browsing remotely stored modules, viewing
+information about them, and downloading or upgrading
 
 CMS Made Simple is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,8 +22,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use CMSMS\Crypto;
-use CMSMS\ModuleOperations;
 use ModuleManager\ModuleInfo;
 use ModuleManager\modulerep_client;
 use ModuleManager\operations;
@@ -89,7 +91,7 @@ try {
         unset($_SESSION[$key]);
 
         // install/upgrade the modules that need to be installed or upgraded.
-        $ops = ModuleOperations::get_instance();
+        $ops = AppSingle::ModuleOperations();
         foreach( $modlist as $name => $rec ) {
             switch( $rec['action'] ) {
             case 'i': // install
@@ -153,7 +155,7 @@ try {
                 } else {
                     // module not found in forge?? could be a system module,
                     // but it's still a dependency.
-                    if( !ModuleOperations::get_instance()->IsSystemModule($name) ) throw new CmsInvalidDataException($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
+                    if( !AppSingle::ModuleOperations()->IsSystemModule($name) ) throw new CmsInvalidDataException($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
                     $out[$name] = $onedep;
                 }
             }

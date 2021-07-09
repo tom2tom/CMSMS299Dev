@@ -22,7 +22,7 @@
     <!-- .news-article (wrapping each article) -->
     <section class='news-article'>
         <header>
-            <h2><a href='{$entry->moreurl}' title='{$entry->title|cms_escape:htmlall}'>{$entry->title|cms_escape}</a></h2>
+            <h2><a href='{$entry->moreurl}' title='{$entry->title|cms_escape:'htmlall'}'>{$entry->title|cms_escape}</a></h2>
             <div class='meta cf'>
 {*
                 <time class='date' datetime='{$entry->start|date_format:'%Y-%m-%d'}'>

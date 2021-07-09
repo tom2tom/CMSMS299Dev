@@ -2703,8 +2703,8 @@ a {
 	<stylegroups>
 		<group>
 			<id>3</id>
-			<name>Demonstration stylesheets category</name>
-			<description>The templates here will be applied in sort-order to each page which specifies this category for its styles-source.</description>
+			<name>Demonstration stylesheets group</name>
+			<description>The stylesheets here will be applied in the specified order to each page which includes this group among its styles-sources.</description>
 			<create_date>2019-04-17 17:55:28</create_date>
 			<modified_date></modified_date>
 		</group>

@@ -25,6 +25,7 @@ use CMSMS\CoreCapabilities;
 use CMSMS\HookOperations;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
+use CMSMS\TemplateType;
 use CMSMS\Utils;
 use News\AdjustStatusJob;
 use News\AdjustStatusTask;
@@ -354,7 +355,7 @@ EOS;
         }
     }
 
-    public static function reset_page_type_defaults(CmsLayoutTemplateType $type)
+    public static function reset_page_type_defaults(TemplateType $type)
     {
         if( $type->get_originator() != 'News' ) throw new LogicException('Cannot reset contents for this template type');
 

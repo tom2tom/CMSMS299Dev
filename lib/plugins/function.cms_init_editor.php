@@ -20,8 +20,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use CMSMS\FormUtils;
-use CMSMS\ModuleOperations;
 
 // since 2.99
 function smarty_function_cms_init_editor($params, $template)
@@ -41,7 +41,7 @@ function smarty_function_cms_init_editor($params, $template)
 	}
 
 //	$force = cms_to_bool($params['force'] ?? false);
-	$mod = ModuleOperations::get_instance()->GetWYSIWYGModule($wysiwyg);
+	$mod = AppSingle::ModuleOperations()->GetWYSIWYGModule($wysiwyg);
 	if( !is_object($mod) ) return '';
 
 	// get the output

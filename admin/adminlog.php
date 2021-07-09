@@ -24,11 +24,10 @@ use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Log\logfilter;
-use CMSMS\Log\logquery;
 use CMSMS\UserParams;
-use CMSMS\Utils;
 //use CMSMS\Url;
 //use CMSMS\UserParams;
+use function CMSMS\de_specialize_array;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -36,7 +35,7 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 check_login();
 
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
 $userid = get_userid(false);
 $pclear = check_permission($userid, 'Clear Admin Log');
@@ -46,7 +45,7 @@ if ($pclear && isset($_GET['clear'])) {
     AppSingle::AuditOperations()->clear();
     unset($_SESSION['adminlog_filter']);
     audit('','Admin log','Cleared');
-    $themeObject->RecordNotice('success', lang('msg_cleared'));
+    $themeObject->RecordNotice('success', lang('adminlogcleared'));
 } elseif (isset($_GET['download'])) {
     if (isset($_SESSION['adminlog_filter']) && $_SESSION['adminlog_filter'] instanceof logfilter) {
         $filter = $_SESSION['adminlog_filter'];
@@ -63,12 +62,12 @@ if ($pclear && isset($_GET['clear'])) {
         header('Content-type: text/plain');
         header('Content-Disposition: attachment; filename="adminlog.txt"');
         do {
-            $row = $query->GetObject(); // timestamp severity uid ip_addr username subject msg item_id
+            $row = $query->GetObject(); // timestamp severity user_id username item_id subject message ip_addr
             echo strftime($dateformat, $row['timestamp']).'|';
             echo $row['username'] . '|';
             echo (((int)$row['item_id'] == -1) ? '' : $row['item_id']) . '|';
             echo $row['subject'] . '|';
-            echo $row['msg'];
+            echo $row['message'];
             echo "\n";
             $query->MoveNext();
         } while (!$query->EOF());
@@ -79,22 +78,21 @@ if ($pclear && isset($_GET['clear'])) {
     exit;
 }
 
-if (isset($_SESSION['adminlog_filter']) && $_SESSION['adminlog_filter'] instanceof filter) {
+if (isset($_POST['filter'])) {
+    de_specialize_array($_POST);
+    $filter = new logfilter();
+    $filter->severity = (int)($_POST['f_sev'] ?? 0);
+    $filter->username = trim($_POST['f_user'] ?? ''); // TODO , CMSMS\sanitizeVal(, CMSSAN_ACCOUNT) etc
+    $filter->subject = trim($_POST['f_subj'] ?? ''); // sanitizeVal(, CMSSAN_NONPRINT)
+    $filter->message = trim($_POST['f_msg'] ?? ''); // sanitizeVal(, CMSSAN_NONPRINT)
+    $_SESSION['adminlog_filter'] = $filter;
+    $filter_applied = true;
+} elseif (isset($_SESSION['adminlog_filter']) && $_SESSION['adminlog_filter'] instanceof filter) {
     $filter = $_SESSION['adminlog_filter'];
     $filter_applied = true;
 } else {
     $filter = new logfilter();
     $filter_applied = false;
-}
-
-if (isset($_POST['filter'])) {
-    $filter = new logfilter();
-    $filter->severity = (int)($_POST['f_sev'] ?? 0);
-    $filter->username = trim($_POST['f_user'] ?? ''); // TODO cms_specialchars_decode(), sanitizeVal() etc
-    $filter->subject = trim($_POST['f_subj'] ?? '');
-    $filter->msg = trim($_POST['f_msg'] ?? '');
-    $_SESSION['adminlog_filter'] = $filter;
-    $filter_applied = true;
 }
 
 $page = (int)($_POST['page'] ?? 1);
@@ -146,7 +144,7 @@ if ($results) {
 }
 
 $selfurl = basename(__FILE__);
-$pageurl = $selfurl.get_secure_param().'&page=xxx'; 
+$pageurl = $selfurl.get_secure_param().'&page=xxx';
 $prompt = json_encode(lang('sysmain_confirmclearlog'));
 
 $js = <<<EOS
@@ -180,9 +178,9 @@ EOS;
 add_page_foottext($js);
 
 $severity_list = [
-    lang('sev_msg'),
-    lang('sev_notice'),
-    lang('sev_warning'),
+    lang('message'),
+    lang('notice'),
+    lang('warning'),
     lang('error'),
 ];
 

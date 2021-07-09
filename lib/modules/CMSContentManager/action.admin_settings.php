@@ -20,9 +20,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSContentManager\ContentBase;
 use CMSContentManager\Utils;
-use CMSMS\ContentOperations;
+use CMSMS\AppSingle;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 
@@ -67,7 +66,7 @@ $tpl->assign('list_visiblecolumns',$tmp);
 
 $prefs = Utils::get_pagedefaults();
 $templates = TemplateOperations::template_query(['originator'=>TemplateType::CORE, 'as_list'=>1]);
-$ops = ContentOperations::get_instance();
+$ops = AppSingle::ContentOperations();
 $eds = $ops->ListAdditionalEditors();
 $realm = $this->GetName();
 $types = $ops->ListContentTypes(false,false,false,$realm);

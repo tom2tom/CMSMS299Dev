@@ -1,31 +1,31 @@
 <?php
-#The main Content class
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+The main Content class
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSContentManager\contenttypes;
 
-//use DesignManager\Design;
-use CmsContentException;
 use CMSContentManager\ContentBase;
-use CmsException;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
-use CMSMS\ContentOperations;
+use CMSMS\ContentException;
 use CMSMS\CoreCapabilities;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
@@ -37,11 +37,10 @@ use SmartyException;
 use Throwable;
 use function check_permission;
 use function cms_error;
-use function cms_htmlentities;
 use function cms_join_path;
 use function cms_to_bool;
+use function CMSMS\specialize;
 use function create_file_dropdown;
-use function get_parameter_value;
 use function get_userid;
 use function startswith;
 
@@ -295,13 +294,13 @@ class Content extends ContentBase
 		catch( SmartyException $e ) {
 			$this->_contentBlocks = [];
 			// smarty exceptions here could be a bad template, or missing template, or something else.
-			throw new CmsContentException($this->mod->Lang('error_parsing_content_blocks').': '.$e->getMessage());
+			throw new ContentException($this->mod->Lang('error_parsing_content_blocks').': '.$e->getMessage());
 		}
 		return $this->_contentBlocks;
 	}
 
 	/**
-	 * @since 2.3
+	 * @since 2.99
 	 * #return string
 	 */
 	public function TemplateResource() : string
@@ -325,7 +324,7 @@ class Content extends ContentBase
 
 	/**
 	 * @ignore
-	 * @since 2.3
+	 * @since 2.99
 	 */
 	protected function get_template_list()
 	{
@@ -334,7 +333,7 @@ class Content extends ContentBase
 		if( $_list ) return $_list;
 
 		$_list = [];
-//		$config = CMSMS\AppSingle::Config();
+//		$config = AppSingle::Config();
 //		if( !$config['page_template_list'] ) { //WHAAAT ?
 			$_tpl = TemplateOperations::template_query( ['as_list'=>1] );
 			if( $_tpl ) {
@@ -399,7 +398,7 @@ class Content extends ContentBase
 					return ['<label for="design_id">*'.$this->mod->Lang('design').':</label>'.$help,$out];
 				}
 			}
-			catch( CmsException $e ) {
+			catch( Throwable $t ) {
 				// nothing here yet.
 			}
 */
@@ -434,7 +433,7 @@ class Content extends ContentBase
 				$help = '&nbsp;'.AdminUtils::get_help_tag($this->realm,'info_editcontent_template',$this->mod->Lang('help_title_editcontent_template'));
 				return ['<label for="template_id">*'.$this->mod->Lang('template').':</label>'.$help,$out];
 			}
-			catch( CmsException $e ) {
+			catch( Throwable $t ) {
 				// nothing here yet.
 			}
 			break;
@@ -451,7 +450,7 @@ class Content extends ContentBase
 * /
 				return ['',''];
 			}
-			catch( CmsException $e ) {
+			catch( Throwable $t ) {
 				// nothing here yet.
 			}
 			break;
@@ -500,7 +499,7 @@ class Content extends ContentBase
 					<input type="checkbox" id="id_disablewysiwyg" name="'.$id.'disable_wysiwyg" value="1"'.($disable_wysiwyg==1?' checked="checked"':'').' />'];
 
 		case 'wantschildren':
-			$showadmin = ContentOperations::get_instance()->CheckPageOwnership(get_userid(), $this->Id());
+			$showadmin = AppSingle::ContentOperations()->CheckPageOwnership(get_userid(), $this->Id());
 			if( check_permission(get_userid(),'Manage All Content') || $showadmin ) {
 				$wantschildren = $this->WantsChildren();
 				$help = '&nbsp;'.AdminUtils::get_help_tag($this->realm,'help_page_wantschildren',$this->mod->Lang('help_title_page_wantschildren'));
@@ -545,7 +544,7 @@ class Content extends ContentBase
 /* TODO any valid page-editor
 		if( cms_to_bool($this->_get_param($blockInfo,'adminonly',0)) ) {
 			$uid = get_userid(false);
-			$res = CMSMS\UserOperations::get_instance()->UserInGroup($uid,1);
+			$res = AppSingle::UserOperations()->UserInGroup($uid,1);
 			if( !$res ) return '';
 		}
 */
@@ -557,7 +556,7 @@ class Content extends ContentBase
 		if( cms_to_bool($this->_get_param($blockInfo,'oneline')) ) {
 			$size = (int) $this->_get_param($blockInfo,'size',50);
 			$maxlength = (int) $this->_get_param($blockInfo,'maxlength',255);
-			$ret = '<input type="text" size="'.$size.'" maxlength="'.$maxlength.'" name="'.$blockInfo['id'].'" value="'.cms_htmlentities($value, ENT_NOQUOTES).'"';
+			$ret = '<input type="text" size="'.$size.'" maxlength="'.$maxlength.'" name="'.$blockInfo['id'].'" value="'. specialize($value, ENT_NOQUOTES).'"';
 			if( $required ) $ret .= ' required="required"';
 			if( $placeholder ) $ret .= " placeholder=\"{$placeholder}\"";
 			$ret .= ' />';
@@ -611,7 +610,7 @@ class Content extends ContentBase
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
 			$uid = get_userid(false);
-			$res = CMSMS\UserOperations::get_instance()->UserInGroup($uid,1);
+			$res = AppSingle::UserOperations()->UserInGroup($uid,1);
 			if( !$res ) return '';
 		}
 */
@@ -636,8 +635,8 @@ class Content extends ContentBase
 		if( isset($blockInfo['exclude']) ) $prefix = $blockInfo['exclude'];
 		$filepicker = Utils::get_filepicker_module();
 		if( $filepicker ) {
-			$profile_name = get_parameter_value($blockInfo,'profile');
-			$profile = $filepicker->get_profile_or_default($profile_name, $dir, get_userid() );
+			$profile_name = $blockInfo['profile'] ?? '';
+			$profile = $filepicker->get_profile_or_default($profile_name, $dir, get_userid());
 			$parms = ['top'=>$dir, 'type'=>FileType::IMAGE ];
 			if( $sort ) $parms['sort'] = true;
 			if( $prefix ) $parms['exclude_prefix'] = $prefix;
@@ -666,7 +665,7 @@ class Content extends ContentBase
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
 			$uid = get_userid(false);
-			$res = CMSMS\UserOperations::get_instance()->UserInGroup($uid,1);
+			$res = AppSingle::UserOperations()->UserInGroup($uid,1);
 			if( !$res ) return '';
 		}
 */

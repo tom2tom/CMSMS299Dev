@@ -1,10 +1,10 @@
 {if $manage_templates}
   {$seeme = (!$activetab || $activetab == 'templates')}
   {tab_header name='templates' label=lang_by_realm('layout','prompt_templates') active=$seeme}
-  {$seeme = $activetab == 'groups'}
-  {tab_header name='groups' label=lang_by_realm('layout','prompt_tpl_groups') active=$seeme}
   {$seeme = $activetab == 'types'}
   {tab_header name='types' label=lang_by_realm('layout','prompt_templatetypes') active=$seeme}
+  {$seeme = $activetab == 'groups'}
+  {tab_header name='groups' label=lang_by_realm('layout','prompt_tpl_groups') active=$seeme}
 
 {tab_start name='templates'}
 {/if}
@@ -42,10 +42,10 @@
 {include file='templates.tpl'}
 
 {if $manage_templates}
- {tab_start name='groups'}
- {include file='template-groups.tpl'}
  {tab_start name='types'}
  {include file='template-types.tpl'}
+ {tab_start name='groups'}
+ {include file='template-groups.tpl'}
  {tab_end}
 {/if}
 

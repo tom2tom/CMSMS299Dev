@@ -1,7 +1,7 @@
 <?php
 /*
 Fast and small class supporting generation of frontend pages.
-Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -15,15 +15,13 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
 use CMSMS\AppSingle;
-use CMSMS\ContentTypeOperations;
-use CMSMS\ModuleOperations;
-use Exception;
+use CMSMS\CoreCapabilities;
 use const CMS_DB_PREFIX;
 
 /**
@@ -63,14 +61,14 @@ class PageLoader
      */
     protected static function poll_xclasses()
     {
-        $ops = ModuleOperations::get_instance();
+        $ops = AppSingle::ModuleOperations();
         $list = $ops->GetCapableModules(CoreCapabilities::CONTENT_TYPES);
         foreach ($list as $modname) {
             $obj = $ops->get_module_instance($modname); // should register stuff for newly-loaded modules
             $obj = null; // help the garbage-collector
         }
 
-        $ops = ContentTypeOperations::get_instance();
+        $ops = AppSingle::ContentTypeOperations();
         $list = $ops->content_types;
         if ($list) {
             foreach ($list as $obj) { // $obj = ContentType
@@ -139,6 +137,6 @@ class PageLoader
     public static function LoadContentType($obj)
     {
         //MAYBE use trait to cut down footprint
-        return ContentTypeOperations::get_instance()->LoadContentType($obj);
+        return AppSingle::ContentTypeOperations()->LoadContentType($obj);
     }
 }

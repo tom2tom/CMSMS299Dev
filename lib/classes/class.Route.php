@@ -1,7 +1,7 @@
 <?php
 /*
 Class to manage information for a route.
-Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -13,10 +13,10 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -233,7 +233,7 @@ class Route implements ArrayAccess
 	 */
 	public function is_content()
 	{
-		return ( isset($this->_data['key1']) && $this->_data['key1'] == '__CONTENT__');
+		return ( isset($this->_data['key1']) && $this->_data['key1'] == '__CONTENT__' );
 	}
 
 	/**

@@ -60,20 +60,20 @@
      <div id="ac_mainarea" class="col p-0">
       {strip}
       {include file='messages.tpl'}{block name=messages}{/block}
-      <article role="main" class="content-inner">
-       <header class="pageheader{if isset($is_ie)} drop-hidden{/if} cf">
+{*      <article role="main" class="content-inner"> *}
+{*       <header class="pageheader{if isset($is_ie)} drop-hidden{/if}"> *}
         {if !empty($pageicon) || !empty($pagetitle)}
         <h1>
          {if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}
         </h1>
         {/if}
         {if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{'module_help'|lang}</a></span>{/if}
-       </header>
+{*       </header> *}
        {if $pagetitle && $subtitle}<header class="subheader"><h3 class="subtitle">{$subtitle}</h3></header>{/if}
        <section class="cf">
        <div class="pagecontainer">{$content}</div>
        </section>
-      </article>
+{*      </article> *}
       {/strip}
      </div>
     </div>

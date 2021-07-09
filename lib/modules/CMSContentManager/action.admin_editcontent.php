@@ -1,29 +1,35 @@
 <?php
-# CMSContentManager-module action: edit page content
-#Copyright (C) 2013-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <https://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+CMSContentManager module action: edit page content
+Copyright (C) 2013-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSContentManager\ContentBase;
 use CMSContentManager\Utils;
 use CMSMS\AdminUtils;
-use CMSMS\ContentOperations;
+use CMSMS\AppParams;
+use CMSMS\AppSingle;
 use CMSMS\FormUtils;
-use CMSMS\Lock;
+use CMSMS\LockException;
 use CMSMS\LockOperations;
 use CMSMS\ScriptsMerger;
+use CMSMS\UserParams;
 
 if( !isset($gCms) ) exit;
 
@@ -33,12 +39,11 @@ if( isset($params['cancel']) ) {
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
-$user_id = get_userid();
+$userid = get_userid();
 $content_id = isset($params['content_id']) ? (int)$params['content_id'] : 0;
 
-//
 // init
-//
+
 try {
     if( $content_id < 1 ) {
         // adding.
@@ -47,8 +52,7 @@ try {
             $this->SetError($this->Lang('error_editpage_permission'));
             $this->Redirect($id,'defaultadmin',$returnid);
         }
-    }
-    elseif( !$this->CanEditContent($content_id) ) {
+    } elseif( !$this->CanEditContent($content_id) ) {
         // nope, can't edit this page anyways.
         $this->SetError($this->Lang('error_editpage_permission'));
         $this->Redirect($id,'defaultadmin',$returnid);
@@ -58,60 +62,57 @@ try {
     $parent_id = $error = null;
     $pagedefaults = Utils::get_pagedefaults();
     // get a list of content types and pick a default if necessary
-    $contentops = ContentOperations::get_instance();
+    $contentops = AppSingle::ContentOperations();
     $existingtypes = $contentops->ListContentTypes(false,true,false,$realm);
 
-    //
     // load or create the initial content object
-    //
+
     if( $content_id === 0 && isset($_SESSION['__cms_copy_obj__']) ) {
         // we're copying a content object.
         $content_obj = unserialize($_SESSION['__cms_copy_obj__']);
         if( isset($params['content_type']) ) {
             $content_type = trim($params['content_type']);
-        }
-        else {
+        } else {
             $content_type = $content_obj->Type();
         }
-    }
-    elseif( $content_id < 1 ) {
+    } elseif( $content_id < 1 ) {
         // we're creating a new content object
         if( isset($params['content_type']) ) {
             $content_type = trim($params['content_type']);
-        }
-        else {
+        } else {
             $content_type = $pagedefaults['contenttype'];
         }
 
         $parent_id = ( isset($params['parent_id']) ) ? (int)$params['parent_id'] : 0;
         if( $parent_id < 1 ) {
-            $dflt_parent = (int) cms_userprefs::get('default_parent');
+            $dflt_parent = (int) UserParams::get('default_parent');
             if( $dflt_parent < 1 ) $dflt_parent = -1;
             if( !($this->CheckPermission('Modify Any Page') || $this->CheckPermission('Manage All Content')) ) {
                 // we get the list of pages that this user has access to.
                 // if he is not an editor of the default page, then we use the first page the user has access to, or -1
-                $list = $contentops->GetPageAccessForUser($user_id);
+                $list = $contentops->GetPageAccessForUser($userid);
                 if( count($list) && !in_array($dflt_parent,$list) ) $dflt_parent = $list[0];
             }
             // double check if this parent is valid... if it is not, we use -1
             if( $dflt_parent > 0 ) {
-                $hm = CmsApp::get_instance()->GetHierarchyManager();
+                $hm = AppSingle::App()->GetHierarchyManager();
                 $node = $hm->quickfind_node_by_id( $dflt_parent );
                 if( !$node ) $dflt_parent = -1;
             }
             $parent_id = $dflt_parent;
         }
 
+        //TODO support themed/named templates
         $params = [
-        'parent_id' => $parent_id,
-        'owner_id' => $user_id,
-        'last_modified_by' => $user_id,
-        'show_in_menu' => $pagedefaults['showinmenu'],
-        'active' => $pagedefaults['active'],
-        'cachable' => $pagedefaults['cachable'],
-        'template_id' => $pagedefaults['template_id'],
-        'metadata' => $pagedefaults['metadata'],
-        'styles' => $pagedefaults['styles'],
+            'parent_id' => $parent_id,
+            'owner_id' => $userid,
+            'last_modified_by' => $userid,
+            'show_in_menu' => $pagedefaults['showinmenu'],
+            'active' => $pagedefaults['active'],
+            'cachable' => $pagedefaults['cachable'],
+            'template_id' => $pagedefaults['template_id'],
+            'metadata' => $pagedefaults['metadata'],
+            'styles' => $pagedefaults['styles'],
         ];
 
         $content_obj = $contentops->CreateNewContent($content_type,$params,true);
@@ -125,15 +126,13 @@ try {
         $content_obj->SetPropertyValue('extra2',$pagedefaults['extra2']);
         $content_obj->SetPropertyValue('extra3',$pagedefaults['extra3']);
         $content_obj->SetAdditionalEditors($pagedefaults['addteditors']);
-    }
-    else {
+    } else {
         // we're editing an existing content object
         $content_obj = $this->GetContentEditor($content_id);
         if( isset($params['content_type']) ) {
             // maybe the user wants to change type ...
             $content_type = trim($params['content_type']);
-        }
-        else {
+        } else {
             $content_type = $content_obj->Type();
         }
     }
@@ -143,17 +142,15 @@ try {
         $this->SetError($this->Lang('error_editpage_contenttype'));
         $this->Redirect($id,'defaultadmin',$returnid);
     }
-}
-catch( Throwable $t ) {
+} catch( Throwable $t ) {
     // An error here means we can't display anything
     $this->SetError($t->getMessage());
     $this->Redirect($id,'defaultadmin',$returnid);
 }
 
-//
 // handle changing content types
 // or a POST
-//
+
 try {
     if( $content_id != -1 && $content_type != $content_obj->Type() ) {
         // content type changed - create a new content object with the same id etc.
@@ -177,17 +174,17 @@ try {
 //TODO replace        $tmpobj->SetLastModifiedBy($content_obj->LastModifiedBy());
 //TODO replace        $tmpobj->SetAdditionalEditors($content_obj->GetAdditionalEditors());
 */
-		$props = $content_obj->ToData();
-		unset($props['create_date'], $props['last_modified_by'], $props['modified_date']);
+        $props = $content_obj->ToData();
+        unset($props['create_date'], $props['last_modified_by'], $props['modified_date']);
         $tmpobj = $contentops->CreateNewContent($content_type, $props, true);
-        $tmpobj->Properties();
+        $tmpobj->Properties(); // TODO deal with now-irrelevant props
         $content_obj = $tmpobj;
     }
 
     $was_defaultcontent = $content_obj->DefaultContent();
     if( strtoupper($_SERVER['REQUEST_METHOD']) == 'POST' ) {
         // if we're in a POST action, another item may have changed that requires reloading the page
-        // filling the properties from supplied params will ensure that no edited content gets lost.
+        // filling the properties from supplied $params will ensure that no edited content gets lost.
         $content_obj->FillParams($params,($content_id > 0));
     }
 
@@ -200,8 +197,7 @@ try {
                 exit;
             }
             // error, but no ajax... fall through
-        }
-        elseif( isset($params['submit']) || isset($params['apply']) ) {
+        } elseif( isset($params['submit']) || isset($params['apply']) ) {
             $content_obj->SetLastModifiedBy(get_userid());
             $content_obj->Save();
             if( ! $was_defaultcontent && $content_obj->DefaultContent() ) {
@@ -219,8 +215,7 @@ try {
                 exit;
             }
             $this->ShowMessage($this->Lang('msg_editpage_success'));
-       }
-       elseif( isset($params['preview']) && $content_obj->HasPreview() ) {
+       } elseif( isset($params['preview']) && $content_obj->HasPreview() ) {
             $_SESSION[CMS_PREVIEW] = serialize($content_obj);
             $_SESSION[CMS_PREVIEW_TYPE] = $content_type;
             $tmp = ['response'=>'Success'];
@@ -228,8 +223,7 @@ try {
             exit;
         }
     }
-}
-catch( CmsEditContentException $e ) {
+} catch( CmsEditContentException $e ) {
 /*
     if( isset($params['submit']) ) {
         $this->SetError($e->getMessage());
@@ -242,8 +236,7 @@ catch( CmsEditContentException $e ) {
         echo json_encode($tmp);
         exit;
     }
-}
-catch( CmsContentException $e ) {
+} catch( CmsContentException $e ) {
     $error = $e->getMessage();
     if( isset($params['ajax']) ) {
         $tmp = ['response'=>'Error','details'=>$error];
@@ -252,27 +245,24 @@ catch( CmsContentException $e ) {
     }
 }
 
-//
 // BUILD THE DISPLAY
-//
+
 if( $content_id && Utils::locking_enabled() ) {
     try {
         $lock_id = null;
+        // check if this thing is locked
         for( $i = 0; $i < 3; $i++ ) {
-            // check if this thing is already locked.
             $lock_id = LockOperations::is_locked('content',$content_id);
             if( $lock_id == 0 ) break;
             usleep(500);
         }
         if( $lock_id > 0 ) {
-            // it's locked... by somebody, make sure it's expired before we allow stealing it.
-            $lock = Lock::load('content',$content_id);
-            if( !$lock->expired() ) throw new CmsLockException('CMSEX_L010');
-            // lock is expired, we can just remove it.
+            // it's locked.. by somebody. If lock's expired, remove it
+            $lock = LockOperations::load('content',$content_id);
+            if( !$lock->expired() ) throw new LockException('CMSEX_L010');
             LockOperations::unlock($lock_id,'content',$content_id);
         }
-    }
-    catch( CmsException $e ) {
+    } catch( Exception $e ) {
         $this->SetError($e->getMessage());
         $this->Redirect($id,'defaultadmin',$returnid);
     }
@@ -301,14 +291,24 @@ try {
             // unless the user is only an additional editor for this page
             if( $this->CheckPermission('Manage All Content')
              || $this->CheckPermission('Modify Any Page')
-             || $content_obj->Owner() == $user_id )  {
+             || $content_obj->Owner() == $userid )  {
                 $help = '&nbsp;'.AdminUtils::get_help_tag($realm,'help_content_type',$this->Lang('help_title_content_type'));
                 $tmp = ['<label for="content_type">*'.$this->Lang('prompt_editpage_contenttype').':</label>'.$help];
-                $tmp2 = '<select id="content_type" name="'.$id.'content_type">';
+/*                $tmp2 = '<select id="content_type" name="'.$id.'content_type">';
                 foreach( $existingtypes as $type => $label ) {
                     $tmp2 .= FormUtils::create_option(['value'=>$type,'label'=>$label],$content_type);
                 }
                 $tmp2 .= '</select>';
+*/
+                $tmp2 = FormUtils::create_select([ // DEBUG
+                    'type' => 'drop',
+                    'name' => 'content_type',
+                    'htmlid' => 'content_type',
+                    'modid' => $id,
+                    'multiple' => false,
+                    'options' => array_flip($existingtypes),
+                    'selectedvalue' => $content_type,
+                ]);
                 $tmp[] = $tmp2;
                 $elements[] = $tmp;
             }
@@ -327,8 +327,7 @@ try {
 
         $tab_contents_array[$currenttab] = $elements;
     }
-}
-catch( Throwable $t ) {
+} catch( Throwable $t ) {
     $tab_names = null;
     $error = $t->getMessage();
 }
@@ -346,8 +345,7 @@ if( $content_obj->HasPreview() ) {
     $preview_url = CMS_ROOT_URL.'/index.php?'.$config['query_var'].'='.CMS_PREVIEW_PAGEID;
     $tmp = $this->create_url($id,'admin_editcontent',$returnid,['preview'=>1]);
     $validate_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=1';
-}
-else {
+} else {
     $preview_url = '';
     $validate_url = '';
 }
@@ -355,8 +353,7 @@ else {
 if( $this->GetPreference('template_list_mode','allpage') != 'all')  {
     $tmp = $this->create_url($id,'admin_ajax_gettemplates',$returnid);
     $designchanged_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=1';
-}
-else {
+} else {
     $designchanged_ajax_url = '';
 }
 
@@ -374,12 +371,12 @@ $parms = [];
 if( $content_id > 0 ) $parms['content_id'] = $content_id;
 $tmp = $this->create_url($id,'admin_editcontent',$returnid,$parms);
 $apply_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&'.CMS_JOB_KEY.'=1';
-$lock_timeout = cms_siteprefs::get('lock_timeout', 60);
+$lock_timeout = AppParams::get('lock_timeout', 60);
 $do_locking = ($content_id > 0 && $lock_timeout > 0) ? 1:0;
 if ($do_locking) {
-    CmsApp::get_instance()->add_shutdown(10,'LockOperations::delete_for_nameduser',$user_id);
+    AppSingle::App()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
 }
-$lock_refresh = cms_siteprefs::get('lock_refresh', 120);
+$lock_refresh = AppParams::get('lock_refresh', 120);
 $options_tab_name = ContentBase::TAB_OPTIONS;
 $msg = json_encode($this->Lang('msg_lostlock'));
 $close = $this->Lang('close');
@@ -389,7 +386,7 @@ $jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
 if ($do_locking) {
     $jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
 }
-$js = $jsm->page_content('', false, false);
+$js = $jsm->page_content();
 if ($js) {
     add_page_foottext($js);
 }
@@ -415,7 +412,7 @@ $(function() {
     $('#Edit_Content').lockManager({
       type: 'content',
       oid: $content_id,
-      uid: $user_id,
+      uid: $userid,
       lock_timeout: $lock_timeout,
       lock_refresh: $lock_refresh,
       error_handler: function(err) {
@@ -445,9 +442,8 @@ if ($preview_url) {
       value: 1
     }].concat($('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray());
     $.ajax('$validate_url', {
-      type: 'POST',
+      method: 'POST',
       data: params,
-      cache: false,
       dataType: 'json'
     }).fail(function(jqXHR, textStatus, errorThrown) {
       cms_notify('error', errorThrown);
@@ -534,9 +530,8 @@ EOS;
       value: 1
     }].concat($('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray());
     $.ajax('$apply_ajax_url', {
-      type: 'POST',
+      method: 'POST',
       data: params,
-      cache: false,
       dataType: 'json'
     }).fail(function(jqXHR, textStatus, errorThrown) {
       cms_notify('error', errorThrown);

@@ -920,12 +920,6 @@ aside .no-slide,
     -ms-flex: 1 1 auto;
     flex: 1 1 auto;
 }
-.resize-horizontal {
-    resize: horizontal;
-}
-.resize-vertical {
-    resize: vertical;
-}
 .oneliner > * {
     float: right;
     margin-left: 20px
@@ -1064,8 +1058,8 @@ header .shortcuts li.notifications i {
     z-index: 99;
     display: block;
     cursor: pointer;
-    width: 25px;
-    height: 25px;
+    width: 1.6rem;
+    height: 1.6rem;
     position: absolute;
     left: 0;
     top: 4px;
@@ -1373,6 +1367,19 @@ footer#ac_footer a:active {
 }
 
 /*** page content ***/
+
+.headericon {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 0 0 1em;
+    height: 2em;
+    width: 2em;
+}
+
+.headericon img {
+    max-height: 2em;
+    max-width: 2em;
+}
 
 #ac_mainarea .content-inner {
     padding: 0 10px;

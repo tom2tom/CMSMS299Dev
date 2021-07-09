@@ -57,10 +57,11 @@ final class smarty_security_policy extends Smarty_Security
                 'array_reverse',
                 'array_search',
                 'asort',
-                'sanitizeVal', //since 2.99
-                'cms_htmlentities', //since 2.99
-                'cms_specialchars', //since 2.99
-//                'cms_specialchars_decode', //since 2.99
+                'CMSMS\\entitize', //since 2.99
+//                'CMSMS\\de_entitize', //unused input-cleaner, since 2.99
+                'CMSMS\\specialize', //since 2.99
+//                'CMSMS\\de_specialize', //unused input-cleaner, since 2.99
+                'CMSMS\\sanitizeVal', //since 2.99
                 'count',
                 'date',
                 'debug_display',
@@ -68,9 +69,9 @@ final class smarty_security_policy extends Smarty_Security
                 'endswith',
                 'explode',
                 'file_exists',
-                'html_entity_decode', //deprecated since 2.99
+                'html_entity_decode', //unused input-cleaner, deprecated since 2.99
                 'htmlentities',
-                'htmlspecialchars_decode', //deprecated since 2.99
+                'htmlspecialchars_decode', //unused input-cleaner, deprecated since 2.99
                 'htmlspecialchars',
                 'implode',
                 'in_array',

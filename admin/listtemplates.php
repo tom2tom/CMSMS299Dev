@@ -1,19 +1,23 @@
 <?php
-#List templates and groups and types.
-#Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful, but
-#WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+List templates and groups and types.
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
@@ -25,15 +29,11 @@ use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
-use CMSMS\Utils;
+use function CMSMS\sanitizeVal;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-
-if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-    exit;
-}
 
 check_login();
 
@@ -42,11 +42,10 @@ $userid = get_userid();
 $pmod = check_permission($userid,'Modify Templates');
 $padd = $pmod || check_permission($userid,'Add Templates');
 
-cleanArray($_REQUEST);
-
 if( $padd ) {
     if( isset($_REQUEST['submit_create']) ) {
-        redirect('edittemplate.php'.$urlext.'&import_type='.$_REQUEST['import_type']);
+        $tmp = sanitizeVal($_REQUEST['import_type'], CMSSAN_PUNCTX, ':');
+        redirect('edittemplate.php'.$urlext.'&import_type='.$tmp);
     }
 /*  elseif( isset($_REQUEST['bulk_submit']) ) {
         $tmp = base64_encode(serialize($_REQUEST));
@@ -55,19 +54,31 @@ if( $padd ) {
 */
 }
 
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 $lock_timeout = AppParams::get('lock_timeout', 60);
 $smarty = AppSingle::Smarty();
 
 // individual templates
-
-$filter = $_REQUEST['filter'] ?? [];
-
-if( !check_permission($userid,'Modify Templates') ) {
-    $filter[] = 'e:'.get_userid(false);
+// $_REQUEST members all cleaned individually, as needed
+$tmp = $_REQUEST['filter'] ?? null;
+if( $tmp ) {
+    if( is_array($tmp) ) {
+        $filter = array_map(function ($v) {
+            return sanitizeVal($v, CMSSAN_NAME); // OR CMSSAN_PUNCT, CMSSAN_PURESPC?
+        }, $tmp);
+    }
+    else {
+        $filter = [sanitizeVal($tmp, CMSSAN_NAME)]; // OR CMSSAN_PUNCT, CMSSAN_PURESPC?
+    }
+} else {
+    $filter = [];
 }
 
-require_once __DIR__.DIRECTORY_SEPARATOR.'method.TemplateQuery.php';
+if( !check_permission($userid,'Modify Templates') ) {
+    $filter[] = 'e:'.$userid; // restrict to the user's templates
+}
+
+require_once __DIR__.DIRECTORY_SEPARATOR.'method.templatequery.php';
 
 try {
     if( $templates ) {
@@ -132,7 +143,7 @@ try {
             }
 */
             if( !$template->get_type_dflt() && !$template->locked() ) {
-                if( $pmod || $template->get_owner_id() == get_userid() ) {
+                if( $pmod || $template->get_owner_id() == $userid ) {
                     $acts[] = ['content'=>str_replace('XXX', $tid, $linkdel)];
                 }
             }
@@ -142,8 +153,10 @@ try {
             }
         }
 
-        $smarty->assign('templates', $templates)
-         ->assign('tplmenus', $menus);
+        $smarty->assign([
+            'templates' => $templates,
+            'tplmenus' => $menus,
+        ]);
 
         $pagerows = 10;
         $navpages = ceil($n / $pagerows);
@@ -171,9 +184,11 @@ try {
         }
     }
 
-    $smarty->assign('navpages', $navpages)
-     ->assign('pagelengths',$pagelengths)
-     ->assign('currentlength',$sellength);
+    $smarty->assign([
+        'navpages' => $navpages,
+        'pagelengths' => $pagelengths,
+        'currentlength' => $sellength,
+    ]);
 
     // populate types (objects and their names)
     $types = TemplateType::get_all();
@@ -187,27 +202,33 @@ try {
 
         $typepages = ceil($n / 10);
         //TODO $pagelengths if N/A already
-        $smarty->assign('list_all_types',$tmp) //objects
-         ->assign('list_types',$tmp2) //public-names
-         ->assign('typepages',$typepages);
+        $smarty->assign([
+            'list_all_types' => $tmp, //objects
+            'list_types' => $tmp2, //public-names
+            'typepages' => $typepages,
+        ]);
     }
     else {
         $typepages = 0;
 
-        $smarty->assign('list_all_types',null)
-         ->assign('list_types',null)
-         ->assign('typepages',null);
+        $smarty->assign([
+            'list_all_types' => null,
+            'list_types' => null,
+            'typepages' => null,
+        ]);
     }
 
     $locks = LockOperations::get_locks('template');
 //  $selfurl = basename(__FILE__);
     $extras = get_secure_param_array();
-    $smarty->assign('have_locks',$locks ? count($locks) : 0)
-     ->assign('lock_timeout',$lock_timeout)
-     ->assign('coretypename',TemplateType::CORE)
-     ->assign('manage_templates',$pmod)
-     ->assign('has_add_right',$padd)
-     ->assign('extraparms',$extras);
+    $smarty->assign([
+        'have_locks' => ($locks ? count($locks) : 0),
+        'lock_timeout' => $lock_timeout,
+        'coretypename' => TemplateType::CORE,
+        'manage_templates' => $pmod,
+        'has_add_right' => $padd,
+        'extraparms' => $extras,
+    ]);
 
 }
 catch( Throwable $e ) {
@@ -217,9 +238,9 @@ catch( Throwable $e ) {
 // templates filter
 
 $smarty->assign('tpl_filter',$filter);
-
+// populate items for display in filter selector
 $opts = ['' => lang('all')];
-// groups for display in filter selector
+// group filters
 $groups = TemplatesGroup::get_all();
 if( $groups ) {
     $tmp = [];
@@ -231,7 +252,7 @@ if( $groups ) {
     });
     $opts[lang_by_realm('layout','prompt_tpl_groups')] = $tmp;
 }
-// types for display in filter selector
+// type filters
 if( $types ) {
     $tmp = [];
     foreach( $tmp2 as $k => $val ) {
@@ -242,7 +263,7 @@ if( $types ) {
     });
     $opts[lang_by_realm('layout','prompt_templatetypes')] = $tmp;
 }
-// originators for display in filter selector
+// originator filters
 $list = TemplateOperations::get_all_originators(true);
 if( $list ) {
     $tmp = [];
@@ -261,6 +282,8 @@ $smarty->assign('tpl_choices',$replacements);
 
 // templates script
 
+$securekey = CMS_SECURE_PARAM_NAME;
+$jobkey = CMS_JOB_KEY;
 $s1 = json_encode(lang_by_realm('layout','confirm_delete_bulk'));
 $s2 = json_encode(lang_by_realm('layout','error_nothingselected'));
 $s3 = json_encode(lang_by_realm('layout','confirm_steal_lock'));
@@ -274,14 +297,14 @@ $title = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','p
 $cancel = lang('cancel');
 $submit = lang('submit');
 $reset = lang('reset');
-$secs = AppParams::get('lock_refresh', 120);
+$secs = AppParams::get('lock_refresh',120);
 $secs = max(30,min(600,$secs));
 
 $jsm = new ScriptsMerger();
-$jsm->queue_matchedfile('jquery.SSsort.js', 1);
-$jsm->queue_matchedfile('jquery.ContextMenu.js', 1);
-$jsm->queue_matchedfile('jquery.cmsms_poll.js', 2);
-$jsm->queue_matchedfile('jquery.cmsms_lock.js', 2);
+$jsm->queue_matchedfile('jquery.SSsort.js',1);
+$jsm->queue_matchedfile('jquery.ContextMenu.js',1);
+$jsm->queue_matchedfile('jquery.cmsms_poll.js',2);
+$jsm->queue_matchedfile('jquery.cmsms_lock.js',2);
 
 $js = <<<EOS
 var tpltable,typetable;
@@ -427,23 +450,46 @@ $(function() {
     });
   });
   $('a.edit_tpl').on('click', function(e) {
-    if($(this).hasClass('steal_lock')) return true; //TODO
+    if(this.classList.contains('steal_lock')) return true;
     e.preventDefault();
     var url = this.href,
-      tplid = this.getAttribute('data-tpl-id');
+     tplid = this.getAttribute('data-tpl-id'),
+     lockurl = 'ajax_lock.php',
+     parms = {
+      $securekey: cms_data.user_key,
+      $jobkey: 1,
+      dataType: 'json',
+      op: 'check',
+      type: 'template',
+      oid: tplid
+     };
     // double-check whether this template is locked
-    $.ajax('ajax_lock.php{$urlext}', {
-      data: { opt: 'check', type: 'template', oid: tplid }
+    $.ajax(lockurl, {
+      method: 'POST',
+      data: parms
     }).done(function(data) {
       if(data.status === 'success') {
-        if(data.locked) {
+        if(data.stealable) {
+          cms_confirm($s3).done(function() {
+            parms.op = 'unlock';
+            parms.lock_id = data.lock_id;
+// TODO security : parms.X = Y suitable for ScriptsMerger
+            $.ajax(lockurl, {
+              method: 'POST',
+              data: parms
+            });
+            window.location.href = url;
+          });
+        } else if(data.locked) {
           cms_alert($s4);
         } else {
           window.location.href = url;
         }
       } else {
-        cms_alert('AJAX ERROR');
+        cms_alert(data.error.msg);
       }
+    }).fail(function() {
+      cms_alert('AJAX ERROR');
     });
     return false;
   });
@@ -524,22 +570,22 @@ $jsm->queue_string($js, 3);
 
 $groups = TemplateOperations::get_bulk_groups(); //TODO ensure member id's are also displayed
 if( $groups ) {
-    $u = 'edittplgroup.php'.$urlext.'&tpl=XXX';
+    $u = 'edittplgroup.php'.$urlext.'&grp=XXX';
     $t = lang_by_realm('layout','prompt_edit');
     $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
     $linkedit = '<a href="'.$u.'" class="edit_tpl" data-tpl-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
-/*    $u = 'templateoperations.php'.$urlext.'&op=copy&tpl=XXX';
+/*    $u = 'templateoperations.php'.$urlext.'&op=copy&grp=XXX';
     $t = lang_by_realm('layout','title_copy_group');
     $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
     $linkcopy = '<a href="'.$u.'" class="copy_tpl">'.$icon.'</a>'.PHP_EOL;
 */
-    $u = 'templateoperations.php'.$urlext.'&op=delete&tpl=XXX';
+    $u = 'templateoperations.php'.$urlext.'&op=delete&grp=XXX';
     $t = lang_by_realm('layout','title_delete_shallow');
     $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon del_grp');
     $linkdel = '<a href="'.$u.'" class="del_grp">'.$icon.'</a>'.PHP_EOL;
 
-    $u = 'templateoperations.php'.$urlext.'&op=deleteall&tpl=XXX';
+    $u = 'templateoperations.php'.$urlext.'&op=deleteall&grp=XXX';
     $t = lang_by_realm('layout','title_delete_deep');
     $icon = $themeObject->DisplayImage('icons/extra/deletedeep', $t, '', '', 'systemicon del_grp');
     $linkdelall = '<a href="'.$u.'" class="del_grpall">'.$icon.'</a>'.PHP_EOL;
@@ -548,9 +594,9 @@ if( $groups ) {
     foreach( $groups as $gid => &$group ) {
         $acts = [];
         if( $pmod ) { $acts[] = ['content'=>str_replace('XXX', $gid, $linkedit)]; }
-//        $acts[] = ['content'=>str_replace('XXX', -$gid, $linkcopy)];
-        if( $pmod ) { $acts[] = ['content'=>str_replace('XXX', -$gid, $linkdel)]; }
-        if( $pmod ) { $acts[] = ['content'=>str_replace('XXX', -$gid, $linkdelall)]; }
+//        $acts[] = ['content'=>str_replace('XXX', $gid, $linkcopy)];
+        if( $pmod ) { $acts[] = ['content'=>str_replace('XXX', $gid, $linkdel)]; }
+        if( $pmod ) { $acts[] = ['content'=>str_replace('XXX', $gid, $linkdelall)]; }
 //TODO item to revert template content to type-default, if any
 //TODO lock processing, if relevant
 
@@ -560,8 +606,10 @@ if( $groups ) {
     }
     unset($group);
 
-    $smarty->assign('list_groups', $groups)
-     ->assign('grpmenus', $menus);
+    $smarty->assign([
+        'list_groups' => $groups,
+        'grpmenus' => $menus,
+    ]);
 
     $s1 = json_encode(lang_by_realm('layout','confirm_delete_group'));
     $s2 = json_encode(lang_by_realm('layout','confirm_delete_groupplus'));
@@ -586,7 +634,7 @@ EOS;
     $jsm->queue_string($js, 3);
 }
 
-$out = $jsm->page_content('', false, false);
+$out = $jsm->page_content();
 if( $out ) {
     add_page_foottext($out);
 }
@@ -602,19 +650,24 @@ $extras2 = [
     'tpl' => '', //populated by js
 ];
 $selfurl = basename(__FILE__);
+$seetab = isset($_REQUEST['_activetab']) ? sanitizeVal($_REQUEST['_activetab'], CMSSAN_NAME) : null;
 
-$smarty->assign('manage_templates',$pmod)
- ->assign('has_add_right', $pmod || check_permission($userid,'Add Templates'))
- ->assign('extraparms2',$extras)
- ->assign('selfurl',$selfurl)
- ->assign('urlext',$urlext)
- ->assign('activetab', $_REQUEST['_activetab'] ?? null)
- ->assign('extraparms3',$extras2)
- ->assign('coretypename',TemplateType::CORE)
-// ->assign('import_url',TODOfuncURL('import_template'))  N/A as standalone
- ->assign('lock_timeout',AppParams::get('lock_timeout', 60));
+$smarty->assign([
+   'curuser' => $userid,
+   'manage_templates' => $pmod,
+   'has_add_right' => $pmod || check_permission($userid, 'Add Templates'),
+   'selfurl' => $selfurl,
+   'urlext' => $urlext,
+   'activetab' => $seetab,
+   'extraparms2' => $extras,
+   'extraparms3' => $extras2,
+   'coretypename' => TemplateType::CORE,
+//   'import_url' => TODOfuncURL('import_template'),  N/A as standalone
+   'lock_timeout' => AppParams::get('lock_timeout', 60),
+ ]);
 
 $content = $smarty->fetch('listtemplates.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";

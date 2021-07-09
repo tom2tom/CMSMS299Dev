@@ -2,7 +2,7 @@
 <?php
 
 use cms_installer\installer_base;
-use CMSMS\App;
+use CMSMS\AppSingle;
 
 const SVNROOT = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
 const INSTALLERTOP = 'installer'; // extended-intaller top folder name, no trailing separator
@@ -383,14 +383,14 @@ function copy_local_files()
             }
         } elseif (@is_file($fp)) {
             copy($fp, $tp);
-			chmod($tp, 0666); // generic perms here
+            chmod($tp, 0666); // generic perms here
             verbose(2, "COPIED $fn to $tp");
         }
     }
 
     $fp = $sourcedir.DIRECTORY_SEPARATOR;
     $config = [];
-    require_once $fp.'config.php';
+    require_once $fp.'lib'.DIRECTORY_SEPARATOR.'config.php';
 
     if (!empty($config['admin_dir'])) {
         @rename($fp.$config['admin_dir'], $fp.'admin');
@@ -524,7 +524,7 @@ function copy_installer_files()
             }
         } elseif (@is_file($fp)) {
             copy($fp, $tp);
-			chmod($tp, 0666); // generic perms here
+            chmod($tp, 0666); // generic perms here
             verbose(2, "COPIED $fn to $tp");
         }
     }
@@ -1189,18 +1189,18 @@ try {
         } catch (Throwable $t) {
             die('Failed to generate demo content: no access to CMSMS system resources');
         }
-		$arr = installer_base::UPLOADFILESDIR;
-		$uploadspath = joinpath($installerdir, ...$arr);
-		$arr = installer_base::CUSTOMFILESDIR;
-		$workerspath = joinpath($installerdir, ...$arr);
-		$db = App::get_instance()->GetDb();
-		$space = @require_once joinpath($installerdir, 'lib', 'iosite.functions.php');
-		if ($space === false) { die('Site-content exporter is missing.'); }
-		elseif ($space === 1) { $space = ''; }
-		$funcname = ($space) ? $space.'\\export_content' : 'export_content';
-		verbose(1, "INFO: export site content to $xmlfile");
-		$funcname($xmlfile, $uploadspath, $workerspath, $db);
-	}
+        $arr = installer_base::UPLOADFILESDIR;
+        $uploadspath = joinpath($installerdir, ...$arr);
+        $arr = installer_base::CUSTOMFILESDIR;
+        $workerspath = joinpath($installerdir, ...$arr);
+        $db = AppSingle::Db();
+        $space = @require_once joinpath($installerdir, 'lib', 'iosite.functions.php');
+        if ($space === false) { die('Site-content exporter is missing.'); }
+        elseif ($space === 1) { $space = ''; }
+        $funcname = ($space) ? $space.'\\export_content' : 'export_content';
+        verbose(1, "INFO: export site content to $xmlfile");
+        $funcname($xmlfile, $uploadspath, $workerspath, $db);
+    }
 
     if (strncmp($sourceuri, 'file://', 7) == 0) {
         $fp = substr($sourceuri, 7);
@@ -1217,18 +1217,19 @@ try {
         die('ERROR: sources not available');
     }
 
-	$version_php = get_version_php($sourcedir);
-	if (!is_file($version_php)) {
-		die('Could not find file version.php in the source tree.');
-	}
-	if (!defined('CMS_VERSION')) {
-		include_once $version_php;
-	}
-    $version_num = CMS_VERSION;
-    verbose(1, "INFO: found version: $version_num");
+    $version_php = get_version_php($sourcedir);
+    if (!is_file($version_php)) {
+        die('Could not find file version.php in the source tree.');
+    }
+    if (!defined('CMS_VERSION')) {
+        include_once $version_php;
+    }
+    $version_num = $CMS_VERSION ?? constant('CMS_VERSION');
+    if ($version_num) { verbose(1, "INFO: found version: $version_num"); }
+    else { verbose(0, "ERROR: no CMSMS-version identifier is available"); }
 
     $fp = joinpath($installerdir, 'lib', 'upgrade', $version_num);
-    @mkdir($fp, 0777, true); // generic perms, pending actuals for istallation
+    @mkdir($fp, 0777, true); // generic perms, pending actuals for installation
     if (!(is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT.gz') || is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT'))) {
         verbose(0, "ERROR: no $version_num-upgrade files-manifest is present");
         // MAYBE create MANIFEST.DAT.gz using create_manifest.php, but what 'reference' fileset?

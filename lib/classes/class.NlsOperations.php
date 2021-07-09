@@ -1,7 +1,7 @@
 <?php
 /*
 Class of methods for dealing with language/encoding/locale
-Copyright (C) 2015-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2015-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -28,15 +28,17 @@ use CMSMS\LanguageDetector;
 use CMSMS\Nls;
 use CMSMS\UserParams;
 use const CMS_ROOT_PATH;
-use function cleanString;
+use const CMSSAN_NONPRINT;
 use function cms_join_path;
+use function CMSMS\sanitizeVal;
 use function get_userid;
 
 /**
  * A singleton class to provide simple, generic mechanism for dealing with
- * languages encodings, and locales.
+ * language encodings and locales.
  * This class does not handle translation strings.
  *
+ * @final
  * @author Robert Campbell
  * @since 1.11
  * @package CMS
@@ -154,18 +156,18 @@ final class NlsOperations
 
 	/**
 	 * Set a current language.
-	 * The language specified may be an empty string, which will assume that the system
-	 * should try to detect an appropriate language.  If no default can be found for
-	 * some reason, en_US will be assumed.
+	 * The language specified may be an empty string, in which case this will
+	 * try to determine an appropriate language.  If no such default can be
+	 * found, 'en_US' will be assumed.
 	 *
 	 * When a language is found, the system will automatically set the locale for the request.
 	 *
 	 * Note: CMSMS 1.11 and above will not support multiple languages per request.
-	 * therefore, it should be assumed that this function can only be called once per request.
+	 * Therefore, it should be assumed that this function can only be called once per request.
 	 *
 	 * @internal
 	 * @see set_locale
-	 * @param string The desired language.
+	 * @param string The desired language, a string like.
 	 * @return bool
 	 */
 	public static function set_language(string $lang = '') : bool
@@ -197,10 +199,10 @@ final class NlsOperations
 	/**
 	 * Get the current language.
 	 * If not explicitly set this method will try to detect the current language.
-	 * different detection mechanisms are used for admin requests vs. frontend requests.
-	 * if no match could be found in any way, en_US is returned.
+	 * Different detection mechanisms are used for admin requests vs. frontend requests.
+	 * If no match is found, 'en_US' is returned.
 	 *
-	 * @return string Language name.
+	 * @return string Language descriptor (like 'en' or 'en_US')
 	 */
 	public static function get_current_language() : string
 	{
@@ -217,16 +219,17 @@ final class NlsOperations
 	 * Get a default language.
 	 * This method will behave differently for admin or frontend requests.
 	 *
-	 * For admin requests first the preference is checked.  Secondly,
-	 * an attempt is made to find a language understood by the browser that is
-	 * compatible with what is available.  If no match can be found, en_US is assumed.
+	 * For admin requests first the preference is checked.  Secondly, an
+	 * attempt is made to find a language understood by the browser that is
+	 * compatible with what is available. If no match is found, en_US is assumed.
 	 *
-	 * For frontend requests if a language detector has been set into this object it will
-	 * be called to attempt to find a language.  If that fails, then the frontend language preference
-	 * is used.  Thirdly, if no match is found en_US is assumed.
+	 * For frontend requests if a language detector has been set into this
+	 * object it will be called to attempt to find a language.  If that fails,
+	 * then the frontend language preference is used. If still no match is found,
+	 * en_US is assumed.
 	 *
 	 * @see set_language_detector
-	 * @return string
+	 * @return string language name (like 'en' or 'en_US')
 	 */
 	public static function get_default_language() : string
 	{
@@ -235,7 +238,7 @@ final class NlsOperations
 		}
 		self::_load_nls();
 
-		if( AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_STYLESHEET | AppState::STATE_INSTALL) ) {
+		if( AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_STYLESHEET | AppState::STATE_ASYNC_JOB | AppState::STATE_INSTALL) ) {
 			$lang = self::get_admin_language();
 		}
 		else {
@@ -253,7 +256,7 @@ final class NlsOperations
 	 * the language returned must be available as specified by the
 	 * available NLS Files.
 	 *
-	 * @return string language name.
+	 * @return string language name (like 'en' or 'en_US')
 	 */
 	protected static function get_frontend_language() : string
 	{
@@ -263,12 +266,11 @@ final class NlsOperations
 	}
 
 	/**
-	 * Use detection mechanisms to find a suitable language for an admin request.
-	 * The language returned must be an available language as specified by the
-	 * available NLS Files.  If no suitable language can be detected this function
-	 * will return en_US
+	 * Find a suitable language for an admin request.
+	 * Such language must correspond to one of the available NLS Files.
+	 * If no suitable language can be detected, this function will return 'en_US'
 	 *
-	 * @return string The language name
+	 * @return string language name (like 'en' or 'en_US')
 	 */
 	protected static function get_admin_language() : string
 	{
@@ -291,7 +293,8 @@ final class NlsOperations
 			// this is needed because the lang stuff is included before the preference may
 			// actually be set.
 			self::_load_nls();
-			$a2 = cleanString($_POST['default_cms_language']);
+			// see http://www.unicode.org/reports/tr35/#Identifiers
+			$a2 = sanitizeVal($_POST['default_cms_language'], CMSSAN_NONPRINT);
 			if( $a2 && isset(self::$_nls[$a2]) ) {
 				$lang = $a2;
 			}
@@ -308,9 +311,8 @@ final class NlsOperations
 	}
 
 	/**
-	 * Cross-reference the browser preferred language with those
-	 * that are available (via NLS Files). To find the first
-	 * suitable language.
+	 * Find the first available language which matches the browser preferred
+	 * language.
 	 *
 	 * @return mixed string (first suitable lang identifier) | null
 	 */
@@ -376,9 +378,10 @@ final class NlsOperations
 
 	/**
 	 * Return the currently active encoding.
-	 * If an encoding has not been explicitly set, the default_encoding value from the config file will be used
-	 * If that value is empty, the encoding associated with the current language will be used.
-	 * If no suitable encoding can be found, UTF-8 will be assumed.
+	 * If an encoding has not been explicitly set, the default_encoding value
+	 * from the config file will be used. If that value is empty, the encoding
+	 * associated with the current language will be used. If a suitable encoding
+	 * is still not found, UTF-8 will be assumed.
 	 *
 	 * @return string.
 	 */

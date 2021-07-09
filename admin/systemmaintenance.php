@@ -1,32 +1,33 @@
 <?php
-#procedure for displaying system-maintenance actions
-#Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure to display system-maintenance actions
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use cms_installer\installer_base;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\ContentOperations;
-use CMSMS\FilePickerProfile;
+use CMSMS\Error403Exception;
 use CMSMS\RouteOperations;
-use CMSMS\SysDataCache;
-use CMSMS\SystemCache;
-use CMSMS\Utils;
+use function CMSMS\specialize;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -34,29 +35,25 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 check_login();
 
-$urlext = get_secure_param();
 $userid = get_userid();
-$access = true; //check_permission($userid, 'TODO some Site Perm');
-
-$themeObject = Utils::get_theme_object();
-
-if (!$access) {
-//TODO some pushed popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
-    return;
+if (0) { //!check_permission($userid, 'TODO some Site Perm')) {
+//TODO some pushed popup $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
+
+$urlext = get_secure_param();
+$themeObject = AppSingle::Theme();
 
 require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
 
-$gCms = AppSingle::App();
-
-$smarty = $gCms->GetSmarty();
+$smarty = AppSingle::Smarty();
 $smarty->force_compile = true;
 $smarty->assign('theme', $themeObject);
 
 /*
  * Database
  */
-$db = $gCms->GetDb();
+$db = AppSingle::Db();
 $query = "SHOW TABLES LIKE '".CMS_DB_PREFIX."%'";
 $tablestmp = $db->GetArray($query);
 $tables = [];
@@ -145,8 +142,8 @@ if ($n == 1) {
  */
 if (isset($_POST['clearcache'])) {
     //TODO files in local TMP_CACHE_LOCATION etc
-    SysDataCache::get_instance()->clear();
-    SystemCache::get_instance()->clear();
+    AppSingle::SysDataCache()->clear();
+    AppSingle::SystemCache()->clear();
     AdminUtils::clear_cached_files();
     // put mention into the admin log
     audit('', 'System maintenance', 'Caches cleared');
@@ -161,7 +158,7 @@ if (isset($_POST['updateroutes'])) {
     $smarty->assign('active_content', 1);
 }
 
-$contentops = ContentOperations::get_instance();
+$contentops = AppSingle::ContentOperations();
 if (isset($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     audit('', 'System maintenance', 'Page hierarchy positions updated');
@@ -249,13 +246,15 @@ if (is_object($allcontent)) {
         //print_r($row);
     }
 }
-$smarty->assign('pagecount', $count)
-  ->assign('pagesmissingalias', $withoutalias)
-  ->assign('withoutaliascount', count($withoutalias))
-  ->assign('pageswithinvalidtype', $invalidtypes)
-  ->assign('invalidtypescount', count($invalidtypes));
+$smarty->assign([
+    'pagecount' => $count,
+    'pagesmissingalias' => $withoutalias,
+    'withoutaliascount' => count($withoutalias),
+    'pageswithinvalidtype' => $invalidtypes,
+    'invalidtypescount' => count($invalidtypes),
+]);
 
-$cache = SystemCache::get_instance();
+$cache = AppSingle::SystemCache();
 $type = get_class($cache->get_driver());
 if (!endswith($type, 'File')) {
     $c = stripos($type, 'Cache');
@@ -327,7 +326,7 @@ if (is_readable($ch_filename)) {
             }
             $close = true;
         } else {
-            $changelog[$i] = htmlentities($changelog[$i]);
+            $changelog[$i] = specialize($changelog[$i]);
         }
     }
     if ($close) {
@@ -335,8 +334,10 @@ if (is_readable($ch_filename)) {
     }
     $changelog = implode('<br />', $changelog);
 
-    $smarty->assign('changelog', $changelog)
-      ->assign('changelogfilename', $ch_filename);
+    $smarty->assign([
+		'changelog' => $changelog,
+        'changelogfilename' => $ch_filename,
+	]);
 }
 
 /*
@@ -359,12 +360,15 @@ add_page_foottext($out);
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty->assign('backurl', $themeObject->BackUrl())
-  ->assign('selfurl', $selfurl)
-  ->assign('extraparms', $extras)
-  ->assign('urlext', $urlext);
+$smarty->assign([
+    'backurl' => $themeObject->BackUrl(),
+    'selfurl' => $selfurl,
+    'extraparms' => $extras,
+    'urlext' => $urlext,
+]);
 
 $content = $smarty->fetch('systemmaintenance.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";

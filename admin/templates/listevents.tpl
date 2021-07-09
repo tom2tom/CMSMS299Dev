@@ -27,7 +27,7 @@
     </tr>
   </thead>
   <tbody>
-  {foreach $events as $one} {if !$senderfilter || $senderfilter == $one.originator}
+  {foreach $events as $one} {* SEE PHP if !$senderfilter || $senderfilter == $one.originator *}
     <tr class="{cycle values='row1,row2'}">
       {strip}
       <td>
@@ -54,7 +54,7 @@
       {/if}
 {/strip}
     </tr>
-  {/if} {/foreach}
+  {*/if*} {/foreach}
   </tbody>
 </table>
 {else}

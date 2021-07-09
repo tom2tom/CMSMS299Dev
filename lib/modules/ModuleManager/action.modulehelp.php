@@ -1,6 +1,6 @@
 <?php
 /*
-ModuleManager action:
+ModuleManager action: show module help
 Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -28,27 +28,27 @@ $this->SetCurrentTab('modules');
 
 $name = $params['name'] ?? '';
 if( !$name ) {
-  $this->SetError($this->Lang('error_insufficientparams'));
-  $this->RedirectToAdminTab();
+    $this->SetError($this->Lang('error_insufficientparams'));
+    $this->RedirectToAdminTab();
 }
 
 $version = $params['version'] ?? '';
 if( !$version ) {
-  $this->SetError($this->Lang('error_insufficientparams'));
-  $this->RedirectToAdminTab();
+    $this->SetError($this->Lang('error_insufficientparams'));
+    $this->RedirectToAdminTab();
 }
 
 $url = $this->GetPreference('module_repository');
 if( !$url ) {
-  $this->SetError($this->Lang('error_norepositoryurl'));
-  $this->RedirectToAdminTab();
+    $this->SetError($this->Lang('error_norepositoryurl'));
+    $this->RedirectToAdminTab();
 }
 $url .= '/modulehelp';
 
 $xmlfile = $params['filename'] ?? '';
 if( !$xmlfile ) {
-  $this->SetError($this->Lang('error_nofilename'));
-  $this->RedirectToAdminTab();
+    $this->SetError($this->Lang('error_nofilename'));
+    $this->RedirectToAdminTab();
 }
 
 $req = new cached_request();
@@ -56,13 +56,13 @@ $req->execute($url,['name'=>$xmlfile]);
 $status = $req->getStatus();
 $result = $req->getResult();
 if( $status != 200 || $result == '' ) {
-  $this->SetError($this->Lang('error_request_problem'));
-  $this->RedirectToAdminTab();
+    $this->SetError($this->Lang('error_request_problem'));
+    $this->RedirectToAdminTab();
 }
 $help = json_decode($result,true);
 if( !$help ) {
-  $this->SetError($this->Lang('error_nodata'));
-  $this->RedirectToAdminTab();
+    $this->SetError($this->Lang('error_nodata'));
+    $this->RedirectToAdminTab();
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('remotecontent.tpl')); //,null,null,$smarty);

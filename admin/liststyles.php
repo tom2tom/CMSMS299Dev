@@ -1,19 +1,23 @@
 <?php
-#List stylesheets and groups.
-#Copyright (C) 2019-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful, but
-#WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Procedure to list stylesheets and groups
+Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
@@ -22,30 +26,24 @@ use CMSMS\FormUtils;
 use CMSMS\ScriptsMerger;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetQuery;
-use CMSMS\Utils;
+use function CMSMS\sanitizeVal;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-    exit;
-}
-
 check_login();
 
-$urlext = get_secure_param();
 $userid = get_userid();
 $pmanage = check_permission($userid,'Manage Stylesheets');
-
-cleanArray($_REQUEST);
-
+$urlext = get_secure_param();
 if( $pmanage ) {
     if( isset($_REQUEST['submit_create']) ) {
         redirect('editstylesheet.php'.$urlext);
     }
 }
 
+$themeObject = AppSingle::Theme();
 $smarty = AppSingle::Smarty();
 
 // individual stylesheets
@@ -54,7 +52,6 @@ try {
     $css_query = new StylesheetQuery(); //$filter);
     $sheetslist = $css_query->GetMatches();
     if( $sheetslist ) {
-        $themeObject = Utils::get_theme_object();
         $u = 'editstylesheet.php'.$urlext.'&css=XXX';
         $t = lang_by_realm('layout','title_edit_stylesheet');
         $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
@@ -156,12 +153,14 @@ try {
     $smarty->assign('urlext',$urlext)
      ->assign('extraparms',$extras);
 }
-catch( Throwable $e ) {
-    echo '<div class="error">'.$e->GetMessage().'</div>';
+catch( Throwable $t ) {
+    echo '<div class="error">'.$t->GetMessage().'</div>';
 }
 
 // stylesheeets script
 
+$securekey = CMS_SECURE_PARAM_NAME;
+$jobkey = CMS_JOB_KEY;
 $s1 = json_encode(lang_by_realm('layout','confirm_delete_bulk'));
 $s2 = json_encode(lang_by_realm('layout','error_nothingselected'));
 $s3 = json_encode(lang_by_realm('layout','confirm_steal_lock'));
@@ -282,23 +281,46 @@ $(function() {
   });
   $('#csslist [context-menu]').ContextMenu();
   $('a.edit_css').on('click', function(e) {
-    if($(this).hasClass('steal_lock')) return true; //TODO
+    if(this.classList.contains('steal_lock')) return true;
     e.preventDefault();
     var url = this.href,
-      cssid = this.getAttribute('data-css-id');
+     cssid = this.getAttribute('data-css-id'),
+     lockurl = 'ajax_lock.php',
+     parms = {
+      $securekey: cms_data.user_key,
+      $jobkey: 1,
+      dataType: 'json',
+      op: 'check',
+      type: 'stylesheet',
+      oid: cssid
+     };
     // double-check whether this sheet is locked
-    $.ajax('ajax_lock.php{$urlext}', {
-      data: { opt: 'check', type: 'stylesheet', oid: cssid }
+    $.ajax(lockurl, {
+      method: 'POST',
+      data: parms
     }).done(function(data) {
       if(data.status === 'success') {
-        if(data.locked) {
+        if(data.stealable) {
+          cms_confirm($s3).done(function() {
+            parms.op = 'unlock';
+            parms.lock_id = data.lock_id;
+// TODO security : parms.X = Y suitable for ScriptsMerger
+            $.ajax(lockurl, {
+              method: 'POST',
+              data: parms
+            });
+            window.location.href = url;
+          });
+        } else if(data.locked) {
           cms_alert($s4);
         } else {
           window.location.href = url;
         }
       } else {
-        cms_alert('AJAX ERROR');
+        cms_alert(data.error.msg);
       }
+    }).fail(function() {
+      cms_alert('AJAX ERROR');
     });
     return false;
   });
@@ -380,48 +402,46 @@ $(function() {
 EOS;
 $jsm->queue_string($js, 3);
 
-$themeObject = Utils::get_theme_object();
-
 // stylesheet groups
 
 $groups = StylesheetOperations::get_bulk_groups(); //TODO ensure member id's are also displayed
 if( $groups ) {
-    $u = 'editcssgroup.php'.$urlext.'&css=XXX';
+    $u = 'editcssgroup.php'.$urlext.'&grp=XXX';
     $t = lang_by_realm('layout','title_edit_group');
     $icon = $themeObject->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
     $linkedit = '<a href="'.$u.'" data-css-id="XXX" class="edit_css">'.$icon.'</a>'.PHP_EOL;
 
-/*    $u = 'stylesheetoperations.php'.$urlext.'&op=copy&css=XXX';
+/*    $u = 'stylesheetoperations.php'.$urlext.'&op=copy&grp=XXX';
     $t = lang_by_realm('layout','title_copy_group');
     $icon = $themeObject->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
     $linkcopy = '<a href="'.$u.'" class="copy_css">'.$icon.'</a>'.PHP_EOL;
 */
-    $u = 'stylesheetoperations.php'.$urlext.'&op=delete&css=XXX';
+    $u = 'stylesheetoperations.php'.$urlext.'&op=delete&grp=XXX';
     $t = lang_by_realm('layout','title_delete_shallow');
     $icon = $themeObject->DisplayImage('icons/system/delete', $t, '', '', 'systemicon');
     $linkdel = '<a href="'.$u.'" class="del_grp">'.$icon.'</a>'.PHP_EOL;
 
-    $u = 'stylesheetoperations.php'.$urlext.'&op=deleteall&css=XXX';
+    $u = 'stylesheetoperations.php'.$urlext.'&op=deleteall&grp=XXX';
     $t = lang_by_realm('layout','title_delete_deep');
     $icon = $themeObject->DisplayImage('icons/extra/deletedeep', $t, '', '', 'systemicon');
     $linkdelall = '<a href="'.$u.'" class="del_grpall">'.$icon.'</a>'.PHP_EOL;
 
-    $u = 'stylesheetoperations.php'.$urlext.'&op=prepend&css=XXX';
+    $u = 'stylesheetoperations.php'.$urlext.'&op=prepend&grp=XXX';
     $t = lang_by_realm('layout','title_prepend_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/prepend', $t, '', '', 'systemicon');
     $linkprepend = '<a href="'.$u.'" class="prepend_css">'.$icon.'</a>'.PHP_EOL;
 
-    $u = 'stylesheetoperations.php'.$urlext.'&op=append&css=XXX';
+    $u = 'stylesheetoperations.php'.$urlext.'&op=append&grp=XXX';
     $t = lang_by_realm('layout','title_append_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/append', $t, '', '', 'systemicon');
     $linkappend = '<a href="'.$u.'" class="append_css">'.$icon.'</a>'.PHP_EOL;
 
-    $u = 'stylesheetoperations.php'.$urlext.'&op=replace&css=XXX';
+    $u = 'stylesheetoperations.php'.$urlext.'&op=replace&grp=XXX';
     $t = lang_by_realm('layout','title_replace_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/replace', $t, '', '', 'systemicon');
     $linkreplace = '<a href="'.$u.'" class="replace_css" data-css-id="XXX">'.$icon.'</a>'.PHP_EOL;
 
-    $u = 'stylesheetoperations.php'.$urlext.'&op=remove&css=XXX';
+    $u = 'stylesheetoperations.php'.$urlext.'&op=remove&grp=XXX';
     $t = lang_by_realm('layout','title_remove_stylesheet');
     $icon = $themeObject->DisplayImage('icons/extra/removeall', $t, '', '', 'systemicon');
     $linkremove = '<a href="'.$u.'" class="remove_css">'.$icon.'</a>'.PHP_EOL;
@@ -430,27 +450,26 @@ if( $groups ) {
     foreach( $groups as $gid => &$group ) {
         $acts = [];
         $acts[] = ['content'=>str_replace('XXX', $gid, $linkedit)];
-//        $acts[] = ['content'=>str_replace('XXX', -$gid, $linkcopy)];
-        $acts[] = ['content'=>str_replace('XXX', -$gid, $linkprepend)];
-        $acts[] = ['content'=>str_replace('XXX', -$gid, $linkappend)];
-        $acts[] = ['content'=>str_replace('XXX', -$gid, $linkreplace)];
-        $acts[] = ['content'=>str_replace('XXX', -$gid, $linkremove)];
-        $acts[] = ['content'=>str_replace('XXX', -$gid, $linkdel)];
-        $acts[] = ['content'=>str_replace('XXX', -$gid, $linkdelall)];
+//        $acts[] = ['content'=>str_replace('XXX', $gid, $linkcopy)];
+        $acts[] = ['content'=>str_replace('XXX', $gid, $linkprepend)];
+        $acts[] = ['content'=>str_replace('XXX', $gid, $linkappend)];
+        $acts[] = ['content'=>str_replace('XXX', $gid, $linkreplace)];
+        $acts[] = ['content'=>str_replace('XXX', $gid, $linkremove)];
+        $acts[] = ['content'=>str_replace('XXX', $gid, $linkdel)];
+        $acts[] = ['content'=>str_replace('XXX', $gid, $linkdelall)];
 //TODO lock processing, if relevant
-
-        if( $acts ) {
-            $menus[] = FormUtils::create_menu($acts, ['id'=>'Sheetsgroup'.$gid]);
-        }
+        $menus[] = FormUtils::create_menu($acts, ['id'=>'Sheetsgroup'.$gid]);
     }
     unset($group);
 
+//    $title = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_stylesgroup'));
+
     $smarty->assign('list_groups', $groups)
      ->assign('grpmenus', $menus);
+//       ->assign('TODO', $title);
 
     $s1 = json_encode(lang_by_realm('layout','confirm_delete_group'));
     $s2 = json_encode(lang_by_realm('layout','confirm_delete_groupplus'));
-    $title = lang_by_realm('layout','prompt_replace_typed',lang_by_realm('layout','prompt_stylesgroup'));
 
     // groups supplementary-script
     $js = <<<EOS
@@ -472,7 +491,7 @@ EOS;
     $jsm->queue_string($js, 3);
 }
 
-$out = $jsm->page_content('', false, false);
+$out = $jsm->page_content();
 if( $out ) {
     add_page_foottext($out);
 }
@@ -499,18 +518,23 @@ $extras2 = $extras + [
     'op' => 'replace',
     'css' => '', //populted by js
 ];
+$seetab = $_REQUEST['_activetab'] ?? null;
+if( $seetab ) { $seetab = sanitizeVal($seetab, CMSSAN_NAME); }
 //$selfurl = basename(__FILE__);
 
-$smarty->assign('manage_stylesheets',$pmanage)
- ->assign('has_add_right',$pmanage)
- ->assign('activetab', $_REQUEST['_activetab'] ?? null)
-// ->assign('selfurl',$selfurl)
- ->assign('urlext',$urlext)
- ->assign('extraparms',$extras)
- ->assign('extraparms2',$extras2);
-// ->assign('lock_timeout',AppParams::get('lock_timeout', 60))
+$smarty->assign([
+    'manage_stylesheets' => $pmanage,
+    'has_add_right' => $pmanage,
+    'activetab' => $seetab,
+//  'selfurl' => $selfurl,
+    'urlext' => $urlext,
+    'extraparms' => $extras,
+    'extraparms2' => $extras2,
+//  'lock_timeout' => AppParams::get('lock_timeout',60),
+]);
 
 $content = $smarty->fetch('liststyles.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";

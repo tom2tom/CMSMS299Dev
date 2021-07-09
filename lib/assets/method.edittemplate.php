@@ -19,12 +19,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\GroupOperations;
+use CMSMS\AppSingle;
 use CMSMS\ScriptsMerger;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
-use CMSMS\UserOperations;
 use CMSMS\Utils;
 
 /*
@@ -204,12 +203,12 @@ if( $can_manage ) {
         }
     }
 
-    $allusers = UserOperations::get_instance()->LoadUsers();
+    $allusers = AppSingle::UserOperations()->LoadUsers();
     foreach( $allusers as &$one ) {
         $user_list[$one->id] = $one->username;
     }
 
-    $allgroups = GroupOperations::get_instance()->LoadGroups();
+    $allgroups = AppSingle::GroupOperations()->LoadGroups();
     foreach( $allgroups as &$one ) {
         if( $one->id == 1) continue;
         if( !$one->active) continue;
@@ -233,7 +232,7 @@ if( !empty($pageincs['head'])) {
 /*
 $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 if( $do_locking) {
-    CMSMS\App::get_instance()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $user_id);
+    AppSingle::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $user_id);
 }
 $s1 = json_encode(lang_by_realm('layout', 'error_lock'));
 $s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
@@ -280,9 +279,8 @@ $cancel = lang('cancel');
        url = fm.attr('action') + '?apply=1',
     params = fm.serializeArray();
     $.ajax(url, {
-      type: 'POST',
-      data: params,
-      cache: false
+      method: 'POST',
+      data: params
     }).fail(function(jqXHR, textStatus, errorThrown) {
       cms_notify('error', errorThrown);
     }).done(function(data) {

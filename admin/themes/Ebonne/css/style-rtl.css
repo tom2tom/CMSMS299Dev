@@ -2169,6 +2169,19 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon:hover {
 	flex-direction: column;
 }
 
+.headericon {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 0 0 1em;
+	height: 2em;
+	width: 2em;
+}
+
+.headericon img {
+	max-height: 2em;
+	max-width: 2em;
+}
+
 #ggp_contenthead {
 	flex: 0 1 auto;
 	overflow: auto;
@@ -2185,19 +2198,6 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon:hover {
 	line-height: 2;
 	font-size: 1.1em;
 	font-weight: normal;
-}
-
-#ggp_contenthead .headericon {
-	display: inline-block;
-	vertical-align: middle;
-	margin: 0 1em 0 0;
-	height: 2em;
-	width: 2em;
-}
-
-#ggp_contenthead .headericon img {
-	max-height: 2em;
-	max-width: 2em;
 }
 
 #ggp_contenthead span.helptext {

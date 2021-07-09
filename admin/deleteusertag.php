@@ -19,9 +19,10 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\UserTagOperations;
-use CMSMS\Utils;
+use CMSMS\Error403Exception;
+use function CMSMS\sanitizeVal;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -30,13 +31,15 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 check_login();
 
 $userid = get_userid();
-$pmod = check_permission($userid, 'Manage User Plugins');
-if (!$pmod) exit;
+if (!check_permission($userid, 'Manage User Plugins')) {
+//TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
+}
 
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
-$tagname = sanitizeVal($_GET['name'], 3); // UDT might be file-stored
-$ops = UserTagOperations::get_instance();
+$tagname = sanitizeVal($_GET['name'], CMSSAN_FILE); // UDT might be file-stored
+$ops = AppSingle::UserTagOperations();
 if ($ops->UserTagExists($tagname)) {  // UDT-files included
 //if exists $ops->DoEvent( deleteuserpluginpre etc);
     if ($ops->RemoveUserTag($tagname)) {

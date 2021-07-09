@@ -1,38 +1,42 @@
 <?php
-#Class for dealing with a Stylesheet object
-#Copyright (C) 2010-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Class for dealing with a Stylesheet object
+Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS;
 
-use CmsInvalidDataException;
-use CmsLogicException;
 use CMSMS\AdminUtils;
 use CMSMS\AppSingle;
 use CMSMS\DeprecationNotice;
 use CMSMS\LockOperations;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
-use CmsSQLErrorException;
+use DesignManager\Design;
+use LogicException;
+use UnexpectedValueException;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
+use const CMSSAN_FILE;
 use function cms_join_path;
 use function cms_to_bool;
 use function cms_to_stamp;
-use function munge_string_to_url;
+use function CMSMS\sanitizeVal;
 
 /**
  * A class of methods for dealing with a Stylesheet object.
@@ -42,7 +46,7 @@ use function munge_string_to_url;
  *
  * @package CMS
  * @license GPL
- * @since 2.9
+ * @since 2.99
  * @since 2.0 as global-namespace CmsLayoutStylesheet
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
@@ -50,7 +54,7 @@ class Stylesheet
 {
    /**
 	* @ignore
-	* @deprecated since 2.9 use StylesheetOperations::TABLENAME
+	* @deprecated since 2.99 use StylesheetOperations::TABLENAME
 	*/
 	const TABLENAME = 'layout_stylesheets';
 
@@ -66,10 +70,15 @@ class Stylesheet
 	private $_dirty = FALSE;
 
    /**
-	* No setter/getter, so this is populated directly
 	* @ignore
 	*/
 	public $_data = [];
+
+   /**
+	* @var string populated on demand
+	* @ignore
+	*/
+	private $_filecontent;
 
    /**
 	* @var array id's of groups that this stylesheet belongs to
@@ -103,6 +112,78 @@ class Stylesheet
 	}
 
    /**
+	* @ignore
+	*/
+	public function __set($key,$value)
+	{
+		switch( $key ) {
+			case 'id':
+			case 'type_id': // for theming, not yet supported
+				$this->_data[$key] = (int)$value;
+				break;
+			case 'content':
+				$str = trim($value);
+				$this->_data[$key] = ( $str !== '') ? $str : '/* empty stylesheet */';
+				break;
+			case 'name':
+				$str = trim($value);
+				if( !$str || !AdminUtils::is_valid_itemname($str) ) {
+					throw new DataException('Invalid template name: '.$str);
+				}
+				$this->_data[$key] = $str;
+				break;
+			case 'description':
+				$str = trim($value);
+				$this->_data[$key] = ( $str !== '') ? $str : null;
+				break;
+			case 'create_date':
+				if( isset($this->_data[$key]) ) {
+					throw new UnexpectedValueException("Attempt to set invalid template property: $key");
+				}
+			// no break here
+			case 'modified_date':
+				$this->_data[$key] = trim($value);
+				break;
+			case 'contentfile':
+				$this->_data[$key] = cms_to_bool($value);
+				break;
+			case 'media_query':
+				$this->_data[$key] = trim($value);
+				break;
+			case 'media_type':
+				$this->_data[$key] = (is_array($value)) ? $value : [$value];
+				break;
+			default:
+				throw new UnexpectedValueException("Attempt to set invalid stylesheet property: $key");
+		}
+	}
+
+   /**
+	* @ignore
+	*/
+	public function __get($key)
+	{
+		switch( $key ) {
+			case 'id':
+			case 'type_id': // for theming, not yet supported
+				return $this->_data[$key] ?? null;
+			case 'name':
+			case 'description':
+			case 'content':
+			case 'create_date':
+			case 'modified_date':
+			case 'media_query':
+				return $this->_data[$key] ?? '';
+			case 'media_type':
+				return $this->_data[$key] ?? [];
+			case 'contentfile':
+				return $this->_data[$key] ?? FALSE;
+			default:
+				throw new UnexpectedValueException("Attempt to retrieve invalid stylesheet property: $key");
+		}
+	}
+
+   /**
 	* Get the id of this stylesheet
 	* Returns null if this stylesheet has not yet been saved to the database.
 	*
@@ -127,12 +208,12 @@ class Stylesheet
 	* Set the name of this stylesheet
 	* Stylesheet names must be unique throughout the system.
 	*
-	* @throws CmsInvalidDataException
+	* @throws DataException
 	* @param string $str acceptable name per AdminUtils::is_valid_itemname()
 	*/
 	public function set_name($str)
 	{
-		if( !AdminUtils::is_valid_itemname($str)) throw new CmsInvalidDataException("Invalid characters in name: $str");
+		if( !AdminUtils::is_valid_itemname($str)) throw new DataException("Invalid characters in name: $str");
 		$this->_data['name'] = $str;
 		$this->_dirty = TRUE;
 	}
@@ -144,19 +225,30 @@ class Stylesheet
 	*/
 	public function get_content()
 	{
+		if( $this->contentfile ) {
+			if( !isset($this->_filecontent) ) {
+				if( ($fp = $this->get_content_filename()) ) {
+					$this->_filecontent = file_get_contents($fp);
+				}
+				else {
+					$this->_filecontent = 'Missing file';
+				}
+			}
+			return $this->_filecontent;
+		}
 		return $this->_data['content'] ?? '';
 	}
 
    /**
 	* Set the content of this stylesheet
 	*
-	* @throws CmsInvalidDataException
+	* @throws LogicException
 	* @param string $str not empty
 	*/
 	public function set_content($str)
 	{
 		$str = trim($str);
-		if( !$str ) throw new CmsInvalidDataException('stylesheet content cannot be empty');
+		if( !$str ) throw new LogicException('stylesheet content cannot be empty');
 		$this->_data['content'] = $str;
 		$this->_dirty = TRUE;
 	}
@@ -320,7 +412,7 @@ class Stylesheet
 */
    /* *
 	* Get the numeric id corresponding to $a
-	* @since 2.3
+	* @since 2.99
 	* @param mixed $a An Instance of a DesignManager\Design object, or an integer design id, or a string design name
 	* @return int
 	* @throws UnexpectedValueException
@@ -347,7 +439,7 @@ class Stylesheet
 	* Set the list of design id's that this stylesheet is assigned to
 	*
 	* @see DesignManager\Design
-	* @throws CmsInvalidDataException
+	* @throws DataException
 	* @param array $all Array of integer design id's, maybe empty
 	*/
 /*	public function set_designs($all)
@@ -355,7 +447,7 @@ class Stylesheet
 		if( !is_array($all) ) return;
 
 		foreach( $all as $id ) {
-			if( !is_numeric($id) ) throw new CmsInvalidDataException('Invalid data in design list. Expect array of integers');
+			if( !is_numeric($id) ) throw new DataException('Invalid data in design list. Expect array of integers');
 		}
 
 		$this->_designs = $all;
@@ -365,7 +457,7 @@ class Stylesheet
    /**
 	* Assign this stylesheet to a design
 	*
-	* @throws CmsLogicException
+	* @throws LogicException
 	* @see Design
 	* @param mixed $a An Instance of a DesignManager\Design object, or an integer design id, or a string design name
 	*/
@@ -382,7 +474,7 @@ class Stylesheet
    /* *
 	* Remove this stylesheet from a design
 	*
-	* @throws CmsLogicException
+	* @throws LogicException
 	* @see DesignManager\Design
 	* @param mixed $a An Instance of a DesignManager\Design object, or an integer design id, or a string design name
 	*/
@@ -405,7 +497,7 @@ class Stylesheet
 */
    /**
 	* Get the list of group id's (if any) that this stylesheet belongs to
-	* @since 2.3
+	* @since 2.99
 	*
 	* @return array Array of integer group id's
 	*/
@@ -431,9 +523,9 @@ class Stylesheet
 
    /**
 	* Set the list of group id's that this stylesheet belongs to
-	* @since 2.3
+	* @since 2.99
 	*
-	* @throws CmsInvalidDataException
+	* @throws DataException
 	* @param array $all Array of integer group id's, maybe empty
 	*/
 	public function set_groups(array $all)
@@ -441,7 +533,7 @@ class Stylesheet
 		if( !is_array($all) ) return;
 
 		foreach( $all as $id ) {
-			if( !is_numeric($id) ) throw new CmsInvalidDataException('Invalid data in groups list. Expect array of integers');
+			if( !is_numeric($id) ) throw new DataException('Invalid data in groups list. Expect array of integers');
 		}
 
 		$this->_groups = $all;
@@ -455,9 +547,9 @@ class Stylesheet
 */
    /**
 	* Add this stylesheet to a group
-	* @since 2.3
+	* @since 2.99
 	*
-	* @throws CmsLogicException
+	* @throws LogicException
 	* @see Design
 	* @param mixed $a An integer group id, or a string group name
 	*/
@@ -478,9 +570,9 @@ class Stylesheet
 
    /**
 	* Remove this stylesheet from a group
-	* @since 2.3
+	* @since 2.99
 	*
-	* @throws CmsLogicException
+	* @throws LogicException
 	* @see Design
 	* @param mixed $a An integer group id, or a string group name
 	*/
@@ -543,7 +635,7 @@ class Stylesheet
 
    /**
 	* Test whether this stylesheet object is locked by an expired lock.
-	* If the object is not locked false is returned
+	* If the object is not locked FALSE is returned
 	*
 	* @return bool
 	*/
@@ -564,7 +656,7 @@ class Stylesheet
 	{
 		if( $this->get_content_file() ) {
 			$config = AppSingle::Config();
-			return cms_join_path($config['assets_path'],'css',$this->get_content());
+			return cms_join_path($config['assets_path'],'styles',$this->get_content());
 		}
 		return '';
 	}
@@ -572,19 +664,19 @@ class Stylesheet
    /**
 	* Get whether this stylesheet's content resides in a file (as distinct from the database)
 	*
-	* @since 2.3
+	* @since 2.99
 	* @return bool
 	*/
 	public function get_content_file()
 	{
-		return $this->_data['contentfile'] ?? false;
+		return $this->_data['contentfile'] ?? FALSE;
 	}
 
    /**
 	* Get whether this stylesheet's content resides in a file
 	*
 	* @since 2.2
-	* @deprecated since 2.3 this is an alias for get_content_file()
+	* @deprecated since 2.99 this is an alias for get_content_file()
 	* @return bool
 	*/
 	public function has_content_file()
@@ -596,14 +688,14 @@ class Stylesheet
    /**
 	* Set the value of the flag indicating the content of this stylesheet resides in a filesystem file
 	*
-	* @since 2.3
-	* @param mixed $flag recognized by cms_to_bool(). Default true.
+	* @since 2.99
+	* @param mixed $flag recognized by cms_to_bool(). Default TRUE.
 	*/
-	public function set_content_file($flag = true)
+	public function set_content_file($flag = TRUE)
 	{
 		$state = cms_to_bool($flag);
 		if( $state ) {
-			$this->_data['content'] = munge_string_to_url($this->get_name()).'.'.$this->get_id().'.css';
+			$this->_data['content'] = sanitizeVal($this->get_name(), CMSSAN_FILE).'.'.$this->get_id().'.css';
 		}
 		elseif( $this->get_content_file() ) {
 			$this->_data['content'] = '{* empty Smarty stylesheet *}';
@@ -613,7 +705,7 @@ class Stylesheet
 
 	/**
 	 * @ignore
-	 * @since 2.3
+	 * @since 2.99
 	 * @return StylesheetOperations
 	 */
 	protected function get_operations()
@@ -626,9 +718,9 @@ class Stylesheet
 	* Validate this stylesheet for suitability for saving to the database
 	* Stylesheets must have a valid name (only certain characters accepted),
 	* and must have at least some content
-	* @deprecated since 2.3 use the corresponding StylesheetOperations method
+	* @deprecated since 2.99 use the corresponding StylesheetOperations method
 	*
-	* @throws CmsInvalidDataException
+	* @throws DataException
 	*/
 	protected function validate()
 	{
@@ -645,8 +737,8 @@ class Stylesheet
 	* AddStylesheetPre is sent before a new stylesheet is saved to the database
 	* AddStylesheetPost is sent after a new stylesheet is saved to the database
 	*
-	* @deprecated since 2.3 use the corresponding StylesheetOperations method
-	* @throws CmsSQLErrorException
+	* @deprecated since 2.99 use the corresponding StylesheetOperations method
+	* @throws SQLErrorException
 	*/
 	public function save()
 	{
@@ -662,7 +754,7 @@ class Stylesheet
 	* deletes the id from this object, and marks the object as dirty so that it can be saved again
 	*
 	* This method triggers the DeleteStylesheetPre and DeleteStylesheetPost events
-	* @deprecated since 2.3 use the corresponding StylesheetOperations method
+	* @deprecated since 2.99 use the corresponding StylesheetOperations method
 	*/
 	public function delete()
 	{
@@ -672,11 +764,11 @@ class Stylesheet
 
    /**
 	* Load the specified stylesheet
-	* @deprecated since 2.3 use the corresponding StylesheetOperations method
+	* @deprecated since 2.99 use the corresponding StylesheetOperations method
 	*
 	* @param mixed $a Either an integer stylesheet id, or a string stylesheet name.
 	* @return Stylesheet
-	* @throws CmsInvalidDataException
+	* @throws DataException
 	*/
 	public static function load($a)
 	{
@@ -687,37 +779,37 @@ class Stylesheet
 	* Load multiple stylesheets in an optimized fashion
 	*
 	* This method does not throw exceptions if one requested id, or name does not exist.
-	* @deprecated since 2.3 use the corresponding StylesheetOperations method
+	* @deprecated since 2.99 use the corresponding StylesheetOperations method
 	*
 	* @param array $ids Array of integer stylesheet id's or an array of string stylesheet names.
 	* @param bool $deep whether or not to load associated data
 	* @return array Array of Stylesheet objects
-	* @throws CmsInvalidDataException
+	* @throws DataException
 	*/
-	public static function load_bulk($ids,$deep = true)
+	public static function load_bulk($ids,$deep = TRUE)
 	{
 		return $this->get_operations()::get_bulk_stylesheets($ids,$deep);
 	}
 
    /**
 	* Return all stylesheet objects or stylesheet names.
-	* @deprecated since 2.3 use the corresponding StylesheetOperations method
+	* @deprecated since 2.99 use the corresponding StylesheetOperations method
 	*
-	* @param bool $by_name Optional flag indicating the output format. Default false.
-	* @return mixed If $by_name is true then the output will be an array of rows
+	* @param bool $by_name Optional flag indicating the output format. Default FALSE.
+	* @return mixed If $by_name is TRUE then the output will be an array of rows
 	*  each with stylesheet id and name. Otherwise, id and Stylesheet object
 	*/
-	public static function get_all($by_name = false)
+	public static function get_all($by_name = FALSE)
 	{
 		return $this->get_operations()::get_all_stylesheets($by_name);
 	}
 
    /**
 	* Test if the specific stylesheet (by name or id) is loaded
-	* @deprecated since 2.3
+	* @deprecated since 2.99
 	*
 	* @param mixed $id Either an integer stylesheet id, or a string stylesheet name
-	* @return bool false always
+	* @return bool FALSE always
 	*/
 	public static function is_loaded($id)
 	{
@@ -726,13 +818,12 @@ class Stylesheet
 
    /**
 	* Generate a unique name for a stylesheet
-	* @deprecated since 2.3 use the corresponding StylesheetOperations method
+	* @deprecated since 2.99 use the corresponding StylesheetOperations method
 	*
 	* @param string $prototype A prototype stylesheet name
 	* @param string $prefix An optional name prefix
 	* @return string
-	* @throws CmsInvalidDataException
-	* @throws CmsLogicException
+	* @throws DataException or LogicException
 	*/
 	public static function generate_unique_name($prototype,$prefix = null)
 	{

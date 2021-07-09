@@ -13,6 +13,28 @@ html body {display:none;}
 .fontawesome-i2svg-active body {display: block;}
 */
 
+/* TODO defaults for all themes without a custom fetch_menu_page() */
+.topmenu_section {
+    margin: 0 0 0.5em 0
+}
+
+.topmenu_section > h3 {
+    margin: 0.5em 0
+}
+
+.topmenu_description {
+    margin-top: -0.5em;
+    font-style: italic
+}
+
+.topmenu_item {
+    margin: 0 0 0.5em 1em
+}
+/*
+.topmenu_item a {
+}
+*/
+
 /* base */
 html,
 body {
@@ -934,12 +956,6 @@ aside .no-slide,
     -ms-flex: 1 1 auto;
     flex: 1 1 auto;
 }
-.resize-horizontal {
-    resize: horizontal;
-}
-.resize-vertical {
-    resize: vertical;
-}
 .oneliner > * {
     float: left;
     margin-right: 20px
@@ -1078,8 +1094,8 @@ header .shortcuts li.notifications i {
     z-index: 99;
     display: block;
     cursor: pointer;
-    width: 25px;
-    height: 25px;
+    width: 1.6rem;
+    height: 1.6rem;
     position: absolute;
     right: 0;
     top: 4px;
@@ -1177,7 +1193,7 @@ header .shortcuts li.notifications i {
     color: #232323;
     outline: 0;
 /*    padding: 0 0 0 6px; */
-    height: 40px;
+    height: 2.5rem;
     font-weight: 600;
 /*    display: block; */
     text-shadow: 0 1px 0 #efeeee;
@@ -1432,6 +1448,19 @@ footer#ac_footer a:active {
     color: #147fdb
 }
 
+.headericon {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 1em 0 0;
+    height: 2em;
+    width: 2em;
+}
+
+.headericon img {
+    max-height: 2em;
+    max-width: 2em;
+}
+
 span.helptext a {
 display: block;
 }
@@ -1577,7 +1606,7 @@ table.pagetable thead tr {
     color: #fa8004;
     text-shadow: -1px -1px 0 #000;
     background: #232323 url(../images/layout/sprite_repeatx.png) 831px -99px repeat-x;
-    height: 45px;
+    height: 2.8rem;
     text-align: left;
     white-space: nowrap;
     padding-left: 5px;
@@ -1601,11 +1630,11 @@ table.pagetable th a:hover {
     color: #147fdb;
     text-decoration: underline
 }
-
+/*
 table.pagetable tr {
-    height: 36px
+    height: 2.25rem
 }
-
+*/
 table.pagetable td {
     color: #585858;
     padding-left: 5px;
@@ -1756,8 +1785,8 @@ td.icons_wide {
 }
 
 #ac_mainarea .ContextMenu > ul {
-    max-width: 250px;
-    max-height: 360px;
+    max-width: 15rem;
+    max-height: 22rem;
     overflow: auto;
     margin-left: 6px;
 }

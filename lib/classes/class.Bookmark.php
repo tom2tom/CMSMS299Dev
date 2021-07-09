@@ -1,7 +1,7 @@
 <?php
 /*
 Bookmark class for the CMSMS admin console
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -64,10 +64,10 @@ class Bookmark
 	 */
 	public function SetInitialValues()
 	{
-		$this->bookmark_id = -1;
+		$this->bookmark_id = 0;
 		$this->title = '';
 		$this->url = '';
-		$this->user_id = -1;
+		$this->user_id = 0;
 	}
 
 
@@ -84,12 +84,12 @@ class Bookmark
 		$result = false;
 		$bookops = new BookmarkOperations();
 
-		if ($this->bookmark_id > -1) {
+		if ($this->bookmark_id > 0) {
 			$result = $bookops->UpdateBookmark($this);
 		}
 		else {
 			$newid = $bookops->InsertBookmark($this);
-			if ($newid > -1) {
+			if ($newid > 0) {
 				$this->bookmark_id = $newid;
 				$result = true;
 			}
@@ -108,7 +108,7 @@ class Bookmark
 	{
 		$result = false;
 
-		if ($this->bookmark_id > -1) {
+		if ($this->bookmark_id > 0) {
 			$result = (new BookmarkOperations())->DeleteBookmarkByID($this->bookmark_id);
 			if ($result) $this->SetInitialValues();
 		}

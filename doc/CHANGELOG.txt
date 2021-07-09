@@ -6,11 +6,11 @@ extra themes are available, and single-click installable
 'services' section in admin menu (for site-content administration, as distinct from page-content, i.e. user-interactive things like ecommerce, forms data)
 replacement notifications mechanism
 consistent js-initiated dialogs (no more 'native' popups)
-displayed images may also be svg, png or fonticon, with svg preferred if present
+displayed images may also be svg, avif, png or fonticon, with svg preferred if present
 revised UI for UDT processing (those are now files, not database records) see next item
 editing of templates, stylesheets, user-defined-tags by syntax hilighter Ace or CodeMirror
 module-specific templates can also be processed via the general template-edit UI (which is no longer driven by DesignManager module)
-extra core modules: CoreAdminLogin, CoreTextEditing, AdminLog
+extra core module: AdminLogin
 
 BEHIND THE SCENES
 
@@ -27,13 +27,13 @@ also support installation based on sources in a git repo
 
 INFRASTRUCTURE
 
-Coded for PHP 7.1+, compatible with 7.1.x to 7.3.x (at least).
+Coded for PHP 7.1+, compatible with 7.1.x to 8.0 (at least).
 jQuery 2.2.4 (effective upgrades from 1.x to the current 3.x need to be in two stages, with an intermediate 2.x)
 jQuery migrate 1.4.1
 jQuery-UI & jQuery-UI-css 1.12.1
 support-js (cookies, sortable, uploads etc) latest releases as of 1/9/2018
-Smarty 3.1.36
-phpmailer 6.1.7
+Smarty 3.1.39
+replacement for CMSMailer module backend phpmailer (due to license incompatibility)
 TinyMCE (MicroTiny module) 4.9.5
 
 CONFIG PARAMETERS
@@ -132,14 +132,17 @@ smarty templates, stylesheets, UDT's can be stored as standalone files instead o
 
 INSTALLER
 
-build-parameters are read from a .ini file
+installer build-parameters are read from a .ini file
 one such parameter prescribes installer files form: zip (default) tar.bz2 tar.gz tar (intended for further manipulation by system commands)
 symlinks in the source-files are handled properly
+less scope for confusion about 'advanced' mode functionality
 user-inputs required during an installer session can be pre-defined in a .ini fle. With all of them in place, an installer session takes only about 90 seconds.
 non-core modules can also be included by the release-builder among installer source-files, in which case those modules become optional selections during installation
 a custom 'support-url' can be specified, in which case it will be displayed in the admin console instead of a link to CMSMS website
 installs and upgrades support renamed admin and/or assets and/or user_plugins folders
-installer can operate on a host without PHP's phar extension
+'expanded' installer can operate on a host without PHP's phar extension
+minimum database server (MySQL or MariaDB) version 5.5 (released in 2011)
+installer warns if database permissions are unnecessarily broad/risky (a matter for discussion with the db admin)
 installer cleans up after itself
 
 deprecated
@@ -159,17 +162,25 @@ DETAILS
   - New method: CMSModule::create_pageurl()
   - New methods: CmsApp::disable_template_processing(),template_processing_allowed(),add_shutdown(),
          GetScriptsManager(),GetStylesManager(),GetJobManager(),GetCookieManager(),GetSiteUUID()
-  - New methods: cms_admin_sendheaders(),cms_create_guid(),cms_get_css(),
+  - New methods: cms_admin_sendheaders(),cms_get_css(),
          cms_get_script(),cms_installed_jquery(),cms_path_to_url(),
-         cms_preferred_lang(),cms_to_stamp(),cms_utf8_sort(),
+         cms_to_stamp(),
          get_module_param(),set_module_param(),
          get_richeditor_setup(),get_syntaxeditor_setup(),
          get_server_permissions(),
          munge_string_to_file(),
          register_endsession_function(),
          restricted_cms_permissions()
-  - New content-security methods: cms_specialchars(),cms_specialchars_decode(),
-         execSpecialchars(),urlSpecialchars(),sanitizeVal(),
+         CMSMS\preferred_lang(),
+         CMSMS\create_guid(),
+         CMSMS\urlencode(),
+         CMSMS\utf8_sort(),
+         CMSMS\specialize(),
+         CMSMS\specialize_array(),
+         CMSMS\de_specialize(),
+         CMSMS\de_specialize_array(),
+  - New content-security methods: CMSMS\execSpecialchars(), CMSMS\sanitizeVal(),
+         CMSMS\Database\Connection::escStr();
   - New method: AdminUtils::get_module_icon()
   - New classes: TemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum, RequestParameters, Crypto, AppSingle
   - Renamed classes: App, AppConfig, AppParams, UserParams (their old names are still usable)
@@ -191,7 +202,7 @@ DETAILS
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.99 at least, the module is still operational.)
   - CHANGE: News module is non-core, and in future will be distributed independently of the core files (and probably replaced)
   - BREAKING: Long-deprecated frontend creation of news items has been removed
-  - ADD: Extra permission: 'Remote Administration'
+  - ADD: Extra permissions: 'Remote Administration', 'View Admin Log'
   - ADD: extra member of CmsCoreCapabilities - ROUTE_MODULE, for polling the modules which create route(s) during contruction or initialization
   - CHANGE: DesignManager module is non-core, and in future will be distributed independently of the core files
   - FEATURE: Registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
@@ -248,19 +259,18 @@ DETAILS
   - FEATURE: Adds a new hook method to the HookManager class to allow returning the first nonempty value.
   - CHANGE: refactor changegroupperm localization technique.
   - CHANGE: CmsApp suports __get(), __set() for recording any intra-request property, instead of using PHP global variables
-  - FEATURE: Adds new root functions cms_notice, cms_warning, and cms_error
-  - FEATURE: Adds new AuditOperations class that is enabled within include.php allows for swapping out auditing methods
-    With no audit manager installed, audit messages will be output to the HTTP error log.
+  - FEATURE: New functions cms_notice, cms_warning, and cms_error
+  - FEATURE: New AuditOperations class that allows swapping backend log-data processing methods
   - Revise many places where audit() was being called to call the new methods.
   - audit() method now uses the AuditOperations class
   - CMSModule::SetError() and CMSModule::SetMessage() now set session variables, and the strings will no longer be on the array
-  - FEATURE: Adds new CMSModule::AddAdminHeadText() method to allow module actions to add dynamic text to the head section of admin requests.
+  - FEATURE: New CMSModule::AddAdminHeadText() method to allow module actions to add dynamic text to the head section of admin requests.
   - Renames a bunch of classes into namespaces, and cleans up a bunch of old, commented out code.
   - Replaces old "admin log" functionality with a new core module that has extra functionality.
   - CHANGE: Refactor mact processing.  get rid of un-necessary variables and duplicated code.
   - CHANGE: Autoloader will now try to load modules.  Modules can still only be instantiated once.
   - Improved autoloader now handles namespaced module classes if the module is already loaded.
-  - FEATURE: Adds new CmsError400Exception class.
+  - FEATURE: New CmsError400Exception class.
   - Improve exception handling in include.php to handle when showtemplate is false.
   - CHANGE:
     - Deprecate undocumented request-parameter [$actionid]showtemplate, which has been used to suppress output.
@@ -301,8 +311,8 @@ DETAILS
   - Allow svg files to be cached and deflated in the sample htaccess.txt file
   - CHANGE: Now call InitializeFrontend() and InitializeAdmin() from within ModuleOperations::_load_module() on success.  instead of the module constructor.
   - CHANGE: Now call SetParameters from within ModuleOperations::_load_module() and not from the constructor.
-  - FEATURE: Adds new {theme_root} plugin for admin templates
-  - FEATURE: Adds new {admin_headtext} block plugin for admin templates
+  - FEATURE: New {theme_root} plugin for admin templates
+  - FEATURE: New {admin_headtext} block plugin for admin templates
   - CHANGE: Module actions can now return output rather than echoing it.
   - Allow login via a module (CoreAdminLogin) now is core admin module
   - FEATURE: Adds a new hook for password strength
@@ -326,7 +336,7 @@ DETAILS
      suffixes to allow parsing a subset of the template.
   - FEATURE: The cmsfile: resource is now the default resource (instead of file:)
   - FEATURE: Now allow loading a page template directly from a smarty resource.
-  - FEATURE: Adds new config entry $config['page_template_list'] to allow manually creating a page template list of smarty
+  - FEATURE: New config entry $config['page_template_list'] to allow manually creating a page template list of smarty
       resources:. When enabled, and adding or editing content no design selection is possible, and this list will be displayed.
       Note: when using this, implementing {cms_stylesheet} in the file based templates will be problematic.
   - IMPROVE: Organize and refactor the template parsing code.
@@ -357,7 +367,7 @@ CMSContentManager - 1.2
   - Change connection timeout to 1 second.
   - Change processing to be a little more friendly to some environments wrt. content-size header.
   - FEATURE:Adds expand/functionality into reorder content (TODO: needs styling)
-  - FEATURE: Adds new 'add child here' icon in the content list.
+  - FEATURE: New 'add child here' icon in the content list.
   - FEATURE: Find functionality in content list can now search on page alias and url.
   - FEATURE: Allow setting the default content page from within the page edit form (for pages where it is possible, and permission allows)
   - FEATURE: New bulk action for when page_template_list is correctly defined in the config to allow setting bulk pages to a template resource.
@@ -575,7 +585,7 @@ DesignManager v1.1.3
 
 MicroTiny v2.2
  - Upgrade tinymce to v4.6.x.
- - Adds new tabfocus and hr plugins.
+ - New tabfocus and hr plugins.
 
 News v2.51.2
  - Fixes so that all cancel buttons work properly on new News articles.
@@ -681,7 +691,7 @@ Core - General
   - minor refactoring of admin/index.php, admin/header.php, admin/footer.php and admin/moduleinterface.php.
   - now use hooks so that loaded modules can now add text to the head area of any Admin page output.
   - Change the help for the basic attributes.
-  - Adds new 'switch user' functionality for members of the Admin group.
+  - New 'switch user' functionality for members of the Admin group.
   - Re-factor the content page selector ... now supports two modes (one for a simple list, and the previous dynamic one that is faster for large sites)
     the simple list mode is used for users with limited edit capabilities on pages.
   - Adds a new Smarty plugin {page_selector} to the Admin lib.
@@ -773,7 +783,7 @@ News v2.51
   - Minor optimizations.
   - Adds postdate as parameters in events.
   - now output template help to Navigator.
-  - Adds new 'linked file' type field that allows selecting a file using the filepicker.
+  - New 'linked file' type field that allows selecting a file using the filepicker.
   - Changes the default summary and detail templates to support the linked_file field type, and uses {thumbnail_url} and {file_url}.
 
 FileManager v1.6.3

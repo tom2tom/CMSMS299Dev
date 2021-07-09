@@ -184,7 +184,7 @@ class wizard_step7 extends wizard_step
             //add any installed non-core modules, which might need to be freshened ?
             // TODO anything not in $coremodules or $xmodules
             // in any module location
-            $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
+            $cfgfile = $app_config['config_file']; // OR $wiz->get_data('version_info')[''config_file']
             include_once $cfgfile;
             $s = ( !empty($config['assets_path']) ) ? $config['assets_path'] : 'assets';
             $fp = joinpath($destdir,$s,'modules','*','*.module.php');

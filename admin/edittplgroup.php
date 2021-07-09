@@ -1,99 +1,130 @@
 <?php
-# Edit a templates group
-# Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+Edit an existing or new templates group
+Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
+
+use CMSMS\AdminUtils;
 use CMSMS\AppParams;
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Error403Exception;
 use CMSMS\ScriptsMerger;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
-use CMSMS\Utils;
+use function CMSMS\de_specialize_array;
+use function CMSMS\sanitizeVal;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-    exit;
-}
-
 check_login();
 
 $userid = get_userid();
-$pmod = check_permission($userid,'Modify Templates');
-$padd = $pmod || check_permission($userid,'Add Template');
-if (!$padd && empty($_REQUEST['tpl'])) {
+//TODO new template-group-specific permission(s) ?
+$pmod = check_permission($userid, 'Modify Templates');
+$padd = $pmod || check_permission($userid, 'Add Template');
+if (!$padd && empty($_REQUEST['grp'])) {
 	return;
 }
 if (!$pmod) {
-	return;
+	throw new Error403Exception(lang('permissiondenied'));
+//TODO OR some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
+// OR display error.tpl ?
 }
 
 $urlext = get_secure_param();
-$themeObject = Utils::get_theme_object();
+$themeObject = AppSingle::Theme();
 
 if (isset($_REQUEST['cancel'])) {
-	$themeObject->ParkNotice('info',lang_by_realm('layout','msg_cancelled'));
+	$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_cancelled'));
 	redirect('listtemplates.php'.$urlext.'&_activetab=groups');
 }
 
-cleanArray($_REQUEST);
-
-try {
-	if (!empty($_REQUEST['tpl'])) {
-		$group = TemplatesGroup::load(trim($_REQUEST['tpl']));
+de_specialize_array($_REQUEST);
+if (!empty($_REQUEST['grp'])) {
+	$id = (is_numeric($_REQUEST['grp'])) ? (int)$_REQUEST['grp'] : sanitizeVal($_REQUEST['grp'], CMSSAN_NAME);
+	try {
+		if (!(is_numeric($id) || AdminUtils::is_valid_itemname($id))) {
+			throw new Exception(lang('errorbadname'));
+		}
+		$group = TemplatesGroup::load($id);
 		$gid = $group->get_id();
 		$group_members = $group->get_members(true); // as id=>name
+	} catch (Throwable $t) {
+		$themeObject->ParkNotice('error', $t->GetMessage());
+		redirect('listtemplates.php'.$urlext.'&_activetab=groups');
 	}
-	else {
-		$group = new TemplatesGroup();
-		$gid = 0;
-		$group_members = [];
-	}
-}
-catch( CmsException $e) {
-	$themeObject->ParkNotice('error',$e->GetMessage());
-	redirect('listtemplates.php'.$urlext.'&_activetab=groups');
+} else {
+	$group = new TemplatesGroup();
+	$gid = 0;
+	$group_members = [];
 }
 
 try {
 	if (isset($_REQUEST['dosubmit'])) {
-		$group->set_name(strip_tags($_REQUEST['name'])); // or filter_var()
-		$group->set_description(strip_tags($_REQUEST['description'])); // or filter_var()
-		//TODO process members
+		$name = sanitizeVal($_REQUEST['name'], CMSSAN_NAME);
+		if (!AdminUtils::is_valid_itemname($name)) {
+			throw new Exception(lang('errorbadname'));
+		}
+		$group->set_name($name);
+		$desc = sanitizeVal(trim($_REQUEST['description']), CMSSAN_NONPRINT); // AND nl2br() ? striptags() other than links ?
+		// revert any munged textarea tag
+		$matches = [];
+		$desc = preg_replace_callback('~&lt;(&sol;|&#47;)?(textarea)&gt;~i', function($matches) {
+			$pre = ($matches[1]) ? '/' : '';
+			return '<'.$pre.$matches[2].'>';
+		}, $desc);
+		$group->set_description($desc);
+		if ($_REQUEST['member']) { // e.g. [12 => '1', 4 => '0']
+			$tmp = array_keys(array_filter($_REQUEST['member']));
+			$group->set_members($tmp);
+		}
 		$group->save();
-		$themeObject->ParkNotice('info',lang_by_realm('layout','group_saved'));
-		redirect('listtemplates.php'.$urlext.'&_activetab=groups');
+		$themeObject->ParkNotice('success', lang_by_realm('layout', 'group_saved'));
+		redirect('listtemplates.php'.$urlext.'&amp_activetab=groups');
 	}
+} catch (Throwable $t) {
+	$themeObject->RecordNotice('error', $t->GetMessage());
 }
-catch( CmsException $e ) {
-	$themeObject->RecordNotice('error',$e->GetMessage());
+
+$props = [
+	'id' => $gid,
+	'name' => $group->get_name(),
+	'description' => $group->get_description(),
+];
+
+if ($props['description']) {
+	// specialize e.g. munge malicious <[/]textarea> tags
+	$matches = [];
+	$props['description'] = preg_replace_callback('~<\s*(/?)\s*(textarea)\s*>~i', function($matches) {
+		$pre = ($matches[1]) ? '&sol;' : ''; // ?? OR &#47;
+		return '&lt;'.$pre.$matches[2].'&gt;';
+	}, $props['description']);
 }
 
 $lock_timeout = AppParams::get('lock_timeout', 60);
 $do_locking = ($gid > 0 && $lock_timeout > 0) ? 1 : 0;
 if ($do_locking) {
-	AppSingle::App()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
+	AppSingle::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 }
-$lock_refresh = AppParams::get('lock_refresh', 120);
-$s1 = json_encode(lang_by_realm('layout','error_lock'));
-$s2 = json_encode(lang_by_realm('layout','msg_lostlock'));
-$cancel = lang('cancel');
 
 $jsm = new ScriptsMerger();
 $jsm->queue_matchedfile('jquery.cmsms_dirtyform.js', 1);
@@ -104,6 +135,12 @@ $js = $jsm->page_content('', false, false);
 if ($js) {
 	add_page_foottext($js);
 }
+
+//$nonce = get_csp_token();
+$lock_refresh = AppParams::get('lock_refresh', 120);
+$s1 = json_encode(lang_by_realm('layout', 'error_lock'));
+$s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
+$cancel = lang('cancel');
 
 $js = <<<EOS
 <script type="text/javascript">
@@ -123,9 +160,9 @@ $(function() {
     },
     lostlock_handler: function(err) {
      // we lost the lock on this type ... block saving and display a nice message.
-     $('#cancelbtn').fadeOut().attr('value', '$cancel').fadeIn();
-     $('#edit_group').dirtyForm('option', 'dirty', false);
-     cms_button_able($('#submitbtn, #applybtn'), false);
+     $('#cancelbtn').fadeOut().attr('value','$cancel').fadeIn();
+     $('#edit_group').dirtyForm('option','dirty',false);
+     cms_button_able($('#submitbtn,#applybtn'),false);
      $('.lock-warning').removeClass('hidden-item');
      cms_alert($s2);
     }
@@ -139,8 +176,8 @@ $(function() {
     if(do_locking) $('#edit_group').lockManager('relock');
    }
  });
- $('#submitbtn,#applybtn').on('click', function(ev) {
-   $('#edit_group').dirtyForm('option', 'dirty', false);
+ $('#submitbtn,#applybtn').on('click',function(ev) {
+   $('#edit_group').dirtyForm('option','dirty',false);
  });
  var tbl = $('.draggable'),
   tbod = tbl.find('tbody.rsortable');
@@ -161,7 +198,7 @@ $(function() {
 
  tbl.droppable({
   accept: '.rsortable tr',
-  hoverClass: 'ui-state-hover', //TODO
+  hoverClass: 'ui-state-hover',//TODO
   drop: function(ev,ui) {
     //update submittable dropped hidden input
     var row = ui.draggable[0],
@@ -182,7 +219,7 @@ $(function() {
       row.css('display','none');
      }
     });
-    $('#edit_group').dirtyForm('option', 'dirty', true);
+    $('#edit_group').dirtyForm('option','dirty',true);
     return false;
   }
  });
@@ -194,29 +231,30 @@ EOS;
 add_page_foottext($js);
 
 $all_items = TemplateOperations::get_all_templates(true); //TODO include originator/type in the display
-$legend1 = lang_by_realm('layout','prompt_members');
-$legend2 = lang_by_realm('layout','prompt_nonmembers');
-$placeholder = lang_by_realm('layout','table_droptip');
+$legend1 = lang_by_realm('layout', 'prompt_members');
+$legend2 = lang_by_realm('layout', 'prompt_nonmembers');
+$placeholder = lang_by_realm('layout', 'table_droptip');
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 if ($gid) {
-	$extras['tpl'] = $gid;
+	$extras['grp'] = $gid;
 }
 
 $smarty = AppSingle::Smarty();
 $smarty->assign([
-	'selfurl'=>$selfurl,
-	'extraparms'=>$extras,
-	'urlext'=>$urlext,
-	'group'=>$group,
-	'group_items'=>$group_members,
-	'all_items'=>$all_items,
-	'attached_legend'=>$legend1,
-	'unattached_legend'=>$legend2,
-	'placeholder'=>$placeholder,
+	'selfurl' => $selfurl,
+	'extraparms' => $extras,
+	'urlext' => $urlext,
+	'group' => $props,
+	'group_items' => $group_members,
+	'all_items' => $all_items,
+	'attached_legend' => $legend1,
+	'unattached_legend' => $legend2,
+	'placeholder' => $placeholder,
 ]);
 
 $content = $smarty->fetch('edittplgroup.tpl');
-require './header.php';
+$sep = DIRECTORY_SEPARATOR;
+require ".{$sep}header.php";
 echo $content;
-require './footer.php';
+require ".{$sep}footer.php";

@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to delete an admin users-group
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,16 +15,15 @@ CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\Error403Exception;
 use CMSMS\Events;
-use CMSMS\GroupOperations;
-use CMSMS\UserOperations;
-use CMSMS\Utils;
 
 if (!isset($_GET['group_id'])) {
     return;
@@ -38,26 +37,25 @@ check_login();
 
 $userid = get_userid();
 
-$themeObject = Utils::get_theme_object();
-
 if (!check_permission($userid, 'Manage Groups')) {
 //TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
-    return;
+    throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
+$themeObject = AppSingle::Theme();
 $urlext = get_secure_param();
 
 $group_id = (int) $_GET['group_id'];
 if ($group_id == 1) {
-    // can't delete this group
-    Utils::get_theme_object()->ParkNotice('error', lang('error_deletespecialgroup'));
+    // can't delete superadmins group
+    $themeObject->ParkNotice('error', lang('error_deletespecialgroup'));
     redirect('listgroups.php'.$urlext);
 }
 
 $userops = AppSingle::UserOperations();
 if ($userops->UserInGroup($userid,$group_id)) {
     // can't delete a group to which the current user belongs
-    Utils::get_theme_object()->ParkNotice('error', lang('cantremove')); //TODO
+    $themeObject->ParkNotice('error', lang('cantremove')); //TODO
     redirect('listgroups.php'.$urlext);
 }
 

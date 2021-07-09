@@ -19,11 +19,10 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace DesignManager;
 
-use cms_utils;
-use CmsXMLErrorException;
+use CMSMS\Utils;
+use CMSMS\XMLErrorException;
 use XMLReader;
 use function cms_error;
 
@@ -37,8 +36,8 @@ class xml_reader extends XMLReader
   {
     if( strpos($errstr,'XMLReader') !== FALSE ) {
       cms_error('DesignManger\\xml_reader: '.$errstr);
-      $mod = cms_utils::get_module('DesignManager');
-      throw new CmsXMLErrorException($mod->Lang('error_xmlstructure').':<br />'.$errstr);
+      $mod = Utils::get_module('DesignManager');
+      throw new XMLErrorException($mod->Lang('error_xmlstructure').':<br />'.$errstr);
       return TRUE;
     }
   }

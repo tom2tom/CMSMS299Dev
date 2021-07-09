@@ -1,7 +1,7 @@
 <?php
 /*
 A collection of compatibility tools for the database connectivity layer.
-Copyright (C) 2018-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2018-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -15,14 +15,13 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Database {
 
 use CMSMS\Database\Connection;
 use CMSMS\DeprecationNotice;
-use const CMS_DEBUG;
 use const CMS_DEPREC;
 
     /**
@@ -138,10 +137,10 @@ use const CMS_DEPREC;
 
 namespace {
 
-use CMSMS\App;
-use CMSMS\Database\Connection;
-use CMSMS\Database\DataDictionary;
-use CMSMS\DeprecationNotice;
+    use CMSMS\AppSingle;
+    use CMSMS\Database\Connection;
+    use CMSMS\Database\DataDictionary;
+    use CMSMS\DeprecationNotice;
 
     // root namespace stuff
     /*
@@ -181,7 +180,7 @@ use CMSMS\DeprecationNotice;
     {
         // now that our connection object is stateless... this is just a wrapper
         // for our global db instance.... but should not be called.
-        return App::get_instance()->GetDb();
+        return AppSingle::Db();
     }
 
     /**

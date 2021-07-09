@@ -23,6 +23,7 @@ namespace CMSMS;
 
 use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\DeprecationNotice;
 use CMSMS\Events;
 use CMSMS\HookOperations;
 use CMSMS\HttpRequest;
@@ -47,15 +48,13 @@ use function cms_get_script;
 use function endswith;
 use function get_userid;
 use function lang;
-use function startswith;
 
-//this is also used during content installation i.e. STATE_INSTALL, or nothing
-/*if (!CMSMS\AppState::test_state(CMSMS\AppState::STATE_ADMIN_PAGE)) {
+/* this is also used during content installation i.e. STATE_INSTALL, or nothing
+if (!CMSMS\AppState::test_state(CMSMS\AppState::STATE_ADMIN_PAGE)) {
 	$name = self::class;
 	throw new ErrorException("Attempt to use $name class from an invalid request");
 }
 */
-
 /**
  * A class of static utility methods for admin requests.
  *
@@ -70,9 +69,9 @@ final class AdminUtils
 {
 	/**
 	 * A regular expression to use when testing if an item has a valid name.
-	 * @see also CMSMS\sanitizeVal()
+	 * @see also CMSMS\sanitizeVal(..., CMSSAN_NAME)
 	 */
-	private const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x80-\xff][a-zA-Z0-9_\ \/\+\-\,\.\x80-\xff]*$>';
+	private const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x80-\xff][a-zA-Z0-9_\ \/\+\-\, \.\x80-\xff]*$>';
 
 	/**
 	 * @ignore
@@ -86,9 +85,11 @@ final class AdminUtils
 	/**
 	 * Test if a string is suitable for use as a name of an item in CMSMS.
 	 * For use by various modules and the core.
-	 * The name must begin with an alphanumeric character (but some extended
-	 * characters are allowed) and that must be followed by more alphanumeric characters
-	 * Note the name is not necessarily guaranteed to be usable in smarty without backticks.
+	 * The name must begin with an alphanumeric character (but some
+	 * extended characters are allowed) and that must be followed by
+	 * additional alphanumeric characters
+	 * Note the name is not necessarily guaranteed to be usable in
+	 * smarty without backticks.
 	 *
 	 * @param string $str The string to test
 	 * @return bool|string false on error or the validated string.
@@ -98,48 +99,51 @@ final class AdminUtils
 		if (!is_string($str)) return false;
 		$t_str = trim($str);
 		if (!$t_str) return false;
-		if (!preg_match(self::ITEMNAME_REGEX,$t_str)) return false;
+		if (!preg_match(self::ITEMNAME_REGEX, $t_str)) return false;
 		return $str;
 	}
 
 	/**
-	 * Convert an admin request URL to a generic form that is suitable for saving to a database.
+	 * Convert an admin request URL to a generic form that is suitable
+	 * for saving to a database.
 	 * This is useful for things like bookmarks and homepages.
+	 * NOTE: generated URL's are relative to the site's topmost admin URL
 	 *
 	 * @param string $in_url The input URL that has the session key in it.
-	 * @return string A URL that is converted to a generic form.
+	 * @return string A relative URL that is converted to a generic form.
 	 */
 	public static function get_generic_url(string $in_url) : string
 	{
-		if (!defined('CMS_USER_KEY')) throw new LogicException('This method can only be called for admin requests');
-		if (!isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY]) throw new LogicException('This method can only be called for admin requests');
+		static $rem1 = null; // avoid umpteen calc's of the same value
 
-		$len = strlen($_SESSION[CMS_USER_KEY]);
-		$in_p = '+'.CMS_SECURE_PARAM_NAME.'\=[A-Za-z0-9]{'.$len.'}&?(amp;)?+';
-//		$out_p = '_CMSKEY_='.str_repeat('X',$len); totally unused during login !!
-//		$out = preg_replace($in_p,$out_p,$in_url);
-		$out = preg_replace($in_p,'',$in_url);
-		if (endswith($out,'&')) { $out = substr($out, 0, -1); }
-		elseif (endswith($out,'&amp;')) { $out = substr($out, 0, -5); }
-		if (startswith($out,CMS_ROOT_URL)) $out = str_replace(CMS_ROOT_URL,'',$out);
+		if (!defined('CMS_USER_KEY') || !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY]) {
+			throw new LogicException('This method can only be called for admin requests');
+		}
+
+		if ($rem1 == null) {
+			$rem1 = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+		}
+
+		$out = str_replace([CMS_ROOT_URL, $rem1, '?&', '&&'], ['', '', '?', '&'], $in_url);
+		$out = trim($out, '/&? ');
+		if (endswith($out, '&amp;')) {
+			$out = substr($out, 0, -5);
+		}
 		return $out;
 	}
 
 	/**
-	 * Convert a generic URL into something that is suitable for this user's session.
+	 * Convert a generic URL into one that is suitable for this user's session.
 	 *
 	 * @param string $in_url The generic url. Usually retrieved from a preference or from the database
 	 * @return string A URL that has a session key in it.
 	 */
 	public static function get_session_url(string $in_url) : string
 	{
-		if (!defined('CMS_USER_KEY')) throw new LogicException('This method can only be called for admin requests');
-		if (!isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY]) throw new LogicException('This method can only be called for admin requests');
-
-		$len = strlen($_SESSION[CMS_USER_KEY]);
-		$in_p = '+_CMSKEY_=[X]{'.$len.'}+';
-		$out_p = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-		return preg_replace($in_p,$out_p,$in_url);
+		if (!defined('CMS_USER_KEY') || !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY]) {
+			throw new LogicException('This method can only be called for admin requests');
+		}
+		return $in_url.'&'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 	}
 
 	/**
@@ -154,16 +158,16 @@ final class AdminUtils
 		$remote_ver = AppParams::get('last_remotever');
 		if ($last_fetch < (time() - 24 * 3600)) {
 			$req = new HttpRequest();
-// use default			$req->setTimeout(10);
+// use default	$req->setTimeout(10);
 			$req->execute(CMS_DEFAULT_VERSIONCHECK_URL);
 			if ($req->getStatus() == 200) {
 				$remote_ver = trim($req->getResult());
-				if (strpos($remote_ver,':') !== false) {
-					list($tmp,$remote_ver) = explode(':',$remote_ver,2);
+				if (strpos($remote_ver, ':') !== false) {
+					list($tmp, $remote_ver) = explode(':', $remote_ver, 2);
 					$remote_ver = trim($remote_ver);
 				}
-				AppParams::set('last_remotever',$remote_ver);
-				AppParams::set('last_remotever_check',time());
+				AppParams::set('last_remotever', $remote_ver);
+				AppParams::set('last_remotever_check', time());
 			}
 		}
 		return $remote_ver;
@@ -177,7 +181,7 @@ final class AdminUtils
 	public static function site_needs_updating() : bool
 	{
 		$remote_ver = self::fetch_latest_cmsms_ver();
-		return version_compare(CMS_VERSION,$remote_ver) < 0;
+		return version_compare(CMS_VERSION, $remote_ver) < 0;
 	}
 
 	/**
@@ -191,8 +195,8 @@ final class AdminUtils
 	 */
 	public static function get_icon(string $icon, array $attrs = []) : string
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AdminTheme::get_icon'));
-		$themeObject = Utils::get_theme_object();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\AdminTheme::get_icon'));
+		$themeObject = AppSingle::Theme();
 		return $themeObject->get_icon($icon, $attrs);
 	}
 
@@ -200,9 +204,9 @@ final class AdminUtils
 	 * Get a help tag for displaying inline popup help.
 	 *
 	 * This method accepts variable arguments. Recognized keys are
-	 " 'key1'|'realm','key'|'key2','title'|'titlekey'
-	 * If neither 'key1'|'realm' is provided, the fallback will be the current
-	 * action-module name, or else 'help'
+	 " 'key1'|'realm', 'key'|'key2', 'title'|'titlekey'
+	 * If neither 'key1'|'realm' is provided, the fallback will be the
+	 * current action-module name, or else 'help'
 	 * If neither 'title'|'titlekey' is provided, the fallback will be 'key'|'key2'
 	 *
 	 * @param $args string(s) varargs
@@ -212,7 +216,7 @@ final class AdminUtils
 	{
 		if (!AppState::test_state(AppState::STATE_ADMIN_PAGE)) return;
 
-		$themeObject = Utils::get_theme_object();
+		$themeObject = AppSingle::Theme();
 		if (!is_object($themeObject)) return;
 
 		$icon = $themeObject->get_icon('info', ['class'=>'cms_helpicon']);
@@ -286,7 +290,7 @@ final class AdminUtils
 
 		$age_days = max(0, $age_days);
 		HookOperations::do_hook('clear_cached_files', ['older_than' => $age_days]); //TODO BAD no namespace, some miscreant handler can change the parameter ...  deprecate?
-		Events::SendEvent('Core','ClearCachedFiles', ['older_than' => $age_days]); //since 2.99
+		Events::SendEvent('Core', 'ClearCachedFiles', ['older_than' => $age_days]); //since 2.99
 		$ttl = $age_days * 24 * 3600;
 		$the_time = time() - $ttl;
 		$dirs = array_unique([TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION]);
@@ -347,30 +351,31 @@ final class AdminUtils
 		// static properties here >> StaticProperties class ?
 		static $count = 1;
 
-		$first = ($count == 1) ? 'true' : 'false';
+		$userid = get_userid(false);
 		$elemid = 'cms_hierdropdown'.$count++;
 		$elemtitle = lang('title_hierselect');
+		$first = ($count == 1) ? 'true' : 'false';
+		$modify_all = check_permission($userid, 'Manage All Content') || check_permission($userid, 'Modify Any Page');
 		$popuptitle = lang('title_hierselect_select');
-		$selected = (int)$selected;
-		$userid = get_userid(false);
-		$modify_all = check_permission($userid,'Manage All Content') || check_permission($userid,'Modify Any Page');
 		$script_url = cms_get_script('jquery.cmsms_hierselector.js');
+		$selected = (int)$selected;
 
-		$opts = [];
-		$opts['current'] = (int)$current;
-		$opts['selected'] = $selected;
-		$opts['is_manager'] = ($modify_all) ? 'true' : 'false';
-		$opts['allow_current'] = ($allow_current) ? 'true' : 'false';
-		$opts['allow_all'] = ($allow_all) ? 'true' : 'false';
-		$opts['use_perms'] = ($use_perms) ? 'true' : 'false';
-		$opts['use_simple'] = ($modify_all) ? 'false' : 'true';
-		$opts['for_child'] = ($for_child) ? 'true' : 'false';
+		$opts = [
+			'allow_all' => ($allow_all) ? 'true' : 'false',
+			'allow_current' => ($allow_current) ? 'true' : 'false',
+			'current' => (int)$current,
+			'for_child' => ($for_child) ? 'true' : 'false',
+			'is_manager' => ($modify_all) ? 'true' : 'false',
+			'selected' => $selected,
+			'use_perms' => ($use_perms) ? 'true' : 'false',
+			'use_simple' => ($modify_all) ? 'false' : 'true',
+		];
 
 		$str = '{';
 		foreach ($opts as $key => $val) {
-			$str .= "\n  ".$key.':'.$val.',';
+			$str .= "\n  ".$key.':'.$val.', ';
 		}
-		$str = rtrim($str, ' ,')."\n }";
+		$str = rtrim($str, ' , ')."\n }";
 
 		// scrappy layout here to make the page-sourceview prettier
 		if ($first) {

@@ -20,8 +20,9 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\Utils;
+use function CMSMS\sanitizeVal;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
 $CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
@@ -32,18 +33,13 @@ check_login();
 // if this page was accessed directly, and the secure param value is not
 // in the URL but it is in the session, assume the latter is correct.
 if( !isset($_GET[CMS_SECURE_PARAM_NAME]) && isset($_SESSION[CMS_USER_KEY]) ) {
-    $_REQUEST[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY]; // OR sanitizeVal() ?
+    $_REQUEST[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
 }
 
-$themeObject = Utils::get_theme_object();
-$section = (isset($_GET['section'])) ? sanitizeVal($_GET['section']) : ''; // TODO also need de-specialize?
-//try {
-$content = $themeObject->fetch_menu_page($section);
+$section = (isset($_GET['section'])) ? sanitizeVal($_GET['section'], CMSSAN_PURE) : ''; // valid non-words are '.' '-' TODO AND de_specialize()?
+
+$content = AppSingle::Theme()->fetch_menu_page($section);
 $sep = DIRECTORY_SEPARATOR;
 require ".{$sep}header.php";
 echo $content;
 require ".{$sep}footer.php";
-//} catch (Throwable $t) {
-//    $err = 1; TODO display error to user
-//}
-

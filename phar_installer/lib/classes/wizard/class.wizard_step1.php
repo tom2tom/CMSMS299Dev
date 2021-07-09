@@ -4,11 +4,13 @@ namespace cms_installer\wizard;
 
 use cms_installer\wizard\wizard_step;
 use Exception;
-use function cms_installer\cleanString;
+use const CMSSAN_NONPRINT;
+use const CMSSAN_PATH;
 use function cms_installer\get_app;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\redirect;
+use function cms_installer\sanitizeVal;
 use function cms_installer\smarty;
 use function cms_installer\startswith;
 use function cms_installer\translator;
@@ -18,13 +20,14 @@ class wizard_step1 extends wizard_step
     protected function process()
     {
         if( isset($_POST['lang']) ) {
-            $lang = cleanString($_POST['lang'], 2);
+            // see http://www.unicode.org/reports/tr35/#Identifiers
+            $lang = sanitizeVal($_POST['lang'],CMSSAN_NONPRINT);
             if( $lang ) translator()->set_selected_language($lang);
         }
 
         $app = get_app();
         if( isset($_POST['destdir']) ) {
-            $dir = cleanString($_POST['destdir'], 3);
+            $dir = sanitizeVal($_POST['destdir'],CMSSAN_PATH);
             if( $dir) $app->set_destdir($dir);
         }
 
@@ -74,7 +77,7 @@ class wizard_step1 extends wizard_step
             return FALSE;
 
         case 'lib':
-            if( is_dir($dir.DIRECTORY_SEPARATOR.'modules') ) return FALSE;
+            if( is_dir($dir.DIRECTORY_SEPARATOR.'classes') ) return FALSE;
             break;
 
         case 'assets':
@@ -83,7 +86,7 @@ class wizard_step1 extends wizard_step
 
         case 'modules':
             //TODO check for presence of $app_config['coremodules'] member(s)
-            if( is_dir($dir.DIRECTORY_SEPARATOR.'ModuleManager') || is_dir($dir.DIRECTORY_SEPARATOR.'CmsJobManager') ) return FALSE;
+            if( is_dir($dir.DIRECTORY_SEPARATOR.'ModuleManager')/* || is_dir($dir.DIRECTORY_SEPARATOR.'CmsJobManager')*/ ) return FALSE;
             break;
 
         case 'sources':
@@ -93,31 +96,31 @@ class wizard_step1 extends wizard_step
         return TRUE;
     }
 
-	/**
-	 * Get a CMSMS version without including the file declaring the version
-	 * (so we don't cause a re-definition problem for PHP)
+    /**
+     * Get a CMSMS version without including the file declaring the version
+     * (so we don't cause a re-definition problem for PHP)
      * @internal
-	 * @param string $filepath of a version.php file
-	 * @return string discovered version or ''
-	 */
-	private function _read_version(string $filepath) : string
-	{
-		$text = @file_get_contents($filepath);
-		if( !$text ) return '';
-		// try first for a string like $CMS_VERSION = 'whatever'
-		if( preg_match('~\$CMS_VERSION *= *[\'"] *([\d.]+) *[\'"]~', $text, $matches) ) {
+     * @param string $filepath of a version.php file
+     * @return string discovered version or ''
+     */
+    private function _read_version(string $filepath) : string
+    {
+        $text = @file_get_contents($filepath);
+        if( !$text ) return '';
+        // try first for a string like $CMS_VERSION = 'whatever'
+        if( preg_match('~\$CMS_VERSION *= *[\'"] *([\d.]+) *[\'"]~', $text, $matches) ) {
             return $matches[1];
         }
-		// and then for a const CMS_VERSION declaration
-		if( preg_match('~(const|CONST) +CMS_VERSION *= *[\'"] *([\d.]+) *[\'"]~', $text, $matches) ) {
+        // and then for a const CMS_VERSION declaration
+        if( preg_match('~(const|CONST) +CMS_VERSION *= *[\'"] *([\d.]+) *[\'"]~', $text, $matches) ) {
             return $matches[2];
         }
-		// and finally for a defined 'CMS_VERSION'
-		if( preg_match('~(define|DEFINE) +\( *[\'"]CMS_VERSION[\'"] *, *[\'"] *([\d.]+) *[\'"].*\)~', $text, $matches) ) {
+        // and finally for a defined 'CMS_VERSION'
+        if( preg_match('~(define|DEFINE) +\( *[\'"]CMS_VERSION[\'"] *, *[\'"] *([\d.]+) *[\'"].*\)~', $text, $matches) ) {
             return $matches[2];
         }
-		return '';
-	}
+        return '';
+    }
 
     /**
      * Get a short 'identifier' for the contents of folder $dir
@@ -131,13 +134,13 @@ class wizard_step1 extends wizard_step
         if( basename($dir) != 'lib' ) {
             $p = $dir.DIRECTORY_SEPARATOR.'version.php';
             if( is_file($p) ) {
-				if( ($ver = $this->_read_version($p)) ) return 'CMSMS '.$ver;
+                if( ($ver = $this->_read_version($p)) ) return 'CMSMS '.$ver;
                 return 'Unrecognized CMSMS version';
             }
         }
         $p = joinpath($dir, 'lib', 'version.php');
         if( is_file($p) ) {
-			if( ($ver = $this->_read_version($p)) ) return 'CMSMS '.$ver;
+            if( ($ver = $this->_read_version($p)) ) return 'CMSMS '.$ver;
             return 'Unrecognized CMSMS version';
         }
         if( is_dir($dir.DIRECTORY_SEPARATOR.'lib') ) {
@@ -196,7 +199,17 @@ class wizard_step1 extends wizard_step
         asort($out);
         return $out;
     }
-
+/*
+    private function generate_checksum()
+    {
+        $cxt = hash_init ('md5');
+        $excludes = ['.*\.svn.*', '.*\.git.*', 'CVS$', '^\#.*\#$', '~$', '\.bak$', '^uploads$', '^tmp$', '^captchas$', '.*UNUSED.*', '.*phar_installer.*'];
+TODO recursiveiterator for all non-excluded files {
+            hash_update_file($ctx, string $fileURL);
+        }
+        return hash_final($ctx);
+    }
+*/
     protected function display()
     {
         parent::display();
@@ -210,7 +223,7 @@ class wizard_step1 extends wizard_step
             $dirlist = $this->get_valid_install_dirs();
             if( !$dirlist ) throw new Exception('No possible installation directories found.  This could be a permissions issue');
             if( count($dirlist) > 1 ) {
-                $smarty->assign('dirlist',$dirlist); // assume entitize() not needed
+                $smarty->assign('dirlist',$dirlist); // assume specialize() not needed
 
                 $custom_destdir = $app->has_custom_destdir();
                 $smarty->assign('custom_destdir',$custom_destdir);
@@ -224,6 +237,7 @@ class wizard_step1 extends wizard_step
         $raw = $config['verbose'] ?? 0;
 //      $v = ($raw === NULL) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
         $smarty->assign('verbose',(int)$raw);
+//      $smarty->assign('checksum',$this->generate_checksum(); TODO
         $tr = translator();
         $arr = $tr->get_language_list($tr->get_allowed_languages());
         asort($arr,SORT_LOCALE_STRING);

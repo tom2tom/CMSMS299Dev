@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\ContentOperations;
+use CMSMS\AppSingle;
 use CMSMS\TemplateOperations;
 use Navigator\utils;
 
@@ -89,7 +89,7 @@ while( is_object($curNode) && $curNode->get_tag('id') > 0 ) {
 // add in the 'default page'
 if( !$have_stopnode && $stopat == $this::__DFLT_PAGE ) {
     // get the 'home' page and push it on the list
-    $dflt_content_id = ContentOperations::get_instance()->GetDefaultContent();
+    $dflt_content_id = AppSingle::ContentOperations()->GetDefaultContent();
     $node = $hm->find_by_tag('id',$dflt_content_id);
     $pagestack[$dflt_content_id] = utils::fill_node($node,$deep,0,$showall);
 }

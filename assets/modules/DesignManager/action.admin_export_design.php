@@ -1,7 +1,7 @@
 <?php
 /*
 DesignManager module action: export design
-Copyright (C) 2012-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2012-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -12,14 +12,16 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
+
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
 use DesignManager\Design;
 use DesignManager\design_exporter;
+use function CMSMS\sanitizeVal;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Designs') ) exit;
@@ -41,7 +43,7 @@ try {
     $handlers = ob_list_handlers();
     for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
-    $fn = munge_string_to_url($the_design->get_name()); // OR sanitizeVal(, 3)
+    $fn = sanitizeVal($the_design->get_name(),CMSSAN_FILE); // OR ,CMSSAN_PATH ?
     // headers
     header('Content-Description: File Transfer');
     header('Content-Type: application/force-download');

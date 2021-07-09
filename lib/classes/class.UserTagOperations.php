@@ -1,7 +1,7 @@
 <?php
 /*
 Class to process user-plugins (a.k.a. user-defined-tags)
-Copyright (C) 2004-2020 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Ted Culp and all other contributors from the CMSMS Development Team.
 
 This file is part of CMS Made Simple <http://cmsmadesimple.org>
@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of that license, or
 
 CMS Made Simple is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of that license along with CMS Made Simple.
@@ -27,16 +27,19 @@ use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use const CMS_FILETAGS_PATH;
-//use CMSMS\SysDataCache;
+use function CMSMS\de_specialize;
+use function CMSMS\sanitizeVal;
+use function CMSMS\specialize;
+use function file_put_contents;
 
 /**
  * User-plugin related functions
  * @since 1.5 (or before)
  *
  * This class supports file-stored as well as database-stored 'user' plugins.
- * Such plugins are intended to be limited to 'safe' functionality, because the
- * content has probably been added by a not-necessarily-trustworthy admin user
- * (or even some malefactor). Though such limit is not enforced here.
+ * Such plugins are intended to be limited to 'safe' functionality, because
+ * the content has probably been added by a not-necessarily-trustworthy admin
+ * user (or even some malefactor). Though such limit is not enforced here.
  *
  * @package CMS
  * @license GPL
@@ -133,7 +136,7 @@ final class UserTagOperations
 	 */
 	public static function __callStatic($name, $args)
 	{
-		$handler = AppSingle::UserTagOperations()->GetHandler($name);
+		$handler = AppSingle::UserTagOperations()->GetHandler($name); // what is self:: here
 		try {
 			return $handler(...$args);
 		} catch (Throwable $t) {
@@ -148,7 +151,7 @@ final class UserTagOperations
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::UserTagOperations()'));
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AppSingle::UserTagOperations()'));
 		return AppSingle::UserTagOperations();
 	}
 
@@ -175,21 +178,39 @@ final class UserTagOperations
 	}
 
 	/**
-	 * Check whether $name is acceptable for a user-plugin.
-	 * Specifically, it matches PHP naming rules i.e. starts with a letter
-	 * (ASCII|UTF8) or _, followed by any number of such letters or digits or _'s.
-	 * No actual-file name-duplication check here.
+	 * Determine whether $name is acceptable for a user-plugin.
+	 * Specifically whether it's capable of being the main part of a
+	 * valid filename, in case the plugin is or will become file-stored.
+	 * And its length is between 8 and 48 bytes inclusive.
+	 * And it's not a duplicate of some other tag's name.
 	 * @since 2.99
+	 * @internal
 	 *
 	 * @param string $name plugin identifier (as used in tags). A reference, so it can be trim()'d
 	 * @return bool indicating success
 	 */
-	public function IsValidName(string &$name) : bool
+	protected function IsValidName(string &$name) : bool
 	{
 		$name = trim($name);
 		if ($name) {
-			//see https://www.php.net/manual/en/functions.user-defined.php
-			return preg_match('~^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$~', $name) != 0;
+			if (sanitizeVal($name, CMSSAN_FILE) !== $name) {
+				return false;
+			}
+/*			//see https://www.php.net/manual/en/functions.user-defined.php
+			//starts with a letter (ASCII|UTF8) or _, followed by any number of such letters or digits or _'s.
+			if (!preg_match('~^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$~', $name)) {
+				return false;
+			}
+*/
+			$l = strlen($name);
+			if ($l < 8 || $l > 48) { // max == table-column-width 2.99 breaker
+				return false;
+			}
+			if (0) { // TODO $name is not unique and this is a rename or addition
+				//CMS_DB_PREFIX.'userplugins' (case-sensitive?) ::name is not used for another recorded id
+				return false;
+			}
+			return true;
 		}
 		return false;
 	}
@@ -204,6 +225,7 @@ final class UserTagOperations
 	 */
 	protected function CacheHas(string $key, array &$arr) : bool
 	{
+		//TODO better support for caseless $key-matches, incl. possible non-ASCII chars
 		return isset($arr[$key]) ||
 			in_array(strtolower($key), array_map('strtolower', array_keys($arr)));
 	}
@@ -216,7 +238,7 @@ final class UserTagOperations
 
 	protected function CacheGet(string $key, array &$arr)
 	{
-		$ik = null; //func($key,$arr)
+		$ik = null; //func($key, $arr)
 		return ($ik) ? $arr[$ik] : null;
 	}
 
@@ -233,8 +255,8 @@ final class UserTagOperations
 
 	/**
 	 * Cache all information about all user-plugins (onetime only)
-	 * @deprecated since 2.99 does nothing. Local cache is populated on demand
-	 * and to the extent needed, by class methods e.g. ListUserTags()
+	 * @deprecated since 2.99 does nothing. Local cache is populated on
+	 * demand, and to the extent needed, by class methods e.g. ListUserTags()
 	 */
 	public function LoadUserTags()
 	{
@@ -248,7 +270,7 @@ final class UserTagOperations
 	 * @param string $name Plugin name
 	 * @return bool indicating success
 	 */
-/*disabled	public function ExportFile(string $name) : bool
+/*	public function ExportFile(string $name) : bool
 	{
 		if ($this->CacheHas($name, $this->_misses)) return false;
 		if (!$this->CacheHas($name, $this->_cache)) {
@@ -259,7 +281,7 @@ final class UserTagOperations
 				$params = $this->GetUserTag($name, '*');
 				$params['id'] = self::MAXFID;
 				$res = $this->SetFileTag($name, $params);
-				if ($res) {
+				if ((is_array($res) && $res[0]) || ($res && !is_array($res))) {
 					$db = AppSingle::Db();
 					$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 					$db->Execute($query, [$name]);
@@ -278,7 +300,7 @@ final class UserTagOperations
 	 * @param string $name Plugin name
 	 * @return bool indicating success
 	 */
-/*disabled	public function ImportFile(string $name) : bool
+/*	public function ImportFile(string $name) : bool
 	{
 		if ($this->CacheHas($name, $this->_misses)) return false;
 		if (!$this->CacheHas($name, $this->_cache)) {
@@ -289,7 +311,7 @@ final class UserTagOperations
 				$params = $this->GetFileTag($name, '*');
 				$params['id'] = -1;
 				$res = $this->SetUserTag($name, $params);
-				if ($res) {
+				if ((is_array($res) && $res[0]) || ($res && !is_array($res))) {
 					$fp = $this->FilePath($name);
 					@unlink($fp);
 				}
@@ -299,6 +321,30 @@ final class UserTagOperations
 		return false;
 	}
 */
+	/**
+	 * Render tag code at least nominally suitable for use (whether as a
+	 * content generator or event-notice handler).
+	 * This is run each time a tag is to be used i.e. don't rely on any
+	 * previous pre-save cleanup, in case the tag has been modified
+	 * independently since last saved (especially possible if file-stored).
+	 * @since 2.99
+	 * @internal
+	 *
+	 * @param string $code the tag PHP code
+	 * @param bool $fromfile optional flag whether the tag is file-stored. Default false.
+	 * @return string
+	 */
+	protected function FilterforUse(string $code) : string
+	{
+		// remove inappropriate php tags, if any
+//		$val =
+		return preg_replace(
+			['/^[\s\r\n]*<\?(php|=)[\s\r\n]*/i', '/[\s\r\n]*\?>[\s\r\n]*$/'],
+			['', ''],
+		    $code);
+//		return $val;
+	}
+
 	/**
 	 * Retrieve property|ies of the file-stored plugin named $name
 	 *
@@ -322,9 +368,9 @@ final class UserTagOperations
 			}
 			if (!is_array($props)) {
 				if ($props == '*') {
-					$props = ['id','description','parameters','license','code'];
+					$props = ['id', 'description', 'parameters', 'license', 'code'];
 				} else {
-					$props = explode(',',$props);
+					$props = explode(',', $props);
 				}
 			}
 			$res = array_combine($props, array_fill(0, count($props), ''));
@@ -335,28 +381,32 @@ final class UserTagOperations
 				$xmlstr = substr($cont, $ps, $pe - $ps + 11);
 				$xml = simplexml_load_string($xmlstr);
 				if ($xml !== false) {
+					// the file might have been edited, perhaps maliciously!
+					// so apply CMSMS\sanitizeVal(, CMSSAN_ VARIOUS)
+					// AND for some nl2br() ? striptags() ?
 					if (in_array('description', $props)) {
 						$val = (string)$xml->description;
-						$res['description'] = ($val) ? cms_specialchars_decode($val, ENT_XML1 | ENT_NOQUOTES) : '';  // AND sanitizeVal(, 0) ? nl2br() ? striptags() ?
+						$res['description'] = ($val) ? de_specialize($val, ENT_XML1 | ENT_NOQUOTES) : '';
 					}
 					if (in_array('parameters', $props)) {
 						$val = (string)$xml->parameters;
-						$res['parameters'] = ($val) ? cms_specialchars_decode($val, ENT_XML1 | ENT_NOQUOTES) : ''; // AND sanitizeVal(, 0) ? nl2br() ? striptags() ?
+						$res['parameters'] = ($val) ? de_specialize($val, ENT_XML1 | ENT_NOQUOTES) : '';
 					}
 					if (in_array('license', $props)) {
 						$val = (string)$xml->license;
-						$res['license'] = ($val) ? cms_specialchars_decode($val, ENT_XML1 | ENT_NOQUOTES) : ''; // AND sanitizeVal(, 0) ? nl2br() ? striptags() ?
+						$res['license'] = ($val) ? de_specialize($val, ENT_XML1 | ENT_NOQUOTES) : '';
 					}
 				}
 				if (in_array('code', $props)) {
 					$ps = strpos($cont, '*/', $pe);
 					$res['code'] = ($ps !== false) ? trim(substr($cont, $ps + 2), " \t\n\r") : '';
+					// TODO $this->FilterforUse() if relevant
 				}
 			} else {
 				// malformed tag file !
 				if (in_array('code', $props)) {
 					// skip any introductory comment(s)
-					$skips = '~^\s*(<\?php|#|//)~'; //ignore lines starting like this
+					$skips = '~^\s*(<\?php|#|//)~'; //ignore lines starting like this TODO short php tag, any case
 					$patn2 = '~/\*~'; //start of multi-line comment
 					$patn3 = '~\*/~'; //end of multi-line comment
 					$d = 0;
@@ -376,6 +426,7 @@ final class UserTagOperations
 						}
 					}
 					$res['code'] = implode("\n", array_slice($lines, $r, count($lines) - $r, true));
+					// TODO $this->FilterforUse() if relevant
 				}
 			}
 			return (count($res) > 1) ? $res : reset($res);
@@ -427,9 +478,10 @@ final class UserTagOperations
 				$multi = false;
 				$fields = 'id';
 			}
+			// TODO FilterforUse if relevant
 			$db = AppSingle::Db();
 			$query = 'SELECT '.$fields.' FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
-			//TODO caseless name-match: table|field definition is *_ci ?
+			//TODO case-sensitive name-match if table|field definition is *_ci ?
 			$dbr = $db->GetRow($query, [$name]);
 			if ($dbr) {
 				if ($filetag === null) {
@@ -466,7 +518,6 @@ final class UserTagOperations
 			$this->_misses[$name] = 0;
 			return false;
 		}
-		//TODO support caseless matches
 		if ($this->CacheHas($name, $this->_cache)) { return true; }
 		if ($this->CacheHas($name, $this->_misses)) { return false; }
 		return ($this->GetUserTag($name, '') != false);
@@ -478,7 +529,7 @@ final class UserTagOperations
 	 * @since 2.99 this does not also check for a matching system-plugin - all
 	 *  system-plugins are automatically handled by smarty
 	 *
-	 * @param string $name			The name to test
+	 * @param string $name	The name to test
 	 * @param bool   $check_functions Optional flag. Default true. First, test if a plugin with such name is
 	 *  already registered with smarty
 	 */
@@ -486,7 +537,7 @@ final class UserTagOperations
 	{
 		if ($check_functions) {
 			// might be registered by something else... a module perhaps
-			$smarty = Smarty::get_instance();
+			$smarty = AppSingle::Smarty();
 			if ($smarty->is_registered($name)) {
 				return true;
 			}
@@ -497,8 +548,8 @@ final class UserTagOperations
 
 	/**
 	 * Save file for user-plugin named $name. The file will be created or
-	 * overwitten as appropriate, except that renaming a file-stored plugin
-	 * fails if the new name already exists.
+	 * over-written as appropriate, except that renaming a file-stored
+	 * plugin fails if the new name already exists.
 	 * The file's content will be like <?php/*XML*\/CODE.
 	 * The xml facilitates structured interaction with the plugin content
 	 * via the admin console.
@@ -510,7 +561,7 @@ final class UserTagOperations
 	 *  [0] = bool indicating success
 	 *  [1] = string lang-key (no spaces) or actual message, normally '' on success
 	 */
-	public function SetFileTag(string $name, array $params)
+	private function SetFileTag(string $name, array $params)
 	{
 		$bare = empty($params['detail']);
 		if (!$this->IsValidName($name)) {
@@ -518,33 +569,32 @@ final class UserTagOperations
 			return ($bare) ? false : [false, 'error_usrplg_name'];
 		}
 
-		$code = trim($params['code'], " \t\n\r");
-		if ($code) {
-			$code = preg_replace_callback_array([
-				'/^\s*<\?php[\s\r\n]*/i' => function() { return ''; },
-				'/[\s\r\n]*\?>[\s\r\n]*$/' => function() { return ''; },
-				], $code);
-			try {
-				eval('if(0){ '.$code.' }'); // no code execution
-			} catch (Throwable $t) {
-				return ($bare) ? false : [false, 'Plugin '.$name.' code error: '.$t->GetMessage()];
-			}
-			// More-complex code-sanitization cannot reasonably be performed
-			// out-of-context ($params etc etc).
-			// We'll trust the provided code as-is. But run it in a sandbox, if we can ...
-		} else {
+		$code = trim($params['code'], " \t\n\r"); // cleanup and other checks done upstream
+		if (!$code) {
 			return ($bare) ? false : [false, 'error_usrplg_nocode'];
 		}
 
-		$d = (!empty($params['description'])) ?
-			'<description>'."\n".htmlspecialchars(trim($params['description']), ENT_XML1 | ENT_NOQUOTES)."\n".'</description>':
-			'<description></description>';
-		$p = (!empty($params['parameters'])) ?
-			'<parameters>'."\n".htmlspecialchars(trim($params['parameters']), ENT_XML1 | ENT_NOQUOTES)."\n".'</parameters>':
-			'<parameters></parameters>';
-		$l = (!empty($params['license'])) ?
-			'<license>'."\n".htmlspecialchars(trim($params['license']), ENT_XML1 | ENT_NOQUOTES)."\n".'</license>':
-			'<license></license>';
+		if (!empty($params['license'])) {
+			// TODO attend to stored newlines? e.g. strip <br/>
+			$text = specialize(trim($params['license']), ENT_XML1 | ENT_NOQUOTES);
+			$l = '<license>'."\n".$text."\n".'</license>';
+		} else {
+			$l = '<license></license>';
+		}
+		if (!empty($params['description'])) {
+			// TODO attend to stored newlines? e.g. strip <br/>
+			$text = specialize(trim($params['description']), ENT_XML1 | ENT_NOQUOTES);
+			$d = '<description>'."\n".$text."\n".'</description>';
+		} else {
+			$d = '<description></description>';
+		}
+		if (!empty($params['parameters'])) {
+			// TODO attend to stored newlines? e.g. strip <br/>
+			$text = specialize(trim($params['parameters']), ENT_XML1 | ENT_NOQUOTES);
+			$p = '<parameters>'."\n".$text."\n".'</parameters>';
+		} else {
+			$p = '<parameters></parameters>';
+		}
 		//no additional security-related code inserted, that's in the code which include's the file for use
 		$out = <<<EOS
 <?php
@@ -604,42 +654,40 @@ EOS;
 			return ($bare) ? false : [false, 'error_usrplg_name'];
 		}
 
-		$val = $params['code'] ?? '';
-		if ($val) {
-			$code = preg_replace_callback_array([
-				'/^[\s\r\n]*<\?php[\s\r\n]*/i' => function() { return ''; },
-				'/[\s\r\n]*\?>[\s\r\n]*$/' => function() { return ''; },
-				'/    /' => function() { return "\t"; }
-			], $val);
-		} else {
-			$code = $val;
-		}
-
-		// More-complex code-validation runs afoul of inherent $params[] usage,
-		// namespaces etc etc, so cannot reasonably be performed out-of-context.
-		// We'll have to trust it! or better, always run in a sandbox.
-		try {
-			eval('if(0){ '.$code.' }'); // no code execution
-		} catch (Throwable $t) {
-			return ($bare) ? false : [false, 'Plugin '.$name.' code error: '.$t->GetMessage()];
+		$code = $params['code'] ?? '';
+		if ($code) {
+			$code = $this->FilterforUse($code);
+			$code = str_replace('    ', "\t", $code);
+			// More-complex code-validation runs afoul of inherent $params[] usage,
+			// namespaces etc etc, so cannot reasonably be performed out-of-context.
+			// We'll have to trust it! or better, always run in a sandbox.
+			try {
+				eval('if(0){ '.$code.' }'); // no code execution
+			} catch (Throwable $t) {
+				return ($bare) ? false : [false, 'Plugin '.$name.' code error: '.$t->GetMessage()];
+			}
 		}
 
 		$val = $params['oldname'] ?? '';
 		if ($val && !is_numeric($val)) {
-			$oldname = filter_var($val,FILTER_SANITIZE_STRING,FILTER_FLAG_STRIP_BACKTICK|FILTER_FLAG_STRIP_LOW);
+			$oldname = sanitizeVal($val, CMSSAN_FILE);
 		} else {
 			$oldname = $val;
 		}
 
 		$val = $params['description'] ?? '';
 		if ($val && !is_numeric($val)) {
-			$description = filter_var($val,FILTER_SANITIZE_STRING,FILTER_FLAG_STRIP_BACKTICK);
+			$description = sanitizeVal($val, CMSSAN_NONPRINT);
+			// TODO attend to stored newlines? e.g. strip <br/>
+			// OR nl2br( ,true) for newlines without a preceeding br '~(?<!(<br(\s*)?/?  >))[\n\r]{1,2}~i'
 		} else {
 			$description = null;
 		}
 		$val = $params['parameters'] ?? '';
 		if ($val && !is_numeric($val)) {
-			$parameters = filter_var($val,FILTER_SANITIZE_STRING,FILTER_FLAG_STRIP_BACKTICK);
+			$parameters = sanitizeVal($val, CMSSAN_NONPRINT);
+			// TODO attend to stored newlines? e.g. strip <br/>
+			// OR nl2br( ,true) for newlines without a preceeding br '~(?<!(<br(\s*)?/?  >))[\n\r]{1,2}~i'
 		} else {
 			$parameters = null;
 		}
@@ -648,7 +696,13 @@ EOS;
 		if ($this->IsFileID($id)) {
 			$val = $params['license'] ?? '';
 			if ($val && !is_numeric($val)) {
-				$license = filter_var($val,FILTER_SANITIZE_STRING,FILTER_FLAG_STRIP_BACKTICK);
+				// TODO attend to stored newlines? e.g. strip <br/>
+//				$license = sanitizeVal($val, CMSSAN_NONPRINT); // OR kill non- cr lf tab
+				$license = preg_replace(
+				['~/\*~', '~\*/~', '~[\r\n]+\s*#~', '~[\r\n]+\s*//~', '~<br(\s*)?/?>~i'],
+				['', '', '', '', "\n"],
+				$license);
+				$license = trim(strip_tags($license, '<a>'));
 			} else {
 				$license = null;
 			}
@@ -665,9 +719,9 @@ EOS;
 			$tbl = CMS_DB_PREFIX.'userplugins';
 			if ($id == -1) {
 				$query = "INSERT INTO $tbl (name,code,description,parameters) VALUES (?,?,?,?)";
-				$dbr = $db->Execute($query,[$name,$code,$description,$parameters]);
+				$dbr = $db->Execute($query, [$name, $code, $description, $parameters]);
 				if ($dbr) {
-					$id = (int)$dbr;
+					$id = (int)$dbr; // CHECKME last-insert works now?
 					$this->_cache[$name] = [$id, null];
 				}
 				$res = (bool)$dbr;
@@ -679,7 +733,7 @@ UPDATE $tbl SET name=?,code=?,description=?,parameters=?
 WHERE id=?
 AND NOT id IN (SELECT id FROM $tbl WHERE name=? AND id!=?)
 EOS;
-				$dbr = $db->Execute($query,[$name,$code,$description,$parameters,$id,$name,$id]);
+				$dbr = $db->Execute($query, [$name, $code, $description, $parameters, $id, $name, $id]);
 				$res = (bool)$dbr;
 				if ($res) {
 					//update cache if renamed
@@ -710,7 +764,7 @@ EOS;
 			//$this->_cache[$name] => dB|fake id, callable|null
 			if (!$this->IsFileID($this->_cache[$name][0])) {
 				//process dB-stored plugin
-				// TODO caseless name
+				// TODO if case-sensitive name in _ci field
 				$db = AppSingle::Db();
 				$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 				$dbr = $db->Execute($query, [$name]);
@@ -780,7 +834,7 @@ EOS;
 	 */
 	protected function GetHandler(string $name)
 	{
-		// TODO support caseless $name
+		// TODO if case-sensitive $name in _ci field and strtolower()'d local cache
 		if ($this->CreateTagFunction($name)) {
 			if (!empty($this->_cache[$name][1])) {
 				return $this->_cache[$name][1];
@@ -788,7 +842,6 @@ EOS;
 
 			if ($this->IsFileID($this->_cache[$name][0])) {
 				$strfunc = $this->GetFileTag($name);
-				// TODO sanitize $strfunc, in case was externally-changed since last check
 			} else {
 				$strfunc = $this->GetUserTag($name);
 			}
@@ -801,8 +854,8 @@ EOS;
 				}
 				$gCms = AppSingle::App();
 				$config = AppSingle::Config();
-				$db = AppSingle::Db(); // TODO enforce read-only here
-				$smarty = $gCms->GetSmarty(); // TODO restrict methods : assign[byref]* or define { } replacements
+				$db = AppSingle::Db(); // TODO enforce read-only db here
+				$smarty = AppSingle::Smarty(); // TODO restrict methods : assign[byref]* or define { } replacements
 //				TODO sandbox this :: protect caches, global vars, class properties etc
 //				any security-enhancements instigated here could be reversed by malicious eval'd code
 //				$fakesmarty = new trapperclass();
@@ -893,7 +946,7 @@ EOS;
 			}
 			$params['sender'] = $originator;
 			$params['event'] = $eventname;
-			$res = (bool)$this-> CallUserTag($name, $params);
+			$res = (bool)$this->CallUserTag($name, $params);
 			unset($params['sender'], $params['event']);
 			return $res;
 		}

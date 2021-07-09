@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CmsInvalidDataException;
+use CMSMS\DataException;
 use RuntimeException;
 
 /**
@@ -178,13 +178,13 @@ final class AppState
      * @param int $flag enumerator of the state to be processed
      * @param mixed $value bool value to be set | null for either value (i.e. we're checking/testing)
      * @return bool
-     * @throws CmsInvalidDataException
+     * @throws DataException
      * @throws RuntimeException
      */
     private static function _validate_state_var(int $flag, $value) : bool
     {
         if( !in_array($flag, self::STATELIST) ) {
-            throw new CmsInvalidDataException($flag.' is not a recognised CMSMS state');
+            throw new DataException($flag.' is not a recognised CMSMS state');
         }
         if( $flag == self::STATE_INSTALL && $value !== null ) {
             if (!property_exists('cms_installer\\installer_base', 'signature')) { // TODO not hardcoded names
