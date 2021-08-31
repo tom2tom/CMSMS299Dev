@@ -20,29 +20,27 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
-use CMSMS\Log\logfilter;
-use CMSMS\UserParams;
 //use CMSMS\Url;
 //use CMSMS\UserParams;
+use CMSMS\AppParams;
+use CMSMS\Log\logfilter;
+use CMSMS\SingleItem;
+use CMSMS\UserParams;
 use function CMSMS\de_specialize_array;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 $userid = get_userid(false);
 $pclear = check_permission($userid, 'Clear Admin Log');
 $psee = $pclear || check_permission($userid, 'View Admin Log');
 
 if ($pclear && isset($_GET['clear'])) {
-    AppSingle::AuditOperations()->clear();
+    SingleItem::AuditOperations()->clear();
     unset($_SESSION['adminlog_filter']);
     audit('','Admin log','Cleared');
     $themeObject->RecordNotice('success', lang('adminlogcleared'));
@@ -54,7 +52,7 @@ if ($pclear && isset($_GET['clear'])) {
     }
     // override the limit to 1000000 lines
     $filter->limit = 1000000;
-    $query = AppSingle::AuditOperations()->query($filter);
+    $query = SingleItem::AuditOperations()->query($filter);
     if ($query && !$query->EOF()) {
         $dateformat = trim(UserParams::get_for_user($userid, 'date_format_string'));
         if (!$dateformat) $dateformat = trim(AppParams::get('defaultdateformat'));
@@ -101,7 +99,7 @@ if ($page > 1) {
 }
 
 $pagelist = [];
-$query = AppSingle::AuditOperations()->query($filter);
+$query = SingleItem::AuditOperations()->query($filter);
 $np = $query->numpages;
 if ($np > 0) {
     if ($np < 25) {
@@ -189,7 +187,7 @@ $severity_list = [
 $urlext = get_secure_param();
 $extras = get_secure_param_array();
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 
 $smarty->assign([
     'selfurl' => $selfurl,
@@ -207,7 +205,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('adminlog.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

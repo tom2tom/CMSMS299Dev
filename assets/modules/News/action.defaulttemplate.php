@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\TemplateOperations;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify News Preferences') ) exit;
 if( !isset($params['tpl']) ) exit;
 

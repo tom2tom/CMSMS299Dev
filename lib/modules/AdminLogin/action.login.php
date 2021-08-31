@@ -25,10 +25,10 @@ use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
 use CMSMS\StylesMerger;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 
 //extra variables for included method
-//$login_url = $this->create_url($id,'login'); // BAD back to here
+//$login_url = $this->create_action_url($id,'login'); // BAD back to here
 $login_url = $config['admin_url'].'/login.php';
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'method.process.php';
@@ -123,7 +123,6 @@ $tpl->assign([
 
 try {
 	$tpl->display();
-	return '';
 } catch (Throwable $t) {
-	return $t->getMessage();
+	echo '<div class="error">'.$t->getMessage().'</div>';
 }

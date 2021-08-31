@@ -21,9 +21,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\TemplateOperations;
-use Navigator\utils;
+use Navigator\Utils;
 
-if( !defined('CMS_VERSION') ) exit;
+//if( some worthy test fails ) exit;
 
 debug_buffer('Start Navigator default action');
 $items = null;
@@ -44,8 +44,9 @@ if( isset($params['template']) ) {
 else {
     $tpl = TemplateOperations::get_default_template_by_type('Navigator::navigation');
     if( !is_object($tpl) ) {
-        audit('',$this->GetName(),'No default template found');
-        return '';
+        cms_error('',$this->GetName().'::default','No default template found');
+        $this->ShowErrorPage('No default template found');
+        return;
     }
     $template = $tpl->get_name();
 }
@@ -60,7 +61,7 @@ foreach( $params as $key => $value ) {
 
     case 'items':
         // hardcoded list of items (and their children)
-        utils::clear_excludes();
+        Utils::clear_excludes();
         $items = trim($value);
         $nlevels = 1;
         $start_element = null;
@@ -70,7 +71,7 @@ foreach( $params as $key => $value ) {
         break;
 
     case 'includeprefix':
-        utils::clear_excludes();
+        Utils::clear_excludes();
         $list = explode(',',$value);
         if( $list ) {
             foreach( $list as &$one ) {
@@ -102,7 +103,7 @@ foreach( $params as $key => $value ) {
         break;
 
     case 'excludeprefix':
-        utils::set_excludes($value);
+        Utils::set_excludes($value);
         $items = null;
         break;
 
@@ -180,22 +181,22 @@ if( $start_element ) {
         }
     }
 }
-else if( $start_page ) {
+elseif( $start_page ) {
     $id = $hm->find_by_identifier($start_page,false);
     if( $id ) {
-		$tmp = $hm->find_by_tag('id',$id);
+        $tmp = $hm->find_by_tag('id',$id);
         if( $show_root_siblings ) {
             $tmp = $tmp->getParent();
             if( is_object($tmp) && $tmp->has_children() ) {
                 $rootnodes = $tmp->get_children();
             }
-		}
+        }
         else {
             $rootnodes[] = $tmp;
         }
     }
 }
-else if( $start_level > 1 ) {
+elseif( $start_level > 1 ) {
     $tmp = $hm->find_by_tag('id',$gCms->get_content_id());
     if( $tmp ) {
         $arr = $arr2 = [];
@@ -217,13 +218,13 @@ else if( $start_level > 1 ) {
         }
     }
 }
-else if( $childrenof ) {
+elseif( $childrenof ) {
     $obj = $hm->find_by_identifier(trim($childrenof));
     if( $obj && $obj->has_children() ) {
-		$rootnodes = $obj->get_children();
+        $rootnodes = $obj->get_children();
     }
 }
-else if( $items ) {
+elseif( $items ) {
     if( $nlevels < 1 ) $nlevels = 1;
     $items = explode(',',$items);
     $items = array_unique($items);
@@ -239,26 +240,24 @@ else {
     }
 }
 
-if( count($rootnodes) == 0 ) return ''; // nothing to do.
+if( !$rootnodes ) return; // nothing to do.
 
 // ready to fill the nodes
 $outtree = [];
 foreach( $rootnodes as $node ) {
-	if( utils::is_excluded($node->get_tag('alias')) ) {
+    if( Utils::is_excluded($node->get_tag('alias')) ) {
         continue;
     }
-    $tmp = utils::fill_node($node,$deep,$nlevels,$show_all,$collapse);
-	if( $tmp ) {
+    $tmp = Utils::fill_node($node,$deep,$nlevels,$show_all,$collapse);
+    if( $tmp ) {
         $outtree[] = $tmp;
     }
 }
 
-utils::clear_excludes();
+Utils::clear_excludes();
 $tpl->assign('nodes',$outtree);
 
 $tpl->display();
 
 unset($tpl);
 debug_buffer('Finished Navigator default action');
-
-return '';

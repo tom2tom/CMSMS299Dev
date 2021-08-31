@@ -20,13 +20,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppState;
 use CMSMS\BookmarkOperations;
-use CMSMS\Utils;
+use CMSMS\SingleItem;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -42,15 +40,15 @@ $markobj = (new BookmarkOperations())->LoadBookmarkByID($bookmark_id);
 if ($markobj) {
 	$userid = get_userid();
 	if ($userid != $markobj->user_id && !check_permission($userid, 'Manage My Bookmarks')) { //TODO or 'Manage Bookmarks'
-		AppSingle::Theme()->ParkNotice('error', lang('needpermissionto', '"Manage My Bookmarks"'));
+		SingleItem::Theme()->ParkNotice('error', lang('needpermissionto', '"Manage My Bookmarks"'));
 		redirect('listbookmarks.php'.$urlext);
 	}
 
 	if (!$markobj->Delete()) {
-		AppSingle::Theme()->ParkNotice('error', lang('failure'));
+		SingleItem::Theme()->ParkNotice('error', lang('failure'));
 	}
 } else {
-	AppSingle::Theme()->ParkNotice('error', lang('invalid'));
+	SingleItem::Theme()->ParkNotice('error', lang('invalid'));
 }
 
 redirect('listbookmarks.php'.$urlext);

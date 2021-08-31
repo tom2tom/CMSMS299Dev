@@ -95,9 +95,9 @@ function toString($filename, $media_query = '', $media_type = '', $root_url, &$s
 
 namespace {
 
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Crypto;
+use CMSMS\SingleItem;
 use CMSMS\StylesheetQuery;
 use function cms_stylesheet\toString;
 use function cms_stylesheet\writeCache;
@@ -108,20 +108,20 @@ function smarty_function_cms_stylesheet($params, $template)
 	// Trivial Exclusion
 	//---------------------------------------------
 
-	if( AppState::test_state(AppState::STATE_LOGIN_PAGE) ) return;
+	if( AppState::test(AppState::LOGIN_PAGE) ) return;
 
 	//---------------------------------------------
 	// Initials
 	//---------------------------------------------
 
-	AppState::add_state(AppState::STATE_STYLESHEET);
-	$gCms = AppSingle::App();
-	$config = AppSingle::Config();
+	AppState::add(AppState::STYLESHEET);
+	$gCms = SingleItem::App();
+	$config = SingleItem::Config();
 
 	$cache_dir = $config['css_path'];
 	$root_url = $config['css_url'];
 	$name = null;
-	$design_id = -1;
+//	$design_id = -1;
 	$stylesheet = '';
 	$combine_stylesheets = true;
 	$fnsuffix = '';
@@ -139,19 +139,19 @@ function smarty_function_cms_stylesheet($params, $template)
 		elseif( !empty($params['styles']) ) { //since 2.99
 			$styles = trim($params['styles']);
 		}
-		elseif( !empty($params['designid']) ) { //deprecated since 2.99
-			$design_id = (int)$params['designid'];
-		}
+//		elseif( !empty($params['designid']) ) { //deprecated since 2.99
+//			$design_id = (int)$params['designid'];
+//		}
 		else {
 			//TODO support $params['templatetype'] related to a theme
 			$content_obj = $gCms->get_content_object();
 			if( !is_object($content_obj) ) return;
 			$styles = $content_obj->Styles();
-			if( !$styles ) {
-				$design_id = (int)$content_obj->GetPropertyValue('design_id');
-			}
+//			if( !$styles ) {
+//				$design_id = (int)$content_obj->GetPropertyValue('design_id');
+//			}
 		}
-		if( !($name || $styles || $design_id > 0) ) {
+		if( !($name || $styles/* || $design_id > 0*/) ) {
 			throw new RuntimeException('Cannot identify stylesheet(s) for page');
 		}
 		if( isset($params['nocombine']) ) {
@@ -175,10 +175,11 @@ function smarty_function_cms_stylesheet($params, $template)
 			// stylesheet(s) by id
 			$query = new StylesheetQuery([ 'styles'=>$styles ]);
 		}
-		elseif( $design_id > 0 ) {
+/*		elseif( $design_id > 0 ) {
 			// stylesheet(s) by design id
 			$query = new StylesheetQuery([ 'design'=>$design_id ]);
 		}
+*/
 		if( !$query ) {
 			throw new RuntimeException('Problem: failed to build a stylesheet query using the provided data');
 		}
@@ -224,7 +225,7 @@ function smarty_function_cms_stylesheet($params, $template)
 				// media parameter is deprecated.
 
 				// combine all matches into one stylesheet
-				$filename = 'combined_'.Crypto::hash_string($design_id.serialize($params).serialize($all_timestamps).$fnsuffix).'.css';
+				$filename = 'combined_'.Crypto::hash_string(/*$design_id.*/serialize($params).serialize($all_timestamps).$fnsuffix).'.css';
 				$fn = cms_join_path($cache_dir,$filename);
 
 				if( !is_file($fn) ) {
@@ -243,7 +244,7 @@ function smarty_function_cms_stylesheet($params, $template)
 				foreach($all_media as $hash=>$onemedia) {
 
 					// combine all matches into one stylesheet
-					$filename = 'combined_'.Crypto::hash_string($design_id.serialize($params).serialize($all_timestamps[$hash]).$fnsuffix).'.css';
+					$filename = 'combined_'.Crypto::hash_string(/*$design_id.*/serialize($params).serialize($all_timestamps[$hash]).$fnsuffix).'.css';
 					$fn = cms_join_path($cache_dir,$filename);
 
 					// Get media_type and media_query
@@ -305,7 +306,7 @@ function smarty_function_cms_stylesheet($params, $template)
 	}
 
 	// Notify core that we are no longer at stylesheet
-	AppState::remove_state(AppState::STATE_STYLESHEET);
+	AppState::remove(AppState::STYLESHEET);
 
 	if( !empty($params['assign']) ) {
 		$template->assign(trim($params['assign']), $stylesheet);

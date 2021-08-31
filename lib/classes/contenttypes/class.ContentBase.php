@@ -20,9 +20,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\contenttypes;
 
-use CMSMS\AppParams;
-use CMSMS\AppSingle;
+//use CMSMS\AppParams;
 use CMSMS\Crypto;
+use CMSMS\SingleItem;
 use Exception;
 use Serializable;
 use const CMS_DB_PREFIX;
@@ -64,10 +64,11 @@ class ContentBase implements Serializable
 		'properties' => '_props',
 		'showinmenu' => 'show_in_menu',
 		'templateid' => 'template_id',
-		'templatetype' => 'template_type', //TODO support typenamed templates for theming
 		'url' => 'page_url',
 		'values' => '_fields',
 	];
+// TODO 'stylesheetype' => 'csstype_id', //non-core prop to support typed stylesheeets for theming
+// TODO 'templatetype' => 'tpltype_id', //non-core prop to support typed templates for theming
 
 	// NOTE any private or static property will not be serialized
 
@@ -239,9 +240,9 @@ class ContentBase implements Serializable
 	{
 		if (isset($this->_fields['content_id']) && $this->_fields['content_id'] > 0) {
 			$this->_props = [];
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT prop_name,content FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
-			$dbr = $db->GetAssoc($query, [(int)$this->_fields['content_id'] ]);
+			$dbr = $db->getAssoc($query, [(int)$this->_fields['content_id'] ]);
 			if ($dbr) {
 				$this->_props = $dbr;
 				return true;
@@ -306,7 +307,7 @@ class ContentBase implements Serializable
 	 * Properties will be loaded from the database if necessary.
 	 *
 	 * @param string $propname property key
-	 * @return mixed value, or null if the property does not exist.
+	 * @return mixed property value, or null if the property does not exist.
 	 */
 	public function GetPropertyValue(string $propname)
 	{
@@ -319,46 +320,68 @@ class ContentBase implements Serializable
 	 * Return the value of a 'non-core' property, for display by Smarty.
 	 *
 	 * @param string $propname An optional property name to display. Default 'content_en'.
+	 * The name may have been quoted upstream.
 	 *
-	 * @return mixed
+	 * @return string, maybe empty
 	 */
 	public function Show(string $propname = 'content_en')
 	{
-		$name = strtr(trim($propname), ' ', '_');
+		$name = strtr(trim($propname, " \r\n\t'\""), ' ', '_');
 		switch ($name) {
 			case 'content_en':
-				return $this->_props['content_en'] ?? '';
 			case 'pagedata':
-				return ''; // nothing to show for this one
+				return $this->_props['content_en'] ?? '';
 			default:
-				return $this->GetPropertyValue($name);
+				return (string)$this->GetPropertyValue($name);
 		}
 	}
 
 	/**
-	 * Return a smarty resource string for the template assigned to this page.
-	 *
+	 * Return a smarty resource identifier for the (possibly-themed) template assigned to this page.
+	 * @todo theme-support
 	 * @since 2.99
 	 * @abstact
 	 * @return string
 	 */
 	public function TemplateResource() : string
 	{
-		if (!empty($this->_fields['template_type'])) {
-			//TODO support typenamed template for theming
-			if (1) {
-				$theme = AppParams::get('frontend_theme', 'default').';'.$this->_fields['template_type'];
+/* TODO support typed templates for theming
+		if (!empty($this->_props['tpltype_id'])) {
+			if (X) {
+				$theme = $TODOfunc(AppParams::get('frontend_theme', 'default').';'.$this->_props['tpltype_id']);
 			} else {
-				$theme = $this->_fields['template_type']; //TODO adjust to suit smarty
+				$theme = $TODOfunc($this->_props['tpltype_id']); //TODO adjust to suit smarty
 			}
 			return 'cms_theme:'.$theme;
 		}
+*/
 		if (isset($this->_fields['template_id']) && $this->_fields['template_id'] > 0) {
 			return 'cms_template:'.$this->_fields['template_id'];
 		}
 		return '';
 	}
 
+	/* *
+	 * Return a smarty resource identifier for the (possibly-themed) stylesheet assigned to this page.
+	 * @todo theme-support
+	 * @since 2.99
+	 * @abstact
+	 * @return string
+	 */
+/* TODO support typed stylesheets for theming
+ 	public function StylesheetResource() : string
+	{
+		if (!empty($this->_props['csstype_id'])) {
+			if (X) {
+				$styler = $TODOfunc(AppParams::get('frontend_theme', 'default').';'.$this->_props['csstype_id']);
+			} else {
+				$styler = $TODOfunc($this->_props['csstype_id']); //TODO adjust to suit smarty
+			}
+			return 'cms_theme:'.$styler;
+		}
+		return '';
+	}
+*/
 	/**
 	 * Return the hierarchy of the current page.
 	 * A string like #.##.## indicating the path to this page and its order
@@ -371,7 +394,7 @@ class ContentBase implements Serializable
 	public function Hierarchy() : string
 	{
 		if (isset($this->_fields['hierarchy'])) {
-			return AppSingle::ContentOperations()->CreateFriendlyHierarchyPosition($this->_fields['hierarchy']);
+			return SingleItem::ContentOperations()->CreateFriendlyHierarchyPosition($this->_fields['hierarchy']);
 		}
 		return '';
 	}
@@ -563,8 +586,8 @@ class ContentBase implements Serializable
 	 */
 /*	public function SetAlias(string $alias = '', bool $doAutoAliasIfEnabled = true)
 	{
-		$contentops = AppSingle::ContentOperations();
-		$config = AppSingle::Config();
+		$contentops = SingleItem::ContentOperations();
+		$config = SingleItem::Config();
 		if ($alias === '' && $this->doAutoAliasIfEnabled && $config['auto_alias_content']) {
 			$alias = trim($this->_fields['menu_text']);
 			if ($alias === '') {
@@ -578,7 +601,7 @@ class ContentBase implements Serializable
 				$alias = 'p'.$alias;
 				$res = $contentops->CheckAliasValid($alias);
 				if (!$res) {
-					throw new CmsContentException(lang('invalidalias2'));
+					throw new CMSMS\ContentException(lang('invalidalias2'));
 				}
 			}
 		}
@@ -589,7 +612,7 @@ class ContentBase implements Serializable
 			// make sure we start with a valid alias.
 			$res = $contentops->CheckAliasValid($alias);
 			if (!$res) {
-				throw new CmsContentException(lang('invalidalias2'));
+				throw new CMSMS\ContentException(lang('invalidalias2'));
 			}
 
 			// now auto-increment the alias
@@ -609,16 +632,16 @@ class ContentBase implements Serializable
 				$test = $prefix.'-'.$num;
 			} while ($num < 100);
 			if ($num >= 100) {
-				throw new CmsContentException(lang('aliasalreadyused'));
+				throw new CMSMS\ContentException(lang('aliasalreadyused'));
 			}
 		}
 
 		$this->_fields['content_alias'] = $alias;
-		//CHECME are these caches worth retaining?
-		$cache = AppSingle::SysDataCache()
-		$cache->release('content_quicklist');
-		$cache->release('content_tree');
-		$cache->release('content_flatlist');
+		//CHECME are these caches worth retaining? if not, ->delete()
+		$cache = SingleItem::LoadedData()
+		$cache->refresh('content_quicklist');
+		$cache->refresh('content_tree');
+		$cache->refresh('content_flatlist');
 	}
 */
 
@@ -675,7 +698,7 @@ class ContentBase implements Serializable
 			return $base_url . '/';
 		}
 
-		$config = AppSingle::Config();
+		$config = SingleItem::Config();
 		if ($rewrite) {
 			$url_rewriting = $config['url_rewriting'];
 			$page_extension = $config['page_extension'];
@@ -710,7 +733,7 @@ class ContentBase implements Serializable
 		if ($this->_fields['content_id'] <= 0) {
 			return false;
 		}
-		$hm = AppSingle::App()->GetHierarchyManager();
+		$hm = SingleItem::App()->GetHierarchyManager();
 		$node = $hm->quickfind_node_by_id($this->_fields['content_id']);
 		if (!$node || !$node->has_children()) {
 			return false;
@@ -739,7 +762,7 @@ class ContentBase implements Serializable
 	 */
 /*	public function ChildCount() : int
 	{
-		$hm = AppSingle::App()->GetHierarchyManager();
+		$hm = SingleItem::App()->GetHierarchyManager();
 		$node = $hm->find_by_tag('id', $this->_fields['content_id']);
 		if ($node) {
 			return $node->count_children();
@@ -753,13 +776,16 @@ class ContentBase implements Serializable
 	public function serialize()
 	{
 		//TODO can all cachers cope with embedded null's in strings ? NB internal cryption is slow!
-		return Crypto::encrypt_string($this->__toString(),self::class,'best');
+		return Crypto::encrypt_string($this->__toString(),__CLASS__,'best');
 //		return $this->__toString();
 	}
 
 	public function unserialize($serialized)
 	{
-		$serialized = Crypto::decrypt_string($serialized,self::class,'best');
+		$serialized = Crypto::decrypt_string($serialized,__CLASS__,'best');
+		if (!$serialized) {
+			return;
+		}
 		$props = json_decode($serialized, true);
 		if ($props) {
 			foreach ($props as $key => $value) {
@@ -767,7 +793,7 @@ class ContentBase implements Serializable
 			}
 			return;
 		}
-		throw new Exception('Invalid object data in '.self::class);
+		throw new Exception('Invalid object data in '.__METHOD__);
 	}
 } // class
 

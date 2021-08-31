@@ -1,12 +1,12 @@
-{* wizard step 9 -- files *}
-
+{* wizard step 9 -- finish *}
 {extends file='wizard_step.tpl'}
+
 {block name='logic'}
   {$subtitle = 'title_step9'|tr}
   {$current_step = '9'}
 {/block}
 
 {block name='contents'}
-<div id="inner" style="overflow: auto; min-height: 10em; max-height: 35em;"></div>
-<div id="bottom_nav">{* bottom nav is needed here *}</div>
+<div id="inner"></div>
+<div id="bottom_nav" class="complete">{* completion message *}</div>
 {/block}

@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace DesignManager;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CMSMS\Template;
@@ -34,7 +34,6 @@ use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;
 use function cms_join_path;
-use function cmsms;
 use function endswith;
 use function startswith;
 
@@ -46,7 +45,7 @@ class design_exporter
     private $_files;
     private $_image = null;
     private $_description;
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
     public static $_mm_types;
     public static $_nav_types;
 
@@ -123,7 +122,7 @@ EOT;
         $regex='/url\s*\(\"*(.*)\"*\)/i';
         $content = preg_replace_callback($regex, function($matches) use ($ob)
             {
-                $config = cmsms()->GetConfig();
+                $config = SingleItem::Config();
                 $url = $matches[1];
 	            //TODO generally support the websocket protocol 'wss' : 'ws'
                 if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) || startswith($url,'[[root_url]]') ) {
@@ -295,7 +294,7 @@ EOT;
 
     private function _get_sub_templates($template)
     {
-        $ob = &$this;
+        $ob = $this;
 
         $replace_mm = function($matches) use ($ob) {
             // Menu Manager (optional template param)
@@ -486,7 +485,7 @@ EOT;
         $nkey = substr($nkey,2);
 
         $mod = Utils::get_module('DesignManager');
-        $smarty = AppSingle::Smarty();
+        $smarty = SingleItem::Smarty();
         $output = $this->_open_tag('file',$lvl);
         $output .= $this->_output('fkey',$key,$lvl+1);
         switch($nkey) {
@@ -502,7 +501,7 @@ EOT;
                 $smarty->left_delimiter = '{';
                 $smarty->right_delimiter = '}';
             }
-            else if( strpos($value,'{') !== false ) {
+            elseif( strpos($value,'{') !== false ) {
                 // smarty syntax with { and } as delimiters
                 $nvalue = $smarty->fetch('string:'.$value);
             }

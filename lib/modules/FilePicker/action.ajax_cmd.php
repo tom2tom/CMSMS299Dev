@@ -21,11 +21,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\FolderContolOperations;
 use FilePicker\PathAssistant;
-use FilePicker\TemporaryProfileStorage;
 use FilePicker\Utils;
 
-if (!function_exists('cmsms')) exit;
+//if (some worthy test fails) exit;
 
 try {
     if (strtolower($_SERVER['REQUEST_METHOD']) != 'post') {
@@ -34,7 +34,7 @@ try {
 
     $inst = $params['inst'] ?? '';
     // get the profile
-    $profile = ($inst) ? TemporaryProfileStorage::get($inst) : null;
+    $profile = ($inst) ? FolderContolOperations::get_cached($inst) : null;
     if (!$profile) {
         throw new RuntimeException('Missing profile data');
     }
@@ -123,12 +123,12 @@ try {
             throw new RuntimeException('Invalid command ' . $cmd);
         }
     }
-    catch (Exception $e) {
-        debug_to_log('Exception: ' . $e->GetMessage());
+    catch (Throwable $t) {
+        debug_to_log('Exception: ' . $t->GetMessage());
 //      if (CMS_DEBUG) {
-        debug_to_log($e->GetTraceAsString());
+        debug_to_log($t->GetTraceAsString());
 //      }
         // throw a 500 error
-        header('HTTP/1.1 500 ' . $e->GetMessage());
+        header('HTTP/1.1 500 ' . $t->GetMessage());
     }
 exit;

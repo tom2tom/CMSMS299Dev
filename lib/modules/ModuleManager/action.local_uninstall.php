@@ -22,9 +22,9 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 
@@ -39,40 +39,40 @@ try {
         $this->RedirectToAdminTab();
     }
 
-    $ops = AppSingle::ModuleOperations();
-    $modinst = $ops->get_module_instance($modname,'',TRUE);
-    if( !is_object($modinst) ) {
+    $ops = SingleItem::ModuleOperations();
+    $mod = $ops->get_module_instance($modname, '', true);
+    if( !is_object($mod) ) {
         // uh-oh
-        $this->SetError($this->Lang('error_getmodule',$modname));
+        $this->SetError($this->Lang('error_getmodule', $modname));
         $this->RedirectToAdminTab();
     }
 
     if( isset($params['submit']) ) {
         try {
             if( !isset($params['confirm']) || $params['confirm'] != 1 ) throw new RuntimeException($this->Lang('error_notconfirmed'));
-            $postmsg = $modinst->UninstallPostMessage();
-            if( $postmsg == '' ) $postmsg = $this->Lang('msg_module_uninstalled',$modname);
+            $postmsg = $mod->UninstallPostMessage();
+            if( $postmsg == '' ) $postmsg = $this->Lang('msg_module_uninstalled', $modname);
             $result = $ops->UninstallModule($modname);
             if( $result[0] == FALSE ) throw new RuntimeException($result[1]);
             $this->SetMessage($postmsg);
             $this->RedirectToAdminTab();
         }
-        catch( Exception $e ) {
-            $this->ShowErrors($e->GetMessage());
+        catch( Throwable $t ) {
+            $this->ShowErrors($t->GetMessage());
         }
     }
 
-    $tpl = $smarty->createTemplate($this->GetTemplateResource('local_uninstall.tpl')); //,null,null,$smarty);
-    $tpl //see DoActionBase()->assign('mod',$this)
-//     ->assign('actionid',$id)
-     ->assign('module_name',$modinst->GetName())
-     ->assign('module_version',$modinst->GetVersion());
-    $msg = $modinst->UninstallPreMessage();
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('uninstall.tpl')); //, null, null, $smarty);
+    $tpl //see DoActionBase()->assign('mod', $this)
+//     ->assign('actionid', $id)
+     ->assign('module_name', $mod->GetName())
+     ->assign('module_version', $mod->GetVersion());
+    $msg = $mod->UninstallPreMessage();
     if( !$msg ) $msg = $this->Lang('msg_module_uninstall');
-    $tpl->assign('msg',$msg);
+    $tpl->assign('msg', $msg);
     $tpl->display();
 }
-catch( Exception $e ) {
-    $this->SetError($e->GetMessage());
+catch( Throwable $t ) {
+    $this->SetError($t->GetMessage());
+    $this->RedirectToAdminTab();
 }
-return '';

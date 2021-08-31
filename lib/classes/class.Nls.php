@@ -26,7 +26,6 @@ use function debug_display;
 /**
  * A class to provide data and methods for encapsulating a language
  *
- * @author Robert Campbell
  * @since 1.11
  * @package CMS
  * @license GPL
@@ -95,7 +94,7 @@ class Nls
 		if( is_string($aliases) ) { $aliases = explode(',', $aliases); }
 		if( $aliases ) {
 			foreach( $aliases as $alias ) {
-				if( strcasecmp($alias, $str) === 0 ) {
+				if( strcasecmp($alias, $str) == 0 ) {
 					return true;
 				}
 			}

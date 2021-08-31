@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\internal;
@@ -59,7 +59,7 @@ class HookHandler
                 $this->priority = max(HookOperations::PRIORITY_HIGH,min(HookOperations::PRIORITY_LOW,(int)$priority));
             }
         } else {
-            throw new InvalidArgumentException('Invalid callable passed to '. self::class.'::'.__METHOD__);
+            throw new InvalidArgumentException('Invalid callable provided to '.__METHOD__);
         }
     }
 }

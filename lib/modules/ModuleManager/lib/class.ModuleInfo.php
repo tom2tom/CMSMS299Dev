@@ -1,6 +1,6 @@
 <?php
 /*
-ModuleInfo class:
+Class to process extra-extended module information
 Copyright (C) 2017-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -21,61 +21,76 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace ModuleManager;
 
-use CMSMS\AppSingle;
-use CMSMS\internal\extended_module_info;
+use CMSMS\internal\ExtendedModuleInfo;
+use CMSMS\internal\ModuleInfo as TopInfo;
 use CMSMS\ModuleOperations;
-use Exception;
-use ModuleManager\modulerep_client;
+use CMSMS\SingleItem;
+use ModuleManager\ModuleRepClient;
+use Throwable;
 use function debug_display;
 
-class ModuleInfo extends extended_module_info // and thence module_info
+class ModuleInfo extends ExtendedModuleInfo // and thence CMSMS\internal\ModuleInfo
 {
-    private const MMKEYS = [
+    private const MMPROPS = [
      'can_install',
      'can_uninstall',
      'can_upgrade',
      'deprecated',
-     'e_status',
+     'e_status', // reflects a repository-check and/or db-check
      'missing_deps',
-     'needs_upgrade',
+     'needs_upgrade', // aka 'need_upgrade' ?
     ];
 
-    private const DEPRECATED = [/*'CMSMailer',*/'MenuManager'];
+    private const DEPRECATED = ['MenuManager'];
 
-    // static properties here >> StaticProperties class ?
-    private static $_minfo;
-    private $_mmdata = [];
+    // static properties >> SingleItem props?
+    private static $minfo;
 
-    public function __construct($module_name,$can_load = TRUE,$can_check_forge = TRUE)
+    private static $allmodules;
+
+    private static $load_stack = []; // circularity blocker
+
+    protected $mmdata = []; // class properties
+
+    /**
+     * Constructor
+     * @param string $modname
+     * @param bool $can_load
+     * @param bool $can_check_forge
+     */
+    public function __construct($modname,$can_load = true,$can_check_forge = true)
     {
-        parent::__construct($module_name,$can_load);
+        parent::__construct($modname,$can_load);
 
-        // add in some info that only module manager can tell us.
-        // like: is there a newer version available
-        // extended status (db version newer then file version) / needs upgrade
         if( $this['version'] && $this['installed_version'] ) {
             $tmp = version_compare($this['installed_version'],$this['version']);
-            if( $this['installed'] && $tmp < 0 ) {
+            if( $tmp < 0  && $this['installed'] && $this['can_upgrade']) {
                 $this['e_status'] = 'need_upgrade';
             }
-            else if( $tmp > 0 ) {
+            elseif( $tmp > 0 ) {
                 $this['e_status'] = 'db_newer';
             }
-            else if( $can_check_forge ) {
+            elseif( $can_check_forge ) {
                 try {
-                    $rep_info = modulerep_client::get_upgrade_module_info($module_name);
+                    $rep_info = ModuleRepClient::get_upgrade_module_info($modname);
                     if( is_array($rep_info) ) {
-                        if( ($res = version_compare($this['version'],$rep_info['version'])) < 0 ) $this['e_status'] = 'newer_available';
+                        if( ($res = version_compare($this['version'],$rep_info['version'])) < 0 ) {
+                            $this['e_status'] = 'newer_available';
+                        }
                     }
                 }
-                catch( Exception $e ) {
-                    // nothing here.
+                catch( Throwable $t ) {
+                    // nothing here
                 }
             }
         }
-
     }
 
+    /**
+     * Get the name(s) of missing prerequisite module(s) of this one
+     * @ignore
+     * @return mixed array | null
+     */
     private function _get_missing_dependencies()
     {
         $depends = $this['depends'];
@@ -84,7 +99,7 @@ class ModuleInfo extends extended_module_info // and thence module_info
             foreach( $depends as $name => $ver ) {
                 $rec = self::get_module_info($name);
                 if( !is_object($rec) ) {
-                    // problem getting module info for it.
+                    // problem getting module info for it
                     $out[$name] = $ver;
                     continue;
                 }
@@ -105,115 +120,179 @@ class ModuleInfo extends extended_module_info // and thence module_info
         }
     }
 
-    private function _check_dependencies()
+    /**
+     * Report whether all of this module's dependencies are installed
+     *  and are of sufficient version
+     * @ignore
+     * @return bool
+     */
+    private function _check_dependencies() : bool
     {
-        // check if all module dependants are installed and are of sufficient version.
         $missing = $this->_get_missing_dependencies();
-        if( $missing ) return FALSE;
-        return TRUE;
+        return !$missing;
     }
 
-    public static function get_all_module_info($can_check_forge = TRUE)
+    /**
+     *
+     * @param type $can_check_forge
+     * @return type
+     */
+    public static function get_all_module_info($can_check_forge = true)
     {
-        if( is_array(self::$_minfo) ) return self::$_minfo;
-
-        $allknownmodules = AppSingle::ModuleOperations()->FindAllModules();
-
-        // first pass...
-        $out = [];
-        foreach( $allknownmodules as $module_name ) {
-            try {
-                $info = new self($module_name,TRUE,$can_check_forge);
-                $out[$module_name] = $info;
-            }
-            catch( Exception $e ) {
-                debug_display($e->GetMessage(),$module_name);
-            }
+        if( is_array(self::$minfo) ) {
+            return self::$minfo;
         }
 
-        self::$_minfo = $out;
-        return self::$_minfo;
+        if( self::$allmodules === null ) {
+            self::$allmodules = SingleItem::ModuleOperations()->FindAllModules();
+        }
+
+        $out = [];
+        foreach( self::$allmodules as $modname ) {
+            if( isset(self::$load_stack[$modname]) ) {
+                continue; // no recursion
+            }
+            self::$load_stack[$modname] = 1;
+            try {
+                $info = new self($modname,true,$can_check_forge); // TODO something without props $minfo etc
+                $out[$modname] = $info;
+            }
+            catch( Throwable $t ) {
+                debug_display("'$modname' :: ".$t->GetMessage());
+            }
+            unset(self::$load_stack[$modname]);
+        }
+        self::$minfo = $out;
+        return self::$minfo;
     }
 
-    public static function get_module_info($module)
+    /**
+     *
+     * @param type $modname
+     * @return mixed array | null
+     */
+    public static function get_module_info($modname)
     {
         $tmp = self::get_all_module_info();
-        if( isset($tmp[$module]) ) return $tmp[$module];
-
-        return null;
+        return $tmp[$modname] ?? null;
     }
+
+    /**
+     * Get some or all recorded module-properties
+     * @since 3.0
+     *
+     * @param varargs array or series of property names, or nothing
+     * @returns associative array
+     */
+    public function select_module_properties(...$wanted) : array
+    {
+        if( $wanted ) {
+            if( count($wanted) == 1 && is_array($wanted[0]) ) {
+                $outkeys = array_flip($wanted[0]);
+            }
+            else {
+                $outkeys = array_flip($wanted);
+            }
+        }
+        else {
+            $outkeys = [];
+        }
+
+        $out = array_merge_recursive($this->midata,$this->emdata,$this->mmdata);
+        if ($outkeys) {
+            $out = array_intersect_key($out,$outkeys);
+        }
+
+        foreach( self::MMPROPS as $key ) {
+            if( !isset($out[$key]) && isset($outkeys[$key]) ) {
+               try { $out[$key] = $this->OffsetGet($key); } catch (Throwable $t) {}
+            }
+        }
+        // infill from parent
+        foreach( parent::EMPROPS as $key ) {
+            if( !isset($out[$key]) && isset($outkeys[$key]) ) {
+                try { $out[$key] = parent::OffsetGet($key); } catch (Throwable $t) {}
+            }
+        }
+        // infill from grandparent
+        foreach( TopInfo::MIPROPS as $key ) {
+            if( !isset($out[$key]) && isset($outkeys[$key]) ) {
+                try { $out[$key] = TopInfo::OffsetGet($key); } catch (Throwable $t) {}
+            }
+        }
+        return $out;
+    }
+
+    // ArrayInterface methods
 
     public function OffsetGet($key)
     {
-        if( !in_array($key,self::MMKEYS) ) return parent::OffsetGet($key);
-        if( isset($this->_mmdata[$key]) ) return $this->_mmdata[$key];
+        if( !in_array($key,self::MMPROPS) ) return parent::OffsetGet($key);
+        if( isset($this->mmdata[$key]) ) return $this->mmdata[$key];
 
-        if( $key == 'can_install' ) {
+        switch( $key ) {
+          case 'can_install':
             // can we install this module
-            if( $this['installed'] ) return FALSE;
-            if( !$this['ver_compatible'] ) return FALSE;
+            if( $this['installed'] ) return false;
+            if( !$this['ver_compatible'] ) return false;
             return $this->_check_dependencies();
-        }
-
-
-        if( $key == 'can_upgrade' ) {
-            // see if we can upgrade this module
+          case 'can_upgrade':
+            // can we upgrade this module
             return $this->_check_dependencies();
-        }
-
-        if( $key == 'needs_upgrade' || $key == 'need_upgrade' ) {
-            // test if this module needs an upgrade
-            // this only checks with the data we have, does not calculate an extended status.
+          case 'needs_upgrade':
+          case 'need_upgrade':
+            // does this module need an upgrade
+            // this only checks the data we have, does not calculate an extended status
             if( !$this['version'] || !$this['installed_version'] ) {
-                // if it's not installed, it doesn't need an upgrade
-                return FALSE;
+                // if not installed, it doesn't need an upgrade
+                return false;
             }
             $tmp = version_compare($this['installed_version'],$this['version']);
-            if( $tmp < 0 ) return TRUE;
-            // The e_status field checks the repository... and tells if the db version is newer.
-            return FALSE;
-        }
-
-        if( $key == 'can_uninstall' ) {
-            // check if this module can be uninstalled
-            if( !$this['installed'] ) return FALSE;
+            return ($tmp < 0);
+          case 'can_uninstall':
+            // can this module be uninstalled
+            if( !$this['installed'] ) return false;
 
             $name = $this['name'];
-            if( $name == 'ModuleManager' || $name == ModuleOperations::STD_LOGIN_MODULE ) return FALSE;
+            if( $name == 'ModuleManager' || $name == ModuleOperations::STD_LOGIN_MODULE ) return false;
 
             // check for installed modules that are dependent upon this one
-            foreach( self::$_minfo as $minfo ) {
-                if( $minfo['dependants'] ) {
-                    if( in_array($name, $minfo['dependants']) ) return FALSE;
+            foreach( self::$minfo as $minfo ) {
+                if( $minfo['dependents'] ) {
+                    if( in_array($name, $minfo['dependents']) ) return false;
                 }
             }
-            return TRUE;
-        }
-
-        if( $key == 'missing_deps' ) {
-            // test if this module is missing dependencies
-            $out = $this->_get_missing_dependencies();
-            return $out;
-        }
-
-        if( $key == 'deprecated' ) {
-            // test if this module is deprecated
-            if( in_array($this['name'],self::DEPRECATED) ) return TRUE;
-            return FALSE;
-        }
+            return true;
+          case 'missing_deps':
+            // is any dependency missing
+            return $this->_get_missing_dependencies();
+          case 'deprecated':
+            // is this module deprecated
+            return in_array($this['name'],self::DEPRECATED);
+        } // switch
     }
 
     public function OffsetSet($key,$value)
     {
-        if( !in_array($key,self::MMKEYS) ) parent::OffsetSet($key,$value);
-        if( $key != 'e_status' && $key != 'deprecated' ) return; // dynamic
-        $this->_mmdata[$key] = $value;
+        if( !in_array($key,self::MMPROPS) ) parent::OffsetSet($key,$value);
+        // only this may be set directly
+        if( $key == 'e_status' ) {
+            $this->mmdata[$key] = $value;
+        }
     }
 
     public function OffsetExists($key)
     {
-        if( !in_array($key,self::MMKEYS) ) return parent::OffsetExists($key);
-        if( $key != 'e_status' && $key != 'deprecated' ) return; // dynamic
-        return isset($this->_mmdata[$key]);
+        if( !in_array($key,self::MMPROPS) ) {
+            return parent::OffsetExists($key);
+        }
+        return isset($this->mmdata[$key]) || in_array($key,
+            ['can_install', // some props are generated, never stored
+             'can_uninstall',
+             'can_upgrade',
+             'deprecated',
+             'missing_deps',
+             'needs_upgrade',
+             'need_upgrade',]);
     }
-} // class
+}

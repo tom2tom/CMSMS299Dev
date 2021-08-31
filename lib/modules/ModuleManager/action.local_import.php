@@ -23,9 +23,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\Events;
-use ModuleManager\operations;
+use ModuleManager\Operations;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 
@@ -44,19 +44,19 @@ if( $file['type'] != 'text/xml' ) {
     $this->RedirectToAdminTab();
 }
 
-$ops = new operations($this);
+$ops = new Operations($this);
 
 try {
     Events::SendEvent( 'ModuleManager', 'BeforeModuleImport', [ 'file'=>$file['name']] );
     $ops->expand_xml_package( $file['tmp_name'], true, false );
     Events::SendEvent( 'ModuleManager', 'AfterModuleImport', [ 'file'=>$file['name']] );
 
-    audit('',$this->GetName(),'Imported module from '.$file['name']);
+    audit('',$this->GetName().'::local_import','Imported module from '.$file['name']);
     $this->Setmessage($this->Lang('msg_module_imported'));
 }
-catch( Exception $e ) {
-    audit('',$this->GetName(),'Module import failed: '.$file['name'].', '.$e->GetMessage());
-    $this->SetError($e->GetMessage());
+catch( Throwable $t ) {
+    cms_error('',$this->GetName().'::local_import','Module import failed: '.$file['name'].', '.$e->GetMessage());
+    $this->SetError($t->GetMessage());
 }
 
 $this->RedirectToAdminTab();

@@ -1,5 +1,4 @@
 <?php
-
 namespace cms_installer;
 
 use ArrayAccess;
@@ -7,25 +6,34 @@ use Exception;
 
 final class request implements ArrayAccess
 {
-    const METHOD_GET  = 'GET';
+    const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
 
     private static $_instance;
     private $_data;
 
-    private function __construct() {}
-    private function __clone () {}
+    private function __construct()
+    {
+    }
 
-    public function __call($fn,$args)
+    private function __clone()
+    {
+    }
+
+    public function __call($fn, $args)
     {
         $key = strtoupper($fn);
-        if( isset($_SERVER[$key]) ) return $this->raw_server($key);
+        if (isset($_SERVER[$key])) {
+            return $this->raw_server($key);
+        }
         throw new Exception('Call to unknown method '.$fn.' in request object');
     }
 
     public static function get_instance() : self
     {
-        if( !self::$_instance ) self::$_instance = new self();
+        if (!self::$_instance) {
+            self::$_instance = new self();
+        }
         return self::$_instance;
     }
 
@@ -36,10 +44,9 @@ final class request implements ArrayAccess
 
     public function method() : string
     {
-        if( $this->raw_server('REQUEST_METHOD') == 'POST' ) {
+        if ($this->raw_server('REQUEST_METHOD') == 'POST') {
             return self::METHOD_POST;
-        }
-        elseif( $this->raw_server('REQUEST_METHOD') == 'GET' ) {
+        } elseif ($this->raw_server('REQUEST_METHOD') == 'GET') {
             return self::METHOD_GET;
         }
         throw new Exception('Unhandled request method '.$_SERVER['REQUEST_METHOD']);
@@ -114,10 +121,12 @@ final class request implements ArrayAccess
 
     public function offsetGet($key)
     {
-        if( isset($_REQUEST[$key]) ) return $_REQUEST[$key];
+        if (isset($_REQUEST[$key])) {
+            return $_REQUEST[$key];
+        }
     }
 
-    public function offsetSet($key,$value)
+    public function offsetSet($key, $value)
     {
         throw new Exception('Attempt to directly set a request variable');
     }

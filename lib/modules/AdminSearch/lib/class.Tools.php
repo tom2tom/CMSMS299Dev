@@ -7,8 +7,8 @@ See license details at the top of file AdminSearch.module.php
 */
 namespace AdminSearch;
 
-use CMSMS\AppParams;
 use CMSMS\DeprecationNotice;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
 use const CMS_DEPREC;
 use function get_userid;
@@ -18,8 +18,8 @@ class Tools
     public static function get_slave_classes()
     {
         $key = 'slaves'.get_userid(false);
-        $cache = AppParams::SystemCache();
-        $results = $cache->get($key, self::class);
+        $cache = SingleItem::SystemCache();
+        $results = $cache->get($key, __CLASS__);
         if (!$results) {
             // cache needs populating
             //TODO force upon module installation
@@ -49,7 +49,7 @@ class Tools
                             if (!is_object($obj)) {
                                 continue;
                             }
-                            if (!is_subclass_of($class_name, 'AdminSearch\\Base_slave')) {
+                            if (!is_subclass_of($class_name, 'AdminSearch\Base_slave')) {
                                 continue;
                             }
                             $name = $obj->get_name();
@@ -77,7 +77,7 @@ class Tools
             }
 
             // cache the results
-            $cache->set($key, $results, self::class);
+            $cache->set($key, $results, __CLASS__);
         }
 
         return $results;
@@ -93,7 +93,7 @@ class Tools
      */
     public static function summarize($text, $len = 255) : string
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminSearch\\Base_slave::summarize'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminSearch\Base_slave::summarize'));
         return Base_slave::summarize($text, $len);
     }
 }

@@ -358,7 +358,7 @@ input {
 
 /*
 input[type='text'] {
-	min-width: 25%
+    min-width: 25%
 }
 */
 
@@ -436,9 +436,9 @@ textarea {
 
 /*
 textarea {
-	width: 48em;
-	height: 30em;
-	overflow: auto
+    width: 48em;
+    height: 30em;
+    overflow: auto
 }
 */
 
@@ -1182,9 +1182,9 @@ h3.ecommerce:before {
 }
 
 nav ul#oe_pagemenu li a.parent:before {
-	width: 1em;
-	display: inline-block;
-	text-align: center;
+    width: 1em;
+    display: inline-block;
+    text-align: center;
 }
 
 
@@ -1838,8 +1838,8 @@ input.pagecheckbox {
 
 /*
 textarea.pagebigtextarea {
-	height: 40em;
-	width: 90%
+    height: 40em;
+    width: 90%
 }
 */
 
@@ -2359,10 +2359,10 @@ ul.sortable .placeholder {
         background: #147fdb
     }
     /*
-	textarea {
-		width: 43em;
-	}
-	*/
+    textarea {
+        width: 43em;
+    }
+    */
     header .header-top {
         overflow: hidden
     }
@@ -2398,9 +2398,9 @@ ul.sortable .placeholder {
         max-width: 16px
     }
     .move,
-    /*	table.pagetable th.pageicon,
-//	table.pagetable th,
-	table.pagetable td,*/
+    /*  table.pagetable th.pageicon,
+//  table.pagetable th,
+    table.pagetable td,*/
     th.pagew10,
     th.pagew25,
     th.pagew50,
@@ -2500,7 +2500,7 @@ ul.sortable .placeholder {
     #oe_mainarea header.pageheader {
         max-height: 50px;
         margin-bottom: 15px;
-	border-bottom: 0;
+    border-bottom: 0;
     }
     #oe_mainarea header.pageheader h1,
     #oe_mainarea header.pageheader span.helptext {
@@ -2598,17 +2598,17 @@ ul.sortable .placeholder {
 
 @media screen and (max-width: 600px) {
 header .shortcuts ul {
-	margin-right: 8px;
+    margin-right: 8px;
 }
 header .shortcuts li {
-	padding: 0 8px;
+    padding: 0 8px;
 }
 header .shortcuts li i {
-	font-size: 1.25rem;
-	padding-top: 0.235em;
+    font-size: 1.25rem;
+    padding-top: 0.235em;
 }
 nav ul#oe_pagemenu li a:focus {
-	margin-right: 0;
+    margin-right: 0;
 }
 #page_tabs {
         margin-top: 0;
@@ -2661,21 +2661,21 @@ nav ul#oe_pagemenu {
 border-bottom: 0;
 }
 nav ul#oe_pagemenu li {
-	background: #d5d5d5;
-	line-height: 45px;
-	padding: 2px;
-	text-align: center;
-	border-bottom: 1px solid #aaa;
+    background: #d5d5d5;
+    line-height: 45px;
+    padding: 2px;
+    text-align: center;
+    border-bottom: 1px solid #aaa;
 }
 nav ul#oe_pagemenu li a {
-	margin-left: 0;
-	height: 45px;
-	text-align: center;
+    margin-left: 0;
+    height: 45px;
+    text-align: center;
 }
 
 nav ul#oe_pagemenu li a.parent:before {
-	margin-right: 0;
-	font-size: 1.35rem;
+    margin-right: 0;
+    font-size: 1.35rem;
 }
 
 

@@ -20,13 +20,13 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 if (!function_exists('cmsms')) exit;
 
 $this->CreatePermission('Use Admin Search',$this->Lang('perm_Use_Admin_Search'));
 
-$groups = AppSingle::GroupOperations()->LoadGroups();
+$groups = SingleItem::GroupOperations()->LoadGroups();
 
 if( $groups ) {
     foreach( $groups as $one_group ) {

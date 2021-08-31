@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 function smarty_function_title($params, $template)
 {
-	$contentobj = CMSMS\AppSingle::App()->get_content_object();
+	$contentobj = CMSMS\SingleItem::App()->get_content_object();
 	if( !is_object($contentobj) || $contentobj->Id() == -1 ) {
 		$result = lang('404description'); //TODO or AppParams::get(X, '404 Error');
 	}

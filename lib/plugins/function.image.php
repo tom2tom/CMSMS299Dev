@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 function smarty_function_image($params, $template)
 {
@@ -28,9 +28,9 @@ function smarty_function_image($params, $template)
 	if( !empty($params['src'] ) ) {
 		$imgstart = '<img src=';
 		$imgend = ' />';
-		$config = AppSingle::Config();
+		$config = SingleItem::Config();
 		$text = $imgstart .= '"'.$config['image_uploads_url'].'/'.strtr($params['src'], '\\', '/').'"';
-		$size = @getimagesize($config['image_uploads_path'].DIRECTORY_SEPARATOR.strtr($params['src'], '\\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR));
+		$size = @getimagesize($config['image_uploads_path'].DIRECTORY_SEPARATOR.strtr($params['src'], '\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR));
 
 		if( !empty($params['width'] ) ) {
 			$text .= ' width="'.$params['width'].'"';
@@ -74,7 +74,7 @@ function smarty_function_image($params, $template)
 function smarty_cms_about_function_image()
 {
 	echo <<<'EOS'
-<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Author: Robert Campbell</p>
 <p>Change History</p>
 <ul>
 <li>Added alt param and removed the &lt;/img&gt;</li>

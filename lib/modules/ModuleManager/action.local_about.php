@@ -22,10 +22,10 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use function CMSMS\sanitizeVal;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 if( !isset($params['mod']) ) {
@@ -35,25 +35,24 @@ if( !isset($params['mod']) ) {
 $modname = sanitizeVal($params['mod'], CMSSAN_FILE);
 
 if( $modname ) {
-    $modinst = AppSingle::ModuleOperations()->get_module_instance($modname, '', TRUE);
+    $mod = SingleItem::ModuleOperations()->get_module_instance($modname, '', true);
 }
 else {
     $modname = lang('notspecified');
-    $modinst = null;
+    $mod = null;
 }
-if( !is_object($modinst) ) {
+if( !is_object($mod) ) {
     $this->SetError($this->Lang('error_getmodule', $modname));
     $this->RedirectToAdminTab();
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('local_about.tpl')); //,null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('about.tpl')); //,null,null,$smarty);
 
 $tpl->assign([
     'module_name' => $modname,
-    'back_url' => $this->create_url($id, 'defaultadmin', $returnid),
-    'about_page' => $modinst->GetAbout(),
-    'about_title' => $this->Lang('about_title', $modinst->GetName()),
+    'back_url' => $this->create_action_url($id, 'defaultadmin'),
+    'about_page' => $mod->GetAbout(),
+    'about_title' => $this->Lang('about_title', $mod->GetName()),
 ]);
 
 $tpl->display();
-return '';

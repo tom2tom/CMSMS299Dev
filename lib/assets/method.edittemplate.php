@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\ScriptsMerger;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
@@ -203,12 +203,12 @@ if( $can_manage ) {
         }
     }
 
-    $allusers = AppSingle::UserOperations()->LoadUsers();
+    $allusers = SingleItem::UserOperations()->LoadUsers();
     foreach( $allusers as &$one ) {
         $user_list[$one->id] = $one->username;
     }
 
-    $allgroups = AppSingle::GroupOperations()->LoadGroups();
+    $allgroups = SingleItem::GroupOperations()->LoadGroups();
     foreach( $allgroups as &$one ) {
         if( $one->id == 1) continue;
         if( !$one->active) continue;
@@ -232,7 +232,7 @@ if( !empty($pageincs['head'])) {
 /*
 $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 if( $do_locking) {
-    AppSingle::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $user_id);
+    SingleItem::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $user_id);
 }
 $s1 = json_encode(lang_by_realm('layout', 'error_lock'));
 $s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));

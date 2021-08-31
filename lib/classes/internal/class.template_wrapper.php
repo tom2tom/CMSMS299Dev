@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\internal;
 
-use CMSMS\AppSingle;
 use CMSMS\Events;
+use CMSMS\SingleItem;
 use Smarty_Internal_Template;
 
 /**
@@ -54,8 +54,8 @@ class template_wrapper extends Smarty_Internal_Template
      */
     public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null)
     {
-        // send an event before fetching...this allows us to change template stuff.
-        if( AppSingle::App()->is_frontend_request() ) {
+        // send an event before fetching... which enables tailoring template content
+        if( SingleItem::App()->is_frontend_request() ) {
             $display = false;
             $parms = [
              'template'=>&$template,
@@ -63,8 +63,8 @@ class template_wrapper extends Smarty_Internal_Template
              'compile_id'=>&$compile_id,
              'display'=>&$display,
             ];
-            Events::SendEvent( 'Core', 'TemplatePrefetch', $parms );
+            Events::SendEvent('Core', 'TemplatePrefetch', $parms);
         }
-        return parent::fetch($template,$cache_id,$compile_id,$parent);
+        return parent::fetch($template, $cache_id, $compile_id, $parent);
     }
 }

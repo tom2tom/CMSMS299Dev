@@ -20,10 +20,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Log;
 
-use CMSMS\AppSingle;
 use CMSMS\DbQueryBase;
 use CMSMS\Log\dbstorage;
 use CMSMS\Log\logfilter;
+use CMSMS\SingleItem;
 use LogicException;
 
 class dbquery extends DbQueryBase
@@ -39,7 +39,7 @@ class dbquery extends DbQueryBase
     {
         if ($this->_rs) return;
         $filter = $this->_args;
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $sql = 'SELECT * FROM '.dbstorage::TABLENAME;
         $where = $parms = [];
         $severity = $filter->severity;

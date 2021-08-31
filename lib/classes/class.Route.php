@@ -32,24 +32,28 @@ use const CMS_DEPREC;
  *
  * @package CMS
  * @license GPL
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since 2.99
  * @since 1.9 as global-namespace CmsRoute
  */
 class Route implements ArrayAccess
 {
 	/**
+	 * Token stored in a Route's dest1 field when the destination is a content page.
+	 */
+	const PAGE = '__PAGE__';
+
+	/**
 	 * @ignore
 	 */
 	private const KEYS = [
-	 'defaults', //module-parameters unused here but can be retrieved from outside
-	 'exact', //whether term is for exact-matching, if not, then regex
-	 'key1', //destination e.g module name, or __CONTENT__
-	 'key2', //page id or NULL
-	 'key3', //user-defined parameter for 'refining' static-route deletions (usable during deletion if key1 and ke2 are both non-NULL)
-	 'term', //exact string or regex to check against
-	 'results', //matches-array populated by Operations class from preg_match() results
-    ];
+	 'defaults', // module-parameters array, unused by the route itself but cached for route-processing
+	 'delmatch', // custom row-identifier or NULL
+	 'dest1', // destination identifier - a module name, or self::PAGE
+	 'page', // page id, or NULL if dest1 is a module name
+	 'exact', // whether term is for exact-matching, otherwise a regex
+	 'term', // exact URL-slug or regex to match
+	 'results', // matches-array populated by Operations class from preg_match() results
+	];
 
 	/**
 	 * @ignore
@@ -57,33 +61,40 @@ class Route implements ArrayAccess
 	private $_data;
 
 	/**
-	 * Construct a new route object.
+	 * Construct a new Route object.
 	 *
-	 * @param string $pattern The route string (exact or regular expression)
-	 * @param mixed  $key1 Optional first key. Unless $pattern is exact,
-	 *  usually a module name or int page id. Default ''.
-	 * @param mixed  $defaults Optional array of parameter defaults for this
-	 *  route's destination-module | NULL.  Applicable only when the destination is a module.
+	 * @param string $pattern The route matcher (exact URL-slug or regular expression)
+	 * @param mixed string | int $dest1 Optional route destination identifier.
+	 *  Unless $pattern is exact, usually a module name or page id. Default NULL.
+	 * @param mixed array | null $defaults Optional parameter defaults for this
+	 *  route's destination-module. Applicable only when the destination is a module.
 	 * @param bool   $is_exact Optional flag indicating whether $pattern is
-	 *  for exact-matching. Default FALSE (hence a regular expression).
-	 * @param string $key2 Optional second key.
-	 * @param string $key3 Optional third key. For user-defined data. Default ''.
+	 *  for exact-matching. Default FALSE (indicating a regular expression).
+	 * @param mixed string | null $page Optional route destination page id. Default NULL
+	 * @param mixed string | null $delmatch Optional specific-row identifier.
+	 *  May be specified to tailor static-route deletion in a case where
+	 *  dest1 and page are both non-falsy i.e. the destination is a content page.
 	 */
-	public function __construct($pattern,$key1 = '',$defaults = NULL,$is_exact = FALSE,$key2 ='',$key3 = '')
+	public function __construct($pattern,$dest1 = NULL,$defaults = [],$is_exact = FALSE,$page = NULL,$delmatch = NULL)
 	{
 		$this->_data['term'] = $pattern;
-		$this->_data['exact'] = $is_exact;
 
-		if( is_numeric($key1) && empty($key2) ) {
-			$this->_data['key1'] = '__CONTENT__';
-			$this->_data['key2'] = (int)$key1;
+		if( is_numeric($dest1) && !$page ) {
+			$this->_data['dest1'] = self::PAGE;
+			$this->_data['page'] = (int)$dest1;
+		}
+		elseif (!$dest1 && $page) {
+			$this->_data['dest1'] = self::PAGE;
+			$this->_data['page'] = (int)$page;
 		}
 		else {
-			$this->_data['key1'] = $key1;
-			$this->_data['key2'] = $key2;
+			$this->_data['dest1'] = $dest1; //TODO if both these are falsy?
+			$this->_data['page'] = $page;
 		}
-		if( !empty($defaults) ) $this->_data['defaults'] = $defaults;
-		if( !empty($key3) ) $this->_data['key3'] = $key3;
+
+		$this->_data['exact'] = $is_exact;
+		if( $defaults ) $this->_data['defaults'] = $defaults;
+		if( $delmatch ) $this->_data['delmatch'] = $delmatch;
 	}
 
 	/**
@@ -145,18 +156,21 @@ class Route implements ArrayAccess
 	/**
 	 * Static convenience function to create a new route.
 	 *
-	 * @param string $pattern The route string (exact or regular expression)
-	 * @param string $key1 Optional first key. Usually a module name
-	 * @param string $key2 Optional second key. Default ''
-	 * @param array  $defaults Optional array of parameter defaults for this object.
-	 *  Ignored unless the destination is a module. Default NULL
-	 * @param bool   $is_exact Optional Flag indicating whether $pattern is
-	 *  for exact-matching. Default FALSE.
-	 * @param string $key3 Optional third key. For user-defined data. Default ''.
+	 * @param string $pattern The route matcher (exact URL-slug or regular expression)
+	 * @param mixed string | int | null $dest1 Optional route destination.
+	 *  Unless $pattern is exact, usually a module name or page id. Default NULL.
+	 * @param mixed string | null $page Optional page id. Default NULL
+	 * @param mixed array | null $defaults Optional parameter defaults for this
+	 *  route's destination-module. Applicable only when the destination is a module.
+	 * @param bool   $is_exact Optional flag indicating whether $pattern is
+	 *  for exact-matching. Default FALSE (indicating a regular expression).
+	 * @param mixed string | null $delmatch Optional specific-row identifier.
+	 *  May be specified to tailor static-route deletion in a case where
+	 *  dest1 and page are both non-falsy i.e. the destination is a content page.
 	 */
-	public static function new_builder($pattern,$key1 = '',$key2 = '',$defaults = NULL,$is_exact = FALSE,$key3 = '')
+	public static function new_builder($pattern,$dest1 = NULL,$page = NULL,$defaults = [],$is_exact = FALSE,$delmatch = NULL)
 	{
-		return new self($pattern,$key1,$defaults,$is_exact,$key2,$key3);
+		return new self($pattern,$dest1,$defaults,$is_exact,$page,$delmatch);
 	}
 
 	/**
@@ -164,15 +178,15 @@ class Route implements ArrayAccess
 	 */
 	public function get_signature() : string
 	{
-		$tmp = array_intersect_key($this->_data, [
-		 'defaults'=>1,
-		 'exact'=>1,
-		 'key1'=>1,
-		 'key2'=>1,
-		 'key3'=>1,
-		 'term'=>1,
+		$props = array_intersect_key($this->_data, [
+			'defaults' => 1,
+			'dest1' => 1,
+			'delmatch' => 1,
+			'exact' => 1,
+			'page' => 1,
+			'term' => 1,
 		]);
-		$s = json_encode($tmp,JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		$s = json_encode($props, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 		return Crypto::hash_string($s);
 	}
 
@@ -187,7 +201,7 @@ class Route implements ArrayAccess
 	}
 
 	/**
-	 * Return the route term|pattern (exact string or regex)
+	 * Return this object's matcher|pattern (exact URL-slug or regex)
 	 *
 	 * @return string
 	 */
@@ -203,23 +217,25 @@ class Route implements ArrayAccess
 	 */
 	public function get_dest()
 	{
-		return $this->_data['key1'] ?? NULL;
+		return $this->_data['dest1'] ?? NULL;
 	}
 
 	/**
 	 * Return the page id, if the destination is a content page.
 	 *
-	 * @return mixed int page id | NULL
+	 * @return mixed int | numeric string page id | NULL
 	 */
 	public function get_content()
 	{
-		if( $this->is_content() ) return $this->_data['key2'] ?? NULL;
+		if( isset($this->_data['dest1']) && $this->_data['dest1'] == self::PAGE ) {
+			return $this->_data['page'] ?? NULL;
+		}
 	}
 
 	/**
 	 * Return the default parameters recorded for this object
 	 *
-	 * @return mixed The default parameters for the route | NULL if none were recorded.
+	 * @return mixed The default (module) parameters for this Route | null if none were recorded.
 	 */
 	public function get_defaults()
 	{
@@ -233,7 +249,7 @@ class Route implements ArrayAccess
 	 */
 	public function is_content()
 	{
-		return ( isset($this->_data['key1']) && $this->_data['key1'] == '__CONTENT__' );
+		return ( isset($this->_data['dest1']) && $this->_data['dest1'] == self::PAGE );
 	}
 
 	/**

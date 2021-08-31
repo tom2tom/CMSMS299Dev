@@ -21,16 +21,15 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace Search;
 
 // TODO support non-english lang
-use CMSMS\AppSingle;
 use CMSMS\Events;
+use CMSMS\SingleItem;
 use PorterStemmer;
 use Search; // search-module class in global space
 use const CMS_DB_PREFIX;
-use function cmsms;
 use function CMSMS\de_entitize;
 
 /**
- * @since 2.99
+ * @since 2.0
  */
 class Utils
 {
@@ -114,7 +113,7 @@ class Utils
 
         Events::SendEvent('Search', 'SearchItemAdded', [$modname, $id, $attr, &$content, $expires]);
 
-        if ($content != '') {
+        if ($content !== '') {
             //Clean up the content
             $content = de_entitize($content);
             $stemmed_words = self::StemPhrase($module, $content);
@@ -123,8 +122,8 @@ class Utils
                 return;
             }
             $words = [];
-            foreach ($tmp as $key => $val) {
-                $words[] = [$key, $val];
+            foreach ($tmp as $word => $times) {
+                $words[] = [$word, $times];
             }
 
             $q = 'SELECT id FROM '.CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
@@ -138,25 +137,38 @@ class Utils
                 $q .= ' AND extra_attr=?';
                 $parms[] = $attr;
             }
-            $db = cmsms()->GetDb();
-            $db->BeginTrans();
-            $rst = $db->Execute($q, $parms);
+            $db = SingleItem::Db();
+            //pre-prepare this to reduce later delay n' raciness
+            $stmt = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.'module_search_index (item_id,word,count) VALUES (?,?,?)');
 
+            $rst = $db->execute($q, $parms);
             if ($rst && $rst->RecordCount() > 0 && $row = $rst->FetchRow()) {
-                $itemid = (int) $row['id'];
+                $itemid = (int)$row['id'];
             } else {
-                $itemid = (int) $db->genID(CMS_DB_PREFIX.'module_search_items_seq'); //OR use $db->Insert_ID() with autoinc field
-                $db->Execute('INSERT INTO '.CMS_DB_PREFIX.'module_search_items (id, module_name, content_id, extra_attr, expires) VALUES (?,?,?,?,?)', [$itemid, $modname, $id, $attr, ($expires != null ? trim($db->DbTimeStamp($expires), "'") : null)]);
+                $itemid = $db->genID(CMS_DB_PREFIX.'module_search_items_seq');
+                $until = ($expires) ? $db->DbTimeStamp($expires,false) : null;
+                $db->execute('INSERT INTO '.CMS_DB_PREFIX.'module_search_items
+(id,
+module_name,
+content_id,
+extra_attr,
+expires)
+VALUES (?,?,?,?,?)',[
+$itemid,
+$modname,
+$id,
+$attr,
+$until,
+]);
             }
             if ($rst) {
                 $rst->Close();
             }
-
-            $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX."module_search_index (item_id, word, count) VALUES ($itemid,?,?)");
+//TODO LOCK CMS_DB_PREFIX.'module_search_index' (no InnoDB >> no transactions
             foreach ($words as $row) {
-                $stmt->Execute($row);
+                $stmt->Execute([$itemid,$row[0],$row[1]]);
             }
-            $db->CommitTrans();
+//TODO UNLOCK CMS_DB_PREFIX.'module_search_index'
             $stmt->close();
         }
     }
@@ -179,15 +191,15 @@ class Utils
             $q .= ' AND extra_attr=?';
             $parms[] = $attr;
         }
-        $db = cmsms()->GetDb();
-        $db->BeginTrans(); // if InnoDB tables
-        $scrubs = $db->GetCol($q, $parms);
+        $db = SingleItem::Db();
+        $db->BeginTrans(); // hence prefer InnoDB tables
+        $scrubs = $db->getCol($q, $parms);
         if ($scrubs) {
             $in = '('.implode(',', $scrubs).')';
-            $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_items WHERE id IN '.$in);
+            $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_items WHERE id IN '.$in);
             //Ruud suggestion: migrate this to async task
-//          $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id NOT IN (SELECT id FROM '.CMS_DB_PREFIX.'module_search_items)');
-            $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id IN '.$in);
+//          $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id NOT IN (SELECT id FROM '.CMS_DB_PREFIX.'module_search_items)');
+            $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id IN '.$in);
         }
         $db->CommitTrans();
 
@@ -196,10 +208,10 @@ class Utils
 
     public static function DeleteAllWords()
     {
-        $db = cmsms()->GetDb();
-        $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_index');
-        $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_items');
-        $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_words');
+        $db = SingleItem::Db();
+        $db->execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_index');
+        $db->execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_items');
+        $db->execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_words');
 
         Events::SendEvent('Search', 'SearchAllItemsDeleted');
     }
@@ -221,12 +233,13 @@ class Utils
         set_time_limit(999);
         self::DeleteAllWords();
 
-        // have to load all the content, and properties, (in chunks)
-        $full_list = array_keys(cmsms()->GetHierarchyManager()->getFlatList());
+        // must load all content and properties (in chunks)
+        $hm = SingleItem::App()->GetHierarchyManager();
+        $full_list = array_keys($hm->getFlatList());
         $n = count($full_list);
         $nperloop = min(200, $n);
-        $contentops = AppSingle::ContentOperations();
-//      $cache = AppSingle::SystemCache();
+        $contentops = SingleItem::ContentOperations();
+//      $cache = SingleItem::SystemCache();
         $offset = 0;
 
         while ($offset < $n) {
@@ -250,15 +263,15 @@ class Utils
             }
         }
 
-        $modops = AppSingle::ModuleOperations();
-        $modules = $modops->GetInstalledModules();
-        foreach ($modules as $name) {
-            if (!$name || $name == 'Search') {
+        $modops = SingleItem::ModuleOperations();
+        $availmodules = $modops->GetInstalledModules();
+        foreach ($availmodules as $modname) {
+            if (!$modname || $modname == 'Search') {
                 continue;
             }
-            $modinst = $modops->get_module_instance($name);
-            if (is_object($modinst) && method_exists($modinst, 'SearchReindex')) {
-                $modinst->SearchReindex($module);
+            $mod = $modops->get_module_instance($modname);
+            if (is_object($mod) && method_exists($mod, 'SearchReindex')) {
+                $mod->SearchReindex($module);
             }
         }
     }

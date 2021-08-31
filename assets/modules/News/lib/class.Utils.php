@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace News;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\Utils as AppUtils;
 use DateTime;
 use DateTimeZone;
@@ -30,12 +30,12 @@ use const CMS_DB_PREFIX;
 
 final class Utils
 {
-	//NOTE static properties here >> StaticProperties class ?
+	//NOTE static properties here >> SingleItem property|ies ?
 	private static $_categories_loaded = FALSE;
 	private static $_cached_categories = [];
 
-	private function __construct() {}
-	private function __clone() {}
+//	private function __construct() {}
+//	private function __clone() {}
 
 	/**
 	 *
@@ -84,20 +84,20 @@ final class Utils
 
 		// get counts.
 		$depth = 1;
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$counts = [];
-		$now = time();
+        $longnow = $db->DbTimeStamp(time());
 
 		$q2 = 'SELECT news_category_id,COUNT(news_id) AS cnt FROM '.CMS_DB_PREFIX.'module_news WHERE news_category_id IN (';
 		$q2 .= implode(',',$cat_ids).')';
 		if( !empty($params['showarchive']) ) {
-			$q2 .= ' AND (end_time < '.$now.') ';
+			$q2 .= ' AND (end_time < '.$longnow.') ';
 		}
 		else {
-			$q2 .= ' AND ('.$db->IfNull('start_time',1)." < $now) AND (end_time IS NULL OR end_time=0 OR end_time > $now)";
+			$q2 .= ' AND ('.$db->IfNull('start_time',1)." < $longnow) AND (end_time IS NULL OR end_time > $longnow)";
 		}
 		$q2 .= ' AND status = \'published\' GROUP BY news_category_id';
-		$tmp = $db->GetArray($q2);
+		$tmp = $db->getArray($q2);
 		if( $tmp ) {
 			for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 				$counts[$tmp[$i]['news_category_id']] = $tmp[$i]['cnt'];
@@ -138,9 +138,9 @@ final class Utils
 	public static function get_all_categories() : array
 	{
 		if( !self::$_categories_loaded ) {
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
-			$dbresult = $db->GetArray($query);
+			$dbresult = $db->getArray($query);
 			if( $dbresult ) self::$_cached_categories = $dbresult;
 			self::$_categories_loaded = TRUE;
 		}
@@ -201,7 +201,7 @@ final class Utils
 	 */
 	public static function fill_article_from_formparams(Article &$news,array $params,bool $handle_uploads = FALSE,$handle_deletes = FALSE) : Article
 	{
-		$cz = AppSingle::Config()['timezone'];
+		$cz = SingleItem::Config()['timezone'];
 		$tz = new DateTimeZone($cz);
 		$dt = new DateTime(null, $tz);
 		$toffs = $tz->getOffset($dt);
@@ -266,10 +266,20 @@ final class Utils
 		return $news;
 	}
 
-	private static function get_article_from_row($row) //,$get_fields = 'PUBLIC')
+	/**
+	 * @private
+	 * @ignore
+	 * @param array $row a row from a database-selection
+	 * @return Article
+	 */
+	private static function get_article_from_row($row)
 	{
 		if( !is_array($row) ) return;
+
+		$mod = AppUtils::get_module('News');
+		$fmt = $mod->GetDateFormat(); //c.f. 'Y-m-d H:i'
 		$article = new Article();
+
 		foreach( $row as $key => $value ) {
 			switch( $key ) {
 			case 'news_id':
@@ -293,11 +303,11 @@ final class Utils
 				break;
 
 			case 'start_time':
-				$article->startdate = $value;
+				$article->startdate = $mod->FormatforDisplay($value);
 				break;
 
 			case 'end_time':
-				$article->enddate = $value;
+				$article->enddate = $mod->FormatforDisplay($value);
 				break;
 
 			case 'status':
@@ -305,11 +315,15 @@ final class Utils
 				break;
 
 			case 'create_date':
-				$article->create_date = $value;
+		        $article->created = $mod->FormatforDisplay($value);
 				break;
 
 			case 'modified_date':
-				$article->modified_date = $value;
+				if ($value) {
+					$article->modified = $mod->FormatforDisplay($value);
+				} else {
+					$article->modified = '';
+				}
 				break;
 
 			case 'author_id':
@@ -335,12 +349,12 @@ final class Utils
 	 */
 	public static function get_latest_article(bool $for_display = TRUE)
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$now = time();
 		$query = 'SELECT N.*, G.news_category_name FROM '.CMS_DB_PREFIX.'module_news N LEFT OUTER JOIN '.CMS_DB_PREFIX."module_news_categories G ON G.news_category_id = N.news_category_id WHERE status = 'published' AND ";
 		$query .= '('.$db->IfNull('start_time',1)." < $now) AND end_time IS NULL OR OR end_time=0 OR end_time > $now) ";
 		$query .= 'ORDER BY start_time DESC LIMIT 1';
-		$row = $db->GetRow($query);
+		$row = $db->getRow($query);
 		if( $row ) {
 			return self::get_article_from_row($row); //,($for_display)?'PUBLIC':'ALL');
 		}
@@ -355,15 +369,15 @@ final class Utils
 	 */
 	public static function get_article_by_id($article_id,$for_display = TRUE,$allow_expired = FALSE)
 	{
-		$db = AppSingle::Db();
-		$now = time();
+		$db = SingleItem::Db();
+        $longnow = $db->DbTimeStamp(time());
 		$query = 'SELECT N.*, G.news_category_name FROM '.CMS_DB_PREFIX.'module_news N
 LEFT OUTER JOIN '.CMS_DB_PREFIX.'module_news_categories G ON G.news_category_id = N.news_category_id
-WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).' < '.$now.')';
+WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).' < '.$longnow.')';
 		if( !$allow_expired ) {
-			$query .= ' AND (end_time IS NULL OR end_time=0 OR end_time>'.$now.')';
+			$query .= ' AND (end_time IS NULL OR end_time>'.$longnow.')';
 		}
-		$row = $db->GetRow($query, [$article_id]);
+		$row = $db->getRow($query, [$article_id]);
 		if( $row ) {
 			return self::get_article_from_row($row); //, (($for_display) ? 'PUBLIC' : 'ALL'));
 		}

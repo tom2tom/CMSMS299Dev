@@ -22,27 +22,24 @@ If not, see <https://www.gnu.org/licenses/>.
 
 //use CMSMS\IMultiEditor;
 //use CMSMS\Mailer; CMSMailer\Mailer; //TODO if no CMSMailer present, revert to mail()
-use CMSContentManager\ContentBase;
-use CMSContentManager\contenttypes\Content;
+use ContentManager\ContentBase;
+use ContentManager\contenttypes\Content;
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\CoreCapabilities;
 use CMSMS\Events;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\HookOperations;
-use CMSMS\ModuleOperations;
+use CMSMS\SingleItem;
 use CMSMS\Url;
 use CMSMS\Utils;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 $urlext = get_secure_param();
 if (isset($_POST['cancel'])) {
@@ -51,7 +48,7 @@ if (isset($_POST['cancel'])) {
 
 $userid = get_userid();
 $access = check_permission($userid, 'Modify Site Preferences');
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if (!$access) {
     //TODO a push-notification $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
@@ -128,7 +125,7 @@ function siteprefs_display_permissions(array $permsarr) : string
 $errors = [];
 $messages = [];
 
-$config = AppSingle::Config();
+$config = SingleItem::Config();
 $pretty_urls = $config['url_rewriting'] == 'none' ? 0 : 1;
 $devmode = $config['develop_mode'];
 
@@ -204,6 +201,16 @@ if (isset($_POST['testumask'])) {
     }
 }
 
+
+/* TODO if ($devmode)
+UI for & processing of system-cache-related params e.g.
+'cache_driver' 'predis','memcached','apcu','yac','file' or 'auto'
+'cache_autocleaning' bool (and hence lifetime)
+'cache_lifetime' int seconds (0 for unlimited)
+'cache_file_blocking' bool for a file-cache
+'cache_file_locking' bool ditto
+*/
+
 if (isset($_POST['submit'])) {
     if ($access) {
         switch ($seetab) {
@@ -231,7 +238,7 @@ if (isset($_POST['submit'])) {
                 $val = (!empty($_POST['backendwysiwyg'])) ? sanitizeVal($_POST['backendwysiwyg'], CMSSAN_PUNCTX, ':') : ''; // allow '::'
                 if ($val) {
                     if (strpos($val, '::') !== false) {
-                        $parts = explode('::', $val);
+                        $parts = explode('::', $val, 2);
                         AppParams::set('wysiwyg', $parts[0]); //module
                         if ($parts[0] != $parts[1]) { AppParams::set('wysiwyg_type', $parts[1]); } //component
                         else { AppParams::set('wysiwyg_type', ''); }
@@ -251,7 +258,7 @@ if (isset($_POST['submit'])) {
                 $val = (!empty($_POST['frontendwysiwyg'])) ? sanitizeVal($_POST['frontendwysiwyg'], CMSSAN_PUNCTX, ':') : '';
                 if ($val) {
                     if (strpos($val, '::') !== false) {
-                        $parts = explode('::', $val);
+                        $parts = explode('::', $val, 2);
                         AppParams::set('frontendwysiwyg', $parts[0]); //module
                         if ($parts[0] != $parts[1]) { AppParams::set('frontendwysiwyg_type', $parts[1]); } //component
                         else { AppParams::set('frontendwysiwyg_type', ''); }
@@ -403,7 +410,7 @@ if (isset($_POST['submit'])) {
                 $val = sanitizeVal($_POST['syntaxtype'], CMSSAN_PUNCTX, ':'); // allow '::'
                 if ($val) {
                     if (strpos($val, '::') !== false) {
-                        $parts = explode('::', $val);
+                        $parts = explode('::', $val, 2);
                         AppParams::set('syntaxhighlighter', $parts[0]); //module
                         if ($parts[0] != $parts[1]) { AppParams::set('syntax_type', $parts[1]); }//component
                     } else {
@@ -456,7 +463,7 @@ if (isset($_POST['submit'])) {
                 break;
         } //switch tab
 
-        AppSingle::SysDataCache()->release('site_preferences');
+        SingleItem::LoadedData()->refresh('site_params');
 
         if (!$errors) {
             // put mention into the admin log
@@ -586,29 +593,32 @@ foreach ([
 }
 $mailprefs['password'] = Crypto::decrypt_string(base64_decode($mailprefs['password']));
 */
-$modules = ModuleOperations::get_modules_with_capability(CoreCapabilities::SITE_SETTINGS);
-if ($modules) {
+$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::SITE_SETTINGS);
+if ($modnames) {
     // load them, if not already done
-    foreach ($modules as $i => $modname) {
-        $modules[$i] = Utils::get_module($modname);
+    for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
+        $modnames[$i] = Utils::get_module($modnames[$i]); // TODO $modops = SingleItem::ModuleOperations() ->get ....
+		if ($modnames[$i]) { $modnames[$i]->InitializeAdmin(); }
     }
     $list = HookOperations::do_hook_accumulate('ExtraSiteSettings');
     // assist the garbage-collector
-    foreach ($modules as $i => $modname) {
-        $modules[$i] = null;
+    for ($i = 0; $i < $n; ++$i) {
+        $modnames[$i] = null;
     }
     $externals = [];
-    foreach ($list as $info) {
-        // TODO any adjustments
-        if (empty($info['text'])) {
-            $info['text'] = lang('settings_linktext');
+    if ($list) {
+        foreach ($list as $info) {
+            // TODO any adjustments
+            if (empty($info['text'])) {
+                $info['text'] = lang('settings_linktext');
+            }
+            $externals[] = $info;
         }
-        $externals[] = $info;
+        //$col = new Collator(TODO);
+        uasort($externals, function($a, $b) { // use($col)
+            return strnatcmp($a['title'], $b['title']); //TODO return $col->compare($a['title'],$b['title']);
+        });
     }
-    //$col = new Collator(TODO);
-    uasort($externals, function($a, $b) { // use($col)
-        return strnatcmp($a['title'], $b['title']); //TODO return $col->compare($a['title'],$b['title']);
-    });
     $smarty->assign('externals', $externals);
 }
 
@@ -788,14 +798,13 @@ $(function() {
 EOS;
 add_page_foottext($out);
 
-$modops = AppSingle::ModuleOperations();
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 
 $tmp = [-1 => lang('none')];
-$modules = $modops->GetCapableModules(CoreCapabilities::SEARCH_MODULE);
-if ($modules) {
-    for ($i = 0, $n = count($modules); $i < $n; $i++) {
-        $tmp[$modules[$i]] = $modules[$i];
+$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::SEARCH_MODULE);
+if ($modnames) {
+    for ($i = 0, $n = count($modnames); $i < $n; $i++) {
+        $tmp[$modnames[$i]] = $modnames[$i];
     }
     $smarty->assign('search_module', $search_module);
 } else {
@@ -807,22 +816,22 @@ if ($devmode) {
     $smarty->assign('help_url', $help_url);
 }
 
-$modules = $modops->GetCapableModules(CoreCapabilities::LOGIN_MODULE);
-if ($modules && count($modules) > 1) {
-    for ($i = 0, $n = count($modules); $i < $n; $i++) {
-        if ($modules[$i] == $modops::STD_LOGIN_MODULE) {
-            $tmp[$modules[$i]] = lang('default');
+$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::LOGIN_MODULE);
+if ($modnames && count($modnames) > 1) {
+    for ($i = 0, $n = count($modnames); $i < $n; $i++) {
+        if ($modnames[$i] == $modops::STD_LOGIN_MODULE) {
+            $tmp[$modnames[$i]] = lang('default');
         } else {
-            $tmp[$modules[$i]] = $modules[$i];
+            $tmp[$modnames[$i]] = $modnames[$i];
         }
     }
     $smarty->assign('login_module', $login_module)
-      ->assign('login_modules', $tmp);
+     ->assign('login_modules', $tmp);
 }
 
 $tmp = ['' => lang('theme'), 'module' => lang('default')];
 $smarty->assign('login_handler', $login_processor)
-  ->assign('login_handlers', $tmp);
+ ->assign('login_handlers', $tmp);
 
 
 /*
@@ -858,27 +867,27 @@ if ($tmp) {
 $smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences'));
 
 // Rich-text (html) editors
-$tmp = $modops->GetCapableModules(CoreCapabilities::WYSIWYG_MODULE);
-if ($tmp) {
+$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::WYSIWYG_MODULE);
+if ($modnames) {
   $editors = []; //for backend
   $fronts = [];
-  for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
-    $ob = Utils::get_module($tmp[$i]);
-    if (method_exists($ob, 'ListEditors')) { //OR ($ob instanceof IMultiEditor)
-      $all = $ob->ListEditors();
+  for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
+    $mod = Utils::get_module($modnames[$i]);
+    if (method_exists($mod, 'ListEditors')) { //OR ($mod instanceof IMultiEditor)
+      $all = $mod->ListEditors();
       foreach ($all as $editor=>$val) {
         $one = new stdClass();
-        $one->label = $ob->Lang(strtolower($editor).'_publicname');
+        $one->label = $mod->Lang(strtolower($editor).'_publicname');
         $one->value = $val; // as module::editor
-        list($modname, $edname) = explode('::', $val);
-        list($realm, $key) = $ob->GetMainHelpKey($edname);
+        list($modname, $edname) = explode('::', $val, 2);
+        list($realm, $key) = $mod->GetMainHelpKey($edname);
         if ($key) {
           if (!$realm) { $realm = $modname; }
           $one->mainkey = $realm.'__'.$key;
         } else {
           $one->mainkey = null;
         }
-        list($realm, $key) = $ob->GetThemeHelpKey($edname);
+        list($realm, $key) = $mod->GetThemeHelpKey($edname);
         if ($key) {
           if (!$realm) { $realm = $modname; }
             $one->themekey = $realm.'__'.$key;
@@ -891,11 +900,11 @@ if ($tmp) {
       }
     } else {
       $one = new stdClass();
-      $one->label = $ob->GetFriendlyName();
-      $one->value = $tmp[$i];
+      $one->label = $mod->GetFriendlyName();
+      $one->value = $modnames[$i];
       $one->mainkey = null;
       $one->themekey = null;
-      if ($tmp[$i] == $wysiwyg) { $one->checked = true; }
+      if ($modnames[$i] == $wysiwyg) { $one->checked = true; }
       $editors[] = $one;
       $fronts[$one->value] = $one->label;
     }
@@ -914,26 +923,26 @@ $smarty->assign('wysiwyg', $fronts)
   ->assign('frontendwysiwyg', $frontendwysiwyg);
 
 // Syntax-highlight editors
-$tmp = $modops->GetCapableModules(CoreCapabilities::SYNTAX_MODULE);
-if ($tmp) {
+$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::SYNTAX_MODULE);
+if ($modnames) {
   $editors = [];
-  for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
-    $ob = Utils::get_module($tmp[$i]);
-    if (method_exists($ob, 'ListEditors')) { //OR ($ob instanceof IMultiEditor)
-      $all = $ob->ListEditors();
+  for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
+    $mod = Utils::get_module($modnames[$i]);
+    if (method_exists($mod, 'ListEditors')) { //OR ($mod instanceof IMultiEditor)
+      $all = $mod->ListEditors();
       foreach ($all as $editor=>$val) {
         $one = new stdClass();
-        $one->label = $ob->Lang(strtolower($editor).'_publicname');
+        $one->label = $mod->Lang(strtolower($editor).'_publicname');
         $one->value = $val; // as module::editor
-        list($modname, $edname) = explode('::', $val);
-        list($realm, $key) = $ob->GetMainHelpKey($edname);
+        list($modname, $edname) = explode('::', $val, 2);
+        list($realm, $key) = $mod->GetMainHelpKey($edname);
         if ($key) {
         if (!$realm) { $realm = $modname; }
           $one->mainkey = $realm.'__'.$key;
         } else {
           $one->mainkey = null;
         }
-        list($realm, $key) = $ob->GetThemeHelpKey($edname);
+        list($realm, $key) = $mod->GetThemeHelpKey($edname);
         if ($key) {
           if (!$realm) { $realm = $modname; }
           $one->themekey = $realm.'__'.$key;
@@ -943,13 +952,13 @@ if ($tmp) {
         if ($modname == $syntaxmodule && $edname == $syntaxtype) { $one->checked = true; }
         $editors[] = $one;
       }
-    } elseif ($tmp[$i] != 'MicroTiny') { //that's only for html :(
+    } elseif ($modnames[$i] != 'MicroTiny') { //that's only for html :(
       $one = new stdClass();
-      $one->label = $ob->GetFriendlyName();
-      $one->value = $tmp[$i];
+      $one->label = $mod->GetFriendlyName();
+      $one->value = $modnames[$i];
       $one->mainkey = null;
       $one->themekey = null;
-      if ($tmp[$i] == $syntaxer) { $one->checked = true; }
+      if ($modnames[$i] == $syntaxer) { $one->checked = true; }
       $editors[] = $one;
     }
   }
@@ -1084,17 +1093,18 @@ if ($list) {
             continue;
         }
         if (!isset($all_attributes[$tmp])) {
-            $all_attributes[$tmp] = ['label'=>lang_by_realm('CMSContentManager',$tmp),'value'=>[]];
+            $all_attributes[$tmp] = ['label'=>lang_by_realm('ContentManager',$tmp),'value'=>[]];
         }
-        $all_attributes[$tmp]['value'][] = ['value'=>$arr['name'],'label'=>lang_by_realm('CMSContentManager',$arr['name'])];
+        $all_attributes[$tmp]['value'][] = ['value'=>$arr['name'],'label'=>lang_by_realm('ContentManager',$arr['name'])];
     }
 //    $txt = FormUtils::create_option($all_attributes);
 }
 //$txt = FormUtils::create_option($all_attributes);
 
-$realm = 'CMSContentManager'; //TODO generalize
-$contentops = AppSingle::ContentOperations();
+$realm = 'ContentManager'; //TODO generalize
+$contentops = SingleItem::ContentTypeOperations();
 $all_contenttypes = $contentops->ListContentTypes(false, false, false, $realm);
+
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
@@ -1112,7 +1122,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('sitesettings.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

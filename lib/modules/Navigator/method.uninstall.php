@@ -20,12 +20,14 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\TemplateType;
+
 $this->RemovePreference();
 $this->DeleteTemplate();
 $this->RemoveSmartyPlugin();
 
 try {
-  $types = CMSMS\LayoutTemplateType::load_all_by_originator('Navigator');
+  $types = TemplateType::load_all_by_originator('Navigator');
   foreach( $types as $type ) {
       try {
           $templates = $type->get_template_list();
@@ -36,13 +38,13 @@ try {
           }
       }
       catch( Throwable $t ) {
-          audit('',$this->GetName(),'Uninstall Error: '.$t->GetMessage());
+          cms_error('',$this->GetName().'::method.uninstall','Error: '.$t->GetMessage());
       }
       $type->delete();
   }
 }
 catch( Throwable $t ) {
     // log it
-    audit('',$this->GetName(),'Uninstall Error: '.$t->GetMessage());
+    cms_error('',$this->GetName().'::method.uninstall','Error: '.$t->GetMessage());
     return $t->GetMessage();
 }

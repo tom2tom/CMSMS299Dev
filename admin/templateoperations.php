@@ -19,20 +19,18 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
+use CMSMS\SingleItem;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
 use function CMSMS\sanitizeVal;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 $userid = get_userid();
 $pmod = check_permission($userid,'Manage Templates');
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if (isset($_REQUEST['tpl'])) {
 	$tpl_id = (int)$_REQUEST['tpl']; //< 0 for a group
@@ -172,6 +170,6 @@ switch (trim($op)) {
 		break;
 }
 
-$root = AppSingle::Config()['admin_url']; // relative URL's don't work here
+$root = SingleItem::Config()['admin_url']; // relative URL's don't work here
 $urlext = get_secure_param();
 redirect($root.'/listtemplates.php'.$urlext); // TODO .'&_activetab=' relevant tab name 'templates'|'types'|'groups'

@@ -20,13 +20,23 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AppParams;
+
 function smarty_function_cms_versionname($params, $template)
 {
+	$val = AppParams::get('cms_version_name');
+	if (!$val && defined('CMS_VERSION_NAME')) {
+		$val = CMS_VERSION_NAME;
+	}
+	if (!$val) {
+		$val = $CMS_VERSION_NAME ?? 'Anonymous'; // deprecated global var
+	}
+
 	if( !empty($params['assign']) ) {
-		$template->assign(trim($params['assign']), CMS_VERSION_NAME);
+		$template->assign(trim($params['assign']), $val);
 		return '';
 	}
-	return CMS_VERSION_NAME;
+	return $val;
 }
 
 function smarty_cms_about_function_cms_versionname()

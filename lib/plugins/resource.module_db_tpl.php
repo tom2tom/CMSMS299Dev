@@ -20,35 +20,19 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-//use Smarty_Resource_Custom;
-//use const CMS_DB_PREFIX;
-//use function cms_error;
-//use function cms_to_stamp;
+use CMSMS\SingleItem;
 
 /**
- * A class for handling module templates as a resource.
+ * Class for handling db-stored module templates as a resource.
  *
  * @package CMS
  * @internal
  * @ignore
- * @author Robert Campbell
  * @since 1.11
  */
 class Smarty_Resource_module_db_tpl extends Smarty_Resource_Custom
 {
-    // static properties here >> StaticProperties class ?
-    /**
-     * @ignore
-     */
-    private static $db;
-
-    /**
-     * @ignore
-     * TODO cleanup when done
-     */
-    private static $stmt;
-
+    // static properties here >> SingleItem ?
     /**
      * @ignore
      */
@@ -57,42 +41,42 @@ class Smarty_Resource_module_db_tpl extends Smarty_Resource_Custom
     /**
      * @param string $name    template identifier like 'modulename;templatename'
      * @param mixed  &$source store for retrieved template content, if any
-     * @param int    &$mtime  store for retrieved template modification timestamp
+     * @param int    &$mtime  store for retrieved template modification timestamp, if $source is set
      */
     protected function fetch($name,&$source,&$mtime)
     {
         if( isset(self::$loaded[$name]) ) {
-            $data = self::$loaded[$name];
+            $source = self::$loaded[$name]['content'];
+            $mtime = self::$loaded[$name]['modified'];
         }
         else {
-            if( !self::$db ) {
-                self::$db = AppSingle::Db();
-                self::$stmt = self::$db->Prepare('SELECT content,modified_date FROM '.CMS_DB_PREFIX.'layout_templates WHERE originator=? AND name=?');
-            }
             $parts = explode(';',$name);
-            $rst = self::$db->Execute(self::$stmt,$parts);
+            if( count($parts) != 2 ) {
+                return;
+            }
+            $db = SingleItem::Db();
+            $stmt = $db->prepare('SELECT content, COALESCE(modified_date, create_date, \'1900-1-1 00:00:01\') AS modified FROM '.CMS_DB_PREFIX.'layout_templates WHERE originator=? AND name=?');
+            $rst = $db->execute($stmt,$parts);
             if( !$rst || $rst->EOF() ) {
                 if( $rst ) $rst->Close();
+                $stmt->close();
                 cms_error('Missing template: '.$name);
-                $mtime = false;
                 return;
             }
             else {
                 $data = $rst->FetchRow();
                 $rst->Close();
+                $stmt->close();
+                $content = $data['content'];
+                if( !$content ) {
+                    cms_error('Empty template: '.$name);
+                    return;
+                }
+                $data['modified'] = cms_to_stamp($data['modified']);
                 self::$loaded[$name] = $data;
+                $source = $content;
+                $mtime = $data['modified'];
             }
         }
-
-        if( !empty($data['modified_date']) ) {
-            $mtime = cms_to_stamp($data['modified_date']);
-        }
-        elseif( !empty($data['create_date']) ) {
-            $mtime = cms_to_stamp($data['create_date']);
-        }
-        else {
-            $mtime = 1; // not falsy
-        }
-        $source = $data['content'];
    }
 } // class

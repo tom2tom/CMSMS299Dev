@@ -20,11 +20,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\TemplateOperations;
-use Navigator\utils;
+use Navigator\Utils;
 
-if( !defined('CMS_VERSION') ) exit;
+//if( some worthy test fails ) exit;
 
 debug_buffer('Start Navigator breadcrumbs action');
 
@@ -35,8 +35,9 @@ if( isset($params['template']) ) {
 else {
     $tpl = TemplateOperations::get_default_template_by_type('Navigator::breadcrumbs');
     if( !is_object($tpl) ) {
-        audit('',$this->GetName(),'No default breadcrumbs template found');
-        return '';
+        cms_error('',$this->GetName().'::breadcrumbs','No default breadcrumbs template found');
+        $this->ShowErrorPage('No default breadcrumbs template found');
+        return;
     }
     $template = $tpl->get_name();
 }
@@ -46,20 +47,25 @@ else {
 //
 $content_obj = $gCms->get_content_object();
 if( !$content_obj ) {
-    return ''; // no current page?
+    $this->ShowErrorPage('No current page');
+    return; // no current page?
 }
 $thispageid = $content_obj->Id();
 if( !$thispageid ) {
-    return ''; // no current page?
+    $this->ShowErrorPage('No current page');
+    return; // no current page?
 }
 $hm = $gCms->GetHierarchyManager();
 $endNode = $hm->find_by_tag('id',$thispageid);
-if( !$endNode ) return ''; // no current page?
+if( !$endNode ) {
+    $this->ShowErrorPage('No current page');
+    return; // no current page?
+}
 $starttext = $this->Lang('youarehere');
 if( isset($params['start_text']) ) $starttext = trim($params['start_text']);
 
 $deep = 1;
-$stopat = $this::__DFLT_PAGE;
+$stopat = Navigator::__DFLT_PAGE;
 $showall = 0;
 if( isset($params['loadprops']) && $params['loadprops'] = 0 ) $deep = 0;
 if( isset($params['show_all']) && $params['show_all'] ) $showall = 1;
@@ -77,7 +83,7 @@ while( is_object($curNode) && $curNode->get_tag('id') > 0 ) {
     }
 
     if( $content->Active() && ($showall || $content->ShowInMenu()) ) {
-        $pagestack[$content->Id()] = utils::fill_node($curNode,$deep,-1,$showall);
+        $pagestack[$content->Id()] = Utils::fill_node($curNode,$deep,-1,$showall);
     }
     if( $content->Alias() == $stopat || $content->Id() == (int) $stopat ) {
         $have_stopnode = TRUE;
@@ -87,11 +93,11 @@ while( is_object($curNode) && $curNode->get_tag('id') > 0 ) {
 }
 
 // add in the 'default page'
-if( !$have_stopnode && $stopat == $this::__DFLT_PAGE ) {
+if( !$have_stopnode && $stopat == Navigator::__DFLT_PAGE ) {
     // get the 'home' page and push it on the list
-    $dflt_content_id = AppSingle::ContentOperations()->GetDefaultContent();
+    $dflt_content_id = SingleItem::ContentOperations()->GetDefaultContent();
     $node = $hm->find_by_tag('id',$dflt_content_id);
-    $pagestack[$dflt_content_id] = utils::fill_node($node,$deep,0,$showall);
+    $pagestack[$dflt_content_id] = Utils::fill_node($node,$deep,0,$showall);
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource($template)); //,null,null,$smarty);
@@ -101,4 +107,3 @@ $tpl->display();
 unset($tpl);
 
 debug_buffer('Finished Navigator breadcrumbs action');
-return '';

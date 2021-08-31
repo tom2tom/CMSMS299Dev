@@ -26,6 +26,7 @@ use CMSMS\DataException;
 use CMSMS\Utils;
 use LogicException;
 use MicroTiny;
+use UnexpectedValueException;
 use function cms_to_bool;
 
 class Profile implements ArrayAccess
@@ -43,7 +44,7 @@ class Profile implements ArrayAccess
 		'showstatusbar',
 		'system',
 	];
-	// static properties here >> StaticProperties class ?
+	// static properties here >> SingleItem property|ies ?
 	private static $_module = null;
 	private $_data = [];
 
@@ -83,7 +84,7 @@ class Profile implements ArrayAccess
 			return $this['name'];
 
 		default:
-			throw new LogicException('invalid key '.$key.' for '.self::class.' object');
+			throw new LogicException("'$key' is not a property of ".__CLASS__.' objects');
 		}
 	}
 
@@ -112,7 +113,7 @@ class Profile implements ArrayAccess
 			break;
 
 		default:
-			throw new LogicException('invalid key '.$key.' for '.self::class.' object');
+			throw new LogicException("'$key' is not a property of ".__CLASS__.' objects');
 		}
 	}
 
@@ -120,7 +121,7 @@ class Profile implements ArrayAccess
 	{
 		if( in_array($key, self::KEYS) ) return isset($this->_data[$key]);
 
-		throw new LogicException('invalid key '.$key.' for '.self::class.' object');
+		throw new LogicException("'$key' is not a property of ".__CLASS__.' objects');
 	}
 
 	public function OffsetUnset($key)
@@ -140,17 +141,17 @@ class Profile implements ArrayAccess
 
 		case 'system':
 		case 'name':
-			throw new LogicException('Cannot unset '.$key.' for '.self::class);
+			throw new LogicException("Cannot unset '$key' property of ".__CLASS__.' objects');
 
 		default:
-			throw new LogicException('invalid key '.$key.' for '.self::class.' object');
+			throw new LogicException("'$key' is not a property of ".__CLASS__.' objects');
 		}
 	}
 
 	public function save()
 	{
 		if( !isset($this->_data['name']) || $this->_data['name'] == '' ) {
-			throw new DataException('Invalid microtiny profile name');
+			throw new DataException('No name provided for microtiny profile');
 		}
 
 		$data = serialize($this->_data);
@@ -159,18 +160,18 @@ class Profile implements ArrayAccess
 
 	public function delete()
 	{
-			if( $this['name'] == '' ) return;
-			self::_get_module()->RemovePreference('profile_'.$this['name']);
-			unset($this->_data['name']);
+		if( $this['name'] == '' ) return;
+		self::_get_module()->RemovePreference('profile_'.$this['name']);
+		unset($this->_data['name']);
 	}
 
 	private static function _load_from_data($data)
 	{
-		if( !is_array($data) || !count($data) ) throw new DataException('Invalid data passed to '.self::class.'::'.__METHOD__);
+		if( !$data || !is_array($data) ) throw new LogicException('Invalid data provided to '.__METHOD__);
 
 		$obj = new self();
 		foreach( $data as $key => $value ) {
-			if( !in_array($key,self::KEYS) ) throw new DataException('Invalid key '.$key.' for data in .'.self::class);
+			if( !in_array($key,self::KEYS) ) throw new LogicException("$key is not a valid property of ".__CLASS__.' objects, in '.__FUNCTION__);
 			$obj->_data[$key] = trim($value);
 		}
 		return $obj;
@@ -197,13 +198,13 @@ class Profile implements ArrayAccess
 	 *
 	 * @param string $name
 	 * @return mixed self|null
-	 * @throws DataException
+	 * @throws UnexpectedValueException
 	 */
 	public static function load($name)
 	{
 		if( $name == '' ) return;
 		$data = self::_get_module()->GetPreference('profile_'.$name);
-		if( !$data ) throw new DataException('Unknown microtiny profile '.$name);
+		if( !$data ) throw new UnexpectedValueException('Unknown microtiny profile '.$name);
 
 		$obj = new self();
 		$obj->_data = unserialize($data);

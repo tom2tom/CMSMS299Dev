@@ -47,7 +47,7 @@ class logfilter
             return (int) $this->_data[$key];
 
         default:
-            throw new LogicException("$key is not a gettable member of ".self::class);
+            throw new LogicException("$key is not a gettable member of ".__CLASS__);
         }
     }
 
@@ -75,7 +75,7 @@ class logfilter
             $this->_data[$key] = max(0,(int)$val);
             break;
         default:
-            throw new LogicException("$key is not a settable member of ".self::class);
+            throw new LogicException("$key is not a settable member of ".__CLASS__);
         }
     }
 }

@@ -21,29 +21,29 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace FilePicker; //the module-class
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
+use CMSMS\FolderControlOperations;
+use CMSMS\FolderControls;
 use CMSMS\FileTypeHelper;
 use CMSMS\FSControlValue;
 use CMSMS\NlsOperations;
+use CMSMS\SingleItem;
 use CMSMS\Utils as AppUtils;
 use Collator;
 use FilePicker;
-use FilePicker\Profile;
 use const CMS_ROOT_PATH;
 use const CMSSAN_FILE;
 use function cms_join_path;
 use function cms_path_to_url;
 use function CMSMS\sanitizeVal;
-use function get_userid;
 use function startswith;
 
 /**
  * A class of static utility-methods for the FilePicker module.
- * TODO much of this stuff is more for general file-management than for picking per se
+ * Much of this is more for general file-management than for picking per se
  *
  * @package CMS
  * @license GPL
- * @since  2.99
+ * @since  2.0
  */
 class Utils
 {
@@ -54,7 +54,7 @@ class Utils
      */
     public static function get_file_icon(string $extension, bool $isdir = false) : string
     {
-        // static properties here >> StaticProperties class ?
+        // static properties here >> SingleItem property|ies ?
         static $mod = null;
         if ($mod == null) {
             $mod = AppUtils::get_module('FilePicker');
@@ -203,7 +203,7 @@ class Utils
      * @param bool $isdir
      * @return string
      */
-    public static function format_permissions(FilePicker &$mod, int $mode, bool $isdir) : string
+    public static function format_permissions(FilePicker $mod, int $mode, bool $isdir) : string
     {
         static $pr = null;
         static $pw, $px, $pxf;
@@ -247,9 +247,12 @@ class Utils
 
     protected static function processpath($dirpath) : string
     {
-        $config = AppSingle::Config();
-        $mod = AppUtils::get_module('FilePicker');
-        $devmode = $mod->CheckPermission('Modify Restricted Files') || $config['develop_mode'];
+        $config = SingleItem::Config();
+        $devmode = $config['develop_mode'];
+        if (!$devmode) {
+            $userid = get_userid(false);
+            $devmode = check_permission($userid, 'Modify Restricted Files');
+        }
         $rootpath = ($devmode) ? CMS_ROOT_PATH : $config['uploads'];
 
         if (!$dirpath) {
@@ -268,7 +271,7 @@ class Utils
 
     /**
      * Return data for relevant files/sub-folders in folder $dirpath
-     * @param mixed $profile Optional Profile object | name of one-such | falsy. Default null
+     * @param mixed $profile Optional CMSMS\FolderControls object | name of one-such | falsy. Default null
      * @param string $dirpath Optional absolute or appropriate-root-relative
      *  filesystem-path of folder to be reported. Default '' (hence use relevant root)
      * @return array (maybe empty)
@@ -283,13 +286,16 @@ class Utils
             return [];
         }
 
-        if (!$profile || !($profile instanceof X)) {
-            $profile = self::get_profile($profile, $dirpath);
+        if (!$profile || !($profile instanceof FolderControls)) {
+            $profile = FolderControlOperations::get_profile($profile, $dirpath);
         }
 
-        $config = AppSingle::Config();
-        $mod = AppUtils::get_module('FilePicker');
-        $devmode = $mod->CheckPermission('Modify Restricted Files') || $config['develop_mode'];
+        $config = SingleItem::Config();
+        $devmode = $config['develop_mode'];
+        if (!$devmode) {
+            $userid = get_userid(false);
+            $devmode = check_permission($userid, 'Modify Restricted Files');
+        }
         $showhidden = $profile->show_hidden || $devmode;
         $showthumb = $profile->show_thumbs;
         $pex = $profile->exclude_prefix ?? '';
@@ -421,72 +427,6 @@ class Utils
             });
         }
         return $result;
-    }
-
-    /**
-     * Get the default profile.
-     * @since 2.99
-     *
-     * @param mixed $dirpath Optional top-directory for the profile UNUSED TODO
-     * @param mixed $userid Optional current user id UNUSED TODO
-     * @return Profile
-     */
-    public static function get_default_profile()
-    {
-        $mod = AppUtils::get_module('FilePicker');
-        $profile = $mod->_dao->loadDefault();
-        if( !$profile ) {
-            $profile = new Profile();
-        }
-        return $profile;
-    }
-
-    /**
-     * Get the profile applicable to folder $dirpath and user $userid.
-     * If there is no applicable set, a default is provided.
-     * @since 2.99
-     *
-     * @param mixed $profile_name string | falsy value optional name of existing profile
-     * @param string $dir optional filesystem path of folder to be displayed
-     * @param int $userid optional user identifier
-     * @return Profile
-     */
-    public static function get_profile_for($dirpath = '', $userid = 0)
-    {
-        $dirpath = self::processpath($dirpath);
-        if( $userid < 1 ) {
-            $userid = get_userid(false);
-        }
-        $profile = null; // GET_THEONE_IFANY_FOR($dirpath, $userid);
-        if( $profile ) {
-            return $profile;
-        }
-        return self::get_default_profile();
-    }
-
-    /**
-     * Get the named profile, or failing that, the profile for
-     * place $dirpath and user $userid.
-     * @since 2.99
-     * @param mixed $profile_name string | falsy value optional name of existing profile
-     * @param string $dirpath optional filesystem path of folder to be displayed
-     * @param int $userid Optional user identifier, Default current user
-     * @return Profile object
-     */
-    public static function get_profile($profile_name, $dirpath = '', $userid = 0)
-    {
-        $profile_name = trim($profile_name);
-        if( $profile_name ) {
-            $mod = AppUtils::get_module('FilePicker');
-            $profile = $mod->_dao->loadByName($profile_name);
-        }
-        else {
-            $profile = null;
-        }
-        if( !$profile ) {
-            $profile = self::get_profile_for($dirpath, $userid);
-        }
-        return $profile;
     }
 
     /**

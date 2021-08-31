@@ -41,11 +41,11 @@ use function lang;
  * @param string $type
  * @param int $oid
  * @param int $userid
- * @param-read int $create_date  (db datetime)
+ * @param-read int $create_date (db datetime)
  * @param-read int $modified_date (db datetime)
- * @param-read int created (unix timestamp corresponding to create_date)
+ * @param-read int $created (*NIX timestamp corresponding to create_date)
  * @param-read int $lifetime (minutes)
- * @param-read int $expires  (unix timestamp)
+ * @param-read int $expires (*NIX timestamp)
  */
 final class Lock implements ArrayAccess
 {
@@ -253,7 +253,7 @@ final class Lock implements ArrayAccess
     /**
      * Save this lock object, if needed
      *
-     * @throws SqlErrorException
+     * @throws SQLException
      */
     public function save()
     {

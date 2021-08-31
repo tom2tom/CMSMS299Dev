@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS {
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 /**
  * A class for working with preferences associated with admin users
@@ -31,7 +31,6 @@ use CMSMS\AppSingle;
  * @license GPL
  * @since 2.99
  * @since 1.10 as cms_userprefs
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
 final class UserParams
 {
@@ -47,7 +46,7 @@ final class UserParams
 	 */
 	private const PREF_CLASSES = ['stdClass'];
 
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
 	/**
 	 * @ignore
 	 * Intra-request cache
@@ -67,9 +66,9 @@ final class UserParams
 	{
 		if( is_array(self::$_prefs) && isset(self::$_prefs[$userid]) && is_array(self::$_prefs[$userid]) ) return;
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'SELECT preference,value FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
-		$dbr = $db->GetAssoc($query,[$userid]);
+		$dbr = $db->getAssoc($query,[$userid]);
 		if( $dbr ) {
 			self::$_prefs[$userid] = $dbr;
 		}
@@ -189,16 +188,16 @@ final class UserParams
 			$value = self::SERIAL.serialize($value);
 		}
 		self::_read($userid);
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		if(  !isset(self::$_prefs[$userid][$key]) ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.'userprefs (user_id,preference,value) VALUES (?,?,?)';
 //			$dbr =
-			$db->Execute($query,[$userid,$key,$value]);
+			$db->execute($query,[$userid,$key,$value]);
 		}
 		else {
 			$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value = ? WHERE user_id = ? AND preference = ?';
-//			$dbr =
-			$db->Execute($query,[$value,$userid,$key]);
+//			$dbr = useless for update
+			$db->execute($query,[$value,$userid,$key]);
 		}
 		self::$_prefs[$userid][$key] = $value;
 	}
@@ -225,7 +224,7 @@ final class UserParams
 	{
 		$userid = (int)$userid;
 		self::_read($userid);
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
 		$parms = [$userid];
 		if( $key ) {
@@ -239,7 +238,7 @@ final class UserParams
 			$query .= $query2;
 			$parms[] = $key;
 		}
-		$db->Execute($query,$parms);
+		$db->execute($query,$parms);
 		self::_reset();
 	}
 
@@ -274,7 +273,7 @@ use CMSMS\UserParams;
  */
 function get_preference($userid, $prefname, $default='')
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\UserParams::get_for_user'));
+	assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\UserParams::get_for_user'));
 	return UserParams::get_for_user($userid,$prefname,$default);
 }
 
@@ -289,7 +288,7 @@ function get_preference($userid, $prefname, $default='')
  */
 function set_preference($userid, $prefname, $value)
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\UserParams::set_for_user'));
+	assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\UserParams::set_for_user'));
 	UserParams::set_for_user($userid,$prefname,$value);
 }
 

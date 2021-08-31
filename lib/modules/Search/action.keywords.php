@@ -36,4 +36,3 @@ while( $dbr && ($row = $dbr->FetchRow() ) ) {
     $wordlist[] = $row['word'];
 }
 echo implode(',',$wordlist);
-return '';

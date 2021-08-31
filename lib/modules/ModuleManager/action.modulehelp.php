@@ -20,9 +20,9 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use ModuleManager\cached_request;
+use ModuleManager\CachedRequest;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 
 $this->SetCurrentTab('modules');
 
@@ -51,7 +51,7 @@ if( !$xmlfile ) {
     $this->RedirectToAdminTab();
 }
 
-$req = new cached_request();
+$req = new CachedRequest();
 $req->execute($url,['name'=>$xmlfile]);
 $status = $req->getStatus();
 $result = $req->getResult();
@@ -69,14 +69,13 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('remotecontent.tpl'));
 
 $tpl->assign('title',$this->Lang('helptxt'))
  ->assign('moduletext',$this->Lang('nametext'))
- ->assign('vertext',$this->Lang('vertext'))
+ ->assign('vertext',$this->Lang('version'))
  ->assign('xmltext',$this->Lang('xmltext'))
  ->assign('modulename',$name)
  ->assign('moduleversion',$version)
  ->assign('xmlfile',$xmlfile)
  ->assign('content',$help)
- ->assign('back_url',$this->create_url($id,'defaultadmin',$returnid))
- ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module')));
+ ->assign('back_url',$this->create_action_url($id,'defaultadmin'))
+ ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid,$this->Lang('back_to_module')));
 
 $tpl->display();
-return '';

@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Log;
 
+use CMSMS\AppState;
 use CMSMS\IAuditManager;
 use CMSMS\Log\logrecord;
 use CMSMS\Utils;
@@ -30,6 +31,7 @@ use function get_username;
 class logger implements IAuditManager
 {
     private $_storage;
+    private $_installing;
 
     /*
      * @param mixed $store
@@ -37,14 +39,20 @@ class logger implements IAuditManager
     public function __construct($store)
     {
         $this->_storage = $store;
+        $this->_installing = AppState::test(AppState::INSTALL);
     }
 
     protected function get_common_parms()
     {
-        $parms = [];
-        $parms['user_id'] = get_userid(false);
-        $parms['username'] = get_username(false);
-        if ($parms['user_id']) { $parms['ip_addr'] = Utils::get_real_ip(); }
+        $parms = ['user_id' => '', 'username' => '', 'ip_addr' => ''];
+        if (!$this->_installing) {
+            $user_id = get_userid(false);
+            if ($user_id) {
+                $parms['user_id'] = $user_id;
+                $parms['username'] = get_username(false);
+                $parms['ip_addr'] = Utils::get_real_ip();
+            }
+        }
         return $parms;
     }
 

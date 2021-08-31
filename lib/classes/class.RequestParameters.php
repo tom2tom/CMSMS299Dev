@@ -20,13 +20,13 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\Crypto;
+use CMSMS\SingleItem;
 use Throwable;
 use const CMS_JOB_KEY;
 use const CMS_SECURE_PARAM_NAME;
 use function startswith;
+//use function debug_bt_to_log;
 
 /**
  * Class of static methods to populate get-parameters for use in an URL,
@@ -37,7 +37,7 @@ use function startswith;
  */
 class RequestParameters
 {
-    private const KEYPREF = '\\V^^V/'; //something extremely unlikely to be the prefix of any site-parameter key
+//    private const KEYPREF = '\V^^V/'; //something extremely unlikely to be the prefix of any site-parameter key
 
     private const JOBID = 'aj_'; //something distinctive for job-URL's
 
@@ -49,17 +49,22 @@ class RequestParameters
     private const ENC_PATTERN = '/[^\w.~!@$&\'()*\-+,?\/:;=%]/'; // regex pattern for selecting unaccepable URL-chars to be encoded
 
     /**
-     * $return 2-member array: [0] = separator char(s), [1] = encoding wanted
+     * @param int $format 0 .. 3
+     * $return 2-member array
+     *  [0] = separator string
+     *  [1] = encoding-enum: 0 none 1 entitize 2 urlencode
      */
     protected static function modes(int $format) : array
     {
         switch ($format) {
-            case 2:
-                return ['&', true];
+            case 0:
+                return ['&amp;', 1];
+            case 1:
+                return ['&amp;', 2];
             case 3:
-                return ['&', false];
+                return ['&', 0];
             default:
-                return ['&amp;', true];
+                return ['&', 2];
         }
     }
 
@@ -72,11 +77,28 @@ class RequestParameters
      */
     protected static function clean1(string $str, string $patn = self::ENC_PATTERN) : string
     {
-        if (!$patn) $patn = self::ENC_PATTERN;
+        if (!$patn) { $patn = self::ENC_PATTERN; }
         return preg_replace_callback_array([
-            '/\x00-\x1f\x7f/' => function() { return ''; },
+            '/[\x00-\x1f\x7f]/' => function() { return ''; },
             $patn => function($matches) { return rawurlencode($matches[0]); }
         ], $str);
+    }
+
+    /**
+     * Replacement for pre-2.99 cms_htmlentities(), as was used for
+     * encoding during URL construction. Affects only ' &<>"\'!$' chars.
+     * @since 2.99
+     * @deprecated since 2.99
+     * $param string $str
+     * @return string
+     */
+    protected static function urlentities(string $str)
+    {
+        $ret = preg_replace('/[\x00-\x1f\x7f]/', '', $str);
+        return str_replace(
+            ['&',    ' ',    '>',   '<',   '"',     '!',    "'",    '$'],
+            ['&amp;','&#32;','&gt;','&lt;','&quot;','&#33;','&#39;','&#36;'],
+        $ret);
     }
 
     /**
@@ -84,7 +106,7 @@ class RequestParameters
      *
      * @param int $type job-type value (0..2)
      * @param bool $first Optional flag whether this is the first get-parameter. Default false
-     * @param int $format Optional format enumerator. Default 2
+     * @param int $format Optional format enumerator 0..3. Default 2.
      *  See RequestParameters::create_action_params()
      * @return string
      */
@@ -92,12 +114,15 @@ class RequestParameters
     {
         [$sep, $enc] = self::modes($format);
         $text = ($first) ? '' : $sep;
-        if ($enc) {
-            $text .= rawurlencode(CMS_JOB_KEY).'='.$type; // nothing clean1-worthy in here
-        } else {
-            $text .= CMS_JOB_KEY.'='.$type;
+        switch ($enc) {
+            case 0:
+                return $text . CMS_JOB_KEY.'='.$type;
+            case 1:
+                return $text . self::urlentities(CMS_JOB_KEY).'='.$type; // prob. does nothing
+            case 2:
+                return $text . rawurlencode(CMS_JOB_KEY).'='.$type; // nothing clean1-worthy in here
         }
-        return $text;
+        return '';
     }
 
     /**
@@ -105,7 +130,7 @@ class RequestParameters
      *
      * @param array $parms URL get-parameters. See RequestParameters::create_action_params()
      * @param bool $onetime Optional flag whether the URL is for one-time use. Default false.
-     * @param int $format Optional format enumerator. Default 2
+     * @param int $format Optional format enumerator 0..3. Default 2
      *  See RequestParameters::create_action_params()
      * @return string
      */
@@ -117,20 +142,29 @@ class RequestParameters
         } else {
             $str = 'job';
         }
-        $str .= AppSingle::App()->GetSiteUUID();
+        $str .= SingleItem::App()->GetSiteUUID();
         if ($onetime) {
+            $db = SingleItem::Db();
+            $tmpl = 'INSERT INTO '.CMS_DB_PREFIX."job_records (token,hash) VALUES ('%s','%s')";
             $chars = Crypto::random_string(20, true);
 //          $chars = preg_replace('/[^\w.~!@$()*#\-+]/', '', $chars); // pre-empt behaviour of create_action_params()
+            $swaps = str_shuffle('eFgHkLmN24680'); // >= 7 chars
             while (1) {
                 $key = str_shuffle($chars);
                 $subkey = substr($key, 0, 10);
-                $subkey = strtr($subkey, '%', 'P');  // exclude '%' to prevent url-decoding havoc
+                $subkey = strtr($subkey, '%+\'"?&;', $swaps); // replace chars which crap on url-decoding or SQL
+                // NOTE $subkey might be encoded in create_action_params() >> clean1()
                 $val = hash('tiger128,3', $subkey.$str); // 32-hexits
-                $savekey = self::KEYPREF.$subkey; // NOTE $subkey might be encoded in create_action_params() >> clean1()
-                if (!AppParams::exists($savekey)) {
-                    AppParams::set($savekey, $val); // a bit racy!
+                $sql = sprintf($tmpl, $subkey, $val);
+                $dbr = $db->execute($sql);
+                if ($dbr) {
                     $parms[self::JOBONCEKEY] = $subkey;
                     break;
+/* DEBUG        } else {
+                    debug_bt_to_log();
+                    throw new Exception("Failed to record job token: $subkey");
+                    break;
+*/
                 }
             }
         } else {
@@ -151,25 +185,36 @@ class RequestParameters
      *
      * @param string $key parameter name/key
      * @param mixed  $val Generally an array, but may be some other non-scalar or a scalar
-     * @param int $format Optional format enumerator. Default 2
+     * @param int $format Optional format enumerator 0..3. Default 2.
      * @see create_action_params()
      * @return string (No leading $sep for arrays)
      */
-    public static function build_query(string $key, $val, int $format = 2) : string
+    public static function build_query(string $key, $val, int $format = 0) : string
     {
         [$sep, $enc] = self::modes($format);
+        switch ($enc) {
+            case 0:
+            case 1: // apply self::urlentities(), for $format 0
+                $eq = '=';
+                $sp = $sep;
+                break;
+            case 2:
+                $eq = '~~~';
+                $sp = '___';
+                break;
+        }
         $multi = false;
-        $eq = ($enc) ? '~~~' : '=';
-        $sp = ($enc) ? '___' : $sep;
+
         if (is_array($val)) {
             $out = '';
             $first = true;
             foreach ($val as $k => $v) {
                 if ($first) {
-                    $out .= $key.'['.$k.']';
+                    $out .= ($enc != 1) ? $key.'['.$k.']' : self::urlentities($key.'['.$k.']');
                     $first = false;
                 } else {
-                    $out .= $sp.$key.'['.$k.']';
+                    $out .= $sp;
+                    $out .= ($enc != 1) ? $key.'['.$k.']' : self::urlentities($key.'['.$k.']');
                     $multi = true;
                 }
                 if (!is_scalar($v)) {
@@ -181,9 +226,9 @@ class RequestParameters
                     } catch (Throwable $t) {
                         $v = rawurlencode($t->GetMessage());
                     }
-                    $out .= $eq.$v;
+                    $out .= ($enc != 1) ? $eq.$v : $eq.self::urlentities($v);
                 } elseif ($v !== '') {
-                    $out .= $eq.$v;
+                    $out .= ($enc != 1) ? $eq.$v : $eq.self::urlentities($v);
                 }
             }
         } elseif (!is_scalar($val)) {
@@ -195,14 +240,14 @@ class RequestParameters
             } catch (Throwable $t) {
                 $val = rawurlencode($t->GetMessage());
             }
-            $out = $key.$eq.$val;
+            $out .= ($enc != 1) ? $key.$eq.$val : self::urlentities($key).$eq.self::urlentities($val);
         } elseif ($val !== '') { //just in case, also handle scalars
-            $out = $key.$eq.$val;
+            $out .= ($enc != 1) ? $key.$eq.$val : self::urlentities($key).$eq.self::urlentities($val);
         } else {
-            $out = $key;
+            $out .= ($enc != 1) ? $key : self::urlentities($key);
         }
 
-        if ($enc) {
+        if ($enc == 2) {
             $out = str_replace($eq, '=', self::clean1($out));
             if ($multi) {
                 $out = str_replace($sp, $sep, $out);
@@ -212,32 +257,32 @@ class RequestParameters
     }
 
     /**
-     * Generate get-parameters for use in an URL (not necessarily one which runs a module-action)
+     * Generate get-parameters for use in an URL (not necessarily one
+     * which initiates a module-action)
      *
      * @param array $parms URL get-parameters. Should include mact-components
      *  and action-parameters (if any), and generic-parameters (if any)
      *  Any non-trailing value which is empty (like &key=) will be cleaned (to &key)
      *  Trailing empties are retained, to support 'URL-prefix' creation
      * @param int $format Optional format enumerator
-     *  0 = default, back-compatible rawurlencoded-where-necessary parameter keys and values
-     *      other than the value for key 'mact', '&amp;' for parameter separators
-     *  1 = proper: as for 0, but also encode the 'mact' value
-     *  2 = as for 1, except '&' for parameter separators - e.g. for use in get-URL, js
+     *  0 = entitized ' &<>"\'!$' chars in parameter keys and values,
+     *   '&amp;' for parameter separators except 'mact' (default, back-compatible)
+     *  1 = proper: rawurlencoded keys and values, '&amp;' for parameter separators
+     *  2 = best for most contexts: as for 1, except '&' for parameter separators
      *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
      *   BUT the output must be entitized upstream, it's not done here
      * @return string
      */
     public static function create_action_params(array $parms, int $format = 0) : string
     {
-        [$sep, $enc] = self::modes($format);
-
+        [$sep, $enc] = self::modes($format); // TODO just entitizing for format 0
 /*        if (isset($parms[CMS_JOB_KEY])) {
             $type = $parms[CMS_JOB_KEY];
             unset($parms[CMS_JOB_KEY]);
         } else {
             $type = -1;
         }
-        ksort($parms); //security key(s) lead
+        ksort($parms); //security key(s) lead TODO OR follow if $enc == 0
 */
         if (isset($parms['module']) && isset($parms['id']) && isset($parms['action'])) {
             $module = trim($parms['module']);
@@ -247,7 +292,7 @@ class RequestParameters
             unset($parms['module'], $parms['id'], $parms['action'], $parms['inline']);
             $parms = ['mact' => "$module,$id,$action,$inline"] + $parms;
         }
-        //security key(s) lead
+        //security key(s) lead, or trail in legacy-mode
         $pre = [];
         foreach ($parms as $key => $val) {
             if (startswith($key, CMS_SECURE_PARAM_NAME)) {
@@ -256,28 +301,36 @@ class RequestParameters
             }
         }
         if ($pre) {
-            $parms = $pre + $parms;
+            if ($format > 0) {
+                $parms = $pre + $parms;
+            } else {
+                $parms += $pre;
+            }
         }
 
         $text = '';
         $first = true;
         foreach ($parms as $key => $val) {
             if (is_scalar($val)) {
-                if ($enc) {
-                    $key = self::clean1($key);
-                } else {
-                    $key = self::clean1($key, '/\x00/'); // only sanitize it
+                switch ($enc) {
+                    case 0:
+                        $key = self::clean1($key, '/\x00/'); // minimally sanitize it
+                        $val = self::clean1($val, '/\x00/');
+                        break;
+                    case 1:
+                        $key = self::urlentities($key);
+                        $val = self::urlentities($val);
+                        break;
+                    case 2:
+                        $key = self::clean1($key);
+                        $val = self::clean1($val);
+                        break;
                 }
                 if ($first) {
                     $text .= $key;
                     $first = false;
                 } else {
                     $text .= $sep.$key;
-                }
-                if ($enc && ($format != 0 || $key != 'mact')) {
-                    $val = self::clean1($val);
-                } else {
-                    $val = self::clean1($val, '/\x00/');
                 }
                 $text .= '='.$val; // embedded empty $vals later removed
             } else {
@@ -293,6 +346,9 @@ class RequestParameters
             $text .= self::create_jobtype($type, false, $format);
         }
 */
+        if ($format == 0) {
+            $text = str_replace('&amp;mact', '&mact', $text);  // legacy-compliance
+        }
         // strip embedded (not trailing) empty values
         $text = str_replace('='.$sep, $sep, $text);
         return $text;
@@ -308,26 +364,23 @@ class RequestParameters
     {
         if (isset($parms[self::JOBKEY])) {
             $str = $parms['action'] ?? 'job';
-            $str .= AppSingle::App()->GetSiteUUID();
+            $str .= SingleItem::App()->GetSiteUUID();
             return $parms[self::JOBKEY] == hash('tiger128,3', $str);
         }
         if (isset($parms[self::JOBONCEKEY])) {
             $key = $parms[self::JOBONCEKEY];
-            $savekey = self::KEYPREF.$key;
-            if (!AppParams::exists($savekey)) {
-                $key2 = rawurldecode($key);
-                if ($key2 == $key) { return false; }
-                $savekey = self::KEYPREF.$key2;
-                if (!AppParams::exists($savekey)) {
-                    return false;
-                }
-                $key = $key2;
+            $key2 = rawurldecode($key);
+            $db = SingleItem::Db();
+            $row = $db->getRow('SELECT token,hash FROM '.CMS_DB_PREFIX.'job_records WHERE token=? OR token=?', [$key, $key2]);
+            if (!$row) {
+                return false;
             }
-            $val = AppParams::get($savekey);
-            AppParams::remove($savekey);
+            $db->execute('DELETE FROM '.CMS_DB_PREFIX.'job_records WHERE token = '.$db->qStr($row['token']));
+            if ($key != $key2 && $row['token'] == $key2) { $key = $key2; }
+
             $str = $parms['action'] ?? 'job';
-            $hash = hash('tiger128,3', $key.$str.AppSingle::App()->GetSiteUUID());
-            return $hash == $val;
+            $hash = hash('tiger128,3', $key.$str.SingleItem::App()->GetSiteUUID());
+            return $hash == $row['hash'];
         }
         return (!isset($parms[CMS_JOB_KEY]) || $parms[CMS_JOB_KEY] != 2);
     }
@@ -344,6 +397,53 @@ class RequestParameters
         }
         return array_merge($_POST, $_GET);
     }
+
+	/**
+	 * Return parameters in the current request whose key begins with $id
+	 * $id is stripped from the start of returned keys.
+	 * This was formerly ModuleOperations::GetModuleParameters()
+	 *
+	 * @param string $id module-action identifier
+	 * @param bool   $clean since 2.99 optional flag whether to pass
+	 *  non-numeric string-values via CMSMS\de_specialize() Default false.
+	 * @param mixed $names since 2.99 optional strings array, or single,
+	 *  or comma-separated series of, wanted parameter key(s)
+	 * @return array, maybe empty
+	 */
+	public static function get_identified_params(string $id, bool $clean = false, $names = '') : array
+	{
+		$params = [];
+
+		$len = strlen($id);
+		if( $len ) {
+//			$raw = self::TODO();
+			if( $names ) {
+				if( is_array($names) ) {
+					$matches = $names;
+				}
+				else {
+					$matches = explode(',',$names);
+				}
+				$matches = array_map(function($val) { return trim($val); },$matches);
+			}
+			else {
+				$matches = FALSE;
+			}
+//			foreach( $raw as $key=>$value ) {
+			foreach( $_REQUEST as $key => $value ) {
+				if( strncmp($key,$id,$len) == 0 ) {
+					$key = substr($key,$len);
+					if( !$matches || in_array($key,$matches) ) {
+						if( $clean && is_string($value) && !is_numeric($value) ) {
+							$value = de_specialize($value);
+						}
+						$params[$key] = $value;
+					}
+				}
+			}
+		}
+		return $params;
+	}
 
     /**
      * Return parameters interpreted from parameters in the current request.

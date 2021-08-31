@@ -1,13 +1,13 @@
 <?php
 use FileManager\Utils;
 
-if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
-if (isset($params['cancel'])) $this->Redirect($id,'defaultadmin',$returnid,$params);
+//if( some worthy test fails ) exit;
+if( !$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed() ) exit;
+if( isset($params['cancel']) ) $this->Redirect($id,'defaultadmin',$returnid,$params);
 
 $sel = $params['sel'];
 if( !is_array($sel) ) $sel = json_decode(rawurldecode($sel),true);
-if (count($sel)==0) {
+if( !$sel ) {
     $params['fmerror']='nofilesselected';
     $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
@@ -19,7 +19,7 @@ foreach( $sel as &$one ) {
 $config=cmsms()->GetConfig();
 $cwd = Utils::get_cwd();
 $dirlist = Utils::get_dirlist();
-if( !count($dirlist) ) {
+if( !$dirlist ) {
     $params['fmerror']='nodestinationdirs';
     $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
@@ -33,12 +33,12 @@ if( isset($params['move']) ) {
     $advancedmode = Utils::check_advanced_mode();
     $basedir = ( $advancedmode ) ?  CMS_ROOT_PATH : $config['uploads_path'];
 
-    if( count($errors) == 0 ) {
+    if( !$errors ) {
         $destloc = cms_join_path($basedir,$destdir);
         if( !is_dir($destloc) || ! is_writable($destloc) ) $errors[] = $this->Lang('invalidmovedir');
     }
 
-    if( count($errors) == 0 ) {
+    if( !$errors ) {
         foreach( $sel as $file ) {
             $src = cms_join_path(CMS_ROOT_PATH,$cwd,$file);
             $dest = cms_join_path($basedir,$destdir,$file);
@@ -98,7 +98,7 @@ if( isset($params['move']) ) {
         } // foreach
     } // no errors
 
-    if( count($errors) == 0 ) {
+    if( !$errors ) {
         $paramsnofiles['fmmessage']='movesuccess'; //strips the file data
         $this->Redirect($id,'defaultadmin',$returnid,$paramsnofiles);
     }
@@ -116,4 +116,3 @@ $tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, '
 //see DoActionBase() ->assign('mod',$this);
 
 $tpl->display();
-return '';

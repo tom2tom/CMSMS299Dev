@@ -20,19 +20,17 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -58,17 +56,17 @@ if (!($selfedit || check_permission($userid, 'Manage Users'))) {
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 //$tplmaster = 0; //CHECKME
 $copyusersettings = 0; // NOT 1! default superuser for properties-migration
 
 $superusr = ($userid == 1); //group 1 addition|removal allowed
-$groupops = AppSingle::GroupOperations();
+$groupops = SingleItem::GroupOperations();
 $admins = array_column($groupops->GetGroupMembers(1), 1);
 $supergrp = $superusr || in_array($userid, $admins); //group 1 removal allowed
 $access_group = in_array($userid, $admins) || !in_array($user_id, $admins); // ??
 $access = $selfedit && $access_group;
-$userops = AppSingle::UserOperations();
+$userops = SingleItem::UserOperations();
 $userobj = $userops->LoadUserByID($user_id);
 $group_list = $groupops->LoadGroups();
 $manage_groups = check_permission($userid, 'Manage Groups');
@@ -157,20 +155,20 @@ if (isset($_POST['submit'])) {
                 $result = $userobj->Save();
                 if ($result) {
                     if ($manage_groups && isset($_POST['groups'])) {
-                        $db = AppSingle::Db();
-                        $stmt1 = $db->Prepare('DELETE FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
-                        $stmt2 = $db->Prepare('SELECT 1 FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
-                        $stmt3 = $db->Prepare('INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)');
+                        $db = SingleItem::Db();
+                        $stmt1 = $db->prepare('DELETE FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
+                        $stmt2 = $db->prepare('SELECT 1 FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=? AND group_id=?');
+                        $stmt3 = $db->prepare('INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)');
                         foreach ($group_list as $thisGroup) {
                             $gid = $thisGroup->id;
                             if (isset($_POST['g' . $gid])) {
                                 $uid = $userobj->id;
                                 if ($_POST['g' . $gid] == 0) {
-                                    $db->Execute($stmt1, [$uid, $gid]); // fails if already absent
+                                    $db->execute($stmt1, [$uid, $gid]); // fails if already absent
                                 } elseif ($_POST['g' . $gid] == 1) {
-                                    $rst = $db->Execute($stmt2, [$uid, $gid]);
+                                    $rst = $db->execute($stmt2, [$uid, $gid]);
                                     if (!$rst || $rst->EOF) {
-                                        $db->Execute($stmt2, [$uid, $gid]);
+                                        $db->execute($stmt2, [$uid, $gid]);
                                     }
                                     if ($rst) {
                                         $rst->Close();
@@ -183,7 +181,7 @@ if (isset($_POST['submit'])) {
                         $stmt3->close();
                     }
                     // put mention into the admin log
-                    audit($userid, 'Admin Username: ' . $userobj->username, ' Edited');
+                    audit($userid, 'Admin User ' . $userobj->username, ' Edited');
                     Events::SendEvent('Core', 'EditUserPost', ['user' => &$userobj]);
                     $themeObject->RecordNotice('success', lang('accountupdated'));
                 } else {
@@ -206,7 +204,7 @@ if (isset($_POST['submit'])) {
                         foreach ($prefs as $k => $v) {
                             UserParams::set_for_user($user_id, $k, $v);
                         }
-                        audit($user_id, 'Admin Username: ' . $userobj->username, 'settings copied from template user');
+                        audit($user_id, 'Admin User ' . $userobj->username, 'Settings copied from template user');
                         $message[] = lang('msg_usersettingscopied');
                     }
                 } else {
@@ -215,7 +213,7 @@ if (isset($_POST['submit'])) {
             } elseif (isset($_POST['clearusersettings'])) {
                 if ($user_id > 1) {
                     // clear all preferences for this user.
-                    audit($user_id, 'Admin Username: ' . $userobj->username, ' settings cleared');
+                    audit($user_id, 'Admin User ' . $userobj->username, ' Settings cleared');
                     UserParams::remove_for_user($user_id);
                     $message[] = lang('msg_usersettingscleared');
                 } else {
@@ -225,7 +223,7 @@ if (isset($_POST['submit'])) {
 
             Events::SendEvent('Core', 'EditUserPost', ['user' => &$userobj]);
 //            AdminUtils::clear_cached_files();
-//            AppSingle::SysDataCache()->release('IF ANY');
+//            SingleItem::LoadedData()->refresh('IF ANY');
             if ($message) {
                 $themeObject->ParkNotice('success', $message);
             }
@@ -316,7 +314,7 @@ foreach ($userlist as $one) {
     }
 }
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 
 if ($manage_groups) {
     $smarty->assign('groups', $group_list)
@@ -347,7 +345,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('edituser.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

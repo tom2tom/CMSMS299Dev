@@ -21,33 +21,32 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace News;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\Utils as AppUtils;
 use News\Utils;
 use function munge_string_to_url;
 
 class Article
 {
-/*
-    const KEYS = [
-	'author',
-	'author_id',
-	'authorname',
-	'canonical',
-	'category',
-	'category_id',
-	'content',
-	'enddate',
-	'extra',
-	'id',
-	'news_url',
-	'params',
-	'returnid',
-	'startdate',
-	'status',
-	'summary',
-	'title',
-	'useexp',
+/*  const KEYS = [
+    'author',
+    'author_id',
+    'authorname',
+    'canonical',
+    'category',
+    'category_id',
+    'content',
+    'enddate',
+    'extra',
+    'id',
+    'news_url',
+    'params',
+    'returnid',
+    'startdate',
+    'status',
+    'summary',
+    'title',
+    'useexp',
     ];
 */
     private $_rawdata = [];
@@ -70,7 +69,7 @@ class Article
             $this->_meta['author'] = $mod->Lang('anonymous');
             $this->_meta['authorname'] = $mod->Lang('unknown');
             if( $author_id > 0 ) {
-                $userops = AppSingle::UserOperations();
+                $userops = SingleItem::UserOperations();
                 $theuser = $userops->LoadUserById($author_id);
                 if( is_object($theuser) ) {
                     $this->_meta['author'] = $theuser->username;
@@ -91,7 +90,7 @@ class Article
         if( !isset($this->_meta['returnid']) ) {
             $mod = AppUtils::get_module('News');
             $tmp = $mod->GetPreference('detail_returnid',-1);
-            if( $tmp <= 0 ) $tmp = AppSingle::ContentOperations()->GetDefaultContent();
+            if( $tmp <= 0 ) $tmp = SingleItem::ContentOperations()->GetDefaultContent();
             $this->_meta['returnid'] = $tmp;
         }
         return $this->_meta['returnid'];
@@ -107,7 +106,7 @@ class Article
                 $tmp = 'news/'.$this->id.'/'.$this->returnid."/{$aliased_title}";
             }
             $mod = AppUtils::get_module('News');
-            $canonical = $mod->create_url($this->_inid,'detail',$this->returnid,$this->params,false,false,$tmp);
+            $canonical = $mod->create_url($this->_inid,'detail',$this->returnid,$this->params,false,false,$tmp,false,2);
             $this->_meta['canonical'] = $canonical;
         }
         return $this->_meta['canonical'];
@@ -129,8 +128,7 @@ class Article
         if( $returnid != '' ) $this->_meta['returnid'] = $returnid;
     }
 
-/*
-    public function set_field(Field $field)
+/*  public function set_field(Field $field)
     {
         if( !isset($this->_rawdata['fieldsbyname']) ) $this->_rawdata['fieldsbyname'] = [];
         $name = $field->name;
@@ -142,7 +140,7 @@ class Article
     {
         if( isset($this->_rawdata['fieldsbyname']) ) {
             if( isset($this->_rawdata['fieldsbyname'][$name]) ) unset($this->_rawdata['fieldsbyname'][$name]);
-            if( count($this->_rawdata['fieldsbyname']) == 0 ) unset($this->_rawdata['fieldsbyname']);
+            if( !$this->_rawdata['fieldsbyname'] ) unset($this->_rawdata['fieldsbyname']);
         }
     }
 */
@@ -159,30 +157,41 @@ class Article
         case 'news_url':
         case 'category_id':
         case 'status':
-            return $this->_getdata($key);
-
-        case 'startdate':
-        case 'enddate':
+        case 'start_time':
+        case 'end_time':
         case 'create_date':
         case 'modified_date':
-			// timestamp.
-            return date('Y-m-d H:i',$this->_getdata($key));
+            return $this->_getdata($key);
+            // aliases
+        case 'start':
+            return $this->_getdata('start_time');
+        case 'stop':
+            return $this->_getdata('end_time');
+            // timestamps
+        case 'startdate':
+            return strtotime($this->_getdata('start_time')); // TODO if NULL
+        case 'enddate':
+            return strtotime($this->_getdata('end_time')); // TODO if NULL
+        case 'created':
+            return strtotime($this->_getdata('create_date'));
+        case 'modified':
+            return strtotime($this->_getdata('modified_date')); // TODO if NULL
 
         case 'file_location':
-            $config = AppSingle::Config();
+            $config = SingleItem::Config();
             $url = $config['uploads_url'].'/news/id'.$this->id;
             return $url;
 
         case 'author':
-            // metadata.
+            // metadata
             return $this->_getauthorinfo($this->author_id);
 
         case 'authorname':
-            // metadata.
+            // metadata
             return $this->_getauthorinfo($this->author_id,TRUE);
 
         case 'category':
-            // metadata.
+            // metadata
             return Utils::get_category_name_from_id($this->category_id);
 
         case 'useexp':
@@ -200,13 +209,6 @@ class Article
         case 'params':
             // metadata
             return $this->_get_params();
-
-        case 'start':
-        case 'stop':
-        case 'created':
-        case 'modified':
-            //TODO
-            break;
 
         default:
 /*          // check if there is a field with this alias
@@ -237,7 +239,11 @@ class Article
         case 'news_url':
         case 'category_id':
         case 'status':
-            return isset($this->_rawdata[$key]);
+        case 'start_time':
+        case 'end_time':
+        case 'create_date':
+        case 'modified_date':
+            return !empty($this->_rawdata[$key]);
 
         case 'author':
         case 'authorname':
@@ -247,22 +253,17 @@ class Article
         case 'params':
         case 'useexp':
             return TRUE;
-
-        case 'startdate':
-        case 'enddate':
-        case 'modified_date':
-            return !empty($this->_rawdata[$key]);
-
-        case 'create_date':
-            if( $this->id != '' ) return TRUE;
-            break;
-
+        // aliases & equivalent stamps
         case 'start':
+        case 'startdate':
+            return !empty($this->_rawdata['start_time']);
         case 'stop':
+        case 'enddate':
+            return !empty($this->_rawdata['end_time']);
         case 'created':
+            return !empty($this->_rawdata['create_date']);
         case 'modified':
-            //TODO
-            break;
+            return !empty($this->_rawdata['modified_date']);
 
 //        default: assert IF DEBUGGING
 //            throw new Exception('Requesting invalid data from News article object '.$key);
@@ -299,19 +300,37 @@ class Article
 
         case 'create_date':
         case 'modified_date':
+        case 'start_time':
+        case 'end_time':
+            $this->dtform($key,$value);
+            break;
+            //aliases
+        case 'created':
+           $this->dtform('create_date',$value);
+            break;
+        case 'modified':
+           $this->dtform('modified_date',$value);
+            break;
         case 'startdate':
+           $this->dtform('start_time',$value);
+            break;
         case 'enddate':
-			// timestamp
-            if( is_int($value) ) {
-	            $this->_rawdata[$key] = $value;
-			}
-			else {
-	            $this->_rawdata[$key] = strtotime($value);
-            }
+           $this->dtform('end_time',$value);
             break;
 
 //        default: assert IF DEBUGGING
 //            throw new Exception('Modifying invalid data in News article object '.$key);
+        }
+    }
+
+    // ensure we get a datetime-field-compatible value
+    private function dtform($key, $value)
+    {
+        if( is_int($value) ) { // timestamp?
+            $this->_rawdata[$key] = strftime('Y-m-d H:i:s', $value); // c.f. $db->DbTimeStamp($value,false) which also escapes content
+        }
+        else {
+            $this->_rawdata[$key] = $value; // just assume it's ok .... BAH!
         }
     }
 }

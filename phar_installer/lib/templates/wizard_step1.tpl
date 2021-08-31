@@ -3,7 +3,7 @@
 
 {block name='logic'}
   {capture assign='browser_title'}CMS Made Simple&trade; {$version|default:''} ({$version_name|default:''}) {'apptitle'|tr}{/capture}
-  {capture assign='title'}{'title_welcome'|tr} {'to'|tr} CMS Made Simple&trade; {$version|default:''} <em>({$version_name|default:''})</em><br/>{'apptitle'|tr}{/capture}
+  {capture assign='title'}{'title_welcome'|tr} {'to'|tr} CMS Made Simple&trade; {$version|default:''} <span class="emphatic">({$version_name|default:''})</span><br />{'apptitle'|tr}{/capture}
   {$current_step = '1'}
 {/block}
 
@@ -26,7 +26,7 @@ $(function() {
 <p>{'welcome_message'|tr}</p>
 
 <div class="installer-form">
-{wizard_form_start}
+ {wizard_form_start}
   {if empty($custom_destdir) && !empty($dirlist)}
     <h3>{'step1_destdir'|tr}</h3>
 
@@ -60,10 +60,11 @@ $(function() {
       {html_options options=$yesno selected=$verbose}
     </select>
   </div>
-
-  <div id="bottom_nav">
+{if empty($error)}
+ <div id="bottom_nav">
     <button type="submit" class="action-button positive" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
   </div>
-{wizard_form_end}
+{/if}
+ </form>
 </div>
 {/block}

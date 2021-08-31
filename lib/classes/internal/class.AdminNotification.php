@@ -16,12 +16,12 @@ BUT WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\internal;
 
-use CmsInvalidDataException;
+use LogicException;
 
 /**
  * A class representing a simple notification.
@@ -65,8 +65,7 @@ class AdminNotification
         case 'html':
             return $this->$key;
         }
-
-        throw new CmsInvalidDataException('Attempt to retrieve invalid property of AdminNotification');
+        throw new LogicException("'$key' is not a valid property of ".__CLASS__);
     }
 
 
@@ -82,7 +81,6 @@ class AdminNotification
             $this->$key = $value;
             return;
         }
-
-        throw new CmsInvalidDataException('Attempt to set invalid property for AdminNotification');
+        throw new LogicException("'$key' is not a valid property of ".__CLASS__);
     }
 } // class

@@ -1,5 +1,5 @@
 <?php
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if (!$this->AccessAllowed() && !$this->AdvancedAccessAllowed()) exit;
 
 if(!isset($params['filename']) || !isset($params['path'])) {
@@ -30,7 +30,7 @@ if (isset($params['newmode'])) {
 		'type' => 'radio',
 		'name' => 'newmode',
 		'htmlid' => 'newmode',
-		'modid' => $id,
+		'getid' => $id,
 		'options' => [$this->Lang('writable')=>'777',$this->Lang('writeprotected')=>'444'], //OR server_mode()[whatever]
 		'selectedvalue' => $currentmode,
 //		'delimiter' => '',
@@ -50,4 +50,3 @@ if (isset($params['newmode'])) {
 
 	$tpl->display();
 }
-return '';

@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
+use CMSMS\CacheDriver;
 use Exception;
 use Redis;
 use function startswith;
@@ -36,221 +37,226 @@ use function startswith;
  */
 class CachePredis extends CacheDriver
 {
-    /**
-     * @ignore
-     */
-    private $instance;
+	/**
+	 * @ignore
+	 */
+	private $instance;
 
-    /**
-     * Constructor
-     *
-     * @param array $opts
-     * Associative array of some/all options as follows:
-     *  lifetime  => seconds (default 3600, min 600)
-     *  group => string (default 'default')
-     *  myspace => string cache differentiator (default cms_)
-     *  host => string
-     *  port  => int
-     *  read_write_timeout => float
-     *  password => string
-     *  database => int
-     */
-    public function __construct($opts)
-    {
-        if ($this->use_driver()) {
-            if ($this->connectServer($opts)) {
-                parent::__construct($opts);
-                $this->_lifetime = max($this->_lifetime, 600);
-                return;
-            }
-        }
-        throw new Exception('no Predis storage');
-    }
+	/**
+	 * Constructor
+	 *
+	 * @param array $params
+	 * Associative array of some/all options as follows:
+	 *  lifetime  => seconds (default 3600, min 600)
+	 *  group => string (default 'default') TODO migrate to 'space'
+	 *  myspace => string cache differentiator (default cms_)
+	 *  host => string
+	 *  port  => int
+	 *  read_write_timeout => float
+	 *  password => string
+	 *  database => int
+	 */
+	public function __construct(array $params)
+	{
+		if ($this->use_driver()) {
+			if ($this->connectServer($params)) {
+				parent::__construct($params);
+				$this->_lifetime = max($this->_lifetime, 600);
+				return;
+			}
+		}
+		throw new Exception('no Predis storage');
+	}
 
-    /**
-     * @ignore
-     */
-    private function use_driver()
-    {
-        return class_exists('Redis');
-    }
+	/**
+	 * @ignore
+	 */
+	private function use_driver()
+	{
+		return class_exists('Redis');
+	}
 
-    /**
-     * @ignore
-     * $opts[] may include
-     *  'host' => string
-     *  'port'  => int
-     *  'password' => string
-     *  'database' => int
-     */
-    private function connectServer($opts)
-    {
-        $params = array_merge([
-         'host' => '127.0.0.1',
-         'port' => 6379,
-         'read_write_timeout' => 10.0,
-         'password' => '',
-         'database' => 0,
-        ], $opts);
+	/**
+	 * @ignore
+	 * $params[] may include
+	 *  'host' => string
+	 *  'port'  => int
+	 *  'password' => string
+	 *  'database' => int
+	 */
+	private function connectServer(array $params)
+	{
+		$params = array_merge([
+		 'host' => '127.0.0.1',
+		 'port' => 6379,
+		 'read_write_timeout' => 10.0,
+		 'password' => '',
+		 'database' => 0,
+		], $params);
 
-        $this->instance = new Redis();
-        try {
-            //trap any connection-failure warning
-            $res = @$this->instance->connect($params['host'], (int)$params['port'], (float)$params['read_write_timeout']);
-        } catch (Exception $e) {
-            unset($this->instance);
-            return false;
-        }
-        if (!$res) {
-            unset($this->instance);
-            return false;
-        } elseif ($params['password'] && !$this->instance->auth($params['password'])) {
-            $this->instance->close();
-            unset($this->instance);
-            return false;
-        }
-        if ($params['auto_cleaning']) {
+		$this->instance = new Redis();
+		try {
+			//trap any connection-failure warning
+			$res = @$this->instance->connect($params['host'], (int)$params['port'], (float)$params['read_write_timeout']);
+		} catch (Exception $e) {
+			unset($this->instance);
+			return false;
+		}
+		if (!$res) {
+			unset($this->instance);
+			return false;
+		} elseif ($params['password'] && !$this->instance->auth($params['password'])) {
+			$this->instance->close();
+			unset($this->instance);
+			return false;
+		}
+		if ($params['auto_cleaning']) {
 //TODO
-            if ($params['lifetime']) {
-            }
-        }
+			if ($params['lifetime']) {
+			}
+		}
 
-        register_shutdown_function([$this, 'cachequit']);
-        if ($params['database']) {
-            return $this->instance->select((int)$params['database']);
-        }
-        return true;
-    }
+		register_shutdown_function([$this, 'cachequit']);
+		if ($params['database']) {
+			return $this->instance->select((int)$params['database']);
+		}
+		return true;
+	}
 
-    public function cachequit()
-    {
-        $this->instance->close();
-    }
+	public function cachequit()
+	{
+		$this->instance->close();
+	}
 
-    public function get_index($group = '')
-    {
-        if (!$group) { $group = $this->_group; }
+	public function get_index(string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$prefix = $this->get_cacheprefix(static::class, $space);
+		if ($prefix === '') { return []; } //no global interrogation in shared key-space
+		$len = strlen($prefix);
 
-        $prefix = $this->get_cacheprefix(static::class, $group);
-        if ($prefix === '') { return []; }//no global interrogation in shared key-space
-        $len = strlen($prefix);
+		$out = [];
+		$keys = $this->instance->keys($prefix.'*');
+		foreach ($keys as $key) {
+			$out[] = substr($key,$len);
+		}
+		sort($out);
+		return $out;
+	}
 
-        $out = [];
-        $keys = $this->instance->keys($prefix.'*');
-        foreach ($keys as $key) {
-            $out[] = substr($key,$len);
-        }
-        sort($out);
-        return $out;
-    }
+	public function get_all(string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$prefix = $this->get_cacheprefix(static::class, $space);
+		if ($prefix === '') { return []; }//no global interrogation in shared key-space
+		$len = strlen($prefix);
 
-    public function get_all($group = '')
-    {
-        if (!$group) { $group = $this->_group; }
+		$out = [];
+		$keys = $this->instance->keys($prefix.'*');
+		foreach ($keys as $rawkey) {
+			$key = substr($rawkey,$len);
+			$out[$key] = $this->_read_cache($rawkey);
+		}
+		// TODO if all values are scalar: asort($out);
+		return $out;
+	}
 
-        $prefix = $this->get_cacheprefix(static::class, $group);
-        if ($prefix === '') { return []; }//no global interrogation in shared key-space
-        $len = strlen($prefix);
+	public function get(string $key, string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$key = $this->get_cachekey($key, static::class, $space);
+		return $this->_read_cache($key);
+	}
 
-        $out = [];
-        $keys = $this->instance->keys($prefix.'*');
-        foreach ($keys as $rawkey) {
-            $key = substr($rawkey,$len);
-            $out[$key] = $this->_read_cache($rawkey);
-        }
-        asort($out);
-        return $out;
-    }
+	public function has(string $key, string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$key = $this->get_cachekey($key, static::class, $space);
+		return $this->instance->exists($key) > 0;
+	}
 
-    public function get($key, $group = '')
-    {
-        if (!$group) $group = $this->_group;
+	public function set(string $key, $value, string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$key = $this->get_cachekey($key, static::class, $space);
+		return $this->_write_cache($key, $value);
+	}
 
-        $key = $this->get_cachekey($key, static::class, $group);
-        return $this->_read_cache($key);
-    }
+	public function set_timed(string $key, $value, int $ttl = 0, string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$key = $this->get_cachekey($key, static::class, $space);
+		return $this->_write_cache($key, $value, $ttl);
+	}
 
-    public function has($key, $group = '')
-    {
-        if (!$group) $group = $this->_group;
+	public function delete(string $key, string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$key = $this->get_cachekey($key, static::class, $space);
+		return $this->instance->delete($key);
+	}
 
-        $key = $this->get_cachekey($key, static::class, $group);
-        return $this->instance->exists($key) > 0;
-    }
+	public function clear(string $space = '') : int
+	{
+		if (!$space) { $space = $this->_space; }
+		elseif ($space == '*' || $space == '__ALL__') { $space = ''; }
+		return $this->_clean($space);
+	}
 
-    public function set($key, $value, $group = '')
-    {
-        if (!$group) $group = $this->_group;
+	/**
+	 * @ignore
+	 */
+	private function _read_cache(string $key)
+	{
+		$value = $this->instance->get($key);
+		if ($value !== false) {
+			if (startswith($value, parent::SERIALIZED)) {
+				$value = unserialize(substr($value, strlen(parent::SERIALIZED)));
+			} elseif (is_numeric($value)) {
+				return $value + 0;
+			}
+			return $value;
+		}
+		return null;
+	}
 
-        $key = $this->get_cachekey($key, static::class, $group);
-        return $this->_write_cache($key, $value);
-    }
+	/**
+	 * @ignore
+	 */
+	private function _write_cache(string $key, $value, $ttl = null) : bool
+	{
+		if (is_scalar($value)) {
+			$value = (string)$value;
+		} else {
+			$value = parent::SERIALIZED.serialize($value);
+		}
+		if ($ttl === null) {
+			$ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
+		}
+		if ($ttl > 0) {
+			return $this->instance->setEx($key, $ttl, $value);
+		} else {
+			return $this->instance->set($key, $value);
+		}
+	}
 
-    public function delete($key, $group = '')
-    {
-        if (!$group) $group = $this->_group;
+	/**
+	 * @ignore
+	 */
+	private function _clean(string $space) : int
+	{
+		$prefix = ($space) ?
+			$this->get_cacheprefix(static::class, $space):
+			$this->_globlspace;
+		if ($prefix === '') { return 0; } //no global interrogation in shared key-space
 
-        $key = $this->get_cachekey($key, static::class, $group);
-        return $this->instance->delete($key);
-    }
-
-    public function clear($group = '')
-    {
-        return $this->_clean($group);
-    }
-
-    /**
-     * @ignore
-     */
-    private function _read_cache(string $key)
-    {
-        $data = $this->instance->get($key);
-        if ($data !== false) {
-            if (startswith($data, parent::SERIALIZED)) {
-                $data = unserialize(substr($data, strlen(parent::SERIALIZED)));
-            } elseif (is_numeric($data)) {
-                return $data + 0;
-            }
-            return $data;
-        }
-        return null;
-    }
-
-    /**
-     * @ignore
-     */
-    private function _write_cache(string $key, $data) : bool
-    {
-        if (is_scalar($data)) {
-            $data = (string)$data;
-        } else {
-            $data = parent::SERIALIZED.serialize($data);
-        }
-        $ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
-        if ($ttl > 0) {
-            return $this->instance->setEx($key, $ttl, $data);
-        } else {
-            return $this->instance->set($key, $data);
-        }
-    }
-
-    /**
-     * @ignore
-     */
-    private function _clean(string $group) : int
-    {
-        $prefix = ($group) ?
-            $this->get_cacheprefix(static::class, $group):
-            $this->_globlspace;
-        if ($prefix === '') { return 0; } //no global interrogation in shared key-space
-
-        $nremoved = 0;
-        $keys = $this->instance->keys($prefix.'*');
-        foreach ($keys as $key) {
-            if ($this->instance->delete($key)) {
-                ++$nremoved;
-            }
-        }
-        return $nremoved;
-    }
+		$nremoved = 0;
+		$keys = $this->instance->keys($prefix.'*');
+		foreach ($keys as $key) {
+			if ($this->instance->delete($key)) {
+				++$nremoved;
+			}
+		}
+		return $nremoved;
+	}
 } // class

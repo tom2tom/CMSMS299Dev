@@ -21,8 +21,10 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use News\AdminOperations;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Delete News') ) exit;
+
+// TODO icon/image removal if not needed
 
 $articleid = $params['articleid'] ?? '';
 if( AdminOperations::delete_article($articleid) ) {

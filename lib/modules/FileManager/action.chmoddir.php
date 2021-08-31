@@ -1,5 +1,5 @@
 <?php
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 
 if(!isset($params['dirname']) || !isset($params['path'])) {
@@ -92,4 +92,3 @@ if (isset($params['newmode'])) {
 
 	$tpl->display();
 }
-return '';

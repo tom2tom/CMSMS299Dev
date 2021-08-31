@@ -25,12 +25,14 @@ use News\Utils;
 use function CMSMS\de_specialize;
 use function CMSMS\specialize;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify News Preferences') ) exit;
 
 if( isset($params['cancel']) ) {
     $this->RedirectToAdminTab('groups');
 }
+
+// TODO icon/image handling
 
 if( isset($params['parent']) ) {
     $parent = (int)$params['parent'];
@@ -47,19 +49,19 @@ if( isset($params['name']) ) {
     if( $name ) {
         //small race-risk here
         $query = 'SELECT news_category_id FROM '.CMS_DB_PREFIX.'module_news_categories WHERE parent_id = ? AND news_category_name = ?';
-        $tmp = $db->GetOne($query, [$parent, $name]);
+        $tmp = $db->getOne($query, [$parent, $name]);
         if( $tmp ) {
             $this->ShowErrors($this->Lang('error_duplicatename'));
         }
         else {
             $query = 'SELECT MAX(item_order) FROM '.CMS_DB_PREFIX.'module_news_categories WHERE parent_id = ?';
-			$dbr = $db->GetOne($query, [$parent]);
+			$dbr = $db->getOne($query, [$parent]);
             $item_order = (int)$dbr + 1;
-            $now = time();
+            $longnow = $db->DbTimeStamp(time(),false);
 
             $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories
-(news_category_name, parent_id, item_order, create_date) VALUES(?,?,?,?)';
-            $dbr = $db->Execute($query, [$name, $parent, $item_order, $now]);
+(news_category_name,parent_id,item_order,create_date) VALUES(?,?,?,?)';
+            $dbr = $db->execute($query, [$name, $parent, $item_order, $longnow]);
             if( $dbr ) {
                 $catid = $db->Insert_ID();
 
@@ -102,4 +104,3 @@ $tpl->assign('formaction', 'addcategory')
  ->assign('categories', $categories);
 
 $tpl->display();
-return '';

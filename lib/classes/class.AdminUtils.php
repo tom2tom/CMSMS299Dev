@@ -21,13 +21,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\DeprecationNotice;
 use CMSMS\Events;
 use CMSMS\HookOperations;
 use CMSMS\HttpRequest;
-use CMSMS\Utils;
+use CMSMS\SingleItem;
 use ErrorException;
 use FilesystemIterator;
 use LogicException;
@@ -49,9 +48,9 @@ use function endswith;
 use function get_userid;
 use function lang;
 
-/* this is also used during content installation i.e. STATE_INSTALL, or nothing
-if (!CMSMS\AppState::test_state(CMSMS\AppState::STATE_ADMIN_PAGE)) {
-	$name = self::class;
+/* this is also used during content installation i.e. state INSTALL, or nothing
+if (!AppState::test(AppState::ADMIN_PAGE)) {
+	$name = AdminUtils::class;
 	throw new ErrorException("Attempt to use $name class from an invalid request");
 }
 */
@@ -195,8 +194,8 @@ final class AdminUtils
 	 */
 	public static function get_icon(string $icon, array $attrs = []) : string
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\AdminTheme::get_icon'));
-		$themeObject = AppSingle::Theme();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AdminTheme::get_icon'));
+		$themeObject = SingleItem::Theme();
 		return $themeObject->get_icon($icon, $attrs);
 	}
 
@@ -214,9 +213,9 @@ final class AdminUtils
 	 */
 	public static function get_help_tag(...$args)
 	{
-		if (!AppState::test_state(AppState::STATE_ADMIN_PAGE)) return;
+		if (!AppState::test(AppState::ADMIN_PAGE)) return;
 
-		$themeObject = AppSingle::Theme();
+		$themeObject = SingleItem::Theme();
 		if (!is_object($themeObject)) return;
 
 		$icon = $themeObject->get_icon('info', ['class'=>'cms_helpicon']);
@@ -240,20 +239,20 @@ final class AdminUtils
 			switch($key) {
 			case 'key1':
 			case 'realm':
-				$key1 = trim($value);
+				$key1 = trim($value); // TODO handle any (unlikely) '"' in key
 				break;
 			case 'key':
 			case 'key2':
-				$key2 = trim($value);
+				$key2 = trim($value); // ibid
 				break;
 			case 'title':
 			case 'titlekey':
-				$title = trim($value); //TODO ensure $value including e.g. &quot; works
+				$title = str_replace('"', '&quot;', trim($value));
 			}
 		}
 
 		if (!$key1) {
-			$smarty = AppSingle::Smarty();
+			$smarty = SingleItem::Smarty();
 			$module = $smarty->getTemplateVars('_module');
 			if ($module) {
 				$key1 = $module;
@@ -282,7 +281,7 @@ final class AdminUtils
 	 */
 	public static function clear_cached_files(int $age_days = 0)
 	{
-		if (!AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_ASYNC_JOB | AppState::STATE_INSTALL)
+		if (!AppState::test_any(AppState::ADMIN_PAGE | AppState::ASYNC_JOB | AppState::INSTALL)
 		 || !defined('TMP_CACHE_LOCATION')) { // relevant permission(s) check too ?
 			$name = __METHOD__;
 			throw new ErrorException("Method $name may not be used");
@@ -348,7 +347,7 @@ final class AdminUtils
 		bool $allow_all = false,
 		bool $for_child = false) : string
 	{
-		// static properties here >> StaticProperties class ?
+		// static properties here >> SingleItem property|ies ?
 		static $count = 1;
 
 		$userid = get_userid(false);

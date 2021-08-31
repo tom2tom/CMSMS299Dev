@@ -1,7 +1,8 @@
 <?php
 /*
-CMSMailer light module: send email via intra-site mechanism or external platform.
-Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+CMSMailer module: send email via intra-site mechanism or external platform.
+Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This module is a component of CMS Made Simple.
 
@@ -22,8 +23,6 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AdminMenuItem;
 use CMSMS\CoreCapabilities;
 use CMSMS\HookOperations;
-use CMSMS\IResource;
-use CMSMS\ResourceMethods;
 
 if (!extension_loaded('mbstring'))
 {
@@ -31,22 +30,12 @@ if (!extension_loaded('mbstring'))
     return;
 }
 
-class CMSMailer implements IResource
+class CMSMailer extends CMSModule
 {
     public $platformed = false; // const: whether to support some mass-mailers like MailChimp
-    private $methods;
 
-    public function __call($name, $args)
-    {
-        if (!isset($this->methods)) {
-            $this->methods = new ResourceMethods($this, __DIR__);
-        }
-        if (method_exists($this->methods, $name)) {
-            return call_user_func([$this->methods, $name], ...$args);
-        }
-        throw new RuntimeException('CMSMailer resource-module invalid method: '.$name);
-    }
-
+    public function GetAuthor() { return 'Robert Campbell'; }
+    public function GetAuthorEmail() { return 'calguy1000@gmail.com'; }
     public function GetAdminDescription() { return $this->Lang('publictip'); }
     public function GetAdminSection() { return 'extensions'; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
@@ -55,7 +44,9 @@ class CMSMailer implements IResource
     public function GetVersion() { return '6.3'; }
     public function HasAdmin() { return true; }
     public function IsAdminOnly() { return true; }
-    public function MinimumCMSVersion() { return '2.99.0'; }
+    public function InstallPostMessage() { return $this->Lang('postinstall'); }
+    public function MinimumCMSVersion() { return '2.99'; }
+    public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
 
     public function VisibleToAdminUser()
     {
@@ -116,8 +107,8 @@ class CMSMailer implements IResource
         return [
           'title' => $this->Lang('settings_title'),
         //'desc' => 'useful text goes here', // optional useful text
-          'url' => $this->create_url('m1_', 'defaultadmin', '', ['activetab'=>'internal']), // if permitted
-        //optional 'text' => custom link-text | explanation e.g need permission
+          'url' => $this->create_action_url('m1_', 'defaultadmin', ['activetab'=>'internal']), // if permitted
+        //optional 'text' => custom link-text | explanation e.g. need permission
         ];
     }
 }

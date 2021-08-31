@@ -181,8 +181,8 @@ class StylesMerger
      */
     public function render_styles(string $output_path = '', bool $force = false)
     {
-        if ($this->_items && !count($this->_items)) return; // nothing to do
-        $base_path = ($output_path) ? rtrim($output_path, ' /\\') : TMP_CACHE_LOCATION;
+        if (!$this->_items) return; // nothing to do
+        $base_path = ($output_path) ? rtrim($output_path, ' \/') : TMP_CACHE_LOCATION;
         if (!is_dir($base_path)) return; // nowhere to put it
 
         $tmp = Events::SendEvent('Core', 'PreProcessStyles', $this->_items);
@@ -247,7 +247,7 @@ class StylesMerger
      */
     public function page_content(string $output_path = '', bool $force = false) : string
     {
-        $base_path = ($output_path) ? rtrim($output_path, ' /\\') : TMP_CACHE_LOCATION;
+        $base_path = ($output_path) ? rtrim($output_path, ' \/') : TMP_CACHE_LOCATION;
         $cache_filename = $this->render_styles($base_path, $force);
         if ($cache_filename) {
             $output_file = $base_path.DIRECTORY_SEPARATOR.$cache_filename;

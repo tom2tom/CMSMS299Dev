@@ -18,7 +18,7 @@ See the GNU Affero General Public License
 <http://www.gnu.org/licenses/licenses.html#AGPL> for more details.
 */
 
-if (!function_exists('cmsms')) exit;
+//if (some worthy test fails) exit;
 
 if (version_compare($oldversion,'6.0') < 0) {
     include_once __DIR__.DIRECTORY_SEPARATOR.'method.install.php';

@@ -26,7 +26,6 @@ namespace CMSMS;
  *
  * @package CMS
  * @license GPL
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since  2.99
  * @since  2.2 as FilePicker
  */

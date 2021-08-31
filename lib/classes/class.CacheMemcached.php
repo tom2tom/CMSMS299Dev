@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
+use CMSMS\CacheDriver;
 use Exception;
 use Memcached;
 
@@ -34,225 +35,232 @@ use Memcached;
  */
 class CacheMemcached extends CacheDriver
 {
-    /**
-     * @ignore
-     */
-    private $instance;
+	/**
+	 * @ignore
+	 */
+	private $instance;
 
-    /**
-     * Constructor
-     *
-     * @param array $opts
-     * Associative array of some/all options as follows:
-     *  lifetime  => seconds (default 3600, min 600)
-     *  group => string (default 'default')
-     *  myspace => string cache differentiator (default cms_)
-     *  host => string
-     *  port => int
-     */
-    public function __construct($opts)
-    {
-        if ($this->use_driver()) {
-            if ($this->connectServer($opts)) {
-                if (is_array($opts)) {
-                    $_keys = ['lifetime', 'group', 'myspace'];
-                    foreach ($opts as $key => $value) {
-                        if (in_array($key,$_keys)) {
-                            $tmp = '_'.$key;
-                            $this->$tmp = $value;
-                        }
-                    }
-                }
-                $this->_lifetime = max($this->_lifetime, 600);
-                return;
-            }
-        }
-        throw new Exception('no Memcached storage');
-    }
+	/**
+	 * Constructor
+	 *
+	 * @param array $params
+	 * Associative array of some/all options as follows:
+	 *  lifetime  => seconds (default 3600, min 600)
+	 *  group => string (default 'default') TODO migrate to 'space'
+	 *  myspace => string cache differentiator (default cms_)
+	 *  host => string
+	 *  port => int
+	 */
+	public function __construct(array $params)
+	{
+		if ($this->use_driver()) {
+			if ($this->connectServer($params)) {
+				if ($params) {
+					// TODO migrate 'group' to 'space'
+					$_keys = ['lifetime', 'group', 'myspace'];
+					foreach ($params as $key => $value) {
+						if (in_array($key,$_keys)) {
+							$tmp = '_'.$key;
+							$this->$tmp = $value;
+						}
+					}
+				}
+				$this->_lifetime = max($this->_lifetime, 600);
+				return;
+			}
+		}
+		throw new Exception('no Memcached storage');
+	}
 
-    /**
-     * @ignore
-     */
-    private function use_driver()
-    {
-        return class_exists('Memcached');
-    }
+	/**
+	 * @ignore
+	 */
+	private function use_driver()
+	{
+		return class_exists('Memcached');
+	}
 
-    /**
-     * @ignore
-     */
-    private function connectServer($opts)
-    {
-        $params = array_merge([
-         'host' => '127.0.0.1',
-         'port' => 11211,
-        ], $opts);
-        $host = $params['host'];
-        $port = (int)$params['port'];
+	/**
+	 * @ignore
+	 */
+	private function connectServer(array $params)
+	{
+		$params = array_merge([
+		 'host' => '127.0.0.1',
+		 'port' => 11211,
+		], $params);
+		$host = $params['host'];
+		$port = (int)$params['port'];
 
-        $this->instance = new Memcached();
+		$this->instance = new Memcached();
 
-        $servers = $this->instance->getServerList();
-        if (is_array($servers)) {
-            foreach ($servers as $server) {
-                if ($server['host'] == $host && $server['port'] == $port) {
-                    register_shutdown_function([$this, 'cachequit']);
-                    return true;
-                }
-            }
-        }
+		$servers = $this->instance->getServerList();
+		if (is_array($servers)) {
+			foreach ($servers as $server) {
+				if ($server['host'] == $host && $server['port'] == $port) {
+					register_shutdown_function([$this, 'cachequit']);
+					return true;
+				}
+			}
+		}
 
-        try {
-            if ($this->instance->addServer($host, $port)) { //may throw Exception
-                register_shutdown_function([$this, 'cachequit']);
-                return true;
-            }
-        } catch (Exception $e) {}
-        unset($this->instance);
-        return false;
-    }
+		try {
+			if ($this->instance->addServer($host, $port)) { //may throw Exception
+				register_shutdown_function([$this, 'cachequit']);
+				return true;
+			}
+		} catch (Exception $e) {}
+		unset($this->instance);
+		return false;
+	}
 
-    public function cachequit()
-    {
-        $this->instance->quit();
-    }
+	public function cachequit()
+	{
+		$this->instance->quit();
+	}
 
-    public function get_index($group = '')
-    {
-        if (!$group) { $group = $this->_group; }
+	public function get_index(string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$prefix = $this->get_cacheprefix(static::class, $space);
+		if ($prefix === '') { return []; }
 
-        $prefix = $this->get_cacheprefix(static::class, $group);
-        if ($prefix === '') { return []; }
+		$out = [];
+		$info = $this->instance->getAllKeys(); //NOT RELIABLE
+		if ($info) {
+			$len = strlen($prefix);
+			foreach ($info as $key) {
+				if (strncmp($key, $prefix, $len) == 0) {
+					$res = $this->instance->get($key);
+					if ($res || $this->instance->getResultCode() == Memcached::RES_SUCCESS) {
+						$out[] = substr($key,$len);
+					}
+				}
+			}
+			sort($out);
+		}
+		return $out;
+	}
 
-        $out = [];
-        $info = $this->instance->getAllKeys(); //NOT RELIABLE
-        if ($info) {
-            $len = strlen($prefix);
-            foreach ($info as $key) {
-                if (strncmp($key, $prefix, $len) == 0) {
-                    $res = $this->instance->get($key);
-                    if ($res || $this->instance->getResultCode() == Memcached::RES_SUCCESS) {
-                        $out[] = substr($key,$len);
-                    }
-                }
-            }
-            sort($out);
-        }
-        return $out;
-    }
+	public function get_all(string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$prefix = $this->get_cacheprefix(static::class, $space);
+		if ($prefix === '') { return []; }
 
-    public function get_all($group = '')
-    {
-        if (!$group) { $group = $this->_group; }
+		$out = [];
+		$info = $this->instance->getAllKeys(); //NOT RELIABLE
+		if ($info) {
+			$len = strlen($prefix);
+			foreach ($info as $key) {
+				if (strncmp($key, $prefix, $len) == 0) {
+					$res = $this->instance->get($key);
+					if ($res || $this->instance->getResultCode() == Memcached::RES_SUCCESS) {
+						$out[substr($key,$len)] = $res;
+					}
+				}
+			}
+			// TODO if all values are scalar: asort($out);
+		}
+		return $out;
+	}
 
-        $prefix = $this->get_cacheprefix(static::class, $group);
-        if ($prefix === '') { return []; }
+	public function get(string $key, string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$key = $this->get_cachekey($key, static::class, $space);
+		$res = $this->instance->get($key);
+		if (!$res && ($dbg = $this->instance->getResultCode()) != Memcached::RES_SUCCESS) {
+			return null;
+		}
+		return $res;
+	}
 
-        $out = [];
-        $info = $this->instance->getAllKeys(); //NOT RELIABLE
-        if ($info) {
-            $len = strlen($prefix);
-            foreach ($info as $key) {
-                if (strncmp($key, $prefix, $len) == 0) {
-                    $res = $this->instance->get($key);
-                    if ($res || $this->instance->getResultCode() == Memcached::RES_SUCCESS) {
-                        $out[substr($key,$len)] = $res;
-                    }
-                }
-            }
-            asort($out);
-        }
-        return $out;
-    }
+	public function has(string $key, string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$key = $this->get_cachekey($key, static::class, $space);
+		return ($this->instance->get($key) != false ||
+				$this->instance->getResultCode() == Memcached::RES_SUCCESS);
+	}
 
-    public function get($key, $group = '')
-    {
-        if (!$group) $group = $this->_group;
+	public function set(string $key, $value, string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$key = $this->get_cachekey($key, static::class, $space);
+		return $this->_write_cache($key, $value);
+	}
 
-        $key = $this->get_cachekey($key, static::class, $group);
-        $res = $this->instance->get($key);
-        if (!$res && ($dbg = $this->instance->getResultCode()) != Memcached::RES_SUCCESS) {
-            return null;
-        }
-        return $res;
-    }
+	public function set_timed(string $key, $value, int $ttl = 0, string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$key = $this->get_cachekey($key, static::class, $space);
+		return $this->_write_cache($key, $value, $ttl);
+	}
 
-    public function has($key, $group = '')
-    {
-        if (!$group) $group = $this->_group;
+	public function delete(string $key, string $space = '')
+	{
+		if (!$space) { $space = $this->_space; }
+		$key = $this->get_cachekey($key, static::class, $space);
+		return $this->instance->delete($key);
+	}
 
-        $key = $this->get_cachekey($key, static::class, $group);
-        return ($this->instance->get($key) != false ||
-                $this->instance->getResultCode() == Memcached::RES_SUCCESS);
-    }
+	public function clear(string $space = '') : int
+	{
+		if (!$space) { $space = $this->_space; }
+		elseif ($space == '*' || $space == '__ALL__') { $space = ''; }
+		return $this->_clean($space);
+	}
 
-    public function set($key, $value, $group = '')
-    {
-        if (!$group) $group = $this->_group;
+	/**
+	 * @ignore
+	 */
+	private function _write_cache(string $key, $value, $ttl = null) : bool
+	{
+		if ($ttl === null) {
+			$ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
+		}
+		if ($ttl > 0) {
+			$expire = time() + $ttl;
+			return $this->instance->set($key, $value, $expire);
+		} else {
+			return $this->instance->set($key, $value);
+		}
+	}
 
-        $key = $this->get_cachekey($key, static::class, $group);
-        return $this->_write_cache($key, $value);
-    }
+	/**
+	 * @ignore
+	 * @return int No of items deleted (i.e. 0 might indicate success)
+	 */
+	private function _clean(string $space, bool $aged = true) : int
+	{
+		$prefix = ($space) ?
+			$this->get_cacheprefix(static::class, $space):
+			$this->_globlspace;
+		if ($prefix === '') { return 0; }//no global interrogation in shared key-space
 
-    public function delete($key, $group = '')
-    {
-        if (!$group) $group = $this->_group;
+		$nremoved = 0;
+		$info = $this->instance->getAllKeys(); //NOT RELIABLE
+		if ($info) {
+			$len = strlen($prefix);
+			if ($aged) {
+				$ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
+				$limit = time() - $ttl;
+			}
 
-        $key = $this->get_cachekey($key, static::class, $group);
-        return $this->instance->delete($key);
-    }
-
-    public function clear($group = '')
-    {
-        return $this->_clean($group);
-    }
-
-    /**
-     * @ignore
-     */
-    private function _write_cache(string $key, $data) : bool
-    {
-        $ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
-        if ($ttl > 0) {
-            $expire = time() + $ttl;
-            return $this->instance->set($key, $data, $expire);
-        } else {
-            return $this->instance->set($key, $data);
-        }
-    }
-
-    /**
-     * @ignore
-     */
-    private function _clean(string $group, bool $aged = true) : int
-    {
-        $prefix = ($group) ?
-            $this->get_cacheprefix(static::class, $group):
-            $this->_globlspace;
-        if ($prefix === '') { return 0; }//no global interrogation in shared key-space
-
-        $nremoved = 0;
-        $info = $this->instance->getAllKeys(); //NOT RELIABLE
-        if ($info) {
-            $len = strlen($prefix);
-            if ($aged) {
-                $ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
-                $limit = time() - $ttl;
-            }
-
-            foreach ($info as $key) {
-                if (strncmp($key, $prefix, $len) == 0) {
-                    if ($aged) {
-                        //TODO ageing is bad
-                        if (1 && $this->instance->delete($key)) {
-                            ++$nremoved;
-                        }
-                    } elseif ($this->instance->delete($key)) {
-                        ++$nremoved;
-                    }
-                }
-            }
-        }
-        return $nremoved;
-    }
+			foreach ($info as $key) {
+				if (strncmp($key, $prefix, $len) == 0) {
+					if ($aged) {
+						//TODO ageing is bad
+						if (1 && $this->instance->delete($key)) {
+							++$nremoved;
+						}
+					} elseif ($this->instance->delete($key)) {
+						++$nremoved;
+					}
+				}
+			}
+		}
+		return $nremoved;
+	}
 } // class

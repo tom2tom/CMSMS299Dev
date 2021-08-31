@@ -1,7 +1,7 @@
 <?php
 use FileManager\Utils;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 
 if( $_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET[CMS_JOB_KEY]) && $_GET[CMS_JOB_KEY] > 0 ) {
@@ -17,7 +17,7 @@ if( isset($params['newdir']) ) {
     $newdir = trim($params['newdir']);
     $path = cms_join_path(Utils::get_cwd(),$newdir);
 }
-else if( isset($params['setdir']) ) {
+elseif( isset($params['setdir']) ) {
     // set an explicit directory
     $path = trim($params['setdir']);
     if( $path == '::top::' ) $path = Utils::get_default_cwd();
@@ -30,8 +30,8 @@ try {
         $this->RedirectToAdminTab();
     }
 }
-catch( Exception $e ) {
-    audit('','FileManager','Attempt to set working directory to an invalid location: '.$path);
+catch( Throwable $t ) {
+    cms_error('','FileManager::changedir','Attempt to set working directory to an invalid location: '.$path);
     if( isset($params['ajax']) ) exit('ERROR');
     $this->SetError($this->Lang('invalidchdir',$path));
     $this->RedirectToAdminTab();

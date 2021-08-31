@@ -9,17 +9,17 @@ Refer to license and other details at the top of file News.module.php
 */
 namespace News;
 
-use CMSMS\AppSingle;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
-use CMS_DB_PREFIX;
+use CMSMS\SingleItem;
+use const CMS_DB_PREFIX;
 
 class AdjustStatusJob extends CronJob
 {
     public function __construct($params = [])
     {
         parent:: __construct($params);
-        $this->name = 'News\\AdjustStatus';
+        $this->name = 'News\AdjustStatus';
         $this->frequency = RecurType::RECUR_HOURLY;
     }
 
@@ -30,11 +30,11 @@ class AdjustStatusJob extends CronJob
     public function execute()
     {
         $time = time();
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'archived\' WHERE (status=\'published\' OR status=\'final\') AND end_time IS NOT NULL AND end_time BETWEEN 1 AND ?';
-        $db->Execute($query,[$time]);
+        $db->execute($query,[$time]);
         $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'published\' WHERE status=\'final\' AND start_time IS NOT NULL AND start_time BETWEEN 1 AND ?';
-        $db->Execute($query,[$time]);
+        $db->execute($query,[$time]);
         return 2; // TODO
     }
 }

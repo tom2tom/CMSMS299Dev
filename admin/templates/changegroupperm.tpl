@@ -33,16 +33,16 @@
     <thead>
       <tr>
         <th>{lang('permission')}</th>
-        {foreach $group_list as $thisgroup} {if $thisgroup->id != -1}
+        {foreach $group_list as $thisgroup}{if $thisgroup->id != -1}
         <th class="g{$thisgroup->id}">{$thisgroup->name}</th>
-        {/if} {/foreach}
+        {/if}{/foreach}
       </tr>
     </thead>
     <tbody>
       {foreach $perms as $section => $list}
       <tr>
         <td colspan="{count($group_list)+1}">
-          <h3>{$section|upper}</h3>
+          <h3 style="margin:1em 0 0 0">{$section|upper}</h3>
         </td>
       </tr>
       {foreach $list as $perm}

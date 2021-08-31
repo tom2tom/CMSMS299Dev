@@ -29,16 +29,13 @@ if (!isset($gCms)) {
 }
 
 $dict = new DataDictionary($db);
-$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
+$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii'];
 
 $tbl = CMS_DB_PREFIX.'module_designs'; // aka Design::TABLENAME
-//created I, <<< DT replaced 2.99
-//modified I <<< DT ditto
-//dflt I(1) DEFAULT 0, 2.99 removed, irrelevant
 $flds = '
-id I(1) UNSIGNED AUTO KEY,
-name C(64) NOT NULL,
-description X(1024),
+id I UNSIGNED AUTO KEY,
+name C(50) CHARACTER SET utf8mb4 NOTNULL,
+description C(1500) CHARACTER SET utf8mb4,
 create_date DT DEFAULT CURRENT_TIMESTAMP,
 modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
@@ -46,31 +43,26 @@ $sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
 $res = $dict->ExecuteSQLArray($sqlarray);
 if ($res != 2) return false;
 
-$sqlarray = $dict->CreateIndexSQL('idx_dsn', $tbl, 'name', ['UNIQUE']);
+$sqlarray = $dict->CreateIndexSQL('i_name', $tbl, 'name', ['UNIQUE']);
 $res = $dict->ExecuteSQLArray($sqlarray);
 if ($res != 2) return false;
 
 $tbl = CMS_DB_PREFIX.'module_designs_tpl'; // aka Design::TPLTABLE
 $flds = '
-id I(2) UNSIGNED AUTO KEY,
-design_id I(2) UNSIGNED NOT NULL KEY,
-tpl_id I(2) UNSIGNED NOT NULL KEY,
-tpl_order I(1) UNSIGNED DEFAULT 0
+id I UNSIGNED AUTO KEY,
+design_id I UNSIGNED NOTNULL,
+tpl_id I UNSIGNED NOTNULL,
+tpl_order I1 UNSIGNED DEFAULT 0
 ';
 $sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
-/* useless
-$sqlarray = $dict->CreateIndexSQL('idx_dsntpl', $tbl, 'tpl_id');
-$res = $dict->ExecuteSQLArray($sqlarray);
-if ($res != 2) return false;
-*/
+
 $tbl = CMS_DB_PREFIX.'module_designs_css'; // aka Design::CSSTABLE
-//CHECKME separate index on css_id field ?
 $flds = '
-id I(2) UNSIGNED AUTO KEY,
-design_id I(2) UNSIGNED NOT NULL KEY,
-css_id I(2) UNSIGNED NOT NULL KEY,
-css_order I(1) UNSIGNED DEFAULT 0
+id I UNSIGNED AUTO KEY,
+design_id I UNSIGNED NOTNULL,
+css_id I UNSIGNED NOTNULL,
+css_order I1 UNSIGNED DEFAULT 0
 ';
 $sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
 $res = $dict->ExecuteSQLArray($sqlarray);
@@ -110,12 +102,12 @@ try {
 // these have been migrated from the main installer
 // pre 2.99 these events' originator was 'Core'
 foreach([
- 'AddDesignPost',
- 'AddDesignPre',
- 'DeleteDesignPost',
- 'DeleteDesignPre',
- 'EditDesignPost',
- 'EditDesignPre',
+	'AddDesignPost',
+	'AddDesignPre',
+	'DeleteDesignPost',
+	'DeleteDesignPre',
+	'EditDesignPost',
+	'EditDesignPre',
 ] as $name) {
 	Events::CreateEvent('DesignManager',$name);
 }

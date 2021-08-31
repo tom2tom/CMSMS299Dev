@@ -20,20 +20,17 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\UserOperations;
-//use StupidPass\StupidPass;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -44,14 +41,14 @@ if (isset($_POST['cancel'])) {
 
 $userid = get_userid();
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if (!check_permission($userid, 'Manage My Account')) {
 //TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage My Account')), ...);
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-$userobj = AppSingle::UserOperations()->LoadUserByID($userid);
+$userobj = SingleItem::UserOperations()->LoadUserByID($userid);
 
 /* DEBUG
 $tester = function($user, $pw)
@@ -180,7 +177,7 @@ if (isset($_POST['submit'])) {
             $result = $userobj->Save();
             if ($result) {
                 // put mention into the admin log
-                audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
+                audit($userid, 'Admin User '.$userobj->username, 'Edited');
                 Events::SendEvent('Core', 'EditUserPost', [ 'user'=>$userobj ]);
                 $themeObject->RecordNotice('success', lang('accountupdated'));
                 $userobj->password = '';
@@ -226,7 +223,7 @@ $userobj->email = specialize($userobj->email);
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign([
     'selfurl' => $selfurl,
     'extraparms' => $extras,
@@ -235,7 +232,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('useraccount.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

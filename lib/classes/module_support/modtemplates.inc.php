@@ -16,12 +16,12 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\module_support;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\TemplateOperations;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
@@ -38,139 +38,140 @@ use function endswith;
 /**
  * Return a sorted array of database-stored-template names.
  *
- * @param $modinst The current module-object
- * @param string $mod_name Optional name of module to use instead of  $modinst
+ * @param $mod The current module-object
+ * @param string $modname Optional name of a module to use instead of $mod
  * @return array
  */
-function ListTemplates($modinst, $mod_name = '')
+function ListTemplates($mod, $modname = '')
 {
-	$db = AppSingle::Db();
-	if (!$mod_name) {
-		$mod_name = $modinst->GetName();
+	$db = SingleItem::Db();
+	if (!$modname) {
+		$modname = $mod->GetName();
 	}
 	$query = 'SELECT name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE listable!=0 AND originator=? ORDER BY name';
-	return $db->GetCol($query, [$mod_name]);
-};
+	return $db->getCol($query, [$modname]);
+}
 
 /**
  * Return the content of a database-stored template.
  * This should be used for admin purposes only, as it doesn't implement smarty caching.
  *
- * @param $modinst The current module-object
+ * @param $mod The current module-object
  * @param string $tpl_name Template name
- * @param string $mod_name Optional name of module to use instead of  $modinst
+ * @param string $modname Optional name of a module to use instead of $mod
  * @return string
  */
-function GetTemplate($modinst, $tpl_name, $mod_name = '')
+function GetTemplate($mod, $tpl_name, $modname = '')
 {
-	$db = AppSingle::Db();
-	if (!$mod_name) {
-		$mod_name = $modinst->GetName();
+	$db = SingleItem::Db();
+	if (!$modname) {
+		$modname = $mod->GetName();
 	}
 	$query = 'SELECT content FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE name=? AND originator=?';
-	return $db->GetOne($query, [$tpl_name, $mod_name]);
-};
+	return $db->getOne($query, [$tpl_name, $modname]);
+}
 
 /**
- * Return contents of the template that resides in path-to/ModuleName/templates/{template_name}.tpl
+ * Return contents of the template that resides in path-to/ModuleName/templates/{tpl_name}.tpl
  *
- * @param $modinst The current module-object
+ * @param $mod The current module-object
  * @param string $tpl_name Template name
- * @param since 2.99 string $mod_name Optional name of module to use instead of $modinst
+ * @param since 2.99 string $modname Optional name of a module to use instead of $mod
  * @return mixed string | null
  */
-function GetTemplateFromFile($modinst, $tpl_name, $mod_name = '')
+function GetTemplateFromFile($mod, $tpl_name, $modname = '')
 {
 	if (strpos($tpl_name, '..') !== false) return;
 
 	if (!endswith($tpl_name,'.tpl')) $tpl_name .= '.tpl';
 
 	$template = '';
-	if ($mod_name) {
-		$myname = $modinst->GetName();
-		if ($mod_name != $myname) {
-			$ob = Utils::get_module($mod_name);
+	if ($modname) {
+		$myname = $mod->GetName();
+		if ($modname != $myname) {
+			$ob = Utils::get_module($modname);
 			if ($ob) {
 				$template = $ob->GetModulePath().DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.$tpl_name;
 			}
 		}
 	}
 	if (!$template) {
-		$template = $modinst->GetModulePath().DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.$tpl_name;
+		$template = $mod->GetModulePath().DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.$tpl_name;
 	}
 	if (is_file($template)) {
 		return @file_get_contents($template);
 	}
-};
+}
 
 /**
  * Save a template
  *
- * @param $modinst The current module-object
+ * @param $mod The current module-object
  * @param string $tpl_name Template name
  * @param string $content
- * @param string $mod_name Optional name of module to use instead of $modinst
+ * @param string $modname Optional name of a module to use instead of $mod
  */
-function SetTemplate($modinst, $tpl_name, $content, $mod_name = '')
+function SetTemplate($mod, $tpl_name, $content, $modname = '')
 {
-	$db = AppSingle::Db();
-	if (!$mod_name) {
-		$mod_name = $modinst->GetName();
+	$db = SingleItem::Db();
+	if (!$modname) {
+		$modname = $mod->GetName();
 	}
 	$now = time();
 	$pref = CMS_DB_PREFIX;
 	$tbl = CMS_DB_PREFIX.TemplateOperations::TABLENAME;
 
 	$query = <<<EOS
-SELECT id FROM {$pref}layout_tpl_type WHERE originator=? AND name='Moduleaction'
+SELECT id FROM {$pref}layout_tpl_types WHERE originator=? AND name='moduleactions'
 EOS;
-	$tt = (int)$db->GetOne($query, [$mod_name]);
+	$tt = (int)$db->getOne($query, [$modname]);
 	if (!$tt) {
 		$query = <<<EOS
-INSERT INTO {$pref}layout_tpl_type (
+INSERT INTO {$pref}layout_tpl_types (
 originator,
 name,
 description,
-owner) VALUES (?,'Moduleaction',?,-1)
+owner) VALUES (?,'moduleactions',?,-1)
 EOS;
-		$db->Execute($query, [$mod_name, 'Action templates for module: '.$mod_name, $now, $now]);
+		$db->execute($query, [$modname, 'Action templates for module: '.$modname, $now, $now]);
 		$tt = $db->insert_id();
 	}
 	// upsert TODO MySQL ON DUPLICATE KEY UPDATE useful here?
 	$query = <<<EOS
 UPDATE {$tbl} SET content=?,modified=? WHERE originator=? AND name=?
 EOS;
-	$db->Execute($query, [$content,$now,$mod_name,$tpl_name]);
+	$db->execute($query, [$content,$now,$modname,$tpl_name]);
+	//just in case (originator,name) is not unique-indexed by the db
 	$query = <<<EOS
 INSERT INTO {$tbl} (originator,name,content,type_id,created,modified) SELECT ?,?,?,?,?,?
 FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM {$tbl} T WHERE T.originator=? AND T.name=?)
 EOS;
-	$db->Execute($query,
-	 [$mod_name, $tpl_name, $content, $tt, $now, $now, $mod_name, $tpl_name]);
-};
+	$db->execute($query,
+	 [$modname, $tpl_name, $content, $tt, $now, $now, $modname, $tpl_name]);
+}
 
 /**
  * Delete named template or all
  *
- * @param $modinst The current module-object
+ * @param $mod The current module-object
  * @param string $tpl_name Optional template name. Delete all, if this is empty
- * @param string $mod_name Optional name of module to use instead of $modinst
+ * @param string $modname Optional name of a module to use instead of $mod
  * @return bool
  */
-function DeleteTemplate($modinst, $tpl_name = '', $mod_name = '')
+function DeleteTemplate($mod, $tpl_name = '', $modname = '')
 {
-	$db = AppSingle::Db();
-	if (!$mod_name) {
-		$mod_name = $modinst->GetName();
-	}
+	$db = SingleItem::Db();
 	$query = 'DELETE FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE originator=?';
-	$vars = [$mod_name];
+	if (!$modname) {
+		$modname = $mod->GetName();
+	}
+	$vars = [$modname];
 	if ($tpl_name) {
 		$query .= 'AND name=?';
 		$vars[] = $tpl_name;
 	}
-	$result = $db->Execute($query, $vars);
+	$result = $db->execute($query, $vars);
 
-	return ($result !== false);
-};
+	return ($result != false);
+}

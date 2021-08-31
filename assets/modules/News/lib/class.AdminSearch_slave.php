@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace News;
 
 use AdminSearch\Base_slave;
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function check_permission;
@@ -54,7 +54,7 @@ final class AdminSearch_slave extends Base_slave
         $mod = Utils::get_module('News');
         if( !is_object($mod) ) return;
 
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         // build the query
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE ';
         if( $this->search_casesensitive() ) {
@@ -75,7 +75,7 @@ final class AdminSearch_slave extends Base_slave
         $wm = '%' . $db->escStr($needle) . '%';
         $parms = [$wm,$wm,$wm];
 
-        $dbr = $db->GetArray($query,[$parms]);
+        $dbr = $db->getArray($query,[$parms]);
         if( $dbr ) {
             // got some results
             $output = [];
@@ -96,7 +96,7 @@ final class AdminSearch_slave extends Base_slave
                 }
 
                 if( $this->check_permission() ) {
-                    $url = $mod->create_url('m1_','editarticle','',['articleid'=>$row['news_id']]);
+                    $url = $mod->create_action_url('m1_','editarticle',['articleid'=>$row['news_id']]);
                 }
                 else {
                     $url = ''; // OR view-only URL?

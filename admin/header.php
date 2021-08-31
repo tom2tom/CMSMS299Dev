@@ -21,29 +21,29 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\FormUtils;
 use CMSMS\HookOperations;
+use CMSMS\SingleItem;
 use CMSMS\StylesheetOperations;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 
 // variables needed here and in-scope for hook-functions
-if (!AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
+if (!AppState::test(AppState::LOGIN_PAGE)) {
 	if (!isset($userid)) {
 		$userid = get_userid();
 	}
 }
 if (!isset($themeObject)) {
-	$themeObject = AppSingle::Theme();
+	$themeObject = SingleItem::Theme();
 }
 
 if (!isset($smarty)) {
-	$smarty = AppSingle::Smarty();
+	$smarty = SingleItem::Smarty();
 }
 if (!isset($config)) {
-	$config = AppSingle::Config();
+	$config = SingleItem::Config();
 }
 
 $aout = HookOperations::do_hook_accumulate('AdminHeaderSetup');
@@ -63,14 +63,15 @@ if ($aout) {
 	}
 }
 
-if (isset($modinst)) {
-	if ($modinst->HasAdmin()) {
-		$txt = $modinst->AdminStyle();
+if (isset($mact_mod)) {
+	// we're running via moduleinterface script
+	if ($mact_mod->HasAdmin()) {
+		$txt = $mact_mod->AdminStyle();
 		if ($txt) {
 			add_page_headtext('<style>'.PHP_EOL.$txt.PHP_EOL.'</style>'.PHP_EOL, false);
 		}
 	}
-	$txt = $modinst->GetHeaderHTML();
+	$txt = $mact_mod->GetHeaderHTML();
 	if ($txt) {
 		add_page_headtext($txt);
 	}
@@ -96,10 +97,10 @@ textarea-tag(s))
 $list = FormUtils::get_requested_wysiwyg_modules();
 if ($list) {
 	$n = 10;
-	foreach ($list as $module_name => $info) {
-		$obj = Utils::get_module($module_name);
-		if (!is_object($obj)) {
-			audit('', 'Core', 'rich-edit module '.$module_name.' requested, but could not be instantiated');
+	foreach ($list as $modname => $info) {
+		$mod = Utils::get_module($modname);
+		if (!is_object($mod)) {
+			audit('', 'Core', 'rich-edit module '.$modname.' requested, but could not be instantiated');
 			continue;
 		}
 
@@ -139,7 +140,7 @@ if ($list) {
 
 			$selector = 'textarea#'.$selector;
 			try {
-				$out = $obj->WYSIWYGGenerateHeader($selector, $cssname); //deprecated API
+				$out = $mod->WYSIWYGGenerateHeader($selector, $cssname); //deprecated API
 				if ($out) { add_page_headtext($out); }
 			} catch (Throwable $t) {
 				audit('', 'Core', 'richtext editor module '.$module_name.' error: '.$t->getMessage());
@@ -158,7 +159,7 @@ if ($list) {
 			];
 */
 			try {
-				$out = $obj->WYSIWYGGenerateHeader(/*$params*/); //deprecated API
+				$out = $mod->WYSIWYGGenerateHeader(/*$params*/); //deprecated API
 				if ($out) { add_page_headtext($out); }
 			} catch (Throwable $t) {
 				audit('', 'Core', 'richtext editor module '.$module_name.' error: '.$t->getMessage());
@@ -175,9 +176,9 @@ See comment above about when this must be performed
 $list = FormUtils::get_requested_syntax_modules();
 if ($list) {
 	$n = 100;
-	foreach ($list as $module_name => $info) {
-		$obj = Utils::get_module($module_name);
-		if (is_object($obj)) {
+	foreach ($list as $modname => $info) {
+		$mod = Utils::get_module($modname);
+		if (is_object($mod)) {
 			$rec = reset($info);
 			$params = [
 				'htmlclass' => $rec['class'] ?? '',
@@ -189,7 +190,7 @@ if ($list) {
 //				'theme' => '',
 			];
 			try {
-				$out = $obj->SyntaxGenerateHeader($params); //deprecated API
+				$out = $mod->SyntaxGenerateHeader($params); //deprecated API
 				// module may do direct-header/footer injection, in which case nothing returned here
 				if ($out) { add_page_headtext($out); }
 				$n++;
@@ -202,7 +203,7 @@ if ($list) {
 	}
 }
 
-if (AppSingle::App()->JOBTYPE == 0) {
+if (SingleItem::App()->JOBTYPE == 0) {
 	cms_admin_sendheaders();
 }
 
@@ -214,7 +215,7 @@ if (isset($config['show_performance_info'])) {
 //}
 
 if (!isset($USE_THEME) || $USE_THEME) {
-	if (!AppState::test_state(AppState::STATE_LOGIN_PAGE)) {
+	if (!AppState::test(AppState::LOGIN_PAGE)) {
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 
 		$notify = UserParams::get_for_user($userid,'enablenotifications', 1);

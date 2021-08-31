@@ -35,7 +35,7 @@ header($out);
 flush();
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ASYNC_JOB; // in scope for inclusion, to set initial state
+AppState::set(AppState::ASYNC_JOB);
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 $log = (defined('ASYNCLOG')) ?
@@ -66,6 +66,6 @@ if (!isset($_GET[CMS_SECURE_PARAM_NAME.'job'])) {
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'internal'.DIRECTORY_SEPARATOR.'class.JobOperations.php';
 $ops = new JobOperations();
-register_shutdown_function('\\CMSMS\\internal\\JobOperations::errorhandler');
+register_shutdown_function('\CMSMS\internal\JobOperations::errorhandler');
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'method.processjobs.php';

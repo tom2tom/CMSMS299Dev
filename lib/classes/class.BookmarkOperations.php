@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
 use CMSMS\Bookmark;
+use CMSMS\SingleItem;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_URL;
 use function get_secure_param;
@@ -46,13 +46,14 @@ final class BookmarkOperations
 
 	/* *
 	 * @ignore
+	 * @private to prevent direct creation
 	 */
-//	private function __construct() {}
+//	private function __construct() {} TODO public iff wanted by SingleItem ?
 
-	/* *
+	/**
 	 * @ignore
 	 */
-//	private function __clone() {}
+	private function __clone() {}
 
 	/**
 	 * @ignore
@@ -113,9 +114,9 @@ final class BookmarkOperations
 	 */
 	public function LoadBookmarks(int $user_id) : array
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE user_id = ? ORDER BY title';
-		$rs = $db->Execute($query, [$user_id]);
+		$rs = $db->execute($query, [$user_id]);
 
 		$result = [];
 		while ($rs && ($row = $rs->FetchRow())) {
@@ -141,10 +142,10 @@ final class BookmarkOperations
 	public function LoadBookmarkByID(int $id)
 	{
 		$result = null;
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 
 		$query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
-		$rs = $db->Execute($query, [$id]);
+		$rs = $db->execute($query, [$id]);
 
 		while ($rs && ($row = $rs->FetchRow())) {
 			$onemark = new Bookmark();
@@ -167,10 +168,10 @@ final class BookmarkOperations
 	 */
 	public function InsertBookmark(Bookmark $bookmark) : int
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'admin_bookmarks (user_id, url, title) VALUES (?,?,?)';
-		$dbr = $db->Execute($query, [$bookmark->user_id, $bookmark->url, $bookmark->title]);
+		$dbr = $db->execute($query, [$bookmark->user_id, $bookmark->url, $bookmark->title]);
 		return ($dbr) ? $db->Insert_ID() : -1;
 	}
 
@@ -182,11 +183,13 @@ final class BookmarkOperations
 	 */
 	public function UpdateBookmark(Bookmark $bookmark) : bool
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
 		$query = 'UPDATE '.CMS_DB_PREFIX.'admin_bookmarks SET user_id = ?, title = ?, url = ? WHERE bookmark_id = ?';
-		$dbr = $db->Execute($query, [$bookmark->user_id, $bookmark->title, $bookmark->url, $bookmark->bookmark_id]);
-		return ($dbr != false);
+//		$dbr = useless for update
+		$db->execute($query, [$bookmark->user_id, $bookmark->title, $bookmark->url, $bookmark->bookmark_id]);
+//		return ($dbr != false);
+		return ($db->errorNo() === 0);
 	}
 
 	/**
@@ -197,9 +200,9 @@ final class BookmarkOperations
 	 */
 	public function DeleteBookmarkByID(int $id) : bool
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'admin_bookmarks where bookmark_id = ?';
-		$dbr = $db->Execute($query, [$id]);
+		$dbr = $db->execute($query, [$id]);
 		return ($dbr != false);
 	}
 } //class

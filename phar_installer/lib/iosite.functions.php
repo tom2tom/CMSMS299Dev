@@ -20,13 +20,13 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace cms_installer;
 
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\ContentOperations;
 use CMSMS\Database\Connection;
 use CMSMS\DataException;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
+use CMSMS\SingleItem;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CMSMS\StylesheetsGroup;
@@ -45,11 +45,12 @@ use const CMS_DB_PREFIX;
 use const CMS_FILETAGS_PATH;
 use const CMS_ROOT_PATH;
 use function check_permission;
+//TODO if running in main system, what namespaces,funcnames ?
 use function cms_installer\get_server_permissions;
 use function cms_installer\lang;
+use function cms_installer\rrmdir;
 use function file_put_contents;
 use function get_userid;
-use function recursive_delete;
 use function verbose_msg;
 
 /*
@@ -98,8 +99,8 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 	} else {
 		$xwm->text($pref);
 		$xwm->startElement($thistype);
-		foreach ($props['subtypes'] as $one=>$dat) {
-			fill_section($xwm, $db, $props['subtypes'], $one, $indent+1);
+		foreach ($props['subtypes'] as $one => $dat) {
+			fill_section($xwm, $db, $props['subtypes'], $one, $indent + 1);
 		}
 		$xwm->text($pref);
 		$xwm->endElement(); //$thistype
@@ -116,7 +117,7 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 				if (!isset($fields)) {
 					$fields = array_keys($row);
 				}
-				foreach ($row as $key=>$val) {
+				foreach ($row as $key => $val) {
 					if (!in_array($key, $fields)) {
 						continue;
 					}
@@ -127,7 +128,7 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 							$xwm->text($pref."\t\t");
 							if ($val && isset($A['isdata']) && is_string($val) && !is_numeric($val)) {
 								$xwm->startElement($key);
-								$xwm->writeCdata(htmlspecialchars($val, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false));// NOT worth CMSMS\specialize
+								$xwm->writeCdata(htmlspecialchars($val, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false)); // NOT worth CMSMS\specialize
 								$xwm->endElement();
 							} else {
 								$xwm->writeElement($key, (string)$val);
@@ -166,12 +167,19 @@ function fill_filessection(XMLWriter $xw, string $section, string $frombase, str
 			FilesystemIterator::FOLLOW_SYMLINKS |
 			FilesystemIterator::SKIP_DOTS),
 		RecursiveIteratorIterator::CHILD_FIRST);
-	foreach ($iter as $p=>$info) {
+	//TODO support explicit [list of] name pattern(s) to skip e.g. .htaccess [Ww]eb.config
+	foreach ($iter as $p => $info) {
 		if (!$info->isDir()) {
 			$name = $info->getBasename();
-			//TODO support explicit [list of] name pattern(s) to skip
-			if ($name[0] == '.') continue;
-			if (fnmatch('index.htm?', $name)) continue;
+			if (fnmatch('index.htm?', $name, FNM_CASEFOLD)) {
+				continue;
+			}
+			if ($name[0] == '.') {
+				continue; // ignore hidden's
+			}
+			if (strcasecmp('web.config', $name) == 0) {
+				continue;
+			}
 			$tail = substr($p, $skip);
 			if ($copyfiles) {
 				$tp = $tobase.DIRECTORY_SEPARATOR.$tail;
@@ -219,7 +227,7 @@ function fill_filessection(XMLWriter $xw, string $section, string $frombase, str
  */
 function file_relpath(string $toroot, string $tobase) : string
 {
-	$toroot = rtrim($toroot, ' \\/');
+	$toroot = rtrim($toroot, ' \/');
 	$len = strlen($toroot);
 	$rel = substr($tobase, $len + 1); //skip base-path + trailing separator
 	return ($rel) ? strtr($rel, '\\', '/') : '';
@@ -295,14 +303,14 @@ function file_relpath(string $toroot, string $tobase) : string
  */
 function export_content(string $xmlfile, string $uploadspath, string $workerspath, Connection $db)
 {
-/*	data arrangement
+	/* data arrangement
 	mostly, table- and field-names must be manually reconciled with database schema
 	optional sub-key parameters:
 	 isdata >> process field value via htmlspecialchars($val,
 	  ENT_XML1 | ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') to prevent parser confusion
 	 optional >> ignore/omit a field whose value is falsy i.e. optional item in the dtd
 	 keeps >> array of field-value(s) which will be included (subject to optional)
-*/
+	*/
 	$corename = TemplateType::CORE;
 
 	$skeleton = [
@@ -342,7 +350,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
       ]
      ],
      'templatetypes' => [
-      'sql' => 'SELECT * FROM %slayout_tpl_type WHERE originator=\''.$corename.'\' ORDER BY name',
+      'sql' => 'SELECT * FROM %slayout_tpl_types WHERE originator=\''.$corename.'\' ORDER BY name',
       'subtypes' => [
        'tpltype' => [
         'id' => [],
@@ -367,7 +375,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
         'id' => [],
         'originator' => [],
         'name' => [],
-        'content' => ['isdata'=>1],
+        'content' => ['isdata' => 1],
         'description' => ['optional' => 1],
         'type_id' => [],
         'owner_id' => [],
@@ -410,7 +418,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
       ]
      ],
      'designstyles' => [
-      'sql' => 'SELECT * FROM %smodule_designs_css ORDER BY css_id,css_order',
+      'sql' => 'SELECT * FROM %smodule_designs_css ORDER BY design_id,css_id,css_order',
       'subtypes' => [
        'designcss' => [
         'design_id' => [],
@@ -420,7 +428,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
       ]
      ],
      'designtemplates' => [
-      'sql' => 'SELECT * FROM %smodule_designs_tpl ORDER BY tpl_id,tpl_order',
+      'sql' => 'SELECT * FROM %smodule_designs_tpl ORDER BY design_id,tpl_id,tpl_order',
       'subtypes' => [
        'designtpl' => [
         'design_id' => [],
@@ -439,11 +447,11 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
         'type' => [],
         'template_id' => [],
         'parent_id' => [],
-        'active' => ['keeps'=>[1]],
-        'default_content' => ['keeps'=>[1]],
-        'show_in_menu' => ['keeps'=>[1]],
-        'menu_text' => ['isdata'=>1],
-        'cachable' => ['keeps'=>[1]],
+        'active' => ['keeps' => [1]],
+        'default_content' => ['keeps' => [1]],
+        'show_in_menu' => ['keeps' => [1]],
+        'menu_text' => ['isdata' => 1],
+        'cachable' => ['keeps' => [1]],
         'styles' => [],
        ]
       ]
@@ -454,7 +462,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
        'property' => [
         'content_id' => [],
         'prop_name' => [],
-        'content' => ['isdata'=>1],
+        'content' => ['isdata' => 1],
        ]
       ]
      ],
@@ -463,9 +471,9 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
       'subtypes' => [
         'tag' => [
         'name' => [],
-        'code' => ['isdata'=>1],
-        'description' => ['isdata'=>1, 'optional' => 1],
-        'parameters' => ['isdata'=>1, 'optional' => 1],
+        'code' => ['isdata' => 1],
+        'description' => ['isdata' => 1, 'optional' => 1],
+        'parameters' => ['isdata' => 1, 'optional' => 1],
        ]
       ]
      ],
@@ -553,7 +561,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
  <!ELEMENT usertags (tag*)>
- <!ELEMENT tag (name,description?,parameters?,code)>
+ <!ELEMENT tag (name,description?,parameters?,code,contentfile?)>
  <!ELEMENT parameters (#PCDATA)>
  <!ELEMENT code (#PCDATA)>
  <!ELEMENT usertagfiles (file*)>
@@ -569,19 +577,19 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 	$xw->startElement('cmsmssitedata');
 	$xw->writeElement('dtdversion', CONTENT_DTD_VERSION);
 
-	foreach ($skeleton as $one=>$props) {
+	foreach ($skeleton as $one => $props) {
 		fill_section($xwm, $db, $skeleton, $one, 1);
 		$xw->writeRaw($xwm->flush());
 	}
 
 	$xw->text("\n");
 
-	$config = AppSingle::Config();
+	$config = SingleItem::Config();
 	$frombase = $config['uploads_path'];
 	if (is_dir($frombase)) {
 		$copyfiles = is_dir($uploadspath);
 		if ($copyfiles) {
-			recursive_delete($uploadspath, false); //clear it
+			rrmdir($uploadspath, false); //clear it
 			$tobase = $uploadspath;
 			$install_relative = file_relpath($uploadspath, $tobase); //stored in intaller-top-sub-folder
 		} else {
@@ -597,7 +605,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 
 	$copyfiles = is_dir($workerspath);
 	if ($copyfiles) {
-		recursive_delete($workerspath, false); //clear it
+		rrmdir($workerspath, false); //clear it
 	} else {
 		$copyfiles = @mkdir($workerspath, 0777, true);
 	}
@@ -607,7 +615,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 		if ($copyfiles) {
 			$tobase = $workerspath.DIRECTORY_SEPARATOR.'user_plugins'; // 'definite' basename for importing
 			if (is_dir($tobase)) {
-//done before recursive_delete($tobase, false);
+				//done before rrmdir($tobase, false);
 				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
 			} elseif (@mkdir($tobase, 0777, true)) {
 				$install_relative = file_relpath($workerspath, $tobase);
@@ -624,13 +632,13 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 		}
 	}
 
-	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates';
+	$frombase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates';
 	if (is_dir($frombase)) {
 		//TODO ensure any such files are omitted from the sources tarball
 		if ($copyfiles) {
 			$tobase = $workerspath.DIRECTORY_SEPARATOR.'templates';
 			if (is_dir($tobase)) {
-//done before recursive_delete($tobase, false);
+				//done before rrmdir($tobase, false);
 				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
 			} elseif (@mkdir($tobase, 0777, true)) {
 				$install_relative = file_relpath($workerspath, $tobase);
@@ -647,13 +655,13 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 		}
 	}
 
-	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles';
+	$frombase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles';
 	if (is_dir($frombase)) {
 		//TODO ensure any such files are omitted from the sources tarball
 		if ($copyfiles) {
 			$tobase = $workerspath.DIRECTORY_SEPARATOR.'styles';
 			if (is_dir($tobase)) {
-//done before recursive_delete($tobase, false);
+				//done before rrmdir($tobase, false);
 				$install_relative = file_relpath($workerspath, $tobase); //stored in intaller-top-sub-folder
 			} elseif (@mkdir($tobase, 0777, true)) {
 				$install_relative = file_relpath($workerspath, $tobase);
@@ -687,7 +695,7 @@ function export_content(string $xmlfile, string $uploadspath, string $workerspat
 function import_content(string $xmlfile, string $uploadspath = '', string $workerspath = '') : string
 {
 	// security checks right here, to supplement upstream/external
-	if (AppState::test_state(AppState::STATE_INSTALL)) {
+	if (AppState::test(AppState::INSTALL)) {
 		$runtime = function_exists('lang');
 		//NOTE must conform this class with installer
 		$valid = class_exists('cms_installer\wizard\wizard'); //TODO some other check too
@@ -695,7 +703,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 		$runtime = true;
 		$userid = get_userid(false);
 		if ($userid) {
-			$valid = check_permission($userid,'Manage All Content');
+			$valid = check_permission($userid, 'Manage All Content');
 		} else {
 			// TODO etc e.g. when force-feeding, maybe async
 			$valid = false;
@@ -713,7 +721,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 	$xml = simplexml_load_file($xmlfile, 'SimpleXMLElement', LIBXML_NOCDATA);
 	if ($xml === false) {
 		if ($runtime) {
-			$val = lang('error_filebad',$xmlfile);
+			$val = lang('error_filebad', $xmlfile);
 		} else {
 			$val = 'Failed to load file '.$xmlfile; //TODO lang('')
 		}
@@ -727,7 +735,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 	$val = (string)$xml->dtdversion;
 	if (version_compare($val, CONTENT_DTD_MINVERSION) < 0) {
 		if ($runtime) {
-			return lang('error_filebad',$xmlfile);
+			return lang('error_filebad', $xmlfile);
 		} else {
 			return 'Invalid file format';
 		}
@@ -754,7 +762,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						try {
 							$ob->set_name((string)$node->name);
 							$ob->set_description((string)$node->description);
-							$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES));// NOT worth CMSMS\de_specialize
+							$ob->set_content(htmlspecialchars_decode((string)$node->content, ENT_XML1 | ENT_QUOTES)); // NOT worth CMSMS\de_specialize
 							if ((string)$node->media_type) {
 								$ob->set_media_types((string)$node->media_type); //assume a single type
 							}
@@ -800,7 +808,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$bank[$val3][1][] = (int)$node->item_order;
 						}
 					}
-					foreach ($bank as $gid=>$arr) {
+					foreach ($bank as $gid => $arr) {
 						array_multisort($arr[1], $arr[0]);
 						try {
 							$ob = StylesheetsGroup::load($gid); //or use cached object
@@ -829,7 +837,9 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$ob->set_name((string)$node->name);
 							$ob->set_originator($val);
 							$val = (string)$node->description;
-							if ($val !== '') $ob->set_description($val);
+							if ($val !== '') {
+								$ob->set_description($val);
+							}
 							$ob->set_owner(1);
 							$val3 = (string)$node->dflt_contents;
 							if ($val3 !== '') {
@@ -896,7 +906,9 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						}
 						$ob = new Template();
 						try {
-							if ($val2) { $ob->set_originator($val2); }
+							if ($val2) {
+								$ob->set_originator($val2);
+							}
 							$ob->set_name((string)$node->name);
 							$ob->set_type($types[$val]);
 							$ob->set_description((string)$node->description);
@@ -941,7 +953,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$bank[$val3][1][] = (int)$node->item_order;
 						}
 					}
-					foreach ($bank as $gid=>$arr) {
+					foreach ($bank as $gid => $arr) {
 						array_multisort($arr[1], $arr[0]);
 						try {
 							$ob = TemplatesGroup::load($gid); //or use cached object
@@ -987,7 +999,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$bank[$val3][1][] = (int)$node->css_order;
 						}
 					}
-					foreach ($bank as $sid=>$arr) {
+					foreach ($bank as $sid => $arr) {
 						array_multisort($arr[1], $arr[0]);
 						try {
 							$ob = StylesheetOperations::get_stylesheet($sid);
@@ -1014,7 +1026,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 							$bank[$val3][1][] = (int)$node->tpl_order;
 						}
 					}
-					foreach ($bank as $tid=>$arr) {
+					foreach ($bank as $tid => $arr) {
 						array_multisort($arr[1], $arr[0]);
 						try {
 							$ob = TemplateOperations::get_template($tid);
@@ -1038,11 +1050,17 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 						$val = (int)$parms['template_id'] ?? 0;
 						$parms['template_id'] = $templates[$val] ?? 0;
 						$val = $parms['parent_id'] ?? -1;
-						if ($val < 1) { $parms['parent_id'] = -1; }
+						if ($val < 1) {
+							$parms['parent_id'] = -1;
+						}
 						$val = $parms['item_order'] ?? -1;
-						if ($val < 1) { $parms['item_order'] = ++$eo; }
+						if ($val < 1) {
+							$parms['item_order'] = ++$eo;
+						}
 						$val = $parms['menu_text'] ?? '';
-						if ($val) { $parms['menu_text'] = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES); }
+						if ($val) {
+							$parms['menu_text'] = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);
+						}
 						$val = $parms['styles'];
 						if ($val) {
 							$oid = explode(',', $val);
@@ -1052,13 +1070,13 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 									$nid[] = $styles[$id];
 								}
 							}
-							$parms['styles'] = implode(',',$nid);
+							$parms['styles'] = implode(',', $nid);
 						}
 						$bank[] = $parms;
 					}
 					$col1 = array_column($bank, 'parent_id');
 					$col2 = array_column($bank, 'item_order');
-					array_multisort($col1,SORT_NUMERIC,$col2,SORT_NUMERIC,$bank);
+					array_multisort($col1, SORT_NUMERIC, $col2, SORT_NUMERIC, $bank);
 
 					$orders = [];
 					foreach ($bank as &$row) {
@@ -1075,16 +1093,24 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 				case 'properties': //must be processed after pages
 					foreach ($typenode->children() as $node) {
 						$val = (int)$node->content_id;
-						if (!$val) { continue; }
+						if (!$val) {
+							continue;
+						}
 						$val2 = (string)$node->content;
-						if ($val2 === '') { continue; }
-						if (empty($pages[$val])) { $pages[$val] = []; }
-						if (empty($pages[$val]['props'])) { $pages[$val]['props'] = []; }
+						if ($val2 === '') {
+							continue;
+						}
+						if (empty($pages[$val])) {
+							$pages[$val] = [];
+						}
+						if (empty($pages[$val]['props'])) {
+							$pages[$val]['props'] = [];
+						}
 						$pages[$val]['props'][(string)$node->prop_name] = htmlspecialchars_decode($val2, ENT_XML1 | ENT_QUOTES);
 					}
 					break;
 				case 'uploadfiles':
-					$config = AppSingle::Config();
+					$config = SingleItem::Config();
 					$tobase = $config['uploads_path'];
 					if ($tobase) {
 						$tobase .= DIRECTORY_SEPARATOR;
@@ -1153,7 +1179,7 @@ function import_content(string $xmlfile, string $uploadspath = '', string $worke
 					if ($runtime) {
 						verbose_msg(lang('install_usertags'));
 					}
-					$db = AppSingle::Db();
+					$db = SingleItem::Db();
 					$query = 'INSERT INTO '.CMS_DB_PREFIX.'userplugins (
 name,
 code,
@@ -1163,22 +1189,35 @@ parameters) VALUES (?,?,?,?)';
 						$parms = (array)$node;
 						$args = [$params['name']];
 						$val = $parms['code'] ?? null;
-						if ($val) { $args[] = htmlspecialchars_decode($val,ENT_XML1 | ENT_QUOTES); } else { $args[] = null; }
+						if ($val) {
+							$args[] = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);
+						} else {
+							$args[] = null;
+						}
 						$val = $parms['description'] ?? null;
-						if ($val) { $args[] = htmlspecialchars_decode($val,ENT_XML1 | ENT_QUOTES); } else { $args[] = null; }
+						if ($val) {
+							$args[] = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);
+						} else {
+							$args[] = null;
+						}
 						$val = $parms['parameters'] ?? null;
-						if ($val) { $args[] = htmlspecialchars_decode($val,ENT_XML1 | ENT_QUOTES); } else { $args[] = null; }
-						if (!$db->Execute($query, $args)) {
+						if ($val) {
+							$args[] = htmlspecialchars_decode($val, ENT_XML1 | ENT_QUOTES);
+						} else {
+							$args[] = null;
+						}
+						if (!$db->execute($query, $args)) {
 							return false;
 						}
 					}
 					break;
 				case 'usertagfiles': //UDTfiles
 					$tobase = CMS_FILETAGS_PATH.DIRECTORY_SEPARATOR;
-/*					if (isset($typenode['installrel'])) {
+/*					// __DIR__ might be phar://abspath/to/pharfile/relpath/to/thisfolder
+					if (isset($typenode['installrel'])) {
 						$rel = (string)$typenode->installrel;
 						if ($rel) {
-							$frombase = dirname(__DIR__).DIRECTORY_SEPARATOR.strtr($rel, '\\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+							$frombase = dirname(__DIR__).DIRECTORY_SEPARATOR.strtr($rel, '\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
 						} else {
 							$frombase = ''; //TODO abort
 						}
@@ -1230,7 +1269,7 @@ parameters) VALUES (?,?,?,?)';
 					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR;
 					if ($workerspath) {
 						//TODO validity check e.g. somewhere absolute in installer tree
-						$frombase = $workerspath.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR;
+						$frombase = $workerspath.DIRECTORY_SEPARATOR;
 					} else {
 						$frombase = '';
 					}
@@ -1274,7 +1313,7 @@ parameters) VALUES (?,?,?,?)';
 					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles'.DIRECTORY_SEPARATOR;
 					if ($workerspath) {
 						//TODO validity check e.g. somewhere absolute in installer tree
-						$frombase = $workerspath.DIRECTORY_SEPARATOR.'styles'.DIRECTORY_SEPARATOR;
+						$frombase = $workerspath.DIRECTORY_SEPARATOR;
 					} else {
 						$frombase = '';
 					}
@@ -1320,9 +1359,9 @@ parameters) VALUES (?,?,?,?)';
 
 	if ($pages) {
 		$map = [-1 => -1]; // maps proffered id's to installed id's
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		foreach ($pages as $val => $arr) {
-			//TODO revert to using CMSContentManager\contenttypes\whatever class
+			//TODO revert to using ContentManager\contenttypes\whatever class
 			$map[$val] = SavePage($arr, $map, $db);
 		}
 		ContentOperations::get_instance()->SetAllHierarchyPositions();
@@ -1361,11 +1400,11 @@ function SavePage(array $parms, array $pagemap, $db)
 	$o = $item_order ?? 0;
 	if ($o < 1) {
 		$query = 'SELECT MAX(item_order) AS new_order FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ?';
-		$o = (int)$db->GetOne($query, [$p]);
+		$o = (int)$db->getOne($query, [$p]);
 		$item_order = ($o < 1) ? 1 : $o + 1;
 	}
 
-// TODO handle $template_id < 1
+	// TODO handle $template_id < 1
 
 	$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (
 content_id,
@@ -1412,10 +1451,10 @@ last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		$accesskey ?? null,
 		$styles ?? null,
 		$tabindex ?? 0,
-		$last_modified_by ?? 1,
+		$last_modified_by ?? 0,
 	];
 
-	if (!$db->Execute($query, $args)) {
+	if (!$db->execute($query, $args)) {
 		return false;
 	}
 
@@ -1425,20 +1464,22 @@ content_id,
 type,
 prop_name,
 content) VALUES (?,?,?,?)';
-		foreach($parms['props'] as $name => $val) {
+		foreach ($parms['props'] as $name => $val) {
 			if (is_numeric($val) || is_bool($val)) {
 				$val = (int)$val;
 				$ptype = 'int';
 			} else {
-				if (!is_null($val)) { $val = (string)$val; }
+				if (!is_null($val)) {
+					$val = (string)$val;
+				}
 				$ptype = 'string';
 			}
-			$result = $db->Execute($query, [$content_id,$ptype,$name,$val]);
+			$result = $db->execute($query, [$content_id, $ptype, $name, $val]);
 		}
 	}
 
 	if (!empty($page_url)) {
-		$route = Route::new_builder($page_url,'__CONTENT__',$content_id,'',true);
+		$route = Route::new_builder($page_url, '__CONTENT__', $content_id, '', true);
 		RouteOperations::add_static($route);
 	}
 

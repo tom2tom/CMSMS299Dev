@@ -22,20 +22,21 @@ If not, see <https://www.gnu.org/licenses/>.
 
 /*
 Deprecated since 2.99
-Use corresponding immediate setup via hooklist and jsruntime.php
+Use corresponding immediate setup via a hooklist, then include|require
+jsruntime.php at a suitable place in a script.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\SingleItem;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
+AppState::set(AppState::ADMIN_PAGE);
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
 
 $urlext = get_secure_param();
-$config = AppSingle::Config();
+$config = SingleItem::Config();
 
 // get some urls and language strings
 $data = [];
@@ -75,7 +76,7 @@ for ($i=0; $i<$c; ++$i) {
     $key = key($data);
     $value = json_encode(current($data));
     $out .= " $key: $value,\n";
-	next($data);
+    next($data);
 }
 $key = key($data);
 $value = json_encode(current($data));

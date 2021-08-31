@@ -22,13 +22,11 @@ If not, see <https://www.gnu.org/licenses/>.
 
 //NOTE since 2.99, something like this is performed by an async Job
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\LockOperations;
+use CMSMS\SingleItem;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -60,12 +58,12 @@ default:
 }
 
 $userid = get_userid();
-$is_admin = AppSingle::UserOperations()->UserInGroup($userid,1);
+$is_admin = SingleItem::UserOperations()->UserInGroup($userid,1);
 if ($is_admin) {
 	// clear all locks of type content
 	$db = cmsms()->GetDb();
 	$sql = 'DELETE FROM '.CMS_DB_PREFIX.LockOperations::LOCK_TABLE.' WHERE type = ?';
-	$db->Execute($sql,[$type]);
+	$db->execute($sql,[$type]);
 	cms_notice("Cleared all $type locks");
 } else {
 	// clear only my locks
@@ -73,6 +71,6 @@ if ($is_admin) {
 	cms_notice("Cleared his own $type locks");
 }
 
-AppSingle::Theme()->ParkNotice('info',lang_by_realm('layout','msg_lockscleared'));
+SingleItem::Theme()->ParkNotice('info',lang_by_realm('layout','msg_lockscleared'));
 $urlext = get_secure_param();
 redirect($op.'.php'.$urlext);

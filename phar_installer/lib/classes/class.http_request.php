@@ -1,5 +1,4 @@
 <?php
-
 namespace cms_installer;
 
 use function cms_installer\get_app;
@@ -11,7 +10,7 @@ use function cms_installer\get_app;
  * harvest resources from web. This can be used with scripts that need
  * a way to communicate with various APIs who support REST.
  *
- * Modified by Robert Campbell (calguy1000@cmsmadesimple.org)
+ * Modified by Robert Campbell
  * Renamed the class to cms_http_request
  * Fixed some bugs.
  *
@@ -22,7 +21,6 @@ use function cms_installer\get_app;
  * @link        http://www.phpfour.com/lib/http
  * @since       Version 0.1
  */
-
 class http_request
 {
     /**
@@ -305,45 +303,43 @@ class http_request
     public function clear()
     {
         // Set the request defaults
-        $this->host         = '';
-        $this->port         = 0;
-        $this->path         = '';
-        $this->target       = '';
-        $this->method       = 'GET';
-        $this->schema       = 'http';
-        $this->params       = [];
-        $this->headers      = [];
-        $this->cookies      = [];
-        $this->_cookies     = [];
-        $this->headerArray  = [];
-        $this->proxy        = null;
+        $this->host = '';
+        $this->port = 0;
+        $this->path = '';
+        $this->target = '';
+        $this->method = 'GET';
+        $this->schema = 'http';
+        $this->params = [];
+        $this->headers = [];
+        $this->cookies = [];
+        $this->_cookies = [];
+        $this->headerArray = [];
+        $this->proxy = null;
 
         // Set the config details
-        $this->debug        = false;
-        $this->error        = '';
-        $this->status       = 0;
-        $this->timeout      = '25';
-        $this->useCurl      = true;
-        $this->referrer     = '';
-        $this->username     = '';
-        $this->password     = '';
-        $this->redirect     = false;
-        $this->result       = null;
+        $this->debug = false;
+        $this->error = '';
+        $this->status = 0;
+        $this->timeout = '25';
+        $this->useCurl = true;
+        $this->referrer = '';
+        $this->username = '';
+        $this->password = '';
+        $this->redirect = false;
+        $this->result = null;
 
         // Set the cookie and agent defaults
         $app = get_app();
-        $this->nextToken    = '';
-        $this->useCookie    = true;
-        $this->saveCookie   = true;
-        $this->maxRedirect  = 3;
-        $this->cookiePath   = $app->get_tmpdir().'/c'.md5(get_class().session_id()).'.dat'; // by default, use a cookie file that is unique only to this session.
-        $this->userAgent    = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.9';
+        $this->nextToken = '';
+        $this->useCookie = true;
+        $this->saveCookie = true;
+        $this->maxRedirect = 3;
+        $this->cookiePath = $app->get_tmpdir().'/c'.md5(get_class().session_id()).'.dat'; // by default, use a cookie file that is unique only to this session.
+        $this->userAgent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.9';
     }
 
     /**
      * Clear all cookies
-     *
-     * @author Robert Campbell (calguy1000@cmsmadesimple.org)
      */
     public function resetCookies()
     {
@@ -603,7 +599,7 @@ class http_request
             $tmp = explode(':', $key);
             $key = trim($tmp[0]);
         }
-        for ($i = 0, $n = count($this->headerArray); $i < $n; $i++) {
+        for ($i = 0, $n = count($this->headerArray); $i < $n; ++$i) {
             $tmp = explode(':', $this->headerArray[$i], 1);
             $key2 = trim($tmp[0]);
             if ($key2 == $key) {
@@ -629,7 +625,7 @@ class http_request
         if (strpos($str, ':') !== false) {
             $tmp = explode(':', $str, 1);
             $key = trim($tmp[0]);
-            for ($i = 0, $n = count($this->headerArray); $i < $n; $i++) {
+            for ($i = 0, $n = count($this->headerArray); $i < $n; ++$i) {
                 $tmp = explode(':', $this->headerArray[$i], 1);
                 $key2 = trim($tmp[0]);
                 if ($key2 == $key) {
@@ -647,32 +643,6 @@ class http_request
                 $this->headerArray[] = $str;
             }
         }
-    }
-
-    /**
-     * Test if the installed curl version is suitable
-     *
-     * @return bool
-     */
-    private function _isCurlSuitable()
-    {
-        static $_curlgood = -1;
-
-        if ($_curlgood == -1) {
-            $_curlgood = 0;
-            if (in_array('curl', get_loaded_extensions())) {
-                if (function_exists('curl_version')) {
-                    $tmp = curl_version();
-                    if (isset($tmp['version'])) {
-                        if (version_compare($tmp['version'], '7.19.7') >= 0) {
-                            $_curlgood = 1;
-                        }
-                    }
-                }
-            }
-        }
-
-        return $_curlgood;
     }
 
     /**
@@ -736,7 +706,7 @@ class http_request
         }
 
         // Finalize the target path
-        $this->path   = (isset($urlParsed['path']) ? $urlParsed['path'] : '/') . (isset($urlParsed['query']) ? '?' . $urlParsed['query'] : '');
+        $this->path = ($urlParsed['path'] ?? '/') . (isset($urlParsed['query']) ? '?' . $urlParsed['query'] : '');
         $this->schema = $urlParsed['scheme'];
 
         // Pass the requred cookies
@@ -746,7 +716,7 @@ class http_request
         $cookieString = '';
         if (is_array($this->cookies) && count($this->cookies) > 0) {
             // Get a blank slate
-            $tempString   = [];
+            $tempString = [];
 
             // Convert cookies array into a query string (eg animal=dog&sport=baseball)
             foreach ($this->cookies as $key => $value) {
@@ -815,7 +785,7 @@ class http_request
              CURLOPT_REFERER => $this->referrer,    // Referer value
              CURLOPT_VERBOSE => false,              // Minimize logs
              CURLOPT_SSL_VERIFYPEER => false,       // No certificate
-             CURLOPT_FOLLOWLOCATION => $this->redirect,// Follow redirects
+             CURLOPT_FOLLOWLOCATION => $this->redirect, // Follow redirects
              CURLOPT_MAXREDIRS => $this->maxRedirect,  // Limit redirections to four
              CURLOPT_RETURNTRANSFER => true,           // Return in string
             ]);
@@ -824,7 +794,7 @@ class http_request
             $content = curl_exec($ch);
             if (!empty($content)) {
                 $tmp = explode("\r\n\r\n", $content, 2);
-                for ($i = 0, $n = count($tmp); $i < $n; $i++) {
+                for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
                     if (empty($tmp[$i])) {
                         unset($tmp[$i]);
                     }
@@ -840,7 +810,7 @@ class http_request
             }
 
             // Get the request info (unused)
-            $status  = curl_getinfo($ch);
+            $status = curl_getinfo($ch);
 
             // Store the error (is any)
             $this->_setError(curl_error($ch));
@@ -925,14 +895,14 @@ class http_request
                     }
 
                     // Reset some of the properties
-                    $this->port   = 0;
+                    $this->port = 0;
                     $this->status = 0;
                     $this->params = [];
                     $this->method = 'POST';
                     $this->referrer = $this->target;
 
                     // Increase the redirect counter
-                    $this->curRedirect++;
+                    ++$this->curRedirect;
 
                     // Let's go, go, go !
                     $this->result = $this->execute($newTarget);
@@ -1003,7 +973,7 @@ class http_request
         // Prepare all the other headers
         foreach ($headers as $header) {
             // Get name and value
-            $headerName  = strtolower($this->_tokenize($header, ':'));
+            $headerName = strtolower($this->_tokenize($header, ':'));
             $headerValue = trim(chop($this->_tokenize("\r\n")));
 
             // If its already there, then add as an array. Otherwise, just keep there
@@ -1047,23 +1017,23 @@ class http_request
         }
 
         // Loop through the cookies
-        for ($cookie = 0, $n = count($cookieHeaders); $cookie < $n; $cookie++) {
-            $cookieName  = trim($this->_tokenize($cookieHeaders[$cookie], '='));
+        for ($cookie = 0, $n = count($cookieHeaders); $cookie < $n; ++$cookie) {
+            $cookieName = trim($this->_tokenize($cookieHeaders[$cookie], '='));
             $cookieValue = $this->_tokenize(';');
 
-            $urlParsed   = parse_url($this->target);
+            $urlParsed = parse_url($this->target);
 
-            $domain      = $urlParsed['host'];
-            $secure      = '0';
+            $domain = $urlParsed['host'];
+            $secure = '0';
 
-            $path        = '/';
-            $expires     = '';
+            $path = '/';
+            $expires = '';
 
             while (($name = trim(urldecode($this->_tokenize('=')))) != '') {
                 $value = urldecode($this->_tokenize(';'));
 
                 switch ($name) {
-                    case 'path': $path     = $value; break;
+                    case 'path': $path = $value; break;
                     case 'domain': $domain = $value; break;
                     case 'secure': $secure = ($value != '') ? '1' : '0'; break;
                 }
@@ -1089,15 +1059,15 @@ class http_request
      */
     public function _setCookie($name, $value, $expires = '', $path = '/', $domain = '', $secure = 0)
     {
-        if (strlen($name) == 0) {
+        if ($name == '') {
             return($this->_setError('No valid cookie name was specified.'));
         }
 
-        if (strlen($path) == 0 || strcmp($path[0], '/')) {
+        if ($path == '' || $path[0] != '/') {
             return($this->_setError("$path is not a valid path for setting cookie $name."));
         }
 
-        if ($domain == '' || !strpos($domain, '.', $domain[0] == '.' ? 1 : 0)) {
+        if ($domain == '' || strpos($domain, '.', (($domain[0] == '.') ? 1 : 0)) == false) { // TODO === false ?
             return($this->_setError("$domain is not a valid domain for setting cookie $name."));
         }
 
@@ -1107,18 +1077,18 @@ class http_request
             $domain = substr($domain, 1);
         }
 
-        $name  = $this->_encodeCookie($name, true);
+        $name = $this->_encodeCookie($name, true);
         $value = $this->_encodeCookie($value, false);
 
         $secure = (int)$secure;
 
         $this->_cookies[] = [
-            'name'      =>  $name,
-            'value'     =>  $value,
-            'domain'    =>  $domain,
-            'path'      =>  $path,
-            'expires'   =>  $expires,
-            'secure'    =>  $secure
+            'name' => $name,
+            'value' => $value,
+            'domain' => $domain,
+            'path' => $path,
+            'expires' => $expires,
+            'secure' => $secure
         ];
     }
 
@@ -1180,7 +1150,7 @@ class http_request
         } elseif (substr_count($cookieDomain, '.') < 2) {
             return false;
         } else {
-            return substr('.'. $requestHost, - strlen($cookieDomain)) == $cookieDomain;
+            return substr('.'. $requestHost, -strlen($cookieDomain)) == $cookieDomain;
         }
     }
 
@@ -1202,7 +1172,7 @@ class http_request
             $string = $this->nextToken;
         }
 
-        for ($character = 0; $character < strlen($separator); $character++) {
+        for ($character = 0; $character < strlen($separator); ++$character) {
             if (gettype($position = strpos($string, $separator[$character])) == 'integer') {
                 $found = (isset($found) ? min($found, $position) : $position);
             }
@@ -1229,5 +1199,31 @@ class http_request
             $this->error = $error;
             return $error;
         }
+    }
+
+    /**
+     * Test if the installed curl version is suitable
+     *
+     * @return bool
+     */
+    private function _isCurlSuitable()
+    {
+        static $_curlgood = -1;
+
+        if ($_curlgood == -1) {
+            $_curlgood = 0;
+            if (in_array('curl', get_loaded_extensions())) {
+                if (function_exists('curl_version')) {
+                    $tmp = curl_version();
+                    if (isset($tmp['version'])) {
+                        if (version_compare($tmp['version'], '7.19.7') >= 0) {
+                            $_curlgood = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $_curlgood;
     }
 }

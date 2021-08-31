@@ -27,7 +27,7 @@ use CMSMS\TemplateType;
 
 if (!isset($gCms)) exit;
 
-$newsite = AppState::test_state(AppState::STATE_INSTALL);
+$newsite = AppState::test(AppState::INSTALL);
 if ($newsite) {
     $userid = 1; // templates owned by initial admin
 } else {
@@ -35,56 +35,56 @@ if ($newsite) {
 }
 
 $dict = new DataDictionary($db);
-//$taboptarray = ['mysqli' => 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci']; //InnoDB engine (supports transactions)
-$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 
 $flds = '
-id I KEY,
-module_name C(48),
-content_id I,
+id I UNSIGNED KEY,
+module_name C(50),
+content_id I UNSIGNED,
 extra_attr C(100),
 expires DT
 ';
-$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_items', $flds, $taboptarray);
+// transactions are used on this table, so InnoDB engine
+$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_items', $flds,
+['mysqli' => 'CHARACTER SET ascii']); // InnoDB engine to allow transactions TODO ascii ok for extra_attr ? only use is 'content'
 $dict->ExecuteSQLArray($sqlarray);
-
+// use of inserted-data identifier is a bit racy elsewhere, and a sequencer helps a bit
 $db->CreateSequence(CMS_DB_PREFIX.'module_search_items_seq');
 
-$sqlarray = $dict->CreateIndexSQL('items_search_items',
+$sqlarray = $dict->CreateIndexSQL('i_modulename_contentid',
             CMS_DB_PREFIX.'module_search_items', 'module_name,content_id');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('items_search_content',
+$sqlarray = $dict->CreateIndexSQL('i_contentid',
             CMS_DB_PREFIX.'module_search_items', 'content_id');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('items_search_attr',
+$sqlarray = $dict->CreateIndexSQL('i_extraattr',
             CMS_DB_PREFIX.'module_search_items', 'extra_attr');
 $dict->ExecuteSQLArray($sqlarray);
 
 $flds = '
-item_id I NOTNULL,
-word C(128) NOTNULL CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-count I(4) NOTNULL DEFAULT 0
+item_id I UNSIGNED NOTNULL,
+word C(128) CHARACTER SET utf8mb4 NOTNULL,
+count I UNSIGNED NOTNULL DEFAULT 0
 ';
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_index', $flds,
-['mysqli' => 'CHARACTER SET ascii COLLATE ascii_bin']);
+['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii COLLATE ascii_bin']);
 $dict->ExecuteSQLArray($sqlarray);
-
-$sqlarray = $dict->CreateIndexSQL('index_search_item',
+// TODO index params if non-InnoDB engine used
+$sqlarray = $dict->CreateIndexSQL('i_itemid',
             CMS_DB_PREFIX.'module_search_index', 'item_id', ['KEY_BLOCK_SIZE'=>1]); //non-unique field used in sub-query/join
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('index_search_word',
+$sqlarray = $dict->CreateIndexSQL('i_word',
             CMS_DB_PREFIX.'module_search_index', 'word', ['KEY_BLOCK_SIZE'=>2]);
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('index_search_count',
+$sqlarray = $dict->CreateIndexSQL('i_count',
             CMS_DB_PREFIX.'module_search_index', 'count', ['KEY_BLOCK_SIZE'=>1]);
 $dict->ExecuteSQLArray($sqlarray);
 
-//$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
 $flds = '
 word C(128) NOTNULL KEY,
-count I(4) NOTNULL DEFAULT 0
+count I UNSIGNED NOTNULL DEFAULT 0
 ';
-$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_words', $flds, $taboptarray);
+$sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_words', $flds,
+['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4']);
 $dict->ExecuteSQLArray($sqlarray);
 
 $me = $this->GetName();

@@ -19,5 +19,5 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 return $this->DoAction('detail', $id, $params, $returnid);

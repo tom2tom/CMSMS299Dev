@@ -20,10 +20,10 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use DesignManager\Design;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
 
 $pmod = $this->CheckPermission('Manage Designs');
@@ -38,7 +38,7 @@ if( $pmod && isset($params['design_setdflt']) ) {
             $cur_dflt->save();
         }
     }
-    catch( Exception $e ) {
+    catch( Throwable $t ) {
         // do nothing
     }
 
@@ -71,7 +71,7 @@ if( $designs && ($n = count($designs)) ) {
 }
 
 if( $pmod ) {
-    $allusers = AppSingle::UserOperations()->LoadUsers();
+    $allusers = SingleItem::UserOperations()->LoadUsers();
     $users = [-1=>$this->Lang('prompt_unknown')];
     $tmp = [];
     for( $i = 0, $n = count($allusers); $i < $n; $i++ ) {
@@ -87,10 +87,8 @@ if( $pmod ) {
 $tpl->assign('pmod',$pmod);
 
 //$tpl->assign('lock_timeout', $this->GetPreference('lock_timeout', 60));
-//$url = $this->create_url($id,'ajax_get_templates');
-//$ajax_templates_url = str_replace('&amp;','&',$url);
-//$url = $this->create_url($id,'ajax_get_stylesheets');
-//$ajax_stylesheets_url = str_replace('&amp;','&',$url);
+//$ajax_templates_url = $this->create_action_url($id,'ajax_get_templates');
+//$ajax_stylesheets_url = $this->create_action_url($id,'ajax_get_stylesheets');
 
 //$jsm = new ScriptsMerger();
 //$jsm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
@@ -103,4 +101,3 @@ $tpl->assign('pmod',$pmod);
 //}
 
 $tpl->display();
-return '';

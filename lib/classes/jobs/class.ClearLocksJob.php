@@ -30,7 +30,7 @@ class ClearLocksJob extends CronJob
     public function __construct()
     {
         parent::__construct();
-        $this->name = 'Core\\ClearLocks';
+        $this->name = 'Core\ClearLocks';
         $this->frequency = RecurType::RECUR_DAILY;
     }
 

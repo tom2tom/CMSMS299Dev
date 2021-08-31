@@ -20,20 +20,18 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\FormUtils;
 use CMSMS\LockOperations;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
 use function CMSMS\sanitizeVal;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -54,9 +52,9 @@ if( $padd ) {
 */
 }
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 $lock_timeout = AppParams::get('lock_timeout', 60);
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 
 // individual templates
 // $_REQUEST members all cleaned individually, as needed
@@ -70,7 +68,8 @@ if( $tmp ) {
     else {
         $filter = [sanitizeVal($tmp, CMSSAN_NAME)]; // OR CMSSAN_PUNCT, CMSSAN_PURESPC?
     }
-} else {
+}
+else {
     $filter = [];
 }
 
@@ -135,7 +134,8 @@ try {
                 }
                 if( $pmod && $core ) { $acts[] = ['content'=>str_replace('XXX', $tid, $linkapply)]; }
                 if( $pmod && $core ) { $acts[] = ['content'=>str_replace('XXX', $tid, $linkreplace)]; }
-/*          } else {
+/*          }
+            else {
                 $lock = $template->get_lock();
                 if( $lock['expires'] < $now ) {
                     $acts[] = ['content'=>str_replace('XXX', $tid, $linksteal)];
@@ -167,7 +167,8 @@ try {
             $pagerows += $pagerows;
             if( $pagerows < $totalrows ) $pagelengths[40] = 40;
             $pagelengths[0] = lang('all');
-        } else {
+        }
+        else {
             $pagelengths = null;
         }
         $sellength = 10; //OR some $_REQUEST[]
@@ -177,9 +178,9 @@ try {
         $pagelengths = [];
         $sellength = 1;
 
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'SELECT EXISTS (SELECT 1 FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.')';
-        if( $db->GetOne($query) ) {
+        if( $db->getOne($query) ) {
             $smarty->assign('templates',false); //signal row(s) exist, but none matches
         }
     }
@@ -667,7 +668,6 @@ $smarty->assign([
  ]);
 
 $content = $smarty->fetch('listtemplates.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

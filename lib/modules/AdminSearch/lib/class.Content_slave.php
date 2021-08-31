@@ -7,7 +7,7 @@ See license details at the top of file AdminSearch.module.php
 */
 namespace AdminSearch;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function check_permission;
@@ -35,12 +35,11 @@ final class Content_slave extends Base_slave
     // returns array of arrays
     public function get_matches()
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'SELECT
 C.content_id,
 C.content_name,
 C.menu_text,
-C.template_name,
 C.content_alias,
 C.metadata,
 C.titleattribute,
@@ -52,7 +51,6 @@ C.page_url, P.content FROM '.CMS_DB_PREFIX.'content C LEFT JOIN '.
              'CONCAT_WS(\'\',
 C.content_name,
 C.menu_text,
-C.template_name,
 C.content_alias,
 C.metadata,
 C.titleattribute,
@@ -62,7 +60,6 @@ C.page_url) LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_bin'
             $where = ['P.content LIKE ?', 'CONCAT_WS(\'\',
 C.content_name,
 C.menu_text,
-C.template_name,
 C.content_alias,
 C.metadata,
 C.titleattribute,
@@ -71,14 +68,14 @@ C.page_url) LIKE ?'];
         $query .= implode(' OR ', $where) . ' GROUP BY C.content_id ORDER BY C.content_name'; // TODO if needed, work around ONLY_FULL_GROUP_BY effect on reported fields other than content_id
         $needle = $this->get_text();
         $wm = '%'.$db->secStr($needle).'%';
-        $dbr = $db->GetArray($query, [$wm, $wm]);
+        $dbr = $db->getArray($query, [$wm, $wm]);
         if ($dbr) {
-            $content_manager = Utils::get_module('CMSContentManager');
-            $content_ops = AppSingle::ContentOperations(); // OR CMSMS\ContentOperations->get_instance()
+            $content_manager = Utils::get_module('ContentManager');
+            $content_ops = SingleItem::ContentOperations(); // OR CMSMS\ContentOperations->get_instance()
             $userid = get_userid();
             $pmod1 = check_permission($userid, 'Manage All Content') || check_permission($userid, 'Modify Any Page');
             $output = [];
-            $mains = ['content_name'=>1,'menu_text'=>1,'template_name'=>1,'content_alias'=>1,'metadata'=>1,'titleattribute'=>1,'page_url'=>1];
+            $mains = ['content_name'=>1,'menu_text'=>1,'content_alias'=>1,'metadata'=>1,'titleattribute'=>1,'page_url'=>1];
 
             foreach ($dbr as $row) {
                 $html = '';
@@ -107,7 +104,7 @@ C.page_url) LIKE ?'];
 
                 $content_id = $row['content_id'];
                 if ($pmod1 || $content_ops->CheckPageAuthorship($userid, $content_id)) {
-                    $url = $content_manager->create_url('m1_', 'admin_editcontent', '', ['content_id' => $content_id]);
+                    $url = $content_manager->create_action_url('m1_', 'admin_editcontent', ['content_id' => $content_id]);
                 } else {
                     $url = ''; // no edit-access to this page
                 }

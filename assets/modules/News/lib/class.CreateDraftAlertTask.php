@@ -21,9 +21,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace News;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
-use CmsRegularTask;
+use CmsRegularTask; // TODO migrate to Job
 use News\DraftMessageAlert;
 use const CMS_DB_PREFIX;
 
@@ -33,12 +33,12 @@ class CreateDraftAlertTask implements CmsRegularTask
 
   public function get_name()
   {
-    return self::class;
+    return __CLASS__;
   }
 
   public function get_description()
   {
-    //$mod = ; return $mod->Lang('TODO');
+    //$mod = Utils::get_module('News); return $mod->Lang('TODO');
     return 'A quarter-hourly task which generates a notice about draft news item(s)';
   }
 
@@ -62,9 +62,10 @@ class CreateDraftAlertTask implements CmsRegularTask
   public function execute($time = 0)
   {
     if( !$time ) $time = time();
-    $db = AppSingle::Db();
-    $query = 'SELECT COUNT(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status = \'draft\' AND (end_time IS NULL OR end_time=0 OR end_time > '.$time.')';
-    $count = $db->GetOne($query);
+    $db = SingleItem::Db();
+    $longnow = $db->DbTimeStamp(time());
+    $query = 'SELECT COUNT(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status = \'draft\' AND (end_time IS NULL OR end_time > '.$longnow.')';
+    $count = $db->getOne($query);
     if( $count ) {
         $alert = new DraftMessageAlert($count);
         $alert->save();

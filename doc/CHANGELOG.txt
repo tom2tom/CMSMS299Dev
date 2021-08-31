@@ -1,4 +1,4 @@
-Version 2.99 - NO NAME SET
+Version 2.99 - Skye Isle
 ----------------------------------
 ADMIN USER-FACING CHANGES
 
@@ -20,6 +20,7 @@ cache API revised to support caching by anything
 multi-mode caching, auto-selectable if suitable PHP capability is present (Predis|Memcached|APCu|YAC|roll-your-own) as alternates to the existing filesystem files
 to facilitate autoloading at least, all PHP classes across the CMSMS core (except CMSModule), have been migrated to the CMSMS namespace, and in some cases that merited a rename as well (CMSMS\cms_config BAH!). Until further notice (way in the future, but dev's should migrate soonish) the former classes will continue to work. In some contexts,  PHP can't deal with aliases (e.g. for method type-declarations) so a former class-space/name MUST continue to be used there until adjustments are made.
 support namespace 'CMSAsset' for non-core classes added into <siterootpath>/assets/classes and descendants
+exported FilePicker-module 'profile' infrastructure, pending its closer integration with User and Group permissions mechanisms
 
 optional per-page inclusions (e.g. css, js urls/verbatim) for admin-pages and module-actions, to supplement and/or replace template content and CMSModule::GetHeaderHTML(). So e.g. js can be removed from templates, and inserted at page-bottom.
 pre-configuration of site-installation parameters
@@ -79,10 +80,10 @@ EXT_EXEC - flag for tailoring cms_htmlenties() and cms_specialchars()
 PLUGINS
 
 new
-
-add_footcontent
+add_bottomcontent
 add_headcontent
 assets_url
+bottom_includes
 cms_cookie
 cms_init_editor
 cms_queue_css
@@ -93,8 +94,8 @@ disable_template
 edit_template
 gather_content
 get_jquery
+header_includes
 scripts_url
-send_content_notice
 syntax_area
 tabs_restart
 theme_root
@@ -113,6 +114,8 @@ deprecated
 cms_jquery  see get_jquery
 cms_stylesheet  media, designid parameters are deprecated, styles parameter added
 global_content  global content blocks are just templates since CMSMS 2
+fetch_pagedata  replicates {content} tag
+process_pagedata out-of-order displayed-page processing is automatic
 
 changed
 
@@ -132,15 +135,17 @@ smarty templates, stylesheets, UDT's can be stored as standalone files instead o
 
 INSTALLER
 
+the concept of 'phar' and 'expanded' installer-versions is defunct - 'automated' and 'manual' (respectively) are better. Both versions include and do the same things.
+the manual installer can operate on a host without PHP's phar extension
 installer build-parameters are read from a .ini file
 one such parameter prescribes installer files form: zip (default) tar.bz2 tar.gz tar (intended for further manipulation by system commands)
+installer uses a single compression-type throughout, easily configured via the aforementioned parameter
 symlinks in the source-files are handled properly
 less scope for confusion about 'advanced' mode functionality
 user-inputs required during an installer session can be pre-defined in a .ini fle. With all of them in place, an installer session takes only about 90 seconds.
 non-core modules can also be included by the release-builder among installer source-files, in which case those modules become optional selections during installation
 a custom 'support-url' can be specified, in which case it will be displayed in the admin console instead of a link to CMSMS website
 installs and upgrades support renamed admin and/or assets and/or user_plugins folders
-'expanded' installer can operate on a host without PHP's phar extension
 minimum database server (MySQL or MariaDB) version 5.5 (released in 2011)
 installer warns if database permissions are unnecessarily broad/risky (a matter for discussion with the db admin)
 installer cleans up after itself
@@ -170,7 +175,11 @@ DETAILS
          get_server_permissions(),
          munge_string_to_file(),
          register_endsession_function(),
-         restricted_cms_permissions()
+         set_session_value(),get_session_value()
+         restricted_cms_permissions(),
+         add_page_headtext(),remove_page_headtext()
+         add_page_foottext(),remove_page_foottext()
+         CMSMS\get_page_headtext(),CMSMS\get_page_foottext()
          CMSMS\preferred_lang(),
          CMSMS\create_guid(),
          CMSMS\urlencode(),
@@ -200,8 +209,10 @@ DETAILS
   - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
   - BREAKING: Renamed permission 'Modify User-defined Tags' to 'Manage User Plugins'
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.99 at least, the module is still operational.)
+  - CHANGE: Renamed CMSContentManager module to ContentManager (shorter module-names help deal with a Smarty 20-character limit)
   - CHANGE: News module is non-core, and in future will be distributed independently of the core files (and probably replaced)
   - BREAKING: Long-deprecated frontend creation of news items has been removed
+  - BREAKING: Newly created pages and newly-stored module-plugins default to cachable. This can be overridden when the page is saved, or the plugin deployed {nocache}{/nocache}.
   - ADD: Extra permissions: 'Remote Administration', 'View Admin Log'
   - ADD: extra member of CmsCoreCapabilities - ROUTE_MODULE, for polling the modules which create route(s) during contruction or initialization
   - CHANGE: DesignManager module is non-core, and in future will be distributed independently of the core files
@@ -209,7 +220,7 @@ DETAILS
   - FEATURE: Event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
   - FEATURE: get-support URL (for display in admin pages) may be specified in 'developer mode'
   - FEATURE: added jQuery Poller object, a more-flexible alternative to the autoRefresh widget
-  - FEATURE: added module CoreTextEditing allowing (for now) Ace|CodeMirror, to edit templates, stylesheets, UDT's,
+  - FEATURE: added (non-core) module SyntaxMultiEditor allowing (for now) Ace|CodeMirror, to edit templates, stylesheets, UDT's,
       and related (but independent) get_editor_script(), {editorarea}, {edit_template}, and includable method.edittemplate.php
   - DEPRECATED: cleanValue() method. Instead use sanitizeVal() for inputs, cms_specialchars() and/or execSpecialchars() for outputs
   - DEPRECATED: cms_get_jquery() method. Instead use
@@ -227,6 +238,7 @@ DETAILS
   - FEATURE: added new define in cms_config class: CMS_UPLOADS_URL
   - FEATURE: added new define in cms_config class: CMS_ADMIN_PATH
   - FEATURE: added the CMS_ASSETS_URL define and assets_url config entry.
+  - FEATURE: automatically install tailored .htaccess or web.config files in several key folders.
   - DEPRECATED: UserTagOperations class is now merely an alias for SimpleTagOperations
   - DEPRECATED: user-plugin cachability is always false (as was the case for UDT's). Should always be true, and overridden by a nocache parameter in template where relevant
   - DEPRECATED: module-plugin cachability is set permanently when module is installed. Should always be true, and overridden by a nocache parameter in template where relevant
@@ -236,6 +248,7 @@ DETAILS
   - DEPRECATED: Method CmsApp::clear_cached_files - replaced by more-secure alternative
   - DEPRECATED: Method cms_db_prefix(). Constant CMS_DB_PREFIX replaces that
   - DEPRECATED: Using PHP global variables (like $CMS_*) for recording/checking application-state. Instead use CMSMS\AppState methods and constants.
+  - DEPRECATED: module_meta class methods. Replaced by cache-API compatible methods
   - BREAKING: Removed the long-deprecated SetParameters method from the module API
   - BREAKING: Removed the long-deprecated $module->smarty property.
   - BREAKING: Removed some deprecated and/or seldom-used methods from the core API
@@ -244,6 +257,14 @@ DETAILS
   - BREAKING: Removed long-deprecated methods from the cms_content_tree class
       addNode, getChildrenCount, getId, getLevel, getNodeByAlias, getNodeById
       getParentNode, getSiblingCount, getTag, hasChildren, setTag
+  - BREAKING: If MySQL 5.6+ is used. Malformed SQL queries like SELECT ... GROUP BY ... silently fail. Corrected across the core, but dev's will need to correct them in other places.
+  - BREAKING: Some database table-names and field-names have changed.
+     layout_designs to module_designs
+     layout_design_cssassoc to module_designs_css
+     layout_design_tplassoc to module_designs_tpl
+     layout_tpl_categories to layout_tpl_groups
+     layout_tpl_type to layout_tpl_types
+     The database should not be accessed directly, but if must be so, do your homework !
   - CHANGE: Pages-content is cached in the global cache. The redundant ContentCache class is gone
   - CHANGE: Adds the new pr_root_url config entry.  Returns the protocol relative root URI. root_url will always include the protocol.
   - CHANGE: Remove long deprecated passthru parameters to effect $_REQUEST because of potential security vulnerabilities.
@@ -293,17 +314,21 @@ DETAILS
      Protected method CMSModule::get_controller() identifies such callable (if any) for an action.
   - FEATURE: Allow loading action controller classes with the name Module/Controllers/<action>_action
   - REMOVE: file content.functions.php (last remaining function moved to page.functions.php)
-  - Refactor the cms_module_plugin function for performance).
+  - Refactor the cms_module_plugin function for performance.
   - Refactor the route-lookup functionality for performance.
-  - FEATURE: The database connection class now accepts a single scalar for an argument when only one parameter is required in functions like GetOne()
+  - CHANGE: Database connection class method names conform to the current ADOdb API (although PHP doesn't care about the case used in function names)
+  - FEATURE: The database connection class now accepts a single scalar for an argument when only one parameter is required in functions like getOne()
   - FEATURE: Field definitions for database table creation|modification are more flexible.
-      In addition to sized varchar and integer fields, also text and blob e.g. C(255), I(4), T(1024), X(16383)
-      Field definition parameters pass through, so extras like UNSIGNED, FIRST, AFTER fieldname, COLLATION type, FOREIGN KEY details, ON UPDATE CURRENT_TIMESTAMP etc are viable.
+      Tiny-sized fields as TX, XT, BX, XB
+      Integer-field aliases TI (aka I1 @ 8-bit), SI (aka I2 @ 16-bit), MI (new @ 24-bit), BI (aka I8 @ 64-bit)
+      In addition to sized varchar and integer fields, also text and blob e.g. C(255) (up to 65535, but subject to any total-row-length (bytes, not chars) limit), I(4) (up to 10? although integer-column display-width is irrelevant in CMSMS), T(1024), X(16384)
+      Field definition parameters pass through, so extras like UNSIGNED, FIRST, AFTER fieldname, CHARACTER SET type, COLLATION type, FOREIGN KEY details, ON UPDATE CURRENT_TIMESTAMP etc are viable.
+      Reminder: field-names matching reserved-SQL-words must be quoted like `thisone` or else the table-creation will fail.
   - CHANGE: Remove the startup_mact_processing config entry, which controlled the stage, during page-rendering, when the default content block is processed.
   - FEATURE: Adds the {disable_template} plugin.
   - All module actions (except for showtemplate=false or other similar requests) create a new smarty template object
     and destroy it when the action is complete.   This allows ProcessTemplateFromDatabase and ProcessTemplate and other related methods to be un-deprecated.
-  - CHANGE: Convert admin passwords to use PHP's builtin password_hash and password_verify methods.
+  - CHANGE: Convert admin passwords to use PHP's built-in password_hash and password_verify methods.
     - Still backwards compatible with older style for upgrades and resetting lost passwords.
     - Users upgrading from very old versions may have to reset passwords
   - FEATURE: Adds site-setting for smarty (frontend) cache lifetime.
@@ -317,7 +342,6 @@ DETAILS
   - Allow login via a module (CoreAdminLogin) now is core admin module
   - FEATURE: Adds a new hook for password strength
   - cms_mailer class now throws an exception if attempting to send an email without setting preferences first.
-  - DEPRECATED: sequence-tables additional_users, event_handlers, events, group_perms and their use for populating related tables. In future, autoincrement values
   - BREAKING: New methods and minor cleanup to admin themes (may introduce some breakage)
   - FEATURE: Adds {cms_queue_script} and {cms_render_scripts} plugins to allow combining javascripts and rendering them in fewer requests.
   - FEATURE: new Core::PreProcessScripts and Core::PostProcessScripts hooks
@@ -680,14 +704,14 @@ Core - General
   - Pass an explicit cacheid in to createtemplate in index.php.
   - Fix an error message in the autorefresh JavaScript class.
   - Fix problems that could result in uid=1 becoming inactive, and not a member of other groups when edited by another user.
-  - Fix query problem in CmsLayoutStylesheetQuery with Mysql 5.7.
+  - Fix query problem in CmsLayoutStylesheetQuery with Mysql 5.6+.
   - The {content} tag now supports passing data attributes to the generated textarea, for use by syntax highlighter and WYSIWYG modules. i.e: {content data-foo="bar"}.
   - Refactoring of the Admin login code to be cleaner, more efficient, more secure.
   - No longer allow any modules to auto-upgrade on frontend requests.
   - Fix problem with cms_filecache_driver::clear().
   - Introduces the new Hook mechanism to allow optimizing cms_stylesheet a bit further. All core SendEvent calls are now implemented as hooks.
   - changegroupperms can now localize permission names,  and add an info string for each permission. (the listpermissions hook).
-  - Adds add_headtext(), get_headtext(),  add_footertext(), get_footertext() methods to the Admin theme class.
+  - Add add_headtext(), get_headtext(), add_footertext(), get_footertext() methods to the Admin theme class.
   - minor refactoring of admin/index.php, admin/header.php, admin/footer.php and admin/moduleinterface.php.
   - now use hooks so that loaded modules can now add text to the head area of any Admin page output.
   - Change the help for the basic attributes.
@@ -874,7 +898,7 @@ Core - General
   - Minor fixes to generation of moduleinfo.ini.
   - Fix an error message in the autorefresh JavaScript class.
   - Fix problems that could result in uid=1 becoming inactive, and not a member of other groups when edited by another user.
-  - Fix query problem in CmsLayoutStylesheetQuery with Mysql 5.7.
+  - Fix query problem in CmsLayoutStylesheetQuery with Mysql 5.6+.
 
   - #11080 - Parameter $adding in GetContentBlockFieldInput always FALSE.
   - #11093 - Bad error message in jquery.cmsms_autorefresh.js.

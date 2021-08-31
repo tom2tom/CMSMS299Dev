@@ -19,29 +19,23 @@ You should have received a copy of the GNU General Public License along with CMS
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
+use CMSMS\SingleItem;
 use function CMSMS\de_specialize;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
-/*if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-    throw new Error403Exception(lang('informationmissing'));
-}
-*/
 $handlers = ob_list_handlers();
 for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 $userid = get_userid(false);
-if (check_permission($userid, 'View Tag Help')) {
+if (check_permission($userid, 'View UserTag Help')) {
     $tmp = de_specialize($_GET['name']);
     $name = sanitizeVal($tmp, CMSSAN_FILE);
-    $info = AppSingle::UserTagOperations()->GetUserTag($name, 'parameters');
+    $info = SingleItem::UserTagOperations()->GetUserTag($name, 'parameters');
     if (!empty($info)) {
         echo (nl2br(specialize(trim($info, " \t\n\r")), ENT_XML1 | ENT_QUOTES));
     }

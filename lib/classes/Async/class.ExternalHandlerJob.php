@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Async;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
 use RuntimeException;
 use function cms_to_bool;
@@ -34,7 +34,6 @@ use function cms_to_bool;
  *  loaded before calling the handler.
  *
  * @package CMS
- * @author Robert Campbell
  *
  * @since 2.2
  * @property mixed $function string | callable
@@ -119,24 +118,24 @@ class ExternalHandlerJob extends Job
     public function execute()
     {
         if ($this->is_udt) {
-            AppSingle::UserTagOperations()->CallUserTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO plugin parameters missing
+            SingleItem::UserTagOperations()->CallUserTag($this->function /*, $params = [], $smarty_ob = null*/);  //TODO plugin parameters missing
 //TODO also support regular plugins
         } elseif ($this->module && preg_match('/^action\.(.+)\.php$/', $this->function, $matches)) {
-            $mod_obj = Utils::get_module($this->module);
+            $mod = Utils::get_module($this->module);
             //TODO exceptions useless in async context
-            if (!is_object($mod_obj)) {
+            if (!is_object($mod)) {
                 throw new RuntimeException('Job requires '.$this->module.' module but it could not be loaded');
             }
-            $mod_obj->DoAction($matches[1], '', []);
+            $mod->DoAction($matches[1], '', []); // no return-value
         } elseif (is_callable($this->function)) {
             if ($this->module) {
-                $mod_obj = Utils::get_module($this->module);
+                $mod = Utils::get_module($this->module);
                 //TODO exceptions useless in async context
-                if (!is_object($mod_obj)) {
+                if (!is_object($mod)) {
                     throw new RuntimeException('Job requires '.$this->module.' module but it could not be loaded');
                 }
                 // call the function, pass in $this
-                $fn = $this->function->bindTo($mod_obj);
+                $fn = $this->function->bindTo($mod);
                 call_user_func($fn);
             } else {
                 call_user_func($this->function);

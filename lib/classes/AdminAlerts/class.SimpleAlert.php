@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\AdminAlerts;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use InvalidArgumentException;
 
 /**
@@ -30,7 +30,6 @@ use InvalidArgumentException;
  * @since 2.2
  * @package CMS
  * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @prop string[] $perms An array of permission names.  The logged in user must have at least one of these permissions to see the alert.
  * @prop string $icon The complete URL to an icon to associate with this alert
  * @prop string $msg The message to display.  Note: Since alerts are stored in the database, and can be created asynchronously you cannot rely on language strings for the message or title when using this class.
@@ -61,10 +60,11 @@ class SimpleAlert extends Alert
      * Constructor
      *
      * @param string[] $perms An array of permission names.  Or null.
+     * @throws InvalidArgumentException
      */
     public function __construct($perms = null)
     {
-        if( $perms && (!is_array($perms) || !count($perms)) ) \InvalidArgumentExcecption('perms must be an array of permission name strings');
+        if( $perms && !is_array($perms) ) InvalidArgumentException('perms must be an array of permission name strings');
         $this->_perms = $perms;
         parent::__construct();
     }
@@ -74,9 +74,9 @@ class SimpleAlert extends Alert
      *
      * Get a property from this object, or from the base class.
      *
-     * @throws InvalidArgumentException
      * @param string $key
      * @return mixed
+     * @throws InvalidArgumentException
      */
     public function __get($key)
     {
@@ -115,14 +115,14 @@ class SimpleAlert extends Alert
             $this->_msg = trim($val);
             break;
         case 'perms':
-            if( !is_array($val) || !count($val) ) throw new \InvalidArgumentExcecption('perms must be an array of permission name strings');
+            if( !$val || !is_array($val) ) throw new InvalidArgumentException('perms must be an array of permission name strings');
             $tmp = [];
             foreach( $val as $one ) {
                 $one = trim($one);
                 if( !$one ) continue;
                 if( !in_array($one,$tmp) ) $tmp[] = $one;
             }
-            if( !$tmp ) throw new \InvalidArgumentExcecption('perms must be an array of permission name strings');
+            if( !$tmp ) throw new InvalidArgumentException('perms must be an array of permission name strings');
             $this->_perms = $tmp;
             break;
 
@@ -141,7 +141,7 @@ class SimpleAlert extends Alert
     {
         if( !$this->_perms ) return FALSE;
         $admin_uid = (int) $admin_uid;
-        $userops = AppSingle::UserOperations();
+        $userops = SingleItem::UserOperations();
         $perms = $this->_perms;
         if( !is_array($this->_perms) ) $perms = [$this->_perms];
         foreach( $perms as $permname ) {

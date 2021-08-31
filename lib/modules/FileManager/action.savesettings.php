@@ -1,5 +1,5 @@
 <?php
-if (!function_exists('cmsms')) exit;
+//if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Site Preferences') && !$this->AdvancedAccessAllowed()) exit;
 
 $this->SetPreference('advancedmode',(int)$params['advancedmode']);

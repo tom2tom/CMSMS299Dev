@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'sorts';
-  src: url('../font/sorts.eot?50053385');
-  src: url('../font/sorts.eot?50053385#iefix') format('embedded-opentype'),
-       url('../font/sorts.woff2?50053385') format('woff2'),
-       url('../font/sorts.woff?50053385') format('woff'),
-       url('../font/sorts.ttf?50053385') format('truetype'),
-       url('../font/sorts.svg?50053385#sorts') format('svg');
+  src: url('./font/sorts.eot?50053385');
+  src: url('./font/sorts.eot?50053385#iefix') format('embedded-opentype'),
+       url('./font/sorts.woff2?50053385') format('woff2'),
+       url('./font/sorts.woff?50053385') format('woff'),
+       url('./font/sorts.ttf?50053385') format('truetype'),
+       url('./font/sorts.svg?50053385#sorts') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,12 +15,15 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'sorts';
-    src: url('../font/sorts.svg?50053385#sorts') format('svg');
+    src: url('./font/sorts.svg?50053385#sorts') format('svg');
   }
 }
 */
 
-[class^="Sort"]:before, [class^="sort-"]:before, [class*=" sort-"]:before {
+[class^="Sort"]:before, [class^="sort-"]:before, [class*=" sort-"]:before,
+table.table_sort th.SortAble:before,
+table.table_sort th.SortDown:before,
+table.table_sort th.SortUp:before {
   font-family: "sorts";
   font-style: normal;
   font-weight: normal;

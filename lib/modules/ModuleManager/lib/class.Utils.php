@@ -21,12 +21,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace ModuleManager;
 
-use CMSMS\AppSingle;
 use CMSMS\CommunicationException;
-use CMSMS\DataException;
+use CMSMS\SingleItem;
 use CMSMS\Utils as AppUtils;
-use ModuleManager\cached_request;
-use ModuleManager\modulerep_client;
+use ModuleManager\CachedRequest;
+use ModuleManager\ModuleRepClient;
+use RuntimeException;
 use const CMS_VERSION;
 use const MINIMUM_REPOSITORY_VERSION;
 use function cms_join_path;
@@ -45,20 +45,20 @@ final class Utils
      * @param bool $as_hash Whether returned array keys are respective module-names. Default false
      * @return array
      */
-    public static function get_installed_modules($include_inactive = FALSE, $as_hash = FALSE)
+    public static function get_installed_modules($include_inactive = false, $as_hash = false)
     {
-        $modops = AppSingle::ModuleOperations();
-        $module_list = $modops->GetInstalledModules($include_inactive);
+        $modops = SingleItem::ModuleOperations();
+        $module_list = $modops->GetInstalledModules($include_inactive); // available | all
 
         $results = [];
         foreach( $module_list as $modname ) {
-            $modinst = $modops->get_module_instance($modname);
-            if( !$modinst ) continue;
+            $mod = $modops->get_module_instance($modname);
+            if( !$mod ) continue;
 
             $details = [];
-            $details['name'] = $modinst->GetName();
-            $details['description'] = $modinst->GetDescription();
-            $details['version'] = $modinst->GetVersion();
+            $details['name'] = $mod->GetName();
+            $details['description'] = $mod->GetDescription();
+            $details['version'] = $mod->GetVersion();
             $details['active'] = $modops->IsModuleActive($modname);
 
             if( $as_hash ) {
@@ -109,7 +109,7 @@ final class Utils
         if( !is_array($xmldetails) ) return;
 
         // sort
-        uasort($xmldetails, 'ModuleManager\\Utils::uasort_cmp_details');
+        uasort($xmldetails, 'ModuleManager\Utils::uasort_cmp_details');
 
         $mod = AppUtils::get_module('ModuleManager');
 
@@ -142,7 +142,7 @@ final class Utils
                     if( $res == 1 ) {
                         $det1['status'] = 'upgrade';
                     }
-                    else if( $res == 0 ) {
+                    elseif( $res == 0 ) {
                         $det1['status'] = 'uptodate';
                     }
                     else {
@@ -176,7 +176,7 @@ final class Utils
 
         // now we have everything
         // let's try sorting it
-        uasort($results, 'ModuleManager\\Utils::uasort_cmp_details');
+        uasort($results, 'ModuleManager\Utils::uasort_cmp_details');
         return $results;
     }
 
@@ -186,21 +186,20 @@ final class Utils
      * @param type $size
      * @param type $md5sum
      * @return string
-     * @throws CommunicationException
-     * @throws DataException
+     * @throws CommunicationException or RuntimeException
      */
     public static function get_module_xml($filename,$size,$md5sum = null)
     {
         $mod = AppUtils::get_module('ModuleManager');
-        $xml_filename = modulerep_client::get_repository_xml($filename,$size);
+        $xml_filename = ModuleRepClient::get_repository_xml($filename,$size);
         if( !$xml_filename ) throw new CommunicationException($mod->Lang('error_downloadxml',$filename));
 
-        if( !$md5sum ) $md5sum = modulerep_client::get_module_md5($filename);
+        if( !$md5sum ) $md5sum = ModuleRepClient::get_module_md5($filename);
         $dl_md5 = md5_file($xml_filename);
 
         if( $md5sum != $dl_md5 ) {
             @unlink($xml_filename);
-            throw new DataException($mod->Lang('error_checksum',[$server_md5,$dl_md5]));
+            throw new RuntimeException($mod->Lang('error_checksum',[$server_md5,$dl_md5]));
         }
 
         return $xml_filename;
@@ -213,7 +212,7 @@ final class Utils
      */
     public static function is_connection_ok()
     {
-        // static properties here >> StaticProperties class ?
+        // static properties here >> SingleItem property|ies ?
         static $ok = -1;
         if( $ok != -1 ) return $ok;
 
@@ -221,7 +220,7 @@ final class Utils
         $url = $mod->GetPreference('module_repository');
         if( $url ) {
             $url .= '/version';
-            $req = new cached_request($url);
+            $req = new CachedRequest($url);
 //          $req->setTimeout(10); use default
             $req->execute($url);
             if( $req->getStatus() == 200 ) {

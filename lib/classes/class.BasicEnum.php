@@ -11,7 +11,7 @@ use ReflectionClass;
 
 abstract class BasicEnum
 {
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
     private static $constCacheArray = [];
 
     /**
@@ -30,12 +30,21 @@ abstract class BasicEnum
     }
 
     /**
-     * Get names of all members of the enum
+     * Get names and corresponding values of all members of the enum
      * @return array
      */
     public static function getAll()
     {
         return self::getConstants();
+    }
+
+    /**
+     * Get names of all members of the enum
+     * @return array
+     */
+    public static function getNames()
+    {
+        return array_keys(self::getConstants());
     }
 
     /**

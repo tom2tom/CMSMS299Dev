@@ -21,22 +21,22 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS {
 
+use CMSMS\AdminUtils;
 use CMSMS\AppConfig;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\AutoCookieOperations;
 use CMSMS\BookmarkOperations;
 use CMSMS\ContentOperations;
+use CMSMS\ContentTree;
 use CMSMS\contenttypes\ErrorPage;
-use CMSMS\Crypto;
 use CMSMS\Database\Connection;
 use CMSMS\DeprecationNotice;
 use CMSMS\GroupOperations;
-use CMSMS\internal\ContentTree;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\UserOperations;
 use CMSMS\UserTagOperations;
 use RuntimeException;
@@ -58,33 +58,33 @@ final class App
 {
     /**
      * A bitflag constant indicating that the request is for a page in the CMSMS admin console
-     * @deprecated since 2.99 use AppState::STATE_ADMIN_PAGE
+     * @deprecated since 2.99 use AppState::ADMIN_PAGE
      */
     const STATE_ADMIN_PAGE = 2;
 
     /**
      * A bitflag constant indicating that the request is for an admin login
-     * @deprecated since 2.99 use AppState::STATE_LOGIN_PAGE
+     * @deprecated since 2.99 use AppState::LOGIN_PAGE
      */
     const STATE_LOGIN_PAGE = 4;
 
-//    const STATE_ASYNC_JOB = 8; from 2.99
+//    const STATE_ASYNC_JOB = 0x40; from 2.99
 
     /**
      * A bitflag constant indicating that the request is taking place during the installation process
-     * @deprecated since 2.99 use AppState::STATE_INSTALL
+     * @deprecated since 2.99 use AppState::INSTALL
      */
     const STATE_INSTALL = 0x80;
 
     /**
      * A bitflag constant indicating that the request is for a stylesheet
-     * @deprecated since 2.99 use AppState::STATE_STYLESHEET
+     * @deprecated since 2.99 use AppState::STYLESHEET
      */
     const STATE_STYLESHEET = 0x100;
 
     /**
      * A bitflag constant indicating that we are currently parsing page templates
-     * @deprecated since 2.99 use AppState::STATE_PARSE_TEMPLATE
+     * @deprecated since 2.99 use AppState::PARSE_TEMPLATE
      */
     const STATE_PARSE_TEMPLATE = 0x200;
 
@@ -94,6 +94,7 @@ final class App
      */
     private static $_instance = null;
 
+    // TODO cache all of these as SingleItem properties
     /**
      * @ignore
      */
@@ -120,26 +121,6 @@ final class App
      * @ignore
      */
     private $smarty;
-
-    /**
-     * @var ContentTree object, with nested descendant-objects
-     * @ignore
-     */
-    private $hrinstance;
-
-    /**
-     * @var ScriptsMerger object
-     * @ignore
-     * @since 2.99
-     */
-    private $scriptsmgr;
-
-    /**
-     * @var StylesMerger object
-     * @ignore
-     * @since 2.99
-     */
-    private $stylesmgr;
 
     /* *
      * @var singleton module-object
@@ -172,6 +153,7 @@ final class App
 
     /**
      * @ignore
+     * @private to prevent direct creation (even by SingleItem class)
      */
     private function __construct()
     {
@@ -191,7 +173,7 @@ final class App
     {
         switch($key) {
         case 'config':
-            return AppSingle::Config();
+            return SingleItem::Config();
         case 'get':
         case 'instance':
             return self::get_instance();
@@ -215,14 +197,14 @@ final class App
      */
     public function __call(string $name, $args)
     {
-        return AppSingle::$name(...$args);
+        return SingleItem::$name(...$args);
     }
 
     /**
      * Retrieve the singleton instance of this class.
      * This method is used during request-setup, when caching via the
-     * AppSingle class might not yet be possible. Later, use
-     * CMSMS\AppSingle::[Cms]App() instead of this method, to get the
+     * SingleItem class might not yet be possible. Later, use
+     * CMSMS\SingleItem::[Cms]App() instead of this method, to get the
      * (same) singleton.
      *
      * @since 1.10
@@ -236,20 +218,64 @@ final class App
     }
 
     /**
+     * Retrieve the value of an internal variable.
+     * @since 1.9
+     *
+     * @param string The variable name to get
+     * @return mixed The value of the internal variable, or null.
+     */
+    public function get_variable(string $key)
+    {
+        return $this->__get($key);
+    }
+
+    /**
+     * Set the value of an internal variable
+     * @since 1.9
+     *
+     * @param string The variable name to set
+     * @param mixed  The value
+     */
+    public function set_variable($key,$value)
+    {
+        $this->data[$key] = $value;
+    }
+
+    /**
      * Retrieve the installed schema version.
      *
      * @since 2.0
      */
     public function get_installed_schema_version() : int
     {
-        if( AppState::test_state(AppState::STATE_INSTALL) ) {
-/*          $db = $this->GetDb();
-            $query = 'SELECT version FROM '.CMS_DB_PREFIX.'version';
-            return $db->GetOne($query);
-*/
-            return (int)AppParams::get('schema_version'); //most-recently cached value (if any)
+        $val = AppParams::get('cms_schema_version');
+        if( AppState::test(AppState::INSTALL) ) {
+            return (int)$val; //most-recently cached value (if any)
         }
-        return CMS_SCHEMA_VERSION; //value from old|new version.php file
+        if (!$val && defined('CMS_SCHEMA_VERSION')) { //undefined during installation
+            $val = CMS_SCHEMA_VERSION;
+        }
+        if (!$val) {
+            $val = $CMS_SCHEMA_VERSION ?? 0; // no force-load here, might not be installed
+        }
+        return (int)$val; // maybe 0
+    }
+
+    /**
+     * Report whether the installed tables-schema is up-to-date.
+     *
+     * @since 2.99
+     *
+     * @return bool;
+     */
+    public function schema_is_current() : bool
+    {
+        global $CMS_SCHEMA_VERSION; // what we're supposed to have
+        if (!isset($CMS_SCHEMA_VERSION)) {
+            require dirname(__DIR__).DIRECTORY_SEPARATOR.'version.php'; // get it [again?]
+        }
+        $current = $this->get_installed_schema_version(); // what we think we do have
+        return version_compare($current, $CMS_SCHEMA_VERSION) == 0;
     }
 
     /**
@@ -353,7 +379,7 @@ final class App
      * @since 2.0
      * @internal
      * @ignore
-     * @param mixed $content one of the content classes, CMSMS or CMSContentManager namespace
+     * @param mixed $content one of the content classes, CMSMS or ContentManager namespace
      */
     public function set_content_object($content)
     {
@@ -366,7 +392,7 @@ final class App
      * Get the current-page content object
      *
      * @since 2.0
-     * @return mixed content-object (CMSMS or CMSContentManager namespace) or null
+     * @return mixed content-object (CMSMS or ContentManager namespace) or null
      */
     public function get_content_object()
     {
@@ -387,13 +413,13 @@ final class App
     /**
     * Get a handle to the module operations instance.
     * @see ModuleOperations
-    * @since 2.99 CMSMS\AppSingle::ModuleOperations() may be used instead
+    * @since 2.99 CMSMS\SingleItem::ModuleOperations() may be used instead
     *
     * @return ModuleOperations handle to the ModuleOperations object
     */
     public function GetModuleOperations() : ModuleOperations
     {
-        return AppSingle::ModuleOperations();
+        return SingleItem::ModuleOperations();
     }
 
     /**
@@ -420,15 +446,15 @@ final class App
      * whether the version of the requested module matches the one specified.
      *
      * @since 1.9
-     * @param string $module_name The module name.
+     * @param string $modname The module name.
      * @param mixed  $version (optional) string|float version number for a check. Default ''
      * @return mixed CMSModule sub-class object | null.
      * @deprecated
      */
-    public function GetModuleInstance(string $module_name,$version = '')
+    public function GetModuleInstance(string $modname,$version = '')
     {
-        $obj = $this->GetModuleOperations();
-        return $obj->get_module_instance($module_name,$version);
+        $ops = $this->GetModuleOperations();
+        return $ops->get_module_instance($modname,$version);
     }
 
     /**
@@ -443,14 +469,15 @@ final class App
      */
     public function _setDb(Connection $conn)
     {
-        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
-            throw new RuntimeException('Invalid use of '.self::class.'..'.__METHOD__);
+        if( !AppState::test(AppState::INSTALL) ) {
+            throw new RuntimeException('Invalid use of '.__METHOD__);
         }
         $this->db = $conn;
     }
 
     /**
     * Get a handle to the database.
+    * @see SingleItem::Db()
     *
     * @return mixed Connection object or null
     */
@@ -458,7 +485,7 @@ final class App
     {
         if (isset($this->db)) return $this->db;
 
-        $config = AppSingle::Config();
+        $config = SingleItem::Config();
         $this->db = new Connection($config);
         //deprecated since 2.99 (at most): make old stuff available
         require_once cms_join_path(__DIR__, 'Database', 'class.compatibility.php');
@@ -473,7 +500,7 @@ final class App
      */
     public function GetDbPrefix() : string
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('parameter','CMS_DB_PREFIX'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('parameter', 'CMS_DB_PREFIX'));
         return CMS_DB_PREFIX;
     }
 
@@ -486,31 +513,31 @@ final class App
     */
     public function GetConfig() : AppConfig
     {
-        return AppSingle::Config();
+        return SingleItem::Config();
     }
 
     /**
     * Get a handle to the user operations instance.
     * @see UserOperations
-    * @since 2.99 CMSMS\AppSingle::UserOperations() may be used instead
+    * @since 2.99 CMSMS\SingleItem::UserOperations() may be used instead
     *
     * @return UserOperations handle to the UserOperations object
     */
     public function GetUserOperations() : UserOperations
     {
-        return AppSingle::UserOperations();
+        return SingleItem::UserOperations();
     }
 
     /**
     * Get a handle to the content operations instance.
     * @see ContentOperations
-    * @since 2.99 CMSMS\AppSingle::ContentOperations() may be used instead
+    * @since 2.99 CMSMS\SingleItem::ContentOperations() may be used instead
     *
     * @return ContentOperations handle to the ContentOperations object
     */
     public function GetContentOperations() : ContentOperations
     {
-        return AppSingle::ContentOperations();
+        return SingleItem::ContentOperations();
     }
 
     /**
@@ -527,37 +554,38 @@ final class App
     /**
     * Get a handle to the group operations instance.
     * @see GroupOperations
-    * @since 2.99 CMSMS\AppSingle::GroupOperations() may be used instead
+    * @since 2.99 CMSMS\SingleItem::GroupOperations() may be used instead
     *
     * @return GroupOperations handle to the GroupOperations instance
     */
     public function GetGroupOperations() : GroupOperations
     {
-        return AppSingle::GroupOperations();
+        return SingleItem::GroupOperations();
     }
 
     /**
     * Get a handle to the user-plugin operations instance, for interacting with UDT's
     * @see UserTagOperations
-    * @since 2.99 CMSMS\AppSingle::UserTagOperations() may be used instead
+    * @since 2.99 CMSMS\SingleItem::UserTagOperations() may be used instead
     *
     * @return the UserTagOperations singleton
     */
     public function GetUserTagOperations() : UserTagOperations
     {
-        return AppSingle::UserTagOperations();
+        return SingleItem::UserTagOperations();
     }
 
     /**
     * Get a handle to the Smarty instance, except during install/upgrade/refresh.
     * @see Smarty
+    * @see SingleItem::Smarty()
     * @link http://www.smarty.net/manual/en/
     *
     * @return mixed CMSMS\internal\Smarty object | null
     */
     public function GetSmarty()
     {
-        if( !AppState::test_state(AppState::STATE_INSTALL) ) {
+        if( !AppState::test(AppState::INSTALL) ) {
             // we don't load the main Smarty class during installation
             if( empty($this->smarty) ) {
                 $this->smarty = new Smarty();
@@ -568,44 +596,50 @@ final class App
 
     /**
     * Get a handle to the cached pages-hierarchy manager.
-    * @see content_tree
+    * @see ContentTree
     *
-    * @return object
+    * @return object ContentTree, with nested descendant-objects
     */
-    public function GetHierarchyManager()
+    public function GetHierarchyManager() : ContentTree
     {
-        if( empty($this->hrinstance) ) {
-            $this->hrinstance = AppSingle::SysDataCache()->get('content_tree');
+        $hm = SingleItem::get('HierarchyManager');
+        if( !$hm ) {
+            $hm = SingleItem::LoadedData()->get('content_tree');
+            SingleItem::set('HierarchyManager', $hm);
         }
-        return $this->hrinstance;
+        return $hm;
     }
 
     /**
      * Get the intra-request shared scripts-combiner object.
      * @since 2.99
      *
-     * @return ScriptsMerger
+     * @return object ScriptsMerger
      */
     public function GetScriptsManager() : ScriptsMerger
     {
-        if( empty($this->scriptsmgr) ) {
-            $this->scriptsmgr = new ScriptsMerger();
+        $sm = SingleItem::get('ScriptsMerger');
+        if( !$sm ) {
+            $sm = new ScriptsMerger();
+            SingleItem::set('ScriptsMerger', $sm);
         }
-        return $this->scriptsmgr;
+        return $sm;
     }
 
     /**
      * Get the intra-request shared styles-combiner object.
      * @since 2.99
      *
-     * @return StylesMerger
+     * @return object StylesMerger
      */
     public function GetStylesManager() : StylesMerger
     {
-        if( empty($this->stylesmgr) ) {
-            $this->stylesmgr = new StylesMerger();
+        $sm = SingleItem::get('StylesMerger');
+        if( !$sm ) {
+            $sm = new StylesMerger();
+            SingleItem::set('StylesMerger', $sm);
         }
-        return $this->stylesmgr;
+        return $sm;
     }
 
     /**
@@ -627,15 +661,7 @@ final class App
      */
     public function GetSiteUUID()
     {
-        $val = AppParams::get('site_uuid');
-        if( !$val ) {
-            $r = Crypto::random_string(2, true);
-            $s = Crypto::random_string(32, false, true);
-            $val = strtr($s, '+/', $r);
-            AppParams::set('site_uuid', $val);
-            AppSingle::SysDataCache()->release('site_preferences');
-        }
-        return $val;
+        return SingleItem::get('site_uuid');
     }
 
     /**
@@ -662,12 +688,12 @@ final class App
      * Queue a shutdown-function
      * @since 2.99
      * @param int $priority 1(high)..big int(low). Default 1.
-     * @param callable $func
-     * @param(s) variable no. of arguments to supply to $func
+     * @param callable $shutter
+     * @param(s) variable no. of arguments to supply to $shutter
      */
-    public function add_shutdown(int $priority = 1, $func = null, ...$args)
+    public function add_shutdown(int $priority = 1, $shutter = null, ...$args)
     {
-        $this->shutfuncs[] = [$priority, $func, $args];
+        $this->shutfuncs[] = [$priority, $shutter, $args];
     }
 
     /**
@@ -694,9 +720,7 @@ final class App
 
     /**
      * Remove files from the website file-cache directories.
-     * @deprecated since 2.99 Now does nothing.
-     * This functionality has been relocated, and surrounded with
-     * appropriate security.
+     * @deprecated since 2.99 Instead use AdminUtils::clear_cached_files()
      *
      * @internal
      * @ignore
@@ -704,37 +728,36 @@ final class App
      */
     public function clear_cached_files(int $age_days = 0)
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('Method '.__METHOD__.' does nothing'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AdminUtils::clear_cached_files'));
+        AdminUtils::clear_cached_files($age_days);
     }
 
     /**
      * Get a list of all current states.
      *
      * @since 1.11.2
-     * @deprecated since 2.99 instead use CMSMS\AppState::get_states()
-     * @author Robert Campbell
+     * @deprecated since 2.99 instead use CMSMS\AppState::get()
      * @return array  State constants (int's)
      */
     public function get_states() : array
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::get_states'));
-        return AppState::get_states();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AppState::get'));
+        return AppState::get();
     }
 
     /**
      * Report whether the specified state matches the current application state.
      * @since 1.11.2
-     * @deprecated since 2.99 instead use CMSMS\AppState::test_state()
-     * @author Robert Campbell
+     * @deprecated since 2.99 instead use CMSMS\AppState::test()
      *
      * @param mixed $state int | deprecated string State identifier, a class constant
      * @return bool
-     * @throws DataException if invalid identifier is provided
+     * @throws UnexpectedValueException if invalid identifier is provided
      */
     public function test_state($state) : bool
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::test_state'));
-        return AppState::test_state($state);
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AppState::test'));
+        return AppState::test($state);
     }
 
     /**
@@ -743,15 +766,14 @@ final class App
      * @ignore
      * @internal
      * @since 1.11.2
-     * @deprecated since 2.99 instead use CMSMS\AppState::add_state()
-     * @author Robert Campbell
+     * @deprecated since 2.99 instead use CMSMS\AppState::add()
      * @param mixed $state int | deprecated string The state, a class constant
-     * @throws DataException if an invalid state is provided.
+     * @throws UnexpectedValueException if an invalid state is provided.
      */
     public function add_state($state)
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::add_state'));
-        AppState::add_state($state);
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AppState::add'));
+        AppState::add($state);
     }
 
     /**
@@ -760,24 +782,22 @@ final class App
      * @ignore
      * @internal
      * @since 1.11.2
-     * @deprecated since 2.99 instead use CMSMS\AppState::remove_state()
-     * @author Robert Campbell
+     * @deprecated since 2.99 instead use CMSMS\AppState::remove()
      *
      * @param mixed $state int | deprecated string The state, a class constant
      * @return bool indicating success
-     * @throws DataException if an invalid state is provided.
+     * @throws UnexpectedValueException if an invalid state is provided.
      */
     public function remove_state($state) : bool
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppState::remove_state'));
-        AppState::remove_state($state);
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AppState::remove'));
+        AppState::remove($state);
     }
 
     /* * MAYBE IN FUTURE
      * Report whether the current request was executed via the CLI.
      *
      * @since 2.99
-     * @author Robert Campbell
      * @return bool
      */
 /*    public function is_cli() : bool
@@ -789,18 +809,16 @@ final class App
      * Report whether the current request is a frontend request.
      *
      * @since 1.11.2
-     * @author Robert Campbell
      * @return bool
      */
     public function is_frontend_request() : bool
     {
-        return AppState::test_state(AppState::STATE_FRONT_PAGE);
+        return AppState::test(AppState::FRONT_PAGE);
     }
 
     /** Report whether the current request was over HTTPS.
      *
      * @since 1.11.12
-     * @author Robert Campbell
      * @return bool
      */
     public function is_https_request() : bool
@@ -814,7 +832,7 @@ final class App
 namespace {
 
 use CMSMS\App;
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 /**
  * Return the App singleton object.
@@ -825,7 +843,7 @@ use CMSMS\AppSingle;
  */
 function cmsms() : App
 {
-    return AppSingle::App();
+    return SingleItem::App();
 }
 
 /**
@@ -837,7 +855,7 @@ function cmsms() : App
  */
 function checkuuid($uuid) : bool
 {
-    return hash_equals(AppSingle::App()->GetSiteUUID(), $uuid.'');
+    return hash_equals(SingleItem::App()->GetSiteUUID(), $uuid.'');
 }
 
 } // global namespace

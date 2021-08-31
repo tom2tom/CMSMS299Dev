@@ -27,7 +27,7 @@ function smarty_function_page_message($params, $template)
 {
 	$out = '';
 
-	if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
+	if( AppState::test(AppState::ADMIN_PAGE) ) {
 		if( isset($params['msg']) ) {
 			$msg = trim($params['msg']);
 			if( $msg !== '' ) {

@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use MicroTiny\Profile;
 
@@ -59,7 +59,7 @@ if (!$val) {
 	AppParams::set('frontendwysiwyg', $me);
 }
 
-$users = AppSingle::UserOperations()->GetList();
+$users = SingleItem::UserOperations()->GetList();
 foreach ($users as $uid => $uname) {
 	$val = UserParams::get_for_user($uid, 'wysiwyg');
 	if (!$val) {

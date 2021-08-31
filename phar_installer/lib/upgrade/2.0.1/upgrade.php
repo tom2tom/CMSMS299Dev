@@ -1,10 +1,11 @@
 <?php
 
 use cms_installer\utils;
+use function cms_installer\rrmdir;
 
 set_time_limit(90);
 $dn = $destdir.'/admin/themes/default';
-if( is_dir($dn) ) {
+if (is_dir($dn)) {
     status_msg('Making sure that default admin theme gets removed (it causes problems)');
     rrmdir($dn);
 }

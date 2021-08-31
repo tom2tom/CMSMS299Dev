@@ -445,7 +445,7 @@ final class Statement
             if (strncasecmp($this->_sql, 'INSERT INTO', 11) == 0 ||
                 strncasecmp($this->_sql, 'UPDATE', 6) == 0 ||
                 strncasecmp($this->_sql, 'DELETE FROM', 11) == 0) {
-                $num = $this->_stmt->affected_rows;
+                $num = $this->_stmt->affected_rows; // TODO maybe buffered >> rows < 0
                 if ($num == 1 && ($this->_sql[0] == 'I' || $this->_sql[0] == 'i')) {
                     // TODO $num = $this->_stmt->insert_id valid only for 1st-use ?
                     // | $this->_conn->get_inner_mysql()->insert_id valid for every use?

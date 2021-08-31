@@ -1,6 +1,6 @@
 <?php
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if (!$this->AccessAllowed() && !$this->AdvancedAccessAllowed()) exit;
 
 if (!isset($params['filename']) || !isset($params['path'])) {
@@ -51,4 +51,3 @@ if (isset($params['newmode'])) {
 //  ->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
   $tpl->display();
 }
-return '';

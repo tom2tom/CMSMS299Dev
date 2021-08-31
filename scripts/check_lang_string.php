@@ -65,7 +65,6 @@ if( $dup_vals ) {
   echo "\n=============\n\n";
 }
 
-if( !count($dup_keys) || !count($dup_vals) ) {
+if( !$dup_keys || !$dup_vals ) {
   echo "No duplicates found\n";
 }
-?>

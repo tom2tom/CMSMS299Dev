@@ -25,7 +25,7 @@ use CMSMS\UserParams;
 use CMSMS\Utils;
 use function CMSMS\de_entitize;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
 
 $handlers = ob_list_handlers();
@@ -86,7 +86,7 @@ if( $slaves ) {
         if( !is_object($obj) ) {
             continue;
         }
-        if( !is_subclass_of($obj,'AdminSearch\\Base_slave') ) {
+        if( !is_subclass_of($obj,'AdminSearch\Base_slave') ) {
             continue;
         }
 //        if( !$obj->check_permission() ) { done downsteam

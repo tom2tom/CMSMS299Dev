@@ -1,19 +1,21 @@
 <?php
-
 namespace cms_installer;
 
 //use splitbrain\PHPArchive\Tar;
 //use PharData;
 use cms_installer\request;
+use ErrorException;
 use Exception;
 use FilesystemIterator;
 use FilterIterator;
 use Iterator;
+use LogicException;
 use Phar;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use Smarty_Autoloader;
+use Throwable;
 use function cms_installer\endswith;
 use function cms_installer\get_server_permissions;
 use function cms_installer\joinpath;
@@ -43,7 +45,7 @@ class FilePatternFilter extends FilterIterator
 abstract class installer_base
 {
     const CONFIG_ROOT_URL = 'root_url';
-    const CONTENTXML = ['lib','assets','democontent.xml']; //path segments rel to top phardir
+    const CONTENTXML = ['lib', 'assets', 'democontent.xml']; //path segments rel to top phardir
     const UPLOADFILESDIR = ['uploadfiles']; //ditto (interim, contents will be migrated by installer from there to .../data/uploads
     const CUSTOMFILESDIR = ['workfiles']; //ditto, for non-db-stored templates, stylesheets, user-plugins etc (interim, contents will be migrated by installer from there to relevant place in sources tree
 
@@ -81,106 +83,49 @@ abstract class installer_base
     protected function __construct(string $configfile = '')
     {
         if (is_object(self::$_instance)) {
-            throw new Exception('Cannot create another '.self::class.' object');
+            throw new Exception('Cannot create another '.__CLASS__.' object');
         }
-        $this->signature = hash('fnv132', self::class); //ATM only existence is checked, so any value would do
+        $this->signature = hash('fnv132', __CLASS__); //ATM only existence is checked, so any value would do
         self::$_instance = $this; //used during init()
         $this->init($configfile);
     }
 
     /**
-     * Once-per-request initialization
-     * @ignore
-     * @see __construct()
-     * @param string $configfile Optional filepath
-     * @throws Exception
-     */
-    private function init(string $configfile = '')
-    {
-        $p = dirname(__DIR__).DIRECTORY_SEPARATOR;
-        if (!$configfile) {
-            $this->_assetdir = $p.'assets';
-            $fp = $this->_assetdir.DIRECTORY_SEPARATOR.'installer.ini';
-        }
-        else {
-            $this->_assetdir = dirname($configfile);
-            $fp = $configfile;
-        }
-        $config = (is_file($fp)) ? parse_ini_file($fp, false, INI_SCANNER_TYPED) : [];
-        $this->_config = ($config) ? $config : [];
-
-        // handle debug mode
-        if (!empty($config['debug'])) {
-            @ini_set('display_errors', 1);
-            @error_reporting(E_ALL);
-        }
-
-        $this->_have_phar = extension_loaded('phar');
-
-        // setup core autoloading
-        spl_autoload_register([installer_base::class,'autoload']);
-
-        require_once $p.'compat.functions.php';
-        require_once $p.'misc.functions.php';
-
-        // and the other auto's
-//        $p = joinpath(__DIR__, 'smarty', 'libs', 'Autoloader.php');
-        //composer-installed place, plus trailing separator (Smarty path-defines always assume the latter)
-        $p = joinpath(dirname(__DIR__, 2), 'sources', 'lib', 'vendor', 'smarty', 'smarty', 'libs', '') ;
-        define('SMARTY_DIR', $p);
-        $p = joinpath(dirname(__DIR__), 'BackupSmartyAutoloader.php');
-        require_once $p;
-        Smarty_Autoloader::register();
-        $p = joinpath(dirname(__DIR__), 'vendor', 'autoload.php');
-        require_once $p;
-
-        // get the session
-        $sess = session::get_instance();
-
-        // get the request
-        $request = request::get_instance();
-        if (isset($request['clear'])) {
-            $sess->reset();
-        }
-
-        // if details of the CMSMS version we are processing are not already cached,
-        // do so now
-        if (isset($sess['CMSMS:version'])) {
-            $ver = $sess['CMSMS:version'];
-        }
-        else {
-//            $p = $config['archive'] ?? 'data/data.tar.gz';
-//            $p = strtr($p, '/\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
-//            $p = str_replace(basename($p), 'version.php', $p);
-//            $verfile = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.$p;
-            $verfile = joinpath(dirname(__DIR__, 2), 'sources', 'lib', 'version.php');
-            if (!is_file($verfile)) {
-                throw new Exception('Could not find intallation version file');
-            }
-// TODO preserve current global $CMS_VERSION, $CMS_VERSION_NAME, $CMS_SCHEMA_VERSION if any c.f. create.manifest.php::get_version()
-            include_once $verfile;
-            $ver = ['version' => $CMS_VERSION, 'version_name' => $CMS_VERSION_NAME, 'schema_version' => $CMS_SCHEMA_VERSION];
-            $sess['CMSMS:version'] = $ver;
-        }
-        $this->_dest_version = $ver['version'];
-        $this->_dest_name = $ver['version_name'];
-        $this->_dest_schema = $ver['schema_version'];
-
-//      register_shutdown_function ([$this, 'whatever']);
-//      register throwable hanlder, session-end-handler ([$this, 'endit']);
-    }
-
-    /**
      * Return the singleton object of this class
      * @return installer_base
-     * @throws Exception
+     * @throws LogicException
      */
     public static function get_instance() : self
     {
         if (!is_object(self::$_instance)) {
-            throw new Exception('No instance of '.self::class.' is registered');
+            throw new LogicException('No instance of '.__CLASS__.' is registered');
         }
         return self::$_instance;
+    }
+
+    /**
+     * Handle internal PHP errors
+     * @param int $severity
+     * @param string $message
+     * @param string $filename
+     * @param int $lineno
+     * @throws ErrorException
+     */
+    public static function internal_error_handler($severity, $message, $filename, $lineno)
+    {
+        if ($severity > 0) {
+            throw new ErrorException($message, 0, $severity, $filename, $lineno);
+        }
+        return false;
+    }
+
+    /**
+     * Handle problems triggered outside a try-catch context
+     * @param Throwable $t
+     */
+    public static function uncaught_exc_handler(Throwable $t)
+    {
+        throw $t; //re-throw TODO
     }
 
     public static function autoload($classname)
@@ -203,8 +148,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
                 $path = dirname($path);
                 if ($path != '.') {
                     $sroot .= 'classes'.DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR;
-                }
-                else {
+                } else {
                     $sroot .= 'classes'.DIRECTORY_SEPARATOR;
                 }
                 foreach (['class.', ''] as $test) {
@@ -229,221 +173,12 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
 
     abstract public function run();
 
-    /**
-     * Merge config data arrays (e.g. from .ini files)
-     * Unlike array_merge_recusive(), this does some filtering of values
-     * and is limited to 2-D arrays.
-     * @internal
-     * @param array $config1 Merge into this
-     * @param array $config2 Merge from this (if not empty)
+    /*
+     * Retrieve config parameters
+     *  from cache if already processed, or else after caching
      * @return array
+     * @throws RuntimeException
      */
-    private function merge_config(array $config1, array $config2) : array
-    {
-        if ($config2) {
-            foreach ($config2 as $k =>$v) {
-                if (is_array($v)) {
-                    if (!isset($config1[$k]) || $config1[$k] === '') {
-                        $config1[$k] = [];
-                    }
-                    elseif (!is_array ($v)) {
-                        $config1[$k] = [$config1[$k]];
-                    }
-                    $config1[$k] = array_unique(array_merge($config1[$k] , $v), SORT_STRING);
-                }
-                elseif (isset($config1[$k]) && is_array($config1[$k]) ) {
-                    $config1[$k] = array_unique(array_merge($config1[$k] , [$v]), SORT_STRING);
-                }
-                elseif ($v) {
-                    $config1[$k] = $v;
-                }
-                elseif (is_numeric($v)) {
-                    $config1[$k] = $v + 0;
-                }
-            }
-        }
-        return $config1;
-    }
-
-    /**
-     * @throws Exception
-     */
-    protected function set_config_defaults() : array
-    {
-        $config = $this->merge_config(
-        [
-            'coremodules' => [], // core module names
-            'debug' => false,
-            'dest' => null, // top filepath for installation
-            'extramodules' => [], // non-core module names
-            'lang' => null, // installer translation
-            'nobase' => false,
-            'nofiles' => false,
-            'selectlangs' => [], // translations to be selected for installation
-            'selectmodules' => [], // member(s) of extramodules to be selected for installation
-            'timezone' => null, // site timezone
-            'tmpdir' => null, // working directory
-            'verbose' => false, // verbose operation of installer
-        ], $this->_config);
-
-        if ($config['tmpdir']) {
-            if (is_dir($config['tmpdir']) && is_writable($config['tmpdir'])) {
-                $this->_custom_tmpdir = $config['tmpdir'];
-            }
-            else {
-                throw new Exception('Invalid temporary/working directory specified');
-            }
-        }
-        else {
-            $fp = get_sys_tmpdir().DIRECTORY_SEPARATOR.chr(random_int(97,122)).bin2hex(random_bytes(10));
-            $dirmode = get_server_permissions()[3]; // read+write
-            if (mkdir($fp, $dirmode, true)) {
-                $this->_custom_tmpdir = $fp;
-                $config['tmpdir'] = $fp;
-            }
-            else {
-                throw new Exception('No temporary/working directory is available');
-            }
-        }
-
-        $tmp = @date_default_timezone_get();
-        if (!$tmp) {
-            $tmp = 'UTC';
-        }
-        $this->_orig_tz = $config['timezone'] = $tmp;
-        $fp = realpath(getcwd());
-
-        if (!empty($config['debug'])) {
-            $tmp = joinpath($fp, 'lib', 'assets', 'initial.xml');
-            $msg = (is_file($tmp)) ? 'XML EXISTS' : 'NO XML at '.$tmp;
-            file_put_contents($config['tmpdir'].DIRECTORY_SEPARATOR.'guiinstaller-cwd.txt', $msg);
-        }
-        if (endswith($fp, 'phar_installer') || endswith($fp, 'installer')) {
-            $fp = dirname($fp);
-        }
-        $config['dest'] = $fp;
-        return $config;
-    }
-
-    protected function load_config() : array
-    {
-        // setup default config properties
-        $config = $this->set_config_defaults();
-
-        // supplement/override default config with custom config file if any
-        $fp = realpath(getcwd());
-        if (endswith($fp, 'phar_installer') || endswith($fp, 'installer')) {
-            $fp = dirname($fp);
-        }
-        $config_file = joinpath($fp, 'installer.ini');
-        if (is_file($config_file) && is_readable($config_file)) {
-            $xconfig = parse_ini_file($config_file, false, INI_SCANNER_TYPED);
-            if ($xconfig) {
-                $config = $this->merge_config($config, $xconfig);
-                if (!empty($xconfig['dest'])) {
-                    $this->_custom_destdir = $xconfig['dest'];
-                }
-            }
-        }
-
-        // override current config with URL params if any
-        $request = request::get_instance();
-        $list = [
-            'debug',
-            'dest',
-            'destdir',
-            'no_files',
-            'nobase',
-            'nofiles',
-            'timezone',
-            'TMPDIR',
-            'tmpdir',
-            'tz',
-        ];
-        foreach ($list as $key) {
-            if (!isset($request[$key])) {
-                continue;
-            }
-            $val = $request[$key];
-            switch ($key) {
-            case 'TMPDIR':
-            case 'tmpdir':
-                $config['tmpdir'] = trim($val);
-                break;
-            case 'timezone':
-            case 'tz':
-                $config['timezone'] = trim($val);
-                break;
-            case 'dest':
-            case 'destdir':
-                $this->_custom_destdir = $config['dest'] = trim($val);
-                break;
-            case 'debug':
-                $config['debug'] = to_bool($val);
-                break;
-            case 'nobase':
-                $config['nobase'] = to_bool($val);
-                break;
-            case 'nofiles':
-            case 'no_files':
-                $config['nofiles'] = to_bool($val);
-                break;
-            }
-        }
-        return $config;
-    }
-
-    protected function check_config(array $config) : array
-    {
-        foreach ($config as $key => $val) {
-            switch ($key) {
-            case 'tmpdir':
-                if (!$val) {
-                    // no tmpdir set... gotta find or create one.
-                    $val = $this->get_tmpdir();
-                }
-                if (!is_dir($val) || !is_writable($val)) {
-                    // could not find a valid system temporary directory, or none specified. gotta make one
-                    $dir = realpath(getcwd()).'/__m'.md5(session_id());
-                    if (!@is_dir($dir) && !@mkdir($dir)) {
-                        throw new RuntimeException('Sorry, problem determining a temporary directory, non specified, and we could not create one.');
-                    }
-                    $txt = 'This is temporary directory created for installing CMSMS in punitively restrictive environments.  You may delete this directory and its files once installation is complete.';
-                    if (!@file_put_contents($dir.'/__cmsms', $txt)) {
-                        throw new RuntimeException('We could not create a file in the temporary directory we just created (is safe mode on?).');
-                    }
-                    $this->set_config_val('tmpdir', $dir);
-                    $this->_custom_tmpdir = $dir;
-                    $val = $dir;
-                }
-                $config[$key] = $val;
-                break;
-            case 'dest':
-                if ($val && (!is_dir($val) || !is_writable($val))) {
-                    throw new RuntimeException('Invalid config value for '.$key.' - not a directory, or not writable');
-                }
-                break;
-            case 'coremodules':
-                if (!$val || !is_array($val) || count($val) < 10) {
-                    throw new RuntimeException('Invalid config value for '.$key.' - not an array, or not enough names');
-                }
-                sort($val, SORT_STRING);
-                $config[$key] = $val;
-                break;
-            default:
-//            cases 'admin_path': 'assets_path': 'usertags_path':
-//            case 'extramodules':
-//            case 'debug':
-//            case 'nofiles':
-//            case 'nobase':
-//            case 'timezone':
-                // do nothing
-                break;
-            }
-        }
-        return $config;
-    }
-
     public function get_config() : array
     {
         $sess = session::get_instance();
@@ -451,17 +186,23 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
             // already set once... so close and re-open the browser to reset it.
             return $sess['config'];
         }
-
-        // gotta load the config, then cache it in the session
+        // load config params
         $config = $this->load_config();
-        $config = $this->check_config($config);
-
         $buildconfig = $this->_config ?? false;
         if ($buildconfig) {
-            $config = $this->merge_config($buildconfig, $config);
+            $config = $this->merge_config($config, $buildconfig);
         }
-
+        // checks and cleanups
+        $config = $this->check_config($config);
+        // cache them in the session
         $sess['config'] = $config;
+        // lazy place to do some onetime work
+        if (!empty($config['debug'])) {
+            $fp = realpath(getcwd());
+            $tmp = joinpath($fp, 'lib', 'assets', 'initial.xml');
+            $msg = (is_file($tmp)) ? 'XML EXISTS' : 'NO XML at '.$tmp;
+            file_put_contents($config['tmpdir'].DIRECTORY_SEPARATOR.'guiinstaller-cwd.txt', $msg);
+        }
         return $config;
     }
 
@@ -470,8 +211,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         $config = $this->get_config();
         $config[trim($key)] = $val;
 
-        $sess = session::get_instance();
-        $sess['config'] = $config;
+        session::get_instance()['config'] = $config;
     }
 
     public function merge_config_vals(array $config)
@@ -480,8 +220,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
             $current = $this->get_config();
             $new = $this->merge_config($current, $config);
 
-            $sess = session::get_instance();
-            $sess['config'] = $new;
+            session::get_instance()['config'] = $new;
         }
     }
 
@@ -490,8 +229,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         $config = $this->get_config();
         unset($config[trim($key)]);
 
-        $sess = session::get_instance();
-        $sess['config'] = $config;
+        session::get_instance()['config'] = $config;
     }
 
     public function get_orig_error_level() : int
@@ -506,7 +244,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
 
     public function get_name() : string
     {
-        return self::class;
+        return __CLASS__;
     }
 
     public function get_tmpdir() : string
@@ -570,6 +308,11 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
         return (int)($this->_dest_schema ?? 0);
     }
 
+    /* In a .phar at '/path/to/my.phar', and which contains a file located at 'relpath/to/foo.bar',
+       __FILE__ is phar:///path/to/my.phar/relpath/to/foo.bar
+       __DIR__ is phar:///path/to/my.phar/relpath/to
+       Phar::running() is phar:///path/to/my.phar
+    */
     public function get_phar($asurl = false) : string
     {
         return ($this->_have_phar) ? Phar::running($asurl) : '';
@@ -589,6 +332,7 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
      */
     public function setup_sources_scan(string $pattern = '') : array
     {
+        // __DIR__ might be phar://abspath/to/pharfile/relpath/to/thisfolder
         $path = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'sources';
         $iter = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator(
@@ -715,15 +459,325 @@ lib/classes/tests/class.boolean_test.php  cms_installer\tests  >> prepend 'class
                 exit;
             }
         } elseif ($clear) {
-             $fp = $this->get_rootdir();
-             $sess->clear();
-             rrmdir($fp);
-             exit;
+            $fp = $this->get_rootdir();
+            $sess->clear();
+            rrmdir($fp);
+            exit;
         }
         $sess->clear();
     }
 
-//TODO register this as an exception/error/session-end handler, NOT request-end handler
+    /*
+     * Populate config parameters
+     * @return array
+     * @throws Exception
+     */
+    protected function load_config() : array
+    {
+        // get default params
+        $config = $this->get_config_defaults();
+
+        // supplement/override defaults per user-provided custom config file if any
+        $fp = realpath(getcwd());
+        if (endswith($fp, 'phar_installer') || endswith($fp, 'installer')) {
+            $fp = dirname($fp);
+        }
+        $config_file = joinpath($fp, 'installer.ini');
+        if (is_file($config_file) && is_readable($config_file)) {
+            $xconfig = parse_ini_file($config_file, false, INI_SCANNER_TYPED);
+            if ($xconfig) {
+                $config = $this->merge_config($config, $xconfig);
+                if (!empty($xconfig['dest'])) {
+                    $this->_custom_destdir = $xconfig['dest'];
+                }
+            }
+        }
+
+        // supplement/override per URL params if any
+        $request = request::get_instance();
+        foreach ([
+            'debug',
+            'dest',
+            'destdir',
+            'no_files',
+            'nobase',
+            'nofiles',
+            'timezone',
+            'TMPDIR',
+            'tmpdir',
+            'tz',
+        ] as $key) {
+            if (!isset($request[$key])) {
+                continue;
+            }
+            $val = $request[$key];
+            switch ($key) {
+            case 'TMPDIR':
+            case 'tmpdir':
+                $config['tmpdir'] = trim($val);
+                break;
+            case 'timezone':
+            case 'tz':
+                $config['timezone'] = trim($val);
+                break;
+            case 'dest':
+            case 'destdir':
+                $this->_custom_destdir = $config['dest'] = trim($val);
+                break;
+            case 'debug':
+                $config['debug'] = to_bool($val);
+                break;
+            case 'nobase':
+                $config['nobase'] = to_bool($val);
+                break;
+            case 'nofiles':
+            case 'no_files':
+                $config['nofiles'] = to_bool($val);
+                break;
+            }
+        }
+        return $config;
+    }
+
+    /**
+     * Once-per-request initialization
+     * @ignore
+     * @see __construct()
+     * @param string $configfile Optional filepath
+     * @throws Exception
+     */
+    private function init(string $configfile = '')
+    {
+        // __DIR__ might be phar://abspath/to/pharfile/relpath/to/thisfolder
+        // ini_set('allow_url_fopen', true); N/A
+        $p = dirname(__DIR__).DIRECTORY_SEPARATOR; // 'lib'-relative
+        if (!$configfile) {
+            $this->_assetdir = $p.'assets';
+            $fp = $this->_assetdir.DIRECTORY_SEPARATOR.'installer.ini';
+        } else {
+            $this->_assetdir = dirname($configfile);
+            $fp = $configfile;
+        }
+        $config = (is_file($fp)) ? parse_ini_file($fp, false, INI_SCANNER_TYPED) : [];
+        $this->_config = ($config) ? $config : [];
+
+        // handle debug mode
+        if (!empty($config['debug'])) {
+            @ini_set('display_errors', 1);
+            @error_reporting(E_ALL);
+            set_error_handler([__CLASS__, 'internal_error_handler']);
+        }
+        set_exception_handler([__CLASS__, 'uncaught_exc_handler']); // prob. useless
+
+        $fp = $p.'compat.functions.php';
+        require_once $fp;
+        $fp = $p.'misc.functions.php';
+        require_once $fp;
+
+        $this->_have_phar = extension_loaded('phar');
+
+        // setup core autoloading
+        spl_autoload_register([__CLASS__, 'autoload']);
+
+        // and the other auto's
+//        $p = joinpath(__DIR__, 'smarty', 'libs', 'Autoloader.php');
+        //composer-installed place, plus trailing separator (Smarty path-defines always assume the latter)
+        $p = joinpath(dirname(__DIR__, 2), 'sources', 'lib', 'vendor', 'smarty', 'smarty', 'libs', '');
+        define('SMARTY_DIR', $p);
+        $p = joinpath(dirname(__DIR__), 'BackupSmartyAutoloader.php');
+        require_once $p;
+        Smarty_Autoloader::register();
+        $p = joinpath(dirname(__DIR__), 'vendor', 'autoload.php'); // CHECKME composer-autoload works in running phar?
+        require_once $p;
+
+        // get the session
+        $sess = session::get_instance();
+
+        // get the request
+        $request = request::get_instance();
+        if (isset($request['clear'])) {
+            $sess->reset();
+        }
+
+        // if details of the CMSMS version we are processing are not already cached,
+        // do so now
+        if (isset($sess['CMSMS:version'])) {
+            $ver = $sess['CMSMS:version'];
+        } else {
+//            $p = $config['archive'] ?? 'data/data.tar.gz';
+//            $p = strtr($p, '/\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
+//            $p = str_replace(basename($p), 'version.php', $p);
+//            $verfile = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.$p;
+            $verfile = joinpath(dirname(__DIR__, 2), 'sources', 'lib', 'version.php');
+            if (!is_file($verfile)) {
+                throw new Exception('Could not find intallation version file');
+            }
+            // TODO preserve current global $CMS_VERSION, $CMS_VERSION_NAME, $CMS_SCHEMA_VERSION if any c.f. create.manifest.php::get_version()
+            include_once $verfile;
+            $ver = ['version' => $CMS_VERSION, 'version_name' => $CMS_VERSION_NAME, 'schema_version' => $CMS_SCHEMA_VERSION];
+            $sess['CMSMS:version'] = $ver;
+        }
+        $this->_dest_version = $ver['version'];
+        $this->_dest_name = $ver['version_name'];
+        $this->_dest_schema = $ver['schema_version'];
+
+//      register_shutdown_function ([$this, 'whatever']);
+//      register throwable hanlder, session-end-handler ([$this, 'endit']);
+    }
+
+    /**
+     * Merge config data arrays (e.g. from .ini files)
+     * Unlike array_merge_recusive(), this does some filtering of values
+     * and is limited to 2-D arrays.
+     * @internal
+     * @param array $config1 Merge into this
+     * @param array $config2 Merge from this (if not empty)
+     * @return array
+     */
+    private function merge_config(array $config1, array $config2) : array
+    {
+        if ($config2) {
+            foreach ($config2 as $k => $v) {
+                if (is_array($v)) {
+                    if (!isset($config1[$k]) || $config1[$k] === '') {
+                        $config1[$k] = [];
+                    } elseif (!is_array($v)) {
+                        $config1[$k] = [$config1[$k]];
+                    }
+                    $config1[$k] = array_unique(array_merge($config1[$k], $v), SORT_STRING);
+                } elseif (isset($config1[$k]) && is_array($config1[$k])) {
+                    $config1[$k] = array_unique(array_merge($config1[$k], [$v]), SORT_STRING);
+                } elseif (is_numeric($v)) {
+                    $config1[$k] = $v + 0;
+                } else {
+                    $config1[$k] = $v;
+                }
+            }
+        }
+        return $config1;
+    }
+
+    /**
+     * Populate default config parameters
+     * @return array
+     */
+    private function get_config_defaults() : array
+    {
+        $config = $this->merge_config([
+            'config_file' => null, // filepath of system config.php during upgrade|refresh
+            'coremodules' => [], // core module names
+            'debug' => false,
+            'dest' => null, // top filepath for installation
+            'extramodules' => [], // non-core module names
+            'lang' => null, // installer translation
+            'nobase' => false,
+            'nofiles' => false,
+            'selectlangs' => [], // translations to be selected for installation
+            'selectmodules' => [], // member(s) of extramodules to be selected for installation
+            'timezone' => null, // site timezone
+            'tmpdir' => null, // working directory
+            'verbose' => false, // advanced and verbose installer-mode
+        ], $this->_config);
+
+        $tmp = @date_default_timezone_get();
+        if (!$tmp) {
+            $tmp = 'UTC';
+        }
+        $this->_orig_tz = $config['timezone'] = $tmp;
+
+        $fp = realpath(getcwd());
+        if (endswith($fp, 'phar_installer') || endswith($fp, 'installer')) {
+            $fp = dirname($fp);
+        }
+        $config['dest'] = $fp;
+        return $config;
+    }
+
+    /*
+     * check and sanitize some config parameters
+     * @param array $config properties to be proccessed
+     * @return array
+     * @throws RuntimeException
+     */
+    private function check_config(array $config) : array
+    {
+        $dirty = false;
+        foreach ($config as $key => $val) {
+            switch ($key) {
+            case 'tmpdir':
+                if ($val) {
+                    if (!is_dir($val) || !is_writable($val)) {
+                        throw new RuntimeException('Invalid config value for '.$key.' - not a directory, or not writable');
+                    }
+                } else {
+                    // no tmpdir set... gotta find or create one.
+                    $fp = get_sys_tmpdir().DIRECTORY_SEPARATOR.chr(random_int(97, 122)).bin2hex(random_bytes(10));
+                    if (!is_dir($fp)) {
+                        $dirmode = get_server_permissions()[3]; // read+write+access
+                        if (mkdir($fp, $dirmode, true)) {
+                            $this->_custom_tmpdir = $fp;
+                            $config['tmpdir'] = $fp;
+                        } else {
+                            // could not find a valid system temporary directory, or none specified. gotta make one
+                            $fp = realpath(getcwd()).'/__m'.md5(session_id());
+                            if (!(is_dir($fp) || mkdir($fp, $dirmode, true))) {
+                                throw new RuntimeException('Sorry, problem determining a temporary directory, non specified, and we could not create one.');
+                            }
+                            $txt = 'This is temporary directory created for installing CMSMS in punitively restrictive environments.  You may delete this directory and its files after installation is complete.';
+                            if (!@file_put_contents($dir.'/__cmsms', $txt)) {
+                                throw new RuntimeException('We could not create a file in the temporary directory we just created (is safe mode on?).');
+                            }
+                            $this->_custom_tmpdir = $fp;
+                            $config['tmpdir'] = $fp;
+                        }
+                    } else {
+                        $this->_custom_tmpdir = $fp;
+                        $config['tmpdir'] = $fp;
+                    }
+                }
+                break;
+            case 'dest':
+                if (!$val || !is_dir($val) || !is_writable($val)) {
+                    throw new RuntimeException('Invalid config value for '.$key.' - not a directory, or not writable');
+                }
+                break;
+            case 'coremodules':
+                if (!$val || !is_array($val) || count($val) < 10) {
+                    throw new RuntimeException('Invalid config value for '.$key.' - not an array, or not enough names');
+                }
+                sort($val, SORT_STRING);
+                $config['coremodules'] = $val;
+                $dirty = true;
+                break;
+            case 'extramodules':
+            case 'selmodules':
+                if ($val) {
+                    if (is_array($val)) {
+                        sort($val, SORT_STRING);
+                    } else {
+                        $val = [$val];
+                    }
+                    $config[$key] = $val;
+                }
+                break;
+            case 'config_file':
+                // prevent optional .ini or URL data for this one
+                $config[$key] = null; // real value set later, when we're sure about the dest place
+                break;
+            default:
+//            cases 'admin_path': 'assets_path': 'usertags_path':
+//            case 'debug':
+//            case 'nofiles':
+//            case 'nobase':
+//            case 'timezone':
+                // do nothing
+                break;
+            }
+        }
+        return $config;
+    }
+
+    //TODO register this as an exception/error/session-end handler, NOT request-end handler
 /*    public function endit()
     {
         $sess = session::get_instance();

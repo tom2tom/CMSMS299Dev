@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 function smarty_function_file_url($params, $template)
 {
@@ -30,11 +30,11 @@ function smarty_function_file_url($params, $template)
 		return '';
 	}
 
-	$dir = AppSingle::Config()['uploads_path'];
-	$add_dir = trim(($params['dir'] ?? ''), ' \\/');
+	$dir = SingleItem::Config()['uploads_path'];
+	$add_dir = trim(($params['dir'] ?? ''), ' \/');
 
 	if( $add_dir ) {
-		$add_dir = strtr($add_dir, '\\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
+		$add_dir = strtr($add_dir, '\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
 		$dir .= DIRECTORY_SEPARATOR.$add_dir;
 		if( !is_dir($dir) || !is_readable($dir) ) {
 			trigger_error("file_url plugin: dir=$add_dir invalid directory name specified");

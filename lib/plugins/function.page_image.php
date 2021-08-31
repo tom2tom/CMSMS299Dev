@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use function CMSMS\sanitizeVal;
 
 function smarty_function_page_image($params, $template)
@@ -32,7 +32,7 @@ function smarty_function_page_image($params, $template)
 	unset($params['full'], $params['thumbnail'], $params['tag'], $params['assign']);
 
 	$val = null;
-	$contentobj = AppSingle::App()->get_content_object();
+	$contentobj = SingleItem::App()->get_content_object();
 	if( is_object($contentobj) ) {
 		$propname = ( $thumbnail ) ? 'thumbnail' : 'image';
 		$val = $contentobj->GetPropertyValue($propname);
@@ -42,7 +42,7 @@ function smarty_function_page_image($params, $template)
 	$out = '';
 	if( $val ) {
 		$orig_val = $val;
-		$config = AppSingle::Config();
+		$config = SingleItem::Config();
 		if( $full ) $val = $config['image_uploads_url'].'/'.$val;
 		if( !$tag ) {
 			$out = $val;
@@ -61,8 +61,8 @@ function smarty_function_page_image($params, $template)
 		}
 	}
 
-	if( $assign ) {
-		$template->assign($assign, $out);
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']), $out);
 		return '';
 	}
 	return $out;
@@ -75,7 +75,7 @@ function smarty_cms_about_function_page_image()
 <p>Change History:</p>
 <ul>
 <li>Fix for CMSMS 1.9</li>
-<li>Jan 2016 <em>(calguy1000)</em> - Add the full param for CMSMS 2.2</li>
+<li>Jan 2016 <em>(Robert Campbell)</em> - Add the full param for CMSMS 2.2</li>
 </ul>
 EOS;
 }

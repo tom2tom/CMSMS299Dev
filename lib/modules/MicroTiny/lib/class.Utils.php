@@ -21,10 +21,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace MicroTiny;
 
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\StylesheetOperations;
 use CMSMS\Utils as AppUtils;
 use Exception;
@@ -51,18 +51,18 @@ class Utils
 	 * @param string $selector Optional page-element id
 	 * @param string $css_name Optional stylesheet name
 	 * @return string
-	 * @throws Exception, CmsLogicException
+	 * @throws Exception, CMSMS\LogicException
 	 */
 	public static function WYSIWYGGenerateHeader($selector='', $css_name='')
 	{
-		// static properties here >> StaticProperties class ?
+		// static properties here >> SingleItem property|ies ?
 		static $first_time = true;
 
 		// Check if we are in object instance
 		$mod = AppUtils::get_module('MicroTiny');
 		if( !is_object($mod) ) throw new RuntimeException('Could not find the MicroTiny module...');
 
-		$frontend = AppSingle::App()->is_frontend_request();
+		$frontend = SingleItem::App()->is_frontend_request();
 		$languageid = self::GetLanguageId($frontend);
 
 		// get the cssname that we're going to use (either passed in, or from profile)
@@ -129,7 +129,7 @@ EOS;
 		$output .=<<< EOS
 <script type="text/javascript" src="$url"></script>
 EOS;
-		if (AppState::test_state(AppState::STATE_ADMIN_PAGE)) {
+		if (AppState::test(AppState::ADMIN_PAGE)) {
 			add_page_headtext($output);
 			return '';
 		} else {
@@ -171,16 +171,14 @@ EOS;
 		$menu = ($profile['menubar']) ? 'true' : 'false';
 		$image1 = ($profile['allowimages']) ? ' | image' : '';
 		$image2 = ($profile['allowimages']) ? ' media image' : '';
-        $table = ($profile['allowtables']) ? ' table' : '';
+		$table = ($profile['allowtables']) ? ' table' : '';
 
 		$mod = AppUtils::get_module('MicroTiny');
-		$gCms = AppSingle::App();
-		$smarty = AppSingle::Smarty();
+		$gCms = SingleItem::App();
+		$smarty = SingleItem::Smarty();
 		$page_id = ($gCms->is_frontend_request()) ? $smarty->getTemplateVars('content_id') : '';
-		$url = $mod->create_url('m1_','linker',$page_id);
-		$linker_url = $ajax_url($url);
-		$url = $mod->create_url('m1_','ajax_getpages',$page_id);
-		$getpages_url = $ajax_url($url);
+		$linker_url = $mod->create_url('m1_','linker',$page_id,[CMS_JOB_KEY=>1],false,false,'',false,2);
+		$getpages_url = $mod->create_url('m1_','ajax_getpages',$page_id,[CMS_JOB_KEY=>1],false,false,'',false,2);
 
 		$js = <<<EOS
 // microtiny data

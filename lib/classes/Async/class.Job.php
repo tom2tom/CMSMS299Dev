@@ -29,7 +29,6 @@ use UnexpectedValueException;
  * A base class defining a job, and mechanisms for saving and retrieving that job.
  *
  * @package CMS
- * @author Robert Campbell
  *
  * @abstract
  * @since 2.2
@@ -90,7 +89,7 @@ abstract class Job
             return trim($this->_data[$key]);
 
         case 'manager_module':
-            return ''; // not used now AppSingle::App()->GetJobManager();
+            return ''; // not used now SingleItem::App()->GetJobManager();
 
         default:
             return (isset($this->_data[$key])) ? $this->_data[$key] : null;
@@ -142,7 +141,7 @@ abstract class Job
         $id = (int) $id;
         //TODO exceptions useless in async context
         if ($id < 1) {
-            throw new UnexpectedValueException('Invalid id passed to '.static::class.'::'.__FUNCTION__);
+            throw new UnexpectedValueException('Invalid id provided to '.static::class.'::'.__FUNCTION__);
         }
         if ($this->_data['id']) {
             throw new LogicException('Cannot replace a job id');
@@ -159,7 +158,7 @@ abstract class Job
     public function delete()
     {
 /*        // get the asyncmanager module
-        $module = AppSingle::App()->GetJobManager();
+        $module = SingleItem::App()->GetJobManager();
         if ($module) {
             $module->delete_job($this);
             $this->_data['id'] = 0;
@@ -180,7 +179,7 @@ abstract class Job
     public function save()
     {
 /*        // get the asyncmanager module
-        $module = AppSingle::App()->GetJobManager();
+        $module = SingleItem::App()->GetJobManager();
         if ($module) {
             $this->_data['id'] = (int)$module->save_job($this);
             return;

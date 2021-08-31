@@ -20,12 +20,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 function smarty_function_modified_date($params, $template)
 {
 	$str = lang('unknown');
-	$content_obj = AppSingle::App()->get_content_object();
+	$content_obj = SingleItem::App()->get_content_object();
 	if( is_object($content_obj) ) {
 		$time = $content_obj->GetModifiedDate();
 	    if( $time > -1 ) {

@@ -22,14 +22,16 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AdminUtils;
-use CMSMS\AppSingle;
 use CMSMS\Database\Connection;
 use CMSMS\DataException;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
-use CMSMS\SQLErrorException;
+use CMSMS\SingleItem;
+use CMSMS\SQLException;
 use CMSMS\TemplateOperations;
 use LogicException;
+use RuntimeException;
+use UnexpectedValueException;
 use const CMS_DB_PREFIX;
 use function audit;
 use function cms_to_stamp;
@@ -43,7 +45,6 @@ use function cms_to_stamp;
  * @license GPL
  * @since 2.99
  * @since 2.0 as global-namespace CmsLayoutTemplateCategory
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 class TemplatesGroup
 {
@@ -75,7 +76,7 @@ class TemplatesGroup
 	 */
 	protected $_members = [];
 
-	// static properties here >> StaticProperties class ?
+	// static properties here >> SingleItem property|ies ?
 	/**
 	 * @ignore
 	 */
@@ -119,15 +120,15 @@ class TemplatesGroup
 	 *
 	 * The group name must be unique, and can only contain certain characters.
 	 *
-	 * @throws LogicException
-	 * @param sting $str The templates-group name. Valid per AdminUtils::is_valid_itemname()
+	 * @param string $str The templates-group name. Valid per AdminUtils::is_valid_itemname()
+	 * @throws DataException or UnexpectedValueException
 	 */
 	public function set_name($str)
 	{
 		$str = trim($str);
-		if( !$str ) throw new LogicException('Name cannot be empty');
+		if( !$str ) throw new DataException('Name cannot be empty');
 		if( !AdminUtils::is_valid_itemname($str) ) {
-			throw new DataException('Invalid characters in name');
+			throw new UnexpectedValueException('Invalid characters in name');
 		}
 		$this->_data['name'] = $str;
 		$this->_dirty = TRUE;
@@ -202,9 +203,9 @@ class TemplatesGroup
 
 		$out = [];
 		if( $by_name ) {
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->_members).')';
-			$dbr = $db->GetAssoc($query);
+			$dbr = $db->getAssoc($query);
 			foreach( $this->_members as $id ) {
 				$out[$id] = $dbr[$id] ?? '<Missing Template>';
 			}
@@ -233,8 +234,8 @@ class TemplatesGroup
 				}
 				else {
 					$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE name IN ('.str_repeat('?,',count($a)-1).'?)';
-					$db = AppSingle::Db();
-					$dbr = $db->GetAssoc($query,[$a]);
+					$db = SingleItem::Db();
+					$dbr = $db->getAssoc($query,[$a]);
 					if( $dbr ) {
 						$ids = [];
 						foreach( $a as $name ) {
@@ -249,8 +250,8 @@ class TemplatesGroup
 			}
 			else {
 				$query = 'SELECT id FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE name = ?';
-				$db = AppSingle::Db();
-				$id = $db->GetOne($query,[$a]);
+				$db = SingleItem::Db();
+				$id = $db->getOne($query,[$a]);
 				if( $id ) return [$id];
 			}
 		}
@@ -373,7 +374,7 @@ class TemplatesGroup
 	/**
 	 * Validate the properties of this object
 	 * Unique valid name only
-	 * @throws DataException or LogicException
+	 * @throws UnexpectedValueException or LogicException
 	 */
 	protected function validate()
 	{
@@ -382,18 +383,18 @@ class TemplatesGroup
 			throw new LogicException('A templates group must have a name');
 		}
 		if( !AdminUtils::is_valid_itemname($name) ) {
-			throw new DataException('Name may contain only letters, numbers and/or these \'_ /+-,.\'.');
+			throw new UnexpectedValueException('Name may contain only letters, numbers and/or these \'_ /+-,.\'.');
 		}
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$gid = $this->get_id();
 		if( $gid > 0 ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
-			$dbr = $db->GetOne($query,[$name,$gid]);
+			$dbr = $db->getOne($query,[$name,$gid]);
 		}
 		else {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
-			$dbr = $db->GetOne($query,[$name]);
+			$dbr = $db->getOne($query,[$name]);
 		}
 		if( $dbr ) {
 			throw new LogicException('A templates group with the same name already exists');
@@ -413,13 +414,13 @@ class TemplatesGroup
 		if( !$gid ) return;
 
 		if( !$insert ) {
-			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id='.$gid);
+			$db->execute('DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id='.$gid);
 		}
 		if( $this->_members ) {
 			$o = 1;
-			$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.self::MEMBERSTABLE.' (group_id,tpl_id,item_order) VALUES (?,?,?)');
+			$stmt = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.self::MEMBERSTABLE.' (group_id,tpl_id,item_order) VALUES (?,?,?)');
 			foreach( $this->_members as $id ) {
-				$db->Execute($stmt,[$gid,$id,$o++]);
+				$db->execute($stmt,[$gid,$id,$o++]);
 			}
 			$stmt->close();
 		}
@@ -433,14 +434,14 @@ class TemplatesGroup
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)';
-		$dbr = $db->Execute($query,[
+		$dbr = $db->execute($query,[
 			$this->get_name(),
 			$this->get_description(),
 		]);
 		if( !$dbr ) {
-			throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+			throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
 		$gid = $this->_data['id'] = $db->Insert_ID();
 		$this->save_members($db,TRUE);
@@ -456,9 +457,9 @@ class TemplatesGroup
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?';
-		$db->Execute($query,[
+		$db->execute($query,[
 			$this->get_name(),
 			$this->get_description(),
 			(int)$this->get_id()
@@ -470,7 +471,7 @@ class TemplatesGroup
 
 	/**
 	 * Save this object to the database
-	 * @throws SQLErrorException or DataException
+	 * @throws SQLException or DataException
 	 */
 	public function save()
 	{
@@ -486,19 +487,19 @@ class TemplatesGroup
 	 * This method will delete the object from the database, and erase the id value
 	 * from this object, suitable for re-saving
 	 *
-	 * @throws SQLErrorException
+	 * @throws SQLException
 	 */
 	public function delete()
 	{
 		$gid = $this->get_id();
 		if( !$gid ) return;
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-		$dbr = $db->Execute($query,[$gid]);
-		if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		$dbr = $db->execute($query,[$gid]);
+		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id = ?';
-		$db->Execute($query,[$gid]);
+		$db->execute($query,[$gid]);
 
 		audit($gid,'CMSMS','Templates group deleted');
 		unset($this->_data['id']);
@@ -510,28 +511,28 @@ class TemplatesGroup
 	 *
 	 * @param int|string $val Either the integer group id, or the group name
 	 * @return self
-	 * @throws DataException
+	 * @throws RuntimeException
 	 */
 	public static function load($val)
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		if( is_numeric($val) && $val > 0 ) {
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-			$row = $db->GetRow($query,[(int)$val]);
+			$row = $db->getRow($query,[(int)$val]);
 		}
 		else {
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
-			$row = $db->GetRow($query,[$val]);
+			$row = $db->getRow($query,[$val]);
 		}
 		if( $row ) {
 			$query = 'SELECT tpl_id FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id=? ORDER BY item_order';
-			$dbr = $db->GetCol($query,[$row['id']]);
+			$dbr = $db->getCol($query,[$row['id']]);
 			$ob = new self();
 			$ob->set_properties($row);
 			$ob->set_members($dbr);
 			return $ob;
 		}
-		throw new DataException('Could not find templates group identified by '.$val);
+		throw new RuntimeException('Could not find templates group identified by '.$val);
 	}
 
 	/**

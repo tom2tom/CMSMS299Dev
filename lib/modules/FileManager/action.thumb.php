@@ -22,10 +22,9 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use FileManager\Utils;
 
-if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
-
-if (isset($params['cancel'])) $this->Redirect($id,'defaultadmin',$returnid,$params);
+//if( some worthy test fails ) exit;
+if( !$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed() ) exit;
+if( isset($params['cancel']) ) $this->Redirect($id,'defaultadmin',$returnid,$params);
 
 $sel = $params['sel'];
 if( !is_array($sel) ) {
@@ -33,11 +32,11 @@ if( !is_array($sel) ) {
 }
 unset($params['sel']);
 
-if (count($sel)==0) {
+if( !$sel ) {
   $params['fmerror']='nofilesselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
-if (count($sel)>1) {
+if( count($sel)>1 ) {
   $params['fmerror']='morethanonefiledirselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
@@ -80,4 +79,3 @@ $tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,'p
  ->assign('formend', $this->CreateFormEnd());
 
 $tpl->display();
-return '';

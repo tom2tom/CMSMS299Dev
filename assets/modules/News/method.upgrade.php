@@ -19,22 +19,21 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+//use CMSMS\Database\DataDictionary;
+//use CMSMS\SingleItem;
 use CMSMS\AdminUtils;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
-use CMSMS\Database\DataDictionary;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateType;
-use Exception;
 
 if (!isset($gCms)) exit;
-$db = AppSingle::Db();
-$dict = new DataDictionary($db);
+//$db = SingleItem::Db(); upstream
+$dict = $db->NewDataDictionary(); //or new DataDictionary($db);
 $me = $this->GetName();
 
 if( version_compare($oldversion,'2.50') < 0 ) {
-    $installer_working = AppState::test_state(AppState::STATE_INSTALL);
+    $installer_working = AppState::test(AppState::INSTALL);
     if( $installer_working ) {
         $uid = 1; // hardcode to first user
     }
@@ -89,11 +88,11 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'module_news','searchable I1');
         $dict->ExecuteSQLArray($sqlarray);
 
-        $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'module_news_categories','item_order I');
+        $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'module_news_categories','item_order I1 UNSIGNED DEFAULT 0');
         $dict->ExecuteSQLArray($sqlarray);
 
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY parent_id';
-        $categories = $db->GetArray($query);
+        $categories = $db->getArray($query);
 
         $uquery = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET item_order = ? WHERE news_category_id = ?';
         if( $categories ) {
@@ -103,7 +102,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
                 $parent = $row['parent_id'];
                 if( $parent != $prev_parent ) $item_order = 0;
                 $item_order++;
-                $db->Execute($uquery,[$item_order,$row['news_category_id']]);
+                $db->execute($uquery,[$item_order,$row['news_category_id']]);
             }
         }
 
@@ -207,86 +206,77 @@ if( version_compare($oldversion,'2.50.8') < 0 ) {
 
 if( version_compare($oldversion,'2.90') < 0 ) {
     $this->CreatePermission('Modify News Preferences', 'Modify News Module Settings');
-    if( version_compare(CMS_VERSION,'2.2.900') >= 0 ) {
+/*    if( version_compare(CMS_VERSION,'2.99') >= 0 ) {
         $fp = cms_join_path(CMS_ROOT_PATH,'lib','modules',$me);
         if( is_dir($fp) ) recursive_delete($fp);
         $fp = cms_join_path(CMS_ROOT_PATH,'modules',$me);
         if( is_dir($fp) ) recursive_delete($fp);
     }
-
+*/
     $this->RemovePreference();
     $this->SetPreference('date_format','%Y-%m-%e %H:%M');
     $this->SetPreference('default_category',1);
     $this->SetPreference('timeblock',News::HOURBLOCK);
 
-    $tbl = CMS_DB_PREFIX.'module_news';
-    $query = 'UPDATE '.$tbl.' SET start_time=MAX(news_date,modified_date,create_date) WHERE (start_time IS NULL OR start_time=0) AND status!=\'draft\'';
-    $db->Execute($query);
-    $query = 'UPDATE '.$tbl.' SET author_id=0 WHERE author_id<0';
-    $db->Execute($query);
-    $query = 'SELECT
-news_id,
-UNIX_TIMESTAMP(news_date) as newsstamp,
-UNIX_TIMESTAMP(start_time) as startstamp,
-UNIX_TIMESTAMP(end_time) as endstamp,
-UNIX_TIMESTAMP(create_date) as createstamp,
-UNIX_TIMESTAMP(modified_date) as modstamp
-FROM '.$tbl;
-    $oldtimes = $db->GetArray($query);
-
-    $sqlarray = $dict->DropColumnSQL($tbl,'icon');
-    $dict->ExecuteSQLArray($sqlarray);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'summary X(1024)');
-    $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'searchable I(1) DEFAULT 1');
-    $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'news_date I');
-    $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'start_time I DEFAULT 0');
-    $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'end_time I DEFAULT 0');
-    $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'create_date I');
-    $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I DEFAULT 0');
-    $dict->ExecuteSqlArray($sqlarray, FALSE);
-
-    $query = 'UPDATE '.$tbl.' SET
-news_date=?,
-start_time=?,
-end_time=?,
-create_date=?,
-modified_date=?
-WHERE news_id=?';
-    foreach ($oldtimes as $row) {
-        $db->Execute($query,[$row['newsstamp'],$row['startstamp'],$row['endstamp'],$row['createstamp'],$row['modstamp'],$row['news_id']]);
-    }
-
-    $query = 'UPDATE '.$tbl.' SET modified_date=0 WHERE modified_date<=create_date';
-    $db->Execute($query);
-    $query = 'UPDATE '.$tbl.' SET status=\'archived\' WHERE status=\'published\' AND end_time IS NOT NULL AND end_time>0 AND end_time<=?';
-    $db->Execute($query,[time()]);
-
-    $tbl = CMS_DB_PREFIX.'module_news_categories';
-    $sqlarray = $dict->AlterColumnSQL($tbl,'news_category_id I2 UNSIGNED AUTO KEY');
-    $dict->ExecuteSQLArray($sqlarray);
-    $sqlarray = $dict->AddColumnSQL($tbl,'item_order I2 UNSIGNED');
-    $dict->ExecuteSQLArray($sqlarray);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'create_date I');
-    $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I DEFAULT 0');
-    $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $query = 'UPDATE '.$tbl.' SET modified_date=0 WHERE modified_date<=create_date';
-    $db->Execute($query);
-
-    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_templates WHERE type_id=(SELECT id FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator=\'News\' AND name=\'form\')';
-    $db->Execute($query);
-    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_type WHERE originator=\'News\' AND name=\'form\'';
-    $db->Execute($query);
-
-    $db->DropSequence(CMS_DB_PREFIX.'module_news_categories_seq');
     $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fielddefs');
     $dict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_news_fieldvals');
     $dict->ExecuteSQLArray($sqlarray);
+    $db->DropSequence(CMS_DB_PREFIX.'module_news_categories_seq');
+
+    $longnow = $db->DbTimeStamp(time(),false);
+
+    $tbl = CMS_DB_PREFIX.'module_news';
+    $query = 'UPDATE '.$tbl.' SET author_id=0 WHERE author_id<0';
+    $db->execute($query);
+    $query = 'UPDATE '.$tbl.' SET modified_date=NULL WHERE modified_date<=create_date';
+    $db->execute($query);
+    $query = 'UPDATE '.$tbl.' SET status=\'archived\' WHERE status=\'published\' AND end_time IS NOT NULL AND end_time<=?';
+    $db->execute($query,[$longnow]);
+    $query = 'UPDATE '.$tbl.' SET start_time=MAX(news_date,modified_date,create_date) WHERE start_time IS NULL AND status!=\'draft\'';
+    $db->execute($query);
+
+    $sqlarray = $dict->DropColumnSQL($tbl,'news_date');
+    $dict->ExecuteSqlArray($sqlarray);
+    $sqlarray = $dict->RenameColumnSQL($tbl,'icon','image_url','C(255)');
+    $dict->ExecuteSqlArray($sqlarray);
+    $sqlarray = $dict->ChangeTableSQL($tbl,
+'
+news_id I UNSIGNED,
+news_category_id I UNSIGNED,
+status C(25),
+news_data C(15000),
+summary C(1000),
+alias C(255),
+create_date DT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP,
+author_id I UNSIGNED DEFAULT 0,
+searchable I1 DEFAULT 1
+',
+    'CHARACTER SET utf8mb4');
+    $dict->ExecuteSqlArray($sqlarray);
+
+    $tbl = CMS_DB_PREFIX.'module_news_categories';
+
+    $query = 'UPDATE '.$tbl.' SET modified_date=NULL WHERE modified_date<=create_date';
+    $db->execute($query);
+
+    $sqlarray = $dict->ChangeTableSQL($tbl,
+'
+news_category_id I UNSIGNED AUTO,
+news_category_name C(255) CHARACTER SET utf8mb4,
+item_order I1 UNSIGNED DEFAULT 0,
+long_name C(1000) CHARACTER SET utf8mb4,
+alias C(255),
+image_url C(255),
+create_date DT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
+',
+    'CHARACTER SET ascii');
+    $dict->ExecuteSqlArray($sqlarray);
+
+    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_templates WHERE type_id=(SELECT id FROM '.CMS_DB_PREFIX.'layout_tpl_types WHERE originator=\'News\' AND name=\'form\')';
+    $db->execute($query);
+    $query = 'DELETE FROM '.CMS_DB_PREFIX.'layout_tpl_types WHERE originator=\'News\' AND name=\'form\'';
+    $db->execute($query);
 }

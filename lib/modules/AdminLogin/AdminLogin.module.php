@@ -19,10 +19,10 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
 use CMSMS\IAuthModule;
 use CMSMS\IResource;
+use CMSMS\RequestParameters;
 use CMSMS\ResourceMethods;
 
 /**
@@ -53,7 +53,7 @@ class AdminLogin implements IResource, IAuthModule
     public function GetHelp() { return ''.@file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'modhelp.htm'); }
     public function GetVersion() { return '0.2'; }
     public function HasAdmin() { return false; }
-    public function MinimumCMSVersion() { return '2.99.0'; }
+    public function MinimumCMSVersion() { return '2.99'; }
     public function VisibleToAdminUser() { return false; }
 
     public function HasCapability($capability, $params = [])
@@ -89,7 +89,7 @@ class AdminLogin implements IResource, IAuthModule
     public function display_login_page()
     {
         $id = 'm1_';
-        $params = AppSingle::ModuleOperations()->GetModuleParameters($id);
+        $params = RequestParameters::get_identified_params($id);
         echo $this->DoAction('login', $id, $params, null);
     }
 } // class

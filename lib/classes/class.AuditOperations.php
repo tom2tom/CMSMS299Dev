@@ -55,7 +55,7 @@ final class AuditOperations implements IAuditManager
     /**
      * @ignore
      */
-    protected function __clone() {}
+    private function __clone() {}
 
     /**
      * Get the singleton instance of this class.
@@ -63,8 +63,8 @@ final class AuditOperations implements IAuditManager
      */
     public static function get_instance() : self
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\\AppSingle::AuditOperations()'));
-        return AppSingle::AuditOperations();
+        assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\SingleItem::AuditOperations()'));
+        return SingleItem::AuditOperations();
     }
 
     /**
@@ -85,7 +85,7 @@ final class AuditOperations implements IAuditManager
         $this->_data_mgr = $mgr;
     }
 
-    protected function get_auditor()
+    private function get_auditor()
     {
         if (!$this->_data_mgr) {
             $this->init();

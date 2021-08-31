@@ -1,21 +1,20 @@
 <?php
 use FileManager\Utils;
-use FileManager\imageEditor;
+use FileManager\ImageEditor;
 
-if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
-
-if (isset($params['cancel'])) $this->Redirect($id,'defaultadmin',$returnid,$params);
+//if( some worthy test fails ) exit;
+if( !$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed() ) exit;
+if( isset($params['cancel']) ) $this->Redirect($id,'defaultadmin',$returnid,$params);
 
 $sel = $params['sel'];
 if( !is_array($sel) ) $sel = json_decode(rawurldecode($sel),true);
 unset($params['sel']);
 
-if (count($sel)==0) {
+if( !$sel ) {
   $params['fmerror']='nofilesselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
-if (count($sel)>1) {
+if( count($sel)>1 ) {
   $params['fmerror']='morethanonefiledirselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
@@ -48,23 +47,23 @@ if(empty($params['reset'])
    && !empty($params['iw']) && !empty($params['ih'])) {
 
   //Get the mimeType
-  $mimeType = imageEditor::getMime($src);
+  $mimeType = ImageEditor::getMime($src);
 
   //Open new Instance
-  $instance = imageEditor::open($src);
+  $instance = ImageEditor::open($src);
 
   //Resize it if necessary
   if( !empty($params['iw']) && !empty($params['ih']) ) {
-      $instance = imageEditor::resize($instance, $mimeType, $params['iw'], $params['ih']);
+      $instance = ImageEditor::resize($instance, $mimeType, $params['iw'], $params['ih']);
   }
 
   //Crop it if necessary
   if( !empty($params['cx']) && !empty($params['cy']) && !empty($params['cw']) && !empty($params['ch']) ) {
-      $instance = imageEditor::crop($instance, $mimeType, $params['cx'], $params['cy'], $params['cw'], $params['ch']);
+      $instance = ImageEditor::crop($instance, $mimeType, $params['cx'], $params['cy'], $params['cw'], $params['ch']);
   }
 
   //Save it
-  $res = imageEditor::save($instance, $src, $mimeType);
+  $res = ImageEditor::save($instance, $src, $mimeType);
   if( $this->GetPreference('create_thumbnails') ) Utils::create_thumbnail($src);
 
   $this->Redirect($id,'defaultadmin',$returnid);
@@ -148,4 +147,3 @@ $tpl->assign('formstart',$this->CreateFormStart($id,'resizecrop',$returnid,'post
  ->assign('filename',$filename);
 
 $tpl->display();
-return '';

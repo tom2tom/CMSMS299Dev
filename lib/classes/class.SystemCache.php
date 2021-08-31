@@ -1,6 +1,6 @@
 <?php
 /*
-Generic cache-driver wrapper class
+Singleton wrapper-class for engaging with a system/global cache
 Copyright (C) 2010-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -16,58 +16,61 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\CacheDriver;
 use CMSMS\DeprecationNotice;
+use CMSMS\SingleItem;
 use Exception;
 use Throwable;
 use const CMS_DEPREC;
 use function debug_buffer;
 
 /**
- * Wrapper class providing caching capability.
- * NOTE After instantiation and before use, connect() or set_driver() must be called
+ * Singleton wrapper-class for engaging with a system/global cache
  *
  * Site-preferences which affect cache operation (unless overridden by supplied params):
  * 'cache_driver' string 'predis','memcached','apcu','yac','file' or 'auto'
  * 'cache_autocleaning' bool
- * 'cache_lifetime' int seconds (may be 0)
- * 'cache_file_blocking' bool
- * 'cache_file_locking' bool
+ * 'cache_lifetime' int seconds (may be 0 for unlimited)
+ * 'cache_file_blocking' bool for a file-cache
+ * 'cache_file_locking' bool ditto
  *
- * @see also CMSMS\SysDataCache class, which caches system data in memory, and
- *  uses this class for inter-request continuity
+ * @see also CMSMS\LoadedData class, which caches system data in memory,
+ *  and uses this class for inter-request continuity
  * @final
  * @package CMS
  * @license GPL
-*/
-//TODO admin developer-mode UI for related site-preferences
-
+ */
 final class SystemCache
 {
 	/* *
 	 * @ignore
 	 */
-//  private static $_instance = null;
+//	private static $_instance = null;
 
 	/**
 	 * @ignore
 	 */
-	private $_driver = null;
+	private static $driver;
 
 	/**
-	 * @ignore
+	 * Constructor
+	 *
+	 * @param $params Optional connection-parameters. Default []
+	 * NOTE: if this instance is created as a SingleItem
+	 * (normally the case), then no $params will be supplied, and
+	 * any parameter-tailoring will need to happen via
+	 * get,tweak,set_driver() calls.
 	 */
-	public function __construct()
+	public function __construct(array $params = [])
 	{
-		$this->connect();
+		$this->connect($params);
 	}
 
 	/**
@@ -77,45 +80,44 @@ final class SystemCache
 
 	/**
 	 * Get the singleton general-purpose cache object.
-	 * @deprecated since 2.99 instead use CMSMS\AppSingle::SystemCache()
+	 * @deprecated since 2.99 Instead use CMSMS\SingleItem::SystemCache()
+	 *
 	 * @return self | not at all
 	 * @throws Exception if driver-connection fails
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::SystemCache()'));
-		return AppSingle::SystemCache();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::SystemCache()'));
+		return SingleItem::SystemCache();
 	}
 
 	/**
 	 * Connect to and record a driver class
-	 *
 	 * @since 2.99
-	 * @param $opts Optional connection-parameters. Default []
-	 * @return CacheDriver object | not at all
+	 *
+	 * @param $params Optional connection-parameters. Default []
 	 * @throws Exception
 	 */
-	public function connect(array $opts = []) : CacheDriver
+	public function connect(array $params = [])
 	{
-
-		if( $this->_driver instanceof CacheDriver ) {
-			return $this->_driver; //just one connection per request
+		if( self::$driver instanceof CacheDriver ) {
+			return; // only one connection per request
 		}
 
-		// ordered by preference during an auto-selection
+		// these are ordered by preference during an auto-selection
 		$drivers = [
-		 'predis' => 'CMSMS\\CachePredis',
-		 'apcu' => 'CMSMS\\CacheApcu',
-		 'memcached' => 'CMSMS\\CacheMemcached', //slowest !?
-		 'yac' => 'CMSMS\\CacheYac',  // bit intersection risky
-		 'file' => 'CMSMS\\CacheFile',
+			'predis' => 'CMSMS\CachePredis',
+			'apcu' => 'CMSMS\CacheApcu',
+			'memcached' => 'CMSMS\CacheMemcached', // slowest !?
+			'yac' => 'CMSMS\CacheYac',  // bit intersection risky
+			'file' => 'CMSMS\CacheFile',
 		];
 
-		$parms = $opts;
+		$parms = $params;
 		// preferences cache maybe N/A now, so get pref data directly
-		$driver_name = $opts['driver'] ?? AppParams::getraw('cache_driver', 'auto');
+		$driver_name = $params['driver'] ?? AppParams::getraw('cache_driver', 'auto');
 		unset($parms['driver']);
-		$ttl = $opts['lifetime'] ?? AppParams::getraw('cache_lifetime', 3600);
+		$ttl = $params['lifetime'] ?? AppParams::getraw('cache_lifetime', 3600);
 		$ttl = (int)$ttl;
 		if( $ttl < 1 ) $ttl = 0;
 		if( $ttl < 1 ) {
@@ -129,7 +131,7 @@ final class SystemCache
 			}
 		}
 
-		if( AppState::test_state(AppState::STATE_INSTALL) ) {
+		if( AppState::test(AppState::INSTALL) ) {
 			$parms['lifetime'] = 120;
 			$parms['auto_cleaning'] = true;
 		}
@@ -137,21 +139,21 @@ final class SystemCache
 		$host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
 		$tmp = AppParams::getraw(['cache_file_blocking', 'cache_file_locking'],[0, 1]);
 		$settings = [
-			 'predis' => [
-			 'host' => $host,
-			 'port' => 6379,
-			 'read_write_timeout' => 10.0, // connection timeout, not data lifetime
-			 'password' => '',
-			 'database' => 0,
-			 ],
-			 'memcached' => [
-			 'host' => $host,
-			 'port' => 11211,
-			 ],
-			 'file' => [
-			 'blocking' => reset($tmp),
-			 'locking' => end($tmp),
-			 ],
+			'predis' => [
+				'host' => $host,
+				'port' => 6379,
+				'read_write_timeout' => 10.0, // connection timeout, not data lifetime
+				'password' => '',
+				'database' => 0,
+			],
+			'memcached' => [
+				'host' => $host,
+				'port' => 11211,
+			],
+			'file' => [
+				'blocking' => reset($tmp),
+				'locking' => end($tmp),
+			],
 		];
 
 		$type = strtolower($driver_name);
@@ -164,9 +166,9 @@ final class SystemCache
 				$classname = $drivers[$type];
 				if( isset($settings[$type]) ) $parms += $settings[$type];
 				try {
-					$this->_driver = new $classname($parms);
-					debug_buffer('Cache initiated, using driver: ' . $type);
-					return $this->_driver;
+					self::$driver = new $classname($parms);
+					debug_buffer('Cache initiated, using specified driver: ' . $type);
+					return self::$driver;
 				} catch (Exception $e) {}
 				break;
 			case 'auto':
@@ -175,9 +177,9 @@ final class SystemCache
 				$tmp = $parms;
 				if( isset($settings[$type]) ) $tmp += $settings[$type];
 				try {
-					$this->_driver = new $classname($tmp);
-					debug_buffer('Cache initiated, using driver: ' . $type);
-					return $this->_driver;
+					self::$driver = new $classname($tmp);
+					debug_buffer('Cache initiated, using detected driver: ' . $type);
+					return self::$driver;
 				}
 				catch (Throwable $t) {}
 				}
@@ -185,20 +187,20 @@ final class SystemCache
 			default:
 				break;
 		}
-		$this->_driver = null;
+		self::$driver = null;
 		throw new Exception('Cache ('.$driver_name.') setup failed');
 	}
 
 	/**
 	 * Set the driver to use for caching.
-	 * This allows use of a custom driver other than supported by connect()
-	 *
+	 * This allows deployment of a driver other than the ones supported by connect()
 	 * @see SystemCache::connect()
+	 *
 	 * @param CacheDriver $driver
 	 */
 	public function set_driver(CacheDriver $driver)
 	{
-		$this->_driver = $driver;
+		self::$driver = $driver;
 	}
 
 	/**
@@ -209,202 +211,237 @@ final class SystemCache
 	 */
 	public function get_driver()
 	{
-		return $this->_driver;
+		return self::$driver;
 	}
 
 	/**
-	 * Clear some/all of the cache
-	 * If the group is not specified, the current set group will be used.
-	 * If the group is empty, all cached values will be cleared.
-	 * Use with caution, especially in shared public caches like Memcached.
+	 * Remove all cached values from a keys-space, or from the whole cache
 	 *
-	 * @see SystemCache::set_group()
-	 * @param string $group
-	 * @return bool
+	 * @param string $space Optional keys-space name, default ''.
+	 *  If not specified, the default keys-space will be used.
+	 *  If $space is '*' or '__ALL__', the whole cache (i.e. all spaces) will be cleared.
+	 * @return mixed false | int no. of values deleted (might be 0)
 	 */
-	public function clear(string $group = '') : bool
+	public function clear(string $space = '')
 	{
-//		if( $this->can_cache() ) {
-		if( $this->_driver instanceof CacheDriver ) {
-//		if( is_object($this->_driver) ) {
-			return $this->_driver->clear($group);
+		if( self::$driver instanceof CacheDriver ) {
+			return self::$driver->clear($space);
 		}
 		return FALSE;
 	}
 
 	/**
 	 * Get a cached value
+	 * @see SystemCache::set_space()
 	 *
-	 * @see SystemCache::set_group()
-	 * @param string $key The primary key for the cached value
-	 * @param string $group An optional cache group name.
-	 * @return mixed null if there is no cache-data for $key
+	 * @param string $key The key/identifier of the cached value
+	 * @param string $space Optional keys-space name, default ''.
+	 *  If not specified, the default keys-space will be used.
+	 * @return mixed cached value | null if there is no cache-data for $key
 	 */
-	public function get(string $key, string $group = '')
+	public function get(string $key, string $space = '')
 	{
-//		if( $this->can_cache() ) {
-		if( $this->_driver instanceof CacheDriver ) {
-//		if( is_object($this->_driver) ) {
-			return $this->_driver->get($key, $group);
+		if( self::$driver instanceof CacheDriver ) {
+			return self::$driver->get($key, $space);
 		}
 		return NULL;
 	}
 
 	/**
-	 * Get all cached values in the specified group
-	 *
+	 * Get all cached values in a keys-space
 	 * @since 2.99
-	 * @param string $group An optional cache group name.
-	 * @return array
+	 *
+	 * @param string $space Optional keys-space name, default ''.
+	 *  If not specified, the default keys-space will be used.
+	 * @return mixed array | null
 	 */
-	public function getall(string $group = '') : array
+	public function getall(string $space = '')
 	{
-//		if( $this->can_cache() ) {
-		if( $this->_driver instanceof CacheDriver ) {
-//		if( is_object($this->_driver) ) {
-			return $this->_driver->get_all($group);
+		if( self::$driver instanceof CacheDriver ) {
+			return self::$driver->get_all($space);
 		}
 		return NULL;
 	}
 
 	/**
-	 * Get all cached keys in the specified group
-	 *
+	 * Get all value-keys in a keys-space
 	 * @since 2.99
-	 * @param string $group An optional cache group name.
-	 * @return array
+	 *
+	 * @param string $space Optional keys-space name, default ''.
+	 *  If not specified, the default keys-space will be used.
+	 * @return mixed array | null
 	 */
-	public function getindex(string $group = '') : array
+	public function getindex(string $space = '')
 	{
-//		if( $this->can_cache() ) {
-		if( $this->_driver instanceof CacheDriver ) {
-//		if( is_object($this->_driver) ) {
-			return $this->_driver->get_index($group);
+		if( self::$driver instanceof CacheDriver ) {
+			return self::$driver->get_index($space);
 		}
 		return NULL;
 	}
 
 	/**
-	 * Test if a key/value pair is present in the cache
+	 * Report whether a value-key is present in the cache
+	 * @see SystemCache::set_space()
 	 *
-	 * @see SystemCache::set_group()
-	 * @param string $key The primary key for the cached value
-	 * @param string $group An optional cache group name.
+	 * @param string $key The key/identifier of the cached value
+	 * @param string $space Optional keys-space name, default ''.
+	 *  If not specified, the default keys-space will be used.
 	 * @return bool
 	 */
-	public function has(string $key, string $group = '') : bool
+	public function has(string $key, string $space = '') : bool
 	{
-//		if( $this->can_cache() ) {
-		if( $this->_driver instanceof CacheDriver ) {
-//		if( is_object($this->_driver) ) {
-			return $this->_driver->has($key, $group);
+		if( self::$driver instanceof CacheDriver ) {
+			return self::$driver->has($key, $space);
 		}
 		return FALSE;
 	}
 
 	/**
-	* @deprecated since 2.99 instead use interface-compatible has()
-	* @param string $key The primary key for the cached value
-	* @param string $group An optional cache group name.
+	 * Report whether a value-key is present in the cache
+	 * @deprecated since 2.99 Instead use interface-compatible SystemCache::has()
 	 */
-	public function exists(string $key, string $group = '') : bool
+	public function exists(string $key, string $space = '') : bool
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','has()'));
-		return $this->has($key, $group);
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SystemCache::has()'));
+		return $this->has($key, $space);
 	}
 
 	/**
-	 * Erase a cached value
+	 * Remove a value from the cache
+	 * @see SystemCache::set_space()
 	 *
-	 * @see SystemCache::set_group()
-	 * @param string $key The primary key for the cached value
-	 * @param string $group An optional cache group name.
+	 * @param string $key The key/identifier of the cached value
+	 * @param string $space Optional keys-space name, default ''.
+	 *  If not specified, the default keys-space will be used.
 	 * @return bool
 	 */
-	public function delete(string $key, string $group = '') : bool
+	public function delete(string $key, string $space = '') : bool
 	{
-//		if( $this->can_cache() ) {
-		if( $this->_driver instanceof CacheDriver ) {
-//		if( is_object($this->_driver) ) {
-			return $this->_driver->delete($key, $group);
+		if( self::$driver instanceof CacheDriver ) {
+			return self::$driver->delete($key, $space);
 		}
 		return FALSE;
 	}
 
 	/**
-	* @deprecated since 2.99 instead use interface-compatible delete()
-	* @param string $key The primary key for the cached value
-	* @param string $group An optional cache group name.
+	 * Remove a value from the cache
+	 * @deprecated since 2.99 Instead use interface-compatible Systemcache::delete()
 	 */
-	public function erase(string $key, string $group = '') : bool
+	public function erase(string $key, string $space = '') : bool
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','delete()'));
-		return $this->delete($key, $group);
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\Systemcache::delete()'));
+		return $this->delete($key, $space);
 	}
 
 	/**
 	 * Add or replace a value in the cache
-	 * NOTE that to ensure detectability, a $value === null will be
+	 * NOTE that to ensure detectability, a null $value will be
 	 * converted to 0, and in some cache-drivers, a $value === false
 	 * will be converted to 0
+	 * @see SystemCache::set_space()
 	 *
-	 * @see SystemCache::set_group()
-	 * @param string $key The primary key for the cached value
+	 * @param string $key The key/identifier of the cached value
 	 * @param mixed  $value the value to save
-	 * @param string $group An optional cache group name.
+	 * @param string $space Optional keys-space name, default ''.
+	 *  If not specified, the default keys-space will be used.
 	 * @return bool
 	 */
-	public function set(string $key, $value, string $group = '') : bool
+	public function set(string $key, $value, string $space = '') : bool
 	{
-//		if( $this->can_cache() ) {
-		if( $this->_driver instanceof CacheDriver ) {
-//		if( is_object($this->_driver) ) {
+		if( self::$driver instanceof CacheDriver ) {
 			if ($value === null ) { $value = 0; }
-			return $this->_driver->set($key, $value, $group);
+			return self::$driver->set($key, $value, $space);
+		}
+		return FALSE;
+	}
+
+	/**
+	 * Add or replace a value in the cache, giving the value a custom lifetime
+	 * NOTE some cache-drivers (e.g. file) might not support value-specific lifetimes
+	 * @since 2.99
+	 * @see SystemCache::set(), SystemCache::set_space()
+	 *
+	 * @param string $key
+	 * @param mixed $value
+	 * $param int $ttl Optional value-lifetime (seconds), default 0. Hence unlimited.
+	 * @param string $space Optional keys-space name, default ''.
+	 *  If not specified, the default keys-space will be used.
+	 */
+	public function set_timed(string $key, $value, int $ttl, string $space = '') : bool
+	{
+		if( self::$driver instanceof CacheDriver ) {
+			if ($value === null ) { $value = 0; }
+			$ttl = max(0, (int)$ttl);
+			return self::$driver->set_timed($key, $value, $ttl, $space);
 		}
 		return FALSE;
 	}
 
 	/* *
-	 * Set/replace the contents of an entire cache-group
+	 * Set/replace the contents of an entire cache-space
 	 * @since 2.99
 	 *
-	 * @param array $values assoc. array each member like Kkey=>$val
-	 * @param string $group An optional cache group name.
+	 * @param array $values assoc. array each member like $key=>$val
+	 * @param string $space Optional keys-space name, default ''.
+	 *  If not specified, the default keys-space will be used.
 	 * @return bool
 	 */
-/*public function set_all(array $values, string $group = '') : bool
+/*	public function set_all(array $values, string $space = '') : bool
 	{
-TODO
+	TODO
 	}
 */
 	/**
-	 * Set the cache group
-	 * Specifies the scope for all methods in this cache
+	 * Set the default keys-space (a.k.a. group) for all class-methods
+	 * NOTE: cache users must self-manage the uniqueness of space names.
+	 * @since 2.99
 	 *
-	 * @param string $group
+	 * @param string $space keys-space name
 	 * @return bool
 	 */
-	public function set_group(string $group) : bool
+	public function set_space(string $space) : bool
 	{
-		if( $this->_driver instanceof CacheDriver ) {
-//		if( is_object($this->_driver) ) {
-			return $this->_driver->set_group($group);
+		if( self::$driver instanceof CacheDriver ) {
+			return self::$driver->set_space($space);
 		}
 		return FALSE;
 	}
 
-	/* *
-	 * Test if caching is possible
-	 * Caching is not possible if there is no driver(, CHECKME or during an install-request?).
-	 *
-	 * @return bool
+	/**
+	 * Set the default keys-space (a.k.a. group) for all class-methods
+	 * @deprecated since 2.99 Instead use set_space();
 	 */
-/*  public function can_cache() : bool
+	public function set_group(string $space) : bool
 	{
-		if( !is_object($this->_driver) ) return FALSE;
-		return !AppState::test_state(CMSMS\AppState::STATE_INSTALL);
-		return $this->_driver instanceof CMSMS\CacheDriver;
+		return $this->set_space($space);
 	}
-*/
+
+	/**
+	 * Get the default keys-space (a.k.a. group) for all class-methods
+	 * @since 2.99
+	 *
+	 * @return string, possibly 'UNKNOWN'
+	 */
+	public function get_space() : string
+	{
+		if( self::$driver instanceof CacheDriver ) {
+			return self::$driver->get_space();
+		}
+		return 'UNKNOWN';
+	}
+
+	/**
+	 * Convenience function to generate a keys-space name.
+	 * Cache users may specify space-names as they see fit, so using
+	 * this is optional.
+	 * @since 2.99
+	 *
+	 * @param string $salt If empty, the value of __CLASS__ will be used
+	 * @return string 16-hexits
+	 */
+	public function generate_space(string $salt = '') : string
+	{
+		if ($salt === '') { $salt = __CLASS__; }
+		return hash('adler32', $salt.__CLASS__).hash('adler32', $salt);
+	}
 }

@@ -23,7 +23,7 @@ use CMSMS\AdminUtils;
 use CMSMS\Utils;
 use News\AdminOperations;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 $papp = $this->CheckPermission('Approve News');
 $pmod = $this->CheckPermission('Modify News');
 $pdel = $this->CheckPermission('Delete News');
@@ -52,32 +52,35 @@ if( isset($params['bulk_action']) ) {
                 $this->ShowMessage($this->Lang('msg_success'));
             }
             else {
-                $this->ShowErrors($this->Lang('needpermission', 'Modify News'));
+                $this->ShowErrors($this->Lang('needpermission','Modify News'));
             }
             break;
 
         case 'setcategory':
             $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET news_category_id = ?, modified_date = ?
 WHERE news_id IN ('.implode(',',$sel).')';
-            $parms = [(int)$params['bulk_category'], time()];
-            $db->Execute($query,$parms);
-            audit('',$this->GetName(),'category changed on '.count($sel).' articles');
+            $longnow = $db->DbTimeStamp(time(),false);
+            $parms = [(int)$params['bulk_category'],$longnow];
+            $db->execute($query,$parms);
+            audit('',$this->GetName().'::defaultadmin','Category changed for '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
             break;
 
         case 'setpublished':
             $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = ?
 WHERE news_id IN ('.implode(',',$sel).')';
-            $db->Execute($query,['published', time()]);
-            audit('',$this->GetName(),'status changed on '.count($sel).' articles');
+            $longnow = $db->DbTimeStamp(time(),false);
+            $db->execute($query,['published',$longnow]);
+            audit('',$this->GetName().'::defaultadmin','Published status set for '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
             break;
 
         case 'setdraft':
             $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = ?
 WHERE news_id IN ('.implode(',',$sel).')';
-            $db->Execute($query,['draft', time()]);
-            audit('',$this->GetName(),'status changed on '.count($sel).' articles');
+            $longnow = $db->DbTimeStamp(time(),false);
+            $db->execute($query,['draft',$longnow]);
+            audit('',$this->GetName().'::defaultadmin','Draft status set for '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
             break;
 
@@ -87,7 +90,7 @@ WHERE news_id IN ('.implode(',',$sel).')';
     }
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
 $tpl->assign('can_add',$pmod)
  ->assign('can_mod',$pmod)
  ->assign('can_del',$pmod && $pdel)
@@ -169,4 +172,3 @@ if( $pset ) {
 }
 
 $tpl->display();
-return '';

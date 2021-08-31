@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !check_login() ) exit; // admin only.... but any admin
 
 $handlers = ob_list_handlers();
@@ -32,7 +32,7 @@ $alias = trim(strip_tags($_REQUEST['alias'] ?? '')); // sanitizeVal() ?
 if( $alias ) {
     $query = 'SELECT content_id,content_name,menu_text,content_alias,id_hierarchy FROM '.CMS_DB_PREFIX.'content
 WHERE content_alias = ? AND active = 1';
-    $dbr = $db->GetRow($query,[$alias]);
+    $dbr = $db->getRow($query,[$alias]);
     if( $dbr ) {
         $lbl = "{$dbr['content_name']} ({$dbr['id_hierarchy']})";
         $out = ['label'=>$lbl, 'value'=>$dbr['content_alias']];
@@ -45,7 +45,7 @@ WHERE (content_name LIKE ? OR menu_text LIKE ? OR content_alias LIKE ?) AND acti
 ORDER BY default_content DESC, hierarchy';
     // injection-prevention by escStr() plus prepared statement
     $wm = '%'.$db->escStr($term).'%';
-    $dbr = $db->GetArray($query, [$wm, $wm, $wm]);
+    $dbr = $db->getArray($query, [$wm, $wm, $wm]);
     if( $dbr ) {
         // found some pages to match
         $out = [];

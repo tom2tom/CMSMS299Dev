@@ -20,15 +20,16 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Database;
 
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\Crypto;
 use CMSMS\Database\DataDictionary;
 use CMSMS\Database\ResultSet;
 use CMSMS\Database\Statement;
 use CMSMS\DeprecationNotice;
+use CMSMS\SingleItem;
 use DateTime;
 use DateTimeZone;
+use Exception;
 use mysqli;
 use const CMS_DEBUG;
 use const CMS_DEPREC;
@@ -37,9 +38,15 @@ use function debug_display;
 use function debug_to_log;
 
 /**
- * A class defining a MySQL database connection, and mechanisms for working with the database.
+ * A class defining a MySQL (or compatible) database connection, and
+ * mechanisms for working with that database.
  * @since 2.99
  * @since 2.0 as a parent-class with a mysql-specific sub-class
+ *
+ * This class continues the CMSMS tradition of supporting much of the
+ * ADOdb API (see
+ * https://adodb.org/dokuwiki/doku.php?id=v5:reference:reference_index)
+ * together with some additions.
  */
 final class Connection
 {
@@ -161,19 +168,35 @@ final class Connection
     protected $_time_offset;
 
     /**
+     * Transaction-nest-depth
      * @internal
      */
     protected $_in_transaction = 0;
 
     /**
+     * Smart-transaction-nest-depth
      * @internal
      */
     protected $_in_smart_transaction = 0;
 
+
     /**
+     * Whether the current transaction has bombed
+     * @internal
+     */
+    protected $_transaction_failed = false;
+
+    /**
+     * Whether the current smart-transaction is committable (i.e. not-failed)
      * @internal
      */
     protected $_transaction_status = true;
+
+    /**
+     * Stack of transaction-objects TODO
+     * @internal
+     */
+    protected $_transactions = [];
 
     /**
      * Queue of cached results from prior pretend-async commands, pending pretend-reaps
@@ -197,7 +220,7 @@ final class Connection
     public function __construct($config) // = null)
     {
         if (class_exists('mysqli')) {
-//          if (!$config) $config = AppSingle::Config(); //normal API
+//          if (!$config) $config = SingleItem::Config(); //normal API
             if (!empty($config['db_credentials'])) {
                 $creds = base64_decode($config['db_credentials']);
                 $raw = Crypto::decrypt_string($creds, '', 'internal');
@@ -234,7 +257,7 @@ final class Connection
                         $this->_debug_cb = 'debug_buffer';
                     }
 
-                    if (!AppState::test_state(AppState::STATE_INSTALL)) {
+                    if (!AppState::test(AppState::INSTALL)) {
                         $this->_errorhandler = [$this, 'on_error'];
                     }
                     if (!empty($config['set_names'])) {
@@ -288,6 +311,20 @@ final class Connection
     }
 
     /**
+     * Abandon any hanging transaction(s)
+     * @ignore
+     */
+    public function __destruct()
+    {
+        if (is_object($this->_mysql)) {
+            if ($this->_in_transaction > 0 || $this->_in_smart_transaction > 0) {
+                while ($this->_mysql->rollback()) {}
+            }
+            $this->_mysql->close();
+        }
+    }
+
+    /**
      * @ignore
      */
     public function __get($key)
@@ -324,6 +361,24 @@ final class Connection
             return isset($this->$_time_offset);
          default:
            return false;
+        }
+    }
+
+    /**
+     * @ignore
+     */
+    public function __set($key, $value)
+    {
+        switch ($key) {
+         case '_in_smart_transaction':
+         case '_in_transaction':
+         case '_transaction_failed':
+         case '_transaction_status':
+         case '_transactions':
+            $this->$key = $value;
+            break;
+         default:
+            throw new Exception("Direct setting of db-connection property '$key' is not supported");
         }
     }
 
@@ -365,10 +420,8 @@ final class Connection
      */
     public function close()
     {
-        if ($this->_mysql) {
-            $this->_mysql->close();
-            $this->_mysql = null;
-        }
+        $this->__destruct();
+        $this->_mysql = null;
     }
 
     /**
@@ -376,7 +429,7 @@ final class Connection
      */
     final public function Disconnect()
     {
-        return $this->close();
+        $this->close();
     }
 
     /**
@@ -555,7 +608,8 @@ final class Connection
     }
 
     /**
-     * Return the numeric ID of the last insert query into a table with an auto-increment field.
+     * Return the numeric ID of the last insert query into a table which
+     * has an auto-increment field.
      *
      * @return int
      */
@@ -569,7 +623,7 @@ final class Connection
     /**
      * The primary function for communicating with the database.
      *
-     * @param string $sql SQL statement to be executed
+     * @param string $sql SQL command to be executed
      * @return mixed ResultSet object | integer (affected rows|last insert id) | boolean | null
      */
     protected function do_sql($sql)
@@ -598,7 +652,7 @@ final class Connection
             $this->errno = 0;
             $this->error = '';
             if ($dml) {
-                $num = $this->_mysql->affected_rows;
+                $num = $this->_mysql->affected_rows; // TODO maybe buffered >> rows < 0 ?
                 if ($num == 1 && ($sql[0] == 'I' || $sql[0] == 'i')) {
                     return (($num = $this->_mysql->insert_id) > 0) ? $num : 1;
                 }
@@ -637,7 +691,6 @@ final class Connection
         return [];
     }
 
-
     /**
      * Interpret the varargs parameters supplied directly or indirectly
      * to execute methods.
@@ -657,10 +710,11 @@ final class Connection
     }
 
     /**
-     * Prepare (compile) @sql for parameterized and/or repeated execution.
+     * Prepare (compile) the supplied command for parameterized and/or
+     * repeated execution.
      *
-     * @param string $sql The SQL query
-     * @return a Statement object if @sql is valid, or false
+     * @param string $sql The SQL command
+     * @return a Statement object if $sql is valid, or false
      */
     public function prepare($sql)
     {
@@ -701,8 +755,9 @@ final class Connection
     }
 
     /**
-     * As for execute, but non-blocking. Works as such only if the native driver
-     * is present. Otherwise reverts to normal execution, and caches the result.
+     * As for execute, but non-blocking. Works as such only if the native
+     * driver is present. Otherwise reverts to normal execution, and
+     * caches the result.
      *
      * @param mixed $sql string | Statement object
      * @param varargs $bindvars array | series of command-parameter-value(s)
@@ -726,8 +781,9 @@ final class Connection
     }
 
     /**
-     * Get result from async SQL query. If the native driver is not present, this
-     * just returns the cached result of the prior not-really-async command.
+     * Get result from async SQL query. If the native driver is not present,
+     * this just returns the cached result of the prior not-really-async
+     * command.
      */
     public function reap()
     {
@@ -749,7 +805,8 @@ final class Connection
     }
 
     /**
-     * Parse and execute multiple ';'-joined parameterized or plain SQL statements or queries.
+     * Parse and execute multiple ';'-joined parameterized or plain SQL
+     * statements or queries.
      *
      * @param mixed $sql string | Statement object
      * @param varargs $bindvars array | series of command-parameter-value(s)
@@ -770,7 +827,8 @@ final class Connection
     }
 
     /**
-     * Execute an SQL command, to retrieve (at most) @nrows records.
+     * Execute an SQL command, to retrieve all, or a specified maximum
+     * number of, matching records.
      *
      * @param string $sql    The SQL to execute
      * @param int   $nrows   Optional number of rows to return, default all (0)
@@ -803,7 +861,8 @@ final class Connection
      * Execute an SQL statement and return all the results as an array.
      *
      * @param mixed $sql string | Statement object
-     * @param mixed $bindvars array | falsy Optional value-parameters to fill placeholders (if any) in @sql
+     * @param mixed $bindvars array | falsy Optional value-parameters
+     *  to fill placeholders (if any) in Ssql
      * @param int   $nrows   Optional number of rows to return, default all (0)
      * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
      * @return array Numeric-keyed matched results, or empty
@@ -828,7 +887,8 @@ final class Connection
      * @deprecated since 2.99 instead use Connection::getArray()
      *
      * @param string $sql     The SQL statement to execute
-     * @param mixed  $bindvars array | falsy Optional value-parameters to fill placeholders (if any) in @sql
+     * @param mixed  $bindvars array | falsy Optional value-parameters
+     *  to fill placeholders (if any) in $sql
      * @return array Numeric-keyed matched results, or empty
      */
     public function getAll($sql, $bindvars = false, $nrows = 0, $offset = 0)
@@ -838,11 +898,11 @@ final class Connection
     }
 
     /**
-     * Execute an SQL statement and return all the results as an array, with
-     * the value of the first-requested-column as the key for each row.
+     * Execute an SQL statement and return all the results as an array,
+     * with the value of the first-requested-column as the key for each row.
      *
      * @param string $sql     The SQL statement to execute
-     * @param mixed  $bindvars array | falsy Optional Value-parameters to fill placeholders (if any) in @sql
+     * @param mixed  $bindvars array | falsy Optional Value-parameters to fill placeholders (if any) in $sql
      * @param bool   $force_array Optionally force each element of the Return to be an associative array
      * @param bool   $first2cols  Optionally Return only the first 2 columns in an associative array.  Does not work with force_array
      * @param int    $nrows   Optional number of rows to return, default all (0)
@@ -865,11 +925,12 @@ final class Connection
     }
 
     /**
-     * Execute an SQL statement that returns one column, and return all of the
-     * matches as an array.
+     * Execute an SQL statement that returns one column, and return all
+     * of the matches as an array.
      *
      * @param string $sql     The SQL statement to execute
-     * @param mixed  $bindvars array | falsy Optional Value-parameters to fill placeholders (if any) in @sql
+     * @param mixed  $bindvars array | falsy Optional Value-parameters
+     * to fill placeholders (if any) in $sql
      * @param bool   $trim    Optionally trim the returned values
      * @param int    $nrows   Optional number of rows to return, default all (0)
      * @param int    $offset  Optional 0-based starting-offset of rows to return, default 0
@@ -895,7 +956,8 @@ final class Connection
      * as an associative array.
      *
      * @param mixed $sql string | Statement object
-     * @param mixed $bindvars array | falsy Optional value-parameters to fill placeholders (if any) in @sql
+     * @param mixed $bindvars array | falsy Optional value-parameters
+     *  to fill placeholders (if any) in $sql
      * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
      * @return associative array representing a single ResultSet row, or empty
      */
@@ -921,7 +983,8 @@ final class Connection
      * Execute an SQL statement and return a single value.
      *
      * @param mixed $sql string | Statement object
-     * @param mixed $bindvars array | falsy Optional values to fill placeholders (if any) in @sql
+     * @param mixed $bindvars array | falsy Optional values to fill
+     * placeholders (if any) in $sql
      * @param int   $offset  Optional 0-based starting-offset of rows to return, default 0
      * @return mixed value | null
      */
@@ -946,10 +1009,10 @@ final class Connection
     /* *
      * Get the median value of data recorded in a table field.
      *
-     * @param string          $table  The name of the table
-     * @param string          $column The name of the column in @table
-     * @param optional string $where  SQL condition, must include the
-     *  requested column e.g. “WHERE name > 'A'”
+     * @param string $table  The name of the table
+     * @param string $column The name of the column in $table
+     * @param optional string $where SQL condition, must include the
+     *  requested column e.g. "WHERE name > 'A'"
      * @return mixed value | null
      */
 /*    public function getMedian($table, $column, $where = '')
@@ -971,47 +1034,152 @@ final class Connection
     //// transactions
 
     /**
-     * Begin a transaction.
+     * Transactions used to only work in specific engines e.g. InnoDB.
+     * But MySQL 5.6+ Global Transaction IDs can enable MyISAM transactions
+     * in some cases. And then, robust operation becomes a problem.
+     * See https://dev.mysql.com/doc/refman/5.6/en/replication-gtids-restrictions.html
+     * "updates to tables using nontransactional storage engines such as
+     *  MyISAM cannot be made in the same statement or transaction as
+     *  updates to tables using transactional storage engines such as InnoDB"
+     * MariaDB seems not to have replicated the MySQL changes.
+     * Messy indeed !
+     *
+     * Emulating transactions somewhat, by accumulating commands locally
+     * and then collective execution, is not (yet?) supported here.
      */
-    public function beginTrans()
+
+    /**
+     * Begin a transaction.
+     * Only for tables having a transactional storage-engine (traditionally,
+     * only InnoDB).
+     * This function may be used independently of 'smart' transactions.
+     * Does nothing if a smart-transaction is in progress.
+     *
+     * @param mixed $name string | null Optional restore-point name
+     * Valid content is alphanum or '-_=' a.k.a. '/[0-9A-Za-z\-_=]+/'
+     * If not provided, a unique name will be generated.
+     * @return mixed non-empty restore-point name | false if failed | bool true if a smart-transaction was previously started
+     */
+    public function beginTrans($name = '')
     {
-        if (!$this->_in_smart_transaction) {
-            // allow nesting in this case.
-            ++$this->_in_transaction;
-            $this->_transaction_failed = false;
-            $this->_mysql->query('START TRANSACTION');
-//          $this->_mysql->begin_transaction(); PHP5.5+
+        if ($this->_in_smart_transaction == 0) { // do nothing if a smart-trans is working ???
+            //TODO setup and stack a new Transaction object to do the work, actual or emulated
+            if (!$name) {
+                $m = microtime(true);
+                if ($m) {
+                    $f = floor($m);
+                    $u = (string)($m-$f)*1000000; // c.f. uniqid()
+                    $u = strtr($u, ['.' => '']);
+                } else {
+                    $u = str_shuffle('-0123456789=');
+                }
+                $name = 'transaction_'.mt_rand(97, 122).$u;
+            }
+            $res = $this->_mysql->begin_transaction(0, $name);
+            $this->_transaction_failed = !$res;
+            if ($res) {
+                ++$this->_in_transaction; // nestable
+                return $name;
+            } else {
+                $this->OnError(self::ERROR_TRANSACTION, $this->_mysql->errno, $this->_mysql->error);
+                return false;
+            }
         }
         return true;
     }
 
     /**
-     * Begin a smart transaction.
+     * Roll back a transaction.
+     *
+     * @param mixed $name string | null Optional restore-point name (if any)
+     *  specified when transaction began
+     * @return bool indicating success
      */
-    public function startTrans()
+    public function rollbackTrans($name =  '')
     {
-        if ($this->_in_smart_transaction) {
+        //TODO process stacked Transaction object and any descendent(s) then clear from stack
+        if ($this->_in_transaction > 0) {
+            if ($this->_mysql->rollback(0, $name)) {
+                --$this->_in_transaction;
+                return true;
+            }
+            $this->OnError(self::ERROR_TRANSACTION, $this->_mysql->errno, $this->_mysql->error);
+        } else {
+            $this->OnError(self::ERROR_TRANSACTION, -1, 'beginTrans has not been called');
+        }
+        return false;
+    }
+
+    /**
+     * Commit a transaction.
+     *
+     * @param bool $ok Optional flag whether the transaction is sofar-sogood. Default true
+     * @param mixed $name string | null Optional restore-point name (if any)
+     *  specified when transaction began
+     * @return bool indicating success
+     */
+    public function commitTrans($ok = true, $name =  '')
+    {
+        //TODO process stacked Transaction object and any descendent(s) then clear from stack
+        if (!$ok) {
+            return $this->rollbackTrans($name);
+        }
+
+        if ($this->_in_transaction > 0) {
+            if ($this->_mysql->commit(0, $name)) {
+                --$this->_in_transaction;
+                return true;
+            }
+            $this->OnError(self::ERROR_TRANSACTION, $this->_mysql->errno, $this->_mysql->error);
+        } else {
+            $this->OnError(self::ERROR_TRANSACTION, -1, 'beginTrans has not been called');
+        }
+        return false;
+    }
+
+    /**
+     * Begin a 'smart' transaction. Smart transactions are ended by
+     * 'completing' i.e. automatically commit or roll-back depending on
+     * whether error(s) occurred since begun.
+     * This method is essentially Connection::beginTrans() with a wrapper
+     * which does some context checking. Notably, nested uses are logged
+     * but otherwise do nothing.
+     *
+     * @param mixed $name string | null Optional restore-point name (if any)
+     *  specified when transaction began
+     * @return bool indicating success
+     */
+    public function startTrans($name =  '')
+    {
+        if ($this->_in_smart_transaction > 0) {
             ++$this->_in_smart_transaction;
             return true;
         }
 
-        if ($this->_in_transaction) {
+        if ($this->_in_transaction == 0) {
+            if ($this->beginTrans($name)) {
+                ++$this->_in_smart_transaction; // 1
+                $this->_transaction_status = true;
+                return true;
+            }
+            $this->OnError(self::ERROR_TRANSACTION, $this->_mysql->errno, $this->_mysql->error);
+        } else {
             $this->OnError(self::ERROR_TRANSACTION, -1, 'Bad Transaction: startTrans called within beginTrans');
-            return false;
         }
-
-        $this->_transaction_status = true;
-        ++$this->_in_smart_transaction;
-        $this->beginTrans();
-        return true;
+        return false;
     }
 
     /**
-     * Complete a smart transaction.
-     * This method will either do a rollback or a commit depending upon whether
-	 * errors have been detected.
+     * Complete a 'smart' transaction.
+     * This will do either a rollback or a commit, depending upon whether
+     * error(s) have been detected.
+     *
+     * @param bool $autoComplete Optional flag whether to force completion. Default true
+     * @param mixed $name string | null Optional restore-point name (if any)
+     *  specified when transaction began
+     * @return bool true | transaction-status
      */
-    public function completeTrans($autoComplete = true)
+    public function completeTrans($autoComplete = true, $name = '')
     {
         if ($this->_in_smart_transaction > 0) {
             --$this->_in_smart_transaction;
@@ -1019,11 +1187,11 @@ final class Connection
         }
 
         if ($this->_transaction_status && $autoComplete) {
-            if (!$this->commitTrans()) {
+            if (!$this->commitTrans(true, $name)) {
                 $this->_transaction_status = false;
             }
         } else {
-            $this->rollbackTrans();
+            $this->rollbackTrans($name); // ignore failure
         }
         $this->_in_smart_transaction = 0;
 
@@ -1031,51 +1199,7 @@ final class Connection
     }
 
     /**
-     * Commit a simple transaction.
-     *
-     * @param bool $ok Indicates whether there is success or not
-     */
-    public function commitTrans($ok = true)
-    {
-        if (!$ok) {
-            return $this->rollbackTrans();
-        }
-
-        if (!$this->_in_transaction) {
-            $this->OnError(self::ERROR_TRANSACTION, -1, 'beginTrans has not been called');
-            return false;
-        }
-
-        if ($this->_mysql->commit()) {
-            --$this->_in_transaction;
-            return true;
-        }
-
-        $this->OnError(self::ERROR_TRANSACTION, $this->_mysql->errno, $this->_mysql->error);
-        return false;
-    }
-
-    /**
-     * Roll back a simple transaction.
-     */
-    public function rollbackTrans()
-    {
-        if (!$this->_in_transaction) {
-            $this->OnError(self::ERROR_TRANSACTION, -1, 'beginTrans has not been called');
-            return false;
-        }
-
-        if ($this->_mysql->rollback()) {
-            --$this->_in_transaction;
-            return true;
-        }
-
-        $this->OnError(self::ERROR_TRANSACTION, $this->_mysql->errno, $this->_mysql->error);
-        return false;
-    }
-
-    /**
-     * Mark a transaction as failed.
+     * Mark the current (smart) transaction as a failure.
      */
     public function failTrans()
     {
@@ -1083,9 +1207,9 @@ final class Connection
     }
 
     /**
-     * Test if a transaction has failed.
+     * Test whether the current (smart) transaction has failed.
      *
-     * @return bool
+     * @return bool False always if no smart-transaction is in progress
      */
     public function hasFailedTrans()
     {
@@ -1096,8 +1220,8 @@ final class Connection
     }
 
     /* *
-     * Create a row- (and if specified, column-) lock for the duration of
-     * a transaction. If no transaction has been started, one is begun.
+     * Create a row- (and if specified, column-) lock for the duration
+     * of a transaction. If no transaction has been started, one is begun.
      * As in ADOdb v.5
      *
      * @param string $tablelist Name(s) of table(s) to be processed. Comma-separated if < 1.
@@ -1114,7 +1238,7 @@ final class Connection
     //// sequence tables
 
     /**
-     * For use with sequence tables, this method will generate a new ID value.
+     * Generate a new value derived from the specied sequence table.
      *
      * @param string $seqname The name of the sequence table
      * @return int
@@ -1122,35 +1246,46 @@ final class Connection
     public function genId($seqname)
     {
         //kinda-atomic update + select TODO CHECK thread-safety
-        $query = "UPDATE $seqname SET id = LAST_INSERT_ID(id + 1);SELECT LAST_INSERT_ID()";
-        if ($this->_mysql->multi_query($query)) {
+        //SET n' SELECT LAST_INSERT_ID() always returns unsigned
+        $sql = "UPDATE $seqname SET id = id + 1;SELECT id FROM $seqname";
+        if ($this->_mysql->multi_query($sql)) {
             $this->_mysql->next_result();
             $rs = $this->_mysql->use_result(); //block while we're working
             $vals = $rs->fetch_row();
             $rs->close();
-            return $vals[0];
+            return $vals[0] + 0;
         }
-        //TODO handle error
+        $this->OnError(self::ERROR_EXECUTE, $this->_mysql->errno, $this->_mysql->error);
         return -1;
     }
 
     /**
      * Create a new sequence table.
-     * @deprecated since 2.99
+     * A sequence can be a useful alternative to auto-incrementing for
+     * table-row unique identifiers when the context is too racy for
+     * robust dealing with insert_id(), or when the id needs to be < 0.
+     * And generally, when a unique number/counter is needed.
+     * The provided number will be unsigned or signed 32-bit, the latter
+     * if $startID is < 0.
      *
      * @param string $seqname the name of the sequence table
-     * @param int    $startID
+     * @param int $startID Optional initial value. May be < 0, as low as
+     *  32-bit PHP_INT_MIN. Default 0.
      * @return bool
      */
     public function createSequence($seqname, $startID = 0)
     {
-        //TODO ensure this is really an upsert, cuz' can be repeated during failed installation
-        $rs = $this->do_sql("CREATE TABLE $seqname (id INT(4) UNSIGNED) ENGINE=MYISAM CHARACTER SET=ascii COLLATE=ascii_bin");
-        if ($rs) {
-            $v = (int) $startID;
-            $rs = $this->do_sql("INSERT INTO $seqname VALUES ($v)");
+        $v = (int) $startID; // coerce null etc
+        $str = ($v < 0) ? '' : ' unsigned';
+        $sql = "CREATE TABLE $seqname (id int{$str} NOT NULL) ENGINE=MyISAM CHARACTER SET ascii COLLATE ascii_bin";
+        if ($this->_mysql && $this->_mysql->real_query($sql)) {
+            $res = $this->_mysql->real_query("REPLACE INTO $seqname VALUES ($v)");
+            if ($res) {
+                return true;
+            }
         }
-        return $rs !== false;
+        $this->OnError(self::ERROR_EXECUTE, $this->_mysql->errno, $this->_mysql->error);
+        return false;
     }
 
     /**
@@ -1161,8 +1296,7 @@ final class Connection
      */
     public function dropSequence($seqname)
     {
-        $rs = $this->do_sql("DROP TABLE $seqname");
-        return $rs !== false;
+        return ($this->_mysql && $this->_mysql->real_query("DROP TABLE $seqname"));
     }
 
     //// time and date stuff
@@ -1290,7 +1424,7 @@ final class Connection
     //// error and debug message handling
 
     /**
-     * Return a string describing the latest error (if any).
+     * Return a string describing the latest error (if any). Not cached locally.
      *
      * @return string
      */
@@ -1303,11 +1437,11 @@ final class Connection
     }
 
     /**
-     * Return the latest error number (if any).
+     * Return the latest error number (if any). Not cached locally.
      *
-     * @return int
+     * @return int 0 (no error) or > 0 (error enumerator)
      */
-    public function ErrorNo()
+    public function errorNo()
     {
         if ($this->_mysql) {
             return $this->_mysql->errno;
@@ -1402,7 +1536,7 @@ final class Connection
             debug_to_log("Database error: $errtype($error_number) - $error_msg");
             debug_bt_to_log();
             if ($this->_debug) {
-                AppSingle::App()->add_error(debug_display($error_msg, '', false, true));
+                SingleItem::App()->add_error(debug_display($error_msg, '', false, true));
             }
         }
     }
@@ -1411,7 +1545,8 @@ final class Connection
 
     /**
      * Create a new data dictionary object.
-     * Data Dictionary objects are used for manipulating tables, i.e: creating, altering and editing them.
+     * Those are used for creating, altering, deleting tables, fields
+     * and related indices.
      * @deprecated since 2.99 use new DataDictionary()
      *
      * @return <namespace>DataDictionary

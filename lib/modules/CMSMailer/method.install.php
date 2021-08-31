@@ -22,41 +22,43 @@ use CMSMS\AppParams;
 use CMSMS\Crypto;
 use CMSMailer\PrefCrypter;
 
-if (!function_exists('cmsms')) exit;
+//if (some worthy test fails) exit;
 
-$dict = $db->NewDataDictionary(); //old NewDataDictionary($db);
-$taboptarray = ['mysqli' => 'ENGINE MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
+if ($this->platformed) {
+    $dict = $db->NewDataDictionary(); //old NewDataDictionary($db);
+    $taboptarray = ['mysqli' => 'ENGINE MyISAM CHARACTER SET utf8mb4'];
 
-$flds = '
-id I(2) UNSIGNED AUTO KEY,
-alias C(48),
-title C(128) NOTNULL,
-description C(255),
-enabled I(1) NOTNULL DEFAULT 1,
-active I(1) NOTNULL DEFAULT 0
+    $flds = '
+id I UNSIGNED AUTO KEY,
+alias C(50),
+title C(40) NOTNULL,
+description C(1500),
+enabled I1 NOTNULL DEFAULT 1,
+active I1 NOTNULL DEFAULT 0
 ';
-if ($this->mod->platformed) {
     $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_cmsmailer_platforms', $flds, $taboptarray);
     $res = $dict->ExecuteSQLArray($sqlarray);
 
     $flds = '
-id I(4) UNSIGNED AUTO KEY,
-platform_id I(2) UNSIGNED NOTNULL,
-title C(96),
-value C(255),
-encvalue B(1023),
-apiname C(64),
-signature C(64),
-encrypt I(1) NOTNULL DEFAULT 0,
-enabled I(1) NOTNULL DEFAULT 1,
-apiorder I(1) NOTNULL DEFAULT -1
+id I UNSIGNED AUTO KEY,
+platform_id I UNSIGNED NOTNULL,
+title C(40) NOTNULL,
+value C(500),
+encvalue B(1000),
+apiname C(100),
+signature C(100),
+encrypt I1 NOTNULL DEFAULT 0,
+enabled I1 NOTNULL DEFAULT 1,
+apiorder I2 NOTNULL DEFAULT -1
 ';
     $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_cmsmailer_props', $flds, $taboptarray);
     $res = $dict->ExecuteSQLArray($sqlarray);
+
+    //TODO unique index on (platform_id,apiname)
 }
 // Permissions
 $this->CreatePermission('Modify Mail Preferences', 'Modify CMSMailer Module Settings');
-if ($this->mod->platformed) {
+if ($this->platformed) {
     $this->CreatePermission('ModifyEmailGateways', 'Modify Email Gateway Settings');
     $this->CreatePermission('ViewEmailGateways', 'View Email Gateways');
     //$this->CreatePermission('ModifyEmailTemplates', 'Modify Email Gateway Templates');
@@ -98,7 +100,7 @@ unset($pw); $pw = null;
 foreach ($mailprefs as $key => $val) {
     $this->SetPreference($key, $val);
 }
-if ($this->mod->platformed) {
+if ($this->platformed) {
     $this->SetPreference('platform', null); //TODO alias
 }
 //$this->SetPreference('hourlimit', 100);

@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 // since 2.99
 function smarty_function_cms_render_scripts( $params, $template )
 {
-	$combiner = CMSMS\AppSingle::App()->GetScriptsManager();
+	$combiner = CMSMS\SingleItem::App()->GetScriptsManager();
 	$force = cms_to_bool($params['force'] ?? false);
 
 	$out = '';
@@ -65,7 +65,7 @@ function smarty_cms_about_function_cms_render_scripts()
 {
 	echo lang_by_realm('tags', 'about_generic',
 	<<<EOS
-<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Author: Robert Campbell</p>
 <p>Version: 1.0</p>
 EOS
 	,

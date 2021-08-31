@@ -22,12 +22,12 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 use CMSMS\RequestParameters;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\StylesMerger;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -38,6 +38,8 @@ use function check_permission;
 use function cms_installed_jquery;
 use function cms_join_path;
 use function cms_path_to_url;
+use function CMSMS\get_page_foottext;
+use function CMSMS\get_page_headtext;
 use function get_userid;
 use function lang;
 use function munge_string_to_url;
@@ -124,18 +126,18 @@ EOS;
 	public function display_login_page()
 	{
 		$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
-		$modinst = AppSingle::ModuleOperations()->get_module_instance($auth_module, '', true);
-		if ($modinst) {
-			$data = $modinst->fetch_login_panel();
+		$mod = SingleItem::ModuleOperations()->get_module_instance($auth_module, '', true);
+		if ($mod) {
+			$data = $mod->fetch_login_panel();
 		} else {
 			die('System error');
 		}
 
-		$smarty = AppSingle::Smarty();
+		$smarty = SingleItem::Smarty();
 		$smarty->assign($data);
 
 		//extra shared parameters for the form TODO get from the current login-module
-		$config = AppSingle::Config(); // for the inclusion
+		$config = SingleItem::Config(); // for the inclusion
 		$fp = cms_join_path(dirname(__DIR__), 'assets', 'function.extraparms.php');
 		require_once $fp;
 		$smarty->assign($tplvars);
@@ -184,7 +186,7 @@ EOS;
 	 */
 	public function fetch_menu_page($section_name)
 	{
-		$smarty = AppSingle::Smarty();
+		$smarty = SingleItem::Smarty();
 		if ($section_name) {
 //		$smarty->assign('section_name', $section_name);
 			$nodes = $this->get_navigation_tree($section_name, 0);
@@ -196,7 +198,7 @@ EOS;
 		  ->assign('pagetitle', $this->title) //not used in current template
 		  ->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 
-		$config = AppSingle::Config();
+		$config = SingleItem::Config();
 		$smarty->assign('admin_url', $config['admin_url'])
 		  ->assign('theme', $this);
 
@@ -210,11 +212,11 @@ EOS;
 	 */
 	public function fetch_page($html)
 	{
-		$smarty = AppSingle::Smarty();
+		$smarty = SingleItem::Smarty();
 		$userid = get_userid(false);
 		// setup titles etc
 //		$tree =
-			$this->get_navigation_tree(); //TODO if section
+		$this->get_navigation_tree(); //TODO if section
 
 		/* possibly-cached value-names
 		'pagetitle'
@@ -226,15 +228,15 @@ EOS;
 		*/
 		// prefer cached parameters, if any
 		// module name
-		$module_name = $this->get_value('module_name');
-		if (!$module_name) {
-			$module_name = RequestParameters::get_request_values('module'); // maybe null
+		$modname = $this->get_value('module_name');
+		if (!$modname) {
+			$modname = RequestParameters::get_request_values('module'); // maybe null
 		}
-		$smarty->assign('module_name', $module_name);
+		$smarty->assign('module_name', $modname);
 
 		$module_help_type = $this->get_value('module_help_type');
 		// module_help_url
-		if ($module_name && ($module_help_type || $module_help_type === null) &&
+		if ($modname && ($module_help_type || $module_help_type === null) &&
 			!UserParams::get_for_user($userid,'hide_help_links', 0)) {
 			if (($module_help_url = $this->get_value('module_help_url'))) {
 				$smarty->assign('module_help_url', $module_help_url);
@@ -258,10 +260,10 @@ EOS;
 			$title = $this->get_active_title(); // try for the active-menu-item title
 			if ($title) {
 				$subtitle = $this->subtitle;
-			} elseif ($module_name) {
-				$modinst = Utils::get_module($module_name);
-				$title = $modinst->GetFriendlyName();
-				$subtitle = $modinst->GetAdminDescription();
+			} elseif ($modname) {
+				$mod = Utils::get_module($modname);
+				$title = $mod->GetFriendlyName();
+				$subtitle = $mod->GetAdminDescription();
 /*			} else {
 				// no title, get one from the breadcrumbs.
 				$bc = $this->get_breadcrumbs();
@@ -277,10 +279,10 @@ EOS;
 		  ->assign('pagealias', munge_string_to_url($alias)); // page alias
 
 		// icon
-		if ($module_name && ($icon_url = $this->get_value('module_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="'.$module_name.'" class="module-icon" />';
-		} elseif ($module_name && $title) {
-			$tag = $this->get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
+		if ($modname && ($icon_url = $this->get_value('module_icon_url'))) {
+			$tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon" />';
+		} elseif ($modname && $title) {
+			$tag = $this->get_module_icon($modname, ['alt'=>$modname, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
 			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO" />';
 		} else {
@@ -288,7 +290,7 @@ EOS;
 		}
 		$smarty->assign('pageicon', $tag);
 
-		$config = AppSingle::Config();
+		$config = SingleItem::Config();
 		// site logo
 		$sitelogo = AppParams::get('site_logo');
 		if ($sitelogo) {
@@ -316,9 +318,8 @@ EOS;
 			$smarty->assign('marks', $marks);
 		}
 
-		$smarty->assign('header_includes', $this->get_headtext())
-		  ->assign('bottom_includes', $this->get_footertext())
-
+		$smarty->assign('header_includes', get_page_headtext())
+		  ->assign('bottom_includes', get_page_foottext())
 		// other variables
 		//strip inappropriate closers cuz we're putting it in the middle somewhere
 		  ->assign('content', str_replace('</body></html>', '', $html))
@@ -334,7 +335,7 @@ EOS;
 			$smarty->assign('nav', $this->_havetree);
 		}
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
-		$user = AppSingle::UserOperations()->LoadUserByID($userid);
+		$user = SingleItem::UserOperations()->LoadUserByID($userid);
 		$smarty->assign('username', $user->username);
 		// selected language
 		$lang = UserParams::get_for_user($userid, 'default_cms_language');

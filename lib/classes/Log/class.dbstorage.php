@@ -20,10 +20,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\Log;
 
-use CMSMS\AppSingle;
 use CMSMS\Log\logfilter;
 use CMSMS\Log\logrecord;
 use CMSMS\Log\dbquery;
+use CMSMS\SingleItem;
 use const CMS_DB_PREFIX;
 
 class dbstorage
@@ -32,9 +32,9 @@ class dbstorage
 
     public function save(logrecord $rec)
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $sql = 'INSERT INTO '.self::TABLENAME.' (timestamp, severity, user_id, username, item_id, subject, message, ip_addr) VALUES (?,?,?,?,?,?,?,?)';
-        $db->Execute($sql, [$rec->timestamp, $rec->severity, $rec->user_id, $rec->username, $rec->item_id, $rec->subject, $rec->message, $rec->ip_addr]);
+        $db->execute($sql, [$rec->timestamp, $rec->severity, $rec->user_id, $rec->username, $rec->item_id, $rec->subject, $rec->message, $rec->ip_addr]);
     }
 
     public function query(logfilter $filter)
@@ -44,15 +44,15 @@ class dbstorage
 
     public function clear()
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $sql = 'TRUNCATE '.self::TABLENAME;
-        $db->Execute($sql);
+        $db->execute($sql);
     }
 
     public function clear_older_than(int $time)
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $sql = 'DELETE FROM '.self::TABLENAME.' WHERE timestamp < ?';
-        $db->Execute( $sql, [$time]);
+        $db->execute( $sql, [$time]);
     }
 }

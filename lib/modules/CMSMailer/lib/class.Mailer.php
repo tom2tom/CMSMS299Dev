@@ -43,7 +43,6 @@ use function cms_join_path;
  *
  * @package CMS
  * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
 class Mailer implements IMailer
 {
@@ -86,7 +85,7 @@ class Mailer implements IMailer
 
 	public function MailerAutoload($classname)
 	{
-		$p = strpos($classname, 'Ddrv\\Mailer\\');
+		$p = strpos($classname, 'Ddrv\Mailer\\');
 		if ($p === 0 || ($p == 1 && $classname[0] == '\\')) {
 			$parts = explode('\\', $classname);
 			if ($p == 1) {
@@ -197,7 +196,7 @@ class Mailer implements IMailer
 	/**
 	 * Send message(s), using the API of PHP's mail()
 	 * See https://www.php.net/manual/en/function.mail
-	 * @since 2.99
+	 * @since 6.3
 	 *
 	 * @param string $to one or more destination(s) (comma-separated if multiple)
 	 * @param string $subject plaintext

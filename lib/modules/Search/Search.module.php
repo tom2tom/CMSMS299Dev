@@ -43,13 +43,13 @@ class Search extends CMSModule
     public function GetFriendlyName() { return $this->Lang('search'); }
     public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetName() { return 'Search'; }
-    public function GetVersion() { return '1.53'; }
+    public function GetVersion() { return '2.0'; }
     public function HandlesEvents () { return true; }
     public function HasAdmin() { return true; }
     public function IsPluginModule() { return true; } //deprecated
-//    public function LazyLoadAdmin() { return true; }
-//    public function LazyLoadFrontend() { return false; }
-    public function MinimumCMSVersion() { return '2.2.900'; }
+//  public function LazyLoadAdmin() { return true; }
+//  public function LazyLoadFrontend() { return false; }
+    public function MinimumCMSVersion() { return '2.99'; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function InitializeAdmin()
@@ -74,7 +74,7 @@ class Search extends CMSModule
 
     public function InitializeFrontend()
     {
-//2.99 does nothing        $this->RestrictUnknownParams();
+//CMSMS 2.99 does nothing        $this->RestrictUnknownParams();
         $this->SetParameterType('count',CLEAN_INT);
         $this->SetParameterType('detailpage',CLEAN_STRING);
         $this->SetParameterType('formtemplate',CLEAN_STRING);
@@ -170,7 +170,7 @@ class Search extends CMSModule
         case CoreCapabilities::SITE_SETTINGS:
             return true;
 //        case 'clicommands':
-//            return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
+//            return class_exists('CMSMS\CLI\App'); //TODO better namespace
         }
         return false;
     }
@@ -198,7 +198,7 @@ class Search extends CMSModule
     /**
      * Hook function to populate centralised site-settings UI
      * @internal
-     * @since 2.99
+     * @since 2.0
      * @return array
      */
     public function ExtraSiteSettings()
@@ -207,7 +207,7 @@ class Search extends CMSModule
         return [
          'title'=>$this->Lang('settings_title', $this->GetName()),
          //'desc'=>'useful text goes here', // optional useful text
-         'url'=>$this->create_url('m1_', 'defaultadmin', '', ['activetab'=>'options']), // if permitted
+         'url'=>$this->create_action_url('m1_', 'defaultadmin', ['activetab'=>'options']), // if permitted
          //optional 'text' => custom link-text | explanation e.g need permission
         ];
     }
@@ -270,7 +270,7 @@ class Search extends CMSModule
 
     public static function reset_page_type_defaults(TemplateType $type)
     {
-        if( $type->get_originator() != 'Search' ) throw new UnexpectedValueException('Cannot reset contents for this template type');
+        if( $type->get_originator() != 'Search' ) throw new LogicException('Cannot reset content for template-type '.$type->get_name());
 
         $mod = AppUtils::get_module('Search');
         if( !is_object($mod) ) return;

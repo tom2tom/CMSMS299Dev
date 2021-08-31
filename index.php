@@ -30,6 +30,7 @@ use CMSMS\IContentEditor;
 use CMSMS\internal\content_plugins;
 use CMSMS\NlsOperations;
 use CMSMS\PageLoader;
+use CMSMS\StopProcessingContentException;
 
 /**
  * Entry point for all non-admin pages
@@ -46,7 +47,7 @@ if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
 }
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_FRONT_PAGE; // in scope for inclusion, sets initial state
+AppState::set(AppState::FRONT_PAGE);
 require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if (!is_writable(TMP_TEMPLATES_C_LOCATION) || !is_writable(TMP_CACHE_LOCATION)) {
@@ -128,7 +129,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 			throw new Error403Exception('Permission denied');
 		}
 
-		$userid = get_userid(false);
+		$userid = get_userid(false); // WHAT ? F/E N/A here ?
 		if ($page == CMS_PREVIEW_PAGEID || $userid || $_SERVER['REQUEST_METHOD'] != 'GET') {
 			$cachable = false;
 		} else {
@@ -139,15 +140,15 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		setup_session($cachable);
 		$_app->set_content_object($contentobj);
 		$smarty->assignGlobal('content_obj',$contentobj)
-		  ->assignGlobal('content_id', $contentobj->Id())
-		  ->assignGlobal('page_id', $page)
-		  ->assignGlobal('page_alias', $contentobj->Alias());
+		 ->assignGlobal('content_id', $contentobj->Id())
+		 ->assignGlobal('page_id', $page)
+		 ->assignGlobal('page_alias', $contentobj->Alias());
 
 		NlsOperations::set_language(); // <- NLS detection for frontend
 		$smarty->assignGlobal('lang', NlsOperations::get_current_language())
-		  ->assignGlobal('encoding', NlsOperations::get_encoding());
+		 ->assignGlobal('encoding', NlsOperations::get_encoding());
 
-		Events::SendEvent('Core', 'ContentPreRender', [ 'content' => &$contentobj ]);
+		Events::SendEvent('Core', 'ContentPreRender', ['content' => &$contentobj]);
 
 		$html = null;
 		$showtemplate = $_app->template_processing_allowed();
@@ -164,7 +165,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 		break; // no more iterations
 	}
 
-	catch (CmsStopProcessingContentException $e) {
+	catch (StopProcessingContentException $e) {
 		// we do not display an error message.
 		// this can be useful for caching siutations or in certain
 		// situations where we only want to gather limited output

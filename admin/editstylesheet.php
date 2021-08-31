@@ -21,24 +21,23 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
+use CMSMS\LockException;
 use CMSMS\LockOperations;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
 $urlext = get_secure_param();
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if (isset($_REQUEST['cancel'])) {
 	$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_cancelled'));
@@ -62,7 +61,6 @@ de_specialize_array($_REQUEST);
 $extras = get_secure_param_array();
 
 try {
-
 	$message = lang_by_realm('layout', 'msg_stylesheet_saved');
 	if( !empty($_REQUEST['css']) ) {
 		$val = sanitizeVal($_REQUEST['css'], CMSSAN_FILE);
@@ -138,8 +136,7 @@ try {
 				throw new RuntimeException(lang_by_realm('layout', 'error_assets_writeperm'));
 			}
 			file_put_contents($outfile, $css_ob->get_content());
-		}
-		elseif (isset($_REQUEST['import'])) {
+		} elseif (isset($_REQUEST['import'])) {
 			$infile = $css_ob->get_content_filename();
 			if (!is_file($infile) || !is_readable($infile) || !is_writable($infile)) {
 				throw new RuntimeException(lang_by_realm('layout', 'error_assets_readwriteperm'));
@@ -167,7 +164,7 @@ try {
 		'id' => $css_ob->get_id(),
 		'lock' => null, // populated later if relevant
 		'media_query' => $css_ob->get_media_query(),
-		'modified' => $css_ob->get_modified(), // i.e. modified_date
+		'modified' => $css_ob->get_modified().'', // i.e. modified_date, maybe empty
 		'name' => $css_ob->get_name(),
 		'types' => [],
 	];
@@ -208,15 +205,15 @@ try {
 				if ($lock_id > 0) {
 					// it's locked... by somebody. Steal if expired TODO if stealable
 					$lock = LockOperations::load('stylesheet', $props['id']);
-					if (!$lock->expired()) { throw new CmsLockException('CMSEX_L010'); }
+					if (!$lock->expired()) { throw new LockException('CMSEX_L010'); }
 					LockOperations::unlock($lock_id, 'stylesheet', $props['id']);
 					$props['lock'] = [
 						'uid' => $lock['uid'], // TODO etc
 //						'stealable' => TODO,
 					];
 				}
-			} catch (CmsException $e) {
-				$message = $e->GetMessage();
+			} catch (Throwable $t) {
+				$message = $t->GetMessage();
 				$themeObject->ParkNotice('error', $message);
 				redirect('liststyles.php'.$urlext);
 			}
@@ -264,7 +261,7 @@ try {
 		$themeObject->RecordNotice('error', $message);
 	}
 
-	$smarty = AppSingle::Smarty();
+	$smarty = SingleItem::Smarty();
 /*
 	$designs = DesignManager\Design::get_all(); DISABLED
 	if ($designs) {
@@ -285,7 +282,7 @@ try {
 	$smarty->assign('has_designs_right', check_permission($userid, 'Manage Designs'))
 	 ->assign('css', $props)
 	 ->assign('all_types', $all_types);
-	if (AppSingle::Config()['develop_mode']) {
+	if (SingleItem::Config()['develop_mode']) {
 		$smarty->assign('devmode', 1);
 	}
 
@@ -305,7 +302,7 @@ try {
 //	$nonce = get_csp_token();
 	$do_locking = ($css_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 	if ($do_locking) {
-		AppSingle::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
+		SingleItem::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
 	$s1 = json_encode(lang_by_realm('layout', 'error_lock'));
 	$s2 = json_encode(lang_by_realm('layout', 'msg_lostlock'));
@@ -318,84 +315,84 @@ try {
 $(function() {
   var do_locking = $do_locking;
   if(do_locking) {
-	// initialize lock manager
-	$('#form_editcss').lockManager({
-	  type: 'stylesheet',
-	  oid: $css_id,
-	  uid: $userid,
-	  lock_timeout: $lock_timeout,
-	  lock_refresh: $lock_refresh,
-	  error_handler: function(err) {
-		cms_alert($s1 + ' ' + err.type + ' // ' + err.msg);
-	  },
-	  lostlock_handler: function(err) {
-		// we lost the lock on this stylesheet... make sure we can't save anything.
-		// and display a nice message.
-		$('[name$="cancel"]').fadeOut().attr('value', '$cancel').fadeIn();
-		$('#form_editcss').dirtyForm('option', 'dirty', false);
-		cms_button_able($('#submitbtn, #applybtn'), false);
-		$('.lock-warning').removeClass('hidden-item');
-		cms_alert($s2);
-	  }
-	});
+    // initialize lock manager
+    $('#form_editcss').lockManager({
+      type: 'stylesheet',
+      oid: $css_id,
+      uid: $userid,
+      lock_timeout: $lock_timeout,
+      lock_refresh: $lock_refresh,
+      error_handler: function(err) {
+        cms_alert($s1 + ' ' + err.type + ' // ' + err.msg);
+      },
+      lostlock_handler: function(err) {
+        // we lost the lock on this stylesheet... make sure we can't save anything.
+        // and display a nice message.
+        $('[name$="cancel"]').fadeOut().attr('value', '$cancel').fadeIn();
+        $('#form_editcss').dirtyForm('option', 'dirty', false);
+        cms_button_able($('#submitbtn, #applybtn'), false);
+        $('.lock-warning').removeClass('hidden-item');
+        cms_alert($s2);
+      }
+    });
   }
   $('#form_editcss').dirtyForm({
-	beforeUnload: function() {
-	  if(do_locking) $('#form_editcss').lockManager('unlock');
-	},
-	unloadCancel: function() {
-	  if(do_locking) $('#form_editcss').lockManager('relock');
-	}
+    beforeUnload: function() {
+      if(do_locking) $('#form_editcss').lockManager('unlock');
+    },
+    unloadCancel: function() {
+      if(do_locking) $('#form_editcss').lockManager('relock');
+    }
   });
   $(document).on('cmsms_textchange', function() {
-	// editor textchange, set the form dirty TODO something from the actual editor
-	$('#form_editcss').dirtyForm('option', 'dirty', true);
+    // editor textchange, set the form dirty TODO something from the actual editor
+    $('#form_editcss').dirtyForm('option', 'dirty', true);
   });
   $('#submitbtn,#cancelbtn,#importbtn,#exportbtn').on('click', function(ev) {
-	if (this.id !== 'cancelbtn') {
-	  var v = geteditorcontent();
-	  setpagecontent(v);
-	  $('#form_editcss').dirtyForm('option', 'dirty', false);
-	}
+    if (this.id !== 'cancelbtn') {
+      var v = geteditorcontent();
+      setpagecontent(v);
+      $('#form_editcss').dirtyForm('option', 'dirty', false);
+    }
   });
   $('#applybtn').on('click', function(ev) {
-	ev.preventDefault();
-	var v = geteditorcontent();
-	setpagecontent(v);
-	var fm = $('#form_editcss'),
-	   url = fm.attr('action') + '?apply=1',
-	params = fm.serializeArray();
-	$.ajax(url, {
-	  method: 'POST',
-	  data: params
-	}).done(function(data) {
-	  if(data.status === 'success') {
-		$('#form_editcss').dirtyForm('option', 'dirty', false);
-		cms_notify('success', data.message);
-	  } else if(data.status === 'error') {
-		cms_notify('error', data.message);
-	  }
-	}).fail(function(jqXHR, textStatus, errorThrown) {
-	  cms_notify('error', errorThrown);
-	});
-	return false;
+    ev.preventDefault();
+    var v = geteditorcontent();
+    setpagecontent(v);
+    var fm = $('#form_editcss'),
+       url = fm.attr('action') + '?apply=1',
+    params = fm.serializeArray();
+    $.ajax(url, {
+      method: 'POST',
+      data: params
+    }).done(function(data) {
+      if(data.status === 'success') {
+        $('#form_editcss').dirtyForm('option', 'dirty', false);
+        cms_notify('success', data.message);
+      } else if(data.status === 'error') {
+        cms_notify('error', data.message);
+      }
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      cms_notify('error', errorThrown);
+    });
+    return false;
   });
   // disable media-type checkboxes if media query is in use
   if($('#mediaquery').val() !== '') {
-	$('.media-type :checkbox').attr({
-	  checked: false,
-	  disabled: 'disabled'
-	});
+    $('.media-type :checkbox').attr({
+      checked: false,
+      disabled: 'disabled'
+    });
   }
   $('#mediaquery').on('keyup', function(e) {
-	if($('#mediaquery').val() !== '') {
-	  $('.media-type :checkbox').attr({
-		checked: false,
-		disabled: 'disabled'
-	  });
-	} else {
-	  $('.media-type:checkbox').prop('disabled', false);
-	}
+    if($('#mediaquery').val() !== '') {
+      $('.media-type :checkbox').attr({
+        checked: false,
+        disabled: 'disabled'
+      });
+    } else {
+      $('.media-type:checkbox').prop('disabled', false);
+    }
   });
 });
 //]]>

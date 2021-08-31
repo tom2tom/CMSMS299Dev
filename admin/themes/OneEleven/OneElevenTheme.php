@@ -21,33 +21,37 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS; // TODO OK if pre-2.99?
 
+//use CMSMS\RequestParameters; //2.99+
+//use CMSMS\UserOperations;
+//use Throwable; //2.99+
 use CMSMS\AdminAlerts\Alert;
+use CMSMS\AdminTheme;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
-//use CMSMS\RequestParameters; //2.99+
 use CMSMS\ScriptsMerger;
-use CMSMS\UserOperations;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use CMSMS\Utils;
-//use Throwable; //2.99+
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
-use const TMP_CACHE_LOCATION;
 use function check_permission;
-use function cleanValue; // pre-2.99
-//use function CMSMS\sanitizeVal; // 2.99+
+use function cleanValue;
 use function cms_installed_jquery;
 use function cms_join_path;
 use function cms_path_to_url;
 use function cmsms;
+use function CMSMS\get_page_foottext;
+use function CMSMS\get_page_headtext;
 use function get_userid;
 use function lang;
 use function munge_string_to_url;
+//use const TMP_CACHE_LOCATION;
+ // pre-2.99
+//use function CMSMS\sanitizeVal; // 2.99+
 
 class OneElevenTheme extends AdminTheme
 {
@@ -178,18 +182,18 @@ EOS;
 				$rec = $bc[$i];
 				$title = $rec['title'];
 				if ($module_help_type && $i + 1 == count($bc)) {
-					$module_name = '';
+					$modname = '';
 					if (!empty($_GET['module'])) {
-						$module_name = trim($_GET['module']);
+						$modname = trim($_GET['module']);
 					} else {
 						$tmp = explode(',', $_REQUEST['mact']);
-						$module_name = $tmp[0];
+						$modname = $tmp[0];
 					}
-					$orig_module_name = $module_name;
-					$module_name = preg_replace('/([A-Z])/', '_$1', $module_name);
-					$module_name = preg_replace('/_([A-Z])_/', '$1', $module_name);
-					if ($module_name[0] == '_')
-						$module_name = substr($module_name, 1);
+					$orig_module_name = $modname;
+					$modname = preg_replace('/([A-Z])/', '_$1', $modname);
+					$modname = preg_replace('/_([A-Z])_/', '$1', $modname);
+					if ($modname[0] == '_')
+						$modname = substr($modname, 1);
 				} else {
 					if (($p = strrchr($title, ':')) !== FALSE) {
 						$title = substr($title, 0, $p);
@@ -265,9 +269,9 @@ EOS;
 
 		if ($this->currentversion()) {
 			$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
-			$modinst = CMSMS\AppSingle::ModuleOperations()->get_module_instance($auth_module, '', true);
-			if ($modinst) {
-				$data = $modinst->fetch_login_panel();
+			$mod = SingleItem::ModuleOperations()->get_module_instance($auth_module, '', true);
+			if ($mod) {
+				$data = $mod->fetch_login_panel();
 				if (isset($data['infomessage'])) $data['message'] = $data['infomessage'];
 				if (isset($data['warnmessage'])) $data['warning'] = $data['warnmessage'];
 				if (isset($data['errmessage'])) $data['error'] = $data['errmessage'];
@@ -279,7 +283,7 @@ EOS;
 			$smarty->assign($data);
 
 			//extra shared parameters for the form TODO get from the current login-module
-			$config = AppSingle::Config(); // for the inclusion
+			$config = SingleItem::Config(); // for the inclusion
 			$fp = cms_join_path(dirname(__DIR__), 'assets', 'function.extraparms.php');
 			require_once $fp;
 			$smarty->assign($tplvars);
@@ -421,17 +425,17 @@ EOS;
 		*/
 		// prefer cached parameters, if any
 		// module name
-		$module_name = $this->get_value('module_name');
-		if (!$module_name) {
+		$modname = $this->get_value('module_name');
+		if (!$modname) {
 			if (isset($_REQUEST['mact'])) {
-				$module_name = explode(',', $_REQUEST['mact'])[0];
+				$modname = explode(',', $_REQUEST['mact'])[0];
 			}
 		}
-		$smarty->assign('module_name', $module_name); // maybe null
+		$smarty->assign('module_name', $modname); // maybe null
 
 		$module_help_type = $this->get_value('module_help_type');
 		// module_help_url
-		if ($module_name && ($module_help_type || $module_help_type === null) &&
+		if ($modname && ($module_help_type || $module_help_type === null) &&
 			!UserParams::get_for_user($userid,'hide_help_links', 0)) {
 			if (($module_help_url = $this->get_value('module_help_url'))) {
 				$smarty->assign('module_help_url', $module_help_url);
@@ -455,10 +459,10 @@ EOS;
 			$title = $this->get_active_title(); // try for the active-menu-item title
 			if ($title) {
 			$subtitle = $this->subtitle;
-		} elseif ($module_name) {
-			$modinst = Utils::get_module($module_name);
-			$title = $modinst->GetFriendlyName();
-			$subtitle = $modinst->GetAdminDescription();
+		} elseif ($modname) {
+			$mod = Utils::get_module($modname);
+			$title = $mod->GetFriendlyName();
+			$subtitle = $mod->GetAdminDescription();
 /*			} else {
 				// no title, get one from the breadcrumbs.
 			$bc = $this->get_breadcrumbs();
@@ -476,10 +480,10 @@ EOS;
 		$smarty->assign('pagealias', munge_string_to_url($alias));
 
 		// icon
-		if ($module_name && ($icon_url = $this->get_value('module_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="'.$module_name.'" class="module-icon" />';
-		} elseif ($module_name && $title) {
-			$tag = $this->get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
+		if ($modname && ($icon_url = $this->get_value('module_icon_url'))) {
+			$tag = '<img src="'.$icon_url.'" alt="'.$modname.'" class="module-icon" />';
+		} elseif ($modname && $title) {
+			$tag = $this->get_module_icon($modname, ['alt'=>$modname, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
 			$tag = '<img src="'.$icon_url.'" alt="'.basename($icon_url).'" class="TODO" />';
 		} else {
@@ -516,7 +520,7 @@ EOS;
 		$smarty->assign('content', str_replace('</body></html>', '', $html));
 		$smarty->assign('theme', $this);
 		$smarty->assign('secureparam', $secureparam);
-		$userops = CMSMS\AppSingle::UserOperations();
+		$userops = SingleItem::UserOperations();
 		$user = $userops->LoadUserByID($userid);
 		$smarty->assign('username', $user->username);
 		// user-selected language
@@ -529,8 +533,8 @@ EOS;
 		$smarty->assign('lang_dir', $info->direction());
 
 		if ($flag) {
-			$smarty->assign('header_includes', $this->get_headtext());
-			$smarty->assign('bottom_includes', $this->get_footertext());
+			$smarty->assign('header_includes', get_page_headtext());
+			$smarty->assign('bottom_includes', get_page_foottext());
 		} else {
 			// replicate AdminHeaderSetup(), with different js
 			$dir = ''; //TODO or '-rtl'

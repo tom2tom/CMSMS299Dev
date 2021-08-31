@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
+use CMSMS\FolderControlOperations;
 use FilePicker\Utils;
 
 header('Content-type:application/json;charset=utf-8');
@@ -97,7 +98,7 @@ try {
 
         if (move_uploaded_file($tmppath, $destpath)) {
             // Check file name, extension (tho the ext might be faked)
-            if (!$profile->is_file_name_acceptable($destpath)) {
+            if (!FolderControlOperations::is_file_name_acceptable($profile,$destpath)) {
                 unlink($destpath);
                 throw new RuntimeException($fn.': '.$this->Lang('error_upload_acceptFileTypes'));
             }

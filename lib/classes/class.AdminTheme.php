@@ -22,12 +22,10 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use ArrayTreeIterator;
-use CmsLogicException;
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminTabs;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\ArrayTree;
 use CMSMS\Bookmark;
 use CMSMS\BookmarkOperations;
@@ -36,9 +34,11 @@ use CMSMS\FormUtils;
 use CMSMS\HookOperations;
 use CMSMS\internal\AdminNotification;
 use CMSMS\RequestParameters;
+use CMSMS\SingleItem;
 use CMSMS\Url;
 use CMSMS\UserParams;
 use CMSMS\Utils;
+use LogicException;
 use RecursiveArrayTreeIterator;
 use RecursiveIteratorIterator;
 use Throwable;
@@ -55,10 +55,10 @@ use function check_permission;
 use function cms_join_path;
 use function cms_module_places;
 use function cms_path_to_url;
+use function CMSMS\get_page_foottext;
+use function CMSMS\get_page_headtext;
 use function CMSMS\sanitizeVal;
 use function endswith;
-use function get_page_foottext;
-use function get_page_headtext;
 use function get_secure_param;
 use function get_userid;
 use function lang;
@@ -220,8 +220,9 @@ abstract class AdminTheme
     protected function __construct()
     {
         if (is_object(self::$_instance)) {
-            throw new CmsLogicException('Only one instance of a theme object is permitted');
+            throw new LogicException('Only one instance of a theme object is permitted');
         }
+        $this->load_setup();
 
         $this->_url = $_SERVER['SCRIPT_NAME'];
         $this->_query = $_SERVER['QUERY_STRING'] ?? '';
@@ -276,7 +277,7 @@ abstract class AdminTheme
         case 'subtitle':
             return $this->_subtitle;
         case 'root_url':
-            return AppSingle::Config()['admin_url'].'/themes/'.$this->themeName;
+            return SingleItem::Config()['admin_url'].'/themes/'.$this->themeName;
         }
     }
 
@@ -286,7 +287,7 @@ abstract class AdminTheme
      * or else the system default.
      * This method [re]creates the theme object if appropriate.
      * NOTE the hierarchy of theme-classes prevents the theme singleton
-     * from being populated and cached in App|AppSingle like most other
+     * from being populated and cached in App|SingleItem like most other
      * singletons.
      *
      * @param mixed string|null $name Optional theme name.
@@ -295,7 +296,7 @@ abstract class AdminTheme
     public static function get_instance($name = '')
     {
         if (is_object(self::$_instance)) {
-            if ($name == '' || $name = self::$_instance->themeName) {
+            if (!$name || $name == self::$_instance->themeName) {
                 return self::$_instance;
             }
             self::$_instance = null; // prevent exception when recreated
@@ -348,6 +349,51 @@ abstract class AdminTheme
     {
         assert(empty(CMS_DEPREC), new DeprecationNotice('method','AdminTheme::get_instance'));
         return self::get_instance($name);
+    }
+
+    /**
+     * Setup menu-content cache-engagement
+     * @ignore
+     */
+    protected function load_setup()
+    {
+        $obj = new LoadedDataType('menu_modules', function(bool $force = false, $userid = null) {
+            if ($userid) { // $userid N/A during a cache-refresh
+                $userid = get_userid(false);
+            }
+            $usermoduleinfo = [];
+            $modops = SingleItem::ModuleOperations();
+            $availmodules = $modops->GetInstalledModules();
+            foreach ($availmodules as $modname) {
+                $mod = $modops->get_module_instance($modname);
+                if (is_object($mod) && $mod->HasAdmin()) {
+                    $items = $mod->GetAdminMenuItems();
+                    if ($items) {
+                        $sys = $modops->IsSystemModule($modname);
+                        foreach ($items as &$one) {
+                            if (!$one->valid()) continue;
+                            $nm = $one->name ?? '';
+                            if (!$nm) {
+                                $nm = substr($one->action, 0, 6);
+                            }
+                            // identifier which doesn't mess up in CSS
+                            $one->name = $key = preg_replace(
+                                ['/( )\1+/', '/(\-)\1+/', '/([^\w\-])/'],
+                                ['_', '-', '\\$1'],
+                                $modname.'-'.$nm);
+                            if (empty($one->url)) {
+                                $one->url = $mod->create_action_url('m1_', $one->action);
+                            }
+                            $one->system = $sys;
+                            $usermoduleinfo[$key] = $one;
+                        }
+                        unset($one);
+                    }
+                }
+            }
+            return $usermoduleinfo;
+        });
+        SingleItem::LoadedData()->add_type($obj);
     }
 
     /**
@@ -456,68 +502,27 @@ abstract class AdminTheme
     }
 
     /**
-     * _get_user_module_info
-     * Given the currently logged in user, this will read cache information representing info for all available modules
-     * for that particular user.   If cache information is not available, then modules will be loaded and the information
-     * will be gleaned from the module for that user.
+     * Return information about available modules for populating the
+     * current user's admin menu
      *
      * @since 1.10
      * @access private
      * @ignore
-     * @author calguy1000
      * @return array
      */
     private function _get_user_module_info() : array
     {
+        $cache = SingleItem::LoadedData();
+        // ensure we have data to work from
+        $cache->get('modules');
+        $cache->get('module_deps');
         $userid = get_userid(false);
-// TODO also clear cache group 'module_menus' after change of group membership or permission
-        $data = AppSingle::SystemCache()->get('themeinfo'.$userid, 'module_menus');
-        $data = false;  //DEBUG
-        if (!$data) {
-            // data doesn't exist, gotta build it
-            $usermoduleinfo = [];
-            $modops = AppSingle::ModuleOperations();
-            $allmodules = $modops->GetInstalledModules();
-            foreach ($allmodules as $modname) {
-                $modinst = $modops->get_module_instance($modname);
-                if (is_object($modinst) && $modinst->HasAdmin()) {
-                    $recs = $modinst->GetAdminMenuItems();
-                    if ($recs) {
-                        $sys = $modops->IsSystemModule($modname);
-                        foreach ($recs as &$one) {
-                            if (!$one->valid()) continue;
-                            $nm = $one->name ?? '';
-                            if (!$nm) {
-                                $nm = substr($one->action, 0, 6);
-                            }
-                            // identifier which doesn't mess up in CSS
-                            $one->name = $key = preg_replace(
-                                ['/( )\1+/', '/(\-)\1+/', '/([^\w\-])/'],
-                                ['_', '-', '\\$1'],
-                                $modname.'-'.$nm);
-                            if (empty($one->url)) {
-                                $one->url = $modinst->create_url('m1_', $one->action);
-                            }
-                            $one->system = $sys;
-                            $usermoduleinfo[$key] = $one;
-                        }
-                        unset($one);
-                    }
-                }
-            }
-            // cache the array, even if empty
-            AppSingle::SystemCache()->set('themeinfo'.$userid, $usermoduleinfo, 'module_menus');
-            $data = $usermoduleinfo;
-        }
-
-        return $data;
+        return $cache->get('menu_modules',false,$userid);
     }
 
     /**
-     * _SetModuleAdminInterfaces
-     *
-     * This function sets up data structures to place modules in the proper Admin sections
-     * for display on section pages and menus.
+     * Setup data structures to place modules in the appropriate
+     * menu-sections for display on section pages and menus.
      *
      * @since 1.10
      * @access private
@@ -557,7 +562,7 @@ abstract class AdminTheme
 /* PRESERVE ORIGINAL APPROACH
                 } elseif ($obj->section == 'content') {
                     //hack pending non-core module updates by developers
-                    if ($obj->module != 'CMSContentManager') {
+                    if ($obj->module != 'ContentManager') {
                         $obj->section = 'services';
                     }
 */
@@ -567,8 +572,8 @@ abstract class AdminTheme
                 if (!isset($obj->icon)) {
                     // find the 'best' icon
                     $modname = $obj->module;
-                    $dirs = cms_module_places($modname);
-                    foreach ($dirs as $base) {
+                    $dirlist = cms_module_places($modname);
+                    foreach ($dirlist as $base) {
                         if ($this->_smallicons) {
                             foreach ($smallappends as $one) {
                                 $path = cms_join_path($base, ...$one);
@@ -596,12 +601,10 @@ abstract class AdminTheme
     }
 
     /**
-     * SetAggregatePermissions
-     *
-     * This function gathers disparate permissions to come up with the visibility of
-     * various admin sections, e.g., if there is any content-related operation for
-     * which a user has permissions, the aggregate content permission is granted, so
-     * that menu item is visible.
+     * Gather disparate permissions to come up with the visibility of
+     * various admin sections e.g. if there is any content-related
+     * operation for which the user has permissions, the aggregate
+     * content permission is granted, so that menu item is visible.
      *
      * @access private
      * @ignore
@@ -614,22 +617,21 @@ abstract class AdminTheme
 
         // content section TODO individual
         $this->_perms['contentPerms'] =
-            check_permission($this->userid, 'Manage All Content') |
-            check_permission($this->userid, 'Modify Any Page') |
-            check_permission($this->userid, 'Add Pages') |
-            check_permission($this->userid, 'Remove Pages') |
+            check_permission($this->userid, 'Manage All Content') ||
+            check_permission($this->userid, 'Modify Any Page') ||
+            check_permission($this->userid, 'Add Pages') ||
+            check_permission($this->userid, 'Remove Pages') ||
             check_permission($this->userid, 'Reorder Content');
 
         $this->_perms['templatePerms'] =
-            check_permission($this->userid, 'Add Templates') |
+            check_permission($this->userid, 'Add Templates') ||
             check_permission($this->userid, 'Modify Templates');
 
         $this->_perms['stylePerms'] =
             check_permission($this->userid, 'Manage Stylesheets');
-
+        // TODO maybe also support DesignManager::Manage Designs
         $this->_perms['layoutPerms'] =
-            check_permission($this->userid, 'Manage Designs') |
-            $this->_perms['stylePerms'] |
+            $this->_perms['stylePerms'] ||
             $this->_perms['templatePerms'];
 
         // file
@@ -642,31 +644,32 @@ abstract class AdminTheme
         $this->_perms['myaccount'] = check_permission($this->userid,'Manage My Account');
         $this->_perms['mysettings'] = check_permission($this->userid,'Manage My Settings');
         $this->_perms['mybookmarks'] = check_permission($this->userid,'Manage My Bookmarks');
-        $this->_perms['myprefPerms'] = $this->_perms['myaccount'] |
-            $this->_perms['mysettings'] | $this->_perms['mybookmarks'];
+        $this->_perms['myprefPerms'] = $this->_perms['myaccount'] ||
+            $this->_perms['mysettings'] || $this->_perms['mybookmarks'];
 
         // user/group
         $this->_perms['userPerms'] = check_permission($this->userid, 'Manage Users');
         $this->_perms['groupPerms'] = check_permission($this->userid, 'Manage Groups');
-        $this->_perms['usersGroupsPerms'] = $this->_perms['userPerms'] |
-            $this->_perms['groupPerms'] | $this->_perms['myprefPerms'];
+        $this->_perms['usersGroupsPerms'] = $this->_perms['userPerms'] ||
+            $this->_perms['groupPerms'] || $this->_perms['myprefPerms'];
 
         // admin
         $this->_perms['sitePrefPerms'] = check_permission($this->userid, 'Modify Site Preferences');
         $this->_perms['adminPerms'] = $this->_perms['sitePrefPerms'];
-        $this->_perms['siteAdminPerms'] = $this->_perms['sitePrefPerms'] |
+        $this->_perms['siteAdminPerms'] = $this->_perms['sitePrefPerms'] ||
             $this->_perms['adminPerms'];
 
         // extensions
-        $this->_perms['codeBlockPerms'] = check_permission($this->userid, 'Manage User Plugins'); //see $this->_perms['plugPerms']
+        $this->_perms['codeBlockPerms'] = check_permission($this->userid, 'Manage User Plugins') || //see $this->_perms['plugPerms']
+            check_permission($this->userid, 'Edit User Tags');
+        $this->_perms['usertagPerms'] = $this->_perms['codeBlockPerms'] ||
+            check_permission($this->userid, 'View UserTag Help');
         $this->_perms['modulePerms'] = check_permission($this->userid, 'Modify Modules');
-        $config = AppSingle::Config();
+        $config = SingleItem::Config();
         $this->_perms['eventPerms'] = $config['develop_mode'] && check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
-        $this->_perms['usertagPerms'] = $this->_perms['taghelpPerms'] |
-            check_permission($this->userid, 'Manage User Plugins'); //see $this->_perms['plugPerms']
-        $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
-            $this->_perms['modulePerms'] | $this->_perms['eventPerms'] |
+        $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] ||
+            $this->_perms['modulePerms'] || $this->_perms['eventPerms'] ||
             $this->_perms['taghelpPerms'];
     }
 
@@ -697,7 +700,7 @@ abstract class AdminTheme
         }
         $parms += RequestParameters::get_general_params($id);
 
-        $config = AppSingle::Config();
+        $config = SingleItem::Config();
         $url_ob = new Url($config['admin_url']);
         $urlroot = $url_ob->get_path();
 
@@ -988,17 +991,17 @@ abstract class AdminTheme
      *
      * @since 2.0
      * @access protected
-     * @param string $module_name
+     * @param string $modname module name
      * @return mixed url-string or null
      */
-    protected function get_module_help_url($module_name = null)
+    protected function get_module_help_url($modname = null)
     {
-        if (!$module_name) $module_name = $this->get_action_module();
-        if (!$module_name) return;
+        if (!$modname) $modname = $this->get_action_module();
+        if (!$modname) return;
         //TODO some core method c.f. \CMSMS\AdminUtils::get_generic_url()
-        $modman = Utils::get_module('ModuleManager');
-        if (is_object($modman)) {
-            return $modman->create_url('m1_','defaultadmin','',['modulehelp'=>$module_name]);
+        $mod = Utils::get_module('ModuleManager');
+        if (is_object($mod)) {
+            return $mod->create_action_url('m1_', 'defaultadmin', ['modulehelp'=>$modname]);
         }
     }
 
@@ -1166,7 +1169,7 @@ abstract class AdminTheme
      */
     public function get_icon(string $icon, array $attrs = []) : string
     {
-        $smarty = AppSingle::Smarty();
+        $smarty = SingleItem::Smarty();
         $module = $smarty->getTemplateVars('_module');
 
         if ($module) {
@@ -1187,8 +1190,8 @@ abstract class AdminTheme
      */
     public function get_module_icon(string $module, array $attrs = []) : string
     {
-        $dirs = cms_module_places($module);
-        if ($dirs) {
+        $dirlist = cms_module_places($module);
+        if ($dirlist) {
             $appends = [
                 ['images','icon.svg'],
                 ['icons','icon.svg'],
@@ -1201,7 +1204,7 @@ abstract class AdminTheme
                 ['images','icon.avif'],
                 ['icons','icon.avif'],
             ];
-            foreach ($dirs as $base) {
+            foreach ($dirlist as $base) {
                 foreach ($appends as $one) {
                     $path = cms_join_path($base, ...$one);
                     if (is_file($path)) {
@@ -1852,7 +1855,7 @@ EOS;
                 'type'=>'drop',
                 'name' => trim((string)$name),
                 'htmlid' => '',
-                'modid' => '',
+                'getid' => '',
                 'options' => $opts,
                 'selectedvalue' => $selected
             ];
@@ -1890,8 +1893,7 @@ EOS;
      * @param string $txt The text to add to the head section.
      * @param bool   $after Since 2.99 Optional flag whether to append (instead of prepend) default true
      * @since 2.2
-     * @deprecated since 2.99 use add_page_headtext()
-     * @author Robert Campbell
+     * @deprecated since 2.99 instead use add_page_headtext()
      */
     public function add_headtext($txt, $after = true)
     {
@@ -1912,13 +1914,11 @@ EOS;
      *
      * @return mixed string | null
      * @since 2.2
-     * @deprecated since 2.99 use get_page_headtext()
-     * @author Robert Campbell
+     * @deprecated since 2.99 instead use CMSMS\get_page_headtext()
      */
     public function get_headtext()
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('function','get_page_headtext'));
-//        return $this->_headtext;
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function','CMSMS\get_page_headtext'));
         return get_page_headtext();
     }
 
@@ -1928,8 +1928,7 @@ EOS;
      * @param string $txt The text to add to the end of the output.
      * @param bool   $after Since 2.99 Optional flag whether to append (instead of prepend) default true
      * @since 2.2
-     * @deprecated since 2.99 use add_page_foottext()
-     * @author Robert Campbell
+     * @deprecated since 2.99 instead use add_page_foottext()
      */
     public function add_footertext($txt, $after = true)
     {
@@ -1950,13 +1949,11 @@ EOS;
      *
      * @return string | null
      * @since 2.2
-     * @deprecated since 2.99 use get_page_foottext()
-     * @author Robert Campbell
+     * @deprecated since 2.99 instead use CMSMS\get_page_foottext()
      */
     public function get_footertext()
     {
-//        return $this->_foottext;
-        assert(empty(CMS_DEPREC), new DeprecationNotice('function','get_page_foottext'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('function','CMSMS\get_page_foottext'));
         return get_page_foottext();
     }
 
@@ -2024,7 +2021,7 @@ EOS;
      */
     public function fetch_menu_page($section_name)
     {
-        $smarty = AppSingle::Smarty();
+        $smarty = SingleItem::Smarty();
         $nodes = ($section_name) ?
             $this->get_navigation_tree($section_name, 0) :
             $this->get_navigation_tree(null, 3, 'root:view:dashboard');

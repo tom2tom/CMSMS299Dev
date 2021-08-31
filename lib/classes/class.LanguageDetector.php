@@ -30,7 +30,6 @@ use CMSMS\NlsOperations;
  * derived class, presumably with a different methodology e.g. interpret preferences etc
  *
  * @see NlsOperations::set_language_detector()
- * @author Robert Campbell
  * @package CMS
  * @license GPL
  * @since 2.99

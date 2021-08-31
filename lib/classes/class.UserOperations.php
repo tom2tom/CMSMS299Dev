@@ -22,9 +22,9 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\DeprecationNotice;
 use CMSMS\Events;
+use CMSMS\SingleItem;
 use CMSMS\User;
 use Throwable;
 use const CMS_DB_PREFIX;
@@ -65,7 +65,8 @@ final class UserOperations
 	private $_saved_users = [];
 
 	// @ignore
-	//	private function __construct() {}
+	// @private to prevent direct creation (even by SingleItem class)
+	//	private function __construct() {} TODO public iff wanted by SingleItem ?
 
 	/**
 	 * @ignore
@@ -74,14 +75,14 @@ final class UserOperations
 
 	/**
 	 * Get the singleton instance of this class
-	 * @deprecated since 2.99 use CMSMS\AppSingle::UserOperations()
+	 * @deprecated since 2.99 use CMSMS\SingleItem::UserOperations()
 	 *
 	 * @return UserOperations object
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AppSingle::UserOperations()'));
-		return AppSingle::UserOperations();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::UserOperations()'));
+		return SingleItem::UserOperations();
 	}
 
 	/**
@@ -95,7 +96,7 @@ final class UserOperations
 	public function LoadUsers(int $limit = 10000, int $offset = 0) //: array
 	{
 		if (!is_array($this->_users)) {
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$result = [];
 			$query = 'SELECT user_id,username,password,first_name,last_name,email,active FROM '.
 				CMS_DB_PREFIX.'users ORDER BY username';
@@ -129,7 +130,7 @@ final class UserOperations
 	 */
 	public function LoadUsersInGroup(int $gid) //: array
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$pref = CMS_DB_PREFIX;
 		$result = [];
 		$query = <<<EOS
@@ -140,7 +141,7 @@ JOIN {$pref}groups G ON UG.group_id = G.group_id
 WHERE G.group_id = ?
 ORDER BY username
 EOS;
-		$rst = $db->Execute($query, [$gid]);
+		$rst = $db->execute($query, [$gid]);
 		if ($rst) {
 			while ($row = $rst->FetchRow()) {
 				$userobj = new User();
@@ -172,7 +173,7 @@ EOS;
 	public function LoadUserByUsername(string $username, string $password = '', bool $activeonly = true, bool $adminaccessonly = false)
 	{
 		// note: does not use cache
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 
 		$query = 'SELECT user_id,password FROM '.CMS_DB_PREFIX.'users WHERE ';
 		$where = ['username = ?'];
@@ -183,7 +184,7 @@ EOS;
 		}
 		$query .= implode(' AND ', $where);
 
-		$row = $db->GetRow($query, $params);
+		$row = $db->getRow($query, $params);
 		if ($row) {
 			// ignore supplied invalid P/W chars
 			$password = sanitizeVal($password, CMSSAN_NONPRINT);
@@ -227,10 +228,10 @@ EOS;
 		}
 
 		$result = false;
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'SELECT username, password, active, first_name, last_name, email FROM '.
 			CMS_DB_PREFIX.'users WHERE user_id = ?';
-		$row = $db->GetRow($query, [$uid]);
+		$row = $db->getRow($query, [$uid]);
 		if ($row) {
 			$userobj = new User();
 			$userobj->id = $uid;
@@ -257,17 +258,18 @@ EOS;
 	public function InsertUser(User $user) //: int
 	{
 		$pref = CMS_DB_PREFIX;
+		//just in case username is not unique-indexed by the db
 		$query = <<<EOS
 INSERT INTO {$pref}users
-(user_id,username,password,active,first_name,last_name,email,create_date,passmodified_date)
-SELECT ?,?,?,?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z
+(user_id,username,password,active,first_name,last_name,email,create_date)
+SELECT ?,?,?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM {$pref}users T WHERE T.username=?) LIMIT 1
 EOS;
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$newid = $db->genID(CMS_DB_PREFIX.'users_seq');
 		$nm = $db->addQ($user->username);
 		//setting create_date should be redundant with DT setting on MySQL 5.6.5+
-		$now = trim($db->DbTimeStamp(time()), " '");
+		$longnow = $db->DbTimeStamp(time(),false);
 		$args = [
 			$newid,
 			$nm,
@@ -276,11 +278,10 @@ EOS;
 			$db->addQ($user->firstname),
 			$db->addQ($user->lastname),
 			$db->addQ($user->email),
-			$now,
-			$now,
+			$longnow,
 			$nm
 		];
-		$dbr = $db->Execute($query, $args);
+		$dbr = $db->execute($query, $args);
 		return ($dbr) ? $newid : -1;
 	}
 
@@ -293,22 +294,25 @@ EOS;
 	 */
 	public function UpdateUser($user) //: bool
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		// check for username conflict
 		$query = 'SELECT 1 FROM '.CMS_DB_PREFIX.'users WHERE username = ? AND user_id != ?';
-		$dbr = $db->GetOne($query, [$user->username, $user->id]);
+		$dbr = $db->getOne($query, [$user->username, $user->id]);
 		if ($dbr) {
 			return false;
 		}
 
-		$now = $db->DbTimeStamp(time());
-		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET username = ?, first_name = ?, last_name = ?, email = ?, active = ?, modified_date = '.$now.' WHERE user_id = ?';
-		$dbr = $db->Execute($query, [$user->username, $user->firstname, $user->lastname, $user->email, $user->active, $user->id]);
-		if ($dbr && !empty($user->repass)) {
-			$query = 'UPDATE '.CMS_DB_PREFIX.'users SET oldpassword = password, password = ?, passmodified_date = '.$now.' WHERE user_id = ?';
-			$dbr = $db->Execute($query, [$user->password, $user->id]);
+		$longnow = $db->DbTimeStamp(time());
+		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET username = ?, first_name = ?, last_name = ?, email = ?, active = ?, modified_date = '.$longnow.' WHERE user_id = ?';
+//		$dbr = useless for update
+		$db->execute($query, [$user->username, $user->firstname, $user->lastname, $user->email, $user->active, $user->id]);
+		if (($n = $db->errorNo()) === 0 && !empty($user->repass)) {
+			$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';
+//			$dbr =
+			$db->execute($query, [$user->password, $user->id]);
+			$n =  $db->errorNo();
 		}
-		return ($dbr != false);
+		return ($n === 0);
 	}
 
 	/**
@@ -328,23 +332,23 @@ EOS;
 			return false;
 		}
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 
 		//TODO at least report failed attempts at related deletions
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE user_id = ?';
 //		$dbr1 =
-		$db->Execute($query, [$uid]);
+		$db->execute($query, [$uid]);
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'additional_users WHERE user_id = ?';
 //		$dbr2 =
-		$db->Execute($query, [$uid]);
+		$db->execute($query, [$uid]);
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?';
-		$res = $db->Execute($query, [$uid]);
+		$res = $db->execute($query, [$uid]);
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
 //		$dbr3 =
-		$db->Execute($query, [$uid]);
+		$db->execute($query, [$uid]);
 
 		return $res != false;
 	}
@@ -358,9 +362,9 @@ EOS;
 	 */
 	public function CountPageOwnershipByID(int $uid) //: int
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'SELECT COUNT(*) AS count FROM '.CMS_DB_PREFIX.'content WHERE owner_id = ?';
-		$dbr = $db->GetOne($query, [$uid]);
+		$dbr = $db->getOne($query, [$uid]);
 		return (int)$dbr;
 	}
 
@@ -397,7 +401,7 @@ EOS;
 	 * @deprecated since ? instead use GetList() and process results
 	 * locally and/or in template
 	 *
-	 * @param int	 $currentuserid
+	 * @param int $currentuserid
 	 * @param string $name The HTML element name
 	 * @return string maybe empty
 	 */
@@ -463,9 +467,9 @@ EOS;
 	public function GetMemberGroups(int $uid) //: array
 	{
 		if (!is_array($this->_user_groups) || !isset($this->_user_groups[$uid])) {
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.'user_groups WHERE user_id = ?';
-			$col = $db->GetCol($query, [(int) $uid]);
+			$col = $db->getCol($query, [(int) $uid]);
 			if (!is_array($this->_user_groups)) {
 				$this->_user_groups = [];
 			}
@@ -486,15 +490,16 @@ EOS;
 			return;
 		}
 
-		$db = AppSingle::Db();
-		$now = $db->DbTimeStamp(time());
+		$db = SingleItem::Db();
+		$longnow = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."user_groups
-(group_id,user_id,create_date) VALUES (?,?,$now)";
+(group_id,user_id,create_date) VALUES (?,?,$longnow)";
 //		$dbr =
-		$db->Execute($query, [$gid, $uid]);
+		$db->execute($query, [$gid, $uid]);
 		if (isset($this->_user_groups[$uid])) {
 			unset($this->_user_groups[$uid]);
 		}
+// TODO SingleItem::LoadedData()->delete('menu_modules', $userid); if not installing
 	}
 
 	/**
@@ -528,7 +533,7 @@ EOS;
 		} else {
 			return false;
 		}
-		$ops = AppSingle::GroupOperations();
+		$ops = SingleItem::GroupOperations();
 		try {
 			foreach ($groups as $gid) {
 				if ($ops->CheckPermission($gid, ...$perms)) {
@@ -541,36 +546,6 @@ EOS;
 		return false;
 	}
 
-	// password timeout not supported, per NIST 2020 recommendation
-	/* *
-	 * Check whether the current user's password-lifetime has expired
-	 * @since 2.99
-	 *
-	 * @param mixed $user User object | null to process current user
-	 *
-	 * @return bool
-	 */
-/*	public function PasswordExpired($user = null) : bool
-	{
-		$val = AppParams::get('password_life', 0);
-		if ($val > 0) {
-			if ($user) {
-				$uid = $user->id;
-			} else {
-				$uid = (AppSingle::LoginOperations())->get_loggedin_uid();
-			}
-			if ($uid < 1) {
-				return true;
-			}
-			$db = AppSingle::Db();
-			$stamp = $db->GetOne('SELECT UNIX_TIMESTAMP(passmodified_date) FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?', [$uid]);
-			if ((int)$stamp + $val * 86400 < time()) {
-				return true;
-			}
-		}
-		return false;
-	}
-*/
 	/**
 	 * Check validity of a posited password for the specified user
 	 * @since 2.99
@@ -617,7 +592,7 @@ EOS;
 	public function PreparePassword(string $password) : string
 	{
 /*		// for 'new' passwords, factor in a not-in-db string, per NIST recommendation
-		$config = AppSingle::Config();
+		$config = SingleItem::Config();
 		$fp = cms_join_path($config['assets_path'], 'configs', 'siteuuid.dat');
 		$str = @file_get_contents($fp);
 		if ($str) {
@@ -640,8 +615,8 @@ EOS;
 	 */
 	public function UsernameCheck(User $user, string $candidate, bool $update = false) : bool
 	{
-//		$modinst = AppSingle::ModuleOperations()->GetAdminLoginModule();
-//		list($valid, $msg) = $modinst->check_username($user, $candidate, $update);
+//		$mod = SingleItem::ModuleOperations()->GetAdminLoginModule();
+//		list($valid, $msg) = $mod->check_username($user, $candidate, $update);
 //		$aout = HookOperations::do_hook_accumulate('Core::UsernameTest', $user, $candidate);
 //		if ($this->ReserveUsername($candidate)) { // TODO support no-change during update process
 //			return false;
@@ -671,11 +646,11 @@ EOS;
 	 */
 	private function UsernameAvailable(User $user, string $candidate, bool $update) : bool
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$save = $db->addQ(trim($candidate));
 		$id = ($update) ? $user->id : 0;
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE username=? AND user_id!=?';
-		$dbr = $db->GetOne($query, [$save, $id]);
+		$dbr = $db->getOne($query, [$save, $id]);
 		return $dbr == false;
 	}
 
@@ -719,12 +694,12 @@ EOS;
 	 */
 /*	public function ReserveUsername(string $username, int $updateby = 0) : bool
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$save = $db->addQ(trim($username));
 		$pref = CMS_DB_PREFIX;
 		if ($updateby == 0) {
 			$query = "SELECT 1 FROM {$pref}users WHERE username=?";
-			$dbr = $db->GetOne($query, [$save]);
+			$dbr = $db->getOne($query, [$save]);
 			return $dbr == false;
 		} elseif ($updateby < 0) {
 // TODO support interim reservation for a new user, pending other stuff
@@ -733,7 +708,7 @@ EOS;
 UPDATE {$pref}users SET username=? WHERE user_id=?
 AND NOT EXISTS (SELECT 1 FROM {$pref}users T WHERE T.username=? AND T.user_id!=?)
 EOS;
-			$db->Execute($query, [$save, $updateby, $save, $updateby]);
+			$db->execute($query, [$save, $updateby, $save, $updateby]);
 			return $db->affected_rows() == 1;
 		}
 	}
@@ -750,7 +725,7 @@ EOS;
 	 */
 	public function GetRecoveryData(string $username = '', int $uid = -1)
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE ';
 		if ($username) {
 			$query .= 'username=?';
@@ -762,7 +737,7 @@ EOS;
 			return null;
 		}
 
-		$uid = $db->GetOne($query, $args);
+		$uid = $db->getOne($query, $args);
 		if ($uid) {
 			return $this->LoadUserByID($uid);
 		}
@@ -777,15 +752,9 @@ EOS;
 	 */
 	private function trigger($db, $uid, $password)
 	{
-		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ?';
-		$args = [$this->PreparePassword($password)];
-		if ($this->PasswordCheck($uid, $password, true)) { //TODO crappy logic
-			$query .= ', set oldpassword = ?, passmodified_date = '. $db->DbTimeStamp(100);
-			$args[] = $args[0]; // prevent repetition
-		}
-		$query .= ' WHERE user_id = ?';
-		$args[] = $uid;
-		$db->Execute($query, $args);
+		$hash = $this->PreparePassword($password);
+		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';
+		$db->execute($query, [$hash, $uid]);
 	}
 } //class
 

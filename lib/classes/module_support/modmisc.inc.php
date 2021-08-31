@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\module_support;
@@ -30,36 +30,36 @@ namespace CMSMS\module_support;
  * @license GPL
  */
 /**
- * @param $modinst the module-object
+ * @param $mod the module-object
  * @return string
  */
-function GetAbout($modinst) : string
+function GetAbout($mod) : string
 {
 	$str = '';
-	if (($val = $modinst->GetAuthor())) {
+	if (($val = $mod->GetAuthor())) {
 		$str .= '<br />'.lang('author').': ' . $val;
-		if (($val = $modinst->GetAuthorEmail())) $str .= ' &lt;' . $val . '&gt;';
+		if (($val = $mod->GetAuthorEmail())) $str .= ' &lt;' . $val . '&gt;';
 		$str .= '<br />';
 	}
-	$str .= '<br />'.lang('version').': ' .$modinst->GetVersion() . '<br />';
+	$str .= '<br />'.lang('version').': ' .$mod->GetVersion() . '<br />';
 
-	if (($val = $modinst->GetChangeLog())) {
+	if (($val = $mod->GetChangeLog())) {
 		$str .= '<br />'.lang('changehistory').':<br />';
 		$str .= $val . '<br />';
 	}
 	return $str;
-};
+}
 
 /**
- * @param $modinst the module-object
+ * @param $mod the module-object
  * @return string
  */
-function GetHelpPage($modinst) : string
+function GetHelpPage($mod) : string
 {
 	ob_start();
-	echo $modinst->GetHelp();
+	echo $mod->GetHelp();
 	$str = ob_get_clean();
-	$dependencies = $modinst->GetDependencies();
+	$dependencies = $mod->GetDependencies();
 	if ($dependencies) {
 		$str .= '<h3>'.lang('dependencies').'</h3>';
 		$str .= '<ul>';
@@ -71,7 +71,7 @@ function GetHelpPage($modinst) : string
 		$str .= '</ul>';
 	}
 
-	$paramarray = $modinst->GetParameters();
+	$paramarray = $mod->GetParameters();
 	if ($paramarray) {
 		$str .= '<h3>'.lang('parameters').'</h3>';
 		$str .= '<ul>';
@@ -85,4 +85,4 @@ function GetHelpPage($modinst) : string
 		$str .= '</ul>';
 	}
 	return $str;
-};
+}

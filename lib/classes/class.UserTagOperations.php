@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
 use CMSMS\DeprecationNotice;
+use CMSMS\SingleItem;
 use Throwable;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -91,7 +91,7 @@ final class UserTagOperations
 	 * @ignore
 	 * Needed when using local $_instance
 	 */
-//	private function __construct() {}
+//	private function __construct() {} TODO public iff wanted by SingleItem ?
 
 	/**
 	 * @ignore
@@ -136,7 +136,7 @@ final class UserTagOperations
 	 */
 	public static function __callStatic($name, $args)
 	{
-		$handler = AppSingle::UserTagOperations()->GetHandler($name); // what is self:: here
+		$handler = SingleItem::UserTagOperations()->GetHandler($name); // what is self:: here
 		try {
 			return $handler(...$args);
 		} catch (Throwable $t) {
@@ -146,13 +146,13 @@ final class UserTagOperations
 
 	/**
 	 * Get the singleton instance of this class
-	 * @deprecated since 2.99 instead use CMSMS\AppSingle::UserTagOperations()
+	 * @deprecated since 2.99 instead use CMSMS\SingleItem::UserTagOperations()
 	 * @return self i.e. UserTagOperations
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AppSingle::UserTagOperations()'));
-		return AppSingle::UserTagOperations();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::UserTagOperations()'));
+		return SingleItem::UserTagOperations();
 	}
 
 	/**
@@ -189,7 +189,7 @@ final class UserTagOperations
 	 * @param string $name plugin identifier (as used in tags). A reference, so it can be trim()'d
 	 * @return bool indicating success
 	 */
-	protected function IsValidName(string &$name) : bool
+	private function IsValidName(string &$name) : bool
 	{
 		$name = trim($name);
 		if ($name) {
@@ -223,20 +223,20 @@ final class UserTagOperations
 	 * @param array $arr
 	 * @return bool
 	 */
-	protected function CacheHas(string $key, array &$arr) : bool
+	private function CacheHas(string $key, array &$arr) : bool
 	{
 		//TODO better support for caseless $key-matches, incl. possible non-ASCII chars
 		return isset($arr[$key]) ||
 			in_array(strtolower($key), array_map('strtolower', array_keys($arr)));
 	}
 
-	protected function CacheSet(string $key, $val, array &$arr)
+	private function CacheSet(string $key, $val, array &$arr)
 	{
 		$ik = null; //func($key, $arr);
 		if ($ik) { $arr[$ik] = $val; } else { $arr[$key] = $val; }
 	}
 
-	protected function CacheGet(string $key, array &$arr)
+	private function CacheGet(string $key, array &$arr)
 	{
 		$ik = null; //func($key, $arr)
 		return ($ik) ? $arr[$ik] : null;
@@ -246,10 +246,10 @@ final class UserTagOperations
 	 * Establish local data cache for all user-plugins
 	 *
 	 * @ignore
-	 * @deprecated since 2.99 does nothing. There is no SysDataCache for user-plugins
+	 * @deprecated since 2.99 does nothing. There is no LoadedData-member for user-plugins
 	 * @internal
 	 */
-	public static function setup()
+	public static function load_setup()
 	{
 	}
 
@@ -282,9 +282,9 @@ final class UserTagOperations
 				$params['id'] = self::MAXFID;
 				$res = $this->SetFileTag($name, $params);
 				if ((is_array($res) && $res[0]) || ($res && !is_array($res))) {
-					$db = AppSingle::Db();
+					$db = SingleItem::Db();
 					$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
-					$db->Execute($query, [$name]);
+					$db->execute($query, [$name]);
 				}
 				return $res;
 			}
@@ -334,7 +334,7 @@ final class UserTagOperations
 	 * @param bool $fromfile optional flag whether the tag is file-stored. Default false.
 	 * @return string
 	 */
-	protected function FilterforUse(string $code) : string
+	private function FilterforUse(string $code) : string
 	{
 		// remove inappropriate php tags, if any
 //		$val =
@@ -355,7 +355,7 @@ final class UserTagOperations
 	 * Default 'code'
 	 * @return mixed assoc array of requested properties | single-prop value | true (exists) | null if N/A
 	 */
-	protected function GetFileTag(string $name, $props = 'code') //UDTfiles
+	private function GetFileTag(string $name, $props = 'code') //UDTfiles
 	{
 		$fp = $this->FilePath($name);
 		if (is_file($fp)) {
@@ -448,7 +448,7 @@ final class UserTagOperations
 	public function GetUserTag(string $name, $props = 'code')
 	{
 		if ($this->CacheHas($name, $this->_cache)) {
-			$filetag = $this->IsFileID($this->_cache[$name][0]);
+			$filetag = $this->IsFileID($this->_cache[$name][0]); //instead of separate contentfile value in the database??
 		} else {
 			$filetag = null; //i.e. not yet known
 		}
@@ -479,10 +479,10 @@ final class UserTagOperations
 				$fields = 'id';
 			}
 			// TODO FilterforUse if relevant
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT '.$fields.' FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
 			//TODO case-sensitive name-match if table|field definition is *_ci ?
-			$dbr = $db->GetRow($query, [$name]);
+			$dbr = $db->getRow($query, [$name]);
 			if ($dbr) {
 				if ($filetag === null) {
 					$this->_cache[$name] = [(int)$dbr['id'],  null]; //remember it
@@ -537,7 +537,7 @@ final class UserTagOperations
 	{
 		if ($check_functions) {
 			// might be registered by something else... a module perhaps
-			$smarty = AppSingle::Smarty();
+			$smarty = SingleItem::Smarty();
 			if ($smarty->is_registered($name)) {
 				return true;
 			}
@@ -715,11 +715,11 @@ EOS;
 			return $this->SetFileTag($name, $params);
 		} elseif ($id == -1 || $id > 0) {
 			//upsert dB
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$tbl = CMS_DB_PREFIX.'userplugins';
 			if ($id == -1) {
 				$query = "INSERT INTO $tbl (name,code,description,parameters) VALUES (?,?,?,?)";
-				$dbr = $db->Execute($query, [$name, $code, $description, $parameters]);
+				$dbr = $db->execute($query, [$name, $code, $description, $parameters]);
 				if ($dbr) {
 					$id = (int)$dbr; // CHECKME last-insert works now?
 					$this->_cache[$name] = [$id, null];
@@ -733,7 +733,7 @@ UPDATE $tbl SET name=?,code=?,description=?,parameters=?
 WHERE id=?
 AND NOT id IN (SELECT id FROM $tbl WHERE name=? AND id!=?)
 EOS;
-				$dbr = $db->Execute($query, [$name, $code, $description, $parameters, $id, $name, $id]);
+				$dbr = $db->execute($query, [$name, $code, $description, $parameters, $id, $name, $id]);
 				$res = (bool)$dbr;
 				if ($res) {
 					//update cache if renamed
@@ -765,9 +765,9 @@ EOS;
 			if (!$this->IsFileID($this->_cache[$name][0])) {
 				//process dB-stored plugin
 				// TODO if case-sensitive name in _ci field
-				$db = AppSingle::Db();
+				$db = SingleItem::Db();
 				$query = 'DELETE FROM '.CMS_DB_PREFIX.'userplugins WHERE name=?';
-				$dbr = $db->Execute($query, [$name]);
+				$dbr = $db->execute($query, [$name]);
 				$res = ($dbr != false);
 				if ($res) {
 					unset($this->_cache[$name]);
@@ -798,9 +798,9 @@ EOS;
 	public function ListUserTags() : array
 	{
 		if (!$this->_loaded) {
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT name,id FROM '.CMS_DB_PREFIX.'userplugins ORDER BY name';
-			$out = $db->GetAssoc($query);
+			$out = $db->getAssoc($query);
 
 			$patn = $this->FilePath('*');
 			$files = glob($patn, GLOB_NOESCAPE);
@@ -832,7 +832,7 @@ EOS;
 	 * @param string $name   The name of the user defined tag
 	 * @return anonymous function
 	 */
-	protected function GetHandler(string $name)
+	private function GetHandler(string $name)
 	{
 		// TODO if case-sensitive $name in _ci field and strtolower()'d local cache
 		if ($this->CreateTagFunction($name)) {
@@ -852,10 +852,10 @@ EOS;
 				if ($params) {
 					extract($params);
 				}
-				$gCms = AppSingle::App();
-				$config = AppSingle::Config();
-				$db = AppSingle::Db(); // TODO enforce read-only db here
-				$smarty = AppSingle::Smarty(); // TODO restrict methods : assign[byref]* or define { } replacements
+				$gCms = SingleItem::App();
+				$config = SingleItem::Config();
+				$db = SingleItem::Db(); // TODO enforce read-only db here
+				$smarty = SingleItem::Smarty(); // TODO restrict methods : assign[byref]* or define { } replacements
 //				TODO sandbox this :: protect caches, global vars, class properties etc
 //				any security-enhancements instigated here could be reversed by malicious eval'd code
 //				$fakesmarty = new trapperclass();
@@ -913,12 +913,12 @@ EOS;
 	public function CallUserTag(string $name, array &$params = [], $smarty_ob = null)
 	{
 		if (!empty($this->_cache[$name][1])) {
-			$func = $this->_cache[$name][1];
+			$fname = $this->_cache[$name][1];
 		} else {
-			$func = $this->GetHandler($name);
+			$fname = $this->GetHandler($name);
 		}
-		if ($func) {
-			return $func($params, $smarty_ob);
+		if ($fname) {
+			return $fname($params, $smarty_ob);
 		}
 		return false;
 	}
@@ -971,7 +971,7 @@ EOS;
 			}
 		}
 		return ($this->CacheHas($name, $this->_cache)) ?
-			self::class.'::'.$name : //fake callable triggers self::__callStatic()
+			__CLASS__.'::'.$name : //fake callable triggers self::__callStatic()
 			null;
 	}
 } // class

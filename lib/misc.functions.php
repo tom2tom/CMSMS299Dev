@@ -30,6 +30,7 @@ If not, see <https://www.gnu.org/licenses/>.
  * @license GPL
  */
 namespace {
+
 /**
  * Calculate the difference in seconds between two microtime() values.
  *
@@ -164,7 +165,7 @@ function get_matching_files(string $dir, string $extensions = '', bool $excluded
         $results[] = $file;
     }
     closedir($dh);
-    if (!count($results)) {
+    if (!$results) {
         return false;
     }
     return $results;
@@ -182,7 +183,6 @@ function get_matching_files(string $dir, string $extensions = '', bool $excluded
  * @param  int     $maxdepth Optional max. depth to browse (-1=unlimited). Default -1
  * @param  string  $mode     Optional "FULL"|"DIRS"|"FILES". Default "FULL"
  * @return array
- * @throws UnexpectedValueException upon filesystem access error
  */
 function get_recursive_file_list(string $path, array $excludes = [], int $maxdepth = -1, string $mode = 'FULL') : array
 {
@@ -356,7 +356,7 @@ function startswith(string $str, string $sub, $exact = true) : bool
 {
     $o = strlen($sub);
     if ($o > 0) {
-        return ($exact) ? strncmp($str, $sub, $o) === 0 : strncasecmp($str, $sub, $o) === 0;
+        return ($exact) ? strncmp($str, $sub, $o) == 0 : strncasecmp($str, $sub, $o) == 0;
     }
     return false;
 }
@@ -374,7 +374,7 @@ function endswith(string $str, string $sub, $exact = true) : bool
 {
     $o = strlen($sub);
     if ($o > 0) {
-        return substr_compare($str, $sub, -$o, $o, !$exact) === 0;
+        return substr_compare($str, $sub, -$o, $o, !$exact) == 0;
     }
     return false;
 }
@@ -553,9 +553,46 @@ function cms_to_bool($val) : bool
 }
 
 /**
+ * Record a value in $_SESSION[]
+ * Not entirely wise, but hey ...
+ * @since 2.99
+ *
+ * @param string $session_key
+ * @param mixed $value
+ */
+function set_session_value(string $session_key, $value)
+{
+    if ($session_key) {
+        if (!isset($_SESSION['parameter_values'])) {
+            $_SESSION['parameter_values'] = [];
+        }
+        $_SESSION['parameter_values'][$session_key] = $value;
+    }
+}
+
+/**
+ * Retrieve a value stored via set_session_value()
+ * A sane replacement for get_parameter_value()
+ * @since 2.99
+ *
+ * @param string $session_key
+ * @param mixed $default What to return if wanted data N/A
+ * @return mixed
+ */
+function get_session_value(string $session_key, $default = '')
+{
+    if ($session_key) {
+        return $_SESSION['parameter_values'][$session_key] ?? $default;
+    }
+    return $default;
+}
+
+/**
  * Cache a callable for use immediately before the current session terminates
  * @ignore
  * @since 2.99
+ * @see also CMSMS\internal\Session::register_destroy_function()
+ * @todo any recorded data are not processed ATM
  */
 function register_endsession_function(callable $handler)
 {
@@ -575,6 +612,52 @@ function register_endsession_function(callable $handler)
 function is_base64(string $s) : bool
 {
     return (bool) preg_match('~^[a-zA-Z0-9+/\r\n]+={0,2}$~', $s);
+}
+
+/**
+ * Add to the accumulated content to be inserted in the head section of the output page
+ * @since 2.99
+ *
+ * @param mixed $content string | string[] The content to add
+ * @param bool  $after Optional flag whether to append (instead of prepend). Default true
+ */
+function add_page_headtext($content, $after = true)
+{
+    CMSMS\add_page_content($content, true, $after);
+}
+
+/**
+ * Remove from the accumulated content to be inserted in the head section of the output page
+ * @since 2.99
+ *
+ * @param mixed $content string | string[] The content to add
+ */
+function remove_page_headtext($content)
+{
+    CMSMS\remove_page_content($content, true);
+}
+
+/**
+ * Add to the accumulated content to be inserted at the bottom of the output page
+ * @since 2.99
+ *
+ * @param mixed $content string | string[] The content to add
+ * @param bool  $after Optional flag whether to append (instead of prepend). Default true
+ */
+function add_page_foottext($content, $after = true)
+{
+    CMSMS\add_page_content($content, false, $after);
+}
+
+/**
+ * Remove from the accumulated content to be inserted at the bottom of the output page
+ * @since 2.99
+ *
+ * @param mixed $content string | string[] The content to remove
+ */
+function remove_page_foottext($content)
+{
+    CMSMS\remove_page_content($content, false);
 }
 
 /**
@@ -609,6 +692,129 @@ use const CMSSAN_PATH;
 use const CMSSAN_ACCOUNT;
 use function CMSMS\de_entitize;
 use function CMSMS\entitize;
+
+/**
+ * @var array
+ * Accumulator for content to be included in the page header
+ */
+$PAGE_HEAD_CONTENT = [];
+
+/**
+ * @var array
+ * Accumulator for content to be included near page-end
+ * (immediately before the </body> tag).
+ */
+$PAGE_BOTTOM_CONTENT = [];
+
+/**
+ * @internal
+ * @ignore
+ * @param mixed $content string | string[] The content to add
+ * @param bool $top Whether to process page-header data
+ * @param bool $after Optional flag whether to append (instead of prepend). Default true
+ */
+function add_page_content($content, bool $top, bool $after = true)
+{
+    global $PAGE_HEAD_CONTENT, $PAGE_BOTTOM_CONTENT;
+
+    if ($top) {
+        $holder = &$PAGE_HEAD_CONTENT;
+    } else {
+        $holder = &$PAGE_BOTTOM_CONTENT;
+    }
+
+    if( is_array($content) ) {
+        $clean = array_map('trim', $content);
+        $more = array_diff($holder, $clean);
+        if( $more ) {
+            if( $after ) {
+                $holder = array_merge($holder, $more);
+            }
+            else {
+                $holder = array_merge($more, $holder);
+            }
+        }
+    }
+    else {
+        $txt = trim($content);
+        if( $txt && !in_array($txt, $holder) ) {
+            if( $after ) {
+                $holder[] = $txt;
+            }
+            else {
+                array_unshift($holder, $txt);
+            }
+        }
+    }
+}
+
+/**
+ * @internal
+ * @ignore
+ * @param mixed $content string | string[] The content to add
+ * @param bool $top Whether to process page-header data
+ */
+function remove_page_content($content, bool $top)
+{
+    global $PAGE_HEAD_CONTENT, $PAGE_BOTTOM_CONTENT;
+
+    if ($top) {
+        $holder = &$PAGE_HEAD_CONTENT;
+    } else {
+        $holder = &$PAGE_BOTTOM_CONTENT;
+    }
+
+    if( is_array($content) ) {
+        $clean = array_map('trim', $content);
+        $holder = array_diff($holder, $clean);
+    }
+    else {
+        $txt = trim($content);
+        if( $txt && ($p = array_search($txt, $holder) !== false) ) {
+            unset($holder[$p]);
+        }
+    }
+}
+
+/**
+ * @internal
+ * @ignore
+ * @param bool $top Whether to process page-header data
+ */
+function get_page_content(bool $top)
+{
+    global $PAGE_HEAD_CONTENT, $PAGE_BOTTOM_CONTENT;
+
+    $holder = ($top) ? $PAGE_HEAD_CONTENT : $PAGE_BOTTOM_CONTENT;
+    if( $holder ) {
+        return implode(PHP_EOL, $holder).PHP_EOL;
+    }
+    return '';
+}
+
+/**
+ * Return the accumulated content to be inserted into the head section
+ * of the output page
+ * @since 2.99
+ *
+ * @return string
+ */
+function get_page_headtext() : string
+{
+    return get_page_content(true);
+}
+
+/**
+ * Return the accumulated content to be inserted toward the bottom of
+ * the output page
+ * @since 2.99
+ *
+ * @return string
+ */
+function get_page_foottext() : string
+{
+    return get_page_content(false);
+}
 
 /**
  * Scrub inappropriate chars from the supplied string.

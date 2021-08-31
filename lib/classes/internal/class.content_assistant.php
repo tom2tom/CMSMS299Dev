@@ -34,7 +34,6 @@ use function munge_string_to_url;
  *
  * @package CMS
  * @internal
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  *
  * @since 1.9
  */
@@ -63,7 +62,7 @@ class content_assistant
     public static function is_valid_url($url,$content_id = '')
     {
         // check for start- or end-slash
-        if( $url[0] == '/' || substr_compare($url,'/',-1,1) === 0 ) return false;
+        if( $url[0] == '/' || substr_compare($url,'/',-1,1) == 0 ) return false;
 
         // check for chars not suitable for a pretty-url/route
 	    if( munge_string_to_url($url,true,true) != $url ) return false;

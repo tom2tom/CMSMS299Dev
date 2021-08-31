@@ -1,12 +1,13 @@
 <?php
+
 $sql = 'SELECT permission_id FROM '.CMS_DB_PREFIX.'permissions WHERE permission_name = ?';
-$tmp = (int) $db->GetOne($sql, [ 'Manage Groups' ] );
-if( $tmp < 1 ) {
+$tmp = (int) $db->getOne($sql, ['Manage Groups']);
+if ($tmp < 1) {
     status_msg('Create missing "Manage Users" Permission');
     $new_id = (int) $db->GenID(CMS_DB_PREFIX.'permissions_seq');
     //setting create_date should be redundant with DT setting
     $sql = 'INSERT INTO '.CMS_DB_PREFIX.'permissions
 (permission_id,permission_name,permission_text,permission_source,create_date)
 VALUES (?,?,?,?,NOW())';
-    $db->Execute( $sql, [ $new_id, 'Manage Groups', 'Manage user-group existence, properties, membership', 'Core' ] );
+    $db->execute($sql, [$new_id, 'Manage Groups', 'Manage user-group existence, properties, membership', 'Core']);
 }

@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
 use CMSMS\GroupOperations;
+use CMSMS\SingleItem;
 use LogicException;
 use const CMS_DB_PREFIX;
 use function cms_to_bool;
@@ -48,7 +48,7 @@ use function lang;
 	 */
 	private const PROPS = ['id','name','description','active'];
 
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
 	/**
 	 * GroupOperations object populated on demand
 	 * @ignore
@@ -70,7 +70,7 @@ use function lang;
 	public function __get($key)
 	{
 		if( in_array($key,self::PROPS) ) return $this->$key;
-		throw new LogicException($key.' is not a property of '.self::class);
+		throw new LogicException($key.' is not a property of '.__CLASS__);
 	}
 
 	/**
@@ -79,12 +79,12 @@ use function lang;
 	public function __set($key,$val)
 	{
 		if( !in_array($key,self::PROPS) ) {
-			throw new LogicException($key.' is not a property of '.self::class);
+			throw new LogicException($key.' is not a property of '.__CLASS__);
 		}
 		switch( $key ) {
 		case 'id':
 			if( $this->id != -1 ) {
-				throw new LogicException($key.' is not a settable property of '.self::class);
+				throw new LogicException($key.' is not a settable property of '.__CLASS__);
 			}
 			$val = (int)$val;
 			break;
@@ -107,7 +107,7 @@ use function lang;
 	private static function get_operations()
 	{
 		if( empty(self::$_operations) ) {
-			self::$_operations = AppSingle::GroupOperations();
+			self::$_operations = SingleItem::GroupOperations();
 		}
 		return self::$_operations;
 	}
@@ -121,9 +121,9 @@ use function lang;
 	public function validate()
 	{
 		if( !$this->name ) throw new LogicException('No name specified for this group');
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$sql = 'SELECT group_id FROM '.CMS_DB_PREFIX.'groups WHERE group_name = ? AND group_id != ?';
-		$dbresult = $db->GetOne($sql,[$this->name,$this->id]);
+		$dbresult = $db->getOne($sql,[$this->name,$this->id]);
 		if( $dbresult ) throw new LogicException(lang('errorgroupexists',$this->name));
 	}
 
@@ -142,6 +142,7 @@ use function lang;
 		if( $this->id < 0 ) {
 			$this->id = $res;
 		}
+// TODO SingleItem::LoadedData()->delete('menu_modules'); for all users in group, if not installing
 	}
 
 	/**
@@ -153,6 +154,7 @@ use function lang;
 	 */
 	public function Delete()
 	{
+// TODO SingleItem::LoadedData()->delete('menu_modules'); for all users in group, if not installing
 		return self::get_operations()->DeleteGroupByID($this->id);
 	}
 
@@ -185,7 +187,6 @@ use function lang;
 	 * @see GroupOperations::CheckPermission()
 	 *
 	 * @since 1.11
-	 * @author Robert Campbell
 	 * @internal
 	 * @access private
 	 * @ignore
@@ -204,13 +205,12 @@ use function lang;
 	 * @see GroupOperations::GrantPermission()
 	 *
 	 * @since 1.11
-	 * @author Robert Campbell
 	 * @internal
 	 * @ignore
-	 * @param string $perm Name of the permission to grant (Previous documentation
-	 *  about a numeric permission-id was incorrect)
-	 * @return bool, false if current user_id is invalid, or the named permission
-	 *  is already granted
+	 * @param string $perm Name of the permission to grant (previous
+	 *  documentation about a numeric permission-id was incorrect)
+	 * @return bool, false if current user_id is invalid, or the named
+	 *  permission is already granted
 	 */
 	public function GrantPermission($perm)
 	{
@@ -218,6 +218,7 @@ use function lang;
 //		if( is_numeric($perm) ) { $perm = $TODO; }
 		if( $this->HasPermission($perm) ) { return false; }
 		return self::get_operations()->GrantPermission($this->id,$perm);
+// TODO SingleItem::LoadedData()->delete('menu_modules'); for all users in group, if not installing
 	}
 
 	/**
@@ -225,7 +226,6 @@ use function lang;
 	 * @see GroupOperations::RemovePermission()
 	 *
 	 * @since 1.11
-	 * @author Robert Campbell
 	 * @internal
 	 * @ignore
 	 * @param string $perm Name of the permission to remove (Previous documentation
@@ -239,6 +239,7 @@ use function lang;
 //		if( is_numeric($perm) ) { $perm = $TODO; }
 		if( !$this->HasPermission($perm) ) { return false; }
 		return self::get_operations()->RemovPermission($this->id,$perm);
+// TODO SingleItem::LoadedData()->delete('menu_modules'); for all users in group, if not installing
 	}
 }
 

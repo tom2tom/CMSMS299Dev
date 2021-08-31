@@ -85,7 +85,7 @@ class StupidPass
         if ($dict && is_file($dict)) {
             $this->dict = $dict;
         } else {
-            $this->dict = realpath(__DIR__ . DIRECTORY_SEPARATOR . self::DEFAULT_DICTIONARY);
+            $this->dict = __DIR__ . DIRECTORY_SEPARATOR . self::DEFAULT_DICTIONARY;
         }
         if ($lang) {
             $this->lang = $lang + $this->lang;

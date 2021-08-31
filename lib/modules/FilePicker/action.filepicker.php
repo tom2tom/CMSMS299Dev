@@ -29,14 +29,14 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Crypto;
 use CMSMS\FileType;
+use CMSMS\FolderContolOperations;
 use CMSMS\FSControlValue;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
 use FilePicker\PathAssistant;
-use FilePicker\TemporaryProfileStorage;
 use FilePicker\Utils;
 
-if( !function_exists('cmsms') ) exit;
+//if( some worthy test fails ) exit;
 //BAD in iframe if( !check_login(true) ) exit; // admin only.... but any admin
 
 $handlers = ob_list_handlers();
@@ -69,7 +69,7 @@ try {
     $save = false;
     $inst = $params['inst'] ?? '';
     if( $inst ) {
-        $profile = TemporaryProfileStorage::get($inst);
+        $profile = FolderContolOperations::get_cached($inst);
     }
     else {
         $profile = null;
@@ -109,7 +109,7 @@ try {
     }
 
     if( $save ) {
-        $inst = TemporaryProfileStorage::set($profile);
+        $inst = FolderContolOperations::store_cached($profile);
     }
 
     $assistant = new PathAssistant($config, $topdir);
@@ -202,8 +202,7 @@ try {
             $parms = [ 'subdir'=>$name, 'inst'=>$inst ];
             $up = base64_encode(json_encode($parms,
                 JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE));
-            $url = $this->create_url($id, 'filepicker', $returnid); // come back here
-            $url = str_replace('&amp;', '&', $url).'&'.CMS_JOB_KEY.'=1&_enc='.$up;
+            $url = $this->create_action_url($id, 'filepicker', ['_enc'=>$up,CMS_JOB_KEY=>1]); // come back here
             $data['chdir_url'] = $url;
         }
         else {
@@ -278,11 +277,10 @@ try {
         else {
             $parent = '';
         }
-        $parms = [ 'seldir'=>$parent, 'inst'=>$inst ];
+        $parms = ['seldir'=>$parent, 'inst'=>$inst];
         $up = base64_encode(json_encode($parms,
             JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE));
-        $url = $this->create_url($id, 'filepicker', $returnid); // come back here
-        $upurl = str_replace('&amp;', '&', $url).'&'.CMS_JOB_KEY.'=1&_enc='.$up;
+        $upurl = $this->create_action_url($id, 'filepicker', ['_enc'=>$up,CMS_JOB_KEY=>1]); // come back here
     }
     else {
         $upurl = '';
@@ -327,9 +325,6 @@ EOS;
     $jsm->queue_matchedfile('filebrowser.js', 2);
     $headinc .= $jsm->page_content();
 
-    $url = $this->create_url($id,'ajax_cmd',$returnid,['forjs'=>1]);
-    $url = str_replace('&amp;','&',$url).'&'.CMS_JOB_KEY.'=1';
-
     $lang = (object) [
         'cancel' => $this->Lang('cancel'),
         'choose' => $this->Lang('choose'),
@@ -348,6 +343,7 @@ EOS;
         'yes' => $this->Lang('yes'),
     ];
     $lang_js = json_encode($lang); // CHECKME need for prior (object) cast?
+    $url = $this->create_action_url($id, 'ajax_cmd', ['forjs'=>1, CMS_JOB_KEY=>1]);
 
     $footinc = <<<EOS
 <script type="text/javascript">
@@ -384,7 +380,6 @@ EOS;
     $tpl->display();
 }
 catch( Throwable $t ) {
-    audit('','FilePicker',$t->GetMessage());
-    echo $smarty->errorConsole($t, false);
+    cms_error('','FilePicker::filepicker',$t->GetMessage());
+    $this->ShowErrorPage($t->GetMessage());
 }
-return '';

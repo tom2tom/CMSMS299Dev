@@ -20,21 +20,19 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\LangOperations;
+use CMSMS\SingleItem;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
 $userid = get_userid(false);
-$access = check_permission($userid, 'View Tag Help'); //TODO relevant new permission e.g. 'View Tags'
+$access = check_permission($userid, 'View Tag Help');
 $pdev = $config['develop_mode'] || check_permission($userid, 'Modify Restricted Files');
 
 if (!($access || $pdev)) {
@@ -63,10 +61,10 @@ $plugin = (isset($_GET['plugin'])) ? sanitizeVal($_GET['plugin'], CMSSAN_FILE) :
 $type = (!empty($_GET['type'])) ? preg_replace('/[^a-zA-Z]/','',$_GET['type']) : ''; //'function', 'modifier' etc letters-only
 $action = (!empty($_GET['action'])) ? preg_replace('/[^a-z]/','',$_GET['action']) : ''; //'showpluginhelp' etc specific, letters-only
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $selfurl = basename(__FILE__);
 $urlext = get_secure_param();
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if ($action == 'showpluginhelp') {
     $content = '';
@@ -240,7 +238,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('listtags.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

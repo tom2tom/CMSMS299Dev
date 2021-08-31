@@ -29,7 +29,7 @@ use CMSMS\AppState;
  * @ignore
  */
 
-if( AppState::test_state(AppState::STATE_INSTALL) ) {
+if( AppState::test(AppState::INSTALL) ) {
 	$lang_fn = 'ilang';
 } else {
 	$lang_fn = 'lang';
@@ -209,7 +209,7 @@ function testSupportedDatabase( bool $required, string $title, $db = false, stri
 	$test = new CmsInstallTest();
 	$test->title = $title;
 
-	if(count($drivers) > 0) {
+	if($drivers) {
 		$return = [];
 		foreach($drivers as $driver=>$server) {
 			if(extension_loaded_or($driver)) $return[] = $driver;
@@ -218,10 +218,14 @@ function testSupportedDatabase( bool $required, string $title, $db = false, stri
 		$test->value = implode(',', $return);
 		$test->secondvalue = $return;
 
-		if(count($return) == 0) {
-			$test->res = ($required) ? 'red' : 'yellow';;
-		} else {
+		if($return) {
 			$test->res = 'green';
+		}
+		elseif($required) {
+			$test->res = 'red';
+		}
+		else {
+			$test->res = 'yellow';
 		}
 		getTestReturn($test, $required, $message, 'DB_driver_missing');
 	}
@@ -1379,7 +1383,7 @@ function testSessionSavePath( string $sess_path ) : string
 				}
 			}
 			else {
-				return rtrim(sys_get_temp_dir(), '\\/');
+				return rtrim(sys_get_temp_dir(), ' \/');
 			}
 		}
 		else {

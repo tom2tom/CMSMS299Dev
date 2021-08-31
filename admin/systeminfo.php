@@ -21,14 +21,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\NlsOperations;
+use CMSMS\SingleItem;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -38,7 +36,7 @@ if (0) { //!check_permission($userid, TODO relevant permission)) {
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 $urlext = get_secure_param();
 $selfurl = basename(__FILE__);
 
@@ -86,7 +84,7 @@ EOS;
 }
 
 // smarty
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->registerPlugin('function', 'si_lang', function($params, $smarty)
 {
     if ($params) {
@@ -108,9 +106,9 @@ $smarty->assign([
   'cms_version' => CMS_VERSION,
 ]);
 
-$db = AppSingle::Db();
+$db = SingleItem::Db();
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules WHERE active=1';
-$modules = $db->GetArray($query);
+$modules = $db->getArray($query);
 asort($modules);
 $smarty->assign('installed_modules', $modules);
 
@@ -160,7 +158,7 @@ $res = AppParams::get('smarty_compilecheck', 1);
 $tmp[0]['smarty_compilecheck'] = testBoolean(0, lang('smarty_compilecheck'), $res, lang('test_smarty_compilecheck'), false, true);
 $res = AppParams::get('auto_clear_cache_age', 0);
 $tmp[0]['auto_clear_cache_age'] = testRange(0, lang('autoclearcache2'), $res, lang('test_auto_clear_cache_age'), 0, 30, false);
-$cache = AppSingle::SystemCache();
+$cache = SingleItem::SystemCache();
 $type = get_class($cache->get_driver());
 $c = stripos($type, 'Cache');
 $res = ucfirst(substr($type, $c+5));
@@ -300,7 +298,7 @@ if (!$hascurl) {
 $smarty->assign('count_php_information', count($tmp[0]))
  ->assign('php_information', $tmp);
 
-//$config = AppSingle::Config();
+//$config = SingleItem::Config();
 
 /* Server Information */
 $tmp = [[],[]];
@@ -311,7 +309,7 @@ $tmp[0]['server_os'] = testDummy('', PHP_OS . ' ' . php_uname('r') .' '. lang('o
 
 //switch ($config['dbms']) {
 // case 'mysqli':
-   $v = $db->GetOne('SELECT version()');
+   $v = $db->getOne('SELECT version()');
    if (($p = strpos($v, '-')) === false) {
        $_server_db = $v;
        $_server_type = 'MySQL (assumed)';
@@ -323,7 +321,7 @@ $tmp[0]['server_os'] = testDummy('', PHP_OS . ' ' . php_uname('r') .' '. lang('o
    list($minimum, $recommended) = getTestValues('mysql_version');
    $tmp[0]['server_db_version'] = testVersionRange(0, 'server_db_version', $_server_db, '', $minimum, $recommended, false);
 
-   $grants = $db->GetArray('SHOW GRANTS FOR CURRENT_USER');
+   $grants = $db->getArray('SHOW GRANTS FOR CURRENT_USER');
    if ($grants) {
        $found_grantall = false;
        array_walk_recursive($grants, function (string $item) use ($found_grantall)
@@ -379,10 +377,10 @@ $result = is_writable(CONFIG_FILE_LOCATION);
 $tmp[0]['config_file'] = testDummy('', substr(sprintf('%o', fileperms(CONFIG_FILE_LOCATION)), -4), (($result) ? 'red' : 'green'), (($result) ? lang('config_writable') : ''));
 
 $smarty->assign([
-    'count_permission_info' =>  count($tmp[0]),
-    'permission_info' =>  $tmp,
-    'selfurl' =>  $selfurl,
-    'urlext' =>  $urlext,
+    'count_permission_info' => count($tmp[0]),
+    'permission_info' => $tmp,
+    'selfurl' => $selfurl,
+    'urlext' => $urlext,
  ]);
 
 if (isset($_GET['cleanreport']) && $_GET['cleanreport'] == 1) {
@@ -394,7 +392,6 @@ if (isset($_GET['cleanreport']) && $_GET['cleanreport'] == 1) {
     $content = $smarty->fetch('systeminfo.tpl');
 }
 
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

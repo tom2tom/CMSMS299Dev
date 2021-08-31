@@ -5,43 +5,55 @@ NOTE interactive mode uses PHP extensions & methods which are *NIX-only
  i.e. interactive mode is not for Windoze.
 
 Requires:
- PHP extension zlib. Also readline if in interactive mode
+ PHP extension zlib or bzip2 or zip, according to pack-type.
+ Also readline if in interactive mode
 Prefers:
  PHP extension pcntl if in interactive mode
 */
+const OUTBASE = 'MANIFEST.DAT';
 const SVNROOT = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
 
-$_scriptname = basename(__FILE__);
 $_cli = php_sapi_name() == 'cli';
+$_scriptname = basename(__FILE__);
 // default config params
 $do_md5 = false;
 $mode = 'f';
-$outfile = 'MANIFEST.DAT.gz';
+$outfile = OUTBASE;
+//$pack_type = 'zlib';
+$pack_type = '';
 $svn_root = SVNROOT;
 $uri_from = 'svn://';
 $uri_to = 'file://';
 // other params
 $_debug = false;
-$_compress = true;
+//$_compress = true;
+$_compress = false;
 $_interactive = false; //$_cli && (DIRECTORY_SEPARATOR !== '/');  //always false on windows
 $_tmpdir = sys_get_temp_dir().DIRECTORY_SEPARATOR.$_scriptname.'.'.getmypid();
 $_tmpfile = $_tmpdir.DIRECTORY_SEPARATOR.'tmp.out';
 $_configname = str_replace('.php', '.ini', $_scriptname);
 $_configfile = get_config_file();
 $_writecfg = true;
-//$_outfile = ($_cli) ? STDOUT : 'MANIFEST.DAT.gz';
-$_outfile = 'MANIFEST.DAT.gz';
+//$_outfile = ($_cli) ? STDOUT : OUTBASE.'.gz';
+//$_outfile = OUTBASE.'.gz';
+$_outfile = OUTBASE;
 $_notdeleted = [];
 
+// TODO skip flagging of now-missing module-files if the module needs to be uninstalled before any of its files go away
+
 $src_excludes = [
-'/git/',
+'/\.git.*/',
 '/\.md$/i',
-'/svn/',
+'/\.svn/',
+'/svn\-.*/',
 '/index\.html?$/',
 '/config\.php$/',
+'/siteuuid\.dat$/',
+'/\.htccess$/',
+'/web\.config$/i',
 '/phar_installer/',
+'/installer/',
 '/scripts/',
-'/svn-.*/',
 '/tests/',
 '/UNUSED/',
 '/HIDE/',
@@ -55,11 +67,11 @@ $src_excludes = [
 //TODO root-dir  '/\.htaccess$/',
 
 $compare_excludes = [
-'.git*','*.md','*.MD',
-'.svn','svn-*',
-'*.bak','*~',
-'*.sh','*.pl','*.bat',
-'.#*','#*',
+'.git*', '*.md', '*.MD',
+'.svn', 'svn-*',
+'*.bak', '*~',
+'*.sh', '*.pl', '*.bat',
+'.#*', '#*',
 'config.php',
 'index.html',
 '*UNUSED*',
@@ -71,7 +83,7 @@ $compare_excludes = [
 ];
 
 if ($_cli) {
-    $opts = getopt('ic:de:f:hkm:npo:r::t::', [
+    $opts = getopt('ic:de:f:hkm:nwo:p:r::t::', [
     'ask', //-i : interactive
     'config',
     'debug',
@@ -81,8 +93,9 @@ if ($_cli) {
     'md5',  //-k : checksum
     'mode',
     'nocompress',
-    'nowrite', //-p : preserve current config file
+    'nowrite', //-w TODO : preserve current config file
     'outfile',
+    'pack',
     'root',
     'to',
     ]);
@@ -102,8 +115,43 @@ if ($_configfile && $_configfile != '-') {
     if ($_config === false) {
         fatal("Problem processing config file: $_configfile");
     }
-    extract($_config);
     info('Read config file from '.$_configfile);
+    $_osave = $outfile;
+    $_psave = $pack_type;
+    extract($_config);
+    if (defined('STDOUT')) {
+        if ($outfile == 'STDOUT') {
+            $outfile = STDOUT;
+            $_outfile = STDOUT;
+        }
+    }
+    if (!defined('STDOUT') || $outfile != STDOUT) {
+        // conform $_outfile extension to $pack_type
+        if ($_osave != $outfile || $_psave != $pack_type) {
+            $p = strrpos($outfile, '.');
+            $ext = substr($outfile, $p);
+            if (strcasecmp($ext, '.DAT') != 0) {
+                $outfile = substr($outfile, 0, $p);
+            }
+            if ($_compress) {
+                switch ($pack_type) {
+                    case 'gzip':
+                    $_outfile = $outfile.'.gz';
+                    break;
+                    case 'bzip2':
+                    $_outfile = $outfile.'.bzip2';
+                    break;
+                    case 'zip':
+                    $_outfile = $outfile.'.zip';
+                    break;
+                    default:
+                    $_outfile = $outfile;
+                }
+            } else {
+                $_outfile = $outfile;
+            }
+        }
+    }
 }
 
 if ($_cli) {
@@ -120,7 +168,7 @@ if ($_cli) {
                 if ($val) {
                     $tmp = explode(',', $val);
                     foreach ($tmp as $one) {
-                        $one = trim($one, ' */\\');
+                        $one = trim($one, ' *\/');
                         if ($one) {
                             $_notdeleted[] = DIRECTORY_SEPARATOR.$one;
                         }
@@ -176,9 +224,14 @@ if ($_cli) {
                 $outfile = $val;
                 break;
 
-            case 'p':
+            case 'w': //TODO
             case 'nowrite':
                 $_writecfg = false;
+                break;
+
+            case 'p':
+            case 'pack':
+                $pack_type = trim($val);
                 break;
 
             case 'r':
@@ -220,26 +273,45 @@ if ($_cli && $_interactive) {
         $svn_root = ask_string('Enter svn repository root url', $svn_root);
     }
     $outfile = ask_string('Enter manifest file name', $outfile);
-    $mode = ask_options('Enter manifest mode (d|n|c|f)', ['d','n','c','f'], $mode);
+    $mode = ask_options('Enter manifest mode (d|n|c|f)', ['d', 'n', 'c', 'f'], $mode);
+}
+
+// strip any compression-related extension from $outfile
+$p = strrpos($outfile, '.');
+$ext = substr($outfile, $p);
+if (strcasecmp($ext, '.DAT') != 0) {
+    $outfile = substr($outfile, 0, $p);
 }
 
 if ($_compress) {
-    if (!extension_loaded('zlib')) {
-        fatal('Abort '.$_scriptname.' : PHP zlib extension is missing');
+    switch ($pack_type) {
+        case 'zip':
+            if (!extension_loaded('zip')) {
+                fatal('Abort '.$_scriptname.' : PHP zip extension is missing');
+            }
+            break;
+        case 'zlib':
+            if (!extension_loaded('zlib')) {
+                fatal('Abort '.$_scriptname.' : PHP zlib extension is missing');
+            }
+            // some debian-based distros don't have gzopen (crappy)
+            if (!function_exists('gzopen') && function_exists('gzopen64')) {
+                function gzopen($filename, $mode, $use_include_path = 0)
+                {
+                    return gzopen64($filename, $mode, $use_include_path);
+                }
+            }
+            break;
+        case 'bzip2':
+            if (!extension_loaded('zip')) {
+                fatal('Abort '.$_scriptname.' : PHP zip extension is missing');
+            }
+            break;
+        default:
+            break;
     }
-    // some debian-based distros don't have gzopen (crappy)
-    if (!function_exists('gzopen') && function_exists('gzopen64')) {
-        function gzopen($filename, $mode, $use_include_path = 0)
-        {
-            return gzopen64($filename, $mode, $use_include_path);
-        }
-    }
-
-    if (!endswith($outfile, '.gz')) {
-        $outfile = $outfile . '.gz';
-    }
-} elseif (endswith($outfile, '.gz') || endswith($outfile, '.GZ')) {
-    $outfile = substr($outfile, 0, -3);
+} else {
+    $pack_type = '';
 }
 
 // validate the config
@@ -387,13 +459,40 @@ if ($mode == 'n' || $mode == 'f') {
 
 if ($_compress) {
     info('Compress manifest');
-    $_gzfile = $_tmpfile.'.gz';
-    $_fh = gzopen($_gzfile, 'w9');
-    gzwrite($_fh, file_get_contents($_tmpfile));
-    gzclose($_fh);
-    copy($_gzfile, $_tmpfile);
+    switch ($pack_type) {
+        case 'zip':
+          $_cfile = $_tmpfile.'.zip';
+          $zip = new ZipArchive();
+          if ($zip->open($$_cfile, ZipArchive::CREATE) !== true) {
+              fatal("Cannot open <$_cfile> for zip compression");
+          }
+          $zip->addFromString($_tmpfile, file_get_contents($_tmpfile));
+          $zip->close();
+          break;
+        case 'zlib':
+          $_cfile = $_tmpfile.'.gz';
+          $_fh = gzopen($_cfile, 'wb9');
+          if ($_fh) {
+              gzwrite($_fh, file_get_contents($_tmpfile));
+              gzclose($_fh);
+          } else {
+              fatal($_cfile.' zlib compression failure');
+          }
+          break;
+        case 'bzip2':
+          $_cfile = $_tmpfile.'.bzip2';
+          $_fh = bzopen($_cfile, 'w');
+          if ($_fh) {
+              bzwrite($_fh, file_get_contents($_tmpfile));
+              bzclose($_fh);
+          } else {
+              fatal($_cfile.' bzip2 compression failure');
+          }
+          break;
+    }
+    copy($_cfile, $_tmpfile);
     chmod($_tmpfile, 0666); // generic perms here
-    @unlink($_gzfile);
+    @unlink($_cfile);
 }
 
 if (defined('STDOUT') && $_outfile == STDOUT) {
@@ -415,10 +514,15 @@ if (defined('STDOUT') && $_outfile == STDOUT) {
             } elseif (mkdir($file, 0777, true)) { // generic perms, pending actuals for istallation
                 touch($file.DIRECTORY_SEPARATOR.'changelog.txt');
                 $file .= DIRECTORY_SEPARATOR.$_outfile;
+            } else {
+                fatal('Cannot create upgrade-version folder');
             }
+        } else {
+            fatal('Cannot find upgrade-version data');
         }
     }
     if (!$file) {
+        info('No upgrade version. Manifest file will be (relative) '.__DIR__.'/'.$_outfile);
         $file = __DIR__.DIRECTORY_SEPARATOR.$_outfile;
     }
     info('Copy manifest to '.$file);
@@ -450,14 +554,32 @@ if ($_writecfg) {
     }
     if ($file) {
         info('Write config file to '.$file);
-        write_config_file([
-        'do_md5'=>$do_md5,
-        'mode'=>$mode,
-        'outfile'=>$outfile,
-        'svn_root'=>$svn_root,
-        'uri_from'=>$uri_from,
-        'uri_to'=>$uri_to,
-        ], $file);
+        $parms = [
+            'do_md5' => $do_md5,
+            'mode' => $mode,
+            'outfile' => $outfile,
+            'pack_type' => $pack_type,
+            'svn_root' => $svn_root,
+            'uri_from' => $uri_from,
+            'uri_to' => $uri_to,
+        ];
+        // ignore defaults
+        if (!$do_md5) {
+            unset($parms['do_md5']);
+        }
+        if ($mode == 'f') {
+            unset($parms['mode']);
+        }
+        if ($outfile == OUTBASE) {
+            unset($parms['outfile']);
+        }
+        if ($pack_type == 'zlib') {
+            unset($parms['pack_type']);
+        }
+        if ($svn_root == SVNROOT || $svn_root == SVNROOT.'/') {
+            unset($parms['svn_root']);
+        }
+        write_config_file($parms, $file);
     } else {
         info('Cannot save config file '.$_configname);
     }
@@ -475,9 +597,10 @@ function usage()
 {
     global $_scriptname;
     echo <<<'EOT'
-This is script generates a manifest of differences (additions/changes/deletions) between two sets of CMSMS files, to facilitate cleaning up and verification during a CMSMS upgrade.
+This script generates a manifest of differences (additions/changes/deletions) between two sets of CMSMS files, to facilitate cleaning up and verification during a CMSMS upgrade.
 
 EOT;
+    $fn = OUTBASE;
     echo <<<EOT
 Usage: php $_scriptname [options]
 options
@@ -491,9 +614,10 @@ options
   -i|--ask             = interactive input of some parameters (N/A on Windows)
   -k|--md5             = enable file comparison using md5 hashes
   -m|--mode (d|n|c|f)  = generate a deleted/new/changed/full manifest
-  -n|--nocompress      = do not gzip-compress the manifest file
-  -o|--outfile <string> = a non-default manifest file (the default is STDOUT or MANIFEST.DAT)
-  -p|--nowrite         = do not save a config file containing the parameters used in this script
+  -n|--nocompress      = do not compress the manifest file
+  -o|--outfile <string> = a non-default manifest file (the default is STDOUT or $fn)
+  -w|--nowrite         = do not save a config file containing the parameters used in this script
+  -p|--pack <string>   = manifest-file compression-type (subject to -n option), one of zlib(the default), bzip2, zip, none, ''
   -r|--root <string>   = a non-default root url for svn-sourced fileset(s)
   -t|--to <string>     = the 'release' fileset-source identifier, same format as for -f option
 EOT;
@@ -517,7 +641,7 @@ function info(string $str)
     if (defined('STDOUT')) {
         fwrite(STDOUT, "INFO: $str\n");
     } else {
-        echo ("<br/>INFO: $str");
+        echo("<br/>INFO: $str");
     }
 }
 
@@ -649,7 +773,7 @@ function write_config_file(array $config_data, string $filename)
 {
     @copy($filename, $filename.'.bak');
     $fh = fopen($filename, 'w');
-    fwrite($fh, "[config]\n");
+    fwrite($fh, "[config]\n;non-default parameters\n");
     foreach ($config_data as $key => $val) {
         if (!is_numeric($val)) {
             $val = '"'.$val.'"';
@@ -873,82 +997,6 @@ class compare_dirs
         }
     }
 
-    private function _set_base(string $dir)
-    {
-        $this->_base_dir = $dir;
-    }
-
-    private function _get_base()
-    {
-        return $this->_base_dir;
-    }
-
-    private function _is_ignored(string $filename) : bool
-    {
-        foreach ($this->_ignored as $pattern) {
-            if ($pattern == $filename || fnmatch($pattern, $filename, FNM_CASEFOLD)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private function _read_dir($dir = null)
-    {
-        if (!$dir) {
-            $dir = $this->_base_dir;
-        }
-        if (!$dir) {
-            throw new Exception('No directory specified to _read_dir');
-        }
-
-        $out = [];
-        $dh = opendir($dir);
-        if (!$dh) {
-            throw new Exception('Problem getting directory handle for '.$dir);
-        }
-
-        while (($file = readdir($dh)) !== false) {
-            if ($file == '.' || $file == '..') {
-                continue;
-            }
-            $fn = $dir.DIRECTORY_SEPARATOR.$file;
-
-            if ($this->_is_ignored($file)) {
-                continue;
-            }
-
-            $base = substr($fn, strlen($this->_get_base()));
-            if (is_dir($fn)) {
-                $tmp = $this->_read_dir($fn);
-                $out = array_merge($out, $tmp);
-                $rec = [];
-                $rec['size'] = @filesize($fn);
-                $rec['mtime'] = @filemtime($fn);
-                if ($this->_do_md5) {
-                    $rec['md5'] = md5_file($fn);
-                }
-                $out[$base] = $rec;
-                continue;
-            }
-
-            if (!is_readable($fn)) {
-                debug("$fn is not readable");
-                continue;
-            }
-
-            $rec = [];
-            $rec['size'] = @filesize($fn);
-            $rec['mtime'] = @filemtime($fn);
-            if ($this->_do_md5) {
-                $rec['md5'] = md5_file($fn);
-            }
-            $out[$base] = $rec;
-        }
-
-        return $out;
-    }
-
     public function run()
     {
         if ($this->_has_run) {
@@ -1016,6 +1064,82 @@ class compare_dirs
                 $out[] = $path;
             }
         }
+        return $out;
+    }
+
+    private function _set_base(string $dir)
+    {
+        $this->_base_dir = $dir;
+    }
+
+    private function _get_base()
+    {
+        return $this->_base_dir;
+    }
+
+    private function _is_ignored(string $filename) : bool
+    {
+        foreach ($this->_ignored as $pattern) {
+            if ($pattern == $filename || fnmatch($pattern, $filename, FNM_CASEFOLD)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function _read_dir($dir = null)
+    {
+        if (!$dir) {
+            $dir = $this->_base_dir;
+        }
+        if (!$dir) {
+            throw new Exception('No directory specified to _read_dir');
+        }
+
+        $out = [];
+        $dh = opendir($dir);
+        if (!$dh) {
+            throw new Exception('Problem getting directory handle for '.$dir);
+        }
+
+        while (($name = readdir($dh)) !== false) {
+            if ($name == '.' || $name == '..') {
+                continue;
+            }
+            $fn = $dir.DIRECTORY_SEPARATOR.$name;
+
+            if ($this->_is_ignored($name)) {
+                continue;
+            }
+
+            $base = substr($fn, strlen($this->_get_base()));
+            if (is_dir($fn)) {
+                $tmp = $this->_read_dir($fn);
+                $out = array_merge($out, $tmp);
+                $rec = [];
+                $rec['size'] = @filesize($fn);
+                $rec['mtime'] = @filemtime($fn);
+                if ($this->_do_md5) {
+                    $rec['md5'] = md5_file($fn);
+                }
+                $out[$base] = $rec;
+                continue;
+            }
+
+            if (!is_readable($fn)) {
+                debug("$fn is not readable");
+                continue;
+            }
+
+            $rec = [];
+            $rec['size'] = @filesize($fn);
+            $rec['mtime'] = @filemtime($fn);
+            if ($this->_do_md5) {
+                $rec['md5'] = md5_file($fn);
+            }
+            $out[$base] = $rec;
+        }
+
         return $out;
     }
 } // class

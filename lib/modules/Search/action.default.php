@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\TemplateOperations;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 
 if (isset($params['formtemplate'])) {
     $template = trim($params['formtemplate']);
@@ -29,8 +29,9 @@ if (isset($params['formtemplate'])) {
 else {
     $tpl = TemplateOperations::get_default_template_by_type('Search::searchform');
     if( !is_object($tpl) ) {
-        audit('',$this->GetName(),'No default summary template found');
-        return '';
+        cms_error('',$this->GetName().'::default','No default summary template found');
+        $this->ShowErrorPage('No default summary template found');
+        return;
     }
     $template = $tpl->get_name();
 }
@@ -84,4 +85,3 @@ if( $hidden ) {
 }
 
 $tpl->display();
-return '';

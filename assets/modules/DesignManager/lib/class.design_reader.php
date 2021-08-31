@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace DesignManager;
 
 use CMSMS\Exception;
+use CMSMS\SingleItem;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CMSMS\Template;
@@ -32,7 +33,6 @@ use DesignManager\xml_reader;
 use XMLReader;
 use const CMSSAN_FILE;
 use function cms_join_path;
-use function cmsms;
 use function CMSMS\sanitizeVal;
 use function file_put_contents;
 use function get_server_permissions;
@@ -358,7 +358,7 @@ class design_reader extends reader_base
     {
         $name = $this->get_new_name();
         $dirname = sanitizeVal($name,CMSSAN_FILE);
-        $config = cmsms()->GetConfig();
+        $config = SingleItem::Config();
         $dir = cms_join_path($config['uploads_path'],'designs',$dirname);
         $perms = get_server_permissions()[3];
         @mkdir($dir,$perms,TRUE);
@@ -374,7 +374,7 @@ class design_reader extends reader_base
         $this->validate_template_names();
         $this->validate_stylesheet_names();
 
-        $config  = cmsms()->GetConfig();
+        $config  = SingleItem::Config();
         $newname = $this->get_new_name();
         $destdir = $this->get_destination_dir();
         $info    = $this->get_design_info();
@@ -455,12 +455,12 @@ class design_reader extends reader_base
                     if( !isset($rec['tpl_url']) ) continue;
                     $content = str_replace($key,$rec['tpl_url'],$content);
                 }
-                else if( startswith($key,'__CSS,,') ) {
+                elseif( startswith($key,'__CSS,,') ) {
                     // handle CSS keys... for things like {cms_stylesheet name='xxxx'}
                     if( !isset($rec['value']) ) continue;
                     $content = str_replace($key,$rec['value'],$content);
                 }
-                else if( startswith($key,'__TPL,,') ) {
+                elseif( startswith($key,'__TPL,,') ) {
                     // handle TPL keys... for things like {include file='xxxx'}
                     // or calling a module with a specific template.
                     if( !isset($rec['value']) ) continue;

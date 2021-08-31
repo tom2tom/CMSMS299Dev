@@ -20,16 +20,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
-//use Smarty_Resource_Custom;
-//use Throwable;
-//use const CMS_ASSETS_PATH;
-//use const CMS_DB_PREFIX;
-//use function cms_error;
-//use function cms_join_path;
-//use function cms_to_stamp;
-//use function startswith;
 
 /**
  * A class for handling generic db- and file-stored layout templates as a resource.
@@ -40,7 +32,6 @@ use CMSMS\Utils;
  * @package CMS
  * @internal
  * @ignore
- * @author Robert Campbell
  * @since 1.12
  */
 class Smarty_Resource_cms_template extends Smarty_Resource_Custom
@@ -48,7 +39,7 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
     /**
      * @param string $name  template identifier (name or numeric id)
      * @param mixed $source store for retrieved template content, if any
-     * @param int $mtime    store for retrieved template modification timestamp, or false to abort
+     * @param int $mtime    store for retrieved template modification timestamp, if $source is set
      */
     protected function fetch($name,&$source,&$mtime)
     {
@@ -57,114 +48,100 @@ class Smarty_Resource_cms_template extends Smarty_Resource_Custom
             $name = 0 + $name;
         }
         elseif( !$name ) {
-            $mtime = false;
             return;
         }
 
         if( $name == 'notemplate' ) {
             $source = '{content}';
             $mtime = time(); // never cache...
+            return;
         }
         elseif( startswith($name,'appdata;') ) {
             $name = substr($name,8);
             $source = Utils::get_app_data($name);
             $mtime = time();
+            return;
         }
-        else {
-            //TODO get content from relevant theme template(s) if relevant
-            //TODO support stylesheet templates
-            //TODO support inherited/extended templates
-            // here we replicate CMSMS\Template::get_content() without the overhead of loading that class
-            $db = AppSingle::Db();
-            $sql = 'SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR name=?';
-            $data = $db->GetRow($sql,[$name,$name]);
-            if( $data ) {
-                if( $data['contentfile'] ) {
-                    $fp = cms_join_path(CMS_ASSETS_PATH,'templates',$data['content']);
-                    if( is_readable($fp) && is_file($fp) ) {
-                        try {
-                            $data['content'] = file_get_contents($fp);
-                        } catch( Throwable $t ) {
-//                            trigger_error('cms_template resource: '.$t->getMessage());
-                            cms_error("Template file $fp failed to load: ".$t->getMessage());
-                            $mtime = false;
-                            return;
-                        }
-                    }
-                    else {
-                        cms_error("Template file $fp is missing");
-                        $mtime = false;
+
+        //TODO get content from relevant theme template(s) if relevant
+        //TODO support stylesheet templates
+        //TODO support inherited/extended templates
+
+        // here we replicate CMSMS\Template::get_content() without the overhead of loading that class
+        $db = SingleItem::Db();
+        $sql = 'SELECT id,name,content,contentfile,COALESCE(modified_date, create_date, \'1900-1-1 00:00:01\') AS modified FROM '.CMS_DB_PREFIX.'layout_templates WHERE id=? OR name=?';
+        $data = $db->getRow($sql,[$name,$name]);
+        if( $data ) {
+            if( $data['contentfile'] ) {
+                $fp = cms_join_path(CMS_ASSETS_PATH,'templates',$data['content']);
+                if( is_readable($fp) && is_file($fp) ) {
+                    try {
+                        $data['content'] = file_get_contents($fp);
+                    } catch( Throwable $t ) {
+//                      trigger_error('cms_template resource: '.$t->getMessage());
+                        cms_error("Template file '$fp' failed to load: ".$t->getMessage());
                         return;
                     }
                 }
-                //sanitize, in case some malicious content was stored
-                // munge PHP tags TODO ok if these tags are already obfuscated ?
-                //TODO maybe disable SmartyBC-supported {php}{/php} in $text BUT actual current smarty delim's
-                $text = preg_replace(['/<\?php/i','/<\?=/','/<\?(\s|\n)/','~\{/?php\}~'], ['&#60;&#63;php','&#60;&#63;=','&#60;&#63; ',''], $data['content']);
-                $data['content'] = str_replace('`', '&#96;', $text);
+                else {
+                    cms_error("Template file '$fp' is missing");
+                    return;
+                }
             }
-            else {
-                cms_error('Missing template: '.$name);
-                $mtime = false;
-                return;
-            }
+            //sanitize, in case some malicious content was stored
+            // munge PHP tags TODO ok if these tags are already obfuscated ?
+            //TODO maybe disable SmartyBC-supported {php}{/php} in $text BUT actual current smarty delim's
+            $text = preg_replace(['/<\?php/i','/<\?=/','/<\?(\s|\n)/','~\{/?php\}~'], ['&#60;&#63;php','&#60;&#63;=','&#60;&#63; ',''], $data['content']);
+            $data['content'] = str_replace('`', '&#96;', $text);
+        }
+        else {
+            cms_error('Missing template: '.$name);
+            return;
+        }
+
+        $content = $data['content'];
+        // out-of-order processing to allow header tailoring
+        $pos1 = stripos($content,'<head');
+        $pos2 = stripos($content,'<header',(int)$pos1);
+        if( $pos1 === FALSE || $pos1 == $pos2 ) {
+            $topcontent = '';
+        }
+        else {
+            $topcontent = trim(substr($content,0,$pos1));
+        }
+
+        $pos3 = stripos($content,'</head>',(int)$pos1);
+        if( $pos1 === FALSE || $pos1 == $pos2 || $pos3 === FALSE ) {
+            $headercontent = '';
+        }
+        else {
+            $headercontent = trim(substr($content,$pos1,$pos3-$pos1+7));
+        }
+
+        if( $pos3 !== FALSE ) {
+            $bodycontent = trim(substr($content,$pos3+7));
+        }
+        else {
+            $bodycontent = $content;
         }
 
         $id = $data['id'];
-        if( !empty($data['modified_date']) ) {
-            $mtime = cms_to_stamp($data['modified_date']);
-        }
-        elseif( !empty($data['create_date']) ) {
-            $mtime = cms_to_stamp($data['create_date']);
-        }
-        else {
-            $mtime = 1; // not falsy
-        }
-        $content = $data['content'];
-
-        if( startswith($name, 'cms_template:')/* || startswith( $name, 'cms_file:')*/ ) {
-            // out-of-order processing to allow header tailoring
-            $pos1 = stripos($content,'<head');
-            $pos2 = stripos($content,'<header',(int)$pos1);
-            if( $pos1 === FALSE || $pos1 == $pos2 ) {
-                $topcontent = '';
-            }
-            else {
-                $topcontent = trim(substr($content,0,$pos1));
-            }
-
-            $pos3 = stripos($content,'</head>',(int)$pos1);
-            if( $pos1 === FALSE || $pos1 == $pos2 || $pos3 === FALSE ) {
-                $headercontent = '';
-            }
-            else {
-                $headercontent = trim(substr($content,$pos1,$pos3-$pos1+7));
-            }
-
-            if( $pos3 !== FALSE ) {
-                $bodycontent = trim(substr($content,$pos3+7));
-            }
-            else {
-                $bodycontent = $content;
-            }
-
-            $source = <<<EOS
-{capture assign=toppart}{$topcontent}{/capture}
-{capture assign=bodypart}{$bodycontent}{/capture}
-{capture assign=headpart}{$headercontent}{/capture}
-{send_content_notice type=PageTopPreRender pageid=$id content=\$toppart assign=toppart}
-{capture}{\$toppart}{/capture}{\$smarty.capture.default}
-{send_content_notice type=PageTopPostRender pageid=$id content=\$smarty.capture.default}
-{send_content_notice type=PageHeadPreRender pageid=$id content=\$headpart assign=headpart}
-{capture}{\$headpart}{/capture}{\$smarty.capture.default}
-{send_content_notice type=PageHeadPostRender pageid=$id content=\$smarty.capture.default}
-{send_content_notice type=PageBodyPreRender pageid=$id content=\$bodypart assign=bodypart}
-{capture}{\$bodypart}{/capture}{\$smarty.capture.default}
-{send_content_notice type=PageBodyPostRender pageid=$id content=\$smarty.capture.default}
+        $source = <<<EOS
+{\$parts=[]}
+{capture append=parts}$topcontent{/capture}
+{capture append=parts}$bodycontent{/capture}
+{capture append=parts}$headercontent{/capture}
+{\$parts[0] = CMSMS\\tailorpage('PageTopPreRender',$id,\$parts[0])}
+{\$parts[0]}
+{CMSMS\\tailorpage('PageTopPostRender',$id)}
+{\$parts[2] = CMSMS\\tailorpage('PageHeadPreRender',$id,\$parts[2])}
+{\$parts[2]}
+{CMSMS\\tailorpage('PageHeadPostRender',$id)}
+{\$parts[1] = CMSMS\\tailorpage('PageBodyPreRender',$id,\$parts[1])}
+{\$parts[1]}
+{CMSMS\\tailorpage('PageBodyPostRender',$id)}
 EOS;
-        }
-        else {
-            $source = trim($content);
-        }
+        $st = ( $data['modified'] ) ? cms_to_stamp($data['modified']) : time() - 86400;
+        $mtime = $st;
     }
 } // class

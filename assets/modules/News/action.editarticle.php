@@ -1,6 +1,6 @@
 <?php
 /*
-Edit item action for CMSMS News module.
+CMSMS News module edit-item action.
 Copyright (C) 2005-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -20,10 +20,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminUtils;
-use CMSMS\AppSingle;
 use CMSMS\Events;
 use CMSMS\FormUtils;
 use CMSMS\RouteOperations;
+use CMSMS\SingleItem;
 use CMSMS\TemplateType;
 use CMSMS\Utils;
 use News\AdminOperations;
@@ -31,11 +31,13 @@ use function CMSMS\de_specialize_array;
 use function CMSMS\specialize;
 use function CMSMS\specialize_array;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify News')) exit;
 if (isset($params['cancel'])) {
     $this->Redirect($id, 'defaultadmin', $returnid);
 }
+
+// TODO icon/image handling
 
 $me = $this->GetName();
 $cz = $config['timezone'];
@@ -121,19 +123,20 @@ if (isset($params['submit']) || isset($params['apply'])) {
             $error = true;
         }
 
-        // check for invalid chars.
+        // check for invalid chars
         $translated = munge_string_to_url($news_url, false, true);
         if (strtolower($translated) != strtolower($news_url)) {
             $this->ShowErrors($this->Lang('error_invalidurl'));
             $error = true;
         }
 
-        // check this url isn't a duplicate.
+        // check this URL isn't a duplicate
         RouteOperations::load_routes();
         $route = RouteOperations::find_match($news_url, true);
         if ($route) {
+            $dest = $route->get_dest();
             $dflts = $route->get_defaults();
-            if ($route['key1'] != $me || !isset($dflts['articleid']) || $dflts['articleid'] != $articleid) {
+            if ($dest != $me || !isset($dflts['articleid']) || $dflts['articleid'] != $articleid) {
                 $this->ShowErrors($this->Lang('error_invalidurl'));
                 $error = true;
             }
@@ -153,7 +156,7 @@ status=?,
 searchable=?,
 start_time=?,
 end_time=?,
-modified_date=?,
+modified=?,
 news_extra=?,
 news_url= ?
 WHERE news_id=?';
@@ -173,7 +176,7 @@ WHERE news_id=?';
          $news_url,
          $articleid
         ];
-        $db->Execute($query, $args);
+        $db->execute($query, $args);
 
         if (!$error) {
             if (($status == 'published' || $status =='final') && $news_url != '') {
@@ -193,7 +196,7 @@ WHERE news_id=?';
                         $text = ''; //CHECKME TODO
                     }
                     $text .= $content . ' ' . $summary . ' ' . $title . ' ' . $title;
-                    $module->AddWords($me, $articleid, 'article', $text, ($useexp == 1 && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL);
+                    $module->AddWords($me, $articleid, 'article', $text, ($useexp == 1 && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : null);
                 }
             }
 
@@ -216,6 +219,7 @@ WHERE news_id=?';
         } // !error
 
         if (isset($params['apply']) && isset($params['ajax'])) {
+            // TODO sensible ajax status-reporting - error and success
             $response = '<EditArticle>';
             if ($error) {
                 $response .= '<Response>Error</Response>';
@@ -226,24 +230,24 @@ WHERE news_id=?';
             }
             $response .= '</EditArticle>';
             echo $response;
-            return '';
+            exit;
         }
 
-        if (!$error && !isset($params['apply'])) {
-            // redirect out of here.
+        if (!($error || isset($params['apply']))) {
+            // redirect out of here
             $this->SetMessage($this->Lang('articlesubmitted'));
             $this->Redirect($id, 'defaultadmin', $returnid);
         }
     }
 
-    $query = 'SELECT create_date,modified_date,start_time,end_time FROM ' . CMS_DB_PREFIX . 'module_news WHERE news_id=?';
-    $row = $db->GetRow($query, [$articleid]);
+    $query = 'SELECT start_time,end_time,create_date,modified_date FROM ' . CMS_DB_PREFIX . 'module_news WHERE news_id=?';
+    $row = $db->getRow($query, [$articleid]);
 } elseif (!isset($params['preview'])) {
     //
     // Load data from database
     //
     $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news WHERE news_id=?';
-    $row = $db->GetRow($query, [$params['articleid']]);
+    $row = $db->getRow($query, [$params['articleid']]);
 
     if ($row) {
         $articleid    = $row['news_id'];
@@ -277,7 +281,7 @@ WHERE news_id=?';
     $detail_returnid = $this->GetPreference('detail_returnid', -1);
     if ($detail_returnid <= 0) {
         // now get the default content id.
-        $detail_returnid = AppSingle::ContentOperations()->GetDefaultContent();
+        $detail_returnid = SingleItem::ContentOperations()->GetDefaultContent();
     }
     if (isset($params['previewpage']) && (int)$params['previewpage'] > 0)
         $detail_returnid = (int)$params['previewpage'];
@@ -289,7 +293,7 @@ WHERE news_id=?';
     $tparms = ['preview' => md5(serialize($_SESSION['news_preview']))];
     if (isset($params['detailtemplate']))
         $tparms['detailtemplate'] = trim($params['detailtemplate']);
-    $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true);
+    $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true, false, '', false, 2);
 
     $response = '<?xml version="1.0"?>';
     $response .= '<EditArticle>';
@@ -312,29 +316,29 @@ WHERE news_id=?';
 }
 
 $fmt = $this->GetDateFormat();
-$created = strftime($fmt, $row['create_date']);
-if ($row['modified_date'] > $row['create_date']) {
-    $modified = strftime($fmt, $row['modified_date']);
+$created = $this->FormatforDisplay($row['create_date']);
+if ($row['modified_date'] && strtotime($row['modified_date']) > strtotime($row['create_date'])) { // don't care about timezones
+    $modified = $this->FormatforDisplay($row['modified_date']);
 } else {
-    $modified = NULL;
+    $modified = null;
 }
 if ($status == 'final') {
     if ($row['start_time']) {
-        $published = strftime($fmt, $row['start_time']);
+        $published = $this->FormatforDisplay($row['start_time']);
     } else {
         $published = '?';
     }
 } else {
-    $published = NULL;
+    $published = null;
 }
 if ($status == 'archived') {
     if ($row['end_time']) {
-        $archived = strftime($fmt, $row['end_time']);
+        $archived = $this->FormatforDisplay($row['end_time']);
     } else {
         $archived = '?';
     }
 } else {
-    $archived = NULL;
+    $archived = null;
 }
 
 $block = $this->GetPreference('timeblock', News::HOURBLOCK);
@@ -351,11 +355,12 @@ switch ($block) {
 }
 $withtime = ($block == News::DAYBLOCK) ? 0:1;
 
-if ($startdate > 0) {
-    $st = strtotime('midnight', $startdate);
+if (!empty($startdate)) { //Y-m-D H:i:s formatted string
+    $dtst = strtotime($startdate);
+    $st = strtotime('midnight', $dtst); // redundant?
     $fromdate = date('Y-m-j', $st);
     if ($withtime) {
-        $stt = $startdate - $st - $toffs;
+        $stt = $dtst - $st - $toffs;
         $stt = (int)($stt / $rounder) * $rounder;
         $fromtime = date('g:ia', $stt);
     } else {
@@ -366,11 +371,12 @@ if ($startdate > 0) {
     $fromtime = null;
 }
 
-if ($enddate > 0) {
-    $st = strtotime('midnight', $enddate);
+if (!empty($enddate)) { //also a Y-m-D H:i:s formatted string
+    $dtst = strtotime($enddate);
+    $st = strtotime('midnight', $dtst);
     $todate = date('Y-m-j', $st);
     if ($withtime) {
-        $stt = $enddate - $st - $toffs;
+        $stt = $dtst - $st - $toffs;
         $stt = (int)($stt / $rounder) * $rounder;
         $totime = date('g:ia', $stt);
     } else {
@@ -383,7 +389,7 @@ if ($enddate > 0) {
 
 $categorylist = [];
 $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hierarchy';
-$rst = $db->Execute($query);
+$rst = $db->execute($query);
 if ($rst) {
     while (($row = $rst->FetchRow())) {
         $categorylist[$row['news_category_id']] = specialize($row['long_name']);
@@ -405,7 +411,7 @@ $tpl->assign('formaction', 'editarticle')
     ->assign('formparms', $parms);
 
 if ($author_id > 0) {
-    $userops = AppSingle::UserOperations();
+    $userops = SingleItem::UserOperations();
     $theuser = $userops->LoadUserById($author_id);
     if ($theuser) {
         $tpl->assign('inputauthor', $theuser->username);
@@ -420,7 +426,7 @@ if ($this->GetPreference('allow_summary_wysiwyg', 1)) {
     $tpl->assign('hide_summary_field', false)
      ->assign('inputsummary', FormUtils::create_textarea([
         'enablewysiwyg' => 1,
-        'modid' => $id,
+        'getid' => $id,
         'name' => 'summary',
         'class' => 'pageextrasmalltextarea',
         'value' => $summary,
@@ -431,7 +437,7 @@ if ($this->GetPreference('allow_summary_wysiwyg', 1)) {
 }
 $tpl->assign('inputcontent', FormUtils::create_textarea([
     'enablewysiwyg' => 1,
-    'modid' => $id,
+    'getid' => $id,
     'name' => 'content',
     'value' => $content,
 ]));
@@ -469,7 +475,7 @@ if ($this->CheckPermission('Approve News')) {
         'type' => 'radio',
         'name'  => 'status',
         'htmlid' => 'status',
-        'modid' => $id,
+        'getid' => $id,
         'options'=> $choices,
         'selectedvalue' => $status,
         'delimiter' => '  ',
@@ -495,12 +501,12 @@ try {
          ->assign('preview', true)
          ->assign('preview_returnid', $str);
     }
-} catch( Exception $e ) {
-    audit('', $me, 'No detail template available for preview');
+} catch( Throwable $t ) {
+    cms_error('', $me.'::editarticle', 'No detail template available for preview');
+    $this->ShowErrors($t->GetMessage());
 }
 
 // page resources
 include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 
 $tpl->display();
-return '';

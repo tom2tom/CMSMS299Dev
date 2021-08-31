@@ -20,8 +20,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\SingleItem;
 use CMSMS\Url;
 use CMSMS\Utils;
 
@@ -30,8 +30,8 @@ function smarty_function_cms_action_url($params, $template)
 	$module = $template->getTemplateVars('_module');
 	$returnid = $template->getTemplateVars('returnid');
 	$mid = $template->getTemplateVars('actionid');
-	$action = null;
-	$assign = null;
+	$action = '';
+	$assign = '';
 	$forjs  = 0;
 
 	$actionparms = [];
@@ -69,9 +69,9 @@ function smarty_function_cms_action_url($params, $template)
 	}
 
 	// validate params
-	$gCms = AppSingle::App();
+	$gCms = SingleItem::App();
 	if( $module == '' ) return;
-	if( AppState::test_state(AppState::STATE_ADMIN_PAGE) && $returnid == '' ) {
+	if( AppState::test(AppState::ADMIN_PAGE) && $returnid == '' ) {
 		if( $mid == '' ) $mid = 'm1_';
 		if( $action == '' ) $action = 'defaultadmin';
 	}
@@ -81,28 +81,28 @@ function smarty_function_cms_action_url($params, $template)
 		if( $returnid == '' ) {
 			$returnid = Utils::get_current_pageid();
 			if( $returnid < 1 ) {
-				$returnid = AppSingle::ContentOperations()->GetDefaultContent();
+				$returnid = SingleItem::ContentOperations()->GetDefaultContent();
 			}
 		}
 	}
 	if( $action == '' ) return;
 
-	$obj = Utils::get_module($module);
-	if( !$obj ) return;
+	$mod = Utils::get_module($module);
+	if( !$mod ) return;
 
-	$url = $obj->create_url($mid,$action,$returnid,$actionparms);
+	$url = $mod->create_action_url($mid,$action,$actionparms);
 	if( !$url ) return;
 
 	if( !empty($urlparms) ) {
-		$url_ob = new Url( $url );
-		foreach( $urlparms as $k => $v ) {
-			$url_ob->set_queryvar( $key, $value );
+		$url_ob = new Url($url);
+		foreach( $urlparms as $key => $value ) {
+			$url_ob->set_queryvar($key,$value);
 		}
 		$url = (string)$url_ob;
 	}
 
 	if( $forjs ) {
-		$url = str_replace('&amp;', '&', $url);
+		$url = str_replace('&amp;','&',$url); // prob. redundant
 	}
 
 	if( $assign ) {

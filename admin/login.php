@@ -21,12 +21,11 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\SingleItem;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-AppState::add_state(AppState::STATE_LOGIN_PAGE);
+AppState::set(AppState::LOGIN_PAGE | AppState::ADMIN_PAGE);
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 $name = AppParams::get('loginprocessor');
@@ -45,15 +44,15 @@ if (!$name) {
 	}
 }
 
-$ops = AppSingle::ModuleOperations();
+$ops = SingleItem::ModuleOperations();
 if ($name == 'module') {
-	$modinst = $ops->GetAdminLoginModule();
+	$mod = $ops->GetAdminLoginModule();
 } else {
-	$modinst = $ops->get_module_instance($name, '', true);
+	$mod = $ops->get_module_instance($name, '', true);
 }
-if ($modinst) {
+if ($mod) {
 	try {
-		$modinst->display_login_page();
+		$mod->display_login_page();
 	} catch (Thowable $t) {
 		exit($t->GetMessage());
 	}

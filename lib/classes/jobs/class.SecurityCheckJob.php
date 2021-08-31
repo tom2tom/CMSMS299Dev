@@ -34,7 +34,7 @@ class SecurityCheckJob extends CronJob
     public function __construct()
     {
         parent::__construct();
-        $this->name = 'Core\\SecurityCheck';
+        $this->name = 'Core\SecurityCheck';
         $this->frequency = RecurType::RECUR_DAILY;
     }
 
@@ -47,7 +47,7 @@ class SecurityCheckJob extends CronJob
         // check if config is writable
         if( is_writable(CONFIG_FILE_LOCATION) ) {
             $alert = new TranslatableAlert('Modify Site Preferences');
-            $alert->name = self::class.'config'; // so that there can only ever be one alert of this type at a time.
+            $alert->name = __CLASS__.'config'; // so that there can only ever be one alert of this type at a time.
             $alert->msgkey = 'config_writable';
             $alert->priority = $alert::PRIORITY_HIGH;
             $alert->titlekey = 'security_issue';
@@ -60,7 +60,7 @@ class SecurityCheckJob extends CronJob
         if( $files ) {
             $fn = basename($files[0]);
             $alert = new TranslatableAlert('Modify Site Preferences');
-            $alert->name = self::class.'install';
+            $alert->name = __CLASS__.'install';
             $alert->msgkey = 'installfileexists';
             $alert->msgargs = $fn;
             $alert->priority = $alert::PRIORITY_HIGH;
@@ -72,7 +72,7 @@ class SecurityCheckJob extends CronJob
         // not really a security issue... but meh, it saves another class.
 /*        if( !AppParams::get('mail_is_set',false) ) {
             $alert = new TranslatableAlert('Modify Site Preferences');
-            $alert->name = self::class.'mail';
+            $alert->name = __CLASS__.'mail';
             $alert->msgkey = 'info_mail_notset';
             $alert->priority = $alert::PRIORITY_HIGH;
             $alert->titlekey = 'config_issue';

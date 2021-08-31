@@ -23,6 +23,7 @@ namespace CMSMS\Async;
 
 use CMSMS\Async\Job;
 use CMSMS\Async\RecurType;
+use LogicException;
 use UnexpectedValueException;
 
 /**
@@ -32,7 +33,6 @@ use UnexpectedValueException;
  * and can have an end/until timestamp.
  *
  * @package CMS
- * @author Robert Campbell
  *
  * @since 2.2
  */
@@ -99,7 +99,7 @@ abstract class CronJob extends Job
             // this start overrides the one in the base class.
             $val = (int) $val;
             if ($val > 0 && $val < time() - 60) {
-                throw new UnexpectedValueException('Cannot set a start time before now in '.static::class);
+                throw new LogicException('Cannot set a start time before now in '.static::class);
             }
             $this->_data[$key] = $val;
             break;

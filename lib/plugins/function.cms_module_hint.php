@@ -26,11 +26,11 @@ function smarty_function_cms_module_hint($params, $template)
 {
 	if( !isset($params['module']) ) return '';
 
-	$module = trim($params['module']);
-	$modobj = Utils::get_module($module);
-	if( !is_object($modobj) ) return '';
+	$modname = trim($params['module']);
+	$mod = Utils::get_module($modname);
+	if( !is_object($mod) ) return '';
 
-	$data = Utils::get_app_data('__CMS_MODULE_HINT__'.$module);
+	$data = Utils::get_app_data('__CMS_MODULE_HINT__'.$modname);
 	if( !$data ) $data = [];
 
 	// NOTE no check here whether the module understands the parameter
@@ -39,7 +39,7 @@ function smarty_function_cms_module_hint($params, $template)
 		$data[$key] = $value;
 	}
 
-	Utils::set_app_data('__CMS_MODULE_HINT__'.$module, $data);
+	Utils::set_app_data('__CMS_MODULE_HINT__'.$modname, $data);
 	return '';
 }
 /*

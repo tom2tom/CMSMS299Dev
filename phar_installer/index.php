@@ -3,7 +3,7 @@
 //use cms_installer\cli_install;
 use cms_installer\gui_install;
 
-function _detect_bad_ioncube()
+/*function _detect_bad_ioncube()
 {
     if( extension_loaded('ionCube Loader') ) {
         if( function_exists('ioncube_loader_version') ) {
@@ -12,19 +12,21 @@ function _detect_bad_ioncube()
         }
     }
 }
-
+*/
 //
 // initialization
 //
 try {
     // some basic system wide pre-requisites
-    if( version_compare(PHP_VERSION,'7.1') < 0 ) throw new Exception('This installer requires PHP 7.1 or higher');
-    _detect_bad_ioncube();
+    if (version_compare(PHP_VERSION, '7.1') < 0) {
+        throw new Exception('This installer requires PHP 7.1 or higher');
+    }
+//    _detect_bad_ioncube(); NOT SUPPORTED
 
-    // disable some stuff.
-    @ini_set('opcache.enable',0); // disable zend opcode caching.
-    @ini_set('apc.enabled',0); // disable apc opcode caching (for later versions of APC)
-    @ini_set('xcache.cacher',0); // disable xcache opcode caching
+    // disable some stuff (OR pre-7.1 only?)
+    @ini_set('opcache.enable', 0); // disable zend opcode caching
+    @ini_set('apc.enabled', 0); // disable apc opcode caching (for later versions of APC)
+    @ini_set('xcache.cacher', 0); // disable xcache opcode caching
 
 /* disabled
     if( php_sapi_name() == 'cli' ) {
@@ -33,13 +35,17 @@ try {
     }
     else {
 */
-        require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.gui_install.php';
-        $app = new gui_install();
+    $fp = __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.gui_install.php';
+    if (is_file($fp)) {
+        require_once $fp;
+    } else {
+        throw new Exception("Required file '$fp' is missing");
+    }
+    $app = new gui_install();
 //    }
     $app->run();
-}
-catch( Throwable $t ) {
-    // this handles fatal, serious errors.
+} catch (Throwable $t) {
+    // this handles fatal errors
     // cannot use stylesheets, scripts, or images here, in case the problem is phar-initiation-related
     $msg = $t->GetMessage();
     echo <<<EOT

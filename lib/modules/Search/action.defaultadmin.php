@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AdminUtils;
 use CMSMS\FormUtils;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) exit;
 
 if (isset($params['reindex'])) {
@@ -30,10 +30,10 @@ if (isset($params['reindex'])) {
     $this->ShowMessage($this->Lang('reindexcomplete'));
 } elseif (isset($params['clearwordcount'])) {
     $query = 'TRUNCATE TABLE '.CMS_DB_PREFIX.'module_search_words';
-    $db->Execute($query);
+    $db->execute($query);
 } elseif (isset($params['exportcsv'])) {
     $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_search_words ORDER BY count DESC';
-    $data = $db->GetArray($query);
+    $data = $db->getArray($query);
     if (is_array($data)) {
         header('Content-Description: File Transfer');
         header('Content-Type: application/force-download');
@@ -90,7 +90,7 @@ $tpl->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'p
 // ->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>')
  ->assign('prompt_stopwords',$this->Lang('stopwords'))
  ->assign('input_stopwords', FormUtils::create_textarea([
-    'modid' => $id,
+    'getid' => $id,
     'name' =>'stopwords',
     'rows' => 6,
     'cols' => 50,
@@ -145,4 +145,3 @@ EOS;
 add_page_foottext($js);
 
 $tpl->display();
-return '';

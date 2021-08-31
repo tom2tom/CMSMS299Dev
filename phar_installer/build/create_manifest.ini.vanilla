@@ -1,8 +1,13 @@
 [config]
-do_md5 = 1
-mode = "f"
-outfile = "MANIFEST.DAT.gz"
-svn_root = "http://svn.cmsmadesimple.org/svn/cmsmadesimple/"
+;non-default parameters
+;do_md5 = 1
+;mode = "f"
+;outfile = "MANIFEST.DAT"
+;pack_type = "zip"
+;pack_type = "bzip2"
+;pack_type = "zlib"
+;pack_type = ""
+;svn_root = "http://svn.cmsmadesimple.org/svn/cmsmadesimple"
 ;uri_from = "svn://"
 ;uri_from = "svn://<pathto>"
 ;uri_from = "svn://trunk"

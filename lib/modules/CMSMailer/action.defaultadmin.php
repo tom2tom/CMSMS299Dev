@@ -22,16 +22,15 @@ If not, see <http://www.gnu.org/licenses/licenses.html#AGPL>.
 use CMSMailer\Mailer;
 use CMSMailer\PrefCrypter;
 //use CMSMailer\Utils;
-use CMSMS\App;
 use CMSMS\AppParams;
 use CMSMS\Crypto;
 use CMSMS\FormUtils;
-use CMSMS\ResourceMethods;
+//use CMSMS\ResourceMethods;
 use CMSMS\Utils as AppUtils;
 use function CMSMS\de_specialize;
 use function CMSMS\specialize;
 
-if (!isset($gCms) || !($gCms instanceof App)) exit;
+//if (some worthy test fails) exit;
 
 $pmod = $this->CheckPermission('Modify Site Preferences') ||
     $this->CheckPermission('Modify Mail Preferences');
@@ -202,10 +201,11 @@ if ($pgates) {
     }
 //    $addurl1 = $this->CreateLink($id, 'opengate', '', '', ['gate_id' => -1], '', true);
     $addurl = FormUtils::create_action_link($this, [
-     'modid' => $id,
+     'getid' => $id,
      'action' => 'opengate',
      'params' => ['gate_id' => -1],
      'onlyhref' => true,
+     'format' => 2,
     ]);
     $urlext = get_secure_param();
 }
@@ -307,12 +307,6 @@ $mailprefs['password'] = specialize($s2);
 
 if (empty($activetab)) { $activetab = 'internal'; }
 
-//if ($this instanceof ResourceMethods) { // light-module
-    $tpl = $this->GetTemplateObject('defaultadmin.tpl');
-//} else {
-//    $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
-//}
-
 $mailers = [
  'mail' => 'PHP',
  'sendmail' => 'Sendmail',
@@ -332,6 +326,8 @@ $singl_opts = [
 ];
 $val = (int)$mailprefs['single'];
 $singl_opts[$val] += ['checked'=> true];
+
+$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
 
 //$extras = []; //TODO all 'other' hidden items in each form
 // 'puse' => $puse,
@@ -409,4 +405,3 @@ if ($pmod) {
 }
 
 $tpl->display();
-return '';

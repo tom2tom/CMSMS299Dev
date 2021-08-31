@@ -61,7 +61,7 @@ function smarty_cms_help_modifier_summarize()
 {
 	echo lang_by_realm('tags', 'help_generic2',
 	'This plugin reduces a string variable to (at most) the specified number of words',
-	'$somevar|summarize:3}<br />{$somevar|summarize:3:\'...\'',
+	'{$somevar|summarize:3}<br />{$somevar|summarize:3:\'...\'',
 	<<<'EOS'
 <li>first, the maximum number of words wanted (<em>default 5</em>)</li>
 <li>second, the ellipsis-indicator string to be appended (<em>default &amp;#8230;</em>)</li>

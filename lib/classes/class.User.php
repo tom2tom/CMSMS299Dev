@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 /**
  * Generic admin user class.
@@ -128,7 +128,7 @@ use CMSMS\AppSingle;
 	 */
 	public function SetPassword($password)
 	{
-		$userops = AppSingle::UserOperations();
+		$userops = SingleItem::UserOperations();
 		if ($userops->PasswordCheck($this, $password)) {
 			$this->repass = true;
 			$this->password = $userops->PreparePassword($password);
@@ -144,7 +144,6 @@ use CMSMS\AppSingle;
 	 *
 	 * @since 2.99
 	 * @param string $password The plaintext password.
-	 * @author calguy1000
 	 */
 	public function Authenticate($password)
 	{
@@ -167,7 +166,7 @@ use CMSMS\AppSingle;
 	 */
 	public function Save()
 	{
-		$userops = AppSingle::UserOperations();
+		$userops = SingleItem::UserOperations();
 		if ($this->id > 0) {
 			$result = $userops->UpdateUser($this);
 		} else {
@@ -193,7 +192,7 @@ use CMSMS\AppSingle;
 	{
 		$result = false;
 		if ($this->id > 0) {
-			$userops = AppSingle::UserOperations();
+			$userops = SingleItem::UserOperations();
 			$result = $userops->DeleteUserByID($this->id);
 			if ($result) { $this->SetInitialValues(); }
 		}

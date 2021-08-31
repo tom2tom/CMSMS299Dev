@@ -1,7 +1,7 @@
 <?php
 use FileManager\Utils;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 if (isset($params['cancel'])) $this->Redirect($id, 'defaultadmin', $returnid, $params);
 
@@ -44,4 +44,3 @@ $tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, '
 // ->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
 
 $tpl->display();
-return '';

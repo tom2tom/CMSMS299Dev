@@ -24,10 +24,10 @@ namespace CMSMS;
 //use CMSMS\DeprecationNotice;
 use CMSMS\AdminTheme;
 use CMSMS\AppConfig;
-use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
 use CMSMS\Database\Connection;
 use CMSMS\internal\Smarty;
+use CMSMS\SingleItem;
 use Throwable;
 //use const CMS_DEPREC;
 
@@ -44,7 +44,7 @@ use Throwable;
  */
 final class Utils
 {
-	// static properties here >> StaticProperties class ?
+	// static properties here >> SingleItem property|ies ?
 	/**
 	 * @ignore
 	 */
@@ -82,7 +82,7 @@ final class Utils
 	 * @param string $key The name of this data.
 	 * @param mixed  $value The data to store.
 	 */
-	public static function set_app_data(string $key,$value)
+	public static function set_app_data(string $key, $value)
 	{
 		if( $key == '' ) return;
 		if( !is_array(self::$_vars) ) self::$_vars = [];
@@ -91,41 +91,41 @@ final class Utils
 
 	/**
 	 * Return the database connection singleton.
-	 * @see AppSingle::Db()
+	 * @see SingleItem::Db()
 	 * @since 1.9
 	 *
 	 * @return mixed CMSMS\Database\Connection object | null
 	 */
 	public static function get_db() : Connection
 	{
-//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\AppSingle::Db()'));
-		return AppSingle::Db();
+//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::Db()'));
+		return SingleItem::Db();
 	}
 
 	/**
 	 * Return the application config singleton.
-	 * @see AppSingle::Config();
+	 * @see SingleItem::Config();
 	 * @since 1.9
 	 *
 	 * @return AppConfig The global configuration object.
 	 */
 	public static function get_config() : AppConfig
 	{
-//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\AppSingle::Config()'));
-		return AppSingle::Config();
+//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::Config()'));
+		return SingleItem::Config();
 	}
 
 	/**
 	 * Return the application Smarty singleton.
-	 * @see AppSingle::Smarty()
+	 * @see SingleItem::Smarty()
 	 * @since 1.9
 	 *
 	 * @return Smarty handle to the Smarty object
 	 */
 	public static function get_smarty() : Smarty
 	{
-//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\AppSingle::Smarty()'));
-		return AppSingle::Smarty();
+//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\SingleItem::Smarty()'));
+		return SingleItem::Smarty();
 	}
 
 	/**
@@ -137,7 +137,7 @@ final class Utils
 	 */
 	public static function get_current_content()
 	{
-		return AppSingle::App()->get_content_object();
+		return SingleItem::App()->get_content_object();
 	}
 
 	/**
@@ -149,7 +149,7 @@ final class Utils
 	 */
 	public static function get_current_alias()
 	{
-		$obj = AppSingle::App()->get_content_object();
+		$obj = SingleItem::App()->get_content_object();
 		if( $obj ) return $obj->Alias();
 	}
 
@@ -162,12 +162,12 @@ final class Utils
 	 */
 	public static function get_current_pageid()
 	{
-		return AppSingle::App()->get_content_id();
+		return SingleItem::App()->get_content_id();
 	}
 
 	/**
 	 * Report whether a module is available.
-	 * @see get_module(), AppSingle::SysDataCache()->get('modules')
+	 * @see get_module(), SingleItem::LoadedData()->get('modules')
 	 * @since 1.11
 	 *
 	 * @param string $name The module name
@@ -175,7 +175,7 @@ final class Utils
 	 */
 	public static function module_available(string $name) : bool
 	{
-		return AppSingle::ModuleOperations()->IsModuleActive($name);
+		return SingleItem::ModuleOperations()->IsModuleActive($name);
 	}
 
 	/**
@@ -190,9 +190,9 @@ final class Utils
 	 * @param string $version An optional version string
 	 * @return mixed CMSModule The matching module object or null
 	 */
-	public static function get_module(string $name,string $version = '')
+	public static function get_module(string $name, string $version = '')
 	{
-		return AppSingle::ModuleOperations()->get_module_instance($name,$version);
+		return SingleItem::ModuleOperations()->get_module_instance($name, $version);
 	}
 
 	/**
@@ -209,7 +209,7 @@ final class Utils
 	 */
 	public static function get_wysiwyg_module($module_name = null)
 	{
-		return AppSingle::ModuleOperations()->GetWYSIWYGModule($module_name);
+		return SingleItem::ModuleOperations()->GetWYSIWYGModule($module_name);
 	}
 
 	/**
@@ -220,7 +220,7 @@ final class Utils
 	 */
 	public static function get_syntax_highlighter_module()
 	{
-		return AppSingle::ModuleOperations()->GetSyntaxHighlighter();
+		return SingleItem::ModuleOperations()->GetSyntaxHighlighter();
 	}
 
 	/**
@@ -231,19 +231,18 @@ final class Utils
 	 */
 	public static function get_search_module()
 	{
-		return AppSingle::ModuleOperations()->GetSearchModule();
+		return SingleItem::ModuleOperations()->GetSearchModule();
 	}
 
 	/**
 	 * Return the currently-selected filepicker module.
 	 * @since 2.2
-	 * @author calguy1000
 	 *
 	 * @return mixed CMSModule | null
 	 */
 	public static function get_filepicker_module()
 	{
-		return AppSingle::ModuleOperations()->GetFilePickerModule();
+		return SingleItem::ModuleOperations()->GetFilePickerModule();
 	}
 
 	/**
@@ -254,10 +253,9 @@ final class Utils
 	 */
 	public static function get_email_module()
 	{
-		$modops = AppSingle::ModuleOperations();
-		$mods = $modops->GetCapableModules(CoreCapabilities::EMAIL_MODULE);
-		if ($mods) {
-			return $modops->get_module_instance(reset($mods), '');
+		$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::EMAIL_MODULE);
+		if ($modnames) {
+			return SingleItem::ModuleOperations()->get_module_instance($modnames[0]);
 		}
 		return null;
 	}
@@ -283,7 +281,7 @@ final class Utils
 	{
 		$mod = self::get_email_module();
 		if ($mod) {
-			$classname = $mod->GetName().'\\Mailer';
+			$classname = $mod->GetName().'\Mailer';
 			try {
 				$mailer = new $classname();
 				return $mailer->send_simple($to, $subject, $message, $additional_headers, $additional_params);
@@ -327,7 +325,7 @@ final class Utils
 	 */
 	public static function get_theme_object($name = '')
 	{
-//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\\AdminTheme::get_instance($name)'));
+//		assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'CMSMS\AdminTheme::get_instance($name)'));
 		return AdminTheme::get_instance($name);
 	}
 } // class

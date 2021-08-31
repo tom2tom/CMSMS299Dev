@@ -21,33 +21,24 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\CoreCapabilities;
 use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
+use CMSMS\FolderControlOperations;
+//use CMSMS\FolderControls;
 use CMSMS\IFilePicker;
-use FilePicker\Profile;
-use FilePicker\ProfileDAO;
-use FilePicker\TemporaryInstanceStorage;
-use FilePicker\TemporaryProfileStorage;
+use CMSMS\SingleItem;
 use FilePicker\Utils;
 
 final class FilePicker extends CMSModule implements IFilePicker
 {
-    public $_dao;
     public $_typehelper;
 
     public function __construct()
     {
         parent::__construct();
-        $this->_dao = new ProfileDAO( $this );
         $this->_typehelper = new FileTypeHelper();
-        //TODO process these as end-of-session (not end-of-request) cleanups
-        $callable = TemporaryProfileStorage::get_cleaner();
-        register_shutdown_function($callable);
-        $callable = TemporaryInstanceStorage::get_cleaner();
-        register_shutdown_function($callable);
     }
 
     private function _encodefilename($filename)
@@ -64,26 +55,26 @@ final class FilePicker extends CMSModule implements IFilePicker
     {
         $ret = $this->GetActionTemplateObject();
         if( is_object($ret) ) return $ret;
-        return AppSingle::Smarty();
+        return SingleItem::Smarty();
     }
     /*
      * end of private methods
      */
 
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
-    public function GetAdminSection() { return 'siteadmin'; } //only the profiles stuff is present in admin UI
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp() { return $this->Lang('help'); }
-    public function GetVersion() { return '3.0'; }
-    public function HasAdmin() { return true; }
+    public function GetVersion() { return '2.0'; }
+    public function HasAdmin() { return false; }
+    public function MinimumCMSVersion() { return '2.99'; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
-    public function HasCapability( $capability, $params = [] )
+    public function HasCapability($capability, $params = [])
     {
         switch( $capability ) {
         case CoreCapabilities::CORE_MODULE:
-        case 'contentblocks':
+        case CoreCapabilities::CONTENT_BLOCKS:
         case 'filepicker':
         case 'upload':
             return true;
@@ -95,13 +86,13 @@ final class FilePicker extends CMSModule implements IFilePicker
     /**
      * Generate page-header js. For use by relevant module actions.
      * Include after jQuery and core js.
-     * @since 2.99
+     * @since 2.0
      * @return string
      */
     protected function HeaderJsContent() : string
     {
         $url1 = str_replace('&amp;','&',$this->get_browser_url()).'&'.CMS_JOB_KEY.'=1';
-        $config = AppSingle::Config();
+        $config = SingleItem::Config();
         $url2 = $config['uploads_url'];
         $max = $config['max_upload_size'];
         $choose = $this->Lang('choose');
@@ -157,7 +148,7 @@ EOS;
         debug_display($value, '$value');
         debug_display($blockparams, '$blockparams');
         //debug_display($adding, '$adding');
-        echo('<br />' . __FILE__ . ' : (' . self::class . ' :: ' . __FUNCTION__ . ') : ' . __LINE__ . '<br />');
+        echo('<br />' . __FILE__ . ' : ('__METHOD__') : ' . __LINE__ . '<br />');
         //die('<br />RIP!<br />');
     }
 */
@@ -167,7 +158,7 @@ EOS;
      * @param string $dirpath Optional filesystem path, absolute or relative
      * @return array, possibly empty
      */
-    public function GetFileList( $dirpath = '' )
+    public function GetFileList($dirpath = '')
     {
         return Utils::get_file_list(null, $dirpath);
     }
@@ -178,22 +169,22 @@ EOS;
      * @param mixed $profile_name string or falsy value
      * @param mixed $dirpath Optional filesystem path, absolute or relative
      * @param mixed $uid Optional user-identifier
-     * @return Profile
+     * @return FolderControls
      */
-    public function get_profile_or_default( $profile_name, $dirpath = null, $uid = null )
+    public function get_profile_or_default($profile_name, $dirpath = null, $uid = null)
     {
-        return Utils::get_profile($profile_name, $dirpath, (int)$uid);
+        return FolderControlOperations::get_profile($profile_name, $dirpath, (int)$uid);
     }
 
     /**
      * Get a profile for the specified folder and/or user.
      * @param mixed $dirpath Optional top-directory for the profile. Default null hence top-level
      * @param mixed $uid Optional user id Default null hence current user
-     * @return Profile
+     * @return FolderControls
      */
     public function get_default_profile( $dirpath = null, $uid = null )
     {
-        return Utils::get_profile_for($dirpath, (int)$uid);
+        return FolderControlOperations::get_profile_for($dirpath, (int)$uid);
     }
 
     /**
@@ -202,7 +193,7 @@ EOS;
      */
     public function get_browser_url()
     {
-        return $this->create_url('m1_','filepicker');
+        return $this->create_action_url('m1_','filepicker');
     }
 
     /**
@@ -211,18 +202,18 @@ EOS;
      * @staticvar boolean $first_time
      * @param string $name the name-attribute of the element
      * @param string $value the initial value of the element
-     * @param Profile $profile
+     * @param FolderControls $profile
      * @param bool $required Optional flag, whether some choice must be entered, default false
      * @return string
      */
-    public function get_html( $name, $value, $profile, $required = false )
+    public function get_html($name, $value, $profile, $required = false)
     {
         static $first_time = true;
 
         if( $value === '-1' ) { $value = null; }
 
         // store the profile as a 'useonce' and add its signature to the params on the url
-        $inst = TemporaryProfileStorage::set($profile);
+        $inst = FolderControlOperations::store_cached($profile);
 /*
         $mime = $this->_typehelper->get_file_type_mime((int)$profile->type); //NOTE ->type should never be string-form
         $exts = $this->_typehelper->get_file_type_extensions((int)$profile->type);
@@ -273,7 +264,7 @@ EOS;
         if( $first_time ) {
             $first_time = false;
             //mebbe merge the file in with all used for the current-request ?
-            //$combiner = CMSMS\AppSingle::App()->GetScriptsManager();
+            //$combiner = CMSMS\SingleItem::App()->GetScriptsManager();
             //$combiner->queue_matchedfile('jquery.cmsms_filepicker', 2);
             $jsurl = cms_get_script('jquery.cmsms_filepicker.js');
             $js = '<script type="text/javascript" src="'.$jsurl.'"></script>'.PHP_EOL;
@@ -307,7 +298,7 @@ $(function() {
 EOS;
         add_page_foottext($js);
 
-        $smarty = AppSingle::Smarty();
+        $smarty = SingleItem::Smarty();
         $tpl = $smarty->createTemplate($this->GetTemplateResource('contentblock.tpl')); //, null, null, $smarty);
         $tpl->assign([
          'blockName' => $name,
@@ -332,13 +323,13 @@ EOS;
 
     /**
      * Report whether the specified filepath accords with the specified profile
-     * @param Profile $profile
+     * @param FolderControls $profile
      * @param string $filepath
      * @return boolean
      */
     public function is_acceptable_filename( $profile, $filepath )
     {
         if( endswith($filepath,'index.html') || endswith($filepath,'index.php') ) return false;
-        return $profile->is_file_name_acceptable($filepath);
+        return FolderControlOperations::is_file_name_acceptable($profile,$filepath);
     }
 } // class

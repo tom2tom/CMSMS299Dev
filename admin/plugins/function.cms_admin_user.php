@@ -20,17 +20,17 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\SingleItem;
 
 function smarty_function_cms_admin_user($params, $template)
 {
 	$out = '';
 
-	if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
+	if( AppState::test(AppState::ADMIN_PAGE) ) {
 		$uid = (int)($params['uid'] ?? 0);
 		if( $uid > 0 ) {
-			$user = AppSingle::UserOperations()->LoadUserByID((int)$params['uid']);
+			$user = SingleItem::UserOperations()->LoadUserByID((int)$params['uid']);
 			if( is_object($user) ) {
 				$mode = trim($params['mode'] ?? 'username');
 				switch( $mode ) {

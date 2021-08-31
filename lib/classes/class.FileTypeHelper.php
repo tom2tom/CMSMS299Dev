@@ -29,7 +29,6 @@ use function startswith;
  *
  * @package CMS
  * @license GPL
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since  2.2
  */
 class FileTypeHelper
@@ -604,10 +603,10 @@ class FileTypeHelper
                 }
             }
             else {
-                if( strcasecmp($t1, $parts[$i]) === 0 ) {
+                if( strcasecmp($t1, $parts[$i]) == 0 ) {
                     return TRUE;
                 }
-                if( strcasecmp($t2, $parts[$i]) === 0 ) {
+                if( strcasecmp($t2, $parts[$i]) == 0 ) {
                     return TRUE;
                 }
             }

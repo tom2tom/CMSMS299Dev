@@ -21,17 +21,15 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\TemplateType;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -42,7 +40,7 @@ if( !check_permission($userid, 'Modify Templates') ) {
 }
 
 $urlext = get_secure_param();
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if( isset($_REQUEST['cancel']) ) {
 	$themeObject->ParkNotice('info', lang_by_realm('layout', 'msg_cancelled'));
@@ -87,7 +85,7 @@ try {
 	$lock_timeout = AppParams::get('lock_timeout', 60);
 	$do_locking = ($type_id > 0 && $lock_timeout > 0) ? 1 : 0;
 	if( $do_locking ) {
-		AppSingle::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
+		SingleItem::App()->add_shutdown(10, 'LockOperations::delete_for_nameduser', $userid);
 	}
 	$lock_refresh = AppParams::get('lock_refresh', 120);
 	$s1 = json_encode(lang_by_realm('layout', 'error_lock'));
@@ -167,7 +165,7 @@ EOS;
 	$selfurl = basename(__FILE__);
 	$extras = get_secure_param_array();
 
-	$smarty = AppSingle::Smarty();
+	$smarty = SingleItem::Smarty();
 	$smarty->assign([
 	 'selfurl' => $selfurl,
 	 'urlext' => $urlext,

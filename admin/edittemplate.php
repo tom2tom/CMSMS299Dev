@@ -22,12 +22,11 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Exception;
 use CMSMS\LockException;
 use CMSMS\LockOperations;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
@@ -36,14 +35,13 @@ use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
 $urlext = get_secure_param();
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if (isset($_REQUEST['cancel'])) {
 	$themeObject->ParkNotice('info',lang_by_realm('layout','msg_cancelled'));
@@ -87,7 +85,7 @@ try {
 		}
 */
 		$extraparms['import_type'] = $val;
-	} else if (isset($_REQUEST['tpl'])) {
+	} elseif (isset($_REQUEST['tpl'])) {
 		$val = (is_numeric($_REQUEST['tpl'])) ? (int)$_REQUEST['tpl'] : sanitizeVal($_REQUEST['tpl'], CMSSAN_FILE);
 		$tpl_obj = TemplateOperations::get_template($val);
 //		$tpl_obj->get_designs();
@@ -196,8 +194,7 @@ try {
 			if (!is_dir($dn) || !is_writable($dn)) throw new RuntimeException(lang_by_realm('layout','error_assets_writeperm'));
 			if (is_file($outfile) && !is_writable($outfile)) throw new RuntimeException(lang_by_realm('layout','error_assets_writeperm'));
 			file_put_contents($outfile,$tpl_obj->get_content());
-		}
-		elseif (isset($_REQUEST['import'])) {
+		} elseif (isset($_REQUEST['import'])) {
 			$infile = $tpl_obj->get_content_filename();
 			if (!is_file($infile) || !is_readable($infile) || !is_writable($infile)) {
 				throw new RuntimeException(lang_by_realm('layout','error_assets_readwriteperm'));
@@ -329,7 +326,7 @@ try {
 		}
 	}
 
-	$smarty = AppSingle::Smarty();
+	$smarty = SingleItem::Smarty();
 	$smarty->assign('userid', $userid)
 	 ->assign('can_manage', $pmod)
 //	 ->assign('has_themes_right', check_permission($userid,'Manage Designs'));
@@ -374,18 +371,17 @@ try {
 	}
 */
 	if ($pmod || $tpl_obj->get_owner_id() == $userid) {
-		$userops = AppSingle::UserOperations();
+		$userops = SingleItem::UserOperations();
 		$allusers = $userops->LoadUsers();
 		$tmp = [];
 		foreach ($allusers as $one) {
-			//FIXME Why skip admin here? If template owner is admin this would unset admin as owner
-			//if ($one->id == 1)
-			//    continue;
+// TODO why omit super-admin here? If template owner is that user, this would unset that user as owner
+//			if ($one->id === 1) continue;
 			$tmp[$one->id] = $one->username;
 		}
 		if ($tmp) { $smarty->assign('user_list', $tmp); }
 
-		$groupops = AppSingle::GroupOperations();
+		$groupops = SingleItem::GroupOperations();
 		$allgroups = $groupops->LoadGroups();
 		foreach ($allgroups as $one) {
 			if ($one->id == 1) continue;
@@ -396,7 +392,7 @@ try {
 		if ($tmp) { $smarty->assign('addt_editor_list', $tmp); }
 	}
 
-	if (AppSingle::Config()['develop_mode']) {
+	if (SingleItem::Config()['develop_mode']) {
 		$smarty->assign('devmode', 1);
 	}
 
@@ -416,7 +412,7 @@ try {
 //	$nonce = get_csp_token();
 	$do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1 : 0;
 	if ($do_locking) {
-		AppSingle::App()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
+		SingleItem::App()->add_shutdown(10,'LockOperations::delete_for_nameduser',$userid);
 	}
 	$s1 = json_encode(lang_by_realm('layout','error_lock'));
 	$s2 = json_encode(lang_by_realm('layout','msg_lostlock'));

@@ -129,7 +129,7 @@ function load_csv_lang( $filename, &$data )
         $val = ( isset($result[1]) ) ? trim( $result[1] ) : null;
         $out[$key] = $val;
     }
-    if( !count($out) ) return false;
+    if( !$out ) return false;
 
     $data = $out;
     return true;

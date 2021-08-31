@@ -23,11 +23,11 @@
 {block name='contents'}
 <div class="message blue icon">
   <i class="icon-folder message-icon"></i>
-  <div class="content"><strong>{'prompt_dir'|tr}:</strong><br />{$dir}</div>
+  <div class="content"><span class="heavy">{'prompt_dir'|tr}:</span><br />{$dir}</div>
 </div>
 
 <div class="installer-form">
-  {wizard_form_start}
+ {wizard_form_start}
   {$label='install'|tr}
   {if $nofiles}
   <div class="message blue">{'step2_nofiles'|tr}</div>
@@ -68,7 +68,7 @@
     </li>
     <li class="flexrow">
       <div class="cell cols_4">{'step2_version'|tr}:</div>
-      <div class="cell cols_6"><span class="label">{$cmsms_info.version}<em> ({$cmsms_info.version_name})</em></span></div>
+      <div class="cell cols_6"><span class="label">{$cmsms_info.version} <span class="emphatic">({$cmsms_info.version_name})</span></span></div>
     </li>
     <li class="flexrow">
       <div class="cell cols_4">{'step2_schemaver'|tr}:</div>
@@ -85,7 +85,7 @@
   {else}
    {$label='upgrade'|tr} {if isset($upgrade_info)}
    <div class="message blue icon">
-    <div class="content"><strong>{'step2_hdr_upgradeinfo'|tr}</strong><br/>{'step2_info_upgradeinfo'|tr}</div>
+    <div class="content"><span class="heavy">{'step2_hdr_upgradeinfo'|tr}</span><br />{'step2_info_upgradeinfo'|tr}</div>
    </div>
   <ul id="upgrade_info" class="no-list">
     {foreach $upgrade_info as $ver => $data}
@@ -120,7 +120,7 @@
      {/if}
     {/if}
   </div>
-  {wizard_form_end}
+ </form>
 </div>
 
  <div class="hidden">

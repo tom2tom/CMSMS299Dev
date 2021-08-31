@@ -21,24 +21,24 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminMenuItem;
-//use CMSMS\AppSingle;
+//use CMSMS\SingleItem;
 
 final class DesignManager extends CMSModule
 {
-    public function GetFriendlyName()  { return $this->Lang('friendlyname'); }
-    public function GetVersion()  { return '2.0'; }
-    public function MinimumCMSVersion()  { return '2.2.911'; }
-//    public function LazyLoadAdmin() { return true; }
-//    public function LazyLoadFrontend() { return true; }
     public function GetAuthor() { return 'Robert Campbell'; }
-    public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
-    public function HasAdmin() { return true; }
-    public function GetAdminSection() { return 'layout'; }
-    public function IsAdminOnly() { return true; }
-    public function GetHelp() { return $this->Lang('help_module'); }
-    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
+    public function GetAuthorEmail() { return 'calguy1000@hotmail.com'; }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
+    public function GetAdminSection() { return 'layout'; }
+    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
+    public function GetFriendlyName()  { return $this->Lang('friendlyname'); }
+    public function GetHelp() { return $this->Lang('help_module'); }
+    public function GetVersion()  { return '2.0'; }
+    public function HasAdmin() { return true; }
+    public function IsAdminOnly() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
+    public function MinimumCMSVersion()  { return '2.99'; }
+//  public function LazyLoadAdmin() { return true; }
+//  public function LazyLoadFrontend() { return true; }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
 
     public function VisibleToAdminUser()
@@ -88,7 +88,7 @@ final class DesignManager extends CMSModule
             $obj->icon = false;
             $out[] = $obj;
 
-            $config = AppSingle::Config();
+            $config = SingleItem::Config();
             if (1) { //DEBUG $config['develop_mode']) {
                 $obj = new CMSMS\AdminMenuItem();
                 $obj->module = $this->GetName();

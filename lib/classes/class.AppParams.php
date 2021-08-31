@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
-use CMSMS\SysDataCacheDriver;
+use CMSMS\LoadedDataType;
+use CMSMS\SingleItem;
 use const CMS_DB_PREFIX;
 
 /**
@@ -32,7 +32,6 @@ use const CMS_DB_PREFIX;
  * @license GPL
  * @since 2.99
  * @since 1.10 as global-namespace cms_siteprefs
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
 final class AppParams
 {
@@ -63,13 +62,12 @@ final class AppParams
 	 * @ignore
 	 * @internal
 	 */
-	public static function setup()
+	public static function load_setup()
 	{
-		$obj = new SysDataCacheDriver(self::class,function()
-		{
+		$obj = new LoadedDataType('site_params',function() {
 			return self::_read();
 		});
-		AppSingle::SysDataCache()->add_cachable($obj);
+		SingleItem::LoadedData()->add_type($obj);
 	}
 
 	/**
@@ -80,13 +78,13 @@ final class AppParams
 	 */
 	private static function _read()
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		if( !$db ) {
 			return;
 		}
 		// Note: extra '\' follows spacer, to prevent escaping what's next
 		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name NOT LIKE \'%'.self::NAMESPACER.'\%\' ORDER BY sitepref_name';
-		$dbr = $db->GetAssoc($query);
+		$dbr = $db->getAssoc($query);
 		if( $dbr ) {
 			return $dbr;
 		}
@@ -95,9 +93,9 @@ final class AppParams
 
 	/**
 	 * Retrieve specified preference(s) without using the cache.
-	 * This is for getting parameter(s) needed to init the site-prefs cache, and
-	 * for getting module-preferences, and for use in async tasks, where the cache
-	 * is N/A.
+	 * This is for getting parameter(s) needed to init the site-prefs
+	 * cache, and for getting module-preferences, and for use in async
+	 * tasks, where the cache is N/A.
 	 *
 	 * @since 2.99
 	 * @param mixed string (may be empty) | array $key Preference name(s)
@@ -108,20 +106,20 @@ final class AppParams
 	 */
 	public static function getraw($key = '',$dflt = '',bool $like = FALSE)
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 
 		if( !$db ) {
 			return $dflt;
 		}
 		$l = strlen(self::SERIAL);
 		if ($like) {
-			//TODO
+			// TODO SELECT sitepref_name,sitepref_value .... WHERE sitepref_name LIKE strtr($key,'*?','%_');
 			return $dflt;
 		} else {
 			$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name';
 			if( is_array($key) ) {
-				$query .= ' IN ('.str_repeat('?,', count($key) - 1).'?)';
-				$dbr = $db->GetAssoc($query, $key);
+				$query .= ' IN ('.str_repeat('?,',count($key) - 1).'?)';
+				$dbr = $db->getAssoc($query,$key);
 				foreach( $key as $i => $one ) {
 					if( isset($dbr[$one]) ) {
 						if( strncmp($dbr[$one],self::SERIAL,$l) == 0 ) {
@@ -136,7 +134,7 @@ final class AppParams
 			}
 			else {
 				$query .= '=?';
-				$dbr = $db->GetRow($query,[$key]);
+				$dbr = $db->getRow($query,[$key]);
 				if( $dbr ) {
 					$value = end($dbr);
 					if( strncmp($value,self::SERIAL,$l) == 0 ) {
@@ -155,15 +153,20 @@ final class AppParams
 	 *
 	 * @param string $key The preference name (may be empty)
 	 * @param mixed scalar | array $dflt Optional default value(s)
-	 * @param bool  Since 2.99 $like Optional flag whether to interpret $key as
-	 *  wildcarded. Default false.
+	 * @param bool  Since 2.99 $like Optional flag whether to interpret
+	 *  $key as (filename) wildcarded. Default false.
 	 * @return string
 	 */
 	public static function get(string $key = '',$dflt = '',bool $like = FALSE)
 	{
-		$prefs = AppSingle::SysDataCache()->get(self::class);
-		if ($like) {
-			//TODO
+		$prefs = SingleItem::LoadedData()->get('site_params');
+		if( $like ) {
+			$arr = array_filter($prefs,function($name) use($key) {
+				return fnmatch($name,$key);
+			},ARRAY_FILTER_USE_KEY);
+			if( $arr ) {
+				return reset($prefs);
+			}
 			return $dflt;
 		} else {
 			if( isset($prefs[$key]) && $prefs[$key] !== '' ) {
@@ -185,7 +188,7 @@ final class AppParams
 	 */
 	public static function exists($key)
 	{
-		$prefs = AppSingle::SysDataCache()->get(self::class);
+		$prefs = SingleItem::LoadedData()->get('site_params');
 		return ( is_array($prefs) && isset($prefs[$key]) && $prefs[$key] !== '' );
 	}
 
@@ -197,27 +200,28 @@ final class AppParams
 	 */
 	public static function set(string $key,$value)
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$tbl = CMS_DB_PREFIX.'siteprefs';
-		$now = $db->DbTimeStamp(time());
+		$longnow = $db->DbTimeStamp(time());
 		if( !(is_scalar($value) || is_null($value)) ) {
 			$value = self::SERIAL.serialize($value);
 		}
 		//NB self::exists() ignores '' (hence null) values, leading possibly to key duplication error
 		//upsert TODO MySQL ON DUPLICATE KEY UPDATE useful here?
-		$query = "UPDATE $tbl SET sitepref_value=?,modified_date=$now WHERE sitepref_name=?";
+		$query = "UPDATE $tbl SET sitepref_value=?,modified_date=$longnow WHERE sitepref_name=?";
 //		$dbr =
-		$db->Execute($query,[$value,$key]);
+		$db->execute($query,[$value,$key]);
+		//just in case sitepref_name is not unique-indexed by the db
 		$query = <<<EOS
 INSERT INTO $tbl (sitepref_name,sitepref_value,create_date)
-SELECT ?,?,$now FROM (SELECT 1 AS dmy) Z
+SELECT ?,?,$longnow FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM $tbl T WHERE T.sitepref_name=?)
 EOS;
 //		$dbr =
-		$db->Execute($query,[$key,$value,$key]);
+		$db->execute($query,[$key,$value,$key]);
 
 		if( strpos($key,self::NAMESPACER) === FALSE ) {
-			AppSingle::SysDataCache()->release(self::class);
+			SingleItem::LoadedData()->refresh('site_params');
 		}
 	}
 
@@ -235,17 +239,17 @@ EOS;
 	{
 		if( $like ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
-			if (strpos($key, '%') === FALSE) {
+			if (strpos($key,'%') === FALSE) {
 				$key .= '%';
 			}
 		}
 		else {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name = ?';
 		}
-		$db = AppSingle::Db();
-		$db->Execute($query,[$key]);
+		$db = SingleItem::Db();
+		$db->execute($query,[$key]);
 		if( strpos($key,self::NAMESPACER) === FALSE) {
-			AppSingle::SysDataCache()->release(self::class);
+			SingleItem::LoadedData()->refresh('site_params');
 		}
 	}
 
@@ -260,9 +264,9 @@ EOS;
 	{
 		if( !$prefix ) return;
 		$query = 'SELECT sitepref_name FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$wm = $db->escStr($prefix).'%';
-		$dbr = $db->GetCol($query,[$wm]);
+		$dbr = $db->getCol($query,[$wm]);
 		if( $dbr ) return $dbr;
 	}
 } // class

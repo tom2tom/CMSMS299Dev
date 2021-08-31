@@ -26,7 +26,7 @@ use CMSMS\Database\Connection;
  * A class of methods for creating and modifying database tables.
  *
  * This file is based on the DataDictionary base class from the adodb_lite
- * library which was in turn a fork of the adodb library in 2004 or thereabouts.
+ * library which was in turn a fork of the ADOdb library in 2004 or thereabouts.
  *
  * Credits and kudos to the authors of those packages.
  *
@@ -77,6 +77,13 @@ class DataDictionary
     private const DROPCOLUMN = ' DROP COLUMN ';
 
     /**
+     * Distinctive drop-column instructor
+     *
+     * @internal
+     */
+    private const DROPSIG = '<<DROPPIT!';
+
+    /**
      * The database connection object.
      *
      * @internal
@@ -92,7 +99,7 @@ class DataDictionary
 
     /**
      * Array-rows indexer, to support 'adding' returned arrays
-     * static properties here >> StaticProperties class ?
+     * static properties here >> SingleItem property|ies ?
      * @ignore
      */
     private static $ctr = 1;
@@ -120,41 +127,60 @@ class DataDictionary
     }
 
     /**
-     * Return array of tables in the currently connected database.
+     * Return array of tables in the currently-connected database.
      *
-     * @return array
+     * @return array possibly empty
      */
     public function MetaTables()
     {
-        $sql = 'SHOW TABLES';
-        $list = $this->connection->getCol($sql);
+        $list = $this->connection->getCol('SHOW TABLES');
         if ($list) {
             return $list;
         }
+        return [];
     }
 
     /**
-     * Return list of columns in a table in the currently connected database.
+     * Return array of column-data (for columns for which the user has
+     * some privilege) in the specified table in the currently-connected
+     * database.
      *
      * @param string $table The table name
-     * @return array of strings
+     * @return mixed false if no such table, or array of privileged
+     *  fieldnames, if not empty then each member like
+     *  'FieldName'=>1
+     *  or if $full is true, like
+     *  'FieldName'=>[
+     *   'Type'=>e.g.varchar(25),
+     *   'Collation'=>string|null,
+     *   'Null'=>YES|NO,
+     *   'Key'=>PRI|MUL|UNI|empty,
+     *   'Default'=>val|NULL|empty,
+     *   'Extra'=>various e.g. auto_increment, on update | empty
+     *  ]
      */
-    public function MetaColumns($table)
+    public function MetaColumns($table, $full = false)
     {
         $table = trim($table);
         if ($table) {
-            $sql = 'SHOW COLUMNS FROM '.$this->NameQuote($table);
+            $sql = 'SHOW FULL COLUMNS FROM '.$this->NameQuote($table);
             $list = $this->connection->getArray($sql);
-            if ($list) {
+            if ($list !== false) {
                 $out = [];
                 foreach ($list as &$row) {
-                    $out[] = $row['Field'];
+                    $key = $row['Field'];
+                    if ($full) {
+                        unset($row['Field'], $row['Privileges'], $row['Comment']);
+                        $out[$key] = $row;
+                    } else {
+                        $out[$key] = 1;
+                    }
                 }
                 unset($row);
-
-                return $out;
+                return $out; // possibly empty
             }
         }
+        return false; // non-existent table
     }
 
     /**
@@ -169,36 +195,45 @@ class DataDictionary
     {
         switch ($meta) {
         case 'C':
-        case 'C2': return 'VARCHAR';
+        case 'C2': return 'varchar';
 
-        case 'D': return 'DATE';
-        case 'DT': return 'DATETIME';
-        case 'T': return 'TIME';
-        case 'TS': return 'TIMESTAMP';
-        case 'L': return 'TINYINT';
+        case 'D': return 'date';
+        case 'DT': return 'datetime';
+        case 'T': return 'time';
+        case 'TS': return 'timestamp';
 
         case 'R':
         case 'I4':
-        case 'I': return 'INTEGER';
-        case 'I1': return 'TINYINT';
-        case 'I2': return 'SMALLINT';
-        case 'I8': return 'BIGINT';
+        case 'I': return 'integer';
+        case 'L':
+        case 'TI':
+        case 'I1': return 'tinyint';
+        case 'SI':
+        case 'I2': return 'smallint';
+        case 'MI':
+        case 'I3': return 'mediumint';
+        case 'BI':
+        case 'I8': return 'bigint';
 
-        case 'F': return 'DOUBLE';
-        case 'N': return 'NUMERIC';
+        case 'F': return 'double';
+        case 'N': return 'numeric';
 
         case 'X':
-        case 'X2': return 'TEXT';
+        case 'X2': return 'text';
         case 'LX':
-        case 'XL': return 'LONGTEXT';
+        case 'XL': return 'longtext';
         case 'MX':
-        case 'XM': return 'MEDIUMTEXT';
+        case 'XM': return 'mediumtext';
+        case 'TX':
+        case 'XT': return 'tinytext';
 
-        case 'B': return 'BLOB';
+        case 'B': return 'blob';
         case 'LB':
-        case 'BL': return 'LONGBLOB';
+        case 'BL': return 'longblob';
         case 'MB':
-        case 'BM': return 'MEDIUMBLOB';
+        case 'BM': return 'mediumblob';
+        case 'TB':
+        case 'BT': return 'tinyblob';
 
         default: return $meta;
         }
@@ -206,6 +241,7 @@ class DataDictionary
 
     /**
      * Return $name quoted (if necessary) in a manner suitable for the database.
+     * Name content is not escaped here (crappy-name management is left to the user...)
      *
      * @internal
      *
@@ -217,7 +253,7 @@ class DataDictionary
     protected function NameQuote($name = null, $allowBrackets = false)
     {
         if (!is_string($name)) {
-            return false;
+            return '';
         }
 
         $name = trim($name);
@@ -231,8 +267,6 @@ class DataDictionary
         if (preg_match('/[^'.$patn.']/', $name)) {
             return '`'.$name.'`';
         }
-       // TODO if name is a reserved word, quote it
-
         return $name;
     }
 
@@ -250,6 +284,52 @@ class DataDictionary
     }
 
     /**
+     * Generate a name for a (non-PRIMARY) index.
+     *
+     * @param mixed $fieldnames string (optionally ','-separated) | string(s)[].
+     *  May be empty.
+     * @param string $prefix Optional name-prefix. Default 'i_'.
+     * @return string
+     */
+    public function IndexName($fieldnames, $prefix = 'i_')
+    {
+        static $anon = 0;
+        static $truncs = [];
+
+        if ($fieldnames) {
+            if (!is_array($fieldnames)) {
+                if (strpos($fieldnames, ',') === false) {
+                    $fieldnames = [$fieldnames];
+                } else {
+                    $fieldnames = explode(',', $fieldnames);
+                }
+            }
+            if (count($fieldnames) == 1) {
+                return $prefix.strtr($fieldnames[0], ['_'=>'', '-'=>'', ' '=>'']);
+            }
+            $maxlen = (int)strlen($fieldnames[0].$fieldnames[1]) / 2;
+            $fieldnames = array_map(function($name) use ($maxlen, $truncs)
+            {
+                $s = strtr($name, ['_'=>'', '-'=>'', ' '=>'']);
+                $len = strlen($s);
+                if ($len <= $maxlen) {
+                    return $s;
+                }
+                $s = substr($s, 0, $maxlen);
+                if (isset($truncs[$s])) {
+                    $truncs[$s]++;
+                    return $s.'_'.$truncs[$s];
+                } else {
+                    $truncs[$s] = 1;
+                    return $s;
+                }
+            }, $fieldnames);
+            return $prefix .implode('_',$fieldnames);
+        }
+        return $prefix.++$anon;
+    }
+
+    /**
      * Generate the SQL to create a database.
      *
      * @param string $dbname
@@ -264,7 +344,6 @@ class DataDictionary
         if (isset($options[$this->upperName])) {
             $s .= ' '.$options[$this->upperName];
         }
-
         return [self::$ctr++ => $s];
     }
 
@@ -294,7 +373,6 @@ class DataDictionary
             // some indices can use partial fields, eg. index first 32 chars of "name" with NAME(32)
             $flds[$key] = $this->NameQuote($fld, true);
         }
-
         return $this->IndexSQL($this->NameQuote($idxname), $this->TableName($tabname), $flds, $this->Options($idxoptions));
     }
 
@@ -315,27 +393,37 @@ class DataDictionary
 
     /**
      * Generate the SQL to add column(s) to a table.
+     * @see DataDictionary::CreateTableSQL()
      *
      * @param string $tabname The table name
      * @param string $defn    The column definitions (using DataDictionary meta types)
      *  May include FIRST or 'AFTER colname' to position the field.
      * @return array Strings suitable for use with the ExecuteSQLArray method
-     *
-     * @see DataDictionary::CreateTableSQL()
      */
     public function AddColumnSQL($tabname, $defn)
     {
-        $sql = [];
-        list($lines, $pkey) = $this->GenFields($defn);
+        $out = [];
+        list($lines, $pkeys, $ukeys, $xkeys) = $this->GenFields($defn);
         if ($lines) {
             $v = self::ALTERTABLE.$this->TableName($tabname).self::ADDCOLUMN.reset($lines);
-            if ($pkey) {
-                $v .= ', ADD PRIMARY KEY ('.reset($pkey).')';
+            if ($pkeys) {
+                $fname = $this->NameQuote(reset($pkeys));
+                // TODO safely PRE-DROP PRIMARY KEY if EXISTS
+                $v .= ', ADD PRIMARY KEY ('.$fname.')';
+            } elseif ($ukeys) {
+                $iname = $this->NameQuote($this->IndexName($ukeys));
+                $fname = $this->NameQuote(reset($ukeys));
+                // TODO safely PRE-DROP $iname INDEX OF ANY SORT if EXISTS
+                $v .= ', ADD UNIQUE INDEX '.$iname.' ('.$fname.')';
+            } elseif ($xkeys) {
+                $iname = $this->NameQuote($this->IndexName($xkeys));
+                $fname = $this->NameQuote(reset($xkeys));
+                // TODO safely PRE-DROP $iname INDEX OF ANY SORT if EXISTS
+                $v .= ', ADD INDEX '.$iname.' ('.$fname.')';
             }
-            $sql[self::$ctr++] = $v;
+            $out[self::$ctr++] = $v;
         }
-
-        return $sql;
+        return $out;
     }
 
     /**
@@ -344,37 +432,52 @@ class DataDictionary
      * @param string $tabname The table-name
      * @param string $defn    The column-name and definition for the changed column
      *  May include FIRST or 'AFTER other-colname' to re-order the field.
-     * @param string $tableflds    UNUSED optional complete columns-definition of the revised table
-     * @param array/string $tableoptions UNUSED optional options for the revised table see CreateTableSQL, default ''
-     * @return array Strings suitable for use with the ExecuteSQLArray method
      */
-    public function AlterColumnSQL($tabname, $defn, $tableflds = '', $tableoptions = '')
+/*     @param string $tableflds    UNUSED optional complete columns-definition
+*  of the revised table
+* @param mixed  $tableoptions array | string UNUSED optional table-options
+*  for the table creation command. If an array, each member like
+*    database type => its options as a string. Default ''.
+* @return array Strings suitable for use with the ExecuteSQLArray method
+*/
+    public function AlterColumnSQL($tabname, $defn) //, $tableflds = '', $tableoptions = '')
     {
-        $sql = [];
-        list($lines, $pkey) = $this->GenFields($defn);
+        $out = [];
+        list($lines, $pkeys, $ukeys, $xkeys) = $this->GenFields($defn);
         if ($lines) {
             $v = self::ALTERTABLE.$this->TableName($tabname).self::ALTERCOLUMN.reset($lines);
-            if ($pkey) {
-                $v .= ', ADD PRIMARY KEY ('.reset($pkey).')';
+            if ($pkeys) {
+                $fname = $this->NameQuote(reset($pkeys));
+                // TODO safely PRE-DROP PRIMARY KEY if EXISTS
+                $v .= ', ADD PRIMARY KEY ('.$fname.')';
+            } elseif ($ukeys) {
+                $iname = $this->NameQuote($this->IndexName($ukeys));
+                $fname = $this->NameQuote(reset($ukeys));
+                // TODO safely PRE-DROP $iname INDEX OF ANY SORT if EXISTS
+                $v .= ', ADD UNIQUE INDEX '.$iname.' ('.$fname.')';
+            } elseif ($xkeys) {
+                $iname = $this->NameQuote($this->IndexName($xkeys));
+                $fname = $this->NameQuote(reset($xkeys));
+                // TODO safely PRE-DROP $iname INDEX OF ANY SORT if EXISTS
+                $v .= ', ADD INDEX '.$iname.' ('.$fname.')';
             }
-            $sql[self::$ctr++] = $v;
+            $out[self::$ctr++] = $v;
         }
-
-        return $sql;
+        return $out;
     }
 
     /**
-     * Generate the SQL to rename one column.
+     * Generate the SQL to rename and optionally redefine one column.
+     * MySQL identifies this as a 'change', if redefinition is involved.
      *
      * @param string $tabname Table-name
      * @param string $oldname Current column-name
      * @param string $newname New column-name, or full column-definition with
      *  the new name at its start
      * @param string $defn    Renamed-column definition (using DataDictionary meta types).
-     *
-     * NOTE: for back-compatibility a definition is optional, and recent
-     *  server-versions will work without one, but for older versions, without a
-     *  definition the rename will fail.
+     * NOTE: for back-compatibility. $defn is optional. Recent server-versions
+     *  (e.g. MySQL 8+) will work without one, but for older versions, without
+     *  a definition the rename will fail.
      * @return array Strings suitable for use with the ExecuteSQLArray method
      */
     public function RenameColumnSQL($tabname, $oldname, $newname, $defn = '')
@@ -389,7 +492,7 @@ class DataDictionary
             $defn = $newname.' '.$defn;
         }
         if ($defn) {
-            list($lines, $pkey) = $this->GenFields($defn); // primary-key ignored, can't change that via rename
+            list($lines, $pkeys, $ukeys, $xkeys) = $this->GenFields($defn); // index(es) ignored, can't change em via rename
             $first = reset($lines);
             list($name, $column_def) = preg_split('/\s+/', $first, 2);
             if (!$newname) {
@@ -414,7 +517,7 @@ class DataDictionary
     }
 
     /**
-     * Generate the SQL to drop one or more columns.
+     * Generate the SQL to drop one or more columns (and all of their indices).
      *
      * @param string $tabname table-name
      * @param mixed  $colname column-name string or comma-separated series of them or array of them
@@ -427,16 +530,15 @@ class DataDictionary
         }
 
         $alter = self::ALTERTABLE.$this->TableName($tabname).self::DROPCOLUMN;
-        $sql = [];
+        $out = [];
         foreach ($colname as $v) {
-            $sql[self::$ctr++] = $alter.$this->NameQuote(trim($v));
+            $out[self::$ctr++] = $alter.$this->NameQuote(trim($v));
         }
-
-        return $sql;
+        return $out;
     }
 
     /**
-     * Generate the SQL to drop one table, and all of its indices.
+     * Generate the SQL to drop one table (and all of its indices).
      *
      * @param string $tabname The table name to drop
      * @return array Strings suitable for use with the ExecuteSQLArray method
@@ -463,229 +565,246 @@ class DataDictionary
      *
      * @internal
      *
-     * @param string $t        Database column type
-     * @param int    $len      Optional length of the field. Default -1. UNUSED
-     * @param mixed  $fieldobj Optional field object. Default false.
+     * @param mixed $t        string | object Database column type
+     * @param int   $len      Optional length of the field. Default -1.
+     * @param mixed $fieldobj Optional field object. Default false.
      * @return string
      */
     protected function MetaType($t, $len = -1, $fieldobj = false)
     {
-        // $t can be mixed...
-        if (is_object($t)) {
+        static $typeMap = null;
+
+        if (is_object($t)) { // never for MySQL ?
             $fieldobj = $t;
             $t = $fieldobj->type;
             $len = $fieldobj->max_length;
         }
+        $t = strtolower($t);
 
-        $len = -1; // mysql max_length is not accurate
-        switch (strtoupper($t)) {
-        case 'STRING':
-        case 'CHAR':
-        case 'VARCHAR':
-        case 'TINYBLOB':
-        case 'TINYTEXT':
-        case 'ENUM':
-        case 'SET':
+        switch ($t) {
+        case 'string':
+        case 'char':
+        case 'varchar':
+        case 'enum':
+        case 'set':
             if ($len <= $this->blobSize) {
                 return 'C';
             }
 
-        case 'TEXT':
-        case 'LONGTEXT':
-        case 'MEDIUMTEXT':
+        case 'text':
+        case 'longtext':
+        case 'mediumtext':
+        case 'tinytext':
             return 'X';
 
         // php mysql extension always returns 'blob' even if 'text'
         // so we check whether binary...
-        case 'IMAGE':
-        case 'BLOB':
-        case 'LONGBLOB':
-        case 'MEDIUMBLOB':
+        case 'image':
+        case 'blob':
+        case 'longblob':
+        case 'mediumblob':
+        case 'tinyblob':
             return !empty($fieldobj->binary) ? 'B' : 'X';
 
-        case 'YEAR':
-        case 'DATE': return 'D';
+        case 'year':
+        case 'date': return 'D';
 
-        case 'TIME':
-        case 'DATETIME':
-        case 'TIMESTAMP': return 'T';
+        case 'datetime': return 'DT';
 
-        case 'INT':
-        case 'INTEGER':
-        case 'BIGINT':
-        case 'TINYINT':
-        case 'MEDIUMINT':
-        case 'SMALLINT':
+        case 'time':
+        case 'timestamp': return 'T';
+
+        case 'int':
+        case 'integer':
+        case 'bigint':
+        case 'tinyint':
+        case 'mediumint':
+        case 'smallint':
             if (!empty($fieldobj->primary_key)) {
-                return 'R';
+                return 'R'; // primary-key value is never shortened
             }
-            return 'I';
-
+            switch ($t) {
+                case 'int':
+                case 'integer':
+                    return 'I';
+                case 'bigint':
+                    return 'I8'; // OR 'BI'
+                case 'tinyint':
+                    return 'I1'; // OR 'TI'
+                case 'smallint':
+                    return 'I2'; // OR 'SI'
+                case 'mediumint':
+                    return 'I3'; // OR 'MI';
+            }
         default:
-            static $typeMap = [
-                'VARCHAR' => 'C',
-                'VARCHAR2' => 'C',
-                'CHAR' => 'C',
-                'C' => 'C',
-                'STRING' => 'C',
-                'NCHAR' => 'C',
-                'NVARCHAR' => 'C',
-                'VARYING' => 'C',
-                'BPCHAR' => 'C',
-                'CHARACTER' => 'C',
+            if (!$typeMap) {
+              $typeMap = [
+                'varchar' => 'C',
+                'varchar2' => 'C',
+                'char' => 'C',
+                'c' => 'C',
+                'string' => 'C',
+                'nchar' => 'C',
+                'nvarchar' => 'C',
+                'varying' => 'C',
+                'bpchar' => 'C',
+                'character' => 'C',
 
-                'LONGCHAR' => 'X',
-                'TEXT' => 'X',
-                'NTEXT' => 'X',
-                'M' => 'X',
-                'X' => 'X',
-                'CLOB' => 'X',
-                'NCLOB' => 'X',
-                'LVARCHAR' => 'X',
+                'longchar' => 'X',
+                'text' => 'X',
+                'ntext' => 'X',
+                'm' => 'X',
+                'x' => 'X',
+                'clob' => 'X',
+                'nclob' => 'X',
+                'lvarchar' => 'X',
 
-                'BLOB' => 'B',
-                'IMAGE' => 'B',
-                'BINARY' => 'B',
-                'VARBINARY' => 'B',
-                'LONGBINARY' => 'B',
-                'B' => 'B',
+                'blob' => 'B',
+                'image' => 'B',
+                'binary' => 'B',
+                'varbinary' => 'B',
+                'longbinary' => 'B',
+                'tiny' => 'B',
+                'b' => 'B',
 
-                'YEAR' => 'D',
-                'DATE' => 'D',
-                'D' => 'D',
+                'year' => 'D',
+                'date' => 'D',
+                'd' => 'D',
 
-                'TIME' => 'T',
-                'TIMESTAMP' => 'T',
-                'DATETIME' => 'T',
-                'TIMESTAMPTZ' => 'T',
-                'T' => 'T',
+                'datetime' => 'DT',
+                'time' => 'T',
+                'timestamp' => 'T',
+                'timestamptz' => 'T',
+                't' => 'T',
 
-                'BOOL' => 'L',
-                'BOOLEAN' => 'L',
-                'BIT' => 'L',
-                'L' => 'L',
+                'bool' => 'L',
+                'boolean' => 'L',
+                'bit' => 'L',
+                'l' => 'L',
 
-                'COUNTER' => 'R',
-                'R' => 'R',
-                'SERIAL' => 'R', // ifx
-                'INT IDENTITY' => 'R',
+                'counter' => 'R',
+                'r' => 'R',
+                'serial' => 'R', // ifx
+                'int identity' => 'R',
 
-                'INT' => 'I',
-                'INT2' => 'I',
-                'INT4' => 'I',
-                'INT8' => 'I',
-                'INTEGER' => 'I',
-                'INTEGER UNSIGNED' => 'I',
-                'SHORT' => 'I',
-                'TINYINT' => 'I',
-                'SMALLINT' => 'I',
-                'I' => 'I',
+                'int' => 'I',
+                'integer' => 'I',
+                'integer unsigned' => 'I',
+                'int2' => 'I2',
+                'int4' => 'I',
+                'int8' => 'I8',
+                'short' => 'I2',
+                'tinyint' => 'I1', // 8-bit
+                'smallint' => 'I2',
+                'mediumint' => 'I3', // 24-bit
+                'bigint' => 'I8', // 64-bit
+                'i' => 'I',
 
-                'LONG' => 'N', // interbase is numeric, oci8 is blob
-                'BIGINT' => 'N', // this is bigger than PHP 32-bit integers
-                'DECIMAL' => 'N',
-                'DEC' => 'N',
-                'REAL' => 'N',
-                'DOUBLE' => 'N',
-                'DOUBLE PRECISION' => 'N',
-                'SMALLFLOAT' => 'N',
-                'FLOAT' => 'N',
-                'NUMBER' => 'N',
-                'NUM' => 'N',
-                'NUMERIC' => 'N',
-                'MONEY' => 'N',
-                ];
+                'long' => 'N', // interbase is numeric, oci8 is blob
+                'decimal' => 'N',
+                'dec' => 'N',
+                'real' => 'N',
+                'double' => 'N',
+                'double precision' => 'N',
+                'smallfloat' => 'N',
+                'float' => 'N',
+                'number' => 'N',
+                'num' => 'N',
+                'numeric' => 'N',
+                'n' => 'N',
+                'money' => 'N',
+              ];
+            }
 
-            $t = strtoupper($t);
             $tmap = (isset($typeMap[$t])) ? $typeMap[$t] : 'N';
-
             return $tmap;
         }
     }
 
     /**
-     * Generate the SQL to add, drop or change column(s).
+     * Generate the SQL to add, change and/or remove column(s) in bulk.
      *
-     * This function changes/adds new fields to your table. You don't
-     * have to know if the col is new or not. It will check on its own.
+     * This automatically deals with new columns. Any column to be dropped
+     * must be explicitly indicated as such. Columns not present in $defn
+     * are ignored.
      *
      * @param string $tablename    Table name
      * @param mixed  $defn         Table field definitions strings array or
-     *  comma-separated series of in one string
-     * @param mixed  $tableoptions Table options. Default false.
+     *  comma-separated series of such defn's in one string. Or empty if
+     *  the intent is to change only the whole-table parameters (not yet supported)
+     * @param mixed  $tableoptions array | string optional table-options
+     *  for the table creation command. If an array, each member like
+     *    database type => its options as a string. Default ''.
      * @return array Strings suitable for use with the ExecuteSQLArray method
      */
-    public function ChangeTableSQL($tablename, $defn, $tableoptions = false)
+    public function ChangeTableSQL($tablename, $defn, $tableoptions = '')
     {
-        // check table exists
-        $cols = $this->MetaColumns($tablename);
-
-        if (empty($cols)) {
-            return $this->CreateTableSQL($tablename, $defn, $tableoptions);
-        }
-
-        if (is_array($defn)) {
-            // walk through the update fields, comparing existing fields to fields to update.
-            // if the metatype and size are exactly the same, ignore - by Mark Newham
-            $holdflds = [];
-            foreach ($defn as $k => $v) {
-                if (isset($cols[$k]) && is_object($cols[$k])) {
-                    $c = $cols[$k];
-                    $ml = $c->max_length;
-                    $mt = &$this->MetaType($c->type, $ml); //$ml unused = ok?
-                    if ($ml == -1) {
-                        $ml = '';
-                    }
-                    if ($mt == 'X') {
-                        $ml = $v['SIZE'];
-                    }
-                    if (($mt != $v['TYPE']) || $ml != $v['SIZE']) {
-                        $holdflds[$k] = $v;
-                    }
-                } else {
-                    $holdflds[$k] = $v;
-                }
+        if ($defn) {
+            // check table exists (or at least, some of its fields are manipulable by the current user)
+            $cols = $this->MetaColumns($tablename);
+            if ($cols === false) {
+                return $this->CreateTableSQL($tablename, $defn, $tableoptions);
+            } elseif (!$cols) {
+// TODO handle case where table exists but user is not permitted to play with it
+                return [];
             }
-            $defn = $holdflds;
+        } else {
+            $tabname = $this->TableName($tabname);
+            $taboptions = $this->Options($tableoptions);
+//TODO return akin to $this->TableSQL($tabname, [], [], [], [], $taboptions); with ALTER, not CREATE
+            return [];
         }
 
-        // already exists, alter table instead
-        list($lines, $pkey) = $this->GenFields($defn);
+        // table exists and some|all fields may be altered, proceed to do so
+        $out = [];
+        list($lines, $pkeys, $ukeys, $xkeys) = $this->GenFields($defn);
         $alter = self::ALTERTABLE.$this->TableName($tablename);
-        $sql = [];
-        $fixedsizetypes = ['CLOB', 'BLOB', 'TEXT', 'DATE', 'TIME'];
 
         foreach ($lines as $id => $v) {
-            if (isset($cols[$id]) && is_object($cols[$id])) {
-                // we are trying to change the field-size, but maybe not valid
-                $parts = $this->ParseDefn($v);
-                if ($parts && in_array(strtoupper(substr($parts[0][1], 0, 4)), $fixedsizetypes)) { //TODO BLOB,TEXT are valid
-                    continue;
+            if (isset($cols[$id])) {
+                if (($p = strpos($v, self::DROPSIG)) === false) {
+                    $out[self::$ctr++] = $alter.self::ALTERCOLUMN.$v;
+                } else {
+                    $out[self::$ctr++] = $alter.self::DROPCOLUMN.substring($v, 0 ,$p);
                 }
-                $sql[self::$ctr++] = $alter.self::ALTERCOLUMN.$v;
             } else {
-                $sql[self::$ctr++] = $alter.self::ADDCOLUMN.$v;
+// TODO handle case where field exists but user is not permitted to play with it
+                $out[self::$ctr++] = $alter.self::ADDCOLUMN.$v;
             }
         }
-        if ($pkey) {
-            $v = $alter.' ADD PRIMARY KEY(';
-            $v .= implode(', ', $pkey).')';
-            $sql[self::$ctr++] = $v;
+        if ($pkeys) {
+            // TODO safely PRE-DROP PRIMARY KEY if EXISTS
+            $v = $alter.' ADD PRIMARY KEY (`'.implode('`,`', $pkeys).'`)';
+            $out[self::$ctr++] = $v;
         }
-        return $sql;
+        if ($ukeys) {
+            $iname = $this->NameQuote($this->IndexName($ukeys));
+            // TODO safely PRE-DROP $iname INDEX OF ANY SORT if EXISTS
+            $v = $alter.' ADD UNIQUE INDEX '.$iname.' (`'.implode('`,`', $ukeys).'`)';
+            $out[self::$ctr++] = $v;
+        }
+        if ($xkeys) {
+            $iname = $this->NameQuote($this->IndexName($xkeys));
+            // TODO safely PRE-DROP $iname INDEX OF ANY SORT if EXISTS
+            $v = $alter.' ADD INDEX '.$iname.' (`'.implode('`,`', $xkeys).'`)';
+            $out[self::$ctr++] = $v;
+        }
+//TODO if () { $v = $alter.' ADD FULLTEXT INDEX ..... $out[self::$ctr++] = $v; }
+        return $out;
     }
 
     /**
      * Generate the SQL to create a table.
      *
      * @param string $tabname Table name
-     * @param string $defn    Comma-separated series of field definitions using datadictionary syntax
-     * i.e. each definition is of the form: fieldname type columnsize otheroptions
+     * @param string $defn    Comma-separated series of field definitions using
+     * datadictionary syntax i.e. each definition is of the form:
+     * fieldname type columnsize otheroptions
      *
      * The type values are codes that map to real database types as follows:
      * <dl>
      *  <dt>C or C2</dt>
-     *  <dd>Varchar, capped to 255 characters.</dd>
+     *  <dd>Varchar, capped to 65535 characters.</dd>
      *  <dt>X or X2</dt>
      *  <dd>Text</dd>
      *  <dt>X(bytesize)</dt>
@@ -729,13 +848,17 @@ class DataDictionary
      * The otheroptions values may include the following:
      *<dl>
      *  <dt>AUTO</dt>
-     *  <dd>Auto increment. Also sets NOTNULL.</dd>
+     *  <dd>Auto increment. Also sets NOT NULL.</dd>
      *  <dt>AUTOINCREMENT</dt>
      *  <dd>Same as AUTO</dd>
-     *  <dt>KEY</dt>
-     *  <dd>Primary key field.  Also sets NOTNULL. Compound keys are supported.</dd>
-     *  <dt>PRIMARY</dt>
-     *  <dd>Same as KEY</dd>
+     *  <dt>KEY or PRIMARY</dt>
+     *  <dd>Primary key field. Also sets NOT NULL. Compound keys are supported.</dd>
+     *  <dt>UKEY or UNIQUE</dt>
+     *  <dd>Unique key field. Compound keys are supported with UKEY.</dd>
+     *  <dt>FTKEY or FULLTEXT</dt>
+     *  <dd>Fulltext key field.</dd>
+     *  <dt>XKEY or INDEX</dt>
+     *  <dd>Untyped key field. Compound keys are supported with XKEY.</dd>
      *  <dt>DEFAULT</dt>
      *  <dd>The default value.  Character strings are auto-quoted unless the string begins with a space.  i.e: ' SYSDATE '.</dd>
      *  <dt>DEF</dt>
@@ -743,60 +866,68 @@ class DataDictionary
      *  <dt>CONSTRAINTS</dt>
      *  <dd>Additional constraints defined at the end of the field definition.</dd>
      *  <dt>INDEX</dt>
-     *  <dd>Create an index on this field. Index-type may be specified as INDEX(type). MySQL types are UNIQUE etc</dd>
+     *  <dd>Create an index on this field. Index-type may be specified as INDEX(type). MySQL types are UNIQUE etc. See also the specific KEY-types, above</dd>
      *  <dt>FOREIGN</dt>
      *  <dd>Create a foreign key on this field. Specify reference-table parameters as FOREIGN(tblname,tblfield).</dd>
      *</dl>
      *
-     * @param mixed  $tableoptions optional table options for the table creation command.
-     *  Or an associative array of table options, keys being the database type (as available)
+     * @param mixed  $tableoptions array | string Optional table-options
+     *  for the table creation command. If an array, each member like
+     *    database type => its options as a string. Default ''
      * @return array Strings suitable for use with the ExecuteSQLArray method
      */
-    public function CreateTableSQL($tabname, $defn, $tableoptions = false)
+    public function CreateTableSQL($tabname, $defn, $tableoptions = '')
     {
-        $dbtype = $this->dbType();
-        // clean up input tableoptions
-        if (!$tableoptions) {
-            $tableoptions = [$dbtype =>
-            'ENGINE=MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci']; //default table options
-        } elseif (is_string($tableoptions)) {
-            $tableoptions = [$dbtype => $tableoptions];
-        } elseif (is_array($tableoptions) && !isset($tableoptions[$dbtype]) && isset($tableoptions['mysql'])) {
-            $tableoptions[$dbtype] = $tableoptions['mysql'];
-        } elseif (is_array($tableoptions) && !isset($tableoptions[$dbtype]) && isset($tableoptions['MYSQL'])) {
-            $tableoptions[$dbtype] = $tableoptions['MYSQL'];
-        }
-
-        foreach ($tableoptions as $key => &$val) {
-            if (strpos($val, 'TYPE') !== false) {
-                $val = str_replace(['TYPE=','TYPE ='], ['ENGINE=','ENGINE='], $val);
+        list($lines, $pkeys, $ukeys, $xkeys) = $this->GenFields($defn, true);
+        if ($lines) {
+            $tabname = $this->TableName($tabname);
+            $dbtype = $this->dbType();
+            // clean up supplied table-options
+            if (!$tableoptions) {
+                // use default table options
+                $tableoptions = [$dbtype =>
+                'ENGINE=MyISAM CHARACTER SET utf8mb4']; // default ..._ci collation
+            } elseif (is_string($tableoptions)) {
+                $tableoptions = [$dbtype => $tableoptions];
+            } elseif (is_array($tableoptions) && !isset($tableoptions[$dbtype])) {
+                foreach (['mysql', 'MYSQL', 'Maria'] as $key) {
+                    if (isset($tableoptions[$key])) {
+                        $tableoptions[$dbtype] = $tableoptions[$key];
+                        break;
+                    }
+                }
             }
-        }
-        if (isset($tableoptions[$dbtype]) && strpos($tableoptions[$dbtype], 'CHARACTER') === false &&
-            strpos($tableoptions[$dbtype], 'COLLATE') === false) {
-            // if no character set and collate options specified, force UTF8
-            $tableoptions[$dbtype] .= ' CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci';
-        }
+            foreach ($tableoptions as $key => &$val) {
+                if (stripos($val, 'TYPE') !== false) {
+                    $val = str_replace(['TYPE=','TYPE ='], ['ENGINE=','ENGINE='], $val);
+                }
+            }
+            unset($val);
 
-        list($lines, $pkey) = $this->GenFields($defn, true);
-        $taboptions = $this->Options($tableoptions);
-        $tabname = $this->TableName($tabname);
-        $sql = $this->TableSQL($tabname, $lines, $pkey, $taboptions);
+            if (isset($tableoptions[$dbtype]) &&
+                stripos($tableoptions[$dbtype], 'CHARACTER') === false &&
+                stripos($tableoptions[$dbtype], 'COLLATE') === false) {
+                // if no character set or collate options specified, force 4-byte UTF8
+                $tableoptions[$dbtype] .= ' CHARACTER SET utf8mb4';
+            }
+            $taboptions = $this->Options($tableoptions);
 
-        return $sql;
+            return $this->TableSQL($tabname, $lines, $pkeys, $ukeys, $xkeys, $taboptions);
+        }
+        return [];
     }
 
     /**
      * Execute the members of the given array of SQL commands.
      *
-     * @param array $sql             Array of sql command string(s)
-     * @param bool  $continueOnError Whether to continue on errors
+     * @param array $lines           Array of sql command string(s)
+     * @param bool  $continueOnError Optional flag whether to continue after error. Default true
      * @return int 0 immediately after error, 1 if continued after an error, 2 for no errors
      */
-    public function ExecuteSQLArray($sql, $continueOnError = true)
+    public function ExecuteSQLArray($lines, $continueOnError = true)
     {
         $res = 2;
-        foreach ($sql as $line) {
+        foreach ($lines as $line) {
             $rs = $this->connection->execute($line);
             if (!$rs || $this->connection->errno > 0) {
                 if (!$continueOnError) {
@@ -805,7 +936,6 @@ class DataDictionary
                 $res = 1;
             }
         }
-
         return $res;
     }
 
@@ -928,7 +1058,6 @@ class DataDictionary
         if ($intoken) {
             $tokens[$stmtno][] = implode('', $tokarr);
         }
-
         return $tokens;
     }
 
@@ -949,7 +1078,6 @@ class DataDictionary
 
             return $new_array;
         }
-
         return $an_array;
     }
 
@@ -957,40 +1085,45 @@ class DataDictionary
      * Parse data-dictionary format definition into MySQL-format field definition(s).
      *
      * @internal
-     * @param mixed $defn array of strings or comma-separated series in one string
+     * @param mixed $defn array of strings or comma-separated series in one string, or empty
      * @param bool  $widespacing optional flag whether to pad the field-name, default false
-     * @return 2-member array
-     *  [0] = assoc. array or empty. Each member ucase-fieldname=>field-defn
+     * @return 4-member array
+     *  [0] = assoc. array or empty. Each member ucase-fieldname=>field-defn, maybe empty
      *  [1] = array of primary-key-field name(s), maybe empty
+     *  [2] = array of unique-key-field name(s), maybe empty
+     *  [3] = array of untyped-key-field name(s), maybe empty
      */
     protected function GenFields($defn, $widespacing = false)
     {
+        if (!$defn) {
+            return [[], [], [], []];
+        }
+
         if (is_string($defn)) {
             $flds = [];
             $parts = $this->ParseDefn($defn);
             $hasparam = false;
             foreach ($parts as $f0) {
-                if (!count($f0)) {
-                    break;
-                }
-                $f1 = [];
-                foreach ($f0 as $token) {
-                    switch (strtoupper($token)) {
-                    case 'CONSTRAINT':
-                    case 'DEFAULT':
-                        $hasparam = $token;
-                        break;
-                    default:
-                        if ($hasparam) {
-                            $f1[$hasparam] = $token;
-                        } else {
-                            $f1[] = $token;
+                if ($f0) {
+                    $f1 = [];
+                    foreach ($f0 as $token) {
+                        switch (strtoupper($token)) {
+                        case 'CONSTRAINT':
+                        case 'DEFAULT':
+                            $hasparam = $token;
+                            break;
+                        default:
+                            if ($hasparam) {
+                                $f1[$hasparam] = $token;
+                            } else {
+                                $f1[] = $token;
+                            }
+                            $hasparam = false;
+                            break;
                         }
-                        $hasparam = false;
-                        break;
                     }
+                    $flds[] = $f1;
                 }
-                $flds[] = $f1;
             }
         } else {
             $flds = $defn;
@@ -998,7 +1131,9 @@ class DataDictionary
 
         $this->autoIncrement = false;
         $lines = [];
-        $pkey = [];
+        $pkeys = [];
+        $ukeys = [];
+        $xkeys = [];
 
         foreach ($flds as $fld) {
             $fld = $this->UpperKeys($fld);
@@ -1010,8 +1145,9 @@ class DataDictionary
             $fdefault = false;
             $fdefdate = false;
             $fdefts = false;
+            $fdrop = false;
             $fforeign = false;
-            $findex = false;
+            $findex = false; // any of several index-types
             $fname = false;
             $fnoquote = false;
             $fnot = false;
@@ -1019,10 +1155,12 @@ class DataDictionary
             $fprec = false;
             $fprimary = false;
             $fsize = false;
+            $ftextkey = false;
             $ftype = false;
+            $funikey = false;
             $funsigned = false;
+            $fxtrakey = false;
 
-            //-----------------
             // PARSE ATTRIBUTES
             foreach ($fld as $i => $v) {
                 if ($i == 2 && is_numeric($v)) {
@@ -1058,6 +1196,7 @@ class DataDictionary
                         $funsigned = true;
                         break;
                     case 'AUTO':
+                    case 'AUTOINC':
                     case 'AUTOINCREMENT':
                         $fautoinc = true;
                         $fnotnull = true;
@@ -1066,6 +1205,12 @@ class DataDictionary
                     case 'PRIMARY':
                         $fprimary = $v;
                         $fnotnull = true;
+                        break;
+                    case 'XKEY':
+                        $fxtrakey = $v;
+                        break;
+                    case 'UKEY':
+                        $funikey = $v;
                         break;
                     case 'DEF':
                     case 'DEFAULT':
@@ -1098,10 +1243,19 @@ class DataDictionary
                     case 'CONSTRAINT':
                         $fconstraint = $v;
                         break;
+                    case 'FTKEY':
+                        if (empty($ftype) || $ftype == 'varchar' || substr_compare($ftype,'text',-4,4,true) == 0) {
+                            $ftextkey = true;
+                        }
+                        break;
+                    case 'FULLTEXT':
+                        if (!(empty($ftype) || $ftype == 'varchar' || substr_compare($ftype,'text',-4,4,true) == 0)) {
+                            break;
+                        }
+                        // no break here
                     case 'INDEX':
                     case 'UNIQUE':
-                    case 'FULLTEXT':
-                        $findex = $attr;  //last-used prevails
+                        $findex = $attr;  //only 1 type allowed, last-used prevails
                         break;
                     case 'CHARACTER':
                         $z = true;
@@ -1134,23 +1288,34 @@ class DataDictionary
                     case 'FOREIGN':
                         $fforeign = $v;
                         break;
+                    case 'DROP':
+                        $fdrop = true;
+                        $ftype = 'DROP'; // don't abort prematurely
+                        break;
                     default:
                         continue 2; // don't clear unprocessed field
                 }
                 $fld[$i] = '';
             }
 
-            //--------------------
             // VALIDATE FIELD INFO
             if (!$fname) {
                 die('failed');
             }
 
             if (!$ftype) {
-                return [[], []];
+                return [[], [], [], []];
             }
 
-            $ftype = $this->GetSize(strtoupper($ftype), $ty, $fsize, $fprec);
+            $fid = strtoupper(preg_replace('/^`(.+)`$/', '$1', $fname));
+            $fname = $this->NameQuote($fname);
+
+            if ($fdrop) {
+                $lines[$fid] = $fname.self::DROPSIG; // signal to upstream
+                continue;
+            }
+
+            $ftype = $this->GetSize($ftype, $ty, $fsize, $fprec);
 
             switch ($ty) {
                 case 'B':
@@ -1158,6 +1323,8 @@ class DataDictionary
                 case 'BL':
                 case 'MB':
                 case 'BM':
+                case 'TB':
+                case 'BT':
                     $fchars = false; //BLOBs have no charset or collation
                     $fcoll = false;
                 // no break here
@@ -1167,18 +1334,22 @@ class DataDictionary
                 case 'XL':
                 case 'MX':
                 case 'XM':
+                case 'TX':
+                case 'XT':
                     $fdefault = false; //TEXT and BLOB fields have no DEFAULT value
                     $fnotnull = false;
             }
 
-            $fid = strtoupper(preg_replace('/^`(.+)`$/', '$1', $fname));
-            $fname = $this->NameQuote($fname);
-
             if ($fprimary) {
-                $pkey[] = $fname;
+                $pkeys[] = $fname;
+            }
+            if ($funikey) {
+                $ukeys[] = $fname;
+            }
+            if ($fxtrakey) {
+                $xkeys[] = $fname;
             }
 
-            //--------------------
             // CONSTRUCT FIELD SQL
             if ($fdefts) {
                 $fdefault = 'TIMESTAMP';
@@ -1186,9 +1357,9 @@ class DataDictionary
                 $fdefault = 'DATE';
             } elseif ($fdefault !== false && !$fnoquote) {
                 if ($ty == 'C' || $ty[0] == 'X' ||
-                    ($fdefault[0] != "'" && !is_numeric($fdefault))) {
+                    ($fdefault !== '' && $fdefault[0] != "'" && !is_numeric($fdefault))) {
                     $len = strlen($fdefault);
-                    if ($len != 1 && $fdefault[0] == ' ' && $fdefault[$len - 1] == ' ') {
+                    if ($len > 1 && $fdefault[0] == ' ' && $fdefault[$len - 1] == ' ') {
                         $fdefault = trim($fdefault);
                     } else {
                         switch (strtolower($fdefault)) {
@@ -1228,8 +1399,17 @@ class DataDictionary
                 $s .= ' AFTER '.$this->NameQuote($fafter);
             }
 
+            if ($ftextkey) {
+                $iname = $this->NameQuote($this->IndexName($fname));
+                $s .= ", FULLTEXT INDEX $iname (`$fname`)";
+            }
+
             if ($findex) {
-                $s .= ", $findex idx_{$fname}($fname)";
+                if (!$ftextkey || $findex != 'FULLTEXT') {
+                    $iname = $this->NameQuote($this->IndexName($fname));
+                    $fname = $this->NameQuote($fname);
+                    $s .= ", $findex $iname ($fname)";
+                }
             }
 
             if ($fforeign) {
@@ -1248,43 +1428,43 @@ class DataDictionary
                 $this->autoIncrement = true;
             }
         } // foreach $flds
-        return [$lines, $pkey];
+        return [$lines, $pkeys, $ukeys, $xkeys];
     }
 
     /**
-     * Generate the size part of the field defn.
+     * Generate the (lowercase) size-part of the field defn.
      *
      * @ignore
-     *
      * @internal
+     *
+     * @param string $ftype
+     * @param string $ty type-indicator I,C,B,X ...
+     * @param int $fsize field byte-size
+     * @param mixed $fprec string | false Optional 'fraction' component of field-size
+     * @return string lowercase $ftype or variant of or substitute for that
      */
-    protected function GetSize($ftype, $ty, $fsize, $fprec)
+    protected function GetSize($ftype, $ty, $fsize, $fprec = '')
     {
+        $ftype = strtolower($ftype);
         if ($fsize) {
             if ($ty == 'B' || $ty == 'X') {
                 if ($fsize <= 256) {
-                    if ($ty == 'X') {
-                        if (--$fsize < 1) $fsize = 1; //too bad about 256!
-                        return 'VARCHAR('.$fsize.')';
-                    } else {
-                        return 'TINYBLOB';
-                    }
+                    return 'tiny'.$ftype;
                 } elseif ($fsize <= 65536) {
                     return $ftype;
                 } elseif ($fsize <= 1 << 24) {
-                    return 'MEDIUM'.$ftype;
+                    return 'medium'.$ftype;
                 } else {
-                    return 'LONG'.$ftype;
+                    return 'long'.$ftype;
                 }
             } elseif (strpos($ftype, '(') === false) {
                 $ftype .= '('.$fsize;
-                if (strlen($fprec)) {
+                if ($fprec || is_numeric($fprec)) {
                     $ftype .= ','.$fprec;
                 }
                 $ftype .= ')';
             }
         }
-
         return $ftype;
     }
 
@@ -1292,6 +1472,9 @@ class DataDictionary
      * Create a suffix.
      *
      * @internal
+     * @ignore
+     *
+     * @return string
      */
     protected function CreateSuffix($fnotnull, $fdefault, $fautoinc, $fchars, $fcoll, $fconstraint, $funsigned)
     {
@@ -1305,14 +1488,15 @@ class DataDictionary
         if ($funsigned) {
             $suffix .= ' UNSIGNED';
         }
-        if ($fautoinc) {
-            $suffix .= ' AUTO_INCREMENT';
-        }
         if ($fnotnull) {
             $suffix .= ' NOT NULL';
         }
-        if ($fdefault) {
+        if ($fdefault !== false) { // anything else falsy e.g. '', 0, '0' is valid
+            if ($fdefault === '') { $fdefault = "''"; }
             $suffix .= " DEFAULT $fdefault";
+        }
+        if ($fautoinc) {
+            $suffix .= ' AUTO_INCREMENT';
         }
         if ($fconstraint) {
             $suffix .= " $fconstraint";
@@ -1322,27 +1506,30 @@ class DataDictionary
 
     /**
      * Generate SQL to create an index.
-     * @param mixed $flds array of strings or comma-separated series in one string, or falsy
+     *
      * @internal
+     *
+     * @param mixed $flds array of strings or comma-separated series in one string, or falsy
+     * @return array
      */
     protected function IndexSQL($idxname, $tabname, $flds, $idxoptions)
     {
-        $sql = [];
+        $out = [];
 
         if (isset($idxoptions['REPLACE']) || isset($idxoptions['DROP'])) {
 //            if (1) { //this->alterTableAddIndex was always true
-                $sql[self::$ctr++] = self::ALTERTABLE."$tabname DROP INDEX $idxname";
+                $out[self::$ctr++] = self::ALTERTABLE."$tabname DROP INDEX $idxname";
 //            } else {
-//                $sql[self::$ctr++] = sprintf(self::DROPINDEX, $idxname, $tabname);
+//                $out[self::$ctr++] = sprintf(self::DROPINDEX, $idxname, $tabname);
 //            }
 
             if (isset($idxoptions['DROP'])) {
-                return $sql;
+                return $out;
             }
         }
 
         if (empty($flds)) {
-            return $sql;
+            return $out;
         }
 
         if (isset($idxoptions['FULLTEXT'])) {
@@ -1369,15 +1556,18 @@ class DataDictionary
             $s .= $opts;
         }
 
-        $sql[self::$ctr++] = $s;
-
-        return $sql;
+        $out[self::$ctr++] = $s;
+        return $out;
     }
 
     /**
      * Drop the auto increment column on a table.
      *
+     * @deprecated, does nothing
      * @internal
+     * @ignore
+     *
+     * @return false always
      */
     protected function DropAutoIncrement($tabname)
     {
@@ -1388,6 +1578,9 @@ class DataDictionary
      * Get a list of database type-specific options for a command.
      *
      * @internal
+     * @ignore
+     *
+     * @return mixed string | null
      */
     protected function get_dbtype_options($opts, $suffix = null)
     {
@@ -1402,35 +1595,45 @@ class DataDictionary
     }
 
     /**
-     * Build string for generating table.
+     * Build string for generating table. Backend for CreateTableSQL()
      * @internal
+     *
      * @param string $tabname Table name
-     * @param type $lines Field definition(s) from field-parsing
-     * @param array $pkey Primary-key-field name(s), from field-parsing
-     * @param type $tableoptions Whole-table definitions
-     * @return string SQL
+     * @param array $lines Field definition(s) from field-parsing
+     * @param array $pkeys Primary-key-field name(s) from field-parsing. Maybe empty.
+     * @param array $ukeys Unique-key-field name(s) from field-parsing. Maybe empty.
+     * @param array $xkeys Untyped-key-field name(s) from field-parsing. Maybe empty.
+     * @param array $tableoptions Whole-table definitions
+     * @return array SQL string(s)
      */
-    protected function TableSQL($tabname, $lines, $pkey, $tableoptions)
+    protected function TableSQL($tabname, $lines, $pkeys, $ukeys, $xkeys, $tableoptions)
     {
-        $sql = [];
+        $out = [];
 
         if (isset($tableoptions['REPLACE']) || isset($tableoptions['DROP'])) {
-            $sql[self::$ctr++] = sprintf(self::DROPTABLE, $tabname);
+            $out[self::$ctr++] = sprintf(self::DROPTABLE, $tabname);
             if ($this->autoIncrement) {
-                $sInc = $this->DropAutoIncrement($tabname);
+                $sInc = $this->DropAutoIncrement($tabname); // always false ATM
                 if ($sInc) {
-                    $sql[self::$ctr++] = $sInc;
+                    $out[self::$ctr++] = $sInc;
                 }
             }
             if (isset($tableoptions['DROP'])) {
-                return $sql;
+                return $out;
             }
         }
         $s = "CREATE TABLE $tabname (\n";
         $s .= implode(",\n", $lines);
-        if ($pkey) {
-            $s .= ",\nPRIMARY KEY (";
-            $s .= implode(', ', $pkey).')';
+        if ($pkeys) {
+            $s .= ",\nPRIMARY KEY (`".implode('`,`', $pkeys).'`)';
+        }
+        if ($ukeys) {
+            $iname = $this->NameQuote($this->IndexName($ukeys));
+            $s .= ",\nUNIQUE INDEX $iname (`".implode('`,`', $ukeys).'`)';
+        }
+        if ($xkeys) {
+            $iname = $this->NameQuote($this->IndexName($xkeys));
+            $s .= ",\nINDEX $iname (`".implode('`,`', $xkeys).'`)';
         }
         if (isset($tableoptions['CONSTRAINTS'])) {
             $s .= "\n".$tableoptions['CONSTRAINTS'];
@@ -1446,15 +1649,17 @@ class DataDictionary
         if ($str) {
             $s .= ' '.$str;
         }
-        $sql[self::$ctr++] = $s;
-
-        return $sql;
+        $out[self::$ctr++] = $s;
+        return $out;
     }
 
     /**
      * Sanitize options.
      *
      * @internal
+     *
+     * @param array $opts
+     * @return array
      */
     protected function ProcessOptions($opts)
     {
@@ -1465,8 +1670,8 @@ class DataDictionary
                     $val = preg_replace('/TYPE\s?=/i', 'ENGINE=', $val);
                 }
             }
+            unset($val);
         }
-
         return $opts;
     }
 
@@ -1474,6 +1679,8 @@ class DataDictionary
      * Convert options into a format usable by the system.
      *
      * @internal
+     *
+     * @return array, maybe empty
      */
     protected function Options($opts)
     {
@@ -1489,7 +1696,6 @@ class DataDictionary
                 $newopts[strtoupper($k)] = $v;
             }
         }
-
         return $newopts;
     }
 }

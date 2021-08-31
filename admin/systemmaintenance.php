@@ -23,15 +23,13 @@ If not, see <https://www.gnu.org/licenses/>.
 use cms_installer\installer_base;
 use CMSMS\AdminUtils;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\RouteOperations;
+use CMSMS\SingleItem;
 use function CMSMS\specialize;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -42,20 +40,20 @@ if (0) { //!check_permission($userid, 'TODO some Site Perm')) {
 }
 
 $urlext = get_secure_param();
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->force_compile = true;
 $smarty->assign('theme', $themeObject);
 
 /*
  * Database
  */
-$db = AppSingle::Db();
+$db = SingleItem::Db();
 $query = "SHOW TABLES LIKE '".CMS_DB_PREFIX."%'";
-$tablestmp = $db->GetArray($query);
+$tablestmp = $db->getArray($query);
 $tables = [];
 $nonseqtables = [];
 foreach ($tablestmp as $table) {
@@ -84,7 +82,7 @@ function MakeCommaList($tables)
 
 if (isset($_POST['optimizeall'])) {
     $query = 'OPTIMIZE TABLE ' . MakeCommaList($nonseqtables);
-    $optimizearray = $db->GetArray($query);
+    $optimizearray = $db->getArray($query);
     //print_r($optimizearray);
     $errorsfound = 0;
     $errordetails = '';
@@ -102,7 +100,7 @@ if (isset($_POST['optimizeall'])) {
 
 if (isset($_POST['repairall'])) {
     $query = 'REPAIR TABLE ' . MakeCommaList($tables);
-    $repairarray = $db->GetArray($query);
+    $repairarray = $db->getArray($query);
     $errorsfound = 0;
     $errordetails = '';
     foreach ($repairarray as $check) {
@@ -119,7 +117,7 @@ if (isset($_POST['repairall'])) {
 
 $query = 'CHECK TABLE ' . MakeCommaList($tables);
 //echo $query;
-$checkarray = $db->GetArray($query);
+$checkarray = $db->getArray($query);
 //print_r($checkarray);
 
 $errortables = [];
@@ -141,9 +139,9 @@ if ($n == 1) {
  * Cache and content
  */
 if (isset($_POST['clearcache'])) {
-    //TODO files in local TMP_CACHE_LOCATION etc
-    AppSingle::SysDataCache()->clear();
-    AppSingle::SystemCache()->clear();
+    SingleItem::SystemCache()->clear();
+    SingleItem::LoadedData()->refresh('*');
+    SingleItem::LoadedMetadata()->refresh('*');
     AdminUtils::clear_cached_files();
     // put mention into the admin log
     audit('', 'System maintenance', 'Caches cleared');
@@ -158,7 +156,7 @@ if (isset($_POST['updateroutes'])) {
     $smarty->assign('active_content', 1);
 }
 
-$contentops = AppSingle::ContentOperations();
+$contentops = SingleItem::ContentOperations();
 if (isset($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     audit('', 'System maintenance', 'Page hierarchy positions updated');
@@ -167,8 +165,9 @@ if (isset($_POST['updatehierarchy'])) {
 }
 
 // Setup types
-$realm = 'CMSContentManager'; //TODO generalize
-$contenttypes = $contentops->ListContentTypes(false, true, false, $realm);
+$realm = 'ContentManager'; //TODO generalize
+$contenttypes = SingleItem::ContentTypeOperations()->ListContentTypes(false, true, false, $realm);
+
 //print_r($contenttypes);
 $simpletypes = [];
 foreach ($contenttypes as $typeid => $typename) {
@@ -179,8 +178,8 @@ if (isset($_POST['addaliases'])) {
     //$contentops->SetAllHierarchyPositions();
     $count = 0;
     $query = 'SELECT content_id,content_name,type,content_alias,menu_text FROM ' . CMS_DB_PREFIX . 'content';
-    $stmt = $db->Prepare('UPDATE ' . CMS_DB_PREFIX . 'content SET content_alias=? WHERE content_id=?');
-    $allcontent = $db->Execute($query);
+    $stmt = $db->prepare('UPDATE ' . CMS_DB_PREFIX . 'content SET content_alias=? WHERE content_id=?');
+    $allcontent = $db->execute($query);
     while ($row = $allcontent->FetchRow()) {
         $content_id = $row['content_id'];
         if (trim($row['content_alias']) == '' && $row['type'] != 'separator') {
@@ -200,7 +199,7 @@ if (isset($_POST['addaliases'])) {
                 }
                 $alias .= '-' . $alias_num_add;
             }
-            $db->Execute($stmt, [$alias, $content_id]);
+            $db->execute($stmt, [$alias, $content_id]);
             $count++;
         }
     }
@@ -214,11 +213,11 @@ if (isset($_POST['fixtypes'])) {
     //$contentops->SetAllHierarchyPositions();
     $count = 0;
     $query = 'SELECT content_id,type FROM ' . CMS_DB_PREFIX . 'content';
-    $stmt = $db->Prepare('UPDATE ' . CMS_DB_PREFIX . "content SET type='content' WHERE content_id=?");
-    $allcontent = $db->Execute($query);
+    $stmt = $db->prepare('UPDATE ' . CMS_DB_PREFIX . "content SET type='content' WHERE content_id=?");
+    $allcontent = $db->execute($query);
     while ($row = $allcontent->FetchRow()) {
         if (!in_array($row['type'], $simpletypes)) {
-            $db->Execute($stmt, [$row['content_id']]);
+            $db->execute($stmt, [$row['content_id']]);
             $count++;
         }
     }
@@ -230,7 +229,7 @@ if (isset($_POST['fixtypes'])) {
 }
 
 $query = 'SELECT content_name,type,content_alias FROM ' . CMS_DB_PREFIX . 'content ORDER BY content_name';
-$allcontent = $db->Execute($query);
+$allcontent = $db->execute($query);
 $count = 0;
 $withoutalias = [];
 $invalidtypes = [];
@@ -254,7 +253,7 @@ $smarty->assign([
     'invalidtypescount' => count($invalidtypes),
 ]);
 
-$cache = AppSingle::SystemCache();
+$cache = SingleItem::SystemCache();
 $type = get_class($cache->get_driver());
 if (!endswith($type, 'File')) {
     $c = stripos($type, 'Cache');
@@ -285,7 +284,7 @@ if ($config['develop_mode']) {
                 $arr = installer_base::CONTENTXML;
                 $xmlfile = cms_join_path($installer_path, ...$arr);
 
-                $function = ($space) ? $space.'\\export_content' : 'export_content';
+                $function = ($space) ? $space.'\export_content' : 'export_content';
                 // save the content in installer tree
                 $function($xmlfile, $uploadsin, $customin, $db);
                 // and also download it
@@ -368,7 +367,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('systemmaintenance.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

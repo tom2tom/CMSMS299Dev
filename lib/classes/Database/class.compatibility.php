@@ -137,10 +137,10 @@ use const CMS_DEPREC;
 
 namespace {
 
-    use CMSMS\AppSingle;
     use CMSMS\Database\Connection;
     use CMSMS\Database\DataDictionary;
     use CMSMS\DeprecationNotice;
+    use CMSMS\SingleItem;
 
     // root namespace stuff
     /*
@@ -162,7 +162,7 @@ namespace {
      */
     function NewDataDictionary(Connection $conn)
     {
-        assert(empty(CMS_DEPREC), new DeprecationNotice('class','CMSMS\\Database\\DataDictionary'));
+        assert(empty(CMS_DEPREC), new DeprecationNotice('class','CMSMS\Database\DataDictionary'));
         return new DataDictionary($conn);
     }
 
@@ -180,7 +180,7 @@ namespace {
     {
         // now that our connection object is stateless... this is just a wrapper
         // for our global db instance.... but should not be called.
-        return AppSingle::Db();
+        return SingleItem::Db();
     }
 
     /**

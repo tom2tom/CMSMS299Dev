@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-if( !function_exists('cmsms') ) exit;
+//if( some worthy test fails ) exit;
 $fp = cms_join_path(CMS_ROOT_PATH, 'lib', 'assets', 'method.edittemplate.php');
 if( is_file($fp) ) {
     $userid = get_userid();
@@ -44,4 +44,3 @@ if( is_file($fp) ) {
 else {
     echo '<p class="page_error">'.lang('error_internal').'</p>';
 }
-return '';

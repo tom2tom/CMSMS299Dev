@@ -328,6 +328,16 @@ $menucontent = [
 	'show'=>'filePerms',
 	],
 	[
+	'name'=>'accesscontrols',
+	'parent'=>'siteadmin',
+	'url'=>'listaxscontrols.php',
+	'labelkey'=>'accesslabel',
+	'descriptionkey'=>'accessdescription',
+	'priority'=>6,
+	'final'=>true,
+	'show'=>'adminPerms',
+	],
+	[
 	'name'=>'jobs',
 	'parent'=>'siteadmin',
 	'url'=>'listjobs.php',

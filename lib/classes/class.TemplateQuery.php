@@ -1,6 +1,6 @@
 <?php
 /*
-Class to represent a template database query and its results.
+Class to perform advanced queries on layout templates
 Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -21,9 +21,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
 use CMSMS\DbQueryBase;
-use CMSMS\SQLErrorException;
+use CMSMS\SingleItem;
+use CMSMS\SQLException;
 use CMSMS\TemplateOperations;
 use LogicException;
 use const CMS_DB_PREFIX;
@@ -31,15 +31,16 @@ use function cms_to_bool;
 
 /**
  * A class to represent a template query and its results.
- * This class accepts in its constructor an array or comma-separated string of filter arguments.
- * Acceptable filter-array keys (optional content in []):
- *  c[ategory]:## - A template group id
- *  d[esign]:##   - A design id
+ * This class accepts in its constructor an array or comma-separated string
+ * of filter arguments. Acceptable filter-array keys (optional content in []):
+ *  c[ategory]:## - A template group id (deprecated, use g[roup]
+ *  d[esign]:##   - A design id (avoid, does nothing)
  *  e[ditable]:## - An additional editor id
  *  g[roup]:##    - A template group id
  *  i[dlist]:##,##,## - A sequence of template id's
  *  l[istable]:#  - A boolean (1 or 0) indicating listable or not
  *  o[riginator]:string - The originator name (module-name or 'core')
+ *  o[riginator]:!string - All originators other than the supplied name
  *  t[ype]:##     - A template type id
  *  u[ser]:##     - A template owner id
  *  offset        - Offset (>= 0) of first record to return Default 0
@@ -49,13 +50,12 @@ use function cms_to_bool;
  *  any number    - shortform like K:value, where K is one of the designators c..u above
  *
  * Example:
- * $qry = new CmsTemplateQuery(['u:'=>get_userid(false),'limit'=>50]);
+ * $qry = new CMSMS\TemplateQuery(['u:'=>get_userid(false),'limit'=>50]);
  * $list = $qry->GetMatches();
  *
  * @package CMS
  * @license GPL
  * @since 2.0
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @see DbQueryBase
  * @property string $sortby The sorting field for the returned results.  Possible values are: id,name,create_date,modified_date,type.  The default is to sort by template name.';
  * @property string $sortorder The sorting order for the returned results.  Possible values are: ASC,DESC.  The default is ASC.
@@ -76,7 +76,7 @@ class TemplateQuery extends DbQueryBase
 	 * Execute the query given the parameters saved in the query
 	 *
 	 * @throws LogicException if anything unrecognised is present
-	 * @throws SQLErrorException if no matching data found
+	 * @throws SQLException if no matching data found
 	 * Though this method can be called directly, it is also called by other members automatically.
 	 */
 	public function execute()
@@ -85,15 +85,14 @@ class TemplateQuery extends DbQueryBase
 			return;
 		}
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$tbl1 = CMS_DB_PREFIX.TemplateOperations::TABLENAME;
 		$tbl2 = CMS_DB_PREFIX.TemplateType::TABLENAME;
 		$typejoin = false;
 		$catjoin = false;
 
 		$where = [
-		'category' => [],
-		'design' => [],
+		'group' => [],
 		'id' => [],
 		'originator' => [],
 		'type' => [],
@@ -107,14 +106,23 @@ class TemplateQuery extends DbQueryBase
 			if (is_numeric($key) && $val[1] == ':') {
 				list($key, $second) = explode(':', $val, 2);
 			} else {
+				$key = trim($key, ' :');
 				$second = $val;
 			}
-
 			switch (strtolower($key)) {
 			  case 'o':
 			  case 'originator':
 				$second = trim($second);
-				$where['originator'][] = 'originator = '.$db->qStr($second);
+				if ($second[0] !== '!') {
+					$op = '=';
+				} else {
+					$op = '!=';
+					$second = ltrim($second, ' !');
+				}
+				if (strcasecmp($second, 'core') == 0) {
+					$second = '__CORE__';
+				}
+				$where['originator'][] = "originator $op ".$db->qStr($second);
 				break;
 
 			  case 'i':
@@ -155,8 +163,8 @@ class TemplateQuery extends DbQueryBase
 			  case 'design':
 				// find all the templates in design: d
 				$q2 = 'SELECT tpl_id FROM '.CMS_DB_PREFIX.DesignManager\Design::TPLTABLE.' WHERE design_id = ?'; DISABLED
-				$tpls = $db->GetCol($q2, [(int)$second]);
-				if (!count($tpls)) {
+				$tpls = $db->getCol($q2, [(int)$second]);
+				if (!$tpls) {
 					$tpls = [-999]; // this won't match anything
 				}
 				$where['design'][] = 'id IN ('.implode(',', $tpls).')';
@@ -176,7 +184,7 @@ SELECT tpl_id FROM '.CMS_DB_PREFIX.TemplateOperations::ADDUSERSTABLE.' WHERE use
 UNION
 SELECT id AS tpl_id FROM '.$tbl1.' WHERE owner_id = ?)
 AS tmp1';
-				$t2 = $db->GetCol($q2, [$second,$second]);
+				$t2 = $db->getCol($q2, [$second,$second]);
 				if ($t2) {
 					$where['user'][] = 'id IN ('.implode(',', $t2).')';
 				}
@@ -229,9 +237,10 @@ AS tmp1';
 		}
 
 		$xprefixes = function ($where) {
-			foreach ($where['design'] as &$one) {
+/*			foreach ($where['design'] as &$one) {
 				$one = 'TPL.'.$one;
 			}
+*/
 			foreach ($where['user'] as &$one) {
 				$one = 'TPL.'.$one;
 			}
@@ -269,9 +278,9 @@ AS tmp1';
 		// execute the query
 		$this->_rs = $db->SelectLimit($query, $this->_limit, $this->_offset);
 		if (!$this->_rs || $this->_rs->errno !== 0) {
-			throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+			throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
-		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()'); //$this->_rs->RecordCount(); N/A until all processed
+		$this->_totalmatchingrows = $db->getOne('SELECT FOUND_ROWS()'); //$this->_rs->RecordCount(); N/A until all processed
 	}
 
 	/**

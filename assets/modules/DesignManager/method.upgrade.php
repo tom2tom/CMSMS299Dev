@@ -25,6 +25,20 @@ use DesignManager\Design;
 if (!function_exists('cmsms')) exit;
 
 if (version_compare($oldversion, '2.0') < 0) {
+	// remove invalid members from designs tables e.g. non-core templates
+	$pre = CMS_DB_PREFIX;
+	$sql = <<<EOS
+SELECT DT.tpl_id FROM {$pre}module_designs_tpl DT
+LEFT JOIN {$pre}layout_templates LT ON DT.tpl_id = LT.id
+WHERE LT.originator != '__CORE__' AND LT.originator IS NOT NULL
+EOS;
+	$ids = $db->getCol($sql);
+	if ($ids) {
+		$sql = "DELETE FROM {$pre}module_designs_tpl WHERE tpl_id IN (".implode(',', $ids).')';  
+		$db->execute($sql);
+	}
+
+/* ALL THIS IS ALREADY DONE IN CMSMS2.99 UPGRADE
 	$dict = new DataDictionary($db);
 
 	$tbl = CMS_DB_PREFIX.Design::TABLENAME;
@@ -37,7 +51,7 @@ if (version_compare($oldversion, '2.0') < 0) {
 	$dict->ExecuteSQLArray($sqlarray);
 	$sqlarray = $dict->AddColumnSQL($tbl, 'modified_date DT ON UPDATE CURRENT_TIMESTAMP');
 	$dict->ExecuteSQLArray($sqlarray);
-	$data = $db->GetArray('SELECT id,created,modified FROM '.$tbl);
+	$data = $db->getArray('SELECT id,created,modified FROM '.$tbl);
 	if ($data) {
 		$sql = 'UPDATE '.$tbl.' SET create_date=?,modified_date=? WHERE id=?';
 		$dt = new DateTime('@0',NULL);
@@ -52,7 +66,7 @@ if (version_compare($oldversion, '2.0') < 0) {
 			$created = $dt->format($fmt);
 			$dt->setTimestamp($t2);
 			$modified = $dt->format($fmt);
-			$db->Execute($sql, [$created,$modified,$row['id']]);
+			$db->execute($sql, [$created,$modified,$row['id']]);
 		}
 		unset($row);
 	}
@@ -63,10 +77,11 @@ if (version_compare($oldversion, '2.0') < 0) {
 
 	$sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'layout_design_tplassoc', CMS_DB_PREFIX.Design::TPLTABLE);
 	$dict->ExecuteSQLArray($sqlarray);
-	$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.Design::TPLTABLE, 'tpl_order I(1) UNSIGNED DEFAULT 0');
+	$sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.Design::TPLTABLE, 'tpl_order I1 UNSIGNED DEFAULT 0');
 	$dict->ExecuteSQLArray($sqlarray);
 	$sqlarray = $dict->RenameTableSQL(CMS_DB_PREFIX.'layout_design_cssassoc', CMS_DB_PREFIX.Design::CSSTABLE);
 	$dict->ExecuteSQLArray($sqlarray);
-	$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.Design::CSSTABLE, 'item_order', 'css_order I(1) UNSIGNED DEFAULT 0');
+	$sqlarray = $dict->RenameColumnSQL(CMS_DB_PREFIX.Design::CSSTABLE, 'item_order', 'css_order', 'I1 UNSIGNED DEFAULT 0');
 	$dict->ExecuteSQLArray($sqlarray);
+*/
 }

@@ -19,16 +19,14 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
+use CMSMS\SingleItem;
 use function CMSMS\de_specialize;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -58,7 +56,7 @@ $unmunge = function($text) {
     return $clean;
 };
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     //these $_POST variables are further-sanitized downstream,
@@ -80,7 +78,7 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     if ($lic) { $lic = $unmunge($lic); } // AND nl2br() ? striptags() ?
     if ($code) { $code = $unmunge($code); } // AND nl2br() ? striptags() ?
 
-    $ops = AppSingle::UserTagOperations();
+    $ops = SingleItem::UserTagOperations();
 //if event exists : $ops->DoEvent( add | edit userpluginpre  etc)
     $props = [
         'id' => (int)$_POST['id'],
@@ -120,7 +118,7 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
 }
 
 if ($tagname != '-1') {
-    if (!isset($ops)) { $ops = AppSingle::UserTagOperations(); }
+    if (!isset($ops)) { $ops = SingleItem::UserTagOperations(); }
     $props = $ops->GetUserTag($tagname, '*');
     if ($props) {
         $props['oldname'] = $tagname;
@@ -198,7 +196,7 @@ $extras = get_secure_param_array();
 $extras['id'] = $props['id'];
 $extras['oldname'] = $props['oldname'];
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign([
     'selfurl' => $selfurl,
     'extraparms' => $extras,
@@ -211,7 +209,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('openusertag.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

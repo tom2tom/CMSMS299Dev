@@ -53,7 +53,7 @@ final class Usertag_slave extends Base_slave
 
     private function get_mod()
     {
-        // static properties here >> StaticProperties class ?
+        // static properties here >> SingleItem property|ies ?
         static $_mod;
         if (!$_mod) {
             $_mod = Utils::get_module('AdminSearch');

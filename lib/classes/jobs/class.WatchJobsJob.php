@@ -35,7 +35,7 @@ class WatchJobsJob extends CronJob
     public function __construct()
     {
         parent::__construct();
-        $this->name = 'Core\\WatchJobs';
+        $this->name = 'Core\WatchJobs';
         if (AppParams::get(self::ENABLED_SITEPREF,1)) {
             $this->frequency = RecurType::RECUR_HALFDAILY;
         } else {

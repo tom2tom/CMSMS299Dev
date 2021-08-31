@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -45,7 +45,6 @@ ATM not so.
  * @license GPL
  * @since 2.99
  * @since 2.2 as HookManager
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 class HookOperations
 {
@@ -64,7 +63,7 @@ class HookOperations
      */
     const PRIORITY_LOW = 3;
 
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
     /**
      * @ignore
      */
@@ -172,18 +171,19 @@ OR
      * instead of supplied-parameter-references altered when relevant.
      */
     /**
-     * Run a hook, perhaps progressively altering the argument(s) passed to handlers.
+     * Run a hook, perhaps progressively altering the argument(s) passed
+     * to handlers.
      *
      * @param args This method accepts variable arguments.
      * The first of them (required) is the name of the hook to execute.
      * Any further argument(s) will be passed in turn to registered
-     * handler(s) (as sorted). Any one or more of the handlers may modify
-     * those parameters.
+     * handler(s) (as sorted). Any one or more of the handlers may
+     * modify those parameters.
      *
-     * The handlers must each return either null (signalling ignore the result),
-     * or else variable(s) that can be passed verbatim as arguments to the
-     * next handler. That is, the same number, order and types of parameter(s)
-     * as were provided as argument(s) to the handler.
+     * The handlers must each return either null (signalling ignore the
+     * result), or else variable(s) that can be passed verbatim as
+     * arguments to the next handler. That is, the same number, order and
+     * types of parameter(s) as were provided as argument(s) to the handler.
      * Returned parameter(s)' values may be different, of course.
      *
      * @return mixed Depends on the hook handlers. Null if nothing to do.
@@ -192,7 +192,7 @@ OR
     {
         $name = trim(array_shift($args));
 
-        if( $name === '' || !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
+        if( $name === '' || !isset(self::$_hooks[$name]) || !self::$_hooks[$name]->handlers ) return; // nothing to do
 
         // note: $args is an array, maybe empty, or maybe with array-members
         $value = $args;
@@ -227,7 +227,7 @@ OR
      * @param args This method accepts variable arguments.
      * The first of them (required) is the name of the hook to execute.
      * Any further argument(s) will be passed to the sorted registered
-     * handlers in turn, until one such returns a non-empty value.
+     * handlers in turn, until one of them returns a non-empty value.
      *
      * @return mixed Depends on the hook handlers.
      */
@@ -235,7 +235,7 @@ OR
     {
         $name = trim(array_shift($args));
 
-        if( $name === '' || !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers)  ) return; // nothing to do.
+        if( $name === '' || !isset(self::$_hooks[$name]) || !self::$_hooks[$name]->handlers  ) return; // nothing to do
 
         // note if present, $args is an array or empty
         self::$_in_process[] = $name;
@@ -261,17 +261,18 @@ OR
      *
      * @param args  This method accepts variable arguments.
      * The first of them (required) is the name of the hook to execute.
-     * Any further argument(s) will be passed to the sorted registered handlers
-     * in turn. Each handler's non-null return is 'pushed' into an array,
-     * which is ultimately returned to the caller.
+     * Any further argument(s) will be passed to the sorted registered
+     * handlers in turn. Each handler's non-null return is 'pushed' into
+     * an array, which is ultimately returned to the caller.
      *
-     * @return mixed null or array, each member of which is a non-null value returned by a handler.
+     * @return mixed null or array, each member of which is a non-null
+     *  value returned by a handler.
      */
     public static function do_hook_accumulate(...$args)
     {
         $name = trim(array_shift($args));
 
-        if( $name === '' || !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
+        if( $name === '' || !isset(self::$_hooks[$name]) || !self::$_hooks[$name]->handlers ) return; // nothing to do
 
         self::sort_handlers($name);
 

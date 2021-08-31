@@ -19,11 +19,10 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
 namespace FileManager;
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use CMSMS\Utils as AppUtils;
 use Exception;
@@ -37,10 +36,11 @@ use function startswith;
 
 final class Utils
 {
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
     private static $_can_do_advanced = -1;
 
-    protected function __construct() {}
+    private function __construct() {}
+	private function __clone() {}
 
     public static function is_valid_filename($name)
     {
@@ -61,7 +61,7 @@ final class Utils
     {
         if( self::$_can_do_advanced < 0 ) {
             $filemod = AppUtils::get_module('FileManager');
-            $config = AppSingle::Config();
+            $config = SingleItem::Config();
             if( startswith($config['uploads_path'],CMS_ROOT_PATH) && $filemod->AdvancedAccessAllowed() ) {
                 self::$_can_do_advanced = 1;
             }
@@ -87,7 +87,7 @@ final class Utils
             $dir = CMS_ROOT_PATH;
         }
         else {
-            $dir = AppSingle::Config()['uploads_path'];
+            $dir = SingleItem::Config()['uploads_path'];
             if( !startswith($dir,CMS_ROOT_PATH) ) $dir = cms_join_path(CMS_ROOT_PATH, 'uploads');
         }
 
@@ -98,7 +98,7 @@ final class Utils
     public static function test_valid_path($path)
     {
         // returns false if invalid.
-        $config = AppSingle::Config();
+        $config = SingleItem::Config();
         $advancedmode = self::check_advanced_mode();
 
         $prefix = CMS_ROOT_PATH;
@@ -169,7 +169,7 @@ final class Utils
     {
         $path = self::get_cwd();
         if( !self::test_valid_path($path) ) $path = self::get_default_cwd();
-        $url = AppSingle::Config()['root_url'].'/'. str_replace('\\','/',$path);
+        $url = SingleItem::Config()['root_url'].'/'. str_replace('\\','/',$path);
         return $url;
     }
 
@@ -336,7 +336,7 @@ final class Utils
 
     public static function get_dirlist()
     {
-        $config = AppSingle::Config();
+        $config = SingleItem::Config();
         $mod = AppUtils::get_module('FileManager');
         $showhiddenfiles = $mod->GetPreference('showhiddenfiles');
         $advancedmode = self::check_advanced_mode();

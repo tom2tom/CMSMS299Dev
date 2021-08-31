@@ -20,9 +20,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\jobs;
 
-use CMSMS\AppSingle;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
+use CMSMS\SingleItem;
 use const CMS_DB_PREFIX;
 
 class ClearJobRecordJob extends CronJob
@@ -30,7 +30,7 @@ class ClearJobRecordJob extends CronJob
     public function __construct()
     {
         parent::__construct();
-        $this->name = 'Core\\ClearJobRecord';
+        $this->name = 'Core\ClearJobRecord';
         $this->frequency = RecurType::RECUR_WEEKLY;
     }
 
@@ -40,12 +40,10 @@ class ClearJobRecordJob extends CronJob
       */
     public function execute()
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $limit = $db->dbTimeStamp(time() - 86400);
-        // key-prefix = awkward-looking db-tailored version of RequestParameters::KEYPREF
-        $sql = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE \'\\\\\\\\V^^V/%\' AND create_date < '.$limit;
-        // AND sitepref_value reflects a relevant hash-value e.g. LENGTH(sitepref_value) = 32 or whatever
-        $db->Execute($sql);
+        $sql = 'DELETE FROM '.CMS_DB_PREFIX.'job_records WHERE create_date < '.$limit;
+        $db->execute($sql);
         return 2;
     }
 }

@@ -20,15 +20,13 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -39,14 +37,14 @@ if (isset($_POST['cancel'])) {
 
 $userid = get_userid();
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if (!check_permission($userid, 'Manage Groups')) {
 //TODO some pushed popup c.f. javascript:cms_notify('error', lang('no_permission') OR lang('needpermissionto', lang('perm_Manage_Groups')), ...);
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-$groupops = AppSingle::GroupOperations();
+$groupops = SingleItem::GroupOperations();
 $superusr = $userid == 1; //group 1 addition|removal allowed
 if ($superusr) {
     $supergrp = true; //group 1 removal allowed
@@ -55,7 +53,7 @@ if ($superusr) {
     $supergrp = in_array($userid, $admins);
 }
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign([
     'user_id' => $userid, // current user
     'usr1perm' => $superusr,
@@ -92,15 +90,15 @@ $smarty->assign([
     'disp_group'=>$disp_group,
 ]);
 
-$db = AppSingle::Db();
+$db = SingleItem::Db();
 
 if (isset($_POST['submit'])) {
-    $userops = AppSingle::UserOperations();
+    $userops = SingleItem::UserOperations();
 
-    $stmt1 = $db->Prepare('DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id=? AND user_id=?');
-    $stmt2 = $db->Prepare('SELECT 1 FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id=? AND user_id=?');
+    $stmt1 = $db->prepare('DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id=? AND user_id=?');
+    $stmt2 = $db->prepare('SELECT 1 FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id=? AND user_id=?');
     //setting create_date should be redundant with DT field properties
-    $stmt3 = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'user_groups
+    $stmt3 = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.'user_groups
 (group_id, user_id, create_date)
 VALUES (?,?,NOW())');
 
@@ -120,11 +118,11 @@ VALUES (?,?,NOW())');
                     );
                     $value = (int)$value; //sanitize
                     if ($value === 0) {
-                        $db->Execute($stmt1, [$onegroup->id,$userid]);
+                        $db->execute($stmt1, [$onegroup->id,$userid]);
                     } elseif ($value === 1) {
-                        $rst = $db->Execute($stmt2, [$onegroup->id,$keyparts[1]]); // permission id
+                        $rst = $db->execute($stmt2, [$onegroup->id,$keyparts[1]]); // permission id
                         if (!$rst || $rst->EOF) {
-                            $db->Execute($stmt3, [$onegroup->id,$keyparts[1]]);
+                            $db->execute($stmt3, [$onegroup->id,$keyparts[1]]);
                             Events::SendEvent('Core', 'ChangeGroupAssignPost',
                                 ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
                             );
@@ -145,13 +143,13 @@ VALUES (?,?,NOW())');
 
     $message = lang('assignmentchanged');
 //    AdminUtils::clear_cached_files();
-//    AppSingle::SysDataCache()->release('IF ANY');
+//    SingleItem::LoadedData()->refresh('IF ANY');
 }
 
 $query = 'SELECT u.user_id, u.username, ug.group_id FROM '.
     CMS_DB_PREFIX.'users u LEFT JOIN '.CMS_DB_PREFIX.
     'user_groups ug ON u.user_id = ug.user_id ORDER BY u.username';
-$rst = $db->Execute($query);
+$rst = $db->execute($query);
 
 $user_struct = [];
 while ($rst && ($row = $rst->FetchRow())) {
@@ -188,7 +186,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('changegroupassign.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

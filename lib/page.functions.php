@@ -22,20 +22,22 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace {
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\AuditOperations;
 use CMSMS\CoreCapabilities;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
+use CMSMS\Events;
 use CMSMS\FileTypeHelper;
 use CMSMS\FormUtils;
 use CMSMS\IMultiEditor;
 use CMSMS\internal\ModulePluginOperations;
 use CMSMS\NlsOperations;
+use CMSMS\PageLoader;
 use CMSMS\RequestParameters;
 use CMSMS\RichEditor;
 use CMSMS\RouteOperations;
+use CMSMS\SingleItem;
 use CMSMS\Url;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -76,7 +78,7 @@ function setup_session(bool $cachable = false)
 	}
 	if ($cachable) {
 		if ($_SERVER['REQUEST_METHOD'] != 'GET' ||
-		AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_INSTALL)) {
+		AppState::test_any(AppState::ADMIN_PAGE | AppState::INSTALL)) {
 			$cachable = false;
 		}
 	}
@@ -96,7 +98,7 @@ function setup_session(bool $cachable = false)
 
 	// setup session with different (constant) id and start it
 	$session_name = 'CMSSESSID'.Crypto::hash_string(CMS_ROOT_PATH.CMS_VERSION);
-	if (!AppState::test_state(AppState::STATE_INSTALL)) {
+	if (!AppState::test(AppState::INSTALL)) {
 		@session_name($session_name);
 		@ini_set('url_rewriter.tags', '');
 		@ini_set('session.use_trans_sid', 0);
@@ -132,7 +134,7 @@ function setup_session(bool $cachable = false)
  */
 function is_sitedown() : bool
 {
-	if (AppState::test_state(AppState::STATE_INSTALL)) {
+	if (AppState::test(AppState::INSTALL)) {
 		return true;
 	}
 
@@ -191,12 +193,12 @@ function is_sitedown() : bool
  */
 function get_userid(bool $redirect = true)
 {
-//    $config = AppSingle::Config();
+//    $config = SingleItem::Config();
 //    if (!$config['app_mode']) { MAYBE IN FUTURE
-/* MAYBE IN FUTURE        if (cmsms()->is_cli()) {
+/* MAYBE IN FUTURE		if (cmsms()->is_cli()) {
 		$uname = get_cliuser();
 		if ($uname) {
-			$user = AppSingle::UserOperations()->LoadUserByUsername($uname);
+			$user = SingleItem::UserOperations()->LoadUserByUsername($uname);
 			if ($user) {
 				return $user->id;
 			}
@@ -205,9 +207,9 @@ function get_userid(bool $redirect = true)
 	}
 */
 	// TODO alias etc during 'remote admin'
-	$userid = AppSingle::LoginOperations()->get_effective_uid();
+	$userid = SingleItem::LoginOperations()->get_effective_uid();
 	if (!$userid && $redirect) {
-		redirect(AppSingle::Config()['admin_url'].'/login.php');
+		redirect(SingleItem::Config()['admin_url'].'/login.php');
 	}
 	return $userid;
 //    }
@@ -224,16 +226,16 @@ function get_userid(bool $redirect = true)
  */
 function get_username(bool $redirect = true)
 {
-//    $config = AppSingle::Config();
+//    $config = SingleItem::Config();
 //    if (!$config['app_mode']) { MAYBE IN FUTURE
-/* MAYBE IN FUTURE        if (cmsms()->is_cli()) {
+/* MAYBE IN FUTURE		if (cmsms()->is_cli()) {
 			return get_cliuser();
 		}
 */
 	//TODO alias etc during 'remote admin'
-	$uname = AppSingle::LoginOperations()->get_effective_username();
+	$uname = SingleItem::LoginOperations()->get_effective_username();
 	if (!$uname && $redirect) {
-		redirect(AppSingle::Config()['admin_url'].'/login.php');
+		redirect(SingleItem::Config()['admin_url'].'/login.php');
 	}
 	return $uname;
 //    }
@@ -253,7 +255,7 @@ function check_login(bool $no_redirect = false)
 {
 	$redirect = !$no_redirect;
 	$userid = get_userid($redirect);
-	$ops = AppSingle::LoginOperations();
+	$ops = SingleItem::LoginOperations();
 	if ($userid > 0) {
 		if ($ops->validate_requestkey()) {
 			return true;
@@ -267,7 +269,7 @@ function check_login(bool $no_redirect = false)
 			$_SESSION['login_redirect_to'] = $_SERVER['REQUEST_URI'];
 		}
 		$ops->deauthenticate();
-		redirect(AppSingle::Config()['admin_url'].'/login.php');
+		redirect(SingleItem::Config()['admin_url'].'/login.php');
 	}
 	return false;
 }
@@ -313,7 +315,7 @@ function restricted_cms_permissions() : array
  */
 function check_permission(int $userid, ...$perms)
 {
-	return AppSingle::UserOperations()->CheckPermission($userid, ...$perms);
+	return SingleItem::UserOperations()->CheckPermission($userid, ...$perms);
 }
 
 /**
@@ -329,7 +331,7 @@ function check_permission(int $userid, ...$perms)
  */
 function check_authorship(int $userid, $contentid = null)
 {
-	return AppSingle::ContentOperations()->CheckPageAuthorship($userid, $contentid);
+	return SingleItem::ContentOperations()->CheckPageAuthorship($userid, $contentid);
 }
 
 /**
@@ -342,7 +344,7 @@ function check_authorship(int $userid, $contentid = null)
  */
 function author_pages(int $userid)
 {
-	return AppSingle::ContentOperations()->GetPageAccessForUser($userid);
+	return SingleItem::ContentOperations()->GetPageAccessForUser($userid);
 }
 
 /**
@@ -358,11 +360,11 @@ function author_pages(int $userid)
  */
 function redirect(string $to)
 {
-	$app = AppSingle::App();
-	/* MAYBE IN FUTURE  if ($app->is_cli()) {
-			die("ERROR: no redirect on cli-based scripts ---\n");
-		}
-	*/
+	$app = SingleItem::App();
+/* MAYBE IN FUTURE  if ($app->is_cli()) {
+		die("ERROR: no redirect on cli-based scripts ---\n");
+	}
+*/
 	$_SERVER['PHP_SELF'] = null;
 	//TODO generally support the websocket protocol 'wss' : 'ws'
 	$schema = ($app->is_https_request()) ? 'https' : 'http';
@@ -407,7 +409,7 @@ function redirect(string $to)
 
 	session_write_close();
 
-	if (!AppState::test_state(AppState::STATE_INSTALL)) {
+	if (!AppState::test(AppState::INSTALL)) {
 		$debug = constant('CMS_DEBUG');
 	} else {
 		$debug = false;
@@ -458,7 +460,7 @@ $to2.
  */
 function redirect_to_alias(string $alias)
 {
-	$hm = AppSingle::App()->GetHierarchyManager();
+	$hm = SingleItem::App()->GetHierarchyManager();
 	$node = $hm->find_by_tag('alias', $alias);
 	if (!$node) {
 		// put mention into the admin log
@@ -484,11 +486,11 @@ function redirect_to_alias(string $alias)
  * @internal
  * @ignore
  *
- * @return string (or null?)
+ * @return mixed int | string ( | null? )
  */
 function get_pageid_or_alias_from_url()
 {
-	$config = AppSingle::Config();
+	$config = SingleItem::Config();
 	$page = RequestParameters::get_request_values($config['query_var']);
 	if ($page !== null) {
 		// using non-friendly urls... get the page alias/id from the query var.
@@ -506,7 +508,7 @@ function get_pageid_or_alias_from_url()
 	}
 	if (!$page) {
 		// use the default page id
-		return AppSingle::ContentOperations()->GetDefaultContent();
+		return SingleItem::ContentOperations()->GetDefaultContent();
 	}
 
 	// by here, if we're not assuming pretty urls of any sort and we
@@ -530,17 +532,19 @@ function get_pageid_or_alias_from_url()
 	// so strip trailing and leading /
 	$page = trim($page, '/');
 
-	// check if there's a route that matches.
-	// note: we handle content routing separately at this time.
+	// check for a route that matches
+	// NOTE: we handle content routing separately at this time.
 	// it'd be cool if contents were just another mact.
 	$route = RouteOperations::find_match($page);
 	if ($route) {
-		$to = $route->get_dest();
-		if ($to == '__CONTENT__') {
-			// a route to a page
-			$page = (int)$route['key2'];
-		} else {
-			// a module route
+		// is it a route to a page ?
+		$to = (int)$route->get_content();
+		if ($to == 0) {
+			// nope, is it route to a module ?
+			$to = $route->get_dest();
+			if (!$to) {
+				return $page; // error, route unusable
+			}
 			// setup some default parameters.
 			$arr = ['module' => $to, 'id' => 'cntnt01', 'action' => 'defaulturl', 'inline' => 0];
 			$tmp = $route->get_defaults();
@@ -570,10 +574,12 @@ function get_pageid_or_alias_from_url()
 			// get a decent returnid
 			if ($arr['returnid']) {
 				$page = (int) $arr['returnid'];
-//                unset($arr['returnid']);
+//				unset($arr['returnid']);
 			} else {
-				$page = AppSingle::ContentOperations()->GetDefaultContent();
+				$page = SingleItem::ContentOperations()->GetDefaultContent();
 			}
+		} else {
+			$page = $to;
 		}
 	} elseif // no route matched... assume it is an alias which begins after the last /
 	  (($pos = strrpos($page, '/')) !== false) {
@@ -912,7 +918,7 @@ function cms_relative_path(string $in, string $relative_to = null) : string
  */
 function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\\entitize'));
+	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\entitize'));
 	return entitize($val, $flags, $charset, $convert_single_quotes);
 }
 
@@ -935,7 +941,7 @@ function cms_htmlentities($val, int $flags = 0, string $charset = 'UTF-8', bool 
  */
 function cms_html_entity_decode($val, int $flags = 0, string $charset = 'UTF-8') : string
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\\de_entitize'));
+	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\de_entitize'));
 	return de_entitize($val, $flags, $charset);
 }
 
@@ -959,7 +965,7 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 		}
 	}
 	if (@move_uploaded_file($tmpfile, $destination)) {
-		return @chmod($destination, octdec(AppSingle::Config()['default_upload_permission']));
+		return @chmod($destination, octdec(SingleItem::Config()['default_upload_permission']));
 	} else {
 		//TODO report error or throw new Exception(lang(''))
 	}
@@ -987,7 +993,7 @@ function cms_to_stamp($datetime, bool $is_utc = false) : int
 		}
 		if (!$is_utc) {
 			if ($offs === null) {
-				$dtz = new DateTimeZone(AppSingle::Config()['timezone']);
+				$dtz = new DateTimeZone(SingleItem::Config()['timezone']);
 				$offs = timezone_offset_get($dtz, $dt);
 			}
 		}
@@ -1225,12 +1231,12 @@ function cms_get_script(string $filename, bool $as_url = true, $custompaths = ''
 		// $filename is relative, try to find it
 		//TODO if relevant, support somewhere module-relative
 		//TODO partial path-intersection too, any separators
-		$base_path = ltrim(dirname($filename), ' \\/');
+		$base_path = ltrim(dirname($filename), ' \/');
 		$places = [
 		 $base_path,
 		 CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'js',
 		 CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets',
-		 AppSingle::Config()['uploads_path'],
+		 SingleItem::Config()['uploads_path'],
 		 CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'js',
 		 CMS_ROOT_PATH,
 		];
@@ -1298,12 +1304,12 @@ function cms_get_css(string $filename, bool $as_url = true, $custompaths = '')
 		// $filename is relative, try to find it
 		//TODO if relevant, support somewhere module-relative
 		//TODO partial path-intersection too, any separators
-		$base_path = ltrim(dirname($filename), ' \\/');
+		$base_path = ltrim(dirname($filename), ' \/');
 		$places = [
 		 $base_path,
 		 CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles',
 		 CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets',
-		 AppSingle::Config()['uploads_path'],
+		 SingleItem::Config()['uploads_path'],
 		 CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'styles',
 		 CMS_ROOT_PATH,
 		];
@@ -1440,7 +1446,7 @@ function create_file_dropdown(
 		'type' => 'drop',
 		'name' => $name,
 		'htmlid' => $name,
-		'modid' => '',
+		'getid' => '',
 		'multiple' => false,
 		'options' => $opts,
 		'selectedvalue' => $value,
@@ -1466,7 +1472,7 @@ function create_file_dropdown(
  */
 function get_richeditor_setup(array $params) : array
 {
-	if (AppSingle::App()->is_frontend_request()) {
+	if (SingleItem::App()->is_frontend_request()) {
 		$val = AppParams::get('frontendwysiwyg'); //module name
 	} else {
 		$userid = get_userid();
@@ -1476,12 +1482,12 @@ function get_richeditor_setup(array $params) : array
 		}
 	}
 	if ($val) {
-		$vars = explode('::', $val);
+		$vars = explode('::', $val, 2);
 		$modname = $vars[0] ?? '';
 		if ($modname) {
-			$modinst = Utils::get_module($modname);
-			if ($modinst) {
-				if ($modinst instanceof RichEditor) {
+			$mod = Utils::get_module($modname);
+			if ($mod) {
+				if ($mod instanceof RichEditor) {
 					$edname = $params['editor'] ?? $vars[1] ?? $modname;
 					if (empty($params['theme'])) {
 						$val = UserParams::get_for_user($userid, 'richeditor_theme');
@@ -1492,14 +1498,14 @@ function get_richeditor_setup(array $params) : array
 							$params['theme'] = $val;
 						}
 					}
-					return $modinst->GetEditorSetup($edname, $params);
-				} elseif ($modinst->HasCapability(CoreCapabilities::WYSIWYG_MODULE)) {
+					return $mod->GetEditorSetup($edname, $params);
+				} elseif ($mod->HasCapability(CoreCapabilities::WYSIWYG_MODULE)) {
 					if (empty($params['editor'])) {
 						$params['editor'] = $vars[1] ?? $modname;
 					}
 					// NOTE old/standard API is WYSIWYGGenerateHeader($selector, $cssname);
 					//$params[] will be ignored by modules without relevant capability
-					$out = $modinst->WYSIWYGGenerateHeader($params);
+					$out = $mod->WYSIWYGGenerateHeader($params);
 					if ($out) {
 						return ['head' => $out];
 					}
@@ -1533,7 +1539,7 @@ function get_richeditor_setup(array $params) : array
  */
 function get_syntaxeditor_setup(array $params) : array
 {
-	if (AppSingle::App()->is_frontend_request()) {
+	if (SingleItem::App()->is_frontend_request()) {
 		return [];
 	}
 
@@ -1543,12 +1549,12 @@ function get_syntaxeditor_setup(array $params) : array
 		$val = AppParams::get('syntaxhighlighter');
 	}
 	if ($val) {
-		$vars = explode('::', $val);
+		$vars = explode('::', $val, 2);
 		$modname = $vars[0] ?? '';
 		if ($modname) {
-			$modinst = Utils::get_module($modname);
-			if ($modinst) {
-				if ($modinst instanceof IMultiEditor) {
+			$mod = Utils::get_module($modname);
+			if ($mod) {
+				if ($mod instanceof IMultiEditor) {
 					$edname = $params['editor'] ?? $vars[1] ?? $modname;
 					if (empty($params['theme'])) {
 						$val = UserParams::get_for_user($userid, 'syntax_theme');
@@ -1559,14 +1565,14 @@ function get_syntaxeditor_setup(array $params) : array
 							$params['theme'] = $val;
 						}
 					}
-					return $modinst->GetEditorSetup($edname, $params);
-				} elseif ($modinst->HasCapability(CoreCapabilities::SYNTAX_MODULE)) {
+					return $mod->GetEditorSetup($edname, $params);
+				} elseif ($mod->HasCapability(CoreCapabilities::SYNTAX_MODULE)) {
 					if (empty($params['editor'])) {
 						$params['editor'] = $vars[1] ?? $modname;
 					}
 					// NOTE old/standard API is SyntaxGenerateHeader();
 					//$params[] will be haandled only by modules with relevant capability
-					$out = $modinst->SyntaxGenerateHeader($params);
+					$out = $mod->SyntaxGenerateHeader($params);
 					if ($out) {
 						return ['head' => $out];
 					}
@@ -1586,7 +1592,7 @@ function get_syntaxeditor_setup(array $params) : array
  */
 function debug_bt_to_log()
 {
-	if (AppSingle::Config()['debug_to_log'] ||
+	if (SingleItem::Config()['debug_to_log'] ||
 		(function_exists('get_userid') && get_userid(false))) {
 		$bt = debug_backtrace();
 		$file = $bt[0]['file'];
@@ -1765,7 +1771,7 @@ function debug_display($var, string $title = '', bool $echo_to_screen = true, bo
  */
 function debug_output($var, string $title = '')
 {
-	if (AppSingle::Config()['debug']) {
+	if (SingleItem::Config()['debug']) {
 		debug_display($var, $title, true);
 	}
 }
@@ -1780,7 +1786,7 @@ function debug_output($var, string $title = '')
  */
 function debug_to_log($var, string $title = '', string $filename = '')
 {
-	if (AppSingle::Config()['debug_to_log'] ||
+	if (SingleItem::Config()['debug_to_log'] ||
 		(function_exists('get_userid') && get_userid(false))) {
 		if ($filename == '') {
 			$filename = TMP_CACHE_LOCATION . DIRECTORY_SEPARATOR. 'debug.log';
@@ -1811,7 +1817,7 @@ function debug_to_log($var, string $title = '', string $filename = '')
 function debug_buffer($var, string $title = '')
 {
 	if (constant('CMS_DEBUG')) {
-		AppSingle::App()->add_error(debug_display($var, $title, false, true));
+		SingleItem::App()->add_error(debug_display($var, $title, false, true));
 	}
 }
 
@@ -1822,7 +1828,7 @@ function debug_buffer($var, string $title = '')
  */
 function audit($itemid, string $subject, string $msg = '')
 {
-	AppSingle::AuditOperations()->audit($msg, $subject, $itemid);
+	SingleItem::AuditOperations()->audit($msg, $subject, $itemid);
 }
 
 /**
@@ -1832,7 +1838,7 @@ function audit($itemid, string $subject, string $msg = '')
  */
 function cms_notice(string $msg, string $subject = '')
 {
-	AppSingle::AuditOperations()->notice($msg, $subject);
+	SingleItem::AuditOperations()->notice($msg, $subject);
 }
 
 /**
@@ -1842,7 +1848,7 @@ function cms_notice(string $msg, string $subject = '')
  */
 function cms_warning(string $msg, string $subject = '')
 {
-	AppSingle::AuditOperations()->warning($msg, $subject);
+	SingleItem::AuditOperations()->warning($msg, $subject);
 }
 
 /**
@@ -1852,7 +1858,7 @@ function cms_warning(string $msg, string $subject = '')
  */
 function cms_error(string $msg, string $subject = '')
 {
-	AppSingle::AuditOperations()->error($msg, $subject);
+	SingleItem::AuditOperations()->error($msg, $subject);
 }
 
 /**
@@ -1882,7 +1888,7 @@ function chmod_r(string $path, int $mode) : bool
  */
 function cleanValue($val)
 {
-	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\\specialize'));
+	assert(empty(CMS_DEPREC), new DeprecationNotice('function', 'CMSMS\specialize'));
 	return specialize((string)$val, 0, '', true);
 }
 
@@ -1943,7 +1949,7 @@ function get_entparms(int $flags, string $charset, bool $convert_single_quotes) 
  */
 function preferred_lang() : int
 {
-	$val = str_toupper(AppSingle::Config()['content_language']);
+	$val = str_toupper(SingleItem::Config()['content_language']);
 	switch ($val) {
 		case 'HTML5':
 			return ENT_HTML5;
@@ -2187,6 +2193,37 @@ function urlSpecialize(string $url) : string
 		}
 	}
 	return (string)$url_ob;
+}
+
+/**
+ * Intra-frontend-page-display event-sender
+ * @since 2.99
+ *
+ * @param string $eventname
+ * @param int $pageid Displayed-page identifier
+ * @param mixed $content Some of the page's content string | null
+ * &return mixed string | null
+ */
+function tailorpage(string $eventname, int $pageid, $content = null)
+{
+	static $pageobj = null; // this will be used many times in each request
+
+	$ret = ($content != false);
+	try {
+		if (!$pageobj) {
+			$pageobj = PageLoader::LoadContent($pageid);
+		}
+		$parms = ['content' => $pageobj];
+		if ($content) {
+			$parms['html'] = &$content;
+		}
+		Events::SendEvent('Core', $eventname, $parms);
+	} catch (Throwable $t) {
+		trigger_error('Page-setup problem: '.$t->getMessage());
+	}
+	if ($ret) {
+		return $content;
+	}
 }
 
 } // CMSMS namespace

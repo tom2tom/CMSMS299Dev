@@ -20,16 +20,14 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Events;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
 use function CMSMS\de_entitize;
 use function CMSMS\sanitizeVal;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -38,16 +36,16 @@ $access = check_permission($userid, 'Modify Events');
 
 $tmp = de_entitize(trim($_POST['senderfilter'] ?? '')); // but should be no entities in there
 if (!$tmp || $tmp == lang('all')) {
-	$senderfilter = '';
+    $senderfilter = '';
 } else {
-	$senderfilter = sanitizeVal($tmp, CMSSAN_FILE); // for event-originator 'Core' | modulename
+    $senderfilter = sanitizeVal($tmp, CMSSAN_FILE); // for event-originator 'Core' | modulename
 }
 
 $senders = [];
 $events = Events::ListEvents();
 if (is_array($events)) {
     foreach ($events as &$one) {
-		if ($senderfilter && $senderfilter != $one['originator']) continue;
+        if ($senderfilter && $senderfilter != $one['originator']) continue;
         if (!in_array($one['originator'], $senders)) {
             $senders[] = $one['originator'];
         }
@@ -64,7 +62,7 @@ if (is_array($events)) {
     $senders = [-1 => lang('all')] + $senders;
 }
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if ($access) {
     $iconedit = $themeObject->DisplayImage('icons/system/edit.gif',lang('modifyeventhandlers'),'','','systemicon');
@@ -77,7 +75,7 @@ $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 $urlext = get_secure_param();
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign([
     'access' => $access,
     'editurl' => 'editevent.php',
@@ -93,7 +91,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('listevents.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

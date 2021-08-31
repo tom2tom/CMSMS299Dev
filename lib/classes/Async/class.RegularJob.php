@@ -31,7 +31,6 @@ use UnexpectedValueException;
  * This class enables using old CmsRegularTask pseudocron tasks as asynchronous background jobs
  *
  * @package CMS
- * @author Robert Campbell
  *
  * @since 2.99
  * @since 2.2 as RegularTask
@@ -47,7 +46,12 @@ class RegularJob extends CronJob
     public function __construct($task)
     {
         parent::__construct();
-        $this->_data = ['task' => $task, 'name' => $task->get_name(), 'frequency' => RecurType::RECUR_SELF] + $this->_data;
+        $this->_data = [
+            'task' => $task,
+            'type' => get_class($task),
+            'name' => $task->get_name(),
+            'frequency' => RecurType::RECUR_SELF
+        ] + $this->_data;
     }
 
     /* *
@@ -74,9 +78,10 @@ class RegularJob extends CronJob
         switch ($key) {
         case 'task':
             if (!($val instanceof IRegularTask || $val instanceof CmsRegularTask)) {
-                throw new UnexpectedValueException("Invalid value for $key in ".static::class);
+                throw new UnexpectedValueException("Invalid value for '$key' property in ".static::class);
             }
             $this->_data['task'] = $val;
+            $this->_data['type'] = get_class($val);
             break;
         default:
             parent::__set($key, $val);
@@ -90,9 +95,18 @@ class RegularJob extends CronJob
      */
     public function execute()
     {
-        $task = $this->__data['task'];
-        if (!$task) {
-            throw new LogicException(__CLASS__.' job is being executed, but has no task associated');
+        $task = $this->_data['task'];
+        if (!$task || !is_object($task)) {
+            $class = $this->_data['type'];
+            if ($class) {
+                $task = new $class();
+                if ($task) {
+                    $this->_data['task'] = $task;
+                }
+            }
+            if (!$task || !is_object($task)) {
+                throw new LogicException(__CLASS__.' job is being executed, but has no task associated');
+            }
         }
         $now = time();
         if ($task->test($now)) {

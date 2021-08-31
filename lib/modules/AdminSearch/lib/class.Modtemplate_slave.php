@@ -7,7 +7,7 @@ See license details at the top of file AdminSearch.module.php
 */
 namespace AdminSearch;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\TemplateOperations;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
@@ -42,7 +42,7 @@ final class Modtemplate_slave extends Base_slave
     //returns array of arrays
     public function get_matches()
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'SELECT originator,name,description,content FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE originator IS NOT NULL AND originator != \'\' AND originator != \'__CORE__\' '; //other originators are for module-templates
         if ($this->search_casesensitive()) {
             $where = [
@@ -61,7 +61,7 @@ final class Modtemplate_slave extends Base_slave
         $output = [];
         $needle = $this->get_text();
         $wm = '%'.$db->escStr($needle).'%';
-        $dbr = $db->GetArray($query, [$wm,$wm,$wm]);
+        $dbr = $db->getArray($query, [$wm,$wm,$wm]);
         if ($dbr) {
             foreach ($dbr as $row) {
                 $html = '';

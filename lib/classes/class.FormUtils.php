@@ -21,10 +21,10 @@ If not, see <https://www.gnu.org/licenses/licenses.html>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
 use CMSMS\Crypto;
 use CMSMS\HookOperations;
+use CMSMS\SingleItem;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -54,7 +54,7 @@ class FormUtils
     private const ERRTPL = 'parameter "%s" is required for %s';
     private const ERRTPL2 = 'a valid "%s" parameter is required for %s';
 
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
     /**
      * Names of and related parameters for rich-text-editor modules specified
      * for use during the current request
@@ -226,8 +226,7 @@ class FormUtils
                         break;
                     case 'tooltiplink':
                         extract($parms);
-                        //default format/mode parameter
-                        $parms['href'] = $mod->create_url($modid, $action, ($returnid ?? ''), ($params ?? []), !empty($inline), !empty($targetcontentonly), ($prettyurl ?? ''));
+                        $parms['href'] = $mod->create_url($getid, $action, ($returnid ?? ''), ($params ?? []), !empty($inline), !empty($targetcontentonly), ($prettyurl ?? ''), 2);
                         //no break here
                     case 'tooltip':
                         $myfunc = 'create_tooltip';
@@ -237,7 +236,7 @@ class FormUtils
 
             if ($myfunc) {
                 if (isset($parms['id'])) {
-                    $parms['modid'] = $parms['id']; //CHECKME
+                    $parms['getid'] = $parms['id']; //CHECKME
                 }
                 if (isset($parms['addtext'])) {
                     $tmp = $parms['addtext'];
@@ -334,16 +333,27 @@ class FormUtils
     {
         /* $parms[] members of particular interest here (all optional):
          name         = name attribute for the text area element.
-         modid/prefix = module-action-parameter prefix.
-         id/htmlid    = id attribute for the element.  If not specified, and name is present, then modid.name is used.
+         getid/prefix = submitted-variable name-prefix.
+         id/htmlid    = id attribute for the element.  If not specified, and name is present, then 'getid'.'name' is used.
          class/classname = class attribute (or space-separated attrubutes) for the element.
         */
         //aliases
-        $alts += ['classname'=>'class', 'id'=>'htmlid', 'prefix'=>'modid'];
+        $alts += ['classname'=>'class', 'id'=>'htmlid', 'prefix'=>'getid'];
         foreach ($alts as $key => $val) {
             if (isset($parms[$key])) {
                 $parms[$val] = $parms[$key];
                 unset($parms[$key]);
+            }
+        }
+
+        if (!isset($parms['getid'])) {
+            if (isset($parms['htmlid']) && $parms['htmlid'] == 'm1_') {
+                $parms['getid'] = 'm1_'; // assume the 'other' id was intended
+                unset($parms['htmlid']);
+            } elseif (SingleItem::App()->is_frontend_request()) {
+                $parms['getid'] = 'cntnt01'; // frontend default
+            } else {
+                $parms['getid'] = 'm1_'; // admin default
             }
         }
 
@@ -353,26 +363,20 @@ class FormUtils
         if (!isset($name)) {
             $name = '';
         }
-        if (!isset($htmlid)) {
+        if (!isset($htmlid) || $htmlid == $getid) {
             if ($name) {
-                if (empty($modid)) {
-                    if (AppSingle::App()->is_frontend_request()) {
-                        $modid = 'cntnt01';
-                    } else {
-                        $modid = 'm1_';
-                    }
-                }
-                $htmlid = $modid.$name;
+                $htmlid = $getid.$name;
+                $parms['htmlid'] = $htmlid;
             } else {
                 $htmlid = '';
+                unset($parms['htmlid']);
             }
         }
 
-        unset($parms['htmlid'], $parms['prefix'], $parms['modid']);
         $patn = '/[\x00-\x1f "\';=?^`&@<>(){}\\/\x7f-\xff]/'; // name may be like 'X[]' or X[y]
         if ($htmlid) { $parms['id'] = preg_replace($patn, '', $htmlid); }
         if ($name) {
-            if (!empty($modid)) { $name = $modid.$name; }
+            if (!empty($getid)) { $name = $getid.$name; }
             $parms['name'] = preg_replace($patn, '', $name);
         }
 
@@ -408,13 +412,14 @@ class FormUtils
                 }
             }
         }
-        return false;
+        return false; // actually, success!
     }
 
     /**
      * Generate output representing scalar members of $parms that are not in $excludes
      * $parms key(s) may be numeric, in which case only the value is used.
-     * $parms with array-value are automatically ignored.
+     * $parms with array-value are automatically ignored. $parms with
+     * empty ('') value are ignored. $parms 'htmlid' and 'getid' are ignored.
      * There is no 'sanitization' of URL keys or values.
      * @ignore
      * @since 2.99
@@ -424,9 +429,10 @@ class FormUtils
      */
     protected static function join_attrs(array &$parms, array $excludes) : string
     {
+        $excludes += [-99 => 'htmlid', -98 => 'getid'];
         $out = '';
         foreach ($parms as $key=>$val) {
-            if (!(is_array($val) || in_array($key, $excludes))) {
+            if (!(in_array($key, $excludes) || $val === '' || is_array($val))) {
                 if (!is_numeric($key)) {
                     if ($key != 'addtext') {
                         $out .= ' '.$key.'='.'"'.$val.'"';
@@ -556,8 +562,8 @@ class FormUtils
      * @param array  $parms   Attribute(s)/definition(s) to be included in
      *  the element, each member like name=>value. Any name may be numeric,
      *  in which case only the value is used. Must include at least 'type' and
-     * 'name' and at least 2 of 'htmlid', 'modid', 'id', the latter being an
-     *  alias for either 'htmlid' or 'modid'.
+     * 'name' and at least 2 of 'htmlid', 'getid', 'id', the latter being an
+     *  alias for either 'htmlid' or 'getid'.
     *   Recognized types are 'check','radio','list', 'drop'
      *
      * @return string
@@ -576,6 +582,7 @@ class FormUtils
             return '<!-- ERROR: '.$tmp.' -->';
         }
         extract($parms);
+
         //custom checks & setup
         switch ($type) {
             case 'check':
@@ -589,7 +596,10 @@ class FormUtils
                 }
 
                 $out = '<input type="checkbox"';
-                $out .= self::join_attrs($parms, ['type', 'selectedvalue']);
+                $out .= self::join_attrs($parms, [
+                'type',
+                'selectedvalue',
+                ]);
                 $out .= ' />'.PHP_EOL;
                 break;
             case 'radio':
@@ -607,11 +617,11 @@ class FormUtils
                 $count = count($options);
                 $out = '';
                 foreach ($options as $key=>$val) {
-                    $out .= $each . ' id="'.$modid.$name.$i.'" value="'.$val.'"';
+                    $out .= $each . ' id="'.$getid.$name.$i.'" value="'.$val.'"';
                     if ($val == $selectedvalue) {
                         $out .= ' checked="checked"';
                     }
-                    $out .= ' /><label for="'.$modid.$name.$i.'">'.$key .'</label>';
+                    $out .= ' /><label for="'.$getid.$name.$i.'">'.$key .'</label>';
                     if ($i < $count && $delimiter) {
                         $out .= $delimiter;
                     }
@@ -682,9 +692,9 @@ class FormUtils
      *
      * @param array  $parms   Attribute(s)/definition(s) to be included in
      *  the element, each member like name=>value. Any name may be numeric,
-     *  in which case only the value is used. Must include at least 'type' and
-     * 'name' and at least 2 of 'htmlid', 'modid', 'id', the latter being an
-     *  alias for either 'htmlid' or 'modid'
+     *  in which case only the value is used. Must include at least 'type'
+     *  and 'name' and at least 2 of 'htmlid', 'getid', 'id', the latter
+     *  being an alias for either 'htmlid' or 'getid'
      *
      * @return string
      */
@@ -707,11 +717,15 @@ class FormUtils
             //custom checks
             $value = $parms['value'] ?? '';
             //TODO tailoring for lots of html5 types
-            $parms['value'] = ($value && $type == 'text') ? specialize($value) : $value;
+            if ($value && $type == 'text') {
+                $value = specialize($value);
+            }
 
             $out = '<input';
-            $out .= self::join_attrs($parms, ['modid']);
-            return $out.' />'.PHP_EOL;
+            $out .= self::join_attrs($parms, [
+            'value', // might be acceptably empty, so add this one manually
+            ]);
+            return $out.' value="'.$value.'" />'.PHP_EOL;
         }
         unset($parms['type']); //don't confuse with 'wantedsyntax'
         return self::create_textarea($parms);
@@ -788,14 +802,14 @@ class FormUtils
      *  case only the value is used.
      * Recognized:
      *   name          = (required string) name attribute for the text area element.
-     *   modid/prefix  = (optional string) id given to the module on execution.  If not specified, '' will be used.
-     *   id/htmlid = (optional string) id attribute for the text area element.  If not specified, name is used.
-     *   class/classname = (optional string) class attribute for the text area element.  Some values will be added to this string.
-     *                   default is cms_textarea
+     *   getid/prefix  = (optional string) submitted-variable name-prefix. If not specified, '' will be used.
+     *   id/htmlid     = (optional string) id attribute for the text area element. If not specified, name is used.
+     *   class/classname = (optional string) class attribute for the text area element.
+     *                   Some values will be added to this string. Default is cms_textarea
      *   forcemodule/forcewysiwyg = (optional string) used to specify the editor-module to enable.  If specified, the module name will be added to the
      *                   class attribute.
      *   enablewysiwyg = (optional boolean) used to specify whether a richtext-editor is required for the textarea.  Sets the language to html.
-     *         Deprecated since 2.99. Instead, generate and record content (js, css etc) directly
+     *                   Deprecated since 2.99. Instead, generate and record content (js, css etc) directly
      *   wantedsyntax  = (optional string) used to specify the language (html,css,php,smarty) to use.  If non empty indicates that a
      *                   syntax-highlight editor is required for the textarea. Deprecated since 2.99. Instead, generate and record content (js etc) directly
      *   cols/width    = (optional integer) columns of the text area (css or the syntax/wysiwyg module may override this)
@@ -849,7 +863,7 @@ class FormUtils
 
         if (!isset($value)) { $value = ''; }
         if (!isset($forcemodule)) { $forcemodule = ''; }
-        $modinst = null;
+        $mod = null;
 
         if ($enablewysiwyg) { //deprecated since 2.99
             // we want a wysiwyg
@@ -858,11 +872,11 @@ class FormUtils
             } else {
                 $parms['class'] .= ' cmsms_wysiwyg';
             }
-            $modinst = AppSingle::ModuleOperations()->GetWYSIWYGModule($forcemodule);
-            if ($modinst && $modinst->HasCapability(CoreCapabilities::WYSIWYG_MODULE)) {
+            $mod = SingleItem::ModuleOperations()->GetWYSIWYGModule($forcemodule);
+            if ($mod && $mod->HasCapability(CoreCapabilities::WYSIWYG_MODULE)) {
                 // TODO use $config['content_language']
                 $parms['data-cms-lang'] = 'html'; //park badly-named variable
-                $modname = $modinst->GetName();
+                $modname = $mod->GetName();
                 $parms['class'] .= ' '.$modname;  //not for CSS ?!
                 if (empty($cssname)) {
                     $cssname = self::NONE;
@@ -874,11 +888,11 @@ class FormUtils
         }
 
         if (!isset($wantedsyntax)) { $wantedsyntax = ''; }
-        if (!$modinst && $wantedsyntax) {
+        if (!$mod && $wantedsyntax) {
             $parms['data-cms-lang'] = $wantedsyntax; //park
-            $modinst = AppSingle::ModuleOperations()->GetSyntaxHighlighter($forcemodule);
-            if ($modinst && $modinst->HasCapability(CoreCapabilities::SYNTAX_MODULE)) {
-                $modname = $modinst->GetName();
+            $mod = SingleItem::ModuleOperations()->GetSyntaxHighlighter($forcemodule);
+            if ($mod && $mod->HasCapability(CoreCapabilities::SYNTAX_MODULE)) {
+                $modname = $mod->GetName();
                 if (empty($parms['class'])) {
                     $parms['class'] = $modname; //not for CSS ?!
                 } else {
@@ -900,7 +914,6 @@ class FormUtils
         $out = '<textarea';
         $out .= self::join_attrs($parms, [
          'type',
-         'modid',
          'value',
          'enablewysiwyg',
          'forcemodule',
@@ -951,7 +964,9 @@ class FormUtils
      * @param object $mod    The initiator module, a CMSModule derivative
      * @param array  $parms  Attribute(s)/property(ies) to be included in
      *  the element, each member like name=>value. Any name may be numeric,
-     *  in which case only the value is used. Must include at least 'action'
+     *  in which case only the value is used. Must include at least 'action'.
+     *  Relevant members will become form-attributes, others will become
+     *  hidden-inputs.
      *
      * @return string
      */
@@ -971,9 +986,9 @@ class FormUtils
 
         extract($parms);
 
-        $modid = (!empty($modid)) ? sanitizeVal($modid) : '';
-        if ($modid === '') {
-            $modid = 'm1_';
+        $getid = (!empty($getid)) ? sanitizeVal($getid) : '';
+        if ($getid === '') {
+            $getid = 'm1_';
         }
 
         $idsuffix = (!empty($idsuffix)) ? sanitizeVal($idsuffix) : '';
@@ -992,9 +1007,9 @@ class FormUtils
 
         if (!empty($returnid) || (isset($returnid) && $returnid === 0)) {
             $returnid = (int)$returnid; //OR filter_var() ?
-            $content_obj = AppSingle::App()->get_content_object();
+            $content_obj = SingleItem::App()->get_content_object();
             $goto = ($content_obj) ? $content_obj->GetURL() : 'index.php';
-            if (strpos($goto, ':') !== false && AppSingle::App()->is_https_request()) {
+            if (strpos($goto, ':') !== false && SingleItem::App()->is_https_request()) {
                 //TODO generally support the websocket protocol 'wss' : 'ws'
                 $goto = str_replace('http:', 'https:', $goto);
             }
@@ -1021,7 +1036,6 @@ class FormUtils
         $excludes = array_merge([
             'name',
             'id',
-            'modid',
             'idsuffix',
             'returnid',
             'action',
@@ -1034,11 +1048,11 @@ class FormUtils
         $out .= self::join_attrs($parms, $excludes);
         $out .= '>'."\n".
         '<div class="hidden">'."\n".
-        '<input type="hidden" name="mact" value="'.$mod->GetName().','.$modid.','.$action.','.($inline?1:0).'" />'."\n";
+        '<input type="hidden" name="mact" value="'.$mod->GetName().','.$getid.','.$action.','.($inline?1:0).'" />'."\n";
         if (isset($returnid) && $returnid != '') { //NB not strict - it may be null
-            $out .= '<input type="hidden" name="'.$modid.'returnid" value="'.$returnid.'" />'."\n";
+            $out .= '<input type="hidden" name="'.$getid.'returnid" value="'.$returnid.'" />'."\n";
             if ($inline) {
-                $config = AppSingle::Config();
+                $config = SingleItem::Config();
                 $out .= '<input type="hidden" name="'.$config['query_var'].'" value="'.$returnid.'" />'."\n";
             }
         } elseif (isset($_SESSION[CMS_USER_KEY])) { //there is a logged-in user TODO or this is a login-related form
@@ -1060,15 +1074,15 @@ class FormUtils
             'action',
             'method',
             'inline',
-            'extraparms'
+            'extraparms',
             ], $plain);
         foreach ($parms as $key=>$val) {
 //          $val = TODOfunc($val); urlencode ? serialize?
             if (!in_array($key, $excludes)) {
                 if (is_array($val)) {
-//TODO e.g. serialize $out .= '<input type="hidden" name="'.$modid.$key.'" value="'.TODO.'" />'."\n";
+//TODO e.g. serialize $out .= '<input type="hidden" name="'.$getid.$key.'" value="'.TODO.'" />'."\n";
                 } else {
-                    $out .= '<input type="hidden" name="'.$modid.$key.'" value="'.$val.'" />'."\n";
+                    $out .= '<input type="hidden" name="'.$getid.$key.'" value="'.$val.'" />'."\n";
                 }
             }
         }
@@ -1109,7 +1123,7 @@ class FormUtils
         }
 
         $out = '<fieldset';
-        $out .= self::join_attrs($parms, ['modid',]);
+        $out .= self::join_attrs($parms, []);
         $out .= '>'.PHP_EOL;
         if (!empty($legend) || (isset($legend) && is_numeric($legend))) {
             $out .= '<legend';
@@ -1146,14 +1160,14 @@ class FormUtils
      * @param array  $parms  Attribute(s)/property(ies) to be included in
      *  the element, each member like name=>value. Any name may be numeric,
      *  in which case only the value is used.
-     *  Must include at least 'action'
+     *  Must include at least 'action'.
      *
      * @return string
      */
     public static function create_action_link($mod, array $parms) : string
     {
         //must have these $parms, each with a usable value
-        $err = self::must_attrs($parms, ['action' => 'c','modid' => 'c']);
+        $err = self::must_attrs($parms, ['action' => 'c','getid' => 'c']);
         if (!$err) {
             $err = self::clean_attrs($parms);
         }
@@ -1168,30 +1182,31 @@ class FormUtils
         //optional
         if (!empty($returnid)) {
             $returnid = (int)$returnid;
-        } elseif (isset($returnid) && $returnid == 0) {
+        } elseif (isset($returnid) && $returnid === 0) {
             $returnid = 0;
         } else {
             $returnid = '';
         }
-
         if (empty($params) || !is_array($params)) {
             $params = [];
+        }
+        if (!isset($id)) {
+            $id = ''; // probably unused, but preserves PHP's happiness
         }
 
         $prettyurl = (!(empty($prettyurl) || $prettyurl == ':NOPRETTY:')) ? preg_replace('~[^\w/]~', '', $prettyurl) : '';
 
-        $out = $mod->create_url($modid, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl, $format ?? 0);
+        $out = $mod->create_url($getid, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl, !empty($relative), ($format ?? 0));
 
         if (empty($onlyhref)) {
             $out = '<a href="' . $out . '"';
             if (!empty($warn_message)) {
-                if (empty($modid)) {
+                if (empty($getid)) {
                     $parms['id'] = $id = 'alink'.Crypto::random_string(5, true);
                 }
             }
             $out .= self::join_attrs($parms, [
             'id',
-            'modid',
             'action',
             'returnid',
             'inline',
@@ -1228,17 +1243,16 @@ EOS;
      *
      * @param object $mod    The initiator module, a CMSModule derivative
      * @param array  $parms  Attribute(s)/property(ies) to be included in
-     *  the element, each member like 'name'=>'value', may include:
-     *  string $htmlid The id-attribute to be applied to the created element
-     *  string $modid The id given to the module on execution
-     *  string $id An alternate for either of the above id's
-     *  mixed  $returnid The id to eventually return to, '' or int > 0
-     *  string $contents The activatable text for the displayed link
-     *  string TODO support activatable image too
-     *  array  $params An array of paramters to be included in the URL of the link. Each member like $key=>$value.
-     *  bool   $onlyhref A flag to determine if only the href section should be returned
+     *  the element, each member like 'name'=>value, may include:
+     *  htmlid   string The id-attribute to be applied to the created element
+     *  getid    string Submitted-variable name-prefix
+     *  id       string An alternate for either of the above id's
+     *  returnid mixed The page-id (if any) to eventually return to, '' or int > 0
+     *  contents string The activatable text for the displayed link
+     *  params   array of paramters to be included in the URL of the link. Each member like $key=>$value.
+     *  onlyhref bool Flag to determine if only the href section should be returned
      *  others deemed relevant and provided by the caller
-     *
+     *  TODO support activatable image
      * @return string
      */
     public static function create_return_link($mod, array $parms) : string
@@ -1263,13 +1277,12 @@ EOS;
             $params = [];
         }
         // create the url
-        $out = $mod->create_pageurl($modid, $returnid, $params, false); //i.e. not $for_display
+        $out = $mod->create_pageurl($getid, $returnid, $params, false); //i.e. not $for_display
 
         if ($out) {
             if (!$onlyhref) {
                 $out = '<a href="'.$out.'"';
                 $out .= self::join_attrs($parms, [
-                 'modid',
                  'returnid',
                  'contents',
                  'onlyhref',
@@ -1308,10 +1321,10 @@ EOS;
         extract($parms);
 
         $out = '<a href="';
-        $config = AppSingle::Config();
+        $config = SingleItem::Config();
         if ($config['url_rewriting'] == 'mod_rewrite') {
             // mod_rewrite
-            $contentops = AppSingle::ContentOperations();
+            $contentops = SingleItem::ContentOperations();
             $alias = $contentops->GetPageAliasFromID($pageid);
             if ($alias) {
                 $out .= CMS_ROOT_URL.'/'.$alias.($config['page_extension'] ?? '.shtml');
@@ -1327,8 +1340,7 @@ EOS;
         $out .= '"';
         $out .= self::join_attrs($parms, [
          'pageid',
-         'modid',
-         'contents',
+         'contents'
         ]);
         $out .= '>'.$contents.'</a>';
         return $out;
@@ -1377,7 +1389,7 @@ EOS;
             $out = '<span';
         }
 
-        $out .= self::join_attrs($parms, ['href', 'forcewidth', 'contents', 'helptext',]);
+        $out .= self::join_attrs($parms, ['href', 'forcewidth', 'contents', 'helptext']);
 
         $helptext = specialize($helptext);
         $out .= ' title="'.$helptext.'"';

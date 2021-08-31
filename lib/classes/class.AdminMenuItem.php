@@ -23,6 +23,7 @@ namespace CMSMS;
 
 use CMSModule;
 use CMSMS\Utils;
+use LogicException;
 
 /**
  * @since 2.99
@@ -56,7 +57,7 @@ final class AdminMenuItem
      */
     public function __get($k)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new Exception('Invalid key: '.$k.' for '.self::class.' object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new LogicException('Property \''.$k.'\' is not valid in '.__CLASS__.' objects');
         switch( $k ) {
         case 'url':
             if( isset($this->_data[$k]) && $this->_data[$k] ) return $this->_data[$k];
@@ -64,8 +65,7 @@ final class AdminMenuItem
             if( $this->module && $this->action ) {
                 $mod = Utils::get_module($this->module);
                 if( $mod ) {
-                    $url = $mod->create_url('m1_',$this->action);
-                    return $url;
+                    return $mod->create_action_url('m1_',$this->action);
                 }
             }
             break;
@@ -75,13 +75,12 @@ final class AdminMenuItem
         }
     }
 
-
     /**
      * @ignore
      */
     public function __set($k,$v)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new Exception('Invalid key: '.$k.' for '.self::class.' object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new LogicException('Property \''.$k.'\' is not valid in '.__CLASS__.' objects');
         $this->_data[$k] = $v;
     }
 
@@ -90,7 +89,7 @@ final class AdminMenuItem
      */
     public function __isset($k)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new Exception('Invalid key: '.$k.' for '.self::class.' object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new LogicException('Property \''.$k.'\' is not valid in '.__CLASS__.' objects');
         return isset($this->_data[$k]);
     }
 
@@ -99,8 +98,8 @@ final class AdminMenuItem
      */
     public function __unset($k)
     {
-        if( !in_array($k,self::ITEMKEYS) ) throw new Exception('Invalid key: '.$k.' for '.self::class.' object');
-        throw new Exception('Cannot unset data from a AdminMenuItem object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new LogicException('Property \''.$k.'\' is not valid in '.__CLASS__.' objects');
+        throw new LogicException('Cannot unset properties of a '.__CLASS__.' object');
     }
 
     /**
@@ -177,7 +176,7 @@ final class AdminMenuItem
             $obj->priority = 50;
             $obj->section = $mod->GetAdminSection();
             $obj->title = $mod->GetFriendlyName();
-            $obj->url = $mod->create_url('m1_',$action);
+            $obj->url = $mod->create_action_url('m1_',$action);
             return $obj;
         }
     }

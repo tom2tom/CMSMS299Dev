@@ -31,7 +31,7 @@ if (version_compare($oldversion,'1.50') < 1) {
     $this->RegisterSmartyPlugin('search','function','function_plugin');
 
     $me = $this->GetName();
-    if (AppState::test_state(AppState::STATE_INSTALL)) {
+    if (AppState::test(AppState::INSTALL)) {
         $userid = 1; // hardcode to first user
     } else {
         $userid = get_userid();
@@ -103,13 +103,13 @@ if (version_compare($oldversion,'1.51') < 0) {
     ];
     $sql = 'ALTER TABLE %s ENGINE=InnoDB'; //KEY_BLOCK_SIZE=8 ROW_FORMAT=COMPRESSED support transactions
     foreach ($tables as $table) {
-        $db->Execute(sprintf($sql, $table));
+        $db->execute(sprintf($sql, $table));
     }
 }
 
 if (version_compare($oldversion,'1.52') < 0) {
     $dict = new DataDictionary($db);
-    $sqlarray = $dict->CreateIndexSQL('index_search_item', CMS_DB_PREFIX.'module_search_index', 'item_id');
+    $sqlarray = $dict->CreateIndexSQL('i_itemid', CMS_DB_PREFIX.'module_search_index', 'item_id');
     $dict->ExecuteSQLArray($sqlarray);
 }
 

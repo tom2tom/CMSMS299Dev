@@ -20,25 +20,20 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//use CMSMS\SysDataCache;
-//use CMSMS\IMultiEditor;
 use CMSMS\AdminTheme;
 use CMSMS\AdminUtils;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\CoreCapabilities;
 use CMSMS\Error403Exception;
 use CMSMS\HookOperations;
-use CMSMS\ModuleOperations;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use CMSMS\Utils;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize_array;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -48,15 +43,15 @@ if (isset($_POST['cancel'])) {
 }
 
 $userid = get_userid();
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if (!check_permission($userid, 'Manage My Settings')) {
 //TODO some pushed popup $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-$userobj = AppSingle::UserOperations()->LoadUserByID($userid); // <- Safe : if get_userid() fails, it redirects automatically to login.
-$db = AppSingle::Db();
+$userobj = SingleItem::UserOperations()->LoadUserByID($userid); // <- Safe : if get_userid() fails, it redirects automatically to login.
+$db = SingleItem::Db();
 
 if (isset($_POST['submit'])) {
     /*
@@ -106,7 +101,7 @@ if (isset($_POST['submit'])) {
     UserParams::set_for_user($userid, 'paging', $paging);
     if ($syntaxer !== null) {
         if (strpos($syntaxer, '::') !== false) {
-            $parts = explode('::', $syntaxer);
+            $parts = explode('::', $syntaxer, 2);
             UserParams::set_for_user($userid, 'syntaxhighlighter', $parts[0]); //module
             if ($parts[0] != $parts[1]) { UserParams::set_for_user($userid, 'syntax_type', $parts[1]); } //specific editor
         } else {
@@ -121,7 +116,7 @@ if (isset($_POST['submit'])) {
     UserParams::set_for_user($userid, 'syntax_theme', $syntaxtheme);
     if ($wysiwyg !== null) {
         if (strpos($wysiwyg, '::') !== false) {
-            $parts = explode('::', $wysiwyg);
+            $parts = explode('::', $wysiwyg, 2);
             UserParams::set_for_user($userid, 'wysiwyg', $parts[0]);    //module
             if ($parts[0] != $parts[1]) { UserParams::set_for_user($userid, 'wysiwyg_type', $parts[1]); }//specific editor
         } else {
@@ -136,15 +131,15 @@ if (isset($_POST['submit'])) {
     UserParams::set_for_user($userid, 'wysiwyg_theme', $wysiwygtheme);
 
     // Audit, message, cleanup
-    audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
+    audit($userid, 'Admin User '.$userobj->username, 'Edited');
     $themeObject->RecordNotice('success', lang('prefsupdated'));
 //    AdminUtils::clear_cached_files();
-//    AppSingle::SysDataCache()->release('IF ANY');
+// TODO  SingleItem::LoadedData()->delete('menu_modules', $userid);
 
     if ($themenow != $admintheme) {
         redirect(basename(__FILE__).$urlext); //go refresh stuff
     }
-} // end of prefs submit
+} // prefs submit
 
 /*
  * Get current preferences
@@ -173,21 +168,28 @@ if ($wysiwygtype) { $wysiwyg .= '::'.$wysiwygtype; }
 //TODO in/UI by relevant module
 $wysiwygtheme = UserParams::get_for_user($userid, 'wysiwyg_theme');
 
-$modules = ModuleOperations::get_modules_with_capability(CoreCapabilities::USER_SETTINGS);
-if ($modules) {
+$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::USER_SETTINGS);
+if ($modnames) {
     // load those modules if not already done
-    foreach ($modules as $i => $modname) {
-        $modules[$i] = Utils::get_module($modname);
+    for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
+        $modnames[$i] = Utils::get_module($modnames[$i]);
+        if ($modnames[$i]) { $modnames[$i]->InitializeAdmin(); }
     }
     $list = HookOperations::do_hook_accumulate('ExtraUserSettings');
-    foreach ($list as $bundle) {
-        // next level is detail for that contributor
-        foreach ($bundle as $propname => $parts) {
-            // $parts = ['content' => displayable stuff, 'tab' => name, 'head' => page-header stuff if any, 'foot' => page-footer js if sny, 'validate' => post-submit validation PHP if any]
-            //remember $propname, $parts['validate'] (probably a callable) for post-submit processing
-            //$parts['head', 'foot'] if any append to corresponding page-construct accumulators
-            //$parts['content'] accumulate for sending to smarty
-            $here = 1;
+    // assist the garbage-collector
+    for ($i = 0; $i < $n; ++$i) {
+        $modnames[$i] = null;
+    }
+    if ($list) {
+        foreach ($list as $bundle) {
+            // next level is detail for that contributor
+            foreach ($bundle as $propname => $parts) {
+                // $parts = ['content' => displayable stuff, 'tab' => name, 'head' => page-header stuff if any, 'foot' => page-footer js if sny, 'validate' => post-submit validation PHP if any]
+                //remember $propname, $parts['validate'] (probably a callable) for post-submit processing
+                //$parts['head', 'foot'] if any append to corresponding page-construct accumulators
+                //$parts['content'] accumulate for sending to smarty
+                $here = 1;
+            }
         }
     }
 }
@@ -195,32 +197,30 @@ if ($modules) {
 /*
  * Build page
  */
-
-$contentops = AppSingle::ContentOperations();
-$modops = AppSingle::ModuleOperations();
-$smarty = AppSingle::Smarty();
+$contentops = SingleItem::ContentOperations();
+$smarty = SingleItem::Smarty();
 
 // Rich-text (html) editors
-$tmp = $modops->GetCapableModules(CoreCapabilities::WYSIWYG_MODULE);
 $editors = [];
-if ($tmp) {
-    for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
-        $ob = Utils::get_module($tmp[$i]);
-        if (method_exists($ob, 'ListEditors')) { //OR ($ob instanceof IMultiEditor)
-            $all = $ob->ListEditors();
+$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::WYSIWYG_MODULE);
+if ($modnames) {
+    for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
+        $mod = Utils::get_module($modnames[$i]);
+        if (method_exists($mod, 'ListEditors')) { //OR ($mod instanceof IMultiEditor)
+            $all = $mod->ListEditors();
             foreach ($all as $editor => $val) {
                 $one = new stdClass();
-                $one->label = $ob->Lang(strtolower($editor).'_publicname');
+                $one->label = $mod->Lang(strtolower($editor).'_publicname');
                 $one->value = $val; // as module::editor
-                list($modname, $edname) = explode('::', $val);
-                list($realm, $key) = $ob->GetMainHelpKey($edname);
+                list($modname, $edname) = explode('::', $val, 2);
+                list($realm, $key) = $mod->GetMainHelpKey($edname);
                 if ($key) {
                     if (!$realm) { $realm = $modname; }
                     $one->mainkey = $realm.'__'.$key;
                 } else {
                     $one->mainkey = null;
                 }
-                list($realm, $key) = $ob->GetThemeHelpKey($edname);
+                list($realm, $key) = $mod->GetThemeHelpKey($edname);
                 if ($key) {
                     if (!$realm) { $realm = $modname; }
                         $one->themekey = $realm.'__'.$key;
@@ -232,11 +232,11 @@ if ($tmp) {
             }
         } else {
             $one = new stdClass();
-            $one->label = $ob->GetFriendlyName(); //TODO ->Lang(..._publicname if present
-            $one->value = $tmp[$i];
+            $one->label = $mod->GetFriendlyName(); //TODO ->Lang(..._publicname if present
+            $one->value = $modnames[$i];
             $one->mainkey = null; //TODO ibid if any
             $one->themekey = null; //TODO ditto
-            if ($tmp[$i] == $wysiwyg) { $one->checked = true; }
+            if ($modnames[$i] == $wysiwyg) { $one->checked = true; }
             $editors[] = $one;
         }
     }
@@ -254,25 +254,25 @@ $smarty -> assign('wysiwyg_opts', $editors);
 
 // Syntax-highlight editors
 $editors = [];
-$tmp = $modops->GetCapableModules(CoreCapabilities::SYNTAX_MODULE);
-if ($tmp) {
-    for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
-        $ob = Utils::get_module($tmp[$i]);
-        if (method_exists($ob, 'ListEditors')) { //OR ($ob instanceof IMultiEditor)
-            $all = $ob->ListEditors();
+$modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::SYNTAX_MODULE);
+if ($modnames) {
+    for ($i = 0, $n = count($modnames); $i < $n; ++$i) {
+        $mod = Utils::get_module($modnames[$i]);
+        if (method_exists($mod, 'ListEditors')) { //OR ($mod instanceof IMultiEditor)
+            $all = $mod->ListEditors();
             foreach ($all as $editor => $val) {
                 $one = new stdClass();
-                $one->label = $ob->Lang(strtolower($editor).'_publicname');
+                $one->label = $mod->Lang(strtolower($editor).'_publicname');
                 $one->value = $val; // as module::editor
-                list($modname, $edname) = explode('::', $val);
-                list($realm, $key) = $ob->GetMainHelpKey($edname);
+                list($modname, $edname) = explode('::', $val, 2);
+                list($realm, $key) = $mod->GetMainHelpKey($edname);
                 if ($key) {
                     if (!$realm) { $realm = $modname; }
                     $one->mainkey = $realm.'__'.$key;
                 } else {
                     $one->mainkey = null;
                 }
-                list($realm, $key) = $ob->GetThemeHelpKey($edname);
+                list($realm, $key) = $mod->GetThemeHelpKey($edname);
                 if ($key) {
                     if (!$realm) { $realm = $modname; }
                     $one->themekey = $realm.'__'.$key;
@@ -282,13 +282,13 @@ if ($tmp) {
                 if ($modname == $syntaxmodule && $edname == $syntaxtype) { $one->checked = true; }
                 $editors[] = $one;
             }
-        } elseif ($tmp[$i] != 'MicroTiny') { //that's only for html :(
+        } elseif ($modnames[$i] != 'MicroTiny') { //that's only for html :(
             $one = new stdClass();
-            $one->label = $ob->GetFriendlyName(); //TODO
-            $one->value = $tmp[$i].'::'.$tmp[$i];
+            $one->label = $mod->GetFriendlyName(); //TODO
+            $one->value = $modnames[$i].'::'.$modnames[$i];
             $one->mainkey = null; //TODO
             $one->themekey = null; //TODO
-            if ($tmp[$i] == $syntaxer || $one->value == $syntaxer) { $one->checked = true; }
+            if ($modnames[$i] == $syntaxer || $one->value == $syntaxer) { $one->checked = true; }
             $editors[] = $one;
         }
     }
@@ -314,10 +314,11 @@ if (count($tmp) < 2) {
 $smarty->assign('themes_opts', $tmp);
 
 // Modules
-$allmodules = $modops->GetInstalledModules();
-$modules = [];
-foreach ((array)$allmodules as $onemodule) {
-    $modules[$onemodule] = $onemodule;
+$availmodules = SingleItem::ModuleOperations()->GetInstalledModules();
+if ($availmodules) {
+    $modules = array_combine($availmodules, $availmodules);
+} else {
+    $modules = [];
 }
 
 // Content Pages
@@ -400,7 +401,6 @@ EOS;
 add_page_foottext($out);
 
 $content = $smarty->fetch('usersettings.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

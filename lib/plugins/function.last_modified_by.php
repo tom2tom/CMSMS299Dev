@@ -20,16 +20,16 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 function smarty_function_last_modified_by($params, $template)
 {
 	$out = lang('unknown');
-	$content_obj = AppSingle::App()->get_content_object();
+	$content_obj = SingleItem::App()->get_content_object();
     if( is_object($content_obj) ) {
 		$id = $content_obj->LastModifiedBy();
-	    if( $id > -1) {
-			$thisuser = AppSingle::UserOperations()->LoadUserByID($id);
+	    if( $id > 0) {
+			$thisuser = SingleItem::UserOperations()->LoadUserByID($id);
 			if( $thisuser ) {
 				if( !empty($params['format']) ) {
 					$format = $params['format'];

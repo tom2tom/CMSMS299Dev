@@ -20,18 +20,16 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -49,7 +47,7 @@ if (!$access) {
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 $action = '';
 $description = '';
 $event = '';
@@ -130,13 +128,15 @@ if (1) { //$access) {
 		} // switch
 	} // not adding
 
+	$modops = SingleItem::ModuleOperations();
+
 	if ($sender == 'Core') {
 		$sendername = lang('core');
 		$description = Events::GetEventDescription($event);
 	} else {
-		$objinstance = Utils::get_module($sender);
-		$sendername  = $objinstance->GetFriendlyName();
-		$description = $objinstance->GetEventDescription($event);
+		$mod = $modops->get_module_instance($sender);
+		$sendername  = $mod->GetFriendlyName();
+		$description = $mod->GetEventDescription($event);
 	}
 
 	// get the handlers for this event
@@ -145,18 +145,17 @@ if (1) { //$access) {
 	// get all available event handlers
 	$allhandlers = [];
 	// user-defined tags (lowest priority, may be replaced by same-name below)
-	$ops = AppSingle::UserTagOperations();
+	$ops = SingleItem::UserTagOperations();
 	$plugins = $ops->ListUserTags(); //UDTfiles included
 	foreach ($plugins as $name) {
 		$allhandlers[$name] = $name;
 	}
 	// module-tags
-	$ops = AppSingle::ModuleOperations();
-	$allmodules = $ops->GetInstalledModules(); //TODO use module_meta data
-	foreach ($allmodules as $name) {
+	$availmodules = $modops->GetInstalledModules();
+	foreach ($availmodules as $name) {
 		if ($name == $sendername) continue;
-		$modinst = $ops->get_module_instance($name);
-		if ($modinst && $modinst->HandlesEvents()) {
+		$mod = $modops->get_module_instance($name);
+		if ($mod && $mod->HandlesEvents()) {
 			$allhandlers[$name] = 'm:'.$name;
 		}
 	}
@@ -172,7 +171,7 @@ if (1) { //$access) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign([
 	'access' => $access,
 	'allhandlers' => $allhandlers,
@@ -190,7 +189,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('editevent.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminMenuItem;
-use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
+use CMSMS\SingleItem;
 use FileManager\Utils;
 use FilePicker\Utils as PickerUtils;
 
@@ -47,7 +47,7 @@ final class FileManager extends CMSModule
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return TRUE; }
 //    public function LazyLoadFrontend() { return TRUE; }
-    public function MinimumCMSVersion() { return '2.2.2'; }
+    public function MinimumCMSVersion() { return '2.99'; }
     public function UninstallPostMessage() { return $this->Lang('uninstalled'); }
     public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
     public function VisibleToAdminUser() { return $this->AccessAllowed(); }
@@ -89,7 +89,7 @@ final class FileManager extends CMSModule
 
     public function GetModeTable($id, $permissions)
     {
-        $smarty=AppSingle::Smarty();
+        $smarty=SingleItem::Smarty();
         $tpl = $smarty->createTemplate($this->GetTemplateResource('modetable.tpl')); //, null, null, $smarty);
 
         $tpl->assign('ownertext', $this->Lang('owner'))
@@ -193,11 +193,9 @@ final class FileManager extends CMSModule
         if (file_exists($imagepath)) {
             $imageurl=CMS_ROOT_URL.'/'.$this->Slashes($path).'/thumb_'.$file['name'];
             $image='<img src="'.$imageurl.'" class="listicon" alt="'.$file['name'].'" title="'.$file['name'].'" />';
-            $url = $this->create_url($id, 'view', '', ['file'=>$this->encodefilename($file['name'])]);
+            $url = $this->create_action_url($id, 'view', ['file'=>$this->encodefilename($file['name'])]);
             //$result="<a href=\"".$file['url']."\" target=\"_blank\">";
-            $result='<a href="'.$url.'" target="_blank">';
-            $result.=$image;
-            $result.='</a>';
+            $result='<a href="'.$url.'" target="_blank">'.$image.'</a>';
             return $result;
         }
     }
@@ -279,7 +277,7 @@ final class FileManager extends CMSModule
             $obj->action = 'admin_settings';
             $obj->name = 'set';
             $obj->icon = false;
-            $obj->url = $this->create_url('m1_', $obj->action);
+            $obj->url = $this->create_action_url('m1_', $obj->action);
             $out[] = $obj;
         }
 

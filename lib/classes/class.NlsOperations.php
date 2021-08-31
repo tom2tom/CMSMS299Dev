@@ -22,10 +22,10 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\LanguageDetector;
 use CMSMS\Nls;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use const CMS_ROOT_PATH;
 use const CMSSAN_NONPRINT;
@@ -39,14 +39,13 @@ use function get_userid;
  * This class does not handle translation strings.
  *
  * @final
- * @author Robert Campbell
  * @since 1.11
  * @package CMS
  * @license GPL
  */
 final class NlsOperations
 {
-	// static properties here >> StaticProperties class ?
+	// static properties here >> SingleItem property|ies ?
 	/**
 	 * @ignore
 	 */
@@ -90,7 +89,7 @@ final class NlsOperations
 	{
 		if( !is_array(self::$_nls) ) {
 			self::$_nls = [];
-			$config = AppSingle::Config();
+			$config = SingleItem::Config();
 			$nlsdir = cms_join_path(CMS_ROOT_PATH,'lib','nls');
 			$langdir = cms_join_path(CMS_ROOT_PATH,$config['admin_dir'],'lang');
 			$files = glob($nlsdir.DIRECTORY_SEPARATOR.'*nls.php');
@@ -174,7 +173,7 @@ final class NlsOperations
 	{
 		$curlang = ( self::$_cur_lang != '' ) ? self::$_cur_lang : '';
 
-		if( $lang == '' && AppSingle::App()->is_frontend_request() && is_object(self::$_fe_language_detector) ) {
+		if( $lang == '' && SingleItem::App()->is_frontend_request() && is_object(self::$_fe_language_detector) ) {
 			$lang = self::$_fe_language_detector->find_language();
 		}
 		if( $lang != '' ) {
@@ -209,7 +208,7 @@ final class NlsOperations
 		if( isset(self::$_cur_lang) ) {
 			return self::$_cur_lang;
 		}
-		if( is_object(self::$_fe_language_detector) && AppSingle::App()->is_frontend_request() ) {
+		if( is_object(self::$_fe_language_detector) && SingleItem::App()->is_frontend_request() ) {
 			return self::$_fe_language_detector->find_language();
 		}
 		return self::get_default_language();
@@ -238,7 +237,7 @@ final class NlsOperations
 		}
 		self::_load_nls();
 
-		if( AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_STYLESHEET | AppState::STATE_ASYNC_JOB | AppState::STATE_INSTALL) ) {
+		if( AppState::test_any(AppState::ADMIN_PAGE | AppState::ASYNC_JOB | AppState::INSTALL | AppState::STYLESHEET) ) {
 			$lang = self::get_admin_language();
 		}
 		else {
@@ -275,7 +274,7 @@ final class NlsOperations
 	protected static function get_admin_language() : string
 	{
 		$uid = $lang = null;
-		if( !AppState::test_state(AppState::STATE_LOGIN_PAGE) ) {
+		if( !AppState::test(AppState::LOGIN_PAGE) ) {
 			$uid = get_userid(false);
 			if( $uid ) {
 				$lang = UserParams::get_for_user($uid,'default_cms_language');
@@ -392,7 +391,7 @@ final class NlsOperations
 			return self::$_encoding;
 		}
 		// is it specified in the config.php?
-		$config = AppSingle::Config();
+		$config = SingleItem::Config();
 		if( !empty($config['default_encoding']) ) {
 			return strtoupper($config['default_encoding']);
 		}
@@ -428,7 +427,7 @@ final class NlsOperations
 	protected static function set_locale()
 	{
 		static $_locale_set = FALSE;
-		$config = AppSingle::Config();
+		$config = SingleItem::Config();
 
 		$locale = '';
 		if( isset($config['locale']) && $config['locale'] != '' ) {

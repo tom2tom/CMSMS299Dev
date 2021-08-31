@@ -15,23 +15,23 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\internal;
 
-use CmsEditContentException;
+use CMSMS\EditContentException;
 use Smarty_Internal_Template;
 use SmartyException;
 use function startswith;
 
 /**
- * Currently used only by CMSContentManager::Content class, for
+ * Currently used only by ContentManager::Content class, for
  * backend-page or frontend-page-preview
  */
 class page_template_parser extends Smarty_Internal_Template
 {
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
     /**
      * @ignore
      * @var int
@@ -53,7 +53,7 @@ class page_template_parser extends Smarty_Internal_Template
 
     /**
      * Class constructor.
-     * Used only by CMSContentManager::content class i.e. for backend-page or
+     * Used only by ContentManager::content class i.e. for backend-page or
      * frontend-page-preview. No smarty caching.
      * @param string $template_resource template identifier
      * @param mixed $smarty
@@ -115,8 +115,8 @@ class page_template_parser extends Smarty_Internal_Template
     public function defaultPluginHandler(string $name, string $type, $template, &$callback, &$script, &$cachable) : bool
     {
         if ($type == 'compiler') {
-            $callback = [self::class,'_dflt_plugin'];
-            $cachable = false;
+            $callback = [__CLASS__,'_dflt_plugin'];
+            $cachable = false; // TODO support in-context control of this
             return true;
         }
 
@@ -179,7 +179,7 @@ class page_template_parser extends Smarty_Internal_Template
             $tmp[] = "'$k'=>".$v;
         }
         $ptext = implode(',', $tmp);
-        return '<?php \\CMSMS\\internal\\content_plugins::fetch_contentblock(['.$ptext.'],$_smarty_tpl); ?>';
+        return '<?php \CMSMS\internal\content_plugins::fetch_contentblock(['.$ptext.'],$_smarty_tpl); ?>';
     }
 */
     /**
@@ -210,7 +210,7 @@ class page_template_parser extends Smarty_Internal_Template
             'usewysiwyg'=>true, //CHECKME was string 'true'
         ];
         foreach ($params as $key => $value) {
-            $value = trim($value, '"\'');
+            $value = trim($value, '\'"');
             if (startswith($key, 'data-')) {
                 $rec[$key] = $value;
             } else {
@@ -243,7 +243,7 @@ class page_template_parser extends Smarty_Internal_Template
         }
 /*
         // check for duplicate
-        if( isset(self::$_contentBlocks[$rec['name']]) ) throw new CmsEditContentException('Duplicate content block: '.$rec['name']);
+        if( isset(self::$_contentBlocks[$rec['name']]) ) throw new CMSMS\EditContentException('Duplicate content block: '.$rec['name']);
 */
         // set priority
         if (empty($rec['priority'])) {
@@ -259,12 +259,12 @@ class page_template_parser extends Smarty_Internal_Template
      *
      * @param array $params
      * @param mixed $template UNUSED
-     * @throws CmsEditContentException
+     * @throws EditContentException
      */
     public static function compile_imageblock(array $params, $template)
     {
         if (!isset($params['block']) || empty($params['block'])) {
-            throw new CmsEditContentException('{content_image} tag requires block parameter');
+            throw new EditContentException('{content_image} tag requires block parameter');
         }
 
         $rec = [
@@ -288,7 +288,7 @@ class page_template_parser extends Smarty_Internal_Template
                 $key = 'name';
             }
             if (isset($rec[$key])) {
-                $rec[$key] = trim($value, "'\"");
+                $rec[$key] = trim($value, '\'"');
             }
         }
 
@@ -320,12 +320,12 @@ class page_template_parser extends Smarty_Internal_Template
      *
      * @param array $params
      * @param mixed $template UNUSED
-     * @throws CmsEditContentException
+     * @throws EditContentException
      */
     public static function compile_moduleblock(array $params, $template)
     {
         if (!isset($params['block']) || empty($params['block'])) {
-            throw new CmsEditContentException('{content_module} tag requires block parameter');
+            throw new EditContentException('{content_module} tag requires block parameter');
         }
 
         $rec = [
@@ -367,7 +367,7 @@ class page_template_parser extends Smarty_Internal_Template
         }
         $rec['params'] = $parms;
         if ($rec['module'] == '') {
-            throw new CmsEditContentException('Missing module param for content_module tag');
+            throw new EditContentException('Missing module param for content_module tag');
         }
 
         // set priority
@@ -387,7 +387,7 @@ class page_template_parser extends Smarty_Internal_Template
      */
     public static function compile_contenttext(array $params, $template)
     {
-        //if( !isset($params['block']) || empty($params['block']) ) throw new \CmsEditContentException('{content_text} smarty block tag requires block parameter');
+        //if( !isset($params['block']) || empty($params['block']) ) throw new \CMSMS\EditContentException('{content_text} smarty block tag requires block parameter');
 
         $rec = [
             'type'=>'static',
@@ -411,7 +411,7 @@ class page_template_parser extends Smarty_Internal_Template
                 $key = 'name';
             }
             if (isset($rec[$key])) {
-                $rec[$key] = trim($value, "'\"");
+                $rec[$key] = trim($value, '\'"');
             }
         }
 

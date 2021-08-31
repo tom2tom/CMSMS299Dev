@@ -22,10 +22,10 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSModule;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\HookOperations;
-use CMSMS\SysDataCacheDriver;
+use CMSMS\LoadedDataType;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
 use Throwable;
 use const CMS_DB_PREFIX;
@@ -40,7 +40,7 @@ use function lang_by_realm;
  */
 final class Events
 {
-	// static properties here >> StaticProperties class ?
+	// static properties here >> SingleItem property|ies ?
 	/**
 	 * Cache data for 'static' event-handlers (stored in database)
 	 * @ignore
@@ -67,20 +67,20 @@ final class Events
 	 * Cache initiator called on demand
 	 * @ignore
 	 */
-	public static function setup()
+	public static function load_setup()
 	{
-		$obj = new SysDataCacheDriver(self::class, function() {
-			$db = AppSingle::Db();
+		$obj = new LoadedDataType('events', function() {
+			$db = SingleItem::Db();
 			$pref = CMS_DB_PREFIX;
 			$sql = <<<EOS
-SELECT e.event_id, eh.type, eh.class, eh.func, e.originator, e.event_name, eh.handler_order, eh.handler_id, eh.removable
+SELECT e.event_id, eh.type, eh.class, eh.method, e.originator, e.event_name, eh.handler_order, eh.handler_id, eh.removable
 FROM {$pref}event_handlers eh
 INNER JOIN {$pref}events e ON e.event_id = eh.event_id
 ORDER BY originator,event_name,handler_order
 EOS;
-			return $db->GetArray($sql);
+			return $db->getArray($sql);
 		});
-		AppSingle::SysDataCache()->add_cachable($obj);
+		SingleItem::LoadedData()->add_type($obj);
 	}
 
 	/**
@@ -92,17 +92,18 @@ EOS;
 	 */
 	public static function CreateEvent(string $originator, string $eventname) : bool
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$originator = trim($originator);
 		$eventname = trim($eventname);
 		$pref = CMS_DB_PREFIX;
+       	//just in case (originator,name) is not unique-indexed by the db
 		$sql = <<<EOS
 INSERT INTO {$pref}events (originator,event_name) SELECT ?,? FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM {$pref}events T WHERE T.originator=? AND T.event_name=?)
 EOS;
-		$dbr = $db->Execute($sql, [$originator, $eventname, $originator, $eventname]);
+		$dbr = $db->execute($sql, [$originator, $eventname, $originator, $eventname]);
 		if ($dbr) {
-			AppSingle::SysDataCache()->release(self::class);
+			SingleItem::LoadedData()->refresh('events');
 			return true;
 		}
 		return false;
@@ -118,11 +119,11 @@ EOS;
 	 */
 	public static function RemoveEvent(string $originator, string $eventname) : bool
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 
 		// get the id
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
-		$id = (int) $db->GetOne($sql, [$originator, $eventname]);
+		$id = (int) $db->getOne($sql, [$originator, $eventname]);
 		if ($id < 1) {
 			// query failed, event not found
 			return false;
@@ -130,13 +131,13 @@ EOS;
 
 		// delete all handlers
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=?';
-		$db->Execute($sql, [$id]); // ignore failed result
+		$db->execute($sql, [$id]); // ignore failed result
 
 		// then the event itself
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'events WHERE event_id=?';
-		$db->Execute($sql, [$id]); // ignore failed result
+		$db->execute($sql, [$id]); // ignore failed result
 
-		AppSingle::SysDataCache()->release(self::class);
+		SingleItem::LoadedData()->refresh('events');
 		return true;
 	}
 
@@ -149,7 +150,7 @@ EOS;
 	 */
 	public static function SendEvent(string $originator, string $eventname, $params = [])
 	{
-		if (AppState::test_state(AppState::STATE_INSTALL)) {
+		if (AppState::test(AppState::INSTALL)) {
 			return;
 		}
 		$results = self::ListEventHandlers($originator, $eventname);
@@ -159,7 +160,7 @@ EOS;
 			$mgr = null;
 			$smarty = null;
 			foreach ($results as $row) {
-				$handler = $row['func'];
+				$handler = $row['method'];
 				switch ($row['type']) {
 				  case 'M': //module
 					if (!empty($row['class'])) {
@@ -179,33 +180,33 @@ EOS;
 				  case 'U': //UDT
 					if (!empty($handler)) {
 						if ($mgr === null) {
-							$mgr = AppSingle::UserTagOperations();
+							$mgr = SingleItem::UserTagOperations();
 						}
-						debug_buffer($eventname.' event notice to user-plugin ' . $row['func']);
+						debug_buffer($eventname.' event notice to user-plugin ' . $row['method']);
 						$mgr->DoEvent($handler, $originator, $eventname, $params); //CHECKME $handler for UDTfiles
 					}
 					break;
 				  case 'P': //regular plugin
 					if ($smarty === null) {
-						$smarty = AppSingle::Smarty();
+						$smarty = SingleItem::Smarty();
 					}
 					if ($smarty->is_plugin($handler)) {
 						if (function_exists('smarty_function_'.$handler)) {
-							$func = 'smarty_function_'.$handler;
+							$fname = 'smarty_function_'.$handler;
 						} elseif (function_exists('smarty_nocache_function_'.$handler)) { //deprecated ?
-							$func = 'smarty_nocache_function_'.$handler;
+							$fname = 'smarty_nocache_function_'.$handler;
 						} else {
 							continue 2; //unlikely
 						}
-						$func($originator, $eventname, $params);
+						$fname($originator, $eventname, $params);
 					}
 					break;
 //				  case 'C': //callable
 				  default:
 					if ($handler && $row['class']) {
 						//TODO validate
-						$func = $row['class'].'::'.$handler;
-						$func($originator, $eventname, $params);
+						$fname = $row['class'].'::'.$handler;
+						$fname($originator, $eventname, $params);
 					}
 					break;
 				}
@@ -226,7 +227,7 @@ EOS;
 	 */
 	public static function ListEvents()
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$pref = CMS_DB_PREFIX;
 		$sql = <<<EOS
 SELECT e.*, COALESCE(times,0) AS usage_count FROM {$pref}events e
@@ -234,7 +235,7 @@ LEFT OUTER JOIN (SELECT event_id, COUNT(event_id) AS times FROM {$pref}event_han
 ON e.event_id=es.event_id
 ORDER BY originator,event_name
 EOS;
-		$dbr = $db->Execute($sql);
+		$dbr = $db->execute($sql);
 		if (!$dbr) {
 			return false;
 		}
@@ -277,7 +278,7 @@ EOS;
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @return mixed If successful, an array of arrays, each sub-array contains
-	 *  at least 'originator' 'event_name' 'class' 'func' 'type', plus others for static events
+	 *  at least 'originator' 'event_name' 'class' 'method' 'type', plus others for static events
 	 *  If nothing is found, an empty array is returned.
 	 */
 	public static function ListEventHandlers(string $originator, string $eventname) : array
@@ -286,14 +287,14 @@ EOS;
 		if (self::$_handlercache === null) {
 			if (preg_match('/clear.*cache/i', $eventname)) {
 				//eventhandlers cache has probably been cleared, and an event reporting that has been immediatley initiated
-				self::setup();
+				self::load_setup();
 			}
-			$cache = AppSingle::SysDataCache();
+			$cache = SingleItem::LoadedData();
 			try {
-				self::$_handlercache = $cache->get(self::class);
+				self::$_handlercache = $cache->get('events');
 			} catch (Throwable $t) { // might fail without pre-check for setup!
-				self::setup();
-				self::$_handlercache = $cache->get(self::class);
+				self::load_setup();
+				self::$_handlercache = $cache->get('events');
 			}
 		}
 		if (self::$_handlercache) {
@@ -321,7 +322,7 @@ EOS;
 	public static function GetEventHandler(int $handler_id)
 	{
 		if (self::$_handlercache === null) {
-			self::$_handlercache = AppSingle::SysDataCache()->get(self::class);
+			self::$_handlercache = SingleItem::LoadedData()->get('events');
 		}
 		if (self::$_handlercache) {
 			foreach (self::$_handlercache as $row) {
@@ -340,24 +341,24 @@ EOS;
 	 *
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param mixed  $callback an actual or pseudo callable or an equivalent string
-	 *  As appropriate, the 'class' may be a module name or '', the 'method' may be
-	 *  a UDT name or regular-plugin identifier or ''
-	 * @param string $type Optional indicator of $callback type
-	 *  ('M' module 'U' UDT 'P' regular plugin 'C' callable). Default 'C'.
+	 * @param mixed  $handler an actual or pseudo callable or an equivalent string.
+	 *  As appropriate, the 'class' may be a module name or '', the
+	 *  'method' may be a UDT name or regular-plugin identifier or ''
+	 * @param string $type Optional indicator of $nandler type
+	 *  ('M' module, 'U' UDT, 'P' regular plugin, 'C' callable). Default 'C'.
 	 * @param bool   $removable Optional flag whether this event may be removed from the list. Default true.
 	 * @return bool indicating success
 	 */
-	public static function AddStaticHandler(string $originator, string $eventname, $callback, string $type = 'C', bool $removable = true) : bool
+	public static function AddStaticHandler(string $originator, string $eventname, $handler, string $type = 'C', bool $removable = true) : bool
 	{
-		$params = self::InterpretCallback($callback, $type);
+		$params = self::InterpretHandler($handler, $type);
 		if (!$params || (empty($params[0]) && empty($params[1]))) {
 			return false;
 		}
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		// find the event, if any
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
-		$id = (int) $db->GetOne($sql, [$originator, $eventname]);
+		$id = (int) $db->getOne($sql, [$originator, $eventname]);
 		if ($id < 1) {
 			// query failed, event not found
 			return false;
@@ -369,36 +370,37 @@ EOS;
 		$params = [$id];
 
 		if ($class && $method) {
-			$sql .= 'class=? AND func=?';
+			$sql .= 'class=? AND method=?';
 			$params[] = $class;
 			$params[] = $method;
 		} elseif ($class) {
-			$sql .= "class=? AND (func='' OR func IS NULL)";
+			$sql .= "class=? AND (method='' OR method IS NULL)";
 			$params[] = $class;
 		} else { //$method
-			$sql .= "(class='' OR class IS NULL) AND func=?";
+			$sql .= "(class='' OR class IS NULL) AND method=?";
 			$params[] = $method;
 		}
-		$dbr = $db->GetOne($sql, $params);
+		$dbr = $db->getOne($sql, $params);
 		if ($dbr) {
 			return false; // ach, something matches already
 		}
 
 		// get a new handler order
 		$sql = 'SELECT MAX(handler_order) AS newid FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=?';
-		$order = (int) $db->GetOne($sql, [$originator, $eventname]);
+		$order = (int) $db->getOne($sql, [$originator, $eventname]);
 		if ($order < 1) {
 			$order = 1;
 		} else {
 			++$order;
 		}
 		$mode = ($removable) ? 1 : 0;
-
+		// we don't store a method value when the handler is not static ('M')
+		// or it's derived at runtime from the supplied name ('P', 'U')
 		$sql = 'INSERT INTO '.CMS_DB_PREFIX.'event_handlers
-(event_id,class,func,type,removable,handler_order) VALUES (?,?,?,?,?,?)';
-		$dbr = $db->Execute($sql, [$id, $class, $method, $type, $mode, $order]);
+(event_id,class,method,type,removable,handler_order) VALUES (?,?,?,?,?,?)';
+		$dbr = $db->execute($sql, [$id, $class, $method, $type, $mode, $order]);
 		if ($dbr) {
-			AppSingle::SysDataCache()->release(self::class);
+			SingleItem::LoadedData()->refresh('events');
 			return true;
 		}
 		return false;
@@ -439,16 +441,16 @@ EOS;
 	 * @since 2.99
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param mixed $callback an actual or pseudo callable or an equivalent string
-	 *  As appropriate, the 'class' may be a module name or '', the 'method' may be
-	 *  a UDT name or regular-plugin identifier or ''
-	 * @param string $type Optional indicator of $callback type
+	 * @param mixed $handler an actual or pseudo callable or an equivalent string
+	 *  As appropriate, the 'class' may be a module name or '', the
+	 *  'method' may be a UDT name or regular-plugin identifier or ''
+	 * @param string $type Optional indicator of $handler type
 	 *  ('M' module 'U' UDT 'P' regular plugin 'C' callable). Default 'C'.
 	 * @return bool indicating success
 	 */
-	public static function AddDynamicHandler(string $originator, string $eventname, $callback, string $type = 'C') : bool
+	public static function AddDynamicHandler(string $originator, string $eventname, $handler, string $type = 'C') : bool
 	{
-		$params = self::InterpretCallback($callback, $type);
+		$params = self::InterpretHandler($handler, $type);
 		if (!$params || (empty($params[0]) && empty($params[1]))) {
 			return false;
 		}
@@ -461,7 +463,7 @@ EOS;
 		 'originator' => $originator,
 		 'event_name' => $eventname,
 		 'class' => $class,
-		 'func' => $method,
+		 'method' => $method,
 		 'type' => $type,
 		];
 		self::$_dynamic = array_unique(self::$_dynamic, SORT_REGULAR);
@@ -486,24 +488,24 @@ EOS;
 	 *
 	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param mixed  $callback an actual or pseudo callable or an equivalent string
-	 *  As appropriate, the 'class' may be a module name or '', the 'method' may be
-	 *  a UDT name or regular-plugin identifier or ''
-	 * @param string $type Optional indicator of $callback type
+	 * @param mixed  $handler an actual or pseudo callable or an equivalent string
+	 *  As appropriate, the 'class' may be a module name or '', the
+	 *  'method' may be a UDT name or regular-plugin identifier or ''
+	 * @param string $type Optional indicator of $handler type
 	 *  ('M' module 'U' UDT 'P' regular plugin 'C' callable). Default 'C'.
 	 * @return bool indicating success
 	 */
-	public static function RemoveStaticHandler(string $originator, string $eventname, $callback, string $type = 'C')
+	public static function RemoveStaticHandler(string $originator, string $eventname, $handler, string $type = 'C')
 	{
-		$params = self::InterpretCallback($callback, $type);
+		$params = self::InterpretHandler($handler, $type);
 		if (!$params || (empty($params[0]) && empty($params[1]))) {
 			return false;
 		}
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		// find the event id
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
-		$id = (int) $db->GetOne($sql, [$originator, $eventname]);
+		$id = (int) $db->getOne($sql, [$originator, $eventname]);
 		if ($id < 1) {
 			// query failed, event not found
 			return false;
@@ -514,17 +516,17 @@ EOS;
 		$sql = 'SELECT * FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=? AND ';
 		$params = [$id];
 		if ($class && $method) {
-			$sql .= 'class=? AND func=?';
+			$sql .= 'class=? AND method=?';
 			$params[] = $class;
 			$params[] = $method;
 		} elseif ($class) {
-			$sql .= "class=? AND (func='' OR func IS NULL)";
+			$sql .= "class=? AND (method='' OR method IS NULL)";
 			$params[] = $class;
 		} else { //$method
-			$sql .= "(class='' OR class IS NULL) AND func=?";
+			$sql .= "(class='' OR class IS NULL) AND method=?";
 			$params[] = $method;
 		}
-		$row = $db->GetRow($sql, $params);
+		$row = $db->getRow($sql, $params);
 		if (!$row) {
 			return false;
 		}
@@ -570,11 +572,11 @@ EOS;
 	 */
 	public static function RemoveAllEventHandlers(string $originator, string $eventname)
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 
 		// find the event id
 		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator=? AND event_name=?';
-		$id = (int) $db->GetOne($sql, [$originator, $eventname]);
+		$id = (int) $db->getOne($sql, [$originator, $eventname]);
 		if ($id < 1) {
 			// query failed, event not found
 			return false;
@@ -582,8 +584,8 @@ EOS;
 
 		// delete handler(s) if any
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id= ?';
-		$dbr = $db->Execute($sql, [$id]);
-		AppSingle::SysDataCache()->release(self::class);
+		$dbr = $db->execute($sql, [$id]);
+		SingleItem::LoadedData()->refresh('events');
 		return ($dbr != false);
 	}
 
@@ -599,12 +601,12 @@ EOS;
 			return;
 		}
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE event_id = ? AND handler_order = ?';
-		$db->Execute($sql, [$handler['event_id'], $handler['handler_order'] - 1]);
+		$db->execute($sql, [$handler['event_id'], $handler['handler_order'] - 1]);
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE handler_id = ? AND event_id = ?';
-		$db->Execute($sql, [$handler['handler_id'], $handler['event_id']]);
-		AppSingle::SysDataCache()->release(self::class);
+		$db->execute($sql, [$handler['handler_id'], $handler['event_id']]);
+		SingleItem::LoadedData()->refresh('events');
 	}
 
 	/**
@@ -623,30 +625,32 @@ EOS;
 			return;
 		}
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE event_id = ? AND handler_order = ?';
-		$db->Execute($sql, [$handler['event_id'], $handler['handler_order'] + 1]);
+		$db->execute($sql, [$handler['event_id'], $handler['handler_order'] + 1]);
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE handler_id = ? AND event_id = ?';
-		$db->Execute($sql, [$handler['handler_id'], $handler['event_id']]);
-		AppSingle::SysDataCache()->release(self::class);
+		$db->execute($sql, [$handler['handler_id'], $handler['event_id']]);
+		SingleItem::LoadedData()->refresh('events');
 	}
 
 	/**
 	 * @ignore
-	 * @param mixed  $callback an actual or pseudo callable or an equivalent string
-	 *  As appropriate, the 'class' may be a module name or '', the 'method' may
-	 *  be a UDT name or regular-plugin identifier or ''
+	 * @param mixed  $handler an actual or pseudo callable or an equivalent string
+	 *  As appropriate, its 'class' may be a module name or '', its
+	 *  'method' may be a UDT name or regular-plugin identifier or ''
 	 *  In this context, false is not a valid alternate to ''.
-	 * @param string $type Default 'auto'
+	 * @param string $type Optional indicator of $handler type
+	 *  ('M' module 'U' UDT 'P' regular plugin 'C' callable, 'auto' interpret). Default 'auto'.
+	 * @param string $type $handler type-indicator. Default 'auto'
 	 * @return mixed 3-member array | false upon error
 	 */
-	private static function InterpretCallback($callback, string $type = 'auto')
+	private static function InterpretHandler($handler, string $type = 'auto')
 	{
-		$func = '';
-		if (is_callable($callback, true, $func)) {
-			list($class, $method) = explode('::', $func);
-		} elseif (is_string($callback) && $callback) {
-			list($class, $method) = explode('::', $callback, 2);
+		$parsed = ''; // result-receiver
+		if (is_callable($handler, true, $parsed)) {
+			list($class, $method) = explode('::', $parsed, 2);
+		} elseif ($handler && is_string($handler)) {
+			list($class, $method) = explode('::', $handler, 2);
 		} else {
 			return false;
 		}
@@ -722,18 +726,18 @@ EOS;
 	 */
 	private static function InternalRemoveHandler($handler)
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$id = $handler['event_id'];
 
 		// update any subsequent handlers
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE event_id=? AND handler_order>?';
-		$db->Execute($sql, [$id, $handler['handler_order']]);
+		$db->execute($sql, [$id, $handler['handler_order']]);
 
 		// now delete this record
 		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE handler_id=? AND event_id=?';
-		$db->Execute($sql, [$handler['handler_id'], $id]);
+		$db->execute($sql, [$handler['handler_id'], $id]);
 
-		AppSingle::SysDataCache()->release(self::class);
+		SingleItem::LoadedData()->refresh('events');
 	}
 } //class
 

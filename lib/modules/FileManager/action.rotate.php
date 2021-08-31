@@ -20,14 +20,13 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use FileManager\Utils;
 
-if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
-
-if (isset($params['cancel'])) $this->Redirect($id,'defaultadmin',$returnid,$params);
+//if( some worthy test fails ) exit;
+if( !$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed() ) exit;
+if( isset($params['cancel']) ) $this->Redirect($id,'defaultadmin',$returnid,$params);
 
 $sel = $params['sel'];
 if( !is_array($sel) ) {
@@ -35,16 +34,16 @@ if( !is_array($sel) ) {
 }
 unset($params['sel']);
 
-if (count($sel) == 0) {
+if( !$sel ) {
   $params['fmerror'] = 'nofilesselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
-if (count($sel)>1) {
+if( count($sel)>1 ) {
   $params['fmerror'] = 'morethanonefiledirselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
-$config = AppSingle::Config();
+$config = SingleItem::Config();
 $basedir = CMS_ROOT_PATH;
 $filename = $this->decodefilename($sel[0]);
 $src = cms_join_path($basedir,Utils::get_cwd(),$filename);
@@ -117,7 +116,7 @@ if( isset($params['save']) ) {
     imagedestroy($rotated);
     $rotated = $newimg;
   }
-  else if( $postrotate == 'resize' ) {
+  elseif( $postrotate == 'resize' ) {
     $src_w = imagesx($rotated);
     $src_h = imagesy($rotated);
 
@@ -240,4 +239,3 @@ $tpl->assign('formstart',$this->CreateFormStart($id,'rotate',$returnid,'post',''
  ->assign('formend',$this->CreateFormEnd());
 
 $tpl->display();
-return '';

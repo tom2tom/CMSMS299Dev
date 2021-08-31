@@ -42,11 +42,10 @@ namespace CMSMS;
  * @package CMS
  * @license GPL
  * @since 2.0
- * @author Robert Campbell
  */
 final class AdminTabs
 {
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
     /**
      * @ignore
      */
@@ -87,13 +86,9 @@ final class AdminTabs
      * @ignore
      * Treat as singleton
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
-    private function __clone()
-    {
-    }
+    private function __clone() {}
 
     /**
      * Revert class properties ready for a fresh sequence

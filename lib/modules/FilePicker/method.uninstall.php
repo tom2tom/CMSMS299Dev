@@ -3,7 +3,7 @@
 FilePicker - A CMSMS module to provide various support services.
 Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
 Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+Thanks to Fernando Morgado and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -20,10 +20,3 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-
-use CMSMS\Database\DataDictionary;
-use FilePicker\ProfileDAO;
-
-$dict = new DataDictionary($db);
-$sqlarray = $dict->DropTableSQL(ProfileDAO::table_name());
-$dict->ExecuteSQLArray($sqlarray);

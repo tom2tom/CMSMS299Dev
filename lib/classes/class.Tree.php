@@ -59,7 +59,7 @@ class Tree
 			if( is_string($key) ) {
 				$this->set_tag($key,$value);
 			}
-			else if( is_array($key) ) {
+			elseif( is_array($key) ) {
 				foreach( $key as $k => $v ) {
 					$this->set_tag($k,$v);
 				}
@@ -88,7 +88,7 @@ class Tree
 						return $this;
 					}
 				}
-				else if( $this->_tags[$tag_name] == $value ) {
+				elseif( $this->_tags[$tag_name] == $value ) {
 					return $this;
 				}
 			}

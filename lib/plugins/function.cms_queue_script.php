@@ -21,12 +21,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 // since 2.99
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 function smarty_function_cms_queue_script($params, $template)
 {
 	if( !isset($params['file']) ) return '';
-	$combiner = AppSingle::App()->GetScriptsManager();
+	$combiner = SingleItem::App()->GetScriptsManager();
 
 	$file = trim($params['file']);
 	$priority = (int)($params['priority'] ?? 0);
@@ -53,7 +53,7 @@ function smarty_cms_about_function_cms_queue_script()
 {
 	echo lang_by_realm('tags', 'about_generic',
 	<<<EOS
-<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Author: Robert Campbell</p>
 <p>Version: 1.0</p>
 EOS
 	,

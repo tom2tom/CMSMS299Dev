@@ -3,14 +3,14 @@
 use CMSMS\Events;
 use FileManager\Utils;
 
-if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
-if (isset($params['cancel'])) $this->Redirect($id,'defaultadmin',$returnid,$params);
+//if( some worthy test fails ) exit;
+if( !$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed() ) exit;
+if( isset($params['cancel']) ) $this->Redirect($id,'defaultadmin',$returnid,$params);
 
 $sel = $params['sel'];
 if( !is_array($sel) ) $sel = json_decode(rawurldecode($sel),true);
 
-if (count($sel)==0) {
+if( !$sel ) {
   $params['fmerror']='nofilesselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
@@ -63,11 +63,11 @@ if( isset($params['delete']) ) {
 
     $parms = ['file'=>$fn];
     if( $thumb ) $parms['thumb'] = $thumb;
-    audit('','File Manager', 'Removed file: '.$fn);
+    audit('','File Manager::delete', 'Removed file: '.$fn);
     Events::SendEvent( 'FileManager', 'OnFileDeleted', $parms );
   } // foreach
 
-  if( count($errors) == 0 ) {
+  if( !$errors ) {
     $paramsnofiles['fmmessage']='deletesuccess'; //strips the file data
     $this->Redirect($id,'defaultadmin',$returnid,$paramsnofiles);
   }
@@ -88,4 +88,3 @@ $tpl->assign('sel',$sel)
  ->assign('formend', $this->CreateFormEnd());
 
 $tpl->display();
-return '';

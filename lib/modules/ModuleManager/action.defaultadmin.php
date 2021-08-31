@@ -24,7 +24,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use ModuleManager\Utils;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 
 if( isset($params['modulehelp']) ) {
     // this is done before permissions checks
@@ -46,7 +46,7 @@ if( !$connection_ok ) {
 
 $seetab = $params['active_tab'] ?? 'installed';
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl')); //,null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl')); //,null,null,$smarty);
 
 $tpl->assign('tab',$seetab)
  ->assign('pmod',$pmod)
@@ -55,16 +55,21 @@ $tpl->assign('tab',$seetab)
 
 if( $pmod ) {
     Utils::get_images($tpl);
-    require __DIR__.DIRECTORY_SEPARATOR.'function.admin_installed.php';
+    require __DIR__.DIRECTORY_SEPARATOR.'function.installedtab.php';
     if( $connection_ok ) {
+        // data for inclusions
+        $dirlist = cms_module_places();
+        $writelist = [];
+        foreach( $dirlist as $i => $dir ) {
+            $writelist[$i] = is_writable($dir);
+        }
         require __DIR__.DIRECTORY_SEPARATOR.'function.newversionstab.php';
-        require __DIR__.DIRECTORY_SEPARATOR.'function.search.php';
-        require __DIR__.DIRECTORY_SEPARATOR.'function.admin_modules_tab.php';
+        require __DIR__.DIRECTORY_SEPARATOR.'function.searchtab.php';
+        require __DIR__.DIRECTORY_SEPARATOR.'function.forgetab.php';
     }
 }
 if( $pset ) {
-    require __DIR__.DIRECTORY_SEPARATOR.'function.admin_prefs_tab.php';
+    require __DIR__.DIRECTORY_SEPARATOR.'function.prefstab.php';
 }
 
 $tpl->display();
-return '';

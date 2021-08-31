@@ -22,7 +22,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 if( !isset($params['mod']) ) {
@@ -44,7 +44,7 @@ else {
 }
 
 if( $result ) {
-    audit('',$this->GetName(),'Module '.$module.' removed');
+    audit('',$this->GetName().'::local_remove','Module '.$module.' removed');
     $this->SetMessage($this->Lang('msg_module_removed'));
 }
 else {

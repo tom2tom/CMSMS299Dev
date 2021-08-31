@@ -1,5 +1,4 @@
 <?php
-
 namespace cms_installer;
 
 use CMSMS\Database\Connection;
@@ -11,7 +10,7 @@ use function cms_installer\joinpath;
 
 // these functions are used only in wizard step 8 and/or 9 after
 // 'connecting' to CMSMS, for creating / upgrading tables and their contents
- 
+
 /**
  * @param array $config parameters for connection
  * @return Connection object
@@ -44,7 +43,7 @@ function GetDb(array $config)
         }
     } else {
         $db = new Connection($config);
-        if ($db->errno != 0) {
+        if ($db->errorNo() != 0) {
             $db = null;
         }
     }

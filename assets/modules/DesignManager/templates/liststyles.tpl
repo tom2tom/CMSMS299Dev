@@ -5,7 +5,7 @@
 
 {if $has_add_right}
 <div class="pageoptions">
-  {cms_action_url action='admin_edit_css' assign='url'}{$t=$mod->Lang('create_stylesheet')}
+  {cms_action_url action='edit_css' assign='url'}{$t=$mod->Lang('create_stylesheet')}
   <a href="{$url}" title="{$t}">{admin_icon icon='newobject.gif'}</a>
   <a href="{$url}">{$t}</a>
 </div>
@@ -17,7 +17,7 @@
 <div class="pageinfo">{$mod->Lang('info_css_groups')}</div>
 {if $has_add_right}
 <div class="pageoptions">
-  {cms_action_url action='admin_edit_category' assign='url'}{$t=$mod->Lang('create_group')}
+  {cms_action_url action='edit_category' assign='url'}{$t=$mod->Lang('create_group')}
   <a href="{$url}" title="{$t}">{admin_icon icon='newobject.gif'}</a>
   <a href="{$url}">{$t}</a>
 </div>
@@ -33,13 +33,13 @@
   </thead>
   <tbody>
     {foreach $list_groups as $group}{$gid=$group->get_id()}
-    {cms_action_url action='admin_edit_category' cat=$gid assign='edit_url'}
+    {cms_action_url action='edit_category' cat=$gid assign='edit_url'}
     <tr class="{cycle values='row1,row2'} sortable-table" id="cat_{$gid}">
       {if $manage_stylesheets}<td><a href="{$edit_url}" title="{$mod->Lang('prompt_edit')}">{$gid}</a></td>{/if}
       <td>{if $manage_stylesheets}<a href="{$edit_url}" title="{$mod->Lang('prompt_edit')}">{$group->get_name()}</a>{else}{$group->get_name()}{/if}</td>
       {if $manage_stylesheets}<td>
         <a href="{$edit_url}" title="{$mod->Lang('prompt_edit')}">{admin_icon icon='edit.gif'}</a>
-        <a href="{cms_action_url action='admin_delete_category' cat=$gid}" class="del_cat" title="{$mod->Lang('prompt_delete')}">{admin_icon icon='delete.gif'}</a>
+        <a href="{cms_action_url action='delete_category' cat=$gid}" class="del_cat" title="{$mod->Lang('prompt_delete')}">{admin_icon icon='delete.gif'}</a>
       </td>{/if}
     </tr>
     {/foreach}

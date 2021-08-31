@@ -19,11 +19,16 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMA\AppSingle;
 use CMSMS\FileType;
+use CMSMS\SingleItem;
 
-if( !isset($gCms) ) exit;
-if( AppSingle::App()->is_frontend_request() ) exit;
+/*
+Display an input-text element with ancillaries which support file picking.
+Associated js is pushed into the page footer.
+*/
+
+//if( some worthy test fails ) exit;
+if( SingleItem::App()->is_frontend_request() ) exit;
 
 try {
     $name = $params['name'] ?? ''; //html element name
@@ -33,12 +38,11 @@ try {
 
     $profile = $this->get_default_profile();
     if( $type ) {
-        $parms = [ 'type' => $type ];
-        $profile = $profile->overrideWith( $parms );
+        $parms = ['type' => $type];
+        $profile = $profile->overrideWith($parms);
     }
     echo $this->get_html($name, $value, $profile );
 }
-catch( Exception $e ) {
-    $this->SetError($e->GetMessage()); //probably useless here
+catch( Throwable $t ) {
+    $this->ShowErrorPage($t->GetMessage());
 }
-return '';

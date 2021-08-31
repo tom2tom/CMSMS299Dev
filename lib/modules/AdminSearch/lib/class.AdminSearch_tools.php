@@ -1,5 +1,5 @@
 <?php
-assert(empty(CMS_DEPREC), new CMSMS\DeprecationNotice('class', 'AdminSearch\\Tools'));
+assert(empty(CMS_DEPREC), new CMSMS\DeprecationNotice('class', 'AdminSearch\Tools'));
 if (strpos(__DIR__ , 'AdminSearch'.DIRECTORY_SEPARATOR.'lib') === false) {
     $bp = cms_module_path('AdminSearch', true);
     $p = ($bp) ? $bp.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'class.Tools.php' : '';

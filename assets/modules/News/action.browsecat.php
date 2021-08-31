@@ -23,7 +23,9 @@ use CMSMS\TemplateOperations;
 use News\Utils;
 use function CMSMS\specialize_array;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
+
+// TODO icon/image display
 
 if( isset($params['browsecattemplate']) ) {
     $template = trim($params['browsecattemplate']);
@@ -32,8 +34,9 @@ else {
     $me = $this->GetName();
     $tpl = TemplateOperations::get_default_template_by_type($me.'::browsecat');
     if( !is_object($tpl) ) {
-        audit('', $me, 'No usable news-categories-template found');
-        return '';
+        cms_error('', $me.'..browsecat', 'No usable news-categories-template found');
+        $this->ShowErrorPage('No usable news-categories-template found');
+        return;
     }
     $template = $tpl->get_name();
 }
@@ -48,4 +51,3 @@ $tpl->assign('count', count($items))
  ->assign('cats', $items);
 
 $tpl->display();
-return '';

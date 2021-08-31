@@ -1,8 +1,8 @@
 <?php
-
 namespace cms_installer;
 
 use Exception;
+use ZipArchive;
 use function cms_installer\lang;
 use function cms_installer\startswith;
 
@@ -10,6 +10,7 @@ class manifest_reader
 {
     private $_filename;
     private $_compressed;
+    private $_type;
     private $_generated;
     private $_from_version;
     private $_from_name;
@@ -22,123 +23,24 @@ class manifest_reader
 
     public function __construct($dir)
     {
-        if( !is_dir($dir) ) throw new Exception(lang('error_internal','mr100'));
-        $fn = "$dir/MANIFEST.DAT.gz";
-        if( is_file($fn) ) {
-            $this->_filename = $fn;
-            $this->_compressed = true;
+        if (!is_dir($dir)) {
+            throw new Exception(lang('error_internal', 'mr100'));
         }
-        else {
-            $fn = "$dir/MANIFEST.DAT";
-            if( is_file($fn) ) {
+        foreach ([
+            '.gz',
+            '.bzip2',
+            '.zip',
+            '',
+        ] as $ext) {
+            $fn = $dir.DIRECTORY_SEPARATOR.'MANIFEST.DAT'.$ext;
+            if (is_file($fn)) {
                 $this->_filename = $fn;
-                $this->_compressed = false;
-            }
-            else {
-                throw new Exception(lang('error_internal','mr101'));
+                $this->_compressed = ($ext != '');
+                $this->_type = ltrim($ext, '.');
+                return;
             }
         }
-    }
-
-    protected function handle_header($line)
-    {
-        $cols = explode(':',$line);
-        foreach( $cols as &$col ) {
-            $col = trim($col);
-        }
-        if( count($cols) != 2 ) throw new Exception(lang('error_internal','mr102'));
-
-        switch( $cols[0] ) {
-        case 'MANIFEST_GENERATED':
-            $this->_generated = (int)$cols[1];
-            break;
-        case 'MANIFEST FROM VERSION':
-            $this->_from_version = $cols[1];
-            break;
-        case 'MANIFEST FROM NAME':
-            $this->_from_name = $cols[1];
-            break;
-        case 'MANIFEST TO VERSION':
-            $this->_to_version = $cols[1];
-            break;
-        case 'MANIFEST TO NAME':
-            $this->_to_name = $cols[1];
-            break;
-        }
-    }
-
-    protected function handle_added($fields)
-    {
-        $this->_added[] = ['filename'=>$fields[2],'checksum'=>$fields[1]];
-    }
-
-    protected function handle_changed($fields)
-    {
-        $this->_changed[] = ['filename'=>$fields[2],'checksum'=>$fields[1]];
-    }
-
-    protected function handle_deleted($fields)
-    {
-        $this->_deleted[] = ['filename'=>$fields[2],'checksum'=>$fields[1]];
-    }
-
-    protected function handle_line($line)
-    {
-        if( !$line ) return;
-        if( startswith($line,'MANIFEST') ) return $this->handle_header($line);
-
-        $fields = explode(' :: ',$line);
-        if( count($fields) != 3 ) throw new Exception(lang('error_internal','mr103'));
-
-        switch( $fields[0] ) {
-        case 'ADDED':
-            return $this->handle_added($fields);
-            break;
-        case 'CHANGED':
-            return $this->handle_changed($fields);
-            break;
-        case 'DELETED':
-            return $this->handle_deleted($fields);
-            break;
-        default:
-            throw new Exception(lang('error_internal','mr104'));
-        }
-    }
-
-    protected function read()
-    {
-        if( !$this->_has_read ) {
-            $fopen = $fclose = $fgets = $feof = null;
-            if( $this->_compressed ) {
-                $fopen = 'gzopen';
-                $fclose = 'gzclose';
-                $fgets = 'gzgets';
-                $feof = 'gzeof';
-            }
-            else {
-                $fopen = 'fopen';
-                $fclose = 'fclose';
-                $fgets = 'fgets';
-                $feof = 'feof';
-            }
-
-            // copy the manifest file to a temporary location
-            $tmpdir = get_app()->get_tmpdir();
-            $tmpname = tempnam($tmpdir,'man');
-            @copy($this->_filename,$tmpname);
-            $fh = $fopen($tmpname,'r');
-            if( !$fh )  {
-              echo "DEBUG: $fopen on ".$this->_filename.'<br/>'; die();
-              throw new Exception(lang('error_internal','mr105'));
-            }
-            while( !$feof($fh) ) {
-                $line = $fgets($fh);
-                $line = trim($line);
-                $this->handle_line($line);
-            }
-            $fclose($fh);
-            $this->_has_read = true;
-        }
+        throw new Exception(lang('error_internal', 'mr101'));
     }
 
     public function get_generated()
@@ -189,4 +91,190 @@ class manifest_reader
         return $this->_deleted;
     }
 
+    protected function handle_header($line)
+    {
+        $cols = explode(':', $line);
+        foreach ($cols as &$col) {
+            $col = trim($col);
+        }
+        if (count($cols) != 2) {
+            throw new Exception(lang('error_internal', 'mr102'));
+        }
+        switch ($cols[0]) {
+        case 'MANIFEST_GENERATED':
+            $this->_generated = (int)$cols[1];
+            break;
+        case 'MANIFEST FROM VERSION':
+            $this->_from_version = $cols[1];
+            break;
+        case 'MANIFEST FROM NAME':
+            $this->_from_name = $cols[1];
+            break;
+        case 'MANIFEST TO VERSION':
+            $this->_to_version = $cols[1];
+            break;
+        case 'MANIFEST TO NAME':
+            $this->_to_name = $cols[1];
+            break;
+        }
+    }
+
+    protected function handle_added($fields)
+    {
+        $this->_added[] = ['filename' => $fields[2], 'checksum' => $fields[1]];
+    }
+
+    protected function handle_changed($fields)
+    {
+        $this->_changed[] = ['filename' => $fields[2], 'checksum' => $fields[1]];
+    }
+
+    protected function handle_deleted($fields)
+    {
+        $this->_deleted[] = ['filename' => $fields[2], 'checksum' => $fields[1]];
+    }
+
+    protected function handle_line($line)
+    {
+        if (!$line) {
+            return;
+        }
+        if (startswith($line, 'MANIFEST')) {
+            return $this->handle_header($line);
+        }
+
+        $fields = explode(' :: ', $line);
+        if (count($fields) != 3) {
+            throw new Exception(lang('error_internal', 'mr103'));
+        }
+        switch ($fields[0]) {
+        case 'ADDED':
+            return $this->handle_added($fields);
+            break;
+        case 'CHANGED':
+            return $this->handle_changed($fields);
+            break;
+        case 'DELETED':
+            return $this->handle_deleted($fields);
+            break;
+        default:
+            throw new Exception(lang('error_internal', 'mr104'));
+        }
+    }
+
+    protected function read()
+    {
+        if (!$this->_has_read) {
+            // copy the manifest file to a temporary location
+            $tmpdir = get_app()->get_tmpdir();
+            $tmpname = tempnam($tmpdir, 'man');
+            @copy($this->_filename, $tmpname);
+
+            switch ($this->_type) {
+                case 'gz':
+                    $fopen = 'gzopen';
+                    $fclose = 'gzclose';
+                    $fgets = 'gzgets';
+                    $feof = 'gzeof';
+                    $handled = true;
+                    break;
+                case 'bzip2':
+                    $handled = false;
+                    break;
+                case 'zip':
+                    $handled = false;
+                    break;
+                default:
+                    $fopen = 'fopen';
+                    $fclose = 'fclose';
+                    $fgets = 'fgets';
+                    $feof = 'feof';
+                    $handled = true;
+                    break;
+            }
+
+            if ($handled) {
+                $fh = $fopen($tmpname, 'r');
+                if (!$fh) {
+                    echo "DEBUG: $fopen on ".$this->_filename.'<br />';
+                    throw new Exception(lang('error_internal', 'mr105'));
+                }
+
+                while (!$feof($fh)) {
+                    $line = $fgets($fh);
+                    $line = trim($line);
+                    if ($line) {
+                        $this->handle_line($line);
+                    }
+                }
+                $fclose($fh);
+            } else {
+                switch ($this->_type) {
+                    case 'bzip2':
+                        $fh = bzopen($tmpname, 'r');
+                        if (!$fh) {
+                            echo "DEBUG: bzopen on ".$this->_filename.'<br />';
+                            throw new Exception(lang('error_internal', 'mr105'));
+                        }
+                        $content = '';
+                        while (!feof($fh)) {
+                            $content .= bzread($fh, 8192);
+                        }
+                        bzclose($fh);
+                        // standardize EOL's
+                        $content = preg_replace(['~\r\n~','~\n~','~\r~'], ["\n","\n","\n"], $content);
+                        $offs = 0;
+                        while (1) {
+                            $line = $this->string_gets($content, $offs);
+                            if ($line === null) { break; }
+                            $offs += strlen($line);
+                            $line = trim($line);
+                            if ($line) {
+                                $this->handle_line($line);
+                            }
+                        }
+                        break;
+                    case 'zip':
+                        $fh = ZipArchive::open($tmpname, ZipArchive::RDONLY);
+                        if (!$fh) {
+                            echo "DEBUG: ZipArchive::open on ".$this->_filename.'<br />';
+                            throw new Exception(lang('error_internal', 'mr105'));
+                        }
+                        $content = $fh->getFromName('MANIFEST.DAT');
+                        $fh->close();
+                        // standardize EOL's
+                        $content = preg_replace(['~\r\n~','~\n~','~\r~'], ["\n","\n","\n"], $content);
+                        $offs = 0;
+                        while (1) {
+                            $line = $this->string_gets($content, $offs);
+                            if ($line === null) { break; }
+                            $offs += strlen($line);
+                            $line = trim($line);
+                            if ($line) {
+                                $this->handle_line($line);
+                            }
+                        }
+                    break;
+                }
+            }
+            $this->_has_read = true;
+        }
+    }
+
+    private function string_gets(string $source, int $offset = 0, string $delimiter = "\n")
+    {
+        static $len = null;
+
+        if ($len === null) {
+            $len = strlen($source);
+        }
+        if ($len <= $offset) {
+            return null;
+        }
+        $delimiter_pos = strpos($source, $delimiter, $offset);
+        if ($delimiter_pos === false) {
+            return substr($source, $offset);
+        }
+        return substr($source, $offset, ($delimiter_pos - $offset) + strlen($delimiter));
+    }
 } // class

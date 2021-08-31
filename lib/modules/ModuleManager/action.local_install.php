@@ -22,10 +22,10 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use function CMSMS\sanitizeVal;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 
 $this->SetCurrentTab('installed');
@@ -36,24 +36,24 @@ if( !$modname ) {
     $this->RedirectToAdminTab();
 }
 
-$ops = AppSingle::ModuleOperations();
+$ops = SingleItem::ModuleOperations();
 $result = $ops->InstallModule($modname);
-if( !is_array($result) || !isset($result[0]) ) $result = [FALSE, $this->Lang('error_moduleinstallfailed')];
+if( !is_array($result) || !isset($result[0]) ) $result = [false, $this->Lang('error_moduleinstallfailed')];
 
 if( $result[0] == FALSE ) {
     $this->SetError($result[1]);
     $this->RedirectToAdminTab();
 }
 
-$modinst = $ops->get_module_instance($modname, '', TRUE);
-if( !is_object($modinst) ) {
+$mod = $ops->get_module_instance($modname, '', true);
+if( !is_object($mod) ) {
     // uh-oh...
     $this->SetError($this->Lang('error_getmodule', $modname));
     $this->RedirectToAdminTab();
 }
 
-audit('',$this->GetName(),'Installed '.$modname.' '.$modinst->GetVersion());
-$msg = $modinst->InstallPostMessage();
-if( !$msg ) $msg = $this->Lang('msg_module_installed',$modname);
+audit('',$this->GetName().'::local_install','Installed '.$modname.' '.$mod->GetVersion());
+$msg = $mod->InstallPostMessage();
+if( !$msg ) $msg = $this->Lang('msg_module_installed', $modname);
 $this->SetMessage($msg);
 $this->RedirectToAdminTab();

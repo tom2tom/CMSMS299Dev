@@ -121,7 +121,7 @@ function smarty_function_get_template_vars($params, $template)
 function smarty_cms_about_function_get_template_vars()
 {
 	echo <<<'EOS'
-<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Author: Robert Campbell</p>
 <p>Version: 1.0</p>
 <p>
 Change History:<br />

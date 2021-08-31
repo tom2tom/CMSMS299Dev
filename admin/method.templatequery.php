@@ -21,10 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 //see also: class CMSMS\TemplateQuery which (for now at least) this replicates
-
-use CMSMS\AppSingle;
-use CMSMS\DataException;
-use CMSMS\SQLErrorException;
+use CMSMS\SingleItem;
+use CMSMS\SQLException;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
@@ -47,7 +45,7 @@ $offset = 0;
 $sortby = 'name';
 $sortorder = 'ASC';
 
-$db = AppSingle::Db();
+$db = SingleItem::Db();
 
 /*
  Acceptable filter-array keys (optional content in []):
@@ -68,8 +66,8 @@ $db = AppSingle::Db();
 
 Example: ['u:'=>get_userid(false),'limit'=>50]
 
-throws DataException if anything else is present
-	   SQLErrorException if no matching data found
+throws UnexpectedValueException if anything else is present
+	or SQLException if no matching data found
 */
 
 foreach ($filter as $key => $val) {
@@ -87,8 +85,8 @@ foreach ($filter as $key => $val) {
 			$second = '__CORE__';
 		}
 		$q2 = 'SELECT id FROM '.$tbl2 .' WHERE originator = ?';
-		$typelist = $db->GetCol($q2, [$second]);
-		if (!count($typelist)) {
+		$typelist = $db->getCol($q2, [$second]);
+		if (!$typelist) {
 			$typelist = [-999];
 		}
 		$where['type'][] = 'type_id IN ('.implode(',', $typelist).')';
@@ -132,8 +130,8 @@ foreach ($filter as $key => $val) {
 	  case 'design':
 		// find all the templates in design: d
 		$q2 = 'SELECT tpl_id FROM '.CMS_DB_PREFIX.DesignManager\Design::TPLTABLE.' WHERE design_id = ?'; DISABLED
-		$tpls = $db->GetCol($q2, [(int)$second]);
-		if (!count($tpls)) {
+		$tpls = $db->getCol($q2, [(int)$second]);
+		if (!$tpls) {
 			$tpls = [-999];
 		} // this won't match anything
 		$where['design'][] = 'id IN ('.implode(',',$tpls).')';
@@ -153,7 +151,7 @@ SELECT tpl_id FROM '.CMS_DB_PREFIX.TemplateOperations::ADDUSERSTABLE.' WHERE use
 UNION
 SELECT id AS tpl_id FROM '.$tbl1.' WHERE owner_id = ?)
 		 AS tmp1';
-		$t2 = $db->GetCol($q2, [$second,$second]);
+		$t2 = $db->getCol($q2, [$second,$second]);
 		if ($t2) {
 			$where['user'][] = 'id IN ('.implode(',', $t2).')';
 		}
@@ -187,7 +185,7 @@ SELECT id AS tpl_id FROM '.$tbl1.' WHERE owner_id = ?)
 			$typejoin = true;
 			break;
 		  default:
-			throw new DataException($val.' is an invalid sortby');
+			throw new UnexpectedValueException($val.' is not a valid \'sortby\' property value in a templates filter');
 		}
 		break;
 
@@ -199,7 +197,7 @@ SELECT id AS tpl_id FROM '.$tbl1.' WHERE owner_id = ?)
 			$sortorder = $val;
 			break;
 		  default:
-			throw new DataException($val.' is an invalid sortorder');
+			throw new UnexpectedValueException($val.' is not a valid \'sortorder\' property value in a templates filter');
 		}
 		break;
 	}
@@ -244,10 +242,10 @@ $query .= ' ORDER BY '.$sortby.' '.$sortorder;
 // execute the query
 $rst = $db->SelectLimit($query, $limit, $offset);
 if (!$rst) {
-	throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+	throw new SQLException($db->sql.' -- '.$db->errorMsg());
 }
 
-$totalrows = $db->GetOne('SELECT FOUND_ROWS()');
+$totalrows = $db->getOne('SELECT FOUND_ROWS()');
 $numpages = ceil($totalrows / $limit);
 
 $ids = [];

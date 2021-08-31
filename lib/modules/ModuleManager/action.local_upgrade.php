@@ -22,9 +22,9 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 
@@ -34,7 +34,7 @@ if( !$mod ) {
     $this->RedirectToAdminTab();
 }
 
-$result = AppSingle::ModuleOperations()->UpgradeModule($mod);
+$result = SingleItem::ModuleOperations()->UpgradeModule($mod);
 if( !is_array($result) || !isset($result[0]) ) $result = [FALSE, $this->Lang('error_moduleupgradefailed')];
 
 if( $result[0] == FALSE ) {

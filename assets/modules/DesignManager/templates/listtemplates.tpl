@@ -74,7 +74,7 @@
 
   <div class="pageinfo">{$mod->Lang('info_tpl_groups')}</div>
   <div class="pageoptions">
-    {cms_action_url action='admin_edit_category' assign='url'}
+    {cms_action_url action='edit_category' assign='url'}
     <a href="{$url}" title="{$mod->Lang('create_group')}">{admin_icon icon='newobject.gif'}</a>
     <a href="{$url}">{$mod->Lang('create_group')}</a>
   </div>
@@ -90,20 +90,20 @@
     </thead>
     <tbody>
     {foreach $list_categories as $category}{$cid=$category->get_id()}
-    {cms_action_url action='admin_edit_category' cat=$cid assign='edit_url'}
+    {cms_action_url action='edit_category' cat=$cid assign='edit_url'}
     <tr class="{cycle values='row1,row2'} sortable-table" id="cat_{$cid}">
       <td><a href="{$edit_url}" title="{$mod->Lang('prompt_edit')}">{$cid}</a></td>
       <td><a href="{$edit_url}" title="{$mod->Lang('prompt_edit')}">{$category->get_name()}</a></td>
       <td>
       <a href="{$edit_url}" title="{$mod->Lang('prompt_edit')}">{admin_icon icon='edit.gif'}</a>
-      <a href="{cms_action_url action='admin_delete_category' cat=$cid}" class="del_cat" title="{$mod->Lang('prompt_delete')}">{admin_icon icon='delete.gif'}</a>
+      <a href="{cms_action_url action='delete_category' cat=$cid}" class="del_cat" title="{$mod->Lang('prompt_delete')}">{admin_icon icon='delete.gif'}</a>
       </td>
     </tr>
     {/foreach}
     </tbody>
   </table>
   {/if}
-   
+
   {tab_start name='types'}
   {if $list_all_types}
   <table class="pagetable" style="width:auto;">
@@ -119,9 +119,9 @@
      {cycle values="row1,row2" assign='rowclass'}
      {$reset_url=''}
      {if $type->get_dflt_flag()}
-       {cms_action_url action='admin_reset_type' type=$type->get_id() assign='reset_url'}
+       {cms_action_url action='reset_type' type=$type->get_id() assign='reset_url'}
      {/if}
-     {cms_action_url action='admin_edit_type' type=$type->get_id() assign='edit_url'}
+     {cms_action_url action='edit_type' type=$type->get_id() assign='edit_url'}
      <tr class="{$rowclass}" onmouseover="this.className='{$rowclass}hover';" onmouseout="this.className='{$rowclass}';">
       <td>{$type->get_id()}</td>
       <td>
@@ -130,7 +130,7 @@
       <td>
         <a href="{$edit_url}" title="{$mod->Lang('prompt_edit')}">{admin_icon icon='edit.gif'}</a>
       {if $has_add_right}
-        <a href="{cms_action_url action=admin_edit_template import_type=$type->get_id()}" title="{$mod->Lang('prompt_import')}">{admin_icon icon='import.gif'}</a>
+        <a href="{cms_action_url action=edit_template import_type=$type->get_id()}" title="{$mod->Lang('prompt_import')}">{admin_icon icon='import.gif'}</a>
       {/if}
       </td>
     </tr>

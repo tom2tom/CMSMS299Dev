@@ -1,5 +1,4 @@
 <?php
-
 namespace cms_installer\wizard;
 
 use cms_installer\wizard\wizard_step;
@@ -7,8 +6,8 @@ use Exception;
 use RuntimeException;
 use StupidPass\StupidPass;
 use Throwable;
-use const CMSSAN_ACCOUNT;
-use const CMSSAN_NONPRINT;
+use const cms_installer\ICMSSAN_ACCOUNT;
+use const cms_installer\ICMSSAN_NONPRINT;
 use function cms_installer\de_specialize;
 use function cms_installer\get_app;
 use function cms_installer\is_email;
@@ -25,18 +24,90 @@ class wizard_step6 extends wizard_step
     public function __construct()
     {
         parent::__construct();
-        $suf = str_pad(mt_rand(0,999),3,'0',STR_PAD_LEFT);
+        $suf = str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT);
         $this->_adminacct = [
-          'username'=>'admin'.$suf,
-          'password'=>'',
-          'repeatpw'=>'',
-          'emailaddr'=>'',
-//         'emailaccountinfo'=>1,
+          'username' => 'admin'.$suf,
+          'password' => '',
+          'repeatpw' => '',
+          'emailaddr' => '',
+//         'emailaccountinfo' => 1,
          ];
         $tmp = $this->get_wizard()->get_data('adminaccount');
-        if( $tmp ) {
-            $this->_adminacct = array_merge($this->_adminacct,$tmp);
+        if ($tmp) {
+            $this->_adminacct = array_merge($this->_adminacct, $tmp);
         }
+    }
+
+    protected function process()
+    {
+        //N/A   \cms_installer\de_specialize_array($_POST);
+        if (isset($_POST['username'])) {
+            $this->_adminacct['username'] = de_specialize($_POST['username']);
+        }
+        if (isset($_POST['emailaddr'])) {
+            $this->_adminacct['emailaddr'] = de_specialize($_POST['emailaddr']);
+        }
+        if (isset($_POST['password'])) {
+            $this->_adminacct['password'] = de_specialize($_POST['password']);
+        }
+        if (isset($_POST['repeatpw'])) {
+            $this->_adminacct['repeatpw'] = de_specialize($_POST['repeatpw']);
+        }
+/*
+        if( isset($_POST['emailaccountinfo']) ) { $this->_adminacct['emailaccountinfo'] = (int)$_POST['emailaccountinfo']; }
+        else { $this->_adminacct['emailaccountinfo'] = 1; }
+*/
+        try {
+            $this->validate($this->_adminacct);
+            $this->get_wizard()->set_data('adminaccount', $this->_adminacct);
+            $url = $this->get_wizard()->next_url();
+            redirect($url);
+        } catch (RuntimeException $t) {
+            //redisplay with credentials
+            $s = $t->GetMessage();
+            if ($s) {
+                $smarty = smarty();
+                $smarty->assign('message', $s);
+            }
+        } catch (Throwable $t) {
+            $s = $this->forge_url;
+            if ($s) {
+                $s = '<br />'.lang('error_notify', $s);
+            }
+            $smarty = smarty();
+            $smarty->assign('error', $t->GetMessage().$s);
+        }
+    }
+
+    protected function display()
+    {
+        parent::display();
+        $smarty = smarty();
+
+        $app = get_app();
+        $config = $app->get_config();
+
+        $raw = $config['verbose'] ?? 0;
+        $smarty->assign('verbose', (int)$raw);
+
+        $tmp = $this->_adminacct;
+        $raw = $config['adminlogin'] ?? null;
+        if ($raw !== null) {
+            $tmp['username'] = trim($raw);
+        }
+        $raw = $config['adminemail'] ?? null;
+        if ($raw !== null) {
+            $tmp['emailaddr'] = trim($raw);
+        }
+        $raw = $config['adminpw'] ?? null;
+        if ($raw !== null) {
+            $tmp['password'] = trim($raw); // TODO trim() maybe bad
+        }
+        specialize_array($tmp);
+        $smarty->assign('account', $tmp);
+        $smarty->display('wizard_step6.tpl');
+
+        $this->finish();
     }
 
     // lite 'n lazy username check
@@ -45,26 +116,26 @@ class wizard_step6 extends wizard_step
     {
         $data = $this->get_wizard()->get_data('sessionchoices');
         // obvious references to the environment (company,hostname,username,etc)
-        $avoids = ['CMSMS','cmsms'];
+        $avoids = ['CMSMS', 'cmsms'];
         $tmp = $data['sitename'] ?? '';
-        if( $tmp ) {
-            $avoids[] = str_replace([' ','_'],['',''],strtolower($tmp));
+        if ($tmp) {
+            $avoids[] = str_replace([' ', '_'], ['', ''], strtolower($tmp));
             $avoids[] = $tmp;
         }
         // don't bother with overridden (or translated) error messages
         $messages = [];
         // custom evaluation options
         $options = [
-          'disable' => ['upper','lower','numeric','special','strength'],
+          'disable' => ['upper', 'lower', 'numeric', 'special', 'strength'],
           'maxlen-guessable-test' => 12,
         ];
         $warn = [];
-        $checker = new StupidPass(48,$avoids,'',$messages,$options);
-        if( !$checker->validate($str) ) {
+        $checker = new StupidPass(48, $avoids, '', $messages, $options);
+        if (!$checker->validate($str)) {
             $warn[] = lang('error_adminacct_username');
             $errs = $checker->getErrors();
             foreach ($errs as $msg) {
-                $warn[] = str_replace('Password','Name',$msg);
+                $warn[] = str_replace('Password', 'Name', $msg);
             }
         }
 
@@ -80,10 +151,12 @@ class wizard_step6 extends wizard_step
          '~^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$~', //valid IPv6 sans zero-only words
         ];
         foreach ($patns as $regex) {
-            if (!preg_match($regex, $candidate)) {
+            if (!preg_match($regex, $str)) {
                 continue;
             }
-            if (!$warn) { $warn[] = lang('error_adminacct_username'); }
+            if (!$warn) {
+                $warn[] = lang('error_adminacct_username');
+            }
             $warn[] = 'Name contains unacceptable character(s) or pattern(s)';
             break;
         }
@@ -99,10 +172,10 @@ class wizard_step6 extends wizard_step
     {
         $data = $this->get_wizard()->get_data('sessionchoices');
         // obvious references to the environment (company,hostname,username,etc)
-        $avoids = ['CMSMS','cmsms',$this->_adminacct['username']];
+        $avoids = ['CMSMS', 'cmsms', $this->_adminacct['username']];
         $tmp = $data['sitename'] ?? '';
-        if( $tmp ) {
-            $avoids[] = str_replace([' ','_'],['',''],strtolower($tmp));
+        if ($tmp) {
+            $avoids[] = str_replace([' ', '_'], ['', ''], strtolower($tmp));
             $avoids[] = $tmp;
         }
         // don't bother with overridden (or translated) error messages
@@ -113,8 +186,8 @@ class wizard_step6 extends wizard_step
           'strength' => 'Strong',
         ];
         $warn = [];
-        $checker = new StupidPass(64,$avoids,'',$messages,$options);
-        if( !$checker->validate($str) ) {
+        $checker = new StupidPass(64, $avoids, '', $messages, $options);
+        if (!$checker->validate($str)) {
             $warn[] = lang('error_adminacct_password');
             $errs = $checker->getErrors();
             foreach ($errs as $msg) {
@@ -130,111 +203,51 @@ class wizard_step6 extends wizard_step
 
     private function validate($acct)
     {
-        if( $acct['username'] !== null ) {
-            if( !$acct['username'] ) {
+        if ($acct['username'] !== null) {
+            if (!$acct['username']) {
                 throw new Exception(lang('error_adminacct_username'));
             }
-            $tmp = sanitizeVal($acct['username'],CMSSAN_ACCOUNT);
-            if( $tmp !== trim($acct['username']) ) {
+            $tmp = sanitizeVal($acct['username'], ICMSSAN_ACCOUNT);
+            if ($tmp !== trim($acct['username'])) {
                 throw new Exception(lang('error_adminacct_username'));
             }
-            if( ($error1 = $this->valid_name($tmp)) !== true ) {
+            if (($error1 = $this->valid_name($tmp)) !== true) {
                 $smarty = smarty();
-                $smarty->assign('tellname',$error1);
+                $smarty->assign('tellname', $error1);
             }
         }
 
         if ($acct['emailaddr'] !== null) {
             if ($acct['emailaddr']) {
-                $tmp = trim(filter_var($acct['emailaddr'],FILTER_SANITIZE_EMAIL)); // TODO too strict
-                if( $tmp !== $acct['emailaddr'] || !is_email($acct['emailaddr']) ) {
+                $tmp = trim(filter_var($acct['emailaddr'], FILTER_SANITIZE_EMAIL)); // TODO too strict
+                if ($tmp !== $acct['emailaddr'] || !is_email($acct['emailaddr'])) {
                     throw new Exception(lang('error_adminacct_emailaddr'));
                 }
             }
         }
 
-        if( $acct['password'] !== null ) {
-            if( !$acct['password'] ) {
+        if ($acct['password'] !== null) {
+            if (!$acct['password']) {
                 throw new Exception(lang('error_adminacct_password'));
             }
-            $tmp = sanitizeVal($acct['password'],CMSSAN_NONPRINT);
-            if( $tmp !== $acct['password'] ) {
+            $tmp = sanitizeVal($acct['password'], ICMSSAN_NONPRINT);
+            if ($tmp !== $acct['password']) {
                 throw new Exception(lang('error_adminacct_password'));
             }
-            $tmp = sanitizeVal($acct['repeatpw'],CMSSAN_NONPRINT);
-            if( $tmp !== $acct['password'] ) {
+            $tmp = sanitizeVal($acct['repeatpw'], ICMSSAN_NONPRINT);
+            if ($tmp !== $acct['password']) {
                 throw new Exception(lang('error_adminacct_repeatpw'));
             }
-            if( ($error2 = $this->valid_pass($tmp)) !== true ) {
-                if( !isset($smarty) ) { $smarty = smarty(); }
+            if (($error2 = $this->valid_pass($tmp)) !== true) {
+                if (!isset($smarty)) {
+                    $smarty = smarty();
+                }
                 $smarty->assign('tellpass', $error2);
             }
         }
-        if( (isset($error1) && is_array($error1)) || (isset($error2) && is_array($error2)) ) {
+        if ((isset($error1) && is_array($error1)) || (isset($error2) && is_array($error2))) {
             $smarty->assign('doerr', 1);
             throw new RuntimeException('');
         }
-    }
-
-    protected function process()
-    {
-//N/A   \cms_installer\de_specialize_array($_POST);
-        if( isset($_POST['username']) ) { $this->_adminacct['username'] = de_specialize($_POST['username']); }
-        if( isset($_POST['emailaddr']) ) { $this->_adminacct['emailaddr'] = de_specialize($_POST['emailaddr']); }
-        if( isset($_POST['password']) ) { $this->_adminacct['password'] = de_specialize($_POST['password']); }
-        if( isset($_POST['repeatpw']) ) { $this->_adminacct['repeatpw'] = de_specialize($_POST['repeatpw']); }
-/*
-        if( isset($_POST['emailaccountinfo']) ) { $this->_adminacct['emailaccountinfo'] = (int)$_POST['emailaccountinfo']; }
-        else { $this->_adminacct['emailaccountinfo'] = 1; }
-*/
-        try {
-            $this->validate($this->_adminacct);
-            $this->get_wizard()->set_data('adminaccount',$this->_adminacct);
-            $url = $this->get_wizard()->next_url();
-            redirect($url);
-        }
-        catch( RuntimeException $t ) {
-            //redisplay with credentials
-            $s = $t->GetMessage();
-            if( $s ) {
-                $smarty = smarty();
-                $smarty->assign('message', $s);
-            }
-        }
-        catch( Throwable $t ) {
-            $smarty = smarty();
-            $smarty->assign('error',$t->GetMessage());
-        }
-    }
-
-    protected function display()
-    {
-        parent::display();
-        $smarty = smarty();
-
-        $app = get_app();
-        $config = $app->get_config();
-
-        $raw = $config['verbose'] ?? 0;
-        $smarty->assign('verbose',(int)$raw);
-
-        $tmp = $this->_adminacct;
-        $raw = $config['adminlogin'] ?? null;
-        if( $raw !== null ) {
-            $tmp['username'] = trim($raw);
-        }
-        $raw = $config['adminemail'] ?? null;
-        if( $raw !== null ) {
-            $tmp['emailaddr'] = trim($raw);
-        }
-        $raw = $config['adminpw'] ?? null;
-        if( $raw !== null ) {
-            $tmp['password'] = trim($raw); // TODO trim() maybe bad
-        }
-        specialize_array($tmp);
-        $smarty->assign('account', $tmp);
-        $smarty->display('wizard_step6.tpl');
-
-        $this->finish();
     }
 } // class

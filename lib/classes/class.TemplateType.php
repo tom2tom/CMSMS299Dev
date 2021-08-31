@@ -21,16 +21,18 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
 use CMSMS\DataException;
 use CMSMS\Events;
 use CMSMS\LockOperations;
-use CMSMS\SQLErrorException;
+use CMSMS\SingleItem;
+use CMSMS\SQLException;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
 use CMSMS\TemplateTypeAssistant;
 use CMSMS\Utils;
 use LogicException;
+use RuntimeException;
+use UnexpectedValueException;
 use const CMS_DB_PREFIX;
 use function audit;
 use function cms_to_stamp;
@@ -43,7 +45,6 @@ use function lang;
  * @license GPL
  * @since 2.99
  * @since 2.0 as global-namespace CmsLayoutTemplateType
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 class TemplateType
 {
@@ -61,45 +62,110 @@ class TemplateType
 	/**
 	 * @ignore
 	 */
-	const TABLENAME = 'layout_tpl_type';
+	const TABLENAME = 'layout_tpl_types';
+
+	/**
+	 * @ignore
+	 * self::TABLENAME fields
+	 */
+	private const PROPS = [
+		'id',
+		'originator',
+		'name',
+		'dflt_contents',
+		'description',
+		'lang_cb',
+		'dflt_content_cb',
+		'help_content_cb',
+		'has_dflt',
+		'requires_contentblocks',
+		'one_only',
+		'owner',
+		'create_date',
+		'modified_date',
+	];
 
 	/**
 	 * @ignore
 	 */
-	private $_dirty = false;
-
-	/**
-	 * @ignore
-	 */
-	private $_data = [];
-
-    // static properties here >> StaticProperties class ?
-	/**
-	 * @ignore
-	 */
-	private static $_cache;
-
-	/**
-	 * @ignore
-	 */
-	private static $_name_cache;
+	private $_dirty;
 
 	/**
 	 * @ignore
 	 */
 	private $_assistant;
 
+	/**
+	 * @ignore
+	 * This object's properties, some or all of self::PROPS
+	 */
+	private $_data;
+
+	// static properties here >> SingleItem property|ies ?
+	/**
+	 * @ignore
+	 * Intra-request cache of loaded type-objects
+	 * Each member like: id => object
+	 */
+	private static $_cache;
+
+	/**
+	 * @ignore
+	 * Intra-request cache of loaded type-objects' source
+	 * Each member like: originator::name => id
+	 */
+	private static $_name_cache;
+
+	/**
+	 * @ignore
+	 * Intra-request cache of all locks on TemplateType objects
+	 * Each member like: oid => lock-object
+	 */
 	private static $_lock_cache;
-	private static $_lock_cache_loaded = false;
+
+	/**
+	 * @ignore
+	 * Intra-request cache of flag whether _lock_cache has been populated
+	 */
+	private static $_lock_cache_loaded = FALSE;
+
+	/**
+	 * Constructor
+	 * @param mixed $props array | null Optional type-properties Since 2.99
+	 */
+	public function __construct($props = NULL)
+	{
+		$this->_data = [
+			'id' => 0,
+			'originator' => NULL,
+			'name' => NULL,
+			'dflt_contents' => NULL,
+			'description' => NULL,
+			'lang_cb' => NULL,
+			'dflt_content_cb' => NULL,
+			'help_content_cb' => NULL,
+			'has_dflt' => 0,
+			'requires_contentblocks' => 0,
+			'one_only' => 0,
+			'owner' => 1,
+			'create_date' => NULL,
+			'modified_date' => NULL,
+		];
+		if( $props && is_array($props) ) {
+			$keeps = array_intersect_key($props, $this->_data);
+			$this->_data = array_merge($this->_data, $keeps);
+		}
+		$this->_dirty = TRUE;
+	}
 
 	/**
 	 * Get the template-type id
 	 *
-	 * @return mixed int type id, or null if this type has no id ATM.
+	 * @return mixed int type id, or 0 or null if this type has no id ATM.
 	 */
 	public function get_id()
 	{
-		return $this->_data['id'] ?? null;
+		return $this->_data['id'] ?? NULL;
 	}
 
 	/**
@@ -110,8 +176,11 @@ class TemplateType
 	 */
 	public function get_originator($viewable = FALSE)
 	{
-		$out = $this->_data['originator'] ?? '';
-		if( $viewable && $out == self::CORE ) $out = 'Core';
+		$out = $this->_data['originator'] ?? NULL;
+		if( $viewable ) {
+			if( !$out ) { $out = ''; }
+			elseif( $out == self::CORE ) { $out = 'Core'; }
+		}
 		return $out;
 	}
 
@@ -168,11 +237,11 @@ class TemplateType
 	 * Record whether this template-type has a 'default' template.
 	 *
 	 * @param bool $flag Optional value, default true
-	 * @throws DataException
+	 * @throws UnexpectedValueException
 	 */
 	public function set_dflt_flag($flag = TRUE)
 	{
-		if( !is_bool($flag) ) throw new DataException('value is invalid for set_dflt_flag');
+		if( !is_bool($flag) ) throw new UnexpectedValueException('value is invalid for set_dflt_flag');
 		$this->_data['has_dflt'] = $flag;
 		$this->_dirty = TRUE;
 	}
@@ -233,11 +302,11 @@ class TemplateType
 	 * Record the owner of this template-type
 	 *
 	 * @param mixed $owner a number other than 0
-	 * @throws DataException
+	 * @throws LogicException
 	 */
 	public function set_owner($owner)
 	{
-		if( !is_numeric($owner) || (int)$owner == 0 ) throw new DataException('value is invalid for owner in '.__METHOD__);
+		if( !is_numeric($owner) || (int)$owner == 0 ) throw new LogicException('value is invalid for owner in '.__METHOD__);
 		$this->_data['owner'] = (int)$owner;
 		$this->_dirty = TRUE;
 	}
@@ -251,7 +320,7 @@ class TemplateType
 	public function get_created()
 	{
 		$str = $this->_data['create_date'] ?? '';
-		return ($str) ? cms_to_stamp($str) : null;
+		return ($str) ? cms_to_stamp($str) : NULL;
 	}
 
 	/**
@@ -302,7 +371,7 @@ class TemplateType
 	 */
 	public function get_lang_callback()
 	{
-		return $this->_data['lang_callback'] ?? null; //NOTE key != database field name
+		return $this->_data['lang_callback'] ?? NULL; //NOTE key != database field name
 	}
 
 	/**
@@ -325,7 +394,7 @@ class TemplateType
 	 */
 	public function get_help_callback()
 	{
-		return $this->_data['help_callback'] ?? null;
+		return $this->_data['help_callback'] ?? NULL;
 	}
 
 	/**
@@ -348,18 +417,18 @@ class TemplateType
 	 */
 	public function get_content_callback()
 	{
-		return $this->_data['content_callback'] ?? null;
+		return $this->_data['content_callback'] ?? NULL;
 	}
 
 	/**
 	 * Record whether at most one template of this type is permitted.
 	 *
 	 * @param bool $flag Optional, default true
-	 * @throws DataException
+	 * @throws UnexpectedValueException
 	 */
 	public function set_oneonly_flag($flag = TRUE)
 	{
-		if( !is_bool($flag) ) throw new DataException('value is invalid for set_oneonly_flag');
+		if( !is_bool($flag) ) throw new UnexpectedValueException('value is invalid for set_oneonly_flag');
 		$this->_data['one_only'] = $flag;
 		$this->_dirty = TRUE;
 	}
@@ -397,60 +466,60 @@ class TemplateType
 	}
 
 	/**
- 	* @ignore
- 	*/
- 	private static function get_locks() : array
- 	{
- 		if( !self::$_lock_cache_loaded ) {
- 			self::$_lock_cache = [];
- 			$tmp = LockOperations::get_locks('templatetype');
- 			if( $tmp ) {
- 				foreach( $tmp as $one ) {
- 					self::$_lock_cache[$one['oid']] = $one;
- 				}
- 			}
- 			self::$_lock_cache_loaded = true;
- 		}
- 		return self::$_lock_cache;
- 	}
+	 * @ignore
+	 */
+	private static function get_locks() : array
+	{
+		if( !self::$_lock_cache_loaded ) {
+			self::$_lock_cache = [];
+			$tmp = LockOperations::get_locks('templatetype');
+			if( $tmp ) {
+				foreach( $tmp as $one ) {
+					self::$_lock_cache[$one['oid']] = $one;
+				}
+			}
+			self::$_lock_cache_loaded = TRUE;
+		}
+		return self::$_lock_cache;
+	}
 
 	/**
- 	* Get any applicable lock for this template-type object
-	* @since 2.99
- 	*
- 	* @return mixed Lock | null
- 	* @see Lock
- 	*/
- 	public function get_lock()
- 	{
- 		$locks = self::get_locks();
- 		return $locks[$this->get_id()] ?? null;
- 	}
+	 * Get any applicable lock for this template-type object
+	 * @since 2.99
+	 *
+	 * @return mixed Lock | null
+	 * @see Lock
+	 */
+	public function get_lock()
+	{
+		$locks = self::get_locks();
+		return $locks[$this->get_id()] ?? NULL;
+	}
 
-    /**
- 	* Test whether this template-type object currently has a lock
-	* @since 2.99
- 	*
- 	* @return bool
- 	*/
- 	public function locked()
- 	{
- 		$lock = $this->get_lock();
- 		return is_object($lock);
- 	}
+	/**
+	 * Test whether this template-type object currently has a lock
+	 * @since 2.99
+	 *
+	 * @return bool
+	 */
+	public function locked()
+	{
+		$lock = $this->get_lock();
+		return is_object($lock);
+	}
 
-    /**
- 	* Test whether any lock associated with this object has expired
-	* @since 2.99
- 	*
- 	* @return bool
- 	*/
- 	public function lock_expired()
- 	{
- 		$lock = $this->get_lock();
- 		if( is_object($lock) ) return $lock->expired();
- 		return false;
- 	}
+	/**
+	 * Test whether any lock associated with this object has expired
+	 * @since 2.99
+	 *
+	 * @return bool
+	 */
+	public function lock_expired()
+	{
+		$lock = $this->get_lock();
+		if( is_object($lock) ) return $lock->expired();
+		return FALSE;
+	}
 
 	/**
 	 * Validate the integrity of a template-type object.
@@ -461,32 +530,32 @@ class TemplateType
 	 * This method throws an exception if an error is found in the integrity of the object.
 	 *
 	 * @param bool $is_insert Optional flag whether this is a for new (as opposed to updated) template-type. Default true
-	 * @throws LogicException or DataException
+	 * @throws DataException or UnexpectedValueException or LogicException
 	 */
 	protected function validate($is_insert = TRUE)
 	{
-		if( !$this->get_originator() ) throw new LogicException('Missing Type Originator');
-		if( !$this->get_name() ) throw new LogicException('Missing Type Name');
+		if( !$this->get_originator() ) throw new DataException('Missing Type Originator');
+		if( !$this->get_name() ) throw new DataException('Missing Type Name');
 		if( !preg_match('/[A-Za-z0-9_\,\.\ ]/',$this->get_name()) ) {
-			throw new DataException('Template type name cannot be \''.$this->get_name().'\'. Name must contain only letters, numbers and/or underscores.');
+			throw new UnexpectedValueException('Template type name cannot be \''.$this->get_name().'\'. Name must contain only letters, numbers and/or underscores.');
 		}
 
 		if( !$is_insert ) {
 			if( !isset($this->_data['id']) || (int)$this->_data['id'] < 1 ) throw new LogicException('Type id is not set');
 
 			// check for item with the same name
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
 			' WHERE originator = ? AND name = ? AND id != ?';
-			$dbr = $db->GetOne($query,[$this->get_originator(),$this->get_name(),$this->get_id()]);
+			$dbr = $db->getOne($query,[$this->get_originator(),$this->get_name(),$this->get_id()]);
 			if( $dbr ) throw new LogicException('A template-type named \''.$this->get_name().'\' already exists.');
 		}
 		else {
 			// check for item with the same name
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.
 			' WHERE originator = ? AND name = ?';
-			$dbr = $db->GetOne($query,[$this->get_originator(),$this->get_name()]);
+			$dbr = $db->getOne($query,[$this->get_originator(),$this->get_name()]);
 			if( $dbr ) throw new LogicException('A template-type named \''.$this->get_name().'\' already exists.');
 		}
 	}
@@ -497,7 +566,7 @@ class TemplateType
 	 * This method will ensure that the current object is valid, generate an id, and
 	 * insert the record into the database.  An exception will be thrown if errors occur.
 	 *
-	 * @throws SQLErrorException
+	 * @throws SQLException
 	 */
 	protected function _insert()
 	{
@@ -512,60 +581,74 @@ class TemplateType
 			}
 		}
 		else {
-			$cbl = null;
+			$cbl = NULL;
 		}
 		$cbh = $this->get_help_callback();
 		if( $cbh ) {
 			if( !is_scalar($cbh) ) {
-				$cbh = self::SERIAL.serialize($cbl);
+				$cbh = self::SERIAL.serialize($cbh);
 			}
 		}
 		else {
-			$cbh = null;
+			$cbh = NULL;
 		}
 		$cbc = $this->get_content_callback();
 		if( $cbc ) {
 			if( !is_scalar($cbc) ) {
-				$cbc = self::SERIAL.serialize($cbl);
+				$cbc = self::SERIAL.serialize($cbc);
 			}
 		}
 		else {
-			$cbc = null;
+			$cbc = NULL;
 		}
-
-		$db = AppSingle::Db();
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.
-' (originator,name,has_dflt,one_only,dflt_contents,description,lang_cb,help_content_cb,dflt_content_cb,requires_contentblocks,owner)
-VALUES (?,?,?,?,?,?,?,?,?,?,?)';
-		$dbr = $db->Execute($query,[
+		$db = SingleItem::Db();
+		$args = [
 			$this->get_originator(),
 			$this->get_name(),
-			$this->get_dflt_flag(),
-			$this->get_oneonly_flag(),
+			($this->get_dflt_flag() ? 1 : 0),
+			($this->get_oneonly_flag() ? 1 : 0),
 			$this->get_dflt_contents(),
 			$this->get_description(),
 			$cbl,
 			$cbh,
 			$cbc,
-			$this->get_content_block_flag() ? 1 : 0,
+			($this->get_content_block_flag() ? 1 : 0),
 			$this->get_owner(),
-]);
-		if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+			$db->DbTimeStamp(time(), false),
+		];
 
-		$this->_data['id'] = $db->Insert_ID();
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.
+' (
+originator,
+name,
+has_dflt,
+one_only,
+dflt_contents,
+description,
+lang_cb,
+help_content_cb,
+dflt_content_cb,
+requires_contentblocks,
+owner,
+create_date
+) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
+		$dbr = $db->execute($query,$args);
+		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
+
+		$this->_data['id'] = $db->Insert_ID(); // i.e. $dbr, here
+		$this->_dirty = NULL;
 
 		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Created');
-		$this->_dirty = null;
 	}
 
 
 	/**
 	 * Update the contents of the database to match the current record.
 	 *
-	 * This method will ensure that the current object is valid, generate an id, and
-	 * update the record in the database.  An exception will be thrown if errors occur.
+	 * This method will ensure that the current object is valid, generate an id,
+	 * and update the record in the database.
 	 *
-	 * @throws SQLErrorException
+	 * @throws SQLException if error occurs
 	 */
 	protected function _update()
 	{
@@ -579,28 +662,44 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 			}
 		}
 		else {
-			$cbl = null;
+			$cbl = NULL;
 		}
 		$cbh = $this->get_help_callback();
 		if( $cbh ) {
 			if( !is_scalar($cbh) ) {
-				$cbh = self::SERIAL.serialize($cbl);
+				$cbh = self::SERIAL.serialize($cbh);
 			}
 		}
 		else {
-			$cbh = null;
+			$cbh = NULL;
 		}
 		$cbc = $this->get_content_callback();
 		if( $cbc ) {
 			if( !is_scalar($cbc) ) {
-				$cbc = self::SERIAL.serialize($cbl);
+				$cbc = self::SERIAL.serialize($cbc);
 			}
 		}
 		else {
-			$cbc = null;
+			$cbc = NULL;
 		}
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
+		$args = [
+			$this->get_originator(),
+			$this->get_name(),
+			($this->get_dflt_flag() ? 1 : 0),
+			($this->get_oneonly_flag() ? 1 : 0),
+			$this->get_dflt_contents(),
+			$this->get_description(),
+			$cbl,
+			$cbh,
+			$cbc,
+			($this->get_content_block_flag() ? 1 : 0),
+			$this->get_owner(),
+			$db->DbTimeStamp(time(), FALSE),
+			$this->get_id(),
+		];
+
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET
 originator = ?,
 name = ?,
@@ -613,25 +712,15 @@ help_content_cb = ?,
 dflt_content_cb = ?,
 requires_contentblocks = ?,
 owner = ?
+modified_date = ?
 WHERE id = ?';
-		$dbr = $db->Execute($query,[
-			$this->get_originator(),
-			$this->get_name(),
-			$this->get_dflt_flag(),
-			$this->get_oneonly_flag(),
-			$this->get_dflt_contents(),
-			$this->get_description(),
-			$cbl,
-			$cbh,
-			$cbc,
-			$this->get_content_block_flag() ? 1 : 0,
-			$this->get_owner(),
-			$this->get_id()
-		]);
-		if( !$dbr ) throw new SQLErrorException($db->ErrorMsg());
-
-		$this->_dirty = null;
-		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Updated');
+		$db->execute($query,$args);
+		if( $db->errorNo() === 0 ) {
+			$this->_dirty = FALSE;
+			audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Updated');
+			return;
+		}
+		throw new SQLException($db->errMsg());
 	}
 
 	/**
@@ -663,7 +752,7 @@ WHERE id = ?';
 	/**
 	 * Delete the current object from the database (if it has been saved).
 	 *
-	 * @throws LogicException or SQLErrorException
+	 * @throws LogicException or SQLException
 	 */
 	public function delete()
 	{
@@ -672,10 +761,10 @@ WHERE id = ?';
 		Events::SendEvent('Core', 'DeleteTemplateTypePre', [ get_class($this) => &$this ]);
 		$tmp = TemplateOperations::template_query(['t:'.$this->get_id()]);
 		if( $tmp ) throw new LogicException('Cannot delete a template-type with existing templates');
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-		$dbr = $db->Execute($query,[$this->_data['id']]);
-		if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		$dbr = $db->execute($query,[$this->_data['id']]);
+		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
 
 		$this->_dirty = TRUE;
 		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Deleted');
@@ -694,7 +783,7 @@ WHERE id = ?';
 	public function create_new_template($name = '')
 	{
 		$ob = new Template();
-        $ob->set_originator($this->get_originator());
+		$ob->set_originator($this->get_originator());
 		if( $name ) $ob->set_name($name);
 		$ob->set_type( $this );
 		$ob->set_content( $this->get_dflt_contents() );
@@ -726,7 +815,7 @@ WHERE id = ?';
 			return $text;
 		}
 
-		$text = null;
+		$text = NULL;
 		// no callback specified. Maybe a fallback if this originator is a loadable module.
 		$originator = $this->get_originator();
 		if( $originator !== self::CORE ) {
@@ -753,7 +842,7 @@ WHERE id = ?';
 			$tn = $cb($this->get_name());
 		}
 		else {
-			$to = $tn = null;
+			$to = $tn = NULL;
 		}
 		if( !$to ) { $to = $this->get_originator(); }
 		if( $to == self::CORE ) { $to = lang('core'); }
@@ -761,7 +850,7 @@ WHERE id = ?';
 		return $to.'::'.$tn;
 	}
 
-	 /**
+	/**
 	 * Reset the default contents of this template-type back to factory default
 	 *
 	 * @throws LogicException
@@ -801,7 +890,7 @@ WHERE id = ?';
 			}
 		}
 		else {
-			$t = null;
+			$t = NULL;
 		}
 		$row['lang_callback'] = $t;
 
@@ -815,7 +904,7 @@ WHERE id = ?';
 			}
 		}
 		else {
-			$t = null;
+			$t = NULL;
 		}
 		$row['help_callback'] = $t;
 
@@ -829,13 +918,12 @@ WHERE id = ?';
 			}
 		}
 		else {
-			$t = null;
+			$t = NULL;
 		}
 		$row['content_callback'] = $t;
 		unset($row['lang_cb'],$row['help_content_cb'],$row['dflt_content_cb']);
 
-		$ob = new self();
-		$ob->_data = $row;
+		$ob = new self($row);
 		$ob->_dirty = FALSE;
 
 		self::$_cache[$ob->get_id()] = $ob;
@@ -844,40 +932,62 @@ WHERE id = ?';
 	}
 
 	/**
-	 * Load a TemplateType object from the database.
+	 * Retrieve a TemplateType from the request-cache or from database.
 	 *
-	 * This method throws an exception when the requested object cannot be found.
-	 *
-	 * @throws DataException
-	 * @param mixed $val An integer template-type id, or a string in the form of Originator::Name
-	 * @return TemplateType
+	 * @param mixed $a int template-type id, or string name like 'originator::name'
+	 * @return TemplateType object
+	 * @throws RuntimeException if nil or > 1 matches are found
 	 */
-	public static function load($val)
+	public static function load($a)
 	{
-		$db = AppSingle::Db();
-		$row = null;
-		if( is_numeric($val) && (int)$val > 0 ) {
-			$val = (int) $val;
-			if( isset(self::$_cache[$val]) ) return self::$_cache[$val];
-
+		$db = SingleItem::Db();
+		$row = NULL;
+		if( is_numeric($a) && (int)$a > 0 ) {
+			$a = (int)$a;
+			if( isset(self::$_cache[$a]) ) return self::$_cache[$a];
+			// just in case: check the database
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-			$row = $db->GetRow($query,[$val]);
+			$row = $db->getRow($query,[$a]);
+			if( $row ) {
+				$id = (int)$row['id'];
+				self::$_cache[$id] = self::_load_from_data($row);
+				return self::$_cache[$id];
+			}
 		}
-		elseif( strlen($val) > 0 ) {
-			if( isset(self::$_name_cache[$val]) ) {
-				$id = self::$_name_cache[$val];
+		elseif( is_string($a) && $a !== '' ) {
+			if( isset(self::$_name_cache[$a]) ) {
+				$id = self::$_name_cache[$a];
 				return self::$_cache[$id];
 			}
 
-			$tmp = explode('::',$val);
-			if( count($tmp) == 2 ) {
+			$parts = explode('::',$a,2);
+			if( count($parts) == 1 ) {
+				$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
+				$all = $db->getArray($query,[$a]);
+				if( $all ) {
+					if( count($all) == 1 ) {
+						$row = $all[0];
+					}
+					else {
+						throw new RuntimeException("Multiple template-types match '$a'");
+					}
+				}
+				else {
+					$row = false;
+				}
+			}
+			else {
 				$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ? AND name = ?';
-				if( $tmp[0] == 'Core' or $tmp[0] == 'core' ) $tmp[0] = self::CORE;
-				$row = $db->GetRow($query,[trim($tmp[0]),trim($tmp[1])]);
+				if( !$parts[0] || strcasecmp($parts[0],'core') == 0 )  { $parts[0] = self::CORE; }
+				$row = $db->getRow($query,[trim($parts[0]),trim($parts[1])]);
+				if( $row ) {
+					self::$_cache[$row['id']] = self::_load_from_data($row);
+					return self::$_cache[$row['id']];
+				}
 			}
 		}
 		if( $row ) return self::_load_from_data($row);
-		throw new DataException('Could not find template-type identified by '.$val);
+		throw new RuntimeException('Could not find template-type identified by '.$a);
 	}
 
 	/**
@@ -891,11 +1001,11 @@ WHERE id = ?';
 	{
 		if( !$originator ) throw new LogicException('Orignator is empty');
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ?';
 		if( self::$_cache ) $query .= ' AND id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
 		$query .= ' ORDER BY IF(modified_date, modified_date, create_date) DESC';
-		$list = $db->GetArray($query,[$originator]);
+		$list = $db->getArray($query,[$originator]);
 		if( !$list ) return;
 
 		foreach( $list as $row ) {
@@ -916,11 +1026,11 @@ WHERE id = ?';
 	 */
 	public static function get_all()
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		if( self::$_cache && count(self::$_cache) ) $query .= ' WHERE id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
 		$query .= '	ORDER BY IF(modified_date, modified_date, create_date)';
-		$list = $db->GetArray($query);
+		$list = $db->getArray($query);
 		if( !$list ) return;
 
 		foreach( $list as $row ) {
@@ -949,9 +1059,9 @@ WHERE id = ?';
 		}
 		if( !$list2 ) return;
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.implode(',',$list).')';
-		$list = $db->GetArray($query);
+		$list = $db->getArray($query);
 		if( !$list ) return;
 
 		$out = [];
@@ -974,16 +1084,19 @@ WHERE id = ?';
 	/**
 	 * Get the assistant object with utility methods for this template-type (if such an assistant object can be instantiated)
 	 *
-	 * @return TemplateTypeAssistant
 	 * @since 2.2
+	 * @return mixed TemplateTypeAssistant | null
 	 */
 	public function get_assistant()
 	{
 		if( !$this->_assistant ) {
+			$org = $this->get_originator(); // TODO if '__CORE__' ?
+			$nm = $this->get_name();
+			if( !$org || !$nm ) return;
 			$classnames = [];
-			$classnames[] = 'CMSMS\\internal\\'.$this->get_originator().$this->get_name().'_Type_Assistant';
-			$classnames[] = 'CMSMS\\Layout\\'.$this->get_originator().$this->get_name().'_Type_Assistant';
-			$classnames[] = $this->get_originator().'_'.$this->get_name().'_Type_Assistant';
+			$classnames[] = 'CMSMS\internal\\'.$org.$nm.'_Type_Assistant';
+			$classnames[] = 'CMSMS\Layout\\'.$org.$nm.'_Type_Assistant';
+			$classnames[] = $org.'_'.$nm.'_Type_Assistant';
 			foreach( $classnames as $cn ) {
 				if( class_exists($cn) ) {
 					$tmp = new $cn();
@@ -994,7 +1107,6 @@ WHERE id = ?';
 				}
 			}
 		}
-
 		return $this->_assistant;
 	}
 
@@ -1002,8 +1114,8 @@ WHERE id = ?';
 	 * Get a usage string for this template-type.
 	 *
 	 * @since 2.2
-	 * @param string $name The name of the template object.
-	 * @return string
+	 * @param string $name The name of this object.
+	 * @return mixed string | null
 	 */
 	public function get_usage_string($name)
 	{

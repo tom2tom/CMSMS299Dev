@@ -46,7 +46,7 @@ abstract class CacheDriver
     /**
      * @ignore
      */
-    protected $_group = 'default'; //not empty
+    protected $_space = 'default'; //anything not-empty
 
     /**
      * @ignore
@@ -55,18 +55,19 @@ abstract class CacheDriver
 
     /**
      * @ignore
-     * NULL for unlimited
+     * default value-lifetime (seconds), 0 for unlimited
      */
     protected $_lifetime = 3600; //1 hour
 
-    public function __construct($opts)
+    public function __construct(array $params)
     {
-        $uuid = AppSingle::App()->GetSiteUUID();
-        $this->_globlspace = $this->hash($uuid); //might be replaced in $opts or subclass
+        $uuid = SingleItem::App()->GetSiteUUID();
+        $this->_globlspace = $this->hash($uuid); //might be replaced in $params or subclass
 
-        if (is_array($opts)) {
+        if ($params) {
+            // TODO migrate 'group' to 'space'
             $_keys = ['lifetime', 'group', 'myspace', 'auto_cleaning'];
-            foreach ($opts as $key => $value) {
+            foreach ($params as $key => $value) {
                 if (in_array($key,$_keys)) {
                     $tmp = '_'.$key;
                     $this->$tmp = $value;
@@ -77,83 +78,112 @@ abstract class CacheDriver
 
     /**
      * Get a cached value
-     * If the $group parameter is not specified the current group will be used
-     * @see CacheDriver::set_group()
      *
      * @param string $key
-     * @param string $group Optional name, default ''
+     * @param string $space Optional keys-space name, default ''.
+     *  If not specified, the default keys-space will be used.
      */
-    abstract public function get($key, $group = '');
+    abstract public function get(string $key, string $space = '');
 
     /**
-     * Get all cached values in a group
-     * If the $group parameter is not specified the current group will be used
-     * @see CacheDriver::set_group()
+     * Get all cached values in a keys-space
      *
-     * @param string $group Optional keys-space name, default ''
+     * @param string $space Optional keys-space name, default ''.
+     *  If not specified, the default keys-space will be used.
      * @return array, each member like $key=>$value, or maybe empty
      */
-    abstract public function get_all($group = '');
+    abstract public function get_all(string $space = '');
 
     /**
-     * Get all cached keys in a group
-     * If the $group parameter is not specified the current group will be used
-     * @see CacheDriver::set_group()
+     * Get all keys/identifiers in a keys-space
      *
-     * @param string $group Optional keys-space name, default ''
+     * @param string $space Optional keys-space name, default ''.
+     *  If not specified, the default keys-space will be used.
      * @return array, each member like $key=>$value, or maybe empty
      */
-    abstract public function get_index($group = '');
+    abstract public function get_index(string $space = '');
 
     /**
-     * Test if a cached value exists.
-     * If the $group parameter is not specified the current group will be used
-     * @see CacheDriver::set_group()
+     * Report whether a cached value exists
      *
      * @param string $key
-     * @param string $group Optional keys-space name, default ''
+     * @param string $space Optional keys-space name, default ''.
+     *  If not specified, the default keys-space will be used.
      * @return bool
      */
-    abstract public function has($key, $group = '');
+    abstract public function has(string $key, string $space = '');
 
     /**
      * Set a cached value
-     * If the $group parameter is not specified the current group will be used
-     * @see CacheDriver::set_group()
      *
      * @param string $key
      * @param mixed $value
-     * @param string $group Optional keys-space name, default ''
+     * @param string $space Optional keys-space name, default ''.
+     *  If not specified, the default keys-space will be used.
      */
-    abstract public function set($key, $value, $group = '');
+    abstract public function set(string $key, $value, string $space = '');
 
     /**
-     * Delete a cached value
-     * If the $group parameter is not specified the current group will be used
+     * Set a cached value with a custom lifetime
      *
-     * @see CacheDriver::set_group()
      * @param string $key
-     * @param string $group Optional keys-space name, default ''
+     * @param mixed $value
+     * $param int $ttl Optional value-lifetime (seconds), default 0. Hence unlimited.
+     * @param string $space Optional keys-space name, default ''.
+     *  If not specified, the default keys-space will be used.
      */
-    abstract public function delete($key, $group = '');
+    abstract public function set_timed(string $key, $value, int $ttl = 0, string $space = '');
 
     /**
-     * Delete all cached values in a group
-     * If the $group parameter is empty, all groups will be cleared
-     * @see CacheDriver::set_group()
+     * Remove a cached value
      *
-     * @param string $group Optional keys-space name, default ''
+     * @param string $key
+     * @param string $space Optional keys-space name, default ''.
+     *  If not specified, the default keys-space will be used.
      */
-    abstract public function clear($group = '');
+    abstract public function delete(string $key, string $space = '');
 
     /**
-     * Set the current group
+     * Remove all cached values from a keys-space, or from the whole cache
      *
-     * @param string $group Ignored if empty
+     * @param string $space Optional keys-space name, default ''.
+     *  If not specified, the default keys-space will be used.
+     *  If $space is '*' or '__ALL__', the whole cache (i.e. all spaces) will be cleared.
+     * @return mixed bool | int no. of items removed
      */
-    public function set_group($group)
+    abstract public function clear(string $space = '');
+
+    /**
+     * Set the default keys-space
+     * @since 2.99
+     *
+     * @param string $space Ignored if empty
+     */
+    public function set_space(string $space)
     {
-        if ($group) $this->_group = trim($group);
+        if ($space) { $this->_space = trim($space); }
+    }
+
+    /**
+     * Get the default keys-space
+     * @since 2.99
+     *
+     * @return string
+     */
+    public function get_space() : string
+    {
+        return $this->_space;
+    }
+
+    /**
+     * Construct a cache keys-space identifier corresponding to the supplied string
+     * @param string $str a unique identifier e.g. a class name
+     * @return string 10 alphanum bytes
+     */
+    protected function get_cachespace(string $str) : string
+    {
+        $value = base_convert(hash('fnv1a64', $str), 16, 36);
+        return substr($value, 0, 10);
     }
 
     /**
@@ -164,7 +194,7 @@ abstract class CacheDriver
      */
     private function hash(string $str, int $len = 10) : string
     {
-        $value = hash('fnv132', $str);
+        $value = hash('fnv1a64', $str);
         //conversion generates 6 output-bytes for each 8 input-bytes
         for ($l = 6; $l < $len; $l += $l) {
             $value .= $value;
@@ -174,25 +204,25 @@ abstract class CacheDriver
     }
 
     /**
-     * Construct a cache-key with identifiable group-prefix
+     * Construct a cache-key with identifiable space-prefix
      * @param string $key cache-item key
      * @param string $class initiator class
-     * @param string $group cache keys-space
+     * @param string $space cache keys-space
      * @return string
      */
-    protected function get_cachekey(string $key, string $class, string $group) : string
+    protected function get_cachekey(string $key, string $class, string $space) : string
     {
-        return $this->_globlspace.$this->hash(CMS_ROOT_URL.$class.$group).$key;
+        return $this->_globlspace.$this->hash(CMS_ROOT_URL.$class.$space).$key;
     }
 
     /**
-     * Construct a cache-key group-prefix (matching the one generated by get_cachekey())
+     * Construct a cache-key space-prefix (matching the one generated by get_cachekey())
      * @param string $class initiator class
-     * @param string $group cache keys-space name
+     * @param string $space cache keys-space name
      * @return string
      */
-    protected function get_cacheprefix(string $class, string $group) : string
+    protected function get_cacheprefix(string $class, string $space) : string
     {
-        return $this->get_cachekey('', $class, $group);
+        return $this->get_cachekey('', $class, $space);
     }
 } // class

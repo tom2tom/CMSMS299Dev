@@ -4,7 +4,7 @@ Altbier - an admin-console theme for CMS Made Simple
 Derived in 2018 by John Beatrice <johnnyb [AT] cmsmadesimple [DOT] org>
 from the work provided to the community by:
  Goran Ilic (ja@ich-mach-das.at)
- Robert Campbell (calguy1000@cmsmadesimple.org)
+ Robert Campbell
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -28,11 +28,11 @@ namespace CMSMS; // TODO PHP5.4+ OK if pre-2.99?
 //use function CMSMS\sanitizeVal; // 2.99+
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\StylesMerger;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -46,6 +46,8 @@ use function cms_installed_jquery;
 use function cms_join_path;
 use function cms_path_to_url;
 use function cmsms;
+use function CMSMS\get_page_foottext;
+use function CMSMS\get_page_headtext;
 use function get_userid;
 use function lang;
 use function munge_string_to_url;
@@ -282,9 +284,9 @@ EOS;
 
 		if ($this->currentversion()) {
 			$auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
-			$modinst = AppSingle::ModuleOperations()->get_module_instance($auth_module, '', true);
-			if ($modinst) {
-				$data = $modinst->fetch_login_panel();
+			$mod = SingleItem::ModuleOperations()->get_module_instance($auth_module, '', true);
+			if ($mod) {
+				$data = $mod->fetch_login_panel();
 				if (isset($data['infomessage'])) $data['message'] = $data['infomessage'];
 				if (isset($data['warnmessage'])) $data['warning'] = $data['warnmessage'];
 				if (isset($data['errmessage'])) $data['error'] = $data['errmessage'];
@@ -295,7 +297,7 @@ EOS;
 			$smarty->assign($data);
 
 			//extra shared parameters for the form TODO get from the current login-module
-			$config = AppSingle::Config(); // for the inclusion
+			$config = SingleItem::Config(); // for the inclusion
 			$fp = cms_join_path(dirname(__DIR__), 'assets', 'function.extraparms.php');
 			require_once $fp;
 			$smarty->assign($tplvars);
@@ -463,9 +465,9 @@ EOS;
 			if ($title) {
 				$subtitle = $this->subtitle;
 			} elseif ($module_name) {
-				$modinst = Utils::get_module($module_name);
-				$title = $modinst->GetFriendlyName();
-				$subtitle = $modinst->GetAdminDescription();
+				$mod = Utils::get_module($module_name);
+				$title = $mod->GetFriendlyName();
+				$subtitle = $mod->GetAdminDescription();
 /*			} else {
 				// no title, get one from the breadcrumbs.
 				$bc = $this->get_breadcrumbs();
@@ -527,7 +529,7 @@ EOS;
 		  ->assign('content', str_replace('</body></html>', '', $html))
 		  ->assign('theme', $this)
 		  ->assign('secureparam', $secureparam);
-		$user = AppSingle::UserOperations()->LoadUserByID($userid);
+		$user = SingleItem::UserOperations()->LoadUserByID($userid);
 		$smarty->assign('username', $user->username);
 		// user-selected language
 		$lang = UserParams::get_for_user($userid, 'default_cms_language');
@@ -547,8 +549,8 @@ EOS;
 		$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
 
 		if ($flag) {
-			$smarty->assign('header_includes', $this->get_headtext())
-			->assign('bottom_includes', $this->get_footertext());
+			$smarty->assign('header_includes', get_page_headtext())
+			 ->assign('bottom_includes', get_page_foottext());
 		} else {
 			// replicate AdminHeaderSetup(), with different js
 			$dir = ''; //TODO or '-rtl'

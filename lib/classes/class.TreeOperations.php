@@ -36,7 +36,7 @@ use RuntimeException;
  */
 class TreeOperations
 {
-  // static properties here >> StaticProperties class ?
+  // static properties here >> SingleItem property|ies ?
   /**
    * @ignore
    */
@@ -56,7 +56,7 @@ class TreeOperations
   }
 
   /**
-   * Load content tree from a flat array (from SysDataCache 'content_flatlist')
+   * Load content tree from a flat array (from LoadedData 'content_flatlist')
    *
    * This method uses recursion to load the tree.
    *

@@ -21,21 +21,23 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMailer\PrefCrypter;
 
-if (!function_exists('cmsms')) exit;
+//if (some worthy test fails) exit;
 
-$dict = $db->NewDataDictionary(); // old NewDataDictionary($db);
-if ($this->mod->platformed) {
+if ($this->platformed) {
+    $dict = $db->NewDataDictionary(); // old NewDataDictionary($db);
+
     $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_cmsmailer_platforms');
     $dict->ExecuteSQLArray($sqlarray);
+
+    $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_cmsmailer_props');
+    $dict->ExecuteSQLArray($sqlarray);
 }
-$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_cmsmailer_props');
-$dict->ExecuteSQLArray($sqlarray);
 
 PrefCrypter::remove_preference($this, PrefCrypter::MKEY);
 $this->RemovePreference();
 
 $this->RemovePermission('Modify Mail Preferences');
-if ($this->mod->platformed) {
+if ($this->platformed) {
     $this->RemovePermission('ModifyEmailateways');
     $this->RemovePermission('ViewEmailGateways');
 //  $this->RemovePermission('ModifyEmailTemplates');

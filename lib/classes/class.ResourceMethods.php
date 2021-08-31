@@ -22,11 +22,12 @@ namespace CMSMS;
 
 use CMSMS\AdminMenuItem;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\Crypto;
 use CMSMS\FormUtils;
 use CMSMS\LangOperations;
 use CMSMS\RequestParameters;
+use CMSMS\SingleItem;
+use LogicException;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
@@ -58,11 +59,11 @@ class ResourceMethods
 		}
 		if (strncmp($name, 'Create', 6) == 0) {
 			//maybe it's a now-removed form-element call
-			// static properties here >> StaticProperties class ?
+			// static properties here >> SingleItem property|ies ?
 			static $flect = null;
 
 			if ($flect === null) {
-				$flect = new ReflectionClass('CMSMS\\IFormTags');
+				$flect = new ReflectionClass('CMSMS\IFormTags');
 			}
 			try {
 				$md = $flect->getMethod($name);
@@ -90,16 +91,17 @@ class ResourceMethods
 	public function UninstallPostMessage() {}
 
 	// default versions of methods required/accessed by the module-manager module
+	// NOTE no event-processing, permission-changes(checks are ok), redirections, messaging like ShowErrors() etc
 
 	public function CheckPermission(...$perms) : bool
 	{
 		$userid = get_userid(false);
-	    return ($userid) ? check_permission($userid, ...$perms) : false;
+		return ($userid) ? check_permission($userid, ...$perms) : false;
 	}
 
 	// TODO arguments $targetcontentonly, $prettyurl are ignored ATM
 	public function create_url($id, $action, $returnid = null, $params = [],
-		$inline = false, $targetcontentonly = false, $prettyurl = '', $format = 2) : string
+		$inline = false, $targetcontentonly = false, $prettyurl = '', bool $relative = false, $format = 0) : string
 	{
 		if (!$id) { $id = chr(mt_rand(97, 122)) . Crypto::random_string(3, true); }
 		$parms = [
@@ -119,19 +121,25 @@ class ResourceMethods
 			}
 		}
 
+		$base_url = ($relative) ? '/' : CMS_ROOT_URL;
 		if (is_numeric($returnid)) {
-			$text = CMS_ROOT_URL . '/index.php?';
+			$text = $base_url . '/index.php?';
 		} else {
-			$text = CMS_ROOT_URL . '/lib/moduleinterface.php?';
+			$text = $base_url . '/lib/moduleinterface.php?';
 		}
-		$text .= RequestParameters::create_action_params($parms, $format); //TODO for resource
+		$text .= RequestParameters::create_action_params($parms, $format); //TODO ok for resource-action ?
 		if ($format == 3) {
 			$text = entitize($text, ENT_QUOTES | ENT_SUBSTITUTE, '');
 		}
 		return $text;
 	}
 
-	public function DoAction(string $action, $id, array $params)
+	public function create_action_url($id, string $action, array $params = [], bool $relative = false, string $prettyurl = '')
+	{
+		return $this->create_url($id, $action, '', $params, false, false, $prettyurl, $relative, 2);
+	}
+
+	public function DoAction(string $action, $id, array $params) : string
 	{
 		$params['id'] = $id;
 		$params['action'] = $action;
@@ -139,7 +147,7 @@ class ResourceMethods
 		return $this->Run($params);
 	}
 
-	public function DoActionBase(string $action, $id, array $params, $returnid, $smartob)
+	public function DoActionBase(string $action, $id, array $params, $returnid, $smartob) : string
 	{
 		$params['id'] = $id;
 		$params['action'] = $action;
@@ -185,20 +193,10 @@ class ResourceMethods
 		return cms_path_to_url($this->modpath);
 	}
 
+	// deprecated use SingleItem::LoadedMetadata()->get('capable_modules',$force, ...)
 	public function GetModulesWithCapability(string $capability, array $params = []) : array
 	{
-		$result = [];
-		$tmp = AppSingle::ModuleOperations()->GetCapableModules($capability,$params);
-		if ($tmp) {
-			for ($i = 0, $n = count($tmp); $i < $n; $i++) {
-				if (is_object($tmp[$i])) {
-					$result[] = get_class($tmp[$i]);
-				} else {
-					$result[] = $tmp[$i];
-				}
-			}
-		}
-		return $result;
+		return SingleItem::LoadedMetadata()->get('capable_modules', false, $capability, $params);
 	}
 
 	public function GetName() : string
@@ -244,7 +242,7 @@ class ResourceMethods
 			$resource = $tpl_name;
 		}
 
-		$smarty = AppSingle::Smarty();
+		$smarty = SingleItem::Smarty();
 		$tpl = $smarty->createTemplate($resource); //, null, null, $smarty);
 		$tpl->assign([
 			'mod' => $this->mod, //or just $this ?
@@ -252,6 +250,8 @@ class ResourceMethods
 		]);
 		return $tpl;
 	}
+
+//	public function GetTemplateResource()
 
 	public function get_tasks()
 	{
@@ -274,11 +274,11 @@ class ResourceMethods
 	{
 		$fp = $this->modpath.DIRECTORY_SEPARATOR.'method.install.php';
 		if (is_file($fp)) {
-			$gCms = AppSingle::App();
-			$db = AppSingle::Db();
-			$config = AppSingle::Config();
+			$gCms = SingleItem::App();
+			$db = SingleItem::Db();
+			$config = SingleItem::Config();
 			//TODO other in-scope vars?
-			//$smarty = AppSingle::Smarty(); c.f. CMSModule::Install()
+			//$smarty = SingleItem::Smarty(); c.f. CMSModule::Install()
 			$res = include_once $fp;
 			return ($res && $res !== 1) ? $res : false;
 		}
@@ -293,6 +293,9 @@ class ResourceMethods
 	{
 		return LangOperations::lang_from_realm($this->GetName(), ...$args);
 	}
+
+//	public function Redirect();
+//  public function RedirectToAdminTab();
 
 	public function RemovePreference(string $name = '', bool $like = false)
 	{
@@ -310,10 +313,10 @@ class ResourceMethods
 			// sort out relevant variables c.f. module-action in-scope vars
 			$id = $params['id'] ?? '';
 			$returnid = $params['returnid'] ?? 0;
-			$gCms = AppSingle::App();
-			$db = AppSingle::Db();
-			$config = AppSingle::Config();
-			$smarty = AppSingle::Smarty();
+			$gCms = SingleItem::App();
+			$db = SingleItem::Db();
+			$config = SingleItem::Config();
+			$smarty = SingleItem::Smarty();
 			$uuid = $gCms->GetSiteUUID(); //since 2.99
 			try {
 				ob_start();
@@ -345,15 +348,18 @@ class ResourceMethods
 		return AppParams::set($this->GetName().AppParams::NAMESPACER.$name, $val);
 	}
 
+//  public function Set...(); typed message for next request (if redirection supprted)
+//  public function Show...(); typed message during current request
+
 	public function Uninstall()
 	{
 		$fp = $this->modpath.DIRECTORY_SEPARATOR.'method.uninstall.php';
 		if (is_file($fp)) {
-			$gCms = AppSingle::App();
-			$db = AppSingle::Db();
-			$config = AppSingle::Config();
+			$gCms = SingleItem::App();
+			$db = SingleItem::Db();
+			$config = SingleItem::Config();
 			//TODO other in-scope vars?
-			//$smarty = AppSingle::Smarty(); c.f. CMSModule::Uninstall()
+			//$smarty = SingleItem::Smarty(); c.f. CMSModule::Uninstall()
 			$res = include_once $fp;
 			return ($res && $res !== 1) ? $res : false;
 		}
@@ -366,11 +372,11 @@ class ResourceMethods
 	{
 		$fp = $this->modpath.DIRECTORY_SEPARATOR.'method.upgrade.php';
 		if (is_file($fp)) {
-			$gCms = AppSingle::App();
-			$db = AppSingle::Db();
-			$config = AppSingle::Config();
+			$gCms = SingleItem::App();
+			$db = SingleItem::Db();
+			$config = SingleItem::Config();
 			// TODO other in-scope vars?
-			//$smarty = AppSingle::Smarty(); c.f. CMSModule::Upgrade()
+			//$smarty = SingleItem::Smarty(); c.f. CMSModule::Upgrade()
 			$res = include_once $fp;
 			return ($res && $res !== 1) ? $res : false;
 		}

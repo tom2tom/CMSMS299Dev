@@ -23,9 +23,11 @@ namespace CMSMS\AdminAlerts;
 
 use CMSMS\AppParams;
 use CMSMS\Crypto;
+use CMSMS\DataException;
 use CMSMS\Utils;
 use InvalidArgumentException;
 use LogicException;
+use RuntimeException;
 use function get_userid;
 use function startswith;
 
@@ -42,7 +44,6 @@ use function startswith;
  * @since 2.2
  * @package CMS
  * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @prop string $name The alert name.  This is set by default on construction, but can be overridden.  It is used to control how the alert is saved.
  * @prop string $module An optional module name.  If specified, the module will be loaded when the alert is read from the database.
  * @prop string $priority The alert priority
@@ -243,7 +244,7 @@ abstract class Alert
         $obj = null;
         if( !empty($tmp['module']) && strtolower($tmp['module']) != 'core' ) {
             $mod = Utils::get_module($tmp['module']); // hopefully module is valid.
-            if( $mod ) $obj = unserialize($tmp['data']);
+            if( $mod ) { $obj = unserialize($tmp['data']); }
         } else {
             $obj = unserialize($tmp['data']);
         }
@@ -266,22 +267,22 @@ abstract class Alert
     /**
      * Given an alert preference name, load it from the database.
      *
-     * @throws InvalidArgumentException
      * @throws LogicException
      * @param string $name The preference name
      * @return mixed Alert | null
+     * @throws DataException or RuntimeException
      */
     public static function load_by_name($name, $throw = true )
     {
         $name = trim($name);
-        if( !$name ) throw new InvalidArgumentException('Invalid alert name passed to '.__METHOD__);
+        if( !$name ) throw new DataException('No alert name provided to '.__METHOD__);
         if( !startswith( $name, 'adminalert_') ) $name = self::get_fixed_prefname( $name );
         $tmp = AppParams::get( $name );
-        if( !$tmp && $throw ) throw new LogicException('Could not find an alert with the name '.$name);
+        if( !$tmp && $throw ) throw new RuntimeException('Could not find an alert with the name '.$name);
         if( !$tmp ) return;
 
         $obj = self::decode_object($tmp);
-        if( !is_object($obj) ) throw new LogicException('Problem loading alert named '.$name);
+        if( !is_object($obj) ) throw new RuntimeException('Problem loading alert named '.$name);
         return $obj;
     }
 
@@ -349,7 +350,7 @@ abstract class Alert
      */
     public function save()
     {
-        if( !$this->name ) throw new LogicException('A '.self::class.' object must have a name');
+        if( !$this->name ) throw new LogicException('A '.__CLASS__.' object must have a name');
 
         // can only save if preference does not already exist
         //$tmp = CMSMS\AppParams::get($this->get_prefname());

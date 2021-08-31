@@ -161,8 +161,8 @@ class ScriptsMerger
      */
     public function render_scripts(string $output_path = '', bool $force = false, bool $defer = true)
     {
-        if ($this->_items && !count($this->_items)) return; // nothing to do
-        $base_path = ($output_path) ? rtrim($output_path, ' /\\') : TMP_CACHE_LOCATION;
+        if (!$this->_items) return; // nothing to do
+        $base_path = ($output_path) ? rtrim($output_path, ' \/') : TMP_CACHE_LOCATION;
         if (!is_dir($base_path)) return; // nowhere to put it
 
         // auto-append the defer/migrate script
@@ -227,7 +227,7 @@ class ScriptsMerger
      */
     public function page_content(string $output_path = '', bool $force = false, bool $defer = false) : string
     {
-        $base_path = ($output_path) ? rtrim($output_path, ' /\\') : TMP_CACHE_LOCATION;
+        $base_path = ($output_path) ? rtrim($output_path, ' \/') : TMP_CACHE_LOCATION;
         $cache_filename = $this->render_scripts($base_path, $force, $defer);
         if ($cache_filename) {
             $output_file = $base_path.DIRECTORY_SEPARATOR.$cache_filename;

@@ -20,11 +20,11 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminMenuItem;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
 use CMSMS\HookOperations;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
+use CMSMS\SingleItem;
 use CMSMS\TemplateType;
 use CMSMS\Utils;
 use News\AdjustStatusJob;
@@ -32,10 +32,6 @@ use News\AdjustStatusTask;
 use News\AdminOperations;
 use News\CreateDraftAlertJob;
 use News\CreateDraftAlertTask;
-
-/**
- * @todo this News uses many 2.99-conformant renamed/respaced classes
- */
 
 class News extends CMSModule
 {
@@ -58,6 +54,7 @@ class News extends CMSModule
     public function GetAuthor() { return 'Ted Kulp'; }
     public function GetAuthorEmail() { return 'ted@cmsmadesimple.org'; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
+    public function GetDependencies() { return ['FilePicker' => '1.0']; } // for article & category icons
     public function GetEventDescription($eventname) { return $this->lang('eventdesc-' . $eventname); }
     public function GetEventHelp($eventname) { return $this->lang('eventhelp-' . $eventname); }
     public function GetFriendlyName() { return $this->Lang('news'); }
@@ -69,7 +66,7 @@ class News extends CMSModule
     public function IsPluginModule() { return true; } //deprecated in favour of capability
 //    public function LazyLoadAdmin() { return true; }
 //    public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.99.0'; }
+    public function MinimumCMSVersion() { return '2.99'; }
 
     public function InitializeFrontend()
     {
@@ -130,7 +127,7 @@ class News extends CMSModule
         $this->SetParameterType('detailtemplate', CLEAN_STRING); //name
         $this->SetParameterType('idlist', CLEAN_STRING); //??
         $this->SetParameterType('lang', CLEAN_STRING); //TODO explain
-        $this->SetParameterType('moretext', CLEAN_STRING); //TODO submitted?
+        $this->SetParameterType('moretext', CLEAN_STRING); //label, TODO ever submitted?
         $this->SetParameterType('number', CLEAN_INT); //alias for pagenumber ??
         $this->SetParameterType('pagelimit', CLEAN_INT);
         $this->SetParameterType('pagenumber', CLEAN_INT);
@@ -186,6 +183,8 @@ End Date:   {\$enddate|cms_date_format}
 EOS;
     }
 */
+    //TODO some of these might be better placed in the Utils class
+
     public function SearchResultWithParams($returnid, $articleid, $attr = '', $params = '')
     {
         $result = [];
@@ -193,10 +192,10 @@ EOS;
         if ($attr == 'article') {
             $db = $this->GetDb();
             $q = 'SELECT news_title,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
-            $row = $db->GetRow( $q, [ $articleid ] );
+            $row = $db->getRow( $q, [ $articleid ] );
 
             if ($row) {
-                $gCms = AppSingle::App();
+                $gCms = SingleItem::App();
                 //0 position is the prefix displayed in the list results.
                 $result[0] = $this->GetFriendlyName();
 
@@ -236,12 +235,12 @@ EOS;
         return $result;
     }
 
-    public function SearchReindex(&$module)
+    public function SearchReindex($module)
     {
         $db = $this->GetDb();
 
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE searchable = 1 AND status = \'published\' OR status = \'final\' ORDER BY start_time';
-        $rst = $db->Execute($query);
+        $rst = $db->execute($query);
         $nsexp = $this->GetPreference('expired_searchable',0) == 0;
         while ($rst && !$rst->EOF) {
             $module->AddWords($this->GetName(),
@@ -279,6 +278,23 @@ EOS;
         return $fmt;
     }
 
+    /**
+     * Migrate the supplied string from database datetime-field format
+     * like 'Y-m-d H:i:s' to the preferred presentation format
+     *
+     * @param mixed $datetime string | null
+     * @return string, maybe empty
+     */
+    public function FormatforDisplay($datetime) : string
+    {
+        if ($datetime) {
+            $fmt = $this->GetDateFormat();
+            $t = strtotime($datetime);
+            return strftime($fmt, $t);
+        }
+        return ''.$datetime;
+    }
+
     public function GetNotificationOutput($priority = 2)
     {
         // if this user has permission to change News articles from
@@ -289,10 +305,10 @@ EOS;
             $output = [];
             if( $this->CheckPermission('Approve News') ) {
                 $db = $this->GetDb();
-                $now = time();
-                $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status!=\'published\' AND status!=\'final\'
-                  AND (end_time IS NULL OR end_time=0 OR end_time>'.$now.')';
-                $count = $db->GetOne($query);
+                $longnow = $db->DbTimeStamp(time());
+                $query = 'SELECT COUNT(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status!=\'published\' AND status!=\'final\'
+                  AND (end_time IS NULL OR end_time>'.$longnow.')';
+                $count = $db->getOne($query);
                 if( $count ) {
                     $obj = new stdClass();
                     $obj->priority = 2;
@@ -310,27 +326,27 @@ EOS;
         $str = $this->GetName();
         RouteOperations::del_static('',$str);
 
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $c = strtoupper($str[0]);
         $x = substr($str,1);
         $x1 = '['.$c.strtolower($c).']'.$x;
 
-        $route = new Route('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)\/(?P<junk>.*?)\/d,(?P<detailtemplate>.*?)$/',
+        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)\/(?<returnid>[0-9]+)\/(?<junk>.*?)\/d,(?<detailtemplate>.*?)$/',
                               $str);
         RouteOperations::add_static($route);
-        $route = new Route('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)\/(?P<junk>.*?)$/',$str);
+        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)\/(?<returnid>[0-9]+)\/(?<junk>.*?)$/',$str);
         RouteOperations::add_static($route);
-        $route = new Route('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)$/',$str);
+        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)\/(?<returnid>[0-9]+)$/',$str);
         RouteOperations::add_static($route);
-        $route = new Route('/'.$x1.'\/(?P<articleid>[0-9]+)$/',$str,
+        $route = new Route('/'.$x1.'\/(?<articleid>[0-9]+)$/',$str,
                               ['returnid'=>$this->GetPreference('detail_returnid',-1)]);
         RouteOperations::add_static($route);
 
-        $now = time();
+        $longnow = $db->DbTimeStamp(time());
         $query = 'SELECT news_id,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE status = ? AND news_url != \'\' AND '
-            . '('.$db->ifNull('start_time',1).'<'.$now.') AND (end_time IS NULL OR end_time=0 OR end_time>'.$now.')';
+            . '('.$db->ifNull('start_time',1).'<'.$longnow.') AND (end_time IS NULL OR end_time>'.$longnow.')';
         $query .= ' ORDER BY start_time DESC';
-        $tmp = $db->GetArray($query,['published']);
+        $tmp = $db->getArray($query,['published']);
 
         if( is_array($tmp) ) {
             foreach( $tmp as $one ) {
@@ -406,7 +422,7 @@ EOS;
         return [
          'title' => $this->Lang('settings_title'),
          //'desc' => 'useful text goes here', // optional useful text
-         'url' => $this->create_url('m1_','defaultadmin','',['activetab'=>'settings']), // if permitted
+         'url' => $this->create_action_url('m1_','defaultadmin',['activetab'=>'settings']), // if permitted
          //optional 'text' => custom link-text | explanation e.g need permission
         ];
     }
@@ -429,7 +445,7 @@ EOS;
 
     public function get_adminsearch_slaves()
     {
-        return ['News\\AdminSearch_slave'];
+        return ['News\AdminSearch_slave'];
     }
 
     public function GetAdminMenuItems()

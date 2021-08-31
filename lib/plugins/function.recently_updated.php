@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
 
 function smarty_function_recently_updated($params, $template)
@@ -36,7 +36,7 @@ function smarty_function_recently_updated($params, $template)
 	$showtitle = cms_to_bool($params['showtitle'] ?? true);
 	$dateformat = trim($params['dateformat'] ?? '');
 	if( !$dateformat ) {
-		if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
+		if( AppState::test(AppState::ADMIN_PAGE) ) {
 			$userid = get_userid(false);
 			$dateformat = UserParams::get_for_user($userid, 'date_format_string');
 		}
@@ -53,14 +53,14 @@ function smarty_function_recently_updated($params, $template)
 		$output = '<ul>';
 	}
 
-	$db = AppSingle::Db();
+	$db = SingleItem::Db();
 	// Get list of most recently updated pages excluding the home page
 	$sql = 'SELECT * FROM '.CMS_DB_PREFIX."content
 WHERE (type='content' OR type='link') AND default_content!=1 AND active=1 AND show_in_menu=1
 ORDER BY IF(modified_date, modified_date, create_date) DESC LIMIT ".((int)$number);
-	$rst = $db->Execute($sql);
+	$rst = $db->execute($sql);
 	if( !$rst ) {
-		$output = 'DB error: '. $db->ErrorMsg().'<br />';
+		$output = 'DB error: '. $db->errorMsg().'<br />';
 		// @todo: throw an exception here  - trigger_error()
 	if( !empty($params['assign']) ) {
 			$template->assign(trim($params['assign']), $output);
@@ -68,7 +68,7 @@ ORDER BY IF(modified_date, modified_date, create_date) DESC LIMIT ".((int)$numbe
 		}
 		return $output;
 	}
-	$hm = AppSingle::App()->GetHierarchyManager();
+	$hm = SingleItem::App()->GetHierarchyManager();
 	while( $rst && $updated_page = $rst->FetchRow() ) {
 		$curnode = $hm->find_by_tag('id', $updated_page['content_id']);
 		$curcontent = $curnode->getContent();

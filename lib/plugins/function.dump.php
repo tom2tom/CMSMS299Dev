@@ -73,7 +73,7 @@ function smarty_function_dump($params, $template)
 		if( $pos1 == $pos2 && $pos1 == 1000000 ) {
 			$tmp = $work;
 		}
-		else if( $pos !== FALSE && $pos < 100000 ) {
+		elseif( $pos !== FALSE && $pos < 100000 ) {
 			$tmp = substr($work,0,$pos);
 		}
 
@@ -81,7 +81,7 @@ function smarty_function_dump($params, $template)
 			if( is_object($obj) ) {
 				$str .= '->'.$tmp;
 			}
-			else if( is_array($obj) ) {
+			elseif( is_array($obj) ) {
 				$str .= '[\''.$tmp.'\']';
 			}
 			$work = substr($work,$pos+$len);
@@ -119,7 +119,7 @@ function smarty_function_dump($params, $template)
 function smarty_cms_about_function_dump()
 {
 	echo <<<'EOS'
-<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Author: Robert Campbell</p>
 <p>Change History:</p>
 <ul>
  <li>None</li>

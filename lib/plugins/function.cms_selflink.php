@@ -20,14 +20,14 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\LangOperations;
+use CMSMS\SingleItem;
 use function CMSMS\de_specialize;
 use function CMSMS\specialize;
 
 function smarty_function_cms_selflink($params, $template)
 {
-	$gCms = AppSingle::App();
+	$gCms = SingleItem::App();
 	$hm = $gCms->GetHierarchyManager();
 	$url = '';
 	$urlparam = '';
@@ -154,7 +154,7 @@ function smarty_function_cms_selflink($params, $template)
 
 		case 'start':
 			// default home page
-			$pageid = AppSingle::ContentOperations()->GetDefaultPageId();
+			$pageid = SingleItem::ContentOperations()->GetDefaultPageId();
 			break;
 
 		case 'up':

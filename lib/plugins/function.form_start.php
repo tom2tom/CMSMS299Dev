@@ -20,8 +20,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\SingleItem;
 
 function smarty_function_form_start($params, $template)
 {
@@ -37,11 +37,11 @@ function smarty_function_form_start($params, $template)
 	'method' => 'post',
 	'enctype' => 'multipart/form-data',
 	];
-	$gCms = AppSingle::App();
-	if( AppState::test_state(AppState::STATE_LOGIN_PAGE) ) {
+	$gCms = SingleItem::App();
+	if( AppState::test(AppState::LOGIN_PAGE) ) {
 		$tagparms['action'] = 'login.php'; // TODO might be using a login-module action
 	}
-	elseif( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
+	elseif( AppState::test(AppState::ADMIN_PAGE) ) {
 		// check if it's a module action
 		if( $mactparms['module'] ) {
 			$tmp = $template->getTemplateVars('_action');
@@ -59,7 +59,7 @@ function smarty_function_form_start($params, $template)
 			if( is_array($tmp) && isset($tmp['action']) ) $mactparms['action'] = $tmp['action'];
 
 			$tagparms['action'] = CMS_ROOT_URL.'/lib/moduleinterface.php';
-			if( !$mactparms['returnid'] ) $mactparms['returnid'] = AppSingle::App()->get_content_id();
+			if( !$mactparms['returnid'] ) $mactparms['returnid'] = SingleItem::App()->get_content_id();
 			$hm = $gCms->GetHierarchyManager();
 			$node = $hm->find_by_tag('id',$mactparms['returnid']);
 			if( $node ) {

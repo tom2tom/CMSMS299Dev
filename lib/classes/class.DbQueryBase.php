@@ -35,7 +35,6 @@ use const CMS_DEPREC;
  * @since 2.0 as global-namespace CmsDbQueryBase
  * @package CMS
  * @license GPL
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @property-read array $fields Associative array of the current row of the resultset (read only)
  * @property-read boolean $EOF  Indicates whether the resultset is past the last element (read only)
  * @property-read int $limit The maximum number of rows to return in one resultset (read only)
@@ -69,7 +68,7 @@ abstract class DbQueryBase
 	protected $_rs = null;
 
 	/**
-	 * The arguments originally passed to the class constructor and used
+	 * The arguments originally provided to the class constructor and used
 	 * when generating the query
 	 */
 	protected $_args = [];
@@ -87,7 +86,7 @@ abstract class DbQueryBase
 		if( is_array($args) ) {
 			$this->_args = $args;
 		}
-		else if( is_string($args) ) {
+		elseif( is_string($args) ) {
 			$this->_args = explode(',',$args);
 		}
 	}

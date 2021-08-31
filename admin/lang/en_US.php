@@ -21,6 +21,8 @@ $lang = [
 
 // A
 'about' => 'About',
+'accessdescription' => 'Manage website-folders\' access controls',
+'accesslabel' => 'Folder Controls',
 'accountupdated' => 'User account has been updated.',
 'action' => 'Action',
 'actioncontains' => 'Action Contains',
@@ -328,6 +330,7 @@ $lang = [
 //'error_mailnotset_notest' => 'Mail settings have not been saved.  Cannot test',
 //'error_mailtest_noaddress' => 'No address specified for testing',
 //'error_mailtest_notemail' => 'Value specified is not a valid email address',
+'error_informationbad' => 'Missing or incorrect information',
 'error_module_mincmsversion' => 'This module requires a newer version of CMS Made Simple',
 'error_multiusersettings' => 'Cannot set multiple user settings options at the same time',
 'error_no_content_blocks' => 'No content block was detected in this template.  Please ensure that you have at least the default {content} block defined in this template',
@@ -469,7 +472,7 @@ $lang = [
 // H
 'handle_404' => 'Custom 404 Handling',
 'handlers' => 'Handlers',
-'hasdependents' => 'Has Dependants',
+'hasdependents' => 'Has Dependents',
 'headtags' => 'Head Tags',
 'help_page_alias' => 'A unique identifier used in the \'pretty-URL\' for the page',
 'help_page_disablewysiwyg' => 'Check this box to prevent rich-text-editing of page content-blocks. (Is there a sensible reason for doing that ??)',
@@ -530,7 +533,6 @@ $lang = [
 'info_user_active2' => 'Toggle this flag to preserve the user information, but prevent the user from logging in to the admin console',
 'info_user_switch' => 'Test as this user',
 'info_validation' => 'This will compare the checksums found in the uploaded file with the files on the current installation.  It can assist in finding problems with uploads, or exactly what files were modified if this system has been hacked.',
-'informationmissing' => 'Information missing',
 'insecure' => 'Insecure (HTTP)',
 'installed_modules' => 'Installed Modules',
 'installed' => 'Installed',
@@ -549,8 +551,8 @@ $lang = [
 'itsbeensincelogin' => 'It has been %s since you last logged in',
 
 // J
-'jobslabel' => 'Background Jobs',
 'jobsdescription' => 'Inspect background jobs',
+'jobslabel' => 'Background Jobs',
 'jsdisabled' => 'Sorry, this function requires that you have JavaScript enabled.',
 'json_function' => 'JSON functions',
 
@@ -582,8 +584,8 @@ $lang = [
 'logintitle' => 'Log in to CMS Made Simple&trade;',
 'loginto' => 'Log in to %s',
 'logout' => 'Logout',
-'loglabel' =>  'Admin Log',
 'logdescription' => 'View all or filtered admin log contents',
+'loglabel' => 'Admin Log',
 'lostpw' => 'Forgot your password?',
 'lostpwemail' => '
 <h3>Hello</h3>
@@ -638,6 +640,7 @@ $lang = [
 'minutes' => 'minutes',
 'missingdependency' => 'Missing dependency',
 'missingparams' => 'Missing and/or invalid parameter(s)',
+'missingtype' => 'Missing %s',
 'modifyeventhandlers' => 'Modify Event Handlers', //also used for elements' title
 'modifygroupassignments' => 'Modify Group Assignments',
 'module_help' => 'Module Help',
@@ -798,7 +801,8 @@ $lang = [
 'perm_Modify_User_Plugins' => 'Modify User-Tags',
 'perm_Remove_Pages' => 'Remove Pages',
 'perm_Reorder_Content' => 'Reorder Content',
-'perm_View_Tag_Help' => 'View Tag Help',
+'perm_View_Tag_Help' => 'View Plugins Help',
+'perm_View_UserTag_Help' => 'View User Plugins Help',
 'permdesc_Manage_All_Content' => 'A user with this permission can perform all tasks on any and all content pages',
 'permdesc_Modify_Any_Page' => 'A user with this permission has additional editor privileges on all content pages',
 'permission_information' => 'Permission Information',
@@ -822,7 +826,6 @@ $lang = [
 'previewdescription' => 'Preview changes',
 'previous' => 'Previous',
 'profile' => 'Profile',
-'pseudocron_granularity' => 'Pseudocron Granularity',
 
 // R
 'read' => 'Read',

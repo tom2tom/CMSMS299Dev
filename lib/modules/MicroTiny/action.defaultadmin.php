@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use MicroTiny\Profile;
 
-if( !function_exists('cmsms') ) exit;
+//if( some worthy test fails ) exit;
 if(!$this->VisibleToAdminUser() ) exit;
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl')); //,null,null,$smarty);
@@ -30,17 +30,16 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl')); //
 
 try {
   $list = Profile::list_all();
-  if( !is_array($list) || count($list) == 0 ) throw new CmsInvalidDataException('No profiles found');
+  if( !$list || !is_array($list) ) throw new Exception('No profiles found');
   $profiles = [];
   foreach( $list as $one ) {
     $profiles[] = Profile::load($one);
   }
   $tpl->assign('profiles',$profiles);
 }
-catch( Exception $e ) {
-  $this->ShowErrors($e->GetMessage());
+catch( Throwable $t ) {
+  $this->ShowErrors($t->GetMessage());
   $tpl->assign('profiles',null);
 }
 
 $tpl->display();
-return '';

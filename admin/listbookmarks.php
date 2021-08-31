@@ -20,13 +20,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\BookmarkOperations;
+use CMSMS\SingleItem;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -49,7 +47,7 @@ if ($n > $limit) {
 	$maxsee = $n;
 }
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 $iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', lang('addbookmark'),'','','systemicon');
 $iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'),'','','systemicon');
 $icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),'','','systemicon');
@@ -57,7 +55,7 @@ $icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),
 $extras = get_secure_param_array();
 $urlext = get_secure_param();
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign([
 	'access' => $access,
 	'addurl' => 'addbookmark.php',
@@ -76,7 +74,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('listbookmarks.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

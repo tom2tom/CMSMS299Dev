@@ -23,10 +23,10 @@ namespace CMSMS;
 
 use cms_content_tree;
 use CMSMS\AdminUtils;
-use CMSMS\AppSingle;
 use CMSMS\ContentType;
 use CMSMS\contenttypes\ContentBase;
 use CMSMS\DeprecationNotice;
+use CMSMS\SingleItem;
 use Exception;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
@@ -73,25 +73,26 @@ final class ContentOperations
 
 	/* *
 	 * @ignore
+	 * @private to prevent direct creation (even by SingleItem class)
 	 */
-	//private function __construct() {}
+	//private function __construct() {} TODO public iff wanted by SingleItem ?
 
-	/* *
+	/**
 	 * @ignore
 	 */
-	//private function __clone() {}
+	private function __clone() {}
 
 	/**
 	 * Get the singleton instance of this class.
 	 * This method is called over a hundred times during a typical request,
 	 * so warrants being a singleton.
-	 * @deprecated since 2.99 instead use CMSMS\AppSingle::ContentOperations()
+	 * @deprecated since 2.99 instead use CMSMS\SingleItem::ContentOperations()
 	 * @return ContentOperations
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::ContentOperations()'));
-		return AppSingle::ContentOperations();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\SingleItem::ContentOperations()'));
+		return SingleItem::ContentOperations();
 	}
 
 	/**
@@ -105,7 +106,7 @@ final class ContentOperations
 	public function register_content_type($obj) : bool
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ContentTypeOperations::AddContentType'));
-		return AppSingle::ContentTypeOperations()->AddContentType($obj);
+		return SingleItem::ContentTypeOperations()->AddContentType($obj);
 	}
 
 	/**
@@ -119,7 +120,7 @@ final class ContentOperations
 	public function LoadContentType($type)
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ContentTypeOperations::LoadContentType'));
-		return AppSingle::ContentTypeOperations()->LoadContentType($type);
+		return SingleItem::ContentTypeOperations()->LoadContentType($type);
 	}
 
 	/**
@@ -137,7 +138,7 @@ final class ContentOperations
 	public function ListContentTypes(bool $byclassname = FALSE, bool $allowed = FALSE, bool $system = FALSE)
 	{
 		assert(empty(CMS_DEPREC), new DeprecationNotice('method','ContentTypeOperations::ListContentTypes'));
-		return AppSingle::ContentTypeOperations()->ListContentTypes($byclassname,$allowed,$system);
+		return SingleItem::ContentTypeOperations()->ListContentTypes($byclassname,$allowed,$system);
 	}
 
 	// =========== END OF CONTENT-TYPE METHODS ===========
@@ -153,11 +154,11 @@ final class ContentOperations
 	public function ListAdditionalEditors() : array
 	{
 		$opts = [];
-		$allusers = AppSingle::UserOperations()->LoadUsers();
+		$allusers = SingleItem::UserOperations()->LoadUsers();
 		foreach( $allusers as &$one ) {
 			$opts[$one->id] = $one->username;
 		}
-		$allgroups = AppSingle::GroupOperations()->LoadGroups();
+		$allgroups = SingleItem::GroupOperations()->LoadGroups();
 		foreach( $allgroups as &$one ) {
 			if( $one->id == 1 ) continue; // exclude super-admin group (they have all privileges anyways)
 			$val = - (int)$one->id;
@@ -176,7 +177,7 @@ final class ContentOperations
 	 */
 	public function getContentObject()
 	{
-		return AppSingle::App()->get_content_object();
+		return SingleItem::App()->get_content_object();
 	}
 
 	/**
@@ -221,7 +222,7 @@ final class ContentOperations
 		if( $type instanceof ContentType ) {
 			$type = $type->type;
 		}
-		$ctype = AppSingle::ContentTypeOperations()->LoadContentType($type, $editable);
+		$ctype = SingleItem::ContentTypeOperations()->LoadContentType($type, $editable);
 		if( is_object($ctype) ) {
 			if( $editable && empty($ctype->editorclass) ) {
 				$editable = false; //revert to using displayable form, hopefully also editable
@@ -252,14 +253,14 @@ final class ContentOperations
 		$id = (int)$id;
 		if( $id < 1 ) { $id = $this->GetDefaultContent(); }
 
-		$cache = AppSingle::SystemCache();
+		$cache = SingleItem::SystemCache();
 		$contentobj = $cache->get($id,'tree_pages');
 		if( !$contentobj ) {
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id=?';
-			$row = $db->GetRow($query, [$id]);
+			$row = $db->getRow($query, [$id]);
 			if( $row ) {
-				$ctype = AppSingle::ContentTypeOperations()->get_content_type($row['type']);
+				$ctype = SingleItem::ContentTypeOperations()->get_content_type($row['type']);
 				if( $ctype ) {
 //					unset($row['metadata']);
 					$classname = $ctype->class;
@@ -288,17 +289,18 @@ final class ContentOperations
 	 * Load and return the content object corresponding to the given identifier (alias|id).
 	 *
 	 * @param mixed $alias null|bool|int|string The identifier of the content object to load
-	 * @param bool $only_active If true, only return the object if it's active flag is true. Defaults to false.
-	 * @return mixed The matched ContentBase object, or null.
+	 * @param bool $only_active If true, only return the object if its active flag
+	 *  is true. Default false.
+	 * @return mixed The matched ContentBase object | null
 	 */
-	public function LoadContentFromAlias($alias, bool $only_active = false)  //TODO ensure relevant content-object
+	public function LoadContentFromAlias($alias, bool $only_active = false)  //TODO ensure appropriate variant of content-object
 	{
-		$contentobj = AppSingle::SystemCache()->get($alias,'tree_pages');
+		$contentobj = SingleItem::SystemCache()->get($alias,'tree_pages');
 		if( $contentobj === null ) {
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE (content_id=? OR content_alias=?)';
 			if( $only_active ) { $query .= ' AND active=1'; }
-			$id = $db->GetOne($query,[ $alias,$alias ]);
+			$id = $db->getOne($query,[ $alias,$alias ]);
 			if( $id ) {
 				return $this->LoadContentFromId($id);
 			}
@@ -329,7 +331,7 @@ final class ContentOperations
 
 		while( $current_parent_id > 0 ) {
 			$item_order = max($row['item_order'], 1);
-			$hier = str_pad($item_order, 3, '0', STR_PAD_LEFT) . '.' . $hier; //max 999 since 2.99, was 99999
+			$hier = str_pad($item_order, 4, '0', STR_PAD_LEFT) . '.' . $hier; //max usable order 9999 since 2.99, was 99999
 			$idhier = $current_parent_id . '.' . $idhier;
 			$pathhier = $row['alias'] . '/' . $pathhier;
 			$current_parent_id = $row['parent_id'];
@@ -341,7 +343,7 @@ final class ContentOperations
 		if (strlen($idhier) > 0) $idhier = substr($idhier, 0, -1);
 		if (strlen($pathhier) > 0) $pathhier = substr($pathhier, 0, -1);
 
-		// static properties here >> StaticProperties class ?
+		// static properties here >> SingleItem property|ies ?
 		// if we actually did something, return the row.
 		static $_cnt;
 		$a = ($hier == $saved_row['hierarchy']);
@@ -365,11 +367,11 @@ final class ContentOperations
 	public function SetAllHierarchyPositions()
 	{
 		// load some data about all pages into memory... and convert into a hash.
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$sql = 'SELECT content_id, parent_id, item_order, content_alias AS alias, hierarchy, id_hierarchy, hierarchy_path FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
 /*
-		$list = $db->GetArray($sql);
-		if( !count($list) ) {
+		$list = $db->getArray($sql);
+		if( !$list ) {
 			// nothing to do, get outa here.
 			return;
 		}
@@ -379,17 +381,17 @@ final class ContentOperations
 		}
 		unset($list);
 */
-		$hash = $db->GetAssoc($sql);
+		$hash = $db->getAssoc($sql);
 		if( !$hash ) {
 			return;
 		}
 		// would be nice to use a transaction here.
 //		static $_n;
-		$stmt = $db->Prepare('UPDATE '.CMS_DB_PREFIX.'content SET hierarchy = ?, id_hierarchy = ?, hierarchy_path = ? WHERE content_id = ?');
+		$stmt = $db->prepare('UPDATE '.CMS_DB_PREFIX.'content SET hierarchy = ?, id_hierarchy = ?, hierarchy_path = ? WHERE content_id = ?');
 		foreach( $hash as $content_id => $row ) {
 			$changed = $this->_set_hierarchy_position($content_id,$hash);
 			if( is_array($changed) ) {
-				$db->Execute($stmt, [$changed['hierarchy'], $changed['id_hierarchy'], $changed['hierarchy_path'], $content_id]);
+				$db->execute($stmt, [$changed['hierarchy'], $changed['id_hierarchy'], $changed['hierarchy_path'], $content_id]);
 			}
 		}
 		$stmt->close();
@@ -404,7 +406,7 @@ final class ContentOperations
 	 */
 	public function GetLastContentModification()
 	{
-		return AppSingle::SysDataCache()->get('latest_content_modification');
+		return SingleItem::LoadedData()->get('latest_content_modification');
 	}
 
 	/**
@@ -415,13 +417,14 @@ final class ContentOperations
 	 */
 	public function SetContentModified()
 	{
-		$cache = AppSingle::SysDataCache();
-		$cache->release('latest_content_modification');
-		$cache->release('default_content');
-		$cache->release('content_flatlist');
-		$cache->release('content_tree');
-		$cache->release('content_quicklist');
-		AppSingle::SystemCache()->clear('tree_pages');
+		$cache = SingleItem::LoadedData();
+// OR ->refresh () ready for next use ?
+		$cache->delete('latest_content_modification');
+		$cache->delete('default_content');
+		$cache->delete('content_flatlist');
+		$cache->delete('content_tree');
+		$cache->delete('content_quicklist');
+		SingleItem::SystemCache()->clear('tree_pages');
 		//etc for CM list
 	}
 
@@ -434,7 +437,7 @@ final class ContentOperations
 	 */
 	public function GetAllContentAsHierarchy(bool $loadcontent = false)
 	{
-		return AppSingle::App()->GetHierarchyManager();
+		return SingleItem::App()->GetHierarchyManager();
 	}
 
 	/**
@@ -452,7 +455,7 @@ final class ContentOperations
 			return;
 		}
 		$_loaded = 1;
-		$cache = AppSingle::SystemCache();
+		$cache = SingleItem::SystemCache();
 
 		$expr = [];
 		$loaded_ids = $cache->getindex('tree_pages');
@@ -465,13 +468,14 @@ final class ContentOperations
 		if( $showinmenu ) {
 			$expr[] = 'show_in_menu = 1';
 		}
-		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content FORCE INDEX (idx_content_by_idhier)';
+		// NOTE, this 'index-hint' can be a problem! the name might be different now ??
+		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content FORCE INDEX (i_contentid_hierarchy)';
 		if( $expr ) {
 			$query .= ' WHERE '.implode(' AND ',$expr);
 		}
 
-		$db = AppSingle::Db();
-		$rst = $db->Execute($query);
+		$db = SingleItem::Db();
+		$rst = $db->execute($query);
 
 		if( $loadprops ) {
 			$child_ids = [];
@@ -485,7 +489,7 @@ final class ContentOperations
 			if( $child_ids ) {
 				// get all the properties for the child_ids
 				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content_props WHERE content_id IN ('.implode(',',$child_ids).') ORDER BY content_id';
-				$tmp = $db->GetArray($query);
+				$tmp = $db->getArray($query);
 			}
 
 			// re-organize the tmp data into a hash of arrays of properties for each content id.
@@ -502,7 +506,7 @@ final class ContentOperations
 			}
 		}
 
-		$valids = array_keys(AppSingle::ContentTypeOperations()->get_content_types());
+		$valids = array_keys(SingleItem::ContentTypeOperations()->get_content_types());
 
 		// build the content objects
 		while( !$rst->EOF() ) {
@@ -547,8 +551,8 @@ final class ContentOperations
 	 */
 	public function LoadChildren(int $id = null, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
 	{
-		$db = AppSingle::Db();
-		$cache = AppSingle::SystemCache();
+		$db = SingleItem::Db();
+		$cache = SingleItem::SystemCache();
 
 		if( $explicit_ids ) {
 			$loaded_ids = $cache->getindex('tree_pages');
@@ -559,10 +563,9 @@ final class ContentOperations
 		if( $explicit_ids ) {
 			$expr = 'content_id IN ('.implode(',',$explicit_ids).')';
 			if( !$all ) $expr .= ' AND active = 1';
-
-			// note, this is MySQL specific... why is index hint needed?
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content FORCE INDEX (idx_content_by_idhier) WHERE '.$expr.' ORDER BY hierarchy';
-			$contentrows = $db->GetArray($query);
+			// NOTE, this 'index-hint' can be a problem! the name might be different now ??
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content FORCE INDEX (i_contentid_hierarchy) WHERE '.$expr.' ORDER BY hierarchy';
+			$contentrows = $db->getArray($query);
 		}
 		elseif( isset($loaded_ids) ) {
 			return;
@@ -578,7 +581,7 @@ final class ContentOperations
 			else {
 				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ? AND active = 1 ORDER BY hierarchy';
 			}
-			$contentrows = $db->GetArray($query, [$id]);
+			$contentrows = $db->getArray($query, [$id]);
 		}
 
 		// get the content ids from the returned data
@@ -592,7 +595,7 @@ final class ContentOperations
 			if( $child_ids ) {
 				// get all the properties for all the children
 				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content_props WHERE content_id IN ('.implode(',',$child_ids).') ORDER BY content_id';
-				$tmp = $db->GetArray($query);
+				$tmp = $db->getArray($query);
 			}
 			else {
 				$tmp = null;
@@ -612,7 +615,7 @@ final class ContentOperations
 			}
 		}
 
-		$valids = array_keys(AppSingle::ContentTypeOperations()->get_content_types());
+		$valids = array_keys(SingleItem::ContentTypeOperations()->get_content_types());
 
 		// build the content objects
 		for( $i = 0, $n = count($contentrows); $i < $n; $i++ ) {
@@ -658,15 +661,15 @@ final class ContentOperations
 	 */
 	public function SetDefaultContent(int $id)
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET default_content=0 WHERE default_content!=0';
-		$db->Execute($sql);
+		$db->execute($sql);
 
 		$contentobj = $this->LoadContentFromId($id); //TODO ensure relevant content-object
 		$contentobj->SetDefaultContent(true);
 		$contentobj->Save();
 
-		AppSingle::SysDataCache()->release('default_content');
+		SingleItem::LoadedData()->refresh('default_content');
 	}
 
 	/**
@@ -676,7 +679,7 @@ final class ContentOperations
 	 */
 	public function GetDefaultContent() : int
 	{
-		return (int)AppSingle::SysDataCache()->get('default_content');
+		return (int)SingleItem::LoadedData()->get('default_content');
 	}
 
 	/**
@@ -702,7 +705,7 @@ final class ContentOperations
 	public function GetAllContent(bool $loadprops=true)
 	{
 		debug_buffer('get all content...');
-		$hm = AppSingle::App()->GetHierarchyManager();
+		$hm = SingleItem::App()->GetHierarchyManager();
 		$list = $hm->getFlatList();
 
 		$this->LoadAllContent($loadprops);
@@ -747,7 +750,7 @@ final class ContentOperations
 	 */
 	public function GetPageIDFromAlias( string $alias )
 	{
-		$hm = AppSingle::App()->GetHierarchyManager();
+		$hm = SingleItem::App()->GetHierarchyManager();
 		$node = $hm->find_by_tag('alias',$alias);
 		if( $node ) return $node->get_tag('id');
 	}
@@ -760,10 +763,10 @@ final class ContentOperations
 	 */
 	public function GetPageIDFromHierarchy( string $position )
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 
 		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE hierarchy = ?';
-		$content_id = $db->GetOne($query, [$this->CreateUnfriendlyHierarchyPosition($position)]);
+		$content_id = $db->getOne($query, [$this->CreateUnfriendlyHierarchyPosition($position)]);
 
 		if( $content_id ) return $content_id;
 		return false;
@@ -777,7 +780,7 @@ final class ContentOperations
 	 */
 	public function GetPageAliasFromID( int $content_id )
 	{
-		$hm = AppSingle::App()->GetHierarchyManager();
+		$hm = SingleItem::App()->GetHierarchyManager();
 		$node = $hm->quickfind_node_by_id($content_id);
 		if( $node ) return $node->get_tag('alias');
 	}
@@ -801,8 +804,8 @@ final class ContentOperations
 			$query .= ' AND content_id != ?';
 			$params[] = $content_id;
 		}
-		$db = AppSingle::Db();
-		$out = (int) $db->GetOne($query, $params);
+		$db = SingleItem::Db();
+		$out = (int) $db->getOne($query, $params);
 		return $out > 0;
 	}
 
@@ -835,8 +838,8 @@ final class ContentOperations
 	}
 
 	/**
-	 * Convert an unfriendly hierarchy (like 001.002.003) to a pageid-based
-	 * (friendly) hierarchy (like 1.2.99).
+	 * Convert a 0-padded ('unfriendly') display-order hierarchy (like 0004.0002.0003)
+	 * to a non-padded ('friendly') equivalent (like 4.2.3).
 	 *
 	 * @param string $position The hierarchy position to convert
 	 * @return string The unfriendly version of the hierarchy string
@@ -849,13 +852,13 @@ final class ContentOperations
 		foreach ($levels as $onelevel) {
 			$tmp .= ltrim($onelevel, '0') . '.';
 		}
-		$tmp = rtrim($tmp, '.');
-		return $tmp;
+		return rtrim($tmp, '.');
 	}
 
 	/**
-	 * Convert a pageid-based (friendly) hierarchy (like 1.2.99) to an unfriendly
-	 * hierarchy (like 001.002.003).
+	 * Convert a display-order-based ('friendly') hierarchy (like 1.2.3) to
+	 * a 0-padded ('unfriendly') equivalent (like 0001.0002.0003).
+	 * Too bad if any page order is > 9999!
 	 *
 	 * @param string $position The hierarchy position to convert
 	 * @return string The friendly version of the hierarchy string
@@ -866,10 +869,9 @@ final class ContentOperations
 		$levels = explode('.',$position);
 
 		foreach ($levels as $onelevel) {
-			$tmp .= str_pad($onelevel, 3, '0', STR_PAD_LEFT) . '.'; //max 999 since 2.99, was 99999
+			$tmp .= str_pad($onelevel, 4, '0', STR_PAD_LEFT) . '.'; //max usable order 9999 since 2.99, was 99999
 		}
-		$tmp = rtrim($tmp, '.');
-		return $tmp;
+		return rtrim($tmp, '.');
 	}
 
 	/**
@@ -877,14 +879,13 @@ final class ContentOperations
 	 * base page (or the current page)
 	 *
 	 * @since 2.0
-	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @param int $test_id Page ID to test
 	 * @param int $base_id (optional) Page ID to act as the base page.  The current page is used if not specified.
 	 * @return bool
 	 */
 	public function CheckParentage(int $test_id,int $base_id = null)
 	{
-		$gCms = AppSingle::App();
+		$gCms = SingleItem::App();
 		if( !$base_id ) $base_id = $gCms->get_content_id();
 		$base_id = (int)$base_id;
 		if( $base_id < 1 ) return FALSE;
@@ -902,7 +903,6 @@ final class ContentOperations
 	 * Return a list of pages that the user owns.
 	 *
 	 * @since 2.0
-	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @param int $userid The userid
 	 * @return array Array of integer page id's
 	 */
@@ -911,9 +911,9 @@ final class ContentOperations
 		if( !is_array($this->_ownedpages) ) {
 			$this->_ownedpages = [];
 
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE owner_id = ? ORDER BY hierarchy';
-			$tmp = $db->GetCol($query,[$userid]);
+			$tmp = $db->getCol($query,[$userid]);
 			$data = [];
 			for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 				if( $tmp[$i] > 0 ) $data[] = $tmp[$i];
@@ -941,7 +941,6 @@ final class ContentOperations
 	 * Return a list of pages for which the user has edit-authority.
 	 *
 	 * @since 2.0
-	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @param int $userid The userid
 	 * @return int[] Array of page id's
 	 */
@@ -953,19 +952,19 @@ final class ContentOperations
 
 			// Get all of the pages this user has access to.
 			$list = [$userid];
-			$groups = AppSingle::UserOperations()->GetMemberGroups($userid);
+			$groups = SingleItem::UserOperations()->GetMemberGroups($userid);
 			if( $groups ) {
 				foreach( $groups as $group ) {
 					$list[] = $group * -1;
 				}
 			}
 
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT A.content_id FROM '.CMS_DB_PREFIX.'additional_users A
 LEFT JOIN '.CMS_DB_PREFIX.'content B ON A.content_id = B.content_id
 WHERE A.user_id IN ('.implode(',',$list).')
 ORDER BY B.hierarchy';
-			$tmp = $db->GetCol($query);
+			$tmp = $db->getCol($query);
 			for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 				if( $tmp[$i] > 0 && !in_array($tmp[$i],$data) ) $data[] = $tmp[$i];
 			}
@@ -1003,7 +1002,7 @@ ORDER BY B.hierarchy';
 		$access = $this->GetPageAccessForUser($userid);
 		if( !$access ) return FALSE;
 
-		$hm = AppSingle::App()->GetHierarchyManager(); //TODO below siblings?
+		$hm = SingleItem::App()->GetHierarchyManager(); //TODO below siblings?
 		$node = $hm->quickfind_node_by_id($contentid);
 		if( !$node ) return FALSE;
 		$parent = $node->get_parent();
@@ -1027,7 +1026,7 @@ ORDER BY B.hierarchy';
 	 */
 	public function quickfind_node_by_id(int $contentid)
 	{
-		$list = AppSingle::SysDataCache()->get('content_quicklist');
+		$list = SingleItem::LoadedData()->get('content_quicklist');
 		if( isset($list[$contentid]) ) return $list[$contentid];
 	}
 } // class

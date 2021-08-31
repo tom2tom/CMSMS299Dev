@@ -493,14 +493,15 @@ EOT
 
 'help_function_process_pagedata' => <<<'EOT'
 <h3>What does this do?</h3>
-<p>This plugin will process the data in the &quot;pagedata&quot; block of content pages through smarty. It allows specifying page-specific data to smarty without changing the template for each page.</p>
+<p>This plugin will process the data in the &quot;pagedata&quot; block of content pages through smarty. It is a mechanism for out-of-order processing of page content, allowing the page body-content to determine what should be in the page header, if necessary.<br />
+Since CMSMS 2.99, this plugin has been redundant and deprecated, because the displayed-page body is automatically processed by smarty before the header.</p>
 <h3>How is it used?</h3>
 <ol>
- <li>Insert smarty assign variables and other smarty logic into the pagedata field of appropriate content pages</li>
- <li>Insert the <code>{process_pagedata}</code> tag into the very top of those pages' templates</li>
+ <li>Don't !</li>
+ <li>Formerly, by inserting tag <code>{process_pagedata}</code> into the very top of relevant page templates</li>
 </ol>
 <h4>What parameters does it take?</h4>
-Any of Smarty's generic parameters (nocache, assign etc)
+Any of Smarty's generic parameters (nocache etc) except assign (no output is generated).
 EOT
 ,
 

@@ -22,9 +22,9 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('installed');
 if( !isset($params['mod']) ) {
@@ -36,7 +36,7 @@ else $state = false;
 $module = trim($params['mod'] ?? '');
 
 if( $module) {
-    $res = AppSingle::ModuleOperations()->ActivateModule($module, $state);
+    $res = SingleItem::ModuleOperations()->ActivateModule($module, $state);
 }
 else {
     $res = false;

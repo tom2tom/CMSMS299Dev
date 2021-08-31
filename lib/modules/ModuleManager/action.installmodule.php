@@ -22,15 +22,16 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\Crypto;
+use CMSMS\DataException;
+use CMSMS\SingleItem;
 use ModuleManager\ModuleInfo;
-use ModuleManager\modulerep_client;
-use ModuleManager\operations;
+use ModuleManager\ModuleRepClient;
+use ModuleManager\Operations;
 use ModuleManager\Utils;
 use ModuleNoDataException;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 $this->SetCurrentTab('modules');
 
@@ -45,8 +46,8 @@ try {
     $module_filename = $params['filename'] ?? '';
     $module_size = (int)($params['size'] ?? 0);
     if( !isset($params['doinstall']) ) {
-        if( $module_name == '' || $module_version == '' || $module_filename == '' || $module_size < 100 ) {
-            throw new CmsInvalidDataException( $this->Lang('error_missingparams') );
+        if( !$module_name || $module_version === '' || !$module_filename || $module_size < 100 ) {
+            throw new DataException($this->Lang('error_missingparams'));
         }
     }
 
@@ -55,23 +56,23 @@ try {
         set_time_limit(9999);
         if( !empty($params['modlist']) ) {
             $modlist = unserialize(base64_decode($params['modlist']));
-            if( !is_array($modlist) || count($modlist) == 0 ) throw new CmsInvalidDataException( $this->Lang('error_missingparams') );
+            if( !$modlist || !is_array($modlist) ) throw new DataException($this->Lang('error_missingparams'));
 
             // cache all of the xml files first... make sure we can download everything, and that it gets cached.
             foreach( $modlist as $key => $rec ) {
                 if( $rec['action'] != 'i' && $rec['action'] != 'u' ) continue;
-                if( !isset($rec['filename']) ) throw new CmsInvalidDataException( $this->Lang('error_missingparams') );
-                if( !isset($rec['size']) ) throw new CmsInvalidDataException( $this->Lang('error_missingparams') );
+                if( !isset($rec['filename']) ) throw new DataException($this->Lang('error_missingparams'));
+                if( !isset($rec['size']) ) throw new DataException($this->Lang('error_missingparams'));
                 $filename = Utils::get_module_xml($rec['filename'],$rec['size']);
             }
 
             // expand all of the xml files.
-            $ops = new operations($this);
+            $ops = new Operations($this);
             foreach( $modlist as $key => &$rec ) {
                 if( $rec['action'] != 'i' && $rec['action'] != 'u' ) continue;
                 $xml_filename = Utils::get_module_xml($rec['filename'],$rec['size'],$rec['md5sum']??'');
                 $rec['tmpfile'] = $xml_filename;
-                $ops->expand_xml_package( $xml_filename, true ); //may throw ...
+                $ops->expand_xml_package($xml_filename,true); //may throw ...
             }
 
             // now put this data into the session and redirect for the install part
@@ -87,11 +88,11 @@ try {
 
         set_time_limit(999);
         $modlist = $_SESSION[$key];
-        if( !is_array($modlist) || !count($modlist) ) throw new LogicException('Invalid modlist data found in session');
+        if( !$modlist || !is_array($modlist) ) throw new LogicException('Invalid modlist data found in session');
         unset($_SESSION[$key]);
 
         // install/upgrade the modules that need to be installed or upgraded.
-        $ops = AppSingle::ModuleOperations();
+        $ops = SingleItem::ModuleOperations();
         foreach( $modlist as $name => $rec ) {
             switch( $rec['action'] ) {
             case 'i': // install
@@ -107,7 +108,7 @@ try {
             }
 
             if( !is_array($res) || !$res[0] ) {
-                audit('',$this->GetName(),' Problem installing, upgrading or activating '.$name);
+                cms_error('',$this->GetName().'::installmodule',' Problem installing, upgrading or activating '.$name);
                 debug_buffer('ERROR: problem installing/upgrading/activating '.$name);
                 debug_buffer($rec,'action record');
                 debug_buffer($res,'error info');
@@ -155,7 +156,7 @@ try {
                 } else {
                     // module not found in forge?? could be a system module,
                     // but it's still a dependency.
-                    if( !AppSingle::ModuleOperations()->IsSystemModule($name) ) throw new CmsInvalidDataException($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
+                    if( !SingleItem::ModuleOperations()->IsSystemModule($name) ) throw new Exception($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
                     $out[$name] = $onedep;
                 }
             }
@@ -163,7 +164,7 @@ try {
         };
 
         $deps = null;
-        list($res,$deps) = modulerep_client::get_module_dependencies($module_name,$module_version);
+        list($res,$deps) = ModuleRepClient::get_module_dependencies($module_name,$module_version);
         if( $deps ) {
 
             $deps = $array_to_hash($deps,'name');
@@ -171,12 +172,12 @@ try {
 
             if( $uselatest ) {
                 // we want the latest of all of the dependencies.
-                $latest = modulerep_client::get_modulelatest($dep_module_names);
-                if( !$latest ) throw new CmsInvalidDataException($this->Lang('error_dependencynotfound'));
+                $latest = ModuleRepClient::get_modulelatest($dep_module_names);
+                if( !$latest ) throw new Exception($this->Lang('error_dependencynotfound'));
                 $latest = $array_to_hash($latest,'name');
                 $deps = $update_latest_deps($deps,$latest);
             } else {
-                $info = modulerep_client::get_multiple_moduleinfo($deps);
+                $info = ModuleRepClient::get_multiple_moduleinfo($deps);
                 $info = $array_to_hash($info,'name');
                 $deps = $update_latest_deps($deps,$info);
             }
@@ -203,8 +204,8 @@ try {
 
     // algorithm
     // given a desired module name, module version, and whether we want latest versions
-    // get module dependencies for the target module version
-    // if we want latest versions of dependants
+    // get module dependencies/prerequisites for the target module version
+    // if we want latest versions of those
     //   get latest version info for all dependencies
     //   get module dependencies again as they may have changed
     //   merge results
@@ -222,18 +223,19 @@ try {
         try {
             if( $this->GetPreference('latestdepends',1) ) {
                 // get the latest version of dependency (but not necessarily of the module we're installing)
-                $res = modulerep_client::get_modulelatest(array_keys($alldeps));
+                $res = ModuleRepClient::get_modulelatest(array_keys($alldeps));
                 $new_deps = [];
             }
             else {
                 // get the info for all dependencies
-                $res = modulerep_client::get_multiple_moduleinfo($alldeps);
+                $res = ModuleRepClient::get_multiple_moduleinfo($alldeps);
             }
         }
         catch( ModuleNoDataException $e ) {
             // at least one of the dependencies could not be found on the server.
-            // may be a system module... if it is not a system module, throw an exception
-            audit('',$this->GetVersion(),'At least one requested module was not available on the forge');
+            // may be a system module... or if not, throw an exception
+            cms_error('',$this->GetVersion().'::installmodule','At least one requested module was not available at the forge');
+		    $this->ShowErrors($e->GetMessage());
         }
 
         foreach( $alldeps as $name => $row ) {
@@ -271,7 +273,7 @@ try {
                 // upgrade
                 $rec['action']='u';
             }
-            else if( !$allmoduleinfo[$name]['active'] ) {
+            elseif( !$allmoduleinfo[$name]['active'] ) {
                 // activate
                 $rec['action']='a';
             }
@@ -285,20 +287,20 @@ try {
     // test to make sure we have the required info for each record.
     foreach( $alldeps as $mname => &$rec ) {
         if( $rec['action'] == 'a' ) continue; // if just activating we don't have to worry.
-        if( !isset($rec['filename']) ) throw new CmsInvalidDataException( $this->Lang('error_missingmoduleinfo',$mname) );
-        if( !isset($rec['version']) ) throw new CmsInvalidDataException( $this->Lang('error_missingmoduleinfo',$mname) );
-        if( !isset($rec['size']) ) throw new CmsInvalidDataException( $this->Lang('error_missingmoduleinfo',$mname.' '.$rec['version']) );
+        if( !isset($rec['filename']) ) throw new DataException($this->Lang('error_missingmoduleinfo',$mname));
+        if( !isset($rec['version']) ) throw new DataException($this->Lang('error_missingmoduleinfo',$mname));
+        if( !isset($rec['size']) ) throw new DataException($this->Lang('error_missingmoduleinfo',$mname.' '.$rec['version']));
     }
 
     // here, if alldeps is empty... we have nothing to do.
-    if( !count($alldeps) ) {
+    if( !$alldeps ) {
         $this->SetError($this->Lang('err_nothingtodo'));
         $this->RedirectToAdminTab();
     }
 
     $tpl = $smarty->createTemplate($this->GetTemplateResource('installinfo.tpl')); //,null,null,$smarty);
 
-    $tpl->assign('return_url',$this->create_url($id,'defaultadmin',$returnid, ['__activetab'=>'modules']));
+    $tpl->assign('return_url',$this->create_action_url($id,'defaultadmin',['__activetab'=>'modules']));
     $parms = ['name'=>$module_name,'version'=>$module_version,'filename'=>$module_filename,'size'=>$module_size];
     $tpl->assign('form_start',$this->CreateFormStart($id, 'installmodule', $returnid, 'post', '', FALSE, '', $parms).
        $this->CreateInputHidden($id,'modlist',base64_encode(serialize($alldeps))))
@@ -313,9 +315,8 @@ try {
      ->assign('dependencies',$alldeps);
 
     $tpl->display();
-    return '';
 }
-catch( Exception $e ) {
-    $this->SetError($e->GetMessage());
+catch( Throwable $t ) {
+    $this->SetError($t->GetMessage());
     $this->RedirectToAdminTab();
 }

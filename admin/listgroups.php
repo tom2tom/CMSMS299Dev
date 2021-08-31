@@ -20,19 +20,17 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
+use CMSMS\SingleItem;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
 $userid = get_userid();
 $access = check_permission($userid, 'Manage Groups');
 
-$groupops = AppSingle::GroupOperations();
+$groupops = SingleItem::GroupOperations();
 $grouplist = $groupops->LoadGroups();
 $n = count($grouplist);
 $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
@@ -48,7 +46,7 @@ if ($n > $limit) {
     $maxsee = $n;
 }
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 $icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('true'), '', '', 'systemicon');
 $iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('false'), '', '', 'systemicon');
 $iconassign = $themeObject->DisplayImage('icons/system/groupassign.gif', lang('assignments'), '', '', 'systemicon');
@@ -61,7 +59,7 @@ $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 $urlext = get_secure_param();
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign([
     'pmod' => $access,
     'addurl' => 'addgroup.php',
@@ -86,7 +84,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('listgroups.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

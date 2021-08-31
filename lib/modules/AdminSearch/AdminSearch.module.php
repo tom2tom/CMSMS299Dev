@@ -37,7 +37,7 @@ final class AdminSearch extends CMSModule
     public function IsAdminOnly() { return true; }
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.2.900'; }
+    public function MinimumCMSVersion() { return '2.99'; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
 
@@ -54,7 +54,7 @@ final class AdminSearch extends CMSModule
 /* redundant, 'mod' always assigned elsewhere during action-processing
     public function DoAction($name, $id, $params, $returnid = '')
     {
-        $smarty = AppSingle::Smarty();
+        $smarty = SingleItem::Smarty();
         $smarty->assign('mod', $this); // probably redundant
         return parent::DoAction($name, $id, $params, $returnid);
     }
@@ -80,7 +80,7 @@ final class AdminSearch extends CMSModule
                 $parts = explode('.', basename($onefile));
                 $classname = implode('.', array_slice($parts, 1, count($parts) - 2));
                 if (!($classname == 'Base_slave' || $classname == 'AdminSearch_slave')) {
-                    $output[] = self::class.'\\'.$classname;
+                    $output[] = __CLASS__.'\\'.$classname;
                 }
             }
             return $output;

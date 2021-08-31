@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 //use Smarty_Resource_Custom;
 //use Throwable;
 //use const CMS_ASSETS_PATH;
@@ -34,7 +34,6 @@ use CMSMS\AppSingle;
  * A class for handling db- and file-stored css content as a smarty resource.
  *
  * @package CMS
- * @author Robert Campbell
  * @internal
  * @ignore
  *
@@ -42,7 +41,7 @@ use CMSMS\AppSingle;
  */
 class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
 {
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
     /**
      * @ignore
      */
@@ -80,11 +79,11 @@ class Smarty_Resource_cms_stylesheet extends Smarty_Resource_Custom
         }
         else {
             if( !self::$db ) {
-                self::$db = AppSingle::Db();
-                self::$stmt = self::$db->Prepare('SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE id=? OR name=?');
+                self::$db = SingleItem::Db();
+                self::$stmt = self::$db->prepare('SELECT id,name,content,contentfile,modified_date FROM '.CMS_DB_PREFIX.'layout_stylesheets WHERE id=? OR name=?');
                 register_shutdown_function([$this, 'cleanup']);
             }
-            $rst = self::$db->Execute(self::$stmt,[$name,$name]);
+            $rst = self::$db->execute(self::$stmt,[$name,$name]);
             if( !$rst || $rst->EOF() ) {
                 if( $rst ) $rst->Close();
                 cms_error('Missing stylesheet: '.$name);

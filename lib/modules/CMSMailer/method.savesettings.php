@@ -26,8 +26,9 @@ if (isset($params['masterpass'])) {
         $val = base64_encode(Crypto::encrypt_string($val, $newpw));
         $this->SetPreference('password', $val);
 
+        if ($this->platformed) {
         $sql = 'SELECT id,value,encvalue FROM '.CMS_DB_PREFIX.'module_cmsmailer_props WHERE encrypt>0';
-        $rows = $db->GetArray($sql);
+        $rows = $db->getArray($sql);
         if ($rows) {
             if ($newpw) {
                 $tofield = 'encvalue';
@@ -57,11 +58,11 @@ if (isset($params['masterpass'])) {
                 if (!$revised) {
                     $revised = null;
                 }
-                $db->Execute($sql, [$revised, $encval, $onerow['id']]);
+                $db->execute($sql, [$revised, $encval, $onerow['id']]);
             }
             unset($onerow);
         }
-
+        } // platformed
         PrefCrypter::encrypt_preference(PrefCrypter::MKEY, $newpw);
     }
     unset($newpw, $pw); // faster garbage cleanup

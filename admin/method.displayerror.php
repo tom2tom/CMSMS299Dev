@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 if (empty($smarty)) { 
-	$smarty = AppSingle::Smarty();
+	$smarty = SingleItem::Smarty();
 }
 
 $tplvars = [];

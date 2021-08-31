@@ -1,6 +1,6 @@
 {* wizard step 4 *}
-
 {extends file='wizard_step.tpl'}
+
 {block name='logic'}
   {$subtitle = 'title_step4'|tr}
   {$current_step = '4'}
@@ -9,7 +9,7 @@
 {strip}
 {function warn_info}
 {if count($arg) > 2}
- {$arg.0}<br/>
+ {$arg.0}<br />
  <ul>{foreach $arg as $msg}{if !$msg@first}
  <li>{$msg}</li>
  {/if}{/foreach}</ul>
@@ -23,10 +23,8 @@
 {/strip}
 
 {block name='contents'}
-
 <div class="installer-form">
-{wizard_form_start}
-
+ {wizard_form_start}
   <h3>{'prompt_dbinfo'|tr}</h3>
   <p class="info">{'info_dbinfo'|tr}</p>
   {if isset($dowarn)}
@@ -136,11 +134,11 @@
   <div class="row">
     <input class="form-field half-width{if !$verbose} disabled{/if}" type="text" id="udtp" name="userplugins_path" value="{$config.userplugins_path}"{if !$verbose} disabled="disabled"{/if} />
   </div>
-
+  {if empty($error)}
   <div id="bottom_nav">
     <button class="action-button positive" type="submit" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
   </div>
-
-{wizard_form_end}
+  {/if}
+ </form>
 </div>
 {/block}

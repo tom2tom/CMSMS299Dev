@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
 
 if( version_compare($oldversion,'1.1') < 0 ) {
@@ -44,7 +44,7 @@ if( version_compare($oldversion,'2.3') < 0 ) {
 		AppParams::set('frontendwysiwyg', $me);
 	}
 
-	$users = AppSingle::UserOperations()->GetList();
+	$users = SingleItem::UserOperations()->GetList();
 	foreach ($users as $uid => $uname) {
 		$val = UserParams::get_for_user($uid, 'wysiwyg');
 		if (!$val) {

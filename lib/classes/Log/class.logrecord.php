@@ -70,9 +70,9 @@ class logrecord
         }
 
         // check for valid timestamp and severity, and a message.
-        if ($this->timestamp < 1) throw new InvalidArgumentException('invalid timestamp in '.self::class);
-        if ($this->severity < self::TYPE_MSG || $this->severity > self::TYPE_ERROR) throw new InvalidArgumentException('invalid severity value in '.self::class);
-        if (!$this->message) throw new InvalidArgumentException('the message in an '.self::class.' cannot be empty');
+        if ($this->timestamp < 1) throw new InvalidArgumentException('Invalid timestamp in '.__CLASS__);
+        if ($this->severity < self::TYPE_MSG || $this->severity > self::TYPE_ERROR) throw new InvalidArgumentException('Invalid severity value in '.__CLASS__);
+        if (!$this->message) throw new InvalidArgumentException('The message in '.__CLASS__.' cannot be empty');
     }
 
     public function __get( $key)
@@ -80,12 +80,11 @@ class logrecord
         switch( $key) {
         case 'timestamp':
         case 'severity':
-        case 'user_id':
-            return (int) $this->_data[$key];
+            return (int)$this->_data[$key];
 
+        case 'user_id':
         case 'item_id':
-            if (!is_null($this->_data[$key])) return (int) $this->_data[$key];
-            return;
+            return (string)$this->_data[$key];
 
         case 'ip_addr':
         case 'username':
@@ -94,7 +93,7 @@ class logrecord
             return trim($this->_data[$key]);
 
         default:
-            throw new LogicException("$key is not a gettable member of ".self::class);
+            throw new LogicException("$key is not a gettable member of ".__CLASS__);
         }
     }
 }

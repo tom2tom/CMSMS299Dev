@@ -24,7 +24,7 @@ use CMSMS\TemplateOperations;
 use Search\ItemCollection;
 use function CMSMS\specialize;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 
 $template = null;
 if (!empty($params['resulttemplate'])) {
@@ -32,8 +32,9 @@ if (!empty($params['resulttemplate'])) {
 } else {
     $tpl = TemplateOperations::get_default_template_by_type('Search::searchresults');
     if (!is_object($tpl)) {
-        audit('',$this->GetName(),'No default summary template found');
-        return '';
+        cms_error('',$this->GetName().'::dosearch','No default summary template found');
+        $this->ShowErrorPage('No default summary template found');
+        return;
     }
     $template = $tpl->get_name();
 }
@@ -57,8 +58,8 @@ if ($params['searchinput']) {
         foreach ($words as $word) {
             $word = trim($word);
 //          $ary[] = 'word = ' . $db->qStr(specialize($word));
-//          $ary[] = 'word = ' . $db->qStr($word); // since 2.99 specialchars ok
-            $ary[] = 'word = \''.$db->escStr($word)."'"; // since 2.99 specialchars ok
+//          $ary[] = 'word = ' . $db->qStr($word); // since 2.0 specialchars ok
+            $ary[] = 'word = \''.$db->escStr($word)."'"; // since 2.0 specialchars ok
         }
         $searchphrase = implode(' OR ', $ary);
     }
@@ -67,26 +68,26 @@ if ($params['searchinput']) {
     if (!$this->GetPreference('savephrases',1)) {
         foreach ($words as $word) {
             $query = 'SELECT count FROM '.CMS_DB_PREFIX.'module_search_words WHERE word = ?';
-            $tmp = $db->GetOne($query,[$word]);
+            $tmp = $db->getOne($query,[$word]);
             if ($tmp) {
                 $query = 'UPDATE '.CMS_DB_PREFIX.'module_search_words SET count=count+1 WHERE word = ?';
-                $db->Execute($query,[$word]);
+                $db->execute($query,[$word]);
             }
             else {
                 $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_search_words (word,count) VALUES (?,1)';
-                $db->Execute($query,[$word]);
+                $db->execute($query,[$word]);
             }
         }
     } else {
         $query = 'SELECT count FROM '.CMS_DB_PREFIX.'module_search_words WHERE word = ?';
-        $tmp = $db->GetOne($query,[$term]);
+        $tmp = $db->getOne($query,[$term]);
         if ($tmp) {
             $query = 'UPDATE '.CMS_DB_PREFIX.'module_search_words SET count=count+1 WHERE word = ?';
-            $db->Execute($query,[$term]);
+            $db->execute($query,[$term]);
         }
         else {
             $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_search_words (word,count) VALUES (?,1)';
-            $db->Execute($query,[$term]);
+            $db->execute($query,[$term]);
         }
     }
 
@@ -113,7 +114,7 @@ EOS;
         $query .= " HAVING count(*) >= $nb_words";
     }
     $query .= ' ORDER BY nb DESC, total_weight DESC';
-    $rst = $db->Execute($query);
+    $rst = $db->execute($query);
     if ($rst) {
         $hm = $gCms->GetHierarchyManager();
         while (!$rst->EOF) {
@@ -151,17 +152,14 @@ EOS;
                                 if ($name != '') $parms[$name] = $value;
                             }
                         }
-                        $searchresult = $moduleobj->SearchResultWithParams( $thepageid, $rst->fields['content_id'],
-                                                                            $rst->fields['extra_attr'], $parms);
+                        $searchresult = $moduleobj->SearchResultWithParams( $thepageid, $rst->fields['content_id'], $rst->fields['extra_attr'], $parms);
                         if (count($searchresult) == 3) {
-                            $col->AddItem($searchresult[0], $searchresult[2], $searchresult[1],
-                                          $rst->fields['total_weight'], $modulename, $rst->fields['content_id']);
+                            $col->AddItem($searchresult[0], $searchresult[2], $searchresult[1], $rst->fields['total_weight'], $modulename, $rst->fields['content_id']);
                         }
                     } elseif (method_exists($moduleobj, 'SearchResult')) {
                         $searchresult = $moduleobj->SearchResult($thepageid, $rst->fields['content_id'], $rst->fields['extra_attr']);
                         if (count($searchresult) == 3) {
-                            $col->AddItem($searchresult[0], $searchresult[2], $searchresult[1],
-                                          $rst->fields['total_weight'], $modulename, $rst->fields['content_id']);
+                            $col->AddItem($searchresult[0], $searchresult[2], $searchresult[1], $rst->fields['total_weight'], $modulename, $rst->fields['content_id']);
                         }
                     }
                 }
@@ -222,4 +220,3 @@ $tpl->assign([
  'use_or_text' => $this->Lang('use_or'),
 ]);
 $tpl->display();
-return '';

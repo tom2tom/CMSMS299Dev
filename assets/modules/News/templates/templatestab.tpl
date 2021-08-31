@@ -19,11 +19,11 @@
 </div>{*rowbox*}
 
 {if !empty($tpllist)}
-<table id="tpltable" class="pagetable" style="width:auto;">
+<table id="tpltable" class="pagetable{if $tplcount > 1} table_sort{/if}" style="width:auto;">
  <thead>
   <tr>
-    <th>{lang('name')}</th>
-    <th>{lang('type')}</th>
+    <th{if $tplcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{lang('name')}</th>
+    <th{if $tplcount > 1} class="{literal}{sss:'text'}{/literal}"{/if}>{lang('type')}</th>
     <th{if $tplcount > 1} class="{literal}{sss:'icon'}{/literal}"{/if} title="{$mod->Lang('tip_tpl_type')}">{lang('default')}</th>
     <th class="pageicon{if $tplcount > 1} nosort{/if}"></th>{/strip}
   </tr>

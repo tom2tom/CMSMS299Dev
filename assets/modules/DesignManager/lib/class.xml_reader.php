@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace DesignManager;
 
 use CMSMS\Utils;
-use CMSMS\XMLErrorException;
+use CMSMS\XMLException;
 use XMLReader;
 use function cms_error;
 
@@ -35,10 +35,9 @@ class xml_reader extends XMLReader
   public static function __errhandler($errno,$errstr,$errfile,$errline)
   {
     if( strpos($errstr,'XMLReader') !== FALSE ) {
-      cms_error('DesignManger\\xml_reader: '.$errstr);
+      cms_error('DesignManger\xml_reader: '.$errstr);
       $mod = Utils::get_module('DesignManager');
-      throw new XMLErrorException($mod->Lang('error_xmlstructure').':<br />'.$errstr);
-      return TRUE;
+      throw new XMLException($mod->Lang('error_xmlstructure').':<br />'.$errstr);
     }
   }
 

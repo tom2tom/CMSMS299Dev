@@ -1,5 +1,4 @@
 <?php
-if (!function_exists('cmsms')) exit;
+//if (some worthy test fails) exit;
 
 echo $this->_output_header_javascript();
-return '';

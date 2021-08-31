@@ -26,12 +26,10 @@ use CMSMS\AppState;
 use CMSMS\NlsOperations;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-AppState::add_state(AppState::STATE_LOGIN_PAGE); // TODO if processing an AdminLogin module action
-$X = $CRASH;
+AppState::set(AppState::LOGIN_PAGE | AppState::ADMIN_PAGE);
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-$theme = AppSingle::Theme()->themeName;
+$theme = SingleItem::Theme()->themeName;
 $defaulttheme = 'Marigold'; //TODO some sensible default
 
 $cms_readfile = function($filename) {

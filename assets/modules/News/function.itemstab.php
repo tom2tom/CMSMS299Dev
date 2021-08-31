@@ -40,12 +40,14 @@ if( isset($params['filteraction']) ) {
     }
 }
 
+// TODO show icon/image for each
+
 $curcategory = UserParams::get_for_user($userid, 'article_category'); //default '' >> all
 $withchildren = UserParams::get_for_user($userid, 'childcategories', 0);
 
 if( $curcategory && $withchildren ) {
     $query1 = 'SELECT news_category_name FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id=?';
-    $str = $db->GetOne($query1, [$curcategory]);
+    $str = $db->getOne($query1, [$curcategory]);
     if( $str ) {
         $wm  = $db->escStr($str) . '%';
     }
@@ -73,7 +75,7 @@ if( $curcategory ) {
 }
 $query1 .= ' ORDER by N.news_title';
 
-$rst = $db->Execute($query1, $parms);
+$rst = $db->execute($query1, $parms);
 
 if( $rst ) {
     if( $papp ) {
@@ -98,7 +100,6 @@ if( $rst ) {
     }
 
     $now = time();
-    $fmt = $this->GetDateFormat();
     $entryarray = [];
 
     while( ($row = $rst->FetchRow()) ) {
@@ -107,17 +108,17 @@ if( $rst ) {
         $onerow->id = $row['news_id'];
         if( $pmod ) {
             $onerow->title = $this->CreateLink($id, 'editarticle', $returnid,
-            $row['news_title'], ['articleid'=>$row['news_id']], '', false, false,
-            'title="'.$titl.'"');
+            $row['news_title'], ['articleid'=>$row['news_id']], '',
+            false, false, 'title="'.$titl.'"');
         }
         else {
             $onerow->title = $row['news_title'];
         }
 
-        $onerow->startdate = $row['start_time'] ? strftime($fmt, $row['start_time']) : '';
-        $onerow->enddate = $row['end_time'] ? strftime($fmt, $row['end_time']) : '';
+        $onerow->startdate = $this->FormatforDisplay($row['start_time']);
+        $onerow->enddate = $this->FormatforDisplay($row['end_time']);
         $onerow->category = $row['long_name'];
-        $onerow->expired = $row['end_time'] && $row['end_time'] < $now;
+        $onerow->expired = $row['end_time'] && strtotime($row['end_time']) < $now; // don't care about timezones
         if( $papp ) {
             if( $row['status'] == 'published' ) {
                 $onerow->approve_link = $this->CreateLink(
@@ -133,16 +134,12 @@ if( $rst ) {
         }
 
         if( $pmod ) {
-            $onerow->edit_url = $this->create_url(
-                $id, 'editarticle', $returnid, ['articleid'=>$row['news_id']]);
-            $onerow->editlink = $this->CreateLink(
-                $id, 'editarticle', $returnid, $iconedit, ['articleid'=>$row['news_id']]);
-            $onerow->copylink = $this->CreateLink(
-                $id, 'copyarticle', $returnid, $iconcopy, ['articleid'=>$row['news_id']]);
+            $onerow->edit_url = $this->create_action_url($id, 'editarticle', ['articleid'=>$row['news_id']]);
+            $onerow->editlink = $this->CreateLink($id, 'editarticle', $returnid, $iconedit, ['articleid'=>$row['news_id']]);
+            $onerow->copylink = $this->CreateLink($id, 'copyarticle', $returnid, $iconcopy, ['articleid'=>$row['news_id']]);
         }
         if( $pdel ) {
-            $onerow->deletelink = $this->CreateLink(
-                $id, 'deletearticle', $returnid, $icondel, ['articleid'=>$row['news_id']], '', false, false, 'class="delete_article"');
+            $onerow->deletelink = $this->CreateLink($id, 'deletearticle', $returnid, $icondel, ['articleid'=>$row['news_id']], '', false, false, 'class="delete_article"');
         }
 
         $entryarray[] = $onerow;
@@ -183,7 +180,7 @@ if( $rst ) {
     }
 
     $query = 'SELECT news_category_id, long_name FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
-    $dbr = $db->GetAssoc($query);
+    $dbr = $db->getAssoc($query);
     specialize_array($dbr);
     $categorylist = [''=>$this->Lang('all')] + $dbr;
     $bulkcategories = Utils::get_category_list(); //different order
@@ -196,7 +193,7 @@ if( $rst ) {
      'curcategory' => $curcategory,
      'enddatetext' => $this->Lang('enddate'),
      'filter_descendants' => $withchildren,
-     'filterimage' => cms_join_path(__DIR__, 'images', 'filter'), //TODO use new admin icon
+     'filterimage' => cms_join_path(__DIR__, 'images', 'filter'), //TODO use theme->DisplayImage( new admin icon )
      'filtertext' => $this->Lang('filter'),
      'formstart_items' => $this->CreateFormStart($id, 'defaultadmin'),
      'formstart_itemsfilter' => $this->CreateFormStart($id, 'defaultadmin', $returnid, 'post', '', false, '', ['filteraction'=>'apply']),

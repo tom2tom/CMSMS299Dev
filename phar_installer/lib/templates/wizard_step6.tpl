@@ -1,5 +1,4 @@
 {* wizard step 6 *}
-
 {extends file='wizard_step.tpl'}
 
 {block name='logic'}
@@ -10,7 +9,7 @@
 {strip}
 {function err_info}
 {if count($arg) > 2}
- {$arg.0}<br/>
+ {$arg.0}<br />
  <ul>{foreach $arg as $msg}{if !$msg@first}
  <li>{$msg}</li>
  {/if}{/foreach}</ul>
@@ -24,9 +23,8 @@
 {/strip}
 
 {block name='contents'}
-
 <div class="installer-form">
-{wizard_form_start}
+ {wizard_form_start}
   <p>{'info_adminaccount'|tr}</p>
   {if isset($doerr)}
   <input type="hidden" name="warndone" value="1" />
@@ -84,12 +82,11 @@
       {/if} *}
       </div>
     </div>
-
+  {if empty($error)}
   <div id="bottom_nav">
     <button class="action-button positive" type="submit" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
   </div>
-
-{wizard_form_end}
+  {/if}
+ </form>
 </div>
-
 {/block}

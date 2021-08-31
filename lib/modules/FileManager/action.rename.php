@@ -1,7 +1,7 @@
 <?php
 use FileManager\Utils;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 
 if (isset($params['cancel'])) {
@@ -9,10 +9,10 @@ if (isset($params['cancel'])) {
 }
 
 $sel = $params['sel'];
-if( !is_array($sel) ) {
+if (!is_array($sel)) {
   $sel = json_decode(rawurldecode($sel),true);
 }
-if (count($sel)==0) {
+if (!$sel) {
   $params['fmerror']='nofilesselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
@@ -74,4 +74,3 @@ $tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,'p
 // ->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
 
 $tpl->display();
-return '';

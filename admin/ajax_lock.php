@@ -21,19 +21,16 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\AppState;
 use CMSMS\DataException;
 use CMSMS\Error403Exception;
 use CMSMS\Lock;
+use CMSMS\LockException;
 use CMSMS\LockOperations;
+use CMSMS\LockOwnerException;
+use CMSMS\NoLockException;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-
-if (!isset($_REQUEST[CMS_SECURE_PARAM_NAME]) || !isset($_SESSION[CMS_USER_KEY]) || $_REQUEST[CMS_SECURE_PARAM_NAME] != $_SESSION[CMS_USER_KEY]) {
-    throw new Error403Exception(lang('informationmissing'));
-}
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 $userid = get_userid(false);
 if (!$userid) {
@@ -125,12 +122,12 @@ try {
           throw new DataException(lang('missingparams'));
       }
       if ($uid != $userid) {
-          throw new CmsLockOwnerException(lang('CMSEX_L006'));
+          throw new LockOwnerException('CMSEX_L006');
       }
       // try to get this lock... if we can, it's just a touch
       try {
           $lock = LockOperations::load($type, $oid, $uid);
-      } catch (CmsNoLockException $e) {
+      } catch (NoLockException $e) {
           // lock doesn't exist, create one
           $lock = new Lock([
               'type' => $type,
@@ -149,7 +146,7 @@ try {
           throw new DataException(lang('missingparams'));
       }
       if ($uid != $userid) {
-          throw new CmsLockOwnerException(lang('CMSEX_L006'));
+          throw new LockOwnerException('CMSEX_L006');
       }
       $out['lock_expires'] = LockOperations::touch($lock_id, $type, $oid);
       break;
@@ -161,16 +158,16 @@ try {
       }
 /* any authorised user may steal
       if ($uid != $userid) {
-          throw new CmsLockOwnerException(lang('CMSEX_L006'));
+          throw new CMSMS\LockOwnerException('CMSEX_L006');
       }
 */
       LockOperations::delete($lock_id, $type, $oid);
       break;
   }
-} catch (CmsNoLockException $e) {
+} catch (NoLockException $e) {
     $out['status'] = 'error';
     $out['error'] = ['type' => strtolower(get_class($e)), 'msg' => $e->GetMessage()];
-} catch (CmsLockException $e) {
+} catch (LockException $e) {
     $out['status'] = 'error';
     $out['error'] = ['type' => strtolower(get_class($e)), 'msg' => $e->GetMessage()];
 } catch (Throwable $e) {

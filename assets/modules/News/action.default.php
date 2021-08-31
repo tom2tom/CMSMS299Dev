@@ -24,11 +24,13 @@ use News\Utils;
 use function CMSMS\de_specialize;
 //use function CMSMS\specialize;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 
 if( !empty ($params['browsecat']) ) {
     return $this->DoAction('browsecat', $id, $params, $returnid);
 }
+
+// TODO icon/image display
 
 $me = $this->GetName();
 
@@ -38,8 +40,9 @@ if( isset($params['summarytemplate']) ) {
 else {
     $tpl = TemplateOperations::get_default_template_by_type($me.'::summary');
     if( !is_object($tpl) ) {
-        audit('', $me, 'No default summary template found');
-        return '';
+        cms_error('', $me.'::default', 'No default summary template found');
+        $this->ShowErrorPage('No default summary template found');
+        return;
     }
     $template = $tpl->get_name();
 }
@@ -113,18 +116,18 @@ elseif( !empty($params['category']) ) {
     $query1 .= ') AND ';
 }
 
-$now = time();
+$longnow = $db->DbTimeStamp(time());
 if( isset($params['showall']) ) {
     // show everything regardless of end time
-    $query1 .= 'start_time IS NOT NULL AND start_time>0 ';
+    $query1 .= 'start_time IS NOT NULL ';
 }
-else // we're concerned about start time, end time, and created_date
+else // we're concerned about start_time, end_time and create_date
   if( isset($params['showarchive']) ) {
     // show only expired entries
-    $query1 .= 'end_time IS NOT NULL AND end_time BETWEEN 1 AND '.$now.' ';
+    $query1 .= 'end_time IS NOT NULL AND end_time <= '.$longnow;
 }
 else {
-    $query1 .= 'start_time IS NOT NULL AND start_time>0 AND (end_time IS NULL OR end_time=0 OR '.$now.' BETWEEN start_time AND end_time) ';
+    $query1 .= 'start_time IS NOT NULL AND (end_time IS NULL OR '.$longnow.' BETWEEN start_time AND end_time) ';
 }
 
 $sortrandom = false;
@@ -224,54 +227,50 @@ if( $rst ) {
         $onerow->content = $row['news_data'];
         $onerow->summary = (trim($row['summary'])!='<br />'?$row['summary']:'');
         if( !empty($row['news_extra']) ) $onerow->extra = $row['news_extra'];
-        $onerow->start = $row['start_time'];
-        $onerow->startdate = strftime($fmt, $onerow->start);
+        $onerow->startdate = $this->FormatforDisplay($row['start_time']);
         $onerow->postdate = $onerow->startdate; //deprecated since 3.0
-        $onerow->stop = $row['end_time'];
-        $onerow->enddate = strftime($fmt, $onerow->stop);
-        $onerow->created = $row['create_date'];
-        $onerow->create_date = strftime($fmt, $onerow->created);
-        $onerow->modified = $row['modified_date'];
-        if( !$onerow->modified ) $onerow->modified = $onerow->created;
-        $onerow->modified_date = strftime($fmt, $onerow->modified);
+        $onerow->enddate = $this->FormatforDisplay($row['end_time']);
+        $onerow->created =  $this->FormatforDisplay($row['create_date']);
+        $onerow->modified = $this->FormatforDisplay($row['modified_date']);
+        if( !$onerow->modified ) { $onerow->modified = $onerow->created; }
         $onerow->category = $row['news_category_name'];
 
-        $sendtodetail = ['articleid'=>$row['news_id']];
-        if( isset($params['category_id']) ) { $sendtodetail['category_id'] = $params['category_id']; }
-        if( isset($params['detailpage']) ) { $sendtodetail['origid'] = $returnid; }
-        if( isset($params['detailtemplate']) ) { $sendtodetail['detailtemplate'] = $params['detailtemplate']; }
-        if( isset($params['lang']) ) { $sendtodetail['lang'] = $params['lang']; }
-        if( isset($params['pagelimit']) ) { $sendtodetail['pagelimit'] = $params['pagelimit']; }
-        if( isset($params['showall']) ) { $sendtodetail['showall'] = $params['showall']; }
+        $urlparms = ['articleid'=>$row['news_id']];
+        if( isset($params['category_id']) ) { $urlparms['category_id'] = $params['category_id']; }
+        if( isset($params['detailpage']) ) { $urlparms['origid'] = $returnid; }
+        if( isset($params['detailtemplate']) ) { $urlparms['detailtemplate'] = $params['detailtemplate']; }
+        if( isset($params['lang']) ) { $urlparms['lang'] = $params['lang']; }
+        if( isset($params['pagelimit']) ) { $urlparms['pagelimit'] = $params['pagelimit']; }
+        if( isset($params['showall']) ) { $urlparms['showall'] = $params['showall']; }
 
         $moretext = $params['moretext'] ?? $this->Lang('moreprompt');
         $backto = ($detailpage) ? $detailpage : $returnid;
-        $onerow->detail_url = $this->create_url($id, 'detail', $backto, $sendtodetail);
+        $onerow->detail_url = $this->create_url($id, 'detail', $backto, $urlparms, false, false, '', false, 2);
         if( $dopretty ) {
             $prettyurl = $row['news_url'];
             if( !$prettyurl ) {
                 $aliased_title = munge_string_to_url($row['news_title']);
                 $prettyurl = 'News/'.$row['news_id'].'/'.($detailpage!=''?$detailpage:$returnid)."/$aliased_title";
-                if( isset($sendtodetail['detailtemplate']) ) {
-                    $prettyurl .= '/d, ' . $sendtodetail['detailtemplate'];
+                if( isset($urlparms['detailtemplate']) ) {
+                    $prettyurl .= '/d, ' . $urlparms['detailtemplate'];
                 }
             }
             $onerow->moreurl = $this->CreateLink($id, 'detail', $backto,
-                $moretext, $sendtodetail, '', true, false, '', true, $prettyurl);
+                $moretext, $urlparms, '', true, false, '', true, $prettyurl);
             $onerow->link = $this->CreateLink($id, 'detail', $backto,
-                '',        $sendtodetail, '', true, false, '', true, $prettyurl);
+                '',        $urlparms, '', true, false, '', true, $prettyurl);
             $onerow->titlelink = $this->CreateLink($id, 'detail', $backto,
-                $row['news_title'], $sendtodetail, '', false, false, '', true, $prettyurl);
+                $row['news_title'], $urlparms, '', false, false, '', true, $prettyurl);
             $onerow->morelink = $this->CreateLink($id, 'detail', $backto,
-                $moretext, $sendtodetail, '', false, false, '', true, $prettyurl);
+                $moretext, $urlparms, '', false, false, '', true, $prettyurl);
         }
         else {
             $urlparms = [
                 'articleid' => $row['news_id'],
                 'returnid' => ($detailpage) ? $detailpage : $returnid,
             ];
-            if( !empty($sendtodetail['detailtemplate']) ) {
-                $urlparms['detailtemplate'] = $sendtodetail['detailtemplate'];
+            if( !empty($urlparms['detailtemplate']) ) {
+                $urlparms['detailtemplate'] = $urlparms['detailtemplate'];
             }
             $onerow->moreurl = $this->CreateLink($id, 'detail', $backto,
                 $moretext, $urlparms, '', true);
@@ -355,7 +354,7 @@ elseif( isset($params['category_id']) && $items ) {
             break;
         }
     }
-//  $catName = $db->GetOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?', array($params['category_id']));
+//  $catName = $db->getOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?', array($params['category_id']));
 }
 
 $tpl->assign('category_name', $catName)
@@ -363,4 +362,3 @@ $tpl->assign('category_name', $catName)
  ->assign('count', $c);
 
 $tpl->display();
-return '';

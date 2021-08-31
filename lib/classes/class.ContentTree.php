@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
 use CMSMS\DeprecationNotice;
+use CMSMS\SingleItem;
 use CMSMS\Tree;
 use const CMS_DEPREC;
 
@@ -72,7 +72,7 @@ class ContentTree extends Tree
 	 */
 	public function quickfind_node_by_id($id)
 	{
-		$list = AppSingle::SysDataCache()->get('content_quicklist');
+		$list = SingleItem::LoadedData()->get('content_quicklist');
 		if( isset($list[$id]) ) return $list[$id];
 	}
 
@@ -165,7 +165,7 @@ class ContentTree extends Tree
 	 */
 	public function getNodeByHierarchy($position)
 	{
-		$id = AppSingle::ContentOperations()->GetPageIDFromHierarchy($position);
+		$id = SingleItem::ContentOperations()->GetPageIDFromHierarchy($position);
 		if( $id ) $result = $this->quickfind_node_by_id($id);
 		else $result = null;
 		return $result;
@@ -270,13 +270,13 @@ class ContentTree extends Tree
 	public function getContent($deep = false,$loadsiblings = true,$loadall = false)
 	{
 		$id = $this->get_tag('id');
-		if( !$this->cache ) { $this->cache = AppSingle::SystemCache(); }
+		if( !$this->cache ) { $this->cache = SingleItem::SystemCache(); }
 		if( !$this->cache->has($id,'tree_pages') ) {
 			// not in cache
 			$parent = $this->getParent();
 			if( !$loadsiblings || !$parent ) {
 				// only load this content object
-				return AppSingle::ContentOperations()->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
+				return SingleItem::ContentOperations()->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
 			}
 			else {
 				$parent->getChildren($deep,$loadall);
@@ -285,7 +285,7 @@ class ContentTree extends Tree
 				}
 			}
 		}
-		return AppSingle::ContentOperations()->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
+		return SingleItem::ContentOperations()->LoadContentFromId($id, $deep);  //TODO ensure relevant content-object?
 	}
 
 	/* *
@@ -355,7 +355,7 @@ class ContentTree extends Tree
 
 			if( $ids ) {
 				// load the children that aren't loaded yet.
-				AppSingle::ContentOperations()->LoadChildren($this->get_tag('id'),$deep,$all,$ids);
+				SingleItem::ContentOperations()->LoadChildren($this->get_tag('id'),$deep,$all,$ids);
 			}
 		}
 
@@ -394,7 +394,7 @@ class ContentTree extends Tree
 	 */
 	public function &getFlatList()
 	{
-		// static properties here >> StaticProperties class ?
+		// static properties here >> SingleItem property|ies ?
 		static $result = null;
 		if( is_null($result) ) {
 			$result = $this->_buildFlatList();
@@ -409,7 +409,7 @@ class ContentTree extends Tree
 	 */
 	public function isContentCached()
 	{
-		if( !$this->cache ) $this->cache = AppSingle::SystemCache();
+		if( !$this->cache ) $this->cache = SingleItem::SystemCache();
 		return $this->cache->has($this->get_tag('id'),'tree_pages');
 	}
 

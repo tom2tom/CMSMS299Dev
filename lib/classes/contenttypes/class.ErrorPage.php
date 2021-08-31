@@ -61,7 +61,7 @@ class ErrorPage extends Content
 			$this->$key = $value;
 		}
 
-		if (AppState::test_state(AppState::STATE_ADMIN_PAGE)) {
+		if (AppState::test(AppState::ADMIN_PAGE)) {
 			$this->error_types = [
 			 	'403' => lang('403description'),
 				'404' => lang('404description'),

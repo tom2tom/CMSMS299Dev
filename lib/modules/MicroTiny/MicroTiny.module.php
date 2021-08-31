@@ -41,7 +41,7 @@ class MicroTiny extends CMSModule
   public function IsPluginModule() { return true; } //deprecated
 //  public function LazyLoadAdmin() { return true; }
 //  public function LazyLoadFrontend() { return true; }
-  public function MinimumCMSVersion() { return '2.99.0'; }
+  public function MinimumCMSVersion() { return '2.99'; }
   public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
   public function WYSIWYGGenerateHeader($selector = '',$cssname = '')
@@ -71,7 +71,7 @@ class MicroTiny extends CMSModule
   /**
    * Hook function to populate 'centralised' site settings UI
    * @internal
-   * @since 2.99
+   * @since 2.3
    * @return array
    */
   public function ExtraSiteSettings()
@@ -80,7 +80,7 @@ class MicroTiny extends CMSModule
     return [
      'title'=> $this->Lang('settings_title'),
      //'desc'=> 'useful text goes here', // optional useful text
-     'url'=> $this->create_url('m1_', 'defaultadmin', '', ['activetab'=>'settings']), // if permitted
+     'url'=> $this->create_action_url('m1_', 'defaultadmin', ['activetab'=>'settings']), // if permitted
      //optional 'text' => custom link-text | explanation e.g need permission
     ];
   }

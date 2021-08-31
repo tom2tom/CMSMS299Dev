@@ -23,9 +23,9 @@ namespace CMSMS; //2.99+
 
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\NlsOperations;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\StylesMerger;
 use CMSMS\UserParams;
 use const CMS_ADMIN_PATH;
@@ -35,6 +35,8 @@ use function check_permission;
 use function cms_installed_jquery;
 use function cms_join_path;
 use function cms_path_to_url;
+use function CMSMS\get_page_foottext;
+use function CMSMS\get_page_headtext;
 use function get_userid;
 use function lang;
 use function munge_string_to_url;
@@ -96,18 +98,18 @@ EOS;
     public function display_login_page()
     {
         $auth_module = AppParams::get('loginmodule', ModuleOperations::STD_LOGIN_MODULE);
-        $modinst = AppSingle::ModuleOperations()->get_module_instance($auth_module, '', true);
-        if ($modinst) {
-            $data = $modinst->fetch_login_panel();
+        $mod = SingleItem::ModuleOperations()->get_module_instance($auth_module, '', true);
+        if ($mod) {
+            $data = $mod->fetch_login_panel();
         } else {
             die('System error');
         }
 
-        $smarty = AppSingle::Smarty();
+        $smarty = SingleItem::Smarty();
         $smarty->assign($data);
 
 		//extra shared parameters for the form TODO get from the current login-module
-        $config = AppSingle::Config(); // for the inclusion
+        $config = SingleItem::Config(); // for the inclusion
         $fp = cms_join_path(dirname(__DIR__), 'assets', 'function.extraparms.php');
         require_once $fp;
         $smarty->assign($tplvars);
@@ -158,8 +160,8 @@ EOS;
             $nodes = $this->get_navigation_tree(-1, 2, FALSE);
         }
 
-        $config = AppSingle::Config();
-        $smarty = AppSingle::Smarty();
+        $config = SingleItem::Config();
+        $smarty = SingleItem::Smarty();
 
         $smarty->assign([
             'admin_url' => $config['admin_url'],
@@ -214,7 +216,7 @@ EOS;
             }
         }
 
-        $smarty = AppSingle::Smarty();
+        $smarty = SingleItem::Smarty();
         // page title and alias
         $smarty->assign('page_title', $title)
          ->assign('page_subtitle',$this->subtitle)
@@ -260,11 +262,11 @@ EOS;
         }
 
         $smarty->assign('content', str_replace('</body></html>', '', $html))
-         ->assign('headertext', $this->get_headtext())
-         ->assign('footertext', $this->get_footertext());
+         ->assign('headertext', get_page_headtext())
+         ->assign('footertext', get_page_foottext());
 
         // and some other common variables
-        $config = AppSingle::Config();
+        $config = SingleItem::Config();
         $smarty->assign([
             'config' => $config,
             'admin_url' => $config['admin_url'],
@@ -274,7 +276,7 @@ EOS;
             'secureparam' => CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY],
         ]);
 
-        $userops = AppSingle::UserOperations();
+        $userops = SingleItem::UserOperations();
         $smarty->assign('user', $userops->LoadUserByID($userid));
         // get user selected language
         $smarty->assign('lang', UserParams::get_for_user($userid, 'default_cms_language'));

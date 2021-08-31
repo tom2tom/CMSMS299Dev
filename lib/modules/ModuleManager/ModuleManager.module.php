@@ -22,9 +22,9 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
-use ModuleManager\operations;
+use CMSMS\SingleItem;
+use ModuleManager\Operations;
 
 const MINIMUM_REPOSITORY_VERSION = '1.5';
 
@@ -36,19 +36,19 @@ class ModuleManager extends CMSModule
 
     public function GetAdminDescription() { return $this->Lang('admindescription'); }
     public function GetAdminSection() { return 'siteadmin'; }
-    public function GetAuthor() { return 'calguy1000'; }
-    public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
+    public function GetAuthor() { return 'Robert Campbell'; }
+    public function GetAuthorEmail() { return 'calguy1000@hotmail.com'; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetName() { return 'ModuleManager'; }
-    public function GetVersion() { return '2.2'; }
+    public function GetVersion() { return '3.0'; }
     public function HasAdmin() { return TRUE; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return TRUE; }
-//    public function IsPluginModule() { return FALSE; } default
-//    public function LazyLoadAdmin() { return TRUE; }
-    public function MinimumCMSVersion() { return '2.2.3'; }
+//  public function IsPluginModule() { return FALSE; } default
+//  public function LazyLoadAdmin() { return TRUE; }
+    public function MinimumCMSVersion() { return '2.99'; }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
     public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
     public function VisibleToAdminUser() { return ($this->CheckPermission('Modify Site Preferences') || $this->CheckPermission('Modify Modules')); }
@@ -58,19 +58,8 @@ class ModuleManager extends CMSModule
      */
     public function get_operations()
     {
-        if( !$this->_operations ) $this->_operations = new operations( $this );
+        if( !$this->_operations ) $this->_operations = new Operations($this);
         return $this->_operations;
-    }
-
-    protected function _DisplayErrorPage($id, &$params, $returnid, $message='')
-    {
-        $smarty = AppSingle::Smarty();
-        $tpl = $smarty->createTemplate($this->GetTemplateResource('error.tpl')); //,null,null,$smarty);
-
-        $tpl->assign('title_error', $this->Lang('error'))
-         ->assign('message', $message)
-         ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module')))
-         ->display();
     }
 
     public function Install()
@@ -87,7 +76,7 @@ class ModuleManager extends CMSModule
     {
         @set_time_limit(9999);
 /*
-        $smarty = AppSingle::Smarty();
+        $smarty = SingleItem::Smarty();
         $smarty->assign($this->GetName(), $this);
         $smarty->assign('mod', $this);
 */
@@ -100,10 +89,23 @@ class ModuleManager extends CMSModule
             case CoreCapabilities::CORE_MODULE:
                 return true;
 //            case 'clicommands':
-//                return class_exists('CMSMS\\CLI\\App'); // TODO better namespace
+//                return class_exists('CMSMS\CLI\App'); // TODO better namespace
             default:
                 return false;
         }
+    }
+
+    public function DisplayErrorPage(string $message = '', array $params = [])
+    {
+        if( !$message ) { $message = 'WTF !!'; }// TODO
+        $smarty = SingleItem::Smarty();
+        $tpl = $smarty->createTemplate($this->GetTemplateResource('error.tpl')); //,null,null,$smarty);
+
+        $tpl->assign('title_error', $this->Lang('error'))
+         ->assign('message', $message)
+         ->assign('link_back',$this->CreateLink('m1_','defaultadmin','',$this->Lang('back_to_module')))
+         ->display();
+        exit;
     }
 
     /* *

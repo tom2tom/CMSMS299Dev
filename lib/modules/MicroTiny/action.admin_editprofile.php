@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\StylesheetOperations;
 use MicroTiny\Profile;
 
-if( !function_exists('cmsms') ) exit;
+//if( some worthy test fails ) exit;
 if (!$this->VisibleToAdminUser()) exit;
 $this->SetCurrentTab('settings');
 
@@ -69,9 +69,8 @@ try {
   $tpl->assign('stylesheets',$stylesheets);
 
   $tpl->display();
-  return '';
 }
-catch( Exception $e ) {
-  $this->SetError($e->GetMessage());
+catch( Throwable $t ) {
+  $this->SetError($t->GetMessage());
   $this->RedirectToAdminTab();
 }

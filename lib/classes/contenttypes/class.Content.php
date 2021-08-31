@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\contenttypes;
@@ -57,7 +57,7 @@ class Content extends ContentBase
 	public function TemplateResource() : string
 	{
 /*		$tmp = $this->GetPropertyValue('template_rsrc');
-		if( !$tmp ) $tmp = $this->templateid;
+		if( !$tmp ) $tmp = $this->template_id;
 		if( $tmp ) {
 			$num = (int) $tmp;
 			if( $num > 0 && trim($num) == $tmp ) {
@@ -69,7 +69,7 @@ class Content extends ContentBase
 		}
 		return '';
 */
-		return 'cms_template:'.$this->templateid;
+		return 'cms_template:'.$this->template_id;
 	}
 } // class
 

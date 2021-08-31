@@ -27,28 +27,26 @@ FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' T JOIN '.
 CMS_DB_PREFIX.TemplateType::TABLENAME. ' TY ON T.type_id=TY.id
 WHERE T.originator=\''.$this->GetName().'\' ORDER BY TY.name,T.name';
 
-$dbr = $db->GetArray($query);
+$dbr = $db->getArray($query);
 if( $dbr ) {
-	$u = $this->create_url($id, 'edittemplate', $returnid, ['tpl'=>'XXX']);
-	$editurl = str_replace('&amp;','&',$u);
-
+	$editurl = $this->create_action_url($id, 'edittemplate', ['tpl'=>'XXX']);
 	$t = $this->Lang('tip_edit_template');
 	$icon = $themeObj->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
 	$linkedit = '<a href="'.$editurl.'">'.$icon.'</a>'.PHP_EOL;
 
-	$u = $this->create_url($id, 'copytemplate', $returnid, ['tpl'=>'XXX']);
+	$url = $this->create_action_url($id, 'copytemplate', ['tpl'=>'XXX']);
 	$t = $this->Lang('tip_copy_template');
 	$icon = $themeObj->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
-	$linkcopy = '<a href="'.str_replace('&amp;','&',$u).'">'.$icon.'</a>'.PHP_EOL;
+	$linkcopy = '<a href="'.$url.'">'.$icon.'</a>'.PHP_EOL;
 
-	$u = $this->create_url($id, 'deletetemplate', $returnid, ['tpl'=>'XXX']);
+	$url = $this->create_action_url($id, 'deletetemplate', ['tpl'=>'XXX']);
 	$t = $this->Lang('tip_delete_template');
 	$icon = $themeObj->DisplayImage('icons/system/delete', $t, '', '', 'systemicon delete_tpl');
-	$linkdel = '<a href="'.str_replace('&amp;','&',$u).'" class="delete_tpl">'.$icon.'</a>'.PHP_EOL;
+	$linkdel = '<a href="'.$url.'" class="delete_tpl">'.$icon.'</a>'.PHP_EOL;
 
-	$u = $this->create_url($id, 'defaulttemplate', $returnid, ['tpl'=>'XXX']);
+	$url = $this->create_action_url($id, 'defaulttemplate', ['tpl'=>'XXX']);
 	$icon = $themeObj->DisplayImage('icons/system/false.gif',$this->Lang('tip_typedefault'),'','','systemicon default_tpl');
-	$linkdefault = '<a href="'.str_replace('&amp;','&',$u).'" class="default_tpl">'.$icon.'</a>'.PHP_EOL;
+	$linkdefault = '<a href="'.$url.'" class="default_tpl">'.$icon.'</a>'.PHP_EOL;
 
 	$icontrue = $themeObj->DisplayImage('icons/system/true.gif',lang('yes'),'','','systemicon');
 	$iconfalse = $themeObj->DisplayImage('icons/system/false.gif',lang('no'),'','','systemicon');
@@ -61,7 +59,7 @@ if( $dbr ) {
 		$obj->name = $row['name'];
 		$obj->desc = strip_tags($row['description']);
 		$obj->type = $row['type'];
-		if( strcasecmp($obj->type,'Moduleaction') != 0 ) {
+		if( strcasecmp($obj->name,'moduleactions') != 0 ) {
             $obj->dflt = ($row['type_dflt']) ? $icontrue : (($pset) ? str_replace('XXX', $tid, $linkdefault) : $iconfalse);
 		}
 		else {

@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
 use CMSMS\ICookieManager;
+use CMSMS\SingleItem;
 use const CMS_ROOT_URL;
 
 /**
@@ -30,7 +30,6 @@ use const CMS_ROOT_URL;
  *
  * @package CMS
  * @license GPL
- * @author Robert Campbell
  *
  * @since 2.99
  * @since 1.10 as global-namespace cms_cookies
@@ -38,7 +37,7 @@ use const CMS_ROOT_URL;
  */
 final class Cookies implements ICookieManager
 {
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
     /**
      * @ignore
      */
@@ -91,7 +90,7 @@ final class Cookies implements ICookieManager
         $res = setcookie($key,$value,$expire,
                      self::__path(),
                      self::__domain(),
-                     AppSingle::App()->is_https_request(),
+                     SingleItem::App()->is_https_request(),
                      true);
         return $res;
     }

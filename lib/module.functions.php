@@ -25,34 +25,23 @@ If not, see <https://www.gnu.org/licenses/>.
  *
  * @since 2.99
  * @param string $modname Optional name of a module
+ * @param bool $all Optional flag whether to list all module-places even
+ *  if a corresponding directory doesn't exist. Ignored if $modname is
+ *  not empty. Default false.
  * @return array of absolute filepaths, no trailing separators, or maybe empty.
- *  Core-modules-path first, deprecated last. NOPE
+ *  Main/normal-location first, then 'core'-location, then 'non-core'-location.
  */
-function cms_module_places(string $modname = '') : array
+function cms_module_places(string $modname = '', bool $all = false) : array
 {
     $dirlist = [];
-/* higher priorities if we support distinct places for core, non-core modules
-    $path = cms_join_path(CMS_ROOT_PATH, 'lib', 'modules');
-    if ($modname) {
-        $path .= DIRECTORY_SEPARATOR . $modname;
-    }
-    if (is_dir($path)) {
-        $dirlist[] = $path;
-    }
-    $path = cms_join_path(CMS_ASSETS_PATH, 'modules');
-    if ($modname) {
-        $path .= DIRECTORY_SEPARATOR . $modname;
-    }
-    if (is_dir($path)) {
-        $dirlist[] = $path;
-    }
-*/
     $path = cms_join_path(CMS_ROOT_PATH, 'modules');
     if ($modname) {
         $path .= DIRECTORY_SEPARATOR . $modname;
     }
     if (is_dir($path)) {
         $dirlist[] = $path;
+    } elseif ($all && !$modname) {
+        $dirlist[] = null; // deep trouble coming !!
     }
     $path = cms_join_path(CMS_ROOT_PATH, 'lib', 'modules');
     if ($modname) {
@@ -60,6 +49,8 @@ function cms_module_places(string $modname = '') : array
     }
     if (is_dir($path)) {
         $dirlist[] = $path;
+    } elseif ($all && !$modname) {
+        $dirlist[] = null; // indicate this place N/A
     }
     $path = cms_join_path(CMS_ASSETS_PATH, 'modules');
     if ($modname) {
@@ -67,6 +58,8 @@ function cms_module_places(string $modname = '') : array
     }
     if (is_dir($path)) {
         $dirlist[] = $path;
+    } elseif ($all && !$modname) {
+        $dirlist[] = null; // indicate this place N/A
     }
     return $dirlist;
 }
@@ -82,18 +75,18 @@ function cms_module_places(string $modname = '') : array
 function cms_module_path(string $modname, bool $folder = false) : string
 {
     $p = DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$modname.DIRECTORY_SEPARATOR.$modname.'.module.php';
-    // core-modules place
+    // default place
+    $path = CMS_ROOT_PATH.$p;
+    if (is_file($path)) {
+        return ($folder) ? dirname($path) : $path;
+    }
+    // so-called 'core-modules' place'
     $path = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.$p;
     if (is_file($path)) {
         return ($folder) ? dirname($path) : $path;
     }
-    // other-modules place
+    // so-called 'non-core-modules' place'
     $path = CMS_ASSETS_PATH.$p;
-    if (is_file($path)) {
-        return ($folder) ? dirname($path) : $path;
-    }
-    // pre-2.99, deprecated
-    $path = CMS_ROOT_PATH.$p;
     if (is_file($path)) {
         return ($folder) ? dirname($path) : $path;
     }

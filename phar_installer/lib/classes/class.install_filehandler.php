@@ -1,5 +1,4 @@
 <?php
-
 namespace cms_installer;
 
 use cms_installer\filehandler;
@@ -17,28 +16,38 @@ class install_filehandler extends filehandler
      */
     public function handle_file(string $filespec, string $srcspec)
     {
-        if( $this->is_excluded($filespec) ) return;
-        if( is_dir($srcspec) ) {
+        if ($this->is_excluded($filespec)) {
+            return;
+        }
+        if (is_dir($srcspec)) {
             $destpath = $this->get_destdir().$filespec;
-			$dirmode = get_server_permissions()[3]; // read+write
-            @mkdir($destpath,$dirmode,true);
+            $dirmode = get_server_permissions()[3]; // read+write+access
+            @mkdir($destpath, $dirmode, true);
             return;
         }
 
-        if( $this->is_langfile($filespec) ) {
-            if( !$this->is_accepted_lang($filespec) ) return;
+        if ($this->is_langfile($filespec)) {
+            if (!$this->is_accepted_lang($filespec)) {
+                return;
+            }
         }
 
-        if( !$this->dir_exists($filespec) ) $this->create_directory($filespec);
+        if (!$this->dir_exists($filespec)) {
+            $this->create_directory($filespec);
+        }
 
         $destpath = $this->get_destdir().$filespec;
-        if( is_file($destpath) && !is_writable($destpath) ) throw new Exception(lang('error_overwrite',$filespec));
-
-        if( !@copy($srcspec,$destpath) ) throw new Exception(lang('error_extract',$filespec));
-        $cksum = md5_file($srcspec,true);
-        $cksum2 = md5_file($destpath,true);
-        if( $cksum != $cksum2 ) throw new Exception(lang('error_checksum',$filespec));
-
-        $this->output_string(lang('file_installed',$filespec));
+        if (is_file($destpath) && !is_writable($destpath)) {
+            throw new Exception(lang('error_overwrite', $filespec));
+        }
+        if (!@copy($srcspec, $destpath)) {
+            throw new Exception(lang('error_extract', $filespec));
+        }
+        $cksum = md5_file($srcspec, true);
+        $cksum2 = md5_file($destpath, true);
+        if ($cksum != $cksum2) {
+            throw new Exception(lang('error_checksum', $filespec));
+        }
+        $this->output_string(lang('file_installed', $filespec));
     }
 }

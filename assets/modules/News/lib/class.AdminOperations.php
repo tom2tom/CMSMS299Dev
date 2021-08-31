@@ -22,10 +22,10 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace News;
 
 //use function cms_move_uploaded_file;
-use CMSMS\AppSingle;
 use CMSMS\Events;
 use CMSMS\Route;
 use CMSMS\RouteOperations;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
 use const CMS_DB_PREFIX;
 use function audit;
@@ -33,8 +33,8 @@ use function get_userid;
 
 final class AdminOperations
 {
-    protected function __construct() {}
-    protected function __clone() {}
+//    private function __construct() {}
+//    private function __clone() {}
 
     /**
      *
@@ -46,9 +46,9 @@ final class AdminOperations
     {
         if (!$articleid) return false;
 
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
-        $row = $db->GetRow($query, [$articleid]);
+        $row = $db->getRow($query, [$articleid]);
         if ($row) {
             $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news (
 news_id,
@@ -65,15 +65,16 @@ author_id,
 news_extra,
 news_url,
 searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-            $row['news_id'] = $db->genID(CMS_DB_PREFIX.'module_news_seq'); //OR use $db->Insert_ID(); for autoincrement news_id
+            $row['news_id'] = $db->genID(CMS_DB_PREFIX.'module_news_seq');
             $row['news_title'] .= ' : Copy';
-            $row['start_time'] = 0;
-            $row['end_time'] = 0;
+            $row['start_time'] = null;
+            $row['end_time'] = null;
             $row['status'] = 'draft';
-            $row['create_date'] = time();
-            $row['modified_date'] = 0;
+            $row['create_date'] = $db->DbTimeStamp(time(),false);
+            $row['modified_date'] = null;
             $row['author_id'] = get_userid(false);
-            if ($db->Execute($query, [
+//            $row['news_url'] = ?;
+            if ($db->execute($query, [
                 $row['news_id'],
                 $row['news_category_id'],
                 $row['news_title'],
@@ -105,17 +106,19 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     {
         if (!$articleid) return false;
 
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         // remove the article
         $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
-        $db->Execute($query, [$articleid]);
+        $db->execute($query, [$articleid]);
 
         self::delete_static_route($articleid);
 
         //Update search index
-        $mod = Utils::get_module('News');
-        $module = Utils::get_search_module();
-        if ($module != false) $module->DeleteWords($mod->GetName(), $articleid, 'article');
+        $mod = Utils::get_search_module();
+        if ($mod ) {
+            $mod2 = Utils::get_module('News');
+            $mod->DeleteWords($mod2->GetName(), $articleid, 'article');
+        }
 
         Events::SendEvent( 'News', 'NewsArticleDeleted', ['news_id'=>$articleid ] );
 
@@ -134,7 +137,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 /*
     public static function handle_upload($itemid,$fieldname,&$error)
     {
-        $config = AppSingle::Config();
+        $config = SingleItem::Config();
 
         $mod = Utils::get_module('News');
         $p = cms_join_path($config['uploads_path'],'news');
@@ -184,9 +187,9 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     */
     public static function UpdateHierarchyPositions()
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'SELECT news_category_id, item_order, news_category_name FROM '.CMS_DB_PREFIX.'module_news_categories';
-        $rst = $db->Execute($query);
+        $rst = $db->execute($query);
         if ($rst) {
           while ($row = $rst->FetchRow()) {
             $current_hierarchy_position = '';
@@ -197,7 +200,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
             while ($current_parent_id > -1) {
                 $query = 'SELECT news_category_id, item_order, news_category_name, parent_id FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?';
-                $row2 = $db->GetRow($query, [$current_parent_id]);
+                $row2 = $db->getRow($query, [$current_parent_id]);
                 if ($row2) {
                     $current_hierarchy_position = str_pad($row2['item_order'], 4, '0', STR_PAD_LEFT) . '.' . $current_hierarchy_position;
                     $current_long_name = $row2['news_category_name'] . ' | ' . $current_long_name;
@@ -218,7 +221,7 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
             }
 
             $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET hierarchy = ?, long_name = ? WHERE news_category_id = ?';
-            $db->Execute($query, [$current_hierarchy_position, $current_long_name, $content_id]);
+            $db->execute($query, [$current_hierarchy_position, $current_long_name, $content_id]);
           }
           $rst->Close();
         }
@@ -244,10 +247,10 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     public static function register_static_route($news_url,$news_article_id,$detailpage = '')
     {
         if( $detailpage <= 0 ) {
-            $module = Utils::get_module('News');
-            $detailpage = $module->GetPreference('detail_returnid',-1);
+            $mod = Utils::get_module('News');
+            $detailpage = $mod->GetPreference('detail_returnid',-1);
             if( $detailpage == -1 ) {
-                $detailpage = AppSingle::ContentOperations()->GetDefaultContent();
+                $detailpage = SingleItem::ContentOperations()->GetDefaultContent();
             }
         }
         $dflts = ['action'=>'detail','returnid'=>$detailpage,'articleid'=>$news_article_id];
@@ -269,12 +272,14 @@ searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         $tmp1 = explode("\n",$txt);
         foreach( $tmp1 as $tmp2 ) {
             $tmp2 = trim($tmp2);
-            if( $tmp2 == '' ) continue;
-            $tmp2_k = $tmp2_v = $tmp2;
-            if( strpos($tmp2,'=') !== false ) {
-                list($tmp2_k,$tmp2_v) = explode('=',$tmp2,2);
+            if( $tmp2 === '' ) continue;
+            if( strpos($tmp2,'=') === false ) {
+                $tmp2_k = $tmp2_v = $tmp2;
             }
-            if( $tmp2_k == '' || $tmp2_v == '' ) continue;
+            else {
+                list($tmp2_k,$tmp2_v) = explode('=',$tmp2,2);
+                if( $tmp2_k === '' || $tmp2_v === '' ) continue;
+            }
             $arr_options[$tmp2_k] = $tmp2_v;
         }
         if( $arr_options ) return $arr_options;

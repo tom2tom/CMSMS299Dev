@@ -21,11 +21,11 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\ContentType;
 use CMSMS\CoreCapabilities;
 use CMSMS\DeprecationNotice;
+use CMSMS\SingleItem;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 use function cms_join_path;
@@ -38,7 +38,7 @@ use function startswith;
  */
 class ContentTypeOperations
 {
-	const EDITORMODULE = 'CMSContentManager';
+	const EDITORMODULE = 'ContentManager';
 
 	/* *
 	 * @ignore
@@ -53,8 +53,9 @@ class ContentTypeOperations
 
 	/* *
 	 * @ignore
+	 * @private to prevent direct creation (even by SingleItem class)
 	 */
-//	private function __construct() {}
+//	private function __construct() {} TODO public iff wanted by SingleItem ?
 
 	/**
 	 * @ignore
@@ -75,13 +76,13 @@ class ContentTypeOperations
 	 * Get the singleton instance of this class.
 	 * This method is called over a hundred times during a typical request,
 	 * so definitely the class warrants being a singleton.
-	 * @deprecated since 2.99 instead use CMSMS\AppSingle::ContentTypeOperations()
+	 * @deprecated since 2.99 instead use CMSMS\SingleItem::ContentTypeOperations()
 	 * @return ContentTypeOperations
 	 */
 	public static function get_instance() : self
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\AppSingle::ContentTypeOperations()'));
-		return AppSingle::ContentTypeOperations();
+		assert(empty(CMS_DEPREC), new DeprecationNotice('method','CMSMS\SingleItem::ContentTypeOperations()'));
+		return SingleItem::ContentTypeOperations();
 	}
 
 	/**
@@ -95,9 +96,9 @@ class ContentTypeOperations
 	private function _get_static_content_types() : array
 	{
 		$result = [];
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content_types';
-		$data = $db->GetArray($query);
+		$data = $db->getArray($query);
 		foreach( $data as $row ) {
 			$parms = [
 				'type' => $row['name'],
@@ -125,9 +126,10 @@ class ContentTypeOperations
 	 * This method constructs a content-type object for each recorded type,
 	 * and each type initiated by polled modules.
 	 *
+	 * @param bool $force since 2.99 whether to force-reload cache data. Default false.
 	 * @return array of ContentType objects, or maybe empty
 	 */
-	public function get_content_types() : array
+	public function get_content_types(bool $force = false) : array
 	{
 		if( !is_array($this->_content_types) ) {
 			// get the standard types
@@ -135,12 +137,12 @@ class ContentTypeOperations
 			// get any additional types from relevant modules.
 			// such types are registered in the modules' respective constructors,
 			// which process eventually shoves them into $this->_content_types.
-			$modops = AppSingle::ModuleOperations();
-			$module_list = $modops->GetCapableModules(CoreCapabilities::CONTENT_TYPES);
-			if( $module_list ) {
-				foreach( $module_list as $modname ) {
-					$modinst = $modops->get_module_instance($modname);
-					$modinst = null; // help the garbage-collector
+			$modnames = SingleItem::LoadedMetadata()->get('capable_modules', $force, CoreCapabilities::CONTENT_TYPES);
+			if( $modnames ) {
+				$modops = SingleItem::ModuleOperations();
+				foreach( $modnames as $name ) {
+					$mod = $modops->get_module_instance($name);
+					$mod = null; // help the garbage-collector
 				}
 			}
 		}
@@ -213,8 +215,12 @@ class ContentTypeOperations
 	public function ListContentTypes(bool $byclassname = FALSE, bool $allowed = FALSE, bool $system = FALSE, string $realm = 'admin')
 	{
 		$tmp = AppParams::get('disallowed_contenttypes');
-		if( $tmp ) { $disallowed_a = explode(',',$tmp); }
-		else { $disallowed_a = []; }
+		if( $tmp ) {
+			$disallowed_a = explode(',',$tmp);
+		}
+		else {
+			$disallowed_a = [];
+		}
 
 		$types = $this->get_content_types();
 		if( $types ) {
@@ -223,12 +229,12 @@ class ContentTypeOperations
 				if( $allowed && $disallowed_a && in_array($obj->type,$disallowed_a) ) {
 					continue;
 				}
-				if( $system && !startswith($obj->class,'CMSMS\\contenttypes\\') ) {
+				if( $system && !startswith($obj->class,'CMSMS\contenttypes\\') ) {
 					continue;
 				}
 
 				if( empty($obj->friendlyname) ) {
-					if( !(empty($obj->friendlyname_key) || !AppState::test_state(AppState::STATE_ADMIN_PAGE)) ) {
+					if( !(empty($obj->friendlyname_key) || !AppState::test(AppState::ADMIN_PAGE)) ) {
 						$obj->friendlyname = lang_by_realm($realm,$obj->friendlyname_key);
 					}
 					else {
@@ -271,10 +277,10 @@ class ContentTypeOperations
 	public function AddStaticContentType()
 	{
 		$Y = $TODO;
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		//TODO UPSERT
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content_types (originator,name,publicname_key,displayclass,editclass) VALUES (?,?,?,?,?)';
-		$db->Execute($query,[$Y->module,$Y->type,$Y->friendlyname,$Y->class,$Y->editorclass]);
+		$db->execute($query,[$Y->module,$Y->type,$Y->friendlyname,$Y->class,$Y->editorclass]);
 	}
 
 	/**
@@ -284,22 +290,23 @@ class ContentTypeOperations
 	 */
 	public function DelStaticContentType()
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'content_types WHERE ';
 		$query .= 'TODO';
-		$db->Execute($query);
+		$db->execute($query);
 	}
 
 	/**
 	 * Reset the database-recorded content types
-	 *
 	 * @since 2.99
+	 *
+	 * @param bool $force whether to force-reload cache data. Default false.
 	 */
-	public function RebuildStaticContentTypes()
+	public function RebuildStaticContentTypes(bool $force = false)
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'TRUNCATE '.CMS_DB_PREFIX.'content_types';
-		$db->Execute($query);
+		$db->execute($query);
 
 		$patn = __DIR__.DIRECTORY_SEPARATOR.'contenttypes'.DIRECTORY_SEPARATOR.'class.*.php';
 		$files = glob($patn, GLOB_NOSORT);
@@ -317,29 +324,29 @@ class ContentTypeOperations
 
 				$args = [self::EDITORMODULE, $type];
 				$args[] = 'contenttype_'.$type; // editor-module lang key
-				$args[] = 'CMSMS\\contenttypes\\'.$class;
+				$args[] = 'CMSMS\contenttypes\\'.$class;
 
 				if( $fp ) {
 					$path = $fp.basename($one);
 					if( is_file($path) ) {
-						$args[] = self::EDITORMODULE.'\\contenttypes\\'.$class;
+						$args[] = self::EDITORMODULE.'\contenttypes\\'.$class;
 					}
 				}
 				if( count($args) == 4) {
-					$args[] = 'CMSMS\\contenttypes\\'.$class;
+					$args[] = 'CMSMS\contenttypes\\'.$class;
 				}
-				$db->Execute($query,$args);
+				$db->execute($query,$args);
 			}
 		}
 
-		$modops = AppSingle::ModuleOperations();
-		$module_list = $modops->GetMethodicModules('CreateStaticContentTypes');
-		if( $module_list ) {
-			foreach( $module_list as $modname ) {
-				$modinst = $modops->get_module_instance($modname);
-				if( $modinst ) {
-					$modinst->CreateStaticContentTypes();
-					$modinst = null; // help the garbage-collector
+		$modnames = SingleItem::LoadedMetadata()->get('methodic_modules', $force, 'CreateStaticContentTypes');
+		if( $modnames ) {
+			$modops = SingleItem::ModuleOperations();
+			foreach( $modnames as $name ) {
+				$mod = $modops->get_module_instance($name);
+				if( $mod ) {
+					$mod->CreateStaticContentTypes();
+					$mod = null; // help the garbage-collector
 				}
 			}
 		}

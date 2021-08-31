@@ -22,20 +22,18 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminTheme;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\ScriptsMerger;
+use CMSMS\SingleItem;
 use CMSMS\User;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -53,11 +51,11 @@ if (!check_permission($userid, 'Manage Users')) {
 //--------- Variables ---------
 
 $superusr = ($userid == 1); //group 1 addition|removal allowed
-$groupops = AppSingle::GroupOperations();
+$groupops = SingleItem::GroupOperations();
 $admins = array_column($groupops->GetGroupMembers(1), 1);
 $supergrp = $superusr || in_array($userid, $admins); //group 1 removal allowed
 $manage_groups = check_permission($userid, 'Manage Groups');
-$userops = AppSingle::UserOperations();
+$userops = SingleItem::UserOperations();
 $errors = [];
 
 //--------- Logic ---------
@@ -160,17 +158,17 @@ if (isset($_POST['submit'])) {
                 }
 
                 if ($manage_groups && $sel_groups) {
-                    $db = AppSingle::Db();
+                    $db = SingleItem::Db();
                     $iquery = 'INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)';
                     foreach ($sel_groups as $gid) {
                         if ($gid > 0) {
-                            $db->Execute($iquery, [$user_id, $gid]);
+                            $db->execute($iquery, [$user_id, $gid]);
                         }
                     }
                 }
 
                 // put mention into the admin log
-                audit($userobj->id, 'Admin Username: ' . $userobj->username, 'Added');
+                audit($userobj->id, 'Admin User ' . $userobj->username, 'Added');
                 redirect('listusers.php'.$urlext);
             } else {
                 $errors[] = lang('errorinsertinguser');
@@ -217,7 +215,7 @@ if ($out) {
 }
 
 if ($errors) {
-	AppSingle::Theme()->RecordNotice('error', $errors);
+	SingleItem::Theme()->RecordNotice('error', $errors);
 }
 
 //data for user-selector
@@ -242,7 +240,7 @@ if ($manage_groups) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 
 $smarty->assign([
     'active' => $active,
@@ -264,7 +262,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('adduser.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

@@ -21,16 +21,23 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
+use CMSMS\LoadedDataType;
 use CMSMS\Route;
-use CMSMS\SysDataCacheDriver;
+use CMSMS\SingleItem;
 use Exception;
 use const CMS_DB_PREFIX;
 use const CMS_DEPREC;
 
+/* routes-table fields overview
+Runtime work uses the merged contents of the data field. Other fields are for table-management
+  CHECKME UTF char(s) OK in term ?
+  term URL-slug or regex to check prety-url against
+  dest1 destination identifier, a module name or __PAGE__
+  page supplementary destination identifier, a page id or NULL
+  delmatch custom row-identifier for tailoring static-route deletions, or NULL
+*/
 /* supports route_binarySearch() ??
 if( !function_exists('__internal_cmp_routes') ) {
 	/* *
@@ -48,12 +55,11 @@ if( !function_exists('__internal_cmp_routes') ) {
  *
  * @package CMS
  * @license GPL
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since  1.9
  */
 final class RouteOperations
 {
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
 	/**
 	 * @var bool Whether the 'static' routes array has been populated
 	 * @ignore
@@ -63,10 +69,12 @@ final class RouteOperations
 	/**
 	 * @var array Intra-request cache of routes data
 	 * Populated from database routes table and page-URL's
-	 * Each row's key is a 'signature' derived from route properties.
-	 * Value is array with 'term' to match, 'exact' for (default) type of match,
-	 *  and 'data' to construct a Route when needed
-	 * Caseless sorted on 'term'
+	 * Each row's key is a 'signature' derived from route properties,
+	 *  and its value is an array
+	 *   'term' regex to match,
+	 *   'exact' for (default) type of match,
+	 *   'data' to construct a Route when needed
+	 * The rows are caseless-sorted on 'term'
 	 * @ignore
 	 */
 	private static $_routes;
@@ -80,10 +88,12 @@ final class RouteOperations
 	/**
 	 * @var array Intra-request cache of routes data
 	 * Populated by modules which register intra-request routes
-	 * Each row's key is a 'signature' derived from route properties.
-	 * Value is array with 'term' to match, 'exact' for (default) type of match,
-	 *  and 'data' to construct a Route when needed
-	 * Caseless sorted on 'term'
+	 * Each row's key is a 'signature' derived from route properties,
+	 *  and its value is an array
+	 *   'term' regex to match,
+	 *   'exact' for (default) type of match,
+	 *   'data' to construct a Route when needed
+	 * The rows are caseless-sorted on 'term'
 	 * @ignore
 	 */
 	private static $_dynamic_routes;
@@ -100,42 +110,44 @@ final class RouteOperations
 
 	/**
 	 * Initialize non-static routes global-cache
+	 * Pretty URL's, hence routes, are processed only during frontend
+	 * requests (ATM at least). So this calls InitializeFrontend() for
+	 * all relevant modules, to create their dynamic routes, if any.
 	 */
-	public static function setup()
+	public static function load_setup()
 	{
-		$obj = new SysDataCacheDriver('routes',function()
-		{
-			/*
-			Load all relevant modules and call relevant Initialize method
-			to create their dynamic routes.
-			Pretty URL's, hence routes, are processed only during frontend requests.
-			*/
-
-			$tmp = null;
-//			$tmp = self::$_dynamic_routes;
-//			self::$_dynamic_routes = null;
-
-			if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) { // TODO USELESS check, AND exclude login-state
-				AppState::remove_state(AppState::STATE_ADMIN_PAGE);
-				$flag = true;
+		$obj = new LoadedDataType('routes',function(bool $force, ...$args) {
+			// in case there's something unexpected in any InitializeFrontend(), block recursion
+			static $scan_depth = 0;
+			if( ++$scan_depth !== 1 ) {
+				--$scan_depth;
+				return;
 			}
-			$modops = AppSingle::ModuleOperations();
+			$data = ( !empty(self::$_dynamic_routes) ) ? self::$_dynamic_routes : [];
+			self::$_dynamic_routes = [];
+
+			//eventually we should be able to just ...
+			//$polls = SingleItem::LoadedMetadata()->get('capable_modules',$force,CMSMS\CoreCapabilities::ROUTE_MODULE);
+			$modops = SingleItem::ModuleOperations();
 			$extras = $modops->GetLoadableModuleNames(); // hence incremental changes
-			$skips = $modops->GetMethodicModules('IsRoutableModule',FALSE); //deprecated since 2.99
-			$polls = array_diff($extras, $skips);
-//eventually we could just... $polls = $modops->GetCapableModules(CMSMS\CoreCapabilities::ROUTE_MODULE);
+			$skips = SingleItem::LoadedMetadata()->get('methodic_modules',$force,'RegisterRoute',FALSE ); //deprecated since 2.99
+			$polls = array_diff($extras,$skips);
 
-			$modops->PollModules($polls);
-
-			if( isset($flag) ) AppState::add_state(AppState::STATE_ADMIN_PAGE);
-
-			if( $tmp ) {
-				//TODO merge $tmp and self::$_dynamic_routes, if count bigger after that ...
-				AppSingle::SysDataCache()->set('routes', self::$_dynamic_routes);
+			foreach( $polls as $modname ) {
+				$modops->PollModule($modname,$force,function($mod) {
+					if( $mod ) {
+						$mod->InitializeFrontend();
+					}
+				});
 			}
-			return self::$_dynamic_routes; // old and new
+
+			$fresh = array_merge($data,self::$_dynamic_routes);
+			SingleItem::LoadedData()->set('routes',$fresh);
+			self::$_dynamic_routes = $fresh;
+			--$scan_depth;
+			return self::$_dynamic_routes; // old and/or new, or maybe nothing
 		});
-		AppSingle::SysDataCache()->add_cachable($obj);
+		SingleItem::LoadedData()->add_type($obj);
 	}
 
 	// ========== FINDING|MATCHING ==========
@@ -204,9 +216,9 @@ final class RouteOperations
 	private static function literal_compare($needle,$props)
 	{
 		$patn = "/ \t\n\r\0\x0B";
-		$a = trim($needle, $patn);
+		$a = trim($needle,$patn);
 		if( empty($props['exact']) ) $patn .= $props['term'][0];
-		$b = trim($props['term'], $patn);
+		$b = trim($props['term'],$patn);
 		return strcasecmp($a,$b);
 	}
 
@@ -221,22 +233,21 @@ final class RouteOperations
 	 *  the regex-flagging process has been ignored.) Default false.
 	 * @return mixed array $haystack member (value) | null
 	 */
-	private static function regex_find($needle,$haystack,$exact=FALSE)
+	private static function regex_find($needle,$haystack,$exact = FALSE)
 	{
 		foreach( $haystack as &$props ) {
 			if( $exact || empty($props['exact']) ) {
 				if( $exact ) {
 					if( self::is_exact($props['term']) ) {
-						$props['term'] = '~'.str_replace('~', '\\~', $props['term']).'~';
+						$props['term'] = '~'.str_replace('~','\\~',$props['term']).'~';
 					}
 				}
-				$matches = null;
+				$matches = NULL;
 				$r = preg_match($props['term'],$needle,$matches);
 				if( $r == 1 && $matches ) {
-					$props['results'] = array_filter($matches, function ($k)
-					{
+					$props['results'] = array_filter($matches,function ($k) {
 						return !is_numeric($k);
-					}, ARRAY_FILTER_USE_KEY);
+					},ARRAY_FILTER_USE_KEY);
 					return $props;
 				}
 			}
@@ -245,7 +256,7 @@ final class RouteOperations
 	}
 
 	/**
-	 * Test if the specified object|array properties match the specified string.
+	 * Test whether the specified object|array properties match the specified string.
 	 * Depending upon object-properties and $exact, either a string comparison or
 	 * regular expression match is performed.
 	 * String comparison is caseless, and assumes single-byte case-conversion is ok.
@@ -269,19 +280,19 @@ final class RouteOperations
 		}
 
 		if( $exact ) {
-			$a = trim($pattern, "/ \t\n\r\0\x0B");
-			$b = trim($str, "/ \t\n\r\0\x0B");
+			$a = trim($pattern,"/ \t\n\r\0\x0B");
+			$b = trim($str,"/ \t\n\r\0\x0B");
 			return strcasecmp($a,$b);
 		}
 
-		$matches = null;
+		$matches = NULL;
 		$res = preg_match($pattern,$str,$matches);
 		if( $a instanceof Route ) {
 			if( $matches ) {
 				$a->results = $matches;
 			}
 		}
-		else if( $matches ) {
+		elseif( $matches ) {
 			$a['results'] = $matches;
 		}
 		return ($res == 1) ? 0 : 1; //strcmp-comparable reporting
@@ -291,7 +302,8 @@ final class RouteOperations
 	 * Test whether the specified route exists.
 	 *
 	 * @param Route $route The route object
-	 * @param bool     $static_only Optional flag indicating that only static routes should be checked. Default FALSE.
+	 * @param bool  $static_only Optional flag indicating that only
+	 *  static routes should be checked. Default FALSE.
 	 * @return bool
 	 */
 	public static function route_exists(Route $route,bool $static_only = FALSE) : bool
@@ -317,7 +329,7 @@ final class RouteOperations
 	 * @param string $str The string whose match is sought (usually an incoming request URL)
 	 * @param bool $exact Optional flag instructing an exact string match regardless of object properties. Default FALSE.
 	 * @param bool $static_only Optional flag indicating that only static (db-recorded) routes should be checked. Default FALSE.
-	 * @return mixed Route the matching route, or null.
+	 * @return mixed Route the matching route | null
 	 */
 	public static function find_match(string $str,bool $exact = FALSE,bool $static_only = FALSE)
 	{
@@ -326,14 +338,14 @@ final class RouteOperations
 		if( is_array(self::$_routes) ) {
 			$row = self::_find_match($str,self::$_routes,$exact);
 			if( $row ) {
-				$props = json_decode($row['data'], TRUE);
+				$props = json_decode($row['data'],TRUE);
+				// Route constructor expects: $pattern,$dest1,$defaults,$is_exact,$page,$delmatch
 				$parms = [
-				$props['term'],
-				$props['key1'] ?? '',
-				$props['defaults'] ?? NULL,
-				$props['exact'] ?? FALSE,
-				$props['key2'] ?? NULL,
-				$props['key3'] ?? NULL,
+					$props['term'],
+					((!empty($props['dest1'])) ? $props['dest1'] : Route::PAGE),
+					$props['exact'] ?? FALSE,
+					((!empty($props['page'])) ? (int)$props['page'] : NULL), // page 0 N/A
+					$props['delmatch'] ?? NULL,
 				];
 				$obj = new Route(...$parms);
 				$obj->results = $row['results'];
@@ -347,14 +359,14 @@ final class RouteOperations
 		if( is_array(self::$_dynamic_routes) ) {
 			$row = self::_find_match($str,self::$_dynamic_routes,$exact);
 			if( $row ) {
-				$props = json_decode($row['data'], TRUE);
+				$props = json_decode($row['data'],TRUE);
 				$parms = [
-				$props['term'],
-				$props['key1'] ?? '',
-				$props['defaults'] ?? NULL,
-				$props['exact'] ?? FALSE,
-				$props['key2'] ?? NULL,
-				$props['key3'] ?? NULL,
+					$props['term'],
+					((!empty($props['dest1'])) ? $props['dest1'] : Route::PAGE),
+					$props['defaults'] ?? NULL,
+					$props['exact'] ?? FALSE,
+					((!empty($props['page'])) ? (int)$props['page'] : NULL),
+					$props['delmatch'] ?? NULL,
 				];
 				$obj = new Route(...$parms);
 				$obj->results = $row['results'];
@@ -371,7 +383,6 @@ final class RouteOperations
 	 *  after static routes when searching for a match.
 	 * This method will do nothing and return TRUE if the route already exists (static or dynamic)
 	 *
-	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @since 1.11
 	 * @param Route $route The dynamic route object to add
 	 * @return TRUE always
@@ -385,12 +396,12 @@ final class RouteOperations
 		$sig = self::get_signature($props);
 		$data = json_encode($props,JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 		self::$_dynamic_routes[$sig] = [
-		'term' => $props['term'],
-		'exact' => !empty($props['exact']),
-		'data' => $data,
+			'term' => $props['term'],
+			'exact' => !empty($props['exact']),
+			'data' => $data,
 		];
-		uasort(self::$_dynamic_routes, function($a,$b) {
-			return strcasecmp($a['term'], $b['term']);
+		uasort(self::$_dynamic_routes,function($a,$b) {
+			return strcasecmp($a['term'],$b['term']);
 		});
 		return TRUE;
 	}
@@ -405,7 +416,7 @@ final class RouteOperations
 	 */
 	public static function register(Route $route) : bool
 	{
-		assert(empty(CMS_DEPREC), new DeprecationNotice('method','add_dynamic'));
+		assert(empty(CMS_DEPREC),new DeprecationNotice('method','add_dynamic'));
 		return self::add_dynamic($route);
 	}
 
@@ -415,8 +426,8 @@ final class RouteOperations
 	public static function load_routes()
 	{
 		if( self::$_dynamic_routes_loaded ) return;
-		self::setup();
-		self::$_dynamic_routes = AppSingle::SysDataCache()->get('routes');
+		self::load_setup();
+		self::$_dynamic_routes = SingleItem::LoadedData()->get('routes');
 		self::$_dynamic_routes_loaded = TRUE;
 	}
 
@@ -426,51 +437,62 @@ final class RouteOperations
 	 * Add (or actually, upsert) a static route.
 	 * This clears the local static-routes cache after successful completion.
 	 *
-	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @since 1.11
 	 * @param Route $route The route to add.
 	 * @return bool indicating success
 	 */
 	public static function add_static(Route $route)
 	{
-		//as well as combined data, we separately record some individual properties to facilitate deletion
 		$arr = (array)$route;
-		$props = reset($arr);
+		$props = array_intersect_key(reset($arr),[
+			'defaults' => 1,
+			'delmatch' => 1,
+			'dest1' => 1,
+			'exact' => 1,
+			'page' => 1,
+			'term' => 1,
+		]);
 		$data = json_encode($props,JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-		$key1 = ( isset($props['key1']) && ($props['key1'] || is_numeric($props['key1'])) ) ? $props['key1'] : NULL;
-		$key2 = ( isset($props['key2']) && ($props['key2'] || is_numeric($props['key2'])) ) ? $props['key2'] : NULL;
-		$key3 = ( isset($props['key3']) && ($props['key3'] || is_numeric($props['key3'])) ) ? $props['key3'] : NULL;
+		//as well as combined data, we separately record some individual properties to facilitate table-content management
+		$term = $props['term'] ?? NULL; // will fail if NULL
+		$dest1 = ( isset($props['dest1']) && ($props['dest1'] || is_numeric($props['dest1'])) ) ? $props['dest1'] : NULL;
+		$page = ( isset($props['page']) && ($props['page'] || is_numeric($props['page'])) ) ? $props['page'] : NULL;
+		$delmatch = ( isset($props['delmatch']) && ($props['delmatch'] || is_numeric($props['delmatch'])) ) ? $props['delmatch'] : NULL;
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$tbl = CMS_DB_PREFIX.'routes';
-		$query = "UPDATE $tbl SET term=?,data=? WHERE key1=? AND key2=? AND key3=?";
-		$db->Execute($query, [$props['term'],$data,$key1,$key2,$key3]);
+		$query = "UPDATE $tbl SET term=?,delmatch=?,data=? WHERE dest1=? AND page=?"; // TODO dest1+page not a unique combination
+		$db->execute($query,[$term,$delmatch,$data,$dest1,$page]);
 		$query = <<<EOS
-INSERT INTO $tbl (term,key1,key2,key3,data)
-SELECT ?,?,?,?,? FROM (SELECT 1 AS dmy) Z
-WHERE NOT EXISTS (SELECT 1 FROM $tbl T WHERE T.key1=? AND T.key2=? AND T.key3=?)
+INSERT INTO $tbl (term,dest1,page,delmatch,data,create_date)
+SELECT ?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z
+WHERE NOT EXISTS (SELECT 1 FROM $tbl T WHERE T.term=? AND T.dest1=? AND T.page=?)
 EOS;
-		$dbr = $db->Execute($query, [$props['term'],$key1,$key2,$key3,$data,$key1,$key2,$key3]);
+		$longnow = $db->DbTimeStamp(time(),false);
+		$dbr = $db->execute($query,[$term,$dest1,$page,$delmatch,$data,$longnow,$term,$dest1,$page]);
 		if( $dbr ) {
 			self::clear_static_routes();
 			return TRUE;
 		}
-		throw new Exception ($db->sql.' -- '.$db->ErrorMsg());
+		throw new Exception ($db->sql.' -- '.$db->errorMsg());
 	}
 
 	/**
 	 * Delete a static route.
 	 * This clears the local static-routes cache after successful completion.
 	 *
-	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @since 1.11
 	 * @param mixed string | null $pattern The route-string to search for
-	 * @param mixed string | null $key1 Optional value recorded in table key1 (destination) field
-	 * @param mixed string | null $key2 Optional value recorded in table key2 (page-id) field (used here if $key1 is non-NULL)
-	 * @param mixed string | null $key3 Optional value recorded in table key3 (user-filter) field (used here if $key1 and $key2 are non-NULL)
+	 * @param mixed string | null $dest1 Optional value recorded in table
+	 *  dest1 (destination) field
+	 * @param mixed string | null $page Optional value recorded in table
+	 *  page (page-id) field (used here if $dest1 is non-NULL)
+	 * @param mixed string | null $delmatch Optional value recorded in
+	 *  table delmatch (filter) field. Pre-2.99 this was used only if
+	 *  both $dest1 and $page were non-NULL)
 	 * @return bool
 	 */
-	public static function del_static($pattern,$key1 = null,$key2 = null,$key3 = null) : bool
+	public static function del_static($pattern,$dest1 = NULL,$page = NULL,$delmatch = NULL) : bool
 	{
 		$where = [];
 		$parms = [];
@@ -479,27 +501,27 @@ EOS;
 			$parms[] = $pattern;
 		}
 
-		if( !is_null($key1) ) {
-			$where[] = 'key1 = ?';
-			$parms[] = $key1;
+		if( $page || is_numeric($page) ) {
+			$where[] = "dest1 = '".Route::PAGE."'";
+			$where[] = 'page = ?';
+			$parms[] = (string)$page;
+		}
+		elseif( $dest1 ) {
+			$where[] = 'dest1 = ?';
+			$parms[] = (string)$dest1;
+		}
 
-			if( !is_null($key2) ) {
-				$where[] = 'key2 = ?';
-				$parms[] = $key2;
-
-				if( !is_null($key3) ) {
-					$where[] = 'key3 = ?';
-					$parms[] = $key3;
-				}
-			}
+		if( $delmatch || is_numeric($delmatch) ) {
+			$where[] = 'delmatch = ?';
+			$parms[] = (string)$delmatch;
 		}
 
 		if( !$where ) return FALSE;
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'routes WHERE ';
 		$query .= implode(' AND ',$where);
-		$dbr = $db->Execute($query,$parms);
+		$dbr = $db->execute($query,$parms);
 		if( $dbr ) {
 			self::clear_static_routes();
 			return TRUE;
@@ -512,44 +534,43 @@ EOS;
 	 * Reset the routes-table content (from modules and page URLs)
 	 *
 	 * @since 1.11
-	 * @author Robert Campbell
 	 * @internal
 	 */
 	public static function rebuild_static_routes()
 	{
 		// clear the route table and local cache
 		self::clear_static_routes();
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'TRUNCATE '.CMS_DB_PREFIX.'routes';
-		$db->Execute($query);
+		$db->execute($query);
 
 		// get module routes
-		$modops = AppSingle::ModuleOperations();
-		$modules = $modops->GetMethodicModules('CreateStaticRoutes');
-		if( $modules ) {
-			foreach( $modules as $modname ) {
-				$modinst = $modops->get_module_instance($modname);
-				$modinst->CreateStaticRoutes();
-				$modinst = null; // help the garbage-collector
+		$modops = SingleItem::ModuleOperations();
+		$modnames = SingleItem::LoadedMetadata()->get('methodic_modules',TRUE,'CreateStaticRoutes');
+		if( $modnames ) {
+			foreach( $modnames as $modname ) {
+				$mod = $modops->get_module_instance($modname);
+				$mod->CreateStaticRoutes();
+				$mod = NULL; // help the garbage-collector
 			}
 		}
 		// and routes from module-method alias
-		$modules = $modops->GetMethodicModules('CreateRoutes');
-		if( $modules ) {
-			foreach( $modules as $modname ) {
-				$modinst = $modops->get_module_instance($modname);
-				$modinst->CreateRoutes();
-				$modinst = null;
+		$modnames = SingleItem::LoadedMetadata()->get('methodic_modules',TRUE,'CreateRoutes');
+		if( $modnames ) {
+			foreach( $modnames as $modname ) {
+				$mod = $modops->get_module_instance($modname);
+				$mod->CreateRoutes();
+				$mod = NULL;
 			}
 		}
 
 		// get content routes
 		//TODO check this is always done after page-URL|content change
 		$query = 'SELECT content_id,page_url FROM '.CMS_DB_PREFIX."content WHERE active=1 AND COALESCE(page_url,'') != ''";
-		$tmp = $db->GetArray($query);
-		if( $tmp ) {
-			for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
-				$route = new Route($tmp[$i]['page_url'],'__CONTENT__',null,TRUE,$tmp[$i]['content_id']);
+		$data = $db->getArray($query);
+		if( $data ) {
+			for( $i = 0,$n = count($data); $i < $n; $i++ ) {
+				$route = new Route($data[$i]['page_url'],'__CONTENT__',NULL,TRUE,$data[$i]['content_id']);
 				self::add_static($route);
 			}
 		}
@@ -565,13 +586,13 @@ EOS;
 		if( self::$_routes_loaded ) return;
 
 		self::$_routes = [];
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'SELECT data FROM '.CMS_DB_PREFIX."routes WHERE data != '' AND data IS NOT NULL";
-		$rows = $db->GetCol($query);
+		$rows = $db->getCol($query);
 		if( $rows ) {
-			for( $i = 0, $n = count($rows); $i < $n; ++$i ) {
+			for( $i = 0,$n = count($rows); $i < $n; ++$i ) {
 				$data = $rows[$i];
-				$props = json_decode($data, TRUE);
+				$props = json_decode($data,TRUE);
 				$sig = self::get_signature($props);
 				self::$_routes[$sig] = [
 				'term' => $props['term'],
@@ -579,8 +600,8 @@ EOS;
 				'data' => $data,
 				];
 			}
-			uasort(self::$_routes, function($a, $b) {
-				return strcasecmp($a['term'], $b['term']);
+			uasort(self::$_routes,function($a,$b) {
+				return strcasecmp($a['term'],$b['term']);
 			});
 		}
 		self::$_routes_loaded = TRUE;
@@ -591,7 +612,7 @@ EOS;
 	 */
 	private static function clear_static_routes()
 	{
-		self::$_routes = null;
+		self::$_routes = NULL;
 		self::$_routes_loaded = FALSE;
 	}
 
@@ -610,8 +631,8 @@ EOS;
 		if( $a instanceof Route ) {
 			return $a->get_signature();
 		}
-		$tmp = json_encode($a,JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-		return Crypto::hash_string($tmp);
+		$s = json_encode($a,JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		return Crypto::hash_string($s);
 	}
 
 	/**
@@ -619,9 +640,9 @@ EOS;
 	 */
 	private static function is_exact(string $pattern) : bool
 	{
-		$sl = strcspn($pattern, '^*?+.-<[({$');
+		$sl = strcspn($pattern,'^*?+.-<[({$');
 		if( $sl < strlen($pattern) ) {
-			$res = preg_match($pattern, 'foobar');
+			$res = preg_match($pattern,'foobar');
 			return ($res === FALSE || preg_last_error() != PREG_NO_ERROR);
 		}
 		return TRUE;

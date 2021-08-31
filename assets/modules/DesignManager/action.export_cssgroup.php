@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\StylesheetsGroup;
 use DesignManager\Design;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Manage Stylesheets') ) exit;
 
 $this->SetCurrentTab('designs');
@@ -35,7 +35,7 @@ try {
 	$sql = 'SELECT D.name,D.description,M.css_id FROM '.
 		CMS_DB_PREFIX.Design::TABLENAME.' D JOIN '.CMS_DB_PREFIX.Design::CSSTABLE.
 		' M ON D.id = M.design_id WHERE D.id=? OR D.name=? ORDER BY D.id,M.css_order';
-    $data = $db->GetArray($sql,[$params['design'],$params['design']]);
+    $data = $db->getArray($sql,[$params['design'],$params['design']]);
     if ($data) {
 		$group = null;
         foreach ($data as &$row) {
@@ -62,7 +62,7 @@ try {
         $this->SetError($this->Lang('error_design_empty'));
 	}
 }
-catch( CmsException $e ) {
-    $this->SetError($e->GetMessage());
+catch( Throwable $t ) {
+    $this->SetError($t->GetMessage());
 }
 $this->RedirectToAdminTab();

@@ -20,11 +20,11 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 function smarty_function_menu_text($params, $template)
 {
-	$content_obj = AppSingle::App()->get_content_object();
+	$content_obj = SingleItem::App()->get_content_object();
 	if (!is_object($content_obj) || $content_obj->Id() == -1) {
 		$result = lang('404description'); //TODO or AppParams::get(X, '404 Error');
 	}

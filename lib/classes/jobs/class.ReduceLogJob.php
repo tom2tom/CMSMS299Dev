@@ -21,10 +21,10 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS\jobs;
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\RecurType;
 use CMSMS\Log\dbstorage;
+use CMSMS\SingleItem;
 
 class ReduceLogJob extends CronJob
 {
@@ -35,7 +35,7 @@ class ReduceLogJob extends CronJob
     public function __construct()
     {
         parent::__construct();
-        $this->name = 'Core\\LogReduce';
+        $this->name = 'Core\LogReduce';
         $this->frequency = RecurType::RECUR_DAILY;
         $this->_queue = [];
     }
@@ -51,8 +51,8 @@ class ReduceLogJob extends CronJob
         $mintime = max($last_execute - 60,$time - 24 * 3600);
         $table = dbstorage::TABLENAME;
         $sql = "SELECT * FROM $table WHERE timestamp >= ? ORDER BY timestamp";
-        $db = AppSingle::Db();
-        $rst = $db->Execute($sql,[$mintime]);
+        $db = SingleItem::Db();
+        $rst = $db->execute($sql,[$mintime]);
 
         $prev = [];
         while ($rst && !$rst->EOF()) {
@@ -110,11 +110,11 @@ class ReduceLogJob extends CronJob
         $lastrec = $this->_queue[$n - 1];
         $this->_queue = array_slice($this->_queue,0,-1);
 
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $table = dbstorage::TABLENAME;
         $lastrec['message'] .= sprintf(' (repeated %d times)',$n);
         $sql = "UPDATE $table SET message = ? WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND subject = ? AND ip_addr = ?";
-        $db->Execute($sql,[$lastrec['message'],$lastrec['timestamp'],$lastrec['user_id'],$lastrec['username'],
+        $db->execute($sql,[$lastrec['message'],$lastrec['timestamp'],$lastrec['user_id'],$lastrec['username'],
                            $lastrec['item_id'],$lastrec['subject'],$lastrec['ip_addr']]);
     }
 
@@ -124,11 +124,11 @@ class ReduceLogJob extends CronJob
         if ($n < 1) { return; }
 
         $table = dbstorage::TABLENAME;
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $sql = "DELETE FROM $table WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND subject = ? AND message = ? AND ip_addr = ?";
         for ($i = 0; $i < $n; $i++) {
             $rec = $this->_queue[$i];
-            $db->Execute($sql,[$rec['timestamp'],$rec['user_id'],$rec['username'],
+            $db->execute($sql,[$rec['timestamp'],$rec['user_id'],$rec['username'],
                                $rec['item_id'],$rec['subject'],$rec['message'],$rec['ip_addr']]);
         }
         $this->_queue = [];

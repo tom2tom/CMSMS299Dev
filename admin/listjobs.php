@@ -22,22 +22,20 @@ If not, see <https://www.gnu.org/licenses/>.
 //use CMSMS\Url;
 //use CMSMS\AppParams;
 //use CMSMS\FormUtils;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Async\RecurType;
 use CMSMS\Error403Exception;
 use CMSMS\internal\JobOperations;
+use CMSMS\SingleItem;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
 $urlext = get_secure_param();
 $userid = get_userid();
 
-//$themeObject = AppSingle::Theme();
+//$themeObject = SingleItem::Theme();
 
 $pmod = check_permission($userid, 'Manage Jobs'); //?? View Jobs?
 if (!$pmod) {
@@ -47,15 +45,15 @@ if (!$pmod) {
 
 /* DEBUG
 if (0) {
-    $u1 = FormUtils::create_action_link($TODOmod, [//create_url($id, 'test1', $returnid, [], false, false, '', 1);
-        'modid' => $id,
+    $u1 = FormUtils::create_action_link($TODOmod, [//create_action_url($id, 'test1');
+        'getid' => $id,
         'action' => 'test1',
         '' => '',
         '' => '',
         'onlyhref' => true,
     ]);
-    $u2 = FormUtils::create_action_link($TODOmod, [ //create_url($id, 'test2', $returnid, [], false, false, '', 1);
-        'modid' => $id,
+    $u2 = FormUtils::create_action_link($TODOmod, [ //create_action_url($id, 'test2');
+        'getid' => $id,
         'action' => 'test2',
         '' => '',
         '' => '',
@@ -132,11 +130,10 @@ if ($jobs) {
     }
 }
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign('jobs', $job_objs);
 
 $content = $smarty->fetch('listjobs.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

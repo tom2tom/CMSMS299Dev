@@ -1,7 +1,7 @@
 <?php
 use FileManager\Utils;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Files')) exit;
 
 if (isset($params['fmmessage']) && $params['fmmessage']!='') {
@@ -37,7 +37,7 @@ for( $i = 0, $n = count($tmp_path_parts); $i < $n; $i++ ) {
         // not the last entry
         $fullpath = implode(DIRECTORY_SEPARATOR,array_slice($tmp_path_parts,0,$i+1));
         if( startswith($fullpath,'::top::') ) $fullpath = substr($fullpath,7);
-        $obj->url = $this->create_url( $id, 'changedir', '', [ 'setdir' => $fullpath ] );
+        $obj->url = $this->create_action_url($id, 'changedir', ['setdir' => $fullpath]);
     } else {
         // the last entry... no link
     }
@@ -55,4 +55,3 @@ $tpl->display();
 include __DIR__.DIRECTORY_SEPARATOR.'uploadview.php';
 // get the files table
 include __DIR__.DIRECTORY_SEPARATOR.'action.admin_fileview.php'; // this is also an action, for ajax processing
-return '';

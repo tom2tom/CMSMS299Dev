@@ -2,7 +2,7 @@
 *.bak
 \#*\#
 tmp/
-.htaccess
+#.htaccess
 config.php
 index.html
 moduleinfo.ini

@@ -112,7 +112,7 @@ function load_ini_lang( $filename, &$data, $realm )
 function load_csv_lang( $filename, &$data )
 {
     $fh = fopen( $filename, 'r' );
-    $out = null;
+    $out = [];
     while( !feof( $fh ) ) {
         $result = fgetcsv( $fh );
         if( array(null) === $result ) continue;
@@ -121,7 +121,7 @@ function load_csv_lang( $filename, &$data )
         $val = ( isset($result[1]) ) ? trim( $result[1] ) : null;
         $out[$key] = $val;
     }
-    if( !count($out) ) return false;
+    if( !$out ) return false;
 
     $data = $out;
     return true;
@@ -269,7 +269,7 @@ if( $report_only && count($extra_keys) ) {
 if( $report_only ) exit(0);
 
 if( $missing_only ) {
-    if( !count($missing_keys) ) exit(0);
+    if( !$missing_keys ) exit(0);
 
     $missing_data = [];
     foreach( $missing_keys as $key  ) {

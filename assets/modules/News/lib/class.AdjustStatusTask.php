@@ -21,9 +21,9 @@ If not, see <https://www.gnu.org/licenses/>.
 
 namespace News;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
-use CmsRegularTask;
+use CmsRegularTask; // TODO update to Job
 use const CMS_DB_PREFIX;
 
 final class AdjustStatusTask implements CmsRegularTask
@@ -32,7 +32,7 @@ final class AdjustStatusTask implements CmsRegularTask
 
     public function get_name()
     {
-        return self::class;
+        return __CLASS__;
     }
 
     public function get_description()
@@ -59,12 +59,12 @@ final class AdjustStatusTask implements CmsRegularTask
 
     public function execute($time = 0)
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         if( !$time ) $time = time();
         $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'archived\' WHERE (status=\'published\' OR status=\'final\') AND end_time IS NOT NULL AND end_time BETWEEN 1 AND ?';
-        $db ->Execute($query,[$time]);
+        $db->execute($query,[$time]);
         $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'published\' WHERE status=\'final\' AND start_time IS NOT NULL AND start_time BETWEEN 1 AND ?';
-        $db ->Execute($query,[$time]);
+        $db->execute($query,[$time]);
         return true;
     }
 } // class

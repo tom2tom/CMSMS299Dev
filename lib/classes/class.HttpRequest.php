@@ -19,7 +19,7 @@ use const TMP_CACHE_LOCATION;
  * harvest resources from web. This can be used with scripts that need
  * a way to communicate with various APIs who support REST.
  *
- * Modified by Robert Campbell (calguy1000@cmsmadesimple.org)
+ * Modified by Robert Campbell
  * Renamed the class to cms_http_request
  * Fixed some bugs.
  *
@@ -319,7 +319,7 @@ class HttpRequest
      */
     public function clear()
     {
-//        $config = AppSingle::Config();
+//        $config = SingleItem::Config();
 
         // Set the request defaults
         $this->host         = '';
@@ -359,8 +359,6 @@ class HttpRequest
 
     /**
      * Clear all cookies
-     *
-     * @author Robert Campbell (calguy1000@cmsmadesimple.org)
      */
     public function resetCookies()
     {
@@ -688,7 +686,7 @@ class HttpRequest
      */
     public static function is_curl_suitable()
     {
-        // static properties here >> StaticProperties class ?
+        // static properties here >> SingleItem property|ies ?
         static $_curlgood = null;
 
         if ($_curlgood === null) {
@@ -1132,15 +1130,15 @@ class HttpRequest
      */
     private function _setCookie(string $name, string $value, string $expires = '', string $path = '/', string $domain = '', int $secure = 0)
     {
-        if (strlen($name) == 0) {
+        if ($name == '') {
             return($this->_setError('No valid cookie name was specified.'));
         }
 
-        if (strlen($path) == 0 || strcmp($path[0], '/')) {
+        if ($path == '' || $path[0] != '/') {
             return($this->_setError("$path is not a valid path for setting cookie $name."));
         }
 
-        if ($domain == '' || !strpos($domain, '.', $domain[0] == '.' ? 1 : 0)) {
+        if ($domain == '' || strpos($domain, '.', (($domain[0] == '.') ? 1 : 0)) == false) { // TODO === false ?
             return($this->_setError("$domain is not a valid domain for setting cookie $name."));
         }
 

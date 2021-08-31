@@ -22,11 +22,13 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Utils;
 use function CMSMS\specialize;
 
+// TODO show icon/image for each
+
 // Generate a list of current categories
 $entryarray = [];
 
 $query = 'SELECT news_category_id,news_category_name,hierarchy FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
-$rst = $db->Execute($query);
+$rst = $db->execute($query);
 if ($rst) {
     $admintheme = Utils::get_theme_object();
     $icon = $admintheme->DisplayImage('icons/system/edit.gif', $this->Lang('edit'), '', '', 'systemicon');
@@ -37,10 +39,10 @@ if ($rst) {
         $onerow->id = $cid;
         $onerow->depth = $depth - 1;
         $onerow->name = specialize($row['news_category_name']);
-        $onerow->edit_url = $this->create_url($id, 'editcategory', $returnid, ['catid'=>$cid]);
+        $onerow->edit_url = $this->create_action_url($id, 'editcategory', ['catid'=>$cid]);
         $onerow->editlink = $this->CreateLink($id, 'editcategory', $returnid, $icon, ['catid'=>$cid]);
         if ($cid > 1) {
-            $onerow->delete_url = $this->create_url($id, 'deletecategory', $returnid, ['catid'=>$cid]);
+            $onerow->delete_url = $this->create_action_url($id, 'deletecategory', ['catid'=>$cid]);
         } else {
             $onerow->delete_url = null;
         }

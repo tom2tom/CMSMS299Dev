@@ -28,7 +28,6 @@ namespace CMSMS;
  * @license GPL
  * @since 2.99
  * @since 2.2 in namespace CMSMS\Layout
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 abstract class TemplateTypeAssistant
 {

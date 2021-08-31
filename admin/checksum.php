@@ -20,15 +20,13 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
+use CMSMS\SingleItem;
 
 $orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -39,7 +37,7 @@ if (!$access) {
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 $urlext = get_secure_param();
 
 require_once cms_join_path(CMS_ROOT_PATH, 'lib', 'test.functions.php');
@@ -70,7 +68,7 @@ function check_checksum_data(&$report)
         return false;
     }
 
-    $salt = AppSingle::App()->GetSiteUUID();
+    $salt = SingleItem::App()->GetSiteUUID();
     $filenotfound = [];
     $notreadable = 0;
     $md5failed = 0;
@@ -221,7 +219,7 @@ function generate_checksum_file(&$report)
     });
 
     $output = '';
-    $salt = AppSingle::App()->GetSiteUUID();
+    $salt = SingleItem::App()->GetSiteUUID();
 
     foreach ($tmp as $file) {
         if (!is_link($file)) {
@@ -248,7 +246,7 @@ function generate_checksum_file(&$report)
     exit;
 }
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 // Get ready
 $smarty->registerPlugin('function', 'lang', 'checksum_lang');
 $smarty->force_compile = true;
@@ -282,7 +280,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('checksum.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

@@ -97,11 +97,11 @@ class Crypto
 		}
 		switch ($crypter) {
 		case 'sodium':
-			$localpw = CMS_ROOT_URL.self::class;
+			$localpw = CMS_ROOT_URL.__CLASS__;
 			list($nonce, $key) = self::sodium_extend($use,$localpw);
 			return sodium_crypto_secretbox($raw,$nonce,$key);
 		case 'openssl':
-			$localpw = CMS_ROOT_URL.self::class;
+			$localpw = CMS_ROOT_URL.__CLASS__;
 			$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
 			return openssl_encrypt($raw,self::SSLCIPHER,$use,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
 		default:
@@ -140,7 +140,7 @@ class Crypto
 		}
 		switch ($crypter) {
 		case 'sodium':
-			$localpw = CMS_ROOT_URL.self::class;
+			$localpw = CMS_ROOT_URL.__CLASS__;
 			list($nonce, $key) = self::sodium_extend($use,$localpw);
 			$val = sodium_crypto_secretbox_open($raw,$nonce,$key);
 			if ($val !== false) {
@@ -152,7 +152,7 @@ class Crypto
 			}
 			// no break here
 		case 'openssl':
-			$localpw = CMS_ROOT_URL.self::class;
+			$localpw = CMS_ROOT_URL.__CLASS__;
 			$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
 			$val = openssl_decrypt($raw,self::SSLCIPHER,$use,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($localpw,0,$l1));
 			if ($val !== false) {

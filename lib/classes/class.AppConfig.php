@@ -50,7 +50,6 @@ use function startswith;
  * @since 1.9 as global-namespace cms_config
  * @package CMS
  * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
 final class AppConfig implements ArrayAccess
 {
@@ -86,7 +85,7 @@ final class AppConfig implements ArrayAccess
         'content_encoding' => self::TYPE_STRING, //since 2.99 alias of 'default_encoding'
         'content_language' => self::TYPE_STRING, //since 2.99
 //        'content_processing_mode' => self::TYPE_INT,
-        'db_credentials' => self::TYPE_STRING, //since 2.99
+        'db_credentials' => self::TYPE_STRING, //since 2.99 (difficult for installer!)
         'db_hostname' => self::TYPE_STRING,
         'db_name' => self::TYPE_STRING,
         'db_password' => self::TYPE_STRING,
@@ -140,6 +139,7 @@ final class AppConfig implements ArrayAccess
 
     /**
      * ignore
+     * @private to prevent direct creation (even by SingleItem class)
      */
     private function __construct() {}
 
@@ -151,9 +151,9 @@ final class AppConfig implements ArrayAccess
     /**
      * Retrieve the singleton instance of this class.
      * This method is used during request-setup, when caching via the
-     * AppSingle class might not yet be possible.
-	 * Later, use CMSMS\AppSingle::Config() instead of this method,
-	 * to get the (same) singleton.
+     * SingleItem class might not yet be possible.
+     * Later, use CMSMS\SingleItem::Config() instead of this method,
+     * to get the (same) singleton.
      *
      * @return self
      */
@@ -240,7 +240,7 @@ final class AppConfig implements ArrayAccess
                 return null; // ignore absence
             }
             // otherwise these guys must be set
-            if( !AppState::test_state(AppState::STATE_INSTALL) ) {
+            if( !AppState::test(AppState::INSTALL) ) {
                 stack_trace();
             }
             die('FATAL ERROR: Could not find database connection key "'.$key.'" in the config file');
@@ -310,7 +310,7 @@ final class AppConfig implements ArrayAccess
                 $path = '';
             }
             //TODO generally support the websocket protocol 'wss' : 'ws'
-            if(!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') { //c.f. AppSingle::App()->is_https_request() but AppSingle N/A at this stage
+            if(!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') { //c.f. SingleItem::App()->is_https_request() but SingleItem N/A at this stage
                 $prefix = 'https://';
             }
             else {
@@ -536,7 +536,7 @@ final class AppConfig implements ArrayAccess
         if( is_callable($whitelist) ) {
             $out = call_user_func($whitelist,$requested);
         }
-        else if( is_array($whitelist) ) {
+        elseif( is_array($whitelist) ) {
             // could use array_search here, but can't rely on the quality of the input (empty strings, whitespace etc).
             for( $i = 0, $n = count($whitelist); $i < $n; $i++ ) {
                 $item = $whitelist[$i];
@@ -548,7 +548,7 @@ final class AppConfig implements ArrayAccess
                 }
             }
         }
-        else if( is_string($whitelist) ) {
+        elseif( is_string($whitelist) ) {
             $whitelist = explode(',',$whitelist);
             // could use array_search here, but can't rely on the quality of the input (empty strings, whitespace etc).
             for( $i = 0, $n = count($whitelist); $i < $n; $i++ ) {
@@ -640,7 +640,7 @@ final class AppConfig implements ArrayAccess
             $config = [];
             include_once CONFIG_FILE_LOCATION;
         }
-        elseif( !AppState::test_state(AppState::STATE_INSTALL) || !$config) {
+        elseif( !AppState::test(AppState::INSTALL) || !$config) {
             $this->_data = [];
             return;
         }
@@ -651,7 +651,7 @@ final class AppConfig implements ArrayAccess
                 case self::TYPE_STRING:
                     switch( $key ) {
                     case 'root_path':
-                        $value = sanitizeVal(rtrim($value, ' /\\'), CMSSAN_PATH);
+                        $value = sanitizeVal(rtrim($value, ' \/'), CMSSAN_PATH);
                         break 2;
                     case 'tmp_cache_location':
                     case 'tmp_templates_c_location':
@@ -661,7 +661,7 @@ final class AppConfig implements ArrayAccess
                     case 'image_uploads_path':
                     case 'usertags_path':
                         // root-relative, no leading separator
-                        $value = sanitizeVal(trim($value, ' /\\'), CMSSAN_PATH);
+                        $value = sanitizeVal(trim($value, ' \/'), CMSSAN_PATH);
                         break 2;
                     case 'root_url':
                     case 'admin_url':
@@ -676,7 +676,7 @@ final class AppConfig implements ArrayAccess
                         break 2;
                     case 'admin_dir':
                     case 'assets_dir': // deprecated since 2.99 use assets_path
-                        $value = sanitizeVal(trim($value, ' /\\'), CMSSAN_FILE);
+                        $value = sanitizeVal(trim($value, ' \/'), CMSSAN_FILE);
                         break 2;
                     default:
                         $value = trim($value);
@@ -721,7 +721,7 @@ final class AppConfig implements ArrayAccess
      */
     public function merge(array $newconfig)
     {
-        if( AppState::test_state(AppState::STATE_INSTALL) ) {
+        if( AppState::test(AppState::INSTALL) ) {
             $this->load($newconfig + ($this->_data ?? []));
         }
     }
@@ -743,7 +743,9 @@ final class AppConfig implements ArrayAccess
     public function save(bool $verbose = true, string $filename = '')
     {
         if( !$filename ) {
-            $filename = constant('CONFIG_FILE_LOCATION');
+            if( defined('CONFIG_FILE_LOCATION') ) {
+                $filename = CONFIG_FILE_LOCATION;
+            }
             if( !$filename ) {
                 $filename = dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php';
             }
@@ -766,16 +768,22 @@ final class AppConfig implements ArrayAccess
             }
         }
 
-        $output = "<?php\n";
-        if( $verbose ) {
-            $u = self::CMS_CONFIGHELP_URL;
-            $output .= <<<EOS
-// CMS Made Simple system configuration parameters
-// Details are at $u
+        $y = date('Y');
+        $str = ($verbose) ? '// Details are at '.self::CMS_CONFIGHELP_URL.PHP_EOL : '';
+        //TODO avoid hardcoded contact-details
+        $output = <<<EOS
+<?php
+/*
+CMS Made Simple configuration parameters
+Copyright (C) 2004-$y CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+which is licensed under the terms of the GNU General Public License
+published by the Free Software Foundation.
+*/
+// PROTECT THIS FILE AGAINST INVALID INSPECTION OR CHANGE !
+$str
 
 EOS;
-        }
-        $output .= "// PROTECT THIS FILE AGAINST INVALID INSPECTION OR CHANGE !\n";
         ksort ($this->_data);
         foreach( $this->_data as $key => $value ) {
             $outvalue = $this->_printable_value($key, $value);

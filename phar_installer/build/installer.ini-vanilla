@@ -8,6 +8,8 @@ adminemail=""
 adminlogin=""
 adminpw=""
 assets_path=""
+;bugurl=""
+;config_file=""
 ;coremodules[]=""
 ;db_credentials=""
 db_hostname=""
@@ -18,6 +20,7 @@ db_prefix=""
 db_username=""
 debug=false
 dest=""
+;NOTE module-order matters here. Dependencies must be processed before their dependents.
 ;extramodules[]=""
 lang="en_US"
 nobase=false

@@ -20,14 +20,13 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppParams;
-use CMSMS\AppSingle;
+use CMSMS\Error404Exception;
+use CMSMS\SingleItem;
 
 /**
  * A simple class for handling the content smarty resource.
  *
  * @package CMS
- * @author Robert Campbell
  * @internal
  * @ignore
  *
@@ -39,24 +38,24 @@ class Smarty_Resource_content extends Smarty_Resource_Custom
     /**
      * @param string  $name    template identifier
      * @param string  &$source store for retrieved template content, if any
-     * @param int     &$mtime  store for retrieved template modification timestamp
+     * @param int     &$mtime  store for retrieved template modification timestamp, if $source is set
      */
     protected function fetch($name, &$source, &$mtime)
     {
-        $contentobj = AppSingle::App()->get_content_object();
+        $contentobj = SingleItem::App()->get_content_object();
 
         if ($contentobj) {
-            if( !$contentobj->Cachable() ) { $mtime = time(); }
-            else { $mtime = $contentobj->GetModifiedDate(); }
             $source = $contentobj->Show($name);  //TODO maybe disable SmartyBC-supported {php}{/php}
+            if( $contentobj->Cachable() ) {
+                $st = $contentobj->GetModifiedDate();
+                if( !$st ) $st = time() - 86400;
+                $mtime = $st;
+            }
+            else {
+                $mtime = time();
+            }
             return;
         }
-
-        header('HTTP/1.0 404 Not Found');
-        header('Status: 404 Not Found');
-
-        $mtime = time();
-        // TODO relevance of AppParams::get('enablecustom404') and AppParams::get('custom404template')
-        $source = ($name == 'content_en') ? trim(AppParams::get('custom404')) : '';
+        throw new Error404Exception('Page content-object not found');
     }
-} // class
+}

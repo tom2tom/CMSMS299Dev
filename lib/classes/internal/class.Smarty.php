@@ -22,9 +22,9 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS\internal;
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\internal\ModulePluginOperations;
+use CMSMS\SingleItem;
 use Exception;
 use LogicException;
 use Smarty_Internal_Template;
@@ -95,7 +95,7 @@ smarty cache lifetime != global cache ttl, probably
         }
 */
         // default template class
-        $this->template_class = '\\CMSMS\\internal\\template_wrapper';
+        $this->template_class = 'CMSMS\internal\template_wrapper';
 
         // default plugin handler
         $this->registerDefaultPluginHandler([ $this, 'defaultPluginHandler' ]);
@@ -122,10 +122,10 @@ smarty cache lifetime != global cache ttl, probably
              ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates') // internal, never renamed
              ->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'styles');
 
-        if( AppSingle::App()->is_frontend_request() ) {
+        if( SingleItem::App()->is_frontend_request() ) {
             // just for frontend actions
             // Check if we are at install page, don't register anything if so, as nothing below is needed.
-            if( AppState::test_state(AppState::STATE_INSTALL) ) return;
+            if( AppState::test(AppState::INSTALL) ) return;
 
             if( is_sitedown() ) {
                 $this->setCaching(SmartyParent::CACHING_OFF); //actually, Smarty::
@@ -161,22 +161,23 @@ smarty cache lifetime != global cache ttl, probably
             // Load resources
 //            $this->registerResource('content',new content_resource())
             $this->setDefaultResourceType('content');
-            $this->registerPlugin('compiler','content','CMSMS\\internal\\content_plugins::compile_fecontentblock',false) //CHECKME any point in Smarty caching for this
-                 ->registerPlugin('function','content_image','CMSMS\\internal\\content_plugins::fetch_imageblock',true)
-                 ->registerPlugin('function','content_module','CMSMS\\internal\\content_plugins::fetch_moduleblock',true)
-                 ->registerPlugin('function','content_text','CMSMS\\internal\\content_plugins::fetch_textblock',true)
-                 ->registerPlugin('function','process_pagedata','CMSMS\\internal\\content_plugins::fetch_pagedata',false);
+            $this->registerPlugin('compiler','content','CMSMS\internal\content_plugins::compile_fecontentblock',false) //CHECKME any point in Smarty caching for this
+                 ->registerPlugin('function','content_image','CMSMS\internal\content_plugins::fetch_imageblock',true)
+                 ->registerPlugin('function','content_module','CMSMS\internal\content_plugins::fetch_moduleblock',true)
+                 ->registerPlugin('function','content_text','CMSMS\internal\content_plugins::fetch_textblock',true)
+                 ->registerPlugin('function','fetch_pagedata','CMSMS\internal\content_plugins::fetch_pagedata',true) // redundant, deprecated since 2.99
+                 ->registerPlugin('function','process_pagedata','CMSMS\internal\content_plugins::process_pagedata',true); // redundant, deprecated since 2.99
 
             // Autoload filters
             $this->autoloadFilters();
 
-            $config = AppSingle::Config();
+            $config = SingleItem::Config();
             if( !$config['permissive_smarty'] ) {
                 // Apply our security object
-                $this->enableSecurity('CMSMS\\internal\\smarty_security_policy');
+                $this->enableSecurity('CMSMS\internal\SmartySecurityPolicy');
             }
         }
-        elseif( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
+        elseif( AppState::test(AppState::ADMIN_PAGE) ) {
 /*/DEBUG admin caching
             $v = (int)AppParams::get('smarty_cachelife',-1);
             switch( $v ) {
@@ -199,9 +200,9 @@ smarty cache lifetime != global cache ttl, probably
 //               ->addTemplateDir(CMS_THEMES_PATH.DIRECTORY_SEPARATOR.TODOcurrenttheme.DIRECTORY_SEPARATOR.'templates')
 //               ->setDefaultResourceType('TODO')
                  ->setCaching(SmartyParent::CACHING_OFF); //($v) TODO enable admin caching with in-context disabling
-//c.f. frontend   ->enableSecurity('CMSMS\\internal\\smarty_security_policy');
+//c.f. frontend   ->enableSecurity('CMSMS\internal\SmartySecurityPolicy');
 
-            // Force re-compile after template change
+            // force re-compile after template change
             //Events::AddDynamicHandler('Core','EditTemplatePost',$TODOcallback);
             //Events::AddDynamicHandler('Core','AddTemplatePost',$TODOcallback);
         }
@@ -307,11 +308,11 @@ smarty cache lifetime != global cache ttl, probably
         //Deprecated pre-2.99 approach - non-system plugins were never cachable
         //In future, allow caching and expect users to override that in templates where needed
         //Otherwise, module-plugin cachability is opaque to page-builders
-        if( AppSingle::App()->is_frontend_request() ) {
+        if( SingleItem::App()->is_frontend_request() ) {
             // check if it's a module-plugin (tabled or not)
             $row = ModulePluginOperations::load_plugin($name,$type);
-            if( $row && is_callable($row['callback']) ) {
-                $callback = $row['callback'];
+            if( $row && is_callable($row['callable']) ) {
+                $callback = $row['callable'];
 //                if (0) {
                     $val = AppParams::get('smarty_cachemodules', 0);
                     if ($val != 2) {
@@ -324,7 +325,7 @@ smarty cache lifetime != global cache ttl, probably
             }
 
             // check if it's a user-plugin
-            $callback = AppSingle::UserTagOperations()->CreateTagFunction($name);
+            $callback = SingleItem::UserTagOperations()->CreateTagFunction($name);
             if( $callback ) {
 //                if (0) {
                     $val = AppParams::get('smarty_cacheusertags', false);

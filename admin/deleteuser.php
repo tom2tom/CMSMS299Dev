@@ -20,48 +20,44 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Events;
-use CMSMS\UserOperations;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
-use CMSMS\Utils;
 
 if (!isset($_GET['user_id'])) {
     return;
 }
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
 $urlext = get_secure_param();
 $cur_userid = get_userid();
 if( !check_permission($cur_userid, 'Manage Users') ) {
-    AppSingle::Theme()->ParkNotice('error', lang('needpermissionto', '"Manage Users"'));
+    SingleItem::Theme()->ParkNotice('error', lang('needpermissionto', '"Manage Users"'));
     redirect('listusers.php'.$urlext);
 }
 
 $key = '';
-$user_id = (int)$_GET['user_id'];
-if ($user_id != $cur_userid) {
-    $userops = AppSingle::UserOperations();
-    $ownercount = $userops->CountPageOwnershipByID($user_id);
+$userid = (int)$_GET['user_id'];
+if ($userid != $cur_userid) {
+    $userops = SingleItem::UserOperations();
+    $ownercount = $userops->CountPageOwnershipByID($userid);
     if ($ownercount <= 0) {
-        $oneuser = $userops->LoadUserByID($user_id);
+        $oneuser = $userops->LoadUserByID($userid);
         $user_name = $oneuser->username;
 
         Events::SendEvent( 'Core', 'DeleteUserPre', ['user'=>&$oneuser] );
 
         if ($oneuser->Delete()) {
-            UserParams::remove_for_user($user_id);
+            UserParams::remove_for_user($userid);
 
             Events::SendEvent( 'Core', 'DeleteUserPost', ['user'=>&$oneuser] );
 
             // put mention into the admin log
-            audit($user_id, 'Admin User: '.$user_name, 'Deleted');
+            audit($userid, 'Admin User '.$user_name, 'Deleted');
         } else {
             $key = 'failure';
         }
@@ -73,6 +69,6 @@ if ($user_id != $cur_userid) {
 }
 
 if ($key) {
-    AppSingle::Theme()->ParkNotice('error', lang($key));
+    SingleItem::Theme()->ParkNotice('error', lang($key));
 }
 redirect('listusers.php'.$urlext);

@@ -23,9 +23,8 @@ If not, see <https://www.gnu.org/licenses/>.
 use FileManager\Utils;
 use function CMSMS\specialize;
 
-if (!isset($gCms)) {
-    exit;
-}
+//if (some worthy test fails) exit;
+
 if (!$this->CheckPermission('Modify Files')) {
     exit;
 }
@@ -88,8 +87,8 @@ for ($i = 0; $i < $times; $i++) {
 
     $link = $filelist[$i]['name'];
     if ($filelist[$i]['dir']) {
-        $parms = [ 'newdir'=>$filelist[$i]['name'], 'path'=>$path, 'sortby'=>$sortby ];
-        $url = $this->create_url($id, 'changedir', '', $parms);
+        $parms = ['newdir'=>$filelist[$i]['name'], 'path'=>$path, 'sortby'=>$sortby];
+        $url = $this->create_action_url($id, 'changedir', $parms);
         if ($filelist[$i]['name'] != '..') {
             $countdirs++;
             $onerow->type = ['dir'];
@@ -107,7 +106,7 @@ for ($i = 0; $i < $times; $i++) {
         $onerow->iconlink = "<a href='" . $filelist[$i]['url'] . "' target='_blank'>" . $this->GetFileIcon($filelist[$i]['ext'], false) . '</a>';
         $countfiles++;
         $countfilesize+=$filelist[$i]['size'];
-        //$url = $this->create_url($id,'view','',array('file'=>$this->encodefilename($filelist[$i]['name'])));
+        //$url = $this->create_action_url($id,'view',['file'=>$this->encodefilename($filelist[$i]['name'])]);
         $url = $onerow->url;
         //$onerow->txtlink = "<a href='" . $filelist[$i]["url"] . "' target='_blank' title=\"".$this->Lang('title_view_newwindow')."\">" . $link . "</a>";
         $onerow->txtlink = "<a class=\"filelink\" href='" . $url . "' target='_blank' title=\"".$this->Lang('title_view_newwindow').'">' . $link . '</a>';
@@ -198,7 +197,6 @@ if ($sortby == 'sizeasc') {
 $params['newsort'] = $newsort;
 $titlelink = $this->CreateLink($id, 'defaultadmin', $returnid, $titlelink, $params);
 $tpl->assign('filesizetext', $titlelink)
-
  ->assign('fileownertext', $this->Lang('fileowner'))
  ->assign('filepermstext', $this->Lang('fileperms'))
  ->assign('fileinfotext', $this->Lang('fileinfo'))
@@ -237,8 +235,8 @@ a.filelink:visited {
 EOS;
     add_page_headtext($out, false);
 
-    $refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>$path])).'&'.CMS_JOB_KEY.'=1' ;
-    $viewfile_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1])).'&'.CMS_JOB_KEY.'=1';
+    $refresh_url = $this->create_action_url($id, 'admin_fileview', ['ajax'=>1, 'path'=>$path, CMS_JOB_KEY=>1]);
+    $viewfile_url = $this->create_action_url($id, 'admin_fileview', ['ajax'=>1]);
     $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -333,4 +331,3 @@ EOS;
 }
 
 $tpl->display();
-return '';

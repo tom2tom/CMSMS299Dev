@@ -18,20 +18,22 @@ GNU General Public License for more details.
 You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
-namespace CMSMS\internal;
+namespace CMSMS\internal; // might exist in old modules
 
 use BadMethodCallException;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\Async\CronJob;
 use CMSMS\Async\Job;
 use CMSMS\Async\RecurType;
 use CMSMS\Async\RegularJob;
+use CMSMS\CoreCapabilities;
+use CMSMS\DataException;
 use CMSMS\Events;
 use CMSMS\IRegularTask;
+use CMSMS\LoadedDataType;
 use CMSMS\ModuleOperations;
 use CMSMS\RequestParameters;
-use CMSMS\SysDataCacheDriver;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
 use CmsRegularTask;
 use InvalidArgumentException;
@@ -39,6 +41,7 @@ use LogicException;
 use Throwable;
 use const ASYNCLOG;
 use const CMS_ADMIN_PATH;
+use const CMS_ASSETS_PATH;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
 use const CMS_SECURE_PARAM_NAME;
@@ -187,8 +190,8 @@ final class JobOperations
         }
 
         $tmp = explode("\n", $data);
-        if (!is_array($tmp) || !count($tmp)) {
-            return;
+        if (!$tmp) {
+            $tmp = [$data];
         }
 
         $job_ids = [];
@@ -203,9 +206,9 @@ final class JobOperations
         }
 
         // we have job(s) whose error count needs to be increased
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $sql = 'UPDATE '.self::TABLE_NAME.' SET errors = errors + 1 WHERE id IN ('.implode(',', $job_ids).')';
-        $db->Execute($sql);
+        $db->execute($sql);
         debug_to_log('Increased error count on '.count($job_ids).' jobs ');
     }
 
@@ -248,9 +251,9 @@ final class JobOperations
         $res = 0;
 
         if ($force) {
-            $db = AppSingle::Db();
-            $db->Execute('DELETE FROM '.self::TABLE_NAME); // TRUNCATE ?
-            $db->Execute('ALTER TABLE '.self::TABLE_NAME.' AUTO_INCREMENT=1');
+            $db = SingleItem::Db();
+            $db->execute('DELETE FROM '.self::TABLE_NAME); // TRUNCATE ?
+            $db->execute('ALTER TABLE '.self::TABLE_NAME.' AUTO_INCREMENT=1');
         }
 
         // Get job objects from files
@@ -259,7 +262,7 @@ final class JobOperations
         $patn = cms_join_path(CMS_ROOT_PATH, 'lib', 'classes', 'jobs', 'class.*.php');
         $files = array_merge($files, glob($patn));
         foreach ($files as $p) { // OR basename-unique'd?
-            $classname = 'CMSMS\\jobs\\'; // NOT CMSMS\\[assets]\\jobs\\ == non-constant path
+            $classname = 'CMSMS\jobs\\'; // NOT CMSMS\[assets]\jobs\\ == non-constant path
             $tmp = explode('.', basename($p));
             if (count($tmp) == 4 && $tmp[2] == 'task') {
                 $classname .= $tmp[1].'Task';
@@ -290,33 +293,31 @@ final class JobOperations
         }
 
         // Get job objects from modules
-        $cache = AppSingle::SysDataCache();
+        $cache = SingleItem::LoadedData();
         if (!$cache->get('modules')) {
-            $obj = new SysDataCacheDriver('modules',
-                function() {
-                    $db = AppSingle::Db();
-                    $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules';
-                    return $db->GetArray($query);
-                });
-            $cache->add_cachable($obj);
+			// see also ModuleOperations::load_setup()
+            $obj = new LoadedDataType('modules', function() {
+                $db = SingleItem::Db();
+                $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules WHERE active != 0';
+                return $db->getArray($query);
+            });
+            $cache->add_type($obj);
         }
 
-        $modules = ModuleOperations::get_modules_with_capability('tasks');
-        if (!$modules) {
+        $modnames = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::TASKS);
+        if (!$modnames) {
             if (defined('ASYNCLOG')) {
                 error_log('async action No task-capable modules present'."\n", 3, ASYNCLOG);
             }
             return $res;
         }
-        foreach ($modules as $one) {
-            if (!is_object($one)) {
-                $one = Utils::get_module($one);
-            }
-            if (!method_exists($one, 'get_tasks')) {
+        foreach ($modnames as $name) {
+            $mod = Utils::get_module($name); // TODO without priors
+            if (!method_exists($mod, 'get_tasks')) {
                 continue;
             }
 
-            $tasks = $one->get_tasks();
+            $tasks = $mod->get_tasks();
             if (!$tasks) {
                 continue;
             }
@@ -340,7 +341,7 @@ final class JobOperations
                 } else {
                     continue;
                 }
-                $job->module = $one->GetName();
+                $job->module = $name;
                 if ($this->load_job($job) > 0) {
                     ++$res;
                 }
@@ -357,15 +358,15 @@ final class JobOperations
      */
     public function load_job(Job $job) : int
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         if ($job->id == 0) {
             $sql = 'SELECT id,start FROM '.self::TABLE_NAME.' WHERE name = ? AND module = ?';
-            $dbr = $db->GetRow($sql, [$job->name, $job->module]);
+            $dbr = $db->getRow($sql, [$job->name, $job->module]);
             if ($dbr) {
                 if ($dbr['start'] > 0) {
                     $job->set_id((int)$dbr['id']);
                     $sql = 'UPDATE '.self::TABLE_NAME.' SET start = ? WHERE id = ?'; //update next-start
-                    $db->Execute($sql, [$job->start, $job->id]);
+                    $db->execute($sql, [$job->start, $job->id]);
                 }
                 return $job->id; // maybe still 0
             }
@@ -380,7 +381,7 @@ final class JobOperations
                 $until = 0;
             }
             $sql = 'INSERT INTO '.self::TABLE_NAME.' (name,created,module,errors,start,recurs,until,data) VALUES (?,?,?,?,?,?,?,?)';
-            $dbr = $db->Execute($sql, [$job->name, $job->created, $job->module, $job->errors, $start, $recurs, $until, serialize($job)]);
+            $dbr = $db->execute($sql, [$job->name, $job->created, $job->module, $job->errors, $start, $recurs, $until, serialize($job)]);
             if ($dbr) {
                 $new_id = $db->Insert_ID();
                 try {
@@ -394,8 +395,9 @@ final class JobOperations
         } else {
             // note... we don't play with the module, the data, or recurs/until stuff for existing jobs.
             $sql = 'UPDATE '.self::TABLE_NAME.' SET start = ? WHERE id = ?';
-            $dbr = $db->Execute($sql, [$job->start, $job->id]);
-            return ($db->affected_rows() > 0) ? $job->id : 0;
+//            $dbr = useless for update
+            $db->execute($sql, [$job->start, $job->id]);
+            return ($db->errorNo() === 0) ? $job->id : 0;
         }
     }
 
@@ -407,10 +409,10 @@ final class JobOperations
     {
         $job_id = (int) $job_id;
         if ($job_id > 0) {
-            $db = AppSingle::Db();
+            $db = SingleItem::Db();
             $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE id = ?';
-            $row = $db->GetRow($sql, [$job_id]);
-            if (!is_array($row) || !count($row)) {
+            $row = $db->getRow($sql, [$job_id]);
+            if (!$row) {
                 return;
             }
 
@@ -418,7 +420,7 @@ final class JobOperations
             $obj->set_id($row['id']);
             return $obj;
         }
-        throw new InvalidArgumentException('Invalid job_id passed to '.__METHOD__);
+        throw new LogicException('Invalid job_id provided to '.__METHOD__);
     }
 
     /**
@@ -468,9 +470,9 @@ final class JobOperations
     public function unload_job(Job $job)
     {
         if ($job->id > 0) {
-            $db = AppSingle::Db();
+            $db = SingleItem::Db();
             $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id = ?';
-            if ($db->Execute($sql, [$job->id])) {
+            if ($db->execute($sql, [$job->id])) {
                 return;
             }
         }
@@ -488,13 +490,13 @@ final class JobOperations
     {
         $job_id = (int) $job_id;
         if ($job_id > 0) {
-            $db = AppSingle::Db();
+            $db = SingleItem::Db();
             $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id = ?';
-            if ($db->Execute($sql, [$job_id])) {
+            if ($db->execute($sql, [$job_id])) {
                 return;
             }
         }
-        throw new InvalidArgumentException('Invalid job_id passed to '.__METHOD__);
+        throw new LogicException('Invalid job_id provided to '.__METHOD__);
     }
 
     /**
@@ -507,30 +509,30 @@ final class JobOperations
     public function unload_job_by_name($module_name, $job_name)
     {
         if ($module_name) {
-            $db = AppSingle::Db();
+            $db = SingleItem::Db();
             $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE module = ? AND name = ?';
-            if ($db->Execute($sql, [$module_name, $job_name])) {
+            if ($db->execute($sql, [$module_name, $job_name])) {
                 return;
             }
         }
-        throw new InvalidArgumentException('Invalid identifier(s) passed to '.__METHOD__);
+        throw new DataException('No module name provided to '.__METHOD__);
     }
 
     /**
      * Remove all jobs of a named module from the current-jobs table
      *
      * @param string $module_name
-     * @throws InvalidArgumentException
+     * @throws DataException
      */
     public function unload_jobs_by_module($module_name)
     {
         if ($module_name) {
-            $db = AppSingle::Db();
+            $db = SingleItem::Db();
             $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE module = ?';
-            $db->Execute($sql, [$module_name]); // don't care if this fails i.e. no jobs
+            $db->execute($sql, [$module_name]); // don't care if this fails i.e. no jobs
             return;
         }
-        throw new InvalidArgumentException('Invalid module name passed to '.__METHOD__);
+        throw new DataException('No module name provided to '.__METHOD__);
     }
 
     /**
@@ -552,7 +554,7 @@ final class JobOperations
     public function set_current_job($job = null)
     {
         if (!(is_null($job) || $job instanceof Job)) {
-            throw new InvalidArgumentException('Invalid data passed to '.__METHOD__);
+            throw new InvalidArgumentException('Invalid Job provided to '.__METHOD__);
         }
         $this->_current_job = $job;
     }
@@ -565,7 +567,7 @@ final class JobOperations
     {
         $now = time();
         $sql = 'SELECT * FROM '.self::TABLE_NAME." WHERE created < $now ORDER BY created";
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $rst = $db->SelectLimit($sql, self::MAXJOBS);
         if (!$rst) {
             return [];
@@ -611,7 +613,7 @@ final class JobOperations
      */
     public function get_jobs(bool $check_only = false)
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $now = time();
 
         if ($check_only) {
@@ -684,9 +686,9 @@ final class JobOperations
             return;
         }
 
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $sql = 'SELECT * FROM '.self::TABLE_NAME.' WHERE errors >= ?';
-        $list = $db->GetArray($sql, [self::MINERRORS]);
+        $list = $db->getArray($sql, [self::MINERRORS]);
         if ($list) {
             $idlist = [];
             foreach ($list as &$row) {
@@ -707,7 +709,7 @@ final class JobOperations
             }
             unset($row);
             $sql = 'DELETE FROM '.self::TABLE_NAME.' WHERE id IN ('.implode(',', $idlist).')';
-            $db->Execute($sql);
+            $db->execute($sql);
             audit('', $mod->GetName(), 'Cleared '.count($idlist).' bad jobs');
         }
         AppParams::set('joblastbadrun', $now);
@@ -866,11 +868,12 @@ final class JobOperations
     }
 
     /**
-     * Job-related events handler
+     * Job-related events handler (actually, only does module-related events)
+     * @param string $originator event originator UNUSED
      * @param string $eventname event name
      * @param array $params optional event parameters
      */
-    public static function event_handler(string $eventname, array $params = [])
+    public static function event_handler(string $originator, string $eventname, array $params = [])
     {
         $obj = new self();
         switch ($eventname) {

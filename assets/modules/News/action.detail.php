@@ -24,7 +24,7 @@ use CMSMS\TemplateOperations;
 use News\Article;
 use News\Utils;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 
 //
 // initialization
@@ -41,8 +41,9 @@ else {
     $me = $this->GetName();
     $tpl = TemplateOperations::get_default_template_by_type($me.'::detail');
     if( !is_object($tpl) ) {
-        audit('',$me,'No usable detail template found');
-        return '';
+        cms_error('',$me.'::detail','No usable detail template found');
+        $this->ShowErrorPage('No usable detail template found');
+        return;
     }
     $template = $tpl->get_name();
 }
@@ -88,7 +89,7 @@ $tpl->assign('return_url', $return_url)
  ->assign('entry', $article);
 
 if (isset($params['category_id'])) {
-    $catName = $db->GetOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?',[(int)$params['category_id']]);
+    $catName = $db->getOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?',[(int)$params['category_id']]);
 }
 else {
     $catName = '';
@@ -103,4 +104,3 @@ $tpl->assign('category_link',$this->CreateLink($id, 'default', $returnid, $catNa
  ->assign('extra_label', $this->Lang('extra_label'));
 
 $tpl->display();
-return '';

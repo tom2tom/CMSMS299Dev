@@ -1,7 +1,7 @@
 <?php
 use FileManager\Utils;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if( !isset($params['file']) ) {
     $params['fmerror']='nofilesselected';
     $this->Redirect($id,'defaultadmin',$returnid,$params);

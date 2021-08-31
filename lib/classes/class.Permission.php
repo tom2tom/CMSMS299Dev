@@ -21,9 +21,11 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
-use CMSMS\SQLErrorException;
+use CMSMS\Permission;
+use CMSMS\SingleItem;
+use CMSMS\SQLException;
 use LogicException;
+use RuntimeException;
 use Throwable;
 use UnexpectedValueException;
 use const CMS_DB_PREFIX;
@@ -35,39 +37,62 @@ use const CMS_DB_PREFIX;
  * @since 2.0 as global-namespace CmsPermission
  * @package CMS
  * @license GPL
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 final class Permission
 {
 	/**
-	 * @ignore
+	 * Value to use for the 'originator' of core-permissions
+	 * @since 2.99
 	 */
-	private const PROPS = ['id','source','name','text','create_date','modified_date'];
+	const CORE = '__CORE__';
 
 	/**
 	 * @ignore
+	 */
+	private const PROPS = ['id','name','desc','originator','create_date','modified_date'];
+	/**
+	 * @ignore
+	 * Property-name aliases, some of them deprecated since 2.99
+	 */
+	private const ALIASPROPS = ['description' => 'desc','text' => 'desc','source' => 'originator'];
+
+	/**
+	 * @ignore
+	 * This object's properties
 	 */
 	private $_data;
 
-    // static properties here >> StaticProperties class ?
+	// static properties here >> SingleItem property|ies ?
 	/**
 	 * @ignore
+	 * Intra-request cache of loaded permission-objects
+	 *  Each member like id => object
 	 */
-	private static $_perm_map;
+	private static $_cache;
 
 	/**
 	 * Constructor
+	 * @param mixed $props array | null Optional permission-properties Since 2.99
 	 */
-	public function __construct()
+	public function __construct($props = null)
 	{
 		$this->_data = [
-		'id' => 0,
-		'source' => '',
-		'name' => '',
-		'text' => '',
-		'create_date' => '', // database DT-field value
-		'modified_date' => '', // ditto
-        ];
+			'id' => 0,
+			'name' => '',
+			'desc' => NULL,
+			'originator' => NULL,
+			'create_date' => NULL,
+			'modified_date' => NULL,
+		];
+		if( $props && is_array($props) ) {
+			$keeps = array_intersect_key($props, $this->_data);
+			$this->_data = array_merge($this->_data, $keeps);
+			foreach( self::ALIASPROPS as $alt => $key ) {
+				if( isset($props[$alt]) ) {
+					$this->_data[$key] = $props[$alt];
+				}
+			}
+		}
 	}
 
 	/**
@@ -77,7 +102,14 @@ final class Permission
 	 */
 	public function __get($key)
 	{
-		if( !in_array($key,self::PROPS) ) throw new UnexpectedValueException($key.' is not a valid key for a '.__CLASS__.' object');
+		if( !in_array($key,self::PROPS) ) {
+			//try for a deprecated alias
+			if( isset(self::ALIASPROPS[$key]) ) {
+				$key = self::ALIASPROPS[$key];
+			} else {
+				throw new LogicException($key.' is not a property of '.__CLASS__.' objects');
+			}
+		}
 		return $this->_data[$key] ?? null;
 	}
 
@@ -87,69 +119,81 @@ final class Permission
 	 */
 	public function __set($key,$value)
 	{
-		if( $key == 'id' ) throw new LogicException($key.' cannot be set this way in a '.__CLASS__.' object');
-		if( !in_array($key,self::PROPS) ) throw new UnexpectedValueException($key.' is not a valid key for a '.__CLASS__.' object');
-
+		if( $key == 'id' ) {
+			throw new LogicException($key.' cannot be set this way in '.__CLASS__.' objects');
+		}
+		if( !in_array($key,self::PROPS) ) {
+			if( isset(self::ALIASPROPS[$key]) ) {
+				$key = self::ALIASPROPS[$key];
+			} else {
+				throw new LogicException($key.' is not a property of '.__CLASS__.' objects');
+			}
+		}
 		$this->_data[$key] = $value;
 	}
 
 	/**
-	 * Insert a new permission
+	 * Record a new permission
 	 *
-	 * @throws SQLErrorException if saving fails
+	 * @throws SQLException if saving fails
 	 */
-	protected function _insert()
+	private function _insert()
 	{
+		if (empty($this->_data['originator'])) { $this->_data['originator'] = self::CORE; }
+		if (empty($this->_data['desc'])) { $this->_data['desc'] = null; }
+
 		$this->validate();
 
-		$db = AppSingle::Db();
-
-		//setting create_date should be redundant with DT setting
-		$query = 'INSERT INTO '.CMS_DB_PREFIX."permissions
-(permission_name,permission_text,permission_source,create_date)
-VALUES (?,?,?,NOW())";
-		$dbr = $db->Execute($query,
-		[$this->_data['name'], $this->_data['text'], $this->_data['source']]);
+		$db = SingleItem::Db();
+		//setting create_date should be redundant with DT default setting, but timezone ?
+		$longnow = $db->DbTimeStamp(time(), false);
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'permissions
+(name,description,originator,create_date) VALUES (?,?,?,?)';
+		$dbr = $db->execute($query,
+			[$this->_data['name'], $this->_data['desc'], $this->_data['originator'], $longnow]);
 		if( $dbr ) {
-			$this->_data['id'] = $db->Insert_ID();
+			$this->_data['id'] = $db->Insert_ID(); // == $dbr
 		}
 		else {
-			throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+			throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
 	}
 
 	/**
-	 * Validate the permission properties: source, name, text
+	 * Validate some permission properties: name, originator
+	 * @since 2.99 description may be empty
 	 *
-	 * @throws LogicException
+	 * @throws LogicException if validation fails
 	 */
 	public function validate()
 	{
-		if( $this->_data['source'] == '' )
-			throw new LogicException('Source cannot be empty in a '.__CLASS__.' object');
-		if( $this->_data['name'] == '' )
+		if( $this->_data['name'] == '' ) {
 			throw new LogicException('Name cannot be empty in a '.__CLASS__.' object');
-		if( $this->_data['text'] == '' )
-			throw new LogicException('Text cannot be empty in a '.__CLASS__.' object');
-
+		}
+		if( $this->_data['originator'] == '' ) {
+			throw new LogicException('Originator cannot be empty in a '.__CLASS__.' object');
+		}
 		if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) {
-			// Name must be unique
-			$db = AppSingle::Db();
-			$query = 'SElECT permission_id FROM '.CMS_DB_PREFIX.'permissions
- WHERE permission_name = ?';
-			$dbr = $db->GetOne($query,[$this->_data['name']]);
-			if( $dbr > 0 ) throw new LogicException('A permission with name '.$this->_data['name'].' already exists');
+			// Name must be unique for its originator
+			$db = SingleItem::Db();
+			$query = 'SELECT id FROM '.CMS_DB_PREFIX.'permissions WHERE name = ? AND originator = ?';
+			$dbr = $db->getOne($query, [$this->_data['name'], $this->_data['originator']]);
+			if( $dbr > 0 ) {
+				throw new LogicException('A permission with name '.$this->_data['name'].' already exists');
+			}
 		}
 	}
 
 	/**
-	 * Save the permission to the database
+	 * Save this permission to the database
 	 *
 	 * @throws LogicException
 	 */
 	public function save()
 	{
-		if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) return $this->_insert();
+		if( !isset($this->_data['id']) || $this->_data['id'] < 1 ) {
+			$this->_insert();
+		}
 		throw new LogicException('Cannot update an existing '.__CLASS__.' object');
 	}
 
@@ -157,7 +201,7 @@ VALUES (?,?,?,NOW())";
 	 * Delete this permission
 	 *
 	 * @throws LogicException
-	 * @throws SQLErrorException
+	 * @throws SQLException
 	 */
 	public function delete()
 	{
@@ -165,65 +209,112 @@ VALUES (?,?,?,NOW())";
 			throw new LogicException('Cannnot delete a '.__CLASS__.' object that has not been saved');
 		}
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE permission_id = ?';
-		$dbr = $db->Execute($query,[$this->_data['id']]);
-		if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+//		$dbr =
+		$db->execute($query,[$this->_data['id']]);
 
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'permissions WHERE permission_id = ?';
-		$dbr = $db->Execute($query,[$this->_data['id']]);
-		if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
-		unset($this->_data['id']);
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'permissions WHERE id = ?';
+		$dbr = $db->execute($query,[$this->_data['id']]);
+		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
+		if( is_array(self::$_cache) ) {
+			unset(self::$_cache[$this->_data['id']]);
+		}
+		$this->_data['id'] = 0;
 	}
 
 	/**
-	 * Load a permission with the specified name
+	 * Load a permission with the specified identifier
 	 *
-	 * @param string $name
+	 * @param mixed $a string name | int id
+	 * @since 2.99 the name may be like 'originator::name' or just 'name'
 	 * @return Permission
-	 * @throws UnexpectedValueException
+	 * @throws RuntimeException if nil or > 1 permissions match
 	 */
-	public static function load($name)
+	public static function load($a)
 	{
-		if( is_array(self::$_perm_map) ) {
-			if( (int)$name <= 0 ) {
-				foreach( self::$_perm_map as $perm_id => $perm ) {
-					if( $perm->name == $name ) return $perm;
+		if( is_array(self::$_cache) ) {
+			if( is_numeric($a) ) {
+				$a = (int)$a;
+				if( isset(self::$_cache[$a]) ) {
+					return self::$_cache[$a];
+				}
+			}
+			elseif( strpos($a,'::') !== false ) {
+				$parts = explode('::',$a,2);
+				$parts = array_map(function($s) { return trim($s); }, $parts);
+				if( !$parts[0] || strcasecmp($parts[0],'core') == 0 ) { $parts[0] = self::CORE; }
+				foreach( self::$_cache as $perm_id => $perm ) {
+					if( $perm->name == $parts[1] && $perm->originator == $parts[0] ) return $perm;
+				}
+			}
+			else {
+				$out = [];
+				foreach( self::$_cache as $perm_id => $perm ) {
+					if( $perm->name == $a ) { $out[] = $perm; }
+				}
+				switch (count($out)) {
+					case 0:
+						break;
+					case 1:
+						return reset($out);
+					default:
+						throw new RuntimeException("Multiple permissions match '$a'");
 				}
 			}
 		}
 
-		$db = AppSingle::Db();
-		$row = null;
-		if( (int)$name > 0 ) {
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE permission_id = ?';
-			$row = $db->GetRow($query,[(int)$name]);
+		$db = SingleItem::Db();
+		if( is_numeric($a) ) {
+			if( $a > 0 ) {
+				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE id = ?';
+				$row = $db->getRow($query,[(int)$a]);
+			}
+		}
+		elseif( strpos($a,'::') !== false ) {
+			$parts = explode('::',$a,2);
+			$parts = array_map(function($s) { return trim($s); }, $parts);
+			if( !$parts[0] || strcasecmp($parts[0],'core') == 0 ) { $parts[0] = self::CORE; }
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE originator = ? AND name = ?';
+			$row = $db->getRow($query,$parts);
 		}
 		else {
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE permission_name = ?';
-			$row = $db->GetRow($query,[$name]);
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE name = ?';
+			$all = $db->getArray($query,[$a]);
+			if( $all ) {
+				if( count($all) == 1 ) {
+					$row = $all[0];
+				}
+				else {
+					throw new RuntimeException("Multiple permissions match '$a'");
+				}
+			}
+			else {
+				$row = false;
+			}
 		}
 		if( !$row ) {
-			throw new UnexpectedValueException('Could not find permission named '.$name);
+			throw new RuntimeException('Could not find permission identified by '.$a);
 		}
 
-		$obj = new self();
-		$obj->_data['id'] = $row['permission_id'];
-		$obj->_data['name'] = $row['permission_name'];
-		$obj->_data['text'] = $row['permission_text'];
-		$obj->_data['create_date'] = $row['create_date'];
-		$obj->_data['modified_date'] = $row['modified_date'];
+		$row['desc'] = $row['description'];
+		$obj = new self($row);
 
-		if( !is_array(self::$_perm_map) ) self::$_perm_map = [];
-		self::$_perm_map[$obj->id] = $obj;
+		$id = $obj->id;
+		if ($id > 0) {
+			if( !is_array(self::$_cache) ) {
+				self::$_cache = [];
+			}
+			self::$_cache[$id] = $obj;
+		}
 		return $obj;
 	}
 
 	/**
 	 * Get the id of a named permission, if possible
 	 *
-	 * @param string $permname
-	 * @return mixed int|null
+	 * @param string $permname since 2.99 like 'originator::name' or just 'name'
+	 * @return mixed int | null
 	 */
 	public static function get_perm_id($permname)
 	{
@@ -245,7 +336,7 @@ VALUES (?,?,?,NOW())";
 	public static function get_perm_name($permid)
 	{
 		try {
-			$perm = TODOfunc((int)$permid);
+			$perm = self::load($permid);
 			return $perm->name;
 		}
 		catch( Throwable $t ) {

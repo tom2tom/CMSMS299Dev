@@ -1,14 +1,31 @@
 <?php
+/*
+Class which ...
+Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that license, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace FilePicker;
 
-use cms_config;
+use CMSMS\AppConfig;
 use LogicException;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_UPLOADS_URL;
 use function cms_join_path;
-use function endswith;
 use function startswith;
 
 class PathAssistant
@@ -16,10 +33,10 @@ class PathAssistant
     private $_topdir;
     private $_topurl;
 
-    public function __construct(cms_config $config, $topdir)
+    public function __construct(AppConfig $config, $topdir)
     {
-        if (!$topdir || !is_dir($topdir)) throw new LogicException("Invalid topdir $topdir passed to ".__METHOD__);
-        if (!$this->is_relative_to($topdir, CMS_ROOT_PATH)) throw new LogicException('Invalid topdir passed to '.__METHOD__);
+        if (!$topdir || !is_dir($topdir)) throw new LogicException("Invalid topdir-value '$topdir' provided to ".__METHOD__);
+        if (!$this->is_relative_to($topdir, CMS_ROOT_PATH)) throw new LogicException("'$topdir' is not a descendant of '".CMS_ROOT_PATH."' in ".__METHOD__);
 
 //      if (endswith($topdir, DIRECTORY_SEPARATOR)) $topdir = substr($topdir,0,-1);
         $this->_topdir = rtrim($topdir, ' '.DIRECTORY_SEPARATOR);
@@ -47,14 +64,13 @@ class PathAssistant
     {
         $path_a = realpath($path_a);
         $path_b = realpath($path_b);
-        if (!is_dir($path_a) && !is_file($path_a)) throw new LogicException('Invalid path_a passed to '.__METHOD__.': '.$path_a);
-        if (!is_dir($path_b)) throw new LogicException('Invalid path_b passed to '.__METHOD__.': '.$path_b);
+        if (!(is_dir($path_a) || is_file($path_a))) throw new LogicException("Invalid path_a-value '$path_a' provided to ".__METHOD__);
+        if (!is_dir($path_b)) throw new LogicException("Invalid path_b-value '$path_b' provided to ".__METHOD__);
 
-        if (!$this->is_relative_to($path_a, $path_b)) throw new LogicException("$path_a is not relative to $path_b");
-        $out = substr($path_a,strlen($path_b));
-        if (startswith($out, DIRECTORY_SEPARATOR)) $out = substr($out,1);
+        if (!$this->is_relative_to($path_a, $path_b)) throw new LogicException("'$path_a' is not a descendant of '$path_b' in ".__METHOD__);
+        $out = substr($path_a, strlen($path_b));
+        $out = ltrim($out, ' \/');
         return $out;
-
     }
 
     public function get_top_url()
@@ -67,7 +83,6 @@ class PathAssistant
         $path_a = realpath($path_a);
         $path_b = realpath($path_b);
         if (!$path_a || !$path_b) return false;
-
         return startswith($path_a, $path_b);
     }
 
@@ -88,11 +103,10 @@ class PathAssistant
 
     public function relative_path_to_url($relative)
     {
-        $prefix = $this->get_top_url();
-        if (endswith($prefix, '/')) $prefix = substr($prefix,0,-1);
-        $relative = trim($relative, ' /\\');
+        $prefix = rtrim($this->get_top_url(), ' /');
+        $relative = trim($relative, ' \/');
         if ($relative) {
-            return $prefix . '/' . strtr($relative,'\\','/');
+            return $prefix . '/' . strtr($relative, '\\', '/');
         }
         return $prefix;
     }
@@ -105,7 +119,7 @@ class PathAssistant
 
     /**
      * Get the extension of the specified file
-     * @since 2.99
+     * @since 2.0
      * @param string $path Filesystem path, or at least the basename, of a file
      * @param bool $lower Optional flag, whether to lowercase the result. Default TRUE.
      * @return string, lowercase if $lower is true or not set
@@ -126,7 +140,7 @@ class PathAssistant
 
     /**
      * Get a variant of the supplied $path with definitely-lowercase filename extension
-     * @since 2.99
+     * @since 2.0
      * @param string $path Filesystem path, or at least the basename, of a file
      * @return string
      */

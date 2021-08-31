@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 // since 2.99
 function smarty_function_disable_template($params, $template)
 {
-	CMSMS\AppSingle::App()->disable_template_processing();
+	CMSMS\SingleItem::App()->disable_template_processing();
 	return '';
 }
 /*

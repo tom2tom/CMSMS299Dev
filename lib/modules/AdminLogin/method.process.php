@@ -22,8 +22,8 @@ If not, see <https://www.gnu.org/licenses/>.
 //use AdminLogin; global namespace module
 //TODO if no CMSMailer-module is present, revert to mail()
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\Events;
+use CMSMS\SingleItem;
 use CMSMS\User;
 use CMSMS\UserParams;
 use CMSMS\Utils;
@@ -38,11 +38,11 @@ use function CMSMS\sanitizeVal;
  * $login_url e.g. $config['admin_url'].'/login.php' OR module-action url
  */
 
-$login_ops = AppSingle::LoginOperations();
+$login_ops = SingleItem::LoginOperations();
 $salt = $login_ops->get_salt();
 $usecsrf = true;
 $csrf_key = hash('tiger128,3', $salt); // 32 hexits
-$userops = AppSingle::UserOperations();
+$userops = SingleItem::UserOperations();
 $infomessage = $warnmessage = $errmsg = $changepwhash = null;
 
 /**
@@ -157,7 +157,7 @@ if (isset($_SESSION[$id.'logout_user_now'])) {
     Events::SendEvent('Core', 'LogoutPre', ['uid'=>$userid, 'username'=>$username]);
     $login_ops->deauthenticate(); // unset all the cruft needed to make sure we're logged in
     Events::SendEvent('Core', 'LogoutPost', ['uid'=>$userid, 'username'=>$username]);
-    audit($userid, 'Admin Username: '.$username, 'Logged Out');
+    audit($userid, 'Admin User '.$username, 'Logged Out');
     // do any module-specific logout stuff here
     // slide through to 'submit' processing
 } elseif (isset($_REQUEST[$id.'forgotpwform']) && isset($_REQUEST[$id.'forgottenusername'])) { // check for a forgot-pw job
@@ -265,10 +265,10 @@ if (isset($_POST[$id.'cancel'])) {
 
             // put mention into the admin log
             if (isset($_REQUEST[$id.'renewpwform'])) {
-                audit($user->id, 'Admin Username: '.$user->username, 'Password Renewed');
+                audit($user->id, 'Admin User '.$user->username, 'Password Renewed');
                 unset($_POST[$id.'renewpwform']);
             } else {
-                audit($user->id, 'Admin Username: '.$user->username, 'Logged In');
+                audit($user->id, 'Admin User '.$user->username, 'Logged In');
             }
 
             // send the post-login event
@@ -315,7 +315,7 @@ if (isset($_POST[$id.'cancel'])) {
         Events::SendEvent('Core', 'LoginFailed', ['user'=>$username]);
         // put mention into the admin log
         $ip_login_failed = Utils::get_real_ip();
-        audit('', '(IP: ' . $ip_login_failed . ') ' . 'Admin Username: ' . $username, 'Login Failed');
+        audit('', '(IP: ' . $ip_login_failed . ') ' . 'Admin User ' . $username, 'Login failed');
     }
     unset($_REQUEST[$id.'forgottenusername'],$_POST[$id.'forgottenusername']);
 }

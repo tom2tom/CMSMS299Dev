@@ -1,5 +1,4 @@
 <?php
-
 namespace cms_installer;
 
 abstract class nls
@@ -32,7 +31,7 @@ abstract class nls
             $aliases = explode(',', $aliases);
         }
         if (is_array($aliases) && ($n = count($aliases))) {
-            for ($i = 0; $i < $n; $i++) {
+            for ($i = 0; $i < $n; ++$i) {
                 if ($aliases[$i] == $str) {
                     return true;
                 }

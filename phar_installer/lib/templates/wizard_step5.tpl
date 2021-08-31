@@ -7,9 +7,8 @@
 {/block}
 
 {block name='contents'}
-
 <div class="installer-form">
-{wizard_form_start}
+ {wizard_form_start}
   {if $action == 'install'}
     <h3>{'prompt_sitename'|tr}</h3>
     <p>{'info_sitename'|tr}</p>
@@ -56,12 +55,11 @@
     </select>
   </div>
   {/if}
-
+  {if empty($error)}
   <div id="bottom_nav">
    <button class="action-button positive" type="submit" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
   </div>
-
-{wizard_form_end}
+  {/if}
+ </form>
 </div>
-
 {/block}

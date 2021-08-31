@@ -21,12 +21,15 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use News\AdminOperations;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 
 if (!$this->CheckPermission('Modify News')) {
-    $this->SetError($this->Lang('needpermission', 'Modify News')); //probsaly useless before return
-    return '';
+    cms_error('', $this->GetName().'::copyarticle', "No 'Modify News' permission");
+    $this->ShowErrorPage('You are not authorized to modify news items');
+    return;
 }
+
+// TODO icon/image handling
 
 $articleid = $params['articleid'] ?? '';
 

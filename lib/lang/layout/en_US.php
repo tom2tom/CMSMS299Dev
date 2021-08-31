@@ -91,7 +91,7 @@ EOS
 'help_template_listable' => 'Indicate whether this template should appear in public lists (specifically the content manager).  This is particularly used when a template should not be selectable by a content editor.',
 'help_template_name' => 'Enter the name of this template. Plaintext, no html tags. The name must be unique to the system, and will be adjusted if necessary to ensure this.',
 'help_template_owner' => 'The owner of a template is allowed to edit the template at any time (even without specific template editing permissions, and may change the additional editors.',
-'help_template_type' => 'The template type is used for organizational purposes, and for finding default contents when restoring the template to its default value (if any).  Templates belonging to a certain module type may be removed if the module is uninstalled.',
+'help_template_type' => 'Template type is used for organizational purposes, and for finding default contents when restoring the template to its default value (if any).  Templates belonging to a certain module type may be removed if the module is uninstalled.',
 'help_tpl_created' => 'The date and time when this template was initially created',
 'help_tpl_modified' => 'The date and time when this template was last modified',
 'help_tpl_usage' => 'This string can be inserted into a Smarty template to use this template',

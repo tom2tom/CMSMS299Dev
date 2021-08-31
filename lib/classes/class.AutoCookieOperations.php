@@ -2,6 +2,7 @@
 /*
 Cookie operations class
 Copyright (C) 2019-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -61,7 +62,7 @@ class AutoCookieOperations extends SignedCookieOperations
             if( !$tmp ) throw new RuntimeException('Could not encode object to json');
             $value = self::KEY_OBJ.$tmp;
         }
-        else if( is_array($value) && array_keys($value) !== range(0, count($value) - 1) ) {
+        elseif( is_array($value) && array_keys($value) !== range(0, count($value) - 1) ) {
             $value = self::KEY_ASSOC.json_encode($value);
         }
         else {
@@ -88,7 +89,7 @@ class AutoCookieOperations extends SignedCookieOperations
                 $val = substr($val,strlen(self::KEY_OBJ));
                 $val = json_decode($val);
             }
-            else if( startswith($val,self::KEY_ASSOC) ) {
+            elseif( startswith($val,self::KEY_ASSOC) ) {
                 $val = substr($val,strlen(self::KEY_OBJ));
                 $val = json_decode($val, TRUE);
             }

@@ -19,21 +19,19 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
+use CMSMS\SingleItem;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
 $urlext = get_secure_param();
 $userid = get_userid();
 $pmod = check_permission($userid, 'Manage User Plugins');
-$access = $pmod || check_permission($userid, 'View Tag Help');
+$access = $pmod || check_permission($userid, 'View UserTag Help');
 
-$ops = AppSingle::UserTagOperations();
+$ops = SingleItem::UserTagOperations();
 $items = $ops->ListUserTags();
 foreach ($items as $id=>$name) {
     $data = $ops->GetUserTag($name, 'description');
@@ -44,7 +42,7 @@ foreach ($items as $id=>$name) {
     ];
 }
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 $iconadd = $themeObject->DisplayImage('icons/system/newobject.png', lang('add'),'','','systemicon');
 $iconedit = $themeObject->DisplayImage('icons/system/edit.png', lang('edit'),'','','systemicon');
@@ -54,7 +52,7 @@ $iconinfo = $themeObject->DisplayImage('icons/system/help.png', lang('parameters
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign([
     'access' => $access,
     'pmod' => $pmod,
@@ -124,7 +122,6 @@ EOS;
 add_page_foottext($out);
 
 $content = $smarty->fetch('listusertags.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

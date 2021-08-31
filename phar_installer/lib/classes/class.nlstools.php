@@ -1,5 +1,4 @@
 <?php
-
 namespace cms_installer;
 
 use DirectoryIterator;
@@ -18,6 +17,27 @@ final class nlstools
      */
     private static $_nls;
 
+    public function get_list() : array
+    {
+        $this->load_nls();
+        return array_keys(self::$_nls);
+    }
+
+    public function find(string $str)
+    {
+        $this->load_nls();
+        foreach (self::$_nls as $locale => &$nls) {
+            if ($locale == $str) {
+                return $nls;
+            }
+            if ($nls->matches($str)) {
+                return $nls;
+            }
+        }
+        unset($nls);
+        return null;
+    }
+
 //  private function __construct() {}
 
     /* *
@@ -33,7 +53,9 @@ final class nlstools
 */
     private function load_nls()
     {
-        if( is_array(self::$_nls) ) return;
+        if (is_array(self::$_nls)) {
+            return;
+        }
         /*
          Find all nls classes in their directory (intra-phar globbing N/A)
          They are named like class.en_US.nls.php
@@ -49,8 +71,8 @@ final class nlstools
         );
 
         self::$_nls = [];
-        $type = __NAMESPACE__.'\\nls';
-        foreach( $iter as $inf ) {
+        $type = __NAMESPACE__.'\nls';
+        foreach ($iter as $inf) {
             $filename = $inf->getFilename();
             $locale = substr($filename, 6, -8);
             $classpath = $type.'\\'.$locale.'_nls'; // like en_US_nls
@@ -58,28 +80,11 @@ final class nlstools
             $file = $inf->getPathname();
             include_once $file;
             $obj = new $classpath();
-            if( $obj instanceof $type ) {
+            if ($obj instanceof $type) {
                 self::$_nls[$locale] = $obj;
             } else {
                 unset($obj);
             }
         }
-    }
-
-    public function get_list() : array
-    {
-        $this->load_nls();
-        return array_keys(self::$_nls);
-    }
-
-    public function find(string $str)
-    {
-        $this->load_nls();
-        foreach( self::$_nls as $locale => &$nls ){
-            if( $locale == $str ) return $nls;
-            if( $nls->matches($str) ) return $nls;
-        }
-        unset($nls);
-        return null;
     }
 } // class

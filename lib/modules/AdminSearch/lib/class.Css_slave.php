@@ -14,7 +14,6 @@ use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
 use function check_permission;
 use function cms_relative_path;
-use function cmsms;
 use function get_secure_param;
 use function get_userid;
 
@@ -34,7 +33,7 @@ final class Css_slave extends Base_slave
 
     private function get_mod()
     {
-        // static properties here >> StaticProperties class ?
+        // static properties here >> SingleItem property|ies ?
         static $_mod;
         if (!$_mod) {
             $_mod = Utils::get_module('AdminSearch');
@@ -54,9 +53,9 @@ final class Css_slave extends Base_slave
     public function get_matches()
     {
         // get all stylesheets' ids
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX. StylesheetOperations::TABLENAME.' ORDER BY name';
-        $all_ids = $db->GetCol($sql);
+        $all_ids = $db->getCol($sql);
         $output = [];
 
         if ($all_ids) {

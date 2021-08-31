@@ -42,7 +42,8 @@ $lang['delete_attached_templates'] = 'Delete assigned and orphaned templates';
 $lang['delete_design'] = 'Delete Design';
 
 //E
-$lang['edit_design'] = 'Edit design';
+$lang['edit_design'] = 'Edit Design';
+$lang['enter_name'] = 'Enter design name';
 $lang['error_create_tempfile'] = 'Error creating temporary file';
 $lang['error_design_empty'] = 'Could not find any stylesheets';
 $lang['error_filenotfound'] = 'Could not find a file we were expecting: %s';
@@ -67,7 +68,8 @@ $lang['export'] = 'Export';
 //F
 $lang['friendlyname'] = 'Designs'; //'Design Manager';
 
-//H
+//G
+$lang['general_settings'] = 'General'; // tab title
 $lang['group_desc'] = 'Members of this group can manage designs';
 
 //H
@@ -95,9 +97,10 @@ $lang['import_design_step1'] = 'Import Design Step 1';
 $lang['import_design_step2'] = 'Import Design Step 2';
 $lang['import_design'] = 'Import Design';
 $lang['import'] = 'Import';
-$lang['info_designs'] = 'A design is a container for template(s) and/or stylesheet(s). Its purpose is to facilitate sharing of its contents, to help propagate those aspects of the website look-and-feel. So designs are for site developers and maintainers. Designs have no direct role in the operation of any site.';
-$lang['info_edittemplate_stylesheets_tab'] = 'To add stylesheets to the design, drag them from the \'Other\' box and drop them into the \'Included\' box. To remove stylesheets, drag-and-drop in the reverse direction. If useful (for appearance only) re-order stylesheets by drag-and-drop within a box. When finalized, hit Apply or Submit.';
-$lang['info_edittemplate_templates_tab'] = 'To add templates to the design, drag them from the \'Other\' box and drop them into the \'Included\' box. To remove templates, drag-and-drop in the reverse direction. If useful (for appearance only) re-order templates by drag-and-drop within a box. When finalized, hit Apply or Submit.';
+$lang['included'] = 'Included in Design';
+$lang['info_designs'] = 'A design is a minimalist legacy container. Its purpose is to facilitate sharing of its contents (template(s) and/or stylesheet(s)), to help propagate those aspects of the website look-and-feel. Site developers and maintainers might be better served by a fully-fledged theme-manager. To be clear, designs have no direct role in the operation of any site.';
+$lang['info_edit_stylesheets'] = 'To add stylesheets to the design, drag them from the \'Others\' box and drop them into the \'Included\' box. To remove stylesheets, drag-and-drop in the reverse direction. If useful (for appearance only) re-order stylesheets by drag-and-drop within a box.';
+$lang['info_edit_templates'] = 'To add templates to the design, drag them from the \'Others\' box and drop them into the \'Included\' box. To remove templates, drag-and-drop in the reverse direction. If useful (for appearance only) re-order templates by drag-and-drop within a box.';
 $lang['info_import_xml_step1'] = 'Step 1: Choose a (XML) design-file to import';
 $lang['info_import_xml_step2'] = 'Step 2: Read information about this design before importing it to your CMSMS installation.';
 $lang['info_no_stylesheets'] = 'No stylesheet is recorded';
@@ -105,9 +108,9 @@ $lang['info_no_templates'] = 'No template is recorded';
 $lang['info_nodescription'] = 'There is no description entered for this item';
 
 //M
-$lang['moddescription'] = 'Add, change or remove designs';
+$lang['moddescription'] = 'Website-appearance propagators';
 $lang['msg_cancelled'] = 'Operation cancelled';
-    $lang['msg_design_deleted'] = 'Design deleted';
+$lang['msg_design_deleted'] = 'Design deleted';
 $lang['msg_design_migrated']  = 'Design stylesheet(s) exported to %s';
 $lang['msg_design_imported']  = 'Design imported';
 $lang['msg_design_saved'] = 'Design saved';
@@ -119,6 +122,9 @@ $lang['new_design'] = 'New Design';
 $lang['newname'] =  'New Name';
 $lang['next'] = 'Next';
 $lang['no_design'] = 'No design is registered';
+
+//O
+$lang['others'] = 'Others';
 
 //P
 $lang['perm_designs'] = 'Manage Designs';
@@ -146,16 +152,21 @@ $lang['prompt_user'] = 'User'; //or lang(same)
 
 //S
 $lang['submit'] = 'Submit'; //or lang(same)
+$lang['styles_settings'] = 'Stylesheets'; // tab title
 
 //T
 $lang['table_droptip'] = 'Drop items here';
+$lang['template_settings'] = 'Templates'; // tab title
 $lang['title_action_designs'] = 'Add, change or remove designs';
 $lang['title_action_settings'] = 'Adjust settings for managing templates and stylesheets';
 $lang['title_action_styles'] = 'Add, change or remove stylesheets applied to frontend pages';
 $lang['title_action_templates'] = 'Add, change or remove templates';
 $lang['title_css_designs'] = 'This column displays the design(s) (if any) that a stylesheet is assigned to.';
 $lang['title_delete'] = 'Delete the selected items';
+$lang['title_description'] = 'Description';
+$lang['title_edit_design'] = 'Edit design';
 $lang['title_import_design'] = 'Import a design from XML';
+$lang['title_name'] = 'Design Name';
 $lang['type'] = 'Type'; //or lang(same)
 
 //U

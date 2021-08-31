@@ -1,5 +1,5 @@
 <?php
-if (!function_exists('cmsms')) exit;
+//if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) exit;
 
 $advancedmode = $this->GetPreference('advancedmode',0);
@@ -26,4 +26,3 @@ $tpl->assign('permstyles',array_flip($permstyles))
  ->assign('permissionstyle',$permissionstyle);
 
 $tpl->display();
-return '';

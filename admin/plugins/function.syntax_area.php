@@ -19,15 +19,15 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+//use CMSMS\SingleItem;
 use CMSMS\AppState;
 use CMSMS\FormUtils;
-//use CMSMS\AppSingle;
 
 function smarty_function_syntax_area($params, $template)
 {
 	$parms = array_intersect_key($params, [
 		'name'=>1,
-		'modid'=>1,
+		'getid'=>1,
 		'prefix'=>1,
 		'id'=>1,
 		'htmlid'=>1,
@@ -78,8 +78,8 @@ function smarty_function_syntax_area($params, $template)
 
 	$jscript = get_syntaxeditor_setup($parms);
 	if( $jscript ) {
-		if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
-//			$themeObject = AppSingle::Theme();
+		if( AppState::test(AppState::ADMIN_PAGE) ) {
+//			$themeObject = SingleItem::Theme();
 			if( !empty($jscript['head']) ) {
 				add_page_headtext($jscript['head']); // css ?
 			}
@@ -123,8 +123,8 @@ Generates html and js for a syntax-highlight textarea element.
 As for <code>FormUtils::create_textarea()</code><br />
 <ul>
 <li>name: element name (only relevant for form submission, but the backend method always wants it)</li>
-<li>modid: submitted-parameter prefix ('m1_' etc)</li>
-<li>prefix: alias for modid</li>
+<li>getid: submitted-parameter prefix ('m1_' etc)</li>
+<li>prefix: alias for getid</li>
 <li>id: id for the created element id="whatever"</li>
 <li>htmlid: alias for id</li>
 <li>class: class name(s) to apply to the element</li>

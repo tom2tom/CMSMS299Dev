@@ -20,11 +20,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\DataException;
 use CMSMS\FormUtils;
 
 function smarty_function_cms_textarea($params, $template)
 {
-	if( empty($params['name']) ) throw new CmsInvalidDataException('cms_textarea plugin missing parameter: name');
+	if( empty($params['name']) ) throw new DataException('cms_textarea plugin missing parameter: name');
 
 	$out = FormUtils::create_textarea($params);
 	if( !empty($params['assign']) ) {
@@ -43,8 +44,8 @@ Generates html for a textarea element.
 As for <code>FormUtils::create_textarea()</code><br />
 <ul>
 <li>name: element name (mandatory, but only relevant for form submission)</li>
-<li>modid: submitted-parameter prefix ('m1_' etc)</li>
-<li>prefix: alias for modid</li>
+<li>getid: submitted-parameter prefix ('m1_' etc)</li>
+<li>prefix: alias for getid</li>
 <li>id: id for the created element id="whatever"</li>
 <li>htmlid: alias for id</li>
 <li>class: class name(s) to apply to the element</li>

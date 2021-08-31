@@ -28,7 +28,6 @@ use CMSMS\BasicEnum;
  *
  * @package CMS
  * @license GPL
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since  2.2
  */
 final class FileType extends BasicEnum

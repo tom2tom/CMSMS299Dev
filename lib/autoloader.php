@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 /**
  * A function for auto-loading core- and module-related- CMSMS classes.
@@ -85,7 +85,7 @@ function cms_autoloader(string $classname)
 /* since 2.99 don't also autoload a module-object
 				if (!($sysp || class_exists($space, false))) {
 					//deprecated since 2.99 - some modules require existence of this, or assume, and actually use it
-					$gCms = AppSingle::App();
+					$gCms = SingleItem::App();
 					require_once $mpath;
 				}
 */
@@ -186,11 +186,16 @@ function cms_autoloader(string $classname)
 		}
 	}
 */
+	// In theory at least, module-classes may be 'permanently' aliased
+	// (with their details in AppParams), and aliases retrieved via
+	//   ModuleOperations->get_module_classname($modname)
+	// This capability was never announced ? Probably never used ...
+
 	// module classes
 	$fp = cms_module_path($base);
 	if ($fp) {
 		//deprecated since 2.99 - some modules require existence of this, or assume, and actually use it
-		$gCms = AppSingle::App();
+		$gCms = SingleItem::App();
 		require_once $fp;
 		if (class_exists($classname, false)) return;
 	}

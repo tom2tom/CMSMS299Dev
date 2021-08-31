@@ -1,20 +1,33 @@
 <?php
-/**
- * A simple alert class that provides for translatable messages and titles.
- *
- * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
- */
+/*
+A simple alert class.
+Copyright (C) 2016-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+CMS Made Simple is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of that License, or
+(at your option) any later version.
+
+CMS Made Simple is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of that license along with CMS Made Simple.
+If not, see <https://www.gnu.org/licenses/>.
+*/
 namespace CMSMS\AdminAlerts;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\Utils;
 use InvalidArgumentException;
 use function lang;
 
 /**
- * The TranslatableAlert object is an alert that supports translatable language keys.
+ * A simple alert class that provides for translatable messages and titles.
  *
  * This class will use the module that is associated with the alert to translate the key.  If the module name is empty, or the special value 'core' then the global 'lang' function will
  * be used to read translations from the admin lang file.
@@ -22,7 +35,6 @@ use function lang;
  * @since 2.2
  * @package CMS
  * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @prop string[] $perms An array of permission names.  The logged in user must have at least one of these permissions to see the alert.
  * @prop string $icon The complete URL to an icon to associate with this alert
  * @prop string $titlekey The language key (relative to the module) for the alert title.
@@ -61,6 +73,7 @@ class TranslatableAlert extends Alert
      * Constructor
      *
      * @param mixed $perms A single permission name, or an An array of permission names, or null.
+     * @throws InvalidArgumentException
      */
     public function __construct($perms = null)
     {
@@ -77,9 +90,9 @@ class TranslatableAlert extends Alert
      *
      * Get a property from this object, or from the base class.
      *
-     * @throws InvalidArgumentException
      * @param string $key
      * @return mixed
+     * @throws InvalidArgumentException
      */
     public function __get($key)
     {
@@ -106,6 +119,7 @@ class TranslatableAlert extends Alert
      *
      * @param string $key
      * @param mixed $val
+     * @throws InvalidArgumentException
      */
     public function __set($key,$val)
     {
@@ -124,14 +138,14 @@ class TranslatableAlert extends Alert
             $this->_msgargs = $val; // accept string or array...
             break;
         case 'perms':
-            if( !$val ) throw new InvalidArgumentExcecption('perms must be an array of permission name strings');
+            if( !$val ) throw new InvalidArgumentException('perms must be an array of permission name strings');
             $tmp = [];
             foreach( $val as $one ) {
                 $one = trim($one);
                 if( !$one ) continue;
                 if( !in_array($one,$tmp) ) $tmp[] = $one;
             }
-            if( !$tmp ) throw new InvalidArgumentExcecption('perms must be an array of permission name strings');
+            if( !$tmp ) throw new InvalidArgumentException('perms must be an array of permission name strings');
             $this->_perms = $tmp;
             break;
 
@@ -150,7 +164,7 @@ class TranslatableAlert extends Alert
     {
         if( !$this->_perms ) return FALSE;
         $admin_uid = (int) $admin_uid;
-        $userops = AppSingle::UserOperations();
+        $userops = SingleItem::UserOperations();
         $perms = $this->_perms;
         if( !is_array($this->_perms) ) $perms = [$this->_perms];
         foreach( $perms as $permname ) {

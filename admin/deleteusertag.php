@@ -19,14 +19,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
+use CMSMS\SingleItem;
 use function CMSMS\sanitizeVal;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -36,10 +34,10 @@ if (!check_permission($userid, 'Manage User Plugins')) {
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 $tagname = sanitizeVal($_GET['name'], CMSSAN_FILE); // UDT might be file-stored
-$ops = AppSingle::UserTagOperations();
+$ops = SingleItem::UserTagOperations();
 if ($ops->UserTagExists($tagname)) {  // UDT-files included
 //if exists $ops->DoEvent( deleteuserpluginpre etc);
     if ($ops->RemoveUserTag($tagname)) {

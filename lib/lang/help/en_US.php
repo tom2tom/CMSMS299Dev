@@ -91,7 +91,6 @@ EOS
 'settings_mandatory_urls' => 'If SEF/pretty URLs are enabled, this option indicates whether page URLS are a required field in the content editor.',
 'settings_nogcbwysiwyg' => 'This option will disable the WYSIWYG editor on all global content blocks independent of user settings, or of the individual global content blocks',
 'settings_nosefurl' => 'To configure <strong>S</strong>each <strong>E</strong>ngine <strong>F</strong>riendly <em>(pretty)</em> URLs you need to edit a few lines in your config.php file and possibly to edit a .htaccess file or your web servers configuration.  You can read more about configuring pretty URLS <a href="https://docs.cmsmadesimple.org/configuration/pretty-url" class="external" target="blank"><u>here</u></a> &raquo;',
-'settings_pseudocron_granularity' => 'This setting indicates how often the system will attempt to handle regularly scheduled tasks.',
 'settings_searchmodule' => 'Select the module that should be used to index words for searching, and will provide the site search capabilities',
 'settings_sitedownexcludeadmins' => 'Do show the website to users logged in to the CMSMS admin console. This allows administrators to work on the site without interference',
 'settings_sitedownexcludes' => 'Do show the website to these IP addresses',

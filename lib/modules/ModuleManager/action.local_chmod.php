@@ -22,7 +22,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 
 $this->SetCurrentTab('installed');
@@ -39,7 +39,7 @@ if( $dir ) {
 }
 
 if( $result ) {
-    audit('',$this->GetName(),'Changed permissions on '.$module.' directory');
+    audit('',$this->GetName().'::local_chmod','Changed permissions on '.$module.' directory');
     $this->SetMessage($this->Lang('msg_module_chmod'));
 } else {
     $this->SetError($this->Lang('error_chmodfailed'));

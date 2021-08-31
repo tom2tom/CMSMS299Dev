@@ -20,8 +20,8 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\FormUtils;
+use CMSMS\SingleItem;
 
 // since 2.99
 function smarty_function_cms_init_editor($params, $template)
@@ -41,7 +41,7 @@ function smarty_function_cms_init_editor($params, $template)
 	}
 
 //	$force = cms_to_bool($params['force'] ?? false);
-	$mod = AppSingle::ModuleOperations()->GetWYSIWYGModule($wysiwyg);
+	$mod = SingleItem::ModuleOperations()->GetWYSIWYGModule($wysiwyg);
 	if( !is_object($mod) ) return '';
 
 	// get the output
@@ -58,7 +58,7 @@ function smarty_function_cms_init_editor($params, $template)
 function smarty_cms_about_function_cms_init_editor()
 {
 	echo <<<'EOS'
-<p>Author: Robert Campbell&lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Author: Robert Campbell</p>
 <p>Change History:</p>
 <ul>
 <li>None</li>

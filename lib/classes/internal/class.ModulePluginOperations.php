@@ -23,13 +23,13 @@ namespace CMSMS\internal;
 
 use CMSModule;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
 use CMSMS\AppState;
 use CMSMS\CoreCapabilities;
 use CMSMS\Crypto;
 use CMSMS\DeprecationNotice;
+use CMSMS\LoadedDataType;
 use CMSMS\RequestParameters;
-use CMSMS\SysDataCacheDriver;
+use CMSMS\SingleItem;
 use Throwable;
 use const CLEAN_STRING;
 use const CMS_DB_PREFIX;
@@ -45,7 +45,6 @@ use function startswith;
  *
  * @package CMS
  * @license GPL
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @internal
  * @final
  * @since  1.11
@@ -69,7 +68,7 @@ final class ModulePluginOperations
 
 	private static $_instance = null;
 
-	private function __construct() {}
+//	private function __construct() {} TODO public iff wanted by SingleItem ?
 	private function __clone() {}
 
 	/**
@@ -82,7 +81,7 @@ final class ModulePluginOperations
 	{
 		$obj = self::get_instance();
 		if( $name == 'addStatic' ) {
-			assert(empty(CMS_DEPREC), new DeprecationNotice('method', '(ModulePluginOperations::add()'));
+			assert(empty(CMS_DEPREC), new DeprecationNotice('method', 'ModulePluginOperations::add()'));
 			return $obj->_add(...$args);
 		}
 		$pname = '_'.$name;
@@ -97,7 +96,7 @@ final class ModulePluginOperations
 
 	/**
 	 * Get an instance of this class, for use by class static-methods.
-	 * No properties to 'protect', not worth caching as AppSingle::ModulePluginOperations()
+	 * No properties to 'protect', not worth caching as SingleItem::ModulePluginOperations()
 	 * @return self
 	 */
 	public static function get_instance() : self
@@ -107,59 +106,63 @@ final class ModulePluginOperations
 	}
 
 	/**
-	 * Initialize 'module_plugins' system-data cache
+	 * Initialize 'module_plugins' loaded-data cache
 	 * @since 2.99
 	 */
-	public function _setup()
+	public static function load_setup()
 	{
-		$obj = new SysDataCacheDriver('module_plugins', function()
-			{
-				$data = [];
-				$modops = AppSingle::ModuleOperations();
-				$tmp = $modops->GetCapableModules(CoreCapabilities::PLUGIN_MODULE);
-				$tmp2 = $modops->GetMethodicModules('IsPluginModule', TRUE); //deprecated since 2.99
-				if( $tmp || $tmp2 ) {
-					$val = AppParams::get('smarty_cachemodules', 0);
-					if( $val ) {
-						$val = (int)AppParams::get('smarty_cachelife', -1);
-						//$val -1 for CACHING_LIFETIME_CURRENT (3600 secs)
-						//$val 0 for CACHING_OFF
-						//$val >0 for explicit cache ttl (secs)
-					}
-
-					foreach( array_unique( array_merge($tmp, $tmp2)) as $module_name ) {
-//						$callable = $module.'::function_plugin';
-//						$sig = Crypto::hash_string($module.$module.$callable);
-						$callable = self::class.'::'.$module_name; // hence handle via our __callStatic()
-						$sig = Crypto::hash_string($module_name.$module_name.$callable);
-						$data[$sig] = [
-							'name'=>$module_name,
-							'module'=>$module_name,
-							'type'=>'function',
-							'callback'=>$callable,
-							'cachable'=>($val != 0), //maybe changed later
-							'available'=>self::AVAIL_ALL, //ditto
-						];
-					}
+		$obj = new LoadedDataType('module_plugins', function(bool $force) {
+			static $scan_depth = 0; // recursion blocker
+			if (++$scan_depth !== 1) {
+				--$scan_depth;
+				return;
+			}
+			$data = [];
+			$tmp = SingleItem::LoadedMetadata()->get('capable_modules', $force, CoreCapabilities::PLUGIN_MODULE); //TODO might need forced if this loader is forced
+			$tmp2 = SingleItem::LoadedMetadata()->get('methodic_modules', $force, 'IsPluginModule'); //deprecated since 2.99
+			if( $tmp || $tmp2 ) {
+				$val = AppParams::get('smarty_cachemodules', 0);
+				if( $val ) {
+					$val = (int)AppParams::get('smarty_cachelife', -1);
+					//$val -1 for CACHING_LIFETIME_CURRENT (3600 secs)
+					//$val 0 for CACHING_OFF
+					//$val >0 for explicit cache ttl (secs)
 				}
-				// add, or replace by, module-plugins recorded in the database
-				$db = AppSingle::Db();
-				$query = 'SELECT DISTINCT * FROM '.CMS_DB_PREFIX.'module_smarty_plugins';
-				$list = $db->GetArray($query);
-				foreach ($list as &$row) {
-					$sig = Crypto::hash_string($row['name'].$row['module'].$row['callback']);
+
+				foreach( array_unique( array_merge($tmp, $tmp2)) as $module_name ) {
+//					$callable = $module.'::function_plugin';
+//					$sig = Crypto::hash_string($module.$module.$callable);
+					$callable = __CLASS__.'::'.$module_name; // hence handle via our __callStatic()
+					$sig = Crypto::hash_string($module_name.$module_name.$callable);
 					$data[$sig] = [
-						'name'=>$row['name'],
-						'module'=>$row['module'],
-						'type'=>$row['type'],
-						'callback'=>$row['callback'],
-						'cachable'=>(bool)$row['cachable'],
-						'available'=>(int)$row['available'],
+						'name'=>$module_name,
+						'module'=>$module_name,
+						'type'=>'function',
+						'callable'=>$callable,
+						'cachable'=>($val != 0), //maybe changed later
+						'available'=>self::AVAIL_ALL, //ditto
 					];
 				}
-				return $data;
-			});
-		AppSingle::SysDataCache()->add_cachable($obj);
+			}
+			// add, or replace by, module-plugins recorded in the database
+			$db = SingleItem::Db();
+			$query = 'SELECT DISTINCT * FROM '.CMS_DB_PREFIX.'module_smarty_plugins';
+			$list = $db->getArray($query);
+			foreach ($list as &$row) {
+				$sig = Crypto::hash_string($row['name'].$row['module'].$row['callable']);
+				$data[$sig] = [
+					'name'=>$row['name'],
+					'module'=>$row['module'],
+					'type'=>$row['type'],
+					'callable'=>$row['callable'],
+					'cachable'=>(bool)$row['cachable'],
+					'available'=>(int)$row['available'],
+				];
+			}
+			--$scan_depth; // back to 0 for next time
+			return $data;
+		});
+		SingleItem::LoadedData()->add_type($obj);
 	}
 
 	/**
@@ -175,14 +178,14 @@ final class ModulePluginOperations
 	public function _call_plugin_module($params, $template) : string
 	{
 		if( !empty($params['module']) ) {
-			$module = $params['module'];
+			$modname = $params['module'];
 		}
 		else {
 			return '<!-- ERROR: module name not specified -->';
 		}
 
-		if( !($modinst = $this->_get_plugin_module($module)) ) {
-			return "<!-- ERROR: $module is not available, in this context at least -->\n";
+		if( !($mod = $this->_get_plugin_module($modname)) ) {
+			return "<!-- ERROR: $modname is not available, in this context at least -->\n";
 		}
 
 		unset($params['module']);
@@ -198,7 +201,7 @@ final class ModulePluginOperations
 		if( !empty($params['idprefix']) ) {
 			// idprefix was set in the module tag
 			$id = $params['idprefix'];
-			$setid = true;
+			$setid = TRUE;
 		}
 		else {
 			// multiple modules might be used in a page|template
@@ -206,20 +209,20 @@ final class ModulePluginOperations
 			static $modnum = 1;
 			++$modnum;
 			$id = "m{$modnum}_";
-			$setid = false;
+			$setid = FALSE;
 		}
 
 		$rparams = RequestParameters::get_action_params();
 		if( $rparams ) {
 			$mactmodulename = $rparams['module'] ?? '';
-			if( strcasecmp($mactmodulename, $module) == 0 ) {
+			if( strcasecmp($mactmodulename, $modname) == 0 ) {
 				$checkid = $rparams['id'] ?? '';
 				$inline = !empty($rparams['inline']);
 				if( $inline && $checkid == $id ) {
 					$action = $rparams['action'] ?? 'default';
 					$params['action'] = $action; // deprecated since 2.99
 					unset($rparams['module'], $rparams['id'], $rparams['action'], $rparams['inline']);
-					$params = array_merge($params, $rparams, AppSingle::ModuleOperations()->GetModuleParameters($id));
+					$params = array_merge($params, $rparams, RequestParameters::get_identified_params($id));
 				}
 			}
 		}
@@ -230,7 +233,7 @@ final class ModulePluginOperations
 			$mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
 			$ary = explode(', ', $mact, 4);
 			$mactmodulename = $ary[0] ?? '';
-			if( strcasecmp($mactmodulename, $module) == 0 ) {
+			if( strcasecmp($mactmodulename, $modname) == 0 ) {
 				$checkid = $ary[1] ?? '';
 				$inline = isset($ary[3]) && $ary[3] === 1;
 				if( $inline && $checkid == $id ) { // presumbly $setid true i.e. not a random id
@@ -238,7 +241,7 @@ final class ModulePluginOperations
 					// i.e. the results are supposed to replace the tag, not {content}
 					$action = $ary[2] ?? 'default';
 					$params['action'] = $action; // deprecated since 2.99
-					$params = array_merge($params, AppSingle::ModuleOperations()->GetModuleParameters($id));
+					$params = array_merge($params, RequestParameters::get_identified_params($id));
 				}
 			}
 		}
@@ -246,12 +249,12 @@ final class ModulePluginOperations
 		$params['id'] = $id; // deprecated since 2.99
 		if( $setid ) {
 			$params['idprefix'] = $id; // might be needed per se, probably not
-			$modinst->SetParameterType('idprefix', CLEAN_STRING); // in case it's a frontend request
+			$mod->SetParameterType('idprefix', CLEAN_STRING); // in case it's a frontend request
 		}
-		$returnid = AppSingle::App()->get_content_id();
+		$returnid = SingleItem::App()->get_content_id();
 		$params['returnid'] = $returnid;
 
-		$out = $modinst->DoActionBase($action, $id, $params, $returnid, $template);
+		$out = $mod->DoActionBase($action, $id, $params, $returnid, $template);
 
 		if( !empty($params['assign']) ) {
 			$template->assign(trim($params['assign']), $out);
@@ -262,6 +265,7 @@ final class ModulePluginOperations
 
 	/**
 	 * Return the module (if any) to use for processing the specified tag.
+	 * Any dependent module(s) will also be loaded.
 	 * @since 2.99
 	 * @param string $name Name of the tag whose processor-module is wanted
 	 * @param string $type Optional tag type (commonly Smarty::PLUGIN_FUNCTION, maybe Smarty::PLUGIN_BLOCK,
@@ -274,18 +278,18 @@ final class ModulePluginOperations
 		$row = $this->_find($name, $type);
 		if( is_array($row) ) {
 	 		if( $row['available'] != self::AVAIL_ALL ) {
-				$states = AppState::get_states();
-				if( in_array(AppState::STATE_ADMIN_PAGE, $states) ) {
-					if( !($row['available'] & self::AVAIL_ADMIN) ) return;
-				}
-				elseif( in_array(AppState::STATE_FRONT_PAGE, $states) ) {
+				$states = AppState::get();
+				if( in_array(AppState::FRONT_PAGE, $states) ) {
 					if( !($row['available'] & self::AVAIL_FRONTEND) ) return;
+				}
+				elseif( in_array(AppState::ADMIN_PAGE, $states) ) {
+					if( !($row['available'] & self::AVAIL_ADMIN) ) return;
 				}
 				else {
 					return;
 				}
 			}
-			return AppSingle::ModuleOperations()->get_module_instance($row['module']);
+			return SingleItem::ModuleOperations()->get_module_instance($row['module']);
 		}
 	}
 
@@ -298,31 +302,31 @@ final class ModulePluginOperations
 	 * @param string $type Optional tag type (commonly Smarty::PLUGIN_FUNCTION, maybe Smarty::PLUGIN_BLOCK,
 	 *  Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
 	 *  Default 'function'
-	 * @return mixed array | null Array members 'callback'=>string, 'cachable'=>bool
+	 * @return mixed array | null Array members 'callable'=>string, 'cachable'=>bool
 	 */
 	public function _load_plugin(string $name, string $type = 'function')
 	{
-		$module = $this->_get_plugin_module($name, $type);
-		if( $module ) {
+		$mod = $this->_get_plugin_module($name, $type);
+		if( $mod ) {
 			$row = $this->_find($name, $type);
-			$callable = $row['callback'];
+			$callable = $row['callable'];
 			if( !$callable || $callable == $row['module'].'::function_plugin' ) {
-				$callable = self::class.'::'.$row['module']; //substitute our handler
+				$callable = __CLASS__.'::'.$row['module']; //substitute our handler
 			}
-			elseif( strncmp($callable, 's:', 2) === 0 || strncmp($callable , 'a:2:{', 5) === 0) {
+			elseif( strncmp($callable, 's:', 2) == 0 || strncmp($callable , 'a:2:{', 5) == 0) {
 				try {
-					$callable = @unserialize($row['callback']);
+					$callable = @unserialize($row['callable']);
 				}
 				catch (Throwable $t) {
-					$callable = false;
+					$callable = FALSE;
 				}
 			}
-			if( is_string($callable) && strpos($callable, '::') === false ) {
+			if( is_string($callable) && strpos($callable, '::') === FALSE ) {
 				$callable = $row['module'].'::'.$callable;
 			}
 
 			return [
-				'callback' => $callable,
+				'callable' => $callable,
 				'cachable' => (bool)$row['cachable']
 			];
 		}
@@ -332,16 +336,19 @@ final class ModulePluginOperations
 	 * Try to find a match for a named & typed module-plugin
 	 * Since 2.99, the name-comparison is case-insensitive
 	 *
-	 * @param string $name
-	 * @param string $type
-	 * @return mixed array | null
+	 * @param string $name tag identifier, usually a module-name (any case)
+	 * @param string $type tag-type 'function' etc
+	 * @return mixed array | null The array has members
+	 *  'name','module','type','callable','cachable','available'
 	 */
 	public function _find(string $name, string $type)
 	{
-		$data = AppSingle::SysDataCache()->get('module_plugins');
+		$data = SingleItem::LoadedData()->get('module_plugins');
 		if( $data ) {
 			foreach( $data as $row ) {
-				if( $row['type'] == $type && strcasecmp($row['name'], $name) == 0 ) return $row;
+				if( $row['type'] == $type && strcasecmp($row['name'], $name) == 0 ) {
+					return $row;
+				}
 			}
 		}
 	}
@@ -353,10 +360,10 @@ final class ModulePluginOperations
 	 * @param mixed $callable string|array
 	 * @return string|null
 	 */
-	private function validate_callback(string $module_name, $callable)
+	private function validate_callable(string $module_name, $callable)
 	{
 		if( !$callable || $callable == $module_name.'::function_plugin' ) {
-			$callable = self::class.'::'.$module_name;
+			$callable = __CLASS__.'::'.$module_name;
 		}
 		elseif( is_array($callable) ) {
 			if( count($callable) == 2 ) {
@@ -371,7 +378,7 @@ final class ModulePluginOperations
 			}
 			else {
 				// an array with only one member !?
-				audit('', self::class, 'Cannot register plugin '.$name.' for module '.$module_name.' - invalid callback');
+				audit('', __CLASS__, 'Cannot register plugin '.$name.' for module '.$module_name.' - invalid callable');
 				return;
 			}
 		}
@@ -387,9 +394,9 @@ final class ModulePluginOperations
 		}
 
 		if( !is_callable($callable) ) {
-			audit('', self::class, 'Substitute the default handler for plugin '.$name);
+			audit('', __CLASS__, 'Substitute the default handler for plugin '.$name);
 //			$callable = $module_name.'::function_plugin';
-			$callable = self::class.'::'.$module_name;
+			$callable = __CLASS__.'::'.$module_name;
 		}
 		return $callable;
 	}
@@ -412,11 +419,11 @@ final class ModulePluginOperations
 	 */
 	public function _add_dynamic(string $module_name, string $name, string $type, callable $callable, bool $cachable = TRUE, int $available = 1) : bool
 	{
-		$callable = $this->validate_callback($module_name, $callable);
+		$callable = $this->validate_callable($module_name, $callable);
 		if( !$callable ) return FALSE;
 
 		$dirty = FALSE;
-		$cache = AppSingle::SysDataCache();
+		$cache = SingleItem::LoadedData();
 		$data = $cache->get('module_plugins');
 		$sig = Crypto::hash_string($name.$module_name.$callable);
 		if( !isset($data[$sig]) ) {
@@ -429,14 +436,14 @@ final class ModulePluginOperations
 				'name'=>$name,
 				'module'=>$module_name,
 				'type'=>$type,
-				'callback'=>$callable,
+				'callable'=>$callable,
 				'cachable'=>$cachable,
 				'available'=>$available,
 			];
 			$dirty = TRUE;
 		}
 		else {
-			if( $data[$sig]['callback'] != $callable ) { $data[$sig]['callback'] = $callable; $dirty = TRUE; }
+			if( $data[$sig]['callable'] != $callable ) { $data[$sig]['callable'] = $callable; $dirty = TRUE; }
 			if( $data[$sig]['cachable'] != $cachable ) { $data[$sig]['cachable'] = $cachable; $dirty = TRUE; }
 			if( $data[$sig]['available'] != $available ) { $data[$sig]['available'] = $available; $dirty = TRUE; }
 		}
@@ -467,10 +474,10 @@ final class ModulePluginOperations
 	 */
 	public function _add(string $module_name, string $name, string $type, callable $callable, bool $cachable = TRUE, int $available = 1)
 	{
-		$callable = $this->validate_callback($module_name, $callable);
+		$callable = $this->validate_callable($module_name, $callable);
 		if( !$callable ) return FALSE;
 
-		if( startswith($callable, self::class.'::') ) $callable = NULL; // no need to store the default
+		if( startswith($callable, __CLASS__.'::') ) $callable = NULL; // no need to store the default
 		if( $available == 0 ) {
 			$available = self::AVAIL_FRONTEND;
 		}
@@ -479,18 +486,19 @@ final class ModulePluginOperations
 		}
 		$cachable = ($cachable) ? 1 : 0;
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$pref = CMS_DB_PREFIX;
 		$query = <<<EOS
-UPDATE {$pref}module_smarty_plugins SET type=?,callback=?,available=?,cachable=? WHERE name=? AND module=?
+UPDATE {$pref}module_smarty_plugins SET type=?,callable=?,available=?,cachable=? WHERE name=? AND module=?
 EOS;
-		$db->Execute($query, [$type, $callable, $available, $cachable, $name, $module_name]);
+		$db->execute($query, [$type, $callable, $available, $cachable, $name, $module_name]);
+		//just in case (module,name) is not unique-indexed by the db
 		$query = <<<EOS
-INSERT INTO {$pref}module_smarty_plugins (name,module,type,callback,available,cachable)
+INSERT INTO {$pref}module_smarty_plugins (name,module,type,callable,available,cachable)
 SELECT ?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM {$pref}module_smarty_plugins T WHERE T.name=? AND T.module=?)
 EOS;
-		$dbr = $db->Execute($query, [
+		$dbr = $db->execute($query, [
 			$name,
 			$module_name,
 			$type,
@@ -502,7 +510,7 @@ EOS;
 		]);
 
 		if( $dbr ) {
-			AppSingle::SysDataCache()->release('module_plugins');
+			SingleItem::LoadedData()->refresh('module_plugins');
 			return TRUE;
 		}
 		return FALSE;
@@ -516,11 +524,11 @@ EOS;
 	 */
 	public function _remove_by_module(string $module_name)
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?';
-		$dbr = $db->Execute($query, [$module_name]);
+		$dbr = $db->execute($query, [$module_name]);
 		if( $dbr ) {
-			AppSingle::SysDataCache()->release('module_plugins');
+			SingleItem::LoadedData()->refresh('module_plugins');
 		}
 	}
 
@@ -532,11 +540,11 @@ EOS;
 	 */
 	public function _remove_by_name(string $name)
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE name=?';
-		$dbr = $db->Execute($query, [$name]);
+		$dbr = $db->execute($query, [$name]);
 		if( $dbr ) {
-			AppSingle::SysDataCache()->release('module_plugins');
+			SingleItem::LoadedData()->refresh('module_plugins');
 		}
 	}
 } // class

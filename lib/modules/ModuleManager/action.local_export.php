@@ -22,12 +22,12 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\Events;
 use CMSMS\NlsOperations;
+use CMSMS\SingleItem;
 use function CMSMS\sanitizeVal;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 
 $this->SetCurrentTab('installed');
@@ -39,13 +39,13 @@ if( !isset($params['mod']) ) {
 $modname = sanitizeVal($params['mod'], CMSSAN_FILE);
 try {
     if( $modname ) {
-        $modinst = AppSingle::ModuleOperations()->get_module_instance($modname, '', TRUE);
+        $mod = SingleItem::ModuleOperations()->get_module_instance($modname, '', true);
     }
     else {
         $modname = 'Not Specified'; // not translated - export could go to anywhere
-        $modinst = null;
+        $mod = null;
     }
-    if( !is_object($modinst) ) {
+    if( !is_object($mod) ) {
         $this->SetError($this->Lang('error_getmodule', $modname));
         $this->RedirectToAdminTab();
     }
@@ -56,9 +56,9 @@ try {
     $files = 0;
     $message = '';
 
-    Events::SendEvent( 'ModuleManager', 'BeforeModuleExport', [ 'module_name' => $modname, 'version' => $modinst->GetVersion() ] );
-    $xmlfile = $this->get_operations()->create_xml_package($modinst,$message,$files);
-    Events::SendEvent( 'ModuleManager', 'AfterModuleExport', [ 'module_name' => $modname, 'version' => $modinst->GetVersion() ] );
+    Events::SendEvent( 'ModuleManager', 'BeforeModuleExport', [ 'module_name' => $modname, 'version' => $mod->GetVersion() ] );
+    $xmlfile = $this->get_operations()->create_xml_package($mod,$message,$files);
+    Events::SendEvent( 'ModuleManager', 'AfterModuleExport', [ 'module_name' => $modname, 'version' => $mod->GetVersion() ] );
     NlsOperations::set_language($orig_lang);
     if( $old_display_errors !== FALSE ) ini_set('display_errors',$old_display_errors);
 
@@ -67,8 +67,8 @@ try {
         $this->RedirectToAdminTab();
     }
     else {
-        $xmlname = $modinst->GetName().'-'.$modinst->GetVersion().'.xml';
-        audit('',$this->GetName(),'Exported '.$modinst->GetName().' to '.$xmlname);
+        $xmlname = $mod->GetName().'-'.$mod->GetVersion().'.xml';
+        audit('',$this->GetName().'::local_export','Exported '.$mod->GetName().' to '.$xmlname);
 
         // send the file.
         $handlers = ob_list_handlers();

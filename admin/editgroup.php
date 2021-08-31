@@ -21,18 +21,16 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AdminUtils;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
 use CMSMS\Group;
+use CMSMS\SingleItem;
 use function CMSMS\de_specialize_array;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -93,13 +91,13 @@ if (isset($_POST['editgroup'])) {
         if ($groupobj->save()) {
             Events::SendEvent( 'Core', 'EditGroupPost', [ 'group'=>&$groupobj ] );
             // put mention into the admin log
-            audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Edited');
+            audit($groupobj->id, 'Admin Users Group '.$groupobj->name, 'Edited');
             redirect('listgroups.php'.$urlext);
         } else {
             $errors[] = lang('errorupdatinggroup');
         }
     }
-    AppSingle::Theme()->RecordNotice('error', $errors);
+    SingleItem::Theme()->RecordNotice('error', $errors);
 
     $group = specialize($group);
     if ($description) { $description = specialize($description); }
@@ -115,10 +113,10 @@ if (isset($_POST['editgroup'])) {
 
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
-$userops = AppSingle::UserOperations();
+$userops = SingleItem::UserOperations();
 $useringroup = $userops->UserInGroup($userid, $group_id);
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign([
     'active' => $active,
     'description' => $description,
@@ -131,7 +129,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('editgroup.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

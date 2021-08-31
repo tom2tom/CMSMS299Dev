@@ -20,17 +20,15 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Bookmark;
+use CMSMS\SingleItem;
 use CMSMS\Url;
 use function CMSMS\de_specialize;
 use function CMSMS\sanitizeVal;
 use function CMSMS\specialize;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -41,7 +39,7 @@ if (isset($_POST['cancel'])) {
 }
 
 $userid = get_userid();
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 
 if (isset($_GET['bookmark_id'])) {
     $bookmark_id = (int)$_GET['bookmark_id'];
@@ -87,9 +85,9 @@ if (isset($_POST['editbookmark'])) {
     $title = specialize($title);
     $url = specialize($url);
 } elseif ($bookmark_id != -1) {
-    $db = AppSingle::Db();
+    $db = SingleItem::Db();
     $query = 'SELECT user_id,title,url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
-    $row = $db->GetRow($query, [$bookmark_id]);
+    $row = $db->getRow($query, [$bookmark_id]);
     if ($row) {
         if (!($row['user_id'] == $userid || check_permission($userid, 'Manage TODO'))) {
             $themeObject->ParkNotice('error', lang('TODO no perm'));
@@ -109,7 +107,7 @@ if (isset($_POST['editbookmark'])) {
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign([
     'bookmark_id' => $bookmark_id,
     'selfurl' => $selfurl,
@@ -120,7 +118,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('editbookmark.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

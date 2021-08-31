@@ -1,7 +1,7 @@
 {if $is_upgrade}
-  <h3>{$mod->Lang('upgrade_module')} {$module_name} <em>({$mod->Lang('vertext')} {$module_version})</em></h3>
+  <h3>{$mod->Lang('upgrade_module')} {$module_name} <em>({$mod->Lang('version')} {$module_version})</em></h3>
 {else}
-  <h3>{$mod->Lang('install_module')} {$module_name} <em>({$mod->Lang('vertext')} {$module_version})</em></h3>
+  <h3>{$mod->Lang('install_module')} {$module_name} <em>({$mod->Lang('version')} {$module_version})</em></h3>
 {/if}
 
 <div class="pagewarn">

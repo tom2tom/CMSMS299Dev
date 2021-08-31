@@ -19,7 +19,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 /**
  * A function for auto-loading module-namespaced classes.
@@ -38,7 +38,7 @@ function cmsms_spacedloader(string $classname)
 		$findpath = function($modname)
 		{
 			if (!defined('CMS_ROOT_PATH')) {
-				$config = AppSingle::Config();
+				$config = SingleItem::Config();
 				define('CMS_ROOT_PATH', $config['root_path']);
 			}
 			$p = DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$modname.DIRECTORY_SEPARATOR.$modname.'.module.php';
@@ -79,7 +79,7 @@ function cmsms_spacedloader(string $classname)
 			if (is_file($fp)) {
 				if (!class_exists($space, false)) {
 					//deprecated since 2.99 - some modules require existence of this, or assume, and actually use it
-					$gCms = AppSingle::App();
+					$gCms = SingleItem::App();
 					require_once $mpath;
 				}
 				require_once $fp;

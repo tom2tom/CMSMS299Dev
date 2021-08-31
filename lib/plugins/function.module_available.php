@@ -43,7 +43,7 @@ function smarty_function_module_available($params, $template)
 function smarty_cms_about_function_module_available()
 {
 	echo <<<'EOS'
-<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Author: Robert Campbell</p>
 <p>Initial version (for CMSMS 1.11)</p>
 <p>Change History:</p>
 <ul>

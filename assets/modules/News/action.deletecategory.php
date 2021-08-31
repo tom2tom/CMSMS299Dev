@@ -22,26 +22,29 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\Events;
 use News\AdminOperations;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify News Preferences')) exit;
+
+// TODO icon/image removal if not needed
 
 $catid = $params['catid'] ?? '';
 if (is_numeric($catid)) {
     // Get the category details
     $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?';
-    $row = $db->GetRow($query, [$catid]);
+    $row = $db->getRow($query, [$catid]);
 
     //Reset all categories using this parent to have no parent (-1)
-    $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET parent_id = -1, modified_date = '.time().' WHERE parent_id = ?';
-    $db->Execute($query, [$catid]);
+    $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET parent_id = -1, modified_date = ? WHERE parent_id = ?';
+    $longnow = $db->DbTimeStamp(time(),false);
+    $db->execute($query, [$longnow, $catid]);
 
-    //Now remove the category
+    //Remove the category
     $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?';
-    $db->Execute($query, [$catid]);
+    $db->execute($query, [$catid]);
 
-    //And remove it from any articles
+    //And from any articles
     $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET news_category_id = -1 WHERE news_category_id = ?';
-    $db->Execute($query, [$catid]);
+    $db->execute($query, [$catid]);
 
     Events::SendEvent( 'News', 'NewsCategoryDeleted', [ 'category_id'=>$catid, 'name'=>$row['news_category_name'] ] );
     audit($catid, 'News category: '.$catid, ' Category deleted');

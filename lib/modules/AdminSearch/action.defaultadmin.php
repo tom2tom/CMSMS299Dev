@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use AdminSearch\Tools;
 use CMSMS\UserParams;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
 
 //TODO inline css might be bad for content security policy: use external ref instead?
@@ -39,8 +39,7 @@ add_page_headtext($out, false);
 $s1 = json_encode($this->Lang('warn_clickthru'));
 $s2 = json_encode($this->Lang('error_search_text'));
 $s3 = json_encode($this->Lang('error_select_slave'));
-$url = $this->create_url($id,'admin_search');
-$ajax_url = str_replace('&amp;','&',$url) . '&'.CMS_JOB_KEY.'=1';
+$ajax_url = $this->create_action_url($id,'admin_search',[CMS_JOB_KEY=>1]);
 
 /*function _update_status(html) {
   $('#status_area').html(html);
@@ -153,4 +152,3 @@ $slaves = Tools::get_slave_classes();
 $tpl->assign('slaves',$slaves);
 
 $tpl->display();
-return '';

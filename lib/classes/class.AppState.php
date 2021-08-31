@@ -20,12 +20,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\DataException;
 use RuntimeException;
+use UnexpectedValueException;
 
 /**
- * Singleton class that contains various functions and properties representing
- * the state of the application.
+ * Singleton class that records properties representing the current
+ * state/status of CMSMS, and methods for interacting with them.
  *
  * @final
  * @package CMS
@@ -37,50 +37,56 @@ final class AppState
     /**
      * A bitflag constant indicating that the request is for a frontend page
      */
-    const STATE_FRONT_PAGE = 1;
+    const FRONT_PAGE = 1;
 
     /**
      * A bitflag constant indicating that the request is for a page in the CMSMS admin console
      */
-    const STATE_ADMIN_PAGE = 2;
+    const ADMIN_PAGE = 2;
 
     /**
      * A bitflag constant indicating that the request is for an admin login
      */
-    const STATE_LOGIN_PAGE = 4;
+    const LOGIN_PAGE = 4;
 
     /**
      * A bitflag constant indicating that the request is for an async job
      */
-	const STATE_ASYNC_JOB = 8;
+    const ASYNC_JOB = 0x40;
 
     /**
      * A bitflag constant indicating that the request is taking place during the installation process
      */
-    const STATE_INSTALL = 0x80;
+    const INSTALL = 0x80;
 
     /**
      * A bitflag constant indicating that a stylesheet is being processed during the request
      */
-    const STATE_STYLESHEET = 0x100;
+    const STYLESHEET = 0x100;
 
     /**
      * A bitflag constant indicating that we are currently parsing page templates
      * UNUSED
      */
-    const STATE_PARSE_TEMPLATE = 0x200;
+    const PARSE_TEMPLATE = 0x200;
+
+    /**
+     * A bitflag constant indicating that request-type should be ignored
+     */
+    const NO_PAGE = 0x400;
 
     /**
      * @ignore
      */
     private const STATELIST = [
-        self::STATE_ADMIN_PAGE,
-	    self::STATE_ASYNC_JOB,
-        self::STATE_FRONT_PAGE,
-        self::STATE_STYLESHEET,
-        self::STATE_INSTALL,
-        self::STATE_PARSE_TEMPLATE,
-        self::STATE_LOGIN_PAGE
+        self::ADMIN_PAGE,
+        self::ASYNC_JOB,
+        self::FRONT_PAGE,
+        self::STYLESHEET,
+        self::INSTALL,
+        self::PARSE_TEMPLATE,
+        self::LOGIN_PAGE,
+        self::NO_PAGE
     ];
 
     /**
@@ -89,17 +95,18 @@ final class AppState
      * @deprecated since 2.99
      */
     private const STATESTRINGS = [
-        'admin_request' => self::STATE_ADMIN_PAGE,
-        'async_request' => self::STATE_ASYNC_JOB,
-        'install_request' => self::STATE_INSTALL,
-        'login_request' => self::STATE_LOGIN_PAGE,
-        'parse_page_template' => self::STATE_PARSE_TEMPLATE,
-        'stylesheet_request' => self::STATE_STYLESHEET,
-    ];
+        'admin_request' => self::ADMIN_PAGE,
+        'any_request' => self::NO_PAGE,
+        'async_request' => self::ASYNC_JOB,
+        'install_request' => self::INSTALL,
+        'login_request' => self::LOGIN_PAGE,
+        'parse_page_template' => self::PARSE_TEMPLATE,
+        'stylesheet_request' => self::STYLESHEET,
+   ];
 
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
     /**
-     * Array of current states.
+     * Array of current states. Each member like stateflag => stateflag.
      * @ignore
      */
     private static $_states = [];
@@ -124,13 +131,13 @@ final class AppState
         global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_LOGIN_PAGE, $CMS_STYLESHEET;
 
         $tmp = [];
-        if( isset($CMS_ADMIN_PAGE) ) $tmp[self::STATE_ADMIN_PAGE] = self::STATE_ADMIN_PAGE;
-        if( isset($CMS_LOGIN_PAGE) ) $tmp[self::STATE_LOGIN_PAGE] = self::STATE_LOGIN_PAGE; // files also set STATE_ADMIN_PAGE
-        if( isset($CMS_INSTALL_PAGE) ) $tmp[self::STATE_INSTALL] = self::STATE_INSTALL;
-//        if( !$tmp ) $tmp[self::STATE_FRONT_PAGE] = self::STATE_FRONT_PAGE;
+        if( isset($CMS_ADMIN_PAGE) ) $tmp[self::ADMIN_PAGE] = self::ADMIN_PAGE;
+        if( isset($CMS_LOGIN_PAGE) ) $tmp[self::LOGIN_PAGE] = self::LOGIN_PAGE; // files also set ADMIN_PAGE
+        if( isset($CMS_INSTALL_PAGE) ) $tmp[self::INSTALL] = self::INSTALL;
+//        if( !$tmp ) $tmp[self::FRONT_PAGE] = self::FRONT_PAGE;
 
-        if( isset($CMS_STYLESHEET) ) $tmp[self::STATE_STYLESHEET] = self::STATE_STYLESHEET; // the cms_stylesheet plugin is running
-//      if (?) $tmp[self::STATE_PARSE_TEMPLATE] = self::STATE_PARSE_TEMPLATE;
+        if( isset($CMS_STYLESHEET) ) $tmp[self::STYLESHEET] = self::STYLESHEET; // the cms_stylesheet plugin is running
+//      if (?) $tmp[self::PARSE_TEMPLATE] = self::PARSE_TEMPLATE;
         self::$_states += $tmp;
     }
 
@@ -145,20 +152,20 @@ final class AppState
         global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_LOGIN_PAGE, $CMS_STYLESHEET;
 
         switch( $flag ) {
-            case self::STATE_ADMIN_PAGE:
+            case self::ADMIN_PAGE:
                 $name = 'CMS_ADMIN_PAGE';
                 break;
-            case self::STATE_STYLESHEET:
+            case self::STYLESHEET:
                 $name = 'CMS_STYLESHEET';
                 break;
-            case self::STATE_INSTALL:
+            case self::INSTALL:
                 $name = 'CMS_INSTALL_PAGE';
                 break;
-            case self::STATE_LOGIN_PAGE:
+            case self::LOGIN_PAGE:
                 $name = 'CMS_LOGIN_PAGE';
                 break;
-//          case self::STATE_PARSE_TEMPLATE: $name = ??; break;
-            case self::STATE_FRONT_PAGE:
+//          case self::PARSE_TEMPLATE: $name = ??; break;
+            case self::FRONT_PAGE:
                 unset($CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE, $CMS_LOGIN_PAGE, $CMS_STYLESHEET);
             // no break here
             default:
@@ -178,16 +185,15 @@ final class AppState
      * @param int $flag enumerator of the state to be processed
      * @param mixed $value bool value to be set | null for either value (i.e. we're checking/testing)
      * @return bool
-     * @throws DataException
-     * @throws RuntimeException
+     * @throws UnexpectedValueException or RuntimeException
      */
     private static function _validate_state_var(int $flag, $value) : bool
     {
         if( !in_array($flag, self::STATELIST) ) {
-            throw new DataException($flag.' is not a recognised CMSMS state');
+            throw new UnexpectedValueException($flag.' is not a recognised CMSMS state');
         }
-        if( $flag == self::STATE_INSTALL && $value !== null ) {
-            if (!property_exists('cms_installer\\installer_base', 'signature')) { // TODO not hardcoded names
+        if( $flag == self::INSTALL && $value !== null ) {
+            if (!property_exists('cms_installer\installer_base', 'signature')) { // TODO not hardcoded names
                 throw new RuntimeException('Invalid state-change');
             }
         }
@@ -195,12 +201,12 @@ final class AppState
     }
 
     /**
-     * Set the list of current states.
-     * Any invalid state is ignored, if if does not throw an exception.
+     * Set the list of current state(s).
+     * Any invalid state is ignored, if it does not throw an exception.
      *
-     * @param int $states State bit-flag(s), OR'd class constant(s).
+     * @param int $states State bit-flag(s), OR'd AppState constant(s).
      */
-    public static function set_states(int $states)
+    public static function set(int $states)
     {
         $tmp = [];
         foreach( self::STATELIST as $flag ) {
@@ -215,14 +221,15 @@ final class AppState
     }
 
     /**
-     * Get a list of all current states.
+     * Get a list or bitflag-combination of all current states.
      *
-     * @return array  State constants (int's)
+     * @param bool $flat optional flag whether to report a single int Default false.
+     * @return mixed array State constants (int's) | int
      */
-    public static function get_states() : array
+    public static function get(bool $flat = false)
     {
         self::_capture_states();
-        return array_keys(self::$_states);
+        return ($flat) ? array_sum(self::$_states) : array_keys(self::$_states);
     }
 
     /**
@@ -232,7 +239,7 @@ final class AppState
      * @param mixed $state int | deprecated string State identifier, a class constant
      * @return bool
      */
-    public static function test_state($state) : bool
+    public static function test($state) : bool
     {
         if( is_string($state) ) {
             $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.99
@@ -247,10 +254,10 @@ final class AppState
     /**
      * Report whether one or more of the specified state(s) is current.
      *
-     * @param int $states State bit-flag(s), OR'd class constant(s)
+     * @param int $states State bit-flag(s), OR'd AppState constant(s)
      * @return bool
      */
-    public static function test_any_state(int $states) : bool
+    public static function test_any(int $states) : bool
     {
         self::_capture_states();
         $tmp = array_sum(self::$_states);
@@ -260,10 +267,10 @@ final class AppState
     /**
      * Report whether all the specified state(s) are current.
      *
-     * @param int $states State bit-flag(s), OR'd class constant(s)
+     * @param int $states State bit-flag(s), OR'd AppState constant(s)
      * @return bool
      */
-    public static function test_all_states(int $states) : bool
+    public static function test_all(int $states) : bool
     {
         self::_capture_states();
         $tmp = array_sum(self::$_states);
@@ -276,7 +283,7 @@ final class AppState
      *
      * @param mixed $state int | deprecated string The state, a class constant
      */
-    public static function add_state($state)
+    public static function add($state)
     {
         if( is_string($state) ) {
             $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.99
@@ -295,7 +302,7 @@ final class AppState
      * @param mixed $state int | deprecated string The state, a class constant
      * @return bool indicating success
      */
-    public static function remove_state($state) : bool
+    public static function remove($state) : bool
     {
         if( is_string($state) ) {
             $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.99
@@ -309,5 +316,27 @@ final class AppState
             }
         }
         return FALSE;
+    }
+
+    /**
+     * Replace the whole list of current states by the specified one(s).
+     *
+     * @param mixed $state int | deprecated string Replacement state(s),
+     *  class constant(s)
+     * @return int prior state(s) as OR'd AppState constant(s)
+     * @throws UnexpectedValueException if the state-change is invalid.
+     */
+    public static function exchange($state) : int
+    {
+        if( is_string($state) ) {
+            $state = self::STATESTRINGS[$state] ?? (int)$state; //deprecated since 2.99
+        }
+        if (0) { // TODO validate all flag(s) in $state
+            throw new UnexpectedValueException($state.' includes un-recognised CMSMS state(s)');
+        }
+        $current = array_sum(self::$_states);
+        list($current, $state) = [$state, $current]; // atomic swap
+        self::set_states($state);
+        return $current;
     }
 }

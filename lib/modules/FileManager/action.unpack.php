@@ -1,25 +1,23 @@
 <?php
 use FileManager\Utils;
 
-if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
-
-if (isset($params['cancel'])) {
+//if( some worthy test fails ) exit;
+if( !$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed() ) exit;
+if( isset($params['cancel']) ) {
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 $sel = $params['sel'];
 if( !is_array($sel) ) {
   $sel = json_decode(rawurldecode($sel), true);
 }
-if (count($sel)==0) {
+if( !$sel ) {
   $params['fmerror']='nofilesselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
-if (count($sel)>1) {
+if( count($sel)>1 ) {
   $params['fmerror']='morethanonefiledirselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
-
 
 $config=cmsms()->GetConfig();
 $filename=$this->decodefilename($sel[0]);

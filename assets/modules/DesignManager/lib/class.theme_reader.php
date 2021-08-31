@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace DesignManager;
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use CMSMS\Template;
@@ -35,7 +35,6 @@ use Exception;
 use const CMS_ROOT_URL;
 use const CMSSAN_FILE;
 use function cms_join_path;
-use function cmsms;
 use function CMSMS\sanitizeVal;
 use function file_put_contents;
 use function get_userid;
@@ -228,13 +227,13 @@ class theme_reader extends reader_base
   {
     $this->_scan();
     if( !isset($this->_design_info['name']) || $this->_design_info['name'] == '' ) {
-      throw new Exception('Invalid XML FILE (test1)');
+      throw new Exception('Invalid XML file (test1)');
     }
-    if( count($this->_tpl_info) == 0 ) {
-      throw new Exception('Invalid XML FILE (test2)');
+    if( !$this->_tpl_info ) {
+      throw new Exception('Invalid XML file (test2)');
     }
-    if( count($this->_css_info) == 0 ) {
-      throw new Exception('Invalid XML FILE (test3)');
+    if( !$this->_css_info ) {
+      throw new Exception('Invalid XML file (test3)');
     }
     // it validates.
   }
@@ -294,7 +293,7 @@ class theme_reader extends reader_base
   {
     $name = $this->get_new_name();
     $dirname = sanitizeVal($name,CMSSAN_FILE);
-    $config = cmsms()->GetConfig();
+    $config = SingleItem::Config();
     $dir = cms_join_path($config['uploads_path'],'themes',$dirname);
     @mkdir($dir,0770,TRUE); // $perms = get_server_permissions()[3];
     if( !is_dir($dir) || !is_writable($dir) ) {
@@ -380,7 +379,7 @@ class theme_reader extends reader_base
     }
 
     $design->set_description($description);
-    $config = cmsms()->GetConfig();
+    $config = SingleItem::Config();
 
     // part2 .. expand files.
     foreach( $this->_ref_map as $key => &$rec ) {
@@ -490,7 +489,7 @@ class theme_reader extends reader_base
 
     // part6 ... Make sure MenuManager is activated.
     if( $have_mm_template ) {
-      AppSingle::ModuleOperations()->ActivateModule('MenuManager',1);
+      SingleItem::ModuleOperations()->ActivateModule('MenuManager',1);
     }
   }
 } // class

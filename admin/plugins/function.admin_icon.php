@@ -20,14 +20,14 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\AppState;
+use CMSMS\SingleItem;
 
 function smarty_function_admin_icon($params, $template)
 {
 	$icon = null;
 
-	if( AppState::test_state(AppState::STATE_ADMIN_PAGE) ) {
+	if( AppState::test(AppState::ADMIN_PAGE) ) {
 		$tagparms = ['class'=>'systemicon'];
 		foreach( $params as $key => $value ) {
 			switch( $key ) {
@@ -53,7 +53,7 @@ function smarty_function_admin_icon($params, $template)
 	}
 
 	if( $icon ) {
-		$themeObject = AppSingle::Theme();
+		$themeObject = SingleItem::Theme();
 		if( !isset($tagparms['alt']) ) $tagparms['alt'] = pathinfo($icon, PATHINFO_FILENAME);
 
 		if( isset($params['module']) ) {

@@ -24,11 +24,11 @@ use CMSMS\AppConfig;
 /**
  * System identifiers (from vars in version.php)
  */
-define('CMS_VERSION', $CMS_VERSION);
-define('CMS_VERSION_NAME', $CMS_VERSION_NAME);
-define('CMS_SCHEMA_VERSION', $CMS_SCHEMA_VERSION);
+//define('CMS_VERSION', $CMS_VERSION);
+//define('CMS_VERSION_NAME', $CMS_VERSION_NAME);
+//define('CMS_SCHEMA_VERSION', $CMS_SCHEMA_VERSION);
 
-$config = AppConfig::get_instance(); // AppSingle etc not yet set up
+$config = AppConfig::get_instance(); // SingleItem etc not yet set up
 
 /**
  * Where cachable system files can be written.

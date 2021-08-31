@@ -24,7 +24,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 use ModuleManager\ModuleInfo;
 
-if( !isset($gCms) ) exit;
+//if( some worthy test fails ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
 
 $this->SetCurrentTab('installed');
@@ -32,18 +32,18 @@ if( !isset($params['mod']) ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
-$module = $params['mod'];
-if( $module ) {
-    $info = ModuleInfo::get_module_info($module);
+$modname = $params['mod'];
+if( $modname ) {
+    $info = ModuleInfo::get_module_info($modname);
 }
 else {
     $info = null;
 }
+$url = $this->create_action_url($id,'defaultadmin');
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('local_missingdeps.tpl')); //,null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('missingdeps.tpl')); //,null,null,$smarty);
 
-$tpl->assign('back_url',$this->create_url($id,'defaultadmin',$returnid))
+$tpl->assign('back_url',$url)
  ->assign('info',$info);
 
 $tpl->display();
-return '';

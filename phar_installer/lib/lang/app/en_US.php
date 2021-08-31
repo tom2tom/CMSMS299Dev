@@ -1,9 +1,11 @@
 <?php
+
 // A
 $lang['action_freshen'] = 'Freshening / Repairing a CMSMS %s installation';
 $lang['action_install'] = 'Creating a new CMSMS %s website';
 $lang['action_upgrade'] = 'Upgrading a CMSMS website to version %s';
 $lang['advanced_mode'] = 'Enable advanced mode';
+$lang['allow_url_fopen'] = '&quot;allow_url_fopen&quot; is disabled ?';
 $lang['apptitle'] = 'Installation and upgrade assistant';
 $lang['assets_dir_exists'] = 'Assets directory exists ?';
 
@@ -85,7 +87,7 @@ $lang['error_adminacct_emailaddr'] = 'The email address is invalid';
 $lang['error_adminacct_password'] = 'The password is unsuitable. Please try again.'; //TODO supplementary details
 $lang['error_adminacct_repeatpw'] = 'The entered passwords do not match.';
 $lang['error_adminacct_username'] = 'The username is unsuitable. Please try again.';
-//$lang['error_admindirrenamed'] = 'It appears that the site\'s admin directory has been renamed. That change must be <a href="https://docs.cmsmadesimple.org/general-information/securing-cmsms#renaming-admin-folder" target="_blank" class="external">reversed</a> (on disk and in the config.php file) in order to proceed!<br/><br/>After that directory has been reverted to &quot;admin&quot;, please reload this page.';
+//$lang['error_admindirrenamed'] = 'It appears that the site\'s admin directory has been renamed. That change must be <a href="https://docs.cmsmadesimple.org/general-information/securing-cmsms#renaming-admin-folder" target="_blank" class="external">reversed</a> (on disk and in the config.php file) in order to proceed!<br /><br />After that directory has been reverted to &quot;admin&quot;, please reload this page.';
 $lang['error_backupconfig'] = 'Unable to properly backup the config file';
 $lang['error_checksum'] = 'Extracted file checksum does not match original (%s)';
 $lang['error_cmstablesexist'] = 'It appears that there is already a CMSMS installation on this database. Please enter different database information. If you would like to use a different table prefix you might need to restart the installation process and enable advanced mode.';
@@ -106,7 +108,7 @@ $lang['error_invalidparam'] = 'Invalid parameter or value for parameter: %s';
 $lang['error_invalidtimezone'] = 'The timezone specified is invalid';
 $lang['error_invalidqueryvar'] = 'The query variable entered contains invalid characters.  Please use only alphanumerics and underscore.';
 $lang['error_missingconfigvar'] = 'The key &quot;%s&quot; is either missing from or invalid in the installer.ini file';
-$lang['error_modulebad'] = '%s module installation failed';
+$lang['error_modulebad'] = 'Unable to process module \'%s\'';
 $lang['error_noarchive'] = 'Problem finding archive file... please restart';
 $lang['error_nlsnotfound'] = 'Problem finding NLS files in archive';
 $lang['error_nocontent'] = 'Source for generating site content (%s) not found';
@@ -119,6 +121,7 @@ $lang['error_nodbprefix'] = 'Please enter a valid prefix for database tables';
 $lang['error_nodbuser'] = 'Please enter a valid username for authenticating to the database';
 $lang['error_nodestdir'] = 'Destination directory not set';
 $lang['error_nositename'] = 'Sitename is a required parameter. Please enter a suitable name for the website.';
+$lang['error_notify'] = 'Please <a href="%s" target="_blank">advise CMS Made Simple</a> about the circumstances.';
 $lang['error_notimezone'] = 'Please enter a valid timezone for this server';
 $lang['error_overwrite'] = 'Permissions problem: cannot overwrite %s';
 //$lang['error_sendingmail'] = 'Error sending mail';
@@ -140,7 +143,8 @@ $lang['fail_cache_extension'] = 'No such cache extension was found. If possible,
 <li>YAC</li>
 </ul>
 on the website';
-$lang['fail_config_writable'] = 'The HTTP process cannot write to the config.php file. Please try to change the permissions on this file to 777 until the installation assistant is complete';
+
+$lang['fail_config_writable'] = 'The webserver cannot modify the /lib/config.php file. Please try to change the permissions on that file to 0666 until this installer session is finished.';
 $lang['fail_curl_extension'] = 'The curl extension was not found. Though not a critical issue, this might cause problems with some non-core modules';
 $lang['fail_cryption_functions'] = 'No such support was found. If possible, enable the operation of either of
 <ul>
@@ -166,7 +170,7 @@ $lang['fail_open_basedir'] = 'Open basedir restrictions are in effect. CMSMS req
 $lang['fail_php_version'] = 'The version of PHP running the site (%s) is too low. The minimum acceptable version is %s.';
 $lang['fail_php_version2'] = 'The version of PHP running the site (%s) is acceptable, but %s or greater is recommended.';
 $lang['fail_post_max_size'] = 'The current post max size (%s) is too low. At least %s is required, and %s or greater is recommended. Ensure that it is larger than the upload_max_filesize';
-$lang['fail_pwd_writable2'] = 'The HTTP process must be able to write to the destination directory (and to all files and directories beneath it) in order to install files. We do not have write permission to (at least) %s';
+$lang['fail_pwd_writable2'] = 'The webserver must be entitled to write to the destination directory (and to all files and directories beneath it) in order to install files. The server is not entitled to write to (at least) %s';
 $lang['fail_register_globals'] = 'Please disable register globals in the site PHP configuration';
 $lang['fail_remote_url'] = 'Unable to connect to a remote URL. This will limit some of the functionality of CMS Made Simple';
 $lang['fail_safe_mode'] = 'CMSMS will not operate properly in an environment where safe mode is enabled. Safe mode is deprecated as a failed mechanism, and will be removed in future versions of PHP';
@@ -177,6 +181,7 @@ $lang['fail_sodium_functions'] = 'libsodium-related capabilities are not built-i
 $lang['fail_ssl_extension'] = 'The openssl extension was not found. Some processes would work much faster if it were installed.';
 $lang['fail_tmpfile'] = 'The system tmpfile() function is not available. This is required to allow us to extract archives. The optional TMPDIR url argument can be provided to the installer to specify a writeable directory. See the README file that should be in included in this directory.';
 $lang['fail_tmp_dirs_empty'] = 'The CMSMS temporary-storage directories <em>(tmp/cache and tmp/templates_c) exist, and are not empty.  Please remove or empty them';
+$lang['fail_version_writable'] = 'The webserver must be entitled to modify the /lib/version.php file. Please try to change the permissions on that file to 0666 until this installer session is finished.';
 $lang['fail_xml_functions'] = 'The XML extension was not found. Please enable this in the site\'s PHP environment';
 $lang['failed'] = 'failed';
 $lang['file_get_contents'] = 'file_get_contents() method is available ?';
@@ -187,7 +192,7 @@ $lang['finished_custom_install_msg'] = 'Done! Please visit the website and log i
 $lang['finished_custom_upgrade_msg'] = 'Done! Check that everything is working properly. Log in to the site\'s <a href="%s">Admin Console</a>. Among other things, look out for modules which need to be upgraded. Visit <a href="%s">the website</a>.<br /><strong>Hint:</strong> Now is a good time to create another backup.';
 $lang['finished_freshen_msg'] = 'The installation has been freshened. To check that everything is functioning correctly, please visit <a href="%s">the website</a> or log in to its <a href="%s">Admin Console</a>.';
 $lang['finished_install_msg'] = 'Done! You can now <a href="%s">visit the website</a> or log in to its <a href="%s">Admin Console</a>.';
-$lang['finished_upgrade_msg'] = 'Done! Please visit the <a href="%s">website</a> and its <a href="%s">Admin Console</a> to verify correct behavior. You might also need to upgrade some non-core modules.<br/><strong>Hint:</strong> Remember to create another backup after verifying correct behavior.';
+$lang['finished_upgrade_msg'] = 'Done! Please visit the <a href="%s">website</a> and its <a href="%s">Admin Console</a> to verify correct behavior. You might also need to upgrade some non-core modules.<br /><strong>Hint:</strong> Remember to create another backup after verifying correct behavior.';
 $lang['freshen'] = 'Freshen (repair) installation';
 $lang['func_json'] = 'json functionality is available ?';
 $lang['func_md5'] = 'md5 functionality is available ?';
@@ -250,12 +255,13 @@ $lang['install_initsiteprefs'] = 'Set initial site preferences';
 $lang['install_initsiteusers'] = 'Create initial user account';
 $lang['install_initsiteusertags'] = 'Initial User Defined Tags';
 $lang['install_module'] = 'Install module %s';
+$lang['install_modulebad'] = '%s module installation failed';
 $lang['install_modules'] = 'Install available modules';
 $lang['install_requireddata'] = 'Set initial required data';
 $lang['install_samplecontent'] = 'Install example content';
 $lang['install_schema'] = 'Create database schema';
 $lang['install_setschemaver'] = 'Set schema version';
-$lang['install_setsequence'] = 'Reset sequence tables';
+$lang['install_setsequence'] = 'Install sequence tables';
 $lang['install_setsitename'] = 'Set site name';
 $lang['install_stylesheets'] = 'Create default stylesheets';
 $lang['install_templates'] = 'Create default templates';
@@ -293,19 +299,20 @@ $lang['none'] = 'None';
 
 // O
 $lang['open_basedir_session_save_path'] = 'open_basedir is in enabled. Cannot test session save path.';
-$lang['open_basedir'] = 'open_basedir is disabled ?';
+$lang['open_basedir'] = '&quot;open_basedir&quot; is disabled ?';
 $lang['output_buffering'] = 'Output buffering is enabled ?';
 
 // P
 $lang['pass_cache_extension'] = 'Extension %s was found';
-$lang['pass_config_writable'] = 'The HTTP process has write permission to the config.php file';
+$lang['pass_config_writable'] = 'The webserver may modify the config.php file';
 $lang['pass_cryption_functions'] = '%s was found';
 $lang['pass_database_support'] = 'At least one compatible database driver found';
 $lang['pass_func_json'] = 'json functionality detected';
 $lang['pass_func_md5'] = 'md5 functionality was detected';
-$lang['pass_func_tempnam'] = 'tempnam() method exists ?';
+$lang['pass_func_tempnam'] = 'tempnam() method exists';
 $lang['pass_multibyte_support'] = 'Multibyte support appears to be enabled';
-$lang['pass_pwd_writable'] = 'The HTTP process can write into the destination directory. This is necessary for extracting files';
+$lang['pass_pwd_writable'] = 'The webserver is entitled to write into the destination directory.';
+$lang['pass_version_writable'] = 'The webserver may modify the version.php file';
 $lang['password'] = 'Password';
 $lang['ph_sitename'] = 'Enter the name';
 $lang['ph_supporturl'] = 'Enter the URL';
@@ -364,7 +371,7 @@ $lang['step1_destdir'] = 'Top-Level Directory';
 $lang['step1_info_destdir'] = '<strong>Warning:</strong> This program can install or upgrade multiple installations of CMS Made Simple. It is important that you select the correct directory for installation or upgrading.';
 $lang['step1_language'] = 'Language';
 //$lang['step1_title'] = 'Select Language';
-$lang['step2_cmsmsfound'] = 'An installation of CMS Made Simple was found. It is possible to upgrade this installation. However, before proceeding, ensure that you have a current, VERIFIED backup of all files and of the database.';
+$lang['step2_cmsmsfound'] = 'An installation of CMS Made Simple was found. It is possible to upgrade this installation. Before proceeding, ensure that you have a current <strong>VERIFIED</strong> backup of all its files and its database.';
 $lang['step2_cmsmsfoundnoupgrade'] = 'Although an installation of CMS Made Simple was found, it is not possible to upgrade this version using this application. The version might be too old.';
 $lang['step2_confirminstall'] = 'Are you sure you would like to install CMS Made Simple';
 $lang['step2_confirmupgrade'] = 'Are you sure you would like to upgrade CMS Made Simple';
@@ -415,15 +422,18 @@ $lang['tmpfile'] = 'tmpfile() method is available ?';
 $lang['to'] = 'to';
 
 // U
+$lang['uninstall_module'] = 'Uninstall module %s';
 $lang['upgrade_deleteoldevents'] = 'Delete old events';
 $lang['upgrade_deletetable'] = 'Deleted old table %s';
 $lang['upgrade_modifytable'] = 'Modified table %s';
+$lang['upgrade_modulebad'] = '%s module upgrade failed';
 $lang['upgrade'] = 'Upgrade';
 $lang['upgrading_schema'] = 'Update database schema';
 $lang['upload_max_filesize'] = 'Maximum size of uploaded files is sufficient ?';
 $lang['username'] = 'Login/Account';
 
 // V
+$lang['version_writable'] = 'Version-data file can be saved ?';
 
 // W
 $lang['warn_default_charset'] = 'The site\'s default character-encoding is: %s.  A value other than UTF-8 may cause difficulties with text processing in non-english languages';
@@ -439,6 +449,7 @@ $lang['warn_pwperms'] = 'You might like to discuss the database permissions with
 $lang['warn_pwweak'] = 'The password is weaker than it arguably should be';
 $lang['warn_tests'] = '<strong>Note:</strong> passing all of these tests should ensure that CMSMS will function properly for most sites. However, as the site grows and more functionality is added, these minimal values might become insufficient. Additionally, non-core (independently-developed) modules might have further requirements to function properly';
 $lang['warn_upload_max_filesize'] = 'The current upload_max_filesize setting (%s) is sufficient, but increasing it to at least %s is recommended';
+$lang['warn_url_fopen'] = 'The allow_url_fopen setting (%s) is risky.';
 $lang['welcome_message'] = 'This CMS Made Simple utility allows you to quickly and easily confirm that the website\'s host is compatible with CMSMS, and then to install, upgrade or refresh CMSMS.';
 $lang['wizard_step1'] = 'Welcome';
 $lang['wizard_step2'] = 'Detect Pre-existing Content';

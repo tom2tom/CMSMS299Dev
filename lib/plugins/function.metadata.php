@@ -20,21 +20,21 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
 use CMSMS\AppParams;
 use CMSMS\Events;
 use CMSMS\HookOperations;
+use CMSMS\SingleItem;
 
 function smarty_function_metadata($params, $template)
 {
-	$gCms = AppSingle::App();
+	$gCms = SingleItem::App();
 	$content_obj = $gCms->get_content_object();
 	$cid = $content_obj->Id();
 
 	$result = '';
 	$showbase = true;
 
-	$config = AppSingle::Config();
+	$config = SingleItem::Config();
 	// Show a base tag unless showbase is false in config.php
 	// It really can't hinder, only help
 	if( isset($config['showbase'])) $showbase = cms_to_bool($config['showbase']);

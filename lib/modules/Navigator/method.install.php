@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>.
 use CMSMS\AppState;
 use CMSMS\Template;
 use CMSMS\TemplateOperations;
-use CMSMS\TemplatesGroup;
+//use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
 
 if( !isset($gCms) ) exit;
@@ -66,7 +66,7 @@ catch( Throwable $t ) {
     return $t->GetMessage();
 }
 
-$newsite = AppState::test_state(AppState::STATE_INSTALL);
+$newsite = AppState::test(AppState::INSTALL);
 if( $newsite ) {
     $uid = 1; // templates owned by initial admin
 } else {
@@ -122,7 +122,7 @@ try {
         $tpl->set_type($menu_type);
         $tpl->save();
     }
-
+/* RUBBISH migrate to demo site content
     if( $newsite ) { //TODO also check for demo-content installation
         $extras = [];
         try {
@@ -168,7 +168,7 @@ try {
             }
         }
     }
-
+*/
     $fn = cms_join_path(__DIR__,'templates','dflt_breadcrumbs.tpl');
     if( is_file($fn) ) {
         $content = @file_get_contents($fn);

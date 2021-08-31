@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppState;
-use CMSMS\Database\DataDictionary;
+//use CMSMS\Database\DataDictionary;
 use CMSMS\Template;
 use CMSMS\TemplatesGroup;
 use CMSMS\TemplateType;
@@ -29,99 +29,123 @@ use News\AdminOperations;
 if( !isset($gCms) ) exit;
 
 // best to avoid module-specific class autoloading during installation
-if( !class_exists('News\\AdminOperations') ) {
+if( !class_exists('News\AdminOperations') ) {
     $fn = cms_join_path(__DIR__,'lib','class.AdminOperations.php');
     require_once $fn;
 }
 
-$newsite = AppState::test_state(AppState::STATE_INSTALL);
-if( $newsite ) {
+$installer_working = AppState::test(AppState::INSTALL);
+if( $installer_working && 1 ) { // TODO && this is a new demo-site
+	$newsite = true;
     $uid = 1; // templates owned by intitial admin
 }
 else {
+	$newsite = false;
     $uid = get_userid(FALSE);
 }
 
-$dict = new DataDictionary($db);
+$dict = $db->NewDataDictionary();  // OR new DataDictionary($db);
 
-$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci'];
+$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8mb4'];
 $tbl = CMS_DB_PREFIX.'module_news';
-// icon C(255), no longer used
-// news_date I, ditto
+// news_date I no longer used
+// alias intended for pretty-urls c.f. content pages OR will news_url handle that?
+// image_url replaces the icon used in ancient versions
 $flds = '
-news_id I(4) UNSIGNED KEY,
-news_category_id I(2) UNSIGNED,
+news_id I UNSIGNED KEY,
+news_category_id I UNSIGNED,
 news_title C(255),
-status C(24),
-news_data X(16384),
+status C(25),
+news_data X(65535),
 news_extra C(255),
 news_url C(255),
-summary X(1024),
-start_time I DEFAULT 0,
-end_time I DEFAULT 0,
-create_date I,
-modified_date I DEFAULT 0,
-author_id I DEFAULT 0,
-searchable I(1) DEFAULT 1
+alias C(255),
+summary C(1000),
+image_url C(255),
+start_time DT,
+end_time DT,
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP,
+author_id I UNSIGNED DEFAULT 0,
+searchable I1 DEFAULT 1
 ';
 
 $sqlarray = $dict->CreateTableSQL($tbl, $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('news_daterange', $tbl, 'start_time,end_time');
+$sqlarray = $dict->CreateIndexSQL('i_starttime_endtime', $tbl, 'start_time,end_time');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('news_author', $tbl, 'author_id');
+$sqlarray = $dict->CreateIndexSQL('i_authorid', $tbl, 'author_id');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('news_hier', $tbl, 'news_category_id');
+$sqlarray = $dict->CreateIndexSQL('i_newscategoryid', $tbl, 'news_category_id');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('news_url', $tbl, 'news_url');
+$sqlarray = $dict->CreateIndexSQL('i_newsurl', $tbl, 'news_url');
 $dict->ExecuteSQLArray($sqlarray);
 
 $db->CreateSequence(CMS_DB_PREFIX.'module_news_seq'); //race-preventer
 
-$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii COLLATE ascii_general_ci'];
+//parent_id may be -1 so a signed-int field for that
+// alias intended for pretty-urls c.f. content pages
+//TODO category_url instead of alias ?
+$taboptarray = ['mysqli' => 'ENGINE=MyISAM CHARACTER SET ascii'];
 $flds = '
-news_category_id I(2) UNSIGNED AUTO KEY,
-news_category_name C(255) NOT NULL CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-parent_id I(4),
+news_category_id I UNSIGNED AUTO KEY,
+news_category_name C(255) CHARACTER SET utf8mb4,
+parent_id I,
 hierarchy C(255),
-item_order I(2) UNSIGNED,
-long_name X(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-create_date I,
-modified_date I DEFAULT 0
+item_order I1 UNSIGNED DEFAULT 0,
+long_name C(1000) CHARACTER SET utf8mb4,
+alias C(255),
+image_url C(255),
+create_date DT NOTNULL DEFAULT CURRENT_TIMESTAMP,
+modified_date DT ON UPDATE CURRENT_TIMESTAMP
 ';
 
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news_categories', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
 //$db->CreateSequence(CMS_DB_PREFIX.'module_news_categories_seq'); //race-preventer not really useful here
+$longnow = $db->DbTimeStamp(time(),false);
 
-$now = time();
+if( $installer_working && 1 ) { // TODO && this is a new demo-site OR generate this stuff via the new-site demo content XML
+
 // General category
 $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories
 (news_category_name,parent_id,create_date) VALUES (?,?,?)';
-$db->Execute($query, [
+$db->execute($query, [
     'General',
     -1,
-    $now,
+    $longnow,
 ]);
+$catid = $db->Insert_ID(); // aka 1
 
 AdminOperations::UpdateHierarchyPositions();
 
-// Initial news article
+// Initial (demo) news article
 $articleid = $db->genID(CMS_DB_PREFIX.'module_news_seq'); //OR use $db->Insert_ID();
-$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news (news_id,news_category_id,author_id,news_title,news_data,status,start_time,create_date) VALUES (?,?,?,?,?,?,?,?)';
-$db->Execute($query, [
+$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news
+(news_id,
+news_category_id,
+author_id,
+news_title,
+news_data,
+status,
+start_time,
+create_date)
+VALUES (?,?,?,?,?,?,?,?)';
+$db->execute($query, [
 $articleid,
 $catid,
 1,
 'News Module Installed',
-'The news module was installed. Exciting. This news article has no Summary field and so there is no link to read more. But you can click on the news heading to read only this article.',
+'The news module was installed. Exciting. This news article has no Summary field and so there is no link to read more. However you can click on the article heading to read only this article.',
 'published',
-$now,
-$now,
+$longnow,
+$longnow,
 ]);
+
+} // newsite-installer_working
 
 // Permissions
 $this->CreatePermission('Modify News', 'Modify News Items');
@@ -129,23 +153,21 @@ $this->CreatePermission('Approve News', 'Approve News For Display');
 $this->CreatePermission('Delete News', 'Delete News Items');
 $this->CreatePermission('Modify News Preferences', 'Modify News Module Settings');
 // grant them
-$perm_id = $db->GetOne('SELECT permission_id FROM '.CMS_DB_PREFIX."permissions WHERE permission_name = 'Modify News'");
-$group_id = $db->GetOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE group_name = 'Admin'");
+$perm_id = $db->getOne('SELECT id FROM '.CMS_DB_PREFIX."permissions WHERE name = 'Modify News'");
+$group_id = $db->getOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE group_name = 'Admin'");
 
-$count = $db->GetOne('SELECT COUNT(*) FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
+$count = $db->getOne('SELECT COUNT(*) FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND permission_id = ?',[$group_id,$perm_id]);
 if ((int)$count == 0) {
-    $query = 'INSERT INTO '.CMS_DB_PREFIX.'group_perms
-(group_id,permission_id,create_date) VALUES (?,?,?)';
-    $db->Execute($query, [$group_id, $perm_id, $now]);
+    $query = 'INSERT INTO '.CMS_DB_PREFIX.'group_perms (group_id,permission_id,create_date) VALUES (?,?,?)';
+    $db->execute($query,[$group_id,$perm_id,$longnow]);
 }
 
-$group_id = $db->GetOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE group_name = 'Editor'");
+$group_id = $db->getOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE group_name = 'Editor'");
 
-$count = $db->GetOne('SELECT COUNT(*) FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
+$count = $db->getOne('SELECT COUNT(*) FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND permission_id = ?',[$group_id,$perm_id]);
 if ((int)$count == 0) {
-    $query = 'INSERT INTO '.CMS_DB_PREFIX.'group_perms
-(group_id,permission_id,create_date) VALUES (?,?,?)';
-    $db->Execute($query, [$group_id, $perm_id, $now]);
+    $query = 'INSERT INTO '.CMS_DB_PREFIX.'group_perms (group_id,permission_id,create_date) VALUES (?,?,?)';
+    $db->execute($query,[$group_id,$perm_id,$longnow]);
 }
 
 $me = $this->GetName();

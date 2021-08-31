@@ -20,8 +20,10 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
 use CMSMS\CoreCapabilities;
+use CMSMS\SingleItem;
+use Exception;
+use RuntimeException;
 use const CMS_DB_PREFIX;
 
 /**
@@ -35,7 +37,7 @@ use const CMS_DB_PREFIX;
  */
 class PageLoader
 {
-    // static properties here >> StaticProperties class ?
+    // static properties here >> SingleItem property|ies ?
     /**
      * Cache for content-object(s) loaded during the current request.
      * Might be > 1 page e.g. for cross-referencing.
@@ -61,14 +63,15 @@ class PageLoader
      */
     protected static function poll_xclasses()
     {
-        $ops = AppSingle::ModuleOperations();
-        $list = $ops->GetCapableModules(CoreCapabilities::CONTENT_TYPES);
-        foreach ($list as $modname) {
-            $obj = $ops->get_module_instance($modname); // should register stuff for newly-loaded modules
-            $obj = null; // help the garbage-collector
+        $list = SingleItem::LoadedMetadata()->get('capable_modules', false, CoreCapabilities::CONTENT_TYPES);
+        if ($list) {
+            $ops = SingleItem::ModuleOperations();
+            foreach ($list as $modname) {
+                $obj = $ops->get_module_instance($modname); // should register stuff for newly-loaded modules
+                $obj = null; // help the garbage-collector
+            }
         }
-
-        $ops = AppSingle::ContentTypeOperations();
+        $ops = SingleItem::ContentTypeOperations();
         $list = $ops->content_types;
         if ($list) {
             foreach ($list as $obj) { // $obj = ContentType
@@ -96,10 +99,10 @@ class PageLoader
     {
         $contentobj = self::$_loaded[$a] ?? null;
         if (!$contentobj) {
-            $db = AppSingle::Db();
+            $db = SingleItem::Db();
             $sql = 'SELECT C.*,T.displayclass FROM '.CMS_DB_PREFIX.'content C LEFT JOIN '.
             CMS_DB_PREFIX.'content_types T on C.type=T.name WHERE (content_id=? OR content_alias=?) AND active!=0';
-            $row = $db->GetRow($sql, [ $a,$a ]);
+            $row = $db->getRow($sql, [$a, $a]);
             if ($row) {
                 if ($row['displayclass']) {
                     $classname = $row['displayclass'];
@@ -120,7 +123,7 @@ class PageLoader
                     self::$_loaded[$id] = $contentobj;
                     self::$_loaded[$row['content_alias']] = &$contentobj;
                 } else {
-                    throw new Exception('Unrecognized content type: '.$row['type'].' in '.__METHOD__);
+                    throw new RuntimeException('Unrecognized content type \''.$row['type'].'\' in '.__METHOD__);
                 }
             }
         }
@@ -137,6 +140,6 @@ class PageLoader
     public static function LoadContentType($obj)
     {
         //MAYBE use trait to cut down footprint
-        return AppSingle::ContentTypeOperations()->LoadContentType($obj);
+        return SingleItem::ContentTypeOperations()->LoadContentType($obj);
     }
 }

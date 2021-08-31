@@ -21,12 +21,12 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 function smarty_function_created_date($params, $template)
 {
 	$out = lang('unknown');
-	$content_obj = AppSingle::App()->get_content_object();
+	$content_obj = SingleItem::App()->get_content_object();
 	if( is_object($content_obj) ) {
 		$time = $content_obj->GetCreationDate();
 		if( $time > -1 ) {

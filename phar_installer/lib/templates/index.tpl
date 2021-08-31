@@ -1,8 +1,8 @@
-{block name='logic'}{/block}<!DOCTYPE html>
+<!DOCTYPE html>
 <!--[if IE 8]>     <html lang="en" class="lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
   <head>
-    {if isset($BASE_HREF)}<base href="{$BASE_HREF}"/>{/if}
+    {if isset($BASE_HREF)}<base href="{$BASE_HREF}" />{/if}
     <meta charset="utf-8">
     <meta name='HandheldFriendly' content='True' />
     <meta name='MobileOptimized' content='320' />
@@ -23,6 +23,7 @@
     <link rel="stylesheet" type="text/css" href="lib/styles/install.css" />
     <link rel="icon" type="image/ico" href="lib/images/favicon.ico" />
   </head>
+  {strip}{block name='logic'}{/block}{/strip}
   <body class="cmsms-ui">
     <div class="row header-section">
       <a href="http://www.cmsmadesimple.org" rel="external" target="_blank" class="cmsms-logo" title="CMS Made Simple&trade;">
@@ -32,7 +33,7 @@
     </div>
     <div class="flexrow installer-section">
       <div class="cell cols_4 installer-steps-section">
-        <div class="inner">
+        <div class="inside">
         {block name='aside_content'}
           {if isset($wizard_steps)}
           <aside class="installer-steps">
@@ -40,8 +41,8 @@
               {foreach $wizard_steps as $classname => $step}
               {strip}
               <li class="step {if $step.active} current-step{/if}{if isset($current_step) && $current_step > $step@iteration} done-step{/if}">
-                <h4 class="step-title">{$step.classname|tr}{if isset($current_step) && $current_step > $step@iteration} <i class="icon-check"></i>{/if}</h4>
-                <p class="step-description"><em>{'desc_'|cat:$step.classname|tr}</em></p>
+                <h4 class="step-title">{$step.classname|tr}</h4>
+                <p class="step-description">{'desc_'|cat:$step.classname|tr}</p>
               </li>
               {/strip}
               {/foreach}
@@ -52,14 +53,13 @@
         </div>
       </div>
       <main role="main" class="cell cols_8 installer-content-section">
-        <div class="inner">
+        <div class="inside">
           <h1>{if isset($title)}{$title}{else}{'install_upgrade'|tr}{/if}</h1>
-      {if isset($subtitle)}<h3>{$subtitle}</h3>{/if}
-
+          {if isset($subtitle)}<h3>{$subtitle}</h3>{/if}
 {*          {if isset($dir) && ($in_phar || $cur_step > 1)}
           <div class="message blue icon">
             <i class="icon-folder message-icon"></i>
-            <div class="content"><strong>{'prompt_dir'|tr}:</strong> <br />{$dir}</div>
+            <div class="content"><span class="heavy">{'prompt_dir'|tr}:</span><br />{$dir}</div>
           </div>
           {/if}
 *}
@@ -72,7 +72,6 @@
             {block name='contents'}WIZARD CONTENTS GO HERE{/block}
             {block name='content-footer'}{/block}
           </article>
-
         </div>
       </main>
     </div>
@@ -80,9 +79,9 @@
       <div class="footer-info">
         <a href="https://forum.cmsmadesimple.org" target="_blank">{'title_forum'|tr}</a> &bull; <a href="https://docs.cmsmadesimple.org" target="_blank">{'title_docs'|tr}</a> &bull; <a href="http://apidoc.cmsmadesimple.org" target="_blank">{'title_api_docs'|tr}</a>
       </div>
-      <small>
+      <span class="shrimp">
         Copyright &copy; 2004-{$smarty.now|date_format:'%Y'} <a href="http://www.cmsmadesimple.org">CMS Made Simple</a>&trade;. All rights reserved.{if isset($installer_version)}&nbsp;{'installer_ver'|tr}:&nbsp;{$installer_version}{/if}
-      </small>
+      </span>
     </footer>
   {block name='javascript'}
   <script>

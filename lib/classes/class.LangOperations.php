@@ -16,7 +16,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of that license along with CMS Made Simple. 
+You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
@@ -39,7 +39,6 @@ use function debug_to_log;
  *
  * @package CMS
  * @license GPL
- * @author Robert Campbell
  * @since 1.11
  */
 final class LangOperations
@@ -49,7 +48,7 @@ final class LangOperations
 	 */
 	const CMSMS_ADMIN_REALM = 'admin';
 
-	// static properties here >> StaticProperties class ?
+	// static properties here >> SingleItem property|ies ?
 	/**
 	 * In-memory cache of loaded translations, a 2-D array keyed by [locale][realm]
 	 * 'locale' is a recorded or inferred frontend|backend locale-identifier e.g. 'fr_FR'.
@@ -231,7 +230,7 @@ final class LangOperations
 
 		if( $realm == self::CMSMS_ADMIN_REALM &&
 			!(self::$_allow_nonadmin_lang ||
-			  AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_STYLESHEET | AppState::STATE_INSTALL) //?STATE_LOGIN_PAGE
+			  AppState::test_any(AppState::ADMIN_PAGE | AppState::STYLESHEET | AppState::INSTALL) //? LOGIN_PAGE
 			 ) ) {
 			trigger_error("Attempt to check for $key in disabled admin realm");
 			return FALSE;
@@ -268,7 +267,7 @@ final class LangOperations
 
 		if( $realm == self::CMSMS_ADMIN_REALM &&
 			!(self::$_allow_nonadmin_lang ||
-			  AppState::test_any_state(AppState::STATE_ADMIN_PAGE | AppState::STATE_STYLESHEET | AppState::STATE_INSTALL) //?STATE_LOGIN_PAGE
+			  AppState::test_any(AppState::ADMIN_PAGE | AppState::STYLESHEET | AppState::INSTALL) //? LOGIN_PAGE
 			 ) ) {
 			trigger_error("Attempt to get translation for $key from disabled admin realm");
 			return '';
@@ -278,7 +277,7 @@ final class LangOperations
 		self::_load_realm($realm, $locale);
 		if( !isset(self::$_langdata[$locale][$realm][$key]) ) {
 			// put mention into the admin log
-			if( !AppState::test_state(AppState::STATE_LOGIN_PAGE) ) debug_to_log('Languagestring: "' . $key . '"', 'Is missing from the translations file: ' . $realm);
+			if( !AppState::test(AppState::LOGIN_PAGE) ) debug_to_log('Languagestring: "' . $key . '"', 'Is missing from the translations file: ' . $realm);
 			return "-- Missing Language String: $key --";
 		}
 
@@ -363,7 +362,6 @@ final class LangOperations
 	 * Set the default realm for subsequent 'un-realmed' lang calls.
 	 *
 	 * @since 2.0
-	 * @author Robert Campbell
 	 * @param string $realm Optional realm name.  Default self::CMSMS_ADMIN_REALM.
 	 * @since 2.99 the realm may be namespaced e.g. CMSAsset\somespace or Modname\somespace
 	 * @return string the previous/replaced realm-name

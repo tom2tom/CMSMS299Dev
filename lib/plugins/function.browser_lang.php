@@ -84,7 +84,7 @@ function smarty_function_browser_lang($params, $template)
 function smarty_cms_about_function_browser_lang()
 {
 	echo <<<'EOS'
-<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Author: Robert Campbell</p>
 <p>For CMSMS 1.9</p>
 <p>Change History:</p>
 <ul><li>

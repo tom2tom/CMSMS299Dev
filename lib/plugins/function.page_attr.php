@@ -20,7 +20,7 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 
 function smarty_function_page_attr($params, $template)
 {
@@ -41,17 +41,17 @@ function smarty_function_page_attr($params, $template)
 		// gotta find it by id or alias
 		if( is_numeric($page) && $page > 0 ) {
 			// it's an id
-			$hm = AppSingle::App()->GetHierarchyManager();
+			$hm = SingleItem::App()->GetHierarchyManager();
 			$node = $hm->find_by_tag('id', $page);
 			if( $node ) $contentobj = $node->getContent(true, true, $inactive);
 		}
 		else { //if( !is_numeric($page) ) {
 			// this is quicker if using an alias
-			$contentobj = AppSingle::ContentOperations()->LoadContentFromAlias($page, !$inactive);
+			$contentobj = SingleItem::ContentOperations()->LoadContentFromAlias($page, !$inactive);
 		}
 	}
 	else {
-		$contentobj = AppSingle::App()->get_content_object();
+		$contentobj = SingleItem::App()->get_content_object();
 	}
 
 	$result = '';
@@ -116,7 +116,7 @@ function smarty_cms_about_function_page_attr()
 <p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
 <p>Change History:</p>
 <ul>
- <li>2015-06-02 - Added page parameter (calguy1000)</li>
+ <li>2015-06-02 - Added page parameter (Robert Campbell)</li>
 </ul>
 EOS;
 }

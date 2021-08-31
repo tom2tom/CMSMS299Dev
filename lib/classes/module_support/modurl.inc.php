@@ -20,8 +20,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\module_support;
 
-use CMSMS\AppSingle;
 use CMSMS\RequestParameters;
+use CMSMS\SingleItem;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -39,11 +39,12 @@ use function startswith;
 /**
  * Get an URL which when accessed will run a module action
  *
- * @param object $modinst The module-object
- * @param mixed $id		string|null The module action-id (e.g. 'cntnt01' indicates
- *   that the default content block of the destination frontend-page is to be targeted),
- *   a falsy value for an admin action will be translated to 'm1_'.
- * @param string $action	The module action name
+ * @param object $mod The module-object
+ * @param mixed $id	string|null GET|POST-submitted-parameters name-prefix
+ *   (e.g. 'cntnt01' indicates that the default content block of the destination
+ *   frontend-page is to be targeted), or a falsy value for an admin action
+ *   will be translated to 'm1_'.
+ * @param string $action	 The module action name
  * Optional parameters
  * @param mixed $returnid Optional page-id to return to after the action
  *   is done, numeric(int) or ''|null for admin. Default null.
@@ -58,17 +59,18 @@ use function startswith;
  * @param bool	$targetcontentonly Optional flag whether the target of the
  *   output link targets the content area of the destination page Default false
  * @param string $prettyurl Optional url part(s), or ':NOPRETTY:' Default ''
+ * @param bool $relative since 2.99 Optional flag whether to omit the site-root
+ *   from the created url. Default false
  * @param int    $format since 2.99 Optional indicator for how to format the URL
- *  0 = (default) rawurlencoded-where-necessary parameter keys and values
- *      other than the value for key 'mact', '&amp;' for parameter separators, which
- *      is appropriate if the query does or might include verbatim 'entitized' content
- *  1 = proper: as for 0, but also encode the 'mact' value
- *  2 = as for 1, except '&' for parameter separators - e.g. for use in get-URL, js
+ *  0 = entitized ' &<>"\'!$' chars in parameter keys and values,
+ *   '&amp;' for parameter separators except 'mact' (clunky, back-compatible)
+ *  1 = proper: rawurlencoded keys and values, '&amp;' for parameter separators
+ *  2 = best for most contexts: as for 1, except '&' for parameter separators (default)
  *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
  * @return string Ready-to-use or corresponding displayable URL.
  */
 function CreateActionUrl(
-	$modinst,
+	$mod,
 	$id,
 	string $action,
 	$returnid = null,
@@ -76,7 +78,8 @@ function CreateActionUrl(
 	bool $inline = false,
 	bool $targetcontentonly = false,
 	string $prettyurl = '',
-	int $format = 0
+    bool $relative = false,
+	int $format = 2
 	) : string
 {
 	if ($id) {
@@ -95,17 +98,17 @@ function CreateActionUrl(
 		return '<!-- '.__METHOD__.' error : "action" parameter is missing -->';
 	}
 
-	$base_url = CMS_ROOT_URL;
-	$config = AppSingle::Config();
+	$base_url = ($relative) ? '' : CMS_ROOT_URL.'/';
+	$config = SingleItem::Config();
 
 	if (!$prettyurl && $config['url_rewriting'] != 'none') {
 		// attempt to get a pretty url from the module
-		$prettyurl = $modinst->get_pretty_url($id, $action, $returnid, $params, $inline);
+		$prettyurl = $mod->get_pretty_url($id, $action, $returnid, $params, $inline);
 	}
 	if ($prettyurl && $prettyurl != ':NOPRETTY:' && $config['url_rewriting'] == 'mod_rewrite') {
-		$text = $base_url.'/'.$prettyurl.$config['page_extension'];
+		$text = $base_url.$prettyurl.$config['page_extension'];
 	} elseif ($prettyurl && $prettyurl != ':NOPRETTY:' && $config['url_rewriting'] == 'internal') {
-		$text = $base_url.'/index.php/'.$prettyurl.$config['page_extension'];
+		$text = $base_url.'index.php/'.$prettyurl.$config['page_extension'];
 	} else {
 		$frontend = is_numeric($returnid);
 
@@ -113,16 +116,16 @@ function CreateActionUrl(
 			$id = 'cntnt01';
 		}
 		$parms = [
-			'module' => $modinst->GetName(),
+			'module' => $mod->GetName(),
 			'id' => $id,
 			'action' => $action,
 			'inline' => ($inline ? 1 : 0)
 		];
 
 		if ($frontend) {
-			$text = $base_url . '/index.php';
+			$text = $base_url.'index.php';
 		} else {
-			$text = $base_url . '/lib/moduleinterface.php';
+			$text = $base_url.'lib/moduleinterface.php';
 			if (isset($_SESSION[CMS_USER_KEY])) {
 				$parms[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
 			}
@@ -155,28 +158,30 @@ function CreateActionUrl(
 /**
  * Get an URL which when accessed will run a (non-displayed) module-job
  *
- * @param object $modinst The module-object
+ * @param object $mod The module-object UNUSED
  * @param string $action The module action name
- * Optional parameters
+ * Optional parameters:
  * @param array $params Parameters to include in the URL. Default [].
  *   Since 2.99, parameter value(s) may be non-scalar: 1-D arrays processed directly,
  *   other things json-encoded if possible.
  * @param bool $onetime Whether the URL (specifically, its security-parameters) is for one-time use. Default false.
+ * @param bool $relative since 2.99 Optional flag whether to omit the site-root
+ *   from the created url. Default false
  * @param int  $format Indicator for how to format the URL
- *  0 = (default) rawurlencoded-where-necessary parameter keys and values
- *    other than the value for key 'mact', '&amp;' for parameter separators
- *    which is appropriate if the query does or might include verbatim 'entitized' content
- *  1 = proper: as for 0, but also encode the 'mact' value
- *  2 = raw: as for 1, except '&' for parameter separators - e.g. for use in js
+ *  0 = entitized ' &<>"\'!$' chars in parameter keys and values, '&amp;' for
+ *   parameter separators other than 'mact' (clunky, back-compatible)
+ *  1 = proper: rawurlencoded keys and values, '&amp;' for parameter separators
+ *  2 = best for most contexts: as for 1, except '&' for parameter separators (default)
  *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
  * @return string Ready-to-use or corresponding displayable URL.
  */
 function CreateJobUrl(
-	$modinst,
+	$mod,
 	string $action,
 	array $params = [],
 	bool $onetime = false,
-	int $format = 0
+    bool $relative = false,
+	int $format = 2
 	) : string
 {
 	$action = trim($action); //sanitize not needed, breaks back-compatibility
@@ -185,7 +190,8 @@ function CreateJobUrl(
 		return '<!-- '.__METHOD__.' error : "action" parameter is missing -->';
 	}
 
-	$text = CMS_ROOT_URL . '/lib/moduleinterface.php?';
+	$base_url = ($relative) ? '' : CMS_ROOT_URL.'/';
+	$text = $base_url.'lib/moduleinterface.php?';
 	$text .= RequestParameters::create_job_params($params, $onetime, $format);
 
 	if ($format == 3) {
@@ -197,34 +203,37 @@ function CreateJobUrl(
 /**
  * Get an URL which when accessed will display a site page
  *
- * @param object $modinst The module-object
- * @param mixed $id	string|null The module action-id (e.g. 'cntnt01' indicates that
- *   the default content block of the destination frontend-page is to be targeted),
- *   a falsy value for an admin page will be translated to 'm1_'.
+ * @param object $mod The module-object
+ * @param mixed $id	string|null GET|POST-submitted-parameters name-prefix
+ *   (e.g. 'cntnt01' indicates that the default content block of the destination
+ *   frontend-page is to be targeted), or a falsy value for an admin action
+ *   will be translated to 'm1_'.
  * @param mixed $returnid The integer page-id to return to after the action
  *   is done, or ''|null for admin
  * @param array $params	  Optional array of parameters to include in the URL.
  *   Since 2.99, parameter value(s) may be non-scalar: 1-D arrays processed directly,
  *   other things json-encoded if possible.
+ * @param bool $relative since 2.99 Optional flag whether to omit the site-root
+ *   from the created url. Default false
  * @param int   $format since 2.99 Optional indicator for how to format the url
- *  0 = (default): rawurlencoded parameter keys and values, '&amp;' for parameter separators
- *     which is appropriate if the query does or might include verbatim 'entitized' content
- *  1 = treated same as 0 (for format-enum consistency)
- *  2 = as for 0, except '&' for parameter separators - e.g. for use in get-URL, js
+ *  0 = entitized ' &<>"\'!$' chars in parameter keys and values, '&amp;' for
+ *    parameter separators except 'mact' (clunky, back-compatible)
+ *  1 = rawurlencoded keys and values, '&amp;' for parameter separators
+ *  2 = best for most contexts: as for 1, except '&' for parameter separators (default)
  *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
  * @return string
  */
 function CreatePageUrl(
-	$modinst,
+	$mod,
  	$id,
 	$returnid,
 	array $params = [],
-	int $format = 0
+    bool $relative = false,
+	int $format = 2
 	) : string
 {
 	$text = '';
-	$gCms = AppSingle::App();
-	$hm = $gCms->GetHierarchyManager();
+	$hm = SingleItem::App()->GetHierarchyManager(); // TODO SingleItem::get('HierarchyManager') after that's set up
 	$node = $hm->find_by_tag('id',$returnid);
 	if ($node) {
 		$contentobj = $node->getContent();
@@ -242,11 +251,11 @@ function CreatePageUrl(
 				}
 				$params['id'] = $id;
 
-				$text = $pageurl;
-				$config = $gCms->GetConfig();
+				$text = ($relative) ? str_replace(CMS_ROOT_URL.'/', '', $pageurl) : $pageurl;
+				$config = SingleItem::Config();
 				if ($config['url_rewriting'] != 'none') {
 					// attempt to get a pretty url from the module TODO support empty action-name
-					$prettyurl = $modinst->get_pretty_url($id, '', $returnid, $params, false);
+					$prettyurl = $mod->get_pretty_url($id, '', $returnid, $params, false);
 					if ($prettyurl && $prettyurl != ':NOPRETTY:') {
 						$text .= '/'.$prettyurl;
 						return $text;

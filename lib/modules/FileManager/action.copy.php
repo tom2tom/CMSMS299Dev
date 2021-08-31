@@ -1,7 +1,7 @@
 <?php
 use FileManager\Utils;
 
-if (!isset($gCms)) exit;
+//if (some worthy test fails) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 
 if (isset($params['cancel'])) {
@@ -10,7 +10,7 @@ if (isset($params['cancel'])) {
 
 $sel = $params['sel'];
 if( !is_array($sel) ) $sel = json_decode(rawurldecode($sel),true);
-if (count($sel)==0) {
+if (!$sel) {
   $params['fmerror']='nofilesselected';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
@@ -22,7 +22,7 @@ foreach( $sel as &$one ) {
 $config=cmsms()->GetConfig();
 $cwd = Utils::get_cwd();
 $dirlist = Utils::get_dirlist();
-if( !count($dirlist) ) {
+if( !$dirlist ) {
   $params['fmerror']='nodestinationdirs';
   $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
@@ -37,77 +37,77 @@ if( isset($params['copy']) ) {
   $destdir = trim($params['destdir']);
   if( $destdir == $cwd && count($sel) > 1 ) $errors[] = $this->Lang('movedestdirsame');
 
-  if( count($errors) == 0 ) {
+  if( !$errors ) {
     $destloc = cms_join_path($basedir,$destdir);
     if( !is_dir($destloc) || ! is_writable($destloc) ) $errors[] = $this->Lang('invalidmovedir');
   }
 
-  if( count($errors) == 0 ) {
+  if( !$errors ) {
     if( isset($params['destname']) && count($sel) == 1 ) {
       $destname = trim($params['destname']);
       if( $destname == '' ) $errors[] = $this->Lang('invaliddestname');
     }
 
-    if( count($errors) == 0 ) {
+    if( !$errors ) {
       foreach( $sel as $file ) {
-	$src = cms_join_path(Utils::get_full_cwd(),$file);
-	$dest = cms_join_path($basedir,$destdir,$file);
-	if( $destname ) $dest = cms_join_path($basedir,$destdir,$destname);
+        $src = cms_join_path(Utils::get_full_cwd(),$file);
+        $dest = cms_join_path($basedir,$destdir,$file);
+        if( $destname ) $dest = cms_join_path($basedir,$destdir,$destname);
 
-	if( !file_exists($src) ) {
-	  $errors[] = $this->Lang('filenotfound')." $file";
-	  continue;
-	}
-	if( !is_readable($src) ) {
-	  $errors[] = $this->Lang('insufficientpermission',$file);
-	  continue;
-	}
-	if( file_exists($dest) ) {
-	  $errors[] = $this->Lang('fileexistsdest',basename($dest));
-	  continue;
-	}
+        if( !file_exists($src) ) {
+          $errors[] = $this->Lang('filenotfound')." $file";
+          continue;
+        }
+        if( !is_readable($src) ) {
+          $errors[] = $this->Lang('insufficientpermission',$file);
+          continue;
+        }
+        if( file_exists($dest) ) {
+          $errors[] = $this->Lang('fileexistsdest',basename($dest));
+          continue;
+        }
 
-	$thumb = '';
-	$src_thumb = '';
-	$dest_thumb = '';
-	if( Utils::is_image_file($file) ) {
-	  $tmp = 'thumb_'.$file;
-	  $src_thumb = cms_join_path($basedir,$cwd,$tmp);
-	  $dest_thumb = cms_join_path($basedir,$destdir,$tmp);
-	  if( $destname ) $dest_thumb = cms_join_path($basedir,$destdir,'thumb_'.$destname);
+        $thumb = '';
+        $src_thumb = '';
+        $dest_thumb = '';
+        if( Utils::is_image_file($file) ) {
+          $tmp = 'thumb_'.$file;
+          $src_thumb = cms_join_path($basedir,$cwd,$tmp);
+          $dest_thumb = cms_join_path($basedir,$destdir,$tmp);
+          if( $destname ) $dest_thumb = cms_join_path($basedir,$destdir,'thumb_'.$destname);
 
-	  if( file_exists($src_thumb) ) {
-	    $thumb = $tmp;
-	    // have a thumbnail
-	    if( !is_readable($src_thumb) ) {
-	      $errors[] = $this->Lang('insufficientpermission',$thumb);
-	      continue;
-	    }
-	    if( file_exists($dest_thumb) ) {
-	      $errors[] = $this->Lang('fileexistsdest',$thumb);
-	      continue;
-	    }
-	  }
-	}
+          if( file_exists($src_thumb) ) {
+            $thumb = $tmp;
+            // have a thumbnail
+            if( !is_readable($src_thumb) ) {
+              $errors[] = $this->Lang('insufficientpermission',$thumb);
+              continue;
+            }
+            if( file_exists($dest_thumb) ) {
+              $errors[] = $this->Lang('fileexistsdest',$thumb);
+              continue;
+            }
+          }
+        }
 
-	// here we can move the file/dir
-	$res = copy($src,$dest);
-	if( !$res ) {
-	  $errors[] = $this->Lang('copyfailed',$file);
-	  continue;
-	}
-	if( $thumb ) {
-	  $res = copy($src_thumb,$dest_thumb);
-	  if( !$res ) {
-	    $errors[] = $this->Lang('copyfailed',$thumb);
-	    continue;
-	  }
-	}
+        // here we can move the file/dir
+        $res = copy($src,$dest);
+        if( !$res ) {
+          $errors[] = $this->Lang('copyfailed',$file);
+          continue;
+        }
+        if( $thumb ) {
+          $res = copy($src_thumb,$dest_thumb);
+          if( !$res ) {
+            $errors[] = $this->Lang('copyfailed',$thumb);
+            continue;
+          }
+        }
       } // foreach
     } // no errors
   } // no errors
 
-  if( count($errors) == 0 ) {
+  if( !$errors ) {
     $paramsnofiles['fmmessage']='copysuccess'; //strips the file data
     $this->Redirect($id,'defaultadmin',$returnid,$paramsnofiles);
   }
@@ -126,4 +126,3 @@ $tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,'p
 //see DoActionBase() ->assign('mod',$this);
 
 $tpl->display();
-return '';

@@ -22,11 +22,10 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\DataException;
 use CMSMS\Lock;
 use CMSMS\NoLockException;
-use CMSMS\SqlErrorException;
+use CMSMS\SingleItem;
+use CMSMS\SQLException;
 use LogicException;
 use const CMS_DB_PREFIX;
 use function cms_notice;
@@ -59,7 +58,7 @@ final class LockOperations
      */
     public static function load(string $type, int $oid, $userid = null)
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
         $parms = [$type,$oid];
         if( $userid > 0 ) {
@@ -67,7 +66,7 @@ final class LockOperations
             $parms[] = (int)$userid;
         }
         $query .= ' ORDER BY create_date DESC LIMIT 1';
-        $row = $db->GetRow($query,$parms); // too bad if error created multiple
+        $row = $db->getRow($query,$parms); // too bad if error created multiple
         if( $row ) {
             return new Lock($row);
         }
@@ -87,7 +86,7 @@ final class LockOperations
      */
     public static function load_by_id(int $lock_id, string $type, int $oid, $userid = null)
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id=? AND type=? AND oid=?';
         $parms = [$lock_id,$type,$oid];
         if( $userid > 0 ) {
@@ -95,7 +94,7 @@ final class LockOperations
             $parms[] = (int)$userid;
         }
         $query .= ' ORDER BY create_date DESC LIMIT 1';
-        $row = $db->GetRow($query,$parms);
+        $row = $db->getRow($query,$parms);
         if( $row ) {
             return new Lock($row);
         }
@@ -146,10 +145,10 @@ final class LockOperations
      */
     public static function is_locked(string $type, int $oid) : int
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'SELECT id FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
         for( $i = 0; $i < 4; $i++ ) {
-            $dbr = $db->GetOne($query,[$type,$oid]);
+            $dbr = $db->getOne($query,[$type,$oid]);
             if( $dbr ) {
                 return (int)$dbr;
             }
@@ -171,11 +170,11 @@ final class LockOperations
     public static function get_locks(string $type = '', bool $by_state = false) : array
     {
         $locks = [];
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         if( $by_state ) {
             $query = 'SELECT type,oid AS object_id,uid AS user_id,expires AS status FROM '.CMS_DB_PREFIX.self::LOCK_TABLE;
             if( $type ) $query .= ' WHERE type = ?';
-            $dbr = $db->GetArray($query,[$type]);
+            $dbr = $db->getArray($query,[$type]);
             if( $dbr ) {
                 $now = time();
                 foreach( $dbr as $row ) {
@@ -188,7 +187,7 @@ final class LockOperations
         else {
             $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE;
             if( $type ) $query .= ' WHERE type = ?';
-            $dbr = $db->GetArray($query,[$type]);
+            $dbr = $db->getArray($query,[$type]);
             if( $dbr ) {
                 foreach( $dbr as $row ) {
                     $obj = new Lock($row);
@@ -211,15 +210,15 @@ final class LockOperations
      */
     public static function is_stealable(string $type, int $oid) : bool
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'SELECT uid,expires FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
-        $row = $db->GetRow($query,[$type,$oid]);
+        $row = $db->getRow($query,[$type,$oid]);
         if( $row ) {
             if( $row['expires'] <= time() ) { return true; }
             $userid = get_userid(false);
             return ($row['uid'] == $userid
               || $userid == 1
-              || AppSingle::UserOperations()->UserInGroup($userid, 1));
+              || SingleItem::UserOperations()->UserInGroup($userid, 1));
         }
         return false;
 //        throw new NoLockException('CMSEX_L005','',[$type,$userid,$userid]); TODO params
@@ -231,7 +230,7 @@ final class LockOperations
      *
      * @param mixed $a Lock object or assoc. array of lock-properties
      * @return int id of processed lock
-     * @throws LogicException or SqlErrorException
+     * @throws LogicException or SQLException
      */
     public static function save($a) : int
     {
@@ -256,26 +255,26 @@ final class LockOperations
             $props['expires'] = time() + $props['lifetime'] * 60;
         }
 
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         if( empty($props['id']) ) {
             // insert
             $query = 'INSERT INTO '.CMS_DB_PREFIX.self::LOCK_TABLE.'
 (type,oid,uid,expires)
 VALUES (?,?,?,?)';
-            $dbr = $db->Execute($query,
+            $dbr = $db->execute($query,
                 [$props['type'], $props['oid'], $props['uid'], $props['expires']]);
             $res = ($dbr!= false);
             $props['id'] = $db->Insert_ID();
         } else {
             // update
             $query = 'UPDATE '.CMS_DB_PREFIX.self::LOCK_TABLE.' SET expires=? WHERE id=?';
-            $dbr = $db->Execute($query, [$props['expires'], $props['id']]);
+            $dbr = $db->execute($query, [$props['expires'], $props['id']]);
             $res = $db->affected_rows() > 0;
         }
         if( $res ) {
             return $props['id'];
         }
-        throw new SqlErrorException('CMSEX_SQL001', null, $db->ErrorMsg());
+        throw new SQLException('CMSEX_SQL001', null, $db->errorMsg());
     }
 
     /**
@@ -284,7 +283,7 @@ VALUES (?,?,?,?)';
      *
      * @param mixed $a Lock object or assoc. array of lock-properties
      * @return bool indicating success
-     * @throws LogicException or SqlErrorException
+     * @throws LogicException or SQLException
      */
     public static function delete_real($a) : bool
     {
@@ -316,9 +315,9 @@ VALUES (?,?,?,?)';
                 throw new LockOwnerException('CMSEX_L001');
             }
         }
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'DELETE FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id = ?';
-        $dbr = $db->Execute($query, [$props['id']]);
+        $dbr = $db->execute($query, [$props['id']]);
         return $dbr != false;
     }
 
@@ -345,14 +344,14 @@ VALUES (?,?,?,?)';
     public static function delete_expired($limit = 0, string $type = '')
     {
         if( !$limit ) { $limit == time(); }
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $query = 'DELETE FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE expires < ?';
         $parms = [$limit];
         if( $type ) {
             $query .= ' AND type = ?';
             $parms[] = trim($type);
         }
-        $db->Execute($query,$parms);
+        $db->execute($query,$parms);
     }
 
     /**
@@ -362,7 +361,7 @@ VALUES (?,?,?,?)';
      */
     public static function delete_for_user(string $type = '')
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         $userid = get_userid(false);
         $parms = [$userid];
         $query = 'DELETE FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE uid = ?';
@@ -370,7 +369,7 @@ VALUES (?,?,?,?)';
             $query .= ' AND type = ?';
             $parms[] = trim($type);
         }
-        $db->Execute($query,$parms);
+        $db->execute($query,$parms);
     }
 
     /**
@@ -383,7 +382,7 @@ VALUES (?,?,?,?)';
      */
     public static function delete_for_nameduser (int $userid, string $type = '', int $oid = 0)
     {
-        $db = AppSingle::Db();
+        $db = SingleItem::Db();
         if( !$db ) return; //during shutdown, connection gone ?
         $parms = [$userid];
         $query = 'DELETE FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE uid = ?';
@@ -395,6 +394,6 @@ VALUES (?,?,?,?)';
                 $parms[] = (int)$oid;
             }
         }
-        $db->Execute($query,$parms);
+        $db->execute($query,$parms);
     }
 } // class

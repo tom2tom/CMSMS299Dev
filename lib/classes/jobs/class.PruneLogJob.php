@@ -32,7 +32,7 @@ class PruneLogJob extends CronJob
     public function __construct()
     {
         parent::__construct();
-        $this->name = 'Core\\PruneLog';
+        $this->name = 'Core\PruneLog';
         $this->frequency = RecurType::RECUR_DAILY;
     }
 

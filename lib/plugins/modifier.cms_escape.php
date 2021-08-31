@@ -33,7 +33,7 @@ If not, see <https://www.gnu.org/licenses/>.
  * @param html|htmlall|htmltiny|url|urlpathinfo|quotes|hex|hexentity|decentity|javascript|nonstd|smartyphp
  * @return string
  *
- * calguy1000: change default charset to UTF-8
+ * Robert Campbell: change default charset to UTF-8
  */
 
 /*
@@ -49,7 +49,7 @@ function escape_one($string, $_type)
 
 namespace {
 */
-use CMSMS\AppSingle;
+use CMSMS\SingleItem;
 use function CMSMS\entitize;
 use function CMSMS\specialize;
 
@@ -142,7 +142,7 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = '')
 			return str_replace('<', '&lt;', $string);
 
 		case 'smartyphp':
-			$smarty = AppSingle::Smarty();
+			$smarty = SingleItem::Smarty();
 			$ldl = $smarty->left_delimiter;
 			$rdl = $smarty->right_delimiter;
 			$lsep = '';

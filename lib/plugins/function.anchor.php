@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 function smarty_function_anchor($params, $template)
 {
-	$content = CMSMS\AppSingle::App()->get_content_object();
+	$content = CMSMS\SingleItem::App()->get_content_object();
 	if( !is_object($content) ) return '';
 
 	$class = '';

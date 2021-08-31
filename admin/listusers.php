@@ -20,19 +20,16 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-//use CMSMS\internal\LoginOperations;
 use CMSMS\AppParams;
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
+use CMSMS\SingleItem;
 use CMSMS\UserParams;
 use function CMSMS\de_specialize;
 use function CMSMS\sanitizeVal;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -43,14 +40,14 @@ if (!check_permission($userid, 'Manage Users')) {
 }
 
 //--------- Variables ---------
-$themeObject = AppSingle::Theme();
-$db = AppSingle::Db();
+$themeObject = SingleItem::Theme();
+$db = SingleItem::Db();
 $templateuser = AppParams::get('template_userid');
 $page = 1;
 $limit = 100;
 $message = '';
 $error = '';
-$userops = AppSingle::UserOperations();
+$userops = SingleItem::UserOperations();
 $selfurl = basename(__FILE__);
 $extras = get_secure_param_array();
 $urlext = get_secure_param();
@@ -67,7 +64,7 @@ if (isset($_GET['switchuser'])) {
         } elseif (!$to_user->active) {
             $themeObject->RecordNotice('error', lang('userdisabled'));
         } else {
-            AppSingle::LoginOperations()->set_effective_user($to_user);
+            SingleItem::LoginOperations()->set_effective_user($to_user);
             redirect('menu.php'.$urlext.'&section=usersgroups'); // TODO bad section hardcode
         }
     } else {
@@ -88,7 +85,7 @@ if (isset($_GET['switchuser'])) {
 
             if ($result) {
                 // put mention into the admin log
-                audit($userid, 'Admin Username: ' . $thisuser->username, 'Edited');
+                audit($userid, 'Admin User ' . $thisuser->username, 'Edited');
                 Events::SendEvent('Core', 'EditUserPost', ['user' => &$thisuser]);
             } else {
                 $themeObject->RecordNotice('error', lang('errorupdatinguser'));
@@ -125,7 +122,7 @@ if (isset($_GET['switchuser'])) {
                 Events::SendEvent('Core', 'DeleteUserPre', ['user'=>&$oneuser]);
                 $oneuser->Delete();
                 Events::SendEvent('Core', 'DeleteUserPost', ['user'=>&$oneuser]);
-                audit($uid, 'Admin Username: ' . $oneuser->username, 'Deleted');
+                audit($uid, 'Admin User ' . $oneuser->username, 'Deleted');
                 $ndeleted++;
             }
             if ($ndeleted > 0) {
@@ -149,7 +146,7 @@ if (isset($_GET['switchuser'])) {
                 Events::SendEvent('Core', 'EditUserPre', ['user'=>&$oneuser]);
                 UserParams::remove_for_user($uid);
                 Events::SendEvent('Core', 'EditUserPost', ['user'=>&$oneuser]);
-                audit($uid, 'Admin Username: ' . $oneuser->username, 'Settings cleared');
+                audit($uid, 'Admin User ' . $oneuser->username, 'Settings cleared');
                 $nusers++;
             }
             if ($nusers > 0) {
@@ -184,7 +181,7 @@ if (isset($_GET['switchuser'])) {
                                 UserParams::set_for_user($uid, $k, $v);
                             }
                             Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$oneuser ]);
-                            audit($uid, 'Admin Username: ' . $oneuser->username, 'Settings cleared');
+                            audit($uid, 'Admin User ' . $oneuser->username, 'Settings cleared');
                             $nusers++;
                         }
                     }
@@ -217,7 +214,7 @@ if (isset($_GET['switchuser'])) {
                     $oneuser->active = 0;
                     $oneuser->save();
                     Events::SendEvent('Core', 'EditUserPost', ['user'=>&$oneuser]);
-                    audit($uid, 'Admin Username: ' . $oneuser->username, 'Disabled');
+                    audit($uid, 'Admin User ' . $oneuser->username, 'Disabled');
                     $nusers++;
                 }
             }
@@ -248,7 +245,7 @@ if (isset($_GET['switchuser'])) {
                     $oneuser->active = 1;
                     $oneuser->save();
                     Events::SendEvent('Core', 'EditUserPost', ['user'=>&$oneuser]);
-                    audit($uid, 'Admin Username: ' . $oneuser->username, 'Enabled');
+                    audit($uid, 'Admin User ' . $oneuser->username, 'Enabled');
                     $nusers++;
                 }
             }
@@ -361,7 +358,7 @@ $icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('yes'), '',
 $iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('no'), '', '', 'systemicon');
 $iconrun = $themeObject->DisplayImage('icons/system/run.gif', lang('switchuser'), '', '', 'systemicon');
 
-$smarty = AppSingle::Smarty();
+$smarty = SingleItem::Smarty();
 $smarty->assign([
     'addurl' => 'adduser.php',
     'editurl' => 'edituser.php',
@@ -381,7 +378,6 @@ $smarty->assign([
 ]);
 
 $content = $smarty->fetch('listusers.tpl');
-$sep = DIRECTORY_SEPARATOR;
-require ".{$sep}header.php";
+require ".{$dsep}header.php";
 echo $content;
-require ".{$sep}footer.php";
+require ".{$dsep}footer.php";

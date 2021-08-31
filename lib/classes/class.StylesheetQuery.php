@@ -21,9 +21,9 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS;
 
-use CMSMS\AppSingle;
 use CMSMS\DbQueryBase;
-use CMSMS\SQLErrorException;
+use CMSMS\SingleItem;
+use CMSMS\SQLException;
 use CMSMS\Stylesheet;
 use CMSMS\StylesheetOperations;
 use RuntimeException;
@@ -35,9 +35,11 @@ use const CMS_DB_PREFIX;
  * Class to perform advanced database queries on layout stylesheets
  * @see CMSMS\DbQueryBase
  * @property int $id The stylesheet id.  This will result in at most 1 result being returned.
- * @property string $name A stylesheet name to filter upon.  If a partial name is provided, it is assumed to be a prefix.
+ * @property string $name A stylesheet name to filter upon.  If a
+ *  partial name is provided, it is assumed to be a prefix.
  * @property int $design A design id to filter upon.
- * @property string $sortby Possible values are id,item_order,design,name  Default is to sort by name.
+ * @property string $sortby Possible values are
+ *  id,item_order,design,name.  Default is to sort by name.
  * @property string $sortorder Possible values are ASC, DESC.  Default is ASC.
  */
 class StylesheetQuery extends DbQueryBase
@@ -47,7 +49,7 @@ class StylesheetQuery extends DbQueryBase
 	 *
 	 * @return void
 	 * @throws LogicException
-	 * @throws SQLErrorException
+	 * @throws SQLException
 	 */
 	public function execute()
 	{
@@ -79,11 +81,15 @@ class StylesheetQuery extends DbQueryBase
 		$sortby = 'S.name';
 		$this->_limit = 1000;
 		$this->_offset = 0;
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$where = [];
 		foreach( $this->_args as $key => $val ) {
 			if( empty($val) ) continue;
-			if( is_numeric($key) && $val[1] == ':' ) list($key,$val) = explode(':',$val,2);
+			if( is_numeric($key) && $val[1] == ':' ) {
+				list($key,$val) = explode(':',$val,2);
+			} else {
+ 				$key = trim($key, ' :');
+			}
 			switch( strtolower($key) ) {
 			case 'i':
 			case 'id':
@@ -96,6 +102,21 @@ class StylesheetQuery extends DbQueryBase
 				$val = trim($val);
 				if( strpos($val,'%') === FALSE ) $val .= '%';
 				$where[] = 'S.name LIKE '.$db->qStr($val);
+				break;
+
+			case 'o':
+			case 'originator':
+				$val = trim($val);
+				if ($val[0] !== '!') {
+					$op = '=';
+				} else {
+					$op = '!=';
+					$val = ltrim($val, ' !');
+				}
+				if (strcasecmp($val, 'core') == 0) {
+					$val = '__CORE__';
+				}
+				$where[] = "S.originator $op ".$db->qStr($val);
 				break;
 
 			case 's': // stylesheet id's and/or stylesheet-group id's
@@ -113,7 +134,7 @@ class StylesheetQuery extends DbQueryBase
 				}
 				if( $grps ) {
 					$q2 = 'SELECT css_id FROM '.CMS_DB_PREFIX.'layout_cssgroup_members WHERE group_id IN('.implode(',',$grps).') ORDER BY item_order';
-					$extras = $db->GetCol($q2);
+					$extras = $db->getCol($q2);
 					if( $extras ) {
 						$all = array_unique(array_merge($extras,$all), SORT_NUMERIC);
 						$sortby = $sortorder = '';
@@ -186,9 +207,9 @@ class StylesheetQuery extends DbQueryBase
 
 		$this->_rs = $db->SelectLimit($query,$this->_limit,$this->_offset);
 		if( !$this->_rs || $this->_rs->errno !== 0 ) {
-			throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+			throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
-		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()');
+		$this->_totalmatchingrows = $db->getOne('SELECT FOUND_ROWS()');
 	}
 
 	/**

@@ -21,8 +21,8 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 namespace CMSMS\module_support;
 
-use CMSMS\AppSingle;
 use CMSMS\RequestParameters;
+use CMSMS\SingleItem;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -40,10 +40,11 @@ use function redirect as doredirect;
  */
 /**
  *
- * @param type $pageurl PHP script to redirect to
- * @param array $params URL parameters
+ * @param CMSModule $mod UNUSED
+ * @param string $pageurl PHP script to redirect to
+ * @param array $params URL parameters Default []
  */
-function RedirectToAdmin($modinst, $pageurl, array $params = [])
+function RedirectToAdmin($mod, $pageurl, array $params = [])
 {
 	$url = $pageurl.get_secure_param($pageurl);
 	if ($params) {
@@ -60,13 +61,14 @@ function RedirectToAdmin($modinst, $pageurl, array $params = [])
 
 /**
  *
+ * @param CMSModule $mod
  * @param string $id
- * @param type $action
- * @param mixed $returnid
- * @param array $params
- * @param bool $inline
+ * @param string $action
+ * @param mixed $returnid Default ''
+ * @param array $params Default []
+ * @param bool $inline Default false
  */
-function Redirect($modinst, $id, $action, $returnid = '', array $params = [], bool $inline = false)
+function Redirect($mod, $id, $action, $returnid = '', array $params = [], bool $inline = false)
 {
 	// Suggestion by Calguy to make sure 2 actions don't get sent
 	if (isset($params['action'])) {
@@ -83,7 +85,7 @@ function Redirect($modinst, $id, $action, $returnid = '', array $params = [], bo
 	}
 
 	if ($returnid != '') {
-		$contentops = AppSingle::ContentOperations();
+		$contentops = SingleItem::ContentOperations();
 		$content = $contentops->LoadContentFromId($returnid); //both types of Content class support GetURL()
 		if (!is_object($content)) {
 			// no destination content object
@@ -102,7 +104,7 @@ function Redirect($modinst, $id, $action, $returnid = '', array $params = [], bo
 		$text = CMS_ROOT_URL.'/lib/moduleinterface.php?';
 	}
 
-	$name = $modinst->GetName();
+	$name = $mod->GetName();
 	$text .= 'mact='.$name.','.$id.','.$action.','.($inline ? 1 : 0);
 	if ($returnid) {
 		$text .= '&'.$id.'returnid='.$returnid; // nothing encodish here

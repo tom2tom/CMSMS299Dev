@@ -20,18 +20,16 @@ You should have received a copy of that license along with CMS Made Simple.
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AppSingle;
-use CMSMS\AppState;
 use CMSMS\Error403Exception;
 use CMSMS\Events;
+use CMSMS\SingleItem;
 
 if (!isset($_GET['group_id'])) {
     return;
 }
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.AppState.php';
-$CMS_APP_STATE = AppState::STATE_ADMIN_PAGE; // in scope for inclusion, to set initial state
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$dsep = DIRECTORY_SEPARATOR;
+require ".{$dsep}admininit.php";
 
 check_login();
 
@@ -42,7 +40,7 @@ if (!check_permission($userid, 'Manage Groups')) {
     throw new Error403Exception(lang('permissiondenied')); // OR display error.tpl ?
 }
 
-$themeObject = AppSingle::Theme();
+$themeObject = SingleItem::Theme();
 $urlext = get_secure_param();
 
 $group_id = (int) $_GET['group_id'];
@@ -52,14 +50,14 @@ if ($group_id == 1) {
     redirect('listgroups.php'.$urlext);
 }
 
-$userops = AppSingle::UserOperations();
+$userops = SingleItem::UserOperations();
 if ($userops->UserInGroup($userid,$group_id)) {
     // can't delete a group to which the current user belongs
     $themeObject->ParkNotice('error', lang('cantremove')); //TODO
     redirect('listgroups.php'.$urlext);
 }
 
-$groupops = AppSingle::GroupOperations();
+$groupops = SingleItem::GroupOperations();
 $groupobj = $groupops->LoadGroupByID($group_id);
 
 if ($groupobj) {
@@ -71,7 +69,7 @@ if ($groupobj) {
     if ($groupobj->Delete()) {
         Events::SendEvent('Core', 'DeleteGroupPost', [ 'group'=>&$groupobj ] );
         // put mention into the admin log
-        audit($group_id, 'Admin User Group: '.$group_name, 'Deleted');
+        audit($group_id, 'Admin Users Group '.$group_name, 'Deleted');
     } else {
         $themeObject->ParkNotice('error', lang('failure'));
     }

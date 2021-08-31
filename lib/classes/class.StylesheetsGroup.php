@@ -21,11 +21,14 @@ If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS;
 
 use CMSMS\AdminUtils;
-use CMSMS\AppSingle;
 use CMSMS\Database\Connection;
-use CMSMS\SQLErrorException;
+use CMSMS\DataException;
+use CMSMS\Lock;
+use CMSMS\SingleItem;
+use CMSMS\SQLException;
 use CMSMS\StylesheetOperations;
 use LogicException;
+use UnexpectedValueException;
 use const CMS_DB_PREFIX;
 use function audit;
 use function cms_to_stamp;
@@ -67,7 +70,7 @@ class StylesheetsGroup
 	 */
 	protected $_members = [];
 
-	// static properties here >> StaticProperties class ?
+	// static properties here >> SingleItem property|ies ?
 	/**
 	 * @ignore
 	 */
@@ -110,15 +113,15 @@ class StylesheetsGroup
 	 *
 	 * The group name must be unique, and can only contain certain characters.
 	 *
-	 * @throws LogicException or DataException
 	 * @param sting $str The stylesheets-group name. Valid per AdminUtils::is_valid_itemname()
+	 * @throws DataException or UnexpectedValueException
 	 */
 	public function set_name(string $str)
 	{
 		$str = trim($str);
-		if( !$str ) throw new LogicException('Name cannot be empty');
+		if( !$str ) throw new DataException('Name cannot be empty');
 		if( !AdminUtils::is_valid_itemname($str) ) {
-			throw new DataException('Invalid characters in name');
+			throw new UnexpectedValueException('Invalid characters in name');
 		}
 		$this->_data['name'] = $str;
 		$this->_dirty = true;
@@ -191,9 +194,9 @@ class StylesheetsGroup
 
 		$out = [];
 		if( $by_name ) {
-			$db = AppSingle::Db();
+			$db = SingleItem::Db();
 			$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE id IN ('.implode(',',$this->_members).')';
-			$dbr = $db->GetAssoc($query);
+			$dbr = $db->getAssoc($query);
 			foreach( $this->_members as $id ) {
 				$out[$id] = $dbr[$id] ?? '<Missing Stylesheet>';
 			}
@@ -222,8 +225,8 @@ class StylesheetsGroup
 				}
 				else {
 					$query = 'SELECT id,name FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE name IN ('.str_repeat('?,',count($a)-1).'?)';
-					$db = AppSingle::Db();
-					$dbr = $db->GetAssoc($query,[$a]);
+					$db = SingleItem::Db();
+					$dbr = $db->getAssoc($query,[$a]);
 					if( $dbr ) {
 						$ids = [];
 						foreach( $a as $name ) {
@@ -238,8 +241,8 @@ class StylesheetsGroup
 			}
 			else {
 				$query = 'SELECT id FROM '.CMS_DB_PREFIX.StylesheetOperations::TABLENAME.' WHERE name = ?';
-				$db = AppSingle::Db();
-				$id = $db->GetOne($query,[$a]);
+				$db = SingleItem::Db();
+				$id = $db->getOne($query,[$a]);
 				if( $id ) return [$id];
 			}
 		}
@@ -356,27 +359,27 @@ class StylesheetsGroup
 	/**
 	 * Validate the properties of this object
 	 * Unique valid name when inserting
-	 * @throws LogicException or DataException
+	 * @throws DataException or UnexpectedValueException or LogicException
 	 */
 	protected function validate()
 	{
 		$name = $this->get_name();
 		if( !$name ) {
-			throw new LogicException('A stylesheets group must have a name');
+			throw new DataException('A stylesheets group must have a name');
 		}
 		if( !AdminUtils::is_valid_itemname($name) ) {
-			throw new DataException('Name may contain only letters, numbers and/or these \'_ /+-,.\'.');
+			throw new UnexpectedValueException('Name may contain only letters, numbers and/or these \'_ /+-,.\'.');
 		}
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$gid = $this->get_id();
 		if( $gid > 0 ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
-			$dbr = $db->GetOne($query,[$name,$gid]);
+			$dbr = $db->getOne($query,[$name,$gid]);
 		}
 		else {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
-			$dbr = $db->GetOne($query,[$name]);
+			$dbr = $db->getOne($query,[$name]);
 		}
 		if( $dbr ) {
 			throw new LogicException('A stylesheets group with the same name already exists');
@@ -395,13 +398,13 @@ class StylesheetsGroup
 		if( !$gid ) return;
 
 		if( !$insert ) {
-			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id='.$gid);
+			$db->execute('DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id='.$gid);
 		}
 		if( $this->_members ) {
 			$o = 1;
-			$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.self::MEMBERSTABLE.' (group_id,css_id,item_order) VALUES (?,?,?)');
+			$stmt = $db->prepare('INSERT INTO '.CMS_DB_PREFIX.self::MEMBERSTABLE.' (group_id,css_id,item_order) VALUES (?,?,?)');
 			foreach( $this->_members as $id ) {
-				$db->Execute($stmt,[$gid,$id,$o++]);
+				$db->execute($stmt,[$gid,$id,$o++]);
 			}
 			$stmt->close();
 		}
@@ -415,14 +418,14 @@ class StylesheetsGroup
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description) VALUES (?,?)';
-		$dbr = $db->Execute($query,[
+		$dbr = $db->execute($query,[
 			$this->get_name(),
 			$this->get_description(),
 		]);
 		if( !$dbr ) {
-			throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+			throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		}
 		$gid = $this->_data['id'] = $db->Insert_ID();
 		$this->save_members($db,true);
@@ -438,9 +441,9 @@ class StylesheetsGroup
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ? WHERE id = ?';
-		$db->Execute($query,[
+		$db->execute($query,[
 			$this->get_name(),
 			$this->get_description(),
 			(int)$this->get_id()
@@ -452,7 +455,7 @@ class StylesheetsGroup
 
 	/**
 	 * Save this object to the database
-	 * @throws SQLErrorException or DataException
+	 * @throws SQLException or DataException
 	 */
 	public function save()
 	{
@@ -468,19 +471,19 @@ class StylesheetsGroup
 	 * This method will delete the object from the database, and erase the id value
 	 * from this object, suitable for re-saving
 	 *
-	 * @throw SQLErrorException
+	 * @throw SQLException
 	 */
 	public function delete()
 	{
 		$gid = $this->get_id();
 		if( !$gid ) return;
 
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-		$dbr = $db->Execute($query,[$gid]);
-		if( !$dbr ) throw new SQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		$dbr = $db->execute($query,[$gid]);
+		if( !$dbr ) throw new SQLException($db->sql.' -- '.$db->errorMsg());
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id = ?';
-		$db->Execute($query,[$gid]);
+		$db->execute($query,[$gid]);
 
 		audit($gid,'CMSMS','Stylesheets group deleted');
 		unset($this->_data['id']);
@@ -496,18 +499,18 @@ class StylesheetsGroup
 	 */
 	public static function load($val) : self
 	{
-		$db = AppSingle::Db();
+		$db = SingleItem::Db();
 		if( is_numeric($val) && $val > 0 ) {
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-			$row = $db->GetRow($query,[(int)$val]);
+			$row = $db->getRow($query,[(int)$val]);
 		}
 		else {
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
-			$row = $db->GetRow($query,[$val]);
+			$row = $db->getRow($query,[$val]);
 		}
 		if( $row ) {
 			$query = 'SELECT css_id FROM '.CMS_DB_PREFIX.self::MEMBERSTABLE.' WHERE group_id=? ORDER BY item_order';
-			$dbr = $db->GetCol($query,[$row['id']]);
+			$dbr = $db->getCol($query,[$row['id']]);
 			$ob = new self();
 			$ob->set_properties($row);
 			$ob->set_members($dbr);
