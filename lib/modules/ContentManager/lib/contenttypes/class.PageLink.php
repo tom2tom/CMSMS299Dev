@@ -45,7 +45,7 @@ class PageLink extends ContentBase
 	public function IsCopyable() { return true; }
 	public function IsViewable() { return false; }
 
-// calguy1000: commented this out so that this page can be seen in cms_selflink
+// Robert Campbell: commented this out so that this page can be seen in cms_selflink
 // but not sure what it's gonna mess up.
 //	public function HasUsableLink() { return false; }
 

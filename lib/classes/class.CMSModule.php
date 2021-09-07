@@ -1454,7 +1454,7 @@ abstract class CMSModule
     public function get_cli_commands($app)
     {
         $config = SingleItem::Config();
-        //TODO discuss with calguy: better approach for this stuff
+        //TODO a better approach for this stuff
         if( !$config['app_mode'] ) return null;
         if( ! $app instanceof CMSMS\CLI\App ) return null;
         if( !class_exists('CMSMS\CLI\GetOptExt\Command') ) return null;
