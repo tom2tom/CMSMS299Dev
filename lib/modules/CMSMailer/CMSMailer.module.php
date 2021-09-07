@@ -35,7 +35,7 @@ class CMSMailer extends CMSModule
     public $platformed = false; // const: whether to support some mass-mailers like MailChimp
 
     public function GetAuthor() { return 'Robert Campbell'; }
-    public function GetAuthorEmail() { return 'calguy1000@gmail.com'; }
+    public function GetAuthorEmail() { return ''; }
     public function GetAdminDescription() { return $this->Lang('publictip'); }
     public function GetAdminSection() { return 'extensions'; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }

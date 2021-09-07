@@ -26,7 +26,7 @@ use CMSMS\AdminMenuItem;
 final class DesignManager extends CMSModule
 {
     public function GetAuthor() { return 'Robert Campbell'; }
-    public function GetAuthorEmail() { return 'calguy1000@hotmail.com'; }
+    public function GetAuthorEmail() { return ''; }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'layout'; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }

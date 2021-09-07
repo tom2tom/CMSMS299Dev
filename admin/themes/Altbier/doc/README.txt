@@ -2,7 +2,7 @@ Altbier - an admin theme for CMS Made Simple
 
 Derived by JohhnnyB from the OneEleven theme by
  Goran Ilic (ja@ich-mach-das.at) http://dev.cmsmadesimple.org/users/uniqu3
- Robert Campbell (calguy1000@cmsmadesimple.org)
+ Robert Campbell
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

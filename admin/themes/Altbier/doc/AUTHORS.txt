@@ -4,7 +4,7 @@ AUTHORS
 - ALL CMS Made Simple Dev Team Members participating in the 2017/2018 theme updates!
 - John Beatrice <johnnyb [AT] cmsmadesimple [DOT] org>
 - Goran ilic <uniqu3e [AT] cmsmadesimple [DOT] org>
-- Robert Campbell <calguy1000 [AT] cmsmadesimple [DOT] org>
+- Robert Campbell
 
 THANKS
 --------------------------------------
@@ -27,7 +27,7 @@ http://getbootstrap.com/docs/4.0/about/license/
 
 ************************************
 
-- jQuery Team 
+- jQuery Team
 for Providing amazing Frameworks
 https://jquery.org/license/
 
@@ -35,11 +35,11 @@ https://jquery.org/license/
 
 Honorable Mentions
 ************************************
-(This set is being phased out with a few exceptions. 
+(This set is being phased out with a few exceptions.
 It is DEPRECATED for this Admin Theme release).
 
 - Yusuke Kamiyamane http://p.yusukekamiyamane.com/
- 
+
 for creating great Fugue Iconset used as system icons
 
 Fugue Icons
@@ -56,10 +56,10 @@ suggestions are always welcome!
 
 *************************************
 
-(This set may be completely phased out with a few exceptions. 
+(This set may be completely phased out with a few exceptions.
 It is DEPRECATED for this Admin Theme release).
 - Mark James http://www.famfamfam.com/lab/icons/silk/
-for Silk Icons set 
+for Silk Icons set
 
 Creative Commons Attribution 2.5 License.
 http://creativecommons.org/licenses/by/2.5/

@@ -37,7 +37,7 @@ class ModuleManager extends CMSModule
     public function GetAdminDescription() { return $this->Lang('admindescription'); }
     public function GetAdminSection() { return 'siteadmin'; }
     public function GetAuthor() { return 'Robert Campbell'; }
-    public function GetAuthorEmail() { return 'calguy1000@hotmail.com'; }
+    public function GetAuthorEmail() { return ''; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp() { return $this->Lang('help'); }
