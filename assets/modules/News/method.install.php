@@ -219,28 +219,6 @@ catch( Throwable $t ) {
     }
 }
 
-if( $newsite ) {
-    $extras = [];
-    try {
-        // And Simplex theme sample summary template
-        $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Summary_Simplex_template.tpl';
-        if( is_file( $fn ) ) {
-            $content = @file_get_contents($fn);
-            $tpl = new Template();
-            $tpl->set_originator($me);
-            $tpl->set_name('Simplex News Summary');
-            $tpl->set_owner($uid);
-            $tpl->set_content($content);
-            $tpl->set_type($type);
-            $tpl->save();
-            $extras[] = $tpl->get_id();
-        }
-    }
-    catch( Throwable $t ) {
-        return $t->getMessage();
-    }
-}
-
 try {
     // Setup detail templates type
     $type = new TemplateType();
@@ -288,87 +266,8 @@ catch( Throwable $t ) {
     }
 }
 
-if( $newsite ) {
-    try {
-        // And Simplex theme sample detail template
-        $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Detail_template.tpl';
-        if( is_file( $fn ) ) {
-            $content = @file_get_contents($fn);
-            $tpl = new Template();
-            $tpl->set_originator($me);
-            $tpl->set_name('Simplex News Detail');
-            $tpl->set_owner($uid);
-            $tpl->set_content($content);
-            $tpl->set_type($type);
-            $tpl->save();
-            $extras[] = $tpl->get_id();
-        }
-    }
-    catch( Throwable $t ) {
-        return $t->getMessage();
-    }
-
-    if( $extras ) {
-        try {
-            $ob = TemplatesGroup::load('Simplex');
-            $ob->add_members($extras);
-            $ob->save();
-        }
-        catch( Throwable $t) {
-            //if modules are installed before demo content, that group won't yet exist
-        }
-    }
-}
-/*
 try {
-    // Setup form template type
-    $type = new TemplateType();
-    $type->set_originator($me);
-    $type->set_name('form');
-    $type->set_dflt_flag(TRUE);
-    $type->set_lang_callback('News::page_type_lang_callback');
-    $type->set_content_callback('News::reset_page_type_defaults');
-    $type->reset_content_to_factory();
-    $type->set_help_callback('News::template_help_callback');
-    $type->save();
-}
-catch( Throwable $t ) {
-    if( $newsite) {
-        return $t->getMessage();
-    }
-    else {
-        debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
-        audit('',$me,'Installation error: '.$t->getMessage());
-    }
-}
-
-try {
-    // And type-default template
-    $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_form_template.tpl';
-    if( is_file( $fn ) ) {
-        $content = @file_get_contents($fn);
-        $tpl = new Template();
-        $tpl->set_originator($me);
-        $tpl->set_name('News FEsubmit Form Sample');
-        $tpl->set_owner($uid);
-        $tpl->set_content($content);
-        $tpl->set_type($type);
-        $tpl->set_type_dflt(TRUE);
-        $tpl->save();
-    }
-}
-catch( Throwable $t ) {
-    if( $newsite) {
-        return $t->getMessage();
-    }
-    else {
-        debug_to_log(__FILE__.':'.__LINE__.' '.$t->getMessage());
-        audit('',$me,'Installation error: '.$t->getMessage());
-    }
-}
-*/
-try {
-    // Setup browsecat template type
+    // And browsecat templates type
     $type = new TemplateType();
     $type->set_originator($me);
     $type->set_name('browsecat');
@@ -414,10 +313,6 @@ catch( Throwable $t ) {
         audit('',$me,'Installation error: '.$t->getMessage());
     }
 }
-
-// Default email template and email preferences
-//$this->SetPreference('email_subject',$this->Lang('subject_newnews'));
-//$this->SetTemplate('email_template',$this->GetDfltEmailTemplate());
 
 // Other preferences
 //$this->SetPreference('allowed_upload_types','gif,png,jpeg,jpg');

@@ -108,38 +108,6 @@ try {
     $tpl->set_type_dflt(TRUE);
     $tpl->save();
 
-    if ($newsite) { //TODO also test for demonstration content installation
-        // setup Simplex theme search form template
-        try {
-            $fn = (__DIR__).DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Search_template.tpl';
-            if (is_file( $fn)) {
-                $template = @file_get_contents($fn);
-                $tpl = new Template();
-                $tpl->set_originator($me);
-                $tpl->set_name('Simplex Search');
-                $tpl->set_owner($userid);
-                $tpl->set_content($template);
-                $tpl->set_type($form_type);
-                $tpl->save();
-
-                $id = $tpl->get_id();
-                try {
-                    $ob = TemplatesGroup::load('Simplex');
-                    $ob->add_members([$id]);
-                    $ob->save();
-                } catch( Throwable $t) {
-                    //if modules are installed before demo content, that group won't yet exist
-                }
-            }
-        } catch( Throwable $t) {
-            if ($newsite) {
-                return $t->GetMessage();
-            } else {
-                audit('', $me, 'Installation error: '.$t->GetMessage());
-            }
-        }
-    }
-
     $results_type = new TemplateType();
     $results_type->set_originator($me);
     $results_type->set_name('searchresults');

@@ -2812,6 +2812,258 @@ a {
 			<listable>1</listable>
 			<contentfile>1</contentfile>
 		</template>
+		<template>
+			<id>20</id>
+			<originator>__CORE__</originator>
+			<name>Simplex_Main_Navigation</name>
+			<content><![CDATA[{strip}
+{$main_id = ' id=\'main-menu\''}
+{function do_class}
+    {if count($classes) > 0} class='{implode(' ',$classes)}'{/if}
+{/function}
+
+{function name='Simplex_menu' depth='1'}
+    <ul{$main_id}{if isset($ul_class) && $ul_class != ''} class="{$ul_class}"{/if}>
+        {$main_id = ''}
+        {$ul_class = ''}
+        {foreach $data as $node}
+            {* setup classes for the anchor and list item *}
+            {$list_class = []}
+            {$href_class = ['cf']}
+            {$parent_indicator = ''}
+            {$aria_support = ''}
+    
+            {if $node->current || $node->parent}
+                {* this is the current page *}
+                {$list_class[] = 'current'}
+                {$href_class[] = 'current'}
+            {/if}
+    
+            {if $node->children_exist}
+                {$list_class[] = 'parent'}
+                {$aria_support = ' aria-haspopup=\'true\''}
+                {$parent_indicator = ' <i class=\'icon-arrow-left\' aria-hidden=\'true\'></i>'}
+            {/if}
+    
+            {* build the menu item node *}
+            {if $node->type == 'sectionheader'}
+                {$list_class[] = 'sectionheader'}
+                <li{do_class classes=$list_class}{$aria_support}><span>{$node->menutext}{$parent_indicator}</span>
+                {if isset($node->children)}
+                    {Simplex_menu data=$node->children depth=$depth+1}
+                {/if}
+                </li>
+            {else if $node->type == 'separator'}
+                {$list_class[] = 'separator'}
+                <li{do_class classes=$list_class}'><hr class='separator' /></li>
+            {else}
+                {* regular item *}
+                <li{do_class classes=$list_class}{$aria_support}>
+                    <a{do_class classes=$href_class} href='{$node->url}'{if $node->target != ''} target='{$node->target}'{/if}>{$node->menutext}{$parent_indicator}</a>
+                    {if isset($node->children)}
+                        {Simplex_menu data=$node->children depth=$depth+1}
+                    {/if}
+                </li>
+            {/if}
+        {/foreach}
+    </ul>
+{/function}
+
+{if isset($nodes)}
+    {Simplex_menu data=$nodes depth='0' ul_class='cf'}
+{/if}
+{/strip}]]></content>
+			<description></description>
+			<type_id></type_id>
+			<owner_id>1</owner_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
+		</template>
+		<template>
+			<id>21</id>
+			<originator>__CORE__</originator>
+			<name>Simplex_Footer_Navigation</name>
+			<content><![CDATA[{strip}
+{$main_id = ' id=\'footer-menu\''}
+{function do_footer_class}
+    {if count($classes) > 0} class='{implode(' ',$classes)}'{/if}
+{/function}
+
+{function name='Simplex_footer_menu' depth='1'}
+    <ul{$main_id}{if isset($ul_class) && $ul_class != ''} class="{$ul_class}"{/if}>
+        {$main_id = ''}
+        {$ul_class = ''}
+        {foreach $data as $node}
+            {* setup classes for the anchor and list item *}
+            {$list_class = []}
+            {$href_class = []}
+    
+            {if $node->current || $node->parent}
+                {* this is the current page *}
+                {$list_class[] = 'current'}
+                {$href_class[] = 'current'}
+            {/if}
+    
+            {if $node->children_exist}
+                {$list_class[] = 'parent'}
+            {/if}
+    
+            {* build the menu item node *}
+            {if $node->type == 'sectionheader'}
+                {$list_class[] = 'sectionheader'}
+                <li{do_footer_class classes=$list_class}><span>{$node->menutext}</span>
+                {if isset($node->children)}
+                    {Simplex_footer_menu data=$node->children depth=$depth+1}
+                {/if}
+                </li>
+            {else if $node->type == 'separator'}
+                {$list_class[] = 'separator'}
+                <li{do_footer_class classes=$list_class}'><hr class='separator' /></li>
+            {else}
+                {* regular item *}
+                <li{do_footer_class classes=$list_class}>
+                    <a{do_footer_class classes=$href_class} href='{$node->url}'{if $node->target != ''} target='{$node->target}'{/if}>{$node->menutext}</a>
+                    {if isset($node->children)}
+                        {Simplex_footer_menu data=$node->children depth=$depth+1}
+                    {/if}
+                </li>
+            {/if}
+        {/foreach}
+    </ul>
+{/function}
+
+{if isset($nodes)}
+    {Simplex_footer_menu data=$nodes depth='0' ul_class='cf'}
+{/if}
+{/strip}]]></content>
+			<description></description>
+			<type_id></type_id>
+			<owner_id>1</owner_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
+		</template>
+		<template>
+			<id>22</id>
+			<originator>__CORE__</originator>
+			<name>Simplex_NewsDetail_template</name>
+			<content><![CDATA[{* this is a sample detail template that works with the Simplex theme *}
+{* set a canonical variable that can be used in the head section if process_whole_template is false in the config.php *}
+{if isset($entry->canonical)}
+  {$canonical=$entry->canonical scope=global}
+  {$main_title=$entry->title scope=global}
+{/if}
+
+{* <h2>{$entry->title|cms_escape:'htmlall'}</h2> *}
+{if $entry->summary}{$entry->summary}{/if}
+{$entry->content}
+{if $entry->extra}{$extra_label} {$entry->extra}{/if}
+{if $return_url}
+<br />
+<span class='back'>&#8592; {$return_url}{if $category_name != ''} - {$category_link}{/if}</span>
+{/if}
+
+<footer class='news-meta'>
+ {if $entry->startdate}{$entry->startdate|cms_date_format}{/if}
+ {if $entry->category}<strong>{$category_label}</strong> {$entry->category}{/if}
+ {if $entry->author}<strong>{$author_label}</strong> {$entry->author}{/if}
+</footer>]]></content>
+			<description></description>
+			<type_id></type_id>
+			<owner_id>1</owner_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
+		</template>
+		<template>
+			<id>23</id>
+			<originator>__CORE__</originator>
+			<name>Simplex_NewsSummary_template</name>
+			<content><![CDATA[{strip}
+<!-- .news-summary wrapper -->
+<article class='news-summary'>
+<span class='heading'><span>News</span></span>
+        <ul class='category-list cf'>
+        {foreach $cats as $node}
+        {if $node.depth > $node.prevdepth}
+            {repeat string='<ul>' times=$node.depth-$node.prevdepth}
+        {elseif $node.depth < $node.prevdepth}
+            {repeat string='</li></ul>' times=$node.prevdepth-$node.depth}
+            </li>
+            {elseif $node.index > 0}</li>
+            {/if}
+            <li{if $node.index == 0} class='first'{/if}>
+        {if $node.count > 0}
+                <a href='{$node.url}'>{$node.news_category_name}</a>{else}<span>{$node.news_category_name} </span>{/if}
+        {/foreach}
+        {repeat string='</li></ul>' times=$node.depth-1}</li>
+        </ul>
+    {foreach $items as $entry}
+    <!-- .news-article (wrapping each article) -->
+    <section class='news-article'>
+        <header>
+            <h2><a href='{$entry->moreurl}' title='{$entry->title|cms_escape:'htmlall'}'>{$entry->title|cms_escape}</a></h2>
+            <div class='meta cf'>
+{*
+                <time class='date' datetime='{$entry->start|date_format:'%Y-%m-%d'}'>
+                    <span class='day'> {$entry->start|date_format:'%d'} </span>
+                    <span class='month'> {$entry->start|date_format:'%b'} </span>
+                </time>
+*}
+                <span class='author'> {$author_label} {$entry->author} </span>
+                <span class='category'> {$category_label} {$entry->category}</span>
+            </div>
+        </header>
+        {if $entry->summary}
+            <p>{$entry->summary|strip_tags}</p>
+            <span class='more'>{$entry->morelink} &#8594;</span>
+        {else if $entry->content}
+            <p>{$entry->content|strip_tags}</p>
+        {/if}
+    </section>
+    <!-- .news-article //-->
+    {/foreach}
+        <!-- news pagination -->
+        {if $pagecount > 1}
+        <span class='paginate'>
+            {if $pagenumber > 1}
+                {$firstpage}&nbsp;{$prevpage}
+            {/if}
+                {$pagetext}&nbsp;{$pagenumber}&nbsp;{$oftext}&nbsp;{$pagecount}
+            {if $pagenumber < $pagecount}
+                {$nextpage}&nbsp;{$lastpage}
+            {/if}
+        </span>
+        {/if}
+</article>
+<!-- .news-summary //-->
+{/strip}]]></content>
+			<description></description>
+			<type_id></type_id>
+			<owner_id>1</owner_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
+		</template>
+		<template>
+			<id>24</id>
+			<originator>__CORE__</originator>
+			<name>Simplex_Search_template</name>
+			<content><![CDATA[<div class="five-col search noprint" role="search">
+{form_start action=dosearch method=$form_method returnid=$destpage inline=$inline}
+  {if isset($hidden)}{$hidden}{/if}
+  <label for="{$search_actionid}searchinput" class="visuallyhidden">{$searchprompt}:</label>
+  <input type="search" class="search-input" id="{$search_actionid}searchinput" name="{$search_actionid}searchinput" size="20" maxlength="50" value="" placeholder="{$searchtext}" /><i class="icon-search" aria-hidden="true"></i>
+</form>
+</div>]]></content>
+			<description></description>
+			<type_id></type_id>
+			<owner_id>1</owner_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
+			<contentfile>0</contentfile>
+		</template>
 	</templates>
 	<designs>
 		<design>
