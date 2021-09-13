@@ -1,13 +1,13 @@
 <?php
 /*
-CMSMailer module savesettings method
+OutMailer module savesettings method
 Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-This file is part of CMS Made Simple module: CMSMailer.
-Refer to licence and other details at the top of file CMSMailer.module.php
-More info at http://dev.cmsmadesimple.org/projects/cmsmailer
+This file is part of CMS Made Simple module: OutMailer.
+Refer to licence and other details at the top of file OutMailer.module.php
+More info at http://dev.cmsmadesimple.org/projects/outmailer
 */
 
-use CMSMailer\PrefCrypter;
+use OutMailer\PrefCrypter;
 use function CMSMS\de_specialize;
 
 if (isset($params['masterpass'])) {
@@ -27,7 +27,7 @@ if (isset($params['masterpass'])) {
         $this->SetPreference('password', $val);
 
         if ($this->platformed) {
-        $sql = 'SELECT id,value,encvalue FROM '.CMS_DB_PREFIX.'module_cmsmailer_props WHERE encrypt>0';
+        $sql = 'SELECT id,value,encvalue FROM '.CMS_DB_PREFIX.'module_outmailer_props WHERE encrypt>0';
         $rows = $db->getArray($sql);
         if ($rows) {
             if ($newpw) {
@@ -39,7 +39,7 @@ if (isset($params['masterpass'])) {
                 $notfield = 'encvalue';
                 $encval = 0;
             }
-            $sql = 'UPDATE '.CMS_DB_PREFIX.'module_cmsmailer_props SET '.$tofield.'=?,'.$notfield.'=NULL,encrypt=? WHERE id=?';
+            $sql = 'UPDATE '.CMS_DB_PREFIX.'module_outmailer_props SET '.$tofield.'=?,'.$notfield.'=NULL,encrypt=? WHERE id=?';
             foreach ($rows as &$onerow) {
                 if ($oldpw) {
                     $raw = ($onerow['encvalue']) ?

@@ -1,16 +1,16 @@
 <?php
 /*
-CMSMailer module default (en_US) strings translation
+OutMailer module default (en_US) strings translation
 Copyright (C) 2004-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
-This file is a component of CMS Made Simple module CMSMailer.
+This file is a component of CMS Made Simple module OutMailer.
 
-This CMSMailer module is free software; you may redistribute it and/or modify
+This OutMailer module is free software; you may redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
 by the Free Software Foundation; either version 3 of that license, or
 (at your option) any later version.
 
-This CMSMailer module is distributed in the hope that it will be useful,
+This OutMailer module is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU Affero General Public License for more details.
@@ -51,7 +51,7 @@ EOS
  'confirm_property' => 'Are you sure about removing those property(ies)?',
  'confirm_sendtestmail' => 'Are you sure?', //TODO better prompt
  'confirm_settings' => 'Are you sure about saving the values entered here?',
- 'confirm_uninstall' => 'Are you sure about removing the CMSMailer module?',
+ 'confirm_uninstall' => 'Are you sure about removing the OutMailer module?',
  'core' => 'Core',
  'days_1' => '1 Day',
  'days_counted' => '%s Days',
@@ -78,8 +78,8 @@ EOS
  // 'info_batchgap' => 'Select the length of time to "pause" between sending batches of messages',
  // 'info_batchsize' => 'Enter the default maximum number of messages to be sent in a single batch, when batch-sending is used. A value of 0 will mean that no maximum applies.',
  'info_charset' => 'Also known as encoding, this will be used to indicate to the email reader-application how to interpret the non-ASCII characters in the message. Common values are "UTF-8" and "ISO-8859".',
- 'info_cmsmailer1' => 'Use information provided by the website host organisation to tailor these settings.',
- 'info_cmsmailer2' => 'If the test message is not received, you should check/update the email settings, and if appropriate, contact the site host organisation, for further assistance.',
+ 'info_outmailer1' => 'Use information provided by the website host organisation to tailor these settings.',
+ 'info_outmailer2' => 'If the test message is not received, you should check/update the email settings, and if appropriate, contact the site host organisation, for further assistance.',
  'info_desc' => 'TODO',
  'info_dnd' => 'You can change parameters\' order by dragging row(s).',
  'info_enabled' => 'Check this to enable this platform (whether or not it&apos;s the default)',
@@ -115,8 +115,8 @@ EOS
  'password' => 'Password',
  'operation' => 'Operation', // tab title
  'port' => 'Port',
- 'postinstall' => 'CMSMailer module was successfully installed. Remember: appropriate settings must be recorded, before sending mail.',
- 'postuninstall' => 'CMSMailer module was un-installed',
+ 'postinstall' => 'The OutMailer module was successfully installed. Remember: appropriate settings must be recorded, before sending email.',
+ 'postuninstall' => 'The OutMailer module was un-installed',
  'publicname' => 'Email Sender',
  'publictip' => 'Settings for sending email initiated from this website',
  'secure' => 'Encryption Method',

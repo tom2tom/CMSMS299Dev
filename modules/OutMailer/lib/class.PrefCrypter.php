@@ -1,23 +1,23 @@
 <?php
 /*
-Class for processing crypted preferences related to the CMSMailer module
+Class for processing crypted preferences related to the OutMailer module
 Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
-This file is a component of CMS Made Simple module CMSMailer.
+This file is a component of CMS Made Simple module OutMailer.
 
-This CMSMailer module is free software; you may redistribute it and/or
+This OutMailer module is free software; you may redistribute it and/or
 modify it under the terms of the GNU Affero General Public License as
 published by the Free Software Foundation; either version 3 of that license,
 or (at your option) any later version.
 
-This CMSMailer module is distributed in the hope that it will be useful,
+This OutMailer module is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU Affero General Public License
 <http://www.gnu.org/licenses/licenses.html#AGPL> for more details.
 */
-namespace CMSMailer;
+namespace OutMailer;
 
 use CMSMS\Crypto;
 use function get_module_param;
@@ -118,7 +118,7 @@ class PrefCrypter
     /**
      * Remove an encrypted preference
      *
-     * @param object $mod CMSMailer module object
+     * @param object $mod OutMailer module object
      * @param string $key module-preferences key
      */
     public static function remove_preference($mod, string $key)

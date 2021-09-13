@@ -1,6 +1,6 @@
 <?php
 /*
-CMSMailer module: send email via intra-site mechanism or external platform.
+OutMailer module: send email via intra-site mechanism or external platform.
 Copyright (C) 2008-2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 
@@ -26,11 +26,15 @@ use CMSMS\HookOperations;
 
 if (!extension_loaded('mbstring'))
 {
-    echo '<h1 style="color:red;">ERROR: PHP&quot;s "Multibyte String" extension is required by the mailer class in the CMSMailer module</h1>';
+    echo '<h1 style="color:red;">ERROR: PHP&quot;s "Multibyte String" extension is required by the mailer class in the OutMailer module</h1>';
     return;
 }
 
-class CMSMailer extends CMSModule
+/**
+ * @since 2.99
+ * Formerly OutMailer module & class
+ */
+class OutMailer extends CMSModule
 {
     public $platformed = false; // const: whether to support some mass-mailers like MailChimp
 
@@ -41,6 +45,7 @@ class CMSMailer extends CMSModule
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm'); }
     public function GetFriendlyName() { return $this->Lang('publicname'); }
     public function GetHelp() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'modhelp.htm'); }
+    public function GetName() { return 'OutMailer'; }
     public function GetVersion() { return '6.3'; }
     public function HasAdmin() { return true; }
     public function IsAdminOnly() { return true; }
@@ -112,3 +117,5 @@ class CMSMailer extends CMSModule
         ];
     }
 }
+
+\class_alias(OutMailer::class, 'OutMailer', false);

@@ -11,7 +11,7 @@
 {tab_header name='settings' label=$mod->Lang('module') active=$tab}
 {/if}
 {tab_start name='internal'}
-<p class="pageinfo">{$mod->Lang('info_cmsmailer1')}</p>
+<p class="pageinfo">{$mod->Lang('info_outmailer1')}</p>
 {$startform}
   {foreach $extraparms as $key => $val}<input type="hidden" name="{$actionid}{$key}" value="{$val}" />
 {/foreach}
@@ -214,7 +214,7 @@
       <div class="pregap">
         <button type="submit" name="{$actionid}sendtest" class="adminsubmit icon do">{$mod->Lang('sendtest')}</button>
       </div>
-      <p class="pageinfo">{$mod->Lang('info_cmsmailer2')}</p>
+      <p class="pageinfo">{$mod->Lang('info_outmailer2')}</p>
     </div>
   </div>
 </form>

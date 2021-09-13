@@ -1,13 +1,13 @@
 <?php
 /*
-This file is part of CMS Made Simple module: CMSMailer
+This file is part of CMS Made Simple module: OutMailer
 Copyright (C) 2021 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Refer to licence and other details at the top of file CMSMailer.module.php
-More info at http://dev.cmsmadesimple.org/projects/cmsmailer
+Refer to licence and other details at the top of file OutMailer.module.php
+More info at http://dev.cmsmadesimple.org/projects/outmailer
 */
-namespace CMSMailer;
+namespace OutMailer;
 
-//use CMSMailer; module object in global namespace
+//use OutMailer; module object in global namespace
 //use CMSMS\Utils as AppUtils;
 //use function cms_join_path;
 //use CMSMS\Crypto;
@@ -19,24 +19,24 @@ class Utils
 /* only if supporting mail platforms e.g. if($mod->platformed)
     /* *
      *
-     * @param mixed $mod optional CMSMailer module instance
+     * @param mixed $mod optional OutMailer module instance
      * @return array maybe empty
      * /
     public static function get_platforms_full($mod = null) : array
     {
         $db = cmsms()->GetDb();
-        $aliases = $db->getCol('SELECT alias FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE enabled>0');
+        $aliases = $db->getCol('SELECT alias FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE enabled>0');
         if (!$aliases) {
             return [];
         }
         $bp = cms_join_path(__DIR__, 'platforms', '');
         if ($mod === null) {
-            $mod = AppUtils::get_module('CMSMailer');
+            $mod = AppUtils::get_module('OutMailer');
         }
         $objs = [];
         foreach ($aliases as $one) {
             $classname = $one.'_platform';
-            $spaced = 'CMSMailer\platforms\\'.$classname;
+            $spaced = 'OutMailer\platforms\\'.$classname;
             if (!class_exists($spaced)) {
                 include $bp.'class.'.$classname.'.php';
             }
@@ -50,24 +50,24 @@ class Utils
     /* *
      *
      * @param bool $title optional flag default false
-     * @param mixed $mod optional CMSMailer module instance
+     * @param mixed $mod optional OutMailer module instance
      * @return mixed platform class | null
      * /
     public static function get_platform(bool $title = false, $mod = null)
     {
         $db = cmsms()->GetDb();
         $alias = ($title) ?
-            $db->getOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE title=? AND enabled>0', [$title]) :
-            $db->getOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE active>0 AND enabled>0');
+            $db->getOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE title=? AND enabled>0', [$title]) :
+            $db->getOne('SELECT alias FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE active>0 AND enabled>0');
         if ($alias) {
             $classname = $alias.'_platform';
-            $spaced = 'CMSMailer\platforms\\'.$classname;
+            $spaced = 'OutMailer\platforms\\'.$classname;
             if (!class_exists($spaced)) {
                 $fn = cms_join_path(__DIR__, 'platforms', 'class.'.$classname.'.php');
                 require $fn;
             }
             if ($mod === null) {
-                $mod = AppUtils::get_module('CMSMailer');
+                $mod = AppUtils::get_module('OutMailer');
             }
             $obj = new $spaced($mod);
             if ($obj) {
@@ -79,13 +79,13 @@ class Utils
 
     /* *
      *
-     * @param $mod CMSMailer module instance
+     * @param $mod OutMailer module instance
      * @param string $classname
      * @return bool
      * /
     public static function setgate_full($mod, string $classname) : bool
     {
-        $spaced = 'CMSMailer\platforms\\'.$classname;
+        $spaced = 'OutMailer\platforms\\'.$classname;
         if (!class_exists($spaced)) {
             $fn = cms_join_path(__DIR__, 'platforms', 'class.'.$classname.'.php');
             if (is_file($fn)) {
@@ -123,15 +123,15 @@ class Utils
 
         $db = cmsms()->GetDb();
         //upsert, sort-of
-        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE alias=?';
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE alias=?';
         $gid = $db->getOne($sql, [$alias]);
         if (!$gid) {
-            $sql = 'INSERT INTO '.CMS_DB_PREFIX.'module_cmsmailer_platforms (alias,title,description) VALUES (?,?,?)';
+            $sql = 'INSERT INTO '.CMS_DB_PREFIX.'module_outmailer_platforms (alias,title,description) VALUES (?,?,?)';
             $db->execute($sql, [$alias, $title, $desc]);
             $gid = $db->Insert_ID();
         } else {
             $gid = (int)$gid;
-            $sql = 'UPDATE '.CMS_DB_PREFIX.'module_cmsmailer_platforms SET title=?,description=? WHERE id=?';
+            $sql = 'UPDATE '.CMS_DB_PREFIX.'module_outmailer_platforms SET title=?,description=? WHERE id=?';
             $db->execute($sql, [$title, $desc, $gid]);
         }
         return $gid;
@@ -139,7 +139,7 @@ class Utils
 
     /* *
      *
-     * @param $mod CMSMailer module instance
+     * @param $mod OutMailer module instance
      * /
     public static function refresh_platforms($mod)
     {
@@ -149,12 +149,12 @@ class Utils
             return;
         }
         $db = cmsms()->GetDb();
-        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE alias=?';
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE alias=?';
         $found = [];
         foreach ($files as &$one) {
             include_once $one;
             $classname = str_replace([$bp, 'class.', '.php'], ['', '', ''], $one);
-            $spaced = 'CMSMailer\platforms\\'.$classname;
+            $spaced = 'OutMailer\platforms\\'.$classname;
             $obj = new $spaced($mod);
             $alias = $obj->get_alias();
             $res = $db->getOne($sql, [$alias]);
@@ -166,9 +166,9 @@ class Utils
         unset($one);
 
         $fillers = implode(',', $found);
-        $sql = 'DELETE FROM '.CMS_DB_PREFIX.'module_cmsmailer_platforms WHERE id NOT IN ('.$fillers.')';
+        $sql = 'DELETE FROM '.CMS_DB_PREFIX.'module_outmailer_platforms WHERE id NOT IN ('.$fillers.')';
         $db->execute($sql);
-        $sql = 'DELETE FROM '.CMS_DB_PREFIX.'module_cmsmailer_props WHERE gate_id NOT IN ('.$fillers.')';
+        $sql = 'DELETE FROM '.CMS_DB_PREFIX.'module_outmailer_props WHERE gate_id NOT IN ('.$fillers.')';
         $db->execute($sql);
     }
 
@@ -185,15 +185,15 @@ class Utils
         //upsert, sort-of
         //NOTE new parameters added with apiname 'todo' & signature NULL
         $sql1 = <<<EOS
-UPDATE {$pref}module_cmsmailer_props SET title=?,value=?,encvalue=?,
+UPDATE {$pref}module_outmailer_props SET title=?,value=?,encvalue=?,
 signature = CASE WHEN signature IS NULL THEN ? ELSE signature END,
 encrypt=?,apiorder=? WHERE gate_id=? AND apiname=?
 EOS;
        	//just in case (platform_id,apiname) is not unique-indexed by the db
         $sql2 = <<<EOS
-INSERT INTO {$pref}module_cmsmailer_props (platform_id,title,value,encvalue,apiname,signature,encrypt,apiorder)
+INSERT INTO {$pref}module_outmailer_props (platform_id,title,value,encvalue,apiname,signature,encrypt,apiorder)
 SELECT ?,?,?,?,?,?,?,? FROM (SELECT 1 AS dmy) Z WHERE NOT EXISTS
-(SELECT 1 FROM {$pref}module_cmsmailer_props T1 WHERE T1.platform_id=? AND T1.apiname=?)
+(SELECT 1 FROM {$pref}module_outmailer_props T1 WHERE T1.platform_id=? AND T1.apiname=?)
 EOS;
 10 params needed
         $o = 1;
@@ -214,7 +214,7 @@ EOS;
 
     /* *
      *
-     * @param $mod CMSMailer module instance UNUSED
+     * @param $mod OutMailer module instance UNUSED
      * @param int $gid platform enumerator/id
      * @return array each key = signature-field value, each value = array with keys
      *   'apiname' and 'value' (for which the actual value is decrypted if relevant)
@@ -224,7 +224,7 @@ EOS;
         $pw = PrefCrypter::decrypt_preference(PrefCrypter::MKEY);
         $db = cmsms()->GetDb();
         $props = $db->getAssoc('SELECT signature,apiname,value,encvalue,encrypt FROM '.CMS_DB_PREFIX.
-         'module_cmsmailer_props WHERE gate_id=? AND enabled>0 ORDER BY apiorder',
+         'module_outmailer_props WHERE gate_id=? AND enabled>0 ORDER BY apiorder',
          [$gid]);
         foreach ($props as &$row) {
             if ($row['encrypt']) {
@@ -240,7 +240,7 @@ EOS;
 */
     /**
      *
-     * @param $mod CMSMailer module instance
+     * @param $mod OutMailer module instance
      * @return string, delivery-reports URL, accesses the 'devreport' action of this module
      */
     public static function get_reporturl($mod) : string
@@ -262,7 +262,7 @@ EOS;
     /**
      * @param type $mod
      * @param $parms (if it exists) is either a Lang key or one of the
-     *  CMSMailer\base_email_platform::STAT_* constants
+     *  OutMailer\base_email_platform::STAT_* constants
      * @return string
      */
     public static function get_msg($mod, ...$parms) : string
@@ -303,10 +303,10 @@ EOS;
         return $ip;
     }
 /*
-  public static function log_send($ip_address, $mobile, $msg, $statuCMSMailer = '')
+  public static function log_send($ip_address, $mobile, $msg, $statuOutMailer = '')
     {
         $db = cmsms()->GetDb();
-        $sql = 'INSERT INTO '.CMS_DB_PREFIX.'module_cmsmailer_sent (mobile,ip,msg,sdate) VALUES (?,?,?,NOW())';
+        $sql = 'INSERT INTO '.CMS_DB_PREFIX.'module_outmailer_sent (mobile,ip,msg,sdate) VALUES (?,?,?,NOW())';
         $db->execute($sql, [$mobile, $ip_address, $msg]);
     }
 
@@ -316,7 +316,7 @@ EOS;
             $time = time();
         }
         if ($mod === null) {
-            $mod = AppUtils::get_module('CMSMailer');
+            $mod = AppUtils::get_module('OutMailer');
         }
         $days = $mod->GetPreference('logdays', 1);
         if ($days < 1) {
@@ -326,10 +326,10 @@ EOS;
         $db = cmsms()->GetDb();
         if ($mod->GetPreference('logsends')) {
             $limit = $db->DbTimeStamp($time);
-            $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_cmsmailer_sent WHERE sdate<'.$limit);
+            $db->execute('DELETE FROM '.CMS_DB_PREFIX.'module_outmailer_sent WHERE sdate<'.$limit);
         }
-        $db->execute('DELETE FROM '.CMS_DB_PREFIX.'adminlog WHERE timestamp<? AND (item_id='.CMSMailer::AUDIT_SEND.
-        ' OR item_id = '.CMSMailer::AUDIT_DELIV.') AND item_name='.'CMSMailer', [$time]);
+        $db->execute('DELETE FROM '.CMS_DB_PREFIX.'adminlog WHERE timestamp<? AND (item_id='.OutMailer::AUDIT_SEND.
+        ' OR item_id = '.OutMailer::AUDIT_DELIV.') AND item_name='.'OutMailer', [$time]);
     }
 
     public static function ip_can_send(&$mod, $ip_address)
@@ -342,7 +342,7 @@ EOS;
         if ($limit > 0) {
             $date = $db->DbTimeStamp($t - 3600);
             $sql = 'SELECT COUNT(mobile) AS num FROM '.CMS_DB_PREFIX.
-             "module_cmsmailer_sent WHERE ip=? AND (sdate BETWEEN $date AND $longnow)";
+             "module_outmailer_sent WHERE ip=? AND (sdate BETWEEN $date AND $longnow)";
             $num = $db->getOne($sql, [$ip_address]);
             if ($num > $limit) {
                 return false;
@@ -352,7 +352,7 @@ EOS;
         if ($limit > 0) {
             $date = $db->DbTimeStamp($t - 24 * 3600);
             $sql = 'SELECT COUNT(mobile) AS num FROM '.CMS_DB_PREFIX.
-             "module_cmsmailer_sent WHERE ip=? AND (sdate BETWEEN $date AND $longnow)";
+             "module_outmailer_sent WHERE ip=? AND (sdate BETWEEN $date AND $longnow)";
             $num = $db->getOne($sql, [$ip_address]);
             if ($num > $limit) {
                 return false;
